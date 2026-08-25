@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from pathlib import Path
+import os
 
 from cmdrhelper.ui.system_view import SystemMapWidget
 from cmdrhelper.ui.body_detail_window import BodyDetailWindow
@@ -10,9 +11,16 @@ from cmdrhelper.online_services import (
     test_inara_connection,
 )
 from cmdrhelper.version import __version__
+from cmdrhelper.update import (
+    UpdateCheckWorker,
+    is_newer_version,
+    download_release,
+    launch_installer,
+)
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer, QThreadPool, QUrl
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
+from PySide6.QtGui import QDesktopServices
 
 from PySide6.QtWidgets import (
     QMainWindow,
@@ -45,6 +53,11 @@ class MainWindow(QMainWindow):
 
         self.state = state
         self.nav_buttons = []
+
+        self.update_thread_pool = QThreadPool.globalInstance()
+        self._update_check_running = False
+        self._update_notice_shown = False
+        self._update_worker = None
         self.ui_theme = str(
             self.state.settings.value(
                 "ui_theme",
@@ -63,6 +76,15 @@ class MainWindow(QMainWindow):
         )
 
         self.refresh_all()
+
+        # Updateprüfung bewusst leicht verzögert starten, damit das
+        # Hauptfenster zuerst vollständig erscheinen kann.
+        QTimer.singleShot(
+            1500,
+            lambda: self._check_for_updates(
+                automatic=True
+            )
+        )
 
     def _nav(self, text, idx):
         button = QPushButton(text)
@@ -1052,6 +1074,59 @@ class MainWindow(QMainWindow):
 
         self._refresh_database_status()
 
+        update_card, update_layout = self._card(
+            "UPDATE"
+        )
+
+        update_form = QFormLayout()
+
+        self.update_current_version = QLabel(
+            __version__
+        )
+        self.update_status_label = QLabel(
+            "Noch nicht geprüft",
+            objectName="muted"
+        )
+        self.update_status_label.setWordWrap(
+            True
+        )
+
+        update_form.addRow(
+            "Installierte Version:",
+            self.update_current_version
+        )
+        update_form.addRow(
+            "GitHub-Status:",
+            self.update_status_label
+        )
+
+        update_layout.addLayout(
+            update_form
+        )
+
+        update_row = QHBoxLayout()
+
+        self.update_check_button = QPushButton(
+            "Jetzt prüfen"
+        )
+        self.update_check_button.clicked.connect(
+            lambda: self._check_for_updates(
+                automatic=False
+            )
+        )
+        update_row.addWidget(
+            self.update_check_button
+        )
+        update_row.addStretch()
+
+        update_layout.addLayout(
+            update_row
+        )
+
+        layout.addWidget(
+            update_card
+        )
+
         ui_card, ui_layout = self._card("OBERFLÄCHE")
 
         theme_row = QHBoxLayout()
@@ -1202,6 +1277,315 @@ class MainWindow(QMainWindow):
             "Datenbank",
             message
         )
+
+    def _release_update_worker(self):
+        self._update_worker = None
+
+    def _set_update_status(
+        self,
+        text,
+        ok=None,
+    ):
+        if not hasattr(
+            self,
+            "update_status_label"
+        ):
+            return
+
+        self.update_status_label.setText(
+            str(text)
+        )
+
+        if ok is True:
+            self.update_status_label.setObjectName(
+                "statusOk"
+            )
+        elif ok is False:
+            self.update_status_label.setObjectName(
+                "statusWarn"
+            )
+        else:
+            self.update_status_label.setObjectName(
+                "muted"
+            )
+
+        self.update_status_label.style().unpolish(
+            self.update_status_label
+        )
+        self.update_status_label.style().polish(
+            self.update_status_label
+        )
+
+    def _check_for_updates(
+        self,
+        automatic=False,
+    ):
+        if self._update_check_running:
+            return
+
+        self._update_check_running = True
+
+        if hasattr(
+            self,
+            "update_check_button"
+        ):
+            self.update_check_button.setEnabled(
+                False
+            )
+
+        if not automatic:
+            self._set_update_status(
+                "GitHub wird geprüft …"
+            )
+
+        # Worker als Instanzvariable halten. So bleibt das Python-Objekt
+        # garantiert bis zum Ende der GitHub-Anfrage erhalten.
+        self._update_worker = UpdateCheckWorker(
+            owner="Faber38",
+            repository="CMDRHelper",
+            current_version=__version__,
+        )
+
+        self._update_worker.signals.finished.connect(
+            lambda result: self._update_check_finished(
+                result,
+                automatic
+            )
+        )
+
+        self.update_thread_pool.start(
+            self._update_worker
+        )
+
+    def _update_check_finished(
+        self,
+        result,
+        automatic=False,
+    ):
+        self._update_check_running = False
+
+        # Erst nach Rückkehr in die Qt-Ereignisschleife freigeben.
+        # So wird der Worker nicht während seines finished-Signals zerstört.
+        QTimer.singleShot(
+            0,
+            self._release_update_worker
+        )
+
+        if hasattr(
+            self,
+            "update_check_button"
+        ):
+            self.update_check_button.setEnabled(
+                True
+            )
+
+        if not isinstance(
+            result,
+            dict
+        ):
+            self._set_update_status(
+                "Updateprüfung fehlgeschlagen.",
+                False
+            )
+            return
+
+        if not result.get("ok"):
+            # Beim automatischen Startcheck keine störende Fehlermeldung
+            # anzeigen. Der Status bleibt unter Einstellungen sichtbar.
+            error = (
+                result.get("error")
+                or "GitHub konnte nicht geprüft werden."
+            )
+
+            self._set_update_status(
+                error,
+                False
+            )
+
+            if not automatic:
+                QMessageBox.warning(
+                    self,
+                    "Updateprüfung",
+                    error
+                )
+            return
+
+        latest = (
+            result.get("version")
+            or ""
+        )
+
+        if latest and is_newer_version(
+            latest,
+            __version__,
+        ):
+            text = (
+                f"Update verfügbar: {latest} "
+                f"(installiert: {__version__})"
+            )
+
+            self._set_update_status(
+                text,
+                False
+            )
+
+            if (
+                automatic
+                and not self._update_notice_shown
+            ):
+                self._update_notice_shown = True
+
+                answer = QMessageBox.question(
+                    self,
+                    "CMDRHelper – Update verfügbar",
+                    (
+                        f"Eine neue Version von CMDRHelper ist verfügbar.\n\n"
+                        f"Installiert: {__version__}\n"
+                        f"Verfügbar: {latest}\n\n"
+                        "Möchtest du das Update jetzt installieren?"
+                    ),
+                    QMessageBox.Yes | QMessageBox.No,
+                    QMessageBox.Yes,
+                )
+
+                if answer == QMessageBox.Yes:
+                    self._install_update(result)
+
+            elif not automatic:
+                answer = QMessageBox.question(
+                    self,
+                    "CMDRHelper – Update verfügbar",
+                    (
+                        f"Eine neue Version von CMDRHelper ist verfügbar.\n\n"
+                        f"Installiert: {__version__}\n"
+                        f"Verfügbar: {latest}\n\n"
+                        "Möchtest du das Update jetzt installieren?"
+                    ),
+                    QMessageBox.Yes | QMessageBox.No,
+                    QMessageBox.Yes,
+                )
+
+                if answer == QMessageBox.Yes:
+                    self._install_update(result)
+
+            return
+
+        self._set_update_status(
+            f"CMDRHelper {__version__} ist aktuell.",
+            True
+        )
+
+        if not automatic:
+            QMessageBox.information(
+                self,
+                "Updateprüfung",
+                (
+                    f"CMDRHelper {__version__} "
+                    "ist auf dem aktuellen Stand."
+                )
+            )
+
+    def _install_update(self, result):
+        latest = str(
+            result.get("version")
+            or ""
+        ).strip()
+
+        asset_name = str(
+            result.get("asset_name")
+            or ""
+        ).strip()
+
+        asset_url = str(
+            result.get("asset_url")
+            or ""
+        ).strip()
+
+        if not asset_url:
+            QMessageBox.warning(
+                self,
+                "CMDRHelper – Update",
+                (
+                    f"Für Version {latest} wurde kein passendes "
+                    "CMDRHelper-ZIP im GitHub-Release gefunden.\n\n"
+                    "Bitte das Release-ZIP auf GitHub prüfen."
+                )
+            )
+            return
+
+        self._set_update_status(
+            f"Update {latest} wird heruntergeladen …"
+        )
+
+        if hasattr(
+            self,
+            "update_check_button"
+        ):
+            self.update_check_button.setEnabled(
+                False
+            )
+
+        QApplication.processEvents()
+
+        try:
+            zip_path = download_release(
+                result
+            )
+
+            # main_window.py liegt unter cmdrhelper/ui/.
+            # Zwei Ebenen höher liegt das Installationsverzeichnis.
+            install_dir = (
+                Path(__file__)
+                .resolve()
+                .parents[2]
+            )
+
+            launch_installer(
+                zip_path=zip_path,
+                install_dir=install_dir,
+                current_version=__version__,
+                latest_version=latest,
+                parent_pid=os.getpid(),
+            )
+
+        except Exception as exc:
+            if hasattr(
+                self,
+                "update_check_button"
+            ):
+                self.update_check_button.setEnabled(
+                    True
+                )
+
+            self._set_update_status(
+                f"Update fehlgeschlagen: {exc}",
+                False
+            )
+
+            QMessageBox.critical(
+                self,
+                "CMDRHelper – Update fehlgeschlagen",
+                (
+                    "Das Update konnte nicht vorbereitet werden.\n\n"
+                    f"{exc}\n\n"
+                    "CMDRHelper wurde nicht verändert."
+                )
+            )
+            return
+
+        QMessageBox.information(
+            self,
+            "CMDRHelper – Update",
+            (
+                f"CMDRHelper {latest} wurde heruntergeladen.\n\n"
+                "CMDRHelper wird jetzt beendet. "
+                "Der Updater erstellt zuerst ein Backup der bisherigen "
+                "Programmversion und installiert danach das neue Release.\n\n"
+                "Der Ordner data/ mit deiner Datenbank bleibt unangetastet."
+            )
+        )
+
+        QApplication.quit()
 
     def _set_theme(self, theme):
         theme = (
