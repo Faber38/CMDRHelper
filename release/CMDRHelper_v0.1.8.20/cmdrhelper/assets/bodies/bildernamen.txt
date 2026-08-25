@@ -1,0 +1,40 @@
+ 
+belt_cluster.png x
+
+planet_hmc.png x
+planet_metal_rich.png x
+planet_rocky.png x
+planet_icy.png x
+planet_rocky_ice.png x
+planet_earthlike.png x
+planet_water_world.png x
+planet_ammonia_world.png x
+
+gas_giant_class_1.png x
+gas_giant_class_2.png x
+gas_giant_class_3.png x
+gas_giant_class_4.png x
+gas_giant_class_5.png x
+gas_giant_water_life.png x
+gas_giant_ammonia_life.png x
+gas_giant_helium_rich.png x
+gas_giant_helium.png
+water_giant.png
+water_giant_life.png
+
+star_o.png
+star_b.png
+star_a.png
+star_f.png
+star_g.png
+star_k.png
+star_m.png
+star_l.png
+star_t.png
+star_y.png
+star_t_tauri.png
+star_herbig_aebe.png
+star_neutron.png
+star_white_dwarf.png
+black_hole.png
+black_hole_supermassive.png
