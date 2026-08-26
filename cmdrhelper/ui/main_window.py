@@ -3,9 +3,11 @@ from __future__ import annotations
 from datetime import datetime
 from pathlib import Path
 import os
+import re
 
 from cmdrhelper.ui.system_view import SystemMapWidget
 from cmdrhelper.ui.body_detail_window import BodyDetailWindow
+from cmdrhelper.ui.chronicle_view import ChronicleMapWidget
 from cmdrhelper.online_services import (
     test_edsm_connection,
     test_inara_connection,
@@ -27,6 +29,7 @@ from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QHBoxLayout,
+    QGridLayout,
     QLabel,
     QPushButton,
     QFrame,
@@ -35,6 +38,8 @@ from PySide6.QtWidgets import (
     QTableWidget,
     QTableWidgetItem,
     QHeaderView,
+    QListWidget,
+    QListWidgetItem,
     QFormLayout,
     QLineEdit,
     QScrollArea,
@@ -44,7 +49,234 @@ from PySide6.QtWidgets import (
     QRadioButton,
     QButtonGroup,
     QApplication,
+    QDialog,
+    QProgressBar,
 )
+
+
+class ChronicleSystemWindow(QDialog):
+    def __init__(self, system_name, bodies, header_text, body_callback, parent=None):
+        super().__init__(parent)
+
+        self.setWindowTitle(
+            f"CMDRHelper – Chronik – {system_name}"
+        )
+        self.resize(1250, 760)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setSpacing(6)
+
+        title = QLabel(
+            system_name,
+            objectName="sectionTitle"
+        )
+        title.setStyleSheet(
+            "font-size: 18px; font-weight: 700;"
+        )
+        layout.addWidget(title)
+
+        info = QLabel(
+            header_text,
+            objectName="muted"
+        )
+        info.setWordWrap(True)
+        layout.addWidget(info)
+
+        self.system_map = SystemMapWidget()
+        self.system_map.bodyClicked.connect(
+            body_callback
+        )
+        self.system_map.set_system(
+            system_name,
+            bodies
+        )
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(False)
+        scroll.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarAsNeeded
+        )
+        scroll.setVerticalScrollBarPolicy(
+            Qt.ScrollBarAsNeeded
+        )
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setWidget(
+            self.system_map
+        )
+
+        layout.addWidget(scroll, 1)
+
+        buttons = QHBoxLayout()
+        buttons.addStretch()
+
+        close = QPushButton("Schließen")
+        close.clicked.connect(self.close)
+        buttons.addWidget(close)
+
+        layout.addLayout(buttons)
+
+
+class ChronicleSearchHelpDialog(QDialog):
+    """
+    Kompakte Suchhilfe für die Chronik.
+
+    Kategorien sind einzeln aufklappbar. Ein Klick auf einen Begriff
+    übernimmt ihn in die Chronik-Suche und startet die Suche direkt.
+    """
+
+    def __init__(self, groups, on_term_clicked, parent=None):
+        super().__init__(parent)
+
+        self._on_term_clicked = on_term_clicked
+        self._groups = groups or {}
+
+        self.setWindowTitle(
+            "CMDRHelper – Suchhilfe / Legende"
+        )
+        self.resize(720, 620)
+
+        root = QVBoxLayout(self)
+        root.setContentsMargins(10, 10, 10, 10)
+        root.setSpacing(6)
+
+        title = QLabel(
+            "Suchhilfe / Legende",
+            objectName="sectionTitle"
+        )
+        title.setStyleSheet(
+            "font-size: 16px; font-weight: 700;"
+        )
+        root.addWidget(title)
+
+        intro = QLabel(
+            "Kategorien aufklappen und einen Begriff anklicken. "
+            "Der Begriff wird direkt in die Chronik-Suche übernommen."
+        )
+        intro.setObjectName("muted")
+        intro.setWordWrap(True)
+        root.addWidget(intro)
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+
+        content = QWidget()
+        self.content_layout = QVBoxLayout(content)
+        self.content_layout.setContentsMargins(0, 0, 0, 0)
+        self.content_layout.setSpacing(4)
+
+        for group_name, terms in self._groups.items():
+            self._add_group(
+                group_name,
+                terms,
+            )
+
+        self.content_layout.addStretch()
+        scroll.setWidget(content)
+        root.addWidget(scroll, 1)
+
+        buttons = QHBoxLayout()
+        buttons.addStretch()
+
+        close = QPushButton("Schließen")
+        close.clicked.connect(self.close)
+        buttons.addWidget(close)
+
+        root.addLayout(buttons)
+
+    def _add_group(self, group_name, terms):
+        terms = [
+            str(term)
+            for term in (terms or [])
+            if str(term).strip()
+        ]
+
+        header = QPushButton(
+            f"▸  {group_name}   ({len(terms)})"
+        )
+        header.setCheckable(True)
+        header.setStyleSheet(
+            "text-align:left; padding:5px 8px; font-weight:700;"
+        )
+
+        body = QFrame()
+        body.setVisible(False)
+
+        grid = QGridLayout(body)
+        grid.setContentsMargins(8, 4, 8, 6)
+        grid.setHorizontalSpacing(5)
+        grid.setVerticalSpacing(4)
+
+        # Kompakter als die bisherige Darstellung.
+        columns = 4
+
+        for index, term in enumerate(terms):
+            button = QPushButton(term)
+            button.setToolTip(
+                f'Nach „{term}“ suchen'
+            )
+            button.setMinimumHeight(24)
+            button.setStyleSheet(
+                "padding:2px 6px; text-align:left;"
+            )
+            button.clicked.connect(
+                lambda checked=False, value=term:
+                self._term_clicked(value)
+            )
+
+            row = index // columns
+            col = index % columns
+
+            grid.addWidget(
+                button,
+                row,
+                col,
+            )
+
+        header.toggled.connect(
+            lambda checked,
+            button=header,
+            frame=body,
+            title=group_name,
+            count=len(terms):
+            self._toggle_group(
+                button,
+                frame,
+                title,
+                count,
+                checked,
+            )
+        )
+
+        self.content_layout.addWidget(header)
+        self.content_layout.addWidget(body)
+
+    def _toggle_group(
+        self,
+        button,
+        frame,
+        title,
+        count,
+        checked,
+    ):
+        frame.setVisible(
+            bool(checked)
+        )
+
+        button.setText(
+            (
+                f"▾  {title}   ({count})"
+                if checked
+                else f"▸  {title}   ({count})"
+            )
+        )
+
+    def _term_clicked(self, term):
+        if callable(self._on_term_clicked):
+            self._on_term_clicked(
+                str(term)
+            )
 
 
 class MainWindow(QMainWindow):
@@ -58,6 +290,8 @@ class MainWindow(QMainWindow):
         self._update_check_running = False
         self._update_notice_shown = False
         self._update_worker = None
+        self._chronicle_system_window = None
+        self._chronicle_search_help_window = None
         self.ui_theme = str(
             self.state.settings.value(
                 "ui_theme",
@@ -195,8 +429,15 @@ class MainWindow(QMainWindow):
 
         side.addWidget(
             self._nav(
-                "⚙  Einstellungen",
+                "↝  Chronik",
                 3
+            )
+        )
+
+        side.addWidget(
+            self._nav(
+                "⚙  Einstellungen",
+                4
             )
         )
 
@@ -297,6 +538,10 @@ class MainWindow(QMainWindow):
 
         self.pages.addWidget(
             self._explorer()
+        )
+
+        self.pages.addWidget(
+            self._chronicle()
         )
 
         self.pages.addWidget(
@@ -521,6 +766,555 @@ class MainWindow(QMainWindow):
         page_layout.addWidget(system_card, 1)
 
         return page
+
+
+    def _chronicle(self):
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        layout.setContentsMargins(10, 6, 10, 6)
+        layout.setSpacing(6)
+
+        header = QHBoxLayout()
+        header.addWidget(
+            QLabel(
+                "Chronik",
+                objectName="sectionTitle"
+            )
+        )
+
+        self.chronicle_search_edit = QLineEdit()
+        self.chronicle_search_edit.setPlaceholderText(
+            "Chronik durchsuchen, z. B. Hirnbaum, Wasserwelt, Tellur …"
+        )
+        self.chronicle_search_edit.setMinimumWidth(280)
+        self.chronicle_search_edit.returnPressed.connect(
+            self._search_chronicle_biology
+        )
+        header.addWidget(
+            self.chronicle_search_edit
+        )
+
+        search_button = QPushButton("Suchen")
+        search_button.clicked.connect(
+            self._search_chronicle_biology
+        )
+        header.addWidget(search_button)
+
+        reset_button = QPushButton(
+            "Zurücksetzen"
+        )
+        reset_button.clicked.connect(
+            self._reset_chronicle_search
+        )
+        header.addWidget(reset_button)
+
+        align_button = QPushButton(
+            "Ausrichten"
+        )
+        align_button.clicked.connect(
+            self._align_chronicle_galaxy
+        )
+        header.addWidget(align_button)
+
+        self.chronicle_legend_button = QPushButton(
+            "Suchhilfe / Legende"
+        )
+        self.chronicle_legend_button.clicked.connect(
+            self._open_chronicle_search_help
+        )
+        header.addWidget(
+            self.chronicle_legend_button
+        )
+
+        header.addStretch()
+
+        refresh = QPushButton(
+            "Chronik aktualisieren",
+            objectName="primary"
+        )
+        refresh.clicked.connect(
+            self._refresh_chronicle
+        )
+        header.addWidget(refresh)
+
+        layout.addLayout(header)
+
+        map_card, map_layout = self._card(
+            "BESUCHTE SYSTEME"
+        )
+
+        self.chronicle_status = QLabel(
+            "",
+            objectName="muted"
+        )
+        self.chronicle_status.setWordWrap(True)
+        map_layout.addWidget(
+            self.chronicle_status
+        )
+
+        self.chronicle_map = ChronicleMapWidget()
+        self.chronicle_map.systemClicked.connect(
+            self._chronicle_system_clicked
+        )
+        map_layout.addWidget(
+            self.chronicle_map,
+            1
+        )
+
+        self.chronicle_detail = QLabel(
+            "Kein System ausgewählt.",
+            objectName="muted"
+        )
+        self.chronicle_detail.setWordWrap(True)
+        map_layout.addWidget(
+            self.chronicle_detail
+        )
+
+        # BIO-Suchergebnisse bleiben bewusst in der Chronik.
+        self.chronicle_search_results = QListWidget()
+        self.chronicle_search_results.setVisible(False)
+        self.chronicle_search_results.setMaximumHeight(190)
+        self.chronicle_search_results.itemClicked.connect(
+            self._chronicle_search_result_clicked
+        )
+        map_layout.addWidget(
+            self.chronicle_search_results
+        )
+
+        layout.addWidget(
+            map_card,
+            1
+        )
+
+        QTimer.singleShot(
+            0,
+            self._refresh_chronicle
+        )
+
+        return page
+
+    def _refresh_chronicle(self):
+        if hasattr(self, "chronicle_search_results"):
+            self.chronicle_search_results.clear()
+            self.chronicle_search_results.setVisible(False)
+
+        try:
+            systems = self.state.database.chronicle_systems()
+        except Exception as exc:
+            systems = []
+            self.chronicle_status.setText(f"Chronik konnte nicht geladen werden: {exc}")
+        else:
+            self.chronicle_status.setText(
+                f"{len(systems)} besuchte Systeme mit Koordinaten · "
+                "Mausrad: Zoom · Ziehen: Karte verschieben · Klick: System auswählen"
+            )
+        self.chronicle_map.set_systems(systems)
+
+
+    def _align_chronicle_galaxy(self):
+        if hasattr(self, "chronicle_map"):
+            self.chronicle_map.align_galaxy()
+
+    def _open_chronicle_search_help(self):
+        try:
+            groups = (
+                self.state.database
+                .chronicle_search_terms()
+            )
+        except Exception as exc:
+            QMessageBox.warning(
+                self,
+                "Suchhilfe / Legende",
+                (
+                    "Die Suchhilfe konnte nicht geladen werden.\n\n"
+                    f"{exc}"
+                ),
+            )
+            return
+
+        # Feste Schnellsuchen vor die dynamischen Datenbank-Kategorien setzen.
+        merged = {
+            "Schnellsuche": [
+                "Terraforming",
+                "BIO",
+                "GEO",
+                "Water world",
+                "Earthlike",
+                "Ammonia world",
+                "FSS-Signal",
+            ]
+        }
+
+        merged.update(
+            groups or {}
+        )
+
+        # Vorhandenes Fenster wiederverwenden, wenn es schon offen ist.
+        if (
+            self._chronicle_search_help_window
+            is not None
+        ):
+            try:
+                self._chronicle_search_help_window.close()
+            except Exception:
+                pass
+
+        self._chronicle_search_help_window = (
+            ChronicleSearchHelpDialog(
+                groups=merged,
+                on_term_clicked=self._chronicle_search_term_clicked,
+                parent=self,
+            )
+        )
+
+        # Nicht modal: Chronik bleibt weiter bedienbar.
+        self._chronicle_search_help_window.show()
+        self._chronicle_search_help_window.raise_()
+        self._chronicle_search_help_window.activateWindow()
+
+    def _chronicle_search_term_clicked(
+        self,
+        term,
+    ):
+        self.chronicle_search_edit.setText(
+            str(term)
+        )
+        self._search_chronicle_biology()
+
+    def _search_chronicle_biology(self):
+        query = self.chronicle_search_edit.text().strip()
+
+        if not query:
+            self._reset_chronicle_search()
+            return
+
+        try:
+            results = self.state.database.search_chronicle(
+                query
+            )
+        except Exception as exc:
+            self.chronicle_status.setText(
+                f"Chronik-Suche fehlgeschlagen: {exc}"
+            )
+            return
+
+        self.chronicle_search_results.clear()
+
+        if not results:
+            self.chronicle_search_results.setVisible(
+                False
+            )
+            self.chronicle_status.setText(
+                f'Keine Treffer für "{query}".'
+            )
+            # Die normale Reisekarte bleibt sichtbar.
+            return
+
+        systems_by_address = {}
+
+        for result in results:
+            address = result.get(
+                "system_address"
+            )
+
+            if address in systems_by_address:
+                continue
+
+            systems_by_address[address] = {
+                "system_address": address,
+                "name": result.get(
+                    "system_name"
+                ) or "",
+                "x": result.get("x"),
+                "y": result.get("y"),
+                "z": result.get("z"),
+                "first_seen": result.get(
+                    "system_first_seen"
+                ) or "",
+                "last_seen": result.get(
+                    "system_last_seen"
+                ) or "",
+                "body_count": int(
+                    result.get("body_count")
+                    or 0
+                ),
+                "visits": 0,
+            }
+
+        matching_systems = [
+            system
+            for system in systems_by_address.values()
+            if (
+                system.get("x") is not None
+                and system.get("y") is not None
+                and system.get("z") is not None
+            )
+        ]
+
+        # Während der Suche zeigt die Karte ausschließlich die Systeme
+        # mit passenden biologischen Funden.
+        self.chronicle_map.set_systems(
+            matching_systems
+        )
+
+        for result in results:
+            kind = result.get("kind") or "Treffer"
+            match_name = (
+                result.get("match_name")
+                or result.get("detail")
+                or "Treffer"
+            )
+
+            system_name = (
+                result.get("system_name")
+                or "Unbekannt"
+            )
+
+            body_name = (
+                result.get("short_name")
+                or result.get("body_name")
+                or ""
+            )
+
+            parts = [f"[{kind}]", system_name]
+
+            if body_name:
+                parts.append(body_name)
+
+            parts.append(str(match_name))
+
+            item = QListWidgetItem(
+                "  ·  ".join(parts)
+            )
+
+            item.setData(
+                Qt.UserRole,
+                result
+            )
+
+            self.chronicle_search_results.addItem(
+                item
+            )
+
+        self.chronicle_search_results.setVisible(
+            True
+        )
+
+        self.chronicle_status.setText(
+            f'{len(results)} Treffer in '
+            f'{len(systems_by_address)} System(en) '
+            f'für "{query}".'
+        )
+
+    def _reset_chronicle_search(self):
+        if hasattr(
+            self,
+            "chronicle_search_edit"
+        ):
+            self.chronicle_search_edit.clear()
+
+        if hasattr(
+            self,
+            "chronicle_search_results"
+        ):
+            self.chronicle_search_results.clear()
+            self.chronicle_search_results.setVisible(
+                False
+            )
+
+        self._refresh_chronicle()
+
+    def _chronicle_search_result_clicked(
+        self,
+        item,
+    ):
+        result = item.data(
+            Qt.UserRole
+        )
+
+        if not isinstance(
+            result,
+            dict
+        ):
+            return
+
+        system = {
+            "system_address": result.get(
+                "system_address"
+            ),
+            "name": (
+                result.get("system_name")
+                or ""
+            ),
+            "x": result.get("x"),
+            "y": result.get("y"),
+            "z": result.get("z"),
+            "first_seen": result.get(
+                "system_first_seen"
+            ) or "",
+            "last_seen": result.get(
+                "system_last_seen"
+            ) or "",
+            "body_count": int(
+                result.get("body_count")
+                or 0
+            ),
+            "visits": 0,
+        }
+
+        body_name = (
+            result.get("short_name")
+            or result.get("body_name")
+            or ""
+        )
+
+        match_name = (
+            result.get("match_name")
+            or result.get("detail")
+            or "Treffer"
+        )
+
+        kind = (
+            result.get("kind")
+            or "Treffer"
+        )
+
+        hit_parts = [kind]
+
+        if body_name:
+            hit_parts.append(body_name)
+
+        hit_parts.append(str(match_name))
+
+        self._chronicle_system_clicked(
+            system,
+            hit_text="Treffer: " + " – ".join(hit_parts),
+        )
+
+    def _chronicle_system_clicked(
+        self,
+        system,
+        hit_text="",
+    ):
+        name = (
+            system.get("name")
+            or "Unbekannt"
+        )
+        address = system.get(
+            "system_address"
+        )
+
+        self.chronicle_detail.setText(
+            f"{name}   ·   "
+            f"Besuche: {system.get('visits', 0)}   ·   "
+            f"Körper: {system.get('body_count', 0)}   ·   "
+            f"Erster Besuch: "
+            f"{self._format_timestamp(system.get('first_seen'))}   ·   "
+            f"Letzter Besuch: "
+            f"{self._format_timestamp(system.get('last_seen'))}   ·   "
+            f"Position: X {float(system.get('x') or 0):.1f} / "
+            f"Y {float(system.get('y') or 0):.1f} / "
+            f"Z {float(system.get('z') or 0):.1f} ly"
+        )
+
+        try:
+            details = (
+                self.state.database
+                .chronicle_system_details(
+                    address
+                )
+            )
+        except Exception as exc:
+            QMessageBox.warning(
+                self,
+                "Chronik",
+                (
+                    f"{name}\n\n"
+                    "Systemdaten konnten nicht geladen werden.\n\n"
+                    f"{exc}"
+                )
+            )
+            return
+
+        bodies = (
+            details.get("bodies")
+            or []
+        )
+
+        bio_bodies = sum(
+            1
+            for body in bodies
+            if int(
+                body.get(
+                    "biological_signals"
+                )
+                or 0
+            ) > 0
+        )
+
+        geo_bodies = sum(
+            1
+            for body in bodies
+            if int(
+                body.get(
+                    "geological_signals"
+                )
+                or 0
+            ) > 0
+        )
+
+        header_text = (
+            f"{len(bodies)} gespeicherte Körper"
+            + (
+                f" · BIO auf {bio_bodies} Körper(n)"
+                if bio_bodies
+                else ""
+            )
+            + (
+                f" · GEO auf {geo_bodies} Körper(n)"
+                if geo_bodies
+                else ""
+            )
+        )
+
+        if hit_text:
+            header_text += (
+                f" · {hit_text}"
+            )
+
+        header_text += (
+            " · Klick auf einen Körper öffnet die Detailansicht"
+        )
+
+        # Vorheriges Chronik-Systemfenster schließen, damit immer nur
+        # ein historisches Systemfenster gleichzeitig offen bleibt.
+        if (
+            self._chronicle_system_window
+            is not None
+        ):
+            try:
+                self._chronicle_system_window.close()
+            except Exception:
+                pass
+
+        self._chronicle_system_window = (
+            ChronicleSystemWindow(
+                system_name=name,
+                bodies=bodies,
+                header_text=header_text,
+                body_callback=self._show_body_details,
+                parent=self,
+            )
+        )
+
+        self._chronicle_system_window.system_map.set_light_mode(
+            self.ui_theme == "light"
+        )
+
+        # Nicht modal: Die Chronik-Karte bleibt weiter bedienbar.
+        self._chronicle_system_window.show()
+        self._chronicle_system_window.raise_()
+        self._chronicle_system_window.activateWindow()
 
     def _show_body_details(self, body):
         dialog = BodyDetailWindow(
@@ -1046,6 +1840,28 @@ class MainWindow(QMainWindow):
             self.database_status_label
         )
 
+        self.database_progress_bar = QProgressBar()
+        self.database_progress_bar.setRange(0, 100)
+        self.database_progress_bar.setValue(0)
+        self.database_progress_bar.setTextVisible(True)
+        self.database_progress_bar.setFormat(
+            "Bereit"
+        )
+        self.database_progress_bar.setVisible(False)
+        database_layout.addWidget(
+            self.database_progress_bar
+        )
+
+        self.database_progress_file = QLabel(
+            "",
+            objectName="muted"
+        )
+        self.database_progress_file.setWordWrap(True)
+        self.database_progress_file.setVisible(False)
+        database_layout.addWidget(
+            self.database_progress_file
+        )
+
         database_buttons = QHBoxLayout()
 
         self.database_import_button = QPushButton(
@@ -1201,6 +2017,8 @@ class MainWindow(QMainWindow):
             f"{stats.get('systems', 0)} Systeme · "
             f"{stats.get('bodies', 0)} Körper · "
             f"{stats.get('materials', 0)} Materialien · "
+            f"{stats.get('biology', 0)} BIO-Funde · "
+            f"{stats.get('codex_entries', 0)} Codex/Phänomene · "
             f"{stats.get('journal_imports', 0)} Journale"
         )
 
@@ -1208,9 +2026,32 @@ class MainWindow(QMainWindow):
         self.database_import_button.setEnabled(
             False
         )
+
         self.database_status_label.setText(
             "Journal-Archiv wird eingelesen …"
         )
+
+        self.database_progress_bar.setRange(
+            0,
+            100
+        )
+        self.database_progress_bar.setValue(
+            0
+        )
+        self.database_progress_bar.setFormat(
+            "Vorbereitung …"
+        )
+        self.database_progress_bar.setVisible(
+            True
+        )
+
+        self.database_progress_file.setText(
+            "Journaldateien werden vorbereitet …"
+        )
+        self.database_progress_file.setVisible(
+            True
+        )
+
         self.state.import_journal_archive()
 
     def _database_import_progress(
@@ -1219,8 +2060,53 @@ class MainWindow(QMainWindow):
         total,
         name,
     ):
+        try:
+            current = int(current)
+        except Exception:
+            current = 0
+
+        try:
+            total = int(total)
+        except Exception:
+            total = 0
+
+        if total > 0:
+            percent = int(
+                round(
+                    (current / total) * 100
+                )
+            )
+            percent = max(
+                0,
+                min(100, percent)
+            )
+        else:
+            percent = 0
+
         self.database_status_label.setText(
-            f"Importiere Journal {current} / {total}: {name}"
+            f"Journal-Archiv wird eingelesen … "
+            f"{current} / {total}"
+        )
+
+        self.database_progress_bar.setRange(
+            0,
+            100
+        )
+        self.database_progress_bar.setValue(
+            percent
+        )
+        self.database_progress_bar.setFormat(
+            f"{percent} %   ·   {current} / {total}"
+        )
+        self.database_progress_bar.setVisible(
+            True
+        )
+
+        self.database_progress_file.setText(
+            f"Aktuell: {name}"
+        )
+        self.database_progress_file.setVisible(
+            True
         )
 
     def _database_import_finished(
@@ -1233,6 +2119,26 @@ class MainWindow(QMainWindow):
         )
 
         if error:
+            self.database_progress_bar.setRange(
+                0,
+                100
+            )
+            self.database_progress_bar.setValue(
+                0
+            )
+            self.database_progress_bar.setFormat(
+                "Import fehlgeschlagen"
+            )
+            self.database_progress_bar.setVisible(
+                True
+            )
+            self.database_progress_file.setText(
+                ""
+            )
+            self.database_progress_file.setVisible(
+                False
+            )
+
             self.database_status_label.setText(
                 f"Import fehlgeschlagen: {error}"
             )
@@ -1244,6 +2150,27 @@ class MainWindow(QMainWindow):
             return
 
         self._refresh_database_status()
+
+        self.database_progress_bar.setRange(
+            0,
+            100
+        )
+        self.database_progress_bar.setValue(
+            100
+        )
+        self.database_progress_bar.setFormat(
+            "100 %   ·   Import abgeschlossen"
+        )
+        self.database_progress_bar.setVisible(
+            True
+        )
+
+        self.database_progress_file.setText(
+            ""
+        )
+        self.database_progress_file.setVisible(
+            False
+        )
 
         imported = int(
             stats.get("imported_journals", 0)
@@ -1315,6 +2242,61 @@ class MainWindow(QMainWindow):
         self.update_status_label.style().polish(
             self.update_status_label
         )
+
+    @staticmethod
+    def _release_requires_database_update(result):
+        """
+        Ein GitHub-Release kann in den Release-Notes mit
+
+            DB-UPDATE: <Version>
+
+        markieren, dass nach diesem Programmupdate die lokale
+        CMDRHelper-Datenbank einmalig neu aufgebaut/aktualisiert wird.
+
+        Ohne diesen Marker erscheint kein Datenbank-Hinweis.
+        """
+        notes = str(
+            (result or {}).get("release_notes")
+            or ""
+        )
+
+        return bool(
+            re.search(
+                r"(?im)^\\s*DB-UPDATE\\s*:\\s*\\d+\\s*$",
+                notes,
+            )
+        )
+
+    def _update_question_text(
+        self,
+        result,
+        latest,
+    ):
+        text = (
+            "Eine neue Version von CMDRHelper ist verfügbar.\n\n"
+            f"Installiert: {__version__}\n"
+            f"Verfügbar: {latest}"
+        )
+
+        if self._release_requires_database_update(
+            result
+        ):
+            text += (
+                "\n\n"
+                "DATENBANK-AKTUALISIERUNG\n"
+                "Dieses Update erweitert die CMDRHelper-Datenbank.\n"
+                "Nach der Installation wird das Journal-Archiv einmal "
+                "neu ausgewertet. Je nach Umfang des Archivs kann dies "
+                "einige Minuten dauern.\n"
+                "Deine vorhandenen Daten bleiben erhalten."
+            )
+
+        text += (
+            "\n\n"
+            "Möchtest du das Update jetzt installieren?"
+        )
+
+        return text
 
     def _check_for_updates(
         self,
@@ -1438,11 +2420,9 @@ class MainWindow(QMainWindow):
                 answer = QMessageBox.question(
                     self,
                     "CMDRHelper – Update verfügbar",
-                    (
-                        f"Eine neue Version von CMDRHelper ist verfügbar.\n\n"
-                        f"Installiert: {__version__}\n"
-                        f"Verfügbar: {latest}\n\n"
-                        "Möchtest du das Update jetzt installieren?"
+                    self._update_question_text(
+                        result,
+                        latest,
                     ),
                     QMessageBox.Yes | QMessageBox.No,
                     QMessageBox.Yes,
@@ -1455,11 +2435,9 @@ class MainWindow(QMainWindow):
                 answer = QMessageBox.question(
                     self,
                     "CMDRHelper – Update verfügbar",
-                    (
-                        f"Eine neue Version von CMDRHelper ist verfügbar.\n\n"
-                        f"Installiert: {__version__}\n"
-                        f"Verfügbar: {latest}\n\n"
-                        "Möchtest du das Update jetzt installieren?"
+                    self._update_question_text(
+                        result,
+                        latest,
                     ),
                     QMessageBox.Yes | QMessageBox.No,
                     QMessageBox.Yes,
@@ -1573,16 +2551,27 @@ class MainWindow(QMainWindow):
             )
             return
 
+        install_message = (
+            f"CMDRHelper {latest} wurde heruntergeladen.\n\n"
+            "CMDRHelper wird jetzt beendet. "
+            "Der Updater erstellt zuerst ein Backup der bisherigen "
+            "Programmversion und installiert danach das neue Release.\n\n"
+            "Der Ordner data/ mit deiner Datenbank bleibt unangetastet."
+        )
+
+        if self._release_requires_database_update(
+            result
+        ):
+            install_message += (
+                "\n\n"
+                "Nach dem Neustart wird die Datenbank einmalig "
+                "aktualisiert und das Journal-Archiv neu ausgewertet."
+            )
+
         QMessageBox.information(
             self,
             "CMDRHelper – Update",
-            (
-                f"CMDRHelper {latest} wurde heruntergeladen.\n\n"
-                "CMDRHelper wird jetzt beendet. "
-                "Der Updater erstellt zuerst ein Backup der bisherigen "
-                "Programmversion und installiert danach das neue Release.\n\n"
-                "Der Ordner data/ mit deiner Datenbank bleibt unangetastet."
-            )
+            install_message
         )
 
         QApplication.quit()
@@ -1612,6 +2601,17 @@ class MainWindow(QMainWindow):
 
         if hasattr(self, "system_map"):
             self.system_map.set_light_mode(
+                theme == "light"
+            )
+
+        if (
+            self._chronicle_system_window is not None
+            and hasattr(
+                self._chronicle_system_window,
+                "system_map"
+            )
+        ):
+            self._chronicle_system_window.system_map.set_light_mode(
                 theme == "light"
             )
 

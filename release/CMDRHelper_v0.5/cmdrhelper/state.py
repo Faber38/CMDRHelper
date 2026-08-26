@@ -40,6 +40,8 @@ class AppState(QObject):
         self.journal_folder = None
         self.database = CMDRDatabase()
         self._database_import_running = False
+        self._database_import_manual_waiting = False
+        self._database_import_last_progress = None
 
         self.commander = ""
         self.system = ""
@@ -162,20 +164,63 @@ class AppState(QObject):
 
         # Verhindert, dass automatischer Startimport und manueller
         # Wartungsimport gleichzeitig laufen.
+        #
+        # Wichtig: Nach einer Datenbank-Migration kann beim Programmstart
+        # bereits ein automatischer Archivimport laufen. Klickt der Benutzer
+        # dann auf "Journal-Archiv importieren", darf die Oberfläche nicht
+        # auf "Vorbereitung …" hängen bleiben. Der manuelle Aufruf hängt
+        # sich deshalb an den bereits laufenden Import an und bekommt dessen
+        # Fortschritt/Abschluss mitgeteilt.
         if self._database_import_running:
+            if not automatic:
+                self._database_import_manual_waiting = True
+
+                if self._database_import_last_progress is not None:
+                    current, total, name = (
+                        self._database_import_last_progress
+                    )
+                    self.databaseImportProgress.emit(
+                        int(current),
+                        int(total),
+                        str(name),
+                    )
+                else:
+                    self.databaseImportProgress.emit(
+                        0,
+                        0,
+                        "Automatischer Archivabgleich läuft bereits …",
+                    )
             return
 
         self._database_import_running = True
+        self._database_import_manual_waiting = (
+            not automatic
+        )
+        self._database_import_last_progress = None
         folder = Path(self.journal_folder)
 
         def progress(current, total, name):
-            # Der automatische Startabgleich soll still im Hintergrund
-            # laufen. Fortschritt zeigen wir nur beim manuellen Import.
-            if not automatic:
+            current = int(current)
+            total = int(total)
+            name = str(name)
+
+            self._database_import_last_progress = (
+                current,
+                total,
+                name,
+            )
+
+            # Normalerweise bleibt der automatische Startabgleich still.
+            # Hat der Benutzer währenddessen jedoch manuell auf Import
+            # geklickt, zeigen wir ab diesem Moment den laufenden Fortschritt.
+            if (
+                not automatic
+                or self._database_import_manual_waiting
+            ):
                 self.databaseImportProgress.emit(
-                    int(current),
-                    int(total),
-                    str(name),
+                    current,
+                    total,
+                    name,
                 )
 
         def worker():
@@ -185,7 +230,10 @@ class AppState(QObject):
                     progress_callback=progress,
                 )
 
-                if not automatic:
+                if (
+                    not automatic
+                    or self._database_import_manual_waiting
+                ):
                     self.databaseImportFinished.emit(
                         stats,
                         ""
@@ -208,6 +256,8 @@ class AppState(QObject):
                 )
             finally:
                 self._database_import_running = False
+                self._database_import_manual_waiting = False
+                self._database_import_last_progress = None
 
         threading.Thread(
             target=worker,

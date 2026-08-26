@@ -217,6 +217,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
         "commander": "",
         "system": "",
         "system_address": None,
+        "star_pos": None,
         "body": "",
         "station": "",
         "ship": "",
@@ -272,6 +273,9 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
 
     # SystemAddress -> {BodyID -> bio_count}
     pending_bio_by_address: dict[int, dict[int, int]] = {}
+
+    # SystemAddress -> BodyID -> eindeutige biologische Funde
+    biology_by_address: dict[int, dict[int, dict[tuple, dict]]] = {}
 
     # SystemAddress -> {BodyName -> bio_count}
     # Fallback nur innerhalb desselben Systems.
@@ -504,6 +508,13 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
 
                     result["system"] = current_system
                     result["system_address"] = current_system_address
+
+                    star_pos = e.get("StarPos")
+                    if isinstance(star_pos, (list, tuple)) and len(star_pos) >= 3:
+                        result["star_pos"] = [
+                            float(star_pos[0]), float(star_pos[1]), float(star_pos[2])
+                        ]
+
                     result["body"] = current_body
                     result["station"] = current_station
 
@@ -706,6 +717,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                             ),
                             "biological_signals": 0,
                             "geological_signals": 0,
+                            "biology": [],
                             "self_mapped": False,
                             "efficient_mapping": False,
                         }
@@ -841,63 +853,54 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                             apply_values(body)
 
                 elif et == "ScanOrganic":
-                    # Tatsächlicher Exobiologie-Scan:
-                    # nur innerhalb der zugehörigen SystemAddress anwenden.
                     address = _system_address(e)
                     body_id = e.get("BodyID")
-                    body_name = (
-                        e.get("Body")
-                        or e.get("BodyName")
-                        or ""
-                    )
+                    if body_id is None and isinstance(e.get("Body"), int):
+                        body_id = e.get("Body")
 
-                    if address is not None:
-                        if body_id is not None:
-                            try:
-                                body_id_int = int(body_id)
-                            except Exception:
-                                body_id_int = None
+                    if address is not None and body_id is not None:
+                        try:
+                            body_id_int = int(body_id)
+                        except Exception:
+                            body_id_int = None
 
-                            if body_id_int is not None:
-                                pending_bio_by_address.setdefault(
-                                    address,
-                                    {}
-                                )[body_id_int] = max(
-                                    1,
-                                    pending_bio_by_address
-                                    .get(address, {})
-                                    .get(body_id_int, 0)
-                                )
-
-                                body = scans_by_address.setdefault(
-                                    address,
-                                    {}
-                                ).get(body_id_int)
-
-                                if body:
-                                    # Belt Cluster sicher ausschließen.
-                                    if "belt cluster" not in (
-                                        body.get("name") or ""
-                                    ).lower():
-                                        body["biological_signals"] = max(
-                                            1,
-                                            int(
-                                                body.get(
-                                                    "biological_signals"
-                                                ) or 0
-                                            )
-                                        )
-
-                        if body_name:
-                            pending_bio_name_by_address.setdefault(
-                                address,
-                                {}
-                            )[body_name] = max(
+                        if body_id_int is not None:
+                            pending_bio_by_address.setdefault(address, {})[
+                                body_id_int
+                            ] = max(
                                 1,
-                                pending_bio_name_by_address
-                                .get(address, {})
-                                .get(body_name, 0)
+                                pending_bio_by_address.get(address, {}).get(
+                                    body_id_int, 0
+                                ),
                             )
+
+                            genus = e.get("Genus_Localised") or e.get("Genus") or ""
+                            species = e.get("Species_Localised") or e.get("Species") or ""
+                            variant = e.get("Variant_Localised") or e.get("Variant") or ""
+
+                            key = (str(genus), str(species), str(variant))
+                            biology_by_address.setdefault(address, {}).setdefault(
+                                body_id_int, {}
+                            )[key] = {
+                                "genus": genus,
+                                "species": species,
+                                "variant": variant,
+                                "scan_type": e.get("ScanType") or "",
+                                "timestamp": ts,
+                            }
+
+                            body = scans_by_address.setdefault(address, {}).get(
+                                body_id_int
+                            )
+                            if body and "belt cluster" not in (
+                                body.get("name") or ""
+                            ).lower():
+                                body["biological_signals"] = max(
+                                    1, int(body.get("biological_signals") or 0)
+                                )
+                                body["biology"] = list(
+                                    biology_by_address[address][body_id_int].values()
+                                )
 
                 # ---------------------------------------------------------
                 # Mission Snapshot
@@ -1004,6 +1007,14 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
         for body in bodies:
             _apply_pending_bio(address, body)
             _apply_pending_geo(address, body)
+
+            body_id = body.get("body_id")
+            if body_id is not None:
+                body["biology"] = list(
+                    biology_by_address.get(address, {})
+                    .get(int(body_id), {})
+                    .values()
+                )
 
             if "belt cluster" in (
                 body.get("name") or ""

@@ -34,23 +34,15 @@ class BodyDetailWindow(QDialog):
         self._planet_3d_widget = None
         self._belt_cluster_widget = None
 
-        name = (
-            self.body.get("name")
-            or self.body.get("short_name")
-            or "Körper"
-        )
+        name = self.body.get("name") or self.body.get("short_name") or "Körper"
 
-        self.setWindowTitle(
-            f"CMDRHelper – {name}"
-        )
+        self.setWindowTitle(f"CMDRHelper – {name}")
         self.resize(650, 620)
 
         root = QVBoxLayout(self)
 
         title = QLabel(name)
-        title.setStyleSheet(
-            "font-size: 20px; font-weight: 700;"
-        )
+        title.setStyleSheet("font-size: 20px; font-weight: 700;")
         root.addWidget(title)
 
         source = self._source_text()
@@ -78,27 +70,19 @@ class BodyDetailWindow(QDialog):
         content = QWidget()
         content_layout = QVBoxLayout(content)
 
-        explorer_card, explorer_form = self._card(
-            "EXPLORER-STATUS"
-        )
+        explorer_card, explorer_form = self._card("EXPLORER-STATUS")
         self._add_explorer_rows(explorer_form)
         content_layout.addWidget(explorer_card)
 
-        body_card, body_form = self._card(
-            "KÖRPERDATEN"
-        )
+        body_card, body_form = self._card("KÖRPERDATEN")
         self._add_body_rows(body_form)
         content_layout.addWidget(body_card)
 
-        materials_card, materials_form = self._card(
-            "MATERIALIEN"
-        )
+        materials_card, materials_form = self._card("MATERIALIEN")
         self._add_material_rows(materials_form)
         content_layout.addWidget(materials_card)
 
-        value_card, value_form = self._card(
-            "WERTE"
-        )
+        value_card, value_form = self._card("WERTE")
         self._add_value_rows(value_form)
         content_layout.addWidget(value_card)
 
@@ -153,18 +137,13 @@ class BodyDetailWindow(QDialog):
     @staticmethod
     def _credits(value):
         try:
-            return (
-                f"{int(value or 0):,} Cr"
-                .replace(",", ".")
-            )
+            return f"{int(value or 0):,} Cr".replace(",", ".")
         except Exception:
             return "0 Cr"
 
     def _body_texture_name(self):
         """3D-Texturdatei passend zum normalen Körperbild."""
-        image_name = SystemMapWidget._body_image_name(
-            self.body
-        )
+        image_name = SystemMapWidget._body_image_name(self.body)
 
         if not image_name:
             return None
@@ -218,13 +197,11 @@ class BodyDetailWindow(QDialog):
                     texture_path,
                     self,
                     diameter=230,
-                    seconds_per_rotation=18.0,
+                    seconds_per_rotation=60.0,
                     life_effect=life_effect,
                 )
 
-                self._planet_3d_widget.setToolTip(
-                    texture_name
-                )
+                self._planet_3d_widget.setToolTip(texture_name)
 
                 return self._planet_3d_widget
 
@@ -238,10 +215,7 @@ class BodyDetailWindow(QDialog):
             return None
 
         image_path = (
-            Path(__file__).resolve().parent.parent
-            / "assets"
-            / "bodies"
-            / image_name
+            Path(__file__).resolve().parent.parent / "assets" / "bodies" / image_name
         )
 
         if not image_path.is_file():
@@ -265,10 +239,7 @@ class BodyDetailWindow(QDialog):
         return label
 
     def _set_animated_body_image(self, size):
-        if (
-            self._body_image_label is None
-            or self._body_image_source is None
-        ):
+        if self._body_image_label is None or self._body_image_source is None:
             return
 
         size = max(1, int(round(size)))
@@ -289,9 +260,7 @@ class BodyDetailWindow(QDialog):
 
         self._body_image_timer = QTimer(self)
         self._body_image_timer.setInterval(80)
-        self._body_image_timer.timeout.connect(
-            self._animate_body_image
-        )
+        self._body_image_timer.timeout.connect(self._animate_body_image)
         self._body_image_timer.start()
 
     def _animate_body_image(self):
@@ -306,9 +275,7 @@ class BodyDetailWindow(QDialog):
             self._body_image_phase = 0.0
 
         # 216–224 px: sichtbar, aber bewusst sehr dezent.
-        size = 220.0 + 4.0 * math.sin(
-            self._body_image_phase
-        )
+        size = 220.0 + 4.0 * math.sin(self._body_image_phase)
 
         self._set_animated_body_image(size)
 
@@ -325,10 +292,7 @@ class BodyDetailWindow(QDialog):
         super().closeEvent(event)
 
     def _source_text(self):
-        if (
-            self.body.get("journal_scanned")
-            and self.body.get("edsm_known")
-        ):
+        if self.body.get("journal_scanned") and self.body.get("edsm_known"):
             return "Quelle: eigenes Journal + EDSM"
 
         if self.body.get("journal_scanned"):
@@ -345,48 +309,66 @@ class BodyDetailWindow(QDialog):
         widget.setWordWrap(True)
         form.addRow(label, widget)
 
-    def _add_explorer_rows(self, form):
-        journal = bool(
-            self.body.get("journal_scanned")
-        )
+    @staticmethod
+    def _volcanism_text(value):
+        raw = str(value or "").strip()
 
-        self._add_row(
-            form,
-            "Selbst gescannt:",
-            "Ja" if journal else "Nein"
-        )
+        if not raw:
+            return ""
+
+        key = raw.lower().strip()
+
+        if key.endswith(" volcanism"):
+            key = key[:-10].strip()
+
+        strength = ""
+        if key.startswith("major "):
+            strength = "starker"
+            key = key[6:].strip()
+        elif key.startswith("minor "):
+            strength = "geringer"
+            key = key[6:].strip()
+
+        translations = {
+            "water geysers": "Wasser-Geysir-Vulkanismus",
+            "silicate vapour geysers": "Silikatdampf-Geysir-Vulkanismus",
+            "rocky magma": "Gesteinsmagma-Vulkanismus",
+            "metallic magma": "Metallmagma-Vulkanismus",
+            "carbon dioxide geysers": "Kohlendioxid-Geysir-Vulkanismus",
+            "water magma": "Wassermagma-Vulkanismus",
+            "ammonia magma": "Ammoniakmagma-Vulkanismus",
+            "methane magma": "Methanmagma-Vulkanismus",
+            "nitrogen magma": "Stickstoffmagma-Vulkanismus",
+        }
+
+        kind = translations.get(key)
+
+        if kind is None:
+            return raw
+
+        if strength:
+            return f"{strength.capitalize()} {kind}"
+
+        return kind
+
+    def _add_explorer_rows(self, form):
+        journal = bool(self.body.get("journal_scanned"))
+
+        self._add_row(form, "Selbst gescannt:", "Ja" if journal else "Nein")
 
         if not journal:
             self._add_row(
-                form,
-                "Bereits entdeckt:",
-                "Unbekannt – eigenen Scan abwarten"
+                form, "Bereits entdeckt:", "Unbekannt – eigenen Scan abwarten"
             )
             self._add_row(
-                form,
-                "Bereits kartographiert:",
-                "Unbekannt – eigenen Scan abwarten"
+                form, "Bereits kartographiert:", "Unbekannt – eigenen Scan abwarten"
             )
-            self._add_row(
-                form,
-                "Erstentdeckung:",
-                "Unbekannt"
-            )
-            self._add_row(
-                form,
-                "First Mapping:",
-                "Unbekannt"
-            )
+            self._add_row(form, "Erstentdeckung:", "Unbekannt")
+            self._add_row(form, "First Mapping:", "Unbekannt")
         else:
-            discovered = self.body.get(
-                "was_discovered"
-            )
-            mapped = self.body.get(
-                "was_mapped"
-            )
-            self_mapped = bool(
-                self.body.get("self_mapped")
-            )
+            discovered = self.body.get("was_discovered")
+            mapped = self.body.get("was_mapped")
+            self_mapped = bool(self.body.get("self_mapped"))
 
             if discovered is True:
                 already_discovered = "Ja"
@@ -409,9 +391,7 @@ class BodyDetailWindow(QDialog):
                         "◉ Von dir kartographiert – First Mapping beansprucht"
                     )
                 else:
-                    first_mapping = (
-                        "◉ Möglich – noch nicht zuvor kartographiert"
-                    )
+                    first_mapping = "◉ Möglich – noch nicht zuvor kartographiert"
             else:
                 already_mapped = "Unbekannt"
 
@@ -420,63 +400,141 @@ class BodyDetailWindow(QDialog):
                 else:
                     first_mapping = "Unbekannt"
 
+            self._add_row(form, "Bereits entdeckt:", already_discovered)
+            self._add_row(form, "Bereits kartographiert:", already_mapped)
+            self._add_row(form, "Erstentdeckung:", first_discovery)
+            self._add_row(form, "First Mapping:", first_mapping)
+
             self._add_row(
-                form,
-                "Bereits entdeckt:",
-                already_discovered
+                form, "Von dir kartographiert:", "Ja" if self_mapped else "Nein"
             )
-            self._add_row(
-                form,
-                "Bereits kartographiert:",
-                already_mapped
+
+        bio_count = int(self.body.get("biological_signals") or 0)
+
+        self._add_row(form, "BIO-Signale:", bio_count)
+
+        biology = self.body.get("biology") or []
+        names = []
+        seen = set()
+
+        for item in biology:
+            if not isinstance(item, dict):
+                continue
+            name = item.get("variant") or item.get("species") or item.get("genus") or ""
+            name = str(name).strip()
+            if name and name not in seen:
+                seen.add(name)
+                names.append(name)
+
+        if names:
+            known_count = len(names)
+
+            lines = [
+                f"{known_count} von {bio_count}"
+                if bio_count > 0
+                else str(known_count)
+            ]
+            lines.extend(
+                f"• {name}"
+                for name in names
             )
-            self._add_row(
-                form,
-                "Erstentdeckung:",
-                first_discovery
-            )
-            self._add_row(
-                form,
-                "First Mapping:",
-                first_mapping
-            )
+
+            if bio_count > known_count:
+                missing = bio_count - known_count
+                lines.append(
+                    f"• {missing} BIO "
+                    f"{'noch nicht identifiziert' if missing == 1 else 'noch nicht identifiziert'}"
+                )
 
             self._add_row(
                 form,
-                "Von dir kartographiert:",
-                "Ja" if self_mapped else "Nein"
+                "Bekannte Biologie:",
+                "\n".join(lines),
+            )
+        elif bio_count > 0:
+            self._add_row(
+                form,
+                "Bekannte Biologie:",
+                f"0 von {bio_count}\n"
+                f"• {bio_count} BIO noch nicht identifiziert",
             )
 
-        self._add_row(
-            form,
-            "BIO-Signale:",
-            int(
-                self.body.get(
-                    "biological_signals"
-                ) or 0
-            )
+        geo_count = int(
+            self.body.get("geological_signals") or 0
         )
 
         self._add_row(
             form,
             "GEO-Signale:",
-            int(
-                self.body.get(
-                    "geological_signals"
-                ) or 0
-            )
+            geo_count,
         )
+
+        if geo_count > 0:
+            geology = self.body.get("geology") or []
+            geo_names = []
+            geo_seen = set()
+
+            for item in geology:
+                if isinstance(item, dict):
+                    name = (
+                        item.get("name")
+                        or item.get("raw_name")
+                        or ""
+                    )
+                else:
+                    name = item
+
+                name = str(name or "").strip()
+
+                if name and name not in geo_seen:
+                    geo_seen.add(name)
+                    geo_names.append(name)
+
+            if geo_names:
+                self._add_row(
+                    form,
+                    "Gefundene GEO-Arten:",
+                    "\n".join(
+                        f"• {name}"
+                        for name in geo_names
+                    ),
+                )
+            else:
+                # SAASignalsFound/FSSBodySignals liefern bei GEO häufig nur
+                # die Anzahl, aber keine konkreten Namen. Dann zeigen wir
+                # ehrlich den aus dem Körperscan bekannten Vulkanismustyp.
+                geo_name = self._volcanism_text(
+                    self.body.get("volcanism")
+                )
+
+                if geo_name:
+                    self._add_row(
+                        form,
+                        "Geologischer Typ:",
+                        (
+                            f"• {geo_name}\n"
+                            f"• {geo_count} GEO-Signale gemeldet; "
+                            "konkrete GEO-Arten nicht im Journal benannt"
+                        ),
+                    )
+                else:
+                    self._add_row(
+                        form,
+                        "Geologischer Typ:",
+                        (
+                            f"{geo_count} GEO-Signale gemeldet; "
+                            "konkrete GEO-Arten nicht im Journal benannt"
+                        ),
+                    )
 
         self._add_row(
             form,
             "Effizient kartographiert:",
-            self._yes_no(
-                self.body.get(
-                    "efficient_mapping"
-                )
-            )
-            if self.body.get("self_mapped")
-            else "–"
+            (
+                self._yes_no(self.body.get("efficient_mapping"))
+                if self.body.get("self_mapped")
+                else "–"
+            ),
         )
 
     def _add_body_rows(self, form):
@@ -488,76 +546,36 @@ class BodyDetailWindow(QDialog):
                 or self.body.get("star_type")
                 or self.body.get("body_type")
                 or "–"
-            )
+            ),
         )
 
         if self.body.get("mass_em") is not None:
             self._add_row(
-                form,
-                "Masse:",
-                self._number(
-                    self.body.get("mass_em"),
-                    3,
-                    " Erdmassen"
-                )
+                form, "Masse:", self._number(self.body.get("mass_em"), 3, " Erdmassen")
             )
         elif self.body.get("stellar_mass") is not None:
             self._add_row(
                 form,
                 "Masse:",
-                self._number(
-                    self.body.get("stellar_mass"),
-                    3,
-                    " Sonnenmassen"
-                )
+                self._number(self.body.get("stellar_mass"), 3, " Sonnenmassen"),
             )
 
         self._add_row(
-            form,
-            "Entfernung:",
-            self._number(
-                self.body.get("distance_ls"),
-                1,
-                " ls"
-            )
+            form, "Entfernung:", self._number(self.body.get("distance_ls"), 1, " ls")
         )
 
         self._add_row(
-            form,
-            "Schwerkraft:",
-            self._number(
-                self.body.get("gravity_g"),
-                2,
-                " g"
-            )
+            form, "Schwerkraft:", self._number(self.body.get("gravity_g"), 2, " g")
         )
 
         self._add_row(
-            form,
-            "Atmosphäre:",
-            self.body.get("atmosphere") or "Keine / unbekannt"
+            form, "Atmosphäre:", self.body.get("atmosphere") or "Keine / unbekannt"
         )
 
-        self._add_row(
-            form,
-            "Vulkanismus:",
-            self.body.get("volcanism") or "Keiner / unbekannt"
-        )
+        self._add_row(form, "Landbar:", self._yes_no(self.body.get("landable")))
 
         self._add_row(
-            form,
-            "Landbar:",
-            self._yes_no(
-                self.body.get("landable")
-            )
-        )
-
-        self._add_row(
-            form,
-            "Terraforming-Kandidat:",
-            self._yes_no(
-                self.body.get("terraformable")
-            )
+            form, "Terraforming-Kandidat:", self._yes_no(self.body.get("terraformable"))
         )
 
     @staticmethod
@@ -635,13 +653,19 @@ class BodyDetailWindow(QDialog):
                 amount = (
                     item.get("Percent")
                     if item.get("Percent") is not None
-                    else item.get("percent")
-                    if item.get("percent") is not None
-                    else item.get("percentage")
-                    if item.get("percentage") is not None
-                    else item.get("share")
-                    if item.get("share") is not None
-                    else item.get("amount")
+                    else (
+                        item.get("percent")
+                        if item.get("percent") is not None
+                        else (
+                            item.get("percentage")
+                            if item.get("percentage") is not None
+                            else (
+                                item.get("share")
+                                if item.get("share") is not None
+                                else item.get("amount")
+                            )
+                        )
+                    )
                 )
 
                 if not name or amount is None:
@@ -657,10 +681,7 @@ class BodyDetailWindow(QDialog):
                 except Exception:
                     continue
 
-        normalized.sort(
-            key=lambda item: item[1],
-            reverse=True
-        )
+        normalized.sort(key=lambda item: item[1], reverse=True)
 
         if not normalized:
             self._add_row(
@@ -670,36 +691,18 @@ class BodyDetailWindow(QDialog):
                     "Keine Materialdaten vorhanden. "
                     "Bei einem eigenen vollständigen Körperscan "
                     "können sie aus dem Elite-Journal übernommen werden."
-                )
+                ),
             )
             return
 
         for name, amount in normalized:
-            self._add_row(
-                form,
-                f"{name}:",
-                f"{amount:.2f} %".replace(".", ",")
-            )
+            self._add_row(form, f"{name}:", f"{amount:.2f} %".replace(".", ","))
 
     def _add_value_rows(self, form):
+        self._add_row(form, "Scanwert:", self._credits(self.body.get("scan_value")))
         self._add_row(
-            form,
-            "Scanwert:",
-            self._credits(
-                self.body.get("scan_value")
-            )
+            form, "Mit Kartographie:", self._credits(self.body.get("mapped_value"))
         )
         self._add_row(
-            form,
-            "Mit Kartographie:",
-            self._credits(
-                self.body.get("mapped_value")
-            )
-        )
-        self._add_row(
-            form,
-            "Aktueller Wert:",
-            self._credits(
-                self.body.get("current_value")
-            )
+            form, "Aktueller Wert:", self._credits(self.body.get("current_value"))
         )
