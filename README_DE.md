@@ -2,6 +2,8 @@
 
 🇩🇪 Deutsch \| [🇬🇧 English](README.md)
 
+![CMDRHelper – Dein Co-Pilot für Elite Dangerous](cmdrhelper/docs/cmdrh.png)
+
 **Persönlicher Begleiter für Elite Dangerous -- Exploration,
 Systemanalyse und Commander-Daten auf einen Blick**
 
@@ -13,6 +15,7 @@ bekannt ist, welche Himmelskörper interessant sind und welche eigenen
 Entdeckungen und Kartographierungen vorliegen.
 
 Das Projekt befindet sich noch in aktiver Entwicklung.
+
 
 ## Funktionsübersicht
 
