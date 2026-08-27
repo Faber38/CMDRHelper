@@ -2,7 +2,7 @@
 
 🇩🇪 Deutsch \| [🇬🇧 English](README.md)
 
-![CMDRHelper – Dein Co-Pilot für Elite Dangerous](cmdrhelper/docs/cmdrh.png)
+![CMDRHelper – Dein Co-Pilot für Elite Dangerous](/docs/cmdrh.png)
 
 **Persönlicher Begleiter für Elite Dangerous -- Exploration,
 Systemanalyse und Commander-Daten auf einen Blick**
