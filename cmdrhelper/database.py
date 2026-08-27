@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import sqlite3
+import logging
 import json
 from datetime import datetime, timezone
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 def default_database_path() -> Path:
@@ -14,6 +17,7 @@ class CMDRDatabase:
     def __init__(self, path=None):
         self.path = Path(path) if path else default_database_path()
         self.path.parent.mkdir(parents=True, exist_ok=True)
+        logger.info("Datenbank: %s", self.path)
         self._create_schema()
 
     def _connect(self):
@@ -1255,8 +1259,12 @@ class CMDRDatabase:
         Liest das vorhandene Journalarchiv chronologisch und baut
         das persönliche System-/Körperarchiv auf.
 
-        Bestehende Datensätze werden per UPSERT ergänzt.
-        Der aktuelle Live-Betrieb bleibt davon unabhängig.
+        Performance:
+        Während des Parsens werden Änderungen zunächst im Speicher gesammelt.
+        Erst am Ende wird alles in EINER SQLite-Verbindung und EINER
+        Transaktion geschrieben. Das vermeidet tausende einzelne
+        Verbindungen/Commits – besonders wichtig bei sehr großen
+        Windows-Journalarchiven.
         """
         folder = Path(folder)
 
@@ -1269,9 +1277,7 @@ class CMDRDatabase:
             folder.glob("Journal.*.log")
         )
 
-        # Importstatus aller Journale EINMAL laden. Bisher wurde für jede
-        # einzelne Datei eine neue SQLite-Verbindung geöffnet; bei mehreren
-        # hundert Journals wirkte die Oberfläche deshalb lange wie eingefroren.
+        # Importstatus aller Journale einmalig laden.
         with self._connect() as con:
             imported_rows = con.execute(
                 """
@@ -1291,8 +1297,6 @@ class CMDRDatabase:
         journals = []
         total_files = len(all_journals)
 
-        # Schon während der Prüfung Fortschritt melden. Dadurch bleibt die
-        # Oberfläche nicht mehr auf "Vorbereitung ..." stehen.
         if progress_callback and total_files:
             progress_callback(
                 0,
@@ -1340,9 +1344,6 @@ class CMDRDatabase:
             - len(journals)
         )
 
-        # Falls tatsächlich Dateien importiert werden müssen, beginnt nun
-        # die zweite Phase. Die vorhandene Fortschrittsanzeige zeigt dann
-        # wieder Journal 1 / N, jetzt aber mit eindeutigem Phasentext.
         if progress_callback and journals:
             progress_callback(
                 0,
@@ -1350,14 +1351,42 @@ class CMDRDatabase:
                 f"Import startet: {len(journals)} Journaldatei(en)",
             )
 
+        total = len(journals)
+
+        if total == 0:
+            logger.info(
+                "Journalarchiv aktuell: %s Datei(en) geprüft, kein Import nötig",
+                total_files,
+            )
+            stats = self.stats()
+            stats["imported_journals"] = 0
+            stats["skipped_journals"] = skipped_count
+            return stats
+
+        logger.info(
+            "Journalarchiv: %s Datei(en) werden importiert, %s übersprungen",
+            total,
+            skipped_count,
+        )
+
         current_system = ""
         current_address = None
 
+        # -------------------------------------------------------------
         # Temporärer Importzustand
+        # -------------------------------------------------------------
         systems = {}
         bodies = {}
         pending_bio = {}
         pending_geo = {}
+
+        # Alle Tabellen, die bisher während des Parsens einzeln
+        # geschrieben wurden, werden jetzt im Speicher gesammelt.
+        visits = {}
+        biology_entries = {}
+        geology_entries = {}
+        codex_entries = {}
+        journal_marks = []
 
         def ensure_system(address, name="", timestamp=""):
             if address is None:
@@ -1385,15 +1414,196 @@ class CMDRDatabase:
 
             return entry
 
-        total = len(journals)
+        def remember_visit(
+            system_address,
+            system_name="",
+            timestamp="",
+            star_pos=None,
+        ):
+            if system_address is None:
+                return
 
-        if total == 0:
-            stats = self.stats()
-            stats["imported_journals"] = 0
-            stats["skipped_journals"] = skipped_count
-            return stats
+            pos = list(star_pos or [])
+            x = pos[0] if len(pos) > 0 else None
+            y = pos[1] if len(pos) > 1 else None
+            z = pos[2] if len(pos) > 2 else None
 
-        for index, journal in enumerate(journals, start=1):
+            seen = (
+                timestamp
+                or datetime.now(timezone.utc)
+                .isoformat()
+                .replace("+00:00", "Z")
+            )
+
+            key = (
+                int(system_address),
+                seen,
+            )
+
+            visits[key] = (
+                int(system_address),
+                str(system_name or ""),
+                seen,
+                x,
+                y,
+                z,
+            )
+
+        def remember_biology(
+            system_address,
+            body_id,
+            genus="",
+            species="",
+            variant="",
+            scan_type="",
+            timestamp="",
+        ):
+            if system_address is None or body_id is None:
+                return
+
+            if not (genus or species or variant):
+                return
+
+            seen = (
+                timestamp
+                or datetime.now(timezone.utc)
+                .isoformat()
+                .replace("+00:00", "Z")
+            )
+
+            key = (
+                int(system_address),
+                int(body_id),
+                str(genus or ""),
+                str(species or ""),
+                str(variant or ""),
+            )
+
+            previous = biology_entries.get(key)
+
+            if previous is None:
+                biology_entries[key] = {
+                    "scan_type": str(scan_type or ""),
+                    "first_seen": seen,
+                    "last_seen": seen,
+                }
+            else:
+                if scan_type:
+                    previous["scan_type"] = str(scan_type)
+                previous["last_seen"] = seen
+
+        def remember_geology(
+            system_address,
+            body_id,
+            name="",
+            raw_name="",
+            source="",
+            timestamp="",
+        ):
+            if system_address is None or body_id is None:
+                return
+
+            display_name = self._geo_display_name(
+                name or raw_name
+            )
+
+            if not display_name:
+                return
+
+            seen = (
+                timestamp
+                or datetime.now(timezone.utc)
+                .isoformat()
+                .replace("+00:00", "Z")
+            )
+
+            key = (
+                int(system_address),
+                int(body_id),
+                display_name,
+                str(source or ""),
+            )
+
+            previous = geology_entries.get(key)
+
+            if previous is None:
+                geology_entries[key] = {
+                    "raw_name": str(raw_name or ""),
+                    "first_seen": seen,
+                    "last_seen": seen,
+                }
+            else:
+                if raw_name:
+                    previous["raw_name"] = str(raw_name)
+                previous["last_seen"] = seen
+
+        def remember_codex(
+            system_address=None,
+            system_name="",
+            category="",
+            subcategory="",
+            name="",
+            raw_name="",
+            nearest_destination="",
+            region="",
+            event_type="CodexEntry",
+            timestamp="",
+        ):
+            display_name = str(
+                name or raw_name or ""
+            ).strip()
+
+            if not display_name:
+                return
+
+            seen = (
+                timestamp
+                or datetime.now(timezone.utc)
+                .isoformat()
+                .replace("+00:00", "Z")
+            )
+
+            address = (
+                int(system_address)
+                if isinstance(system_address, int)
+                else None
+            )
+
+            key = (
+                address,
+                str(category or ""),
+                str(subcategory or ""),
+                display_name,
+                str(nearest_destination or ""),
+                str(event_type or ""),
+            )
+
+            previous = codex_entries.get(key)
+
+            if previous is None:
+                codex_entries[key] = {
+                    "system_name": str(system_name or ""),
+                    "raw_name": str(raw_name or ""),
+                    "region": str(region or ""),
+                    "first_seen": seen,
+                    "last_seen": seen,
+                }
+            else:
+                if system_name:
+                    previous["system_name"] = str(system_name)
+                if raw_name:
+                    previous["raw_name"] = str(raw_name)
+                if region:
+                    previous["region"] = str(region)
+                previous["last_seen"] = seen
+
+        # -------------------------------------------------------------
+        # Journale parsen – KEINE SQLite-Schreibzugriffe in dieser Schleife
+        # -------------------------------------------------------------
+        for index, journal in enumerate(
+            journals,
+            start=1,
+        ):
             current_line_number = 0
             current_event_name = ""
 
@@ -1422,8 +1632,6 @@ class CMDRDatabase:
                         try:
                             event = json.loads(line)
                         except json.JSONDecodeError:
-                            # Einzelne beschädigte JSON-Zeilen bleiben wie bisher
-                            # toleriert und stoppen den Archivimport nicht.
                             continue
 
                         et = event.get("event")
@@ -1448,7 +1656,9 @@ class CMDRDatabase:
                             if isinstance(address, int):
                                 current_address = address
 
-                            current_system = name or current_system
+                            current_system = (
+                                name or current_system
+                            )
 
                             entry = ensure_system(
                                 current_address,
@@ -1457,17 +1667,35 @@ class CMDRDatabase:
                             )
 
                             star_pos = event.get("StarPos")
-                            if entry is not None and isinstance(star_pos, (list, tuple)) and len(star_pos) >= 3:
+
+                            if (
+                                entry is not None
+                                and isinstance(
+                                    star_pos,
+                                    (list, tuple),
+                                )
+                                and len(star_pos) >= 3
+                            ):
                                 entry["star_pos"] = [
-                                    float(star_pos[0]), float(star_pos[1]), float(star_pos[2])
+                                    float(star_pos[0]),
+                                    float(star_pos[1]),
+                                    float(star_pos[2]),
                                 ]
 
-                            if et in ("Location", "FSDJump", "CarrierJump"):
-                                self.store_visit(
+                            if et in (
+                                "Location",
+                                "FSDJump",
+                                "CarrierJump",
+                            ):
+                                remember_visit(
                                     current_address,
                                     current_system,
                                     ts,
-                                    entry.get("star_pos") if entry else None,
+                                    (
+                                        entry.get("star_pos")
+                                        if entry
+                                        else None
+                                    ),
                                 )
 
                         elif et == "FSSDiscoveryScan":
@@ -1714,40 +1942,23 @@ class CMDRDatabase:
                                     or ts
                                 ),
                                 "last_seen": ts,
-                            }
-
-                            # Bewertung wird bewusst lokal nachgebildet,
-                            # indem die schon gespeicherten Wertfelder
-                            # zunächst auf 0 gesetzt werden. Der Live-
-                            # Betrieb aktualisiert sie später regulär.
-                            body.setdefault(
-                                "scan_value",
-                                previous.get(
+                                "scan_value": previous.get(
                                     "scan_value",
                                     0,
                                 ),
-                            )
-                            body.setdefault(
-                                "mapped_value",
-                                previous.get(
+                                "mapped_value": previous.get(
                                     "mapped_value",
                                     0,
                                 ),
-                            )
-                            body.setdefault(
-                                "current_value",
-                                previous.get(
+                                "current_value": previous.get(
                                     "current_value",
                                     0,
                                 ),
-                            )
-                            body.setdefault(
-                                "high_value",
-                                previous.get(
+                                "high_value": previous.get(
                                     "high_value",
                                     False,
                                 ),
-                            )
+                            }
 
                             bodies[key] = body
 
@@ -1830,9 +2041,9 @@ class CMDRDatabase:
                                 event
                             )
 
-                            # Neben der Anzahl auch konkrete GEO-Bezeichnungen
-                            # sichern, falls Frontier sie im Signal selbst liefert.
-                            for signal in event.get("Signals") or []:
+                            for signal in event.get(
+                                "Signals"
+                            ) or []:
                                 if not isinstance(signal, dict):
                                     continue
 
@@ -1849,7 +2060,8 @@ class CMDRDatabase:
                                 if (
                                     "geological" in signal_lower
                                     or "geologisch" in signal_lower
-                                    or "saa_signaltype_geological" in signal_lower
+                                    or "saa_signaltype_geological"
+                                    in signal_lower
                                 ):
                                     specific_name = (
                                         signal.get("Name_Localised")
@@ -1859,7 +2071,7 @@ class CMDRDatabase:
                                         or ""
                                     )
 
-                                    self.store_geology(
+                                    remember_geology(
                                         address,
                                         body_id,
                                         name=specific_name,
@@ -1941,46 +2153,47 @@ class CMDRDatabase:
                                 or ""
                             )
 
-                            codex_text = (
-                                f"{codex_category} "
-                                f"{codex_subcategory} "
-                                f"{codex_name}"
-                            ).lower()
-
                             codex_body_id = event.get("BodyID")
+
                             if (
                                 codex_body_id is None
-                                and isinstance(event.get("Body"), int)
+                                and isinstance(
+                                    event.get("Body"),
+                                    int,
+                                )
                             ):
                                 codex_body_id = event.get("Body")
 
-                            # Nur echte geologische Codex-Einträge übernehmen.
-                            # Frontier verwendet bei manchen BIO-Funden die
-                            # lokalisierte Kategorie "Biologisch und geologisch".
-                            # Das Wort "geologisch" allein darf deshalb NICHT
-                            # als GEO-Kriterium dienen.
                             category_raw = str(
-                                event.get("Category") or ""
+                                event.get("Category")
+                                or ""
                             ).lower()
                             subcategory_raw = str(
-                                event.get("SubCategory") or ""
+                                event.get("SubCategory")
+                                or ""
                             ).lower()
                             name_raw = str(
-                                event.get("Name") or ""
+                                event.get("Name")
+                                or ""
                             ).lower()
                             name_local = str(
                                 codex_name or ""
                             ).lower()
 
                             is_biology = (
-                                "category_biology" in category_raw
-                                or "organic" in subcategory_raw
-                                or "organische strukturen" in codex_subcategory.lower()
+                                "category_biology"
+                                in category_raw
+                                or "organic"
+                                in subcategory_raw
+                                or "organische strukturen"
+                                in codex_subcategory.lower()
                             )
 
                             is_specific_geology = (
-                                "category_geology" in category_raw
-                                or "geolog" in subcategory_raw
+                                "category_geology"
+                                in category_raw
+                                or "geolog"
+                                in subcategory_raw
                                 or "fumar" in name_raw
                                 or "fumar" in name_local
                                 or "geyser" in name_raw
@@ -1998,16 +2211,19 @@ class CMDRDatabase:
                                 and is_specific_geology
                                 and not is_biology
                             ):
-                                self.store_geology(
+                                remember_geology(
                                     address,
                                     codex_body_id,
                                     name=codex_name,
-                                    raw_name=event.get("Name") or "",
+                                    raw_name=(
+                                        event.get("Name")
+                                        or ""
+                                    ),
                                     source="CodexEntry",
                                     timestamp=ts,
                                 )
 
-                            self.store_codex_entry(
+                            remember_codex(
                                 system_address=address,
                                 system_name=(
                                     event.get("System")
@@ -2015,24 +2231,17 @@ class CMDRDatabase:
                                     or current_system
                                     or ""
                                 ),
-                                category=(
-                                    event.get("Category_Localised")
-                                    or event.get("Category")
+                                category=codex_category,
+                                subcategory=codex_subcategory,
+                                name=codex_name,
+                                raw_name=(
+                                    event.get("Name")
                                     or ""
                                 ),
-                                subcategory=(
-                                    event.get("SubCategory_Localised")
-                                    or event.get("SubCategory")
-                                    or ""
-                                ),
-                                name=(
-                                    event.get("Name_Localised")
-                                    or event.get("Name")
-                                    or ""
-                                ),
-                                raw_name=event.get("Name") or "",
                                 nearest_destination=(
-                                    event.get("NearestDestination")
+                                    event.get(
+                                        "NearestDestination"
+                                    )
                                     or ""
                                 ),
                                 region=(
@@ -2063,13 +2272,19 @@ class CMDRDatabase:
                             )
 
                             fss_body_id = event.get("BodyID")
+
                             if (
                                 fss_body_id is None
-                                and isinstance(event.get("Body"), int)
+                                and isinstance(
+                                    event.get("Body"),
+                                    int,
+                                )
                             ):
                                 fss_body_id = event.get("Body")
 
-                            signal_lower = str(signal_name).lower()
+                            signal_lower = str(
+                                signal_name
+                            ).lower()
 
                             if (
                                 address is not None
@@ -2082,23 +2297,33 @@ class CMDRDatabase:
                                     or "lava" in signal_lower
                                 )
                             ):
-                                self.store_geology(
+                                remember_geology(
                                     address,
                                     fss_body_id,
                                     name=signal_name,
-                                    raw_name=event.get("SignalName") or "",
-                                    source="FSSSignalDiscovered",
+                                    raw_name=(
+                                        event.get("SignalName")
+                                        or ""
+                                    ),
+                                    source=(
+                                        "FSSSignalDiscovered"
+                                    ),
                                     timestamp=ts,
                                 )
 
-                            self.store_codex_entry(
+                            remember_codex(
                                 system_address=address,
                                 system_name=current_system,
                                 category="FSS-Signal",
                                 subcategory="",
                                 name=signal_name,
-                                raw_name=event.get("SignalName") or "",
-                                event_type="FSSSignalDiscovered",
+                                raw_name=(
+                                    event.get("SignalName")
+                                    or ""
+                                ),
+                                event_type=(
+                                    "FSSSignalDiscovered"
+                                ),
                                 timestamp=ts,
                             )
 
@@ -2108,7 +2333,14 @@ class CMDRDatabase:
                                 current_address,
                             )
                             body_id = event.get("BodyID")
-                            if body_id is None and isinstance(event.get("Body"), int):
+
+                            if (
+                                body_id is None
+                                and isinstance(
+                                    event.get("Body"),
+                                    int,
+                                )
+                            ):
                                 body_id = event.get("Body")
 
                             if (
@@ -2125,13 +2357,28 @@ class CMDRDatabase:
                             except Exception:
                                 continue
 
-                            self.store_biology(
+                            remember_biology(
                                 address,
                                 body_id,
-                                genus=event.get("Genus_Localised") or event.get("Genus") or "",
-                                species=event.get("Species_Localised") or event.get("Species") or "",
-                                variant=event.get("Variant_Localised") or event.get("Variant") or "",
-                                scan_type=event.get("ScanType") or "",
+                                genus=(
+                                    event.get("Genus_Localised")
+                                    or event.get("Genus")
+                                    or ""
+                                ),
+                                species=(
+                                    event.get("Species_Localised")
+                                    or event.get("Species")
+                                    or ""
+                                ),
+                                variant=(
+                                    event.get("Variant_Localised")
+                                    or event.get("Variant")
+                                    or ""
+                                ),
+                                scan_type=(
+                                    event.get("ScanType")
+                                    or ""
+                                ),
                                 timestamp=ts,
                             )
 
@@ -2171,6 +2418,7 @@ class CMDRDatabase:
                     f"Fehler: {type(exc).__name__}: {exc}"
                 ) from exc
 
+            # Journal erst nach erfolgreichem Parsen als importiert vormerken.
             try:
                 stat = journal.stat()
             except OSError:
@@ -2183,73 +2431,515 @@ class CMDRDatabase:
                     .replace("+00:00", "Z")
                 )
 
-                with self._connect() as con:
+                journal_marks.append(
+                    (
+                        str(journal),
+                        int(stat.st_size),
+                        int(stat.st_mtime_ns),
+                        now,
+                    )
+                )
+
+        # -------------------------------------------------------------
+        # EINMALIGER SQLite-Schreibblock
+        # -------------------------------------------------------------
+        if progress_callback:
+            progress_callback(
+                total,
+                total,
+                "Schreibe Datenbank …",
+            )
+
+        with self._connect() as con:
+            # Systeme
+            for address, system in systems.items():
+                system_bodies = [
+                    body
+                    for (
+                        body_address,
+                        _body_id,
+                    ), body in bodies.items()
+                    if body_address == address
+                ]
+
+                seen = (
+                    system.get("last_seen")
+                    or datetime.now(timezone.utc)
+                    .isoformat()
+                    .replace("+00:00", "Z")
+                )
+
+                first_seen = (
+                    system.get("first_seen")
+                    or seen
+                )
+
+                star_pos = (
+                    system.get("star_pos")
+                    or [None, None, None]
+                )
+
+                con.execute(
+                    """
+                    INSERT INTO systems (
+                        system_address, name,
+                        first_seen, last_seen,
+                        body_count, all_bodies_found,
+                        x, y, z
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(system_address)
+                    DO UPDATE SET
+                        name=CASE
+                            WHEN excluded.name <> ''
+                            THEN excluded.name
+                            ELSE systems.name
+                        END,
+                        last_seen=excluded.last_seen,
+                        body_count=MAX(
+                            systems.body_count,
+                            excluded.body_count
+                        ),
+                        all_bodies_found=MAX(
+                            systems.all_bodies_found,
+                            excluded.all_bodies_found
+                        ),
+                        x=COALESCE(excluded.x, systems.x),
+                        y=COALESCE(excluded.y, systems.y),
+                        z=COALESCE(excluded.z, systems.z)
+                    """,
+                    (
+                        int(address),
+                        system.get("name") or "",
+                        first_seen,
+                        seen,
+                        max(
+                            int(
+                                system.get(
+                                    "body_count",
+                                    0,
+                                )
+                            ),
+                            len(system_bodies),
+                        ),
+                        self._bool_db(
+                            system.get(
+                                "all_bodies_found",
+                                False,
+                            )
+                        ) or 0,
+                        (
+                            star_pos[0]
+                            if len(star_pos) > 0
+                            else None
+                        ),
+                        (
+                            star_pos[1]
+                            if len(star_pos) > 1
+                            else None
+                        ),
+                        (
+                            star_pos[2]
+                            if len(star_pos) > 2
+                            else None
+                        ),
+                    ),
+                )
+
+            # Körper + Materialien
+            for (address, body_id), body in bodies.items():
+                seen = (
+                    body.get("last_seen")
+                    or datetime.now(timezone.utc)
+                    .isoformat()
+                    .replace("+00:00", "Z")
+                )
+                first_seen = (
+                    body.get("first_seen")
+                    or seen
+                )
+
+                con.execute(
+                    """
+                    INSERT INTO bodies (
+                        system_address, body_id,
+                        name, short_name, body_type,
+                        star_type, planet_class,
+                        parent_id, mass_em, stellar_mass,
+                        gravity_g, distance_ls,
+                        landable, terraformable,
+                        was_discovered, was_mapped,
+                        self_mapped, efficient_mapping,
+                        atmosphere, volcanism,
+                        biological_signals,
+                        geological_signals,
+                        scan_value, mapped_value,
+                        current_value, high_value,
+                        first_seen, last_seen
+                    )
+                    VALUES (
+                        ?,?,?,?,?,?,?,?,?,?,
+                        ?,?,?,?,?,?,?,?,?,?,
+                        ?,?,?,?,?,?,?,?
+                    )
+                    ON CONFLICT(system_address, body_id)
+                    DO UPDATE SET
+                        name=excluded.name,
+                        short_name=excluded.short_name,
+                        body_type=excluded.body_type,
+                        star_type=excluded.star_type,
+                        planet_class=excluded.planet_class,
+                        parent_id=excluded.parent_id,
+                        mass_em=COALESCE(
+                            excluded.mass_em,
+                            bodies.mass_em
+                        ),
+                        stellar_mass=COALESCE(
+                            excluded.stellar_mass,
+                            bodies.stellar_mass
+                        ),
+                        gravity_g=COALESCE(
+                            excluded.gravity_g,
+                            bodies.gravity_g
+                        ),
+                        distance_ls=COALESCE(
+                            excluded.distance_ls,
+                            bodies.distance_ls
+                        ),
+                        landable=excluded.landable,
+                        terraformable=excluded.terraformable,
+                        was_discovered=COALESCE(
+                            excluded.was_discovered,
+                            bodies.was_discovered
+                        ),
+                        was_mapped=COALESCE(
+                            excluded.was_mapped,
+                            bodies.was_mapped
+                        ),
+                        self_mapped=MAX(
+                            bodies.self_mapped,
+                            excluded.self_mapped
+                        ),
+                        efficient_mapping=MAX(
+                            bodies.efficient_mapping,
+                            excluded.efficient_mapping
+                        ),
+                        atmosphere=CASE
+                            WHEN excluded.atmosphere <> ''
+                            THEN excluded.atmosphere
+                            ELSE bodies.atmosphere
+                        END,
+                        volcanism=CASE
+                            WHEN excluded.volcanism <> ''
+                            THEN excluded.volcanism
+                            ELSE bodies.volcanism
+                        END,
+                        biological_signals=MAX(
+                            bodies.biological_signals,
+                            excluded.biological_signals
+                        ),
+                        geological_signals=MAX(
+                            bodies.geological_signals,
+                            excluded.geological_signals
+                        ),
+                        scan_value=excluded.scan_value,
+                        mapped_value=excluded.mapped_value,
+                        current_value=excluded.current_value,
+                        high_value=excluded.high_value,
+                        last_seen=excluded.last_seen
+                    """,
+                    (
+                        int(address),
+                        int(body_id),
+                        body.get("name") or "",
+                        body.get("short_name") or "",
+                        body.get("body_type") or "",
+                        body.get("star_type") or "",
+                        body.get("planet_class") or "",
+                        body.get("parent_id"),
+                        body.get("mass_em"),
+                        body.get("stellar_mass"),
+                        body.get("gravity_g"),
+                        body.get("distance_ls"),
+                        self._bool_db(
+                            body.get("landable")
+                        ) or 0,
+                        self._bool_db(
+                            body.get("terraformable")
+                        ) or 0,
+                        self._bool_db(
+                            body.get("was_discovered")
+                        ),
+                        self._bool_db(
+                            body.get("was_mapped")
+                        ),
+                        self._bool_db(
+                            body.get("self_mapped")
+                        ) or 0,
+                        self._bool_db(
+                            body.get("efficient_mapping")
+                        ) or 0,
+                        body.get("atmosphere") or "",
+                        body.get("volcanism") or "",
+                        int(
+                            body.get(
+                                "biological_signals"
+                            )
+                            or 0
+                        ),
+                        int(
+                            body.get(
+                                "geological_signals"
+                            )
+                            or 0
+                        ),
+                        int(
+                            body.get("scan_value")
+                            or 0
+                        ),
+                        int(
+                            body.get("mapped_value")
+                            or 0
+                        ),
+                        int(
+                            body.get("current_value")
+                            or 0
+                        ),
+                        self._bool_db(
+                            body.get("high_value")
+                        ) or 0,
+                        first_seen,
+                        seen,
+                    ),
+                )
+
+                for name, percentage in self._materials(
+                    body
+                ):
+                    try:
+                        percentage = (
+                            float(percentage)
+                            if percentage is not None
+                            else None
+                        )
+                    except (TypeError, ValueError):
+                        percentage = None
+
                     con.execute(
                         """
-                        INSERT INTO journal_imports (
-                            journal_file,
-                            file_size,
-                            modified_ns,
-                            last_import
+                        INSERT INTO materials (
+                            system_address,
+                            body_id,
+                            material_name,
+                            percentage
                         )
                         VALUES (?, ?, ?, ?)
-                        ON CONFLICT(journal_file)
+                        ON CONFLICT(
+                            system_address,
+                            body_id,
+                            material_name
+                        )
                         DO UPDATE SET
-                            file_size=excluded.file_size,
-                            modified_ns=excluded.modified_ns,
-                            last_import=excluded.last_import
+                            percentage=excluded.percentage
                         """,
                         (
-                            str(journal),
-                            int(stat.st_size),
-                            int(stat.st_mtime_ns),
-                            now,
+                            int(address),
+                            int(body_id),
+                            str(name),
+                            percentage,
                         ),
                     )
 
-        # Persist all collected systems and bodies.
-        for address, system in systems.items():
-            system_bodies = [
-                body
-                for (
-                    body_address,
-                    _body_id,
-                ), body in bodies.items()
-                if body_address == address
-            ]
+            # Besuche
+            con.executemany(
+                """
+                INSERT OR IGNORE INTO system_visits (
+                    system_address,
+                    system_name,
+                    visited_at,
+                    x, y, z
+                )
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                list(visits.values()),
+            )
 
-            snapshot = {
-                "system_address": address,
-                "system": system.get(
-                    "name",
-                    "",
-                ),
-                "last_timestamp": system.get(
-                    "last_seen",
-                    "",
-                ),
-                "system_body_count": max(
-                    int(
-                        system.get(
-                            "body_count",
-                            0,
-                        )
-                    ),
-                    len(system_bodies),
-                ),
-                "system_all_bodies_found": bool(
-                    system.get(
-                        "all_bodies_found",
-                        False,
+            # Biologie
+            biology_rows = []
+            for key, values in biology_entries.items():
+                address, body_id, genus, species, variant = key
+                biology_rows.append(
+                    (
+                        address,
+                        body_id,
+                        genus,
+                        species,
+                        variant,
+                        values["scan_type"],
+                        values["first_seen"],
+                        values["last_seen"],
                     )
-                ),
-                "star_pos": system.get("star_pos"),
-                "system_bodies": system_bodies,
-            }
+                )
 
-            self.store_snapshot(snapshot)
+            con.executemany(
+                """
+                INSERT INTO biology (
+                    system_address, body_id,
+                    genus, species, variant,
+                    scan_type, first_seen, last_seen
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(
+                    system_address,
+                    body_id,
+                    genus,
+                    species,
+                    variant
+                )
+                DO UPDATE SET
+                    scan_type=CASE
+                        WHEN excluded.scan_type <> ''
+                        THEN excluded.scan_type
+                        ELSE biology.scan_type
+                    END,
+                    last_seen=excluded.last_seen
+                """,
+                biology_rows,
+            )
+
+            # Geologie
+            geology_rows = []
+            for key, values in geology_entries.items():
+                address, body_id, name, source = key
+                geology_rows.append(
+                    (
+                        address,
+                        body_id,
+                        name,
+                        values["raw_name"],
+                        source,
+                        values["first_seen"],
+                        values["last_seen"],
+                    )
+                )
+
+            con.executemany(
+                """
+                INSERT INTO geology (
+                    system_address, body_id,
+                    name, raw_name, source,
+                    first_seen, last_seen
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(
+                    system_address,
+                    body_id,
+                    name,
+                    source
+                )
+                DO UPDATE SET
+                    raw_name=CASE
+                        WHEN excluded.raw_name <> ''
+                        THEN excluded.raw_name
+                        ELSE geology.raw_name
+                    END,
+                    last_seen=excluded.last_seen
+                """,
+                geology_rows,
+            )
+
+            # Codex / Phänomene
+            codex_rows = []
+            for key, values in codex_entries.items():
+                (
+                    address,
+                    category,
+                    subcategory,
+                    name,
+                    nearest_destination,
+                    event_type,
+                ) = key
+
+                codex_rows.append(
+                    (
+                        address,
+                        values["system_name"],
+                        category,
+                        subcategory,
+                        name,
+                        values["raw_name"],
+                        nearest_destination,
+                        values["region"],
+                        event_type,
+                        values["first_seen"],
+                        values["last_seen"],
+                    )
+                )
+
+            con.executemany(
+                """
+                INSERT INTO codex_entries (
+                    system_address, system_name,
+                    category, subcategory,
+                    name, raw_name,
+                    nearest_destination, region,
+                    event_type, first_seen, last_seen
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(
+                    system_address,
+                    category,
+                    subcategory,
+                    name,
+                    nearest_destination,
+                    event_type
+                )
+                DO UPDATE SET
+                    system_name=CASE
+                        WHEN excluded.system_name <> ''
+                        THEN excluded.system_name
+                        ELSE codex_entries.system_name
+                    END,
+                    raw_name=CASE
+                        WHEN excluded.raw_name <> ''
+                        THEN excluded.raw_name
+                        ELSE codex_entries.raw_name
+                    END,
+                    region=CASE
+                        WHEN excluded.region <> ''
+                        THEN excluded.region
+                        ELSE codex_entries.region
+                    END,
+                    last_seen=excluded.last_seen
+                """,
+                codex_rows,
+            )
+
+            # Erst NACH erfolgreichem Datenbank-Schreibblock die Journale
+            # als verarbeitet markieren.
+            con.executemany(
+                """
+                INSERT INTO journal_imports (
+                    journal_file,
+                    file_size,
+                    modified_ns,
+                    last_import
+                )
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(journal_file)
+                DO UPDATE SET
+                    file_size=excluded.file_size,
+                    modified_ns=excluded.modified_ns,
+                    last_import=excluded.last_import
+                """,
+                journal_marks,
+            )
 
         stats = self.stats()
+        logger.info(
+            "Datenbankimport abgeschlossen: %s Journaldatei(en)",
+            total,
+        )
         stats["imported_journals"] = total
         stats["skipped_journals"] = skipped_count
         return stats

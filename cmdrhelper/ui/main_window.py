@@ -502,6 +502,14 @@ class MainWindow(QMainWindow):
             objectName="statusWarn"
         )
 
+        self.edsm_upload_label = QLabel(
+            "● EDSM wartet",
+            objectName="muted"
+        )
+        self.edsm_upload_label.setToolTip(
+            "Status der automatischen EDSM-Journalübertragung"
+        )
+
         top.addWidget(
             self.commander_label
         )
@@ -520,6 +528,12 @@ class MainWindow(QMainWindow):
 
         top.addWidget(
             self.connection_label
+        )
+
+        top.addSpacing(16)
+
+        top.addWidget(
+            self.edsm_upload_label
         )
 
         right_layout.addWidget(
@@ -2951,6 +2965,57 @@ class MainWindow(QMainWindow):
 
         self.connection_label.style().polish(
             self.connection_label
+        )
+
+        edsm_status = getattr(
+            self.state,
+            "edsm_upload_status",
+            "disabled",
+        )
+        edsm_message = getattr(
+            self.state,
+            "edsm_upload_message",
+            "",
+        )
+
+        if edsm_status == "ok":
+            self.edsm_upload_label.setText(
+                "● EDSM Übertragung"
+            )
+            self.edsm_upload_label.setObjectName(
+                "statusOk"
+            )
+        elif edsm_status == "error":
+            self.edsm_upload_label.setText(
+                "● EDSM Fehler"
+            )
+            self.edsm_upload_label.setObjectName(
+                "statusWarn"
+            )
+        elif edsm_status == "waiting":
+            self.edsm_upload_label.setText(
+                "● EDSM wartet"
+            )
+            self.edsm_upload_label.setObjectName(
+                "muted"
+            )
+        else:
+            self.edsm_upload_label.setText(
+                "● EDSM aus"
+            )
+            self.edsm_upload_label.setObjectName(
+                "muted"
+            )
+
+        self.edsm_upload_label.setToolTip(
+            edsm_message
+            or "Status der automatischen EDSM-Journalübertragung"
+        )
+        self.edsm_upload_label.style().unpolish(
+            self.edsm_upload_label
+        )
+        self.edsm_upload_label.style().polish(
+            self.edsm_upload_label
         )
 
         self.sidebar_system.setText(

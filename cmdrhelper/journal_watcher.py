@@ -1,8 +1,11 @@
 from pathlib import Path
+import logging
 
 from PySide6.QtCore import QObject, QTimer, Signal
 
 from cmdrhelper.journal_reader import journal_files
+
+logger = logging.getLogger(__name__)
 
 
 class JournalWatcher(QObject):
@@ -57,7 +60,8 @@ class JournalWatcher(QObject):
         try:
             files = journal_files(self.folder)
         except (OSError, PermissionError):
-            return
+            logger.exception("Journaldatei kann nicht gelesen werden: %s", path)
+            return None
 
         if not files:
             return
@@ -72,8 +76,13 @@ class JournalWatcher(QObject):
 
         if self._sig is None:
             self._sig = sig
+            logger.info("Journal überwacht: %s", current.name)
             return
 
         if sig != self._sig:
+            old_path = self._sig[0] if self._sig else ""
             self._sig = sig
+            if old_path != str(current):
+                logger.info("Neue Journaldatei erkannt: %s", current.name)
+            logger.debug("Journaländerung erkannt: %s", current.name)
             self.journalChanged.emit()

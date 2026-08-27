@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import platform
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from cmdrhelper.mission_manager import build_summary, default_next_step, mission_kind
@@ -38,6 +38,149 @@ def journal_files(folder: Path) -> list[Path]:
     if not folder or not folder.exists():
         return []
     return sorted(folder.glob("Journal.*.log"))
+
+
+
+def _parse_frontier_message_params(message: str) -> dict:
+    result = {}
+    for part in str(message or "").split(":#")[1:]:
+        if "=" not in part:
+            continue
+        key, value = part.split("=", 1)
+        result[key.strip()] = value.strip().rstrip(";")
+    return result
+
+
+def _clean_frontier_token(value: str) -> str:
+    raw = str(value or "").strip()
+    if raw.startswith("$") and raw.endswith("_Name;"):
+        raw = raw[1:-6]
+    elif raw.startswith("$") and raw.endswith("_Name"):
+        raw = raw[1:-5]
+    return raw.replace("_", " ").strip()
+
+
+def _receive_text_offer(event: dict) -> dict | None:
+    if event.get("event") != "ReceiveText":
+        return None
+
+    message = str(event.get("Message") or "")
+    if "$Mission_Collect_" not in message or "_MessengerChat" not in message:
+        return None
+
+    params = _parse_frontier_message_params(message)
+    if not params:
+        return None
+
+    try:
+        count = int(float(params.get("CommodityQuantity") or 0))
+    except (TypeError, ValueError):
+        count = 0
+
+    try:
+        reward = int(float(params.get("reward") or 0))
+    except (TypeError, ValueError):
+        reward = 0
+
+    return {
+        "mission_type": "collect",
+        "timestamp": event.get("timestamp") or "",
+        "sender": event.get("From_Localised") or event.get("From") or "",
+        "message": event.get("Message_Localised") or "",
+        "commodity": _clean_frontier_token(params.get("CommodityName") or ""),
+        "count": count,
+        "reward": reward,
+        "destination_station": (
+            params.get("destinationStationName")
+            or params.get("altDestinationStationName")
+            or ""
+        ),
+        "destination_system": (
+            params.get("destinationStationSystemName")
+            or params.get("altDestinationStationSystemName")
+            or ""
+        ),
+        "contact": params.get("missionGiverFactionContact") or "",
+        "matched": False,
+    }
+
+
+def _event_dt(timestamp: str):
+    if not timestamp:
+        return None
+    try:
+        return datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def _matching_pending_offer(
+    pending_offers: list[dict],
+    mission_item: dict,
+    snapshot_timestamp: str,
+) -> dict | None:
+    internal_name = str(mission_item.get("Name") or "")
+    if "Mission_Collect" not in internal_name:
+        return None
+
+    snapshot_dt = _event_dt(snapshot_timestamp)
+    candidates = []
+
+    for offer in pending_offers:
+        if offer.get("matched"):
+            continue
+        if offer.get("mission_type") != "collect":
+            continue
+
+        offer_dt = _event_dt(offer.get("timestamp") or "")
+        if snapshot_dt is not None and offer_dt is not None:
+            age = snapshot_dt - offer_dt
+            if age < timedelta(0) or age > timedelta(hours=24):
+                continue
+
+        candidates.append(offer)
+
+    # Nur bei eindeutiger Zuordnung automatisch verknüpfen.
+    if len(candidates) != 1:
+        return None
+
+    return candidates[0]
+
+
+def _enrich_mission_from_offer(mission: dict, offer: dict):
+    commodity = offer.get("commodity") or ""
+    count = int(offer.get("count") or 0)
+
+    if commodity:
+        mission["commodity"] = commodity
+    if count:
+        mission["count"] = count
+    if offer.get("destination_system"):
+        mission["destination_system"] = offer["destination_system"]
+    if offer.get("destination_station"):
+        mission["destination_station"] = offer["destination_station"]
+    if offer.get("reward"):
+        mission["reward"] = int(offer["reward"])
+
+    if commodity and count:
+        mission["name"] = f"{count} Einheiten besorgen und liefern: {commodity}"
+    elif commodity:
+        mission["name"] = f"Beschaffungsmission: {commodity}"
+    else:
+        mission["name"] = "Beschaffungsmission"
+
+    extra = dict(mission.get("extra") or {})
+    extra.update({
+        "source": "ReceiveText+Missions",
+        "offer_sender": offer.get("sender") or "",
+        "offer_message": offer.get("message") or "",
+        "offer_contact": offer.get("contact") or "",
+        "offer_reward": int(offer.get("reward") or 0),
+        "offer_timestamp": offer.get("timestamp") or "",
+    })
+    mission["extra"] = extra
+    mission["next_step"] = default_next_step(mission)
+    mission["summary"] = build_summary(mission)
 
 
 def _new_mission(e: dict) -> dict:
@@ -181,6 +324,31 @@ def _update_mission_event(mission: dict, e: dict):
         delivered = e.get("ItemsDelivered")
         total = e.get("TotalItemsToDeliver")
 
+        cargo_name = (
+            e.get("CargoType_Localised")
+            or e.get("CargoType")
+            or ""
+        )
+        if cargo_name and not mission.get("commodity"):
+            mission["commodity"] = cargo_name
+
+        if total is not None and not mission.get("count"):
+            try:
+                mission["count"] = int(total)
+            except (TypeError, ValueError):
+                pass
+
+        if (
+            mission.get("commodity")
+            and mission.get("count")
+            and str(mission.get("name") or "").startswith("Mission_")
+        ):
+            mission["name"] = (
+                f"{mission['count']} Einheiten besorgen "
+                f"und liefern: {mission['commodity']}"
+            )
+            mission["summary"] = build_summary(mission)
+
         if update_type == "collect":
             mission["status"] = "Ware aufgenommen"
             if collected is not None and total is not None:
@@ -262,6 +430,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
         return result
 
     missions: dict[int, dict] = {}
+    pending_mission_offers: list[dict] = []
 
     current_system = ""
     current_system_address = None
@@ -903,6 +1072,17 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                                 )
 
                 # ---------------------------------------------------------
+                # Missionsangebote per NPC-Nachricht
+                # ---------------------------------------------------------
+                elif et == "ReceiveText":
+                    if not _after_mission_reset(ts):
+                        continue
+
+                    offer = _receive_text_offer(e)
+                    if offer is not None:
+                        pending_mission_offers.append(offer)
+
+                # ---------------------------------------------------------
                 # Mission Snapshot
                 # ---------------------------------------------------------
                 elif et == "Missions":
@@ -935,7 +1115,21 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                             "timestamp": ts,
                         }
 
-                        missions[mid] = _new_mission(raw)
+                        mission = _new_mission(raw)
+
+                        offer = _matching_pending_offer(
+                            pending_mission_offers,
+                            item,
+                            ts,
+                        )
+                        if offer is not None:
+                            _enrich_mission_from_offer(
+                                mission,
+                                offer,
+                            )
+                            offer["matched"] = True
+
+                        missions[mid] = mission
 
                 elif et == "MissionAccepted":
                     if not _after_mission_reset(ts):

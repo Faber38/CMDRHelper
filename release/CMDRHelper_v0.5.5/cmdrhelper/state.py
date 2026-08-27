@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import logging
 import threading
 from datetime import datetime, timezone
 
@@ -21,6 +22,9 @@ from cmdrhelper.online_services import (
     load_cached_edsm_bodies,
 )
 from cmdrhelper.database import CMDRDatabase
+from cmdrhelper.edsm_uploader import EDSMJournalUploader
+
+logger = logging.getLogger(__name__)
 
 
 class AppState(QObject):
@@ -74,6 +78,21 @@ class AppState(QObject):
                 )
             ).lower()
             in ("1", "true", "yes", "on")
+        )
+
+        self.edsm_uploader = EDSMJournalUploader(
+            self.edsm_commander,
+            self.edsm_api_key,
+            settings=self.settings,
+        )
+        self._edsm_upload_running = False
+        self.edsm_upload_status = (
+            "disabled" if not self.edsm_enabled else "waiting"
+        )
+        self.edsm_upload_message = (
+            "EDSM deaktiviert"
+            if not self.edsm_enabled
+            else "Warte auf Übertragung"
         )
 
         self.inara_commander = self.settings.value(
@@ -133,6 +152,7 @@ class AppState(QObject):
                 self.journal_folder = paths[0]
 
         if self.journal_folder:
+            logger.info("Journalordner: %s", self.journal_folder)
             self.watcher.set_folder(
                 self.journal_folder
             )
@@ -193,6 +213,10 @@ class AppState(QObject):
             return
 
         self._database_import_running = True
+        logger.info(
+            "Journal-Archivimport gestartet (%s)",
+            "automatisch" if automatic else "manuell",
+        )
         self._database_import_manual_waiting = (
             not automatic
         )
@@ -230,6 +254,12 @@ class AppState(QObject):
                     progress_callback=progress,
                 )
 
+                logger.info(
+                    "Journal-Archivimport beendet: importiert=%s, übersprungen=%s",
+                    stats.get("imported_journals", 0),
+                    stats.get("skipped_journals", 0),
+                )
+
                 if (
                     not automatic
                     or self._database_import_manual_waiting
@@ -242,9 +272,8 @@ class AppState(QObject):
                 error_text = str(exc)
 
                 if automatic:
-                    print(
-                        "[CMDRHelper DB] Automatischer "
-                        f"Archivabgleich fehlgeschlagen: {error_text}"
+                    logger.exception(
+                        "Automatischer Archivabgleich fehlgeschlagen"
                     )
 
                 # Auch beim automatischen Startimport an die Oberfläche
@@ -271,6 +300,7 @@ class AppState(QObject):
 
     def set_journal_folder(self, folder):
         self.journal_folder = Path(folder)
+        logger.info("Journalordner geändert: %s", self.journal_folder)
 
         self.settings.setValue(
             "journal_folder",
@@ -329,6 +359,18 @@ class AppState(QObject):
                 self.edsm_enabled
             )
 
+        self.edsm_uploader.update_credentials(
+            self.edsm_commander,
+            self.edsm_api_key,
+        )
+
+        if not self.edsm_enabled:
+            self.edsm_upload_status = "disabled"
+            self.edsm_upload_message = "EDSM deaktiviert"
+        elif self.edsm_upload_status == "disabled":
+            self.edsm_upload_status = "waiting"
+            self.edsm_upload_message = "Warte auf Übertragung"
+
     def set_inara_settings(
         self,
         commander=None,
@@ -355,6 +397,68 @@ class AppState(QObject):
                 "inara/enabled",
                 self.inara_enabled
             )
+
+    def _upload_journal_to_edsm(self):
+        if (
+            not self.edsm_enabled
+            or not self.journal_folder
+            or self._edsm_upload_running
+        ):
+            return
+
+        self._edsm_upload_running = True
+        folder = Path(self.journal_folder)
+
+        def worker():
+            try:
+                result = self.edsm_uploader.process_folder(folder)
+
+                if result.get("initialized"):
+                    logger.info(
+                        "EDSM-Uploader initialisiert; vorhandene "
+                        "Journaldaten werden nicht erneut übertragen."
+                    )
+
+                error = result.get("error") or ""
+                if error:
+                    self.edsm_upload_status = "error"
+                    self.edsm_upload_message = str(error)
+                    logger.warning(
+                        "EDSM-Upload pausiert: %s",
+                        error,
+                    )
+                else:
+                    sent = int(result.get("sent") or 0)
+                    discarded = int(result.get("discarded") or 0)
+
+                    self.edsm_upload_status = "ok"
+                    if sent:
+                        self.edsm_upload_message = (
+                            f"Letzte Übertragung erfolgreich: "
+                            f"{sent} Event(s)"
+                        )
+                    elif discarded:
+                        self.edsm_upload_message = (
+                            "EDSM aktiv · Journal verarbeitet"
+                        )
+                    else:
+                        self.edsm_upload_message = (
+                            "EDSM aktiv · keine neuen Daten"
+                        )
+
+            except Exception as exc:
+                self.edsm_upload_status = "error"
+                self.edsm_upload_message = str(exc)
+                logger.exception("EDSM-Upload fehlgeschlagen")
+            finally:
+                self._edsm_upload_running = False
+                self.changed.emit()
+
+        threading.Thread(
+            target=worker,
+            daemon=True,
+            name="CMDRHelper-EDSM-Upload",
+        ).start()
 
     def _merge_edsm_into_system(
         self,
@@ -648,8 +752,8 @@ class AppState(QObject):
             # als vollständig archiv-importiert markieren. Das erledigt
             # ausschließlich der Archivimport selbst.
             self.database.store_snapshot(data)
-        except Exception as exc:
-            print(f"[CMDRHelper DB] Speichern fehlgeschlagen: {exc}")
+        except Exception:
+            logger.exception("Live-Snapshot konnte nicht gespeichert werden")
 
         for body in self.system_bodies:
             body["journal_scanned"] = True
@@ -676,4 +780,5 @@ class AppState(QObject):
 
         self.changed.emit()
 
+        self._upload_journal_to_edsm()
         self._request_edsm_for_current_system()
