@@ -184,7 +184,7 @@ contains the required application code and assets but excludes the
 personal database, Python virtual environments and Git/cache/editor
 files.
 
-## Version 0.9.5
+## Version 0.9.8
 
 Important changes since version 0.5.5:
 
@@ -217,6 +217,21 @@ Important changes since version 0.5.5:
     independently.
 -   open Explorer values are highlighted in yellow in the main window so
     unsold data is immediately visible.
+
+### Explorer live windows
+
+-   new freely positionable **live windows for valuable bodies and BIO finds** that appear automatically during exploration.
+-   live-window position and size are saved and reused the next time the window appears.
+-   when entering another star system, the live windows are automatically closed and cleared; they reappear only when matching data is detected in the new system.
+-   the **“Valuable bodies”** window automatically lists planets and moons whose currently achievable cartography value reaches the threshold selected in Settings.
+-   the same configurable threshold now controls value-list highlighting, the valuable-bodies live window and the **gold frame in the system map**.
+-   the **BIO live window** compactly shows bodies, detected genera/species, scan progress and known Vista Genomics values while playing.
+-   BIO finds use the same colour logic as the main window: grey = detected by DSS/FSS, white = first sample, yellow = second sample, green = analysis complete.
+-   partially identified BIO signals automatically expand a planet into individual find rows while still showing remaining unknown signals.
+-   once all BIO species on a body have been fully analysed, the body collapses back into a compact green summary row.
+-   generic DSS/FSS genus names are automatically replaced by the concrete BIO species once `ScanOrganic` identifies it.
+-   known individual values are shown directly with each BIO find; fully known bodies additionally show their combined value.
+-   the live windows use a subtle reddish-brown background so they remain visually distinct from the main CMDRHelper window while playing.
 
 ### BIO valuation
 
@@ -274,6 +289,8 @@ Important changes since version 0.5.5:
 
 ### Usability and stability
 
+-   UI font family and font size can be selected in Settings and are applied to the complete interface after restarting CMDRHelper.
+-   the Settings page is scrollable so all options remain accessible at smaller window sizes.
 -   visible **“Exit”** button in the left sidebar
 -   single-instance protection prevents accidentally starting CMDRHelper
     twice at the same time.

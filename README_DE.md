@@ -195,7 +195,7 @@ Die Release-Version wird direkt im Skript festgelegt. Das erzeugte ZIP
 enthält Programmcode und Assets, aber keine persönliche Datenbank, keine
 virtuelle Python-Umgebung sowie keine Git-, Cache- oder Editor-Dateien.
 
-## Version 0.9.5
+## Version 0.9.8
 
 Wichtige Änderungen seit Version 0.5.5:
 
@@ -229,6 +229,21 @@ Wichtige Änderungen seit Version 0.5.5:
     BIO werden getrennt zurückgesetzt.
 -   die offenen Explorer-Werte werden im Hauptfenster gelb hervorgehoben,
     damit noch nicht verkaufte Daten sofort erkennbar sind.
+
+### Explorer-Livefenster
+
+-   neue frei positionierbare **Livefenster für wertvolle Körper und BIO-Funde**, die während der Exploration automatisch erscheinen.
+-   Position und Größe der Livefenster werden gespeichert und beim nächsten Auftauchen wiederverwendet.
+-   beim Wechsel in ein anderes Sternsystem werden die Livefenster automatisch geschlossen und geleert; sie erscheinen erst wieder, wenn im neuen System passende Daten erkannt werden.
+-   das Fenster **„Wertvolle Körper“** übernimmt automatisch alle Planeten und Monde, deren aktuell erreichter Kartographiewert den in den Einstellungen gewählten Schwellenwert erreicht.
+-   derselbe einstellbare Schwellenwert steuert jetzt die gelbe Hervorhebung der Wertliste, das Livefenster für wertvolle Körper und den **Goldrahmen in der Systemkarte**.
+-   das **BIO-Livefenster** zeigt Körper, erkannte Gattungen bzw. Arten, Scanfortschritt und bekannte Vista-Genomics-Werte kompakt während des Spielens an.
+-   BIO-Funde verwenden dieselbe Farblogik wie im Hauptfenster: grau = DSS/FSS erkannt, weiß = erste Probe, gelb = zweite Probe, grün = Analyse vollständig.
+-   bei teilweise bestimmten BIO-Signalen klappt ein Planet automatisch auf und zeigt die einzelnen Funde in eigenen Zeilen; noch unbekannte Signale bleiben sichtbar.
+-   sobald alle BIO-Arten eines Körpers vollständig analysiert wurden, wird der Planet wieder zu einer kompakten grünen Zusammenfassungszeile zusammengeklappt.
+-   allgemeine DSS/FSS-Gattungsnamen werden automatisch durch die konkrete BIO-Art ersetzt, sobald diese durch `ScanOrganic` bekannt ist.
+-   bekannte Einzelwerte werden direkt beim jeweiligen BIO-Fund angezeigt; vollständig bekannte Körper zeigen zusätzlich den Gesamtwert.
+-   die Livefenster besitzen einen dezent rötlich-braunen Hintergrund, damit sie sich beim Spielen klar vom CMDRHelper-Hauptfenster unterscheiden.
 
 ### BIO-Auswertung
 
@@ -290,6 +305,8 @@ Wichtige Änderungen seit Version 0.5.5:
 
 ### Bedienung und Stabilität
 
+-   Schriftart und Schriftgröße der Oberfläche können in den Einstellungen gewählt und nach einem Neustart auf die gesamte Oberfläche angewendet werden.
+-   die Einstellungsseite ist scrollbar, damit alle Optionen auch bei kleineren Fenstergrößen erreichbar bleiben.
 -   sichtbarer **„Beenden“**-Schalter in der linken Seitenleiste
 -   Single-Instance-Sperre verhindert einen versehentlichen zweiten
     gleichzeitigen Programmstart.

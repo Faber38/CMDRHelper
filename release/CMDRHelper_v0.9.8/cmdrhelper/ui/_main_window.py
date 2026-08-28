@@ -637,19 +637,10 @@ class SystemOverviewDialog(QDialog):
 class ExplorerLiveListWindow(QDialog):
     """Kleines frei positionierbares Live-Fenster für Explorer-Hinweise."""
 
-    def __init__(
-        self,
-        title,
-        headers,
-        settings,
-        geometry_key,
-        parent=None,
-        window_kind="value",
-    ):
+    def __init__(self, title, headers, settings, geometry_key, parent=None):
         super().__init__(parent)
         self.settings = settings
         self.geometry_key = geometry_key
-        self.window_kind = str(window_kind or "value")
         self.setWindowTitle(title)
         self.setWindowFlags(self.windowFlags() | Qt.Window)
         self.resize(620, 260)
@@ -672,36 +663,6 @@ class ExplorerLiveListWindow(QDialog):
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.table.horizontalHeader().setStretchLastSection(True)
         root.addWidget(self.table, 1)
-
-        # Die Live-Fenster bewusst leicht rötlich/braun absetzen, damit sie
-        # sich während des Spielens klar vom Hauptfenster unterscheiden,
-        # ohne wie ein Warnfenster zu wirken.
-        self.setStyleSheet("""
-            QDialog {
-                background-color: #171012;
-            }
-            QLabel {
-                background: transparent;
-            }
-            QTableWidget {
-                background-color: #151012;
-                alternate-background-color: #1d1417;
-                gridline-color: #493038;
-                border: 1px solid #493038;
-                selection-background-color: #50313a;
-            }
-            QHeaderView::section {
-                background-color: #24171b;
-                border: 0;
-                border-right: 1px solid #493038;
-                border-bottom: 1px solid #493038;
-                padding: 5px;
-            }
-            QTableCornerButton::section {
-                background-color: #24171b;
-                border: 0;
-            }
-        """)
 
         geometry = self.settings.value(self.geometry_key)
         if geometry is not None:
@@ -728,195 +689,10 @@ class ExplorerLiveListWindow(QDialog):
 
     def set_rows(self, system_name, rows):
         self.system_label.setText(system_name or "–")
-
-        # Vor jedem Neuaufbau alte CellWidgets entfernen.
-        # QTableWidget.setRowCount() löscht zwar Items, aber bereits gesetzte
-        # QLabel-CellWidgets können beim Zusammenfalten sonst optisch in
-        # den neuen Zeilen liegen bleiben und Texte überlagern.
-        for row_index in range(self.table.rowCount()):
-            for col_index in range(self.table.columnCount()):
-                widget = self.table.cellWidget(row_index, col_index)
-                if widget is not None:
-                    self.table.removeCellWidget(row_index, col_index)
-                    widget.deleteLater()
-
-        self.table.clearContents()
-
-        # Das BIO-Fenster bekommt eine dynamische Gruppenansicht:
-        # 0 erkannt  -> eine kompakte Zeile
-        # teilweise  -> eine Zeile je erkannter Art + Restzeile
-        # vollständig-> wieder eine kompakte grüne Zusammenfassung
-        if self.window_kind == "bio":
-            display_rows = []
-
-            for row in rows:
-                if not isinstance(row, dict):
-                    continue
-
-                body_name = str(row.get("body_name") or "?")
-                signals = max(0, int(row.get("signals") or 0))
-                species = list(row.get("species") or [])
-                known_count = len(species)
-                known_value = int(row.get("known_value") or 0)
-
-                # Mehr Arten als Signale sollte praktisch nicht vorkommen;
-                # für ungewöhnliche Journaldaten trotzdem robust bleiben.
-                total_count = max(signals, known_count)
-
-                # WICHTIG:
-                # "Art bekannt" ist NICHT dasselbe wie "Analyse vollständig".
-                # Elite kennt die konkrete Art bereits nach der ersten Probe.
-                # Vollständig ist eine BIO-Art erst nach ScanOrganic
-                # Analyse/Analyze, also nach der dritten erfolgreichen Probe.
-                completed_count = sum(
-                    1
-                    for entry in species
-                    if str(entry.get("scan_type") or "").strip().casefold()
-                    in ("analyse", "analyze")
-                )
-                complete = (
-                    total_count > 0
-                    and known_count >= total_count
-                    and completed_count >= total_count
-                )
-
-                if complete:
-                    display_rows.append({
-                        "body": body_name,
-                        "find": f"{known_count}/{total_count} bekannt",
-                        "progress": f"{completed_count}/{total_count} vollständig",
-                        "value": (
-                            MainWindow._format_reward(known_value)
-                            if known_value > 0 else "–"
-                        ),
-                        "complete": True,
-                    })
-                    continue
-
-                if known_count == 0:
-                    display_rows.append({
-                        "body": body_name,
-                        "find": "noch unbekannt",
-                        "progress": f"0/{total_count} bekannt",
-                        "value": "–",
-                        "complete": False,
-                    })
-                    continue
-
-                # Solange nicht ALLE Arten vollständig analysiert sind,
-                # bleibt der Planet aufgeklappt. Das gilt auch dann, wenn
-                # bereits z. B. 2/2 Arten namentlich bekannt sind, aber eine
-                # davon erst bei Probe 1 oder 2 steht.
-                for index, entry in enumerate(species):
-                    scan_key = str(entry.get("scan_type") or "").strip().casefold()
-
-                    if scan_key in ("analyse", "analyze"):
-                        step_text = "3/3 vollständig"
-                    elif scan_key == "sample":
-                        step_text = "2/3 Proben"
-                    elif scan_key == "log":
-                        step_text = "1/3 Proben"
-                    else:
-                        step_text = "DSS erkannt"
-
-                    display_rows.append({
-                        "body": body_name if index == 0 else "",
-                        "entry": entry,
-                        "progress": step_text,
-                        "complete": False,
-                    })
-
-                remaining = max(0, total_count - known_count)
-                if remaining:
-                    display_rows.append({
-                        "body": "",
-                        "find": (
-                            "noch 1 unbekannt"
-                            if remaining == 1
-                            else f"noch {remaining} unbekannt"
-                        ),
-                        "progress": f"{known_count}/{total_count} bekannt",
-                        "value": "–",
-                        "complete": False,
-                    })
-
-            self.table.setRowCount(len(display_rows))
-
-            for row_index, row in enumerate(display_rows):
-                complete = bool(row.get("complete"))
-
-                body_item = QTableWidgetItem(str(row.get("body") or ""))
-                progress_item = QTableWidgetItem(str(row.get("progress") or ""))
-                value_item = QTableWidgetItem(str(row.get("value") or "–"))
-
-                if complete:
-                    green = QColor("#65d067")
-                    body_item.setForeground(green)
-                    progress_item.setForeground(green)
-                    value_item.setForeground(green)
-
-                self.table.setItem(row_index, 0, body_item)
-
-                if "entry" in row:
-                    entry = row["entry"]
-                    name = str(entry.get("name") or "")
-                    scan_type = str(entry.get("scan_type") or "")
-                    value = int(entry.get("value") or 0)
-
-                    scan_key = scan_type.strip().casefold()
-                    if scan_key in ("analyse", "analyze"):
-                        color = "#65d067"
-                    elif scan_key == "sample":
-                        color = "#ffb000"
-                    elif scan_key == "log":
-                        color = "#f1f3f5"
-                    else:
-                        color = "#8e969e"
-
-                    from html import escape
-                    value_text = (
-                        MainWindow._format_reward(value) if value > 0 else "–"
-                    )
-                    find_label = QLabel()
-                    find_label.setTextFormat(Qt.RichText)
-                    find_label.setContentsMargins(6, 0, 4, 0)
-                    find_label.setText(
-                        f'<span style="color:{color};">'
-                        f'{escape(name)}'
-                        f' &nbsp; ({escape(value_text)})'
-                        f'</span>'
-                    )
-                    self.table.setCellWidget(row_index, 1, find_label)
-                    value_item = QTableWidgetItem(value_text)
-                    value_item.setForeground(QColor(color))
-                else:
-                    find_item = QTableWidgetItem(str(row.get("find") or ""))
-                    if complete:
-                        find_item.setForeground(QColor("#65d067"))
-                    else:
-                        find_item.setForeground(QColor("#8e969e"))
-                    self.table.setItem(row_index, 1, find_item)
-
-                self.table.setItem(row_index, 2, progress_item)
-                self.table.setItem(row_index, 3, value_item)
-
-            return
-
-        # Wertfenster unverändert.
         self.table.setRowCount(len(rows))
         for row_index, row_values in enumerate(rows):
             for col, value in enumerate(row_values):
                 item = QTableWidgetItem(str(value))
-                if col == 2:
-                    item.setForeground(QColor("#ffb000"))
-                elif col == 3:
-                    mapping = str(value)
-                    if mapping == "selbst kartiert":
-                        item.setForeground(QColor("#65d067"))
-                    elif mapping == "First Mapping möglich":
-                        item.setForeground(QColor("#68c7ff"))
-                    elif mapping == "bereits kartiert":
-                        item.setForeground(QColor("#9aa3ab"))
                 self.table.setItem(row_index, col, item)
 
 
@@ -1270,8 +1046,6 @@ class MainWindow(QMainWindow):
         legend_layout.setContentsMargins(12, 7, 12, 7)
         legend_layout.setSpacing(18)
 
-        gold_threshold = self._explorer_value_yellow_threshold()
-
         legend_items = [
             ("BIO ×N", "biologische Signale", "#66e36a"),
             ("GEO ×N", "geologische Signale", "#28c9e8"),
@@ -1281,12 +1055,7 @@ class MainWindow(QMainWindow):
             ("◉✓", "First Mapping beansprucht", "#68c7ff"),
             ("◎", "selbst kartographiert", "#65d067"),
             ("⌄", "landbar", "#d8dde3"),
-            (
-                "★",
-                "Goldrahmen ab "
-                + self._format_reward(gold_threshold),
-                "#ffb000",
-            ),
+            ("★", "Goldrahmen > 200.000 Cr", "#ffb000"),
         ]
 
         for symbol, text, color in legend_items:
@@ -1297,10 +1066,6 @@ class MainWindow(QMainWindow):
             )
             item.setTextFormat(Qt.RichText)
             item.setWordWrap(False)
-
-            if str(text).startswith("Goldrahmen"):
-                self.gold_frame_legend_label = item
-
             legend_layout.addWidget(item)
 
         legend_layout.addStretch()
@@ -1829,17 +1594,15 @@ class MainWindow(QMainWindow):
                 self.state.settings,
                 "explorer_live/value_geometry",
                 self,
-                window_kind="value",
             )
 
         if self._explorer_bio_live_window is None:
             self._explorer_bio_live_window = ExplorerLiveListWindow(
                 "CMDRHelper – BIO gefunden",
-                ["Körper", "BIO-Fund", "Fortschritt", "Wert"],
+                ["Körper", "BIO", "Funde", "BIO-Wert"],
                 self.state.settings,
                 "explorer_live/bio_geometry",
                 self,
-                window_kind="bio",
             )
 
     def _refresh_explorer_live_windows(self):
@@ -1851,21 +1614,6 @@ class MainWindow(QMainWindow):
         # qualifizierende Scans lassen die Fenster wieder erscheinen.
         system_changed = self._explorer_live_system != system_name
         self._explorer_live_system = system_name
-
-        if system_changed:
-            # Beim Eintritt in ein anderes System beide alten Livefenster
-            # sofort schließen und leeren. Dieser Refresh wird anschließend
-            # beendet, damit Restdaten aus dem vorherigen System das Fenster
-            # nicht im selben Zyklus wieder öffnen können.
-            if self._explorer_value_live_window is not None:
-                self._explorer_value_live_window.hide()
-                self._explorer_value_live_window.table.setRowCount(0)
-
-            if self._explorer_bio_live_window is not None:
-                self._explorer_bio_live_window.hide()
-                self._explorer_bio_live_window.table.setRowCount(0)
-
-            return
 
         threshold = self._explorer_value_yellow_threshold()
         valuable_rows = []
@@ -1913,104 +1661,16 @@ class MainWindow(QMainWindow):
                 continue
 
             names = self._explorer_bio_names(body)
-
-            species_rows = []
-            seen_species = set()
-
-            # Zuerst konkrete ScanOrganic-Arten aufnehmen.
-            concrete_genuses = set()
-
-            for raw_name, scan_type in names:
-                raw_name = str(raw_name or "").strip()
-                scan_type = str(scan_type or "").strip()
-
-                if not raw_name or not scan_type:
-                    continue
-
-                canonical = raw_name.casefold()
-                if canonical in seen_species:
-                    continue
-                seen_species.add(canonical)
-
-                # Der erste Wortbestandteil entspricht bei den bekannten
-                # Elite-BIO-Namen der Gattung, z. B.
-                # "Bacterium Vesicula - Lime" -> "bacterium".
-                genus_key = canonical.split()[0] if canonical.split() else canonical
-                if genus_key:
-                    concrete_genuses.add(genus_key)
-
-                entry_for_value = None
-                for bio_entry in body.get("biology") or []:
-                    if not isinstance(bio_entry, dict):
-                        continue
-                    candidate = str(
-                        bio_entry.get("variant")
-                        or bio_entry.get("species")
-                        or bio_entry.get("genus")
-                        or ""
-                    ).strip()
-                    if candidate.casefold() == canonical:
-                        entry_for_value = bio_entry
-                        break
-
-                single_value = 0
-                if entry_for_value is not None:
-                    canonical_species = str(species_name(entry_for_value) or "").strip()
-                    if canonical_species:
-                        try:
-                            single_value = int(
-                                learned_bio_values.get(canonical_species, 0) or 0
-                            )
-                        except Exception:
-                            single_value = 0
-                        if single_value <= 0:
-                            single_value = int(base_value(entry_for_value) or 0)
-
-                species_rows.append({
-                    "name": raw_name,
-                    "scan_type": scan_type,
-                    "value": max(0, single_value),
-                })
-
-            # Danach DSS/FSS-Gattungen ergänzen. Genau das fehlte bislang:
-            # Nach dem Oberflächenscan kann Elite z. B. schon "Bacterium"
-            # melden, obwohl noch keine ScanOrganic-Probe genommen wurde.
-            # Sobald eine konkrete Art dieser Gattung bekannt ist, wird der
-            # allgemeine Gattungsname nicht zusätzlich angezeigt.
-            for raw_name, scan_type in names:
-                raw_name = str(raw_name or "").strip()
-                scan_type = str(scan_type or "").strip()
-
-                if not raw_name or scan_type:
-                    continue
-
-                canonical = raw_name.casefold()
-                genus_key = canonical.split()[0] if canonical.split() else canonical
-
-                if genus_key in concrete_genuses:
-                    continue
-                if canonical in seen_species:
-                    continue
-
-                seen_species.add(canonical)
-
-                species_rows.append({
-                    "name": raw_name,
-                    "scan_type": "",
-                    "value": 0,
-                })
-
-            known_value = sum(
-                int(entry.get("value") or 0)
-                for entry in species_rows
+            names_text = ", ".join(name for name, _scan_type in names) or "noch unbekannt"
+            known_value = self._explorer_bio_known_value(body, learned_bio_values)
+            bio_rows.append(
+                (
+                    self._explorer_body_name(body),
+                    str(signals),
+                    names_text,
+                    self._format_reward(known_value) if known_value > 0 else "–",
+                )
             )
-
-            bio_rows.append({
-                "body_name": self._explorer_body_name(body),
-                "signals": signals,
-                "species": species_rows,
-                "known_value": known_value,
-            })
 
         self._ensure_explorer_live_windows()
 
@@ -3520,55 +3180,8 @@ class MainWindow(QMainWindow):
         )
         self.state.settings.sync()
 
-        # Derselbe Wert steuert jetzt:
-        # - gelbe Hervorhebung in der Wertliste
-        # - Livefenster "Wertvolle Körper"
-        # - Goldrahmen in der Systemkarte
-        self._apply_gold_frame_threshold()
-
-        if hasattr(self, "gold_frame_legend_label"):
-            self.gold_frame_legend_label.setText(
-                '<span style="color:#ffb000; font-size:14px; '
-                'font-weight:700;">★</span> '
-                '<span style="font-size:11px;">Goldrahmen ab '
-                + self._format_reward(value)
-                + "</span>"
-            )
-
         if hasattr(self, "explorer_value_table"):
             self._refresh_explorer_tables()
-
-        if hasattr(self, "system_map"):
-            self.system_map.set_system(
-                self.state.system or "–",
-                self.state.system_bodies,
-            )
-
-    def _apply_gold_frame_threshold(self):
-        """
-        Verknüpft den Goldrahmen der Systemkarte mit demselben
-        benutzerdefinierten Schwellenwert wie die Explorer-Wertliste.
-
-        Maßgeblich ist der aktuell erreichte Kartographiewert des Körpers,
-        also genau derselbe Wert, den auch Wertliste und Livefenster nutzen.
-        """
-        threshold = self._explorer_value_yellow_threshold()
-
-        for body in getattr(self.state, "system_bodies", None) or []:
-            is_star = bool(
-                body.get("star_type")
-                or body.get("body_type") == "Star"
-            )
-            is_belt = SystemMapWidget._is_belt_cluster(body)
-
-            current_value = int(body.get("current_value") or 0)
-
-            body["high_value"] = bool(
-                not is_star
-                and not is_belt
-                and threshold > 0
-                and current_value >= threshold
-            )
 
     def _explorer_value_yellow_threshold(self):
         try:
@@ -4028,17 +3641,9 @@ class MainWindow(QMainWindow):
             f"{self._format_reward(self.state.system_mapped_value)}"
         )
 
-        gold_threshold = self._explorer_value_yellow_threshold()
-        gold_count = sum(
-            1
-            for body in self.state.system_bodies
-            if bool(body.get("high_value"))
-        )
-
-        if gold_count:
+        if self.state.system_high_value_count:
             scan_status += (
-                f"   |   ★ {gold_count} Körper ab "
-                f"{self._format_reward(gold_threshold)}"
+                f"   |   ★ {self.state.system_high_value_count} Körper > 200.000 Cr"
             )
 
         self.system_scan_header.setText(scan_status)
@@ -4094,10 +3699,6 @@ class MainWindow(QMainWindow):
             open_status += f"   |   ⚠ {len(unsold_bio_unknown)} BIO-Art(en) ohne Wert"
 
         self.unsold_explorer_header.setText(open_status)
-
-        # Goldrahmen anhand des unter Einstellungen gewählten
-        # Kartographiewert-Schwellenwerts setzen.
-        self._apply_gold_frame_threshold()
 
         self.system_map.set_system(system, self.state.system_bodies)
 
