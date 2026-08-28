@@ -195,7 +195,7 @@ Die Release-Version wird direkt im Skript festgelegt. Das erzeugte ZIP
 enthält Programmcode und Assets, aber keine persönliche Datenbank, keine
 virtuelle Python-Umgebung sowie keine Git-, Cache- oder Editor-Dateien.
 
-## Version 0.9.0
+## Version 0.9.5
 
 Wichtige Änderungen seit Version 0.5.5:
 
@@ -216,17 +216,45 @@ Wichtige Änderungen seit Version 0.5.5:
     skaliert.
 -   Darstellung und Markierung von BIO, GEO, Terraforming,
     Erstentdeckung und First Mapping weiter verbessert.
+-   neue **Wertliste** im Explorer: Planeten und Monde werden zeilenweise
+    nach ihrem aktuellen geschätzten Kartographiewert sortiert.
+-   die Wertliste unterscheidet jetzt deutlich zwischen
+    **First Mapping möglich**, **bereits kartiert** und
+    **selbst kartiert**.
+-   der aktuell erreichte Kartographiewert wird in der Wertliste gezielt
+    hervorgehoben, während Status- und Metadaten bewusst ruhiger
+    dargestellt werden.
+-   neue Anzeige **„Noch nicht abgegeben“** für offene Kartographie- und
+    BIO-Werte über alle Systeme seit dem letzten Verkauf; Kartographie und
+    BIO werden getrennt zurückgesetzt.
+-   die offenen Explorer-Werte werden im Hauptfenster gelb hervorgehoben,
+    damit noch nicht verkaufte Daten sofort erkennbar sind.
 
 ### BIO-Auswertung
 
 -   biologische Daten werden getrennt von den normalen
     Kartographie-Werten ausgewertet und angezeigt.
+-   eigene **BIO-Planeten-Liste** mit allen Körpern, auf denen biologische
+    Signale erkannt wurden.
+-   BIO-Gattungen aus `SAASignalsFound` bzw. `FSSBodySignals` werden auch
+    rückwirkend aus vorhandenen Journalen übernommen.
+-   konkrete BIO-Arten und Varianten aus `ScanOrganic` werden direkt in
+    der Liste angezeigt.
+-   Scanfortschritt je BIO-Fund wird farblich dargestellt:
+    -   grau = nur durch DSS/FSS bekannt
+    -   weiß = erste Probe
+    -   gelb = zweite Probe
+    -   grün = dritte Probe / Analyse vollständig
+-   der bekannte Vista-Genomics-Basiswert wird bereits angezeigt, sobald
+    eine BIO-Art eindeutig bestimmt ist.
 -   Anzeige des Basiswertes vollständig analysierter BIO-Proben
 -   Anzeige des möglichen **First-Logged-Gesamtwertes ×5**
 -   bekannte BIO-Werte können aus vorhandenen Verkaufsdaten ergänzt
     werden.
 -   Arten ohne bekannten Wert werden in der Auswertung kenntlich
     gemacht.
+-   BIO-Status unterscheidet zwischen offen, besucht und vollständig
+    analysiert.
 
 ### Missionen
 
@@ -237,6 +265,7 @@ Wichtige Änderungen seit Version 0.5.5:
     wenn zuvor kein vollständiger `MissionAccepted`-Eintrag vorlag.
 -   Missionsspalten sind frei in der Breite einstellbar; die gewählten
     Breiten werden gespeichert.
+-   Anzeige der **Gesamtbelohnung aller aktuell offenen Missionen**.
 
 ### Bilder und Screenshots
 

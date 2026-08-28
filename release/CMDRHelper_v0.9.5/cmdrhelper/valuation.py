@@ -80,6 +80,9 @@ def calculate_body_values(body: dict) -> dict:
             "scan_value": 0,
             "mapped_value": 0,
             "current_value": 0,
+            "mapping_state": "not_applicable",
+            "first_mapping_possible": False,
+            "already_mapped": False,
             "high_value": False,
         }
 
@@ -93,6 +96,9 @@ def calculate_body_values(body: dict) -> dict:
             "scan_value": value,
             "mapped_value": 0,
             "current_value": value,
+            "mapping_state": "not_applicable",
+            "first_mapping_possible": False,
+            "already_mapped": False,
             "high_value": False,
         }
 
@@ -149,11 +155,23 @@ def calculate_body_values(body: dict) -> dict:
         if efficient_mapping:
             current_value *= EFFICIENCY_MULTIPLIER
 
+    if self_mapped:
+        mapping_state = "self_mapped"
+    elif was_mapped is True:
+        mapping_state = "already_mapped"
+    elif was_mapped is False:
+        mapping_state = "first_mapping_possible"
+    else:
+        mapping_state = "unknown"
+
     result = {
         "base_value": int(round(base)),
         "scan_value": int(round(scan_value)),
         "mapped_value": int(round(mapped_value)),
         "current_value": int(round(current_value)),
+        "mapping_state": mapping_state,
+        "first_mapping_possible": mapping_state == "first_mapping_possible",
+        "already_mapped": mapping_state == "already_mapped",
     }
 
     result["high_value"] = result["mapped_value"] > 200_000

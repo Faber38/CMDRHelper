@@ -676,6 +676,72 @@ def _ensure_script_permissions(
         )
 
 
+def _install_requirements(
+    install_dir: Path,
+) -> None:
+    """
+    Prüft/installiert nach einem Update die Abhängigkeiten des neuen
+    Releases im aktuell verwendeten Python-/venv-Interpreter.
+
+    pip lässt bereits passende Pakete unangetastet und installiert bzw.
+    aktualisiert nur, was requirements.txt verlangt.
+    """
+    requirements = install_dir / "requirements.txt"
+
+    if not requirements.exists():
+        _log_update(
+            install_dir,
+            "Keine requirements.txt gefunden – Abhängigkeitsprüfung übersprungen."
+        )
+        return
+
+    _log_update(
+        install_dir,
+        f"Prüfe Python-Abhängigkeiten aus: {requirements}"
+    )
+    _log_update(
+        install_dir,
+        f"Verwendeter Python-Interpreter: {sys.executable}"
+    )
+
+    process = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pip",
+            "install",
+            "-r",
+            str(requirements),
+        ],
+        cwd=str(install_dir),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+
+    output = str(process.stdout or "").strip()
+
+    if output:
+        for line in output.splitlines():
+            _log_update(
+                install_dir,
+                f"pip: {line}"
+            )
+
+    if process.returncode != 0:
+        raise RuntimeError(
+            "Die Python-Abhängigkeiten konnten nicht installiert werden "
+            f"(pip Exit-Code {process.returncode})."
+        )
+
+    _log_update(
+        install_dir,
+        "Python-Abhängigkeiten erfolgreich geprüft/installiert."
+    )
+
+
 def _restart_cmdrhelper(
     install_dir: Path,
 ) -> None:
@@ -863,6 +929,13 @@ def apply_update(
         _log_update(
             install_dir,
             "Neue Programmdateien wurden installiert."
+        )
+
+        # requirements.txt gehört zum neuen Release. Vor dem Neustart
+        # sicherstellen, dass das vorhandene venv/Python alle benötigten
+        # Pakete besitzt.
+        _install_requirements(
+            install_dir
         )
 
         _log_update(

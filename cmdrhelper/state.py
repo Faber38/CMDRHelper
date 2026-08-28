@@ -130,6 +130,14 @@ class AppState(QObject):
         self.system_bio_first_logged_value = 0
         self.system_bio_unknown = []
 
+        # Noch nicht abgegebene Explorer-Daten über alle Systeme.
+        self.unsold_cartography_value = 0
+        self.unsold_cartography_count = 0
+        self.unsold_bio_value = 0
+        self.unsold_bio_first_logged_value = 0
+        self.unsold_bio_count = 0
+        self.unsold_bio_unknown = []
+
         self.edsm_body_count = 0
         self.edsm_added_count = 0
         self.edsm_source_status = ""
@@ -834,6 +842,26 @@ class AppState(QObject):
         self.system_bio_unknown = list(
             bio_totals["unknown"]
         )
+
+        self.unsold_cartography_value = int(data.get("unsold_cartography_value", 0) or 0)
+        self.unsold_cartography_count = int(data.get("unsold_cartography_count", 0) or 0)
+
+        try:
+            unsold_bio_totals = biology_totals(
+                data.get("unsold_biology", []),
+                learned_values=self.database.learned_bio_values(),
+            )
+        except Exception:
+            logger.exception("Offene BIO-Werte konnten nicht berechnet werden")
+            unsold_bio_totals = {
+                "completed_count": 0, "base_total": 0,
+                "first_logged_total": 0, "unknown": [],
+            }
+
+        self.unsold_bio_count = int(unsold_bio_totals["completed_count"])
+        self.unsold_bio_value = int(unsold_bio_totals["base_total"])
+        self.unsold_bio_first_logged_value = int(unsold_bio_totals["first_logged_total"])
+        self.unsold_bio_unknown = list(unsold_bio_totals["unknown"])
 
         self.connected = (
             self.journal_files > 0

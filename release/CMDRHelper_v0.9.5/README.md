@@ -184,7 +184,7 @@ contains the required application code and assets but excludes the
 personal database, Python virtual environments and Git/cache/editor
 files.
 
-## Version 0.9.0
+## Version 0.9.5
 
 Important changes since version 0.5.5:
 
@@ -205,15 +205,41 @@ Important changes since version 0.5.5:
     radius.
 -   improved presentation and marking of BIO, GEO, terraforming, first
     discovery and first mapping information.
+-   new **value list** in Explorer: planets and moons are shown in rows
+    sorted by their current estimated cartography value.
+-   mapping status now clearly distinguishes between
+    **First Mapping possible**, **already mapped** and
+    **mapped by the current Commander**.
+-   the currently achieved cartography value is highlighted while status
+    and metadata use a calmer presentation.
+-   new **“Not yet sold”** display for open cartography and BIO values
+    across all systems since the last sale; cartography and BIO reset
+    independently.
+-   open Explorer values are highlighted in yellow in the main window so
+    unsold data is immediately visible.
 
 ### BIO valuation
 
 -   biological data is evaluated and displayed separately from normal
     cartography values.
+-   dedicated **BIO planets list** containing all bodies with detected
+    biological signals.
+-   BIO genera from `SAASignalsFound` and `FSSBodySignals` are also
+    reconstructed retrospectively from existing Journal files.
+-   concrete BIO species and variants from `ScanOrganic` are shown
+    directly in the list.
+-   scan progress for each BIO find is color coded:
+    -   grey = known only from DSS/FSS
+    -   white = first sample
+    -   yellow = second sample
+    -   green = third sample / analysis complete
+-   the known Vista Genomics base value is shown as soon as a BIO species
+    has been identified.
 -   display of the base value of fully analysed BIO samples
 -   display of the possible **First Logged total value ×5**
 -   known BIO values can be supplemented from existing sale data.
 -   species without a known value are marked in the valuation.
+-   BIO status distinguishes between open, visited and fully analysed.
 
 ### Missions
 
@@ -223,6 +249,7 @@ Important changes since version 0.5.5:
 -   in certain cases missions can be reconstructed even when no
     complete `MissionAccepted` event was previously available.
 -   mission columns can be freely resized and their widths are saved.
+-   display of the **total reward of all currently active missions**.
 
 ### Images and screenshots
 

@@ -6,6 +6,7 @@ import os
 import re
 
 from cmdrhelper.ui.system_view import SystemMapWidget
+from cmdrhelper.bio_valuation import base_value, species_name
 from cmdrhelper.ui.body_detail_window import BodyDetailWindow
 from cmdrhelper.ui.chronicle_view import ChronicleMapWidget
 from cmdrhelper.ui.screenshot_view import ScreenshotView
@@ -52,6 +53,7 @@ from PySide6.QtWidgets import (
     QApplication,
     QDialog,
     QProgressBar,
+    QTabWidget,
 )
 
 
@@ -933,6 +935,22 @@ class MainWindow(QMainWindow):
         )
         system_layout.addWidget(self.system_bio_header)
 
+        self.unsold_explorer_header = QLabel(
+            "Noch nicht abgegeben: Kartographie 0 Cr   |   BIO 0 Cr",
+            objectName="muted"
+        )
+        self.unsold_explorer_header.setWordWrap(True)
+        # Offene, noch nicht verkaufte Explorer-Werte deutlich hervorheben.
+        self.unsold_explorer_header.setStyleSheet(
+            "color: #ffb000; font-weight: 700;"
+        )
+        self.unsold_explorer_header.setToolTip(
+            "Gesamtschätzung über alle Systeme seit dem letzten Verkauf. "
+            "Kartographie wird bei Universal Cartographics zurückgesetzt; "
+            "BIO bei Vista Genomics. Beide Zähler arbeiten unabhängig."
+        )
+        system_layout.addWidget(self.unsold_explorer_header)
+
         overview_row = QHBoxLayout()
         overview_row.addStretch()
 
@@ -988,10 +1006,505 @@ class MainWindow(QMainWindow):
         self.system_scroll.setFrameShape(QFrame.NoFrame)
         self.system_scroll.setWidget(self.system_map)
 
-        system_layout.addWidget(self.system_scroll, 1)
+        # Neben der grafischen Karte zwei kompakte Textansichten:
+        # - Werte: Planeten/Monde nach aktuellem Kartographiewert
+        # - BIO: alle Körper mit biologischen Signalen und Besuchsstatus
+        self.explorer_tabs = QTabWidget()
+        self.explorer_tabs.addTab(self.system_scroll, "Systemkarte")
+
+        self.explorer_value_table = QTableWidget(0, 7)
+        self.explorer_value_table.setHorizontalHeaderLabels(
+            [
+                "Körper",
+                "Typ",
+                "Entfernung",
+                "Scanwert",
+                "Aktueller Wert",
+                "Kartierung",
+                "Status",
+            ]
+        )
+        self.explorer_value_table.setAlternatingRowColors(True)
+        self.explorer_value_table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.explorer_value_table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.explorer_value_table.setSelectionMode(QTableWidget.SingleSelection)
+        self.explorer_value_table.verticalHeader().setVisible(False)
+        self.explorer_value_table.setSortingEnabled(False)
+        self.explorer_value_table.itemDoubleClicked.connect(
+            self._explorer_table_body_activated
+        )
+        value_header = self.explorer_value_table.horizontalHeader()
+        value_header.setSectionResizeMode(QHeaderView.Interactive)
+        value_header.setStretchLastSection(True)
+        self.explorer_value_table.setColumnWidth(0, 180)
+        self.explorer_value_table.setColumnWidth(1, 210)
+        self.explorer_value_table.setColumnWidth(2, 105)
+        self.explorer_value_table.setColumnWidth(3, 125)
+        self.explorer_value_table.setColumnWidth(4, 145)
+        self.explorer_value_table.setColumnWidth(5, 100)
+
+        self.explorer_tabs.addTab(
+            self.explorer_value_table,
+            "Wertliste",
+        )
+
+        self.explorer_bio_table = QTableWidget(0, 9)
+        self.explorer_bio_table.setHorizontalHeaderLabels(
+            [
+                "Körper",
+                "Typ",
+                "BIO",
+                "BIO-Funde",
+                "BIO-Wert",
+                "Entfernung",
+                "Besucht",
+                "Analyse",
+                "Status",
+            ]
+        )
+        self.explorer_bio_table.setAlternatingRowColors(True)
+        self.explorer_bio_table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.explorer_bio_table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.explorer_bio_table.setSelectionMode(QTableWidget.SingleSelection)
+        self.explorer_bio_table.verticalHeader().setVisible(False)
+        self.explorer_bio_table.setSortingEnabled(False)
+        self.explorer_bio_table.itemDoubleClicked.connect(
+            self._explorer_table_body_activated
+        )
+        bio_header = self.explorer_bio_table.horizontalHeader()
+        bio_header.setSectionResizeMode(QHeaderView.Interactive)
+        bio_header.setStretchLastSection(True)
+        self.explorer_bio_table.setColumnWidth(0, 140)
+        self.explorer_bio_table.setColumnWidth(1, 160)
+        self.explorer_bio_table.setColumnWidth(2, 50)
+        self.explorer_bio_table.setColumnWidth(3, 330)
+        self.explorer_bio_table.setColumnWidth(4, 130)
+        self.explorer_bio_table.setColumnWidth(5, 100)
+        self.explorer_bio_table.setColumnWidth(6, 95)
+        self.explorer_bio_table.setColumnWidth(7, 110)
+
+        self.explorer_tabs.addTab(
+            self.explorer_bio_table,
+            "BIO-Planeten",
+        )
+
+        system_layout.addWidget(self.explorer_tabs, 1)
         page_layout.addWidget(system_card, 1)
 
         return page
+
+    @staticmethod
+    def _explorer_body_name(body):
+        return (
+            body.get("short_name")
+            or body.get("name")
+            or "?"
+        )
+
+    @staticmethod
+    def _explorer_distance_text(body):
+        value = body.get("distance_ls")
+        if value is None:
+            return "–"
+        try:
+            return f"{float(value):,.1f} ls".replace(",", "X").replace(".", ",").replace("X", ".")
+        except Exception:
+            return "–"
+
+    @staticmethod
+    def _explorer_body_visited(body):
+        """
+        'Besucht' bedeutet hier: CMDRHelper hat eigene Journaldaten zu
+        diesem Körper. Reine EDSM-Ergänzungen gelten nicht als besucht.
+        """
+        return bool(body.get("journal_scanned", False))
+
+    @staticmethod
+    def _explorer_bio_progress(body):
+        """
+        BIO-Fortschritt direkt aus den am Körper gespeicherten Journaldaten
+        ableiten. Dadurch aktualisiert sich die BIO-Liste unmittelbar nach
+        SAASignalsFound/FSSBodySignals und später nach ScanOrganic.
+        """
+        biology = list(body.get("biology") or [])
+
+        found = len(biology)
+        completed = 0
+
+        for entry in biology:
+            if not isinstance(entry, dict):
+                continue
+
+            scan_type = str(
+                entry.get("scan_type")
+                or entry.get("ScanType")
+                or ""
+            ).strip().casefold()
+
+            if scan_type in ("analyse", "analyze"):
+                completed += 1
+
+        # Fallback für ältere/ergänzte Datenstände.
+        found = max(
+            found,
+            int(
+                body.get("bio_found_count")
+                or body.get("biology_found_count")
+                or body.get("bio_species_count")
+                or 0
+            ),
+        )
+
+        completed = max(
+            completed,
+            int(
+                body.get("bio_completed_count")
+                or body.get("biology_completed_count")
+                or body.get("bio_analyzed_count")
+                or body.get("bio_analysed_count")
+                or 0
+            ),
+        )
+
+        analysed = bool(
+            completed > 0
+            or body.get("bio_complete")
+            or body.get("biology_complete")
+            or body.get("bio_analyzed")
+            or body.get("bio_analysed")
+        )
+
+        return found, completed, analysed
+
+    @staticmethod
+    def _explorer_bio_names(body):
+        """
+        BIO-Namen samt aktuellem Genetic-Sampler-Schritt liefern.
+
+        Frontier verwendet bei ScanOrganic:
+        - Log      = 1. Probe
+        - Sample   = 2. Probe
+        - Analyse/Analyze = 3. Probe, vollständig
+
+        Noch nicht beprobte DSS-Genuses bekommen einen leeren Scan-Typ.
+        """
+        entries = []
+        seen = set()
+
+        for entry in body.get("biology") or []:
+            if not isinstance(entry, dict):
+                continue
+
+            name = (
+                entry.get("variant")
+                or entry.get("species")
+                or entry.get("genus")
+                or ""
+            )
+            name = str(name or "").strip()
+
+            if not name or name in seen:
+                continue
+
+            scan_type = str(
+                entry.get("scan_type")
+                or entry.get("ScanType")
+                or ""
+            ).strip()
+
+            entries.append((name, scan_type))
+            seen.add(name)
+
+        # DSS/FSS kann bereits alle Genuses kennen, obwohl noch keine
+        # ScanOrganic-Probe genommen wurde. Diese ergänzen wir zusätzlich.
+        for name in body.get("bio_genuses") or []:
+            name = str(name or "").strip()
+
+            if name and name not in seen:
+                entries.append((name, ""))
+                seen.add(name)
+
+        return entries
+
+    @staticmethod
+    def _explorer_bio_names_html(entries):
+        """
+        Farbcodierung je BIO-Fund:
+        grau  = nur per DSS bekannt, noch nicht beprobt
+        weiß  = 1. Probe (Log)
+        gelb  = 2. Probe (Sample)
+        grün  = 3. Probe / Analyse vollständig
+        """
+        from html import escape
+
+        parts = []
+
+        for name, scan_type in entries:
+            scan_key = str(scan_type or "").strip().casefold()
+
+            if scan_key in ("analyse", "analyze"):
+                color = "#65d067"
+                title = "3. Probe bestätigt"
+            elif scan_key == "sample":
+                color = "#ffb000"
+                title = "2. Probe genommen"
+            elif scan_key == "log":
+                color = "#f1f3f5"
+                title = "1. Probe genommen"
+            else:
+                color = "#8e969e"
+                title = "Nur per DSS/FSS bekannt"
+
+            parts.append(
+                f'<span style="color:{color};" title="{escape(title)}">'
+                f'{escape(str(name))}</span>'
+            )
+
+        return ", ".join(parts) if parts else "–"
+
+    def _explorer_bio_known_value(self, body, learned_values=None):
+        """
+        Summiert die bereits eindeutig bestimmten BIO-Arten dieses Körpers.
+
+        Schon nach der ersten ScanOrganic-Probe kennt Elite die Art/Variante,
+        daher kann der Basiswert sofort angezeigt werden. Nur per DSS bekannte
+        Gattungen haben noch keinen eindeutigen Artenwert.
+
+        Eigene aus SellOrganicData gelernte Werte haben Vorrang vor der
+        statischen Referenztabelle.
+        """
+        learned_values = learned_values or {}
+        learned_folded = {
+            str(key).casefold(): int(value or 0)
+            for key, value in learned_values.items()
+        }
+
+        total = 0
+        seen = set()
+
+        for entry in body.get("biology") or []:
+            if not isinstance(entry, dict):
+                continue
+
+            canonical = str(species_name(entry) or "").strip()
+            if not canonical:
+                continue
+
+            key = canonical.casefold()
+            if key in seen:
+                continue
+            seen.add(key)
+
+            value = int(learned_folded.get(key, 0) or 0)
+            if value <= 0:
+                value = int(base_value(entry) or 0)
+
+            total += max(0, value)
+
+        return int(total)
+
+    def _explorer_table_body_activated(self, item):
+        body = item.data(Qt.UserRole)
+        if isinstance(body, dict):
+            self._show_body_details(body)
+
+    def _refresh_explorer_tables(self):
+        bodies = list(getattr(self.state, "system_bodies", None) or [])
+
+        # Sterne und Belt Cluster sind für die gewünschte Wertliste nicht
+        # relevant. Planeten und Monde nach aktuellem Wert absteigend.
+        value_bodies = [
+            body
+            for body in bodies
+            if not body.get("star_type")
+            and body.get("body_type") != "Star"
+            and not SystemMapWidget._is_belt_cluster(body)
+        ]
+        value_bodies.sort(
+            key=lambda body: (
+                -int(body.get("current_value") or 0),
+                str(self._explorer_body_name(body)).lower(),
+            )
+        )
+
+        self.explorer_value_table.setRowCount(len(value_bodies))
+
+        for row, body in enumerate(value_bodies):
+            visited = self._explorer_body_visited(body)
+            self_mapped = bool(body.get("self_mapped"))
+            current_value = int(body.get("current_value") or 0)
+
+            was_mapped = body.get("was_mapped")
+
+            # Frontier liefert WasMapped beim Scan als Zustand VOR unserer
+            # eigenen DSS-Kartierung. self_mapped zeigt dagegen, dass wir
+            # später selbst SurfaceScanComplete erhalten haben.
+            if self_mapped:
+                mapping_text = "✓ selbst kartiert"
+                status = "Gescannt · selbst kartiert"
+            elif was_mapped is True:
+                mapping_text = "bereits kartiert"
+                status = "Gescannt · bereits kartiert" if visited else "Bereits kartiert"
+            elif was_mapped is False:
+                mapping_text = "○ First Mapping möglich"
+                status = "Gescannt · First Mapping möglich" if visited else "First Mapping möglich"
+            else:
+                mapping_text = "–"
+                status = "Gescannt" if visited else "Nicht gescannt"
+
+            values = [
+                self._explorer_body_name(body),
+                SystemMapWidget._type_text(body),
+                self._explorer_distance_text(body),
+                self._format_reward(body.get("scan_value", 0)),
+                self._format_reward(current_value),
+                mapping_text,
+                status,
+            ]
+
+            for col, value in enumerate(values):
+                item = QTableWidgetItem(str(value))
+                item.setData(Qt.UserRole, body)
+
+                # Zahlenwerte auch intern numerisch hinterlegen.
+                if col == 4:
+                    item.setData(Qt.UserRole + 1, current_value)
+
+                # Grün ist bewusst ausschließlich für den aktuell erreichten
+                # Credit-Wert reserviert. So springt die wichtigste Zahl ins Auge.
+                if col == 4:
+                    item.setForeground(QColor("#65d067"))
+                    item.setToolTip("Aktuell erreichter geschätzter Kartographiewert")
+                elif col == 5:
+                    if self_mapped:
+                        item.setForeground(QColor("#65d067"))
+                    elif was_mapped is False:
+                        item.setForeground(QColor("#68c7ff"))
+                    elif was_mapped is True:
+                        item.setForeground(QColor("#9aa3ab"))
+                elif col == 6:
+                    if not visited:
+                        item.setForeground(QColor("#9aa3ab"))
+
+                self.explorer_value_table.setItem(row, col, item)
+
+        # BIO-Körper separat. Noch nicht besuchte zuerst, danach nach
+        # Signalzahl und Wert. So springen offene Ziele sofort ins Auge.
+        bio_bodies = [
+            body
+            for body in value_bodies
+            if int(body.get("biological_signals") or 0) > 0
+        ]
+        bio_bodies.sort(
+            key=lambda body: (
+                self._explorer_body_visited(body),
+                -int(body.get("biological_signals") or 0),
+                -int(body.get("current_value") or 0),
+                str(self._explorer_body_name(body)).lower(),
+            )
+        )
+
+        self.explorer_bio_table.setRowCount(len(bio_bodies))
+
+        try:
+            learned_bio_values = self.state.database.learned_bio_values()
+        except Exception:
+            learned_bio_values = {}
+
+        for row, body in enumerate(bio_bodies):
+            visited = self._explorer_body_visited(body)
+            signals = int(body.get("biological_signals") or 0)
+            found, completed, analysed = self._explorer_bio_progress(body)
+            bio_names = self._explorer_bio_names(body)
+            bio_names_text = self._explorer_bio_names_html(bio_names)
+            known_bio_value = self._explorer_bio_known_value(
+                body,
+                learned_bio_values,
+            )
+            bio_value_text = (
+                self._format_reward(known_bio_value)
+                if known_bio_value > 0
+                else "–"
+            )
+
+            if analysed:
+                analysis_text = (
+                    f"{completed} vollständig"
+                    if completed
+                    else "vollständig"
+                )
+                status = "✓ BIO analysiert"
+            elif visited:
+                analysis_text = (
+                    f"{found} erfasst"
+                    if found
+                    else "offen"
+                )
+                status = "! besucht · BIO offen"
+            else:
+                # Direkt nach dem DSS-/Signalscan steht die Anzahl der
+                # biologischen Signale bereits fest, auch wenn der Körper
+                # noch nicht angeflogen wurde.
+                analysis_text = f"{signals} Signal(e)"
+                status = "○ BIO gefunden · noch nicht besucht"
+
+            values = [
+                self._explorer_body_name(body),
+                SystemMapWidget._type_text(body),
+                str(signals),
+                bio_names_text,
+                bio_value_text,
+                self._explorer_distance_text(body),
+                "Besucht" if visited else "Offen",
+                analysis_text,
+                status,
+            ]
+
+            for col, value in enumerate(values):
+                # BIO-Funde brauchen Rich Text, damit jeder Name einzeln
+                # entsprechend seinem Scan-Fortschritt eingefärbt werden kann.
+                if col == 3:
+                    label = QLabel()
+                    label.setTextFormat(Qt.RichText)
+                    label.setText(str(value))
+                    label.setTextInteractionFlags(Qt.NoTextInteraction)
+                    label.setContentsMargins(8, 0, 4, 0)
+                    label.setToolTip(
+                        "Grau: nur DSS/FSS bekannt · "
+                        "Weiß: 1. Probe · Gelb: 2. Probe · "
+                        "Grün: 3. Probe bestätigt"
+                    )
+                    self.explorer_bio_table.setCellWidget(row, col, label)
+                    continue
+
+                item = QTableWidgetItem(str(value))
+
+                if col == 4 and known_bio_value > 0:
+                    item.setToolTip(
+                        "Bekannter Vista-Genomics-Basiswert der bereits "
+                        "eindeutig bestimmten BIO-Art(en). "
+                        "Möglicher First-Logged-Gesamtwert: "
+                        + self._format_reward(known_bio_value * 5)
+                    )
+                item.setData(Qt.UserRole, body)
+
+                if analysed:
+                    item.setForeground(QColor("#65d067"))
+                elif visited:
+                    item.setForeground(QColor("#ffb000"))
+                else:
+                    item.setForeground(QColor("#d9dde1"))
+
+                self.explorer_bio_table.setItem(row, col, item)
+
+        self.explorer_tabs.setTabText(
+            1,
+            f"Wertliste ({len(value_bodies)})",
+        )
+        self.explorer_tabs.setTabText(
+            2,
+            f"BIO-Planeten ({len(bio_bodies)})",
+        )
 
     def _show_system_overview(self):
         bodies = list(
@@ -2729,7 +3242,34 @@ class MainWindow(QMainWindow):
 
         self.system_bio_header.setText(bio_status)
 
+        unsold_cartography = int(getattr(self.state, "unsold_cartography_value", 0) or 0)
+        unsold_cartography_count = int(getattr(self.state, "unsold_cartography_count", 0) or 0)
+        unsold_bio = int(getattr(self.state, "unsold_bio_value", 0) or 0)
+        unsold_bio_first = int(getattr(self.state, "unsold_bio_first_logged_value", 0) or 0)
+        unsold_bio_count = int(getattr(self.state, "unsold_bio_count", 0) or 0)
+        unsold_bio_unknown = list(getattr(self.state, "unsold_bio_unknown", []) or [])
+
+        open_status = (
+            "Noch nicht abgegeben   |   "
+            f"Kartographie: {self._format_reward(unsold_cartography)} "
+            f"({unsold_cartography_count} Körper)   |   "
+            f"BIO: {self._format_reward(unsold_bio)} "
+            f"({unsold_bio_count} Probe(n))"
+        )
+        if unsold_bio:
+            open_status += (
+                "   |   BIO bei First Logged ×5: "
+                f"{self._format_reward(unsold_bio_first)}"
+            )
+        if unsold_bio_unknown:
+            open_status += f"   |   ⚠ {len(unsold_bio_unknown)} BIO-Art(en) ohne Wert"
+
+        self.unsold_explorer_header.setText(open_status)
+
         self.system_map.set_system(system, self.state.system_bodies)
+
+        if hasattr(self, "explorer_value_table"):
+            self._refresh_explorer_tables()
 
         self.journal_path_edit.setText(str(self.state.journal_folder or ""))
 
