@@ -65,14 +65,19 @@ class ScreenshotView(QWidget):
         self._converting: set[str] = set()
         self._workers: set[_ConvertWorker] = set()
         self._gallery_state = None
+        self._loading_settings = False
 
         self._build_ui()
-        self._load_settings()
-        self._refresh_gallery()
 
+        # Der Timer muss bereits existieren, wenn gespeicherte Checkbox-
+        # Zustände geladen werden. setChecked(True) kann sofort toggled
+        # auslösen und damit _update_watch_state() aufrufen.
         self.timer = QTimer(self)
         self.timer.setInterval(1500)
         self.timer.timeout.connect(self._scan)
+
+        self._load_settings()
+        self._refresh_gallery()
         self._update_watch_state()
 
         # Galerie unabhängig von der BMP-Überwachung aktuell halten.
@@ -181,6 +186,21 @@ class ScreenshotView(QWidget):
         form.addRow("", self.delete_check)
         layout.addLayout(form)
 
+        save_row = QHBoxLayout()
+        self.save_settings_button = QPushButton(
+            "Einstellungen speichern",
+            objectName="primary",
+        )
+        self.save_settings_button.clicked.connect(
+            self._save_settings_clicked
+        )
+        save_row.addWidget(self.save_settings_button)
+
+        self.save_settings_status = QLabel("", objectName="muted")
+        save_row.addWidget(self.save_settings_status)
+        save_row.addStretch()
+        layout.addLayout(save_row)
+
         buttons = QHBoxLayout()
         self.convert_button = QPushButton("Vorhandene BMPs konvertieren", objectName="primary")
         self.convert_button.clicked.connect(self._convert_existing)
@@ -279,44 +299,113 @@ class ScreenshotView(QWidget):
         # normalem Steam üblichen Pfad als editierbare Vorgabe anzeigen.
         return str(candidates[0])
 
+    @staticmethod
+    def _setting_bool(value, default=False):
+        if value is None:
+            return bool(default)
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, (int, float)):
+            return bool(value)
+
+        text = str(value).strip().lower()
+        if text in ("1", "true", "yes", "on"):
+            return True
+        if text in ("0", "false", "no", "off", ""):
+            return False
+        return bool(default)
+
     def _load_settings(self):
-        saved_source = str(
-            self.settings.value(
-                self._key("source_dir"),
-                "",
-            )
-            or ""
-        ).strip()
-
-        if not saved_source:
-            saved_source = self._default_source_dir()
-
-        self.source_edit.setText(saved_source)
-        self.target_edit.setText(str(self.settings.value(self._key("target_dir"), "") or ""))
-        fmt = str(self.settings.value(self._key("format"), "PNG") or "PNG").upper()
-        self.format_combo.setCurrentText(fmt if fmt in ("PNG", "JPG") else "PNG")
+        # Während des Ladens lösen QComboBox, QSlider und QCheckBox teilweise
+        # sofort ihre change-/toggled-Signale aus. Ohne Sperre würde
+        # _save_settings() dabei die noch nicht geladenen Checkboxen wieder
+        # als False in QSettings schreiben.
+        self._loading_settings = True
 
         try:
-            brightness = int(self.settings.value(self._key("brightness"), 15) or 0)
-        except (TypeError, ValueError):
-            brightness = 15
-        brightness = max(0, min(50, brightness))
-        self.brightness_slider.setValue(brightness)
-        self.brightness_spin.setValue(brightness)
+            saved_source = str(
+                self.settings.value(
+                    self._key("source_dir"),
+                    "",
+                )
+                or ""
+            ).strip()
 
-        auto = str(self.settings.value(self._key("auto"), "false")).lower() in ("1", "true", "yes", "on")
-        delete_bmp = str(self.settings.value(self._key("delete_bmp"), "false")).lower() in ("1", "true", "yes", "on")
-        self.auto_check.setChecked(auto); self.delete_check.setChecked(delete_bmp)
+            if not saved_source:
+                saved_source = self._default_source_dir()
 
-        if saved_source:
-            self.settings.setValue(
-                self._key("source_dir"),
-                saved_source,
+            saved_target = str(
+                self.settings.value(
+                    self._key("target_dir"),
+                    "",
+                )
+                or ""
             )
+
+            fmt = str(
+                self.settings.value(
+                    self._key("format"),
+                    "PNG",
+                )
+                or "PNG"
+            ).upper()
+
+            try:
+                brightness = int(
+                    self.settings.value(
+                        self._key("brightness"),
+                        15,
+                    )
+                    or 0
+                )
+            except (TypeError, ValueError):
+                brightness = 15
+
+            brightness = max(0, min(50, brightness))
+
+            auto = self._setting_bool(
+                self.settings.value(
+                    self._key("auto"),
+                    False,
+                ),
+                False,
+            )
+
+            delete_bmp = self._setting_bool(
+                self.settings.value(
+                    self._key("delete_bmp"),
+                    False,
+                ),
+                False,
+            )
+
+            self.source_edit.setText(saved_source)
+            self.target_edit.setText(saved_target)
+            self.format_combo.setCurrentText(
+                fmt if fmt in ("PNG", "JPG") else "PNG"
+            )
+            self.brightness_slider.setValue(brightness)
+            self.brightness_spin.setValue(brightness)
+            self.auto_check.setChecked(auto)
+            self.delete_check.setChecked(delete_bmp)
+
+            if saved_source:
+                self.settings.setValue(
+                    self._key("source_dir"),
+                    saved_source,
+                )
+
+            self.settings.sync()
+
+        finally:
+            self._loading_settings = False
 
         self._baseline()
 
     def _save_settings(self, *args):
+        if self._loading_settings:
+            return
+
         self.settings.setValue(self._key("source_dir"), self.source_edit.text().strip())
         self.settings.setValue(self._key("target_dir"), self.target_edit.text().strip())
         self.settings.setValue(self._key("format"), self.format_combo.currentText())
@@ -324,6 +413,22 @@ class ScreenshotView(QWidget):
         self.settings.setValue(self._key("auto"), self.auto_check.isChecked())
         self.settings.setValue(self._key("delete_bmp"), self.delete_check.isChecked())
         self.settings.sync()
+
+    def _save_settings_clicked(self):
+        self._save_settings()
+        self._baseline()
+        self._refresh_gallery()
+        self._update_watch_state()
+
+        self.save_settings_status.setText("✓ Einstellungen gespeichert")
+        QTimer.singleShot(
+            3000,
+            lambda: self.save_settings_status.setText(""),
+        )
+
+    def closeEvent(self, event):
+        self._save_settings()
+        super().closeEvent(event)
 
     def _path_edited(self):
         self._save_settings()

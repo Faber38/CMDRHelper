@@ -24,7 +24,15 @@ from cmdrhelper.update import (
 
 from PySide6.QtCore import Qt, QTimer, QThreadPool, QUrl, QRectF, Signal
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
-from PySide6.QtGui import QDesktopServices, QPainter, QColor, QPen, QBrush
+from PySide6.QtGui import (
+    QDesktopServices,
+    QPainter,
+    QColor,
+    QPen,
+    QBrush,
+    QFont,
+    QFontDatabase,
+)
 
 from PySide6.QtWidgets import (
     QMainWindow,
@@ -54,6 +62,8 @@ from PySide6.QtWidgets import (
     QDialog,
     QProgressBar,
     QTabWidget,
+    QSpinBox,
+    QFontComboBox,
 )
 
 
@@ -624,6 +634,68 @@ class SystemOverviewDialog(QDialog):
         root.addLayout(buttons)
 
 
+class ExplorerLiveListWindow(QDialog):
+    """Kleines frei positionierbares Live-Fenster für Explorer-Hinweise."""
+
+    def __init__(self, title, headers, settings, geometry_key, parent=None):
+        super().__init__(parent)
+        self.settings = settings
+        self.geometry_key = geometry_key
+        self.setWindowTitle(title)
+        self.setWindowFlags(self.windowFlags() | Qt.Window)
+        self.resize(620, 260)
+
+        root = QVBoxLayout(self)
+        root.setContentsMargins(8, 8, 8, 8)
+        root.setSpacing(5)
+
+        self.system_label = QLabel("–", objectName="sectionTitle")
+        self.system_label.setStyleSheet("font-size: 14px; font-weight: 700;")
+        root.addWidget(self.system_label)
+
+        self.table = QTableWidget(0, len(headers))
+        self.table.setHorizontalHeaderLabels(headers)
+        self.table.setAlternatingRowColors(True)
+        self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.table.setSelectionMode(QTableWidget.SingleSelection)
+        self.table.verticalHeader().setVisible(False)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.table.horizontalHeader().setStretchLastSection(True)
+        root.addWidget(self.table, 1)
+
+        geometry = self.settings.value(self.geometry_key)
+        if geometry is not None:
+            try:
+                self.restoreGeometry(geometry)
+            except Exception:
+                pass
+
+    def _save_geometry(self):
+        self.settings.setValue(self.geometry_key, self.saveGeometry())
+        self.settings.sync()
+
+    def moveEvent(self, event):
+        super().moveEvent(event)
+        self._save_geometry()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._save_geometry()
+
+    def closeEvent(self, event):
+        self._save_geometry()
+        super().closeEvent(event)
+
+    def set_rows(self, system_name, rows):
+        self.system_label.setText(system_name or "–")
+        self.table.setRowCount(len(rows))
+        for row_index, row_values in enumerate(rows):
+            for col, value in enumerate(row_values):
+                item = QTableWidgetItem(str(value))
+                self.table.setItem(row_index, col, item)
+
+
 class MainWindow(QMainWindow):
     def __init__(self, state):
         super().__init__()
@@ -638,7 +710,14 @@ class MainWindow(QMainWindow):
         self._chronicle_system_window = None
         self._chronicle_search_help_window = None
         self._system_overview_window = None
+        self._explorer_value_live_window = None
+        self._explorer_bio_live_window = None
+        self._explorer_live_system = None
         self.ui_theme = str(self.state.settings.value("ui_theme", "dark")).lower()
+
+        # Gespeicherte Anwendungsschrift bereits vor dem Aufbau der
+        # Oberfläche anwenden, damit alle Widgets sofort korrekt erscheinen.
+        self._apply_saved_ui_font()
 
         self.setWindowTitle(f"CMDRHelper {__version__}")
 
@@ -936,14 +1015,11 @@ class MainWindow(QMainWindow):
         system_layout.addWidget(self.system_bio_header)
 
         self.unsold_explorer_header = QLabel(
-            "Noch nicht abgegeben: Kartographie 0 Cr   |   BIO 0 Cr",
-            objectName="muted"
+            "Noch nicht abgegeben: Kartographie 0 Cr   |   BIO 0 Cr", objectName="muted"
         )
         self.unsold_explorer_header.setWordWrap(True)
         # Offene, noch nicht verkaufte Explorer-Werte deutlich hervorheben.
-        self.unsold_explorer_header.setStyleSheet(
-            "color: #ffb000; font-weight: 700;"
-        )
+        self.unsold_explorer_header.setStyleSheet("color: #ffb000; font-weight: 700;")
         self.unsold_explorer_header.setToolTip(
             "Gesamtschätzung über alle Systeme seit dem letzten Verkauf. "
             "Kartographie wird bei Universal Cartographics zurückgesetzt; "
@@ -1095,11 +1171,7 @@ class MainWindow(QMainWindow):
 
     @staticmethod
     def _explorer_body_name(body):
-        return (
-            body.get("short_name")
-            or body.get("name")
-            or "?"
-        )
+        return body.get("short_name") or body.get("name") or "?"
 
     @staticmethod
     def _explorer_distance_text(body):
@@ -1107,7 +1179,11 @@ class MainWindow(QMainWindow):
         if value is None:
             return "–"
         try:
-            return f"{float(value):,.1f} ls".replace(",", "X").replace(".", ",").replace("X", ".")
+            return (
+                f"{float(value):,.1f} ls".replace(",", "X")
+                .replace(".", ",")
+                .replace("X", ".")
+            )
         except Exception:
             return "–"
 
@@ -1135,11 +1211,11 @@ class MainWindow(QMainWindow):
             if not isinstance(entry, dict):
                 continue
 
-            scan_type = str(
-                entry.get("scan_type")
-                or entry.get("ScanType")
-                or ""
-            ).strip().casefold()
+            scan_type = (
+                str(entry.get("scan_type") or entry.get("ScanType") or "")
+                .strip()
+                .casefold()
+            )
 
             if scan_type in ("analyse", "analyze"):
                 completed += 1
@@ -1196,10 +1272,7 @@ class MainWindow(QMainWindow):
                 continue
 
             name = (
-                entry.get("variant")
-                or entry.get("species")
-                or entry.get("genus")
-                or ""
+                entry.get("variant") or entry.get("species") or entry.get("genus") or ""
             )
             name = str(name or "").strip()
 
@@ -1207,9 +1280,7 @@ class MainWindow(QMainWindow):
                 continue
 
             scan_type = str(
-                entry.get("scan_type")
-                or entry.get("ScanType")
-                or ""
+                entry.get("scan_type") or entry.get("ScanType") or ""
             ).strip()
 
             entries.append((name, scan_type))
@@ -1257,7 +1328,7 @@ class MainWindow(QMainWindow):
 
             parts.append(
                 f'<span style="color:{color};" title="{escape(title)}">'
-                f'{escape(str(name))}</span>'
+                f"{escape(str(name))}</span>"
             )
 
         return ", ".join(parts) if parts else "–"
@@ -1344,10 +1415,16 @@ class MainWindow(QMainWindow):
                 status = "Gescannt · selbst kartiert"
             elif was_mapped is True:
                 mapping_text = "bereits kartiert"
-                status = "Gescannt · bereits kartiert" if visited else "Bereits kartiert"
+                status = (
+                    "Gescannt · bereits kartiert" if visited else "Bereits kartiert"
+                )
             elif was_mapped is False:
                 mapping_text = "○ First Mapping möglich"
-                status = "Gescannt · First Mapping möglich" if visited else "First Mapping möglich"
+                status = (
+                    "Gescannt · First Mapping möglich"
+                    if visited
+                    else "First Mapping möglich"
+                )
             else:
                 mapping_text = "–"
                 status = "Gescannt" if visited else "Nicht gescannt"
@@ -1373,8 +1450,19 @@ class MainWindow(QMainWindow):
                 # Grün ist bewusst ausschließlich für den aktuell erreichten
                 # Credit-Wert reserviert. So springt die wichtigste Zahl ins Auge.
                 if col == 4:
-                    item.setForeground(QColor("#65d067"))
-                    item.setToolTip("Aktuell erreichter geschätzter Kartographiewert")
+                    yellow_threshold = self._explorer_value_yellow_threshold()
+
+                    if yellow_threshold > 0 and current_value >= yellow_threshold:
+                        item.setForeground(QColor("#ffb000"))
+                        item.setToolTip(
+                            "Aktuell erreichter geschätzter Kartographiewert · "
+                            f"Gelb ab {self._format_reward(yellow_threshold)}"
+                        )
+                    else:
+                        item.setForeground(QColor("#65d067"))
+                        item.setToolTip(
+                            "Aktuell erreichter geschätzter Kartographiewert"
+                        )
                 elif col == 5:
                     if self_mapped:
                         item.setForeground(QColor("#65d067"))
@@ -1422,24 +1510,16 @@ class MainWindow(QMainWindow):
                 learned_bio_values,
             )
             bio_value_text = (
-                self._format_reward(known_bio_value)
-                if known_bio_value > 0
-                else "–"
+                self._format_reward(known_bio_value) if known_bio_value > 0 else "–"
             )
 
             if analysed:
                 analysis_text = (
-                    f"{completed} vollständig"
-                    if completed
-                    else "vollständig"
+                    f"{completed} vollständig" if completed else "vollständig"
                 )
                 status = "✓ BIO analysiert"
             elif visited:
-                analysis_text = (
-                    f"{found} erfasst"
-                    if found
-                    else "offen"
-                )
+                analysis_text = f"{found} erfasst" if found else "offen"
                 status = "! besucht · BIO offen"
             else:
                 # Direkt nach dem DSS-/Signalscan steht die Anzahl der
@@ -1505,6 +1585,111 @@ class MainWindow(QMainWindow):
             2,
             f"BIO-Planeten ({len(bio_bodies)})",
         )
+
+    def _ensure_explorer_live_windows(self):
+        if self._explorer_value_live_window is None:
+            self._explorer_value_live_window = ExplorerLiveListWindow(
+                "CMDRHelper – Wertvolle Körper",
+                ["Körper", "Typ", "Wert", "Kartierung"],
+                self.state.settings,
+                "explorer_live/value_geometry",
+                self,
+            )
+
+        if self._explorer_bio_live_window is None:
+            self._explorer_bio_live_window = ExplorerLiveListWindow(
+                "CMDRHelper – BIO gefunden",
+                ["Körper", "BIO", "Funde", "BIO-Wert"],
+                self.state.settings,
+                "explorer_live/bio_geometry",
+                self,
+            )
+
+    def _refresh_explorer_live_windows(self):
+        """Aktualisiert die beiden kleinen Explorer-Livefenster."""
+        system_name = str(getattr(self.state, "system", "") or "")
+        bodies = list(getattr(self.state, "system_bodies", None) or [])
+
+        # Beim Systemwechsel alte Treffer sofort ausblenden. Erst neue
+        # qualifizierende Scans lassen die Fenster wieder erscheinen.
+        system_changed = self._explorer_live_system != system_name
+        self._explorer_live_system = system_name
+
+        threshold = self._explorer_value_yellow_threshold()
+        valuable_rows = []
+        for body in bodies:
+            if body.get("star_type") or body.get("body_type") == "Star":
+                continue
+            if SystemMapWidget._is_belt_cluster(body):
+                continue
+
+            value = int(body.get("current_value") or 0)
+            if threshold <= 0 or value < threshold:
+                continue
+
+            if body.get("self_mapped"):
+                mapping = "selbst kartiert"
+            elif body.get("was_mapped") is True:
+                mapping = "bereits kartiert"
+            elif body.get("was_mapped") is False:
+                mapping = "First Mapping möglich"
+            else:
+                mapping = "–"
+
+            valuable_rows.append(
+                (
+                    self._explorer_body_name(body),
+                    SystemMapWidget._type_text(body),
+                    self._format_reward(value),
+                    mapping,
+                )
+            )
+
+        valuable_rows.sort(
+            key=lambda row: -int(str(row[2]).replace(" Cr", "").replace(".", "") or 0)
+        )
+
+        try:
+            learned_bio_values = self.state.database.learned_bio_values()
+        except Exception:
+            learned_bio_values = {}
+
+        bio_rows = []
+        for body in bodies:
+            signals = int(body.get("biological_signals") or 0)
+            if signals <= 0:
+                continue
+
+            names = self._explorer_bio_names(body)
+            names_text = ", ".join(name for name, _scan_type in names) or "noch unbekannt"
+            known_value = self._explorer_bio_known_value(body, learned_bio_values)
+            bio_rows.append(
+                (
+                    self._explorer_body_name(body),
+                    str(signals),
+                    names_text,
+                    self._format_reward(known_value) if known_value > 0 else "–",
+                )
+            )
+
+        self._ensure_explorer_live_windows()
+
+        self._explorer_value_live_window.set_rows(system_name, valuable_rows)
+        self._explorer_bio_live_window.set_rows(system_name, bio_rows)
+
+        if valuable_rows:
+            if not self._explorer_value_live_window.isVisible():
+                self._explorer_value_live_window.show()
+                self._explorer_value_live_window.raise_()
+        elif system_changed and self._explorer_value_live_window.isVisible():
+            self._explorer_value_live_window.hide()
+
+        if bio_rows:
+            if not self._explorer_bio_live_window.isVisible():
+                self._explorer_bio_live_window.show()
+                self._explorer_bio_live_window.raise_()
+        elif system_changed and self._explorer_bio_live_window.isVisible():
+            self._explorer_bio_live_window.hide()
 
     def _show_system_overview(self):
         bodies = list(
@@ -2100,9 +2285,22 @@ class MainWindow(QMainWindow):
         )
 
     def _settings(self):
+        # Die Einstellungsseite kann inzwischen höher als das Hauptfenster
+        # werden. Deshalb liegt der komplette Inhalt in einem Scrollbereich.
         page = QWidget()
 
-        layout = QVBoxLayout(page)
+        page_layout = QVBoxLayout(page)
+        page_layout.setContentsMargins(0, 0, 0, 0)
+        page_layout.setSpacing(0)
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+
+        content = QWidget()
+        layout = QVBoxLayout(content)
         layout.setContentsMargins(12, 10, 12, 10)
         layout.setSpacing(8)
 
@@ -2364,8 +2562,100 @@ class MainWindow(QMainWindow):
 
         ui_layout.addLayout(theme_row)
 
+        font_row = QHBoxLayout()
+        font_row.addWidget(QLabel("Schriftart:"))
+
+        self.ui_font_combo = QFontComboBox()
+        self.ui_font_combo.setMinimumWidth(260)
+        self.ui_font_combo.setToolTip(
+            "Schriftart für die gesamte CMDRHelper-Oberfläche"
+        )
+
+        app = QApplication.instance()
+        current_font = app.font() if app is not None else QFont()
+
+        saved_family = str(
+            self.state.settings.value(
+                "ui_font_family",
+                current_font.family(),
+            )
+            or current_font.family()
+        ).strip()
+
+        saved_size = self._saved_ui_font_size(current_font.pointSize())
+
+        self.ui_font_combo.setCurrentFont(QFont(saved_family))
+
+        font_row.addWidget(self.ui_font_combo)
+
+        font_row.addSpacing(12)
+        font_row.addWidget(QLabel("Größe:"))
+
+        self.ui_font_size_spin = QSpinBox()
+        self.ui_font_size_spin.setRange(7, 24)
+        self.ui_font_size_spin.setSuffix(" pt")
+        self.ui_font_size_spin.setValue(saved_size)
+        self.ui_font_size_spin.setToolTip(
+            "Schriftgröße für die gesamte CMDRHelper-Oberfläche"
+        )
+        font_row.addWidget(self.ui_font_size_spin)
+
+        self.ui_font_save_button = QPushButton("Schrift speichern")
+        self.ui_font_save_button.clicked.connect(self._save_ui_font_settings)
+        font_row.addWidget(self.ui_font_save_button)
+
+        self.ui_font_status = QLabel("", objectName="muted")
+        font_row.addWidget(self.ui_font_status)
+
+        font_row.addStretch()
+        ui_layout.addLayout(font_row)
+
+        self.ui_font_restart_hint = QLabel(
+            "Hinweis: Änderungen an Schriftart und Schriftgröße "
+            "werden erst nach einem Neustart von CMDRHelper wirksam."
+        )
+        self.ui_font_restart_hint.setWordWrap(True)
+        self.ui_font_restart_hint.setStyleSheet("color: #ffb000; font-weight: 600;")
+        ui_layout.addWidget(self.ui_font_restart_hint)
+
+        value_threshold_row = QHBoxLayout()
+        value_threshold_row.addWidget(QLabel("Planeten-Wertliste gelb ab:"))
+
+        self.explorer_value_threshold_spin = QSpinBox()
+        self.explorer_value_threshold_spin.setRange(0, 2_000_000_000)
+        self.explorer_value_threshold_spin.setSingleStep(50_000)
+        self.explorer_value_threshold_spin.setSuffix(" Cr")
+        self.explorer_value_threshold_spin.setMinimumWidth(160)
+
+        try:
+            threshold = int(
+                self.state.settings.value(
+                    "explorer_value_yellow_threshold",
+                    200_000,
+                )
+                or 200_000
+            )
+        except (TypeError, ValueError):
+            threshold = 200_000
+
+        self.explorer_value_threshold_spin.setValue(max(0, threshold))
+        self.explorer_value_threshold_spin.setToolTip(
+            "Aktuelle Kartographiewerte ab diesem Betrag werden "
+            "in der Explorer-Wertliste gelb hervorgehoben."
+        )
+        self.explorer_value_threshold_spin.valueChanged.connect(
+            self._set_explorer_value_threshold
+        )
+
+        value_threshold_row.addWidget(self.explorer_value_threshold_spin)
+        value_threshold_row.addStretch()
+        ui_layout.addLayout(value_threshold_row)
+
         layout.addWidget(ui_card)
         layout.addStretch()
+
+        scroll.setWidget(content)
+        page_layout.addWidget(scroll, 1)
 
         return page
 
@@ -2750,6 +3040,117 @@ class MainWindow(QMainWindow):
 
         QApplication.quit()
 
+    def _saved_ui_font_size(self, fallback=10):
+        try:
+            value = int(
+                self.state.settings.value(
+                    "ui_font_size",
+                    fallback if fallback and fallback > 0 else 10,
+                )
+                or fallback
+                or 10
+            )
+        except (TypeError, ValueError):
+            value = fallback if fallback and fallback > 0 else 10
+
+        return max(7, min(24, int(value)))
+
+    def _font_stylesheet_suffix(self, family=None, size=None):
+        """
+        Ergänzt die Theme-QSS um die vom Benutzer gewählte Basisschrift.
+
+        QApplication.setFont() allein reicht hier nicht zuverlässig aus,
+        weil das CMDRHelper-Stylesheet eigene Font-Angaben enthalten kann.
+        Die Theme-Datei setzt die Grundgröße explizit auf QWidget.
+        Deshalb muss die Benutzergröße ebenfalls über QWidget gesetzt werden.
+        Die Titelgrößen werden proportional zur gewählten Grundgröße angepasst.
+        """
+        app = QApplication.instance()
+
+        if family is None:
+            family = getattr(self, "_active_ui_font_family", "")
+        if size is None:
+            size = getattr(self, "_active_ui_font_size", 0)
+
+        if not family and app is not None:
+            family = app.font().family()
+
+        try:
+            size = int(size)
+        except (TypeError, ValueError):
+            size = 10
+
+        size = max(7, min(24, size or 10))
+        safe_family = str(family or "").replace("\\", "\\\\").replace('"', '\\"')
+
+        # WICHTIG:
+        # Das Theme setzt seine Grundgröße über "QWidget { font-size: 12px; }".
+        # Ein nachgestelltes "*"-Rule ist in Qt nicht spezifisch genug, um
+        # diese QWidget-Regel zuverlässig zu überschreiben. Deshalb setzen
+        # wir die Benutzergröße ebenfalls explizit auf QWidget.
+        #
+        # Spezielle Titelregeln (appTitle, commanderTitle, sectionTitle,
+        # cardValue) bleiben absichtlich relativ größer als die Grundschrift.
+        title_size = max(size + 5, int(round(size * 1.45)))
+        section_size = max(size + 1, int(round(size * 1.10)))
+
+        return (
+            "\n\n/* CMDRHelper Benutzer-Schrift */\n"
+            f'QWidget {{ font-family: "{safe_family}"; font-size: {size}pt; }}\n'
+            f'QToolTip {{ font-family: "{safe_family}"; font-size: {size}pt; }}\n'
+            f'QLabel#appTitle {{ font-family: "{safe_family}"; '
+            f"font-size: {title_size}pt; }}\n"
+            f'QLabel#commanderTitle {{ font-family: "{safe_family}"; '
+            f"font-size: {title_size}pt; }}\n"
+            f'QLabel#cardValue {{ font-family: "{safe_family}"; '
+            f"font-size: {title_size}pt; }}\n"
+            f'QLabel#sectionTitle {{ font-family: "{safe_family}"; '
+            f"font-size: {section_size}pt; }}\n"
+        )
+
+    def _apply_saved_ui_font(self):
+        app = QApplication.instance()
+        if app is None:
+            return
+
+        default_font = app.font()
+
+        family = str(
+            self.state.settings.value(
+                "ui_font_family",
+                default_font.family(),
+            )
+            or default_font.family()
+        ).strip()
+
+        size = self._saved_ui_font_size(default_font.pointSize())
+
+        # Aktiver Wert wird beim Programmstart eingefroren. Änderungen in
+        # den Einstellungen gelten bewusst erst nach dem nächsten Neustart.
+        self._active_ui_font_family = family
+        self._active_ui_font_size = size
+
+        app.setFont(QFont(family, size))
+
+        base_stylesheet = (
+            LIGHT_STYLESHEET if self.ui_theme == "light" else DARK_STYLESHEET
+        )
+        app.setStyleSheet(base_stylesheet + self._font_stylesheet_suffix(family, size))
+
+    def _save_ui_font_settings(self):
+        family = self.ui_font_combo.currentFont().family()
+        size = int(self.ui_font_size_spin.value())
+
+        self.state.settings.setValue("ui_font_family", family)
+        self.state.settings.setValue("ui_font_size", size)
+        self.state.settings.sync()
+
+        # Nicht sofort anwenden: Einige QSS-Regeln übersteuern die Qt-
+        # Standardschrift. Ein sauberer kompletter Neuaufbau beim Neustart
+        # vermeidet Mischzustände in bereits existierenden Widgets.
+        self.ui_font_status.setText("✓ gespeichert · Neustart erforderlich")
+        self.ui_font_status.setStyleSheet("color: #ffb000; font-weight: 600;")
+
     def _set_theme(self, theme):
         theme = "light" if str(theme).lower() == "light" else "dark"
 
@@ -2760,7 +3161,8 @@ class MainWindow(QMainWindow):
         app = QApplication.instance()
 
         if app is not None:
-            app.setStyleSheet(LIGHT_STYLESHEET if theme == "light" else DARK_STYLESHEET)
+            base_stylesheet = LIGHT_STYLESHEET if theme == "light" else DARK_STYLESHEET
+            app.setStyleSheet(base_stylesheet + self._font_stylesheet_suffix())
 
         if hasattr(self, "system_map"):
             self.system_map.set_light_mode(theme == "light")
@@ -2769,6 +3171,32 @@ class MainWindow(QMainWindow):
             self._chronicle_system_window, "system_map"
         ):
             self._chronicle_system_window.system_map.set_light_mode(theme == "light")
+
+    def _set_explorer_value_threshold(self, value):
+        value = max(0, int(value or 0))
+        self.state.settings.setValue(
+            "explorer_value_yellow_threshold",
+            value,
+        )
+        self.state.settings.sync()
+
+        if hasattr(self, "explorer_value_table"):
+            self._refresh_explorer_tables()
+
+    def _explorer_value_yellow_threshold(self):
+        try:
+            return max(
+                0,
+                int(
+                    self.state.settings.value(
+                        "explorer_value_yellow_threshold",
+                        200_000,
+                    )
+                    or 200_000
+                ),
+            )
+        except (TypeError, ValueError):
+            return 200_000
 
     def _reset_missions(self):
         answer = QMessageBox.question(
@@ -3242,10 +3670,16 @@ class MainWindow(QMainWindow):
 
         self.system_bio_header.setText(bio_status)
 
-        unsold_cartography = int(getattr(self.state, "unsold_cartography_value", 0) or 0)
-        unsold_cartography_count = int(getattr(self.state, "unsold_cartography_count", 0) or 0)
+        unsold_cartography = int(
+            getattr(self.state, "unsold_cartography_value", 0) or 0
+        )
+        unsold_cartography_count = int(
+            getattr(self.state, "unsold_cartography_count", 0) or 0
+        )
         unsold_bio = int(getattr(self.state, "unsold_bio_value", 0) or 0)
-        unsold_bio_first = int(getattr(self.state, "unsold_bio_first_logged_value", 0) or 0)
+        unsold_bio_first = int(
+            getattr(self.state, "unsold_bio_first_logged_value", 0) or 0
+        )
         unsold_bio_count = int(getattr(self.state, "unsold_bio_count", 0) or 0)
         unsold_bio_unknown = list(getattr(self.state, "unsold_bio_unknown", []) or [])
 
@@ -3270,6 +3704,7 @@ class MainWindow(QMainWindow):
 
         if hasattr(self, "explorer_value_table"):
             self._refresh_explorer_tables()
+            self._refresh_explorer_live_windows()
 
         self.journal_path_edit.setText(str(self.state.journal_folder or ""))
 
