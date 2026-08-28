@@ -190,6 +190,8 @@ class BodyDetailWindow(QDialog):
                     life_effect = "water"
                 elif texture_stem == "gas_giant_ammonia_life_texture":
                     life_effect = "ammonia"
+                elif texture_stem == "water_giant_life_texture":
+                    life_effect = "water_giant"
                 else:
                     life_effect = False
 

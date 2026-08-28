@@ -150,6 +150,7 @@ Python 3 and the packages listed in `requirements.txt`:
 ``` text
 PySide6>=6.7,<7
 numpy
+Pillow>=10.0
 ```
 
 ## Linux installation
@@ -183,20 +184,76 @@ contains the required application code and assets but excludes the
 personal database, Python virtual environments and Git/cache/editor
 files.
 
-## Version 0.5.5
+## Version 0.9.0
 
-Important changes:
+Important changes since version 0.5.5:
 
--   automatic upload of new Journal data to EDSM
--   dynamic EDSM discard list
--   safe progress tracking per Journal file
--   no re-upload of old Journals on first activation
--   EDSM status directly at the top of the overview
--   dedicated rotating CMDRHelper log file
--   improved and less verbose EDSM logging
--   various improvements to Journal and database processing
--   extended mission display and tracking of mission events
--   support for NPC mission offers received through `ReceiveText`
+### Explorer and system map
+
+-   reworked parent/child structure of the system map: stars, planets,
+    moons and belt clusters are arranged according to their Journal
+    hierarchy.
+-   new **“Show all”** function with a compact overview of the complete
+    system
+-   bodies in the miniature overview can be selected and the main map
+    then jumps directly to the selected body.
+-   improved navigation in large system maps:
+    -   the mouse wheel moves the map horizontally.
+    -   holding the right mouse button and dragging up/down moves the
+        map vertically.
+-   visual body sizes are scaled more closely according to their actual
+    radius.
+-   improved presentation and marking of BIO, GEO, terraforming, first
+    discovery and first mapping information.
+
+### BIO valuation
+
+-   biological data is evaluated and displayed separately from normal
+    cartography values.
+-   display of the base value of fully analysed BIO samples
+-   display of the possible **First Logged total value ×5**
+-   known BIO values can be supplemented from existing sale data.
+-   species without a known value are marked in the valuation.
+
+### Missions
+
+-   improved processing of `MissionRedirected`
+-   redirected missions can inherit their name, new destination system
+    or station, and information about the previous destination.
+-   in certain cases missions can be reconstructed even when no
+    complete `MissionAccepted` event was previously available.
+-   mission columns can be freely resized and their widths are saved.
+
+### Images and screenshots
+
+-   dedicated screenshot area with gallery and preview
+-   automatic conversion of new Elite Dangerous BMP screenshots
+-   PNG or JPG output
+-   optional deletion of the BMP file after successful conversion
+-   adjustable brightness correction from 0 to 50%
+-   easier use of the Elite Dangerous screenshot folder under
+    Steam/Proton
+-   gallery refreshes when image files are deleted externally.
+-   improved visibility of the automatic conversion and deletion
+    options
+
+### Online services
+
+-   automatic EDSM Journal upload further integrated with status
+    information in the main window
+-   status display for active transmission, waiting, errors and disabled
+    EDSM
+-   Inara status indicator prepared for future automatic transmission
+
+### Usability and stability
+
+-   visible **“Exit”** button in the left sidebar
+-   single-instance protection prevents accidentally starting CMDRHelper
+    twice at the same time.
+-   safe miniature system overview without directly rendering the
+    already visible Explorer widget
+-   various improvements to the interface, Journal processing, database
+    handling and update process
 
 ## Project status
 

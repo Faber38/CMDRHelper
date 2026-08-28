@@ -8,6 +8,33 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
+def _direct_parent_id(parents) -> int | None:
+    """
+    Ermittelt aus Elite-Dangerous-Parents den für CMDRHelper sinnvollsten
+    direkten darstellbaren Elternkörper.
+
+    Frontier liefert die Hierarchie vom nahen zum weiter entfernten Parent.
+    Planet/Star sind für unsere Systemkarte darstellbar; Null (Barycentre)
+    und Ring werden übersprungen.
+    """
+    if not isinstance(parents, list):
+        return None
+
+    for parent in parents:
+        if not isinstance(parent, dict):
+            continue
+
+        for parent_type, value in parent.items():
+            if parent_type not in ("Planet", "Star"):
+                continue
+            try:
+                return int(value)
+            except (TypeError, ValueError):
+                continue
+
+    return None
+
+
 
 def default_database_path() -> Path:
     return Path(__file__).resolve().parent.parent / "data" / "cmdrhelper.db"
@@ -165,6 +192,24 @@ class CMDRDatabase:
                     file_size INTEGER NOT NULL DEFAULT 0,
                     modified_ns INTEGER NOT NULL DEFAULT 0,
                     last_import TEXT NOT NULL DEFAULT ''
+                );
+
+                CREATE TABLE IF NOT EXISTS learned_bio_values (
+                    species TEXT PRIMARY KEY COLLATE NOCASE,
+                    genus TEXT NOT NULL DEFAULT '',
+                    base_value INTEGER NOT NULL DEFAULT 0,
+                    last_bonus INTEGER NOT NULL DEFAULT 0,
+                    last_total INTEGER NOT NULL DEFAULT 0,
+                    first_seen TEXT NOT NULL DEFAULT '',
+                    last_seen TEXT NOT NULL DEFAULT '',
+                    source TEXT NOT NULL DEFAULT 'SellOrganicData'
+                );
+
+                CREATE TABLE IF NOT EXISTS bio_value_journal_scans (
+                    journal_file TEXT PRIMARY KEY,
+                    file_size INTEGER NOT NULL DEFAULT 0,
+                    modified_ns INTEGER NOT NULL DEFAULT 0,
+                    last_scan TEXT NOT NULL DEFAULT ''
                 );
             """)
 
@@ -363,6 +408,379 @@ class CMDRDatabase:
              "scan_type": r[3], "first_seen": r[4], "last_seen": r[5]}
             for r in rows
         ]
+
+    def biology_for_system(self, system_address):
+        if system_address is None:
+            return []
+
+        with self._connect() as con:
+            rows = con.execute(
+                """
+                SELECT body_id, genus, species, variant,
+                       scan_type, first_seen, last_seen
+                FROM biology
+                WHERE system_address=?
+                ORDER BY body_id,
+                         species COLLATE NOCASE,
+                         variant COLLATE NOCASE
+                """,
+                (int(system_address),),
+            ).fetchall()
+
+        return [
+            {
+                "body_id": row[0],
+                "genus": row[1],
+                "species": row[2],
+                "variant": row[3],
+                "scan_type": row[4],
+                "first_seen": row[5],
+                "last_seen": row[6],
+            }
+            for row in rows
+        ]
+
+    @staticmethod
+    def _bio_sale_name(item):
+        if not isinstance(item, dict):
+            return "", ""
+
+        genus = (
+            item.get("Genus_Localised")
+            or item.get("Genus")
+            or item.get("genus")
+            or ""
+        )
+
+        species = (
+            item.get("Species_Localised")
+            or item.get("Species")
+            or item.get("species")
+            or item.get("Variant_Localised")
+            or item.get("Variant")
+            or item.get("variant")
+            or ""
+        )
+
+        return str(genus or "").strip(), str(species or "").strip()
+
+    def learned_bio_values(self):
+        """
+        Liefert vom eigenen Commander tatsächlich verkaufte BIO-Basiswerte.
+
+        Diese Werte stammen direkt aus SellOrganicData und haben bei der
+        Schätzung Vorrang vor der statischen Referenztabelle.
+        """
+        with self._connect() as con:
+            rows = con.execute(
+                """
+                SELECT species, base_value
+                FROM learned_bio_values
+                WHERE species <> '' AND base_value > 0
+                ORDER BY species COLLATE NOCASE
+                """
+            ).fetchall()
+
+        return {
+            str(species): int(value or 0)
+            for species, value in rows
+        }
+
+    def learned_bio_value_details(self):
+        with self._connect() as con:
+            rows = con.execute(
+                """
+                SELECT species, genus, base_value,
+                       last_bonus, last_total,
+                       first_seen, last_seen, source
+                FROM learned_bio_values
+                ORDER BY species COLLATE NOCASE
+                """
+            ).fetchall()
+
+        return [
+            {
+                "species": row[0],
+                "genus": row[1],
+                "base_value": int(row[2] or 0),
+                "last_bonus": int(row[3] or 0),
+                "last_total": int(row[4] or 0),
+                "first_seen": row[5] or "",
+                "last_seen": row[6] or "",
+                "source": row[7] or "",
+            }
+            for row in rows
+        ]
+
+    def learn_bio_values_from_journals(self, folder):
+        """
+        Lernt Vista-Genomics-Basiswerte direkt aus SellOrganicData.
+
+        Es werden nur neue/geänderte Journaldateien eingelesen. Dadurch kann
+        die Methode bei jedem normalen State-Refresh aufgerufen werden, ohne
+        jedes Mal das komplette Journalarchiv erneut zu parsen.
+
+        Rückgabe:
+            {
+                "files_scanned": int,
+                "sales_found": int,
+                "values_changed": int,
+            }
+        """
+        folder = Path(folder)
+
+        result = {
+            "files_scanned": 0,
+            "sales_found": 0,
+            "values_changed": 0,
+        }
+
+        if not folder.is_dir():
+            return result
+
+        journals = sorted(
+            folder.glob("Journal.*.log")
+        )
+
+        if not journals:
+            return result
+
+        with self._connect() as con:
+            scan_rows = con.execute(
+                """
+                SELECT journal_file, file_size, modified_ns
+                FROM bio_value_journal_scans
+                """
+            ).fetchall()
+
+        scanned = {
+            str(row[0]): (
+                int(row[1]),
+                int(row[2]),
+            )
+            for row in scan_rows
+        }
+
+        changed_files = []
+
+        for journal in journals:
+            try:
+                stat = journal.stat()
+            except OSError:
+                continue
+
+            previous = scanned.get(
+                str(journal)
+            )
+
+            if previous is not None:
+                old_size, old_modified_ns = previous
+
+                if (
+                    int(old_size) == int(stat.st_size)
+                    and int(old_modified_ns) == int(stat.st_mtime_ns)
+                ):
+                    continue
+
+            changed_files.append(
+                (
+                    journal,
+                    int(stat.st_size),
+                    int(stat.st_mtime_ns),
+                )
+            )
+
+        if not changed_files:
+            return result
+
+        now = (
+            datetime.now(timezone.utc)
+            .isoformat()
+            .replace("+00:00", "Z")
+        )
+
+        learned = []
+
+        for journal, file_size, modified_ns in changed_files:
+            result["files_scanned"] += 1
+
+            try:
+                handle = journal.open(
+                    "r",
+                    encoding="utf-8",
+                    errors="replace",
+                )
+            except OSError:
+                continue
+
+            with handle:
+                for line in handle:
+                    # Billiger Vorfilter: die meisten Journalzeilen müssen
+                    # nicht durch json.loads().
+                    if '"event":"SellOrganicData"' not in line:
+                        continue
+
+                    try:
+                        event = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+
+                    if event.get("event") != "SellOrganicData":
+                        continue
+
+                    timestamp = (
+                        event.get("timestamp")
+                        or now
+                    )
+
+                    items = (
+                        event.get("BioData")
+                        or event.get("Data")
+                        or event.get("OrganicData")
+                        or []
+                    )
+
+                    if not isinstance(items, list):
+                        continue
+
+                    for item in items:
+                        genus, species = self._bio_sale_name(
+                            item
+                        )
+
+                        if not species:
+                            continue
+
+                        try:
+                            value = int(
+                                item.get("Value")
+                                or item.get("value")
+                                or 0
+                            )
+                        except (TypeError, ValueError):
+                            value = 0
+
+                        try:
+                            bonus = int(
+                                item.get("Bonus")
+                                or item.get("bonus")
+                                or 0
+                            )
+                        except (TypeError, ValueError):
+                            bonus = 0
+
+                        if value <= 0:
+                            continue
+
+                        result["sales_found"] += 1
+
+                        learned.append(
+                            (
+                                species,
+                                genus,
+                                value,
+                                bonus,
+                                value + bonus,
+                                timestamp,
+                                timestamp,
+                                "SellOrganicData",
+                            )
+                        )
+
+            # Datei erst nach erfolgreichem Lesen markieren.
+            with self._connect() as con:
+                con.execute(
+                    """
+                    INSERT INTO bio_value_journal_scans (
+                        journal_file, file_size,
+                        modified_ns, last_scan
+                    )
+                    VALUES (?, ?, ?, ?)
+                    ON CONFLICT(journal_file)
+                    DO UPDATE SET
+                        file_size=excluded.file_size,
+                        modified_ns=excluded.modified_ns,
+                        last_scan=excluded.last_scan
+                    """,
+                    (
+                        str(journal),
+                        file_size,
+                        modified_ns,
+                        now,
+                    ),
+                )
+
+        if not learned:
+            return result
+
+        with self._connect() as con:
+            for row in learned:
+                (
+                    species,
+                    genus,
+                    value,
+                    bonus,
+                    total,
+                    first_seen,
+                    last_seen,
+                    source,
+                ) = row
+
+                previous = con.execute(
+                    """
+                    SELECT base_value
+                    FROM learned_bio_values
+                    WHERE species = ? COLLATE NOCASE
+                    """,
+                    (species,),
+                ).fetchone()
+
+                previous_value = (
+                    int(previous[0])
+                    if previous is not None
+                    else None
+                )
+
+                con.execute(
+                    """
+                    INSERT INTO learned_bio_values (
+                        species, genus, base_value,
+                        last_bonus, last_total,
+                        first_seen, last_seen, source
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(species)
+                    DO UPDATE SET
+                        genus=CASE
+                            WHEN excluded.genus <> ''
+                            THEN excluded.genus
+                            ELSE learned_bio_values.genus
+                        END,
+                        base_value=excluded.base_value,
+                        last_bonus=excluded.last_bonus,
+                        last_total=excluded.last_total,
+                        last_seen=excluded.last_seen,
+                        source=excluded.source
+                    """,
+                    row,
+                )
+
+                if (
+                    previous_value is None
+                    or previous_value != value
+                ):
+                    result["values_changed"] += 1
+
+        if result["sales_found"]:
+            logger.info(
+                "BIO-Werte gelernt: %s Verkaufseinträge, "
+                "%s neue/geänderte Artwerte aus %s Journaldatei(en)",
+                result["sales_found"],
+                result["values_changed"],
+                result["files_scanned"],
+            )
+
+        return result
 
     @staticmethod
     def _geo_display_name(value):
@@ -1164,6 +1582,7 @@ class CMDRDatabase:
                 "bodies",
                 "materials",
                 "biology",
+                "learned_bio_values",
                 "geology",
                 "codex_entries",
                 "journal_imports",
@@ -1771,19 +2190,7 @@ class CMDRDatabase:
                             )
 
                             parents = event.get("Parents") or []
-                            parent_id = None
-
-                            if parents:
-                                try:
-                                    parent_id = int(
-                                        next(
-                                            iter(
-                                                parents[-1].values()
-                                            )
-                                        )
-                                    )
-                                except Exception:
-                                    parent_id = None
+                            parent_id = _direct_parent_id(parents)
 
                             raw_gravity = event.get(
                                 "SurfaceGravity"

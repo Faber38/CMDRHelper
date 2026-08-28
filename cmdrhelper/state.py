@@ -23,6 +23,7 @@ from cmdrhelper.online_services import (
 )
 from cmdrhelper.database import CMDRDatabase
 from cmdrhelper.edsm_uploader import EDSMJournalUploader
+from cmdrhelper.bio_valuation import biology_totals
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +50,7 @@ class AppState(QObject):
 
         self.commander = ""
         self.system = ""
+        self.system_address = None
         self.body = ""
         self.station = ""
         self.ship = ""
@@ -121,6 +123,12 @@ class AppState(QObject):
         self.system_mapped_value = 0
         self.system_current_value = 0
         self.system_high_value_count = 0
+
+        # Exobiologie getrennt von Kartographie führen.
+        self.system_bio_completed_count = 0
+        self.system_bio_value = 0
+        self.system_bio_first_logged_value = 0
+        self.system_bio_unknown = []
 
         self.edsm_body_count = 0
         self.edsm_added_count = 0
@@ -733,6 +741,7 @@ class AppState(QObject):
 
         self.commander = data["commander"]
         self.system = data["system"]
+        self.system_address = data.get("system_address")
         self.body = data["body"]
         self.station = data["station"]
         self.ship = data["ship"]
@@ -755,6 +764,23 @@ class AppState(QObject):
         except Exception:
             logger.exception("Live-Snapshot konnte nicht gespeichert werden")
 
+        # Echte Vista-Genomics-Verkaufswerte aus SellOrganicData lernen.
+        # Die Datenbank prüft selbst, welche Journaldateien neu/geändert sind.
+        try:
+            learn_result = self.database.learn_bio_values_from_journals(
+                self.journal_folder
+            )
+
+            if int(learn_result.get("values_changed") or 0):
+                logger.info(
+                    "BIO-Wertetabelle aktualisiert: %s neue/geänderte Werte",
+                    int(learn_result.get("values_changed") or 0),
+                )
+        except Exception:
+            logger.exception(
+                "BIO-Verkaufswerte konnten nicht aus dem Journal gelernt werden"
+            )
+
         for body in self.system_bodies:
             body["journal_scanned"] = True
             body["edsm_known"] = False
@@ -771,6 +797,43 @@ class AppState(QObject):
         self.system_mapped_value = totals["mapped_total"]
         self.system_current_value = totals["current_total"]
         self.system_high_value_count = totals["high_value_count"]
+
+        # BIO-Werte stammen aus den dauerhaft gespeicherten ScanOrganic-
+        # Ereignissen. Nur vollständig analysierte Proben (ScanType=Analyse)
+        # werden gezählt.
+        try:
+            bio_entries = self.database.biology_for_system(
+                self.system_address
+            )
+            learned_values = self.database.learned_bio_values()
+
+            bio_totals = biology_totals(
+                bio_entries,
+                learned_values=learned_values,
+            )
+        except Exception:
+            logger.exception(
+                "BIO-Werte für aktuelles System konnten nicht berechnet werden"
+            )
+            bio_totals = {
+                "completed_count": 0,
+                "base_total": 0,
+                "first_logged_total": 0,
+                "unknown": [],
+            }
+
+        self.system_bio_completed_count = int(
+            bio_totals["completed_count"]
+        )
+        self.system_bio_value = int(
+            bio_totals["base_total"]
+        )
+        self.system_bio_first_logged_value = int(
+            bio_totals["first_logged_total"]
+        )
+        self.system_bio_unknown = list(
+            bio_totals["unknown"]
+        )
 
         self.connected = (
             self.journal_files > 0

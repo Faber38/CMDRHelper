@@ -327,6 +327,12 @@ class Planet3DWidget(QWidget):
                 x,
                 y
             )
+        elif self.life_effect == "water_giant":
+            self._paint_water_giant_life_effect(
+                painter,
+                x,
+                y
+            )
 
     def _paint_life_effect(self, painter, image_x, image_y):
         """
@@ -724,6 +730,133 @@ class Planet3DWidget(QWidget):
                 painter.setPen(pen)
                 painter.setBrush(Qt.NoBrush)
                 painter.drawPath(path)
+
+        painter.restore()
+
+
+    def _paint_water_giant_life_effect(self, painter, image_x, image_y):
+        """Große manta-/quallenartige Lebensformen für Water Giants."""
+        radius = self.diameter / 2.0
+        cx = image_x + radius
+        cy = image_y + radius
+
+        organisms = (
+            (-0.38, -0.28, 0.55, 0.42, 0.0, 1.05),
+            ( 0.08,  0.18, 0.48, 0.34, 1.8, 1.28),
+            ( 0.43, -0.12, 0.44, 0.39, 3.5, 0.88),
+            (-0.34,  0.43, 0.38, 0.31, 5.1, 0.78),
+        )
+
+        painter.save()
+        clip = QPainterPath()
+        clip.addEllipse(image_x, image_y, self.diameter, self.diameter)
+        painter.setClipPath(clip)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+
+        for base_x, base_y, drift, speed, phase, scale in organisms:
+            t = self._life_phase * speed + phase
+            px = cx + radius*base_x + math.sin(t*0.95)*radius*0.105*drift
+            py = cy + radius*base_y + math.cos(t*0.72)*radius*0.075*drift
+
+            dx, dy = (px-cx)/radius, (py-cy)/radius
+            dist2 = dx*dx + dy*dy
+            if dist2 >= 0.88:
+                continue
+
+            depth = math.sqrt(max(0.0, 1.0-dist2))
+            pulse = 0.5 + 0.5*math.sin(t*1.55+phase)
+            body_w = (20.0+4.0*pulse)*scale*(0.70+0.30*depth)
+            body_h = body_w*0.48
+            alpha = int((125+65*pulse)*(0.48+0.52*depth))
+
+            vx = math.cos(t*0.95+phase*0.15)
+            vy = -math.sin(t*0.72+phase*0.10)
+            norm = max(0.001, math.hypot(vx, vy))
+            vx, vy = vx/norm, vy/norm
+            side_x, side_y = -vy, vx
+
+            tail_len = body_w*(2.0+0.28*pulse)
+            for i in range(5):
+                spread = (i-2.0)/4.0
+                sx = px-vx*body_w*0.26+side_x*spread*body_w*0.34
+                sy = py-vy*body_w*0.26+side_y*spread*body_w*0.34
+                wave = math.sin(t*2.0+i*1.15)*body_w*0.18
+                ex, ey = sx-vx*tail_len+side_x*wave, sy-vy*tail_len+side_y*wave
+                path = QPainterPath()
+                path.moveTo(sx, sy)
+                path.cubicTo(
+                    sx-vx*tail_len*0.30+side_x*wave*0.80,
+                    sy-vy*tail_len*0.30+side_y*wave*0.80,
+                    sx-vx*tail_len*0.68-side_x*wave*0.45,
+                    sy-vy*tail_len*0.68-side_y*wave*0.45,
+                    ex, ey
+                )
+                pen = QPen(QColor(80+i*8, 205+min(35,i*7), 255,
+                                  max(25,int(alpha*(0.48-i*0.035)))))
+                pen.setWidthF(max(0.75,(1.45-i*0.08)*scale))
+                painter.setPen(pen)
+                painter.setBrush(Qt.NoBrush)
+                painter.drawPath(path)
+
+            glow_r = body_w*1.05
+            glow = QRadialGradient(px, py, glow_r)
+            glow.setColorAt(0.0,QColor(205,255,255,min(230,alpha+35)))
+            glow.setColorAt(0.32,QColor(55,235,245,int(alpha*0.72)))
+            glow.setColorAt(0.68,QColor(40,120,245,int(alpha*0.25)))
+            glow.setColorAt(1.0,QColor(25,45,180,0))
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(QBrush(glow))
+            painter.drawEllipse(int(px-glow_r),int(py-glow_r),
+                                max(2,int(glow_r*2)),max(2,int(glow_r*2)))
+
+            nose_x, nose_y = px+vx*body_w*0.52, py+vy*body_w*0.52
+            back_x, back_y = px-vx*body_w*0.42, py-vy*body_w*0.42
+            left_x = px+side_x*body_w*0.56-vx*body_w*0.05
+            left_y = py+side_y*body_w*0.56-vy*body_w*0.05
+            right_x = px-side_x*body_w*0.56-vx*body_w*0.05
+            right_y = py-side_y*body_w*0.56-vy*body_w*0.05
+
+            body = QPainterPath()
+            body.moveTo(nose_x,nose_y)
+            body.cubicTo(px+vx*body_w*0.22+side_x*body_h,
+                         py+vy*body_w*0.22+side_y*body_h,
+                         left_x,left_y,back_x,back_y)
+            body.cubicTo(right_x,right_y,
+                         px+vx*body_w*0.22-side_x*body_h,
+                         py+vy*body_w*0.22-side_y*body_h,
+                         nose_x,nose_y)
+            body.closeSubpath()
+
+            fill = QRadialGradient(px+vx*body_w*0.12,py+vy*body_w*0.12,body_w*0.75)
+            fill.setColorAt(0.0,QColor(225,255,255,min(235,alpha+45)))
+            fill.setColorAt(0.28,QColor(75,245,245,min(220,alpha+10)))
+            fill.setColorAt(0.62,QColor(45,150,245,int(alpha*0.72)))
+            fill.setColorAt(1.0,QColor(70,45,210,int(alpha*0.22)))
+            pen = QPen(QColor(125,245,255,min(245,alpha+50)))
+            pen.setWidthF(max(1.0,1.25*scale))
+            painter.setPen(pen)
+            painter.setBrush(QBrush(fill))
+            painter.drawPath(body)
+
+            core_r = body_w*(0.12+0.025*pulse)
+            kx, ky = px+vx*body_w*0.12, py+vy*body_w*0.12
+            core = QRadialGradient(kx,ky,core_r*2.4)
+            core.setColorAt(0.0,QColor(255,255,255,250))
+            core.setColorAt(0.35,QColor(80,255,240,225))
+            core.setColorAt(1.0,QColor(55,100,255,0))
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(QBrush(core))
+            painter.drawEllipse(int(kx-core_r),int(ky-core_r),
+                                max(2,int(core_r*2)),max(2,int(core_r*2)))
+
+            for i in range(5):
+                frac = (i-2)/4.0
+                dot_r = (1.1+0.55*(0.5+0.5*math.sin(t*2.1+i*1.35)))*scale
+                dot_x = px+vx*body_w*(0.18-abs(frac)*0.10)+side_x*frac*body_w*0.48
+                dot_y = py+vy*body_w*(0.18-abs(frac)*0.10)+side_y*frac*body_w*0.48
+                painter.setBrush(QColor(205,120+i*12,255,min(255,alpha+55)))
+                painter.drawEllipse(int(dot_x-dot_r),int(dot_y-dot_r),
+                                    max(2,int(dot_r*2)),max(2,int(dot_r*2)))
 
         painter.restore()
 

@@ -2,7 +2,7 @@
 
 🇩🇪 Deutsch \| [🇬🇧 English](README.md)
 
-![CMDRHelper – Dein Co-Pilot für Elite Dangerous](cmdrhelper/docs/cmdrh.png)
+![CMDRHelper – Dein Co-Pilot für Elite Dangerous](/docs/cmdrh.png)
 
 **Persönlicher Begleiter für Elite Dangerous -- Exploration,
 Systemanalyse und Commander-Daten auf einen Blick**
@@ -162,6 +162,7 @@ Python 3 sowie die Pakete aus `requirements.txt`:
 ``` text
 PySide6>=6.7,<7
 numpy
+Pillow>=10.0
 ```
 
 ## Installation unter Linux
@@ -194,21 +195,79 @@ Die Release-Version wird direkt im Skript festgelegt. Das erzeugte ZIP
 enthält Programmcode und Assets, aber keine persönliche Datenbank, keine
 virtuelle Python-Umgebung sowie keine Git-, Cache- oder Editor-Dateien.
 
-## Version 0.5.5
+## Version 0.9.0
 
-Wichtige Änderungen:
+Wichtige Änderungen seit Version 0.5.5:
 
--   automatischer Upload neuer Journal-Daten zu EDSM
--   dynamische EDSM-Discard-Liste
--   sichere Fortschrittsverwaltung pro Journaldatei
--   keine erneute Übertragung alter Journale bei der Erstaktivierung
--   EDSM-Status direkt oben in der Übersicht
--   eigenes rotierendes CMDRHelper-Logfile
--   verbessertes und weniger umfangreiches EDSM-Logging
--   diverse Verbesserungen an Journal- und Datenbankverarbeitung
--   erweiterte Missionsanzeige und Nachverfolgung von
-    Missionsereignissen
--   Berücksichtigung von NPC-Missionsangeboten aus `ReceiveText`
+### Explorer und Systemkarte
+
+-   Parent-/Child-Struktur der Systemkarte überarbeitet: Sterne, Planeten,
+    Monde und Belt Cluster werden entsprechend ihrer Journal-Hierarchie
+    angeordnet.
+-   neue Funktion **„Alles anzeigen“** mit kompakter Miniaturübersicht des
+    gesamten Systems
+-   Körper können in der Miniaturübersicht angeklickt werden; die
+    Hauptkarte springt anschließend direkt zum gewählten Körper.
+-   verbesserte Navigation in großen Systemkarten:
+    -   Mausrad verschiebt die Karte horizontal.
+    -   rechte Maustaste gedrückt halten und nach oben/unten ziehen
+        verschiebt die Karte vertikal.
+-   optische Körpergrößen werden stärker anhand des realen Radius
+    skaliert.
+-   Darstellung und Markierung von BIO, GEO, Terraforming,
+    Erstentdeckung und First Mapping weiter verbessert.
+
+### BIO-Auswertung
+
+-   biologische Daten werden getrennt von den normalen
+    Kartographie-Werten ausgewertet und angezeigt.
+-   Anzeige des Basiswertes vollständig analysierter BIO-Proben
+-   Anzeige des möglichen **First-Logged-Gesamtwertes ×5**
+-   bekannte BIO-Werte können aus vorhandenen Verkaufsdaten ergänzt
+    werden.
+-   Arten ohne bekannten Wert werden in der Auswertung kenntlich
+    gemacht.
+
+### Missionen
+
+-   Verarbeitung von `MissionRedirected` verbessert.
+-   umgeleitete Missionen können Namen, neues Zielsystem bzw. neue
+    Zielstation und Informationen zum vorherigen Ziel übernehmen.
+-   Missionen können in bestimmten Fällen auch rekonstruiert werden,
+    wenn zuvor kein vollständiger `MissionAccepted`-Eintrag vorlag.
+-   Missionsspalten sind frei in der Breite einstellbar; die gewählten
+    Breiten werden gespeichert.
+
+### Bilder und Screenshots
+
+-   eigener Screenshot-Bereich mit Galerie und Vorschau
+-   automatische Konvertierung neuer Elite-Dangerous-BMP-Screenshots
+-   Ausgabe als PNG oder JPG
+-   optionales Löschen der BMP-Datei nach erfolgreicher Konvertierung
+-   einstellbare Helligkeitskorrektur von 0 bis 50 %
+-   komfortablere Verwendung des Elite-Screenshotordners unter
+    Steam/Proton
+-   Galerie wird auch nach extern gelöschten Dateien aktualisiert.
+-   verbesserte Sichtbarkeit der Optionen für automatische Konvertierung
+    und Löschen
+
+### Online-Dienste
+
+-   automatische EDSM-Journalübertragung weiter integriert und über den
+    Statusbereich im Hauptfenster sichtbar
+-   Status für Übertragung, Warten, Fehler und deaktiviertes EDSM
+-   Inara-Statusanzeige als Vorbereitung für die spätere automatische
+    Übertragung
+
+### Bedienung und Stabilität
+
+-   sichtbarer **„Beenden“**-Schalter in der linken Seitenleiste
+-   Single-Instance-Sperre verhindert einen versehentlichen zweiten
+    gleichzeitigen Programmstart.
+-   sichere Miniatur-Systemübersicht ohne direktes Rendern des bereits
+    sichtbaren Explorer-Widgets
+-   verschiedene Verbesserungen an Oberfläche, Journalverarbeitung,
+    Datenbank und Updateablauf
 
 ## Projektstatus
 

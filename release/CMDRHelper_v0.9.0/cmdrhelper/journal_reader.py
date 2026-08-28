@@ -8,6 +8,33 @@ from pathlib import Path
 from cmdrhelper.mission_manager import build_summary, default_next_step, mission_kind
 from cmdrhelper.valuation import apply_values
 
+def _direct_parent_id(parents) -> int | None:
+    """
+    Ermittelt aus Elite-Dangerous-Parents den für CMDRHelper sinnvollsten
+    direkten darstellbaren Elternkörper.
+
+    Frontier liefert die Hierarchie vom nahen zum weiter entfernten Parent.
+    Planet/Star sind für unsere Systemkarte darstellbar; Null (Barycentre)
+    und Ring werden übersprungen.
+    """
+    if not isinstance(parents, list):
+        return None
+
+    for parent in parents:
+        if not isinstance(parent, dict):
+            continue
+
+        for parent_type, value in parent.items():
+            if parent_type not in ("Planet", "Star"):
+                continue
+            try:
+                return int(value)
+            except (TypeError, ValueError):
+                continue
+
+    return None
+
+
 
 def default_journal_paths() -> list[Path]:
     home = Path.home()
@@ -309,10 +336,24 @@ def _update_mission_event(mission: dict, e: dict):
     ts = e.get("timestamp") or mission.get("last_update", "")
 
     if et == "MissionRedirected":
+        redirected_name = (
+            e.get("LocalisedName")
+            or e.get("Name_Localised")
+            or ""
+        )
+        if redirected_name:
+            mission["name"] = redirected_name
+
         if e.get("NewDestinationSystem"):
             mission["destination_system"] = e["NewDestinationSystem"]
         if e.get("NewDestinationStation"):
             mission["destination_station"] = e["NewDestinationStation"]
+
+        extra = dict(mission.get("extra") or {})
+        extra["source"] = extra.get("source") or "Missions+MissionRedirected"
+        if e.get("OldDestinationSystem"):
+            extra["old_destination_system"] = e["OldDestinationSystem"]
+        mission["extra"] = extra
 
         mission["status"] = "Ziel geändert"
         mission["next_step"] = default_next_step(mission)
@@ -813,19 +854,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                             continue
 
                         parents = e.get("Parents") or []
-                        parent_id = None
-
-                        if parents:
-                            try:
-                                parent_id = int(
-                                    next(
-                                        iter(
-                                            parents[-1].values()
-                                        )
-                                    )
-                                )
-                            except Exception:
-                                parent_id = None
+                        parent_id = _direct_parent_id(parents)
 
                         raw_gravity = e.get("SurfaceGravity")
                         gravity_g = None
@@ -1143,6 +1172,21 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                     if not _after_mission_reset(ts):
                         continue
                     mid = e.get("MissionID")
+
+                    # Manche im Flug/über NPC-Nachrichten entstehenden Missionen
+                    # besitzen keinen MissionAccepted-Eintrag. Falls der aktuelle
+                    # Missions-Snapshot noch nicht gelesen wurde (z. B. Logsegment),
+                    # legen wir spätestens hier einen vorläufigen Datensatz an.
+                    if mid is not None and mid not in missions:
+                        missions[mid] = _new_mission({
+                            "MissionID": mid,
+                            "Name": e.get("Name") or "Mission",
+                            "LocalisedName": (
+                                e.get("LocalisedName")
+                                or e.get("Name_Localised")
+                            ),
+                            "timestamp": ts,
+                        })
 
                     if mid in missions:
                         _update_mission_event(
