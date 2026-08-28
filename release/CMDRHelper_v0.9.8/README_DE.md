@@ -325,6 +325,20 @@ sind vorgesehen. Linux und Windows werden weiter getestet.
 CMDRHelper entstand als persönliches Werkzeug und wird schrittweise zu
 einem umfangreicheren Elite-Dangerous-Helper ausgebaut.
 
+## Lizenz
+
+CMDRHelper ist freie Software und wird unter der **GNU General Public
+License Version 3 (GPL-3.0)** veröffentlicht.
+
+Der Quellcode darf unter den Bedingungen der GPL-3.0 verwendet,
+verändert und weitergegeben werden. Bei der Weitergabe abgeleiteter
+Versionen gelten ebenfalls die Bedingungen der GPL-3.0.
+
+Copyright © 2026 **Holger Mangold (Faber38)**.
+
+Die vollständigen Lizenzbedingungen befinden sich in der Datei
+`LICENSE`.
+
 ## Hinweis zu Elite Dangerous
 
 CMDRHelper ist ein unabhängiges Community-/Hobbyprojekt und kein
