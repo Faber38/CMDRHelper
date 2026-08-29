@@ -71,6 +71,16 @@ cp "main.py" "${RELEASE_DIR}/"
 cp "requirements.txt" "${RELEASE_DIR}/"
 cp "README.md" "${RELEASE_DIR}/"
 cp "README_DE.md" "${RELEASE_DIR}/"
+cp "README_EL.md" "${RELEASE_DIR}/"
+cp "README_ES.md" "${RELEASE_DIR}/"
+cp "README_FI.md" "${RELEASE_DIR}/"
+cp "README_FR.md" "${RELEASE_DIR}/"
+cp "README_IT.md" "${RELEASE_DIR}/"
+cp "README_NL.md" "${RELEASE_DIR}/"
+cp "README_NO.md" "${RELEASE_DIR}/"
+cp "README_PL.md" "${RELEASE_DIR}/"
+cp "README_SV.md" "${RELEASE_DIR}/"
+cp "README_TR.md" "${RELEASE_DIR}/"
 
 # Start-/Installationsdateien
 for item in \
@@ -116,7 +126,8 @@ rm -f \
     "${RELEASE_DIR}/data/cmdrhelper.db" \
     "${RELEASE_DIR}/data/cmdrhelper.db-wal" \
     "${RELEASE_DIR}/data/cmdrhelper.db-shm" \
-    "${RELEASE_DIR}/cmdrhelper.db"
+    "${RELEASE_DIR}/cmdrhelper.db" \
+    "${RELEASE_DIR}/texture_test.py"
 
 # Python-/Editor-/Entwicklungsreste entfernen.
 find "${RELEASE_DIR}" -type d -name "__pycache__" -prune -exec rm -rf {} + 2>/dev/null || true
