@@ -789,6 +789,7 @@ class ExplorerLiveListWindow(QDialog):
 
                 body_name = str(row.get("body_name") or "?")
                 signals = max(0, int(row.get("signals") or 0))
+                geo_signals = max(0, int(row.get("geo_signals") or 0))
                 species = list(row.get("species") or [])
                 known_count = len(species)
                 known_value = int(row.get("known_value") or 0)
@@ -796,6 +797,21 @@ class ExplorerLiveListWindow(QDialog):
                 # Mehr Arten als Signale sollte praktisch nicht vorkommen;
                 # für ungewöhnliche Journaldaten trotzdem robust bleiben.
                 total_count = max(signals, known_count)
+
+                # BIO-Signalanzahl immer sichtbar lassen. Diese kompakte
+                # Kopfzeile zeigt nur die vom DSS/FSS gemeldete Anzahl und
+                # greift nicht in die bestehende Arten-/Probenlogik ein.
+                if signals > 0:
+                    display_rows.append({
+                        "body": body_name,
+                        "entry": {
+                            "name": f"BIO ×{signals}",
+                            "scan_type": "bio_signal",
+                            "value": 0,
+                        },
+                        "progress": "–",
+                        "complete": False,
+                    })
 
                 # WICHTIG:
                 # "Art bekannt" ist NICHT dasselbe wie "Analyse vollständig".
@@ -816,7 +832,7 @@ class ExplorerLiveListWindow(QDialog):
 
                 if complete:
                     display_rows.append({
-                        "body": body_name,
+                        "body": "",
                         "find": tr("explorer.known_ratio", known=known_count, total=total_count),
                         "progress": tr("explorer.complete_ratio", completed=completed_count, total=total_count),
                         "value": (
@@ -825,16 +841,41 @@ class ExplorerLiveListWindow(QDialog):
                         ),
                         "complete": True,
                     })
+
+                    if geo_signals > 0:
+                        display_rows.append({
+                            "body": "",
+                            "entry": {
+                                "name": f"GEO ×{geo_signals}",
+                                "scan_type": "geo",
+                                "value": 0,
+                            },
+                            "progress": "–",
+                            "complete": False,
+                        })
                     continue
 
                 if known_count == 0:
-                    display_rows.append({
-                        "body": body_name,
-                        "find": tr("explorer.still_unknown"),
-                        "progress": tr("explorer.known_ratio", known=0, total=total_count),
-                        "value": "–",
-                        "complete": False,
-                    })
+                    if signals > 0:
+                        display_rows.append({
+                            "body": "",
+                            "find": tr("explorer.still_unknown"),
+                            "progress": tr("explorer.known_ratio", known=0, total=total_count),
+                            "value": "–",
+                            "complete": False,
+                        })
+
+                    if geo_signals > 0:
+                        display_rows.append({
+                            "body": body_name if signals <= 0 else "",
+                            "entry": {
+                                "name": f"GEO ×{geo_signals}",
+                                "scan_type": "geo",
+                                "value": 0,
+                            },
+                            "progress": "–",
+                            "complete": False,
+                        })
                     continue
 
                 # Solange nicht ALLE Arten vollständig analysiert sind,
@@ -844,7 +885,9 @@ class ExplorerLiveListWindow(QDialog):
                 for index, entry in enumerate(species):
                     scan_key = str(entry.get("scan_type") or "").strip().casefold()
 
-                    if scan_key in ("analyse", "analyze"):
+                    if scan_key == "geo":
+                        step_text = "–"
+                    elif scan_key in ("analyse", "analyze"):
                         step_text = tr("explorer.sample_complete")
                     elif scan_key == "sample":
                         step_text = tr("explorer.sample_two")
@@ -854,7 +897,7 @@ class ExplorerLiveListWindow(QDialog):
                         step_text = tr("explorer.dss_detected")
 
                     display_rows.append({
-                        "body": body_name if index == 0 else "",
+                        "body": "",
                         "entry": entry,
                         "progress": step_text,
                         "complete": False,
@@ -871,6 +914,20 @@ class ExplorerLiveListWindow(QDialog):
                         ),
                         "progress": tr("explorer.known_ratio", known=known_count, total=total_count),
                         "value": "–",
+                        "complete": False,
+                    })
+
+                # GEO wird nur als Anzahl dargestellt. Es nimmt ausdrücklich
+                # nicht an BIO-Art-, Probe- oder Fortschrittsberechnungen teil.
+                if geo_signals > 0:
+                    display_rows.append({
+                        "body": "",
+                        "entry": {
+                            "name": f"GEO ×{geo_signals}",
+                            "scan_type": "geo",
+                            "value": 0,
+                        },
+                        "progress": "–",
                         "complete": False,
                     })
 
@@ -898,7 +955,11 @@ class ExplorerLiveListWindow(QDialog):
                     value = int(entry.get("value") or 0)
 
                     scan_key = scan_type.strip().casefold()
-                    if scan_key in ("analyse", "analyze"):
+                    if scan_key == "geo":
+                        color = "#28c9e8"
+                    elif scan_key == "bio_signal":
+                        color = "#66e36a"
+                    elif scan_key in ("analyse", "analyze"):
                         color = "#65d067"
                     elif scan_key == "sample":
                         color = "#ffb000"
@@ -1284,9 +1345,96 @@ class MainWindow(QMainWindow):
         status_layout.addWidget(self.overview_status)
 
         page_layout.addWidget(status_card)
-        page_layout.addStretch()
+
+        recent_card, recent_layout = self._card("Letzte Systeme")
+
+        recent_header = QHBoxLayout()
+        recent_header.addWidget(QLabel("Anzahl:", objectName="muted"))
+
+        self.recent_systems_count_spin = QSpinBox()
+        self.recent_systems_count_spin.setRange(3, 50)
+        self.recent_systems_count_spin.setSingleStep(1)
+
+        try:
+            recent_count = int(
+                self.state.settings.value(
+                    "overview_recent_systems_count",
+                    10,
+                )
+                or 10
+            )
+        except (TypeError, ValueError):
+            recent_count = 10
+
+        self.recent_systems_count_spin.setValue(max(3, min(50, recent_count)))
+        self.recent_systems_count_spin.valueChanged.connect(
+            self._recent_systems_count_changed
+        )
+
+        recent_header.addWidget(self.recent_systems_count_spin)
+        recent_header.addStretch()
+        recent_layout.addLayout(recent_header)
+
+        self.recent_systems_table = QTableWidget(0, 2)
+        self.recent_systems_table.setHorizontalHeaderLabels(
+            ["Zeit", "System"]
+        )
+        self.recent_systems_table.setAlternatingRowColors(True)
+        self.recent_systems_table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.recent_systems_table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.recent_systems_table.setSelectionMode(QTableWidget.SingleSelection)
+        self.recent_systems_table.verticalHeader().setVisible(False)
+        self.recent_systems_table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.Interactive
+        )
+        self.recent_systems_table.horizontalHeader().setStretchLastSection(True)
+        self.recent_systems_table.setColumnWidth(0, 150)
+        self.recent_systems_table.setMinimumHeight(150)
+
+        recent_layout.addWidget(self.recent_systems_table)
+
+        page_layout.addWidget(recent_card, 1)
 
         return page
+
+    def _recent_systems_count_changed(self, value):
+        value = max(3, min(50, int(value or 10)))
+        self.state.settings.setValue(
+            "overview_recent_systems_count",
+            value,
+        )
+        self.state.settings.sync()
+        self._refresh_recent_systems()
+
+    def _refresh_recent_systems(self):
+        if not hasattr(self, "recent_systems_table"):
+            return
+
+        limit = 10
+        if hasattr(self, "recent_systems_count_spin"):
+            limit = int(self.recent_systems_count_spin.value())
+
+        try:
+            visits = self.state.database.recent_system_visits(limit)
+        except Exception:
+            visits = []
+
+        self.recent_systems_table.setRowCount(len(visits))
+
+        for row, visit in enumerate(visits):
+            visited_at = self._format_timestamp(
+                visit.get("visited_at") or ""
+            )
+            system_name = (
+                visit.get("system_name")
+                or "–"
+            )
+
+            time_item = QTableWidgetItem(visited_at)
+            system_item = QTableWidgetItem(system_name)
+
+            self.recent_systems_table.setItem(row, 0, time_item)
+            self.recent_systems_table.setItem(row, 1, system_item)
 
     def _explorer(self):
         page = QWidget()
@@ -1388,7 +1536,7 @@ class MainWindow(QMainWindow):
 
         # Neben der grafischen Karte zwei kompakte Textansichten:
         # - Werte: Planeten/Monde nach aktuellem Kartographiewert
-        # - BIO: alle Körper mit biologischen Signalen und Besuchsstatus
+        # - BIO/GEO: alle Körper mit biologischen oder geologischen Signalen
         self.explorer_tabs = QTabWidget()
         self.explorer_tabs.addTab(self.system_scroll, tr("explorer.system_map"))
 
@@ -1430,12 +1578,13 @@ class MainWindow(QMainWindow):
             tr("explorer.value_list"),
         )
 
-        self.explorer_bio_table = QTableWidget(0, 9)
+        self.explorer_bio_table = QTableWidget(0, 10)
         self.explorer_bio_table.setHorizontalHeaderLabels(
             [
                 tr("explorer.col_body"),
                 tr("explorer.col_type"),
                 "BIO",
+                "GEO",
                 tr("explorer.col_bio_findings"),
                 tr("explorer.col_bio_value"),
                 tr("explorer.col_distance"),
@@ -1459,11 +1608,12 @@ class MainWindow(QMainWindow):
         self.explorer_bio_table.setColumnWidth(0, 140)
         self.explorer_bio_table.setColumnWidth(1, 160)
         self.explorer_bio_table.setColumnWidth(2, 50)
-        self.explorer_bio_table.setColumnWidth(3, 330)
-        self.explorer_bio_table.setColumnWidth(4, 130)
-        self.explorer_bio_table.setColumnWidth(5, 100)
-        self.explorer_bio_table.setColumnWidth(6, 95)
-        self.explorer_bio_table.setColumnWidth(7, 110)
+        self.explorer_bio_table.setColumnWidth(3, 50)
+        self.explorer_bio_table.setColumnWidth(4, 330)
+        self.explorer_bio_table.setColumnWidth(5, 130)
+        self.explorer_bio_table.setColumnWidth(6, 100)
+        self.explorer_bio_table.setColumnWidth(7, 95)
+        self.explorer_bio_table.setColumnWidth(8, 110)
 
         self.explorer_tabs.addTab(
             self.explorer_bio_table,
@@ -1567,10 +1717,13 @@ class MainWindow(QMainWindow):
         - Sample   = 2. Probe
         - Analyse/Analyze = 3. Probe, vollständig
 
-        Noch nicht beprobte DSS-Genuses bekommen einen leeren Scan-Typ.
+        Sobald ScanOrganic eine konkrete Art/Variante einer Gattung kennt,
+        wird der vorher nur vom DSS bekannte allgemeine Gattungsname nicht
+        zusätzlich angezeigt.
         """
         entries = []
         seen = set()
+        concrete_genuses = set()
 
         for entry in body.get("biology") or []:
             if not isinstance(entry, dict):
@@ -1581,7 +1734,11 @@ class MainWindow(QMainWindow):
             )
             name = str(name or "").strip()
 
-            if not name or name in seen:
+            if not name:
+                continue
+
+            canonical = name.casefold()
+            if canonical in seen:
                 continue
 
             scan_type = str(
@@ -1589,16 +1746,37 @@ class MainWindow(QMainWindow):
             ).strip()
 
             entries.append((name, scan_type))
-            seen.add(name)
+            seen.add(canonical)
+
+            # Der erste Namensbestandteil ist bei Elite-BIO-Namen die
+            # Gattung, z. B. "Stratum Paleas - Lime" -> "stratum".
+            genus_name = str(entry.get("genus") or "").strip()
+            genus_key = (
+                genus_name.casefold()
+                if genus_name
+                else (canonical.split()[0] if canonical.split() else canonical)
+            )
+            if genus_key:
+                concrete_genuses.add(genus_key)
 
         # DSS/FSS kann bereits alle Genuses kennen, obwohl noch keine
-        # ScanOrganic-Probe genommen wurde. Diese ergänzen wir zusätzlich.
+        # ScanOrganic-Probe genommen wurde. Nur noch nicht konkretisierte
+        # Gattungen ergänzen.
         for name in body.get("bio_genuses") or []:
             name = str(name or "").strip()
+            if not name:
+                continue
 
-            if name and name not in seen:
-                entries.append((name, ""))
-                seen.add(name)
+            canonical = name.casefold()
+            genus_key = canonical.split()[0] if canonical.split() else canonical
+
+            if genus_key in concrete_genuses:
+                continue
+            if canonical in seen:
+                continue
+
+            entries.append((name, ""))
+            seen.add(canonical)
 
         return entries
 
@@ -1806,17 +1984,23 @@ class MainWindow(QMainWindow):
 
                 self.explorer_value_table.setItem(row, col, item)
 
-        # BIO-Körper separat. Noch nicht besuchte zuerst, danach nach
-        # Signalzahl und Wert. So springen offene Ziele sofort ins Auge.
+        # BIO/GEO-Körper gemeinsam. Auch reine GEO-Körper werden hier
+        # angezeigt; Körper mit beiden Signalarten erscheinen nur einmal.
         bio_bodies = [
             body
             for body in value_bodies
-            if int(body.get("biological_signals") or 0) > 0
+            if (
+                int(body.get("biological_signals") or 0) > 0
+                or int(body.get("geological_signals") or 0) > 0
+            )
         ]
         bio_bodies.sort(
             key=lambda body: (
                 self._explorer_body_visited(body),
-                -int(body.get("biological_signals") or 0),
+                -(
+                    int(body.get("biological_signals") or 0)
+                    + int(body.get("geological_signals") or 0)
+                ),
                 -int(body.get("current_value") or 0),
                 str(self._explorer_body_name(body)).lower(),
             )
@@ -1832,6 +2016,7 @@ class MainWindow(QMainWindow):
         for row, body in enumerate(bio_bodies):
             visited = self._explorer_body_visited(body)
             signals = int(body.get("biological_signals") or 0)
+            geo_signals = int(body.get("geological_signals") or 0)
             found, completed, analysed = self._explorer_bio_progress(body)
             bio_names = self._explorer_bio_names(body)
             bio_names_text = self._explorer_bio_names_html(bio_names)
@@ -1839,9 +2024,15 @@ class MainWindow(QMainWindow):
                 body,
                 learned_bio_values,
             )
-            bio_value_text = (
-                self._format_reward(known_bio_value) if known_bio_value > 0 else "–"
-            )
+            first_footfall = bool(body.get("first_footfall"))
+            if known_bio_value > 0:
+                bio_value_text = self._format_reward(known_bio_value)
+                if first_footfall:
+                    bio_value_text += (
+                        f" / {self._format_reward(known_bio_value * 5)} möglich"
+                    )
+            else:
+                bio_value_text = "–"
 
             if analysed:
                 analysis_text = (
@@ -1861,19 +2052,20 @@ class MainWindow(QMainWindow):
             values = [
                 self._explorer_body_name(body),
                 SystemMapWidget._type_text(body),
-                str(signals),
-                bio_names_text,
-                bio_value_text,
+                str(signals) if signals > 0 else "–",
+                str(geo_signals) if geo_signals > 0 else "–",
+                bio_names_text if signals > 0 else "–",
+                bio_value_text if signals > 0 else "–",
                 self._explorer_distance_text(body),
                 tr("explorer.visited") if visited else tr("explorer.open_cap"),
-                analysis_text,
-                status,
+                analysis_text if signals > 0 else tr("explorer.open"),
+                status if signals > 0 else tr("explorer.open"),
             ]
 
             for col, value in enumerate(values):
                 # BIO-Funde brauchen Rich Text, damit jeder Name einzeln
                 # entsprechend seinem Scan-Fortschritt eingefärbt werden kann.
-                if col == 3:
+                if col == 4:
                     label = QLabel()
                     label.setTextFormat(Qt.RichText)
                     label.setText(str(value))
@@ -1887,12 +2079,10 @@ class MainWindow(QMainWindow):
 
                 item = QTableWidgetItem(str(value))
 
-                if col == 4 and known_bio_value > 0:
+                if col == 5 and known_bio_value > 0 and first_footfall:
                     item.setToolTip(
-                        tr(
-                            "explorer.bio_value_tooltip",
-                            value=self._format_reward(known_bio_value * 5),
-                        )
+                        f"Erstbetretung erkannt: möglicher BIO-Wert "
+                        f"{self._format_reward(known_bio_value * 5)}"
                     )
                 item.setData(Qt.UserRole, body)
 
@@ -1911,7 +2101,7 @@ class MainWindow(QMainWindow):
         )
         self.explorer_tabs.setTabText(
             2,
-            tr("explorer.bio_planets_count", count=len(bio_bodies)),
+            f"BIO / GEO ({len(bio_bodies)})",
         )
 
     def _ensure_explorer_live_windows(self):
@@ -1928,7 +2118,7 @@ class MainWindow(QMainWindow):
         if self._explorer_bio_live_window is None:
             self._explorer_bio_live_window = ExplorerLiveListWindow(
                 tr("explorer.live_bio_title"),
-                [tr("explorer.col_body"), tr("explorer.col_bio_finding"), tr("explorer.col_progress"), tr("explorer.col_value")],
+                [tr("explorer.col_body"), "BIO / GEO", tr("explorer.col_progress"), tr("explorer.col_value")],
                 self.state.settings,
                 "explorer_live/bio_geometry",
                 self,
@@ -2006,7 +2196,8 @@ class MainWindow(QMainWindow):
         bio_rows = []
         for body in bodies:
             signals = int(body.get("biological_signals") or 0)
-            if signals <= 0:
+            geo_signals = int(body.get("geological_signals") or 0)
+            if signals <= 0 and geo_signals <= 0:
                 continue
 
             names = self._explorer_bio_names(body)
@@ -2104,7 +2295,11 @@ class MainWindow(QMainWindow):
 
             bio_rows.append({
                 "body_name": self._explorer_body_name(body),
+                # BIO und GEO bewusst getrennt halten:
+                # Die bestehende BIO-Fortschrittslogik darf ausschließlich
+                # biologische Signale auswerten.
                 "signals": signals,
+                "geo_signals": geo_signals,
                 "species": species_rows,
                 "known_value": known_value,
             })
@@ -4181,6 +4376,8 @@ class MainWindow(QMainWindow):
 
         else:
             self.overview_status.setText(tr("overview.no_ed_journal_data"))
+
+        self._refresh_recent_systems()
 
         scanned_count = sum(
             1 for body in self.state.system_bodies if body.get("journal_scanned", True)

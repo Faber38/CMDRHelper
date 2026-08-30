@@ -1976,6 +1976,49 @@ class CMDRDatabase:
         ]
 
 
+    def recent_system_visits(self, limit=10):
+        """
+        Liefert die letzten tatsächlich protokollierten Systembesuche
+        aus system_visits, neuester Besuch zuerst.
+
+        Mehrfache Besuche desselben Systems bleiben bewusst erhalten,
+        weil die Liste eine echte Reisehistorie zeigen soll.
+        """
+        try:
+            limit = int(limit)
+        except (TypeError, ValueError):
+            limit = 10
+
+        limit = max(1, min(100, limit))
+
+        with self._connect() as con:
+            rows = con.execute(
+                """
+                SELECT
+                    system_address,
+                    system_name,
+                    visited_at,
+                    x, y, z
+                FROM system_visits
+                ORDER BY visited_at DESC, id DESC
+                LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+
+        return [
+            {
+                "system_address": row[0],
+                "system_name": row[1] or "",
+                "visited_at": row[2] or "",
+                "x": row[3],
+                "y": row[4],
+                "z": row[5],
+            }
+            for row in rows
+        ]
+
+
     def chronicle_system_details(self, system_address):
         """
         Lädt ein bereits besuchtes System vollständig aus der lokalen

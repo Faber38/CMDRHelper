@@ -450,7 +450,6 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
         "system_all_bodies_found": False,
         "unsold_cartography_value": 0,
         "unsold_cartography_count": 0,
-        "last_cartography_sale": None,
         "unsold_biology": [],
     }
 
@@ -495,6 +494,11 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
 
     # SystemAddress -> {BodyID -> body}
     scans_by_address: dict[int, dict[int, dict]] = {}
+
+    # Körper, auf denen wir tatsächlich ausgestiegen sind. Zusammen mit
+    # WasFootfalled == False aus dem vorherigen Scan lässt sich damit eine
+    # eigene Erstbetretung sicher erkennen.
+    first_footfall_disembarks: set[tuple[int, int]] = set()
 
     # SystemAddress -> {BodyID -> bio_count}
     pending_bio_by_address: dict[int, dict[int, int]] = {}
@@ -830,6 +834,49 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                         ts,
                     )
 
+                elif et == "Disembark":
+                    current_body = (
+                        e.get("Body")
+                        or e.get("BodyName")
+                        or current_body
+                    )
+                    result["body"] = current_body
+
+                    address = _system_address(e)
+                    body_id = e.get("BodyID")
+
+                    if (
+                        bool(e.get("OnPlanet"))
+                        and address is not None
+                        and body_id is not None
+                    ):
+                        try:
+                            body_id_int = int(body_id)
+                        except (TypeError, ValueError):
+                            body_id_int = None
+
+                        if body_id_int is not None:
+                            first_footfall_disembarks.add((int(address), body_id_int))
+
+                            body = scans_by_address.setdefault(
+                                int(address),
+                                {},
+                            ).get(body_id_int)
+
+                            # Entscheidend ist Frontiers Zustand VOR unserer
+                            # Landung: WasFootfalled=False + eigenes Aussteigen
+                            # auf diesem Körper = eigene Erstbetretung.
+                            if body and body.get("was_footfalled") is False:
+                                body["first_footfall"] = True
+
+                    _update_location_status(
+                        missions,
+                        current_system,
+                        current_station,
+                        current_body,
+                        ts,
+                    )
+
                 elif et == "ApproachSettlement":
                     current_station = (
                         e.get("Name")
@@ -949,6 +996,11 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                             ),
                             "was_discovered": e.get("WasDiscovered"),
                             "was_mapped": e.get("WasMapped"),
+                            "was_footfalled": e.get("WasFootfalled"),
+                            "first_footfall": bool(
+                                (int(address), body_id_int) in first_footfall_disembarks
+                                and e.get("WasFootfalled") is False
+                            ),
                             "atmosphere": (
                                 e.get("Atmosphere_Localised")
                                 or e.get("Atmosphere")
@@ -985,6 +1037,12 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                             body["efficient_mapping"] = bool(
                                 previous.get("efficient_mapping")
                             )
+                            body["first_footfall"] = bool(
+                                body.get("first_footfall")
+                                or previous.get("first_footfall")
+                            )
+                            if body.get("was_footfalled") is None:
+                                body["was_footfalled"] = previous.get("was_footfalled")
                             body["biological_signals"] = int(
                                 previous.get("biological_signals") or 0
                             )
@@ -1189,37 +1247,6 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                 # Verkauf setzt nur den jeweils passenden offenen Topf zurück.
                 # ---------------------------------------------------------
                 elif et in ("SellExplorationData", "MultiSellExplorationData"):
-                    def _sale_int(*names):
-                        for name in names:
-                            value = e.get(name)
-                            if value is None:
-                                continue
-                            try:
-                                return int(value)
-                            except (TypeError, ValueError):
-                                continue
-                        return 0
-
-                    sale_base = _sale_int("BaseValue", "Value")
-                    sale_bonus = _sale_int("Bonus")
-                    sale_total = _sale_int("TotalEarnings", "TotalValue", "Total")
-                    if sale_total <= 0:
-                        sale_total = max(0, sale_base + sale_bonus)
-
-                    result["last_cartography_sale"] = {
-                        "timestamp": ts,
-                        "event_type": et,
-                        "base_value": max(0, sale_base),
-                        "bonus": max(0, sale_bonus),
-                        "total_earnings": max(0, sale_total),
-                        "estimated_open_value": int(
-                            sum(
-                                max(0, int(value or 0))
-                                for value in unsold_cartography.values()
-                            )
-                        ),
-                        "body_count": len(unsold_cartography),
-                    }
                     unsold_cartography.clear()
 
                 elif et == "SellOrganicData":
