@@ -450,6 +450,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
         "system_all_bodies_found": False,
         "unsold_cartography_value": 0,
         "unsold_cartography_count": 0,
+        "last_cartography_sale": None,
         "unsold_biology": [],
     }
 
@@ -1188,6 +1189,37 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                 # Verkauf setzt nur den jeweils passenden offenen Topf zurück.
                 # ---------------------------------------------------------
                 elif et in ("SellExplorationData", "MultiSellExplorationData"):
+                    def _sale_int(*names):
+                        for name in names:
+                            value = e.get(name)
+                            if value is None:
+                                continue
+                            try:
+                                return int(value)
+                            except (TypeError, ValueError):
+                                continue
+                        return 0
+
+                    sale_base = _sale_int("BaseValue", "Value")
+                    sale_bonus = _sale_int("Bonus")
+                    sale_total = _sale_int("TotalEarnings", "TotalValue", "Total")
+                    if sale_total <= 0:
+                        sale_total = max(0, sale_base + sale_bonus)
+
+                    result["last_cartography_sale"] = {
+                        "timestamp": ts,
+                        "event_type": et,
+                        "base_value": max(0, sale_base),
+                        "bonus": max(0, sale_bonus),
+                        "total_earnings": max(0, sale_total),
+                        "estimated_open_value": int(
+                            sum(
+                                max(0, int(value or 0))
+                                for value in unsold_cartography.values()
+                            )
+                        ),
+                        "body_count": len(unsold_cartography),
+                    }
                     unsold_cartography.clear()
 
                 elif et == "SellOrganicData":

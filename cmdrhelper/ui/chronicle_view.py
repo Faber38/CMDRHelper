@@ -47,6 +47,11 @@ class ChronicleMapWidget(QWidget):
         self.hover_index = -1
         self.selected_address = None
 
+        # Aktuell vom Commander besuchtes System.
+        # Wird unabhängig von der normalen Auswahl gelb hervorgehoben.
+        self.current_system_name = ""
+        self.current_system_address = None
+
         # Stilisiertes Milchstraßen-Modell als räumliche Orientierung.
         # Sol liegt im Elite-Koordinatensystem bei (0, 0, 0).
         self.show_galaxy = True
@@ -74,6 +79,54 @@ class ChronicleMapWidget(QWidget):
 
         self.fit_map()
         self.update()
+
+    def set_current_system(self, system_name):
+        """Markiert das aktuell besuchte System in der Chronik."""
+        self.current_system_name = str(system_name or "").strip()
+        self.current_system_address = None
+
+        if self.current_system_name:
+            wanted = self.current_system_name.casefold()
+            for system in self.systems:
+                name = str(system.get("name") or "").strip()
+                if name.casefold() == wanted:
+                    self.current_system_address = system.get("system_address")
+                    break
+
+        self.update()
+
+    def focus_current_system(self):
+        """Zentriert die Ansicht auf das aktuell besuchte System."""
+        if not self.current_system_name:
+            return False
+
+        wanted = self.current_system_name.casefold()
+        current = None
+
+        for system in self.systems:
+            name = str(system.get("name") or "").strip()
+            if name.casefold() == wanted:
+                current = system
+                break
+
+        if current is None:
+            return False
+
+        # Das aktuelle System wird zum echten Mittelpunkt der 3D-Ansicht.
+        self._center = (
+            float(current.get("x") or 0.0),
+            float(current.get("y") or 0.0),
+            float(current.get("z") or 0.0),
+        )
+        self.pan = QPointF()
+
+        # Sinnvoller Nah-Zoom, ohne eine bereits stärkere Vergrößerung
+        # des Benutzers unnötig zurückzusetzen.
+        self.scale = max(self.scale, 0.12)
+
+        self.hover_index = -1
+        self.update()
+        return True
 
     def fit_map(self):
         if not self.systems:
@@ -401,6 +454,11 @@ class ChronicleMapWidget(QWidget):
                 system.get("system_address")
                 == self.selected_address
             )
+            current = (
+                self.current_system_address is not None
+                and system.get("system_address")
+                == self.current_system_address
+            )
 
             radius = 4.0 * perspective
 
@@ -408,8 +466,24 @@ class ChronicleMapWidget(QWidget):
                 radius = 6.0
             if selected:
                 radius = 7.0
+            if current:
+                radius = 8.0
 
-            if selected:
+            if current:
+                # Aktuelle Commander-Position: bewusst kräftig gelb,
+                # damit sie auch in einer dichten Route sofort auffällt.
+                painter.setPen(
+                    QPen(
+                        QColor("#fff6a0"),
+                        2.5,
+                    )
+                )
+                painter.setBrush(
+                    QBrush(
+                        QColor("#ffd400")
+                    )
+                )
+            elif selected:
                 painter.setPen(
                     QPen(
                         QColor("#ffffff"),
@@ -452,9 +526,9 @@ class ChronicleMapWidget(QWidget):
                 radius,
             )
 
-            if hover or selected:
+            if hover or selected or current:
                 painter.setPen(
-                    QColor("#e9f1f5")
+                    QColor("#fff3a6") if current else QColor("#e9f1f5")
                 )
                 painter.drawText(
                     int(point.x() + 11),

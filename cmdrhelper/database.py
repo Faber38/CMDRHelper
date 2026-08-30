@@ -211,6 +211,52 @@ class CMDRDatabase:
                     modified_ns INTEGER NOT NULL DEFAULT 0,
                     last_scan TEXT NOT NULL DEFAULT ''
                 );
+
+                CREATE TABLE IF NOT EXISTS cartography_sales (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    journal_file TEXT NOT NULL DEFAULT '',
+                    event_timestamp TEXT NOT NULL DEFAULT '',
+                    event_type TEXT NOT NULL DEFAULT '',
+                    base_value INTEGER NOT NULL DEFAULT 0,
+                    bonus INTEGER NOT NULL DEFAULT 0,
+                    total_earnings INTEGER NOT NULL DEFAULT 0,
+                    estimated_total INTEGER NOT NULL DEFAULT 0,
+                    correction_factor REAL,
+                    body_count INTEGER NOT NULL DEFAULT 0,
+                    first_seen TEXT NOT NULL DEFAULT '',
+                    UNIQUE(journal_file, event_timestamp, event_type)
+                );
+
+                CREATE TABLE IF NOT EXISTS cartography_sale_bodies (
+                    sale_id INTEGER NOT NULL,
+                    system_address INTEGER NOT NULL,
+                    body_id INTEGER NOT NULL,
+                    body_name TEXT NOT NULL DEFAULT '',
+                    body_type TEXT NOT NULL DEFAULT '',
+                    star_type TEXT NOT NULL DEFAULT '',
+                    planet_class TEXT NOT NULL DEFAULT '',
+                    mass_em REAL,
+                    stellar_mass REAL,
+                    terraformable INTEGER NOT NULL DEFAULT 0,
+                    was_discovered INTEGER,
+                    was_mapped INTEGER,
+                    self_mapped INTEGER NOT NULL DEFAULT 0,
+                    efficient_mapping INTEGER NOT NULL DEFAULT 0,
+                    estimated_value INTEGER NOT NULL DEFAULT 0,
+                    PRIMARY KEY (sale_id, system_address, body_id),
+                    FOREIGN KEY (sale_id) REFERENCES cartography_sales(id)
+                        ON DELETE CASCADE
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_cartography_sale_bodies_class
+                    ON cartography_sale_bodies(planet_class);
+
+                CREATE TABLE IF NOT EXISTS cartography_value_journal_scans (
+                    journal_file TEXT PRIMARY KEY,
+                    file_size INTEGER NOT NULL DEFAULT 0,
+                    modified_ns INTEGER NOT NULL DEFAULT 0,
+                    last_scan TEXT NOT NULL DEFAULT ''
+                );
             """)
 
             columns = {
@@ -777,6 +823,603 @@ class CMDRDatabase:
                 "%s neue/geänderte Artwerte aus %s Journaldatei(en)",
                 result["sales_found"],
                 result["values_changed"],
+                result["files_scanned"],
+            )
+
+        return result
+
+    @staticmethod
+    def _cartography_sale_amounts(event):
+        def _int_value(*names):
+            for name in names:
+                value = event.get(name)
+                if value is None:
+                    continue
+                try:
+                    return int(value)
+                except (TypeError, ValueError):
+                    continue
+            return 0
+
+        base_value = max(0, _int_value("BaseValue", "Value"))
+        bonus = max(0, _int_value("Bonus"))
+        total_earnings = max(
+            0,
+            _int_value("TotalEarnings", "TotalValue", "Total"),
+        )
+
+        if total_earnings <= 0:
+            total_earnings = max(0, base_value + bonus)
+
+        return base_value, bonus, total_earnings
+
+    def cartography_learning_stats(self):
+        with self._connect() as con:
+            sales = int(
+                con.execute(
+                    "SELECT COUNT(*) FROM cartography_sales"
+                ).fetchone()[0]
+            )
+            bodies = int(
+                con.execute(
+                    "SELECT COUNT(*) FROM cartography_sale_bodies"
+                ).fetchone()[0]
+            )
+
+            row = con.execute(
+                """
+                SELECT
+                    SUM(
+                        CASE
+                            WHEN base_value > 0 THEN base_value
+                            ELSE total_earnings
+                        END
+                    ),
+                    SUM(estimated_total)
+                FROM cartography_sales
+                WHERE estimated_total > 0
+                  AND (base_value > 0 OR total_earnings > 0)
+                """
+            ).fetchone()
+
+        actual = int((row or (0, 0))[0] or 0)
+        estimated = int((row or (0, 0))[1] or 0)
+
+        return {
+            "sales": sales,
+            "bodies": bodies,
+            "actual_total": actual,
+            "estimated_total": estimated,
+            "correction_factor": (
+                actual / estimated
+                if estimated > 0
+                else 1.0
+            ),
+        }
+
+    def learned_cartography_factor(
+        self,
+        planet_class="",
+        terraformable=None,
+    ):
+        """
+        Liefert einen aus echten Universal-Cartographics-Verkäufen
+        abgeleiteten Korrekturfaktor.
+
+        Frontier gibt bei MultiSellExplorationData keinen Einzelpreis je
+        Körper aus. Deshalb bleibt der Verkauf als Batch die Wahrheit.
+        Für Körperklassen verwenden wir den Batch-Faktor nur dann speziell,
+        wenn mindestens drei passende Körper in der Lerndatenbank vorhanden
+        sind. Ansonsten gilt der globale Faktor. Ohne Lerndaten ist er 1.0.
+        """
+        planet_class = str(planet_class or "").strip()
+
+        with self._connect() as con:
+            params = []
+            where = [
+                "s.estimated_total > 0",
+                "(s.base_value > 0 OR s.total_earnings > 0)",
+                "b.estimated_value > 0",
+                "b.body_type <> 'Star'",
+                "b.star_type = ''",
+            ]
+
+            if planet_class:
+                where.append("b.planet_class = ? COLLATE NOCASE")
+                params.append(planet_class)
+
+            if terraformable is not None:
+                where.append("b.terraformable = ?")
+                params.append(1 if terraformable else 0)
+
+            row = con.execute(
+                f"""
+                SELECT
+                    COUNT(*),
+                    SUM(
+                        b.estimated_value
+                        * (
+                            CASE
+                                WHEN s.base_value > 0 THEN s.base_value
+                                ELSE s.total_earnings
+                            END
+                        )
+                        / CAST(s.estimated_total AS REAL)
+                    ),
+                    SUM(b.estimated_value)
+                FROM cartography_sale_bodies AS b
+                JOIN cartography_sales AS s
+                  ON s.id = b.sale_id
+                WHERE {' AND '.join(where)}
+                """,
+                params,
+            ).fetchone()
+
+            count = int((row or (0, 0, 0))[0] or 0)
+            learned_actual = float((row or (0, 0, 0))[1] or 0.0)
+            learned_estimated = float((row or (0, 0, 0))[2] or 0.0)
+
+            if count >= 3 and learned_estimated > 0:
+                factor = learned_actual / learned_estimated
+            else:
+                global_row = con.execute(
+                    """
+                    SELECT
+                        SUM(
+                            CASE
+                                WHEN base_value > 0 THEN base_value
+                                ELSE total_earnings
+                            END
+                        ),
+                        SUM(estimated_total)
+                    FROM cartography_sales
+                    WHERE estimated_total > 0
+                      AND (base_value > 0 OR total_earnings > 0)
+                    """
+                ).fetchone()
+
+                actual = float((global_row or (0, 0))[0] or 0.0)
+                estimated = float((global_row or (0, 0))[1] or 0.0)
+
+                factor = (
+                    actual / estimated
+                    if estimated > 0
+                    else 1.0
+                )
+
+        # Gleicher Sicherheitsrahmen wie in valuation.py.
+        return min(2.0, max(0.5, float(factor or 1.0)))
+
+    def learn_cartography_values_from_journals(
+        self,
+        folder,
+        valuation_func=None,
+    ):
+        """
+        Rekonstruiert Verkaufs-Batches aus den Journalen und speichert
+        Formel-Schätzung + echten Universal-Cartographics-Wert.
+
+        Wichtig:
+        MultiSellExplorationData liefert keinen Einzelwert je Körper.
+        Deshalb werden keine erfundenen "Ist-Werte" pro Körper gespeichert.
+        Die Körperdaten dienen nur als Merkmale des jeweiligen Verkaufs-Batches.
+        """
+        folder = Path(folder)
+
+        result = {
+            "files_scanned": 0,
+            "sales_found": 0,
+            "sales_stored": 0,
+            "bodies_stored": 0,
+        }
+
+        if not folder.is_dir():
+            return result
+
+        journals = sorted(folder.glob("Journal.*.log"))
+        if not journals:
+            return result
+
+        with self._connect() as con:
+            scan_rows = con.execute(
+                """
+                SELECT journal_file, file_size, modified_ns
+                FROM cartography_value_journal_scans
+                """
+            ).fetchall()
+
+        scanned = {
+            str(row[0]): (int(row[1]), int(row[2]))
+            for row in scan_rows
+        }
+
+        changed_files = []
+
+        for journal in journals:
+            try:
+                stat = journal.stat()
+            except OSError:
+                continue
+
+            signature = (
+                int(stat.st_size),
+                int(stat.st_mtime_ns),
+            )
+
+            if scanned.get(str(journal)) == signature:
+                continue
+
+            changed_files.append(
+                (
+                    journal,
+                    signature[0],
+                    signature[1],
+                )
+            )
+
+        if not changed_files:
+            return result
+
+        changed_names = {
+            str(journal)
+            for journal, _size, _modified in changed_files
+        }
+
+        # Der offene Verkaufstopf wird bewusst über ALLE Journale
+        # rekonstruiert. Sonst könnte ein Verkauf in einer neuen Datei
+        # Scans aus einer älteren Datei verlieren.
+        open_bodies = {}
+        current_address = None
+
+        for journal in journals:
+            is_changed = str(journal) in changed_names
+
+            if is_changed:
+                result["files_scanned"] += 1
+
+            try:
+                handle = journal.open(
+                    "r",
+                    encoding="utf-8",
+                    errors="replace",
+                )
+            except OSError:
+                continue
+
+            with handle:
+                for line in handle:
+                    if not any(
+                        token in line
+                        for token in (
+                            '"event":"Location"',
+                            '"event":"FSDJump"',
+                            '"event":"CarrierJump"',
+                            '"event":"Scan"',
+                            '"event":"SAAScanComplete"',
+                            '"event":"SellExplorationData"',
+                            '"event":"MultiSellExplorationData"',
+                        )
+                    ):
+                        continue
+
+                    try:
+                        event = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+
+                    event_type = event.get("event")
+                    timestamp = event.get("timestamp") or ""
+
+                    if event_type in (
+                        "Location",
+                        "FSDJump",
+                        "CarrierJump",
+                    ):
+                        address = event.get("SystemAddress")
+                        if isinstance(address, int):
+                            current_address = address
+                        continue
+
+                    if event_type == "Scan":
+                        address = event.get("SystemAddress")
+                        if not isinstance(address, int):
+                            address = current_address
+
+                        body_id = event.get("BodyID")
+
+                        if address is None or body_id is None:
+                            continue
+
+                        body_name = str(
+                            event.get("BodyName")
+                            or ""
+                        )
+
+                        # Belt Cluster zahlen nicht wie normale Körper.
+                        if "belt cluster" in body_name.lower():
+                            continue
+
+                        try:
+                            key = (
+                                int(address),
+                                int(body_id),
+                            )
+                        except (TypeError, ValueError):
+                            continue
+
+                        previous = open_bodies.get(
+                            key,
+                            {},
+                        )
+
+                        body = {
+                            "system_address": int(address),
+                            "body_id": int(body_id),
+                            "name": body_name,
+                            "body_type": (
+                                "Star"
+                                if event.get("StarType")
+                                else "Planet"
+                            ),
+                            "star_type": event.get("StarType") or "",
+                            "planet_class": event.get("PlanetClass") or "",
+                            "mass_em": event.get("MassEM"),
+                            "stellar_mass": event.get("StellarMass"),
+                            "terraformable": (
+                                event.get("TerraformState")
+                                == "Terraformable"
+                            ),
+                            "was_discovered": event.get("WasDiscovered"),
+                            "was_mapped": event.get("WasMapped"),
+                            "self_mapped": bool(
+                                previous.get("self_mapped")
+                            ),
+                            "efficient_mapping": bool(
+                                previous.get("efficient_mapping")
+                            ),
+                        }
+
+                        if callable(valuation_func):
+                            try:
+                                values = valuation_func(
+                                    dict(body)
+                                )
+                            except Exception:
+                                values = {}
+                        else:
+                            values = {}
+
+                        body["estimated_value"] = int(
+                            values.get("current_value")
+                            or 0
+                        )
+
+                        open_bodies[key] = body
+                        continue
+
+                    if event_type == "SAAScanComplete":
+                        address = event.get("SystemAddress")
+                        if not isinstance(address, int):
+                            address = current_address
+
+                        body_id = event.get("BodyID")
+
+                        try:
+                            key = (
+                                int(address),
+                                int(body_id),
+                            )
+                        except (TypeError, ValueError):
+                            continue
+
+                        body = open_bodies.get(key)
+                        if body is None:
+                            continue
+
+                        body["self_mapped"] = True
+
+                        probes_used = event.get("ProbesUsed")
+                        efficiency_target = event.get("EfficiencyTarget")
+
+                        body["efficient_mapping"] = bool(
+                            isinstance(probes_used, int)
+                            and isinstance(efficiency_target, int)
+                            and probes_used <= efficiency_target
+                        )
+
+                        if callable(valuation_func):
+                            try:
+                                values = valuation_func(
+                                    dict(body)
+                                )
+                            except Exception:
+                                values = {}
+                        else:
+                            values = {}
+
+                        body["estimated_value"] = int(
+                            values.get("current_value")
+                            or 0
+                        )
+                        continue
+
+                    if event_type not in (
+                        "SellExplorationData",
+                        "MultiSellExplorationData",
+                    ):
+                        continue
+
+                    result["sales_found"] += 1
+
+                    base_value, bonus, total_earnings = (
+                        self._cartography_sale_amounts(event)
+                    )
+
+                    estimated_total = sum(
+                        max(
+                            0,
+                            int(
+                                body.get("estimated_value")
+                                or 0
+                            ),
+                        )
+                        for body in open_bodies.values()
+                    )
+
+                    # BaseValue ist für das Lernen bevorzugt, weil
+                    # TotalEarnings durch Crew/weitere Mechaniken vom
+                    # eigentlichen Kartographie-Bruttowert abweichen kann.
+                    learning_value = (
+                        base_value
+                        if base_value > 0
+                        else total_earnings
+                    )
+
+                    if (
+                        is_changed
+                        and learning_value > 0
+                        and estimated_total > 0
+                    ):
+                        with self._connect() as con:
+                            cursor = con.execute(
+                                """
+                                INSERT OR IGNORE INTO cartography_sales (
+                                    journal_file,
+                                    event_timestamp,
+                                    event_type,
+                                    base_value,
+                                    bonus,
+                                    total_earnings,
+                                    estimated_total,
+                                    correction_factor,
+                                    body_count,
+                                    first_seen
+                                )
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                """,
+                                (
+                                    str(journal),
+                                    timestamp,
+                                    event_type,
+                                    base_value,
+                                    bonus,
+                                    total_earnings,
+                                    estimated_total,
+                                    learning_value / estimated_total,
+                                    len(open_bodies),
+                                    timestamp,
+                                ),
+                            )
+
+                            if cursor.rowcount:
+                                sale_id = int(cursor.lastrowid)
+
+                                rows = []
+
+                                for body in open_bodies.values():
+                                    rows.append(
+                                        (
+                                            sale_id,
+                                            int(body["system_address"]),
+                                            int(body["body_id"]),
+                                            str(body.get("name") or ""),
+                                            str(body.get("body_type") or ""),
+                                            str(body.get("star_type") or ""),
+                                            str(body.get("planet_class") or ""),
+                                            body.get("mass_em"),
+                                            body.get("stellar_mass"),
+                                            self._bool_db(
+                                                body.get("terraformable")
+                                            ) or 0,
+                                            self._bool_db(
+                                                body.get("was_discovered")
+                                            ),
+                                            self._bool_db(
+                                                body.get("was_mapped")
+                                            ),
+                                            self._bool_db(
+                                                body.get("self_mapped")
+                                            ) or 0,
+                                            self._bool_db(
+                                                body.get("efficient_mapping")
+                                            ) or 0,
+                                            int(
+                                                body.get("estimated_value")
+                                                or 0
+                                            ),
+                                        )
+                                    )
+
+                                con.executemany(
+                                    """
+                                    INSERT OR REPLACE INTO
+                                    cartography_sale_bodies (
+                                        sale_id,
+                                        system_address,
+                                        body_id,
+                                        body_name,
+                                        body_type,
+                                        star_type,
+                                        planet_class,
+                                        mass_em,
+                                        stellar_mass,
+                                        terraformable,
+                                        was_discovered,
+                                        was_mapped,
+                                        self_mapped,
+                                        efficient_mapping,
+                                        estimated_value
+                                    )
+                                    VALUES (
+                                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                                    )
+                                    """,
+                                    rows,
+                                )
+
+                                result["sales_stored"] += 1
+                                result["bodies_stored"] += len(rows)
+
+                    # Ein Verkauf schließt immer den bis dahin offenen Topf.
+                    open_bodies.clear()
+
+        now = (
+            datetime.now(timezone.utc)
+            .isoformat()
+            .replace("+00:00", "Z")
+        )
+
+        with self._connect() as con:
+            for journal, file_size, modified_ns in changed_files:
+                con.execute(
+                    """
+                    INSERT INTO cartography_value_journal_scans (
+                        journal_file,
+                        file_size,
+                        modified_ns,
+                        last_scan
+                    )
+                    VALUES (?, ?, ?, ?)
+                    ON CONFLICT(journal_file)
+                    DO UPDATE SET
+                        file_size=excluded.file_size,
+                        modified_ns=excluded.modified_ns,
+                        last_scan=excluded.last_scan
+                    """,
+                    (
+                        str(journal),
+                        file_size,
+                        modified_ns,
+                        now,
+                    ),
+                )
+
+        if result["sales_stored"]:
+            logger.info(
+                "Kartographie gelernt: %s Verkauf/Verkäufe, "
+                "%s Körper aus %s neuer/geänderter Journaldatei(en)",
+                result["sales_stored"],
+                result["bodies_stored"],
                 result["files_scanned"],
             )
 
@@ -1583,6 +2226,8 @@ class CMDRDatabase:
                 "materials",
                 "biology",
                 "learned_bio_values",
+                "cartography_sales",
+                "cartography_sale_bodies",
                 "geology",
                 "codex_entries",
                 "journal_imports",

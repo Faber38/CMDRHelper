@@ -15,6 +15,8 @@ from cmdrhelper.online_services import (
     test_inara_connection,
 )
 from cmdrhelper.version import __version__
+from cmdrhelper.i18n import tr, get_language, set_language
+from cmdrhelper.mission_manager import translate_mission_text
 from cmdrhelper.update import (
     UpdateCheckWorker,
     is_newer_version,
@@ -64,6 +66,7 @@ from PySide6.QtWidgets import (
     QTabWidget,
     QSpinBox,
     QFontComboBox,
+    QComboBox,
 )
 
 
@@ -71,7 +74,7 @@ class ChronicleSystemWindow(QDialog):
     def __init__(self, system_name, bodies, header_text, body_callback, parent=None):
         super().__init__(parent)
 
-        self.setWindowTitle(f"CMDRHelper – Chronik – {system_name}")
+        self.setWindowTitle(tr("chronicle.system_window_title", system=system_name))
         self.resize(1250, 760)
 
         layout = QVBoxLayout(self)
@@ -102,7 +105,7 @@ class ChronicleSystemWindow(QDialog):
         buttons = QHBoxLayout()
         buttons.addStretch()
 
-        close = QPushButton("Schließen")
+        close = QPushButton(tr("common.close"))
         close.clicked.connect(self.close)
         buttons.addWidget(close)
 
@@ -123,21 +126,18 @@ class ChronicleSearchHelpDialog(QDialog):
         self._on_term_clicked = on_term_clicked
         self._groups = groups or {}
 
-        self.setWindowTitle("CMDRHelper – Suchhilfe / Legende")
+        self.setWindowTitle(tr("chronicle.search_help_window_title"))
         self.resize(720, 620)
 
         root = QVBoxLayout(self)
         root.setContentsMargins(10, 10, 10, 10)
         root.setSpacing(6)
 
-        title = QLabel("Suchhilfe / Legende", objectName="sectionTitle")
+        title = QLabel(tr("chronicle.search_help"), objectName="sectionTitle")
         title.setStyleSheet("font-size: 16px; font-weight: 700;")
         root.addWidget(title)
 
-        intro = QLabel(
-            "Kategorien aufklappen und einen Begriff anklicken. "
-            "Der Begriff wird direkt in die Chronik-Suche übernommen."
-        )
+        intro = QLabel(tr("chronicle.search_help_intro"))
         intro.setObjectName("muted")
         intro.setWordWrap(True)
         root.addWidget(intro)
@@ -164,7 +164,7 @@ class ChronicleSearchHelpDialog(QDialog):
         buttons = QHBoxLayout()
         buttons.addStretch()
 
-        close = QPushButton("Schließen")
+        close = QPushButton(tr("common.close"))
         close.clicked.connect(self.close)
         buttons.addWidget(close)
 
@@ -190,7 +190,7 @@ class ChronicleSearchHelpDialog(QDialog):
 
         for index, term in enumerate(terms):
             button = QPushButton(term)
-            button.setToolTip(f"Nach „{term}“ suchen")
+            button.setToolTip(tr("chronicle.search_for_term", term=term))
             button.setMinimumHeight(24)
             button.setStyleSheet("padding:2px 6px; text-align:left;")
             button.clicked.connect(
@@ -273,7 +273,7 @@ class SystemOverviewMiniMap(QWidget):
                 painter.drawText(
                     self.rect(),
                     Qt.AlignCenter,
-                    "Keine Systemdaten verfügbar.",
+                    tr("explorer.no_system_data_available"),
                 )
                 return
 
@@ -580,7 +580,7 @@ class SystemOverviewDialog(QDialog):
 
         self.system_name = system_name or ""
 
-        self.setWindowTitle(f"CMDRHelper – Alles anzeigen – {self.system_name}")
+        self.setWindowTitle(tr("explorer.show_all_title", system=self.system_name))
 
         self.resize(
             1050,
@@ -604,8 +604,7 @@ class SystemOverviewDialog(QDialog):
         root.addWidget(title)
 
         hint = QLabel(
-            "Komplette Systemstruktur in Miniatur · "
-            "Klick auf einen Körper springt in der Hauptkarte dorthin.",
+            tr("explorer.overview_hint"),
             objectName="muted",
         )
         hint.setWordWrap(True)
@@ -627,7 +626,7 @@ class SystemOverviewDialog(QDialog):
         buttons = QHBoxLayout()
         buttons.addStretch()
 
-        close = QPushButton("Schließen")
+        close = QPushButton(tr("common.close"))
         close.clicked.connect(self.close)
         buttons.addWidget(close)
 
@@ -637,10 +636,19 @@ class SystemOverviewDialog(QDialog):
 class ExplorerLiveListWindow(QDialog):
     """Kleines frei positionierbares Live-Fenster für Explorer-Hinweise."""
 
-    def __init__(self, title, headers, settings, geometry_key, parent=None):
+    def __init__(
+        self,
+        title,
+        headers,
+        settings,
+        geometry_key,
+        parent=None,
+        window_kind="value",
+    ):
         super().__init__(parent)
         self.settings = settings
         self.geometry_key = geometry_key
+        self.window_kind = str(window_kind or "value")
         self.setWindowTitle(title)
         self.setWindowFlags(self.windowFlags() | Qt.Window)
         self.resize(620, 260)
@@ -660,9 +668,64 @@ class ExplorerLiveListWindow(QDialog):
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setSelectionMode(QTableWidget.SingleSelection)
         self.table.verticalHeader().setVisible(False)
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-        self.table.horizontalHeader().setStretchLastSection(True)
+
+        # Spalten im Live-Fenster frei mit der Maus veränderbar machen.
+        # Die gewählten Breiten werden für BIO- und Wertefenster getrennt
+        # gespeichert und beim nächsten Öffnen wiederhergestellt.
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.Interactive)
+        header.setStretchLastSection(False)
+
+        if self.window_kind == "bio":
+            default_widths = [90, 330, 150, 130]
+        else:
+            default_widths = [140, 180, 130, 170]
+
+        for column, width in enumerate(default_widths):
+            if column < self.table.columnCount():
+                self.table.setColumnWidth(column, width)
+
+        self._header_state_key = f"{self.geometry_key}_header_state"
+        saved_header_state = self.settings.value(self._header_state_key)
+        if saved_header_state is not None:
+            try:
+                header.restoreState(saved_header_state)
+            except Exception:
+                pass
+
+        header.sectionResized.connect(self._save_header_state)
+
         root.addWidget(self.table, 1)
+
+        # Die Live-Fenster bewusst leicht rötlich/braun absetzen, damit sie
+        # sich während des Spielens klar vom Hauptfenster unterscheiden,
+        # ohne wie ein Warnfenster zu wirken.
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #171012;
+            }
+            QLabel {
+                background: transparent;
+            }
+            QTableWidget {
+                background-color: #151012;
+                alternate-background-color: #1d1417;
+                gridline-color: #493038;
+                border: 1px solid #493038;
+                selection-background-color: #50313a;
+            }
+            QHeaderView::section {
+                background-color: #24171b;
+                border: 0;
+                border-right: 1px solid #493038;
+                border-bottom: 1px solid #493038;
+                padding: 5px;
+            }
+            QTableCornerButton::section {
+                background-color: #24171b;
+                border: 0;
+            }
+        """)
 
         geometry = self.settings.value(self.geometry_key)
         if geometry is not None:
@@ -673,6 +736,16 @@ class ExplorerLiveListWindow(QDialog):
 
     def _save_geometry(self):
         self.settings.setValue(self.geometry_key, self.saveGeometry())
+        self.settings.sync()
+
+    def _save_header_state(self, logical_index, old_size, new_size):
+        if not hasattr(self, "table") or not hasattr(self, "_header_state_key"):
+            return
+
+        self.settings.setValue(
+            self._header_state_key,
+            self.table.horizontalHeader().saveState(),
+        )
         self.settings.sync()
 
     def moveEvent(self, event):
@@ -689,10 +762,195 @@ class ExplorerLiveListWindow(QDialog):
 
     def set_rows(self, system_name, rows):
         self.system_label.setText(system_name or "–")
+
+        # Vor jedem Neuaufbau alte CellWidgets entfernen.
+        # QTableWidget.setRowCount() löscht zwar Items, aber bereits gesetzte
+        # QLabel-CellWidgets können beim Zusammenfalten sonst optisch in
+        # den neuen Zeilen liegen bleiben und Texte überlagern.
+        for row_index in range(self.table.rowCount()):
+            for col_index in range(self.table.columnCount()):
+                widget = self.table.cellWidget(row_index, col_index)
+                if widget is not None:
+                    self.table.removeCellWidget(row_index, col_index)
+                    widget.deleteLater()
+
+        self.table.clearContents()
+
+        # Das BIO-Fenster bekommt eine dynamische Gruppenansicht:
+        # 0 erkannt  -> eine kompakte Zeile
+        # teilweise  -> eine Zeile je erkannter Art + Restzeile
+        # vollständig-> wieder eine kompakte grüne Zusammenfassung
+        if self.window_kind == "bio":
+            display_rows = []
+
+            for row in rows:
+                if not isinstance(row, dict):
+                    continue
+
+                body_name = str(row.get("body_name") or "?")
+                signals = max(0, int(row.get("signals") or 0))
+                species = list(row.get("species") or [])
+                known_count = len(species)
+                known_value = int(row.get("known_value") or 0)
+
+                # Mehr Arten als Signale sollte praktisch nicht vorkommen;
+                # für ungewöhnliche Journaldaten trotzdem robust bleiben.
+                total_count = max(signals, known_count)
+
+                # WICHTIG:
+                # "Art bekannt" ist NICHT dasselbe wie "Analyse vollständig".
+                # Elite kennt die konkrete Art bereits nach der ersten Probe.
+                # Vollständig ist eine BIO-Art erst nach ScanOrganic
+                # Analyse/Analyze, also nach der dritten erfolgreichen Probe.
+                completed_count = sum(
+                    1
+                    for entry in species
+                    if str(entry.get("scan_type") or "").strip().casefold()
+                    in ("analyse", "analyze")
+                )
+                complete = (
+                    total_count > 0
+                    and known_count >= total_count
+                    and completed_count >= total_count
+                )
+
+                if complete:
+                    display_rows.append({
+                        "body": body_name,
+                        "find": tr("explorer.known_ratio", known=known_count, total=total_count),
+                        "progress": tr("explorer.complete_ratio", completed=completed_count, total=total_count),
+                        "value": (
+                            MainWindow._format_reward(known_value)
+                            if known_value > 0 else "–"
+                        ),
+                        "complete": True,
+                    })
+                    continue
+
+                if known_count == 0:
+                    display_rows.append({
+                        "body": body_name,
+                        "find": tr("explorer.still_unknown"),
+                        "progress": tr("explorer.known_ratio", known=0, total=total_count),
+                        "value": "–",
+                        "complete": False,
+                    })
+                    continue
+
+                # Solange nicht ALLE Arten vollständig analysiert sind,
+                # bleibt der Planet aufgeklappt. Das gilt auch dann, wenn
+                # bereits z. B. 2/2 Arten namentlich bekannt sind, aber eine
+                # davon erst bei Probe 1 oder 2 steht.
+                for index, entry in enumerate(species):
+                    scan_key = str(entry.get("scan_type") or "").strip().casefold()
+
+                    if scan_key in ("analyse", "analyze"):
+                        step_text = tr("explorer.sample_complete")
+                    elif scan_key == "sample":
+                        step_text = tr("explorer.sample_two")
+                    elif scan_key == "log":
+                        step_text = tr("explorer.sample_one")
+                    else:
+                        step_text = tr("explorer.dss_detected")
+
+                    display_rows.append({
+                        "body": body_name if index == 0 else "",
+                        "entry": entry,
+                        "progress": step_text,
+                        "complete": False,
+                    })
+
+                remaining = max(0, total_count - known_count)
+                if remaining:
+                    display_rows.append({
+                        "body": "",
+                        "find": (
+                            tr("explorer.one_unknown")
+                            if remaining == 1
+                            else tr("explorer.unknown_count", count=remaining)
+                        ),
+                        "progress": tr("explorer.known_ratio", known=known_count, total=total_count),
+                        "value": "–",
+                        "complete": False,
+                    })
+
+            self.table.setRowCount(len(display_rows))
+
+            for row_index, row in enumerate(display_rows):
+                complete = bool(row.get("complete"))
+
+                body_item = QTableWidgetItem(str(row.get("body") or ""))
+                progress_item = QTableWidgetItem(str(row.get("progress") or ""))
+                value_item = QTableWidgetItem(str(row.get("value") or "–"))
+
+                if complete:
+                    green = QColor("#65d067")
+                    body_item.setForeground(green)
+                    progress_item.setForeground(green)
+                    value_item.setForeground(green)
+
+                self.table.setItem(row_index, 0, body_item)
+
+                if "entry" in row:
+                    entry = row["entry"]
+                    name = str(entry.get("name") or "")
+                    scan_type = str(entry.get("scan_type") or "")
+                    value = int(entry.get("value") or 0)
+
+                    scan_key = scan_type.strip().casefold()
+                    if scan_key in ("analyse", "analyze"):
+                        color = "#65d067"
+                    elif scan_key == "sample":
+                        color = "#ffb000"
+                    elif scan_key == "log":
+                        color = "#f1f3f5"
+                    else:
+                        color = "#8e969e"
+
+                    from html import escape
+                    value_text = (
+                        MainWindow._format_reward(value) if value > 0 else "–"
+                    )
+                    find_label = QLabel()
+                    find_label.setTextFormat(Qt.RichText)
+                    find_label.setContentsMargins(6, 0, 4, 0)
+                    find_label.setText(
+                        f'<span style="color:{color};">'
+                        f'{escape(name)}'
+                        f' &nbsp; ({escape(value_text)})'
+                        f'</span>'
+                    )
+                    self.table.setCellWidget(row_index, 1, find_label)
+                    value_item = QTableWidgetItem(value_text)
+                    value_item.setForeground(QColor(color))
+                else:
+                    find_item = QTableWidgetItem(str(row.get("find") or ""))
+                    if complete:
+                        find_item.setForeground(QColor("#65d067"))
+                    else:
+                        find_item.setForeground(QColor("#8e969e"))
+                    self.table.setItem(row_index, 1, find_item)
+
+                self.table.setItem(row_index, 2, progress_item)
+                self.table.setItem(row_index, 3, value_item)
+
+            return
+
+        # Wertfenster unverändert.
         self.table.setRowCount(len(rows))
         for row_index, row_values in enumerate(rows):
             for col, value in enumerate(row_values):
                 item = QTableWidgetItem(str(value))
+                if col == 2:
+                    item.setForeground(QColor("#ffb000"))
+                elif col == 3:
+                    mapping = str(value)
+                    if mapping == tr("explorer.self_mapped"):
+                        item.setForeground(QColor("#65d067"))
+                    elif mapping == tr("explorer.first_mapping_possible"):
+                        item.setForeground(QColor("#68c7ff"))
+                    elif mapping == tr("explorer.already_mapped"):
+                        item.setForeground(QColor("#9aa3ab"))
                 self.table.setItem(row_index, col, item)
 
 
@@ -714,6 +972,7 @@ class MainWindow(QMainWindow):
         self._explorer_bio_live_window = None
         self._explorer_live_system = None
         self.ui_theme = str(self.state.settings.value("ui_theme", "dark")).lower()
+        set_language(str(self.state.settings.value("ui_language", "de") or "de"))
 
         # Gespeicherte Anwendungsschrift bereits vor dem Aufbau der
         # Oberfläche anwenden, damit alle Widgets sofort korrekt erscheinen.
@@ -777,33 +1036,81 @@ class MainWindow(QMainWindow):
         side.addWidget(QLabel("✦  CMDRHelper", objectName="appTitle"))
 
         side.addWidget(
-            QLabel("Dein Missions- & Explorer-Tool", objectName="appSubTitle")
+            QLabel(tr("app.subtitle"), objectName="appSubTitle")
         )
 
         side.addSpacing(20)
 
-        side.addWidget(self._nav("⌂  Übersicht", 0))
+        side.addWidget(self._nav("⌂  " + tr("nav.overview"), 0))
 
-        side.addWidget(self._nav("◎  Missionen", 1))
+        side.addWidget(self._nav("◎  " + tr("nav.missions"), 1))
 
-        side.addWidget(self._nav("✦  Explorer", 2))
+        side.addWidget(self._nav("✦  " + tr("nav.explorer"), 2))
 
-        side.addWidget(self._nav("↝  Chronik", 3))
+        side.addWidget(self._nav("↝  " + tr("nav.chronicle"), 3))
 
-        side.addWidget(self._nav("▣  Bilder", 4))
+        side.addWidget(self._nav("▣  " + tr("nav.images"), 4))
 
-        side.addWidget(self._nav("⚙  Einstellungen", 5))
+        side.addWidget(self._nav("⚙  " + tr("nav.settings"), 5))
 
         side.addStretch()
 
-        exit_button = QPushButton("⏻  Beenden")
-        exit_button.setToolTip("CMDRHelper beenden")
+        # Explorer-Livefenster direkt in der Seitenleiste schalten.
+        # Der kleine Block sitzt bewusst etwas oberhalb des Beenden-Schalters.
+        live_title = QLabel(tr("settings.auto_show"))
+        live_title.setStyleSheet("font-weight: 700;")
+        side.addWidget(live_title)
+
+        live_frame = QFrame()
+        live_frame.setStyleSheet("""
+            QFrame {
+                border: 1px solid #68727c;
+                border-radius: 5px;
+            }
+            QCheckBox {
+                border: none;
+            }
+        """)
+
+        live_layout = QVBoxLayout(live_frame)
+        live_layout.setContentsMargins(7, 4, 7, 4)
+        live_layout.setSpacing(2)
+
+        self.explorer_value_live_enabled_check = QCheckBox(
+            tr("settings.explorer_value_live_window")
+        )
+        self.explorer_value_live_enabled_check.setChecked(
+            self._explorer_live_window_enabled("value")
+        )
+        self.explorer_value_live_enabled_check.toggled.connect(
+            lambda checked: self._set_explorer_live_window_enabled("value", checked)
+        )
+        live_layout.addWidget(self.explorer_value_live_enabled_check)
+
+        self.explorer_bio_live_enabled_check = QCheckBox(
+            tr("settings.explorer_bio_live_window")
+        )
+        self.explorer_bio_live_enabled_check.setChecked(
+            self._explorer_live_window_enabled("bio")
+        )
+        self.explorer_bio_live_enabled_check.toggled.connect(
+            lambda checked: self._set_explorer_live_window_enabled("bio", checked)
+        )
+        live_layout.addWidget(self.explorer_bio_live_enabled_check)
+
+        side.addWidget(live_frame)
+
+        # Etwas mehr Abstand zum Ausschalter, damit der Block optisch höher sitzt.
+        side.addSpacing(16)
+
+        exit_button = QPushButton("⏻  " + tr("nav.exit"))
+        exit_button.setToolTip(tr("nav.exit_tooltip"))
         exit_button.clicked.connect(self.close)
         side.addWidget(exit_button)
 
         side.addSpacing(10)
 
-        self.sidebar_system = QLabel("Aktuelles System\n–")
+        self.sidebar_system = QLabel(tr("sidebar.current_system") + "\n–")
         self.sidebar_system.setWordWrap(True)
         side.addWidget(self.sidebar_system)
 
@@ -830,21 +1137,21 @@ class MainWindow(QMainWindow):
         self.ship_label = QLabel("", objectName="muted")
 
         self.last_import_label = QLabel(
-            "Letzter Journal-Eintrag: –", objectName="muted"
+            tr("topbar.last_journal_entry", timestamp="–"), objectName="muted"
         )
 
         self.connection_label = QLabel(
-            "● Journal nicht erkannt", objectName="statusWarn"
+            tr("topbar.journal_not_detected"), objectName="statusWarn"
         )
 
-        self.edsm_upload_label = QLabel("● EDSM wartet", objectName="muted")
+        self.edsm_upload_label = QLabel(tr("topbar.edsm_waiting"), objectName="muted")
         self.edsm_upload_label.setToolTip(
-            "Status der automatischen EDSM-Journalübertragung"
+            tr("topbar.edsm_tooltip")
         )
 
-        self.inara_upload_label = QLabel("● INARA wartet", objectName="muted")
+        self.inara_upload_label = QLabel(tr("topbar.inara_waiting"), objectName="muted")
         self.inara_upload_label.setToolTip(
-            "INARA ist vorbereitet; automatische Journalübertragung folgt."
+            tr("topbar.inara_prepared_tooltip")
         )
 
         top.addWidget(self.commander_label)
@@ -900,34 +1207,34 @@ class MainWindow(QMainWindow):
         page_layout.setContentsMargins(10, 6, 10, 6)
         page_layout.setSpacing(6)
 
-        page_layout.addWidget(QLabel("Übersicht", objectName="sectionTitle"))
+        page_layout.addWidget(QLabel(tr("overview.title"), objectName="sectionTitle"))
 
         identity_row = QHBoxLayout()
         identity_row.setSpacing(6)
 
-        identity_card, identity_layout = self._card("COMMANDER & SCHIFF")
+        identity_card, identity_layout = self._card(tr("overview.commander_ship"))
 
         self.overview_commander = QLabel("CMDR –", objectName="cardValue")
         identity_layout.addWidget(self.overview_commander)
 
-        self.overview_ship = QLabel("Schiff: –")
+        self.overview_ship = QLabel(tr("overview.ship", ship="–"))
         self.overview_ship.setWordWrap(True)
         identity_layout.addWidget(self.overview_ship)
 
-        self.overview_location = QLabel("Standort: –", objectName="muted")
+        self.overview_location = QLabel(tr("overview.location", location="–"), objectName="muted")
         self.overview_location.setWordWrap(True)
         identity_layout.addWidget(self.overview_location)
 
         identity_row.addWidget(identity_card, 2)
 
-        journal_card, journal_layout = self._card("JOURNAL")
+        journal_card, journal_layout = self._card(tr("overview.journal"))
 
         self.journal_count_value = QLabel("0", objectName="cardValue")
         journal_layout.addWidget(self.journal_count_value)
 
-        journal_layout.addWidget(QLabel("Journaldateien erkannt", objectName="muted"))
+        journal_layout.addWidget(QLabel(tr("overview.journal_files_detected"), objectName="muted"))
 
-        self.overview_journal_state = QLabel("● nicht erkannt", objectName="statusWarn")
+        self.overview_journal_state = QLabel(tr("overview.not_detected"), objectName="statusWarn")
         journal_layout.addWidget(self.overview_journal_state)
 
         identity_row.addWidget(journal_card, 1)
@@ -936,24 +1243,24 @@ class MainWindow(QMainWindow):
         row = QHBoxLayout()
         row.setSpacing(6)
 
-        mission_card, mission_layout = self._card("MISSIONEN")
+        mission_card, mission_layout = self._card(tr("overview.missions"))
 
         self.active_missions_value = QLabel("0", objectName="cardValue")
         mission_layout.addWidget(self.active_missions_value)
 
         self.mission_start_status = QLabel(
-            "keine offenen Missionen", objectName="muted"
+            tr("overview.no_open_missions"), objectName="muted"
         )
         self.mission_start_status.setWordWrap(True)
         mission_layout.addWidget(self.mission_start_status)
 
-        mission_button = QPushButton("Missionen →", objectName="primary")
+        mission_button = QPushButton(tr("overview.missions_button"), objectName="primary")
         mission_button.clicked.connect(lambda: self._show_page(1))
         mission_layout.addWidget(mission_button)
 
         row.addWidget(mission_card, 1)
 
-        location_card, location_layout = self._card("AKTUELLER STANDORT")
+        location_card, location_layout = self._card(tr("overview.current_location"))
 
         self.current_system_value = QLabel("–", objectName="cardValue")
         self.current_system_value.setWordWrap(True)
@@ -963,16 +1270,16 @@ class MainWindow(QMainWindow):
         self.current_place_value.setWordWrap(True)
         location_layout.addWidget(self.current_place_value)
 
-        explorer_button = QPushButton("System im Explorer →", objectName="primary")
+        explorer_button = QPushButton(tr("overview.open_in_explorer"), objectName="primary")
         explorer_button.clicked.connect(lambda: self._show_page(2))
         location_layout.addWidget(explorer_button)
 
         row.addWidget(location_card, 1)
         page_layout.addLayout(row)
 
-        status_card, status_layout = self._card("LETZTER STAND")
+        status_card, status_layout = self._card(tr("overview.latest_status"))
 
-        self.overview_status = QLabel("Noch keine Journaldaten erkannt.")
+        self.overview_status = QLabel(tr("overview.no_journal_data"))
         self.overview_status.setWordWrap(True)
         status_layout.addWidget(self.overview_status)
 
@@ -988,52 +1295,36 @@ class MainWindow(QMainWindow):
         page_layout.setContentsMargins(10, 6, 10, 6)
         page_layout.setSpacing(6)
 
-        page_layout.addWidget(QLabel("Explorer", objectName="sectionTitle"))
+        page_layout.addWidget(QLabel(tr("explorer.title"), objectName="sectionTitle"))
 
-        system_card, system_layout = self._card("AKTUELLES SYSTEM")
+        system_card, system_layout = self._card(tr("explorer.current_system"))
 
-        self.system_scan_header = QLabel("Noch keine Systemdaten", objectName="muted")
+        self.system_scan_header = QLabel(tr("explorer.no_system_data"), objectName="muted")
         self.system_scan_header.setWordWrap(True)
-        self.system_scan_header.setToolTip(
-            "Kartographie wird getrennt von BIO berechnet. "
-            "Nur Scans zeigt den reinen Scanwert. "
-            "Aktuell erreicht berücksichtigt bereits selbst kartographierte Körper. "
-            "Komplett kartiert zeigt den geschätzten Zielwert bei vollständiger "
-            "und effizienter DSS-Kartographie."
-        )
+        self.system_scan_header.setToolTip(tr("explorer.scan_tooltip"))
         system_layout.addWidget(self.system_scan_header)
 
         self.system_bio_header = QLabel(
-            "BIO: noch keine vollständigen Proben", objectName="muted"
+            tr("explorer.no_completed_bio"), objectName="muted"
         )
         self.system_bio_header.setWordWrap(True)
-        self.system_bio_header.setToolTip(
-            "BIO wird getrennt von Kartographie berechnet. "
-            "First Logged zeigt den möglichen 5-fachen Gesamtwert; "
-            "ob der Bonus tatsächlich gewährt wird, steht erst beim Verkauf fest."
-        )
+        self.system_bio_header.setToolTip(tr("explorer.bio_tooltip"))
         system_layout.addWidget(self.system_bio_header)
 
         self.unsold_explorer_header = QLabel(
-            "Noch nicht abgegeben: Kartographie 0 Cr   |   BIO 0 Cr", objectName="muted"
+            tr("explorer.unsold_initial"), objectName="muted"
         )
         self.unsold_explorer_header.setWordWrap(True)
         # Offene, noch nicht verkaufte Explorer-Werte deutlich hervorheben.
         self.unsold_explorer_header.setStyleSheet("color: #ffb000; font-weight: 700;")
-        self.unsold_explorer_header.setToolTip(
-            "Gesamtschätzung über alle Systeme seit dem letzten Verkauf. "
-            "Kartographie wird bei Universal Cartographics zurückgesetzt; "
-            "BIO bei Vista Genomics. Beide Zähler arbeiten unabhängig."
-        )
+        self.unsold_explorer_header.setToolTip(tr("explorer.unsold_tooltip"))
         system_layout.addWidget(self.unsold_explorer_header)
 
         overview_row = QHBoxLayout()
         overview_row.addStretch()
 
-        self.system_overview_button = QPushButton("Alles anzeigen")
-        self.system_overview_button.setToolTip(
-            "Komplette Systemstruktur als Miniatur anzeigen"
-        )
+        self.system_overview_button = QPushButton(tr("explorer.show_all"))
+        self.system_overview_button.setToolTip(tr("explorer.show_all_tooltip"))
         self.system_overview_button.clicked.connect(self._show_system_overview)
         overview_row.addWidget(self.system_overview_button)
 
@@ -1046,16 +1337,25 @@ class MainWindow(QMainWindow):
         legend_layout.setContentsMargins(12, 7, 12, 7)
         legend_layout.setSpacing(18)
 
+        gold_threshold = self._explorer_value_yellow_threshold()
+
         legend_items = [
-            ("BIO ×N", "biologische Signale", "#66e36a"),
-            ("GEO ×N", "geologische Signale", "#28c9e8"),
-            ("T", "Terraforming", "#4bb8ff"),
-            ("★", "Erstentdeckung möglich", "#ffae28"),
-            ("◉", "First Mapping möglich", "#68c7ff"),
-            ("◉✓", "First Mapping beansprucht", "#68c7ff"),
-            ("◎", "selbst kartographiert", "#65d067"),
-            ("⌄", "landbar", "#d8dde3"),
-            ("★", "Goldrahmen > 200.000 Cr", "#ffb000"),
+            ("BIO ×N", tr("explorer.legend_bio"), "#66e36a"),
+            ("GEO ×N", tr("explorer.legend_geo"), "#28c9e8"),
+            ("T", tr("explorer.legend_terraforming"), "#4bb8ff"),
+            ("★", tr("explorer.legend_first_discovery"), "#ffae28"),
+            ("◉", tr("explorer.first_mapping_possible"), "#68c7ff"),
+            ("◉✓", tr("explorer.first_mapping_claimed"), "#68c7ff"),
+            ("◎", tr("explorer.self_mapped"), "#65d067"),
+            ("⌄", tr("explorer.landable"), "#d8dde3"),
+            (
+                "★",
+                tr(
+                    "explorer.gold_frame_from",
+                    value=self._format_reward(gold_threshold),
+                ),
+                "#ffb000",
+            ),
         ]
 
         for symbol, text, color in legend_items:
@@ -1066,6 +1366,10 @@ class MainWindow(QMainWindow):
             )
             item.setTextFormat(Qt.RichText)
             item.setWordWrap(False)
+
+            if str(text).startswith(tr("explorer.gold_frame_prefix")):
+                self.gold_frame_legend_label = item
+
             legend_layout.addWidget(item)
 
         legend_layout.addStretch()
@@ -1086,18 +1390,19 @@ class MainWindow(QMainWindow):
         # - Werte: Planeten/Monde nach aktuellem Kartographiewert
         # - BIO: alle Körper mit biologischen Signalen und Besuchsstatus
         self.explorer_tabs = QTabWidget()
-        self.explorer_tabs.addTab(self.system_scroll, "Systemkarte")
+        self.explorer_tabs.addTab(self.system_scroll, tr("explorer.system_map"))
 
-        self.explorer_value_table = QTableWidget(0, 7)
+        self.explorer_value_table = QTableWidget(0, 8)
         self.explorer_value_table.setHorizontalHeaderLabels(
             [
-                "Körper",
-                "Typ",
-                "Entfernung",
-                "Scanwert",
-                "Aktueller Wert",
-                "Kartierung",
-                "Status",
+                tr("explorer.col_body"),
+                tr("explorer.col_type"),
+                tr("explorer.col_distance"),
+                tr("explorer.col_scan_value"),
+                tr("explorer.col_current_value"),
+                "Möglicher Wert",
+                tr("explorer.col_mapping"),
+                tr("explorer.col_status"),
             ]
         )
         self.explorer_value_table.setAlternatingRowColors(True)
@@ -1117,25 +1422,26 @@ class MainWindow(QMainWindow):
         self.explorer_value_table.setColumnWidth(2, 105)
         self.explorer_value_table.setColumnWidth(3, 125)
         self.explorer_value_table.setColumnWidth(4, 145)
-        self.explorer_value_table.setColumnWidth(5, 100)
+        self.explorer_value_table.setColumnWidth(5, 235)
+        self.explorer_value_table.setColumnWidth(6, 150)
 
         self.explorer_tabs.addTab(
             self.explorer_value_table,
-            "Wertliste",
+            tr("explorer.value_list"),
         )
 
         self.explorer_bio_table = QTableWidget(0, 9)
         self.explorer_bio_table.setHorizontalHeaderLabels(
             [
-                "Körper",
-                "Typ",
+                tr("explorer.col_body"),
+                tr("explorer.col_type"),
                 "BIO",
-                "BIO-Funde",
-                "BIO-Wert",
-                "Entfernung",
-                "Besucht",
-                "Analyse",
-                "Status",
+                tr("explorer.col_bio_findings"),
+                tr("explorer.col_bio_value"),
+                tr("explorer.col_distance"),
+                tr("explorer.col_visited"),
+                tr("explorer.col_analysis"),
+                tr("explorer.col_status"),
             ]
         )
         self.explorer_bio_table.setAlternatingRowColors(True)
@@ -1161,7 +1467,7 @@ class MainWindow(QMainWindow):
 
         self.explorer_tabs.addTab(
             self.explorer_bio_table,
-            "BIO-Planeten",
+            tr("explorer.bio_planets"),
         )
 
         system_layout.addWidget(self.explorer_tabs, 1)
@@ -1179,11 +1485,10 @@ class MainWindow(QMainWindow):
         if value is None:
             return "–"
         try:
-            return (
-                f"{float(value):,.1f} ls".replace(",", "X")
-                .replace(".", ",")
-                .replace("X", ".")
-            )
+            number = f"{float(value):,.1f}"
+            if get_language() == "de":
+                number = number.replace(",", "X").replace(".", ",").replace("X", ".")
+            return f"{number} ls"
         except Exception:
             return "–"
 
@@ -1315,16 +1620,16 @@ class MainWindow(QMainWindow):
 
             if scan_key in ("analyse", "analyze"):
                 color = "#65d067"
-                title = "3. Probe bestätigt"
+                title = tr("explorer.sample3_confirmed")
             elif scan_key == "sample":
                 color = "#ffb000"
-                title = "2. Probe genommen"
+                title = tr("explorer.sample2_taken")
             elif scan_key == "log":
                 color = "#f1f3f5"
-                title = "1. Probe genommen"
+                title = tr("explorer.sample1_taken")
             else:
                 color = "#8e969e"
-                title = "Nur per DSS/FSS bekannt"
+                title = tr("explorer.dss_fss_only")
 
             parts.append(
                 f'<span style="color:{color};" title="{escape(title)}">'
@@ -1383,7 +1688,8 @@ class MainWindow(QMainWindow):
         bodies = list(getattr(self.state, "system_bodies", None) or [])
 
         # Sterne und Belt Cluster sind für die gewünschte Wertliste nicht
-        # relevant. Planeten und Monde nach aktuellem Wert absteigend.
+        # relevant. Planeten und Monde nach dem noch erreichbaren Wert
+        # absteigend, damit lohnende DSS-Ziele oben stehen.
         value_bodies = [
             body
             for body in bodies
@@ -1393,7 +1699,7 @@ class MainWindow(QMainWindow):
         ]
         value_bodies.sort(
             key=lambda body: (
-                -int(body.get("current_value") or 0),
+                -int(body.get("possible_value") or body.get("current_value") or 0),
                 str(self._explorer_body_name(body)).lower(),
             )
         )
@@ -1411,23 +1717,38 @@ class MainWindow(QMainWindow):
             # eigenen DSS-Kartierung. self_mapped zeigt dagegen, dass wir
             # später selbst SurfaceScanComplete erhalten haben.
             if self_mapped:
-                mapping_text = "✓ selbst kartiert"
-                status = "Gescannt · selbst kartiert"
+                mapping_text = "✓ " + tr("explorer.self_mapped")
+                status = tr("explorer.status_scanned_self_mapped")
             elif was_mapped is True:
-                mapping_text = "bereits kartiert"
+                mapping_text = tr("explorer.already_mapped")
                 status = (
-                    "Gescannt · bereits kartiert" if visited else "Bereits kartiert"
+                    tr("explorer.status_scanned_already_mapped") if visited else tr("explorer.already_mapped_cap")
                 )
             elif was_mapped is False:
-                mapping_text = "○ First Mapping möglich"
+                mapping_text = "○ " + tr("explorer.first_mapping_possible")
                 status = (
-                    "Gescannt · First Mapping möglich"
+                    tr("explorer.status_scanned_first_mapping")
                     if visited
-                    else "First Mapping möglich"
+                    else tr("explorer.first_mapping_possible")
                 )
             else:
                 mapping_text = "–"
-                status = "Gescannt" if visited else "Nicht gescannt"
+                status = tr("explorer.scanned") if visited else tr("explorer.not_scanned")
+
+            possible_value = int(
+                body.get("possible_value")
+                or current_value
+                or 0
+            )
+            possible_value_without_eff = int(
+                body.get("possible_value_without_efficiency")
+                or possible_value
+                or 0
+            )
+            possible_value_text = (
+                f"{self._format_reward(possible_value)} / "
+                f"{self._format_reward(possible_value_without_eff)}"
+            )
 
             values = [
                 self._explorer_body_name(body),
@@ -1435,6 +1756,7 @@ class MainWindow(QMainWindow):
                 self._explorer_distance_text(body),
                 self._format_reward(body.get("scan_value", 0)),
                 self._format_reward(current_value),
+                possible_value_text,
                 mapping_text,
                 status,
             ]
@@ -1447,30 +1769,38 @@ class MainWindow(QMainWindow):
                 if col == 4:
                     item.setData(Qt.UserRole + 1, current_value)
 
-                # Grün ist bewusst ausschließlich für den aktuell erreichten
-                # Credit-Wert reserviert. So springt die wichtigste Zahl ins Auge.
+                # Grün bleibt der aktuell bereits erreichte Wert.
+                # Der einstellbare Schwellenwert bewertet dagegen ab jetzt
+                # den noch erreichbaren Kartographiewert.
                 if col == 4:
+                    item.setForeground(QColor("#65d067"))
+                    item.setToolTip(
+                        tr("explorer.current_value_tooltip")
+                    )
+                elif col == 5:
                     yellow_threshold = self._explorer_value_yellow_threshold()
 
-                    if yellow_threshold > 0 and current_value >= yellow_threshold:
+                    if (
+                        yellow_threshold > 0
+                        and possible_value >= yellow_threshold
+                    ):
                         item.setForeground(QColor("#ffb000"))
-                        item.setToolTip(
-                            "Aktuell erreichter geschätzter Kartographiewert · "
-                            f"Gelb ab {self._format_reward(yellow_threshold)}"
-                        )
                     else:
-                        item.setForeground(QColor("#65d067"))
-                        item.setToolTip(
-                            "Aktuell erreichter geschätzter Kartographiewert"
-                        )
-                elif col == 5:
+                        item.setForeground(QColor("#d9dde1"))
+
+                    item.setData(Qt.UserRole + 1, possible_value)
+                    item.setToolTip(
+                        "Noch erreichbarer Wert: mit Effizienzbonus / "
+                        "ohne Effizienzbonus"
+                    )
+                elif col == 6:
                     if self_mapped:
                         item.setForeground(QColor("#65d067"))
                     elif was_mapped is False:
                         item.setForeground(QColor("#68c7ff"))
                     elif was_mapped is True:
                         item.setForeground(QColor("#9aa3ab"))
-                elif col == 6:
+                elif col == 7:
                     if not visited:
                         item.setForeground(QColor("#9aa3ab"))
 
@@ -1515,18 +1845,18 @@ class MainWindow(QMainWindow):
 
             if analysed:
                 analysis_text = (
-                    f"{completed} vollständig" if completed else "vollständig"
+                    tr("explorer.completed_count", count=completed) if completed else tr("explorer.complete")
                 )
-                status = "✓ BIO analysiert"
+                status = tr("explorer.bio_analyzed")
             elif visited:
-                analysis_text = f"{found} erfasst" if found else "offen"
-                status = "! besucht · BIO offen"
+                analysis_text = tr("explorer.recorded_count", count=found) if found else tr("explorer.open")
+                status = tr("explorer.visited_bio_open")
             else:
                 # Direkt nach dem DSS-/Signalscan steht die Anzahl der
                 # biologischen Signale bereits fest, auch wenn der Körper
                 # noch nicht angeflogen wurde.
-                analysis_text = f"{signals} Signal(e)"
-                status = "○ BIO gefunden · noch nicht besucht"
+                analysis_text = tr("explorer.signal_count", count=signals)
+                status = tr("explorer.bio_found_not_visited")
 
             values = [
                 self._explorer_body_name(body),
@@ -1535,7 +1865,7 @@ class MainWindow(QMainWindow):
                 bio_names_text,
                 bio_value_text,
                 self._explorer_distance_text(body),
-                "Besucht" if visited else "Offen",
+                tr("explorer.visited") if visited else tr("explorer.open_cap"),
                 analysis_text,
                 status,
             ]
@@ -1550,9 +1880,7 @@ class MainWindow(QMainWindow):
                     label.setTextInteractionFlags(Qt.NoTextInteraction)
                     label.setContentsMargins(8, 0, 4, 0)
                     label.setToolTip(
-                        "Grau: nur DSS/FSS bekannt · "
-                        "Weiß: 1. Probe · Gelb: 2. Probe · "
-                        "Grün: 3. Probe bestätigt"
+                        tr("explorer.bio_colors_tooltip")
                     )
                     self.explorer_bio_table.setCellWidget(row, col, label)
                     continue
@@ -1561,10 +1889,10 @@ class MainWindow(QMainWindow):
 
                 if col == 4 and known_bio_value > 0:
                     item.setToolTip(
-                        "Bekannter Vista-Genomics-Basiswert der bereits "
-                        "eindeutig bestimmten BIO-Art(en). "
-                        "Möglicher First-Logged-Gesamtwert: "
-                        + self._format_reward(known_bio_value * 5)
+                        tr(
+                            "explorer.bio_value_tooltip",
+                            value=self._format_reward(known_bio_value * 5),
+                        )
                     )
                 item.setData(Qt.UserRole, body)
 
@@ -1579,30 +1907,32 @@ class MainWindow(QMainWindow):
 
         self.explorer_tabs.setTabText(
             1,
-            f"Wertliste ({len(value_bodies)})",
+            tr("explorer.value_list_count", count=len(value_bodies)),
         )
         self.explorer_tabs.setTabText(
             2,
-            f"BIO-Planeten ({len(bio_bodies)})",
+            tr("explorer.bio_planets_count", count=len(bio_bodies)),
         )
 
     def _ensure_explorer_live_windows(self):
         if self._explorer_value_live_window is None:
             self._explorer_value_live_window = ExplorerLiveListWindow(
-                "CMDRHelper – Wertvolle Körper",
-                ["Körper", "Typ", "Wert", "Kartierung"],
+                tr("explorer.live_valuable_title"),
+                [tr("explorer.col_body"), tr("explorer.col_type"), tr("explorer.col_value"), tr("explorer.col_mapping")],
                 self.state.settings,
                 "explorer_live/value_geometry",
                 self,
+                window_kind="value",
             )
 
         if self._explorer_bio_live_window is None:
             self._explorer_bio_live_window = ExplorerLiveListWindow(
-                "CMDRHelper – BIO gefunden",
-                ["Körper", "BIO", "Funde", "BIO-Wert"],
+                tr("explorer.live_bio_title"),
+                [tr("explorer.col_body"), tr("explorer.col_bio_finding"), tr("explorer.col_progress"), tr("explorer.col_value")],
                 self.state.settings,
                 "explorer_live/bio_geometry",
                 self,
+                window_kind="bio",
             )
 
     def _refresh_explorer_live_windows(self):
@@ -1615,6 +1945,21 @@ class MainWindow(QMainWindow):
         system_changed = self._explorer_live_system != system_name
         self._explorer_live_system = system_name
 
+        if system_changed:
+            # Beim Eintritt in ein anderes System beide alten Livefenster
+            # sofort schließen und leeren. Dieser Refresh wird anschließend
+            # beendet, damit Restdaten aus dem vorherigen System das Fenster
+            # nicht im selben Zyklus wieder öffnen können.
+            if self._explorer_value_live_window is not None:
+                self._explorer_value_live_window.hide()
+                self._explorer_value_live_window.table.setRowCount(0)
+
+            if self._explorer_bio_live_window is not None:
+                self._explorer_bio_live_window.hide()
+                self._explorer_bio_live_window.table.setRowCount(0)
+
+            return
+
         threshold = self._explorer_value_yellow_threshold()
         valuable_rows = []
         for body in bodies:
@@ -1623,16 +1968,20 @@ class MainWindow(QMainWindow):
             if SystemMapWidget._is_belt_cluster(body):
                 continue
 
-            value = int(body.get("current_value") or 0)
+            value = int(
+                body.get("possible_value")
+                or body.get("current_value")
+                or 0
+            )
             if threshold <= 0 or value < threshold:
                 continue
 
             if body.get("self_mapped"):
-                mapping = "selbst kartiert"
+                mapping = tr("explorer.self_mapped")
             elif body.get("was_mapped") is True:
-                mapping = "bereits kartiert"
+                mapping = tr("explorer.already_mapped")
             elif body.get("was_mapped") is False:
-                mapping = "First Mapping möglich"
+                mapping = tr("explorer.first_mapping_possible")
             else:
                 mapping = "–"
 
@@ -1661,34 +2010,125 @@ class MainWindow(QMainWindow):
                 continue
 
             names = self._explorer_bio_names(body)
-            names_text = ", ".join(name for name, _scan_type in names) or "noch unbekannt"
-            known_value = self._explorer_bio_known_value(body, learned_bio_values)
-            bio_rows.append(
-                (
-                    self._explorer_body_name(body),
-                    str(signals),
-                    names_text,
-                    self._format_reward(known_value) if known_value > 0 else "–",
-                )
+
+            species_rows = []
+            seen_species = set()
+
+            # Zuerst konkrete ScanOrganic-Arten aufnehmen.
+            concrete_genuses = set()
+
+            for raw_name, scan_type in names:
+                raw_name = str(raw_name or "").strip()
+                scan_type = str(scan_type or "").strip()
+
+                if not raw_name or not scan_type:
+                    continue
+
+                canonical = raw_name.casefold()
+                if canonical in seen_species:
+                    continue
+                seen_species.add(canonical)
+
+                # Der erste Wortbestandteil entspricht bei den bekannten
+                # Elite-BIO-Namen der Gattung, z. B.
+                # "Bacterium Vesicula - Lime" -> "bacterium".
+                genus_key = canonical.split()[0] if canonical.split() else canonical
+                if genus_key:
+                    concrete_genuses.add(genus_key)
+
+                entry_for_value = None
+                for bio_entry in body.get("biology") or []:
+                    if not isinstance(bio_entry, dict):
+                        continue
+                    candidate = str(
+                        bio_entry.get("variant")
+                        or bio_entry.get("species")
+                        or bio_entry.get("genus")
+                        or ""
+                    ).strip()
+                    if candidate.casefold() == canonical:
+                        entry_for_value = bio_entry
+                        break
+
+                single_value = 0
+                if entry_for_value is not None:
+                    canonical_species = str(species_name(entry_for_value) or "").strip()
+                    if canonical_species:
+                        try:
+                            single_value = int(
+                                learned_bio_values.get(canonical_species, 0) or 0
+                            )
+                        except Exception:
+                            single_value = 0
+                        if single_value <= 0:
+                            single_value = int(base_value(entry_for_value) or 0)
+
+                species_rows.append({
+                    "name": raw_name,
+                    "scan_type": scan_type,
+                    "value": max(0, single_value),
+                })
+
+            # Danach DSS/FSS-Gattungen ergänzen. Genau das fehlte bislang:
+            # Nach dem Oberflächenscan kann Elite z. B. schon "Bacterium"
+            # melden, obwohl noch keine ScanOrganic-Probe genommen wurde.
+            # Sobald eine konkrete Art dieser Gattung bekannt ist, wird der
+            # allgemeine Gattungsname nicht zusätzlich angezeigt.
+            for raw_name, scan_type in names:
+                raw_name = str(raw_name or "").strip()
+                scan_type = str(scan_type or "").strip()
+
+                if not raw_name or scan_type:
+                    continue
+
+                canonical = raw_name.casefold()
+                genus_key = canonical.split()[0] if canonical.split() else canonical
+
+                if genus_key in concrete_genuses:
+                    continue
+                if canonical in seen_species:
+                    continue
+
+                seen_species.add(canonical)
+
+                species_rows.append({
+                    "name": raw_name,
+                    "scan_type": "",
+                    "value": 0,
+                })
+
+            known_value = sum(
+                int(entry.get("value") or 0)
+                for entry in species_rows
             )
+
+            bio_rows.append({
+                "body_name": self._explorer_body_name(body),
+                "signals": signals,
+                "species": species_rows,
+                "known_value": known_value,
+            })
 
         self._ensure_explorer_live_windows()
 
         self._explorer_value_live_window.set_rows(system_name, valuable_rows)
         self._explorer_bio_live_window.set_rows(system_name, bio_rows)
 
-        if valuable_rows:
+        value_live_enabled = self._explorer_live_window_enabled("value")
+        bio_live_enabled = self._explorer_live_window_enabled("bio")
+
+        if value_live_enabled and valuable_rows:
             if not self._explorer_value_live_window.isVisible():
                 self._explorer_value_live_window.show()
                 self._explorer_value_live_window.raise_()
-        elif system_changed and self._explorer_value_live_window.isVisible():
+        elif self._explorer_value_live_window.isVisible():
             self._explorer_value_live_window.hide()
 
-        if bio_rows:
+        if bio_live_enabled and bio_rows:
             if not self._explorer_bio_live_window.isVisible():
                 self._explorer_bio_live_window.show()
                 self._explorer_bio_live_window.raise_()
-        elif system_changed and self._explorer_bio_live_window.isVisible():
+        elif self._explorer_bio_live_window.isVisible():
             self._explorer_bio_live_window.hide()
 
     def _show_system_overview(self):
@@ -1704,8 +2144,8 @@ class MainWindow(QMainWindow):
         if not bodies:
             QMessageBox.information(
                 self,
-                "Alles anzeigen",
-                "Für das aktuelle System liegen noch keine Körperdaten vor.",
+                tr("explorer.show_all"),
+                tr("explorer.no_body_data"),
             )
             return
 
@@ -1722,7 +2162,7 @@ class MainWindow(QMainWindow):
                     "system",
                     None,
                 )
-                or "Aktuelles System"
+                or tr("explorer.current_system")
             ),
             bodies=bodies,
             source_map=self.system_map,
@@ -1775,41 +2215,44 @@ class MainWindow(QMainWindow):
         layout.setSpacing(6)
 
         header = QHBoxLayout()
-        header.addWidget(QLabel("Chronik", objectName="sectionTitle"))
+        header.addWidget(QLabel(tr("chronicle.title"), objectName="sectionTitle"))
 
         self.chronicle_search_edit = QLineEdit()
-        self.chronicle_search_edit.setPlaceholderText(
-            "Chronik durchsuchen, z. B. Hirnbaum, Wasserwelt, Tellur …"
-        )
+        self.chronicle_search_edit.setPlaceholderText(tr("chronicle.search_placeholder"))
         self.chronicle_search_edit.setMinimumWidth(280)
         self.chronicle_search_edit.returnPressed.connect(self._search_chronicle_biology)
         header.addWidget(self.chronicle_search_edit)
 
-        search_button = QPushButton("Suchen")
+        search_button = QPushButton(tr("chronicle.search"))
         search_button.clicked.connect(self._search_chronicle_biology)
         header.addWidget(search_button)
 
-        reset_button = QPushButton("Zurücksetzen")
+        reset_button = QPushButton(tr("chronicle.reset"))
         reset_button.clicked.connect(self._reset_chronicle_search)
         header.addWidget(reset_button)
 
-        align_button = QPushButton("Ausrichten")
+        align_button = QPushButton(tr("chronicle.align"))
         align_button.clicked.connect(self._align_chronicle_galaxy)
         header.addWidget(align_button)
 
-        self.chronicle_legend_button = QPushButton("Suchhilfe / Legende")
+        current_position_button = QPushButton("⌖  Aktuelle Position")
+        current_position_button.setToolTip("Aktuelles System in der Chronik anzeigen")
+        current_position_button.clicked.connect(self._show_current_chronicle_position)
+        header.addWidget(current_position_button)
+
+        self.chronicle_legend_button = QPushButton(tr("chronicle.search_help"))
         self.chronicle_legend_button.clicked.connect(self._open_chronicle_search_help)
         header.addWidget(self.chronicle_legend_button)
 
         header.addStretch()
 
-        refresh = QPushButton("Chronik aktualisieren", objectName="primary")
+        refresh = QPushButton(tr("chronicle.refresh"), objectName="primary")
         refresh.clicked.connect(self._refresh_chronicle)
         header.addWidget(refresh)
 
         layout.addLayout(header)
 
-        map_card, map_layout = self._card("BESUCHTE SYSTEME")
+        map_card, map_layout = self._card(tr("chronicle.visited_systems"))
 
         self.chronicle_status = QLabel("", objectName="muted")
         self.chronicle_status.setWordWrap(True)
@@ -1819,7 +2262,7 @@ class MainWindow(QMainWindow):
         self.chronicle_map.systemClicked.connect(self._chronicle_system_clicked)
         map_layout.addWidget(self.chronicle_map, 1)
 
-        self.chronicle_detail = QLabel("Kein System ausgewählt.", objectName="muted")
+        self.chronicle_detail = QLabel(tr("chronicle.no_system_selected"), objectName="muted")
         self.chronicle_detail.setWordWrap(True)
         map_layout.addWidget(self.chronicle_detail)
 
@@ -1847,13 +2290,50 @@ class MainWindow(QMainWindow):
             systems = self.state.database.chronicle_systems()
         except Exception as exc:
             systems = []
-            self.chronicle_status.setText(f"Chronik konnte nicht geladen werden: {exc}")
+            self.chronicle_status.setText(tr("chronicle.load_failed", error=exc))
         else:
-            self.chronicle_status.setText(
-                f"{len(systems)} besuchte Systeme mit Koordinaten · "
-                "Mausrad: Zoom · Ziehen: Karte verschieben · Klick: System auswählen"
-            )
+            self.chronicle_status.setText(tr("chronicle.map_status", count=len(systems)))
         self.chronicle_map.set_systems(systems)
+        self._mark_current_chronicle_system()
+
+    def _mark_current_chronicle_system(self):
+        """Übergibt das aktuelle Journal-System an die Chronik-Karte."""
+        if not hasattr(self, "chronicle_map"):
+            return
+
+        current_system = str(getattr(self.state, "system", "") or "").strip()
+
+        if hasattr(self.chronicle_map, "set_current_system"):
+            self.chronicle_map.set_current_system(current_system)
+
+    def _show_current_chronicle_position(self):
+        """Setzt die Chronik zurück und springt zum aktuell besuchten System."""
+        if not hasattr(self, "chronicle_map"):
+            return
+
+        if hasattr(self, "chronicle_search_edit"):
+            self.chronicle_search_edit.clear()
+
+        if hasattr(self, "chronicle_search_results"):
+            self.chronicle_search_results.clear()
+            self.chronicle_search_results.setVisible(False)
+
+        try:
+            systems = self.state.database.chronicle_systems()
+        except Exception as exc:
+            self.chronicle_status.setText(tr("chronicle.load_failed", error=exc))
+            return
+
+        self.chronicle_map.set_systems(systems)
+        self._mark_current_chronicle_system()
+
+        if hasattr(self.chronicle_map, "focus_current_system"):
+            self.chronicle_map.focus_current_system()
+
+        current_system = str(getattr(self.state, "system", "") or "").strip()
+        self.chronicle_status.setText(
+            f"Aktuelle Position: {current_system}" if current_system else "Aktuelle Position unbekannt"
+        )
 
     def _align_chronicle_galaxy(self):
         if hasattr(self, "chronicle_map"):
@@ -1865,14 +2345,14 @@ class MainWindow(QMainWindow):
         except Exception as exc:
             QMessageBox.warning(
                 self,
-                "Suchhilfe / Legende",
-                ("Die Suchhilfe konnte nicht geladen werden.\n\n" f"{exc}"),
+                tr("chronicle.search_help"),
+                tr("chronicle.search_help_failed", error=exc),
             )
             return
 
         # Feste Schnellsuchen vor die dynamischen Datenbank-Kategorien setzen.
         merged = {
-            "Schnellsuche": [
+            tr("chronicle.quick_search"): [
                 "Terraforming",
                 "BIO",
                 "GEO",
@@ -1920,14 +2400,14 @@ class MainWindow(QMainWindow):
         try:
             results = self.state.database.search_chronicle(query)
         except Exception as exc:
-            self.chronicle_status.setText(f"Chronik-Suche fehlgeschlagen: {exc}")
+            self.chronicle_status.setText(tr("chronicle.search_failed", error=exc))
             return
 
         self.chronicle_search_results.clear()
 
         if not results:
             self.chronicle_search_results.setVisible(False)
-            self.chronicle_status.setText(f'Keine Treffer für "{query}".')
+            self.chronicle_status.setText(tr("chronicle.no_results", query=query))
             # Die normale Reisekarte bleibt sichtbar.
             return
 
@@ -1966,8 +2446,8 @@ class MainWindow(QMainWindow):
         self.chronicle_map.set_systems(matching_systems)
 
         for result in results:
-            kind = result.get("kind") or "Treffer"
-            match_name = result.get("match_name") or result.get("detail") or "Treffer"
+            kind = result.get("kind") or tr("chronicle.hit")
+            match_name = result.get("match_name") or result.get("detail") or tr("chronicle.hit")
 
             system_name = result.get("system_name") or "Unbekannt"
 
@@ -1989,9 +2469,7 @@ class MainWindow(QMainWindow):
         self.chronicle_search_results.setVisible(True)
 
         self.chronicle_status.setText(
-            f"{len(results)} Treffer in "
-            f"{len(systems_by_address)} System(en) "
-            f'für "{query}".'
+            tr("chronicle.results_summary", results=len(results), systems=len(systems_by_address), query=query)
         )
 
     def _reset_chronicle_search(self):
@@ -2027,9 +2505,9 @@ class MainWindow(QMainWindow):
 
         body_name = result.get("short_name") or result.get("body_name") or ""
 
-        match_name = result.get("match_name") or result.get("detail") or "Treffer"
+        match_name = result.get("match_name") or result.get("detail") or tr("chronicle.hit")
 
-        kind = result.get("kind") or "Treffer"
+        kind = result.get("kind") or tr("chronicle.hit")
 
         hit_parts = [kind]
 
@@ -2040,7 +2518,7 @@ class MainWindow(QMainWindow):
 
         self._chronicle_system_clicked(
             system,
-            hit_text="Treffer: " + " – ".join(hit_parts),
+            hit_text=tr("chronicle.hit_prefix") + " " + " – ".join(hit_parts),
         )
 
     def _chronicle_system_clicked(
@@ -2048,20 +2526,21 @@ class MainWindow(QMainWindow):
         system,
         hit_text="",
     ):
-        name = system.get("name") or "Unbekannt"
+        name = system.get("name") or tr("chronicle.unknown")
         address = system.get("system_address")
 
         self.chronicle_detail.setText(
-            f"{name}   ·   "
-            f"Besuche: {system.get('visits', 0)}   ·   "
-            f"Körper: {system.get('body_count', 0)}   ·   "
-            f"Erster Besuch: "
-            f"{self._format_timestamp(system.get('first_seen'))}   ·   "
-            f"Letzter Besuch: "
-            f"{self._format_timestamp(system.get('last_seen'))}   ·   "
-            f"Position: X {float(system.get('x') or 0):.1f} / "
-            f"Y {float(system.get('y') or 0):.1f} / "
-            f"Z {float(system.get('z') or 0):.1f} ly"
+            tr(
+                "chronicle.system_detail",
+                name=name,
+                visits=system.get("visits", 0),
+                bodies=system.get("body_count", 0),
+                first=self._format_timestamp(system.get("first_seen")),
+                last=self._format_timestamp(system.get("last_seen")),
+                x=float(system.get("x") or 0),
+                y=float(system.get("y") or 0),
+                z=float(system.get("z") or 0),
+            )
         )
 
         try:
@@ -2069,12 +2548,8 @@ class MainWindow(QMainWindow):
         except Exception as exc:
             QMessageBox.warning(
                 self,
-                "Chronik",
-                (
-                    f"{name}\n\n"
-                    "Systemdaten konnten nicht geladen werden.\n\n"
-                    f"{exc}"
-                ),
+                tr("chronicle.title"),
+                tr("chronicle.system_data_failed", name=name, error=exc),
             )
             return
 
@@ -2088,16 +2563,14 @@ class MainWindow(QMainWindow):
             1 for body in bodies if int(body.get("geological_signals") or 0) > 0
         )
 
-        header_text = (
-            f"{len(bodies)} gespeicherte Körper"
-            + (f" · BIO auf {bio_bodies} Körper(n)" if bio_bodies else "")
-            + (f" · GEO auf {geo_bodies} Körper(n)" if geo_bodies else "")
-        )
-
+        header_text = tr("chronicle.stored_bodies", count=len(bodies))
+        if bio_bodies:
+            header_text += tr("chronicle.bio_on_bodies", count=bio_bodies)
+        if geo_bodies:
+            header_text += tr("chronicle.geo_on_bodies", count=geo_bodies)
         if hit_text:
             header_text += f" · {hit_text}"
-
-        header_text += " · Klick auf einen Körper öffnet die Detailansicht"
+        header_text += tr("chronicle.click_body_details")
 
         # Vorheriges Chronik-Systemfenster schließen, damit immer nur
         # ein historisches Systemfenster gleichzeitig offen bleibt.
@@ -2153,31 +2626,31 @@ class MainWindow(QMainWindow):
 
         header = QHBoxLayout()
 
-        header.addWidget(QLabel("Missionen", objectName="sectionTitle"))
+        header.addWidget(QLabel(tr("missions.title"), objectName="sectionTitle"))
 
         header.addStretch()
 
-        refresh = QPushButton("Journal aktualisieren", objectName="primary")
+        refresh = QPushButton(tr("missions.refresh_journal"), objectName="primary")
 
         refresh.clicked.connect(self.state.refresh)
 
         header.addWidget(refresh)
 
-        reset_missions = QPushButton("Missionen zurücksetzen")
+        reset_missions = QPushButton(tr("missions.reset"))
         reset_missions.clicked.connect(self._reset_missions)
         header.addWidget(reset_missions)
 
         layout.addLayout(header)
 
-        card, card_layout = self._card("AKTIVE MISSIONEN")
+        card, card_layout = self._card(tr("missions.active"))
 
         mission_summary_row = QHBoxLayout()
 
         self.mission_total_reward_label = QLabel(
-            "Gesamtbelohnung: 0 Cr", objectName="cardValue"
+            tr("missions.total_reward", value="0 Cr"), objectName="cardValue"
         )
         self.mission_total_reward_label.setToolTip(
-            "Summe der Credit-Belohnungen aller aktuell offenen Missionen"
+            tr("missions.total_reward_tooltip")
         )
 
         mission_summary_row.addWidget(self.mission_total_reward_label)
@@ -2189,13 +2662,13 @@ class MainWindow(QMainWindow):
 
         self.missions_table.setHorizontalHeaderLabels(
             [
-                "Mission",
-                "System",
-                "Planet / Ort",
-                "Status",
-                "Nächster Schritt",
-                "Belohnung",
-                "Frist",
+                tr("missions.col_mission"),
+                tr("missions.col_system"),
+                tr("missions.col_place"),
+                tr("missions.col_status"),
+                tr("missions.col_next_step"),
+                tr("missions.col_reward"),
+                tr("missions.col_expiry"),
             ]
         )
 
@@ -2249,15 +2722,15 @@ class MainWindow(QMainWindow):
 
         layout.addWidget(card, 1)
 
-        detail_card, detail_layout = self._card("MISSIONSDETAILS")
+        detail_card, detail_layout = self._card(tr("missions.details"))
 
-        self.mission_detail_title = QLabel("Keine Mission ausgewählt")
+        self.mission_detail_title = QLabel(tr("missions.none_selected"))
 
         self.mission_detail_title.setStyleSheet("font-size: 15px; font-weight: 700;")
 
         detail_layout.addWidget(self.mission_detail_title)
 
-        self.mission_detail_text = QLabel("Wähle oben eine Mission aus.")
+        self.mission_detail_text = QLabel(tr("missions.select_above"))
 
         self.mission_detail_text.setWordWrap(True)
 
@@ -2304,9 +2777,9 @@ class MainWindow(QMainWindow):
         layout.setContentsMargins(12, 10, 12, 10)
         layout.setSpacing(8)
 
-        layout.addWidget(QLabel("Einstellungen", objectName="sectionTitle"))
+        layout.addWidget(QLabel(tr("settings.title"), objectName="sectionTitle"))
 
-        card, card_layout = self._card("JOURNAL")
+        card, card_layout = self._card(tr("settings.journal"))
 
         form = QFormLayout()
 
@@ -2327,29 +2800,29 @@ class MainWindow(QMainWindow):
         self.journal_last_read = QLabel("–")
         self.journal_last_read.setWordWrap(True)
 
-        form.addRow("Journalordner:", self.journal_path_edit)
+        form.addRow(tr("settings.journal_folder") + ":", self.journal_path_edit)
 
-        form.addRow("Gefundene Journaldateien:", self.journal_file_count)
+        form.addRow(tr("settings.journal_files_found") + ":", self.journal_file_count)
 
-        form.addRow("Älteste Journaldatei:", self.journal_oldest_file)
+        form.addRow(tr("settings.oldest_journal") + ":", self.journal_oldest_file)
 
-        form.addRow("Neueste Journaldatei:", self.journal_newest_file)
+        form.addRow(tr("settings.newest_journal") + ":", self.journal_newest_file)
 
-        form.addRow("Neueste Datei:", self.journal_newest_name)
+        form.addRow(tr("settings.newest_file") + ":", self.journal_newest_name)
 
-        form.addRow("Letzter gelesener Eintrag:", self.journal_last_read)
+        form.addRow(tr("settings.last_read_entry") + ":", self.journal_last_read)
 
         card_layout.addLayout(form)
 
         buttons = QHBoxLayout()
 
-        choose = QPushButton("Journalordner wählen")
+        choose = QPushButton(tr("settings.choose_journal_folder"))
 
         choose.clicked.connect(self.choose_journal_folder)
 
         buttons.addWidget(choose)
 
-        refresh = QPushButton("Jetzt einlesen", objectName="primary")
+        refresh = QPushButton(tr("settings.read_now"), objectName="primary")
 
         refresh.clicked.connect(self.state.refresh)
 
@@ -2360,13 +2833,11 @@ class MainWindow(QMainWindow):
 
         layout.addWidget(card)
 
-        online_card, online_layout = self._card("ONLINE-DIENSTE")
+        online_card, online_layout = self._card(tr("settings.online_services"))
 
         online_layout.addWidget(
             QLabel(
-                "Zugangsdaten werden lokal in den CMDRHelper-Einstellungen "
-                "gespeichert. Die API-Schlüssel werden in der Oberfläche "
-                "verdeckt angezeigt.",
+                tr("settings.online_hint"),
                 objectName="muted",
             )
         )
@@ -2382,29 +2853,29 @@ class MainWindow(QMainWindow):
 
         self.edsm_commander_edit = QLineEdit()
         self.edsm_commander_edit.setText(self.state.edsm_commander)
-        self.edsm_commander_edit.setPlaceholderText("Commander-Name")
+        self.edsm_commander_edit.setPlaceholderText(tr("settings.commander_name"))
 
         self.edsm_api_key_edit = QLineEdit()
         self.edsm_api_key_edit.setText(self.state.edsm_api_key)
         self.edsm_api_key_edit.setEchoMode(QLineEdit.Password)
-        self.edsm_api_key_edit.setPlaceholderText("EDSM API-Schlüssel")
+        self.edsm_api_key_edit.setPlaceholderText(tr("settings.edsm_api_key"))
 
-        self.edsm_enabled_check = QCheckBox("EDSM verwenden")
+        self.edsm_enabled_check = QCheckBox(tr("settings.use_edsm"))
         self.edsm_enabled_check.setChecked(self.state.edsm_enabled)
 
-        edsm_form.addRow("Commander-Name:", self.edsm_commander_edit)
-        edsm_form.addRow("API-Schlüssel:", self.edsm_api_key_edit)
+        edsm_form.addRow(tr("settings.commander_name") + ":", self.edsm_commander_edit)
+        edsm_form.addRow(tr("settings.api_key") + ":", self.edsm_api_key_edit)
         edsm_form.addRow("", self.edsm_enabled_check)
 
         online_layout.addLayout(edsm_form)
 
         edsm_test_row = QHBoxLayout()
 
-        self.edsm_test_button = QPushButton("EDSM-Verbindung testen")
+        self.edsm_test_button = QPushButton(tr("settings.test_edsm"))
         self.edsm_test_button.clicked.connect(self._test_edsm_connection)
         edsm_test_row.addWidget(self.edsm_test_button)
 
-        self.edsm_test_status = QLabel("Noch nicht getestet", objectName="muted")
+        self.edsm_test_status = QLabel(tr("settings.not_tested"), objectName="muted")
         self.edsm_test_status.setWordWrap(True)
         edsm_test_row.addWidget(self.edsm_test_status, 1)
 
@@ -2421,55 +2892,51 @@ class MainWindow(QMainWindow):
 
         self.inara_commander_edit = QLineEdit()
         self.inara_commander_edit.setText(self.state.inara_commander)
-        self.inara_commander_edit.setPlaceholderText("Commander-Name")
+        self.inara_commander_edit.setPlaceholderText(tr("settings.commander_name"))
 
         self.inara_api_key_edit = QLineEdit()
         self.inara_api_key_edit.setText(self.state.inara_api_key)
         self.inara_api_key_edit.setEchoMode(QLineEdit.Password)
-        self.inara_api_key_edit.setPlaceholderText("Inara API-Schlüssel")
+        self.inara_api_key_edit.setPlaceholderText(tr("settings.inara_api_key"))
 
-        self.inara_enabled_check = QCheckBox("Inara verwenden")
+        self.inara_enabled_check = QCheckBox(tr("settings.use_inara"))
         self.inara_enabled_check.setChecked(self.state.inara_enabled)
 
-        inara_form.addRow("Commander-Name:", self.inara_commander_edit)
-        inara_form.addRow("API-Schlüssel:", self.inara_api_key_edit)
+        inara_form.addRow(tr("settings.commander_name") + ":", self.inara_commander_edit)
+        inara_form.addRow(tr("settings.api_key") + ":", self.inara_api_key_edit)
         inara_form.addRow("", self.inara_enabled_check)
 
         online_layout.addLayout(inara_form)
 
         inara_test_row = QHBoxLayout()
 
-        self.inara_test_button = QPushButton("Inara-Verbindung testen")
+        self.inara_test_button = QPushButton(tr("settings.test_inara"))
         self.inara_test_button.clicked.connect(self._test_inara_connection)
         inara_test_row.addWidget(self.inara_test_button)
 
-        self.inara_test_status = QLabel("Noch nicht getestet", objectName="muted")
+        self.inara_test_status = QLabel(tr("settings.not_tested"), objectName="muted")
         self.inara_test_status.setWordWrap(True)
         inara_test_row.addWidget(self.inara_test_status, 1)
 
         online_layout.addLayout(inara_test_row)
 
-        save_online = QPushButton("Online-Zugänge speichern", objectName="primary")
+        save_online = QPushButton(tr("settings.save_online"), objectName="primary")
         save_online.clicked.connect(self._save_online_settings)
         online_layout.addWidget(save_online)
 
         layout.addWidget(online_card)
 
-        database_card, database_layout = self._card("DATENBANK")
+        database_card, database_layout = self._card(tr("settings.database"))
 
         database_layout.addWidget(
             QLabel(
-                "CMDRHelper speichert deine eigenen Journal-Entdeckungen "
-                "dauerhaft in einer lokalen SQLite-Datenbank. "
-                "Der Archivimport liest vorhandene Journaldateien einmalig "
-                "ein und ergänzt bekannte Systeme, Körper, Materialien "
-                "sowie BIO-/GEO-Daten.",
+                tr("settings.database_hint"),
                 objectName="muted",
             )
         )
 
         self.database_status_label = QLabel(
-            "Datenbankstatus wird geladen …", objectName="muted"
+            tr("settings.database_loading"), objectName="muted"
         )
         self.database_status_label.setWordWrap(True)
         database_layout.addWidget(self.database_status_label)
@@ -2478,7 +2945,7 @@ class MainWindow(QMainWindow):
         self.database_progress_bar.setRange(0, 100)
         self.database_progress_bar.setValue(0)
         self.database_progress_bar.setTextVisible(True)
-        self.database_progress_bar.setFormat("Bereit")
+        self.database_progress_bar.setFormat(tr("settings.ready"))
         self.database_progress_bar.setVisible(False)
         database_layout.addWidget(self.database_progress_bar)
 
@@ -2489,7 +2956,7 @@ class MainWindow(QMainWindow):
 
         database_buttons = QHBoxLayout()
 
-        self.database_import_button = QPushButton("Journal-Archiv importieren")
+        self.database_import_button = QPushButton(tr("settings.import_archive"))
         self.database_import_button.clicked.connect(self._import_journal_archive)
         database_buttons.addWidget(self.database_import_button)
 
@@ -2503,22 +2970,22 @@ class MainWindow(QMainWindow):
 
         self._refresh_database_status()
 
-        update_card, update_layout = self._card("UPDATE")
+        update_card, update_layout = self._card(tr("settings.update"))
 
         update_form = QFormLayout()
 
         self.update_current_version = QLabel(__version__)
-        self.update_status_label = QLabel("Noch nicht geprüft", objectName="muted")
+        self.update_status_label = QLabel(tr("settings.not_checked"), objectName="muted")
         self.update_status_label.setWordWrap(True)
 
-        update_form.addRow("Installierte Version:", self.update_current_version)
-        update_form.addRow("GitHub-Status:", self.update_status_label)
+        update_form.addRow(tr("settings.installed_version") + ":", self.update_current_version)
+        update_form.addRow(tr("settings.github_status") + ":", self.update_status_label)
 
         update_layout.addLayout(update_form)
 
         update_row = QHBoxLayout()
 
-        self.update_check_button = QPushButton("Jetzt prüfen")
+        self.update_check_button = QPushButton(tr("settings.check_now"))
         self.update_check_button.clicked.connect(
             lambda: self._check_for_updates(automatic=False)
         )
@@ -2529,16 +2996,16 @@ class MainWindow(QMainWindow):
 
         layout.addWidget(update_card)
 
-        ui_card, ui_layout = self._card("OBERFLÄCHE")
+        ui_card, ui_layout = self._card(tr("settings.interface"))
 
         theme_row = QHBoxLayout()
 
-        theme_row.addWidget(QLabel("Darstellung:"))
+        theme_row.addWidget(QLabel(tr("settings.appearance") + ":"))
 
         self.theme_group = QButtonGroup(self)
 
-        self.theme_dark_radio = QRadioButton("Dunkel")
-        self.theme_light_radio = QRadioButton("Hell")
+        self.theme_dark_radio = QRadioButton(tr("settings.dark"))
+        self.theme_light_radio = QRadioButton(tr("settings.light"))
 
         self.theme_group.addButton(self.theme_dark_radio)
         self.theme_group.addButton(self.theme_light_radio)
@@ -2562,13 +3029,55 @@ class MainWindow(QMainWindow):
 
         ui_layout.addLayout(theme_row)
 
+        language_row = QHBoxLayout()
+        language_row.addWidget(QLabel(tr("settings.language") + ":"))
+
+        self.ui_language_combo = QComboBox()
+
+        # Sprachname bewusst jeweils in der eigenen Sprache anzeigen.
+        # Der gespeicherte Sprachcode liegt als Item-Data vor, damit die
+        # Auswahl unabhängig von Reihenfolge und sichtbarem Text bleibt.
+        languages = [
+            ("Deutsch", "de"),
+            ("English", "en"),
+            ("Français", "fr"),
+            ("Italiano", "it"),
+            ("Norsk (Bokmål)", "no"),
+            ("Svenska", "sv"),
+            ("Suomi", "fi"),
+            ("Polski", "pl"),
+            ("Nederlands", "nl"),
+            ("Español", "es"),
+            ("Türkçe", "tr"),
+            ("Ελληνικά", "el"),
+        ]
+
+        for label, code in languages:
+            self.ui_language_combo.addItem(label, code)
+
+        active_language = get_language()
+        language_index = self.ui_language_combo.findData(active_language)
+        if language_index >= 0:
+            self.ui_language_combo.setCurrentIndex(language_index)
+
+        self.ui_language_save_button = QPushButton(tr("settings.save_language"))
+        self.ui_language_save_button.clicked.connect(self._save_ui_language_settings)
+
+        self.ui_language_status = QLabel("", objectName="muted")
+
+        language_row.addWidget(self.ui_language_combo)
+        language_row.addWidget(self.ui_language_save_button)
+        language_row.addWidget(self.ui_language_status)
+        language_row.addStretch()
+        ui_layout.addLayout(language_row)
+
         font_row = QHBoxLayout()
-        font_row.addWidget(QLabel("Schriftart:"))
+        font_row.addWidget(QLabel(tr("settings.font") + ":"))
 
         self.ui_font_combo = QFontComboBox()
         self.ui_font_combo.setMinimumWidth(260)
         self.ui_font_combo.setToolTip(
-            "Schriftart für die gesamte CMDRHelper-Oberfläche"
+            tr("settings.font_tooltip")
         )
 
         app = QApplication.instance()
@@ -2589,18 +3098,18 @@ class MainWindow(QMainWindow):
         font_row.addWidget(self.ui_font_combo)
 
         font_row.addSpacing(12)
-        font_row.addWidget(QLabel("Größe:"))
+        font_row.addWidget(QLabel(tr("settings.font_size") + ":"))
 
         self.ui_font_size_spin = QSpinBox()
         self.ui_font_size_spin.setRange(7, 24)
         self.ui_font_size_spin.setSuffix(" pt")
         self.ui_font_size_spin.setValue(saved_size)
         self.ui_font_size_spin.setToolTip(
-            "Schriftgröße für die gesamte CMDRHelper-Oberfläche"
+            tr("settings.font_size_tooltip")
         )
         font_row.addWidget(self.ui_font_size_spin)
 
-        self.ui_font_save_button = QPushButton("Schrift speichern")
+        self.ui_font_save_button = QPushButton(tr("settings.save_font"))
         self.ui_font_save_button.clicked.connect(self._save_ui_font_settings)
         font_row.addWidget(self.ui_font_save_button)
 
@@ -2611,15 +3120,14 @@ class MainWindow(QMainWindow):
         ui_layout.addLayout(font_row)
 
         self.ui_font_restart_hint = QLabel(
-            "Hinweis: Änderungen an Schriftart und Schriftgröße "
-            "werden erst nach einem Neustart von CMDRHelper wirksam."
+            tr("settings.font_restart_hint")
         )
         self.ui_font_restart_hint.setWordWrap(True)
         self.ui_font_restart_hint.setStyleSheet("color: #ffb000; font-weight: 600;")
         ui_layout.addWidget(self.ui_font_restart_hint)
 
         value_threshold_row = QHBoxLayout()
-        value_threshold_row.addWidget(QLabel("Planeten-Wertliste gelb ab:"))
+        value_threshold_row.addWidget(QLabel(tr("settings.value_threshold") + ":"))
 
         self.explorer_value_threshold_spin = QSpinBox()
         self.explorer_value_threshold_spin.setRange(0, 2_000_000_000)
@@ -2640,8 +3148,7 @@ class MainWindow(QMainWindow):
 
         self.explorer_value_threshold_spin.setValue(max(0, threshold))
         self.explorer_value_threshold_spin.setToolTip(
-            "Aktuelle Kartographiewerte ab diesem Betrag werden "
-            "in der Explorer-Wertliste gelb hervorgehoben."
+            tr("settings.value_threshold_tooltip")
         )
         self.explorer_value_threshold_spin.valueChanged.connect(
             self._set_explorer_value_threshold
@@ -2666,26 +3173,28 @@ class MainWindow(QMainWindow):
         stats = self.state.database_stats()
 
         self.database_status_label.setText(
-            "Gespeichert: "
-            f"{stats.get('systems', 0)} Systeme · "
-            f"{stats.get('bodies', 0)} Körper · "
-            f"{stats.get('materials', 0)} Materialien · "
-            f"{stats.get('biology', 0)} BIO-Funde · "
-            f"{stats.get('codex_entries', 0)} Codex/Phänomene · "
-            f"{stats.get('journal_imports', 0)} Journale"
+            tr(
+                "settings.database_stats",
+                systems=stats.get("systems", 0),
+                bodies=stats.get("bodies", 0),
+                materials=stats.get("materials", 0),
+                biology=stats.get("biology", 0),
+                codex=stats.get("codex_entries", 0),
+                journals=stats.get("journal_imports", 0),
+            )
         )
 
     def _import_journal_archive(self):
         self.database_import_button.setEnabled(False)
 
-        self.database_status_label.setText("Journal-Archiv wird eingelesen …")
+        self.database_status_label.setText(tr("settings.archive_reading"))
 
         self.database_progress_bar.setRange(0, 100)
         self.database_progress_bar.setValue(0)
-        self.database_progress_bar.setFormat("Vorbereitung …")
+        self.database_progress_bar.setFormat(tr("settings.preparing"))
         self.database_progress_bar.setVisible(True)
 
-        self.database_progress_file.setText("Journaldateien werden vorbereitet …")
+        self.database_progress_file.setText(tr("settings.journals_preparing"))
         self.database_progress_file.setVisible(True)
 
         self.state.import_journal_archive()
@@ -2713,7 +3222,7 @@ class MainWindow(QMainWindow):
             percent = 0
 
         self.database_status_label.setText(
-            f"Journal-Archiv wird eingelesen … " f"{current} / {total}"
+            tr("settings.archive_progress", current=current, total=total)
         )
 
         self.database_progress_bar.setRange(0, 100)
@@ -2721,7 +3230,7 @@ class MainWindow(QMainWindow):
         self.database_progress_bar.setFormat(f"{percent} %   ·   {current} / {total}")
         self.database_progress_bar.setVisible(True)
 
-        self.database_progress_file.setText(f"Aktuell: {name}")
+        self.database_progress_file.setText(tr("settings.current_file", name=name))
         self.database_progress_file.setVisible(True)
 
     def _database_import_finished(
@@ -2734,16 +3243,16 @@ class MainWindow(QMainWindow):
         if error:
             self.database_progress_bar.setRange(0, 100)
             self.database_progress_bar.setValue(0)
-            self.database_progress_bar.setFormat("Import fehlgeschlagen")
+            self.database_progress_bar.setFormat(tr("settings.import_failed"))
             self.database_progress_bar.setVisible(True)
             self.database_progress_file.setText("")
             self.database_progress_file.setVisible(False)
 
-            self.database_status_label.setText(f"Import fehlgeschlagen: {error}")
+            self.database_status_label.setText(tr("settings.import_failed_detail", error=error))
             QMessageBox.warning(
                 self,
-                "Datenbank",
-                f"Der Journal-Archivimport ist fehlgeschlagen.\n\n{error}",
+                tr("settings.database"),
+                tr("settings.archive_import_failed_message", error=error),
             )
             return
 
@@ -2751,7 +3260,7 @@ class MainWindow(QMainWindow):
 
         self.database_progress_bar.setRange(0, 100)
         self.database_progress_bar.setValue(100)
-        self.database_progress_bar.setFormat("100 %   ·   Import abgeschlossen")
+        self.database_progress_bar.setFormat(tr("settings.import_complete"))
         self.database_progress_bar.setVisible(True)
 
         self.database_progress_file.setText("")
@@ -2761,26 +3270,26 @@ class MainWindow(QMainWindow):
         skipped = int(stats.get("skipped_journals", 0))
 
         if imported == 0:
-            message = (
-                "Keine neuen Journal-Daten gefunden.\n\n"
-                f"Unverändert übersprungen: {skipped}\n"
-                f"Systeme: {stats.get('systems', 0)}\n"
-                f"Körper: {stats.get('bodies', 0)}\n"
-                f"Materialien: {stats.get('materials', 0)}\n"
-                f"Journale: {stats.get('journal_imports', 0)}"
+            message = tr(
+                "settings.archive_no_new_data",
+                skipped=skipped,
+                systems=stats.get("systems", 0),
+                bodies=stats.get("bodies", 0),
+                materials=stats.get("materials", 0),
+                journals=stats.get("journal_imports", 0),
             )
         else:
-            message = (
-                "Journal-Archiv erfolgreich aktualisiert.\n\n"
-                f"Neu/geändert importiert: {imported}\n"
-                f"Unverändert übersprungen: {skipped}\n"
-                f"Systeme: {stats.get('systems', 0)}\n"
-                f"Körper: {stats.get('bodies', 0)}\n"
-                f"Materialien: {stats.get('materials', 0)}\n"
-                f"Journale: {stats.get('journal_imports', 0)}"
+            message = tr(
+                "settings.archive_import_success",
+                imported=imported,
+                skipped=skipped,
+                systems=stats.get("systems", 0),
+                bodies=stats.get("bodies", 0),
+                materials=stats.get("materials", 0),
+                journals=stats.get("journal_imports", 0),
             )
 
-        QMessageBox.information(self, "Datenbank", message)
+        QMessageBox.information(self, tr("settings.database"), message)
 
     def _release_update_worker(self):
         self._update_worker = None
@@ -2831,25 +3340,16 @@ class MainWindow(QMainWindow):
         result,
         latest,
     ):
-        text = (
-            "Eine neue Version von CMDRHelper ist verfügbar.\n\n"
-            f"Installiert: {__version__}\n"
-            f"Verfügbar: {latest}"
+        text = tr(
+            "settings.update_question",
+            installed=__version__,
+            latest=latest,
         )
 
         if self._release_requires_database_update(result):
-            text += (
-                "\n\n"
-                "DATENBANK-AKTUALISIERUNG\n"
-                "Dieses Update erweitert die CMDRHelper-Datenbank.\n"
-                "Nach der Installation wird das Journal-Archiv einmal "
-                "neu ausgewertet. Je nach Umfang des Archivs kann dies "
-                "einige Minuten dauern.\n"
-                "Deine vorhandenen Daten bleiben erhalten."
-            )
+            text += tr("settings.update_database_notice")
 
-        text += "\n\n" "Möchtest du das Update jetzt installieren?"
-
+        text += tr("settings.update_install_question")
         return text
 
     def _check_for_updates(
@@ -2865,7 +3365,7 @@ class MainWindow(QMainWindow):
             self.update_check_button.setEnabled(False)
 
         if not automatic:
-            self._set_update_status("GitHub wird geprüft …")
+            self._set_update_status(tr("settings.github_checking"))
 
         # Worker als Instanzvariable halten. So bleibt das Python-Objekt
         # garantiert bis zum Ende der GitHub-Anfrage erhalten.
@@ -2896,18 +3396,18 @@ class MainWindow(QMainWindow):
             self.update_check_button.setEnabled(True)
 
         if not isinstance(result, dict):
-            self._set_update_status("Updateprüfung fehlgeschlagen.", False)
+            self._set_update_status(tr("settings.update_check_failed"), False)
             return
 
         if not result.get("ok"):
             # Beim automatischen Startcheck keine störende Fehlermeldung
             # anzeigen. Der Status bleibt unter Einstellungen sichtbar.
-            error = result.get("error") or "GitHub konnte nicht geprüft werden."
+            error = result.get("error") or tr("settings.github_check_failed")
 
             self._set_update_status(error, False)
 
             if not automatic:
-                QMessageBox.warning(self, "Updateprüfung", error)
+                QMessageBox.warning(self, tr("settings.update_check_title"), error)
             return
 
         latest = result.get("version") or ""
@@ -2916,7 +3416,7 @@ class MainWindow(QMainWindow):
             latest,
             __version__,
         ):
-            text = f"Update verfügbar: {latest} " f"(installiert: {__version__})"
+            text = tr("settings.update_available_status", latest=latest, installed=__version__)
 
             self._set_update_status(text, False)
 
@@ -2925,7 +3425,7 @@ class MainWindow(QMainWindow):
 
                 answer = QMessageBox.question(
                     self,
-                    "CMDRHelper – Update verfügbar",
+                    tr("settings.update_available_title"),
                     self._update_question_text(
                         result,
                         latest,
@@ -2940,7 +3440,7 @@ class MainWindow(QMainWindow):
             elif not automatic:
                 answer = QMessageBox.question(
                     self,
-                    "CMDRHelper – Update verfügbar",
+                    tr("settings.update_available_title"),
                     self._update_question_text(
                         result,
                         latest,
@@ -2954,13 +3454,16 @@ class MainWindow(QMainWindow):
 
             return
 
-        self._set_update_status(f"CMDRHelper {__version__} ist aktuell.", True)
+        self._set_update_status(
+            tr("settings.update_current_status", version=__version__),
+            True,
+        )
 
         if not automatic:
             QMessageBox.information(
                 self,
-                "Updateprüfung",
-                (f"CMDRHelper {__version__} " "ist auf dem aktuellen Stand."),
+                tr("settings.update_check_title"),
+                tr("settings.update_current_message", version=__version__),
             )
 
     def _install_update(self, result):
@@ -2973,16 +3476,12 @@ class MainWindow(QMainWindow):
         if not asset_url:
             QMessageBox.warning(
                 self,
-                "CMDRHelper – Update",
-                (
-                    f"Für Version {latest} wurde kein passendes "
-                    "CMDRHelper-ZIP im GitHub-Release gefunden.\n\n"
-                    "Bitte das Release-ZIP auf GitHub prüfen."
-                ),
+                tr("settings.update_title"),
+                tr("settings.update_no_asset", version=latest),
             )
             return
 
-        self._set_update_status(f"Update {latest} wird heruntergeladen …")
+        self._set_update_status(tr("settings.update_downloading", version=latest))
 
         if hasattr(self, "update_check_button"):
             self.update_check_button.setEnabled(False)
@@ -3008,35 +3507,28 @@ class MainWindow(QMainWindow):
             if hasattr(self, "update_check_button"):
                 self.update_check_button.setEnabled(True)
 
-            self._set_update_status(f"Update fehlgeschlagen: {exc}", False)
+            self._set_update_status(tr("settings.update_failed_status", error=exc), False)
 
             QMessageBox.critical(
                 self,
-                "CMDRHelper – Update fehlgeschlagen",
-                (
-                    "Das Update konnte nicht vorbereitet werden.\n\n"
-                    f"{exc}\n\n"
-                    "CMDRHelper wurde nicht verändert."
-                ),
+                tr("settings.update_failed_title"),
+                tr("settings.update_failed_message", error=exc),
             )
             return
 
-        install_message = (
-            f"CMDRHelper {latest} wurde heruntergeladen.\n\n"
-            "CMDRHelper wird jetzt beendet. "
-            "Der Updater erstellt zuerst ein Backup der bisherigen "
-            "Programmversion und installiert danach das neue Release.\n\n"
-            "Der Ordner data/ mit deiner Datenbank bleibt unangetastet."
+        install_message = tr(
+            "settings.update_downloaded_message",
+            version=latest,
         )
 
         if self._release_requires_database_update(result):
-            install_message += (
-                "\n\n"
-                "Nach dem Neustart wird die Datenbank einmalig "
-                "aktualisiert und das Journal-Archiv neu ausgewertet."
-            )
+            install_message += tr("settings.update_post_restart_database")
 
-        QMessageBox.information(self, "CMDRHelper – Update", install_message)
+        QMessageBox.information(
+            self,
+            tr("settings.update_title"),
+            install_message,
+        )
 
         QApplication.quit()
 
@@ -3148,8 +3640,17 @@ class MainWindow(QMainWindow):
         # Nicht sofort anwenden: Einige QSS-Regeln übersteuern die Qt-
         # Standardschrift. Ein sauberer kompletter Neuaufbau beim Neustart
         # vermeidet Mischzustände in bereits existierenden Widgets.
-        self.ui_font_status.setText("✓ gespeichert · Neustart erforderlich")
+        self.ui_font_status.setText(tr("settings.restart_required"))
         self.ui_font_status.setStyleSheet("color: #ffb000; font-weight: 600;")
+
+    def _save_ui_language_settings(self):
+        language = str(self.ui_language_combo.currentData() or "de")
+        set_language(language, self.state.settings)
+
+        self.ui_language_status.setText(tr("settings.restart_required"))
+        self.ui_language_status.setStyleSheet(
+            "color: #ffb000; font-weight: 600;"
+        )
 
     def _set_theme(self, theme):
         theme = "light" if str(theme).lower() == "light" else "dark"
@@ -3172,6 +3673,45 @@ class MainWindow(QMainWindow):
         ):
             self._chronicle_system_window.system_map.set_light_mode(theme == "light")
 
+    def _explorer_live_window_enabled(self, window_kind):
+        key = (
+            "explorer_live/bio_enabled"
+            if str(window_kind) == "bio"
+            else "explorer_live/value_enabled"
+        )
+        value = self.state.settings.value(key, True)
+
+        if isinstance(value, str):
+            return value.strip().lower() not in ("0", "false", "no", "off")
+
+        return bool(value)
+
+    def _set_explorer_live_window_enabled(self, window_kind, enabled):
+        window_kind = "bio" if str(window_kind) == "bio" else "value"
+        enabled = bool(enabled)
+
+        key = (
+            "explorer_live/bio_enabled"
+            if window_kind == "bio"
+            else "explorer_live/value_enabled"
+        )
+        self.state.settings.setValue(key, enabled)
+        self.state.settings.sync()
+
+        window = (
+            self._explorer_bio_live_window
+            if window_kind == "bio"
+            else self._explorer_value_live_window
+        )
+
+        if not enabled and window is not None:
+            window.hide()
+
+        # Beim Einschalten sofort anhand der bereits bekannten Daten prüfen,
+        # ob das betreffende Fenster angezeigt werden soll.
+        if enabled and hasattr(self, "explorer_value_table"):
+            self._refresh_explorer_live_windows()
+
     def _set_explorer_value_threshold(self, value):
         value = max(0, int(value or 0))
         self.state.settings.setValue(
@@ -3180,8 +3720,63 @@ class MainWindow(QMainWindow):
         )
         self.state.settings.sync()
 
+        # Derselbe Wert steuert jetzt:
+        # - gelbe Hervorhebung in der Wertliste
+        # - Livefenster "Wertvolle Körper"
+        # - Goldrahmen in der Systemkarte
+        self._apply_gold_frame_threshold()
+
+        if hasattr(self, "gold_frame_legend_label"):
+            self.gold_frame_legend_label.setText(
+                '<span style="color:#ffb000; font-size:14px; '
+                'font-weight:700;">★</span> '
+                '<span style="font-size:11px;">'
+                + tr(
+                    "explorer.gold_frame_from",
+                    value=self._format_reward(value),
+                )
+                + "</span>"
+            )
+
         if hasattr(self, "explorer_value_table"):
             self._refresh_explorer_tables()
+
+        if hasattr(self, "system_map"):
+            self.system_map.set_system(
+                self.state.system or "–",
+                self.state.system_bodies,
+            )
+
+    def _apply_gold_frame_threshold(self):
+        """
+        Verknüpft den Goldrahmen der Systemkarte mit demselben
+        benutzerdefinierten Schwellenwert wie die Explorer-Wertliste.
+
+        Maßgeblich ist der noch erreichbare Kartographiewert des Körpers.
+        Ist der Körper bereits von uns kartiert, zählt der tatsächlich
+        erreichte und noch auszuzahlende Wert.
+        """
+        threshold = self._explorer_value_yellow_threshold()
+
+        for body in getattr(self.state, "system_bodies", None) or []:
+            is_star = bool(
+                body.get("star_type")
+                or body.get("body_type") == "Star"
+            )
+            is_belt = SystemMapWidget._is_belt_cluster(body)
+
+            possible_value = int(
+                body.get("possible_value")
+                or body.get("current_value")
+                or 0
+            )
+
+            body["high_value"] = bool(
+                not is_star
+                and not is_belt
+                and threshold > 0
+                and possible_value >= threshold
+            )
 
     def _explorer_value_yellow_threshold(self):
         try:
@@ -3201,13 +3796,8 @@ class MainWindow(QMainWindow):
     def _reset_missions(self):
         answer = QMessageBox.question(
             self,
-            "Missionen zurücksetzen",
-            (
-                "Soll die bisherige Missionshistorie in CMDRHelper "
-                "wirklich zurückgesetzt werden?\n\n"
-                "Alte Missionen vor diesem Zeitpunkt werden danach "
-                "nicht mehr aus dem Journal übernommen."
-            ),
+            tr("missions.reset"),
+            tr("missions.reset_question"),
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No,
         )
@@ -3228,7 +3818,7 @@ class MainWindow(QMainWindow):
 
     def _test_edsm_connection(self):
         self.edsm_test_button.setEnabled(False)
-        self.edsm_test_status.setText("Verbindung wird getestet …")
+        self.edsm_test_status.setText(tr("settings.connection_testing"))
 
         try:
             ok, text = test_edsm_connection(
@@ -3245,7 +3835,7 @@ class MainWindow(QMainWindow):
 
     def _test_inara_connection(self):
         self.inara_test_button.setEnabled(False)
-        self.inara_test_status.setText("Verbindung wird getestet …")
+        self.inara_test_status.setText(tr("settings.connection_testing"))
 
         try:
             ok, text = test_inara_connection(
@@ -3276,7 +3866,9 @@ class MainWindow(QMainWindow):
         self.state.refresh()
 
         QMessageBox.information(
-            self, "Online-Dienste", "EDSM- und Inara-Einstellungen wurden gespeichert."
+            self,
+            tr("settings.online_services"),
+            tr("settings.online_saved_message"),
         )
 
     def _journal_file_diagnostics(self):
@@ -3317,8 +3909,8 @@ class MainWindow(QMainWindow):
 
         except Exception as exc:
             return {
-                "oldest_time": "Fehler",
-                "newest_time": "Fehler",
+                "oldest_time": tr("common.error"),
+                "newest_time": tr("common.error"),
                 "newest_name": str(exc),
             }
 
@@ -3326,7 +3918,9 @@ class MainWindow(QMainWindow):
         start = str(self.state.journal_folder or Path.home())
 
         folder = QFileDialog.getExistingDirectory(
-            self, "Elite-Dangerous-Journalordner wählen", start
+            self,
+            tr("settings.choose_journal_folder_title"),
+            start,
         )
 
         if folder:
@@ -3360,7 +3954,10 @@ class MainWindow(QMainWindow):
 
     @staticmethod
     def _format_reward(value):
-        return f"{int(value or 0):,} Cr".replace(",", ".")
+        text = f"{int(value or 0):,}"
+        if get_language() == "de":
+            text = text.replace(",", ".")
+        return f"{text} Cr"
 
     @staticmethod
     def _place_text(mission):
@@ -3378,13 +3975,18 @@ class MainWindow(QMainWindow):
 
         return "–"
 
+    @staticmethod
+    def _translate_mission_text(value):
+        """Übersetzt ausschließlich von CMDRHelper erzeugte Missions-Anzeigetexte."""
+        return translate_mission_text(value)
+
     def _mission_selection_changed(self):
         selected = self.missions_table.selectionModel().selectedRows()
 
         if not selected:
-            self.mission_detail_title.setText("Keine Mission ausgewählt")
+            self.mission_detail_title.setText(tr("missions.none_selected"))
 
-            self.mission_detail_text.setText("Wähle oben eine Mission aus.")
+            self.mission_detail_text.setText(tr("missions.select_above"))
 
             self.mission_progress_text.setText("")
 
@@ -3397,18 +3999,18 @@ class MainWindow(QMainWindow):
 
         mission = self.state.missions[row]
 
-        self.mission_detail_title.setText(mission.name or "Mission")
+        self.mission_detail_title.setText(self._translate_mission_text(mission.name) or tr("missions.col_mission"))
 
-        self.mission_detail_text.setText(mission.summary)
+        self.mission_detail_text.setText(self._translate_mission_text(mission.summary))
 
         progress = []
 
         if mission.progress_text:
-            progress.append(f"Fortschritt: {mission.progress_text}")
+            progress.append(tr("missions.progress", value=self._translate_mission_text(mission.progress_text)))
 
-        progress.append(f"Status: {mission.status}")
+        progress.append(tr("missions.status", value=self._translate_mission_text(mission.status)))
 
-        progress.append(f"Nächster Schritt: {mission.next_step}")
+        progress.append(tr("missions.next_step", value=self._translate_mission_text(mission.next_step)))
 
         self.mission_progress_text.setText("   ·   ".join(progress))
 
@@ -3422,12 +4024,16 @@ class MainWindow(QMainWindow):
         self.ship_label.setText(self.state.ship or "")
 
         self.last_import_label.setText(
-            "Letzter Journal-Eintrag: "
-            + self._format_timestamp(self.state.last_timestamp)
+            tr(
+                "topbar.last_journal_entry",
+                timestamp=self._format_timestamp(self.state.last_timestamp),
+            )
         )
 
         self.connection_label.setText(
-            "● Journal erkannt" if self.state.connected else "● Journal nicht erkannt"
+            tr("topbar.journal_detected")
+            if self.state.connected
+            else tr("topbar.journal_not_detected")
         )
 
         self.connection_label.setObjectName(
@@ -3450,20 +4056,20 @@ class MainWindow(QMainWindow):
         )
 
         if edsm_status == "ok":
-            self.edsm_upload_label.setText("● EDSM Übertragung")
+            self.edsm_upload_label.setText(tr("topbar.edsm_transmitting"))
             self.edsm_upload_label.setObjectName("statusOk")
         elif edsm_status == "error":
-            self.edsm_upload_label.setText("● EDSM Fehler")
+            self.edsm_upload_label.setText(tr("topbar.edsm_error"))
             self.edsm_upload_label.setObjectName("statusWarn")
         elif edsm_status == "waiting":
-            self.edsm_upload_label.setText("● EDSM wartet")
+            self.edsm_upload_label.setText(tr("topbar.edsm_waiting"))
             self.edsm_upload_label.setObjectName("muted")
         else:
-            self.edsm_upload_label.setText("● EDSM aus")
+            self.edsm_upload_label.setText(tr("topbar.edsm_off"))
             self.edsm_upload_label.setObjectName("muted")
 
         self.edsm_upload_label.setToolTip(
-            edsm_message or "Status der automatischen EDSM-Journalübertragung"
+            edsm_message or tr("topbar.edsm_tooltip")
         )
         self.edsm_upload_label.style().unpolish(self.edsm_upload_label)
         self.edsm_upload_label.style().polish(self.edsm_upload_label)
@@ -3471,22 +4077,22 @@ class MainWindow(QMainWindow):
         # INARA-Anzeige vorbereiten. Bis der automatische INARA-Uploader
         # eingebaut ist, zeigt sie nur Aktiv/Inaktiv an.
         if getattr(self.state, "inara_enabled", False):
-            self.inara_upload_label.setText("● INARA wartet")
+            self.inara_upload_label.setText(tr("topbar.inara_waiting"))
             self.inara_upload_label.setObjectName("muted")
             self.inara_upload_label.setToolTip(
-                "INARA ist aktiviert. Automatische Journalübertragung folgt."
+                tr("topbar.inara_enabled_tooltip")
             )
         else:
-            self.inara_upload_label.setText("● INARA aus")
+            self.inara_upload_label.setText(tr("topbar.inara_off"))
             self.inara_upload_label.setObjectName("muted")
             self.inara_upload_label.setToolTip(
-                "INARA ist in den Einstellungen deaktiviert."
+                tr("topbar.inara_disabled_tooltip")
             )
 
         self.inara_upload_label.style().unpolish(self.inara_upload_label)
         self.inara_upload_label.style().polish(self.inara_upload_label)
 
-        self.sidebar_system.setText(f"Aktuelles System\n{system}")
+        self.sidebar_system.setText(f"{tr('sidebar.current_system')}\n{system}")
 
         body_station = []
 
@@ -3511,9 +4117,12 @@ class MainWindow(QMainWindow):
         self.overview_commander.setText(f"CMDR {commander}")
 
         ship_text = self.state.ship or "–"
-        self.overview_ship.setText(f"Schiff: {ship_text}")
+        self.overview_ship.setText(tr("overview.ship", ship=ship_text))
         self.overview_location.setText(
-            f"Standort: {system}" + (f" · {place_text}" if place_text != "–" else "")
+            tr(
+                "overview.location",
+                location=system + (f" · {place_text}" if place_text != "–" else ""),
+            )
         )
 
         mission_count = len(self.state.missions)
@@ -3525,7 +4134,10 @@ class MainWindow(QMainWindow):
 
         if hasattr(self, "mission_total_reward_label"):
             self.mission_total_reward_label.setText(
-                "Gesamtbelohnung: " + self._format_reward(mission_total_reward)
+                tr(
+                    "missions.total_reward",
+                    value=self._format_reward(mission_total_reward),
+                )
             )
 
         ready_count = sum(
@@ -3536,43 +4148,39 @@ class MainWindow(QMainWindow):
         )
 
         if mission_count == 0:
-            self.mission_start_status.setText("keine offenen Missionen")
+            self.mission_start_status.setText(tr("overview.no_open_missions"))
         elif ready_count:
             still_active = mission_count - ready_count
-            parts = [f"{ready_count} bereit zur Abgabe"]
+            parts = [tr("overview.ready_to_turn_in", count=ready_count)]
             if still_active:
-                parts.append(f"{still_active} noch aktiv")
+                parts.append(tr("overview.still_active", count=still_active))
             self.mission_start_status.setText(" · ".join(parts))
         else:
-            self.mission_start_status.setText(f"{mission_count} noch aktiv")
+            self.mission_start_status.setText(tr("overview.still_active", count=mission_count))
 
         self.journal_count_value.setText(str(self.state.journal_files))
 
         if self.state.connected:
-            self.overview_journal_state.setText("● erkannt / Live-Überwachung aktiv")
+            self.overview_journal_state.setText(tr("overview.live_monitoring_active"))
             self.overview_journal_state.setObjectName("statusOk")
         else:
-            self.overview_journal_state.setText("● nicht erkannt")
+            self.overview_journal_state.setText(tr("overview.not_detected"))
             self.overview_journal_state.setObjectName("statusWarn")
         self.overview_journal_state.style().unpolish(self.overview_journal_state)
         self.overview_journal_state.style().polish(self.overview_journal_state)
 
         if self.state.connected:
             self.overview_status.setText(
-                f"Journaldaten erkannt. "
-                f"Commander: {commander} · "
-                f"System: {system} · "
-                f"{len(self.state.missions)} "
-                f"aktive Mission(en)."
+                tr(
+                    "overview.journal_summary",
+                    commander=commander,
+                    system=system,
+                    missions=len(self.state.missions),
+                )
             )
 
         else:
-            self.overview_status.setText(
-                "Noch keine Elite-Dangerous-"
-                "Journaldaten erkannt. "
-                "Bitte unter Einstellungen "
-                "den Journalordner prüfen."
-            )
+            self.overview_status.setText(tr("overview.no_ed_journal_data"))
 
         scanned_count = sum(
             1 for body in self.state.system_bodies if body.get("journal_scanned", True)
@@ -3606,44 +4214,51 @@ class MainWindow(QMainWindow):
             if int(body.get("geological_signals") or 0) > 0
         )
 
-        scan_status = f"{displayed_scanned} / {total_count} Körper selbst im Journal"
+        scan_status = tr("explorer.scan_count", scanned=displayed_scanned, total=total_count)
 
         edsm_added = int(getattr(self.state, "edsm_added_count", 0) or 0)
 
         edsm_known = int(getattr(self.state, "edsm_body_count", 0) or 0)
 
         if self.state.edsm_enabled and edsm_known:
-            scan_status += f" · EDSM bekannt: {edsm_known}"
+            scan_status += tr("explorer.edsm_known", count=edsm_known)
 
             if edsm_added:
-                scan_status += f" (+{edsm_added} ergänzt)"
+                scan_status += tr("explorer.edsm_added", count=edsm_added)
 
         if self.state.system_all_bodies_found:
-            scan_status += " · alle Körper gefunden"
+            scan_status += tr("explorer.all_bodies_found")
 
         if signal_count:
-            scan_status += f" · {signal_count} Signale"
+            scan_status += tr("explorer.signals", count=signal_count)
 
         if bio_body_count:
-            scan_status += f" · BIO auf {bio_body_count} Körper(n)"
+            scan_status += tr("explorer.bio_on_bodies", count=bio_body_count)
 
         if geo_body_count:
-            scan_status += f" · GEO auf {geo_body_count} Körper(n)"
+            scan_status += tr("explorer.geo_on_bodies", count=geo_body_count)
 
         current_value = int(getattr(self.state, "system_current_value", 0) or 0)
 
-        scan_status += (
-            f"   |   Nur Scans: "
-            f"{self._format_reward(self.state.system_scan_value)}"
-            f"   |   Aktuell erreicht: "
-            f"{self._format_reward(current_value)}"
-            f"   |   Komplett kartiert: "
-            f"{self._format_reward(self.state.system_mapped_value)}"
+        scan_status += tr(
+            "explorer.value_summary",
+            scan=self._format_reward(self.state.system_scan_value),
+            current=self._format_reward(current_value),
+            mapped=self._format_reward(self.state.system_mapped_value),
         )
 
-        if self.state.system_high_value_count:
-            scan_status += (
-                f"   |   ★ {self.state.system_high_value_count} Körper > 200.000 Cr"
+        gold_threshold = self._explorer_value_yellow_threshold()
+        gold_count = sum(
+            1
+            for body in self.state.system_bodies
+            if bool(body.get("high_value"))
+        )
+
+        if gold_count:
+            scan_status += tr(
+                "explorer.gold_body_count",
+                count=gold_count,
+                value=self._format_reward(gold_threshold),
             )
 
         self.system_scan_header.setText(scan_status)
@@ -3656,17 +4271,17 @@ class MainWindow(QMainWindow):
         bio_unknown = list(getattr(self.state, "system_bio_unknown", []) or [])
 
         if bio_count:
-            bio_status = (
-                f"BIO vollständig: {bio_count}"
-                f"   |   Basiswert: {self._format_reward(bio_value)}"
-                f"   |   bei First Logged ×5: "
-                f"{self._format_reward(bio_first_logged)}"
+            bio_status = tr(
+                "explorer.bio_summary",
+                count=bio_count,
+                base=self._format_reward(bio_value),
+                first=self._format_reward(bio_first_logged),
             )
 
             if bio_unknown:
-                bio_status += f"   |   ⚠ {len(bio_unknown)} Art(en) ohne Wert"
+                bio_status += tr("explorer.bio_unknown_value_count", count=len(bio_unknown))
         else:
-            bio_status = "BIO: noch keine vollständig analysierten Proben"
+            bio_status = tr("explorer.no_completed_bio")
 
         self.system_bio_header.setText(bio_status)
 
@@ -3683,24 +4298,32 @@ class MainWindow(QMainWindow):
         unsold_bio_count = int(getattr(self.state, "unsold_bio_count", 0) or 0)
         unsold_bio_unknown = list(getattr(self.state, "unsold_bio_unknown", []) or [])
 
-        open_status = (
-            "Noch nicht abgegeben   |   "
-            f"Kartographie: {self._format_reward(unsold_cartography)} "
-            f"({unsold_cartography_count} Körper)   |   "
-            f"BIO: {self._format_reward(unsold_bio)} "
-            f"({unsold_bio_count} Probe(n))"
+        open_status = tr(
+            "explorer.unsold_summary",
+            cartography=self._format_reward(unsold_cartography),
+            bodies=unsold_cartography_count,
+            bio=self._format_reward(unsold_bio),
+            samples=unsold_bio_count,
         )
         if unsold_bio:
-            open_status += (
-                "   |   BIO bei First Logged ×5: "
-                f"{self._format_reward(unsold_bio_first)}"
+            open_status += tr(
+                "explorer.unsold_first_logged",
+                value=self._format_reward(unsold_bio_first),
             )
         if unsold_bio_unknown:
-            open_status += f"   |   ⚠ {len(unsold_bio_unknown)} BIO-Art(en) ohne Wert"
+            open_status += tr("explorer.unsold_bio_unknown", count=len(unsold_bio_unknown))
 
         self.unsold_explorer_header.setText(open_status)
 
+        # Goldrahmen anhand des unter Einstellungen gewählten
+        # Kartographiewert-Schwellenwerts setzen.
+        self._apply_gold_frame_threshold()
+
         self.system_map.set_system(system, self.state.system_bodies)
+
+        # Aktuelle Position auch in einer bereits geöffneten Chronik
+        # unmittelbar nach einem Systemwechsel aktualisieren.
+        self._mark_current_chronicle_system()
 
         if hasattr(self, "explorer_value_table"):
             self._refresh_explorer_tables()
@@ -3731,11 +4354,11 @@ class MainWindow(QMainWindow):
 
         for row, mission in enumerate(self.state.missions):
             values = [
-                mission.name,
+                self._translate_mission_text(mission.name),
                 mission.destination_system or "–",
                 self._place_text(mission),
-                mission.status,
-                mission.next_step,
+                self._translate_mission_text(mission.status),
+                self._translate_mission_text(mission.next_step),
                 self._format_reward(mission.reward),
                 self._format_expiry(mission.expiry),
             ]

@@ -70,7 +70,7 @@ def _star_value(body: dict) -> float:
     return k + (mass * k / 66.25)
 
 
-def calculate_body_values(body: dict) -> dict:
+def calculate_body_values(body: dict, correction_factor: float = 1.0) -> dict:
     name_lower = (body.get("name") or "").lower()
 
     # Belt Cluster nicht als lohnenswerte Explorer-Ziele bewerten.
@@ -79,6 +79,10 @@ def calculate_body_values(body: dict) -> dict:
             "base_value": 0,
             "scan_value": 0,
             "mapped_value": 0,
+            "first_discovered_mapped_value": 0,
+            "first_discovered_mapped_efficiency_value": 0,
+            "possible_value": 0,
+            "possible_value_without_efficiency": 0,
             "current_value": 0,
             "mapping_state": "not_applicable",
             "first_mapping_possible": False,
@@ -95,6 +99,8 @@ def calculate_body_values(body: dict) -> dict:
             "base_value": value,
             "scan_value": value,
             "mapped_value": 0,
+            "first_discovered_mapped_value": 0,
+            "first_discovered_mapped_efficiency_value": 0,
             "current_value": value,
             "mapping_state": "not_applicable",
             "first_mapping_possible": False,
@@ -103,6 +109,19 @@ def calculate_body_values(body: dict) -> dict:
         }
 
     base = _planet_base_value(body)
+
+    try:
+        correction_factor = float(correction_factor)
+    except (TypeError, ValueError):
+        correction_factor = 1.0
+
+    if not math.isfinite(correction_factor) or correction_factor <= 0:
+        correction_factor = 1.0
+
+    # Lernwerte dürfen die bekannte Formel korrigieren, aber einzelne
+    # ungewöhnliche Verkaufs-Batches sollen die Anzeige nicht entgleisen lassen.
+    correction_factor = min(2.0, max(0.5, correction_factor))
+    base *= correction_factor
 
     was_discovered = body.get("was_discovered")
     was_mapped = body.get("was_mapped")
@@ -136,6 +155,41 @@ def calculate_body_values(body: dict) -> dict:
             * EFFICIENCY_MULTIPLIER
         )
 
+    # Historischer Maximalvergleich unabhängig vom tatsächlichen Zustand.
+    first_discovered_mapped_value = (
+        base
+        * FIRST_DISCOVERY_MULTIPLIER
+        * FIRST_DISCOVERED_MAPPED_MULTIPLIER
+    )
+    first_discovered_mapped_efficiency_value = (
+        first_discovered_mapped_value * EFFICIENCY_MULTIPLIER
+    )
+
+    # Tatsächlich noch erreichbarer Kartographiewert für DIESEN Körper.
+    # Entscheidend ist der Zustand, den Frontier beim Scan meldet:
+    # - unentdeckt + unkartiert -> Erstentdeckung + Erstkartographie
+    # - entdeckt + unkartiert   -> Erstkartographie
+    # - bereits kartiert        -> normaler DSS-Wert
+    if was_discovered is False and was_mapped is False:
+        possible_value_without_efficiency = (
+            base
+            * FIRST_DISCOVERY_MULTIPLIER
+            * FIRST_DISCOVERED_MAPPED_MULTIPLIER
+        )
+    elif was_discovered is True and was_mapped is False:
+        possible_value_without_efficiency = (
+            base * FIRST_MAPPED_MULTIPLIER
+        )
+    else:
+        possible_value_without_efficiency = (
+            base * NORMAL_MAPPING_MULTIPLIER
+        )
+
+    possible_value = (
+        possible_value_without_efficiency
+        * EFFICIENCY_MULTIPLIER
+    )
+
     current_value = scan_value
 
     # Wenn wir den Körper selbst kartiert haben, den aktuell erreichten Wert
@@ -155,6 +209,16 @@ def calculate_body_values(body: dict) -> dict:
         if efficient_mapping:
             current_value *= EFFICIENCY_MULTIPLIER
 
+        # Nach eigener Kartierung ist nichts Höheres mehr "noch erreichbar".
+        # Für Schwellenwert/Livefenster zählt dann der tatsächlich erreichte
+        # und noch auszuzahlende Kartographiewert.
+        possible_value = current_value
+        possible_value_without_efficiency = (
+            current_value / EFFICIENCY_MULTIPLIER
+            if efficient_mapping
+            else current_value
+        )
+
     if self_mapped:
         mapping_state = "self_mapped"
     elif was_mapped is True:
@@ -168,29 +232,52 @@ def calculate_body_values(body: dict) -> dict:
         "base_value": int(round(base)),
         "scan_value": int(round(scan_value)),
         "mapped_value": int(round(mapped_value)),
+        "first_discovered_mapped_value": int(round(first_discovered_mapped_value)),
+        "first_discovered_mapped_efficiency_value": int(round(first_discovered_mapped_efficiency_value)),
+        "possible_value": int(round(possible_value)),
+        "possible_value_without_efficiency": int(round(possible_value_without_efficiency)),
         "current_value": int(round(current_value)),
         "mapping_state": mapping_state,
         "first_mapping_possible": mapping_state == "first_mapping_possible",
         "already_mapped": mapping_state == "already_mapped",
     }
 
-    result["high_value"] = result["mapped_value"] > 200_000
+    result["high_value"] = result["possible_value"] > 200_000
     return result
 
 
-def apply_values(body: dict) -> dict:
-    body.update(calculate_body_values(body))
+def apply_values(body: dict, correction_factor: float = 1.0) -> dict:
+    body.update(
+        calculate_body_values(
+            body,
+            correction_factor=correction_factor,
+        )
+    )
     return body
 
 
-def system_totals(bodies: list[dict]) -> dict:
+def system_totals(
+    bodies: list[dict],
+    correction_factor_func=None,
+) -> dict:
     scan_total = 0
     mapped_total = 0
     current_total = 0
     high_value_count = 0
 
     for body in bodies:
-        values = calculate_body_values(body)
+        factor = 1.0
+
+        if callable(correction_factor_func):
+            try:
+                factor = correction_factor_func(body)
+            except Exception:
+                factor = 1.0
+
+        values = calculate_body_values(
+            body,
+            correction_factor=factor,
+        )
 
         scan_total += values["scan_value"]
         mapped_total += values["mapped_value"]

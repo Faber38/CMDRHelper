@@ -1,8 +1,13 @@
 # CMDRHelper
 
-[🇩🇪 Deutsch](README_DE.md) | [🇬🇧 English](README.md) | [🇫🇷 Français](README_FR.md) | [🇮🇹 Italiano](README_IT.md) | [🇳🇴 Norsk](README_NO.md) | [🇸🇪 Svenska](README_SV.md) | [🇫🇮 Suomi](README_FI.md) | [🇵🇱 Polski](README_PL.md) | [🇳🇱 Nederlands](README_NL.md) | [🇪🇸 Español](README_ES.md) | [🇹🇷 Türkçe](README_TR.md) | [🇬🇷 Ελληνικά](README_EL.md)
+[🇩🇪 Deutsch](README_DE.md) \| [🇬🇧 English](README.md) \| [🇫🇷
+Français](README_FR.md) \| [🇮🇹 Italiano](README_IT.md) \| [🇳🇴
+Norsk](README_NO.md) \| [🇸🇪 Svenska](README_SV.md) \| [🇫🇮
+Suomi](README_FI.md) \| [🇵🇱 Polski](README_PL.md) \| [🇳🇱
+Nederlands](README_NL.md) \| [🇪🇸 Español](README_ES.md) \| [🇹🇷
+Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
-![CMDRHelper – Dein Co-Pilot für Elite Dangerous](/docs/cmdrh.png)
+![CMDRHelper -- Dein Co-Pilot für Elite Dangerous](/docs/cmdrh.png)
 
 **Persönlicher Begleiter für Elite Dangerous -- Exploration,
 Systemanalyse und Commander-Daten auf einen Blick**
@@ -15,7 +20,6 @@ bekannt ist, welche Himmelskörper interessant sind und welche eigenen
 Entdeckungen und Kartographierungen vorliegen.
 
 Das Projekt befindet sich noch in aktiver Entwicklung.
-
 
 ## Funktionsübersicht
 
@@ -195,6 +199,61 @@ Die Release-Version wird direkt im Skript festgelegt. Das erzeugte ZIP
 enthält Programmcode und Assets, aber keine persönliche Datenbank, keine
 virtuelle Python-Umgebung sowie keine Git-, Cache- oder Editor-Dateien.
 
+## Version 1.0.5
+
+**Version 1.0.5** erweitert vor allem die Explorer-Wertberechnung und
+die Chronik und verbessert damit die praktische Nutzung während längerer
+Explorationstouren.
+
+### Kartographie und Wertliste
+
+-   die Explorer-Wertliste berücksichtigt jetzt den **noch erreichbaren
+    Kartographiewert** eines Körpers.
+-   dabei wird unterschieden, ob ein Körper noch unentdeckt und
+    unkartiert, bereits entdeckt aber noch nicht kartiert oder bereits
+    kartiert ist.
+-   die neue Spalte **„Möglicher Wert"** zeigt den noch erreichbaren
+    Wert **mit und ohne Effizienzbonus**.
+-   der in den Einstellungen festgelegte Schwellenwert für wertvolle
+    Körper richtet sich jetzt ebenfalls nach dem **noch erreichbaren
+    Wert**.
+-   derselbe Wert steuert damit konsistent die Hervorhebung in der
+    Wertliste, das Livefenster **„Wertvolle Körper"** und den Goldrahmen
+    in der Systemkarte.
+-   bereits selbst kartierte Körper werden anhand des tatsächlich
+    erreichten und noch auszuzahlenden Kartographiewerts bewertet.
+-   die bestehende Kartographieformel bleibt als sichere Basisberechnung
+    erhalten.
+
+### Lernende Kartographie-Auswertung
+
+-   Verkäufe bei **Universal Cartographics** können aus den
+    Elite-Dangerous-Journalen als Lerndaten erfasst werden.
+-   `SellExplorationData` und `MultiSellExplorationData` werden mit den
+    verfügbaren Verkaufswerten und den zugehörigen rekonstruierten
+    Körperdaten in der lokalen SQLite-Datenbank gespeichert.
+-   bei Sammelverkäufen werden keine künstlichen Einzel-Auszahlungen für
+    Planeten erzeugt; der tatsächliche Verkauf bleibt als gemeinsamer
+    Verkaufs-Batch erhalten.
+-   die normale Wertformel bleibt weiterhin als Fallback verfügbar,
+    falls noch keine geeigneten Lerndaten vorhanden sind.
+-   bereits ausgewertete Journaldateien werden gespeichert, damit die
+    Verkaufsdaten nicht bei jedem Programmstart unnötig neu verarbeitet
+    werden.
+
+### Chronik
+
+-   das aktuell besuchte Sternsystem kann in der Chronik besonders
+    hervorgehoben werden.
+-   über **„Aktuelle Position"** kann die Chronik direkt auf das
+    derzeitige System zentriert werden.
+
+### EDSM
+
+-   die bestehende automatische EDSM-Übertragung wurde im praktischen
+    Betrieb mit neuen Systembesuchen und Körper-/Scandaten erfolgreich
+    überprüft.
+
 ## Version 1.0
 
 Mit **Version 1.0** erreicht CMDRHelper den ersten vollständigen
@@ -211,43 +270,44 @@ Wichtige Änderungen und Erweiterungen bis Version 1.0:
     zurückzufallen.
 -   für geeignete Körper stehen weiterhin rotierende
     2:1-equirectangulare Texturen in der Detailansicht zur Verfügung.
--   besondere astronomische Objekte können in der Detailansicht zusätzlich
-    über passende Videos dargestellt werden.
+-   besondere astronomische Objekte können in der Detailansicht
+    zusätzlich über passende Videos dargestellt werden.
 -   Neutronensterne, Weiße Zwerge, Schwarze Löcher und supermassive
     Schwarze Löcher erhalten dadurch eine deutlich individuellere
     Darstellung.
 -   verwendetes externes Bild- und Videomaterial wird mit Quelle und
-    Credit im Abschnitt **„Bild- und Videomaterial / Media Credits“**
+    Credit im Abschnitt **„Bild- und Videomaterial / Media Credits"**
     dokumentiert.
 
 ### Vervollständigte Mehrsprachigkeit
 
--   die Übersetzungen der Benutzeroberfläche wurden für die unterstützten
-    Sprachen vervollständigt und auf einen gemeinsamen Schlüsselbestand
-    abgeglichen.
+-   die Übersetzungen der Benutzeroberfläche wurden für die
+    unterstützten Sprachen vervollständigt und auf einen gemeinsamen
+    Schlüsselbestand abgeglichen.
 -   alle **12 Oberflächensprachen** verwenden denselben vollständigen
     Übersetzungsschlüsselbestand.
 -   die automatische Übersetzungsprüfung kontrolliert fehlende,
-    zusätzliche und doppelte Schlüssel sowie abweichende Format-Platzhalter.
+    zusätzliche und doppelte Schlüssel sowie abweichende
+    Format-Platzhalter.
 -   Deutsch dient als vollständig gepflegte Referenz für die
     Benutzeroberfläche und die weitere Dokumentation.
 
 ### Änderungen aus Version 0.9.9
 
-
 ### Mehrsprachigkeit und Übersetzungsprüfung
 
--   die Benutzeroberfläche wurde auf ein zentrales Mehrsprachigkeitssystem
-    umgestellt.
--   CMDRHelper unterstützt jetzt **12 Oberflächensprachen**:
-    **Deutsch, Englisch, Französisch, Italienisch, Norwegisch (Bokmål),
-    Schwedisch, Finnisch, Polnisch, Niederländisch, Spanisch, Türkisch
-    und Griechisch**.
--   die Sprache kann in den Einstellungen gewählt und gespeichert werden;
-    die Sprachbezeichnungen werden im Auswahlfeld jeweils in ihrer eigenen
-    Sprache angezeigt.
--   fehlende Übersetzungen verwenden eine definierte Fallback-Reihenfolge:
-    **gewählte Sprache → Englisch → Deutsch → Übersetzungsschlüssel**.
+-   die Benutzeroberfläche wurde auf ein zentrales
+    Mehrsprachigkeitssystem umgestellt.
+-   CMDRHelper unterstützt jetzt **12 Oberflächensprachen**: **Deutsch,
+    Englisch, Französisch, Italienisch, Norwegisch (Bokmål), Schwedisch,
+    Finnisch, Polnisch, Niederländisch, Spanisch, Türkisch und
+    Griechisch**.
+-   die Sprache kann in den Einstellungen gewählt und gespeichert
+    werden; die Sprachbezeichnungen werden im Auswahlfeld jeweils in
+    ihrer eigenen Sprache angezeigt.
+-   fehlende Übersetzungen verwenden eine definierte
+    Fallback-Reihenfolge: **gewählte Sprache → Englisch → Deutsch →
+    Übersetzungsschlüssel**.
 -   die Übersetzungen liegen zentral in den Sprachdateien unter
     `cmdrhelper/i18n/`.
 -   das neue Entwicklerwerkzeug `tools/check_i18n.py` prüft automatisch:
@@ -256,8 +316,8 @@ Wichtige Änderungen und Erweiterungen bis Version 1.0:
     -   doppelte Schlüssel,
     -   abweichende Format-Platzhalter wie `{system}` oder `{count}`.
 -   unter Linux wird die i18n-Prüfung beim Start über `start.sh`
-    automatisch ausgeführt. Gefundene Übersetzungsprobleme werden deutlich
-    gemeldet, blockieren den Programmstart aber nicht.
+    automatisch ausgeführt. Gefundene Übersetzungsprobleme werden
+    deutlich gemeldet, blockieren den Programmstart aber nicht.
 -   Missions- und Journalverarbeitung wird weiterhin von der gewählten
     CMDRHelper-Oberflächensprache getrennt behandelt, damit interne
     Elite-Dangerous-Daten nicht von lokalisierten Anzeigetexten abhängig
@@ -265,11 +325,11 @@ Wichtige Änderungen und Erweiterungen bis Version 1.0:
 
 ### Explorer und Systemkarte
 
--   Parent-/Child-Struktur der Systemkarte überarbeitet: Sterne, Planeten,
-    Monde und Belt Cluster werden entsprechend ihrer Journal-Hierarchie
-    angeordnet.
--   neue Funktion **„Alles anzeigen“** mit kompakter Miniaturübersicht des
-    gesamten Systems
+-   Parent-/Child-Struktur der Systemkarte überarbeitet: Sterne,
+    Planeten, Monde und Belt Cluster werden entsprechend ihrer
+    Journal-Hierarchie angeordnet.
+-   neue Funktion **„Alles anzeigen"** mit kompakter Miniaturübersicht
+    des gesamten Systems
 -   Körper können in der Miniaturübersicht angeklickt werden; die
     Hauptkarte springt anschließend direkt zum gewählten Körper.
 -   verbesserte Navigation in großen Systemkarten:
@@ -280,43 +340,66 @@ Wichtige Änderungen und Erweiterungen bis Version 1.0:
     skaliert.
 -   Darstellung und Markierung von BIO, GEO, Terraforming,
     Erstentdeckung und First Mapping weiter verbessert.
--   neue **Wertliste** im Explorer: Planeten und Monde werden zeilenweise
-    nach ihrem aktuellen geschätzten Kartographiewert sortiert.
--   die Wertliste unterscheidet jetzt deutlich zwischen
-    **First Mapping möglich**, **bereits kartiert** und
-    **selbst kartiert**.
+-   neue **Wertliste** im Explorer: Planeten und Monde werden
+    zeilenweise nach ihrem aktuellen geschätzten Kartographiewert
+    sortiert.
+-   die Wertliste unterscheidet jetzt deutlich zwischen **First Mapping
+    möglich**, **bereits kartiert** und **selbst kartiert**.
 -   der aktuell erreichte Kartographiewert wird in der Wertliste gezielt
     hervorgehoben, während Status- und Metadaten bewusst ruhiger
     dargestellt werden.
--   neue Anzeige **„Noch nicht abgegeben“** für offene Kartographie- und
-    BIO-Werte über alle Systeme seit dem letzten Verkauf; Kartographie und
-    BIO werden getrennt zurückgesetzt.
--   die offenen Explorer-Werte werden im Hauptfenster gelb hervorgehoben,
-    damit noch nicht verkaufte Daten sofort erkennbar sind.
+-   neue Anzeige **„Noch nicht abgegeben"** für offene Kartographie- und
+    BIO-Werte über alle Systeme seit dem letzten Verkauf; Kartographie
+    und BIO werden getrennt zurückgesetzt.
+-   die offenen Explorer-Werte werden im Hauptfenster gelb
+    hervorgehoben, damit noch nicht verkaufte Daten sofort erkennbar
+    sind.
 
 ### Explorer-Livefenster
 
--   neue frei positionierbare **Livefenster für wertvolle Körper und BIO-Funde**, die während der Exploration automatisch erscheinen.
--   Position und Größe der Livefenster werden gespeichert und beim nächsten Auftauchen wiederverwendet.
--   beim Wechsel in ein anderes Sternsystem werden die Livefenster automatisch geschlossen und geleert; sie erscheinen erst wieder, wenn im neuen System passende Daten erkannt werden.
--   das Fenster **„Wertvolle Körper“** übernimmt automatisch alle Planeten und Monde, deren aktuell erreichter Kartographiewert den in den Einstellungen gewählten Schwellenwert erreicht.
--   derselbe einstellbare Schwellenwert steuert jetzt die gelbe Hervorhebung der Wertliste, das Livefenster für wertvolle Körper und den **Goldrahmen in der Systemkarte**.
--   das **BIO-Livefenster** zeigt Körper, erkannte Gattungen bzw. Arten, Scanfortschritt und bekannte Vista-Genomics-Werte kompakt während des Spielens an.
--   BIO-Funde verwenden dieselbe Farblogik wie im Hauptfenster: grau = DSS/FSS erkannt, weiß = erste Probe, gelb = zweite Probe, grün = Analyse vollständig.
--   bei teilweise bestimmten BIO-Signalen klappt ein Planet automatisch auf und zeigt die einzelnen Funde in eigenen Zeilen; noch unbekannte Signale bleiben sichtbar.
--   sobald alle BIO-Arten eines Körpers vollständig analysiert wurden, wird der Planet wieder zu einer kompakten grünen Zusammenfassungszeile zusammengeklappt.
--   allgemeine DSS/FSS-Gattungsnamen werden automatisch durch die konkrete BIO-Art ersetzt, sobald diese durch `ScanOrganic` bekannt ist.
--   bekannte Einzelwerte werden direkt beim jeweiligen BIO-Fund angezeigt; vollständig bekannte Körper zeigen zusätzlich den Gesamtwert.
--   die Livefenster besitzen einen dezent rötlich-braunen Hintergrund, damit sie sich beim Spielen klar vom CMDRHelper-Hauptfenster unterscheiden.
+-   neue frei positionierbare **Livefenster für wertvolle Körper und
+    BIO-Funde**, die während der Exploration automatisch erscheinen.
+-   Position und Größe der Livefenster werden gespeichert und beim
+    nächsten Auftauchen wiederverwendet.
+-   beim Wechsel in ein anderes Sternsystem werden die Livefenster
+    automatisch geschlossen und geleert; sie erscheinen erst wieder,
+    wenn im neuen System passende Daten erkannt werden.
+-   das Fenster **„Wertvolle Körper"** übernimmt automatisch alle
+    Planeten und Monde, deren aktuell erreichter Kartographiewert den in
+    den Einstellungen gewählten Schwellenwert erreicht.
+-   derselbe einstellbare Schwellenwert steuert jetzt die gelbe
+    Hervorhebung der Wertliste, das Livefenster für wertvolle Körper und
+    den **Goldrahmen in der Systemkarte**.
+-   das **BIO-Livefenster** zeigt Körper, erkannte Gattungen bzw. Arten,
+    Scanfortschritt und bekannte Vista-Genomics-Werte kompakt während
+    des Spielens an.
+-   BIO-Funde verwenden dieselbe Farblogik wie im Hauptfenster: grau =
+    DSS/FSS erkannt, weiß = erste Probe, gelb = zweite Probe, grün =
+    Analyse vollständig.
+-   bei teilweise bestimmten BIO-Signalen klappt ein Planet automatisch
+    auf und zeigt die einzelnen Funde in eigenen Zeilen; noch unbekannte
+    Signale bleiben sichtbar.
+-   sobald alle BIO-Arten eines Körpers vollständig analysiert wurden,
+    wird der Planet wieder zu einer kompakten grünen
+    Zusammenfassungszeile zusammengeklappt.
+-   allgemeine DSS/FSS-Gattungsnamen werden automatisch durch die
+    konkrete BIO-Art ersetzt, sobald diese durch `ScanOrganic` bekannt
+    ist.
+-   bekannte Einzelwerte werden direkt beim jeweiligen BIO-Fund
+    angezeigt; vollständig bekannte Körper zeigen zusätzlich den
+    Gesamtwert.
+-   die Livefenster besitzen einen dezent rötlich-braunen Hintergrund,
+    damit sie sich beim Spielen klar vom CMDRHelper-Hauptfenster
+    unterscheiden.
 
 ### BIO-Auswertung
 
 -   biologische Daten werden getrennt von den normalen
     Kartographie-Werten ausgewertet und angezeigt.
--   eigene **BIO-Planeten-Liste** mit allen Körpern, auf denen biologische
-    Signale erkannt wurden.
--   BIO-Gattungen aus `SAASignalsFound` bzw. `FSSBodySignals` werden auch
-    rückwirkend aus vorhandenen Journalen übernommen.
+-   eigene **BIO-Planeten-Liste** mit allen Körpern, auf denen
+    biologische Signale erkannt wurden.
+-   BIO-Gattungen aus `SAASignalsFound` bzw. `FSSBodySignals` werden
+    auch rückwirkend aus vorhandenen Journalen übernommen.
 -   konkrete BIO-Arten und Varianten aus `ScanOrganic` werden direkt in
     der Liste angezeigt.
 -   Scanfortschritt je BIO-Fund wird farblich dargestellt:
@@ -369,9 +452,12 @@ Wichtige Änderungen und Erweiterungen bis Version 1.0:
 
 ### Bedienung und Stabilität
 
--   Schriftart und Schriftgröße der Oberfläche können in den Einstellungen gewählt und nach einem Neustart auf die gesamte Oberfläche angewendet werden.
--   die Einstellungsseite ist scrollbar, damit alle Optionen auch bei kleineren Fenstergrößen erreichbar bleiben.
--   sichtbarer **„Beenden“**-Schalter in der linken Seitenleiste
+-   Schriftart und Schriftgröße der Oberfläche können in den
+    Einstellungen gewählt und nach einem Neustart auf die gesamte
+    Oberfläche angewendet werden.
+-   die Einstellungsseite ist scrollbar, damit alle Optionen auch bei
+    kleineren Fenstergrößen erreichbar bleiben.
+-   sichtbarer **„Beenden"**-Schalter in der linken Seitenleiste
 -   Single-Instance-Sperre verhindert einen versehentlichen zweiten
     gleichzeitigen Programmstart.
 -   sichere Miniatur-Systemübersicht ohne direktes Rendern des bereits
@@ -389,21 +475,22 @@ sind vorgesehen. Linux und Windows werden weiter getestet.
 CMDRHelper entstand als persönliches Werkzeug und wird schrittweise zu
 einem umfangreicheren Elite-Dangerous-Helper ausgebaut.
 
-
 ## Bild- und Videomaterial / Media Credits
 
 CMDRHelper verwendet für einzelne astronomische Sonderobjekte
-Visualisierungen der **NASA Scientific Visualization Studio (NASA SVS)**.
-Die jeweiligen Medien bleiben Eigentum ihrer Rechteinhaber und werden
-entsprechend den auf den NASA-SVS-Seiten angegebenen Credits genannt.
+Visualisierungen der **NASA Scientific Visualization Studio (NASA
+SVS)**. Die jeweiligen Medien bleiben Eigentum ihrer Rechteinhaber und
+werden entsprechend den auf den NASA-SVS-Seiten angegebenen Credits
+genannt.
 
 ### Neutronenstern
 
 -   CMDRHelper-Datei: `star_neutron.webm`
--   Quelle: NASA Scientific Visualization Studio, **Neutron Star Animations**
-    (SVS ID 20267)
+-   Quelle: NASA Scientific Visualization Studio, **Neutron Star
+    Animations** (SVS ID 20267)
 -   Credit: **NASA's Goddard Space Flight Center Conceptual Image Lab**
--   Animatoren: Walt Feimer (KBR Wyle Services, LLC) und Lisa Poje (USRA)
+-   Animatoren: Walt Feimer (KBR Wyle Services, LLC) und Lisa Poje
+    (USRA)
 -   Quelle: https://svs.gsfc.nasa.gov/20267/
 
 ### Schwarzes Loch
@@ -412,7 +499,7 @@ entsprechend den auf den NASA-SVS-Seiten angegebenen Credits genannt.
     Video-Endung
 -   Quelle: NASA Scientific Visualization Studio, **Black Hole Accretion
     Disk Visualization** (SVS ID 13326)
--   Credit: **NASA’s Goddard Space Flight Center/Jeremy Schnittman**
+-   Credit: **NASA's Goddard Space Flight Center/Jeremy Schnittman**
 -   Quelle: https://svs.gsfc.nasa.gov/13326/
 
 ### Supermassives Schwarzes Loch
@@ -420,7 +507,8 @@ entsprechend den auf den NASA-SVS-Seiten angegebenen Credits genannt.
 -   CMDRHelper-Datei: `black_hole_supermassive.mp4` bzw. die im Projekt
     verwendete Video-Endung
 -   Quelle: NASA Scientific Visualization Studio (SVS ID 14576)
--   Credit: **NASA's Goddard Space Flight Center/J. Schnittman and B. Powell**
+-   Credit: **NASA's Goddard Space Flight Center/J. Schnittman and B.
+    Powell**
 -   Quelle: https://svs.gsfc.nasa.gov/14576/
 
 ### Weißer Zwerg

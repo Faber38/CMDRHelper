@@ -15,6 +15,7 @@ from cmdrhelper.mission_manager import normalize_missions
 from cmdrhelper.journal_watcher import JournalWatcher
 from cmdrhelper.valuation import (
     apply_values,
+    calculate_body_values,
     system_totals,
 )
 from cmdrhelper.online_services import (
@@ -598,7 +599,14 @@ class AppState(QObject):
             new_body["source"] = "EDSM"
 
             try:
-                apply_values(new_body)
+                factor = self.database.learned_cartography_factor(
+                    new_body.get("planet_class") or "",
+                    new_body.get("terraformable"),
+                )
+                apply_values(
+                    new_body,
+                    correction_factor=factor,
+                )
             except Exception:
                 pass
 
@@ -789,6 +797,48 @@ class AppState(QObject):
                 "BIO-Verkaufswerte konnten nicht aus dem Journal gelernt werden"
             )
 
+        # Universal-Cartographics-Verkäufe ebenfalls als reale Lern-Batches
+        # sichern. Die normale Formel bleibt dabei immer der Fallback.
+        try:
+            cartography_result = self.database.learn_cartography_values_from_journals(
+                self.journal_folder,
+                valuation_func=calculate_body_values,
+            )
+
+            if int(cartography_result.get("sales_stored") or 0):
+                logger.info(
+                    "Kartographie-Lerndaten aktualisiert: %s Verkauf/Verkäufe, "
+                    "%s Körper",
+                    int(cartography_result.get("sales_stored") or 0),
+                    int(cartography_result.get("bodies_stored") or 0),
+                )
+        except Exception:
+            logger.exception(
+                "Kartographie-Verkaufswerte konnten nicht aus dem Journal gelernt werden"
+            )
+
+        # Gelernte Korrektur auf die aktuell sichtbaren Journal-Körper
+        # anwenden. Ohne Lerndaten liefert die Datenbank exakt Faktor 1.0.
+        for body in self.system_bodies:
+            try:
+                factor = self.database.learned_cartography_factor(
+                    body.get("planet_class") or "",
+                    body.get("terraformable"),
+                )
+            except Exception:
+                factor = 1.0
+
+            try:
+                apply_values(
+                    body,
+                    correction_factor=factor,
+                )
+            except Exception:
+                logger.exception(
+                    "Gelernter Kartographiewert konnte für %s nicht angewendet werden",
+                    body.get("name") or "?",
+                )
+
         for body in self.system_bodies:
             body["journal_scanned"] = True
             body["edsm_known"] = False
@@ -800,7 +850,15 @@ class AppState(QObject):
 
         # Werte beziehen sich weiterhin ausschließlich auf
         # die tatsächlich im eigenen Journal vorhandenen Körper.
-        totals = system_totals(self.system_bodies)
+        totals = system_totals(
+            self.system_bodies,
+            correction_factor_func=lambda body: (
+                self.database.learned_cartography_factor(
+                    body.get("planet_class") or "",
+                    body.get("terraformable"),
+                )
+            ),
+        )
         self.system_scan_value = totals["scan_total"]
         self.system_mapped_value = totals["mapped_total"]
         self.system_current_value = totals["current_total"]
@@ -843,8 +901,26 @@ class AppState(QObject):
             bio_totals["unknown"]
         )
 
-        self.unsold_cartography_value = int(data.get("unsold_cartography_value", 0) or 0)
-        self.unsold_cartography_count = int(data.get("unsold_cartography_count", 0) or 0)
+        raw_unsold_cartography = int(
+            data.get("unsold_cartography_value", 0)
+            or 0
+        )
+
+        try:
+            unsold_cartography_factor = self.database.learned_cartography_factor()
+        except Exception:
+            unsold_cartography_factor = 1.0
+
+        self.unsold_cartography_value = int(
+            round(
+                raw_unsold_cartography
+                * float(unsold_cartography_factor or 1.0)
+            )
+        )
+        self.unsold_cartography_count = int(
+            data.get("unsold_cartography_count", 0)
+            or 0
+        )
 
         try:
             unsold_bio_totals = biology_totals(

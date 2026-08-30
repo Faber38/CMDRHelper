@@ -1392,7 +1392,7 @@ class MainWindow(QMainWindow):
         self.explorer_tabs = QTabWidget()
         self.explorer_tabs.addTab(self.system_scroll, tr("explorer.system_map"))
 
-        self.explorer_value_table = QTableWidget(0, 7)
+        self.explorer_value_table = QTableWidget(0, 8)
         self.explorer_value_table.setHorizontalHeaderLabels(
             [
                 tr("explorer.col_body"),
@@ -1400,6 +1400,7 @@ class MainWindow(QMainWindow):
                 tr("explorer.col_distance"),
                 tr("explorer.col_scan_value"),
                 tr("explorer.col_current_value"),
+                "Zuerst entdeckt + kartographiert",
                 tr("explorer.col_mapping"),
                 tr("explorer.col_status"),
             ]
@@ -1421,7 +1422,8 @@ class MainWindow(QMainWindow):
         self.explorer_value_table.setColumnWidth(2, 105)
         self.explorer_value_table.setColumnWidth(3, 125)
         self.explorer_value_table.setColumnWidth(4, 145)
-        self.explorer_value_table.setColumnWidth(5, 100)
+        self.explorer_value_table.setColumnWidth(5, 235)
+        self.explorer_value_table.setColumnWidth(6, 150)
 
         self.explorer_tabs.addTab(
             self.explorer_value_table,
@@ -1732,12 +1734,24 @@ class MainWindow(QMainWindow):
                 mapping_text = "–"
                 status = tr("explorer.scanned") if visited else tr("explorer.not_scanned")
 
+            first_discovered_mapped = int(
+                body.get("first_discovered_mapped_value") or 0
+            )
+            first_discovered_mapped_eff = int(
+                body.get("first_discovered_mapped_efficiency_value") or 0
+            )
+            first_discovered_mapped_text = (
+                f"{self._format_reward(first_discovered_mapped_eff)} / "
+                f"{self._format_reward(first_discovered_mapped)}"
+            )
+
             values = [
                 self._explorer_body_name(body),
                 SystemMapWidget._type_text(body),
                 self._explorer_distance_text(body),
                 self._format_reward(body.get("scan_value", 0)),
                 self._format_reward(current_value),
+                first_discovered_mapped_text,
                 mapping_text,
                 status,
             ]
@@ -1769,13 +1783,18 @@ class MainWindow(QMainWindow):
                             tr("explorer.current_value_tooltip")
                         )
                 elif col == 5:
+                    item.setForeground(QColor("#ffb000"))
+                    item.setToolTip(
+                        "Mit Effizienzbonus / ohne Effizienzbonus"
+                    )
+                elif col == 6:
                     if self_mapped:
                         item.setForeground(QColor("#65d067"))
                     elif was_mapped is False:
                         item.setForeground(QColor("#68c7ff"))
                     elif was_mapped is True:
                         item.setForeground(QColor("#9aa3ab"))
-                elif col == 6:
+                elif col == 7:
                     if not visited:
                         item.setForeground(QColor("#9aa3ab"))
 
@@ -2206,6 +2225,11 @@ class MainWindow(QMainWindow):
         align_button.clicked.connect(self._align_chronicle_galaxy)
         header.addWidget(align_button)
 
+        current_position_button = QPushButton("⌖  Aktuelle Position")
+        current_position_button.setToolTip("Aktuelles System in der Chronik anzeigen")
+        current_position_button.clicked.connect(self._show_current_chronicle_position)
+        header.addWidget(current_position_button)
+
         self.chronicle_legend_button = QPushButton(tr("chronicle.search_help"))
         self.chronicle_legend_button.clicked.connect(self._open_chronicle_search_help)
         header.addWidget(self.chronicle_legend_button)
@@ -2260,6 +2284,46 @@ class MainWindow(QMainWindow):
         else:
             self.chronicle_status.setText(tr("chronicle.map_status", count=len(systems)))
         self.chronicle_map.set_systems(systems)
+        self._mark_current_chronicle_system()
+
+    def _mark_current_chronicle_system(self):
+        """Übergibt das aktuelle Journal-System an die Chronik-Karte."""
+        if not hasattr(self, "chronicle_map"):
+            return
+
+        current_system = str(getattr(self.state, "system", "") or "").strip()
+
+        if hasattr(self.chronicle_map, "set_current_system"):
+            self.chronicle_map.set_current_system(current_system)
+
+    def _show_current_chronicle_position(self):
+        """Setzt die Chronik zurück und springt zum aktuell besuchten System."""
+        if not hasattr(self, "chronicle_map"):
+            return
+
+        if hasattr(self, "chronicle_search_edit"):
+            self.chronicle_search_edit.clear()
+
+        if hasattr(self, "chronicle_search_results"):
+            self.chronicle_search_results.clear()
+            self.chronicle_search_results.setVisible(False)
+
+        try:
+            systems = self.state.database.chronicle_systems()
+        except Exception as exc:
+            self.chronicle_status.setText(tr("chronicle.load_failed", error=exc))
+            return
+
+        self.chronicle_map.set_systems(systems)
+        self._mark_current_chronicle_system()
+
+        if hasattr(self.chronicle_map, "focus_current_system"):
+            self.chronicle_map.focus_current_system()
+
+        current_system = str(getattr(self.state, "system", "") or "").strip()
+        self.chronicle_status.setText(
+            f"Aktuelle Position: {current_system}" if current_system else "Aktuelle Position unbekannt"
+        )
 
     def _align_chronicle_galaxy(self):
         if hasattr(self, "chronicle_map"):
@@ -4241,6 +4305,10 @@ class MainWindow(QMainWindow):
         self._apply_gold_frame_threshold()
 
         self.system_map.set_system(system, self.state.system_bodies)
+
+        # Aktuelle Position auch in einer bereits geöffneten Chronik
+        # unmittelbar nach einem Systemwechsel aktualisieren.
+        self._mark_current_chronicle_system()
 
         if hasattr(self, "explorer_value_table"):
             self._refresh_explorer_tables()
