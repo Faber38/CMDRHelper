@@ -12,6 +12,8 @@ from cmdrhelper.models import (
     STATUS_CARGO_COLLECTED,
     STATUS_COMPLETED,
     STATUS_DATA_RECEIVED,
+    STATUS_FAILED,
+    STATUS_ABANDONED,
     STATUS_DELIVERING,
     STATUS_EN_ROUTE,
     STATUS_IN_TARGET_SYSTEM,
@@ -430,6 +432,8 @@ def _new_mission(e: dict) -> dict:
         "mission_id": e.get("MissionID"),
         "name": name,
         "internal_name": internal,
+        "mission_type": mission_kind(internal + " " + str(name)),
+        "faction": e.get("Faction") or "",
         "destination_system": (
             e.get("DestinationSystem")
             or e.get("TargetSystem")
@@ -634,6 +638,10 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
         "ship_loadout": ship_loadout,
         "last_timestamp": "",
         "missions": [],
+        "mission_terminal_updates": [],
+        "missions_snapshot_seen": False,
+        "last_position": None,
+        "owned_carrier": None,
         "journal_files": 0,
         "system_bodies": [],
         "system_body_count": 0,
@@ -712,12 +720,30 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
         )
 
     missions: dict[int, dict] = {}
+    known_missions: dict[int, dict] = {}
+    mission_terminal_updates: dict[int, dict] = {}
+    missions_snapshot_seen = False
     pending_mission_offers: list[dict] = []
+    owned_carrier = None
 
     current_system = ""
     current_system_address = None
     current_station = ""
     current_body = ""
+
+    def _set_last_position(event, event_type, station_name="", body_name=""):
+        result["last_position"] = {
+            "system_name": str(event.get("StarSystem") or current_system or ""),
+            "system_address": (
+                event.get("SystemAddress")
+                if isinstance(event.get("SystemAddress"), int)
+                else current_system_address
+            ),
+            "station_name": str(station_name or ""),
+            "body_name": str(body_name or ""),
+            "event_timestamp": str(event.get("timestamp") or ""),
+            "event_type": str(event_type or ""),
+        }
 
     # SystemAddress -> {BodyID -> body}
     scans_by_address: dict[int, dict[int, dict]] = {}
@@ -1109,6 +1135,26 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                     result["body"] = current_body
                     result["station"] = current_station
 
+                    _set_last_position(
+                        e,
+                        et,
+                        current_station if et == "Location" else "",
+                        (e.get("Body") or e.get("BodyName") or ""),
+                    )
+
+                    if et == "CarrierJump" and owned_carrier is not None:
+                        event_carrier_id = _optional_int(
+                            e.get("CarrierID") if e.get("CarrierID") is not None
+                            else e.get("MarketID")
+                        )
+                        if event_carrier_id == owned_carrier["carrier_id"]:
+                            owned_carrier["system_name"] = str(
+                                e.get("StarSystem") or owned_carrier["system_name"]
+                            )
+                            if isinstance(e.get("SystemAddress"), int):
+                                owned_carrier["system_address"] = e["SystemAddress"]
+                            owned_carrier["last_updated"] = ts
+
                     if et == "FSDJump":
                         fuel = _optional_float(e.get("FuelLevel"))
                         if fuel is not None:
@@ -1136,6 +1182,8 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                     result["station"] = current_station
                     result["system"] = current_system
                     result["system_address"] = current_system_address
+
+                    _set_last_position(e, et, current_station, "")
 
                     _update_location_status(
                         missions,
@@ -1617,6 +1665,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                 elif et == "Missions":
                     if not _after_mission_reset(ts):
                         continue
+                    missions_snapshot_seen = True
                     active_ids = {
                         item.get("MissionID")
                         for item in (e.get("Active") or [])
@@ -1659,6 +1708,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                             offer["matched"] = True
 
                         missions[mid] = mission
+                        known_missions[int(mid)] = mission
 
                 elif et == "MissionAccepted":
                     if not _after_mission_reset(ts):
@@ -1667,6 +1717,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
 
                     if mid is not None:
                         missions[mid] = _new_mission(e)
+                        known_missions[int(mid)] = missions[mid]
 
                 elif et == "MissionRedirected":
                     if not _after_mission_reset(ts):
@@ -1687,6 +1738,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                             ),
                             "timestamp": ts,
                         })
+                        known_missions[int(mid)] = missions[mid]
 
                     if mid in missions:
                         _update_mission_event(
@@ -1728,7 +1780,68 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                     if not _after_mission_reset(ts):
                         continue
                     mid = e.get("MissionID")
-                    missions.pop(mid, None)
+                    if mid is not None:
+                        mission = (
+                            missions.pop(mid, None)
+                            or known_missions.get(int(mid))
+                            or _new_mission(e)
+                        )
+                        terminal_state = {
+                            "MissionCompleted": "completed",
+                            "MissionFailed": "failed",
+                            "MissionAbandoned": "abandoned",
+                        }[et]
+                        mission["terminal_state"] = terminal_state
+                        mission["status"] = {
+                            "MissionCompleted": STATUS_COMPLETED,
+                            "MissionFailed": STATUS_FAILED,
+                            "MissionAbandoned": STATUS_ABANDONED,
+                        }[et]
+                        mission["last_update"] = ts
+                        if e.get("Reward") is not None:
+                            mission["reward"] = e.get("Reward") or 0
+                        mission_terminal_updates[int(mid)] = mission
+
+                # CarrierStats ist der Eigentumsbeleg. Alle Folgeevents
+                # werden nur bei derselben Carrier-/MarketID übernommen.
+                elif et == "CarrierStats":
+                    carrier_id = _optional_int(e.get("CarrierID"))
+                    if carrier_id is not None:
+                        owned_carrier = {
+                            "carrier_id": carrier_id,
+                            "callsign": str(e.get("Callsign") or ""),
+                            "carrier_name": str(e.get("Name") or ""),
+                            "system_name": str(e.get("StarSystem") or ""),
+                            "system_address": (
+                                e.get("SystemAddress")
+                                if isinstance(e.get("SystemAddress"), int) else None
+                            ),
+                            "last_updated": ts,
+                        }
+
+                elif et in ("CarrierNameChange", "CarrierLocation"):
+                    if owned_carrier is None:
+                        continue
+                    event_carrier_id = _optional_int(
+                        e.get("CarrierID") if e.get("CarrierID") is not None
+                        else e.get("MarketID")
+                    )
+                    if event_carrier_id != owned_carrier["carrier_id"]:
+                        continue
+                    if et == "CarrierNameChange":
+                        owned_carrier["callsign"] = str(
+                            e.get("Callsign") or owned_carrier["callsign"]
+                        )
+                        owned_carrier["carrier_name"] = str(
+                            e.get("Name") or owned_carrier["carrier_name"]
+                        )
+                    else:
+                        owned_carrier["system_name"] = str(
+                            e.get("StarSystem") or owned_carrier["system_name"]
+                        )
+                        if isinstance(e.get("SystemAddress"), int):
+                            owned_carrier["system_address"] = e["SystemAddress"]
+                    owned_carrier["last_updated"] = ts
 
     if active_identity is not None and active_identity.get("commander_name_seen"):
         # Ein Namensevent ohne FID aus einer späteren unknown-Datei darf die
@@ -1736,6 +1849,9 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
         result["commander"] = active_identity["commander_name_seen"]
 
     result["missions"] = list(missions.values())
+    result["mission_terminal_updates"] = list(mission_terminal_updates.values())
+    result["missions_snapshot_seen"] = missions_snapshot_seen
+    result["owned_carrier"] = owned_carrier
     result["ship_loadout"] = ship_loadout
 
     # -------------------------------------------------------------

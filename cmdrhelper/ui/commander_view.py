@@ -7,11 +7,15 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QTabWidget,
+    QTableWidget,
+    QTableWidgetItem,
+    QHeaderView,
     QVBoxLayout,
     QWidget,
 )
 
 from cmdrhelper.i18n import tr
+from cmdrhelper.mission_manager import translate_mission_text
 
 
 class CommanderView(QWidget):
@@ -48,13 +52,10 @@ class CommanderView(QWidget):
 
         self.tabs = QTabWidget()
         self.tabs.addTab(self._overview_tab(), tr("commander_view.tab.overview"))
-        for title in (
-            tr("commander_view.tab.missions"),
-            tr("commander_view.tab.exploration"),
-            tr("commander_view.tab.chronicle"),
-            tr("commander_view.tab.ships"),
-        ):
-            self.tabs.addTab(self._placeholder(), title)
+        self.tabs.addTab(self._missions_tab(), tr("commander_view.tab.missions"))
+        self.tabs.addTab(self._placeholder(), tr("commander_view.tab.exploration"))
+        self.tabs.addTab(self._placeholder(), tr("commander_view.tab.chronicle"))
+        self.tabs.addTab(self._ships_tab(), tr("commander_view.tab.ships"))
         root.addWidget(self.tabs, 1)
 
     def _overview_tab(self):
@@ -75,6 +76,10 @@ class CommanderView(QWidget):
             ("codex_entries", tr("commander_view.field.codex_entries")),
             ("cartography_sales", tr("commander_view.field.cartography_sales")),
             ("last_location", tr("commander_view.field.last_location")),
+            ("open_missions", tr("commander_view.field.open_missions")),
+            ("last_ship", tr("commander_view.field.last_ship")),
+            ("fleet_carrier", tr("commander_view.field.fleet_carrier")),
+            ("carrier_location", tr("commander_view.field.carrier_location")),
         )
         for field, label in fields:
             value = QLabel("–")
@@ -82,6 +87,74 @@ class CommanderView(QWidget):
             self.values[field] = value
             form.addRow(label, value)
         layout.addWidget(card)
+        layout.addStretch()
+        return tab
+
+    def _missions_tab(self):
+        tab = QWidget()
+        layout = QVBoxLayout(tab)
+        self.missions_table = QTableWidget(0, 5)
+        self.missions_table.setHorizontalHeaderLabels([
+            tr("commander_view.missions.status"),
+            tr("commander_view.missions.mission"),
+            tr("commander_view.missions.destination"),
+            tr("commander_view.missions.expiry"),
+            tr("commander_view.missions.reward"),
+        ])
+        self.missions_table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.missions_table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.missions_table.verticalHeader().setVisible(False)
+        self.missions_table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.ResizeToContents
+        )
+        self.missions_table.horizontalHeader().setStretchLastSection(True)
+        layout.addWidget(self.missions_table)
+        return tab
+
+    def _ships_tab(self):
+        tab = QWidget()
+        layout = QVBoxLayout(tab)
+        layout.addWidget(QLabel(tr("commander_view.ship.title"), objectName="sectionTitle"))
+        ship_card = QFrame(objectName="card")
+        ship_form = QFormLayout(ship_card)
+        self.ship_values = {}
+        ship_fields = (
+            ("ship_id", tr("commander_view.ship.ship_id")),
+            ("ship_type", tr("commander_view.ship.ship_type")),
+            ("ship_name", tr("commander_view.ship.ship_name")),
+            ("ship_ident", tr("commander_view.ship.ship_ident")),
+            ("loadout_timestamp", tr("commander_view.ship.loadout_timestamp")),
+            ("max_jump_range", tr("commander_view.ship.max_jump_range")),
+            ("unladen_mass", tr("commander_view.ship.unladen_mass")),
+            ("cargo_capacity", tr("commander_view.ship.cargo_capacity")),
+            ("main_tank_capacity", tr("commander_view.ship.main_tank_capacity")),
+            ("reserve_tank_capacity", tr("commander_view.ship.reserve_tank_capacity")),
+            ("fsd_item", tr("commander_view.ship.fsd_item")),
+            ("guardian_booster", tr("commander_view.ship.guardian_booster")),
+            ("loadout_status", tr("commander_view.ship.loadout_status")),
+        )
+        for field, label in ship_fields:
+            value = QLabel("–")
+            value.setWordWrap(True)
+            self.ship_values[field] = value
+            ship_form.addRow(label, value)
+        layout.addWidget(ship_card)
+
+        layout.addWidget(QLabel(tr("commander_view.carrier.title"), objectName="sectionTitle"))
+        carrier_card = QFrame(objectName="card")
+        carrier_form = QFormLayout(carrier_card)
+        self.carrier_values = {}
+        for field, label in (
+            ("name", tr("commander_view.carrier.name")),
+            ("callsign", tr("commander_view.carrier.callsign")),
+            ("carrier_id", tr("commander_view.carrier.carrier_id")),
+            ("location", tr("commander_view.carrier.location")),
+            ("last_updated", tr("commander_view.carrier.last_updated")),
+        ):
+            value = QLabel("–")
+            self.carrier_values[field] = value
+            carrier_form.addRow(label, value)
+        layout.addWidget(carrier_card)
         layout.addStretch()
         return tab
 
@@ -132,6 +205,8 @@ class CommanderView(QWidget):
             self.status_label.setObjectName("muted")
             for value in self.values.values():
                 value.setText("–")
+            self._refresh_missions(None)
+            self._refresh_ship(None)
             return
 
         is_live = int(summary["id"]) == self.state.commander_id
@@ -147,7 +222,91 @@ class CommanderView(QWidget):
             "codex_entries", "cartography_sales",
         ):
             self.values[field].setText(str(summary[field]))
-        location = summary["last_location"]
+        location = summary.get("latest_location") or summary["last_location"]
         self.values["last_location"].setText(
-            (location.get("system_name") or "–") if location else "–"
+            self._location_text(location)
         )
+        self.values["open_missions"].setText(str(summary["open_missions"]))
+        ship = summary.get("ship")
+        self.values["last_ship"].setText(
+            ((ship.get("ship_name") or ship.get("ship_type") or "–") if ship else "–")
+        )
+        carrier = summary.get("carrier")
+        self.values["fleet_carrier"].setText(
+            ((carrier.get("carrier_name") or carrier.get("callsign") or "–")
+             if carrier else "–")
+        )
+        self.values["carrier_location"].setText(self._location_text(carrier))
+        self._refresh_missions(viewed_id)
+        self._refresh_ship(summary)
+
+    @staticmethod
+    def _location_text(location):
+        if not location:
+            return "–"
+        parts = [
+            location.get("system_name") or "",
+            location.get("station_name") or "",
+            location.get("body_name") or "",
+        ]
+        text = " / ".join(part for part in parts if part)
+        if not text and location.get("system_address") is not None:
+            text = str(location["system_address"])
+        return text or "–"
+
+    def _refresh_missions(self, commander_id):
+        missions = (
+            self.state.database.commander_missions(commander_id)
+            if commander_id is not None else []
+        )
+        self.missions_table.setRowCount(len(missions))
+        for row, mission in enumerate(missions):
+            destination = " / ".join(
+                value for value in (
+                    mission.get("destination_system") or "",
+                    mission.get("destination_station") or "",
+                    mission.get("destination_body") or "",
+                ) if value
+            ) or "–"
+            values = (
+                translate_mission_text(mission.get("status") or ""),
+                mission.get("name") or mission.get("internal_name") or "–",
+                destination,
+                mission.get("expiry") or "–",
+                (
+                    f"{int(mission.get('reward') or 0):,}"
+                    if int(mission.get("reward") or 0) > 0 else "–"
+                ),
+            )
+            for column, value in enumerate(values):
+                self.missions_table.setItem(row, column, QTableWidgetItem(str(value)))
+
+    def _refresh_ship(self, summary):
+        ship = summary.get("ship") if summary else None
+        for field, label in self.ship_values.items():
+            value = ship.get(field) if ship else None
+            if field == "guardian_booster":
+                value = ", ".join(
+                    item.get("item") or ""
+                    for item in (ship.get("guardian_fsd_boosters") if ship else [])
+                    if item.get("item")
+                )
+            elif field == "loadout_status":
+                value = (
+                    tr("commander_view.ship.status.stale") if ship and ship["loadout_stale"]
+                    else tr("commander_view.ship.status.complete") if ship and ship["loadout_complete"]
+                    else tr("commander_view.ship.status.incomplete") if ship else "–"
+                )
+            label.setText(str(value) if value not in (None, "") else "–")
+
+        carrier = summary.get("carrier") if summary else None
+        carrier_data = {
+            "name": carrier.get("carrier_name") if carrier else None,
+            "callsign": carrier.get("callsign") if carrier else None,
+            "carrier_id": carrier.get("carrier_id") if carrier else None,
+            "location": self._location_text(carrier),
+            "last_updated": carrier.get("last_updated") if carrier else None,
+        }
+        for field, label in self.carrier_values.items():
+            value = carrier_data[field]
+            label.setText(str(value) if value not in (None, "") else "–")

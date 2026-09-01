@@ -16,6 +16,9 @@ STATUS_CARGO_COLLECTED = "Ware aufgenommen"
 STATUS_DELIVERING = "Lieferung läuft"
 STATUS_COMPLETED = "Aufgabe erledigt"
 STATUS_DATA_RECEIVED = "Daten erhalten"
+STATUS_FAILED = "Fehlgeschlagen"
+STATUS_ABANDONED = "Abgebrochen"
+STATUS_INACTIVE = "Nicht mehr aktiv"
 
 
 @dataclass
@@ -23,6 +26,8 @@ class Mission:
     mission_id: int | None = None
     name: str = ""
     internal_name: str = ""
+    mission_type: str = ""
+    faction: str = ""
     destination_system: str = ""
     destination_station: str = ""
     destination_body: str = ""

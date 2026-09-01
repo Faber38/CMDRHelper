@@ -8,7 +8,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 
 PERSONAL_TABLES = (
     "system_visits",
@@ -348,6 +348,7 @@ class CMDRDatabase:
 
         self._maybe_migrate_v3()
         self._maybe_migrate_v4()
+        self._maybe_migrate_v5()
 
     def _personal_row_counts(self, con):
         return {
@@ -486,6 +487,87 @@ class CMDRDatabase:
 
     def ensure_schema_v4(self):
         return self._maybe_migrate_v4(require=True)
+
+    def _maybe_migrate_v5(self):
+        with self._connect() as con:
+            version = int(con.execute("PRAGMA user_version").fetchone()[0])
+            if version >= 5 or version < 4:
+                return
+            con.executescript("""
+                CREATE TABLE IF NOT EXISTS commander_missions (
+                    commander_id INTEGER NOT NULL,
+                    mission_id INTEGER NOT NULL,
+                    name TEXT NOT NULL DEFAULT '',
+                    internal_name TEXT NOT NULL DEFAULT '',
+                    mission_type TEXT NOT NULL DEFAULT '',
+                    faction TEXT NOT NULL DEFAULT '',
+                    status TEXT NOT NULL DEFAULT '',
+                    destination_system TEXT NOT NULL DEFAULT '',
+                    destination_station TEXT NOT NULL DEFAULT '',
+                    destination_body TEXT NOT NULL DEFAULT '',
+                    expiry TEXT NOT NULL DEFAULT '',
+                    reward INTEGER NOT NULL DEFAULT 0,
+                    summary TEXT NOT NULL DEFAULT '',
+                    next_step TEXT NOT NULL DEFAULT '',
+                    progress_text TEXT NOT NULL DEFAULT '',
+                    accepted_at TEXT NOT NULL DEFAULT '',
+                    last_updated TEXT NOT NULL DEFAULT '',
+                    terminal_state TEXT NOT NULL DEFAULT '',
+                    is_open INTEGER NOT NULL DEFAULT 1,
+                    PRIMARY KEY(commander_id, mission_id),
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id)
+                );
+                CREATE INDEX IF NOT EXISTS idx_commander_missions_status
+                    ON commander_missions(commander_id,is_open,last_updated);
+
+                CREATE TABLE IF NOT EXISTS commander_locations (
+                    commander_id INTEGER PRIMARY KEY,
+                    system_name TEXT NOT NULL DEFAULT '',
+                    system_address INTEGER,
+                    station_name TEXT NOT NULL DEFAULT '',
+                    body_name TEXT NOT NULL DEFAULT '',
+                    event_timestamp TEXT NOT NULL DEFAULT '',
+                    event_type TEXT NOT NULL DEFAULT '',
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id)
+                );
+
+                CREATE TABLE IF NOT EXISTS commander_ships (
+                    commander_id INTEGER PRIMARY KEY,
+                    ship_id INTEGER,
+                    ship_type TEXT NOT NULL DEFAULT '',
+                    ship_name TEXT NOT NULL DEFAULT '',
+                    ship_ident TEXT NOT NULL DEFAULT '',
+                    last_seen TEXT NOT NULL DEFAULT '',
+                    loadout_timestamp TEXT NOT NULL DEFAULT '',
+                    max_jump_range REAL,
+                    unladen_mass REAL,
+                    cargo_capacity INTEGER,
+                    main_tank_capacity REAL,
+                    reserve_tank_capacity REAL,
+                    fsd_item TEXT NOT NULL DEFAULT '',
+                    guardian_fsd_boosters TEXT NOT NULL DEFAULT '[]',
+                    loadout_complete INTEGER NOT NULL DEFAULT 0,
+                    loadout_stale INTEGER NOT NULL DEFAULT 1,
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id)
+                );
+
+                CREATE TABLE IF NOT EXISTS commander_carriers (
+                    commander_id INTEGER PRIMARY KEY,
+                    carrier_id INTEGER NOT NULL,
+                    callsign TEXT NOT NULL DEFAULT '',
+                    carrier_name TEXT NOT NULL DEFAULT '',
+                    system_name TEXT NOT NULL DEFAULT '',
+                    system_address INTEGER,
+                    last_updated TEXT NOT NULL DEFAULT '',
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id)
+                );
+            """)
+            if con.execute("PRAGMA foreign_key_check").fetchall():
+                raise CommanderMigrationError("Foreign-Key-Prüfung nach v5-Migration fehlgeschlagen")
+            con.execute("PRAGMA user_version=5")
+
+    def ensure_schema_v5(self):
+        self._maybe_migrate_v5()
 
     def _migrate_exploration_tables_v4(self, commander_id, system_count, body_count):
         con = sqlite3.connect(self.path)
@@ -720,6 +802,54 @@ class CMDRDatabase:
                 (commander_id,),
             ).fetchone()
 
+            persistent_location = con.execute(
+                """SELECT system_name,system_address,station_name,body_name,
+                          event_timestamp,event_type
+                   FROM commander_locations WHERE commander_id=?""",
+                (commander_id,),
+            ).fetchone()
+            ship = con.execute(
+                """SELECT ship_id,ship_type,ship_name,ship_ident,last_seen,
+                          loadout_timestamp,max_jump_range,unladen_mass,cargo_capacity,
+                          main_tank_capacity,reserve_tank_capacity,fsd_item,
+                          guardian_fsd_boosters,loadout_complete,loadout_stale
+                   FROM commander_ships WHERE commander_id=?""",
+                (commander_id,),
+            ).fetchone()
+            carrier = con.execute(
+                """SELECT carrier_id,callsign,carrier_name,system_name,
+                          system_address,last_updated
+                   FROM commander_carriers WHERE commander_id=?""",
+                (commander_id,),
+            ).fetchone()
+            open_missions = int(con.execute(
+                "SELECT COUNT(*) FROM commander_missions WHERE commander_id=? AND is_open=1",
+                (commander_id,),
+            ).fetchone()[0])
+
+        visit_location = None if location is None else {
+            "system_name": str(location[0] or ""),
+            "system_address": location[1],
+            "visited_at": location[2] or "",
+            "event_timestamp": location[2] or "",
+            "station_name": "", "body_name": "",
+            "x": location[3], "y": location[4], "z": location[5],
+        }
+        stored_location = None if persistent_location is None else {
+            "system_name": persistent_location[0] or "",
+            "system_address": persistent_location[1],
+            "station_name": persistent_location[2] or "",
+            "body_name": persistent_location[3] or "",
+            "event_timestamp": persistent_location[4] or "",
+            "event_type": persistent_location[5] or "",
+        }
+        latest_location = stored_location
+        if visit_location is not None and (
+            latest_location is None
+            or visit_location["event_timestamp"] > latest_location["event_timestamp"]
+        ):
+            latest_location = visit_location
+
         return {
             "id": int(commander[0]),
             "fid": str(commander[1] or ""),
@@ -727,13 +857,206 @@ class CMDRDatabase:
             "first_seen": commander[3] or "",
             "last_seen": commander[4] or "",
             **counts,
-            "last_location": None if location is None else {
-                "system_name": str(location[0] or ""),
-                "system_address": location[1],
-                "visited_at": location[2] or "",
-                "x": location[3], "y": location[4], "z": location[5],
+            "last_location": visit_location,
+            "persistent_location": stored_location,
+            "latest_location": latest_location,
+            "ship": self._ship_row(ship),
+            "carrier": None if carrier is None else {
+                "carrier_id": carrier[0], "callsign": carrier[1] or "",
+                "carrier_name": carrier[2] or "", "system_name": carrier[3] or "",
+                "system_address": carrier[4], "last_updated": carrier[5] or "",
             },
+            "open_missions": open_missions,
         }
+
+    @staticmethod
+    def _ship_row(row):
+        if row is None:
+            return None
+        try:
+            boosters = json.loads(row[12] or "[]")
+        except (TypeError, ValueError, json.JSONDecodeError):
+            boosters = []
+        return {
+            "ship_id": row[0], "ship_type": row[1] or "",
+            "ship_name": row[2] or "", "ship_ident": row[3] or "",
+            "last_seen": row[4] or "", "loadout_timestamp": row[5] or "",
+            "max_jump_range": row[6], "unladen_mass": row[7],
+            "cargo_capacity": row[8], "main_tank_capacity": row[9],
+            "reserve_tank_capacity": row[10], "fsd_item": row[11] or "",
+            "guardian_fsd_boosters": boosters,
+            "loadout_complete": bool(row[13]), "loadout_stale": bool(row[14]),
+        }
+
+    @staticmethod
+    def _mission_value(mission, key, default=""):
+        if isinstance(mission, dict):
+            return mission.get(key, default)
+        return getattr(mission, key, default)
+
+    def store_commander_missions(self, commander_id, active_missions,
+                                 terminal_missions=(), authoritative=False):
+        commander_id = int(commander_id)
+        active_ids = set()
+        rows = []
+        for mission, is_open in [
+            *((item, True) for item in (active_missions or [])),
+            *((item, False) for item in (terminal_missions or [])),
+        ]:
+            mission_id = self._mission_value(mission, "mission_id", None)
+            if mission_id is None:
+                continue
+            mission_id = int(mission_id)
+            if is_open:
+                active_ids.add(mission_id)
+            terminal_state = self._mission_value(mission, "terminal_state", "")
+            rows.append((
+                commander_id, mission_id,
+                str(self._mission_value(mission, "name", "") or ""),
+                str(self._mission_value(mission, "internal_name", "") or ""),
+                str(self._mission_value(mission, "mission_type", "") or ""),
+                str(self._mission_value(mission, "faction", "") or ""),
+                str(self._mission_value(mission, "status", "") or ""),
+                str(self._mission_value(mission, "destination_system", "") or ""),
+                str(self._mission_value(mission, "destination_station", "") or ""),
+                str(self._mission_value(mission, "destination_body", "") or ""),
+                str(self._mission_value(mission, "expiry", "") or ""),
+                int(self._mission_value(mission, "reward", 0) or 0),
+                str(self._mission_value(mission, "summary", "") or ""),
+                str(self._mission_value(mission, "next_step", "") or ""),
+                str(self._mission_value(mission, "progress_text", "") or ""),
+                str(self._mission_value(mission, "accepted_at", "") or ""),
+                str(self._mission_value(mission, "last_update", "") or ""),
+                str(terminal_state or ""), int(is_open),
+            ))
+        with self._connect() as con:
+            con.executemany("""
+                INSERT INTO commander_missions(
+                    commander_id,mission_id,name,internal_name,mission_type,faction,
+                    status,destination_system,destination_station,destination_body,
+                    expiry,reward,summary,next_step,progress_text,accepted_at,last_updated,
+                    terminal_state,is_open)
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                ON CONFLICT(commander_id,mission_id) DO UPDATE SET
+                    name=CASE WHEN excluded.name<>'' THEN excluded.name ELSE commander_missions.name END,
+                    internal_name=CASE WHEN excluded.internal_name<>'' THEN excluded.internal_name ELSE commander_missions.internal_name END,
+                    mission_type=CASE WHEN excluded.mission_type<>'' THEN excluded.mission_type ELSE commander_missions.mission_type END,
+                    faction=CASE WHEN excluded.faction<>'' THEN excluded.faction ELSE commander_missions.faction END,
+                    status=excluded.status,destination_system=CASE WHEN excluded.destination_system<>'' THEN excluded.destination_system ELSE commander_missions.destination_system END,
+                    destination_station=CASE WHEN excluded.destination_station<>'' THEN excluded.destination_station ELSE commander_missions.destination_station END,
+                    destination_body=CASE WHEN excluded.destination_body<>'' THEN excluded.destination_body ELSE commander_missions.destination_body END,
+                    expiry=CASE WHEN excluded.expiry<>'' THEN excluded.expiry ELSE commander_missions.expiry END,
+                    reward=MAX(commander_missions.reward,excluded.reward),summary=CASE WHEN excluded.summary<>'' THEN excluded.summary ELSE commander_missions.summary END,
+                    next_step=excluded.next_step,progress_text=excluded.progress_text,
+                    accepted_at=CASE WHEN commander_missions.accepted_at<>'' THEN commander_missions.accepted_at ELSE excluded.accepted_at END,
+                    last_updated=excluded.last_updated,terminal_state=excluded.terminal_state,
+                    is_open=excluded.is_open
+            """, rows)
+            if authoritative:
+                open_rows = con.execute(
+                    "SELECT mission_id FROM commander_missions WHERE commander_id=? AND is_open=1",
+                    (commander_id,),
+                ).fetchall()
+                missing = [int(row[0]) for row in open_rows if int(row[0]) not in active_ids]
+                con.executemany(
+                    """UPDATE commander_missions SET is_open=0,
+                           terminal_state='inactive',status='Nicht mehr aktiv'
+                       WHERE commander_id=? AND mission_id=?""",
+                    [(commander_id, mission_id) for mission_id in missing],
+                )
+
+    def commander_missions(self, commander_id) -> list[dict]:
+        commander_id = int(commander_id)
+        with self._connect() as con:
+            rows = con.execute("""
+                SELECT mission_id,name,internal_name,mission_type,faction,status,
+                       destination_system,destination_station,destination_body,expiry,
+                       reward,summary,next_step,progress_text,accepted_at,last_updated,
+                       terminal_state,is_open
+                FROM commander_missions WHERE commander_id=?
+                ORDER BY is_open DESC,last_updated DESC,mission_id DESC
+            """, (commander_id,)).fetchall()
+        keys = ("mission_id","name","internal_name","mission_type","faction","status",
+                "destination_system","destination_station","destination_body","expiry",
+                "reward","summary","next_step","progress_text","accepted_at","last_update",
+                "terminal_state","is_open")
+        return [dict(zip(keys, row)) for row in rows]
+
+    def store_commander_location(self, commander_id, location):
+        if not isinstance(location, dict) or not location.get("event_timestamp"):
+            return
+        with self._connect() as con:
+            con.execute("""
+                INSERT INTO commander_locations(commander_id,system_name,system_address,
+                    station_name,body_name,event_timestamp,event_type)
+                VALUES(?,?,?,?,?,?,?)
+                ON CONFLICT(commander_id) DO UPDATE SET
+                    system_name=excluded.system_name,system_address=excluded.system_address,
+                    station_name=excluded.station_name,body_name=excluded.body_name,
+                    event_timestamp=excluded.event_timestamp,event_type=excluded.event_type
+                WHERE commander_locations.event_timestamp='' OR
+                      excluded.event_timestamp>=commander_locations.event_timestamp
+            """, (int(commander_id), str(location.get("system_name") or ""),
+                    location.get("system_address"), str(location.get("station_name") or ""),
+                    str(location.get("body_name") or ""), location["event_timestamp"],
+                    str(location.get("event_type") or "")))
+
+    def store_commander_ship(self, commander_id, loadout, observed_at=""):
+        if loadout is None or getattr(loadout, "ship_id", None) is None:
+            return
+        boosters = [
+            {"item": booster.item, "on": booster.on}
+            for booster in (getattr(loadout, "guardian_fsd_boosters", ()) or ())
+        ]
+        with self._connect() as con:
+            con.execute("""
+                INSERT INTO commander_ships(commander_id,ship_id,ship_type,ship_name,
+                    ship_ident,last_seen,loadout_timestamp,max_jump_range,unladen_mass,
+                    cargo_capacity,main_tank_capacity,reserve_tank_capacity,fsd_item,
+                    guardian_fsd_boosters,loadout_complete,loadout_stale)
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                ON CONFLICT(commander_id) DO UPDATE SET
+                    ship_id=excluded.ship_id,ship_type=excluded.ship_type,
+                    ship_name=excluded.ship_name,ship_ident=excluded.ship_ident,
+                    last_seen=excluded.last_seen,loadout_timestamp=excluded.loadout_timestamp,
+                    max_jump_range=excluded.max_jump_range,unladen_mass=excluded.unladen_mass,
+                    cargo_capacity=excluded.cargo_capacity,main_tank_capacity=excluded.main_tank_capacity,
+                    reserve_tank_capacity=excluded.reserve_tank_capacity,fsd_item=excluded.fsd_item,
+                    guardian_fsd_boosters=excluded.guardian_fsd_boosters,
+                    loadout_complete=excluded.loadout_complete,loadout_stale=excluded.loadout_stale
+            """, (int(commander_id), loadout.ship_id, loadout.ship_type or "",
+                    loadout.ship_name or "", loadout.ship_ident or "", str(observed_at or ""),
+                    loadout.loadout_timestamp or "", loadout.max_jump_range,
+                    loadout.unladen_mass, loadout.cargo_capacity, loadout.main_tank_capacity,
+                    loadout.reserve_tank_capacity, loadout.fsd_item or "",
+                    json.dumps(boosters, ensure_ascii=False), int(loadout.loadout_complete),
+                    int(loadout.loadout_stale)))
+
+    def store_commander_carrier(self, commander_id, carrier):
+        if not isinstance(carrier, dict) or carrier.get("carrier_id") is None:
+            return
+        with self._connect() as con:
+            con.execute("""
+                INSERT INTO commander_carriers(commander_id,carrier_id,callsign,carrier_name,
+                    system_name,system_address,last_updated) VALUES(?,?,?,?,?,?,?)
+                ON CONFLICT(commander_id) DO UPDATE SET
+                    carrier_id=excluded.carrier_id,
+                    callsign=CASE WHEN excluded.callsign<>'' THEN excluded.callsign ELSE commander_carriers.callsign END,
+                    carrier_name=CASE WHEN excluded.carrier_name<>'' THEN excluded.carrier_name ELSE commander_carriers.carrier_name END,
+                    system_name=CASE
+                        WHEN excluded.carrier_id<>commander_carriers.carrier_id THEN excluded.system_name
+                        WHEN excluded.system_name<>'' THEN excluded.system_name
+                        ELSE commander_carriers.system_name END,
+                    system_address=CASE
+                        WHEN excluded.carrier_id<>commander_carriers.carrier_id THEN excluded.system_address
+                        ELSE COALESCE(excluded.system_address,commander_carriers.system_address) END,
+                    last_updated=excluded.last_updated
+                WHERE commander_carriers.last_updated='' OR
+                      excluded.last_updated>=commander_carriers.last_updated
+            """, (int(commander_id), int(carrier["carrier_id"]),
+                    str(carrier.get("callsign") or ""), str(carrier.get("carrier_name") or ""),
+                    str(carrier.get("system_name") or ""), carrier.get("system_address"),
+                    str(carrier.get("last_updated") or "")))
 
     def resolve_session_commander(self, session: dict) -> int | None:
         if session.get("attribution_status") != "identified":

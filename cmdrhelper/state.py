@@ -904,6 +904,7 @@ class AppState(QObject):
 
         self.database.ensure_schema_v3()
         self.database.ensure_schema_v4()
+        self.database.ensure_schema_v5()
         self.database.set_active_commander(commander_id)
 
         previous_fid = self.commander_fid
@@ -1025,8 +1026,24 @@ class AppState(QObject):
             # als vollständig archiv-importiert markieren. Das erledigt
             # ausschließlich der Archivimport selbst.
             self.database.store_snapshot(data, commander_id=self.commander_id)
+            if self.commander_id is not None:
+                self.database.store_commander_missions(
+                    self.commander_id,
+                    self.missions,
+                    data.get("mission_terminal_updates") or [],
+                    authoritative=bool(data.get("missions_snapshot_seen")),
+                )
+                self.database.store_commander_location(
+                    self.commander_id, data.get("last_position")
+                )
+                self.database.store_commander_ship(
+                    self.commander_id, self.ship_loadout, self.last_timestamp
+                )
+                self.database.store_commander_carrier(
+                    self.commander_id, data.get("owned_carrier")
+                )
         except Exception:
-            logger.exception("Live-Snapshot konnte nicht gespeichert werden")
+            logger.exception("Commander-Livezustand konnte nicht gespeichert werden")
 
         latest_event = str(data.get("last_event") or "")
 
