@@ -1042,6 +1042,16 @@ class AppState(QObject):
                 self.database.store_commander_carrier(
                     self.commander_id, data.get("owned_carrier")
                 )
+                self.database.store_commander_wealth(
+                    self.commander_id, data.get("wealth")
+                )
+                self.database.store_commander_unsold_data(
+                    self.commander_id,
+                    data.get("unsold_biology") or [],
+                    data.get("unsold_cartography") or [],
+                    learned_bio_values=self.database.learned_bio_values(),
+                    cartography_factor_func=self.database.learned_cartography_factor,
+                )
         except Exception:
             logger.exception("Commander-Livezustand konnte nicht gespeichert werden")
 

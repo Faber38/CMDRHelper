@@ -642,6 +642,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
         "missions_snapshot_seen": False,
         "last_position": None,
         "owned_carrier": None,
+        "wealth": None,
         "journal_files": 0,
         "system_bodies": [],
         "system_body_count": 0,
@@ -652,6 +653,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
         "unsold_cartography_value": 0,
         "unsold_cartography_count": 0,
         "unsold_biology": [],
+        "unsold_cartography": [],
     }
 
     reset_dt = None
@@ -785,7 +787,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
     signal_signatures: dict[int, set[tuple]] = {}
 
     # Noch nicht verkaufte Explorer-Daten seit dem letzten jeweiligen Verkauf.
-    unsold_cartography: dict[tuple[int, int], int] = {}
+    unsold_cartography: dict[tuple[int, int], dict] = {}
     unsold_biology: dict[tuple[int, int, str, str, str], dict] = {}
 
     def _system_address(event: dict):
@@ -793,6 +795,30 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
         if isinstance(value, int):
             return value
         return current_system_address
+
+    def _sold_system_names(event: dict) -> set[str]:
+        names = set()
+        for field in ("Systems", "Discovered"):
+            for item in event.get(field) or []:
+                if isinstance(item, str):
+                    name = item
+                elif isinstance(item, dict):
+                    name = item.get("SystemName") or item.get("Name") or ""
+                else:
+                    name = ""
+                if str(name).strip():
+                    names.add(str(name).strip().casefold())
+        return names
+
+    def _sold_bio_names(event: dict) -> set[str]:
+        names = set()
+        for item in event.get("BioData") or []:
+            if not isinstance(item, dict):
+                continue
+            for field in ("Species_Localised", "Species", "Variant_Localised", "Variant"):
+                if str(item.get(field) or "").strip():
+                    names.add(str(item[field]).strip().casefold())
+        return names
 
     def _bio_count_from_event(event: dict) -> int:
         bio_count = 0
@@ -1007,6 +1033,12 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                         or e.get("Ship")
                         or result["ship"]
                     )
+                    if isinstance(e.get("Credits"), int) and e.get("Credits") >= 0:
+                        result["wealth"] = {
+                            "credits": int(e["Credits"]),
+                            "event_timestamp": ts,
+                            "source_event": "LoadGame",
+                        }
 
                     event_ship_id = _optional_int(e.get("ShipID"))
                     if (
@@ -1453,9 +1485,15 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                         scans_by_address[address][body_id_int] = body
 
                         if not (body.get("star_type") or "belt cluster" in body_name.lower()):
-                            unsold_cartography[(address, body_id_int)] = int(
-                                body.get("current_value") or 0
-                            )
+                            unsold_cartography[(address, body_id_int)] = {
+                                "system_address": int(address), "body_id": body_id_int,
+                                "system_name": current_system,
+                                "body_name": body_name, "scanned_at": ts,
+                                "mapped_at": "", "self_mapped": False,
+                                "planet_class": body.get("planet_class") or "",
+                                "terraformable": bool(body.get("terraformable")),
+                                "estimated_value": int(body.get("current_value") or 0),
+                            }
 
                 # ---------------------------------------------------------
                 # DSS Mapping
@@ -1500,11 +1538,22 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                             ledger_key = (address, body_id_int)
                             mapped_value = int(body.get("current_value") or 0)
                             if ledger_key in unsold_cartography:
-                                unsold_cartography[ledger_key] = mapped_value
+                                unsold_cartography[ledger_key].update({
+                                    "estimated_value": mapped_value,
+                                    "mapped_at": ts, "self_mapped": True,
+                                })
                             else:
                                 # Scan bereits verkauft, DSS erst danach: nur Mehrwert offen.
                                 scan_value = int(body.get("scan_value") or 0)
-                                unsold_cartography[ledger_key] = max(0, mapped_value - scan_value)
+                                unsold_cartography[ledger_key] = {
+                                    "system_address": int(address), "body_id": body_id_int,
+                                    "system_name": current_system,
+                                    "body_name": body.get("name") or "", "scanned_at": "",
+                                    "mapped_at": ts, "self_mapped": True,
+                                    "planet_class": body.get("planet_class") or "",
+                                    "terraformable": bool(body.get("terraformable")),
+                                    "estimated_value": max(0, mapped_value - scan_value),
+                                }
 
                 # ---------------------------------------------------------
                 # BIO / GEO Signals
@@ -1609,6 +1658,13 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
 
                             key = (str(genus), str(species), str(variant))
                             bio_entry = {
+                                "system_address": int(address),
+                                "body_id": body_id_int,
+                                "system_name": current_system,
+                                "body_name": (
+                                    scans_by_address.get(address, {}).get(body_id_int, {}).get("name")
+                                    or e.get("BodyName") or ""
+                                ),
                                 "genus": genus,
                                 "species": species,
                                 "variant": variant,
@@ -1643,10 +1699,29 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                 # Verkauf setzt nur den jeweils passenden offenen Topf zurück.
                 # ---------------------------------------------------------
                 elif et in ("SellExplorationData", "MultiSellExplorationData"):
-                    unsold_cartography.clear()
+                    sold_names = _sold_system_names(e)
+                    if sold_names:
+                        for key, entry in list(unsold_cartography.items()):
+                            if str(entry.get("system_name") or "").strip().casefold() in sold_names:
+                                unsold_cartography.pop(key, None)
+                    else:
+                        # Frontier liefert bei manchen Verkäufen keine
+                        # Einzelliste; das Ereignis bestätigt dann den Verkauf
+                        # des gesamten aktuell offenen UC-Batches.
+                        unsold_cartography.clear()
 
                 elif et == "SellOrganicData":
-                    unsold_biology.clear()
+                    sold_names = _sold_bio_names(e)
+                    if sold_names:
+                        for key, entry in list(unsold_biology.items()):
+                            candidates = {
+                                str(entry.get("species") or "").strip().casefold(),
+                                str(entry.get("variant") or "").strip().casefold(),
+                            }
+                            if candidates & sold_names:
+                                unsold_biology.pop(key, None)
+                    else:
+                        unsold_biology.clear()
 
                 # ---------------------------------------------------------
                 # Missionsangebote per NPC-Nachricht
@@ -1919,11 +1994,14 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
         result["all_bodies_found_at"] = all_found_at_by_address.get(address)
 
     result["unsold_cartography_value"] = int(
-        sum(max(0, int(value or 0)) for value in unsold_cartography.values())
+        sum(max(0, int(value.get("estimated_value") or 0))
+            for value in unsold_cartography.values())
     )
     result["unsold_cartography_count"] = int(
-        sum(1 for value in unsold_cartography.values() if int(value or 0) > 0)
+        sum(1 for value in unsold_cartography.values()
+            if int(value.get("estimated_value") or 0) > 0)
     )
     result["unsold_biology"] = list(unsold_biology.values())
+    result["unsold_cartography"] = list(unsold_cartography.values())
 
     return result

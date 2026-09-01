@@ -53,7 +53,7 @@ class CommanderView(QWidget):
         self.tabs = QTabWidget()
         self.tabs.addTab(self._overview_tab(), tr("commander_view.tab.overview"))
         self.tabs.addTab(self._missions_tab(), tr("commander_view.tab.missions"))
-        self.tabs.addTab(self._placeholder(), tr("commander_view.tab.exploration"))
+        self.tabs.addTab(self._exploration_tab(), tr("commander_view.tab.exploration"))
         self.tabs.addTab(self._placeholder(), tr("commander_view.tab.chronicle"))
         self.tabs.addTab(self._ships_tab(), tr("commander_view.tab.ships"))
         root.addWidget(self.tabs, 1)
@@ -80,11 +80,36 @@ class CommanderView(QWidget):
             ("last_ship", tr("commander_view.field.last_ship")),
             ("fleet_carrier", tr("commander_view.field.fleet_carrier")),
             ("carrier_location", tr("commander_view.field.carrier_location")),
+            ("wealth", tr("commander_view.field.wealth")),
+            ("unsold_biology", tr("commander_view.field.unsold_biology")),
+            ("unsold_cartography", tr("commander_view.field.unsold_cartography")),
         )
         for field, label in fields:
             value = QLabel("–")
             value.setWordWrap(True)
             self.values[field] = value
+            form.addRow(label, value)
+        layout.addWidget(card)
+        layout.addStretch()
+        return tab
+
+    def _exploration_tab(self):
+        tab = QWidget()
+        layout = QVBoxLayout(tab)
+        card = QFrame(objectName="card")
+        form = QFormLayout(card)
+        self.exploration_values = {}
+        for field, label in (
+            ("unsold_biology", tr("commander_view.field.unsold_biology")),
+            ("unsold_cartography", tr("commander_view.field.unsold_cartography")),
+            ("biology_findings", tr("commander_view.field.biology_findings")),
+            ("first_footfalls", tr("commander_view.exploration.first_footfalls")),
+            ("self_mapped_bodies", tr("commander_view.exploration.self_mapped")),
+            ("efficiently_mapped_bodies", tr("commander_view.exploration.efficient_mapped")),
+            ("visited_systems", tr("commander_view.field.visited_systems")),
+        ):
+            value = QLabel("–")
+            self.exploration_values[field] = value
             form.addRow(label, value)
         layout.addWidget(card)
         layout.addStretch()
@@ -207,6 +232,8 @@ class CommanderView(QWidget):
                 value.setText("–")
             self._refresh_missions(None)
             self._refresh_ship(None)
+            for value in self.exploration_values.values():
+                value.setText("–")
             return
 
         is_live = int(summary["id"]) == self.state.commander_id
@@ -237,8 +264,44 @@ class CommanderView(QWidget):
              if carrier else "–")
         )
         self.values["carrier_location"].setText(self._location_text(carrier))
+        wealth = summary.get("wealth")
+        self.values["wealth"].setText(
+            self._credits(wealth.get("credits")) if wealth else "–"
+        )
+        bio_text = self._unsold_bio_text(summary["unsold_biology"])
+        cartography_text = self._unsold_cartography_text(summary["unsold_cartography"])
+        self.values["unsold_biology"].setText(bio_text)
+        self.values["unsold_cartography"].setText(cartography_text)
+        exploration = summary["exploration"]
+        exploration_values = {
+            "unsold_biology": bio_text,
+            "unsold_cartography": cartography_text,
+            "biology_findings": str(summary["biology_findings"]),
+            "first_footfalls": str(exploration["first_footfalls"]),
+            "self_mapped_bodies": str(exploration["self_mapped_bodies"]),
+            "efficiently_mapped_bodies": str(exploration["efficiently_mapped_bodies"]),
+            "visited_systems": str(summary["visited_systems"]),
+        }
+        for field, value in exploration_values.items():
+            self.exploration_values[field].setText(value)
         self._refresh_missions(viewed_id)
         self._refresh_ship(summary)
+
+    @staticmethod
+    def _credits(value):
+        return f"{int(value):,} Cr".replace(",", ".")
+
+    def _unsold_bio_text(self, data):
+        count = int(data.get("findings") or 0)
+        if not count:
+            return tr("commander_view.unsold.bio", count=0, value="–")
+        value = self._credits(data["estimated_value"]) if data.get("estimated_value") else "–"
+        return tr("commander_view.unsold.bio", count=count, value=value)
+
+    def _unsold_cartography_text(self, data):
+        value = self._credits(data["estimated_value"]) if data.get("estimated_value") else "–"
+        return tr("commander_view.unsold.cartography", systems=int(data.get("systems") or 0),
+                  bodies=int(data.get("bodies") or 0), value=value)
 
     @staticmethod
     def _location_text(location):

@@ -8,7 +8,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 
 PERSONAL_TABLES = (
     "system_visits",
@@ -349,6 +349,7 @@ class CMDRDatabase:
         self._maybe_migrate_v3()
         self._maybe_migrate_v4()
         self._maybe_migrate_v5()
+        self._maybe_migrate_v6()
 
     def _personal_row_counts(self, con):
         return {
@@ -568,6 +569,59 @@ class CMDRDatabase:
 
     def ensure_schema_v5(self):
         self._maybe_migrate_v5()
+
+    def _maybe_migrate_v6(self):
+        with self._connect() as con:
+            version = int(con.execute("PRAGMA user_version").fetchone()[0])
+            if version >= 6 or version < 5:
+                return
+            con.executescript("""
+                CREATE TABLE IF NOT EXISTS commander_wealth (
+                    commander_id INTEGER PRIMARY KEY,
+                    credits INTEGER NOT NULL,
+                    event_timestamp TEXT NOT NULL DEFAULT '',
+                    source_event TEXT NOT NULL DEFAULT '',
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id)
+                );
+                CREATE TABLE IF NOT EXISTS commander_unsold_biology (
+                    commander_id INTEGER NOT NULL,
+                    system_address INTEGER NOT NULL,
+                    body_id INTEGER NOT NULL,
+                    system_name TEXT NOT NULL DEFAULT '',
+                    body_name TEXT NOT NULL DEFAULT '',
+                    genus TEXT NOT NULL DEFAULT '',
+                    species TEXT NOT NULL DEFAULT '',
+                    variant TEXT NOT NULL DEFAULT '',
+                    scan_type TEXT NOT NULL DEFAULT '',
+                    completed_at TEXT NOT NULL DEFAULT '',
+                    estimated_base_value INTEGER,
+                    PRIMARY KEY(commander_id,system_address,body_id,genus,species,variant),
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id)
+                );
+                CREATE TABLE IF NOT EXISTS commander_unsold_cartography (
+                    commander_id INTEGER NOT NULL,
+                    system_address INTEGER NOT NULL,
+                    body_id INTEGER NOT NULL,
+                    system_name TEXT NOT NULL DEFAULT '',
+                    body_name TEXT NOT NULL DEFAULT '',
+                    scanned_at TEXT NOT NULL DEFAULT '',
+                    mapped_at TEXT NOT NULL DEFAULT '',
+                    self_mapped INTEGER NOT NULL DEFAULT 0,
+                    estimated_value INTEGER,
+                    PRIMARY KEY(commander_id,system_address,body_id),
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id)
+                );
+                CREATE INDEX IF NOT EXISTS idx_unsold_biology_commander
+                    ON commander_unsold_biology(commander_id);
+                CREATE INDEX IF NOT EXISTS idx_unsold_cartography_commander
+                    ON commander_unsold_cartography(commander_id,system_address);
+            """)
+            if con.execute("PRAGMA foreign_key_check").fetchall():
+                raise CommanderMigrationError("Foreign-Key-Prüfung nach v6-Migration fehlgeschlagen")
+            con.execute("PRAGMA user_version=6")
+
+    def ensure_schema_v6(self):
+        self._maybe_migrate_v6()
 
     def _migrate_exploration_tables_v4(self, commander_id, system_count, body_count):
         con = sqlite3.connect(self.path)
@@ -826,6 +880,27 @@ class CMDRDatabase:
                 "SELECT COUNT(*) FROM commander_missions WHERE commander_id=? AND is_open=1",
                 (commander_id,),
             ).fetchone()[0])
+            wealth = con.execute(
+                "SELECT credits,event_timestamp,source_event FROM commander_wealth WHERE commander_id=?",
+                (commander_id,),
+            ).fetchone()
+            unsold_bio = con.execute(
+                """SELECT COUNT(*),SUM(estimated_base_value),
+                          SUM(CASE WHEN estimated_base_value IS NULL THEN 1 ELSE 0 END)
+                   FROM commander_unsold_biology WHERE commander_id=?""",
+                (commander_id,),
+            ).fetchone()
+            unsold_cartography = con.execute(
+                """SELECT COUNT(DISTINCT system_address),COUNT(*),SUM(estimated_value),
+                          SUM(CASE WHEN estimated_value IS NULL THEN 1 ELSE 0 END)
+                   FROM commander_unsold_cartography WHERE commander_id=?""",
+                (commander_id,),
+            ).fetchone()
+            exploration = con.execute(
+                """SELECT SUM(first_footfall),SUM(self_mapped),SUM(efficient_mapping)
+                   FROM commander_bodies WHERE commander_id=?""",
+                (commander_id,),
+            ).fetchone()
 
         visit_location = None if location is None else {
             "system_name": str(location[0] or ""),
@@ -867,7 +942,91 @@ class CMDRDatabase:
                 "system_address": carrier[4], "last_updated": carrier[5] or "",
             },
             "open_missions": open_missions,
+            "wealth": None if wealth is None else {
+                "credits": int(wealth[0]), "event_timestamp": wealth[1] or "",
+                "source_event": wealth[2] or "",
+            },
+            "unsold_biology": {
+                "findings": int(unsold_bio[0] or 0),
+                "estimated_value": int(unsold_bio[1] or 0),
+                "unknown_values": int(unsold_bio[2] or 0),
+            },
+            "unsold_cartography": {
+                "systems": int(unsold_cartography[0] or 0),
+                "bodies": int(unsold_cartography[1] or 0),
+                "estimated_value": int(unsold_cartography[2] or 0),
+                "unknown_values": int(unsold_cartography[3] or 0),
+            },
+            "exploration": {
+                "first_footfalls": int(exploration[0] or 0),
+                "self_mapped_bodies": int(exploration[1] or 0),
+                "efficiently_mapped_bodies": int(exploration[2] or 0),
+            },
         }
+
+    def store_commander_wealth(self, commander_id, wealth):
+        """Speichert nur einen vom Journal direkt gemeldeten Kontostand."""
+        if not isinstance(wealth, dict) or wealth.get("credits") is None:
+            return
+        with self._connect() as con:
+            con.execute("""
+                INSERT INTO commander_wealth(commander_id,credits,event_timestamp,source_event)
+                VALUES(?,?,?,?)
+                ON CONFLICT(commander_id) DO UPDATE SET
+                    credits=excluded.credits,event_timestamp=excluded.event_timestamp,
+                    source_event=excluded.source_event
+                WHERE commander_wealth.event_timestamp='' OR
+                      excluded.event_timestamp>=commander_wealth.event_timestamp
+            """, (int(commander_id), int(wealth["credits"]),
+                    str(wealth.get("event_timestamp") or ""),
+                    str(wealth.get("source_event") or "")))
+
+    def store_commander_unsold_data(self, commander_id, biology, cartography,
+                                    learned_bio_values=None,
+                                    cartography_factor_func=None):
+        """Ersetzt atomar ausschließlich den offenen Bestand eines Commanders."""
+        from cmdrhelper.bio_valuation import base_value, is_complete
+
+        commander_id = int(commander_id)
+        bio_rows = []
+        for entry in biology or []:
+            if not isinstance(entry, dict) or not is_complete(entry):
+                continue
+            value = base_value(entry, learned_values=learned_bio_values)
+            bio_rows.append((
+                commander_id, int(entry["system_address"]), int(entry["body_id"]),
+                str(entry.get("system_name") or ""), str(entry.get("body_name") or ""),
+                str(entry.get("genus") or ""), str(entry.get("species") or ""),
+                str(entry.get("variant") or ""), str(entry.get("scan_type") or ""),
+                str(entry.get("timestamp") or ""), int(value) if value else None,
+            ))
+        cart_rows = []
+        for entry in cartography or []:
+            if not isinstance(entry, dict):
+                continue
+            raw_value = entry.get("estimated_value")
+            factor = 1.0
+            if raw_value is not None and cartography_factor_func is not None:
+                factor = cartography_factor_func(
+                    entry.get("planet_class") or "", entry.get("terraformable")
+                )
+            estimated = None if raw_value is None else int(round(int(raw_value) * float(factor or 1.0)))
+            cart_rows.append((
+                commander_id, int(entry["system_address"]), int(entry["body_id"]),
+                str(entry.get("system_name") or ""), str(entry.get("body_name") or ""),
+                str(entry.get("scanned_at") or ""), str(entry.get("mapped_at") or ""),
+                int(bool(entry.get("self_mapped"))), estimated,
+            ))
+        with self._connect() as con:
+            con.execute("DELETE FROM commander_unsold_biology WHERE commander_id=?", (commander_id,))
+            con.execute("DELETE FROM commander_unsold_cartography WHERE commander_id=?", (commander_id,))
+            con.executemany("""INSERT INTO commander_unsold_biology(
+                commander_id,system_address,body_id,system_name,body_name,genus,species,
+                variant,scan_type,completed_at,estimated_base_value)
+                VALUES(?,?,?,?,?,?,?,?,?,?,?)""", bio_rows)
+            con.executemany("""INSERT INTO commander_unsold_cartography(
+                commander_id,system_address,body_id,system_name,body_name,scanned_at,
+                mapped_at,self_mapped,estimated_value) VALUES(?,?,?,?,?,?,?,?,?)""", cart_rows)
 
     @staticmethod
     def _ship_row(row):
