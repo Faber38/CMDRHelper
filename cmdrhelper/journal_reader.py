@@ -557,6 +557,9 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
     ship_loadout = ShipLoadoutData()
     result = {
         "commander": "",
+        "commander_fid": "",
+        "commander_identity_name": "",
+        "commander_identity_timestamp": "",
         "system": "",
         "system_address": None,
         "last_system_event": None,
@@ -853,12 +856,26 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                         e.get("Name")
                         or result["commander"]
                     )
+                    fid = str(e.get("FID") or "").strip()
+                    if fid:
+                        result["commander_fid"] = fid
+                        result["commander_identity_name"] = str(
+                            e.get("Name") or ""
+                        ).strip()
+                        result["commander_identity_timestamp"] = ts
 
                 elif et == "LoadGame":
                     result["commander"] = (
                         e.get("Commander")
                         or result["commander"]
                     )
+                    fid = str(e.get("FID") or "").strip()
+                    if fid:
+                        result["commander_fid"] = fid
+                        result["commander_identity_name"] = str(
+                            e.get("Commander") or ""
+                        ).strip()
+                        result["commander_identity_timestamp"] = ts
                     result["ship"] = (
                         e.get("ShipName")
                         or e.get("Ship_Localised")

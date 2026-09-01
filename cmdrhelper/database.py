@@ -8,6 +8,8 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
+SCHEMA_VERSION = 1
+
 def _direct_parent_id(parents) -> int | None:
     """
     Ermittelt aus Elite-Dangerous-Parents den für CMDRHelper sinnvollsten
@@ -282,6 +284,60 @@ class CMDRDatabase:
                     """,
                     ("discovery_index_version", "3"),
                 )
+
+            schema_version = int(
+                con.execute("PRAGMA user_version").fetchone()[0]
+            )
+
+            if schema_version < 1:
+                # Version 1 ist bewusst rein additiv: Die vorhandenen
+                # fachlichen Tabellen und deren Daten bleiben unverändert.
+                con.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS commanders (
+                        id INTEGER PRIMARY KEY,
+                        fid TEXT NOT NULL UNIQUE,
+                        current_name TEXT,
+                        first_seen TEXT,
+                        last_seen TEXT
+                    )
+                    """
+                )
+                con.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
+
+    def upsert_commander(self, fid, current_name="", timestamp="") -> int | None:
+        """Legt eine per Frontier-FID identifizierte Identität an/aktualisiert sie."""
+        fid = str(fid or "").strip()
+        if not fid:
+            return None
+
+        current_name = str(current_name or "").strip()
+        seen = str(timestamp or "").strip() or (
+            datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        )
+
+        with self._connect() as con:
+            con.execute(
+                """
+                INSERT INTO commanders (
+                    fid, current_name, first_seen, last_seen
+                ) VALUES (?, ?, ?, ?)
+                ON CONFLICT(fid) DO UPDATE SET
+                    current_name=CASE
+                        WHEN excluded.current_name <> ''
+                        THEN excluded.current_name
+                        ELSE commanders.current_name
+                    END,
+                    last_seen=excluded.last_seen
+                """,
+                (fid, current_name, seen, seen),
+            )
+            row = con.execute(
+                "SELECT id FROM commanders WHERE fid = ?",
+                (fid,),
+            ).fetchone()
+
+        return int(row[0]) if row is not None else None
 
     @staticmethod
     def _bool_db(value):

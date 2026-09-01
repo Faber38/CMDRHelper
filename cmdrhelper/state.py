@@ -33,6 +33,7 @@ logger = logging.getLogger(__name__)
 
 class AppState(QObject):
     changed = Signal()
+    commanderIdentityChanged = Signal(object, str, str)
     positionChanged = Signal(str, object, str)
     shipLoadoutChanged = Signal(object)
     shipRouteInputsChanged = Signal(object)
@@ -55,6 +56,8 @@ class AppState(QObject):
         self._database_import_last_progress = None
 
         self.commander = ""
+        self.commander_id = None
+        self.commander_fid = ""
         self.system = ""
         self.system_address = None
         self.body = ""
@@ -803,6 +806,30 @@ class AppState(QObject):
                     "Kartographie-Verkaufswerte konnten nicht aus dem Journal gelernt werden"
                 )
 
+    def _apply_commander_identity(self, data):
+        """Übernimmt ausschließlich eine durch FID belegte Journalidentität."""
+        fid = str(data.get("commander_fid") or "").strip()
+        if not fid:
+            return
+
+        name = str(
+            data.get("commander_identity_name") or data.get("commander") or ""
+        ).strip()
+        commander_id = self.database.upsert_commander(
+            fid,
+            name,
+            data.get("commander_identity_timestamp") or "",
+        )
+        if commander_id is None:
+            return
+
+        previous_fid = self.commander_fid
+        self.commander_id = commander_id
+        self.commander_fid = fid
+
+        if previous_fid != fid:
+            self.commanderIdentityChanged.emit(commander_id, fid, name)
+
     def refresh(self):
         if not self.journal_folder:
             self.connected = False
@@ -831,6 +858,7 @@ class AppState(QObject):
         previous_loadout = self.ship_loadout
 
         self.commander = data["commander"]
+        self._apply_commander_identity(data)
         self.system = data["system"]
         self.system_address = data.get("system_address")
         self.body = data["body"]
