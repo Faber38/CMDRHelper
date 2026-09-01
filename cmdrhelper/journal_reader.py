@@ -639,6 +639,8 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
         "system_body_count": 0,
         "system_signals_count": 0,
         "system_all_bodies_found": False,
+        "fss_discovery_scan_seen": False,
+        "all_bodies_found_at": None,
         "unsold_cartography_value": 0,
         "unsold_cartography_count": 0,
         "unsold_biology": [],
@@ -749,6 +751,8 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
 
     # SystemAddressen, bei denen FSSAllBodiesFound auftrat
     all_found_addresses: set[int] = set()
+    all_found_at_by_address: dict[int, str] = {}
+    fss_scanned_addresses: set[int] = set()
 
     # Signale deduplizieren statt blind mitzuzählen:
     # SystemAddress -> set(signature)
@@ -1196,6 +1200,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                             # auf diesem Körper = eigene Erstbetretung.
                             if body and body.get("was_footfalled") is False:
                                 body["first_footfall"] = True
+                                body["first_footfall_at"] = ts
 
                     _update_location_status(
                         missions,
@@ -1234,6 +1239,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                     address = _system_address(e)
 
                     if address is not None:
+                        fss_scanned_addresses.add(address)
                         if isinstance(e.get("BodyCount"), int):
                             body_count_by_address[address] = e["BodyCount"]
 
@@ -1242,6 +1248,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
 
                     if address is not None:
                         all_found_addresses.add(address)
+                        all_found_at_by_address[address] = ts
 
                         if isinstance(e.get("Count"), int):
                             body_count_by_address[address] = e["Count"]
@@ -1329,6 +1336,12 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                                 (int(address), body_id_int) in first_footfall_disembarks
                                 and e.get("WasFootfalled") is False
                             ),
+                            "first_footfall_at": (
+                                ts
+                                if (int(address), body_id_int) in first_footfall_disembarks
+                                and e.get("WasFootfalled") is False
+                                else None
+                            ),
                             "atmosphere": (
                                 e.get("Atmosphere_Localised")
                                 or e.get("Atmosphere")
@@ -1368,6 +1381,10 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                             body["first_footfall"] = bool(
                                 body.get("first_footfall")
                                 or previous.get("first_footfall")
+                            )
+                            body["first_footfall_at"] = (
+                                body.get("first_footfall_at")
+                                or previous.get("first_footfall_at")
                             )
                             if body.get("was_footfalled") is None:
                                 body["was_footfalled"] = previous.get("was_footfalled")
@@ -1415,6 +1432,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
 
                         if body:
                             body["self_mapped"] = True
+                            body["mapped_at"] = ts
 
                             probes_used = e.get("ProbesUsed")
                             efficiency_target = e.get("EfficiencyTarget")
@@ -1426,6 +1444,8 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                                 body["efficient_mapping"] = (
                                     probes_used <= efficiency_target
                                 )
+                                body["probes_used"] = probes_used
+                                body["efficiency_target"] = efficiency_target
 
                             apply_values(body)
 
@@ -1779,6 +1799,8 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
         result["system_all_bodies_found"] = (
             address in all_found_addresses
         )
+        result["fss_discovery_scan_seen"] = address in fss_scanned_addresses
+        result["all_bodies_found_at"] = all_found_at_by_address.get(address)
 
     result["unsold_cartography_value"] = int(
         sum(max(0, int(value or 0)) for value in unsold_cartography.values())

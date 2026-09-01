@@ -98,13 +98,14 @@ class ScoreAnalyzer:
         return tr("score.level.low")
 
     def statistics(self, min_sector_samples=10, min_code_mass_samples=8):
+        commander_id = self.database._require_commander_id()
         with self.database._connect() as con:
             rows = con.execute(
                 """
                 SELECT
                     s.system_address,
                     s.name,
-                    COALESCE(SUM(b.biological_signals), 0) AS bio_signals,
+                    COALESCE(SUM(cb.biological_signals_seen), 0) AS bio_signals,
                     MAX(
                         CASE
                             WHEN b.terraformable = 1 THEN 1
@@ -141,11 +142,17 @@ class ScoreAnalyzer:
                         END
                     ) AS terraformables
                 FROM systems AS s
+                JOIN commander_systems AS cs
+                  ON cs.system_address=s.system_address AND cs.commander_id=?
                 LEFT JOIN bodies AS b
                   ON b.system_address = s.system_address
+                LEFT JOIN commander_bodies AS cb
+                  ON cb.system_address=b.system_address AND cb.body_id=b.body_id
+                 AND cb.commander_id=cs.commander_id
                 GROUP BY s.system_address, s.name
                 ORDER BY s.name COLLATE NOCASE
-                """
+                """,
+                (commander_id,),
             ).fetchall()
 
         parsed_rows = []
@@ -428,12 +435,16 @@ class ScoreAnalyzer:
         target_key = str(target_key or "bio_any")
 
         with self.database._connect() as con:
+            commander_id = self.database._require_commander_id()
             system_rows = con.execute(
                 """
-                SELECT system_address, name
+                SELECT systems.system_address, systems.name
                 FROM systems
+                JOIN commander_systems cs USING(system_address)
+                WHERE cs.commander_id=?
                 ORDER BY name COLLATE NOCASE
-                """
+                """,
+                (commander_id,),
             ).fetchall()
 
             target_counts = {}
@@ -444,14 +455,16 @@ class ScoreAnalyzer:
                     SELECT system_address,
                            SUM(
                                CASE
-                                   WHEN biological_signals > 0
-                                   THEN biological_signals
+                                   WHEN biological_signals_seen > 0
+                                   THEN biological_signals_seen
                                    ELSE 0
                                END
                            )
-                    FROM bodies
+                    FROM commander_bodies
+                    WHERE commander_id=?
                     GROUP BY system_address
-                    """
+                    """,
+                    (commander_id,),
                 ).fetchall()
 
                 target_counts = {
@@ -489,12 +502,15 @@ class ScoreAnalyzer:
 
                 rows = con.execute(
                     f"""
-                    SELECT system_address, COUNT(*)
-                    FROM bodies
+                    SELECT b.system_address, COUNT(*)
+                    FROM bodies b
+                    JOIN commander_bodies cb
+                      ON cb.system_address=b.system_address AND cb.body_id=b.body_id
+                     AND cb.commander_id=?
                     WHERE {conditions[target_key]}
                     GROUP BY system_address
                     """
-                ).fetchall()
+                , (commander_id,)).fetchall()
 
                 target_counts = {
                     int(address): int(count or 0)

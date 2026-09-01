@@ -8,7 +8,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 
 PERSONAL_TABLES = (
     "system_visits",
@@ -347,6 +347,7 @@ class CMDRDatabase:
                 con.execute("PRAGMA user_version = 2")
 
         self._maybe_migrate_v3()
+        self._maybe_migrate_v4()
 
     def _personal_row_counts(self, con):
         return {
@@ -373,10 +374,10 @@ class CMDRDatabase:
             "wurde ohne Änderungen abgebrochen."
         )
 
-    def _create_migration_backup(self) -> Path:
+    def _create_migration_backup(self, target_version=3) -> Path:
         stamp = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
         backup_path = self.path.with_name(
-            f"{self.path.name}.pre-v3-{stamp}.bak"
+            f"{self.path.name}.pre-v{int(target_version)}-{stamp}.bak"
         )
         try:
             source = sqlite3.connect(self.path)
@@ -417,13 +418,207 @@ class CMDRDatabase:
                     "Foreign-Key-Prüfung vor Migration fehlgeschlagen."
                 )
 
-        backup_path = self._create_migration_backup()
+        backup_path = self._create_migration_backup(3)
         logger.info("Datenbanksicherung vor v3-Migration: %s", backup_path)
         self._migrate_personal_tables_v3(legacy_commander_id, before_counts)
         return backup_path
 
     def ensure_schema_v3(self):
         return self._maybe_migrate_v3(require=True)
+
+    def _legacy_commander_for_v4(self, con, require=False):
+        system_count = int(con.execute("SELECT COUNT(*) FROM systems").fetchone()[0])
+        body_count = int(con.execute("SELECT COUNT(*) FROM bodies").fetchone()[0])
+        if not (system_count or body_count):
+            return None, system_count, body_count
+
+        commanders = con.execute("SELECT id, fid FROM commanders ORDER BY id").fetchall()
+        if len(commanders) == 1 and str(commanders[0][1] or "").strip():
+            return int(commanders[0][0]), system_count, body_count
+        if not commanders and not require:
+            return None, system_count, body_count
+        raise CommanderMigrationError(
+            "Die persönlichen Explorer-Zustände in systems/bodies können nicht "
+            "eindeutig einem Commander zugeordnet werden. Migration auf "
+            "Schema-Version 4 wurde ohne Änderungen abgebrochen; bei mehreren "
+            "FIDs ist ein kontrollierter Neuaufbau aus identified Journals nötig."
+        )
+
+    def _maybe_migrate_v4(self, require=False):
+        with self._connect() as con:
+            version = int(con.execute("PRAGMA user_version").fetchone()[0])
+            if version >= 4:
+                return None
+            if version < 3:
+                return None
+            system_columns = {
+                row[1] for row in con.execute("PRAGMA table_info(systems)").fetchall()
+            }
+            existing_tables = {
+                row[0] for row in con.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table'"
+                ).fetchall()
+            }
+            if (
+                "first_seen" not in system_columns
+                and {"commander_systems", "commander_bodies"} <= existing_tables
+            ):
+                if con.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
+                    raise CommanderMigrationError("Vorhandenes v4-Schema ist beschädigt")
+                if con.execute("PRAGMA foreign_key_check").fetchall():
+                    raise CommanderMigrationError("Vorhandenes v4-Schema hat Foreign-Key-Fehler")
+                con.execute("PRAGMA user_version=4")
+                return None
+            commander_id, system_count, body_count = self._legacy_commander_for_v4(
+                con, require=require
+            )
+            if commander_id is None and (system_count or body_count):
+                return None
+            if con.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
+                raise CommanderMigrationError("Integritätsprüfung vor v4-Migration fehlgeschlagen.")
+            if con.execute("PRAGMA foreign_key_check").fetchall():
+                raise CommanderMigrationError("Foreign-Key-Prüfung vor v4-Migration fehlgeschlagen.")
+
+        backup_path = self._create_migration_backup(4)
+        logger.info("Datenbanksicherung vor v4-Migration: %s", backup_path)
+        self._migrate_exploration_tables_v4(commander_id, system_count, body_count)
+        return backup_path
+
+    def ensure_schema_v4(self):
+        return self._maybe_migrate_v4(require=True)
+
+    def _migrate_exploration_tables_v4(self, commander_id, system_count, body_count):
+        con = sqlite3.connect(self.path)
+        try:
+            con.execute("PRAGMA foreign_keys=OFF")
+            con.execute("BEGIN IMMEDIATE")
+            material_count = int(con.execute("SELECT COUNT(*) FROM materials").fetchone()[0])
+            con.executescript("""
+                CREATE TABLE systems_v4 (
+                    system_address INTEGER PRIMARY KEY,
+                    name TEXT NOT NULL DEFAULT '',
+                    body_count INTEGER NOT NULL DEFAULT 0,
+                    x REAL, y REAL, z REAL
+                );
+                CREATE TABLE bodies_v4 (
+                    system_address INTEGER NOT NULL,
+                    body_id INTEGER NOT NULL,
+                    name TEXT NOT NULL DEFAULT '',
+                    short_name TEXT NOT NULL DEFAULT '',
+                    body_type TEXT NOT NULL DEFAULT '',
+                    star_type TEXT NOT NULL DEFAULT '',
+                    planet_class TEXT NOT NULL DEFAULT '',
+                    parent_id INTEGER,
+                    mass_em REAL,
+                    stellar_mass REAL,
+                    radius_m REAL,
+                    gravity_g REAL,
+                    distance_ls REAL,
+                    landable INTEGER NOT NULL DEFAULT 0,
+                    terraformable INTEGER NOT NULL DEFAULT 0,
+                    atmosphere TEXT NOT NULL DEFAULT '',
+                    volcanism TEXT NOT NULL DEFAULT '',
+                    biological_signals INTEGER NOT NULL DEFAULT 0,
+                    geological_signals INTEGER NOT NULL DEFAULT 0,
+                    PRIMARY KEY(system_address, body_id),
+                    FOREIGN KEY(system_address) REFERENCES systems_v4(system_address)
+                );
+                CREATE TABLE commander_systems (
+                    commander_id INTEGER NOT NULL,
+                    system_address INTEGER NOT NULL,
+                    first_seen TEXT NOT NULL DEFAULT '',
+                    last_seen TEXT NOT NULL DEFAULT '',
+                    body_count_seen INTEGER NOT NULL DEFAULT 0,
+                    fss_discovery_scan_seen INTEGER NOT NULL DEFAULT 0,
+                    all_bodies_found INTEGER NOT NULL DEFAULT 0,
+                    all_bodies_found_at TEXT,
+                    PRIMARY KEY(commander_id, system_address),
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id),
+                    FOREIGN KEY(system_address) REFERENCES systems_v4(system_address)
+                );
+                CREATE TABLE commander_bodies (
+                    commander_id INTEGER NOT NULL,
+                    system_address INTEGER NOT NULL,
+                    body_id INTEGER NOT NULL,
+                    first_seen TEXT NOT NULL DEFAULT '',
+                    last_seen TEXT NOT NULL DEFAULT '',
+                    scanned INTEGER NOT NULL DEFAULT 0,
+                    was_discovered_at_scan INTEGER,
+                    was_mapped_at_scan INTEGER,
+                    was_footfalled_at_scan INTEGER,
+                    self_mapped INTEGER NOT NULL DEFAULT 0,
+                    mapped_at TEXT,
+                    efficient_mapping INTEGER NOT NULL DEFAULT 0,
+                    probes_used INTEGER,
+                    efficiency_target INTEGER,
+                    first_footfall INTEGER NOT NULL DEFAULT 0,
+                    first_footfall_at TEXT,
+                    biological_signals_seen INTEGER NOT NULL DEFAULT 0,
+                    geological_signals_seen INTEGER NOT NULL DEFAULT 0,
+                    scan_value_cached INTEGER NOT NULL DEFAULT 0,
+                    mapped_value_cached INTEGER NOT NULL DEFAULT 0,
+                    current_value_cached INTEGER NOT NULL DEFAULT 0,
+                    high_value_cached INTEGER NOT NULL DEFAULT 0,
+                    valuation_version INTEGER NOT NULL DEFAULT 1,
+                    PRIMARY KEY(commander_id, system_address, body_id),
+                    FOREIGN KEY(commander_id, system_address)
+                        REFERENCES commander_systems(commander_id, system_address),
+                    FOREIGN KEY(system_address, body_id)
+                        REFERENCES bodies_v4(system_address, body_id)
+                );
+            """)
+            con.execute("""INSERT INTO systems_v4(system_address,name,body_count,x,y,z)
+                           SELECT system_address,name,body_count,x,y,z FROM systems""")
+            con.execute("""INSERT INTO bodies_v4(
+                    system_address,body_id,name,short_name,body_type,star_type,planet_class,
+                    parent_id,mass_em,stellar_mass,radius_m,gravity_g,distance_ls,landable,
+                    terraformable,atmosphere,volcanism,biological_signals,geological_signals)
+                SELECT system_address,body_id,name,short_name,body_type,star_type,planet_class,
+                    parent_id,mass_em,stellar_mass,NULL,gravity_g,distance_ls,landable,
+                    terraformable,atmosphere,volcanism,biological_signals,geological_signals
+                FROM bodies""")
+            if commander_id is not None:
+                con.execute("""INSERT INTO commander_systems(
+                        commander_id,system_address,first_seen,last_seen,body_count_seen,
+                        fss_discovery_scan_seen,all_bodies_found,all_bodies_found_at)
+                    SELECT ?,system_address,first_seen,last_seen,body_count,
+                        CASE WHEN body_count>0 THEN 1 ELSE 0 END,
+                        all_bodies_found,CASE WHEN all_bodies_found<>0 THEN last_seen ELSE NULL END
+                    FROM systems""", (commander_id,))
+                con.execute("""INSERT INTO commander_bodies(
+                        commander_id,system_address,body_id,first_seen,last_seen,scanned,
+                        was_discovered_at_scan,was_mapped_at_scan,self_mapped,efficient_mapping,
+                        biological_signals_seen,geological_signals_seen,scan_value_cached,
+                        mapped_value_cached,current_value_cached,high_value_cached)
+                    SELECT ?,system_address,body_id,first_seen,last_seen,1,
+                        was_discovered,was_mapped,self_mapped,efficient_mapping,
+                        biological_signals,geological_signals,scan_value,mapped_value,
+                        current_value,high_value FROM bodies""", (commander_id,))
+
+            if int(con.execute("SELECT COUNT(*) FROM systems_v4").fetchone()[0]) != system_count:
+                raise CommanderMigrationError("System-Zeilenzahl nach v4-Migration abweichend")
+            if int(con.execute("SELECT COUNT(*) FROM bodies_v4").fetchone()[0]) != body_count:
+                raise CommanderMigrationError("Body-Zeilenzahl nach v4-Migration abweichend")
+            if int(con.execute("SELECT COUNT(*) FROM materials").fetchone()[0]) != material_count:
+                raise CommanderMigrationError("Materialdaten wurden bei v4-Migration verändert")
+
+            con.execute("DROP TABLE bodies")
+            con.execute("DROP TABLE systems")
+            con.execute("ALTER TABLE systems_v4 RENAME TO systems")
+            con.execute("ALTER TABLE bodies_v4 RENAME TO bodies")
+            con.execute("CREATE INDEX idx_commander_systems_last_seen ON commander_systems(commander_id,last_seen)")
+            con.execute("CREATE INDEX idx_commander_bodies_last_seen ON commander_bodies(commander_id,last_seen)")
+            if con.execute("PRAGMA foreign_key_check").fetchall():
+                raise CommanderMigrationError("Foreign-Key-Prüfung nach v4-Migration fehlgeschlagen")
+            if con.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
+                raise CommanderMigrationError("Integritätsprüfung nach v4-Migration fehlgeschlagen")
+            con.execute("PRAGMA user_version=4")
+            con.commit()
+        except Exception:
+            con.rollback()
+            raise
+        finally:
+            con.close()
 
     def set_active_commander(self, commander_id):
         self.active_commander_id = (
@@ -736,7 +931,7 @@ class CMDRDatabase:
             return result
         return []
 
-    def store_snapshot(self, data):
+    def store_snapshot(self, data, commander_id=None):
         address = data.get("system_address")
         if address is None:
             return
@@ -748,25 +943,51 @@ class CMDRDatabase:
         with self._connect() as con:
             con.execute("""
                 INSERT INTO systems (
-                    system_address, name, first_seen, last_seen,
-                    body_count, all_bodies_found, x, y, z
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    system_address, name, body_count, x, y, z
+                ) VALUES (?, ?, ?, ?, ?, ?)
                 ON CONFLICT(system_address) DO UPDATE SET
                     name=CASE WHEN excluded.name <> '' THEN excluded.name ELSE systems.name END,
-                    last_seen=excluded.last_seen,
                     body_count=MAX(systems.body_count, excluded.body_count),
-                    all_bodies_found=MAX(systems.all_bodies_found, excluded.all_bodies_found),
                     x=COALESCE(excluded.x, systems.x),
                     y=COALESCE(excluded.y, systems.y),
                     z=COALESCE(excluded.z, systems.z)
             """, (
-                int(address), data.get("system") or "", seen, seen,
+                int(address), data.get("system") or "",
                 int(data.get("system_body_count") or len(bodies)),
-                self._bool_db(data.get("system_all_bodies_found")) or 0,
                 (data.get("star_pos") or [None, None, None])[0],
                 (data.get("star_pos") or [None, None, None])[1],
                 (data.get("star_pos") or [None, None, None])[2],
             ))
+
+            if commander_id is not None:
+                commander_id = int(commander_id)
+                con.execute("""
+                    INSERT INTO commander_systems(
+                        commander_id, system_address, first_seen, last_seen,
+                        body_count_seen, fss_discovery_scan_seen,
+                        all_bodies_found, all_bodies_found_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(commander_id, system_address) DO UPDATE SET
+                        last_seen=excluded.last_seen,
+                        body_count_seen=MAX(commander_systems.body_count_seen,
+                                            excluded.body_count_seen),
+                        fss_discovery_scan_seen=MAX(
+                            commander_systems.fss_discovery_scan_seen,
+                            excluded.fss_discovery_scan_seen),
+                        all_bodies_found=MAX(commander_systems.all_bodies_found,
+                                             excluded.all_bodies_found),
+                        all_bodies_found_at=COALESCE(
+                            commander_systems.all_bodies_found_at,
+                            excluded.all_bodies_found_at)
+                """, (
+                    commander_id, int(address), seen, seen,
+                    int(data.get("system_body_count") or len(bodies)),
+                    self._bool_db(data.get("fss_discovery_scan_seen")) or 0,
+                    self._bool_db(data.get("system_all_bodies_found")) or 0,
+                    data.get("all_bodies_found_at") or (
+                        seen if data.get("system_all_bodies_found") else None
+                    ),
+                ))
 
             for body in bodies:
                 body_id = body.get("body_id")
@@ -777,14 +998,9 @@ class CMDRDatabase:
                     INSERT INTO bodies (
                         system_address, body_id, name, short_name, body_type,
                         star_type, planet_class, parent_id, mass_em, stellar_mass,
-                        gravity_g, distance_ls, landable, terraformable,
-                        was_discovered, was_mapped, self_mapped, efficient_mapping,
-                        atmosphere, volcanism, biological_signals, geological_signals,
-                        scan_value, mapped_value, current_value, high_value,
-                        first_seen, last_seen
-                    ) VALUES (
-                        ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
-                    )
+                        radius_m, gravity_g, distance_ls, landable, terraformable,
+                        atmosphere, volcanism, biological_signals, geological_signals
+                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                     ON CONFLICT(system_address, body_id) DO UPDATE SET
                         name=excluded.name,
                         short_name=excluded.short_name,
@@ -794,42 +1010,83 @@ class CMDRDatabase:
                         parent_id=excluded.parent_id,
                         mass_em=COALESCE(excluded.mass_em, bodies.mass_em),
                         stellar_mass=COALESCE(excluded.stellar_mass, bodies.stellar_mass),
+                        radius_m=COALESCE(excluded.radius_m, bodies.radius_m),
                         gravity_g=COALESCE(excluded.gravity_g, bodies.gravity_g),
                         distance_ls=COALESCE(excluded.distance_ls, bodies.distance_ls),
                         landable=excluded.landable,
                         terraformable=excluded.terraformable,
-                        was_discovered=COALESCE(excluded.was_discovered, bodies.was_discovered),
-                        was_mapped=COALESCE(excluded.was_mapped, bodies.was_mapped),
-                        self_mapped=MAX(bodies.self_mapped, excluded.self_mapped),
-                        efficient_mapping=MAX(bodies.efficient_mapping, excluded.efficient_mapping),
                         atmosphere=CASE WHEN excluded.atmosphere <> '' THEN excluded.atmosphere ELSE bodies.atmosphere END,
                         volcanism=CASE WHEN excluded.volcanism <> '' THEN excluded.volcanism ELSE bodies.volcanism END,
                         biological_signals=MAX(bodies.biological_signals, excluded.biological_signals),
-                        geological_signals=MAX(bodies.geological_signals, excluded.geological_signals),
-                        scan_value=excluded.scan_value,
-                        mapped_value=excluded.mapped_value,
-                        current_value=excluded.current_value,
-                        high_value=excluded.high_value,
-                        last_seen=excluded.last_seen
+                        geological_signals=MAX(bodies.geological_signals, excluded.geological_signals)
                 """, (
                     int(address), int(body_id), body.get("name") or "",
                     body.get("short_name") or "", body.get("body_type") or "",
                     body.get("star_type") or "", body.get("planet_class") or "",
                     body.get("parent_id"), body.get("mass_em"), body.get("stellar_mass"),
-                    body.get("gravity_g"), body.get("distance_ls"),
+                    body.get("radius_m"), body.get("gravity_g"), body.get("distance_ls"),
                     self._bool_db(body.get("landable")) or 0,
                     self._bool_db(body.get("terraformable")) or 0,
-                    self._bool_db(body.get("was_discovered")),
-                    self._bool_db(body.get("was_mapped")),
-                    self._bool_db(body.get("self_mapped")) or 0,
-                    self._bool_db(body.get("efficient_mapping")) or 0,
                     body.get("atmosphere") or "", body.get("volcanism") or "",
                     int(body.get("biological_signals") or 0),
                     int(body.get("geological_signals") or 0),
-                    int(body.get("scan_value") or 0), int(body.get("mapped_value") or 0),
-                    int(body.get("current_value") or 0),
-                    self._bool_db(body.get("high_value")) or 0, seen, seen
                 ))
+
+                if commander_id is not None:
+                    con.execute("""
+                        INSERT INTO commander_bodies(
+                            commander_id,system_address,body_id,first_seen,last_seen,scanned,
+                            was_discovered_at_scan,was_mapped_at_scan,was_footfalled_at_scan,
+                            self_mapped,mapped_at,efficient_mapping,probes_used,efficiency_target,
+                            first_footfall,first_footfall_at,biological_signals_seen,
+                            geological_signals_seen,scan_value_cached,mapped_value_cached,
+                            current_value_cached,high_value_cached
+                        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        ON CONFLICT(commander_id,system_address,body_id) DO UPDATE SET
+                            last_seen=excluded.last_seen,
+                            scanned=MAX(commander_bodies.scanned,excluded.scanned),
+                            was_discovered_at_scan=COALESCE(excluded.was_discovered_at_scan,
+                                commander_bodies.was_discovered_at_scan),
+                            was_mapped_at_scan=COALESCE(excluded.was_mapped_at_scan,
+                                commander_bodies.was_mapped_at_scan),
+                            was_footfalled_at_scan=COALESCE(excluded.was_footfalled_at_scan,
+                                commander_bodies.was_footfalled_at_scan),
+                            self_mapped=MAX(commander_bodies.self_mapped,excluded.self_mapped),
+                            mapped_at=COALESCE(commander_bodies.mapped_at,excluded.mapped_at),
+                            efficient_mapping=MAX(commander_bodies.efficient_mapping,
+                                excluded.efficient_mapping),
+                            probes_used=COALESCE(excluded.probes_used,commander_bodies.probes_used),
+                            efficiency_target=COALESCE(excluded.efficiency_target,
+                                commander_bodies.efficiency_target),
+                            first_footfall=MAX(commander_bodies.first_footfall,
+                                excluded.first_footfall),
+                            first_footfall_at=COALESCE(commander_bodies.first_footfall_at,
+                                excluded.first_footfall_at),
+                            biological_signals_seen=MAX(commander_bodies.biological_signals_seen,
+                                excluded.biological_signals_seen),
+                            geological_signals_seen=MAX(commander_bodies.geological_signals_seen,
+                                excluded.geological_signals_seen),
+                            scan_value_cached=excluded.scan_value_cached,
+                            mapped_value_cached=excluded.mapped_value_cached,
+                            current_value_cached=excluded.current_value_cached,
+                            high_value_cached=excluded.high_value_cached
+                    """, (
+                        commander_id,int(address),int(body_id),seen,seen,1,
+                        self._bool_db(body.get("was_discovered")),
+                        self._bool_db(body.get("was_mapped")),
+                        self._bool_db(body.get("was_footfalled")),
+                        self._bool_db(body.get("self_mapped")) or 0,
+                        body.get("mapped_at"),
+                        self._bool_db(body.get("efficient_mapping")) or 0,
+                        body.get("probes_used"),body.get("efficiency_target"),
+                        self._bool_db(body.get("first_footfall")) or 0,
+                        body.get("first_footfall_at"),
+                        int(body.get("biological_signals") or 0),
+                        int(body.get("geological_signals") or 0),
+                        int(body.get("scan_value") or 0),int(body.get("mapped_value") or 0),
+                        int(body.get("current_value") or 0),
+                        self._bool_db(body.get("high_value")) or 0,
+                    ))
 
                 for name, percentage in self._materials(body):
                     try:
@@ -2134,14 +2391,16 @@ class CMDRDatabase:
         with self._connect() as con:
             for row in con.execute(
                 """
-                SELECT system_address, name, x, y, z,
-                       first_seen, last_seen, body_count
-                FROM systems
-                WHERE name LIKE ? COLLATE NOCASE
+                SELECT s.system_address, s.name, s.x, s.y, s.z,
+                       cs.first_seen, cs.last_seen, s.body_count
+                FROM systems s
+                JOIN commander_systems cs
+                  ON cs.system_address=s.system_address AND cs.commander_id=?
+                WHERE s.name LIKE ? COLLATE NOCASE
                 ORDER BY name COLLATE NOCASE
                 LIMIT 500
                 """,
-                (pattern,),
+                (commander_id, pattern),
             ).fetchall():
                 results.append({
                     "kind": "System",
@@ -2162,14 +2421,19 @@ class CMDRDatabase:
                 """
                 SELECT
                     p.system_address, s.name, s.x, s.y, s.z,
-                    s.first_seen, s.last_seen, s.body_count,
+                    cs.first_seen, cs.last_seen, s.body_count,
                     p.body_id, p.name, p.short_name,
                     p.body_type, p.star_type, p.planet_class,
                     p.atmosphere, p.volcanism, p.terraformable,
-                    p.biological_signals, p.geological_signals
+                    cb.biological_signals_seen, cb.geological_signals_seen
                 FROM bodies p
                 JOIN systems s ON s.system_address=p.system_address
-                WHERE p.name LIKE ? COLLATE NOCASE
+                JOIN commander_bodies cb
+                  ON cb.system_address=p.system_address AND cb.body_id=p.body_id
+                 AND cb.commander_id=?
+                JOIN commander_systems cs
+                  ON cs.system_address=s.system_address AND cs.commander_id=?
+                WHERE (p.name LIKE ? COLLATE NOCASE
                    OR p.short_name LIKE ? COLLATE NOCASE
                    OR p.body_type LIKE ? COLLATE NOCASE
                    OR p.star_type LIKE ? COLLATE NOCASE
@@ -2177,12 +2441,13 @@ class CMDRDatabase:
                    OR p.atmosphere LIKE ? COLLATE NOCASE
                    OR p.volcanism LIKE ? COLLATE NOCASE
                    OR (? LIKE '%terraform%' AND p.terraformable=1)
-                   OR (? LIKE '%bio%' AND p.biological_signals>0)
-                   OR (? LIKE '%geo%' AND p.geological_signals>0)
+                   OR (? LIKE '%bio%' AND cb.biological_signals_seen>0)
+                   OR (? LIKE '%geo%' AND cb.geological_signals_seen>0))
                 ORDER BY s.name COLLATE NOCASE, p.body_id
                 LIMIT 1000
                 """,
                 (
+                    commander_id, commander_id,
                     pattern, pattern, pattern, pattern, pattern, pattern, pattern,
                     text.lower(), text.lower(), text.lower(),
                 ),
@@ -2217,7 +2482,7 @@ class CMDRDatabase:
                 """
                 SELECT
                     bio.system_address, s.name, s.x, s.y, s.z,
-                    s.first_seen, s.last_seen, s.body_count,
+                    cs.first_seen, cs.last_seen, s.body_count,
                     bio.body_id, p.name, p.short_name,
                     bio.genus, bio.species, bio.variant
                 FROM biology bio
@@ -2225,6 +2490,8 @@ class CMDRDatabase:
                 JOIN bodies p
                   ON p.system_address=bio.system_address
                  AND p.body_id=bio.body_id
+                JOIN commander_systems cs
+                  ON cs.system_address=s.system_address AND cs.commander_id=bio.commander_id
                 WHERE bio.commander_id=? AND (
                       bio.genus LIKE ? COLLATE NOCASE
                    OR bio.species LIKE ? COLLATE NOCASE
@@ -2254,7 +2521,7 @@ class CMDRDatabase:
                 """
                 SELECT
                     m.system_address, s.name, s.x, s.y, s.z,
-                    s.first_seen, s.last_seen, s.body_count,
+                    cs.first_seen, cs.last_seen, s.body_count,
                     m.body_id, p.name, p.short_name,
                     m.material_name, m.percentage
                 FROM materials m
@@ -2262,11 +2529,16 @@ class CMDRDatabase:
                 JOIN bodies p
                   ON p.system_address=m.system_address
                  AND p.body_id=m.body_id
+                JOIN commander_bodies cb
+                  ON cb.system_address=p.system_address AND cb.body_id=p.body_id
+                 AND cb.commander_id=?
+                JOIN commander_systems cs
+                  ON cs.system_address=s.system_address AND cs.commander_id=?
                 WHERE m.material_name LIKE ? COLLATE NOCASE
                 ORDER BY s.name COLLATE NOCASE, p.body_id
                 LIMIT 1000
                 """,
-                (pattern,),
+                (commander_id, commander_id, pattern),
             ).fetchall():
                 pct = f"{float(row[12]):.2f} %" if row[12] is not None else ""
                 results.append({
@@ -2290,11 +2562,13 @@ class CMDRDatabase:
                     c.system_address,
                     COALESCE(NULLIF(c.system_name, ''), s.name, ''),
                     s.x, s.y, s.z,
-                    s.first_seen, s.last_seen, s.body_count,
+                    cs.first_seen, cs.last_seen, s.body_count,
                     c.category, c.subcategory, c.name,
                     c.nearest_destination, c.region, c.event_type
                 FROM codex_entries c
                 LEFT JOIN systems s ON s.system_address=c.system_address
+                LEFT JOIN commander_systems cs
+                  ON cs.system_address=s.system_address AND cs.commander_id=c.commander_id
                 WHERE c.commander_id=? AND (
                       c.name LIKE ? COLLATE NOCASE
                    OR c.raw_name LIKE ? COLLATE NOCASE
@@ -2463,15 +2737,17 @@ class CMDRDatabase:
         with self._connect() as con:
             rows = con.execute("""
                 SELECT s.system_address, s.name, s.x, s.y, s.z,
-                       s.first_seen, s.last_seen, s.body_count,
+                       cs.first_seen, cs.last_seen, s.body_count,
                        COUNT(v.id)
                 FROM systems s
+                JOIN commander_systems cs
+                  ON cs.system_address=s.system_address AND cs.commander_id=?
                 JOIN system_visits v ON v.system_address=s.system_address
                                     AND v.commander_id=?
                 WHERE s.x IS NOT NULL AND s.y IS NOT NULL AND s.z IS NOT NULL
                 GROUP BY s.system_address
-                ORDER BY s.first_seen, s.name COLLATE NOCASE
-            """, (commander_id,)).fetchall()
+                ORDER BY cs.first_seen, s.name COLLATE NOCASE
+            """, (commander_id, commander_id)).fetchall()
         return [
             {
                 "system_address": r[0], "name": r[1],
@@ -2542,12 +2818,14 @@ class CMDRDatabase:
         with self._connect() as con:
             system_row = con.execute(
                 """
-                SELECT name, body_count, all_bodies_found,
-                       first_seen, last_seen
-                FROM systems
-                WHERE system_address = ?
+                SELECT s.name, s.body_count, cs.all_bodies_found,
+                       cs.first_seen, cs.last_seen
+                FROM systems s
+                JOIN commander_systems cs
+                  ON cs.system_address=s.system_address AND cs.commander_id=?
+                WHERE s.system_address = ?
                 """,
-                (address,),
+                (commander_id, address),
             ).fetchone()
 
             if system_row is None:
@@ -2556,21 +2834,26 @@ class CMDRDatabase:
             rows = con.execute(
                 """
                 SELECT
-                    body_id, name, short_name, body_type,
-                    star_type, planet_class, parent_id,
-                    mass_em, stellar_mass, gravity_g, distance_ls,
-                    landable, terraformable,
-                    was_discovered, was_mapped,
-                    self_mapped, efficient_mapping,
-                    atmosphere, volcanism,
-                    biological_signals, geological_signals,
-                    scan_value, mapped_value, current_value,
-                    high_value, first_seen, last_seen
-                FROM bodies
-                WHERE system_address = ?
-                ORDER BY body_id
+                    b.body_id, b.name, b.short_name, b.body_type,
+                    b.star_type, b.planet_class, b.parent_id,
+                    b.mass_em, b.stellar_mass, b.radius_m, b.gravity_g, b.distance_ls,
+                    b.landable, b.terraformable,
+                    cb.was_discovered_at_scan, cb.was_mapped_at_scan,
+                    cb.was_footfalled_at_scan, cb.self_mapped, cb.efficient_mapping,
+                    cb.first_footfall, cb.first_footfall_at,
+                    b.atmosphere, b.volcanism,
+                    cb.biological_signals_seen, cb.geological_signals_seen,
+                    cb.scan_value_cached, cb.mapped_value_cached,
+                    cb.current_value_cached, cb.high_value_cached,
+                    cb.first_seen, cb.last_seen
+                FROM bodies b
+                JOIN commander_bodies cb
+                  ON cb.system_address=b.system_address AND cb.body_id=b.body_id
+                 AND cb.commander_id=?
+                WHERE b.system_address = ?
+                ORDER BY b.body_id
                 """,
-                (address,),
+                (commander_id, address),
             ).fetchall()
 
             bodies = []
@@ -2651,28 +2934,32 @@ class CMDRDatabase:
                         "parent_id": row[6],
                         "mass_em": row[7],
                         "stellar_mass": row[8],
-                        "gravity_g": row[9],
-                        "distance_ls": row[10],
-                        "landable": bool(row[11]),
-                        "terraformable": bool(row[12]),
+                        "radius_m": row[9],
+                        "gravity_g": row[10],
+                        "distance_ls": row[11],
+                        "landable": bool(row[12]),
+                        "terraformable": bool(row[13]),
                         "was_discovered": (
-                            None if row[13] is None else bool(row[13])
-                        ),
-                        "was_mapped": (
                             None if row[14] is None else bool(row[14])
                         ),
-                        "self_mapped": bool(row[15]),
-                        "efficient_mapping": bool(row[16]),
-                        "atmosphere": row[17] or "",
-                        "volcanism": row[18] or "",
-                        "biological_signals": int(row[19] or 0),
-                        "geological_signals": int(row[20] or 0),
-                        "scan_value": int(row[21] or 0),
-                        "mapped_value": int(row[22] or 0),
-                        "current_value": int(row[23] or 0),
-                        "high_value": bool(row[24]),
-                        "first_seen": row[25] or "",
-                        "last_seen": row[26] or "",
+                        "was_mapped": (
+                            None if row[15] is None else bool(row[15])
+                        ),
+                        "was_footfalled": None if row[16] is None else bool(row[16]),
+                        "self_mapped": bool(row[17]),
+                        "efficient_mapping": bool(row[18]),
+                        "first_footfall": bool(row[19]),
+                        "first_footfall_at": row[20],
+                        "atmosphere": row[21] or "",
+                        "volcanism": row[22] or "",
+                        "biological_signals": int(row[23] or 0),
+                        "geological_signals": int(row[24] or 0),
+                        "scan_value": int(row[25] or 0),
+                        "mapped_value": int(row[26] or 0),
+                        "current_value": int(row[27] or 0),
+                        "high_value": bool(row[28]),
+                        "first_seen": row[29] or "",
+                        "last_seen": row[30] or "",
                         "materials": materials,
                         "biology": biology,
                         "geology": geology,
@@ -2714,8 +3001,8 @@ class CMDRDatabase:
                     systems.x,
                     systems.y,
                     systems.z,
-                    systems.first_seen,
-                    systems.last_seen,
+                    commander_systems.first_seen,
+                    commander_systems.last_seen,
                     systems.body_count,
                     bodies.body_id,
                     bodies.name,
@@ -2731,6 +3018,9 @@ class CMDRDatabase:
                 JOIN bodies
                   ON bodies.system_address = bio.system_address
                  AND bodies.body_id = bio.body_id
+                JOIN commander_systems
+                  ON commander_systems.system_address=bio.system_address
+                 AND commander_systems.commander_id=bio.commander_id
                 WHERE bio.commander_id=? AND (
                       bio.genus LIKE ? COLLATE NOCASE
                    OR bio.species LIKE ? COLLATE NOCASE
@@ -2930,6 +3220,7 @@ class CMDRDatabase:
             classified[journal] = (session, commander_id)
 
         self.ensure_schema_v3()
+        self.ensure_schema_v4()
 
         # Importstatus aller eindeutig zugeordneten Journale einmalig laden.
         with self._connect() as con:
@@ -3033,6 +3324,9 @@ class CMDRDatabase:
         # -------------------------------------------------------------
         systems = {}
         bodies = {}
+        commander_systems = {}
+        commander_bodies = {}
+        first_footfall_disembarks = set()
         pending_bio = {}
         pending_geo = {}
 
@@ -3071,6 +3365,44 @@ class CMDRDatabase:
             return entry
 
         file_commander_id = None
+
+        def ensure_commander_system(address, timestamp=""):
+            if file_commander_id is None or address is None:
+                return None
+            key = (int(file_commander_id), int(address))
+            entry = commander_systems.setdefault(key, {
+                "first_seen": timestamp or "", "last_seen": timestamp or "",
+                "body_count_seen": 0, "fss_discovery_scan_seen": False,
+                "all_bodies_found": False, "all_bodies_found_at": None,
+            })
+            if timestamp:
+                if not entry["first_seen"]:
+                    entry["first_seen"] = timestamp
+                entry["last_seen"] = timestamp
+            return entry
+
+        def ensure_commander_body(address, body_id, timestamp=""):
+            if file_commander_id is None or address is None or body_id is None:
+                return None
+            ensure_commander_system(address, timestamp)
+            key = (int(file_commander_id), int(address), int(body_id))
+            entry = commander_bodies.setdefault(key, {
+                "first_seen": timestamp or "", "last_seen": timestamp or "",
+                "scanned": False, "was_discovered_at_scan": None,
+                "was_mapped_at_scan": None, "was_footfalled_at_scan": None,
+                "self_mapped": False, "mapped_at": None,
+                "efficient_mapping": False, "probes_used": None,
+                "efficiency_target": None, "first_footfall": False,
+                "first_footfall_at": None, "biological_signals_seen": 0,
+                "geological_signals_seen": 0, "scan_value_cached": 0,
+                "mapped_value_cached": 0, "current_value_cached": 0,
+                "high_value_cached": False,
+            })
+            if timestamp:
+                if not entry["first_seen"]:
+                    entry["first_seen"] = timestamp
+                entry["last_seen"] = timestamp
+            return entry
 
         def remember_visit(
             system_address,
@@ -3344,6 +3676,7 @@ class CMDRDatabase:
                                 current_system,
                                 ts,
                             )
+                            ensure_commander_system(current_address, ts)
 
                             star_pos = event.get("StarPos")
 
@@ -3377,6 +3710,24 @@ class CMDRDatabase:
                                     ),
                                 )
 
+                        elif et == "Disembark" and event.get("OnPlanet"):
+                            address = self._system_address_from_event(event, current_address)
+                            body_id = event.get("BodyID")
+                            if file_commander_id is None or address is None or body_id is None:
+                                continue
+                            try:
+                                footfall_key = (
+                                    int(file_commander_id), int(address), int(body_id)
+                                )
+                            except (TypeError, ValueError):
+                                continue
+                            first_footfall_disembarks.add(footfall_key)
+                            personal_body = commander_bodies.get(footfall_key)
+                            if (personal_body is not None
+                                    and personal_body.get("was_footfalled_at_scan") is False):
+                                personal_body["first_footfall"] = True
+                                personal_body["first_footfall_at"] = ts
+
                         elif et == "FSSDiscoveryScan":
                             address = self._system_address_from_event(
                                 event,
@@ -3388,6 +3739,7 @@ class CMDRDatabase:
                                 current_system,
                                 ts,
                             )
+                            personal_system = ensure_commander_system(address, ts)
 
                             if (
                                 entry is not None
@@ -3400,6 +3752,12 @@ class CMDRDatabase:
                                     int(entry["body_count"]),
                                     int(event["BodyCount"]),
                                 )
+                                if personal_system is not None:
+                                    personal_system["body_count_seen"] = max(
+                                        int(personal_system["body_count_seen"]),
+                                        int(event["BodyCount"]),
+                                    )
+                                    personal_system["fss_discovery_scan_seen"] = True
 
                         elif et == "FSSAllBodiesFound":
                             address = self._system_address_from_event(
@@ -3412,16 +3770,23 @@ class CMDRDatabase:
                                 current_system,
                                 ts,
                             )
+                            personal_system = ensure_commander_system(address, ts)
 
                             if entry is not None:
-                                entry["all_bodies_found"] = True
-
                                 if isinstance(
                                     event.get("Count"),
                                     int,
                                 ):
                                     entry["body_count"] = max(
                                         int(entry["body_count"]),
+                                        int(event["Count"]),
+                                    )
+                            if personal_system is not None:
+                                personal_system["all_bodies_found"] = True
+                                personal_system["all_bodies_found_at"] = ts
+                                if isinstance(event.get("Count"), int):
+                                    personal_system["body_count_seen"] = max(
+                                        int(personal_system["body_count_seen"]),
                                         int(event["Count"]),
                                     )
 
@@ -3520,6 +3885,7 @@ class CMDRDatabase:
                                 "stellar_mass": event.get(
                                     "StellarMass"
                                 ),
+                                "radius_m": event.get("Radius"),
                                 "gravity_g": gravity_g,
                                 "distance_ls": event.get(
                                     "DistanceFromArrivalLS"
@@ -3628,6 +3994,25 @@ class CMDRDatabase:
                             }
 
                             bodies[key] = body
+                            personal_body = ensure_commander_body(address, body_id, ts)
+                            if personal_body is not None:
+                                personal_body.update({
+                                    "scanned": True,
+                                    "was_discovered_at_scan": event.get("WasDiscovered"),
+                                    "was_mapped_at_scan": event.get("WasMapped"),
+                                    "was_footfalled_at_scan": event.get("WasFootfalled"),
+                                    "biological_signals_seen": int(body.get("biological_signals") or 0),
+                                    "geological_signals_seen": int(body.get("geological_signals") or 0),
+                                    "scan_value_cached": int(body.get("scan_value") or 0),
+                                    "mapped_value_cached": int(body.get("mapped_value") or 0),
+                                    "current_value_cached": int(body.get("current_value") or 0),
+                                    "high_value_cached": bool(body.get("high_value")),
+                                })
+                                footfall_key = (int(file_commander_id), int(address), int(body_id))
+                                if (footfall_key in first_footfall_disembarks
+                                        and event.get("WasFootfalled") is False):
+                                    personal_body["first_footfall"] = True
+                                    personal_body["first_footfall_at"] = ts
 
                         elif et == "SAAScanComplete":
                             address = self._system_address_from_event(
@@ -3651,11 +4036,9 @@ class CMDRDatabase:
                                 continue
 
                             body = bodies.get(key)
+                            personal_body = ensure_commander_body(address, body_id, ts)
 
                             if body:
-                                body["self_mapped"] = True
-                                body["last_seen"] = ts
-
                                 probes_used = event.get(
                                     "ProbesUsed"
                                 )
@@ -3673,12 +4056,15 @@ class CMDRDatabase:
                                         int,
                                     )
                                 ):
-                                    body[
-                                        "efficient_mapping"
-                                    ] = (
-                                        probes_used
-                                        <= efficiency_target
-                                    )
+                                    efficient = probes_used <= efficiency_target
+                                else:
+                                    efficient = False
+                                if personal_body is not None:
+                                    personal_body["self_mapped"] = True
+                                    personal_body["mapped_at"] = ts
+                                    personal_body["efficient_mapping"] = efficient
+                                    personal_body["probes_used"] = probes_used
+                                    personal_body["efficiency_target"] = efficiency_target
 
                         elif et in (
                             "SAASignalsFound",
@@ -3772,6 +4158,7 @@ class CMDRDatabase:
                             )
 
                             body = bodies.get(key)
+                            personal_body = ensure_commander_body(address, body_id, ts)
 
                             if body:
                                 body[
@@ -3797,6 +4184,11 @@ class CMDRDatabase:
                                     ),
                                     geo,
                                 )
+                            if personal_body is not None:
+                                personal_body["biological_signals_seen"] = max(
+                                    int(personal_body["biological_signals_seen"]), bio)
+                                personal_body["geological_signals_seen"] = max(
+                                    int(personal_body["geological_signals_seen"]), geo)
 
                         elif et == "CodexEntry":
                             address = self._system_address_from_event(
@@ -4151,11 +4543,10 @@ class CMDRDatabase:
                     """
                     INSERT INTO systems (
                         system_address, name,
-                        first_seen, last_seen,
-                        body_count, all_bodies_found,
+                        body_count,
                         x, y, z
                     )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?)
                     ON CONFLICT(system_address)
                     DO UPDATE SET
                         name=CASE
@@ -4163,14 +4554,9 @@ class CMDRDatabase:
                             THEN excluded.name
                             ELSE systems.name
                         END,
-                        last_seen=excluded.last_seen,
                         body_count=MAX(
                             systems.body_count,
                             excluded.body_count
-                        ),
-                        all_bodies_found=MAX(
-                            systems.all_bodies_found,
-                            excluded.all_bodies_found
                         ),
                         x=COALESCE(excluded.x, systems.x),
                         y=COALESCE(excluded.y, systems.y),
@@ -4179,8 +4565,6 @@ class CMDRDatabase:
                     (
                         int(address),
                         system.get("name") or "",
-                        first_seen,
-                        seen,
                         max(
                             int(
                                 system.get(
@@ -4190,12 +4574,6 @@ class CMDRDatabase:
                             ),
                             len(system_bodies),
                         ),
-                        self._bool_db(
-                            system.get(
-                                "all_bodies_found",
-                                False,
-                            )
-                        ) or 0,
                         (
                             star_pos[0]
                             if len(star_pos) > 0
@@ -4234,22 +4612,13 @@ class CMDRDatabase:
                         name, short_name, body_type,
                         star_type, planet_class,
                         parent_id, mass_em, stellar_mass,
-                        gravity_g, distance_ls,
+                        radius_m, gravity_g, distance_ls,
                         landable, terraformable,
-                        was_discovered, was_mapped,
-                        self_mapped, efficient_mapping,
                         atmosphere, volcanism,
                         biological_signals,
-                        geological_signals,
-                        scan_value, mapped_value,
-                        current_value, high_value,
-                        first_seen, last_seen
+                        geological_signals
                     )
-                    VALUES (
-                        ?,?,?,?,?,?,?,?,?,?,
-                        ?,?,?,?,?,?,?,?,?,?,
-                        ?,?,?,?,?,?,?,?
-                    )
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                     ON CONFLICT(system_address, body_id)
                     DO UPDATE SET
                         name=excluded.name,
@@ -4266,6 +4635,10 @@ class CMDRDatabase:
                             excluded.stellar_mass,
                             bodies.stellar_mass
                         ),
+                        radius_m=COALESCE(
+                            excluded.radius_m,
+                            bodies.radius_m
+                        ),
                         gravity_g=COALESCE(
                             excluded.gravity_g,
                             bodies.gravity_g
@@ -4276,22 +4649,6 @@ class CMDRDatabase:
                         ),
                         landable=excluded.landable,
                         terraformable=excluded.terraformable,
-                        was_discovered=COALESCE(
-                            excluded.was_discovered,
-                            bodies.was_discovered
-                        ),
-                        was_mapped=COALESCE(
-                            excluded.was_mapped,
-                            bodies.was_mapped
-                        ),
-                        self_mapped=MAX(
-                            bodies.self_mapped,
-                            excluded.self_mapped
-                        ),
-                        efficient_mapping=MAX(
-                            bodies.efficient_mapping,
-                            excluded.efficient_mapping
-                        ),
                         atmosphere=CASE
                             WHEN excluded.atmosphere <> ''
                             THEN excluded.atmosphere
@@ -4309,12 +4666,7 @@ class CMDRDatabase:
                         geological_signals=MAX(
                             bodies.geological_signals,
                             excluded.geological_signals
-                        ),
-                        scan_value=excluded.scan_value,
-                        mapped_value=excluded.mapped_value,
-                        current_value=excluded.current_value,
-                        high_value=excluded.high_value,
-                        last_seen=excluded.last_seen
+                        )
                     """,
                     (
                         int(address),
@@ -4327,6 +4679,7 @@ class CMDRDatabase:
                         body.get("parent_id"),
                         body.get("mass_em"),
                         body.get("stellar_mass"),
+                        body.get("radius_m"),
                         body.get("gravity_g"),
                         body.get("distance_ls"),
                         self._bool_db(
@@ -4334,18 +4687,6 @@ class CMDRDatabase:
                         ) or 0,
                         self._bool_db(
                             body.get("terraformable")
-                        ) or 0,
-                        self._bool_db(
-                            body.get("was_discovered")
-                        ),
-                        self._bool_db(
-                            body.get("was_mapped")
-                        ),
-                        self._bool_db(
-                            body.get("self_mapped")
-                        ) or 0,
-                        self._bool_db(
-                            body.get("efficient_mapping")
                         ) or 0,
                         body.get("atmosphere") or "",
                         body.get("volcanism") or "",
@@ -4361,23 +4702,6 @@ class CMDRDatabase:
                             )
                             or 0
                         ),
-                        int(
-                            body.get("scan_value")
-                            or 0
-                        ),
-                        int(
-                            body.get("mapped_value")
-                            or 0
-                        ),
-                        int(
-                            body.get("current_value")
-                            or 0
-                        ),
-                        self._bool_db(
-                            body.get("high_value")
-                        ) or 0,
-                        first_seen,
-                        seen,
                     ),
                 )
 
@@ -4417,6 +4741,88 @@ class CMDRDatabase:
                             percentage,
                         ),
                     )
+
+            commander_system_rows = [
+                (
+                    commander_id, address, values["first_seen"], values["last_seen"],
+                    int(values["body_count_seen"]),
+                    self._bool_db(values["fss_discovery_scan_seen"]) or 0,
+                    self._bool_db(values["all_bodies_found"]) or 0,
+                    values["all_bodies_found_at"],
+                )
+                for (commander_id, address), values in commander_systems.items()
+            ]
+            con.executemany("""
+                INSERT INTO commander_systems(
+                    commander_id,system_address,first_seen,last_seen,body_count_seen,
+                    fss_discovery_scan_seen,all_bodies_found,all_bodies_found_at)
+                VALUES(?,?,?,?,?,?,?,?)
+                ON CONFLICT(commander_id,system_address) DO UPDATE SET
+                    last_seen=excluded.last_seen,
+                    body_count_seen=MAX(commander_systems.body_count_seen,excluded.body_count_seen),
+                    fss_discovery_scan_seen=MAX(commander_systems.fss_discovery_scan_seen,
+                                                excluded.fss_discovery_scan_seen),
+                    all_bodies_found=MAX(commander_systems.all_bodies_found,
+                                         excluded.all_bodies_found),
+                    all_bodies_found_at=COALESCE(commander_systems.all_bodies_found_at,
+                                                 excluded.all_bodies_found_at)
+            """, commander_system_rows)
+
+            commander_body_rows = [
+                (
+                    commander_id,address,body_id,values["first_seen"],values["last_seen"],
+                    self._bool_db(values["scanned"]) or 0,
+                    self._bool_db(values["was_discovered_at_scan"]),
+                    self._bool_db(values["was_mapped_at_scan"]),
+                    self._bool_db(values["was_footfalled_at_scan"]),
+                    self._bool_db(values["self_mapped"]) or 0,values["mapped_at"],
+                    self._bool_db(values["efficient_mapping"]) or 0,
+                    values["probes_used"],values["efficiency_target"],
+                    self._bool_db(values["first_footfall"]) or 0,
+                    values["first_footfall_at"],int(values["biological_signals_seen"]),
+                    int(values["geological_signals_seen"]),int(values["scan_value_cached"]),
+                    int(values["mapped_value_cached"]),int(values["current_value_cached"]),
+                    self._bool_db(values["high_value_cached"]) or 0,
+                )
+                for (commander_id,address,body_id), values in commander_bodies.items()
+            ]
+            con.executemany("""
+                INSERT INTO commander_bodies(
+                    commander_id,system_address,body_id,first_seen,last_seen,scanned,
+                    was_discovered_at_scan,was_mapped_at_scan,was_footfalled_at_scan,
+                    self_mapped,mapped_at,efficient_mapping,probes_used,efficiency_target,
+                    first_footfall,first_footfall_at,biological_signals_seen,
+                    geological_signals_seen,scan_value_cached,mapped_value_cached,
+                    current_value_cached,high_value_cached)
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                ON CONFLICT(commander_id,system_address,body_id) DO UPDATE SET
+                    last_seen=excluded.last_seen,
+                    scanned=MAX(commander_bodies.scanned,excluded.scanned),
+                    was_discovered_at_scan=COALESCE(excluded.was_discovered_at_scan,
+                        commander_bodies.was_discovered_at_scan),
+                    was_mapped_at_scan=COALESCE(excluded.was_mapped_at_scan,
+                        commander_bodies.was_mapped_at_scan),
+                    was_footfalled_at_scan=COALESCE(excluded.was_footfalled_at_scan,
+                        commander_bodies.was_footfalled_at_scan),
+                    self_mapped=MAX(commander_bodies.self_mapped,excluded.self_mapped),
+                    mapped_at=COALESCE(commander_bodies.mapped_at,excluded.mapped_at),
+                    efficient_mapping=MAX(commander_bodies.efficient_mapping,
+                        excluded.efficient_mapping),
+                    probes_used=COALESCE(excluded.probes_used,commander_bodies.probes_used),
+                    efficiency_target=COALESCE(excluded.efficiency_target,
+                        commander_bodies.efficiency_target),
+                    first_footfall=MAX(commander_bodies.first_footfall,excluded.first_footfall),
+                    first_footfall_at=COALESCE(commander_bodies.first_footfall_at,
+                        excluded.first_footfall_at),
+                    biological_signals_seen=MAX(commander_bodies.biological_signals_seen,
+                        excluded.biological_signals_seen),
+                    geological_signals_seen=MAX(commander_bodies.geological_signals_seen,
+                        excluded.geological_signals_seen),
+                    scan_value_cached=excluded.scan_value_cached,
+                    mapped_value_cached=excluded.mapped_value_cached,
+                    current_value_cached=excluded.current_value_cached,
+                    high_value_cached=excluded.high_value_cached
+            """, commander_body_rows)
 
             # Besuche
             con.executemany(

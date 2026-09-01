@@ -862,6 +862,7 @@ class AppState(QObject):
             return False
 
         self.database.ensure_schema_v3()
+        self.database.ensure_schema_v4()
         self.database.set_active_commander(commander_id)
 
         previous_fid = self.commander_fid
@@ -976,7 +977,7 @@ class AppState(QObject):
             # Live-Snapshot speichern, aber die Journaldatei hier NICHT
             # als vollständig archiv-importiert markieren. Das erledigt
             # ausschließlich der Archivimport selbst.
-            self.database.store_snapshot(data)
+            self.database.store_snapshot(data, commander_id=self.commander_id)
         except Exception:
             logger.exception("Live-Snapshot konnte nicht gespeichert werden")
 
