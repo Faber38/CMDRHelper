@@ -9,6 +9,14 @@ from PySide6.QtWidgets import QWidget, QToolTip
 from cmdrhelper.i18n import tr
 
 
+def commander_color(commander_id, light_mode=False) -> QColor:
+    """Erzeugt aus der stabilen internen ID eine reproduzierbare Farbe."""
+    # Bewusst kontrastreich sortiert; keine Farbe ist an Name oder FID gebunden.
+    hues = (190, 28, 125, 315, 225, 52, 275, 5, 165, 340, 88, 250)
+    hue = hues[(max(1, int(commander_id)) - 1) % len(hues)]
+    return QColor.fromHsv(hue, 185 if light_mode else 170, 175 if light_mode else 245)
+
+
 class ChronicleMapWidget(QWidget):
     """
     Interaktive 3D-Chronik auf Basis der Elite-StarPos-Koordinaten.
@@ -27,6 +35,9 @@ class ChronicleMapWidget(QWidget):
         super().__init__(parent)
 
         self.systems = []
+        self.routes = []
+        self.commander_colors = {}
+        self.light_mode = False
 
         # Kamera / Projektion
         self.scale = 1.0
@@ -72,9 +83,11 @@ class ChronicleMapWidget(QWidget):
     # Daten / Ansicht
     # ------------------------------------------------------------------
 
-    def set_systems(self, systems):
+    def set_systems(self, systems, routes=None, commander_colors=None):
         selected = self.selected_address
         self.systems = list(systems or [])
+        self.routes = list(routes or [])
+        self.commander_colors = dict(commander_colors or {})
 
         if selected is not None and not any(
             s.get("system_address") == selected
@@ -84,6 +97,37 @@ class ChronicleMapWidget(QWidget):
 
         self.fit_map()
         self.update()
+
+    def set_light_mode(self, light_mode):
+        self.light_mode = bool(light_mode)
+        self.update()
+
+    def route_segments(self):
+        """Liefert testbar nur Verbindungen innerhalb einer Commanderroute."""
+        systems = {item.get("system_address"): item for item in self.systems}
+        segments = []
+        for route in self.routes:
+            points = [
+                systems[address]
+                for address in route.get("system_addresses", [])
+                if address in systems
+            ]
+            for first, second in zip(points, points[1:]):
+                segments.append((route.get("commander_id"), first, second))
+        return segments
+
+    def _color(self, commander_id):
+        color = self.commander_colors.get(int(commander_id))
+        return QColor(color) if color is not None else commander_color(
+            commander_id, self.light_mode
+        )
+
+    @staticmethod
+    def marker_commander_ids(system):
+        return [
+            int(visitor["commander_id"])
+            for visitor in system.get("commanders") or []
+        ]
 
     def set_current_system(self, system_name):
         """Markiert das aktuell besuchte System in der Chronik."""
@@ -404,10 +448,7 @@ class ChronicleMapWidget(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
-        painter.fillRect(
-            self.rect(),
-            QColor("#071017"),
-        )
+        painter.fillRect(self.rect(), QColor("#eef3f7" if self.light_mode else "#071017"))
 
         self._draw_grid(painter)
         self._draw_galaxy(painter)
@@ -428,22 +469,14 @@ class ChronicleMapWidget(QWidget):
             for i, system in enumerate(self.systems)
         ]
 
-        # Route zuerst zeichnen.
-        painter.setPen(
-            QPen(
-                QColor("#d89224"),
-                1.5,
-            )
-        )
-
-        for first, second in zip(
-            projected,
-            projected[1:],
-        ):
-            painter.drawLine(
-                first[2],
-                second[2],
-            )
+        # Jede Linie gehört exakt einer Commanderroute; nie übergreifend verbinden.
+        for commander_id, first, second in self.route_segments():
+            first_point, _depth, _perspective = self._project(first)
+            second_point, _depth, _perspective = self._project(second)
+            color = self._color(commander_id)
+            color.setAlpha(190)
+            painter.setPen(QPen(color, 1.6))
+            painter.drawLine(first_point, second_point)
 
         # Entfernte Punkte zuerst, nahe Punkte zuletzt.
         projected_sorted = sorted(
@@ -476,62 +509,31 @@ class ChronicleMapWidget(QWidget):
             if current:
                 radius = 8.0
 
-            if current:
-                # Aktuelle Commander-Position: bewusst kräftig gelb,
-                # damit sie auch in einer dichten Route sofort auffällt.
-                painter.setPen(
-                    QPen(
-                        QColor("#fff6a0"),
-                        2.5,
-                    )
-                )
-                painter.setBrush(
-                    QBrush(
-                        QColor("#ffd400")
-                    )
-                )
-            elif selected:
-                painter.setPen(
-                    QPen(
-                        QColor("#ffffff"),
-                        2,
-                    )
-                )
-                painter.setBrush(
-                    QBrush(
-                        QColor("#ff9d00")
-                    )
-                )
-            elif hover:
-                painter.setPen(
-                    QPen(
-                        QColor("#ffe29a"),
-                        1.5,
-                    )
-                )
-                painter.setBrush(
-                    QBrush(
-                        QColor("#ffb000")
-                    )
-                )
+            visitors = list(system.get("commanders") or [])
+            if visitors:
+                base_color = self._color(visitors[0]["commander_id"])
             else:
-                painter.setPen(
-                    QPen(
-                        QColor("#8fe7ff"),
-                        1,
-                    )
-                )
-                painter.setBrush(
-                    QBrush(
-                        QColor("#22b7d6")
-                    )
-                )
+                base_color = QColor("#22b7d6")
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(QBrush(base_color))
+            painter.drawEllipse(point, radius, radius)
 
-            painter.drawEllipse(
-                point,
-                radius,
-                radius,
-            )
+            # Mehrfachbesuche: zusätzliche Commander als konzentrische Farbringe.
+            for ring_index, visitor in enumerate(visitors[1:], start=1):
+                ring_radius = radius + ring_index * 2.5
+                painter.setPen(QPen(self._color(visitor["commander_id"]), 2.0))
+                painter.setBrush(Qt.NoBrush)
+                painter.drawEllipse(point, ring_radius, ring_radius)
+
+            highlight_radius = radius + max(0, len(visitors) - 1) * 2.5 + 2.0
+            if current:
+                painter.setPen(QPen(QColor("#ffd400"), 2.5))
+                painter.setBrush(Qt.NoBrush)
+                painter.drawEllipse(point, highlight_radius, highlight_radius)
+            elif selected or hover:
+                painter.setPen(QPen(QColor("#ffffff"), 2.0))
+                painter.setBrush(Qt.NoBrush)
+                painter.drawEllipse(point, highlight_radius, highlight_radius)
 
             if hover or selected or current:
                 painter.setPen(
@@ -925,6 +927,16 @@ class ChronicleMapWidget(QWidget):
         if hit >= 0:
             system = self.systems[hit]
 
+            visitor_lines = []
+            for visitor in system.get("commanders") or []:
+                visitor_lines.append(tr(
+                    "chronicle.tooltip_commander",
+                    name=visitor.get("commander_name") or visitor.get("fid") or "–",
+                    first=visitor.get("first_visit") or "–",
+                    last=visitor.get("last_visit") or "–",
+                    visits=int(visitor.get("visits") or 0),
+                ))
+
             QToolTip.showText(
                 event.globalPosition().toPoint(),
                 (
@@ -932,6 +944,7 @@ class ChronicleMapWidget(QWidget):
                     f"X: {float(system.get('x') or 0):.1f} ly\n"
                     f"Y: {float(system.get('y') or 0):.1f} ly\n"
                     f"Z: {float(system.get('z') or 0):.1f} ly"
+                    + (("\n" + "\n".join(visitor_lines)) if visitor_lines else "")
                 ),
                 self,
             )

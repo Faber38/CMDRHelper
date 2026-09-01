@@ -2853,6 +2853,83 @@ class CMDRDatabase:
             for r in rows
         ]
 
+    def multi_commander_chronicle(self, commander_ids=None) -> dict:
+        """Liest globale Kartenpunkte und strikt getrennte Commander-Routen."""
+        if commander_ids is None:
+            commander_ids = [item["id"] for item in self.list_commanders()]
+        commander_ids = sorted({int(value) for value in commander_ids})
+        if not commander_ids:
+            return {"systems": [], "routes": []}
+
+        placeholders = ",".join("?" for _ in commander_ids)
+        with self._connect() as con:
+            rows = con.execute(
+                f"""
+                SELECT v.commander_id, c.current_name, c.fid,
+                       v.system_address, s.name, s.x, s.y, s.z,
+                       s.body_count, v.visited_at, v.id
+                FROM system_visits v
+                JOIN commanders c ON c.id=v.commander_id
+                JOIN systems s ON s.system_address=v.system_address
+                WHERE v.commander_id IN ({placeholders})
+                  AND s.x IS NOT NULL AND s.y IS NOT NULL AND s.z IS NOT NULL
+                ORDER BY v.commander_id, v.visited_at, v.id
+                """,
+                commander_ids,
+            ).fetchall()
+
+        systems = {}
+        routes = {}
+        for row in rows:
+            commander_id = int(row[0])
+            address = int(row[3])
+            route = routes.setdefault(commander_id, {
+                "commander_id": commander_id,
+                "commander_name": str(row[1] or ""),
+                "fid": str(row[2] or ""),
+                "system_addresses": [],
+            })
+            route["system_addresses"].append(address)
+
+            system = systems.setdefault(address, {
+                "system_address": address,
+                "name": str(row[4] or ""),
+                "x": row[5], "y": row[6], "z": row[7],
+                "body_count": int(row[8] or 0),
+                "commanders": {},
+            })
+            visit = system["commanders"].setdefault(commander_id, {
+                "commander_id": commander_id,
+                "commander_name": str(row[1] or ""),
+                "fid": str(row[2] or ""),
+                "first_visit": row[9] or "",
+                "last_visit": row[9] or "",
+                "visits": 0,
+            })
+            visit["last_visit"] = row[9] or visit["last_visit"]
+            visit["visits"] += 1
+
+        result_systems = []
+        for system in systems.values():
+            visits = list(system["commanders"].values())
+            visits.sort(key=lambda item: (item["commander_name"].casefold(), item["fid"]))
+            system["commanders"] = visits
+            system["visits"] = sum(item["visits"] for item in visits)
+            system["first_seen"] = min(
+                (item["first_visit"] for item in visits if item["first_visit"]),
+                default="",
+            )
+            system["last_seen"] = max(
+                (item["last_visit"] for item in visits if item["last_visit"]),
+                default="",
+            )
+            result_systems.append(system)
+
+        return {
+            "systems": result_systems,
+            "routes": [routes[key] for key in sorted(routes)],
+        }
+
 
     def recent_system_visits(self, limit=10, commander_id=None):
         """

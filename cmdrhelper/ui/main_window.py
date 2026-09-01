@@ -8,7 +8,7 @@ import re
 from cmdrhelper.ui.system_view import SystemMapWidget
 from cmdrhelper.bio_valuation import base_value, species_name
 from cmdrhelper.ui.body_detail_window import BodyDetailWindow
-from cmdrhelper.ui.chronicle_view import ChronicleMapWidget
+from cmdrhelper.ui.chronicle_view import ChronicleMapWidget, commander_color
 from cmdrhelper.ui.screenshot_view import ScreenshotView
 from cmdrhelper.ui.commander_view import CommanderView
 from cmdrhelper.route_planner import RoutePlannerView
@@ -3092,6 +3092,21 @@ class MainWindow(QMainWindow):
 
         layout.addLayout(header)
 
+        self.chronicle_filter_frame = QFrame(objectName="card")
+        self.chronicle_filter_layout = QHBoxLayout(self.chronicle_filter_frame)
+        self.chronicle_filter_layout.setContentsMargins(8, 4, 8, 4)
+        self.chronicle_filter_layout.addWidget(QLabel(tr("chronicle.commander_filter")))
+        self.chronicle_all_commanders = QCheckBox(tr("chronicle.all_commanders"))
+        self.chronicle_all_commanders.setChecked(True)
+        self.chronicle_all_commanders.toggled.connect(
+            self._toggle_all_chronicle_commanders
+        )
+        self.chronicle_filter_layout.addWidget(self.chronicle_all_commanders)
+        self.chronicle_filter_layout.addStretch()
+        self.chronicle_commander_checks = {}
+        self._chronicle_filter_ids = ()
+        layout.addWidget(self.chronicle_filter_frame)
+
         map_card, map_layout = self._card(tr("chronicle.visited_systems"))
 
         self.chronicle_status = QLabel("", objectName="muted")
@@ -3099,6 +3114,7 @@ class MainWindow(QMainWindow):
         map_layout.addWidget(self.chronicle_status)
 
         self.chronicle_map = ChronicleMapWidget()
+        self.chronicle_map.set_light_mode(self.ui_theme == "light")
         self.chronicle_map.systemClicked.connect(self._chronicle_system_clicked)
         map_layout.addWidget(self.chronicle_map, 1)
 
@@ -3123,21 +3139,116 @@ class MainWindow(QMainWindow):
 
         return page
 
+    def _sync_chronicle_filters(self, commanders):
+        commander_ids = tuple(int(item["id"]) for item in commanders)
+        if commander_ids == self._chronicle_filter_ids:
+            return
+        previous = {
+            commander_id: checkbox.isChecked()
+            for commander_id, checkbox in self.chronicle_commander_checks.items()
+        }
+        while self.chronicle_filter_layout.count() > 3:
+            item = self.chronicle_filter_layout.takeAt(2)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+
+        self.chronicle_commander_checks = {}
+        for commander in commanders:
+            commander_id = int(commander["id"])
+            color = commander_color(commander_id, self.ui_theme == "light")
+            marker = QLabel("●")
+            marker.setStyleSheet(f"color: {color.name()}; font-size: 16px;")
+            self.chronicle_filter_layout.insertWidget(
+                self.chronicle_filter_layout.count() - 1, marker
+            )
+            checkbox = QCheckBox(commander["display_name"])
+            checkbox.setChecked(previous.get(commander_id, True))
+            checkbox.toggled.connect(self._chronicle_filter_changed)
+            self.chronicle_commander_checks[commander_id] = checkbox
+            self.chronicle_filter_layout.insertWidget(
+                self.chronicle_filter_layout.count() - 1, checkbox
+            )
+            only_button = QPushButton(tr("chronicle.only_commander"))
+            only_button.setToolTip(tr(
+                "chronicle.only_commander_tooltip",
+                name=commander["display_name"],
+            ))
+            only_button.clicked.connect(
+                lambda _checked=False, value=commander_id:
+                    self._show_only_chronicle_commander(value)
+            )
+            self.chronicle_filter_layout.insertWidget(
+                self.chronicle_filter_layout.count() - 1, only_button
+            )
+        self._chronicle_filter_ids = commander_ids
+        self._update_chronicle_all_checkbox()
+
+    def _selected_chronicle_commander_ids(self):
+        return [
+            commander_id for commander_id, checkbox
+            in self.chronicle_commander_checks.items()
+            if checkbox.isChecked()
+        ]
+
+    def _update_chronicle_all_checkbox(self):
+        checks = list(self.chronicle_commander_checks.values())
+        self.chronicle_all_commanders.blockSignals(True)
+        self.chronicle_all_commanders.setChecked(
+            bool(checks) and all(checkbox.isChecked() for checkbox in checks)
+        )
+        self.chronicle_all_commanders.blockSignals(False)
+
+    def _toggle_all_chronicle_commanders(self, checked):
+        for checkbox in self.chronicle_commander_checks.values():
+            checkbox.blockSignals(True)
+            checkbox.setChecked(bool(checked))
+            checkbox.blockSignals(False)
+        self._refresh_chronicle()
+
+    def _chronicle_filter_changed(self):
+        self._update_chronicle_all_checkbox()
+        self._refresh_chronicle()
+
+    def _show_only_chronicle_commander(self, commander_id):
+        for value, checkbox in self.chronicle_commander_checks.items():
+            checkbox.blockSignals(True)
+            checkbox.setChecked(value == int(commander_id))
+            checkbox.blockSignals(False)
+        self._update_chronicle_all_checkbox()
+        self._refresh_chronicle()
+
     def _refresh_chronicle(self):
         if hasattr(self, "chronicle_search_results"):
             self.chronicle_search_results.clear()
             self.chronicle_search_results.setVisible(False)
 
         try:
-            systems = self.state.database.chronicle_systems()
+            commanders = self.state.database.list_commanders()
+            self._sync_chronicle_filters(commanders)
+            selected_ids = self._selected_chronicle_commander_ids()
+            chronicle = self.state.database.multi_commander_chronicle(selected_ids)
+            systems = chronicle["systems"]
+            colors = {
+                commander_id: commander_color(
+                    commander_id, self.ui_theme == "light"
+                )
+                for commander_id in selected_ids
+            }
         except Exception as exc:
             systems = []
+            chronicle = {"routes": []}
+            colors = {}
             self.chronicle_status.setText(tr("chronicle.load_failed", error=exc))
         else:
             self.chronicle_status.setText(
-                tr("chronicle.map_status", count=len(systems))
+                tr(
+                    "chronicle.multi_map_status",
+                    count=len(systems),
+                    commanders=len(selected_ids),
+                )
             )
-        self.chronicle_map.set_systems(systems)
+        self.chronicle_map.set_systems(systems, chronicle["routes"], colors)
         self._mark_current_chronicle_system()
 
     def _mark_current_chronicle_system(self):
@@ -3163,12 +3274,18 @@ class MainWindow(QMainWindow):
             self.chronicle_search_results.setVisible(False)
 
         try:
-            systems = self.state.database.chronicle_systems()
+            selected_ids = self._selected_chronicle_commander_ids()
+            chronicle = self.state.database.multi_commander_chronicle(selected_ids)
+            systems = chronicle["systems"]
         except Exception as exc:
             self.chronicle_status.setText(tr("chronicle.load_failed", error=exc))
             return
 
-        self.chronicle_map.set_systems(systems)
+        colors = {
+            commander_id: commander_color(commander_id, self.ui_theme == "light")
+            for commander_id in selected_ids
+        }
+        self.chronicle_map.set_systems(systems, chronicle["routes"], colors)
         self._mark_current_chronicle_system()
 
         if hasattr(self.chronicle_map, "focus_current_system"):
@@ -3384,22 +3501,51 @@ class MainWindow(QMainWindow):
         name = system.get("name") or tr("chronicle.unknown")
         address = system.get("system_address")
 
-        self.chronicle_detail.setText(
+        visitor_text = "\n".join(
             tr(
-                "chronicle.system_detail",
-                name=name,
-                visits=system.get("visits", 0),
-                bodies=system.get("body_count", 0),
-                first=self._format_timestamp(system.get("first_seen")),
-                last=self._format_timestamp(system.get("last_seen")),
-                x=float(system.get("x") or 0),
-                y=float(system.get("y") or 0),
-                z=float(system.get("z") or 0),
+                "chronicle.commander_visit_detail",
+                name=visitor.get("commander_name") or visitor.get("fid") or "–",
+                visits=int(visitor.get("visits") or 0),
+                first=self._format_timestamp(visitor.get("first_visit")),
+                last=self._format_timestamp(visitor.get("last_visit")),
             )
+            for visitor in system.get("commanders") or []
+        )
+        detail_text = tr(
+            "chronicle.system_detail",
+            name=name,
+            visits=system.get("visits", 0),
+            bodies=system.get("body_count", 0),
+            first=self._format_timestamp(system.get("first_seen")),
+            last=self._format_timestamp(system.get("last_seen")),
+            x=float(system.get("x") or 0),
+            y=float(system.get("y") or 0),
+            z=float(system.get("z") or 0),
+        )
+        if visitor_text:
+            detail_text += "\n" + visitor_text
+        self.chronicle_detail.setText(
+            detail_text
         )
 
         try:
-            details = self.state.database.chronicle_system_details(address)
+            visitor_ids = {
+                int(visitor["commander_id"])
+                for visitor in system.get("commanders") or []
+            }
+            detail_commander_id = None
+            for candidate in (
+                getattr(self.state, "commander_id", None),
+                getattr(self.state, "viewed_commander_id", None),
+            ):
+                if candidate in visitor_ids:
+                    detail_commander_id = int(candidate)
+                    break
+            if detail_commander_id is None and visitor_ids:
+                detail_commander_id = min(visitor_ids)
+            details = self.state.database.chronicle_system_details(
+                address, detail_commander_id
+            )
         except Exception as exc:
             QMessageBox.warning(
                 self,
@@ -3419,6 +3565,19 @@ class MainWindow(QMainWindow):
         )
 
         header_text = tr("chronicle.stored_bodies", count=len(bodies))
+        detail_visitor = next(
+            (
+                visitor for visitor in system.get("commanders") or []
+                if visitor.get("commander_id") == detail_commander_id
+            ),
+            None,
+        )
+        if detail_visitor is not None:
+            header_text += tr(
+                "chronicle.details_for_commander",
+                name=(detail_visitor.get("commander_name")
+                      or detail_visitor.get("fid") or "–"),
+            )
         if bio_bodies:
             header_text += tr("chronicle.bio_on_bodies", count=bio_bodies)
         if geo_bodies:
@@ -4524,6 +4683,11 @@ class MainWindow(QMainWindow):
 
         if hasattr(self, "system_map"):
             self.system_map.set_light_mode(theme == "light")
+
+        if hasattr(self, "chronicle_map"):
+            self.chronicle_map.set_light_mode(theme == "light")
+            self._chronicle_filter_ids = ()
+            self._refresh_chronicle()
 
         if self._chronicle_system_window is not None and hasattr(
             self._chronicle_system_window, "system_map"
