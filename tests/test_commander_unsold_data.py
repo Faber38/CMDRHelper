@@ -52,7 +52,7 @@ class CommanderUnsoldDataTests(unittest.TestCase):
         )
 
     def test_schema_wealth_and_missing_value_are_commander_specific(self):
-        self.assertEqual(SCHEMA_VERSION, 6)
+        self.assertEqual(SCHEMA_VERSION, 7)
         self.db.store_commander_wealth(self.a, {"credits": 1234567,
             "event_timestamp": "2026-01-01T00:00:00Z", "source_event": "LoadGame"})
         self.assertEqual(self.db.commander_summary(self.a)["wealth"]["credits"], 1234567)
@@ -136,7 +136,7 @@ class CommanderUnsoldDataTests(unittest.TestCase):
             con.execute("DROP TABLE commander_unsold_cartography")
         CMDRDatabase(self.path)
         with sqlite3.connect(self.path) as con:
-            self.assertEqual(con.execute("PRAGMA user_version").fetchone()[0], 6)
+            self.assertEqual(con.execute("PRAGMA user_version").fetchone()[0], SCHEMA_VERSION)
             self.assertEqual(con.execute("SELECT current_name FROM commanders WHERE id=?",
                                          (self.a,)).fetchone()[0], "Alpha")
 

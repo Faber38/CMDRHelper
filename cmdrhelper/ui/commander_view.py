@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QComboBox,
     QFormLayout,
@@ -10,6 +11,7 @@ from PySide6.QtWidgets import (
     QTableWidget,
     QTableWidgetItem,
     QHeaderView,
+    QToolButton,
     QVBoxLayout,
     QWidget,
 )
@@ -139,31 +141,28 @@ class CommanderView(QWidget):
     def _ships_tab(self):
         tab = QWidget()
         layout = QVBoxLayout(tab)
-        layout.addWidget(QLabel(tr("commander_view.ship.title"), objectName="sectionTitle"))
-        ship_card = QFrame(objectName="card")
-        ship_form = QFormLayout(ship_card)
-        self.ship_values = {}
-        ship_fields = (
+        layout.addWidget(QLabel(tr("commander_view.fleet.current"), objectName="sectionTitle"))
+        current_card = QFrame(objectName="card")
+        current_form = QFormLayout(current_card)
+        self.current_ship_values = {}
+        for field, label in (
+            ("name", tr("commander_view.ship.ship_name")),
+            ("type", tr("commander_view.ship.ship_type")),
+            ("location", tr("commander_view.ship.location")),
             ("ship_id", tr("commander_view.ship.ship_id")),
-            ("ship_type", tr("commander_view.ship.ship_type")),
-            ("ship_name", tr("commander_view.ship.ship_name")),
-            ("ship_ident", tr("commander_view.ship.ship_ident")),
-            ("loadout_timestamp", tr("commander_view.ship.loadout_timestamp")),
-            ("max_jump_range", tr("commander_view.ship.max_jump_range")),
-            ("unladen_mass", tr("commander_view.ship.unladen_mass")),
-            ("cargo_capacity", tr("commander_view.ship.cargo_capacity")),
-            ("main_tank_capacity", tr("commander_view.ship.main_tank_capacity")),
-            ("reserve_tank_capacity", tr("commander_view.ship.reserve_tank_capacity")),
-            ("fsd_item", tr("commander_view.ship.fsd_item")),
-            ("guardian_booster", tr("commander_view.ship.guardian_booster")),
-            ("loadout_status", tr("commander_view.ship.loadout_status")),
-        )
-        for field, label in ship_fields:
+        ):
             value = QLabel("–")
-            value.setWordWrap(True)
-            self.ship_values[field] = value
-            ship_form.addRow(label, value)
-        layout.addWidget(ship_card)
+            self.current_ship_values[field] = value
+            current_form.addRow(label, value)
+        self.ship_values = self.current_ship_values
+        layout.addWidget(current_card)
+
+        self.fleet_title = QLabel(objectName="sectionTitle")
+        layout.addWidget(self.fleet_title)
+        self.fleet_container = QWidget()
+        self.fleet_layout = QVBoxLayout(self.fleet_container)
+        self.fleet_layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.fleet_container)
 
         layout.addWidget(QLabel(tr("commander_view.carrier.title"), objectName="sectionTitle"))
         carrier_card = QFrame(objectName="card")
@@ -180,7 +179,7 @@ class CommanderView(QWidget):
             self.carrier_values[field] = value
             carrier_form.addRow(label, value)
         layout.addWidget(carrier_card)
-        layout.addStretch()
+        self.fleet_layout.addStretch()
         return tab
 
     @staticmethod
@@ -345,22 +344,27 @@ class CommanderView(QWidget):
                 self.missions_table.setItem(row, column, QTableWidgetItem(str(value)))
 
     def _refresh_ship(self, summary):
-        ship = summary.get("ship") if summary else None
-        for field, label in self.ship_values.items():
-            value = ship.get(field) if ship else None
-            if field == "guardian_booster":
-                value = ", ".join(
-                    item.get("item") or ""
-                    for item in (ship.get("guardian_fsd_boosters") if ship else [])
-                    if item.get("item")
-                )
-            elif field == "loadout_status":
-                value = (
-                    tr("commander_view.ship.status.stale") if ship and ship["loadout_stale"]
-                    else tr("commander_view.ship.status.complete") if ship and ship["loadout_complete"]
-                    else tr("commander_view.ship.status.incomplete") if ship else "–"
-                )
+        commander_id = summary.get("id") if summary else None
+        ships = self.state.database.commander_ships(commander_id)
+        current = next((ship for ship in ships if ship["is_current"]), ships[0] if ships else None)
+        current_data = {
+            "name": self._ship_name(current),
+            "type": current.get("ship_type") if current else None,
+            "location": self._ship_location(current),
+            "ship_id": current.get("ship_id") if current else None,
+        }
+        for field, label in self.current_ship_values.items():
+            value = current_data[field]
             label.setText(str(value) if value not in (None, "") else "–")
+
+        while self.fleet_layout.count():
+            item = self.fleet_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+        self.fleet_title.setText(tr("commander_view.fleet.title", count=len(ships)))
+        for ship in ships:
+            self.fleet_layout.addWidget(self._fleet_ship_widget(ship))
+        self.fleet_layout.addStretch()
 
         carrier = summary.get("carrier") if summary else None
         carrier_data = {
@@ -373,3 +377,66 @@ class CommanderView(QWidget):
         for field, label in self.carrier_values.items():
             value = carrier_data[field]
             label.setText(str(value) if value not in (None, "") else "–")
+
+    @staticmethod
+    def _ship_name(ship):
+        if not ship:
+            return "–"
+        return ship.get("ship_name") or ship.get("ship_type") or "–"
+
+    @staticmethod
+    def _ship_location(ship):
+        if not ship:
+            return "–"
+        parts = [ship.get("system_name") or "", ship.get("station_name") or ""]
+        text = " / ".join(part for part in parts if part)
+        return text or (str(ship["system_address"]) if ship.get("system_address") is not None else "–")
+
+    def _fleet_ship_widget(self, ship):
+        card = QFrame(objectName="card")
+        layout = QVBoxLayout(card)
+        marker = f" · {tr('commander_view.fleet.current_marker')}" if ship["is_current"] else ""
+        header = QToolButton()
+        header.setCheckable(True)
+        header.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        header.setArrowType(Qt.RightArrow)
+        header.setText(
+            f"{self._ship_name(ship)} · {ship.get('ship_type') or '–'} · "
+            f"{self._ship_location(ship)}{marker}"
+        )
+        layout.addWidget(header)
+        details = QWidget()
+        form = QFormLayout(details)
+        boosters = ", ".join(
+            item.get("item") or "" for item in ship.get("guardian_fsd_boosters", [])
+            if item.get("item")
+        ) or "–"
+        status = (
+            tr("commander_view.ship.status.stale") if ship["loadout_stale"]
+            else tr("commander_view.ship.status.complete") if ship["loadout_complete"]
+            else tr("commander_view.ship.status.incomplete")
+        )
+        fields = (
+            (tr("commander_view.ship.ship_ident"), ship.get("ship_ident")),
+            (tr("commander_view.ship.ship_id"), ship.get("ship_id")),
+            (tr("commander_view.ship.location"), self._ship_location(ship)),
+            (tr("commander_view.ship.last_seen"), ship.get("last_seen")),
+            (tr("commander_view.ship.max_jump_range"), ship.get("max_jump_range")),
+            (tr("commander_view.ship.fsd_item"), ship.get("fsd_item")),
+            (tr("commander_view.ship.guardian_booster"), boosters),
+            (tr("commander_view.ship.unladen_mass"), ship.get("unladen_mass")),
+            (tr("commander_view.ship.cargo_capacity"), ship.get("cargo_capacity")),
+            (tr("commander_view.ship.main_tank_capacity"), ship.get("main_tank_capacity")),
+            (tr("commander_view.ship.reserve_tank_capacity"), ship.get("reserve_tank_capacity")),
+            (tr("commander_view.ship.loadout_timestamp"), ship.get("loadout_timestamp")),
+            (tr("commander_view.ship.loadout_status"), status),
+        )
+        for title, value in fields:
+            form.addRow(title, QLabel(str(value) if value not in (None, "") else "–"))
+        details.setVisible(False)
+        header.toggled.connect(details.setVisible)
+        header.toggled.connect(lambda checked, button=header: button.setArrowType(
+            Qt.DownArrow if checked else Qt.RightArrow
+        ))
+        layout.addWidget(details)
+        return card

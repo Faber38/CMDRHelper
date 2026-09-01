@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import platform
 from datetime import datetime, timedelta
@@ -636,6 +637,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
         "station": "",
         "ship": "",
         "ship_loadout": ship_loadout,
+        "fleet_ships": [],
         "last_timestamp": "",
         "missions": [],
         "mission_terminal_updates": [],
@@ -727,11 +729,41 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
     missions_snapshot_seen = False
     pending_mission_offers: list[dict] = []
     owned_carrier = None
+    fleet_ships: dict[int, dict] = {}
+
+    def _remember_ship(timestamp="", location=None):
+        ship_id = getattr(ship_loadout, "ship_id", None)
+        if ship_id is None:
+            return
+        ship_id = int(ship_id)
+        previous = fleet_ships.get(ship_id) or {}
+        fleet_ships[ship_id] = {
+            "loadout": copy.deepcopy(ship_loadout),
+            "first_seen": previous.get("first_seen") or str(timestamp or ""),
+            "last_seen": str(timestamp or previous.get("last_seen") or ""),
+            "location": copy.deepcopy(location) if location else previous.get("location"),
+            "is_current": True,
+        }
+        for other_id, item in fleet_ships.items():
+            if other_id != ship_id:
+                item["is_current"] = False
 
     current_system = ""
     current_system_address = None
     current_station = ""
     current_body = ""
+
+    def _known_ship_location(timestamp):
+        if not current_system and current_system_address is None:
+            return None
+        return {
+            "system_name": current_system,
+            "system_address": current_system_address,
+            "station_name": current_station,
+            "body_name": current_body,
+            "event_timestamp": str(timestamp or ""),
+            "event_type": "ShipState",
+        }
 
     def _set_last_position(event, event_type, station_name="", body_name=""):
         result["last_position"] = {
@@ -1072,6 +1104,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                     parsed_fuel = _optional_float(e.get("FuelLevel"))
                     if parsed_fuel is not None:
                         ship_loadout.main_fuel = parsed_fuel
+                    _remember_ship(ts, _known_ship_location(ts))
 
                 elif et == "Loadout":
                     result["ship"] = (
@@ -1080,6 +1113,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                         or result["ship"]
                     )
                     ship_loadout = _loadout_from_event(e, ship_loadout)
+                    _remember_ship(ts, _known_ship_location(ts))
 
                 elif et in ("ShipyardSwap", "ShipyardBuy"):
                     ship_loadout = ShipLoadoutData(
@@ -1094,6 +1128,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                         str(e.get("ShipType_Localised") or e.get("ShipType") or "").strip()
                         or result["ship"]
                     )
+                    _remember_ship(ts, _known_ship_location(ts))
 
                 elif et in (
                     "ModuleBuy",
@@ -1107,6 +1142,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                 ):
                     if _matching_ship(ship_loadout, e):
                         ship_loadout.loadout_stale = True
+                        _remember_ship(ts)
 
                 elif et == "Cargo":
                     if str(e.get("Vessel") or "").strip().casefold() == "ship":
@@ -1173,6 +1209,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                         current_station if et == "Location" else "",
                         (e.get("Body") or e.get("BodyName") or ""),
                     )
+                    _remember_ship(ts, result["last_position"])
 
                     if et == "CarrierJump" and owned_carrier is not None:
                         event_carrier_id = _optional_int(
@@ -1216,6 +1253,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                     result["system_address"] = current_system_address
 
                     _set_last_position(e, et, current_station, "")
+                    _remember_ship(ts, result["last_position"])
 
                     _update_location_status(
                         missions,
@@ -1928,6 +1966,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
     result["missions_snapshot_seen"] = missions_snapshot_seen
     result["owned_carrier"] = owned_carrier
     result["ship_loadout"] = ship_loadout
+    result["fleet_ships"] = list(fleet_ships.values())
 
     # -------------------------------------------------------------
     # Nur Daten des AKTUELLEN SystemAddress anzeigen

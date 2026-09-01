@@ -8,7 +8,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
 
 PERSONAL_TABLES = (
     "system_visits",
@@ -350,6 +350,7 @@ class CMDRDatabase:
         self._maybe_migrate_v4()
         self._maybe_migrate_v5()
         self._maybe_migrate_v6()
+        self._maybe_migrate_v7()
 
     def _personal_row_counts(self, con):
         return {
@@ -623,6 +624,61 @@ class CMDRDatabase:
     def ensure_schema_v6(self):
         self._maybe_migrate_v6()
 
+    def _maybe_migrate_v7(self):
+        with self._connect() as con:
+            version = int(con.execute("PRAGMA user_version").fetchone()[0])
+            if version >= 7 or version < 6:
+                return
+            con.executescript("""
+                ALTER TABLE commander_ships RENAME TO commander_ships_v6;
+                CREATE TABLE commander_ships (
+                    commander_id INTEGER NOT NULL,
+                    ship_id INTEGER NOT NULL,
+                    ship_type TEXT NOT NULL DEFAULT '',
+                    ship_name TEXT NOT NULL DEFAULT '',
+                    ship_ident TEXT NOT NULL DEFAULT '',
+                    first_seen TEXT NOT NULL DEFAULT '',
+                    last_seen TEXT NOT NULL DEFAULT '',
+                    loadout_timestamp TEXT NOT NULL DEFAULT '',
+                    system_name TEXT NOT NULL DEFAULT '',
+                    system_address INTEGER,
+                    station_name TEXT NOT NULL DEFAULT '',
+                    max_jump_range REAL,
+                    unladen_mass REAL,
+                    cargo_capacity INTEGER,
+                    main_tank_capacity REAL,
+                    reserve_tank_capacity REAL,
+                    fsd_item TEXT NOT NULL DEFAULT '',
+                    guardian_fsd_boosters TEXT NOT NULL DEFAULT '[]',
+                    loadout_complete INTEGER NOT NULL DEFAULT 0,
+                    loadout_stale INTEGER NOT NULL DEFAULT 1,
+                    is_current INTEGER NOT NULL DEFAULT 0,
+                    PRIMARY KEY(commander_id,ship_id),
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id)
+                );
+                INSERT INTO commander_ships(
+                    commander_id,ship_id,ship_type,ship_name,ship_ident,first_seen,
+                    last_seen,loadout_timestamp,max_jump_range,unladen_mass,cargo_capacity,
+                    main_tank_capacity,reserve_tank_capacity,fsd_item,
+                    guardian_fsd_boosters,loadout_complete,loadout_stale,is_current)
+                SELECT commander_id,ship_id,ship_type,ship_name,ship_ident,last_seen,
+                    last_seen,loadout_timestamp,max_jump_range,unladen_mass,cargo_capacity,
+                    main_tank_capacity,reserve_tank_capacity,fsd_item,
+                    guardian_fsd_boosters,loadout_complete,loadout_stale,1
+                FROM commander_ships_v6 WHERE ship_id IS NOT NULL;
+                DROP TABLE commander_ships_v6;
+                CREATE INDEX idx_commander_ships_order
+                    ON commander_ships(commander_id,is_current,last_seen);
+                CREATE UNIQUE INDEX idx_commander_ships_one_current
+                    ON commander_ships(commander_id) WHERE is_current=1;
+            """)
+            if con.execute("PRAGMA foreign_key_check").fetchall():
+                raise CommanderMigrationError("Foreign-Key-Prüfung nach v7-Migration fehlgeschlagen")
+            con.execute("PRAGMA user_version=7")
+
+    def ensure_schema_v7(self):
+        self._maybe_migrate_v7()
+
     def _migrate_exploration_tables_v4(self, commander_id, system_count, body_count):
         con = sqlite3.connect(self.path)
         try:
@@ -863,11 +919,14 @@ class CMDRDatabase:
                 (commander_id,),
             ).fetchone()
             ship = con.execute(
-                """SELECT ship_id,ship_type,ship_name,ship_ident,last_seen,
-                          loadout_timestamp,max_jump_range,unladen_mass,cargo_capacity,
-                          main_tank_capacity,reserve_tank_capacity,fsd_item,
-                          guardian_fsd_boosters,loadout_complete,loadout_stale
-                   FROM commander_ships WHERE commander_id=?""",
+                """SELECT ship_id,ship_type,ship_name,ship_ident,first_seen,last_seen,
+                          loadout_timestamp,system_name,system_address,station_name,
+                          max_jump_range,unladen_mass,cargo_capacity,main_tank_capacity,
+                          reserve_tank_capacity,fsd_item,guardian_fsd_boosters,
+                          loadout_complete,loadout_stale,is_current
+                   FROM commander_ships WHERE commander_id=?
+                   ORDER BY is_current DESC,last_seen DESC,ship_name COLLATE NOCASE,
+                            ship_type COLLATE NOCASE,ship_id LIMIT 1""",
                 (commander_id,),
             ).fetchone()
             carrier = con.execute(
@@ -1033,19 +1092,44 @@ class CMDRDatabase:
         if row is None:
             return None
         try:
-            boosters = json.loads(row[12] or "[]")
+            boosters = json.loads(row[16] or "[]")
         except (TypeError, ValueError, json.JSONDecodeError):
             boosters = []
         return {
             "ship_id": row[0], "ship_type": row[1] or "",
             "ship_name": row[2] or "", "ship_ident": row[3] or "",
-            "last_seen": row[4] or "", "loadout_timestamp": row[5] or "",
-            "max_jump_range": row[6], "unladen_mass": row[7],
-            "cargo_capacity": row[8], "main_tank_capacity": row[9],
-            "reserve_tank_capacity": row[10], "fsd_item": row[11] or "",
+            "first_seen": row[4] or "", "last_seen": row[5] or "",
+            "loadout_timestamp": row[6] or "", "system_name": row[7] or "",
+            "system_address": row[8], "station_name": row[9] or "",
+            "max_jump_range": row[10], "unladen_mass": row[11],
+            "cargo_capacity": row[12], "main_tank_capacity": row[13],
+            "reserve_tank_capacity": row[14], "fsd_item": row[15] or "",
             "guardian_fsd_boosters": boosters,
-            "loadout_complete": bool(row[13]), "loadout_stale": bool(row[14]),
+            "loadout_complete": bool(row[17]), "loadout_stale": bool(row[18]),
+            "is_current": bool(row[19]),
         }
+
+    def commander_ships(self, commander_id) -> list[dict]:
+        """Liefert ausschließlich die Flotte der expliziten Commander-ID."""
+        if commander_id is None:
+            return []
+        with self._connect() as con:
+            rows = con.execute("""
+                SELECT ship_id,ship_type,ship_name,ship_ident,first_seen,last_seen,
+                       loadout_timestamp,system_name,system_address,station_name,
+                       max_jump_range,unladen_mass,cargo_capacity,main_tank_capacity,
+                       reserve_tank_capacity,fsd_item,guardian_fsd_boosters,
+                       loadout_complete,loadout_stale,is_current
+                FROM commander_ships WHERE commander_id=?
+                ORDER BY is_current DESC,last_seen DESC,
+                         CASE WHEN ship_name<>'' THEN ship_name ELSE ship_type END COLLATE NOCASE,
+                         ship_id
+            """, (int(commander_id),)).fetchall()
+        return [self._ship_row(row) for row in rows]
+
+    def commander_last_ship(self, commander_id) -> dict | None:
+        ships = self.commander_ships(commander_id)
+        return ships[0] if ships else None
 
     @staticmethod
     def _mission_value(mission, key, default=""):
@@ -1160,7 +1244,8 @@ class CMDRDatabase:
                     str(location.get("body_name") or ""), location["event_timestamp"],
                     str(location.get("event_type") or "")))
 
-    def store_commander_ship(self, commander_id, loadout, observed_at=""):
+    def store_commander_ship(self, commander_id, loadout, observed_at="",
+                             location=None, is_current=True, first_seen=""):
         if loadout is None or getattr(loadout, "ship_id", None) is None:
             return
         boosters = [
@@ -1168,28 +1253,57 @@ class CMDRDatabase:
             for booster in (getattr(loadout, "guardian_fsd_boosters", ()) or ())
         ]
         with self._connect() as con:
+            if is_current:
+                con.execute(
+                    "UPDATE commander_ships SET is_current=0 WHERE commander_id=?",
+                    (int(commander_id),),
+                )
             con.execute("""
                 INSERT INTO commander_ships(commander_id,ship_id,ship_type,ship_name,
-                    ship_ident,last_seen,loadout_timestamp,max_jump_range,unladen_mass,
-                    cargo_capacity,main_tank_capacity,reserve_tank_capacity,fsd_item,
-                    guardian_fsd_boosters,loadout_complete,loadout_stale)
-                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-                ON CONFLICT(commander_id) DO UPDATE SET
-                    ship_id=excluded.ship_id,ship_type=excluded.ship_type,
-                    ship_name=excluded.ship_name,ship_ident=excluded.ship_ident,
-                    last_seen=excluded.last_seen,loadout_timestamp=excluded.loadout_timestamp,
-                    max_jump_range=excluded.max_jump_range,unladen_mass=excluded.unladen_mass,
-                    cargo_capacity=excluded.cargo_capacity,main_tank_capacity=excluded.main_tank_capacity,
-                    reserve_tank_capacity=excluded.reserve_tank_capacity,fsd_item=excluded.fsd_item,
-                    guardian_fsd_boosters=excluded.guardian_fsd_boosters,
-                    loadout_complete=excluded.loadout_complete,loadout_stale=excluded.loadout_stale
+                    ship_ident,first_seen,last_seen,loadout_timestamp,system_name,
+                    system_address,station_name,max_jump_range,unladen_mass,cargo_capacity,
+                    main_tank_capacity,reserve_tank_capacity,fsd_item,
+                    guardian_fsd_boosters,loadout_complete,loadout_stale,is_current)
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                ON CONFLICT(commander_id,ship_id) DO UPDATE SET
+                    ship_type=CASE WHEN excluded.ship_type<>'' THEN excluded.ship_type ELSE commander_ships.ship_type END,
+                    ship_name=CASE WHEN excluded.ship_name<>'' THEN excluded.ship_name ELSE commander_ships.ship_name END,
+                    ship_ident=CASE WHEN excluded.ship_ident<>'' THEN excluded.ship_ident ELSE commander_ships.ship_ident END,
+                    first_seen=CASE WHEN commander_ships.first_seen<>'' THEN commander_ships.first_seen ELSE excluded.first_seen END,
+                    last_seen=CASE WHEN excluded.last_seen>=commander_ships.last_seen THEN excluded.last_seen ELSE commander_ships.last_seen END,
+                    loadout_timestamp=CASE WHEN excluded.loadout_timestamp<>'' THEN excluded.loadout_timestamp ELSE commander_ships.loadout_timestamp END,
+                    system_name=CASE WHEN excluded.system_name<>'' THEN excluded.system_name ELSE commander_ships.system_name END,
+                    system_address=COALESCE(excluded.system_address,commander_ships.system_address),
+                    station_name=CASE WHEN excluded.system_name<>'' THEN excluded.station_name ELSE commander_ships.station_name END,
+                    max_jump_range=COALESCE(excluded.max_jump_range,commander_ships.max_jump_range),
+                    unladen_mass=COALESCE(excluded.unladen_mass,commander_ships.unladen_mass),
+                    cargo_capacity=COALESCE(excluded.cargo_capacity,commander_ships.cargo_capacity),
+                    main_tank_capacity=COALESCE(excluded.main_tank_capacity,commander_ships.main_tank_capacity),
+                    reserve_tank_capacity=COALESCE(excluded.reserve_tank_capacity,commander_ships.reserve_tank_capacity),
+                    fsd_item=CASE WHEN excluded.fsd_item<>'' THEN excluded.fsd_item ELSE commander_ships.fsd_item END,
+                    guardian_fsd_boosters=CASE WHEN excluded.loadout_complete THEN excluded.guardian_fsd_boosters ELSE commander_ships.guardian_fsd_boosters END,
+                    loadout_complete=CASE WHEN excluded.loadout_complete THEN 1 ELSE commander_ships.loadout_complete END,
+                    loadout_stale=excluded.loadout_stale,is_current=excluded.is_current
             """, (int(commander_id), loadout.ship_id, loadout.ship_type or "",
-                    loadout.ship_name or "", loadout.ship_ident or "", str(observed_at or ""),
-                    loadout.loadout_timestamp or "", loadout.max_jump_range,
+                    loadout.ship_name or "", loadout.ship_ident or "",
+                    str(first_seen or observed_at or ""), str(observed_at or ""),
+                    loadout.loadout_timestamp or "",
+                    str((location or {}).get("system_name") or ""),
+                    (location or {}).get("system_address"),
+                    str((location or {}).get("station_name") or ""), loadout.max_jump_range,
                     loadout.unladen_mass, loadout.cargo_capacity, loadout.main_tank_capacity,
                     loadout.reserve_tank_capacity, loadout.fsd_item or "",
                     json.dumps(boosters, ensure_ascii=False), int(loadout.loadout_complete),
-                    int(loadout.loadout_stale)))
+                    int(loadout.loadout_stale), int(bool(is_current))))
+
+    def store_commander_fleet(self, commander_id, fleet):
+        for ship in fleet or []:
+            loadout = ship.get("loadout") if isinstance(ship, dict) else None
+            self.store_commander_ship(
+                commander_id, loadout, ship.get("last_seen") or "",
+                location=ship.get("location"), is_current=bool(ship.get("is_current")),
+                first_seen=ship.get("first_seen") or "",
+            )
 
     def store_commander_carrier(self, commander_id, carrier):
         if not isinstance(carrier, dict) or carrier.get("carrier_id") is None:

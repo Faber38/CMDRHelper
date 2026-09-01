@@ -1036,9 +1036,14 @@ class AppState(QObject):
                 self.database.store_commander_location(
                     self.commander_id, data.get("last_position")
                 )
-                self.database.store_commander_ship(
-                    self.commander_id, self.ship_loadout, self.last_timestamp
-                )
+                fleet = data.get("fleet_ships") or []
+                if fleet:
+                    self.database.store_commander_fleet(self.commander_id, fleet)
+                else:
+                    self.database.store_commander_ship(
+                        self.commander_id, self.ship_loadout, self.last_timestamp,
+                        location=data.get("last_position"),
+                    )
                 self.database.store_commander_carrier(
                     self.commander_id, data.get("owned_carrier")
                 )
