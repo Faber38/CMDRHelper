@@ -199,6 +199,68 @@ def journal_files(folder: Path) -> list[Path]:
     return sorted(folder.glob("Journal.*.log"))
 
 
+def classify_journal_file(journal: Path) -> dict:
+    """Klassifiziert genau eine Datei, ohne Identität anderer Dateien zu erben."""
+    journal = Path(journal)
+    result = {
+        "journal_file": str(journal),
+        "commander_id": None,
+        "fid_seen": None,
+        "commander_name_seen": None,
+        "first_event_at": None,
+        "last_event_at": None,
+        "file_size": None,
+        "modified_ns": None,
+        "attribution_status": "unknown",
+        "fids_seen": [],
+    }
+
+    try:
+        stat = journal.stat()
+        result["file_size"] = int(stat.st_size)
+        result["modified_ns"] = int(stat.st_mtime_ns)
+    except OSError:
+        pass
+
+    identities: dict[str, str] = {}
+    with journal.open("r", encoding="utf-8", errors="replace") as handle:
+        for line in handle:
+            try:
+                event = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+
+            timestamp = str(event.get("timestamp") or "").strip()
+            if timestamp:
+                if result["first_event_at"] is None:
+                    result["first_event_at"] = timestamp
+                result["last_event_at"] = timestamp
+
+            event_type = event.get("event")
+            if event_type not in ("Commander", "LoadGame"):
+                continue
+
+            fid = str(event.get("FID") or "").strip()
+            if not fid:
+                continue
+
+            name_field = "Name" if event_type == "Commander" else "Commander"
+            name = str(event.get(name_field) or "").strip()
+            if name or fid not in identities:
+                identities[fid] = name
+
+    result["fids_seen"] = sorted(identities)
+    if len(identities) == 1:
+        fid = next(iter(identities))
+        result["attribution_status"] = "identified"
+        result["fid_seen"] = fid
+        result["commander_name_seen"] = identities[fid] or None
+    elif len(identities) > 1:
+        result["attribution_status"] = "ambiguous"
+
+    return result
+
+
 
 def _parse_frontier_message_params(message: str) -> dict:
     result = {}
@@ -560,6 +622,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
         "commander_fid": "",
         "commander_identity_name": "",
         "commander_identity_timestamp": "",
+        "latest_journal_session": None,
         "system": "",
         "system_address": None,
         "last_system_event": None,
@@ -611,6 +674,38 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
 
     if not files:
         return result
+
+    # Session-Zuordnung und aktive Identität sind getrennt: Nur die neueste
+    # Datei wird zur Persistierung zurückgegeben. Für die Live-Identität wird
+    # rückwärts die jüngste eindeutig identifizierte Datei gesucht. Unknown
+    # oder ambiguous löschen dadurch keine bereits belegte Identität.
+    try:
+        latest_session = classify_journal_file(files[-1])
+    except OSError as exc:
+        raise JournalReadError(files[-1], exc) from exc
+    result["latest_journal_session"] = latest_session
+
+    active_identity = None
+    for journal in reversed(files):
+        if journal == files[-1]:
+            session = latest_session
+        else:
+            try:
+                session = classify_journal_file(journal)
+            except OSError:
+                continue
+        if session["attribution_status"] == "identified":
+            active_identity = session
+            break
+
+    if active_identity is not None:
+        result["commander_fid"] = active_identity["fid_seen"] or ""
+        result["commander_identity_name"] = (
+            active_identity["commander_name_seen"] or ""
+        )
+        result["commander_identity_timestamp"] = (
+            active_identity["last_event_at"] or ""
+        )
 
     missions: dict[int, dict] = {}
     pending_mission_offers: list[dict] = []
@@ -856,26 +951,12 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                         e.get("Name")
                         or result["commander"]
                     )
-                    fid = str(e.get("FID") or "").strip()
-                    if fid:
-                        result["commander_fid"] = fid
-                        result["commander_identity_name"] = str(
-                            e.get("Name") or ""
-                        ).strip()
-                        result["commander_identity_timestamp"] = ts
 
                 elif et == "LoadGame":
                     result["commander"] = (
                         e.get("Commander")
                         or result["commander"]
                     )
-                    fid = str(e.get("FID") or "").strip()
-                    if fid:
-                        result["commander_fid"] = fid
-                        result["commander_identity_name"] = str(
-                            e.get("Commander") or ""
-                        ).strip()
-                        result["commander_identity_timestamp"] = ts
                     result["ship"] = (
                         e.get("ShipName")
                         or e.get("Ship_Localised")
@@ -1614,6 +1695,11 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                         continue
                     mid = e.get("MissionID")
                     missions.pop(mid, None)
+
+    if active_identity is not None and active_identity.get("commander_name_seen"):
+        # Ein Namensevent ohne FID aus einer späteren unknown-Datei darf die
+        # eindeutig belegte aktive Identität nicht optisch überschreiben.
+        result["commander"] = active_identity["commander_name_seen"]
 
     result["missions"] = list(missions.values())
     result["ship_loadout"] = ship_loadout

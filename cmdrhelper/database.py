@@ -8,7 +8,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 def _direct_parent_id(parents) -> int | None:
     """
@@ -303,6 +303,30 @@ class CMDRDatabase:
                     )
                     """
                 )
+                con.execute("PRAGMA user_version = 1")
+
+            if schema_version < 2:
+                # Version 2 ergänzt ausschließlich die Zuordnung einzelner
+                # Journaldateien. Bestehende Importmarker bleiben unberührt.
+                con.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS journal_sessions (
+                        id INTEGER PRIMARY KEY,
+                        journal_file TEXT NOT NULL UNIQUE,
+                        commander_id INTEGER,
+                        fid_seen TEXT,
+                        commander_name_seen TEXT,
+                        first_event_at TEXT,
+                        last_event_at TEXT,
+                        file_size INTEGER,
+                        modified_ns INTEGER,
+                        attribution_status TEXT NOT NULL CHECK (
+                            attribution_status IN ('identified', 'unknown', 'ambiguous')
+                        ),
+                        FOREIGN KEY (commander_id) REFERENCES commanders(id)
+                    )
+                    """
+                )
                 con.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
 
     def upsert_commander(self, fid, current_name="", timestamp="") -> int | None:
@@ -338,6 +362,64 @@ class CMDRDatabase:
             ).fetchone()
 
         return int(row[0]) if row is not None else None
+
+    def store_journal_session(self, session: dict) -> int:
+        """Speichert eine bereits dateilokal ermittelte Journalzuordnung."""
+        status = str(session.get("attribution_status") or "unknown").strip()
+        if status not in ("identified", "unknown", "ambiguous"):
+            raise ValueError(f"Ungültiger Zuordnungsstatus: {status}")
+
+        journal_file = str(session.get("journal_file") or "").strip()
+        if not journal_file:
+            raise ValueError("Journaldatei fehlt")
+
+        fid = str(session.get("fid_seen") or "").strip()
+        name = str(session.get("commander_name_seen") or "").strip()
+        commander_id = None
+
+        if status == "identified" and fid:
+            commander_id = self.upsert_commander(
+                fid,
+                name,
+                session.get("last_event_at") or session.get("first_event_at") or "",
+            )
+        else:
+            # Unknown/ambiguous dürfen auch bei versehentlich mitgelieferten
+            # Identitätswerten niemals automatisch zugeordnet werden.
+            fid = ""
+            name = ""
+
+        with self._connect() as con:
+            con.execute(
+                """
+                INSERT INTO journal_sessions (
+                    journal_file, commander_id, fid_seen,
+                    commander_name_seen, first_event_at, last_event_at,
+                    file_size, modified_ns, attribution_status
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(journal_file) DO UPDATE SET
+                    commander_id=excluded.commander_id,
+                    fid_seen=excluded.fid_seen,
+                    commander_name_seen=excluded.commander_name_seen,
+                    first_event_at=excluded.first_event_at,
+                    last_event_at=excluded.last_event_at,
+                    file_size=excluded.file_size,
+                    modified_ns=excluded.modified_ns,
+                    attribution_status=excluded.attribution_status
+                """,
+                (
+                    journal_file, commander_id, fid or None, name or None,
+                    session.get("first_event_at") or None,
+                    session.get("last_event_at") or None,
+                    session.get("file_size"), session.get("modified_ns"), status,
+                ),
+            )
+            row = con.execute(
+                "SELECT id FROM journal_sessions WHERE journal_file = ?",
+                (journal_file,),
+            ).fetchone()
+
+        return int(row[0])
 
     @staticmethod
     def _bool_db(value):

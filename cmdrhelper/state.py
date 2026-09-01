@@ -830,6 +830,13 @@ class AppState(QObject):
         if previous_fid != fid:
             self.commanderIdentityChanged.emit(commander_id, fid, name)
 
+    def _store_latest_journal_session(self, data):
+        """Persistiert nur die aktuelle Datei, nicht rückwirkend das Archiv."""
+        session = data.get("latest_journal_session")
+        if not isinstance(session, dict):
+            return
+        self.database.store_journal_session(session)
+
     def refresh(self):
         if not self.journal_folder:
             self.connected = False
@@ -857,8 +864,14 @@ class AppState(QObject):
         previous_system_address = self.system_address
         previous_loadout = self.ship_loadout
 
-        self.commander = data["commander"]
+        if data.get("commander_fid"):
+            self.commander = (
+                data.get("commander_identity_name")
+                or data.get("commander")
+                or self.commander
+            )
         self._apply_commander_identity(data)
+        self._store_latest_journal_session(data)
         self.system = data["system"]
         self.system_address = data.get("system_address")
         self.body = data["body"]

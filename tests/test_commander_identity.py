@@ -166,6 +166,9 @@ class AppStateIdentityTests(unittest.TestCase):
         state.commander_fid = ""
         state.commanderIdentityChanged = Mock()
         state._apply_commander_identity = AppState._apply_commander_identity.__get__(state)
+        state._store_latest_journal_session = (
+            AppState._store_latest_journal_session.__get__(state)
+        )
         return state
 
     def test_fid_switch_is_detected_but_name_change_is_not(self):
@@ -189,6 +192,22 @@ class AppStateIdentityTests(unittest.TestCase):
         state._apply_commander_identity({"commander": "Name only"})
         state.database.upsert_commander.assert_not_called()
         self.assertEqual(state.commander_fid, "")
+
+    def test_unknown_historical_session_does_not_clear_live_commander(self):
+        state = self._state()
+        state._apply_commander_identity({
+            "commander_fid": "F-A", "commander_identity_name": "Alpha"
+        })
+        state._store_latest_journal_session({
+            "latest_journal_session": {
+                "journal_file": "unknown.log",
+                "attribution_status": "unknown",
+            }
+        })
+
+        self.assertEqual(state.commander_id, 1)
+        self.assertEqual(state.commander_fid, "F-A")
+        state.database.store_journal_session.assert_called_once()
 
 
 if __name__ == "__main__":
