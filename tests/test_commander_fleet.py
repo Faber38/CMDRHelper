@@ -9,9 +9,14 @@ from pathlib import Path
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
+from PySide6.QtCore import QObject
+from PySide6.QtWidgets import QApplication, QScrollArea, QToolButton
+
 from cmdrhelper.database import CMDRDatabase, SCHEMA_VERSION
 from cmdrhelper.journal_reader import read_latest_state
 from cmdrhelper.route_planner.models import ShipLoadoutData
+from cmdrhelper.state import AppState
+from cmdrhelper.ui.commander_view import CommanderView
 
 
 def event(kind, second, **values):
@@ -19,6 +24,10 @@ def event(kind, second, **values):
 
 
 class CommanderFleetTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.path = Path(self.tmp.name) / "fleet.db"
@@ -120,6 +129,82 @@ class CommanderFleetTests(unittest.TestCase):
         migrated = CMDRDatabase(self.path)
         self.assertEqual(SCHEMA_VERSION, 7)
         self.assertEqual(migrated.commander_last_ship(self.a)["ship_name"], "Legacy")
+
+    def _view(self, live_id=None):
+        state = AppState.__new__(AppState)
+        QObject.__init__(state)
+        state.database = self.db
+        state.commander_id = live_id
+        state.commander_fid = self.db._commander_fid(live_id) if live_id else ""
+        state.commander = ""
+        state.viewed_commander_id = self.a
+        state._viewed_commander_user_selected = True
+
+        class Settings:
+            def value(self, _key, default=None): return default
+            def setValue(self, _key, _value): pass
+
+        state.settings = Settings()
+        return CommanderView(state)
+
+    def test_many_ships_use_a_vertical_scroll_area(self):
+        for ship_id in range(1, 18):
+            self.db.store_commander_ship(self.a, self.ship(ship_id, f"Ship {ship_id}"),
+                                         f"T{ship_id:02d}")
+        view = self._view(self.a)
+        view.resize(600, 360)
+        view.tabs.setCurrentIndex(4)
+        view.show()
+        self.app.processEvents()
+        self.assertIsInstance(view.fleet_scroll, QScrollArea)
+        self.assertTrue(view.fleet_scroll.widgetResizable())
+        initial_maximum = view.fleet_scroll.verticalScrollBar().maximum()
+        self.assertGreater(initial_maximum, 0)
+        buttons = view.fleet_container.findChildren(QToolButton)
+        buttons[-1].setChecked(True)
+        self.app.processEvents()
+        self.assertGreater(view.fleet_scroll.verticalScrollBar().maximum(), initial_maximum)
+        view.close()
+
+    def test_live_and_location_colors_are_stable_and_grouped(self):
+        sol = {"system_name": "Sol", "system_address": 1, "station_name": "Galileo"}
+        colonia = {"system_name": "Colonia", "system_address": 2, "station_name": "Jaques"}
+        self.db.store_commander_ship(self.a, self.ship(1, "Sol One"), "T1", location=sol)
+        self.db.store_commander_ship(self.a, self.ship(2, "Colonia"), "T2", location=colonia)
+        self.db.store_commander_ship(self.a, self.ship(3, "Sol Live"), "T3", location=sol)
+        self.db.store_commander_ship(
+            self.a, ShipLoadoutData(ship_id=4, ship_name="Unknown"), "T0", is_current=False
+        )
+        view = self._view(self.a)
+        self.assertTrue(view.current_ship_card.property("liveShip"))
+        ships = self.db.commander_ships(self.a)
+        colors = {}
+        for ship in ships:
+            live = bool(ship["is_current"])
+            card = view._fleet_ship_widget(ship, is_live=live)
+            colors[ship["ship_id"]] = card.property("fleetColor")
+            if live:
+                self.assertTrue(card.property("liveShip"))
+                self.assertEqual(view._fleet_color(ship, True).hue(), 125)
+        self.assertEqual(colors[1], view._fleet_color(
+            next(ship for ship in ships if ship["ship_id"] == 3), False
+        ).name())
+        self.assertNotEqual(colors[1], colors[2])
+        self.assertNotEqual(colors[3], colors[1])
+        self.assertEqual(colors[4], "")
+        sol_ship = next(ship for ship in ships if ship["ship_id"] == 1)
+        self.assertEqual(view._fleet_color(sol_ship, False).name(),
+                         view._fleet_color(dict(sol_ship), False).name())
+
+    def test_offline_current_ship_is_not_live_green(self):
+        self.db.store_commander_ship(self.a, self.ship(1, "Offline"), "T1", location={
+            "system_name": "Sol", "system_address": 1, "station_name": "Galileo"
+        })
+        view = self._view(self.b)
+        ship = self.db.commander_last_ship(self.a)
+        card = view._fleet_ship_widget(ship, is_live=False)
+        self.assertFalse(card.property("liveShip"))
+        self.assertNotEqual(view._fleet_color(ship, False).hue(), 125)
 
 
 if __name__ == "__main__":

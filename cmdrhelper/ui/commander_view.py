@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import hashlib
+
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor, QPalette
 from PySide6.QtWidgets import (
     QComboBox,
     QFormLayout,
@@ -12,6 +15,7 @@ from PySide6.QtWidgets import (
     QTableWidgetItem,
     QHeaderView,
     QToolButton,
+    QScrollArea,
     QVBoxLayout,
     QWidget,
 )
@@ -140,10 +144,20 @@ class CommanderView(QWidget):
 
     def _ships_tab(self):
         tab = QWidget()
-        layout = QVBoxLayout(tab)
+        tab_layout = QVBoxLayout(tab)
+        tab_layout.setContentsMargins(0, 0, 0, 0)
+        self.fleet_scroll = QScrollArea()
+        self.fleet_scroll.setWidgetResizable(True)
+        self.fleet_scroll.setFrameShape(QFrame.NoFrame)
+        self.fleet_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.fleet_scroll.setObjectName("commanderFleetScroll")
+        content = QWidget()
+        self.fleet_scroll.setWidget(content)
+        layout = QVBoxLayout(content)
+        tab_layout.addWidget(self.fleet_scroll)
         layout.addWidget(QLabel(tr("commander_view.fleet.current"), objectName="sectionTitle"))
-        current_card = QFrame(objectName="card")
-        current_form = QFormLayout(current_card)
+        self.current_ship_card = QFrame(objectName="card")
+        current_form = QFormLayout(self.current_ship_card)
         self.current_ship_values = {}
         for field, label in (
             ("name", tr("commander_view.ship.ship_name")),
@@ -155,7 +169,7 @@ class CommanderView(QWidget):
             self.current_ship_values[field] = value
             current_form.addRow(label, value)
         self.ship_values = self.current_ship_values
-        layout.addWidget(current_card)
+        layout.addWidget(self.current_ship_card)
 
         self.fleet_title = QLabel(objectName="sectionTitle")
         layout.addWidget(self.fleet_title)
@@ -362,8 +376,20 @@ class CommanderView(QWidget):
             if item.widget():
                 item.widget().deleteLater()
         self.fleet_title.setText(tr("commander_view.fleet.title", count=len(ships)))
+        viewed_is_live = bool(
+            summary and int(summary["id"]) == self.state.commander_id
+        )
+        current_is_live = bool(viewed_is_live and current and current["is_current"])
+        current_color = self._fleet_color(current, is_live=current_is_live)
+        self.current_ship_card.setProperty("liveShip", current_is_live)
+        self.current_ship_card.setStyleSheet(
+            f"QFrame#card {{ border-left: 5px solid {current_color.name()}; }}"
+            if current_color is not None else ""
+        )
         for ship in ships:
-            self.fleet_layout.addWidget(self._fleet_ship_widget(ship))
+            self.fleet_layout.addWidget(self._fleet_ship_widget(
+                ship, is_live=bool(viewed_is_live and ship["is_current"])
+            ))
         self.fleet_layout.addStretch()
 
         carrier = summary.get("carrier") if summary else None
@@ -392,8 +418,44 @@ class CommanderView(QWidget):
         text = " / ".join(part for part in parts if part)
         return text or (str(ship["system_address"]) if ship.get("system_address") is not None else "–")
 
-    def _fleet_ship_widget(self, ship):
+    @staticmethod
+    def _ship_location_key(ship):
+        if not ship:
+            return ""
+        system = str(ship.get("system_name") or "").strip().casefold()
+        station = str(ship.get("station_name") or "").strip().casefold()
+        address = ship.get("system_address")
+        if not system and address is None:
+            return ""
+        return f"{system or address}|{station}"
+
+    def _fleet_color(self, ship, is_live=False):
+        dark_theme = self.palette().color(QPalette.Window).lightness() < 128
+        if is_live:
+            return QColor.fromHsv(125, 185 if dark_theme else 210, 205 if dark_theme else 145)
+        key = self._ship_location_key(ship)
+        if not key:
+            return None
+        digest = hashlib.sha256(key.encode("utf-8")).digest()
+        # Grünbereich bleibt vollständig dem Live-Schiff vorbehalten.
+        hue = int.from_bytes(digest[:2], "big") % 300
+        if hue >= 85:
+            hue += 60
+        saturation = 145 + digest[2] % 55
+        value = 225 if dark_theme else 155
+        return QColor.fromHsv(hue, saturation, value)
+
+    def _fleet_ship_widget(self, ship, is_live=False):
         card = QFrame(objectName="card")
+        color = self._fleet_color(ship, is_live=is_live)
+        card.setProperty("fleetColor", color.name() if color else "")
+        card.setProperty("liveShip", bool(is_live))
+        card.setProperty("locationKey", self._ship_location_key(ship))
+        if color is not None:
+            card.setStyleSheet(
+                f"QFrame#card {{ border-left: 5px solid {color.name()}; }} "
+                f"QFrame#card > QToolButton {{ color: {color.name()}; font-weight: 600; }}"
+            )
         layout = QVBoxLayout(card)
         marker = f" · {tr('commander_view.fleet.current_marker')}" if ship["is_current"] else ""
         header = QToolButton()
