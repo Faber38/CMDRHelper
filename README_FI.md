@@ -198,6 +198,48 @@ sisältää ohjelmakoodin ja assetit, mutta ei henkilökohtaista
 tietokantaa, virtuaalista Python-ympäristöä eikä Git-, välimuisti- tai
 editoritiedostoja.
 
+## Versio 2.0
+
+**Versio 2.0** lisää aidon Multi-CMDR-tuen ja säilyttää version 1.5
+reittisuunnittelijan sekä kaikki aiemmat ominaisuudet.
+
+### Multi-CMDR ja CMDR-näkymä
+
+-   komentajat tunnistetaan automaattisesti Frontier-FID:n avulla. Vain
+    Journal määrittää live-komentajan; toisen profiilin katselu ei muuta
+    kohdistusta eikä live-kirjoituksia.
+-   käynnit, tutkimus, tehtävät, sijainnit, alukset, Fleet Carrier, varallisuus
+    sekä myymättömät biologiset ja kartografiset tiedot tallennetaan erikseen.
+-   **CMDR-näkymä** näyttää tunnetut komentajat offline-tilassa: tehtävät,
+    viimeisen sijainnin ja aluksen, Fleet Carrierin sijainteineen, varallisuuden
+    sekä arviot myymättömistä tiedoista.
+
+### Multi-CMDR-kronikka
+
+-   jokaisella komentajalla on vakaa väri ja omat tai yhteiset suodattimet.
+-   aikajärjestyksessä olevat reitit pysyvät erillään eivätkä yhdistä eri
+    komentajien hyppyjä.
+-   usean komentajan vierailemat järjestelmät näkyvät moninkertaisina käynteinä.
+
+### Komentajien laivastot
+
+-   jokaisella komentajalla on pysyvä laivasto, jossa tunnetut alukset ja
+    avattavat tiedot varustuksesta, kantamasta, tankeista, rahdista ja sijainnista.
+-   live-alus on vihreä; muut saavat vakaat sijaintivärit ja luetteloa voi
+    vierittää pystysuunnassa.
+-   puvut, Scarab-, Scorpion- ja Nomad-SRV:t, hävittäjät, taksit ja
+    laskeutumisalukset eivät ole tavallisia komentajan aluksia.
+
+### Olemassa olevat tietokannat
+
+Sisäiset skeemamigraatiot jatkavat olemassa olevien tietokantojen käyttöä.
+Multi-CMDR-tiedot erotetaan Frontier-FID:llä. Jos vanhat tiedot voivat kuulua
+usealle profiilille, CMDRHelper ei arvaa eikä poista kaikkea; epäselvä kohdistus
+jää ratkaisematta.
+
+CMDRHelper tukee edelleen **Linuxia ja Windowsia** ja sisältää version 1.5
+alus- ja Fleet Carrier -reittisuunnittelijan.
+
 ## Versio 1.5
 
 **Versio 1.5** on merkittävä toiminnallinen päivitys. Se lisää uuden

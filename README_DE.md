@@ -199,6 +199,56 @@ Die Release-Version wird direkt im Skript festgelegt. Das erzeugte ZIP
 enthält Programmcode und Assets, aber keine persönliche Datenbank, keine
 virtuelle Python-Umgebung sowie keine Git-, Cache- oder Editor-Dateien.
 
+## Version 2.0
+
+**Version 2.0** ergänzt echte Multi-CMDR-Unterstützung. Der mit Version 1.5
+eingeführte Routenplaner sowie die bisherigen Explorer-, Missions-, System-
+und Chronikfunktionen bleiben enthalten.
+
+### Multi-CMDR und CMDR Ansicht
+
+-   Commander werden automatisch über ihre Frontier-FID erkannt. Der
+    Live-Commander wird ausschließlich durch das Journal bestimmt; die
+    Auswahl eines anderen Profils zur Ansicht verändert weder die
+    Journalzuordnung noch Live-Schreibvorgänge.
+-   persönliche Besuche, Explorationsfortschritt, Missionen, Standorte,
+    Schiffe, Fleet Carrier, Vermögen sowie offene Bio- und Kartographiedaten
+    werden für jeden Commander getrennt gespeichert.
+-   die **CMDR Ansicht** kann jeden bekannten Commander offline anzeigen. Die
+    Übersicht umfasst Missionen, letzten Standort, letztes Schiff, Fleet
+    Carrier samt Standort, Vermögen und geschätzte offene Bio- und
+    Kartographiedaten.
+
+### Multi-CMDR-Chronik
+
+-   jeder Commander erhält eine stabile Darstellungsfarbe und kann einzeln
+    oder gemeinsam gefiltert werden.
+-   Routen bleiben chronologisch getrennt; Sprünge verschiedener Commander
+    werden niemals miteinander verbunden.
+-   von mehreren Commandern besuchte Systeme erscheinen als Mehrfachbesuche.
+
+### Commander-Flotten
+
+-   jeder Commander besitzt eine persistente Flotte aller bekannten Schiffe
+    mit aufklappbaren Details zu Loadout, Reichweite, Tanks, Fracht und
+    letztem Standort.
+-   das Live-Schiff wird grün hervorgehoben. Andere Schiffe erhalten stabile
+    Standortfarben; ein vertikaler Scrollbereich hält auch große Flotten
+    vollständig erreichbar.
+-   Anzüge, SRVs wie Scarab, Scorpion und Nomad, gestartete Jäger, Taxis und
+    Dropships werden nicht als normale Commander-Schiffe geführt.
+
+### Bestehende Datenbanken
+
+Bestehende Datenbanken werden über die eingebaute Schema-Migration
+weitergeführt. Persönliche Multi-CMDR-Daten werden anhand der Frontier-FID
+getrennt. Können ältere Daten zu mehreren Commanderprofilen gehören, rät
+CMDRHelper nicht blind und löscht nicht pauschal alles; eine uneindeutige
+Zuordnung bleibt offen, statt dem falschen Commander zugewiesen zu werden.
+
+CMDRHelper unterstützt weiterhin **Linux und Windows** und enthält den
+Schiffs- und Fleet-Carrier-Routenplaner aus Version 1.5.
+
 ## Version 1.5
 
 **Version 1.5** ist ein großes Funktionsupdate. Es ergänzt den neuen

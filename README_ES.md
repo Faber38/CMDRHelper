@@ -205,6 +205,50 @@ archivo ZIP generado contiene el código del programa y los assets, pero
 no la base de datos personal, el entorno virtual de Python ni archivos
 Git, de caché o del editor.
 
+## Versión 2.0
+
+La **versión 2.0** añade compatibilidad Multi-CMDR real y conserva el
+planificador de rutas de la versión 1.5 y las funciones existentes.
+
+### Multi-CMDR y Vista CMDR
+
+-   los comandantes se identifican automáticamente mediante su FID de
+    Frontier. Solo el Journal determina el comandante en vivo; elegir otro
+    perfil para consultarlo no cambia la asignación ni las escrituras en vivo.
+-   visitas, exploración, misiones, ubicaciones, naves, Fleet Carrier,
+    patrimonio y datos biológicos y cartográficos sin vender se guardan por
+    separado para cada comandante.
+-   la **Vista CMDR** permite consultar sin conexión cualquier comandante
+    conocido: misiones, última ubicación y nave, Fleet Carrier y ubicación,
+    patrimonio y estimaciones de datos biológicos y cartográficos pendientes.
+
+### Crónica Multi-CMDR
+
+-   cada comandante tiene un color estable y filtros individuales o conjuntos.
+-   las rutas cronológicas permanecen separadas y nunca conectan saltos de
+    comandantes distintos.
+-   los sistemas visitados por varios comandantes muestran visitas múltiples.
+
+### Flotas de comandantes
+
+-   cada comandante dispone de una flota persistente con todas sus naves
+    conocidas y detalles desplegables de equipamiento, alcance, depósitos,
+    carga y última ubicación.
+-   la nave en vivo se resalta en verde; las demás reciben colores estables
+    según su ubicación y la lista dispone de desplazamiento vertical.
+-   trajes, SRV como Scarab, Scorpion y Nomad, cazas embarcados, taxis y naves
+    de descenso no se registran como naves normales del comandante.
+
+### Bases de datos existentes
+
+Las migraciones de esquema integradas conservan las bases de datos existentes.
+Los datos Multi-CMDR se separan por FID de Frontier. Si datos antiguos pueden
+pertenecer a varios perfiles, CMDRHelper no adivina ni los borra de forma
+general: una asignación ambigua permanece sin resolver.
+
+CMDRHelper sigue siendo compatible con **Linux y Windows** e incluye el
+planificador de rutas para naves y Fleet Carrier de la versión 1.5.
+
 ## Versión 1.5
 
 La **versión 1.5** es una gran actualización de funciones. Incorpora el

@@ -200,6 +200,50 @@ ZIP-bestand bevat programmacode en assets, maar geen persoonlijke
 database, geen virtuele Python-omgeving en geen Git-, cache- of
 editorbestanden.
 
+## Versie 2.0
+
+**Versie 2.0** voegt echte Multi-CMDR-ondersteuning toe en behoudt de
+routeplanner uit versie 1.5 en alle bestaande functies.
+
+### Multi-CMDR en CMDR-weergave
+
+-   Commanders worden automatisch via hun Frontier-FID herkend. Alleen het
+    Journal bepaalt de live Commander; een ander profiel bekijken verandert
+    de toewijzing en live schrijfacties niet.
+-   bezoeken, verkenning, missies, locaties, schepen, Fleet Carrier, vermogen
+    en onverkochte biologische en cartografische gegevens worden per Commander
+    gescheiden opgeslagen.
+-   de **CMDR-weergave** toont elke bekende Commander offline, inclusief
+    missies, laatste locatie en schip, Fleet Carrier en locatie, vermogen en
+    schattingen van onverkochte gegevens.
+
+### Multi-CMDR-kroniek
+
+-   elke Commander heeft een stabiele kleur en afzonderlijke of gezamenlijke
+    filters.
+-   chronologische routes blijven gescheiden en verbinden nooit sprongen van
+    verschillende Commanders.
+-   systemen van meerdere Commanders worden als meervoudige bezoeken getoond.
+
+### Commander-vloten
+
+-   elke Commander heeft een blijvende vloot met alle bekende schepen en
+    uitklapbare details over loadout, bereik, tanks, lading en laatste locatie.
+-   het live schip is groen; overige schepen krijgen stabiele locatiekleuren
+    en de lijst heeft verticale scrolling.
+-   pakken, SRV’s zoals Scarab, Scorpion en Nomad, boordjagers, taxi’s en
+    dropships worden niet als normale Commander-schepen opgeslagen.
+
+### Bestaande databases
+
+Ingebouwde schemamigraties zetten bestaande databases voort. Multi-CMDR-data
+worden via Frontier-FID gescheiden. Als oude gegevens bij meerdere profielen
+kunnen horen, gokt CMDRHelper niet en wist het niet alles: een onduidelijke
+toewijzing blijft onopgelost.
+
+CMDRHelper ondersteunt nog steeds **Linux en Windows** en bevat de scheeps- en
+Fleet Carrier-routeplanner uit versie 1.5.
+
 ## Versie 1.5
 
 **Versie 1.5** is een grote functie-update. Deze voegt de nieuwe routeplanner

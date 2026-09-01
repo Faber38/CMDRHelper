@@ -206,6 +206,52 @@ généré contient le code du programme et les assets, mais aucune base de
 données personnelle, aucun environnement Python virtuel ni fichier Git,
 cache ou éditeur.
 
+## Version 2.0
+
+La **version 2.0** apporte une véritable prise en charge Multi-CMDR tout en
+conservant le planificateur d’itinéraires de la version 1.5 et les fonctions
+existantes.
+
+### Multi-CMDR et Vue CMDR
+
+-   les Commanders sont identifiés automatiquement par leur FID Frontier. Le
+    Commander en direct dépend uniquement du Journal ; consulter un autre
+    profil ne modifie ni l’attribution ni les écritures en direct.
+-   visites, exploration, missions, positions, vaisseaux, Fleet Carrier,
+    fortune et données biologiques et cartographiques invendues sont séparés
+    pour chaque Commander.
+-   la **Vue CMDR** permet de consulter hors ligne tout Commander connu :
+    missions, dernière position et dernier vaisseau, Fleet Carrier et sa
+    position, fortune et estimations des données invendues.
+
+### Chronique Multi-CMDR
+
+-   chaque Commander possède une couleur stable et des filtres individuels
+    ou communs.
+-   les itinéraires chronologiques restent séparés et ne relient jamais les
+    sauts de Commanders différents.
+-   les systèmes visités par plusieurs Commanders affichent plusieurs visites.
+
+### Flottes des Commanders
+
+-   chaque Commander possède une flotte persistante avec tous ses vaisseaux
+    connus et des détails dépliables sur l’équipement, la portée, les
+    réservoirs, la cargaison et la dernière position.
+-   le vaisseau en direct est vert ; les autres reçoivent des couleurs stables
+    selon leur position, avec défilement vertical pour les grandes flottes.
+-   combinaisons, SRV Scarab, Scorpion et Nomad, chasseurs embarqués, taxis et
+    navettes de débarquement ne sont pas enregistrés comme vaisseaux normaux.
+
+### Bases de données existantes
+
+Les migrations de schéma intégrées conservent les bases existantes. Les
+données Multi-CMDR sont séparées par FID Frontier. Si d’anciennes données
+peuvent appartenir à plusieurs profils, CMDRHelper ne devine pas et ne les
+supprime pas globalement : une attribution ambiguë reste non résolue.
+
+CMDRHelper prend toujours en charge **Linux et Windows** et inclut le
+planificateur pour vaisseaux et Fleet Carriers de la version 1.5.
+
 ## Version 1.5
 
 La **version 1.5** est une mise à jour fonctionnelle majeure. Elle ajoute le

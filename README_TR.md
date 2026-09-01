@@ -197,6 +197,43 @@ Sürüm numarası doğrudan betikte belirlenir. Oluşturulan ZIP dosyası
 program kodunu ve asset'leri içerir; ancak kişisel veritabanını, sanal
 Python ortamını veya Git, önbellek ve editör dosyalarını içermez.
 
+## Sürüm 2.0
+
+**Sürüm 2.0**, Frontier FID tabanlı gerçek Multi-CMDR desteği ekler. Canlı
+Commander Journal üzerinden otomatik olarak algılanırken, bilinen başka bir
+Commander yalnızca çevrimdışı görüntüleme için seçilebilir. Görüntüleme seçimi
+canlı Commander’ın eşlemesini veya yazma işlemlerini hiçbir zaman değiştirmez.
+
+### Multi-CMDR ve CMDR Görünümü
+
+-   ziyaretler, keşif verileri, görevler, son konum, gemiler, Fleet Carrier,
+    servet ile satılmamış biyolojik ve kartografik veriler Commander bazında
+    ayrı ayrı kalıcılaştırılır.
+-   **CMDR Görünümü**, seçilen Commander’ın görevlerini, son konumunu, son
+    gemisini, Fleet Carrier’ını ve konumunu, Credits bakiyesini, açık biyolojik
+    ve kartografik verilerini çevrimdışıyken de gösterir.
+-   Multi-CMDR kroniği Commander başına kararlı renkler ve filtreler kullanır,
+    rotaları ayrı tutar ve ortak sistemleri çoklu ziyaret olarak gösterir.
+
+### Commander filosu
+
+-   filo görünümü Commander başına birden fazla gemiyi saklar; açılır ayrıntılar
+    ve dikey kaydırma sunar.
+-   canlı gemi her zaman yeşil vurgulanır. Diğer gemiler son bilinen konumlarına
+    göre kararlı renklerle gruplandırılır.
+-   suit’ler, SRV’ler (Scarab, Scorpion ve Nomad), fighter’lar, taksiler ve
+    dropship’ler normal Commander gemileri olarak tutulmaz.
+
+### Mevcut veritabanları
+
+Mevcut veritabanları yerleşik şema geçişiyle güncellenir. Multi-CMDR verileri
+FID’ye göre ayrılır. Eski veriler birden fazla profile ait olabilecek durumdaysa
+CMDRHelper körlemesine tahminde bulunmaz ve mevcut verilerin topluca silinmesini
+gerektirmez.
+
+Linux ve Windows desteği devam eder. Sürüm 1.5 ile eklenen rota planlayıcı
+CMDRHelper’ın parçası olarak kalır.
+
 ## Sürüm 1.5
 
 **Sürüm 1.5** büyük bir işlev güncellemesidir. Gemiler ve Fleet Carrier’lar

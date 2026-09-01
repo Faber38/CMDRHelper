@@ -190,6 +190,53 @@ The release version is defined directly in the script. The generated ZIP
 contains program code and assets, but no personal database, virtual
 Python environment, Git files, cache files, or editor files.
 
+## Version 2.0
+
+**Version 2.0** adds genuine multi-Commander support while retaining the
+route planner introduced in Version 1.5 and all established exploration,
+mission, system, and Chronicle features.
+
+### Multi-Commander and CMDR View
+
+-   Commanders are identified automatically by their Frontier FID. The live
+    Commander is determined only by the Journal; selecting another profile
+    for viewing never changes Journal attribution or live writes.
+-   personal visits, exploration progress, missions, locations, ships, Fleet
+    Carrier, wealth, and unsold biological and cartographic data are stored
+    separately for each Commander.
+-   the **CMDR View** can display any known Commander offline. Its overview
+    includes missions, last location, last ship, Fleet Carrier and location,
+    wealth, and estimated unsold biology and cartography data.
+
+### Multi-Commander Chronicle
+
+-   every Commander has a stable display colour and can be filtered
+    individually or together.
+-   routes remain chronologically separate, so jumps from different
+    Commanders are never connected.
+-   systems visited by several Commanders are shown as multiple visits.
+
+### Commander fleets
+
+-   each Commander has a persistent fleet containing all known ships, with
+    expandable loadout, range, tank, cargo, and last-location details.
+-   the live ship is highlighted in green; other ships receive stable colours
+    based on their last known location, and the list remains usable through a
+    vertical scroll area even for large fleets.
+-   suits, SRVs such as Scarab, Scorpion, and Nomad, ship-launched fighters,
+    taxis, and dropships are not treated as normal Commander ships.
+
+### Existing databases
+
+Existing databases are continued through the built-in schema migrations.
+Personal multi-Commander data is separated by Frontier FID. If older data
+could belong to several Commander profiles, CMDRHelper does not guess blindly
+or delete everything; ambiguous attribution must remain unresolved rather
+than being assigned to the wrong Commander.
+
+CMDRHelper continues to support **Linux and Windows** and includes the ship
+and Fleet Carrier route planner from Version 1.5.
+
 ## Version 1.5
 
 **Version 1.5** is a major feature release. It adds the new route planner

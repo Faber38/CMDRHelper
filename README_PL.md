@@ -198,6 +198,44 @@ ZIP zawiera kod programu i zasoby, ale nie zawiera osobistej bazy
 danych, wirtualnego środowiska Pythona ani plików Git, cache czy
 edytora.
 
+## Wersja 2.0
+
+**Wersja 2.0** dodaje rzeczywistą obsługę wielu Commanderów opartą na Frontier
+FID. Aktywny Commander jest rozpoznawany automatycznie z Journala, a innego
+znanego Commandera można wybrać wyłącznie do podglądu offline. Wybór widoku
+nigdy nie zmienia przypisania ani zapisów aktywnego Commandera.
+
+### Multi-CMDR i widok CMDR
+
+-   wizyty, dane eksploracyjne, misje, ostatnia lokalizacja, statki, Fleet
+    Carrier, majątek oraz niesprzedane dane biologiczne i kartograficzne są
+    przechowywane oddzielnie dla każdego Commandera.
+-   **Widok CMDR** pokazuje także offline misje, ostatnią lokalizację, ostatni
+    statek, Fleet Carrier wraz z położeniem, Credits oraz otwarte dane
+    biologiczne i kartograficzne wybranego Commandera.
+-   kronika Multi-CMDR używa stabilnych kolorów i filtrów dla Commanderów,
+    prowadzi ich trasy oddzielnie i pokazuje wspólne systemy jako wielokrotne
+    odwiedziny.
+
+### Flota Commandera
+
+-   przegląd floty zachowuje wiele statków każdego Commandera oraz oferuje
+    rozwijane szczegóły i pionowe przewijanie.
+-   aktywny statek jest zawsze wyróżniony na zielono. Pozostałe statki są
+    grupowane stabilnymi kolorami według ostatniej znanej lokalizacji.
+-   kombinezony, SRV (Scarab, Scorpion i Nomad), myśliwce, taksówki i dropshipy
+    nie są prowadzone jako zwykłe statki Commandera.
+
+### Istniejące bazy danych
+
+Istniejące bazy danych są aktualizowane przez wbudowaną migrację schematu.
+Dane Multi-CMDR są rozdzielane według FID. Jeśli stare dane mogą należeć do
+kilku profili, CMDRHelper nie zgaduje bez podstaw i nie wymaga ogólnego
+usuwania dotychczasowych danych.
+
+Obsługa Linuxa i Windows pozostaje dostępna. Planer tras wprowadzony w wersji
+1.5 nadal jest częścią CMDRHelper.
+
 ## Wersja 1.5
 
 **Wersja 1.5** jest dużą aktualizacją funkcjonalną. Dodaje nowy planer tras

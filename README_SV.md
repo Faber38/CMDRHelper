@@ -191,6 +191,47 @@ Release-versionen anges direkt i skriptet. Den skapade ZIP-filen
 innehåller programkod och assets, men ingen personlig databas, ingen
 virtuell Python-miljö och inga Git-, cache- eller editorfiler.
 
+## Version 2.0
+
+**Version 2.0** ger äkta Multi-CMDR-stöd och behåller ruttplaneraren från
+version 1.5 samt alla befintliga funktioner.
+
+### Multi-CMDR och CMDR-vy
+
+-   Commanders identifieras automatiskt via Frontier-FID. Endast Journalen
+    bestämmer live-Commandern; val av en annan profil för visning ändrar inte
+    tilldelning eller live-skrivningar.
+-   besök, utforskning, uppdrag, platser, skepp, Fleet Carrier, förmögenhet
+    samt osålda biologi- och kartografidata lagras separat per Commander.
+-   **CMDR-vyn** visar alla kända Commanders offline med uppdrag, senaste plats
+    och skepp, Fleet Carrier och plats, förmögenhet och uppskattade osålda data.
+
+### Multi-CMDR-krönika
+
+-   varje Commander har en stabil färg och individuella eller gemensamma filter.
+-   kronologiska rutter hålls åtskilda och kopplar aldrig ihop hopp från olika
+    Commanders.
+-   system som flera Commanders besökt visas som flera besök.
+
+### Commander-flottor
+
+-   varje Commander har en beständig flotta med alla kända skepp och
+    expanderbara detaljer om utrustning, räckvidd, tankar, last och senaste plats.
+-   live-skeppet är grönt; övriga skepp får stabila platsfärger och listan har
+    vertikal rullning för stora flottor.
+-   dräkter, SRV som Scarab, Scorpion och Nomad, skeppslanserade jaktfarkoster,
+    taxibilar och landningsfarkoster lagras inte som vanliga Commander-skepp.
+
+### Befintliga databaser
+
+Inbyggda schemamigreringar fortsätter använda befintliga databaser. Multi-CMDR-
+data separeras med Frontier-FID. Om äldre data kan tillhöra flera profiler
+gissar CMDRHelper inte och raderar inte allt; en tvetydig tilldelning förblir
+olöst.
+
+CMDRHelper stöder fortfarande **Linux och Windows** och innehåller ruttplaneraren
+för skepp och Fleet Carrier från version 1.5.
+
 ## Version 1.5
 
 **Version 1.5** är en stor funktionsuppdatering. Den lägger till den nya

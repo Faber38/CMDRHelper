@@ -191,6 +191,48 @@ Release-versjonen angis direkte i skriptet. ZIP-filen som opprettes,
 inneholder programkode og assets, men ingen personlig database, intet
 virtuelt Python-miljø og ingen Git-, cache- eller editorfiler.
 
+## Versjon 2.0
+
+**Versjon 2.0** gir ekte Multi-CMDR-støtte og beholder ruteplanleggeren fra
+versjon 1.5 og alle eksisterende funksjoner.
+
+### Multi-CMDR og CMDR-visning
+
+-   Commandere identifiseres automatisk med Frontier-FID. Bare Journalen
+    bestemmer live-Commanderen; valg av en annen profil for visning endrer
+    verken tilordning eller live-skriving.
+-   besøk, utforsking, oppdrag, posisjoner, skip, Fleet Carrier, formue og
+    usolgte biologi- og kartografidata lagres separat per Commander.
+-   **CMDR-visningen** viser alle kjente Commandere frakoblet, med oppdrag,
+    siste posisjon og skip, Fleet Carrier og posisjon, formue og estimerte
+    usolgte data.
+
+### Multi-CMDR-kronikk
+
+-   hver Commander har en stabil farge og individuelle eller felles filtre.
+-   kronologiske ruter holdes adskilt og kobler aldri hopp fra ulike
+    Commandere.
+-   systemer besøkt av flere Commandere vises som flere besøk.
+
+### Commander-flåter
+
+-   hver Commander har en varig flåte med alle kjente skip og utvidbare
+    detaljer om utrustning, rekkevidde, tanker, last og siste posisjon.
+-   live-skipet er grønt; andre skip får stabile posisjonsfarger, og listen
+    har vertikal rulling for store flåter.
+-   drakter, SRV-er som Scarab, Scorpion og Nomad, skipsbaserte jagere, taxier
+    og landingsfartøy lagres ikke som vanlige Commander-skip.
+
+### Eksisterende databaser
+
+Innebygde skjemamigreringer viderefører eksisterende databaser. Multi-CMDR-
+data skilles med Frontier-FID. Hvis eldre data kan tilhøre flere profiler,
+gjetter ikke CMDRHelper og sletter ikke alt; en tvetydig tilordning forblir
+uløst.
+
+CMDRHelper støtter fortsatt **Linux og Windows** og inkluderer ruteplanleggeren
+for skip og Fleet Carrier fra versjon 1.5.
+
 ## Versjon 1.5
 
 **Versjon 1.5** er en stor funksjonsoppdatering. Den legger til den nye

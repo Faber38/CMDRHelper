@@ -206,6 +206,48 @@ file ZIP generato contiene il codice del programma e gli asset, ma non
 il database personale, l'ambiente virtuale Python né file Git, cache o
 file dell'editor.
 
+## Versione 2.0
+
+La **versione 2.0** introduce un vero supporto Multi-CMDR, mantenendo il
+route planner della versione 1.5 e tutte le funzioni già disponibili.
+
+### Multi-CMDR e Vista CMDR
+
+-   i Commander vengono identificati automaticamente tramite il FID Frontier.
+    Solo il Journal determina il Commander live; la scelta di un altro
+    profilo da visualizzare non modifica attribuzione o scritture live.
+-   visite, esplorazione, missioni, posizioni, navi, Fleet Carrier, patrimonio
+    e dati biologici e cartografici invenduti restano separati per Commander.
+-   la **Vista CMDR** mostra offline ogni Commander noto: missioni, ultima
+    posizione e nave, Fleet Carrier con posizione, patrimonio e stime dei dati
+    biologici e cartografici ancora da vendere.
+
+### Cronaca Multi-CMDR
+
+-   ogni Commander ha un colore stabile e filtri singoli o comuni.
+-   le rotte cronologiche restano separate e non collegano mai salti di
+    Commander differenti.
+-   i sistemi visitati da più Commander mostrano visite multiple.
+
+### Flotte dei Commander
+
+-   ogni Commander dispone di una flotta persistente con tutte le navi note e
+    dettagli espandibili su loadout, autonomia, serbatoi, carico e posizione.
+-   la nave live è verde; le altre ricevono colori stabili in base all’ultima
+    posizione e l’elenco ha lo scorrimento verticale.
+-   tute, SRV Scarab, Scorpion e Nomad, caccia imbarcati, taxi e dropship non
+    vengono registrati come normali navi del Commander.
+
+### Database esistenti
+
+Le migrazioni integrate continuano a usare i database esistenti. I dati
+Multi-CMDR sono separati tramite FID Frontier. Se vecchi dati possono
+appartenere a più profili, CMDRHelper non indovina e non li elimina in blocco:
+un’attribuzione ambigua rimane irrisolta.
+
+CMDRHelper continua a supportare **Linux e Windows** e include il route planner
+per navi e Fleet Carrier della versione 1.5.
+
 ## Versione 1.5
 
 La **versione 1.5** è un importante aggiornamento funzionale. Introduce il
