@@ -86,6 +86,8 @@ class CMDRDatabase:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         logger.info("Datenbank: %s", self.path)
         self.active_commander_id = None
+        self._bio_predictor_cache = None
+        self._bio_predictor_revision = None
         self._create_schema()
 
     def _connect(self):
@@ -1937,6 +1939,8 @@ class CMDRDatabase:
             return
         if not (genus or species or variant):
             return
+        self._bio_predictor_cache = None
+        self._bio_predictor_revision = None
         seen = timestamp or datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         commander_id = self._require_commander_id(commander_id)
         with self._connect() as con:
@@ -1971,6 +1975,64 @@ class CMDRDatabase:
              "scan_type": r[3], "first_seen": r[4], "last_seen": r[5]}
             for r in rows
         ]
+
+    def complete_biology_training_data(self):
+        """Lädt alle vollständigen physischen Species-Funde in einer Abfrage."""
+        with self._connect() as con:
+            rows = con.execute(
+                """SELECT DISTINCT bio.system_address,bio.body_id,
+                          bio.genus,bio.species,bio.scan_type,
+                          b.planet_class,b.atmosphere,b.gravity_g,b.mass_em,
+                          b.surface_temperature,b.surface_pressure,
+                          b.atmosphere_composition,b.biological_signals,
+                          b.terraformable,b.volcanism,b.distance_ls,
+                          b.parent_star_id,s.primary_star_type
+                     FROM biology bio
+                     JOIN bodies b USING(system_address,body_id)
+                     JOIN systems s USING(system_address)
+                    WHERE lower(trim(bio.scan_type)) IN ('analyse','analyze')
+                      AND trim(bio.species)<>'' AND trim(bio.genus)<>''"""
+            ).fetchall()
+        columns = (
+            "system_address", "body_id", "genus", "species", "scan_type",
+            "planet_class", "atmosphere", "gravity_g", "mass_em",
+            "surface_temperature", "surface_pressure", "atmosphere_composition",
+            "biological_signals", "terraformable", "volcanism", "distance_ls",
+            "parent_star_id", "primary_star_type",
+        )
+        return [dict(zip(columns, row)) for row in rows]
+
+    def _current_bio_predictor_revision(self):
+        with self._connect() as con:
+            return tuple(con.execute(
+                """SELECT count(*),COALESCE(max(last_seen),''),
+                          (SELECT COALESCE(max(last_seen),'') FROM commander_bodies),
+                          (SELECT count(*) FROM bodies
+                            WHERE surface_temperature IS NOT NULL
+                               OR surface_pressure IS NOT NULL
+                               OR atmosphere_composition<>'')
+                     FROM biology
+                    WHERE lower(trim(scan_type)) IN ('analyse','analyze')"""
+            ).fetchone())
+
+    def biology_predictor(self):
+        """Liefert den bei unveränderter Trainingsbasis wiederverwendeten Index."""
+        from cmdrhelper.bio_predictor import BioPredictor
+
+        revision = self._current_bio_predictor_revision()
+        if self._bio_predictor_cache is None or revision != self._bio_predictor_revision:
+            self._bio_predictor_cache = BioPredictor(self.complete_biology_training_data())
+            self._bio_predictor_revision = revision
+        return self._bio_predictor_cache
+
+    def predict_biology(self, body, known_findings=None, limit=8):
+        """Gecachte, read-only Prognose für einen bereits bekannten Body."""
+        return self.biology_predictor().predict(
+            body,
+            known_findings=(known_findings if known_findings is not None
+                            else body.get("biology") or ()),
+            limit=limit,
+        )
 
     def biology_for_system(self, system_address, commander_id=None):
         if system_address is None:
@@ -4110,6 +4172,8 @@ class CMDRDatabase:
         Verbindungen/Commits – besonders wichtig bei sehr großen
         Windows-Journalarchiven.
         """
+        self._bio_predictor_cache = None
+        self._bio_predictor_revision = None
         folder = Path(folder)
 
         if not folder.exists():
