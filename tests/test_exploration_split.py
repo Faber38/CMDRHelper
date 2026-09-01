@@ -8,6 +8,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from cmdrhelper.database import CMDRDatabase, CommanderMigrationError, SCHEMA_VERSION
+from cmdrhelper.journal_reader import read_latest_state
 
 
 LEGACY_EXPLORATION_SCHEMA = """
@@ -257,6 +258,77 @@ class ExplorationPersistenceTests(unittest.TestCase):
                 "SELECT commander_id,first_footfall FROM commander_bodies"
             ).fetchone()
         self.assertEqual(row, (self.a, 1))
+
+    def test_live_scan_persists_habitat_fields_and_primary_star(self):
+        folder = Path(self.tmp.name) / "live"
+        folder.mkdir()
+        base = {"timestamp": "2026-01-01T00:00:00Z", "SystemAddress": 70}
+        composition = [
+            {"Name": "CarbonDioxide", "Percent": 98.4},
+            {"Name": "SulphurDioxide", "Percent": 1.6},
+        ]
+        write_journal(folder / "Journal.2026-01-01T000000.01.log", [
+            {**base, "event": "Commander", "Name": "Alpha", "FID": "F-A"},
+            {**base, "event": "Location", "StarSystem": "Habitat"},
+            {**base, "event": "Scan", "BodyID": 0, "BodyName": "Habitat",
+             "StarType": "K", "Radius": 700000000.0},
+            {**base, "event": "Scan", "BodyID": 3, "BodyName": "Habitat 3",
+             "PlanetClass": "Rocky body", "Parents": [{"Star": 0}],
+             "Radius": 1234567.0, "SurfaceTemperature": 211.5,
+             "SurfacePressure": 1234.5, "AtmosphereComposition": composition},
+        ])
+        state = read_latest_state(folder)
+        self.database.store_snapshot(state, self.a)
+        with self.database._connect() as con:
+            row = con.execute("""SELECT parent_star_id,radius_m,surface_temperature,
+                surface_pressure,atmosphere_composition FROM bodies WHERE body_id=3""").fetchone()
+            system = con.execute(
+                "SELECT primary_star_id,primary_star_type FROM systems WHERE system_address=70"
+            ).fetchone()
+        self.assertEqual(row[:4], (0, 1234567.0, 211.5, 1234.5))
+        self.assertEqual(json.loads(row[4]), composition)
+        self.assertEqual(system, (0, "K"))
+
+    def test_archive_import_persists_habitat_fields(self):
+        folder = Path(self.tmp.name) / "archive-habitat"
+        folder.mkdir()
+        base = {"timestamp": "2026-01-01T00:00:00Z", "SystemAddress": 71}
+        write_journal(folder / "Journal.2026-01-01T000000.01.log", [
+            {**base, "event": "Commander", "Name": "Alpha", "FID": "F-A"},
+            {**base, "event": "Location", "StarSystem": "Archive"},
+            {**base, "event": "Scan", "BodyID": 0, "BodyName": "Archive", "StarType": "M"},
+            {**base, "event": "Scan", "BodyID": 5, "BodyName": "Archive 5",
+             "PlanetClass": "Icy body", "Parents": [{"Planet": 4}, {"Star": 0}],
+             "Radius": 765432.0, "SurfaceTemperature": 99.25,
+             "SurfacePressure": 42.0,
+             "AtmosphereComposition": [{"Name": "Argon", "Percent": 100.0}]},
+        ])
+        self.database.import_journal_archive(folder)
+        with self.database._connect() as con:
+            row = con.execute("""SELECT parent_id,parent_star_id,radius_m,
+                surface_temperature,surface_pressure,atmosphere_composition
+                FROM bodies WHERE system_address=71 AND body_id=5""").fetchone()
+        self.assertEqual(row[:5], (4, 0, 765432.0, 99.25, 42.0))
+        self.assertEqual(json.loads(row[5]), [{"Name": "Argon", "Percent": 100.0}])
+
+    def test_missing_and_later_complete_scans_merge_without_data_loss(self):
+        first = self.snapshot(
+            parent_star_id=0, radius_m=1000.0, surface_temperature=180.0,
+            surface_pressure=12.0,
+            atmosphere_composition='[{"Name":"Neon","Percent":100.0}]',
+        )
+        self.database.store_snapshot(first, self.a)
+        self.database.store_snapshot(self.snapshot(radius_m=None), self.a)
+        self.database.store_snapshot(self.snapshot(
+            radius_m=1100.0, surface_temperature=181.0,
+            surface_pressure=13.0,
+            atmosphere_composition='[{"Name":"Neon","Percent":99.0}]',
+        ), self.a)
+        with self.database._connect() as con:
+            row = con.execute("""SELECT parent_star_id,radius_m,surface_temperature,
+                surface_pressure,atmosphere_composition FROM bodies WHERE system_address=42""").fetchone()
+        self.assertEqual(row, (0, 1100.0, 181.0, 13.0,
+                               '[{"Name":"Neon","Percent":99.0}]'))
 
 
 if __name__ == "__main__":

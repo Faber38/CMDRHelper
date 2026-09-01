@@ -54,6 +54,11 @@ class SystemBody:
     star_type: str = ""
     planet_class: str = ""
     parent_id: int | None = None
+    parent_star_id: int | None = None
+    radius_m: float | None = None
+    surface_temperature: float | None = None
+    surface_pressure: float | None = None
+    atmosphere_composition: str = ""
     gravity_g: float | None = None
     distance_ls: float | None = None
     landable: bool = False

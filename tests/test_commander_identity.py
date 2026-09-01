@@ -33,7 +33,7 @@ class CommanderSchemaTests(unittest.TestCase):
                 )
                 self.assertEqual(
                     con.execute("PRAGMA user_version").fetchone()[0],
-                    3,
+                    SCHEMA_VERSION,
                 )
                 columns = {
                     row[1] for row in con.execute("PRAGMA table_info(commanders)")

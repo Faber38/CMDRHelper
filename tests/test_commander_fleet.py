@@ -128,7 +128,7 @@ class CommanderFleetTests(unittest.TestCase):
             con.execute("DROP TABLE commander_ships_v7_test")
             con.execute("PRAGMA user_version=6")
         migrated = CMDRDatabase(self.path)
-        self.assertEqual(SCHEMA_VERSION, 7)
+        self.assertEqual(SCHEMA_VERSION, 8)
         self.assertEqual(migrated.commander_last_ship(self.a)["ship_name"], "Legacy")
 
     def _view(self, live_id=None):
