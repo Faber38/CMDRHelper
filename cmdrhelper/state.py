@@ -861,6 +861,9 @@ class AppState(QObject):
         if commander_id is None:
             return False
 
+        self.database.ensure_schema_v3()
+        self.database.set_active_commander(commander_id)
+
         previous_fid = self.commander_fid
         self.commander_id = commander_id
         self.commander_fid = fid

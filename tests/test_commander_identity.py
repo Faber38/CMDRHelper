@@ -43,15 +43,23 @@ class CommanderSchemaTests(unittest.TestCase):
                     {"id", "fid", "current_name", "first_seen", "last_seen"},
                 )
 
-                for table in (
-                    "systems", "bodies", "biology", "geology", "system_visits",
-                    "codex_entries", "cartography_sales", "journal_imports",
-                ):
+                for table in ("systems", "bodies", "materials"):
                     table_columns = {
                         row[1]
                         for row in con.execute(f"PRAGMA table_info({table})")
                     }
                     self.assertNotIn("commander_id", table_columns)
+
+                for table in (
+                    "biology", "geology", "system_visits", "codex_entries",
+                    "cartography_sales", "journal_imports",
+                    "bio_value_journal_scans", "cartography_value_journal_scans",
+                ):
+                    table_columns = {
+                        row[1]
+                        for row in con.execute(f"PRAGMA table_info({table})")
+                    }
+                    self.assertIn("commander_id", table_columns)
 
             # Wiederholtes Öffnen ist eine sichere No-op-Migration.
             CMDRDatabase(path)

@@ -340,13 +340,16 @@ class ScoreAnalyzer:
         ]
 
         try:
+            commander_id = self.database._require_commander_id()
             with self.database._connect() as con:
                 rows = con.execute(
                     """
                     SELECT genus, species
                     FROM biology
-                    WHERE genus <> '' OR species <> ''
-                    """
+                    WHERE commander_id=?
+                      AND (genus <> '' OR species <> '')
+                    """,
+                    (commander_id,),
                 ).fetchall()
         except Exception:
             rows = []
@@ -500,17 +503,20 @@ class ScoreAnalyzer:
 
             elif target_key.startswith("bio_genus:"):
                 target = target_key.split(":", 1)[1].strip()
+                commander_id = self.database._require_commander_id()
 
                 rows = con.execute(
                     """
                     SELECT system_address, COUNT(*)
                     FROM biology
-                    WHERE genus = ? COLLATE NOCASE
+                    WHERE commander_id=? AND (
+                          genus = ? COLLATE NOCASE
                        OR genus LIKE ? COLLATE NOCASE
+                    )
                     GROUP BY system_address
                     """,
                     (
-                        target,
+                        commander_id, target,
                         f"{target}%",
                     ),
                 ).fetchall()
@@ -522,19 +528,22 @@ class ScoreAnalyzer:
 
             elif target_key.startswith("bio_species:"):
                 target = target_key.split(":", 1)[1].strip()
+                commander_id = self.database._require_commander_id()
 
                 rows = con.execute(
                     """
                     SELECT system_address, COUNT(*)
                     FROM biology
-                    WHERE species = ? COLLATE NOCASE
+                    WHERE commander_id=? AND (
+                          species = ? COLLATE NOCASE
                        OR species LIKE ? COLLATE NOCASE
                        OR variant = ? COLLATE NOCASE
                        OR variant LIKE ? COLLATE NOCASE
+                    )
                     GROUP BY system_address
                     """,
                     (
-                        target,
+                        commander_id, target,
                         f"{target}%",
                         target,
                         f"{target}%",

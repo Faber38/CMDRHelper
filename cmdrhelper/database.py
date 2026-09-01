@@ -8,7 +8,22 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
+
+PERSONAL_TABLES = (
+    "system_visits",
+    "biology",
+    "geology",
+    "codex_entries",
+    "cartography_sales",
+    "journal_imports",
+    "bio_value_journal_scans",
+    "cartography_value_journal_scans",
+)
+
+
+class CommanderMigrationError(RuntimeError):
+    pass
 
 def _direct_parent_id(parents) -> int | None:
     """
@@ -47,6 +62,7 @@ class CMDRDatabase:
         self.path = Path(path) if path else default_database_path()
         self.path.parent.mkdir(parents=True, exist_ok=True)
         logger.info("Datenbank: %s", self.path)
+        self.active_commander_id = None
         self._create_schema()
 
     def _connect(self):
@@ -274,8 +290,9 @@ class CMDRDatabase:
             ).fetchone()
 
             if discovery_index is None or discovery_index[0] != "3":
-                con.execute("DELETE FROM journal_imports")
-                con.execute("DELETE FROM geology")
+                # Der Indexstand ist nur Metadatum. Ein Schema-Start darf
+                # bestehende persönliche Daten niemals als Nebeneffekt
+                # verwerfen; ein gewünschter Neuimport muss explizit erfolgen.
                 con.execute(
                     """
                     INSERT INTO app_meta (key, value)
@@ -327,7 +344,280 @@ class CMDRDatabase:
                     )
                     """
                 )
-                con.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
+                con.execute("PRAGMA user_version = 2")
+
+        self._maybe_migrate_v3()
+
+    def _personal_row_counts(self, con):
+        return {
+            table: int(con.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])
+            for table in PERSONAL_TABLES
+        }
+
+    def _legacy_commander_for_v3(self, con, require=False):
+        counts = self._personal_row_counts(con)
+        if not any(counts.values()):
+            row = con.execute("SELECT id FROM commanders ORDER BY id LIMIT 1").fetchone()
+            return (int(row[0]) if row else None), counts
+
+        commanders = con.execute("SELECT id FROM commanders ORDER BY id").fetchall()
+        if len(commanders) == 1:
+            return int(commanders[0][0]), counts
+
+        if not commanders and not require:
+            return None, counts
+
+        raise CommanderMigrationError(
+            "Die bestehenden persönlichen Daten können nicht eindeutig einem "
+            "Commander zugeordnet werden. Migration auf Schema-Version 3 "
+            "wurde ohne Änderungen abgebrochen."
+        )
+
+    def _create_migration_backup(self) -> Path:
+        stamp = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
+        backup_path = self.path.with_name(
+            f"{self.path.name}.pre-v3-{stamp}.bak"
+        )
+        try:
+            source = sqlite3.connect(self.path)
+            target = sqlite3.connect(backup_path)
+            try:
+                source.backup(target)
+                if target.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
+                    raise sqlite3.DatabaseError("Backup-Integritätsprüfung fehlgeschlagen")
+            finally:
+                target.close()
+                source.close()
+        except Exception as exc:
+            try:
+                backup_path.unlink(missing_ok=True)
+            except OSError:
+                pass
+            raise CommanderMigrationError(
+                f"Datenbanksicherung vor Migration fehlgeschlagen: {exc}"
+            ) from exc
+        return backup_path
+
+    def _maybe_migrate_v3(self, require=False):
+        with self._connect() as con:
+            version = int(con.execute("PRAGMA user_version").fetchone()[0])
+            if version >= 3:
+                return None
+            legacy_commander_id, before_counts = self._legacy_commander_for_v3(
+                con, require=require
+            )
+            if legacy_commander_id is None and any(before_counts.values()):
+                return None
+            if con.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
+                raise CommanderMigrationError(
+                    "Integritätsprüfung vor Migration fehlgeschlagen."
+                )
+            if con.execute("PRAGMA foreign_key_check").fetchall():
+                raise CommanderMigrationError(
+                    "Foreign-Key-Prüfung vor Migration fehlgeschlagen."
+                )
+
+        backup_path = self._create_migration_backup()
+        logger.info("Datenbanksicherung vor v3-Migration: %s", backup_path)
+        self._migrate_personal_tables_v3(legacy_commander_id, before_counts)
+        return backup_path
+
+    def ensure_schema_v3(self):
+        return self._maybe_migrate_v3(require=True)
+
+    def set_active_commander(self, commander_id):
+        self.active_commander_id = (
+            int(commander_id) if commander_id is not None else None
+        )
+
+    def _require_commander_id(self, commander_id=None) -> int:
+        value = self.active_commander_id if commander_id is None else commander_id
+        if value is None:
+            raise ValueError("Aktiver Commander ist nicht eindeutig gesetzt")
+        return int(value)
+
+    def _commander_fid(self, commander_id) -> str:
+        with self._connect() as con:
+            row = con.execute(
+                "SELECT fid FROM commanders WHERE id=?", (int(commander_id),)
+            ).fetchone()
+        if row is None:
+            raise ValueError("Commander existiert nicht")
+        return str(row[0])
+
+    def resolve_session_commander(self, session: dict) -> int | None:
+        if session.get("attribution_status") != "identified":
+            return None
+        fid = str(session.get("fid_seen") or "").strip()
+        if not fid:
+            return None
+        return self.upsert_commander(
+            fid,
+            session.get("commander_name_seen") or "",
+            session.get("last_event_at") or session.get("first_event_at") or "",
+        )
+
+    def _migrate_personal_tables_v3(self, commander_id, before_counts):
+        definitions = {
+            "system_visits": """
+                CREATE TABLE system_visits_v3 (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    commander_id INTEGER NOT NULL,
+                    system_address INTEGER NOT NULL,
+                    system_name TEXT NOT NULL DEFAULT '', visited_at TEXT NOT NULL DEFAULT '',
+                    x REAL, y REAL, z REAL,
+                    UNIQUE(commander_id, system_address, visited_at),
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id)
+                )""",
+            "biology": """
+                CREATE TABLE biology_v3 (
+                    commander_id INTEGER NOT NULL, system_address INTEGER NOT NULL,
+                    body_id INTEGER NOT NULL, genus TEXT NOT NULL DEFAULT '',
+                    species TEXT NOT NULL DEFAULT '', variant TEXT NOT NULL DEFAULT '',
+                    scan_type TEXT NOT NULL DEFAULT '', first_seen TEXT NOT NULL DEFAULT '',
+                    last_seen TEXT NOT NULL DEFAULT '',
+                    PRIMARY KEY(commander_id, system_address, body_id, genus, species, variant),
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id)
+                )""",
+            "geology": """
+                CREATE TABLE geology_v3 (
+                    commander_id INTEGER NOT NULL, system_address INTEGER NOT NULL,
+                    body_id INTEGER NOT NULL, name TEXT NOT NULL DEFAULT '',
+                    raw_name TEXT NOT NULL DEFAULT '', source TEXT NOT NULL DEFAULT '',
+                    first_seen TEXT NOT NULL DEFAULT '', last_seen TEXT NOT NULL DEFAULT '',
+                    PRIMARY KEY(commander_id, system_address, body_id, name, source),
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id)
+                )""",
+            "codex_entries": """
+                CREATE TABLE codex_entries_v3 (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT, commander_id INTEGER NOT NULL,
+                    system_address INTEGER, system_name TEXT NOT NULL DEFAULT '',
+                    category TEXT NOT NULL DEFAULT '', subcategory TEXT NOT NULL DEFAULT '',
+                    name TEXT NOT NULL DEFAULT '', raw_name TEXT NOT NULL DEFAULT '',
+                    nearest_destination TEXT NOT NULL DEFAULT '', region TEXT NOT NULL DEFAULT '',
+                    event_type TEXT NOT NULL DEFAULT '', first_seen TEXT NOT NULL DEFAULT '',
+                    last_seen TEXT NOT NULL DEFAULT '',
+                    UNIQUE(commander_id, system_address, category, subcategory, name,
+                           nearest_destination, event_type),
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id)
+                )""",
+            "cartography_sales": """
+                CREATE TABLE cartography_sales_v3 (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT, commander_id INTEGER NOT NULL,
+                    journal_file TEXT NOT NULL DEFAULT '', event_timestamp TEXT NOT NULL DEFAULT '',
+                    event_type TEXT NOT NULL DEFAULT '', base_value INTEGER NOT NULL DEFAULT 0,
+                    bonus INTEGER NOT NULL DEFAULT 0, total_earnings INTEGER NOT NULL DEFAULT 0,
+                    estimated_total INTEGER NOT NULL DEFAULT 0, correction_factor REAL,
+                    body_count INTEGER NOT NULL DEFAULT 0, first_seen TEXT NOT NULL DEFAULT '',
+                    UNIQUE(commander_id, journal_file, event_timestamp, event_type),
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id)
+                )""",
+            "journal_imports": """
+                CREATE TABLE journal_imports_v3 (
+                    commander_id INTEGER NOT NULL, journal_file TEXT NOT NULL,
+                    file_size INTEGER NOT NULL DEFAULT 0, modified_ns INTEGER NOT NULL DEFAULT 0,
+                    last_import TEXT NOT NULL DEFAULT '',
+                    PRIMARY KEY(commander_id, journal_file),
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id)
+                )""",
+            "bio_value_journal_scans": """
+                CREATE TABLE bio_value_journal_scans_v3 (
+                    commander_id INTEGER NOT NULL, journal_file TEXT NOT NULL,
+                    file_size INTEGER NOT NULL DEFAULT 0, modified_ns INTEGER NOT NULL DEFAULT 0,
+                    last_scan TEXT NOT NULL DEFAULT '',
+                    PRIMARY KEY(commander_id, journal_file),
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id)
+                )""",
+            "cartography_value_journal_scans": """
+                CREATE TABLE cartography_value_journal_scans_v3 (
+                    commander_id INTEGER NOT NULL, journal_file TEXT NOT NULL,
+                    file_size INTEGER NOT NULL DEFAULT 0, modified_ns INTEGER NOT NULL DEFAULT 0,
+                    last_scan TEXT NOT NULL DEFAULT '',
+                    PRIMARY KEY(commander_id, journal_file),
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id)
+                )""",
+        }
+        columns = {
+            "system_visits": "id, system_address, system_name, visited_at, x, y, z",
+            "biology": "system_address, body_id, genus, species, variant, scan_type, first_seen, last_seen",
+            "geology": "system_address, body_id, name, raw_name, source, first_seen, last_seen",
+            "codex_entries": "id, system_address, system_name, category, subcategory, name, raw_name, nearest_destination, region, event_type, first_seen, last_seen",
+            "cartography_sales": "id, journal_file, event_timestamp, event_type, base_value, bonus, total_earnings, estimated_total, correction_factor, body_count, first_seen",
+            "journal_imports": "journal_file, file_size, modified_ns, last_import",
+            "bio_value_journal_scans": "journal_file, file_size, modified_ns, last_scan",
+            "cartography_value_journal_scans": "journal_file, file_size, modified_ns, last_scan",
+        }
+
+        con = sqlite3.connect(self.path)
+        try:
+            con.execute("PRAGMA foreign_keys = OFF")
+            con.execute("BEGIN IMMEDIATE")
+            sale_body_count = int(con.execute(
+                "SELECT COUNT(*) FROM cartography_sale_bodies"
+            ).fetchone()[0])
+            for table in PERSONAL_TABLES:
+                con.execute(definitions[table])
+                old_columns = columns[table]
+                new_columns = old_columns.split(", ")
+                insert_columns = list(new_columns)
+                id_position = 1 if table in ("system_visits", "codex_entries", "cartography_sales") else 0
+                insert_columns.insert(id_position, "commander_id")
+                select_columns = list(new_columns)
+                select_columns.insert(id_position, "?")
+                if before_counts[table]:
+                    con.execute(
+                        f"INSERT INTO {table}_v3 ({', '.join(insert_columns)}) "
+                        f"SELECT {', '.join(select_columns)} FROM {table}",
+                        (commander_id,),
+                    )
+                con.execute(f"DROP TABLE {table}")
+                con.execute(f"ALTER TABLE {table}_v3 RENAME TO {table}")
+
+            con.execute(
+                "CREATE INDEX idx_system_visits_time ON system_visits(commander_id, visited_at)"
+            )
+            con.execute(
+                "CREATE INDEX idx_geology_body ON geology(commander_id, system_address, body_id)"
+            )
+            con.execute(
+                "CREATE INDEX idx_codex_system ON codex_entries(commander_id, system_address)"
+            )
+            con.execute(
+                "CREATE INDEX idx_codex_name ON codex_entries(commander_id, name)"
+            )
+
+            after_counts = self._personal_row_counts(con)
+            if after_counts != before_counts:
+                raise CommanderMigrationError(
+                    f"Zeilenzahlen nach Migration abweichend: {before_counts} -> {after_counts}"
+                )
+            if int(con.execute(
+                "SELECT COUNT(*) FROM cartography_sale_bodies"
+            ).fetchone()[0]) != sale_body_count:
+                raise CommanderMigrationError(
+                    "Kartographie-Verkaufskörper wurden bei der Migration verändert"
+                )
+            if commander_id is not None:
+                for table in PERSONAL_TABLES:
+                    wrong = int(con.execute(
+                        f"SELECT COUNT(*) FROM {table} WHERE commander_id<>?",
+                        (int(commander_id),),
+                    ).fetchone()[0])
+                    if wrong:
+                        raise CommanderMigrationError(
+                            f"Commander-Zuordnung in {table} ist unvollständig"
+                        )
+            if con.execute("PRAGMA foreign_key_check").fetchall():
+                raise CommanderMigrationError("Foreign-Key-Prüfung nach Migration fehlgeschlagen")
+            if con.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
+                raise CommanderMigrationError("Integritätsprüfung nach Migration fehlgeschlagen")
+            con.execute("PRAGMA user_version = 3")
+            con.commit()
+        except Exception:
+            con.rollback()
+            raise
+        finally:
+            con.close()
 
     def upsert_commander(self, fid, current_name="", timestamp="") -> int | None:
         """Legt eine per Frontier-FID identifizierte Identität an/aktualisiert sie."""
@@ -555,60 +845,63 @@ class CMDRDatabase:
                     """, (int(address), int(body_id), str(name), percentage))
 
     def store_biology(self, system_address, body_id, genus="", species="",
-                      variant="", scan_type="", timestamp=""):
+                      variant="", scan_type="", timestamp="", commander_id=None):
         if system_address is None or body_id is None:
             return
         if not (genus or species or variant):
             return
         seen = timestamp or datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        commander_id = self._require_commander_id(commander_id)
         with self._connect() as con:
             con.execute("""
                 INSERT INTO biology (
-                    system_address, body_id, genus, species, variant,
+                    commander_id, system_address, body_id, genus, species, variant,
                     scan_type, first_seen, last_seen
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT(system_address, body_id, genus, species, variant)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(commander_id, system_address, body_id, genus, species, variant)
                 DO UPDATE SET
                     scan_type=CASE WHEN excluded.scan_type <> ''
                                    THEN excluded.scan_type ELSE biology.scan_type END,
                     last_seen=excluded.last_seen
-            """, (int(system_address), int(body_id), str(genus or ""),
+            """, (commander_id, int(system_address), int(body_id), str(genus or ""),
                   str(species or ""), str(variant or ""), str(scan_type or ""),
                   seen, seen))
 
-    def biology_for_body(self, system_address, body_id):
+    def biology_for_body(self, system_address, body_id, commander_id=None):
         if system_address is None or body_id is None:
             return []
+        commander_id = self._require_commander_id(commander_id)
         with self._connect() as con:
             rows = con.execute("""
                 SELECT genus, species, variant, scan_type, first_seen, last_seen
                 FROM biology
-                WHERE system_address=? AND body_id=?
+                WHERE commander_id=? AND system_address=? AND body_id=?
                 ORDER BY variant COLLATE NOCASE, species COLLATE NOCASE,
                          genus COLLATE NOCASE
-            """, (int(system_address), int(body_id))).fetchall()
+            """, (commander_id, int(system_address), int(body_id))).fetchall()
         return [
             {"genus": r[0], "species": r[1], "variant": r[2],
              "scan_type": r[3], "first_seen": r[4], "last_seen": r[5]}
             for r in rows
         ]
 
-    def biology_for_system(self, system_address):
+    def biology_for_system(self, system_address, commander_id=None):
         if system_address is None:
             return []
 
+        commander_id = self._require_commander_id(commander_id)
         with self._connect() as con:
             rows = con.execute(
                 """
                 SELECT body_id, genus, species, variant,
                        scan_type, first_seen, last_seen
                 FROM biology
-                WHERE system_address=?
+                WHERE commander_id=? AND system_address=?
                 ORDER BY body_id,
                          species COLLATE NOCASE,
                          variant COLLATE NOCASE
                 """,
-                (int(system_address),),
+                (commander_id, int(system_address)),
             ).fetchall()
 
         return [
@@ -696,7 +989,7 @@ class CMDRDatabase:
             for row in rows
         ]
 
-    def learn_bio_values_from_journals(self, folder):
+    def learn_bio_values_from_journals(self, folder, commander_id=None):
         """
         Lernt Vista-Genomics-Basiswerte direkt aus SellOrganicData.
 
@@ -712,6 +1005,8 @@ class CMDRDatabase:
             }
         """
         folder = Path(folder)
+        commander_id = self._require_commander_id(commander_id)
+        commander_fid = self._commander_fid(commander_id)
 
         result = {
             "files_scanned": 0,
@@ -722,9 +1017,19 @@ class CMDRDatabase:
         if not folder.is_dir():
             return result
 
-        journals = sorted(
-            folder.glob("Journal.*.log")
-        )
+        from cmdrhelper.journal_reader import classify_journal_file
+
+        journals = []
+        for journal in sorted(folder.glob("Journal.*.log")):
+            try:
+                session = classify_journal_file(journal)
+            except OSError:
+                continue
+            if (
+                session.get("attribution_status") == "identified"
+                and session.get("fid_seen") == commander_fid
+            ):
+                journals.append(journal)
 
         if not journals:
             return result
@@ -734,7 +1039,9 @@ class CMDRDatabase:
                 """
                 SELECT journal_file, file_size, modified_ns
                 FROM bio_value_journal_scans
+                WHERE commander_id=?
                 """
+                , (commander_id,)
             ).fetchall()
 
         scanned = {
@@ -876,17 +1183,18 @@ class CMDRDatabase:
                 con.execute(
                     """
                     INSERT INTO bio_value_journal_scans (
-                        journal_file, file_size,
+                        commander_id, journal_file, file_size,
                         modified_ns, last_scan
                     )
-                    VALUES (?, ?, ?, ?)
-                    ON CONFLICT(journal_file)
+                    VALUES (?, ?, ?, ?, ?)
+                    ON CONFLICT(commander_id, journal_file)
                     DO UPDATE SET
                         file_size=excluded.file_size,
                         modified_ns=excluded.modified_ns,
                         last_scan=excluded.last_scan
                     """,
                     (
+                        commander_id,
                         str(journal),
                         file_size,
                         modified_ns,
@@ -991,16 +1299,21 @@ class CMDRDatabase:
 
         return base_value, bonus, total_earnings
 
-    def cartography_learning_stats(self):
+    def cartography_learning_stats(self, commander_id=None):
+        commander_id = self._require_commander_id(commander_id)
         with self._connect() as con:
             sales = int(
                 con.execute(
-                    "SELECT COUNT(*) FROM cartography_sales"
+                    "SELECT COUNT(*) FROM cartography_sales WHERE commander_id=?",
+                    (commander_id,),
                 ).fetchone()[0]
             )
             bodies = int(
                 con.execute(
-                    "SELECT COUNT(*) FROM cartography_sale_bodies"
+                    """SELECT COUNT(*) FROM cartography_sale_bodies b
+                       JOIN cartography_sales s ON s.id=b.sale_id
+                       WHERE s.commander_id=?""",
+                    (commander_id,),
                 ).fetchone()[0]
             )
 
@@ -1015,9 +1328,10 @@ class CMDRDatabase:
                     ),
                     SUM(estimated_total)
                 FROM cartography_sales
-                WHERE estimated_total > 0
+                WHERE commander_id=? AND estimated_total > 0
                   AND (base_value > 0 OR total_earnings > 0)
-                """
+                """,
+                (commander_id,),
             ).fetchone()
 
         actual = int((row or (0, 0))[0] or 0)
@@ -1039,6 +1353,7 @@ class CMDRDatabase:
         self,
         planet_class="",
         terraformable=None,
+        commander_id=None,
     ):
         """
         Liefert einen aus echten Universal-Cartographics-Verkäufen
@@ -1051,10 +1366,12 @@ class CMDRDatabase:
         sind. Ansonsten gilt der globale Faktor. Ohne Lerndaten ist er 1.0.
         """
         planet_class = str(planet_class or "").strip()
+        commander_id = self._require_commander_id(commander_id)
 
         with self._connect() as con:
-            params = []
+            params = [commander_id]
             where = [
+                "s.commander_id = ?",
                 "s.estimated_total > 0",
                 "(s.base_value > 0 OR s.total_earnings > 0)",
                 "b.estimated_value > 0",
@@ -1111,9 +1428,10 @@ class CMDRDatabase:
                         ),
                         SUM(estimated_total)
                     FROM cartography_sales
-                    WHERE estimated_total > 0
+                    WHERE commander_id=? AND estimated_total > 0
                       AND (base_value > 0 OR total_earnings > 0)
-                    """
+                    """,
+                    (commander_id,),
                 ).fetchone()
 
                 actual = float((global_row or (0, 0))[0] or 0.0)
@@ -1132,6 +1450,7 @@ class CMDRDatabase:
         self,
         folder,
         valuation_func=None,
+        commander_id=None,
     ):
         """
         Rekonstruiert Verkaufs-Batches aus den Journalen und speichert
@@ -1143,6 +1462,8 @@ class CMDRDatabase:
         Die Körperdaten dienen nur als Merkmale des jeweiligen Verkaufs-Batches.
         """
         folder = Path(folder)
+        commander_id = self._require_commander_id(commander_id)
+        commander_fid = self._commander_fid(commander_id)
 
         result = {
             "files_scanned": 0,
@@ -1154,7 +1475,19 @@ class CMDRDatabase:
         if not folder.is_dir():
             return result
 
-        journals = sorted(folder.glob("Journal.*.log"))
+        from cmdrhelper.journal_reader import classify_journal_file
+
+        journals = []
+        for journal in sorted(folder.glob("Journal.*.log")):
+            try:
+                session = classify_journal_file(journal)
+            except OSError:
+                continue
+            if (
+                session.get("attribution_status") == "identified"
+                and session.get("fid_seen") == commander_fid
+            ):
+                journals.append(journal)
         if not journals:
             return result
 
@@ -1163,7 +1496,9 @@ class CMDRDatabase:
                 """
                 SELECT journal_file, file_size, modified_ns
                 FROM cartography_value_journal_scans
+                WHERE commander_id=?
                 """
+                , (commander_id,)
             ).fetchall()
 
         scanned = {
@@ -1422,6 +1757,7 @@ class CMDRDatabase:
                             cursor = con.execute(
                                 """
                                 INSERT OR IGNORE INTO cartography_sales (
+                                    commander_id,
                                     journal_file,
                                     event_timestamp,
                                     event_type,
@@ -1433,9 +1769,10 @@ class CMDRDatabase:
                                     body_count,
                                     first_seen
                                 )
-                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                                 """,
                                 (
+                                    commander_id,
                                     str(journal),
                                     timestamp,
                                     event_type,
@@ -1532,19 +1869,21 @@ class CMDRDatabase:
                 con.execute(
                     """
                     INSERT INTO cartography_value_journal_scans (
+                        commander_id,
                         journal_file,
                         file_size,
                         modified_ns,
                         last_scan
                     )
-                    VALUES (?, ?, ?, ?)
-                    ON CONFLICT(journal_file)
+                    VALUES (?, ?, ?, ?, ?)
+                    ON CONFLICT(commander_id, journal_file)
                     DO UPDATE SET
                         file_size=excluded.file_size,
                         modified_ns=excluded.modified_ns,
                         last_scan=excluded.last_scan
                     """,
                     (
+                        commander_id,
                         str(journal),
                         file_size,
                         modified_ns,
@@ -1610,6 +1949,7 @@ class CMDRDatabase:
         raw_name="",
         source="",
         timestamp="",
+        commander_id=None,
     ):
         if system_address is None or body_id is None:
             return
@@ -1627,16 +1967,18 @@ class CMDRDatabase:
             .replace("+00:00", "Z")
         )
 
+        commander_id = self._require_commander_id(commander_id)
         with self._connect() as con:
             con.execute(
                 """
                 INSERT INTO geology (
-                    system_address, body_id,
+                    commander_id, system_address, body_id,
                     name, raw_name, source,
                     first_seen, last_seen
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(
+                    commander_id,
                     system_address,
                     body_id,
                     name,
@@ -1651,6 +1993,7 @@ class CMDRDatabase:
                     last_seen=excluded.last_seen
                 """,
                 (
+                    commander_id,
                     int(system_address),
                     int(body_id),
                     display_name,
@@ -1665,21 +2008,25 @@ class CMDRDatabase:
         self,
         system_address,
         body_id,
+        commander_id=None,
     ):
         if system_address is None or body_id is None:
             return []
 
+        commander_id = self._require_commander_id(commander_id)
         with self._connect() as con:
             rows = con.execute(
                 """
                 SELECT name, raw_name, source,
                        first_seen, last_seen
                 FROM geology
-                WHERE system_address=?
+                WHERE commander_id=?
+                  AND system_address=?
                   AND body_id=?
                 ORDER BY name COLLATE NOCASE
                 """,
                 (
+                    commander_id,
                     int(system_address),
                     int(body_id),
                 ),
@@ -1708,6 +2055,7 @@ class CMDRDatabase:
         region="",
         event_type="CodexEntry",
         timestamp="",
+        commander_id=None,
     ):
         display_name = str(name or raw_name or "").strip()
         if not display_name:
@@ -1720,17 +2068,19 @@ class CMDRDatabase:
 
         address = int(system_address) if isinstance(system_address, int) else None
 
+        commander_id = self._require_commander_id(commander_id)
         with self._connect() as con:
             con.execute(
                 """
                 INSERT INTO codex_entries (
-                    system_address, system_name,
+                    commander_id, system_address, system_name,
                     category, subcategory,
                     name, raw_name,
                     nearest_destination, region,
                     event_type, first_seen, last_seen
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(
+                    commander_id,
                     system_address,
                     category,
                     subcategory,
@@ -1757,6 +2107,7 @@ class CMDRDatabase:
                     last_seen=excluded.last_seen
                 """,
                 (
+                    commander_id,
                     address,
                     str(system_name or ""),
                     str(category or ""),
@@ -1771,13 +2122,14 @@ class CMDRDatabase:
                 ),
             )
 
-    def search_chronicle(self, query):
+    def search_chronicle(self, query, commander_id=None):
         text = str(query or "").strip()
         if not text:
             return []
 
         pattern = f"%{text}%"
         results = []
+        commander_id = self._require_commander_id(commander_id)
 
         with self._connect() as con:
             for row in con.execute(
@@ -1873,13 +2225,14 @@ class CMDRDatabase:
                 JOIN bodies p
                   ON p.system_address=bio.system_address
                  AND p.body_id=bio.body_id
-                WHERE bio.genus LIKE ? COLLATE NOCASE
+                WHERE bio.commander_id=? AND (
+                      bio.genus LIKE ? COLLATE NOCASE
                    OR bio.species LIKE ? COLLATE NOCASE
-                   OR bio.variant LIKE ? COLLATE NOCASE
+                   OR bio.variant LIKE ? COLLATE NOCASE)
                 ORDER BY s.name COLLATE NOCASE, p.body_id
                 LIMIT 1000
                 """,
-                (pattern, pattern, pattern),
+                (commander_id, pattern, pattern, pattern),
             ).fetchall():
                 bio_name = row[13] or row[12] or row[11] or "Biologie"
                 results.append({
@@ -1942,17 +2295,18 @@ class CMDRDatabase:
                     c.nearest_destination, c.region, c.event_type
                 FROM codex_entries c
                 LEFT JOIN systems s ON s.system_address=c.system_address
-                WHERE c.name LIKE ? COLLATE NOCASE
+                WHERE c.commander_id=? AND (
+                      c.name LIKE ? COLLATE NOCASE
                    OR c.raw_name LIKE ? COLLATE NOCASE
                    OR c.category LIKE ? COLLATE NOCASE
                    OR c.subcategory LIKE ? COLLATE NOCASE
                    OR c.nearest_destination LIKE ? COLLATE NOCASE
                    OR c.region LIKE ? COLLATE NOCASE
-                   OR c.event_type LIKE ? COLLATE NOCASE
+                   OR c.event_type LIKE ? COLLATE NOCASE)
                 ORDER BY 2 COLLATE NOCASE, c.name COLLATE NOCASE
                 LIMIT 1000
                 """,
-                (pattern, pattern, pattern, pattern, pattern, pattern, pattern),
+                (commander_id, pattern, pattern, pattern, pattern, pattern, pattern, pattern),
             ).fetchall():
                 detail = " · ".join(
                     str(v) for v in (row[8], row[9], row[11], row[12]) if v
@@ -1989,7 +2343,7 @@ class CMDRDatabase:
 
         return unique
 
-    def chronicle_search_terms(self):
+    def chronicle_search_terms(self, commander_id=None):
         result = {
             "BIO": [],
             "Körper": [],
@@ -1997,6 +2351,7 @@ class CMDRDatabase:
             "Codex / Phänomene": [],
         }
 
+        commander_id = self._require_commander_id(commander_id)
         with self._connect() as con:
             result["BIO"] = [
                 row[0] for row in con.execute(
@@ -2008,10 +2363,11 @@ class CMDRDatabase:
                             ELSE genus
                         END
                     FROM biology
-                    WHERE genus <> '' OR species <> '' OR variant <> ''
+                    WHERE commander_id=?
+                      AND (genus <> '' OR species <> '' OR variant <> '')
                     ORDER BY 1 COLLATE NOCASE
                     """
-                ).fetchall()
+                , (commander_id,)).fetchall()
                 if row[0]
             ]
 
@@ -2044,39 +2400,49 @@ class CMDRDatabase:
                     """
                     SELECT DISTINCT name
                     FROM codex_entries
-                    WHERE name <> ''
+                    WHERE commander_id=? AND name <> ''
                     ORDER BY name COLLATE NOCASE
                     """
-                ).fetchall()
+                , (commander_id,)).fetchall()
                 if row[0]
             ]
 
         return result
 
-    def mark_journal_files(self, folder):
+    def mark_journal_files(self, folder, commander_id=None):
         folder = Path(folder)
         if not folder.exists():
             return
         now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        commander_id = self._require_commander_id(commander_id)
+        commander_fid = self._commander_fid(commander_id)
+        from cmdrhelper.journal_reader import classify_journal_file
         with self._connect() as con:
             for journal in sorted(folder.glob("Journal.*.log")):
                 try:
+                    session = classify_journal_file(journal)
                     stat = journal.stat()
                 except OSError:
                     continue
+                if not (
+                    session.get("attribution_status") == "identified"
+                    and session.get("fid_seen") == commander_fid
+                ):
+                    continue
                 con.execute("""
                     INSERT INTO journal_imports (
-                        journal_file, file_size, modified_ns, last_import
-                    ) VALUES (?, ?, ?, ?)
-                    ON CONFLICT(journal_file) DO UPDATE SET
+                        commander_id, journal_file, file_size, modified_ns, last_import
+                    ) VALUES (?, ?, ?, ?, ?)
+                    ON CONFLICT(commander_id, journal_file) DO UPDATE SET
                         file_size=excluded.file_size,
                         modified_ns=excluded.modified_ns,
                         last_import=excluded.last_import
-                """, (str(journal), int(stat.st_size), int(stat.st_mtime_ns), now))
+                """, (commander_id, str(journal), int(stat.st_size), int(stat.st_mtime_ns), now))
 
 
 
-    def store_visit(self, system_address, system_name="", timestamp="", star_pos=None):
+    def store_visit(self, system_address, system_name="", timestamp="", star_pos=None,
+                    commander_id=None):
         if system_address is None:
             return
         pos = list(star_pos or [])
@@ -2084,25 +2450,28 @@ class CMDRDatabase:
         y = pos[1] if len(pos) > 1 else None
         z = pos[2] if len(pos) > 2 else None
         seen = timestamp or datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        commander_id = self._require_commander_id(commander_id)
         with self._connect() as con:
             con.execute("""
                 INSERT OR IGNORE INTO system_visits
-                    (system_address, system_name, visited_at, x, y, z)
-                VALUES (?, ?, ?, ?, ?, ?)
-            """, (int(system_address), str(system_name or ""), seen, x, y, z))
+                    (commander_id, system_address, system_name, visited_at, x, y, z)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (commander_id, int(system_address), str(system_name or ""), seen, x, y, z))
 
-    def chronicle_systems(self):
+    def chronicle_systems(self, commander_id=None):
+        commander_id = self._require_commander_id(commander_id)
         with self._connect() as con:
             rows = con.execute("""
                 SELECT s.system_address, s.name, s.x, s.y, s.z,
                        s.first_seen, s.last_seen, s.body_count,
                        COUNT(v.id)
                 FROM systems s
-                LEFT JOIN system_visits v ON v.system_address=s.system_address
+                JOIN system_visits v ON v.system_address=s.system_address
+                                    AND v.commander_id=?
                 WHERE s.x IS NOT NULL AND s.y IS NOT NULL AND s.z IS NOT NULL
                 GROUP BY s.system_address
                 ORDER BY s.first_seen, s.name COLLATE NOCASE
-            """).fetchall()
+            """, (commander_id,)).fetchall()
         return [
             {
                 "system_address": r[0], "name": r[1],
@@ -2114,7 +2483,7 @@ class CMDRDatabase:
         ]
 
 
-    def recent_system_visits(self, limit=10):
+    def recent_system_visits(self, limit=10, commander_id=None):
         """
         Liefert die letzten tatsächlich protokollierten Systembesuche
         aus system_visits, neuester Besuch zuerst.
@@ -2128,6 +2497,7 @@ class CMDRDatabase:
             limit = 10
 
         limit = max(1, min(100, limit))
+        commander_id = self._require_commander_id(commander_id)
 
         with self._connect() as con:
             rows = con.execute(
@@ -2138,10 +2508,11 @@ class CMDRDatabase:
                     visited_at,
                     x, y, z
                 FROM system_visits
+                WHERE commander_id=?
                 ORDER BY visited_at DESC, id DESC
                 LIMIT ?
                 """,
-                (limit,),
+                (commander_id, limit),
             ).fetchall()
 
         return [
@@ -2157,7 +2528,7 @@ class CMDRDatabase:
         ]
 
 
-    def chronicle_system_details(self, system_address):
+    def chronicle_system_details(self, system_address, commander_id=None):
         """
         Lädt ein bereits besuchtes System vollständig aus der lokalen
         CMDRHelper-Datenbank für die Chronik-/Explorer-Darstellung.
@@ -2166,6 +2537,7 @@ class CMDRDatabase:
             return {"system": "", "bodies": []}
 
         address = int(system_address)
+        commander_id = self._require_commander_id(commander_id)
 
         with self._connect() as con:
             system_row = con.execute(
@@ -2221,12 +2593,12 @@ class CMDRDatabase:
                     SELECT genus, species, variant, scan_type,
                            first_seen, last_seen
                     FROM biology
-                    WHERE system_address = ? AND body_id = ?
+                    WHERE commander_id=? AND system_address = ? AND body_id = ?
                     ORDER BY variant COLLATE NOCASE,
                              species COLLATE NOCASE,
                              genus COLLATE NOCASE
                     """,
-                    (address, body_id),
+                    (commander_id, address, body_id),
                 ).fetchall()
 
                 geology_rows = con.execute(
@@ -2234,10 +2606,10 @@ class CMDRDatabase:
                     SELECT name, raw_name, source,
                            first_seen, last_seen
                     FROM geology
-                    WHERE system_address = ? AND body_id = ?
+                    WHERE commander_id=? AND system_address = ? AND body_id = ?
                     ORDER BY name COLLATE NOCASE
                     """,
-                    (address, body_id),
+                    (commander_id, address, body_id),
                 ).fetchall()
 
                 materials = {
@@ -2321,7 +2693,7 @@ class CMDRDatabase:
         }
 
 
-    def search_biology(self, query):
+    def search_biology(self, query, commander_id=None):
         """
         Durchsucht die lokal gespeicherten biologischen Funde nach
         Gattung, Art oder Variante und liefert System + Körper zurück.
@@ -2331,6 +2703,7 @@ class CMDRDatabase:
             return []
 
         pattern = f"%{text}%"
+        commander_id = self._require_commander_id(commander_id)
 
         with self._connect() as con:
             rows = con.execute(
@@ -2358,9 +2731,10 @@ class CMDRDatabase:
                 JOIN bodies
                   ON bodies.system_address = bio.system_address
                  AND bodies.body_id = bio.body_id
-                WHERE bio.genus LIKE ? COLLATE NOCASE
+                WHERE bio.commander_id=? AND (
+                      bio.genus LIKE ? COLLATE NOCASE
                    OR bio.species LIKE ? COLLATE NOCASE
-                   OR bio.variant LIKE ? COLLATE NOCASE
+                   OR bio.variant LIKE ? COLLATE NOCASE)
                 ORDER BY
                     systems.name COLLATE NOCASE,
                     bodies.body_id,
@@ -2369,6 +2743,7 @@ class CMDRDatabase:
                     bio.genus COLLATE NOCASE
                 """,
                 (
+                    commander_id,
                     pattern,
                     pattern,
                     pattern,
@@ -2399,6 +2774,7 @@ class CMDRDatabase:
 
     def stats(self) -> dict:
         result = {}
+        commander_id = self.active_commander_id
 
         with self._connect() as con:
             for table in (
@@ -2413,11 +2789,25 @@ class CMDRDatabase:
                 "codex_entries",
                 "journal_imports",
             ):
-                result[table] = int(
-                    con.execute(
-                        f"SELECT COUNT(*) FROM {table}"
-                    ).fetchone()[0]
-                )
+                if table in PERSONAL_TABLES or table == "cartography_sale_bodies":
+                    if commander_id is None:
+                        result[table] = 0
+                    elif table == "cartography_sale_bodies":
+                        result[table] = int(con.execute(
+                            """SELECT COUNT(*) FROM cartography_sale_bodies b
+                               JOIN cartography_sales s ON s.id=b.sale_id
+                               WHERE s.commander_id=?""",
+                            (int(commander_id),),
+                        ).fetchone()[0])
+                    else:
+                        result[table] = int(con.execute(
+                            f"SELECT COUNT(*) FROM {table} WHERE commander_id=?",
+                            (int(commander_id),),
+                        ).fetchone()[0])
+                else:
+                    result[table] = int(
+                        con.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+                    )
 
         return result
 
@@ -2469,7 +2859,8 @@ class CMDRDatabase:
 
         return bio, geo
 
-    def _journal_needs_import(self, journal: Path) -> bool:
+    def _journal_needs_import(self, journal: Path, commander_id=None) -> bool:
+        commander_id = self._require_commander_id(commander_id)
         try:
             stat = journal.stat()
         except OSError:
@@ -2480,9 +2871,9 @@ class CMDRDatabase:
                 """
                 SELECT file_size, modified_ns
                 FROM journal_imports
-                WHERE journal_file = ?
+                WHERE commander_id = ? AND journal_file = ?
                 """,
-                (str(journal),),
+                (commander_id, str(journal)),
             ).fetchone()
 
         if row is None:
@@ -2522,19 +2913,37 @@ class CMDRDatabase:
             folder.glob("Journal.*.log")
         )
 
-        # Importstatus aller Journale einmalig laden.
+        from cmdrhelper.journal_reader import classify_journal_file
+
+        # Vor dem ersten Zugriff auf die v3-Importmarker alle Dateien strikt
+        # einzeln klassifizieren. Dadurch kann ein v2-Altbestand erst dann
+        # migriert werden, wenn die belegten FIDs vollständig bekannt sind.
+        classified = {}
+        for journal in all_journals:
+            try:
+                session = classify_journal_file(journal)
+                self.store_journal_session(session)
+                commander_id = self.resolve_session_commander(session)
+            except OSError:
+                session = {"attribution_status": "unknown"}
+                commander_id = None
+            classified[journal] = (session, commander_id)
+
+        self.ensure_schema_v3()
+
+        # Importstatus aller eindeutig zugeordneten Journale einmalig laden.
         with self._connect() as con:
             imported_rows = con.execute(
                 """
-                SELECT journal_file, file_size, modified_ns
+                SELECT commander_id, journal_file, file_size, modified_ns
                 FROM journal_imports
                 """
             ).fetchall()
 
         imported_files = {
-            str(row[0]): (
-                int(row[1]),
+            (int(row[0]), str(row[1])): (
                 int(row[2]),
+                int(row[3]),
             )
             for row in imported_rows
         }
@@ -2554,6 +2963,9 @@ class CMDRDatabase:
             start=1,
         ):
             needs_import = False
+            commander_id = None
+
+            session, commander_id = classified[journal]
 
             try:
                 stat = journal.stat()
@@ -2561,8 +2973,10 @@ class CMDRDatabase:
                 stat = None
 
             if stat is not None:
-                previous = imported_files.get(
-                    str(journal)
+                previous = (
+                    imported_files.get((commander_id, str(journal)))
+                    if commander_id is not None
+                    else None
                 )
 
                 if previous is None:
@@ -2575,7 +2989,7 @@ class CMDRDatabase:
                     )
 
             if needs_import:
-                journals.append(journal)
+                journals.append((journal, commander_id))
 
             if progress_callback:
                 progress_callback(
@@ -2613,9 +3027,6 @@ class CMDRDatabase:
             total,
             skipped_count,
         )
-
-        current_system = ""
-        current_address = None
 
         # -------------------------------------------------------------
         # Temporärer Importzustand
@@ -2659,13 +3070,15 @@ class CMDRDatabase:
 
             return entry
 
+        file_commander_id = None
+
         def remember_visit(
             system_address,
             system_name="",
             timestamp="",
             star_pos=None,
         ):
-            if system_address is None:
+            if system_address is None or file_commander_id is None:
                 return
 
             pos = list(star_pos or [])
@@ -2681,11 +3094,13 @@ class CMDRDatabase:
             )
 
             key = (
+                int(file_commander_id),
                 int(system_address),
                 seen,
             )
 
             visits[key] = (
+                int(file_commander_id),
                 int(system_address),
                 str(system_name or ""),
                 seen,
@@ -2703,7 +3118,11 @@ class CMDRDatabase:
             scan_type="",
             timestamp="",
         ):
-            if system_address is None or body_id is None:
+            if (
+                file_commander_id is None
+                or system_address is None
+                or body_id is None
+            ):
                 return
 
             if not (genus or species or variant):
@@ -2717,6 +3136,7 @@ class CMDRDatabase:
             )
 
             key = (
+                int(file_commander_id),
                 int(system_address),
                 int(body_id),
                 str(genus or ""),
@@ -2745,7 +3165,11 @@ class CMDRDatabase:
             source="",
             timestamp="",
         ):
-            if system_address is None or body_id is None:
+            if (
+                file_commander_id is None
+                or system_address is None
+                or body_id is None
+            ):
                 return
 
             display_name = self._geo_display_name(
@@ -2763,6 +3187,7 @@ class CMDRDatabase:
             )
 
             key = (
+                int(file_commander_id),
                 int(system_address),
                 int(body_id),
                 display_name,
@@ -2794,6 +3219,9 @@ class CMDRDatabase:
             event_type="CodexEntry",
             timestamp="",
         ):
+            if file_commander_id is None:
+                return
+
             display_name = str(
                 name or raw_name or ""
             ).strip()
@@ -2815,6 +3243,7 @@ class CMDRDatabase:
             )
 
             key = (
+                int(file_commander_id),
                 address,
                 str(category or ""),
                 str(subcategory or ""),
@@ -2845,10 +3274,15 @@ class CMDRDatabase:
         # -------------------------------------------------------------
         # Journale parsen – KEINE SQLite-Schreibzugriffe in dieser Schleife
         # -------------------------------------------------------------
-        for index, journal in enumerate(
+        for index, journal_item in enumerate(
             journals,
             start=1,
         ):
+            journal, file_commander_id = journal_item
+            # Dateigrenzen sind harte Grenzen: weder Identität noch Position
+            # werden aus dem vorherigen Journal übernommen.
+            current_system = ""
+            current_address = None
             current_line_number = 0
             current_event_name = ""
 
@@ -3657,7 +4091,7 @@ class CMDRDatabase:
             except OSError:
                 stat = None
 
-            if stat is not None:
+            if stat is not None and file_commander_id is not None:
                 now = (
                     datetime.now(timezone.utc)
                     .isoformat()
@@ -3666,6 +4100,7 @@ class CMDRDatabase:
 
                 journal_marks.append(
                     (
+                        int(file_commander_id),
                         str(journal),
                         int(stat.st_size),
                         int(stat.st_mtime_ns),
@@ -3987,12 +4422,13 @@ class CMDRDatabase:
             con.executemany(
                 """
                 INSERT OR IGNORE INTO system_visits (
+                    commander_id,
                     system_address,
                     system_name,
                     visited_at,
                     x, y, z
                 )
-                VALUES (?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
                 list(visits.values()),
             )
@@ -4000,9 +4436,10 @@ class CMDRDatabase:
             # Biologie
             biology_rows = []
             for key, values in biology_entries.items():
-                address, body_id, genus, species, variant = key
+                commander_id, address, body_id, genus, species, variant = key
                 biology_rows.append(
                     (
+                        commander_id,
                         address,
                         body_id,
                         genus,
@@ -4017,12 +4454,14 @@ class CMDRDatabase:
             con.executemany(
                 """
                 INSERT INTO biology (
+                    commander_id,
                     system_address, body_id,
                     genus, species, variant,
                     scan_type, first_seen, last_seen
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(
+                    commander_id,
                     system_address,
                     body_id,
                     genus,
@@ -4043,9 +4482,10 @@ class CMDRDatabase:
             # Geologie
             geology_rows = []
             for key, values in geology_entries.items():
-                address, body_id, name, source = key
+                commander_id, address, body_id, name, source = key
                 geology_rows.append(
                     (
+                        commander_id,
                         address,
                         body_id,
                         name,
@@ -4059,12 +4499,14 @@ class CMDRDatabase:
             con.executemany(
                 """
                 INSERT INTO geology (
+                    commander_id,
                     system_address, body_id,
                     name, raw_name, source,
                     first_seen, last_seen
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(
+                    commander_id,
                     system_address,
                     body_id,
                     name,
@@ -4085,6 +4527,7 @@ class CMDRDatabase:
             codex_rows = []
             for key, values in codex_entries.items():
                 (
+                    commander_id,
                     address,
                     category,
                     subcategory,
@@ -4095,6 +4538,7 @@ class CMDRDatabase:
 
                 codex_rows.append(
                     (
+                        commander_id,
                         address,
                         values["system_name"],
                         category,
@@ -4112,14 +4556,16 @@ class CMDRDatabase:
             con.executemany(
                 """
                 INSERT INTO codex_entries (
+                    commander_id,
                     system_address, system_name,
                     category, subcategory,
                     name, raw_name,
                     nearest_destination, region,
                     event_type, first_seen, last_seen
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(
+                    commander_id,
                     system_address,
                     category,
                     subcategory,
@@ -4153,13 +4599,14 @@ class CMDRDatabase:
             con.executemany(
                 """
                 INSERT INTO journal_imports (
+                    commander_id,
                     journal_file,
                     file_size,
                     modified_ns,
                     last_import
                 )
-                VALUES (?, ?, ?, ?)
-                ON CONFLICT(journal_file)
+                VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(commander_id, journal_file)
                 DO UPDATE SET
                     file_size=excluded.file_size,
                     modified_ns=excluded.modified_ns,
