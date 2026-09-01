@@ -2320,14 +2320,14 @@ class MainWindow(QMainWindow):
             else:
                 mapping = "–"
 
-                valuable_rows.append(
-                    (
-                        self._explorer_body_name(body),
-                        SystemMapWidget._type_text(body),
-                        self._format_reward(value),
-                        mapping,
-                    )
+            valuable_rows.append(
+                (
+                    self._explorer_body_name(body),
+                    SystemMapWidget._type_text(body),
+                    self._format_reward(value),
+                    mapping,
                 )
+            )
 
         valuable_rows.sort(
             key=lambda row: -int(str(row[2]).replace(" Cr", "").replace(".", "") or 0)
