@@ -15,6 +15,7 @@ from PySide6.QtWidgets import QApplication, QScrollArea, QToolButton
 from cmdrhelper.database import CMDRDatabase, SCHEMA_VERSION
 from cmdrhelper.journal_reader import read_latest_state
 from cmdrhelper.route_planner.models import ShipLoadoutData
+from cmdrhelper.ship_identity import is_definite_non_ship
 from cmdrhelper.state import AppState
 from cmdrhelper.ui.commander_view import CommanderView
 
@@ -205,6 +206,122 @@ class CommanderFleetTests(unittest.TestCase):
         card = view._fleet_ship_widget(ship, is_live=False)
         self.assertFalse(card.property("liveShip"))
         self.assertNotEqual(view._fleet_color(ship, False).hue(), 125)
+
+    def test_only_confirmed_non_ships_are_rejected_without_positive_ship_list(self):
+        for ship_id, ship_type in enumerate((
+            "ExplorationSuit_Class3", "ExplorationSuit_Class5",
+            "UtilitySuit_Class5", "TacticalSuit_Class5",
+            "TestBuggy", "Combat_Multicrew_SRV_01", "Lander01",
+        ), start=100):
+            self.assertTrue(is_definite_non_ship(ship_type))
+            self.db.store_commander_ship(
+                self.a, self.ship(ship_id, ship_type, ship_type), f"X{ship_id}"
+            )
+        for ship_id, ship_type in enumerate((
+            "sidewinder", "explorer_nx", "typex", "mediumtransport01",
+            "future_rare_ship_99",
+        ), start=200):
+            self.assertFalse(is_definite_non_ship(ship_type))
+            self.db.store_commander_ship(
+                self.a, self.ship(ship_id, ship_type, ship_type), f"Y{ship_id}"
+            )
+        self.assertEqual(
+            {ship["ship_type"] for ship in self.db.commander_ships(self.a)},
+            {"sidewinder", "explorer_nx", "typex", "mediumtransport01", "future_rare_ship_99"},
+        )
+
+    def test_suit_and_srv_loadgame_keep_mother_ship_and_its_location(self):
+        folder = Path(self.tmp.name) / "vehicle-journals"
+        folder.mkdir()
+
+        def write(stamp, events):
+            (folder / f"Journal.{stamp}.01.log").write_text(
+                "".join(json.dumps(item) + "\n" for item in events), encoding="utf-8"
+            )
+
+        write("2026-02-01T000000", [
+            event("LoadGame", 0, FID="FID-A", Commander="Alpha", ShipID=7,
+                  Ship="explorer_nx", ShipName="Mother"),
+            event("Loadout", 1, ShipID=7, Ship="explorer_nx", ShipName="Mother", Modules=[]),
+            event("Location", 2, StarSystem="Sol", SystemAddress=1),
+        ])
+        write("2026-02-01T000100", [
+            event("LoadGame", 3, FID="FID-A", Commander="Alpha", ShipID=4293000003,
+                  Ship="ExplorationSuit_Class3", Ship_Localised="$ExplorationSuit_Class1_Name;"),
+            event("Location", 4, StarSystem="Achenar", SystemAddress=2, OnFoot=True),
+            event("LaunchSRV", 5, SRVType="combat_multicrew_srv_01", ID=30,
+                  PlayerControlled=True),
+            event("Location", 6, StarSystem="Colonia", SystemAddress=3),
+        ])
+        state = read_latest_state(folder)
+        self.assertEqual(state["ship_loadout"].ship_id, 7)
+        self.assertEqual(state["ship_loadout"].ship_type, "explorer_nx")
+        self.assertEqual(len(state["fleet_ships"]), 1)
+        self.assertEqual(state["fleet_ships"][0]["location"]["system_name"], "Sol")
+
+    def test_non_ship_loadgame_variants_never_create_a_fleet_ship(self):
+        cases = (
+            ("ExplorationSuit_Class3", "$ExplorationSuit_Class1_Name;", 4293000003),
+            ("ExplorationSuit_Class5", "$ExplorationSuit_Class1_Name;", 4293000002),
+            ("UtilitySuit_Class5", "$UtilitySuit_Class1_Name;", 4293000001),
+            ("TacticalSuit_Class5", "$TacticalSuit_Class1_Name;", 4293000005),
+            ("TestBuggy", "SRV Scarab", 27),
+            ("Combat_Multicrew_SRV_01", "Scorpion (SRV)", 30),
+            ("Lander01", "Nomad", 41),
+        )
+        for index, (ship_type, localized, ship_id) in enumerate(cases):
+            with self.subTest(ship_type=ship_type):
+                folder = Path(self.tmp.name) / f"non-ship-{index}"
+                folder.mkdir()
+                (folder / "Journal.2026-02-01T000000.01.log").write_text(
+                    json.dumps(event("LoadGame", 0, FID="FID-A", Commander="Alpha",
+                                     Ship=ship_type, Ship_Localised=localized,
+                                     ShipID=ship_id)) + "\n",
+                    encoding="utf-8",
+                )
+                state = read_latest_state(folder)
+                self.assertIsNone(state["ship_loadout"].ship_id)
+                self.assertEqual(state["fleet_ships"], [])
+
+    def test_on_foot_srv_fighter_and_taxi_events_do_not_replace_ship(self):
+        folder = Path(self.tmp.name) / "temporary-vehicles"
+        folder.mkdir()
+        events = [
+            event("LoadGame", 0, FID="FID-A", Commander="Alpha", ShipID=8, Ship="typex"),
+            event("Loadout", 1, ShipID=8, Ship="typex", Modules=[]),
+            event("Location", 2, StarSystem="Sol", SystemAddress=1),
+            event("Disembark", 3, SRV=False, Taxi=False, Multicrew=False, OnPlanet=True),
+            event("Embark", 4, SRV=False, Taxi=True, Multicrew=False),
+            event("FSDJump", 5, StarSystem="Achenar", SystemAddress=2),
+            event("LaunchFighter", 6, Loadout="galactic", ID=41, PlayerControlled=True),
+            event("DockFighter", 7, ID=41),
+            event("LaunchSRV", 8, SRVType="lander01", ID=41, PlayerControlled=True),
+            event("DockSRV", 9, SRVType="lander01", ID=41),
+        ]
+        (folder / "Journal.2026-02-01T000000.01.log").write_text(
+            "".join(json.dumps(item) + "\n" for item in events), encoding="utf-8"
+        )
+        state = read_latest_state(folder)
+        self.assertEqual([item["loadout"].ship_type for item in state["fleet_ships"]], ["typex"])
+
+    def test_cleanup_removes_only_certain_legacy_rows_and_restores_current(self):
+        self.db.store_commander_ship(self.a, self.ship(1, "Rare", "unknown_future_ship"), "T1")
+        template = """INSERT INTO commander_ships(
+            commander_id,ship_id,ship_type,ship_name,ship_ident,first_seen,last_seen,
+            loadout_timestamp,system_name,station_name,fsd_item,guardian_fsd_boosters,
+            loadout_complete,loadout_stale,is_current)
+            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"""
+        with self.db._connect() as con:
+            con.execute("UPDATE commander_ships SET is_current=0 WHERE commander_id=?", (self.a,))
+            for ship_id, ship_type in ((30, "TestBuggy"), (31, "Combat_Multicrew_SRV_01"),
+                                       (4293000003, "ExplorationSuit_Class3")):
+                con.execute(template, (self.a, ship_id, ship_type, "", "", "T2", "T2",
+                                       "", "Sol", "", "", "[]", 0, 1,
+                                       int(ship_id == 4293000003)))
+        self.assertEqual(self.db.cleanup_non_ship_fleet_rows(), 3)
+        ships = self.db.commander_ships(self.a)
+        self.assertEqual([(ship["ship_type"], ship["is_current"]) for ship in ships],
+                         [("unknown_future_ship", True)])
 
 
 if __name__ == "__main__":

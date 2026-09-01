@@ -6,6 +6,8 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+from cmdrhelper.ship_identity import is_definite_non_ship
+
 logger = logging.getLogger(__name__)
 
 SCHEMA_VERSION = 7
@@ -351,6 +353,7 @@ class CMDRDatabase:
         self._maybe_migrate_v5()
         self._maybe_migrate_v6()
         self._maybe_migrate_v7()
+        self.cleanup_non_ship_fleet_rows()
 
     def _personal_row_counts(self, con):
         return {
@@ -1248,6 +1251,8 @@ class CMDRDatabase:
                              location=None, is_current=True, first_seen=""):
         if loadout is None or getattr(loadout, "ship_id", None) is None:
             return
+        if is_definite_non_ship(getattr(loadout, "ship_type", None)):
+            return
         boosters = [
             {"item": booster.item, "on": booster.on}
             for booster in (getattr(loadout, "guardian_fsd_boosters", ()) or ())
@@ -1304,6 +1309,41 @@ class CMDRDatabase:
                 location=ship.get("location"), is_current=bool(ship.get("is_current")),
                 first_seen=ship.get("first_seen") or "",
             )
+
+    def cleanup_non_ship_fleet_rows(self) -> int:
+        """Entfernt nur anhand belegter Typmerkmale eindeutig falsche Altzeilen."""
+        with self._connect() as con:
+            if con.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='commander_ships'"
+            ).fetchone() is None:
+                return 0
+            rows = con.execute(
+                "SELECT commander_id,ship_id,ship_type,is_current FROM commander_ships"
+            ).fetchall()
+            invalid = [row for row in rows if is_definite_non_ship(row[2])]
+            if not invalid:
+                return 0
+            affected = {int(row[0]) for row in invalid}
+            con.executemany(
+                "DELETE FROM commander_ships WHERE commander_id=? AND ship_id=?",
+                [(int(row[0]), int(row[1])) for row in invalid],
+            )
+            for commander_id in affected:
+                current = con.execute(
+                    "SELECT 1 FROM commander_ships WHERE commander_id=? AND is_current=1",
+                    (commander_id,),
+                ).fetchone()
+                if current is None:
+                    replacement = con.execute("""
+                        SELECT ship_id FROM commander_ships WHERE commander_id=?
+                        ORDER BY last_seen DESC,ship_id LIMIT 1
+                    """, (commander_id,)).fetchone()
+                    if replacement is not None:
+                        con.execute(
+                            "UPDATE commander_ships SET is_current=1 WHERE commander_id=? AND ship_id=?",
+                            (commander_id, int(replacement[0])),
+                        )
+            return len(invalid)
 
     def store_commander_carrier(self, commander_id, carrier):
         if not isinstance(carrier, dict) or carrier.get("carrier_id") is None:

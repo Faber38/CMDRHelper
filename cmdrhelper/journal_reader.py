@@ -22,6 +22,7 @@ from cmdrhelper.models import (
 )
 from cmdrhelper.valuation import apply_values
 from cmdrhelper.route_planner.models import GuardianFsdBooster, ShipLoadoutData
+from cmdrhelper.ship_identity import is_definite_non_ship
 
 
 class JournalReadError(OSError):
@@ -730,6 +731,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
     pending_mission_offers: list[dict] = []
     owned_carrier = None
     fleet_ships: dict[int, dict] = {}
+    away_from_own_ship = False
 
     def _remember_ship(timestamp="", location=None):
         ship_id = getattr(ship_loadout, "ship_id", None)
@@ -1059,12 +1061,6 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                         e.get("Commander")
                         or result["commander"]
                     )
-                    result["ship"] = (
-                        e.get("ShipName")
-                        or e.get("Ship_Localised")
-                        or e.get("Ship")
-                        or result["ship"]
-                    )
                     if isinstance(e.get("Credits"), int) and e.get("Credits") >= 0:
                         result["wealth"] = {
                             "credits": int(e["Credits"]),
@@ -1072,39 +1068,37 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                             "source_event": "LoadGame",
                         }
 
-                    event_ship_id = _optional_int(e.get("ShipID"))
-                    if (
-                        ship_loadout.ship_id is not None
-                        and event_ship_id is not None
-                        and ship_loadout.ship_id != event_ship_id
-                    ):
-                        ship_loadout = ShipLoadoutData(
-                            ship_id=event_ship_id,
-                            loadout_stale=True,
+                    if is_definite_non_ship(e.get("Ship"), e.get("Ship_Localised")):
+                        away_from_own_ship = True
+                    else:
+                        away_from_own_ship = False
+                        result["ship"] = (
+                            e.get("ShipName") or e.get("Ship_Localised")
+                            or e.get("Ship") or result["ship"]
                         )
-                    ship_loadout.ship_id = event_ship_id or ship_loadout.ship_id
-                    ship_loadout.ship_type = (
-                        str(e.get("Ship") or "").strip()
-                        or ship_loadout.ship_type
-                    )
-                    ship_loadout.ship_name = (
-                        str(e.get("ShipName") or "").strip()
-                        or ship_loadout.ship_name
-                    )
-                    ship_loadout.ship_ident = (
-                        str(e.get("ShipIdent") or "").strip()
-                        or ship_loadout.ship_ident
-                    )
-                    fuel_capacity = e.get("FuelCapacity")
-                    if isinstance(fuel_capacity, dict):
-                        fuel_capacity = fuel_capacity.get("Main")
-                    parsed_capacity = _optional_float(fuel_capacity)
-                    if parsed_capacity is not None:
-                        ship_loadout.main_tank_capacity = parsed_capacity
-                    parsed_fuel = _optional_float(e.get("FuelLevel"))
-                    if parsed_fuel is not None:
-                        ship_loadout.main_fuel = parsed_fuel
-                    _remember_ship(ts, _known_ship_location(ts))
+                        event_ship_id = _optional_int(e.get("ShipID"))
+                        if (
+                            ship_loadout.ship_id is not None
+                            and event_ship_id is not None
+                            and ship_loadout.ship_id != event_ship_id
+                        ):
+                            ship_loadout = ShipLoadoutData(
+                                ship_id=event_ship_id, loadout_stale=True,
+                            )
+                        ship_loadout.ship_id = event_ship_id or ship_loadout.ship_id
+                        ship_loadout.ship_type = str(e.get("Ship") or "").strip() or ship_loadout.ship_type
+                        ship_loadout.ship_name = str(e.get("ShipName") or "").strip() or ship_loadout.ship_name
+                        ship_loadout.ship_ident = str(e.get("ShipIdent") or "").strip() or ship_loadout.ship_ident
+                        fuel_capacity = e.get("FuelCapacity")
+                        if isinstance(fuel_capacity, dict):
+                            fuel_capacity = fuel_capacity.get("Main")
+                        parsed_capacity = _optional_float(fuel_capacity)
+                        if parsed_capacity is not None:
+                            ship_loadout.main_tank_capacity = parsed_capacity
+                        parsed_fuel = _optional_float(e.get("FuelLevel"))
+                        if parsed_fuel is not None:
+                            ship_loadout.main_fuel = parsed_fuel
+                        _remember_ship(ts, _known_ship_location(ts))
 
                 elif et == "Loadout":
                     result["ship"] = (
@@ -1113,6 +1107,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                         or result["ship"]
                     )
                     ship_loadout = _loadout_from_event(e, ship_loadout)
+                    away_from_own_ship = False
                     _remember_ship(ts, _known_ship_location(ts))
 
                 elif et in ("ShipyardSwap", "ShipyardBuy"):
@@ -1124,6 +1119,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                         loadout_complete=False,
                         loadout_stale=True,
                     )
+                    away_from_own_ship = False
                     result["ship"] = (
                         str(e.get("ShipType_Localised") or e.get("ShipType") or "").strip()
                         or result["ship"]
@@ -1209,7 +1205,8 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                         current_station if et == "Location" else "",
                         (e.get("Body") or e.get("BodyName") or ""),
                     )
-                    _remember_ship(ts, result["last_position"])
+                    if not away_from_own_ship:
+                        _remember_ship(ts, result["last_position"])
 
                     if et == "CarrierJump" and owned_carrier is not None:
                         event_carrier_id = _optional_int(
@@ -1253,7 +1250,8 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                     result["system_address"] = current_system_address
 
                     _set_last_position(e, et, current_station, "")
-                    _remember_ship(ts, result["last_position"])
+                    if not away_from_own_ship:
+                        _remember_ship(ts, result["last_position"])
 
                     _update_location_status(
                         missions,
@@ -1285,6 +1283,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                     )
 
                 elif et == "Disembark":
+                    away_from_own_ship = True
                     current_body = (
                         e.get("Body")
                         or e.get("BodyName")
@@ -1327,6 +1326,25 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                         current_body,
                         ts,
                     )
+
+                elif et == "Embark":
+                    away_from_own_ship = bool(
+                        e.get("SRV") or e.get("Taxi") or e.get("Multicrew")
+                    )
+
+                elif et == "LaunchSRV":
+                    if e.get("PlayerControlled") is not False:
+                        away_from_own_ship = True
+
+                elif et == "DockSRV":
+                    away_from_own_ship = False
+
+                elif et == "LaunchFighter":
+                    if bool(e.get("PlayerControlled")):
+                        away_from_own_ship = True
+
+                elif et == "DockFighter":
+                    away_from_own_ship = False
 
                 elif et == "ApproachSettlement":
                     current_station = (
