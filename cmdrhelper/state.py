@@ -806,11 +806,49 @@ class AppState(QObject):
                     "Kartographie-Verkaufswerte konnten nicht aus dem Journal gelernt werden"
                 )
 
-    def _apply_commander_identity(self, data):
+    def reset_commander_runtime_state(self):
+        """Leert ausschließlich persönliche, flüchtige Commander-Zustände."""
+        self.commander = ""
+        self.system = ""
+        self.system_address = None
+        self.body = ""
+        self.station = ""
+        self.ship = ""
+        self.ship_loadout = ShipLoadoutData()
+        self.last_timestamp = ""
+        self.missions = []
+
+        self.system_bodies = []
+        self.system_body_count = 0
+        self.system_signals_count = 0
+        self.system_all_bodies_found = False
+        self.system_scan_value = 0
+        self.system_mapped_value = 0
+        self.system_current_value = 0
+        self.system_high_value_count = 0
+
+        self.system_bio_completed_count = 0
+        self.system_bio_value = 0
+        self.system_bio_first_logged_value = 0
+        self.system_bio_unknown = []
+
+        self.unsold_cartography_value = 0
+        self.unsold_cartography_count = 0
+        self.unsold_bio_value = 0
+        self.unsold_bio_first_logged_value = 0
+        self.unsold_bio_count = 0
+        self.unsold_bio_unknown = []
+
+        self.edsm_body_count = 0
+        self.edsm_added_count = 0
+        self.edsm_source_status = ""
+        self._edsm_request_system = ""
+
+    def _apply_commander_identity(self, data, emit_signal=True):
         """Übernimmt ausschließlich eine durch FID belegte Journalidentität."""
         fid = str(data.get("commander_fid") or "").strip()
         if not fid:
-            return
+            return False
 
         name = str(
             data.get("commander_identity_name") or data.get("commander") or ""
@@ -821,14 +859,16 @@ class AppState(QObject):
             data.get("commander_identity_timestamp") or "",
         )
         if commander_id is None:
-            return
+            return False
 
         previous_fid = self.commander_fid
         self.commander_id = commander_id
         self.commander_fid = fid
 
-        if previous_fid != fid:
+        changed = previous_fid != fid
+        if changed and emit_signal:
             self.commanderIdentityChanged.emit(commander_id, fid, name)
+        return changed
 
     def _store_latest_journal_session(self, data):
         """Persistiert nur die aktuelle Datei, nicht rückwirkend das Archiv."""
@@ -864,13 +904,24 @@ class AppState(QObject):
         previous_system_address = self.system_address
         previous_loadout = self.ship_loadout
 
+        incoming_fid = str(data.get("commander_fid") or "").strip()
+        if (
+            self.commander_fid
+            and incoming_fid
+            and incoming_fid != self.commander_fid
+        ):
+            self.reset_commander_runtime_state()
+
         if data.get("commander_fid"):
             self.commander = (
                 data.get("commander_identity_name")
                 or data.get("commander")
                 or self.commander
             )
-        self._apply_commander_identity(data)
+        identity_changed = self._apply_commander_identity(
+            data,
+            emit_signal=False,
+        )
         self._store_latest_journal_session(data)
         self.system = data["system"]
         self.system_address = data.get("system_address")
@@ -881,14 +932,18 @@ class AppState(QObject):
         self.last_timestamp = data["last_timestamp"]
         self.journal_files = data["journal_files"]
 
-        if self._ship_loadout_signature(previous_loadout) != self._ship_loadout_signature(
-            self.ship_loadout
+        if (
+            identity_changed
+            or self._ship_loadout_signature(previous_loadout)
+            != self._ship_loadout_signature(self.ship_loadout)
         ):
             self.shipLoadoutChanged.emit(self.ship_loadout)
 
-        if self._ship_route_inputs_signature(
-            previous_loadout
-        ) != self._ship_route_inputs_signature(self.ship_loadout):
+        if (
+            identity_changed
+            or self._ship_route_inputs_signature(previous_loadout)
+            != self._ship_route_inputs_signature(self.ship_loadout)
+        ):
             self.shipRouteInputsChanged.emit(self.ship_loadout)
 
         if (
@@ -977,9 +1032,11 @@ class AppState(QObject):
         # Ereignissen. Nur vollständig analysierte Proben (ScanType=Analyse)
         # werden gezählt.
         try:
-            bio_entries = self.database.biology_for_system(
-                self.system_address
-            )
+            bio_entries = [
+                entry
+                for body in self.system_bodies
+                for entry in (body.get("biology") or [])
+            ]
             learned_values = self.database.learned_bio_values()
 
             bio_totals = biology_totals(
@@ -1053,6 +1110,13 @@ class AppState(QObject):
         )
 
         self._load_edsm_cache_for_current_system()
+
+        if identity_changed:
+            self.commanderIdentityChanged.emit(
+                self.commander_id,
+                self.commander_fid,
+                self.commander,
+            )
 
         self.changed.emit()
 

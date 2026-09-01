@@ -675,25 +675,27 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
     if not files:
         return result
 
-    # Session-Zuordnung und aktive Identität sind getrennt: Nur die neueste
-    # Datei wird zur Persistierung zurückgegeben. Für die Live-Identität wird
-    # rückwärts die jüngste eindeutig identifizierte Datei gesucht. Unknown
-    # oder ambiguous löschen dadurch keine bereits belegte Identität.
-    try:
-        latest_session = classify_journal_file(files[-1])
-    except OSError as exc:
-        raise JournalReadError(files[-1], exc) from exc
+    # Jede Datei beginnt ohne geerbte Identität. Persönliche Runtime-Daten
+    # dürfen später ausschließlich aus eindeutig dem aktiven FID zugeordneten
+    # Sitzungen aufgebaut werden.
+    classified_sessions = {}
+    for journal in files:
+        try:
+            session = classify_journal_file(journal)
+        except OSError as exc:
+            if journal == files[-1]:
+                raise JournalReadError(journal, exc) from exc
+            continue
+        classified_sessions[str(journal)] = session
+
+    latest_session = classified_sessions.get(str(files[-1]))
     result["latest_journal_session"] = latest_session
 
     active_identity = None
     for journal in reversed(files):
-        if journal == files[-1]:
-            session = latest_session
-        else:
-            try:
-                session = classify_journal_file(journal)
-            except OSError:
-                continue
+        session = classified_sessions.get(str(journal))
+        if session is None:
+            continue
         if session["attribution_status"] == "identified":
             active_identity = session
             break
@@ -918,6 +920,18 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
     current_journal = files[-1]
 
     for journal in files:
+        session = classified_sessions.get(str(journal))
+        if (
+            active_identity is None
+            or session is None
+            or session.get("attribution_status") != "identified"
+            or session.get("fid_seen") != active_identity.get("fid_seen")
+        ):
+            # Unknown/ambiguous und Sitzungen anderer Commander liefern keine
+            # persönlichen Runtime-Daten. Globale Archivdaten bleiben Aufgabe
+            # des separaten Datenbankimports und werden hier nicht benötigt.
+            continue
+
         try:
             handle = journal.open(
                 "r",
