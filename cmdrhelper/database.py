@@ -640,6 +640,101 @@ class CMDRDatabase:
             raise ValueError("Commander existiert nicht")
         return str(row[0])
 
+    def list_commanders(self) -> list[dict]:
+        """Liefert alle bekannten Commanderprofile ohne aktiven Fallback."""
+        with self._connect() as con:
+            rows = con.execute(
+                """
+                SELECT id, fid, current_name, first_seen, last_seen
+                FROM commanders
+                ORDER BY current_name COLLATE NOCASE, fid COLLATE NOCASE, id
+                """
+            ).fetchall()
+
+        name_counts = {}
+        for row in rows:
+            name = str(row[2] or "").strip()
+            name_counts[name.casefold()] = name_counts.get(name.casefold(), 0) + 1
+
+        result = []
+        for row in rows:
+            name = str(row[2] or "").strip()
+            fid = str(row[1] or "")
+            base = name or fid
+            display_name = (
+                f"{base} ({fid})"
+                if name and name_counts.get(name.casefold(), 0) > 1
+                else base
+            )
+            result.append({
+                "id": int(row[0]),
+                "fid": fid,
+                "current_name": name,
+                "display_name": display_name,
+                "first_seen": row[3] or "",
+                "last_seen": row[4] or "",
+            })
+        return result
+
+    def commander_summary(self, commander_id) -> dict | None:
+        """Aggregiert ausschließlich persistente Daten der expliziten ID."""
+        if commander_id is None:
+            return None
+        commander_id = int(commander_id)
+        with self._connect() as con:
+            commander = con.execute(
+                """
+                SELECT id, fid, current_name, first_seen, last_seen
+                FROM commanders WHERE id=?
+                """,
+                (commander_id,),
+            ).fetchone()
+            if commander is None:
+                return None
+
+            counts = {}
+            for key, table in (
+                ("visited_systems", "system_visits"),
+                ("biology_findings", "biology"),
+                ("geology_findings", "geology"),
+                ("codex_entries", "codex_entries"),
+                ("cartography_sales", "cartography_sales"),
+            ):
+                expression = (
+                    "COUNT(DISTINCT system_address)"
+                    if table == "system_visits" else "COUNT(*)"
+                )
+                counts[key] = int(con.execute(
+                    f"SELECT {expression} FROM {table} WHERE commander_id=?",
+                    (commander_id,),
+                ).fetchone()[0])
+
+            location = con.execute(
+                """
+                SELECT system_name, system_address, visited_at, x, y, z
+                FROM system_visits
+                WHERE commander_id=?
+                ORDER BY visited_at DESC, id DESC
+                LIMIT 1
+                """,
+                (commander_id,),
+            ).fetchone()
+
+        return {
+            "id": int(commander[0]),
+            "fid": str(commander[1] or ""),
+            "current_name": str(commander[2] or ""),
+            "first_seen": commander[3] or "",
+            "last_seen": commander[4] or "",
+            **counts,
+            "last_location": None if location is None else {
+                "system_name": str(location[0] or ""),
+                "system_address": location[1],
+                "visited_at": location[2] or "",
+                "x": location[3], "y": location[4], "z": location[5],
+            },
+        }
+
     def resolve_session_commander(self, session: dict) -> int | None:
         if session.get("attribution_status") != "identified":
             return None

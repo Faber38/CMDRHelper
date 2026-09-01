@@ -10,6 +10,7 @@ from cmdrhelper.bio_valuation import base_value, species_name
 from cmdrhelper.ui.body_detail_window import BodyDetailWindow
 from cmdrhelper.ui.chronicle_view import ChronicleMapWidget
 from cmdrhelper.ui.screenshot_view import ScreenshotView
+from cmdrhelper.ui.commander_view import CommanderView
 from cmdrhelper.route_planner import RoutePlannerView
 from cmdrhelper.online_services import (
     test_edsm_connection,
@@ -1054,6 +1055,16 @@ class ExplorerLiveListWindow(QDialog):
 
 
 class MainWindow(QMainWindow):
+    PAGE_OVERVIEW = 0
+    PAGE_MISSIONS = 1
+    PAGE_EXPLORER = 2
+    PAGE_CHRONICLE = 3
+    PAGE_JUMP_TIP = 4
+    PAGE_ROUTE_PLANNER = 5
+    PAGE_IMAGES = 6
+    PAGE_COMMANDER_VIEW = 7
+    PAGE_SETTINGS = 8
+
     def __init__(self, state):
         super().__init__()
 
@@ -1138,21 +1149,23 @@ class MainWindow(QMainWindow):
 
         side.addSpacing(20)
 
-        side.addWidget(self._nav("⌂  " + tr("nav.overview"), 0))
+        side.addWidget(self._nav("⌂  " + tr("nav.overview"), self.PAGE_OVERVIEW))
 
-        side.addWidget(self._nav("◎  " + tr("nav.missions"), 1))
+        side.addWidget(self._nav("◎  " + tr("nav.missions"), self.PAGE_MISSIONS))
 
-        side.addWidget(self._nav("✦  " + tr("nav.explorer"), 2))
+        side.addWidget(self._nav("✦  " + tr("nav.explorer"), self.PAGE_EXPLORER))
 
-        side.addWidget(self._nav("↝  " + tr("nav.chronicle"), 3))
+        side.addWidget(self._nav("↝  " + tr("nav.chronicle"), self.PAGE_CHRONICLE))
 
-        side.addWidget(self._nav("★  " + tr("nav.jump_tip"), 4))
+        side.addWidget(self._nav("★  " + tr("nav.jump_tip"), self.PAGE_JUMP_TIP))
 
-        side.addWidget(self._nav("⌖  " + tr("nav.route_planner"), 5))
+        side.addWidget(self._nav("⌖  " + tr("nav.route_planner"), self.PAGE_ROUTE_PLANNER))
 
-        side.addWidget(self._nav("▣  " + tr("nav.images"), 6))
+        side.addWidget(self._nav("▣  " + tr("nav.images"), self.PAGE_IMAGES))
 
-        side.addWidget(self._nav("⚙  " + tr("nav.settings"), 7))
+        side.addWidget(self._nav("♟  " + tr("nav.commander_view"), self.PAGE_COMMANDER_VIEW))
+
+        side.addWidget(self._nav("⚙  " + tr("nav.settings"), self.PAGE_SETTINGS))
 
         side.addStretch()
 
@@ -1299,6 +1312,9 @@ class MainWindow(QMainWindow):
             self,
         )
         self.pages.addWidget(self.screenshot_view)
+
+        self.commander_view = CommanderView(self.state, self)
+        self.pages.addWidget(self.commander_view)
 
         self.pages.addWidget(self._settings())
 

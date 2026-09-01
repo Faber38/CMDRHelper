@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 class AppState(QObject):
     changed = Signal()
     commanderIdentityChanged = Signal(object, str, str)
+    viewedCommanderChanged = Signal(object)
     positionChanged = Signal(str, object, str)
     shipLoadoutChanged = Signal(object)
     shipRouteInputsChanged = Signal(object)
@@ -58,6 +59,8 @@ class AppState(QObject):
         self.commander = ""
         self.commander_id = None
         self.commander_fid = ""
+        self.viewed_commander_id = self._saved_viewed_commander_id()
+        self._viewed_commander_user_selected = False
         self.system = ""
         self.system_address = None
         self.body = ""
@@ -198,6 +201,44 @@ class AppState(QObject):
                 "materials": 0,
                 "journal_imports": 0,
             }
+
+    def _saved_viewed_commander_id(self):
+        value = self.settings.value("commander_view/viewed_commander_id", None)
+        try:
+            return int(value) if value not in (None, "") else None
+        except (TypeError, ValueError):
+            return None
+
+    def resolve_viewed_commander(self, commanders=None):
+        """Bestimmt die Ansicht, ohne die Live-Identität zu verändern."""
+        commanders = commanders if commanders is not None else self.database.list_commanders()
+        known_ids = {int(item["id"]) for item in commanders}
+        previous = self.viewed_commander_id
+
+        if not self._viewed_commander_user_selected and self.commander_id in known_ids:
+            self.viewed_commander_id = int(self.commander_id)
+        elif self.viewed_commander_id not in known_ids:
+            saved = self._saved_viewed_commander_id()
+            self.viewed_commander_id = (
+                saved if saved in known_ids
+                else (int(commanders[0]["id"]) if commanders else None)
+            )
+
+        if self.viewed_commander_id != previous:
+            self.viewedCommanderChanged.emit(self.viewed_commander_id)
+        return self.viewed_commander_id
+
+    def select_viewed_commander(self, commander_id):
+        """Setzt nur die UI-Ansicht; Live-ID und DB-Schreibziel bleiben unberührt."""
+        commander_id = int(commander_id)
+        if not any(item["id"] == commander_id for item in self.database.list_commanders()):
+            raise ValueError("Commander existiert nicht")
+        previous = self.viewed_commander_id
+        self.viewed_commander_id = commander_id
+        self._viewed_commander_user_selected = True
+        self.settings.setValue("commander_view/viewed_commander_id", commander_id)
+        if previous != commander_id:
+            self.viewedCommanderChanged.emit(commander_id)
 
     def import_journal_archive(self, automatic=False):
         if not self.journal_folder:
@@ -868,6 +909,12 @@ class AppState(QObject):
         previous_fid = self.commander_fid
         self.commander_id = commander_id
         self.commander_fid = fid
+
+        if not getattr(self, "_viewed_commander_user_selected", False):
+            previous_viewed = getattr(self, "viewed_commander_id", None)
+            self.viewed_commander_id = commander_id
+            if previous_viewed != commander_id and hasattr(self, "viewedCommanderChanged"):
+                self.viewedCommanderChanged.emit(commander_id)
 
         changed = previous_fid != fid
         if changed and emit_signal:
