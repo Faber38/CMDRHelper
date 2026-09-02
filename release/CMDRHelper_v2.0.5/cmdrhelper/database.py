@@ -10,7 +10,7 @@ from cmdrhelper.ship_identity import is_definite_non_ship
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 7
+SCHEMA_VERSION = 8
 
 PERSONAL_TABLES = (
     "system_visits",
@@ -54,6 +54,27 @@ def _direct_parent_id(parents) -> int | None:
     return None
 
 
+def _parent_star_id(parents) -> int | None:
+    """Liefert den im Frontier-Parents-Pfad enthaltenen Wirtsstern."""
+    if not isinstance(parents, list):
+        return None
+    for parent in parents:
+        if not isinstance(parent, dict) or "Star" not in parent:
+            continue
+        try:
+            return int(parent["Star"])
+        except (TypeError, ValueError):
+            continue
+    return None
+
+
+def _atmosphere_composition(value) -> str:
+    """Bewahrt die strukturierte Journal-Angabe kanonisch als JSON auf."""
+    if not isinstance(value, (list, dict)) or not value:
+        return ""
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
 
 def default_database_path() -> Path:
     return Path(__file__).resolve().parent.parent / "data" / "cmdrhelper.db"
@@ -65,6 +86,8 @@ class CMDRDatabase:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         logger.info("Datenbank: %s", self.path)
         self.active_commander_id = None
+        self._bio_predictor_cache = None
+        self._bio_predictor_revision = None
         self._create_schema()
 
     def _connect(self):
@@ -353,7 +376,64 @@ class CMDRDatabase:
         self._maybe_migrate_v5()
         self._maybe_migrate_v6()
         self._maybe_migrate_v7()
+        self._maybe_migrate_v8()
         self.cleanup_non_ship_fleet_rows()
+
+    def _maybe_migrate_v8(self):
+        with self._connect() as con:
+            version = int(con.execute("PRAGMA user_version").fetchone()[0])
+            if version >= 8:
+                return
+            system_columns = {row[1] for row in con.execute("PRAGMA table_info(systems)")}
+            body_columns = {row[1] for row in con.execute("PRAGMA table_info(bodies)")}
+            if "primary_star_id" not in system_columns:
+                con.execute("ALTER TABLE systems ADD COLUMN primary_star_id INTEGER")
+            if "primary_star_type" not in system_columns:
+                con.execute("ALTER TABLE systems ADD COLUMN primary_star_type TEXT NOT NULL DEFAULT ''")
+            for name, declaration in (
+                ("parent_star_id", "INTEGER"),
+                ("surface_temperature", "REAL"),
+                ("surface_pressure", "REAL"),
+                ("atmosphere_composition", "TEXT NOT NULL DEFAULT ''"),
+            ):
+                if name not in body_columns:
+                    con.execute(f"ALTER TABLE bodies ADD COLUMN {name} {declaration}")
+            con.execute(
+                """UPDATE systems SET
+                       primary_star_id=COALESCE(primary_star_id,0),
+                       primary_star_type=CASE WHEN primary_star_type=''
+                           THEN COALESCE((SELECT star_type FROM bodies
+                               WHERE bodies.system_address=systems.system_address
+                                 AND body_id=0 AND star_type<>''),'')
+                           ELSE primary_star_type END
+                   WHERE EXISTS (SELECT 1 FROM bodies
+                       WHERE bodies.system_address=systems.system_address
+                         AND body_id=0 AND star_type<>'')"""
+            )
+            con.execute(
+                """WITH RECURSIVE ancestry(system_address,body_id,ancestor_id,depth) AS (
+                       SELECT system_address,body_id,parent_id,1 FROM bodies
+                        WHERE parent_id IS NOT NULL
+                       UNION ALL
+                       SELECT a.system_address,a.body_id,p.parent_id,a.depth+1
+                         FROM ancestry a JOIN bodies p
+                           ON p.system_address=a.system_address
+                          AND p.body_id=a.ancestor_id
+                        WHERE p.parent_id IS NOT NULL AND a.depth<16
+                   )
+                   UPDATE bodies SET parent_star_id=(
+                       SELECT star.body_id FROM ancestry a JOIN bodies star
+                         ON star.system_address=a.system_address
+                        AND star.body_id=a.ancestor_id
+                      WHERE a.system_address=bodies.system_address
+                        AND a.body_id=bodies.body_id AND star.star_type<>''
+                      ORDER BY a.depth LIMIT 1
+                   ) WHERE parent_star_id IS NULL AND parent_id IS NOT NULL"""
+            )
+            con.execute("PRAGMA user_version=8")
+
+    def ensure_schema_v8(self):
+        self._maybe_migrate_v8()
 
     def _personal_row_counts(self, con):
         return {
@@ -1728,20 +1808,27 @@ class CMDRDatabase:
                 con.execute("""
                     INSERT INTO bodies (
                         system_address, body_id, name, short_name, body_type,
-                        star_type, planet_class, parent_id, mass_em, stellar_mass,
-                        radius_m, gravity_g, distance_ls, landable, terraformable,
+                        star_type, planet_class, parent_id, parent_star_id,
+                        mass_em, stellar_mass, radius_m, surface_temperature,
+                        surface_pressure, atmosphere_composition,
+                        gravity_g, distance_ls, landable, terraformable,
                         atmosphere, volcanism, biological_signals, geological_signals
-                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                     ON CONFLICT(system_address, body_id) DO UPDATE SET
                         name=excluded.name,
                         short_name=excluded.short_name,
                         body_type=excluded.body_type,
                         star_type=excluded.star_type,
                         planet_class=excluded.planet_class,
-                        parent_id=excluded.parent_id,
+                        parent_id=COALESCE(excluded.parent_id, bodies.parent_id),
+                        parent_star_id=COALESCE(excluded.parent_star_id, bodies.parent_star_id),
                         mass_em=COALESCE(excluded.mass_em, bodies.mass_em),
                         stellar_mass=COALESCE(excluded.stellar_mass, bodies.stellar_mass),
                         radius_m=COALESCE(excluded.radius_m, bodies.radius_m),
+                        surface_temperature=COALESCE(excluded.surface_temperature,bodies.surface_temperature),
+                        surface_pressure=COALESCE(excluded.surface_pressure,bodies.surface_pressure),
+                        atmosphere_composition=CASE WHEN excluded.atmosphere_composition <> ''
+                            THEN excluded.atmosphere_composition ELSE bodies.atmosphere_composition END,
                         gravity_g=COALESCE(excluded.gravity_g, bodies.gravity_g),
                         distance_ls=COALESCE(excluded.distance_ls, bodies.distance_ls),
                         landable=excluded.landable,
@@ -1754,14 +1841,28 @@ class CMDRDatabase:
                     int(address), int(body_id), body.get("name") or "",
                     body.get("short_name") or "", body.get("body_type") or "",
                     body.get("star_type") or "", body.get("planet_class") or "",
-                    body.get("parent_id"), body.get("mass_em"), body.get("stellar_mass"),
-                    body.get("radius_m"), body.get("gravity_g"), body.get("distance_ls"),
+                    body.get("parent_id"), body.get("parent_star_id"),
+                    body.get("mass_em"), body.get("stellar_mass"), body.get("radius_m"),
+                    body.get("surface_temperature"), body.get("surface_pressure"),
+                    body.get("atmosphere_composition") or "",
+                    body.get("gravity_g"), body.get("distance_ls"),
                     self._bool_db(body.get("landable")) or 0,
                     self._bool_db(body.get("terraformable")) or 0,
                     body.get("atmosphere") or "", body.get("volcanism") or "",
                     int(body.get("biological_signals") or 0),
                     int(body.get("geological_signals") or 0),
                 ))
+
+                if (body.get("star_type") and int(body_id) == 0
+                        and body.get("parent_id") is None):
+                    con.execute(
+                        """UPDATE systems SET
+                               primary_star_id=COALESCE(primary_star_id,?),
+                               primary_star_type=CASE WHEN primary_star_type=''
+                                   THEN ? ELSE primary_star_type END
+                           WHERE system_address=?""",
+                        (int(body_id), body.get("star_type") or "", int(address)),
+                    )
 
                 if commander_id is not None:
                     con.execute("""
@@ -1838,6 +1939,8 @@ class CMDRDatabase:
             return
         if not (genus or species or variant):
             return
+        self._bio_predictor_cache = None
+        self._bio_predictor_revision = None
         seen = timestamp or datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         commander_id = self._require_commander_id(commander_id)
         with self._connect() as con:
@@ -1872,6 +1975,64 @@ class CMDRDatabase:
              "scan_type": r[3], "first_seen": r[4], "last_seen": r[5]}
             for r in rows
         ]
+
+    def complete_biology_training_data(self):
+        """Lädt alle vollständigen physischen Species-Funde in einer Abfrage."""
+        with self._connect() as con:
+            rows = con.execute(
+                """SELECT DISTINCT bio.system_address,bio.body_id,
+                          bio.genus,bio.species,bio.scan_type,
+                          b.planet_class,b.atmosphere,b.gravity_g,b.mass_em,
+                          b.surface_temperature,b.surface_pressure,
+                          b.atmosphere_composition,b.biological_signals,
+                          b.terraformable,b.volcanism,b.distance_ls,
+                          b.parent_star_id,s.primary_star_type
+                     FROM biology bio
+                     JOIN bodies b USING(system_address,body_id)
+                     JOIN systems s USING(system_address)
+                    WHERE lower(trim(bio.scan_type)) IN ('analyse','analyze')
+                      AND trim(bio.species)<>'' AND trim(bio.genus)<>''"""
+            ).fetchall()
+        columns = (
+            "system_address", "body_id", "genus", "species", "scan_type",
+            "planet_class", "atmosphere", "gravity_g", "mass_em",
+            "surface_temperature", "surface_pressure", "atmosphere_composition",
+            "biological_signals", "terraformable", "volcanism", "distance_ls",
+            "parent_star_id", "primary_star_type",
+        )
+        return [dict(zip(columns, row)) for row in rows]
+
+    def _current_bio_predictor_revision(self):
+        with self._connect() as con:
+            return tuple(con.execute(
+                """SELECT count(*),COALESCE(max(last_seen),''),
+                          (SELECT COALESCE(max(last_seen),'') FROM commander_bodies),
+                          (SELECT count(*) FROM bodies
+                            WHERE surface_temperature IS NOT NULL
+                               OR surface_pressure IS NOT NULL
+                               OR atmosphere_composition<>'')
+                     FROM biology
+                    WHERE lower(trim(scan_type)) IN ('analyse','analyze')"""
+            ).fetchone())
+
+    def biology_predictor(self):
+        """Liefert den bei unveränderter Trainingsbasis wiederverwendeten Index."""
+        from cmdrhelper.bio_predictor import BioPredictor
+
+        revision = self._current_bio_predictor_revision()
+        if self._bio_predictor_cache is None or revision != self._bio_predictor_revision:
+            self._bio_predictor_cache = BioPredictor(self.complete_biology_training_data())
+            self._bio_predictor_revision = revision
+        return self._bio_predictor_cache
+
+    def predict_biology(self, body, known_findings=None, limit=8):
+        """Gecachte, read-only Prognose für einen bereits bekannten Body."""
+        return self.biology_predictor().predict(
+            body,
+            known_findings=(known_findings if known_findings is not None
+                            else body.get("biology") or ()),
+            limit=limit,
+        )
 
     def biology_for_system(self, system_address, commander_id=None):
         if system_address is None:
@@ -3627,7 +3788,8 @@ class CMDRDatabase:
             system_row = con.execute(
                 """
                 SELECT s.name, s.body_count, cs.all_bodies_found,
-                       cs.first_seen, cs.last_seen
+                       cs.first_seen, cs.last_seen,
+                       s.primary_star_id, s.primary_star_type
                 FROM systems s
                 JOIN commander_systems cs
                   ON cs.system_address=s.system_address AND cs.commander_id=?
@@ -3653,7 +3815,9 @@ class CMDRDatabase:
                     cb.biological_signals_seen, cb.geological_signals_seen,
                     cb.scan_value_cached, cb.mapped_value_cached,
                     cb.current_value_cached, cb.high_value_cached,
-                    cb.first_seen, cb.last_seen
+                    cb.first_seen, cb.last_seen,
+                    b.parent_star_id, b.surface_temperature,
+                    b.surface_pressure, b.atmosphere_composition
                 FROM bodies b
                 JOIN commander_bodies cb
                   ON cb.system_address=b.system_address AND cb.body_id=b.body_id
@@ -3768,6 +3932,12 @@ class CMDRDatabase:
                         "high_value": bool(row[28]),
                         "first_seen": row[29] or "",
                         "last_seen": row[30] or "",
+                        "parent_star_id": row[31],
+                        "surface_temperature": row[32],
+                        "surface_pressure": row[33],
+                        "atmosphere_composition": row[34] or "",
+                        "primary_star_id": system_row[5],
+                        "primary_star_type": system_row[6] or "",
                         "materials": materials,
                         "biology": biology,
                         "geology": geology,
@@ -3784,6 +3954,8 @@ class CMDRDatabase:
             "all_bodies_found": bool(system_row[2]),
             "first_seen": system_row[3] or "",
             "last_seen": system_row[4] or "",
+            "primary_star_id": system_row[5],
+            "primary_star_type": system_row[6] or "",
             "bodies": bodies,
         }
 
@@ -4000,6 +4172,8 @@ class CMDRDatabase:
         Verbindungen/Commits – besonders wichtig bei sehr großen
         Windows-Journalarchiven.
         """
+        self._bio_predictor_cache = None
+        self._bio_predictor_revision = None
         folder = Path(folder)
 
         if not folder.exists():
@@ -4624,6 +4798,7 @@ class CMDRDatabase:
 
                             parents = event.get("Parents") or []
                             parent_id = _direct_parent_id(parents)
+                            parent_star_id = _parent_star_id(parents)
 
                             raw_gravity = event.get(
                                 "SurfaceGravity"
@@ -4686,14 +4861,24 @@ class CMDRDatabase:
                                     event.get("PlanetClass")
                                     or ""
                                 ),
-                                "parent_id": parent_id,
+                                "parent_id": parent_id if parent_id is not None else previous.get("parent_id"),
+                                "parent_star_id": parent_star_id if parent_star_id is not None else previous.get("parent_star_id"),
                                 "mass_em": event.get(
                                     "MassEM"
                                 ),
                                 "stellar_mass": event.get(
                                     "StellarMass"
                                 ),
-                                "radius_m": event.get("Radius"),
+                                "radius_m": event.get("Radius", previous.get("radius_m")),
+                                "surface_temperature": event.get(
+                                    "SurfaceTemperature", previous.get("surface_temperature")
+                                ),
+                                "surface_pressure": event.get(
+                                    "SurfacePressure", previous.get("surface_pressure")
+                                ),
+                                "atmosphere_composition": _atmosphere_composition(
+                                    event.get("AtmosphereComposition")
+                                ) or previous.get("atmosphere_composition", ""),
                                 "gravity_g": gravity_g,
                                 "distance_ls": event.get(
                                     "DistanceFromArrivalLS"
@@ -5419,14 +5604,15 @@ class CMDRDatabase:
                         system_address, body_id,
                         name, short_name, body_type,
                         star_type, planet_class,
-                        parent_id, mass_em, stellar_mass,
-                        radius_m, gravity_g, distance_ls,
+                        parent_id, parent_star_id, mass_em, stellar_mass,
+                        radius_m, surface_temperature, surface_pressure,
+                        atmosphere_composition, gravity_g, distance_ls,
                         landable, terraformable,
                         atmosphere, volcanism,
                         biological_signals,
                         geological_signals
                     )
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                     ON CONFLICT(system_address, body_id)
                     DO UPDATE SET
                         name=excluded.name,
@@ -5434,7 +5620,8 @@ class CMDRDatabase:
                         body_type=excluded.body_type,
                         star_type=excluded.star_type,
                         planet_class=excluded.planet_class,
-                        parent_id=excluded.parent_id,
+                        parent_id=COALESCE(excluded.parent_id,bodies.parent_id),
+                        parent_star_id=COALESCE(excluded.parent_star_id,bodies.parent_star_id),
                         mass_em=COALESCE(
                             excluded.mass_em,
                             bodies.mass_em
@@ -5447,6 +5634,17 @@ class CMDRDatabase:
                             excluded.radius_m,
                             bodies.radius_m
                         ),
+                        surface_temperature=COALESCE(
+                            excluded.surface_temperature,bodies.surface_temperature
+                        ),
+                        surface_pressure=COALESCE(
+                            excluded.surface_pressure,bodies.surface_pressure
+                        ),
+                        atmosphere_composition=CASE
+                            WHEN excluded.atmosphere_composition <> ''
+                            THEN excluded.atmosphere_composition
+                            ELSE bodies.atmosphere_composition
+                        END,
                         gravity_g=COALESCE(
                             excluded.gravity_g,
                             bodies.gravity_g
@@ -5485,9 +5683,13 @@ class CMDRDatabase:
                         body.get("star_type") or "",
                         body.get("planet_class") or "",
                         body.get("parent_id"),
+                        body.get("parent_star_id"),
                         body.get("mass_em"),
                         body.get("stellar_mass"),
                         body.get("radius_m"),
+                        body.get("surface_temperature"),
+                        body.get("surface_pressure"),
+                        body.get("atmosphere_composition") or "",
                         body.get("gravity_g"),
                         body.get("distance_ls"),
                         self._bool_db(
@@ -5512,6 +5714,17 @@ class CMDRDatabase:
                         ),
                     ),
                 )
+
+                if (body.get("star_type") and int(body_id) == 0
+                        and body.get("parent_id") is None):
+                    con.execute(
+                        """UPDATE systems SET
+                               primary_star_id=COALESCE(primary_star_id,?),
+                               primary_star_type=CASE WHEN primary_star_type=''
+                                   THEN ? ELSE primary_star_type END
+                           WHERE system_address=?""",
+                        (int(body_id), body.get("star_type") or "", int(address)),
+                    )
 
                 for name, percentage in self._materials(
                     body

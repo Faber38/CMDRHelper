@@ -171,6 +171,24 @@ def _direct_parent_id(parents) -> int | None:
     return None
 
 
+def _parent_star_id(parents) -> int | None:
+    if not isinstance(parents, list):
+        return None
+    for parent in parents:
+        if isinstance(parent, dict) and "Star" in parent:
+            try:
+                return int(parent["Star"])
+            except (TypeError, ValueError):
+                continue
+    return None
+
+
+def _atmosphere_composition(value) -> str:
+    if not isinstance(value, (list, dict)) or not value:
+        return ""
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
 
 def default_journal_paths() -> list[Path]:
     home = Path.home()
@@ -1423,6 +1441,7 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
 
                         parents = e.get("Parents") or []
                         parent_id = _direct_parent_id(parents)
+                        parent_star_id = _parent_star_id(parents)
 
                         raw_gravity = e.get("SurfaceGravity")
                         gravity_g = None
@@ -1458,6 +1477,12 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                             # Frontier-Journal liefert Radius in Metern.
                             "radius_m": e.get("Radius"),
                             "parent_id": parent_id,
+                            "parent_star_id": parent_star_id,
+                            "surface_temperature": e.get("SurfaceTemperature"),
+                            "surface_pressure": e.get("SurfacePressure"),
+                            "atmosphere_composition": _atmosphere_composition(
+                                e.get("AtmosphereComposition")
+                            ),
                             "gravity_g": gravity_g,
                             "distance_ls": e.get("DistanceFromArrivalLS"),
                             "landable": bool(e.get("Landable", False)),
@@ -1508,6 +1533,13 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
                         ).get(body_id_int)
 
                         if previous:
+                            for field in (
+                                "parent_id", "parent_star_id", "radius_m",
+                                "surface_temperature", "surface_pressure",
+                                "atmosphere_composition",
+                            ):
+                                if body.get(field) in (None, ""):
+                                    body[field] = previous.get(field)
                             body["self_mapped"] = bool(
                                 previous.get("self_mapped")
                             )

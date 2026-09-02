@@ -751,6 +751,30 @@ class ExplorerLiveListWindow(QDialog):
         )
         self.settings.sync()
 
+    @staticmethod
+    def _visible_bio_predictions(predictions, species, open_signals):
+        """Return only predictions that still represent unknown BIO signals."""
+        if open_signals <= 0:
+            return []
+
+        known_species = set()
+        for entry in species:
+            if not isinstance(entry, dict):
+                continue
+            name = str(entry.get("name") or "").strip().casefold()
+            if not name:
+                continue
+            known_species.add(name)
+            # Die Popup-Zeile kann zusätzlich die Variante enthalten, der
+            # Predictor-Kandidat dagegen nur den Species-Namen.
+            known_species.add(re.split(r"\s+[-–—]\s+", name, maxsplit=1)[0])
+        return [
+            candidate
+            for candidate in predictions
+            if str(getattr(candidate, "name", "") or "").strip().casefold()
+            not in known_species
+        ]
+
     def moveEvent(self, event):
         super().moveEvent(event)
         self._save_geometry()
@@ -779,10 +803,8 @@ class ExplorerLiveListWindow(QDialog):
 
         self.table.clearContents()
 
-        # Das BIO-Fenster bekommt eine dynamische Gruppenansicht:
-        # 0 erkannt  -> eine kompakte Zeile
-        # teilweise  -> eine Zeile je erkannter Art + Restzeile
-        # vollständig-> wieder eine kompakte grüne Zusammenfassung
+        # Das BIO-Fenster zeigt nur die Signal-Kopfzeile und die eigentlichen
+        # Fund-/Prognoseeinträge; Zähler bleiben reine Steuerdaten.
         if self.window_kind == "bio":
             display_rows = []
 
@@ -794,8 +816,15 @@ class ExplorerLiveListWindow(QDialog):
                 signals = max(0, int(row.get("signals") or 0))
                 geo_signals = max(0, int(row.get("geo_signals") or 0))
                 species = list(row.get("species") or [])
+                predictions = list(row.get("predictions") or [])
                 known_count = len(species)
+                identified_count = max(known_count, int(row.get("identified_count") or 0))
+                completed_count = max(0, int(row.get("completed_count") or 0))
+                open_signals = max(0, int(row.get("open_signals") or 0))
                 known_value = int(row.get("known_value") or 0)
+                predictions = self._visible_bio_predictions(
+                    predictions, species, open_signals
+                )
 
                 # Mehr Arten als Signale sollte praktisch nicht vorkommen;
                 # für ungewöhnliche Journaldaten trotzdem robust bleiben.
@@ -823,12 +852,12 @@ class ExplorerLiveListWindow(QDialog):
                 # Elite kennt die konkrete Art bereits nach der ersten Probe.
                 # Vollständig ist eine BIO-Art erst nach ScanOrganic
                 # Analyse/Analyze, also nach der dritten erfolgreichen Probe.
-                completed_count = sum(
+                completed_count = max(completed_count, sum(
                     1
                     for entry in species
                     if str(entry.get("scan_type") or "").strip().casefold()
                     in ("analyse", "analyze")
-                )
+                ))
                 complete = (
                     total_count > 0
                     and known_count >= total_count
@@ -875,84 +904,66 @@ class ExplorerLiveListWindow(QDialog):
                         )
                     continue
 
-                if known_count == 0:
-                    if signals > 0:
-                        display_rows.append(
-                            {
-                                "body": "",
-                                "find": tr("explorer.still_unknown"),
-                                "progress": tr(
-                                    "explorer.known_ratio", known=0, total=total_count
-                                ),
-                                "value": "–",
-                                "complete": False,
-                            }
-                        )
-
-                    if geo_signals > 0:
-                        display_rows.append(
-                            {
-                                "body": body_name if signals <= 0 else "",
-                                "entry": {
-                                    "name": str(
-                                        row.get("geo_text") or f"GEO ×{geo_signals}"
-                                    ),
-                                    "scan_type": "geo",
-                                    "value": 0,
-                                },
-                                "progress": "–",
-                                "complete": False,
-                            }
-                        )
-                    continue
-
                 # Solange nicht ALLE Arten vollständig analysiert sind,
                 # bleibt der Planet aufgeklappt. Das gilt auch dann, wenn
                 # bereits z. B. 2/2 Arten namentlich bekannt sind, aber eine
                 # davon erst bei Probe 1 oder 2 steht.
-                for index, entry in enumerate(species):
+                for entry in species:
                     scan_key = str(entry.get("scan_type") or "").strip().casefold()
 
                     if scan_key == "geo":
                         step_text = "–"
                     elif scan_key in ("analyse", "analyze"):
-                        step_text = tr("explorer.sample_complete")
+                        step_text = tr("bio_prediction.found")
                     elif scan_key == "sample":
-                        step_text = tr("explorer.sample_two")
+                        step_text = (
+                            f"{tr('bio_prediction.identified')} · "
+                            f"{tr('explorer.sample_two')}"
+                        )
                     elif scan_key == "log":
-                        step_text = tr("explorer.sample_one")
+                        step_text = (
+                            f"{tr('bio_prediction.identified')} · "
+                            f"{tr('explorer.sample_one')}"
+                        )
                     else:
                         step_text = tr("explorer.dss_detected")
 
                     display_rows.append(
                         {
                             "body": "",
-                            "entry": entry,
+                            "entry": {**entry, "name": f"✓ {entry.get('name') or ''}"},
                             "progress": step_text,
                             "complete": False,
                         }
                     )
 
-                remaining = max(0, total_count - known_count)
-                if remaining:
-                    display_rows.append(
-                        {
-                            "body": "",
-                            "find": (
-                                tr("explorer.one_unknown")
-                                if remaining == 1
-                                else tr("explorer.unknown_count", count=remaining)
-                            ),
-                            "progress": tr(
-                                "explorer.known_ratio",
-                                known=known_count,
-                                total=total_count,
-                            ),
-                            "value": "–",
-                            "complete": False,
-                        }
-                    )
-
+                if predictions:
+                    for candidate in predictions:
+                        confidence = getattr(candidate, "confidence", "low")
+                        low_data = bool(getattr(candidate, "low_data", False))
+                        confidence_text = tr(f"bio_prediction.confidence.{confidence}")
+                        if low_data:
+                            confidence_text += tr("bio_prediction.low_data_suffix")
+                        reasons = ", ".join(getattr(candidate, "reasons", ()) or ())
+                        tooltip = tr(
+                            "bio_prediction.tooltip",
+                            count=getattr(candidate, "support", 0),
+                            reasons=reasons or "–",
+                        )
+                        display_rows.append(
+                            {
+                                "body": "",
+                                "entry": {
+                                    "name": f"? {getattr(candidate, 'name', '')}",
+                                    "scan_type": f"prediction_{confidence}",
+                                    "value": 0,
+                                    "tooltip": tooltip,
+                                },
+                                "progress": confidence_text,
+                                "value": "–",
+                                "complete": False,
+                            }
+                        )
                 # GEO wird nur als Anzahl dargestellt. Es nimmt ausdrücklich
                 # nicht an BIO-Art-, Probe- oder Fortschrittsberechnungen teil.
                 if geo_signals > 0:
@@ -1005,6 +1016,12 @@ class ExplorerLiveListWindow(QDialog):
                         color = "#ffb000"
                     elif scan_key == "log":
                         color = "#f1f3f5"
+                    elif scan_key == "prediction_high":
+                        color = "#65d067"
+                    elif scan_key == "prediction_medium":
+                        color = "#ffb000"
+                    elif scan_key == "prediction_low":
+                        color = "#9aa3ab"
                     else:
                         color = "#8e969e"
 
@@ -1017,9 +1034,10 @@ class ExplorerLiveListWindow(QDialog):
                     find_label.setText(
                         f'<span style="color:{color};">'
                         f"{escape(name)}"
-                        f" &nbsp; ({escape(value_text)})"
+                        f"{'' if scan_key.startswith('prediction_') else f' &nbsp; ({escape(value_text)})'}"
                         f"</span>"
                     )
+                    find_label.setToolTip(str(entry.get("tooltip") or ""))
                     self.table.setCellWidget(row_index, 1, find_label)
                     value_item = QTableWidgetItem(value_text)
                     value_item.setForeground(QColor(color))
@@ -2320,14 +2338,14 @@ class MainWindow(QMainWindow):
             else:
                 mapping = "–"
 
-                valuable_rows.append(
-                    (
-                        self._explorer_body_name(body),
-                        SystemMapWidget._type_text(body),
-                        self._format_reward(value),
-                        mapping,
-                    )
+            valuable_rows.append(
+                (
+                    self._explorer_body_name(body),
+                    SystemMapWidget._type_text(body),
+                    self._format_reward(value),
+                    mapping,
                 )
+            )
 
         valuable_rows.sort(
             key=lambda row: -int(str(row[2]).replace(" Cr", "").replace(".", "") or 0)
@@ -2337,6 +2355,20 @@ class MainWindow(QMainWindow):
             learned_bio_values = self.state.database.learned_bio_values()
         except Exception:
             learned_bio_values = {}
+
+        try:
+            bio_predictor = self.state.database.biology_predictor()
+        except Exception:
+            bio_predictor = None
+
+        primary_star_type = next(
+            (
+                str(item.get("star_type") or "")
+                for item in bodies
+                if int(item.get("body_id") or -1) == 0 and item.get("star_type")
+            ),
+            "",
+        )
 
         bio_rows = []
         for body in bodies:
@@ -2472,6 +2504,28 @@ class MainWindow(QMainWindow):
             popup_signals = 0 if bio_complete else signals
             popup_species_rows = [] if bio_complete else species_rows
 
+            prediction = None
+            if popup_signals > 0 and bio_predictor is not None:
+                prediction_body = dict(body)
+                prediction_body.setdefault(
+                    "system_address", getattr(self.state, "system_address", None)
+                )
+                prediction_body.setdefault("primary_star_type", primary_star_type)
+                try:
+                    known_findings = list(body.get("biology") or ())
+                    for genus in body.get("bio_genuses") or ():
+                        if isinstance(genus, dict):
+                            genus = genus.get("genus") or genus.get("name") or ""
+                        if str(genus or "").strip():
+                            known_findings.append({"genus": str(genus).strip()})
+                    prediction = bio_predictor.predict(
+                        prediction_body,
+                        known_findings,
+                        limit=8,
+                    )
+                except Exception:
+                    prediction = None
+
             known_value = sum(
                 int(entry.get("value") or 0) for entry in popup_species_rows
             )
@@ -2486,6 +2540,17 @@ class MainWindow(QMainWindow):
                     "geo_signals": geo_signals if geo_pending else 0,
                     "geo_text": (self._explorer_geo_text(body) if geo_pending else "–"),
                     "species": popup_species_rows,
+                    "predictions": (list(prediction.candidates) if prediction else []),
+                    "identified_count": (
+                        prediction.identified_count if prediction else len(popup_species_rows)
+                    ),
+                    "completed_count": (
+                        prediction.completed_count if prediction else completed_bio_count
+                    ),
+                    "open_signals": (
+                        prediction.open_signals
+                        if prediction else max(0, popup_signals - len(popup_species_rows))
+                    ),
                     "known_value": known_value,
                 }
             )
