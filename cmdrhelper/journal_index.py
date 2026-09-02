@@ -9,6 +9,39 @@ from cmdrhelper.journal_files import journal_sort_key
 from cmdrhelper.journal_reader import classify_journal_file
 
 
+def should_show_index_progress(total: int, work: int) -> bool:
+    """Sichtbar nur für einen Erstaufbau oder mindestens 25 Prüfungen."""
+    total, work = max(0, int(total)), max(0, int(work))
+    return work >= 25 or (work > 0 and work == total)
+
+
+def journal_index_plan(database, folder: Path) -> tuple[int, int]:
+    """Metadaten-Preflight ohne Dateiinhalt zu öffnen oder zu hashen."""
+    folder = Path(folder)
+    database.ensure_schema_v10()
+    with database._connect() as con:
+        rows = con.execute(
+            """SELECT journal_file, file_size, modified_ns, sha256,
+                      fully_imported FROM journal_sessions"""
+        ).fetchall()
+    cached = {str(row[0]): row for row in rows}
+    total = changed = 0
+    with os.scandir(folder) as iterator:
+        for entry in iterator:
+            if not (entry.is_file(follow_symlinks=False)
+                    and entry.name.startswith("Journal.")
+                    and entry.name.endswith(".log")):
+                continue
+            total += 1
+            stat = entry.stat(follow_symlinks=False)
+            old = cached.get(str(Path(entry.path)))
+            if (old is None or not old[3] or not bool(old[4])
+                    or int(old[1] or 0) != int(stat.st_size)
+                    or int(old[2] or 0) != int(stat.st_mtime_ns)):
+                changed += 1
+    return total, changed
+
+
 def _sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -103,5 +136,5 @@ def scan_journal_folder(database, folder: Path, progress_callback=None):
             database.store_journal_session(session)
         result.append(session)
         if progress_callback:
-            progress_callback(number, total, f"Journalindex: {number} / {total}")
+            progress_callback(number, total, path.name)
     return result

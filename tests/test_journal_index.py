@@ -8,7 +8,9 @@ from pathlib import Path
 from unittest.mock import patch
 
 from cmdrhelper.database import CMDRDatabase
-from cmdrhelper.journal_index import scan_journal_folder
+from cmdrhelper.journal_index import (
+    journal_index_plan, scan_journal_folder, should_show_index_progress,
+)
 from cmdrhelper.journal_reader import _LIVE_LINE_CACHE, read_latest_state
 
 
@@ -41,6 +43,13 @@ class JournalIndexTests(unittest.TestCase):
             second = scan_journal_folder(self.database, self.folder)
         self.assertTrue(second[0]["unchanged"])
         self.assertEqual(second[0]["journal_file"], str(path))
+        self.assertEqual(journal_index_plan(self.database, self.folder), (1, 1))
+
+    def test_progress_visibility_distinguishes_fast_normal_start(self):
+        self.assertFalse(should_show_index_progress(4000, 0))
+        self.assertFalse(should_show_index_progress(4000, 1))
+        self.assertTrue(should_show_index_progress(4000, 25))
+        self.assertTrue(should_show_index_progress(10, 10))
 
     def test_same_size_changed_content_is_detected_by_hash(self):
         path = self.write()

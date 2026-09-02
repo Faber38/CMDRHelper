@@ -5,7 +5,7 @@ import logging
 import threading
 from datetime import datetime, timezone
 
-from PySide6.QtCore import QObject, QSettings, Signal
+from PySide6.QtCore import QObject, QSettings, Signal, QTimer
 
 from cmdrhelper.journal_reader import (
     JournalReadError,
@@ -41,6 +41,10 @@ class AppState(QObject):
     edsmBodiesReady = Signal(str, object, str)
     databaseImportProgress = Signal(int, int, str)
     databaseImportFinished = Signal(object, str)
+    initializationStarted = Signal(bool, int)
+    initializationProgress = Signal(int, int, str, str)
+    initializationFinished = Signal(str)
+    journalIndexReady = Signal(object)
 
     def __init__(self):
         super().__init__()
@@ -57,6 +61,7 @@ class AppState(QObject):
         self._database_import_last_progress = None
         self._journal_index_sessions = None
         self._journal_index_current = None
+        self._initialization_visible = False
 
         self.commander = ""
         self.commander_id = None
@@ -169,6 +174,7 @@ class AppState(QObject):
         self.watcher.journalChanged.connect(
             self._refresh_from_watcher
         )
+        self.journalIndexReady.connect(self._finish_initial_journal_index)
 
         saved = self.settings.value(
             "journal_folder",
@@ -187,11 +193,57 @@ class AppState(QObject):
             self.watcher.set_folder(
                 self.journal_folder
             )
-            self.watcher.start()
-            self.watcher.check_now()
-            self.import_journal_archive(
-                automatic=True
-            )
+            QTimer.singleShot(0, self._start_initial_journal_index)
+
+    def _start_initial_journal_index(self):
+        """Startet den potenziell teuren Erstindex außerhalb des GUI-Threads."""
+        if not self.journal_folder:
+            return
+        folder = Path(self.journal_folder)
+
+        def worker():
+            try:
+                from cmdrhelper.journal_index import (
+                    journal_index_plan, scan_journal_folder,
+                    should_show_index_progress,
+                )
+                total, changed = journal_index_plan(self.database, folder)
+                # Kurze inkrementelle Abgleiche bleiben unsichtbar. Ein leerer
+                # Altindex oder mindestens 25 Inhaltsprüfungen ist sichtbar.
+                visible = should_show_index_progress(total, changed)
+                self._initialization_visible = visible
+                self.initializationStarted.emit(visible, total)
+
+                def progress(current, count, name):
+                    self.initializationProgress.emit(
+                        int(current), int(count), "startup.phase.index", str(name)
+                    )
+
+                sessions = scan_journal_folder(
+                    self.database, folder,
+                    progress_callback=progress if visible else None,
+                )
+                self.journalIndexReady.emit(sessions)
+            except Exception as exc:
+                logger.exception("Initialer Journalindex fehlgeschlagen")
+                self.initializationFinished.emit(str(exc))
+
+        threading.Thread(
+            target=worker, daemon=True, name="CMDRHelper-JournalIndex"
+        ).start()
+
+    def _finish_initial_journal_index(self, sessions):
+        """Übernimmt das Worker-Ergebnis und setzt im GUI-Thread fort."""
+        self._journal_index_sessions = list(sessions or [])
+        self._journal_index_current = (
+            str(Path(self._journal_index_sessions[-1]["journal_file"]))
+            if self._journal_index_sessions else None
+        )
+        if not self.refresh():
+            self.initializationFinished.emit("Journal konnte nicht gelesen werden.")
+            return
+        self.watcher.start()
+        self.import_journal_archive(automatic=True)
 
     def database_stats(self):
         try:
@@ -309,12 +361,22 @@ class AppState(QObject):
             if (
                 not automatic
                 or self._database_import_manual_waiting
+                or self._initialization_visible
             ):
                 self.databaseImportProgress.emit(
                     current,
                     total,
                     name,
                 )
+                if automatic and self._initialization_visible:
+                    display_name = name
+                    if ":" in display_name:
+                        display_name = display_name.split(":", 1)[1].strip()
+                    if not display_name.lower().endswith(".log"):
+                        display_name = ""
+                    self.initializationProgress.emit(
+                        current, total, "startup.phase.history", display_name
+                    )
 
         def worker():
             try:
@@ -343,6 +405,8 @@ class AppState(QObject):
                         stats,
                         ""
                     )
+                if automatic:
+                    self.initializationFinished.emit("")
             except Exception as exc:
                 error_text = str(exc)
 
@@ -358,6 +422,8 @@ class AppState(QObject):
                     None,
                     error_text
                 )
+                if automatic:
+                    self.initializationFinished.emit(error_text)
             finally:
                 self._database_import_running = False
                 self._database_import_manual_waiting = False
@@ -385,11 +451,9 @@ class AppState(QObject):
         self.watcher.set_folder(
             self.journal_folder
         )
-        self.watcher.start()
-        self.watcher.check_now()
-        self.import_journal_archive(
-            automatic=True
-        )
+        self._journal_index_sessions = None
+        self._journal_index_current = None
+        self._start_initial_journal_index()
 
     def reset_missions(self):
         self.mission_reset_at = (

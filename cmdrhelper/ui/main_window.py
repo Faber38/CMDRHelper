@@ -11,6 +11,7 @@ from cmdrhelper.ui.body_detail_window import BodyDetailWindow
 from cmdrhelper.ui.chronicle_view import ChronicleMapWidget, commander_color
 from cmdrhelper.ui.screenshot_view import ScreenshotView
 from cmdrhelper.ui.commander_view import CommanderView
+from cmdrhelper.ui.startup_progress import StartupProgressDialog
 from cmdrhelper.route_planner import RoutePlannerView
 from cmdrhelper.online_services import (
     test_edsm_connection,
@@ -1186,6 +1187,7 @@ class MainWindow(QMainWindow):
         self._explorer_value_live_window = None
         self._explorer_bio_live_window = None
         self._explorer_live_system = None
+        self._startup_progress_dialog = None
         self.ui_theme = str(self.state.settings.value("ui_theme", "dark")).lower()
         set_language(str(self.state.settings.value("ui_language", "de") or "de"))
 
@@ -1197,6 +1199,10 @@ class MainWindow(QMainWindow):
 
         self._build_ui()
 
+        self.state.initializationStarted.connect(self._initialization_started)
+        self.state.initializationProgress.connect(self._initialization_progress)
+        self.state.initializationFinished.connect(self._initialization_finished)
+
         self.state.changed.connect(self.refresh_all)
 
         self.refresh_all()
@@ -1204,6 +1210,30 @@ class MainWindow(QMainWindow):
         # Updateprüfung bewusst leicht verzögert starten, damit das
         # Hauptfenster zuerst vollständig erscheinen kann.
         QTimer.singleShot(1500, lambda: self._check_for_updates(automatic=True))
+
+    def _initialization_started(self, visible, total):
+        if not visible:
+            return
+        self._startup_progress_dialog = StartupProgressDialog(
+            light=self.ui_theme == "light", parent=self
+        )
+        self._startup_progress_dialog.begin(int(total))
+
+    def _initialization_progress(self, current, total, phase_key, filename):
+        if self._startup_progress_dialog is not None:
+            self._startup_progress_dialog.set_progress(
+                current, total, phase_key, filename
+            )
+
+    def _initialization_finished(self, error):
+        if self._startup_progress_dialog is None:
+            if error:
+                QMessageBox.warning(
+                    self, tr("startup.error"),
+                    tr("startup.error_detail", error=error),
+                )
+            return
+        self._startup_progress_dialog.finish(str(error or ""))
 
     def _nav(self, text, idx):
         button = QPushButton(text)
