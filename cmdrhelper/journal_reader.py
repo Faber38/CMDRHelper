@@ -63,6 +63,32 @@ def _live_complete_lines(path: Path) -> tuple[list[str], int]:
     return result, offset
 
 
+def read_journal_delta(path: Path, start_offset: int) -> tuple[list[dict], int]:
+    """Reads only newline-terminated JSON events after a committed byte offset."""
+    path = Path(path)
+    start = max(0, int(start_offset or 0))
+    size = path.stat().st_size
+    if start > size:
+        # A truncated/replaced journal cannot safely be treated as an append.
+        start = 0
+    with path.open("rb") as handle:
+        handle.seek(start)
+        raw = handle.read()
+    newline = raw.rfind(b"\n")
+    if newline < 0:
+        return [], start
+    safe_offset = start + newline + 1
+    events = []
+    for line in raw[:newline + 1].decode("utf-8", errors="replace").splitlines():
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(event, dict):
+            events.append(event)
+    return events, safe_offset
+
+
 def _optional_float(value):
     try:
         return float(value) if value is not None else None
@@ -79,6 +105,32 @@ def _optional_int(value):
 
 def _optional_bool(value):
     return value if isinstance(value, bool) else None
+
+
+def sold_system_names(event: dict) -> set[str]:
+    names = set()
+    for field in ("Systems", "Discovered"):
+        for item in event.get(field) or []:
+            if isinstance(item, str):
+                name = item
+            elif isinstance(item, dict):
+                name = item.get("SystemName") or item.get("Name") or ""
+            else:
+                name = ""
+            if str(name).strip():
+                names.add(str(name).strip().casefold())
+    return names
+
+
+def sold_bio_names(event: dict) -> set[str]:
+    names = set()
+    for item in event.get("BioData") or []:
+        if not isinstance(item, dict):
+            continue
+        for field in ("Species_Localised", "Species", "Variant_Localised", "Variant"):
+            if str(item.get(field) or "").strip():
+                names.add(str(item[field]).strip().casefold())
+    return names
 
 
 def _matching_ship(loadout: ShipLoadoutData, event: dict) -> bool:
@@ -660,6 +712,7 @@ def read_latest_state(
     folder: Path,
     mission_reset_at: str = "",
     indexed_sessions: list[dict] | None = None,
+    force_full_history: bool = False,
 ) -> dict:
     """
     Liest Journale chronologisch ein.
@@ -704,7 +757,6 @@ def read_latest_state(
         "unsold_biology": [],
         "unsold_cartography": [],
     }
-
     reset_dt = None
     if mission_reset_at:
         try:
@@ -885,28 +937,10 @@ def read_latest_state(
         return current_system_address
 
     def _sold_system_names(event: dict) -> set[str]:
-        names = set()
-        for field in ("Systems", "Discovered"):
-            for item in event.get(field) or []:
-                if isinstance(item, str):
-                    name = item
-                elif isinstance(item, dict):
-                    name = item.get("SystemName") or item.get("Name") or ""
-                else:
-                    name = ""
-                if str(name).strip():
-                    names.add(str(name).strip().casefold())
-        return names
+        return sold_system_names(event)
 
     def _sold_bio_names(event: dict) -> set[str]:
-        names = set()
-        for item in event.get("BioData") or []:
-            if not isinstance(item, dict):
-                continue
-            for field in ("Species_Localised", "Species", "Variant_Localised", "Variant"):
-                if str(item.get(field) or "").strip():
-                    names.add(str(item[field]).strip().casefold())
-        return names
+        return sold_bio_names(event)
 
     def _bio_count_from_event(event: dict) -> int:
         bio_count = 0
@@ -1063,7 +1097,9 @@ def read_latest_state(
 
     current_journal = files[-1]
 
-    runtime_files = files[-1:] if indexed_sessions is not None else files
+    runtime_files = (
+        files if indexed_sessions is None or force_full_history else files[-1:]
+    )
     for journal in runtime_files:
         session = classified_sessions.get(str(journal))
         input_lines = None

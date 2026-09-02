@@ -26,7 +26,7 @@ from cmdrhelper.online_services import (
 from cmdrhelper.database import CMDRDatabase
 from cmdrhelper.edsm_uploader import EDSMJournalUploader
 from cmdrhelper.bio_valuation import biology_totals
-from cmdrhelper.route_planner.models import ShipLoadoutData
+from cmdrhelper.route_planner.models import GuardianFsdBooster, ShipLoadoutData
 
 logger = logging.getLogger(__name__)
 
@@ -239,6 +239,23 @@ class AppState(QObject):
             str(Path(self._journal_index_sessions[-1]["journal_file"]))
             if self._journal_index_sessions else None
         )
+        try:
+            current = ((self._journal_index_sessions or [None])[-1])
+            commander_id = current.get("commander_id") if current else None
+            if commander_id is not None:
+                features = [
+                    feature for feature in ("unsold", "missions")
+                    if self.database.commander_state_repair_needed(
+                        int(commander_id), feature
+                    )
+                ]
+                if features:
+                    self.database.repair_commander_state(
+                        self.journal_folder, self._journal_index_sessions,
+                        int(commander_id), features=features,
+                    )
+        except Exception:
+            logger.exception("Commander-Zustandsreparatur fehlgeschlagen")
         if not self.refresh():
             self.initializationFinished.emit("Journal konnte nicht gelesen werden.")
             return
@@ -1016,6 +1033,19 @@ class AppState(QObject):
                     str(Path(self._journal_index_sessions[-1]["journal_file"]))
                     if self._journal_index_sessions else None
                 )
+            current_session = ((self._journal_index_sessions or [None])[-1])
+            if current_session and current_session.get("commander_id") is not None:
+                from cmdrhelper.journal_reader import read_journal_delta
+                delta_events, safe_offset = read_journal_delta(
+                    Path(current_session["journal_file"]),
+                    int(current_session.get("last_read_offset") or 0),
+                )
+                if safe_offset > int(current_session.get("last_read_offset") or 0):
+                    self.database.apply_commander_journal_delta(
+                        int(current_session["commander_id"]),
+                        current_session["journal_file"], delta_events, safe_offset,
+                    )
+                    current_session["last_read_offset"] = safe_offset
             data = read_latest_state(
                 self.journal_folder,
                 mission_reset_at=self.mission_reset_at,
@@ -1055,6 +1085,42 @@ class AppState(QObject):
             data,
             emit_signal=False,
         )
+        persistent_summary = (
+            self.database.commander_summary(self.commander_id)
+            if self.commander_id is not None else None
+        ) or {}
+        stored_location = persistent_summary.get("persistent_location") or {}
+        if not data.get("system") and stored_location:
+            data["system"] = stored_location.get("system_name") or ""
+            data["system_address"] = stored_location.get("system_address")
+            data["station"] = stored_location.get("station_name") or ""
+            data["body"] = stored_location.get("body_name") or ""
+            data["last_position"] = dict(stored_location)
+        if getattr(data.get("ship_loadout"), "ship_id", None) is None:
+            stored_ship = persistent_summary.get("ship") or {}
+            if stored_ship:
+                data["ship"] = stored_ship.get("ship_name") or stored_ship.get("ship_type") or ""
+                data["ship_loadout"] = ShipLoadoutData(
+                    ship_id=stored_ship.get("ship_id"),
+                    ship_type=stored_ship.get("ship_type"),
+                    ship_name=stored_ship.get("ship_name"),
+                    ship_ident=stored_ship.get("ship_ident"),
+                    max_jump_range=stored_ship.get("max_jump_range"),
+                    unladen_mass=stored_ship.get("unladen_mass"),
+                    cargo_capacity=stored_ship.get("cargo_capacity"),
+                    main_tank_capacity=stored_ship.get("main_tank_capacity"),
+                    reserve_tank_capacity=stored_ship.get("reserve_tank_capacity"),
+                    fsd_item=stored_ship.get("fsd_item"),
+                    guardian_fsd_boosters=tuple(
+                        GuardianFsdBooster(item.get("item") or "", item.get("on"))
+                        for item in (stored_ship.get("guardian_fsd_boosters") or [])
+                        if isinstance(item, dict)
+                    ),
+                    modules=tuple(stored_ship.get("modules") or ()),
+                    loadout_timestamp=stored_ship.get("loadout_timestamp"),
+                    loadout_complete=bool(stored_ship.get("loadout_complete")),
+                    loadout_stale=bool(stored_ship.get("loadout_stale", True)),
+                )
         self._store_latest_journal_session(data)
         self.system = data["system"]
         self.system_address = data.get("system_address")
@@ -1094,9 +1160,12 @@ class AppState(QObject):
                     event_type,
                 )
 
-        self.missions = normalize_missions(
-            data["missions"]
-        )
+        self.missions = normalize_missions(data["missions"])
+        if self.commander_id is not None:
+            self.missions = normalize_missions([
+                mission for mission in self.database.commander_missions(self.commander_id)
+                if mission.get("is_open")
+            ])
 
         self.system_bodies = data.get("system_bodies", [])
 
@@ -1107,37 +1176,6 @@ class AppState(QObject):
             # als vollständig archiv-importiert markieren. Das erledigt
             # ausschließlich der Archivimport selbst.
             self.database.store_snapshot(data, commander_id=self.commander_id)
-            if self.commander_id is not None:
-                self.database.store_commander_missions(
-                    self.commander_id,
-                    self.missions,
-                    data.get("mission_terminal_updates") or [],
-                    authoritative=bool(data.get("missions_snapshot_seen")),
-                )
-                self.database.store_commander_location(
-                    self.commander_id, data.get("last_position")
-                )
-                fleet = data.get("fleet_ships") or []
-                if fleet:
-                    self.database.store_commander_fleet(self.commander_id, fleet)
-                else:
-                    self.database.store_commander_ship(
-                        self.commander_id, self.ship_loadout, self.last_timestamp,
-                        location=data.get("last_position"),
-                    )
-                self.database.store_commander_carrier(
-                    self.commander_id, data.get("owned_carrier")
-                )
-                self.database.store_commander_wealth(
-                    self.commander_id, data.get("wealth")
-                )
-                self.database.store_commander_unsold_data(
-                    self.commander_id,
-                    data.get("unsold_biology") or [],
-                    data.get("unsold_cartography") or [],
-                    learned_bio_values=self.database.learned_bio_values(),
-                    cartography_factor_func=self.database.learned_cartography_factor,
-                )
         except Exception:
             logger.exception("Commander-Livezustand konnte nicht gespeichert werden")
 
@@ -1231,43 +1269,20 @@ class AppState(QObject):
             bio_totals["unknown"]
         )
 
-        raw_unsold_cartography = int(
-            data.get("unsold_cartography_value", 0)
-            or 0
+        persistent = (
+            self.database.commander_summary(self.commander_id)
+            if self.commander_id is not None else None
+        ) or {}
+        persistent_cart = persistent.get("unsold_cartography") or {}
+        self.unsold_cartography_value = int(persistent_cart.get("estimated_value") or 0)
+        self.unsold_cartography_count = int(persistent_cart.get("bodies") or 0)
+        persistent_bio = persistent.get("unsold_biology") or {}
+        self.unsold_bio_count = int(persistent_bio.get("findings") or 0)
+        self.unsold_bio_value = int(persistent_bio.get("estimated_value") or 0)
+        self.unsold_bio_first_logged_value = self.unsold_bio_value * 5
+        self.unsold_bio_unknown = ["Unbekannte BIO-Art"] * int(
+            persistent_bio.get("unknown_values") or 0
         )
-
-        try:
-            unsold_cartography_factor = self.database.learned_cartography_factor()
-        except Exception:
-            unsold_cartography_factor = 1.0
-
-        self.unsold_cartography_value = int(
-            round(
-                raw_unsold_cartography
-                * float(unsold_cartography_factor or 1.0)
-            )
-        )
-        self.unsold_cartography_count = int(
-            data.get("unsold_cartography_count", 0)
-            or 0
-        )
-
-        try:
-            unsold_bio_totals = biology_totals(
-                data.get("unsold_biology", []),
-                learned_values=self.database.learned_bio_values(),
-            )
-        except Exception:
-            logger.exception("Offene BIO-Werte konnten nicht berechnet werden")
-            unsold_bio_totals = {
-                "completed_count": 0, "base_total": 0,
-                "first_logged_total": 0, "unknown": [],
-            }
-
-        self.unsold_bio_count = int(unsold_bio_totals["completed_count"])
-        self.unsold_bio_value = int(unsold_bio_totals["base_total"])
-        self.unsold_bio_first_logged_value = int(unsold_bio_totals["first_logged_total"])
-        self.unsold_bio_unknown = list(unsold_bio_totals["unknown"])
 
         self.connected = (
             self.journal_files > 0

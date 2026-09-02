@@ -125,15 +125,19 @@ def scan_journal_folder(database, folder: Path, progress_callback=None):
             else:
                 session = classify_journal_file(path)
                 complete = _complete_line_offset(path)
+                processed = 0
+                if old is not None and size >= int(old[1] or 0):
+                    processed = min(int(old[10] or 0), complete)
                 session.update({
                     "sha256": digest,
-                    "last_read_offset": complete,
+                    "last_read_offset": processed,
                     "last_complete_line_offset": complete,
                     "fully_imported": False,
                     "unchanged": False,
                 })
             session["last_indexed_at"] = now
             database.store_journal_session(session)
+            session["commander_id"] = database.resolve_session_commander(session)
         result.append(session)
         if progress_callback:
             progress_callback(number, total, path.name)

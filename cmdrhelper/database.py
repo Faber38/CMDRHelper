@@ -3,6 +3,7 @@ from __future__ import annotations
 import sqlite3
 import logging
 import json
+from contextlib import nullcontext
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -11,7 +12,7 @@ from cmdrhelper.ship_identity import is_definite_non_ship
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 10
+SCHEMA_VERSION = 11
 
 PERSONAL_TABLES = (
     "system_visits",
@@ -380,6 +381,7 @@ class CMDRDatabase:
         self._maybe_migrate_v8()
         self._maybe_migrate_v9()
         self._maybe_migrate_v10()
+        self._maybe_migrate_v11()
         self.cleanup_non_ship_fleet_rows()
 
     def _maybe_migrate_v8(self):
@@ -498,6 +500,58 @@ class CMDRDatabase:
 
     def ensure_schema_v10(self):
         self._maybe_migrate_v10()
+
+    def _maybe_migrate_v11(self):
+        """Adds revision metadata for authoritative commander-runtime backfills."""
+        with self._connect() as con:
+            version = int(con.execute("PRAGMA user_version").fetchone()[0])
+            if version >= 11:
+                return
+            con.execute("""
+                CREATE TABLE IF NOT EXISTS commander_unsold_cartography (
+                    commander_id INTEGER NOT NULL,
+                    system_address INTEGER NOT NULL,
+                    body_id INTEGER NOT NULL,
+                    system_name TEXT NOT NULL DEFAULT '',
+                    body_name TEXT NOT NULL DEFAULT '',
+                    scanned_at TEXT NOT NULL DEFAULT '',
+                    mapped_at TEXT NOT NULL DEFAULT '',
+                    self_mapped INTEGER NOT NULL DEFAULT 0,
+                    estimated_value INTEGER,
+                    PRIMARY KEY(commander_id,system_address,body_id),
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id)
+                )
+            """)
+            columns = {
+                row[1] for row in con.execute(
+                    "PRAGMA table_info(commander_unsold_cartography)"
+                )
+            }
+            for name, declaration in (
+                ("raw_estimated_value", "INTEGER"),
+                ("planet_class", "TEXT NOT NULL DEFAULT ''"),
+                ("terraformable", "INTEGER"),
+            ):
+                if name not in columns:
+                    con.execute(
+                        f"ALTER TABLE commander_unsold_cartography "
+                        f"ADD COLUMN {name} {declaration}"
+                    )
+            con.execute("""
+                CREATE TABLE IF NOT EXISTS commander_state_repairs (
+                    commander_id INTEGER NOT NULL,
+                    feature TEXT NOT NULL,
+                    revision INTEGER NOT NULL DEFAULT 0,
+                    repaired_at TEXT NOT NULL DEFAULT '',
+                    PRIMARY KEY(commander_id,feature),
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id)
+                        ON DELETE CASCADE
+                )
+            """)
+            con.execute("PRAGMA user_version=11")
+
+    def ensure_schema_v11(self):
+        self._maybe_migrate_v11()
 
     def _personal_row_counts(self, con):
         return {
@@ -1170,11 +1224,11 @@ class CMDRDatabase:
             },
         }
 
-    def store_commander_wealth(self, commander_id, wealth):
+    def store_commander_wealth(self, commander_id, wealth, _con=None):
         """Speichert nur einen vom Journal direkt gemeldeten Kontostand."""
         if not isinstance(wealth, dict) or wealth.get("credits") is None:
             return
-        with self._connect() as con:
+        with (nullcontext(_con) if _con is not None else self._connect()) as con:
             con.execute("""
                 INSERT INTO commander_wealth(commander_id,credits,event_timestamp,source_event)
                 VALUES(?,?,?,?)
@@ -1189,7 +1243,7 @@ class CMDRDatabase:
 
     def store_commander_unsold_data(self, commander_id, biology, cartography,
                                     learned_bio_values=None,
-                                    cartography_factor_func=None):
+                                    cartography_factor_func=None, _con=None):
         """Ersetzt atomar ausschließlich den offenen Bestand eines Commanders."""
         from cmdrhelper.bio_valuation import base_value, is_complete
 
@@ -1222,8 +1276,12 @@ class CMDRDatabase:
                 str(entry.get("system_name") or ""), str(entry.get("body_name") or ""),
                 str(entry.get("scanned_at") or ""), str(entry.get("mapped_at") or ""),
                 int(bool(entry.get("self_mapped"))), estimated,
+                int(raw_value) if raw_value is not None else None,
+                str(entry.get("planet_class") or ""),
+                (None if entry.get("terraformable") is None
+                 else int(bool(entry.get("terraformable")))),
             ))
-        with self._connect() as con:
+        with (nullcontext(_con) if _con is not None else self._connect()) as con:
             con.execute("DELETE FROM commander_unsold_biology WHERE commander_id=?", (commander_id,))
             con.execute("DELETE FROM commander_unsold_cartography WHERE commander_id=?", (commander_id,))
             con.executemany("""INSERT INTO commander_unsold_biology(
@@ -1232,7 +1290,418 @@ class CMDRDatabase:
                 VALUES(?,?,?,?,?,?,?,?,?,?,?)""", bio_rows)
             con.executemany("""INSERT INTO commander_unsold_cartography(
                 commander_id,system_address,body_id,system_name,body_name,scanned_at,
-                mapped_at,self_mapped,estimated_value) VALUES(?,?,?,?,?,?,?,?,?)""", cart_rows)
+                mapped_at,self_mapped,estimated_value,raw_estimated_value,planet_class,
+                terraformable) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)""", cart_rows)
+
+    def apply_commander_journal_delta(self, commander_id, journal_file, events,
+                                      safe_offset: int) -> None:
+        """Atomically applies explicit journal facts and commits their byte offset."""
+        from cmdrhelper.bio_valuation import base_value
+        from cmdrhelper.journal_reader import (
+            _loadout_from_event, _new_mission, _optional_int,
+            _update_mission_event, sold_bio_names, sold_system_names,
+        )
+        from cmdrhelper.models import (
+            STATUS_ABANDONED, STATUS_COMPLETED, STATUS_FAILED,
+        )
+        from cmdrhelper.route_planner.models import GuardianFsdBooster, ShipLoadoutData
+        from cmdrhelper.valuation import apply_values
+
+        commander_id = int(commander_id)
+        summary = self.commander_summary(commander_id) or {}
+        location = dict(summary.get("persistent_location") or {})
+        current_system = str(location.get("system_name") or "")
+        current_address = location.get("system_address")
+        current_station = str(location.get("station_name") or "")
+        current_body = str(location.get("body_name") or "")
+        carrier = dict(summary.get("carrier") or {}) or None
+        ship = summary.get("ship") or {}
+        loadout = ShipLoadoutData(
+            ship_id=ship.get("ship_id"), ship_type=ship.get("ship_type"),
+            ship_name=ship.get("ship_name"), ship_ident=ship.get("ship_ident"),
+            max_jump_range=ship.get("max_jump_range"),
+            unladen_mass=ship.get("unladen_mass"),
+            cargo_capacity=ship.get("cargo_capacity"),
+            main_tank_capacity=ship.get("main_tank_capacity"),
+            reserve_tank_capacity=ship.get("reserve_tank_capacity"),
+            fsd_item=ship.get("fsd_item"),
+            guardian_fsd_boosters=tuple(
+                GuardianFsdBooster(str(item.get("item") or ""), item.get("on"))
+                for item in (ship.get("guardian_fsd_boosters") or [])
+                if isinstance(item, dict)
+            ),
+            modules=tuple(ship.get("modules") or ()),
+            loadout_timestamp=ship.get("loadout_timestamp"),
+            loadout_complete=bool(ship.get("loadout_complete")),
+            loadout_stale=bool(ship.get("loadout_stale", True)),
+        )
+        learned_bio = self.learned_bio_values()
+        cart_factor_value = self.cartography_learning_stats(
+            commander_id
+        )["correction_factor"]
+        cart_factor = lambda *_: cart_factor_value
+        scanned_bodies = {}
+        mission_by_id = {
+            int(item["mission_id"]): item
+            for item in self.commander_missions(commander_id)
+        }
+
+        with self._connect() as con:
+            for event in events or []:
+                et = str(event.get("event") or "")
+                ts = str(event.get("timestamp") or "")
+                address = event.get("SystemAddress")
+                if not isinstance(address, int):
+                    address = current_address
+
+                if et in ("Location", "FSDJump", "CarrierJump"):
+                    current_system = str(event.get("StarSystem") or current_system)
+                    if isinstance(event.get("SystemAddress"), int):
+                        current_address = event["SystemAddress"]
+                    current_body = str(event.get("Body") or event.get("BodyName") or current_body)
+                    current_station = (str(event.get("StationName") or current_station)
+                                       if et == "Location" else "")
+                    self.store_commander_location(commander_id, {
+                        "system_name": current_system, "system_address": current_address,
+                        "station_name": current_station if et == "Location" else "",
+                        "body_name": str(event.get("Body") or event.get("BodyName") or ""),
+                        "event_timestamp": ts, "event_type": et,
+                    }, _con=con)
+                    location = {"system_name": current_system,
+                        "system_address": current_address,
+                        "station_name": current_station if et == "Location" else "",
+                        "body_name": str(event.get("Body") or event.get("BodyName") or "")}
+                    if et == "CarrierJump" and carrier is not None:
+                        cid = _optional_int(event.get("CarrierID") if event.get("CarrierID") is not None
+                                            else event.get("MarketID"))
+                        if cid == carrier.get("carrier_id"):
+                            carrier.update(system_name=current_system,
+                                           system_address=current_address,last_updated=ts)
+                            self.store_commander_carrier(commander_id, carrier, _con=con)
+
+                elif et == "Docked":
+                    current_system = str(event.get("StarSystem") or current_system)
+                    current_station = str(event.get("StationName") or "")
+                    if isinstance(event.get("SystemAddress"), int):
+                        current_address = event["SystemAddress"]
+                    self.store_commander_location(commander_id, {
+                        "system_name": current_system, "system_address": current_address,
+                        "station_name": current_station, "body_name": "",
+                        "event_timestamp": ts, "event_type": et,
+                    }, _con=con)
+                    location = {"system_name": current_system,
+                        "system_address": current_address, "station_name": current_station,
+                        "body_name": ""}
+
+                elif et == "LoadGame":
+                    if isinstance(event.get("Credits"), int) and event["Credits"] >= 0:
+                        self.store_commander_wealth(commander_id, {
+                            "credits": event["Credits"], "event_timestamp": ts,
+                            "source_event": "LoadGame",
+                        }, _con=con)
+                    if not is_definite_non_ship(event.get("Ship"), event.get("Ship_Localised")):
+                        event_ship_id = _optional_int(event.get("ShipID"))
+                        if event_ship_id is not None and loadout.ship_id != event_ship_id:
+                            loadout = ShipLoadoutData(ship_id=event_ship_id, loadout_stale=True)
+                        loadout.ship_id = event_ship_id or loadout.ship_id
+                        loadout.ship_type = str(event.get("Ship") or "") or loadout.ship_type
+                        loadout.ship_name = str(event.get("ShipName") or "") or loadout.ship_name
+                        loadout.ship_ident = str(event.get("ShipIdent") or "") or loadout.ship_ident
+                        self.store_commander_ship(commander_id, loadout, ts,
+                            location=location, _con=con)
+
+                elif et == "Loadout":
+                    loadout = _loadout_from_event(event, loadout)
+                    self.store_commander_ship(commander_id, loadout, ts,
+                        location=location, _con=con)
+
+                elif et in ("ShipyardSwap", "ShipyardBuy"):
+                    candidate = ShipLoadoutData(
+                        ship_id=_optional_int(event.get("ShipID")),
+                        ship_type=str(event.get("ShipType") or "") or None,
+                        loadout_complete=False, loadout_stale=True,
+                    )
+                    self.store_commander_ship(commander_id, candidate, ts,
+                        location=location, _con=con)
+                    loadout = candidate
+
+                elif et in (
+                    "ModuleBuy", "ModuleSell", "ModuleSwap", "ModuleStore",
+                    "ModuleRetrieve", "MassModuleStore", "MassModuleRetrieve",
+                    "EngineerCraft",
+                ):
+                    event_ship_id = _optional_int(event.get("ShipID"))
+                    if (event_ship_id is None or loadout.ship_id is None
+                            or event_ship_id == loadout.ship_id):
+                        loadout.loadout_stale = True
+                        self.store_commander_ship(
+                            commander_id, loadout, ts, location=location, _con=con
+                        )
+
+                elif et == "MissionAccepted":
+                    mission = _new_mission(event)
+                    mission_by_id[int(mission["mission_id"])] = mission
+                    self.store_commander_missions(commander_id, [mission], _con=con)
+
+                elif et in ("MissionRedirected", "CargoDepot"):
+                    mid = event.get("MissionID")
+                    existing = mission_by_id.get(int(mid)) if mid is not None else None
+                    mission = existing or _new_mission(event)
+                    _update_mission_event(mission, event)
+                    mission_by_id[int(mission["mission_id"])] = mission
+                    self.store_commander_missions(commander_id, [mission], _con=con)
+
+                elif et in ("MissionCompleted", "MissionFailed", "MissionAbandoned"):
+                    mid = event.get("MissionID")
+                    if mid is not None:
+                        existing = mission_by_id.get(int(mid))
+                        mission = existing or _new_mission(event)
+                        mission["terminal_state"] = {
+                            "MissionCompleted": "completed", "MissionFailed": "failed",
+                            "MissionAbandoned": "abandoned",
+                        }[et]
+                        mission["status"] = {
+                            "MissionCompleted": STATUS_COMPLETED,
+                            "MissionFailed": STATUS_FAILED,
+                            "MissionAbandoned": STATUS_ABANDONED,
+                        }[et]
+                        mission["last_update"] = ts
+                        if event.get("Reward") is not None:
+                            mission["reward"] = int(event.get("Reward") or 0)
+                        self.store_commander_missions(
+                            commander_id, [], [mission], _con=con
+                        )
+                        mission_by_id[int(mid)] = mission
+
+                elif et == "Missions":
+                    active = []
+                    for item in event.get("Active") or []:
+                        if item.get("MissionID") is None:
+                            continue
+                        active.append(_new_mission({
+                            "MissionID": item["MissionID"],
+                            "Name": item.get("Name") or "Mission",
+                            "LocalisedName": item.get("LocalisedName") or item.get("Name_Localised"),
+                            "Expiry": item.get("Expiry") or "", "timestamp": ts,
+                        }))
+                    self.store_commander_missions(
+                        commander_id, active, authoritative=True, _con=con
+                    )
+                    mission_by_id = {int(item["mission_id"]): item for item in active}
+
+                elif et == "ScanOrganic" and str(event.get("ScanType") or "").strip().casefold() in ("analyse", "analyze"):
+                    body_id = event.get("BodyID") if event.get("BodyID") is not None else event.get("Body")
+                    if address is not None and isinstance(body_id, int):
+                        entry = {
+                            "genus": event.get("Genus_Localised") or event.get("Genus") or "",
+                            "species": event.get("Species_Localised") or event.get("Species") or "",
+                            "variant": event.get("Variant_Localised") or event.get("Variant") or "",
+                        }
+                        value = base_value(entry, learned_values=learned_bio)
+                        con.execute("""
+                            INSERT INTO commander_unsold_biology(
+                                commander_id,system_address,body_id,system_name,body_name,
+                                genus,species,variant,scan_type,completed_at,estimated_base_value)
+                            VALUES(?,?,?,?,?,?,?,?,?,?,?)
+                            ON CONFLICT(commander_id,system_address,body_id,genus,species,variant)
+                            DO UPDATE SET scan_type=excluded.scan_type,
+                                completed_at=excluded.completed_at,
+                                estimated_base_value=excluded.estimated_base_value
+                        """, (commander_id, int(address), int(body_id), current_system,
+                              str(event.get("BodyName") or ""), entry["genus"],
+                              entry["species"], entry["variant"],
+                              str(event.get("ScanType") or ""), ts,
+                              int(value) if value else None))
+
+                elif et == "SellOrganicData":
+                    names = sold_bio_names(event)
+                    if names:
+                        rows = con.execute("""
+                            SELECT system_address,body_id,genus,species,variant
+                            FROM commander_unsold_biology WHERE commander_id=?
+                        """, (commander_id,)).fetchall()
+                        remove = [(commander_id, *row) for row in rows
+                                  if {str(row[3] or "").strip().casefold(),
+                                      str(row[4] or "").strip().casefold()} & names]
+                        con.executemany("""DELETE FROM commander_unsold_biology
+                            WHERE commander_id=? AND system_address=? AND body_id=?
+                              AND genus=? AND species=? AND variant=?""", remove)
+                    else:
+                        con.execute("DELETE FROM commander_unsold_biology WHERE commander_id=?",
+                                    (commander_id,))
+
+                elif et == "Scan" and address is not None and event.get("BodyID") is not None:
+                    if event.get("StarType") or "belt cluster" in str(event.get("BodyName") or "").lower():
+                        continue
+                    body_id = int(event["BodyID"])
+                    body = {
+                        "body_id": body_id, "name": event.get("BodyName") or "",
+                        "body_type": "Planet", "star_type": "",
+                        "planet_class": event.get("PlanetClass") or "",
+                        "mass_em": event.get("MassEM"), "stellar_mass": None,
+                        "terraformable": event.get("TerraformState") == "Terraformable",
+                        "was_discovered": event.get("WasDiscovered"),
+                        "was_mapped": event.get("WasMapped"), "self_mapped": False,
+                        "efficient_mapping": False,
+                    }
+                    apply_values(body)
+                    scanned_bodies[(int(address), body_id)] = body
+                    raw_value = int(body.get("current_value") or 0)
+                    factor = float(cart_factor(body["planet_class"], body["terraformable"]) or 1.0)
+                    con.execute("""
+                        INSERT INTO commander_unsold_cartography(
+                            commander_id,system_address,body_id,system_name,body_name,
+                            scanned_at,mapped_at,self_mapped,estimated_value,
+                            raw_estimated_value,planet_class,terraformable)
+                        VALUES(?,?,?,?,?,?,?,0,?,?,?,?)
+                        ON CONFLICT(commander_id,system_address,body_id) DO UPDATE SET
+                            system_name=excluded.system_name,body_name=excluded.body_name,
+                            scanned_at=excluded.scanned_at,
+                            estimated_value=excluded.estimated_value,
+                            raw_estimated_value=excluded.raw_estimated_value,
+                            planet_class=excluded.planet_class,
+                            terraformable=excluded.terraformable
+                    """, (commander_id, int(address), body_id, current_system,
+                          body["name"], ts, "", int(round(raw_value * factor)), raw_value,
+                          body["planet_class"], int(body["terraformable"])))
+
+                elif et == "SAAScanComplete" and address is not None and event.get("BodyID") is not None:
+                    body_id = int(event["BodyID"])
+                    body = scanned_bodies.get((int(address), body_id))
+                    if body is None:
+                        stored = con.execute("""
+                            SELECT name,planet_class,terraformable,scan_value,mapped_value
+                            FROM bodies WHERE system_address=? AND body_id=?
+                        """, (int(address), body_id)).fetchone()
+                        if stored is not None:
+                            existing = con.execute("""
+                                SELECT raw_estimated_value,scanned_at,system_name,body_name
+                                FROM commander_unsold_cartography
+                                WHERE commander_id=? AND system_address=? AND body_id=?
+                            """, (commander_id, int(address), body_id)).fetchone()
+                            raw_value = int(stored[4] or 0)
+                            if existing is None:
+                                raw_value = max(0, raw_value - int(stored[3] or 0))
+                            factor = float(cart_factor(stored[1], bool(stored[2])) or 1.0)
+                            con.execute("""
+                                INSERT INTO commander_unsold_cartography(
+                                    commander_id,system_address,body_id,system_name,body_name,
+                                    scanned_at,mapped_at,self_mapped,estimated_value,
+                                    raw_estimated_value,planet_class,terraformable)
+                                VALUES(?,?,?,?,?,?,?,1,?,?,?,?)
+                                ON CONFLICT(commander_id,system_address,body_id) DO UPDATE SET
+                                    mapped_at=excluded.mapped_at,self_mapped=1,
+                                    estimated_value=excluded.estimated_value,
+                                    raw_estimated_value=excluded.raw_estimated_value
+                            """, (commander_id, int(address), body_id,
+                                  (existing[2] if existing else current_system),
+                                  (existing[3] if existing else str(stored[0] or "")),
+                                  (existing[1] if existing else ""), ts,
+                                  int(round(raw_value * factor)), raw_value,
+                                  str(stored[1] or ""), stored[2]))
+                    else:
+                        body["self_mapped"] = True
+                        probes = event.get("ProbesUsed")
+                        target = event.get("EfficiencyTarget")
+                        body["efficient_mapping"] = bool(
+                            isinstance(probes, int) and isinstance(target, int) and probes <= target
+                        )
+                        apply_values(body)
+                        raw_value = int(body.get("current_value") or 0)
+                        factor = float(cart_factor(body.get("planet_class"), body.get("terraformable")) or 1.0)
+                        con.execute("""UPDATE commander_unsold_cartography SET
+                            mapped_at=?,self_mapped=1,estimated_value=?,raw_estimated_value=?
+                            WHERE commander_id=? AND system_address=? AND body_id=?""",
+                            (ts, int(round(raw_value * factor)), raw_value, commander_id,
+                             int(address), body_id))
+
+                elif et in ("SellExplorationData", "MultiSellExplorationData"):
+                    names = sold_system_names(event)
+                    if names:
+                        rows = con.execute("""SELECT DISTINCT system_name
+                            FROM commander_unsold_cartography WHERE commander_id=?""",
+                            (commander_id,)).fetchall()
+                        con.executemany("""DELETE FROM commander_unsold_cartography
+                            WHERE commander_id=? AND lower(trim(system_name))=?""",
+                            [(commander_id, str(row[0] or "").strip().casefold())
+                             for row in rows if str(row[0] or "").strip().casefold() in names])
+                    else:
+                        con.execute("DELETE FROM commander_unsold_cartography WHERE commander_id=?",
+                                    (commander_id,))
+
+                elif et == "CarrierStats":
+                    cid = _optional_int(event.get("CarrierID"))
+                    if cid is not None:
+                        carrier = {"carrier_id": cid, "callsign": str(event.get("Callsign") or ""),
+                            "carrier_name": str(event.get("Name") or ""),
+                            "system_name": str(event.get("StarSystem") or ""),
+                            "system_address": event.get("SystemAddress") if isinstance(event.get("SystemAddress"), int) else None,
+                            "last_updated": ts}
+                        self.store_commander_carrier(commander_id, carrier, _con=con)
+
+                elif et in ("CarrierNameChange", "CarrierLocation") and carrier is not None:
+                    cid = _optional_int(event.get("CarrierID") if event.get("CarrierID") is not None
+                                        else event.get("MarketID"))
+                    if cid == carrier.get("carrier_id"):
+                        if et == "CarrierNameChange":
+                            carrier["callsign"] = str(event.get("Callsign") or carrier.get("callsign") or "")
+                            carrier["carrier_name"] = str(event.get("Name") or carrier.get("carrier_name") or "")
+                        else:
+                            carrier["system_name"] = str(event.get("StarSystem") or carrier.get("system_name") or "")
+                            if isinstance(event.get("SystemAddress"), int):
+                                carrier["system_address"] = event["SystemAddress"]
+                        carrier["last_updated"] = ts
+                        self.store_commander_carrier(commander_id, carrier, _con=con)
+
+            con.execute("""UPDATE journal_sessions
+                SET last_read_offset=MAX(last_read_offset,?) WHERE journal_file=?""",
+                (int(safe_offset), str(journal_file)))
+
+    def commander_state_repair_needed(self, commander_id, feature, revision=1) -> bool:
+        with self._connect() as con:
+            row = con.execute("""SELECT revision FROM commander_state_repairs
+                WHERE commander_id=? AND feature=?""",
+                (int(commander_id), str(feature))).fetchone()
+        return row is None or int(row[0]) < int(revision)
+
+    def repair_commander_state(self, folder, sessions, commander_id,
+                               features=("unsold", "missions")) -> dict:
+        """Explicit full-history repair; replacement and markers are atomic."""
+        from cmdrhelper.journal_reader import read_latest_state
+
+        commander_id = int(commander_id)
+        wanted = tuple(dict.fromkeys(str(item) for item in features))
+        selected = [item for item in (sessions or [])
+                    if item.get("commander_id") == commander_id]
+        data = read_latest_state(
+            Path(folder), indexed_sessions=selected, force_full_history=True,
+        )
+        repair_cart_factor = self.cartography_learning_stats(
+            commander_id
+        )["correction_factor"]
+        now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        with self._connect() as con:
+            if "unsold" in wanted:
+                self.store_commander_unsold_data(
+                    commander_id, data.get("unsold_biology") or [],
+                    data.get("unsold_cartography") or [],
+                    learned_bio_values=self.learned_bio_values(),
+                    cartography_factor_func=lambda *_: repair_cart_factor,
+                    _con=con,
+                )
+            if "missions" in wanted:
+                self.store_commander_missions(
+                    commander_id, data.get("missions") or [],
+                    data.get("mission_terminal_updates") or [],
+                    authoritative=True, _con=con,
+                )
+            con.executemany("""
+                INSERT INTO commander_state_repairs(
+                    commander_id,feature,revision,repaired_at) VALUES(?,?,1,?)
+                ON CONFLICT(commander_id,feature) DO UPDATE SET
+                    revision=excluded.revision,repaired_at=excluded.repaired_at
+            """, [(commander_id, feature, now) for feature in wanted])
+        return data
 
     @staticmethod
     def _ship_row(row):
@@ -1291,7 +1760,8 @@ class CMDRDatabase:
         return getattr(mission, key, default)
 
     def store_commander_missions(self, commander_id, active_missions,
-                                 terminal_missions=(), authoritative=False):
+                                 terminal_missions=(), authoritative=False,
+                                 _con=None):
         commander_id = int(commander_id)
         active_ids = set()
         rows = []
@@ -1325,7 +1795,7 @@ class CMDRDatabase:
                 str(self._mission_value(mission, "last_update", "") or ""),
                 str(terminal_state or ""), int(is_open),
             ))
-        with self._connect() as con:
+        with (nullcontext(_con) if _con is not None else self._connect()) as con:
             con.executemany("""
                 INSERT INTO commander_missions(
                     commander_id,mission_id,name,internal_name,mission_type,faction,
@@ -1378,10 +1848,10 @@ class CMDRDatabase:
                 "terminal_state","is_open")
         return [dict(zip(keys, row)) for row in rows]
 
-    def store_commander_location(self, commander_id, location):
+    def store_commander_location(self, commander_id, location, _con=None):
         if not isinstance(location, dict) or not location.get("event_timestamp"):
             return
-        with self._connect() as con:
+        with (nullcontext(_con) if _con is not None else self._connect()) as con:
             con.execute("""
                 INSERT INTO commander_locations(commander_id,system_name,system_address,
                     station_name,body_name,event_timestamp,event_type)
@@ -1398,7 +1868,7 @@ class CMDRDatabase:
                     str(location.get("event_type") or "")))
 
     def store_commander_ship(self, commander_id, loadout, observed_at="",
-                             location=None, is_current=True, first_seen=""):
+                             location=None, is_current=True, first_seen="", _con=None):
         if loadout is None or getattr(loadout, "ship_id", None) is None:
             return
         if is_definite_non_ship(getattr(loadout, "ship_type", None)):
@@ -1412,7 +1882,7 @@ class CMDRDatabase:
             for module in (getattr(loadout, "modules", ()) or ())
             if isinstance(module, dict)
         ]
-        with self._connect() as con:
+        with (nullcontext(_con) if _con is not None else self._connect()) as con:
             if is_current:
                 con.execute(
                     "UPDATE commander_ships SET is_current=0 WHERE commander_id=?",
@@ -1459,13 +1929,14 @@ class CMDRDatabase:
                     int(loadout.loadout_stale), int(bool(is_current)),
                     json.dumps(modules, ensure_ascii=False, sort_keys=True)))
 
-    def store_commander_fleet(self, commander_id, fleet):
+    def store_commander_fleet(self, commander_id, fleet, _con=None):
         for ship in fleet or []:
             loadout = ship.get("loadout") if isinstance(ship, dict) else None
             self.store_commander_ship(
                 commander_id, loadout, ship.get("last_seen") or "",
                 location=ship.get("location"), is_current=bool(ship.get("is_current")),
                 first_seen=ship.get("first_seen") or "",
+                _con=_con,
             )
 
     def cleanup_non_ship_fleet_rows(self) -> int:
@@ -1503,10 +1974,10 @@ class CMDRDatabase:
                         )
             return len(invalid)
 
-    def store_commander_carrier(self, commander_id, carrier):
+    def store_commander_carrier(self, commander_id, carrier, _con=None):
         if not isinstance(carrier, dict) or carrier.get("carrier_id") is None:
             return
-        with self._connect() as con:
+        with (nullcontext(_con) if _con is not None else self._connect()) as con:
             con.execute("""
                 INSERT INTO commander_carriers(commander_id,carrier_id,callsign,carrier_name,
                     system_name,system_address,last_updated) VALUES(?,?,?,?,?,?,?)
