@@ -730,4 +730,5 @@ TRANSLATIONS = {
     'bio_prediction.more_candidates': 'Başka adaylar mümkün',
     'bio_prediction.progress': '{identified}/{total} tanımlandı · {completed} tamamlandı',
     'bio_prediction.tooltip': '{count} geçmiş bulgu',
+    'bio_prediction.estimated_value': 'yakl. {value}',
 }

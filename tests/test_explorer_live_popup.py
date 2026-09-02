@@ -79,7 +79,10 @@ class ExplorerLivePopupTests(unittest.TestCase):
             habitat_score=0.9, low_data=False, reasons=(),
         )
 
-    def _render_bio(self, *, signals, species, predictions, open_signals):
+    def _render_bio(
+        self, *, signals, species, predictions, open_signals,
+        prediction_values=None, with_colors=False,
+    ):
         window = ExplorerLiveListWindow(
             "BIO", ("Body", "Find", "Progress", "Value"),
             _SettingsStub(), "test_bio_geometry", window_kind="bio",
@@ -95,6 +98,7 @@ class ExplorerLivePopupTests(unittest.TestCase):
                 for entry in species
             ),
             "open_signals": open_signals,
+            "prediction_values": prediction_values or {},
         }])
         texts = []
         plain_cells = []
@@ -109,8 +113,99 @@ class ExplorerLivePopupTests(unittest.TestCase):
             widget = window.table.cellWidget(row, 1)
             if widget is not None:
                 texts.append(widget.text())
+        values = [
+            (
+                window.table.item(row, 3).text(),
+                window.table.item(row, 3).foreground().color().name(),
+            )
+            for row in range(window.table.rowCount())
+        ]
+        row_count = window.table.rowCount()
         window.close()
-        return "\n".join(texts), window.table.rowCount(), plain_cells
+        result = ("\n".join(texts), row_count, plain_cells)
+        return (*result, values) if with_colors else result
+
+    def test_prediction_values_and_conservative_total(self):
+        candidates = [
+            self._candidate("Bacterium Tela"),
+            self._candidate("Bacterium Nebulus"),
+            self._candidate("Stratum Tectonicas"),
+            self._candidate("Bacterium Verrata"),
+            self._candidate("Tussock Virgam"),
+        ]
+        values = {
+            candidate.name.casefold(): index * 1_000_000
+            for index, candidate in enumerate(candidates, start=1)
+        }
+        text, _row_count, _plain, value_cells = self._render_bio(
+            signals=2, species=[], predictions=candidates, open_signals=2,
+            prediction_values=values, with_colors=True,
+        )
+        self.assertIn(tr(
+            "bio_prediction.estimated_value",
+            value=MainWindow._format_reward(3_000_000),
+        ), text)
+        self.assertNotIn(MainWindow._format_reward(15_000_000), text)
+        self.assertTrue(value_cells[0][0].startswith(
+            tr("bio_prediction.estimated_value", value="").strip()
+        ))
+        self.assertEqual(value_cells[0][1], "#ffb000")
+
+    def test_prediction_with_unknown_value_stays_neutral_and_blocks_total(self):
+        text, _rows, _plain, value_cells = self._render_bio(
+            signals=1, species=[],
+            predictions=[self._candidate("Unknown Species")], open_signals=1,
+            prediction_values={}, with_colors=True,
+        )
+        self.assertIn("Unknown Species", text)
+        self.assertEqual([value for value, _color in value_cells], ["–", "–"])
+
+    def test_known_and_estimated_parts_form_estimated_total(self):
+        candidate = self._candidate("Bacterium Nebulus")
+        text, _rows, _plain, value_cells = self._render_bio(
+            signals=2,
+            species=[{
+                "name": "Bacterium Tela", "scan_type": "Log", "value": 1_949_000,
+            }],
+            predictions=[candidate], open_signals=1,
+            prediction_values={candidate.name.casefold(): 5_289_900},
+            with_colors=True,
+        )
+        total = tr(
+            "bio_prediction.estimated_value",
+            value=MainWindow._format_reward(7_238_900),
+        )
+        self.assertIn(total, text)
+        self.assertEqual(value_cells[0], (total, "#ffb000"))
+        self.assertEqual(value_cells[1][0], MainWindow._format_reward(1_949_000))
+        self.assertEqual(value_cells[1][1], "#65d067")
+
+    def test_no_open_signals_use_only_known_values_without_estimate(self):
+        text, _rows, _plain, value_cells = self._render_bio(
+            signals=1,
+            species=[{
+                "name": "Bacterium Tela", "scan_type": "Log", "value": 1_949_000,
+            }],
+            predictions=[self._candidate("Bacterium Nebulus")], open_signals=0,
+            prediction_values={"bacterium nebulus": 5_289_900},
+            with_colors=True,
+        )
+        self.assertNotIn("Bacterium Nebulus", text)
+        self.assertNotIn(tr(
+            "bio_prediction.estimated_value",
+            value=MainWindow._format_reward(1_949_000),
+        ), text)
+        self.assertEqual(value_cells[0][1], "#65d067")
+
+    def test_unknown_top_ranked_candidate_is_not_replaced_for_total(self):
+        candidates = [
+            self._candidate("Unknown Species"),
+            self._candidate("Bacterium Tela"),
+        ]
+        total, estimated = ExplorerLiveListWindow._bio_total_value(
+            [], candidates, 1, {"bacterium tela": 1_949_000}
+        )
+        self.assertEqual((total, estimated), (0, False))
 
     def test_single_open_signal_shows_predictions(self):
         text, row_count, _plain_cells = self._render_bio(
@@ -204,6 +299,9 @@ class ExplorerLivePopupTests(unittest.TestCase):
 
         row = window._explorer_bio_live_window.rows[0]
         self.assertEqual(row["predictions"][0].name, "Stratum Tectonicas")
+        self.assertEqual(
+            row["prediction_values"]["stratum tectonicas"], 19_010_800
+        )
         self.assertEqual((row["identified_count"], row["completed_count"],
                           row["open_signals"]), (0, 0, 3))
 

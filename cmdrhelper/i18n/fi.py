@@ -730,4 +730,5 @@ TRANSLATIONS = {
     'bio_prediction.more_candidates': 'Muita ehdokkaita mahdollinen',
     'bio_prediction.progress': '{identified}/{total} tunnistettu · {completed} valmista',
     'bio_prediction.tooltip': '{count} historiallista löytöä',
+    'bio_prediction.estimated_value': 'noin {value}',
 }

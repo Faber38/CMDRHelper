@@ -730,4 +730,5 @@ TRANSLATIONS = {
     'bio_prediction.more_candidates': 'Πιθανοί επιπλέον υποψήφιοι',
     'bio_prediction.progress': '{identified}/{total} ταυτοποιήθηκαν · {completed} ολοκληρώθηκαν',
     'bio_prediction.tooltip': '{count} ιστορικά ευρήματα',
+    'bio_prediction.estimated_value': 'περ. {value}',
 }

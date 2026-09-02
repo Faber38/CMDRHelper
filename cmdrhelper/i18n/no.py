@@ -730,4 +730,5 @@ TRANSLATIONS = {
     'bio_prediction.more_candidates': 'Flere kandidater mulig',
     'bio_prediction.progress': '{identified}/{total} identifisert · {completed} fullført',
     'bio_prediction.tooltip': '{count} historiske funn',
+    'bio_prediction.estimated_value': 'ca. {value}',
 }
