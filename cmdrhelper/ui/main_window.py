@@ -1250,7 +1250,10 @@ class MainWindow(QMainWindow):
 
         side.addWidget(QLabel("✦  CMDRHelper", objectName="appTitle"))
 
-        side.addWidget(QLabel(tr("app.subtitle"), objectName="appSubTitle"))
+        subtitle = QLabel(tr("app.subtitle"), objectName="appSubTitle")
+        subtitle.setWordWrap(True)
+        subtitle.setMinimumHeight(subtitle.fontMetrics().lineSpacing() * 2)
+        side.addWidget(subtitle)
 
         side.addSpacing(20)
 
