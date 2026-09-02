@@ -1,4 +1,5 @@
 TRANSLATIONS = {
+    'app.update_rollback_text': 'Päivitys epäonnistui. Edellinen versio palautettiin.\n\nEpäonnistunut vaihe: {phase}\nPäivitysloki: {log}',
     'startup.title': 'Valmistellaan CMDRHelperia …',
     'startup.phase.preparing': 'Valmistellaan',
     'startup.phase.index': 'Luodaan lokihakemistoa',

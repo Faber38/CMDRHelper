@@ -1,6 +1,7 @@
 import sys
 import logging
 import platform
+from pathlib import Path
 from PySide6.QtWidgets import QApplication, QMessageBox
 from PySide6.QtCore import QSettings, QLockFile, QDir
 from cmdrhelper.state import AppState
@@ -9,6 +10,7 @@ from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 from cmdrhelper.logging_config import configure_logging
 from cmdrhelper.version import __version__
 from cmdrhelper.i18n import tr, set_language
+from cmdrhelper.update import consume_update_status
 
 
 def run():
@@ -59,6 +61,18 @@ def run():
 
     # Lock während der gesamten Laufzeit behalten.
     app._cmdrhelper_instance_lock = instance_lock
+
+    update_status = consume_update_status(Path(__file__).resolve().parents[1])
+    if update_status and update_status.get("kind") == "rollback":
+        QMessageBox.warning(
+            None,
+            tr("settings.update_failed_title"),
+            tr(
+                "app.update_rollback_text",
+                phase=update_status.get("phase") or "–",
+                log=update_status.get("log") or "–",
+            ),
+        )
 
     theme = str(settings.value("ui_theme", "dark")).lower()
 

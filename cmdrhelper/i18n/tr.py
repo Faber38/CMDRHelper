@@ -1,4 +1,5 @@
 TRANSLATIONS = {
+    'app.update_rollback_text': 'Güncelleme başarısız oldu. Önceki sürüm geri yüklendi.\n\nBaşarısız aşama: {phase}\nGüncelleme günlüğü: {log}',
     'startup.title': 'CMDRHelper hazırlanıyor…',
     'startup.phase.preparing': 'Hazırlanıyor',
     'startup.phase.index': 'Günlük dizini oluşturuluyor',

@@ -1,4 +1,5 @@
 TRANSLATIONS = {
+    'app.update_rollback_text': 'Oppdateringen mislyktes. Forrige versjon ble gjenopprettet.\n\nMislykket fase: {phase}\nOppdateringslogg: {log}',
     'startup.title': 'Forbereder CMDRHelper …',
     'startup.phase.preparing': 'Forbereder',
     'startup.phase.index': 'Bygger journalindeks',

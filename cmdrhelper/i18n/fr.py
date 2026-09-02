@@ -1,4 +1,5 @@
 TRANSLATIONS = {
+    'app.update_rollback_text': 'La mise à jour a échoué. La version précédente a été restaurée.\n\nPhase échouée : {phase}\nJournal : {log}',
     'startup.title': 'Préparation de CMDRHelper…',
     'startup.phase.preparing': 'Préparation',
     'startup.phase.index': 'Création de l’index des journaux',

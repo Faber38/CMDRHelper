@@ -17,6 +17,7 @@ from pathlib import Path
 from PySide6.QtCore import QObject, QRunnable, Signal, Slot
 
 from cmdrhelper.version import __version__
+from cmdrhelper.python_support import is_supported, supported_description
 
 
 GITHUB_OWNER = "Faber38"
@@ -46,6 +47,71 @@ PROTECTED_SUFFIXES = {
     ".db-wal",
     ".db-shm",
 }
+
+UPDATE_LOG_RELATIVE = Path("backup") / "update.log"
+UPDATE_STATUS_RELATIVE = Path("backup") / "update_status.json"
+UPDATE_REPAIR_RELATIVE = Path("backup") / "update_repair_required.json"
+
+
+def _expected_venv_python(install_dir: Path) -> Path:
+    relative = Path("venv/Scripts/python.exe") if os.name == "nt" else Path("venv/bin/python")
+    return Path(install_dir) / relative
+
+
+def _require_local_venv_interpreter(
+    install_dir: Path, executable: str | Path | None = None,
+) -> Path:
+    """Verhindert Updates über System-Python oder ein fremdes Projekt-venv."""
+    expected = _expected_venv_python(Path(install_dir))
+    install_root = Path(install_dir).resolve()
+    venv_root = Path(install_dir) / "venv"
+    if venv_root.exists() and venv_root.resolve().parent != install_root:
+        raise RuntimeError(
+            "Update abgebrochen: Das lokale venv ist auf ein fremdes "
+            "Verzeichnis verknüpft. Bitte die Installation manuell prüfen."
+        )
+    actual = Path(executable or sys.executable)
+    normalized_expected = os.path.normcase(os.path.abspath(str(expected)))
+    normalized_actual = os.path.normcase(os.path.abspath(str(actual)))
+    try:
+        same_interpreter = os.path.samefile(actual, expected)
+    except OSError:
+        same_interpreter = normalized_actual == normalized_expected
+    if not same_interpreter:
+        raise RuntimeError(
+            "Update abgebrochen: CMDRHelper läuft nicht mit dem lokalen venv. "
+            f"Erwartet: {expected}; verwendet: {actual}. Bitte install.bat "
+            "zur Reparatur und anschließend start.bat dieser Installation verwenden."
+        )
+    if not expected.exists() or not is_supported():
+        raise RuntimeError(
+            "Das lokale CMDRHelper-venv fehlt oder verwendet eine nicht "
+            f"unterstützte Python-Version ({supported_description()}). "
+            "Bitte install.bat ausführen."
+        )
+    return expected
+
+
+def _write_update_state(install_dir: Path, relative: Path, payload: dict) -> None:
+    target = Path(install_dir) / relative
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def consume_update_status(install_dir: Path) -> dict | None:
+    """Liest eine einmalige Rollbackmeldung für den nächsten GUI-Start."""
+    target = Path(install_dir) / UPDATE_STATUS_RELATIVE
+    if not target.exists():
+        return None
+    try:
+        payload = json.loads(target.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    try:
+        target.unlink()
+    except OSError:
+        pass
+    return payload if isinstance(payload, dict) else None
 
 
 def _log_update(
@@ -331,7 +397,7 @@ def _is_protected(
     if not relative_path.parts:
         return True
 
-    first = relative_path.parts[0]
+    first = relative_path.parts[0].casefold()
 
     if first in PROTECTED_NAMES:
         return True
@@ -379,6 +445,50 @@ def _backup_managed_files(
                 source,
                 destination,
             )
+
+
+def _managed_file_manifest(root: Path) -> set[str]:
+    result = set()
+    root = Path(root)
+    for current, directories, files in os.walk(root):
+        current_path = Path(current)
+        directories[:] = [
+            name for name in directories
+            if not _is_protected((current_path / name).relative_to(root))
+        ]
+        for name in files:
+            path = current_path / name
+            relative = path.relative_to(root)
+            if not _is_protected(relative):
+                result.add(relative.as_posix())
+    return result
+
+
+def _remove_new_managed_files(install_dir: Path, previous: set[str]) -> None:
+    """Entfernt nur Dateien, die vor dem Update nicht vorhanden waren."""
+    root = Path(install_dir)
+    current = _managed_file_manifest(root)
+    for relative_text in sorted(current - previous, reverse=True):
+        path = root / Path(relative_text)
+        if path.is_file() or path.is_symlink():
+            path.unlink()
+    directories = []
+    for current, names, _files in os.walk(root):
+        current_path = Path(current)
+        names[:] = [
+            name for name in names
+            if not _is_protected((current_path / name).relative_to(root))
+        ]
+        directories.extend(current_path / name for name in names)
+    directories.sort(key=lambda p: len(p.parts), reverse=True)
+    for directory in directories:
+        relative = directory.relative_to(root)
+        if _is_protected(relative):
+            continue
+        try:
+            directory.rmdir()
+        except OSError:
+            pass
 
 
 def _copy_release(
@@ -577,6 +687,7 @@ def launch_installer(
     latest_version: str,
     parent_pid: int,
 ) -> None:
+    _require_local_venv_interpreter(install_dir)
     # update.py liegt im Python-Paket cmdrhelper.
     # Deshalb nicht als einzelne Datei starten, sondern als Modul.
     # So bleibt der Projektordner im Python-Suchpfad und
@@ -679,31 +790,18 @@ def _ensure_script_permissions(
 def _install_requirements(
     install_dir: Path,
 ) -> None:
-    """
-    Prüft/installiert nach einem Update die Abhängigkeiten des neuen
-    Releases im aktuell verwendeten Python-/venv-Interpreter.
-
-    pip lässt bereits passende Pakete unangetastet und installiert bzw.
-    aktualisiert nur, was requirements.txt verlangt.
-    """
+    """Installiert die neuen Requirements ausschließlich im aktiven venv."""
     requirements = install_dir / "requirements.txt"
-
     if not requirements.exists():
-        _log_update(
-            install_dir,
-            "Keine requirements.txt gefunden – Abhängigkeitsprüfung übersprungen."
+        raise RuntimeError(
+            "requirements.txt fehlt; Abhängigkeitsprüfung kann nicht sicher erfolgen."
         )
-        return
-
     _log_update(
-        install_dir,
-        f"Prüfe Python-Abhängigkeiten aus: {requirements}"
+        install_dir, f"Prüfe Python-Abhängigkeiten aus: {requirements}"
     )
     _log_update(
-        install_dir,
-        f"Verwendeter Python-Interpreter: {sys.executable}"
+        install_dir, f"Verwendeter Python-Interpreter: {sys.executable}"
     )
-
     process = subprocess.run(
         [
             sys.executable,
@@ -722,7 +820,6 @@ def _install_requirements(
     )
 
     output = str(process.stdout or "").strip()
-
     if output:
         for line in output.splitlines():
             _log_update(
@@ -730,7 +827,7 @@ def _install_requirements(
                 f"pip: {line}"
             )
 
-    if process.returncode != 0:
+    if process.returncode:
         raise RuntimeError(
             "Die Python-Abhängigkeiten konnten nicht installiert werden "
             f"(pip Exit-Code {process.returncode})."
@@ -742,9 +839,25 @@ def _install_requirements(
     )
 
 
+def _installed_version(install_dir: Path) -> str:
+    process = subprocess.run(
+        [
+            sys.executable, "-c",
+            "from cmdrhelper.version import __version__; print(__version__)",
+        ],
+        cwd=str(install_dir), capture_output=True, text=True,
+        encoding="utf-8", errors="replace",
+    )
+    if process.returncode:
+        raise RuntimeError(
+            f"Zielversion konnte nicht geladen werden: {process.stderr.strip()}"
+        )
+    return process.stdout.strip()
+
+
 def _restart_cmdrhelper(
     install_dir: Path,
-) -> None:
+) -> subprocess.Popen:
     main_file = (
         install_dir
         / "main.py"
@@ -755,12 +868,24 @@ def _restart_cmdrhelper(
             "main.py wurde nach dem Update nicht gefunden."
         )
 
-    _spawn(
+    return _spawn(
         [
             sys.executable,
             str(main_file),
         ],
         cwd=install_dir,
+    )
+
+
+def _verify_restart(process: subprocess.Popen, timeout: float = 2.0) -> None:
+    """Kleiner Handshake: Ein sofort beendeter GUI-Prozess gilt als Fehler."""
+    try:
+        returncode = process.wait(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        return
+    raise RuntimeError(
+        "Die neue CMDRHelper-Version wurde sofort wieder beendet "
+        f"(Exit-Code {returncode})."
     )
 
 
@@ -774,6 +899,12 @@ def apply_update(
 ) -> int:
     install_dir = install_dir.resolve()
     zip_path = zip_path.resolve()
+
+    try:
+        _require_local_venv_interpreter(install_dir)
+    except Exception as exc:
+        _log_update(install_dir, f"ABBRUCH Interpreterprüfung: {exc}")
+        return 5
 
     _log_update(
         install_dir,
@@ -848,13 +979,18 @@ def apply_update(
     )
 
     backup_created = False
+    previous_manifest: set[str] = set()
+    dependency_phase_started = False
+    phase = "Vorbereitung"
 
     try:
+        phase = "Backup"
         _log_update(
             install_dir,
             f"Erstelle Backup: {backup_dir}"
         )
 
+        previous_manifest = _managed_file_manifest(install_dir)
         _backup_managed_files(
             install_dir,
             backup_dir,
@@ -862,6 +998,7 @@ def apply_update(
 
         backup_created = True
 
+        phase = "Release entpacken"
         _log_update(
             install_dir,
             "Backup erfolgreich erstellt."
@@ -917,6 +1054,7 @@ def apply_update(
         # pauschal gelöscht. Dateien aus dem Release werden lediglich
         # ergänzt bzw. überschrieben. Dadurch bleiben lokale Dateien,
         # die nicht Bestandteil des Release-ZIPs sind, erhalten.
+        phase = "Programmdateien kopieren"
         _copy_release(
             release_root,
             install_dir,
@@ -934,18 +1072,30 @@ def apply_update(
         # requirements.txt gehört zum neuen Release. Vor dem Neustart
         # sicherstellen, dass das vorhandene venv/Python alle benötigten
         # Pakete besitzt.
+        phase = "Python-Abhängigkeiten installieren"
+        dependency_phase_started = True
         _install_requirements(
             install_dir
         )
+
+        phase = "Zielversion prüfen"
+        installed_version = _installed_version(install_dir)
+        if _version_tuple(installed_version) != _version_tuple(latest_version):
+            raise RuntimeError(
+                f"Installierte Zielversion {installed_version!r} stimmt nicht "
+                f"mit {latest_version!r} überein."
+            )
 
         _log_update(
             install_dir,
             "Starte CMDRHelper neu ..."
         )
 
-        _restart_cmdrhelper(
+        phase = "Neustart prüfen"
+        restarted = _restart_cmdrhelper(
             install_dir
         )
+        _verify_restart(restarted)
 
         _log_update(
             install_dir,
@@ -958,7 +1108,7 @@ def apply_update(
         _log_update(
             install_dir,
             (
-                f"UPDATE-FEHLER: "
+                f"UPDATE-FEHLER in Phase '{phase}': "
                 f"{type(exc).__name__}: {exc}"
             )
         )
@@ -970,6 +1120,7 @@ def apply_update(
                     "Rollback wird gestartet ..."
                 )
 
+                _remove_new_managed_files(install_dir, previous_manifest)
                 _restore_backup(
                     backup_dir,
                     install_dir,
@@ -984,6 +1135,21 @@ def apply_update(
                     "Rollback erfolgreich."
                 )
 
+                status = {
+                    "kind": "rollback",
+                    "message": "Update fehlgeschlagen. Die vorherige Version wurde wiederhergestellt.",
+                    "phase": phase,
+                    "error": str(exc),
+                    "log": str(install_dir / UPDATE_LOG_RELATIVE),
+                }
+                _write_update_state(install_dir, UPDATE_STATUS_RELATIVE, status)
+
+                if dependency_phase_started:
+                    _write_update_state(
+                        install_dir, UPDATE_REPAIR_RELATIVE,
+                        {**status, "repair": "install.bat"},
+                    )
+
             except Exception as rollback_exc:
                 _log_update(
                     install_dir,
@@ -993,8 +1159,40 @@ def apply_update(
                         f"{rollback_exc}"
                     )
                 )
-
+                failure_status = {
+                    "kind": "rollback",
+                    "message": "Update und automatische Wiederherstellung fehlgeschlagen.",
+                    "phase": "Rollback",
+                    "error": str(rollback_exc),
+                    "log": str(install_dir / UPDATE_LOG_RELATIVE),
+                    "repair": "install.bat",
+                }
+                _write_update_state(
+                    install_dir, UPDATE_STATUS_RELATIVE, failure_status
+                )
+                _write_update_state(
+                    install_dir, UPDATE_REPAIR_RELATIVE, failure_status
+                )
                 return 3
+
+        if not backup_created:
+            _write_update_state(
+                install_dir, UPDATE_STATUS_RELATIVE,
+                {
+                    "kind": "rollback",
+                    "message": "Update vor Änderung der Installation abgebrochen.",
+                    "phase": phase,
+                    "error": str(exc),
+                    "log": str(install_dir / UPDATE_LOG_RELATIVE),
+                },
+            )
+
+        if dependency_phase_started:
+            _log_update(
+                install_dir,
+                "venv kann verändert sein; Reparatur über install.bat erforderlich."
+            )
+            return 2
 
         try:
             _log_update(

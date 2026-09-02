@@ -1,4 +1,5 @@
 TRANSLATIONS = {
+    'app.update_rollback_text': 'L’aggiornamento non è riuscito. È stata ripristinata la versione precedente.\n\nFase non riuscita: {phase}\nLog: {log}',
     'startup.title': 'Preparazione di CMDRHelper…',
     'startup.phase.preparing': 'Preparazione',
     'startup.phase.index': 'Creazione dell’indice dei journal',

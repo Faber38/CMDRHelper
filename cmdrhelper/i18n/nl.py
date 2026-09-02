@@ -1,4 +1,5 @@
 TRANSLATIONS = {
+    'app.update_rollback_text': 'De update is mislukt. De vorige versie is hersteld.\n\nMislukte fase: {phase}\nUpdatelog: {log}',
     'startup.title': 'CMDRHelper wordt voorbereid…',
     'startup.phase.preparing': 'Voorbereiden',
     'startup.phase.index': 'Journalindex wordt opgebouwd',

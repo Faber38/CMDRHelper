@@ -1,4 +1,5 @@
 TRANSLATIONS = {
+    'app.update_rollback_text': 'Η ενημέρωση απέτυχε. Έγινε επαναφορά της προηγούμενης έκδοσης.\n\nΑποτυχημένη φάση: {phase}\nΑρχείο καταγραφής: {log}',
     'startup.title': 'Προετοιμασία του CMDRHelper…',
     'startup.phase.preparing': 'Προετοιμασία',
     'startup.phase.index': 'Δημιουργία ευρετηρίου ημερολογίων',
