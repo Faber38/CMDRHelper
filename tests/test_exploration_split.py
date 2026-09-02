@@ -259,6 +259,94 @@ class ExplorationPersistenceTests(unittest.TestCase):
             ).fetchone()
         self.assertEqual(row, (self.a, 1))
 
+    def test_archive_body_events_create_and_later_complete_safe_parents(self):
+        folder = Path(self.tmp.name) / "body-parents"
+        folder.mkdir()
+        complete = self.snapshot(
+            body_id=4, name="Complete Body", planet_class="Water world",
+            radius_m=123456.0, landable=True, biological_signals=0,
+            geological_signals=0,
+        )
+        complete.update({"system_address": 61, "system": "Parent Test"})
+        self.database.store_snapshot(complete, self.a)
+        base = {
+            "timestamp": "2026-01-01T00:00:00Z",
+            "SystemAddress": 61,
+        }
+        write_journal(folder / "Journal.2026-01-01T000000.01.log", [
+            {**base, "event": "Commander", "Name": "Alpha", "FID": "F-A"},
+            {**base, "event": "Location", "StarSystem": "Parent Test"},
+            {**base, "event": "SAASignalsFound", "BodyID": 1,
+             "Signals": [{"Type": "$SAA_SignalType_Biological;", "Count": 2}]},
+            {**base, "event": "FSSBodySignals", "BodyID": 2,
+             "Signals": [{"Type": "$SAA_SignalType_Geological;", "Count": 3}]},
+            {**base, "event": "SAAScanComplete", "BodyID": 3,
+             "ProbesUsed": 4, "EfficiencyTarget": 6},
+            {**base, "event": "SAASignalsFound", "BodyID": 4,
+             "Signals": [{"Type": "$SAA_SignalType_Biological;", "Count": 1}]},
+            {**base, "event": "Scan", "BodyID": 1, "BodyName": "Later Scan",
+             "PlanetClass": "Rocky body", "Radius": 654321.0},
+        ])
+
+        self.database.import_journal_archive(folder)
+
+        with self.database._connect() as con:
+            bodies = {
+                row[0]: row[1:]
+                for row in con.execute("""SELECT body_id,name,planet_class,radius_m,landable,
+                    biological_signals,geological_signals FROM bodies
+                    WHERE system_address=61 ORDER BY body_id""")
+            }
+            personal = {
+                row[0]: row[1:]
+                for row in con.execute("""SELECT body_id,self_mapped,efficient_mapping,
+                    probes_used,efficiency_target,biological_signals_seen,
+                    geological_signals_seen FROM commander_bodies
+                    WHERE commander_id=? AND system_address=61 ORDER BY body_id""", (self.a,))
+            }
+            self.assertEqual(con.execute("PRAGMA foreign_key_check").fetchall(), [])
+
+        self.assertEqual(bodies[1], ("Later Scan", "Rocky body", 654321.0, 0, 2, 0))
+        self.assertEqual(bodies[2], ("", "", None, 0, 0, 3))
+        self.assertEqual(bodies[3], ("", "", None, 0, 0, 0))
+        self.assertEqual(bodies[4], ("Complete Body", "Water world", 123456.0, 1, 1, 0))
+        self.assertEqual(personal[1][4:], (2, 0))
+        self.assertEqual(personal[2][4:], (0, 3))
+        self.assertEqual(personal[3][:4], (1, 1, 4, 6))
+
+    def test_archive_placeholder_body_state_is_separate_per_commander(self):
+        folder = Path(self.tmp.name) / "two-commanders"
+        folder.mkdir()
+        shared = {
+            "SystemAddress": 62,
+            "BodyID": 8,
+            "Signals": [{"Type": "$SAA_SignalType_Biological;", "Count": 1}],
+        }
+        write_journal(folder / "Journal.2026-01-01T000000.01.log", [
+            {"timestamp": "2026-01-01T00:00:00Z", "event": "Commander",
+             "Name": "Alpha", "FID": "F-A"},
+            {"timestamp": "2026-01-01T00:00:01Z", "event": "Location",
+             "StarSystem": "Shared Parent", "SystemAddress": 62},
+            {"timestamp": "2026-01-01T00:00:02Z", "event": "SAASignalsFound", **shared},
+        ])
+        write_journal(folder / "Journal.2026-01-02T000000.01.log", [
+            {"timestamp": "2026-01-02T00:00:00Z", "event": "Commander",
+             "Name": "Bravo", "FID": "F-B"},
+            {"timestamp": "2026-01-02T00:00:01Z", "event": "Location",
+             "StarSystem": "Shared Parent", "SystemAddress": 62},
+            {"timestamp": "2026-01-02T00:00:02Z", "event": "FSSBodySignals",
+             **shared, "Signals": [{"Type": "$SAA_SignalType_Biological;", "Count": 3}]},
+        ])
+
+        self.database.import_journal_archive(folder)
+
+        with self.database._connect() as con:
+            rows = con.execute("""SELECT commander_id,biological_signals_seen
+                FROM commander_bodies WHERE system_address=62 AND body_id=8
+                ORDER BY commander_id""").fetchall()
+            self.assertEqual(con.execute("PRAGMA foreign_key_check").fetchall(), [])
+        self.assertEqual(rows, [(self.a, 1), (self.b, 3)])
+
     def test_live_scan_persists_habitat_fields_and_primary_star(self):
         folder = Path(self.tmp.name) / "live"
         folder.mkdir()
