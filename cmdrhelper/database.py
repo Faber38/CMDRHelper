@@ -11,7 +11,7 @@ from cmdrhelper.ship_identity import is_definite_non_ship
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 9
+SCHEMA_VERSION = 10
 
 PERSONAL_TABLES = (
     "system_visits",
@@ -379,6 +379,7 @@ class CMDRDatabase:
         self._maybe_migrate_v7()
         self._maybe_migrate_v8()
         self._maybe_migrate_v9()
+        self._maybe_migrate_v10()
         self.cleanup_non_ship_fleet_rows()
 
     def _maybe_migrate_v8(self):
@@ -460,6 +461,43 @@ class CMDRDatabase:
 
     def ensure_schema_v9(self):
         self._maybe_migrate_v9()
+
+    def _maybe_migrate_v10(self):
+        """Erweitert journal_sessions additiv zum persistenten Dateiindex."""
+        with self._connect() as con:
+            version = int(con.execute("PRAGMA user_version").fetchone()[0])
+            if version >= 10:
+                return
+            columns = {
+                row[1] for row in con.execute("PRAGMA table_info(journal_sessions)")
+            }
+            additions = (
+                ("sha256", "TEXT"),
+                ("last_read_offset", "INTEGER NOT NULL DEFAULT 0"),
+                ("last_complete_line_offset", "INTEGER NOT NULL DEFAULT 0"),
+                ("fully_imported", "INTEGER NOT NULL DEFAULT 0"),
+                ("last_indexed_at", "TEXT"),
+            )
+            for name, declaration in additions:
+                if name not in columns:
+                    con.execute(
+                        f"ALTER TABLE journal_sessions ADD COLUMN {name} {declaration}"
+                    )
+            # Vorhandene Fachimportmarker sind ein sicherer Backfill für
+            # fully_imported; Hash/Offsets bleiben bewusst unbekannt.
+            con.execute(
+                """UPDATE journal_sessions SET fully_imported=1
+                   WHERE EXISTS (
+                       SELECT 1 FROM journal_imports i
+                       WHERE i.journal_file=journal_sessions.journal_file
+                         AND i.file_size=journal_sessions.file_size
+                         AND i.modified_ns=journal_sessions.modified_ns
+                   )"""
+            )
+            con.execute("PRAGMA user_version=10")
+
+    def ensure_schema_v10(self):
+        self._maybe_migrate_v10()
 
     def _personal_row_counts(self, con):
         return {
@@ -1731,8 +1769,10 @@ class CMDRDatabase:
                 INSERT INTO journal_sessions (
                     journal_file, commander_id, fid_seen,
                     commander_name_seen, first_event_at, last_event_at,
-                    file_size, modified_ns, attribution_status
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    file_size, modified_ns, attribution_status, sha256,
+                    last_read_offset, last_complete_line_offset,
+                    fully_imported, last_indexed_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(journal_file) DO UPDATE SET
                     commander_id=excluded.commander_id,
                     fid_seen=excluded.fid_seen,
@@ -1741,13 +1781,33 @@ class CMDRDatabase:
                     last_event_at=excluded.last_event_at,
                     file_size=excluded.file_size,
                     modified_ns=excluded.modified_ns,
-                    attribution_status=excluded.attribution_status
+                    attribution_status=excluded.attribution_status,
+                    sha256=COALESCE(excluded.sha256, journal_sessions.sha256),
+                    last_read_offset=CASE
+                        WHEN excluded.last_indexed_at IS NOT NULL
+                        THEN excluded.last_read_offset
+                        ELSE journal_sessions.last_read_offset END,
+                    last_complete_line_offset=CASE
+                        WHEN excluded.last_indexed_at IS NOT NULL
+                        THEN excluded.last_complete_line_offset
+                        ELSE journal_sessions.last_complete_line_offset END,
+                    fully_imported=CASE
+                        WHEN excluded.last_indexed_at IS NOT NULL
+                        THEN excluded.fully_imported
+                        ELSE MAX(journal_sessions.fully_imported,
+                                 excluded.fully_imported) END,
+                    last_indexed_at=excluded.last_indexed_at
                 """,
                 (
                     journal_file, commander_id, fid or None, name or None,
                     session.get("first_event_at") or None,
                     session.get("last_event_at") or None,
                     session.get("file_size"), session.get("modified_ns"), status,
+                    session.get("sha256"),
+                    int(session.get("last_read_offset") or 0),
+                    int(session.get("last_complete_line_offset") or 0),
+                    1 if session.get("fully_imported") else 0,
+                    session.get("last_indexed_at"),
                 ),
             )
             row = con.execute(
@@ -4221,20 +4281,20 @@ class CMDRDatabase:
                 f"Journalordner nicht gefunden: {folder}"
             )
 
-        all_journals = journal_files(folder)
+        from cmdrhelper.journal_index import scan_journal_folder
 
-        from cmdrhelper.journal_reader import classify_journal_file
+        indexed_sessions = scan_journal_folder(
+            self, folder, progress_callback=progress_callback
+        )
+        all_journals = [Path(item["journal_file"]) for item in indexed_sessions]
 
-        # Vor dem ersten Zugriff auf die v3-Importmarker alle Dateien strikt
-        # einzeln klassifizieren. Dadurch kann ein v2-Altbestand erst dann
-        # migriert werden, wenn die belegten FIDs vollständig bekannt sind.
+        # Der Index liefert unveränderte Sitzungen ohne Dateizugriff und
+        # klassifiziert ausschließlich neue bzw. tatsächlich geänderte Daten.
         classified = {}
-        for journal in all_journals:
+        for journal, session in zip(all_journals, indexed_sessions):
             try:
-                session = classify_journal_file(journal)
-                self.store_journal_session(session)
                 commander_id = self.resolve_session_commander(session)
-            except OSError:
+            except (OSError, ValueError):
                 session = {"attribution_status": "unknown"}
                 commander_id = None
             classified[journal] = (session, commander_id)
@@ -4292,6 +4352,11 @@ class CMDRDatabase:
 
                 if previous is None:
                     needs_import = True
+                elif session.get("unchanged"):
+                    # Metadaten können sich beim Kopieren ändern. Hat der
+                    # Index denselben SHA-256 bestätigt, ist kein erneuter
+                    # fachlicher Import nötig.
+                    needs_import = False
                 else:
                     old_size, old_modified_ns = previous
                     needs_import = not (
@@ -6141,6 +6206,12 @@ class CMDRDatabase:
                     last_import=excluded.last_import
                 """,
                 journal_marks,
+            )
+            con.executemany(
+                """UPDATE journal_sessions
+                      SET fully_imported=1
+                    WHERE journal_file=? AND file_size=? AND modified_ns=?""",
+                [(row[1], row[2], row[3]) for row in journal_marks],
             )
 
         stats = self.stats()

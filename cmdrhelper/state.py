@@ -55,6 +55,8 @@ class AppState(QObject):
         self._database_import_running = False
         self._database_import_manual_waiting = False
         self._database_import_last_progress = None
+        self._journal_index_sessions = None
+        self._journal_index_current = None
 
         self.commander = ""
         self.commander_id = None
@@ -936,9 +938,24 @@ class AppState(QObject):
             return True
 
         try:
+            watcher_current = getattr(self.watcher, "_current", None)
+            if (
+                self._journal_index_sessions is None
+                or (watcher_current is not None
+                    and str(watcher_current) != self._journal_index_current)
+            ):
+                from cmdrhelper.journal_index import scan_journal_folder
+                self._journal_index_sessions = scan_journal_folder(
+                    self.database, self.journal_folder
+                )
+                self._journal_index_current = (
+                    str(Path(self._journal_index_sessions[-1]["journal_file"]))
+                    if self._journal_index_sessions else None
+                )
             data = read_latest_state(
                 self.journal_folder,
                 mission_reset_at=self.mission_reset_at,
+                indexed_sessions=self._journal_index_sessions,
             )
         except JournalReadError as exc:
             logger.warning("Temporärer Journal-Lesefehler: %s", exc)

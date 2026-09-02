@@ -35,6 +35,34 @@ class JournalReadError(OSError):
         self.cause = cause
 
 
+# Nur die aktive Sitzung wird gehalten. Der Byteoffset zeigt stets hinter die
+# letzte newline-terminierte Zeile; ein unvollständiger Rest wird erneut gelesen.
+_LIVE_LINE_CACHE: dict[str, tuple[int, int, list[str]]] = {}
+
+
+def _live_complete_lines(path: Path) -> tuple[list[str], int]:
+    key = str(path)
+    stat = path.stat()
+    size = stat.st_size
+    modified_ns = int(stat.st_mtime_ns)
+    old_offset, old_modified_ns, lines = _LIVE_LINE_CACHE.get(key, (0, 0, []))
+    if size < old_offset or (size == old_offset and old_modified_ns != modified_ns):
+        old_offset, lines = 0, []
+    with path.open("rb") as handle:
+        handle.seek(old_offset)
+        added = handle.read()
+    newline = added.rfind(b"\n")
+    if newline < 0:
+        return lines, old_offset
+    complete = added[:newline + 1]
+    new_lines = complete.decode("utf-8", errors="replace").splitlines()
+    result = lines + new_lines
+    offset = old_offset + newline + 1
+    _LIVE_LINE_CACHE.clear()
+    _LIVE_LINE_CACHE[key] = (offset, modified_ns, result)
+    return result, offset
+
+
 def _optional_float(value):
     try:
         return float(value) if value is not None else None
@@ -628,7 +656,11 @@ def _update_mission_event(mission: dict, e: dict):
     mission["last_update"] = ts
 
 
-def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
+def read_latest_state(
+    folder: Path,
+    mission_reset_at: str = "",
+    indexed_sessions: list[dict] | None = None,
+) -> dict:
     """
     Liest Journale chronologisch ein.
 
@@ -698,7 +730,10 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
 
         return event_dt >= reset_dt
 
-    files = journal_files(folder)
+    files = (
+        [Path(item["journal_file"]) for item in indexed_sessions]
+        if indexed_sessions is not None else journal_files(folder)
+    )
     result["journal_files"] = len(files)
 
     if not files:
@@ -708,14 +743,19 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
     # dürfen später ausschließlich aus eindeutig dem aktiven FID zugeordneten
     # Sitzungen aufgebaut werden.
     classified_sessions = {}
-    for journal in files:
-        try:
-            session = classify_journal_file(journal)
-        except OSError as exc:
-            if journal == files[-1]:
-                raise JournalReadError(journal, exc) from exc
-            continue
-        classified_sessions[str(journal)] = session
+    if indexed_sessions is not None:
+        classified_sessions = {
+            str(item["journal_file"]): item for item in indexed_sessions
+        }
+    else:
+        for journal in files:
+            try:
+                session = classify_journal_file(journal)
+            except OSError as exc:
+                if journal == files[-1]:
+                    raise JournalReadError(journal, exc) from exc
+                continue
+            classified_sessions[str(journal)] = session
 
     latest_session = classified_sessions.get(str(files[-1]))
     result["latest_journal_session"] = latest_session
@@ -1023,8 +1063,41 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
 
     current_journal = files[-1]
 
-    for journal in files:
+    runtime_files = files[-1:] if indexed_sessions is not None else files
+    for journal in runtime_files:
         session = classified_sessions.get(str(journal))
+        input_lines = None
+        if indexed_sessions is not None and session is not None:
+            try:
+                input_lines, safe_offset = _live_complete_lines(journal)
+            except OSError as exc:
+                raise JournalReadError(journal, exc) from exc
+            session["last_read_offset"] = safe_offset
+            session["last_complete_line_offset"] = safe_offset
+            identities = {}
+            for raw_line in input_lines:
+                try:
+                    identity_event = json.loads(raw_line)
+                except json.JSONDecodeError:
+                    continue
+                event_type = identity_event.get("event")
+                if event_type not in ("Commander", "LoadGame"):
+                    continue
+                fid = str(identity_event.get("FID") or "").strip()
+                if not fid:
+                    continue
+                field = "Name" if event_type == "Commander" else "Commander"
+                identities[fid] = str(identity_event.get(field) or "").strip()
+            if len(identities) == 1:
+                fid = next(iter(identities))
+                session.update(attribution_status="identified", fid_seen=fid,
+                               commander_name_seen=identities[fid] or None)
+                active_identity = session
+                result["commander_fid"] = fid
+                result["commander_identity_name"] = identities[fid]
+            elif len(identities) > 1:
+                session.update(attribution_status="ambiguous", fid_seen=None,
+                               commander_name_seen=None)
         if (
             active_identity is None
             or session is None
@@ -1037,17 +1110,19 @@ def read_latest_state(folder: Path, mission_reset_at: str = "") -> dict:
             continue
 
         try:
-            handle = journal.open(
-                "r",
-                encoding="utf-8",
-                errors="replace"
-            )
+            if indexed_sessions is not None:
+                handle = input_lines
+            else:
+                handle = journal.open(
+                    "r", encoding="utf-8", errors="replace"
+                )
         except OSError as exc:
             if journal == current_journal:
                 raise JournalReadError(journal, exc) from exc
             continue
 
-        with handle:
+        from contextlib import nullcontext
+        with (nullcontext(handle) if isinstance(handle, list) else handle):
             for line in handle:
                 try:
                     e = json.loads(line)

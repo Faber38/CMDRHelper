@@ -1,9 +1,8 @@
 from pathlib import Path
 import logging
+import os
 
 from PySide6.QtCore import QObject, QTimer, Signal
-
-from cmdrhelper.journal_reader import journal_files
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +17,9 @@ class JournalWatcher(QObject):
         self._sig = None
         self._pending_sig = None
         self._refresh_in_progress = False
+        self._current = None
+        self._poll_count = 0
+        self._directory_check_interval = 10
 
         self.timer = QTimer(self)
         self.timer.setInterval(1000)
@@ -32,6 +34,8 @@ class JournalWatcher(QObject):
         self._sig = None
         self._pending_sig = None
         self._refresh_in_progress = False
+        self._current = None
+        self._poll_count = 0
 
     def start(self):
         if not self.timer.isActive():
@@ -91,8 +95,30 @@ class JournalWatcher(QObject):
         if not self.folder or self._refresh_in_progress:
             return
 
+        self._poll_count += 1
+        rescan = self._current is None or (
+            self._poll_count % self._directory_check_interval == 0
+        )
         try:
-            files = journal_files(self.folder)
+            if rescan:
+                # Genau ein scandir-Durchlauf; nur beim Start und danach
+                # alle zehn Sekunden nach neu angelegten Sitzungen suchen.
+                candidates = []
+                with os.scandir(self.folder) as entries:
+                    for entry in entries:
+                        if entry.is_file(follow_symlinks=False) and (
+                            entry.name.startswith("Journal.")
+                            and entry.name.endswith(".log")
+                        ):
+                            candidates.append(Path(entry.path))
+                if candidates:
+                    from cmdrhelper.journal_files import journal_sort_key
+                    newest = max(candidates, key=journal_sort_key)
+                    if self._current is None or (
+                        journal_sort_key(newest) > journal_sort_key(self._current)
+                    ):
+                        self._current = newest
+            files = [self._current] if self._current is not None else []
         except (OSError, PermissionError) as exc:
             logger.warning(
                 "Journalordner kann nicht gelesen werden: %s (%s)",
