@@ -9,6 +9,7 @@ from PySide6.QtWidgets import QApplication
 from cmdrhelper.ui.main_window import ExplorerLiveListWindow, MainWindow
 from cmdrhelper.bio_predictor import BioCandidate, BioPrediction
 from cmdrhelper.i18n import tr
+from cmdrhelper.i18n import _TRANSLATIONS, set_language
 
 
 class _LiveWindowStub:
@@ -75,6 +76,35 @@ class ExplorerLivePopupTests(unittest.TestCase):
             "ABBAU ×17",
         )
         self.assertEqual(MainWindow._explorer_planetary_mining_text({}), "–")
+
+    def test_planetary_mining_tooltip_separates_body_surface_materials(self):
+        set_language("de")
+        tooltip = MainWindow._explorer_planetary_mining_tooltip({
+            "planetary_mining_signals": 24,
+            "materials": {"iron": 18.2, "nickel": 14.7},
+        })
+        self.assertIn("24 planetare Abbaustandorte", tooltip)
+        self.assertIn("Oberflächenmaterialien des Bodys", tooltip)
+        self.assertIn("Eisen 18,2 %", tooltip)
+        self.assertNotIn("Abbaustandorte enthalten", tooltip)
+
+    def test_planetary_mining_tooltip_handles_missing_materials(self):
+        set_language("de")
+        tooltip = MainWindow._explorer_planetary_mining_tooltip({
+            "planetary_mining_signals": 5,
+        })
+        self.assertIn("Keine Oberflächenmaterialien", tooltip)
+
+    def test_surface_material_texts_exist_in_all_languages(self):
+        keys = {
+            "explorer.planetary_mining_count",
+            "explorer.surface_materials",
+            "explorer.surface_materials_missing",
+            "body_detail.surface_materials",
+        }
+        for language, translations in _TRANSLATIONS.items():
+            with self.subTest(language=language):
+                self.assertTrue(keys.issubset(translations))
 
     @classmethod
     def setUpClass(cls):

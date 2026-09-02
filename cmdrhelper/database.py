@@ -2337,6 +2337,31 @@ class CMDRDatabase:
             return result
         return []
 
+    @staticmethod
+    def _merge_material_data(previous, current):
+        """Keep complete body material knowledge across partial Scan events."""
+        if not current:
+            return previous or {}
+        if not previous:
+            return current
+        if isinstance(previous, dict) and isinstance(current, dict):
+            return {**previous, **current}
+        if isinstance(previous, list) and isinstance(current, list):
+            merged = {}
+            order = []
+            for item in previous + current:
+                if not isinstance(item, dict):
+                    continue
+                name = item.get("Name") or item.get("Name_Localised") or item.get("name")
+                key = str(name or "").strip().casefold()
+                if not key:
+                    continue
+                if key not in merged:
+                    order.append(key)
+                merged[key] = item
+            return [merged[key] for key in order]
+        return current
+
     def store_snapshot(self, data, commander_id=None):
         address = data.get("system_address")
         if address is None:
@@ -2531,7 +2556,9 @@ class CMDRDatabase:
                             system_address, body_id, material_name, percentage
                         ) VALUES (?, ?, ?, ?)
                         ON CONFLICT(system_address, body_id, material_name)
-                        DO UPDATE SET percentage=excluded.percentage
+                        DO UPDATE SET percentage=COALESCE(
+                            excluded.percentage, materials.percentage
+                        )
                     """, (int(address), int(body_id), str(name), percentage))
 
     def store_biology(self, system_address, body_id, genus="", species="",
@@ -5591,13 +5618,9 @@ class CMDRDatabase:
                                     or event.get("Volcanism")
                                     or ""
                                 ),
-                                "materials": (
-                                    event.get("Materials")
-                                    or previous.get(
-                                        "materials",
-                                        {},
-                                    )
-                                    or {}
+                                "materials": self._merge_material_data(
+                                    previous.get("materials", {}),
+                                    event.get("Materials"),
                                 ),
                                 "biological_signals": max(
                                     int(
@@ -6456,7 +6479,10 @@ class CMDRDatabase:
                             material_name
                         )
                         DO UPDATE SET
-                            percentage=excluded.percentage
+                            percentage=COALESCE(
+                                excluded.percentage,
+                                materials.percentage
+                            )
                         """,
                         (
                             int(address),

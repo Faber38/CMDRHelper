@@ -722,6 +722,31 @@ def read_latest_state(
     oder vom gerade gesetzten current_system abhängig.
     """
     ship_loadout = ShipLoadoutData()
+
+    def merge_materials(previous, current):
+        """Merge body-wide Scan.Materials without losing older entries."""
+        if not current:
+            return previous or {}
+        if not previous:
+            return current
+        if isinstance(previous, dict) and isinstance(current, dict):
+            return {**previous, **current}
+        if isinstance(previous, list) and isinstance(current, list):
+            merged = {}
+            order = []
+            for item in previous + current:
+                if not isinstance(item, dict):
+                    continue
+                name = item.get("Name") or item.get("Name_Localised") or item.get("name")
+                key = str(name or "").strip().casefold()
+                if not key:
+                    continue
+                if key not in merged:
+                    order.append(key)
+                merged[key] = item
+            return [merged[key] for key in order]
+        return current
+
     result = {
         "commander": "",
         "commander_fid": "",
@@ -1693,6 +1718,12 @@ def read_latest_state(
                                 body["planetary_mining_signals"] = previous.get(
                                     "planetary_mining_signals"
                                 )
+                            # Scan-Folgeevents koennen Materials auslassen oder nur
+                            # einen Teil liefern. Bereits bekannte bodyweite Werte
+                            # duerfen dadurch im Live-Zustand nicht verschwinden.
+                            body["materials"] = merge_materials(
+                                previous.get("materials"), body.get("materials")
+                            )
                             body["bio_genuses"] = list(
                                 previous.get("bio_genuses") or []
                             )

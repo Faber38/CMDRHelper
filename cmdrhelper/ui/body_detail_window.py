@@ -109,7 +109,9 @@ class BodyDetailWindow(QDialog):
         self._add_body_rows(body_form)
         content_layout.addWidget(body_card)
 
-        materials_card, materials_form = self._card(tr("body_detail.materials"))
+        materials_card, materials_form = self._card(
+            tr("body_detail.surface_materials")
+        )
         self._add_material_rows(materials_form)
         content_layout.addWidget(materials_card)
 

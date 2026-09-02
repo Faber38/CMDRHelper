@@ -1937,6 +1937,47 @@ class MainWindow(QMainWindow):
         return f"ABBAU ×{count}" if count > 0 else "–"
 
     @staticmethod
+    def _explorer_planetary_mining_tooltip(body):
+        count = max(0, int(body.get("planetary_mining_signals") or 0))
+        if count <= 0:
+            return ""
+
+        lines = [tr("explorer.planetary_mining_count", count=count)]
+        materials = body.get("materials") or {}
+        if isinstance(materials, dict):
+            entries = materials.items()
+        elif isinstance(materials, list):
+            entries = (
+                (
+                    item.get("Name") or item.get("Name_Localised") or item.get("name"),
+                    item.get("Percent") if item.get("Percent") is not None
+                    else item.get("percentage"),
+                )
+                for item in materials if isinstance(item, dict)
+            )
+        else:
+            entries = ()
+
+        normalized = []
+        for name, amount in entries:
+            try:
+                normalized.append((BodyDetailWindow._material_name(name), float(amount)))
+            except (TypeError, ValueError):
+                continue
+        normalized.sort(key=lambda item: item[1], reverse=True)
+        if normalized:
+            values = []
+            for name, amount in normalized:
+                amount_text = f"{amount:.1f}"
+                if get_language() in {"de", "fr", "it", "no", "sv", "fi", "pl", "nl", "es", "tr", "el"}:
+                    amount_text = amount_text.replace(".", ",")
+                values.append(f"{name} {amount_text} %")
+            lines.append(tr("explorer.surface_materials", materials=", ".join(values)))
+        else:
+            lines.append(tr("explorer.surface_materials_missing"))
+        return "\n".join(lines)
+
+    @staticmethod
     def _explorer_bio_progress(body):
         """
         BIO-Fortschritt direkt aus den am Körper gespeicherten Journaldaten
@@ -2375,6 +2416,9 @@ class MainWindow(QMainWindow):
 
                 if col == 4 and mining_signals > 0:
                     item.setForeground(QColor("#ff9d00"))
+                    item.setToolTip(
+                        self._explorer_planetary_mining_tooltip(body)
+                    )
                 elif analysed:
                     item.setForeground(QColor("#65d067"))
                 elif visited:

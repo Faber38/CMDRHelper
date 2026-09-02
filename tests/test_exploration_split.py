@@ -261,6 +261,75 @@ class ExplorationPersistenceTests(unittest.TestCase):
             self.assertEqual(con.execute("PRAGMA foreign_key_check").fetchall(), [])
         self.assertEqual(rows, [(9, 0), (10, None)])
 
+    def test_planetary_mining_surface_materials_live_archive_and_reload(self):
+        folder = Path(self.tmp.name) / "mining-materials"
+        folder.mkdir()
+        base = {"timestamp": "2026-09-02T00:00:00Z", "SystemAddress": 82}
+        materials = [
+            {"Name": "iron", "Name_Localised": "Eisen", "Percent": 18.2},
+            {"Name": "nickel", "Percent": 14.7},
+        ]
+        journal = folder / "Journal.2026-09-02T000000.01.log"
+        write_journal(journal, [
+            {**base, "event": "Commander", "Name": "Alpha", "FID": "F-A"},
+            {**base, "event": "Location", "StarSystem": "Mining Materials"},
+            {**base, "event": "FSSBodySignals", "BodyID": 3,
+             "Signals": [{"Type": "$PlanetaryMiningLocation_Name;", "Count": 24}]},
+            {**base, "event": "Scan", "BodyID": 3,
+             "BodyName": "Mining Materials 3", "Materials": materials},
+            # A later incomplete Scan must not remove the complete material set.
+            {**base, "event": "Scan", "BodyID": 3,
+             "BodyName": "Mining Materials 3",
+             "Materials": [{"Name": "iron", "Percent": 18.3}]},
+        ])
+
+        state = read_latest_state(folder)
+        body = state["system_bodies"][0]
+        self.assertEqual(body["planetary_mining_signals"], 24)
+        self.assertEqual(body["materials"], [
+            {"Name": "iron", "Percent": 18.3},
+            {"Name": "nickel", "Percent": 14.7},
+        ])
+
+        self.database.import_journal_archive(folder)
+        reloaded = self.database.chronicle_system_details(82, self.a)["bodies"][0]
+        self.assertEqual(reloaded["planetary_mining_signals"], 24)
+        self.assertEqual(reloaded["materials"], {"iron": 18.3, "nickel": 14.7})
+
+        # Missing/invalid follow-up values neither delete nor degrade stored data.
+        self.database.store_snapshot(
+            {
+                **state,
+                "system_bodies": [{
+                    **body,
+                    "materials": [{"Name": "iron", "Percent": None}],
+                }],
+            },
+            self.a,
+        )
+        with self.database._connect() as con:
+            self.assertEqual(
+                con.execute(
+                    "SELECT percentage FROM materials WHERE system_address=82 "
+                    "AND body_id=3 AND material_name='iron'"
+                ).fetchone(),
+                (18.3,),
+            )
+
+    def test_planetary_mining_without_scan_has_no_material_claim(self):
+        folder = Path(self.tmp.name) / "mining-no-materials"
+        folder.mkdir()
+        base = {"timestamp": "2026-09-02T00:00:00Z", "SystemAddress": 83}
+        write_journal(folder / "Journal.2026-09-02T000000.01.log", [
+            {**base, "event": "Commander", "Name": "Alpha", "FID": "F-A"},
+            {**base, "event": "Location", "StarSystem": "Mining Unknown"},
+            {**base, "event": "SAASignalsFound", "BodyID": 4,
+             "Signals": [{"Type": "$PlanetaryMiningLocation_Name;", "Count": 5}]},
+        ])
+        body = read_latest_state(folder)["system_bodies"][0]
+        self.assertEqual(body["planetary_mining_signals"], 5)
+        self.assertFalse(body.get("materials"))
+
     def test_global_signal_facts_do_not_leak_into_commander_reads(self):
         self.database.store_snapshot(
             self.snapshot(biological_signals=4, geological_signals=2), self.a
