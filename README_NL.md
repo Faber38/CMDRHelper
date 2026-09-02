@@ -227,6 +227,33 @@ op Windows en Linux robuuster gemaakt.
     vastgesteld uit de echte Loadout-modules. SRV's en fighters blijven
     uitrusting van het moederschip.
 
+-   het hangarfilter herkent `int_buggybay_*` en de nieuwe grote
+    `int_mkiilargebuggybay_*`, zonder inhoud te verzinnen. `mev_rhino` geldt
+    als SRV/grondvoertuig, niet als zelfstandig schip, zonder te beweren dat
+    de huidige hangar altijd bekend is.
+
+### Persistente Commander-status en herstart
+
+-   missies, open bio-/cartografiedata, laatste locatie, schepen en loadouts,
+    eigen Fleet Carrier en vermogen blijven in SQLite bewaard na herstart van
+    CMDRHelper of Elite.
+-   een status blijft bekend tot een echte nieuwe Journal-event hem wijzigt;
+    ontbrekende informatie in een nieuwe sessie wist bekende data niet.
+-   na een onderbreking gaat verwerking verder vanaf het laatste veilige punt;
+    een onvolledige laatste regel geldt niet als verwerkt.
+-   v2.1 kan getroffen statussen eenmaal gecontroleerd uit bestaande Journals
+    herstellen en werkt daarna weer incrementeel.
+
+### Planetaire mijnbouwlocaties en oppervlaktematerialen
+
+-   `FSSBodySignals`/`SAASignalsFound` melden **planetaire mijnbouwlocaties**,
+    naast BIO/GEO getoond als gelokaliseerd **MIJNBOUW ×N**. N is Frontiers
+    aantal op het hemellichaam, geen berekende index.
+-   `Scan.Materials` wordt per hemellichaam opgeslagen; namen en percentages
+    heten expliciet **oppervlaktematerialen van het hemellichaam**, ook in de tooltip.
+-   locatieaantal en algemene samenstelling blijven gescheiden; materialen
+    worden niet aan een specifieke mijnbouwlocatie toegeschreven.
+
 ### Journals, archiefimport en prestaties
 
 -   zowel `Journal.YYMMDDHHMMSS.PART.log` als
@@ -242,6 +269,12 @@ op Windows en Linux robuuster gemaakt.
 -   de eerste grote indexopbouw toont echte aantallen, percentage en kleine
     geanimeerde ruimteschepen in een responsief venster. Bij latere snelle
     starts verschijnt dit normaal niet.
+
+-   na indexopbouw worden alleen nieuwe complete regels verwerkt. Wijzigingen
+    en veilige positie worden samen opgeslagen; bij een fout schuift die niet
+    op en blijft een gedeeltelijke regel wachten.
+-   snelle start vindt de live-CMDR in de nieuwste eenduidige geïndexeerde
+    sessie, laadt de status direct en leest het Journalaantal uit de index.
 
 ### Installatie en upgrade
 

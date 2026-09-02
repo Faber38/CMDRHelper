@@ -225,6 +225,33 @@ wycofywanie zmian w Windows i Linuksie.
     fighterów, wykrywanym z rzeczywistych modułów Loadout. SRV i fightery
     pozostają wyposażeniem statku macierzystego.
 
+-   filtr hangaru rozpoznaje `int_buggybay_*` i nowy duży
+    `int_mkiilargebuggybay_*`, bez wymyślania zawartości. `mev_rhino` jest
+    traktowany jako SRV/pojazd naziemny, nie osobny statek, bez zapewnienia,
+    że jego bieżący hangar jest zawsze znany.
+
+### Trwały stan Commandera i ponowne uruchomienie
+
+-   misje, otwarte dane bio/kartograficzne, ostatnia lokalizacja, statki i
+    loadouty, własny Fleet Carrier oraz majątek pozostają w SQLite po restarcie
+    CMDRHelper lub Elite.
+-   stan pozostaje znany, dopóki prawdziwe nowe zdarzenie Journala go nie zmieni;
+    brak danych w nowej sesji nie usuwa wcześniejszej wiedzy.
+-   po przerwaniu praca rusza od ostatniego bezpiecznego punktu; niepełny ostatni
+    wiersz nie jest uznawany za przetworzony.
+-   v2.1 może jednorazowo i kontrolowanie odtworzyć dotknięte stany z istniejących
+    Journali, a następnie kontynuuje przyrostowo.
+
+### Planetarne miejsca wydobycia i materiały powierzchniowe
+
+-   `FSSBodySignals`/`SAASignalsFound` zgłaszają **planetarne miejsca wydobycia**,
+    pokazywane obok BIO/GEO jako lokalizowane **WYDOBYCIE ×N**. N to liczba
+    Frontier dla ciała, nie obliczany indeks.
+-   `Scan.Materials` jest przechowywane dla ciała; nazwy i procenty są opisane
+    jako **materiały powierzchniowe ciała**, także w dymku.
+-   liczba miejsc i ogólny skład ciała pozostają oddzielne; materiałów nie
+    przypisuje się do konkretnego miejsca wydobycia.
+
 ### Dzienniki, import archiwum i wydajność
 
 -   nazwy `Journal.YYMMDDHHMMSS.PART.log` oraz
@@ -239,6 +266,11 @@ wycofywanie zmian w Windows i Linuksie.
 -   pierwszy duży indeks pokazuje prawdziwe liczby, procent i małe animowane
     statki w responsywnym widoku. Późniejsze szybkie starty zwykle go nie
     wyświetlają.
+
+-   po zbudowaniu indeksu przetwarzane są tylko nowe pełne wiersze. Zmiany i
+    bezpieczna pozycja są zapisywane razem; błąd jej nie przesuwa, a część wiersza czeka.
+-   szybki start wybiera live-CMDR z najnowszej jednoznacznej sesji indeksu,
+    natychmiast ładuje stan i pobiera liczbę Journali z indeksu.
 
 ### Instalacja i aktualizacja
 

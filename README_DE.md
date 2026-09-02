@@ -231,10 +231,48 @@ gehärtet.
     Typ, Sprungreichweite, Frachtkapazität, Leermasse, Standort oder Zeitpunkt,
     jeweils auf- oder absteigend.
 -   Filter zeigen alle Schiffe, Schiffe mit Fahrzeughangar oder Schiffe mit
-    Fighter-Hangar. Die Hangars werden aus den tatsächlichen Loadout-Modulen
-    erkannt.
+    Fighter-Hangar. Der Fahrzeughangarfilter erkennt sowohl die bisherigen
+    Module `int_buggybay_*` als auch den neuen großen Hangartyp
+    `int_mkiilargebuggybay_*`. Der tatsächliche aktuelle Hangarinhalt wird
+    nicht erfunden.
 -   SRVs und Fighter bleiben Ausrüstung des Mutterraumschiffs und werden nicht
-    als eigene Schiffe geführt.
+    als eigene Schiffe geführt. Diese Trennung erkennt nun auch Frontiers
+    `mev_rhino`: Rhino wird korrekt als SRV/Bodenfahrzeug behandelt, nicht als
+    eigenständiges Commander-Schiff. Daraus folgt keine Behauptung über seine
+    jederzeit sichere aktuelle Hangarzuordnung.
+
+### Persistenter Commander-Zustand und Neustartverhalten
+
+-   Commanderbezogene Zustände werden dauerhaft in SQLite gespeichert und
+    bleiben über Neustarts von CMDRHelper und Elite erhalten. Dazu gehören
+    Missionen, offene Bio- und Kartographiedaten, letzter Standort, Schiffe
+    und Loadouts, der eigene Fleet Carrier sowie das Vermögen.
+-   ein gespeicherter Zustand bleibt erhalten, bis ein echtes neues
+    Journalereignis ihn verändert. Fehlende Informationen in einer neuen
+    Journalsitzung löschen keine bereits bekannten Daten.
+-   nach einem Neustart stehen sicher verarbeitete Commander-Daten sofort
+    wieder bereit. Nach einer Unterbrechung wird ab dem letzten sicher
+    gespeicherten Journalpunkt fortgesetzt; eine unvollständige letzte
+    Journalzeile gilt nicht als erfolgreich verarbeitet.
+-   v2.1 kann betroffene persistente Commanderzustände einmalig und
+    kontrolliert aus vorhandenen Journaldaten rekonstruieren. Danach wird
+    wieder inkrementell weitergearbeitet.
+
+### Planetare Abbaustandorte und Oberflächenmaterialien
+
+-   Frontier meldet über `FSSBodySignals` und `SAASignalsFound` die neue
+    Signalkategorie **Planetarer Abbaustandort**. CMDRHelper zeigt sie analog
+    zu BIO/GEO als **ABBAU ×N** beziehungsweise sprachabhängig entsprechend
+    an. N ist die von Frontier gemeldete Anzahl auf diesem Body und kein
+    berechneter Abbauindex.
+-   `Scan.Materials` wird für den zugehörigen Body persistent gespeichert.
+    Materialnamen und Prozentanteile erscheinen im Body-Detail ausdrücklich
+    als **Oberflächenmaterialien des Bodys**. Der ABBAU-Tooltip kann diese
+    allgemeine Bodyzusammensetzung zusammen mit der Standortanzahl anzeigen.
+-   beide Informationen bleiben fachlich getrennt: Frontier liefert derzeit
+    die Anzahl der Abbaustandorte und separat die allgemeine
+    Materialzusammensetzung des Bodys. CMDRHelper behauptet nicht, dass diese
+    Materialien an einem bestimmten Abbaustandort vorkommen.
 
 ### Journale, Archivimport und Performance
 
@@ -252,6 +290,15 @@ gehärtet.
     Byteposition inkrementell gelesen. Metadaten und SHA-256 sichern die
     Dateierkennung, ohne unveränderte Dateien immer neu zu hashen; die
     FID-basierte Commanderzuordnung bleibt unverändert.
+-   nach aufgebautem Index werden nur neue vollständige Journalzeilen
+    ausgewertet. Historische Events werden nicht bei jedem Refresh erneut
+    verarbeitet. Fachänderungen und die sichere Journalposition werden
+    gemeinsam gespeichert; bei einem Fehler wird die Position nicht
+    vorgezogen, und eine nur teilweise geschriebene letzte Zeile bleibt offen.
+-   der schnelle Start bestimmt den Live-Commander direkt aus der jüngsten
+    eindeutig identifizierten indexierten Journalsitzung. Der persistente
+    Commanderzustand steht unmittelbar bereit; auch die Journalanzahl stammt
+    direkt aus dem Index.
 -   beim erstmaligen Aufbau eines großen Index zeigt eine responsive
     Vorbereitungsansicht echte Dateizahlen, Prozentfortschritt und kleine
     animierte Raumschiffe. Bei späteren schnellen Starts erscheint sie

@@ -233,6 +233,34 @@ démarrage, mise à jour et restauration sous Windows et Linux.
     hangar de chasseurs, détectés dans les véritables modules du loadout.
     SRV et chasseurs restent l'équipement du vaisseau porteur.
 
+-   le filtre de hangar reconnaît `int_buggybay_*` et le nouveau grand
+    `int_mkiilargebuggybay_*`, sans inventer son contenu. `mev_rhino` est
+    correctement traité comme SRV/véhicule terrestre, pas comme vaisseau
+    autonome, sans prétendre connaître toujours son hangar actuel.
+
+### État persistant du Commander et redémarrage
+
+-   missions, données bio/cartographiques en attente, dernier emplacement,
+    vaisseaux et loadouts, Fleet Carrier personnel et fortune sont conservés
+    dans SQLite entre les redémarrages de CMDRHelper et d'Elite.
+-   un état reste connu jusqu'à ce qu'un véritable événement Journal le
+    modifie. Une information absente d'une nouvelle session n'efface rien.
+-   après interruption, les données sûres sont rechargées et le traitement
+    reprend au dernier point validé ; une ligne finale incomplète reste en attente.
+-   v2.1 peut reconstruire une fois les états concernés depuis les Journaux
+    existants, puis reprend le fonctionnement incrémental.
+
+### Sites miniers planétaires et matériaux de surface
+
+-   `FSSBodySignals` et `SAASignalsFound` signalent les **sites miniers
+    planétaires**, affichés avec BIO/GEO sous la forme localisée **MINAGE ×N**.
+    N est le nombre communiqué par Frontier sur le corps, pas un indice calculé.
+-   `Scan.Materials` est conservé par corps. Noms et pourcentages sont affichés
+    comme **matériaux de surface du corps** et peuvent figurer dans l'infobulle.
+-   les faits restent séparés : Frontier fournit le nombre de sites et,
+    indépendamment, la composition générale du corps. CMDRHelper ne l'attribue
+    pas à un site minier particulier.
+
 ### Journaux, import d'archives et performances
 
 -   les noms historiques `Journal.YYMMDDHHMMSS.PART.log` et modernes
@@ -247,6 +275,13 @@ démarrage, mise à jour et restauration sous Windows et Linux.
 -   un premier index volumineux affiche immédiatement les nombres réels, le
     pourcentage et de petits vaisseaux animés dans une interface réactive. Les
     démarrages rapides suivants n'affichent normalement plus cette vue.
+
+-   une fois l'index créé, seules les nouvelles lignes complètes sont évaluées.
+    Changements et position sûre sont validés ensemble ; en cas d'erreur la
+    position n'avance pas et une ligne partielle reste en attente.
+-   le démarrage rapide trouve le CMDR actif dans la session indexée non ambiguë
+    la plus récente, charge son état immédiatement et lit le nombre de Journaux
+    directement dans l'index.
 
 ### Installation et mise à niveau
 

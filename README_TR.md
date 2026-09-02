@@ -222,6 +222,32 @@ güncelleme ve geri alma yollarını da sağlamlaştırır.
     gösterir; hangarlar gerçek Loadout modüllerinden algılanır. SRV ve fighter'lar
     ana geminin ekipmanı olarak kalır.
 
+-   hangar filtresi `int_buggybay_*` ile yeni büyük `int_mkiilargebuggybay_*`
+    türünü içeriği uydurmadan tanır. `mev_rhino` bağımsız gemi değil SRV/kara
+    aracı sayılır; güncel hangarının her zaman bilindiği iddia edilmez.
+
+### Kalıcı Commander durumu ve yeniden başlatma
+
+-   görevler, açık biyo/kartografi verileri, son konum, gemiler ve loadoutlar,
+    kişisel Fleet Carrier ve servet CMDRHelper/Elite yeniden başlatmalarında
+    SQLite içinde korunur.
+-   durum gerçek yeni bir Journal olayı değiştirene kadar kalır; yeni oturumda
+    eksik bilgi önceden bilineni silmez.
+-   kesintiden sonra son güvenli noktadan devam edilir; tamamlanmamış son satır
+    işlenmiş sayılmaz.
+-   v2.1 etkilenen durumları mevcut Journallardan bir kez kontrollü biçimde
+    kurabilir ve sonra artımlı çalışmayı sürdürür.
+
+### Gezegensel madencilik konumları ve yüzey malzemeleri
+
+-   `FSSBodySignals`/`SAASignalsFound` **gezegensel madencilik konumlarını**
+    bildirir; BIO/GEO yanında yerelleştirilmiş **MADENCİLİK ×N** görünür. N,
+    Frontier'ın cisim için bildirdiği sayıdır, hesaplanan endeks değildir.
+-   `Scan.Materials` cisim bazında saklanır; ad ve yüzdeler **gök cisminin yüzey
+    malzemeleri** olarak, araç ipucunda da gösterilir.
+-   konum sayısı ile genel bileşim ayrı tutulur; malzemeler belirli bir
+    madencilik konumuna atfedilmez.
+
 ### Journallar, arşiv ve performans
 
 -   `Journal.YYMMDDHHMMSS.PART.log` ile
@@ -236,6 +262,11 @@ güncelleme ve geri alma yollarını da sağlamlaştırır.
 -   ilk büyük dizin oluşturma gerçek sayıları, yüzdeyi ve küçük animasyonlu uzay
     gemilerini duyarlı bir görünümde gösterir. Sonraki hızlı açılışlarda bu
     görünüm normalde çıkmaz.
+
+-   dizin kurulduktan sonra yalnız yeni ve tam satırlar işlenir. Değişiklikler
+    ve güvenli konum birlikte kaydedilir; hatada konum ilerlemez, kısmi satır bekler.
+-   hızlı başlangıç live-CMDR'ı en yeni kesin tanımlı dizin oturumundan bulur,
+    durumu hemen yükler ve Journal sayısını dizinden alır.
 
 ### Kurulum ve yükseltme
 

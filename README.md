@@ -220,9 +220,47 @@ hardens installation, startup, updates, and rollback on Windows and Linux.
     cargo capacity, empty mass, location, or timestamp, in ascending or
     descending order.
 -   filters show all ships, ships with a vehicle hangar, or ships with a
-    fighter hangar. Hangars are detected from the actual loadout modules.
+    fighter hangar. The vehicle-hangar filter recognises both the established
+    `int_buggybay_*` modules and the new large `int_mkiilargebuggybay_*`
+    modules. CMDRHelper does not invent the hangar's current contents.
 -   SRVs and fighters remain equipment of their mothership and are not
-    listed as independent ships.
+    listed as independent ships. This separation now also recognises
+    Frontier's `mev_rhino`: Rhino is correctly treated as an SRV/ground
+    vehicle, not as a separate Commander ship. This does not claim that its
+    current hangar assignment is always known.
+
+### Persistent Commander state and restart behaviour
+
+-   Commander-related state is stored permanently in SQLite and survives
+    CMDRHelper and Elite restarts. This includes missions, pending biological
+    and cartographic data, the last location, ships and loadouts, the
+    Commander's Fleet Carrier, and wealth.
+-   a stored value remains available until a genuine new Journal event
+    changes it. Missing information in a new Journal session does not erase
+    previously known data.
+-   after a restart, safely processed Commander data is loaded immediately.
+    After an interruption, processing resumes at the last safely committed
+    Journal position; an incomplete final Journal line is not treated as
+    successfully processed.
+-   v2.1 can perform a controlled one-time reconstruction of affected
+    persistent Commander state from existing Journals. Processing then
+    continues incrementally.
+
+### Planetary mining locations and surface materials
+
+-   Frontier reports the new **planetary mining location** signal category
+    through `FSSBodySignals` and `SAASignalsFound`. CMDRHelper displays it
+    alongside BIO/GEO as **MINING ×N** (localized for the selected language),
+    where N is Frontier's reported number of locations on that body. It is
+    not a calculated mining index.
+-   `Scan.Materials` is stored persistently for the matching body. Material
+    names and percentages are shown in body details explicitly as the
+    **body's surface materials**. The MINING tooltip can show this general
+    body composition together with the location count.
+-   these facts remain deliberately separate: Frontier currently supplies
+    the number of mining locations and, independently, the body's general
+    surface-material composition. CMDRHelper does not claim that those
+    materials occur at any particular mining location.
 
 ### Journals, archive import, and performance
 
@@ -240,6 +278,15 @@ hardens installation, startup, updates, and rollback on Windows and Linux.
     position. Metadata and SHA-256 protect file identity without repeatedly
     hashing unchanged files, while FID-based Commander attribution remains
     unchanged.
+-   once the index exists, only new complete Journal lines are evaluated.
+    Historical events are not reprocessed on every refresh. State changes
+    and the safe Journal position are committed together; after an error the
+    position is not advanced, and a partially written final line remains
+    pending.
+-   fast start determines the live Commander directly from the newest
+    unambiguously identified indexed Journal session. Persistent Commander
+    state is immediately available, and the Journal count comes directly
+    from the index.
 -   when a large index is built for the first time, a responsive preparation
     view shows real file counts, percentage progress, and small animated
     spaceships. Later fast starts normally do not show it.

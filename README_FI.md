@@ -224,6 +224,31 @@ käynnistystä, päivitystä ja palautusta.
     varustetut alukset. Hangaarit tunnistetaan todellisista Loadout-moduuleista;
     SRV:t ja fighterit pysyvät emoaluksen varusteina.
 
+-   hallisuodatin tunnistaa `int_buggybay_*`- ja uuden suuren
+    `int_mkiilargebuggybay_*`-hallin keksimättä sisältöä. `mev_rhino` käsitellään
+    SRV:nä/maa-ajoneuvona, ei omana aluksena, väittämättä hallia aina tunnetuksi.
+
+### Pysyvä Commander-tila ja uudelleenkäynnistys
+
+-   tehtävät, avoimet bio-/kartografiatiedot, viime sijainti, alukset ja loadoutit,
+    oma Fleet Carrier ja varallisuus säilyvät SQLitessa CMDRHelper/Elite-käynnistyksissä.
+-   tila säilyy, kunnes oikea Journal-tapahtuma muuttaa sitä; uudesta istunnosta
+    puuttuva tieto ei poista tunnettua tietoa.
+-   keskeytyksen jälkeen jatketaan viimeisestä turvallisesta kohdasta;
+    keskeneräistä viimeistä riviä ei katsota käsitellyksi.
+-   v2.1 voi hallitusti rakentaa kerran tarvittavat tilat vanhoista Journaleista
+    ja jatkaa sitten inkrementaalisesti.
+
+### Planeettojen kaivoskohteet ja pintamateriaalit
+
+-   `FSSBodySignals`/`SAASignalsFound` ilmoittavat **planeettojen kaivoskohteet**,
+    jotka näkyvät BIO/GEO:n rinnalla lokalisoituna **LOUHINTA ×N**. N on
+    Frontierin määrä, ei laskettu indeksi.
+-   `Scan.Materials` tallennetaan kappaleelle; nimet ja prosentit näytetään
+    **kappaleen pintamateriaaleina**, myös työkaluvihjeessä.
+-   kohteiden määrä ja yleinen materiaalikoostumus pidetään erillään;
+    materiaaleja ei väitetä tietyn kaivoskohteen sisällöksi.
+
 ### Journalit, arkistotuonti ja suorituskyky
 
 -   sekä `Journal.YYMMDDHHMMSS.PART.log` että
@@ -238,6 +263,11 @@ käynnistystä, päivitystä ja palautusta.
 -   ensimmäinen suuri indeksin rakennus näyttää aidot luvut, prosentit ja
     pienet animoidut avaruusalukset responsiivisessa näkymässä. Myöhemmillä
     nopeilla käynnistyksillä näkymää ei yleensä näytetä.
+
+-   indeksin jälkeen käsitellään vain uudet täydet rivit. Muutokset ja turvallinen
+    sijainti tallennetaan yhdessä; virheessä se ei etene ja osittainen rivi odottaa.
+-   pikakäynnistys löytää live-CMDR:n uusimmasta yksiselitteisestä indeksoidusta
+    istunnosta, lataa tilan heti ja saa Journal-määrän indeksistä.
 
 ### Asennus ja päivitys
 

@@ -216,6 +216,31 @@ på Windows och Linux.
     identifieras från verkliga Loadout-moduler; SRV:er och fighters förblir
     utrustning på moderskeppet.
 
+-   hangarfiltret känner `int_buggybay_*` och nya stora
+    `int_mkiilargebuggybay_*` utan att hitta på innehållet. `mev_rhino` hanteras
+    som SRV/markfordon, inte eget skepp, utan påstående om alltid känd hangar.
+
+### Beständigt Commander-tillstånd och omstart
+
+-   uppdrag, öppna bio-/kartografidata, senaste plats, skepp och loadouts, egen
+    Fleet Carrier och förmögenhet lagras i SQLite genom CMDRHelper/Elite-omstarter.
+-   tillståndet består tills en verklig Journal-händelse ändrar det; saknad
+    information i en ny session raderar inte kända data.
+-   efter avbrott fortsätter arbetet från senaste säkra punkt; en ofullständig
+    sista rad räknas inte som behandlad.
+-   v2.1 kan kontrollerat återskapa berörda tillstånd en gång från befintliga
+    Journaler och fortsätter sedan inkrementellt.
+
+### Planetära gruvplatser och ytmaterial
+
+-   `FSSBodySignals`/`SAASignalsFound` rapporterar **planetära gruvplatser**,
+    visade med BIO/GEO som lokaliserat **GRUVDRIFT ×N**. N är Frontiers antal,
+    inte ett beräknat index.
+-   `Scan.Materials` sparas per kropp; namn och procent visas som
+    **himlakroppens ytmaterial**, även i verktygstipset.
+-   platsantal och allmän materialsammansättning hålls åtskilda; materialen
+    tillskrivs inte en viss gruvplats.
+
 ### Journaler, arkivimport och prestanda
 
 -   både `Journal.YYMMDDHHMMSS.PART.log` och
@@ -230,6 +255,11 @@ på Windows och Linux.
 -   första stora indexbygget visar verkliga tal, procent och små animerade
     rymdskepp i ett responsivt fönster. Senare snabba starter visar normalt
     inte vyn.
+
+-   efter indexbygget behandlas bara nya fullständiga rader. Ändringar och säker
+    position sparas tillsammans; vid fel flyttas den inte och en dellinje väntar.
+-   snabbstart hittar live-CMDR från senaste entydiga indexerade session, laddar
+    tillståndet direkt och hämtar Journal-antalet från indexet.
 
 ### Installation och uppgradering
 

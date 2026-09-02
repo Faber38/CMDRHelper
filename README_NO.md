@@ -216,6 +216,30 @@ på Windows og Linux.
     Hangarer oppdages fra faktiske Loadout-moduler; SRV-er og fightere forblir
     utstyr på moderskipet.
 
+-   hangarfilteret kjenner `int_buggybay_*` og den nye store
+    `int_mkiilargebuggybay_*`, uten å finne på innholdet. `mev_rhino` behandles
+    som SRV/bakkekjøretøy, ikke eget skip, uten påstand om alltid kjent hangar.
+
+### Vedvarende Commander-tilstand og omstart
+
+-   oppdrag, åpne bio-/kartografidata, siste posisjon, skip og loadouts, egen
+    Fleet Carrier og formue lagres i SQLite gjennom omstart av CMDRHelper/Elite.
+-   en tilstand beholdes til en reell Journal-hendelse endrer den; manglende
+    informasjon i en ny økt sletter ikke kjent informasjon.
+-   etter avbrudd fortsetter behandlingen fra siste sikre punkt; en ufullstendig
+    siste linje regnes ikke som behandlet.
+-   v2.1 kan kontrollert rekonstruere berørte tilstander én gang fra eksisterende
+    Journaler og fortsetter deretter inkrementelt.
+
+### Planetariske gruvesteder og overflatematerialer
+
+-   `FSSBodySignals`/`SAASignalsFound` melder **planetariske gruvesteder**, vist
+    med BIO/GEO som lokalisert **GRUVE ×N**. N er Frontiers antall, ikke en indeks.
+-   `Scan.Materials` lagres per legeme; navn og prosent vises som **legemets
+    overflatematerialer**, også i verktøytipset.
+-   antall steder og generell materialsammensetning holdes adskilt; materialene
+    tilskrives ikke et bestemt gruvested.
+
 ### Journaler, arkivimport og ytelse
 
 -   både `Journal.YYMMDDHHMMSS.PART.log` og
@@ -229,6 +253,11 @@ på Windows og Linux.
     identiteten, mens FID-tilordningen er uendret.
 -   første store indeksbygg viser reelle tall, prosent og små animerte romskip
     i et responsivt vindu. Senere raske starter viser det normalt ikke.
+
+-   etter indeksbygging behandles bare nye komplette linjer. Endringer og sikker
+    posisjon lagres sammen; ved feil flyttes ikke posisjonen, og en dellinje venter.
+-   rask start finner live-CMDR fra nyeste entydige indekserte økt, laster
+    tilstanden straks og henter Journal-antallet fra indeksen.
 
 ### Installasjon og oppgradering
 

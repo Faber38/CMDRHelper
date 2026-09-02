@@ -231,6 +231,33 @@ actualización y reversión en Windows y Linux.
     vehículos o fighters, detectados en módulos Loadout reales. Los SRV y
     fighters siguen siendo equipo de la nave nodriza.
 
+-   el filtro reconoce `int_buggybay_*` y el nuevo hangar grande
+    `int_mkiilargebuggybay_*`, sin inventar su contenido. `mev_rhino` se trata
+    como SRV/vehículo terrestre, no como nave independiente, sin afirmar que
+    siempre se conozca su hangar actual.
+
+### Estado persistente del comandante y reinicio
+
+-   misiones, datos bio/cartográficos pendientes, última ubicación, naves y
+    loadouts, Fleet Carrier propio y patrimonio permanecen en SQLite tras
+    reiniciar CMDRHelper o Elite.
+-   un estado sigue conocido hasta que un evento Journal real lo cambie; la
+    ausencia de información en una sesión nueva no borra datos conocidos.
+-   tras una interrupción se continúa desde el último punto seguro; una última
+    línea incompleta no se considera procesada.
+-   v2.1 puede reconstruir una vez y de forma controlada los estados afectados
+    desde Journals existentes y después continúa incrementalmente.
+
+### Ubicaciones mineras planetarias y materiales superficiales
+
+-   `FSSBodySignals`/`SAASignalsFound` notifican **ubicaciones mineras
+    planetarias**, mostradas junto a BIO/GEO como **MINERÍA ×N** localizada. N
+    es el número de Frontier para el cuerpo, no un índice calculado.
+-   `Scan.Materials` se guarda por cuerpo; nombres y porcentajes se presentan
+    como **materiales de superficie del cuerpo**, también en la ayuda emergente.
+-   cantidad y composición general permanecen separadas; los materiales no se
+    atribuyen a una ubicación minera concreta.
+
 ### Diarios, archivo y rendimiento
 
 -   `Journal.YYMMDDHHMMSS.PART.log` y
@@ -245,6 +272,12 @@ actualización y reversión en Windows y Linux.
 -   la primera indexación grande muestra cifras reales, porcentaje y pequeñas
     naves animadas en una vista responsiva. Los inicios rápidos posteriores
     normalmente no la muestran.
+
+-   tras crear el índice solo se procesan líneas nuevas y completas. Cambios y
+    posición segura se guardan juntos; un error no avanza la posición y una
+    línea parcial queda pendiente.
+-   el inicio rápido obtiene el CMDR activo de la sesión indexada inequívoca más
+    reciente, carga de inmediato su estado y toma del índice el número de Journals.
 
 ### Instalación y actualización
 

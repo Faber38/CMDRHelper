@@ -232,6 +232,33 @@ rollback su Windows e Linux.
     fighter, riconosciuti dai moduli Loadout reali. SRV e fighter restano
     equipaggiamento della nave madre e non diventano navi separate.
 
+-   il filtro hangar riconosce `int_buggybay_*` e il nuovo grande
+    `int_mkiilargebuggybay_*`, senza inventarne il contenuto. `mev_rhino` è
+    trattato come SRV/veicolo terrestre, non come nave autonoma, senza affermare
+    di conoscerne sempre l'hangar attuale.
+
+### Stato persistente del Commander e riavvio
+
+-   missioni, dati bio/cartografici aperti, ultima posizione, navi e loadout,
+    Fleet Carrier personale e patrimonio restano in SQLite dopo il riavvio di
+    CMDRHelper o Elite.
+-   uno stato rimane noto finché un vero evento Journal non lo modifica; dati
+    mancanti in una nuova sessione non cancellano quelli già noti.
+-   dopo un'interruzione si riparte dall'ultimo punto sicuro; una riga finale
+    incompleta non è considerata elaborata.
+-   v2.1 può ricostruire una volta gli stati interessati dai Journal esistenti,
+    quindi continua incrementalmente.
+
+### Siti minerari planetari e materiali di superficie
+
+-   `FSSBodySignals` e `SAASignalsFound` riportano **siti minerari planetari**,
+    mostrati con BIO/GEO come **ESTRAZIONE ×N** localizzata. N è il numero
+    comunicato da Frontier sul corpo, non un indice calcolato.
+-   `Scan.Materials` è conservato per corpo; nomi e percentuali appaiono come
+    **materiali di superficie del corpo**, anche nell'infobolla.
+-   i dati restano separati: numero dei siti e composizione generale del corpo.
+    CMDRHelper non attribuisce questi materiali a un sito specifico.
+
 ### Journal, archivio e prestazioni
 
 -   i nomi storici `Journal.YYMMDDHHMMSS.PART.log` e moderni
@@ -246,6 +273,13 @@ rollback su Windows e Linux.
 -   il primo indice molto grande mostra numeri reali, percentuale e piccole
     astronavi animate in una UI responsiva. Gli avvii rapidi successivi di
     norma non mostrano la schermata.
+
+-   creato l'indice, si elaborano solo nuove righe complete. Modifiche e
+    posizione sicura sono salvate insieme; con un errore la posizione non
+    avanza e una riga parziale resta in attesa.
+-   l'avvio rapido identifica il CMDR live dalla sessione indicizzata non
+    ambigua più recente, carica subito lo stato e legge dall'indice il numero
+    dei Journal.
 
 ### Installazione e aggiornamento
 
