@@ -6,6 +6,7 @@ import platform
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from cmdrhelper.journal_files import journal_files
 from cmdrhelper.mission_manager import build_summary, default_next_step, mission_kind
 from cmdrhelper.models import (
     STATUS_ACCEPTED,
@@ -139,6 +140,7 @@ def _loadout_from_event(event: dict, previous: ShipLoadoutData) -> ShipLoadoutDa
         fsd_optimal_mass=optimal_mass,
         fsd_max_fuel_per_jump=max_fuel,
         guardian_fsd_boosters=tuple(boosters),
+        modules=tuple(dict(module) for module in modules if isinstance(module, dict)),
         loadout_timestamp=str(event.get("timestamp") or "").strip() or None,
         loadout_complete=True,
         loadout_stale=False,
@@ -213,12 +215,6 @@ def default_journal_paths() -> list[Path]:
         ]
 
     return [p for p in candidates if p.exists() and p.is_dir()]
-
-
-def journal_files(folder: Path) -> list[Path]:
-    if not folder or not folder.exists():
-        return []
-    return sorted(folder.glob("Journal.*.log"))
 
 
 def classify_journal_file(journal: Path) -> dict:

@@ -775,6 +775,41 @@ class ExplorerLiveListWindow(QDialog):
             not in known_species
         ]
 
+    @staticmethod
+    def _bio_total_value(species, predictions, open_signals, prediction_values=None):
+        """Return ``(value, estimated)`` for a complete, defensible total.
+
+        Predictions arrive in predictor rank order.  Exactly the first unique
+        candidates needed for the still-open signals take part; lower-ranked
+        alternatives are deliberately not added or used to replace an unknown
+        top candidate.
+        """
+        known_values = [max(0, int(entry.get("value") or 0)) for entry in species]
+        if any(value <= 0 for value in known_values):
+            return 0, False
+
+        known_total = sum(known_values)
+        if open_signals <= 0:
+            return known_total, False
+
+        prediction_values = prediction_values or {}
+        selected_values = []
+        seen = set()
+        for candidate in predictions:
+            name = str(getattr(candidate, "name", "") or "").strip().casefold()
+            if not name or name in seen:
+                continue
+            seen.add(name)
+            selected_values.append(max(0, int(prediction_values.get(name, 0) or 0)))
+            if len(selected_values) >= open_signals:
+                break
+
+        if len(selected_values) < open_signals or any(
+            value <= 0 for value in selected_values
+        ):
+            return 0, False
+        return known_total + sum(selected_values), True
+
     def moveEvent(self, event):
         super().moveEvent(event)
         self._save_geometry()
@@ -817,6 +852,7 @@ class ExplorerLiveListWindow(QDialog):
                 geo_signals = max(0, int(row.get("geo_signals") or 0))
                 species = list(row.get("species") or [])
                 predictions = list(row.get("predictions") or [])
+                prediction_values = dict(row.get("prediction_values") or {})
                 known_count = len(species)
                 identified_count = max(known_count, int(row.get("identified_count") or 0))
                 completed_count = max(0, int(row.get("completed_count") or 0))
@@ -824,6 +860,9 @@ class ExplorerLiveListWindow(QDialog):
                 known_value = int(row.get("known_value") or 0)
                 predictions = self._visible_bio_predictions(
                     predictions, species, open_signals
+                )
+                total_value, total_estimated = self._bio_total_value(
+                    species, predictions, open_signals, prediction_values
                 )
 
                 # Mehr Arten als Signale sollte praktisch nicht vorkommen;
@@ -843,6 +882,20 @@ class ExplorerLiveListWindow(QDialog):
                                 "value": 0,
                             },
                             "progress": "–",
+                            "value": (
+                                tr(
+                                    "bio_prediction.estimated_value",
+                                    value=MainWindow._format_reward(total_value),
+                                )
+                                if total_estimated
+                                else (
+                                    MainWindow._format_reward(total_value)
+                                    if total_value > 0 else "–"
+                                )
+                            ),
+                            "value_kind": (
+                                "estimated" if total_estimated else "known"
+                            ),
                             "complete": False,
                         }
                     )
@@ -964,6 +1017,23 @@ class ExplorerLiveListWindow(QDialog):
                                 "complete": False,
                             }
                         )
+                        estimated_value = max(0, int(
+                            prediction_values.get(
+                                str(getattr(candidate, "name", "") or "")
+                                .strip().casefold(),
+                                0,
+                            ) or 0
+                        ))
+                        display_rows[-1]["value"] = (
+                            tr(
+                                "bio_prediction.estimated_value",
+                                value=MainWindow._format_reward(estimated_value),
+                            )
+                            if estimated_value > 0 else "–"
+                        )
+                        display_rows[-1]["value_kind"] = (
+                            "estimated" if estimated_value > 0 else "unknown"
+                        )
                 # GEO wird nur als Anzahl dargestellt. Es nimmt ausdrücklich
                 # nicht an BIO-Art-, Probe- oder Fortschrittsberechnungen teil.
                 if geo_signals > 0:
@@ -990,6 +1060,12 @@ class ExplorerLiveListWindow(QDialog):
                 body_item = QTableWidgetItem(str(row.get("body") or ""))
                 progress_item = QTableWidgetItem(str(row.get("progress") or ""))
                 value_item = QTableWidgetItem(str(row.get("value") or "–"))
+
+                value_kind = str(row.get("value_kind") or "")
+                if value_kind == "estimated":
+                    value_item.setForeground(QColor("#ffb000"))
+                elif value_kind == "known" and str(row.get("value") or "–") != "–":
+                    value_item.setForeground(QColor("#65d067"))
 
                 if complete:
                     green = QColor("#65d067")
@@ -1027,7 +1103,12 @@ class ExplorerLiveListWindow(QDialog):
 
                     from html import escape
 
-                    value_text = MainWindow._format_reward(value) if value > 0 else "–"
+                    if value_kind:
+                        value_text = str(row.get("value") or "–")
+                    else:
+                        value_text = (
+                            MainWindow._format_reward(value) if value > 0 else "–"
+                        )
                     find_label = QLabel()
                     find_label.setTextFormat(Qt.RichText)
                     find_label.setContentsMargins(6, 0, 4, 0)
@@ -1040,7 +1121,13 @@ class ExplorerLiveListWindow(QDialog):
                     find_label.setToolTip(str(entry.get("tooltip") or ""))
                     self.table.setCellWidget(row_index, 1, find_label)
                     value_item = QTableWidgetItem(value_text)
-                    value_item.setForeground(QColor(color))
+                    # Der Artname zeigt weiterhin den Probenfortschritt. Ein
+                    # bereits identifizierter monetärer Wert ist dagegen
+                    # unabhängig von Probe 1/2/3 ein bekannter (grüner) Wert.
+                    if value_kind == "estimated":
+                        value_item.setForeground(QColor("#ffb000"))
+                    elif value_text != "–":
+                        value_item.setForeground(QColor("#65d067"))
                 else:
                     find_item = QTableWidgetItem(str(row.get("find") or ""))
                     if complete:
@@ -1163,7 +1250,10 @@ class MainWindow(QMainWindow):
 
         side.addWidget(QLabel("✦  CMDRHelper", objectName="appTitle"))
 
-        side.addWidget(QLabel(tr("app.subtitle"), objectName="appSubTitle"))
+        subtitle = QLabel(tr("app.subtitle"), objectName="appSubTitle")
+        subtitle.setWordWrap(True)
+        subtitle.setMinimumHeight(subtitle.fontMetrics().lineSpacing() * 2)
+        side.addWidget(subtitle)
 
         side.addSpacing(20)
 
@@ -2529,6 +2619,19 @@ class MainWindow(QMainWindow):
             known_value = sum(
                 int(entry.get("value") or 0) for entry in popup_species_rows
             )
+            prediction_values = {}
+            if prediction is not None:
+                for candidate in prediction.candidates:
+                    candidate_name = str(candidate.name or "").strip()
+                    if not candidate_name:
+                        continue
+                    prediction_values[candidate_name.casefold()] = max(
+                        0,
+                        int(base_value(
+                            {"species": candidate_name},
+                            learned_values=learned_bio_values,
+                        ) or 0),
+                    )
 
             bio_rows.append(
                 {
@@ -2541,6 +2644,7 @@ class MainWindow(QMainWindow):
                     "geo_text": (self._explorer_geo_text(body) if geo_pending else "–"),
                     "species": popup_species_rows,
                     "predictions": (list(prediction.candidates) if prediction else []),
+                    "prediction_values": prediction_values,
                     "identified_count": (
                         prediction.identified_count if prediction else len(popup_species_rows)
                     ),

@@ -1231,6 +1231,7 @@ class AppState(QObject):
             loadout.fsd_optimal_mass,
             loadout.fsd_max_fuel_per_jump,
             loadout.guardian_fsd_boosters,
+            loadout.modules,
             loadout.loadout_timestamp,
             loadout.loadout_complete,
             loadout.loadout_stale,
