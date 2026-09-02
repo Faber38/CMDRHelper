@@ -6,6 +6,7 @@ import platform
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from cmdrhelper.journal_files import journal_files
 from cmdrhelper.mission_manager import build_summary, default_next_step, mission_kind
 from cmdrhelper.models import (
     STATUS_ACCEPTED,
@@ -214,12 +215,6 @@ def default_journal_paths() -> list[Path]:
         ]
 
     return [p for p in candidates if p.exists() and p.is_dir()]
-
-
-def journal_files(folder: Path) -> list[Path]:
-    if not folder or not folder.exists():
-        return []
-    return sorted(folder.glob("Journal.*.log"))
 
 
 def classify_journal_file(journal: Path) -> dict:

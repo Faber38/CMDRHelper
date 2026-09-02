@@ -6,6 +6,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+from cmdrhelper.journal_files import journal_files
 from cmdrhelper.ship_identity import is_definite_non_ship
 
 logger = logging.getLogger(__name__)
@@ -2208,7 +2209,7 @@ class CMDRDatabase:
         from cmdrhelper.journal_reader import classify_journal_file
 
         journals = []
-        for journal in sorted(folder.glob("Journal.*.log")):
+        for journal in journal_files(folder):
             try:
                 session = classify_journal_file(journal)
             except OSError:
@@ -2666,7 +2667,7 @@ class CMDRDatabase:
         from cmdrhelper.journal_reader import classify_journal_file
 
         journals = []
-        for journal in sorted(folder.glob("Journal.*.log")):
+        for journal in journal_files(folder):
             try:
                 session = classify_journal_file(journal)
             except OSError:
@@ -3623,7 +3624,7 @@ class CMDRDatabase:
         commander_fid = self._commander_fid(commander_id)
         from cmdrhelper.journal_reader import classify_journal_file
         with self._connect() as con:
-            for journal in sorted(folder.glob("Journal.*.log")):
+            for journal in journal_files(folder):
                 try:
                     session = classify_journal_file(journal)
                     stat = journal.stat()
@@ -4220,9 +4221,7 @@ class CMDRDatabase:
                 f"Journalordner nicht gefunden: {folder}"
             )
 
-        all_journals = sorted(
-            folder.glob("Journal.*.log")
-        )
+        all_journals = journal_files(folder)
 
         from cmdrhelper.journal_reader import classify_journal_file
 

@@ -7,7 +7,11 @@ import unittest
 from pathlib import Path
 
 from cmdrhelper.database import CMDRDatabase, SCHEMA_VERSION
-from cmdrhelper.journal_reader import classify_journal_file, read_latest_state
+from cmdrhelper.journal_reader import (
+    classify_journal_file,
+    journal_files,
+    read_latest_state,
+)
 
 
 def write_journal(folder: Path, name: str, events: list[dict]) -> Path:
@@ -27,6 +31,67 @@ def identity_event(event="Commander", fid="F-A", name="Alpha", second=0):
     }
     data["Name" if event == "Commander" else "Commander"] = name
     return data
+
+
+def dated_identity(timestamp: str, fid: str, name: str, system: str) -> list[dict]:
+    return [
+        {
+            "timestamp": timestamp,
+            "event": "Commander",
+            "FID": fid,
+            "Name": name,
+        },
+        {
+            "timestamp": timestamp,
+            "event": "Location",
+            "StarSystem": system,
+        },
+    ]
+
+
+class JournalFileOrderingTests(unittest.TestCase):
+    def _ordered_names(self, names: list[str]) -> list[str]:
+        with tempfile.TemporaryDirectory() as directory:
+            folder = Path(directory)
+            for name in names:
+                write_journal(folder, name, [])
+            return [path.name for path in journal_files(folder)]
+
+    def test_compact_timestamp_format_is_chronological(self):
+        names = [
+            "Journal.220905175455.01.log",
+            "Journal.201120010203.01.log",
+        ]
+        self.assertEqual(self._ordered_names(names), list(reversed(names)))
+
+    def test_long_timestamp_format_is_chronological(self):
+        names = [
+            "Journal.2026-09-02T000034.01.log",
+            "Journal.2022-09-05T175455.01.log",
+        ]
+        self.assertEqual(self._ordered_names(names), list(reversed(names)))
+
+    def test_mixed_formats_are_chronological(self):
+        names = [
+            "Journal.2026-09-02T000034.01.log",
+            "Journal.220905175455.01.log",
+        ]
+        self.assertEqual(self._ordered_names(names), list(reversed(names)))
+
+    def test_parts_are_secondary_chronological_key(self):
+        names = [
+            "Journal.2026-09-02T000034.10.log",
+            "Journal.2026-09-02T000034.02.log",
+            "Journal.2026-09-02T000034.01.log",
+        ]
+        self.assertEqual(self._ordered_names(names), list(reversed(names)))
+
+    def test_unparseable_name_is_safe_and_not_latest(self):
+        names = [
+            "Journal.unrecognised.01.log",
+            "Journal.2026-09-02T000034.01.log",
+        ]
+        self.assertEqual(self._ordered_names(names), names)
 
 
 class JournalClassificationTests(unittest.TestCase):
@@ -136,6 +201,53 @@ class JournalClassificationTests(unittest.TestCase):
 
         self.assertEqual([item["fid_seen"] for item in sessions], ["F-A", "F-B"])
         self.assertEqual(state["commander_fid"], "F-B")
+
+    def test_mixed_formats_select_chronologically_latest_fid(self):
+        with tempfile.TemporaryDirectory() as directory:
+            folder = Path(directory)
+            write_journal(
+                folder,
+                "Journal.220905175455.01.log",
+                dated_identity(
+                    "2022-09-05T17:54:55Z", "F-OLD", "Old", "Old System"
+                ),
+            )
+            write_journal(
+                folder,
+                "Journal.2026-09-02T000034.01.log",
+                dated_identity(
+                    "2026-09-02T00:00:34Z", "F-NEW", "New", "New System"
+                ),
+            )
+            state = read_latest_state(folder)
+
+        self.assertEqual(state["commander_fid"], "F-NEW")
+        self.assertEqual(state["commander"], "New")
+        self.assertEqual(state["system"], "New System")
+        self.assertEqual(state["last_timestamp"], "2026-09-02T00:00:34Z")
+
+    def test_old_compact_file_cannot_overwrite_new_state_for_same_fid(self):
+        with tempfile.TemporaryDirectory() as directory:
+            folder = Path(directory)
+            write_journal(
+                folder,
+                "Journal.220905175455.01.log",
+                dated_identity(
+                    "2022-09-05T17:54:55Z", "F-A", "Alpha", "Old System"
+                ),
+            )
+            write_journal(
+                folder,
+                "Journal.2026-09-02T000034.01.log",
+                dated_identity(
+                    "2026-09-02T00:00:34Z", "F-A", "Alpha", "New System"
+                ),
+            )
+            state = read_latest_state(folder)
+
+        self.assertEqual(state["commander_fid"], "F-A")
+        self.assertEqual(state["system"], "New System")
+        self.assertEqual(state["last_timestamp"], "2026-09-02T00:00:34Z")
 
 
 class JournalSessionDatabaseTests(unittest.TestCase):

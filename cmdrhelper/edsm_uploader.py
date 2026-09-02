@@ -10,6 +10,7 @@ from urllib.request import Request, urlopen
 
 from PySide6.QtCore import QSettings
 
+from cmdrhelper.journal_files import journal_files
 from cmdrhelper.version import __version__
 
 
@@ -237,7 +238,7 @@ class EDSMJournalUploader:
     def _baseline_existing_files(self, folder: Path) -> int:
         count = 0
 
-        for journal in sorted(folder.glob("Journal.*.log")):
+        for journal in journal_files(folder):
             try:
                 size = int(journal.stat().st_size)
             except OSError:
@@ -303,7 +304,7 @@ class EDSMJournalUploader:
                 logger.warning("EDSM Upload pausiert: %s", error)
                 return result
 
-            for journal in sorted(folder.glob("Journal.*.log")):
+            for journal in journal_files(folder):
                 try:
                     file_size = int(journal.stat().st_size)
                 except OSError:
