@@ -161,7 +161,7 @@ werden.
 
 ## Voraussetzungen
 
-Python 3 sowie die Pakete aus `requirements.txt`:
+Python **3.10 bis 3.13** sowie die Pakete aus `requirements.txt`:
 
 ``` text
 PySide6>=6.7,<7
@@ -172,22 +172,24 @@ Pillow>=10.0
 ## Installation unter Linux
 
 ``` bash
-python3 -m venv venv
-source venv/bin/activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-python main.py
+./install.sh
+./start.sh
 ```
 
-Vorhandene Linux-Startskripte können alternativ verwendet werden.
+Die Skripte verwenden ausschließlich das lokale `venv` dieser Installation.
+Sie lösen symbolische Links sicher auf, prüfen Python und pip und können eine
+beschädigte lokale Umgebung reparieren, ohne persönliche Daten oder
+Elite-Journale anzutasten.
 
 ## Installation unter Windows
 
 Für Windows sind `install.bat` und `start.bat` vorgesehen.
 
-`install.bat` prüft Python 3, erstellt `venv`, aktualisiert pip und
-installiert `requirements.txt`. Anschließend wird CMDRHelper über
-`start.bat` gestartet.
+`install.bat` prüft Python 3.10–3.13 und das lokale `venv` der Installation
+und repariert es, sofern dies sicher möglich ist. `start.bat` startet nur
+diese CMDRHelper-Kopie mit genau dieser Umgebung. Fremde Python-Umgebungen
+werden nicht verwendet. Updatefehler und Rollbacks werden verständlich
+gemeldet; persönliche Daten bleiben geschützt.
 
 ## Release erstellen
 
@@ -198,6 +200,81 @@ installiert `requirements.txt`. Anschließend wird CMDRHelper über
 Die Release-Version wird direkt im Skript festgelegt. Das erzeugte ZIP
 enthält Programmcode und Assets, aber keine persönliche Datenbank, keine
 virtuelle Python-Umgebung sowie keine Git-, Cache- oder Editor-Dateien.
+
+## Version 2.1
+
+**Version 2.1** macht die biologische Erkundung aussagekräftiger, erweitert
+die Flottenansicht und beschleunigt große Journalarchive erheblich. Außerdem
+wurden Installation, Start, Update und Rollback unter Windows und Linux
+gehärtet.
+
+### Bio-Prognosen und Habitatdaten
+
+-   die neue Species-Prognose nennt, soweit die Datenbasis ausreicht,
+    konkrete mögliche Species statt nur der Gattung. Mehrere plausible
+    Species können gleichzeitig mit Konfidenz **HOCH**, **MITTEL** oder
+    **NIEDRIG** erscheinen; kleine Stichproben werden konservativ behandelt.
+-   gefundene oder identifizierte Species ersetzen Prognosen. Sind alle
+    BIO-Signale bekannt, verschwinden weitere Prognosen.
+-   das kompakte BIO-Popup zeigt geschätzte Werte für Prognosekandidaten und
+    einen möglichen Gesamtwert des Bodys. Orange/Gold kennzeichnet
+    Schätzwerte, Grün bestätigte Werte. First-Footfall-Boni werden nicht
+    spekulativ eingerechnet.
+-   Temperatur, Druck, Atmosphärenzusammensetzung, Bodyradius sowie Stern-
+    und Parent-Kontext werden als Habitatinformationen erfasst und verbessern
+    künftige Prognosen. Eine allgemeine Varianten- oder Farbenprognose ist
+    nicht Bestandteil dieser Version.
+
+### CMDR-Flotte
+
+-   die erweiterte Flottenübersicht sortiert nach letzter Verwendung, Name,
+    Typ, Sprungreichweite, Frachtkapazität, Leermasse, Standort oder Zeitpunkt,
+    jeweils auf- oder absteigend.
+-   Filter zeigen alle Schiffe, Schiffe mit Fahrzeughangar oder Schiffe mit
+    Fighter-Hangar. Die Hangars werden aus den tatsächlichen Loadout-Modulen
+    erkannt.
+-   SRVs und Fighter bleiben Ausrüstung des Mutterraumschiffs und werden nicht
+    als eigene Schiffe geführt.
+
+### Journale, Archivimport und Performance
+
+-   historische und aktuelle Journalnamen werden gemeinsam unterstützt:
+    `Journal.YYMMDDHHMMSS.PART.log` und
+    `Journal.YYYY-MM-DDTHHMMSS.PART.log`. Langjährige Archive werden dadurch
+    korrekt chronologisch verarbeitet; ältere Journale überschreiben nicht
+    mehr den aktuellen Commander oder State.
+-   der Archivimport verarbeitet unvollständige historische Eventfolgen
+    robuster: Signal- und Mappingevents können auch ohne vorherigen
+    vollständigen Bodyscan erhalten werden, spätere Scans vervollständigen
+    die Daten. Die Multi-CMDR-Trennung bleibt erhalten.
+-   ein persistenter Journalindex überspringt bei späteren Starts bekannte,
+    unveränderte Dateien. Das aktive Journal wird ab der letzten sicheren
+    Byteposition inkrementell gelesen. Metadaten und SHA-256 sichern die
+    Dateierkennung, ohne unveränderte Dateien immer neu zu hashen; die
+    FID-basierte Commanderzuordnung bleibt unverändert.
+-   beim erstmaligen Aufbau eines großen Index zeigt eine responsive
+    Vorbereitungsansicht echte Dateizahlen, Prozentfortschritt und kleine
+    animierte Raumschiffe. Bei späteren schnellen Starts erscheint sie
+    normalerweise nicht mehr.
+
+### Installation, Updates und Umstieg
+
+-   die gehärteten Windows- und Linux-Starter unterstützen Python 3.10–3.13,
+    verwenden ausschließlich die lokale virtuelle Umgebung der Installation
+    und reparieren eine sicher als lokal erkannte defekte Umgebung. Linux-
+    Symlinks werden konservativ behandelt; fremde Umgebungen werden weder
+    repariert noch verwendet.
+-   Updates und Rollbacks melden Fehler klarer und halten Programmdateien und
+    Abhängigkeiten konsistent. Persönliche Daten und Elite-Journale bleiben
+    unangetastet.
+-   das normale Update von v2.0 auf v2.1 ist vorgesehen. Bei Installationen
+    deutlich vor v2.0 sollten persönliche Einstellungen vorher gesichert
+    werden; bei Problemen kann eine saubere Neuinstallation helfen. Elite-
+    Journale niemals löschen und vorhandene CMDRHelper-Daten nicht pauschal
+    entfernen.
+-   bei sehr großen Journalarchiven kann der erste Start mit v2.1 durch den
+    einmaligen Indexaufbau etwas dauern; die Fortschrittsansicht zeigt die
+    laufende Arbeit. Spätere Starts sind erheblich schneller.
 
 ## Version 2.0
 

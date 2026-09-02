@@ -158,7 +158,7 @@ Windows voidaan asentaa mukana toimitettujen batch-tiedostojen avulla.
 
 ## Vaatimukset
 
-Python 3 sekä `requirements.txt`-tiedostossa määritellyt paketit:
+Python **3.10–3.13** sekä `requirements.txt`-tiedostossa määritellyt paketit:
 
 ``` text
 PySide6>=6.7,<7
@@ -169,11 +169,8 @@ Pillow>=10.0
 ## Asennus Linuxissa
 
 ``` bash
-python3 -m venv venv
-source venv/bin/activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-python main.py
+./install.sh
+./start.sh
 ```
 
 Vaihtoehtoisesti voidaan käyttää olemassa olevia
@@ -183,7 +180,7 @@ Linux-käynnistysskriptejä.
 
 Windowsia varten on `install.bat` ja `start.bat`.
 
-`install.bat` tarkistaa Python 3:n, luo `venv`-ympäristön, päivittää
+`install.bat` tarkistaa Python 3.10–3.13:n, luo tai korjaa paikallisen `venv`-ympäristön, päivittää
 pipin ja asentaa `requirements.txt`-tiedoston paketit. Tämän jälkeen
 CMDRHelper käynnistetään `start.bat`-tiedostolla.
 
@@ -197,6 +194,65 @@ Julkaisuversion numero määritetään suoraan skriptissä. Luotu ZIP
 sisältää ohjelmakoodin ja assetit, mutta ei henkilökohtaista
 tietokantaa, virtuaalista Python-ympäristöä eikä Git-, välimuisti- tai
 editoritiedostoja.
+
+## Versio 2.1
+
+**Versio 2.1** parantaa biologiaennusteita, laivastonäkymää ja suurten
+Journal-arkistojen suorituskykyä sekä vahvistaa Windows- ja Linux-asennusta,
+käynnistystä, päivitystä ja palautusta.
+
+### Bioennusteet ja elinympäristö
+
+-   uusi ennuste näyttää riittävillä tiedoilla konkreettisia mahdollisia
+    lajeja pelkän suvun sijasta. Useita lajeja voidaan näyttää luottamuksella
+    **KORKEA**, **KESKITASO** tai **MATALA**; pieniä otoksia käsitellään
+    varovaisesti.
+-   löydetty tai tunnistettu laji korvaa ennusteen. Kun kaikki BIO-signaalit
+    tunnetaan, jäljellä olevat ennusteet poistuvat.
+-   tiivis BIO-ikkuna näyttää ehdokkaiden arvioidut arvot ja kappaleen
+    mahdollisen kokonaisarvon. Oranssi/kulta on arvio, vihreä vahvistettu arvo;
+    spekulatiivisia First Footfall -bonuksia ei lasketa mukaan.
+-   lämpötila, paine, ilmakehän koostumus, säde sekä tähti-/parent-konteksti
+    tallennetaan elinympäristötiedoiksi. Yleistä variantti- tai väriennustetta
+    ei ole toteutettu.
+
+### CMDR-laivasto
+
+-   laivasto voidaan lajitella nousevasti tai laskevasti viime käytön, nimen,
+    tyypin, hyppymatkan, rahtitilan, tyhjämassan, sijainnin tai ajan mukaan.
+-   suodattimet näyttävät kaikki alukset tai ajoneuvo- tai fighter-hangaarilla
+    varustetut alukset. Hangaarit tunnistetaan todellisista Loadout-moduuleista;
+    SRV:t ja fighterit pysyvät emoaluksen varusteina.
+
+### Journalit, arkistotuonti ja suorituskyky
+
+-   sekä `Journal.YYMMDDHHMMSS.PART.log` että
+    `Journal.YYYY-MM-DDTHHMMSS.PART.log` käsitellään oikeassa järjestyksessä,
+    joten vanha tiedosto ei enää korvaa nykyistä CMDR:ää tai tilaa.
+-   epätäydellisten arkistojen Signal-/Mapping-tapahtumat voidaan tuoda ilman
+    aiempaa täydellistä Body Scania; myöhemmät skannaukset täydentävät tiedot
+    ja multi-CMDR-erottelu säilyy.
+-   pysyvä Journal-indeksi ohittaa tunnetut muuttumattomat tiedostot. Aktiivista
+    tiedostoa luetaan vain viimeisestä turvallisesta tavupaikasta; metadata ja
+    SHA-256 varmistavat identiteetin, ja FID-kohdistus säilyy.
+-   ensimmäinen suuri indeksin rakennus näyttää aidot luvut, prosentit ja
+    pienet animoidut avaruusalukset responsiivisessa näkymässä. Myöhemmillä
+    nopeilla käynnistyksillä näkymää ei yleensä näytetä.
+
+### Asennus ja päivitys
+
+-   vahvistetut Windows- ja Linux-skriptit tukevat Python-versioita 3.10–3.13,
+    käyttävät vain paikallista `venv`-ympäristöä ja korjaavat turvallisesti
+    paikalliseksi todetun ympäristön. Linux-symlinkit käsitellään varovasti;
+    vieraita ympäristöjä ei käytetä.
+-   päivitys ja palautus ilmoittavat virheistä selkeästi ja suojaavat
+    henkilötiedot ja Elite-Journalit.
+-   normaali päivitys v2.0:sta v2.1:een on tuettu. Selvästi v2.0:aa vanhemmissa
+    asennuksissa asetukset kannattaa varmuuskopioida; ongelmissa puhdas asennus
+    voi auttaa. Älä koskaan poista Elite-Journaleja tai vanhoja Helper-tietoja
+    yleisenä korjauksena.
+-   erittäin suuren arkiston ensimmäinen v2.1-käynnistys voi kestää indeksin
+    vuoksi hetken; myöhemmät käynnistykset ovat huomattavasti nopeampia.
 
 ## Versio 2.0
 

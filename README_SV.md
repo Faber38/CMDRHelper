@@ -153,7 +153,7 @@ konfigureras med hjälp av de medföljande batchfilerna.
 
 ## Förutsättningar
 
-Python 3 samt paketen från `requirements.txt`:
+Python **3.10 till 3.13** samt paketen från `requirements.txt`:
 
 ``` text
 PySide6>=6.7,<7
@@ -164,20 +164,18 @@ Pillow>=10.0
 ## Installation under Linux
 
 ``` bash
-python3 -m venv venv
-source venv/bin/activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-python main.py
+./install.sh
+./start.sh
 ```
 
-Befintliga Linux-startskript kan användas som alternativ.
+Skripten använder endast installationens lokala `venv` och kan reparera det
+försiktigt utan att röra personliga data.
 
 ## Installation under Windows
 
 För Windows är `install.bat` och `start.bat` avsedda.
 
-`install.bat` kontrollerar Python 3, skapar `venv`, uppdaterar pip och
+`install.bat` kontrollerar Python 3.10–3.13, skapar eller reparerar lokal `venv` och
 installerar `requirements.txt`. Därefter startas CMDRHelper via
 `start.bat`.
 
@@ -190,6 +188,62 @@ installerar `requirements.txt`. Därefter startas CMDRHelper via
 Release-versionen anges direkt i skriptet. Den skapade ZIP-filen
 innehåller programkod och assets, men ingen personlig databas, ingen
 virtuell Python-miljö och inga Git-, cache- eller editorfiler.
+
+## Version 2.1
+
+**Version 2.1** förbättrar biologi, flottöversikt och prestanda för stora
+Journal-arkiv samt härdar installation, start, uppdatering och återställning
+på Windows och Linux.
+
+### Bioprognoser och habitat
+
+-   den nya prognosen visar konkreta möjliga arter i stället för enbart släkte
+    när underlaget räcker. Flera arter kan visas med **HÖG**, **MEDEL** eller
+    **LÅG** säkerhet; små urval bedöms konservativt.
+-   funna eller identifierade arter ersätter prognoser. När alla BIO-signaler
+    är kända försvinner återstående prognoser.
+-   den kompakta BIO-rutan visar uppskattade kandidatvärden och en möjlig
+    totalsumma för himlakroppen. Orange/guld är uppskattat, grönt bekräftat;
+    spekulativa First Footfall-bonusar räknas inte in.
+-   temperatur, tryck, atmosfärssammansättning, radie och stjärn-/parentkontext
+    sparas som habitatdata. Allmän variant- eller färgprognos ingår inte.
+
+### CMDR-flotta
+
+-   flottan kan sorteras stigande eller fallande efter senast använd, namn,
+    typ, hoppvidd, lastkapacitet, tommassa, plats eller tidpunkt.
+-   filter visar alla skepp, skepp med fordons- eller fighterhangar. Hangarer
+    identifieras från verkliga Loadout-moduler; SRV:er och fighters förblir
+    utrustning på moderskeppet.
+
+### Journaler, arkivimport och prestanda
+
+-   både `Journal.YYMMDDHHMMSS.PART.log` och
+    `Journal.YYYY-MM-DDTHHMMSS.PART.log` behandlas i rätt kronologi, så äldre
+    filer inte längre skriver över aktuell CMDR eller status.
+-   signal- och mappinghändelser i ofullständiga arkiv kan importeras utan en
+    tidigare full Body Scan; senare skanningar kompletterar uppgifterna och
+    multi-CMDR-separationen består.
+-   ett beständigt Journal-index hoppar över kända oförändrade filer. Aktiv fil
+    läses stegvis från senaste säkra byteposition; metadata och SHA-256 säkrar
+    identiteten och FID-tilldelningen är oförändrad.
+-   första stora indexbygget visar verkliga tal, procent och små animerade
+    rymdskepp i ett responsivt fönster. Senare snabba starter visar normalt
+    inte vyn.
+
+### Installation och uppgradering
+
+-   härdade Windows- och Linux-skript stöder Python 3.10–3.13, använder bara
+    lokal `venv` och kan säkert reparera en bekräftat lokal skadad miljö.
+    Linux-symlänkar hanteras försiktigt; främmande miljöer används aldrig.
+-   uppdatering och återställning rapporterar fel tydligt och skyddar
+    personliga data och Elite-Journaler.
+-   normal uppdatering från v2.0 till v2.1 stöds. För installationer långt före
+    v2.0 bör inställningar säkerhetskopieras; en ren installation kan hjälpa
+    vid problem. Radera aldrig Elite-Journaler eller gamla Helper-data som en
+    generell lösning.
+-   första v2.1-starten med ett mycket stort arkiv kan ta en stund för
+    indexeringen; senare starter är betydligt snabbare.
 
 ## Version 2.0
 

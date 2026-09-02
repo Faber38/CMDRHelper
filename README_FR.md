@@ -167,7 +167,7 @@ Windows peut être configuré à l'aide des fichiers batch fournis.
 
 ## Prérequis
 
-Python 3 ainsi que les paquets indiqués dans `requirements.txt` :
+Python **3.10 à 3.13** ainsi que les paquets indiqués dans `requirements.txt` :
 
 ``` text
 PySide6>=6.7,<7
@@ -178,21 +178,18 @@ Pillow>=10.0
 ## Installation sous Linux
 
 ``` bash
-python3 -m venv venv
-source venv/bin/activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-python main.py
+./install.sh
+./start.sh
 ```
 
-Les scripts de démarrage Linux existants peuvent également être
-utilisés.
+Ces scripts utilisent exclusivement le `venv` local de l'installation et
+peuvent le réparer prudemment sans toucher aux données personnelles.
 
 ## Installation sous Windows
 
 Pour Windows, `install.bat` et `start.bat` sont prévus.
 
-`install.bat` vérifie Python 3, crée `venv`, met pip à jour et installe
+`install.bat` vérifie Python 3.10–3.13, crée ou répare le `venv` local et installe
 `requirements.txt`. CMDRHelper est ensuite lancé via `start.bat`.
 
 ## Créer une release
@@ -205,6 +202,67 @@ La version de la release est définie directement dans le script. Le ZIP
 généré contient le code du programme et les assets, mais aucune base de
 données personnelle, aucun environnement Python virtuel ni fichier Git,
 cache ou éditeur.
+
+## Version 2.1
+
+**La version 2.1** améliore la biologie, la flotte et surtout les performances
+avec de grandes archives de Journaux. Elle renforce aussi installation,
+démarrage, mise à jour et restauration sous Windows et Linux.
+
+### Prévisions biologiques et habitat
+
+-   lorsque les données suffisent, la nouvelle prévision indique des espèces
+    concrètes plutôt que le seul genre. Plusieurs espèces plausibles peuvent
+    apparaître avec une confiance **ÉLEVÉE**, **MOYENNE** ou **FAIBLE** ; les
+    petits échantillons sont traités prudemment.
+-   une espèce trouvée ou identifiée remplace sa prévision ; lorsque tous les
+    signaux BIO sont connus, les prévisions restantes disparaissent.
+-   la fenêtre BIO compacte affiche les valeurs estimées des candidats et un
+    total possible du corps : orange/or = estimation, vert = valeur confirmée.
+    Aucun bonus spéculatif de première découverte à pied n'est ajouté.
+-   température, pression, composition atmosphérique, rayon et contexte de
+    l'étoile/du parent enrichissent les données d'habitat. La prévision
+    générale des variantes ou couleurs n'est pas implémentée.
+
+### Flotte du CMDR
+
+-   la flotte se trie, en ordre croissant ou décroissant, par dernière
+    utilisation, nom, type, portée de saut, capacité de fret, masse à vide,
+    emplacement ou date.
+-   elle se filtre sur tous les vaisseaux, ceux avec hangar de véhicules ou
+    hangar de chasseurs, détectés dans les véritables modules du loadout.
+    SRV et chasseurs restent l'équipement du vaisseau porteur.
+
+### Journaux, import d'archives et performances
+
+-   les noms historiques `Journal.YYMMDDHHMMSS.PART.log` et modernes
+    `Journal.YYYY-MM-DDTHHMMSS.PART.log` sont traités ensemble dans le bon
+    ordre ; un ancien Journal ne remplace plus le CMDR ou l'état actuel.
+-   les événements de signaux et de cartographie d'archives incomplètes sont
+    conservés même sans scan complet préalable ; les scans ultérieurs
+    complètent les données, sans rompre la séparation multi-CMDR.
+-   un index persistant ignore les Journaux connus et inchangés. Le fichier
+    actif est lu progressivement depuis sa dernière position sûre ; métadonnées
+    et SHA-256 sécurisent l'identité, et l'attribution par FID reste inchangée.
+-   un premier index volumineux affiche immédiatement les nombres réels, le
+    pourcentage et de petits vaisseaux animés dans une interface réactive. Les
+    démarrages rapides suivants n'affichent normalement plus cette vue.
+
+### Installation et mise à niveau
+
+-   `install.bat`/`start.bat` et `install.sh`/`start.sh` prennent en charge
+    Python 3.10–3.13, utilisent uniquement le `venv` local et peuvent réparer
+    prudemment un environnement local endommagé. Les liens symboliques Linux
+    sont contrôlés et aucun environnement étranger n'est utilisé.
+-   mises à jour et restaurations signalent clairement les échecs et protègent
+    données personnelles et Journaux Elite.
+-   la mise à jour normale de v2.0 vers v2.1 est prévue. Pour une installation
+    bien antérieure à v2.0, sauvegardez les réglages ; en cas de problème, une
+    installation propre peut aider. Ne supprimez jamais les Journaux Elite ni,
+    par principe, les anciennes données de CMDRHelper.
+-   avec une très grande archive, le premier démarrage v2.1 peut prendre un
+    certain temps pour créer l'index ; les démarrages suivants sont nettement
+    plus rapides.
 
 ## Version 2.0
 

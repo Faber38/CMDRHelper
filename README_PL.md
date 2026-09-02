@@ -159,7 +159,7 @@ Windows można skonfigurować za pomocą dołączonych plików batch.
 
 ## Wymagania
 
-Python 3 oraz pakiety z `requirements.txt`:
+Python **3.10–3.13** oraz pakiety z `requirements.txt`:
 
 ``` text
 PySide6>=6.7,<7
@@ -170,20 +170,18 @@ Pillow>=10.0
 ## Instalacja w systemie Linux
 
 ``` bash
-python3 -m venv venv
-source venv/bin/activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-python main.py
+./install.sh
+./start.sh
 ```
 
-Alternatywnie można użyć istniejących skryptów startowych dla Linuxa.
+Skrypty używają wyłącznie lokalnego `venv` instalacji i mogą go ostrożnie
+naprawić bez naruszania danych osobistych.
 
 ## Instalacja w systemie Windows
 
 Dla Windows przewidziane są `install.bat` i `start.bat`.
 
-`install.bat` sprawdza Python 3, tworzy `venv`, aktualizuje pip i
+`install.bat` sprawdza Python 3.10–3.13, tworzy lub naprawia lokalne `venv` i
 instaluje `requirements.txt`. Następnie CMDRHelper jest uruchamiany
 przez `start.bat`.
 
@@ -197,6 +195,65 @@ Wersja wydania jest ustawiana bezpośrednio w skrypcie. Utworzony plik
 ZIP zawiera kod programu i zasoby, ale nie zawiera osobistej bazy
 danych, wirtualnego środowiska Pythona ani plików Git, cache czy
 edytora.
+
+## Wersja 2.1
+
+**Wersja 2.1** rozwija prognozy biologiczne i widok floty, znacznie przyspiesza
+duże archiwa dzienników oraz wzmacnia instalację, start, aktualizację i
+wycofywanie zmian w Windows i Linuksie.
+
+### Prognozy biologiczne i habitat
+
+-   nowa prognoza wskazuje konkretne możliwe gatunki zamiast tylko rodzaju,
+    gdy dane są wystarczające. Kilka gatunków może być pokazanych jednocześnie
+    z pewnością **WYSOKĄ**, **ŚREDNIĄ** lub **NISKĄ**; małe próby są oceniane
+    ostrożnie.
+-   znaleziony lub rozpoznany gatunek zastępuje prognozę. Po poznaniu wszystkich
+    sygnałów BIO pozostałe prognozy znikają.
+-   kompaktowe okno BIO pokazuje szacowane wartości kandydatów i możliwą sumę
+    dla ciała. Pomarańcz/złoto oznacza szacunek, zieleń wartość potwierdzoną;
+    spekulacyjnych premii First Footfall nie dolicza się.
+-   temperatura, ciśnienie, skład atmosfery, promień oraz kontekst gwiazdy i
+    parenta wzbogacają dane habitatu. Ogólne prognozy wariantów i kolorów nie
+    są zaimplementowane.
+
+### Flota CMDR
+
+-   flotę można sortować rosnąco lub malejąco według ostatniego użycia, nazwy,
+    typu, zasięgu skoku, ładowności, masy pustej, lokalizacji albo czasu.
+-   filtry pokazują wszystkie statki albo statki z hangarem pojazdów czy
+    fighterów, wykrywanym z rzeczywistych modułów Loadout. SRV i fightery
+    pozostają wyposażeniem statku macierzystego.
+
+### Dzienniki, import archiwum i wydajność
+
+-   nazwy `Journal.YYMMDDHHMMSS.PART.log` oraz
+    `Journal.YYYY-MM-DDTHHMMSS.PART.log` są wspólnie przetwarzane we właściwej
+    kolejności, więc starsze pliki nie nadpisują bieżącego CMDR ani stanu.
+-   zdarzenia Signal/Mapping z niepełnych archiwów można importować bez
+    wcześniejszego pełnego Body Scan; późniejsze skany uzupełniają dane, a
+    separacja multi-CMDR pozostaje zachowana.
+-   trwały indeks pomija znane, niezmienione dzienniki. Aktywny plik jest
+    czytany przyrostowo od ostatniej bezpiecznej pozycji bajtowej; metadane i
+    SHA-256 chronią tożsamość, a przypisanie FID pozostaje bez zmian.
+-   pierwszy duży indeks pokazuje prawdziwe liczby, procent i małe animowane
+    statki w responsywnym widoku. Późniejsze szybkie starty zwykle go nie
+    wyświetlają.
+
+### Instalacja i aktualizacja
+
+-   wzmocnione skrypty Windows i Linux obsługują Python 3.10–3.13, używają
+    wyłącznie lokalnego `venv` i bezpiecznie naprawiają środowisko potwierdzone
+    jako lokalne. Symlinki Linuksa są traktowane ostrożnie; obce środowiska nie
+    są używane.
+-   aktualizacja i rollback jasno zgłaszają błędy oraz chronią dane osobiste i
+    dzienniki Elite.
+-   normalna aktualizacja v2.0 do v2.1 jest wspierana. Przy instalacji znacznie
+    starszej niż v2.0 warto wykonać kopię ustawień; w razie problemów może pomóc
+    czysta instalacja. Nigdy nie usuwaj dzienników Elite ani starych danych
+    Helpera jako rutynowej naprawy.
+-   pierwszy start v2.1 z ogromnym archiwum może jednorazowo potrwać podczas
+    indeksowania; kolejne starty są znacznie szybsze.
 
 ## Wersja 2.0
 

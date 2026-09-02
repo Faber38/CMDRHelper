@@ -165,7 +165,7 @@ puede configurarse mediante los archivos batch incluidos.
 
 ## Requisitos
 
-Python 3 y los paquetes indicados en `requirements.txt`:
+Python **3.10 a 3.13** y los paquetes indicados en `requirements.txt`:
 
 ``` text
 PySide6>=6.7,<7
@@ -176,21 +176,18 @@ Pillow>=10.0
 ## Instalación en Linux
 
 ``` bash
-python3 -m venv venv
-source venv/bin/activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-python main.py
+./install.sh
+./start.sh
 ```
 
-Como alternativa pueden utilizarse los scripts de inicio de Linux ya
-existentes.
+Estos scripts usan exclusivamente el `venv` local de la instalación y pueden
+repararlo con prudencia sin tocar datos personales.
 
 ## Instalación en Windows
 
 Para Windows están previstos `install.bat` y `start.bat`.
 
-`install.bat` comprueba Python 3, crea `venv`, actualiza pip e instala
+`install.bat` comprueba Python 3.10–3.13, crea o repara el `venv` local e instala
 `requirements.txt`. A continuación CMDRHelper se inicia mediante
 `start.bat`.
 
@@ -204,6 +201,65 @@ La versión de la release se establece directamente en el script. El
 archivo ZIP generado contiene el código del programa y los assets, pero
 no la base de datos personal, el entorno virtual de Python ni archivos
 Git, de caché o del editor.
+
+## Versión 2.1
+
+**La versión 2.1** mejora la biología, la vista de flota y el rendimiento con
+grandes archivos de diarios. También refuerza instalación, inicio,
+actualización y reversión en Windows y Linux.
+
+### Predicciones biológicas y hábitat
+
+-   cuando hay datos suficientes, la nueva predicción muestra Species
+    concretas posibles y no solo el género. Puede mostrar varias con confianza
+    **ALTA**, **MEDIA** o **BAJA**; las muestras pequeñas se tratan de forma
+    conservadora.
+-   una Species encontrada o identificada sustituye su predicción. Cuando se
+    conocen todas las señales BIO, desaparecen las predicciones restantes.
+-   el popup BIO compacto muestra valores estimados de candidatos y un total
+    posible del cuerpo. Naranja/dorado significa estimado y verde confirmado;
+    no se añaden bonificaciones especulativas de First Footfall.
+-   temperatura, presión, composición atmosférica, radio y contexto de
+    estrella/parent amplían los datos de hábitat. No hay predicción general de
+    variantes o colores.
+
+### Flota del CMDR
+
+-   la flota se ordena ascendente o descendentemente por último uso, nombre,
+    tipo, alcance de salto, carga, masa en vacío, ubicación o fecha.
+-   los filtros muestran todas las naves o las equipadas con hangar de
+    vehículos o fighters, detectados en módulos Loadout reales. Los SRV y
+    fighters siguen siendo equipo de la nave nodriza.
+
+### Diarios, archivo y rendimiento
+
+-   `Journal.YYMMDDHHMMSS.PART.log` y
+    `Journal.YYYY-MM-DDTHHMMSS.PART.log` se procesan juntos en orden correcto,
+    evitando que diarios antiguos sustituyan al CMDR o estado actual.
+-   eventos Signal/Mapping de archivos incompletos se importan sin un Body Scan
+    completo previo; escaneos posteriores completan los datos y se conserva la
+    separación multi-CMDR.
+-   un índice persistente omite diarios conocidos sin cambios. El diario activo
+    se lee incrementalmente desde la última posición de byte segura; metadatos
+    y SHA-256 protegen su identidad y la asignación por FID no cambia.
+-   la primera indexación grande muestra cifras reales, porcentaje y pequeñas
+    naves animadas en una vista responsiva. Los inicios rápidos posteriores
+    normalmente no la muestran.
+
+### Instalación y actualización
+
+-   los scripts reforzados de Windows y Linux admiten Python 3.10–3.13, usan
+    exclusivamente el `venv` local y reparan con seguridad un entorno local
+    dañado. Los enlaces simbólicos Linux se tratan con prudencia; nunca se usan
+    entornos ajenos.
+-   actualizaciones y reversiones informan claramente de fallos y protegen los
+    datos personales y diarios de Elite.
+-   se admite la actualización normal de v2.0 a v2.1. Para instalaciones muy
+    anteriores a v2.0, guarda los ajustes; ante problemas puede ayudar una
+    instalación limpia. Nunca borres los diarios de Elite ni todos los datos
+    antiguos de CMDRHelper como solución genérica.
+-   con archivos enormes, el primer inicio v2.1 puede tardar una vez mientras
+    crea el índice; los siguientes son considerablemente más rápidos.
 
 ## Versión 2.0
 

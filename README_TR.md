@@ -159,7 +159,7 @@ kurulabilir.
 
 ## Gereksinimler
 
-Python 3 ve `requirements.txt` içindeki paketler:
+Python **3.10–3.13** ve `requirements.txt` içindeki paketler:
 
 ``` text
 PySide6>=6.7,<7
@@ -170,20 +170,18 @@ Pillow>=10.0
 ## Linux altında kurulum
 
 ``` bash
-python3 -m venv venv
-source venv/bin/activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-python main.py
+./install.sh
+./start.sh
 ```
 
-Alternatif olarak mevcut Linux başlangıç betikleri kullanılabilir.
+Bu betikler yalnızca kurulumun yerel `venv` ortamını kullanır ve kişisel
+verilere dokunmadan güvenle onarabilir.
 
 ## Windows altında kurulum
 
 Windows için `install.bat` ve `start.bat` kullanılması öngörülmüştür.
 
-`install.bat` Python 3'ü kontrol eder, `venv` oluşturur, pip'i günceller
+`install.bat` Python 3.10–3.13'ü kontrol eder, yerel `venv` ortamını oluşturur veya onarır
 ve `requirements.txt` içeriğini kurar. Ardından CMDRHelper `start.bat`
 üzerinden başlatılır.
 
@@ -196,6 +194,62 @@ ve `requirements.txt` içeriğini kurar. Ardından CMDRHelper `start.bat`
 Sürüm numarası doğrudan betikte belirlenir. Oluşturulan ZIP dosyası
 program kodunu ve asset'leri içerir; ancak kişisel veritabanını, sanal
 Python ortamını veya Git, önbellek ve editör dosyalarını içermez.
+
+## Sürüm 2.1
+
+**Sürüm 2.1** biyoloji tahminlerini, filo görünümünü ve büyük Journal
+arşivlerindeki performansı geliştirir; Windows ve Linux kurulum, başlatma,
+güncelleme ve geri alma yollarını da sağlamlaştırır.
+
+### Biyo tahminleri ve habitat
+
+-   veri yeterliyse yeni tahmin yalnızca cins yerine somut olası Species'leri
+    gösterir. Birden çok Species **YÜKSEK**, **ORTA** veya **DÜŞÜK** güvenle
+    birlikte gösterilebilir; küçük örnekler temkinli değerlendirilir.
+-   bulunan veya tanımlanan Species tahminin yerini alır. Tüm BIO sinyalleri
+    bilindiğinde kalan tahminler kaybolur.
+-   kompakt BIO açılır penceresi adayların tahmini değerlerini ve gövdenin olası
+    toplamını gösterir. Turuncu/altın tahmini, yeşil doğrulanmış değerdir;
+    varsayımsal First Footfall bonusları eklenmez.
+-   sıcaklık, basınç, atmosfer bileşimi, yarıçap ve yıldız/parent bağlamı habitat
+    verilerini geliştirir. Genel varyant veya renk tahmini uygulanmamıştır.
+
+### CMDR filosu
+
+-   filo son kullanım, ad, tür, sıçrama menzili, yük kapasitesi, boş kütle,
+    konum veya zamana göre artan ya da azalan sıralanabilir.
+-   filtreler tüm gemileri, araç hangarlı veya fighter hangarlı gemileri
+    gösterir; hangarlar gerçek Loadout modüllerinden algılanır. SRV ve fighter'lar
+    ana geminin ekipmanı olarak kalır.
+
+### Journallar, arşiv ve performans
+
+-   `Journal.YYMMDDHHMMSS.PART.log` ile
+    `Journal.YYYY-MM-DDTHHMMSS.PART.log` doğru kronolojide birlikte işlenir;
+    eski dosyalar güncel CMDR veya durumu artık geçersiz kılmaz.
+-   eksik arşivlerdeki Signal/Mapping olayları önceki tam Body Scan olmadan
+    içe aktarılabilir; sonraki taramalar veriyi tamamlar ve multi-CMDR ayrımı
+    korunur.
+-   kalıcı Journal dizini bilinen değişmemiş dosyaları atlar. Etkin dosya son
+    güvenli bayt konumundan artımlı okunur; metadata ve SHA-256 kimliği korur,
+    FID ataması değişmez.
+-   ilk büyük dizin oluşturma gerçek sayıları, yüzdeyi ve küçük animasyonlu uzay
+    gemilerini duyarlı bir görünümde gösterir. Sonraki hızlı açılışlarda bu
+    görünüm normalde çıkmaz.
+
+### Kurulum ve yükseltme
+
+-   sağlamlaştırılmış Windows ve Linux betikleri Python 3.10–3.13'ü destekler,
+    yalnızca yerel `venv` kullanır ve yerel olduğu doğrulanan bozuk ortamı
+    güvenle onarır. Linux sembolik bağlantıları temkinli ele alınır; yabancı
+    ortamlar kullanılmaz.
+-   güncelleme ve geri alma hataları açıkça bildirir; kişisel verileri ve Elite
+    Journallarını korur.
+-   v2.0'dan v2.1'e normal güncelleme desteklenir. v2.0'dan çok eski kurulumlarda
+    ayarları yedekleyin; sorun halinde temiz kurulum yardımcı olabilir. Elite
+    Journallarını veya tüm eski Helper verilerini genel çözüm olarak silmeyin.
+-   çok büyük arşivlerde ilk v2.1 açılışı dizin için bir kez zaman alabilir;
+    sonraki açılışlar belirgin biçimde daha hızlıdır.
 
 ## Sürüm 2.0
 

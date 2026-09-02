@@ -152,7 +152,7 @@ Windows can be set up using the included batch files.
 
 ## Requirements
 
-Python 3 and the packages listed in `requirements.txt`:
+Python **3.10 through 3.13** and the packages listed in `requirements.txt`:
 
 ``` text
 PySide6>=6.7,<7
@@ -163,22 +163,23 @@ Pillow>=10.0
 ## Installation on Linux
 
 ``` bash
-python3 -m venv venv
-source venv/bin/activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-python main.py
+./install.sh
+./start.sh
 ```
 
-Existing Linux start scripts can be used as an alternative.
+The scripts always use this installation's local `venv`. They resolve
+symbolic links safely, validate Python and pip, and can repair a damaged
+local environment without touching personal data or Elite Journals.
 
 ## Installation on Windows
 
 `install.bat` and `start.bat` are provided for Windows.
 
-`install.bat` checks for Python 3, creates `venv`, updates pip, and
-installs `requirements.txt`. CMDRHelper is then started using
-`start.bat`.
+`install.bat` validates Python 3.10–3.13 and the installation's local
+`venv`, repairing it when this can be done safely. `start.bat` starts only
+this copy of CMDRHelper with that environment. Foreign Python environments
+are not used. Update failures and rollbacks are reported clearly while
+personal data remains protected.
 
 ## Creating a release
 
@@ -189,6 +190,76 @@ installs `requirements.txt`. CMDRHelper is then started using
 The release version is defined directly in the script. The generated ZIP
 contains program code and assets, but no personal database, virtual
 Python environment, Git files, cache files, or editor files.
+
+## Version 2.1
+
+**Version 2.1** makes biological exploration more informative, expands the
+fleet view, and substantially accelerates large Journal archives. It also
+hardens installation, startup, updates, and rollback on Windows and Linux.
+
+### Biological predictions and habitat data
+
+-   the new species prediction names concrete possible species, rather than
+    only a genus, whenever the available observations support this. Several
+    plausible species may be shown together with **HIGH**, **MEDIUM**, or
+    **LOW** confidence; small samples are treated conservatively.
+-   discovered or identified species replace predictions. Once all BIO
+    signals are known, remaining predictions disappear.
+-   the compact BIO popup includes estimated values for prediction
+    candidates and a possible total for the body. Orange/gold marks an
+    estimate and green a confirmed value. Estimates do not speculate about
+    first-footfall bonuses.
+-   temperature, pressure, atmospheric composition, body radius, and
+    star/parent context are retained as habitat information to improve
+    future predictions. General variant or colour prediction is not part of
+    this release.
+
+### Commander fleet
+
+-   the expanded fleet overview sorts by last use, name, type, jump range,
+    cargo capacity, empty mass, location, or timestamp, in ascending or
+    descending order.
+-   filters show all ships, ships with a vehicle hangar, or ships with a
+    fighter hangar. Hangars are detected from the actual loadout modules.
+-   SRVs and fighters remain equipment of their mothership and are not
+    listed as independent ships.
+
+### Journals, archive import, and performance
+
+-   historical and current Journal names are now handled together, both
+    `Journal.YYMMDDHHMMSS.PART.log` and
+    `Journal.YYYY-MM-DDTHHMMSS.PART.log`. Long-running archives therefore
+    remain in the correct chronology and older files no longer overwrite the
+    current Commander or state.
+-   archive import is more robust when historical event sequences are
+    incomplete: signal and mapping events can be retained without a prior
+    complete body scan, and later scans complete the data. Multi-Commander
+    separation remains intact.
+-   a persistent Journal index skips known, unchanged files on later starts.
+    The active Journal is read incrementally from its last safe byte
+    position. Metadata and SHA-256 protect file identity without repeatedly
+    hashing unchanged files, while FID-based Commander attribution remains
+    unchanged.
+-   when a large index is built for the first time, a responsive preparation
+    view shows real file counts, percentage progress, and small animated
+    spaceships. Later fast starts normally do not show it.
+
+### Installation, updates, and upgrading
+
+-   the hardened Windows and Linux launchers support Python 3.10–3.13, use
+    only the installation's local virtual environment, and safely repair a
+    verifiably local damaged environment. Linux symlinks are handled
+    conservatively; foreign environments are never repaired or used.
+-   updates and rollbacks now fail more clearly and keep program files and
+    dependencies consistent. Personal data and Elite Journals remain
+    untouched.
+-   a normal update from v2.0 to v2.1 is supported. For installations much
+    older than v2.0, back up personal settings first; if problems occur, a
+    clean installation may help. Never delete Elite Journals, and do not
+    routinely delete existing CMDRHelper data.
+-   with very large Journal archives, the first v2.1 start may take a while
+    once while the new index is created; the progress view explains the
+    work. Subsequent starts are considerably faster.
 
 ## Version 2.0
 

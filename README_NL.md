@@ -161,7 +161,7 @@ plaats; Windows kan met de meegeleverde batchbestanden worden ingericht.
 
 ## Vereisten
 
-Python 3 en de pakketten uit `requirements.txt`:
+Python **3.10 tot en met 3.13** en de pakketten uit `requirements.txt`:
 
 ``` text
 PySide6>=6.7,<7
@@ -172,20 +172,18 @@ Pillow>=10.0
 ## Installatie onder Linux
 
 ``` bash
-python3 -m venv venv
-source venv/bin/activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-python main.py
+./install.sh
+./start.sh
 ```
 
-Als alternatief kunnen de bestaande Linux-startscripts worden gebruikt.
+Deze scripts gebruiken uitsluitend de lokale `venv` van de installatie en
+kunnen die voorzichtig herstellen zonder persoonlijke gegevens te wijzigen.
 
 ## Installatie onder Windows
 
 Voor Windows zijn `install.bat` en `start.bat` bedoeld.
 
-`install.bat` controleert Python 3, maakt `venv` aan, werkt pip bij en
+`install.bat` controleert Python 3.10–3.13, maakt of herstelt de lokale `venv` en
 installeert `requirements.txt`. Daarna wordt CMDRHelper via `start.bat`
 gestart.
 
@@ -199,6 +197,66 @@ De releaseversie wordt direct in het script ingesteld. Het gemaakte
 ZIP-bestand bevat programmacode en assets, maar geen persoonlijke
 database, geen virtuele Python-omgeving en geen Git-, cache- of
 editorbestanden.
+
+## Versie 2.1
+
+**Versie 2.1** verbetert biologie, het vlootoverzicht en de prestaties met
+grote Journal-archieven. Ook zijn installatie, starten, bijwerken en rollback
+op Windows en Linux robuuster gemaakt.
+
+### Bio-voorspellingen en habitat
+
+-   de nieuwe voorspelling toont concrete mogelijke soorten in plaats van
+    alleen het geslacht wanneer er genoeg gegevens zijn. Meerdere soorten
+    kunnen tegelijk verschijnen met vertrouwen **HOOG**, **GEMIDDELD** of
+    **LAAG**; kleine steekproeven worden voorzichtig behandeld.
+-   gevonden of geïdentificeerde soorten vervangen voorspellingen. Zodra alle
+    BIO-signalen bekend zijn, verdwijnen de overige voorspellingen.
+-   de compacte BIO-popup toont geschatte waarden van kandidaten en een
+    mogelijk totaal voor het hemellichaam. Oranje/goud is geschat, groen is
+    bevestigd; speculatieve First Footfall-bonussen worden niet meegerekend.
+-   temperatuur, druk, atmosferische samenstelling, straal en ster-/parent-
+    context worden als habitatgegevens bewaard. Algemene variant- of
+    kleurvoorspelling is niet geïmplementeerd.
+
+### CMDR-vloot
+
+-   de vloot kan oplopend of aflopend worden gesorteerd op laatst gebruikt,
+    naam, type, sprongbereik, laadvermogen, lege massa, locatie of tijdstip.
+-   filters tonen alle schepen, schepen met voertuighangar of fighterhangar,
+    vastgesteld uit de echte Loadout-modules. SRV's en fighters blijven
+    uitrusting van het moederschip.
+
+### Journals, archiefimport en prestaties
+
+-   zowel `Journal.YYMMDDHHMMSS.PART.log` als
+    `Journal.YYYY-MM-DDTHHMMSS.PART.log` worden in de juiste chronologie
+    verwerkt, zodat oude bestanden de huidige CMDR of status niet overschrijven.
+-   Signal-/Mapping-events uit onvolledige archieven kunnen zonder eerdere
+    volledige Body Scan worden geïmporteerd; latere scans vullen de gegevens
+    aan en de multi-CMDR-scheiding blijft behouden.
+-   een persistente Journal-index slaat bekende, ongewijzigde bestanden over.
+    Het actieve bestand wordt incrementeel vanaf de laatste veilige bytepositie
+    gelezen; metadata en SHA-256 bewaken de identiteit en FID-toewijzing blijft
+    ongewijzigd.
+-   de eerste grote indexopbouw toont echte aantallen, percentage en kleine
+    geanimeerde ruimteschepen in een responsief venster. Bij latere snelle
+    starts verschijnt dit normaal niet.
+
+### Installatie en upgrade
+
+-   de geharde Windows- en Linux-scripts ondersteunen Python 3.10–3.13,
+    gebruiken uitsluitend de lokale `venv` en repareren veilig een aantoonbaar
+    lokale defecte omgeving. Linux-symlinks worden voorzichtig behandeld;
+    vreemde omgevingen worden nooit gebruikt.
+-   updates en rollbacks melden fouten duidelijk en beschermen persoonlijke
+    gegevens en Elite-Journals.
+-   een normale update van v2.0 naar v2.1 wordt ondersteund. Maak bij veel
+    oudere installaties eerst een back-up van instellingen; bij problemen kan
+    een schone installatie helpen. Verwijder nooit Elite-Journals of standaard
+    alle oude CMDRHelper-gegevens.
+-   bij een zeer groot archief kan de eerste v2.1-start eenmaal langer duren
+    door indexering; volgende starts zijn aanzienlijk sneller.
 
 ## Versie 2.0
 

@@ -153,7 +153,7 @@ settes opp ved hjelp av de medfølgende batch-filene.
 
 ## Forutsetninger
 
-Python 3 samt pakkene fra `requirements.txt`:
+Python **3.10 til 3.13** samt pakkene fra `requirements.txt`:
 
 ``` text
 PySide6>=6.7,<7
@@ -164,20 +164,18 @@ Pillow>=10.0
 ## Installasjon under Linux
 
 ``` bash
-python3 -m venv venv
-source venv/bin/activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-python main.py
+./install.sh
+./start.sh
 ```
 
-Eksisterende Linux-startskript kan brukes som alternativ.
+Skriptene bruker bare installasjonens lokale `venv` og kan reparere det
+forsiktig uten å berøre personlige data.
 
 ## Installasjon under Windows
 
 For Windows er `install.bat` og `start.bat` beregnet brukt.
 
-`install.bat` kontrollerer Python 3, oppretter `venv`, oppdaterer pip og
+`install.bat` kontrollerer Python 3.10–3.13, oppretter eller reparerer lokal `venv` og
 installerer `requirements.txt`. Deretter startes CMDRHelper via
 `start.bat`.
 
@@ -190,6 +188,61 @@ installerer `requirements.txt`. Deretter startes CMDRHelper via
 Release-versjonen angis direkte i skriptet. ZIP-filen som opprettes,
 inneholder programkode og assets, men ingen personlig database, intet
 virtuelt Python-miljø og ingen Git-, cache- eller editorfiler.
+
+## Versjon 2.1
+
+**Versjon 2.1** forbedrer biologi, flåtevisning og ytelse for store
+Journal-arkiver, og styrker installasjon, oppstart, oppdatering og tilbakerulling
+på Windows og Linux.
+
+### Bio-prognoser og habitat
+
+-   den nye prognosen viser konkrete mulige arter, ikke bare slekt, når
+    datagrunnlaget er godt nok. Flere arter kan vises med **HØY**, **MIDDELS**
+    eller **LAV** sikkerhet; små utvalg behandles konservativt.
+-   funne eller identifiserte arter erstatter prognoser. Når alle BIO-signaler
+    er kjent, forsvinner resten av prognosene.
+-   den kompakte BIO-ruten viser estimerte kandidatverdier og mulig totalverdi
+    for planeten. Oransje/gull er estimert, grønt er bekreftet; spekulative
+    First Footfall-bonuser tas ikke med.
+-   temperatur, trykk, atmosfæresammensetning, radius og stjerne-/parentkontekst
+    lagres som habitatdata. Generell variant- eller fargeprognose finnes ikke.
+
+### CMDR-flåte
+
+-   flåten kan sorteres stigende eller synkende etter sist brukt, navn, type,
+    hopperekkevidde, lastekapasitet, tommasse, sted eller tidspunkt.
+-   filtre viser alle skip, skip med kjøretøyhangar eller fighterhangar.
+    Hangarer oppdages fra faktiske Loadout-moduler; SRV-er og fightere forblir
+    utstyr på moderskipet.
+
+### Journaler, arkivimport og ytelse
+
+-   både `Journal.YYMMDDHHMMSS.PART.log` og
+    `Journal.YYYY-MM-DDTHHMMSS.PART.log` håndteres i riktig kronologi, slik at
+    eldre filer ikke overskriver nåværende CMDR eller tilstand.
+-   signal- og mappinghendelser kan importeres fra ufullstendige arkiver uten
+    tidligere full Body Scan; senere skann fullfører dataene. Multi-CMDR-
+    skillet beholdes.
+-   en vedvarende Journal-indeks hopper over kjente, uendrede filer. Aktiv fil
+    leses trinnvis fra siste sikre byteposisjon; metadata og SHA-256 sikrer
+    identiteten, mens FID-tilordningen er uendret.
+-   første store indeksbygg viser reelle tall, prosent og små animerte romskip
+    i et responsivt vindu. Senere raske starter viser det normalt ikke.
+
+### Installasjon og oppgradering
+
+-   herdede Windows- og Linux-skript støtter Python 3.10–3.13, bruker bare
+    lokal `venv` og kan reparere et sikkert identifisert lokalt miljø. Linux-
+    symlenker behandles forsiktig; fremmede miljøer brukes aldri.
+-   oppdatering og tilbakerulling melder feil tydelig og beskytter persondata
+    og Elite-Journaler.
+-   normal oppdatering fra v2.0 til v2.1 støttes. For installasjoner langt eldre
+    enn v2.0 bør innstillinger sikkerhetskopieres; ved problemer kan en ren
+    installasjon hjelpe. Slett aldri Elite-Journaler eller gamle Helper-data
+    som en generell løsning.
+-   første v2.1-start med et svært stort arkiv kan bruke litt tid på indeksen;
+    senere starter blir betydelig raskere.
 
 ## Versjon 2.0
 
