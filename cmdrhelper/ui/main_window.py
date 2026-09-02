@@ -803,10 +803,8 @@ class ExplorerLiveListWindow(QDialog):
 
         self.table.clearContents()
 
-        # Das BIO-Fenster bekommt eine dynamische Gruppenansicht:
-        # 0 erkannt  -> eine kompakte Zeile
-        # teilweise  -> eine Zeile je erkannter Art + Restzeile
-        # vollständig-> wieder eine kompakte grüne Zusammenfassung
+        # Das BIO-Fenster zeigt nur die Signal-Kopfzeile und die eigentlichen
+        # Fund-/Prognoseeinträge; Zähler bleiben reine Steuerdaten.
         if self.window_kind == "bio":
             display_rows = []
 
@@ -845,20 +843,6 @@ class ExplorerLiveListWindow(QDialog):
                                 "value": 0,
                             },
                             "progress": "–",
-                            "complete": False,
-                        }
-                    )
-                    display_rows.append(
-                        {
-                            "body": "",
-                            "find": tr(
-                                "bio_prediction.progress",
-                                identified=identified_count,
-                                total=signals,
-                                completed=completed_count,
-                            ),
-                            "progress": "",
-                            "value": "",
                             "complete": False,
                         }
                     )
@@ -920,38 +904,11 @@ class ExplorerLiveListWindow(QDialog):
                         )
                     continue
 
-                if known_count == 0:
-                    if signals > 0:
-                        display_rows.append(
-                            {
-                                "body": "",
-                                "find": tr("explorer.still_unknown"),
-                                "progress": tr(
-                                    "explorer.known_ratio", known=0, total=total_count
-                                ),
-                                "value": "–",
-                                "complete": False,
-                            }
-                        )
-
                 # Solange nicht ALLE Arten vollständig analysiert sind,
                 # bleibt der Planet aufgeklappt. Das gilt auch dann, wenn
                 # bereits z. B. 2/2 Arten namentlich bekannt sind, aber eine
                 # davon erst bei Probe 1 oder 2 steht.
-                if species:
-                    display_rows.append(
-                        {
-                            "body": "",
-                            "find": tr(
-                                "bio_prediction.found"
-                                if completed_count else "bio_prediction.identified"
-                            ),
-                            "progress": "",
-                            "value": "",
-                            "complete": False,
-                        }
-                    )
-                for index, entry in enumerate(species):
+                for entry in species:
                     scan_key = str(entry.get("scan_type") or "").strip().casefold()
 
                     if scan_key == "geo":
@@ -980,36 +937,7 @@ class ExplorerLiveListWindow(QDialog):
                         }
                     )
 
-                remaining = max(0, total_count - known_count)
-                if remaining:
-                    display_rows.append(
-                        {
-                            "body": "",
-                            "find": (
-                                tr("explorer.one_unknown")
-                                if remaining == 1
-                                else tr("explorer.unknown_count", count=remaining)
-                            ),
-                            "progress": tr(
-                                "explorer.known_ratio",
-                                known=known_count,
-                                total=total_count,
-                            ),
-                            "value": "–",
-                            "complete": False,
-                        }
-                    )
-
                 if predictions:
-                    display_rows.append(
-                        {
-                            "body": "",
-                            "find": tr("bio_prediction.possible_more"),
-                            "progress": "",
-                            "value": "",
-                            "complete": False,
-                        }
-                    )
                     for candidate in predictions:
                         confidence = getattr(candidate, "confidence", "low")
                         low_data = bool(getattr(candidate, "low_data", False))
@@ -1036,20 +964,6 @@ class ExplorerLiveListWindow(QDialog):
                                 "complete": False,
                             }
                         )
-                if signals > 0:
-                    display_rows.append(
-                        {
-                            "body": "",
-                            "find": tr("bio_prediction.open_signals", count=open_signals),
-                            "progress": (
-                                tr("bio_prediction.more_candidates")
-                                if predictions else ""
-                            ),
-                            "value": "",
-                            "complete": False,
-                        }
-                    )
-
                 # GEO wird nur als Anzahl dargestellt. Es nimmt ausdrücklich
                 # nicht an BIO-Art-, Probe- oder Fortschrittsberechnungen teil.
                 if geo_signals > 0:

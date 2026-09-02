@@ -97,27 +97,31 @@ class ExplorerLivePopupTests(unittest.TestCase):
             "open_signals": open_signals,
         }])
         texts = []
+        plain_cells = []
         for row in range(window.table.rowCount()):
-            texts.extend(
+            row_cells = [
                 window.table.item(row, column).text()
                 for column in range(window.table.columnCount())
                 if window.table.item(row, column) is not None
-            )
+            ]
+            texts.extend(row_cells)
+            plain_cells.extend(row_cells)
             widget = window.table.cellWidget(row, 1)
             if widget is not None:
                 texts.append(widget.text())
         window.close()
-        return "\n".join(texts)
+        return "\n".join(texts), window.table.rowCount(), plain_cells
 
     def test_single_open_signal_shows_predictions(self):
-        text = self._render_bio(
+        text, row_count, _plain_cells = self._render_bio(
             signals=1, species=[],
             predictions=[self._candidate("Bacterium Tela")], open_signals=1,
         )
         self.assertIn("Bacterium Tela", text)
+        self.assertEqual(row_count, 2)
 
     def test_single_known_signal_hides_all_prediction_ui_but_keeps_log(self):
-        text = self._render_bio(
+        text, row_count, plain_cells = self._render_bio(
             signals=1,
             species=[{"name": "Bacterium Tela – Grün", "scan_type": "Log"}],
             predictions=[self._candidate("Bacterium Nebulus")], open_signals=0,
@@ -128,9 +132,16 @@ class ExplorerLivePopupTests(unittest.TestCase):
         self.assertNotIn("Bacterium Nebulus", text)
         self.assertNotIn(tr("bio_prediction.possible_more"), text)
         self.assertNotIn(tr("bio_prediction.more_candidates"), text)
+        self.assertNotIn(
+            tr("bio_prediction.progress", identified=1, total=1, completed=0),
+            text,
+        )
+        self.assertNotIn(tr("bio_prediction.open_signals", count=0), text)
+        self.assertNotIn(tr("bio_prediction.identified"), plain_cells)
+        self.assertEqual(row_count, 2)
 
     def test_known_species_is_filtered_while_other_candidates_remain(self):
-        text = self._render_bio(
+        text, row_count, plain_cells = self._render_bio(
             signals=3,
             species=[{"name": "Bacterium Tela – Grün", "scan_type": "Sample"}],
             predictions=[
@@ -141,9 +152,16 @@ class ExplorerLivePopupTests(unittest.TestCase):
         )
         self.assertEqual(text.count("Bacterium Tela"), 1)
         self.assertIn("Bacterium Nebulus", text)
+        self.assertNotIn(
+            tr("bio_prediction.progress", identified=1, total=3, completed=0),
+            text,
+        )
+        self.assertNotIn(tr("bio_prediction.open_signals", count=2), text)
+        self.assertNotIn(tr("bio_prediction.identified"), plain_cells)
+        self.assertEqual(row_count, 3)
 
     def test_all_known_signals_hide_predictions_but_keep_analyzed_findings(self):
-        text = self._render_bio(
+        text, _row_count, _plain_cells = self._render_bio(
             signals=3,
             species=[
                 {"name": "Bacterium Tela", "scan_type": "Analyze"},
