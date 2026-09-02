@@ -12,7 +12,7 @@ from cmdrhelper.ship_identity import is_definite_non_ship
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 11
+SCHEMA_VERSION = 12
 
 PERSONAL_TABLES = (
     "system_visits",
@@ -136,6 +136,7 @@ class CMDRDatabase:
                     volcanism TEXT NOT NULL DEFAULT '',
                     biological_signals INTEGER NOT NULL DEFAULT 0,
                     geological_signals INTEGER NOT NULL DEFAULT 0,
+                    planetary_mining_signals INTEGER,
                     scan_value INTEGER NOT NULL DEFAULT 0,
                     mapped_value INTEGER NOT NULL DEFAULT 0,
                     current_value INTEGER NOT NULL DEFAULT 0,
@@ -382,6 +383,7 @@ class CMDRDatabase:
         self._maybe_migrate_v9()
         self._maybe_migrate_v10()
         self._maybe_migrate_v11()
+        self._maybe_migrate_v12()
         self.cleanup_non_ship_fleet_rows()
 
     def _maybe_migrate_v8(self):
@@ -552,6 +554,22 @@ class CMDRDatabase:
 
     def ensure_schema_v11(self):
         self._maybe_migrate_v11()
+
+    def _maybe_migrate_v12(self):
+        """Adds Frontier's global planetary mining-location count."""
+        with self._connect() as con:
+            version = int(con.execute("PRAGMA user_version").fetchone()[0])
+            if version >= 12:
+                return
+            columns = {row[1] for row in con.execute("PRAGMA table_info(bodies)")}
+            if "planetary_mining_signals" not in columns:
+                con.execute(
+                    "ALTER TABLE bodies ADD COLUMN planetary_mining_signals INTEGER"
+                )
+            con.execute("PRAGMA user_version=12")
+
+    def ensure_schema_v12(self):
+        self._maybe_migrate_v12()
 
     def _personal_row_counts(self, con):
         return {
@@ -2383,8 +2401,9 @@ class CMDRDatabase:
                         mass_em, stellar_mass, radius_m, surface_temperature,
                         surface_pressure, atmosphere_composition,
                         gravity_g, distance_ls, landable, terraformable,
-                        atmosphere, volcanism, biological_signals, geological_signals
-                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        atmosphere, volcanism, biological_signals, geological_signals,
+                        planetary_mining_signals
+                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                     ON CONFLICT(system_address, body_id) DO UPDATE SET
                         name=excluded.name,
                         short_name=excluded.short_name,
@@ -2407,7 +2426,11 @@ class CMDRDatabase:
                         atmosphere=CASE WHEN excluded.atmosphere <> '' THEN excluded.atmosphere ELSE bodies.atmosphere END,
                         volcanism=CASE WHEN excluded.volcanism <> '' THEN excluded.volcanism ELSE bodies.volcanism END,
                         biological_signals=MAX(bodies.biological_signals, excluded.biological_signals),
-                        geological_signals=MAX(bodies.geological_signals, excluded.geological_signals)
+                        geological_signals=MAX(bodies.geological_signals, excluded.geological_signals),
+                        planetary_mining_signals=COALESCE(
+                            excluded.planetary_mining_signals,
+                            bodies.planetary_mining_signals
+                        )
                 """, (
                     int(address), int(body_id), body.get("name") or "",
                     body.get("short_name") or "", body.get("body_type") or "",
@@ -2422,6 +2445,7 @@ class CMDRDatabase:
                     body.get("atmosphere") or "", body.get("volcanism") or "",
                     int(body.get("biological_signals") or 0),
                     int(body.get("geological_signals") or 0),
+                    body.get("planetary_mining_signals"),
                 ))
 
                 if (body.get("star_type") and int(body_id) == 0
@@ -4388,7 +4412,8 @@ class CMDRDatabase:
                     cb.current_value_cached, cb.high_value_cached,
                     cb.first_seen, cb.last_seen,
                     b.parent_star_id, b.surface_temperature,
-                    b.surface_pressure, b.atmosphere_composition
+                    b.surface_pressure, b.atmosphere_composition,
+                    b.planetary_mining_signals
                 FROM bodies b
                 JOIN commander_bodies cb
                   ON cb.system_address=b.system_address AND cb.body_id=b.body_id
@@ -4507,6 +4532,7 @@ class CMDRDatabase:
                         "surface_temperature": row[32],
                         "surface_pressure": row[33],
                         "atmosphere_composition": row[34] or "",
+                        "planetary_mining_signals": row[35],
                         "primary_star_id": system_row[5],
                         "primary_star_type": system_row[6] or "",
                         "materials": materials,
@@ -4700,6 +4726,22 @@ class CMDRDatabase:
 
         return bio, geo
 
+    @staticmethod
+    def _planetary_mining_count(event):
+        """Returns the explicitly reported count, including zero, or None."""
+        for signal in event.get("Signals") or []:
+            if not isinstance(signal, dict):
+                continue
+            if str(signal.get("Type") or "").casefold() != (
+                "$PlanetaryMiningLocation_Name;".casefold()
+            ):
+                continue
+            try:
+                return int(signal["Count"])
+            except (KeyError, TypeError, ValueError):
+                return None
+        return None
+
     def _journal_needs_import(self, journal: Path, commander_id=None) -> bool:
         commander_id = self._require_commander_id(commander_id)
         try:
@@ -4885,6 +4927,7 @@ class CMDRDatabase:
         first_footfall_disembarks = set()
         pending_bio = {}
         pending_geo = {}
+        pending_planetary_mining = {}
 
         # Alle Tabellen, die bisher während des Parsens einzeln
         # geschrieben wurden, werden jetzt im Speicher gesammelt.
@@ -4952,6 +4995,7 @@ class CMDRDatabase:
                 "materials": {},
                 "biological_signals": 0,
                 "geological_signals": 0,
+                "planetary_mining_signals": None,
                 "first_seen": timestamp or "",
                 "last_seen": timestamp or "",
                 "scan_value": 0,
@@ -5577,6 +5621,9 @@ class CMDRDatabase:
                                         )
                                     ),
                                 ),
+                                "planetary_mining_signals": pending_planetary_mining.get(
+                                    key, previous.get("planetary_mining_signals")
+                                ),
                                 "first_seen": (
                                     previous.get(
                                         "first_seen"
@@ -5703,6 +5750,7 @@ class CMDRDatabase:
                             bio, geo = self._bio_geo_counts(
                                 event
                             )
+                            mining_count = self._planetary_mining_count(event)
 
                             for signal in event.get(
                                 "Signals"
@@ -5766,6 +5814,8 @@ class CMDRDatabase:
                                 ),
                                 geo,
                             )
+                            if mining_count is not None:
+                                pending_planetary_mining[key] = mining_count
 
                             personal_body = ensure_commander_body(address, body_id, ts)
                             body = bodies.get(key)
@@ -5794,6 +5844,8 @@ class CMDRDatabase:
                                     ),
                                     geo,
                                 )
+                                if mining_count is not None:
+                                    body["planetary_mining_signals"] = mining_count
                             if personal_body is not None:
                                 personal_body["biological_signals_seen"] = max(
                                     int(personal_body["biological_signals_seen"]), bio)
@@ -6213,11 +6265,13 @@ class CMDRDatabase:
                     con.execute(
                         """UPDATE bodies SET
                                biological_signals=MAX(biological_signals,?),
-                               geological_signals=MAX(geological_signals,?)
+                               geological_signals=MAX(geological_signals,?),
+                               planetary_mining_signals=COALESCE(?,planetary_mining_signals)
                            WHERE system_address=? AND body_id=?""",
                         (
                             int(body.get("biological_signals") or 0),
                             int(body.get("geological_signals") or 0),
+                            body.get("planetary_mining_signals"),
                             int(address),
                             int(body_id),
                         ),
@@ -6247,9 +6301,10 @@ class CMDRDatabase:
                         landable, terraformable,
                         atmosphere, volcanism,
                         biological_signals,
-                        geological_signals
+                        geological_signals,
+                        planetary_mining_signals
                     )
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                     ON CONFLICT(system_address, body_id)
                     DO UPDATE SET
                         name=excluded.name,
@@ -6309,6 +6364,10 @@ class CMDRDatabase:
                         geological_signals=MAX(
                             bodies.geological_signals,
                             excluded.geological_signals
+                        ),
+                        planetary_mining_signals=COALESCE(
+                            excluded.planetary_mining_signals,
+                            bodies.planetary_mining_signals
                         )
                     """,
                     (
@@ -6349,6 +6408,7 @@ class CMDRDatabase:
                             )
                             or 0
                         ),
+                        body.get("planetary_mining_signals"),
                     ),
                 )
 

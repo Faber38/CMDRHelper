@@ -197,6 +197,70 @@ class ExplorationPersistenceTests(unittest.TestCase):
         self.assertEqual(len(self.database.search_chronicle("bio", self.a)), 1)
         self.assertEqual(len(self.database.search_chronicle("bio", self.b)), 1)
 
+    def test_live_planetary_mining_counts_merge_conservatively(self):
+        folder = Path(self.tmp.name) / "mining-live"
+        folder.mkdir()
+        base = {"timestamp": "2026-09-02T00:00:00Z", "SystemAddress": 80}
+        mining = lambda count: {
+            "Type": "$PlanetaryMiningLocation_Name;",
+            "Type_Localised": "Planetarer Abbaustandort",
+            "Count": count,
+        }
+        write_journal(folder / "Journal.2026-09-02T000000.01.log", [
+            {**base, "event": "Commander", "Name": "Alpha", "FID": "F-A"},
+            {**base, "event": "Location", "StarSystem": "Mining"},
+            {**base, "event": "FSSBodySignals", "BodyID": 5,
+             "Signals": [mining(5)]},
+            {**base, "event": "FSSBodySignals", "BodyID": 7,
+             "Signals": [mining(7)]},
+            {**base, "event": "FSSBodySignals", "BodyID": 17,
+             "Signals": [mining(17)]},
+        ])
+        state = read_latest_state(folder)
+        self.assertEqual(
+            {body["body_id"]: body["planetary_mining_signals"]
+             for body in state["system_bodies"]},
+            {5: 5, 7: 7, 17: 17},
+        )
+        self.database.store_snapshot(state, self.a)
+        self.database.store_snapshot({
+            **state,
+            "system_bodies": [{**state["system_bodies"][0],
+                               "planetary_mining_signals": None}],
+        }, self.b)
+        with self.database._connect() as con:
+            self.assertEqual(
+                con.execute("SELECT planetary_mining_signals FROM bodies "
+                            "WHERE system_address=80 AND body_id=5").fetchone(),
+                (5,),
+            )
+            self.assertNotIn(
+                "planetary_mining_signals",
+                {row[1] for row in con.execute("PRAGMA table_info(commander_bodies)")},
+            )
+
+    def test_archive_planetary_mining_count_handles_zero_and_missing_scan(self):
+        folder = Path(self.tmp.name) / "mining-archive"
+        folder.mkdir()
+        base = {"timestamp": "2026-09-02T00:00:00Z", "SystemAddress": 81}
+        signal = {"Type": "$PlanetaryMiningLocation_Name;", "Count": 0}
+        write_journal(folder / "Journal.2026-09-02T000000.01.log", [
+            {**base, "event": "Commander", "Name": "Alpha", "FID": "F-A"},
+            {**base, "event": "Location", "StarSystem": "Mining Zero"},
+            {**base, "event": "FSSBodySignals", "BodyID": 9,
+             "Signals": [signal]},
+            {**base, "event": "FSSBodySignals", "BodyID": 10,
+             "Signals": [{"Type": "$SAA_SignalType_Geological;", "Count": 2}]},
+        ])
+        self.database.import_journal_archive(folder)
+        with self.database._connect() as con:
+            rows = con.execute(
+                "SELECT body_id,planetary_mining_signals FROM bodies "
+                "WHERE system_address=81 ORDER BY body_id"
+            ).fetchall()
+            self.assertEqual(con.execute("PRAGMA foreign_key_check").fetchall(), [])
+        self.assertEqual(rows, [(9, 0), (10, None)])
+
     def test_global_signal_facts_do_not_leak_into_commander_reads(self):
         self.database.store_snapshot(
             self.snapshot(biological_signals=4, geological_signals=2), self.a

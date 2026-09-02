@@ -11,6 +11,7 @@ _CONFIRMED_SRV_TYPES = {
     "testbuggy",                 # Scarab
     "combat_multicrew_srv_01",  # Scorpion
     "lander01",                 # Nomad
+    "mev_rhino",                # Rhino
 }
 
 

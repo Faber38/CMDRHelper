@@ -481,11 +481,14 @@ class SystemOverviewMiniMap(QWidget):
                 bio_count = int(body.get("biological_signals") or 0)
 
                 geo_count = int(body.get("geological_signals") or 0)
+                mining_count = int(body.get("planetary_mining_signals") or 0)
 
                 if bio_count > 0:
                     outline = QColor("#39ff56")
                 elif geo_count > 0:
                     outline = QColor("#28c9e8")
+                elif mining_count > 0:
+                    outline = QColor("#ff9d00")
                 elif body.get("high_value"):
                     outline = QColor("#ffb000")
                 else:
@@ -1696,6 +1699,7 @@ class MainWindow(QMainWindow):
         legend_items = [
             ("BIO ×N", tr("explorer.legend_bio"), "#66e36a"),
             ("GEO ×N", tr("explorer.legend_geo"), "#28c9e8"),
+            ("ABBAU ×N", tr("explorer.legend_planetary_mining"), "#ff9d00"),
             ("T", tr("explorer.legend_terraforming"), "#4bb8ff"),
             ("★", tr("explorer.legend_first_discovery"), "#ffae28"),
             ("◉", tr("explorer.first_mapping_possible"), "#68c7ff"),
@@ -1784,13 +1788,14 @@ class MainWindow(QMainWindow):
             tr("explorer.value_list"),
         )
 
-        self.explorer_bio_table = QTableWidget(0, 10)
+        self.explorer_bio_table = QTableWidget(0, 11)
         self.explorer_bio_table.setHorizontalHeaderLabels(
             [
                 tr("explorer.col_body"),
                 tr("explorer.col_type"),
                 "BIO",
                 "GEO",
+                "ABBAU",
                 tr("explorer.col_bio_findings"),
                 tr("explorer.col_bio_value"),
                 tr("explorer.col_distance"),
@@ -1815,11 +1820,12 @@ class MainWindow(QMainWindow):
         self.explorer_bio_table.setColumnWidth(1, 160)
         self.explorer_bio_table.setColumnWidth(2, 50)
         self.explorer_bio_table.setColumnWidth(3, 310)
-        self.explorer_bio_table.setColumnWidth(4, 330)
-        self.explorer_bio_table.setColumnWidth(5, 130)
-        self.explorer_bio_table.setColumnWidth(6, 100)
-        self.explorer_bio_table.setColumnWidth(7, 95)
-        self.explorer_bio_table.setColumnWidth(8, 110)
+        self.explorer_bio_table.setColumnWidth(4, 90)
+        self.explorer_bio_table.setColumnWidth(5, 330)
+        self.explorer_bio_table.setColumnWidth(6, 130)
+        self.explorer_bio_table.setColumnWidth(7, 100)
+        self.explorer_bio_table.setColumnWidth(8, 95)
+        self.explorer_bio_table.setColumnWidth(9, 110)
 
         self.explorer_tabs.addTab(
             self.explorer_bio_table,
@@ -1924,6 +1930,11 @@ class MainWindow(QMainWindow):
             return f"GEO ×{geo_count} · {volcanism}"
 
         return volcanism
+
+    @staticmethod
+    def _explorer_planetary_mining_text(body):
+        count = max(0, int(body.get("planetary_mining_signals") or 0))
+        return f"ABBAU ×{count}" if count > 0 else "–"
 
     @staticmethod
     def _explorer_bio_progress(body):
@@ -2252,7 +2263,7 @@ class MainWindow(QMainWindow):
 
                 self.explorer_value_table.setItem(row, col, item)
 
-        # BIO/GEO-Körper gemeinsam. Auch reine GEO-Körper werden hier
+        # BIO/GEO/Abbau-Körper gemeinsam. Auch reine GEO-/Abbau-Körper werden hier
         # angezeigt; Körper mit beiden Signalarten erscheinen nur einmal.
         bio_bodies = [
             body
@@ -2260,6 +2271,7 @@ class MainWindow(QMainWindow):
             if (
                 int(body.get("biological_signals") or 0) > 0
                 or int(body.get("geological_signals") or 0) > 0
+                or int(body.get("planetary_mining_signals") or 0) > 0
             )
         ]
         bio_bodies.sort(
@@ -2268,6 +2280,7 @@ class MainWindow(QMainWindow):
                 -(
                     int(body.get("biological_signals") or 0)
                     + int(body.get("geological_signals") or 0)
+                    + int(body.get("planetary_mining_signals") or 0)
                 ),
                 -int(body.get("current_value") or 0),
                 str(self._explorer_body_name(body)).lower(),
@@ -2285,6 +2298,7 @@ class MainWindow(QMainWindow):
             visited = self._explorer_body_visited(body)
             signals = int(body.get("biological_signals") or 0)
             geo_signals = int(body.get("geological_signals") or 0)
+            mining_signals = int(body.get("planetary_mining_signals") or 0)
             found, completed, analysed = self._explorer_bio_progress(body)
             bio_names = self._explorer_bio_names(body)
             bio_names_text = self._explorer_bio_names_html(bio_names)
@@ -2328,6 +2342,7 @@ class MainWindow(QMainWindow):
                 SystemMapWidget._type_text(body),
                 str(signals) if signals > 0 else "–",
                 self._explorer_geo_text(body) if geo_signals > 0 else "–",
+                self._explorer_planetary_mining_text(body),
                 bio_names_text if signals > 0 else "–",
                 bio_value_text if signals > 0 else "–",
                 self._explorer_distance_text(body),
@@ -2339,7 +2354,7 @@ class MainWindow(QMainWindow):
             for col, value in enumerate(values):
                 # BIO-Funde brauchen Rich Text, damit jeder Name einzeln
                 # entsprechend seinem Scan-Fortschritt eingefärbt werden kann.
-                if col == 4:
+                if col == 5:
                     label = QLabel()
                     label.setTextFormat(Qt.RichText)
                     label.setText(str(value))
@@ -2351,14 +2366,16 @@ class MainWindow(QMainWindow):
 
                 item = QTableWidgetItem(str(value))
 
-                if col == 5 and known_bio_value > 0 and first_footfall:
+                if col == 6 and known_bio_value > 0 and first_footfall:
                     item.setToolTip(
                         f"Erstbetretung erkannt: möglicher BIO-Wert "
                         f"{self._format_reward(known_bio_value * 5)}"
                     )
                 item.setData(Qt.UserRole, body)
 
-                if analysed:
+                if col == 4 and mining_signals > 0:
+                    item.setForeground(QColor("#ff9d00"))
+                elif analysed:
                     item.setForeground(QColor("#65d067"))
                 elif visited:
                     item.setForeground(QColor("#ffb000"))
@@ -2373,7 +2390,7 @@ class MainWindow(QMainWindow):
         )
         self.explorer_tabs.setTabText(
             2,
-            f"BIO / GEO ({len(bio_bodies)})",
+            f"BIO / GEO / ABBAU ({len(bio_bodies)})",
         )
 
     def _ensure_explorer_live_windows(self):

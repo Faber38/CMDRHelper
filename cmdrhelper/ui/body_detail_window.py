@@ -413,6 +413,7 @@ class BodyDetailWindow(QDialog):
         widget = QLabel(text)
         widget.setWordWrap(True)
         form.addRow(label, widget)
+        return widget
 
     @staticmethod
     def _volcanism_text(value):
@@ -588,6 +589,15 @@ class BodyDetailWindow(QDialog):
 
         geo_count = int(self.body.get("geological_signals") or 0)
         self._add_row(form, tr("body_detail.geo_signals") + ":", geo_count)
+
+        mining_count = self.body.get("planetary_mining_signals")
+        if mining_count is not None:
+            mining_widget = self._add_row(
+                form,
+                tr("body_detail.planetary_mining_signals"),
+                f"×{int(mining_count)}",
+            )
+            mining_widget.setStyleSheet("color: #ff9d00; font-weight: 600;")
 
         if geo_count > 0:
             geology = self.body.get("geology") or []

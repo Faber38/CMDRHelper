@@ -134,7 +134,7 @@ class CommanderFleetTests(unittest.TestCase):
             con.execute("DROP TABLE commander_ships_v7_test")
             con.execute("PRAGMA user_version=6")
         migrated = CMDRDatabase(self.path)
-        self.assertEqual(SCHEMA_VERSION, 11)
+        self.assertEqual(SCHEMA_VERSION, 12)
         legacy = migrated.commander_last_ship(self.a)
         self.assertEqual(legacy["ship_name"], "Legacy")
         self.assertEqual(legacy["modules"], [])
@@ -313,7 +313,7 @@ class CommanderFleetTests(unittest.TestCase):
 
     def test_equipment_filters_and_expansion_are_commander_scoped(self):
         vehicle_hangar = (
-            {"Slot": "Slot04_Size4", "Item": "int_buggybay_size4_class2"},
+            {"Slot": "FighterBay01", "Item": "int_mkiilargebuggybay_size4_class3"},
         )
         fighter_hangar = (
             {"Slot": "FighterBay01", "Item": "int_fighterbay_size5_class1"},
@@ -369,6 +369,20 @@ class CommanderFleetTests(unittest.TestCase):
             if view.fleet_layout.itemAt(index).widget().property("shipId") == 5
         )
         self.assertTrue(restored.findChild(QToolButton).isChecked())
+
+    def test_vehicle_hangar_detection_depends_on_item_not_slot(self):
+        old = analyze_ship_modules([
+            {"Slot": "Slot04_Size4", "Item": "int_buggybay_size4_class2"}
+        ])
+        large = analyze_ship_modules([
+            {"Slot": "FighterBay01", "Item": "int_mkiilargebuggybay_size4_class3"}
+        ])
+        slot_only = analyze_ship_modules([
+            {"Slot": "FighterBay01", "Item": "unrelated_module"}
+        ])
+        self.assertTrue(old["vehicle_hangar"])
+        self.assertTrue(large["vehicle_hangar"])
+        self.assertFalse(slot_only["vehicle_hangar"])
 
     def test_name_location_and_deterministic_tie_breakers(self):
         self.db.store_commander_ship(self.a, self.ship(9, "Zulu", "ZuluType"), "T1", location={
@@ -446,7 +460,7 @@ class CommanderFleetTests(unittest.TestCase):
         for ship_id, ship_type in enumerate((
             "ExplorationSuit_Class3", "ExplorationSuit_Class5",
             "UtilitySuit_Class5", "TacticalSuit_Class5",
-            "TestBuggy", "Combat_Multicrew_SRV_01", "Lander01",
+            "TestBuggy", "Combat_Multicrew_SRV_01", "Lander01", "mev_rhino",
         ), start=100):
             self.assertTrue(is_definite_non_ship(ship_type))
             self.db.store_commander_ship(
@@ -454,7 +468,7 @@ class CommanderFleetTests(unittest.TestCase):
             )
         for ship_id, ship_type in enumerate((
             "sidewinder", "explorer_nx", "typex", "mediumtransport01",
-            "future_rare_ship_99",
+            "future_rare_ship_99", "lakonminer",
         ), start=200):
             self.assertFalse(is_definite_non_ship(ship_type))
             self.db.store_commander_ship(
@@ -462,7 +476,8 @@ class CommanderFleetTests(unittest.TestCase):
             )
         self.assertEqual(
             {ship["ship_type"] for ship in self.db.commander_ships(self.a)},
-            {"sidewinder", "explorer_nx", "typex", "mediumtransport01", "future_rare_ship_99"},
+            {"sidewinder", "explorer_nx", "typex", "mediumtransport01",
+             "future_rare_ship_99", "lakonminer"},
         )
 
     def test_suit_and_srv_loadgame_keep_mother_ship_and_its_location(self):
@@ -503,6 +518,7 @@ class CommanderFleetTests(unittest.TestCase):
             ("TestBuggy", "SRV Scarab", 27),
             ("Combat_Multicrew_SRV_01", "Scorpion (SRV)", 30),
             ("Lander01", "Nomad", 41),
+            ("mev_rhino", "SRV Rhino", 52),
         )
         for index, (ship_type, localized, ship_id) in enumerate(cases):
             with self.subTest(ship_type=ship_type):
@@ -532,6 +548,9 @@ class CommanderFleetTests(unittest.TestCase):
             event("DockFighter", 7, ID=41),
             event("LaunchSRV", 8, SRVType="lander01", ID=41, PlayerControlled=True),
             event("DockSRV", 9, SRVType="lander01", ID=41),
+            event("LaunchSRV", 10, SRVType="mev_rhino", SRVType_Localised="SRV Rhino",
+                  ID=52, PlayerControlled=True, Loadout="advanced"),
+            event("DockSRV", 11, SRVType="mev_rhino", SRVType_Localised="SRV Rhino", ID=52),
         ]
         (folder / "Journal.2026-02-01T000000.01.log").write_text(
             "".join(json.dumps(item) + "\n" for item in events), encoding="utf-8"

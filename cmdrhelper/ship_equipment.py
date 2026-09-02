@@ -35,7 +35,10 @@ def analyze_ship_modules(modules) -> dict:
         if not item:
             continue
 
-        if item.startswith("int_buggybay_"):
+        is_vehicle_hangar = item.startswith(
+            ("int_buggybay_", "int_mkiilargebuggybay_")
+        )
+        if is_vehicle_hangar:
             result["vehicle_hangar"] = True
             result["vehicle_hangar_item"] = item_raw
         vehicle_type = VEHICLE_TYPES.get(item)
@@ -46,7 +49,7 @@ def analyze_ship_modules(modules) -> dict:
         if item.startswith(("int_fighterbay_", "int_fighterbaymk2_")):
             result["fighter_hangar"] = True
             result["fighter_hangar_item"] = item_raw
-        elif slot.startswith("fighterbay"):
+        elif slot.startswith("fighterbay") and not is_vehicle_hangar:
             result["fighter_hangar"] = True
             result["fighters"] += 1
 

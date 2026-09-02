@@ -913,6 +913,7 @@ def read_latest_state(
     # GEO analog zu BIO
     pending_geo_by_address: dict[int, dict[int, int]] = {}
     pending_geo_name_by_address: dict[int, dict[str, int]] = {}
+    pending_planetary_mining_by_address: dict[int, dict[int, int]] = {}
 
     # SystemAddress -> BodyCount
     body_count_by_address: dict[int, int] = {}
@@ -1014,6 +1015,20 @@ def read_latest_state(
                     pass
 
         return geo_count
+
+    def _planetary_mining_count_from_event(event: dict) -> int | None:
+        for signal in event.get("Signals") or []:
+            if not isinstance(signal, dict):
+                continue
+            if str(signal.get("Type") or "").casefold() != (
+                "$PlanetaryMiningLocation_Name;".casefold()
+            ):
+                continue
+            try:
+                return int(signal["Count"])
+            except (KeyError, TypeError, ValueError):
+                return None
+        return None
 
     def _apply_pending_geo(address: int | None, body: dict):
         if address is None:
@@ -1626,6 +1641,11 @@ def read_latest_state(
                             ),
                             "biological_signals": 0,
                             "geological_signals": 0,
+                            "planetary_mining_signals": (
+                                pending_planetary_mining_by_address
+                                .get(address, {})
+                                .get(body_id_int)
+                            ),
                             "biology": [],
                             "bio_genuses": [],
                             "self_mapped": False,
@@ -1669,6 +1689,10 @@ def read_latest_state(
                             body["geological_signals"] = int(
                                 previous.get("geological_signals") or 0
                             )
+                            if body.get("planetary_mining_signals") is None:
+                                body["planetary_mining_signals"] = previous.get(
+                                    "planetary_mining_signals"
+                                )
                             body["bio_genuses"] = list(
                                 previous.get("bio_genuses") or []
                             )
@@ -1768,6 +1792,7 @@ def read_latest_state(
 
                         bio_count = _bio_count_from_event(e)
                         geo_count = _geo_count_from_event(e)
+                        mining_count = _planetary_mining_count_from_event(e)
                         bio_genuses = _bio_genuses_from_event(e)
 
                         if bio_genuses:
@@ -1785,6 +1810,10 @@ def read_latest_state(
                             address,
                             {}
                         )[body_id_int] = geo_count
+                        if mining_count is not None:
+                            pending_planetary_mining_by_address.setdefault(
+                                address, {}
+                            )[body_id_int] = mining_count
 
                         saa_body_name = (
                             e.get("BodyName")
@@ -1818,9 +1847,30 @@ def read_latest_state(
                             {}
                         ).get(body_id_int)
 
+                        if body is None and mining_count is not None:
+                            body = {
+                                "body_id": body_id_int,
+                                "name": saa_body_name,
+                                "short_name": saa_body_name,
+                                "body_type": "",
+                                "star_type": "",
+                                "planet_class": "",
+                                "biological_signals": bio_count,
+                                "geological_signals": geo_count,
+                                "planetary_mining_signals": mining_count,
+                                "biology": [],
+                                "bio_genuses": list(bio_genuses),
+                                "self_mapped": False,
+                                "efficient_mapping": False,
+                                "_placeholder": True,
+                            }
+                            scans_by_address[address][body_id_int] = body
+
                         if body:
                             body["biological_signals"] = bio_count
                             body["geological_signals"] = geo_count
+                            if mining_count is not None:
+                                body["planetary_mining_signals"] = mining_count
                             if bio_genuses:
                                 body["bio_genuses"] = list(bio_genuses)
                             apply_values(body)
@@ -2138,6 +2188,13 @@ def read_latest_state(
         for body in bodies:
             _apply_pending_bio(address, body)
             _apply_pending_geo(address, body)
+            body_id = body.get("body_id")
+            if body_id is not None:
+                mining_count = pending_planetary_mining_by_address.get(
+                    address, {}
+                ).get(int(body_id))
+                if mining_count is not None:
+                    body["planetary_mining_signals"] = mining_count
 
             body_id = body.get("body_id")
             if body_id is not None:

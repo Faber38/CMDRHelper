@@ -68,3 +68,4 @@ class SystemBody:
     atmosphere: str = ""
     volcanism: str = ""
     biological_signals: int = 0
+    planetary_mining_signals: int | None = None

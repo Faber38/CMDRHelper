@@ -67,6 +67,15 @@ class _SettingsStub:
 
 
 class ExplorerLivePopupTests(unittest.TestCase):
+    def test_planetary_mining_signal_uses_compact_display(self):
+        self.assertEqual(
+            MainWindow._explorer_planetary_mining_text(
+                {"planetary_mining_signals": 17}
+            ),
+            "ABBAU ×17",
+        )
+        self.assertEqual(MainWindow._explorer_planetary_mining_text({}), "–")
+
     @classmethod
     def setUpClass(cls):
         cls.app = QApplication.instance() or QApplication([])
