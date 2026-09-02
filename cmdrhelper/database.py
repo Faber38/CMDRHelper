@@ -10,7 +10,7 @@ from cmdrhelper.ship_identity import is_definite_non_ship
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 9
 
 PERSONAL_TABLES = (
     "system_visits",
@@ -377,6 +377,7 @@ class CMDRDatabase:
         self._maybe_migrate_v6()
         self._maybe_migrate_v7()
         self._maybe_migrate_v8()
+        self._maybe_migrate_v9()
         self.cleanup_non_ship_fleet_rows()
 
     def _maybe_migrate_v8(self):
@@ -434,6 +435,30 @@ class CMDRDatabase:
 
     def ensure_schema_v8(self):
         self._maybe_migrate_v8()
+
+    def _maybe_migrate_v9(self):
+        with self._connect() as con:
+            version = int(con.execute("PRAGMA user_version").fetchone()[0])
+            if version >= 9:
+                return
+            table_exists = con.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='commander_ships'"
+            ).fetchone()
+            if not table_exists:
+                con.execute("PRAGMA user_version=9")
+                return
+            ship_columns = {
+                row[1] for row in con.execute("PRAGMA table_info(commander_ships)")
+            }
+            if "modules" not in ship_columns:
+                con.execute(
+                    "ALTER TABLE commander_ships "
+                    "ADD COLUMN modules TEXT NOT NULL DEFAULT '[]'"
+                )
+            con.execute("PRAGMA user_version=9")
+
+    def ensure_schema_v9(self):
+        self._maybe_migrate_v9()
 
     def _personal_row_counts(self, con):
         return {
@@ -1006,7 +1031,7 @@ class CMDRDatabase:
                           loadout_timestamp,system_name,system_address,station_name,
                           max_jump_range,unladen_mass,cargo_capacity,main_tank_capacity,
                           reserve_tank_capacity,fsd_item,guardian_fsd_boosters,
-                          loadout_complete,loadout_stale,is_current
+                          loadout_complete,loadout_stale,is_current,modules
                    FROM commander_ships WHERE commander_id=?
                    ORDER BY is_current DESC,last_seen DESC,ship_name COLLATE NOCASE,
                             ship_type COLLATE NOCASE,ship_id LIMIT 1""",
@@ -1178,6 +1203,11 @@ class CMDRDatabase:
             boosters = json.loads(row[16] or "[]")
         except (TypeError, ValueError, json.JSONDecodeError):
             boosters = []
+        try:
+            modules = json.loads(row[20] or "[]")
+            modules = modules if isinstance(modules, list) else []
+        except (TypeError, ValueError, json.JSONDecodeError):
+            modules = []
         return {
             "ship_id": row[0], "ship_type": row[1] or "",
             "ship_name": row[2] or "", "ship_ident": row[3] or "",
@@ -1190,6 +1220,7 @@ class CMDRDatabase:
             "guardian_fsd_boosters": boosters,
             "loadout_complete": bool(row[17]), "loadout_stale": bool(row[18]),
             "is_current": bool(row[19]),
+            "modules": modules,
         }
 
     def commander_ships(self, commander_id) -> list[dict]:
@@ -1202,7 +1233,7 @@ class CMDRDatabase:
                        loadout_timestamp,system_name,system_address,station_name,
                        max_jump_range,unladen_mass,cargo_capacity,main_tank_capacity,
                        reserve_tank_capacity,fsd_item,guardian_fsd_boosters,
-                       loadout_complete,loadout_stale,is_current
+                       loadout_complete,loadout_stale,is_current,modules
                 FROM commander_ships WHERE commander_id=?
                 ORDER BY is_current DESC,last_seen DESC,
                          CASE WHEN ship_name<>'' THEN ship_name ELSE ship_type END COLLATE NOCASE,
@@ -1337,6 +1368,11 @@ class CMDRDatabase:
             {"item": booster.item, "on": booster.on}
             for booster in (getattr(loadout, "guardian_fsd_boosters", ()) or ())
         ]
+        modules = [
+            dict(module)
+            for module in (getattr(loadout, "modules", ()) or ())
+            if isinstance(module, dict)
+        ]
         with self._connect() as con:
             if is_current:
                 con.execute(
@@ -1348,8 +1384,9 @@ class CMDRDatabase:
                     ship_ident,first_seen,last_seen,loadout_timestamp,system_name,
                     system_address,station_name,max_jump_range,unladen_mass,cargo_capacity,
                     main_tank_capacity,reserve_tank_capacity,fsd_item,
-                    guardian_fsd_boosters,loadout_complete,loadout_stale,is_current)
-                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                    guardian_fsd_boosters,loadout_complete,loadout_stale,is_current,
+                    modules)
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                 ON CONFLICT(commander_id,ship_id) DO UPDATE SET
                     ship_type=CASE WHEN excluded.ship_type<>'' THEN excluded.ship_type ELSE commander_ships.ship_type END,
                     ship_name=CASE WHEN excluded.ship_name<>'' THEN excluded.ship_name ELSE commander_ships.ship_name END,
@@ -1367,6 +1404,7 @@ class CMDRDatabase:
                     reserve_tank_capacity=COALESCE(excluded.reserve_tank_capacity,commander_ships.reserve_tank_capacity),
                     fsd_item=CASE WHEN excluded.fsd_item<>'' THEN excluded.fsd_item ELSE commander_ships.fsd_item END,
                     guardian_fsd_boosters=CASE WHEN excluded.loadout_complete THEN excluded.guardian_fsd_boosters ELSE commander_ships.guardian_fsd_boosters END,
+                    modules=CASE WHEN excluded.loadout_complete THEN excluded.modules ELSE commander_ships.modules END,
                     loadout_complete=CASE WHEN excluded.loadout_complete THEN 1 ELSE commander_ships.loadout_complete END,
                     loadout_stale=excluded.loadout_stale,is_current=excluded.is_current
             """, (int(commander_id), loadout.ship_id, loadout.ship_type or "",
@@ -1379,7 +1417,8 @@ class CMDRDatabase:
                     loadout.unladen_mass, loadout.cargo_capacity, loadout.main_tank_capacity,
                     loadout.reserve_tank_capacity, loadout.fsd_item or "",
                     json.dumps(boosters, ensure_ascii=False), int(loadout.loadout_complete),
-                    int(loadout.loadout_stale), int(bool(is_current))))
+                    int(loadout.loadout_stale), int(bool(is_current)),
+                    json.dumps(modules, ensure_ascii=False, sort_keys=True)))
 
     def store_commander_fleet(self, commander_id, fleet):
         for ship in fleet or []:

@@ -139,6 +139,7 @@ def _loadout_from_event(event: dict, previous: ShipLoadoutData) -> ShipLoadoutDa
         fsd_optimal_mass=optimal_mass,
         fsd_max_fuel_per_jump=max_fuel,
         guardian_fsd_boosters=tuple(boosters),
+        modules=tuple(dict(module) for module in modules if isinstance(module, dict)),
         loadout_timestamp=str(event.get("timestamp") or "").strip() or None,
         loadout_complete=True,
         loadout_stale=False,

@@ -17,6 +17,7 @@ from cmdrhelper.database import CMDRDatabase, SCHEMA_VERSION
 from cmdrhelper.journal_reader import read_latest_state
 from cmdrhelper.route_planner.models import ShipLoadoutData
 from cmdrhelper.ship_identity import is_definite_non_ship
+from cmdrhelper.ship_equipment import analyze_ship_modules
 from cmdrhelper.state import AppState
 from cmdrhelper.ui.commander_view import CommanderView
 
@@ -42,11 +43,12 @@ class CommanderFleetTests(unittest.TestCase):
 
     @staticmethod
     def ship(ship_id, name, ship_type="CobraMkIII", stale=False, *,
-             jump_range=20.5, cargo_capacity=None, unladen_mass=None):
+             jump_range=20.5, cargo_capacity=None, unladen_mass=None, modules=()):
         return ShipLoadoutData(
             ship_id=ship_id, ship_name=name, ship_type=ship_type,
             ship_ident=f"ID-{ship_id}", max_jump_range=jump_range,
             cargo_capacity=cargo_capacity, unladen_mass=unladen_mass,
+            modules=tuple(modules),
             loadout_timestamp=f"L-{ship_id}", loadout_complete=not stale,
             loadout_stale=stale,
         )
@@ -110,7 +112,7 @@ class CommanderFleetTests(unittest.TestCase):
         self.assertIsNone(sparse["max_jump_range"])
         self.assertEqual(sparse["system_name"], "")
 
-    def test_v6_ship_snapshot_migrates_to_v7_fleet(self):
+    def test_v6_ship_snapshot_migrates_to_current_fleet_schema(self):
         self.db.store_commander_ship(self.a, self.ship(5, "Legacy"), "T5")
         with sqlite3.connect(self.path) as con:
             con.execute("ALTER TABLE commander_ships RENAME TO commander_ships_v7_test")
@@ -131,8 +133,12 @@ class CommanderFleetTests(unittest.TestCase):
             con.execute("DROP TABLE commander_ships_v7_test")
             con.execute("PRAGMA user_version=6")
         migrated = CMDRDatabase(self.path)
-        self.assertEqual(SCHEMA_VERSION, 8)
-        self.assertEqual(migrated.commander_last_ship(self.a)["ship_name"], "Legacy")
+        self.assertEqual(SCHEMA_VERSION, 9)
+        legacy = migrated.commander_last_ship(self.a)
+        self.assertEqual(legacy["ship_name"], "Legacy")
+        self.assertEqual(legacy["modules"], [])
+        self.assertEqual(CMDRDatabase(self.path).commander_last_ship(self.a)["ship_name"],
+                         "Legacy")
 
     def _view(self, live_id=None, viewed_id=None, settings=None):
         state = AppState.__new__(AppState)
@@ -254,22 +260,121 @@ class CommanderFleetTests(unittest.TestCase):
         self._select_sort(view, "mass", "descending")
         self.assertEqual(self._fleet_order(view), [2, 1, 3, 4])
 
+    def test_loadout_equipment_is_detected_and_persisted_as_raw_modules(self):
+        modules = [
+            {"Slot": "PlanetaryVehicleHangar", "Item": "int_buggybay_size4_class2"},
+            {"Slot": "PlanetaryVehicleHangar_Buggy", "Item": "TestBuggy"},
+            {"Slot": "PlanetaryVehicleHangar_Buggy02", "Item": "Combat_Multicrew_SRV_01"},
+            {"Slot": "PlanetaryVehicleHangar_Buggy03", "Item": "Lander01"},
+            {"Slot": "FighterBay", "Item": "int_fighterbay_size6_class1"},
+            {"Slot": "FighterBay01", "Item": "independent_fighter"},
+            {"Slot": "ShieldGenerator", "Item": "int_shieldgenerator_size5_class5",
+             "Engineering": {"BlueprintName": "Reinforced", "Level": 5}},
+            {"Slot": "TinyHardpoint1", "Item": "hpt_shieldbooster_size0_class5"},
+            {"Slot": "MediumHardpoint1", "Item": "hpt_multicannon_gimbal_medium"},
+            {"Slot": "Slot03_Size2", "Item": "int_hullreinforcement_size2_class2"},
+            {"Slot": "Slot04_Size2", "Item": "int_modulereinforcement_size2_class2"},
+            {"Slot": "Slot05_Size4", "Item": "int_passengercabin_size4_class3"},
+        ]
+        folder = Path(self.tmp.name) / "equipment-journal"
+        folder.mkdir()
+        (folder / "Journal.2026-02-01T000000.01.log").write_text(
+            "".join(json.dumps(item) + "\n" for item in (
+                event("LoadGame", 0, FID="FID-A", Commander="Alpha", ShipID=7,
+                      Ship="CobraMkIII", ShipName="Equipped"),
+                event("Loadout", 1, ShipID=7, Ship="CobraMkIII",
+                      ShipName="Equipped", Modules=modules),
+            )),
+            encoding="utf-8",
+        )
+        parsed = read_latest_state(folder)["ship_loadout"]
+        equipment = analyze_ship_modules(parsed.modules)
+        self.assertTrue(equipment["vehicle_hangar"])
+        self.assertEqual(equipment["vehicles"], {
+            "scarab": 1, "scorpion": 1, "nomad": 1,
+        })
+        self.assertTrue(equipment["fighter_hangar"])
+        self.assertEqual(equipment["fighters"], 1)
+        self.assertEqual(equipment["shield_boosters"], 1)
+        self.assertEqual(equipment["weapons"], 1)
+        self.assertEqual(equipment["hull_reinforcements"], 1)
+        self.assertEqual(equipment["module_reinforcements"], 1)
+        self.assertEqual(equipment["passenger_cabins"], 1)
+
+        self.db.store_commander_ship(self.a, parsed, "T1")
+        stored = self.db.commander_ships(self.a)[0]
+        self.assertEqual(stored["modules"], modules)
+        self.assertEqual(analyze_ship_modules(stored["modules"]), equipment)
+        self.db.store_commander_ship(
+            self.a, ShipLoadoutData(ship_id=7, loadout_stale=True), "T2"
+        )
+        self.assertEqual(self.db.commander_ships(self.a)[0]["modules"], modules)
+
+    def test_equipment_filters_and_expansion_are_commander_scoped(self):
+        scarab = (
+            {"Slot": "PlanetaryVehicleHangar", "Item": "int_buggybay_size2_class1"},
+            {"Slot": "PlanetaryVehicleHangar_Buggy", "Item": "TestBuggy"},
+        )
+        scorpion = (
+            {"Slot": "PlanetaryVehicleHangar", "Item": "int_buggybay_size2_class1"},
+            {"Slot": "PlanetaryVehicleHangar_Buggy", "Item": "Combat_Multicrew_SRV_01"},
+        )
+        nomad = (
+            {"Slot": "PlanetaryVehicleHangar", "Item": "int_buggybay_size2_class1"},
+            {"Slot": "PlanetaryVehicleHangar_Buggy", "Item": "Lander01"},
+        )
+        fighter = (
+            {"Slot": "FighterBay", "Item": "int_fighterbay_size5_class1"},
+            {"Slot": "FighterBay01", "Item": "independent_fighter"},
+        )
+        self.db.store_commander_ship(self.a, self.ship(1, "Scarab", modules=scarab), "T1")
+        self.db.store_commander_ship(self.a, self.ship(2, "Scorpion", modules=scorpion), "T2")
+        self.db.store_commander_ship(self.a, self.ship(3, "Nomad", modules=nomad), "T3")
+        self.db.store_commander_ship(self.a, self.ship(4, "Fighter", modules=fighter), "T4")
+        self.db.store_commander_ship(self.a, self.ship(5, "Plain"), "T5")
+        self.db.store_commander_ship(self.b, self.ship(6, "Foreign", modules=scarab), "T6")
+        view = self._view(live_id=self.b, viewed_id=self.a)
+
+        first_card = view.fleet_layout.itemAt(0).widget()
+        first_card.findChild(QToolButton).setChecked(True)
+        for filter_key, expected in (
+            ("srv", [3, 2, 1]),
+            ("scarab", [1]),
+            ("scorpion", [2]),
+            ("nomad", [3]),
+            ("fighter", [4]),
+        ):
+            view.fleet_filter_combo.setCurrentIndex(
+                view.fleet_filter_combo.findData(filter_key)
+            )
+            self.assertEqual(self._fleet_order(view), expected)
+        view.fleet_filter_combo.setCurrentIndex(view.fleet_filter_combo.findData("all"))
+        self.assertEqual(set(self._fleet_order(view)), {1, 2, 3, 4, 5})
+        restored = next(
+            view.fleet_layout.itemAt(index).widget()
+            for index in range(view.fleet_layout.count() - 1)
+            if view.fleet_layout.itemAt(index).widget().property("shipId") == 5
+        )
+        self.assertTrue(restored.findChild(QToolButton).isChecked())
+
     def test_name_location_and_deterministic_tie_breakers(self):
-        self.db.store_commander_ship(self.a, self.ship(9, "Zulu"), "T1", location={
+        self.db.store_commander_ship(self.a, self.ship(9, "Zulu", "ZuluType"), "T1", location={
             "system_name": "Sol", "system_address": 1, "station_name": "Galileo"
         })
-        self.db.store_commander_ship(self.a, self.ship(3, "Alpha"), "T2", location={
+        self.db.store_commander_ship(self.a, self.ship(3, "Alpha", "AlphaType"), "T2", location={
             "system_name": "Colonia", "system_address": 2, "station_name": "Jaques"
         })
-        self.db.store_commander_ship(self.a, self.ship(2, "Alpha"), "T3", location={
+        self.db.store_commander_ship(self.a, self.ship(2, "Alpha", "AlphaType"), "T3", location={
             "system_name": "Colonia", "system_address": 2, "station_name": "Jaques"
         })
         self.db.store_commander_ship(
-            self.a, self.ship(4, "Unknown"), "T4", is_current=False
+            self.a, self.ship(4, "Unknown", ""), "T4", is_current=False
         )
         view = self._view(self.a)
         self._select_sort(view, "name")
         self.assertEqual(self._fleet_order(view), [2, 3, 4, 9])
+        self._select_sort(view, "type")
+        self.assertEqual(self._fleet_order(view), [2, 3, 9, 4])
         self._select_sort(view, "location")
         self.assertEqual(self._fleet_order(view), [2, 3, 9, 4])
 

@@ -137,6 +137,7 @@ class ShipLoadoutData:
     fsd_optimal_mass: float | None = None
     fsd_max_fuel_per_jump: float | None = None
     guardian_fsd_boosters: tuple[GuardianFsdBooster, ...] = ()
+    modules: tuple[dict, ...] = ()
     loadout_timestamp: str | None = None
     loadout_complete: bool = False
     loadout_stale: bool = True
