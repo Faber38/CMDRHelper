@@ -208,7 +208,7 @@ class CommanderView(QWidget):
         sort_layout.addWidget(self.fleet_sort_direction_combo)
         sort_layout.addWidget(QLabel(tr("commander_view.fleet.filter_by")))
         self.fleet_filter_combo = QComboBox()
-        for key in ("all", "srv", "scarab", "scorpion", "nomad", "fighter"):
+        for key in ("all", "vehicle_hangar", "fighter_hangar"):
             self.fleet_filter_combo.addItem(
                 tr(f"commander_view.fleet.filter.{key}"), key
             )
@@ -481,7 +481,6 @@ class CommanderView(QWidget):
             item = self.fleet_layout.takeAt(0)
             if item.widget():
                 item.widget().deleteLater()
-        self.fleet_title.setText(tr("commander_view.fleet.title", count=len(ships)))
         viewed_is_live = bool(
             summary and int(summary["id"]) == self.state.commander_id
         )
@@ -493,6 +492,15 @@ class CommanderView(QWidget):
             if current_color is not None else ""
         )
         visible_ships = self._filtered_fleet_ships(ships)
+        if self.fleet_filter_combo.currentData() == "all":
+            title = tr("commander_view.fleet.title", count=len(ships))
+        else:
+            title = tr(
+                "commander_view.fleet.title_filtered",
+                visible=len(visible_ships),
+                total=len(ships),
+            )
+        self.fleet_title.setText(title)
         for ship in self._sorted_fleet_ships(visible_ships):
             self.fleet_layout.addWidget(self._fleet_ship_widget(
                 ship,
@@ -603,12 +611,10 @@ class CommanderView(QWidget):
 
         def matches(ship):
             equipment = self._ship_equipment(ship)
-            if filter_key == "srv":
-                return equipment["srv_count"] > 0
-            if filter_key in ("scarab", "scorpion", "nomad"):
-                return equipment["vehicles"][filter_key] > 0
-            if filter_key == "fighter":
-                return equipment["fighters"] > 0
+            if filter_key == "vehicle_hangar":
+                return equipment["vehicle_hangar"]
+            if filter_key == "fighter_hangar":
+                return equipment["fighter_hangar"]
             return True
 
         return [ship for ship in ships if matches(ship)]
@@ -676,20 +682,11 @@ class CommanderView(QWidget):
         )
         equipment = self._ship_equipment(ship)
         has_module_data = bool(ship.get("modules"))
-        vehicle_parts = [
-            f"{name.title()} × {count}"
-            for name, count in equipment["vehicles"].items() if count
-        ]
-        vehicles = " · ".join(filter(None, (
-            equipment["vehicle_hangar_item"], ", ".join(vehicle_parts)
-        ))) or (
+        vehicles = equipment["vehicle_hangar_item"] or (
             tr("commander_view.ship.hangar_present")
             if has_module_data and equipment["vehicle_hangar"] else "–"
         )
-        fighter_parts = [equipment["fighter_hangar_item"]]
-        if equipment["fighters"]:
-            fighter_parts.append(f"SLF × {equipment['fighters']}")
-        fighters = " · ".join(part for part in fighter_parts if part) or (
+        fighters = equipment["fighter_hangar_item"] or (
             tr("commander_view.ship.hangar_present")
             if has_module_data and equipment["fighter_hangar"] else "–"
         )

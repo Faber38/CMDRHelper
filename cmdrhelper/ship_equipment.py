@@ -43,7 +43,7 @@ def analyze_ship_modules(modules) -> dict:
             result["vehicle_hangar"] = True
             result["vehicles"][vehicle_type] += 1
 
-        if item.startswith("int_fighterbay_"):
+        if item.startswith(("int_fighterbay_", "int_fighterbaymk2_")):
             result["fighter_hangar"] = True
             result["fighter_hangar_item"] = item_raw
         elif slot.startswith("fighterbay"):

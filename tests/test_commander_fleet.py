@@ -14,6 +14,7 @@ from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QApplication, QScrollArea, QToolButton
 
 from cmdrhelper.database import CMDRDatabase, SCHEMA_VERSION
+from cmdrhelper.i18n import tr
 from cmdrhelper.journal_reader import read_latest_state
 from cmdrhelper.route_planner.models import ShipLoadoutData
 from cmdrhelper.ship_identity import is_definite_non_ship
@@ -311,45 +312,57 @@ class CommanderFleetTests(unittest.TestCase):
         self.assertEqual(self.db.commander_ships(self.a)[0]["modules"], modules)
 
     def test_equipment_filters_and_expansion_are_commander_scoped(self):
-        scarab = (
-            {"Slot": "PlanetaryVehicleHangar", "Item": "int_buggybay_size2_class1"},
-            {"Slot": "PlanetaryVehicleHangar_Buggy", "Item": "TestBuggy"},
+        vehicle_hangar = (
+            {"Slot": "Slot04_Size4", "Item": "int_buggybay_size4_class2"},
         )
-        scorpion = (
-            {"Slot": "PlanetaryVehicleHangar", "Item": "int_buggybay_size2_class1"},
-            {"Slot": "PlanetaryVehicleHangar_Buggy", "Item": "Combat_Multicrew_SRV_01"},
+        fighter_hangar = (
+            {"Slot": "FighterBay01", "Item": "int_fighterbay_size5_class1"},
         )
-        nomad = (
-            {"Slot": "PlanetaryVehicleHangar", "Item": "int_buggybay_size2_class1"},
-            {"Slot": "PlanetaryVehicleHangar_Buggy", "Item": "Lander01"},
+        fighter_hangar_mk2 = (
+            {"Slot": "Slot02_Size6", "Item": "int_fighterbaymk2_size6_class1_free"},
         )
-        fighter = (
-            {"Slot": "FighterBay", "Item": "int_fighterbay_size5_class1"},
-            {"Slot": "FighterBay01", "Item": "independent_fighter"},
+        self.db.store_commander_ship(
+            self.a, self.ship(1, "Vehicle Hangar", modules=vehicle_hangar), "T1"
         )
-        self.db.store_commander_ship(self.a, self.ship(1, "Scarab", modules=scarab), "T1")
-        self.db.store_commander_ship(self.a, self.ship(2, "Scorpion", modules=scorpion), "T2")
-        self.db.store_commander_ship(self.a, self.ship(3, "Nomad", modules=nomad), "T3")
-        self.db.store_commander_ship(self.a, self.ship(4, "Fighter", modules=fighter), "T4")
+        self.db.store_commander_ship(
+            self.a, self.ship(2, "Fighter Hangar", modules=fighter_hangar), "T2"
+        )
+        self.db.store_commander_ship(
+            self.a, self.ship(3, "Fighter Hangar Mk II", modules=fighter_hangar_mk2), "T3"
+        )
         self.db.store_commander_ship(self.a, self.ship(5, "Plain"), "T5")
-        self.db.store_commander_ship(self.b, self.ship(6, "Foreign", modules=scarab), "T6")
+        self.db.store_commander_ship(
+            self.b, self.ship(6, "Foreign", modules=vehicle_hangar), "T6"
+        )
         view = self._view(live_id=self.b, viewed_id=self.a)
+        self.assertEqual(
+            [view.fleet_filter_combo.itemData(index)
+             for index in range(view.fleet_filter_combo.count())],
+            ["all", "vehicle_hangar", "fighter_hangar"],
+        )
+        self.assertEqual(
+            view.fleet_title.text(), tr("commander_view.fleet.title", count=4)
+        )
 
         first_card = view.fleet_layout.itemAt(0).widget()
         first_card.findChild(QToolButton).setChecked(True)
-        for filter_key, expected in (
-            ("srv", [3, 2, 1]),
-            ("scarab", [1]),
-            ("scorpion", [2]),
-            ("nomad", [3]),
-            ("fighter", [4]),
-        ):
-            view.fleet_filter_combo.setCurrentIndex(
-                view.fleet_filter_combo.findData(filter_key)
-            )
-            self.assertEqual(self._fleet_order(view), expected)
+        view.fleet_filter_combo.setCurrentIndex(
+            view.fleet_filter_combo.findData("vehicle_hangar")
+        )
+        self.assertEqual(self._fleet_order(view), [1])
+        self.assertEqual(
+            view.fleet_title.text(),
+            tr("commander_view.fleet.title_filtered", visible=1, total=4),
+        )
+        view.fleet_filter_combo.setCurrentIndex(
+            view.fleet_filter_combo.findData("fighter_hangar")
+        )
+        self.assertEqual(self._fleet_order(view), [3, 2])
         view.fleet_filter_combo.setCurrentIndex(view.fleet_filter_combo.findData("all"))
-        self.assertEqual(set(self._fleet_order(view)), {1, 2, 3, 4, 5})
+        self.assertEqual(set(self._fleet_order(view)), {1, 2, 3, 5})
+        self.assertEqual(
+            view.fleet_title.text(), tr("commander_view.fleet.title", count=4)
+        )
         restored = next(
             view.fleet_layout.itemAt(index).widget()
             for index in range(view.fleet_layout.count() - 1)
