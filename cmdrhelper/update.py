@@ -58,6 +58,10 @@ def _expected_venv_python(install_dir: Path) -> Path:
     return Path(install_dir) / relative
 
 
+def _local_script_names() -> tuple[str, str]:
+    return ("install.bat", "start.bat") if os.name == "nt" else ("install.sh", "start.sh")
+
+
 def _require_local_venv_interpreter(
     install_dir: Path, executable: str | Path | None = None,
 ) -> Path:
@@ -65,7 +69,10 @@ def _require_local_venv_interpreter(
     expected = _expected_venv_python(Path(install_dir))
     install_root = Path(install_dir).resolve()
     venv_root = Path(install_dir) / "venv"
-    if venv_root.exists() and venv_root.resolve().parent != install_root:
+    install_script, start_script = _local_script_names()
+    if venv_root.is_symlink() or (
+        venv_root.exists() and venv_root.resolve().parent != install_root
+    ):
         raise RuntimeError(
             "Update abgebrochen: Das lokale venv ist auf ein fremdes "
             "Verzeichnis verknüpft. Bitte die Installation manuell prüfen."
@@ -73,21 +80,35 @@ def _require_local_venv_interpreter(
     actual = Path(executable or sys.executable)
     normalized_expected = os.path.normcase(os.path.abspath(str(expected)))
     normalized_actual = os.path.normcase(os.path.abspath(str(actual)))
-    try:
-        same_interpreter = os.path.samefile(actual, expected)
-    except OSError:
-        same_interpreter = normalized_actual == normalized_expected
+    # Unter Linux zeigen die python-Dateien verschiedener venvs häufig alle
+    # auf denselben Systeminterpreter. samefile() wäre dort kein Herkunftsnachweis.
+    same_interpreter = normalized_actual == normalized_expected
+    if os.name != "nt" and not same_interpreter:
+        actual_path = Path(normalized_actual)
+        expected_path = Path(normalized_expected)
+        same_interpreter = (
+            actual_path.parent == expected_path.parent
+            and actual_path.name in {
+                "python", "python3",
+                f"python{sys.version_info.major}.{sys.version_info.minor}",
+            }
+        )
+    if os.name == "nt" and not same_interpreter:
+        try:
+            same_interpreter = os.path.samefile(actual, expected)
+        except OSError:
+            pass
     if not same_interpreter:
         raise RuntimeError(
             "Update abgebrochen: CMDRHelper läuft nicht mit dem lokalen venv. "
-            f"Erwartet: {expected}; verwendet: {actual}. Bitte install.bat "
-            "zur Reparatur und anschließend start.bat dieser Installation verwenden."
+            f"Erwartet: {expected}; verwendet: {actual}. Bitte {install_script} "
+            f"zur Reparatur und anschließend {start_script} dieser Installation verwenden."
         )
     if not expected.exists() or not is_supported():
         raise RuntimeError(
             "Das lokale CMDRHelper-venv fehlt oder verwendet eine nicht "
             f"unterstützte Python-Version ({supported_description()}). "
-            "Bitte install.bat ausführen."
+            f"Bitte {install_script} ausführen."
         )
     return expected
 
@@ -430,10 +451,13 @@ def _backup_managed_files(
             / source.name
         )
 
-        if source.is_dir():
+        if source.is_symlink():
+            shutil.copy2(source, destination, follow_symlinks=False)
+        elif source.is_dir():
             shutil.copytree(
                 source,
                 destination,
+                symlinks=True,
                 ignore=shutil.ignore_patterns(
                     "__pycache__",
                     "*.pyc",
@@ -452,14 +476,21 @@ def _managed_file_manifest(root: Path) -> set[str]:
     root = Path(root)
     for current, directories, files in os.walk(root):
         current_path = Path(current)
-        directories[:] = [
-            name for name in directories
-            if not _is_protected((current_path / name).relative_to(root))
-        ]
+        kept_directories = []
+        for name in directories:
+            candidate = current_path / name
+            relative = candidate.relative_to(root)
+            if _is_protected(relative):
+                continue
+            if candidate.is_symlink():
+                result.add(relative.as_posix())
+            else:
+                kept_directories.append(name)
+        directories[:] = kept_directories
         for name in files:
             path = current_path / name
             relative = path.relative_to(root)
-            if not _is_protected(relative):
+            if not _is_protected(relative) and (path.is_file() or path.is_symlink()):
                 result.add(relative.as_posix())
     return result
 
@@ -503,6 +534,11 @@ def _copy_release(
         if _is_protected(relative):
             continue
 
+        if source.is_symlink():
+            raise RuntimeError(
+                f"Release enthält einen nicht erlaubten symbolischen Link: {relative}"
+            )
+
         destination = (
             install_dir
             / relative
@@ -542,11 +578,19 @@ def _restore_backup(
             / source.name
         )
 
-        if source.is_dir():
+        if source.is_symlink():
+            if destination.exists() or destination.is_symlink():
+                if destination.is_dir() and not destination.is_symlink():
+                    shutil.rmtree(destination)
+                else:
+                    destination.unlink()
+            shutil.copy2(source, destination, follow_symlinks=False)
+        elif source.is_dir():
             shutil.copytree(
                 source,
                 destination,
                 dirs_exist_ok=True,
+                symlinks=True,
             )
         else:
             destination.parent.mkdir(
@@ -1145,9 +1189,10 @@ def apply_update(
                 _write_update_state(install_dir, UPDATE_STATUS_RELATIVE, status)
 
                 if dependency_phase_started:
+                    repair_script, _start_script = _local_script_names()
                     _write_update_state(
                         install_dir, UPDATE_REPAIR_RELATIVE,
-                        {**status, "repair": "install.bat"},
+                        {**status, "repair": repair_script},
                     )
 
             except Exception as rollback_exc:
@@ -1165,7 +1210,7 @@ def apply_update(
                     "phase": "Rollback",
                     "error": str(rollback_exc),
                     "log": str(install_dir / UPDATE_LOG_RELATIVE),
-                    "repair": "install.bat",
+                    "repair": _local_script_names()[0],
                 }
                 _write_update_state(
                     install_dir, UPDATE_STATUS_RELATIVE, failure_status
@@ -1188,9 +1233,10 @@ def apply_update(
             )
 
         if dependency_phase_started:
+            repair_script, _start_script = _local_script_names()
             _log_update(
                 install_dir,
-                "venv kann verändert sein; Reparatur über install.bat erforderlich."
+                f"venv kann verändert sein; Reparatur über {repair_script} erforderlich."
             )
             return 2
 

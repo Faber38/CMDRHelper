@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import tempfile
 import unittest
 import zipfile
@@ -108,6 +109,8 @@ class UpdaterSafetyTests(unittest.TestCase):
             self.assertEqual((install / "data" / "cmdrhelper.db").read_text(), "personal")
             marker = json.loads((install / update.UPDATE_REPAIR_RELATIVE).read_text())
             self.assertEqual(marker["phase"], "Python-Abhängigkeiten installieren")
+            expected_repair = "install.bat" if os.name == "nt" else "install.sh"
+            self.assertEqual(marker["repair"], expected_repair)
             status = update.consume_update_status(install)
             self.assertEqual(status["kind"], "rollback")
             self.assertFalse((install / update.UPDATE_STATUS_RELATIVE).exists())
