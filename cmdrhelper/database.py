@@ -1588,9 +1588,15 @@ class CMDRDatabase:
                     body = scanned_bodies.get((int(address), body_id))
                     if body is None:
                         stored = con.execute("""
-                            SELECT name,planet_class,terraformable,scan_value,mapped_value
-                            FROM bodies WHERE system_address=? AND body_id=?
-                        """, (int(address), body_id)).fetchone()
+                            SELECT b.name,b.planet_class,b.terraformable,
+                                   cb.scan_value_cached,cb.mapped_value_cached
+                            FROM bodies b
+                            LEFT JOIN commander_bodies cb
+                              ON cb.system_address=b.system_address
+                             AND cb.body_id=b.body_id
+                             AND cb.commander_id=?
+                            WHERE b.system_address=? AND b.body_id=?
+                        """, (commander_id, int(address), body_id)).fetchone()
                         if stored is not None:
                             existing = con.execute("""
                                 SELECT raw_estimated_value,scanned_at,system_name,body_name

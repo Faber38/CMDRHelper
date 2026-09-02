@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import logging
+import sqlite3
 import threading
 from datetime import datetime, timezone
 
@@ -62,6 +63,7 @@ class AppState(QObject):
         self._journal_index_sessions = None
         self._journal_index_current = None
         self._initialization_visible = False
+        self._last_refresh_error = ""
 
         self.commander = ""
         self.commander_id = None
@@ -239,9 +241,15 @@ class AppState(QObject):
             str(Path(self._journal_index_sessions[-1]["journal_file"]))
             if self._journal_index_sessions else None
         )
+        active_session = self._prepare_indexed_live_state(emit_identity=True)
+        # Indexzahl, Identität und persistenter Zustand sind bereits sicher
+        # bekannt und sollen auch bei einem nachfolgenden Deltafehler sichtbar
+        # bleiben.
+        self.changed.emit()
         try:
-            current = ((self._journal_index_sessions or [None])[-1])
-            commander_id = current.get("commander_id") if current else None
+            commander_id = (
+                active_session.get("commander_id") if active_session else None
+            )
             if commander_id is not None:
                 features = [
                     feature for feature in ("unsold", "missions")
@@ -257,7 +265,10 @@ class AppState(QObject):
         except Exception:
             logger.exception("Commander-Zustandsreparatur fehlgeschlagen")
         if not self.refresh():
-            self.initializationFinished.emit("Journal konnte nicht gelesen werden.")
+            self.watcher.start()
+            self.initializationFinished.emit(
+                self._last_refresh_error or "Journal konnte nicht gelesen werden."
+            )
             return
         self.watcher.start()
         self.import_journal_archive(automatic=True)
@@ -968,6 +979,108 @@ class AppState(QObject):
         self.edsm_source_status = ""
         self._edsm_request_system = ""
 
+    def _latest_identified_index_session(self):
+        """Returns the chronologically newest indexed, identified session."""
+        for session in reversed(self._journal_index_sessions or []):
+            if not isinstance(session, dict):
+                continue
+            if (
+                session.get("attribution_status") == "identified"
+                and session.get("commander_id") is not None
+                and str(session.get("fid_seen") or "").strip()
+            ):
+                return session
+        return None
+
+    @staticmethod
+    def _stored_ship_loadout(stored_ship):
+        return ShipLoadoutData(
+            ship_id=stored_ship.get("ship_id"),
+            ship_type=stored_ship.get("ship_type"),
+            ship_name=stored_ship.get("ship_name"),
+            ship_ident=stored_ship.get("ship_ident"),
+            max_jump_range=stored_ship.get("max_jump_range"),
+            unladen_mass=stored_ship.get("unladen_mass"),
+            cargo_capacity=stored_ship.get("cargo_capacity"),
+            main_tank_capacity=stored_ship.get("main_tank_capacity"),
+            reserve_tank_capacity=stored_ship.get("reserve_tank_capacity"),
+            fsd_item=stored_ship.get("fsd_item"),
+            guardian_fsd_boosters=tuple(
+                GuardianFsdBooster(item.get("item") or "", item.get("on"))
+                for item in (stored_ship.get("guardian_fsd_boosters") or [])
+                if isinstance(item, dict)
+            ),
+            modules=tuple(stored_ship.get("modules") or ()),
+            loadout_timestamp=stored_ship.get("loadout_timestamp"),
+            loadout_complete=bool(stored_ship.get("loadout_complete")),
+            loadout_stale=bool(stored_ship.get("loadout_stale", True)),
+        )
+
+    def _restore_persistent_commander_state(self, summary):
+        """Restores the fast-start fields that do not require journal replay."""
+        if not summary:
+            return
+        self.commander = summary.get("current_name") or self.commander
+        location = summary.get("persistent_location") or {}
+        if location:
+            self.system = location.get("system_name") or ""
+            self.system_address = location.get("system_address")
+            self.station = location.get("station_name") or ""
+            self.body = location.get("body_name") or ""
+            self.last_timestamp = location.get("event_timestamp") or self.last_timestamp
+        stored_ship = summary.get("ship") or {}
+        if stored_ship:
+            self.ship = stored_ship.get("ship_name") or stored_ship.get("ship_type") or ""
+            self.ship_loadout = self._stored_ship_loadout(stored_ship)
+        self.missions = normalize_missions([
+            mission
+            for mission in self.database.commander_missions(self.commander_id)
+            if mission.get("is_open")
+        ])
+        persistent_cart = summary.get("unsold_cartography") or {}
+        self.unsold_cartography_value = int(
+            persistent_cart.get("estimated_value") or 0
+        )
+        self.unsold_cartography_count = int(persistent_cart.get("bodies") or 0)
+        persistent_bio = summary.get("unsold_biology") or {}
+        self.unsold_bio_count = int(persistent_bio.get("findings") or 0)
+        self.unsold_bio_value = int(persistent_bio.get("estimated_value") or 0)
+        self.unsold_bio_first_logged_value = self.unsold_bio_value * 5
+        self.unsold_bio_unknown = ["Unbekannte BIO-Art"] * int(
+            persistent_bio.get("unknown_values") or 0
+        )
+
+    def _prepare_indexed_live_state(self, emit_identity=False):
+        """Adopts index facts before processing bytes after the journal offset."""
+        self.journal_files = len(self._journal_index_sessions or [])
+        self.connected = self.journal_files > 0
+        session = self._latest_identified_index_session()
+        if session is None:
+            return None
+
+        commander_id = int(session["commander_id"])
+        fid = str(session.get("fid_seen") or "").strip()
+        name = str(session.get("commander_name_seen") or "").strip()
+        previous_fid = self.commander_fid
+        self.database.set_active_commander(commander_id)
+        self.commander_id = commander_id
+        self.commander_fid = fid
+        if name:
+            self.commander = name
+
+        if not getattr(self, "_viewed_commander_user_selected", False):
+            previous_viewed = getattr(self, "viewed_commander_id", None)
+            self.viewed_commander_id = commander_id
+            if previous_viewed != commander_id:
+                self.viewedCommanderChanged.emit(commander_id)
+
+        self._restore_persistent_commander_state(
+            self.database.commander_summary(commander_id)
+        )
+        if emit_identity and previous_fid != fid:
+            self.commanderIdentityChanged.emit(commander_id, fid, self.commander)
+        return session
+
     def _apply_commander_identity(self, data, emit_signal=True):
         """Übernimmt ausschließlich eine durch FID belegte Journalidentität."""
         fid = str(data.get("commander_fid") or "").strip()
@@ -1013,6 +1126,7 @@ class AppState(QObject):
         self.database.store_journal_session(session)
 
     def refresh(self):
+        self._last_refresh_error = ""
         if not self.journal_folder:
             self.connected = False
             self.changed.emit()
@@ -1033,6 +1147,7 @@ class AppState(QObject):
                     str(Path(self._journal_index_sessions[-1]["journal_file"]))
                     if self._journal_index_sessions else None
                 )
+            self._prepare_indexed_live_state(emit_identity=False)
             current_session = ((self._journal_index_sessions or [None])[-1])
             if current_session and current_session.get("commander_id") is not None:
                 from cmdrhelper.journal_reader import read_journal_delta
@@ -1041,10 +1156,22 @@ class AppState(QObject):
                     int(current_session.get("last_read_offset") or 0),
                 )
                 if safe_offset > int(current_session.get("last_read_offset") or 0):
-                    self.database.apply_commander_journal_delta(
-                        int(current_session["commander_id"]),
-                        current_session["journal_file"], delta_events, safe_offset,
-                    )
+                    try:
+                        self.database.apply_commander_journal_delta(
+                            int(current_session["commander_id"]),
+                            current_session["journal_file"], delta_events, safe_offset,
+                        )
+                    except (sqlite3.Error, RuntimeError, ValueError) as exc:
+                        # Eng auf die fachliche Delta-Persistenz begrenzt:
+                        # Indexzahl und bereits belegte Identität bleiben
+                        # sichtbar, der Fehler wird aber nicht verschwiegen.
+                        logger.exception("Commander-Journaldelta konnte nicht gespeichert werden")
+                        self._last_refresh_error = (
+                            "Journaldelta konnte nicht gespeichert werden: "
+                            f"{type(exc).__name__}: {exc}"
+                        )
+                        self.changed.emit()
+                        return False
                     current_session["last_read_offset"] = safe_offset
             data = read_latest_state(
                 self.journal_folder,

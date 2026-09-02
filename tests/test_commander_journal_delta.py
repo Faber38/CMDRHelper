@@ -190,6 +190,47 @@ class CommanderJournalDeltaTests(unittest.TestCase):
         self.assertEqual(mission["mission_id"], 44)
         self.assertTrue(mission["is_open"])
 
+    def test_saa_scan_complete_uses_commander_cached_body_values(self):
+        self.db.store_snapshot({
+            "system_address": 42,
+            "system": "Test",
+            "last_timestamp": "2026-01-01T00:00:00Z",
+            "system_bodies": [{
+                "body_id": 1,
+                "name": "Test 1",
+                "body_type": "Planet",
+                "planet_class": "Rocky body",
+                "terraformable": False,
+                "scan_value": 100,
+                "mapped_value": 500,
+                "current_value": 500,
+            }],
+        }, self.commander)
+        self.db.apply_commander_journal_delta(self.commander, self.path, [{
+            "timestamp": "2026-01-01T00:00:01Z",
+            "event": "SAAScanComplete",
+            "SystemAddress": 42,
+            "BodyID": 1,
+            "BodyName": "Test 1",
+        }], 0)
+        with self.db._connect() as con:
+            columns = {row[1] for row in con.execute("PRAGMA table_info(bodies)")}
+            cached = con.execute(
+                "SELECT scan_value_cached,mapped_value_cached FROM commander_bodies "
+                "WHERE commander_id=? AND system_address=42 AND body_id=1",
+                (self.commander,),
+            ).fetchone()
+            unsold = con.execute(
+                "SELECT raw_estimated_value,self_mapped "
+                "FROM commander_unsold_cartography WHERE commander_id=? "
+                "AND system_address=42 AND body_id=1",
+                (self.commander,),
+            ).fetchone()
+        self.assertNotIn("scan_value", columns)
+        self.assertNotIn("mapped_value", columns)
+        self.assertEqual(cached, (100, 500))
+        self.assertEqual(unsold, (400, 1))
+
     def test_repair_marker_is_feature_specific_and_failure_is_atomic(self):
         self.write([
             event("LoadGame", 0, FID="FID-A", Commander="Alpha"),
