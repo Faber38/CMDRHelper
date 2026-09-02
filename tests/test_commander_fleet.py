@@ -9,7 +9,8 @@ from pathlib import Path
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PySide6.QtCore import QObject
+from PySide6.QtCore import QObject, Qt
+from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QApplication, QScrollArea, QToolButton
 
 from cmdrhelper.database import CMDRDatabase, SCHEMA_VERSION
@@ -40,10 +41,12 @@ class CommanderFleetTests(unittest.TestCase):
         self.tmp.cleanup()
 
     @staticmethod
-    def ship(ship_id, name, ship_type="CobraMkIII", stale=False):
+    def ship(ship_id, name, ship_type="CobraMkIII", stale=False, *,
+             jump_range=20.5, cargo_capacity=None, unladen_mass=None):
         return ShipLoadoutData(
             ship_id=ship_id, ship_name=name, ship_type=ship_type,
-            ship_ident=f"ID-{ship_id}", max_jump_range=20.5,
+            ship_ident=f"ID-{ship_id}", max_jump_range=jump_range,
+            cargo_capacity=cargo_capacity, unladen_mass=unladen_mass,
             loadout_timestamp=f"L-{ship_id}", loadout_complete=not stale,
             loadout_stale=stale,
         )
@@ -131,22 +134,39 @@ class CommanderFleetTests(unittest.TestCase):
         self.assertEqual(SCHEMA_VERSION, 8)
         self.assertEqual(migrated.commander_last_ship(self.a)["ship_name"], "Legacy")
 
-    def _view(self, live_id=None):
+    def _view(self, live_id=None, viewed_id=None, settings=None):
         state = AppState.__new__(AppState)
         QObject.__init__(state)
         state.database = self.db
         state.commander_id = live_id
         state.commander_fid = self.db._commander_fid(live_id) if live_id else ""
         state.commander = ""
-        state.viewed_commander_id = self.a
+        state.viewed_commander_id = self.a if viewed_id is None else viewed_id
         state._viewed_commander_user_selected = True
 
         class Settings:
-            def value(self, _key, default=None): return default
-            def setValue(self, _key, _value): pass
+            def __init__(self): self.values = {}
+            def value(self, key, default=None): return self.values.get(key, default)
+            def setValue(self, key, value): self.values[key] = value
 
-        state.settings = Settings()
+        state.settings = settings or Settings()
         return CommanderView(state)
+
+    @staticmethod
+    def _fleet_order(view):
+        return [
+            view.fleet_layout.itemAt(index).widget().property("shipId")
+            for index in range(view.fleet_layout.count())
+            if view.fleet_layout.itemAt(index).widget() is not None
+        ]
+
+    @staticmethod
+    def _select_sort(view, sort_key, direction=None):
+        view.fleet_sort_combo.setCurrentIndex(view.fleet_sort_combo.findData(sort_key))
+        if direction is not None:
+            view.fleet_sort_direction_combo.setCurrentIndex(
+                view.fleet_sort_direction_combo.findData(direction)
+            )
 
     def test_many_ships_use_a_vertical_scroll_area(self):
         for ship_id in range(1, 18):
@@ -206,6 +226,103 @@ class CommanderFleetTests(unittest.TestCase):
         card = view._fleet_ship_widget(ship, is_live=False)
         self.assertFalse(card.property("liveShip"))
         self.assertNotEqual(view._fleet_color(ship, False).hue(), 125)
+
+    def test_numeric_fleet_sorting_and_missing_values(self):
+        self.db.store_commander_ship(
+            self.a, self.ship(1, "Medium", jump_range=30, cargo_capacity=64,
+                              unladen_mass=400), "T1"
+        )
+        self.db.store_commander_ship(
+            self.a, self.ship(2, "Largest", jump_range=50, cargo_capacity=128,
+                              unladen_mass=800), "T2"
+        )
+        self.db.store_commander_ship(
+            self.a, self.ship(3, "Smallest", jump_range=10, cargo_capacity=8,
+                              unladen_mass=100), "T3"
+        )
+        self.db.store_commander_ship(
+            self.a, self.ship(4, "Missing", jump_range=None), "T4", is_current=False
+        )
+        view = self._view(self.a)
+
+        self._select_sort(view, "jump_range")
+        self.assertEqual(self._fleet_order(view), [2, 1, 3, 4])
+        self._select_sort(view, "cargo")
+        self.assertEqual(self._fleet_order(view), [2, 1, 3, 4])
+        self._select_sort(view, "mass", "ascending")
+        self.assertEqual(self._fleet_order(view), [3, 1, 2, 4])
+        self._select_sort(view, "mass", "descending")
+        self.assertEqual(self._fleet_order(view), [2, 1, 3, 4])
+
+    def test_name_location_and_deterministic_tie_breakers(self):
+        self.db.store_commander_ship(self.a, self.ship(9, "Zulu"), "T1", location={
+            "system_name": "Sol", "system_address": 1, "station_name": "Galileo"
+        })
+        self.db.store_commander_ship(self.a, self.ship(3, "Alpha"), "T2", location={
+            "system_name": "Colonia", "system_address": 2, "station_name": "Jaques"
+        })
+        self.db.store_commander_ship(self.a, self.ship(2, "Alpha"), "T3", location={
+            "system_name": "Colonia", "system_address": 2, "station_name": "Jaques"
+        })
+        self.db.store_commander_ship(
+            self.a, self.ship(4, "Unknown"), "T4", is_current=False
+        )
+        view = self._view(self.a)
+        self._select_sort(view, "name")
+        self.assertEqual(self._fleet_order(view), [2, 3, 4, 9])
+        self._select_sort(view, "location")
+        self.assertEqual(self._fleet_order(view), [2, 3, 9, 4])
+
+    def test_sorting_preserves_live_color_location_colors_and_expansion(self):
+        sol = {"system_name": "Sol", "system_address": 1, "station_name": "Galileo"}
+        self.db.store_commander_ship(
+            self.a, self.ship(1, "Cargo", cargo_capacity=256), "T1", location=sol
+        )
+        self.db.store_commander_ship(
+            self.a, self.ship(2, "Live", cargo_capacity=4), "T2", location=sol
+        )
+        view = self._view(self.a)
+        cards = {
+            view.fleet_layout.itemAt(index).widget().property("shipId"):
+                view.fleet_layout.itemAt(index).widget()
+            for index in range(view.fleet_layout.count() - 1)
+        }
+        cards[1].findChild(QToolButton).setChecked(True)
+        location_color = cards[1].property("fleetColor")
+
+        self._select_sort(view, "cargo")
+        self.assertEqual(self._fleet_order(view), [1, 2])
+        sorted_cards = {
+            view.fleet_layout.itemAt(index).widget().property("shipId"):
+                view.fleet_layout.itemAt(index).widget()
+            for index in range(view.fleet_layout.count() - 1)
+        }
+        self.assertFalse(sorted_cards[1].property("liveShip"))
+        self.assertEqual(sorted_cards[1].property("fleetColor"), location_color)
+        self.assertTrue(sorted_cards[1].findChild(QToolButton).isChecked())
+        self.assertEqual(sorted_cards[1].findChild(QToolButton).arrowType(), Qt.DownArrow)
+        self.assertTrue(sorted_cards[2].property("liveShip"))
+        self.assertEqual(QColor(sorted_cards[2].property("fleetColor")).hue(), 125)
+
+    def test_sort_settings_are_restored(self):
+        class Settings:
+            def __init__(self): self.values = {}
+            def value(self, key, default=None): return self.values.get(key, default)
+            def setValue(self, key, value): self.values[key] = value
+
+        settings = Settings()
+        view = self._view(self.a, settings=settings)
+        self._select_sort(view, "mass", "ascending")
+        restored = self._view(self.a, settings=settings)
+        self.assertEqual(restored.fleet_sort_combo.currentData(), "mass")
+        self.assertEqual(restored.fleet_sort_direction_combo.currentData(), "ascending")
+
+    def test_offline_commander_sorting_keeps_fleet_scoped(self):
+        self.db.store_commander_ship(self.a, self.ship(1, "Alpha Ship"), "T1")
+        self.db.store_commander_ship(self.b, self.ship(2, "Bravo Ship"), "T2")
+        view = self._view(live_id=self.b, viewed_id=self.a)
+        self._select_sort(view, "name")
+        self.assertEqual(self._fleet_order(view), [1])
 
     def test_only_confirmed_non_ships_are_rejected_without_positive_ship_list(self):
         for ship_id, ship_type in enumerate((

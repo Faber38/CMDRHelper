@@ -27,6 +27,19 @@ from cmdrhelper.mission_manager import translate_mission_text
 class CommanderView(QWidget):
     """Rein lesende Offline-/Live-Übersicht bekannter Commanderprofile."""
 
+    FLEET_SORT_SETTINGS_KEY = "commander_view/fleet_sort_key"
+    FLEET_SORT_DIRECTION_SETTINGS_KEY = "commander_view/fleet_sort_direction"
+    FLEET_SORT_DEFAULT_DIRECTIONS = {
+        "recent": "descending",
+        "name": "ascending",
+        "type": "ascending",
+        "jump_range": "descending",
+        "cargo": "descending",
+        "mass": "descending",
+        "location": "ascending",
+        "last_seen": "descending",
+    }
+
     def __init__(self, state, parent=None):
         super().__init__(parent)
         self.state = state
@@ -172,6 +185,32 @@ class CommanderView(QWidget):
         layout.addWidget(self.current_ship_card)
 
         self.fleet_title = QLabel(objectName="sectionTitle")
+        sort_bar = QFrame(objectName="card")
+        sort_layout = QHBoxLayout(sort_bar)
+        sort_layout.setContentsMargins(8, 4, 8, 4)
+        sort_layout.addWidget(QLabel(tr("commander_view.fleet.sort_by")))
+        self.fleet_sort_combo = QComboBox()
+        for key in self.FLEET_SORT_DEFAULT_DIRECTIONS:
+            self.fleet_sort_combo.addItem(
+                tr(f"commander_view.fleet.sort.{key}"), key
+            )
+        sort_layout.addWidget(self.fleet_sort_combo, 1)
+        self.fleet_sort_direction_combo = QComboBox()
+        self.fleet_sort_direction_combo.addItem(
+            tr("commander_view.fleet.sort.ascending"), "ascending"
+        )
+        self.fleet_sort_direction_combo.addItem(
+            tr("commander_view.fleet.sort.descending"), "descending"
+        )
+        sort_layout.addWidget(self.fleet_sort_direction_combo)
+        self._restore_fleet_sort_settings()
+        self.fleet_sort_combo.currentIndexChanged.connect(
+            self._fleet_sort_criterion_changed
+        )
+        self.fleet_sort_direction_combo.currentIndexChanged.connect(
+            self._fleet_sort_direction_changed
+        )
+        layout.addWidget(sort_bar)
         layout.addWidget(self.fleet_title)
         self.fleet_container = QWidget()
         self.fleet_layout = QVBoxLayout(self.fleet_container)
@@ -195,6 +234,52 @@ class CommanderView(QWidget):
         layout.addWidget(carrier_card)
         self.fleet_layout.addStretch()
         return tab
+
+    def _restore_fleet_sort_settings(self):
+        sort_key = str(self.state.settings.value(
+            self.FLEET_SORT_SETTINGS_KEY, "recent"
+        ) or "recent")
+        if sort_key not in self.FLEET_SORT_DEFAULT_DIRECTIONS:
+            sort_key = "recent"
+        direction = str(self.state.settings.value(
+            self.FLEET_SORT_DIRECTION_SETTINGS_KEY,
+            self.FLEET_SORT_DEFAULT_DIRECTIONS[sort_key],
+        ) or "")
+        if direction not in ("ascending", "descending"):
+            direction = self.FLEET_SORT_DEFAULT_DIRECTIONS[sort_key]
+        self.fleet_sort_combo.setCurrentIndex(self.fleet_sort_combo.findData(sort_key))
+        self.fleet_sort_direction_combo.setCurrentIndex(
+            self.fleet_sort_direction_combo.findData(direction)
+        )
+
+    def _fleet_sort_criterion_changed(self, _index):
+        sort_key = self.fleet_sort_combo.currentData()
+        direction = self.FLEET_SORT_DEFAULT_DIRECTIONS[sort_key]
+        self.fleet_sort_direction_combo.blockSignals(True)
+        self.fleet_sort_direction_combo.setCurrentIndex(
+            self.fleet_sort_direction_combo.findData(direction)
+        )
+        self.fleet_sort_direction_combo.blockSignals(False)
+        self.state.settings.setValue(self.FLEET_SORT_SETTINGS_KEY, sort_key)
+        self.state.settings.setValue(
+            self.FLEET_SORT_DIRECTION_SETTINGS_KEY, direction
+        )
+        self._refresh_ship_for_current_commander()
+
+    def _fleet_sort_direction_changed(self, _index):
+        self.state.settings.setValue(
+            self.FLEET_SORT_DIRECTION_SETTINGS_KEY,
+            self.fleet_sort_direction_combo.currentData(),
+        )
+        self._refresh_ship_for_current_commander()
+
+    def _refresh_ship_for_current_commander(self):
+        if not hasattr(self, "fleet_layout"):
+            return
+        viewed_id = self.state.resolve_viewed_commander(
+            self.state.database.list_commanders()
+        )
+        self._refresh_ship(self.state.database.commander_summary(viewed_id))
 
     @staticmethod
     def _placeholder():
@@ -371,6 +456,7 @@ class CommanderView(QWidget):
             value = current_data[field]
             label.setText(str(value) if value not in (None, "") else "–")
 
+        expanded_ship_ids = self._expanded_fleet_ship_ids()
         while self.fleet_layout.count():
             item = self.fleet_layout.takeAt(0)
             if item.widget():
@@ -386,9 +472,11 @@ class CommanderView(QWidget):
             f"QFrame#card {{ border-left: 5px solid {current_color.name()}; }}"
             if current_color is not None else ""
         )
-        for ship in ships:
+        for ship in self._sorted_fleet_ships(ships):
             self.fleet_layout.addWidget(self._fleet_ship_widget(
-                ship, is_live=bool(viewed_is_live and ship["is_current"])
+                ship,
+                is_live=bool(viewed_is_live and ship["is_current"]),
+                expanded=ship.get("ship_id") in expanded_ship_ids,
             ))
         self.fleet_layout.addStretch()
 
@@ -429,6 +517,71 @@ class CommanderView(QWidget):
             return ""
         return f"{system or address}|{station}"
 
+    @staticmethod
+    def _fleet_ship_id_key(ship):
+        ship_id = ship.get("ship_id")
+        try:
+            return 0, int(ship_id)
+        except (TypeError, ValueError):
+            return 1, str(ship_id or "").casefold()
+
+    def _fleet_tie_breaker(self, ship):
+        return self._ship_name(ship).casefold(), self._fleet_ship_id_key(ship)
+
+    def _sorted_fleet_ships(self, ships):
+        sort_key = self.fleet_sort_combo.currentData() or "recent"
+        direction = self.fleet_sort_direction_combo.currentData() or "descending"
+        descending = direction == "descending"
+        ordered = sorted(ships, key=self._fleet_tie_breaker)
+
+        if sort_key == "recent":
+            current = [ship for ship in ordered if ship.get("is_current")]
+            remaining = [ship for ship in ordered if not ship.get("is_current")]
+            known = [ship for ship in remaining if ship.get("last_seen")]
+            missing = [ship for ship in remaining if not ship.get("last_seen")]
+            known.sort(key=lambda ship: ship["last_seen"], reverse=descending)
+            return current + known + missing
+
+        field_names = {
+            "name": None,
+            "type": "ship_type",
+            "jump_range": "max_jump_range",
+            "cargo": "cargo_capacity",
+            "mass": "unladen_mass",
+            "location": None,
+            "last_seen": "last_seen",
+        }
+        field = field_names.get(sort_key)
+
+        def value(ship):
+            if sort_key == "name":
+                return self._ship_name(ship).casefold()
+            if sort_key == "location":
+                location = self._ship_location_key(ship)
+                return location if location else None
+            raw_value = ship.get(field) if field else None
+            if raw_value in (None, ""):
+                return None
+            if sort_key in ("type", "last_seen"):
+                return str(raw_value).casefold()
+            return raw_value
+
+        known = [ship for ship in ordered if value(ship) is not None]
+        missing = [ship for ship in ordered if value(ship) is None]
+        known.sort(key=value, reverse=descending)
+        return known + missing
+
+    def _expanded_fleet_ship_ids(self):
+        expanded = set()
+        for index in range(self.fleet_layout.count()):
+            card = self.fleet_layout.itemAt(index).widget()
+            if card is None or card.property("shipId") is None:
+                continue
+            header = card.findChild(QToolButton)
+            if header is not None and header.isChecked():
+                expanded.add(card.property("shipId"))
+        return expanded
+
     def _fleet_color(self, ship, is_live=False):
         dark_theme = self.palette().color(QPalette.Window).lightness() < 128
         if is_live:
@@ -445,12 +598,13 @@ class CommanderView(QWidget):
         value = 225 if dark_theme else 155
         return QColor.fromHsv(hue, saturation, value)
 
-    def _fleet_ship_widget(self, ship, is_live=False):
+    def _fleet_ship_widget(self, ship, is_live=False, expanded=False):
         card = QFrame(objectName="card")
         color = self._fleet_color(ship, is_live=is_live)
         card.setProperty("fleetColor", color.name() if color else "")
         card.setProperty("liveShip", bool(is_live))
         card.setProperty("locationKey", self._ship_location_key(ship))
+        card.setProperty("shipId", ship.get("ship_id"))
         if color is not None:
             card.setStyleSheet(
                 f"QFrame#card {{ border-left: 5px solid {color.name()}; }} "
@@ -501,4 +655,5 @@ class CommanderView(QWidget):
             Qt.DownArrow if checked else Qt.RightArrow
         ))
         layout.addWidget(details)
+        header.setChecked(expanded)
         return card
