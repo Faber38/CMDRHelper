@@ -4384,6 +4384,47 @@ class CMDRDatabase:
 
             return entry
 
+        def ensure_body(address, body_id, timestamp=""):
+            """Create the conservative global parent required by personal data."""
+            if address is None or body_id is None:
+                return None
+
+            address = int(address)
+            body_id = int(body_id)
+            ensure_system(address, timestamp=timestamp)
+            return bodies.setdefault((address, body_id), {
+                "body_id": body_id,
+                "name": "",
+                "short_name": "",
+                "body_type": "",
+                "star_type": "",
+                "planet_class": "",
+                "parent_id": None,
+                "parent_star_id": None,
+                "mass_em": None,
+                "stellar_mass": None,
+                "radius_m": None,
+                "surface_temperature": None,
+                "surface_pressure": None,
+                "atmosphere_composition": "",
+                "gravity_g": None,
+                "distance_ls": None,
+                "landable": False,
+                "terraformable": False,
+                "atmosphere": "",
+                "volcanism": "",
+                "materials": {},
+                "biological_signals": 0,
+                "geological_signals": 0,
+                "first_seen": timestamp or "",
+                "last_seen": timestamp or "",
+                "scan_value": 0,
+                "mapped_value": 0,
+                "current_value": 0,
+                "high_value": False,
+                "_placeholder": True,
+            })
+
         file_commander_id = None
 
         def ensure_commander_system(address, timestamp=""):
@@ -4404,6 +4445,7 @@ class CMDRDatabase:
         def ensure_commander_body(address, body_id, timestamp=""):
             if file_commander_id is None or address is None or body_id is None:
                 return None
+            ensure_body(address, body_id, timestamp)
             ensure_commander_system(address, timestamp)
             key = (int(file_commander_id), int(address), int(body_id))
             entry = commander_bodies.setdefault(key, {
@@ -5022,6 +5064,7 @@ class CMDRDatabase:
                                     "high_value",
                                     False,
                                 ),
+                                "_placeholder": False,
                             }
 
                             bodies[key] = body
@@ -5066,8 +5109,8 @@ class CMDRDatabase:
                             except Exception:
                                 continue
 
-                            body = bodies.get(key)
                             personal_body = ensure_commander_body(address, body_id, ts)
+                            body = bodies.get(key)
 
                             if body:
                                 probes_used = event.get(
@@ -5188,8 +5231,8 @@ class CMDRDatabase:
                                 geo,
                             )
 
-                            body = bodies.get(key)
                             personal_body = ensure_commander_body(address, body_id, ts)
+                            body = bodies.get(key)
 
                             if body:
                                 body[
@@ -5625,6 +5668,26 @@ class CMDRDatabase:
 
             # Körper + Materialien
             for (address, body_id), body in bodies.items():
+                if body.get("_placeholder"):
+                    con.execute(
+                        """INSERT INTO bodies(system_address,body_id) VALUES(?,?)
+                           ON CONFLICT(system_address,body_id) DO NOTHING""",
+                        (int(address), int(body_id)),
+                    )
+                    con.execute(
+                        """UPDATE bodies SET
+                               biological_signals=MAX(biological_signals,?),
+                               geological_signals=MAX(geological_signals,?)
+                           WHERE system_address=? AND body_id=?""",
+                        (
+                            int(body.get("biological_signals") or 0),
+                            int(body.get("geological_signals") or 0),
+                            int(address),
+                            int(body_id),
+                        ),
+                    )
+                    continue
+
                 seen = (
                     body.get("last_seen")
                     or datetime.now(timezone.utc)
