@@ -4,8 +4,11 @@ from types import SimpleNamespace
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from cmdrhelper.ui.main_window import MainWindow
+from PySide6.QtWidgets import QApplication
+
+from cmdrhelper.ui.main_window import ExplorerLiveListWindow, MainWindow
 from cmdrhelper.bio_predictor import BioCandidate, BioPrediction
+from cmdrhelper.i18n import tr
 
 
 class _LiveWindowStub:
@@ -52,7 +55,113 @@ class _DatabaseStub:
         return Predictor()
 
 
+class _SettingsStub:
+    def value(self, _key):
+        return None
+
+    def setValue(self, _key, _value):
+        pass
+
+    def sync(self):
+        pass
+
+
 class ExplorerLivePopupTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
+    @staticmethod
+    def _candidate(name):
+        return BioCandidate(
+            name=name, genus=name.split()[0], kind="species",
+            confidence="high", support=44, score=1.0,
+            habitat_score=0.9, low_data=False, reasons=(),
+        )
+
+    def _render_bio(self, *, signals, species, predictions, open_signals):
+        window = ExplorerLiveListWindow(
+            "BIO", ("Body", "Find", "Progress", "Value"),
+            _SettingsStub(), "test_bio_geometry", window_kind="bio",
+        )
+        window.set_rows("Test System", [{
+            "body_name": "Test System 2",
+            "signals": signals,
+            "species": species,
+            "predictions": predictions,
+            "identified_count": len(species),
+            "completed_count": sum(
+                entry.get("scan_type") in ("Analyse", "Analyze")
+                for entry in species
+            ),
+            "open_signals": open_signals,
+        }])
+        texts = []
+        for row in range(window.table.rowCount()):
+            texts.extend(
+                window.table.item(row, column).text()
+                for column in range(window.table.columnCount())
+                if window.table.item(row, column) is not None
+            )
+            widget = window.table.cellWidget(row, 1)
+            if widget is not None:
+                texts.append(widget.text())
+        window.close()
+        return "\n".join(texts)
+
+    def test_single_open_signal_shows_predictions(self):
+        text = self._render_bio(
+            signals=1, species=[],
+            predictions=[self._candidate("Bacterium Tela")], open_signals=1,
+        )
+        self.assertIn("Bacterium Tela", text)
+
+    def test_single_known_signal_hides_all_prediction_ui_but_keeps_log(self):
+        text = self._render_bio(
+            signals=1,
+            species=[{"name": "Bacterium Tela – Grün", "scan_type": "Log"}],
+            predictions=[self._candidate("Bacterium Nebulus")], open_signals=0,
+        )
+        self.assertIn("Bacterium Tela – Grün", text)
+        self.assertIn(tr("bio_prediction.identified"), text)
+        self.assertIn(tr("explorer.sample_one"), text)
+        self.assertNotIn("Bacterium Nebulus", text)
+        self.assertNotIn(tr("bio_prediction.possible_more"), text)
+        self.assertNotIn(tr("bio_prediction.more_candidates"), text)
+
+    def test_known_species_is_filtered_while_other_candidates_remain(self):
+        text = self._render_bio(
+            signals=3,
+            species=[{"name": "Bacterium Tela – Grün", "scan_type": "Sample"}],
+            predictions=[
+                self._candidate("Bacterium Tela"),
+                self._candidate("Bacterium Nebulus"),
+            ],
+            open_signals=2,
+        )
+        self.assertEqual(text.count("Bacterium Tela"), 1)
+        self.assertIn("Bacterium Nebulus", text)
+
+    def test_all_known_signals_hide_predictions_but_keep_analyzed_findings(self):
+        text = self._render_bio(
+            signals=3,
+            species=[
+                {"name": "Bacterium Tela", "scan_type": "Analyze"},
+                {"name": "Bacterium Nebulus", "scan_type": "Log"},
+                {"name": "Bacterium Verrata", "scan_type": "Sample"},
+            ],
+            predictions=[self._candidate("Stratum Tectonicas")],
+            open_signals=0,
+        )
+        self.assertNotIn("Stratum Tectonicas", text)
+        self.assertIn("Bacterium Tela", text)
+        self.assertIn(tr("bio_prediction.found"), text)
+        self.assertIn("Bacterium Nebulus", text)
+        self.assertIn("Bacterium Verrata", text)
+        self.assertIn(tr("bio_prediction.identified"), text)
+        self.assertIn(tr("explorer.sample_one"), text)
+        self.assertIn(tr("explorer.sample_two"), text)
+
     def test_bio_rows_receive_predictions_and_progress(self):
         window = MainWindow.__new__(MainWindow)
         window.state = SimpleNamespace(

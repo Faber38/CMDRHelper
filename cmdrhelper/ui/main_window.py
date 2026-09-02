@@ -751,6 +751,30 @@ class ExplorerLiveListWindow(QDialog):
         )
         self.settings.sync()
 
+    @staticmethod
+    def _visible_bio_predictions(predictions, species, open_signals):
+        """Return only predictions that still represent unknown BIO signals."""
+        if open_signals <= 0:
+            return []
+
+        known_species = set()
+        for entry in species:
+            if not isinstance(entry, dict):
+                continue
+            name = str(entry.get("name") or "").strip().casefold()
+            if not name:
+                continue
+            known_species.add(name)
+            # Die Popup-Zeile kann zusätzlich die Variante enthalten, der
+            # Predictor-Kandidat dagegen nur den Species-Namen.
+            known_species.add(re.split(r"\s+[-–—]\s+", name, maxsplit=1)[0])
+        return [
+            candidate
+            for candidate in predictions
+            if str(getattr(candidate, "name", "") or "").strip().casefold()
+            not in known_species
+        ]
+
     def moveEvent(self, event):
         super().moveEvent(event)
         self._save_geometry()
@@ -800,6 +824,9 @@ class ExplorerLiveListWindow(QDialog):
                 completed_count = max(0, int(row.get("completed_count") or 0))
                 open_signals = max(0, int(row.get("open_signals") or 0))
                 known_value = int(row.get("known_value") or 0)
+                predictions = self._visible_bio_predictions(
+                    predictions, species, open_signals
+                )
 
                 # Mehr Arten als Signale sollte praktisch nicht vorkommen;
                 # für ungewöhnliche Journaldaten trotzdem robust bleiben.
