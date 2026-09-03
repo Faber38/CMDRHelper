@@ -13,6 +13,32 @@ from cmdrhelper.i18n import tr, set_language
 from cmdrhelper.update import consume_update_status
 
 
+INITIAL_WINDOW_WIDTH = 1500
+INITIAL_WINDOW_HEIGHT = 900
+INITIAL_WINDOW_MARGIN = 80
+
+
+def _bounded_initial_dimension(preferred, available, minimum):
+    return max(minimum, min(preferred, max(0, available - INITIAL_WINDOW_MARGIN)))
+
+
+def _resize_initial_window(window, screen):
+    available = screen.availableGeometry()
+    minimum_hint = window.minimumSizeHint()
+
+    width = _bounded_initial_dimension(
+        INITIAL_WINDOW_WIDTH,
+        available.width(),
+        max(window.minimumWidth(), minimum_hint.width()),
+    )
+    height = _bounded_initial_dimension(
+        INITIAL_WINDOW_HEIGHT,
+        available.height(),
+        max(window.minimumHeight(), minimum_hint.height()),
+    )
+    window.resize(width, height)
+
+
 def run():
     log_file = configure_logging()
     logger = logging.getLogger(__name__)
@@ -80,6 +106,6 @@ def run():
 
     state = AppState()
     window = MainWindow(state)
-    window.resize(1500, 900)
+    _resize_initial_window(window, app.primaryScreen())
     window.show()
     raise SystemExit(app.exec())
