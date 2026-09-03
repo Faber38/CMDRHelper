@@ -1723,7 +1723,7 @@ class MainWindow(QMainWindow):
                 f'<span style="font-size:11px;">{text}</span>'
             )
             item.setTextFormat(Qt.RichText)
-            item.setWordWrap(False)
+            item.setWordWrap(True)
 
             if str(text).startswith(tr("explorer.gold_frame_prefix")):
                 self.gold_frame_legend_label = item
