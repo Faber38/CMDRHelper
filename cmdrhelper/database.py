@@ -14,6 +14,11 @@ logger = logging.getLogger(__name__)
 
 SCHEMA_VERSION = 12
 
+COMMANDER_STATE_REPAIR_REVISIONS = {
+    "unsold": 2,
+    "missions": 1,
+}
+
 PERSONAL_TABLES = (
     "system_visits",
     "biology",
@@ -1317,7 +1322,7 @@ class CMDRDatabase:
         from cmdrhelper.bio_valuation import base_value
         from cmdrhelper.journal_reader import (
             _loadout_from_event, _new_mission, _optional_int,
-            _update_mission_event, sold_bio_names, sold_system_names,
+            _update_mission_event, sold_bio_names,
         )
         from cmdrhelper.models import (
             STATUS_ABANDONED, STATUS_COMPLETED, STATUS_FAILED,
@@ -1549,7 +1554,9 @@ class CMDRDatabase:
                                     (commander_id,))
 
                 elif et == "Scan" and address is not None and event.get("BodyID") is not None:
-                    if event.get("StarType") or "belt cluster" in str(event.get("BodyName") or "").lower():
+                    if (event.get("StarType")
+                            or "belt cluster" in str(event.get("BodyName") or "").lower()
+                            or str(event.get("ScanType") or "") == "NavBeaconDetail"):
                         continue
                     body_id = int(event["BodyID"])
                     body = {
@@ -1640,18 +1647,11 @@ class CMDRDatabase:
                              int(address), body_id))
 
                 elif et in ("SellExplorationData", "MultiSellExplorationData"):
-                    names = sold_system_names(event)
-                    if names:
-                        rows = con.execute("""SELECT DISTINCT system_name
-                            FROM commander_unsold_cartography WHERE commander_id=?""",
-                            (commander_id,)).fetchall()
-                        con.executemany("""DELETE FROM commander_unsold_cartography
-                            WHERE commander_id=? AND lower(trim(system_name))=?""",
-                            [(commander_id, str(row[0] or "").strip().casefold())
-                             for row in rows if str(row[0] or "").strip().casefold() in names])
-                    else:
-                        con.execute("DELETE FROM commander_unsold_cartography WHERE commander_id=?",
-                                    (commander_id,))
+                    # Systems/Discovered melden nicht den vollständigen
+                    # Inhalt des verkauften UC-Bestands. Der Verkauf bildet
+                    # eine commander-lokale Watermark.
+                    con.execute("DELETE FROM commander_unsold_cartography WHERE commander_id=?",
+                                (commander_id,))
 
                 elif et == "CarrierStats":
                     cid = _optional_int(event.get("CarrierID"))
@@ -1681,7 +1681,9 @@ class CMDRDatabase:
                 SET last_read_offset=MAX(last_read_offset,?) WHERE journal_file=?""",
                 (int(safe_offset), str(journal_file)))
 
-    def commander_state_repair_needed(self, commander_id, feature, revision=1) -> bool:
+    def commander_state_repair_needed(self, commander_id, feature, revision=None) -> bool:
+        if revision is None:
+            revision = COMMANDER_STATE_REPAIR_REVISIONS.get(str(feature), 1)
         with self._connect() as con:
             row = con.execute("""SELECT revision FROM commander_state_repairs
                 WHERE commander_id=? AND feature=?""",
@@ -1704,6 +1706,10 @@ class CMDRDatabase:
             commander_id
         )["correction_factor"]
         now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        revisions = {
+            feature: COMMANDER_STATE_REPAIR_REVISIONS.get(feature, 1)
+            for feature in wanted
+        }
         with self._connect() as con:
             if "unsold" in wanted:
                 self.store_commander_unsold_data(
@@ -1721,10 +1727,13 @@ class CMDRDatabase:
                 )
             con.executemany("""
                 INSERT INTO commander_state_repairs(
-                    commander_id,feature,revision,repaired_at) VALUES(?,?,1,?)
+                    commander_id,feature,revision,repaired_at) VALUES(?,?,?,?)
                 ON CONFLICT(commander_id,feature) DO UPDATE SET
                     revision=excluded.revision,repaired_at=excluded.repaired_at
-            """, [(commander_id, feature, now) for feature in wanted])
+            """, [
+                (commander_id, feature, revisions[feature], now)
+                for feature in wanted
+            ])
         return data
 
     @staticmethod

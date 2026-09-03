@@ -110,6 +110,42 @@ class CommanderUnsoldDataTests(unittest.TestCase):
         self.assertEqual(len(state["unsold_cartography"]), 1)
         self.assertTrue(state["unsold_cartography"][0]["self_mapped"])
 
+    def test_reader_cartography_sale_is_watermark_and_nav_beacon_is_not_new_data(self):
+        folder = Path(self.tmp.name) / "cartography-watermark"
+        folder.mkdir()
+        write_journal(folder, [
+            event("LoadGame", 0, FID="FID-A", Commander="Alpha"),
+            event("Location", 1, StarSystem="First", SystemAddress=41),
+            event("Scan", 2, SystemAddress=41, BodyID=1, BodyName="First 1",
+                  ScanType="Detailed", PlanetClass="Rocky body"),
+            event("Location", 3, StarSystem="Second", SystemAddress=42),
+            event("Scan", 4, SystemAddress=42, BodyID=1, BodyName="Second 1",
+                  ScanType="Detailed", PlanetClass="Rocky body"),
+            event("MultiSellExplorationData", 5,
+                  Discovered=[{"SystemName": "First", "NumBodies": 1}]),
+            event("SAAScanComplete", 6, SystemAddress=42, BodyID=1,
+                  ProbesUsed=2, EfficiencyTarget=4),
+            event("Location", 7, StarSystem="Beacon", SystemAddress=43),
+            event("Scan", 8, SystemAddress=43, BodyID=1, BodyName="Beacon 1",
+                  ScanType="NavBeaconDetail", PlanetClass="Rocky body"),
+            event("Location", 9, StarSystem="After", SystemAddress=44),
+            event("Scan", 10, SystemAddress=44, BodyID=1, BodyName="After 1",
+                  ScanType="Detailed", PlanetClass="Rocky body"),
+        ])
+
+        state = read_latest_state(folder)
+        open_rows = {
+            (row["system_address"], row["body_id"]): row
+            for row in state["unsold_cartography"]
+        }
+        self.assertNotIn((41, 1), open_rows)
+        self.assertNotIn((43, 1), open_rows)
+        self.assertEqual(set(open_rows), {(42, 1), (44, 1)})
+        self.assertTrue(open_rows[(42, 1)]["self_mapped"])
+        self.assertEqual(open_rows[(42, 1)]["scanned_at"], "")
+        self.assertEqual(open_rows[(44, 1)]["scanned_at"],
+                         "2026-01-01T00:00:10Z")
+
     def test_unknown_and_ambiguous_sessions_produce_no_personal_open_data(self):
         folder = Path(self.tmp.name) / "sessions"
         folder.mkdir()

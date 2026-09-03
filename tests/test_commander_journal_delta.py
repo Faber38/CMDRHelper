@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 from cmdrhelper.database import CMDRDatabase
 from cmdrhelper.journal_index import scan_journal_folder
-from cmdrhelper.journal_reader import read_journal_delta
+from cmdrhelper.journal_reader import read_journal_delta, read_latest_state
 from cmdrhelper.route_planner.models import ShipLoadoutData
 
 
@@ -68,7 +68,7 @@ class CommanderJournalDeltaTests(unittest.TestCase):
         self.apply(session)
         self.assertEqual(self.db.commander_summary(self.commander)["unsold_biology"]["findings"], 0)
 
-    def test_persistent_cartography_survives_empty_delta_and_named_sale(self):
+    def test_persistent_cartography_survives_empty_delta_and_sale_clears_all(self):
         self.write([
             event("LoadGame", 0, FID="FID-A", Commander="Alpha"),
             event("Location", 1, StarSystem="Test", SystemAddress=42),
@@ -85,6 +85,68 @@ class CommanderJournalDeltaTests(unittest.TestCase):
         session = scan_journal_folder(self.db, self.folder)[0]
         self.apply(session)
         self.assertEqual(self.db.commander_summary(self.commander)["unsold_cartography"]["bodies"], 0)
+
+    def test_live_cartography_watermark_nav_beacon_mapping_and_commander_separation(self):
+        other = self.db.upsert_commander("FID-B", "Bravo")
+        self.db.store_commander_unsold_data(
+            other, [], [{
+                "system_address": 99, "body_id": 1, "system_name": "Other",
+                "body_name": "Other 1", "scanned_at": "2025", "mapped_at": "",
+                "self_mapped": False, "estimated_value": 10,
+                "planet_class": "Rocky body", "terraformable": False,
+            }], cartography_factor_func=lambda *_: 1.0,
+        )
+        self.write([
+            event("LoadGame", 0, FID="FID-A", Commander="Alpha"),
+            event("Location", 1, StarSystem="First", SystemAddress=41),
+            event("Scan", 2, SystemAddress=41, BodyID=1, BodyName="First 1",
+                  ScanType="Detailed", PlanetClass="Rocky body"),
+            event("Location", 3, StarSystem="Second", SystemAddress=42),
+            event("Scan", 4, SystemAddress=42, BodyID=1, BodyName="Second 1",
+                  ScanType="Detailed", PlanetClass="Rocky body"),
+            event("MultiSellExplorationData", 5,
+                  Discovered=[{"SystemName": "First", "NumBodies": 1}]),
+            event("Location", 6, StarSystem="Beacon", SystemAddress=43),
+            event("Scan", 7, SystemAddress=43, BodyID=1, BodyName="Beacon 1",
+                  ScanType="NavBeaconDetail", PlanetClass="Rocky body"),
+            event("Location", 8, StarSystem="After", SystemAddress=44),
+            event("Scan", 9, SystemAddress=44, BodyID=1, BodyName="After 1",
+                  ScanType="Detailed", PlanetClass="Rocky body"),
+        ])
+        self.apply(self.indexed())
+        self.assertEqual(self.db.commander_summary(self.commander)["unsold_cartography"]["bodies"], 1)
+        self.assertEqual(self.db.commander_summary(other)["unsold_cartography"]["bodies"], 1)
+
+        # Ein Mapping nach der Verkaufs-Watermark erfasst nur den neuen
+        # Mapping-Mehrwert des zuvor verkauften Scans.
+        self.db.store_snapshot({
+            "system_address": 42, "system": "Second", "last_timestamp": "2026",
+            "system_bodies": [{
+                "body_id": 1, "name": "Second 1", "body_type": "Planet",
+                "planet_class": "Rocky body", "terraformable": False,
+                "scan_value": 100, "mapped_value": 500, "current_value": 500,
+            }],
+        }, self.commander)
+        self.write([event("SAAScanComplete", 10, SystemAddress=42, BodyID=1,
+                          BodyName="Second 1")], append=True)
+        session = scan_journal_folder(self.db, self.folder)[0]
+        self.apply(session)
+        with self.db._connect() as con:
+            rows = con.execute(
+                "SELECT system_address,raw_estimated_value,self_mapped "
+                "FROM commander_unsold_cartography WHERE commander_id=? "
+                "ORDER BY system_address", (self.commander,),
+            ).fetchall()
+        self.assertEqual([(row[0], row[2]) for row in rows], [(42, 1), (44, 0)])
+        self.assertEqual(rows[0][1], 400)
+        self.assertEqual(self.db.commander_summary(other)["unsold_cartography"]["bodies"], 1)
+
+        rebuilt = read_latest_state(self.folder, force_full_history=True)
+        rebuilt_rows = sorted(
+            (row["system_address"], int(row["self_mapped"]))
+            for row in rebuilt["unsold_cartography"]
+        )
+        self.assertEqual(rebuilt_rows, [(42, 1), (44, 0)])
 
     def test_mission_terminal_events_change_only_the_matching_commander_row(self):
         other = self.db.upsert_commander("FID-B", "Bravo")
@@ -239,6 +301,13 @@ class CommanderJournalDeltaTests(unittest.TestCase):
                   Genus_Localised="Stratum", Species_Localised="Stratum Tectonicas"),
         ])
         sessions = scan_journal_folder(self.db, self.folder)
+        with self.db._connect() as con:
+            con.execute(
+                "INSERT INTO commander_state_repairs"
+                "(commander_id,feature,revision,repaired_at) VALUES(?,?,1,?)",
+                (self.commander, "unsold", "2025"),
+            )
+        # Revision 1 enthält noch die alte namensbasierte UC-Semantik.
         self.assertTrue(self.db.commander_state_repair_needed(self.commander, "unsold"))
         with patch.object(self.db, "store_commander_missions", side_effect=RuntimeError("db")):
             with self.assertRaises(RuntimeError):
