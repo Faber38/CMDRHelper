@@ -115,6 +115,28 @@ class BodyDetailWindow(QDialog):
         self._add_material_rows(materials_form)
         content_layout.addWidget(materials_card)
 
+        mining_commodities = self.body.get("surface_mining_commodities") or []
+        mining_materials = self.body.get("surface_mining_materials") or []
+        if mining_commodities or mining_materials:
+            mining_card, mining_form = self._card(tr("body_detail.own_mining_findings"))
+            if mining_commodities:
+                commodity_lines = [
+                    f"{item.get('display_name') or item.get('frontier_name')} "
+                    f"{int(item.get('quantity') or 0)} t"
+                    for item in mining_commodities
+                ]
+                self._add_row(mining_form, tr("body_detail.own_mining_findings") + ":",
+                              "\n".join(commodity_lines))
+            if mining_materials:
+                material_lines = [
+                    f"{item.get('display_name') or item.get('frontier_name')} "
+                    f"{int(item.get('quantity') or 0)}"
+                    for item in mining_materials
+                ]
+                self._add_row(mining_form, tr("body_detail.mining_byproducts") + ":",
+                              "\n".join(material_lines))
+            content_layout.addWidget(mining_card)
+
         value_card, value_form = self._card(tr("body_detail.values"))
         self._add_value_rows(value_form)
         content_layout.addWidget(value_card)

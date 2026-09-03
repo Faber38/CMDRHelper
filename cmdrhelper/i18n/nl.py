@@ -774,4 +774,8 @@ TRANSLATIONS = {
     'bio_prediction.progress': '{identified}/{total} geïdentificeerd · {completed} voltooid',
     'bio_prediction.tooltip': '{count} historische vondsten',
     'bio_prediction.estimated_value': 'ca. {value}',
+    'explorer.own_mining_findings': 'Eigen mijnbouwvondsten: {findings}',
+    'body_detail.own_mining_findings': 'EIGEN MIJNBOUWVONDSTEN',
+    'body_detail.mining_byproducts': 'Bijmaterialen verzameld tijdens mijnbouw',
+    'body_detail.no_own_mining_findings': 'Nog geen eigen mijnbouwvondsten',
 }

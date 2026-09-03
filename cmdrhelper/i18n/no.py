@@ -774,4 +774,8 @@ TRANSLATIONS = {
     'bio_prediction.progress': '{identified}/{total} identifisert · {completed} fullført',
     'bio_prediction.tooltip': '{count} historiske funn',
     'bio_prediction.estimated_value': 'ca. {value}',
+    'explorer.own_mining_findings': 'Egne gruvefunn: {findings}',
+    'body_detail.own_mining_findings': 'EGNE GRUVEFUNN',
+    'body_detail.mining_byproducts': 'Bimaterialer samlet under gruvedrift',
+    'body_detail.no_own_mining_findings': 'Ingen egne gruvefunn ennå',
 }

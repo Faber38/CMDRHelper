@@ -77,23 +77,25 @@ class ExplorerLivePopupTests(unittest.TestCase):
         )
         self.assertEqual(MainWindow._explorer_planetary_mining_text({}), "–")
 
-    def test_planetary_mining_tooltip_separates_body_surface_materials(self):
+    def test_planetary_mining_tooltip_uses_only_personal_mining_finds(self):
         set_language("de")
         tooltip = MainWindow._explorer_planetary_mining_tooltip({
             "planetary_mining_signals": 24,
             "materials": {"iron": 18.2, "nickel": 14.7},
+            "surface_mining_commodities": [
+                {"display_name": "Kupfer", "quantity": 56},
+            ],
         })
         self.assertIn("24 planetare Abbaustandorte", tooltip)
-        self.assertIn("Oberflächenmaterialien des Bodys", tooltip)
-        self.assertIn("Eisen 18,2 %", tooltip)
-        self.assertNotIn("Abbaustandorte enthalten", tooltip)
+        self.assertIn("Eigene Abbau-Funde: Kupfer 56 t", tooltip)
+        self.assertNotIn("Eisen", tooltip)
 
-    def test_planetary_mining_tooltip_handles_missing_materials(self):
+    def test_planetary_mining_tooltip_without_finds_has_only_signal_count(self):
         set_language("de")
         tooltip = MainWindow._explorer_planetary_mining_tooltip({
             "planetary_mining_signals": 5,
         })
-        self.assertIn("Keine Oberflächenmaterialien", tooltip)
+        self.assertEqual("5 planetare Abbaustandorte", tooltip)
 
     def test_surface_material_texts_exist_in_all_languages(self):
         keys = {
@@ -101,6 +103,10 @@ class ExplorerLivePopupTests(unittest.TestCase):
             "explorer.surface_materials",
             "explorer.surface_materials_missing",
             "body_detail.surface_materials",
+            "explorer.own_mining_findings",
+            "body_detail.own_mining_findings",
+            "body_detail.mining_byproducts",
+            "body_detail.no_own_mining_findings",
         }
         for language, translations in _TRANSLATIONS.items():
             with self.subTest(language=language):

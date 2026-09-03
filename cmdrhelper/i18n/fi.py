@@ -774,4 +774,8 @@ TRANSLATIONS = {
     'bio_prediction.progress': '{identified}/{total} tunnistettu · {completed} valmista',
     'bio_prediction.tooltip': '{count} historiallista löytöä',
     'bio_prediction.estimated_value': 'noin {value}',
+    'explorer.own_mining_findings': 'Omat kaivoslöydöt: {findings}',
+    'body_detail.own_mining_findings': 'OMAT KAIVOSLÖYDÖT',
+    'body_detail.mining_byproducts': 'Louhinnan aikana kerätyt sivumateriaalit',
+    'body_detail.no_own_mining_findings': 'Ei vielä omia kaivoslöytöjä',
 }

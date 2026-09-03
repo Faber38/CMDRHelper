@@ -774,4 +774,8 @@ TRANSLATIONS = {
     'bio_prediction.progress': '{identified}/{total} ταυτοποιήθηκαν · {completed} ολοκληρώθηκαν',
     'bio_prediction.tooltip': '{count} ιστορικά ευρήματα',
     'bio_prediction.estimated_value': 'περ. {value}',
+    'explorer.own_mining_findings': 'Προσωπικά ευρήματα εξόρυξης: {findings}',
+    'body_detail.own_mining_findings': 'ΠΡΟΣΩΠΙΚΑ ΕΥΡΗΜΑΤΑ ΕΞΟΡΥΞΗΣ',
+    'body_detail.mining_byproducts': 'Παράπλευρα υλικά που συλλέχθηκαν κατά την εξόρυξη',
+    'body_detail.no_own_mining_findings': 'Δεν υπάρχουν ακόμη προσωπικά ευρήματα εξόρυξης',
 }

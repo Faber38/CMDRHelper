@@ -774,4 +774,8 @@ TRANSLATIONS = {
     'bio_prediction.progress': '{identified}/{total} tanımlandı · {completed} tamamlandı',
     'bio_prediction.tooltip': '{count} geçmiş bulgu',
     'bio_prediction.estimated_value': 'yakl. {value}',
+    'explorer.own_mining_findings': 'Kişisel madencilik bulguları: {findings}',
+    'body_detail.own_mining_findings': 'KİŞİSEL MADENCİLİK BULGULARI',
+    'body_detail.mining_byproducts': 'Madencilik sırasında toplanan yan malzemeler',
+    'body_detail.no_own_mining_findings': 'Henüz kişisel madencilik bulgusu yok',
 }

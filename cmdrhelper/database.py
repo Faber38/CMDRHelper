@@ -12,7 +12,7 @@ from cmdrhelper.ship_identity import is_definite_non_ship
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 12
+SCHEMA_VERSION = 13
 
 COMMANDER_STATE_REPAIR_REVISIONS = {
     "unsold": 2,
@@ -389,6 +389,7 @@ class CMDRDatabase:
         self._maybe_migrate_v10()
         self._maybe_migrate_v11()
         self._maybe_migrate_v12()
+        self._maybe_migrate_v13()
         self.cleanup_non_ship_fleet_rows()
 
     def _maybe_migrate_v8(self):
@@ -575,6 +576,68 @@ class CMDRDatabase:
 
     def ensure_schema_v12(self):
         self._maybe_migrate_v12()
+
+    def _maybe_migrate_v13(self):
+        """Adds commander-owned, body-specific surface-mining history."""
+        with self._connect() as con:
+            version = int(con.execute("PRAGMA user_version").fetchone()[0])
+            if version >= 13:
+                return
+            con.executescript("""
+                CREATE TABLE IF NOT EXISTS surface_mining_commodities (
+                    commander_id INTEGER NOT NULL,
+                    system_address INTEGER NOT NULL,
+                    body_id INTEGER NOT NULL,
+                    frontier_name TEXT NOT NULL,
+                    display_name TEXT NOT NULL DEFAULT '',
+                    quantity INTEGER NOT NULL DEFAULT 0 CHECK(quantity >= 0),
+                    first_mined_at TEXT NOT NULL DEFAULT '',
+                    last_mined_at TEXT NOT NULL DEFAULT '',
+                    PRIMARY KEY(commander_id,system_address,body_id,frontier_name),
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id) ON DELETE CASCADE
+                );
+                CREATE INDEX IF NOT EXISTS idx_surface_mining_commodity_summary
+                    ON surface_mining_commodities(commander_id,frontier_name);
+                CREATE TABLE IF NOT EXISTS surface_mining_materials (
+                    commander_id INTEGER NOT NULL,
+                    system_address INTEGER NOT NULL,
+                    body_id INTEGER NOT NULL,
+                    frontier_name TEXT NOT NULL,
+                    display_name TEXT NOT NULL DEFAULT '',
+                    quantity INTEGER NOT NULL DEFAULT 0 CHECK(quantity >= 0),
+                    first_collected_at TEXT NOT NULL DEFAULT '',
+                    last_collected_at TEXT NOT NULL DEFAULT '',
+                    PRIMARY KEY(commander_id,system_address,body_id,frontier_name),
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id) ON DELETE CASCADE
+                );
+                CREATE INDEX IF NOT EXISTS idx_surface_mining_material_summary
+                    ON surface_mining_materials(commander_id,frontier_name);
+                CREATE TABLE IF NOT EXISTS surface_mining_contexts (
+                    commander_id INTEGER NOT NULL,
+                    journal_file TEXT NOT NULL,
+                    system_address INTEGER,
+                    body_id INTEGER,
+                    body_name TEXT NOT NULL DEFAULT '',
+                    surface_confirmed INTEGER NOT NULL DEFAULT 0,
+                    rhino_active INTEGER NOT NULL DEFAULT 0,
+                    updated_at TEXT NOT NULL DEFAULT '',
+                    PRIMARY KEY(commander_id,journal_file),
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id) ON DELETE CASCADE
+                );
+                CREATE TABLE IF NOT EXISTS surface_mining_processed_events (
+                    commander_id INTEGER NOT NULL,
+                    journal_file TEXT NOT NULL,
+                    source_key TEXT NOT NULL,
+                    event_type TEXT NOT NULL,
+                    event_timestamp TEXT NOT NULL DEFAULT '',
+                    PRIMARY KEY(commander_id,journal_file,source_key),
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id) ON DELETE CASCADE
+                );
+                PRAGMA user_version=13;
+            """)
+
+    def ensure_schema_v13(self):
+        self._maybe_migrate_v13()
 
     def _personal_row_counts(self, con):
         return {
@@ -1316,6 +1379,101 @@ class CMDRDatabase:
                 mapped_at,self_mapped,estimated_value,raw_estimated_value,planet_class,
                 terraformable) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)""", cart_rows)
 
+    @staticmethod
+    def _frontier_item_name(value) -> str:
+        name = str(value or "").strip()
+        if name.startswith("$"):
+            name = name[1:]
+        if name.lower().endswith("_name;"):
+            name = name[:-6]
+        return name.casefold()
+
+    @staticmethod
+    def _is_rhino(event) -> bool:
+        return str(event.get("SRVType") or "").strip().casefold() == "mev_rhino"
+
+    def _record_surface_mining_event(self, con, commander_id, journal_file,
+                                     source_key, event, context) -> bool:
+        """Record one proven Rhino mining fact; returns whether it was consumed."""
+        event_type = str(event.get("event") or "")
+        if event_type not in ("MiningRefined", "MaterialCollected"):
+            return False
+        if not (context.get("rhino_active") and context.get("surface_confirmed")):
+            return False
+        address, body_id = context.get("system_address"), context.get("body_id")
+        if not isinstance(address, int) or not isinstance(body_id, int):
+            logger.warning(
+                "Surface-Mining-Ereignis ohne sichere Body-Zuordnung verworfen: %s (%s)",
+                event_type, journal_file,
+            )
+            return False
+        raw_name = event.get("Type") if event_type == "MiningRefined" else event.get("Name")
+        display = (
+            event.get("Type_Localised") if event_type == "MiningRefined"
+            else event.get("Name_Localised")
+        )
+        frontier_name = self._frontier_item_name(raw_name)
+        if not frontier_name:
+            logger.warning("Surface-Mining-Ereignis ohne Materialtyp verworfen: %s", event_type)
+            return False
+        inserted = con.execute(
+            """INSERT OR IGNORE INTO surface_mining_processed_events(
+                   commander_id,journal_file,source_key,event_type,event_timestamp)
+               VALUES(?,?,?,?,?)""",
+            (int(commander_id), str(journal_file), str(source_key), event_type,
+             str(event.get("timestamp") or "")),
+        ).rowcount
+        if not inserted:
+            return False
+        ts = str(event.get("timestamp") or "")
+        if event_type == "MiningRefined":
+            amount = 1
+            table, first_col, last_col = (
+                "surface_mining_commodities", "first_mined_at", "last_mined_at"
+            )
+        else:
+            try:
+                amount = max(1, int(event.get("Count") or 1))
+            except (TypeError, ValueError):
+                amount = 1
+            table, first_col, last_col = (
+                "surface_mining_materials", "first_collected_at", "last_collected_at"
+            )
+        con.execute(
+            f"""INSERT INTO {table}(
+                    commander_id,system_address,body_id,frontier_name,display_name,
+                    quantity,{first_col},{last_col})
+                VALUES(?,?,?,?,?,?,?,?)
+                ON CONFLICT(commander_id,system_address,body_id,frontier_name)
+                DO UPDATE SET quantity={table}.quantity+excluded.quantity,
+                    display_name=CASE WHEN excluded.display_name<>''
+                                      THEN excluded.display_name ELSE {table}.display_name END,
+                    {last_col}=excluded.{last_col}""",
+            (int(commander_id), address, body_id, frontier_name,
+             str(display or raw_name or frontier_name), amount, ts, ts),
+        )
+        return True
+
+    def surface_mining_for_body(self, system_address, body_id, commander_id=None):
+        commander_id = self._require_commander_id(commander_id)
+        result = {"commodities": [], "materials": []}
+        with self._connect() as con:
+            for key, table, first_col, last_col in (
+                ("commodities", "surface_mining_commodities", "first_mined_at", "last_mined_at"),
+                ("materials", "surface_mining_materials", "first_collected_at", "last_collected_at"),
+            ):
+                rows = con.execute(
+                    f"""SELECT frontier_name,display_name,quantity,{first_col},{last_col}
+                        FROM {table}
+                        WHERE commander_id=? AND system_address=? AND body_id=?
+                        ORDER BY quantity DESC,display_name COLLATE NOCASE""",
+                    (commander_id, int(system_address), int(body_id)),
+                ).fetchall()
+                result[key] = [dict(frontier_name=row[0], display_name=row[1],
+                                    quantity=int(row[2]), first_seen=row[3],
+                                    last_seen=row[4]) for row in rows]
+        return result
+
     def apply_commander_journal_delta(self, commander_id, journal_file, events,
                                       safe_offset: int) -> None:
         """Atomically applies explicit journal facts and commits their byte offset."""
@@ -1370,12 +1528,68 @@ class CMDRDatabase:
         }
 
         with self._connect() as con:
-            for event in events or []:
+            old_offset_row = con.execute(
+                "SELECT last_read_offset FROM journal_sessions WHERE journal_file=?",
+                (str(journal_file),),
+            ).fetchone()
+            if old_offset_row is not None and int(safe_offset) <= int(old_offset_row[0] or 0):
+                return
+            context_row = con.execute(
+                """SELECT system_address,body_id,body_name,surface_confirmed,rhino_active
+                   FROM surface_mining_contexts
+                   WHERE commander_id=? AND journal_file=?""",
+                (commander_id, str(journal_file)),
+            ).fetchone()
+            mining_context = {
+                "system_address": context_row[0] if context_row else None,
+                "body_id": context_row[1] if context_row else None,
+                "body_name": context_row[2] if context_row else "",
+                "surface_confirmed": bool(context_row[3]) if context_row else False,
+                "rhino_active": bool(context_row[4]) if context_row else False,
+            }
+            for event_index, event in enumerate(events or []):
                 et = str(event.get("event") or "")
                 ts = str(event.get("timestamp") or "")
                 address = event.get("SystemAddress")
                 if not isinstance(address, int):
                     address = current_address
+
+                if et in ("FSDJump", "CarrierJump", "Docked"):
+                    mining_context.update(body_id=None, body_name="",
+                                          surface_confirmed=False, rhino_active=False)
+                    if isinstance(event.get("SystemAddress"), int):
+                        mining_context["system_address"] = event["SystemAddress"]
+                elif et in ("Location", "ApproachBody", "Touchdown", "Disembark"):
+                    body_id = event.get("BodyID")
+                    if isinstance(event.get("SystemAddress"), int):
+                        mining_context["system_address"] = event["SystemAddress"]
+                    elif isinstance(address, int):
+                        mining_context["system_address"] = address
+                    if isinstance(body_id, int):
+                        mining_context["body_id"] = body_id
+                        mining_context["body_name"] = str(
+                            event.get("Body") or event.get("BodyName") or ""
+                        )
+                    if et in ("ApproachBody", "Touchdown", "Disembark") or (
+                        et == "Location" and bool(event.get("BodyID") is not None)
+                        and not event.get("Docked")
+                    ):
+                        mining_context["surface_confirmed"] = True
+                elif et == "LaunchSRV":
+                    mining_context["rhino_active"] = bool(
+                        self._is_rhino(event)
+                        and mining_context.get("surface_confirmed")
+                        and isinstance(mining_context.get("system_address"), int)
+                        and isinstance(mining_context.get("body_id"), int)
+                    )
+                elif et == "DockSRV":
+                    mining_context["rhino_active"] = False
+
+                if et in ("MiningRefined", "MaterialCollected"):
+                    self._record_surface_mining_event(
+                        con, commander_id, journal_file,
+                        f"delta:{int(safe_offset)}:{event_index}", event, mining_context,
+                    )
 
                 if et in ("Location", "FSDJump", "CarrierJump"):
                     current_system = str(event.get("StarSystem") or current_system)
@@ -1677,6 +1891,19 @@ class CMDRDatabase:
                         carrier["last_updated"] = ts
                         self.store_commander_carrier(commander_id, carrier, _con=con)
 
+            con.execute("""INSERT INTO surface_mining_contexts(
+                    commander_id,journal_file,system_address,body_id,body_name,
+                    surface_confirmed,rhino_active,updated_at)
+                VALUES(?,?,?,?,?,?,?,?)
+                ON CONFLICT(commander_id,journal_file) DO UPDATE SET
+                    system_address=excluded.system_address,body_id=excluded.body_id,
+                    body_name=excluded.body_name,surface_confirmed=excluded.surface_confirmed,
+                    rhino_active=excluded.rhino_active,updated_at=excluded.updated_at""",
+                (commander_id, str(journal_file), mining_context.get("system_address"),
+                 mining_context.get("body_id"), mining_context.get("body_name") or "",
+                 int(bool(mining_context.get("surface_confirmed"))),
+                 int(bool(mining_context.get("rhino_active"))),
+                 str((events or [{}])[-1].get("timestamp") or "")))
             con.execute("""UPDATE journal_sessions
                 SET last_read_offset=MAX(last_read_offset,?) WHERE journal_file=?""",
                 (int(safe_offset), str(journal_file)))
@@ -4533,6 +4760,10 @@ class CMDRDatabase:
                     for item in geology_rows
                 ]
 
+                mining = self.surface_mining_for_body(
+                    address, body_id, commander_id=commander_id
+                )
+
                 bodies.append(
                     {
                         "body_id": row[0],
@@ -4580,6 +4811,8 @@ class CMDRDatabase:
                         "materials": materials,
                         "biology": biology,
                         "geology": geology,
+                        "surface_mining_commodities": mining["commodities"],
+                        "surface_mining_materials": mining["materials"],
                         "journal_scanned": True,
                         "edsm_known": False,
                         "source": "Journal",
@@ -4978,6 +5211,7 @@ class CMDRDatabase:
         geology_entries = {}
         codex_entries = {}
         journal_marks = []
+        surface_mining_events = []
 
         def ensure_system(address, name="", timestamp=""):
             if address is None:
@@ -5301,6 +5535,10 @@ class CMDRDatabase:
             current_address = None
             current_line_number = 0
             current_event_name = ""
+            mining_context = {
+                "system_address": None, "body_id": None, "body_name": "",
+                "surface_confirmed": False, "rhino_active": False,
+            }
 
             if progress_callback:
                 progress_callback(
@@ -5332,6 +5570,45 @@ class CMDRDatabase:
                         et = event.get("event")
                         current_event_name = str(et or "")
                         ts = event.get("timestamp") or ""
+
+                        if et in ("FSDJump", "CarrierJump", "Docked"):
+                            mining_context.update(body_id=None, body_name="",
+                                                  surface_confirmed=False,
+                                                  rhino_active=False)
+                            if isinstance(event.get("SystemAddress"), int):
+                                mining_context["system_address"] = event["SystemAddress"]
+                        elif et in ("Location", "ApproachBody", "Touchdown", "Disembark"):
+                            event_address = event.get("SystemAddress")
+                            if isinstance(event_address, int):
+                                mining_context["system_address"] = event_address
+                            elif isinstance(current_address, int):
+                                mining_context["system_address"] = current_address
+                            if isinstance(event.get("BodyID"), int):
+                                mining_context["body_id"] = event["BodyID"]
+                                mining_context["body_name"] = str(
+                                    event.get("Body") or event.get("BodyName") or ""
+                                )
+                            if et in ("ApproachBody", "Touchdown", "Disembark") or (
+                                et == "Location" and event.get("BodyID") is not None
+                                and not event.get("Docked")
+                            ):
+                                mining_context["surface_confirmed"] = True
+                        elif et == "LaunchSRV":
+                            mining_context["rhino_active"] = bool(
+                                self._is_rhino(event)
+                                and mining_context.get("surface_confirmed")
+                                and isinstance(mining_context.get("system_address"), int)
+                                and isinstance(mining_context.get("body_id"), int)
+                            )
+                        elif et == "DockSRV":
+                            mining_context["rhino_active"] = False
+
+                        if (file_commander_id is not None
+                                and et in ("MiningRefined", "MaterialCollected")):
+                            surface_mining_events.append((
+                                int(file_commander_id), str(journal),
+                                f"line:{current_line_number}", event, dict(mining_context),
+                            ))
 
                         if et in (
                             "Location",
@@ -6211,6 +6488,10 @@ class CMDRDatabase:
             )
 
         with self._connect() as con:
+            for commander_id, journal_file, source_key, event, context in surface_mining_events:
+                self._record_surface_mining_event(
+                    con, commander_id, journal_file, source_key, event, context
+                )
             # Systeme
             for address, system in systems.items():
                 system_bodies = [

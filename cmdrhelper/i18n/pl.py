@@ -774,4 +774,8 @@ TRANSLATIONS = {
     'bio_prediction.progress': '{identified}/{total} zidentyfikowano · {completed} ukończono',
     'bio_prediction.tooltip': '{count} historycznych znalezisk',
     'bio_prediction.estimated_value': 'ok. {value}',
+    'explorer.own_mining_findings': 'Własne znaleziska górnicze: {findings}',
+    'body_detail.own_mining_findings': 'WŁASNE ZNALEZISKA GÓRNICZE',
+    'body_detail.mining_byproducts': 'Materiały poboczne zebrane podczas wydobycia',
+    'body_detail.no_own_mining_findings': 'Brak własnych znalezisk górniczych',
 }

@@ -774,4 +774,8 @@ TRANSLATIONS = {
     'bio_prediction.progress': '{identified}/{total} identifiziert · {completed} vollständig',
     'bio_prediction.tooltip': '{count} historische Funde',
     'bio_prediction.estimated_value': 'ca. {value}',
+    'explorer.own_mining_findings': 'Eigene Abbau-Funde: {findings}',
+    'body_detail.own_mining_findings': 'EIGENE ABBAU-FUNDE',
+    'body_detail.mining_byproducts': 'Nebenmaterialien beim Abbau',
+    'body_detail.no_own_mining_findings': 'Noch keine eigenen Abbau-Funde',
 }
