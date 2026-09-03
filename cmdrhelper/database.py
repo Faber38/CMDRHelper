@@ -3,6 +3,7 @@ from __future__ import annotations
 import sqlite3
 import logging
 import json
+from collections import Counter
 from contextlib import nullcontext
 from datetime import datetime, timezone
 from pathlib import Path
@@ -17,6 +18,7 @@ SCHEMA_VERSION = 13
 COMMANDER_STATE_REPAIR_REVISIONS = {
     "unsold": 2,
     "missions": 1,
+    "surface_mining": 1,
 }
 
 PERSONAL_TABLES = (
@@ -1392,6 +1394,41 @@ class CMDRDatabase:
     def _is_rhino(event) -> bool:
         return str(event.get("SRVType") or "").strip().casefold() == "mev_rhino"
 
+    def _advance_surface_mining_context(self, context, event, fallback_address=None):
+        """Apply the single conservative body/Rhino state machine used everywhere."""
+        et = str(event.get("event") or "")
+        address = event.get("SystemAddress")
+        if not isinstance(address, int):
+            address = fallback_address
+        if et in ("FSDJump", "CarrierJump", "Docked"):
+            context.update(body_id=None, body_name="", surface_confirmed=False,
+                           rhino_active=False)
+            if isinstance(address, int):
+                context["system_address"] = address
+        elif et in ("Location", "ApproachBody", "Touchdown", "Disembark"):
+            if isinstance(address, int):
+                context["system_address"] = address
+            if isinstance(event.get("BodyID"), int):
+                context["body_id"] = event["BodyID"]
+                context["body_name"] = str(
+                    event.get("Body") or event.get("BodyName") or ""
+                )
+            if et in ("ApproachBody", "Touchdown", "Disembark") or (
+                et == "Location" and event.get("BodyID") is not None
+                and not event.get("Docked")
+            ):
+                context["surface_confirmed"] = True
+        elif et == "LaunchSRV":
+            context["rhino_active"] = bool(
+                self._is_rhino(event)
+                and context.get("surface_confirmed")
+                and isinstance(context.get("system_address"), int)
+                and isinstance(context.get("body_id"), int)
+            )
+        elif et == "DockSRV":
+            context["rhino_active"] = False
+        return context
+
     def _record_surface_mining_event(self, con, commander_id, journal_file,
                                      source_key, event, context) -> bool:
         """Record one proven Rhino mining fact; returns whether it was consumed."""
@@ -1554,36 +1591,9 @@ class CMDRDatabase:
                 if not isinstance(address, int):
                     address = current_address
 
-                if et in ("FSDJump", "CarrierJump", "Docked"):
-                    mining_context.update(body_id=None, body_name="",
-                                          surface_confirmed=False, rhino_active=False)
-                    if isinstance(event.get("SystemAddress"), int):
-                        mining_context["system_address"] = event["SystemAddress"]
-                elif et in ("Location", "ApproachBody", "Touchdown", "Disembark"):
-                    body_id = event.get("BodyID")
-                    if isinstance(event.get("SystemAddress"), int):
-                        mining_context["system_address"] = event["SystemAddress"]
-                    elif isinstance(address, int):
-                        mining_context["system_address"] = address
-                    if isinstance(body_id, int):
-                        mining_context["body_id"] = body_id
-                        mining_context["body_name"] = str(
-                            event.get("Body") or event.get("BodyName") or ""
-                        )
-                    if et in ("ApproachBody", "Touchdown", "Disembark") or (
-                        et == "Location" and bool(event.get("BodyID") is not None)
-                        and not event.get("Docked")
-                    ):
-                        mining_context["surface_confirmed"] = True
-                elif et == "LaunchSRV":
-                    mining_context["rhino_active"] = bool(
-                        self._is_rhino(event)
-                        and mining_context.get("surface_confirmed")
-                        and isinstance(mining_context.get("system_address"), int)
-                        and isinstance(mining_context.get("body_id"), int)
-                    )
-                elif et == "DockSRV":
-                    mining_context["rhino_active"] = False
+                self._advance_surface_mining_context(
+                    mining_context, event, fallback_address=address
+                )
 
                 if et in ("MiningRefined", "MaterialCollected"):
                     self._record_surface_mining_event(
@@ -1916,6 +1926,111 @@ class CMDRDatabase:
                 WHERE commander_id=? AND feature=?""",
                 (int(commander_id), str(feature))).fetchone()
         return row is None or int(row[0]) < int(revision)
+
+    def backfill_surface_mining(self, commander_id, sessions=None,
+                                progress_callback=None) -> dict:
+        """Backfill only historical Rhino mining facts up to committed offsets."""
+        commander_id = int(commander_id)
+        revision = COMMANDER_STATE_REPAIR_REVISIONS["surface_mining"]
+        if not self.commander_state_repair_needed(
+            commander_id, "surface_mining", revision
+        ):
+            return {"skipped": True, "journals": 0, "events": 0}
+
+        allowed = None
+        if sessions is not None:
+            allowed = {
+                str(item.get("journal_file") or "")
+                for item in sessions or []
+                if item.get("attribution_status") == "identified"
+                and item.get("commander_id") == commander_id
+            }
+        with self._connect() as con:
+            rows = con.execute(
+                """SELECT journal_file,last_read_offset
+                   FROM journal_sessions
+                   WHERE commander_id=? AND attribution_status='identified'
+                     AND last_read_offset>0
+                   ORDER BY COALESCE(first_event_at,''),journal_file""",
+                (commander_id,),
+            ).fetchall()
+        rows = [row for row in rows if allowed is None or str(row[0]) in allowed]
+
+        candidates = []
+        total = len(rows)
+        for number, (journal_file, committed_offset) in enumerate(rows, 1):
+            path = Path(journal_file)
+            limit = int(committed_offset or 0)
+            if not path.is_file():
+                raise FileNotFoundError(f"Indexierte Journaldatei fehlt: {path}")
+            with path.open("rb") as handle:
+                raw = handle.read(limit)
+            # last_read_offset points behind a complete line. Never inspect a
+            # byte beyond it, even if the journal has since grown.
+            context = {
+                "system_address": None, "body_id": None, "body_name": "",
+                "surface_confirmed": False, "rhino_active": False,
+            }
+            current_address = None
+            for line_number, raw_line in enumerate(raw.splitlines(), 1):
+                try:
+                    event = json.loads(raw_line)
+                except (UnicodeDecodeError, json.JSONDecodeError):
+                    continue
+                if not isinstance(event, dict):
+                    continue
+                if isinstance(event.get("SystemAddress"), int):
+                    current_address = event["SystemAddress"]
+                self._advance_surface_mining_context(
+                    context, event, fallback_address=current_address
+                )
+                if event.get("event") in ("MiningRefined", "MaterialCollected"):
+                    candidates.append((
+                        str(path), f"line:{line_number}", event, dict(context)
+                    ))
+            if progress_callback:
+                progress_callback(number, total, path.name)
+
+        now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        recorded = 0
+        with self._connect() as con:
+            marker = con.execute(
+                """SELECT revision FROM commander_state_repairs
+                   WHERE commander_id=? AND feature='surface_mining'""",
+                (commander_id,),
+            ).fetchone()
+            if marker is not None and int(marker[0]) >= revision:
+                return {"skipped": True, "journals": 0, "events": 0}
+
+            # Live deltas used batch-local source keys before this backfill.
+            # Consume their event-type/timestamp multiplicities so the same
+            # historical fact is not inserted again under its stable line key.
+            previously_processed = Counter(con.execute(
+                """SELECT journal_file,event_type,event_timestamp
+                   FROM surface_mining_processed_events WHERE commander_id=?""",
+                (commander_id,),
+            ).fetchall())
+            for journal_file, source_key, event, context in candidates:
+                semantic_key = (
+                    journal_file, str(event.get("event") or ""),
+                    str(event.get("timestamp") or ""),
+                )
+                if previously_processed[semantic_key] > 0:
+                    previously_processed[semantic_key] -= 1
+                    continue
+                if self._record_surface_mining_event(
+                    con, commander_id, journal_file, source_key, event, context
+                ):
+                    recorded += 1
+            con.execute(
+                """INSERT INTO commander_state_repairs(
+                       commander_id,feature,revision,repaired_at)
+                   VALUES(?,'surface_mining',?,?)
+                   ON CONFLICT(commander_id,feature) DO UPDATE SET
+                       revision=excluded.revision,repaired_at=excluded.repaired_at""",
+                (commander_id, revision, now),
+            )
+        return {"skipped": False, "journals": total, "events": recorded}
 
     def repair_commander_state(self, folder, sessions, commander_id,
                                features=("unsold", "missions")) -> dict:
@@ -5571,37 +5686,9 @@ class CMDRDatabase:
                         current_event_name = str(et or "")
                         ts = event.get("timestamp") or ""
 
-                        if et in ("FSDJump", "CarrierJump", "Docked"):
-                            mining_context.update(body_id=None, body_name="",
-                                                  surface_confirmed=False,
-                                                  rhino_active=False)
-                            if isinstance(event.get("SystemAddress"), int):
-                                mining_context["system_address"] = event["SystemAddress"]
-                        elif et in ("Location", "ApproachBody", "Touchdown", "Disembark"):
-                            event_address = event.get("SystemAddress")
-                            if isinstance(event_address, int):
-                                mining_context["system_address"] = event_address
-                            elif isinstance(current_address, int):
-                                mining_context["system_address"] = current_address
-                            if isinstance(event.get("BodyID"), int):
-                                mining_context["body_id"] = event["BodyID"]
-                                mining_context["body_name"] = str(
-                                    event.get("Body") or event.get("BodyName") or ""
-                                )
-                            if et in ("ApproachBody", "Touchdown", "Disembark") or (
-                                et == "Location" and event.get("BodyID") is not None
-                                and not event.get("Docked")
-                            ):
-                                mining_context["surface_confirmed"] = True
-                        elif et == "LaunchSRV":
-                            mining_context["rhino_active"] = bool(
-                                self._is_rhino(event)
-                                and mining_context.get("surface_confirmed")
-                                and isinstance(mining_context.get("system_address"), int)
-                                and isinstance(mining_context.get("body_id"), int)
-                            )
-                        elif et == "DockSRV":
-                            mining_context["rhino_active"] = False
+                        self._advance_surface_mining_context(
+                            mining_context, event, fallback_address=current_address
+                        )
 
                         if (file_commander_id is not None
                                 and et in ("MiningRefined", "MaterialCollected")):

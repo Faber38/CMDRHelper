@@ -129,7 +129,7 @@ class BodyDetailWindow(QDialog):
                               "\n".join(commodity_lines))
             if mining_materials:
                 material_lines = [
-                    f"{item.get('display_name') or item.get('frontier_name')} "
+                    f"{self._material_name(item.get('frontier_name') or item.get('display_name'))} "
                     f"{int(item.get('quantity') or 0)}"
                     for item in mining_materials
                 ]
