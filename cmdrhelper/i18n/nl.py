@@ -14,6 +14,7 @@ TRANSLATIONS = {
     'app.already_running_text': 'CMDRHelper is al gestart.\\n\\nEen tweede exemplaar wordt niet geopend.',
     'app.subtitle': 'Je hulpmiddel voor missies en verkenning',
     'nav.overview': 'Overzicht',
+    'nav.help': 'Help',
     'nav.missions': 'Missies',
     'nav.explorer': 'Verkenner',
     'nav.chronicle': 'Kroniek',

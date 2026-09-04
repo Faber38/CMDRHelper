@@ -14,6 +14,7 @@ TRANSLATIONS = {
     'app.already_running_text': 'Το CMDRHelper έχει ήδη ξεκινήσει.\\n\\nΔεν θα ανοίξει δεύτερη παρουσία.',
     'app.subtitle': 'Το εργαλείο σου για αποστολές και εξερεύνηση',
     'nav.overview': 'Επισκόπηση',
+    'nav.help': 'Βοήθεια',
     'nav.missions': 'Αποστολές',
     'nav.explorer': 'Εξερεύνηση',
     'nav.chronicle': 'Χρονικό',

@@ -1558,7 +1558,9 @@ class MainWindow(QMainWindow):
 
         side.addStretch()
 
-        self.help_button = QPushButton("?  Hilfe", objectName="helpButton")
+        self.help_button = QPushButton(
+            "?  " + tr("nav.help"), objectName="helpButton"
+        )
         self.help_button.clicked.connect(self._open_help)
         side.addWidget(self.help_button)
         side.addSpacing(12)

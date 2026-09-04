@@ -14,6 +14,7 @@ TRANSLATIONS = {
     'app.already_running_text': 'CMDRHelper on jo käynnistetty.\\n\\nToista instanssia ei avata.',
     'app.subtitle': 'Tehtävä- ja tutkimustyökalusi',
     'nav.overview': 'Yleiskuva',
+    'nav.help': 'Ohje',
     'nav.missions': 'Tehtävät',
     'nav.explorer': 'Tutkimus',
     'nav.chronicle': 'Kronikka',

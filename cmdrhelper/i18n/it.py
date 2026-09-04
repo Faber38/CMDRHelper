@@ -14,6 +14,7 @@ TRANSLATIONS = {
     'app.already_running_text': 'CMDRHelper è già avviato.\\n\\nNon verrà aperta una seconda istanza.',
     'app.subtitle': 'Il tuo strumento per missioni ed esplorazione',
     'nav.overview': 'Panoramica',
+    'nav.help': 'Aiuto',
     'nav.missions': 'Missioni',
     'nav.explorer': 'Esploratore',
     'nav.chronicle': 'Cronaca',

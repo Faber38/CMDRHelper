@@ -14,6 +14,7 @@ TRANSLATIONS = {
     'app.already_running_text': 'CMDRHelper zaten başlatılmış.\\n\\nİkinci bir örnek açılmayacak.',
     'app.subtitle': 'Görev ve keşif aracın',
     'nav.overview': 'Genel Bakış',
+    'nav.help': 'Yardım',
     'nav.missions': 'Görevler',
     'nav.explorer': 'Keşif',
     'nav.chronicle': 'Kronik',

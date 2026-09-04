@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
 )
 
 from cmdrhelper.help_content import help_topic
+from cmdrhelper.i18n import set_language, tr
 from cmdrhelper.ui.help_dialog import HelpDialog
 from cmdrhelper.ui.main_window import MainWindow
 
@@ -84,6 +85,42 @@ class ContextHelpTests(unittest.TestCase):
         self.assertLess(help_index, title_index)
         self.assertLess(title_index, frame_index)
         self.assertLess(frame_index, exit_index)
+
+    def test_help_button_label_is_available_in_every_interface_language(self):
+        expected = {
+            "de": "Hilfe",
+            "en": "Help",
+            "fr": "Aide",
+            "it": "Aiuto",
+            "no": "Hjelp",
+            "sv": "Hjälp",
+            "fi": "Ohje",
+            "pl": "Pomoc",
+            "nl": "Help",
+            "es": "Ayuda",
+            "tr": "Yardım",
+            "el": "Βοήθεια",
+        }
+        for language, label in expected.items():
+            with self.subTest(language=language):
+                set_language(language)
+                self.assertEqual(tr("nav.help"), label)
+
+    def test_help_button_uses_saved_interface_language_after_restart(self):
+        self.state.settings.values["ui_language"] = "fr"
+        restarted_window = MainWindow(self.state)
+        self.addCleanup(restarted_window.close)
+        self.assertEqual(restarted_window.help_button.text(), "?  Aide")
+
+        restarted_window._show_page(next(
+            page for page, context in restarted_window.HELP_CONTEXTS.items()
+            if context == "overview"
+        ))
+        restarted_window.help_button.click()
+        topic = help_topic("overview", "fr")
+        self.assertEqual(restarted_window._help_dialog.windowTitle(), topic.dialog_title)
+        self.assertEqual(restarted_window._help_dialog.help_text.text(), topic.text)
+        restarted_window._help_dialog.close()
 
     def test_cargo_live_switch_is_third_and_persistent(self):
         layout = self.window.auto_show_frame.layout()

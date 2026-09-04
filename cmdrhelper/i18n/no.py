@@ -14,6 +14,7 @@ TRANSLATIONS = {
     'app.already_running_text': 'CMDRHelper er allerede startet.\\n\\nEn ny instans blir ikke åpnet.',
     'app.subtitle': 'Ditt verktøy for oppdrag og utforskning',
     'nav.overview': 'Oversikt',
+    'nav.help': 'Hjelp',
     'nav.missions': 'Oppdrag',
     'nav.explorer': 'Utforsker',
     'nav.chronicle': 'Krønike',
