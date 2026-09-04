@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -412,6 +413,46 @@ class UpdateCheckWorker(QRunnable):
         )
 
 
+class DownloadCancelled(Exception):
+    """Raised when the user cancels an in-progress update download."""
+
+
+class UpdateDownloadSignals(QObject):
+    progress = Signal(int, int, float)
+    verifying = Signal()
+    finished = Signal(object)
+    failed = Signal(str)
+    cancelled = Signal()
+
+
+class UpdateDownloadWorker(QRunnable):
+    def __init__(self, info: dict):
+        super().__init__()
+        self.info = dict(info or {})
+        self.signals = UpdateDownloadSignals()
+        self._cancel_event = threading.Event()
+        self.setAutoDelete(False)
+
+    def cancel(self):
+        self._cancel_event.set()
+
+    @Slot()
+    def run(self):
+        try:
+            zip_path = download_release(
+                self.info,
+                progress_callback=self.signals.progress.emit,
+                cancel_event=self._cancel_event,
+                verifying_callback=self.signals.verifying.emit,
+            )
+        except DownloadCancelled:
+            self.signals.cancelled.emit()
+        except Exception as exc:
+            self.signals.failed.emit(str(exc))
+        else:
+            self.signals.finished.emit(zip_path)
+
+
 def _is_protected(
     relative_path: Path,
 ) -> bool:
@@ -633,6 +674,9 @@ def _extract_release_root(
 def download_release(
     info: dict,
     timeout: float = 120.0,
+    progress_callback=None,
+    cancel_event=None,
+    verifying_callback=None,
 ) -> Path:
     asset_url = str(
         info.get("asset_url")
@@ -678,27 +722,55 @@ def download_release(
         },
     )
 
-    with urllib.request.urlopen(
-        request,
-        timeout=timeout,
-    ) as response:
-        with zip_path.open(
-            "wb"
-        ) as target:
-            shutil.copyfileobj(
-                response,
-                target,
+    try:
+        with urllib.request.urlopen(
+            request,
+            timeout=timeout,
+        ) as response:
+            try:
+                response_size = int(response.headers.get("Content-Length") or 0)
+            except (TypeError, ValueError):
+                response_size = 0
+            try:
+                api_size = int(info.get("asset_size") or 0)
+            except (TypeError, ValueError):
+                api_size = 0
+            total_size = response_size if response_size > 0 else max(0, api_size)
+            received = 0
+            started = time.monotonic()
+            if progress_callback is not None:
+                progress_callback(0, total_size, 0.0)
+
+            with zip_path.open("wb") as target:
+                while True:
+                    if cancel_event is not None and cancel_event.is_set():
+                        raise DownloadCancelled("Update-Download abgebrochen.")
+                    chunk = response.read(1024 * 1024)
+                    if not chunk:
+                        break
+                    target.write(chunk)
+                    received += len(chunk)
+                    elapsed = max(0.001, time.monotonic() - started)
+                    if progress_callback is not None:
+                        progress_callback(received, total_size, received / elapsed)
+
+        if total_size > 0 and received != total_size:
+            raise RuntimeError(
+                "Der Update-Download ist unvollständig "
+                f"({received} von {total_size} Bytes)."
             )
-
-    if not zipfile.is_zipfile(
-        zip_path
-    ):
-        raise RuntimeError(
-            "Die heruntergeladene Datei ist "
-            "kein gültiges ZIP-Archiv."
-        )
-
-    return zip_path
+        if cancel_event is not None and cancel_event.is_set():
+            raise DownloadCancelled("Update-Download abgebrochen.")
+        if verifying_callback is not None:
+            verifying_callback()
+        if not zipfile.is_zipfile(zip_path):
+            raise RuntimeError(
+                "Die heruntergeladene Datei ist kein gültiges ZIP-Archiv."
+            )
+        return zip_path
+    except BaseException:
+        shutil.rmtree(temp_root, ignore_errors=True)
+        raise
 
 
 def _spawn(

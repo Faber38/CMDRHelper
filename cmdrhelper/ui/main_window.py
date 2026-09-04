@@ -27,8 +27,8 @@ from cmdrhelper.mission_manager import translate_mission_text
 from cmdrhelper.score_analyzer import ScoreAnalyzer
 from cmdrhelper.update import (
     UpdateCheckWorker,
+    UpdateDownloadWorker,
     is_newer_version,
-    download_release,
     launch_installer,
 )
 
@@ -1188,6 +1188,8 @@ class MainWindow(QMainWindow):
         self._update_check_running = False
         self._update_notice_shown = False
         self._update_worker = None
+        self._update_download_worker = None
+        self._update_download_result = None
         self._chronicle_system_window = None
         self._chronicle_search_help_window = None
         self._system_overview_window = None
@@ -4295,6 +4297,22 @@ class MainWindow(QMainWindow):
 
         update_layout.addLayout(update_form)
 
+        self.update_download_file = QLabel("", objectName="muted")
+        self.update_download_file.setWordWrap(True)
+        self.update_download_file.setVisible(False)
+        update_layout.addWidget(self.update_download_file)
+
+        self.update_download_progress = QProgressBar()
+        self.update_download_progress.setRange(0, 100)
+        self.update_download_progress.setValue(0)
+        self.update_download_progress.setVisible(False)
+        update_layout.addWidget(self.update_download_progress)
+
+        self.update_download_detail = QLabel("", objectName="muted")
+        self.update_download_detail.setWordWrap(True)
+        self.update_download_detail.setVisible(False)
+        update_layout.addWidget(self.update_download_detail)
+
         update_row = QHBoxLayout()
 
         self.update_check_button = QPushButton(tr("settings.check_now"))
@@ -4302,6 +4320,10 @@ class MainWindow(QMainWindow):
             lambda: self._check_for_updates(automatic=False)
         )
         update_row.addWidget(self.update_check_button)
+        self.update_cancel_button = QPushButton(tr("settings.update_cancel"))
+        self.update_cancel_button.clicked.connect(self._cancel_update_download)
+        self.update_cancel_button.setVisible(False)
+        update_row.addWidget(self.update_cancel_button)
         update_row.addStretch()
 
         update_layout.addLayout(update_row)
@@ -4602,6 +4624,102 @@ class MainWindow(QMainWindow):
     def _release_update_worker(self):
         self._update_worker = None
 
+    def _release_update_download_worker(self):
+        self._update_download_worker = None
+
+    @staticmethod
+    def _format_download_size(byte_count):
+        return f"{max(0, int(byte_count or 0)) / (1024 * 1024):.1f} MiB"
+
+    def _update_download_progress_changed(self, received, total, rate):
+        received = max(0, int(received or 0))
+        total = max(0, int(total or 0))
+        rate = max(0.0, float(rate or 0.0))
+        received_text = self._format_download_size(received)
+        if total > 0:
+            percent = min(100, int(received * 100 / total))
+            self.update_download_progress.setRange(0, 100)
+            self.update_download_progress.setValue(percent)
+            self.update_download_progress.setFormat(f"{percent} %")
+            amount = tr(
+                "settings.update_amount_known",
+                received=received_text,
+                total=self._format_download_size(total),
+                percent=percent,
+            )
+            if rate > 0:
+                eta = max(0, int(round((total - min(received, total)) / rate)))
+                rate_text = tr(
+                    "settings.update_rate_eta",
+                    rate=self._format_download_size(rate), eta=eta,
+                )
+            else:
+                rate_text = ""
+        else:
+            self.update_download_progress.setRange(0, 0)
+            amount = tr("settings.update_amount_unknown", received=received_text)
+            rate_text = (
+                tr("settings.update_rate", rate=self._format_download_size(rate))
+                if rate > 0 else ""
+            )
+        self.update_download_detail.setText(
+            amount + (("\n" + rate_text) if rate_text else "")
+        )
+
+    def _cancel_update_download(self):
+        worker = self._update_download_worker
+        if worker is not None:
+            self.update_cancel_button.setEnabled(False)
+            worker.cancel()
+
+    def _update_download_verifying(self):
+        self._set_update_status(tr("settings.update_verifying_zip"))
+        self.update_download_progress.setRange(0, 100)
+        self.update_download_progress.setValue(100)
+        self.update_download_progress.setFormat("100 %")
+
+    def _finish_update_download_ui(self):
+        self.update_cancel_button.setVisible(False)
+        self.update_cancel_button.setEnabled(True)
+        QTimer.singleShot(0, self._release_update_download_worker)
+
+    def _update_download_failed(self, error):
+        self._finish_update_download_ui()
+        self.update_check_button.setEnabled(True)
+        self._set_update_status(
+            tr("settings.update_failed_status", error=error), False
+        )
+        QMessageBox.critical(
+            self, tr("settings.update_failed_title"),
+            tr("settings.update_failed_message", error=error),
+        )
+
+    def _update_download_cancelled(self):
+        self._finish_update_download_ui()
+        self.update_check_button.setEnabled(True)
+        self._set_update_status(tr("settings.update_cancelled"), False)
+
+    def _update_download_finished(self, zip_path):
+        result = self._update_download_result or {}
+        latest = str(result.get("version") or "").strip()
+        self._set_update_status(tr("settings.update_starting_updater"))
+        try:
+            install_dir = Path(__file__).resolve().parents[2]
+            launch_installer(
+                zip_path=Path(zip_path), install_dir=install_dir,
+                current_version=__version__, latest_version=latest,
+                parent_pid=os.getpid(),
+            )
+        except Exception as exc:
+            self._update_download_failed(str(exc))
+            return
+        self._finish_update_download_ui()
+        install_message = tr("settings.update_downloaded_message", version=latest)
+        if self._release_requires_database_update(result):
+            install_message += tr("settings.update_post_restart_database")
+        QMessageBox.information(self, tr("settings.update_title"), install_message)
+        QApplication.quit()
+
     def _set_update_status(
         self,
         text,
@@ -4795,54 +4913,26 @@ class MainWindow(QMainWindow):
 
         if hasattr(self, "update_check_button"):
             self.update_check_button.setEnabled(False)
-
-        QApplication.processEvents()
-
-        try:
-            zip_path = download_release(result)
-
-            # main_window.py liegt unter cmdrhelper/ui/.
-            # Zwei Ebenen höher liegt das Installationsverzeichnis.
-            install_dir = Path(__file__).resolve().parents[2]
-
-            launch_installer(
-                zip_path=zip_path,
-                install_dir=install_dir,
-                current_version=__version__,
-                latest_version=latest,
-                parent_pid=os.getpid(),
-            )
-
-        except Exception as exc:
-            if hasattr(self, "update_check_button"):
-                self.update_check_button.setEnabled(True)
-
-            self._set_update_status(
-                tr("settings.update_failed_status", error=exc), False
-            )
-
-            QMessageBox.critical(
-                self,
-                tr("settings.update_failed_title"),
-                tr("settings.update_failed_message", error=exc),
-            )
-            return
-
-        install_message = tr(
-            "settings.update_downloaded_message",
-            version=latest,
+        self._update_download_result = dict(result)
+        self.update_download_file.setText(
+            asset_name or f"CMDRHelper_v{latest}.zip"
         )
+        self.update_download_file.setVisible(True)
+        self.update_download_detail.setText("")
+        self.update_download_detail.setVisible(True)
+        self.update_download_progress.setRange(0, 0)
+        self.update_download_progress.setVisible(True)
+        self.update_cancel_button.setEnabled(True)
+        self.update_cancel_button.setVisible(True)
 
-        if self._release_requires_database_update(result):
-            install_message += tr("settings.update_post_restart_database")
-
-        QMessageBox.information(
-            self,
-            tr("settings.update_title"),
-            install_message,
-        )
-
-        QApplication.quit()
+        worker = UpdateDownloadWorker(result)
+        self._update_download_worker = worker
+        worker.signals.progress.connect(self._update_download_progress_changed)
+        worker.signals.verifying.connect(self._update_download_verifying)
+        worker.signals.finished.connect(self._update_download_finished)
+        worker.signals.failed.connect(self._update_download_failed)
+        worker.signals.cancelled.connect(self._update_download_cancelled)
+        self.update_thread_pool.start(worker)
 
     def _saved_ui_font_size(self, fallback=10):
         try:
