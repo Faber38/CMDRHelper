@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 from cmdrhelper.database import CMDRDatabase, CommanderMigrationError, SCHEMA_VERSION
 from cmdrhelper.journal_reader import read_latest_state
+from cmdrhelper.ui.main_window import MainWindow
 
 
 LEGACY_EXPLORATION_SCHEMA = """
@@ -238,6 +239,151 @@ class ExplorationPersistenceTests(unittest.TestCase):
                 "planetary_mining_signals",
                 {row[1] for row in con.execute("PRAGMA table_info(commander_bodies)")},
             )
+
+    def test_chronicle_filters_planetary_mining_presence_and_minimum(self):
+        for address, count in ((90, 8), (91, 24), (92, 0)):
+            snapshot = self.snapshot(planetary_mining_signals=count)
+            snapshot.update(
+                system_address=address,
+                system=f"Mining {address}",
+                system_bodies=[{
+                    **snapshot["system_bodies"][0],
+                    "name": f"Mining {address} 2",
+                    "short_name": "2",
+                    "planetary_mining_signals": count,
+                }],
+            )
+            self.database.store_snapshot(snapshot, self.a)
+
+        present = self.database.search_chronicle(
+            "", self.a, planetary_mining_only=True
+        )
+        minimum = self.database.search_chronicle(
+            "", self.a, minimum_planetary_mining_signals=20
+        )
+        self.assertEqual(
+            [row["planetary_mining_signals"] for row in present], [8, 24]
+        )
+        self.assertEqual(
+            [(row["system_name"], row["short_name"], row["planetary_mining_signals"])
+             for row in minimum],
+            [("Mining 91", "2", 24)],
+        )
+
+    def test_chronicle_personal_mining_is_commander_separated(self):
+        snapshot = self.snapshot(planetary_mining_signals=24)
+        self.database.store_snapshot(snapshot, self.a)
+        self.database.store_snapshot(snapshot, self.b)
+        with self.database._connect() as con:
+            con.execute(
+                """INSERT INTO surface_mining_commodities(
+                    commander_id,system_address,body_id,frontier_name,
+                    display_name,quantity,first_mined_at,last_mined_at)
+                    VALUES(?,?,?,?,?,?,?,?)""",
+                (self.a, 42, 7, "platinum", "Platin", 3, "T1", "T2"),
+            )
+
+        a_rows = self.database.search_chronicle(
+            "", self.a, personally_mined_only=True
+        )
+        b_rows = self.database.search_chronicle(
+            "", self.b, personally_mined_only=True
+        )
+        a_all = self.database.search_chronicle(
+            "", self.a, planetary_mining_only=True
+        )
+        b_all = self.database.search_chronicle(
+            "", self.b, planetary_mining_only=True
+        )
+        self.assertEqual(len(a_rows), 1)
+        self.assertEqual(b_rows, [])
+        self.assertEqual(a_rows[0]["planetary_mining_signals"], 24)
+        self.assertEqual(a_all[0]["planetary_mining_signals"], 24)
+        self.assertEqual(b_all[0]["planetary_mining_signals"], 24)
+        self.assertTrue(a_all[0]["personally_mined"])
+        self.assertFalse(b_all[0]["personally_mined"])
+
+    def test_chronicle_mining_commodity_options_filter_quantities_and_minimum(self):
+        for address, count in ((42, 24), (43, 12)):
+            snapshot = self.snapshot(planetary_mining_signals=count)
+            snapshot.update(
+                system_address=address,
+                system=f"Mining {address}",
+                system_bodies=[{
+                    **snapshot["system_bodies"][0],
+                    "name": f"Mining {address} 2",
+                    "short_name": "2",
+                    "planetary_mining_signals": count,
+                }],
+            )
+            self.database.store_snapshot(snapshot, self.a)
+            self.database.store_snapshot(snapshot, self.b)
+        with self.database._connect() as con:
+            con.executemany(
+                """INSERT INTO surface_mining_commodities(
+                    commander_id,system_address,body_id,frontier_name,
+                    display_name,quantity,first_mined_at,last_mined_at)
+                    VALUES(?,?,?,?,?,?,?,?)""",
+                [
+                    (self.a, 42, 7, "copper", "Kupfer", 56, "T1", "T2"),
+                    (self.a, 42, 7, "helium3", "Helium-3", 18, "T1", "T2"),
+                    (self.a, 43, 7, "copper", "Kupfer", 7, "T1", "T2"),
+                    (self.b, 42, 7, "gold", "Gold", 4, "T1", "T2"),
+                ],
+            )
+
+        self.assertEqual(
+            self.database.surface_mining_commodity_options(self.a),
+            [
+                {"frontier_name": "helium3", "display_name": "Helium-3"},
+                {"frontier_name": "copper", "display_name": "Kupfer"},
+            ],
+        )
+        self.assertEqual(
+            self.database.surface_mining_commodity_options(self.b),
+            [{"frontier_name": "gold", "display_name": "Gold"}],
+        )
+        copper = self.database.search_chronicle(
+            "", self.a, personally_mined_only=True, mining_commodity="copper"
+        )
+        self.assertEqual(
+            [(row["system_address"], row["surface_mining_commodities"][0]["quantity"])
+             for row in copper],
+            [(42, 56), (43, 7)],
+        )
+        copper_minimum = self.database.search_chronicle(
+            "", self.a, minimum_planetary_mining_signals=20,
+            personally_mined_only=True, mining_commodity="copper"
+        )
+        self.assertEqual([row["system_address"] for row in copper_minimum], [42])
+        all_findings = self.database.search_chronicle(
+            "", self.a, personally_mined_only=True
+        )
+        self.assertEqual(
+            [(item["display_name"], item["quantity"])
+             for item in all_findings[0]["surface_mining_commodities"]],
+            [("Helium-3", 18), ("Kupfer", 56)],
+        )
+        self.assertEqual(
+            MainWindow._chronicle_planetary_mining_result_text(copper[0]),
+            "Mining 42 / 2 — ABBAU ×24 — Kupfer 56 t",
+        )
+        self.assertEqual(
+            MainWindow._chronicle_planetary_mining_result_text(all_findings[0]),
+            "Mining 42 / 2 — ABBAU ×24 — Helium-3 18 t, Kupfer 56 t",
+        )
+
+    def test_chronicle_planetary_mining_result_text(self):
+        result = {
+            "system_name": "Prua Hypai NV-E c28-66",
+            "short_name": "2",
+            "planetary_mining_signals": 24,
+            "personally_mined": True,
+        }
+        self.assertEqual(
+            MainWindow._chronicle_planetary_mining_result_text(result),
+            "Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — eigene Funde",
+        )
 
     def test_archive_planetary_mining_count_handles_zero_and_missing_scan(self):
         folder = Path(self.tmp.name) / "mining-archive"

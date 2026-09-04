@@ -12,6 +12,7 @@ from cmdrhelper.ui.chronicle_view import ChronicleMapWidget, commander_color
 from cmdrhelper.ui.screenshot_view import ScreenshotView
 from cmdrhelper.ui.commander_view import CommanderView
 from cmdrhelper.ui.startup_progress import StartupProgressDialog
+from cmdrhelper.ui.help_dialog import HelpDialog
 from cmdrhelper.route_planner import RoutePlannerView
 from cmdrhelper.online_services import (
     test_edsm_connection,
@@ -1239,6 +1240,17 @@ class MainWindow(QMainWindow):
     PAGE_IMAGES = 6
     PAGE_COMMANDER_VIEW = 7
     PAGE_SETTINGS = 8
+    HELP_CONTEXTS = {
+        PAGE_OVERVIEW: "overview",
+        PAGE_MISSIONS: "missions",
+        PAGE_EXPLORER: "explorer",
+        PAGE_CHRONICLE: "chronicle",
+        PAGE_JUMP_TIP: "jump_tip",
+        PAGE_ROUTE_PLANNER: "route_planner",
+        PAGE_IMAGES: "images",
+        PAGE_COMMANDER_VIEW: "commander_view",
+        PAGE_SETTINGS: "settings",
+    }
 
     def __init__(self, state):
         super().__init__()
@@ -1259,6 +1271,7 @@ class MainWindow(QMainWindow):
         self._explorer_bio_live_window = None
         self._explorer_live_system = None
         self._startup_progress_dialog = None
+        self._help_dialog = None
         self.ui_theme = str(self.state.settings.value("ui_theme", "dark")).lower()
         set_language(str(self.state.settings.value("ui_language", "de") or "de"))
 
@@ -1273,6 +1286,10 @@ class MainWindow(QMainWindow):
         self.state.initializationStarted.connect(self._initialization_started)
         self.state.initializationProgress.connect(self._initialization_progress)
         self.state.initializationFinished.connect(self._initialization_finished)
+        self.state.viewedCommanderChanged.connect(
+            self._refresh_chronicle_mining_commodities
+        )
+        self._refresh_chronicle_mining_commodities()
 
         self.state.changed.connect(self.refresh_all)
 
@@ -1323,6 +1340,15 @@ class MainWindow(QMainWindow):
 
             button.style().unpolish(button)
             button.style().polish(button)
+
+    def _open_help(self):
+        context = self.HELP_CONTEXTS[self.pages.currentIndex()]
+        if self._help_dialog is not None:
+            self._help_dialog.close()
+        self._help_dialog = HelpDialog(context, self, language="de")
+        self._help_dialog.show()
+        self._help_dialog.raise_()
+        self._help_dialog.activateWindow()
 
     def _card(self, title):
         frame = QFrame(objectName="card")
@@ -1378,15 +1404,20 @@ class MainWindow(QMainWindow):
 
         side.addStretch()
 
+        self.help_button = QPushButton("?  Hilfe", objectName="helpButton")
+        self.help_button.clicked.connect(self._open_help)
+        side.addWidget(self.help_button)
+        side.addSpacing(12)
+
         # Explorer-Livefenster direkt in der Seitenleiste schalten.
         # Der kleine Block sitzt bewusst etwas oberhalb des Beenden-Schalters.
-        live_title = QLabel(tr("settings.auto_show"))
-        live_title.setStyleSheet("font-weight: 700;")
-        live_title.setToolTip(tr("settings.auto_show_tooltip"))
-        side.addWidget(live_title)
+        self.auto_show_title = QLabel(tr("settings.auto_show"))
+        self.auto_show_title.setStyleSheet("font-weight: 700;")
+        self.auto_show_title.setToolTip(tr("settings.auto_show_tooltip"))
+        side.addWidget(self.auto_show_title)
 
-        live_frame = QFrame()
-        live_frame.setStyleSheet("""
+        self.auto_show_frame = QFrame()
+        self.auto_show_frame.setStyleSheet("""
             QFrame {
                 border: 1px solid #68727c;
                 border-radius: 5px;
@@ -1396,7 +1427,7 @@ class MainWindow(QMainWindow):
             }
         """)
 
-        live_layout = QVBoxLayout(live_frame)
+        live_layout = QVBoxLayout(self.auto_show_frame)
         live_layout.setContentsMargins(7, 4, 7, 4)
         live_layout.setSpacing(2)
 
@@ -1428,15 +1459,15 @@ class MainWindow(QMainWindow):
         )
         live_layout.addWidget(self.explorer_bio_live_enabled_check)
 
-        side.addWidget(live_frame)
+        side.addWidget(self.auto_show_frame)
 
         # Etwas mehr Abstand zum Ausschalter, damit der Block optisch höher sitzt.
         side.addSpacing(16)
 
-        exit_button = QPushButton("⏻  " + tr("nav.exit"))
-        exit_button.setToolTip(tr("nav.exit_tooltip"))
-        exit_button.clicked.connect(self.close)
-        side.addWidget(exit_button)
+        self.exit_button = QPushButton("⏻  " + tr("nav.exit"))
+        self.exit_button.setToolTip(tr("nav.exit_tooltip"))
+        self.exit_button.clicked.connect(self.close)
+        side.addWidget(self.exit_button)
 
         side.addSpacing(10)
 
@@ -3399,6 +3430,40 @@ class MainWindow(QMainWindow):
 
         layout.addLayout(header)
 
+        self.chronicle_mining_filter_frame = QFrame(objectName="card")
+        mining_filters = QHBoxLayout(self.chronicle_mining_filter_frame)
+        mining_filters.setContentsMargins(8, 4, 8, 4)
+        filter_label = QLabel("Filter:")
+        filter_label.setStyleSheet("font-weight: 700;")
+        mining_filters.addWidget(filter_label)
+        self.chronicle_planetary_mining_check = QCheckBox(
+            "Planetare Abbaustandorte"
+        )
+        mining_filters.addWidget(self.chronicle_planetary_mining_check)
+        mining_filters.addWidget(QLabel("Mindestens"))
+        self.chronicle_planetary_mining_minimum = QSpinBox()
+        self.chronicle_planetary_mining_minimum.setRange(0, 9999)
+        self.chronicle_planetary_mining_minimum.setValue(0)
+        mining_filters.addWidget(self.chronicle_planetary_mining_minimum)
+        self.chronicle_personally_mined_check = QCheckBox("Eigene Abbau-Funde")
+        self.chronicle_personally_mined_check.toggled.connect(
+            self._update_chronicle_mining_commodity_enabled
+        )
+        mining_filters.addWidget(self.chronicle_personally_mined_check)
+        mining_filters.addWidget(QLabel("Rohstoff:"))
+        self.chronicle_mining_commodity_combo = QComboBox()
+        self.chronicle_mining_commodity_combo.addItem("Alle", "")
+        self.chronicle_mining_commodity_combo.setEnabled(False)
+        mining_filters.addWidget(self.chronicle_mining_commodity_combo)
+        self.chronicle_mining_apply_button = QPushButton("Anwenden")
+        self.chronicle_mining_apply_button.clicked.connect(
+            self._apply_chronicle_mining_filters
+        )
+        mining_filters.addWidget(self.chronicle_mining_apply_button)
+        mining_filters.addStretch()
+        layout.addWidget(self.chronicle_mining_filter_frame)
+        self._refresh_chronicle_mining_commodities()
+
         self.chronicle_filter_frame = QFrame(objectName="card")
         self.chronicle_filter_layout = QHBoxLayout(self.chronicle_filter_frame)
         self.chronicle_filter_layout.setContentsMargins(8, 4, 8, 4)
@@ -3660,15 +3725,108 @@ class MainWindow(QMainWindow):
         self.chronicle_search_edit.setText(str(term))
         self._search_chronicle_biology()
 
+    @staticmethod
+    def _chronicle_planetary_mining_result_text(result):
+        system_name = result.get("system_name") or "Unbekannt"
+        body_name = result.get("short_name") or result.get("body_name") or ""
+        location = f"{system_name} / {body_name}" if body_name else system_name
+        text = (
+            f"{location} — ABBAU ×"
+            f"{int(result.get('planetary_mining_signals') or 0)}"
+        )
+        commodities = result.get("surface_mining_commodities") or []
+        if commodities:
+            findings = ", ".join(
+                f"{item.get('display_name') or item.get('frontier_name')} "
+                f"{int(item.get('quantity') or 0)} t"
+                for item in commodities
+            )
+            text += f" — {findings}"
+        elif result.get("personally_mined"):
+            text += " — eigene Funde"
+        return text
+
+    def _chronicle_mining_commander_id(self):
+        return (
+            getattr(self.state, "viewed_commander_id", None)
+            or getattr(self.state, "commander_id", None)
+        )
+
+    def _refresh_chronicle_mining_commodities(self, *_args):
+        if not hasattr(self, "chronicle_mining_commodity_combo"):
+            return
+        previous = self.chronicle_mining_commodity_combo.currentData() or ""
+        self.chronicle_mining_commodity_combo.clear()
+        self.chronicle_mining_commodity_combo.addItem("Alle", "")
+        commander_id = self._chronicle_mining_commander_id()
+        if commander_id is not None:
+            try:
+                options = self.state.database.surface_mining_commodity_options(
+                    commander_id
+                )
+            except Exception:
+                options = []
+            for option in options:
+                self.chronicle_mining_commodity_combo.addItem(
+                    option["display_name"], option["frontier_name"]
+                )
+        index = self.chronicle_mining_commodity_combo.findData(previous)
+        self.chronicle_mining_commodity_combo.setCurrentIndex(max(0, index))
+        self._update_chronicle_mining_commodity_enabled()
+
+    def _update_chronicle_mining_commodity_enabled(self, *_args):
+        self.chronicle_mining_commodity_combo.setEnabled(
+            self.chronicle_personally_mined_check.isChecked()
+            and self.chronicle_mining_commodity_combo.count() > 1
+        )
+
     def _search_chronicle_biology(self):
         query = self.chronicle_search_edit.text().strip()
-
         if not query:
             self._reset_chronicle_search()
             return
 
+        self._run_chronicle_search(query)
+
+    def _apply_chronicle_mining_filters(self):
+        planetary_mining_only = self.chronicle_planetary_mining_check.isChecked()
+        minimum_mining = self.chronicle_planetary_mining_minimum.value()
+        personally_mined_only = self.chronicle_personally_mined_check.isChecked()
+        mining_commodity = (
+            self.chronicle_mining_commodity_combo.currentData() or ""
+            if personally_mined_only else ""
+        )
+        if not (planetary_mining_only or minimum_mining or personally_mined_only):
+            self._reset_chronicle_search()
+            return
+
+        self._run_chronicle_search(
+            "",
+            planetary_mining_only=planetary_mining_only,
+            minimum_mining=minimum_mining,
+            personally_mined_only=personally_mined_only,
+            mining_commodity=mining_commodity,
+        )
+
+    def _run_chronicle_search(
+        self,
+        query,
+        planetary_mining_only=False,
+        minimum_mining=0,
+        personally_mined_only=False,
+        mining_commodity="",
+    ):
+        result_label = query or "ABBAU-Filter"
+
         try:
-            results = self.state.database.search_chronicle(query)
+            results = self.state.database.search_chronicle(
+                query,
+                planetary_mining_only=planetary_mining_only,
+                minimum_planetary_mining_signals=minimum_mining,
+                personally_mined_only=personally_mined_only,
+                mining_commodity=mining_commodity,
+                commander_id=self._chronicle_mining_commander_id(),
+            )
         except Exception as exc:
             self.chronicle_status.setText(tr("chronicle.search_failed", error=exc))
             return
@@ -3677,7 +3835,9 @@ class MainWindow(QMainWindow):
 
         if not results:
             self.chronicle_search_results.setVisible(False)
-            self.chronicle_status.setText(tr("chronicle.no_results", query=query))
+            self.chronicle_status.setText(
+                tr("chronicle.no_results", query=result_label)
+            )
             # Die normale Reisekarte bleibt sichtbar.
             return
 
@@ -3716,6 +3876,14 @@ class MainWindow(QMainWindow):
         self.chronicle_map.set_systems(matching_systems)
 
         for result in results:
+            if "planetary_mining_signals" in result:
+                item = QListWidgetItem(
+                    self._chronicle_planetary_mining_result_text(result)
+                )
+                item.setData(Qt.UserRole, result)
+                self.chronicle_search_results.addItem(item)
+                continue
+
             kind = result.get("kind") or tr("chronicle.hit")
             match_name = (
                 result.get("match_name") or result.get("detail") or tr("chronicle.hit")
@@ -3745,7 +3913,7 @@ class MainWindow(QMainWindow):
                 "chronicle.results_summary",
                 results=len(results),
                 systems=len(systems_by_address),
-                query=query,
+                query=result_label,
             )
         )
 
@@ -3756,6 +3924,12 @@ class MainWindow(QMainWindow):
         if hasattr(self, "chronicle_search_results"):
             self.chronicle_search_results.clear()
             self.chronicle_search_results.setVisible(False)
+
+        if hasattr(self, "chronicle_planetary_mining_check"):
+            self.chronicle_planetary_mining_check.setChecked(False)
+            self.chronicle_planetary_mining_minimum.setValue(0)
+            self.chronicle_personally_mined_check.setChecked(False)
+            self.chronicle_mining_commodity_combo.setCurrentIndex(0)
 
         self._refresh_chronicle()
 

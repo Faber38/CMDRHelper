@@ -248,6 +248,12 @@ class AppState(QObject):
                         completed += commander_total
                 for commander_id in commander_ids:
                     if self.database.commander_state_repair_needed(
+                        commander_id, "body_scan_attributes"
+                    ):
+                        self.database.backfill_body_scan_attributes(
+                            commander_id, sessions
+                        )
+                    if self.database.commander_state_repair_needed(
                         commander_id, "mercenary_credits"
                     ):
                         self.database.backfill_mercenary_credits(

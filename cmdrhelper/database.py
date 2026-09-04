@@ -21,6 +21,7 @@ COMMANDER_STATE_REPAIR_REVISIONS = {
     "surface_mining": 1,
     "position_gap": 1,
     "mercenary_credits": 1,
+    "body_scan_attributes": 1,
 }
 
 PERSONAL_TABLES = (
@@ -1618,6 +1619,33 @@ class CMDRDatabase:
                                     last_seen=row[4]) for row in rows]
         return result
 
+    def surface_mining_commodity_options(self, commander_id=None):
+        """Known refined surface-mining commodities for exactly one commander."""
+        commander_id = self._require_commander_id(commander_id)
+        with self._connect() as con:
+            rows = con.execute(
+                """SELECT frontier_name,display_name
+                   FROM surface_mining_commodities
+                   WHERE commander_id=?
+                   ORDER BY frontier_name COLLATE NOCASE""",
+                (commander_id,),
+            ).fetchall()
+        names = {}
+        for frontier_name, display_name in rows:
+            stable_name = str(frontier_name or "")
+            if not stable_name:
+                continue
+            shown = str(display_name or "").strip() or stable_name
+            previous = names.get(stable_name)
+            if previous is None or previous == stable_name:
+                names[stable_name] = shown
+        return [
+            {"frontier_name": frontier_name, "display_name": display_name}
+            for frontier_name, display_name in sorted(
+                names.items(), key=lambda item: (item[1].casefold(), item[0].casefold())
+            )
+        ]
+
     def apply_commander_journal_delta(self, commander_id, journal_file, events,
                                       safe_offset: int, enqueue_inara=False) -> None:
         """Atomically applies explicit journal facts and commits their byte offset."""
@@ -2358,6 +2386,119 @@ class CMDRDatabase:
                     revision=excluded.revision,repaired_at=excluded.repaired_at""",
                 (commander_id, "mercenary_credits", revision, now))
         return {"skipped": False, "journals": len(rows), "events": stored}
+
+    def backfill_body_scan_attributes(self, commander_id, sessions=None) -> dict:
+        """Restore complete Scan data without moving committed journal offsets."""
+        commander_id = int(commander_id)
+        feature = "body_scan_attributes"
+        revision = COMMANDER_STATE_REPAIR_REVISIONS[feature]
+        if not self.commander_state_repair_needed(commander_id, feature, revision):
+            return {"skipped": True, "journals": 0, "events": 0}
+        allowed = None if sessions is None else {
+            str(item.get("journal_file") or "") for item in sessions
+            if item.get("attribution_status") == "identified"
+            and item.get("commander_id") == commander_id
+        }
+        with self._connect() as con:
+            rows = con.execute(
+                """SELECT journal_file,last_complete_line_offset,file_size
+                   FROM journal_sessions
+                   WHERE commander_id=? AND attribution_status='identified'
+                   ORDER BY COALESCE(first_event_at,''),journal_file""",
+                (commander_id,),
+            ).fetchall()
+            damaged = {
+                (int(row[0]), int(row[1])): str(row[2] or "")
+                for row in con.execute(
+                    """SELECT b.system_address,b.body_id,s.name
+                       FROM bodies b
+                       JOIN systems s ON s.system_address=b.system_address
+                       JOIN commander_bodies cb
+                         ON cb.system_address=b.system_address
+                        AND cb.body_id=b.body_id
+                       WHERE cb.commander_id=? AND cb.scanned=1
+                         AND (b.body_type='' OR b.short_name=''
+                              OR (b.short_name=b.name
+                                  AND b.name LIKE s.name || ' %'))""",
+                    (commander_id,),
+                )
+            }
+        rows = [row for row in rows if allowed is None or str(row[0]) in allowed]
+        scans = {}
+        for journal_file, complete_offset, file_size in rows:
+            path = Path(journal_file)
+            if not path.is_file():
+                continue
+            limit = int(complete_offset or file_size or 0)
+            with path.open("rb") as handle:
+                raw = handle.read(limit) if limit > 0 else handle.read()
+            for raw_line in raw.splitlines():
+                if (b'"event":"Scan"' not in raw_line
+                        and b'"event": "Scan"' not in raw_line):
+                    continue
+                try:
+                    event = json.loads(raw_line)
+                except (UnicodeDecodeError, json.JSONDecodeError):
+                    continue
+                if not isinstance(event, dict):
+                    continue
+                if event.get("event") != "Scan" or event.get("BodyID") is None:
+                    continue
+                address = event.get("SystemAddress")
+                if address is None:
+                    continue
+                key = (int(address), int(event["BodyID"]))
+                if key not in damaged:
+                    continue
+                current_system = str(event.get("StarSystem") or damaged[key])
+                body_name = str(event.get("BodyName") or "")
+                short_name = body_name
+                if current_system and body_name.startswith(current_system):
+                    short_name = body_name[len(current_system):].strip() or body_name
+                raw_gravity = event.get("SurfaceGravity")
+                scans[key] = {
+                    "system_address": int(address), "system": current_system,
+                    "last_timestamp": str(event.get("timestamp") or ""),
+                    "system_bodies": [{
+                        "body_id": int(event["BodyID"]), "name": body_name,
+                        "short_name": short_name,
+                        "body_type": "Star" if event.get("StarType") else "Planet",
+                        "star_type": event.get("StarType") or "",
+                        "planet_class": event.get("PlanetClass") or "",
+                        "parent_id": _direct_parent_id(event.get("Parents") or []),
+                        "parent_star_id": _parent_star_id(event.get("Parents") or []),
+                        "mass_em": event.get("MassEM"),
+                        "stellar_mass": event.get("StellarMass"),
+                        "radius_m": event.get("Radius"),
+                        "surface_temperature": event.get("SurfaceTemperature"),
+                        "surface_pressure": event.get("SurfacePressure"),
+                        "atmosphere_composition": _atmosphere_composition(
+                            event.get("AtmosphereComposition")),
+                        "gravity_g": float(raw_gravity) / 9.80665
+                        if isinstance(raw_gravity, (int, float)) else None,
+                        "distance_ls": event.get("DistanceFromArrivalLS"),
+                        "landable": bool(event.get("Landable", False)),
+                        "terraformable": event.get("TerraformState") == "Terraformable",
+                        "atmosphere": event.get("Atmosphere_Localised")
+                        or event.get("Atmosphere") or "",
+                        "volcanism": event.get("Volcanism_Localised")
+                        or event.get("Volcanism") or "",
+                        "was_discovered": event.get("WasDiscovered"),
+                        "was_mapped": event.get("WasMapped"),
+                    }],
+                }
+        for snapshot in scans.values():
+            self.store_snapshot(snapshot, commander_id=commander_id)
+        now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        with self._connect() as con:
+            con.execute(
+                """INSERT INTO commander_state_repairs(
+                       commander_id,feature,revision,repaired_at) VALUES(?,?,?,?)
+                   ON CONFLICT(commander_id,feature) DO UPDATE SET
+                       revision=excluded.revision,repaired_at=excluded.repaired_at""",
+                (commander_id, feature, revision, now),
+            )
+        return {"skipped": False, "journals": len(rows), "events": len(scans)}
 
     def repair_commander_state(self, folder, sessions, commander_id,
                                features=("unsold", "missions")) -> dict:
@@ -3103,6 +3244,28 @@ class CMDRDatabase:
                 if body_id is None:
                     continue
 
+                if body.get("_placeholder"):
+                    con.execute(
+                        """INSERT INTO bodies(system_address,body_id) VALUES(?,?)
+                           ON CONFLICT(system_address,body_id) DO NOTHING""",
+                        (int(address), int(body_id)),
+                    )
+                    con.execute(
+                        """UPDATE bodies SET
+                               biological_signals=MAX(biological_signals,?),
+                               geological_signals=MAX(geological_signals,?),
+                               planetary_mining_signals=COALESCE(
+                                   ?,planetary_mining_signals)
+                           WHERE system_address=? AND body_id=?""",
+                        (
+                            int(body.get("biological_signals") or 0),
+                            int(body.get("geological_signals") or 0),
+                            body.get("planetary_mining_signals"),
+                            int(address), int(body_id),
+                        ),
+                    )
+                    continue
+
                 con.execute("""
                     INSERT INTO bodies (
                         system_address, body_id, name, short_name, body_type,
@@ -3114,11 +3277,17 @@ class CMDRDatabase:
                         planetary_mining_signals
                     ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                     ON CONFLICT(system_address, body_id) DO UPDATE SET
-                        name=excluded.name,
-                        short_name=excluded.short_name,
-                        body_type=excluded.body_type,
-                        star_type=excluded.star_type,
-                        planet_class=excluded.planet_class,
+                        name=CASE WHEN excluded.name <> '' THEN excluded.name ELSE bodies.name END,
+                        short_name=CASE
+                            WHEN excluded.short_name = '' THEN bodies.short_name
+                            WHEN excluded.short_name = excluded.name
+                                 AND bodies.short_name <> ''
+                                 AND bodies.short_name <> bodies.name
+                            THEN bodies.short_name
+                            ELSE excluded.short_name END,
+                        body_type=CASE WHEN excluded.body_type <> '' THEN excluded.body_type ELSE bodies.body_type END,
+                        star_type=CASE WHEN excluded.star_type <> '' THEN excluded.star_type ELSE bodies.star_type END,
+                        planet_class=CASE WHEN excluded.planet_class <> '' THEN excluded.planet_class ELSE bodies.planet_class END,
                         parent_id=COALESCE(excluded.parent_id, bodies.parent_id),
                         parent_star_id=COALESCE(excluded.parent_star_id, bodies.parent_star_id),
                         mass_em=COALESCE(excluded.mass_em, bodies.mass_em),
@@ -3130,8 +3299,10 @@ class CMDRDatabase:
                             THEN excluded.atmosphere_composition ELSE bodies.atmosphere_composition END,
                         gravity_g=COALESCE(excluded.gravity_g, bodies.gravity_g),
                         distance_ls=COALESCE(excluded.distance_ls, bodies.distance_ls),
-                        landable=excluded.landable,
-                        terraformable=excluded.terraformable,
+                        landable=CASE WHEN excluded.body_type <> ''
+                            THEN excluded.landable ELSE bodies.landable END,
+                        terraformable=CASE WHEN excluded.body_type <> ''
+                            THEN excluded.terraformable ELSE bodies.terraformable END,
                         atmosphere=CASE WHEN excluded.atmosphere <> '' THEN excluded.atmosphere ELSE bodies.atmosphere END,
                         volcanism=CASE WHEN excluded.volcanism <> '' THEN excluded.volcanism ELSE bodies.volcanism END,
                         biological_signals=MAX(bodies.biological_signals, excluded.biological_signals),
@@ -4577,14 +4748,142 @@ class CMDRDatabase:
                 ),
             )
 
-    def search_chronicle(self, query, commander_id=None):
+    def _search_chronicle_planetary_mining(
+        self,
+        text,
+        commander_id,
+        planetary_mining_only=False,
+        minimum_planetary_mining_signals=0,
+        personally_mined_only=False,
+        mining_commodity="",
+    ):
+        minimum = max(0, int(minimum_planetary_mining_signals or 0))
+        mining_commodity = str(mining_commodity or "").strip()
+        pattern = f"%{text}%"
+        with self._connect() as con:
+            rows = con.execute(
+                """
+                SELECT
+                    b.system_address, s.name, s.x, s.y, s.z,
+                    cs.first_seen, cs.last_seen, s.body_count,
+                    b.body_id, b.name, b.short_name,
+                    b.planetary_mining_signals,
+                    EXISTS(
+                        SELECT 1
+                        FROM surface_mining_commodities sm
+                        WHERE sm.commander_id=?
+                          AND sm.system_address=b.system_address
+                          AND sm.body_id=b.body_id
+                    ) AS personally_mined
+                FROM bodies b
+                JOIN systems s ON s.system_address=b.system_address
+                JOIN commander_bodies cb
+                  ON cb.system_address=b.system_address AND cb.body_id=b.body_id
+                 AND cb.commander_id=?
+                JOIN commander_systems cs
+                  ON cs.system_address=s.system_address AND cs.commander_id=?
+                WHERE (?='' OR s.name LIKE ? COLLATE NOCASE
+                              OR b.name LIKE ? COLLATE NOCASE
+                              OR b.short_name LIKE ? COLLATE NOCASE)
+                  AND (?=0 OR COALESCE(b.planetary_mining_signals,0)>0)
+                  AND (?=0 OR COALESCE(b.planetary_mining_signals,0)>=?)
+                  AND (?=0 OR EXISTS(
+                        SELECT 1
+                        FROM surface_mining_commodities own
+                        WHERE own.commander_id=?
+                          AND own.system_address=b.system_address
+                          AND own.body_id=b.body_id
+                  ))
+                  AND (?='' OR EXISTS(
+                        SELECT 1
+                        FROM surface_mining_commodities selected
+                        WHERE selected.commander_id=?
+                          AND selected.system_address=b.system_address
+                          AND selected.body_id=b.body_id
+                          AND selected.frontier_name=?
+                  ))
+                ORDER BY s.name COLLATE NOCASE, b.body_id
+                LIMIT 1000
+                """,
+                (
+                    commander_id, commander_id, commander_id,
+                    text, pattern, pattern, pattern,
+                    int(bool(planetary_mining_only)),
+                    minimum, minimum,
+                    int(bool(personally_mined_only)), commander_id,
+                    mining_commodity, commander_id, mining_commodity,
+                ),
+            ).fetchall()
+            body_keys = {(row[0], row[8]) for row in rows}
+            commodities = {}
+            if body_keys:
+                for item in con.execute(
+                    """SELECT system_address,body_id,frontier_name,display_name,quantity
+                       FROM surface_mining_commodities
+                       WHERE commander_id=?
+                       ORDER BY display_name COLLATE NOCASE,frontier_name COLLATE NOCASE""",
+                    (commander_id,),
+                ).fetchall():
+                    key = (item[0], item[1])
+                    if key not in body_keys:
+                        continue
+                    if mining_commodity and item[2] != mining_commodity:
+                        continue
+                    commodities.setdefault(key, []).append({
+                        "frontier_name": item[2],
+                        "display_name": item[3] or item[2],
+                        "quantity": int(item[4] or 0),
+                    })
+        return [{
+            "kind": "Körper",
+            "system_address": row[0],
+            "system_name": row[1],
+            "x": row[2], "y": row[3], "z": row[4],
+            "system_first_seen": row[5],
+            "system_last_seen": row[6],
+            "body_count": row[7],
+            "body_id": row[8],
+            "body_name": row[9],
+            "short_name": row[10],
+            "planetary_mining_signals": int(row[11] or 0),
+            "personally_mined": bool(row[12]),
+            "surface_mining_commodities": commodities.get((row[0], row[8]), []),
+            "match_name": f"ABBAU ×{int(row[11] or 0)}",
+            "detail": f"ABBAU ×{int(row[11] or 0)}",
+        } for row in rows]
+
+    def search_chronicle(
+        self,
+        query,
+        commander_id=None,
+        planetary_mining_only=False,
+        minimum_planetary_mining_signals=0,
+        personally_mined_only=False,
+        mining_commodity="",
+    ):
         text = str(query or "").strip()
-        if not text:
+        mining_filters = bool(
+            planetary_mining_only
+            or int(minimum_planetary_mining_signals or 0) > 0
+            or personally_mined_only
+            or str(mining_commodity or "").strip()
+        )
+        if not text and not mining_filters:
             return []
+
+        commander_id = self._require_commander_id(commander_id)
+        if mining_filters:
+            return self._search_chronicle_planetary_mining(
+                text,
+                commander_id,
+                planetary_mining_only=planetary_mining_only,
+                minimum_planetary_mining_signals=minimum_planetary_mining_signals,
+                personally_mined_only=personally_mined_only,
+                mining_commodity=mining_commodity,
+            )
 
         pattern = f"%{text}%"
         results = []
-        commander_id = self._require_commander_id(commander_id)
 
         with self._connect() as con:
             for row in con.execute(
@@ -7040,11 +7339,17 @@ class CMDRDatabase:
                     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                     ON CONFLICT(system_address, body_id)
                     DO UPDATE SET
-                        name=excluded.name,
-                        short_name=excluded.short_name,
-                        body_type=excluded.body_type,
-                        star_type=excluded.star_type,
-                        planet_class=excluded.planet_class,
+                        name=CASE WHEN excluded.name <> '' THEN excluded.name ELSE bodies.name END,
+                        short_name=CASE
+                            WHEN excluded.short_name = '' THEN bodies.short_name
+                            WHEN excluded.short_name = excluded.name
+                                 AND bodies.short_name <> ''
+                                 AND bodies.short_name <> bodies.name
+                            THEN bodies.short_name
+                            ELSE excluded.short_name END,
+                        body_type=CASE WHEN excluded.body_type <> '' THEN excluded.body_type ELSE bodies.body_type END,
+                        star_type=CASE WHEN excluded.star_type <> '' THEN excluded.star_type ELSE bodies.star_type END,
+                        planet_class=CASE WHEN excluded.planet_class <> '' THEN excluded.planet_class ELSE bodies.planet_class END,
                         parent_id=COALESCE(excluded.parent_id,bodies.parent_id),
                         parent_star_id=COALESCE(excluded.parent_star_id,bodies.parent_star_id),
                         mass_em=COALESCE(
@@ -7078,8 +7383,10 @@ class CMDRDatabase:
                             excluded.distance_ls,
                             bodies.distance_ls
                         ),
-                        landable=excluded.landable,
-                        terraformable=excluded.terraformable,
+                        landable=CASE WHEN excluded.body_type <> ''
+                            THEN excluded.landable ELSE bodies.landable END,
+                        terraformable=CASE WHEN excluded.body_type <> ''
+                            THEN excluded.terraformable ELSE bodies.terraformable END,
                         atmosphere=CASE
                             WHEN excluded.atmosphere <> ''
                             THEN excluded.atmosphere

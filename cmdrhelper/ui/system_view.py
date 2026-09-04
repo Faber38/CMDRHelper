@@ -897,6 +897,27 @@ class SystemMapWidget(QWidget):
                     int(cy)
                 )
 
+    def _body_name_layout(self, body, x, y, name, metrics):
+        """Return the fixed body label or a wider, bounded stellar label."""
+        if not body.get("star_type"):
+            return QRectF(x, y + 69, self.BODY_W, 20), name
+
+        padding = 12
+        map_left = float(self.MARGIN_X)
+        map_right = max(map_left + 1.0, float(self.width() - self.MARGIN_X))
+        available_width = map_right - map_left
+        wanted_width = max(
+            float(self.BODY_W),
+            float(ceil(metrics.horizontalAdvance(name) + padding)),
+        )
+        label_width = min(wanted_width, available_width)
+        center_x = float(x) + self.BODY_W / 2.0
+        label_x = center_x - label_width / 2.0
+        label_x = max(map_left, min(label_x, map_right - label_width))
+        text_width = max(1, int(label_width - padding))
+        visible_name = metrics.elidedText(name, Qt.ElideRight, text_width)
+        return QRectF(label_x, y + 69, label_width, 20), visible_name
+
     def _draw_body(
         self,
         painter,
@@ -1170,16 +1191,15 @@ class SystemMapWidget(QWidget):
             QColor("#f1f3f5")
         )
 
+        name_rect, visible_name = self._body_name_layout(
+            body, x, y, name, painter.fontMetrics()
+        )
+
         painter.drawText(
-            QRectF(
-                x,
-                y + 69,
-                self.BODY_W,
-                20
-            ),
+            name_rect,
             Qt.AlignHCenter
             | Qt.AlignTop,
-            name
+            visible_name
         )
 
         font.setBold(False)
