@@ -713,7 +713,12 @@ def _spawn(
     if os.name == "nt":
         kwargs["creationflags"] = (
             subprocess.CREATE_NEW_PROCESS_GROUP
+            | subprocess.DETACHED_PROCESS
         )
+        kwargs["stdin"] = subprocess.DEVNULL
+        kwargs["stdout"] = subprocess.DEVNULL
+        kwargs["stderr"] = subprocess.DEVNULL
+        kwargs["close_fds"] = True
     else:
         kwargs["start_new_session"] = True
 
@@ -987,12 +992,12 @@ def apply_update(
             install_dir,
             "CMDRHelper ist beendet."
         )
-    except Exception as exc:
+    except (Exception, KeyboardInterrupt) as exc:
         _log_update(
             install_dir,
             f"ABBRUCH beim Warten auf Elternprozess: {exc}"
         )
-        return 4
+        return 130 if isinstance(exc, KeyboardInterrupt) else 4
 
     backup_root = (
         install_dir
@@ -1024,6 +1029,7 @@ def apply_update(
 
     backup_created = False
     previous_manifest: set[str] = set()
+    installation_changes_started = False
     dependency_phase_started = False
     phase = "Vorbereitung"
 
@@ -1099,6 +1105,7 @@ def apply_update(
         # ergänzt bzw. überschrieben. Dadurch bleiben lokale Dateien,
         # die nicht Bestandteil des Release-ZIPs sind, erhalten.
         phase = "Programmdateien kopieren"
+        installation_changes_started = True
         _copy_release(
             release_root,
             install_dir,
@@ -1148,7 +1155,7 @@ def apply_update(
 
         return 0
 
-    except Exception as exc:
+    except (Exception, KeyboardInterrupt) as exc:
         _log_update(
             install_dir,
             (
@@ -1157,7 +1164,12 @@ def apply_update(
             )
         )
 
-        if backup_created:
+        interrupted_before_changes = (
+            isinstance(exc, KeyboardInterrupt)
+            and not installation_changes_started
+        )
+
+        if backup_created and not interrupted_before_changes:
             try:
                 _log_update(
                     install_dir,
@@ -1220,7 +1232,7 @@ def apply_update(
                 )
                 return 3
 
-        if not backup_created:
+        if not backup_created or interrupted_before_changes:
             _write_update_state(
                 install_dir, UPDATE_STATUS_RELATIVE,
                 {
