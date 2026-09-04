@@ -1516,7 +1516,7 @@ class MainWindow(QMainWindow):
         self.pages.addWidget(RoutePlannerView(self.state, self))
 
         self.screenshot_view = ScreenshotView(
-            self.state.settings,
+            self.state,
             self,
         )
         self.pages.addWidget(self.screenshot_view)

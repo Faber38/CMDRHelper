@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import logging
 import platform
+import re
+from datetime import datetime
 from pathlib import Path
 
 from PIL import Image, ImageEnhance
@@ -54,17 +56,37 @@ class _ConvertWorker(QRunnable):
             self.signals.finished.emit(str(self.source), str(self.target), False, str(exc))
 
 
+INVALID_FILENAME_CHARS = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
+WINDOWS_RESERVED_NAMES = {
+    "CON", "PRN", "AUX", "NUL",
+    *(f"COM{number}" for number in range(1, 10)),
+    *(f"LPT{number}" for number in range(1, 10)),
+}
+
+
+def safe_filename_component(value, fallback="UNKNOWN"):
+    text = INVALID_FILENAME_CHARS.sub("-", str(value or "").strip())
+    text = re.sub(r"\s+", "-", text).strip(" .-")
+    if not text:
+        text = fallback
+    if text.split(".", 1)[0].upper() in WINDOWS_RESERVED_NAMES:
+        text = f"_{text}"
+    return text[:120].rstrip(" .") or fallback
+
+
 class ScreenshotView(QWidget):
     """BMP-Konverter und Galerie für Elite-Dangerous-Screenshots."""
 
-    def __init__(self, settings, parent=None):
+    def __init__(self, state, parent=None):
         super().__init__(parent)
-        self.settings = settings
+        self.state = state
+        self.settings = state.settings
         self.pool = QThreadPool.globalInstance()
         self._known: set[str] = set()
         self._pending: dict[str, tuple[int, int]] = {}
         self._converting: set[str] = set()
         self._workers: set[_ConvertWorker] = set()
+        self._reserved_targets: set[Path] = set()
         self._gallery_state = None
         self._loading_settings = False
 
@@ -87,6 +109,10 @@ class ScreenshotView(QWidget):
         self.gallery_timer.setInterval(2000)
         self.gallery_timer.timeout.connect(self._check_gallery_changes)
         self.gallery_timer.start()
+        if hasattr(self.state, "viewedCommanderChanged"):
+            self.state.viewedCommanderChanged.connect(
+                self._viewed_commander_changed
+            )
 
     def _build_ui(self):
         root = QVBoxLayout(self)
@@ -219,6 +245,12 @@ class ScreenshotView(QWidget):
         gallery_layout = QVBoxLayout(gallery_card)
         gallery_layout.setContentsMargins(10, 8, 10, 8)
         top = QHBoxLayout(); top.addWidget(QLabel(tr("images.gallery"), objectName="sectionTitle")); top.addStretch()
+        self.gallery_filter = QComboBox()
+        self.gallery_filter.addItem(tr("images.filter_current"), "current")
+        self.gallery_filter.addItem(tr("images.filter_all"), "all")
+        self.gallery_filter.addItem(tr("images.filter_unassigned"), "unassigned")
+        self.gallery_filter.currentIndexChanged.connect(self._refresh_gallery)
+        top.addWidget(self.gallery_filter)
         self.delete_selected_button = QPushButton(tr("images.delete_selected"))
         self.delete_selected_button.clicked.connect(self._delete_selected_images)
         top.addWidget(self.delete_selected_button)
@@ -503,16 +535,131 @@ class ScreenshotView(QWidget):
             if count >= 2:
                 self._known.add(key); self._pending.pop(key, None); self._queue(p)
 
-    def _output_path(self, source: Path):
+    def _identity_snapshot(self):
+        return {
+            "fid": str(getattr(self.state, "commander_fid", "") or "").strip(),
+            "commander": str(getattr(self.state, "commander", "") or "").strip(),
+            "system": str(getattr(self.state, "system", "") or "").strip(),
+        }
+
+    @staticmethod
+    def _folder_name(commander, fid):
+        return (
+            f"{safe_filename_component(commander)}_"
+            f"{safe_filename_component(fid)}"
+        )
+
+    def _known_commanders(self):
+        try:
+            return list(self.state.database.list_commanders())
+        except Exception:
+            return []
+
+    def _commander_for_id(self, commander_id):
+        try:
+            wanted = int(commander_id)
+        except (TypeError, ValueError):
+            return None
+        return next(
+            (item for item in self._known_commanders()
+             if int(item.get("id")) == wanted),
+            None,
+        )
+
+    def _folder_for_identity(self, commander, fid, *, existing=True):
+        target = self._target()
+        if target is None:
+            return None
+        safe_fid = safe_filename_component(fid)
+        if existing and target.is_dir():
+            suffix = f"_{safe_fid}".casefold()
+            candidates = [
+                path for path in target.iterdir()
+                if path.is_dir() and not path.is_symlink()
+                and path.name.casefold().endswith(suffix)
+            ]
+            if candidates:
+                return sorted(candidates, key=lambda path: path.name.casefold())[0]
+        desired = target / self._folder_name(commander, fid)
+        if desired.is_symlink() or (desired.exists() and not desired.is_dir()):
+            return None
+        return desired
+
+    def _viewed_commander_folder(self, *, existing=True):
+        item = self._commander_for_id(
+            getattr(self.state, "viewed_commander_id", None)
+        )
+        if item is None:
+            return self._folder_for_identity("", "", existing=existing)
+        return self._folder_for_identity(
+            item.get("current_name") or "", item.get("fid") or "",
+            existing=existing,
+        )
+
+    def _valid_commander_folders(self):
+        target = self._target()
+        if target is None or not target.is_dir():
+            return []
+        suffixes = {
+            f"_{safe_filename_component(item.get('fid'))}".casefold()
+            for item in self._known_commanders()
+        }
+        suffixes.add("_unknown")
+        return sorted(
+            (
+                path for path in target.iterdir()
+                if path.is_dir() and not path.is_symlink()
+                and any(path.name.casefold().endswith(suffix) for suffix in suffixes)
+            ),
+            key=lambda path: path.name.casefold(),
+        )
+
+    def _gallery_directories(self):
+        target = self._target()
+        if target is None or not target.is_dir():
+            return []
+        mode = str(self.gallery_filter.currentData() or "current")
+        if mode == "unassigned":
+            return [target]
+        if mode == "all":
+            return self._valid_commander_folders()
+        folder = self._viewed_commander_folder(existing=True)
+        return [folder] if folder is not None and folder.is_dir() else []
+
+    def _output_path(self, source: Path, identity=None):
         target = self._target()
         if not target:
             return None
+        identity = dict(identity or self._identity_snapshot())
+        folder = self._folder_for_identity(
+            identity.get("commander"), identity.get("fid"), existing=True
+        )
+        if folder is None:
+            return None
+        try:
+            timestamp = datetime.fromtimestamp(source.stat().st_mtime)
+        except OSError:
+            timestamp = datetime.now()
+        parts = [
+            timestamp.strftime("%Y-%m-%d_%H-%M-%S"),
+            safe_filename_component(identity.get("commander")),
+        ]
+        system = str(identity.get("system") or "").strip()
+        if system:
+            parts.append(safe_filename_component(system))
         suffix = ".jpg" if self.format_combo.currentText() == "JPG" else ".png"
-        return target / f"{source.stem}{suffix}"
+        base = "_".join(parts)
+        candidate = folder / f"{base}{suffix}"
+        number = 2
+        while candidate.exists() or candidate in self._reserved_targets:
+            candidate = folder / f"{base}_{number}{suffix}"
+            number += 1
+        return candidate
 
     def _queue(self, source: Path):
-        target = self._output_path(source)
-        if not target or target.exists():
+        identity = self._identity_snapshot()
+        target = self._output_path(source, identity)
+        if not target:
             return
         key = str(source.resolve())
         if key in self._converting:
@@ -525,12 +672,14 @@ class ScreenshotView(QWidget):
             self.brightness_slider.value(),
         )
         worker.signals.finished.connect(self._converted)
+        self._reserved_targets.add(target)
         self._workers.add(worker); self._converting.add(key)
         self.last_action.setText(tr("images.converting", name=source.name))
         self.pool.start(worker)
 
     def _converted(self, source_text, target_text, ok, error):
         source, target = Path(source_text), Path(target_text)
+        self._reserved_targets.discard(target)
         try:
             self._converting.discard(str(source.resolve()))
         except Exception:
@@ -571,19 +720,17 @@ class ScreenshotView(QWidget):
         entries = []
 
         try:
-            for path in target.iterdir():
-                if (
-                    path.is_file()
-                    and path.suffix.lower() in (".png", ".jpg", ".jpeg")
-                ):
-                    stat = path.stat()
-                    entries.append(
-                        (
-                            path.name,
-                            int(stat.st_mtime_ns),
-                            int(stat.st_size),
-                        )
-                    )
+            for directory in self._gallery_directories():
+                for path in directory.iterdir():
+                    if (
+                        path.is_file() and not path.is_symlink()
+                        and path.suffix.lower() in (".png", ".jpg", ".jpeg")
+                    ):
+                        stat = path.stat()
+                        entries.append((
+                            str(path.relative_to(target)),
+                            int(stat.st_mtime_ns), int(stat.st_size),
+                        ))
         except OSError:
             return ()
 
@@ -606,7 +753,12 @@ class ScreenshotView(QWidget):
             self.preview.setText(tr("images.click_to_preview"))
             self.preview_name.clear()
             return
-        files = [p for p in target.iterdir() if p.is_file() and p.suffix.lower() in (".png", ".jpg", ".jpeg")]
+        files = [
+            path for directory in self._gallery_directories()
+            for path in directory.iterdir()
+            if path.is_file() and not path.is_symlink()
+            and path.suffix.lower() in (".png", ".jpg", ".jpeg")
+        ]
         files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
         selected = None
         for p in files:
@@ -654,16 +806,7 @@ class ScreenshotView(QWidget):
 
             path = Path(path_text)
 
-            # Nur Dateien aus dem aktuell eingestellten Zielordner zulassen.
-            target = self._target()
-
-            try:
-                if (
-                    target is None
-                    or path.parent.resolve() != target.resolve()
-                ):
-                    continue
-            except Exception:
+            if not self._is_allowed_gallery_path(path):
                 continue
 
             paths.append(path)
@@ -737,4 +880,37 @@ class ScreenshotView(QWidget):
         target = self._target()
         if target:
             target.mkdir(parents=True, exist_ok=True)
-            QDesktopServices.openUrl(QUrl.fromLocalFile(str(target)))
+            folder = target
+            if str(self.gallery_filter.currentData() or "current") == "current":
+                current = self._viewed_commander_folder(existing=True)
+                if current is not None and current.is_dir():
+                    folder = current
+            QDesktopServices.openUrl(QUrl.fromLocalFile(str(folder)))
+
+    def _viewed_commander_changed(self, *_args):
+        if str(self.gallery_filter.currentData() or "current") == "current":
+            self._refresh_gallery()
+
+    def _is_allowed_gallery_path(self, path):
+        target = self._target()
+        path = Path(path)
+        if target is None or path.is_symlink():
+            return False
+        try:
+            root = target.resolve(strict=True)
+            resolved = path.resolve(strict=True)
+            resolved.relative_to(root)
+        except (OSError, ValueError):
+            return False
+        allowed = set()
+        for directory in self._gallery_directories():
+            try:
+                if not directory.is_symlink():
+                    allowed.add(directory.resolve(strict=True))
+            except OSError:
+                continue
+        return (
+            resolved.parent in allowed
+            and resolved.is_file()
+            and resolved.suffix.lower() in (".png", ".jpg", ".jpeg")
+        )
