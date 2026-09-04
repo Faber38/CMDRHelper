@@ -245,6 +245,13 @@ class AppState(QObject):
                             progress_callback=mining_progress if mining_total else None,
                         )
                         completed += commander_total
+                for commander_id in commander_ids:
+                    if self.database.commander_state_repair_needed(
+                        commander_id, "mercenary_credits"
+                    ):
+                        self.database.backfill_mercenary_credits(
+                            commander_id, sessions
+                        )
                 self.journalIndexReady.emit(sessions)
             except Exception as exc:
                 logger.exception("Initialer Journalindex fehlgeschlagen")

@@ -112,6 +112,25 @@ class CommanderView(QWidget):
             self.values[field] = value
             form.addRow(label, value)
         layout.addWidget(card)
+        mercenary_card = QFrame(objectName="card")
+        mercenary_form = QFormLayout(mercenary_card)
+        mercenary_form.addRow(
+            QLabel(tr("commander_view.mercenary.title"), objectName="sectionTitle")
+        )
+        self.mercenary_values = {}
+        for field, label in (
+            ("current", tr("commander_view.mercenary.current")),
+            ("total_spent", tr("commander_view.mercenary.total_spent")),
+            ("spent_on_engineering", tr("commander_view.mercenary.engineering")),
+            ("spent_on_gear", tr("commander_view.mercenary.gear")),
+            ("total_earned", tr("commander_view.mercenary.total_earned")),
+        ):
+            value = QLabel("–")
+            if field == "total_earned":
+                value.setToolTip(tr("commander_view.mercenary.total_earned_tooltip"))
+            self.mercenary_values[field] = value
+            mercenary_form.addRow(label, value)
+        layout.addWidget(mercenary_card)
         layout.addStretch()
         return tab
 
@@ -344,6 +363,8 @@ class CommanderView(QWidget):
             self.status_label.setObjectName("muted")
             for value in self.values.values():
                 value.setText("–")
+            for value in self.mercenary_values.values():
+                value.setText("–")
             self._refresh_missions(None)
             self._refresh_ship(None)
             for value in self.exploration_values.values():
@@ -382,6 +403,10 @@ class CommanderView(QWidget):
         self.values["wealth"].setText(
             self._credits(wealth.get("credits")) if wealth else "–"
         )
+        mercenary = summary.get("mercenary_credits") or {}
+        for field, value in self.mercenary_values.items():
+            amount = mercenary.get(field)
+            value.setText(self._number(amount) if amount is not None else "–")
         bio_text = self._unsold_bio_text(summary["unsold_biology"])
         cartography_text = self._unsold_cartography_text(summary["unsold_cartography"])
         self.values["unsold_biology"].setText(bio_text)
@@ -404,6 +429,10 @@ class CommanderView(QWidget):
     @staticmethod
     def _credits(value):
         return f"{int(value):,} Cr".replace(",", ".")
+
+    @staticmethod
+    def _number(value):
+        return f"{int(value):,}".replace(",", ".")
 
     def _unsold_bio_text(self, data):
         count = int(data.get("findings") or 0)

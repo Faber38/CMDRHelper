@@ -47,7 +47,7 @@ class SurfaceMiningHistoryTests(unittest.TestCase):
         )
 
     def test_schema_and_real_56_copper_cycle_with_byproducts(self):
-        self.assertEqual(SCHEMA_VERSION, 14)
+        self.assertEqual(SCHEMA_VERSION, 15)
         counts = {
             "sulphur": 7, "iron": 6, "phosphorus": 6, "niobium": 3,
             "nickel": 3, "tungsten": 3, "vanadium": 2, "selenium": 1,

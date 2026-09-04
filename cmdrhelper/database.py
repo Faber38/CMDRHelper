@@ -13,13 +13,14 @@ from cmdrhelper.ship_identity import is_definite_non_ship
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 14
+SCHEMA_VERSION = 15
 
 COMMANDER_STATE_REPAIR_REVISIONS = {
     "unsold": 2,
     "missions": 1,
     "surface_mining": 1,
     "position_gap": 1,
+    "mercenary_credits": 1,
 }
 
 PERSONAL_TABLES = (
@@ -394,7 +395,28 @@ class CMDRDatabase:
         self._maybe_migrate_v12()
         self._maybe_migrate_v13()
         self._maybe_migrate_v14()
+        self._maybe_migrate_v15()
         self.cleanup_non_ship_fleet_rows()
+
+    def _maybe_migrate_v15(self):
+        with self._connect() as con:
+            if int(con.execute("PRAGMA user_version").fetchone()[0]) >= 15:
+                return
+            con.executescript("""
+                CREATE TABLE IF NOT EXISTS commander_mercenary_credits (
+                    commander_id INTEGER PRIMARY KEY,
+                    current INTEGER,
+                    total_earned INTEGER,
+                    total_spent INTEGER,
+                    spent_on_gear INTEGER,
+                    spent_on_engineering INTEGER,
+                    event_timestamp TEXT NOT NULL DEFAULT '',
+                    source_event TEXT NOT NULL DEFAULT 'Statistics',
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id)
+                        ON DELETE CASCADE
+                );
+                PRAGMA user_version=15;
+            """)
 
     def _maybe_migrate_v14(self):
         with self._connect() as con:
@@ -1262,6 +1284,12 @@ class CMDRDatabase:
                 "SELECT credits,event_timestamp,source_event FROM commander_wealth WHERE commander_id=?",
                 (commander_id,),
             ).fetchone()
+            mercenary_credits = con.execute(
+                """SELECT current,total_earned,total_spent,spent_on_gear,
+                          spent_on_engineering,event_timestamp,source_event
+                   FROM commander_mercenary_credits WHERE commander_id=?""",
+                (commander_id,),
+            ).fetchone()
             unsold_bio = con.execute(
                 """SELECT COUNT(*),SUM(estimated_base_value),
                           SUM(CASE WHEN estimated_base_value IS NULL THEN 1 ELSE 0 END)
@@ -1324,6 +1352,15 @@ class CMDRDatabase:
                 "credits": int(wealth[0]), "event_timestamp": wealth[1] or "",
                 "source_event": wealth[2] or "",
             },
+            "mercenary_credits": None if mercenary_credits is None else {
+                "current": mercenary_credits[0],
+                "total_earned": mercenary_credits[1],
+                "total_spent": mercenary_credits[2],
+                "spent_on_gear": mercenary_credits[3],
+                "spent_on_engineering": mercenary_credits[4],
+                "event_timestamp": mercenary_credits[5] or "",
+                "source_event": mercenary_credits[6] or "",
+            },
             "unsold_biology": {
                 "findings": int(unsold_bio[0] or 0),
                 "estimated_value": int(unsold_bio[1] or 0),
@@ -1358,6 +1395,46 @@ class CMDRDatabase:
             """, (int(commander_id), int(wealth["credits"]),
                     str(wealth.get("event_timestamp") or ""),
                     str(wealth.get("source_event") or "")))
+
+    def store_commander_mercenary_credits(self, commander_id, snapshot, _con=None):
+        """Speichert Frontiers unabhängige MercCoins-Zähler ohne Bilanzbildung."""
+        if not isinstance(snapshot, dict):
+            return False
+        fields = (
+            "current", "total_earned", "total_spent",
+            "spent_on_gear", "spent_on_engineering",
+        )
+        values = {
+            key: value for key in fields
+            if isinstance((value := snapshot.get(key)), int) and value >= 0
+        }
+        timestamp = str(snapshot.get("event_timestamp") or "")
+        if not values or not timestamp:
+            return False
+        with (nullcontext(_con) if _con is not None else self._connect()) as con:
+            existing = con.execute(
+                "SELECT event_timestamp FROM commander_mercenary_credits WHERE commander_id=?",
+                (int(commander_id),),
+            ).fetchone()
+            if existing is not None and str(existing[0] or "") > timestamp:
+                return False
+            row = [values.get(key) for key in fields]
+            con.execute("""
+                INSERT INTO commander_mercenary_credits(
+                    commander_id,current,total_earned,total_spent,spent_on_gear,
+                    spent_on_engineering,event_timestamp,source_event)
+                VALUES(?,?,?,?,?,?,?,?)
+                ON CONFLICT(commander_id) DO UPDATE SET
+                    current=COALESCE(excluded.current,commander_mercenary_credits.current),
+                    total_earned=COALESCE(excluded.total_earned,commander_mercenary_credits.total_earned),
+                    total_spent=COALESCE(excluded.total_spent,commander_mercenary_credits.total_spent),
+                    spent_on_gear=COALESCE(excluded.spent_on_gear,commander_mercenary_credits.spent_on_gear),
+                    spent_on_engineering=COALESCE(excluded.spent_on_engineering,commander_mercenary_credits.spent_on_engineering),
+                    event_timestamp=excluded.event_timestamp,
+                    source_event=excluded.source_event
+            """, (int(commander_id), *row, timestamp,
+                    str(snapshot.get("source_event") or "Statistics")))
+        return True
 
     def store_commander_unsold_data(self, commander_id, biology, cartography,
                                     learned_bio_values=None,
@@ -1598,9 +1675,15 @@ class CMDRDatabase:
 
         with self._connect() as con:
             old_offset_row = con.execute(
-                "SELECT last_read_offset FROM journal_sessions WHERE journal_file=?",
+                """SELECT last_read_offset,commander_id,attribution_status
+                   FROM journal_sessions WHERE journal_file=?""",
                 (str(journal_file),),
             ).fetchone()
+            session_identified = bool(
+                old_offset_row is not None
+                and old_offset_row[2] == "identified"
+                and old_offset_row[1] == commander_id
+            )
             if old_offset_row is not None and int(safe_offset) <= int(old_offset_row[0] or 0):
                 return
             context_row = con.execute(
@@ -1707,6 +1790,25 @@ class CMDRDatabase:
                         loadout.ship_ident = str(event.get("ShipIdent") or "") or loadout.ship_ident
                         self.store_commander_ship(commander_id, loadout, ts,
                             location=location, _con=con)
+
+                elif et == "Statistics" and session_identified:
+                    bank = event.get("Bank_Account")
+                    if isinstance(bank, dict):
+                        mapping = {
+                            "current": "MercCoins_Current",
+                            "total_earned": "MercCoins_Total_Earned",
+                            "total_spent": "MercCoins_Total_Spent",
+                            "spent_on_gear": "MercCoins_Spent_On_MercGear",
+                            "spent_on_engineering": "MercCoins_Spent_On_Engineering",
+                        }
+                        snapshot = {
+                            key: bank[source] for key, source in mapping.items()
+                            if source in bank
+                        }
+                        snapshot.update(event_timestamp=ts, source_event="Statistics")
+                        self.store_commander_mercenary_credits(
+                            commander_id, snapshot, _con=con
+                        )
 
                 elif et == "Loadout":
                     loadout = _loadout_from_event(event, loadout)
@@ -2184,6 +2286,78 @@ class CMDRDatabase:
                 (commander_id, revision, now),
             )
         return {"skipped": False, "journals": total, "events": recorded}
+
+    def backfill_mercenary_credits(self, commander_id, sessions=None) -> dict:
+        """Rekonstruiert MercCoins-Snapshots, ohne Journaloffsets zu verändern."""
+        commander_id = int(commander_id)
+        revision = COMMANDER_STATE_REPAIR_REVISIONS["mercenary_credits"]
+        if not self.commander_state_repair_needed(
+            commander_id, "mercenary_credits", revision
+        ):
+            return {"skipped": True, "journals": 0, "events": 0}
+        allowed = None if sessions is None else {
+            str(item.get("journal_file") or "")
+            for item in sessions
+            if item.get("attribution_status") == "identified"
+            and item.get("commander_id") == commander_id
+        }
+        with self._connect() as con:
+            rows = con.execute(
+                """SELECT journal_file,last_complete_line_offset,file_size
+                   FROM journal_sessions
+                   WHERE commander_id=? AND attribution_status='identified'
+                   ORDER BY COALESCE(first_event_at,''),journal_file""",
+                (commander_id,),
+            ).fetchall()
+        rows = [row for row in rows if allowed is None or str(row[0]) in allowed]
+        mapping = {
+            "current": "MercCoins_Current",
+            "total_earned": "MercCoins_Total_Earned",
+            "total_spent": "MercCoins_Total_Spent",
+            "spent_on_gear": "MercCoins_Spent_On_MercGear",
+            "spent_on_engineering": "MercCoins_Spent_On_Engineering",
+        }
+        snapshots = []
+        for journal_file, complete_offset, file_size in rows:
+            path = Path(journal_file)
+            if not path.is_file():
+                continue
+            limit = int(complete_offset or file_size or 0)
+            with path.open("rb") as handle:
+                raw = handle.read(limit) if limit > 0 else handle.read()
+            for raw_line in raw.splitlines():
+                try:
+                    event = json.loads(raw_line)
+                except (UnicodeDecodeError, json.JSONDecodeError):
+                    continue
+                bank = event.get("Bank_Account") if event.get("event") == "Statistics" else None
+                if not isinstance(bank, dict):
+                    continue
+                snapshot = {
+                    key: bank[source] for key, source in mapping.items()
+                    if source in bank
+                }
+                if snapshot:
+                    snapshot.update(event_timestamp=str(event.get("timestamp") or ""),
+                                    source_event="Statistics")
+                    snapshots.append(snapshot)
+        now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        stored = 0
+        with self._connect() as con:
+            if not self.commander_state_repair_needed(
+                commander_id, "mercenary_credits", revision
+            ):
+                return {"skipped": True, "journals": 0, "events": 0}
+            for snapshot in sorted(snapshots, key=lambda item: item["event_timestamp"]):
+                stored += bool(self.store_commander_mercenary_credits(
+                    commander_id, snapshot, _con=con
+                ))
+            con.execute("""INSERT INTO commander_state_repairs(
+                commander_id,feature,revision,repaired_at) VALUES(?,?,?,?)
+                ON CONFLICT(commander_id,feature) DO UPDATE SET
+                    revision=excluded.revision,repaired_at=excluded.repaired_at""",
+                (commander_id, "mercenary_credits", revision, now))
+        return {"skipped": False, "journals": len(rows), "events": stored}
 
     def repair_commander_state(self, folder, sessions, commander_id,
                                features=("unsold", "missions")) -> dict:

@@ -154,6 +154,24 @@ class CommanderSelectionTests(unittest.TestCase):
         view = CommanderView(self.state)
         self.assertEqual(view.values["last_location"].text(), "–")
 
+    def test_mercenary_credits_are_scoped_and_show_frontier_tooltip(self):
+        self.database.store_commander_mercenary_credits(self.a, {
+            "current": 1275, "total_earned": 25, "total_spent": 220,
+            "spent_on_gear": 0, "spent_on_engineering": 220,
+            "event_timestamp": "2026-09-04T11:25:39Z",
+        })
+        self.database.store_commander_mercenary_credits(self.b, {
+            "current": 9, "event_timestamp": "2026-09-04T11:25:40Z",
+        })
+        self.state.commander_id = self.a
+        view = CommanderView(self.state)
+        self.assertEqual(view.mercenary_values["current"].text(), "1.275")
+        self.assertEqual(view.mercenary_values["spent_on_gear"].text(), "0")
+        self.assertTrue(view.mercenary_values["total_earned"].toolTip())
+        self.state.select_viewed_commander(self.b)
+        self.assertEqual(view.mercenary_values["current"].text(), "9")
+        self.assertEqual(view.mercenary_values["total_spent"].text(), "–")
+
     def test_navigation_keeps_existing_pages_and_appends_commander_view(self):
         self.assertEqual(
             (
