@@ -774,4 +774,8 @@ TRANSLATIONS = {
     'bio_prediction.progress': '{identified}/{total} identificati · {completed} completi',
     'bio_prediction.tooltip': '{count} ritrovamenti storici',
     'bio_prediction.estimated_value': 'ca. {value}',
+    'explorer.own_mining_findings': 'Ritrovamenti minerari propri: {findings}',
+    'body_detail.own_mining_findings': 'RITROVAMENTI MINERARI PROPRI',
+    'body_detail.mining_byproducts': 'Materiali secondari raccolti durante l’estrazione',
+    'body_detail.no_own_mining_findings': 'Nessun ritrovamento minerario proprio',
 }

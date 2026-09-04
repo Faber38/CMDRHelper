@@ -225,6 +225,49 @@ class AppState(QObject):
                     self.database, folder,
                     progress_callback=progress if visible else None,
                 )
+                commander_ids = sorted({
+                    int(item["commander_id"])
+                    for item in sessions
+                    if item.get("attribution_status") == "identified"
+                    and item.get("commander_id") is not None
+                })
+                pending_mining = [
+                    commander_id for commander_id in commander_ids
+                    if self.database.commander_state_repair_needed(
+                        commander_id, "surface_mining"
+                    )
+                ]
+                if pending_mining:
+                    mining_total = sum(
+                        1 for item in sessions
+                        if item.get("attribution_status") == "identified"
+                        and item.get("commander_id") in pending_mining
+                        and int(item.get("last_read_offset") or 0) > 0
+                    )
+                    if mining_total:
+                        visible = True
+                        self._initialization_visible = True
+                        self.initializationStarted.emit(True, mining_total)
+                    completed = 0
+                    for commander_id in pending_mining:
+                        commander_total = sum(
+                            1 for item in sessions
+                            if item.get("attribution_status") == "identified"
+                            and item.get("commander_id") == commander_id
+                            and int(item.get("last_read_offset") or 0) > 0
+                        )
+
+                        def mining_progress(current, _count, name, base=completed):
+                            self.initializationProgress.emit(
+                                base + int(current), mining_total,
+                                "startup.phase.history", str(name),
+                            )
+
+                        self.database.backfill_surface_mining(
+                            commander_id, sessions,
+                            progress_callback=mining_progress if mining_total else None,
+                        )
+                        completed += commander_total
                 self.journalIndexReady.emit(sessions)
             except Exception as exc:
                 logger.exception("Initialer Journalindex fehlgeschlagen")

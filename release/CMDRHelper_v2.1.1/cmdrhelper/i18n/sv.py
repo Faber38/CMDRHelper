@@ -774,4 +774,8 @@ TRANSLATIONS = {
     'bio_prediction.progress': '{identified}/{total} identifierade · {completed} fullständiga',
     'bio_prediction.tooltip': '{count} historiska fynd',
     'bio_prediction.estimated_value': 'ca {value}',
+    'explorer.own_mining_findings': 'Egna gruvfynd: {findings}',
+    'body_detail.own_mining_findings': 'EGNA GRUVFYND',
+    'body_detail.mining_byproducts': 'Bimaterial insamlade under gruvdrift',
+    'body_detail.no_own_mining_findings': 'Inga egna gruvfynd ännu',
 }

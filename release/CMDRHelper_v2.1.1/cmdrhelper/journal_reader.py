@@ -1734,7 +1734,15 @@ def read_latest_state(
 
                         scans_by_address[address][body_id_int] = body
 
-                        if not (body.get("star_type") or "belt cluster" in body_name.lower()):
+                        # NavBeaconDetail gibt bekannte Körperdaten nach einem
+                        # Nav-Beacon-Scan erneut aus. Das ist kein Beleg für neu
+                        # entstandene, bei Universal Cartographics verkaufbare
+                        # Daten.
+                        if not (
+                            body.get("star_type")
+                            or "belt cluster" in body_name.lower()
+                            or str(e.get("ScanType") or "") == "NavBeaconDetail"
+                        ):
                             unsold_cartography[(address, body_id_int)] = {
                                 "system_address": int(address), "body_id": body_id_int,
                                 "system_name": current_system,
@@ -1975,16 +1983,11 @@ def read_latest_state(
                 # Verkauf setzt nur den jeweils passenden offenen Topf zurück.
                 # ---------------------------------------------------------
                 elif et in ("SellExplorationData", "MultiSellExplorationData"):
-                    sold_names = _sold_system_names(e)
-                    if sold_names:
-                        for key, entry in list(unsold_cartography.items()):
-                            if str(entry.get("system_name") or "").strip().casefold() in sold_names:
-                                unsold_cartography.pop(key, None)
-                    else:
-                        # Frontier liefert bei manchen Verkäufen keine
-                        # Einzelliste; das Ereignis bestätigt dann den Verkauf
-                        # des gesamten aktuell offenen UC-Batches.
-                        unsold_cartography.clear()
+                    # Systems/Discovered sind keine vollständige Aufzählung
+                    # der verkauften Daten. Das Verkaufsereignis ist deshalb
+                    # die autoritative Watermark für den gesamten bis hierhin
+                    # rekonstruierten offenen UC-Bestand.
+                    unsold_cartography.clear()
 
                 elif et == "SellOrganicData":
                     sold_names = _sold_bio_names(e)

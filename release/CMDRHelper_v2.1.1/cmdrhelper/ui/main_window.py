@@ -1723,7 +1723,7 @@ class MainWindow(QMainWindow):
                 f'<span style="font-size:11px;">{text}</span>'
             )
             item.setTextFormat(Qt.RichText)
-            item.setWordWrap(False)
+            item.setWordWrap(True)
 
             if str(text).startswith(tr("explorer.gold_frame_prefix")):
                 self.gold_frame_legend_label = item
@@ -1943,38 +1943,17 @@ class MainWindow(QMainWindow):
             return ""
 
         lines = [tr("explorer.planetary_mining_count", count=count)]
-        materials = body.get("materials") or {}
-        if isinstance(materials, dict):
-            entries = materials.items()
-        elif isinstance(materials, list):
-            entries = (
-                (
-                    item.get("Name") or item.get("Name_Localised") or item.get("name"),
-                    item.get("Percent") if item.get("Percent") is not None
-                    else item.get("percentage"),
-                )
-                for item in materials if isinstance(item, dict)
-            )
-        else:
-            entries = ()
-
-        normalized = []
-        for name, amount in entries:
-            try:
-                normalized.append((BodyDetailWindow._material_name(name), float(amount)))
-            except (TypeError, ValueError):
-                continue
-        normalized.sort(key=lambda item: item[1], reverse=True)
-        if normalized:
-            values = []
-            for name, amount in normalized:
-                amount_text = f"{amount:.1f}"
-                if get_language() in {"de", "fr", "it", "no", "sv", "fi", "pl", "nl", "es", "tr", "el"}:
-                    amount_text = amount_text.replace(".", ",")
-                values.append(f"{name} {amount_text} %")
-            lines.append(tr("explorer.surface_materials", materials=", ".join(values)))
-        else:
-            lines.append(tr("explorer.surface_materials_missing"))
+        findings = body.get("surface_mining_commodities") or []
+        values = [
+            f"{item.get('display_name') or item.get('frontier_name')} "
+            f"{int(item.get('quantity') or 0)} t"
+            for item in findings if int(item.get("quantity") or 0) > 0
+        ]
+        if values:
+            compact = ", ".join(values[:3])
+            if len(values) > 3:
+                compact += " …"
+            lines.append(tr("explorer.own_mining_findings", findings=compact))
         return "\n".join(lines)
 
     @staticmethod

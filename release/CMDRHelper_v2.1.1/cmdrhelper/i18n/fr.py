@@ -774,4 +774,8 @@ TRANSLATIONS = {
     'bio_prediction.progress': '{identified}/{total} identifiés · {completed} complets',
     'bio_prediction.tooltip': '{count} découvertes historiques',
     'bio_prediction.estimated_value': 'env. {value}',
+    'explorer.own_mining_findings': 'Trouvailles minières personnelles : {findings}',
+    'body_detail.own_mining_findings': 'TROUVAILLES MINIÈRES PERSONNELLES',
+    'body_detail.mining_byproducts': 'Matériaux secondaires collectés pendant l’extraction',
+    'body_detail.no_own_mining_findings': 'Pas encore de trouvailles minières personnelles',
 }
