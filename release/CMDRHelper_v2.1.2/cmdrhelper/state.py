@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import logging
+import json
 import sqlite3
 import threading
 from datetime import datetime, timezone
@@ -26,6 +27,7 @@ from cmdrhelper.online_services import (
 )
 from cmdrhelper.database import CMDRDatabase
 from cmdrhelper.edsm_uploader import EDSMJournalUploader
+from cmdrhelper.inara_uploader import BATCH_SIZE as INARA_BATCH_SIZE, upload_batch
 from cmdrhelper.bio_valuation import biology_totals
 from cmdrhelper.route_planner.models import GuardianFsdBooster, ShipLoadoutData
 
@@ -119,22 +121,14 @@ class AppState(QObject):
             else "Warte auf Übertragung"
         )
 
-        self.inara_commander = self.settings.value(
-            "inara/commander",
-            ""
-        ) or ""
-        self.inara_api_key = self.settings.value(
-            "inara/api_key",
-            ""
-        ) or ""
-        self.inara_enabled = (
-            str(
-                self.settings.value(
-                    "inara/enabled",
-                    "false"
-                )
-            ).lower()
-            in ("1", "true", "yes", "on")
+        self.inara_commander = ""
+        self.inara_api_key = ""
+        self.inara_enabled = False
+        self._inara_upload_running = False
+        self._inara_upload_token = None
+        self.inara_upload_status = "waiting" if self.inara_enabled else "disabled"
+        self.inara_upload_message = (
+            "Warte auf Inara-Übertragung" if self.inara_enabled else "Inara deaktiviert"
         )
 
         self.system_bodies = []
@@ -285,6 +279,7 @@ class AppState(QObject):
             if self._journal_index_sessions else None
         )
         active_session = self._prepare_indexed_live_state(emit_identity=True)
+        self._repair_latest_position_gap(active_session)
         # Indexzahl, Identität und persistenter Zustand sind bereits sicher
         # bekannt und sollen auch bei einem nachfolgenden Deltafehler sichtbar
         # bleiben.
@@ -315,6 +310,35 @@ class AppState(QObject):
             return
         self.watcher.start()
         self.import_journal_archive(automatic=True)
+
+    def _repair_latest_position_gap(self, session):
+        if not session or session.get("commander_id") is None:
+            return False
+        commander_id = int(session["commander_id"])
+        if not self.database.commander_state_repair_needed(
+            commander_id, "position_gap"
+        ):
+            return False
+        path = Path(session["journal_file"])
+        limit = int(session.get("last_read_offset") or 0)
+        latest = None
+        try:
+            with path.open("rb") as handle:
+                raw = handle.read(limit)
+            for line in raw.splitlines():
+                try:
+                    event = json.loads(line)
+                except (UnicodeDecodeError, json.JSONDecodeError):
+                    continue
+                if event.get("event") in ("Location", "FSDJump", "CarrierJump", "Docked"):
+                    latest = event
+        except OSError as exc:
+            logger.warning("Positionsreparatur konnte Journal nicht lesen: %s", exc)
+            return False
+        return self.database.repair_commander_position_gap(
+            commander_id, path, latest or {},
+            enqueue_inara=self._inara_identity_matches(commander_id),
+        )
 
     def database_stats(self):
         try:
@@ -586,27 +610,153 @@ class AppState(QObject):
         commander=None,
         api_key=None,
         enabled=None,
+        fid=None,
     ):
+        fid = str(fid or self.commander_fid or "").strip()
+        if not fid:
+            raise ValueError("Inara-Einstellungen benötigen eine eindeutige FID")
+        prefix = f"inara/commanders/{fid}"
         if commander is not None:
-            self.inara_commander = commander.strip()
-            self.settings.setValue(
-                "inara/commander",
-                self.inara_commander
-            )
+            self.settings.setValue(f"{prefix}/commander", commander.strip())
 
         if api_key is not None:
-            self.inara_api_key = api_key.strip()
-            self.settings.setValue(
-                "inara/api_key",
-                self.inara_api_key
-            )
+            self.settings.setValue(f"{prefix}/api_key", api_key.strip())
 
         if enabled is not None:
-            self.inara_enabled = bool(enabled)
-            self.settings.setValue(
-                "inara/enabled",
-                self.inara_enabled
-            )
+            self.settings.setValue(f"{prefix}/enabled", bool(enabled))
+        if fid == self.commander_fid:
+            self._load_live_inara_settings()
+        self.inara_upload_status = "waiting" if self.inara_enabled else "disabled"
+        self.inara_upload_message = (
+            "Warte auf Inara-Übertragung" if self.inara_enabled else "Inara deaktiviert"
+        )
+
+    def inara_settings_for_fid(self, fid):
+        fid = str(fid or "").strip()
+        prefix = f"inara/commanders/{fid}"
+        return {
+            "fid": fid,
+            "commander": str(self.settings.value(f"{prefix}/commander", "") or ""),
+            "api_key": str(self.settings.value(f"{prefix}/api_key", "") or ""),
+            "enabled": str(self.settings.value(f"{prefix}/enabled", "false")).lower()
+                       in ("1", "true", "yes", "on"),
+            "last_test_status": str(
+                self.settings.value(f"{prefix}/last_test_status", "") or ""
+            ),
+        }
+
+    def set_inara_test_status(self, fid, ok, text):
+        fid = str(fid or "").strip()
+        if not fid:
+            return
+        self.settings.setValue(
+            f"inara/commanders/{fid}/last_test_status",
+            f"{'ok' if ok else 'error'}|{str(text or '')}",
+        )
+
+    def _load_live_inara_settings(self):
+        config = self.inara_settings_for_fid(self.commander_fid)
+        self.inara_commander = config["commander"]
+        self.inara_api_key = config["api_key"]
+        self.inara_enabled = config["enabled"]
+
+    def _migrate_legacy_inara_settings(self):
+        if not hasattr(self.settings, "contains") or not hasattr(
+            self.settings, "remove"
+        ):
+            return
+        migrated = str(
+            self.settings.value("inara/commander_settings_migrated", "false") or "false"
+        ).lower() in ("1", "true", "yes", "on")
+        if not self.commander_fid or migrated:
+            return
+        prefix = f"inara/commanders/{self.commander_fid}"
+        if not self.settings.contains(f"{prefix}/enabled"):
+            for old, new in (("commander", "commander"), ("api_key", "api_key"),
+                             ("enabled", "enabled")):
+                old_key = f"inara/{old}"
+                if self.settings.contains(old_key):
+                    self.settings.setValue(f"{prefix}/{new}", self.settings.value(old_key))
+        self.settings.setValue("inara/commander_settings_migrated", True)
+        for key in ("inara/commander", "inara/api_key", "inara/enabled",
+                    "inara/commander_fid"):
+            self.settings.remove(key)
+        self._load_live_inara_settings()
+
+    def _inara_identity_matches(self, commander_id=None):
+        return bool(
+            getattr(self, "inara_enabled", False)
+            and getattr(self, "inara_api_key", "") and self.commander_fid
+            and (commander_id is None or int(commander_id) == int(self.commander_id or -1))
+        )
+
+    def _invalidate_inara_worker(self):
+        """Detach a worker as soon as the active journal identity changes."""
+        self._inara_upload_token = None
+        self._inara_upload_running = False
+
+    def _upload_pending_to_inara(self):
+        if not self._inara_identity_matches():
+            return
+        commander_id = int(self.commander_id)
+        commander_name = str(self.commander or "")
+        commander_fid = str(self.commander_fid or "")
+        api_key = str(self.inara_api_key or "")
+        active_token = getattr(self, "_inara_upload_token", None)
+        if (
+            self._inara_upload_running
+            and active_token is not None
+            and active_token[:3] == (commander_id, commander_fid, api_key)
+        ):
+            return
+        rows = self.database.inara_pending(commander_id, INARA_BATCH_SIZE)
+        if not rows:
+            return
+        token = (commander_id, commander_fid, api_key, object())
+        self._inara_upload_token = token
+        self._inara_upload_running = True
+        self.inara_upload_status = "uploading"
+        self.inara_upload_message = f"{len(rows)} Inara-Event(s) werden übertragen"
+        self.changed.emit()
+
+        def worker():
+            try:
+                if (
+                    self._inara_upload_token is not token
+                    or not self._inara_identity_matches(commander_id)
+                    or self.commander_fid != commander_fid
+                    or self.inara_api_key != api_key
+                ):
+                    return
+                sent, failed = upload_batch(api_key, commander_name, commander_fid, rows)
+                if self._inara_upload_token is not token:
+                    return
+                self.database.update_inara_outbox(sent, failed)
+                if failed:
+                    self.inara_upload_status = "error"
+                    self.inara_upload_message = next(iter(failed.values()))
+                else:
+                    self.inara_upload_status = "ok"
+                    self.inara_upload_message = f"Letzte Inara-Übertragung erfolgreich: {len(sent)} Event(s)"
+            except Exception as exc:
+                if self._inara_upload_token is not token:
+                    return
+                message = str(exc)
+                self.database.update_inara_outbox(
+                    errors={row["id"]: message for row in rows}
+                )
+                if commander_fid == self.commander_fid:
+                    self.inara_upload_status = "error"
+                    self.inara_upload_message = message
+                logger.warning("Inara-Upload pausiert: %s", message)
+            finally:
+                if self._inara_upload_token is token:
+                    self._inara_upload_token = None
+                    self._inara_upload_running = False
+                    self.changed.emit()
+
+        threading.Thread(target=worker, daemon=True,
+                         name="CMDRHelper-Inara-Upload").start()
 
     def _upload_journal_to_edsm(self):
         if (
@@ -1105,11 +1255,23 @@ class AppState(QObject):
         fid = str(session.get("fid_seen") or "").strip()
         name = str(session.get("commander_name_seen") or "").strip()
         previous_fid = self.commander_fid
+        if previous_fid and previous_fid != fid:
+            AppState._invalidate_inara_worker(self)
         self.database.set_active_commander(commander_id)
         self.commander_id = commander_id
         self.commander_fid = fid
         if name:
             self.commander = name
+        if hasattr(self, "settings"):
+            if (self._journal_index_sessions or [None])[-1] is session:
+                AppState._migrate_legacy_inara_settings(self)
+            AppState._load_live_inara_settings(self)
+        if hasattr(self, "inara_enabled") and not getattr(
+            self, "_inara_upload_running", False
+        ):
+            self.inara_upload_status = (
+                "waiting" if self.inara_enabled else "disabled"
+            )
 
         if not getattr(self, "_viewed_commander_user_selected", False):
             previous_viewed = getattr(self, "viewed_commander_id", None)
@@ -1147,8 +1309,13 @@ class AppState(QObject):
         self.database.set_active_commander(commander_id)
 
         previous_fid = self.commander_fid
+        if previous_fid and previous_fid != fid:
+            AppState._invalidate_inara_worker(self)
         self.commander_id = commander_id
         self.commander_fid = fid
+        if hasattr(self, "settings"):
+            AppState._migrate_legacy_inara_settings(self)
+            AppState._load_live_inara_settings(self)
 
         if not getattr(self, "_viewed_commander_user_selected", False):
             previous_viewed = getattr(self, "viewed_commander_id", None)
@@ -1191,31 +1358,6 @@ class AppState(QObject):
                     if self._journal_index_sessions else None
                 )
             self._prepare_indexed_live_state(emit_identity=False)
-            current_session = ((self._journal_index_sessions or [None])[-1])
-            if current_session and current_session.get("commander_id") is not None:
-                from cmdrhelper.journal_reader import read_journal_delta
-                delta_events, safe_offset = read_journal_delta(
-                    Path(current_session["journal_file"]),
-                    int(current_session.get("last_read_offset") or 0),
-                )
-                if safe_offset > int(current_session.get("last_read_offset") or 0):
-                    try:
-                        self.database.apply_commander_journal_delta(
-                            int(current_session["commander_id"]),
-                            current_session["journal_file"], delta_events, safe_offset,
-                        )
-                    except (sqlite3.Error, RuntimeError, ValueError) as exc:
-                        # Eng auf die fachliche Delta-Persistenz begrenzt:
-                        # Indexzahl und bereits belegte Identität bleiben
-                        # sichtbar, der Fehler wird aber nicht verschwiegen.
-                        logger.exception("Commander-Journaldelta konnte nicht gespeichert werden")
-                        self._last_refresh_error = (
-                            "Journaldelta konnte nicht gespeichert werden: "
-                            f"{type(exc).__name__}: {exc}"
-                        )
-                        self.changed.emit()
-                        return False
-                    current_session["last_read_offset"] = safe_offset
             data = read_latest_state(
                 self.journal_folder,
                 mission_reset_at=self.mission_reset_at,
@@ -1255,6 +1397,38 @@ class AppState(QObject):
             data,
             emit_signal=False,
         )
+        current_session = ((self._journal_index_sessions or [None])[-1])
+        if (
+            current_session
+            and data.get("latest_journal_session") is current_session
+            and str(current_session.get("fid_seen") or "").strip()
+            == self.commander_fid
+        ):
+            current_session["commander_id"] = self.commander_id
+        if current_session and current_session.get("commander_id") is not None:
+            from cmdrhelper.journal_reader import read_journal_delta
+            committed_offset = int(current_session.get("last_read_offset") or 0)
+            delta_events, safe_offset = read_journal_delta(
+                Path(current_session["journal_file"]), committed_offset,
+            )
+            if safe_offset > committed_offset:
+                try:
+                    self.database.apply_commander_journal_delta(
+                        int(current_session["commander_id"]),
+                        current_session["journal_file"], delta_events, safe_offset,
+                        enqueue_inara=self._inara_identity_matches(
+                            current_session["commander_id"]
+                        ),
+                    )
+                except (sqlite3.Error, RuntimeError, ValueError) as exc:
+                    logger.exception("Commander-Journaldelta konnte nicht gespeichert werden")
+                    self._last_refresh_error = (
+                        "Journaldelta konnte nicht gespeichert werden: "
+                        f"{type(exc).__name__}: {exc}"
+                    )
+                    self.changed.emit()
+                    return False
+                current_session["last_read_offset"] = safe_offset
         persistent_summary = (
             self.database.commander_summary(self.commander_id)
             if self.commander_id is not None else None
@@ -1470,6 +1644,7 @@ class AppState(QObject):
         self.changed.emit()
 
         self._upload_journal_to_edsm()
+        self._upload_pending_to_inara()
         self._request_edsm_for_current_system()
         return True
 

@@ -1148,7 +1148,6 @@ def read_latest_state(
                 input_lines, safe_offset = _live_complete_lines(journal)
             except OSError as exc:
                 raise JournalReadError(journal, exc) from exc
-            session["last_read_offset"] = safe_offset
             session["last_complete_line_offset"] = safe_offset
             identities = {}
             for raw_line in input_lines:

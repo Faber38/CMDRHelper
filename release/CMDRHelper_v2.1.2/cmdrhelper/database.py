@@ -13,12 +13,13 @@ from cmdrhelper.ship_identity import is_definite_non_ship
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 13
+SCHEMA_VERSION = 14
 
 COMMANDER_STATE_REPAIR_REVISIONS = {
     "unsold": 2,
     "missions": 1,
     "surface_mining": 1,
+    "position_gap": 1,
 }
 
 PERSONAL_TABLES = (
@@ -392,7 +393,36 @@ class CMDRDatabase:
         self._maybe_migrate_v11()
         self._maybe_migrate_v12()
         self._maybe_migrate_v13()
+        self._maybe_migrate_v14()
         self.cleanup_non_ship_fleet_rows()
+
+    def _maybe_migrate_v14(self):
+        with self._connect() as con:
+            if int(con.execute("PRAGMA user_version").fetchone()[0]) >= 14:
+                return
+            con.executescript("""
+                CREATE TABLE IF NOT EXISTS inara_outbox (
+                    id INTEGER PRIMARY KEY,
+                    commander_id INTEGER NOT NULL,
+                    journal_file TEXT NOT NULL,
+                    source_key TEXT NOT NULL,
+                    event_name TEXT NOT NULL,
+                    event_timestamp TEXT NOT NULL,
+                    event_data_json TEXT NOT NULL,
+                    status TEXT NOT NULL DEFAULT 'pending'
+                        CHECK(status IN ('pending','sent','error')),
+                    retry_count INTEGER NOT NULL DEFAULT 0,
+                    last_attempt_at TEXT,
+                    last_error TEXT NOT NULL DEFAULT '',
+                    created_at TEXT NOT NULL,
+                    sent_at TEXT,
+                    UNIQUE(commander_id, journal_file, source_key),
+                    FOREIGN KEY(commander_id) REFERENCES commanders(id)
+                );
+                CREATE INDEX IF NOT EXISTS idx_inara_outbox_pending
+                    ON inara_outbox(commander_id, status, retry_count, id);
+                PRAGMA user_version=14;
+            """)
 
     def _maybe_migrate_v8(self):
         with self._connect() as con:
@@ -1512,7 +1542,7 @@ class CMDRDatabase:
         return result
 
     def apply_commander_journal_delta(self, commander_id, journal_file, events,
-                                      safe_offset: int) -> None:
+                                      safe_offset: int, enqueue_inara=False) -> None:
         """Atomically applies explicit journal facts and commits their byte offset."""
         from cmdrhelper.bio_valuation import base_value
         from cmdrhelper.journal_reader import (
@@ -1563,6 +1593,8 @@ class CMDRDatabase:
             int(item["mission_id"]): item
             for item in self.commander_missions(commander_id)
         }
+        inara_context = {"system": current_system, "station": current_station,
+                         "ship_type": ship.get("ship_type"), "ship_id": ship.get("ship_id")}
 
         with self._connect() as con:
             old_offset_row = con.execute(
@@ -1587,6 +1619,25 @@ class CMDRDatabase:
             for event_index, event in enumerate(events or []):
                 et = str(event.get("event") or "")
                 ts = str(event.get("timestamp") or "")
+                if enqueue_inara and ts:
+                    try:
+                        from cmdrhelper.inara_uploader import map_journal_event
+                        mapped = map_journal_event(event, inara_context)
+                        if mapped is not None:
+                            event_name, event_data = mapped
+                            con.execute("""INSERT OR IGNORE INTO inara_outbox(
+                                commander_id,journal_file,source_key,event_name,event_timestamp,
+                                event_data_json,status,created_at) VALUES(?,?,?,?,?,?,'pending',?)""",
+                                (commander_id, str(journal_file),
+                                 f"delta:{int(safe_offset)}:{event_index}", event_name, ts,
+                                 json.dumps(event_data, ensure_ascii=False, sort_keys=True,
+                                            separators=(",", ":")),
+                                 datetime.now(timezone.utc).isoformat()))
+                    except (TypeError, ValueError) as exc:
+                        logger.error(
+                            "Inara-Outbox-Mapping für %s übersprungen: %s",
+                            et, type(exc).__name__,
+                        )
                 address = event.get("SystemAddress")
                 if not isinstance(address, int):
                     address = current_address
@@ -1917,6 +1968,108 @@ class CMDRDatabase:
             con.execute("""UPDATE journal_sessions
                 SET last_read_offset=MAX(last_read_offset,?) WHERE journal_file=?""",
                 (int(safe_offset), str(journal_file)))
+
+    def inara_pending(self, commander_id, limit=25):
+        with self._connect() as con:
+            rows = con.execute("""SELECT id,event_name,event_timestamp,event_data_json,
+                retry_count,last_attempt_at FROM inara_outbox
+                WHERE commander_id=? AND status IN ('pending','error') AND retry_count<8
+                ORDER BY id LIMIT 100""", (int(commander_id),)).fetchall()
+        now = datetime.now(timezone.utc)
+        result = []
+        for row in rows:
+            last_attempt = None
+            if row[5]:
+                try:
+                    last_attempt = datetime.fromisoformat(str(row[5]).replace("Z", "+00:00"))
+                except ValueError:
+                    pass
+            delay = min(3600, 30 * (2 ** int(row[4] or 0)))
+            if last_attempt is not None and (now - last_attempt).total_seconds() < delay:
+                continue
+            result.append({"id": row[0], "event_name": row[1],
+                           "event_timestamp": row[2], "event_data": json.loads(row[3]),
+                           "retry_count": row[4]})
+            if len(result) >= int(limit):
+                break
+        return result
+
+    def update_inara_outbox(self, sent_ids=(), errors=None):
+        errors = errors or {}
+        now = datetime.now(timezone.utc).isoformat()
+        with self._connect() as con:
+            for row_id in sent_ids:
+                con.execute("""UPDATE inara_outbox SET status='sent',sent_at=?,
+                    last_attempt_at=?,last_error='' WHERE id=?""", (now, now, int(row_id)))
+            for row_id, error in errors.items():
+                con.execute("""UPDATE inara_outbox SET status='error',retry_count=retry_count+1,
+                    last_attempt_at=?,last_error=? WHERE id=?""", (now, str(error), int(row_id)))
+
+    def repair_commander_position_gap(self, commander_id, journal_file, event,
+                                      enqueue_inara=False):
+        """Repairs one latest skipped position without moving the journal offset."""
+        commander_id = int(commander_id)
+        revision = COMMANDER_STATE_REPAIR_REVISIONS["position_gap"]
+        timestamp = str(event.get("timestamp") or "")
+        event_type = str(event.get("event") or "")
+        ship = (self.commander_summary(commander_id) or {}).get("ship") or {}
+        with self._connect() as con:
+            marker = con.execute("""SELECT revision FROM commander_state_repairs
+                WHERE commander_id=? AND feature='position_gap'""",
+                (commander_id,)).fetchone()
+            if marker is not None and int(marker[0]) >= revision:
+                return False
+            current = con.execute("""SELECT event_timestamp FROM commander_locations
+                WHERE commander_id=?""", (commander_id,)).fetchone()
+            repaired = bool(
+                timestamp and event_type in ("Location", "FSDJump", "CarrierJump", "Docked")
+                and (current is None or timestamp > str(current[0] or ""))
+            )
+            if repaired:
+                system = str(event.get("StarSystem") or "")
+                station = str(event.get("StationName") or "") if event_type in (
+                    "Location", "Docked"
+                ) else ""
+                body = str(event.get("Body") or event.get("BodyName") or "")
+                self.store_commander_location(commander_id, {
+                    "system_name": system,
+                    "system_address": event.get("SystemAddress"),
+                    "station_name": station,
+                    "body_name": body,
+                    "event_timestamp": timestamp,
+                    "event_type": event_type,
+                }, _con=con)
+                if enqueue_inara:
+                    try:
+                        from cmdrhelper.inara_uploader import map_journal_event
+                        mapped = map_journal_event(event, {
+                            "system": "", "station": "",
+                            "ship_type": ship.get("ship_type"),
+                            "ship_id": ship.get("ship_id"),
+                        })
+                        if mapped is not None:
+                            event_name, event_data = mapped
+                            con.execute("""INSERT OR IGNORE INTO inara_outbox(
+                                commander_id,journal_file,source_key,event_name,event_timestamp,
+                                event_data_json,status,created_at) VALUES(?,?,?,?,?,?,'pending',?)""",
+                                (commander_id, str(journal_file),
+                                 f"repair-position:{event_type}:{timestamp}", event_name,
+                                 timestamp, json.dumps(
+                                     event_data, ensure_ascii=False, sort_keys=True,
+                                     separators=(",", ":"),
+                                 ), datetime.now(timezone.utc).isoformat()))
+                    except (TypeError, ValueError) as exc:
+                        logger.error(
+                            "Inara-Outbox-Mapping für Positionsreparatur übersprungen: %s",
+                            type(exc).__name__,
+                        )
+            con.execute("""INSERT INTO commander_state_repairs(
+                commander_id,feature,revision,repaired_at) VALUES(?,?,?,?)
+                ON CONFLICT(commander_id,feature) DO UPDATE SET
+                    revision=excluded.revision,repaired_at=excluded.repaired_at""",
+                (commander_id, "position_gap", revision,
+                 datetime.now(timezone.utc).isoformat()))
+            return repaired
 
     def commander_state_repair_needed(self, commander_id, feature, revision=None) -> bool:
         if revision is None:
