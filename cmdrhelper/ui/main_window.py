@@ -17,6 +17,7 @@ from cmdrhelper.online_services import (
     test_edsm_connection,
     test_inara_connection,
 )
+from cmdrhelper.inara_uploader import header_presentation as inara_header_presentation
 from cmdrhelper.version import __version__
 from cmdrhelper.i18n import tr, get_language, set_language
 from cmdrhelper.mission_manager import translate_mission_text
@@ -5341,16 +5342,12 @@ class MainWindow(QMainWindow):
         self.edsm_upload_label.style().unpolish(self.edsm_upload_label)
         self.edsm_upload_label.style().polish(self.edsm_upload_label)
 
-        # INARA-Anzeige vorbereiten. Bis der automatische INARA-Uploader
-        # eingebaut ist, zeigt sie nur Aktiv/Inaktiv an.
-        if getattr(self.state, "inara_enabled", False):
-            self.inara_upload_label.setText(tr("topbar.inara_waiting"))
-            self.inara_upload_label.setObjectName("muted")
-            self.inara_upload_label.setToolTip(tr("topbar.inara_enabled_tooltip"))
-        else:
-            self.inara_upload_label.setText(tr("topbar.inara_off"))
-            self.inara_upload_label.setObjectName("muted")
-            self.inara_upload_label.setToolTip(tr("topbar.inara_disabled_tooltip"))
+        inara_status = getattr(self.state, "inara_upload_status", "disabled")
+        inara_message = getattr(self.state, "inara_upload_message", "")
+        text_key, object_name = inara_header_presentation(inara_status)
+        self.inara_upload_label.setText(tr(text_key))
+        self.inara_upload_label.setObjectName(object_name)
+        self.inara_upload_label.setToolTip(inara_message)
 
         self.inara_upload_label.style().unpolish(self.inara_upload_label)
         self.inara_upload_label.style().polish(self.inara_upload_label)

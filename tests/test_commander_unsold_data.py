@@ -52,7 +52,7 @@ class CommanderUnsoldDataTests(unittest.TestCase):
         )
 
     def test_schema_wealth_and_missing_value_are_commander_specific(self):
-        self.assertEqual(SCHEMA_VERSION, 13)
+        self.assertEqual(SCHEMA_VERSION, 14)
         self.db.store_commander_wealth(self.a, {"credits": 1234567,
             "event_timestamp": "2026-01-01T00:00:00Z", "source_event": "LoadGame"})
         self.assertEqual(self.db.commander_summary(self.a)["wealth"]["credits"], 1234567)

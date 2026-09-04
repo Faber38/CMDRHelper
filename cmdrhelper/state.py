@@ -26,6 +26,7 @@ from cmdrhelper.online_services import (
 )
 from cmdrhelper.database import CMDRDatabase
 from cmdrhelper.edsm_uploader import EDSMJournalUploader
+from cmdrhelper.inara_uploader import BATCH_SIZE as INARA_BATCH_SIZE, upload_batch
 from cmdrhelper.bio_valuation import biology_totals
 from cmdrhelper.route_planner.models import GuardianFsdBooster, ShipLoadoutData
 
@@ -135,6 +136,14 @@ class AppState(QObject):
                 )
             ).lower()
             in ("1", "true", "yes", "on")
+        )
+        self.inara_commander_fid = str(
+            self.settings.value("inara/commander_fid", "") or ""
+        ).strip()
+        self._inara_upload_running = False
+        self.inara_upload_status = "waiting" if self.inara_enabled else "disabled"
+        self.inara_upload_message = (
+            "Warte auf Inara-Übertragung" if self.inara_enabled else "Inara deaktiviert"
         )
 
         self.system_bodies = []
@@ -607,6 +616,61 @@ class AppState(QObject):
                 "inara/enabled",
                 self.inara_enabled
             )
+        if self.inara_enabled and self.commander_fid:
+            self.inara_commander_fid = self.commander_fid
+            self.settings.setValue("inara/commander_fid", self.inara_commander_fid)
+        self.inara_upload_status = "waiting" if self.inara_enabled else "disabled"
+        self.inara_upload_message = (
+            "Warte auf Inara-Übertragung" if self.inara_enabled else "Inara deaktiviert"
+        )
+
+    def _inara_identity_matches(self, commander_id=None):
+        return bool(
+            getattr(self, "inara_enabled", False)
+            and getattr(self, "inara_api_key", "") and self.commander_fid
+            and getattr(self, "inara_commander_fid", "") == self.commander_fid
+            and (commander_id is None or int(commander_id) == int(self.commander_id or -1))
+        )
+
+    def _upload_pending_to_inara(self):
+        if self._inara_upload_running or not self._inara_identity_matches():
+            return
+        rows = self.database.inara_pending(self.commander_id, INARA_BATCH_SIZE)
+        if not rows:
+            return
+        commander_id = int(self.commander_id)
+        commander_name = str(self.commander or "")
+        commander_fid = str(self.commander_fid or "")
+        api_key = str(self.inara_api_key or "")
+        self._inara_upload_running = True
+        self.inara_upload_status = "uploading"
+        self.inara_upload_message = f"{len(rows)} Inara-Event(s) werden übertragen"
+        self.changed.emit()
+
+        def worker():
+            try:
+                sent, failed = upload_batch(api_key, commander_name, commander_fid, rows)
+                self.database.update_inara_outbox(sent, failed)
+                if failed:
+                    self.inara_upload_status = "error"
+                    self.inara_upload_message = next(iter(failed.values()))
+                else:
+                    self.inara_upload_status = "ok"
+                    self.inara_upload_message = f"Letzte Inara-Übertragung erfolgreich: {len(sent)} Event(s)"
+            except Exception as exc:
+                message = str(exc)
+                self.database.update_inara_outbox(
+                    errors={row["id"]: message for row in rows}
+                )
+                self.inara_upload_status = "error"
+                self.inara_upload_message = message
+                logger.warning("Inara-Upload pausiert: %s", message)
+            finally:
+                self._inara_upload_running = False
+                self.changed.emit()
+
+        threading.Thread(target=worker, daemon=True,
+                         name="CMDRHelper-Inara-Upload").start()
 
     def _upload_journal_to_edsm(self):
         if (
@@ -1203,6 +1267,9 @@ class AppState(QObject):
                         self.database.apply_commander_journal_delta(
                             int(current_session["commander_id"]),
                             current_session["journal_file"], delta_events, safe_offset,
+                            enqueue_inara=self._inara_identity_matches(
+                                current_session["commander_id"]
+                            ),
                         )
                     except (sqlite3.Error, RuntimeError, ValueError) as exc:
                         # Eng auf die fachliche Delta-Persistenz begrenzt:
@@ -1470,6 +1537,7 @@ class AppState(QObject):
         self.changed.emit()
 
         self._upload_journal_to_edsm()
+        self._upload_pending_to_inara()
         self._request_edsm_for_current_system()
         return True
 
