@@ -91,6 +91,18 @@ class ContextHelpTests(unittest.TestCase):
                 self.assertEqual(dialog.help_text.text(), topic.text)
                 dialog.close()
 
+    def test_help_uses_the_current_interface_language(self):
+        self.window._show_page(next(
+            page for page, context in self.window.HELP_CONTEXTS.items()
+            if context == "overview"
+        ))
+        with patch("cmdrhelper.ui.main_window.get_language", return_value="fr"):
+            self.window.help_button.click()
+        topic = help_topic("overview", "fr")
+        self.assertEqual(self.window._help_dialog.windowTitle(), topic.dialog_title)
+        self.assertEqual(self.window._help_dialog.help_text.text(), topic.text)
+        self.window._help_dialog.close()
+
     def test_help_dialog_is_scrollable_and_close_button_works(self):
         dialog = HelpDialog("overview")
         self.addCleanup(dialog.close)

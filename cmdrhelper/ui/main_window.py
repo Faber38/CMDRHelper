@@ -1345,7 +1345,7 @@ class MainWindow(QMainWindow):
         context = self.HELP_CONTEXTS[self.pages.currentIndex()]
         if self._help_dialog is not None:
             self._help_dialog.close()
-        self._help_dialog = HelpDialog(context, self, language="de")
+        self._help_dialog = HelpDialog(context, self, language=get_language())
         self._help_dialog.show()
         self._help_dialog.raise_()
         self._help_dialog.activateWindow()

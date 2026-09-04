@@ -1,6 +1,7 @@
-"""Sprachabhängiger Zugriff auf zentral gepflegte Hilfetexte."""
+"""Language-aware access to the centrally maintained help catalogs."""
 
 from dataclasses import dataclass
+from importlib import import_module
 
 from cmdrhelper.help_content import de
 
@@ -14,12 +15,28 @@ class HelpTopic:
 
 
 _LANGUAGES = {"de": de}
+for _language in (
+    "en", "fr", "it", "no", "sv", "fi", "pl", "nl", "es", "tr", "el",
+):
+    try:
+        _LANGUAGES[_language] = import_module(
+            f"cmdrhelper.help_content.{_language}"
+        )
+    except (ImportError, SyntaxError):
+        # A damaged optional catalog must not prevent the German help from opening.
+        continue
+
+HELP_LANGUAGES = tuple(_LANGUAGES)
 
 
 def help_topic(context: str, language: str = "de") -> HelpTopic:
-    """Liefert ein Hilfethema; bis weitere Texte existieren, gilt Deutsch."""
+    """Return a localized help topic, falling back to the German master."""
     catalog = _LANGUAGES.get(language, de)
-    area, text = catalog.HELP_TOPICS[context]
+    try:
+        area, text = catalog.HELP_TOPICS[context]
+    except (AttributeError, KeyError, TypeError, ValueError):
+        catalog = de
+        area, text = de.HELP_TOPICS[context]
     return HelpTopic(
         area=area,
         text=text,
