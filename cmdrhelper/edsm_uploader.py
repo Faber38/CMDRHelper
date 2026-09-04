@@ -197,14 +197,23 @@ class EDSMJournalUploader:
         commander: str,
         api_key: str,
         settings: QSettings | None = None,
+        fid: str = "",
+        is_current=None,
     ):
         self.commander = (commander or "").strip()
         self.api_key = (api_key or "").strip()
         self.settings = settings or QSettings("CMDRHelper", "CMDRHelper")
+        self.fid = str(fid or "").strip()
+        self.is_current = is_current
 
         self._lock = threading.Lock()
         self._discarded: set[str] | None = None
-        self._initialized_key = "edsm_upload/initialized"
+        upload_prefix = (
+            f"edsm_upload/commanders/{self.fid}"
+            if self.fid else "edsm_upload"
+        )
+        self._upload_prefix = upload_prefix
+        self._initialized_key = f"{upload_prefix}/initialized"
 
     def update_credentials(self, commander: str, api_key: str):
         self.commander = (commander or "").strip()
@@ -216,7 +225,10 @@ class EDSMJournalUploader:
         return path.name.replace("/", "_").replace("\\", "_")
 
     def _position_key(self, journal: Path) -> str:
-        return f"edsm_upload/positions/{self._safe_key(journal)}"
+        return f"{self._upload_prefix}/positions/{self._safe_key(journal)}"
+
+    def _still_current(self) -> bool:
+        return self.is_current is None or bool(self.is_current())
 
     def _stored_position(self, journal: Path) -> int:
         try:
@@ -284,6 +296,10 @@ class EDSMJournalUploader:
             result["error"] = "EDSM-Zugangsdaten fehlen."
             return result
 
+        if not self._still_current():
+            result["cancelled"] = True
+            return result
+
         if not folder.exists():
             result["error"] = f"Journalordner nicht gefunden: {folder}"
             return result
@@ -305,6 +321,9 @@ class EDSMJournalUploader:
                 return result
 
             for journal in journal_files(folder):
+                if not self._still_current():
+                    result["cancelled"] = True
+                    break
                 try:
                     file_size = int(journal.stat().st_size)
                 except OSError:
@@ -420,6 +439,8 @@ class EDSMJournalUploader:
                 batch_end_position = line_end
 
                 if len(batch_events) >= BATCH_SIZE:
+                    if not self._still_current():
+                        return sent_count, skipped_count, "__cancelled__"
                     ok, _reply, error = upload_events(
                         self.commander,
                         self.api_key,
@@ -446,6 +467,8 @@ class EDSMJournalUploader:
                     batch_events = []
 
             if batch_events:
+                if not self._still_current():
+                    return sent_count, skipped_count, "__cancelled__"
                 ok, _reply, error = upload_events(
                     self.commander,
                     self.api_key,

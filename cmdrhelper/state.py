@@ -88,30 +88,13 @@ class AppState(QObject):
         ) or ""
 
         # Online-Dienste
-        self.edsm_commander = self.settings.value(
-            "edsm/commander",
-            ""
-        ) or ""
-        self.edsm_api_key = self.settings.value(
-            "edsm/api_key",
-            ""
-        ) or ""
-        self.edsm_enabled = (
-            str(
-                self.settings.value(
-                    "edsm/enabled",
-                    "false"
-                )
-            ).lower()
-            in ("1", "true", "yes", "on")
-        )
-
-        self.edsm_uploader = EDSMJournalUploader(
-            self.edsm_commander,
-            self.edsm_api_key,
-            settings=self.settings,
-        )
+        self.edsm_commander = ""
+        self.edsm_api_key = ""
+        self.edsm_enabled = False
+        self.edsm_uploader = None
         self._edsm_upload_running = False
+        self._edsm_upload_token = None
+        self._edsm_runtime_by_fid = {}
         self.edsm_upload_status = (
             "disabled" if not self.edsm_enabled else "waiting"
         )
@@ -571,39 +554,125 @@ class AppState(QObject):
         commander=None,
         api_key=None,
         enabled=None,
+        fid=None,
     ):
+        fid = str(fid or self.commander_fid or "").strip()
+        if not fid:
+            raise ValueError("EDSM-Einstellungen benötigen eine eindeutige FID")
+        prefix = f"edsm/commanders/{fid}"
         if commander is not None:
-            self.edsm_commander = commander.strip()
-            self.settings.setValue(
-                "edsm/commander",
-                self.edsm_commander
-            )
+            self.settings.setValue(f"{prefix}/commander_name", commander.strip())
 
         if api_key is not None:
-            self.edsm_api_key = api_key.strip()
-            self.settings.setValue(
-                "edsm/api_key",
-                self.edsm_api_key
-            )
+            self.settings.setValue(f"{prefix}/api_key", api_key.strip())
 
         if enabled is not None:
-            self.edsm_enabled = bool(enabled)
-            self.settings.setValue(
-                "edsm/enabled",
-                self.edsm_enabled
-            )
+            self.settings.setValue(f"{prefix}/enabled", bool(enabled))
 
-        self.edsm_uploader.update_credentials(
-            self.edsm_commander,
-            self.edsm_api_key,
-        )
-
+        if fid != self.commander_fid:
+            return
+        self._invalidate_edsm_worker()
+        self._load_live_edsm_settings()
         if not self.edsm_enabled:
             self.edsm_upload_status = "disabled"
             self.edsm_upload_message = "EDSM deaktiviert"
         elif self.edsm_upload_status == "disabled":
             self.edsm_upload_status = "waiting"
             self.edsm_upload_message = "Warte auf Übertragung"
+
+    def edsm_settings_for_fid(self, fid):
+        fid = str(fid or "").strip()
+        prefix = f"edsm/commanders/{fid}"
+        return {
+            "fid": fid,
+            "commander": str(self.settings.value(f"{prefix}/commander_name", "") or ""),
+            "api_key": str(self.settings.value(f"{prefix}/api_key", "") or ""),
+            "enabled": str(self.settings.value(f"{prefix}/enabled", "false")).lower()
+                       in ("1", "true", "yes", "on"),
+            "last_test_status": str(
+                self.settings.value(f"{prefix}/last_test_status", "") or ""
+            ),
+        }
+
+    def set_edsm_test_status(self, fid, ok, text):
+        fid = str(fid or "").strip()
+        if fid:
+            self.settings.setValue(
+                f"edsm/commanders/{fid}/last_test_status",
+                f"{'ok' if ok else 'error'}|{str(text or '')}",
+            )
+
+    def _load_live_edsm_settings(self):
+        config = self.edsm_settings_for_fid(self.commander_fid)
+        self.edsm_commander = config["commander"]
+        self.edsm_api_key = config["api_key"]
+        self.edsm_enabled = config["enabled"]
+        runtime = getattr(self, "_edsm_runtime_by_fid", {}).get(self.commander_fid)
+        if runtime:
+            self.edsm_upload_status, self.edsm_upload_message = runtime
+        else:
+            self.edsm_upload_status = "waiting" if self.edsm_enabled else "disabled"
+            self.edsm_upload_message = (
+                "Warte auf Übertragung" if self.edsm_enabled else "EDSM deaktiviert"
+            )
+
+    def _migrate_legacy_edsm_settings(self):
+        if not self.commander_fid or not self.commander:
+            return False
+        sessions = getattr(self, "_journal_index_sessions", None)
+        if sessions:
+            live_session = sessions[-1]
+            if (
+                live_session.get("attribution_status") != "identified"
+                or str(live_session.get("fid_seen") or "").strip()
+                != self.commander_fid
+            ):
+                return False
+        old_keys = ("edsm/commander", "edsm/api_key", "edsm/enabled")
+        if not any(self.settings.contains(key) for key in old_keys):
+            return False
+        legacy_name = str(self.settings.value("edsm/commander", "") or "").strip()
+        if not legacy_name or legacy_name.casefold() != self.commander.strip().casefold():
+            return False
+        prefix = f"edsm/commanders/{self.commander_fid}"
+        if not self.settings.contains(f"{prefix}/enabled"):
+            mapping = (("edsm/commander", "commander_name"),
+                       ("edsm/api_key", "api_key"), ("edsm/enabled", "enabled"))
+            for old_key, new_name in mapping:
+                if self.settings.contains(old_key):
+                    self.settings.setValue(f"{prefix}/{new_name}", self.settings.value(old_key))
+        upload_prefix = f"edsm_upload/commanders/{self.commander_fid}"
+        if (
+            self.settings.contains("edsm_upload/initialized")
+            and not self.settings.contains(f"{upload_prefix}/initialized")
+        ):
+            self.settings.setValue(
+                f"{upload_prefix}/initialized",
+                self.settings.value("edsm_upload/initialized"),
+            )
+            for key in self.settings.allKeys():
+                if key.startswith("edsm_upload/positions/"):
+                    suffix = key.removeprefix("edsm_upload/positions/")
+                    self.settings.setValue(
+                        f"{upload_prefix}/positions/{suffix}",
+                        self.settings.value(key),
+                    )
+        for key in old_keys:
+            self.settings.remove(key)
+        self.settings.remove("edsm_upload/initialized")
+        self.settings.remove("edsm_upload/positions")
+        self._load_live_edsm_settings()
+        return True
+
+    def _invalidate_edsm_worker(self):
+        fid = str(getattr(self, "commander_fid", "") or "")
+        if fid and hasattr(self, "_edsm_runtime_by_fid"):
+            self._edsm_runtime_by_fid[fid] = (
+                getattr(self, "edsm_upload_status", "disabled"),
+                getattr(self, "edsm_upload_message", "EDSM deaktiviert"),
+            )
+        self._edsm_upload_token = None
+        self._edsm_upload_running = False
 
     def set_inara_settings(
         self,
@@ -761,6 +830,9 @@ class AppState(QObject):
     def _upload_journal_to_edsm(self):
         if (
             not self.edsm_enabled
+            or not self.commander_fid
+            or not self.edsm_commander
+            or not self.edsm_api_key
             or not self.journal_folder
             or self._edsm_upload_running
         ):
@@ -768,10 +840,23 @@ class AppState(QObject):
 
         self._edsm_upload_running = True
         folder = Path(self.journal_folder)
+        fid = str(self.commander_fid or "")
+        commander = str(self.edsm_commander or "")
+        api_key = str(self.edsm_api_key or "")
+        token = (fid, commander, api_key, object())
+        self._edsm_upload_token = token
+        uploader = EDSMJournalUploader(
+            commander, api_key, settings=self.settings, fid=fid,
+            is_current=lambda: self._edsm_upload_token is token,
+        )
+        self.edsm_uploader = uploader
 
         def worker():
             try:
-                result = self.edsm_uploader.process_folder(folder)
+                result = uploader.process_folder(folder)
+
+                if self._edsm_upload_token is not token or result.get("cancelled"):
+                    return
 
                 if result.get("initialized"):
                     logger.info(
@@ -780,6 +865,8 @@ class AppState(QObject):
                     )
 
                 error = result.get("error") or ""
+                if error == "__cancelled__":
+                    return
                 if error:
                     self.edsm_upload_status = "error"
                     self.edsm_upload_message = str(error)
@@ -788,8 +875,8 @@ class AppState(QObject):
                         error,
                     )
                 else:
-                    sent = int(result.get("sent") or 0)
-                    discarded = int(result.get("discarded") or 0)
+                    sent = int(result.get("events_sent") or 0)
+                    discarded = int(result.get("events_skipped") or 0)
 
                     self.edsm_upload_status = "ok"
                     if sent:
@@ -807,12 +894,16 @@ class AppState(QObject):
                         )
 
             except Exception as exc:
+                if self._edsm_upload_token is not token:
+                    return
                 self.edsm_upload_status = "error"
                 self.edsm_upload_message = str(exc)
                 logger.exception("EDSM-Upload fehlgeschlagen")
             finally:
-                self._edsm_upload_running = False
-                self.changed.emit()
+                if self._edsm_upload_token is token:
+                    self._edsm_upload_token = None
+                    self._edsm_upload_running = False
+                    self.changed.emit()
 
         threading.Thread(
             target=worker,
@@ -1257,6 +1348,7 @@ class AppState(QObject):
         previous_fid = self.commander_fid
         if previous_fid and previous_fid != fid:
             AppState._invalidate_inara_worker(self)
+            AppState._invalidate_edsm_worker(self)
         self.database.set_active_commander(commander_id)
         self.commander_id = commander_id
         self.commander_fid = fid
@@ -1265,7 +1357,9 @@ class AppState(QObject):
         if hasattr(self, "settings"):
             if (self._journal_index_sessions or [None])[-1] is session:
                 AppState._migrate_legacy_inara_settings(self)
+                AppState._migrate_legacy_edsm_settings(self)
             AppState._load_live_inara_settings(self)
+            AppState._load_live_edsm_settings(self)
         if hasattr(self, "inara_enabled") and not getattr(
             self, "_inara_upload_running", False
         ):
@@ -1311,11 +1405,14 @@ class AppState(QObject):
         previous_fid = self.commander_fid
         if previous_fid and previous_fid != fid:
             AppState._invalidate_inara_worker(self)
+            AppState._invalidate_edsm_worker(self)
         self.commander_id = commander_id
         self.commander_fid = fid
         if hasattr(self, "settings"):
             AppState._migrate_legacy_inara_settings(self)
             AppState._load_live_inara_settings(self)
+            AppState._migrate_legacy_edsm_settings(self)
+            AppState._load_live_edsm_settings(self)
 
         if not getattr(self, "_viewed_commander_user_selected", False):
             previous_viewed = getattr(self, "viewed_commander_id", None)

@@ -4106,8 +4106,32 @@ class MainWindow(QMainWindow):
 
         edsm_form = QFormLayout()
 
+        self.edsm_commander_combo = QComboBox()
+        known_commanders = self.state.database.list_commanders()
+        for item in known_commanders:
+            config = self.state.edsm_settings_for_fid(item["fid"])
+            setup_key = (
+                "settings.edsm_configured_short" if config["api_key"]
+                else "settings.edsm_not_configured_short"
+            )
+            self.edsm_commander_combo.addItem(
+                f"{item['display_name']} — {tr(setup_key)}",
+                item["fid"],
+            )
+            index = self.edsm_commander_combo.count() - 1
+            self.edsm_commander_combo.setItemData(
+                index, item.get("current_name") or item["fid"], Qt.UserRole + 1
+            )
+        current_index = self.edsm_commander_combo.findData(self.state.commander_fid)
+        if current_index >= 0:
+            self.edsm_commander_combo.setCurrentIndex(current_index)
+        self.edsm_commander_combo.currentIndexChanged.connect(
+            self._load_selected_edsm_settings
+        )
+        edsm_form.addRow(tr("settings.edsm_account_for") + ":",
+                         self.edsm_commander_combo)
+
         self.edsm_commander_edit = QLineEdit()
-        self.edsm_commander_edit.setText(self.state.edsm_commander)
         self.edsm_commander_edit.setPlaceholderText(tr("settings.commander_name"))
 
         self.edsm_api_key_edit = QLineEdit()
@@ -4124,6 +4148,10 @@ class MainWindow(QMainWindow):
 
         online_layout.addLayout(edsm_form)
 
+        self.edsm_account_hint = QLabel(objectName="muted")
+        self.edsm_account_hint.setWordWrap(True)
+        online_layout.addWidget(self.edsm_account_hint)
+
         edsm_test_row = QHBoxLayout()
 
         self.edsm_test_button = QPushButton(tr("settings.test_edsm"))
@@ -4133,6 +4161,7 @@ class MainWindow(QMainWindow):
         self.edsm_test_status = QLabel(tr("settings.not_tested"), objectName="muted")
         self.edsm_test_status.setWordWrap(True)
         edsm_test_row.addWidget(self.edsm_test_status, 1)
+        self._load_selected_edsm_settings()
 
         online_layout.addLayout(edsm_test_row)
 
@@ -5111,8 +5140,50 @@ class MainWindow(QMainWindow):
                 ok,
                 text,
             )
+            self.state.set_edsm_test_status(
+                self.edsm_commander_combo.currentData(), ok, text
+            )
         finally:
             self.edsm_test_button.setEnabled(True)
+
+    def _load_selected_edsm_settings(self, *_args):
+        if not hasattr(self, "edsm_commander_edit"):
+            return
+        config = self.state.edsm_settings_for_fid(
+            self.edsm_commander_combo.currentData()
+        )
+        self.edsm_commander_edit.setText(config["commander"])
+        self.edsm_api_key_edit.setText(config["api_key"])
+        self.edsm_enabled_check.setChecked(config["enabled"])
+        index = self.edsm_commander_combo.currentIndex()
+        commander_name = self.edsm_commander_combo.itemData(
+            index, Qt.UserRole + 1
+        ) or config["fid"]
+        self.edsm_account_hint.setText(
+            tr("settings.edsm_key_hint", commander=commander_name)
+        )
+        setup_key = (
+            "settings.edsm_configured_short" if config["api_key"]
+            else "settings.edsm_not_configured_short"
+        )
+        base_label = next(
+            (item["display_name"] for item in self.state.database.list_commanders()
+             if item["fid"] == config["fid"]),
+            str(commander_name),
+        )
+        if index >= 0:
+            self.edsm_commander_combo.setItemText(
+                index, f"{base_label} — {tr(setup_key)}"
+            )
+        saved_status = config["last_test_status"]
+        if "|" in saved_status:
+            status, text = saved_status.split("|", 1)
+            self._set_service_test_status(
+                self.edsm_test_status, status == "ok", text
+            )
+        else:
+            self.edsm_test_status.setText(tr("settings.not_tested"))
+            self.edsm_test_status.setObjectName("muted")
 
     def _load_selected_inara_settings(self, *_args):
         if not hasattr(self, "inara_commander_edit"):
@@ -5172,6 +5243,7 @@ class MainWindow(QMainWindow):
             commander=self.edsm_commander_edit.text(),
             api_key=self.edsm_api_key_edit.text(),
             enabled=self.edsm_enabled_check.isChecked(),
+            fid=self.edsm_commander_combo.currentData(),
         )
 
         self.state.set_inara_settings(
@@ -5181,6 +5253,7 @@ class MainWindow(QMainWindow):
             fid=self.inara_commander_combo.currentData(),
         )
         self._load_selected_inara_settings()
+        self._load_selected_edsm_settings()
 
         self.state.refresh()
 
