@@ -100,11 +100,40 @@ class OnlineServiceCommanderComboBox(QComboBox):
         self.setToolTip(str(self.currentData(Qt.ItemDataRole.ToolTipRole) or ""))
 
     def showPopup(self):
-        popup_width = max(1, self.width())
-        self.view().setMaximumWidth(popup_width)
         super().showPopup()
+        self._constrain_popup_geometry()
+        # Einige Plattform-Styles positionieren den Popup-Container erst nach
+        # showPopup(). Deshalb nach dem nächsten Event-Loop-Durchlauf erneut
+        # auf die tatsächlich sichtbaren Grenzen klemmen.
+        QTimer.singleShot(0, self._constrain_popup_geometry)
+
+    def _constrain_popup_geometry(self):
+        if not self.view().isVisible():
+            return
         popup = self.view().window()
-        popup.setFixedWidth(popup_width)
+        main_window = self.window()
+        screen = QApplication.screenAt(self.mapToGlobal(self.rect().center()))
+        if screen is None:
+            screen = self.screen()
+
+        main_rect = main_window.frameGeometry()
+        screen_rect = screen.availableGeometry() if screen is not None else main_rect
+        left = max(main_rect.left(), screen_rect.left())
+        right = min(main_rect.right(), screen_rect.right())
+        available_width = max(1, right - left + 1)
+        popup_width = min(max(1, self.width()), available_width)
+
+        combo_global = self.mapToGlobal(self.rect().topLeft())
+        popup_x = max(left, min(combo_global.x(), right - popup_width + 1))
+        popup_y = combo_global.y() + self.height()
+
+        popup.setGeometry(
+            popup_x,
+            popup_y,
+            popup_width,
+            popup.geometry().height(),
+        )
+        popup = self.view().window()
         view_width = max(1, popup_width - (2 * popup.frameWidth()))
         self.view().setMinimumWidth(view_width)
         self.view().setMaximumWidth(view_width)

@@ -55,16 +55,37 @@ class OnlineServiceCommanderComboTests(unittest.TestCase):
         self.assertIn(long_name, long_combo.toolTip())
         self.assertIn("FID-LONG", long_combo.toolTip())
 
-    def test_popup_is_constrained_to_combo_width_and_elides_long_text(self):
+    def test_popup_geometry_stays_inside_narrow_main_window(self):
         window, combo = self._window_with_combo("A" * 500)
-        window.resize(420, 160)
+        window.setGeometry(100, 100, 420, 160)
+        combo.setFixedWidth(260)
+        window.centralWidget().layout().setAlignment(
+            combo, Qt.AlignmentFlag.AlignRight
+        )
         window.show()
         self.app.processEvents()
         combo.showPopup()
         self.app.processEvents()
         try:
-            self.assertLessEqual(combo.view().width(), combo.width())
-            self.assertLessEqual(combo.view().window().width(), combo.width())
+            combo_global = combo.mapToGlobal(combo.rect().topLeft())
+            popup_geometry = combo.view().window().geometry()
+            main_geometry = window.frameGeometry()
+            screen_geometry = window.screen().availableGeometry()
+            visible_right = min(main_geometry.right(), screen_geometry.right())
+
+            self.assertGreater(
+                combo_global.x() + combo.width(),
+                window.frameGeometry().center().x(),
+            )
+            self.assertLessEqual(popup_geometry.right(), visible_right)
+            self.assertGreaterEqual(
+                popup_geometry.left(),
+                max(main_geometry.left(), screen_geometry.left()),
+            )
+            self.assertLessEqual(popup_geometry.width(), combo.width())
+            self.assertEqual(
+                popup_geometry.top(), combo_global.y() + combo.height()
+            )
             self.assertEqual(
                 combo.view().textElideMode(), Qt.TextElideMode.ElideRight
             )
