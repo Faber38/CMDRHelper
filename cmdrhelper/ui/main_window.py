@@ -75,7 +75,39 @@ from PySide6.QtWidgets import (
     QSpinBox,
     QFontComboBox,
     QComboBox,
+    QSizePolicy,
 )
+
+
+class OnlineServiceCommanderComboBox(QComboBox):
+    """Commander selector whose contents never dictate the window width."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setSizeAdjustPolicy(
+            QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
+        )
+        self.setMinimumContentsLength(12)
+        self.setMinimumWidth(0)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.view().setTextElideMode(Qt.TextElideMode.ElideRight)
+        self.view().setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        self.currentIndexChanged.connect(self._sync_current_tooltip)
+
+    def _sync_current_tooltip(self, *_args):
+        self.setToolTip(str(self.currentData(Qt.ItemDataRole.ToolTipRole) or ""))
+
+    def showPopup(self):
+        popup_width = max(1, self.width())
+        self.view().setMaximumWidth(popup_width)
+        super().showPopup()
+        popup = self.view().window()
+        popup.setFixedWidth(popup_width)
+        view_width = max(1, popup_width - (2 * popup.frameWidth()))
+        self.view().setMinimumWidth(view_width)
+        self.view().setMaximumWidth(view_width)
 
 
 class ChronicleSystemWindow(QDialog):
@@ -4108,7 +4140,7 @@ class MainWindow(QMainWindow):
 
         edsm_form = QFormLayout()
 
-        self.edsm_commander_combo = QComboBox()
+        self.edsm_commander_combo = OnlineServiceCommanderComboBox()
         known_commanders = self.state.database.list_commanders()
         for item in known_commanders:
             config = self.state.edsm_settings_for_fid(item["fid"])
@@ -4124,9 +4156,16 @@ class MainWindow(QMainWindow):
             self.edsm_commander_combo.setItemData(
                 index, item.get("current_name") or item["fid"], Qt.UserRole + 1
             )
+            self.edsm_commander_combo.setItemData(
+                index,
+                f"{item.get('current_name') or item['fid']} ({item['fid']}) — "
+                f"{tr(setup_key)}",
+                Qt.ItemDataRole.ToolTipRole,
+            )
         current_index = self.edsm_commander_combo.findData(self.state.commander_fid)
         if current_index >= 0:
             self.edsm_commander_combo.setCurrentIndex(current_index)
+        self.edsm_commander_combo._sync_current_tooltip()
         self.edsm_commander_combo.currentIndexChanged.connect(
             self._load_selected_edsm_settings
         )
@@ -4176,7 +4215,7 @@ class MainWindow(QMainWindow):
 
         inara_form = QFormLayout()
 
-        self.inara_commander_combo = QComboBox()
+        self.inara_commander_combo = OnlineServiceCommanderComboBox()
         known_commanders = self.state.database.list_commanders()
         for item in known_commanders:
             config = self.state.inara_settings_for_fid(item["fid"])
@@ -4187,9 +4226,16 @@ class MainWindow(QMainWindow):
             self.inara_commander_combo.setItemData(
                 index, item.get("current_name") or item["fid"], Qt.UserRole + 1
             )
+            self.inara_commander_combo.setItemData(
+                index,
+                f"{item.get('current_name') or item['fid']} ({item['fid']}) — "
+                f"{tr(setup_key)}",
+                Qt.ItemDataRole.ToolTipRole,
+            )
         current_index = self.inara_commander_combo.findData(self.state.commander_fid)
         if current_index >= 0:
             self.inara_commander_combo.setCurrentIndex(current_index)
+        self.inara_commander_combo._sync_current_tooltip()
         self.inara_commander_combo.currentIndexChanged.connect(
             self._load_selected_inara_settings
         )
@@ -5265,6 +5311,12 @@ class MainWindow(QMainWindow):
             self.edsm_commander_combo.setItemText(
                 index, f"{base_label} — {tr(setup_key)}"
             )
+            self.edsm_commander_combo.setItemData(
+                index,
+                f"{commander_name} ({config['fid']}) — {tr(setup_key)}",
+                Qt.ItemDataRole.ToolTipRole,
+            )
+            self.edsm_commander_combo._sync_current_tooltip()
         saved_status = config["last_test_status"]
         if "|" in saved_status:
             status, text = saved_status.split("|", 1)
@@ -5298,6 +5350,12 @@ class MainWindow(QMainWindow):
         self.inara_commander_combo.setItemText(
             selected_index, f"{base_label} — {tr(setup_key)}"
         )
+        self.inara_commander_combo.setItemData(
+            selected_index,
+            f"{commander_name} ({config['fid']}) — {tr(setup_key)}",
+            Qt.ItemDataRole.ToolTipRole,
+        )
+        self.inara_commander_combo._sync_current_tooltip()
         saved_status = config["last_test_status"]
         if "|" in saved_status:
             status, text = saved_status.split("|", 1)
