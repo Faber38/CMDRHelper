@@ -20,6 +20,7 @@ from cmdrhelper.online_services import (
 from cmdrhelper.inara_uploader import (
     account_guidance,
     header_presentation as inara_header_presentation,
+    header_tooltip as inara_header_tooltip,
 )
 from cmdrhelper.version import __version__
 from cmdrhelper.i18n import tr, get_language, set_language
@@ -1477,7 +1478,7 @@ class MainWindow(QMainWindow):
         self.edsm_upload_label.setToolTip(tr("topbar.edsm_tooltip"))
 
         self.inara_upload_label = QLabel(tr("topbar.inara_waiting"), objectName="muted")
-        self.inara_upload_label.setToolTip(tr("topbar.inara_prepared_tooltip"))
+        self.inara_upload_label.setToolTip(tr("topbar.inara_waiting_tooltip"))
 
         top.addWidget(self.commander_label)
 
@@ -5660,7 +5661,10 @@ class MainWindow(QMainWindow):
         text_key, object_name = inara_header_presentation(inara_status)
         self.inara_upload_label.setText(tr(text_key))
         self.inara_upload_label.setObjectName(object_name)
-        self.inara_upload_label.setToolTip(inara_message)
+        tooltip = tr(inara_header_tooltip(inara_status))
+        if inara_status == "error" and inara_message:
+            tooltip = f"{tooltip}\n{inara_message}"
+        self.inara_upload_label.setToolTip(tooltip)
 
         self.inara_upload_label.style().unpolish(self.inara_upload_label)
         self.inara_upload_label.style().polish(self.inara_upload_label)

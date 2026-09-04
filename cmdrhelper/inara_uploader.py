@@ -25,6 +25,15 @@ def header_presentation(status):
     }.get(status, ("topbar.inara_off", "muted"))
 
 
+def header_tooltip(status):
+    return {
+        "waiting": "topbar.inara_waiting_tooltip",
+        "uploading": "topbar.inara_uploading_tooltip",
+        "ok": "topbar.inara_ok_tooltip",
+        "error": "topbar.inara_error_tooltip",
+    }.get(status, "topbar.inara_off_tooltip")
+
+
 def account_guidance(configured):
     if configured:
         return "settings.inara_key_hint", "settings.inara_configured_short"

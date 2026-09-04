@@ -13,6 +13,7 @@ from cmdrhelper.state import AppState
 from cmdrhelper.inara_uploader import (
     account_guidance,
     header_presentation as inara_header_presentation,
+    header_tooltip as inara_header_tooltip,
     map_journal_event,
     upload_batch,
 )
@@ -169,6 +170,7 @@ class InaraCommanderSettingsTests(unittest.TestCase):
         self.state.commander = "Alpha"
         self.state._inara_upload_running = False
         self.state._inara_upload_token = None
+        self.state._inara_runtime_by_fid = {}
         self.state.inara_enabled = False
         self.state.inara_api_key = ""
         self.state.inara_commander = ""
@@ -263,6 +265,47 @@ class InaraCommanderSettingsTests(unittest.TestCase):
         self.assertEqual(self.state.database.updates, [([22], {})])
         self.assertEqual(self.state.database.rows[1][0]["id"], 11)
 
+    def test_normal_refresh_preserves_success_status(self):
+        class DatabaseStub:
+            def set_active_commander(self, _commander_id):
+                pass
+
+            def commander_summary(self, _commander_id):
+                return {}
+
+        self.state.set_inara_settings("Alpha", "KEY-A", True, fid="F-A")
+        self.state._inara_runtime_by_fid["F-A"] = ("ok", "confirmed")
+        self.state.database = DatabaseStub()
+        self.state._journal_index_sessions = [{
+            "commander_id": 1,
+            "fid_seen": "F-A",
+            "commander_name_seen": "Alpha",
+            "attribution_status": "identified",
+        }]
+        self.state._viewed_commander_user_selected = True
+        with patch.object(AppState, "_migrate_legacy_inara_settings"), patch.object(
+            AppState, "_migrate_legacy_edsm_settings"
+        ), patch.object(AppState, "_load_live_edsm_settings"), patch.object(
+            AppState, "_restore_persistent_commander_state"
+        ):
+            self.state._prepare_indexed_live_state()
+        self.assertEqual(
+            (self.state.inara_upload_status, self.state.inara_upload_message),
+            ("ok", "confirmed"),
+        )
+
+    def test_commander_switch_restores_own_status(self):
+        self.state.set_inara_settings("Alpha", "KEY-A", True, fid="F-A")
+        self.state.set_inara_settings("Beta", "KEY-B", True, fid="F-B")
+        self.state._inara_runtime_by_fid["F-A"] = ("ok", "A confirmed")
+        self.state._inara_runtime_by_fid["F-B"] = ("error", "B failed")
+        self.state.commander_fid = "F-B"
+        self.state._load_live_inara_settings()
+        self.assertEqual(
+            (self.state.inara_upload_status, self.state.inara_upload_message),
+            ("error", "B failed"),
+        )
+
 class InaraTransportTests(unittest.TestCase):
     rows = [{"id": 1, "event_name": "addCommanderTravelFSDJump",
              "event_timestamp": "2026-09-04T10:00:00Z",
@@ -302,8 +345,12 @@ class InaraTransportTests(unittest.TestCase):
 
     def test_header_statuses(self):
         self.assertEqual(inara_header_presentation("disabled")[0], "topbar.inara_off")
+        self.assertEqual(inara_header_tooltip("disabled"), "topbar.inara_off_tooltip")
         for status in ("waiting", "uploading", "ok", "error"):
             self.assertIn(status, inara_header_presentation(status)[0])
+            self.assertEqual(
+                inara_header_tooltip(status), f"topbar.inara_{status}_tooltip"
+            )
 
 
 if __name__ == "__main__":

@@ -109,6 +109,7 @@ class AppState(QObject):
         self.inara_enabled = False
         self._inara_upload_running = False
         self._inara_upload_token = None
+        self._inara_runtime_by_fid = {}
         self.inara_upload_status = "waiting" if self.inara_enabled else "disabled"
         self.inara_upload_message = (
             "Warte auf Inara-Übertragung" if self.inara_enabled else "Inara deaktiviert"
@@ -701,11 +702,9 @@ class AppState(QObject):
         if enabled is not None:
             self.settings.setValue(f"{prefix}/enabled", bool(enabled))
         if fid == self.commander_fid:
+            if any(value is not None for value in (commander, api_key, enabled)):
+                getattr(self, "_inara_runtime_by_fid", {}).pop(fid, None)
             self._load_live_inara_settings()
-        self.inara_upload_status = "waiting" if self.inara_enabled else "disabled"
-        self.inara_upload_message = (
-            "Warte auf Inara-Übertragung" if self.inara_enabled else "Inara deaktiviert"
-        )
 
     def inara_settings_for_fid(self, fid):
         fid = str(fid or "").strip()
@@ -735,6 +734,15 @@ class AppState(QObject):
         self.inara_commander = config["commander"]
         self.inara_api_key = config["api_key"]
         self.inara_enabled = config["enabled"]
+        runtime = getattr(self, "_inara_runtime_by_fid", {}).get(self.commander_fid)
+        if not self.inara_enabled:
+            self.inara_upload_status = "disabled"
+            self.inara_upload_message = "Inara deaktiviert"
+        elif runtime:
+            self.inara_upload_status, self.inara_upload_message = runtime
+        else:
+            self.inara_upload_status = "waiting"
+            self.inara_upload_message = "Warte auf Inara-Übertragung"
 
     def _migrate_legacy_inara_settings(self):
         if not hasattr(self.settings, "contains") or not hasattr(
@@ -768,6 +776,15 @@ class AppState(QObject):
 
     def _invalidate_inara_worker(self):
         """Detach a worker as soon as the active journal identity changes."""
+        fid = str(getattr(self, "commander_fid", "") or "")
+        status = getattr(self, "inara_upload_status", "disabled")
+        if fid and status != "uploading":
+            runtime = getattr(self, "_inara_runtime_by_fid", None)
+            if runtime is None:
+                runtime = self._inara_runtime_by_fid = {}
+            runtime[fid] = (
+                status, getattr(self, "inara_upload_message", "")
+            )
         self._inara_upload_token = None
         self._inara_upload_running = False
 
@@ -814,6 +831,9 @@ class AppState(QObject):
                 else:
                     self.inara_upload_status = "ok"
                     self.inara_upload_message = f"Letzte Inara-Übertragung erfolgreich: {len(sent)} Event(s)"
+                self._inara_runtime_by_fid[commander_fid] = (
+                    self.inara_upload_status, self.inara_upload_message
+                )
             except Exception as exc:
                 if self._inara_upload_token is not token:
                     return
@@ -824,6 +844,9 @@ class AppState(QObject):
                 if commander_fid == self.commander_fid:
                     self.inara_upload_status = "error"
                     self.inara_upload_message = message
+                    self._inara_runtime_by_fid[commander_fid] = (
+                        self.inara_upload_status, self.inara_upload_message
+                    )
                 logger.warning("Inara-Upload pausiert: %s", message)
             finally:
                 if self._inara_upload_token is token:
@@ -1367,13 +1390,6 @@ class AppState(QObject):
                 AppState._migrate_legacy_edsm_settings(self)
             AppState._load_live_inara_settings(self)
             AppState._load_live_edsm_settings(self)
-        if hasattr(self, "inara_enabled") and not getattr(
-            self, "_inara_upload_running", False
-        ):
-            self.inara_upload_status = (
-                "waiting" if self.inara_enabled else "disabled"
-            )
-
         if not getattr(self, "_viewed_commander_user_selected", False):
             previous_viewed = getattr(self, "viewed_commander_id", None)
             self.viewed_commander_id = commander_id

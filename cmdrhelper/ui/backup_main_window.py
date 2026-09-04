@@ -1128,7 +1128,7 @@ class MainWindow(QMainWindow):
 
         self.inara_upload_label = QLabel(tr("topbar.inara_waiting"), objectName="muted")
         self.inara_upload_label.setToolTip(
-            tr("topbar.inara_prepared_tooltip")
+            tr("topbar.inara_waiting_tooltip")
         )
 
         top.addWidget(self.commander_label)
@@ -3978,13 +3978,13 @@ class MainWindow(QMainWindow):
             self.inara_upload_label.setText(tr("topbar.inara_waiting"))
             self.inara_upload_label.setObjectName("muted")
             self.inara_upload_label.setToolTip(
-                tr("topbar.inara_enabled_tooltip")
+                tr("topbar.inara_waiting_tooltip")
             )
         else:
             self.inara_upload_label.setText(tr("topbar.inara_off"))
             self.inara_upload_label.setObjectName("muted")
             self.inara_upload_label.setToolTip(
-                tr("topbar.inara_disabled_tooltip")
+                tr("topbar.inara_off_tooltip")
             )
 
         self.inara_upload_label.style().unpolish(self.inara_upload_label)
