@@ -725,6 +725,7 @@ class ExplorerLiveListWindow(QDialog):
         self.window_kind = str(window_kind or "value")
         self.setWindowTitle(title)
         self.setWindowFlags(self.windowFlags() | Qt.Window)
+        self.setAttribute(Qt.WA_ShowWithoutActivating, True)
         self.resize(620, 260)
 
         root = QVBoxLayout(self)
@@ -1238,6 +1239,7 @@ class CargoLiveWindow(QDialog):
         self.settings = settings
         self.geometry_key = "cargo_live/geometry"
         self.setWindowFlags(self.windowFlags() | Qt.Window)
+        self.setAttribute(Qt.WA_ShowWithoutActivating, True)
         self.resize(360, 300)
         self.setMinimumSize(300, 190)
 
@@ -3009,14 +3011,12 @@ class MainWindow(QMainWindow):
         if value_live_enabled and valuable_rows:
             if not self._explorer_value_live_window.isVisible():
                 self._explorer_value_live_window.show()
-                self._explorer_value_live_window.raise_()
         elif self._explorer_value_live_window.isVisible():
             self._explorer_value_live_window.hide()
 
         if bio_live_enabled and bio_rows:
             if not self._explorer_bio_live_window.isVisible():
                 self._explorer_bio_live_window.show()
-                self._explorer_bio_live_window.raise_()
         elif self._explorer_bio_live_window.isVisible():
             self._explorer_bio_live_window.hide()
 
@@ -5566,7 +5566,6 @@ class MainWindow(QMainWindow):
         self._cargo_live_window.set_snapshot(snapshot)
         if not self._cargo_live_window.isVisible():
             self._cargo_live_window.show()
-            self._cargo_live_window.raise_()
 
     def _set_explorer_value_threshold(self, value):
         value = max(0, int(value or 0))
