@@ -23,10 +23,16 @@ class _SignalStub:
 
 
 class _SettingsStub:
+    def __init__(self):
+        self.values = {}
+
     def value(self, _key, default=None):
-        return default
+        return self.values.get(_key, default)
 
     def setValue(self, _key, _value):
+        self.values[_key] = _value
+
+    def sync(self):
         pass
 
 
@@ -78,6 +84,20 @@ class ContextHelpTests(unittest.TestCase):
         self.assertLess(help_index, title_index)
         self.assertLess(title_index, frame_index)
         self.assertLess(frame_index, exit_index)
+
+    def test_cargo_live_switch_is_third_and_persistent(self):
+        layout = self.window.auto_show_frame.layout()
+        self.assertLess(
+            layout.indexOf(self.window.explorer_value_live_enabled_check),
+            layout.indexOf(self.window.explorer_bio_live_enabled_check),
+        )
+        self.assertLess(
+            layout.indexOf(self.window.explorer_bio_live_enabled_check),
+            layout.indexOf(self.window.cargo_live_enabled_check),
+        )
+        self.assertEqual(self.window.cargo_live_enabled_check.text(), "Frachtraum")
+        self.window.cargo_live_enabled_check.setChecked(True)
+        self.assertTrue(self.state.settings.values["cargo_live/enabled"])
 
     def test_all_main_pages_open_the_correct_help_context(self):
         for page, context in self.window.HELP_CONTEXTS.items():
@@ -194,6 +214,8 @@ class ContextHelpTests(unittest.TestCase):
             "Prognosen sind keine Garantie",
             "Bereits verkaufte Kartographiedaten",
             "Globale astronomische Eigenschaften eines Bodys",
+            "Frachtraum automatisch eingeblendet",
+            "SRV-Fracht wird niemals als Schiffsfracht übernommen",
         ):
             self.assertIn(passage, topic.text)
         self.assertEqual(topic.text.count("<h3>"), 20)
@@ -409,6 +431,8 @@ class ContextHelpTests(unittest.TestCase):
             "prüft kurz, ob der neue Prozess stabil anläuft",
             "Aktive Journal-FID = Wer darf live senden?",
             "oberhalb von „auto einblenden“",
+            "„Wertvolle Körper“, „BIO-Funde“ und „Frachtraum“",
+            "aktive Journal-FID bestätigten Cargo-Snapshot",
         ):
             self.assertIn(passage, topic.text)
         self.assertEqual(topic.text.count("<h3>"), 28)

@@ -30,6 +30,7 @@ from cmdrhelper.edsm_uploader import EDSMJournalUploader
 from cmdrhelper.inara_uploader import BATCH_SIZE as INARA_BATCH_SIZE, upload_batch
 from cmdrhelper.bio_valuation import biology_totals
 from cmdrhelper.route_planner.models import GuardianFsdBooster, ShipLoadoutData
+from cmdrhelper.cargo import read_cargo_snapshot
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +42,7 @@ class AppState(QObject):
     positionChanged = Signal(str, object, str)
     shipLoadoutChanged = Signal(object)
     shipRouteInputsChanged = Signal(object)
+    cargoSnapshotChanged = Signal(object)
     edsmBodiesReady = Signal(str, object, str)
     databaseImportProgress = Signal(int, int, str)
     databaseImportFinished = Signal(object, str)
@@ -78,6 +80,7 @@ class AppState(QObject):
         self.station = ""
         self.ship = ""
         self.ship_loadout = ShipLoadoutData()
+        self.cargo_snapshot = None
         self.last_timestamp = ""
 
         self.missions = []
@@ -1270,6 +1273,10 @@ class AppState(QObject):
         self.station = ""
         self.ship = ""
         self.ship_loadout = ShipLoadoutData()
+        self.cargo_snapshot = None
+        cargo_signal = getattr(self, "cargoSnapshotChanged", None)
+        if cargo_signal is not None:
+            cargo_signal.emit(None)
         self.last_timestamp = ""
         self.missions = []
 
@@ -1601,6 +1608,8 @@ class AppState(QObject):
         self.last_timestamp = data["last_timestamp"]
         self.journal_files = data["journal_files"]
 
+        self._apply_live_cargo_snapshot(data, current_session)
+
         if (
             identity_changed
             or self._ship_loadout_signature(previous_loadout)
@@ -1773,6 +1782,62 @@ class AppState(QObject):
         self._upload_pending_to_inara()
         self._request_edsm_for_current_system()
         return True
+
+    def _apply_live_cargo_snapshot(self, data, current_session):
+        """Bind Cargo.json only to the uniquely identified live journal FID."""
+        identified = (
+            current_session
+            and current_session.get("attribution_status") == "identified"
+            and current_session.get("commander_id") is not None
+            and str(current_session.get("fid_seen") or "").strip()
+            == str(self.commander_fid or "").strip()
+        )
+        if not identified:
+            if self.cargo_snapshot is not None:
+                self.cargo_snapshot = None
+                self.cargoSnapshotChanged.emit(None)
+            return
+        current_loadout = self.ship_loadout or ShipLoadoutData()
+        if (
+            isinstance(self.cargo_snapshot, dict)
+            and self.cargo_snapshot.get("vessel") == "Ship"
+            and self.cargo_snapshot.get("ship_id") is not None
+            and current_loadout.ship_id is not None
+            and self.cargo_snapshot.get("ship_id") != current_loadout.ship_id
+        ):
+            self.cargo_snapshot = None
+            self.cargoSnapshotChanged.emit(None)
+        trigger = data.get("last_cargo_event") if identified else None
+        if not isinstance(trigger, dict):
+            return
+
+        vessel = str(trigger.get("Vessel") or "").strip().casefold()
+        if vessel not in ("ship", "srv"):
+            return
+        previous = self.cargo_snapshot
+        if (
+            isinstance(previous, dict)
+            and previous.get("fid") == self.commander_fid
+            and str(previous.get("vessel") or "").casefold() == vessel
+            and previous.get("timestamp") == str(trigger.get("timestamp") or "")
+            and previous.get("count") == trigger.get("Count")
+        ):
+            return
+
+        loadout = current_loadout
+        snapshot = read_cargo_snapshot(
+            Path(self.journal_folder) / "Cargo.json",
+            trigger,
+            fid=self.commander_fid,
+            ship_id=loadout.ship_id,
+            cargo_capacity=loadout.cargo_capacity,
+            srv_type=data.get("active_srv_type") or "",
+            attempts=5,
+            retry_delay=0.04,
+        )
+        if snapshot != previous:
+            self.cargo_snapshot = snapshot
+            self.cargoSnapshotChanged.emit(snapshot)
 
     @staticmethod
     def _ship_loadout_signature(loadout):

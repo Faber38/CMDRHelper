@@ -234,8 +234,9 @@ HELP_TOPICS = {
 <p>Bereits verkaufte Kartographiedaten sollen nach einer Rekonstruktion nicht erneut als offen erscheinen.</p>
 
 <h3>Auto einblenden</h3>
-<p>Über die Schalter in der linken Seitenleiste können unterstützte Explorer-Hinweise wie Wertvolle Körper oder BIO-Funde automatisch eingeblendet werden.</p>
+<p>Über die Schalter in der linken Seitenleiste können unterstützte Live-Hinweise wie Wertvolle Körper, BIO-Funde oder Frachtraum automatisch eingeblendet werden.</p>
 <p>Diese kleinen Livefenster dienen als zusätzliche Hinweise während des Spielens und ersetzen nicht die vollständige Exploreransicht.</p>
+<p>„Frachtraum“ zeigt den aktuell bestätigten Bestand des durch die aktive Journal-FID bestimmten Schiffs oder SRV. SRV-Fracht wird niemals als Schiffsfracht übernommen; Drohnen zählen zur Gesamtbelegung und werden in der Liste getrennt dargestellt.</p>
 
 <h3>Mehrere Commander</h3>
 <p>Persönliche Explorationsergebnisse, Kartographie, BIO-Funde und eigene Surface-Mining-Funde werden dem jeweiligen Commander zugeordnet.</p>
@@ -844,8 +845,9 @@ HELP_TOPICS = {
 <p>Der Explorer-Werteschwellwert legt fest, ab welchem geschätzten Creditwert Körper als besonders wertvoll hervorgehoben werden. Die Änderung wird unmittelbar gespeichert und aktualisiert die entsprechende Explorer-Darstellung.</p>
 
 <h3>Automatisch einblenden</h3>
-<p>„Wertvolle Körper“ und „BIO-Funde“ befinden sich fest in der linken Seitenleiste, nicht innerhalb der Einstellungsseite.</p>
-<p>Die Schalter werden gespeichert und steuern die unterstützten kleinen Live-Hinweisfenster während der Exploration. Der Werteschwellwert für „Wertvolle Körper“ wird in den Oberflächeneinstellungen festgelegt.</p>
+<p>„Wertvolle Körper“, „BIO-Funde“ und „Frachtraum“ befinden sich fest in der linken Seitenleiste, nicht innerhalb der Einstellungsseite.</p>
+<p>Die Schalter werden gespeichert und steuern die unterstützten kleinen Livefenster. Der Werteschwellwert für „Wertvolle Körper“ wird in den Oberflächeneinstellungen festgelegt.</p>
+<p>Das Frachtraumfenster verwendet ausschließlich den für die aktive Journal-FID bestätigten Cargo-Snapshot. Der in der CMDR Ansicht betrachtete Commander beeinflusst dieses Livefenster nicht.</p>
 
 <h3>Updates</h3>
 <p>Die Updategruppe zeigt installierte Version und GitHub-Status. „Jetzt prüfen“ sucht manuell nach einer neuen vorgesehenen CMDRHelper-Version; zusätzlich findet nach dem Start eine verzögerte automatische Prüfung statt.</p>

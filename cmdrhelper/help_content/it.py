@@ -327,6 +327,7 @@ HELP_TOPICS = {'overview': ('Panoramica',
               'barra laterale sinistra.</p>\n'
               '<p>Queste piccole finestre live servono come suggerimenti aggiuntivi durante il '
               'gioco e non sostituiscono la visualizzazione completa di Explorer.</p>\n'
+              '<p>“Cargo” mostra le scorte confermate dello Ship o SRV determinato dalla FID attiva del Journal. Il Cargo dello SRV non viene mai acquisito come Cargo dello Ship; i Limpets contano nell’occupazione totale e vengono mostrati separatamente nella tabella Nome | Quantità.</p>\n'
               '\n'
               '<h3>Diversi comandanti</h3>\n'
               "<p>I risultati dell'esplorazione personale, la cartografia, i reperti BIO e i "
@@ -1271,6 +1272,8 @@ HELP_TOPICS = {'overview': ('Panoramica',
               '<p>Gli interruttori vengono salvati e controllano le piccole finestre di '
               "suggerimento live supportate durante l'esplorazione. La soglia del valore per gli "
               "Enti di valore è impostata nelle impostazioni dell'interfaccia.</p>\n"
+              '\n'
+              '<p>La finestra Cargo utilizza esclusivamente lo snapshot Cargo confermato per la FID attiva del Journal. Il commander visualizzato in CMDR View e viewed_commander_id non influiscono su questa finestra live. Per uno Ship mostra occupato / massimo · libero; se CargoCapacity è sconosciuta, non viene stimato alcun valore.</p>\n'
               '\n'
               '<h3>Aggiornamenti</h3>\n'
               '<p>Il gruppo di aggiornamento mostra la versione installata e lo stato di GitHub. '

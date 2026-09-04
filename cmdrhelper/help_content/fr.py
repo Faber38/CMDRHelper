@@ -334,6 +334,7 @@ HELP_TOPICS = {'overview': ('Aperçu',
               'dans la barre latérale gauche.</p>\n'
               "<p>Ces petites fenêtres en direct servent d'indices supplémentaires pendant la "
               "lecture et ne remplacent pas la vue complète de l'Explorateur.</p>\n"
+              '<p>« Cargo » affiche le stock confirmé du Ship ou du SRV déterminé par la FID active du Journal. Le Cargo du SRV n’est jamais repris comme Cargo du Ship ; les Limpets comptent dans l’occupation totale et sont affichés séparément dans le tableau Nom | Quantité.</p>\n'
               '\n'
               '<h3>Plusieurs commandants</h3>\n'
               "<p>Les résultats d'exploration personnels, la cartographie, les découvertes BIO et "
@@ -1299,6 +1300,8 @@ HELP_TOPICS = {'overview': ('Aperçu',
               '<p>Les commutateurs sont enregistrés et contrôlent les petites fenêtres '
               "d'indications en direct prises en charge pendant l'exploration. Le seuil de valeur "
               "pour les corps précieux est défini dans les paramètres de l'interface.</p>\n"
+              '\n'
+              '<p>La fenêtre Cargo utilise exclusivement le snapshot Cargo confirmé pour la FID active du Journal. Le commander consulté dans CMDR View et viewed_commander_id n’influencent pas cette fenêtre en direct. Pour un Ship, elle affiche occupé / maximum · libre ; si CargoCapacity est inconnue, aucune valeur n’est estimée.</p>\n'
               '\n'
               '<h3>Mises à jour</h3>\n'
               "<p>Le groupe de mise à jour affiche la version installée et l'état de GitHub. "

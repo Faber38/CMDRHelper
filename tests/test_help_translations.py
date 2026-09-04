@@ -56,10 +56,29 @@ class HelpTranslationTests(unittest.TestCase):
                     self.assertTrue(area.strip())
                     self.assertTrue(text.strip())
                     self.assertNotEqual((area, text), (german_area, german_text))
-                    self.assertEqual(_tag_structure(text), _tag_structure(german_text))
+                    self.assertEqual(
+                        _tag_structure(text),
+                        _tag_structure(german_text),
+                    )
                     self.assertNotRegex(
                         text, r"<(?:h2|h3|p|li|b|code)>\s*</(?:h2|h3|p|li|b|code)>"
                     )
+
+    def test_cargo_help_is_present_in_every_language(self):
+        for language in HELP_LANGUAGES:
+            catalog = __import__(
+                f"cmdrhelper.help_content.{language}", fromlist=["HELP_TOPICS"]
+            )
+            explorer = catalog.HELP_TOPICS["explorer"][1]
+            settings = catalog.HELP_TOPICS["settings"][1]
+            combined = explorer + settings
+            with self.subTest(language=language):
+                self.assertIn("Cargo", combined)
+                self.assertIn("SRV", combined)
+                self.assertIn("FID", combined)
+                self.assertGreaterEqual(
+                    combined.count("Cargo") + combined.count("Frachtraum"), 2
+                )
 
     def test_translations_are_not_german_placeholder_help(self):
         german_openings = (

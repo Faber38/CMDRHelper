@@ -1230,6 +1230,153 @@ class ExplorerLiveListWindow(QDialog):
                 self.table.setItem(row_index, col, item)
 
 
+class CargoLiveWindow(QDialog):
+    """Compact movable view of the last authoritative live Cargo snapshot."""
+
+    def __init__(self, settings, parent=None):
+        super().__init__(parent)
+        self.settings = settings
+        self.geometry_key = "cargo_live/geometry"
+        self.setWindowFlags(self.windowFlags() | Qt.Window)
+        self.resize(360, 300)
+        self.setMinimumSize(300, 190)
+
+        root = QVBoxLayout(self)
+        root.setContentsMargins(8, 8, 8, 8)
+        root.setSpacing(5)
+        self.title_label = QLabel(objectName="sectionTitle")
+        self.title_label.setStyleSheet("font-size: 14px; font-weight: 700;")
+        self.summary_label = QLabel(objectName="muted")
+        self.summary_label.setStyleSheet("font-size: 13px; font-weight: 600;")
+        self.table = QTableWidget(0, 2)
+        self.table.setHorizontalHeaderLabels([
+            tr("cargo.live.column_name"),
+            tr("cargo.live.column_count"),
+        ])
+        self.table.horizontalHeader().setSectionResizeMode(
+            0, QHeaderView.ResizeMode.Stretch
+        )
+        self.table.horizontalHeader().setSectionResizeMode(
+            1, QHeaderView.ResizeMode.ResizeToContents
+        )
+        self.table.verticalHeader().setVisible(False)
+        self.table.setAlternatingRowColors(True)
+        self.table.setSelectionMode(QTableWidget.SelectionMode.NoSelection)
+        self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.table.setShowGrid(False)
+        root.addWidget(self.title_label)
+        root.addWidget(self.summary_label)
+        root.addWidget(self.table, 1)
+
+        self.setStyleSheet("""
+            QDialog { background-color: #171012; }
+            QLabel { background: transparent; }
+            QTableWidget {
+                background-color: #151012;
+                alternate-background-color: #1d1417;
+                border: 1px solid #493038;
+            }
+            QHeaderView::section {
+                background-color: #25191d;
+                border: 0;
+                border-bottom: 1px solid #493038;
+                padding: 3px 5px;
+                font-weight: 600;
+            }
+        """)
+        geometry = self.settings.value(self.geometry_key)
+        if geometry is not None:
+            try:
+                self.restoreGeometry(geometry)
+            except Exception:
+                pass
+
+    def _save_geometry(self):
+        self.settings.setValue(self.geometry_key, self.saveGeometry())
+        self.settings.sync()
+
+    def moveEvent(self, event):
+        super().moveEvent(event)
+        self._save_geometry()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._save_geometry()
+
+    def closeEvent(self, event):
+        self._save_geometry()
+        super().closeEvent(event)
+
+    def set_snapshot(self, snapshot):
+        snapshot = snapshot if isinstance(snapshot, dict) else {}
+        vessel = str(snapshot.get("vessel") or "")
+        vehicle = str(snapshot.get("vehicle_name") or "").casefold()
+        if vessel == "Ship":
+            title = tr("cargo.live.title_ship")
+        elif "rhino" in vehicle:
+            title = tr("cargo.live.title_rhino")
+        else:
+            title = tr("cargo.live.title_srv")
+        self.setWindowTitle(title)
+        self.title_label.setText(title)
+
+        count = max(0, int(snapshot.get("count") or 0))
+        capacity = snapshot.get("capacity") if vessel == "Ship" else None
+        if capacity is None:
+            self.summary_label.setText(
+                tr("cargo.live.loaded_unknown", count=count)
+                if vessel == "Ship" else tr("cargo.live.loaded", count=count)
+            )
+        else:
+            capacity = max(0, int(capacity))
+            self.summary_label.setText(tr(
+                "cargo.live.capacity", count=count, capacity=capacity,
+                free=max(0, capacity - count),
+            ))
+
+        self.table.setRowCount(0)
+        inventory = list(snapshot.get("inventory") or [])
+        commodities = [item for item in inventory if not item.get("is_drones")]
+        drones = [item for item in inventory if item.get("is_drones")]
+        if not inventory:
+            self.table.setRowCount(1)
+            empty_item = QTableWidgetItem(tr("cargo.live.empty"))
+            empty_item.setFlags(empty_item.flags() & ~Qt.ItemFlag.ItemIsSelectable)
+            self.table.setItem(0, 0, empty_item)
+            self.table.setSpan(0, 0, 1, 2)
+            return
+        rows = commodities + drones
+        self.table.setRowCount(len(rows))
+        for row, item in enumerate(rows):
+            name = (
+                tr("cargo.live.drones") if item.get("is_drones")
+                else str(item.get("display_name") or item.get("frontier_name") or "–")
+            )
+            unit = "" if item.get("is_drones") else " t"
+            stolen = int(item.get("stolen") or 0)
+            if stolen > 0:
+                name += " · " + tr("cargo.live.stolen", count=stolen)
+            name_item = QTableWidgetItem(name)
+            count_item = QTableWidgetItem(
+                f"{int(item.get('count') or 0)}{unit}"
+            )
+            count_item.setTextAlignment(
+                Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
+            )
+            if item.get("is_drones"):
+                font = name_item.font()
+                font.setBold(True)
+                name_item.setFont(font)
+                count_item.setFont(font)
+                background = QColor("#2b2024")
+                name_item.setBackground(background)
+                count_item.setBackground(background)
+                if commodities:
+                    self.table.setRowHeight(row, self.table.rowHeight(row) + 5)
+            self.table.setItem(row, 0, name_item)
+            self.table.setItem(row, 1, count_item)
+
+
 class MainWindow(QMainWindow):
     PAGE_OVERVIEW = 0
     PAGE_MISSIONS = 1
@@ -1269,6 +1416,7 @@ class MainWindow(QMainWindow):
         self._system_overview_window = None
         self._explorer_value_live_window = None
         self._explorer_bio_live_window = None
+        self._cargo_live_window = None
         self._explorer_live_system = None
         self._startup_progress_dialog = None
         self._help_dialog = None
@@ -1292,8 +1440,14 @@ class MainWindow(QMainWindow):
         self._refresh_chronicle_mining_commodities()
 
         self.state.changed.connect(self.refresh_all)
+        cargo_signal = getattr(self.state, "cargoSnapshotChanged", None)
+        if cargo_signal is not None:
+            cargo_signal.connect(self._refresh_cargo_live_window)
 
         self.refresh_all()
+        self._refresh_cargo_live_window(
+            getattr(self.state, "cargo_snapshot", None)
+        )
 
         # Updateprüfung bewusst leicht verzögert starten, damit das
         # Hauptfenster zuerst vollständig erscheinen kann.
@@ -1458,6 +1612,20 @@ class MainWindow(QMainWindow):
             lambda checked: self._set_explorer_live_window_enabled("bio", checked)
         )
         live_layout.addWidget(self.explorer_bio_live_enabled_check)
+
+        self.cargo_live_enabled_check = QCheckBox(
+            tr("settings.cargo_live_window")
+        )
+        self.cargo_live_enabled_check.setToolTip(
+            tr("settings.cargo_live_window_tooltip")
+        )
+        self.cargo_live_enabled_check.setChecked(
+            self._cargo_live_window_enabled()
+        )
+        self.cargo_live_enabled_check.toggled.connect(
+            self._set_cargo_live_window_enabled
+        )
+        live_layout.addWidget(self.cargo_live_enabled_check)
 
         side.addWidget(self.auto_show_frame)
 
@@ -5366,6 +5534,37 @@ class MainWindow(QMainWindow):
         # ob das betreffende Fenster angezeigt werden soll.
         if enabled and hasattr(self, "explorer_value_table"):
             self._refresh_explorer_live_windows()
+
+    def _cargo_live_window_enabled(self):
+        value = self.state.settings.value("cargo_live/enabled", False)
+        if isinstance(value, str):
+            return value.strip().lower() not in ("0", "false", "no", "off")
+        return bool(value)
+
+    def _set_cargo_live_window_enabled(self, enabled):
+        enabled = bool(enabled)
+        self.state.settings.setValue("cargo_live/enabled", enabled)
+        self.state.settings.sync()
+        if not enabled and self._cargo_live_window is not None:
+            self._cargo_live_window.hide()
+        elif enabled:
+            self._refresh_cargo_live_window(
+                getattr(self.state, "cargo_snapshot", None)
+            )
+
+    def _refresh_cargo_live_window(self, snapshot):
+        if not self._cargo_live_window_enabled() or not isinstance(snapshot, dict):
+            if self._cargo_live_window is not None:
+                self._cargo_live_window.hide()
+            return
+        if self._cargo_live_window is None:
+            self._cargo_live_window = CargoLiveWindow(
+                self.state.settings, parent=self
+            )
+        self._cargo_live_window.set_snapshot(snapshot)
+        if not self._cargo_live_window.isVisible():
+            self._cargo_live_window.show()
+            self._cargo_live_window.raise_()
 
     def _set_explorer_value_threshold(self, value):
         value = max(0, int(value or 0))

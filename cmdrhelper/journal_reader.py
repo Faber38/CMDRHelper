@@ -757,6 +757,8 @@ def read_latest_state(
         "system_address": None,
         "last_system_event": None,
         "last_event": None,
+        "last_cargo_event": None,
+        "active_srv_type": "",
         "star_pos": None,
         "body": "",
         "station": "",
@@ -1234,8 +1236,12 @@ def read_latest_state(
 
                     if is_definite_non_ship(e.get("Ship"), e.get("Ship_Localised")):
                         away_from_own_ship = True
+                        result["active_srv_type"] = str(
+                            e.get("Ship_Localised") or e.get("Ship") or ""
+                        ).strip()
                     else:
                         away_from_own_ship = False
+                        result["active_srv_type"] = ""
                         result["ship"] = (
                             e.get("ShipName") or e.get("Ship_Localised")
                             or e.get("Ship") or result["ship"]
@@ -1305,6 +1311,7 @@ def read_latest_state(
                         _remember_ship(ts)
 
                 elif et == "Cargo":
+                    result["last_cargo_event"] = dict(e)
                     if str(e.get("Vessel") or "").strip().casefold() == "ship":
                         cargo = _optional_int(e.get("Count"))
                         if cargo is not None:
@@ -1499,9 +1506,13 @@ def read_latest_state(
                 elif et == "LaunchSRV":
                     if e.get("PlayerControlled") is not False:
                         away_from_own_ship = True
+                        result["active_srv_type"] = str(
+                            e.get("SRVType_Localised") or e.get("SRVType") or ""
+                        ).strip()
 
                 elif et == "DockSRV":
                     away_from_own_ship = False
+                    result["active_srv_type"] = ""
 
                 elif et == "LaunchFighter":
                     if bool(e.get("PlayerControlled")):
