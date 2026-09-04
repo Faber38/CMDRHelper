@@ -25,6 +25,12 @@ def header_presentation(status):
     }.get(status, ("topbar.inara_off", "muted"))
 
 
+def account_guidance(configured):
+    if configured:
+        return "settings.inara_key_hint", "settings.inara_configured_short"
+    return "settings.inara_not_configured", "settings.inara_not_configured_short"
+
+
 def _optional(data: dict, target: str, source: str, transform=None) -> None:
     value = data.get(source)
     if value is None or value == "":

@@ -87,6 +87,7 @@ class FastStartCommanderTests(unittest.TestCase):
         state.ship_loadout = ShipLoadoutData()
         state.last_timestamp = ""
         state.missions = []
+        state.mission_reset_at = None
         state.journal_files = 0
         state.connected = False
         state.unsold_cartography_value = 0
@@ -159,6 +160,14 @@ class FastStartCommanderTests(unittest.TestCase):
             raise RuntimeError("delta persistence failed")
 
         with patch(
+            "cmdrhelper.state.read_latest_state",
+            return_value={
+                "commander_fid": "FID-B",
+                "commander_identity_name": "Bravo",
+                "commander_identity_timestamp": "2026-01-01T00:00:00Z",
+                "latest_journal_session": sessions[-1],
+            },
+        ), patch(
             "cmdrhelper.journal_reader.read_journal_delta",
             return_value=([{"event": "Test"}], 3),
         ), patch.object(

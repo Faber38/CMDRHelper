@@ -6,8 +6,12 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from PySide6.QtCore import QObject, QSettings
+
 from cmdrhelper.database import CMDRDatabase
+from cmdrhelper.state import AppState
 from cmdrhelper.inara_uploader import (
+    account_guidance,
     header_presentation as inara_header_presentation,
     map_journal_event,
     upload_batch,
@@ -86,6 +90,10 @@ class InaraOutboxTests(unittest.TestCase):
                                                enqueue_inara=False)
         self.assertEqual(self.db.inara_pending(1), [])
         with self.db._connect() as con:
+            location = con.execute("""SELECT system_name,event_type FROM commander_locations
+                WHERE commander_id=1""").fetchone()
+        self.assertEqual(location, ("Lave", "FSDJump"))
+        with self.db._connect() as con:
             con.execute("UPDATE journal_sessions SET last_read_offset=0 WHERE journal_file='a.log'")
         self.db.apply_commander_journal_delta(1, "a.log", [self.event()], 100,
                                                enqueue_inara=True)
@@ -110,6 +118,92 @@ class InaraOutboxTests(unittest.TestCase):
         with self.db._connect() as con:
             self.assertEqual(con.execute("SELECT status FROM inara_outbox").fetchone()[0], "sent")
 
+    def test_mapping_error_does_not_block_local_delta_or_offset(self):
+        with patch(
+            "cmdrhelper.inara_uploader.map_journal_event",
+            side_effect=ValueError("synthetic mapping failure"),
+        ), self.assertLogs("cmdrhelper.database", level="ERROR"):
+            self.db.apply_commander_journal_delta(
+                1, "a.log", [self.event()], 100, enqueue_inara=True
+            )
+        with self.db._connect() as con:
+            location = con.execute("""SELECT system_name FROM commander_locations
+                WHERE commander_id=1""").fetchone()
+            offset = con.execute("SELECT last_read_offset FROM journal_sessions").fetchone()[0]
+            outbox_count = con.execute("SELECT COUNT(*) FROM inara_outbox").fetchone()[0]
+        self.assertEqual(location, ("Lave",))
+        self.assertEqual(offset, 100)
+        self.assertEqual(outbox_count, 0)
+
+    def test_position_gap_repair_is_single_event_and_idempotent(self):
+        event = self.event()
+        repaired = self.db.repair_commander_position_gap(
+            1, "a.log", event, enqueue_inara=True
+        )
+        self.assertTrue(repaired)
+        self.assertFalse(self.db.repair_commander_position_gap(
+            1, "a.log", {**event, "StarSystem": "Wrong"}, enqueue_inara=True
+        ))
+        with self.db._connect() as con:
+            location = con.execute("""SELECT system_name,event_timestamp
+                FROM commander_locations WHERE commander_id=1""").fetchone()
+            offset = con.execute("""SELECT last_read_offset FROM journal_sessions
+                WHERE journal_file='a.log'""").fetchone()[0]
+            outbox = con.execute("""SELECT event_name,status FROM inara_outbox""").fetchall()
+        self.assertEqual(location, ("Lave", "2026-09-04T10:00:00Z"))
+        self.assertEqual(offset, 0)
+        self.assertEqual(outbox, [("addCommanderTravelFSDJump", "pending")])
+
+
+class InaraCommanderSettingsTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.settings = QSettings(
+            str(Path(self.temp.name) / "settings.ini"), QSettings.IniFormat
+        )
+        self.state = AppState.__new__(AppState)
+        QObject.__init__(self.state)
+        self.state.settings = self.settings
+        self.state.commander_id = 1
+        self.state.commander_fid = "F-A"
+        self.state.commander = "Alpha"
+        self.state._inara_upload_running = False
+        self.state.inara_enabled = False
+        self.state.inara_api_key = ""
+        self.state.inara_commander = ""
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def test_distinct_keys_per_fid_and_viewed_commander_is_irrelevant(self):
+        self.state.set_inara_settings("Alpha", "KEY-A", True, fid="F-A")
+        self.state.set_inara_settings("Beta", "KEY-B", True, fid="F-B")
+        self.assertEqual(self.state.inara_settings_for_fid("F-A")["api_key"], "KEY-A")
+        self.assertEqual(self.state.inara_settings_for_fid("F-B")["api_key"], "KEY-B")
+        self.state.viewed_commander_id = 2
+        self.assertTrue(self.state._inara_identity_matches(1))
+        self.assertFalse(self.state._inara_identity_matches(2))
+
+    def test_legacy_settings_migrate_once_to_live_fid(self):
+        self.settings.setValue("inara/commander", "Alpha")
+        self.settings.setValue("inara/api_key", "LEGACY-KEY")
+        self.settings.setValue("inara/enabled", True)
+        self.state._migrate_legacy_inara_settings()
+        migrated = self.state.inara_settings_for_fid("F-A")
+        self.assertEqual(migrated["commander"], "Alpha")
+        self.assertEqual(migrated["api_key"], "LEGACY-KEY")
+        self.assertTrue(migrated["enabled"])
+        self.assertFalse(self.settings.contains("inara/api_key"))
+        self.state.commander_fid = "F-B"
+        self.state._migrate_legacy_inara_settings()
+        self.assertEqual(self.state.inara_settings_for_fid("F-B")["api_key"], "")
+
+    def test_account_guidance_distinguishes_configured_commanders(self):
+        self.assertEqual(account_guidance(True), (
+            "settings.inara_key_hint", "settings.inara_configured_short"
+        ))
+        self.assertEqual(account_guidance(False), (
+            "settings.inara_not_configured", "settings.inara_not_configured_short"
+        ))
 
 class InaraTransportTests(unittest.TestCase):
     rows = [{"id": 1, "event_name": "addCommanderTravelFSDJump",

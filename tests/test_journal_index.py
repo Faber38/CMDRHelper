@@ -82,6 +82,7 @@ class JournalIndexTests(unittest.TestCase):
         path = self.write()
         sessions = scan_journal_folder(self.database, self.folder)
         read_latest_state(self.folder, indexed_sessions=sessions)
+        self.assertEqual(sessions[-1]["last_read_offset"], 0)
         partial = json.dumps({"timestamp": "2026-09-02T00:00:01Z",
                               "event": "Location", "StarSystem": "Next"})
         with path.open("ab") as handle:

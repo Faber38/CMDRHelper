@@ -5,11 +5,13 @@ Inara is enabled. Existing journal history is not backfilled. Disabling Inara
 also disables collection; events produced while disabled are not uploaded
 later.
 
-The API key remains in local `QSettings`. The key is bound to the active
-commander's journal FID when the online settings are saved. A queued event is
-uploaded only when its `commander_id`, journal-derived commander name and FID
-match that binding. This prevents events from one commander being sent with a
-different commander's credentials.
+API keys remain in local `QSettings`. Each known journal FID has an independent
+configuration below `inara/commanders/<FID>/` containing its enabled flag,
+commander name, API key and optional last test result. The settings page selects
+and identifies the Commander/FID being edited. A queued event is uploaded only
+with the configuration whose FID exactly matches the active journal session;
+the separately viewed commander never participates in that decision. Legacy
+global Inara settings are moved once to the first uniquely identified live FID.
 
 ## Supported mappings
 

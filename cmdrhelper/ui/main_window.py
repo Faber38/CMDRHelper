@@ -17,7 +17,10 @@ from cmdrhelper.online_services import (
     test_edsm_connection,
     test_inara_connection,
 )
-from cmdrhelper.inara_uploader import header_presentation as inara_header_presentation
+from cmdrhelper.inara_uploader import (
+    account_guidance,
+    header_presentation as inara_header_presentation,
+)
 from cmdrhelper.version import __version__
 from cmdrhelper.i18n import tr, get_language, set_language
 from cmdrhelper.mission_manager import translate_mission_text
@@ -4142,17 +4145,34 @@ class MainWindow(QMainWindow):
 
         inara_form = QFormLayout()
 
+        self.inara_commander_combo = QComboBox()
+        known_commanders = self.state.database.list_commanders()
+        for item in known_commanders:
+            config = self.state.inara_settings_for_fid(item["fid"])
+            _hint_key, setup_key = account_guidance(bool(config["api_key"]))
+            label = f"{item['display_name']} — {tr(setup_key)}"
+            self.inara_commander_combo.addItem(label, item["fid"])
+            index = self.inara_commander_combo.count() - 1
+            self.inara_commander_combo.setItemData(
+                index, item.get("current_name") or item["fid"], Qt.UserRole + 1
+            )
+        current_index = self.inara_commander_combo.findData(self.state.commander_fid)
+        if current_index >= 0:
+            self.inara_commander_combo.setCurrentIndex(current_index)
+        self.inara_commander_combo.currentIndexChanged.connect(
+            self._load_selected_inara_settings
+        )
+        inara_form.addRow(tr("settings.inara_account_for") + ":",
+                          self.inara_commander_combo)
+
         self.inara_commander_edit = QLineEdit()
-        self.inara_commander_edit.setText(self.state.inara_commander)
         self.inara_commander_edit.setPlaceholderText(tr("settings.commander_name"))
 
         self.inara_api_key_edit = QLineEdit()
-        self.inara_api_key_edit.setText(self.state.inara_api_key)
         self.inara_api_key_edit.setEchoMode(QLineEdit.Password)
         self.inara_api_key_edit.setPlaceholderText(tr("settings.inara_api_key"))
 
         self.inara_enabled_check = QCheckBox(tr("settings.use_inara"))
-        self.inara_enabled_check.setChecked(self.state.inara_enabled)
 
         inara_form.addRow(
             tr("settings.commander_name") + ":", self.inara_commander_edit
@@ -4161,6 +4181,10 @@ class MainWindow(QMainWindow):
         inara_form.addRow("", self.inara_enabled_check)
 
         online_layout.addLayout(inara_form)
+
+        self.inara_account_hint = QLabel(objectName="muted")
+        self.inara_account_hint.setWordWrap(True)
+        online_layout.addWidget(self.inara_account_hint)
 
         inara_test_row = QHBoxLayout()
 
@@ -4171,6 +4195,7 @@ class MainWindow(QMainWindow):
         self.inara_test_status = QLabel(tr("settings.not_tested"), objectName="muted")
         self.inara_test_status.setWordWrap(True)
         inara_test_row.addWidget(self.inara_test_status, 1)
+        self._load_selected_inara_settings()
 
         online_layout.addLayout(inara_test_row)
 
@@ -5089,6 +5114,39 @@ class MainWindow(QMainWindow):
         finally:
             self.edsm_test_button.setEnabled(True)
 
+    def _load_selected_inara_settings(self, *_args):
+        if not hasattr(self, "inara_commander_edit"):
+            return
+        config = self.state.inara_settings_for_fid(
+            self.inara_commander_combo.currentData()
+        )
+        self.inara_commander_edit.setText(config["commander"])
+        self.inara_api_key_edit.setText(config["api_key"])
+        self.inara_enabled_check.setChecked(config["enabled"])
+        selected_index = self.inara_commander_combo.currentIndex()
+        commander_name = self.inara_commander_combo.itemData(
+            selected_index, Qt.UserRole + 1
+        ) or config["fid"]
+        hint_key, setup_key = account_guidance(bool(config["api_key"]))
+        self.inara_account_hint.setText(tr(hint_key, commander=commander_name))
+        base_label = next(
+            (item["display_name"] for item in self.state.database.list_commanders()
+             if item["fid"] == config["fid"]),
+            str(commander_name),
+        )
+        self.inara_commander_combo.setItemText(
+            selected_index, f"{base_label} — {tr(setup_key)}"
+        )
+        saved_status = config["last_test_status"]
+        if "|" in saved_status:
+            status, text = saved_status.split("|", 1)
+            self._set_service_test_status(
+                self.inara_test_status, status == "ok", text
+            )
+        else:
+            self.inara_test_status.setText(tr("settings.not_tested"))
+            self.inara_test_status.setObjectName("muted")
+
     def _test_inara_connection(self):
         self.inara_test_button.setEnabled(False)
         self.inara_test_status.setText(tr("settings.connection_testing"))
@@ -5102,6 +5160,9 @@ class MainWindow(QMainWindow):
                 self.inara_test_status,
                 ok,
                 text,
+            )
+            self.state.set_inara_test_status(
+                self.inara_commander_combo.currentData(), ok, text
             )
         finally:
             self.inara_test_button.setEnabled(True)
@@ -5117,7 +5178,9 @@ class MainWindow(QMainWindow):
             commander=self.inara_commander_edit.text(),
             api_key=self.inara_api_key_edit.text(),
             enabled=self.inara_enabled_check.isChecked(),
+            fid=self.inara_commander_combo.currentData(),
         )
+        self._load_selected_inara_settings()
 
         self.state.refresh()
 
