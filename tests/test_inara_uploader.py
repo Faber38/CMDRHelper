@@ -168,6 +168,7 @@ class InaraCommanderSettingsTests(unittest.TestCase):
         self.state.commander_fid = "F-A"
         self.state.commander = "Alpha"
         self.state._inara_upload_running = False
+        self.state._inara_upload_token = None
         self.state.inara_enabled = False
         self.state.inara_api_key = ""
         self.state.inara_commander = ""
@@ -204,6 +205,63 @@ class InaraCommanderSettingsTests(unittest.TestCase):
         self.assertEqual(account_guidance(False), (
             "settings.inara_not_configured", "settings.inara_not_configured_short"
         ))
+
+    def test_stale_commander_worker_cannot_send_or_touch_outbox(self):
+        class DatabaseStub:
+            def __init__(self):
+                self.rows = {
+                    1: [{"id": 11, "event_name": "addCommanderTravelFSDJump",
+                         "event_timestamp": "2026-09-04T10:00:00Z",
+                         "event_data": {"starsystemName": "A-System"}}],
+                    2: [{"id": 22, "event_name": "addCommanderTravelFSDJump",
+                         "event_timestamp": "2026-09-04T10:01:00Z",
+                         "event_data": {"starsystemName": "B-System"}}],
+                }
+                self.updates = []
+
+            def inara_pending(self, commander_id, _limit):
+                return list(self.rows[int(commander_id)])
+
+            def update_inara_outbox(self, sent_ids=(), errors=None):
+                self.updates.append((list(sent_ids), dict(errors or {})))
+
+        queued_workers = []
+
+        class ThreadStub:
+            def __init__(self, target, **_kwargs):
+                self.target = target
+
+            def start(self):
+                queued_workers.append(self.target)
+
+        self.state.database = DatabaseStub()
+        self.state.set_inara_settings("Alpha", "KEY-A", True, fid="F-A")
+        self.state.set_inara_settings("Bravo", "KEY-B", True, fid="F-B")
+        calls = []
+
+        def uploader(key, name, fid, rows):
+            calls.append((key, name, fid, [row["id"] for row in rows]))
+            return [row["id"] for row in rows], {}
+
+        with patch("cmdrhelper.state.threading.Thread", ThreadStub), patch(
+            "cmdrhelper.state.upload_batch", side_effect=uploader
+        ):
+            self.state._upload_pending_to_inara()
+            self.state._invalidate_inara_worker()
+            self.state.commander_id = 2
+            self.state.commander_fid = "F-B"
+            self.state.commander = "Bravo"
+            self.state._load_live_inara_settings()
+            self.state.viewed_commander_id = 1
+            self.state._upload_pending_to_inara()
+
+            self.assertEqual(len(queued_workers), 2)
+            queued_workers[1]()
+            queued_workers[0]()
+
+        self.assertEqual(calls, [("KEY-B", "Bravo", "F-B", [22])])
+        self.assertEqual(self.state.database.updates, [([22], {})])
+        self.assertEqual(self.state.database.rows[1][0]["id"], 11)
 
 class InaraTransportTests(unittest.TestCase):
     rows = [{"id": 1, "event_name": "addCommanderTravelFSDJump",

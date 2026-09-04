@@ -125,6 +125,7 @@ class AppState(QObject):
         self.inara_api_key = ""
         self.inara_enabled = False
         self._inara_upload_running = False
+        self._inara_upload_token = None
         self.inara_upload_status = "waiting" if self.inara_enabled else "disabled"
         self.inara_upload_message = (
             "Warte auf Inara-Übertragung" if self.inara_enabled else "Inara deaktiviert"
@@ -689,16 +690,30 @@ class AppState(QObject):
             and (commander_id is None or int(commander_id) == int(self.commander_id or -1))
         )
 
+    def _invalidate_inara_worker(self):
+        """Detach a worker as soon as the active journal identity changes."""
+        self._inara_upload_token = None
+        self._inara_upload_running = False
+
     def _upload_pending_to_inara(self):
-        if self._inara_upload_running or not self._inara_identity_matches():
-            return
-        rows = self.database.inara_pending(self.commander_id, INARA_BATCH_SIZE)
-        if not rows:
+        if not self._inara_identity_matches():
             return
         commander_id = int(self.commander_id)
         commander_name = str(self.commander or "")
         commander_fid = str(self.commander_fid or "")
         api_key = str(self.inara_api_key or "")
+        active_token = getattr(self, "_inara_upload_token", None)
+        if (
+            self._inara_upload_running
+            and active_token is not None
+            and active_token[:3] == (commander_id, commander_fid, api_key)
+        ):
+            return
+        rows = self.database.inara_pending(commander_id, INARA_BATCH_SIZE)
+        if not rows:
+            return
+        token = (commander_id, commander_fid, api_key, object())
+        self._inara_upload_token = token
         self._inara_upload_running = True
         self.inara_upload_status = "uploading"
         self.inara_upload_message = f"{len(rows)} Inara-Event(s) werden übertragen"
@@ -706,10 +721,17 @@ class AppState(QObject):
 
         def worker():
             try:
-                sent, failed = upload_batch(api_key, commander_name, commander_fid, rows)
-                self.database.update_inara_outbox(sent, failed)
-                if commander_fid != self.commander_fid:
+                if (
+                    self._inara_upload_token is not token
+                    or not self._inara_identity_matches(commander_id)
+                    or self.commander_fid != commander_fid
+                    or self.inara_api_key != api_key
+                ):
                     return
+                sent, failed = upload_batch(api_key, commander_name, commander_fid, rows)
+                if self._inara_upload_token is not token:
+                    return
+                self.database.update_inara_outbox(sent, failed)
                 if failed:
                     self.inara_upload_status = "error"
                     self.inara_upload_message = next(iter(failed.values()))
@@ -717,6 +739,8 @@ class AppState(QObject):
                     self.inara_upload_status = "ok"
                     self.inara_upload_message = f"Letzte Inara-Übertragung erfolgreich: {len(sent)} Event(s)"
             except Exception as exc:
+                if self._inara_upload_token is not token:
+                    return
                 message = str(exc)
                 self.database.update_inara_outbox(
                     errors={row["id"]: message for row in rows}
@@ -726,8 +750,9 @@ class AppState(QObject):
                     self.inara_upload_message = message
                 logger.warning("Inara-Upload pausiert: %s", message)
             finally:
-                self._inara_upload_running = False
-                if commander_fid == self.commander_fid:
+                if self._inara_upload_token is token:
+                    self._inara_upload_token = None
+                    self._inara_upload_running = False
                     self.changed.emit()
 
         threading.Thread(target=worker, daemon=True,
@@ -1230,6 +1255,8 @@ class AppState(QObject):
         fid = str(session.get("fid_seen") or "").strip()
         name = str(session.get("commander_name_seen") or "").strip()
         previous_fid = self.commander_fid
+        if previous_fid and previous_fid != fid:
+            AppState._invalidate_inara_worker(self)
         self.database.set_active_commander(commander_id)
         self.commander_id = commander_id
         self.commander_fid = fid
@@ -1282,6 +1309,8 @@ class AppState(QObject):
         self.database.set_active_commander(commander_id)
 
         previous_fid = self.commander_fid
+        if previous_fid and previous_fid != fid:
+            AppState._invalidate_inara_worker(self)
         self.commander_id = commander_id
         self.commander_fid = fid
         if hasattr(self, "settings"):
