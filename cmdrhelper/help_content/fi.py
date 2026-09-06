@@ -319,177 +319,207 @@ HELP_TOPICS = {'overview': ('Yleiskatsaus',
               '<h3>Kärki</h3>\n'
               '<p>Jos sinulla on mielenkiintoinen runko, kannattaa klikata yksityiskohtaista '
               'näkymää. Tämä on paras paikka erottaa yleiset ruumiintiedot, mahdolliset '
-              'etsintätulokset ja todelliset oman komentajasi dokumentoimat löydöt.</p>'),
- 'chronicle': ('kronikka',
-               '<h2>kronikka</h2>\n'
-               '<p>Kronikka on komentajan henkilökohtainen matka- ja löytöhistoria. Se käyttää '
-               'pysyvästi tallennettuja päiväkirjatietoja löytääkseen järjestelmiä, joissa on jo '
-               'vierailtu, esittämään niitä spatiaalisesti ja etsimään tunnettuja löytöjä.</p>\n'
-               '\n'
-               '<h3>Vieraillut järjestelmät</h3>\n'
-               '<p>Chronicle näyttää käydyt järjestelmät ja niiden sijainnit komentajan tiedossa '
-               'galaksissa.</p>\n'
-               '<p>Jos saatavilla, ensimmäinen ja viimeinen käynti sekä tunnetut kehon tiedot '
-               'otetaan huomioon.</p>\n'
-               '<p>Kronikka ei siis ole vain kartta, vaan myös työkalu aikaisempien matkakohteiden '
-               'ja löytöjen löytämiseen.</p>\n'
-               '\n'
-               '<h3>3D kartta</h3>\n'
-               '<p>Vieraillut järjestelmät on esitetty spatiaalisesti käyttämällä niiden '
-               'galaktisia X/Y/Z-koordinaatteja.</p>\n'
-               '<p>Käyttöohjeet ovat suoraan kartan yläpuolella:</p>\n'
-               '<ul>\n'
-               '<li>Pidä hiiren vasenta painiketta painettuna → kierrä näkymää</li>\n'
-               '<li>Pidä hiiren keskipainiketta painettuna → Zoomaa</li>\n'
-               '<li>Pidä hiiren oikeaa painiketta painettuna → siirrä näkymää</li>\n'
-               '</ul>\n'
-               '<p>Pienen akselin näyttö auttaa avaruudessa suuntautumisessa.</p>\n'
-               '\n'
-               '<h3>Nykyinen sijainti</h3>\n'
-               '<p>"Nykyinen sijainti" -toiminnolla karttanäkymä voidaan kohdistaa tai palauttaa '
-               'aktiivisen komentajan tällä hetkellä tunnettuun sijaintiin.</p>\n'
-               '<p>Edellytyksenä on, että päälliköllä on voimassa oleva nykyinen sijainti.</p>\n'
-               '\n'
-               '<h3>Kohdista</h3>\n'
-               '<p>"Align" palauttaa kartan suunnan aiottuun perussuuntaan.</p>\n'
-               '<p>Tästä on apua, jos kartasta on tullut sekava, kun sitä on pyöritetty tai '
-               'siirretty paljon.</p>\n'
-               '\n'
-               '<h3>Päivitä aikajana</h3>\n'
-               '<p>"Päivityshistoria" päivittää näytön tällä hetkellä tunnetuilla tiedoilla.</p>\n'
-               '<p>Toiminto ei muuta päiväkirjatiedostoja tai luo uusia kartoitustietoja. Se '
-               'yksinkertaisesti päivittää historianäytön olemassa olevien CMDRHelper-tietojen '
-               'perusteella.</p>\n'
-               '\n'
-               '<h3>Vapaa tekstihaku</h3>\n'
-               '<p>Jo tunnettua sisältöä voi hakea "Hakuhistoria..." -kentän avulla.</p>\n'
-               '<p>Haussa huomioidaan – mikäli tietokannassa on saatavilla – mm.</p>\n'
-               '<ul>\n'
-               '<li>Järjestelmän nimet</li>\n'
-               '<li>Kehon ominaisuudet</li>\n'
-               '<li>biologiset tiedot</li>\n'
-               '<li>Materiaalit</li>\n'
-               '<li>Codex-tiedot</li>\n'
-               '</ul>\n'
-               '<p>"Haku" -painike suorittaa vain tämän vapaan tekstihaun.</p>\n'
-               '<p>Erilliset PURKAMINEN suodattimet sen sijaan suoritetaan '
-               '"Apply"-toiminnolla.</p>\n'
-               '\n'
-               '<h3>Hakutulokset</h3>\n'
-               '<p>Osumat näkyvät olemassa olevassa tulosluettelossa kronikkakortin alla.</p>\n'
-               '<p>Osumatyypistä riippuen näyttöön saattaa tulla järjestelmä ja runko sekä '
-               'lisätietoja.</p>\n'
-               '<p>Osumalla voidaan etsiä vastaava jo tunnettu järjestelmä tai runko ja avata '
-               'olemassa olevat yksityiskohtaiset tiedot.</p>\n'
-               '\n'
-               '<h3>Planetaariset kaivospaikat</h3>\n'
-               '<p>Suodatinta "Planetary Mining sites" voidaan käyttää erityisesti sellaisten '
-               'tunnettujen kappaleiden etsimiseen, joille Elite Dangerous on ilmoittanut '
-               'planeettojen kaivoskohteista.</p>\n'
-               '<p>Taustalla oleva näyttö vastaa Explorerista tunnettua näyttöä:</p>\n'
-               '<p><b>ABBAU ×N</b></p>\n'
-               '<p>Numero kuuluu keholle itselleen, eikä se liity komentajaan.</p>\n'
-               '\n'
-               '<h3>Vähintään</h3>\n'
-               '<p>Käyttämällä "Ainakin" voit määrittää planeetan kaivospaikkojen vähimmäismäärän '
-               'ruumiilla.</p>\n'
-               '<p>Esimerkki:</p>\n'
-               '<p><b>Ainakin 20</b></p>\n'
-               '<p>näyttää vain tunnetut kappaleet, joissa on vähintään:</p>\n'
-               '<p><b>ABBAU ×20</b></p>\n'
-               '<p>Tämä mahdollistaa erityisen laajojen kaivosalueiden paikantamisen.</p>\n'
-               '\n'
-               '<h3>Omat kaivoslöydöt</h3>\n'
-               '<p>”Omien kaivoslöytöjen” avulla etsintä rajoittuu kappaleisiin, joissa kyseinen '
-               'komentaja on todistettavasti tehnyt pintalouhintaa itse.</p>\n'
-               '<p>Nämä tiedot ovat peräisin henkilökohtaisesta pintakaivoshistoriasta, ja '
-               'komentaja erottaa ne tiukasti.</p>\n'
-               '<p>Keholla voi siis olla globaaleja ABBAU ×N-signaaleja ilman, että sen oma '
-               'komentaja on jo poistanut sieltä mitään.</p>\n'
-               '\n'
-               '<h3>raaka-aine</h3>\n'
-               '<p>Jos ”Omat kaivoslöydöt” on aktivoitu, on myös ”Raaka-aine”-valinta '
-               'käytettävissä.</p>\n'
-               '<p>Lista sisältää vain hyödykkeet, jotka kyseinen komentaja on itse asiassa jo '
-               'voittanut pintalouhinnasta.</p>\n'
-               '<p>Tämä ei ole teoreettinen luettelo kaikista mahdollisista '
-               'kaivosraaka-aineista.</p>\n'
-               '<p>Esimerkiksi FABER38 voi näyttää:</p>\n'
-               '<ul>\n'
-               '<li>Kaikki</li>\n'
-               '<li>kupari</li>\n'
-               '</ul>\n'
-               '<p>Jos myöhemmin louhitaan lisää raaka-aineita, ne näkyvät automaattisesti '
-               'henkilökohtaisessa valikoimassasi.</p>\n'
-               '\n'
-               '<h3>Kohdennettu raaka-aineiden haku</h3>\n'
-               '<p>Jos esimerkiksi valitaan "Kupari" ja sitten painetaan "Käytä", historia näyttää '
-               'vain kappaleet, joihin kyseinen komentaja on todistettavasti louhinut '
-               'kuparia.</p>\n'
-               '<p>Esimerkki:</p>\n'
-               '<p><b>Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — kupari 56 t</b></p>\n'
-               '<p>Tämä tarkoittaa, että kronikkaa voidaan käyttää henkilökohtaisena '
-               'sijaintitietokantana: jo louhittu raaka-aine löytyy myöhemmin uudelleen.</p>\n'
-               '\n'
-               '<h3>Kaikki raaka-aineet</h3>\n'
-               '<p>"Raaka-aine: Kaikki" -asetuksella otetaan huomioon kaikki vastaavat '
-               'henkilökohtaiset pintakaivoslöydöt.</p>\n'
-               '<p>Jos kappaleessa tunnetaan useita hyödykkeitä, ne voidaan esittää yhdessä niiden '
-               'tähän mennessä saamien määrien kanssa.</p>\n'
-               '<p>Esimerkki:</p>\n'
-               '<p><b>ABBAU ×24 — Helium-3 18 t, kupari 56 t</b></p>\n'
-               '<p>Määrät ovat vastaavan komentajan henkilökohtaisia \u200b\u200bkaivosarvoja, '
-               'jotka on tosiasiallisesti dokumentoitu päiväkirjatapahtumista.</p>\n'
-               '\n'
-               '<h3>Yhdistä suodattimet</h3>\n'
-               '<p>Kaivossuodattimet voidaan yhdistää toisiinsa.</p>\n'
-               '<p>Esimerkiksi:</p>\n'
-               '<ul>\n'
-               '<li>Planeettojen kaivoskohteet aktiivisia</li>\n'
-               '<li>Ainakin 20</li>\n'
-               '<li>Oma kaivostoiminta löytyy aktiivisesti</li>\n'
-               '<li>Raaka-aine kupari</li>\n'
-               '</ul>\n'
-               '<p>etsii tunnettuja ruumiita, joissa on vähintään 20 planeetan kaivospaikkaa, '
-               'joissa kyseinen komentaja on jo louhinut itse kuparia.</p>\n'
-               '\n'
-               '<h3>Käytä</h3>\n'
-               '<p>"Käytä" suorittaa vain näkyvät kaivossuodattimet.</p>\n'
-               '<p>Sen vieressä oleva "Haku" -painike on varattu vapaalle tekstihaulle.</p>\n'
-               '<p>Tämä tarkoittaa, että tekstihaku- ja kaivossuodattimet on tarkoituksella '
-               'erotettu toisistaan.</p>\n'
-               '\n'
-               '<h3>Nollaa</h3>\n'
-               '<p>"Reset" poistaa nykyisen vapaan tekstihaun ja palauttaa myös kaivossuodattimet '
-               'alkuperäiseen tilaan.</p>\n'
-               '<p>Raaka-ainevalikoima hyppää takaisin kohtaan "Kaikki".</p>\n'
-               '\n'
-               '<h3>Komentajan valinta</h3>\n'
-               '<p>Kronikka voi näyttää tietoja useilta tunnetuilta komentajilta.</p>\n'
-               '<p>Henkilötiedot, kuten omat kaivoslöydöt ja raaka-aineluettelot, arvioidaan '
-               'kuitenkin aina erikseen tarkasteltavan komentajan osalta.</p>\n'
-               '<p>Päällikkö ei näe raaka-ainevalinnassaan mitään yksinomaan toiselle komentajalle '
-               'kuuluvia kaivoslöytöjä.</p>\n'
-               '\n'
-               '<h3>Kaikki komentajat</h3>\n'
-               '<p>Kartta/kroniikka-näyttö voi ottaa huomioon useita komentoja.</p>\n'
-               '<p>Tämä ei muuta komentajaan liittyvien tietojen henkilökohtaista määritystä. '
-               'Järjestelmän tai kehon maailmanlaajuiset tähtitieteelliset ominaisuudet pysyvät '
-               'yhteisinä, henkilökohtaiset havainnot erillisinä.</p>\n'
-               '\n'
-               '<h3>Hakuapu / legenda</h3>\n'
-               '<p>Lisätietoa kronikkahausta ja näytön merkityksestä löytyy "Hakuohjeesta / '
-               'selitteestä".</p>\n'
-               '<p>Tämä asiayhteyteen liittyvä pääohje täydentää siellä olevia lyhyitä '
-               'käyttöohjeita.</p>\n'
-               '\n'
-               '<h3>Kärki</h3>\n'
-               '<p>Kronikka sopii erityisen hyvin pitkän matkan aikana löydettyjen '
-               'mielenkiintoisten paikkojen etsimiseen.</p>\n'
-               '<p>Esimerkiksi pintakaivostoiminnassa se voi vastata:</p>\n'
-               '<p>"Millä planeetalla olen koskaan louhinut kuparia?"</p>\n'
-               '<p>tai:</p>\n'
-               '<p>"Millä tunnetuista planeetoistani on erityisen paljon kaivospaikkoja?"</p>'),
+              'etsintätulokset ja todelliset oman komentajasi dokumentoimat löydöt.</p>'
+              """
+
+<h3>★ Suosikit</h3>
+<p>Explorerin yläosan ”★ Suosikit”-painike avaa erillisen, uudelleen käytettävän suosikki-ikkunan. Siellä voit tallentaa järjestelmiä, planeettoja/kuita ja pinnalla sijaitsevia paikkoja aktiiviselle komentajalle.</p>
+<p>Nimen mukaan aakkostettu, vieritettävä luettelo näyttää nimen, tyypin, järjestelmän, tarvittaessa taivaankappaleen ja leveys-/pituusasteen, luokan sekä pienen kuvan esikatselun. Vapaatekstihakua sekä tyyppi- ja luokkasuodattimia voi käyttää yhdessä. Haku kattaa nimen, järjestelmän, taivaankappaleen ja muistiinpanon.</p>
+<p>”Avaa / Näytä” näyttää tallennetut tiedot, muistiinpanon ja suuremman kuvan esikatselun. ”Näytä Explorerissa” avaa olemassa olevan järjestelmän yleiskuvan tai taivaankappaleen tietonäkymän, jos suosikki kuuluu Explorerin nykyiseen järjestelmään ja vastaavat tiedot ovat saatavilla. Muiden järjestelmien suosikkien tallennetut tiedot pysyvät näkyvissä; järjestelmien välistä reittiä ei lasketa.</p>
+
+<h3>Järjestelmän, planeetan tai nykyisen sijainnin tallentaminen</h3>
+<ul>
+<li>”★ Tallenna nykyinen järjestelmä” tallentaa nykyisen järjestelmän ilman pintakoordinaatteja.</li>
+<li>”★ Tallenna planeetta / kuu” antaa valita nykyisen järjestelmän tunnetun planeetan tai kuun. Tämäkään suosikki ei saa pintakoordinaatteja.</li>
+<li>”★ Tallenna nykyinen sijainti” on suosikki-ikkunan yläosassa kahden muun tallennusvaihtoehdon vieressä, ja se on käytettävissä myös planeettanavigaattorissa. Suosikki-ikkunassa painike pysyy aina näkyvissä ja on poissa käytöstä, jos kelvolliset ajantasaiset planetaariset sijaintitiedot ja aktiivinen komentaja puuttuvat. Napsautus lukitsee komentajan, järjestelmän, taivaankappaleen, leveysasteen ja pituusasteen. Myöhemmät liikkeet pelissä eivät muuta näitä arvoja avoimessa valintaikkunassa.</li>
+</ul>
+<p>Anna haluamasi nimi ja valitse täsmälleen yksi luokka: Bio, Geo, Louhinta, Maisema, Laskeutumispaikka, Kiinnostava tai Muu. Muistiinpano ja kuva ovat valinnaisia. Tunnetut tekniset tunnisteet siirretään sisäisesti; sinun ei tarvitse syöttää niitä. Myös leveysaste tai pituusaste 0,0 on kelvollinen koordinaatti.</p>
+<p>”Muokkaa” muuttaa nimeä, luokkaa, muistiinpanoa ja kuvaa. Järjestelmä, taivaankappale ja tallennetut koordinaatit säilyvät. Jos haluat tallentaa toisen paikan pinnalla, luo uusi suosikki kyseisessä sijainnissa.</p>
+
+<h3>Suosikkien kuvat</h3>
+<p>Suosikkien kuvat ovat erillään Kuvat-osiosta. ”Valitse kuva …” hyväksyy PNG-, JPEG- ja WebP-kuvat. CMDRHelper kopioi valitun kuvan omaan suosikkikuvien kansioonsa vasta tallennettaessa. Alkuperäistä tiedostoa ei siirretä eikä muuteta.</p>
+<p>”Käytä uusinta kuvakaappausta” lukee määritetyn kuvakaappausten lähdekansion uudelleen jokaisella napsautuksella ja etsii luettavia kuvakaappauksia, joilla on Elitelle tyypillinen tiedostonimi. Jos kansiota ei ole määritetty, käytetään Windowsin tai Steam/Protonin tavallisia Elite-kuvakaappauskansioita. Myös määritetyn muunnoskohteen aktiiviselle komentajalle kuuluva kansio käydään läpi vastaavien muunnettujen Elite-kuvakaappausten löytämiseksi. Muunnettu kuvakaappaus löytyy siten edelleen, vaikka sen alkuperäinen BMP olisi poistettu. Uusin kuvausaika määräytyy tiedostonimen yksiselitteisen aikaleiman mukaan tai muuten tiedostoajan mukaan; muunnetuissa kuvissa käytetään nimeen tallennettua kuvausaikaa muunnosajan sijaan. CMDRHelper ei itse ota kuvakaappauksia eikä etsi mielivaltaisista kuvakansioista.</p>
+<p>Ennen käyttöä näytetään tiedostonimi, kuvausaika ja juuri ladattu esikatselu. Vahvista painamalla ”Käytä tätä kuvaa”. Jos sopivaa kuvakaappausta ei löydy, voit edelleen käyttää toimintoa ”Valitse kuva …”. Eliten BMP-kuvakaappaukset tallennetaan sisäisinä PNG-kopioina.</p>
+<p>Kuvan voi korvata muokkausikkunassa tai poistaa valinnan painamalla ”Poista kuva”. Tallennettaessa poistetaan sisäinen kopio, jota ei enää käytetä. Jos kuvatiedosto puuttuu, suosikki on edelleen käytettävissä ilman esikatselua.</p>
+
+<h3>Suosikkikohde ja komentaja</h3>
+<p>Pinnalla sijaitsevien paikkojen ”▶ Kohteeseen” välittää tallennetun taivaankappaleen, leveysasteen, pituusasteen ja suosikin nimen olemassa olevalle planeettanavigaattorille. Uusi kohde korvaa aiemman. Suosikeilla ei ole omaa navigointilogiikkaa. Navigaattori päättää edelleen itse: vastaavat kelvolliset planetaariset tiedot aktivoivat navigoinnin; muuten se odottaa näitä tietoja.</p>
+<p>Suosikit kuuluvat yksinomaan aktiiviselle komentajalle. Komentajan vaihtaminen päivittää luettelon ja hylkää avoimen muokkausikkunan. Kohde, jota käsitellään edelleen edellisen komentajan suosikkikohteena, lopetetaan. Kronikan komentajavalinta ei laajenna tätä suosikkiluetteloa.</p>
+<p>”Poista” edellyttää vahvistusta ja poistaa vain suosikkitietueen ja sen sisäisen kuvakopion. Alkuperäinen kuvakaappaus tai valittu alkuperäinen kuva sekä kaikki Explorerin, lokin ja taivaankappaleiden tiedot säilyvät.</p>"""),
+ 'chronicle': (
+        'Kronikka',
+        """<h2>Kronikka</h2>
+<p>Kronikka on komentajan henkilökohtainen matka- ja löytöhistoria. Se käyttää pysyvästi tallennettuja päiväkirjatietoja löytääkseen järjestelmiä, joissa on jo vierailtu, esittämään niitä spatiaalisesti ja etsimään tunnettuja löytöjä.</p>
+
+<h3>Vieraillut järjestelmät</h3>
+<p>Chronicle näyttää käydyt järjestelmät ja niiden sijainnit komentajan tiedossa galaksissa.</p>
+<p>Jos saatavilla, ensimmäinen ja viimeinen käynti sekä tunnetut kehon tiedot otetaan huomioon.</p>
+<p>Kun ajanjakso on käytössä, karttanäkymän käyntimäärä, ensimmäinen käynti ja viimeinen käynti koskevat suodatettuja todellisia järjestelmäkäyntejä.</p>
+<p>Kronikka ei siis ole vain kartta, vaan myös työkalu aikaisempien matkakohteiden ja löytöjen löytämiseen.</p>
+
+<h3>3D kartta</h3>
+<p>Vieraillut järjestelmät on esitetty spatiaalisesti käyttämällä niiden galaktisia X/Y/Z-koordinaatteja.</p>
+<p>Käyttöohjeet ovat suoraan kartan yläpuolella:</p>
+<ul>
+<li>Pidä hiiren vasenta painiketta painettuna → kierrä näkymää</li>
+<li>pidä hiiren keskipainiketta painettuna ja vedä → piirrä zoomausikkuna</li>
+<li>Pidä hiiren oikeaa painiketta painettuna → siirrä näkymää</li>
+</ul>
+<p>Pienen akselin näyttö auttaa avaruudessa suuntautumisessa.</p>
+
+<h3>Nykyinen sijainti</h3>
+<p>"Nykyinen sijainti" -toiminnolla karttanäkymä voidaan kohdistaa tai palauttaa aktiivisen komentajan tällä hetkellä tunnettuun sijaintiin.</p>
+<p>Nykyiset suodattimet otetaan ensin käyttöön. Näkymä keskitetään nykyiseen järjestelmään vain, jos se sisältyy tuloksena olevaan karttaan.</p>
+<p>Muussa tapauksessa näytetään ”Nykyinen järjestelmä ei sisälly tähän suodatinvalintaan.” Suodattimia ei tällöin poisteta.</p>
+
+<h3>Kohdista</h3>
+<p>”Kohdista” palauttaa suunnan galaksin tason ylhäältä katsottuun näkymään. Siirto ja zoomaus säilyvät.</p>
+<p>Tästä on hyötyä, jos karttaa on kierretty paljon ja siitä on tullut vaikeaselkoinen.</p>
+
+<h3>Päivitä Kronikka</h3>
+<p>”Päivitä Kronikka” lataa kronikkatiedot uudelleen nykyisten yhdistettyjen suodattimien perusteella ja päivittää näkymän. Vapaa teksti, käyttöön otetut päivämäärärajat ja kaivossuodattimet arvioidaan jälleen yhdessä; aktiivisia suodattimia ei ohiteta.</p>
+<p>Toiminto ei muuta päiväkirjatiedostoja tai luo uusia kartoitustietoja. Se yksinkertaisesti päivittää historianäytön olemassa olevien CMDRHelper-tietojen perusteella.</p>
+
+<h3>Vapaa tekstihaku</h3>
+<p>Jo tunnettua sisältöä voi hakea "Hakuhistoria..." -kentän avulla.</p>
+<p>Haussa huomioidaan – mikäli tietokannassa on saatavilla – mm.</p>
+<ul>
+<li>Järjestelmän nimet</li>
+<li>Kehon ominaisuudet</li>
+<li>biologiset tiedot</li>
+<li>Materiaalit</li>
+<li>Codex-tiedot</li>
+</ul>
+<p>Vapaa teksti, ajanjakso ja kaivostoiminta ovat yhteisellä suodatinalueella. ”Käytä” arvioi asetetut suodattimet yhdessä. Enter vapaatekstikentässä käynnistää saman yhdistetyn suodatuksen kuin ”Käytä”.</p>
+
+<h3>Ajanjakso Alkaen/Asti (UTC)</h3>
+<p>Ota ”Alkaen” ja ”Asti” käyttöön omista valintaruuduistaan ja valitse haluamasi päivämäärä. Voit käyttää myös vain yhtä rajaa. Ilman valittua ruutua kyseisellä puolella ei ole aikarajoitusta; jos kumpaakaan ruutua ei ole valittu, ajanjaksoa ei rajata.</p>
+<ul>
+<li><b>Alkaen:</b> Valitun UTC-kalenteripäivän alusta alkaen, alkuhetki mukaan lukien.</li>
+<li><b>Asti:</b> Koko valittu UTC-kalenteripäivä otetaan mukaan aina seuraavan päivän alkua edeltävään hetkeen saakka.</li>
+</ul>
+<p>UTC on koordinoitu yleisaika. Päivämäärärajat tarkoittavat UTC-kalenteripäiviä, eivät paikallisen aikavyöhykkeesi kalenteripäiviä.</p>
+<p>Suodatus perustuu todellisiin järjestelmäkäynteihin taulussa <code>system_visits</code>. Kyseisen komentajan todellinen käynti ajanjakson sisällä on välttämätön. Tallennetut tiedot <code>first_seen</code> ja <code>last_seen</code> eivät korvaa oikeaa käyntiä: pelkkä ajanjakson sijoittuminen aiemman ensimmäisen ja myöhemmän viimeisen käynnin väliin ei riitä.</p>
+<p>Ajanjakso suodattaa käyntejä, ei yksittäisiä löytö-, BIO-, GEO- tai kaivostapahtumia. Tunnettujen löytöjen tiedot ja louhitut määrät pysyvät tallennettuina kokonaisarvoina. Alkaen/Asti-rajoja voi käyttää yksinään tai yhdessä vapaan tekstin ja kaivossuodattimien kanssa.</p>
+<p>Jos Alkaen on Asti-päivän jälkeen, näytetään ”Alkaen-päivämäärä ei saa olla Asti-päivämäärän jälkeen.” Tietokantakyselyä ei käynnistetä. Korjaa päivämäärärajat ja käytä suodattimia uudelleen.</p>
+
+<h3>Hakutulokset</h3>
+<p>Osumat näkyvät olemassa olevassa tulosluettelossa kronikkakortin alla.</p>
+<p>Osumatyypistä riippuen näyttöön saattaa tulla järjestelmä ja runko sekä lisätietoja.</p>
+<p>Osumalla voidaan etsiä vastaava jo tunnettu järjestelmä tai runko ja avata olemassa olevat yksityiskohtaiset tiedot.</p>
+
+<h3>Ei osumia</h3>
+<p>Jos kelvollinen suodatus ei löydä osumia, kartta ja reitit tyhjennetään. Tulosluettelo tyhjennetään ja piilotetaan, yksityiskohtanäyttö nollataan ja avoin kronikan järjestelmätietoikkuna suljetaan.</p>
+<p>Vanhat tulokset eivät jää näkyviin. Tarkista tällöin hakutekstin, ajanjakson ja kaivossuodattimien yhdistelmä sekä kyseisessä näkymässä käytetty komentaja.</p>
+
+<h3>Planeettojen kaivoskohteet</h3>
+<p>Suodatinta "Planetary Mining sites" voidaan käyttää erityisesti sellaisten tunnettujen kappaleiden etsimiseen, joille Elite Dangerous on ilmoittanut planeettojen kaivoskohteista.</p>
+<p>Taustalla oleva näyttö vastaa Explorerista tunnettua näyttöä:</p>
+<p><b>ABBAU ×N</b></p>
+<p>Numero kuuluu keholle itselleen, eikä se liity komentajaan.</p>
+
+<h3>Vähintään</h3>
+<p>Käyttämällä "Ainakin" voit määrittää planeetan kaivospaikkojen vähimmäismäärän ruumiilla.</p>
+<p>Esimerkki:</p>
+<p><b>Ainakin 20</b></p>
+<p>näyttää vain tunnetut kappaleet, joissa on vähintään:</p>
+<p><b>ABBAU ×20</b></p>
+<p>Tämä mahdollistaa erityisen laajojen kaivosalueiden paikantamisen.</p>
+
+<h3>Omat kaivoslöydöt</h3>
+<p>”Omien kaivoslöytöjen” avulla etsintä rajoittuu kappaleisiin, joissa kyseinen komentaja on todistettavasti tehnyt pintalouhintaa itse.</p>
+<p>Nämä tiedot ovat peräisin henkilökohtaisesta pintakaivoshistoriasta, ja komentaja erottaa ne tiukasti.</p>
+<p>Keholla voi siis olla globaaleja ABBAU ×N-signaaleja ilman, että sen oma komentaja on jo poistanut sieltä mitään.</p>
+
+<h3>Hyödyke</h3>
+<p>Jos ”Omat kaivoslöydöt” on aktivoitu, on myös ”Raaka-aine”-valinta käytettävissä.</p>
+<p>Lista sisältää vain hyödykkeet, jotka kyseinen komentaja on itse asiassa jo voittanut pintalouhinnasta.</p>
+<p>Tämä ei ole teoreettinen luettelo kaikista mahdollisista kaivosraaka-aineista.</p>
+<p>FABER38:n valikoimassa voi olla esimerkiksi:</p>
+<ul>
+<li>Kaikki</li>
+<li>kupari</li>
+</ul>
+<p>Jos myöhemmin louhitaan lisää raaka-aineita, ne näkyvät automaattisesti henkilökohtaisessa valikoimassasi.</p>
+
+<h3>Kohdennettu raaka-aineiden haku</h3>
+<p>Jos esimerkiksi valitaan "Kupari" ja sitten painetaan "Käytä", historia näyttää vain kappaleet, joihin kyseinen komentaja on todistettavasti louhinut kuparia.</p>
+<p>Esimerkki:</p>
+<p><b>Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — kupari 56 t</b></p>
+<p>Tämä tarkoittaa, että kronikkaa voidaan käyttää henkilökohtaisena sijaintitietokantana: jo louhittu raaka-aine löytyy myöhemmin uudelleen.</p>
+
+<h3>Kaikki raaka-aineet</h3>
+<p>"Raaka-aine: Kaikki" -asetuksella otetaan huomioon kaikki vastaavat henkilökohtaiset pintakaivoslöydöt.</p>
+<p>Jos kappaleessa tunnetaan useita hyödykkeitä, ne voidaan esittää yhdessä niiden tähän mennessä saamien määrien kanssa.</p>
+<p>Esimerkki:</p>
+<p><b>ABBAU ×24 — Helium-3 18 t, kupari 56 t</b></p>
+<p>Määrät ovat vastaavan komentajan henkilökohtaisia ​​kaivosarvoja, jotka on tosiasiallisesti dokumentoitu päiväkirjatapahtumista.</p>
+<p>Myös ajanjakson ollessa käytössä henkilökohtaiset louhitut määrät pysyvät tallennettuina kokonaismäärinä. <b>Kupari 56 t</b> ei automaattisesti tarkoita <b>56 t valitulla ajanjaksolla</b>. Ajanjakso edellyttää vastaavaa järjestelmäkäyntiä, mutta ei rajaa näytettyä louhintamäärää tähän ajanjaksoon.</p>
+
+<h3>Yhdistä suodattimet</h3>
+<p>Vapaa teksti, käyttöön otetut Alkaen-/Asti-rajat ja kaivossuodattimet voidaan yhdistää. Osuman on täytettävä asetetut ehdot yhdessä.</p>
+<p>Esimerkiksi:</p>
+<ul>
+<li>Planeettojen kaivoskohteet aktiivisia</li>
+<li>Ainakin 20</li>
+<li>Oma kaivostoiminta löytyy aktiivisesti</li>
+<li>Raaka-aine kupari</li>
+</ul>
+<p>etsii tunnettuja ruumiita, joissa on vähintään 20 planeetan kaivospaikkaa, joissa kyseinen komentaja on jo louhinut itse kuparia.</p>
+<p>Myös mahdollinen lisähakuteksti huomioidaan. Jos lisäksi on valittu ajanjakso, tarkasteltavan komentajan on täytynyt todella käydä kyseisessä järjestelmässä sen aikana; itse kuparin louhinnan ei tarvitse osua tähän ajanjaksoon.</p>
+
+<h3>Käytä</h3>
+<p>”Käytä” suorittaa yhdistetyn suodatuksen kaikilla tällä hetkellä asetetuilla haku-, ajanjakso- ja kaivossuodattimilla:</p>
+<ul>
+<li>Vapaa teksti</li>
+<li>Alkaen, jos käytössä</li>
+<li>Asti, jos käytössä</li>
+<li>Planeettojen kaivoskohteet</li>
+<li>Vähimmäismäärä</li>
+<li>Omat kaivoslöydöt</li>
+<li>Hyödyke, jos ”Omat kaivoslöydöt” on käytössä</li>
+</ul>
+<p>Enter vapaatekstikentässä suorittaa täsmälleen saman suodatuksen. Ilman vapaata tekstiä ja kaivossuodattimia ladataan tavallinen kartta kartalla valituille komentajille, tarvittaessa Alkaen/Asti-rajoilla rajattuna.</p>
+
+<h3>Nollaa</h3>
+<p>”Nollaa” palauttaa yhteisen suodatinalueen alkutilaan:</p>
+<ul>
+<li>Vapaa teksti tyhjennetään.</li>
+<li>Alkaen ja Asti poistetaan käytöstä; päivämääräkentissä näkyy taas tämä päivä ja kentät ovat poissa käytöstä.</li>
+<li>Planeettojen kaivoskohteet poistetaan käytöstä.</li>
+<li>Vähimmäismääräksi asetetaan 0.</li>
+<li>Omat kaivoslöydöt poistetaan käytöstä.</li>
+<li>Hyödyke palautetaan arvoon ”Kaikki”.</li>
+</ul>
+<p>Komentajavalinta säilyy. Tavallinen kronikka ladataan sitten uudelleen tälle karttavalinnalle; aiemmat hakutulokset ja yksityiskohtanäytöt nollataan.</p>
+
+<h3>Komentajan valinta</h3>
+<p>Kronikka voi näyttää tietoja useilta tunnetuilta komentajilta.</p>
+<p>Valinnassa on kaksi erillistä käsitettä:</p>
+<ul>
+<li><b>Kartan komentajavalinta:</b> Komentajien valintaruudut määräävät, keiden reitit näytetään tavallisella kartalla ilman vapaateksti-/kaivoshakua. Käyttöön otettu ajanjakso huomioidaan.</li>
+<li><b>Tarkasteltava komentaja:</b> Henkilökohtaiset vapaateksti-/kaivoshaut käyttävät tarkasteltavaa komentajaa (<code>viewed_commander_id</code>), toissijaisesti aktiivista komentajaa. Myös henkilökohtaiset hyödykeluettelot määräytyvät tämän komentajan mukaan.</li>
+</ul>
+<p>Henkilötiedot, kuten omat kaivoslöydöt ja raaka-aineluettelot, arvioidaan kuitenkin aina erikseen tarkasteltavan komentajan osalta.</p>
+<p>Päällikkö ei näe raaka-ainevalinnassaan mitään yksinomaan toiselle komentajalle kuuluvia kaivoslöytöjä.</p>
+
+<h3>Kaikki komentajat</h3>
+<p>Kartta/kroniikka-näyttö voi ottaa huomioon useita komentoja.</p>
+<p>”Kaikki komentajat” tarkoittaa kartan komentajavalintaa. Komentajien valintaruudut eivät automaattisesti laajenna henkilökohtaisia vapaateksti-/kaivoshakuja useisiin komentajiin.</p>
+<p>Tämä ei muuta komentajaan liittyvien tietojen henkilökohtaista määritystä. Järjestelmän tai kehon maailmanlaajuiset tähtitieteelliset ominaisuudet pysyvät yhteisinä, henkilökohtaiset havainnot erillisinä.</p>
+
+<h3>Hakuapu / legenda</h3>
+<p>Lisätietoa kronikkahausta ja näytön merkityksestä löytyy "Hakuohjeesta / selitteestä".</p>
+<p>Napsautettu hakusana siirtyy hakukenttään, ja haku suoritetaan yhdessä jo asetettujen ajanjakso-/kaivossuodattimien kanssa.</p>
+<p>Tämä asiayhteyteen liittyvä pääohje täydentää siellä olevia lyhyitä käyttöohjeita.</p>
+
+<h3>Vinkki</h3>
+<p>Kronikka sopii erityisen hyvin pitkän matkan aikana löydettyjen mielenkiintoisten paikkojen etsimiseen.</p>
+<p>Esimerkiksi pintakaivostoiminnassa se voi vastata:</p>
+<p>"Millä planeetalla olen koskaan louhinut kuparia?"</p>
+<p>tai:</p>
+<p>"Millä tunnetuista planeetoistani on erityisen paljon kaivospaikkoja?"</p>""",
+    ),
  'jump_tip': ('Hyppyvinkki',
               '<h2>Hyppyvinkki</h2>\n'
               '<p>Hyppykärki tukee tutkimista arvioimalla jo tunnettua järjestelmädataa ja '
@@ -1259,7 +1289,82 @@ HELP_TOPICS = {'overview': ('Yleiskatsaus',
               '<li>Jos kuvaongelmia ilmenee, lähde- ja kohdekansiot "Images"-päävalikossa</li>\n'
               '</ul>\n'
               '<p>Jos komentoja on useita, kiinnitä aina huomiota siihen, mitä FID:tä näkyvät '
-              'online-käyttötiedot koskevat.</p>')}
+              'online-käyttötiedot koskevat.</p>'),
+    "planet_navigation": (
+        'Planeettanavigointi',
+        """<h2>Planeettanavigointi</h2>
+<p>Planeettanavigaattori auttaa sinua ainoastaan lentämään tiettyyn leveys-/pituusasteeseen planeetalla tai kuussa. Määrität kohteen koordinaateilla ja saat etäisyyden ja suunnan sinne.</p>
+<p>Se ei ole tähtienvälinen reittisuunnittelija eikä hoida järjestelmien välistä navigointia tai hyppyjä. Ohjaat alustasi itse.</p>
+
+<h3>Navigaattorin avaaminen ja kohteen syöttäminen</h3>
+<p>Avaa yleiskatsauksessa ”Planeettanavigointi” ja valitse ”Syötä kohde …”.</p>
+<ul>
+<li><b>Taivaankappale:</b> Valitse kohdeplaneetta tai -kuu luettelosta tai käytä jo tunnistettua taivaankappaletta. Voit myös kirjoittaa taivaankappaleen nimen itse, jos sitä ei vielä ole luettelossa. Käytä epäselvässä tapauksessa koko nimeä, myös järjestelmän nimeä.</li>
+<li><b>Leveysaste:</b> Syötä kohteen leveysaste väliltä −90° ja +90°.</li>
+<li><b>Pituusaste:</b> Syötä kohteen pituusaste väliltä −180° ja +180°. Huomioi molempien koordinaattien etumerkit.</li>
+<li><b>Kohteen nimi:</b> Voit halutessasi antaa nimityksen, jonka avulla tunnistat kohteen helpommin.</li>
+</ul>
+<p>Vahvista syöttämäsi tiedot valinnalla ”Aseta kohde”. Sinun ei tarvitse syöttää teknisiä tunnisteita kuten BodyID ja SystemAddress; ne eivät ole tavallisia käyttäjän syöttämiä tietoja.</p>
+
+<h3>Milloin kompassi käynnistyy?</h3>
+<p>Kun kohde on asetettu ja Elite toimittaa kelvolliset planetaariset sijaintitiedot oikealle taivaankappaleelle, navigointi aktivoituu automaattisesti. Erillistä käynnistyspainiketta ei tarvitse painaa.</p>
+<p>Jos nämä tiedot vielä puuttuvat tai kuuluvat toiselle taivaankappaleelle, navigaattori odottaa viestillä ”Odotetaan planetaarisia koordinaatteja …”. Voit syöttää kohteen jo ennen näiden tietojen saapumista.</p>
+
+<h3>Planeettapallo: yli 380 km</h3>
+<p>Kun kohde-etäisyys on yli 380 km, navigaattori näyttää planeettapallon.</p>
+<ul>
+<li><b>Valkoinen ympyrä</b> merkitsee omaa sijaintiasi.</li>
+<li><b>Pieni kohdepiste</b> on oranssi, kun kohde on planeetan näkyvällä puolella.</li>
+<li>Jos kohde on piilossa olevalla takapuolella, kohdepiste näytetään punaisena.</li>
+<li>Sijaintisi pysyy esityksessä paikallaan. Planeetta ja kohde näytetään suhteessa sijaintiisi ja suuntaasi.</li>
+</ul>
+<p>Valkoinen nuoli osoittaa eteenpäin; keltainen nuoli näyttää kohteen suhteellisen suunnan. Pallo on kaavamainen suunnistusapu, ei maantieteellisesti tarkka maastonäkymä. Punainen piste tarkoittaa pallon takapuolta, ei automaattisesti ”aluksesi takana”.</p>
+
+<h3>Perspektiiviruudukko: enintään 380 km</h3>
+<p>Kun kohde-etäisyys on enintään 380 km, näyttö vaihtuu automaattisesti kallistettuun perspektiiviruudukkoon. Jos etäisyys kasvaa jälleen yli 380 km:n, pallo tulee takaisin näkyviin.</p>
+<p>Poikkiviivat muodostavat <b>50 km:n etäisyysruudukon</b>. Kohdepiste piirretään ruudukkoon etäisyyden ja suhteellisen suunnan mukaan. Perspektiivi auttaa jatkamaan lähestymistä; kallistuksen vuoksi välit näyttävät tiheämmiltä takaosassa. Tarkkaa ohjaussuuntaa varten tarkkaile myös kohdesuuntaa ja suhteellista suuntaa.</p>
+
+<h3>Navigointiarvojen oikea tulkinta</h3>
+<ul>
+<li><b>Kohde-etäisyys:</b> Suuri näyttö kertoo jäljellä olevan etäisyyden kohteeseen pitkin ajateltua planeetan pintaa.</li>
+<li><b>Kohdekoordinaatit:</b> Kohteelle syötetty koordinaattipari, ensin leveysaste ja sitten pituusaste. Se pysyy samana liikkuessasi.</li>
+<li><b>Nykyiset koordinaatit:</b> Viimeisin Elitestä vahvistettu koordinaattiparisi, myös leveysaste / pituusaste.</li>
+<li><b>Etäisyys pintaa pitkin:</b> Sama pintaetäisyys kuin kohde-etäisyys, mahdollisesti tarkemmin pyöristettynä yksityiskohtanäytössä. Se ei ole toinen reitti eikä suora avaruudellinen etäisyys ilman halki.</li>
+<li><b>Suuntima:</b> Absoluuttinen suunta kohteeseen nykyisestä sijainnistasi kompassikulmana: 000° on pohjoinen, 090° itä, 180° etelä ja 270° länsi.</li>
+<li><b>Keulasuunta:</b> Nykyinen suuntasi Eliten ilmoittamana. Se kertoo, mihin suuntaan osoitat nyt, eikä sen tarvitse vielä vastata suuntimaa.</li>
+<li><b>Suhteellinen suunta:</b> Keulasuuntasi ja suuntiman välinen ero, esimerkiksi ”23° oikealle”, ”10° vasemmalle” tai ”Suoraan”. Kun kulma on 180°, kohde on takanasi.</li>
+<li><b>Kohdesuunta:</b> Korostettu suuntima absoluuttisena suuntana, johon voit kääntyä Eliten HUD:ssa. Se ei ole ylimääräinen kääntymiskulma.</li>
+</ul>
+<p>Esimerkki: Kun keulasuunta on 051° ja kohdesuunta 074°, käänny 23° oikealle, kunnes Elite-kompassisi näyttää noin 074°. Lennon jatkuessa suuntima ja kohdesuunta voivat muuttua; seuraa päivitettyjä arvoja.</p>
+<p>Samassa sijainnissa kohteen kanssa, navalla tai täsmälleen vastakkaisessa pisteessä planeetalla suunta voi olla määrittelemätön. Navigaattori näyttää silloin vastaavan ilmoituksen keksityn suunnan sijaan.</p>
+
+<h3>Ikkunan koko</h3>
+<p>Navigaattori-ikkunan kokoa voi muuttaa vapaasti. Pallo tai perspektiiviruudukko mukautuu käytettävissä olevaan tilaan mittasuhteet säilyttäen. Vähimmäiskoko pitää yksityiskohtaiset arvot luettavina; pallo pysyy pyöreänä. Ikkunan sijainti ja koko tallennetaan.</p>
+
+<h3>Navigointi-HUD:n käyttöönotto</h3>
+<p>Valitse pääikkunan vasemmalla puolella ruutu kohdasta <b>näytä automaattisesti → Navigointi-HUD</b>. Kun planeettanavigointi on kelvollista, HUD näkyy suoraan etualalla olevan näkyvän Elite-ikkunan päällä.</p>
+<p>Se näyttää kolme riviä:</p>
+<ul>
+<li>suhteellinen suunta</li>
+<li>kohdesuunta</li>
+<li>etäisyys</li>
+</ul>
+<p>HUD on läpinäkyvä, päästää napsautukset läpi eikä vie kohdistusta: se ei peitä peliä läpinäkymättömällä alueella, sieppaa hiiren napsautuksia eikä vie syöttökohdistusta Eliteltä ilmestyessään automaattisesti.</p>
+<p>Ilman kelvollista navigointia tai yksiselitteistä suuntaa se muuttuu automaattisesti näkymättömäksi. Se piilotetaan myös silloin, kun Elite on pienennetty tai ei ole etualalla. Sivupalkin valintaruutu voi silti pysyä valittuna; se ilmaisee toiveesi automaattisesta näytöstä, ei tämänhetkistä näkyvyyttä.</p>
+<p>HUD on vain lisänäyttö. Tavallinen navigaattori toimii siitä riippumatta, myös silloin, kun HUD on poistettu käytöstä tai ei ole saatavilla.</p>
+
+<h3>Uuden kohteen asettaminen</h3>
+<p>Samalla taivaankappaleella voit milloin tahansa avata ”Syötä kohde …” uudelleen ja asettaa toiset koordinaatit. Uusi kohde korvaa aiemman navigointikohteen. Vastaavilla sijaintitiedoilla kompassi päivittyy heti.</p>
+<p>”Lopeta navigointi” poistaa nykyisen kohteen. Aseta vain uusi kohde seuraavaa lähestymistä varten.</p>
+
+<h3>Tietojen ajantasaisuus ja rajoitukset</h3>
+<p>Navigointi perustuu Eliten toimittamiin tilatietoihin. Päivitykset voivat saapua viiveellä pelitilanteen mukaan. Navigaattorin ikänäyttö kertoo, kuinka kauan viimeisestä vahvistetusta tilaviestistä on kulunut.</p>
+<p>Pintaetäisyys kuvaa lyhintä kaarta ajatellulla pallolla. Se ei ole maasto- tai tiereitti. Navigaattori ei tunne reitin esteitä eikä maaston korkeuksia; lentokorkeus, turvallinen nopeus ja esteiden välttäminen jäävät sinun vastuullesi.</p>
+
+<h3>Vinkki</h3>
+<p>Tarkista ennen lähestymistä taivaankappaleen nimi ja kohdekoordinaattien etumerkit. Käänny sitten kohdesuuntaan Elite-kompassissa ja tarkkaile suhteellista suuntaa ja etäisyyttä. Jos navigaattori odottaa, tarkista, toimittaako Elite jo planetaarisia koordinaatteja kohdetaivaankappaleelle.</p>""",
+    ),
+}
 
 DIALOG_TITLE = 'Ohje – {area}'
 CLOSE_LABEL = 'Sulje'

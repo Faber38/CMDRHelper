@@ -340,187 +340,207 @@ HELP_TOPICS = {'overview': ('Overzicht',
               '<p>Als je een interessant lichaam hebt, is het de moeite waard om op de '
               'gedetailleerde weergave te klikken. Dit is de beste plaats om onderscheid te maken '
               'tussen algemene lichaamsgegevens, mogelijke verkenningsresultaten en daadwerkelijke '
-              'vondsten gedocumenteerd door uw eigen commandant.</p>'),
- 'chronicle': ('kroniek',
-               '<h2>kroniek</h2>\n'
-               '<p>De kroniek is de persoonlijke reis- en ontdekkingsgeschiedenis van de '
-               'commandant. Het gebruikt de permanent opgeslagen journaalinformatie om reeds '
-               'bezochte systemen te vinden, deze ruimtelijk weer te geven en te zoeken naar '
-               'bekende ontdekkingen.</p>\n'
-               '\n'
-               '<h3>Systemen bezocht</h3>\n'
-               '<p>De Chronicle toont de bezochte systemen en hun locaties in het sterrenstelsel '
-               'die bekend zijn bij de commandant.</p>\n'
-               '<p>Indien beschikbaar wordt rekening gehouden met het eerste en laatste bezoek en '
-               'met bekende lichaamsinformatie.</p>\n'
-               '<p>De kroniek is dus niet alleen een kaart, maar ook een hulpmiddel voor het '
-               'vinden van eerdere reisbestemmingen en ontdekkingen.</p>\n'
-               '\n'
-               '<h3>3D-kaart</h3>\n'
-               '<p>De bezochte systemen worden ruimtelijk weergegeven met behulp van hun '
-               'galactische X/Y/Z-coördinaten.</p>\n'
-               '<p>De gebruiksaanwijzing bevindt zich direct boven de kaart:</p>\n'
-               '<ul>\n'
-               '<li>Houd de linkermuisknop ingedrukt → weergave roteren</li>\n'
-               '<li>Houd de middelste muisknop ingedrukt → Zoomen</li>\n'
-               '<li>Houd de rechtermuisknop ingedrukt → weergave verplaatsen</li>\n'
-               '</ul>\n'
-               '<p>Het kleine asdisplay helpt bij de oriëntatie in de ruimte.</p>\n'
-               '\n'
-               '<h3>Huidige positie</h3>\n'
-               '<p>Met “Huidige positie” kan de kaartweergave worden uitgelijnd of teruggezet naar '
-               'de momenteel bekende locatie van de actieve commandant.</p>\n'
-               '<p>Voorwaarde is dat van de commandant een geldige huidige functie bekend is.</p>\n'
-               '\n'
-               '<h3>Uitlijnen</h3>\n'
-               '<p>Met “Uitlijnen” wordt de kaartoriëntatie teruggezet naar de beoogde '
-               'basisoriëntatie.</p>\n'
-               '<p>Dit is handig als de kaart verwarrend is geworden nadat deze veel is gedraaid '
-               'of verplaatst.</p>\n'
-               '\n'
-               '<h3>Tijdlijn bijwerken</h3>\n'
-               '<p>“Update history” werkt het display bij met de momenteel bekende gegevens.</p>\n'
-               '<p>De functie wijzigt geen journaalbestanden en creëert geen nieuwe '
-               'verkenningsgegevens. Het werkt eenvoudigweg de geschiedenisweergave bij op basis '
-               'van de bestaande CMDRHelper-gegevens.</p>\n'
-               '\n'
-               '<h3>Gratis tekst zoeken</h3>\n'
-               '<p>Reeds bekende inhoud kan worden doorzocht met behulp van het veld '
-               '"Zoekgeschiedenis...".</p>\n'
-               '<p>Bij het zoeken wordt – indien beschikbaar in de database – onder meer rekening '
-               'gehouden met:</p>\n'
-               '<ul>\n'
-               '<li>Systeemnamen</li>\n'
-               '<li>Lichaamskenmerken</li>\n'
-               '<li>biologische gegevens</li>\n'
-               '<li>Materialen</li>\n'
-               '<li>Codex-gegevens</li>\n'
-               '</ul>\n'
-               '<p>De knop “Zoeken” voert alleen deze vrije tekstzoekopdracht uit.</p>\n'
-               '<p>De afzonderlijke DEMONTAGE-filters worden daarentegen uitgevoerd met '
-               '“Toepassen”.</p>\n'
-               '\n'
-               '<h3>Zoekresultaten</h3>\n'
-               '<p>Hits worden weergegeven in de bestaande resultatenlijst onder de '
-               'kroniekkaart.</p>\n'
-               '<p>Afhankelijk van het type treffer, kunnen systeem en body, evenals aanvullende '
-               'informatie verschijnen.</p>\n'
-               '<p>Een hit kan worden gebruikt om het overeenkomstige systeem of de instantie die '
-               'al bekend is te vinden en om de bestaande gedetailleerde informatie te '
-               'openen.</p>\n'
-               '\n'
-               '<h3>Planetaire mijnsites</h3>\n'
-               '<p>Het filter “Planetaire mijnlocaties” kan worden gebruikt om specifiek te zoeken '
-               'naar bekende lichamen waarvoor Elite Dangerous planetaire mijnlocaties heeft '
-               'gerapporteerd.</p>\n'
-               '<p>De onderliggende weergave komt overeen met die bekend uit Explorer:</p>\n'
-               '<p><b>ABBAU ×N</b></p>\n'
-               '<p>Het nummer behoort toe aan de instantie zelf en is niet gerelateerd aan de '
-               'commandant.</p>\n'
-               '\n'
-               '<h3>Ten minste</h3>\n'
-               '<p>Met ‘Ten minste’ kunt u het minimumaantal planetaire mijnlocaties specificeren '
-               'dat een lichaam moet hebben.</p>\n'
-               '<p>Voorbeeld:</p>\n'
-               '<p><b>Minstens 20</b></p>\n'
-               '<p>toont alleen bekende lichamen met minimaal:</p>\n'
-               '<p><b>ABBAU ×20</b></p>\n'
-               '<p>Dit maakt het mogelijk om bijzonder uitgestrekte mijngebieden specifiek te '
-               'lokaliseren.</p>\n'
-               '\n'
-               '<h3>Eigen mijnvondsten</h3>\n'
-               '<p>Bij ‘Eigen mijnbouwvondsten’ beperkt de zoektocht zich tot lichamen waarop de '
-               'betreffende commandant aantoonbaar zelf dagbouw heeft uitgevoerd.</p>\n'
-               '<p>Deze informatie komt uit de persoonlijke geschiedenis van de dagbouw en wordt '
-               'strikt gescheiden door de commandant.</p>\n'
-               '<p>Een lichaam kan dus over mondiale ABBAU ×N-signalen beschikken zonder dat de '
-               'eigen commandant daar al iets heeft verwijderd.</p>\n'
-               '\n'
-               '<h3>grondstof</h3>\n'
-               '<p>Als “Eigen mijnvondsten” is geactiveerd, is de selectie “Grondstof” ook '
-               'beschikbaar.</p>\n'
-               '<p>Op de lijst staan \u200b\u200balleen grondstoffen die de betreffende commandant '
-               'feitelijk al heeft gewonnen uit de dagbouw.</p>\n'
-               '<p>Dit is geen theoretische lijst van alle mogelijke mijnbouwgrondstoffen.</p>\n'
-               '<p>FABER38 kan bijvoorbeeld verschijnen:</p>\n'
-               '<ul>\n'
-               '<li>Alle</li>\n'
-               '<li>koper</li>\n'
-               '</ul>\n'
-               '<p>Als er later daadwerkelijk extra grondstoffen worden gewonnen, verschijnen deze '
-               'automatisch in uw persoonlijke selectie.</p>\n'
-               '\n'
-               '<h3>Gericht zoeken naar grondstoffen</h3>\n'
-               '<p>Als bijvoorbeeld ‘Koper’ wordt geselecteerd en vervolgens op ‘Toepassen’ wordt '
-               'gedrukt, toont de historie alleen lichamen waarop de betreffende commandant '
-               'aantoonbaar koper heeft gedolven.</p>\n'
-               '<p>Voorbeeld:</p>\n'
-               '<p><b>Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — koper 56 t</b></p>\n'
-               '<p>Dit betekent dat de kroniek kan worden gebruikt als persoonlijke '
-               'locatiedatabase: een grondstof die al is gedolven, kan later opnieuw worden '
-               'gevonden.</p>\n'
-               '\n'
-               '<h3>Alle grondstoffen</h3>\n'
-               '<p>Met “Raw Material: All” wordt rekening gehouden met alle overeenkomende '
-               'persoonlijke ontdekkingen op het gebied van dagbouw.</p>\n'
-               '<p>Als er meerdere goederen op een lichaam bekend zijn, kunnen deze worden '
-               'weergegeven samen met de hoeveelheden die ze tot nu toe hebben verkregen.</p>\n'
-               '<p>Voorbeeld:</p>\n'
-               '<p><b>ABBAU ×24 — Helium-3 18 t, koper 56 t</b></p>\n'
-               '<p>De hoeveelheden zijn de persoonlijke mijnwaarden van de betreffende commandant, '
-               'die feitelijk zijn gedocumenteerd uit dagboekgebeurtenissen.</p>\n'
-               '\n'
-               '<h3>Combineer filters</h3>\n'
-               '<p>De miningfilters zijn met elkaar te combineren.</p>\n'
-               '<p>Bijvoorbeeld:</p>\n'
-               '<ul>\n'
-               '<li>Planetaire mijnsites actief</li>\n'
-               '<li>Minstens 20</li>\n'
-               '<li>Eigen mijnbouwvondsten actief</li>\n'
-               '<li>Grondstof koper</li>\n'
-               '</ul>\n'
-               '<p>zoekt naar bekende lichamen met minstens twintig planetaire mijnlocaties waar '
-               'de commandant in kwestie zelf al koper heeft gedolven.</p>\n'
-               '\n'
-               '<h3>Toepassen</h3>\n'
-               '<p>"Toepassen" voert alleen de zichtbare mijnfilters uit.</p>\n'
-               '<p>De knop ‘Zoeken’ ernaast is gereserveerd voor zoekopdrachten met vrije '
-               'tekst.</p>\n'
-               '<p>Dit betekent dat tekstzoek- en miningfilters opzettelijk van elkaar zijn '
-               'gescheiden.</p>\n'
-               '\n'
-               '<h3>Opnieuw instellen</h3>\n'
-               '<p>“Reset” verwijdert de huidige zoekopdracht in vrije tekst en zet ook de '
-               'mining-filters terug naar hun oorspronkelijke staat.</p>\n'
-               '<p>De grondstofselectie springt terug naar “Alles”.</p>\n'
-               '\n'
-               '<h3>Commandant selectie</h3>\n'
-               '<p>De kroniek kan gegevens van verschillende bekende commandanten weergeven.</p>\n'
-               '<p>Persoonlijke gegevens zoals uw eigen mijnvondsten en grondstoffenlijsten worden '
-               'echter altijd apart beoordeeld voor de daadwerkelijk bekeken commandant.</p>\n'
-               '<p>Een commandant ziet in zijn grondstoffenselectie geen mijnvondsten terug die '
-               'exclusief toebehoren aan een andere commandant.</p>\n'
-               '\n'
-               '<h3>Alle commandanten</h3>\n'
-               '<p>De kaart-/kroniekweergave kan rekening houden met meerdere commandanten.</p>\n'
-               '<p>Dit verandert niets aan de persoonlijke toewijzing van commandantgerelateerde '
-               'gegevens. Mondiale astronomische eigenschappen van een systeem of lichaam blijven '
-               'gedeeld, persoonlijke bevindingen blijven gescheiden.</p>\n'
-               '\n'
-               '<h3>Zoekhulp / legenda</h3>\n'
-               '<p>Extra informatie over het zoeken naar kronieken en de betekenis van de weergave '
-               'kunt u vinden via “Zoekhulp/legenda”.</p>\n'
-               '<p>Deze contextgebonden hoofdhulp is een aanvulling op de daar beschikbare korte '
-               'bedieningshandleidingen.</p>\n'
-               '\n'
-               '<h3>Tip</h3>\n'
-               '<p>De kroniek is bijzonder geschikt voor het vinden van interessante plekken die '
-               'tijdens een langere reis zijn ontdekt.</p>\n'
-               '<p>Voor dagbouw kan het bijvoorbeeld het volgende beantwoorden:</p>\n'
-               '<p>“Op welke planeet heb ik ooit koper gewonnen?”</p>\n'
-               '<p>of:</p>\n'
-               '<p>"Welke van mijn bekende planeten hebben een bijzonder groot aantal '
-               'mijnsites?"</p>'),
+              'vondsten gedocumenteerd door uw eigen commandant.</p>'
+              """
+
+<h3>★ Favorieten</h3>
+<p>De knop ‘★ Favorieten’ bovenaan de Explorer opent een eigen, herbruikbaar favorietenvenster. Hier sla je systemen, planeten/manen en oppervlaktelocaties op voor de actieve commander.</p>
+<p>De schuifbare lijst, alfabetisch gesorteerd op naam, toont naam, type, systeem, waar van toepassing hemellichaam en breedte-/lengtegraad, categorie en een kleine afbeeldingsvoorvertoning. Vrij zoeken, het typefilter en het categoriefilter kunnen samen worden gebruikt. De zoekopdracht doorzoekt naam, systeem, hemellichaam en notitie.</p>
+<p>‘Openen / Tonen’ toont de opgeslagen gegevens, de notitie en een grotere afbeeldingsvoorvertoning. ‘In Explorer tonen’ opent het bestaande systeemoverzicht of de detailweergave van het hemellichaam als de favoriet bij het huidige Explorer-systeem hoort en bijpassende gegevens beschikbaar zijn. Voor andere systemen blijven de opgeslagen favorietgegevens zichtbaar; er wordt geen systeemroute berekend.</p>
+
+<h3>Een systeem, planeet of huidige locatie opslaan</h3>
+<ul>
+<li>‘★ Huidig systeem opslaan’ slaat het huidige systeem op zonder oppervlaktecoördinaten.</li>
+<li>‘★ Planeet / maan opslaan’ laat je een bekende planeet of maan in het huidige systeem kiezen. Ook deze favoriet krijgt geen oppervlaktecoördinaten.</li>
+<li>‘★ Huidige locatie opslaan’ staat bovenaan het favorietenvenster naast de twee andere opslagopties en is ook beschikbaar in de planeetnavigator. In het favorietenvenster blijft de knop altijd zichtbaar en is deze uitgeschakeld zonder geldige actuele planetaire positiegegevens en een actieve commander. Bij het klikken worden commander, systeem, hemellichaam, breedtegraad en lengtegraad vastgelegd. Latere bewegingen in het spel veranderen deze waarden in het geopende dialoogvenster niet.</li>
+</ul>
+<p>Voer een zelfgekozen naam in en kies precies één categorie: Bio, Geo, Mijnbouw, Uitzicht, Landingsplaats, Interessant of Overig. Een notitie en een afbeelding zijn optioneel. Bekende technische ID’s worden intern overgenomen; je hoeft ze niet in te voeren. Ook breedtegraad of lengtegraad 0,0 zijn geldige coördinaten.</p>
+<p>‘Bewerken’ wijzigt naam, categorie, notitie en afbeelding. Systeem, hemellichaam en opgeslagen coördinaten blijven behouden. Wil je een andere oppervlaktelocatie opslaan, maak dan op die positie een nieuwe favoriet aan.</p>
+
+<h3>Favorietafbeeldingen</h3>
+<p>Favorietafbeeldingen staan los van het onderdeel Afbeeldingen. ‘Afbeelding kiezen …’ staat PNG, JPEG en WebP toe. Pas bij het opslaan kopieert CMDRHelper de gekozen afbeelding naar zijn eigen map voor favorietafbeeldingen. Het oorspronkelijke bestand wordt niet verplaatst of gewijzigd.</p>
+<p>‘Laatste screenshot gebruiken’ leest bij elke klik de ingestelde screenshotbronmap opnieuw in en zoekt leesbare screenshots met typische Elite-bestandsnamen. Zonder instelling worden de gebruikelijke Elite-screenshotmappen onder Windows of Steam/Proton meegenomen. Ook de map van de actieve commander in de ingestelde conversiebestemming wordt doorzocht op bijpassende geconverteerde Elite-screenshots. Zo blijft een geconverteerd screenshot vindbaar als de oorspronkelijke BMP is verwijderd. De nieuwste opnametijd wordt bepaald door een ondubbelzinnige tijdsaanduiding in de bestandsnaam, anders door de bestandstijd; bij geconverteerde afbeeldingen telt de opnametijd in de naam in plaats van het conversietijdstip. CMDRHelper maakt zelf geen screenshots en doorzoekt geen willekeurige afbeeldingsmappen.</p>
+<p>Vóór gebruik worden bestandsnaam, opnametijd en een vers geladen voorvertoning getoond. Bevestig met ‘Deze afbeelding gebruiken’. Als geen geschikt screenshot wordt gevonden, kun je nog steeds ‘Afbeelding kiezen …’ gebruiken. Elite-BMP-screenshots worden als interne PNG-kopie opgeslagen.</p>
+<p>Een afbeelding kan in het bewerkingsvenster worden vervangen of met ‘Afbeelding verwijderen’ worden gedeselecteerd. Bij het opslaan wordt de niet meer gebruikte interne kopie verwijderd. Ontbreekt een afbeeldingsbestand, dan blijft de favoriet zonder voorvertoning bruikbaar.</p>
+
+<h3>Favorietdoel en commander</h3>
+<p>Voor oppervlaktelocaties geeft ‘▶ Naar doel’ het opgeslagen hemellichaam, de breedtegraad, lengtegraad en favorietnaam door aan de bestaande planeetnavigator. Het nieuwe doel vervangt het vorige. Favorieten hebben geen eigen navigatielogica. De navigator blijft zelf beslissen: bijpassende geldige planetaire gegevens activeren de navigatie; anders wacht hij op die gegevens.</p>
+<p>Favorieten behoren uitsluitend tot de actieve commander. Bij een commanderwissel wordt de lijst bijgewerkt en een geopend bewerkingsvenster verworpen. Een doel dat nog als favorietdoel van de vorige commander wordt beheerd, wordt beëindigd. De commanderselectie in de kroniek breidt deze favorietenlijst niet uit.</p>
+<p>‘Verwijderen’ vraagt om bevestiging en verwijdert alleen de favorietregistratie en de bijbehorende interne afbeeldingskopie. Het oorspronkelijke screenshot of de gekozen originele afbeelding en alle Explorer-, journal- en hemellichaamgegevens blijven behouden.</p>"""),
+ 'chronicle': (
+        'Kroniek',
+        """<h2>Kroniek</h2>
+<p>De kroniek is de persoonlijke reis- en ontdekkingsgeschiedenis van de commandant. Het gebruikt de permanent opgeslagen journaalinformatie om reeds bezochte systemen te vinden, deze ruimtelijk weer te geven en te zoeken naar bekende ontdekkingen.</p>
+
+<h3>Systemen bezocht</h3>
+<p>De Chronicle toont de bezochte systemen en hun locaties in het sterrenstelsel die bekend zijn bij de commandant.</p>
+<p>Indien beschikbaar wordt rekening gehouden met het eerste en laatste bezoek en met bekende lichaamsinformatie.</p>
+<p>Bij een actieve periode hebben het aantal bezoeken, het eerste bezoek en het laatste bezoek in de kaartweergave betrekking op de gefilterde daadwerkelijke systeembezoeken.</p>
+<p>De kroniek is dus niet alleen een kaart, maar ook een hulpmiddel voor het vinden van eerdere reisbestemmingen en ontdekkingen.</p>
+
+<h3>3D-kaart</h3>
+<p>De bezochte systemen worden ruimtelijk weergegeven met behulp van hun galactische X/Y/Z-coördinaten.</p>
+<p>De gebruiksaanwijzing bevindt zich direct boven de kaart:</p>
+<ul>
+<li>Houd de linkermuisknop ingedrukt → weergave roteren</li>
+<li>houd de middelste muisknop ingedrukt en sleep → trek een zoomvenster</li>
+<li>Houd de rechtermuisknop ingedrukt → weergave verplaatsen</li>
+</ul>
+<p>Het kleine asdisplay helpt bij de oriëntatie in de ruimte.</p>
+
+<h3>Huidige positie</h3>
+<p>Met “Huidige positie” kan de kaartweergave worden uitgelijnd of teruggezet naar de momenteel bekende locatie van de actieve commandant.</p>
+<p>Eerst worden de huidige filters toegepast. Er wordt alleen op het huidige systeem gecentreerd als het in de resulterende kaart voorkomt.</p>
+<p>Anders verschijnt ‘Het huidige systeem valt niet binnen deze filterselectie.’ De filters worden hierdoor niet opgeheven.</p>
+
+<h3>Uitlijnen</h3>
+<p>‘Uitlijnen’ herstelt de oriëntatie naar een bovenaanzicht van het galactische vlak. Verschuiving en zoom blijven behouden.</p>
+<p>Dit is handig als de kaart na veel draaien onoverzichtelijk is geworden.</p>
+
+<h3>Kroniek vernieuwen</h3>
+<p>‘Kroniek vernieuwen’ laadt de kroniekgegevens opnieuw op basis van de huidige gecombineerde filters en werkt de weergave bij. Vrije tekst, ingeschakelde datumgrenzen en mijnbouwfilters worden opnieuw samen beoordeeld; actieve filters worden niet genegeerd.</p>
+<p>De functie wijzigt geen journaalbestanden en creëert geen nieuwe verkenningsgegevens. Het werkt eenvoudigweg de geschiedenisweergave bij op basis van de bestaande CMDRHelper-gegevens.</p>
+
+<h3>Vrij zoeken op tekst</h3>
+<p>Reeds bekende inhoud kan worden doorzocht met behulp van het veld "Zoekgeschiedenis...".</p>
+<p>Bij het zoeken wordt – indien beschikbaar in de database – onder meer rekening gehouden met:</p>
+<ul>
+<li>Systeemnamen</li>
+<li>Lichaamskenmerken</li>
+<li>biologische gegevens</li>
+<li>Materialen</li>
+<li>Codex-gegevens</li>
+</ul>
+<p>Vrije tekst, periode en mijnbouw staan in één gezamenlijk filtergebied. ‘Toepassen’ beoordeelt de ingestelde filters samen. Enter in het vrije tekstveld start dezelfde gecombineerde filtering als ‘Toepassen’.</p>
+
+<h3>Periode Van/Tot (UTC)</h3>
+<p>Schakel ‘Van’ en ‘Tot’ elk met het bijbehorende selectievakje in en kies de gewenste datum. Ook slechts één grens is mogelijk. Zonder ingeschakeld vakje geldt aan die kant geen tijdsbeperking; zonder beide vakjes wordt geen periode beperkt.</p>
+<ul>
+<li><b>Van:</b> Vanaf het begin van de gekozen UTC-kalenderdag, inclusief.</li>
+<li><b>Tot:</b> De volledige gekozen UTC-kalenderdag telt mee, tot vlak vóór het begin van de volgende dag.</li>
+</ul>
+<p>UTC is de gecoördineerde wereldtijd. De datumgrenzen gelden voor UTC-kalenderdagen, niet voor kalenderdagen in je lokale tijdzone.</p>
+<p>Er wordt gefilterd op daadwerkelijke systeembezoeken uit <code>system_visits</code>. Een daadwerkelijk bezoek van de betreffende commandant binnen de periode is vereist. De opgeslagen gegevens <code>first_seen</code> en <code>last_seen</code> vervangen geen echt bezoek: een periode die alleen tussen een eerder eerste en een later laatste bezoek ligt, is niet voldoende.</p>
+<p>De periode filtert bezoeken, niet afzonderlijke ontdekkings-, BIO-, GEO- of mijnbouwgebeurtenissen. Bekende vondstgegevens en mijnbouwhoeveelheden blijven opgeslagen totalen. Van/Tot kan zowel zelfstandig als samen met vrije tekst en mijnbouw worden gebruikt.</p>
+<p>Als Van na Tot ligt, verschijnt ‘De Van-datum mag niet na de Tot-datum liggen.’ Er wordt geen databasequery gestart. Corrigeer de datumgrenzen en pas de filters opnieuw toe.</p>
+
+<h3>Zoekresultaten</h3>
+<p>Hits worden weergegeven in de bestaande resultatenlijst onder de kroniekkaart.</p>
+<p>Afhankelijk van het type treffer, kunnen systeem en body, evenals aanvullende informatie verschijnen.</p>
+<p>Een hit kan worden gebruikt om het overeenkomstige systeem of de instantie die al bekend is te vinden en om de bestaande gedetailleerde informatie te openen.</p>
+
+<h3>Geen resultaten</h3>
+<p>Als een geldige filtering geen resultaten oplevert, worden kaart en routes leeggemaakt. De resultatenlijst wordt leeggemaakt en verborgen, de detailweergave wordt gereset en een geopend kroniekvenster met systeemdetails wordt gesloten.</p>
+<p>Oude resultaten blijven niet zichtbaar. Controleer dan de combinatie van zoektekst, periode en mijnbouwfilters, en de commandant die voor de betreffende weergave wordt gebruikt.</p>
+
+<h3>Planetaire mijnbouwlocaties</h3>
+<p>Het filter “Planetaire mijnlocaties” kan worden gebruikt om specifiek te zoeken naar bekende lichamen waarvoor Elite Dangerous planetaire mijnlocaties heeft gerapporteerd.</p>
+<p>De onderliggende weergave komt overeen met die bekend uit Explorer:</p>
+<p><b>ABBAU ×N</b></p>
+<p>Het nummer behoort toe aan de instantie zelf en is niet gerelateerd aan de commandant.</p>
+
+<h3>Ten minste</h3>
+<p>Met ‘Ten minste’ kunt u het minimumaantal planetaire mijnlocaties specificeren dat een lichaam moet hebben.</p>
+<p>Voorbeeld:</p>
+<p><b>Minstens 20</b></p>
+<p>toont alleen bekende lichamen met minimaal:</p>
+<p><b>ABBAU ×20</b></p>
+<p>Dit maakt het mogelijk om bijzonder uitgestrekte mijngebieden specifiek te lokaliseren.</p>
+
+<h3>Mijn mijnbouwvondsten</h3>
+<p>Bij ‘Eigen mijnbouwvondsten’ beperkt de zoektocht zich tot lichamen waarop de betreffende commandant aantoonbaar zelf dagbouw heeft uitgevoerd.</p>
+<p>Deze informatie komt uit de persoonlijke geschiedenis van de dagbouw en wordt strikt gescheiden door de commandant.</p>
+<p>Een lichaam kan dus over mondiale ABBAU ×N-signalen beschikken zonder dat de eigen commandant daar al iets heeft verwijderd.</p>
+
+<h3>Handelswaar</h3>
+<p>Als “Eigen mijnvondsten” is geactiveerd, is de selectie “Grondstof” ook beschikbaar.</p>
+<p>Op de lijst staan ​​alleen grondstoffen die de betreffende commandant feitelijk al heeft gewonnen uit de dagbouw.</p>
+<p>Dit is geen theoretische lijst van alle mogelijke mijnbouwgrondstoffen.</p>
+<p>Voor FABER38 kan de keuzelijst bijvoorbeeld bevatten:</p>
+<ul>
+<li>Alle</li>
+<li>koper</li>
+</ul>
+<p>Als er later daadwerkelijk extra grondstoffen worden gewonnen, verschijnen deze automatisch in uw persoonlijke selectie.</p>
+
+<h3>Gericht zoeken naar grondstoffen</h3>
+<p>Als bijvoorbeeld ‘Koper’ wordt geselecteerd en vervolgens op ‘Toepassen’ wordt gedrukt, toont de historie alleen lichamen waarop de betreffende commandant aantoonbaar koper heeft gedolven.</p>
+<p>Voorbeeld:</p>
+<p><b>Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — koper 56 t</b></p>
+<p>Dit betekent dat de kroniek kan worden gebruikt als persoonlijke locatiedatabase: een grondstof die al is gedolven, kan later opnieuw worden gevonden.</p>
+
+<h3>Alle grondstoffen</h3>
+<p>Met “Raw Material: All” wordt rekening gehouden met alle overeenkomende persoonlijke ontdekkingen op het gebied van dagbouw.</p>
+<p>Als er meerdere goederen op een lichaam bekend zijn, kunnen deze worden weergegeven samen met de hoeveelheden die ze tot nu toe hebben verkregen.</p>
+<p>Voorbeeld:</p>
+<p><b>ABBAU ×24 — Helium-3 18 t, koper 56 t</b></p>
+<p>De hoeveelheden zijn de persoonlijke mijnwaarden van de betreffende commandant, die feitelijk zijn gedocumenteerd uit dagboekgebeurtenissen.</p>
+<p>Ook bij een actieve periode blijven persoonlijke mijnbouwhoeveelheden opgeslagen totaalhoeveelheden. <b>Koper 56 t</b> betekent niet automatisch <b>56 t in de geselecteerde periode</b>. De periode vereist een passend systeembezoek, maar beperkt de weergegeven gewonnen hoeveelheid niet tot die periode.</p>
+
+<h3>Combineer filters</h3>
+<p>Vrije tekst, ingeschakelde Van-/Tot-grenzen en mijnbouwfilters kunnen worden gecombineerd. Een resultaat moet tegelijkertijd aan de ingestelde voorwaarden voldoen.</p>
+<p>Bijvoorbeeld:</p>
+<ul>
+<li>Planetaire mijnsites actief</li>
+<li>Minstens 20</li>
+<li>Eigen mijnbouwvondsten actief</li>
+<li>Grondstof koper</li>
+</ul>
+<p>zoekt naar bekende lichamen met minstens 20 planetaire mijnlocaties waar de commandant in kwestie zelf al koper heeft gedolven.</p>
+<p>Extra zoektekst wordt eveneens meegenomen. Als daarnaast een periode is ingesteld, moet de bekeken commandant het bijbehorende systeem daadwerkelijk in die periode hebben bezocht; de koperwinning zelf hoeft niet in die periode te hebben plaatsgevonden.</p>
+
+<h3>Toepassen</h3>
+<p>‘Toepassen’ voert een gezamenlijke filtering uit met alle momenteel ingestelde zoek-, periode- en mijnbouwfilters:</p>
+<ul>
+<li>Vrije tekst</li>
+<li>Van, indien ingeschakeld</li>
+<li>Tot, indien ingeschakeld</li>
+<li>Planetaire mijnbouwlocaties</li>
+<li>Minimumaantal</li>
+<li>Mijn mijnbouwvondsten</li>
+<li>Handelswaar, als ‘Mijn mijnbouwvondsten’ is ingeschakeld</li>
+</ul>
+<p>Enter in het vrije tekstveld voert precies dezelfde filtering uit. Zonder vrije tekst en mijnbouwfilters wordt de normale kaart geladen voor de aangevinkte kaartcommandanten, indien van toepassing beperkt door Van/Tot.</p>
+
+<h3>Resetten</h3>
+<p>‘Resetten’ zet het gezamenlijke filtergebied terug naar de begintoestand:</p>
+<ul>
+<li>Vrije tekst wordt gewist.</li>
+<li>Van en Tot worden uitgeschakeld; de datumvelden tonen weer de datum van vandaag en zijn uitgeschakeld.</li>
+<li>Planetaire mijnbouwlocaties wordt uitgeschakeld.</li>
+<li>Het minimumaantal wordt op 0 gezet.</li>
+<li>Mijn mijnbouwvondsten wordt uitgeschakeld.</li>
+<li>Handelswaar wordt teruggezet op ‘Alle’.</li>
+</ul>
+<p>De commandantselectie blijft behouden. Vervolgens wordt de normale kroniek opnieuw geladen voor deze kaartselectie; eerdere zoekresultaten en detailweergaven worden gereset.</p>
+
+<h3>Commandant selectie</h3>
+<p>De kroniek kan gegevens van verschillende bekende commandanten weergeven.</p>
+<p>Daarbij zijn er twee afzonderlijke selectieconcepten:</p>
+<ul>
+<li><b>Commandantselectie van de kaart:</b> De commandantvakjes bepalen welke commandantroutes in de normale kaart zonder vrije tekst-/mijnbouwzoekopdracht worden getoond. Een ingeschakelde periode wordt meegenomen.</li>
+<li><b>Bekeken commandant:</b> Persoonlijke vrije tekst-/mijnbouwzoekopdrachten gebruiken de bekeken commandant (<code>viewed_commander_id</code>), anders de actieve commandant. Ook de persoonlijke handelswaarlijsten volgen deze commandant.</li>
+</ul>
+<p>Persoonlijke gegevens zoals uw eigen mijnvondsten en grondstoffenlijsten worden echter altijd apart beoordeeld voor de daadwerkelijk bekeken commandant.</p>
+<p>Een commandant ziet in zijn grondstoffenselectie geen mijnvondsten terug die exclusief toebehoren aan een andere commandant.</p>
+
+<h3>Alle commandanten</h3>
+<p>De kaart-/kroniekweergave kan rekening houden met meerdere commandanten.</p>
+<p>‘Alle commandanten’ heeft betrekking op de commandantselectie van de kaart. De commandantvakjes breiden persoonlijke vrije tekst-/mijnbouwzoekopdrachten niet automatisch uit naar meerdere commandanten.</p>
+<p>Dit verandert niets aan de persoonlijke toewijzing van commandantgerelateerde gegevens. Mondiale astronomische eigenschappen van een systeem of lichaam blijven gedeeld, persoonlijke bevindingen blijven gescheiden.</p>
+
+<h3>Zoekhulp / legenda</h3>
+<p>Extra informatie over het zoeken naar kronieken en de betekenis van de weergave kunt u vinden via “Zoekhulp/legenda”.</p>
+<p>Een aangeklikte zoekterm wordt in het zoekveld overgenomen en samen met de reeds ingestelde periode-/mijnbouwfilters uitgevoerd.</p>
+<p>Deze contextgebonden hoofdhulp is een aanvulling op de daar beschikbare korte bedieningshandleidingen.</p>
+
+<h3>Tip</h3>
+<p>De kroniek is bijzonder geschikt voor het vinden van interessante plekken die tijdens een langere reis zijn ontdekt.</p>
+<p>Voor dagbouw kan het bijvoorbeeld het volgende beantwoorden:</p>
+<p>“Op welke planeet heb ik ooit koper gewonnen?”</p>
+<p>of:</p>
+<p>"Welke van mijn bekende planeten hebben een bijzonder groot aantal mijnsites?"</p>""",
+    ),
  'jump_tip': ('Springtip',
               '<h2>Springtip</h2>\n'
               '<p>De jumptip ondersteunt verkenning door reeds bekende systeemgegevens te '
@@ -1317,7 +1337,82 @@ HELP_TOPICS = {'overview': ('Overzicht',
               '“Afbeeldingen”.</li>\n'
               '</ul>\n'
               '<p>Als er meerdere commandanten zijn, let dan altijd op voor welke FID de zichtbare '
-              'online toegangsgegevens gelden.</p>')}
+              'online toegangsgegevens gelden.</p>'),
+    "planet_navigation": (
+        'Planeetnavigatie',
+        """<h2>Planeetnavigatie</h2>
+<p>De planeetnavigator helpt je uitsluitend om naar een bepaalde breedtegraad/lengtegraad op een planeet of maan te vliegen. Je geeft een coördinatendoel op en krijgt de afstand en richting ernaartoe.</p>
+<p>Het is geen interstellaire routeplanner en hij verzorgt geen systeem- of sprongnavigatie. Je bestuurt je schip zelf.</p>
+
+<h3>De navigator openen en een doel invoeren</h3>
+<p>Open in het overzicht ‘Planeetnavigatie’ en kies ‘Doel invoeren …’.</p>
+<ul>
+<li><b>Hemellichaam:</b> Kies de doelplaneet of doelmaan uit de lijst of gebruik het al herkende hemellichaam. Je kunt de naam ook zelf invoeren als die nog niet in de lijst staat. Gebruik bij twijfel de volledige naam, inclusief de systeemnaam.</li>
+<li><b>Breedtegraad:</b> Voer de breedtegraad van het doel in tussen −90° en +90°.</li>
+<li><b>Lengtegraad:</b> Voer de lengtegraad van het doel in tussen −180° en +180°. Let bij beide coördinaten op het teken.</li>
+<li><b>Doelnaam:</b> Je kunt optioneel een naam invoeren om je doel gemakkelijker te herkennen.</li>
+</ul>
+<p>Met ‘Doel instellen’ bevestig je de invoer. Technische ID’s zoals BodyID en SystemAddress hoef je niet in te voeren; het zijn geen normale gebruikersinvoeren.</p>
+
+<h3>Wanneer start het kompas?</h3>
+<p>Zodra een doel is ingesteld en Elite geldige planetaire positiegegevens voor het bijbehorende hemellichaam levert, wordt de navigatie automatisch actief. Je hoeft niet op een aparte startknop te drukken.</p>
+<p>Als deze gegevens nog ontbreken of bij een ander hemellichaam horen, wacht de navigator met ‘Wachten op planetaire coördinaten …’. Je kunt al een doel invoeren voordat deze gegevens binnenkomen.</p>
+
+<h3>Planeetbol: meer dan 380 km</h3>
+<p>Bij een doelafstand groter dan 380 km toont de navigator de planeetbol.</p>
+<ul>
+<li>De <b>witte cirkel</b> markeert je eigen positie.</li>
+<li>Het <b>kleine doelpunt</b> is oranje als het doel aan de zichtbare kant van de planeet ligt.</li>
+<li>Als het doel aan de verborgen achterkant ligt, wordt het doelpunt rood weergegeven.</li>
+<li>Je positie blijft vast in de weergave. De planeet en het doel worden weergegeven ten opzichte van je positie en oriëntatie.</li>
+</ul>
+<p>De witte pijl wijst vooruit; de gele pijl wijst in de relatieve doelrichting. De bol is een schematisch oriëntatiehulpmiddel, geen geografisch nauwkeurige terreinweergave. Een rood punt betekent de achterkant van de bol, niet automatisch ‘achter je schip’.</p>
+
+<h3>Perspectiefraster: tot en met 380 km</h3>
+<p>Bij een doelafstand tot en met 380 km schakelt de weergave automatisch over op een gekanteld perspectiefraster. Als de afstand weer boven 380 km komt, verschijnt de bol opnieuw.</p>
+<p>De dwarslijnen vormen een <b>afstandenraster in stappen van 50 km</b>. Het doelpunt wordt binnen het raster getekend volgens afstand en relatieve richting. Het perspectief helpt bij de verdere nadering; door de kanteling lijken de afstanden naar achteren dichter op elkaar te liggen. Let voor de werkelijke stuurkoers ook op de doelkoers en relatieve richting.</p>
+
+<h3>Navigatiewaarden goed lezen</h3>
+<ul>
+<li><b>Doelafstand:</b> De grote weergave toont de resterende afstand tot het doel langs het denkbeeldige planeetoppervlak.</li>
+<li><b>Doelcoördinaten:</b> Het ingevoerde coördinatenpaar van het doel, eerst breedtegraad, dan lengtegraad. Het blijft onveranderd terwijl je beweegt.</li>
+<li><b>Huidige coördinaten:</b> Je laatst bevestigde coördinatenpaar uit Elite, eveneens breedtegraad / lengtegraad.</li>
+<li><b>Afstand over het oppervlak:</b> Dezelfde oppervlakteafstand als de doelafstand, eventueel nauwkeuriger afgerond in de detailweergave. Dit is geen tweede route en geen directe ruimtelijke afstand door de lucht.</li>
+<li><b>Peiling:</b> De absolute richting naar het doel vanaf je huidige positie, als kompashoek: 000° is noord, 090° oost, 180° zuid en 270° west.</li>
+<li><b>Voorliggende koers:</b> Je huidige oriëntatie zoals Elite die levert. Deze geeft aan waarheen je nu gericht bent en hoeft nog niet overeen te komen met de peiling.</li>
+<li><b>Relatieve richting:</b> Het verschil tussen je oriëntatie en de peiling, bijvoorbeeld ‘23° rechts’, ‘10° links’ of ‘Rechtdoor’. Bij 180° ligt het doel achter je.</li>
+<li><b>Doelkoers:</b> De uitgelichte peiling als absolute koers waarnaar je kunt draaien in de Elite-HUD. Het is geen extra draaihoek.</li>
+</ul>
+<p>Voorbeeld: bij een voorliggende koers van 051° en een doelkoers van 074° draai je 23° naar rechts totdat je Elite-kompas ongeveer 074° aangeeft. Tijdens de verdere vlucht kunnen peiling en doelkoers veranderen; volg de bijgewerkte waarden.</p>
+<p>Op dezelfde positie als het doel, op een pool of op het exact tegenoverliggende punt op de planeet kan de richting onbepaald zijn. De navigator toont dan de bijbehorende melding in plaats van een verzonnen koers.</p>
+
+<h3>Venstergrootte</h3>
+<p>Het navigatorvenster is vrij schaalbaar. De bol of het perspectiefraster past zich proportioneel aan de beschikbare ruimte aan. De minimumgrootte houdt de detailwaarden leesbaar; de bol blijft rond. De positie en grootte van het venster worden opgeslagen.</p>
+
+<h3>De navigatie-HUD inschakelen</h3>
+<p>Vink links in het hoofdvenster het vakje aan onder <b>automatisch tonen → Navigatie-HUD</b>. Bij geldige planeetnavigatie verschijnt de HUD direct boven het zichtbare Elite-venster op de voorgrond.</p>
+<p>Hij toont drie regels:</p>
+<ul>
+<li>relatieve richting</li>
+<li>doelkoers</li>
+<li>afstand</li>
+</ul>
+<p>De HUD is transparant, laat klikken door en neemt geen focus over: hij bedekt het spel niet met een ondoorzichtig vlak, onderschept geen muisklikken en neemt de invoerfocus niet van Elite over wanneer hij automatisch verschijnt.</p>
+<p>Zonder geldige navigatie of eenduidige richting wordt hij automatisch onzichtbaar. Ook als Elite geminimaliseerd is of niet op de voorgrond staat, wordt hij verborgen. Het vinkje in de zijbalk kan toch aan blijven; het geeft je wens voor automatische weergave aan, niet de huidige zichtbaarheid.</p>
+<p>De HUD is slechts een extra weergave. De normale navigator werkt er onafhankelijk van, ook als de HUD is uitgeschakeld of niet beschikbaar is.</p>
+
+<h3>Een nieuw doel instellen</h3>
+<p>Op hetzelfde hemellichaam kun je op elk moment opnieuw ‘Doel invoeren …’ openen en andere coördinaten instellen. Het nieuwe doel vervangt het vorige navigatiedoel. Met bijbehorende positiegegevens wordt het kompas onmiddellijk bijgewerkt.</p>
+<p>Met ‘Navigatie beëindigen’ verwijder je het huidige doel. Voor een volgende nadering stel je gewoon een nieuw doel in.</p>
+
+<h3>Actualiteit van gegevens en beperkingen</h3>
+<p>De navigatie is gebaseerd op de statusgegevens van Elite. Updates kunnen afhankelijk van de speltoestand vertraagd binnenkomen. De ouderdomsweergave in de navigator toont hoe lang geleden de laatste bevestigde statusmelding was.</p>
+<p>De oppervlakteafstand beschrijft de kortste boog op een denkbeeldige bol. Het is geen terrein- of wegroute. De navigator kent geen obstakels of terreinhoogten langs de route; vlieghoogte, veilige snelheid en het vermijden van obstakels blijven jouw verantwoordelijkheid.</p>
+
+<h3>Tip</h3>
+<p>Controleer vóór de nadering de naam van het hemellichaam en de tekens van de doelcoördinaten. Richt je vervolgens op de doelkoers in het Elite-kompas en houd relatieve richting en afstand in de gaten. Als de navigator wacht, controleer dan of Elite al planetaire coördinaten voor het doelhemellichaam levert.</p>""",
+    ),
+}
 
 DIALOG_TITLE = 'Hulp – {area}'
 CLOSE_LABEL = 'Sluiten'

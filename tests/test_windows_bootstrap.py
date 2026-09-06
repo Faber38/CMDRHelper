@@ -8,7 +8,7 @@ import zipfile
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from cmdrhelper.python_support import is_supported
+from cmdrhelper.python_support import is_supported, supported_description
 from cmdrhelper import update
 
 
@@ -16,23 +16,54 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class PythonSupportTests(unittest.TestCase):
-    def test_supported_bounds(self):
-        self.assertFalse(is_supported((3, 9, 9)))
-        self.assertTrue(is_supported((3, 10, 0)))
-        self.assertTrue(is_supported((3, 13, 9)))
-        self.assertFalse(is_supported((3, 14, 0)))
+    def test_windows_accepts_310_and_future_versions_without_upper_bound(self):
+        with (patch('cmdrhelper.python_support.sys.platform', 'win32'),
+              patch('cmdrhelper.python_support.struct.calcsize', return_value=8),
+              patch('cmdrhelper.python_support.sysconfig.get_platform', return_value='win-amd64')):
+            self.assertFalse(is_supported((3, 9, 9)))
+            for version in ((3, 10, 0), (3, 13, 9), (3, 14, 0), (3, 15, 0), (3, 99, 0)):
+                with self.subTest(version=version):
+                    self.assertTrue(is_supported(version))
+            self.assertIn('3.10 oder neuer', supported_description())
+
+    def test_windows_requires_x64(self):
+        with patch('cmdrhelper.python_support.sys.platform', 'win32'):
+            for pointer_size, platform in ((4, 'win32'), (4, 'win-amd64'), (8, 'win-arm64')):
+                with (self.subTest(pointer_size=pointer_size, platform=platform),
+                      patch('cmdrhelper.python_support.struct.calcsize', return_value=pointer_size),
+                      patch('cmdrhelper.python_support.sysconfig.get_platform', return_value=platform)):
+                    self.assertFalse(is_supported((3, 14, 0)))
+
+    def test_linux_retains_previous_bounds_without_architecture_checks(self):
+        with (patch('cmdrhelper.python_support.sys.platform', 'linux'),
+              patch('cmdrhelper.python_support.struct.calcsize', side_effect=AssertionError('no Linux architecture check')),
+              patch('cmdrhelper.python_support.sysconfig.get_platform', side_effect=AssertionError('no Linux architecture check'))):
+            for minor in range(9, 100):
+                with self.subTest(minor=minor):
+                    self.assertEqual(is_supported((3, minor, 0)), 10 <= minor <= 13)
+            self.assertEqual(supported_description(), 'Python 3.10 bis 3.13 (64-Bit empfohlen)')
 
 
 class WindowsBatchContractTests(unittest.TestCase):
     def test_install_is_root_bound_and_repairs_only_local_venv(self):
         text = (ROOT / "install.bat").read_text(encoding="utf-8")
-        self.assertIn('cd /d "%INSTALL_ROOT%"', text)
-        self.assertIn('if errorlevel 1 (', text)
-        self.assertIn('set "VENV_DIR=%INSTALL_ROOT%venv"', text)
-        self.assertIn('rmdir /s /q "%VENV_DIR%"', text)
-        self.assertIn('fsutil reparsepoint query "%VENV_DIR%"', text)
-        self.assertNotIn("data\\", text)
-        self.assertIn('"%VENV_PYTHON%" -m pip install -r "%REQUIREMENTS%"', text)
+        self.assertIn('-File "%~dp0install-windows.ps1"', text)
+        save = text.index('set "INSTALL_EXIT=%errorlevel%"')
+        self.assertLess(save, text.index("pause", save))
+        self.assertIn('exit /b %INSTALL_EXIT%', text)
+
+        installer = (ROOT / "install-windows.ps1").read_text(encoding="utf-8-sig")
+        self.assertIn('Set-Location -LiteralPath $InstallRoot', installer)
+        self.assertIn("$venv = Join-Path $InstallRoot 'venv'", installer)
+        self.assertIn("$venvPython = Join-Path $venv 'Scripts\\python.exe'", installer)
+        self.assertIn("[IO.Path]::GetFullPath($VenvDir) -ine (Join-Path $InstallRoot 'venv')", installer)
+        self.assertIn('[IO.FileAttributes]::ReparsePoint', installer)
+        removal = installer.index('Remove-Item -LiteralPath $venv -Recurse -Force')
+        self.assertLess(installer.rindex('Assert-LocalVenv $InstallRoot $venv', 0, removal), removal)
+        self.assertIn('Get-PythonProbe $venvPython $support -VenvDir $venv', installer)
+        self.assertIn('[IO.Path]::GetFullPath([string]$probe.prefix) -ine $VenvDir', installer)
+        self.assertIn("Invoke-PythonCommand $venvPython @('-I', '-m', 'pip', 'install', '-r', $requirements)", installer)
+        self.assertNotIn("Join-Path $InstallRoot 'data'", installer)
 
     def test_start_uses_absolute_local_paths_and_preserves_exitcode(self):
         text = (ROOT / "start.bat").read_text(encoding="utf-8")

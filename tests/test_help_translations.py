@@ -36,6 +36,7 @@ class HelpTranslationTests(unittest.TestCase):
 
     def test_all_languages_and_topics_are_registered(self):
         self.assertEqual(HELP_LANGUAGES, EXPECTED_LANGUAGES)
+        self.assertEqual(len(de.HELP_TOPICS), 10)
         expected_topics = tuple(de.HELP_TOPICS)
         for language in HELP_LANGUAGES:
             with self.subTest(language=language):
@@ -43,7 +44,32 @@ class HelpTranslationTests(unittest.TestCase):
                     f"cmdrhelper.help_content.{language}", fromlist=["HELP_TOPICS"]
                 )
                 self.assertEqual(tuple(catalog.HELP_TOPICS), expected_topics)
-                self.assertEqual(len(catalog.HELP_TOPICS), 9)
+                self.assertEqual(len(catalog.HELP_TOPICS), 10)
+
+    def test_navigation_translations_preserve_numbers_and_have_no_german_passages(self):
+        master = de.HELP_TOPICS["planet_navigation"][1]
+        plain = lambda text: re.sub(r"<[^>]+>", "", text)
+        numbers = lambda text: re.findall(r"[−+]?\d+°?", plain(text))
+        german_passages = [
+            plain(block).strip() for block in re.findall(r"<(?:p|li)>(.*?)</(?:p|li)>", master)
+            if len(plain(block).split()) >= 4
+        ]
+        for language in HELP_LANGUAGES[1:]:
+            with self.subTest(language=language):
+                topic = help_topic("planet_navigation", language)
+                self.assertNotEqual(topic, help_topic("planet_navigation", "de"))
+                self.assertEqual(numbers(topic.text), numbers(master))
+                for term in ("BodyID", "SystemAddress", "Elite", "HUD"):
+                    self.assertEqual(topic.text.count(term), master.count(term))
+                for passage in german_passages:
+                    self.assertNotIn(passage, plain(topic.text))
+                self.assertNotRegex(topic.text, r"Planeten-Navigation|Zielkoordinaten|Zielentfernung|"
+                                    r"Zielkurs|Breitengrad|Längengrad|Oberflächenabstand|"
+                                    r"klickdurchlässig|Navigationswerte|Warte auf planetare")
+                sections = re.split(r"<h3>.*?</h3>", topic.text)[1:]
+                self.assertEqual(len(sections), 10)
+                for section in sections:
+                    self.assertRegex(section, r"<(?:p|li)>.+?</(?:p|li)>")
 
     def test_every_translation_preserves_the_complete_section_structure(self):
         for language in HELP_LANGUAGES[1:]:
@@ -63,6 +89,58 @@ class HelpTranslationTests(unittest.TestCase):
                     self.assertNotRegex(
                         text, r"<(?:h2|h3|p|li|b|code)>\s*</(?:h2|h3|p|li|b|code)>"
                     )
+
+    def test_favorites_help_preserves_structure_and_localized_actions(self):
+        from importlib import import_module
+        master = de.HELP_TOPICS["explorer"][1].split("<h3>★ Favoriten</h3>")[1]
+        german_passages = re.findall(r"<p>(.*?)</p>", master)
+        for language in HELP_LANGUAGES:
+            with self.subTest(language=language):
+                text = help_topic("explorer", language).text
+                ui = import_module(f"cmdrhelper.i18n.{language}").TRANSLATIONS
+                favorite_text = text[text.index("<h3>" + ui["favorites.title"] + "</h3>"):]
+                self.assertEqual(text.count("<h3>"), 24)
+                for tag, count in (("h3", 4), ("p", 12), ("ul", 1), ("li", 3)):
+                    self.assertEqual(favorite_text.count(f"<{tag}>"), count)
+                for key in ("save_system", "save_body", "save_surface", "open", "edit",
+                            "delete", "navigate", "latest", "choose_image", "use_image",
+                            "remove_image", "show_explorer"):
+                    self.assertIn(ui["favorites." + key], favorite_text)
+                for term in ("PNG", "JPEG", "WebP", "BMP", "Windows", "Steam/Proton"):
+                    self.assertEqual(favorite_text.count(term), master.count(term))
+                self.assertRegex(favorite_text, r"0[,.]0")
+                self.assertNotRegex(favorite_text, r"\{[^}]+\}")
+                if language != "de":
+                    for passage in german_passages:
+                        self.assertNotIn(passage, favorite_text)
+                    self.assertNotRegex(favorite_text, r"Oberflächenort|Aktuellen Standort speichern|"
+                                        r"Letzten Screenshot verwenden|Bild auswählen|"
+                                        r"Konvertierungsziel|Favoritenbilder|Beim Commanderwechsel")
+
+    def test_chronicle_translations_preserve_structure_examples_and_identifiers(self):
+        master = de.HELP_TOPICS["chronicle"][1]
+        plain = lambda text: re.sub(r"<[^>]+>", "", text)
+        paragraphs = lambda text: re.findall(r"<p>(.*?)</p>", text)
+        german_passages = [plain(p) for p in paragraphs(master)
+                           if len(plain(p).split()) >= 5]
+        for language in HELP_LANGUAGES:
+            with self.subTest(language=language):
+                text = help_topic("chronicle", language).text
+                self.assertEqual(text.count("<h3>"), 22)
+                self.assertEqual(text.count("<p>"), 79)
+                self.assertEqual(text.count("<ul>"), 8)
+                self.assertEqual(text.count("<li>"), 31)
+                self.assertEqual(re.findall(r"<code>(.*?)</code>", text),
+                                 re.findall(r"<code>(.*?)</code>", master))
+                for translated, german in zip(paragraphs(text), paragraphs(master)):
+                    self.assertEqual(re.findall(r"\d+", plain(translated)),
+                                     re.findall(r"\d+", plain(german)))
+                if language != "de":
+                    for passage in german_passages:
+                        self.assertNotIn(passage, plain(text))
+                    self.assertNotRegex(text, r"Freitext|Zeitraum|Anwenden|Zurücksetzen|"
+                                        r"tatsächliche Systembesuche|Gesamtmengen|"
+                                        r"Karten-Commander|Eigene Abbau-Funde")
 
     def test_cargo_help_is_present_in_every_language(self):
         for language in HELP_LANGUAGES:
@@ -131,6 +209,10 @@ class HelpTranslationTests(unittest.TestCase):
         self.assertEqual(help_topic("overview", "xx"), help_topic("overview", "de"))
         with patch("cmdrhelper.help_content._LANGUAGES", {"de": de, "en": object()}):
             self.assertEqual(help_topic("overview", "en"), help_topic("overview", "de"))
+        from types import SimpleNamespace
+        with patch("cmdrhelper.help_content._LANGUAGES", {"de": de, "en": SimpleNamespace(HELP_TOPICS={})}):
+            self.assertEqual(help_topic("planet_navigation", "en"),
+                             help_topic("planet_navigation", "de"))
 
 
 if __name__ == "__main__":

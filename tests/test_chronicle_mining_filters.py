@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PySide6.QtWidgets import QApplication, QCheckBox, QComboBox, QLabel, QListWidget
+from PySide6.QtWidgets import QApplication, QCheckBox, QComboBox, QLabel, QListWidget, QDateEdit
 
 from cmdrhelper.ui.main_window import MainWindow
 
@@ -56,7 +56,7 @@ class _MapStub:
     def __init__(self):
         self.systems = None
 
-    def set_systems(self, systems):
+    def set_systems(self, systems, routes=None):
         self.systems = systems
 
 
@@ -82,14 +82,10 @@ class ChronicleMiningFilterUiTests(unittest.TestCase):
     def setUpClass(cls):
         cls.app = QApplication.instance() or QApplication([])
 
-    def test_search_button_path_runs_freetext_without_mining_filters(self):
-        window = SimpleNamespace(
-            chronicle_search_edit=_TextStub("Wasserwelt"),
-            _run_chronicle_search=Mock(),
-            _reset_chronicle_search=Mock(),
-        )
+    def test_search_help_runs_the_common_filter_path(self):
+        window = SimpleNamespace(_apply_chronicle_filters=Mock())
         MainWindow._search_chronicle_biology(window)
-        window._run_chronicle_search.assert_called_once_with("Wasserwelt")
+        window._apply_chronicle_filters.assert_called_once_with()
 
     def test_initial_commodity_refresh_runs_after_commander_view_resolution(self):
         options = {
@@ -156,24 +152,6 @@ class ChronicleMiningFilterUiTests(unittest.TestCase):
             ["Alle", "Gold"],
         )
 
-    def test_apply_button_path_runs_only_the_visible_mining_filters(self):
-        window = SimpleNamespace(
-            chronicle_planetary_mining_check=_ValueStub(True),
-            chronicle_planetary_mining_minimum=_ValueStub(16),
-            chronicle_personally_mined_check=_ValueStub(True),
-            chronicle_mining_commodity_combo=_ComboStub("copper"),
-            _run_chronicle_search=Mock(),
-            _reset_chronicle_search=Mock(),
-        )
-        MainWindow._apply_chronicle_mining_filters(window)
-        window._run_chronicle_search.assert_called_once_with(
-            "",
-            planetary_mining_only=True,
-            minimum_mining=16,
-            personally_mined_only=True,
-            mining_commodity="copper",
-        )
-
     def test_applied_filter_result_is_visible_in_chronicle_result_list(self):
         result = {
             "kind": "Körper",
@@ -200,6 +178,7 @@ class ChronicleMiningFilterUiTests(unittest.TestCase):
                 MainWindow._chronicle_planetary_mining_result_text
             ),
             _chronicle_mining_commander_id=lambda: 1,
+            _mark_current_chronicle_system=Mock(),
         )
         MainWindow._run_chronicle_search(
             window,
@@ -228,6 +207,8 @@ class ChronicleMiningFilterUiTests(unittest.TestCase):
             chronicle_personally_mined_check=personal,
             chronicle_mining_commodity_combo=commodity,
             _refresh_chronicle=Mock(),
+            chronicle_from_check=QCheckBox(), chronicle_to_check=QCheckBox(),
+            chronicle_from_date=QDateEdit(), chronicle_to_date=QDateEdit(),
         )
         MainWindow._reset_chronicle_search(window)
         self.assertEqual(text.text(), "")

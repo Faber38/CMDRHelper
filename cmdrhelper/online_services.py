@@ -10,6 +10,9 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 
 
+from cmdrhelper.body_classes import canonical_body_classes
+
+
 EDSM_RANKS_URL = "https://www.edsm.net/api-commander-v1/get-ranks"
 EDSM_BODIES_URL = "https://www.edsm.net/api-system-v1/bodies"
 EDSM_CACHE_MAX_AGE = timedelta(hours=24)
@@ -436,7 +439,7 @@ def _normalize_edsm_body(
     except Exception:
         body_id = None
 
-    return {
+    return canonical_body_classes({
         "body_id": body_id,
         "name": body_name,
         "short_name": short_name,
@@ -492,7 +495,7 @@ def _normalize_edsm_body(
         "journal_scanned": False,
         "edsm_known": True,
         "source": "EDSM",
-    }
+    })
 
 
 def fetch_edsm_bodies(

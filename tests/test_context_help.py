@@ -13,9 +13,12 @@ from PySide6.QtWidgets import (
 )
 
 from cmdrhelper.help_content import help_topic
+from cmdrhelper.help_content import de
 from cmdrhelper.i18n import set_language, tr
 from cmdrhelper.ui.help_dialog import HelpDialog
 from cmdrhelper.ui.main_window import MainWindow
+from cmdrhelper.ui.planet_navigation_window import PlanetNavigationWindow
+from cmdrhelper.planet_navigation import PlanetNavigationController
 
 
 class _SignalStub:
@@ -255,8 +258,12 @@ class ContextHelpTests(unittest.TestCase):
             "SRV-Fracht wird niemals als Schiffsfracht übernommen",
         ):
             self.assertIn(passage, topic.text)
-        self.assertEqual(topic.text.count("<h3>"), 20)
-        self.assertEqual(topic.text.count("<ul>"), 4)
+        self.assertEqual(topic.text.count("<h3>"), 24)
+        self.assertEqual(topic.text.count("<ul>"), 5)
+        for text in ("★ Favoriten", "Spätere Bewegungen im Spiel verändern diese Werte",
+                     "Dieses Bild verwenden", "nur den Favoritendatensatz",
+                     "an den vorhandenen Planeten-Navigator"):
+            self.assertIn(text, topic.text)
 
     def test_jump_tip_help_contains_all_detailed_sections(self):
         topic = help_topic("jump_tip")
@@ -411,20 +418,50 @@ class ContextHelpTests(unittest.TestCase):
             "persönliche Reise- und Fundhistorie des Commanders",
             "linke Maustaste gedrückt halten → Ansicht drehen",
             "Chronik durchsuchen …",
-            "Button „Suchen“ führt ausschließlich diese Freitextsuche aus",
-            "ABBAU-Filter werden dagegen mit „Anwenden“ ausgeführt",
+            "Enter im Freitextfeld startet denselben Filterlauf wie „Anwenden“",
+            "Zeitraum Von/Bis (UTC)",
+            "Nur wenn das aktuelle System in der resultierenden Karte enthalten ist",
+            "Verschiebung und Zoom bleiben dabei erhalten",
+            "aktive Filter werden nicht ignoriert",
             "Die Anzahl gehört zum Body selbst und ist nicht commanderbezogen",
             "Surface-Mining-Historie und wird strikt nach Commander getrennt",
             "nicht um eine theoretische Liste aller möglichen Mining-Rohstoffe",
             "Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — Kupfer 56 t",
             "ABBAU ×24 — Helium-3 18 t, Kupfer 56 t",
-            "Textsuche und Mining-Filter bewusst voneinander getrennt",
+            "Ein Treffer muss die gesetzten Bedingungen gemeinsam erfüllen",
             "keine Mining-Funde, die ausschließlich einem anderen Commander gehören",
             "Globale astronomische Eigenschaften eines Systems oder Bodys",
         ):
             self.assertIn(passage, topic.text)
-        self.assertEqual(topic.text.count("<h3>"), 20)
-        self.assertEqual(topic.text.count("<ul>"), 4)
+        self.assertEqual(topic.text.count("<h3>"), 22)
+        self.assertEqual(topic.text.count("<ul>"), 8)
+
+    def test_chronicle_help_explains_visit_filtering_and_preserved_totals(self):
+        text = help_topic("chronicle").text
+        for passage in (
+            "jeweils über den zugehörigen Haken", "Auch nur eine Grenze ist möglich",
+            "Ab Beginn des ausgewählten UTC-Kalendertages einschließlich",
+            "Der vollständige ausgewählte UTC-Kalendertag",
+            "nicht auf Kalendertage deiner lokalen Zeitzone",
+            "<code>system_visits</code>", "<code>first_seen</code>", "<code>last_seen</code>",
+            "ersetzen keinen echten Besuch", "nicht einzelne Entdeckungs-, BIO-, GEO- oder Mining-Ereignisse",
+            "Es wird keine Datenbankabfrage gestartet",
+            "Besuchszahl, erster Besuch und letzter Besuch",
+            "Auch bei aktivem Zeitraum bleiben persönliche Mining-Mengen gespeicherte Gesamtmengen",
+            "<b>Kupfer 56 t</b> bedeutet nicht automatisch <b>56 t im ausgewählten Zeitraum</b>",
+            "Die Commander-Auswahl bleibt erhalten", "heutige Datum",
+            "Die Mindestanzahl wird auf 0 gesetzt", "Rohstoff wird auf „Alle“ zurückgesetzt",
+            "Karten-Commander-Auswahl", "<code>viewed_commander_id</code>",
+            "ersatzweise den aktiven Commander", "nicht automatisch auf mehrere Commander",
+            "Die Filter werden dadurch nicht aufgehoben", "Karte und Routen geleert",
+            "Trefferliste wird geleert und ausgeblendet", "Detailanzeige zurückgesetzt",
+            "Chronik-Systemdetailfenster geschlossen", "Alte Ergebnisse bleiben nicht sichtbar",
+            "zusammen mit den bereits gesetzten Zeitraum-/Mining-Filtern ausgeführt",
+        ):
+            self.assertIn(passage, text)
+        for obsolete in ("Button „Suchen“", "separaten ABBAU-Filter", "ausschließlich die sichtbaren Mining-Filter",
+                         "Textsuche und Mining-Filter bewusst voneinander getrennt"):
+            self.assertNotIn(obsolete, text)
 
     def test_overview_help_remains_unchanged(self):
         topic = help_topic("overview")
@@ -476,11 +513,71 @@ class ContextHelpTests(unittest.TestCase):
         self.assertEqual(topic.text.count("<ul>"), 4)
 
     def test_no_help_topics_remain_short(self):
-        for context in self.window.HELP_CONTEXTS.values():
+        self.assertEqual(set(de.HELP_TOPICS),
+                         set(self.window.HELP_CONTEXTS.values()) | {PlanetNavigationWindow.HELP_CONTEXT})
+        self.assertEqual(len(de.HELP_TOPICS), 10)
+        for context in de.HELP_TOPICS:
             with self.subTest(context=context):
                 topic = help_topic(context)
                 self.assertIn("<h2>", topic.text)
                 self.assertIn("<h3>", topic.text)
+
+    def test_navigation_opens_its_own_scrollable_help_without_changing_target(self):
+        controller = PlanetNavigationController(self.state)
+        navigator = PlanetNavigationWindow(controller, self.state.settings)
+        self.addCleanup(navigator.close)
+        self.addCleanup(navigator.deleteLater)
+        target_before, state_before = controller.target, controller.state
+        navigator.help_button.click()
+        dialog = navigator._help_dialog
+        self.addCleanup(dialog.close)
+        self.assertEqual(dialog.context, "planet_navigation")
+        self.assertEqual(dialog.help_text.text(), help_topic("planet_navigation").text)
+        self.assertIsInstance(dialog.scroll_area, QScrollArea)
+        self.assertEqual((dialog.width(), dialog.height()), (640, 480))
+        dialog.close()
+        self.assertIs(controller.target, target_before)
+        self.assertIs(controller.state, state_before)
+
+    def test_navigation_master_explains_current_controls_and_limits(self):
+        topic = help_topic("planet_navigation")
+        self.assertEqual(topic.area, "Planeten-Navigation")
+        for text in (
+            "größer als 380 km", "bis einschließlich 380 km", "50-km-Entfernungsraster",
+            "Breitengrad (Latitude)", "Längengrad (Longitude)", "BodyID", "SystemAddress",
+            "Zielentfernung", "Zielkoordinaten", "Aktuelle Koordinaten",
+            "Entfernung über Oberfläche", "Peilung", "Heading", "Relative Richtung",
+            "Zielkurs", "074°", "auto einblenden → Navigations-HUD",
+            "klickdurchlässig", "fokusneutral", "proportional", "Geländehöhen",
+            "Das neue Ziel ersetzt", "automatisch aktiv",
+        ):
+            self.assertIn(text, topic.text)
+        for obsolete in ("Favoriten", "Anflugprofil", "Tunnel", "ApproachBody", "LeaveBody",
+                         "Binding", "Barrier", "Prototyp"):
+            self.assertNotIn(obsolete, topic.text)
+        self.assertGreaterEqual(topic.text.count("<h3>"), 10)
+
+    def test_navigation_help_button_uses_current_language_on_every_open(self):
+        from cmdrhelper.help_content import HELP_LANGUAGES
+        from cmdrhelper.i18n import get_language
+        previous_language = get_language()
+        self.addCleanup(set_language, previous_language)
+        controller = PlanetNavigationController(self.state)
+        navigator = PlanetNavigationWindow(controller, self.state.settings)
+        self.addCleanup(navigator.deleteLater)
+        self.addCleanup(navigator.close)
+        for language in HELP_LANGUAGES:
+            with self.subTest(language=language):
+                set_language(language)
+                navigator.help_button.click()
+                dialog = navigator._help_dialog
+                topic = help_topic("planet_navigation", language)
+                self.assertEqual(dialog.context, "planet_navigation")
+                self.assertEqual(dialog.help_text.text(), topic.text)
+                self.assertEqual(dialog.windowTitle(), topic.dialog_title)
+                self.assertEqual(dialog.buttons.button(QDialogButtonBox.StandardButton.Close).text(),
+                                 topic.close_label)
+                dialog.close()
 
     def test_open_and_close_do_not_change_app_state_or_minimum_width(self):
         state_before = dict(vars(self.state))

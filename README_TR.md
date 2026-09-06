@@ -1,4 +1,4 @@
-# CMDRHelper
+# CMDRHelper V3 (3.0)
 
 [🇩🇪 Deutsch](README_DE.md) \| [🇬🇧 English](README.md) \| [🇫🇷
 Français](README_FR.md) \| [🇮🇹 Italiano](README_IT.md) \| [🇳🇴
@@ -10,681 +10,233 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 ![CMDRHelper -- Elite Dangerous için yardımcı
 pilotunuz](cmdrhelper/assets/readme/cmdrhelper_readme_tr.png)
 
-**Elite Dangerous için kişisel yol arkadaşınız -- keşif, sistem analizi
-ve Commander verileri tek bakışta**
+**Elite Dangerous için kişisel yardımcı – keşif, gezinme ve komutan verileri bir bakışta**
 
-CMDRHelper, **Elite Dangerous** için bağımsız bir masaüstü
-uygulamasıdır. Oyunun yerel Journal dosyalarındaki bilgileri analiz eder
-ve anlaşılır bir şekilde sunar. Amaç, bir sistemi keşfederken nelerin
-zaten bilindiğini, hangi gök cisimlerinin ilgi çekici olduğunu ve
-Commander'ın kendi keşifleri ile haritalamalarını hızlıca gösteren
-kişisel bir yardımcı sunmaktır.
+CMDRHelper, Elite Dangerous’ın yerel günlüklerini inceleyen ve `Status.json` dosyasındaki gezegen konum verilerini kullanan bağımsız bir masaüstü uygulamasıdır. İlginç gökcisimlerini belirlemene, kaydedilmiş yerlere dönmene ve yolculuklarınla bulgularını incelemene yardımcı olur. Kişisel veriler yeniden başlatmadan sonra korunur ve komutanlara göre ayrı tutulur.
 
-Proje hâlen aktif olarak geliştirilmektedir.
+## Explorer
 
-## İşlevlere genel bakış
+Explorer mevcut sistemi üç görünümde gösterir:
 
-### Elite Dangerous Journal'ları
+- **Sistem haritası:** bilinen yıldızların, gezegenlerin ve uyduların grafik gösterimi. Bir gökcismine tıklamak ayrıntılarını açar. “Tümünü göster” sistem genel görünümünü açar.
+- **Değer listesi:** bilinen gökcisimlerinin tarama ve haritalama değerleri, elde edilmiş değer ve olası toplam değer. İşaretler, dünyalaştırma adaylarını, olası ilk keşifleri ve ilk haritalamaları bulmayı kolaylaştırır.
+- **BIO / GEO / MADENCİLİK:** biyolojik ve jeolojik sinyaller, gezegen madencilik sahaları ve doğrulanmış kişisel bulgular.
 
-CMDRHelper yerel Journal dosyalarını okur ve diğerlerinin yanı sıra
-yıldız sistemlerini, yıldızları, gezegenleri, uyduları, Belt
-Cluster'ları, taramaları, haritalamaları ve biyolojik/jeolojik
-sinyalleri işler. Commander'ın kendi verileri, tamamlayıcı harici
-bilgilerden ayrı olarak gösterilebilir.
+Analizler, bildirilen sinyalleri gerçek kişisel bulgulardan ayırır. **BIO ×N** bildirilen sinyal sayısıdır; tamamen analiz edilmiş türlerin onayı değildir. **MADENCİLİK ×N**, gezegen madencilik sahalarını sayar ancak her birinin ham madde içeriğini açıklamaz. Kişisel olarak çıkarılan ticari mallar, madencilik sırasında toplanan yan malzemeler ve gökcisminin genel malzeme bileşimi ayrı tutulur.
 
-### Görevler
+Explorer ayrıca tahmini BIO değerlerini, kişisel analizlerin ilerlemesini ve henüz satılmamış haritalama ve BIO verilerini gösterir. Değerler mevcut günlük ve gökcismi bilgilerine dayanır; eksik veriler kişisel keşif gibi sunulmaz. Ek EDSM verileri, kişisel bulgulardan ayrılması gereken dış kaynaklı bilgilerdir.
 
-CMDRHelper, Elite Dangerous Journal'larındaki görev olaylarını analiz
-eder ve aktif görevleri anlaşılır biçimde gösterir. Görev durumu ve
-ilgili Journal olayları takip edilir.
+Gökcismi ayrıntıları mevcut fiziksel özellikleri, atmosferi, halkaları, malzemeleri ve keşif bilgilerini içerir. Gösterimlerde uygun dokular ve bazı özel astronomik nesneler için animasyonlar kullanılır. Cargo bölümü o anda kullanılan geminin veya SRV’nin bilinen yükünü ve kapasitesini gösterir; Rhino’da yük ile kişisel madencilik bulguları ayrı bilgilerdir.
 
-Oyun sırasında NPC mesajları (`ReceiveText`) üzerinden gelen görev
-teklifleri de tanınabilir ve sonraki görev eşleştirmesine dahil
-edilebilir. Elite Dangerous her görev türü için tüm bilgileri aynı
-Journal olayında sağlamadığından, eşleştirme mevcut Journal verilerinden
-adım adım oluşturulur.
+Explorer’ın üst kısmında **★ Favoriler | Gezegen navigasyonu | Tümünü göster** bulunur. Favoriler ve gezegen gezinmesi kendi pencerelerini açar; Explorer’ın üç görünümü kullanılabilir kalır.
 
-### Sistem ve Explorer görünümü
+## Gezegen gezinmesi
 
-Bir sistemde bilinen cisimler grafiksel olarak gösterilir ve doğrudan
-seçilebilir. CMDRHelper diğerlerinin yanı sıra şunları gösterebilir:
+Gezegen gezgini yalnızca **bir gezegen veya uydudaki belirli enlem/boylama** uçmana yardımcı olur. Yıldız sistemleri arasındaki seyahatler için ayrı rota planlayıcı vardır.
 
--   cismin adı ve türü
--   sistem içindeki uzaklığı
--   Commander tarafından taranmış veya yalnızca harici kaynaktan
-    biliniyor
--   daha önce keşfedilmiş ve haritalanmış
--   olası ilk keşif ve olası First Mapping
--   Commander tarafından haritalanmış
--   verimli haritalama
--   biyolojik ve jeolojik sinyaller
--   tarama ve haritalama değerleri
+### Hedefi gir ve uç
 
-BIO sinyalleri ilgili cisim üzerinde belirgin şekilde vurgulanır.
-Eşleştirme sistem bazında yapılır; böylece farklı yıldız sistemlerindeki
-BodyID değerleri birbirine karıştırılmaz.
+Hedef gökcismini seç veya mümkün olduğunda otomatik algılanan mevcut gökcismini kullan. Enlem, boylam ve isteğe bağlı hedef adı gir. BodyID veya SystemAddress gibi teknik bilgileri girmen gerekmez. **0,0** da geçerli bir koordinattır.
 
-### Cisim ayrıntı görünümü
+Elite, ilgili gökcismi için geçerli gezegen konum verileri sağladığında pusula otomatik etkinleşir. Uygun veriler yoksa gezgin bekleme durumunu gösterir. Aynı gökcisminde istediğin zaman yeni bir koordinat hedefi belirleyebilirsin; önceki hedefin yerini alır.
 
-Bir cisme tıklandığında ayrıntılı bir görünüm açılır. Mevcut verilere
-bağlı olarak cisim türü, kütle, uzaklık, yerçekimi, atmosfer,
-volkanizma, iniş yapılabilirliği, terraforming durumu, materyaller,
-BIO/GEO sinyalleri, tarama değeri, haritalama değeri ve keşif durumu
-gösterilir.
+### Yaklaşma sırasındaki gösterim
 
-Eksik bilgiler bilinmiyor olarak gösterilir ve kesin veriymiş gibi
-sunulmaz.
+| Hedef mesafesi | Gösterim |
+| --- | --- |
+| **380 km’den fazla** | Kendi konumun beyaz bir daire, hedef küçük bir nokta olarak gezegen küresinde gösterilir. Hedef görünür tarafta turuncu, gizli arka tarafta kırmızıdır. Oyuncunun konumu gösterimde sabit kalır; gezegen ve hedef buna göre gösterilir. |
+| **380 km ve altı** | Yaklaşmayı sürdürmek için **50 km mesafe aralıkları** ve içine çizilmiş hedef konumuyla eğik perspektif ızgarasına otomatik geçiş. |
 
-## Cisimlerin grafiksel gösterimi
+Gezgin penceresi serbestçe yeniden boyutlandırılabilir. Küre veya perspektif ızgarası mevcut alana orantılı olarak uyarlanır; ayrıntılı değerler okunabilir kalır.
 
-CMDRHelper; High Metal Content Worlds, Metal Rich Bodies, Rocky Bodies,
-Icy Bodies, Rocky Ice Worlds, Earth-like Worlds, Water Worlds, Ammonia
-Worlds, çeşitli gaz devi sınıfları, su veya amonyak tabanlı yaşama sahip
-gaz devleri, helyum açısından zengin gaz devleri, farklı yıldız
-sınıfları ve Belt Cluster'lar dahil olmak üzere çok sayıda cisim türü
-için özel grafiklere sahiptir.
+### Gezinme değerlerini anlama
 
-Genel görünümlerde normal PNG görüntüleri kullanılır. Birçok cisim için
-animasyonlu ayrıntı görünümünde kullanılmak üzere ayrıca **2:1
-equirectangular `_texture.png`** bulunur.
+- **Hedef koordinatları:** hedefin kaydedilmiş enlem ve boylamı.
+- **Mevcut koordinatlar:** son geçerli kendi gezegen konumun.
+- **Hedef mesafesi / Yüzey mesafesi:** küresel yüzey boyunca hedefe hesaplanan mesafe; büyük mesafe göstergesi ve ayrıntılı değer aynı mesafeyi farklı yuvarlamalarla gösterir.
+- **Kerteriz:** mevcut konumdan hedefe mutlak yön.
+- **Heading:** Elite’in bildirdiği mevcut yönelimin.
+- **Göreli yön:** heading ile kerteriz arasındaki fark; örneğin “23° sağa”, “sola” veya “düz”.
+- **Hedef rotası:** Elite HUD’unda dönebileceğin mutlak rota. Kerterize karşılık gelir ve ek bir göreli dönüş açısı değildir.
 
-### Dönen 3D gezegenler
+Örnek: **Heading 051° → Hedef rotası 074° = 23° sağa**.
 
-Uygun 2:1 dokular dönen bir küre üzerine yansıtılır. CPU renderer, ek
-OpenGL/PyOpenGL bağımlılığı olmadan **PySide6 ve NumPy** ile çalışır.
-Küre projeksiyonu, yavaş dönüş, aydınlatma, kenar karartması ve
-atmosferik kenar efektini içerir.
+Gezinme oyunun durum verilerine bağlıdır; güncellemeler oyun durumuna göre gecikmeli gelebilir. Yüzey mesafesi bir arazi veya yol rotası değildir. Güzergâhtaki engeller ve arazi yükseklikleri hesaba katılmaz.
 
-### Animasyonlu yaşam biçimleri
+## Gezinme HUD’u
 
-Yaşam içeren gaz devleri için farklı animasyonlar bulunur:
+Soldaki **otomatik göster → Navigasyon HUD** altında doğrudan Elite’in üzerinde isteğe bağlı ek gösterimi açabilirsin. Geçerli gezegen gezinmesinde şunları gösterir:
 
-**Water Life:** hale ve hareketli kuyruklara sahip, camgöbeği/turkuaz
-renkli süzülen organizmalar.
+- göreli yön,
+- mutlak hedef rotası,
+- mesafe.
 
-**Ammonia Life:** titreşen çekirdeğe, kısa liflere ve daha yavaş
-harekete sahip, mor/kehribar tonlarında yarı saydam özel organizmalar.
+HUD saydamdır, tıklamaları geçirir ve odağı almaz: fare tıklamalarını veya giriş odağını oyundan çalmaz. Geçerli gezinme yoksa otomatik görünmez olur; kenar çubuğundaki kutu işaretli kalabilir. Normal gezgin HUD’dan bağımsız çalışır.
 
-### Animasyonlu Belt Cluster'lar
+HUD, oyun içinde **Linux/X11** ve **Elite ile Windows 11** üzerinde test edilmiştir. Windows’ta birden fazla monitör, eşleşen monitör adlarına göre değil geometrileri ve Elite penceresinin konumuna göre eşleştirilir.
 
-Belt Cluster'lar küre olarak gösterilmez. Ayrıntı görünümü; ayrı
-asteroitler, farklı boyut ve derinlikler, kendi dönüşleri, bireysel
-sürüklenme, paralaks efekti, kraterler ve hafif toz/parçacık efektleri
-içeren prosedürel bir asteroit alanı oluşturur.
+## Favoriler
 
-## Tamamlayıcı veri kaynağı olarak EDSM
+**Explorer → ★ Favoriler**, ayrı ve yeniden kullanılabilen bir pencere açar. Favoriler **etkin komutana** aittir. Komutan değişimi görünümü günceller; günlükteki komutan seçimi favori listesini genişletmez.
 
-CMDRHelper kendi Journal verileri ile EDSM bilgilerini birbirinden
-ayırabilir. Kaynak buna göre kendi Journal'ı, EDSM veya kendi
-Journal'ı + EDSM olarak işaretlenir. Kendi Journal verileri özellikle
-önemlidir, çünkü ilgili Commander'ın gerçekte neleri bizzat taradığını
-veya haritaladığını gösterir.
+### Üç tür kaydetme
 
-CMDRHelper yeni Journal verilerini otomatik olarak EDSM'ye aktarabilir.
-Güncel dinamik EDSM Discard listesi dikkate alınır; böylece yalnızca
-EDSM'nin istediği olaylar gönderilir. Aktarım ilerlemesi her Journal
-dosyası için güvenli şekilde kaydedilir. İlk etkinleştirmede önceden
-mevcut eski Journal'lar yeniden bütünüyle gönderilmez.
+Üst eylem satırı şunları sunar:
 
-EDSM durumu doğrudan genel görünümün üst kısmında gösterilir. Yeşil
-gösterge aktarımın çalıştığını belirtir; hatalar kırmızı gösterilir ve
-ayrıca CMDRHelper günlüğüne kaydedilir.
+| Eylem | Kaydedilen favori |
+| --- | --- |
+| **★ Mevcut sistemi kaydet** | Yüzey koordinatları olmadan mevcut sistem. |
+| **★ Gezegen / ay kaydet** | Mevcut sistemden seçilmiş bilinen bir gezegen veya uydu, yüzey koordinatları olmadan. |
+| **★ Mevcut konumu kaydet** | Mevcut sistem, gökcismi, enlem ve boylam içeren bir yüzey konumu. |
 
-## Yerel veritabanı
+Konum düğmesi her zaman görünür kalır ve yalnızca geçerli güncel gezegen konum verileri ve etkin komutan varsa kullanılabilir. **Tıklama, düzenleme iletişim kutusu açılmadan önce komutanı, sistemi, gökcismini ve koordinatları sabitler.** Oyundaki sonraki hareketler bu konumu değiştirmez. Aynı kaydetme akışı gezegen gezgininde de bulunur. Bilinen dahili kimlikler otomatik aktarılır; koordinat uydurulmaz.
 
-CMDRHelper SQLite kullanır. Aşağıdaki kurallar geçerlidir:
+Bir ad ve tam olarak bir kategori seç: **Biyo, Jeo, Madencilik, Manzara, İniş yeri, İlginç veya Diğer**. Not ve resim isteğe bağlıdır.
 
--   `cmdrhelper/database.py` program kodudur ve sürüme dahildir.
--   `data/cmdrhelper.db` kişisel Commander verilerini içerir ve
-    **dağıtılmaz**.
--   Yeni kurulumda yerel veritabanı ilgili kullanıcı için yeniden
-    oluşturulur.
+### Bulma, görüntüleme ve düzenleme
 
-Böylece hiçbir kişisel Commander verisi sürümle birlikte dağıtılmaz.
+Ada göre alfabetik sıralanmış, kaydırılabilir liste; ad, tür, sistem, gerektiğinde gökcismi ve koordinatlar, kategori ve küçük resim önizlemesi gösterir. **Serbest metin araması, tür ve kategori filtreleri** birleştirilebilir. Arama; ad, sistem, gökcismi ve notu kapsar.
 
-## Tanılama ve günlük dosyası
+**Aç / Göster**, kaydedilmiş bilgileri, notu ve daha büyük resim önizlemesini gösterir. **Explorer’da göster**, favori mevcut Explorer sistemine aitse ve ilgili veriler varsa mevcut sistem genel görünümünü veya gökcismi ayrıntılarını kullanır. Diğer sistemler için kaydedilmiş favori bilgileri kullanılabilir kalır.
 
-CMDRHelper, tanılama ve hata ayıklama için kendi dönen günlük dosyasını
-tutar. Önemli program, Journal, veritabanı ve EDSM olayları kaydedilir.
-EDSM günlük kaydı azaltılmıştır; böylece yalnızca EDSM tarafından
-reddedilen Journal olayları normal günlüğü gereksiz yere doldurmaz,
-başarılı aktarımlar, uyarılar ve hatalar ise görünür kalır.
+**Düzenle**; ad, kategori, not ve resmi değiştirir. Sistem, gökcismi ve kaydedilmiş koordinatlar canlı değerlerle değiştirilmez. Başka bir konum için yeni yüzey favorisi oluştur.
 
-## Platformlar
+**Sil**, onay ister ve yalnızca favori kaydını ve dahili resim kopyasını kaldırır. Explorer, günlük ve gökcismi verileri korunur.
 
-CMDRHelper Python ve PySide6 ile geliştirilmiştir ve **Linux ile
-Windows** için tasarlanmıştır. Geliştirme ağırlıklı olarak Linux altında
-yapılır; Windows, birlikte verilen batch dosyaları kullanılarak
-kurulabilir.
+### Favori resimleri ve son ekran görüntüsü
+
+Favori resimleri **normal Resimler bölümünden tamamen ayrıdır**. CMDRHelper, favori resimleri klasöründe kendi dahili kopyasını yönetir (standart veri düzeninde `data/favorites/images/`). Orijinal taşınmaz veya değiştirilmez.
+
+- **Resim seç …**, PNG, JPEG veya WebP kabul eder ve önizleme gösterir. Dahili kopya yalnızca kaydederken oluşur.
+- **Son ekran görüntüsünü kullan**, her tıklamada gerçek ekran görüntüsü kaynak klasörünü yeniden tarar. Ayrıca yapılandırılmış dönüştürme hedefindeki etkin komutanın klasöründe bulunan uygun dönüştürülmüş Elite ekran görüntülerini dikkate alır. Böylece otomatik dönüştürme BMP’sini silmiş olsa da yeni ekran görüntüsü kullanılabilir kalır.
+- Genel resim klasörlerinden rastgele resimler değil, uygun Elite veya dönüştürme adlarına sahip okunabilir dosyalar sunulur. Sıralama için dosya adındaki açık çekim zamanı, yoksa dosya zamanı kullanılır. Dönüştürülmüş resimlerde dönüştürme zamanı değil, adda saklanan çekim zamanı kullanılır.
+- Bulunan ekran görüntüsünü kabul etmeden önce dosya adını, çekim zamanını ve yeni yüklenmiş önizlemeyi görürsün. **Bu resmi kullan** ile onayla. Uygun ekran görüntüsü bulunamazsa elle resim seçimi kullanılabilir kalır. CMDRHelper kendisi ekran görüntüsü almaz.
+
+Bir resim daha sonra değiştirilebilir veya kaldırılabilir. Gereksiz dahili kopyalar favori kaydedilirken veya silinirken kaldırılır. **Favori eylemleri hiçbir zaman orijinal ekran görüntüsünü veya seçilmiş orijinal resmi silmez.** Dahili resim dosyası eksikse favori önizleme olmadan kullanılabilir kalır.
+
+### Yüzey favorisini hedef olarak kullanma
+
+**▶ Hedefe git**, kaydedilmiş gökcismini, enlemi, boylamı ve favori adını mevcut gezegen gezginine aktarır ve önceki hedefi değiştirir. Favorilerin kendi gezinme mantığı yoktur. Uygun geçerli gezegen verileri gezinmeyi başlatır; aksi hâlde gezgin her zamanki gibi bekler.
+
+Diğer komutanların favorileri kendi hedeflerin olarak kullanılamaz. Komutan değişimi, hâlâ önceki komutanın favori hedefi olarak yönetilen bir hedefi sonlandırır. Sistem ve gökcismi favorileri mevcut bilgileri gösterir; kendi rota planlamaları yoktur.
+
+## Günlük
+
+Günlük, kaydedilmiş seyahat ve bulgu geçmişindir. **3D seyahat haritası**, ziyaret edilen sistemleri ve komutan rotalarını gösterir. Sistem ve gökcismi ayrıntıları bilinen BIO, GEO, malzeme, Codex ve madencilik bilgilerini yeniden bulmana yardımcı olur.
+
+### Birleşik filtreler
+
+**Uygula** veya **serbest metin alanında Enter**, ayarlanmış tüm filtreleri birlikte çalıştırır:
+
+- serbest metin,
+- isteğe bağlı **Başlangıç** ve **Bitiş**,
+- **Gezegensel maden sahaları** ve **En az**,
+- **Kendi maden buluntularım** ve **Ticari mal**.
+
+**Arama yardımı / Açıklama** içindeki bir terim arama alanına aktarılır ve mevcut dönem ve madencilik filtreleriyle birlikte çalıştırılır.
+
+### UTC dönemi
+
+Başlangıç ve Bitiş kendi kutularıyla etkinleştirilir. Yalnızca tek sınır da kullanılabilir; kutu işaretli değilse o tarafta zaman kısıtlaması yoktur. **Başlangıç**, seçilen UTC takvim gününün başlangıcını dahil eder. **Bitiş**, seçilen UTC gününün tamamını kapsar. UTC ortak zaman temelidir, yerel takvim zamanın değildir.
+
+**Gerçek sistem ziyaretleri** belirleyicidir: en az bir kayıtlı ziyaret dönemin içinde olmalıdır. Sistemin yalnızca ilk veya son kez bilinmesi ziyaretin yerini tutmaz. Dönem etkinken haritadaki ziyaret sayısı, ilk ve son ziyaret, filtrelenmiş ziyaretleri ifade eder.
+
+Dönem; tekil keşif, BIO, GEO veya madencilik olaylarını değil ziyaretleri filtreler. Bilinen bulgu bilgileri ve kişisel madencilik miktarları kaydedilmiş **toplam değerler** olarak kalır. **Dönem etkinken “Bakır 56 t”, otomatik olarak “bu dönemde 56 t” anlamına gelmez.** Başlangıç Bitiş’ten sonraysa hata gösterilir ve veritabanı sorgusu başlatılmaz.
+
+### Komutan ve yenileme
+
+**Haritanın komutan seçimi**, gösterilen komutan rotalarını belirler. Kişisel serbest metin ve madencilik aramaları ise görüntülenen veya etkin komutana aittir. Harita kutuları kişisel aramaları otomatik olarak birden çok komutana genişletmez.
+
+**Günlüğü yenile**, verileri yeniden yükler ve etkin filtreleri tekrar çalıştırır. **Mevcut konum**, önce mevcut filtre durumunu uygular ve yalnızca mevcut sistem sonuç haritasında varsa ona merkezlenir. Aksi hâlde bir mesaj görünür; filtreler korunur.
+
+**Sıfırla**, serbest metni temizler, Başlangıç/Bitiş’i kapatır ve görünen tarih alanlarını sıfırlar. Madencilik kutuları temizlenir, asgari sayı 0 ve ticari mal Tümü olur. Komutan seçimi korunur; ardından normal günlük yüklenir.
+
+**Sonuç yoksa**, harita ve rotalar temizlenir, sonuç listesi temizlenip gizlenir, ayrıntı gösterimi sıfırlanır ve açık günlük sistem ayrıntısı penceresi kapatılır. Eski sonuçlar görünür kalmaz.
+
+### Harita denetimleri
+
+- Sol fare düğmesiyle sürükleme: döndürme.
+- Sağ fare düğmesiyle sürükleme: kaydırma.
+- Orta fare düğmesiyle sürükleme: yakınlaştırma çerçevesi çizme.
+- Fare tekerleği: yakınlaştırma.
+- **Hizala:** yönelimi galaktik üstten görünüme döndürür; kaydırma ve yakınlaştırma korunur.
+
+## Resimler ve otomatik ekran görüntüsü dönüştürme
+
+**Resimler** bölümünde Elite ekran görüntüsü kaynak klasörünü ve dönüştürme hedefini ayarlarsın. Otomatik dönüştürme, yeni BMP ekran görüntülerini **PNG veya JPEG** biçimine çevirir. Ayarlanabilir aydınlatma mevcuttur. Başlangıçta zaten bulunan BMP’ler yalnızca izlemeyi açarak geriye dönük otomatik dönüştürülmez; onlar için elle dönüştürme vardır.
+
+Dönüştürülmüş dosya adları çekim zamanı, komutan ve sistem bilgisini içerir; dosyalar komutan bazında saklanır. Otomatik atama, etkin günlük komutanını izler. Galeride farklı seçim bu etkin komutanı değiştirmez.
+
+**Başarılı dönüştürmeden sonra orijinal BMP’yi silme** seçeneği yalnızca bu dönüştürmeye aittir ve ayrı bir ayardır. Favori resimleri yönetiminden bağımsızdır.
+
+Galeri, uygun dönüştürülmüş resimleri önizlemeyle gösterir. Yeniden gösterildiğinde tekrar okunur; yenileme de güncel dosyaları dikkate alır. Seçim ve büyük önizleme birlikte güncellenir. Seçili resim kaybolursa mevcut başka bir resim seçilir veya önizleme temizlenir. Resimler bölümünde ayrıca kendi resim seçimi ve onaylı silme işlevi vardır.
+
+## Diğer görünümler
+
+- **Genel bakış:** etkin komutan, gemi, konum, günlük algılama, açık görevler ve çevrimiçi durum.
+- **Görevler:** bilinen hedefleri, ilerlemesi ve tamamlanma durumuyla kalıcı olarak saklanan açık görevler. Eksik bilgiler tamamlanmaz veya uydurulmaz.
+- **CMDR:** servet, rütbeler, istatistikler, MercCoins, gemiler/filo ve bilinen Fleet Carrier konumu. MercCoins, uygulamanın hesapladığı bir bakiye olarak değil Frontier’in bildirdiği toplamlar olarak gösterilir.
+- **Rota planlayıcı:** Spansh ile gemi ve Fleet Carrier için ayrı planlama. Hesaplanan carrier rotaları CTSVision için CSV olarak dışa aktarılabilir. Hesaplama dış hizmete bağlantı gerektirir.
+
+## Komutan, yerel veriler ve çevrimiçi hizmetler
+
+CMDRHelper, etkin komutanı mevcut günlük oturumunun Frontier kimliğinden tanır. Kişisel keşif, görevler, servet, favoriler ve çevrimiçi erişim bilgileri ayrı saklanır. Başka bir komutanı yalnızca görüntülemek, canlı komutanı veya yüklemelerinin atamasını değiştirmez.
+
+Yerel SQLite veritabanı bilinen sistemleri, gökcisimlerini ve kişisel geçmişi yeniden başlatmalarda korur. Yeni tamamlanmış günlük kayıtları oyun sırasında işlenir; kaydedilmiş okuma konumları gereksiz yeniden okumayı önler. Konum veya komutan yanlışsa önce günlük algılamayı ve ayarlardaki günlük klasörünü kontrol et.
+
+**EDSM**, ek sistem verileri sağlayabilir. İlgili hizmet etkin komutanın kendi erişim bilgileriyle ayarlanıp etkinleştirildiyse desteklenen günlük verileri **EDSM ve Inara’ya** gönderilebilir. Bir komutan otomatik olarak başkasının API anahtarını kullanmaz. Yerel kayıt, kullanılabilir çevrimiçi bağlantıdan bağımsız çalışır.
+
+## Diller ve bağlamsal yardım
+
+Arayüz **12 dili** destekler: **DE, EN, FR, IT, NO, SV, FI, PL, NL, ES, TR, EL** – Almanca, İngilizce, Fransızca, İtalyanca, Norveççe, İsveççe, Fince, Lehçe, Felemenkçe, İspanyolca, Türkçe ve Yunanca.
+
+Şu anda **dil başına 937 UI-i18n anahtarı** vardır. **? Yardım**, **10 ayrıntılı bağlamsal yardım konusunu 12 dilin tamamında** sunar. Favoriler Explorer yardımının parçasıdır; gezegen gezinmesinin doğrudan gezginden erişilen kendi konusu vardır. Yardım, mevcut arayüz dilini kullanır ve katalog veya kayıt eksikse Almancaya geri döner.
 
 ## Gereksinimler
 
-Python **3.10–3.13** ve `requirements.txt` içindeki paketler:
+| Platform | Python |
+| --- | --- |
+| **Windows** | **Python 3.10 veya daha yeni, x64 zorunlu.** Mevcut sürümler için yapay üst sınır yoktur. Sonraki gerçek paket ve içe aktarma kontrolleri belirleyicidir. |
+| **Linux** | Değişmedi: **Python 3.10–3.13**, 64 bit önerilir. Python sürümüne uygun venv modülü bulunmalıdır. |
 
-``` text
+Gerekli paketler `requirements.txt` içindedir:
+
+```text
 PySide6>=6.7,<7
 numpy
 Pillow>=10.0
 ```
 
-## Linux altında kurulum
+Kurulum bu bağımlılıkları indirir. Günlük analizi ve gezegen gezinmesi için yerel Elite dosyaları erişilebilir olmalıdır. Linux’ta Elite, Steam/Proton üzerinden çalışabilir; gerçek günlük ve ekran görüntüsü yolları CMDRHelper’da ayarlanır. Yukarıdaki Linux HUD desteği X11 içindir.
 
-``` bash
+## Linux’ta kurulum
+
+Projenin veya sürümün tamamını çıkar ve proje klasöründe çalıştır:
+
+```bash
 ./install.sh
 ./start.sh
 ```
 
-Bu betikler yalnızca kurulumun yerel `venv` ortamını kullanır ve kişisel
-verilere dokunmadan güvenle onarabilir.
+Betikler yalnızca bu kurulumun yerel `venv` ortamını kullanır. Sembolik betik bağlantılarını çözer, Python ve pip’i kontrol eder ve kişisel verilere veya Elite günlüklerine dokunmadan bozuk yerel ortamı onarabilir. Eksik sistem paketleri otomatik kurulmaz; venv modülü eksikse yükleyici bildirir. Mevcut Linux kurulum yolu değişmeden kalır.
 
-## Windows altında kurulum
+## Windows’ta kurulum
 
-Windows için `install.bat` ve `start.bat` kullanılması öngörülmüştür.
+1. ZIP’in tamamını ayrı bir klasöre çıkar.
+2. **install.bat** dosyasını başlat. Birlikte verilen **install-windows.ps1** dosyasını çağırır.
+3. Başarılı kurulumdan sonra CMDRHelper’ı **start.bat** ile başlat.
 
-`install.bat` Python 3.10–3.13'ü kontrol eder, yerel `venv` ortamını oluşturur veya onarır
-ve `requirements.txt` içeriğini kurar. Ardından CMDRHelper `start.bat`
-üzerinden başlatılır.
+Mevcut **Python 3.10 ve üzeri x64**, yapay sürüm üst sınırı olmadan kabul edilir. Gelecekteki bir Python sürümü yalnızca sürüm numarası yüzünden reddedilmez. Uygun mevcut Python veya kullanılabilir yerel venv, gereksiz otomatik Python kurulumunu önler.
 
-## Sürüm oluşturma
+Uygun Python yoksa yükleyici, onayından sonra **winget** aracılığıyla otomatik kurulum sunar. Bunun için bilinçli olarak sabit **Python 3.14 x64** sürüm serisi seçilmiştir; bu seçim mevcut Python sürümleri için açık uçlu kuraldan ayrıdır. Otomatik kurulum mümkün değilse yükleyici hatayı bildirir.
 
-``` bash
-./create_release.sh
-```
+Yükleyici yalnızca **bu CMDRHelper kopyasının yerel venv ortamını** oluşturur, kontrol eder veya onarır; gereksinimleri kurar ve **pip check** ile **PySide6, PySide6.QtWidgets, numpy ve PIL** içe aktarma kontrollerini çalıştırır. Ortamın kullanılabilirliğine yalnızca bu gerçek kontroller karar verir. Başarısız olurlarsa kurulum anlaşılır bir hata mesajıyla durur. Başka sanal ortamlar onarılmaz veya değiştirilmez.
 
-Sürüm numarası doğrudan betikte belirlenir. Oluşturulan ZIP dosyası
-program kodunu ve asset'leri içerir; ancak kişisel veritabanını, sanal
-Python ortamını veya Git, önbellek ve editör dosyalarını içermez.
+## Tanılama ve dağıtım paketleri
 
-## Sürüm 2.2
+Sorunlarda günlük ve çevrimiçi durum göstergeleri ile `logs` klasöründeki kayıt dosyaları yardımcı olur. Kişisel veriler yerel saklanır; favorilerin yedeği veritabanının yanında dahili resim kopyalarını da içermelidir.
 
-**Sürüm 2.2** çevrimiçi hizmetleri, kişisel bulguları, ekran görüntülerini ve
-paralı asker kredilerini komutan bazında ayırır; Journal ve güncellemeyi güçlendirir.
-
-### Multi-CMDR çevrimiçi hizmetler
-
--   Inara ve EDSM bilgileri komutan/FID başına, ayrı API anahtarıyla saklanır ve
-    **yapılandırıldı/yapılandırılmadı** gösterilir. Seçim yalnızca bilgileri düzenler;
-    canlı yükleme her zaman etkin Journal-FID'yi kullanır, görüntülenen komutanı
-    veya ayar seçimini değil. Yükleme konumları/runtime durumları ayrıdır ve eski
-    worker'lar FID değişiminde geçersiz olur.
--   Otomatik Inara aktarımı kalıcı, yinelenmeyen SQLite outbox, batching ve retry
-    kullanır. Arıza uygulamayı engellemez; onaylanmamış eventler komutanında kalır
-    ve yalnız etkin FID için denenir. Başka outbox gönderilmez. Destek: FSD
-    sıçramaları, docking, inişler, Carrier yolculukları, konum, görevler ve gemi
-    alım/satımı. Credits/assets, cargo, materyaller, ShipLocker, loadout,
-    exobiology, özel Surface-Mining geçmişi ve belgelenmemiş Frontier eventleri
-    destekleniyor diye sunulmaz.
-
-### Journal, Surface Mining ve kartografi
-
--   Reader önce son eksiksiz Journal durumunu bulur. Offset ancak yerel işlemsel
-    kayıttan sonra ilerler; Inara-outbox isteğe bağlıdır. Eksik/geçersiz ayar ve
-    Inara/EDSM ağ hataları yerel veriyi veya offsetleri etkilemez. Özel durumlar
-    kontrollü ve idempotent onarılır; geçmiş Inara toplu yüklemesi yapılmaz.
--   `MiningRefined`, gerçekten çıkarılan commodities'i komutan/sistem/body başına
-    kümülatif kaydeder. Güvenli Rhino bağlamındaki yan materyaller `Scan.Materials`'
-    tan ayrıdır. Body ayrıntısı **Kendi madencilik bulguları** ve isteğe bağlı yan
-    materyalleri gösterir; **MADENCİLİK ×N** gezegensel saha sayısıdır ve bulgu ancak
-    çıkarıldıktan sonra görünür. Tek seferlik backfill eski Rhino Journallarını
-    okur. Depo commodity'si çıkarımdan önce tahmin edilmez.
--   `SellExplorationData` ve `MultiSellExplorationData` satış sınırıdır. Eski
-    `NavBeaconDetail` açık sayılmaz ve satılmış veri yeniden yapılandırmadan sonra
-    geri dönmez.
-
-### Paralı asker kredileri
-
--   Bakiye yalnız `Statistics.Bank_Account` içindeki Frontier adı `MercCoins`'ten
-    gelir: güncel, toplam harcanan, Engineering, ekipman ve `total_earned`.
-    Değerler bağımsızdır; kısmi snapshot bilinen alanları silmez. Yalnız açıkça
-    tanımlanan oturumlar kabul edilir, multi-CMDR kesin ayrılır ve tek seferlik
-    backfill idempotenttir. `total_earned` bakiyeyle matematiksel uyuşmayabilir;
-    CMDRHelper Frontier değerlerini değiştirmeden saklar, bilanço/delta hesaplamaz.
-
-### Görüntüler, UI ve güncelleyici
-
--   Yeni görüntüler komutan+FID klasörlerine gider; ad zaman, komutan ve güvenle
-    bilinen sistemi içerir. Kimlik kuyruğa alınırken dondurulur. Filtreler:
-    **Geçerli komutan**, **Tümü**, **Atanmamış**. Legacy değişmez, aynı adları FID
-    ayırır. Pencere yatay ölçeklenir, Explorer açıklaması sarılır ve çevrimiçi
-    listelerin genişliği/popup konumu, uzun adlar minimumu büyütmeden sınırlanır.
--   Windows'ta worker ve yeniden başlayan uygulama `start.bat`/`cmd.exe`
-    konsolundan yeni süreç grubu, bağımsız konsol ve miras alınmayan standart
-    handle'larla ayrılır. Control-C/Break/interrupt ve değişiklik sonrası
-    `KeyboardInterrupt` dahil rollback daha güvenlidir; belirsiz dependencies
-    onarım işareti alır. İki saniyelik handshake korunur.
--   ZIP eşzamansız indirilir. Gerçek baytlar ad, MiB, toplam, yüzde, hız, ETA ve
-    çubuğu yönetir; bilinmeyen boyut alınan MiB ile busy mode kullanır. Thread-safe
-    iptal eksik/geçersiz dosyayı siler, kurucu yalnız geçerli ZIP sonrası başlar.
-    Aşamalar: indirme, ZIP kontrolü, updater başlatma. Backup, çıkarma, kopyalama,
-    requirements ve yeniden başlatma ilerlemesi henüz görünmez.
-
-## Sürüm 2.1
-
-**Sürüm 2.1** biyoloji tahminlerini, filo görünümünü ve büyük Journal
-arşivlerindeki performansı geliştirir; Windows ve Linux kurulum, başlatma,
-güncelleme ve geri alma yollarını da sağlamlaştırır.
-
-### Biyo tahminleri ve habitat
-
--   veri yeterliyse yeni tahmin yalnızca cins yerine somut olası Species'leri
-    gösterir. Birden çok Species **YÜKSEK**, **ORTA** veya **DÜŞÜK** güvenle
-    birlikte gösterilebilir; küçük örnekler temkinli değerlendirilir.
--   bulunan veya tanımlanan Species tahminin yerini alır. Tüm BIO sinyalleri
-    bilindiğinde kalan tahminler kaybolur.
--   kompakt BIO açılır penceresi adayların tahmini değerlerini ve gövdenin olası
-    toplamını gösterir. Turuncu/altın tahmini, yeşil doğrulanmış değerdir;
-    varsayımsal First Footfall bonusları eklenmez.
--   sıcaklık, basınç, atmosfer bileşimi, yarıçap ve yıldız/parent bağlamı habitat
-    verilerini geliştirir. Genel varyant veya renk tahmini uygulanmamıştır.
-
-### CMDR filosu
-
--   filo son kullanım, ad, tür, sıçrama menzili, yük kapasitesi, boş kütle,
-    konum veya zamana göre artan ya da azalan sıralanabilir.
--   filtreler tüm gemileri, araç hangarlı veya fighter hangarlı gemileri
-    gösterir; hangarlar gerçek Loadout modüllerinden algılanır. SRV ve fighter'lar
-    ana geminin ekipmanı olarak kalır.
-
--   hangar filtresi `int_buggybay_*` ile yeni büyük `int_mkiilargebuggybay_*`
-    türünü içeriği uydurmadan tanır. `mev_rhino` bağımsız gemi değil SRV/kara
-    aracı sayılır; güncel hangarının her zaman bilindiği iddia edilmez.
-
-### Kalıcı Commander durumu ve yeniden başlatma
-
--   görevler, açık biyo/kartografi verileri, son konum, gemiler ve loadoutlar,
-    kişisel Fleet Carrier ve servet CMDRHelper/Elite yeniden başlatmalarında
-    SQLite içinde korunur.
--   durum gerçek yeni bir Journal olayı değiştirene kadar kalır; yeni oturumda
-    eksik bilgi önceden bilineni silmez.
--   kesintiden sonra son güvenli noktadan devam edilir; tamamlanmamış son satır
-    işlenmiş sayılmaz.
--   v2.1 etkilenen durumları mevcut Journallardan bir kez kontrollü biçimde
-    kurabilir ve sonra artımlı çalışmayı sürdürür.
-
-### Gezegensel madencilik konumları ve yüzey malzemeleri
-
--   `FSSBodySignals`/`SAASignalsFound` **gezegensel madencilik konumlarını**
-    bildirir; BIO/GEO yanında yerelleştirilmiş **MADENCİLİK ×N** görünür. N,
-    Frontier'ın cisim için bildirdiği sayıdır, hesaplanan endeks değildir.
--   `Scan.Materials` cisim bazında saklanır; ad ve yüzdeler **gök cisminin yüzey
-    malzemeleri** olarak, araç ipucunda da gösterilir.
--   konum sayısı ile genel bileşim ayrı tutulur; malzemeler belirli bir
-    madencilik konumuna atfedilmez.
-
-### Journallar, arşiv ve performans
-
--   `Journal.YYMMDDHHMMSS.PART.log` ile
-    `Journal.YYYY-MM-DDTHHMMSS.PART.log` doğru kronolojide birlikte işlenir;
-    eski dosyalar güncel CMDR veya durumu artık geçersiz kılmaz.
--   eksik arşivlerdeki Signal/Mapping olayları önceki tam Body Scan olmadan
-    içe aktarılabilir; sonraki taramalar veriyi tamamlar ve multi-CMDR ayrımı
-    korunur.
--   kalıcı Journal dizini bilinen değişmemiş dosyaları atlar. Etkin dosya son
-    güvenli bayt konumundan artımlı okunur; metadata ve SHA-256 kimliği korur,
-    FID ataması değişmez.
--   ilk büyük dizin oluşturma gerçek sayıları, yüzdeyi ve küçük animasyonlu uzay
-    gemilerini duyarlı bir görünümde gösterir. Sonraki hızlı açılışlarda bu
-    görünüm normalde çıkmaz.
-
--   dizin kurulduktan sonra yalnız yeni ve tam satırlar işlenir. Değişiklikler
-    ve güvenli konum birlikte kaydedilir; hatada konum ilerlemez, kısmi satır bekler.
--   hızlı başlangıç live-CMDR'ı en yeni kesin tanımlı dizin oturumundan bulur,
-    durumu hemen yükler ve Journal sayısını dizinden alır.
-
-### Kurulum ve yükseltme
-
--   sağlamlaştırılmış Windows ve Linux betikleri Python 3.10–3.13'ü destekler,
-    yalnızca yerel `venv` kullanır ve yerel olduğu doğrulanan bozuk ortamı
-    güvenle onarır. Linux sembolik bağlantıları temkinli ele alınır; yabancı
-    ortamlar kullanılmaz.
--   güncelleme ve geri alma hataları açıkça bildirir; kişisel verileri ve Elite
-    Journallarını korur.
--   v2.0'dan v2.1'e normal güncelleme desteklenir. v2.0'dan çok eski kurulumlarda
-    ayarları yedekleyin; sorun halinde temiz kurulum yardımcı olabilir. Elite
-    Journallarını veya tüm eski Helper verilerini genel çözüm olarak silmeyin.
--   çok büyük arşivlerde ilk v2.1 açılışı dizin için bir kez zaman alabilir;
-    sonraki açılışlar belirgin biçimde daha hızlıdır.
-
-## Sürüm 2.0
-
-**Sürüm 2.0**, Frontier FID tabanlı gerçek Multi-CMDR desteği ekler. Canlı
-Commander Journal üzerinden otomatik olarak algılanırken, bilinen başka bir
-Commander yalnızca çevrimdışı görüntüleme için seçilebilir. Görüntüleme seçimi
-canlı Commander’ın eşlemesini veya yazma işlemlerini hiçbir zaman değiştirmez.
-
-### Multi-CMDR ve CMDR Görünümü
-
--   ziyaretler, keşif verileri, görevler, son konum, gemiler, Fleet Carrier,
-    servet ile satılmamış biyolojik ve kartografik veriler Commander bazında
-    ayrı ayrı kalıcılaştırılır.
--   **CMDR Görünümü**, seçilen Commander’ın görevlerini, son konumunu, son
-    gemisini, Fleet Carrier’ını ve konumunu, Credits bakiyesini, açık biyolojik
-    ve kartografik verilerini çevrimdışıyken de gösterir.
--   Multi-CMDR kroniği Commander başına kararlı renkler ve filtreler kullanır,
-    rotaları ayrı tutar ve ortak sistemleri çoklu ziyaret olarak gösterir.
-
-### Commander filosu
-
--   filo görünümü Commander başına birden fazla gemiyi saklar; açılır ayrıntılar
-    ve dikey kaydırma sunar.
--   canlı gemi her zaman yeşil vurgulanır. Diğer gemiler son bilinen konumlarına
-    göre kararlı renklerle gruplandırılır.
--   suit’ler, SRV’ler (Scarab, Scorpion ve Nomad), fighter’lar, taksiler ve
-    dropship’ler normal Commander gemileri olarak tutulmaz.
-
-### Mevcut veritabanları
-
-Mevcut veritabanları yerleşik şema geçişiyle güncellenir. Multi-CMDR verileri
-FID’ye göre ayrılır. Eski veriler birden fazla profile ait olabilecek durumdaysa
-CMDRHelper körlemesine tahminde bulunmaz ve mevcut verilerin topluca silinmesini
-gerektirmez.
-
-Linux ve Windows desteği devam eder. Sürüm 1.5 ile eklenen rota planlayıcı
-CMDRHelper’ın parçası olarak kalır.
-
-## Sürüm 1.5
-
-**Sürüm 1.5** büyük bir işlev güncellemesidir. Gemiler ve Fleet Carrier’lar
-için yeni rota planlayıcıyı ekler, rota ilerlemesini Elite Dangerous Journal
-ile daha yakından ilişkilendirir ve özellikle Windows altında güvenilirlik
-ile performansı iyileştirir.
-
-### Rota planlayıcı ve gemi rotaları
-
--   yeni **Rota planlayıcı**, Spansh Galaxy Plotter üzerinden gemi rotaları
-    hesaplar ve tüm ara sistemleri CMDRHelper içinde gösterir.
--   CMDRHelper Journal’dan gemiyi, FSD’yi, FSD engineering verilerini ve etkin
-    Guardian FSD Booster’ı algılar. Mevcut tank, kargo, kütle ve FSD değerleri
-    otomatik olarak aktarılır.
--   otomatik algılanan değerler düzenlenebilir kalır. Elle yapılan geçersiz
-    kılmalar, algılanan gemi verileri açıkça yeniden uygulanana kadar sonraki
-    Loadout, kargo ve yakıt güncellemelerinde korunur.
--   Loadout, kargo ve yakıt değişiklikleri yalnızca ilgili rota girdilerini
-    günceller. Bilinmeyen değerler görünür biçimde boş kalır ve tahmin edilmez.
--   hesaplamadan önce başlangıç ve hedef sistemleri Spansh’ta tam eşleşmeyle
-    kontrol edilir. Bilinmeyen sistemler için başarısız olacak bir iş
-    başlatılmadan anlaşılır bir mesaj gösterilir.
--   ilerleme, mevcut Journal akışındaki gerçek `FSDJump` olaylarını izler.
-    Başarılı bir atlayıştan sonra sonraki sistem otomatik olarak Qt panosuna
-    kopyalanır ve elle yeniden de kopyalanabilir.
-
-### Fleet Carrier ve CTSVision
-
--   ayrı **Fleet Carrier / CTSVision** modu Spansh Fleet Carrier Router’ı
-    kullanır.
--   hesaplanan Fleet Carrier rotaları atlayış ve Tritium bilgilerini içerir ve
-    CTSVision uyumlu CSV olarak dışa aktarılabilir.
-
-### Journal güvenilirliği ve performans
-
--   etkin Journal dosyasını okurken oluşan geçici erişim hatası artık
-    değişikliği erkenden onaylamaz. Normal yoklama döngüsü agresif busy-wait
-    kullanmadan yeniden dener.
--   BIO ve kartografi öğrenimi, ilgisiz sıradan olaylarda Journal arşivinin
-    tamamını yeniden taramaz. Tam değerlendirmeler ilgili BIO veya satış
-    olaylarıyla ve amaçlanan arşiv içe aktarmasıyla sınırlandırılmıştır.
--   böylece her Journal eklemesindeki gereksiz çalışma azalır; özellikle
-    Windows altında güvenilirlik ve tepki süresi iyileşir.
-
-## Sürüm 1.0.8
-
-**Sürüm 1.0.8**, keşif için kişisel bir atlayış önerisi ekler,
-uluslararasılaştırmayı daha da tamamlar ve Keşif canlı pencereleriyle
-Kronik haritasının görünümünü iyileştirir.
-
-### Atlayış ipucu ve atlayış önerisi
-
--   yeni **“Atlayış ipucu”** bölümü kendi yerel keşif veritabanınızı analiz
-    eder ve seçilen bir keşif hedefi için hangi prosedürel sistem kodlarının
-    özellikle ilgi çekici olabileceğini gösterir.
--   seçilebilen hedefler arasında genel BIO bulguları, bilinen BIO cinsleri
-    ve türleri, değerli keşif gökcisimleri, terraform adayları, Su Dünyaları,
-    Dünya benzeri gezegenler ve Amonyak Dünyaları bulunur.
--   sıralama, bir kodla daha önce incelenen sistemleri, isabetleri, isabet
-    oranını, kayıtlı bulguları ve mevcut örneklem büyüklüğünü dikkate alır.
-    Ayarlanabilir minimum incelenmiş sistem sayısı, çok küçük veri
-    kümelerinin gereğinden fazla değerlendirilmesini önler.
--   CMDRHelper, Galaksi Haritası’nda aranabilecek tercih edilen kodları,
-    örneğin `ZL-Z b` veya `NR-C d` gibi birleşimleri vurgular.
--   öneri yalnızca **kendi önceki keşif geçmişinize** ve orada kayıtlı
-    bulgulara dayanır. İstatistiksel bir yönlendirmedir ve **bulgu garantisi
-    vermez**.
-
-### Uluslararasılaştırma
-
--   uluslararasılaştırma daha da tamamlandı ve Almanca referansla yeniden
-    karşılaştırıldı.
--   desteklenen **12 arayüz dilinin** tamamı artık aynı eksiksiz **560 çeviri
-    anahtarı** kümesine sahiptir.
--   **atlayış ipucu ve atlayış önerisi** için yeni ve daha önce eksik olan
-    çeviriler desteklenen tüm dillere eklendi.
--   anahtar kümeleri, sıraları ve biçimlendirme yer tutucuları tüm dil
-    dosyalarında eşitlendi.
-
-### Keşif canlı pencereleri ve ayarlar
-
--   Keşif ayarlarına **“Değerli gökcisimleri”** ve **“BIO bulguları”**
-    pencerelerinin otomatik gösterimi için yeni açıklayıcı araç ipuçları
-    eklendi.
--   araç ipuçları, ayarlanan değer eşiğine veya algılanan BIO ya da GEO
-    sinyallerine göre her pencerenin ne zaman otomatik açıldığını açıklar.
--   Commander tarafından zaten haritalanmış değerli gökcisimleri küçük canlı
-    pencerede artık açık hedef olarak gösterilmez.
--   tamamen analiz edilmiş BIO gökcisimleri BIO canlı penceresinden kaybolur;
-    aynı gökcisminin DSS ile henüz haritalanmamış GEO bölümü görünür kalır.
-
-### Kronik
-
--   Kronik haritasının yönü, pozitif Z ekseni yukarıyı gösterecek şekilde
-    düzeltildi. Kayıtlı Elite `StarPos` koordinatları değişmeden kalır.
-
-## Sürüm 1.0
-
-**Sürüm 1.0** ile CMDRHelper, planlanan temel kapsamın ilk eksiksiz
-geliştirme aşamasına ulaşır.
-
-Sürüm 1.0'a kadar olan önemli değişiklikler ve genişletmeler:
-
-### Cisim ve yıldız gösteriminin tamamlanması
-
--   desteklenen gezegen, yıldız ve özel nesne türleri için görsel
-    materyaller daha da tamamlandı.
--   ek yıldız sınıfları ve özel yıldız türleri, genel varsayılan
-    gösterime dönmek yerine kendi grafikleriyle gösteriliyor.
--   uygun cisimler için dönen 2:1 equirectangular dokular ayrıntı
-    görünümünde kullanılmaya devam ediyor.
--   özel astronomik nesneler ayrıntı görünümünde ayrıca uygun videolarla
-    gösterilebiliyor.
--   nötron yıldızları, beyaz cüceler, kara delikler ve süper kütleli
-    kara delikler böylece çok daha özgün bir görünüme kavuşuyor.
--   kullanılan harici görsel ve video materyalleri, **"Görsel ve video
-    materyalleri / Media Credits"** bölümünde kaynak ve credit
-    bilgileriyle belgeleniyor.
-
-### Çok dilliliğin tamamlanması
-
--   kullanıcı arayüzü çevirileri desteklenen diller için tamamlandı ve
-    ortak bir anahtar kümesine göre eşitlendi.
--   **12 arayüz dilinin** tamamı aynı eksiksiz çeviri anahtarı kümesini
-    kullanıyor.
--   otomatik çeviri denetimi eksik, fazla ve yinelenen anahtarların yanı
-    sıra farklı biçimlendirme placeholder'larını da kontrol ediyor.
--   Almanca, kullanıcı arayüzü ve sonraki dokümantasyon için eksiksiz
-    olarak bakımı yapılan referans sürüm işlevi görüyor.
-
-### Sürüm 0.9.9'dan bu yana değişiklikler
-
-### Çok dillilik ve çeviri denetimi
-
--   kullanıcı arayüzü merkezi bir çok dilli sisteme geçirildi.
--   CMDRHelper artık **12 arayüz dilini** destekliyor: **Almanca,
-    İngilizce, Fransızca, İtalyanca, Norveççe (Bokmål), İsveççe, Fince,
-    Lehçe, Felemenkçe, İspanyolca, Türkçe ve Yunanca**.
--   dil ayarlardan seçilip kaydedilebilir; dil adları seçim alanında
-    kendi dillerinde gösterilir.
--   eksik çeviriler tanımlanmış bir fallback sırası kullanır: **seçilen
-    dil → İngilizce → Almanca → çeviri anahtarı**.
--   çeviriler merkezi olarak `cmdrhelper/i18n/` altındaki dil
-    dosyalarında bulunur.
--   yeni geliştirici aracı `tools/check_i18n.py` otomatik olarak şunları
-    kontrol eder:
-    -   programda kullanılan `tr("...")` anahtarları,
-    -   eksik veya fazla çeviri anahtarları,
-    -   yinelenen anahtarlar,
-    -   `{system}` veya `{count}` gibi farklı biçimlendirme
-        placeholder'ları.
--   Linux altında i18n denetimi başlangıç sırasında `start.sh` üzerinden
-    otomatik olarak çalıştırılır. Bulunan çeviri sorunları açıkça
-    bildirilir, ancak programın başlamasını engellemez.
--   görev ve Journal işleme, seçilen CMDRHelper arayüz dilinden ayrı
-    tutulmaya devam eder; böylece Elite Dangerous'ın dahili verileri
-    yerelleştirilmiş görüntü metinlerine bağımlı olmaz.
-
-### Explorer ve sistem haritası
-
--   sistem haritasındaki Parent/Child yapısı yeniden düzenlendi:
-    yıldızlar, gezegenler, uydular ve Belt Cluster'lar Journal
-    hiyerarşisine göre yerleştiriliyor.
--   tüm sistemin kompakt küçük resim görünümünü sunan yeni **"Tümünü
-    göster"** işlevi.
--   küçük resim görünümündeki cisimlere tıklanabilir; ana harita
-    ardından doğrudan seçilen cisme geçer.
--   büyük sistem haritalarında geliştirilmiş gezinme:
-    -   fare tekerleği haritayı yatay olarak hareket ettirir.
-    -   sağ fare düğmesini basılı tutup yukarı/aşağı sürüklemek haritayı
-        dikey olarak hareket ettirir.
--   cisimlerin görsel boyutları gerçek yarıçapa göre daha belirgin
-    ölçeklendirilir.
--   BIO, GEO, Terraforming, ilk keşif ve First Mapping gösterimi ve
-    işaretlemesi daha da geliştirildi.
--   Explorer'da yeni **değer listesi**: gezegenler ve uydular mevcut
-    tahmini haritalama değerlerine göre satır satır sıralanır.
--   değer listesi artık **First Mapping mümkün**, **zaten haritalanmış**
-    ve **Commander tarafından haritalanmış** durumlarını açıkça ayırır.
--   gerçekten elde edilen haritalama değeri değer listesinde özellikle
-    vurgulanırken durum ve meta veriler bilinçli olarak daha sade
-    gösterilir.
--   son satıştan bu yana tüm sistemlerdeki açık haritalama ve BIO
-    değerleri için yeni **"Henüz teslim edilmedi"** görünümü; haritalama
-    ve BIO ayrı ayrı sıfırlanır.
--   açık Explorer değerleri ana pencerede sarı renkle vurgulanır;
-    böylece henüz satılmamış veriler hemen fark edilir.
-
-### Explorer canlı pencereleri
-
--   keşif sırasında otomatik olarak gösterilen, serbestçe
-    konumlandırılabilen **değerli cisimler ve BIO bulguları için canlı
-    pencereler**.
--   canlı pencerelerin konumu ve boyutu kaydedilir ve bir sonraki
-    gösterimde yeniden kullanılır.
--   başka bir yıldız sistemine geçildiğinde canlı pencereler otomatik
-    olarak kapatılır ve temizlenir; yeni sistemde uygun veriler
-    algılandığında yeniden görünürler.
--   **"Değerli cisimler"** penceresi, şu anda elde edilebilecek
-    haritalama değeri ayarlarda seçilen eşiğe ulaşan tüm gezegen ve
-    uyduları otomatik olarak içerir.
--   aynı ayarlanabilir eşik artık değer listesindeki sarı vurguyu,
-    değerli cisimler canlı penceresini ve **sistem haritasındaki altın
-    çerçeveyi** kontrol eder.
--   **BIO canlı penceresi**, oyun sırasında cisimleri, tanınan cins veya
-    türleri, tarama ilerlemesini ve bilinen Vista Genomics değerlerini
-    kompakt biçimde gösterir.
--   BIO bulguları ana penceredekiyle aynı renk mantığını kullanır: gri =
-    DSS/FSS ile algılandı, beyaz = ilk örnek, sarı = ikinci örnek, yeşil
-    = analiz tamamlandı.
--   kısmen belirlenmiş BIO sinyallerinde gezegen otomatik olarak
-    genişletilir ve ayrı bulgular kendi satırlarında gösterilir; henüz
-    bilinmeyen sinyaller görünür kalır.
--   bir cisimdeki tüm BIO türleri tamamen analiz edildiğinde gezegen
-    tekrar kompakt yeşil bir özet satırına daraltılır.
--   genel DSS/FSS cins adları, `ScanOrganic` aracılığıyla somut BIO türü
-    bilinir bilinmez otomatik olarak onunla değiştirilir.
--   bilinen tekil değerler doğrudan ilgili BIO bulgusunun yanında
-    gösterilir; tamamen bilinen cisimler ayrıca toplam değeri gösterir.
--   canlı pencereler hafif kırmızımsı kahverengi bir arka plana
-    sahiptir; böylece oyun sırasında CMDRHelper ana penceresinden açıkça
-    ayrılır.
-
-### BIO analizi
-
--   biyolojik veriler normal haritalama değerlerinden ayrı analiz edilir
-    ve gösterilir.
--   biyolojik sinyal tespit edilen tüm cisimleri içeren ayrı bir **BIO
-    gezegen listesi**.
--   `SAASignalsFound` veya `FSSBodySignals` içindeki BIO cinsleri mevcut
-    Journal'lardan geriye dönük olarak da alınır.
--   `ScanOrganic` içindeki somut BIO türleri ve varyantları doğrudan
-    listede gösterilir.
--   her BIO bulgusunun tarama ilerlemesi renklerle gösterilir:
-    -   gri = yalnızca DSS/FSS üzerinden biliniyor
-    -   beyaz = ilk örnek
-    -   sarı = ikinci örnek
-    -   yeşil = üçüncü örnek / analiz tamamlandı
--   bilinen Vista Genomics temel değeri, BIO türü kesin olarak
-    belirlendiği anda gösterilir.
--   tamamen analiz edilmiş BIO örneklerinin temel değerinin gösterimi.
--   olası **First Logged toplam değerinin ×5** gösterimi.
--   bilinen BIO değerleri mevcut satış verileriyle tamamlanabilir.
--   değeri bilinmeyen türler analizde işaretlenir.
--   BIO durumu açık, ziyaret edilmiş ve tamamen analiz edilmiş
-    durumlarını birbirinden ayırır.
-
-### Görevler
-
--   `MissionRedirected` işleme geliştirildi.
--   yönlendirilmiş görevler ad, yeni hedef sistem veya yeni hedef
-    istasyon ile önceki hedefe ilişkin bilgileri devralabilir.
--   bazı durumlarda daha önce eksiksiz bir `MissionAccepted` kaydı
-    bulunmasa bile görevler yeniden oluşturulabilir.
--   görev sütunlarının genişliği serbestçe ayarlanabilir; seçilen
-    genişlikler kaydedilir.
--   **şu anda açık olan tüm görevlerin toplam ödülünün** gösterimi.
-
-### Görseller ve ekran görüntüleri
-
--   galeri ve önizleme içeren ayrı ekran görüntüsü alanı.
--   yeni Elite Dangerous BMP ekran görüntülerinin otomatik
-    dönüştürülmesi.
--   PNG veya JPG olarak çıktı.
--   başarılı dönüştürmeden sonra BMP dosyasının isteğe bağlı silinmesi.
--   %0 ile %50 arasında ayarlanabilir parlaklık düzeltmesi.
--   Steam/Proton altında Elite ekran görüntüsü klasörünün daha rahat
-    kullanımı.
--   dosyalar dışarıdan silindikten sonra galeri de güncellenir.
--   otomatik dönüştürme ve silme seçeneklerinin görünürlüğü
-    iyileştirildi.
-
-### Çevrimiçi hizmetler
-
--   otomatik EDSM Journal aktarımı daha da entegre edildi ve ana
-    penceredeki durum alanında görünür hale getirildi.
--   aktarım, bekleme, hata ve devre dışı EDSM durumları.
--   daha sonra eklenecek otomatik aktarım için hazırlık olarak Inara
-    durum göstergesi.
-
-### Kullanım ve kararlılık
-
--   arayüz yazı tipi ve yazı boyutu ayarlardan seçilebilir ve yeniden
-    başlatmadan sonra tüm arayüze uygulanabilir.
--   ayarlar sayfası kaydırılabilir; böylece daha küçük pencere
-    boyutlarında da tüm seçeneklere erişilebilir.
--   sol kenar çubuğunda görünür **"Çıkış"** düğmesi.
--   Single Instance kilidi ikinci bir program örneğinin yanlışlıkla aynı
-    anda başlatılmasını önler.
--   zaten görünür olan Explorer widget'ını doğrudan render etmeden
-    güvenli sistem küçük resim görünümü.
--   arayüz, Journal işleme, veritabanı ve güncelleme sürecinde çeşitli
-    iyileştirmeler.
-
-## Proje durumu
-
-CMDRHelper geliştirme aşamasındadır. Kullanıcı arayüzü, veri modeli ve
-gösterim biçimi hâlâ değişebilir. Daha fazla cisim türü, Journal işlevi,
-Explorer işlevi, veri kaynağı ve hesaplama planlanmaktadır. Linux ve
-Windows üzerinde testler devam etmektedir.
-
-CMDRHelper kişisel bir araç olarak başladı ve adım adım daha kapsamlı
-bir Elite Dangerous yardımcısına dönüştürülmektedir.
+Kendi dağıtım paketini oluşturmak için `./create_release.sh` kullanılabilir. Program sürümü merkezi olarak `cmdrhelper/version.py` içinde yönetilir ve dağıtım betiği tarafından okunur. Paket program kodu ve varlıkları içerir; kişisel veritabanı, venv, Git veya önbellek dosyalarını içermez.
 
 ## Görsel ve video materyalleri / Media Credits
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from pathlib import Path
 import logging
 import json
@@ -19,7 +20,6 @@ from cmdrhelper.journal_watcher import JournalWatcher
 from cmdrhelper.valuation import (
     apply_values,
     calculate_body_values,
-    system_totals,
 )
 from cmdrhelper.online_services import (
     fetch_edsm_bodies,
@@ -31,6 +31,7 @@ from cmdrhelper.inara_uploader import BATCH_SIZE as INARA_BATCH_SIZE, upload_bat
 from cmdrhelper.bio_valuation import biology_totals
 from cmdrhelper.route_planner.models import GuardianFsdBooster, ShipLoadoutData
 from cmdrhelper.cargo import read_cargo_snapshot
+from cmdrhelper.body_classes import canonical_body_classes
 
 logger = logging.getLogger(__name__)
 
@@ -950,6 +951,38 @@ class AppState(QObject):
             name="CMDRHelper-EDSM-Upload",
         ).start()
 
+    def _own_explorer_bodies(self, current_bodies):
+        """Live scans lead; only this live commander's saved scans fill gaps.
+
+        Copy before the snapshot write: merging display data must never turn
+        historical scans into newly observed journal events in the database.
+        Zero, False and empty collections are explicit live values, not gaps.
+        """
+        bodies = deepcopy(current_bodies)
+        if self.commander_id is not None and self.system_address is not None:
+            saved = self.database.chronicle_system_details(
+                self.system_address, commander_id=self.commander_id, scanned_only=True,
+            )
+            by_id = {body.get("body_id"): body for body in bodies}
+            for historical in saved.get("bodies", []):
+                body_id = historical.get("body_id")
+                if body_id is None:
+                    continue
+                current = by_id.get(body_id)
+                if current is None:
+                    current = deepcopy(historical)
+                    bodies.append(current)
+                    by_id[body_id] = current
+                else:
+                    for key, value in historical.items():
+                        if current.get(key) is None or current.get(key) == "":
+                            current[key] = deepcopy(value)
+        for body in bodies:
+            body.update(journal_scanned=True, source="Journal", edsm_known=False)
+        return sorted(bodies, key=lambda body: (
+            body.get("body_id") if body.get("body_id") is not None else 999999
+        ))
+
     def _merge_edsm_into_system(
         self,
         edsm_data,
@@ -981,9 +1014,6 @@ class AppState(QObject):
         by_name = {}
 
         for body in self.system_bodies:
-            body["journal_scanned"] = True
-            body["source"] = "Journal"
-
             body_id = body.get("body_id")
             if body_id is not None:
                 by_id[body_id] = body
@@ -1001,6 +1031,7 @@ class AppState(QObject):
             ):
                 continue
 
+            edsm_body = canonical_body_classes(edsm_body)
             body_id = edsm_body.get(
                 "body_id"
             )
@@ -1021,25 +1052,8 @@ class AppState(QObject):
 
             if existing is not None:
                 existing["edsm_known"] = True
-                existing["source"] = (
-                    "Journal + EDSM"
-                )
-
-                # Grundregel:
-                # Journaldaten bleiben führend und EDSM ergänzt nur
-                # fehlende Werte.
-                #
-                # Ausnahme Explorer-Status:
-                # Eine positive EDSM-Information "bereits entdeckt"
-                # bzw. "bereits kartographiert" hat Vetorecht gegen
-                # eine optimistische Journal-Annahme.
-                if edsm_body.get("was_discovered") is True:
-                    existing["was_discovered"] = True
-                    existing["edsm_was_discovered"] = True
-
-                if edsm_body.get("was_mapped") is True:
-                    existing["was_mapped"] = True
-                    existing["edsm_was_mapped"] = True
+                if existing.get("journal_scanned"):
+                    existing["source"] = "Journal"
 
                 for key, value in (
                     edsm_body.items()
@@ -1047,8 +1061,6 @@ class AppState(QObject):
                     if key in (
                         "journal_scanned",
                         "source",
-                        "was_discovered",
-                        "was_mapped",
                     ):
                         continue
 
@@ -1075,6 +1087,7 @@ class AppState(QObject):
                 factor = self.database.learned_cartography_factor(
                     new_body.get("planet_class") or "",
                     new_body.get("terraformable"),
+                    commander_id=self.commander_id,
                 )
                 apply_values(
                     new_body,
@@ -1646,10 +1659,12 @@ class AppState(QObject):
                 if mission.get("is_open")
             ])
 
-        self.system_bodies = data.get("system_bodies", [])
+        current_bodies = data.get("system_bodies", [])
+        self.system_bodies = self._own_explorer_bodies(current_bodies)
+        current_body_ids = {body.get("body_id") for body in current_bodies}
 
         # Phase 1: Journaldaten zusätzlich dauerhaft speichern.
-        # Die bestehende Anzeige liest weiterhin wie bisher aus dem Journal.
+        # Nur aktuelle Journaldaten speichern, nicht die ergänzte Anzeigeliste.
         try:
             # Live-Snapshot speichern, aber die Journaldatei hier NICHT
             # als vollständig archiv-importiert markieren. Das erledigt
@@ -1665,6 +1680,8 @@ class AppState(QObject):
         # Gelernte Korrektur auf die aktuell sichtbaren Journal-Körper
         # anwenden. Ohne Lerndaten liefert die Datenbank exakt Faktor 1.0.
         for body in self.system_bodies:
+            if body.get("body_id") not in current_body_ids:
+                continue
             try:
                 factor = self.database.learned_cartography_factor(
                     body.get("planet_class") or "",
@@ -1695,15 +1712,12 @@ class AppState(QObject):
 
         # Werte beziehen sich weiterhin ausschließlich auf
         # die tatsächlich im eigenen Journal vorhandenen Körper.
-        totals = system_totals(
-            self.system_bodies,
-            correction_factor_func=lambda body: (
-                self.database.learned_cartography_factor(
-                    body.get("planet_class") or "",
-                    body.get("terraformable"),
-                )
-            ),
-        )
+        totals = {
+            "scan_total": sum(int(b.get("scan_value") or 0) for b in self.system_bodies),
+            "mapped_total": sum(int(b.get("mapped_value") or 0) for b in self.system_bodies),
+            "current_total": sum(int(b.get("current_value") or 0) for b in self.system_bodies),
+            "high_value_count": sum(bool(b.get("high_value")) for b in self.system_bodies),
+        }
         self.system_scan_value = totals["scan_total"]
         self.system_mapped_value = totals["mapped_total"]
         self.system_current_value = totals["current_total"]

@@ -347,196 +347,207 @@ HELP_TOPICS = {'overview': ('Aperçu',
               '<p>Si vous avez un corps intéressant, cela vaut la peine de cliquer sur la vue '
               "détaillée. C'est le meilleur endroit pour faire la différence entre les données "
               "corporelles générales, les résultats d'exploration possibles et les découvertes "
-              'réelles documentées par votre propre commandant.</p>'),
- 'chronicle': ('chronique',
-               '<h2>chronique</h2>\n'
-               "<p>La chronique est l'histoire personnelle des voyages et des découvertes du "
-               'commandant. Il utilise les informations stockées en permanence dans le journal '
-               'pour rechercher des systèmes déjà visités, les représenter spatialement et '
-               'rechercher des découvertes connues.</p>\n'
-               '\n'
-               '<h3>Systèmes visités</h3>\n'
-               '<p>La Chronique montre les systèmes visités et leurs emplacements dans la galaxie '
-               'connus du Commandant.</p>\n'
-               '<p>Si disponibles, la première et la dernière visite ainsi que les informations '
-               'corporelles connues sont prises en compte.</p>\n'
-               "<p>La chronique n'est donc pas seulement une carte, mais aussi un outil permettant "
-               'de retrouver des destinations de voyage et des découvertes antérieures.</p>\n'
-               '\n'
-               '<h3>carte 3D</h3>\n'
-               '<p>Les systèmes visités sont représentés spatialement en utilisant leurs '
-               'coordonnées galactiques X/Y/Z.</p>\n'
-               "<p>Le mode d'emploi se trouve directement au-dessus de la carte\xa0:</p>\n"
-               '<ul>\n'
-               '<li>Maintenez le bouton gauche de la souris enfoncé → faire pivoter la vue</li>\n'
-               '<li>Maintenez le bouton central de la souris enfoncé → Zoom</li>\n'
-               '<li>Maintenez le bouton droit de la souris enfoncé → déplacer la vue</li>\n'
-               '</ul>\n'
-               "<p>L'affichage à petit axe facilite l'orientation dans l'espace.</p>\n"
-               '\n'
-               '<h3>Poste actuel</h3>\n'
-               '<p>Avec «\xa0Position actuelle\xa0», la vue de la carte peut être alignée ou '
-               "renvoyée à l'emplacement actuellement connu du commandant actif.</p>\n"
-               '<p>La condition préalable est que le commandant connaisse une position actuelle '
-               'valide.</p>\n'
-               '\n'
-               '<h3>Aligner</h3>\n'
-               "<p>«\xa0Aligner\xa0» renvoie l'orientation de la carte à l'orientation de base "
-               'prévue.</p>\n'
-               '<p>Ceci est utile si la carte est devenue confuse après avoir été beaucoup tournée '
-               'ou déplacée.</p>\n'
-               '\n'
-               '<h3>Mettre à jour la chronologie</h3>\n'
-               "<p>«\xa0Historique de mise à jour\xa0» met à jour l'affichage avec les données "
-               'actuellement connues.</p>\n'
-               '<p>La fonction ne modifie pas les fichiers journaux et ne crée pas de nouvelles '
-               "données d'exploration. Il met simplement à jour l'affichage de l'historique en "
-               'fonction des données CMDRHelper existantes.</p>\n'
-               '\n'
-               '<h3>Recherche de texte libre</h3>\n'
-               '<p>Le contenu déjà connu peut être recherché à l’aide du champ « Historique de '
-               'recherche… ».</p>\n'
-               '<p>La recherche prend en compte – si disponible dans la base de données – entre '
-               'autres :</p>\n'
-               '<ul>\n'
-               '<li>Noms du système</li>\n'
-               '<li>Caractéristiques du corps</li>\n'
-               '<li>données biologiques</li>\n'
-               '<li>Matériels</li>\n'
-               '<li>Données du Codex</li>\n'
-               '</ul>\n'
-               '<p>Le bouton « Rechercher » effectue uniquement cette recherche en texte '
-               'libre.</p>\n'
-               "<p>Le DÉMONTAGE des filtres séparés, par contre, s'effectue avec «\xa0Appliquer\xa0"
-               '».</p>\n'
-               '\n'
-               '<h3>Résultats de la recherche</h3>\n'
-               '<p>Les résultats sont affichés dans la liste des résultats existante sous la fiche '
-               'de la chronique.</p>\n'
-               '<p>Selon le type de frappe, le système et le corps ainsi que des informations '
-               'supplémentaires peuvent apparaître.</p>\n'
-               "<p>Un hit peut être utilisé pour trouver le système ou l'organisme correspondant "
-               'déjà connu et pour ouvrir les informations détaillées existantes.</p>\n'
-               '\n'
-               '<h3>Sites miniers planétaires</h3>\n'
-               '<p>Le filtre « Sites miniers planétaires » peut être utilisé pour rechercher '
-               'spécifiquement des corps connus pour lesquels Elite Dangerous a signalé des sites '
-               'miniers planétaires.</p>\n'
-               "<p>L'affichage sous-jacent correspond à celui connu depuis Explorer\xa0:</p>\n"
-               '<p><b>ABBAU ×N</b></p>\n'
-               "<p>Le numéro appartient au corps lui-même et n'a aucun rapport avec le "
-               'commandant.</p>\n'
-               '\n'
-               '<h3>Au moins</h3>\n'
-               '<p>En utilisant « Au moins », vous pouvez spécifier le nombre minimum '
-               'd’emplacements miniers planétaires qu’un corps doit avoir.</p>\n'
-               '<p>Exemple:</p>\n'
-               '<p><b>Au moins 20</b></p>\n'
-               '<p>ne montre que les corps connus avec au moins\xa0:</p>\n'
-               '<p><b>ABBAU ×20</b></p>\n'
-               '<p>Cela permet de localiser spécifiquement des zones minières particulièrement '
-               'étendues.</p>\n'
-               '\n'
-               '<h3>Propres découvertes minières</h3>\n'
-               '<p>Avec «\xa0Propres découvertes minières\xa0», la recherche est limitée aux corps '
-               'sur lesquels le commandant en question a manifestement effectué lui-même des '
-               'fouilles à ciel ouvert.</p>\n'
-               '<p>Ces informations proviennent de l’historique personnel des mines à ciel ouvert '
-               'et sont strictement séparées par le commandant.</p>\n'
-               '<p>Un corps peut donc disposer de signaux globaux ABBAU ×N sans que son propre '
-               "commandant n'y ait déjà rien retiré.</p>\n"
-               '\n'
-               '<h3>matière première</h3>\n'
-               '<p>Si «\xa0Propres découvertes minières\xa0» est activé, la sélection «\xa0'
-               'Matières premières\xa0» est également disponible.</p>\n'
-               '<p>La liste ne contient que les produits que le commandant en question a déjà '
-               'acquis grâce à l’exploitation minière à ciel ouvert.</p>\n'
-               '<p>Il ne s’agit pas d’une liste théorique de toutes les matières premières '
-               'minières possibles.</p>\n'
-               '<p>Par exemple, FABER38 peut apparaître\xa0:</p>\n'
-               '<ul>\n'
-               '<li>Tous</li>\n'
-               '<li>cuivre</li>\n'
-               '</ul>\n'
-               '<p>Si des matières premières supplémentaires sont effectivement extraites '
-               'ultérieurement, elles apparaîtront automatiquement dans votre sélection '
-               'personnelle.</p>\n'
-               '\n'
-               '<h3>Recherche ciblée de matières premières</h3>\n'
-               '<p>Par exemple, si «\xa0Cuivre\xa0» est sélectionné, puis «\xa0Appliquer\xa0» est '
-               "enfoncé, l'historique affichera uniquement les corps sur lesquels le commandant en "
-               'question a manifestement extrait du cuivre.</p>\n'
-               '<p>Exemple:</p>\n'
-               '<p><b>Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — cuivre 56 tonnes</b></p>\n'
-               '<p>Cela signifie que la chronique peut être utilisée comme base de données de '
-               'localisation personnelle : une matière première déjà extraite peut être retrouvée '
-               'ultérieurement.</p>\n'
-               '\n'
-               '<h3>Toutes les matières premières</h3>\n'
-               '<p>Avec «\xa0Matières premières\xa0:\xa0toutes\xa0», toutes les découvertes '
-               "personnelles correspondantes en matière d'exploitation minière à ciel ouvert sont "
-               'prises en compte.</p>\n'
-               '<p>Si plusieurs marchandises sont connues sur un corps, elles peuvent être '
-               "affichées avec les quantités obtenues jusqu'à présent.</p>\n"
-               '<p>Exemple:</p>\n'
-               '<p><b>ABBAU ×24 — Hélium-3 18 t, cuivre 56 t</b></p>\n'
-               '<p>Les quantités sont les valeurs minières personnelles du commandant concerné, '
-               'qui sont en fait documentées à partir des événements du journal.</p>\n'
-               '\n'
-               '<h3>Combiner les filtres</h3>\n'
-               '<p>Les filtres miniers peuvent être combinés entre eux.</p>\n'
-               '<p>Par exemple:</p>\n'
-               '<ul>\n'
-               '<li>Sites miniers planétaires actifs</li>\n'
-               '<li>Au moins 20</li>\n'
-               '<li>Ses propres découvertes minières sont actives</li>\n'
-               '<li>Cuivre matière première</li>\n'
-               '</ul>\n'
-               '<p>recherche des corps connus avec au moins 20 sites miniers planétaires où le '
-               'commandant en question a déjà extrait lui-même du cuivre.</p>\n'
-               '\n'
-               '<h3>Appliquer</h3>\n'
-               "<p>«\xa0Appliquer\xa0» n'exécute que les filtres d'exploration de données "
-               'visibles.</p>\n'
-               '<p>Le bouton « Rechercher » à côté est réservé aux recherches en texte libre.</p>\n'
-               "<p>Cela signifie que les filtres de recherche de texte et d'exploration de données "
-               'sont délibérément séparés les uns des autres.</p>\n'
-               '\n'
-               '<h3>Réinitialiser</h3>\n'
-               '<p>«\xa0Réinitialiser\xa0» supprime la recherche de texte libre en cours et '
-               'réinitialise également les filtres de minage à leur état initial.</p>\n'
-               '<p>La sélection des matières premières revient à «\xa0Tous\xa0».</p>\n'
-               '\n'
-               '<h3>Sélection du commandant</h3>\n'
-               '<p>La chronique peut afficher les données de divers commandants bien connus.</p>\n'
-               '<p>Cependant, les informations personnelles telles que vos propres découvertes '
-               'minières et listes de matières premières sont toujours évaluées séparément pour le '
-               'commandant réellement consulté.</p>\n'
-               '<p>Un commandant ne voit dans sa sélection de matières premières aucune découverte '
-               'minière appartenant exclusivement à un autre commandant.</p>\n'
-               '\n'
-               '<h3>Tous les commandants</h3>\n'
-               "<p>L'affichage de la carte/chronique peut prendre en compte plusieurs "
-               'commandants.</p>\n'
-               "<p>Cela ne modifie pas l'attribution personnelle des données relatives au "
-               "commandant. Les propriétés astronomiques globales d'un système ou d'un corps "
-               'restent partagées, les découvertes personnelles restent séparées.</p>\n'
-               '\n'
-               '<h3>Aide à la recherche / légende</h3>\n'
-               '<p>Des informations complémentaires sur la recherche de chroniques et la '
-               "signification de l'affichage sont accessibles via « Aide à la recherche / Légende "
-               '».</p>\n'
-               '<p>Cette aide principale contextuelle complète les brèves instructions '
-               "d'utilisation qui y sont disponibles.</p>\n"
-               '\n'
-               '<h3>Conseil</h3>\n'
-               '<p>La chronique est particulièrement adaptée pour retrouver des lieux intéressants '
-               "découverts au cours d'un voyage plus long.</p>\n"
-               '<p>Pour le Surface Mining, par exemple, il peut répondre :</p>\n'
-               '<p>« Sur quelle planète ai-je déjà extrait du cuivre ?</p>\n'
-               '<p>ou:</p>\n'
-               '<p>«\xa0Laquelle de mes planètes connues possède un nombre particulièrement élevé '
-               'de sites miniers\xa0?\xa0»</p>'),
+              'réelles documentées par votre propre commandant.</p>'
+              """
+
+<h3>★ Favoris</h3>
+<p>Le bouton « ★ Favoris » en haut de l’Explorer ouvre une fenêtre de favoris distincte et réutilisable. Tu y enregistres des systèmes, des planètes/lunes et des lieux en surface pour le commandant actif.</p>
+<p>La liste défilante, triée par ordre alphabétique des noms, affiche le nom, le type, le système, le corps et la latitude/longitude le cas échéant, la catégorie et un petit aperçu d’image. La recherche en texte libre et les filtres de type et de catégorie sont combinables. La recherche porte sur le nom, le système, le corps et la note.</p>
+<p>« Ouvrir / Afficher » affiche les informations enregistrées, la note et un aperçu d’image plus grand. « Afficher dans l’Explorer » ouvre la vue d’ensemble du système ou la fiche du corps existante si le favori appartient au système actuel de l’Explorer et si les données correspondantes sont disponibles. Pour les autres systèmes, les données enregistrées du favori restent visibles ; aucun itinéraire entre systèmes n’est calculé.</p>
+
+<h3>Enregistrer un système, une planète ou la position actuelle</h3>
+<ul>
+<li>« ★ Enregistrer le système actuel » enregistre le système actuel sans coordonnées de surface.</li>
+<li>« ★ Enregistrer une planète / lune » permet de sélectionner une planète ou une lune connue du système actuel. Ce favori ne reçoit pas non plus de coordonnées de surface.</li>
+<li>« ★ Enregistrer la position actuelle » se trouve en haut de la fenêtre des favoris, à côté des deux autres options d’enregistrement, et est également disponible dans le navigateur planétaire. Dans la fenêtre des favoris, le bouton reste toujours visible et est désactivé en l’absence de données de position planétaire actuelles valides et d’un commandant actif. Le clic fige le commandant, le système, le corps, la latitude et la longitude. Les déplacements ultérieurs dans le jeu ne modifient pas ces valeurs dans la boîte de dialogue ouverte.</li>
+</ul>
+<p>Saisis un nom de ton choix et sélectionne exactement une catégorie : Bio, Géo, Extraction, Panorama, Site d’atterrissage, Intéressant ou Autre. Une note et une image sont facultatives. Les identifiants techniques connus sont repris en interne ; tu n’as pas à les saisir. Une latitude ou une longitude de 0,0 est également valide.</p>
+<p>« Modifier » modifie le nom, la catégorie, la note et l’image. Le système, le corps et les coordonnées enregistrées sont conservés. Pour enregistrer un autre lieu en surface, crée un nouveau favori à cette position.</p>
+
+<h3>Images des favoris</h3>
+<p>Les images des favoris sont séparées de la rubrique Images. « Choisir une image … » accepte PNG, JPEG et WebP. CMDRHelper ne copie l’image sélectionnée dans son propre dossier d’images de favoris qu’à l’enregistrement. Le fichier original n’est ni déplacé ni modifié.</p>
+<p>« Utiliser la dernière capture » relit à chaque clic le dossier source configuré et recherche des captures lisibles dont le nom est typique d’Elite. Sans configuration, les dossiers habituels de captures Elite sous Windows ou Steam/Proton sont pris en compte. Le dossier du commandant actif dans la destination de conversion configurée est également parcouru pour trouver les captures Elite converties correspondantes. Une capture convertie reste ainsi trouvable si son BMP original a été supprimé. Pour déterminer la capture la plus récente, une date et une heure non ambiguës dans le nom de fichier font foi, sinon la date du fichier ; pour les images converties, c’est l’heure de capture enregistrée dans le nom qui compte, et non l’heure de conversion. CMDRHelper ne déclenche pas lui-même de capture et ne parcourt pas des dossiers d’images quelconques.</p>
+<p>Avant utilisation, le nom de fichier, la date et l’heure de capture et un aperçu fraîchement chargé sont affichés. Confirme avec « Utiliser cette image ». Si aucune capture appropriée n’est trouvée, tu peux toujours utiliser « Choisir une image … ». Les captures BMP d’Elite sont enregistrées sous forme de copie PNG interne.</p>
+<p>Une image peut être remplacée dans la boîte de dialogue de modification ou désélectionnée avec « Retirer l’image ». L’enregistrement supprime la copie interne qui n’est plus utilisée. Si un fichier image manque, le favori reste utilisable sans aperçu.</p>
+
+<h3>Cible du favori et commandant</h3>
+<p>Pour les lieux en surface, « ▶ Aller à la cible » transmet le corps, la latitude, la longitude et le nom du favori enregistrés au navigateur planétaire existant. La nouvelle cible remplace la précédente. Les favoris n’ont aucune logique de navigation propre. Le navigateur continue de décider lui-même : des données planétaires valides et correspondantes activent la navigation ; sinon, il attend ces données.</p>
+<p>Les favoris appartiennent exclusivement au commandant actif. Un changement de commandant actualise la liste et abandonne toute boîte de dialogue de modification ouverte. Une cible encore gérée comme cible favorite du commandant précédent est arrêtée. La sélection des commandants dans la chronique n’étend pas cette liste de favoris.</p>
+<p>« Supprimer » demande une confirmation et ne supprime que l’enregistrement du favori et sa copie d’image interne. La capture originale ou l’image originale sélectionnée ainsi que toutes les données de l’Explorer, du journal et des corps sont conservées.</p>"""),
+ 'chronicle': (
+        'Chronique',
+        """<h2>Chronique</h2>
+<p>La chronique est l’historique personnel des voyages et des découvertes du commandant. Elle utilise les informations du journal enregistrées durablement pour retrouver les systèmes déjà visités, les représenter dans l’espace et rechercher des découvertes connues.</p>
+
+<h3>Systèmes visités</h3>
+<p>La Chronique montre les systèmes visités et leurs emplacements dans la galaxie connus du Commandant.</p>
+<p>Si elles sont disponibles, la première et la dernière visite ainsi que les informations connues sur les corps célestes sont prises en compte.</p>
+<p>Lorsqu’une période est active, le nombre de visites, la première visite et la dernière visite dans la carte se rapportent aux visites réelles de systèmes retenues par le filtre.</p>
+<p>La chronique n'est donc pas seulement une carte, mais aussi un outil permettant de retrouver des destinations de voyage et des découvertes antérieures.</p>
+
+<h3>carte 3D</h3>
+<p>Les systèmes visités sont représentés spatialement en utilisant leurs coordonnées galactiques X/Y/Z.</p>
+<p>Le mode d'emploi se trouve directement au-dessus de la carte :</p>
+<ul>
+<li>Maintenez le bouton gauche de la souris enfoncé → faire pivoter la vue</li>
+<li>maintenir le bouton central de la souris et faire glisser → tracer une fenêtre de zoom</li>
+<li>Maintenez le bouton droit de la souris enfoncé → déplacer la vue</li>
+</ul>
+<p>Le petit indicateur des axes aide à s’orienter dans l’espace.</p>
+
+<h3>Position actuelle</h3>
+<p>Avec « Position actuelle », la vue de la carte peut être alignée ou renvoyée à l'emplacement actuellement connu du commandant actif.</p>
+<p>Les filtres actuels sont d’abord appliqués. La vue n’est centrée sur le système actuel que s’il figure dans la carte obtenue.</p>
+<p>Sinon, le message « Le système actuel n’est pas inclus dans cette sélection de filtres. » apparaît. Les filtres ne sont pas supprimés pour autant.</p>
+
+<h3>Aligner</h3>
+<p>« Aligner » rétablit une vue de dessus du plan galactique. Le déplacement et le zoom sont conservés.</p>
+<p>C’est utile lorsque de nombreuses rotations ont rendu la carte difficile à lire.</p>
+
+<h3>Actualiser la Chronique</h3>
+<p>« Actualiser la Chronique » recharge les données de la chronique selon les filtres combinés actuels et actualise l’affichage. Le texte libre, les bornes de date activées et les filtres miniers sont de nouveau évalués ensemble ; les filtres actifs ne sont pas ignorés.</p>
+<p>La fonction ne modifie pas les fichiers journaux et ne crée pas de nouvelles données d’exploration. Elle actualise simplement l’affichage de la chronique à partir des données CMDRHelper existantes.</p>
+
+<h3>Recherche de texte libre</h3>
+<p>Le champ « Rechercher dans la chronique … » permet de rechercher du contenu déjà connu.</p>
+<p>La recherche prend en compte – si disponible dans la base de données – entre autres :</p>
+<ul>
+<li>Noms de systèmes</li>
+<li>Caractéristiques du corps</li>
+<li>données biologiques</li>
+<li>Matériaux</li>
+<li>Données du Codex</li>
+</ul>
+<p>Le texte libre, la période et l’extraction minière partagent une même zone de filtres. « Appliquer » évalue ensemble les filtres définis. Entrée dans le champ de texte libre lance le même filtrage combiné que « Appliquer ».</p>
+
+<h3>Période Du/Au (UTC)</h3>
+<p>Active « Du » et « Au » à l’aide de leurs cases respectives et choisis la date souhaitée. Une seule borne est également possible. Sans case activée, il n’y a aucune restriction temporelle de ce côté ; si aucune des deux cases n’est activée, aucune période n’est imposée.</p>
+<ul>
+<li><b>Du :</b> À partir du début du jour calendaire UTC sélectionné, inclus.</li>
+<li><b>Au :</b> L’intégralité du jour calendaire UTC sélectionné est prise en compte, jusqu’à l’instant précédant le début du jour suivant.</li>
+</ul>
+<p>UTC signifie temps universel coordonné. Les bornes de date portent sur les jours calendaires UTC, pas sur ceux de ton fuseau horaire local.</p>
+<p>Le filtre porte sur les visites réelles de systèmes enregistrées dans <code>system_visits</code>. Une visite réelle du commandant concerné pendant la période est nécessaire. Les valeurs enregistrées <code>first_seen</code> et <code>last_seen</code> ne remplacent pas une visite réelle : une période située simplement entre une première visite antérieure et une dernière visite postérieure ne suffit pas.</p>
+<p>La période filtre les visites, pas les événements individuels de découverte, BIO, GEO ou d’extraction minière. Les informations sur les découvertes connues et les quantités extraites restent des totaux enregistrés. Du/Au peuvent être utilisés seuls ou avec le texte libre et les filtres miniers.</p>
+<p>Si Du est postérieur à Au, le message « La date Du ne doit pas être postérieure à la date Au. » apparaît. Aucune requête de base de données n’est lancée. Corrige les bornes de date et applique de nouveau les filtres.</p>
+
+<h3>Résultats de la recherche</h3>
+<p>Les résultats apparaissent dans la liste existante sous la carte de la chronique.</p>
+<p>Selon le type de résultat, le système, le corps céleste et des informations complémentaires peuvent apparaître.</p>
+<p>Un résultat permet de retrouver le système ou le corps céleste correspondant déjà connu et d’ouvrir les informations détaillées existantes.</p>
+
+<h3>Aucun résultat</h3>
+<p>Si un filtrage valide ne trouve aucune correspondance, la carte et les itinéraires sont vidés. La liste des résultats est vidée et masquée, l’affichage détaillé est réinitialisé et toute fenêtre ouverte de détails d’un système de la chronique est fermée.</p>
+<p>Les anciens résultats ne restent pas visibles. Dans ce cas, vérifie la combinaison du texte recherché, de la période et des filtres miniers, ainsi que le commandant utilisé pour la vue concernée.</p>
+
+<h3>Sites miniers planétaires</h3>
+<p>Le filtre « Sites miniers planétaires » peut être utilisé pour rechercher spécifiquement des corps connus pour lesquels Elite Dangerous a signalé des sites miniers planétaires.</p>
+<p>L'affichage sous-jacent correspond à celui connu depuis Explorer :</p>
+<p><b>ABBAU ×N</b></p>
+<p>Le nombre appartient au corps lui-même et ne dépend pas du commandant.</p>
+
+<h3>Au moins</h3>
+<p>En utilisant « Au moins », vous pouvez spécifier le nombre minimum d’emplacements miniers planétaires qu’un corps doit avoir.</p>
+<p>Exemple:</p>
+<p><b>Au moins 20</b></p>
+<p>ne montre que les corps connus avec au moins :</p>
+<p><b>ABBAU ×20</b></p>
+<p>Cela permet de localiser spécifiquement des zones minières particulièrement étendues.</p>
+
+<h3>Mes découvertes minières</h3>
+<p>« Mes découvertes minières » limite la recherche aux corps sur lesquels le commandant consulté a effectivement pratiqué lui-même l’extraction de surface.</p>
+<p>Ces informations proviennent de l’historique personnel d’extraction de surface et sont strictement séparées pour chaque commandant.</p>
+<p>Un corps peut donc présenter des signaux globaux ABBAU ×N sans que le commandant y ait déjà extrait quoi que ce soit.</p>
+
+<h3>Marchandise</h3>
+<p>Lorsque « Mes découvertes minières » est activé, la sélection « Marchandise » est également disponible.</p>
+<p>La liste ne contient que les marchandises que le commandant consulté a réellement extraites en surface.</p>
+<p>Il ne s’agit pas d’une liste théorique de toutes les matières premières minières possibles.</p>
+<p>Pour FABER38, la sélection peut par exemple contenir :</p>
+<ul>
+<li>Tous</li>
+<li>cuivre</li>
+</ul>
+<p>Si des matières premières supplémentaires sont effectivement extraites ultérieurement, elles apparaîtront automatiquement dans votre sélection personnelle.</p>
+
+<h3>Recherche ciblée de matières premières</h3>
+<p>Si « Cuivre » est sélectionné puis « Appliquer » activé, la chronique ne montre que les corps sur lesquels le commandant consulté a effectivement extrait du cuivre.</p>
+<p>Exemple:</p>
+<p><b>Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — cuivre 56 t</b></p>
+<p>Cela signifie que la chronique peut être utilisée comme base de données de localisation personnelle : une matière première déjà extraite peut être retrouvée ultérieurement.</p>
+
+<h3>Toutes les matières premières</h3>
+<p>« Marchandise : Tous » prend en compte toutes les découvertes personnelles d’extraction de surface correspondantes.</p>
+<p>Si plusieurs marchandises sont connues sur un corps, elles peuvent être affichées avec les quantités que le commandant a lui-même extraites jusqu’à présent.</p>
+<p>Exemple:</p>
+<p><b>ABBAU ×24 — Hélium-3 18 t, cuivre 56 t</b></p>
+<p>Les quantités sont les quantités personnelles extraites par le commandant concerné, effectivement attestées par les événements du journal.</p>
+<p>Même lorsqu’une période est active, les quantités personnelles extraites restent des quantités totales enregistrées. <b>Cuivre 56 t</b> ne signifie pas automatiquement <b>56 t pendant la période sélectionnée</b>. La période exige une visite de système correspondante, mais ne limite pas la quantité extraite affichée à cette période.</p>
+
+<h3>Combiner les filtres</h3>
+<p>Le texte libre, les bornes Du/Au activées et les filtres miniers peuvent être combinés. Un résultat doit satisfaire simultanément les conditions définies.</p>
+<p>Par exemple:</p>
+<ul>
+<li>Sites miniers planétaires actifs</li>
+<li>Au moins 20</li>
+<li>Mes découvertes minières activé</li>
+<li>Marchandise cuivre</li>
+</ul>
+<p>recherche des corps connus avec au moins 20 sites miniers planétaires où le commandant en question a déjà extrait lui-même du cuivre.</p>
+<p>Tout texte de recherche supplémentaire est également pris en compte. Si une période est ajoutée, le commandant consulté doit avoir réellement visité le système concerné pendant cette période ; l’extraction du cuivre elle-même ne doit pas nécessairement avoir eu lieu pendant cette période.</p>
+
+<h3>Appliquer</h3>
+<p>« Appliquer » lance un filtrage combiné avec tous les filtres de recherche, de période et d’extraction minière actuellement définis :</p>
+<ul>
+<li>Texte libre</li>
+<li>Du, si activé</li>
+<li>Au, si activé</li>
+<li>Sites miniers planétaires</li>
+<li>Nombre minimal</li>
+<li>Mes découvertes minières</li>
+<li>Marchandise, si « Mes découvertes minières » est activé</li>
+</ul>
+<p>Entrée dans le champ de texte libre lance exactement le même filtrage. Sans texte libre ni filtres miniers, la carte normale est chargée pour les commandants cochés sur la carte, avec une restriction Du/Au le cas échéant.</p>
+
+<h3>Réinitialiser</h3>
+<p>« Réinitialiser » rétablit l’état initial de la zone de filtres commune :</p>
+<ul>
+<li>Le texte libre est effacé.</li>
+<li>Du et Au sont désactivés ; les champs de date affichent de nouveau la date du jour et sont désactivés.</li>
+<li>Sites miniers planétaires est désactivé.</li>
+<li>Le nombre minimal est remis à 0.</li>
+<li>Mes découvertes minières est désactivé.</li>
+<li>Marchandise est remis sur « Tous ».</li>
+</ul>
+<p>La sélection des commandants est conservée. La chronique normale est ensuite rechargée pour cette sélection de carte ; les anciens résultats de recherche et affichages détaillés sont réinitialisés.</p>
+
+<h3>Sélection du commandant</h3>
+<p>La chronique peut afficher les données de différents commandants connus.</p>
+<p>Deux concepts de sélection sont distingués :</p>
+<ul>
+<li><b>Sélection des commandants de la carte :</b> Les cases des commandants déterminent quels itinéraires de commandants apparaissent dans la carte normale sans recherche de texte libre ou minière. Une période activée est prise en compte.</li>
+<li><b>Commandant consulté :</b> Les recherches personnelles de texte libre ou minières utilisent le commandant consulté (<code>viewed_commander_id</code>), à défaut le commandant actif. Les listes personnelles de marchandises dépendent également de ce commandant.</li>
+</ul>
+<p>Cependant, les informations personnelles telles que vos propres découvertes minières et listes de matières premières sont toujours évaluées séparément pour le commandant réellement consulté.</p>
+<p>Un commandant ne voit dans sa sélection de matières premières aucune découverte minière appartenant exclusivement à un autre commandant.</p>
+
+<h3>Tous les commandants</h3>
+<p>L'affichage de la carte/chronique peut prendre en compte plusieurs commandants.</p>
+<p>« Tous les commandants » concerne la sélection des commandants de la carte. Les cases des commandants n’étendent pas automatiquement les recherches personnelles de texte libre ou minières à plusieurs commandants.</p>
+<p>Cela ne modifie pas l'attribution personnelle des données relatives au commandant. Les propriétés astronomiques globales d'un système ou d'un corps restent partagées, les découvertes personnelles restent séparées.</p>
+
+<h3>Aide à la recherche / légende</h3>
+<p>Des informations complémentaires sur la recherche de chroniques et la signification de l'affichage sont accessibles via « Aide à la recherche / Légende ».</p>
+<p>Un clic sur un terme de recherche le place dans le champ de recherche et lance la recherche avec les filtres de période et miniers déjà définis.</p>
+<p>Cette aide principale contextuelle complète les brèves instructions d'utilisation qui y sont disponibles.</p>
+
+<h3>Conseil</h3>
+<p>La chronique est particulièrement adaptée pour retrouver des lieux intéressants découverts au cours d'un voyage plus long.</p>
+<p>Pour l’extraction de surface, par exemple, elle peut répondre :</p>
+<p>« Sur quelle planète ai-je déjà extrait du cuivre ? »</p>
+<p>ou:</p>
+<p>« Laquelle de mes planètes connues possède un nombre particulièrement élevé de sites miniers ? »</p>""",
+    ),
  'jump_tip': ('Astuce de saut',
               '<h2>Astuce de saut</h2>\n'
               "<p>La pointe de saut prend en charge l'exploration en évaluant les données système "
@@ -1363,7 +1374,82 @@ HELP_TOPICS = {'overview': ('Aperçu',
               'Images »</li>\n'
               '</ul>\n'
               "<p>S'il y a plusieurs commandants, faites toujours attention à quel FID "
-              "s'appliquent les données d'accès en ligne visibles.</p>")}
+              "s'appliquent les données d'accès en ligne visibles.</p>"),
+    "planet_navigation": (
+        'Navigation planétaire',
+        """<h2>Navigation planétaire</h2>
+<p>Le navigateur planétaire sert exclusivement à rejoindre une latitude/longitude précise sur une planète ou une lune. Tu définis une cible par ses coordonnées et obtiens la distance et la direction pour la rejoindre.</p>
+<p>Ce n’est pas un planificateur d’itinéraire interstellaire et il ne prend en charge ni la navigation entre systèmes ni les sauts. Tu pilotes toi-même ton vaisseau.</p>
+
+<h3>Ouvrir le navigateur et saisir une cible</h3>
+<p>Dans la vue d’ensemble, ouvre « Navigation planétaire » et sélectionne « Saisir la cible … ».</p>
+<ul>
+<li><b>Corps céleste :</b> Sélectionne la planète ou la lune cible dans la liste, ou utilise le corps déjà détecté. Tu peux aussi saisir toi-même son nom s’il ne figure pas encore dans la liste. En cas de doute, utilise le nom complet, y compris celui du système.</li>
+<li><b>Latitude :</b> Saisis la latitude cible entre −90° et +90°.</li>
+<li><b>Longitude :</b> Saisis la longitude cible entre −180° et +180°. Fais attention au signe des deux coordonnées.</li>
+<li><b>Nom de la cible :</b> Tu peux saisir un libellé facultatif pour reconnaître plus facilement ta cible.</li>
+</ul>
+<p>« Définir la cible » valide ta saisie. Tu n’as pas à saisir d’identifiants techniques comme BodyID et SystemAddress ; ce ne sont pas des données normalement saisies par l’utilisateur.</p>
+
+<h3>Quand la boussole démarre-t-elle ?</h3>
+<p>Dès qu’une cible est définie et qu’Elite fournit des données de position planétaire valides pour le corps correspondant, la navigation s’active automatiquement. Tu n’as pas à appuyer sur un bouton de démarrage distinct.</p>
+<p>Si ces données manquent encore ou concernent un autre corps, le navigateur attend en affichant « En attente des coordonnées planétaires … ». Tu peux saisir une cible avant même de recevoir ces données.</p>
+
+<h3>Globe planétaire : au-delà de 380 km</h3>
+<p>Lorsque la distance à la cible est supérieure à 380 km, le navigateur affiche le globe planétaire.</p>
+<ul>
+<li>Le <b>cercle blanc</b> indique ta position.</li>
+<li>Le <b>petit point cible</b> est orange lorsque la cible se trouve sur la face visible de la planète.</li>
+<li>Si la cible se trouve sur la face arrière cachée, le point cible est affiché en rouge.</li>
+<li>Ta position reste fixe dans la représentation. La planète et la cible sont représentées par rapport à ta position et à ton orientation.</li>
+</ul>
+<p>La flèche blanche pointe vers l’avant ; la flèche jaune indique la direction relative de la cible. Le globe est une aide à l’orientation schématique, pas une vue géographiquement exacte du terrain. Un point rouge signifie la face arrière du globe, pas automatiquement « derrière ton vaisseau ».</p>
+
+<h3>Grille en perspective : jusqu’à 380 km inclus</h3>
+<p>À une distance de la cible inférieure ou égale à 380 km, l’affichage passe automatiquement à une grille inclinée en perspective. Si la distance repasse au-dessus de 380 km, le globe réapparaît.</p>
+<p>Les lignes transversales forment une <b>grille de distance par pas de 50 km</b>. Le point cible est placé dans la grille en fonction de la distance et de la direction relative. La perspective t’aide à poursuivre l’approche ; l’inclinaison fait paraître les espacements plus serrés vers l’arrière. Pour le cap à suivre, observe également le cap cible et la direction relative.</p>
+
+<h3>Bien lire les valeurs de navigation</h3>
+<ul>
+<li><b>Distance à la cible :</b> Le grand affichage indique la distance restante jusqu’à la cible le long de la surface planétaire théorique.</li>
+<li><b>Coordonnées de la cible :</b> La paire de coordonnées saisie pour la cible, d’abord la latitude, puis la longitude. Elle reste inchangée pendant tes déplacements.</li>
+<li><b>Coordonnées actuelles :</b> Ta dernière paire de coordonnées confirmée par Elite, également latitude / longitude.</li>
+<li><b>Distance en surface :</b> La même distance de surface que la distance à la cible, éventuellement arrondie plus précisément dans l’affichage détaillé. Ce n’est ni un second trajet ni une distance directe dans l’espace à travers les airs.</li>
+<li><b>Relèvement :</b> La direction absolue vers la cible depuis ta position actuelle, exprimée en angle de boussole : 000° correspond au nord, 090° à l’est, 180° au sud et 270° à l’ouest.</li>
+<li><b>Cap :</b> Ton orientation actuelle telle qu’Elite la fournit. Il indique vers où tu es orienté et ne correspond pas nécessairement encore au relèvement.</li>
+<li><b>Direction relative :</b> La différence entre ton orientation et le relèvement, par exemple « 23° à droite », « 10° à gauche » ou « Tout droit ». À 180°, la cible est derrière toi.</li>
+<li><b>Cap cible :</b> Le relèvement mis en évidence sous forme de cap absolu sur lequel tu peux t’aligner dans le HUD d’Elite. Ce n’est pas un angle de rotation supplémentaire.</li>
+</ul>
+<p>Exemple : avec un cap de 051° et un cap cible de 074°, tourne de 23° à droite jusqu’à ce que ta boussole Elite indique environ 074°. En poursuivant le vol, le relèvement et le cap cible peuvent changer ; fie-toi aux valeurs actualisées.</p>
+<p>À la même position que la cible, à un pôle ou au point exactement opposé sur la planète, la direction peut être indéterminée. Le navigateur affiche alors le message correspondant plutôt qu’un cap inventé.</p>
+
+<h3>Taille de la fenêtre</h3>
+<p>La fenêtre du navigateur est librement redimensionnable. Le globe ou la grille en perspective s’adapte proportionnellement à l’espace disponible. La taille minimale préserve la lisibilité des valeurs détaillées ; le globe reste rond. La position et la taille de la fenêtre sont enregistrées.</p>
+
+<h3>Activer le HUD de navigation</h3>
+<p>À gauche dans la fenêtre principale, coche la case sous <b>affichage automatique → HUD de navigation</b>. Lorsque la navigation planétaire est valide, le HUD apparaît directement au-dessus de la fenêtre Elite visible au premier plan.</p>
+<p>Il affiche trois lignes :</p>
+<ul>
+<li>direction relative</li>
+<li>cap cible</li>
+<li>distance</li>
+</ul>
+<p>Le HUD est transparent, laisse passer les clics et ne prend pas le focus : il ne masque pas le jeu par une zone opaque, n’intercepte pas les clics de souris et ne retire pas le focus de saisie à Elite lorsqu’il apparaît automatiquement.</p>
+<p>Sans navigation valide ou direction non ambiguë, il devient automatiquement invisible. Il est également masqué si Elite est réduit ou n’est pas au premier plan. La case de la barre latérale peut néanmoins rester cochée ; elle représente ton souhait d’affichage automatique, pas la visibilité actuelle.</p>
+<p>Le HUD n’est qu’un affichage supplémentaire. Le navigateur normal fonctionne indépendamment, même si le HUD est désactivé ou indisponible.</p>
+
+<h3>Définir une nouvelle cible</h3>
+<p>Sur le même corps, tu peux rouvrir « Saisir la cible … » à tout moment et définir d’autres coordonnées. La nouvelle cible remplace la cible de navigation précédente. Avec des données de position correspondantes, la boussole s’actualise immédiatement.</p>
+<p>« Arrêter la navigation » supprime la cible actuelle. Pour une nouvelle approche, définis simplement une nouvelle cible.</p>
+
+<h3>Actualité des données et limites</h3>
+<p>La navigation repose sur les données d’état fournies par Elite. Selon l’état du jeu, les mises à jour peuvent arriver avec du retard. L’indication d’âge dans le navigateur montre le temps écoulé depuis le dernier message d’état confirmé.</p>
+<p>La distance en surface décrit l’arc le plus court sur une sphère théorique. Ce n’est pas un itinéraire de terrain ou routier. Le navigateur ne connaît ni les obstacles ni les altitudes du terrain le long du trajet ; l’altitude de vol, une vitesse sûre et l’évitement des obstacles restent de ta responsabilité.</p>
+
+<h3>Conseil</h3>
+<p>Avant l’approche, vérifie le nom du corps et les signes des coordonnées de la cible. Aligne-toi ensuite sur le cap cible dans la boussole Elite et observe la direction relative et la distance. Si le navigateur attend, vérifie si Elite fournit déjà des coordonnées planétaires pour le corps cible.</p>""",
+    ),
+}
 
 DIALOG_TITLE = 'Aide – {area}'
 CLOSE_LABEL = 'Fermer'

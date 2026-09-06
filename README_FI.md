@@ -1,4 +1,4 @@
-# CMDRHelper
+# CMDRHelper V3 (3.0)
 
 [🇩🇪 Deutsch](README_DE.md) \| [🇬🇧 English](README.md) \| [🇫🇷
 Français](README_FR.md) \| [🇮🇹 Italiano](README_IT.md) \| [🇳🇴
@@ -9,699 +9,233 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 ![CMDRHelper -- Co-pilottisi Elite Dangerousiin](cmdrhelper/assets/readme/cmdrhelper_readme_fi.png)
 
-**Henkilökohtainen kumppani Elite Dangerousiin -- tutkimusmatkailu,
-järjestelmäanalyysi ja Commanderin tiedot yhdellä silmäyksellä**
+**Henkilökohtainen kumppani Elite Dangerousiin – tutkimus, navigointi ja komentajan tiedot yhdellä silmäyksellä**
 
-CMDRHelper on itsenäinen työpöytäsovellus **Elite Dangerous** -peliin.
-Se analysoi pelin paikallisten Journal-tiedostojen tietoja ja esittää ne
-selkeästi. Tavoitteena on henkilökohtainen apuri, joka järjestelmää
-tutkittaessa näyttää nopeasti, mitä jo tiedetään, mitkä taivaankappaleet
-ovat kiinnostavia sekä mitä omia löytöjä ja kartoituksia on tehty.
+CMDRHelper on itsenäinen työpöytäsovellus, joka analysoi Elite Dangerousin paikallisia lokeja ja käyttää `Status.json`-tiedoston planetaarisia sijaintitietoja. Se auttaa tunnistamaan kiinnostavia taivaankappaleita, palaamaan tallennettuihin paikkoihin ja tarkastelemaan matkoja ja löytöjä. Henkilökohtaiset tiedot säilyvät uudelleenkäynnistyksessä ja pidetään erillään komentajittain.
 
-Projekti on edelleen aktiivisessa kehityksessä.
+## Explorer
 
-## Toimintojen yleiskatsaus
+Explorer esittää nykyisen järjestelmän kolmessa näkymässä:
 
-### Elite Dangerous -Journalit
+- **Järjestelmäkartta:** tunnettujen tähtien, planeettojen ja kuiden graafinen esitys. Taivaankappaleen napsautus avaa sen tiedot. ”Näytä kaikki” avaa järjestelmän yleiskuvan.
+- **Arvoluettelo:** tunnettujen taivaankappaleiden skannaus- ja kartoitusarvot, jo saavutettu arvo ja mahdollinen kokonaisarvo. Merkinnät auttavat tunnistamaan terraformointiehdokkaat, mahdolliset ensilöydöt ja ensikartoitukset.
+- **BIO / GEO / LOUHINTA:** biologiset ja geologiset signaalit, planetaariset louhintapaikat ja todennetut henkilökohtaiset löydöt.
 
-CMDRHelper lukee paikallisia Journal-tiedostoja ja käsittelee muun
-muassa tähtijärjestelmiä, tähtiä, planeettoja, kuita, Belt Clustereita,
-skannauksia, kartoituksia sekä biologisia ja geologisia signaaleja.
-Commanderin omat tiedot voidaan erottaa täydentävistä ulkoisista
-tiedoista.
+Analyysit erottavat ilmoitetut signaalit todellisista omista löydöistä. **BIO ×N** on ilmoitettu signaalimäärä, ei vahvistus kokonaan analysoiduista lajeista. **LOUHINTA ×N** laskee planetaariset louhintapaikat paljastamatta niiden yksittäisiä raaka-aineita. Itse louhitut kauppatavarat, louhinnassa kerätyt sivumateriaalit ja taivaankappaleen yleinen materiaalikoostumus pidetään erillään.
 
-### Tehtävät
+Explorer näyttää myös arvioidut BIO-arvot, omien analyysien edistymisen ja myymättömät kartoitus- ja BIO-tiedot. Arvot perustuvat saatavilla oleviin loki- ja taivaankappaletietoihin; puuttuvia tietoja ei esitetä omina löytöinä. Täydentävät EDSM-tiedot ovat ulkoista tietoa, joka on erotettava omista löydöistä.
 
-CMDRHelper analysoi Elite Dangerous -Journalien tehtävätapahtumia ja
-esittää aktiiviset tehtävät selkeästi. Tehtävien tilaa ja niihin
-liittyviä Journal-tapahtumia seurataan.
+Taivaankappaleen tiedot sisältävät saatavilla olevat fysikaaliset ominaisuudet, ilmakehän, renkaat, materiaalit ja löytötiedot. Esitykset käyttävät sopivia tekstuureja ja tiettyjen erityisten tähtitieteellisten kohteiden animaatioita. Cargo-alue näyttää käytössä olevan aluksen tai SRV:n tunnetun lastin ja kapasiteetin; Rhinon lasti ja henkilökohtaiset louhintalöydöt ovat edelleen eri tietoja.
 
-Myös pelin aikana NPC-viesteinä (`ReceiveText`) saapuvat
-tehtävätarjoukset voidaan tunnistaa ja ottaa huomioon tehtävien
-myöhemmässä yhdistämisessä. Koska Elite Dangerous ei tarjoa kaikille
-tehtävätyypeille kaikkia tietoja samassa Journal-tapahtumassa,
-yhdistäminen rakennetaan vaiheittain käytettävissä olevien
-Journal-tietojen perusteella.
+Explorerin yläosassa ovat **★ Suosikit | Planeettanavigointi | Näytä kaikki**. Suosikit ja planeettanavigointi avaavat omat ikkunansa; Explorerin kolme näkymää pysyvät käytettävissä.
 
-### Järjestelmä- ja Explorer-näkymä
+## Planeettanavigointi
 
-Järjestelmän tunnetut kappaleet esitetään graafisesti ja ne voidaan
-valita suoraan. CMDRHelper voi näyttää muun muassa:
+Planeettanavigaattori auttaa ainoastaan lentämään tiettyyn **leveys-/pituusasteeseen planeetalla tai kuulla**. Tähtijärjestelmien välisiin matkoihin on erillinen reittisuunnittelija.
 
--   kappaleen nimen ja tyypin
--   etäisyyden järjestelmässä
--   itse skannattu tai vain ulkoisesta lähteestä tunnettu
--   jo löydetty ja kartoitettu
--   mahdollinen ensilöytö ja mahdollinen First Mapping
--   Commanderin kartoittama
--   tehokas kartoitus
--   biologiset ja geologiset signaalit
--   skannaus- ja kartoitusarvot
+### Anna kohde ja lähde lentoon
 
-BIO-signaalit korostetaan selvästi kyseisen kappaleen kohdalla.
-Kohdistus tehdään järjestelmäkohtaisesti, jotta eri tähtijärjestelmien
-BodyID-tunnuksia ei sekoiteta keskenään.
+Valitse kohteen taivaankappale tai käytä nykyistä, joka tunnistetaan mahdollisuuksien mukaan automaattisesti. Anna leveysaste, pituusaste ja halutessasi kohteen nimi. Teknisiä tietoja, kuten BodyID tai SystemAddress, ei tarvitse syöttää. Myös **0,0** on kelvollinen koordinaatti.
 
-### Kappaleen yksityiskohtainen näkymä
+Kun Elite antaa kelvolliset planetaariset sijaintitiedot vastaavalle taivaankappaleelle, kompassi aktivoituu automaattisesti. Ilman vastaavia tietoja navigaattori näyttää odotustilan. Voit milloin tahansa asettaa samalle taivaankappaleelle uuden koordinaattikohteen; se korvaa aiemman kohteen.
 
-Kappaletta napsautettaessa avautuu yksityiskohtainen näkymä.
-Käytettävissä olevista tiedoista riippuen siinä näytetään kappaleen
-tyyppi, massa, etäisyys, painovoima, ilmakehä, vulkanismi,
-laskeutumiskelpoisuus, terraforming-tila, materiaalit,
-BIO-/GEO-signaalit, skannausarvo, kartoitusarvo ja löytötila.
+### Näyttö lähestymisen aikana
 
-Puuttuvat tiedot näytetään tuntemattomina eikä niitä esitetä varmoina
-tietoina.
+| Etäisyys kohteeseen | Näyttö |
+| --- | --- |
+| **Yli 380 km** | Planeettapallo, jossa oma sijainti on valkoinen ympyrä ja kohde pieni piste. Kohde on oranssi näkyvällä puolella ja punainen piilossa olevalla takapuolella. Pelaajan sijainti pysyy näytössä paikallaan; planeetta ja kohde esitetään siihen nähden. |
+| **Enintään 380 km** | Automaattinen vaihto kallistettuun perspektiiviruudukkoon, jossa on **50 km:n etäisyysvälit** ja kohteen merkitty sijainti lähestymisen jatkamiseksi. |
 
-## Kappaleiden graafinen esitys
+Navigaattori-ikkunan kokoa voi muuttaa vapaasti. Pallo tai perspektiiviruudukko mukautuu suhteellisesti käytettävissä olevaan tilaan; yksityiskohtaiset arvot pysyvät luettavina.
 
-CMDRHelper sisältää omat grafiikat lukuisille kappaletyypeille, kuten
-High Metal Content Worlds, Metal Rich Bodies, Rocky Bodies, Icy Bodies,
-Rocky Ice Worlds, Earth-like Worlds, Water Worlds, Ammonia Worlds,
-useille kaasujättiläisluokille, vesi- tai ammoniakkipohjaista elämää
-sisältäville kaasujättiläisille, heliumrikkaille kaasujättiläisille, eri
-tähtiluokille ja Belt Clustereille.
+### Navigointiarvojen ymmärtäminen
 
-Tavallisia PNG-kuvia käytetään yleisnäkymissä. Monille kappaleille on
-lisäksi saatavilla **2:1-equirectangular `_texture.png`** animoitua
-yksityiskohtaista näkymää varten.
+- **Kohdekoordinaatit:** kohteen tallennettu leveysaste ja pituusaste.
+- **Nykyiset koordinaatit:** viimeisin kelvollinen oma planetaarinen sijainti.
+- **Kohde-etäisyys / Etäisyys pintaa pitkin:** laskettu etäisyys kohteeseen pallopintaa pitkin; suuri kohde-etäisyys ja yksityiskohtainen arvo näyttävät saman etäisyyden eri pyöristyksellä.
+- **Suuntima:** absoluuttinen suunta nykyisestä sijainnista kohteeseen.
+- **Heading:** Eliten ilmoittama oma nykyinen suunta.
+- **Suhteellinen suunta:** headingin ja suuntiman ero, esimerkiksi ”23° oikealle”, ”vasemmalle” tai ”suoraan”.
+- **Kohdesuunta:** absoluuttinen suunta, johon voit kääntyä Eliten HUD:ssa. Se vastaa suuntimaa eikä ole ylimääräinen suhteellinen kääntökulma.
 
-### Pyörivät 3D-planeetat
+Esimerkki: **Heading 051° → Kohdesuunta 074° = 23° oikealle**.
 
-Sopivat 2:1-tekstuurit projisoidaan pyörivälle pallolle. CPU-renderöijä
-toimii **PySide6:n ja NumPyn** avulla ilman ylimääräisiä
-OpenGL-/PyOpenGL-riippuvuuksia. Se sisältää palloprojektion, hitaan
-pyörimisen, valaistuksen, reunan tummennuksen ja ilmakehän reunan.
+Navigointi riippuu pelin tilatiedoista; päivitykset voivat viivästyä pelitilan mukaan. Pintaetäisyys ei ole maasto- tai tiereitti. Reitin esteitä ja maaston korkeuksia ei huomioida.
 
-### Animoidut elämänmuodot
+## Navigointi-HUD
 
-Elämää sisältäville kaasujättiläisille on erilaisia animaatioita:
+Vasemmalla kohdassa **näytä automaattisesti → Navigointi-HUD** voit ottaa käyttöön valinnaisen lisänäytön suoraan Eliten päälle. Kelvollisen planeettanavigoinnin aikana se näyttää:
 
-**Water Life:** syaanin-/turkoosinvärisiä leijuvia organismeja, joilla
-on halo ja liikkuvat pyrstöt.
+- suhteellisen suunnan,
+- absoluuttisen tavoitesuunnan,
+- etäisyyden.
 
-**Ammonia Life:** omia violetin-/meripihkanvärisiä, puoliläpinäkyviä
-organismeja, joilla on sykkivä ydin, lyhyitä säikeitä ja hitaampi liike.
+HUD on läpinäkyvä, päästää napsautukset läpi eikä vie kohdistusta: se ei vie peliltä hiiren napsautuksia tai syötteen kohdistusta. Ilman kelvollista navigointia se muuttuu automaattisesti näkymättömäksi; sivupalkin valinta voi jäädä päälle. Tavallinen navigaattori toimii HUD:sta riippumatta.
 
-### Animoidut Belt Clusterit
+HUD on testattu pelissä **Linux/X11:llä** sekä **Windows 11:llä Eliten kanssa**. Windowsissa useat näytöt yhdistetään niiden geometrian ja Elite-ikkunan sijainnin perusteella, ei vastaavien näyttönimien perusteella.
 
-Belt Clustereita ei esitetä palloina. Yksityiskohtainen näkymä luo
-proseduraalisen asteroidikentän, jossa on yksittäisiä asteroideja, eri
-kokoja ja syvyyksiä, omaa pyörimistä, yksilöllistä ajautumista,
-parallaksiefekti, kraattereita sekä hillittyjä pöly- ja hiukkasefektejä.
+## Suosikit
 
-## EDSM täydentävänä tietolähteenä
+**Explorer → ★ Suosikit** avaa erillisen, uudelleenkäytettävän ikkunan. Suosikit kuuluvat **aktiiviselle komentajalle**. Komentajan vaihtaminen päivittää näkymän; kronikan komentajavalinta ei laajenna suosikkiluetteloa.
 
-CMDRHelper pystyy erottamaan omat Journal-tiedot EDSM-tiedoista. Lähde
-merkitään vastaavasti omaksi Journaliksi, EDSM:ksi tai omaksi
-Journaliksi + EDSM:ksi. Omat Journal-tiedot ovat erityisen tärkeitä,
-koska ne osoittavat, mitä kyseinen Commander on todella itse skannannut
-tai kartoittanut.
+### Kolmen tyypin tallentaminen
 
-CMDRHelper voi lähettää uudet Journal-tiedot automaattisesti EDSM:ään.
-Tällöin huomioidaan EDSM:n ajantasainen dynaaminen Discard-luettelo,
-jotta vain EDSM:n haluamat tapahtumat lähetetään. Siirron eteneminen
-tallennetaan turvallisesti Journal-tiedostokohtaisesti. Ensimmäisellä
-aktivointikerralla jo olemassa olevia vanhoja Journaleita ei lähetetä
-uudelleen kokonaisuudessaan.
+Yläosan toimintorivi tarjoaa:
 
-EDSM-tila näytetään suoraan yleisnäkymän yläosassa. Vihreä ilmaisin
-merkitsee toimivaa tiedonsiirtoa; virheet näytetään punaisina ja
-kirjataan lisäksi CMDRHelperin lokiin.
+| Toiminto | Tallennettu suosikki |
+| --- | --- |
+| **★ Tallenna nykyinen järjestelmä** | Nykyinen järjestelmä ilman pintakoordinaatteja. |
+| **★ Tallenna planeetta / kuu** | Nykyisestä järjestelmästä valittu tunnettu planeetta tai kuu ilman pintakoordinaatteja. |
+| **★ Tallenna nykyinen sijainti** | Pintasijainti nykyisine järjestelmineen, taivaankappaleineen, leveysasteineen ja pituusasteineen. |
 
-## Paikallinen tietokanta
+Sijaintipainike pysyy aina näkyvissä ja on käytettävissä vain kelvollisilla ajantasaisilla planetaarisilla sijaintitiedoilla ja aktiivisella komentajalla. **Napsautus lukitsee komentajan, järjestelmän, taivaankappaleen ja koordinaatit ennen muokkausikkunan avaamista.** Myöhemmät liikkeet pelissä eivät muuta sijaintia. Sama tallennusmenettely on käytettävissä planeettanavigaattorissa. Tunnetut sisäiset tunnisteet siirtyvät automaattisesti; koordinaatteja ei keksitä.
 
-CMDRHelper käyttää SQLitea. Seuraavat säännöt ovat voimassa:
+Anna nimi ja valitse täsmälleen yksi luokka: **Bio, Geo, Louhinta, Maisema, Laskeutumispaikka, Kiinnostava tai Muu**. Muistiinpano ja kuva ovat valinnaisia.
 
--   `cmdrhelper/database.py` on ohjelmakoodia ja kuuluu julkaisuun.
--   `data/cmdrhelper.db` sisältää henkilökohtaisia Commander-tietoja
-    eikä sitä **jaeta**.
--   Uudessa asennuksessa paikallinen tietokanta rakennetaan uudelleen
-    kyseiselle käyttäjälle.
+### Etsiminen, katselu ja muokkaaminen
 
-Näin henkilökohtaisia Commander-tietoja ei toimiteta julkaisun mukana.
+Nimen mukaan aakkostettu, vieritettävä luettelo näyttää nimen, tyypin, järjestelmän, tarvittaessa taivaankappaleen ja koordinaatit, luokan ja pienen kuvan esikatselun. **Vapaatekstihakua sekä tyyppi- ja luokkasuodattimia** voi yhdistää. Haku kattaa nimen, järjestelmän, taivaankappaleen ja muistiinpanon.
 
-## Diagnostiikka ja lokitiedosto
+**Avaa / Näytä** näyttää tallennetut tiedot, muistiinpanon ja suuremman kuvan esikatselun. **Näytä Explorerissa** käyttää olemassa olevaa järjestelmän yleiskuvaa tai taivaankappaleen tietonäkymää, jos suosikki kuuluu Explorerin nykyiseen järjestelmään ja vastaavat tiedot ovat saatavilla. Muiden järjestelmien tallennetut suosikkitiedot pysyvät saatavilla.
 
-CMDRHelper ylläpitää omaa kiertävää lokitiedostoa diagnostiikkaa ja
-vianetsintää varten. Tärkeät ohjelma-, Journal-, tietokanta- ja
-EDSM-tapahtumat kirjataan lokiin. EDSM-lokitusta on vähennetty niin,
-etteivät pelkästään EDSM:n hylkäämät Journal-tapahtumat täytä normaalia
-lokia tarpeettomasti, kun taas onnistuneet siirrot, varoitukset ja
-virheet pysyvät näkyvissä.
+**Muokkaa** muuttaa nimeä, luokkaa, muistiinpanoa ja kuvaa. Järjestelmää, taivaankappaletta ja tallennettuja koordinaatteja ei korvata reaaliaikaisilla arvoilla. Luo eri sijainnille uusi pintasuosikki.
 
-## Alustat
+**Poista** edellyttää vahvistusta ja poistaa vain suosikkitietueen ja sen sisäisen kuvakopion. Explorerin, lokien ja taivaankappaleiden tiedot säilyvät.
 
-CMDRHelper kehitetään Pythonilla ja PySide6:lla, ja se on tarkoitettu
-**Linuxille ja Windowsille**. Kehitys tapahtuu pääasiassa Linuxissa;
-Windows voidaan asentaa mukana toimitettujen batch-tiedostojen avulla.
+### Suosikkikuvat ja viimeisin kuvakaappaus
+
+Suosikkikuvat ovat **täysin erillään tavallisesta Kuvat-osiosta**. CMDRHelper hallitsee omaa sisäistä kopiota suosikkikuvakansiossa (`data/favorites/images/` tavallisessa tietojen sijoittelussa). Alkuperäistä ei siirretä eikä muuteta.
+
+- **Valitse kuva …** hyväksyy PNG:n, JPEG:n tai WebP:n ja näyttää esikatselun. Sisäinen kopio syntyy vasta tallennettaessa.
+- **Käytä uusinta kuvakaappausta** lukee todellisen kuvakaappausten lähdekansion uudelleen jokaisella napsautuksella. Se huomioi myös vastaavat muunnetut Elite-kuvakaappaukset aktiivisen komentajan kansiossa määritetyn muunnoskohteen sisällä. Uusi kuvakaappaus on siten saatavilla, vaikka automaattinen muunnos olisi jo poistanut sen BMP:n.
+- Tarjotaan luettavia tiedostoja, joilla on vastaavat Elite- tai muunnosnimet, ei mielivaltaisia kuvia yleisistä kuvakansioista. Järjestyksen määrää tiedostonimen yksiselitteinen kuvausaika, muuten tiedostoaika. Muunnetuissa kuvissa käytetään nimeen tallennettua kuvausaikaa, ei muunnosaikaa.
+- Ennen löydetyn kuvakaappauksen hyväksymistä näet tiedostonimen, kuvausajan ja juuri ladatun esikatselun. Vahvista painamalla **Käytä tätä kuvaa**. Jos sopivaa kuvakaappausta ei löydy, manuaalinen kuvanvalinta pysyy käytettävissä. CMDRHelper ei ota itse kuvakaappauksia.
+
+Kuvan voi myöhemmin korvata tai poistaa. Tarpeettomat sisäiset kopiot poistetaan suosikkia tallennettaessa tai poistettaessa. **Suosikkitoiminnot eivät koskaan poista alkuperäistä kuvakaappausta tai valittua alkuperäistä kuvaa.** Jos sisäinen kuvatiedosto puuttuu, suosikki toimii ilman esikatselua.
+
+### Pintasuosikki kohteena
+
+**▶ Kohteeseen** välittää tallennetun taivaankappaleen, leveysasteen, pituusasteen ja suosikin nimen olemassa olevalle planeettanavigaattorille ja korvaa sen aiemman kohteen. Suosikeilla ei ole omaa navigointilogiikkaa. Vastaavat kelvolliset planetaariset tiedot käynnistävät navigoinnin; muuten navigaattori odottaa tavalliseen tapaan.
+
+Muiden komentajien suosikkeja ei voi käyttää omina kohteina. Komentajan vaihto lopettaa kohteen, jota käsitellään edelleen edellisen komentajan suosikkikohteena. Järjestelmä- ja taivaankappalesuosikit näyttävät olemassa olevia tietoja ilman omaa reittisuunnittelua.
+
+## Kronikka
+
+Kronikka on tallennettu matka- ja löytöhistoriasi. Sen **3D-matkakartta** näyttää vieraillut järjestelmät ja komentajien reitit. Järjestelmien ja taivaankappaleiden tiedot auttavat löytämään tunnetut BIO-, GEO-, materiaali-, Codex- ja louhintatiedot uudelleen.
+
+### Yhdistetyt suodattimet
+
+**Käytä** tai **Enter vapaatekstikentässä** suorittaa kaikki asetetut suodattimet yhdessä:
+
+- vapaateksti,
+- valinnaiset **Alkaen** ja **Asti**,
+- **Planeettojen kaivoskohteet** ja **Vähintään**,
+- **Omat kaivoslöydöt** ja **Hyödyke**.
+
+**Hakuohjeen / Selitteen** termi siirtyy hakukenttään ja suoritetaan yhdessä jo asetettujen aikaväli- ja louhintasuodattimien kanssa.
+
+### Aikaväli UTC-ajassa
+
+Alkaen ja Asti otetaan käyttöön omilla valintaruuduillaan. Myös yksi raja on mahdollinen; ilman valintaa kyseisellä puolella ei ole aikarajoitusta. **Alkaen** sisältää valitun UTC-kalenteripäivän alun. **Asti** sisältää koko valitun UTC-päivän. UTC on yhteinen aikaperusta, ei paikallinen kalenteriaikasi.
+
+**Todelliset järjestelmävierailut** ratkaisevat: vähintään yhden tallennetun vierailun on oltava aikavälillä. Pelkkä järjestelmän ensimmäinen tai viimeinen tunnetuksi tuleminen ei korvaa vierailua. Kun aikaväli on aktiivinen, karttanäkymän vierailumäärä sekä ensimmäinen ja viimeinen vierailu koskevat suodatettuja vierailuja.
+
+Aikaväli suodattaa vierailuja, ei yksittäisiä löytö-, BIO-, GEO- tai louhintatapahtumia. Tunnetut löytötiedot ja henkilökohtaiset louhintamäärät säilyvät tallennettuina **kokonaisarvoina**. **”Kupari 56 t” ei aktiivisella aikavälillä tarkoita automaattisesti ”56 t tällä aikavälillä”.** Jos Alkaen on Asti-päivän jälkeen, näytetään virhe eikä tietokantakyselyä käynnistetä.
+
+### Komentaja ja päivitys
+
+**Kartan komentajavalinta** määrää näytettävät komentajareitit. Henkilökohtaiset vapaateksti- ja louhintahaut taas koskevat tarkasteltavaa tai aktiivista komentajaa. Kartan valintaruudut eivät automaattisesti laajenna henkilökohtaisia hakuja useaan komentajaan.
+
+**Päivitä kronikka** lataa tiedot uudelleen ja suorittaa aktiiviset suodattimet uudestaan. **Nykyinen sijainti** käyttää ensin nykyisiä suodattimia ja keskittää nykyiseen järjestelmään vain, jos se on tuloskartassa. Muuten näytetään ilmoitus; suodattimet säilyvät.
+
+**Palauta** tyhjentää vapaatekstin, poistaa Alkaen/Asti-valinnat ja palauttaa näkyvät päivämääräkentät. Louhintaruudut tyhjennetään, vähimmäismääräksi tulee 0 ja kauppatavaraksi Kaikki. Komentajavalinta säilyy; sitten tavallinen kronikka ladataan.
+
+Kun **osumia ei ole**, kartta ja reitit tyhjennetään, tulosluettelo tyhjennetään ja piilotetaan, tietonäyttö palautetaan ja avoin kronikan järjestelmätietoikkuna suljetaan. Vanhat tulokset eivät jää näkyviin.
+
+### Kartan käyttö
+
+- Vedä vasemmalla hiiren painikkeella: kierrä.
+- Vedä oikealla painikkeella: siirrä.
+- Vedä keskipainikkeella: piirrä zoomausruutu.
+- Hiiren rulla: zoomaa.
+- **Kohdista:** palauta suunta galaktiseen ylänäkymään; siirtymä ja zoomaus säilyvät.
+
+## Kuvat ja automaattinen kuvakaappausmuunnos
+
+**Kuvat**-osiossa asetat Elite-kuvakaappausten lähdekansion ja muunnoskohteen. Automaattinen muunnos käsittelee uudet BMP-kuvakaappaukset **PNG- tai JPEG-muotoon**. Säädettävä kirkastus on käytettävissä. Käynnistettäessä jo olemassa olevia BMP-tiedostoja ei muunneta jälkikäteen vain valvonnan käyttöönotolla; niitä varten on manuaalinen muunnos.
+
+Muunnettujen tiedostojen nimissä ovat kuvausaika, komentaja ja järjestelmä, ja ne tallennetaan komentajittain. Automaattinen kohdistus seuraa aktiivisen lokin komentajaa. Gallerian toinen valinta ei muuta tätä aktiivista komentajaa.
+
+Valinta **alkuperäisen BMP:n poistamiseen onnistuneen muunnoksen jälkeen** kuuluu vain tähän muunnokseen ja sillä on oma asetus. Se on riippumaton suosikkikuvien hallinnasta.
+
+Galleria näyttää vastaavat muunnetut kuvat esikatseluineen. Se luetaan uudelleen sitä taas näytettäessä; myös päivitys huomioi nykyiset tiedostot. Valinta ja suuri esikatselu päivittyvät yhdessä. Jos valittu kuva katoaa, valitaan olemassa oleva kuva tai esikatselu tyhjennetään. Kuvat-osiossa on myös oma kuvanvalinta ja vahvistettava poistotoiminto.
+
+## Muut näkymät
+
+- **Yleiskuva:** aktiivinen komentaja, alus, sijainti, lokin tunnistus, avoimet tehtävät ja verkkotila.
+- **Tehtävät:** pysyvästi tallennetut avoimet tehtävät, joiden kohteet, eteneminen ja valmistumistila ovat tiedossa. Puuttuvia tietoja ei täydennetä eikä keksitä.
+- **CMDR:** varallisuus, arvoasteet, tilastot, MercCoins, alukset/laivasto ja tunnettu Fleet Carrierin sijainti. MercCoins esitetään Frontierin ilmoittamina kokonaisarvoina, ei itse laskettuna saldona.
+- **Reittisuunnittelija:** erillinen suunnittelu alukselle ja Fleet Carrierille Spanshin avulla. Lasketut carrier-reitit voidaan viedä CSV-muodossa CTSVisionille. Laskenta vaatii yhteyden ulkoiseen palveluun.
+
+## Komentaja, paikalliset tiedot ja verkkopalvelut
+
+CMDRHelper tunnistaa aktiivisen komentajan nykyisen loki-istunnon Frontier-tunnuksesta. Henkilökohtainen tutkimus, tehtävät, varallisuus, suosikit ja verkkotunnukset tallennetaan erikseen. Toisen komentajan pelkkä tarkastelu ei muuta reaaliaikaista komentajaa eikä lähetysten kohdistusta.
+
+Paikallinen SQLite-tietokanta säilyttää tunnetut järjestelmät, taivaankappaleet ja henkilökohtaisen historian uudelleenkäynnistyksissä. Uudet täydelliset lokimerkinnät käsitellään pelaamisen aikana; tallennetut lukukohdat välttävät tarpeetonta uudelleenlukua. Jos sijainti tai komentaja ei täsmää, tarkista ensin lokin tunnistus ja lokikansio asetuksista.
+
+**EDSM** voi tarjota täydentäviä järjestelmätietoja. Tuettuja lokitietoja voidaan lähettää **EDSM:ään ja Inaraan**, kun palvelu on määritetty ja otettu käyttöön aktiivisen komentajan omilla tunnuksilla. Komentaja ei käytä automaattisesti toisen API-avainta. Paikallinen tallennus toimii verkkoyhteyden saatavuudesta riippumatta.
+
+## Kielet ja kontekstiohje
+
+Käyttöliittymä tukee **12 kieltä**: **DE, EN, FR, IT, NO, SV, FI, PL, NL, ES, TR, EL** – saksa, englanti, ranska, italia, norja, ruotsi, suomi, puola, hollanti, espanja, turkki ja kreikka.
+
+Tällä hetkellä on **937 UI-i18n-avainta kieltä kohden**. **? Ohje** tarjoaa **10 laajaa kontekstiohjeaihetta kaikilla 12 kielellä**. Suosikit kuuluvat Explorerin ohjeeseen; planeettanavigoinnilla on oma aiheensa suoraan navigaattorista. Ohje käyttää nykyistä käyttöliittymäkieltä ja säilyttää saksan varakielenä, jos luettelo tai merkintä puuttuu.
 
 ## Vaatimukset
 
-Python **3.10–3.13** sekä `requirements.txt`-tiedostossa määritellyt paketit:
+| Alusta | Python |
+| --- | --- |
+| **Windows** | **Python 3.10 tai uudempi, x64 vaaditaan.** Ei keinotekoista ylärajaa olemassa oleville versioille. Todelliset paketti- ja tuontitarkistukset ratkaisevat tämän jälkeen. |
+| **Linux** | Ennallaan **Python 3.10–3.13**, 64-bittistä suositellaan. Python-versiota vastaavan venv-moduulin on oltava käytettävissä. |
 
-``` text
+Tarvittavat paketit ovat tiedostossa `requirements.txt`:
+
+```text
 PySide6>=6.7,<7
 numpy
 Pillow>=10.0
 ```
 
+Asennus lataa nämä riippuvuudet. Paikallisten Elite-tiedostojen on oltava käytettävissä lokianalyysiin ja planeettanavigointiin. Linuxissa Elite voi toimia Steam/Protonin kautta; todelliset loki- ja kuvakaappauspolut asetetaan CMDRHelperissä. Yllä kuvattu Linux-HUD-tuki koskee X11:tä.
+
 ## Asennus Linuxissa
 
-``` bash
+Pura koko projekti tai julkaisu ja suorita projektikansiossa:
+
+```bash
 ./install.sh
 ./start.sh
 ```
 
-Vaihtoehtoisesti voidaan käyttää olemassa olevia
-Linux-käynnistysskriptejä.
+Skriptit käyttävät vain tämän asennuksen paikallista `venv`-ympäristöä. Ne ratkaisevat skriptien symboliset linkit, tarkistavat Pythonin ja pipin ja voivat korjata vioittuneen paikallisen ympäristön koskematta henkilökohtaisiin tietoihin tai Elite-lokeihin. Puuttuvia järjestelmäpaketteja ei asenneta automaattisesti; asennus ilmoittaa puuttuvasta venv-moduulista. Nykyinen Linux-asennustapa pysyy ennallaan.
 
 ## Asennus Windowsissa
 
-Windowsia varten on `install.bat` ja `start.bat`.
+1. Pura koko ZIP omaan kansioonsa.
+2. Käynnistä **install.bat**, joka kutsuu mukana toimitettua **install-windows.ps1**-tiedostoa.
+3. Onnistuneen asennuksen jälkeen käynnistä CMDRHelper tiedostolla **start.bat**.
 
-`install.bat` tarkistaa Python 3.10–3.13:n, luo tai korjaa paikallisen `venv`-ympäristön, päivittää
-pipin ja asentaa `requirements.txt`-tiedoston paketit. Tämän jälkeen
-CMDRHelper käynnistetään `start.bat`-tiedostolla.
+Olemassa oleva **Python 3.10 tai uudempi x64** hyväksytään ilman keinotekoista versiorajaa. Tulevaa Python-versiota ei hylätä pelkän versionumeron perusteella. Sopiva olemassa oleva Python tai käyttökelpoinen paikallinen venv estää tarpeettoman automaattisen Python-asennuksen.
 
-## Julkaisun luominen
+Jos sopivaa Pythonia ei ole, asennus tarjoaa suostumuksen jälkeen automaattista asennusta **wingetin** kautta. Tätä varten on tarkoituksella valittu kiinteä **Python 3.14 x64** -versiosarja; valinta on erillinen olemassa olevien versioiden avoimesta säännöstä. Jos automaattinen asennus ei onnistu, asennusohjelma ilmoittaa virheen.
 
-``` bash
-./create_release.sh
-```
+Asennusohjelma luo, tarkistaa tai korjaa vain **tämän CMDRHelper-kopion paikallisen venv-ympäristön**, asentaa riippuvuudet ja suorittaa **pip check** -tarkistuksen sekä **PySide6-, PySide6.QtWidgets-, numpy- ja PIL**-tuontitarkistukset. Vain nämä todelliset tarkistukset ratkaisevat ympäristön käyttökelpoisuuden. Epäonnistuessaan asennus keskeytyy ymmärrettävään virheilmoitukseen. Muita virtuaaliympäristöjä ei korjata eikä korvata.
 
-Julkaisuversion numero määritetään suoraan skriptissä. Luotu ZIP
-sisältää ohjelmakoodin ja assetit, mutta ei henkilökohtaista
-tietokantaa, virtuaalista Python-ympäristöä eikä Git-, välimuisti- tai
-editoritiedostoja.
+## Diagnostiikka ja julkaisupaketit
 
-## Versio 2.2
+Ongelmatilanteissa auttavat lokin ja verkkotilan ilmaisimet sekä `logs`-kansion lokitiedostot. Henkilökohtaiset tiedot tallennetaan paikallisesti; suosikkien varmuuskopiointiin tarvitaan tietokannan lisäksi niiden sisäiset kuvakopiot.
 
-**Versio 2.2** erottaa verkkopalvelut, omat löydöt, kuvakaappaukset ja
-palkkasoturikrediitit komentajittain sekä vahvistaa Journal- ja päivitysprosessia.
-
-### Multi-CMDR-verkkopalvelut
-
--   Inara ja EDSM tallentavat tunnukset komentaja/FID-kohtaisesti omalla API-
-    avaimella ja näyttävät **määritetty/ei määritetty**. Valinta vain muokkaa
-    tunnuksia; live-lähetys käyttää aina aktiivista Journal-FID:tä, ei katsottua
-    komentajaa tai asetusvalintaa. Lähetyspaikat ja runtime-tilat ovat erilliset,
-    ja vanhat workerit mitätöityvät FID-vaihdossa.
--   Automaattinen Inara-siirto käyttää pysyvää, deduplikoitua SQLite-outboxia,
-    eriä ja retrytä. Häiriö ei estä sovellusta; kuittaamattomat eventit pysyvät
-    komentajallaan ja niitä yritetään vain aktiiviselle FID:lle. Vierasta outboxia
-    ei lähetetä. Tuki: FSD-hypyt, telakointi, laskeutumiset, Carrier-matkat,
-    sijainti, tehtävät ja alusten osto/myynti. Ei luvata: credits/assets, cargo,
-    materiaalit, ShipLocker, loadoutit, eksobiologia, oma Surface-Mining-historia
-    tai dokumentoimattomat Frontier-eventit.
-
-### Journal, Surface Mining ja kartografia
-
--   Reader löytää ensin viimeisen täydellisen Journal-tilan. Offset etenee vasta
-    transaktiotallennuksen jälkeen; Inara-outbox on valinnainen. Puuttuva/virheellinen
-    asetus tai Inara-/EDSM-verkkovirhe ei vaikuta paikallisiin tietoihin tai
-    offseteihin. Erikoistapaukset korjataan hallitusti ja idempotentisti ilman
-    historiallista Inara-massalähetystä.
--   `MiningRefined` tallentaa oikeasti louhitut commodities kumulatiivisesti
-    komentaja/järjestelmä/body-kohtaisesti. Varman Rhino-kontekstin materiaalit
-    pysyvät erillään `Scan.Materials`-tiedoista. Body-näkymä näyttää **Omat
-    louhintalöydöt** ja tarvittaessa sivumateriaalit; **LOUHINTA ×N** tarkoittaa
-    yhä planeettakohteita ja löydöt näkyvät vasta louhinnan jälkeen. Kertaluonteinen
-    backfill lukee vanhat Rhino-Journalit. Depotin sisältöä ei ennusteta etukäteen.
--   `SellExplorationData` ja `MultiSellExplorationData` ovat myyntiraja.
-    Historiallista `NavBeaconDetail`-tietoa ei pidetä avoimena, eivätkä myydyt
-    vanhat tiedot palaa rekonstruktion jälkeen.
-
-### Palkkasoturikrediitit
-
--   Saldo tulee vain `Statistics.Bank_Account`-arvoista, Frontier-nimellä
-    `MercCoins`: nykyinen, yhteensä käytetty, Engineering, varusteet ja
-    `total_earned`. Arvot ovat riippumattomia; osittainen snapshot ei poista
-    tunnettuja kenttiä. Vain yksiselitteiset sessiot hyväksytään, multi-CMDR on
-    tiukasti erotettu ja kertaluonteinen backfill idempotentti. `total_earned` voi
-    poiketa saldosta; CMDRHelper säilyttää arvot ilman omaa saldo- tai deltalaskua.
-
-### Kuvat, käyttöliittymä ja päivitys
-
--   Uudet kuvat menevät komentaja+FID-kansioihin; nimi sisältää ajan, komentajan
-    ja varman järjestelmän. Identiteetti jäädytetään jonotushetkellä. Suodattimet:
-    **Nykyinen komentaja**, **Kaikki**, **Kohdistamaton**. Legacy-kuvat säilyvät,
-    FID erottaa samat nimet. Ikkuna skaalautuu taas vaakasuunnassa, Explorer-selite
-    rivittyy ja online-valikoiden leveys/popup-sijainti rajataan ilman suurempaa
-    minimileveyttä.
--   Windowsissa worker ja uudelleenkäynnistetty sovellus irrotetaan `start.bat`/
-    `cmd.exe`-konsolista uudella prosessiryhmällä, itsenäisellä konsolilla ja ilman
-    perittyjä standardikahvoja. Control-C/Break/interrupt ja rollback, myös
-    `KeyboardInterrupt`, ovat turvallisempia; epävarmat dependencies saavat
-    korjausmerkin. Kahden sekunnin handshake säilyy.
--   ZIP ladataan asynkronisesti. Todelliset tavut ohjaavat nimeä, MiB:tä,
-    kokonaismäärää, prosenttia, nopeutta, ETAa ja palkkia; tuntematon koko käyttää
-    busy-tilaa näyttäen MiB:t. Säieturvallinen peruutus poistaa keskeneräiset/
-    virheelliset tiedostot, ja asennus alkaa vain kelvollisesta ZIPistä. Vaiheet:
-    lataus, ZIP-tarkistus, updaterin käynnistys. Backupin, purun, kopioinnin,
-    requirements-asennuksen ja uudelleenkäynnistyksen eteneminen ei vielä näy.
-
-## Versio 2.1
-
-**Versio 2.1** parantaa biologiaennusteita, laivastonäkymää ja suurten
-Journal-arkistojen suorituskykyä sekä vahvistaa Windows- ja Linux-asennusta,
-käynnistystä, päivitystä ja palautusta.
-
-### Bioennusteet ja elinympäristö
-
--   uusi ennuste näyttää riittävillä tiedoilla konkreettisia mahdollisia
-    lajeja pelkän suvun sijasta. Useita lajeja voidaan näyttää luottamuksella
-    **KORKEA**, **KESKITASO** tai **MATALA**; pieniä otoksia käsitellään
-    varovaisesti.
--   löydetty tai tunnistettu laji korvaa ennusteen. Kun kaikki BIO-signaalit
-    tunnetaan, jäljellä olevat ennusteet poistuvat.
--   tiivis BIO-ikkuna näyttää ehdokkaiden arvioidut arvot ja kappaleen
-    mahdollisen kokonaisarvon. Oranssi/kulta on arvio, vihreä vahvistettu arvo;
-    spekulatiivisia First Footfall -bonuksia ei lasketa mukaan.
--   lämpötila, paine, ilmakehän koostumus, säde sekä tähti-/parent-konteksti
-    tallennetaan elinympäristötiedoiksi. Yleistä variantti- tai väriennustetta
-    ei ole toteutettu.
-
-### CMDR-laivasto
-
--   laivasto voidaan lajitella nousevasti tai laskevasti viime käytön, nimen,
-    tyypin, hyppymatkan, rahtitilan, tyhjämassan, sijainnin tai ajan mukaan.
--   suodattimet näyttävät kaikki alukset tai ajoneuvo- tai fighter-hangaarilla
-    varustetut alukset. Hangaarit tunnistetaan todellisista Loadout-moduuleista;
-    SRV:t ja fighterit pysyvät emoaluksen varusteina.
-
--   hallisuodatin tunnistaa `int_buggybay_*`- ja uuden suuren
-    `int_mkiilargebuggybay_*`-hallin keksimättä sisältöä. `mev_rhino` käsitellään
-    SRV:nä/maa-ajoneuvona, ei omana aluksena, väittämättä hallia aina tunnetuksi.
-
-### Pysyvä Commander-tila ja uudelleenkäynnistys
-
--   tehtävät, avoimet bio-/kartografiatiedot, viime sijainti, alukset ja loadoutit,
-    oma Fleet Carrier ja varallisuus säilyvät SQLitessa CMDRHelper/Elite-käynnistyksissä.
--   tila säilyy, kunnes oikea Journal-tapahtuma muuttaa sitä; uudesta istunnosta
-    puuttuva tieto ei poista tunnettua tietoa.
--   keskeytyksen jälkeen jatketaan viimeisestä turvallisesta kohdasta;
-    keskeneräistä viimeistä riviä ei katsota käsitellyksi.
--   v2.1 voi hallitusti rakentaa kerran tarvittavat tilat vanhoista Journaleista
-    ja jatkaa sitten inkrementaalisesti.
-
-### Planeettojen kaivoskohteet ja pintamateriaalit
-
--   `FSSBodySignals`/`SAASignalsFound` ilmoittavat **planeettojen kaivoskohteet**,
-    jotka näkyvät BIO/GEO:n rinnalla lokalisoituna **LOUHINTA ×N**. N on
-    Frontierin määrä, ei laskettu indeksi.
--   `Scan.Materials` tallennetaan kappaleelle; nimet ja prosentit näytetään
-    **kappaleen pintamateriaaleina**, myös työkaluvihjeessä.
--   kohteiden määrä ja yleinen materiaalikoostumus pidetään erillään;
-    materiaaleja ei väitetä tietyn kaivoskohteen sisällöksi.
-
-### Journalit, arkistotuonti ja suorituskyky
-
--   sekä `Journal.YYMMDDHHMMSS.PART.log` että
-    `Journal.YYYY-MM-DDTHHMMSS.PART.log` käsitellään oikeassa järjestyksessä,
-    joten vanha tiedosto ei enää korvaa nykyistä CMDR:ää tai tilaa.
--   epätäydellisten arkistojen Signal-/Mapping-tapahtumat voidaan tuoda ilman
-    aiempaa täydellistä Body Scania; myöhemmät skannaukset täydentävät tiedot
-    ja multi-CMDR-erottelu säilyy.
--   pysyvä Journal-indeksi ohittaa tunnetut muuttumattomat tiedostot. Aktiivista
-    tiedostoa luetaan vain viimeisestä turvallisesta tavupaikasta; metadata ja
-    SHA-256 varmistavat identiteetin, ja FID-kohdistus säilyy.
--   ensimmäinen suuri indeksin rakennus näyttää aidot luvut, prosentit ja
-    pienet animoidut avaruusalukset responsiivisessa näkymässä. Myöhemmillä
-    nopeilla käynnistyksillä näkymää ei yleensä näytetä.
-
--   indeksin jälkeen käsitellään vain uudet täydet rivit. Muutokset ja turvallinen
-    sijainti tallennetaan yhdessä; virheessä se ei etene ja osittainen rivi odottaa.
--   pikakäynnistys löytää live-CMDR:n uusimmasta yksiselitteisestä indeksoidusta
-    istunnosta, lataa tilan heti ja saa Journal-määrän indeksistä.
-
-### Asennus ja päivitys
-
--   vahvistetut Windows- ja Linux-skriptit tukevat Python-versioita 3.10–3.13,
-    käyttävät vain paikallista `venv`-ympäristöä ja korjaavat turvallisesti
-    paikalliseksi todetun ympäristön. Linux-symlinkit käsitellään varovasti;
-    vieraita ympäristöjä ei käytetä.
--   päivitys ja palautus ilmoittavat virheistä selkeästi ja suojaavat
-    henkilötiedot ja Elite-Journalit.
--   normaali päivitys v2.0:sta v2.1:een on tuettu. Selvästi v2.0:aa vanhemmissa
-    asennuksissa asetukset kannattaa varmuuskopioida; ongelmissa puhdas asennus
-    voi auttaa. Älä koskaan poista Elite-Journaleja tai vanhoja Helper-tietoja
-    yleisenä korjauksena.
--   erittäin suuren arkiston ensimmäinen v2.1-käynnistys voi kestää indeksin
-    vuoksi hetken; myöhemmät käynnistykset ovat huomattavasti nopeampia.
-
-## Versio 2.0
-
-**Versio 2.0** lisää aidon Multi-CMDR-tuen ja säilyttää version 1.5
-reittisuunnittelijan sekä kaikki aiemmat ominaisuudet.
-
-### Multi-CMDR ja CMDR-näkymä
-
--   komentajat tunnistetaan automaattisesti Frontier-FID:n avulla. Vain
-    Journal määrittää live-komentajan; toisen profiilin katselu ei muuta
-    kohdistusta eikä live-kirjoituksia.
--   käynnit, tutkimus, tehtävät, sijainnit, alukset, Fleet Carrier, varallisuus
-    sekä myymättömät biologiset ja kartografiset tiedot tallennetaan erikseen.
--   **CMDR-näkymä** näyttää tunnetut komentajat offline-tilassa: tehtävät,
-    viimeisen sijainnin ja aluksen, Fleet Carrierin sijainteineen, varallisuuden
-    sekä arviot myymättömistä tiedoista.
-
-### Multi-CMDR-kronikka
-
--   jokaisella komentajalla on vakaa väri ja omat tai yhteiset suodattimet.
--   aikajärjestyksessä olevat reitit pysyvät erillään eivätkä yhdistä eri
-    komentajien hyppyjä.
--   usean komentajan vierailemat järjestelmät näkyvät moninkertaisina käynteinä.
-
-### Komentajien laivastot
-
--   jokaisella komentajalla on pysyvä laivasto, jossa tunnetut alukset ja
-    avattavat tiedot varustuksesta, kantamasta, tankeista, rahdista ja sijainnista.
--   live-alus on vihreä; muut saavat vakaat sijaintivärit ja luetteloa voi
-    vierittää pystysuunnassa.
--   puvut, Scarab-, Scorpion- ja Nomad-SRV:t, hävittäjät, taksit ja
-    laskeutumisalukset eivät ole tavallisia komentajan aluksia.
-
-### Olemassa olevat tietokannat
-
-Sisäiset skeemamigraatiot jatkavat olemassa olevien tietokantojen käyttöä.
-Multi-CMDR-tiedot erotetaan Frontier-FID:llä. Jos vanhat tiedot voivat kuulua
-usealle profiilille, CMDRHelper ei arvaa eikä poista kaikkea; epäselvä kohdistus
-jää ratkaisematta.
-
-CMDRHelper tukee edelleen **Linuxia ja Windowsia** ja sisältää version 1.5
-alus- ja Fleet Carrier -reittisuunnittelijan.
-
-## Versio 1.5
-
-**Versio 1.5** on merkittävä toiminnallinen päivitys. Se lisää uuden
-reittisuunnittelijan aluksille ja Fleet Carriereille, yhdistää reitin
-etenemisen tiiviimmin Elite Dangerous -Journaliin sekä parantaa
-luotettavuutta ja suorituskykyä erityisesti Windowsissa.
-
-### Reittisuunnittelija ja alusreitit
-
--   uusi **Reittisuunnittelija** laskee alusreitit Spansh Galaxy Plotterilla
-    ja näyttää kaikki välijärjestelmät CMDRHelperissa.
--   CMDRHelper tunnistaa Journalista aluksen, FSD:n, FSD-engineeringin ja
-    aktiivisen Guardian FSD Boosterin. Käytettävissä olevat tankki-, lasti-,
-    massa- ja FSD-arvot siirretään automaattisesti.
--   automaattisesti tunnistettuja arvoja voi edelleen muokata. Manuaaliset
-    ohitukset säilyvät myöhemmissä Loadout-, lasti- ja polttoainepäivityksissä,
-    kunnes tunnistetut alustiedot otetaan erikseen uudelleen käyttöön.
--   Loadout-, lasti- ja polttoainemuutokset päivittävät vain kyseiset
-    reittiarvot. Tuntemattomat arvot pysyvät näkyvästi tyhjinä eikä niitä
-    arvioida.
--   lähtö- ja kohdejärjestelmälle tarkistetaan tarkka Spansh-osuma ennen
-    laskentaa. Tuntematon järjestelmä ilmoitetaan ymmärrettävästi käynnistämättä
-    epäonnistuvaa reittityötä.
--   eteneminen seuraa olemassa olevan Journal-virran todellisia
-    `FSDJump`-tapahtumia. Onnistuneen hypyn jälkeen seuraava järjestelmä
-    kopioidaan automaattisesti Qt-leikepöydälle ja voidaan kopioida uudelleen
-    myös käsin.
-
-### Fleet Carrier ja CTSVision
-
--   erillinen **Fleet Carrier / CTSVision** -tila käyttää Spansh Fleet Carrier
-    Routeria.
--   lasketut Fleet Carrier -reitit sisältävät hyppy- ja Tritium-tiedot, ja ne
-    voidaan viedä CTSVision-yhteensopivaksi CSV-tiedostoksi.
-
-### Journalin luotettavuus ja suorituskyky
-
--   aktiivisen Journal-tiedoston tilapäinen lukuvirhe ei enää kuittaa muutosta
-    liian aikaisin. Normaali kyselyjakso yrittää uudelleen ilman aggressiivista
-    busy-wait-silmukkaa.
--   BIO- ja kartografiaoppiminen ei enää käy koko Journal-arkistoa läpi
-    tavallisten asiaan liittymättömien tapahtumien yhteydessä. Täysi analyysi
-    rajataan olennaisiin BIO- tai myyntitapahtumiin ja tarkoitettuun
-    arkistotuontiin.
--   tämä vähentää tarpeetonta työtä jokaisella Journal-lisäyksellä ja parantaa
-    luotettavuutta ja reagointia erityisesti Windowsissa.
-
-## Versio 1.0.8
-
-**Versio 1.0.8** lisää henkilökohtaisen hyppysuosituksen tutkimusmatkoille,
-täydentää kansainvälistämistä ja parantaa Tutkimuksen live-ikkunoita sekä
-Kronikan karttanäkymää.
-
-### Hyppyvinkki ja hyppysuositus
-
--   uusi **”Hyppyvinkki”**-osio analysoi omaa paikallista
-    tutkimustietokantaasi ja näyttää, mitkä proseduraaliset järjestelmäkoodit
-    voivat olla erityisen kiinnostavia valitulle tutkimuskohteelle.
--   kohteiksi voi valita muun muassa BIO-löydöt yleisesti, tunnetut BIO-suvut
-    ja -lajit, arvokkaat tutkimuskappaleet, terraformauskandidaatit,
-    Vesimaailmat, Maan kaltaiset maailmat ja Ammoniakkimaailmat.
--   sijoituksessa huomioidaan koodilla aiemmin tutkitut järjestelmät,
-    osumat, osumaprosentti, tallennetut löydöt ja käytettävissä oleva
-    otoskoko. Säädettävä tutkittujen järjestelmien vähimmäismäärä estää
-    liian pienten aineistojen yliarvioinnin.
--   CMDRHelper korostaa galaksikartalta etsittäviä ensisijaisia koodeja,
-    kuten yhdistelmiä `ZL-Z b` tai `NR-C d`.
--   suositus perustuu yksinomaan **omaan aiempaan tutkimushistoriaasi** ja
-    siihen tallennettuihin löytöihin. Se on tilastollinen ohje eikä
-    **takaa löytöä**.
-
-### Kansainvälistäminen
-
--   kansainvälistämistä on täydennetty edelleen ja verrattu uudelleen
-    saksankieliseen viitteeseen.
--   kaikilla **12 tuetulla käyttöliittymäkielellä** on nyt sama täydellinen
-    **560 käännösavaimen** kokonaisuus.
--   **hyppyvinkin ja hyppysuosituksen** uudet ja aiemmin puuttuneet
-    käännökset on lisätty kaikkiin tuettuihin kieliin.
--   avainjoukko, avainten järjestys ja muotoilun paikkamerkit on yhtenäistetty
-    kaikissa kielitiedostoissa.
-
-### Tutkimuksen live-ikkunat ja asetukset
-
--   Tutkimuksen asetuksiin on lisätty selittävät tooltipit **”Arvokkaat
-    kappaleet”**- ja **”BIO-löydöt”**-ikkunoiden automaattiselle näyttämiselle.
--   tooltipit kertovat, milloin kukin ikkuna avautuu automaattisesti asetetun
-    arvorajan tai havaittujen BIO- tai GEO-signaalien perusteella.
--   Commanderin jo kartoittamia arvokkaita kappaleita ei enää näytetä
-    avoimina kohteina pienessä live-ikkunassa.
--   kokonaan analysoidut BIO-kappaleet poistuvat BIO-liveikkunasta; saman
-    kappaleen GEO-osuus, jota ei ole vielä kartoitettu DSS:llä, pysyy
-    näkyvissä.
-
-### Kronikka
-
--   Kronikan kartan suuntaus on korjattu siten, että positiivinen Z-akseli
-    osoittaa ylöspäin. Tallennetut Elite-`StarPos`-koordinaatit säilyvät
-    muuttumattomina.
-
-## Versio 1.0
-
-**Versiossa 1.0** CMDRHelper saavuttaa suunnitellun peruslaajuuden
-ensimmäisen täydellisen kehitysvaiheen.
-
-Tärkeät muutokset ja laajennukset versioon 1.0 asti:
-
-### Kappaleiden ja tähtien esityksen viimeistely
-
--   tuettujen planeetta-, tähti- ja erikoiskohdetyyppien kuvamateriaalia
-    on täydennetty edelleen.
--   lisätähtiluokat ja erityiset tähtityypit esitetään omilla
-    grafiikoilla yleisen oletusesityksen sijaan.
--   soveltuville kappaleille on edelleen käytettävissä pyörivät
-    2:1-equirectangular-tekstuurit yksityiskohtaisessa näkymässä.
--   erityisiä astronomisia kohteita voidaan lisäksi esittää
-    yksityiskohtaisessa näkymässä sopivilla videoilla.
--   neutronitähdet, valkoiset kääpiöt, mustat aukot ja supermassiiviset
-    mustat aukot saavat näin huomattavasti yksilöllisemmän esityksen.
--   käytetty ulkopuolinen kuva- ja videomateriaali dokumentoidaan
-    lähteen ja credit-tiedon kanssa kohdassa **"Kuva- ja videomateriaali
-    / Media Credits"**.
-
-### Viimeistelty monikielisyys
-
--   käyttöliittymän käännökset on viimeistelty tuetuille kielille ja
-    yhdenmukaistettu yhteiseen avainjoukkoon.
--   kaikki **12 käyttöliittymäkieltä** käyttävät samaa täydellistä
-    käännösavainjoukkoa.
--   automaattinen käännöstarkistus tarkistaa puuttuvat, ylimääräiset ja
-    päällekkäiset avaimet sekä poikkeavat muotoilun placeholderit.
--   saksa toimii täysin ylläpidettynä viitteenä käyttöliittymälle ja
-    tulevalle dokumentaatiolle.
-
-### Muutokset versiosta 0.9.9
-
-### Monikielisyys ja käännösten tarkistus
-
--   käyttöliittymä on siirretty keskitettyyn monikielisyysjärjestelmään.
--   CMDRHelper tukee nyt **12 käyttöliittymäkieltä**: **saksa, englanti,
-    ranska, italia, norja (Bokmål), ruotsi, suomi, puola, hollanti,
-    espanja, turkki ja kreikka**.
--   kieli voidaan valita ja tallentaa asetuksissa; kielten nimet näkyvät
-    valintakentässä kukin omalla kielellään.
--   puuttuvat käännökset käyttävät määriteltyä fallback-järjestystä:
-    **valittu kieli → englanti → saksa → käännösavain**.
--   käännökset sijaitsevat keskitetysti kielitiedostoissa hakemistossa
-    `cmdrhelper/i18n/`.
--   uusi kehittäjätyökalu `tools/check_i18n.py` tarkistaa
-    automaattisesti:
-    -   ohjelmassa käytetyt `tr("...")`-avaimet,
-    -   puuttuvat tai ylimääräiset käännösavaimet,
-    -   päällekkäiset avaimet,
-    -   poikkeavat muotoilun placeholderit, kuten `{system}` tai
-        `{count}`.
--   Linuxissa i18n-tarkistus suoritetaan automaattisesti käynnistyksen
-    yhteydessä `start.sh`-skriptin kautta. Löydetyt käännösongelmat
-    ilmoitetaan selvästi, mutta ne eivät estä ohjelman käynnistymistä.
--   tehtävien ja Journalin käsittely pidetään edelleen erillään
-    valitusta CMDRHelper-käyttöliittymäkielestä, jotta Elite Dangerousin
-    sisäiset tiedot eivät riipu lokalisoiduista näyttöteksteistä.
-
-### Explorer ja järjestelmäkartta
-
--   järjestelmäkartan Parent-/Child-rakenne on uudistettu: tähdet,
-    planeetat, kuut ja Belt Clusterit järjestetään Journal-hierarkian
-    mukaisesti.
--   uusi **"Näytä kaikki"** -toiminto, joka tarjoaa koko järjestelmän
-    kompaktin pienoiskuvan.
--   pienoiskuvan kappaleita voidaan napsauttaa; pääkartta siirtyy sen
-    jälkeen suoraan valittuun kappaleeseen.
--   suurten järjestelmäkarttojen navigointia on parannettu:
-    -   hiiren rulla siirtää karttaa vaakasuunnassa.
-    -   pitämällä hiiren oikeaa painiketta painettuna ja vetämällä
-        ylös/alas karttaa siirretään pystysuunnassa.
--   kappaleiden visuaalista kokoa skaalataan voimakkaammin todellisen
-    säteen perusteella.
--   BIO-, GEO-, Terraforming-, ensilöytö- ja First Mapping -merkintöjen
-    esitystä on parannettu edelleen.
--   uusi **arvolista** Explorerissa: planeetat ja kuut lajitellaan
-    riveittäin niiden nykyisen arvioidun kartoitusarvon mukaan.
--   arvolista erottaa nyt selvästi **First Mapping mahdollinen**, **jo
-    kartoitettu** ja **itse kartoitettu**.
--   tällä hetkellä saavutettu kartoitusarvo korostetaan arvolistassa
-    tarkoituksellisesti, kun taas tila- ja metatiedot esitetään
-    hillitymmin.
--   uusi **"Ei vielä luovutettu"** -näyttö avoimille kartoitus- ja
-    BIO-arvoille kaikissa järjestelmissä viimeisimmän myynnin jälkeen;
-    kartoitus ja BIO nollataan erikseen.
--   avoimet Explorer-arvot korostetaan pääikkunassa keltaisella, jotta
-    vielä myymättömät tiedot tunnistetaan heti.
-
-### Explorer-liveikkunat
-
--   uudet vapaasti sijoitettavat **liveikkunat arvokkaille kappaleille
-    ja BIO-löydöille**, jotka ilmestyvät automaattisesti
-    tutkimusmatkailun aikana.
--   liveikkunoiden sijainti ja koko tallennetaan ja niitä käytetään
-    uudelleen seuraavalla näyttökerralla.
--   toiseen tähtijärjestelmään siirryttäessä liveikkunat suljetaan ja
-    tyhjennetään automaattisesti; ne ilmestyvät uudelleen vasta, kun
-    uudessa järjestelmässä tunnistetaan sopivia tietoja.
--   **"Arvokkaat kappaleet"** -ikkuna ottaa automaattisesti mukaan
-    kaikki planeetat ja kuut, joiden tällä hetkellä saavutettavissa
-    oleva kartoitusarvo saavuttaa asetuksissa valitun raja-arvon.
--   sama säädettävä raja-arvo ohjaa nyt arvolistan keltaista korostusta,
-    arvokkaiden kappaleiden liveikkunaa ja **järjestelmäkartan
-    kultakehystä**.
--   **BIO-liveikkuna** näyttää pelin aikana kompaktisti kappaleet,
-    tunnistetut suvut tai lajit, skannauksen etenemisen ja tunnetut
-    Vista Genomics -arvot.
--   BIO-löydöt käyttävät samaa värilogiikkaa kuin pääikkunassa: harmaa =
-    DSS/FSS havaittu, valkoinen = ensimmäinen näyte, keltainen = toinen
-    näyte, vihreä = analyysi valmis.
--   osittain tunnistetuissa BIO-signaaleissa planeetta laajenee
-    automaattisesti ja näyttää yksittäiset löydöt omilla riveillään;
-    vielä tuntemattomat signaalit pysyvät näkyvissä.
--   kun kaikki kappaleen BIO-lajit on analysoitu kokonaan, planeetta
-    tiivistyy takaisin kompaktiksi vihreäksi yhteenvetoriviksi.
--   yleiset DSS/FSS-sukunimet korvataan automaattisesti konkreettisella
-    BIO-lajilla heti, kun se tunnetaan `ScanOrganic`-tapahtuman kautta.
--   tunnetut yksittäisarvot näytetään suoraan kyseisen BIO-löydön
-    yhteydessä; täysin tunnetut kappaleet näyttävät lisäksi
-    kokonaisarvon.
--   liveikkunoissa on hillitty punaruskea tausta, jotta ne erottuvat
-    pelatessa selvästi CMDRHelperin pääikkunasta.
-
-### BIO-analyysi
-
--   biologiset tiedot analysoidaan ja näytetään erillään tavallisista
-    kartoitusarvoista.
--   oma **BIO-planeettalista**, joka sisältää kaikki kappaleet, joilla
-    on havaittu biologisia signaaleja.
--   `SAASignalsFound`- tai `FSSBodySignals`-tapahtumien BIO-suvut
-    tuodaan jälkikäteen myös olemassa olevista Journaleista.
--   `ScanOrganic`-tapahtuman konkreettiset BIO-lajit ja variantit
-    näytetään suoraan listassa.
--   kunkin BIO-löydön skannauksen eteneminen esitetään väreillä:
-    -   harmaa = tunnetaan vain DSS/FSS:n kautta
-    -   valkoinen = ensimmäinen näyte
-    -   keltainen = toinen näyte
-    -   vihreä = kolmas näyte / analyysi valmis
--   tunnettu Vista Genomics -perusarvo näytetään heti, kun BIO-laji on
-    yksiselitteisesti tunnistettu.
--   täysin analysoitujen BIO-näytteiden perusarvon näyttö.
--   mahdollisen **First Logged -kokonaisarvon ×5** näyttö.
--   tunnettuja BIO-arvoja voidaan täydentää olemassa olevista
-    myyntitiedoista.
--   lajit, joille ei tunneta arvoa, merkitään analyysissä.
--   BIO-tila erottaa avoimen, vieraillun ja täysin analysoidun tilan.
-
-### Tehtävät
-
--   `MissionRedirected`-tapahtuman käsittelyä on parannettu.
--   uudelleenohjatut tehtävät voivat ottaa käyttöön nimen, uuden
-    kohdejärjestelmän tai uuden kohdeaseman sekä tiedot aiemmasta
-    kohteesta.
--   tehtäviä voidaan tietyissä tapauksissa rekonstruoida myös silloin,
-    kun täydellistä `MissionAccepted`-merkintää ei aiemmin ollut.
--   tehtäväsarakkeiden leveyttä voidaan säätää vapaasti; valitut
-    leveydet tallennetaan.
--   **kaikkien tällä hetkellä avoimien tehtävien kokonaispalkkion**
-    näyttö.
-
-### Kuvat ja kuvakaappaukset
-
--   oma kuvakaappausalue gallerialla ja esikatselulla.
--   uusien Elite Dangerous -BMP-kuvakaappausten automaattinen muunnos.
--   tallennus PNG- tai JPG-muotoon.
--   BMP-tiedoston valinnainen poistaminen onnistuneen muunnoksen
-    jälkeen.
--   säädettävä kirkkauskorjaus 0--50 %.
--   Elite-kuvakaappauskansion helpompi käyttö Steam/Protonissa.
--   galleria päivittyy myös ulkoisesti poistettujen tiedostojen jälkeen.
--   automaattisen muunnoksen ja poistamisen asetusten näkyvyyttä on
-    parannettu.
-
-### Verkkopalvelut
-
--   automaattinen EDSM-Journal-siirto on integroitu edelleen ja näkyy
-    pääikkunan tila-alueella.
--   tilat siirrolle, odotukselle, virheelle ja käytöstä poistetulle
-    EDSM:lle.
--   Inara-tilan näyttö valmisteluna myöhempää automaattista siirtoa
-    varten.
-
-### Käytettävyys ja vakaus
-
--   käyttöliittymän fontti ja fonttikoko voidaan valita asetuksissa ja
-    ottaa käyttöön koko käyttöliittymässä uudelleenkäynnistyksen
-    jälkeen.
--   asetussivua voidaan vierittää, jotta kaikki vaihtoehdot ovat
-    käytettävissä myös pienemmillä ikkunako'oilla.
--   näkyvä **"Lopeta"**-painike vasemmassa sivupalkissa.
--   Single Instance -lukitus estää ohjelman toisen samanaikaisen
-    käynnistymisen vahingossa.
--   turvallinen järjestelmän pienoiskuvanäkymä ilman jo näkyvän
-    Explorer-widgetin suoraa renderöintiä.
--   useita parannuksia käyttöliittymään, Journal-käsittelyyn,
-    tietokantaan ja päivitysprosessiin.
-
-## Projektin tila
-
-CMDRHelper on kehitysvaiheessa. Käyttöliittymä, tietomalli ja esitystapa
-voivat vielä muuttua. Lisää kappaletyyppejä, Journal-toimintoja,
-Explorer-toimintoja, tietolähteitä ja laskelmia on suunnitteilla.
-Linuxia ja Windowsia testataan edelleen.
-
-CMDRHelper syntyi henkilökohtaiseksi työkaluksi ja sitä kehitetään
-vaiheittain laajemmaksi Elite Dangerous -helperiksi.
+Oman julkaisupaketin voi luoda komennolla `./create_release.sh`. Ohjelmaversiota hallitaan keskitetysti tiedostossa `cmdrhelper/version.py`, jonka julkaisuskripti lukee. Paketti sisältää ohjelmakoodin ja resurssit, mutta ei henkilökohtaista tietokantaa, venv-ympäristöä, Git- tai välimuistitiedostoja.
 
 ## Kuva- ja videomateriaali / Media Credits
 

@@ -5,9 +5,40 @@ from pathlib import Path
 
 import numpy as np
 
-from PySide6.QtCore import Qt, QTimer, QSize
+from PySide6.QtCore import Qt, QTimer, QSize, QPointF, QRectF
 from PySide6.QtGui import QImage, QPainter, QColor, QRadialGradient, QBrush, QPainterPath, QPen
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QWidget, QSizePolicy
+
+NAV_GRID_MAX_M = 380_000
+NAV_PERSPECTIVE_SCALE_M = 400_000
+NAV_GRID_STEP_M = 50_000
+
+
+def grid_distance_y(distance_m):
+    """Perspective distance scale, shared by crosslines and the target."""
+    return .12 + .72 / (1 + distance_m / NAV_PERSPECTIVE_SCALE_M)
+
+
+def grid_distances(distance_m):
+    # Include at least the next 50-km line beyond the confirmed target distance.
+    limit = (math.floor(distance_m / NAV_GRID_STEP_M) + 1) * NAV_GRID_STEP_M
+    return range(NAV_GRID_STEP_M, limit + 1, NAV_GRID_STEP_M)
+
+
+def far_target_projection(solution):
+    """Display-only perspective; normalized square coordinates, heading-up.
+
+    Vertical depth represents surface distance, not the forward component of
+    that distance. Lateral direction retains its existing heading projection.
+    Undefined bearings do not invent a direction.
+    """
+    if solution.relative is None:
+        return None
+    angle = math.radians(solution.relative)
+    distance = solution.distance_m / NAV_PERSPECTIVE_SCALE_M
+    lateral, forward = distance * math.sin(angle), distance * math.cos(angle)
+    x = .5 + .46 * (lateral / (1 + abs(lateral))) / (1 + max(0, forward))
+    return x, grid_distance_y(solution.distance_m)
 
 
 class Planet3DWidget(QWidget):
@@ -27,10 +58,13 @@ class Planet3DWidget(QWidget):
         diameter: int = 230,
         seconds_per_rotation: float = 18.0,
         life_effect: bool | str = False,
+        navigation: bool = False,
     ):
         super().__init__(parent)
 
-        self.texture_path = Path(texture_path)
+        self.texture_path = Path(texture_path) if texture_path is not None else None
+        self.navigation = navigation
+        self._navigation_solution = None
         self.diameter = int(diameter)
         self.seconds_per_rotation = max(4.0, float(seconds_per_rotation))
         # Unterstützt weiterhin True/False, zusätzlich aber benannte
@@ -49,10 +83,16 @@ class Planet3DWidget(QWidget):
         self._texture_h = 0
         self._texture_w = 0
 
-        self.setFixedSize(
-            self.diameter + 24,
-            self.diameter + 24
-        )
+        if self.navigation:
+            # Give text its minimum height first; the navigation canvas takes
+            # the remaining space and can shrink below its preferred size.
+            self.setMinimumSize(48, 48)
+            self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        else:
+            self.setFixedSize(
+                self.diameter + 24,
+                self.diameter + 24
+            )
 
         self._load_texture()
 
@@ -62,7 +102,8 @@ class Planet3DWidget(QWidget):
         self._timer.timeout.connect(self._advance_rotation)
 
         if self._texture is not None:
-            self._timer.start()
+            if not self.navigation:
+                self._timer.start()
             self._render_frame()
 
     def sizeHint(self):
@@ -72,9 +113,12 @@ class Planet3DWidget(QWidget):
         )
 
     def _load_texture(self):
-        image = QImage(str(self.texture_path))
+        image = QImage(str(self.texture_path)) if self.texture_path else QImage()
 
         if image.isNull():
+            if self.navigation:
+                self._texture = np.full((64, 128, 4), (95, 105, 115, 255), dtype=np.uint8)
+                self._texture_h, self._texture_w = 64, 128
             return
 
         image = image.convertToFormat(
@@ -96,6 +140,8 @@ class Planet3DWidget(QWidget):
         self._texture_w = width
 
     def _advance_rotation(self):
+        if self.navigation:
+            return
         # 50 ms pro Tick.
         step = (
             (2.0 * math.pi)
@@ -154,14 +200,16 @@ class Planet3DWidget(QWidget):
         )
 
         # Kugelkoordinaten.
-        longitude = np.arctan2(
-            nx,
-            nz
-        ) + self._rotation
-
-        latitude = np.arcsin(
-            np.clip(ny, -1.0, 1.0)
-        )
+        if self.navigation:
+            matrix = (np.asarray(self._navigation_solution.matrix)
+                      if self._navigation_solution is not None else np.eye(3))
+            # Inverse world-to-view rotation for every visible sphere pixel.
+            world = np.stack((nx, ny, nz), axis=-1) @ matrix
+            longitude = np.arctan2(world[..., 0], world[..., 2])
+            latitude = np.arcsin(np.clip(world[..., 1], -1.0, 1.0))
+        else:
+            longitude = np.arctan2(nx, nz) + self._rotation
+            latitude = np.arcsin(np.clip(ny, -1.0, 1.0))
 
         u = (
             longitude
@@ -196,6 +244,13 @@ class Planet3DWidget(QWidget):
             ty,
             tx
         ].astype(np.float32)
+
+        if self.navigation:
+            # Geographic graticule rotates with the texture, never as a screen overlay.
+            spacing = math.pi / 12
+            lat_line = np.abs((latitude + spacing/2) % spacing - spacing/2) < 0.009
+            lon_line = np.abs((longitude + spacing/2) % spacing - spacing/2) < 0.009
+            sampled[..., :3][mask & (lat_line | lon_line)] = (185, 195, 205)
 
         # ----------------------------------------------------
         # Beleuchtung: Licht von oben links/vorne.
@@ -299,6 +354,20 @@ class Planet3DWidget(QWidget):
             )
             return
 
+        if self.navigation:
+            # One square coordinate system scales the texture, perspective,
+            # markers, arrows and strokes together without changing projection.
+            side = min(self.width(), self.height())
+            scale = side / (self.diameter + 24)
+            painter.translate((self.width() - side) / 2, (self.height() - side) / 2)
+            painter.scale(scale, scale)
+            if self.navigation_display_mode == "grid":
+                self._paint_far_navigation(painter, 12, 12)
+            else:
+                painter.drawImage(12, 12, self._frame)
+                self._paint_navigation(painter, 12, 12)
+            return
+
         x = (
             self.width()
             - self.diameter
@@ -333,6 +402,134 @@ class Planet3DWidget(QWidget):
                 x,
                 y
             )
+
+    def set_navigation_solution(self, solution):
+        """Apply a confirmed snapshot atomically. None removes all live markers."""
+        if not self.navigation:
+            raise ValueError("Navigation mode required")
+        if self._navigation_solution == solution:
+            return
+        self._navigation_solution = solution
+        self._render_frame()
+        self.update()
+
+    @property
+    def navigation_display_mode(self):
+        """Presentation only: one inclusive threshold, no hysteresis."""
+        solution = self._navigation_solution
+        return "grid" if solution is not None and solution.distance_m <= NAV_GRID_MAX_M else "globe"
+
+    def _paint_far_navigation(self, painter, x, y):
+        """Tilted HUD ground grid, updated only by confirmed solutions."""
+        size = self.diameter
+        square = QRectF(x, y, size, size)
+        painter.save()
+        painter.setClipRect(square)
+        painter.fillRect(square, QColor("#101923"))
+        painter.setPen(QPen(QColor("#456477"), 1))
+        painter.drawRect(square.adjusted(.5, .5, -.5, -.5))
+
+        def point(px, py):
+            return QPointF(x + size * px, y + size * py)
+
+        # Every crossline is a real 50-km surface-distance increment.
+        solution = self._navigation_solution
+        distances = grid_distances(solution.distance_m if solution else NAV_GRID_MAX_M)
+        font = painter.font()
+        font.setPixelSize(9)
+        painter.setFont(font)
+        last_label_y = None
+        for distance_m in distances:
+            shrink = 1 / (1 + distance_m / NAV_PERSPECTIVE_SCALE_M)
+            py = grid_distance_y(distance_m)
+            painter.drawLine(point(.5 - .48 * shrink, py), point(.5 + .48 * shrink, py))
+            if last_label_y is None or (last_label_y - py) * size >= 12:
+                painter.drawText(point(.5 - .48 * shrink, py) + QPointF(3, -3),
+                                 f"{distance_m // 1000} km")
+                last_label_y = py
+        for column in range(-4, 5):
+            painter.drawLine(point(.5 + column * .12, .84), point(.5, .12))
+        painter.setPen(QPen(QColor("#7291a5"), 1))
+        painter.drawLine(point(.08, .12), point(.92, .12))
+
+        player = point(.5, .84)
+        painter.setPen(QPen(QColor("#ffffff"), 2.5))
+        painter.setBrush(QColor("#14202b"))
+        painter.drawEllipse(player, 8, 8)
+        painter.drawLine(player + QPointF(0, -11), player + QPointF(0, -27))
+        painter.drawLine(player + QPointF(0, -27), player + QPointF(-5, -20))
+        painter.drawLine(player + QPointF(0, -27), player + QPointF(5, -20))
+        solution = self._navigation_solution
+        if solution is None:
+            painter.fillRect(square, QColor(0, 0, 0, 100))
+        else:
+            projected = far_target_projection(solution)
+            if projected is not None:
+                # Hemisphere color keeps exactly the globe's depth semantics.
+                painter.setPen(QPen(QColor("#14202b"), 1.5))
+                painter.setBrush(QColor("#ff9f1c" if solution.target_point[2] >= 0 else "#ff5252"))
+                painter.drawEllipse(point(*projected), 3.5, 3.5)
+        painter.restore()
+
+    def set_navigation_texture(self, path):
+        path = Path(path) if path is not None else None
+        if path == self.texture_path:
+            return
+        self.texture_path = path
+        self._load_texture()
+        self._render_frame()
+        self.update()
+
+    def _paint_navigation(self, painter, x, y):
+        solution = self._navigation_solution
+        if solution is None:
+            painter.fillRect(x, y, self.diameter, self.diameter, QColor(0, 0, 0, 100))
+            return
+        radius = self.diameter / 2
+        cx, cy = x + radius, y + radius
+
+        def screen(point):
+            return QPointF(cx + radius * point[0], cy - radius * point[1])
+
+        painter.save()
+        painter.setPen(QPen(QColor("#ffc857"), 1.6))
+        # Only draw the front portion; never connect across the hidden hemisphere.
+        path = QPainterPath()
+        previous_visible = False
+        for point in solution.arc:
+            visible = point[2] >= 0
+            if visible:
+                if previous_visible:
+                    path.lineTo(screen(point))
+                else:
+                    path.moveTo(screen(point))
+            previous_visible = visible
+        painter.drawPath(path)
+        # Fixed player anchor and fixed forward arrow, independent of telemetry.
+        painter.setPen(QPen(QColor("#ffffff"), 2.5))
+        painter.setBrush(QColor("#14202b"))
+        painter.drawEllipse(QPointF(cx, cy), 8, 8)
+        painter.drawLine(QPointF(cx, cy-11), QPointF(cx, cy-27))
+        painter.drawLine(QPointF(cx, cy-27), QPointF(cx-5, cy-20))
+        painter.drawLine(QPointF(cx, cy-27), QPointF(cx+5, cy-20))
+        # Separate bearing arrow: readable even when the true target is subpixel-close.
+        if solution.relative is not None:
+            delta = math.radians(solution.relative)
+            dx, dy = math.sin(delta), -math.cos(delta)
+            end = QPointF(cx + 49*dx, cy + 49*dy)
+            painter.setPen(QPen(QColor("#ffc857"), 3))
+            painter.drawLine(QPointF(cx + 17*dx, cy + 17*dy), end)
+            for sign in (-1, 1):
+                painter.drawLine(end, QPointF(end.x()-10*dx + sign*5*dy,
+                                             end.y()-10*dy - sign*5*dx))
+        # Draw the geographic target last, above the grid, route and arrows.
+        # A rear-hemisphere point is projected through the sphere in red;
+        # heading-relative "behind" is unrelated to hemisphere visibility.
+        target = solution.target_point
+        painter.setPen(QPen(QColor("#14202b"), 1.5))
+        painter.setBrush(QColor("#ff9f1c" if target[2] >= 0 else "#ff5252"))
+        painter.drawEllipse(screen(target), 3.5, 3.5)
+        painter.restore()
 
     def _paint_life_effect(self, painter, image_x, image_y):
         """

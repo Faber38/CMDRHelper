@@ -327,182 +327,207 @@ HELP_TOPICS = {'overview': ('Przegląd',
               '<h3>Wskazówka</h3>\n'
               '<p>Jeśli masz ciekawą sylwetkę, warto kliknąć na widok szczegółowy. To najlepsze '
               'miejsce, aby rozróżnić ogólne dane dotyczące ciała, możliwe wyniki eksploracji i '
-              'faktyczne znaleziska udokumentowane przez twojego dowódcę.</p>'),
- 'chronicle': ('kronika',
-               '<h2>kronika</h2>\n'
-               '<p>Kronika to osobista historia podróży i odkryć dowódcy. Wykorzystuje trwale '
-               'przechowywane informacje z dziennika do wyszukiwania systemów, które zostały już '
-               'odwiedzone, do ich przestrzennego przedstawienia i wyszukiwania znanych '
-               'odkryć.</p>\n'
-               '\n'
-               '<h3>Odwiedzone systemy</h3>\n'
-               '<p>Kronika pokazuje odwiedzone systemy i ich lokalizacje w galaktyce znanej '
-               'Komendantowi.</p>\n'
-               '<p>Jeśli to możliwe, pod uwagę brana jest pierwsza i ostatnia wizyta oraz znane '
-               'informacje o organizmie.</p>\n'
-               '<p>Kronika jest zatem nie tylko mapą, ale także narzędziem umożliwiającym '
-               'odnalezienie dotychczasowych celów podróży i odkryć.</p>\n'
-               '\n'
-               '<h3>Mapa 3D</h3>\n'
-               '<p>Odwiedzane układy są reprezentowane przestrzennie za pomocą galaktycznych '
-               'współrzędnych X/Y/Z.</p>\n'
-               '<p>Instrukcja obsługi znajduje się bezpośrednio nad mapą:</p>\n'
-               '<ul>\n'
-               '<li>Przytrzymaj lewy przycisk myszy → obróć widok</li>\n'
-               '<li>Przytrzymaj środkowy przycisk myszy → Zoom</li>\n'
-               '<li>Przytrzymaj prawy przycisk myszy → przesuń widok</li>\n'
-               '</ul>\n'
-               '<p>Mały wyświetlacz osi pomaga w orientacji w przestrzeni.</p>\n'
-               '\n'
-               '<h3>Aktualna pozycja</h3>\n'
-               '<p>Dzięki „Aktualnej pozycji” widok mapy można wyrównać lub przywrócić do '
-               'aktualnie znanej lokalizacji aktywnego dowódcy.</p>\n'
-               '<p>Warunkiem jest znajomość aktualnego stanowiska dowódcy.</p>\n'
-               '\n'
-               '<h3>Wyrównywać</h3>\n'
-               '<p>„Wyrównaj” przywraca orientację mapy do zamierzonej orientacji '
-               'podstawowej.</p>\n'
-               '<p>Jest to przydatne, jeśli mapa stała się zagmatwana po częstym obracaniu lub '
-               'przesuwaniu.</p>\n'
-               '\n'
-               '<h3>Zaktualizuj oś czasu</h3>\n'
-               '<p>„Historia aktualizacji” aktualizuje wyświetlacz o aktualnie znane dane.</p>\n'
-               '<p>Funkcja nie zmienia plików dziennika ani nie tworzy nowych danych '
-               'eksploracyjnych. Po prostu aktualizuje wyświetlaną historię w oparciu o istniejące '
-               'dane CMDRHelper.</p>\n'
-               '\n'
-               '<h3>Wyszukiwanie dowolne</h3>\n'
-               '<p>Znaną już treść można wyszukiwać korzystając z pola „Historia '
-               'wyszukiwania…”.</p>\n'
-               '<p>Przy wyszukiwaniu uwzględniane są – jeśli są dostępne w bazie – m.in.:</p>\n'
-               '<ul>\n'
-               '<li>Nazwy systemów</li>\n'
-               '<li>Cechy ciała</li>\n'
-               '<li>dane biologiczne</li>\n'
-               '<li>Przybory</li>\n'
-               '<li>Dane Kodeksu</li>\n'
-               '</ul>\n'
-               '<p>Przycisk „Szukaj” umożliwia jedynie wyszukiwanie dowolnego tekstu.</p>\n'
-               '<p>Natomiast oddzielny DEMONTAŻ filtrów przeprowadza się za pomocą przycisku '
-               '„Zastosuj”.</p>\n'
-               '\n'
-               '<h3>Wyniki wyszukiwania</h3>\n'
-               '<p>Trafienia wyświetlane są na liście istniejących wyników pod kartą kroniki.</p>\n'
-               '<p>W zależności od rodzaju trafienia może pojawić się system i korpus oraz '
-               'dodatkowe informacje.</p>\n'
-               '<p>Trafienie może zostać wykorzystane do znalezienia odpowiedniego, znanego już '
-               'układu lub korpusu i otwarcia istniejących szczegółowych informacji.</p>\n'
-               '\n'
-               '<h3>Planetarne miejsca wydobycia</h3>\n'
-               '<p>Filtru „Planetne miejsca wydobycia” można użyć do wyszukiwania znanych '
-               'obiektów, dla których Elite Dangerous zgłosił miejsca wydobycia planet.</p>\n'
-               '<p>Podstawowy wyświetlacz odpowiada temu znanemu z Explorera:</p>\n'
-               '<p><b>ABBAU ×N</b></p>\n'
-               '<p>Numer należy do samego korpusu i nie jest powiązany z dowódcą.</p>\n'
-               '\n'
-               '<h3>Co najmniej</h3>\n'
-               '<p>Używając opcji „Co najmniej” możesz określić minimalną liczbę planetarnych '
-               'miejsc wydobycia, jakie powinna posiadać jednostka.</p>\n'
-               '<p>Przykład:</p>\n'
-               '<p><b>Co najmniej 20</b></p>\n'
-               '<p>pokazuje tylko znane ciała z co najmniej:</p>\n'
-               '<p><b>ABBAU ×20</b></p>\n'
-               '<p>Umożliwia to specyficzną lokalizację szczególnie rozległych obszarów '
-               'górniczych.</p>\n'
-               '\n'
-               '<h3>Własne znaleziska górnicze</h3>\n'
-               '<p>W przypadku „Własnych znalezisk górniczych” przeszukanie ogranicza się do '
-               'zwłok, w przypadku których dany dowódca w sposób oczywisty sam przeprowadził '
-               'eksploatację odkrywkową.</p>\n'
-               '<p>Informacje te pochodzą z osobistej historii górnictwa odkrywkowego i są ściśle '
-               'oddzielone od dowódcy.</p>\n'
-               '<p>Jednostka może zatem mieć globalne sygnały ABBAU ×N bez konieczności usuwania '
-               'przez własnego dowódcę czegokolwiek.</p>\n'
-               '\n'
-               '<h3>surowiec</h3>\n'
-               '<p>Jeżeli aktywna jest opcja „Własne znaleziska górnicze”, dostępna jest także '
-               'opcja „Surowiec”.</p>\n'
-               '<p>Na liście znajdują się wyłącznie towary, które dany dowódca faktycznie zdobył '
-               'już w górnictwie odkrywkowym.</p>\n'
-               '<p>Nie jest to teoretyczna lista wszystkich możliwych surowców wydobywczych.</p>\n'
-               '<p>Na przykład może pojawić się FABER38:</p>\n'
-               '<ul>\n'
-               '<li>Wszystko</li>\n'
-               '<li>miedź</li>\n'
-               '</ul>\n'
-               '<p>Jeżeli w późniejszym terminie faktycznie zostaną wydobyte dodatkowe surowce, '
-               'automatycznie pojawią się one w Twoim osobistym wyborze.</p>\n'
-               '\n'
-               '<h3>Ukierunkowane wyszukiwanie surowców</h3>\n'
-               '<p>Na przykład, jeśli wybierzesz „Miedź”, a następnie naciśniesz „Zastosuj”, '
-               'historia pokaże tylko ciała, na których dany dowódca w sposób oczywisty wydobywał '
-               'miedź.</p>\n'
-               '<p>Przykład:</p>\n'
-               '<p><b>Prua Hypai NV-E c28-66/2 — ABBAU ×24 — miedź 56 t</b></p>\n'
-               '<p>Oznacza to, że kronikę można wykorzystać jako osobistą bazę lokalizacyjną: '
-               'wydobyty już surowiec można później ponownie odnaleźć.</p>\n'
-               '\n'
-               '<h3>Wszystkie surowce</h3>\n'
-               '<p>W przypadku opcji „Surowiec: Wszystko” uwzględniane są wszystkie pasujące '
-               'osobiste odkrycia w zakresie górnictwa odkrywkowego.</p>\n'
-               '<p>Jeżeli na korpusie znanych jest kilka towarów, można je wyświetlić razem z '
-               'ilościami, jakie dotychczas uzyskali.</p>\n'
-               '<p>Przykład:</p>\n'
-               '<p><b>ABBAU ×24 — Hel-3 18 t, miedź 56 t</b></p>\n'
-               '<p>Ilości są osobistymi wartościami górniczymi odpowiedniego dowódcy, które '
-               'faktycznie są udokumentowane na podstawie wydarzeń w dzienniku.</p>\n'
-               '\n'
-               '<h3>Połącz filtry</h3>\n'
-               '<p>Filtry wydobywcze można ze sobą łączyć.</p>\n'
-               '<p>Na przykład:</p>\n'
-               '<ul>\n'
-               '<li>Aktywne miejsca wydobycia planet</li>\n'
-               '<li>Co najmniej 20</li>\n'
-               '<li>Aktywne są własne znaleziska górnicze</li>\n'
-               '<li>Surowiec miedź</li>\n'
-               '</ul>\n'
-               '<p>wyszukuje znane ciała z co najmniej 20 planetarnymi miejscami wydobywczymi, w '
-               'których wspomniany dowódca sam wydobywał już miedź.</p>\n'
-               '\n'
-               '<h3>Stosować</h3>\n'
-               '<p>„Zastosuj” uruchamia tylko widoczne filtry eksploracyjne.</p>\n'
-               '<p>Znajdujący się obok przycisk „Szukaj” jest zarezerwowany do wyszukiwania '
-               'dowolnego tekstu.</p>\n'
-               '<p>Oznacza to, że filtry wyszukiwania tekstu i wyszukiwania są celowo oddzielone '
-               'od siebie.</p>\n'
-               '\n'
-               '<h3>Nastawić</h3>\n'
-               '<p>„Resetuj” usuwa bieżące wyszukiwanie dowolnego tekstu, a także resetuje filtry '
-               'eksploracyjne do stanu początkowego.</p>\n'
-               '<p>Wybór surowców powraca do „Wszystkie”.</p>\n'
-               '\n'
-               '<h3>Wybór dowódcy</h3>\n'
-               '<p>Kronika może wyświetlać dane różnych znanych dowódców.</p>\n'
-               '<p>Jednakże dane osobowe, takie jak własne znaleziska górnicze i listy surowców, '
-               'są zawsze oceniane oddzielnie dla faktycznie przeglądanego dowódcy.</p>\n'
-               '<p>Dowódca nie widzi w swoim wyborze surowców żadnych odkryć górniczych, które '
-               'należą wyłącznie do innego dowódcy.</p>\n'
-               '\n'
-               '<h3>Wszyscy dowódcy</h3>\n'
-               '<p>Wyświetlanie mapy/kroniki może uwzględniać wielu dowódców.</p>\n'
-               '<p>Nie zmienia to przydziału osobowego danych dowódcy. Globalne właściwości '
-               'astronomiczne układu lub ciała pozostają wspólne, osobiste ustalenia pozostają '
-               'odrębne.</p>\n'
-               '\n'
-               '<h3>Pomoc w poszukiwaniu/legenda</h3>\n'
-               '<p>Dodatkowe informacje na temat wyszukiwania kroniki i znaczenia wyświetlacza '
-               'można uzyskać poprzez „Pomoc wyszukiwania / legenda”.</p>\n'
-               '<p>Ta kontekstowa pomoc główna uzupełnia dostępną tam krótką instrukcję '
-               'obsługi.</p>\n'
-               '\n'
-               '<h3>Wskazówka</h3>\n'
-               '<p>Kronika szczególnie nadaje się do wyszukiwania ciekawych miejsc, które odkryto '
-               'podczas dłuższej podróży.</p>\n'
-               '<p>Na przykład w przypadku górnictwa odkrywkowego może odpowiedzieć:</p>\n'
-               '<p>„Na której planecie wydobywałem kiedykolwiek miedź?”</p>\n'
-               '<p>Lub:</p>\n'
-               '<p>„Które z moich znanych planet mają szczególnie dużą liczbę miejsc '
-               'wydobycia?”</p>'),
+              'faktyczne znaleziska udokumentowane przez twojego dowódcę.</p>'
+              """
+
+<h3>★ Ulubione</h3>
+<p>Przycisk „★ Ulubione” u góry Explorera otwiera osobne okno ulubionych, które jest używane ponownie. Zapisujesz w nim systemy, planety/księżyce i miejsca na powierzchni dla aktywnego dowódcy.</p>
+<p>Przewijana lista, posortowana alfabetycznie według nazw, pokazuje nazwę, typ, system, w odpowiednich przypadkach ciało niebieskie i szerokość/długość geograficzną, kategorię oraz mały podgląd obrazu. Wyszukiwanie tekstowe oraz filtry typu i kategorii można stosować wspólnie. Wyszukiwanie obejmuje nazwę, system, ciało niebieskie i notatkę.</p>
+<p>„Otwórz / Pokaż” pokazuje zapisane dane, notatkę i większy podgląd obrazu. „Pokaż w Explorerze” otwiera istniejący przegląd systemu lub szczegóły ciała niebieskiego, jeśli ulubiony należy do bieżącego systemu Explorera i dostępne są odpowiednie dane. W przypadku innych systemów zapisane dane ulubionego pozostają widoczne; trasa między systemami nie jest obliczana.</p>
+
+<h3>Zapisywanie systemu, planety lub bieżącej pozycji</h3>
+<ul>
+<li>„★ Zapisz bieżący system” zapisuje bieżący system bez współrzędnych powierzchniowych.</li>
+<li>„★ Zapisz planetę / księżyc” pozwala wybrać znaną planetę lub księżyc w bieżącym systemie. Ten ulubiony również nie otrzymuje współrzędnych powierzchniowych.</li>
+<li>„★ Zapisz bieżącą pozycję” znajduje się u góry okna ulubionych, obok dwóch pozostałych opcji zapisu, i jest też dostępny w nawigatorze planetarnym. W oknie ulubionych przycisk jest zawsze widoczny i pozostaje nieaktywny bez prawidłowych bieżących danych pozycji planetarnej i aktywnego dowódcy. Kliknięcie utrwala dowódcę, system, ciało niebieskie, szerokość i długość geograficzną. Późniejszy ruch w grze nie zmienia tych wartości w otwartym oknie dialogowym.</li>
+</ul>
+<p>Wpisz dowolną nazwę i wybierz dokładnie jedną kategorię: Bio, Geo, Wydobycie, Widok, Lądowisko, Ciekawe lub Inne. Notatka i obraz są opcjonalne. Znane identyfikatory techniczne są przejmowane wewnętrznie; nie musisz ich wpisywać. Szerokość lub długość geograficzna 0,0 to również prawidłowe współrzędne.</p>
+<p>„Edytuj” zmienia nazwę, kategorię, notatkę i obraz. System, ciało niebieskie i zapisane współrzędne zostają zachowane. Aby zapisać inne miejsce na powierzchni, utwórz nowy ulubiony w tej pozycji.</p>
+
+<h3>Obrazy ulubionych</h3>
+<p>Obrazy ulubionych są oddzielone od sekcji Obrazy. „Wybierz obraz …” obsługuje PNG, JPEG i WebP. Dopiero przy zapisie CMDRHelper kopiuje wybrany obraz do własnego folderu obrazów ulubionych. Oryginalny plik nie jest przenoszony ani zmieniany.</p>
+<p>„Użyj ostatniego zrzutu ekranu” przy każdym kliknięciu ponownie odczytuje skonfigurowany folder źródłowy zrzutów ekranu i szuka czytelnych zrzutów o nazwach typowych dla Elite. Bez ustawionego folderu uwzględniane są standardowe katalogi zrzutów Elite w Windows lub Steam/Proton. Przeszukiwany jest też folder aktywnego dowódcy w skonfigurowanym miejscu docelowym konwersji, aby znaleźć pasujące przekonwertowane zrzuty Elite. Dzięki temu przekonwertowany zrzut można znaleźć nawet po usunięciu jego oryginalnego BMP. O najnowszym czasie wykonania decyduje jednoznaczny znacznik czasu w nazwie pliku, a w przeciwnym razie czas pliku; dla obrazów po konwersji liczy się czas wykonania zapisany w nazwie, a nie czas konwersji. CMDRHelper sam nie wykonuje zrzutów ekranu ani nie przeszukuje dowolnych folderów z obrazami.</p>
+<p>Przed użyciem wyświetlane są nazwa pliku, czas wykonania i świeżo wczytany podgląd. Potwierdź przyciskiem „Użyj tego obrazu”. Jeśli nie znaleziono odpowiedniego zrzutu, nadal możesz użyć „Wybierz obraz …”. Zrzuty BMP z Elite są zapisywane jako wewnętrzna kopia PNG.</p>
+<p>Obraz można zastąpić w oknie edycji lub odznaczyć przyciskiem „Usuń obraz”. Zapis usuwa nieużywaną już kopię wewnętrzną. Jeśli brakuje pliku obrazu, ulubiony pozostaje użyteczny bez podglądu.</p>
+
+<h3>Cel ulubionego i dowódca</h3>
+<p>Dla miejsc na powierzchni „▶ Do celu” przekazuje zapisane ciało niebieskie, szerokość, długość geograficzną i nazwę ulubionego do istniejącego nawigatora planetarnego. Nowy cel zastępuje poprzedni. Ulubione nie mają własnej logiki nawigacji. Nawigator nadal decyduje sam: pasujące prawidłowe dane planetarne uruchamiają nawigację; w przeciwnym razie czeka na te dane.</p>
+<p>Ulubione należą wyłącznie do aktywnego dowódcy. Zmiana dowódcy odświeża listę i odrzuca otwarte okno edycji. Cel nadal obsługiwany jako ulubiony cel poprzedniego dowódcy zostaje zakończony. Wybór dowódców w kronice nie rozszerza tej listy ulubionych.</p>
+<p>„Usuń” wymaga potwierdzenia i usuwa tylko rekord ulubionego oraz jego wewnętrzną kopię obrazu. Oryginalny zrzut ekranu lub wybrany oryginalny obraz oraz wszystkie dane Explorera, dziennika i ciał niebieskich zostają zachowane.</p>"""),
+ 'chronicle': (
+        'Kronika',
+        """<h2>Kronika</h2>
+<p>Kronika to osobista historia podróży i odkryć dowódcy. Wykorzystuje trwale przechowywane informacje z dziennika do wyszukiwania systemów, które zostały już odwiedzone, do ich przestrzennego przedstawienia i wyszukiwania znanych odkryć.</p>
+
+<h3>Odwiedzone systemy</h3>
+<p>Kronika pokazuje odwiedzone systemy i ich lokalizacje w galaktyce znanej Komendantowi.</p>
+<p>Jeśli to możliwe, pod uwagę brana jest pierwsza i ostatnia wizyta oraz znane informacje o organizmie.</p>
+<p>Przy aktywnym okresie liczba wizyt, pierwsza wizyta i ostatnia wizyta w widoku mapy odnoszą się do przefiltrowanych rzeczywistych wizyt w systemach.</p>
+<p>Kronika jest zatem nie tylko mapą, ale także narzędziem umożliwiającym odnalezienie dotychczasowych celów podróży i odkryć.</p>
+
+<h3>Mapa 3D</h3>
+<p>Odwiedzane układy są reprezentowane przestrzennie za pomocą galaktycznych współrzędnych X/Y/Z.</p>
+<p>Instrukcja obsługi znajduje się bezpośrednio nad mapą:</p>
+<ul>
+<li>Przytrzymaj lewy przycisk myszy → obróć widok</li>
+<li>przytrzymaj środkowy przycisk myszy i przeciągnij → narysuj okno powiększenia</li>
+<li>Przytrzymaj prawy przycisk myszy → przesuń widok</li>
+</ul>
+<p>Mały wyświetlacz osi pomaga w orientacji w przestrzeni.</p>
+
+<h3>Aktualna pozycja</h3>
+<p>Dzięki „Aktualnej pozycji” widok mapy można wyrównać lub przywrócić do aktualnie znanej lokalizacji aktywnego dowódcy.</p>
+<p>Najpierw stosowane są aktualne filtry. Widok jest centrowany na bieżącym systemie tylko wtedy, gdy znajduje się on na wynikowej mapie.</p>
+<p>W przeciwnym razie pojawia się „Bieżący system nie jest objęty tym wyborem filtrów.” Filtry nie są przez to wyłączane.</p>
+
+<h3>Wyrównaj</h3>
+<p>„Wyrównaj” przywraca orientację do widoku płaszczyzny galaktyki z góry. Przesunięcie i powiększenie zostają zachowane.</p>
+<p>Jest to przydatne, gdy liczne obroty sprawiły, że mapa stała się nieczytelna.</p>
+
+<h3>Odśwież Kronikę</h3>
+<p>„Odśwież Kronikę” ponownie ładuje dane kroniki według aktualnych połączonych filtrów i odświeża widok. Tekst, włączone granice dat i filtry wydobycia są ponownie oceniane wspólnie; aktywne filtry nie są ignorowane.</p>
+<p>Funkcja nie zmienia plików dziennika ani nie tworzy nowych danych eksploracyjnych. Po prostu aktualizuje wyświetlaną historię w oparciu o istniejące dane CMDRHelper.</p>
+
+<h3>Wyszukiwanie dowolne</h3>
+<p>Znaną już treść można wyszukiwać korzystając z pola „Historia wyszukiwania…”.</p>
+<p>Przy wyszukiwaniu uwzględniane są – jeśli są dostępne w bazie – m.in.:</p>
+<ul>
+<li>Nazwy systemów</li>
+<li>Cechy ciała</li>
+<li>dane biologiczne</li>
+<li>Przybory</li>
+<li>Dane Kodeksu</li>
+</ul>
+<p>Tekst, okres i wydobycie znajdują się we wspólnym obszarze filtrów. „Zastosuj” ocenia ustawione filtry łącznie. Enter w polu tekstowym uruchamia to samo wspólne filtrowanie co „Zastosuj”.</p>
+
+<h3>Okres Od/Do (UTC)</h3>
+<p>Włącz „Od” i „Do” za pomocą odpowiednich pól wyboru i wybierz datę. Można też użyć tylko jednej granicy. Bez zaznaczonego pola po danej stronie nie ma ograniczenia czasowego; bez obu zaznaczeń okres nie jest ograniczany.</p>
+<ul>
+<li><b>Od:</b> Od początku wybranego dnia kalendarzowego UTC włącznie.</li>
+<li><b>Do:</b> Uwzględniany jest cały wybrany dzień kalendarzowy UTC, aż do chwili bezpośrednio przed początkiem następnego dnia.</li>
+</ul>
+<p>UTC to uniwersalny czas koordynowany. Granice dat odnoszą się do dni kalendarzowych UTC, a nie dni w twojej lokalnej strefie czasowej.</p>
+<p>Filtrowane są rzeczywiste wizyty w systemach z <code>system_visits</code>. Wymagana jest rzeczywista wizyta danego dowódcy w wybranym okresie. Zapisane wartości <code>first_seen</code> i <code>last_seen</code> nie zastępują prawdziwej wizyty: samo położenie okresu między wcześniejszą pierwszą a późniejszą ostatnią wizytą nie wystarcza.</p>
+<p>Okres filtruje wizyty, a nie pojedyncze zdarzenia odkrycia, BIO, GEO czy wydobycia. Znane informacje o znaleziskach i wydobyte ilości pozostają zapisanymi wartościami łącznymi. Od/Do można używać samodzielnie albo razem z tekstem i filtrami wydobycia.</p>
+<p>Jeśli Od jest późniejsze niż Do, pojawia się „Data Od nie może być późniejsza niż data Do.” Nie jest uruchamiane żadne zapytanie do bazy danych. Popraw granice dat i ponownie zastosuj filtry.</p>
+
+<h3>Wyniki wyszukiwania</h3>
+<p>Trafienia wyświetlane są na liście istniejących wyników pod kartą kroniki.</p>
+<p>W zależności od rodzaju trafienia może pojawić się system i korpus oraz dodatkowe informacje.</p>
+<p>Trafienie może zostać wykorzystane do znalezienia odpowiedniego, znanego już układu lub korpusu i otwarcia istniejących szczegółowych informacji.</p>
+
+<h3>Brak wyników</h3>
+<p>Jeśli prawidłowe filtrowanie nie znajduje wyników, mapa i trasy są czyszczone. Lista wyników jest czyszczona i ukrywana, widok szczegółów jest resetowany, a otwarte okno szczegółów systemu kroniki jest zamykane.</p>
+<p>Stare wyniki nie pozostają widoczne. Sprawdź wtedy połączenie tekstu wyszukiwania, okresu i filtrów wydobycia oraz dowódcę używanego w danym widoku.</p>
+
+<h3>Planetarne miejsca wydobycia</h3>
+<p>Filtru „Planetne miejsca wydobycia” można użyć do wyszukiwania znanych obiektów, dla których Elite Dangerous zgłosił miejsca wydobycia planet.</p>
+<p>Podstawowy wyświetlacz odpowiada temu znanemu z Explorera:</p>
+<p><b>ABBAU ×N</b></p>
+<p>Numer należy do samego korpusu i nie jest powiązany z dowódcą.</p>
+
+<h3>Co najmniej</h3>
+<p>Używając opcji „Co najmniej” możesz określić minimalną liczbę planetarnych miejsc wydobycia, jakie powinna posiadać jednostka.</p>
+<p>Przykład:</p>
+<p><b>Co najmniej 20</b></p>
+<p>pokazuje tylko znane ciała z co najmniej:</p>
+<p><b>ABBAU ×20</b></p>
+<p>Umożliwia to specyficzną lokalizację szczególnie rozległych obszarów górniczych.</p>
+
+<h3>Moje odkrycia wydobywcze</h3>
+<p>W przypadku „Własnych znalezisk górniczych” przeszukanie ogranicza się do zwłok, w przypadku których dany dowódca w sposób oczywisty sam przeprowadził eksploatację odkrywkową.</p>
+<p>Informacje te pochodzą z osobistej historii górnictwa odkrywkowego i są ściśle oddzielone od dowódcy.</p>
+<p>Jednostka może zatem mieć globalne sygnały ABBAU ×N bez konieczności usuwania przez własnego dowódcę czegokolwiek.</p>
+
+<h3>Towar</h3>
+<p>Jeżeli aktywna jest opcja „Własne znaleziska górnicze”, dostępna jest także opcja „Surowiec”.</p>
+<p>Na liście znajdują się wyłącznie towary, które dany dowódca faktycznie zdobył już w górnictwie odkrywkowym.</p>
+<p>Nie jest to teoretyczna lista wszystkich możliwych surowców wydobywczych.</p>
+<p>Dla FABER38 lista może na przykład zawierać:</p>
+<ul>
+<li>Wszystko</li>
+<li>miedź</li>
+</ul>
+<p>Jeżeli w późniejszym terminie faktycznie zostaną wydobyte dodatkowe surowce, automatycznie pojawią się one w Twoim osobistym wyborze.</p>
+
+<h3>Ukierunkowane wyszukiwanie surowców</h3>
+<p>Na przykład, jeśli wybierzesz „Miedź”, a następnie naciśniesz „Zastosuj”, historia pokaże tylko ciała, na których dany dowódca w sposób oczywisty wydobywał miedź.</p>
+<p>Przykład:</p>
+<p><b>Prua Hypai NV-E c28-66/2 — ABBAU ×24 — miedź 56 t</b></p>
+<p>Oznacza to, że kronikę można wykorzystać jako osobistą bazę lokalizacyjną: wydobyty już surowiec można później ponownie odnaleźć.</p>
+
+<h3>Wszystkie surowce</h3>
+<p>W przypadku opcji „Surowiec: Wszystko” uwzględniane są wszystkie pasujące osobiste odkrycia w zakresie górnictwa odkrywkowego.</p>
+<p>Jeżeli na korpusie znanych jest kilka towarów, można je wyświetlić razem z ilościami, jakie dotychczas uzyskali.</p>
+<p>Przykład:</p>
+<p><b>ABBAU ×24 — Hel-3 18 t, miedź 56 t</b></p>
+<p>Ilości są osobistymi wartościami górniczymi odpowiedniego dowódcy, które faktycznie są udokumentowane na podstawie wydarzeń w dzienniku.</p>
+<p>Także przy aktywnym okresie osobiste wydobyte ilości pozostają zapisanymi ilościami łącznymi. <b>Miedź 56 t</b> nie oznacza automatycznie <b>56 t w wybranym okresie</b>. Okres wymaga pasującej wizyty w systemie, ale nie ogranicza wyświetlanej wydobytej ilości do tego okresu.</p>
+
+<h3>Połącz filtry</h3>
+<p>Tekst, włączone granice Od/Do i filtry wydobycia można łączyć. Wynik musi spełniać ustawione warunki jednocześnie.</p>
+<p>Na przykład:</p>
+<ul>
+<li>Aktywne miejsca wydobycia planet</li>
+<li>Co najmniej 20</li>
+<li>Aktywne są własne znaleziska górnicze</li>
+<li>Surowiec miedź</li>
+</ul>
+<p>wyszukuje znane ciała z co najmniej 20 planetarnymi miejscami wydobywczymi, w których wspomniany dowódca sam wydobywał już miedź.</p>
+<p>Dodatkowy tekst wyszukiwania również jest uwzględniany. Jeśli dodano okres, przeglądany dowódca musi rzeczywiście odwiedzić odpowiedni system w tym okresie; samo wydobycie miedzi nie musi przypadać na ten okres.</p>
+
+<h3>Zastosuj</h3>
+<p>„Zastosuj” wykonuje wspólne filtrowanie ze wszystkimi aktualnie ustawionymi filtrami wyszukiwania, okresu i wydobycia:</p>
+<ul>
+<li>Tekst</li>
+<li>Od, jeśli włączone</li>
+<li>Do, jeśli włączone</li>
+<li>Planetarne miejsca wydobycia</li>
+<li>Minimalna liczba</li>
+<li>Moje odkrycia wydobywcze</li>
+<li>Towar, jeśli „Moje odkrycia wydobywcze” jest włączone</li>
+</ul>
+<p>Enter w polu tekstowym wykonuje dokładnie to samo filtrowanie. Bez tekstu i filtrów wydobycia ładowana jest zwykła mapa dla dowódców zaznaczonych na mapie, w razie potrzeby ograniczona przez Od/Do.</p>
+
+<h3>Resetuj</h3>
+<p>„Resetuj” przywraca wspólny obszar filtrów do stanu początkowego:</p>
+<ul>
+<li>Tekst jest czyszczony.</li>
+<li>Od i Do są wyłączane; pola dat ponownie pokazują dzisiejszą datę i są nieaktywne.</li>
+<li>Planetarne miejsca wydobycia są wyłączane.</li>
+<li>Minimalna liczba jest ustawiana na 0.</li>
+<li>Moje odkrycia wydobywcze jest wyłączane.</li>
+<li>Towar jest przywracany do „Wszystkie”.</li>
+</ul>
+<p>Wybór dowódców zostaje zachowany. Następnie zwykła kronika jest ponownie ładowana dla tego wyboru mapy; poprzednie wyniki wyszukiwania i widoki szczegółów są resetowane.</p>
+
+<h3>Wybór dowódcy</h3>
+<p>Kronika może wyświetlać dane różnych znanych dowódców.</p>
+<p>Istnieją dwa odrębne rodzaje wyboru:</p>
+<ul>
+<li><b>Wybór dowódców mapy:</b> Pola wyboru dowódców określają, których dowódców trasy są widoczne na zwykłej mapie bez wyszukiwania tekstowego lub wydobywczego. Włączony okres jest uwzględniany.</li>
+<li><b>Przeglądany dowódca:</b> Osobiste wyszukiwania tekstowe lub wydobywcze używają przeglądanego dowódcy (<code>viewed_commander_id</code>), a w jego braku aktywnego dowódcy. Od niego zależą również osobiste listy towarów.</li>
+</ul>
+<p>Jednakże dane osobowe, takie jak własne znaleziska górnicze i listy surowców, są zawsze oceniane oddzielnie dla faktycznie przeglądanego dowódcy.</p>
+<p>Dowódca nie widzi w swoim wyborze surowców żadnych odkryć górniczych, które należą wyłącznie do innego dowódcy.</p>
+
+<h3>Wszyscy dowódcy</h3>
+<p>Wyświetlanie mapy/kroniki może uwzględniać wielu dowódców.</p>
+<p>„Wszyscy dowódcy” odnosi się do wyboru dowódców mapy. Pola wyboru dowódców nie rozszerzają automatycznie osobistych wyszukiwań tekstowych lub wydobywczych na wielu dowódców.</p>
+<p>Nie zmienia to przydziału osobowego danych dowódcy. Globalne właściwości astronomiczne układu lub ciała pozostają wspólne, osobiste ustalenia pozostają odrębne.</p>
+
+<h3>Pomoc w poszukiwaniu/legenda</h3>
+<p>Dodatkowe informacje na temat wyszukiwania kroniki i znaczenia wyświetlacza można uzyskać poprzez „Pomoc wyszukiwania / legenda”.</p>
+<p>Kliknięty termin trafia do pola wyszukiwania i jest wyszukiwany wraz z już ustawionymi filtrami okresu i wydobycia.</p>
+<p>Ta kontekstowa pomoc główna uzupełnia dostępną tam krótką instrukcję obsługi.</p>
+
+<h3>Wskazówka</h3>
+<p>Kronika szczególnie nadaje się do wyszukiwania ciekawych miejsc, które odkryto podczas dłuższej podróży.</p>
+<p>Na przykład w przypadku górnictwa odkrywkowego może odpowiedzieć:</p>
+<p>„Na której planecie wydobywałem kiedykolwiek miedź?”</p>
+<p>Lub:</p>
+<p>„Które z moich znanych planet mają szczególnie dużą liczbę miejsc wydobycia?”</p>""",
+    ),
  'jump_tip': ('Wskazówka dotycząca skoku',
               '<h2>Wskazówka dotycząca skoku</h2>\n'
               '<p>Wskazówka skoku wspiera eksplorację poprzez ocenę znanych już danych systemowych '
@@ -1274,7 +1299,82 @@ HELP_TOPICS = {'overview': ('Przegląd',
               '„Obrazy”.</li>\n'
               '</ul>\n'
               '<p>Jeśli jest kilku dowódców, zawsze zwracaj uwagę, którego FID dotyczą widoczne '
-              'dane dostępowe online.</p>')}
+              'dane dostępowe online.</p>'),
+    "planet_navigation": (
+        'Nawigacja planetarna',
+        """<h2>Nawigacja planetarna</h2>
+<p>Nawigator planetarny służy wyłącznie do dolotu do określonej szerokości/długości geograficznej na planecie lub księżycu. Podajesz cel za pomocą współrzędnych i otrzymujesz odległość oraz kierunek do niego.</p>
+<p>Nie jest to planer tras międzygwiezdnych i nie obsługuje nawigacji między systemami ani skoków. Samodzielnie pilotujesz statek.</p>
+
+<h3>Otwieranie nawigatora i wprowadzanie celu</h3>
+<p>W przeglądzie otwórz „Nawigacja planetarna” i wybierz „Wprowadź cel …”.</p>
+<ul>
+<li><b>Ciało niebieskie:</b> Wybierz docelową planetę lub księżyc z listy albo użyj już rozpoznanego ciała. Możesz też samodzielnie wpisać jego nazwę, jeśli jeszcze nie ma go na liście. W razie wątpliwości użyj pełnej nazwy wraz z nazwą systemu.</li>
+<li><b>Szerokość geograficzna:</b> Podaj szerokość celu między −90° a +90°.</li>
+<li><b>Długość geograficzna:</b> Podaj długość celu między −180° a +180°. Zwróć uwagę na znak obu współrzędnych.</li>
+<li><b>Nazwa celu:</b> Opcjonalnie możesz podać nazwę, aby łatwiej rozpoznać cel.</li>
+</ul>
+<p>„Ustaw cel” zatwierdza wprowadzone dane. Nie musisz wpisywać technicznych identyfikatorów takich jak BodyID i SystemAddress; nie są to zwykłe dane wprowadzane przez użytkownika.</p>
+
+<h3>Kiedy uruchamia się kompas?</h3>
+<p>Gdy cel jest ustawiony, a Elite dostarcza prawidłowe planetarne dane pozycji dla odpowiedniego ciała, nawigacja włącza się automatycznie. Nie musisz naciskać osobnego przycisku startu.</p>
+<p>Jeśli tych danych jeszcze brakuje lub dotyczą innego ciała, nawigator czeka z komunikatem „Oczekiwanie na współrzędne planetarne …”. Cel można wprowadzić jeszcze przed otrzymaniem tych danych.</p>
+
+<h3>Globus planety: ponad 380 km</h3>
+<p>Gdy odległość do celu jest większa niż 380 km, nawigator wyświetla globus planety.</p>
+<ul>
+<li><b>Biały okrąg</b> oznacza twoją pozycję.</li>
+<li><b>Mały punkt celu</b> jest pomarańczowy, gdy cel leży po widocznej stronie planety.</li>
+<li>Jeśli cel znajduje się po zasłoniętej tylnej stronie, punkt celu jest wyświetlany na czerwono.</li>
+<li>Twoja pozycja pozostaje nieruchoma w widoku. Planeta i cel są przedstawiane względem twojej pozycji i orientacji.</li>
+</ul>
+<p>Biała strzałka wskazuje przód; żółta strzałka wskazuje względny kierunek celu. Globus jest schematyczną pomocą orientacyjną, a nie geograficznie dokładnym widokiem terenu. Czerwony punkt oznacza tylną stronę globusa, a nie automatycznie „za twoim statkiem”.</p>
+
+<h3>Siatka perspektywiczna: do 380 km włącznie</h3>
+<p>Przy odległości do celu nie większej niż 380 km widok automatycznie przełącza się na pochyloną siatkę perspektywiczną. Jeśli odległość ponownie wzrośnie powyżej 380 km, powróci globus.</p>
+<p>Linie poprzeczne tworzą <b>siatkę odległości co 50 km</b>. Punkt celu jest nanoszony wewnątrz siatki zgodnie z odległością i kierunkiem względnym. Perspektywa pomaga w dalszym dolocie; nachylenie sprawia, że odstępy wyglądają na gęstsze w głębi. Aby ustalić właściwy kurs sterowania, obserwuj również kurs do celu i kierunek względny.</p>
+
+<h3>Prawidłowe odczytywanie wartości nawigacyjnych</h3>
+<ul>
+<li><b>Odległość do celu:</b> Duży odczyt pokazuje pozostałą odległość do celu wzdłuż umownej powierzchni planety.</li>
+<li><b>Współrzędne celu:</b> Wprowadzona para współrzędnych celu: najpierw szerokość, potem długość geograficzna. Nie zmienia się podczas twojego ruchu.</li>
+<li><b>Aktualne współrzędne:</b> Twoja ostatnia potwierdzona para współrzędnych z Elite, również szerokość / długość geograficzna.</li>
+<li><b>Odległość po powierzchni:</b> Ta sama odległość po powierzchni co odległość do celu, ewentualnie dokładniej zaokrąglona w widoku szczegółowym. Nie jest to druga trasa ani bezpośrednia odległość przestrzenna przez powietrze.</li>
+<li><b>Namiar:</b> Bezwzględny kierunek do celu z twojej aktualnej pozycji, wyrażony kątem kompasowym: 000° to północ, 090° wschód, 180° południe, a 270° zachód.</li>
+<li><b>Kierunek dziobu:</b> Twoja aktualna orientacja podawana przez Elite. Pokazuje, w którą stronę jesteś teraz zwrócony, i nie musi jeszcze pokrywać się z namiarem.</li>
+<li><b>Kierunek względny:</b> Różnica między twoją orientacją a namiarem, na przykład „23° w prawo”, „10° w lewo” lub „Prosto”. Przy 180° cel znajduje się za tobą.</li>
+<li><b>Kurs do celu:</b> Wyróżniony namiar jako kurs bezwzględny, na który możesz obrócić statek według HUD-u Elite. Nie jest to dodatkowy kąt obrotu.</li>
+</ul>
+<p>Przykład: przy kierunku dziobu 051° i kursie do celu 074° obróć się o 23° w prawo, aż kompas Elite pokaże około 074°. Podczas dalszego lotu namiar i kurs do celu mogą się zmieniać; kieruj się aktualizowanymi wartościami.</p>
+<p>W tej samej pozycji co cel, na biegunie lub w punkcie dokładnie po przeciwnej stronie planety kierunek może być nieokreślony. Nawigator wyświetla wtedy odpowiedni komunikat zamiast wymyślonego kursu.</p>
+
+<h3>Rozmiar okna</h3>
+<p>Rozmiar okna nawigatora można swobodnie zmieniać. Globus lub siatka perspektywiczna dopasowują się proporcjonalnie do dostępnego miejsca. Minimalny rozmiar zapewnia czytelność wartości szczegółowych; globus pozostaje okrągły. Pozycja i rozmiar okna są zapisywane.</p>
+
+<h3>Włączanie HUD-u nawigacyjnego</h3>
+<p>Po lewej stronie głównego okna zaznacz pole pod <b>pokazuj automatycznie → HUD nawigacyjny</b>. Przy prawidłowej nawigacji planetarnej HUD pojawia się bezpośrednio nad widocznym oknem Elite na pierwszym planie.</p>
+<p>Wyświetla trzy wiersze:</p>
+<ul>
+<li>kierunek względny</li>
+<li>kurs do celu</li>
+<li>odległość</li>
+</ul>
+<p>HUD jest przezroczysty, przepuszcza kliknięcia i nie przejmuje fokusu: nie zasłania gry nieprzezroczystym obszarem, nie przechwytuje kliknięć myszy i nie odbiera Elite fokusu wprowadzania danych przy automatycznym wyświetlaniu.</p>
+<p>Bez prawidłowej nawigacji lub jednoznacznego kierunku automatycznie staje się niewidoczny. Ukrywa się również, gdy Elite jest zminimalizowane lub nie znajduje się na pierwszym planie. Pole na pasku bocznym może mimo to pozostać zaznaczone; oznacza preferencję automatycznego wyświetlania, a nie aktualną widoczność.</p>
+<p>HUD jest tylko dodatkowym wyświetlaczem. Zwykły nawigator działa niezależnie od niego, także przy wyłączonym lub niedostępnym HUD-zie.</p>
+
+<h3>Ustawianie nowego celu</h3>
+<p>Na tym samym ciele możesz w dowolnym momencie ponownie otworzyć „Wprowadź cel …” i ustawić inne współrzędne. Nowy cel zastępuje poprzedni cel nawigacyjny. Przy odpowiednich danych pozycji kompas aktualizuje się natychmiast.</p>
+<p>„Zakończ nawigację” usuwa aktualny cel. Aby wykonać kolejny dolot, wystarczy ustawić nowy cel.</p>
+
+<h3>Aktualność danych i ograniczenia</h3>
+<p>Nawigacja opiera się na danych stanu dostarczanych przez Elite. Aktualizacje mogą docierać z opóźnieniem zależnym od stanu gry. Wskaźnik wieku danych w nawigatorze pokazuje czas, jaki upłynął od ostatniego potwierdzonego komunikatu stanu.</p>
+<p>Odległość po powierzchni opisuje najkrótszy łuk na umownej kuli. Nie jest trasą terenową ani drogową. Nawigator nie zna przeszkód ani wysokości terenu wzdłuż trasy; wysokość lotu, bezpieczna prędkość i omijanie przeszkód pozostają twoim zadaniem.</p>
+
+<h3>Wskazówka</h3>
+<p>Przed dolotem sprawdź nazwę ciała oraz znaki współrzędnych celu. Następnie ustaw się według kursu do celu na kompasie Elite i obserwuj kierunek względny oraz odległość. Jeśli nawigator czeka, sprawdź, czy Elite dostarcza już współrzędne planetarne dla docelowego ciała.</p>""",
+    ),
+}
 
 DIALOG_TITLE = 'Pomoc – {area}'
 CLOSE_LABEL = 'Zamknij'

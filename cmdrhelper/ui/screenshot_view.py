@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import logging
 import platform
-import re
 from datetime import datetime
 from pathlib import Path
 
 from PIL import Image, ImageEnhance
 from cmdrhelper.i18n import tr
+from cmdrhelper.screenshot_paths import safe_filename_component, commander_screenshot_folder
 from PySide6.QtCore import Qt, QTimer, QSize, QObject, Signal, QRunnable, QThreadPool, QUrl
-from PySide6.QtGui import QIcon, QPixmap, QDesktopServices
+from PySide6.QtGui import QIcon, QPixmap, QDesktopServices, QImageReader
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, QLabel, QLineEdit,
     QPushButton, QFileDialog, QComboBox, QCheckBox, QListWidget,
@@ -54,24 +54,6 @@ class _ConvertWorker(QRunnable):
             self.signals.finished.emit(str(self.source), str(self.target), True, "")
         except Exception as exc:
             self.signals.finished.emit(str(self.source), str(self.target), False, str(exc))
-
-
-INVALID_FILENAME_CHARS = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
-WINDOWS_RESERVED_NAMES = {
-    "CON", "PRN", "AUX", "NUL",
-    *(f"COM{number}" for number in range(1, 10)),
-    *(f"LPT{number}" for number in range(1, 10)),
-}
-
-
-def safe_filename_component(value, fallback="UNKNOWN"):
-    text = INVALID_FILENAME_CHARS.sub("-", str(value or "").strip())
-    text = re.sub(r"\s+", "-", text).strip(" .-")
-    if not text:
-        text = fallback
-    if text.split(".", 1)[0].upper() in WINDOWS_RESERVED_NAMES:
-        text = f"_{text}"
-    return text[:120].rstrip(" .") or fallback
 
 
 class ScreenshotView(QWidget):
@@ -268,6 +250,7 @@ class ScreenshotView(QWidget):
         self.gallery.setSelectionMode(QListWidget.ExtendedSelection)
         self.gallery.installEventFilter(self)
         self.gallery.itemClicked.connect(self._show_preview)
+        self.gallery.currentItemChanged.connect(self._preview_selection_changed)
         self.gallery.itemDoubleClicked.connect(self._open_image)
 
         preview = QFrame(); preview_layout = QVBoxLayout(preview)
@@ -567,23 +550,7 @@ class ScreenshotView(QWidget):
         )
 
     def _folder_for_identity(self, commander, fid, *, existing=True):
-        target = self._target()
-        if target is None:
-            return None
-        safe_fid = safe_filename_component(fid)
-        if existing and target.is_dir():
-            suffix = f"_{safe_fid}".casefold()
-            candidates = [
-                path for path in target.iterdir()
-                if path.is_dir() and not path.is_symlink()
-                and path.name.casefold().endswith(suffix)
-            ]
-            if candidates:
-                return sorted(candidates, key=lambda path: path.name.casefold())[0]
-        desired = target / self._folder_name(commander, fid)
-        if desired.is_symlink() or (desired.exists() and not desired.is_dir()):
-            return None
-        return desired
+        return commander_screenshot_folder(self._target(), commander, fid, existing=existing)
 
     def _viewed_commander_folder(self, *, existing=True):
         item = self._commander_for_id(
@@ -744,7 +711,14 @@ class ScreenshotView(QWidget):
             self._refresh_gallery()
 
     def _refresh_gallery(self, select_path: Path | None = None):
+        explicit = isinstance(select_path, (str, Path))
+        previous = self.gallery.currentItem()
+        wanted = Path(select_path) if explicit else (
+            Path(previous.data(Qt.UserRole)) if previous is not None else None)
+        previous_selection = {item.data(Qt.UserRole) for item in self.gallery.selectedItems()}
         self.gallery.clear()
+        self.preview.clear()
+        self.preview_name.clear()
         self._gallery_state = self._gallery_snapshot()
 
         target = self._target()
@@ -753,29 +727,46 @@ class ScreenshotView(QWidget):
             self.preview.setText(tr("images.click_to_preview"))
             self.preview_name.clear()
             return
-        files = [
-            path for directory in self._gallery_directories()
-            for path in directory.iterdir()
-            if path.is_file() and not path.is_symlink()
-            and path.suffix.lower() in (".png", ".jpg", ".jpeg")
-        ]
-        files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+        files = []
+        try:
+            for directory in self._gallery_directories():
+                for path in directory.iterdir():
+                    try:
+                        if (path.is_file() and not path.is_symlink()
+                                and path.suffix.lower() in (".png", ".jpg", ".jpeg")):
+                            files.append((path.stat().st_mtime_ns, path))
+                    except OSError:
+                        continue
+        except OSError:
+            pass
+        files.sort(key=lambda entry: (entry[0], str(entry[1])), reverse=True)
         selected = None
-        for p in files:
-            pix = QPixmap(str(p))
+        for _, p in files:
+            pix = self._read_gallery_pixmap(p)
             if pix.isNull():
                 continue
             thumb = pix.scaled(150, 95, Qt.KeepAspectRatio, Qt.SmoothTransformation)
             item = QListWidgetItem(QIcon(thumb), p.name)
             item.setData(Qt.UserRole, str(p)); item.setToolTip(str(p)); self.gallery.addItem(item)
-            if select_path and p == select_path:
+            if p == wanted:
                 selected = item
-        if selected:
+        if selected is None and self.gallery.count():
+            selected = self.gallery.item(0)
+        if selected is not None:
             self.gallery.setCurrentItem(selected); self._show_preview(selected)
-        elif self.gallery.count() == 0:
+            if not explicit:
+                for index in range(self.gallery.count()):
+                    item = self.gallery.item(index)
+                    if item.data(Qt.UserRole) in previous_selection:
+                        item.setSelected(True)
+        else:
             self.preview.clear()
             self.preview.setText(tr("images.no_images_target"))
             self.preview_name.clear()
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self._refresh_gallery()
 
     def eventFilter(self, watched, event):
         if watched is self.gallery and event.type() == event.Type.KeyPress:
@@ -860,10 +851,27 @@ class ScreenshotView(QWidget):
                 tr("images.delete_errors") + "\n\n" + "\n".join(errors),
             )
 
+    @staticmethod
+    def _read_gallery_pixmap(path):
+        # Read file contents anew even when an existing filename was overwritten.
+        reader = QImageReader(str(path))
+        reader.setAutoTransform(True)
+        return QPixmap.fromImage(reader.read())
+
+    def _preview_selection_changed(self, current, _previous):
+        if current is None:
+            self.preview.clear()
+            self.preview_name.clear()
+        else:
+            self._show_preview(current)
+
     def _show_preview(self, item):
         path = Path(item.data(Qt.UserRole))
-        pix = QPixmap(str(path))
+        pix = self._read_gallery_pixmap(path)
         if pix.isNull():
+            self.preview.clear()
+            self.preview.setText(tr("images.click_to_preview"))
+            self.preview_name.clear()
             return
         self.preview.setPixmap(pix.scaled(self.preview.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
         self.preview_name.setText(path.name)

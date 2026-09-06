@@ -98,6 +98,18 @@ QPushButton:hover {
     background: #17222c;
 }
 
+QPushButton#chronicleApply {
+    border-color: #c49a3c;
+}
+
+QPushButton#chronicleApply:hover {
+    border-color: #f0c65b;
+}
+
+QPushButton#chronicleApply:pressed {
+    border-color: #9c7626;
+}
+
 QPushButton#navActive {
     background: #20180b;
     color: #ff9d00;
@@ -254,6 +266,18 @@ QPushButton {
 
 QPushButton:hover {
     background: #e9edf1;
+}
+
+QPushButton#chronicleApply {
+    border-color: #a57b1c;
+}
+
+QPushButton#chronicleApply:hover {
+    border-color: #c18e1c;
+}
+
+QPushButton#chronicleApply:pressed {
+    border-color: #76520b;
 }
 
 QPushButton#navActive {

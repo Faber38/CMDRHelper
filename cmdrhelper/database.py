@@ -8,6 +8,7 @@ from contextlib import nullcontext
 from datetime import datetime, timezone
 from pathlib import Path
 
+from cmdrhelper.chronicle_filters import matching_visit_sql, visit_period_sql
 from cmdrhelper.journal_files import journal_files
 from cmdrhelper.ship_identity import is_definite_non_ship
 
@@ -4756,13 +4757,17 @@ class CMDRDatabase:
         minimum_planetary_mining_signals=0,
         personally_mined_only=False,
         mining_commodity="",
+        visited_from=None,
+        visited_before=None,
     ):
         minimum = max(0, int(minimum_planetary_mining_signals or 0))
         mining_commodity = str(mining_commodity or "").strip()
         pattern = f"%{text}%"
         with self._connect() as con:
+            visit_sql, visit_params = matching_visit_sql(
+                con, commander_id, visited_from, visited_before)
             rows = con.execute(
-                """
+                f"""
                 SELECT
                     b.system_address, s.name, s.x, s.y, s.z,
                     cs.first_seen, cs.last_seen, s.body_count,
@@ -4783,8 +4788,27 @@ class CMDRDatabase:
                 JOIN commander_systems cs
                   ON cs.system_address=s.system_address AND cs.commander_id=?
                 WHERE (?='' OR s.name LIKE ? COLLATE NOCASE
-                              OR b.name LIKE ? COLLATE NOCASE
-                              OR b.short_name LIKE ? COLLATE NOCASE)
+                   OR b.name LIKE ? COLLATE NOCASE OR b.short_name LIKE ? COLLATE NOCASE
+                   OR b.body_type LIKE ? COLLATE NOCASE OR b.star_type LIKE ? COLLATE NOCASE
+                   OR b.planet_class LIKE ? COLLATE NOCASE OR b.atmosphere LIKE ? COLLATE NOCASE
+                   OR b.volcanism LIKE ? COLLATE NOCASE
+                   OR (? LIKE '%terraform%' AND b.terraformable=1)
+                   OR (? LIKE '%bio%' AND cb.biological_signals_seen>0)
+                   OR (? LIKE '%geo%' AND cb.geological_signals_seen>0)
+                   OR EXISTS(SELECT 1 FROM biology bio
+                       WHERE bio.commander_id=cb.commander_id
+                         AND bio.system_address=b.system_address AND bio.body_id=b.body_id
+                         AND (bio.genus LIKE ? COLLATE NOCASE OR bio.species LIKE ? COLLATE NOCASE
+                              OR bio.variant LIKE ? COLLATE NOCASE))
+                   OR EXISTS(SELECT 1 FROM materials m
+                       WHERE m.system_address=b.system_address AND m.body_id=b.body_id
+                         AND m.material_name LIKE ? COLLATE NOCASE)
+                   OR EXISTS(SELECT 1 FROM codex_entries c
+                       WHERE c.commander_id=cb.commander_id AND c.system_address=b.system_address
+                         AND (c.name LIKE ? COLLATE NOCASE OR c.raw_name LIKE ? COLLATE NOCASE
+                              OR c.category LIKE ? COLLATE NOCASE OR c.subcategory LIKE ? COLLATE NOCASE
+                              OR c.nearest_destination LIKE ? COLLATE NOCASE OR c.region LIKE ? COLLATE NOCASE
+                              OR c.event_type LIKE ? COLLATE NOCASE)))
                   AND (?=0 OR COALESCE(b.planetary_mining_signals,0)>0)
                   AND (?=0 OR COALESCE(b.planetary_mining_signals,0)>=?)
                   AND (?=0 OR EXISTS(
@@ -4802,16 +4826,18 @@ class CMDRDatabase:
                           AND selected.body_id=b.body_id
                           AND selected.frontier_name=?
                   ))
+                {visit_sql}
                 ORDER BY s.name COLLATE NOCASE, b.body_id
                 LIMIT 1000
                 """,
                 (
                     commander_id, commander_id, commander_id,
-                    text, pattern, pattern, pattern,
+                    text, *([pattern] * 8), *([text.lower()] * 3), *([pattern] * 11),
                     int(bool(planetary_mining_only)),
                     minimum, minimum,
                     int(bool(personally_mined_only)), commander_id,
                     mining_commodity, commander_id, mining_commodity,
+                    *visit_params,
                 ),
             ).fetchall()
             body_keys = {(row[0], row[8]) for row in rows}
@@ -4860,6 +4886,8 @@ class CMDRDatabase:
         minimum_planetary_mining_signals=0,
         personally_mined_only=False,
         mining_commodity="",
+        visited_from=None,
+        visited_before=None,
     ):
         text = str(query or "").strip()
         mining_filters = bool(
@@ -4880,24 +4908,29 @@ class CMDRDatabase:
                 minimum_planetary_mining_signals=minimum_planetary_mining_signals,
                 personally_mined_only=personally_mined_only,
                 mining_commodity=mining_commodity,
+                visited_from=visited_from,
+                visited_before=visited_before,
             )
 
         pattern = f"%{text}%"
         results = []
 
         with self._connect() as con:
+            visit_sql, visit_params = matching_visit_sql(
+                con, commander_id, visited_from, visited_before)
             for row in con.execute(
-                """
+                f"""
                 SELECT s.system_address, s.name, s.x, s.y, s.z,
                        cs.first_seen, cs.last_seen, s.body_count
                 FROM systems s
                 JOIN commander_systems cs
                   ON cs.system_address=s.system_address AND cs.commander_id=?
                 WHERE s.name LIKE ? COLLATE NOCASE
+                {visit_sql}
                 ORDER BY name COLLATE NOCASE
                 LIMIT 500
                 """,
-                (commander_id, pattern),
+                (commander_id, pattern, *visit_params),
             ).fetchall():
                 results.append({
                     "kind": "System",
@@ -4915,7 +4948,7 @@ class CMDRDatabase:
                 })
 
             for row in con.execute(
-                """
+                f"""
                 SELECT
                     p.system_address, s.name, s.x, s.y, s.z,
                     cs.first_seen, cs.last_seen, s.body_count,
@@ -4940,6 +4973,7 @@ class CMDRDatabase:
                    OR (? LIKE '%terraform%' AND p.terraformable=1)
                    OR (? LIKE '%bio%' AND cb.biological_signals_seen>0)
                    OR (? LIKE '%geo%' AND cb.geological_signals_seen>0))
+                {visit_sql}
                 ORDER BY s.name COLLATE NOCASE, p.body_id
                 LIMIT 1000
                 """,
@@ -4947,6 +4981,7 @@ class CMDRDatabase:
                     commander_id, commander_id,
                     pattern, pattern, pattern, pattern, pattern, pattern, pattern,
                     text.lower(), text.lower(), text.lower(),
+                    *visit_params,
                 ),
             ).fetchall():
                 details = [
@@ -4976,7 +5011,7 @@ class CMDRDatabase:
                 })
 
             for row in con.execute(
-                """
+                f"""
                 SELECT
                     bio.system_address, s.name, s.x, s.y, s.z,
                     cs.first_seen, cs.last_seen, s.body_count,
@@ -4993,10 +5028,11 @@ class CMDRDatabase:
                       bio.genus LIKE ? COLLATE NOCASE
                    OR bio.species LIKE ? COLLATE NOCASE
                    OR bio.variant LIKE ? COLLATE NOCASE)
+                {visit_sql}
                 ORDER BY s.name COLLATE NOCASE, p.body_id
                 LIMIT 1000
                 """,
-                (commander_id, pattern, pattern, pattern),
+                (commander_id, pattern, pattern, pattern, *visit_params),
             ).fetchall():
                 bio_name = row[13] or row[12] or row[11] or "Biologie"
                 results.append({
@@ -5015,7 +5051,7 @@ class CMDRDatabase:
                 })
 
             for row in con.execute(
-                """
+                f"""
                 SELECT
                     m.system_address, s.name, s.x, s.y, s.z,
                     cs.first_seen, cs.last_seen, s.body_count,
@@ -5032,10 +5068,11 @@ class CMDRDatabase:
                 JOIN commander_systems cs
                   ON cs.system_address=s.system_address AND cs.commander_id=?
                 WHERE m.material_name LIKE ? COLLATE NOCASE
+                {visit_sql}
                 ORDER BY s.name COLLATE NOCASE, p.body_id
                 LIMIT 1000
                 """,
-                (commander_id, commander_id, pattern),
+                (commander_id, commander_id, pattern, *visit_params),
             ).fetchall():
                 pct = f"{float(row[12]):.2f} %" if row[12] is not None else ""
                 results.append({
@@ -5054,7 +5091,7 @@ class CMDRDatabase:
                 })
 
             for row in con.execute(
-                """
+                f"""
                 SELECT
                     c.system_address,
                     COALESCE(NULLIF(c.system_name, ''), s.name, ''),
@@ -5074,10 +5111,11 @@ class CMDRDatabase:
                    OR c.nearest_destination LIKE ? COLLATE NOCASE
                    OR c.region LIKE ? COLLATE NOCASE
                    OR c.event_type LIKE ? COLLATE NOCASE)
+                {visit_sql}
                 ORDER BY 2 COLLATE NOCASE, c.name COLLATE NOCASE
                 LIMIT 1000
                 """,
-                (commander_id, pattern, pattern, pattern, pattern, pattern, pattern, pattern),
+                (commander_id, pattern, pattern, pattern, pattern, pattern, pattern, pattern, *visit_params),
             ).fetchall():
                 detail = " · ".join(
                     str(v) for v in (row[8], row[9], row[11], row[12]) if v
@@ -5255,7 +5293,7 @@ class CMDRDatabase:
             for r in rows
         ]
 
-    def multi_commander_chronicle(self, commander_ids=None) -> dict:
+    def multi_commander_chronicle(self, commander_ids=None, *, visited_from=None, visited_before=None) -> dict:
         """Liest globale Kartenpunkte und strikt getrennte Commander-Routen."""
         if commander_ids is None:
             commander_ids = [item["id"] for item in self.list_commanders()]
@@ -5265,19 +5303,22 @@ class CMDRDatabase:
 
         placeholders = ",".join("?" for _ in commander_ids)
         with self._connect() as con:
+            period_sql, period_params = visit_period_sql(con, visited_from, visited_before)
+            visit_time = "chronicle_utc_time(v.visited_at)" if period_sql else "v.visited_at"
             rows = con.execute(
                 f"""
                 SELECT v.commander_id, c.current_name, c.fid,
                        v.system_address, s.name, s.x, s.y, s.z,
-                       s.body_count, v.visited_at, v.id
+                       s.body_count, {visit_time}, v.id
                 FROM system_visits v
                 JOIN commanders c ON c.id=v.commander_id
                 JOIN systems s ON s.system_address=v.system_address
                 WHERE v.commander_id IN ({placeholders})
                   AND s.x IS NOT NULL AND s.y IS NOT NULL AND s.z IS NOT NULL
-                ORDER BY v.commander_id, v.visited_at, v.id
+                  {period_sql}
+                ORDER BY v.commander_id, {visit_time}, v.id
                 """,
-                commander_ids,
+                [*commander_ids, *period_params],
             ).fetchall()
 
         systems = {}
@@ -5378,7 +5419,7 @@ class CMDRDatabase:
         ]
 
 
-    def chronicle_system_details(self, system_address, commander_id=None):
+    def chronicle_system_details(self, system_address, commander_id=None, *, scanned_only=False):
         """
         Lädt ein bereits besuchtes System vollständig aus der lokalen
         CMDRHelper-Datenbank für die Chronik-/Explorer-Darstellung.
@@ -5428,10 +5469,10 @@ class CMDRDatabase:
                 JOIN commander_bodies cb
                   ON cb.system_address=b.system_address AND cb.body_id=b.body_id
                  AND cb.commander_id=?
-                WHERE b.system_address = ?
+                WHERE b.system_address = ? AND (? = 0 OR cb.scanned = 1)
                 ORDER BY b.body_id
                 """,
-                (commander_id, address),
+                (commander_id, address, int(scanned_only)),
             ).fetchall()
 
             bodies = []

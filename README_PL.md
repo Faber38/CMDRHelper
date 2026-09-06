@@ -1,4 +1,4 @@
-# CMDRHelper
+# CMDRHelper V3 (3.0)
 
 [🇩🇪 Deutsch](README_DE.md) \| [🇬🇧 English](README.md) \| [🇫🇷
 Français](README_FR.md) \| [🇮🇹 Italiano](README_IT.md) \| [🇳🇴
@@ -9,699 +9,233 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 ![CMDRHelper -- Twój drugi pilot w Elite Dangerous](cmdrhelper/assets/readme/cmdrhelper_readme_pl.png)
 
-**Osobisty towarzysz dla Elite Dangerous -- eksploracja, analiza
-systemów i dane Commandera w jednym miejscu**
+**Osobisty towarzysz Elite Dangerous – eksploracja, nawigacja i dane dowódcy w jednym miejscu**
 
-CMDRHelper to niezależny program desktopowy dla **Elite Dangerous**,
-który analizuje informacje z lokalnych plików Journal gry i przedstawia
-je w przejrzysty sposób. Celem jest stworzenie osobistego pomocnika,
-który podczas eksploracji systemu szybko pokazuje, co jest już znane,
-które ciała niebieskie są interesujące oraz jakie własne odkrycia i
-mapowania zostały wykonane.
+CMDRHelper to samodzielna aplikacja komputerowa analizująca lokalne dzienniki Elite Dangerous i korzystająca z planetarnych danych pozycji z `Status.json`. Pomaga rozpoznawać interesujące ciała niebieskie, wracać do zapisanych miejsc oraz przeglądać podróże i odkrycia. Dane osobiste pozostają po ponownym uruchomieniu i są rozdzielone według dowódców.
 
-Projekt nadal znajduje się w aktywnym rozwoju.
+## Explorer
 
-## Przegląd funkcji
+Explorer przedstawia bieżący system w trzech widokach:
 
-### Journale Elite Dangerous
+- **Mapa systemu:** graficzne przedstawienie znanych gwiazd, planet i księżyców. Kliknięcie ciała niebieskiego otwiera szczegóły. „Pokaż wszystko” otwiera przegląd systemu.
+- **Lista wartości:** wartości skanowania i kartografii znanych ciał, już osiągnięta wartość i możliwy potencjał całkowity. Oznaczenia pomagają rozpoznać kandydatów do terraformowania, możliwe pierwsze odkrycia i pierwsze mapowania.
+- **BIO / GEO / WYDOBYCIE:** sygnały biologiczne i geologiczne, planetarne miejsca wydobycia i potwierdzone osobiste znaleziska.
 
-CMDRHelper odczytuje lokalne pliki Journal i przetwarza między innymi
-systemy gwiezdne, gwiazdy, planety, księżyce, Belt Clusters, skany,
-mapowania oraz sygnały biologiczne i geologiczne. Własne dane Commandera
-pozostają odróżnialne od uzupełniających informacji zewnętrznych.
+Analizy rozróżniają zgłoszone sygnały i rzeczywiste osobiste znaleziska. **BIO ×N** oznacza zgłoszoną liczbę sygnałów, a nie potwierdzenie w pełni przeanalizowanych gatunków. **WYDOBYCIE ×N** liczy planetarne miejsca wydobycia bez ujawniania ich poszczególnych surowców. Osobiście wydobyte towary, materiały poboczne zebrane podczas wydobycia i ogólny skład materiałowy ciała pozostają rozdzielone.
 
-### Misje
+Explorer pokazuje także szacunkowe wartości BIO, postęp osobistych analiz oraz niesprzedane dane kartograficzne i BIO. Wartości opierają się na dostępnych informacjach dziennika i ciał; brakujące dane nie są przedstawiane jako osobiste odkrycia. Dodatkowe dane EDSM to informacje zewnętrzne, które należy odróżniać od własnych znalezisk.
 
-CMDRHelper analizuje zdarzenia misji z Journali Elite Dangerous i
-przejrzyście prezentuje aktywne misje. Status misji oraz powiązane z
-nimi zdarzenia Journal są śledzone.
+Szczegóły ciał obejmują dostępne właściwości fizyczne, atmosferę, pierścienie, materiały i informacje o odkryciach. Wizualizacje używają odpowiednich tekstur, a dla wybranych szczególnych obiektów astronomicznych także animacji. Sekcja Cargo pokazuje znany ładunek i pojemność obecnie używanego statku lub SRV; w przypadku Rhino ładunek i osobiste znaleziska wydobywcze pozostają odrębnymi danymi.
 
-Również oferty misji pojawiające się podczas gry w wiadomościach NPC
-(`ReceiveText`) mogą zostać rozpoznane i uwzględnione przy dalszym
-przypisywaniu misji. Ponieważ Elite Dangerous nie udostępnia dla każdego
-typu misji wszystkich informacji w tym samym zdarzeniu Journal,
-przypisanie jest budowane stopniowo na podstawie dostępnych danych
-Journal.
+U góry Explorera znajdują się **★ Ulubione | Nawigacja planetarna | Pokaż wszystko**. Ulubione i nawigacja planetarna otwierają własne okna; trzy widoki Explorera pozostają dostępne.
 
-### Widok systemu i Explorer
+## Nawigacja planetarna
 
-Znane ciała w systemie są przedstawiane graficznie i można je
-bezpośrednio wybierać. CMDRHelper może między innymi wyświetlać:
+Nawigator planetarny służy wyłącznie do dolotu do określonej **szerokości/długości geograficznej na planecie lub księżycu**. Podróżom między systemami gwiezdnymi służy osobny planer tras.
 
--   nazwę i rodzaj ciała
--   odległość w systemie
--   zeskanowane osobiście lub znane wyłącznie ze źródeł zewnętrznych
--   już odkryte i zmapowane
--   możliwe pierwsze odkrycie i możliwy First Mapping
--   zmapowane przez Commandera
--   efektywne mapowanie
--   sygnały biologiczne i geologiczne
--   wartości skanowania i mapowania
+### Wpisz cel i leć
 
-Sygnały BIO są wyraźnie wyróżniane przy odpowiednim ciele. Przypisanie
-odbywa się w obrębie systemu, aby identyfikatory BodyID z różnych
-systemów gwiezdnych nie zostały pomylone.
+Wybierz docelowe ciało lub użyj bieżącego, rozpoznawanego automatycznie, gdy to możliwe. Wpisz szerokość i długość geograficzną oraz opcjonalną nazwę celu. Nie musisz podawać technicznych danych, takich jak BodyID czy SystemAddress. **0,0** także jest prawidłową współrzędną.
 
-### Widok szczegółów ciała
+Gdy Elite dostarczy prawidłowe planetarne dane pozycji dla odpowiedniego ciała, kompas aktywuje się automatycznie. Bez pasujących danych nawigator pokazuje stan oczekiwania. W każdej chwili możesz ustawić nowy cel współrzędnych na tym samym ciele; zastępuje on poprzedni.
 
-Po kliknięciu ciała otwiera się szczegółowy widok. W zależności od
-dostępnych danych wyświetlane są: rodzaj ciała, masa, odległość,
-grawitacja, atmosfera, wulkanizm, możliwość lądowania, status
-terraformowania, materiały, sygnały BIO/GEO, wartość skanu, wartość
-mapowania oraz status odkrycia.
+### Widok podczas dolotu
 
-Brakujące informacje są oznaczane jako nieznane i nie są przedstawiane
-jako dane pewne.
+| Odległość do celu | Widok |
+| --- | --- |
+| **Więcej niż 380 km** | Kula planety z własną pozycją jako białym okręgiem i celem jako małą kropką. Cel jest pomarańczowy po widocznej stronie, a czerwony po niewidocznej stronie tylnej. Pozycja gracza pozostaje stała na ekranie; planeta i cel są przedstawiane względem niej. |
+| **Do 380 km włącznie** | Automatyczne przejście na nachyloną siatkę perspektywiczną z **odstępami odległości 50 km** i zaznaczoną pozycją celu do dalszego dolotu. |
 
-## Graficzna prezentacja ciał
+Rozmiar okna nawigatora można swobodnie zmieniać. Kula lub siatka perspektywiczna dostosowuje się proporcjonalnie do miejsca; szczegółowe wartości pozostają czytelne.
 
-CMDRHelper posiada własne grafiki dla wielu typów ciał, w tym High Metal
-Content Worlds, Metal Rich Bodies, Rocky Bodies, Icy Bodies, Rocky Ice
-Worlds, Earth-like Worlds, Water Worlds, Ammonia Worlds, kilku klas
-gazowych olbrzymów, gazowych olbrzymów z życiem opartym na wodzie lub
-amoniaku, gazowych olbrzymów bogatych w hel, różnych klas gwiazd oraz
-Belt Clusters.
+### Znaczenie wartości nawigacyjnych
 
-Standardowe obrazy PNG służą do widoków przeglądowych. Dla wielu ciał
-dostępna jest dodatkowo **tekstura equirectangular 2:1 `_texture.png`**
-dla animowanego widoku szczegółowego.
+- **Współrzędne celu:** zapisana szerokość i długość geograficzna celu.
+- **Aktualne współrzędne:** ostatnia prawidłowa własna pozycja planetarna.
+- **Odległość do celu / Odległość po powierzchni:** obliczona odległość do celu po powierzchni kuli; duży odczyt i wartość szczegółowa pokazują tę samą odległość z różnym zaokrągleniem.
+- **Namiar:** bezwzględny kierunek od bieżącej pozycji do celu.
+- **Heading:** bieżące własne ustawienie zgłoszone przez Elite.
+- **Kierunek względny:** różnica między headingiem a namiarem, np. „23° w prawo”, „w lewo” lub „prosto”.
+- **Kurs do celu:** bezwzględny kurs, na który możesz skręcić według HUD-u Elite. Odpowiada namiarowi i nie jest dodatkowym względnym kątem skrętu.
 
-### Obracające się planety 3D
+Przykład: **Heading 051° → Kurs do celu 074° = 23° w prawo**.
 
-Odpowiednie tekstury 2:1 są rzutowane na obracającą się kulę. Renderer
-CPU działa z użyciem **PySide6 i NumPy** bez dodatkowej zależności od
-OpenGL/PyOpenGL. Obejmuje projekcję sferyczną, powolny obrót,
-oświetlenie, przyciemnienie krawędzi oraz atmosferyczną poświatę
-krawędzi.
+Nawigacja zależy od danych stanu gry; aktualizacje mogą przychodzić z opóźnieniem zależnie od jej stanu. Odległość po powierzchni nie jest trasą terenową ani drogową. Przeszkody i wysokości terenu na trasie nie są uwzględniane.
 
-### Animowane formy życia
+## HUD nawigacyjny
 
-Dla gazowych olbrzymów z życiem istnieją różne animacje:
+Po lewej pod **pokazuj automatycznie → HUD nawigacji** możesz włączyć opcjonalny dodatkowy widok bezpośrednio nad Elite. Przy prawidłowej nawigacji planetarnej pokazuje:
 
-**Water Life:** unoszące się organizmy w kolorach cyjanowym/turkusowym,
-z poświatą i poruszającymi się ogonami.
+- kierunek względny,
+- bezwzględny kurs do celu,
+- odległość.
 
-**Ammonia Life:** osobne fioletowo-bursztynowe, półprzezroczyste
-organizmy z pulsującym rdzeniem, krótkimi włóknami i wolniejszym ruchem.
+HUD jest przezroczysty, przepuszcza kliknięcia i nie przejmuje fokusu: nie odbiera grze kliknięć myszy ani fokusu wprowadzania. Bez prawidłowej nawigacji staje się automatycznie niewidoczny; pole na pasku bocznym może pozostać zaznaczone. Zwykły nawigator działa niezależnie od HUD-u.
 
-### Animowane Belt Clusters
+HUD został przetestowany w grze pod **Linux/X11** oraz **Windows 11 z Elite**. W Windows dopasowanie wielu monitorów opiera się na ich geometrii i pozycji okna Elite, a nie zgodności nazw monitorów.
 
-Belt Clusters nie są przedstawiane jako kule. Widok szczegółowy generuje
-proceduralne pole asteroid z pojedynczymi asteroidami, różnymi
-rozmiarami i głębokościami, własnym obrotem, indywidualnym dryfem,
-efektem paralaksy, kraterami oraz subtelnymi efektami pyłu i cząstek.
+## Ulubione
 
-## EDSM jako uzupełniające źródło danych
+**Explorer → ★ Ulubione** otwiera osobne okno używane ponownie. Ulubione należą do **aktywnego dowódcy**. Zmiana dowódcy odświeża widok; wybór dowódców w kronice nie rozszerza listy ulubionych.
 
-CMDRHelper potrafi rozróżniać własne dane Journal od informacji EDSM.
-Źródło jest odpowiednio oznaczane jako własny Journal, EDSM albo własny
-Journal + EDSM. Własne dane Journal są szczególnie ważne, ponieważ
-pokazują, co dany Commander rzeczywiście sam zeskanował lub zmapował.
+### Zapisywanie trzech typów
 
-CMDRHelper może automatycznie przesyłać nowe dane Journal do EDSM.
-Uwzględniana jest przy tym aktualna dynamiczna lista EDSM Discard,
-dzięki czemu wysyłane są tylko zdarzenia wymagane przez EDSM. Postęp
-przesyłania jest bezpiecznie zapisywany dla każdego pliku Journal. Przy
-pierwszej aktywacji istniejące wcześniej stare Journale nie są ponownie
-przesyłane w całości.
+Górny wiersz działań oferuje:
 
-Status EDSM jest wyświetlany bezpośrednio u góry widoku głównego.
-Zielony wskaźnik oznacza prawidłowo działające przesyłanie; błędy są
-wyświetlane na czerwono i dodatkowo zapisywane w logu CMDRHelper.
+| Działanie | Zapisany ulubiony |
+| --- | --- |
+| **★ Zapisz bieżący system** | Bieżący system bez współrzędnych powierzchniowych. |
+| **★ Zapisz planetę / księżyc** | Wybrana znana planeta lub księżyc bieżącego systemu bez współrzędnych powierzchniowych. |
+| **★ Zapisz bieżącą pozycję** | Miejsce na powierzchni z bieżącym systemem, ciałem, szerokością i długością geograficzną. |
 
-## Lokalna baza danych
+Przycisk pozycji pozostaje zawsze widoczny i jest dostępny tylko przy prawidłowych bieżących planetarnych danych pozycji i aktywnym dowódcy. **Kliknięcie utrwala dowódcę, system, ciało i współrzędne przed otwarciem okna edycji.** Późniejsze ruchy w grze nie zmieniają tej pozycji. Ten sam sposób zapisu jest dostępny w nawigatorze planetarnym. Znane wewnętrzne identyfikatory są przejmowane automatycznie; współrzędne nie są wymyślane.
 
-CMDRHelper korzysta z SQLite. Obowiązują następujące zasady:
+Nadaj nazwę i dokładnie jedną kategorię: **Bio, Geo, Wydobycie, Widok, Lądowisko, Ciekawe lub Inne**. Notatka i obraz są opcjonalne.
 
--   `cmdrhelper/database.py` jest kodem programu i należy do wydania.
--   `data/cmdrhelper.db` zawiera osobiste dane Commandera i **nie jest**
-    dystrybuowany.
--   Przy świeżej instalacji lokalna baza danych jest tworzona od nowa
-    dla danego użytkownika.
+### Wyszukiwanie, oglądanie i edycja
 
-Dzięki temu żadne osobiste dane Commandera nie są dostarczane wraz z
-wydaniem.
+Przewijana lista, posortowana alfabetycznie według nazw, pokazuje nazwę, typ, system, w odpowiednich przypadkach ciało i współrzędne, kategorię i mały podgląd obrazu. **Wyszukiwanie tekstowe oraz filtry typu i kategorii** można łączyć. Wyszukiwanie obejmuje nazwę, system, ciało i notatkę.
 
-## Diagnostyka i plik logu
+**Otwórz / Pokaż** wyświetla zapisane informacje, notatkę i większy podgląd obrazu. **Pokaż w Explorerze** używa istniejącego przeglądu systemu lub szczegółów ciała, jeśli ulubiony należy do bieżącego systemu Explorera i są dostępne odpowiednie dane. Dla innych systemów zapisane informacje ulubionego pozostają dostępne.
 
-CMDRHelper prowadzi własny rotacyjny plik logu do diagnostyki i
-wyszukiwania błędów. Rejestrowane są ważne zdarzenia programu, Journala,
-bazy danych i EDSM. Logowanie EDSM zostało ograniczone tak, aby zwykłe
-zdarzenia Journal odrzucane przez EDSM nie zapełniały niepotrzebnie
-normalnego logu, podczas gdy udane przesyłania, ostrzeżenia i błędy
-pozostają widoczne.
+**Edytuj** zmienia nazwę, kategorię, notatkę i obraz. System, ciało i zapisane współrzędne nie są zastępowane wartościami na żywo. Dla innej pozycji utwórz nowy ulubiony powierzchniowy.
 
-## Platformy
+**Usuń** wymaga potwierdzenia i usuwa wyłącznie rekord ulubionego i jego wewnętrzną kopię obrazu. Dane Explorera, dziennika i ciał zostają zachowane.
 
-CMDRHelper jest rozwijany w Pythonie i PySide6 i jest przeznaczony dla
-**Linuxa i Windows**. Rozwój odbywa się głównie w systemie Linux;
-Windows można skonfigurować za pomocą dołączonych plików batch.
+### Obrazy ulubionych i ostatni zrzut ekranu
+
+Obrazy ulubionych są **całkowicie oddzielone od zwykłej sekcji Obrazy**. CMDRHelper zarządza własną wewnętrzną kopią w folderze obrazów ulubionych (`data/favorites/images/` przy standardowym układzie danych). Oryginał nie jest przenoszony ani zmieniany.
+
+- **Wybierz obraz …** przyjmuje PNG, JPEG lub WebP i pokazuje podgląd. Wewnętrzna kopia powstaje dopiero przy zapisie.
+- **Użyj ostatniego zrzutu ekranu** przy każdym kliknięciu ponownie skanuje rzeczywisty folder źródłowy zrzutów. Uwzględnia też odpowiednie przekonwertowane zrzuty Elite w folderze aktywnego dowódcy wewnątrz skonfigurowanego celu konwersji. Nowy zrzut pozostaje więc dostępny, jeśli automatyczna konwersja usunęła już jego BMP.
+- Proponowane są czytelne pliki o pasujących nazwach Elite lub konwersji, a nie dowolne obrazy z ogólnych folderów. Kolejność określa jednoznaczny czas wykonania w nazwie pliku, a w przeciwnym razie czas pliku. Dla obrazów po konwersji używany jest czas wykonania zapisany w nazwie, a nie czas konwersji.
+- Przed przyjęciem znalezionego zrzutu widzisz nazwę pliku, czas wykonania i świeżo wczytany podgląd. Potwierdź przez **Użyj tego obrazu**. Jeśli nie znaleziono pasującego zrzutu, wybór ręczny pozostaje dostępny. CMDRHelper sam nie wykonuje zrzutów ekranu.
+
+Obraz można później zastąpić lub usunąć. Niepotrzebne kopie wewnętrzne są usuwane przy zapisywaniu lub usuwaniu ulubionego. **Działania na ulubionych nigdy nie usuwają oryginalnego zrzutu ani wybranego oryginalnego obrazu.** Gdy brakuje wewnętrznego pliku obrazu, ulubiony działa bez podglądu.
+
+### Ulubiony powierzchniowy jako cel
+
+**▶ Do celu** przekazuje zapisane ciało, szerokość, długość geograficzną i nazwę ulubionego do istniejącego nawigatora planetarnego, zastępując jego poprzedni cel. Ulubione nie mają własnej logiki nawigacji. Odpowiednie prawidłowe dane planetarne uruchamiają nawigację; w przeciwnym razie nawigator czeka jak dotąd.
+
+Ulubionych innych dowódców nie można używać jako własnych celów. Zmiana dowódcy kończy cel nadal obsługiwany jako ulubiony cel poprzedniego dowódcy. Ulubione systemów i ciał wyświetlają istniejące informacje, bez własnego planowania tras.
+
+## Kronika
+
+Kronika to zapisana historia twoich podróży i znalezisk. Jej **mapa podróży 3D** pokazuje odwiedzone systemy i trasy dowódców. Szczegóły systemów i ciał pomagają odnaleźć znane informacje BIO, GEO, o materiałach, Codex i wydobyciu.
+
+### Połączone filtry
+
+**Zastosuj** lub **Enter w polu tekstowym** uruchamia razem wszystkie ustawione filtry:
+
+- tekst,
+- opcjonalne **Od** i **Do**,
+- **Planetarne miejsca wydobycia** i **Co najmniej**,
+- **Moje odkrycia wydobywcze** i **Towar**.
+
+Termin z **Pomocy wyszukiwania / Legendy** trafia do pola wyszukiwania i jest uruchamiany razem z już ustawionymi filtrami okresu i wydobycia.
+
+### Okres w UTC
+
+Od i Do aktywuje się oddzielnymi polami wyboru. Można ustawić jedną granicę; bez zaznaczenia danej granicy nie ma ograniczenia czasu z tej strony. **Od** włącza początek wybranego dnia kalendarzowego UTC. **Do** obejmuje cały wybrany dzień UTC. UTC jest wspólną podstawą czasu, a nie twoim lokalnym czasem kalendarzowym.
+
+Decydują **rzeczywiste wizyty w systemach**: co najmniej jedna zapisana wizyta musi mieścić się w okresie. Sam pierwszy lub ostatni moment poznania systemu nie zastępuje wizyty. Przy aktywnym okresie liczba wizyt oraz pierwsza i ostatnia wizyta na mapie dotyczą przefiltrowanych wizyt.
+
+Okres filtruje wizyty, a nie pojedyncze zdarzenia odkryć, BIO, GEO czy wydobycia. Znane informacje o znaleziskach i osobiste ilości wydobycia pozostają zapisanymi **wartościami całkowitymi**. **„Miedź 56 t” przy aktywnym okresie nie oznacza automatycznie „56 t w tym okresie”.** Jeśli Od jest późniejsze niż Do, pojawia się błąd i nie rozpoczyna się zapytanie do bazy.
+
+### Dowódca i odświeżanie
+
+**Wybór dowódców mapy** określa wyświetlane trasy. Osobiste wyszukiwania tekstowe i wydobywcze dotyczą natomiast oglądanego lub aktywnego dowódcy. Pola wyboru mapy nie rozszerzają automatycznie osobistego wyszukiwania na wielu dowódców.
+
+**Odśwież kronikę** ponownie ładuje dane i uruchamia aktywne filtry. **Bieżąca pozycja** najpierw stosuje bieżące filtry, a następnie centruje aktualny system tylko wtedy, gdy znajduje się on na wynikowej mapie. W przeciwnym razie pojawia się komunikat; filtry zostają zachowane.
+
+**Resetuj** czyści tekst, wyłącza Od/Do i przywraca widoczne pola dat. Pola wydobycia są odznaczane, minimalna liczba staje się 0, a towar Wszystkie. Wybór dowódców pozostaje; następnie ładowana jest zwykła kronika.
+
+Przy **braku wyników** mapa i trasy są czyszczone, lista wyników czyszczona i ukrywana, szczegóły resetowane, a otwarte okno szczegółów systemu kroniki zamykane. Stare wyniki nie pozostają na ekranie.
+
+### Obsługa mapy
+
+- Przeciągnij lewym przyciskiem myszy: obrót.
+- Przeciągnij prawym przyciskiem: przesunięcie.
+- Przeciągnij środkowym przyciskiem: narysowanie ramki powiększenia.
+- Kółko myszy: powiększanie.
+- **Wyrównaj:** przywraca orientację do galaktycznego widoku z góry; przesunięcie i powiększenie pozostają zachowane.
+
+## Obrazy i automatyczna konwersja zrzutów ekranu
+
+W sekcji **Obrazy** ustawiasz folder źródłowy zrzutów Elite i cel konwersji. Automatyczna konwersja przetwarza nowe BMP na **PNG lub JPEG**. Dostępne jest regulowane rozjaśnianie. BMP istniejące już przy uruchomieniu nie są automatycznie przetwarzane wstecz przez samo włączenie monitorowania; służy do tego konwersja ręczna.
+
+Nazwy przekonwertowanych plików zawierają czas wykonania, dowódcę i system; pliki są przechowywane według dowódców. Automatyczne przypisanie podąża za dowódcą aktywnego dziennika. Inny wybór galerii nie zmienia tego aktywnego dowódcy.
+
+Opcja **usunięcia oryginalnego BMP po pomyślnej konwersji** należy wyłącznie do tej konwersji i ma własne ustawienie. Jest niezależna od zarządzania obrazami ulubionych.
+
+Galeria pokazuje odpowiednie przekonwertowane obrazy z podglądem. Przy ponownym wyświetleniu jest odczytywana na nowo; odświeżanie również uwzględnia aktualne pliki. Wybór i duży podgląd aktualizują się wspólnie. Gdy wybrany obraz znika, wybierany jest istniejący obraz lub podgląd jest czyszczony. Sekcja Obrazy ma również własny wybór obrazów i usuwanie z potwierdzeniem.
+
+## Pozostałe widoki
+
+- **Przegląd:** aktywny dowódca, statek, pozycja, wykrycie dziennika, otwarte misje i status online.
+- **Misje:** trwale zapisane otwarte misje ze znanymi celami, postępem i stanem ukończenia. Brakujące dane nie są uzupełniane ani wymyślane.
+- **CMDR:** majątek, rangi, statystyki, MercCoins, statki/flota i znana pozycja Fleet Carriera. MercCoins są wyświetlane jako sumy zgłoszone przez Frontier, a nie samodzielnie obliczone saldo.
+- **Planer tras:** osobne planowanie dla statku i Fleet Carriera ze Spansh. Obliczone trasy carriera można eksportować do CSV dla CTSVision. Obliczenia wymagają połączenia z usługą zewnętrzną.
+
+## Dowódca, lokalne dane i usługi online
+
+CMDRHelper identyfikuje aktywnego dowódcę po Frontier ID z bieżącej sesji dziennika. Osobista eksploracja, misje, majątek, ulubione i dane dostępu online są przechowywane osobno. Samo oglądanie innego dowódcy nie zmienia dowódcy na żywo ani przypisania jego wysyłek.
+
+Lokalna baza SQLite zachowuje znane systemy, ciała i osobistą historię po restartach. Nowe kompletne wpisy dziennika są przetwarzane podczas gry; zapisane pozycje odczytu zapobiegają zbędnemu ponownemu czytaniu. Jeśli pozycja lub dowódca są nieprawidłowe, sprawdź najpierw wykrywanie dziennika i jego folder w ustawieniach.
+
+**EDSM** może dostarczać dodatkowe dane systemów. Obsługiwane dane dziennika mogą być przesyłane do **EDSM i Inara**, gdy dana usługa jest skonfigurowana i włączona z własnymi danymi dostępu aktywnego dowódcy. Dowódca nie używa automatycznie klucza API innego dowódcy. Lokalne zapisywanie działa niezależnie od dostępności połączenia online.
+
+## Języki i pomoc kontekstowa
+
+Interfejs obsługuje **12 języków**: **DE, EN, FR, IT, NO, SV, FI, PL, NL, ES, TR, EL** – niemiecki, angielski, francuski, włoski, norweski, szwedzki, fiński, polski, niderlandzki, hiszpański, turecki i grecki.
+
+Obecnie jest **937 kluczy UI-i18n na język**. **? Pomoc** udostępnia **10 szczegółowych tematów pomocy kontekstowej we wszystkich 12 językach**. Ulubione należą do pomocy Explorera; nawigacja planetarna ma własny temat dostępny bezpośrednio z nawigatora. Pomoc używa bieżącego języka interfejsu i zachowuje niemiecki jako zapasowy przy braku katalogu lub wpisu.
 
 ## Wymagania
 
-Python **3.10–3.13** oraz pakiety z `requirements.txt`:
+| Platforma | Python |
+| --- | --- |
+| **Windows** | **Python 3.10 lub nowszy, wymagany x64.** Brak sztucznego górnego limitu dla istniejących wersji. Decydują późniejsze rzeczywiste kontrole pakietów i importów. |
+| **Linux** | Bez zmian **Python od 3.10 do 3.13**, zalecane 64 bity. Musi być dostępny moduł venv odpowiadający wersji Pythona. |
 
-``` text
+Wymagane pakiety znajdują się w `requirements.txt`:
+
+```text
 PySide6>=6.7,<7
 numpy
 Pillow>=10.0
 ```
 
-## Instalacja w systemie Linux
+Instalacja pobiera te zależności. Lokalne pliki Elite muszą być dostępne do analizy dzienników i nawigacji planetarnej. Pod Linuksem Elite może działać przez Steam/Proton; rzeczywiste ścieżki dzienników i zrzutów ustawiasz w CMDRHelper. Opisane wsparcie HUD-u dla Linuksa dotyczy X11.
 
-``` bash
+## Instalacja pod Linuksem
+
+Rozpakuj kompletny projekt lub wydanie i uruchom w folderze projektu:
+
+```bash
 ./install.sh
 ./start.sh
 ```
 
-Skrypty używają wyłącznie lokalnego `venv` instalacji i mogą go ostrożnie
-naprawić bez naruszania danych osobistych.
+Skrypty używają wyłącznie lokalnego `venv` tej instalacji. Rozwiązują dowiązania symboliczne skryptów, sprawdzają Python i pip i mogą naprawić uszkodzone lokalne środowisko bez naruszania danych osobistych ani dzienników Elite. Brakujące pakiety systemowe nie są instalowane automatycznie; instalator zgłasza brak modułu venv. Dotychczasowa instalacja linuksowa pozostaje bez zmian.
 
-## Instalacja w systemie Windows
+## Instalacja pod Windows
 
-Dla Windows przewidziane są `install.bat` i `start.bat`.
+1. Rozpakuj kompletny ZIP do osobnego folderu.
+2. Uruchom **install.bat**, który wywołuje dołączony **install-windows.ps1**.
+3. Po udanej instalacji uruchom CMDRHelper przez **start.bat**.
 
-`install.bat` sprawdza Python 3.10–3.13, tworzy lub naprawia lokalne `venv` i
-instaluje `requirements.txt`. Następnie CMDRHelper jest uruchamiany
-przez `start.bat`.
+Istniejący **Python od 3.10 wzwyż, x64**, jest akceptowany bez sztucznego górnego limitu. Przyszła wersja Pythona nie jest odrzucana wyłącznie ze względu na numer. Odpowiedni istniejący Python lub użyteczny lokalny venv zapobiega niepotrzebnej automatycznej instalacji Pythona.
 
-## Tworzenie wydania
+Jeśli nie ma odpowiedniego Pythona, instalator po uzyskaniu zgody oferuje automatyczną instalację przez **winget**. Celowo wybrano do tego stałą serię wersji **Python 3.14 x64**; wybór jest oddzielny od otwartej reguły dla już istniejących wersji. Jeśli automatyczna instalacja nie jest możliwa, instalator zgłasza błąd.
 
-``` bash
-./create_release.sh
-```
+Instalator tworzy, sprawdza lub naprawia tylko **lokalny venv tej kopii CMDRHelper**, instaluje zależności i wykonuje **pip check** oraz kontrole importów **PySide6, PySide6.QtWidgets, numpy i PIL**. Dopiero te rzeczywiste sprawdzenia rozstrzygają o użyteczności środowiska. Ich niepowodzenie przerywa instalację z czytelnym komunikatem. Inne środowiska wirtualne nie są naprawiane ani zastępowane.
 
-Wersja wydania jest ustawiana bezpośrednio w skrypcie. Utworzony plik
-ZIP zawiera kod programu i zasoby, ale nie zawiera osobistej bazy
-danych, wirtualnego środowiska Pythona ani plików Git, cache czy
-edytora.
+## Diagnostyka i pakiety wydania
 
-## Wersja 2.2
+W razie problemów pomagają wskaźniki dziennika i statusu online oraz logi w folderze `logs`. Dane osobiste są przechowywane lokalnie; kopia zapasowa ulubionych musi zawierać wewnętrzne kopie obrazów oprócz bazy danych.
 
-**Wersja 2.2** bezpiecznie rozdziela usługi online, osobiste znaleziska,
-zrzuty ekranu i kredyty najemnika między dowódców oraz wzmacnia obsługę Journal.
-
-### Usługi online multi-CMDR
-
--   Inara i EDSM przechowują dane osobno dla dowódcy/FID, z własnym kluczem API,
-    oraz pokazują **skonfigurowano/nie skonfigurowano**. Lista służy tylko do
-    edycji; live upload zawsze używa aktywnej Journal-FID, nigdy oglądanego
-    dowódcy ani wyboru ustawień. Pozycje i statusy są oddzielne, a stare workery
-    tracą ważność po zmianie FID.
--   Automatyczna Inara używa trwałej, deduplikowanej outbox SQLite, batchingu i
-    retry. Awarie nie blokują aplikacji; niepotwierdzone eventy pozostają przy
-    dowódcy i są ponawiane tylko dla aktywnej FID. Obca outbox nie jest wysyłana.
-    Zakres: skoki FSD, dokowanie, lądowania, podróże Carrier, pozycja, misje oraz
-    zakup/sprzedaż statków. Bez deklaracji obsługi credits/assets, cargo,
-    materiałów, ShipLocker, loadoutów, egzobiologii, własnej historii Surface
-    Mining i nieudokumentowanych eventów Frontier.
-
-### Bezpieczeństwo Journal, Surface Mining i kartografia
-
--   Reader najpierw ustala ostatni pełny stan. Offset rośnie dopiero po lokalnym
-    zapisie transakcyjnym; Inara-outbox jest opcjonalna. Brak/błąd konfiguracji i
-    sieci Inara/EDSM nie wpływa na dane lokalne ani offsety. Przypadki brzegowe są
-    naprawiane kontrolowanie i idempotentnie, bez masowego uploadu historii Inara.
--   `MiningRefined` zapisuje faktycznie wydobyte commodities, kumulacyjnie per
-    dowódca/system/body. Materiały z pewnego kontekstu Rhino pozostają osobno od
-    `Scan.Materials`. Szczegóły pokazują **Własne znaleziska górnicze** i opcjonalne
-    produkty uboczne; **WYDOBYCIE ×N** nadal oznacza liczbę miejsc, a znalezisko
-    pojawia się dopiero po wydobyciu. Jednorazowy backfill odtwarza stare Journale
-    Rhino. Zawartość złoża nie jest przewidywana przed wydobyciem.
--   `SellExplorationData` i `MultiSellExplorationData` wyznaczają granicę sprzedaży.
-    Historyczne `NavBeaconDetail` nie jest już otwarte, a sprzedane dane nie
-    wracają po rekonstrukcji.
-
-### Kredyty najemnika
-
--   Stan pochodzi wyłącznie z `Statistics.Bank_Account`, nazwa Frontier
-    `MercCoins`: bieżący, suma wydana, Engineering, wyposażenie i `total_earned`.
-    Wartości są niezależne; częściowy snapshot nie usuwa znanych pól. Akceptowane
-    są tylko jednoznaczne sesje, multi-CMDR jest ściśle rozdzielone, a jednorazowy
-    backfill idempotentny. `total_earned` może matematycznie odbiegać od salda;
-    CMDRHelper zachowuje wartości Frontier bez własnego bilansu i delt.
-
-### Zrzuty, UI i aktualizator
-
--   Nowe obrazy trafiają do folderów dowódca+FID; nazwa zawiera czas, dowódcę i
-    pewny system. Tożsamość jest zamrażana w chwili kolejkowania. Filtry:
-    **Bieżący dowódca**, **Wszyscy**, **Nieprzypisane**. Legacy pozostaje bez zmian,
-    FID rozdziela identyczne nazwy. Okno znów skaluje się poziomo, legenda Explorer
-    zawija się, a szerokość/położenie list online jest ograniczone bez zwiększania
-    minimalnej szerokości przez długie nazwy.
--   W Windows worker i ponownie uruchomiona aplikacja są odłączone od konsoli
-    `start.bat`/`cmd.exe`: nowa grupa, niezależny kontekst i brak dziedziczonych
-    uchwytów standardowych. Control-C/Break/interrupt oraz rollback także po
-    `KeyboardInterrupt` są bezpieczniejsze; niepewne dependencies dostają marker
-    naprawy. Handshake dwóch sekund pozostaje.
--   ZIP pobiera się asynchronicznie. Rzeczywiste bajty sterują nazwą, MiB, sumą,
-    procentem, szybkością, ETA i paskiem; nieznany rozmiar używa busy mode z MiB.
-    Bezpieczne anulowanie usuwa pliki niepełne/błędne, instalator rusza tylko po
-    poprawnym ZIP. Fazy: pobieranie, kontrola ZIP, start updatera. Postęp backupu,
-    rozpakowania, kopiowania, requirements i restartu nie jest jeszcze widoczny.
-
-## Wersja 2.1
-
-**Wersja 2.1** rozwija prognozy biologiczne i widok floty, znacznie przyspiesza
-duże archiwa dzienników oraz wzmacnia instalację, start, aktualizację i
-wycofywanie zmian w Windows i Linuksie.
-
-### Prognozy biologiczne i habitat
-
--   nowa prognoza wskazuje konkretne możliwe gatunki zamiast tylko rodzaju,
-    gdy dane są wystarczające. Kilka gatunków może być pokazanych jednocześnie
-    z pewnością **WYSOKĄ**, **ŚREDNIĄ** lub **NISKĄ**; małe próby są oceniane
-    ostrożnie.
--   znaleziony lub rozpoznany gatunek zastępuje prognozę. Po poznaniu wszystkich
-    sygnałów BIO pozostałe prognozy znikają.
--   kompaktowe okno BIO pokazuje szacowane wartości kandydatów i możliwą sumę
-    dla ciała. Pomarańcz/złoto oznacza szacunek, zieleń wartość potwierdzoną;
-    spekulacyjnych premii First Footfall nie dolicza się.
--   temperatura, ciśnienie, skład atmosfery, promień oraz kontekst gwiazdy i
-    parenta wzbogacają dane habitatu. Ogólne prognozy wariantów i kolorów nie
-    są zaimplementowane.
-
-### Flota CMDR
-
--   flotę można sortować rosnąco lub malejąco według ostatniego użycia, nazwy,
-    typu, zasięgu skoku, ładowności, masy pustej, lokalizacji albo czasu.
--   filtry pokazują wszystkie statki albo statki z hangarem pojazdów czy
-    fighterów, wykrywanym z rzeczywistych modułów Loadout. SRV i fightery
-    pozostają wyposażeniem statku macierzystego.
-
--   filtr hangaru rozpoznaje `int_buggybay_*` i nowy duży
-    `int_mkiilargebuggybay_*`, bez wymyślania zawartości. `mev_rhino` jest
-    traktowany jako SRV/pojazd naziemny, nie osobny statek, bez zapewnienia,
-    że jego bieżący hangar jest zawsze znany.
-
-### Trwały stan Commandera i ponowne uruchomienie
-
--   misje, otwarte dane bio/kartograficzne, ostatnia lokalizacja, statki i
-    loadouty, własny Fleet Carrier oraz majątek pozostają w SQLite po restarcie
-    CMDRHelper lub Elite.
--   stan pozostaje znany, dopóki prawdziwe nowe zdarzenie Journala go nie zmieni;
-    brak danych w nowej sesji nie usuwa wcześniejszej wiedzy.
--   po przerwaniu praca rusza od ostatniego bezpiecznego punktu; niepełny ostatni
-    wiersz nie jest uznawany za przetworzony.
--   v2.1 może jednorazowo i kontrolowanie odtworzyć dotknięte stany z istniejących
-    Journali, a następnie kontynuuje przyrostowo.
-
-### Planetarne miejsca wydobycia i materiały powierzchniowe
-
--   `FSSBodySignals`/`SAASignalsFound` zgłaszają **planetarne miejsca wydobycia**,
-    pokazywane obok BIO/GEO jako lokalizowane **WYDOBYCIE ×N**. N to liczba
-    Frontier dla ciała, nie obliczany indeks.
--   `Scan.Materials` jest przechowywane dla ciała; nazwy i procenty są opisane
-    jako **materiały powierzchniowe ciała**, także w dymku.
--   liczba miejsc i ogólny skład ciała pozostają oddzielne; materiałów nie
-    przypisuje się do konkretnego miejsca wydobycia.
-
-### Dzienniki, import archiwum i wydajność
-
--   nazwy `Journal.YYMMDDHHMMSS.PART.log` oraz
-    `Journal.YYYY-MM-DDTHHMMSS.PART.log` są wspólnie przetwarzane we właściwej
-    kolejności, więc starsze pliki nie nadpisują bieżącego CMDR ani stanu.
--   zdarzenia Signal/Mapping z niepełnych archiwów można importować bez
-    wcześniejszego pełnego Body Scan; późniejsze skany uzupełniają dane, a
-    separacja multi-CMDR pozostaje zachowana.
--   trwały indeks pomija znane, niezmienione dzienniki. Aktywny plik jest
-    czytany przyrostowo od ostatniej bezpiecznej pozycji bajtowej; metadane i
-    SHA-256 chronią tożsamość, a przypisanie FID pozostaje bez zmian.
--   pierwszy duży indeks pokazuje prawdziwe liczby, procent i małe animowane
-    statki w responsywnym widoku. Późniejsze szybkie starty zwykle go nie
-    wyświetlają.
-
--   po zbudowaniu indeksu przetwarzane są tylko nowe pełne wiersze. Zmiany i
-    bezpieczna pozycja są zapisywane razem; błąd jej nie przesuwa, a część wiersza czeka.
--   szybki start wybiera live-CMDR z najnowszej jednoznacznej sesji indeksu,
-    natychmiast ładuje stan i pobiera liczbę Journali z indeksu.
-
-### Instalacja i aktualizacja
-
--   wzmocnione skrypty Windows i Linux obsługują Python 3.10–3.13, używają
-    wyłącznie lokalnego `venv` i bezpiecznie naprawiają środowisko potwierdzone
-    jako lokalne. Symlinki Linuksa są traktowane ostrożnie; obce środowiska nie
-    są używane.
--   aktualizacja i rollback jasno zgłaszają błędy oraz chronią dane osobiste i
-    dzienniki Elite.
--   normalna aktualizacja v2.0 do v2.1 jest wspierana. Przy instalacji znacznie
-    starszej niż v2.0 warto wykonać kopię ustawień; w razie problemów może pomóc
-    czysta instalacja. Nigdy nie usuwaj dzienników Elite ani starych danych
-    Helpera jako rutynowej naprawy.
--   pierwszy start v2.1 z ogromnym archiwum może jednorazowo potrwać podczas
-    indeksowania; kolejne starty są znacznie szybsze.
-
-## Wersja 2.0
-
-**Wersja 2.0** dodaje rzeczywistą obsługę wielu Commanderów opartą na Frontier
-FID. Aktywny Commander jest rozpoznawany automatycznie z Journala, a innego
-znanego Commandera można wybrać wyłącznie do podglądu offline. Wybór widoku
-nigdy nie zmienia przypisania ani zapisów aktywnego Commandera.
-
-### Multi-CMDR i widok CMDR
-
--   wizyty, dane eksploracyjne, misje, ostatnia lokalizacja, statki, Fleet
-    Carrier, majątek oraz niesprzedane dane biologiczne i kartograficzne są
-    przechowywane oddzielnie dla każdego Commandera.
--   **Widok CMDR** pokazuje także offline misje, ostatnią lokalizację, ostatni
-    statek, Fleet Carrier wraz z położeniem, Credits oraz otwarte dane
-    biologiczne i kartograficzne wybranego Commandera.
--   kronika Multi-CMDR używa stabilnych kolorów i filtrów dla Commanderów,
-    prowadzi ich trasy oddzielnie i pokazuje wspólne systemy jako wielokrotne
-    odwiedziny.
-
-### Flota Commandera
-
--   przegląd floty zachowuje wiele statków każdego Commandera oraz oferuje
-    rozwijane szczegóły i pionowe przewijanie.
--   aktywny statek jest zawsze wyróżniony na zielono. Pozostałe statki są
-    grupowane stabilnymi kolorami według ostatniej znanej lokalizacji.
--   kombinezony, SRV (Scarab, Scorpion i Nomad), myśliwce, taksówki i dropshipy
-    nie są prowadzone jako zwykłe statki Commandera.
-
-### Istniejące bazy danych
-
-Istniejące bazy danych są aktualizowane przez wbudowaną migrację schematu.
-Dane Multi-CMDR są rozdzielane według FID. Jeśli stare dane mogą należeć do
-kilku profili, CMDRHelper nie zgaduje bez podstaw i nie wymaga ogólnego
-usuwania dotychczasowych danych.
-
-Obsługa Linuxa i Windows pozostaje dostępna. Planer tras wprowadzony w wersji
-1.5 nadal jest częścią CMDRHelper.
-
-## Wersja 1.5
-
-**Wersja 1.5** jest dużą aktualizacją funkcjonalną. Dodaje nowy planer tras
-dla statków i Fleet Carrierów, ściślej łączy postęp trasy z Journalem Elite
-Dangerous oraz poprawia niezawodność i wydajność, szczególnie w Windows.
-
-### Planer tras i trasy statków
-
--   nowy **Planer tras** oblicza trasy statków przez Spansh Galaxy Plotter i
-    pokazuje wszystkie systemy pośrednie w CMDRHelper.
--   CMDRHelper rozpoznaje w Journalu statek, FSD, engineering FSD oraz aktywny
-    Guardian FSD Booster. Dostępne wartości zbiornika, ładunku, masy i FSD są
-    przejmowane automatycznie.
--   automatycznie rozpoznane wartości pozostają edytowalne. Ręczne zmiany są
-    zachowywane przy późniejszych aktualizacjach Loadout, ładunku i paliwa,
-    dopóki wykryte dane statku nie zostaną ponownie jawnie zastosowane.
--   zmiany Loadout, ładunku i paliwa aktualizują tylko odpowiednie dane trasy.
-    Nieznane wartości pozostają widocznie puste i nie są szacowane.
--   przed obliczeniem system początkowy i docelowy są sprawdzane pod kątem
-    dokładnego dopasowania w Spansh. Nieznany system daje zrozumiały komunikat
-    bez uruchamiania zadania, które nie może się udać.
--   postęp wykorzystuje prawdziwe zdarzenia `FSDJump` z istniejącego przepływu
-    Journala. Po udanym skoku następny system jest automatycznie kopiowany do
-    schowka Qt i może zostać ponownie skopiowany ręcznie.
-
-### Fleet Carrier i CTSVision
-
--   osobny tryb **Fleet Carrier / CTSVision** korzysta ze Spansh Fleet Carrier
-    Router.
--   obliczone trasy Fleet Carriera zawierają dane skoków i Tritium oraz mogą
-    zostać wyeksportowane jako plik CSV zgodny z CTSVision.
-
-### Niezawodność Journala i wydajność
-
--   tymczasowy błąd dostępu do aktywnego pliku Journal nie zatwierdza już
-    zmiany przedwcześnie. Normalny cykl odpytywania ponawia próbę bez
-    agresywnego busy-waitingu.
--   uczenie BIO i kartografii nie skanuje już całego archiwum Journali przy
-    zwykłych, niepowiązanych zdarzeniach. Pełne analizy są ograniczone do
-    właściwych zdarzeń BIO lub sprzedaży oraz przewidzianego importu archiwum.
--   zmniejsza to zbędną pracę przy każdym dopisaniu do Journala i poprawia
-    niezawodność oraz szybkość reakcji, szczególnie w Windows.
-
-## Wersja 1.0.8
-
-**Wersja 1.0.8** dodaje osobistą rekomendację skoku dla eksploracji,
-uzupełnia internacjonalizację oraz usprawnia okna na żywo Eksploratora i
-widok mapy Kroniki.
-
-### Wskazówka i rekomendacja skoku
-
--   nowa sekcja **„Wskazówka skoku”** analizuje własną lokalną bazę danych
-    eksploracji i pokazuje, które proceduralne kody układów mogą być
-    szczególnie interesujące dla wybranego celu eksploracji.
--   dostępne cele obejmują między innymi ogólne znaleziska BIO, znane rodzaje
-    i gatunki BIO, wartościowe ciała eksploracyjne, kandydatów do
-    terraformowania, Światy wodne, Światy podobne do Ziemi i Światy
-    amoniakalne.
--   ranking uwzględnia układy zbadane wcześniej z danym kodem, trafienia,
-    wskaźnik trafień, zapisane znaleziska i dostępną wielkość próby.
-    Regulowana minimalna liczba zbadanych układów zapobiega zawyżaniu oceny
-    zbyt małych zbiorów danych.
--   CMDRHelper wyróżnia preferowane kody, których można szukać na mapie
-    galaktyki, na przykład kombinacje `ZL-Z b` lub `NR-C d`.
--   rekomendacja opiera się wyłącznie na **własnej dotychczasowej historii
-    eksploracji** i zapisanych w niej znaleziskach. Jest wskazówką
-    statystyczną i **nie gwarantuje znalezienia celu**.
-
-### Internacjonalizacja
-
--   internacjonalizacja została dalej uzupełniona i ponownie sprawdzona
-    względem niemieckiej wersji referencyjnej.
--   wszystkie **12 obsługiwanych języków interfejsu** ma teraz ten sam pełny
-    zestaw **560 kluczy tłumaczeń**.
--   nowe i wcześniej brakujące tłumaczenia **wskazówki i rekomendacji skoku**
-    zostały dodane we wszystkich obsługiwanych językach.
--   zestaw i kolejność kluczy oraz symbole zastępcze formatowania zostały
-    ujednolicone we wszystkich plikach językowych.
-
-### Okna na żywo i ustawienia Eksploratora
-
--   ustawienia Eksploratora mają nowe objaśniające tooltipy automatycznego
-    wyświetlania okien **„Wartościowe ciała”** i **„Znaleziska BIO”**.
--   tooltipy wyjaśniają, kiedy każde okno pojawia się automatycznie na
-    podstawie ustawionego progu wartości lub wykrytych sygnałów BIO albo GEO.
--   wartościowe ciała już zmapowane przez Commandera nie są wyświetlane jako
-    otwarte cele w małym oknie na żywo.
--   całkowicie przeanalizowane ciała BIO znikają z okna BIO; część GEO tego
-    samego ciała, która nie została jeszcze zmapowana za pomocą DSS,
-    pozostaje widoczna.
-
-### Kronika
-
--   orientacja mapy Kroniki została poprawiona tak, aby dodatnia oś Z była
-    skierowana do góry. Zapisane współrzędne Elite `StarPos` pozostają bez
-    zmian.
-
-## Wersja 1.0
-
-W **wersji 1.0** CMDRHelper osiąga pierwszy kompletny etap rozwoju
-zaplanowanego zakresu podstawowego.
-
-Najważniejsze zmiany i rozszerzenia do wersji 1.0:
-
-### Uzupełniona prezentacja ciał i gwiazd
-
--   materiały graficzne dla obsługiwanych typów planet, gwiazd i
-    obiektów specjalnych zostały dalej uzupełnione.
--   dodatkowe klasy gwiazd i szczególne typy gwiazd są przedstawiane za
-    pomocą własnych grafik zamiast korzystania z ogólnej prezentacji
-    domyślnej.
--   dla odpowiednich ciał nadal dostępne są obracające się tekstury
-    equirectangular 2:1 w widoku szczegółowym.
--   specjalne obiekty astronomiczne mogą być dodatkowo przedstawiane w
-    widoku szczegółowym za pomocą odpowiednich filmów.
--   gwiazdy neutronowe, białe karły, czarne dziury i supermasywne czarne
-    dziury otrzymują dzięki temu znacznie bardziej indywidualną
-    prezentację.
--   wykorzystywane zewnętrzne materiały graficzne i filmowe są
-    dokumentowane wraz ze źródłem i informacją o autorstwie w sekcji
-    **„Materiały graficzne i wideo / Media Credits"**.
-
-### Ukończona wielojęzyczność
-
--   tłumaczenia interfejsu użytkownika zostały ukończone dla
-    obsługiwanych języków i ujednolicone względem wspólnego zestawu
-    kluczy.
--   wszystkie **12 języków interfejsu** korzysta z tego samego pełnego
-    zestawu kluczy tłumaczeń.
--   automatyczna kontrola tłumaczeń sprawdza brakujące, dodatkowe i
-    zduplikowane klucze oraz różniące się symbole zastępcze
-    formatowania.
--   język niemiecki służy jako w pełni utrzymywana wersja referencyjna
-    dla interfejsu użytkownika i dalszej dokumentacji.
-
-### Zmiany z wersji 0.9.9
-
-### Wielojęzyczność i kontrola tłumaczeń
-
--   interfejs użytkownika został przestawiony na centralny system
-    wielojęzyczny.
--   CMDRHelper obsługuje teraz **12 języków interfejsu**: **niemiecki,
-    angielski, francuski, włoski, norweski (Bokmål), szwedzki, fiński,
-    polski, niderlandzki, hiszpański, turecki i grecki**.
--   język można wybrać i zapisać w ustawieniach; nazwy języków są
-    wyświetlane na liście wyboru każda we własnym języku.
--   brakujące tłumaczenia korzystają ze zdefiniowanej kolejności
-    fallback: **wybrany język → angielski → niemiecki → klucz
-    tłumaczenia**.
--   tłumaczenia znajdują się centralnie w plikach językowych w
-    `cmdrhelper/i18n/`.
--   nowe narzędzie deweloperskie `tools/check_i18n.py` automatycznie
-    sprawdza:
-    -   klucze `tr("...")` używane w programie,
-    -   brakujące lub dodatkowe klucze tłumaczeń,
-    -   zduplikowane klucze,
-    -   różniące się symbole zastępcze formatowania, takie jak
-        `{system}` lub `{count}`.
--   w systemie Linux kontrola i18n jest automatycznie uruchamiana przy
-    starcie za pomocą `start.sh`. Wykryte problemy z tłumaczeniami są
-    wyraźnie zgłaszane, ale nie blokują uruchomienia programu.
--   przetwarzanie misji i Journala pozostaje oddzielone od wybranego
-    języka interfejsu CMDRHelper, aby wewnętrzne dane Elite Dangerous
-    nie zależały od zlokalizowanych tekstów wyświetlanych użytkownikowi.
-
-### Explorer i mapa systemu
-
--   przebudowano strukturę Parent/Child mapy systemu: gwiazdy, planety,
-    księżyce i Belt Clusters są rozmieszczane zgodnie z hierarchią
-    Journala.
--   nowa funkcja **„Pokaż wszystko"** z kompaktowym podglądem
-    miniaturowym całego systemu.
--   ciała można kliknąć w widoku miniaturowym; główna mapa przechodzi
-    następnie bezpośrednio do wybranego ciała.
--   ulepszona nawigacja w dużych mapach systemów:
-    -   kółko myszy przesuwa mapę poziomo.
-    -   przytrzymanie prawego przycisku myszy i przeciąganie w górę/dół
-        przesuwa mapę pionowo.
--   wizualne rozmiary ciał są silniej skalowane na podstawie
-    rzeczywistego promienia.
--   dalej ulepszono prezentację i oznaczanie BIO, GEO, Terraforming,
-    pierwszego odkrycia i First Mapping.
--   nowa **lista wartości** w Explorerze: planety i księżyce są
-    sortowane wierszami według aktualnej szacowanej wartości mapowania.
--   lista wartości wyraźnie rozróżnia teraz **First Mapping możliwy**,
-    **już zmapowane** oraz **zmapowane osobiście**.
--   aktualnie osiągnięta wartość mapowania jest celowo wyróżniana na
-    liście wartości, natomiast status i metadane są prezentowane
-    spokojniej.
--   nowy wskaźnik **„Jeszcze nie oddano"** dla otwartych wartości
-    kartograficznych i BIO ze wszystkich systemów od ostatniej
-    sprzedaży; kartografia i BIO są zerowane osobno.
--   otwarte wartości Explorera są wyróżniane na żółto w głównym oknie,
-    dzięki czemu niesprzedane jeszcze dane są natychmiast widoczne.
-
-### Okna live Explorera
-
--   nowe swobodnie pozycjonowane **okna live dla wartościowych ciał i
-    znalezisk BIO**, które pojawiają się automatycznie podczas
-    eksploracji.
--   pozycja i rozmiar okien live są zapisywane i ponownie używane przy
-    następnym pojawieniu się.
--   po przejściu do innego systemu gwiezdnego okna live są automatycznie
-    zamykane i czyszczone; pojawiają się ponownie dopiero po wykryciu
-    odpowiednich danych w nowym systemie.
--   okno **„Wartościowe ciała"** automatycznie uwzględnia wszystkie
-    planety i księżyce, których aktualnie możliwa do uzyskania wartość
-    mapowania osiąga próg wybrany w ustawieniach.
--   ten sam regulowany próg steruje teraz żółtym wyróżnieniem listy
-    wartości, oknem live wartościowych ciał oraz **złotą ramką na mapie
-    systemu**.
--   **okno BIO live** kompaktowo pokazuje podczas gry ciała, rozpoznane
-    rodzaje lub gatunki, postęp skanowania oraz znane wartości Vista
-    Genomics.
--   znaleziska BIO korzystają z tej samej logiki kolorów co w oknie
-    głównym: szary = wykryte przez DSS/FSS, biały = pierwsza próbka,
-    żółty = druga próbka, zielony = analiza zakończona.
--   przy częściowo określonych sygnałach BIO planeta automatycznie się
-    rozwija i pokazuje poszczególne znaleziska w osobnych wierszach;
-    nadal nieznane sygnały pozostają widoczne.
--   gdy wszystkie gatunki BIO danego ciała zostaną w pełni
-    przeanalizowane, planeta ponownie zwija się do zwartego zielonego
-    wiersza podsumowania.
--   ogólne nazwy rodzajów DSS/FSS są automatycznie zastępowane
-    konkretnym gatunkiem BIO, gdy tylko zostanie on poznany poprzez
-    `ScanOrganic`.
--   znane wartości poszczególnych znalezisk są wyświetlane bezpośrednio
-    przy danym znalezisku BIO; w pełni rozpoznane ciała pokazują
-    dodatkowo wartość całkowitą.
--   okna live mają subtelne czerwonobrązowe tło, dzięki czemu podczas
-    gry wyraźnie odróżniają się od głównego okna CMDRHelper.
-
-### Analiza BIO
-
--   dane biologiczne są analizowane i wyświetlane oddzielnie od
-    standardowych wartości kartograficznych.
--   osobna **lista planet BIO** ze wszystkimi ciałami, na których
-    wykryto sygnały biologiczne.
--   rodzaje BIO z `SAASignalsFound` lub `FSSBodySignals` są również
-    wstecznie pobierane z istniejących Journali.
--   konkretne gatunki i warianty BIO z `ScanOrganic` są wyświetlane
-    bezpośrednio na liście.
--   postęp skanowania każdego znaleziska BIO jest przedstawiany
-    kolorami:
-    -   szary = znane tylko przez DSS/FSS
-    -   biały = pierwsza próbka
-    -   żółty = druga próbka
-    -   zielony = trzecia próbka / analiza zakończona
--   znana wartość bazowa Vista Genomics jest wyświetlana już wtedy, gdy
-    gatunek BIO zostanie jednoznacznie określony.
--   wyświetlanie wartości bazowej w pełni przeanalizowanych próbek BIO.
--   wyświetlanie możliwej **łącznej wartości First Logged ×5**.
--   znane wartości BIO można uzupełniać na podstawie istniejących danych
-    sprzedaży.
--   gatunki bez znanej wartości są odpowiednio oznaczane w analizie.
--   status BIO rozróżnia stan otwarty, odwiedzony i w pełni
-    przeanalizowany.
-
-### Misje
-
--   ulepszono przetwarzanie `MissionRedirected`.
--   przekierowane misje mogą przejmować nazwę, nowy system docelowy lub
-    nową stację docelową oraz informacje o poprzednim celu.
--   w określonych przypadkach misje mogą być rekonstruowane również
-    wtedy, gdy wcześniej nie istniał kompletny wpis `MissionAccepted`.
--   szerokość kolumn misji można dowolnie ustawiać; wybrane szerokości
-    są zapisywane.
--   wyświetlanie **łącznej nagrody wszystkich aktualnie otwartych
-    misji**.
-
-### Obrazy i zrzuty ekranu
-
--   osobna sekcja zrzutów ekranu z galerią i podglądem.
--   automatyczna konwersja nowych zrzutów BMP z Elite Dangerous.
--   zapis jako PNG lub JPG.
--   opcjonalne usunięcie pliku BMP po udanej konwersji.
--   regulowana korekcja jasności od 0 do 50%.
--   wygodniejsze korzystanie z folderu zrzutów ekranu Elite w
-    Steam/Proton.
--   galeria jest aktualizowana również po zewnętrznym usunięciu plików.
--   poprawiona widoczność opcji automatycznej konwersji i usuwania.
-
-### Usługi online
-
--   automatyczne przesyłanie Journali do EDSM zostało dalej zintegrowane
-    i jest widoczne w obszarze statusu głównego okna.
--   status dla przesyłania, oczekiwania, błędu oraz wyłączonego EDSM.
--   wskaźnik statusu Inara jako przygotowanie do późniejszego
-    automatycznego przesyłania.
-
-### Obsługa i stabilność
-
--   krój i rozmiar czcionki interfejsu można wybrać w ustawieniach i po
-    ponownym uruchomieniu zastosować do całego interfejsu.
--   strona ustawień jest przewijalna, dzięki czemu wszystkie opcje
-    pozostają dostępne również przy mniejszych rozmiarach okna.
--   widoczny przycisk **„Zakończ"** na lewym pasku bocznym.
--   blokada Single Instance zapobiega przypadkowemu jednoczesnemu
-    uruchomieniu drugiej instancji programu.
--   bezpieczny miniaturowy podgląd systemu bez bezpośredniego
-    renderowania już widocznego widgetu Explorer.
--   różne ulepszenia interfejsu, przetwarzania Journala, bazy danych i
-    procesu aktualizacji.
-
-## Status projektu
-
-CMDRHelper znajduje się w fazie rozwoju. Interfejs użytkownika, model
-danych i sposób prezentacji mogą się jeszcze zmienić. Planowane są
-kolejne typy ciał, funkcje Journala, funkcje Explorera, źródła danych i
-obliczenia. Linux i Windows będą nadal testowane.
-
-CMDRHelper powstał jako osobiste narzędzie i jest stopniowo rozwijany w
-bardziej rozbudowanego pomocnika dla Elite Dangerous.
+Własny pakiet wydania można utworzyć przez `./create_release.sh`. Wersja programu jest zarządzana centralnie w `cmdrhelper/version.py` i odczytywana przez skrypt wydania. Pakiet zawiera kod i zasoby, ale bez osobistej bazy danych, venv, plików Git ani pamięci podręcznej.
 
 ## Materiały graficzne i wideo / Media Credits
 

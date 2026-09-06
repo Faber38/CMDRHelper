@@ -328,179 +328,207 @@ HELP_TOPICS = {'overview': ('Overview',
               '<h3>Tip</h3>\n'
               "<p>If you have an interesting body, it's worth clicking on the detailed view. This "
               'is the best place to differentiate between general body data, possible exploration '
-              'results and actual finds documented by your own commander.</p>'),
- 'chronicle': ('chronicle',
-               '<h2>chronicle</h2>\n'
-               "<p>The chronicle is the commander's personal travel and discovery history. It uses "
-               'the permanently stored journal information to find systems that have already been '
-               'visited, to spatially represent them and to search for known discoveries.</p>\n'
-               '\n'
-               '<h3>Systems visited</h3>\n'
-               '<p>The Chronicle shows the systems visited and their locations in the galaxy known '
-               'to the Commander.</p>\n'
-               '<p>If available, the first and last visit as well as known body information are '
-               'taken into account.</p>\n'
-               '<p>The chronicle is therefore not just a map, but also a tool for finding previous '
-               'travel destinations and discoveries.</p>\n'
-               '\n'
-               '<h3>3D map</h3>\n'
-               '<p>The systems visited are spatially represented using their galactic X/Y/Z '
-               'coordinates.</p>\n'
-               '<p>The operating instructions are located directly above the map:</p>\n'
-               '<ul>\n'
-               '<li>Hold down the left mouse button → rotate view</li>\n'
-               '<li>Hold down the middle mouse button → Zoom</li>\n'
-               '<li>Hold down the right mouse button → move view</li>\n'
-               '</ul>\n'
-               '<p>The small axis display helps with orientation in space.</p>\n'
-               '\n'
-               '<h3>Current position</h3>\n'
-               '<p>With “Current Position” the map view can be aligned or returned to the '
-               'currently known location of the active commander.</p>\n'
-               '<p>The prerequisite is that a valid current position is known for the '
-               'commander.</p>\n'
-               '\n'
-               '<h3>Align</h3>\n'
-               '<p>“Align” returns the map orientation to the intended basic orientation.</p>\n'
-               '<p>This is helpful if the map has become confusing after being rotated or moved a '
-               'lot.</p>\n'
-               '\n'
-               '<h3>Update timeline</h3>\n'
-               '<p>“Update history” updates the display with the currently known data.</p>\n'
-               '<p>The function does not change journal files or create new exploration data. It '
-               'simply updates the history display based on the existing CMDRHelper data.</p>\n'
-               '\n'
-               '<h3>Free text search</h3>\n'
-               '<p>Already known content can be searched using the “Search history…” field.</p>\n'
-               '<p>The search takes into account – if available in the database – among other '
-               'things:</p>\n'
-               '<ul>\n'
-               '<li>System names</li>\n'
-               '<li>Body features</li>\n'
-               '<li>biological data</li>\n'
-               '<li>Materials</li>\n'
-               '<li>Codex data</li>\n'
-               '</ul>\n'
-               '<p>The “Search” button only carries out this free text search.</p>\n'
-               '<p>The separate DISMANTLING filters, on the other hand, are carried out with '
-               '“Apply”.</p>\n'
-               '\n'
-               '<h3>Search results</h3>\n'
-               '<p>Hits are displayed in the existing results list below the chronicle card.</p>\n'
-               '<p>Depending on the type of hit, system and body as well as additional information '
-               'may appear.</p>\n'
-               '<p>A hit can be used to find the corresponding system or body that is already '
-               'known and to open the existing detailed information.</p>\n'
-               '\n'
-               '<h3>Planetary mining sites</h3>\n'
-               '<p>The filter “Planetary mining sites” can be used to specifically search for '
-               'known bodies for which Elite Dangerous has reported planetary mining sites.</p>\n'
-               '<p>The underlying display corresponds to that known from Explorer:</p>\n'
-               '<p><b>ABBAU ×N</b></p>\n'
-               '<p>The number belongs to the body itself and is not related to the commander.</p>\n'
-               '\n'
-               '<h3>At least</h3>\n'
-               '<p>Using “At least” you can specify the minimum number of planetary mining '
-               'locations a body should have.</p>\n'
-               '<p>Example:</p>\n'
-               '<p><b>At least 20</b></p>\n'
-               '<p>only shows known bodies with at least:</p>\n'
-               '<p><b>ABBAU ×20</b></p>\n'
-               '<p>This makes it possible to specifically locate particularly extensive mining '
-               'areas.</p>\n'
-               '\n'
-               '<h3>Own mining finds</h3>\n'
-               '<p>With “Own mining finds” the search is limited to bodies on which the commander '
-               'in question has demonstrably carried out surface mining himself.</p>\n'
-               '<p>This information comes from personal surface mining history and is strictly '
-               'separated by commander.</p>\n'
-               '<p>A body can therefore have global ABBAU ×N signals without its own commander '
-               'having already removed anything there.</p>\n'
-               '\n'
-               '<h3>raw material</h3>\n'
-               '<p>If “Own mining finds” is activated, the “Raw material” selection is also '
-               'available.</p>\n'
-               '<p>The list only contains commodities that the commander in question has actually '
-               'already won from surface mining.</p>\n'
-               '<p>This is not a theoretical list of all possible mining raw materials.</p>\n'
-               '<p>For example, FABER38 may appear:</p>\n'
-               '<ul>\n'
-               '<li>All</li>\n'
-               '<li>copper</li>\n'
-               '</ul>\n'
-               '<p>If additional raw materials are actually mined later, they will automatically '
-               'appear in your personal selection.</p>\n'
-               '\n'
-               '<h3>Targeted search for raw materials</h3>\n'
-               '<p>For example, if “Copper” is selected and then “Apply” is pressed, the history '
-               'will only show bodies on which the commander in question has demonstrably mined '
-               'copper.</p>\n'
-               '<p>Example:</p>\n'
-               '<p><b>Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — copper 56 t</b></p>\n'
-               '<p>This means that the chronicle can be used as a personal location database: a '
-               'raw material that has already been mined can be found again later.</p>\n'
-               '\n'
-               '<h3>All raw materials</h3>\n'
-               '<p>With “Raw Material: All” all matching personal surface mining discoveries are '
-               'taken into account.</p>\n'
-               '<p>If several commodities are known on a body, they can be displayed together with '
-               'the quantities they have obtained so far.</p>\n'
-               '<p>Example:</p>\n'
-               '<p><b>ABBAU ×24 — Helium-3 18 t, copper 56 t</b></p>\n'
-               '<p>The quantities are the personal mining values \u200b\u200bof the respective '
-               'commander, which are actually documented from journal events.</p>\n'
-               '\n'
-               '<h3>Combine filters</h3>\n'
-               '<p>The mining filters can be combined with each other.</p>\n'
-               '<p>For example:</p>\n'
-               '<ul>\n'
-               '<li>Planetary mining sites active</li>\n'
-               '<li>At least 20</li>\n'
-               '<li>Own mining finds active</li>\n'
-               '<li>Raw material copper</li>\n'
-               '</ul>\n'
-               '<p>searches for known bodies with at least 20 planetary mining sites where the '
-               'commander in question has already mined copper himself.</p>\n'
-               '\n'
-               '<h3>Apply</h3>\n'
-               '<p>“Apply” only runs the visible mining filters.</p>\n'
-               '<p>The “Search” button next to it is reserved for free text searches.</p>\n'
-               '<p>This means that text search and mining filters are deliberately separated from '
-               'each other.</p>\n'
-               '\n'
-               '<h3>Reset</h3>\n'
-               '<p>“Reset” deletes the current free text search and also resets the mining filters '
-               'to their initial state.</p>\n'
-               '<p>The raw material selection jumps back to “All”.</p>\n'
-               '\n'
-               '<h3>Commander selection</h3>\n'
-               '<p>The chronicle can display data from various well-known commanders.</p>\n'
-               '<p>However, personal information such as your own mining finds and raw material '
-               'lists are always evaluated separately for the commander actually being '
-               'viewed.</p>\n'
-               '<p>A commander does not see any mining discoveries in his raw material selection '
-               'that belong exclusively to another commander.</p>\n'
-               '\n'
-               '<h3>All commanders</h3>\n'
-               '<p>The map/chronicle display can take multiple commanders into account.</p>\n'
-               '<p>This does not change the personal assignment of commander-related data. Global '
-               'astronomical properties of a system or body remain shared, personal findings '
-               'remain separate.</p>\n'
-               '\n'
-               '<h3>Search aid / legend</h3>\n'
-               '<p>Additional information about the chronicle search and the meaning of the '
-               'display can be accessed via “Search help / legend”.</p>\n'
-               '<p>This context-related main help supplements the short operating instructions '
-               'available there.</p>\n'
-               '\n'
-               '<h3>Tip</h3>\n'
-               '<p>The chronicle is particularly suitable for finding interesting places that were '
-               'discovered during a longer trip.</p>\n'
-               '<p>For surface mining, for example, it can answer:</p>\n'
-               '<p>“On which planet have I ever mined copper?”</p>\n'
-               '<p>or:</p>\n'
-               '<p>“Which of my known planets have a particularly high number of mining '
-               'sites?”</p>'),
+              'results and actual finds documented by your own commander.</p>'
+              """
+
+<h3>★ Favorites</h3>
+<p>The “★ Favorites” button at the top of the Explorer opens a separate, reusable favorites window. Here you save systems, planets/moons and surface locations for the active commander.</p>
+<p>The scrollable list, sorted alphabetically by name, shows the name, type, system, body and latitude/longitude where applicable, category and a small image preview. Free-text search, type and category filters can be used together. The search covers the name, system, body and note.</p>
+<p>“Open / View” shows the saved information, note and a larger image preview. “Show in Explorer” opens the existing system overview or body detail view if the favorite belongs to the current Explorer system and matching data is available. For other systems, the saved favorite data remains visible; no system route is calculated.</p>
+
+<h3>Save a system, planet or current location</h3>
+<ul>
+<li>“★ Save current system” saves the current system without surface coordinates.</li>
+<li>“★ Save planet / moon” lets you select a known planet or moon in the current system. This favorite also receives no surface coordinates.</li>
+<li>“★ Save current location” is at the top of the favorites window beside the other two save options and is also available in the planetary navigator. In the favorites window, the button always remains visible and is disabled without valid current planetary position data and an active commander. Clicking it freezes the commander, system, body, latitude and longitude. Subsequent movement in the game does not change these values in the open dialog.</li>
+</ul>
+<p>Enter a name of your choice and select exactly one category: Bio, Geo, Mining, View, Landing site, Interesting or Other. A note and an image are optional. Known technical IDs are carried over internally; you do not need to enter them. Latitude or longitude 0.0 are also valid coordinates.</p>
+<p>“Edit” changes the name, category, note and image. The system, body and saved coordinates are preserved. To save a different surface location, create a new favorite at that position.</p>
+
+<h3>Favorite images</h3>
+<p>Favorite images are separate from the Images area. “Choose image …” allows PNG, JPEG and WebP. Only when saving does CMDRHelper copy the selected image into its own favorite image folder. The original file is neither moved nor modified.</p>
+<p>“Use latest screenshot” rescans the configured screenshot source folder on every click and looks for readable screenshots with typical Elite filenames. Without a configured folder, the usual Elite screenshot directories on Windows or Steam/Proton are considered. The folder belonging to the active commander in the configured conversion destination is also searched for matching converted Elite screenshots. A converted screenshot can therefore still be found if its original BMP has been deleted. The newest capture is determined by an unambiguous timestamp in the filename, otherwise by the file time; for converted images, the capture time stored in the name counts instead of the conversion time. CMDRHelper does not trigger screenshots itself or search arbitrary image folders.</p>
+<p>Before use, the filename, capture time and a freshly loaded preview are displayed. Confirm with “Use this image”. If no suitable screenshot is found, you can still use “Choose image …”. Elite BMP screenshots are saved as an internal PNG copy.</p>
+<p>An image can be replaced in the edit dialog or deselected with “Remove image”. Saving removes the internal copy that is no longer used. If an image file is missing, the favorite remains usable without a preview.</p>
+
+<h3>Favorite target and commander</h3>
+<p>For surface locations, “▶ Go to target” passes the saved body, latitude, longitude and favorite name to the existing planetary navigator. The new target replaces the previous target. Favorites have no navigation logic of their own. The navigator continues to decide for itself: matching valid planetary data activates navigation; otherwise it waits for that data.</p>
+<p>Favorites belong exclusively to the active commander. Switching commanders updates the list and discards an open edit dialog. A target still managed as the previous commander's favorite target is stopped. The commander selection in the chronicle does not extend this favorites list.</p>
+<p>“Delete” requires confirmation and removes only the favorite record and its internal image copy. The original screenshot or selected original image and all Explorer, journal and body data are preserved.</p>"""),
+ 'chronicle': (
+        'Chronicle',
+        """<h2>Chronicle</h2>
+<p>The chronicle is the commander's personal travel and discovery history. It uses the permanently stored journal information to find systems that have already been visited, to spatially represent them and to search for known discoveries.</p>
+
+<h3>Systems visited</h3>
+<p>The Chronicle shows the systems visited and their locations in the galaxy known to the Commander.</p>
+<p>If available, the first and last visit as well as known body information are taken into account.</p>
+<p>With an active period, the visit count, first visit and last visit in the map view refer to the filtered actual system visits.</p>
+<p>The chronicle is therefore not just a map, but also a tool for finding previous travel destinations and discoveries.</p>
+
+<h3>3D map</h3>
+<p>The systems visited are spatially represented using their galactic X/Y/Z coordinates.</p>
+<p>The operating instructions are located directly above the map:</p>
+<ul>
+<li>Hold down the left mouse button → rotate view</li>
+<li>hold and drag the middle mouse button → draw a zoom rectangle</li>
+<li>Hold down the right mouse button → move view</li>
+</ul>
+<p>The small axis display helps with orientation in space.</p>
+
+<h3>Current position</h3>
+<p>With “Current Position” the map view can be aligned or returned to the currently known location of the active commander.</p>
+<p>The current filter settings are applied first. The view is centred on the current system only if it is included in the resulting map.</p>
+<p>Otherwise, “The current system is not included in this filter selection.” is displayed. This does not remove the filters.</p>
+
+<h3>Align</h3>
+<p>“Align” resets the orientation to a top-down view of the galactic plane. Panning and zoom are preserved.</p>
+<p>This is useful if extensive rotation has made the map difficult to follow.</p>
+
+<h3>Refresh Chronicle</h3>
+<p>“Refresh Chronicle” reloads the chronicle data using the current combined filter settings and updates the display. Free text, enabled date bounds and mining filters are evaluated together again; active filters are not ignored.</p>
+<p>The function does not change journal files or create new exploration data. It simply updates the history display based on the existing CMDRHelper data.</p>
+
+<h3>Free-text search</h3>
+<p>Already known content can be searched using the “Search chronicle …” field.</p>
+<p>The search takes into account – if available in the database – among other things:</p>
+<ul>
+<li>System names</li>
+<li>Body features</li>
+<li>biological data</li>
+<li>Materials</li>
+<li>Codex data</li>
+</ul>
+<p>Free text, period and mining share a single filter area. “Apply” evaluates the configured filters together. Enter in the free-text field starts the same combined filtering as “Apply”.</p>
+
+<h3>From/To period (UTC)</h3>
+<p>Enable “From” and “To” using their respective checkboxes and select the desired date. You can also use just one bound. Without an enabled checkbox, there is no time restriction on that side; with neither checkbox enabled, no period restriction applies.</p>
+<ul>
+<li><b>From:</b> From the start of the selected UTC calendar day, inclusive.</li>
+<li><b>To:</b> The entire selected UTC calendar day is included, up to immediately before the start of the following day.</li>
+</ul>
+<p>UTC is Coordinated Universal Time. The date bounds refer to UTC calendar days, not calendar days in your local time zone.</p>
+<p>The filter uses actual system visits from <code>system_visits</code>. An actual visit by the respective commander within the period is required. The stored values <code>first_seen</code> and <code>last_seen</code> do not replace a real visit: a period merely lying between an earlier first visit and a later last visit is not sufficient.</p>
+<p>The period filters visits, not individual discovery, BIO, GEO or mining events. Known findings and mining quantities remain stored totals. From/To can be used on their own or together with free text and mining.</p>
+<p>If From is after To, “The From date must not be after the To date.” is displayed. No database query is started. Correct the date bounds and apply the filters again.</p>
+
+<h3>Search results</h3>
+<p>Results are displayed in the existing results list below the chronicle map.</p>
+<p>Depending on the type of hit, system and body as well as additional information may appear.</p>
+<p>A hit can be used to find the corresponding system or body that is already known and to open the existing detailed information.</p>
+
+<h3>No results</h3>
+<p>If valid combined filtering finds no matches, the map and routes are cleared. The results list is cleared and hidden, the detail display is reset and any open chronicle system detail window is closed.</p>
+<p>Old results do not remain visible. In this case, check the combination of search text, period and mining filters, as well as the commander used for the respective view.</p>
+
+<h3>Planetary mining sites</h3>
+<p>The filter “Planetary mining sites” can be used to specifically search for known bodies for which Elite Dangerous has reported planetary mining sites.</p>
+<p>The underlying display corresponds to that known from Explorer:</p>
+<p><b>ABBAU ×N</b></p>
+<p>The number belongs to the body itself and is not related to the commander.</p>
+
+<h3>At least</h3>
+<p>Using “At least” you can specify the minimum number of planetary mining locations a body should have.</p>
+<p>Example:</p>
+<p><b>At least 20</b></p>
+<p>only shows known bodies with at least:</p>
+<p><b>ABBAU ×20</b></p>
+<p>This makes it possible to specifically locate particularly extensive mining areas.</p>
+
+<h3>My mining finds</h3>
+<p>“My mining finds” limits the search to bodies where the viewed commander has demonstrably carried out surface mining.</p>
+<p>This information comes from personal surface mining history and is strictly separated by commander.</p>
+<p>A body can therefore have global ABBAU ×N signals without the commander having mined anything there.</p>
+
+<h3>Commodity</h3>
+<p>When “My mining finds” is enabled, the “Commodity” selection is also available.</p>
+<p>The list contains only commodities that the viewed commander has actually extracted through surface mining.</p>
+<p>This is not a theoretical list of all possible mining raw materials.</p>
+<p>For FABER38, the selection might contain:</p>
+<ul>
+<li>All</li>
+<li>copper</li>
+</ul>
+<p>If additional raw materials are actually mined later, they will automatically appear in your personal selection.</p>
+
+<h3>Targeted search for raw materials</h3>
+<p>For example, if “Copper” is selected and then “Apply” is pressed, the history will only show bodies on which the commander in question has demonstrably mined copper.</p>
+<p>Example:</p>
+<p><b>Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — copper 56 t</b></p>
+<p>This means that the chronicle can be used as a personal location database: a raw material that has already been mined can be found again later.</p>
+
+<h3>All raw materials</h3>
+<p>“Commodity: All” includes all matching personal surface mining finds.</p>
+<p>If several commodities are known on a body, they can be displayed together with the commander’s own quantities mined so far.</p>
+<p>Example:</p>
+<p><b>ABBAU ×24 — Helium-3 18 t, copper 56 t</b></p>
+<p>The quantities are the respective commander’s personal mined quantities actually recorded in journal events.</p>
+<p>Even with an active period, personal mining quantities remain stored totals. <b>Copper 56 t</b> does not automatically mean <b>56 t in the selected period</b>. The period requires a matching system visit, but does not restrict the displayed mined quantity to that period.</p>
+
+<h3>Combine filters</h3>
+<p>Free text, enabled From/To bounds and mining filters can be combined. A match must satisfy the configured conditions together.</p>
+<p>For example:</p>
+<ul>
+<li>Planetary mining sites active</li>
+<li>At least 20</li>
+<li>My mining finds active</li>
+<li>Commodity copper</li>
+</ul>
+<p>searches for known bodies with at least 20 planetary mining sites where the commander in question has already mined copper himself.</p>
+<p>Any additional search text is also taken into account. If a period is also set, the viewed commander must actually have visited the corresponding system during that period; the copper mining itself need not have occurred during that period.</p>
+
+<h3>Apply</h3>
+<p>“Apply” runs combined filtering with all currently configured search, period and mining filters:</p>
+<ul>
+<li>Free text</li>
+<li>From, if enabled</li>
+<li>To, if enabled</li>
+<li>Planetary mining sites</li>
+<li>Minimum count</li>
+<li>My mining finds</li>
+<li>Commodity, if “My mining finds” is enabled</li>
+</ul>
+<p>Enter in the free-text field runs exactly the same combined filtering. Without free text and mining filters, the normal map is loaded for the checked map commanders, restricted by From/To if applicable.</p>
+
+<h3>Reset</h3>
+<p>“Reset” restores the shared filter area to its initial state:</p>
+<ul>
+<li>Free text is cleared.</li>
+<li>From and To are disabled; the date fields show today's date again and are disabled.</li>
+<li>Planetary mining sites is disabled.</li>
+<li>The minimum count is set to 0.</li>
+<li>My mining finds is disabled.</li>
+<li>Commodity is reset to “All”.</li>
+</ul>
+<p>The commander selection is preserved. The normal chronicle is then reloaded for that map selection; previous search results and detail displays are reset.</p>
+
+<h3>Commander selection</h3>
+<p>The chronicle can display data from different known commanders.</p>
+<p>There are two separate selection concepts:</p>
+<ul>
+<li><b>Map commander selection:</b> The commander checkboxes determine which commander routes appear in the normal map without a free-text/mining search. An enabled period is taken into account.</li>
+<li><b>Viewed commander:</b> Personal free-text/mining searches use the viewed commander (<code>viewed_commander_id</code>), falling back to the active commander. Personal commodity lists also follow that commander.</li>
+</ul>
+<p>However, personal information such as your own mining finds and raw material lists are always evaluated separately for the commander actually being viewed.</p>
+<p>A commander does not see any mining discoveries in his raw material selection that belong exclusively to another commander.</p>
+
+<h3>All commanders</h3>
+<p>The map/chronicle display can take multiple commanders into account.</p>
+<p>“All commanders” refers to the map commander selection. The commander checkboxes do not automatically extend personal free-text/mining searches to multiple commanders.</p>
+<p>This does not change the personal assignment of commander-related data. Global astronomical properties of a system or body remain shared, personal findings remain separate.</p>
+
+<h3>Search aid / legend</h3>
+<p>Additional information about the chronicle search and the meaning of the display can be accessed via “Search help / legend”.</p>
+<p>Clicking a search term places it in the search field and runs it together with the period/mining filters already configured.</p>
+<p>This context-related main help supplements the short operating instructions available there.</p>
+
+<h3>Tip</h3>
+<p>The chronicle is particularly suitable for finding interesting places that were discovered during a longer trip.</p>
+<p>For surface mining, for example, it can answer:</p>
+<p>“On which planet have I ever mined copper?”</p>
+<p>or:</p>
+<p>“Which of my known planets have a particularly high number of mining sites?”</p>""",
+    ),
  'jump_tip': ('Jump tip',
               '<h2>Jump tip</h2>\n'
               '<p>The jump tip supports exploration by evaluating already known system data and '
@@ -1249,7 +1277,82 @@ HELP_TOPICS = {'overview': ('Overview',
               'menu</li>\n'
               '</ul>\n'
               '<p>If there are several commanders, always pay attention to which FID the visible '
-              'online access data applies to.</p>')}
+              'online access data applies to.</p>'),
+    "planet_navigation": (
+        'Planet navigation',
+        """<h2>Planet navigation</h2>
+<p>The planet navigator helps you exclusively to fly to a specific latitude/longitude on a planet or moon. You specify a coordinate target and receive the distance and direction to it.</p>
+<p>It is not an interstellar route planner and does not handle system or jump navigation. You fly your ship yourself.</p>
+
+<h3>Opening the navigator and entering a target</h3>
+<p>Open “Planet navigation” in the overview and select “Enter target…”.</p>
+<ul>
+<li><b>Body:</b> Select the target planet or moon from the list or use the body already detected. You can also enter the body name yourself if it is not yet listed. If in doubt, use the full name including the system name.</li>
+<li><b>Latitude:</b> Enter the target latitude between −90° and +90°.</li>
+<li><b>Longitude:</b> Enter the target longitude between −180° and +180°. Pay attention to the sign of both coordinates.</li>
+<li><b>Target name:</b> You can optionally enter a label to make your target easier to recognise.</li>
+</ul>
+<p>Use “Set target” to confirm your entry. You do not need to enter technical IDs such as BodyID and SystemAddress; they are not normal user inputs.</p>
+
+<h3>When does the compass start?</h3>
+<p>Once a target is set and Elite provides valid planetary position data for the matching body, navigation becomes active automatically. You do not need to press a separate start button.</p>
+<p>If this data is still missing or belongs to a different body, the navigator waits with “Waiting for planetary coordinates …”. You can enter a target even before this data arrives.</p>
+
+<h3>Planet globe: more than 380 km</h3>
+<p>When the target distance is greater than 380 km, the navigator displays the planet globe.</p>
+<ul>
+<li>The <b>white circle</b> marks your own position.</li>
+<li>The <b>small target dot</b> is orange when the target is on the visible side of the planet.</li>
+<li>If the target is on the hidden far side, the target dot is shown in red.</li>
+<li>Your position stays fixed in the display. The planet and target are shown relative to your position and orientation.</li>
+</ul>
+<p>The white arrow points forwards; the yellow arrow points in the relative target direction. The globe is a schematic orientation aid, not a geographically accurate terrain view. A red dot means the far side of the globe, not automatically “behind your ship”.</p>
+
+<h3>Perspective grid: up to and including 380 km</h3>
+<p>At a target distance of up to and including 380 km, the display automatically switches to a tilted perspective grid. If the distance increases beyond 380 km again, the globe reappears.</p>
+<p>The crosslines form a <b>50-km distance grid</b>. The target dot is plotted within the grid according to distance and relative direction. The perspective helps you continue your approach; the tilt makes the spacing appear tighter towards the back. For the actual course to steer, also watch the target course and relative direction.</p>
+
+<h3>Reading the navigation values correctly</h3>
+<ul>
+<li><b>Target distance:</b> The large display shows the remaining distance to the target along the idealised planetary surface.</li>
+<li><b>Target coordinates:</b> The coordinate pair entered for the target, latitude first, then longitude. It stays unchanged as you move.</li>
+<li><b>Current coordinates:</b> Your last confirmed coordinate pair from Elite, also latitude / longitude.</li>
+<li><b>Distance along surface:</b> The same surface distance as the target distance, potentially rounded more precisely in the detail display. This is not a second route or a direct spatial distance through the air.</li>
+<li><b>Bearing:</b> The absolute direction to the target from your current position, as a compass angle: 000° is north, 090° east, 180° south and 270° west.</li>
+<li><b>Heading:</b> Your current orientation as provided by Elite. It shows where you are currently pointing and does not necessarily match the bearing yet.</li>
+<li><b>Relative direction:</b> The difference between your orientation and the bearing, for example “23° right”, “10° left” or “Straight ahead”. At 180°, the target is behind you.</li>
+<li><b>Target course:</b> The prominently displayed bearing as an absolute course you can turn to in the Elite HUD. It is not an additional turning angle.</li>
+</ul>
+<p>Example: With heading 051° and target course 074°, turn 23° to the right until your Elite compass shows approximately 074°. As you continue flying, the bearing and target course may change; follow the updated values.</p>
+<p>At the same position as the target, at a pole or at the exact opposite point on the planet, the direction may be undefined. The navigator then shows the corresponding message instead of an invented course.</p>
+
+<h3>Window size</h3>
+<p>The navigator window can be freely resized. The globe or perspective grid adjusts proportionally to the available space. The minimum size keeps the detailed values readable; the globe stays round. The window position and size are saved.</p>
+
+<h3>Enabling the navigation HUD</h3>
+<p>On the left of the main window, tick the box under <b>auto show → Navigation HUD</b>. With valid planetary navigation, the HUD appears directly over the visible Elite window in the foreground.</p>
+<p>It shows three lines:</p>
+<ul>
+<li>relative direction</li>
+<li>target course</li>
+<li>distance</li>
+</ul>
+<p>The HUD is transparent, click-through and focus-neutral: it does not cover the game with an opaque area, intercept mouse clicks or take input focus away from Elite when it appears automatically.</p>
+<p>Without valid navigation or an unambiguous direction, it automatically becomes invisible. It is also hidden when Elite is minimised or not in the foreground. The sidebar box can remain ticked; it represents your preference for automatic display, not its current visibility.</p>
+<p>The HUD is only an additional display. The normal navigator works independently of it, even when the HUD is switched off or unavailable.</p>
+
+<h3>Setting a new target</h3>
+<p>On the same body, you can reopen “Enter target…” at any time and set different coordinates. The new target replaces the previous navigation target. With matching position data, the compass updates immediately.</p>
+<p>“Stop navigation” removes the current target. Simply set a new target for another approach.</p>
+
+<h3>Data freshness and limitations</h3>
+<p>Navigation is based on the status data provided by Elite. Updates may arrive with a delay depending on the game state. The age display in the navigator shows how much time has passed since the last confirmed status message.</p>
+<p>The surface distance describes the shortest arc on an idealised sphere. It is not a terrain or road route. The navigator does not know about obstacles or terrain heights along the route; flight altitude, safe speed and obstacle avoidance remain your responsibility.</p>
+
+<h3>Tip</h3>
+<p>Before approaching, check the body name and the signs of the target coordinates. Then align with the target course on the Elite compass and watch the relative direction and distance. If the navigator is waiting, check whether Elite is already providing planetary coordinates for the target body.</p>""",
+    ),
+}
 
 DIALOG_TITLE = 'Help – {area}'
 CLOSE_LABEL = 'Close'

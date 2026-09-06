@@ -340,189 +340,207 @@ HELP_TOPICS = {'overview': ('Panoramica',
               '<p>Se hai un corpo interessante, vale la pena fare clic sulla vista dettagliata. '
               'Questo è il posto migliore per distinguere tra dati generali del corpo, possibili '
               "risultati dell'esplorazione e ritrovamenti effettivi documentati dal tuo "
-              'comandante.</p>'),
- 'chronicle': ('cronaca',
-               '<h2>cronaca</h2>\n'
-               '<p>La cronaca è la storia personale dei viaggi e delle scoperte del comandante. '
-               'Utilizza le informazioni del diario memorizzate in modo permanente per trovare '
-               'sistemi che sono già stati visitati, per rappresentarli spazialmente e per cercare '
-               'scoperte note.</p>\n'
-               '\n'
-               '<h3>Sistemi visitati</h3>\n'
-               '<p>La Cronaca mostra i sistemi visitati e le loro posizioni nella galassia nota al '
-               'Comandante.</p>\n'
-               "<p>Se disponibili, vengono prese in considerazione la prima e l'ultima visita "
-               'nonché le informazioni note sul corpo.</p>\n'
-               '<p>La cronaca quindi non è solo una mappa, ma anche uno strumento per ritrovare '
-               'mete e scoperte di viaggi precedenti.</p>\n'
-               '\n'
-               '<h3>Mappa 3D</h3>\n'
-               '<p>I sistemi visitati sono rappresentati spazialmente utilizzando le loro '
-               'coordinate galattiche X/Y/Z.</p>\n'
-               "<p>Le istruzioni per l'uso si trovano direttamente sopra la mappa:</p>\n"
-               '<ul>\n'
-               '<li>Tieni premuto il pulsante sinistro del mouse → ruota la vista</li>\n'
-               '<li>Tieni premuto il pulsante centrale del mouse → Zoom</li>\n'
-               '<li>Tieni premuto il pulsante destro del mouse → sposta la vista</li>\n'
-               '</ul>\n'
-               "<p>Il display ad asse piccolo aiuta nell'orientamento nello spazio.</p>\n"
-               '\n'
-               '<h3>Posizione attuale</h3>\n'
-               '<p>Con "Posizione attuale" la visualizzazione della mappa può essere allineata o '
-               'riportata alla posizione attualmente nota del comandante attivo.</p>\n'
-               '<p>Il prerequisito è che sia nota una posizione attuale valida per il '
-               'comandante.</p>\n'
-               '\n'
-               '<h3>Allineare</h3>\n'
-               '<p>"Allinea" riporta l\'orientamento della mappa all\'orientamento di base '
-               'previsto.</p>\n'
-               '<p>Ciò è utile se la mappa è diventata confusa dopo essere stata ruotata o '
-               'spostata molto.</p>\n'
-               '\n'
-               '<h3>Aggiorna la cronologia</h3>\n'
-               '<p>“Cronologia aggiornamenti” aggiorna la visualizzazione con i dati attualmente '
-               'conosciuti.</p>\n'
-               '<p>La funzione non modifica i file journal né crea nuovi dati di esplorazione. '
-               'Aggiorna semplicemente la visualizzazione della cronologia in base ai dati '
-               'CMDRHelper esistenti.</p>\n'
-               '\n'
-               '<h3>Ricerca testuale libera</h3>\n'
-               '<p>È possibile cercare contenuti già noti utilizzando il campo "Cronologia '
-               'ricerche...".</p>\n'
-               '<p>La ricerca prende in considerazione – se disponibili nel database – tra '
-               'l’altro:</p>\n'
-               '<ul>\n'
-               '<li>Nomi di sistema</li>\n'
-               '<li>Caratteristiche del corpo</li>\n'
-               '<li>dati biologici</li>\n'
-               '<li>Materiali</li>\n'
-               '<li>Dati del Codice</li>\n'
-               '</ul>\n'
-               '<p>Il pulsante “Cerca” effettua esclusivamente questa ricerca a testo libero.</p>\n'
-               '<p>I filtri di DISMONTAGGIO separati, invece, si effettuano con “Applica”.</p>\n'
-               '\n'
-               '<h3>Risultati della ricerca</h3>\n'
-               "<p>I successi vengono visualizzati nell'elenco dei risultati esistenti sotto la "
-               'scheda della cronaca.</p>\n'
-               '<p>A seconda del tipo di colpo, possono apparire sistema, corpo e informazioni '
-               'aggiuntive.</p>\n'
-               "<p>Un risultato può essere utilizzato per trovare il sistema o l'organismo "
-               'corrispondente già noto e per aprire le informazioni dettagliate esistenti.</p>\n'
-               '\n'
-               '<h3>Siti minerari planetari</h3>\n'
-               '<p>Il filtro "Siti minerari planetari" può essere utilizzato per cercare '
-               'specificamente corpi noti per i quali Elite Dangerous ha segnalato siti minerari '
-               'planetari.</p>\n'
-               '<p>La visualizzazione sottostante corrisponde a quella nota da Explorer:</p>\n'
-               '<p><b>ABBAU ×N</b></p>\n'
-               '<p>Il numero appartiene al corpo stesso e non è correlato al comandante.</p>\n'
-               '\n'
-               '<h3>Almeno</h3>\n'
-               '<p>Usando "Almeno" puoi specificare il numero minimo di posizioni minerarie '
-               'planetarie che un corpo dovrebbe avere.</p>\n'
-               '<p>Esempio:</p>\n'
-               '<p><b>Almeno 20</b></p>\n'
-               '<p>mostra solo corpi conosciuti con almeno:</p>\n'
-               '<p><b>ABBAU ×20</b></p>\n'
-               '<p>Ciò consente di localizzare in modo mirato aree minerarie particolarmente '
-               'estese.</p>\n'
-               '\n'
-               '<h3>Reperti minerari propri</h3>\n'
-               '<p>Con i «Reperti minerari propri» la ricerca si limita ai corpi sui quali il '
-               'comandante in questione ha effettuato lui stesso, in modo dimostrabile, attività '
-               'minerarie di superficie.</p>\n'
-               "<p>Queste informazioni provengono dalla storia personale dell'attività mineraria "
-               'di superficie e sono rigorosamente separate dal comandante.</p>\n'
-               '<p>Un corpo può quindi avere segnali ABBAU ×N globali senza che il proprio '
-               'comandante vi abbia già rimosso qualcosa.</p>\n'
-               '\n'
-               '<h3>materia prima</h3>\n'
-               "<p>Se è attivata l'opzione “Reperti minerari propri”, è disponibile anche la "
-               'selezione “Materia prima”.</p>\n'
-               "<p>L'elenco contiene solo le materie prime che il comandante in questione ha "
-               "effettivamente già ottenuto dall'estrazione di superficie.</p>\n"
-               '<p>Questo non è un elenco teorico di tutte le possibili materie prime '
-               'minerarie.</p>\n'
-               '<p>Ad esempio, FABER38 potrebbe apparire:</p>\n'
-               '<ul>\n'
-               '<li>Tutto</li>\n'
-               '<li>rame</li>\n'
-               '</ul>\n'
-               '<p>Se in seguito verranno effettivamente estratte ulteriori materie prime, queste '
-               'appariranno automaticamente nella tua selezione personale.</p>\n'
-               '\n'
-               '<h3>Ricerca mirata delle materie prime</h3>\n'
-               '<p>Ad esempio, se si seleziona "Rame" e poi si preme "Applica", la cronologia '
-               'mostrerà solo i corpi sui quali il comandante in questione ha estratto rame in '
-               'modo dimostrabile.</p>\n'
-               '<p>Esempio:</p>\n'
-               '<p><b>Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — rame 56 t</b></p>\n'
-               '<p>Ciò significa che la cronaca può essere utilizzata come database di '
-               'localizzazione personale: una materia prima già estratta può essere ritrovata in '
-               'seguito.</p>\n'
-               '\n'
-               '<h3>Tutte le materie prime</h3>\n'
-               '<p>Con “Materia prima: tutte” vengono prese in considerazione tutte le scoperte '
-               'personali di estrazione mineraria di superficie corrispondenti.</p>\n'
-               '<p>Se su un corpo sono note più merci, queste possono essere visualizzate insieme '
-               'alle quantità ottenute fino a quel momento.</p>\n'
-               '<p>Esempio:</p>\n'
-               '<p><b>ABBAU ×24 — Elio-3 18 t, rame 56 t</b></p>\n'
-               '<p>Le quantità sono i valori minerari personali del rispettivo comandante, che '
-               'sono effettivamente documentati dagli eventi del diario.</p>\n'
-               '\n'
-               '<h3>Combina filtri</h3>\n'
-               '<p>I filtri minerari possono essere combinati tra loro.</p>\n'
-               '<p>Per esempio:</p>\n'
-               '<ul>\n'
-               '<li>Siti minerari planetari attivi</li>\n'
-               '<li>Almeno 20</li>\n'
-               '<li>I propri ritrovamenti minerari sono attivi</li>\n'
-               '<li>Rame materia prima</li>\n'
-               '</ul>\n'
-               '<p>cerca corpi conosciuti con almeno 20 siti minerari planetari dove il comandante '
-               'in questione ha già estratto lui stesso il rame.</p>\n'
-               '\n'
-               '<h3>Fare domanda a</h3>\n'
-               '<p>"Applica" esegue solo i filtri di mining visibili.</p>\n'
-               '<p>Il pulsante “Cerca” accanto è riservato alle ricerche di testo libero.</p>\n'
-               '<p>Ciò significa che i filtri di ricerca testuale e di mining sono deliberatamente '
-               'separati gli uni dagli altri.</p>\n'
-               '\n'
-               '<h3>Reset</h3>\n'
-               '<p>"Reset" elimina la ricerca a testo libero corrente e ripristina anche i filtri '
-               'di mining al loro stato iniziale.</p>\n'
-               '<p>La selezione della materia prima torna a “Tutti”.</p>\n'
-               '\n'
-               '<h3>Selezione del comandante</h3>\n'
-               '<p>La cronaca può visualizzare dati di vari comandanti famosi.</p>\n'
-               '<p>Tuttavia, le informazioni personali come i ritrovamenti minerari e gli elenchi '
-               'delle materie prime vengono sempre valutate separatamente per il comandante '
-               'effettivamente visualizzato.</p>\n'
-               '<p>Un comandante non vede nella sua selezione di materie prime scoperte minerarie '
-               'che appartengono esclusivamente ad un altro comandante.</p>\n'
-               '\n'
-               '<h3>Tutti i comandanti</h3>\n'
-               '<p>La visualizzazione della mappa/cronaca può prendere in considerazione più '
-               'comandanti.</p>\n'
-               "<p>Ciò non modifica l'assegnazione personale dei dati relativi al comandante. Le "
-               'proprietà astronomiche globali di un sistema o di un corpo rimangono condivise, le '
-               'scoperte personali rimangono separate.</p>\n'
-               '\n'
-               '<h3>Aiuto per la ricerca/legenda</h3>\n'
-               '<p>Ulteriori informazioni sulla ricerca della cronaca e sul significato della '
-               'visualizzazione sono accessibili tramite "Aiuto alla ricerca/legenda".</p>\n'
-               "<p>Questa guida principale contestuale integra le brevi istruzioni per l'uso "
-               'disponibili lì.</p>\n'
-               '\n'
-               '<h3>Mancia</h3>\n'
-               '<p>La cronaca è particolarmente adatta per ritrovare luoghi interessanti scoperti '
-               'durante un viaggio più lungo.</p>\n'
-               '<p>Per l’estrazione mineraria di superficie, ad esempio, può rispondere:</p>\n'
-               '<p>"Su quale pianeta ho mai estratto il rame?"</p>\n'
-               '<p>O:</p>\n'
-               '<p>"Quale dei pianeti che conosco ha un numero particolarmente elevato di siti '
-               'minerari?"</p>'),
+              'comandante.</p>'
+              """
+
+<h3>★ Preferiti</h3>
+<p>Il pulsante «★ Preferiti» in alto nell’Explorer apre una finestra dei preferiti separata e riutilizzabile. Qui puoi salvare sistemi, pianeti/lune e luoghi in superficie per il comandante attivo.</p>
+<p>L’elenco scorrevole, ordinato alfabeticamente per nome, mostra nome, tipo, sistema, corpo e latitudine/longitudine se pertinenti, categoria e una piccola anteprima dell’immagine. Ricerca a testo libero, filtro per tipo e filtro per categoria possono essere combinati. La ricerca considera nome, sistema, corpo e nota.</p>
+<p>«Apri / Mostra» mostra i dati salvati, la nota e un’anteprima più grande. «Mostra nell’Explorer» apre la panoramica del sistema o la vista dettagliata del corpo già esistenti, se il preferito appartiene al sistema attuale dell’Explorer e sono disponibili dati corrispondenti. Per gli altri sistemi restano visibili i dati salvati del preferito; non viene calcolata alcuna rotta tra sistemi.</p>
+
+<h3>Salvare un sistema, un pianeta o la posizione attuale</h3>
+<ul>
+<li>«★ Salva il sistema attuale» salva il sistema attuale senza coordinate di superficie.</li>
+<li>«★ Salva pianeta / luna» permette di scegliere un pianeta o una luna conosciuti del sistema attuale. Anche questo preferito non riceve coordinate di superficie.</li>
+<li>«★ Salva la posizione attuale» si trova in alto nella finestra dei preferiti, accanto alle altre due opzioni di salvataggio, ed è disponibile anche nel navigatore planetario. Nella finestra dei preferiti il pulsante resta sempre visibile ed è disattivato in assenza di dati di posizione planetaria attuali validi e di un comandante attivo. Il clic fissa comandante, sistema, corpo, latitudine e longitudine. I successivi movimenti nel gioco non modificano questi valori nella finestra di dialogo aperta.</li>
+</ul>
+<p>Inserisci un nome a scelta e seleziona esattamente una categoria: Bio, Geo, Estrazione, Panorama, Sito di atterraggio, Interessante o Altro. Nota e immagine sono facoltative. Gli ID tecnici conosciuti vengono acquisiti internamente; non devi inserirli. Anche latitudine o longitudine 0,0 sono coordinate valide.</p>
+<p>«Modifica» modifica nome, categoria, nota e immagine. Sistema, corpo e coordinate salvate vengono conservati. Per salvare un altro luogo in superficie, crea un nuovo preferito in quella posizione.</p>
+
+<h3>Immagini dei preferiti</h3>
+<p>Le immagini dei preferiti sono separate dalla sezione Immagini. «Scegli immagine …» accetta PNG, JPEG e WebP. Solo al salvataggio CMDRHelper copia l’immagine selezionata nella propria cartella delle immagini dei preferiti. Il file originale non viene né spostato né modificato.</p>
+<p>«Usa l’ultimo screenshot» rilegge a ogni clic la cartella sorgente degli screenshot configurata e cerca screenshot leggibili con nomi di file tipici di Elite. Senza configurazione vengono considerate le consuete cartelle degli screenshot Elite su Windows o Steam/Proton. Viene cercato anche nella cartella del comandante attivo all’interno della destinazione di conversione configurata, per trovare gli screenshot Elite convertiti corrispondenti. Uno screenshot convertito resta così reperibile anche se il suo BMP originale è stato eliminato. Per stabilire lo scatto più recente conta una data e ora univoca nel nome del file, altrimenti la data del file; per le immagini convertite conta l’ora dello scatto salvata nel nome, non quella della conversione. CMDRHelper non scatta screenshot autonomamente e non cerca in cartelle di immagini generiche.</p>
+<p>Prima dell’utilizzo vengono mostrati nome del file, data e ora dello scatto e un’anteprima appena caricata. Conferma con «Usa questa immagine». Se non viene trovato uno screenshot adatto, puoi comunque usare «Scegli immagine …». Gli screenshot BMP di Elite vengono salvati come copia PNG interna.</p>
+<p>Un’immagine può essere sostituita nella finestra di modifica o deselezionata con «Rimuovi immagine». Al salvataggio viene eliminata la copia interna non più utilizzata. Se manca un file immagine, il preferito resta utilizzabile senza anteprima.</p>
+
+<h3>Destinazione del preferito e comandante</h3>
+<p>Per i luoghi in superficie, «▶ Vai alla destinazione» passa corpo, latitudine, longitudine e nome del preferito salvati al navigatore planetario esistente. La nuova destinazione sostituisce la precedente. I preferiti non hanno una logica di navigazione propria. Il navigatore continua a decidere autonomamente: dati planetari validi e corrispondenti attivano la navigazione; altrimenti attende tali dati.</p>
+<p>I preferiti appartengono esclusivamente al comandante attivo. Cambiando comandante, l’elenco viene aggiornato e un’eventuale finestra di modifica aperta viene annullata. Una destinazione ancora gestita come destinazione preferita del comandante precedente viene terminata. La selezione dei comandanti nella cronaca non estende questo elenco di preferiti.</p>
+<p>«Elimina» richiede conferma ed elimina soltanto il record del preferito e la sua copia interna dell’immagine. Lo screenshot originale o l’immagine originale selezionata e tutti i dati di Explorer, journal e corpi vengono conservati.</p>"""),
+ 'chronicle': (
+        'Cronaca',
+        """<h2>Cronaca</h2>
+<p>La cronaca è la storia personale dei viaggi e delle scoperte del comandante. Utilizza le informazioni del diario memorizzate in modo permanente per trovare sistemi che sono già stati visitati, per rappresentarli spazialmente e per cercare scoperte note.</p>
+
+<h3>Sistemi visitati</h3>
+<p>La Cronaca mostra i sistemi visitati e le loro posizioni nella galassia nota al Comandante.</p>
+<p>Se disponibili, vengono prese in considerazione la prima e l'ultima visita nonché le informazioni note sul corpo.</p>
+<p>Con un periodo attivo, il numero di visite, la prima visita e l’ultima visita nella mappa si riferiscono alle visite effettive ai sistemi selezionate dal filtro.</p>
+<p>La cronaca quindi non è solo una mappa, ma anche uno strumento per ritrovare mete e scoperte di viaggi precedenti.</p>
+
+<h3>Mappa 3D</h3>
+<p>I sistemi visitati sono rappresentati spazialmente utilizzando le loro coordinate galattiche X/Y/Z.</p>
+<p>Le istruzioni per l'uso si trovano direttamente sopra la mappa:</p>
+<ul>
+<li>Tieni premuto il pulsante sinistro del mouse → ruota la vista</li>
+<li>tenere premuto il pulsante centrale del mouse e trascinare → disegnare una finestra di zoom</li>
+<li>Tieni premuto il pulsante destro del mouse → sposta la vista</li>
+</ul>
+<p>Il display ad asse piccolo aiuta nell'orientamento nello spazio.</p>
+
+<h3>Posizione attuale</h3>
+<p>Con "Posizione attuale" la visualizzazione della mappa può essere allineata o riportata alla posizione attualmente nota del comandante attivo.</p>
+<p>Vengono prima applicati i filtri attuali. La vista viene centrata sul sistema attuale solo se è presente nella mappa risultante.</p>
+<p>Altrimenti compare «Il sistema attuale non è incluso in questa selezione di filtri.» I filtri non vengono rimossi.</p>
+
+<h3>Allinea</h3>
+<p>«Allinea» ripristina l’orientamento con una vista dall’alto del piano galattico. Spostamento e zoom vengono mantenuti.</p>
+<p>È utile quando molte rotazioni hanno reso la mappa poco chiara.</p>
+
+<h3>Aggiorna Cronaca</h3>
+<p>«Aggiorna Cronaca» ricarica i dati della cronaca in base ai filtri combinati attuali e aggiorna la visualizzazione. Testo libero, limiti di data attivati e filtri minerari vengono nuovamente valutati insieme; i filtri attivi non vengono ignorati.</p>
+<p>La funzione non modifica i file journal né crea nuovi dati di esplorazione. Aggiorna semplicemente la visualizzazione della cronologia in base ai dati CMDRHelper esistenti.</p>
+
+<h3>Ricerca testuale libera</h3>
+<p>È possibile cercare contenuti già noti utilizzando il campo "Cronologia ricerche...".</p>
+<p>La ricerca prende in considerazione – se disponibili nel database – tra l’altro:</p>
+<ul>
+<li>Nomi di sistema</li>
+<li>Caratteristiche del corpo</li>
+<li>dati biologici</li>
+<li>Materiali</li>
+<li>Dati del Codice</li>
+</ul>
+<p>Testo libero, periodo ed estrazione condividono un’unica area di filtri. «Applica» valuta insieme i filtri impostati. Invio nel campo di testo libero avvia lo stesso filtraggio combinato di «Applica».</p>
+
+<h3>Periodo Dal/Al (UTC)</h3>
+<p>Attiva «Dal» e «Al» con le rispettive caselle e scegli la data desiderata. È possibile usare anche un solo limite. Senza la casella attivata non vi è alcuna restrizione temporale su quel lato; senza entrambe le caselle non viene limitato alcun periodo.</p>
+<ul>
+<li><b>Dal:</b> Dall’inizio del giorno di calendario UTC selezionato, incluso.</li>
+<li><b>Al:</b> Viene incluso l’intero giorno di calendario UTC selezionato, fino all’istante immediatamente precedente l’inizio del giorno successivo.</li>
+</ul>
+<p>UTC è il tempo coordinato universale. I limiti di data si riferiscono ai giorni di calendario UTC, non a quelli del tuo fuso orario locale.</p>
+<p>Il filtro usa le visite effettive ai sistemi registrate in <code>system_visits</code>. È necessaria una visita effettiva del comandante interessato nel periodo. I valori memorizzati <code>first_seen</code> e <code>last_seen</code> non sostituiscono una visita reale: non basta che il periodo si trovi tra una prima visita precedente e un’ultima visita successiva.</p>
+<p>Il periodo filtra le visite, non i singoli eventi di scoperta, BIO, GEO o estrazione. Le informazioni sui ritrovamenti noti e le quantità estratte rimangono totali memorizzati. Dal/Al si possono usare da soli o insieme al testo libero e ai filtri minerari.</p>
+<p>Se Dal è successivo ad Al, compare «La data Dal non deve essere successiva alla data Al.» Non viene avviata alcuna query al database. Correggi i limiti di data e applica nuovamente i filtri.</p>
+
+<h3>Risultati della ricerca</h3>
+<p>I successi vengono visualizzati nell'elenco dei risultati esistenti sotto la scheda della cronaca.</p>
+<p>A seconda del tipo di colpo, possono apparire sistema, corpo e informazioni aggiuntive.</p>
+<p>Un risultato può essere utilizzato per trovare il sistema o l'organismo corrispondente già noto e per aprire le informazioni dettagliate esistenti.</p>
+
+<h3>Nessun risultato</h3>
+<p>Se un filtraggio valido non trova corrispondenze, la mappa e le rotte vengono svuotate. L’elenco dei risultati viene svuotato e nascosto, la visualizzazione dei dettagli viene reimpostata e un’eventuale finestra aperta dei dettagli di un sistema della cronaca viene chiusa.</p>
+<p>I vecchi risultati non rimangono visibili. In questo caso, controlla la combinazione di testo di ricerca, periodo e filtri minerari, nonché il comandante usato per la vista interessata.</p>
+
+<h3>Siti minerari planetari</h3>
+<p>Il filtro "Siti minerari planetari" può essere utilizzato per cercare specificamente corpi noti per i quali Elite Dangerous ha segnalato siti minerari planetari.</p>
+<p>La visualizzazione sottostante corrisponde a quella nota da Explorer:</p>
+<p><b>ABBAU ×N</b></p>
+<p>Il numero appartiene al corpo stesso e non è correlato al comandante.</p>
+
+<h3>Almeno</h3>
+<p>Usando "Almeno" puoi specificare il numero minimo di posizioni minerarie planetarie che un corpo dovrebbe avere.</p>
+<p>Esempio:</p>
+<p><b>Almeno 20</b></p>
+<p>mostra solo corpi conosciuti con almeno:</p>
+<p><b>ABBAU ×20</b></p>
+<p>Ciò consente di localizzare in modo mirato aree minerarie particolarmente estese.</p>
+
+<h3>Le mie scoperte minerarie</h3>
+<p>Con i «Reperti minerari propri» la ricerca si limita ai corpi sui quali il comandante in questione ha effettuato lui stesso, in modo dimostrabile, attività minerarie di superficie.</p>
+<p>Queste informazioni provengono dalla storia personale dell'attività mineraria di superficie e sono rigorosamente separate dal comandante.</p>
+<p>Un corpo può quindi avere segnali ABBAU ×N globali senza che il proprio comandante vi abbia già rimosso qualcosa.</p>
+
+<h3>Merce</h3>
+<p>Se è attivata l'opzione “Reperti minerari propri”, è disponibile anche la selezione “Materia prima”.</p>
+<p>L'elenco contiene solo le materie prime che il comandante in questione ha effettivamente già ottenuto dall'estrazione di superficie.</p>
+<p>Questo non è un elenco teorico di tutte le possibili materie prime minerarie.</p>
+<p>Per FABER38, ad esempio, la selezione può contenere:</p>
+<ul>
+<li>Tutto</li>
+<li>rame</li>
+</ul>
+<p>Se in seguito verranno effettivamente estratte ulteriori materie prime, queste appariranno automaticamente nella tua selezione personale.</p>
+
+<h3>Ricerca mirata delle materie prime</h3>
+<p>Ad esempio, se si seleziona "Rame" e poi si preme "Applica", la cronologia mostrerà solo i corpi sui quali il comandante in questione ha estratto rame in modo dimostrabile.</p>
+<p>Esempio:</p>
+<p><b>Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — rame 56 t</b></p>
+<p>Ciò significa che la cronaca può essere utilizzata come database di localizzazione personale: una materia prima già estratta può essere ritrovata in seguito.</p>
+
+<h3>Tutte le materie prime</h3>
+<p>Con “Materia prima: tutte” vengono prese in considerazione tutte le scoperte personali di estrazione mineraria di superficie corrispondenti.</p>
+<p>Se su un corpo sono note più merci, queste possono essere visualizzate insieme alle quantità ottenute fino a quel momento.</p>
+<p>Esempio:</p>
+<p><b>ABBAU ×24 — Elio-3 18 t, rame 56 t</b></p>
+<p>Le quantità sono i valori minerari personali del rispettivo comandante, che sono effettivamente documentati dagli eventi del diario.</p>
+<p>Anche con un periodo attivo, le quantità minerarie personali rimangono quantità totali memorizzate. <b>Rame 56 t</b> non significa automaticamente <b>56 t nel periodo selezionato</b>. Il periodo richiede una visita corrispondente al sistema, ma non limita a quel periodo la quantità estratta visualizzata.</p>
+
+<h3>Combina filtri</h3>
+<p>Testo libero, limiti Dal/Al attivati e filtri minerari possono essere combinati. Un risultato deve soddisfare contemporaneamente le condizioni impostate.</p>
+<p>Per esempio:</p>
+<ul>
+<li>Siti minerari planetari attivi</li>
+<li>Almeno 20</li>
+<li>I propri ritrovamenti minerari sono attivi</li>
+<li>Rame materia prima</li>
+</ul>
+<p>cerca corpi conosciuti con almeno 20 siti minerari planetari dove il comandante in questione ha già estratto lui stesso il rame.</p>
+<p>Viene considerato anche l’eventuale testo di ricerca aggiuntivo. Se viene aggiunto un periodo, il comandante visualizzato deve aver effettivamente visitato il sistema interessato in quel periodo; l’estrazione del rame non deve necessariamente essere avvenuta nello stesso periodo.</p>
+
+<h3>Applica</h3>
+<p>«Applica» esegue un filtraggio combinato con tutti i filtri di ricerca, periodo ed estrazione attualmente impostati:</p>
+<ul>
+<li>Testo libero</li>
+<li>Dal, se attivato</li>
+<li>Al, se attivato</li>
+<li>Siti minerari planetari</li>
+<li>Numero minimo</li>
+<li>Le mie scoperte minerarie</li>
+<li>Merce, se «Le mie scoperte minerarie» è attivato</li>
+</ul>
+<p>Invio nel campo di testo libero esegue esattamente lo stesso filtraggio. Senza testo libero e filtri minerari viene caricata la mappa normale per i comandanti selezionati sulla mappa, eventualmente limitata da Dal/Al.</p>
+
+<h3>Reimposta</h3>
+<p>«Reimposta» riporta l’area comune dei filtri allo stato iniziale:</p>
+<ul>
+<li>Il testo libero viene cancellato.</li>
+<li>Dal e Al vengono disattivati; i campi data mostrano di nuovo la data odierna e sono disattivati.</li>
+<li>Siti minerari planetari viene disattivato.</li>
+<li>Il numero minimo viene impostato a 0.</li>
+<li>Le mie scoperte minerarie viene disattivato.</li>
+<li>Merce viene riportato su «Tutti».</li>
+</ul>
+<p>La selezione dei comandanti viene mantenuta. La cronaca normale viene quindi ricaricata per questa selezione della mappa; i risultati di ricerca precedenti e le visualizzazioni dei dettagli vengono reimpostati.</p>
+
+<h3>Selezione del comandante</h3>
+<p>La cronaca può visualizzare dati di vari comandanti famosi.</p>
+<p>Esistono due concetti distinti di selezione:</p>
+<ul>
+<li><b>Selezione dei comandanti della mappa:</b> Le caselle dei comandanti determinano quali rotte dei comandanti vengono mostrate nella mappa normale senza ricerca testuale o mineraria. Un periodo attivato viene considerato.</li>
+<li><b>Comandante visualizzato:</b> Le ricerche personali testuali o minerarie usano il comandante visualizzato (<code>viewed_commander_id</code>), in alternativa il comandante attivo. Anche gli elenchi personali delle merci dipendono da questo comandante.</li>
+</ul>
+<p>Tuttavia, le informazioni personali come i ritrovamenti minerari e gli elenchi delle materie prime vengono sempre valutate separatamente per il comandante effettivamente visualizzato.</p>
+<p>Un comandante non vede nella sua selezione di materie prime scoperte minerarie che appartengono esclusivamente ad un altro comandante.</p>
+
+<h3>Tutti i comandanti</h3>
+<p>La visualizzazione della mappa/cronaca può prendere in considerazione più comandanti.</p>
+<p>«Tutti i comandanti» riguarda la selezione dei comandanti della mappa. Le caselle dei comandanti non estendono automaticamente le ricerche personali testuali o minerarie a più comandanti.</p>
+<p>Ciò non modifica l'assegnazione personale dei dati relativi al comandante. Le proprietà astronomiche globali di un sistema o di un corpo rimangono condivise, le scoperte personali rimangono separate.</p>
+
+<h3>Aiuto per la ricerca/legenda</h3>
+<p>Ulteriori informazioni sulla ricerca della cronaca e sul significato della visualizzazione sono accessibili tramite "Aiuto alla ricerca/legenda".</p>
+<p>Un termine di ricerca selezionato con un clic viene inserito nel campo di ricerca ed eseguito insieme ai filtri di periodo ed estrazione già impostati.</p>
+<p>Questa guida principale contestuale integra le brevi istruzioni per l'uso disponibili lì.</p>
+
+<h3>Suggerimento</h3>
+<p>La cronaca è particolarmente adatta per ritrovare luoghi interessanti scoperti durante un viaggio più lungo.</p>
+<p>Per l’estrazione mineraria di superficie, ad esempio, può rispondere:</p>
+<p>"Su quale pianeta ho mai estratto il rame?"</p>
+<p>O:</p>
+<p>"Quale dei pianeti che conosco ha un numero particolarmente elevato di siti minerari?"</p>""",
+    ),
  'jump_tip': ('Suggerimento per il salto',
               '<h2>Suggerimento per il salto</h2>\n'
               "<p>Il suggerimento di salto supporta l'esplorazione valutando i dati del sistema "
@@ -1333,7 +1351,82 @@ HELP_TOPICS = {'overview': ('Panoramica',
               'menu principale "Immagini".</li>\n'
               '</ul>\n'
               '<p>Se sono presenti più comandanti, prestare sempre attenzione a quale FID si '
-              'riferiscono ai dati di accesso online visibili.</p>')}
+              'riferiscono ai dati di accesso online visibili.</p>'),
+    "planet_navigation": (
+        'Navigazione planetaria',
+        """<h2>Navigazione planetaria</h2>
+<p>Il navigatore planetario serve esclusivamente a raggiungere una determinata latitudine/longitudine su un pianeta o una luna. Imposti un obiettivo tramite coordinate e ottieni la distanza e la direzione per raggiungerlo.</p>
+<p>Non è un pianificatore di rotte interstellari e non gestisce la navigazione tra sistemi o i salti. Sei tu a pilotare la nave.</p>
+
+<h3>Aprire il navigatore e inserire un obiettivo</h3>
+<p>Nella panoramica, apri «Navigazione planetaria» e seleziona «Inserisci obiettivo …».</p>
+<ul>
+<li><b>Corpo celeste:</b> Seleziona il pianeta o la luna di destinazione dall’elenco oppure usa il corpo già rilevato. Puoi anche inserire il nome del corpo manualmente se non è ancora nell’elenco. In caso di dubbio, usa il nome completo, incluso il nome del sistema.</li>
+<li><b>Latitudine:</b> Inserisci la latitudine dell’obiettivo tra −90° e +90°.</li>
+<li><b>Longitudine:</b> Inserisci la longitudine dell’obiettivo tra −180° e +180°. Fai attenzione al segno di entrambe le coordinate.</li>
+<li><b>Nome obiettivo:</b> Puoi inserire una descrizione facoltativa per riconoscere più facilmente l’obiettivo.</li>
+</ul>
+<p>Con «Imposta obiettivo» confermi i dati inseriti. Non devi inserire ID tecnici come BodyID e SystemAddress: non sono normali dati richiesti all’utente.</p>
+
+<h3>Quando si attiva la bussola?</h3>
+<p>Non appena è impostato un obiettivo ed Elite fornisce dati di posizione planetaria validi per il corpo corrispondente, la navigazione si attiva automaticamente. Non devi premere un pulsante di avvio separato.</p>
+<p>Se questi dati mancano ancora o appartengono a un altro corpo, il navigatore attende mostrando «In attesa delle coordinate planetarie …». Puoi inserire un obiettivo anche prima di ricevere questi dati.</p>
+
+<h3>Globo planetario: oltre 380 km</h3>
+<p>Quando la distanza dall’obiettivo è superiore a 380 km, il navigatore mostra il globo planetario.</p>
+<ul>
+<li>Il <b>cerchio bianco</b> indica la tua posizione.</li>
+<li>Il <b>piccolo punto dell’obiettivo</b> è arancione quando l’obiettivo si trova sul lato visibile del pianeta.</li>
+<li>Se l’obiettivo si trova sul lato posteriore nascosto, il punto viene mostrato in rosso.</li>
+<li>La tua posizione rimane fissa nella rappresentazione. Il pianeta e l’obiettivo vengono rappresentati rispetto alla tua posizione e al tuo orientamento.</li>
+</ul>
+<p>La freccia bianca punta in avanti; quella gialla indica la direzione relativa dell’obiettivo. Il globo è un aiuto schematico all’orientamento, non una vista del terreno geograficamente precisa. Un punto rosso indica il lato posteriore del globo, non automaticamente «dietro la tua nave».</p>
+
+<h3>Griglia prospettica: fino a 380 km inclusi</h3>
+<p>A una distanza dall’obiettivo fino a 380 km inclusi, la visualizzazione passa automaticamente a una griglia prospettica inclinata. Se la distanza torna a superare 380 km, ricompare il globo.</p>
+<p>Le linee trasversali formano una <b>griglia delle distanze a intervalli di 50 km</b>. Il punto dell’obiettivo viene disegnato nella griglia in base alla distanza e alla direzione relativa. La prospettiva ti aiuta a proseguire l’avvicinamento; l’inclinazione fa apparire gli intervalli più ravvicinati verso il fondo. Per la rotta effettiva da seguire, osserva anche la rotta obiettivo e la direzione relativa.</p>
+
+<h3>Leggere correttamente i valori di navigazione</h3>
+<ul>
+<li><b>Distanza dall’obiettivo:</b> L’indicazione grande mostra la distanza residua dall’obiettivo lungo la superficie planetaria ideale.</li>
+<li><b>Coordinate obiettivo:</b> La coppia di coordinate inserita per l’obiettivo, prima la latitudine e poi la longitudine. Rimane invariata mentre ti muovi.</li>
+<li><b>Coordinate attuali:</b> La tua ultima coppia di coordinate confermata da Elite, sempre latitudine / longitudine.</li>
+<li><b>Distanza sulla superficie:</b> La stessa distanza sulla superficie indicata come distanza dall’obiettivo, eventualmente arrotondata con maggiore precisione nella visualizzazione dettagliata. Non è un secondo percorso né una distanza spaziale diretta attraverso l’aria.</li>
+<li><b>Rilevamento:</b> La direzione assoluta verso l’obiettivo dalla tua posizione attuale, espressa come angolo della bussola: 000° è nord, 090° est, 180° sud e 270° ovest.</li>
+<li><b>Prua:</b> Il tuo orientamento attuale, come fornito da Elite. Indica dove sei rivolto e non deve necessariamente coincidere già con il rilevamento.</li>
+<li><b>Direzione relativa:</b> La differenza tra il tuo orientamento e il rilevamento, ad esempio «23° a destra», «10° a sinistra» o «Dritto». A 180°, l’obiettivo è dietro di te.</li>
+<li><b>Rotta obiettivo:</b> Il rilevamento evidenziato come rotta assoluta sulla quale puoi allinearti nell’HUD di Elite. Non è un ulteriore angolo di virata.</li>
+</ul>
+<p>Esempio: con prua 051° e rotta obiettivo 074°, vira di 23° a destra finché la bussola di Elite indica circa 074°. Proseguendo il volo, il rilevamento e la rotta obiettivo possono cambiare: segui i valori aggiornati.</p>
+<p>Nella stessa posizione dell’obiettivo, a un polo o nel punto esattamente opposto sul pianeta, la direzione può essere indefinita. Il navigatore mostra allora l’avviso corrispondente anziché una rotta inventata.</p>
+
+<h3>Dimensioni della finestra</h3>
+<p>La finestra del navigatore è liberamente ridimensionabile. Il globo o la griglia prospettica si adattano proporzionalmente allo spazio disponibile. Le dimensioni minime mantengono leggibili i valori dettagliati; il globo rimane rotondo. La posizione e le dimensioni della finestra vengono salvate.</p>
+
+<h3>Attivare l’HUD di navigazione</h3>
+<p>A sinistra nella finestra principale, seleziona la casella sotto <b>visualizzazione automatica → HUD di navigazione</b>. Con una navigazione planetaria valida, l’HUD appare direttamente sopra la finestra visibile di Elite in primo piano.</p>
+<p>Mostra tre righe:</p>
+<ul>
+<li>direzione relativa</li>
+<li>rotta obiettivo</li>
+<li>distanza</li>
+</ul>
+<p>L’HUD è trasparente, lascia passare i clic e non prende il focus: non copre il gioco con un’area opaca, non intercetta i clic del mouse e non sottrae a Elite il focus di input quando appare automaticamente.</p>
+<p>Senza navigazione valida o una direzione univoca, diventa automaticamente invisibile. Viene nascosto anche quando Elite è ridotto a icona o non è in primo piano. La casella nella barra laterale può comunque restare selezionata: rappresenta la tua preferenza per la visualizzazione automatica, non la visibilità attuale.</p>
+<p>L’HUD è solo una visualizzazione aggiuntiva. Il navigatore normale funziona indipendentemente da esso, anche quando l’HUD è disattivato o non disponibile.</p>
+
+<h3>Impostare un nuovo obiettivo</h3>
+<p>Sullo stesso corpo puoi riaprire «Inserisci obiettivo …» in qualsiasi momento e impostare altre coordinate. Il nuovo obiettivo sostituisce quello di navigazione precedente. Con dati di posizione corrispondenti, la bussola si aggiorna immediatamente.</p>
+<p>Con «Termina navigazione» rimuovi l’obiettivo attuale. Per un altro avvicinamento, imposta semplicemente un nuovo obiettivo.</p>
+
+<h3>Aggiornamento dei dati e limiti</h3>
+<p>La navigazione si basa sui dati di stato forniti da Elite. Gli aggiornamenti possono arrivare in ritardo a seconda dello stato del gioco. L’indicazione dell’età nel navigatore mostra quanto tempo è trascorso dall’ultimo messaggio di stato confermato.</p>
+<p>La distanza sulla superficie descrive l’arco più breve su una sfera ideale. Non è un percorso sul terreno o stradale. Il navigatore non conosce gli ostacoli né le quote del terreno lungo il tragitto: altitudine di volo, velocità sicura ed evitamento degli ostacoli restano responsabilità tua.</p>
+
+<h3>Suggerimento</h3>
+<p>Prima dell’avvicinamento, controlla il nome del corpo e i segni delle coordinate dell’obiettivo. Allineati quindi alla rotta obiettivo sulla bussola di Elite e osserva direzione relativa e distanza. Se il navigatore è in attesa, verifica se Elite sta già fornendo coordinate planetarie per il corpo obiettivo.</p>""",
+    ),
+}
 
 DIALOG_TITLE = 'Aiuto – {area}'
 CLOSE_LABEL = 'Chiudi'

@@ -321,175 +321,207 @@ HELP_TOPICS = {'overview': ('Oversikt',
               '<h3>Tupp</h3>\n'
               '<p>Hvis du har en interessant kropp, er det verdt å klikke på den detaljerte '
               'visningen. Dette er det beste stedet å skille mellom generelle kroppsdata, mulige '
-              'leteresultater og faktiske funn dokumentert av din egen sjef.</p>'),
- 'chronicle': ('kronikk',
-               '<h2>kronikk</h2>\n'
-               '<p>Kronikken er fartøysjefens personlige reise- og oppdagelseshistorie. Den bruker '
-               'den permanent lagrede journalinformasjonen til å finne systemer som allerede er '
-               'besøkt, for å representere dem romlig og for å søke etter kjente funn.</p>\n'
-               '\n'
-               '<h3>Systemer besøkt</h3>\n'
-               '<p>Krøniken viser systemene som ble besøkt og deres plassering i galaksen '
-               'kjent for kommandøren.</p>\n'
-               '<p>Hvis tilgjengelig, tas det hensyn til første og siste besøk samt kjent '
-               'kroppsinformasjon.</p>\n'
-               '<p>Kronikken er derfor ikke bare et kart, men også et verktøy for å finne '
-               'tidligere reisemål og oppdagelser.</p>\n'
-               '\n'
-               '<h3>3D kart</h3>\n'
-               '<p>Systemene som besøkes er romlig representert ved hjelp av deres galaktiske '
-               'X/Y/Z-koordinater.</p>\n'
-               '<p>Bruksanvisningen er plassert rett over kartet:</p>\n'
-               '<ul>\n'
-               '<li>Hold nede venstre museknapp → roter visning</li>\n'
-               '<li>Hold nede den midterste museknappen → Zoom</li>\n'
-               '<li>Hold nede høyre museknapp → flytt visning</li>\n'
-               '</ul>\n'
-               '<p>Displayet med liten akse hjelper med orientering i rommet.</p>\n'
-               '\n'
-               '<h3>Nåværende stilling</h3>\n'
-               '<p>Med "Current Position" kan kartvisningen justeres eller returneres til den '
-               'gjeldende kjente plasseringen til den aktive fartøysjefen.</p>\n'
-               '<p>Forutsetningen er at en gyldig aktuell stilling er kjent for fartøysjefen.</p>\n'
-               '\n'
-               '<h3>Juster</h3>\n'
-               '<p>"Align" returnerer kartorienteringen til den tiltenkte grunnleggende '
-               'orienteringen.</p>\n'
-               '<p>Dette er nyttig hvis kartet har blitt forvirrende etter å ha blitt rotert eller '
-               'flyttet mye.</p>\n'
-               '\n'
-               '<h3>Oppdater tidslinjen</h3>\n'
-               '<p>"Oppdater historikk" oppdaterer skjermen med gjeldende kjente data.</p>\n'
-               '<p>Funksjonen endrer ikke journalfiler eller oppretter nye letedata. Den '
-               'oppdaterer ganske enkelt historievisningen basert på eksisterende '
-               'CMDRHelper-data.</p>\n'
-               '\n'
-               '<h3>Fritekstsøk</h3>\n'
-               '<p>Allerede kjent innhold kan søkes i feltet "Søkehistorikk...".</p>\n'
-               '<p>Søket tar blant annet hensyn til – hvis tilgjengelig i databasen –:</p>\n'
-               '<ul>\n'
-               '<li>Systemnavn</li>\n'
-               '<li>Kroppsegenskaper</li>\n'
-               '<li>biologiske data</li>\n'
-               '<li>Materialer</li>\n'
-               '<li>Codex data</li>\n'
-               '</ul>\n'
-               '<p>"Søk"-knappen utfører kun dette fritekstsøket.</p>\n'
-               '<p>De separate DEMONTERING-filtrene utføres derimot med "Apply".</p>\n'
-               '\n'
-               '<h3>Søkeresultater</h3>\n'
-               '<p>Treff vises i den eksisterende resultatlisten under kronikkkortet.</p>\n'
-               '<p>Avhengig av type treff, kan system og kropp samt tilleggsinformasjon '
-               'vises.</p>\n'
-               '<p>Et treff kan brukes til å finne det korresponderende systemet eller kroppen som '
-               'allerede er kjent og for å åpne den eksisterende detaljerte informasjonen.</p>\n'
-               '\n'
-               '<h3>Planetariske gruveplasser</h3>\n'
-               '<p>Filteret "Planetære gruvesteder" kan brukes til å spesifikt søke etter kjente '
-               'kropper som Elite Dangerous har rapportert planetariske gruvesteder for.</p>\n'
-               '<p>Den underliggende skjermen tilsvarer den kjent fra Explorer:</p>\n'
-               '<p><b>ABBAU ×N</b></p>\n'
-               '<p>Nummeret tilhører selve kroppen og er ikke relatert til fartøysjefen.</p>\n'
-               '\n'
-               '<h3>I det minste</h3>\n'
-               '<p>Ved å bruke "Minst" kan du spesifisere minimumsantallet av planetariske '
-               'gruveplasseringer en kropp skal ha.</p>\n'
-               '<p>Eksempel:</p>\n'
-               '<p><b>Minst 20</b></p>\n'
-               '<p>viser kun kjente kropper med minst:</p>\n'
-               '<p><b>ABBAU ×20</b></p>\n'
-               '<p>Dette gjør det mulig å spesifikt lokalisere spesielt omfattende '
-               'gruveområder.</p>\n'
-               '\n'
-               '<h3>Egne gruvefunn</h3>\n'
-               '<p>Med «Egne gruvefunn» er letinga avgrensa til kroppar der den aktuelle '
-               'farandsjefen påviselig sjølv har utført gruvedrift.</p>\n'
-               '<p>Denne informasjonen kommer fra personlig overflategruvehistorie og er strengt '
-               'adskilt av sjefen.</p>\n'
-               '<p>Et organ kan derfor ha globale ABBAU ×N-signaler uten at egen sjef allerede har '
-               'fjernet noe der.</p>\n'
-               '\n'
-               '<h3>råstoff</h3>\n'
-               '<p>Hvis "Egne gruvefunn" er aktivert, er valget "Råmateriale" også '
-               'tilgjengelig.</p>\n'
-               '<p>Listen inneholder kun varer som den aktuelle fartøysjefen faktisk allerede har '
-               'vunnet fra overflategruvedrift.</p>\n'
-               '<p>Dette er ikke en teoretisk liste over alle mulige gruve råvarer.</p>\n'
-               '<p>For eksempel kan FABER38 vises:</p>\n'
-               '<ul>\n'
-               '<li>Alle</li>\n'
-               '<li>kopper</li>\n'
-               '</ul>\n'
-               '<p>Hvis ytterligere råvarer faktisk utvinnes senere, vil de automatisk vises i '
-               'ditt personlige valg.</p>\n'
-               '\n'
-               '<h3>Målrettet søk etter råvarer</h3>\n'
-               '<p>For eksempel, hvis "Kobber" er valgt og deretter "Bruk" trykkes, vil '
-               'historikken kun vise kropper som den aktuelle fartøysjefen beviselig har utvunnet '
-               'kobber på.</p>\n'
-               '<p>Eksempel:</p>\n'
-               '<p><b>Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — kobber 56 t</b></p>\n'
-               '<p>Dette betyr at kronikken kan brukes som en personlig lokasjonsdatabase: et '
-               'råmateriale som allerede er utvunnet kan bli funnet igjen senere.</p>\n'
-               '\n'
-               '<h3>Alle råvarer</h3>\n'
-               '<p>Med "Råmateriale: Alle" blir alle matchende personlige gruvefunn på overflaten '
-               'tatt i betraktning.</p>\n'
-               '<p>Hvis flere varer er kjent på en kropp, kan de vises sammen med mengdene de har '
-               'fått til nå.</p>\n'
-               '<p>Eksempel:</p>\n'
-               '<p><b>ABBAU ×24 — Helium-3 18 t, kobber 56 t</b></p>\n'
-               '<p>Mengdene er de personlige gruveverdiene til den respektive sjefen, som faktisk '
-               'er dokumentert fra journalhendelser.</p>\n'
-               '\n'
-               '<h3>Kombiner filtre</h3>\n'
-               '<p>Gruvefiltrene kan kombineres med hverandre.</p>\n'
-               '<p>For eksempel:</p>\n'
-               '<ul>\n'
-               '<li>Planetariske gruveplasser er aktive</li>\n'
-               '<li>Minst 20</li>\n'
-               '<li>Egne gruvefunn aktive</li>\n'
-               '<li>Råstoff kobber</li>\n'
-               '</ul>\n'
-               '<p>leter etter kjente kropper med minst 20 planetariske gruveplasser der '
-               'vedkommende fartøysjef allerede selv har utvunnet kobber.</p>\n'
-               '\n'
-               '<h3>Søke</h3>\n'
-               '<p>"Apply" kjører bare de synlige gruvefiltrene.</p>\n'
-               '<p>"Søk"-knappen ved siden av den er reservert for fritekstsøk.</p>\n'
-               '<p>Dette betyr at tekstsøk og gruvefiltre er bevisst atskilt fra hverandre.</p>\n'
-               '\n'
-               '<h3>Tilbakestill</h3>\n'
-               '<p>"Tilbakestill" sletter gjeldende fritekstsøk og tilbakestiller også '
-               'gruvefiltrene til deres opprinnelige tilstand.</p>\n'
-               '<p>Råvareutvalget hopper tilbake til "Alle".</p>\n'
-               '\n'
-               '<h3>Kommandørvalg</h3>\n'
-               '<p>Kronikken kan vise data fra ulike kjente befal.</p>\n'
-               '<p>Personlig informasjon som dine egne gruvefunn og råvarelister blir imidlertid '
-               'alltid vurdert separat for fartøysjefen som faktisk vises.</p>\n'
-               '<p>En fartøysjef ser ingen gruvefunn i sitt råvareutvalg som utelukkende tilhører '
-               'en annen fartøysjef.</p>\n'
-               '\n'
-               '<h3>Alle befal</h3>\n'
-               '<p>Kart-/kronikkvisningen kan ta hensyn til flere kommandoer.</p>\n'
-               '<p>Dette endrer ikke den personlige tilordningen av befalsrelaterte data. Globale '
-               'astronomiske egenskaper til et system eller kropp forblir delt, personlige funn '
-               'forblir atskilt.</p>\n'
-               '\n'
-               '<h3>Søkehjelp / legende</h3>\n'
-               '<p>Ytterligere informasjon om kronikksøket og betydningen av displayet kan nås via '
-               '"Søkehjelp / legende".</p>\n'
-               '<p>Denne kontekstrelaterte hovedhjelpen supplerer den korte bruksanvisningen som '
-               'er tilgjengelig der.</p>\n'
-               '\n'
-               '<h3>Tupp</h3>\n'
-               '<p>Kronikken egner seg spesielt godt til å finne interessante steder som ble '
-               'oppdaget under en lengre tur.</p>\n'
-               '<p>For overflategruvedrift, for eksempel, kan den svare:</p>\n'
-               '<p>"På hvilken planet har jeg noen gang utvunnet kobber?"</p>\n'
-               '<p>eller:</p>\n'
-               '<p>"Hvilke av mine kjente planeter har et spesielt høyt antall gruveplasser?"</p>'),
+              'leteresultater og faktiske funn dokumentert av din egen sjef.</p>'
+              """
+
+<h3>★ Favoritter</h3>
+<p>Knappen «★ Favoritter» øverst i Explorer åpner et eget favorittvindu som kan brukes på nytt. Her lagrer du systemer, planeter/måner og steder på overflaten for den aktive kommandøren.</p>
+<p>Den rullbare listen, alfabetisk sortert etter navn, viser navn, type, system, himmellegeme og breddegrad/lengdegrad der det er relevant, kategori og en liten bildeforhåndsvisning. Fritekstsøk, typefilter og kategorifilter kan brukes sammen. Søket omfatter navn, system, himmellegeme og notat.</p>
+<p>«Åpne / Vis» viser de lagrede opplysningene, notatet og en større bildeforhåndsvisning. «Vis i Explorer» åpner den eksisterende systemoversikten eller detaljvisningen for himmellegemet hvis favoritten tilhører det gjeldende Explorer-systemet og passende data er tilgjengelige. For andre systemer forblir de lagrede favorittdataene synlige; ingen systemrute beregnes.</p>
+
+<h3>Lagre et system, en planet eller gjeldende posisjon</h3>
+<ul>
+<li>«★ Lagre nåværende system» lagrer det gjeldende systemet uten overflatekoordinater.</li>
+<li>«★ Lagre planet / måne» lar deg velge en kjent planet eller måne i det gjeldende systemet. Denne favoritten får heller ikke overflatekoordinater.</li>
+<li>«★ Lagre nåværende posisjon» står øverst i favorittvinduet ved siden av de to andre lagringsvalgene og er også tilgjengelig i planetnavigatoren. I favorittvinduet er knappen alltid synlig og er deaktivert uten gyldige, aktuelle planetære posisjonsdata og en aktiv kommandør. Ved klikk fryses kommandør, system, himmellegeme, breddegrad og lengdegrad. Senere bevegelser i spillet endrer ikke disse verdiene i den åpne dialogen.</li>
+</ul>
+<p>Skriv inn et valgfritt navn og velg nøyaktig én kategori: Bio, Geo, Gruvedrift, Utsikt, Landingssted, Interessant eller Annet. Notat og bilde er valgfrie. Kjente tekniske ID-er overføres internt; du trenger ikke skrive dem inn. Breddegrad eller lengdegrad 0,0 er også gyldige koordinater.</p>
+<p>«Rediger» endrer navn, kategori, notat og bilde. System, himmellegeme og lagrede koordinater beholdes. Hvis du vil lagre et annet sted på overflaten, oppretter du en ny favoritt på den posisjonen.</p>
+
+<h3>Favorittbilder</h3>
+<p>Favorittbilder er atskilt fra Bilder-området. «Velg bilde …» tillater PNG, JPEG og WebP. Først ved lagring kopierer CMDRHelper det valgte bildet til sin egen mappe for favorittbilder. Originalfilen blir verken flyttet eller endret.</p>
+<p>«Bruk siste skjermbilde» leser den konfigurerte kildemappen for skjermbilder på nytt ved hvert klikk og ser etter lesbare skjermbilder med typiske Elite-filnavn. Uten en innstilling tas de vanlige Elite-skjermbildemappene på Windows eller Steam/Proton med. Mappen til den aktive kommandøren i det konfigurerte konverteringsmålet gjennomsøkes også etter passende konverterte Elite-skjermbilder. Dermed kan et konvertert skjermbilde fortsatt finnes hvis den opprinnelige BMP-filen er slettet. Det nyeste opptakstidspunktet bestemmes av en entydig tidsangivelse i filnavnet, ellers av filtiden; for konverterte bilder brukes opptakstiden som er lagret i navnet, ikke konverteringstidspunktet. CMDRHelper tar ikke skjermbilder selv og søker ikke i vilkårlige bildemapper.</p>
+<p>Før bruk vises filnavn, opptakstid og en nylastet forhåndsvisning. Bekreft med «Bruk dette bildet». Hvis ingen passende skjermbilder blir funnet, kan du fortsatt bruke «Velg bilde …». Elite-skjermbilder i BMP-format lagres som en intern PNG-kopi.</p>
+<p>Et bilde kan erstattes i redigeringsdialogen eller velges bort med «Fjern bilde». Ved lagring slettes den interne kopien som ikke lenger brukes. Hvis en bildefil mangler, kan favoritten fortsatt brukes uten forhåndsvisning.</p>
+
+<h3>Favorittmål og kommandør</h3>
+<p>For steder på overflaten sender «▶ Til målet» det lagrede himmellegemet, breddegrad, lengdegrad og favorittnavnet til den eksisterende planetnavigatoren. Det nye målet erstatter det forrige. Favoritter har ingen egen navigasjonslogikk. Navigatoren avgjør fortsatt selv: samsvarende, gyldige planetære data aktiverer navigasjonen; ellers venter den på disse dataene.</p>
+<p>Favoritter tilhører bare den aktive kommandøren. Ved kommandørbytte oppdateres listen, og en åpen redigeringsdialog forkastes. Et mål som fortsatt håndteres som den forrige kommandørens favorittmål, avsluttes. Kommandørvalget i kronikken utvider ikke denne favorittlisten.</p>
+<p>«Slett» krever bekreftelse og fjerner bare favorittoppføringen og dens interne bildekopi. Det opprinnelige skjermbildet eller det valgte originalbildet og alle Explorer-, journal- og himmellegemedata beholdes.</p>"""),
+ 'chronicle': (
+        'Krønike',
+        """<h2>Krønike</h2>
+<p>Kronikken er fartøysjefens personlige reise- og oppdagelseshistorie. Den bruker den permanent lagrede journalinformasjonen til å finne systemer som allerede er besøkt, for å representere dem romlig og for å søke etter kjente funn.</p>
+
+<h3>Systemer besøkt</h3>
+<p>Krøniken viser systemene som ble besøkt og deres plassering i galaksen kjent for kommandøren.</p>
+<p>Hvis tilgjengelig, tas det hensyn til første og siste besøk samt kjent kroppsinformasjon.</p>
+<p>Med en aktiv periode gjelder antall besøk, første besøk og siste besøk i kartvisningen de filtrerte faktiske systembesøkene.</p>
+<p>Kronikken er derfor ikke bare et kart, men også et verktøy for å finne tidligere reisemål og oppdagelser.</p>
+
+<h3>3D kart</h3>
+<p>Systemene som besøkes er romlig representert ved hjelp av deres galaktiske X/Y/Z-koordinater.</p>
+<p>Bruksanvisningen er plassert rett over kartet:</p>
+<ul>
+<li>Hold nede venstre museknapp → roter visning</li>
+<li>hold inne midtre museknapp og dra → trekk opp et zoomvindu</li>
+<li>Hold nede høyre museknapp → flytt visning</li>
+</ul>
+<p>Displayet med liten akse hjelper med orientering i rommet.</p>
+
+<h3>Nåværende posisjon</h3>
+<p>Med "Current Position" kan kartvisningen justeres eller returneres til den gjeldende kjente plasseringen til den aktive fartøysjefen.</p>
+<p>Først brukes de gjeldende filterinnstillingene. Visningen sentreres bare på det nåværende systemet hvis det finnes i kartet som blir vist.</p>
+<p>Ellers vises «Det nåværende systemet er ikke med i dette filterutvalget.» Filtrene blir ikke fjernet av dette.</p>
+
+<h3>Juster</h3>
+<p>«Juster» tilbakestiller orienteringen til en visning ovenfra av det galaktiske planet. Forskyvning og zoom beholdes.</p>
+<p>Dette er nyttig hvis mye rotasjon har gjort kartet uoversiktlig.</p>
+
+<h3>Oppdater Krønike</h3>
+<p>«Oppdater Krønike» laster krønikedataene på nytt med de gjeldende kombinerte filtrene og oppdaterer visningen. Fritekst, aktiverte datogrenser og gruvefiltre vurderes samlet på nytt; aktive filtre ignoreres ikke.</p>
+<p>Funksjonen endrer ikke journalfiler eller oppretter nye letedata. Den oppdaterer ganske enkelt historievisningen basert på eksisterende CMDRHelper-data.</p>
+
+<h3>Fritekstsøk</h3>
+<p>Allerede kjent innhold kan søkes i feltet "Søkehistorikk...".</p>
+<p>Søket tar blant annet hensyn til – hvis tilgjengelig i databasen –:</p>
+<ul>
+<li>Systemnavn</li>
+<li>Kroppsegenskaper</li>
+<li>biologiske data</li>
+<li>Materialer</li>
+<li>Codex data</li>
+</ul>
+<p>Fritekst, periode og gruvedrift ligger i ett felles filterområde. «Bruk» vurderer de angitte filtrene samlet. Enter i fritekstfeltet starter den samme kombinerte filtreringen som «Bruk».</p>
+
+<h3>Periode Fra/Til (UTC)</h3>
+<p>Aktiver «Fra» og «Til» med hver sin avkryssingsboks, og velg ønsket dato. Det er også mulig å bruke bare én grense. Uten aktivert avkryssing er det ingen tidsbegrensning på den siden; uten begge avkryssingene begrenses ingen periode.</p>
+<ul>
+<li><b>Fra:</b> Fra starten av den valgte UTC-kalenderdagen, inkludert.</li>
+<li><b>Til:</b> Hele den valgte UTC-kalenderdagen tas med, frem til rett før starten av neste dag.</li>
+</ul>
+<p>UTC er koordinert universaltid. Datogrensene gjelder UTC-kalenderdager, ikke kalenderdager i din lokale tidssone.</p>
+<p>Filtreringen bruker faktiske systembesøk fra <code>system_visits</code>. Et faktisk besøk av den aktuelle kommandøren innenfor perioden er nødvendig. De lagrede opplysningene <code>first_seen</code> og <code>last_seen</code> erstatter ikke et reelt besøk: det er ikke nok at perioden bare ligger mellom et tidligere første besøk og et senere siste besøk.</p>
+<p>Perioden filtrerer besøk, ikke enkelte oppdagelses-, BIO-, GEO- eller gruvehendelser. Kjente funnopplysninger og utvunne mengder forblir lagrede totalverdier. Fra/Til kan brukes alene eller sammen med fritekst og gruvefiltre.</p>
+<p>Hvis Fra er etter Til, vises «Fra-datoen må ikke være etter Til-datoen.» Ingen databasespørring startes. Korriger datogrensene og bruk filtrene på nytt.</p>
+
+<h3>Søkeresultater</h3>
+<p>Treff vises i den eksisterende resultatlisten under kronikkkortet.</p>
+<p>Avhengig av type treff, kan system og kropp samt tilleggsinformasjon vises.</p>
+<p>Et treff kan brukes til å finne det korresponderende systemet eller kroppen som allerede er kjent og for å åpne den eksisterende detaljerte informasjonen.</p>
+
+<h3>Ingen treff</h3>
+<p>Hvis en gyldig filtrering ikke finner treff, tømmes kart og ruter. Trefflisten tømmes og skjules, detaljvisningen tilbakestilles, og et eventuelt åpent systemdetaljvindu i krøniken lukkes.</p>
+<p>Gamle resultater blir ikke stående synlige. Kontroller da kombinasjonen av søketekst, periode og gruvefiltre samt kommandøren som brukes for den aktuelle visningen.</p>
+
+<h3>Planetære gruveområder</h3>
+<p>Filteret "Planetære gruvesteder" kan brukes til å spesifikt søke etter kjente kropper som Elite Dangerous har rapportert planetariske gruvesteder for.</p>
+<p>Den underliggende skjermen tilsvarer den kjent fra Explorer:</p>
+<p><b>ABBAU ×N</b></p>
+<p>Nummeret tilhører selve kroppen og er ikke relatert til fartøysjefen.</p>
+
+<h3>I det minste</h3>
+<p>Ved å bruke "Minst" kan du spesifisere minimumsantallet av planetariske gruveplasseringer en kropp skal ha.</p>
+<p>Eksempel:</p>
+<p><b>Minst 20</b></p>
+<p>viser kun kjente kropper med minst:</p>
+<p><b>ABBAU ×20</b></p>
+<p>Dette gjør det mulig å spesifikt lokalisere spesielt omfattende gruveområder.</p>
+
+<h3>Mine gruvefunn</h3>
+<p>Med «Egne gruvefunn» er letinga avgrensa til kroppar der den aktuelle farandsjefen påviselig sjølv har utført gruvedrift.</p>
+<p>Denne informasjonen kommer fra personlig overflategruvehistorie og er strengt adskilt av sjefen.</p>
+<p>Et organ kan derfor ha globale ABBAU ×N-signaler uten at egen sjef allerede har fjernet noe der.</p>
+
+<h3>Vare</h3>
+<p>Hvis "Egne gruvefunn" er aktivert, er valget "Råmateriale" også tilgjengelig.</p>
+<p>Listen inneholder kun varer som den aktuelle fartøysjefen faktisk allerede har vunnet fra overflategruvedrift.</p>
+<p>Dette er ikke en teoretisk liste over alle mulige gruve råvarer.</p>
+<p>For FABER38 kan listen for eksempel inneholde:</p>
+<ul>
+<li>Alle</li>
+<li>kopper</li>
+</ul>
+<p>Hvis ytterligere råvarer faktisk utvinnes senere, vil de automatisk vises i ditt personlige valg.</p>
+
+<h3>Målrettet søk etter råvarer</h3>
+<p>For eksempel, hvis "Kobber" er valgt og deretter "Bruk" trykkes, vil historikken kun vise kropper som den aktuelle fartøysjefen beviselig har utvunnet kobber på.</p>
+<p>Eksempel:</p>
+<p><b>Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — kobber 56 t</b></p>
+<p>Dette betyr at kronikken kan brukes som en personlig lokasjonsdatabase: et råmateriale som allerede er utvunnet kan bli funnet igjen senere.</p>
+
+<h3>Alle råvarer</h3>
+<p>Med "Råmateriale: Alle" blir alle matchende personlige gruvefunn på overflaten tatt i betraktning.</p>
+<p>Hvis flere varer er kjent på en kropp, kan de vises sammen med mengdene de har fått til nå.</p>
+<p>Eksempel:</p>
+<p><b>ABBAU ×24 — Helium-3 18 t, kobber 56 t</b></p>
+<p>Mengdene er de personlige gruveverdiene til den respektive sjefen, som faktisk er dokumentert fra journalhendelser.</p>
+<p>Også med en aktiv periode forblir personlige utvunne mengder lagrede totalmengder. <b>Kobber 56 t</b> betyr ikke automatisk <b>56 t i den valgte perioden</b>. Perioden krever et passende systembesøk, men begrenser ikke den viste utvunne mengden til denne perioden.</p>
+
+<h3>Kombiner filtre</h3>
+<p>Fritekst, aktiverte Fra-/Til-grenser og gruvefiltre kan kombineres. Et treff må oppfylle de angitte betingelsene samlet.</p>
+<p>For eksempel:</p>
+<ul>
+<li>Planetariske gruveplasser er aktive</li>
+<li>Minst 20</li>
+<li>Egne gruvefunn aktive</li>
+<li>Råstoff kobber</li>
+</ul>
+<p>leter etter kjente kropper med minst 20 planetariske gruveplasser der vedkommende fartøysjef allerede selv har utvunnet kobber.</p>
+<p>Eventuell ekstra søketekst tas også med. Hvis en periode er angitt i tillegg, må kommandøren du viser faktisk ha besøkt det tilhørende systemet i denne perioden; selve kobberutvinningen trenger ikke å ha skjedd i denne perioden.</p>
+
+<h3>Bruk</h3>
+<p>«Bruk» utfører en samlet filtrering med alle gjeldende søke-, periode- og gruvefiltre:</p>
+<ul>
+<li>Fritekst</li>
+<li>Fra, hvis aktivert</li>
+<li>Til, hvis aktivert</li>
+<li>Planetære gruveområder</li>
+<li>Minimumsantall</li>
+<li>Mine gruvefunn</li>
+<li>Vare, hvis «Mine gruvefunn» er aktivert</li>
+</ul>
+<p>Enter i fritekstfeltet utfører nøyaktig samme filtrering. Uten fritekst og gruvefiltre lastes det vanlige kartet for de avkryssede kartkommandørene, eventuelt begrenset av Fra/Til.</p>
+
+<h3>Tilbakestill</h3>
+<p>«Tilbakestill» setter det felles filterområdet tilbake til utgangstilstanden:</p>
+<ul>
+<li>Fritekst tømmes.</li>
+<li>Fra og Til deaktiveres; datofeltene viser dagens dato igjen og er deaktivert.</li>
+<li>Planetære gruveområder deaktiveres.</li>
+<li>Minimumsantallet settes til 0.</li>
+<li>Mine gruvefunn deaktiveres.</li>
+<li>Vare settes tilbake til «Alle».</li>
+</ul>
+<p>Kommandørvalget beholdes. Deretter lastes den vanlige krøniken på nytt for dette kartvalget; tidligere søketreff og detaljvisninger tilbakestilles.</p>
+
+<h3>Kommandørvalg</h3>
+<p>Kronikken kan vise data fra ulike kjente befal.</p>
+<p>Det finnes to separate valgkonsepter:</p>
+<ul>
+<li><b>Kommandørvalg for kartet:</b> Kommandøravkryssingene bestemmer hvilke kommandørruter som vises i det vanlige kartet uten fritekst-/gruvesøk. En aktivert periode tas med.</li>
+<li><b>Kommandøren som vises:</b> Personlige fritekst-/gruvesøk bruker kommandøren som vises (<code>viewed_commander_id</code>), ellers den aktive kommandøren. Også de personlige varelistene følger denne kommandøren.</li>
+</ul>
+<p>Personlig informasjon som dine egne gruvefunn og råvarelister blir imidlertid alltid vurdert separat for fartøysjefen som faktisk vises.</p>
+<p>En fartøysjef ser ingen gruvefunn i sitt råvareutvalg som utelukkende tilhører en annen fartøysjef.</p>
+
+<h3>Alle kommandører</h3>
+<p>Kart-/kronikkvisningen kan ta hensyn til flere kommandoer.</p>
+<p>«Alle kommandører» gjelder kommandørvalget for kartet. Kommandøravkryssingene utvider ikke automatisk personlige fritekst-/gruvesøk til flere kommandører.</p>
+<p>Dette endrer ikke den personlige tilordningen av befalsrelaterte data. Globale astronomiske egenskaper til et system eller kropp forblir delt, personlige funn forblir atskilt.</p>
+
+<h3>Søkehjelp / legende</h3>
+<p>Ytterligere informasjon om kronikksøket og betydningen av displayet kan nås via "Søkehjelp / legende".</p>
+<p>Et søkeord du klikker på, settes inn i søkefeltet og kjøres sammen med periode-/gruvefiltrene som allerede er angitt.</p>
+<p>Denne kontekstrelaterte hovedhjelpen supplerer den korte bruksanvisningen som er tilgjengelig der.</p>
+
+<h3>Tips</h3>
+<p>Kronikken egner seg spesielt godt til å finne interessante steder som ble oppdaget under en lengre tur.</p>
+<p>For overflategruvedrift, for eksempel, kan den svare:</p>
+<p>"På hvilken planet har jeg noen gang utvunnet kobber?"</p>
+<p>eller:</p>
+<p>"Hvilke av mine kjente planeter har et spesielt høyt antall gruveplasser?"</p>""",
+    ),
  'jump_tip': ('Hopptips',
               '<h2>Hopptips</h2>\n'
               '<p>Hopptipset støtter utforskning ved å evaluere allerede kjente systemdata og '
@@ -1230,7 +1262,82 @@ HELP_TOPICS = {'overview': ('Oversikt',
               '<li>I tilfelle bildeproblemer, kilde- og målmapper i hovedmenyen "Bilder".</li>\n'
               '</ul>\n'
               '<p>Hvis det er flere sjefer, vær alltid oppmerksom på hvilken FID de synlige '
-              'nettilgangsdataene gjelder for.</p>')}
+              'nettilgangsdataene gjelder for.</p>'),
+    "planet_navigation": (
+        'Planetnavigasjon',
+        """<h2>Planetnavigasjon</h2>
+<p>Planetnavigatoren hjelper deg utelukkende med å fly til en bestemt breddegrad/lengdegrad på en planet eller måne. Du angir et koordinatmål og får avstand og retning dit.</p>
+<p>Den er ikke en interstellar ruteplanlegger og håndterer verken system- eller hoppnavigasjon. Du styrer skipet selv.</p>
+
+<h3>Åpne navigatoren og angi et mål</h3>
+<p>Åpne «Planetnavigasjon» i oversikten og velg «Angi mål …».</p>
+<ul>
+<li><b>Himmellegeme:</b> Velg målplaneten eller målmånen fra listen, eller bruk himmellegemet som allerede er registrert. Du kan også skrive inn navnet selv hvis det ikke finnes i listen ennå. Er du i tvil, bruk hele navnet, inkludert systemnavnet.</li>
+<li><b>Breddegrad:</b> Angi målets breddegrad mellom −90° og +90°.</li>
+<li><b>Lengdegrad:</b> Angi målets lengdegrad mellom −180° og +180°. Pass på fortegnet til begge koordinatene.</li>
+<li><b>Målnavn:</b> Du kan valgfritt angi en betegnelse for å kjenne igjen målet lettere.</li>
+</ul>
+<p>Med «Sett mål» bekrefter du opplysningene. Du trenger ikke å angi tekniske ID-er som BodyID og SystemAddress; de er ikke vanlige brukeropplysninger.</p>
+
+<h3>Når starter kompasset?</h3>
+<p>Så snart et mål er satt og Elite leverer gyldige planetære posisjonsdata for det tilsvarende himmellegemet, blir navigasjonen automatisk aktiv. Du trenger ikke å trykke på en egen startknapp.</p>
+<p>Hvis disse dataene fortsatt mangler eller gjelder et annet himmellegeme, venter navigatoren med «Venter på planetkoordinater …». Du kan angi et mål allerede før disse dataene kommer.</p>
+
+<h3>Planetkule: mer enn 380 km</h3>
+<p>Når målavstanden er større enn 380 km, viser navigatoren planetkulen.</p>
+<ul>
+<li>Den <b>hvite sirkelen</b> markerer din egen posisjon.</li>
+<li>Det <b>lille målpunktet</b> er oransje når målet ligger på den synlige siden av planeten.</li>
+<li>Hvis målet ligger på den skjulte baksiden, vises målpunktet i rødt.</li>
+<li>Posisjonen din står fast i visningen. Planeten og målet vises i forhold til posisjonen og orienteringen din.</li>
+</ul>
+<p>Den hvite pilen peker fremover; den gule pilen viser den relative retningen til målet. Kulen er en skjematisk orienteringshjelp, ikke en geografisk nøyaktig terrengvisning. Et rødt punkt betyr baksiden av kulen, ikke automatisk «bak skipet ditt».</p>
+
+<h3>Perspektivrutenett: til og med 380 km</h3>
+<p>Ved en målavstand på opptil og med 380 km bytter visningen automatisk til et skråstilt perspektivrutenett. Hvis avstanden igjen øker til over 380 km, kommer kulen tilbake.</p>
+<p>Tverrlinjene danner et <b>avstandsrutenett med 50 km mellom linjene</b>. Målpunktet tegnes i rutenettet ut fra avstand og relativ retning. Perspektivet hjelper deg videre i innflygingen; helningen får avstandene til å se tettere ut bakover. For den faktiske kursen du skal styre, følg også med på målkurs og relativ retning.</p>
+
+<h3>Lese navigasjonsverdiene riktig</h3>
+<ul>
+<li><b>Målavstand:</b> Den store visningen viser gjenværende avstand til målet langs den tenkte planetoverflaten.</li>
+<li><b>Målkoordinater:</b> Koordinatparet som er angitt for målet, først breddegrad, deretter lengdegrad. Det forblir uendret mens du beveger deg.</li>
+<li><b>Nåværende koordinater:</b> Ditt sist bekreftede koordinatpar fra Elite, også breddegrad / lengdegrad.</li>
+<li><b>Avstand langs overflaten:</b> Samme overflateavstand som målavstanden, eventuelt mer nøyaktig avrundet i detaljvisningen. Dette er ikke en annen rute eller en direkte romlig avstand gjennom luften.</li>
+<li><b>Peiling:</b> Den absolutte retningen til målet fra din nåværende posisjon, som kompassvinkel: 000° er nord, 090° øst, 180° sør og 270° vest.</li>
+<li><b>Styrekurs:</b> Din nåværende orientering slik Elite oppgir den. Den viser hvilken vei du peker nå, og trenger ennå ikke å samsvare med peilingen.</li>
+<li><b>Relativ retning:</b> Forskjellen mellom orienteringen din og peilingen, for eksempel «23° høyre», «10° venstre» eller «Rett frem». Ved 180° er målet bak deg.</li>
+<li><b>Målkurs:</b> Den fremhevede peilingen som en absolutt kurs du kan dreie til i Elite-HUD-en. Den er ikke en ekstra dreievinkel.</li>
+</ul>
+<p>Eksempel: Med styrekurs 051° og målkurs 074° dreier du 23° til høyre til Elite-kompasset viser omtrent 074°. Mens du flyr videre, kan peiling og målkurs endre seg; følg de oppdaterte verdiene.</p>
+<p>På samme posisjon som målet, ved en pol eller på det nøyaktig motsatte punktet på planeten kan retningen være ubestemt. Da viser navigatoren den tilsvarende meldingen i stedet for en oppdiktet kurs.</p>
+
+<h3>Vindusstørrelse</h3>
+<p>Navigatorvinduet kan fritt endres i størrelse. Kulen eller perspektivrutenettet tilpasser seg proporsjonalt til den tilgjengelige plassen. Minimumsstørrelsen holder detaljverdiene lesbare; kulen forblir rund. Vinduets posisjon og størrelse lagres.</p>
+
+<h3>Slå på navigasjons-HUD</h3>
+<p>Til venstre i hovedvinduet krysser du av under <b>vis automatisk → Navigasjons-HUD</b>. Ved gyldig planetnavigasjon vises HUD-en direkte over det synlige Elite-vinduet i forgrunnen.</p>
+<p>Den viser tre linjer:</p>
+<ul>
+<li>relativ retning</li>
+<li>målkurs</li>
+<li>avstand</li>
+</ul>
+<p>HUD-en er gjennomsiktig, slipper klikk gjennom og tar ikke fokus: den dekker ikke spillet med en ugjennomsiktig flate, fanger ikke opp museklikk og tar ikke inndatafokus fra Elite når den vises automatisk.</p>
+<p>Uten gyldig navigasjon eller en entydig retning blir den automatisk usynlig. Den skjules også hvis Elite er minimert eller ikke er i forgrunnen. Avkryssingen i sidefeltet kan likevel være på; den angir ønsket ditt om automatisk visning, ikke den aktuelle synligheten.</p>
+<p>HUD-en er bare en ekstra visning. Den vanlige navigatoren fungerer uavhengig av den, også når HUD-en er avslått eller utilgjengelig.</p>
+
+<h3>Sette et nytt mål</h3>
+<p>På samme himmellegeme kan du når som helst åpne «Angi mål …» på nytt og sette andre koordinater. Det nye målet erstatter det forrige navigasjonsmålet. Med tilsvarende posisjonsdata oppdateres kompasset umiddelbart.</p>
+<p>Med «Avslutt navigasjon» fjerner du det nåværende målet. For en ny innflyging setter du ganske enkelt et nytt mål.</p>
+
+<h3>Dataenes alder og begrensninger</h3>
+<p>Navigasjonen bygger på statusdataene fra Elite. Oppdateringer kan komme forsinket avhengig av spilltilstanden. Aldersvisningen i navigatoren viser hvor lenge det er siden den siste bekreftede statusmeldingen.</p>
+<p>Overflateavstanden beskriver den korteste buen på en tenkt kule. Den er ikke en terreng- eller veirute. Navigatoren kjenner verken hindringer eller terrenghøyder langs strekningen; flyhøyde, trygg hastighet og å unngå hindringer er fortsatt ditt ansvar.</p>
+
+<h3>Tips</h3>
+<p>Før innflygingen kontrollerer du navnet på himmellegemet og fortegnene til målkoordinatene. Still deg deretter inn på målkursen i Elite-kompasset og følg med på relativ retning og avstand. Hvis navigatoren venter, sjekk om Elite allerede leverer planetkoordinater for himmellegemet du skal til.</p>""",
+    ),
+}
 
 DIALOG_TITLE = 'Hjelp – {area}'
 CLOSE_LABEL = 'Lukk'

@@ -322,178 +322,207 @@ HELP_TOPICS = {'overview': ('Genel Bakış',
               '<h3>Uç</h3>\n'
               '<p>İlginç bir vücudunuz varsa detaylı görünüme tıklamaya değer. Burası genel gövde '
               'verileri, olası keşif sonuçları ve kendi komutanınız tarafından belgelenen gerçek '
-              'bulgular arasında ayrım yapmak için en iyi yerdir.</p>'),
- 'chronicle': ('kronik',
-               '<h2>kronik</h2>\n'
-               '<p>Chronicle, komutanın kişisel seyahat ve keşif geçmişidir. Daha önce ziyaret '
-               'edilmiş sistemleri bulmak, bunları mekansal olarak temsil etmek ve bilinen '
-               'keşifleri aramak için kalıcı olarak saklanan günlük bilgilerini kullanır.</p>\n'
-               '\n'
-               '<h3>Ziyaret edilen sistemler</h3>\n'
-               '<p>Chronicle, ziyaret edilen sistemleri ve bunların Komutanın bildiği galaksideki '
-               'konumlarını gösterir.</p>\n'
-               '<p>Varsa ilk ve son ziyaret ile bilinen vücut bilgileri dikkate alınır.</p>\n'
-               '<p>Bu nedenle kronik yalnızca bir harita değil aynı zamanda daha önceki seyahat '
-               'noktalarını ve keşifleri bulmaya yönelik bir araçtır.</p>\n'
-               '\n'
-               '<h3>3 boyutlu harita</h3>\n'
-               '<p>Ziyaret edilen sistemler galaktik X/Y/Z koordinatları kullanılarak mekansal '
-               'olarak temsil edilir.</p>\n'
-               '<p>Çalıştırma talimatları doğrudan haritanın üzerinde bulunur:</p>\n'
-               '<ul>\n'
-               '<li>Farenin sol düğmesini basılı tutun → görünümü döndürün</li>\n'
-               '<li>Farenin orta düğmesini basılı tutun → Yakınlaştır</li>\n'
-               '<li>Farenin sağ düğmesini basılı tutun → görünümü taşıyın</li>\n'
-               '</ul>\n'
-               '<p>Küçük eksenli ekran, uzayda yönlendirmeye yardımcı olur.</p>\n'
-               '\n'
-               '<h3>Mevcut konum</h3>\n'
-               '<p>“Geçerli Konum” ile harita görünümü aktif komutanın halihazırda bilinen '
-               'konumuna hizalanabilir veya bu konuma döndürülebilir.</p>\n'
-               '<p>Önkoşul, komutan için geçerli bir mevcut pozisyonun bilinmesidir.</p>\n'
-               '\n'
-               '<h3>Hizala</h3>\n'
-               '<p>“Hizala”, harita yönelimini amaçlanan temel yönelime döndürür.</p>\n'
-               '<p>Harita çok fazla döndürüldükten veya taşındıktan sonra kafa karıştırıcı hale '
-               'gelirse bu yararlı olur.</p>\n'
-               '\n'
-               '<h3>Zaman çizelgesini güncelle</h3>\n'
-               '<p>“Güncelleme geçmişi” ekranı o anda bilinen verilerle günceller.</p>\n'
-               '<p>İşlev, günlük dosyalarını değiştirmez veya yeni keşif verileri oluşturmaz. '
-               'Mevcut CMDRHelper verilerine göre geçmiş görünümünü günceller.</p>\n'
-               '\n'
-               '<h3>Serbest metin araması</h3>\n'
-               '<p>Zaten bilinen içerik, “Arama geçmişi…” alanı kullanılarak aranabilir.</p>\n'
-               '<p>Arama, diğer hususların yanı sıra - eğer veritabanında mevcutsa - dikkate '
-               'alır:</p>\n'
-               '<ul>\n'
-               '<li>Sistem adları</li>\n'
-               '<li>Gövde özellikleri</li>\n'
-               '<li>biyolojik veriler</li>\n'
-               '<li>Malzemeler</li>\n'
-               '<li>Kodeks verileri</li>\n'
-               '</ul>\n'
-               '<p>“Ara” butonu sadece bu serbest metin aramasını gerçekleştirir.</p>\n'
-               '<p>Ayrı SÖKME filtreleri ise “Uygula” ile gerçekleştirilir.</p>\n'
-               '\n'
-               '<h3>Arama sonuçları</h3>\n'
-               '<p>İsabetler, tarih kartının altındaki mevcut sonuçlar listesinde '
-               'görüntülenir.</p>\n'
-               '<p>Vuruş türüne bağlı olarak sistem ve gövdenin yanı sıra ek bilgiler de '
-               'görünebilir.</p>\n'
-               '<p>Bir isabet, zaten bilinen ilgili sistemi veya gövdeyi bulmak ve mevcut '
-               'ayrıntılı bilgiyi açmak için kullanılabilir.</p>\n'
-               '\n'
-               '<h3>Gezegensel madencilik sahaları</h3>\n'
-               '<p>"Gezegensel madencilik sahaları" filtresi, özellikle Elite Dangerous\'nin '
-               'gezegensel madencilik sahalarını bildirdiği bilinen cisimleri aramak için '
-               'kullanılabilir.</p>\n'
-               "<p>Temel ekran Explorer'dan bilinene karşılık gelir:</p>\n"
-               '<p><b>ABBAU ×N</b></p>\n'
-               '<p>Numara vücudun kendisine aittir ve komutanla ilgisi yoktur.</p>\n'
-               '\n'
-               '<h3>En azından</h3>\n'
-               '<p>"En azından" seçeneğini kullanarak bir kuruluşun sahip olması gereken minimum '
-               'gezegen madenciliği konumu sayısını belirleyebilirsiniz.</p>\n'
-               '<p>Örnek:</p>\n'
-               '<p><b>En az 20</b></p>\n'
-               '<p>yalnızca en azından aşağıdakileri içeren bilinen gövdeleri gösterir:</p>\n'
-               '<p><b>ABBAU ×20</b></p>\n'
-               '<p>Bu, özellikle geniş madencilik alanlarının özel olarak konumlandırılmasını '
-               'mümkün kılar.</p>\n'
-               '\n'
-               '<h3>Kendi madencilik buluntuları</h3>\n'
-               '<p>"Kendi maden buluntuları" durumunda arama, söz konusu komutanın kendisinin açık '
-               'bir şekilde yüzey madenciliği yaptığı cesetlerle sınırlıdır.</p>\n'
-               '<p>Bu bilgiler kişisel yüzey madenciliği geçmişinden gelir ve komutan tarafından '
-               'kesin bir şekilde ayrılır.</p>\n'
-               '<p>Bu nedenle bir vücut, kendi komutanının orada herhangi bir şeyi kaldırmasına '
-               'gerek kalmadan küresel ABBAU ×N sinyallerine sahip olabilir.</p>\n'
-               '\n'
-               '<h3>hammadde</h3>\n'
-               '<p>“Kendi madencilik buluntuları” etkinleştirilmişse, “Hammadde” seçimi de '
-               'mevcuttur.</p>\n'
-               '<p>Liste yalnızca söz konusu komutanın halihazırda yüzey madenciliğinden kazandığı '
-               'malları içeriyor.</p>\n'
-               '<p>Bu, tüm olası madencilik hammaddelerinin teorik bir listesi değildir.</p>\n'
-               '<p>Örneğin, FABER38 görünebilir:</p>\n'
-               '<ul>\n'
-               '<li>Tüm</li>\n'
-               '<li>bakır</li>\n'
-               '</ul>\n'
-               '<p>Daha sonra ek hammaddeler çıkarılırsa, bunlar otomatik olarak kişisel '
-               'seçiminizde görünecektir.</p>\n'
-               '\n'
-               '<h3>Hammaddeler için hedefli arama</h3>\n'
-               '<p>Örneğin, "Bakır" seçilirse ve ardından "Uygula"ya basılırsa, geçmiş yalnızca '
-               'söz konusu komutanın bariz bir şekilde bakır çıkardığı cesetleri '
-               'gösterecektir.</p>\n'
-               '<p>Örnek:</p>\n'
-               '<p><b>Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — bakır 56 ton</b></p>\n'
-               '<p>Bu, kroniğin kişisel konum veri tabanı olarak kullanılabileceği anlamına gelir: '
-               'daha önce çıkarılmış olan bir ham madde daha sonra tekrar bulunabilir.</p>\n'
-               '\n'
-               '<h3>Tüm hammaddeler</h3>\n'
-               '<p>"Hammadde: Hepsi" ile eşleşen tüm kişisel yüzey madenciliği keşifleri dikkate '
-               'alınır.</p>\n'
-               '<p>Bir gövde üzerinde birden fazla mal biliniyorsa o ana kadar elde edilen '
-               'miktarlarla birlikte sergilenebilir.</p>\n'
-               '<p>Örnek:</p>\n'
-               '<p><b>ABBAU ×24 — Helyum-3 18 ton, bakır 56 ton</b></p>\n'
-               '<p>Miktarlar, ilgili komutanın kişisel madencilik değerleridir ve aslında günlük '
-               'olaylarından belgelenmiştir.</p>\n'
-               '\n'
-               '<h3>Filtreleri birleştir</h3>\n'
-               '<p>Madencilik filtreleri birbirleriyle birleştirilebilir.</p>\n'
-               '<p>Örneğin:</p>\n'
-               '<ul>\n'
-               '<li>Gezegensel madencilik sahaları aktif</li>\n'
-               '<li>En az 20</li>\n'
-               '<li>Kendi madenciliği aktif bulundu</li>\n'
-               '<li>Hammadde bakır</li>\n'
-               '</ul>\n'
-               '<p>Söz konusu komutanın halihazırda bakır çıkarmış olduğu en az 20 gezegen maden '
-               'sahasına sahip bilinen cesetleri arar.</p>\n'
-               '\n'
-               '<h3>Uygula</h3>\n'
-               '<p>“Uygula” yalnızca görünür madencilik filtrelerini çalıştırır.</p>\n'
-               '<p>Yanındaki “Ara” butonu serbest metin aramalarına ayrılmıştır.</p>\n'
-               '<p>Bu, metin arama ve madencilik filtrelerinin kasıtlı olarak birbirinden '
-               'ayrıldığı anlamına gelir.</p>\n'
-               '\n'
-               '<h3>Sıfırla</h3>\n'
-               '<p>“Sıfırla” mevcut serbest metin aramasını siler ve ayrıca madencilik '
-               'filtrelerini başlangıç \u200b\u200bdurumuna sıfırlar.</p>\n'
-               '<p>Hammadde seçimi “Tümü”ne geri döner.</p>\n'
-               '\n'
-               '<h3>Komutan seçimi</h3>\n'
-               '<p>Chronicle, çeşitli tanınmış komutanlardan gelen verileri görüntüleyebilir.</p>\n'
-               '<p>Ancak kendi maden buluntularınız ve hammadde listeleriniz gibi kişisel '
-               'bilgiler, gerçekte görüntülenen komutan için her zaman ayrı olarak '
-               'değerlendirilir.</p>\n'
-               '<p>Bir komutan hammadde seçiminde münhasıran başka bir komutana ait olan herhangi '
-               'bir maden bulgusunu görmez.</p>\n'
-               '\n'
-               '<h3>Tüm komutanlar</h3>\n'
-               '<p>Harita/kronik ekranı birden fazla komutanı hesaba katabilir.</p>\n'
-               '<p>Bu, komutanla ilgili verilerin kişisel tahsisini değiştirmez. Bir sistemin veya '
-               'cismin küresel astronomik özellikleri ortak kalır, kişisel bulgular ise ayrı '
-               'kalır.</p>\n'
-               '\n'
-               '<h3>Arama yardımı/açıklama</h3>\n'
-               '<p>Tarih araması ve ekranın anlamı hakkındaki ek bilgilere “Arama yardımı / '
-               'açıklama” yoluyla erişilebilir.</p>\n'
-               '<p>Bu bağlamla ilgili ana yardım, burada mevcut olan kısa çalıştırma talimatlarını '
-               'tamamlar.</p>\n'
-               '\n'
-               '<h3>Uç</h3>\n'
-               '<p>Chronicle, özellikle uzun bir yolculuk sırasında keşfedilen ilginç yerleri '
-               'bulmak için uygundur.</p>\n'
-               '<p>Örneğin yüzey madenciliği için şu yanıtları verebilir:</p>\n'
-               '<p>"Hangi gezegende bakır çıkardım?"</p>\n'
-               '<p>veya:</p>\n'
-               '<p>"Bilinen gezegenlerimden hangilerinde özellikle çok sayıda maden sahası '
-               'var?"</p>'),
+              'bulgular arasında ayrım yapmak için en iyi yerdir.</p>'
+              """
+
+<h3>★ Favoriler</h3>
+<p>Explorer’ın üst kısmındaki “★ Favoriler” düğmesi ayrı, yeniden kullanılabilen bir favoriler penceresi açar. Burada etkin komutan için sistemleri, gezegenleri/uyduları ve yüzey konumlarını kaydedersin.</p>
+<p>Ada göre alfabetik sıralanan, kaydırılabilir liste; ad, tür, sistem, uygun olduğunda gökcismi ve enlem/boylam, kategori ve küçük bir resim önizlemesi gösterir. Serbest metin araması, tür filtresi ve kategori filtresi birlikte kullanılabilir. Arama; ad, sistem, gökcismi ve notu kapsar.</p>
+<p>“Aç / Göster” kaydedilen bilgileri, notu ve daha büyük bir resim önizlemesini gösterir. “Explorer’da göster”, favori mevcut Explorer sistemine aitse ve ilgili veriler varsa mevcut sistem genel görünümünü veya gökcismi ayrıntı görünümünü açar. Diğer sistemler için kaydedilmiş favori verileri görünür kalır; sistemler arası rota hesaplanmaz.</p>
+
+<h3>Sistem, gezegen veya mevcut konumu kaydetme</h3>
+<ul>
+<li>“★ Mevcut sistemi kaydet” mevcut sistemi yüzey koordinatları olmadan kaydeder.</li>
+<li>“★ Gezegen / ay kaydet” mevcut sistemdeki bilinen bir gezegeni veya uyduyu seçmeni sağlar. Bu favoriye de yüzey koordinatları eklenmez.</li>
+<li>“★ Mevcut konumu kaydet”, favoriler penceresinin üst kısmında diğer iki kaydetme seçeneğinin yanında bulunur ve gezegen gezgininde de kullanılabilir. Favoriler penceresinde düğme her zaman görünür kalır; geçerli güncel gezegen konum verileri ve etkin bir komutan olmadan devre dışıdır. Tıklandığında komutan, sistem, gökcismi, enlem ve boylam sabitlenir. Oyundaki sonraki hareketler, açık iletişim kutusundaki bu değerleri değiştirmez.</li>
+</ul>
+<p>İstediğin bir ad gir ve tam olarak bir kategori seç: Biyo, Jeo, Madencilik, Manzara, İniş yeri, İlginç veya Diğer. Not ve resim isteğe bağlıdır. Bilinen teknik kimlikler dahili olarak aktarılır; bunları girmen gerekmez. Enlem veya boylam 0,0 da geçerli koordinatlardır.</p>
+<p>“Düzenle”; ad, kategori, not ve resmi değiştirir. Sistem, gökcismi ve kaydedilmiş koordinatlar korunur. Farklı bir yüzey konumu kaydetmek için o konumda yeni bir favori oluştur.</p>
+
+<h3>Favori resimleri</h3>
+<p>Favori resimleri, Resimler bölümünden ayrıdır. “Resim seç …” PNG, JPEG ve WebP biçimlerini kabul eder. CMDRHelper, seçilen resmi kendi favori resimleri klasörüne yalnızca kaydederken kopyalar. Orijinal dosya taşınmaz veya değiştirilmez.</p>
+<p>“Son ekran görüntüsünü kullan”, her tıklamada yapılandırılmış ekran görüntüsü kaynak klasörünü yeniden okur ve tipik Elite dosya adlarına sahip okunabilir ekran görüntülerini arar. Bir ayar yoksa Windows veya Steam/Proton’daki olağan Elite ekran görüntüsü klasörleri dikkate alınır. Yapılandırılmış dönüştürme hedefindeki etkin komutana ait klasör de uygun dönüştürülmüş Elite ekran görüntüleri için aranır. Böylece orijinal BMP’si silinmiş olsa da dönüştürülmüş bir ekran görüntüsü bulunabilir. En yeni çekim zamanını belirlerken dosya adındaki açık zaman bilgisi, yoksa dosya zamanı esas alınır; dönüştürülmüş resimlerde dönüştürme zamanı yerine adda saklanan çekim zamanı kullanılır. CMDRHelper kendisi ekran görüntüsü almaz ve rastgele resim klasörlerini aramaz.</p>
+<p>Kullanımdan önce dosya adı, çekim zamanı ve yeni yüklenmiş bir önizleme gösterilir. “Bu resmi kullan” ile onayla. Uygun ekran görüntüsü bulunamazsa “Resim seç …” seçeneğini kullanmaya devam edebilirsin. Elite BMP ekran görüntüleri dahili PNG kopyası olarak kaydedilir.</p>
+<p>Bir resim düzenleme iletişim kutusunda değiştirilebilir veya “Resmi kaldır” ile seçimden çıkarılabilir. Kaydederken artık kullanılmayan dahili kopya silinir. Resim dosyası eksikse favori önizleme olmadan kullanılabilir durumda kalır.</p>
+
+<h3>Favori hedefi ve komutan</h3>
+<p>Yüzey konumlarında “▶ Hedefe git”, kaydedilmiş gökcismini, enlemi, boylamı ve favori adını mevcut gezegen gezginine aktarır. Yeni hedef önceki hedefin yerini alır. Favorilerin kendi gezinme mantığı yoktur. Gezgin karar vermeye aynı şekilde devam eder: eşleşen geçerli gezegen verileri gezinmeyi etkinleştirir; aksi hâlde bu verileri bekler.</p>
+<p>Favoriler yalnızca etkin komutana aittir. Komutan değiştirildiğinde liste güncellenir ve açık düzenleme iletişim kutusu iptal edilir. Hâlâ önceki komutanın favori hedefi olarak yönetilen bir hedef sonlandırılır. Günlükteki komutan seçimi bu favori listesini genişletmez.</p>
+<p>“Sil” onay gerektirir ve yalnızca favori kaydını ve onun dahili resim kopyasını kaldırır. Orijinal ekran görüntüsü veya seçilen orijinal resim ile tüm Explorer, günlük ve gökcismi verileri korunur.</p>"""),
+ 'chronicle': (
+        'Kronik',
+        """<h2>Kronik</h2>
+<p>Chronicle, komutanın kişisel seyahat ve keşif geçmişidir. Daha önce ziyaret edilmiş sistemleri bulmak, bunları mekansal olarak temsil etmek ve bilinen keşifleri aramak için kalıcı olarak saklanan günlük bilgilerini kullanır.</p>
+
+<h3>Ziyaret edilen sistemler</h3>
+<p>Chronicle, ziyaret edilen sistemleri ve bunların Komutanın bildiği galaksideki konumlarını gösterir.</p>
+<p>Varsa ilk ve son ziyaret ile bilinen vücut bilgileri dikkate alınır.</p>
+<p>Bir dönem etkin olduğunda harita görünümündeki ziyaret sayısı, ilk ziyaret ve son ziyaret, filtrelenmiş gerçek sistem ziyaretlerini ifade eder.</p>
+<p>Bu nedenle kronik yalnızca bir harita değil aynı zamanda daha önceki seyahat noktalarını ve keşifleri bulmaya yönelik bir araçtır.</p>
+
+<h3>3 boyutlu harita</h3>
+<p>Ziyaret edilen sistemler galaktik X/Y/Z koordinatları kullanılarak mekansal olarak temsil edilir.</p>
+<p>Çalıştırma talimatları doğrudan haritanın üzerinde bulunur:</p>
+<ul>
+<li>Farenin sol düğmesini basılı tutun → görünümü döndürün</li>
+<li>orta fare düğmesini basılı tutup sürükle → yakınlaştırma penceresi çiz</li>
+<li>Farenin sağ düğmesini basılı tutun → görünümü taşıyın</li>
+</ul>
+<p>Küçük eksenli ekran, uzayda yönlendirmeye yardımcı olur.</p>
+
+<h3>Mevcut konum</h3>
+<p>“Geçerli Konum” ile harita görünümü aktif komutanın halihazırda bilinen konumuna hizalanabilir veya bu konuma döndürülebilir.</p>
+<p>Önce mevcut filtreler uygulanır. Yalnızca mevcut sistem sonuç haritasında yer alıyorsa görünüm o sisteme ortalanır.</p>
+<p>Aksi takdirde “Mevcut sistem bu filtre seçimine dâhil değil.” mesajı gösterilir. Bu işlem filtreleri kaldırmaz.</p>
+
+<h3>Hizala</h3>
+<p>“Hizala”, yönelimi galaktik düzlemin üstten görünümüne döndürür. Kaydırma ve yakınlaştırma korunur.</p>
+<p>Bu, çok fazla döndürme nedeniyle harita anlaşılmaz hâle geldiğinde yararlıdır.</p>
+
+<h3>Kroniği yenile</h3>
+<p>“Kroniği yenile”, kronik verilerini mevcut birleşik filtrelere göre yeniden yükler ve görünümü günceller. Serbest metin, etkin tarih sınırları ve madencilik filtreleri yeniden birlikte değerlendirilir; etkin filtreler göz ardı edilmez.</p>
+<p>İşlev, günlük dosyalarını değiştirmez veya yeni keşif verileri oluşturmaz. Mevcut CMDRHelper verilerine göre geçmiş görünümünü günceller.</p>
+
+<h3>Serbest metin araması</h3>
+<p>Zaten bilinen içerik, “Arama geçmişi…” alanı kullanılarak aranabilir.</p>
+<p>Arama, diğer hususların yanı sıra - eğer veritabanında mevcutsa - dikkate alır:</p>
+<ul>
+<li>Sistem adları</li>
+<li>Gövde özellikleri</li>
+<li>biyolojik veriler</li>
+<li>Malzemeler</li>
+<li>Kodeks verileri</li>
+</ul>
+<p>Serbest metin, dönem ve madencilik ortak bir filtre alanında bulunur. “Uygula”, ayarlanan filtreleri birlikte değerlendirir. Serbest metin alanında Enter, “Uygula” ile aynı birleşik filtrelemeyi başlatır.</p>
+
+<h3>Başlangıç/Bitiş dönemi (UTC)</h3>
+<p>“Başlangıç” ve “Bitiş”i kendi onay kutularıyla etkinleştir ve istediğin tarihi seç. Yalnızca tek bir sınır da kullanılabilir. Bir kutu etkin değilse o tarafta zaman kısıtlaması yoktur; iki kutu da etkin değilse dönem kısıtlanmaz.</p>
+<ul>
+<li><b>Başlangıç:</b> Seçilen UTC takvim gününün başlangıcından itibaren, başlangıç dâhil.</li>
+<li><b>Bitiş:</b> Seçilen UTC takvim gününün tamamı, ertesi günün başlangıcından hemen öncesine kadar dâhil edilir.</li>
+</ul>
+<p>UTC, Eşgüdümlü Evrensel Zaman’dır. Tarih sınırları yerel saat dilimindeki takvim günlerine değil, UTC takvim günlerine karşılık gelir.</p>
+<p>Filtrelemenin kaynağı, gerçek sistem ziyaretlerinin tutulduğu <code>system_visits</code> tablosudur. İlgili komutanın dönem içinde gerçek bir ziyareti gerekir. Kaydedilmiş <code>first_seen</code> ve <code>last_seen</code> değerleri gerçek bir ziyaretin yerini tutmaz: dönemin yalnızca daha önceki bir ilk ziyaret ile daha sonraki bir son ziyaret arasında kalması yeterli değildir.</p>
+<p>Dönem, tek tek keşif, BIO, GEO veya madencilik olaylarını değil, ziyaretleri filtreler. Bilinen buluntu bilgileri ve madencilik miktarları kayıtlı toplam değerler olarak kalır. Başlangıç/Bitiş tek başına veya serbest metin ve madencilikle birlikte kullanılabilir.</p>
+<p>Başlangıç, Bitiş’ten sonraysa “Başlangıç tarihi Bitiş tarihinden sonra olamaz.” mesajı gösterilir. Hiçbir veritabanı sorgusu başlatılmaz. Tarih sınırlarını düzeltip filtreleri yeniden uygula.</p>
+
+<h3>Arama sonuçları</h3>
+<p>İsabetler, tarih kartının altındaki mevcut sonuçlar listesinde görüntülenir.</p>
+<p>Vuruş türüne bağlı olarak sistem ve gövdenin yanı sıra ek bilgiler de görünebilir.</p>
+<p>Bir isabet, zaten bilinen ilgili sistemi veya gövdeyi bulmak ve mevcut ayrıntılı bilgiyi açmak için kullanılabilir.</p>
+
+<h3>Sonuç yok</h3>
+<p>Geçerli bir filtreleme hiçbir eşleşme bulamazsa harita ve rotalar temizlenir. Sonuç listesi temizlenip gizlenir, ayrıntı görünümü sıfırlanır ve açık bir kronik sistem ayrıntısı penceresi kapatılır.</p>
+<p>Eski sonuçlar görünür kalmaz. Bu durumda arama metni, dönem ve madencilik filtrelerinin birleşimini ve ilgili görünümde kullanılan komutanı kontrol et.</p>
+
+<h3>Gezegensel maden sahaları</h3>
+<p>"Gezegensel madencilik sahaları" filtresi, özellikle Elite Dangerous'nin gezegensel madencilik sahalarını bildirdiği bilinen cisimleri aramak için kullanılabilir.</p>
+<p>Temel ekran Explorer'dan bilinene karşılık gelir:</p>
+<p><b>ABBAU ×N</b></p>
+<p>Numara vücudun kendisine aittir ve komutanla ilgisi yoktur.</p>
+
+<h3>En azından</h3>
+<p>"En azından" seçeneğini kullanarak bir kuruluşun sahip olması gereken minimum gezegen madenciliği konumu sayısını belirleyebilirsiniz.</p>
+<p>Örnek:</p>
+<p><b>En az 20</b></p>
+<p>yalnızca en azından aşağıdakileri içeren bilinen gövdeleri gösterir:</p>
+<p><b>ABBAU ×20</b></p>
+<p>Bu, özellikle geniş madencilik alanlarının özel olarak konumlandırılmasını mümkün kılar.</p>
+
+<h3>Kendi maden buluntularım</h3>
+<p>"Kendi maden buluntuları" durumunda arama, söz konusu komutanın kendisinin açık bir şekilde yüzey madenciliği yaptığı cesetlerle sınırlıdır.</p>
+<p>Bu bilgiler kişisel yüzey madenciliği geçmişinden gelir ve komutan tarafından kesin bir şekilde ayrılır.</p>
+<p>Bu nedenle bir vücut, kendi komutanının orada herhangi bir şeyi kaldırmasına gerek kalmadan küresel ABBAU ×N sinyallerine sahip olabilir.</p>
+
+<h3>Ticari mal</h3>
+<p>“Kendi madencilik buluntuları” etkinleştirilmişse, “Hammadde” seçimi de mevcuttur.</p>
+<p>Liste yalnızca söz konusu komutanın halihazırda yüzey madenciliğinden kazandığı malları içeriyor.</p>
+<p>Bu, tüm olası madencilik hammaddelerinin teorik bir listesi değildir.</p>
+<p>FABER38 için listede örneğin şunlar bulunabilir:</p>
+<ul>
+<li>Tüm</li>
+<li>bakır</li>
+</ul>
+<p>Daha sonra ek hammaddeler çıkarılırsa, bunlar otomatik olarak kişisel seçiminizde görünecektir.</p>
+
+<h3>Hammaddeler için hedefli arama</h3>
+<p>Örneğin, "Bakır" seçilirse ve ardından "Uygula"ya basılırsa, geçmiş yalnızca söz konusu komutanın bariz bir şekilde bakır çıkardığı cesetleri gösterecektir.</p>
+<p>Örnek:</p>
+<p><b>Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — bakır 56 ton</b></p>
+<p>Bu, kroniğin kişisel konum veri tabanı olarak kullanılabileceği anlamına gelir: daha önce çıkarılmış olan bir ham madde daha sonra tekrar bulunabilir.</p>
+
+<h3>Tüm hammaddeler</h3>
+<p>"Hammadde: Hepsi" ile eşleşen tüm kişisel yüzey madenciliği keşifleri dikkate alınır.</p>
+<p>Bir gövde üzerinde birden fazla mal biliniyorsa o ana kadar elde edilen miktarlarla birlikte sergilenebilir.</p>
+<p>Örnek:</p>
+<p><b>ABBAU ×24 — Helyum-3 18 ton, bakır 56 ton</b></p>
+<p>Miktarlar, ilgili komutanın kişisel madencilik değerleridir ve aslında günlük olaylarından belgelenmiştir.</p>
+<p>Bir dönem etkinken de kişisel madencilik miktarları kayıtlı toplam miktarlar olarak kalır. <b>Bakır 56 t</b> otomatik olarak şu anlama gelmez: <b>seçilen dönemde 56 t</b>. Dönem, uygun bir sistem ziyareti gerektirir ancak gösterilen çıkarılmış miktarı bu dönemle sınırlamaz.</p>
+
+<h3>Filtreleri birleştir</h3>
+<p>Serbest metin, etkin Başlangıç/Bitiş sınırları ve madencilik filtreleri birleştirilebilir. Bir eşleşme, ayarlanan koşulları birlikte karşılamalıdır.</p>
+<p>Örneğin:</p>
+<ul>
+<li>Gezegensel madencilik sahaları aktif</li>
+<li>En az 20</li>
+<li>Kendi madenciliği aktif bulundu</li>
+<li>Hammadde bakır</li>
+</ul>
+<p>Söz konusu komutanın halihazırda bakır çıkarmış olduğu en az 20 gezegen maden sahasına sahip bilinen cesetleri arar.</p>
+<p>Ek bir arama metni varsa o da dikkate alınır. Ayrıca bir dönem seçilmişse görüntülenen komutanın ilgili sistemi gerçekten o dönemde ziyaret etmiş olması gerekir; bakırın çıkarılması ise o dönemde gerçekleşmek zorunda değildir.</p>
+
+<h3>Uygula</h3>
+<p>“Uygula”, o anda ayarlanmış tüm arama, dönem ve madencilik filtreleriyle ortak bir filtreleme yapar:</p>
+<ul>
+<li>Serbest metin</li>
+<li>Başlangıç, etkinse</li>
+<li>Bitiş, etkinse</li>
+<li>Gezegensel maden sahaları</li>
+<li>Minimum sayı</li>
+<li>Kendi maden buluntularım</li>
+<li>Ticari mal, “Kendi maden buluntularım” etkinse</li>
+</ul>
+<p>Serbest metin alanında Enter tamamen aynı filtrelemeyi yapar. Serbest metin ve madencilik filtresi yoksa haritada işaretli komutanlar için normal harita yüklenir; varsa Başlangıç/Bitiş ile sınırlandırılır.</p>
+
+<h3>Sıfırla</h3>
+<p>“Sıfırla”, ortak filtre alanını ilk durumuna döndürür:</p>
+<ul>
+<li>Serbest metin temizlenir.</li>
+<li>Başlangıç ve Bitiş devre dışı bırakılır; tarih alanları yeniden bugünün tarihini gösterir ve devre dışıdır.</li>
+<li>Gezegensel maden sahaları devre dışı bırakılır.</li>
+<li>Minimum sayı 0 olarak ayarlanır.</li>
+<li>Kendi maden buluntularım devre dışı bırakılır.</li>
+<li>Ticari mal “Tümü”ne döndürülür.</li>
+</ul>
+<p>Komutan seçimi korunur. Ardından bu harita seçimi için normal kronik yeniden yüklenir; önceki arama sonuçları ve ayrıntı görünümleri sıfırlanır.</p>
+
+<h3>Komutan seçimi</h3>
+<p>Chronicle, çeşitli tanınmış komutanlardan gelen verileri görüntüleyebilir.</p>
+<p>Burada iki ayrı seçim kavramı vardır:</p>
+<ul>
+<li><b>Haritanın komutan seçimi:</b> Komutan kutuları, serbest metin/madencilik araması olmayan normal haritada hangi komutan rotalarının gösterileceğini belirler. Etkin bir dönem varsa dikkate alınır.</li>
+<li><b>Görüntülenen komutan:</b> Kişisel serbest metin/madencilik aramaları görüntülenen komutanı (<code>viewed_commander_id</code>), yoksa etkin komutanı kullanır. Kişisel ticari mal listeleri de bu komutana göre belirlenir.</li>
+</ul>
+<p>Ancak kendi maden buluntularınız ve hammadde listeleriniz gibi kişisel bilgiler, gerçekte görüntülenen komutan için her zaman ayrı olarak değerlendirilir.</p>
+<p>Bir komutan hammadde seçiminde münhasıran başka bir komutana ait olan herhangi bir maden bulgusunu görmez.</p>
+
+<h3>Tüm komutanlar</h3>
+<p>Harita/kronik ekranı birden fazla komutanı hesaba katabilir.</p>
+<p>“Tüm komutanlar”, haritanın komutan seçimini ifade eder. Komutan kutuları kişisel serbest metin/madencilik aramalarını otomatik olarak birden fazla komutana genişletmez.</p>
+<p>Bu, komutanla ilgili verilerin kişisel tahsisini değiştirmez. Bir sistemin veya cismin küresel astronomik özellikleri ortak kalır, kişisel bulgular ise ayrı kalır.</p>
+
+<h3>Arama yardımı/açıklama</h3>
+<p>Tarih araması ve ekranın anlamı hakkındaki ek bilgilere “Arama yardımı / açıklama” yoluyla erişilebilir.</p>
+<p>Tıklanan bir arama terimi arama alanına aktarılır ve önceden ayarlanmış dönem/madencilik filtreleriyle birlikte çalıştırılır.</p>
+<p>Bu bağlamla ilgili ana yardım, burada mevcut olan kısa çalıştırma talimatlarını tamamlar.</p>
+
+<h3>İpucu</h3>
+<p>Chronicle, özellikle uzun bir yolculuk sırasında keşfedilen ilginç yerleri bulmak için uygundur.</p>
+<p>Örneğin yüzey madenciliği için şu yanıtları verebilir:</p>
+<p>"Hangi gezegende bakır çıkardım?"</p>
+<p>veya:</p>
+<p>"Bilinen gezegenlerimden hangilerinde özellikle çok sayıda maden sahası var?"</p>""",
+    ),
  'jump_tip': ('Atlama ipucu',
               '<h2>Atlama ipucu</h2>\n'
               '<p>Atlama ipucu, halihazırda bilinen sistem verilerini değerlendirerek ve ilginç '
@@ -1266,7 +1295,82 @@ HELP_TOPICS = {'overview': ('Genel Bakış',
               'klasörler</li>\n'
               '</ul>\n'
               '<p>Birden fazla komutan varsa her zaman görünür çevrimiçi erişim verilerinin hangi '
-              'FID için geçerli olduğuna dikkat edin.</p>')}
+              'FID için geçerli olduğuna dikkat edin.</p>'),
+    "planet_navigation": (
+        'Gezegen navigasyonu',
+        """<h2>Gezegen navigasyonu</h2>
+<p>Gezegen navigatörü yalnızca bir gezegen veya ay üzerindeki belirli bir enlem/boylama uçmana yardımcı olur. Koordinatlarla bir hedef belirlersin ve oraya olan mesafeyi ve yönü görürsün.</p>
+<p>Bu, yıldızlararası bir rota planlayıcısı değildir ve sistemler arası ya da sıçrama navigasyonunu üstlenmez. Gemini kendin kullanırsın.</p>
+
+<h3>Navigatörü açma ve hedef girme</h3>
+<p>Genel bakışta “Gezegen navigasyonu”nu aç ve “Hedef gir …” seçeneğini seç.</p>
+<ul>
+<li><b>Gök cismi:</b> Listeden hedef gezegeni veya ayı seç ya da önceden algılanmış gök cismini kullan. Adı henüz listede yoksa gök cisminin adını kendin de girebilirsin. Emin değilsen sistem adı dâhil tam adı kullan.</li>
+<li><b>Enlem:</b> Hedef enlemini −90° ile +90° arasında gir.</li>
+<li><b>Boylam:</b> Hedef boylamını −180° ile +180° arasında gir. Her iki koordinatın da işaretine dikkat et.</li>
+<li><b>Hedef adı:</b> Hedefini daha kolay tanımak için isteğe bağlı bir ad girebilirsin.</li>
+</ul>
+<p>“Hedef belirle” ile girişini onaylarsın. BodyID ve SystemAddress gibi teknik kimlikleri girmen gerekmez; bunlar normal kullanıcı girişleri değildir.</p>
+
+<h3>Pusula ne zaman başlar?</h3>
+<p>Bir hedef belirlendiğinde ve Elite ilgili gök cismi için geçerli gezegensel konum verileri sağladığında navigasyon otomatik olarak etkinleşir. Ayrı bir başlat düğmesine basman gerekmez.</p>
+<p>Bu veriler henüz yoksa veya başka bir gök cismine aitse navigatör “Gezegen koordinatları bekleniyor …” mesajıyla bekler. Bu veriler gelmeden önce de bir hedef girebilirsin.</p>
+
+<h3>Gezegen küresi: 380 km’den fazla</h3>
+<p>Hedef mesafesi 380 km’den büyük olduğunda navigatör gezegen küresini gösterir.</p>
+<ul>
+<li><b>Beyaz daire</b> kendi konumunu işaretler.</li>
+<li><b>Küçük hedef noktası</b>, hedef gezegenin görünen tarafındaysa turuncudur.</li>
+<li>Hedef görünmeyen arka taraftaysa hedef noktası kırmızı gösterilir.</li>
+<li>Konumun gösterimde sabit kalır. Gezegen ve hedef, konumuna ve yönelimine göre gösterilir.</li>
+</ul>
+<p>Beyaz ok ileriye bakar; sarı ok hedefin göreli yönünü gösterir. Küre şematik bir yön bulma yardımcısıdır, coğrafi açıdan kesin bir arazi görünümü değildir. Kırmızı nokta kürenin arka tarafı demektir; otomatik olarak “geminin arkasında” anlamına gelmez.</p>
+
+<h3>Perspektif ızgarası: 380 km dâhil olmak üzere</h3>
+<p>Hedef mesafesi 380 km veya daha az olduğunda görünüm otomatik olarak eğimli bir perspektif ızgarasına geçer. Mesafe yeniden 380 km’nin üzerine çıkarsa küre tekrar görünür.</p>
+<p>Enine çizgiler <b>50 km aralıklı bir mesafe ızgarası</b> oluşturur. Hedef noktası, mesafeye ve göreli yöne göre ızgaranın içine çizilir. Perspektif, yaklaşmanın devamında sana yardımcı olur; eğim nedeniyle aralıklar arkaya doğru daha sık görünür. İzleyeceğin gerçek rota için ayrıca hedef rotasına ve göreli yöne dikkat et.</p>
+
+<h3>Navigasyon değerlerini doğru okuma</h3>
+<ul>
+<li><b>Hedef mesafesi:</b> Büyük gösterge, varsayımsal gezegen yüzeyi boyunca hedefe kalan mesafeyi gösterir.</li>
+<li><b>Hedef koordinatları:</b> Hedef için girilen koordinat çifti; önce enlem, ardından boylam. Sen hareket ederken değişmeden kalır.</li>
+<li><b>Güncel koordinatlar:</b> Elite’ten son doğrulanan koordinat çiftin; yine enlem / boylam.</li>
+<li><b>Yüzey boyunca mesafe:</b> Hedef mesafesiyle aynı yüzey mesafesidir; ayrıntı görünümünde daha hassas yuvarlanmış olabilir. İkinci bir güzergâh veya havadan geçen doğrudan bir uzaysal mesafe değildir.</li>
+<li><b>Kerteriz:</b> Güncel konumundan hedefe olan mutlak yön, pusula açısı olarak: 000° kuzey, 090° doğu, 180° güney ve 270° batıdır.</li>
+<li><b>Baş yönü:</b> Elite’in bildirdiği güncel yönelimin. Şu anda nereye baktığını gösterir ve henüz kerterizle aynı olmak zorunda değildir.</li>
+<li><b>Göreli yön:</b> Yönelimin ile kerteriz arasındaki fark; örneğin “23° sağa”, “10° sola” veya “Düz ileri”. 180° olduğunda hedef arkandadır.</li>
+<li><b>Hedef rotası:</b> Elite HUD’ında dönebileceğin mutlak bir rota olarak vurgulanan kerteriz. Ek bir dönüş açısı değildir.</li>
+</ul>
+<p>Örnek: Baş yönün 051° ve hedef rotan 074° ise 23° sağa dönerek Elite pusulanın yaklaşık 074° göstermesini sağla. Uçuşa devam ederken kerteriz ve hedef rotası değişebilir; güncellenen değerleri izle.</p>
+<p>Hedefle aynı konumda, bir kutupta veya gezegenin tam karşı noktasında yön tanımsız olabilir. Bu durumda navigatör uydurma bir rota yerine ilgili uyarıyı gösterir.</p>
+
+<h3>Pencere boyutu</h3>
+<p>Navigatör penceresinin boyutu serbestçe değiştirilebilir. Küre veya perspektif ızgarası, kullanılabilir alana orantılı olarak uyum sağlar. Minimum boyut, ayrıntılı değerlerin okunabilirliğini korur; küre yuvarlak kalır. Pencerenin konumu ve boyutu kaydedilir.</p>
+
+<h3>Navigasyon HUD’ını açma</h3>
+<p>Ana pencerenin solunda <b>otomatik göster → Navigasyon HUD</b> altındaki kutuyu işaretle. Geçerli gezegen navigasyonu olduğunda HUD, ön plandaki görünür Elite penceresinin doğrudan üzerinde belirir.</p>
+<p>Üç satır gösterir:</p>
+<ul>
+<li>göreli yön</li>
+<li>hedef rotası</li>
+<li>mesafe</li>
+</ul>
+<p>HUD saydamdır, tıklamaları geçirir ve odağı almaz: oyunu opak bir alanla örtmez, fare tıklamalarını yakalamaz ve otomatik olarak belirdiğinde Elite’in giriş odağını elinden almaz.</p>
+<p>Geçerli navigasyon veya kesin bir yön olmadığında otomatik olarak görünmez olur. Elite simge durumuna küçültüldüğünde veya ön planda olmadığında da gizlenir. Kenar çubuğundaki kutu yine de işaretli kalabilir; bu, o anki görünürlüğü değil, otomatik gösterim tercihini belirtir.</p>
+<p>HUD yalnızca ek bir göstergedir. Normal navigatör ondan bağımsız çalışır; HUD kapalı veya kullanılamaz olduğunda da çalışmaya devam eder.</p>
+
+<h3>Yeni bir hedef belirleme</h3>
+<p>Aynı gök cisminde istediğin zaman “Hedef gir …” seçeneğini yeniden açıp farklı koordinatlar belirleyebilirsin. Yeni hedef, önceki navigasyon hedefinin yerini alır. Uygun konum verileriyle pusula hemen güncellenir.</p>
+<p>“Navigasyonu sonlandır” ile güncel hedefi kaldırırsın. Başka bir yaklaşma için yeni bir hedef belirlemen yeterlidir.</p>
+
+<h3>Verilerin güncelliği ve sınırlar</h3>
+<p>Navigasyon, Elite’in sağladığı durum verilerine dayanır. Güncellemeler oyun durumuna bağlı olarak gecikmeli gelebilir. Navigatördeki yaş göstergesi, son doğrulanan durum mesajından bu yana ne kadar zaman geçtiğini gösterir.</p>
+<p>Yüzey mesafesi, varsayımsal bir küre üzerindeki en kısa yayı ifade eder. Bir arazi veya yol güzergâhı değildir. Navigatör, güzergâh üzerindeki engelleri veya arazi yüksekliklerini bilmez; uçuş yüksekliği, güvenli hız ve engellerden kaçınma senin sorumluluğunda kalır.</p>
+
+<h3>İpucu</h3>
+<p>Yaklaşmadan önce gök cisminin adını ve hedef koordinatlarının işaretlerini kontrol et. Ardından Elite pusulasında hedef rotasına yönel ve göreli yönü ve mesafeyi izle. Navigatör bekliyorsa Elite’in hedef gök cismi için gezegen koordinatları sağlamaya başlayıp başlamadığını kontrol et.</p>""",
+    ),
+}
 
 DIALOG_TITLE = 'Yardım – {area}'
 CLOSE_LABEL = 'Kapat'

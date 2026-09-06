@@ -243,7 +243,32 @@ HELP_TOPICS = {
 <p>Globale astronomische Eigenschaften eines Bodys – beispielsweise die Anzahl bekannter planetarer Abbaustandorte – bleiben dagegen Eigenschaften des Körpers selbst.</p>
 
 <h3>Tipp</h3>
-<p>Bei einem interessanten Körper lohnt sich ein Klick auf die Detailansicht. Dort lässt sich am besten unterscheiden zwischen allgemeinen Körperdaten, möglichen Explorationsergebnissen und tatsächlich vom eigenen Commander belegten Funden.</p>""",
+<p>Bei einem interessanten Körper lohnt sich ein Klick auf die Detailansicht. Dort lässt sich am besten unterscheiden zwischen allgemeinen Körperdaten, möglichen Explorationsergebnissen und tatsächlich vom eigenen Commander belegten Funden.</p>
+
+<h3>★ Favoriten</h3>
+<p>Über den Button „★ Favoriten“ oben im Explorer öffnest du ein eigenes, wiederverwendbares Favoritenfenster. Dort speicherst du Systeme, Planeten/Monde und Oberflächenorte für den aktiven Commander.</p>
+<p>Die alphabetisch nach Namen sortierte, scrollbare Liste zeigt Name, Typ, System, gegebenenfalls Body und Latitude/Longitude, Kategorie und eine kleine Bildvorschau. Freitextsuche, Typfilter und Kategoriefilter lassen sich gemeinsam verwenden. Die Suche berücksichtigt Name, System, Body und Notiz.</p>
+<p>Mit „Öffnen / Anzeigen“ siehst du die gespeicherten Angaben, die Notiz und eine größere Bildvorschau. „Im Explorer anzeigen“ öffnet die vorhandene Systemübersicht beziehungsweise Body-Detailansicht, sofern der Favorit zum aktuellen Explorer-System gehört und passende Daten vorhanden sind. Für andere Systeme bleiben die gespeicherten Favoritendaten sichtbar; es wird keine Systemroute berechnet.</p>
+
+<h3>System, Planet oder aktuellen Standort speichern</h3>
+<ul>
+<li>„★ Aktuelles System speichern“ übernimmt das aktuelle System ohne Oberflächenkoordinaten.</li>
+<li>„★ Planet / Mond speichern“ lässt dich einen bekannten Planeten oder Mond des aktuellen Systems auswählen. Auch dieser Favorit erhält keine Oberflächenkoordinaten.</li>
+<li>„★ Aktuellen Standort speichern“ steht oben im Favoritenfenster neben den beiden anderen Speichermöglichkeiten und ist auch im Planeten-Navigator verfügbar. Im Favoritenfenster bleibt der Button immer sichtbar und ist ohne gültige aktuelle planetare Positionsdaten und aktiven Commander deaktiviert. Beim Klick werden Commander, System, Body, Latitude und Longitude festgehalten. Spätere Bewegungen im Spiel verändern diese Werte im geöffneten Dialog nicht.</li>
+</ul>
+<p>Gib einen frei wählbaren Namen ein und wähle genau eine Kategorie: Bio, Geo, Abbau, Aussicht, Landestelle, Interessant oder Sonstiges. Eine Notiz und ein Bild sind optional. Bekannte technische IDs werden intern übernommen; du musst sie nicht eingeben. Auch Latitude oder Longitude 0,0 sind gültige Koordinaten.</p>
+<p>„Bearbeiten“ ändert Name, Kategorie, Notiz und Bild. System, Body und die gespeicherten Koordinaten bleiben dabei erhalten. Soll ein anderer Oberflächenort gespeichert werden, lege an dieser Position einen neuen Favoriten an.</p>
+
+<h3>Favoritenbilder</h3>
+<p>Favoritenbilder sind vom Bereich „Bilder“ getrennt. „Bild auswählen …“ erlaubt PNG, JPEG und WebP. Erst beim Speichern kopiert CMDRHelper das ausgewählte Bild in seinen eigenen Favoriten-Bildordner. Die Originaldatei wird weder verschoben noch verändert.</p>
+<p>„Letzten Screenshot verwenden“ liest bei jedem Klick den eingestellten Screenshot-Quellordner neu ein und sucht lesbare Screenshots mit typischen Elite-Dateinamen. Ohne Einstellung werden die üblichen Elite-Screenshot-Verzeichnisse unter Windows beziehungsweise Steam/Proton berücksichtigt. Auch der zum aktiven Commander gehörende Ordner im konfigurierten Konvertierungsziel wird nach passenden konvertierten Elite-Screenshots durchsucht. So bleibt ein konvertierter Screenshot auffindbar, wenn sein ursprüngliches BMP gelöscht wurde. Für den neuesten Aufnahmezeitpunkt zählt eine eindeutige Zeitangabe im Dateinamen, andernfalls die Dateizeit; bei konvertierten Bildern zählt die im Namen gespeicherte Aufnahmezeit statt des Konvertierungszeitpunkts. CMDRHelper löst selbst keinen Screenshot aus und durchsucht keine beliebigen Bilderordner.</p>
+<p>Vor der Verwendung werden Dateiname, Aufnahmezeit und eine frisch geladene Vorschau angezeigt. Bestätige mit „Dieses Bild verwenden“. Wird kein geeigneter Screenshot gefunden, kannst du weiterhin „Bild auswählen …“ verwenden. Elite-BMP-Screenshots werden als interne PNG-Kopie gespeichert.</p>
+<p>Ein Bild lässt sich im Bearbeitungsdialog ersetzen oder mit „Bild entfernen“ abwählen. Beim Speichern wird die nicht mehr verwendete interne Kopie entfernt. Fehlt eine Bilddatei, bleibt der Favorit ohne Vorschau benutzbar.</p>
+
+<h3>Favoritenziel und Commander</h3>
+<p>Für Oberflächenorte übergibt „▶ Zum Ziel“ den gespeicherten Body, Latitude, Longitude und Favoritennamen an den vorhandenen Planeten-Navigator. Das neue Ziel ersetzt das bisherige Ziel. Favoriten besitzen keine eigene Navigationslogik. Der Navigator entscheidet unverändert selbst: passende gültige planetare Daten aktivieren die Navigation, andernfalls wartet er auf diese Daten.</p>
+<p>Favoriten gehören ausschließlich zum aktiven Commander. Beim Commanderwechsel wird die Liste aktualisiert; ein offener Bearbeitungsdialog wird verworfen. Ein noch als Favoritenziel geführtes Ziel des vorherigen Commanders wird beendet. Die Commander-Auswahl der Chronik erweitert diese Favoritenliste nicht.</p>
+<p>„Löschen“ verlangt eine Bestätigung und entfernt nur den Favoritendatensatz und seine interne Bildkopie. Der ursprüngliche Screenshot beziehungsweise das ausgewählte Originalbild und alle Explorer-, Journal- und Bodydaten bleiben erhalten.</p>""",
     ),
     "chronicle": (
         "Chronik",
@@ -253,6 +278,7 @@ HELP_TOPICS = {
 <h3>Besuchte Systeme</h3>
 <p>Die Chronik zeigt die dem Commander bekannten besuchten Systeme und ihre Positionen in der Galaxie.</p>
 <p>Soweit vorhanden, werden unter anderem erster und letzter Besuch sowie bekannte Körperinformationen berücksichtigt.</p>
+<p>Bei aktivem Zeitraum beziehen sich Besuchszahl, erster Besuch und letzter Besuch in der Kartenansicht auf die gefilterten tatsächlichen Systembesuche.</p>
 <p>Die Chronik ist damit nicht nur eine Karte, sondern auch ein Werkzeug zum Wiederfinden früherer Reiseziele und Entdeckungen.</p>
 
 <h3>3D-Karte</h3>
@@ -260,21 +286,22 @@ HELP_TOPICS = {
 <p>Die Bedienhinweise befinden sich direkt oberhalb der Karte:</p>
 <ul>
 <li>linke Maustaste gedrückt halten → Ansicht drehen</li>
-<li>mittlere Maustaste gedrückt halten → Zoom</li>
+<li>mittlere Maustaste gedrückt halten und ziehen → Zoom-Fenster aufziehen</li>
 <li>rechte Maustaste gedrückt halten → Ansicht verschieben</li>
 </ul>
 <p>Die kleine Achsenanzeige hilft bei der Orientierung im Raum.</p>
 
 <h3>Aktuelle Position</h3>
 <p>Mit „Aktuelle Position“ kann die Kartenansicht auf den aktuell bekannten Standort des aktiven Commanders ausgerichtet beziehungsweise dorthin zurückgeführt werden.</p>
-<p>Voraussetzung ist, dass für den Commander eine gültige aktuelle Position bekannt ist.</p>
+<p>Zuerst wird der aktuelle Filterzustand angewendet. Nur wenn das aktuelle System in der resultierenden Karte enthalten ist, wird darauf zentriert.</p>
+<p>Andernfalls erscheint „Das aktuelle System ist in dieser Filterauswahl nicht enthalten.“ Die Filter werden dadurch nicht aufgehoben.</p>
 
 <h3>Ausrichten</h3>
-<p>„Ausrichten“ stellt die Kartenorientierung wieder auf die vorgesehene Grundausrichtung zurück.</p>
-<p>Dies ist hilfreich, wenn die Karte nach starkem Drehen oder Verschieben unübersichtlich geworden ist.</p>
+<p>„Ausrichten“ setzt die Orientierung auf die galaktische Draufsicht zurück. Verschiebung und Zoom bleiben dabei erhalten.</p>
+<p>Dies ist hilfreich, wenn die Karte nach starkem Drehen unübersichtlich geworden ist.</p>
 
 <h3>Chronik aktualisieren</h3>
-<p>„Chronik aktualisieren“ aktualisiert die Darstellung mit dem derzeit bekannten Datenbestand.</p>
+<p>„Chronik aktualisieren“ lädt die Chronikdaten anhand des aktuellen gemeinsamen Filterzustands neu und aktualisiert die Darstellung. Freitext, aktivierte Datumsgrenzen und Mining-Filter werden dabei erneut gemeinsam ausgewertet; aktive Filter werden nicht ignoriert.</p>
 <p>Die Funktion verändert keine Journaldateien und erzeugt keine neuen Explorationdaten. Sie aktualisiert lediglich die Chronikdarstellung anhand der vorhandenen CMDRHelper-Daten.</p>
 
 <h3>Freitextsuche</h3>
@@ -287,13 +314,27 @@ HELP_TOPICS = {
 <li>Materialien</li>
 <li>Codexdaten</li>
 </ul>
-<p>Der Button „Suchen“ führt ausschließlich diese Freitextsuche aus.</p>
-<p>Die separaten ABBAU-Filter werden dagegen mit „Anwenden“ ausgeführt.</p>
+<p>Freitext, Zeitraum und Mining befinden sich in einem gemeinsamen Filterbereich. „Anwenden“ wertet die gesetzten Filter gemeinsam aus. Enter im Freitextfeld startet denselben Filterlauf wie „Anwenden“.</p>
+
+<h3>Zeitraum Von/Bis (UTC)</h3>
+<p>Aktiviere „Von“ und „Bis“ jeweils über den zugehörigen Haken und wähle das gewünschte Datum. Auch nur eine Grenze ist möglich. Ohne aktivierten Haken besteht auf dieser Seite keine zeitliche Einschränkung; ohne beide Haken wird kein Zeitraum eingeschränkt.</p>
+<ul>
+<li><b>Von:</b> Ab Beginn des ausgewählten UTC-Kalendertages einschließlich.</li>
+<li><b>Bis:</b> Der vollständige ausgewählte UTC-Kalendertag wird berücksichtigt, bis unmittelbar vor Beginn des folgenden Tages.</li>
+</ul>
+<p>UTC ist die koordinierte Weltzeit. Die Datumsgrenzen beziehen sich auf UTC-Kalendertage, nicht auf Kalendertage deiner lokalen Zeitzone.</p>
+<p>Gefiltert werden tatsächliche Systembesuche aus <code>system_visits</code>. Ein tatsächlicher Besuch des jeweiligen Commanders innerhalb des Zeitraums ist erforderlich. Die gespeicherten Angaben <code>first_seen</code> und <code>last_seen</code> ersetzen keinen echten Besuch: Allein ein Zeitraum zwischen einem früheren ersten und einem späteren letzten Besuch genügt nicht.</p>
+<p>Der Zeitraum filtert Besuche, nicht einzelne Entdeckungs-, BIO-, GEO- oder Mining-Ereignisse. Bekannte Fundinformationen und Mining-Mengen bleiben gespeicherte Gesamtwerte. Von/Bis können sowohl allein als auch gemeinsam mit Freitext und Mining verwendet werden.</p>
+<p>Liegt Von nach Bis, erscheint „Das Von-Datum darf nicht nach dem Bis-Datum liegen.“ Es wird keine Datenbankabfrage gestartet. Korrigiere die Datumsgrenzen und wende die Filter erneut an.</p>
 
 <h3>Suchergebnisse</h3>
 <p>Treffer werden in der vorhandenen Ergebnisliste unterhalb der Chronik-Karte angezeigt.</p>
 <p>Je nach Trefferart können System und Body sowie zusätzliche Informationen erscheinen.</p>
 <p>Ein Treffer kann verwendet werden, um das entsprechende bereits bekannte System beziehungsweise den Körper wiederzufinden und die vorhandenen Detailinformationen zu öffnen.</p>
+
+<h3>Keine Treffer</h3>
+<p>Ergibt ein gültiger Filterlauf keine Treffer, werden Karte und Routen geleert. Die Trefferliste wird geleert und ausgeblendet, die Detailanzeige zurückgesetzt und ein geöffnetes Chronik-Systemdetailfenster geschlossen.</p>
+<p>Alte Ergebnisse bleiben nicht sichtbar. Prüfe in diesem Fall die Kombination aus Suchtext, Zeitraum und Mining-Filtern sowie den für die jeweilige Ansicht verwendeten Commander.</p>
 
 <h3>Planetare Abbaustandorte</h3>
 <p>Mit dem Filter „Planetare Abbaustandorte“ können gezielt bereits bekannte Bodies gesucht werden, für die Elite Dangerous planetare Abbaustandorte gemeldet hat.</p>
@@ -337,9 +378,10 @@ HELP_TOPICS = {
 <p>Beispiel:</p>
 <p><b>ABBAU ×24 — Helium-3 18 t, Kupfer 56 t</b></p>
 <p>Die Mengen sind persönliche, tatsächlich aus Journalereignissen belegte Abbauwerte des jeweiligen Commanders.</p>
+<p>Auch bei aktivem Zeitraum bleiben persönliche Mining-Mengen gespeicherte Gesamtmengen. <b>Kupfer 56 t</b> bedeutet nicht automatisch <b>56 t im ausgewählten Zeitraum</b>. Der Zeitraum verlangt einen passenden Systembesuch, begrenzt aber nicht die angezeigte Abbaumenge auf diesen Zeitraum.</p>
 
 <h3>Filter kombinieren</h3>
-<p>Die Mining-Filter können miteinander kombiniert werden.</p>
+<p>Freitext, aktivierte Von-/Bis-Grenzen und Mining-Filter können miteinander kombiniert werden. Ein Treffer muss die gesetzten Bedingungen gemeinsam erfüllen.</p>
 <p>Beispielsweise:</p>
 <ul>
 <li>Planetare Abbaustandorte aktiv</li>
@@ -348,27 +390,51 @@ HELP_TOPICS = {
 <li>Rohstoff Kupfer</li>
 </ul>
 <p>sucht nach bekannten Bodies mit mindestens 20 planetaren Abbaustandorten, auf denen der betrachtete Commander bereits selbst Kupfer gewonnen hat.</p>
+<p>Mit zusätzlichem Suchtext wird auch dieser berücksichtigt. Bei zusätzlichem Zeitraum muss der betrachtete Commander das zugehörige System tatsächlich in diesem Zeitraum besucht haben; der Kupferabbau selbst muss nicht in diesen Zeitraum fallen.</p>
 
 <h3>Anwenden</h3>
-<p>„Anwenden“ führt ausschließlich die sichtbaren Mining-Filter aus.</p>
-<p>Der Button „Suchen“ daneben bleibt der Freitextsuche vorbehalten.</p>
-<p>Dadurch sind Textsuche und Mining-Filter bewusst voneinander getrennt.</p>
+<p>„Anwenden“ führt einen gemeinsamen Filterlauf mit allen aktuell gesetzten Such-, Zeitraum- und Mining-Filtern aus:</p>
+<ul>
+<li>Freitext</li>
+<li>Von, wenn aktiviert</li>
+<li>Bis, wenn aktiviert</li>
+<li>Planetare Abbaustandorte</li>
+<li>Mindestanzahl</li>
+<li>Eigene Abbau-Funde</li>
+<li>Rohstoff, wenn „Eigene Abbau-Funde“ aktiviert ist</li>
+</ul>
+<p>Enter im Freitextfeld führt genau denselben Filterlauf aus. Ohne Freitext und Mining-Filter wird die normale Karte für die angehakten Karten-Commander geladen, gegebenenfalls eingeschränkt durch Von/Bis.</p>
 
 <h3>Zurücksetzen</h3>
-<p>„Zurücksetzen“ löscht die aktuelle Freitextsuche und setzt auch die Mining-Filter auf ihren Ausgangszustand zurück.</p>
-<p>Die Rohstoffauswahl springt dabei wieder auf „Alle“.</p>
+<p>„Zurücksetzen“ setzt den gemeinsamen Filterbereich auf seinen Ausgangszustand zurück:</p>
+<ul>
+<li>Freitext wird geleert.</li>
+<li>Von und Bis werden deaktiviert; die Datumsfelder zeigen wieder das heutige Datum und sind deaktiviert.</li>
+<li>Planetare Abbaustandorte wird deaktiviert.</li>
+<li>Die Mindestanzahl wird auf 0 gesetzt.</li>
+<li>Eigene Abbau-Funde wird deaktiviert.</li>
+<li>Rohstoff wird auf „Alle“ zurückgesetzt.</li>
+</ul>
+<p>Die Commander-Auswahl bleibt erhalten. Anschließend wird die normale Chronik für diese Karten-Auswahl neu geladen; vorherige Suchtreffer und Detailanzeigen werden zurückgesetzt.</p>
 
 <h3>Commander-Auswahl</h3>
 <p>Die Chronik kann Daten verschiedener bekannter Commander darstellen.</p>
+<p>Dabei gibt es zwei getrennte Auswahlkonzepte:</p>
+<ul>
+<li><b>Karten-Commander-Auswahl:</b> Die Commander-Haken bestimmen, welche Commander-Routen in der normalen Karte ohne Freitext-/Mining-Suche angezeigt werden. Ein aktivierter Zeitraum wird dabei berücksichtigt.</li>
+<li><b>Betrachteter Commander:</b> Persönliche Freitext-/Mining-Suchen verwenden den betrachteten Commander (<code>viewed_commander_id</code>), ersatzweise den aktiven Commander. Nach ihm richten sich auch die persönlichen Rohstofflisten.</li>
+</ul>
 <p>Persönliche Informationen wie eigene Abbau-Funde und Rohstofflisten werden jedoch immer für den tatsächlich betrachteten Commander getrennt ausgewertet.</p>
 <p>Ein Commander sieht in seiner Rohstoffauswahl keine Mining-Funde, die ausschließlich einem anderen Commander gehören.</p>
 
 <h3>Alle Commander</h3>
 <p>Die Karten-/Chronikdarstellung kann mehrere Commander berücksichtigen.</p>
+<p>„Alle Commander“ bezieht sich auf die Karten-Commander-Auswahl. Die Commander-Haken erweitern persönliche Freitext-/Mining-Suchen nicht automatisch auf mehrere Commander.</p>
 <p>Das ändert nichts an der persönlichen Zuordnung commanderbezogener Daten. Globale astronomische Eigenschaften eines Systems oder Bodys bleiben gemeinsam nutzbar, persönliche Funde bleiben getrennt.</p>
 
 <h3>Suchhilfe / Legende</h3>
 <p>Über „Suchhilfe / Legende“ können zusätzliche Hinweise zur Chronik-Suche und zur Bedeutung der Darstellung aufgerufen werden.</p>
+<p>Ein angeklickter Suchbegriff wird in das Suchfeld übernommen und zusammen mit den bereits gesetzten Zeitraum-/Mining-Filtern ausgeführt.</p>
 <p>Diese kontextbezogene Haupthilfe ergänzt die dort vorhandenen kurzen Bedienhinweise.</p>
 
 <h3>Tipp</h3>
@@ -886,6 +952,80 @@ HELP_TOPICS = {
 <li>bei Bildproblemen Quell- und Zielordner im Hauptmenü „Bilder“</li>
 </ul>
 <p>Bei mehreren Commandern immer beachten, für welche FID die sichtbaren Online-Zugangsdaten gelten.</p>""",
+    ),
+    "planet_navigation": (
+        "Planeten-Navigation",
+        """<h2>Planeten-Navigation</h2>
+<p>Der Planeten-Navigator hilft dir ausschließlich dabei, auf einem Planeten oder Mond eine bestimmte Latitude/Longitude anzufliegen. Du gibst ein Koordinatenziel vor und erhältst Entfernung und Richtung dorthin.</p>
+<p>Er ist kein interstellarer Routenplaner und übernimmt keine System- oder Sprungnavigation. Du steuerst dein Schiff selbst.</p>
+
+<h3>Navigator öffnen und Ziel eingeben</h3>
+<p>Öffne in der Übersicht „Planeten-Navigation“ und wähle „Ziel eingeben …“.</p>
+<ul>
+<li><b>Body:</b> Wähle den Zielplaneten oder Zielmond aus der Liste oder verwende den bereits erkannten Body. Du kannst den Bodynamen auch selbst eingeben, wenn er noch nicht in der Liste steht. Verwende im Zweifel den vollständigen Namen einschließlich Systemname.</li>
+<li><b>Breitengrad (Latitude):</b> Gib die Zielbreite zwischen −90° und +90° ein.</li>
+<li><b>Längengrad (Longitude):</b> Gib die Ziellänge zwischen −180° und +180° ein. Achte bei beiden Koordinaten auf das Vorzeichen.</li>
+<li><b>Zielname:</b> Optional kannst du eine Bezeichnung eingeben, damit du dein Ziel leichter wiedererkennst.</li>
+</ul>
+<p>Mit „Ziel setzen“ übernimmst du die Eingabe. Technische IDs wie BodyID und SystemAddress musst du nicht eingeben; sie sind keine normalen Benutzereingaben.</p>
+
+<h3>Wann startet der Kompass?</h3>
+<p>Sobald ein Ziel gesetzt ist und Elite für den passenden Body gültige planetare Positionsdaten liefert, wird die Navigation automatisch aktiv. Du musst keinen gesonderten Startknopf betätigen.</p>
+<p>Fehlen diese Daten noch oder gehören sie zu einem anderen Body, wartet der Navigator mit „Warte auf planetare Koordinaten …“. Ein Ziel lässt sich auch schon vor dem Empfang dieser Daten eingeben.</p>
+
+<h3>Planetenkugel: mehr als 380 km</h3>
+<p>Bei einer Zielentfernung größer als 380 km zeigt der Navigator die Planetenkugel.</p>
+<ul>
+<li>Der <b>weiße Kreis</b> markiert deine eigene Position.</li>
+<li>Der <b>kleine Zielpunkt</b> ist orange, wenn das Ziel auf der sichtbaren Planetenseite liegt.</li>
+<li>Liegt das Ziel auf der verdeckten Rückseite, wird der Zielpunkt rot dargestellt.</li>
+<li>Deine Position bleibt in der Darstellung fest. Planet und Ziel werden relativ zu deiner Position und Ausrichtung dargestellt.</li>
+</ul>
+<p>Der weiße Pfeil zeigt nach vorn; der gelbe Pfeil weist in die relative Zielrichtung. Die Kugel ist eine schematische Orientierungshilfe, keine geografisch genaue Geländeansicht. Ein roter Punkt bedeutet Rückseite der Kugel, nicht automatisch „hinter deinem Schiff“.</p>
+
+<h3>Perspektivraster: bis einschließlich 380 km</h3>
+<p>Bei einer Zielentfernung bis einschließlich 380 km wechselt die Anzeige automatisch auf ein gekipptes Perspektivraster. Steigt die Entfernung wieder über 380 km, erscheint erneut die Kugel.</p>
+<p>Die Querlinien bilden ein <b>50-km-Entfernungsraster</b>. Der Zielpunkt wird innerhalb des Rasters entsprechend Entfernung und relativer Richtung eingezeichnet. Die Perspektive hilft dir beim weiteren Anflug; die Abstände erscheinen durch die Neigung nach hinten dichter. Für den konkreten Steuerkurs beachte zusätzlich Zielkurs und relative Richtung.</p>
+
+<h3>Navigationswerte richtig lesen</h3>
+<ul>
+<li><b>Zielentfernung:</b> Die große Anzeige zeigt die verbleibende Entfernung zum Ziel entlang der gedachten Planetenoberfläche.</li>
+<li><b>Zielkoordinaten:</b> Das eingegebene Koordinatenpaar des Ziels, zuerst Breitengrad, dann Längengrad. Es bleibt stehen, während du dich bewegst.</li>
+<li><b>Aktuelle Koordinaten:</b> Dein zuletzt bestätigtes Koordinatenpaar aus Elite, ebenfalls Breitengrad / Längengrad.</li>
+<li><b>Entfernung über Oberfläche:</b> Derselbe Oberflächenabstand wie die Zielentfernung, in der Detailanzeige gegebenenfalls genauer gerundet. Das ist keine zweite Strecke und keine direkte räumliche Entfernung durch die Luft.</li>
+<li><b>Peilung:</b> Die absolute Richtung zum Ziel von deiner aktuellen Position aus, als Kompasswinkel: 000° ist Norden, 090° Osten, 180° Süden und 270° Westen.</li>
+<li><b>Heading:</b> Deine aktuelle Ausrichtung, wie Elite sie liefert. Sie zeigt, wohin du gerade ausgerichtet bist, und muss noch nicht mit der Peilung übereinstimmen.</li>
+<li><b>Relative Richtung:</b> Der Unterschied zwischen deiner Ausrichtung und der Peilung, beispielsweise „23° rechts“, „10° links“ oder „Geradeaus“. Bei 180° liegt das Ziel hinter dir.</li>
+<li><b>Zielkurs:</b> Die hervorgehobene Peilung als absoluter Kurs, auf den du im Elite-HUD drehen kannst. Er ist kein zusätzlicher Drehwinkel.</li>
+</ul>
+<p>Beispiel: Bei Heading 051° und Zielkurs 074° drehst du 23° nach rechts, bis dein Elite-Kompass ungefähr 074° zeigt. Beim Weiterflug können sich Peilung und Zielkurs ändern; orientiere dich an den aktualisierten Werten.</p>
+<p>An derselben Position wie das Ziel, an einem Pol oder beim genau gegenüberliegenden Punkt auf dem Planeten kann die Richtung unbestimmt sein. Dann zeigt der Navigator den entsprechenden Hinweis statt eines erfundenen Kurses.</p>
+
+<h3>Fenstergröße</h3>
+<p>Das Navigatorfenster ist frei skalierbar. Kugel beziehungsweise Perspektivraster passen sich dem verfügbaren Platz proportional an. Die Mindestgröße schützt die Lesbarkeit der Detailwerte; die Kugel bleibt rund. Position und Größe des Fensters werden gespeichert.</p>
+
+<h3>Navigations-HUD einschalten</h3>
+<p>Aktiviere links im Hauptfenster unter <b>auto einblenden → Navigations-HUD</b> den Haken. Bei gültiger Planetennavigation erscheint das HUD direkt über dem sichtbaren Elite-Fenster im Vordergrund.</p>
+<p>Es zeigt drei Zeilen:</p>
+<ul>
+<li>relative Richtung</li>
+<li>Zielkurs</li>
+<li>Entfernung</li>
+</ul>
+<p>Das HUD ist transparent, klickdurchlässig und fokusneutral: Es verdeckt das Spiel nicht mit einer undurchsichtigen Fläche, fängt keine Mausklicks ab und nimmt Elite beim automatischen Einblenden nicht den Eingabefokus.</p>
+<p>Ohne gültige Navigation oder eindeutige Richtung wird es automatisch unsichtbar. Auch wenn Elite minimiert oder nicht im Vordergrund ist, wird es ausgeblendet. Der Sidebar-Haken kann trotzdem aktiviert bleiben; er beschreibt deinen Wunsch nach automatischer Anzeige, nicht die momentane Sichtbarkeit.</p>
+<p>Das HUD ist nur eine zusätzliche Anzeige. Der normale Navigator funktioniert unabhängig davon, auch bei ausgeschaltetem oder nicht verfügbarem HUD.</p>
+
+<h3>Ein neues Ziel setzen</h3>
+<p>Auf demselben Body kannst du jederzeit erneut „Ziel eingeben …“ öffnen und andere Koordinaten setzen. Das neue Ziel ersetzt das bisherige Navigationsziel. Bei passenden Positionsdaten aktualisiert sich der Kompass unmittelbar.</p>
+<p>Mit „Navigation beenden“ entfernst du das aktuelle Ziel. Für einen weiteren Anflug setzt du einfach ein neues Ziel.</p>
+
+<h3>Datenstand und Grenzen</h3>
+<p>Die Navigation basiert auf den von Elite gelieferten Statusdaten. Aktualisierungen können abhängig vom Spielzustand verzögert eintreffen. Die Altersanzeige im Navigator zeigt, wie lange die letzte bestätigte Statusmeldung zurückliegt.</p>
+<p>Der Oberflächenabstand beschreibt den kürzesten Bogen auf einer gedachten Kugel. Er ist keine Gelände- oder Straßenroute. Der Navigator kennt keine Hindernisse und keine Geländehöhen entlang der Strecke; Flughöhe, sichere Geschwindigkeit und Hindernisvermeidung bleiben deine Aufgabe.</p>
+
+<h3>Tipp</h3>
+<p>Prüfe vor dem Anflug Bodyname und Vorzeichen der Zielkoordinaten. Richte dich anschließend nach dem Zielkurs im Elite-Kompass aus und beobachte relative Richtung und Entfernung. Wenn der Navigator wartet, kontrolliere, ob Elite bereits planetare Koordinaten für den Zielbody liefert.</p>""",
     ),
 }
 

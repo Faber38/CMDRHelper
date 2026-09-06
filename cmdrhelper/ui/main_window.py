@@ -3,8 +3,10 @@ from __future__ import annotations
 from datetime import datetime
 from pathlib import Path
 import os
+import logging
 import re
 
+from cmdrhelper.chronicle_filters import ChronicleFilters
 from cmdrhelper.ui.system_view import SystemMapWidget
 from cmdrhelper.bio_valuation import base_value, species_name
 from cmdrhelper.ui.body_detail_window import BodyDetailWindow
@@ -34,7 +36,7 @@ from cmdrhelper.update import (
     launch_installer,
 )
 
-from PySide6.QtCore import Qt, QTimer, QThreadPool, QUrl, QRectF, Signal
+from PySide6.QtCore import Qt, QTimer, QThreadPool, QUrl, QRectF, Signal, QDate
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 from PySide6.QtGui import (
     QDesktopServices,
@@ -75,6 +77,7 @@ from PySide6.QtWidgets import (
     QProgressBar,
     QTabWidget,
     QSpinBox,
+    QDateEdit,
     QFontComboBox,
     QComboBox,
     QSizePolicy,
@@ -1419,6 +1422,9 @@ class MainWindow(QMainWindow):
         self._explorer_value_live_window = None
         self._explorer_bio_live_window = None
         self._cargo_live_window = None
+        self._planet_navigation_window = None
+        self._planet_navigation_controller = None
+        self._navigation_hud = None
         self._explorer_live_system = None
         self._startup_progress_dialog = None
         self._help_dialog = None
@@ -1437,7 +1443,7 @@ class MainWindow(QMainWindow):
         self.state.initializationProgress.connect(self._initialization_progress)
         self.state.initializationFinished.connect(self._initialization_finished)
         self.state.viewedCommanderChanged.connect(
-            self._refresh_chronicle_mining_commodities
+            self._chronicle_viewed_commander_changed
         )
         self._refresh_chronicle_mining_commodities()
 
@@ -1450,6 +1456,8 @@ class MainWindow(QMainWindow):
         self._refresh_cargo_live_window(
             getattr(self.state, "cargo_snapshot", None)
         )
+
+        self._apply_navigation_hud_enabled()
 
         # Updateprüfung bewusst leicht verzögert starten, damit das
         # Hauptfenster zuerst vollständig erscheinen kann.
@@ -1630,6 +1638,11 @@ class MainWindow(QMainWindow):
             self._set_cargo_live_window_enabled
         )
         live_layout.addWidget(self.cargo_live_enabled_check)
+
+        self.navigation_hud_enabled_check = QCheckBox(tr("settings.navigation_hud"))
+        self.navigation_hud_enabled_check.setChecked(self._navigation_hud_enabled())
+        self.navigation_hud_enabled_check.toggled.connect(self._set_navigation_hud_enabled)
+        live_layout.addWidget(self.navigation_hud_enabled_check)
 
         side.addWidget(self.auto_show_frame)
 
@@ -1951,7 +1964,13 @@ class MainWindow(QMainWindow):
         overview_row = QHBoxLayout()
         overview_row.addStretch()
 
+        self.favorites_button = QPushButton(tr("favorites.title"))
+        self.favorites_button.clicked.connect(self._show_favorites)
+        overview_row.addWidget(self.favorites_button)
         self.system_overview_button = QPushButton(tr("explorer.show_all"))
+        self.planet_navigation_button = QPushButton(tr("planet_nav.title"))
+        self.planet_navigation_button.clicked.connect(self._show_planet_navigation)
+        overview_row.addWidget(self.planet_navigation_button)
         self.system_overview_button.setToolTip(tr("explorer.show_all_tooltip"))
         self.system_overview_button.clicked.connect(self._show_system_overview)
         overview_row.addWidget(self.system_overview_button)
@@ -2103,6 +2122,16 @@ class MainWindow(QMainWindow):
             tr("explorer.bio_planets"),
         )
 
+        from cmdrhelper.ui.favorites_view import FavoritesView
+        self._favorites_window = QDialog(self)
+        self._favorites_window.setWindowTitle(tr("favorites.title"))
+        self._favorites_window.resize(1000, 650)
+        favorites_layout = QVBoxLayout(self._favorites_window)
+        self.favorites_view = FavoritesView(
+            self.state, self._favorite_navigator, self._show_favorite_in_explorer,
+            self._favorites_window,
+            location_controller_callback=self._ensure_planet_navigation_controller)
+        favorites_layout.addWidget(self.favorites_view)
         system_layout.addWidget(self.explorer_tabs, 1)
         page_layout.addWidget(system_card, 1)
 
@@ -3020,6 +3049,85 @@ class MainWindow(QMainWindow):
         elif self._explorer_bio_live_window.isVisible():
             self._explorer_bio_live_window.hide()
 
+    def _ensure_planet_navigation_controller(self):
+        from cmdrhelper.planet_navigation import PlanetNavigationController
+        if self._planet_navigation_controller is None:
+            self._planet_navigation_controller = PlanetNavigationController(self.state, self)
+        return self._planet_navigation_controller
+
+    def _navigation_hud_enabled(self):
+        value = self.state.settings.value("navigation_hud/enabled", False)
+        if isinstance(value, str):
+            return value.strip().lower() not in ("0", "false", "no", "off")
+        return bool(value)
+
+    def _set_navigation_hud_enabled(self, enabled):
+        self.state.settings.setValue("navigation_hud/enabled", bool(enabled))
+        self.state.settings.sync()
+        self._apply_navigation_hud_enabled()
+
+    def _apply_navigation_hud_enabled(self):
+        enabled = self._navigation_hud_enabled()
+        if enabled:
+            controller = self._ensure_planet_navigation_controller()
+            controller.start()
+            try:
+                if self._navigation_hud is None:
+                    from cmdrhelper.ui.navigation_hud import NavigationHud
+                    self._navigation_hud = NavigationHud(controller)
+                    QApplication.instance().aboutToQuit.connect(self._navigation_hud.close)
+                self._navigation_hud.set_enabled(True)
+            except (RuntimeError, OSError) as exc:
+                # Keep the saved preference even when the platform cannot show an HUD.
+                logging.getLogger(__name__).warning("Navigation HUD unavailable: %s", exc)
+        elif self._navigation_hud is not None:
+            self._navigation_hud.set_enabled(False)
+
+    def _planet_navigation_closed(self, _result):
+        # The independent HUD still needs the existing controller's updates.
+        if self._navigation_hud_enabled():
+            self._planet_navigation_controller.start()
+
+    def _show_planet_navigation(self):
+        from cmdrhelper.ui.planet_navigation_window import PlanetNavigationWindow
+
+        controller = self._ensure_planet_navigation_controller()
+        if self._planet_navigation_window is None:
+            self._planet_navigation_window = PlanetNavigationWindow(
+                controller, self.state.settings, self)
+            self._planet_navigation_window.save_location_requested.connect(
+                lambda: self.favorites_view.save_surface(controller))
+            self._planet_navigation_window.finished.connect(self._planet_navigation_closed)
+        controller.start()
+        if not self._planet_navigation_window.isVisible():
+            self._planet_navigation_window.show()
+
+    def _show_favorites(self):
+        self._favorites_window.show()
+        self._favorites_window.raise_()
+        self._favorites_window.activateWindow()
+
+    def _favorite_navigator(self):
+        self._show_planet_navigation()
+        return self._planet_navigation_controller
+
+    def _show_favorite_in_explorer(self, record):
+        # Use existing live Explorer displays only when their system matches.
+        if record["system_name"].casefold() != str(self.state.system or "").casefold():
+            QMessageBox.information(self, tr("favorites.title"), tr("favorites.not_current"))
+            return
+        self._show_page(self.PAGE_EXPLORER)
+        self.explorer_tabs.setCurrentWidget(self.system_scroll)
+        if record["type"] == "system":
+            self._show_system_overview()
+        else:
+            body = next((b for b in self.state.system_bodies
+                         if b.get("name", "").casefold() == record["body_name"].casefold()), None)
+            if body is not None:
+                self._show_body_details(body)
+            else:
+                QMessageBox.information(self, tr("favorites.title"), tr("favorites.no_body"))
+
     def _show_system_overview(self):
         bodies = list(
             getattr(
@@ -3562,75 +3670,58 @@ class MainWindow(QMainWindow):
 
         header = QHBoxLayout()
         header.addWidget(QLabel(tr("chronicle.title"), objectName="sectionTitle"))
-
-        self.chronicle_search_edit = QLineEdit()
-        self.chronicle_search_edit.setPlaceholderText(
-            tr("chronicle.search_placeholder")
-        )
-        self.chronicle_search_edit.setMinimumWidth(280)
-        self.chronicle_search_edit.returnPressed.connect(self._search_chronicle_biology)
-        header.addWidget(self.chronicle_search_edit)
-
-        search_button = QPushButton(tr("chronicle.search"))
-        search_button.clicked.connect(self._search_chronicle_biology)
-        header.addWidget(search_button)
-
-        reset_button = QPushButton(tr("chronicle.reset"))
-        reset_button.clicked.connect(self._reset_chronicle_search)
-        header.addWidget(reset_button)
-
-        align_button = QPushButton(tr("chronicle.align"))
-        align_button.clicked.connect(self._align_chronicle_galaxy)
-        header.addWidget(align_button)
-
-        current_position_button = QPushButton("⌖  Aktuelle Position")
-        current_position_button.setToolTip("Aktuelles System in der Chronik anzeigen")
-        current_position_button.clicked.connect(self._show_current_chronicle_position)
-        header.addWidget(current_position_button)
-
-        self.chronicle_legend_button = QPushButton(tr("chronicle.search_help"))
-        self.chronicle_legend_button.clicked.connect(self._open_chronicle_search_help)
-        header.addWidget(self.chronicle_legend_button)
-
         header.addStretch()
-
-        refresh = QPushButton(tr("chronicle.refresh"), objectName="primary")
-        refresh.clicked.connect(self._refresh_chronicle)
-        header.addWidget(refresh)
-
+        self.chronicle_refresh_button = QPushButton(tr("chronicle.refresh"), objectName="primary")
+        self.chronicle_refresh_button.clicked.connect(self._refresh_chronicle)
+        header.addWidget(self.chronicle_refresh_button)
         layout.addLayout(header)
 
         self.chronicle_mining_filter_frame = QFrame(objectName="card")
-        mining_filters = QHBoxLayout(self.chronicle_mining_filter_frame)
-        mining_filters.setContentsMargins(8, 4, 8, 4)
-        filter_label = QLabel("Filter:")
-        filter_label.setStyleSheet("font-weight: 700;")
-        mining_filters.addWidget(filter_label)
-        self.chronicle_planetary_mining_check = QCheckBox(
-            "Planetare Abbaustandorte"
-        )
-        mining_filters.addWidget(self.chronicle_planetary_mining_check)
-        mining_filters.addWidget(QLabel("Mindestens"))
+        filters = QGridLayout(self.chronicle_mining_filter_frame)
+        filters.setContentsMargins(8, 4, 8, 4)
+        filters.addWidget(QLabel(tr("chronicle.filters.search")), 0, 0)
+        self.chronicle_search_edit = QLineEdit()
+        self.chronicle_search_edit.setPlaceholderText(tr("chronicle.filters.placeholder"))
+        self.chronicle_search_edit.returnPressed.connect(self._apply_chronicle_filters)
+        filters.addWidget(self.chronicle_search_edit, 0, 1, 1, 4)
+
+        filters.addWidget(QLabel(tr("chronicle.filters.period")), 1, 0)
+        dates = QHBoxLayout()
+        self.chronicle_from_check = QCheckBox(tr("chronicle.filters.from"))
+        self.chronicle_to_check = QCheckBox(tr("chronicle.filters.to"))
+        self.chronicle_from_date = QDateEdit(QDate.currentDate())
+        self.chronicle_to_date = QDateEdit(QDate.currentDate())
+        for check, field in ((self.chronicle_from_check, self.chronicle_from_date),
+                             (self.chronicle_to_check, self.chronicle_to_date)):
+            field.setCalendarPopup(True)
+            field.setDisplayFormat("dd.MM.yyyy")
+            field.setMaximumDate(QDate(9998, 12, 31))
+            field.setEnabled(False)
+            check.toggled.connect(field.setEnabled)
+            dates.addWidget(check)
+            dates.addWidget(field)
+        dates.addStretch()
+        filters.addLayout(dates, 1, 1, 1, 4)
+        period_note = QLabel(tr("chronicle.filters.period_note"), objectName="muted")
+        period_note.setWordWrap(True)
+        filters.addWidget(period_note, 2, 1, 1, 4)
+
+        filters.addWidget(QLabel(tr("chronicle.filters.title")), 3, 0)
+        self.chronicle_planetary_mining_check = QCheckBox(tr("chronicle.filters.planetary"))
+        filters.addWidget(self.chronicle_planetary_mining_check, 3, 1)
+        filters.addWidget(QLabel(tr("chronicle.filters.minimum")), 3, 2)
         self.chronicle_planetary_mining_minimum = QSpinBox()
         self.chronicle_planetary_mining_minimum.setRange(0, 9999)
-        self.chronicle_planetary_mining_minimum.setValue(0)
-        mining_filters.addWidget(self.chronicle_planetary_mining_minimum)
-        self.chronicle_personally_mined_check = QCheckBox("Eigene Abbau-Funde")
-        self.chronicle_personally_mined_check.toggled.connect(
-            self._update_chronicle_mining_commodity_enabled
-        )
-        mining_filters.addWidget(self.chronicle_personally_mined_check)
-        mining_filters.addWidget(QLabel("Rohstoff:"))
+        filters.addWidget(self.chronicle_planetary_mining_minimum, 3, 3)
+        self.chronicle_personally_mined_check = QCheckBox(tr("chronicle.filters.personal"))
+        self.chronicle_personally_mined_check.toggled.connect(self._update_chronicle_mining_commodity_enabled)
+        filters.addWidget(self.chronicle_personally_mined_check, 4, 1)
+        filters.addWidget(QLabel(tr("chronicle.filters.commodity")), 4, 2)
         self.chronicle_mining_commodity_combo = QComboBox()
-        self.chronicle_mining_commodity_combo.addItem("Alle", "")
-        self.chronicle_mining_commodity_combo.setEnabled(False)
-        mining_filters.addWidget(self.chronicle_mining_commodity_combo)
-        self.chronicle_mining_apply_button = QPushButton("Anwenden")
-        self.chronicle_mining_apply_button.clicked.connect(
-            self._apply_chronicle_mining_filters
-        )
-        mining_filters.addWidget(self.chronicle_mining_apply_button)
-        mining_filters.addStretch()
+        self.chronicle_mining_commodity_combo.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self.chronicle_mining_commodity_combo.setMinimumContentsLength(10)
+        filters.addWidget(self.chronicle_mining_commodity_combo, 4, 3)
+        filters.setColumnStretch(4, 1)
         layout.addWidget(self.chronicle_mining_filter_frame)
         self._refresh_chronicle_mining_commodities()
 
@@ -3648,6 +3739,25 @@ class MainWindow(QMainWindow):
         self.chronicle_commander_checks = {}
         self._chronicle_filter_ids = ()
         layout.addWidget(self.chronicle_filter_frame)
+
+        actions = QHBoxLayout()
+        self.chronicle_apply_button = QPushButton(tr("chronicle.filters.apply"), objectName="chronicleApply")
+        self.chronicle_apply_button.clicked.connect(self._apply_chronicle_filters)
+        actions.addWidget(self.chronicle_apply_button)
+        self.chronicle_reset_button = QPushButton(tr("chronicle.reset"))
+        self.chronicle_reset_button.clicked.connect(self._reset_chronicle_search)
+        actions.addWidget(self.chronicle_reset_button)
+        align_button = QPushButton(tr("chronicle.align"))
+        align_button.clicked.connect(self._align_chronicle_galaxy)
+        actions.addWidget(align_button)
+        self.chronicle_current_button = QPushButton(tr("chronicle.filters.current"))
+        self.chronicle_current_button.clicked.connect(self._show_current_chronicle_position)
+        actions.addWidget(self.chronicle_current_button)
+        self.chronicle_legend_button = QPushButton(tr("chronicle.search_help"))
+        self.chronicle_legend_button.clicked.connect(self._open_chronicle_search_help)
+        actions.addWidget(self.chronicle_legend_button)
+        actions.addStretch()
+        layout.addLayout(actions)
 
         map_card, map_layout = self._card(tr("chronicle.visited_systems"))
 
@@ -3761,15 +3871,13 @@ class MainWindow(QMainWindow):
         self._refresh_chronicle()
 
     def _refresh_chronicle(self):
-        if hasattr(self, "chronicle_search_results"):
-            self.chronicle_search_results.clear()
-            self.chronicle_search_results.setVisible(False)
+        return self._apply_chronicle_filters()
 
+    def _load_chronicle_map(self, bounds):
+        loaded = True
         try:
-            commanders = self.state.database.list_commanders()
-            self._sync_chronicle_filters(commanders)
             selected_ids = self._selected_chronicle_commander_ids()
-            chronicle = self.state.database.multi_commander_chronicle(selected_ids)
+            chronicle = self.state.database.multi_commander_chronicle(selected_ids, **bounds)
             systems = chronicle["systems"]
             colors = {
                 commander_id: commander_color(
@@ -3778,6 +3886,7 @@ class MainWindow(QMainWindow):
                 for commander_id in selected_ids
             }
         except Exception as exc:
+            loaded = False
             systems = []
             chronicle = {"routes": []}
             colors = {}
@@ -3792,6 +3901,7 @@ class MainWindow(QMainWindow):
             )
         self.chronicle_map.set_systems(systems, chronicle["routes"], colors)
         self._mark_current_chronicle_system()
+        return loaded
 
     def _mark_current_chronicle_system(self):
         """Übergibt das aktuelle Journal-System an die Chronik-Karte."""
@@ -3804,41 +3914,10 @@ class MainWindow(QMainWindow):
             self.chronicle_map.set_current_system(current_system)
 
     def _show_current_chronicle_position(self):
-        """Setzt die Chronik zurück und springt zum aktuell besuchten System."""
-        if not hasattr(self, "chronicle_map"):
+        if not self._apply_chronicle_filters():
             return
-
-        if hasattr(self, "chronicle_search_edit"):
-            self.chronicle_search_edit.clear()
-
-        if hasattr(self, "chronicle_search_results"):
-            self.chronicle_search_results.clear()
-            self.chronicle_search_results.setVisible(False)
-
-        try:
-            selected_ids = self._selected_chronicle_commander_ids()
-            chronicle = self.state.database.multi_commander_chronicle(selected_ids)
-            systems = chronicle["systems"]
-        except Exception as exc:
-            self.chronicle_status.setText(tr("chronicle.load_failed", error=exc))
-            return
-
-        colors = {
-            commander_id: commander_color(commander_id, self.ui_theme == "light")
-            for commander_id in selected_ids
-        }
-        self.chronicle_map.set_systems(systems, chronicle["routes"], colors)
-        self._mark_current_chronicle_system()
-
-        if hasattr(self.chronicle_map, "focus_current_system"):
-            self.chronicle_map.focus_current_system()
-
-        current_system = str(getattr(self.state, "system", "") or "").strip()
-        self.chronicle_status.setText(
-            f"Aktuelle Position: {current_system}"
-            if current_system
-            else "Aktuelle Position unbekannt"
-        )
+        if not self.chronicle_map.focus_current_system():
+            self.chronicle_status.setText(tr("chronicle.filters.current_missing"))
 
     def _align_chronicle_galaxy(self):
         if hasattr(self, "chronicle_map"):
@@ -3846,7 +3925,8 @@ class MainWindow(QMainWindow):
 
     def _open_chronicle_search_help(self):
         try:
-            groups = self.state.database.chronicle_search_terms()
+            groups = self.state.database.chronicle_search_terms(
+                commander_id=self._chronicle_mining_commander_id())
         except Exception as exc:
             QMessageBox.warning(
                 self,
@@ -3922,12 +4002,17 @@ class MainWindow(QMainWindow):
             or getattr(self.state, "commander_id", None)
         )
 
+    def _chronicle_viewed_commander_changed(self, *_args):
+        self._refresh_chronicle_mining_commodities()
+        if hasattr(self, "chronicle_map"):
+            self._refresh_chronicle()
+
     def _refresh_chronicle_mining_commodities(self, *_args):
         if not hasattr(self, "chronicle_mining_commodity_combo"):
             return
         previous = self.chronicle_mining_commodity_combo.currentData() or ""
         self.chronicle_mining_commodity_combo.clear()
-        self.chronicle_mining_commodity_combo.addItem("Alle", "")
+        self.chronicle_mining_commodity_combo.addItem(tr("chronicle.filters.all"), "")
         commander_id = self._chronicle_mining_commander_id()
         if commander_id is not None:
             try:
@@ -3950,33 +4035,58 @@ class MainWindow(QMainWindow):
             and self.chronicle_mining_commodity_combo.count() > 1
         )
 
+    def _chronicle_filters(self):
+        personal = self.chronicle_personally_mined_check.isChecked()
+        return ChronicleFilters(
+            query=self.chronicle_search_edit.text().strip(),
+            date_from=(self.chronicle_from_date.date().toPython()
+                       if self.chronicle_from_check.isChecked() else None),
+            date_to=(self.chronicle_to_date.date().toPython()
+                     if self.chronicle_to_check.isChecked() else None),
+            planetary_mining_only=self.chronicle_planetary_mining_check.isChecked(),
+            minimum_mining=self.chronicle_planetary_mining_minimum.value(),
+            personally_mined_only=personal,
+            mining_commodity=(self.chronicle_mining_commodity_combo.currentData() or "") if personal else "",
+        )
+
+    def _clear_chronicle_context(self):
+        self.chronicle_search_results.clear()
+        self.chronicle_search_results.hide()
+        self.chronicle_detail.setText(tr("chronicle.no_system_selected"))
+        self._chronicle_search_systems = {}
+        if self._chronicle_system_window is not None:
+            self._chronicle_system_window.close()
+            self._chronicle_system_window.deleteLater()
+            self._chronicle_system_window = None
+
+    def _apply_chronicle_filters(self):
+        filters = self._chronicle_filters()
+        try:
+            bounds = filters.visit_bounds()
+        except (ValueError, OverflowError):
+            self.chronicle_status.setText(tr("chronicle.filters.invalid_dates"))
+            return False
+        self._clear_chronicle_context()
+        self.chronicle_map.set_systems([])
+        try:
+            self._sync_chronicle_filters(self.state.database.list_commanders())
+        except Exception as exc:
+            self.chronicle_status.setText(tr("chronicle.load_failed", error=exc))
+            return False
+        if filters.has_search:
+            return self._run_chronicle_search(
+                filters.query,
+                planetary_mining_only=filters.planetary_mining_only,
+                minimum_mining=filters.minimum_mining,
+                personally_mined_only=filters.personally_mined_only,
+                mining_commodity=filters.mining_commodity,
+                **bounds,
+            )
+        return self._load_chronicle_map(bounds)
+
     def _search_chronicle_biology(self):
-        query = self.chronicle_search_edit.text().strip()
-        if not query:
-            self._reset_chronicle_search()
-            return
-
-        self._run_chronicle_search(query)
-
-    def _apply_chronicle_mining_filters(self):
-        planetary_mining_only = self.chronicle_planetary_mining_check.isChecked()
-        minimum_mining = self.chronicle_planetary_mining_minimum.value()
-        personally_mined_only = self.chronicle_personally_mined_check.isChecked()
-        mining_commodity = (
-            self.chronicle_mining_commodity_combo.currentData() or ""
-            if personally_mined_only else ""
-        )
-        if not (planetary_mining_only or minimum_mining or personally_mined_only):
-            self._reset_chronicle_search()
-            return
-
-        self._run_chronicle_search(
-            "",
-            planetary_mining_only=planetary_mining_only,
-            minimum_mining=minimum_mining,
-            personally_mined_only=personally_mined_only,
-            mining_commodity=mining_commodity,
-        )
+        # Search-help terms and Enter use the same filters as Apply.
+        return self._apply_chronicle_filters()
 
     def _run_chronicle_search(
         self,
@@ -3985,8 +4095,10 @@ class MainWindow(QMainWindow):
         minimum_mining=0,
         personally_mined_only=False,
         mining_commodity="",
+        visited_from=None,
+        visited_before=None,
     ):
-        result_label = query or "ABBAU-Filter"
+        result_label = query or tr("chronicle.filters.title")
 
         try:
             results = self.state.database.search_chronicle(
@@ -3996,10 +4108,12 @@ class MainWindow(QMainWindow):
                 personally_mined_only=personally_mined_only,
                 mining_commodity=mining_commodity,
                 commander_id=self._chronicle_mining_commander_id(),
+                visited_from=visited_from,
+                visited_before=visited_before,
             )
         except Exception as exc:
             self.chronicle_status.setText(tr("chronicle.search_failed", error=exc))
-            return
+            return False
 
         self.chronicle_search_results.clear()
 
@@ -4008,10 +4122,11 @@ class MainWindow(QMainWindow):
             self.chronicle_status.setText(
                 tr("chronicle.no_results", query=result_label)
             )
-            # Die normale Reisekarte bleibt sichtbar.
-            return
+            self.chronicle_map.set_systems([])
+            return True
 
         systems_by_address = {}
+        matching_routes = []
 
         for result in results:
             address = result.get("system_address")
@@ -4031,6 +4146,33 @@ class MainWindow(QMainWindow):
                 "visits": 0,
             }
 
+        if visited_from or visited_before:
+            try:
+                visits = self.state.database.multi_commander_chronicle(
+                    [self._chronicle_mining_commander_id()],
+                    visited_from=visited_from, visited_before=visited_before)
+            except Exception as exc:
+                self.chronicle_status.setText(tr("chronicle.load_failed", error=exc))
+                return False
+            # Counts and first/last visits belong to the selected period, while
+            # body knowledge and commodity quantities remain accumulated data.
+            systems_by_address = {item["system_address"]: item for item in visits["systems"]
+                                  if item["system_address"] in systems_by_address}
+            # Keep real consecutive visits; a hidden nonmatching system breaks
+            # the route instead of creating a fictitious shortcut between hits.
+            for route in visits["routes"]:
+                run = []
+                for address in [*route["system_addresses"], None]:
+                    if address in systems_by_address:
+                        run.append(address)
+                    else:
+                        if len(run) > 1:
+                            matching_routes.append(dict(route, system_addresses=run))
+                        run = []
+        for system in systems_by_address.values():
+            system["detail_commander_id"] = self._chronicle_mining_commander_id()
+        self._chronicle_search_systems = systems_by_address
+
         matching_systems = [
             system
             for system in systems_by_address.values()
@@ -4041,9 +4183,10 @@ class MainWindow(QMainWindow):
             )
         ]
 
-        # Während der Suche zeigt die Karte ausschließlich die Systeme
-        # mit passenden biologischen Funden.
-        self.chronicle_map.set_systems(matching_systems)
+        # Search results show only matching systems, without inventing route
+        # segments across systems omitted by the content filters.
+        self.chronicle_map.set_systems(matching_systems, matching_routes)
+        self._mark_current_chronicle_system()
 
         for result in results:
             if "planetary_mining_signals" in result:
@@ -4086,6 +4229,7 @@ class MainWindow(QMainWindow):
                 query=result_label,
             )
         )
+        return True
 
     def _reset_chronicle_search(self):
         if hasattr(self, "chronicle_search_edit"):
@@ -4101,6 +4245,10 @@ class MainWindow(QMainWindow):
             self.chronicle_personally_mined_check.setChecked(False)
             self.chronicle_mining_commodity_combo.setCurrentIndex(0)
 
+        for check, field in ((self.chronicle_from_check, self.chronicle_from_date),
+                             (self.chronicle_to_check, self.chronicle_to_date)):
+            check.setChecked(False)
+            field.setDate(QDate.currentDate())
         self._refresh_chronicle()
 
     def _chronicle_search_result_clicked(
@@ -4123,6 +4271,8 @@ class MainWindow(QMainWindow):
             "body_count": int(result.get("body_count") or 0),
             "visits": 0,
         }
+
+        system = self._chronicle_search_systems.get(result.get("system_address"), system)
 
         body_name = result.get("short_name") or result.get("body_name") or ""
 
@@ -4184,12 +4334,12 @@ class MainWindow(QMainWindow):
                 int(visitor["commander_id"])
                 for visitor in system.get("commanders") or []
             }
-            detail_commander_id = None
+            detail_commander_id = system.get("detail_commander_id")
             for candidate in (
                 getattr(self.state, "commander_id", None),
                 getattr(self.state, "viewed_commander_id", None),
             ):
-                if candidate in visitor_ids:
+                if detail_commander_id is None and candidate in visitor_ids:
                     detail_commander_id = int(candidate)
                     break
             if detail_commander_id is None and visitor_ids:
@@ -5973,6 +6123,7 @@ class MainWindow(QMainWindow):
         self.mission_progress_text.setText("   ·   ".join(progress))
 
     def refresh_all(self):
+        self.favorites_view.sync_commander()
         commander = self.state.commander or "–"
 
         system = self.state.system or "–"

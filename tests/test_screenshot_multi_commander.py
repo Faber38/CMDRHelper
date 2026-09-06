@@ -179,6 +179,51 @@ class ScreenshotMultiCommanderTests(unittest.TestCase):
         self.assertEqual(Path(self.view.gallery.item(0).data(Qt.UserRole)), legacy)
         self.assertTrue(legacy.exists())
 
+    def test_refresh_preserves_current_selection_and_rereads_its_preview(self):
+        a = self._image(self.root / 'Same_F-A' / 'a.png')
+        self.view._refresh_gallery(a)
+        Image.new('RGB', (4, 4), 'red').save(a)
+        self._image(self.root / 'Same_F-A' / 'b.png')
+        self.view._refresh_gallery()
+        self.assertEqual(self.view.preview_name.text(), a.name)
+        self.assertEqual(self.view.gallery.currentItem().data(Qt.UserRole), str(a))
+        self.assertEqual(self.view.preview.pixmap().toImage().pixelColor(0, 0).name(), '#ff0000')
+
+    def test_removed_selection_selects_existing_image_then_clears_empty_preview(self):
+        a = self._image(self.root / 'Same_F-A' / 'a.png')
+        b = self._image(self.root / 'Same_F-A' / 'b.png')
+        self.view._refresh_gallery(a)
+        a.unlink()
+        self.view._refresh_gallery()
+        self.assertEqual(self.view.preview_name.text(), b.name)
+        self.assertEqual(self.view.gallery.currentItem().data(Qt.UserRole), str(b))
+        b.unlink()
+        self.view._refresh_gallery()
+        self.assertEqual(self.view.preview_name.text(), '')
+        self.assertTrue(self.view.preview.pixmap().isNull())
+
+    def test_show_refreshes_gallery_without_waiting_for_timer(self):
+        self.view.show()
+        self.assertEqual(self.view.gallery.count(), 0)
+        self.view.hide()
+        path = self._image(self.root / 'Same_F-A' / 'new.png')
+        self.view.show()
+        self.assertEqual(self.view.gallery.count(), 1)
+        self.assertEqual(self.view.preview_name.text(), path.name)
+
+    def test_keyboard_selection_updates_preview_and_missing_file_clears_it(self):
+        a = self._image(self.root / 'Same_F-A' / 'a.png')
+        b = self._image(self.root / 'Same_F-A' / 'b.png')
+        self.view._refresh_gallery(a)
+        item = next(self.view.gallery.item(i) for i in range(self.view.gallery.count())
+                    if self.view.gallery.item(i).data(Qt.UserRole) == str(b))
+        self.view.gallery.setCurrentItem(item)
+        self.assertEqual(self.view.preview_name.text(), b.name)
+        b.unlink()
+        self.view._show_preview(item)
+        self.assertEqual(self.view.preview_name.text(), '')
+        self.assertTrue(self.view.preview.pixmap().isNull())
+
     def test_delete_scope_rejects_outside_traversal_and_symlinks(self):
         allowed = self._image(self.root / "Same_F-A" / "inside.png")
         outside = self._image(Path(self.temp.name) / "outside.png")
