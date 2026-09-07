@@ -248,6 +248,8 @@ class FavoritesView(QWidget):
         actions = QHBoxLayout(); self.action_buttons = []
         for key, callback in [('open',self.open_selected),('edit',self.edit_selected),('delete',self.delete_selected),('navigate',self.navigate_selected)]:
             button = QPushButton(tr('favorites.'+key)); button.clicked.connect(callback); actions.addWidget(button)
+            if key == 'navigate':
+                button.setObjectName('favoriteNavigate')
             self.action_buttons.append(button)
         root.addLayout(actions)
         self.quick_favorite_hint = QWidget()
@@ -427,7 +429,7 @@ class FavoritesView(QWidget):
             if self.state.commander_id==record['commander_id']:self.explorer_callback(record)
         button.clicked.connect(show)
         if record['type']=='surface_location':
-            target=QPushButton(tr('favorites.navigate')); layout.addWidget(target)
+            target=QPushButton(tr('favorites.navigate'), objectName='favoriteNavigate'); layout.addWidget(target)
             target.clicked.connect(lambda:self._navigate(record))
         dialog.exec(); self._details=None
 

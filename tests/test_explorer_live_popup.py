@@ -1,10 +1,11 @@
 import os
 import unittest
+from copy import deepcopy
 from types import SimpleNamespace
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QTableWidget, QTabWidget
 
 from cmdrhelper.ui.main_window import ExplorerLiveListWindow, MainWindow
 from cmdrhelper.bio_predictor import BioCandidate, BioPrediction
@@ -123,6 +124,102 @@ class ExplorerLivePopupTests(unittest.TestCase):
             confidence="high", support=44, score=1.0,
             habitat_score=0.9, low_data=False, reasons=(),
         )
+
+    def _popup(self, rows):
+        popup = ExplorerLiveListWindow(
+            "BIO", ("Body", "Find", "Progress", "Value"),
+            _SettingsStub(), "test_body_names", window_kind="bio",
+        )
+        self.addCleanup(popup.deleteLater)
+        self.addCleanup(popup.close)
+        popup.set_rows("Test System", rows)
+        return popup
+
+    @staticmethod
+    def _body_cells(popup):
+        return [popup.table.item(row, 0).text() for row in range(popup.table.rowCount())]
+
+    def test_geo_only_row_retains_body_name_without_bio_header(self):
+        popup = self._popup([{"body_name": "3 a a", "geo_signals": 2,
+                              "geo_text": "GEO ×2 · Wasser-Geysir-Vulkanismus"}])
+        self.assertEqual(self._body_cells(popup), ["3 a a"])
+        self.assertIn("Wasser-Geysir", popup.table.cellWidget(0, 1).text())
+
+    def test_multiple_geo_bodies_keep_names_when_input_order_changes(self):
+        rows = [{"body_name": name, "geo_signals": count, "geo_text": f"GEO ×{count}"}
+                for name, count in (("4 a", 3), ("3 a a", 2), ("5 b", 1))]
+        popup = self._popup(rows)
+        for ordered in (rows, rows[::-1]):
+            popup.set_rows("Test System", ordered)
+            self.assertEqual(self._body_cells(popup), [r["body_name"] for r in ordered])
+            for index, row in enumerate(ordered):
+                self.assertIn(row["geo_text"], popup.table.cellWidget(index, 1).text())
+
+    def test_bio_findings_and_predictions_retain_their_body_name(self):
+        popup = self._popup([{"body_name": "2 c", "signals": 2, "open_signals": 1,
+            "species": [{"name": "Bacterium Tela", "scan_type": "Log"}],
+            "predictions": [self._candidate("Stratum Tectonicas")]}])
+        self.assertEqual(self._body_cells(popup), ["2 c"] * 3)
+
+    def test_mixed_bio_geo_and_complete_summary_keep_their_own_body(self):
+        popup = self._popup([
+            {"body_name": "3 a", "signals": 1, "geo_signals": 2,
+             "species": [{"name": "Bacterium Tela", "scan_type": "Analyse"}]},
+            {"body_name": "4 b", "signals": 1, "geo_signals": 3,
+             "species": [{"name": "Stratum Tectonicas", "scan_type": "Log"}]},
+        ])
+        self.assertEqual(self._body_cells(popup), ["3 a"] * 3 + ["4 b"] * 3)
+        self.assertIn("GEO ×2", popup.table.cellWidget(2, 1).text())
+        self.assertIn("GEO ×3", popup.table.cellWidget(5, 1).text())
+
+    def test_missing_body_names_never_borrow_a_neighbour_or_guess_from_id(self):
+        popup = self._popup([
+            {"body_name": "3 a", "geo_signals": 1},
+            {"body_id": 7, "geo_signals": 2},
+            {"body_id": 7, "body_name": " ", "geo_signals": 3},
+            {"body_name": None, "signals": 1,
+             "species": [{"name": "Bacterium Tela", "scan_type": "Log"}]},
+        ])
+        self.assertEqual(self._body_cells(popup), ["3 a", "?", "?", "?", "?"])
+
+    def test_explorer_to_popup_keeps_short_names_and_does_not_change_explorer(self):
+        bodies = [
+            {"body_id": 17, "name": "Test System 3 a a", "short_name": "3 a a",
+             "geological_signals": 2, "volcanism": "water geysers volcanism"},
+            {"body_id": 9, "name": "Test System 4 a", "short_name": "4 a",
+             "geological_signals": 3, "biological_signals": 1,
+             "biology": [{"genus": "Bacterium", "species": "Bacterium Tela", "scan_type": "Log"}]},
+            {"body_id": 33, "name": "Test System 5", "short_name": "5",
+             "geological_signals": 1, "biological_signals": 1,
+             "biology": [{"genus": "Bacterium", "species": "Bacterium Tela", "scan_type": "Analyse"}]},
+        ]
+        before = deepcopy(bodies)
+        window = MainWindow.__new__(MainWindow)
+        window.state = SimpleNamespace(system="Test System", system_address=42,
+            system_bodies=bodies, database=SimpleNamespace(
+                learned_bio_values=lambda: {}, biology_predictor=lambda: None))
+        window._explorer_live_system = "Test System"
+        window._explorer_value_live_window = _LiveWindowStub()
+        window._explorer_bio_live_window = self._popup([])
+        window._explorer_value_yellow_threshold = lambda: 200_000
+        window._ensure_explorer_live_windows = lambda: None
+        window._explorer_live_window_enabled = lambda _kind: False
+        window.explorer_value_table = QTableWidget(0, 8)
+        window.explorer_bio_table = QTableWidget(0, 11)
+        window.explorer_tabs = QTabWidget()
+        for widget in (window.explorer_value_table, window.explorer_bio_table, window.explorer_tabs):
+            self.addCleanup(widget.deleteLater)
+        MainWindow._refresh_explorer_tables(window)
+        explorer_names = [window.explorer_bio_table.item(i, 0).text()
+                          for i in range(window.explorer_bio_table.rowCount())]
+        MainWindow._refresh_explorer_live_windows(window)
+        # Fully analyzed BIO is still hidden by the existing producer; GEO remains.
+        self.assertEqual(self._body_cells(window._explorer_bio_live_window),
+                         ["3 a a", "4 a", "4 a", "4 a", "5"])
+        self.assertEqual(bodies, before)
+        MainWindow._refresh_explorer_tables(window)
+        self.assertEqual(explorer_names, [window.explorer_bio_table.item(i, 0).text()
+                          for i in range(window.explorer_bio_table.rowCount())])
 
     def _render_bio(
         self, *, signals, species, predictions, open_signals,

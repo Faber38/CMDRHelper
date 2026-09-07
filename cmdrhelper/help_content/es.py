@@ -1355,7 +1355,7 @@ HELP_TOPICS = {'overview': ('Descripción general',
 <p>No es un planificador de rutas interestelares y no se encarga de la navegación entre sistemas ni de los saltos. Tú pilotas tu nave.</p>
 
 <h3>Abrir el navegador e introducir un objetivo</h3>
-<p>En la vista general, abre «Navegación planetaria» y selecciona «Introducir objetivo …».</p>
+<p>En la vista general, abre «Navegación planetaria» y selecciona «Entrada manual …».</p>
 <ul>
 <li><b>Cuerpo celeste:</b> Selecciona el planeta o la luna de destino en la lista o utiliza el cuerpo ya detectado. También puedes escribir su nombre si aún no figura en la lista. En caso de duda, utiliza el nombre completo, incluido el del sistema.</li>
 <li><b>Latitud:</b> Introduce la latitud del objetivo entre −90° y +90°.</li>
@@ -1412,7 +1412,7 @@ HELP_TOPICS = {'overview': ('Descripción general',
 <p>El HUD es solo una visualización adicional. El navegador normal funciona de forma independiente, incluso si el HUD está desactivado o no está disponible.</p>
 
 <h3>Establecer un nuevo objetivo</h3>
-<p>En el mismo cuerpo puedes volver a abrir «Introducir objetivo …» en cualquier momento y establecer otras coordenadas. El nuevo objetivo sustituye al objetivo de navegación anterior. Con datos de posición correspondientes, la brújula se actualiza inmediatamente.</p>
+<p>En el mismo cuerpo puedes volver a abrir «Entrada manual …» en cualquier momento y establecer otras coordenadas. El nuevo objetivo sustituye al objetivo de navegación anterior. Con datos de posición correspondientes, la brújula se actualiza inmediatamente.</p>
 <p>«Finalizar navegación» elimina el objetivo actual. Para otra aproximación, simplemente establece un nuevo objetivo.</p>
 
 <h3>Actualidad de los datos y límites</h3>

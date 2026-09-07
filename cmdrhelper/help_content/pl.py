@@ -1313,7 +1313,7 @@ HELP_TOPICS = {'overview': ('Przegląd',
 <p>Nie jest to planer tras międzygwiezdnych i nie obsługuje nawigacji między systemami ani skoków. Samodzielnie pilotujesz statek.</p>
 
 <h3>Otwieranie nawigatora i wprowadzanie celu</h3>
-<p>W przeglądzie otwórz „Nawigacja planetarna” i wybierz „Wprowadź cel …”.</p>
+<p>W przeglądzie otwórz „Nawigacja planetarna” i wybierz „Wprowadzanie ręczne …”.</p>
 <ul>
 <li><b>Ciało niebieskie:</b> Wybierz docelową planetę lub księżyc z listy albo użyj już rozpoznanego ciała. Możesz też samodzielnie wpisać jego nazwę, jeśli jeszcze nie ma go na liście. W razie wątpliwości użyj pełnej nazwy wraz z nazwą systemu.</li>
 <li><b>Szerokość geograficzna:</b> Podaj szerokość celu między −90° a +90°.</li>
@@ -1370,7 +1370,7 @@ HELP_TOPICS = {'overview': ('Przegląd',
 <p>HUD jest tylko dodatkowym wyświetlaczem. Zwykły nawigator działa niezależnie od niego, także przy wyłączonym lub niedostępnym HUD-zie.</p>
 
 <h3>Ustawianie nowego celu</h3>
-<p>Na tym samym ciele możesz w dowolnym momencie ponownie otworzyć „Wprowadź cel …” i ustawić inne współrzędne. Nowy cel zastępuje poprzedni cel nawigacyjny. Przy odpowiednich danych pozycji kompas aktualizuje się natychmiast.</p>
+<p>Na tym samym ciele możesz w dowolnym momencie ponownie otworzyć „Wprowadzanie ręczne …” i ustawić inne współrzędne. Nowy cel zastępuje poprzedni cel nawigacyjny. Przy odpowiednich danych pozycji kompas aktualizuje się natychmiast.</p>
 <p>„Zakończ nawigację” usuwa aktualny cel. Aby wykonać kolejny dolot, wystarczy ustawić nowy cel.</p>
 
 <h3>Aktualność danych i ograniczenia</h3>

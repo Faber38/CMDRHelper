@@ -51,6 +51,10 @@ class PlanetNavigationWindow(QDialog):
         self.body_label.setTextFormat(Qt.PlainText)
         self.body_label.setWordWrap(True)
         root.addWidget(self.body_label)
+        self.target_name_label = QLabel(objectName="navigationTargetName")
+        self.target_name_label.setTextFormat(Qt.PlainText)
+        self.target_name_label.setWordWrap(True)
+        root.addWidget(self.target_name_label)
         buttons = QHBoxLayout()
         self.input_button = QPushButton(tr("planet_nav.enter_target"))
         self.input_button.clicked.connect(self._enter_target)
@@ -171,8 +175,9 @@ class PlanetNavigationWindow(QDialog):
         body = binding.body_name if binding else "–"
         self.body_label.setText(tr("planet_nav.body", body=body)
                                 + ("\n" + tr("planet_nav.target_body", body=target_body) if target_body else ""))
-        if state.target and state.target.name:
-            self.body_label.setText(self.body_label.text() + "\n" + state.target.name)
+        target_name = state.target.name if state.target else ""
+        self.target_name_label.setText(target_name)
+        self.target_name_label.setVisible(bool(target_name))
         self.input_button.setEnabled(True)
         self.stop_button.setEnabled(state.target is not None)
         self.pause_label.setText(tr("planet_nav." + state.reason) if state.reason else tr("planet_nav.active"))

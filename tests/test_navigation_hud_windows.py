@@ -89,6 +89,50 @@ class WindowsHudTests(unittest.TestCase):
                 self.assertEqual(self.hud.enabled, enabled)
                 self.assertFalse(self.hud.message_lines)
 
+    def test_cargo_group_uses_native_backend_independently_with_message_expiry(self):
+        from PySide6.QtTest import QTest
+        from cmdrhelper.ui.cargo_hud import CargoHudData
+        data = CargoHudData("ERFT-BÜFFEL", 128, 256)
+        self.hud.cargo_provider = lambda: data
+        with patch.object(self.hud, 'activateWindow', side_effect=AssertionError), \
+             patch.object(self.hud, 'raise_', side_effect=AssertionError), \
+             patch.object(self.hud, 'setFocus', side_effect=AssertionError):
+            self.hud.set_cargo_enabled(True)
+            self.assertTrue(self.hud.isVisible())
+            self.assertFalse(self.hud.enabled)
+            self.assertEqual(self.api.styles[int(self.hud.winId())], OVERLAY_STYLES)
+            self.assertEqual(self.api.moves[-1], QRect(30, 40, 700, 500))
+            for enabled in (False, True):
+                self.hud.set_enabled(enabled)
+                self.hud.show_message(('★ saved', 'Sol 1'), 20)
+                QTest.qWait(50)
+                self.assertTrue(self.hud.isVisible())
+                self.assertTrue(self.hud.cargo_enabled)
+                self.assertEqual(self.hud.enabled, enabled)
+                self.assertFalse(self.hud.message_lines)
+            self.hud.set_enabled(False)
+            data = CargoHudData("Rhino", 67, 72)
+            self.hud.follow_target()
+            self.assertEqual(self.hud.cargo_data.capacity, 72)
+            self.api.windows[42]['minimized'] = True
+            self.hud.follow_target()
+            self.assertFalse(self.hud.isVisible())
+            self.api.windows[42]['minimized'] = False
+            self.hud.follow_target()
+            self.assertTrue(self.hud.isVisible())
+            self.assertEqual(self.api.foreground, 42)
+            self.hud.set_cargo_enabled(False)
+            self.assertFalse(self.hud.isVisible())
+
+    def test_unsafe_windows_input_blocks_cargo_group(self):
+        from cmdrhelper.ui.cargo_hud import CargoHudData
+        self.hud.cargo_provider = lambda: CargoHudData("Rhino", 67, 72)
+        with patch.object(self.tracker, "input_is_empty", return_value=False):
+            self.hud.set_cargo_enabled(True)
+        self.assertFalse(self.hud.isVisible())
+        self.assertFalse(self.hud.cargo_enabled)
+        self.assertFalse(self.hud.timer.isActive())
+
     def test_move_resize_minimize_restore_close_and_focus(self):
         with patch.object(self.hud, 'activateWindow', side_effect=AssertionError), \
              patch.object(self.hud, 'setFocus', side_effect=AssertionError), \

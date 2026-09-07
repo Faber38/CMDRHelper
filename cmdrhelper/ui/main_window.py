@@ -14,6 +14,7 @@ from cmdrhelper.ui.chronicle_view import ChronicleMapWidget, commander_color
 from cmdrhelper.ui.screenshot_view import ScreenshotView
 from cmdrhelper.ui.commander_view import CommanderView
 from cmdrhelper.ui.startup_progress import StartupProgressDialog
+from cmdrhelper.ui.cargo_hud import cargo_hud_enabled, cargo_hud_data
 from cmdrhelper.ui.help_dialog import HelpDialog
 from cmdrhelper.route_planner import RoutePlannerView
 from cmdrhelper.online_services import (
@@ -922,7 +923,9 @@ class ExplorerLiveListWindow(QDialog):
                 if not isinstance(row, dict):
                     continue
 
-                body_name = str(row.get("body_name") or "?")
+                # Each expanded row retains its source body's Explorer label.
+                # GEO-only bodies have no BIO header to carry that label.
+                body_name = str(row.get("body_name") or "").strip() or "?"
                 signals = max(0, int(row.get("signals") or 0))
                 geo_signals = max(0, int(row.get("geo_signals") or 0))
                 species = list(row.get("species") or [])
@@ -995,7 +998,7 @@ class ExplorerLiveListWindow(QDialog):
                 if complete:
                     display_rows.append(
                         {
-                            "body": "",
+                            "body": body_name,
                             "find": tr(
                                 "explorer.known_ratio",
                                 known=known_count,
@@ -1018,7 +1021,7 @@ class ExplorerLiveListWindow(QDialog):
                     if geo_signals > 0:
                         display_rows.append(
                             {
-                                "body": "",
+                                "body": body_name,
                                 "entry": {
                                     "name": str(
                                         row.get("geo_text") or f"GEO ×{geo_signals}"
@@ -1058,7 +1061,7 @@ class ExplorerLiveListWindow(QDialog):
 
                     display_rows.append(
                         {
-                            "body": "",
+                            "body": body_name,
                             "entry": {**entry, "name": f"✓ {entry.get('name') or ''}"},
                             "progress": step_text,
                             "complete": False,
@@ -1080,7 +1083,7 @@ class ExplorerLiveListWindow(QDialog):
                         )
                         display_rows.append(
                             {
-                                "body": "",
+                                "body": body_name,
                                 "entry": {
                                     "name": f"? {getattr(candidate, 'name', '')}",
                                     "scan_type": f"prediction_{confidence}",
@@ -1114,7 +1117,7 @@ class ExplorerLiveListWindow(QDialog):
                 if geo_signals > 0:
                     display_rows.append(
                         {
-                            "body": "",
+                            "body": body_name,
                             "entry": {
                                 "name": str(
                                     row.get("geo_text") or f"GEO ×{geo_signals}"
@@ -1236,6 +1239,7 @@ class ExplorerLiveListWindow(QDialog):
 
 class CargoLiveWindow(QDialog):
     """Compact movable view of the last authoritative live Cargo snapshot."""
+    hud_enabled_changed = Signal(bool)
 
     def __init__(self, settings, parent=None):
         super().__init__(parent)
@@ -1271,7 +1275,22 @@ class CargoLiveWindow(QDialog):
         self.table.setShowGrid(False)
         root.addWidget(self.title_label)
         root.addWidget(self.summary_label)
+        self.hud_enabled_check = QCheckBox(tr("cargo.hud.enabled"))
+        # The existing cargo dialog keeps its dark panel in both app themes.
+        self.hud_enabled_check.setStyleSheet(
+            "font-size: 11px; color: #b6afb1; background: transparent;"
+        )
+        self.hud_enabled_check.setChecked(cargo_hud_enabled(self.settings))
+        self.hud_enabled_check.toggled.connect(self._set_hud_enabled)
+        root.addWidget(self.hud_enabled_check)
         root.addWidget(self.table, 1)
+        self.fill_bar = QProgressBar(objectName="cargoFill")
+        self.fill_bar.setRange(0, 100)
+        self.fill_bar.setValue(0)
+        self.fill_bar.setTextVisible(False)
+        self.fill_bar.setFixedHeight(8)
+        self.fill_bar.hide()
+        root.addWidget(self.fill_bar)
 
         self.setStyleSheet("""
             QDialog { background-color: #171012; }
@@ -1295,6 +1314,11 @@ class CargoLiveWindow(QDialog):
                 self.restoreGeometry(geometry)
             except Exception:
                 pass
+
+    def _set_hud_enabled(self, enabled):
+        self.settings.setValue("cargo_hud/enabled", bool(enabled))
+        self.settings.sync()
+        self.hud_enabled_changed.emit(bool(enabled))
 
     def _save_geometry(self):
         self.settings.setValue(self.geometry_key, self.saveGeometry())
@@ -1326,18 +1350,25 @@ class CargoLiveWindow(QDialog):
         self.title_label.setText(title)
 
         count = max(0, int(snapshot.get("count") or 0))
-        capacity = snapshot.get("capacity") if vessel == "Ship" else None
+        capacity = snapshot.get("capacity")
         if capacity is None:
             self.summary_label.setText(
                 tr("cargo.live.loaded_unknown", count=count)
                 if vessel == "Ship" else tr("cargo.live.loaded", count=count)
             )
+        elif vessel == "SRV":
+            self.summary_label.setText(f"{count} / {max(0, int(capacity))} t")
         else:
             capacity = max(0, int(capacity))
             self.summary_label.setText(tr(
                 "cargo.live.capacity", count=count, capacity=capacity,
                 free=max(0, capacity - count),
             ))
+
+        show_fill = vessel == "SRV" and capacity is not None and int(capacity) > 0
+        percent = round(min(1.0, count / int(capacity)) * 100) if show_fill else 0
+        self.fill_bar.setValue(max(0, min(100, percent)))
+        self.fill_bar.setVisible(show_fill)
 
         self.table.setRowCount(0)
         inventory = list(snapshot.get("inventory") or [])
@@ -1462,6 +1493,7 @@ class MainWindow(QMainWindow):
         )
 
         self._apply_navigation_hud_enabled()
+        self._apply_cargo_hud_enabled()
         if not self._quick_favorite_hotkey.load():
             self.statusBar().showMessage(tr('quick_favorite.registration_failed'))
             self._quick_favorite_hotkey.changed.connect(self.statusBar().clearMessage)
@@ -3068,6 +3100,7 @@ class MainWindow(QMainWindow):
         if self._navigation_hud is None:
             from cmdrhelper.ui.navigation_hud import NavigationHud
             self._navigation_hud = NavigationHud(self._ensure_planet_navigation_controller())
+            self._navigation_hud.cargo_provider = lambda: cargo_hud_data(self.state)
             QApplication.instance().aboutToQuit.connect(self._navigation_hud.close)
         return self._navigation_hud
 
@@ -5723,6 +5756,16 @@ class MainWindow(QMainWindow):
             return value.strip().lower() not in ("0", "false", "no", "off")
         return bool(value)
 
+    def _apply_cargo_hud_enabled(self, _enabled=None):
+        enabled = cargo_hud_enabled(self.state.settings)
+        try:
+            if enabled:
+                self._ensure_navigation_hud().set_cargo_enabled(True)
+            elif self._navigation_hud is not None:
+                self._navigation_hud.set_cargo_enabled(False)
+        except (RuntimeError, OSError, ValueError) as exc:
+            logging.getLogger(__name__).warning("Cargo HUD unavailable: %s", exc)
+
     def _set_cargo_live_window_enabled(self, enabled):
         enabled = bool(enabled)
         self.state.settings.setValue("cargo_live/enabled", enabled)
@@ -5743,6 +5786,7 @@ class MainWindow(QMainWindow):
             self._cargo_live_window = CargoLiveWindow(
                 self.state.settings, parent=self
             )
+            self._cargo_live_window.hud_enabled_changed.connect(self._apply_cargo_hud_enabled)
         self._cargo_live_window.set_snapshot(snapshot)
         if not self._cargo_live_window.isVisible():
             self._cargo_live_window.show()

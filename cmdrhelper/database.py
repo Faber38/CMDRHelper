@@ -40,6 +40,51 @@ PERSONAL_TABLES = (
 class CommanderMigrationError(RuntimeError):
     pass
 
+
+def _biology_from_event(event, address=None):
+    """Normalize an explicit ScanOrganic finding using the archive's name keys."""
+    if event.get("event") != "ScanOrganic":
+        return None
+    address = event.get("SystemAddress", address)
+    body_id = event.get("BodyID")
+    if body_id is None:
+        body_id = event.get("Body")
+    if type(address) is not int or type(body_id) is not int:
+        return None
+    scan_type = str(event.get("ScanType") or "").strip()
+    if scan_type.casefold() not in ("log", "sample", "analyse", "analyze"):
+        return None
+    entry = {
+        "system_address": address, "body_id": body_id,
+        **{key: str(event.get(key.title() + "_Localised")
+                    or event.get(key.title()) or "")
+           for key in ("genus", "species", "variant")},
+        "scan_type": scan_type, "timestamp": str(event.get("timestamp") or ""),
+    }
+    return entry if any(entry[key] for key in ("genus", "species", "variant")) else None
+
+
+def _store_biology_rows(con, rows, *, missing_only=False):
+    """One durable finding per existing BIO key; replay cannot undo progress."""
+    conflict = "DO NOTHING" if missing_only else """DO UPDATE SET
+        scan_type=CASE
+            WHEN LOWER(biology.scan_type) IN ('analyse','analyze') THEN biology.scan_type
+            WHEN LOWER(excluded.scan_type) IN ('analyse','analyze') THEN excluded.scan_type
+            WHEN LOWER(biology.scan_type) = 'sample' THEN biology.scan_type
+            WHEN excluded.scan_type <> '' THEN excluded.scan_type ELSE biology.scan_type END,
+        first_seen=CASE WHEN biology.first_seen='' THEN excluded.first_seen
+                        WHEN excluded.first_seen='' THEN biology.first_seen
+                        ELSE MIN(biology.first_seen,excluded.first_seen) END,
+        last_seen=MAX(biology.last_seen,excluded.last_seen)
+    """
+    before = con.total_changes
+    con.executemany("""INSERT INTO biology (
+        commander_id,system_address,body_id,genus,species,variant,
+        scan_type,first_seen,last_seen) VALUES(?,?,?,?,?,?,?,?,?)
+        ON CONFLICT(commander_id,system_address,body_id,genus,species,variant)
+    """ + conflict, rows)
+    return con.total_changes - before
+
 def _direct_parent_id(parents) -> int | None:
     """
     Ermittelt aus Elite-Dangerous-Parents den für CMDRHelper sinnvollsten
@@ -1918,8 +1963,14 @@ class CMDRDatabase:
                     )
                     mission_by_id = {int(item["mission_id"]): item for item in active}
 
-                elif et == "ScanOrganic" and str(event.get("ScanType") or "").strip().casefold() in ("analyse", "analyze"):
-                    body_id = event.get("BodyID") if event.get("BodyID") is not None else event.get("Body")
+                elif et == "ScanOrganic":
+                    finding = _biology_from_event(event, address)
+                    if finding is None:
+                        continue
+                    self.store_biology(**finding, commander_id=commander_id, _con=con)
+                    if finding["scan_type"].casefold() not in ("analyse", "analyze"):
+                        continue
+                    body_id = finding["body_id"]
                     if address is not None and isinstance(body_id, int):
                         entry = {
                             "genus": event.get("Genus_Localised") or event.get("Genus") or "",
@@ -3412,7 +3463,8 @@ class CMDRDatabase:
                     """, (int(address), int(body_id), str(name), percentage))
 
     def store_biology(self, system_address, body_id, genus="", species="",
-                      variant="", scan_type="", timestamp="", commander_id=None):
+                      variant="", scan_type="", timestamp="", commander_id=None,
+                      _con=None):
         if system_address is None or body_id is None:
             return
         if not (genus or species or variant):
@@ -3421,20 +3473,10 @@ class CMDRDatabase:
         self._bio_predictor_revision = None
         seen = timestamp or datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         commander_id = self._require_commander_id(commander_id)
-        with self._connect() as con:
-            con.execute("""
-                INSERT INTO biology (
-                    commander_id, system_address, body_id, genus, species, variant,
-                    scan_type, first_seen, last_seen
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT(commander_id, system_address, body_id, genus, species, variant)
-                DO UPDATE SET
-                    scan_type=CASE WHEN excluded.scan_type <> ''
-                                   THEN excluded.scan_type ELSE biology.scan_type END,
-                    last_seen=excluded.last_seen
-            """, (commander_id, int(system_address), int(body_id), str(genus or ""),
-                  str(species or ""), str(variant or ""), str(scan_type or ""),
-                  seen, seen))
+        with nullcontext(_con) if _con is not None else self._connect() as con:
+            _store_biology_rows(con, [(commander_id, int(system_address), int(body_id),
+                str(genus or ""), str(species or ""), str(variant or ""),
+                str(scan_type or ""), seen, seen)])
 
     def biology_for_body(self, system_address, body_id, commander_id=None):
         if system_address is None or body_id is None:
@@ -7659,33 +7701,7 @@ class CMDRDatabase:
                     )
                 )
 
-            con.executemany(
-                """
-                INSERT INTO biology (
-                    commander_id,
-                    system_address, body_id,
-                    genus, species, variant,
-                    scan_type, first_seen, last_seen
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT(
-                    commander_id,
-                    system_address,
-                    body_id,
-                    genus,
-                    species,
-                    variant
-                )
-                DO UPDATE SET
-                    scan_type=CASE
-                        WHEN excluded.scan_type <> ''
-                        THEN excluded.scan_type
-                        ELSE biology.scan_type
-                    END,
-                    last_seen=excluded.last_seen
-                """,
-                biology_rows,
-            )
+            _store_biology_rows(con, biology_rows)
 
             # Geologie
             geology_rows = []

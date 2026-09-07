@@ -6,6 +6,23 @@ from pathlib import Path
 import time
 
 
+# Live vehicle defaults, used only when no explicit SRV capacity is supplied.
+# https://www.elitedangerous.com/store/vehicles/rhino (2026-09-07)
+# Scarab/Scorpion: Odyssey Update 9 cargo bay specifications.
+_SRV_CAPACITIES = {
+    "mev_rhino": 72,
+    "testbuggy": 4,
+    "combat_multicrew_srv_01": 2,
+}
+
+
+def srv_cargo_capacity(srv_type, explicit=None) -> int | None:
+    """Resolve SRV capacity independently of the mothership's loadout."""
+    if isinstance(explicit, int) and not isinstance(explicit, bool) and explicit >= 0:
+        return explicit
+    return _SRV_CAPACITIES.get(str(srv_type or "").strip().casefold())
+
+
 def _timestamp(value):
     try:
         return datetime.fromisoformat(str(value or "").replace("Z", "+00:00"))
@@ -48,7 +65,7 @@ def normalize_inventory(items) -> list[dict]:
 
 
 def cargo_snapshot(payload, *, fid, ship_id=None, cargo_capacity=None,
-                   srv_type="") -> dict | None:
+                   srv_type="", srv_capacity=None) -> dict | None:
     if not isinstance(payload, dict) or payload.get("event") != "Cargo":
         return None
     vessel = str(payload.get("Vessel") or "").strip().casefold()
@@ -70,6 +87,10 @@ def cargo_snapshot(payload, *, fid, ship_id=None, cargo_capacity=None,
             capacity = max(0, int(cargo_capacity))
         except (TypeError, ValueError):
             capacity = None
+    else:
+        capacity = srv_cargo_capacity("", payload.get("CargoCapacity"))
+        if capacity is None:
+            capacity = srv_cargo_capacity(srv_type, srv_capacity)
     return {
         "fid": str(fid).strip(),
         "vessel": "Ship" if vessel == "ship" else "SRV",
@@ -104,14 +125,19 @@ def _matches_trigger(payload, trigger, tolerance_seconds):
 
 
 def read_cargo_snapshot(path, trigger, *, fid, ship_id=None,
-                        cargo_capacity=None, srv_type="", attempts=3,
+                        cargo_capacity=None, srv_type="", srv_capacity=None, attempts=3,
                         retry_delay=0.03, tolerance_seconds=5.0,
                         sleeper=time.sleep) -> dict | None:
     """Read the stable Cargo.json matching one authoritative Cargo event."""
+    if isinstance(trigger, dict):
+        explicit_capacity = srv_cargo_capacity("", trigger.get("CargoCapacity"))
+        if explicit_capacity is not None:
+            srv_capacity = explicit_capacity
     if isinstance(trigger, dict) and isinstance(trigger.get("Inventory"), list):
         return cargo_snapshot(
             trigger, fid=fid, ship_id=ship_id,
             cargo_capacity=cargo_capacity, srv_type=srv_type,
+            srv_capacity=srv_capacity,
         )
 
     path = Path(path)
@@ -130,6 +156,7 @@ def read_cargo_snapshot(path, trigger, *, fid, ship_id=None,
             snapshot = cargo_snapshot(
                 payload, fid=fid, ship_id=ship_id,
                 cargo_capacity=cargo_capacity, srv_type=srv_type,
+                srv_capacity=srv_capacity,
             )
             if snapshot is not None:
                 return snapshot

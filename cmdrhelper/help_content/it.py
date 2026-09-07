@@ -1365,7 +1365,7 @@ HELP_TOPICS = {'overview': ('Panoramica',
 <p>Non è un pianificatore di rotte interstellari e non gestisce la navigazione tra sistemi o i salti. Sei tu a pilotare la nave.</p>
 
 <h3>Aprire il navigatore e inserire un obiettivo</h3>
-<p>Nella panoramica, apri «Navigazione planetaria» e seleziona «Inserisci obiettivo …».</p>
+<p>Nella panoramica, apri «Navigazione planetaria» e seleziona «Inserimento manuale …».</p>
 <ul>
 <li><b>Corpo celeste:</b> Seleziona il pianeta o la luna di destinazione dall’elenco oppure usa il corpo già rilevato. Puoi anche inserire il nome del corpo manualmente se non è ancora nell’elenco. In caso di dubbio, usa il nome completo, incluso il nome del sistema.</li>
 <li><b>Latitudine:</b> Inserisci la latitudine dell’obiettivo tra −90° e +90°.</li>
@@ -1422,7 +1422,7 @@ HELP_TOPICS = {'overview': ('Panoramica',
 <p>L’HUD è solo una visualizzazione aggiuntiva. Il navigatore normale funziona indipendentemente da esso, anche quando l’HUD è disattivato o non disponibile.</p>
 
 <h3>Impostare un nuovo obiettivo</h3>
-<p>Sullo stesso corpo puoi riaprire «Inserisci obiettivo …» in qualsiasi momento e impostare altre coordinate. Il nuovo obiettivo sostituisce quello di navigazione precedente. Con dati di posizione corrispondenti, la bussola si aggiorna immediatamente.</p>
+<p>Sullo stesso corpo puoi riaprire «Inserimento manuale …» in qualsiasi momento e impostare altre coordinate. Il nuovo obiettivo sostituisce quello di navigazione precedente. Con dati di posizione corrispondenti, la bussola si aggiorna immediatamente.</p>
 <p>Con «Termina navigazione» rimuovi l’obiettivo attuale. Per un altro avvicinamento, imposta semplicemente un nuovo obiettivo.</p>
 
 <h3>Aggiornamento dei dati e limiti</h3>

@@ -1,15 +1,15 @@
 """Optional, output-only navigation HUD. Platform tracking is replaceable."""
 import ctypes
 from ctypes.util import find_library
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import os
 import logging
 import re
 import subprocess
 import sys
 
-from PySide6.QtCore import QPointF, QRect, Qt, QTimer, Signal
-from PySide6.QtGui import QColor, QGuiApplication, QPainter, QPen, QPainterPath
+from PySide6.QtCore import QPointF, QRect, QRectF, Qt, QTimer, Signal
+from PySide6.QtGui import QColor, QFontMetricsF, QGuiApplication, QPainter, QPen, QPainterPath
 from PySide6.QtWidgets import QWidget
 
 from cmdrhelper.i18n import tr, get_language
@@ -170,6 +170,10 @@ class NavigationHud(QWidget):
         self.setFocusPolicy(Qt.NoFocus)
         self.controller = controller
         self.enabled = False
+        self.cargo_enabled = False
+        self.cargo_provider = None
+        self.cargo_data = None
+        self.cargo_geometry = QRectF()
         self.message_lines = ()
         self.message_timer = QTimer(self)
         self.message_timer.setSingleShot(True)
@@ -233,13 +237,22 @@ class NavigationHud(QWidget):
         self.message_timer.start(duration_ms)
         self._sync_visibility()
 
+    def set_cargo_enabled(self, enabled):
+        """A second persistent group, independent of navigation and messages."""
+        if enabled and not self._prepare_input():
+            return
+        self.cargo_enabled = bool(enabled)
+        if not enabled:
+            self.cargo_data = None
+        self._sync_visibility()
+
     def clear_message(self):
         self.message_timer.stop()
         self.message_lines = ()
         self._sync_visibility()
 
     def _sync_visibility(self):
-        if self.enabled or self.message_lines:
+        if self.enabled or self.cargo_enabled or self.message_lines:
             self.timer.start()
             self.follow_target()
         else:
@@ -250,6 +263,7 @@ class NavigationHud(QWidget):
     def _windows_failure(self, exc):
         self._windows_failed = True
         self.enabled = self.safe_input = False
+        self.cargo_enabled = False
         self.timer.stop()
         self.hide()
         self._status("error", str(exc))
@@ -258,9 +272,12 @@ class NavigationHud(QWidget):
     def follow_target(self):
         if self._windows_failed:
             return  # Retry only after explicitly switching the HUD on again.
-        if not self.message_lines and (not self.enabled or not hud_lines(self.controller.state)):
+        self.cargo_data = self.cargo_provider() if self.cargo_enabled and self.cargo_provider else None
+        if (not self.cargo_data and not self.message_lines
+                and (not self.enabled or not hud_lines(self.controller.state))):
             self.hide()
-            self._status("waiting_navigation" if self.enabled else "off")
+            self._status("waiting_navigation" if self.enabled else
+                         "waiting_cargo" if self.cargo_enabled else "off")
             return
         try:
             target = self.tracker.current() if self.safe_input else None
@@ -273,7 +290,7 @@ class NavigationHud(QWidget):
             self.hide()
             candidate = getattr(self.tracker, "last_target", None)
             self.target_geometry = candidate.geometry if isinstance(candidate, TargetWindow) else None
-            reason = getattr(self.tracker, "reason", "not_found") if (self.enabled or self.message_lines) else "off"
+            reason = getattr(self.tracker, "reason", "not_found")
             self._status(reason, getattr(self.tracker, "error", ""))
             return
         self.target_geometry = QRect(target.geometry)
@@ -313,13 +330,16 @@ class NavigationHud(QWidget):
     def closeEvent(self, event):
         self.message_timer.stop()
         self.message_lines = ()
+        self.cargo_enabled = False
+        self.cargo_data = None
         self.set_enabled(False)
         self.tracker.close()
         super().closeEvent(event)
 
     def paintEvent(self, event):
         self.paint_count += 1
-        if not self.enabled and not self.message_lines:
+        self.cargo_geometry = QRectF()
+        if not self.enabled and not self.message_lines and not self.cargo_data:
             return
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
@@ -328,6 +348,7 @@ class NavigationHud(QWidget):
         rows = list(zip(navigation, (38, 26, 18), (10, 8, 8)))
         rows += [(text, 30 if index == 0 else 20, 10)
                  for index, text in enumerate(self.message_lines)]
+        leftmost = float("inf")
         for text, pixel_size, gap in rows:
             font = painter.font()
             font.setBold(False)
@@ -336,6 +357,7 @@ class NavigationHud(QWidget):
             path.addText(QPointF(0, 0), font, text)
             bounds = path.boundingRect()
             scale = min(1., max(1., self.width()-24)/max(1., bounds.width()))
+            leftmost = min(leftmost, (self.width()-bounds.width()*scale)/2)
             painter.save()
             painter.translate((self.width()-bounds.width()*scale)/2-bounds.left()*scale,
                               top-bounds.top()*scale)
@@ -346,3 +368,45 @@ class NavigationHud(QWidget):
             painter.fillPath(path, QColor("#ff9100"))
             painter.restore()
             top += bounds.height()*scale + gap
+        if self.cargo_data:
+            self._paint_cargo(painter, leftmost, top)
+
+    def _paint_cargo(self, painter, other_left, other_bottom):
+        width = min(420., max(1., self.width() - 32.))
+        left = 16.
+        room = other_left - left - 12
+        if room >= 240:
+            width = min(width, room)
+        # Keep the tested centered navigation/message layout unchanged. On
+        # narrow clients place cargo just below those rows to avoid overlap.
+        top = 16. if left + width + 12 <= other_left else other_bottom + 12
+        font = painter.font()
+        font.setPixelSize(16)
+        font.setBold(False)
+        metrics = QFontMetricsF(font)
+        data = self.cargo_data
+        fixed_width = metrics.horizontalAdvance(replace(data, vehicle_name="").text)
+        name = metrics.elidedText(data.vehicle_name, Qt.ElideRight, max(0., width - fixed_width))
+        path = QPainterPath()
+        path.addText(QPointF(0, 0), font, replace(data, vehicle_name=name).text)
+        bounds = path.boundingRect()
+        scale = min(1., width / max(1., bounds.width()))
+        painter.save()
+        painter.translate(left - bounds.left()*scale, top - bounds.top()*scale)
+        painter.scale(scale, scale)
+        painter.strokePath(path, QPen(QColor(0, 0, 0, 235), 3,
+                                     Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+        painter.fillPath(path, QColor("#ff9100"))
+        painter.restore()
+        bottom = top + bounds.height()*scale
+        if data.fraction is not None:
+            bar = QRectF(left, bottom + 6, width, 5)
+            painter.setPen(QPen(QColor(0, 0, 0, 235), 1))
+            painter.setBrush(QColor(40, 30, 18, 180))
+            painter.drawRoundedRect(bar, 2, 2)
+            fill = bar.adjusted(1, 1, -1, -1)
+            fill.setWidth(fill.width() * data.fraction)
+            if fill.width() > 0:
+                painter.fillRect(fill, QColor("#c57a00"))
+            bottom = bar.bottom()
+        self.cargo_geometry = QRectF(left, top, width, bottom-top)

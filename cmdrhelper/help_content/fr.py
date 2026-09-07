@@ -1388,7 +1388,7 @@ HELP_TOPICS = {'overview': ('Aperçu',
 <p>Ce n’est pas un planificateur d’itinéraire interstellaire et il ne prend en charge ni la navigation entre systèmes ni les sauts. Tu pilotes toi-même ton vaisseau.</p>
 
 <h3>Ouvrir le navigateur et saisir une cible</h3>
-<p>Dans la vue d’ensemble, ouvre « Navigation planétaire » et sélectionne « Saisir la cible … ».</p>
+<p>Dans la vue d’ensemble, ouvre « Navigation planétaire » et sélectionne « Saisie manuelle … ».</p>
 <ul>
 <li><b>Corps céleste :</b> Sélectionne la planète ou la lune cible dans la liste, ou utilise le corps déjà détecté. Tu peux aussi saisir toi-même son nom s’il ne figure pas encore dans la liste. En cas de doute, utilise le nom complet, y compris celui du système.</li>
 <li><b>Latitude :</b> Saisis la latitude cible entre −90° et +90°.</li>
@@ -1445,7 +1445,7 @@ HELP_TOPICS = {'overview': ('Aperçu',
 <p>Le HUD n’est qu’un affichage supplémentaire. Le navigateur normal fonctionne indépendamment, même si le HUD est désactivé ou indisponible.</p>
 
 <h3>Définir une nouvelle cible</h3>
-<p>Sur le même corps, tu peux rouvrir « Saisir la cible … » à tout moment et définir d’autres coordonnées. La nouvelle cible remplace la cible de navigation précédente. Avec des données de position correspondantes, la boussole s’actualise immédiatement.</p>
+<p>Sur le même corps, tu peux rouvrir « Saisie manuelle … » à tout moment et définir d’autres coordonnées. La nouvelle cible remplace la cible de navigation précédente. Avec des données de position correspondantes, la boussole s’actualise immédiatement.</p>
 <p>« Arrêter la navigation » supprime la cible actuelle. Pour une nouvelle approche, définis simplement une nouvelle cible.</p>
 
 <h3>Actualité des données et limites</h3>

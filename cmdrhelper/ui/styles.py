@@ -1,4 +1,14 @@
 DARK_STYLESHEET = r"""
+QProgressBar#cargoFill {
+    background: #1b252e;
+    border: 1px solid #2d3943;
+    border-radius: 3px;
+}
+QProgressBar#cargoFill::chunk {
+    background: #c57a00;
+    border-radius: 2px;
+}
+
 QWidget {
     background: #080d12;
     color: #d8dde3;
@@ -98,16 +108,29 @@ QPushButton:hover {
     background: #17222c;
 }
 
-QPushButton#chronicleApply {
+QPushButton#chronicleApply,
+QPushButton#favoriteNavigate:enabled {
     border-color: #c49a3c;
 }
 
-QPushButton#chronicleApply:hover {
+QPushButton#chronicleApply:hover,
+QPushButton#favoriteNavigate:enabled:hover {
     border-color: #f0c65b;
 }
 
-QPushButton#chronicleApply:pressed {
+QPushButton#chronicleApply:pressed,
+QPushButton#favoriteNavigate:enabled:pressed {
     border-color: #9c7626;
+}
+
+QPushButton#favoriteNavigate:disabled {
+    border-color: #28323b;
+    color: #8e969e;
+    background: #111820;
+}
+
+QLabel#navigationTargetName {
+    color: #ff9d00;
 }
 
 QPushButton#navActive {
@@ -169,6 +192,16 @@ QStatusBar {
 
 
 LIGHT_STYLESHEET = r"""
+QProgressBar#cargoFill {
+    background: #eef1f4;
+    border: 1px solid #b7c0c8;
+    border-radius: 3px;
+}
+QProgressBar#cargoFill::chunk {
+    background: #c56f00;
+    border-radius: 2px;
+}
+
 QWidget {
     background: #eef1f4;
     color: #20262c;
@@ -268,16 +301,29 @@ QPushButton:hover {
     background: #e9edf1;
 }
 
-QPushButton#chronicleApply {
+QPushButton#chronicleApply,
+QPushButton#favoriteNavigate:enabled {
     border-color: #a57b1c;
 }
 
-QPushButton#chronicleApply:hover {
+QPushButton#chronicleApply:hover,
+QPushButton#favoriteNavigate:enabled:hover {
     border-color: #c18e1c;
 }
 
-QPushButton#chronicleApply:pressed {
+QPushButton#chronicleApply:pressed,
+QPushButton#favoriteNavigate:enabled:pressed {
     border-color: #76520b;
+}
+
+QPushButton#favoriteNavigate:disabled {
+    border-color: #bfc7ce;
+    color: #65717c;
+    background: #ffffff;
+}
+
+QLabel#navigationTargetName {
+    color: #c56f00;
 }
 
 QPushButton#navActive {

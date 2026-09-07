@@ -1291,7 +1291,7 @@ HELP_TOPICS = {'overview': ('Overview',
 <p>It is not an interstellar route planner and does not handle system or jump navigation. You fly your ship yourself.</p>
 
 <h3>Opening the navigator and entering a target</h3>
-<p>Open “Planet navigation” in the overview and select “Enter target…”.</p>
+<p>Open “Planet navigation” in the overview and select “Manual input…”.</p>
 <ul>
 <li><b>Body:</b> Select the target planet or moon from the list or use the body already detected. You can also enter the body name yourself if it is not yet listed. If in doubt, use the full name including the system name.</li>
 <li><b>Latitude:</b> Enter the target latitude between −90° and +90°.</li>
@@ -1348,7 +1348,7 @@ HELP_TOPICS = {'overview': ('Overview',
 <p>The HUD is only an additional display. The normal navigator works independently of it, even when the HUD is switched off or unavailable.</p>
 
 <h3>Setting a new target</h3>
-<p>On the same body, you can reopen “Enter target…” at any time and set different coordinates. The new target replaces the previous navigation target. With matching position data, the compass updates immediately.</p>
+<p>On the same body, you can reopen “Manual input…” at any time and set different coordinates. The new target replaces the previous navigation target. With matching position data, the compass updates immediately.</p>
 <p>“Stop navigation” removes the current target. Simply set a new target for another approach.</p>
 
 <h3>Data freshness and limitations</h3>

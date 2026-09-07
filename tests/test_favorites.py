@@ -10,9 +10,11 @@ from datetime import datetime, timezone
 
 os.environ.setdefault('QT_QPA_PLATFORM','offscreen')
 from PIL import Image
-from PySide6.QtCore import QObject, Signal
+from PySide6.QtCore import QObject, Signal, Qt
+from PySide6.QtGui import QImage, QPainter
 from PySide6.QtTest import QTest
-from PySide6.QtWidgets import QApplication, QDialog, QMessageBox, QMainWindow
+from PySide6.QtWidgets import (QApplication, QDialog, QMessageBox, QMainWindow,
+                              QStyle, QStyleOptionButton)
 from cmdrhelper.global_hotkey import GlobalHotkey
 from cmdrhelper.ui.quick_favorite_settings import QuickFavoriteSettings
 from cmdrhelper.database import CMDRDatabase
@@ -22,6 +24,7 @@ from cmdrhelper.status_reader import StatusSnapshot
 from cmdrhelper.ui.favorites_view import FavoriteDialog, FavoritesView, preview
 from cmdrhelper.ui.planet_navigation_window import PlanetNavigationWindow
 from cmdrhelper.ui.main_window import MainWindow
+from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 
 
 class State(QObject):
@@ -280,6 +283,35 @@ class FavoriteTests(unittest.TestCase):
         self.state.commander_id=2; self.state.commanderIdentityChanged.emit(2,'F2','Second')
         self.assertIn('Second',view.list.item(0).text()); self.assertFalse(dialog.isVisible())
         self.assertIsNone(controller.target); view.close()
+
+    def test_navigation_button_theme_border_states_leave_other_actions_plain(self):
+        view = FavoritesView(self.state, Mock(), Mock())
+        self.addCleanup(view.deleteLater)
+        button = view.action_buttons[-1]
+        self.assertEqual(button.objectName(), 'favoriteNavigate')
+        self.assertTrue(all(b.objectName() != 'favoriteNavigate' for b in view.action_buttons[:-1]))
+        for theme, colors in (
+            (DARK_STYLESHEET, ('#c49a3c', '#f0c65b', '#9c7626', '#28323b')),
+            (LIGHT_STYLESHEET, ('#a57b1c', '#c18e1c', '#76520b', '#bfc7ce')),
+        ):
+            view.setStyleSheet(theme)
+            for flags, expected in zip((QStyle.State_Enabled,
+                    QStyle.State_Enabled | QStyle.State_MouseOver,
+                    QStyle.State_Enabled | QStyle.State_Sunken,
+                    QStyle.State_None), colors):
+                with self.subTest(theme=expected, flags=flags):
+                    button.setEnabled(bool(flags & QStyle.State_Enabled))
+                    button.ensurePolished()
+                    button.resize(180, 32)
+                    option = QStyleOptionButton()
+                    button.initStyleOption(option)
+                    option.state = flags
+                    image = QImage(button.size(), QImage.Format_ARGB32)
+                    image.fill(Qt.transparent)
+                    painter = QPainter(image)
+                    button.style().drawControl(QStyle.CE_PushButton, option, painter, button)
+                    painter.end()
+                    self.assertEqual(image.pixelColor(90, 0).name(), expected)
 
     def test_invalid_coordinates_rejected(self):
         for latitude in (None,float('nan'),91):

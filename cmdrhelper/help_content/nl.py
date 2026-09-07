@@ -1351,7 +1351,7 @@ HELP_TOPICS = {'overview': ('Overzicht',
 <p>Het is geen interstellaire routeplanner en hij verzorgt geen systeem- of sprongnavigatie. Je bestuurt je schip zelf.</p>
 
 <h3>De navigator openen en een doel invoeren</h3>
-<p>Open in het overzicht ‘Planeetnavigatie’ en kies ‘Doel invoeren …’.</p>
+<p>Open in het overzicht ‘Planeetnavigatie’ en kies ‘Handmatige invoer …’.</p>
 <ul>
 <li><b>Hemellichaam:</b> Kies de doelplaneet of doelmaan uit de lijst of gebruik het al herkende hemellichaam. Je kunt de naam ook zelf invoeren als die nog niet in de lijst staat. Gebruik bij twijfel de volledige naam, inclusief de systeemnaam.</li>
 <li><b>Breedtegraad:</b> Voer de breedtegraad van het doel in tussen −90° en +90°.</li>
@@ -1408,7 +1408,7 @@ HELP_TOPICS = {'overview': ('Overzicht',
 <p>De HUD is slechts een extra weergave. De normale navigator werkt er onafhankelijk van, ook als de HUD is uitgeschakeld of niet beschikbaar is.</p>
 
 <h3>Een nieuw doel instellen</h3>
-<p>Op hetzelfde hemellichaam kun je op elk moment opnieuw ‘Doel invoeren …’ openen en andere coördinaten instellen. Het nieuwe doel vervangt het vorige navigatiedoel. Met bijbehorende positiegegevens wordt het kompas onmiddellijk bijgewerkt.</p>
+<p>Op hetzelfde hemellichaam kun je op elk moment opnieuw ‘Handmatige invoer …’ openen en andere coördinaten instellen. Het nieuwe doel vervangt het vorige navigatiedoel. Met bijbehorende positiegegevens wordt het kompas onmiddellijk bijgewerkt.</p>
 <p>Met ‘Navigatie beëindigen’ verwijder je het huidige doel. Voor een volgende nadering stel je gewoon een nieuw doel in.</p>
 
 <h3>Actualiteit van gegevens en beperkingen</h3>

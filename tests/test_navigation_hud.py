@@ -83,6 +83,19 @@ class HudTests(unittest.TestCase):
         self.assertFalse(self.hud.isVisible())
         self.assertFalse(self.hud.timer.isActive())
 
+    def test_cargo_group_checks_x11_input_without_navigation(self):
+        from cmdrhelper.ui.cargo_hud import CargoHudData
+        self.hud.cargo_provider = lambda: CargoHudData("Rhino", 67, 72)
+        self.tracker.input_is_empty.return_value = False
+        with self.assertRaises(RuntimeError):
+            self.hud.set_cargo_enabled(True)
+        self.assertFalse(self.hud.isVisible())
+        self.assertFalse(self.hud.cargo_enabled)
+        self.tracker.input_is_empty.return_value = True
+        self.hud.set_cargo_enabled(True)
+        self.assertTrue(self.hud.isVisible())
+        self.assertFalse(self.hud.enabled)
+
     def test_paint_has_transparent_background_and_only_sparse_hud(self):
         snapshot = SimpleNamespace(latitude=0., longitude=0., heading=90., radius_m=1_000_000., body_name="Test 1")
         target = SimpleNamespace(latitude=0., longitude=10., name="", binding=SimpleNamespace(body_name="Test 1"))

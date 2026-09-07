@@ -966,7 +966,7 @@ HELP_TOPICS = {
 <p>Er ist kein interstellarer Routenplaner und übernimmt keine System- oder Sprungnavigation. Du steuerst dein Schiff selbst.</p>
 
 <h3>Navigator öffnen und Ziel eingeben</h3>
-<p>Öffne in der Übersicht „Planeten-Navigation“ und wähle „Ziel eingeben …“.</p>
+<p>Öffne in der Übersicht „Planeten-Navigation“ und wähle „Manuelle Eingabe …“.</p>
 <ul>
 <li><b>Body:</b> Wähle den Zielplaneten oder Zielmond aus der Liste oder verwende den bereits erkannten Body. Du kannst den Bodynamen auch selbst eingeben, wenn er noch nicht in der Liste steht. Verwende im Zweifel den vollständigen Namen einschließlich Systemname.</li>
 <li><b>Breitengrad (Latitude):</b> Gib die Zielbreite zwischen −90° und +90° ein.</li>
@@ -1023,7 +1023,7 @@ HELP_TOPICS = {
 <p>Das HUD ist nur eine zusätzliche Anzeige. Der normale Navigator funktioniert unabhängig davon, auch bei ausgeschaltetem oder nicht verfügbarem HUD.</p>
 
 <h3>Ein neues Ziel setzen</h3>
-<p>Auf demselben Body kannst du jederzeit erneut „Ziel eingeben …“ öffnen und andere Koordinaten setzen. Das neue Ziel ersetzt das bisherige Navigationsziel. Bei passenden Positionsdaten aktualisiert sich der Kompass unmittelbar.</p>
+<p>Auf demselben Body kannst du jederzeit erneut „Manuelle Eingabe …“ öffnen und andere Koordinaten setzen. Das neue Ziel ersetzt das bisherige Navigationsziel. Bei passenden Positionsdaten aktualisiert sich der Kompass unmittelbar.</p>
 <p>Mit „Navigation beenden“ entfernst du das aktuelle Ziel. Für einen weiteren Anflug setzt du einfach ein neues Ziel.</p>
 
 <h3>Datenstand und Grenzen</h3>

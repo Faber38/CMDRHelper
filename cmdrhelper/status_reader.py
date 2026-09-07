@@ -79,7 +79,8 @@ def parse_status(data, mtime_ns=0, now=None):
                           heading360(heading), radius, name, flags, flags2)
 
 
-def read_status(path: Path):
+def read_status_data(path: Path):
+    """Shared complete-file read; consumers validate only their own telemetry."""
     try:
         before = path.stat()
         with path.open("rb") as handle:
@@ -92,4 +93,9 @@ def read_status(path: Path):
         data = json.loads(raw, object_pairs_hook=unique_object)
     except (OSError, ValueError) as exc:
         raise StatusError("invalid_status") from exc
-    return parse_status(data, after.st_mtime_ns)
+    return data, after.st_mtime_ns
+
+
+def read_status(path: Path):
+    data, mtime_ns = read_status_data(path)
+    return parse_status(data, mtime_ns)

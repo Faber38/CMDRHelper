@@ -10,12 +10,15 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 
-from cmdrhelper.cargo import cargo_snapshot, normalize_inventory, read_cargo_snapshot
+from cmdrhelper.cargo import (
+    cargo_snapshot, normalize_inventory, read_cargo_snapshot, srv_cargo_capacity,
+)
 from cmdrhelper.i18n import set_language
 from cmdrhelper.journal_reader import read_latest_state
 from cmdrhelper.route_planner.models import ShipLoadoutData
 from cmdrhelper.state import AppState
 from cmdrhelper.ui.main_window import CargoLiveWindow
+from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 
 
 class _Signal:
@@ -72,8 +75,87 @@ class CargoSnapshotTests(unittest.TestCase):
             state = read_latest_state(Path(folder))
         self.assertEqual(state["commander_fid"], "F-A")
         self.assertEqual(state["active_srv_type"], "SRV Rhino")
+        self.assertEqual(state["last_cargo_srv_capacity"], 72)
         self.assertEqual(state["last_cargo_event"]["Vessel"], "SRV")
         self.assertEqual(state["ship_loadout"].cargo_capacity, 256)
+
+    def test_srv_capacity_tracks_vehicle_at_cargo_event_through_docking(self):
+        with TemporaryDirectory() as folder:
+            path = Path(folder) / "Journal.2026-09-04T160000.01.log"
+            events = [
+                {"event": "LoadGame", "FID": "F-A", "Commander": "Alpha",
+                 "Ship": "mev_rhino", "CargoCapacity": 80},
+                _cargo("SRV", 0, []),
+            ]
+            for transition, expected in [
+                (None, 80),
+                ({"event": "DockSRV"}, 80),
+                ({"event": "LaunchSRV", "SRVType": "testbuggy"}, 80),
+                (_cargo("SRV", 0, [], timestamp="2026-09-04T16:32:00Z"), 4),
+                ({"event": "LaunchSRV", "SRVType": "future_srv",
+                  "CargoCapacity": 16}, 4),
+                (_cargo("SRV", 0, [], timestamp="2026-09-04T16:33:00Z"), 16),
+                ({"event": "LaunchSRV", "SRVType": "unknown_srv"}, 16),
+                (_cargo("SRV", 0, [], timestamp="2026-09-04T16:34:00Z"), None),
+            ]:
+                with self.subTest(transition=transition):
+                    if transition:
+                        events.append(transition)
+                    path.write_text("".join(json.dumps(e) + "\n" for e in events),
+                                    encoding="utf-8")
+                    data = read_latest_state(Path(folder))
+                    self.assertEqual(data["last_cargo_srv_capacity"], expected)
+                    state = SimpleNamespace(
+                        cargo_snapshot=None, cargoSnapshotChanged=_Signal(),
+                        commander_fid="F-A", journal_folder=Path(folder),
+                        ship_loadout=ShipLoadoutData(ship_id=51, cargo_capacity=256),
+                    )
+                    AppState._apply_live_cargo_snapshot(state, data, {
+                        "attribution_status": "identified", "commander_id": 1,
+                        "fid_seen": "F-A",
+                    })
+                    self.assertEqual(state.cargo_snapshot["capacity"], expected)
+
+    def test_srv_capacity_defaults_and_explicit_values(self):
+        for vehicle, expected in [("mev_rhino", 72), ("TESTBUGGY", 4),
+                                  ("combat_multicrew_srv_01", 2),
+                                  ("unknown_srv", None), ("", None)]:
+            with self.subTest(vehicle=vehicle):
+                self.assertEqual(srv_cargo_capacity(vehicle), expected)
+                self.assertEqual(srv_cargo_capacity(vehicle, 16), 16)
+                self.assertEqual(srv_cargo_capacity(vehicle, 0), 0)
+                for invalid in (-1, True, "bad", 1.5):
+                    self.assertEqual(srv_cargo_capacity(vehicle, invalid), expected)
+
+    def test_explicit_srv_capacity_overrides_default_but_never_ship_capacity(self):
+        for explicit, expected in [(None, 72), (80, 80), (0, 0)]:
+            with self.subTest(explicit=explicit):
+                snapshot = cargo_snapshot(
+                    _cargo("SRV", 0, []), fid="F-A", ship_id=51,
+                    cargo_capacity=256, srv_type="mev_rhino", srv_capacity=explicit,
+                )
+                self.assertEqual(snapshot["capacity"], expected)
+                self.assertIsNone(snapshot["ship_id"])
+        snapshot = cargo_snapshot(
+            {**_cargo("SRV", 0, []), "CargoCapacity": 96}, fid="F-A",
+            cargo_capacity=256, srv_type="mev_rhino", srv_capacity=80,
+        )
+        self.assertEqual(snapshot["capacity"], 96)
+
+    def test_count_only_srv_event_passes_capacity_to_snapshot(self):
+        with TemporaryDirectory() as folder:
+            path = Path(folder) / "Cargo.json"
+            path.write_text(json.dumps(_cargo("SRV", 0, [])), encoding="utf-8")
+            snapshot = read_cargo_snapshot(
+                path, _cargo("SRV", 0), fid="F-A", cargo_capacity=256,
+                srv_type="SRV Rhino", srv_capacity=80,
+            )
+            explicit_snapshot = read_cargo_snapshot(
+                path, {**_cargo("SRV", 0), "CargoCapacity": 96}, fid="F-A",
+                cargo_capacity=256, srv_type="SRV Rhino", srv_capacity=80,
+            )
+        self.assertEqual(snapshot["capacity"], 80)
+        self.assertEqual(explicit_snapshot["capacity"], 96)
 
     def test_full_ship_snapshot_has_capacity_free_space_and_multiple_commodities(self):
         snapshot = cargo_snapshot(_cargo(count=199, inventory=[
@@ -274,6 +356,84 @@ class CargoLiveWindowTests(unittest.TestCase):
         self.assertEqual(self.window.table.item(1, 0).text(), "Drohnen")
         self.assertEqual(self.window.table.item(1, 1).text(), "1")
         self.assertTrue(self.window.table.item(1, 0).font().bold())
+
+    def test_srv_summary_uses_current_capacity_and_preserves_table(self):
+        for vehicle, count, capacity, expected in [
+            ("SRV Rhino", 56, 72, "56 / 72 t"),
+            ("SRV Rhino", 56, 80, "56 / 80 t"),
+            ("SRV Scarab", 2, 4, "2 / 4 t"),
+            ("Scorpion (SRV)", 2, 2, "2 / 2 t"),
+            ("Unknown SRV", 2, None, "2 t"),
+            ("SRV Rhino", 0, 72, "0 / 72 t"),
+            ("Unknown SRV", 0, 0, "0 / 0 t"),
+        ]:
+            with self.subTest(vehicle=vehicle, capacity=capacity):
+                self.window.set_snapshot({
+                    "vessel": "SRV", "vehicle_name": vehicle, "count": count,
+                    "capacity": capacity, "inventory": ([{
+                        "frontier_name": "copper", "display_name": "Kupfer",
+                        "count": count, "stolen": 0, "is_drones": False,
+                    }] if count else []),
+                })
+                self.assertEqual(self.window.summary_label.text(), expected)
+                self.assertEqual(self.window.table.item(0, 0).text(),
+                                 "Kupfer" if count else "Frachtraum leer")
+                if count:
+                    self.assertEqual(self.window.table.item(0, 1).text(), f"{count} t")
+
+    def test_srv_fill_empty_partial_full_and_clamped(self):
+        for count, expected in [(0, 0), (67, 93), (72, 100), (100, 100), (-5, 0)]:
+            with self.subTest(count=count):
+                self.window.set_snapshot({
+                    "vessel": "SRV", "count": count, "capacity": 72, "inventory": [],
+                })
+                self.assertFalse(self.window.fill_bar.isHidden())
+                self.assertEqual(self.window.fill_bar.value(), expected)
+                self.assertEqual(self.window.summary_label.text(),
+                                 f"{max(0, count)} / 72 t")
+
+    def test_srv_fill_resets_when_capacity_unavailable(self):
+        for capacity in (None, 0, -1):
+            with self.subTest(capacity=capacity):
+                self.window.set_snapshot({"vessel": "SRV", "count": 72, "capacity": 72})
+                self.window.set_snapshot({"vessel": "SRV", "count": 0,
+                                          "capacity": capacity})
+                self.assertTrue(self.window.fill_bar.isHidden())
+                self.assertEqual(self.window.fill_bar.value(), 0)
+
+    def test_srv_fill_tracks_vehicle_changes_and_snapshot_reset(self):
+        for snapshot, expected in [
+            ({"vessel": "SRV", "vehicle_name": "Rhino", "count": 67, "capacity": 72}, 93),
+            ({"vessel": "SRV", "vehicle_name": "Scarab", "count": 2, "capacity": 4}, 50),
+            ({"vessel": "SRV", "vehicle_name": "Scorpion", "count": 2, "capacity": 2}, 100),
+            ({"vessel": "Ship", "count": 56, "capacity": 256}, None),
+            ({"vessel": "SRV", "vehicle_name": "Rhino", "count": 67, "capacity": 80}, 84),
+            (None, None),
+        ]:
+            with self.subTest(snapshot=snapshot):
+                self.window.set_snapshot(snapshot)
+                self.assertEqual(self.window.fill_bar.isHidden(), expected is None)
+                self.assertEqual(self.window.fill_bar.value(), expected or 0)
+
+    def test_srv_fill_stays_below_table_at_full_width_in_both_themes(self):
+        original_style = self.app.styleSheet()
+        self.addCleanup(self.app.setStyleSheet, original_style)
+        self.window.set_snapshot({"vessel": "SRV", "count": 67, "capacity": 72})
+        self.window.show()
+        for stylesheet in (DARK_STYLESHEET, LIGHT_STYLESHEET):
+            self.app.setStyleSheet(stylesheet)
+            for width in (360, 520):
+                with self.subTest(stylesheet=stylesheet[:30], width=width):
+                    self.window.resize(width, 300)
+                    self.app.processEvents()
+                    bar = self.window.fill_bar.geometry()
+                    table = self.window.table.geometry()
+                    self.assertGreater(bar.top(), table.bottom())
+                    self.assertEqual(bar.left(), table.left())
+                    self.assertEqual(bar.width(), table.width())
+                    self.assertEqual(bar.height(), 8)
+                    self.assertEqual(bar.bottom(), self.window.height() - 9)
+                    self.assertEqual(self.window.fill_bar.value(), 93)
 
 
 if __name__ == "__main__":

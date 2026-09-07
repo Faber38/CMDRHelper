@@ -12,7 +12,7 @@ from unittest.mock import Mock, patch
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QImage, QPainter, QColor
+from PySide6.QtGui import QImage, QPainter, QColor, QPalette
 from PySide6.QtWidgets import (QApplication, QLabel, QDialog, QComboBox, QLineEdit,
                               QDoubleSpinBox, QDialogButtonBox, QWidget, QMainWindow)
 
@@ -22,7 +22,9 @@ from cmdrhelper.planet_navigation import PlanetNavigationController
 from cmdrhelper.status_reader import StatusError, parse_status, read_status
 from cmdrhelper.ui.planet_3d_widget import Planet3DWidget, grid_distances, grid_distance_y
 from cmdrhelper.ui.planet_navigation_window import PlanetNavigationWindow, angle_text
-from cmdrhelper.i18n import set_language
+from cmdrhelper.i18n import set_language, get_language, tr, _TRANSLATIONS
+from cmdrhelper.help_content import help_topic
+from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 
 
 BASE = datetime(2026, 1, 1, tzinfo=timezone.utc)
@@ -206,6 +208,57 @@ class NavigationTests(unittest.TestCase):
     def start_target(self):
         self.controller.set_target(11, 21)
         self.assertIsNotNone(self.controller.state.solution)
+
+    def test_only_named_target_is_accented_in_both_themes_and_cleared_on_stop(self):
+        window = PlanetNavigationWindow(self.controller, _Settings())
+        self.addCleanup(window.deleteLater)
+        self.assertTrue(window.target_name_label.isHidden())
+        self.controller.set_target(11, 21, name="Thortveitit <b>&")
+        self.assertEqual(window.target_name_label.text(), "Thortveitit <b>&")
+        self.assertEqual(window.target_name_label.textFormat(), Qt.PlainText)
+        self.assertFalse(window.target_name_label.isHidden())
+        self.assertNotIn("Thortveitit", window.body_label.text())
+        for theme, accent, normal in (
+            (DARK_STYLESHEET, '#ff9d00', '#d8dde3'),
+            (LIGHT_STYLESHEET, '#c56f00', '#20262c'),
+        ):
+            window.setStyleSheet(theme)
+            for label, color in ((window.target_name_label, accent),
+                                 (window.body_label, normal),
+                                 (window.values['target_coords'], normal)):
+                label.ensurePolished()
+                self.assertEqual(label.palette().color(QPalette.WindowText).name(), color)
+        self.controller.set_target(11, 21, name="")
+        self.assertTrue(window.target_name_label.isHidden())
+        self.controller.set_target(11, 21, name="Thortveitit")
+        self.controller.stop_target()
+        self.assertEqual(window.target_name_label.text(), "")
+        self.assertTrue(window.target_name_label.isHidden())
+
+    def test_manual_input_button_dialog_and_help_use_translations_in_all_languages(self):
+        language = get_language()
+        self.addCleanup(set_language, language)
+        expected = {
+            'de': 'Manuelle Eingabe …', 'en': 'Manual input…',
+            'fr': 'Saisie manuelle …', 'it': 'Inserimento manuale …',
+            'no': 'Manuell inntasting …', 'sv': 'Manuell inmatning …',
+            'fi': 'Manuaalinen syöttö …', 'pl': 'Wprowadzanie ręczne …',
+            'nl': 'Handmatige invoer …', 'es': 'Entrada manual …',
+            'tr': 'Manuel giriş …', 'el': 'Χειροκίνητη εισαγωγή …',
+        }
+        self.assertEqual(set(expected), set(_TRANSLATIONS))
+        for code, text in expected.items():
+            with self.subTest(language=code):
+                set_language(code)
+                self.assertEqual(tr('planet_nav.enter_target'), text)
+                window = PlanetNavigationWindow(self.controller, _Settings())
+                self.addCleanup(window.deleteLater)
+                self.assertEqual(window.input_button.text(), text)
+                titles = []
+                with patch.object(QDialog, 'exec', lambda dialog: titles.append(dialog.windowTitle())):
+                    window._enter_target()
+                self.assertEqual(titles, [text])
+                self.assertIn(text, help_topic('planet_navigation', code).text)
 
     def test_marker_circles_size_depth_colors_and_overlay_order(self):
         widget = Planet3DWidget(None, diameter=100, navigation=True)
@@ -400,11 +453,14 @@ class NavigationTests(unittest.TestCase):
             self.app.processEvents()
             for distance_m in (20_000, 358_400, 380_000, 380_001, 500_000):
                 with self.subTest(size=(width, height), distance=distance_m):
-                    self.controller.set_target(0, math.degrees(distance_m / 1_000_000), "Test 1")
+                    self.controller.set_target(0, math.degrees(distance_m / 1_000_000),
+                                               "Test 1", name="Thortveitit")
                     self.app.processEvents()
                     expected_mode = "grid" if distance_m <= 380_000 else "globe"
                     self.assertEqual(window.globe.navigation_display_mode, expected_mode)
                     for label in window.findChildren(QLabel):
+                        if not label.isVisible():
+                            continue
                         # Includes headings, wrapped explanations and every detail value.
                         self.assertGreaterEqual(label.height(), label.minimumSizeHint().height())
                         if label.hasHeightForWidth():

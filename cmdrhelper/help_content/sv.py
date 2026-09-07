@@ -1292,7 +1292,7 @@ HELP_TOPICS = {'overview': ('Översikt',
 <p>Den är inte en interstellär ruttplanerare och hanterar varken system- eller hoppnavigering. Du styr ditt skepp själv.</p>
 
 <h3>Öppna navigatorn och ange ett mål</h3>
-<p>Öppna ”Planetnavigering” i översikten och välj ”Ange mål …”.</p>
+<p>Öppna ”Planetnavigering” i översikten och välj ”Manuell inmatning …”.</p>
 <ul>
 <li><b>Himlakropp:</b> Välj målplaneten eller målmånen i listan eller använd den himlakropp som redan identifierats. Du kan också skriva in namnet själv om det ännu inte finns i listan. Om du är osäker, använd hela namnet inklusive systemnamnet.</li>
 <li><b>Latitud:</b> Ange målets latitud mellan −90° och +90°.</li>
@@ -1349,7 +1349,7 @@ HELP_TOPICS = {'overview': ('Översikt',
 <p>HUD:en är bara en extra visning. Den vanliga navigatorn fungerar oberoende av den, även när HUD:en är avstängd eller otillgänglig.</p>
 
 <h3>Sätta ett nytt mål</h3>
-<p>På samma himlakropp kan du när som helst öppna ”Ange mål …” igen och ange andra koordinater. Det nya målet ersätter det tidigare navigeringsmålet. Med motsvarande positionsdata uppdateras kompassen omedelbart.</p>
+<p>På samma himlakropp kan du när som helst öppna ”Manuell inmatning …” igen och ange andra koordinater. Det nya målet ersätter det tidigare navigeringsmålet. Med motsvarande positionsdata uppdateras kompassen omedelbart.</p>
 <p>Med ”Avsluta navigering” tar du bort det aktuella målet. För en ny inflygning anger du helt enkelt ett nytt mål.</p>
 
 <h3>Dataålder och begränsningar</h3>

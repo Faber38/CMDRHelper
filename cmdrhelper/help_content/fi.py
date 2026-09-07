@@ -1303,7 +1303,7 @@ HELP_TOPICS = {'overview': ('Yleiskatsaus',
 <p>Se ei ole tähtienvälinen reittisuunnittelija eikä hoida järjestelmien välistä navigointia tai hyppyjä. Ohjaat alustasi itse.</p>
 
 <h3>Navigaattorin avaaminen ja kohteen syöttäminen</h3>
-<p>Avaa yleiskatsauksessa ”Planeettanavigointi” ja valitse ”Syötä kohde …”.</p>
+<p>Avaa yleiskatsauksessa ”Planeettanavigointi” ja valitse ”Manuaalinen syöttö …”.</p>
 <ul>
 <li><b>Taivaankappale:</b> Valitse kohdeplaneetta tai -kuu luettelosta tai käytä jo tunnistettua taivaankappaletta. Voit myös kirjoittaa taivaankappaleen nimen itse, jos sitä ei vielä ole luettelossa. Käytä epäselvässä tapauksessa koko nimeä, myös järjestelmän nimeä.</li>
 <li><b>Leveysaste:</b> Syötä kohteen leveysaste väliltä −90° ja +90°.</li>
@@ -1360,7 +1360,7 @@ HELP_TOPICS = {'overview': ('Yleiskatsaus',
 <p>HUD on vain lisänäyttö. Tavallinen navigaattori toimii siitä riippumatta, myös silloin, kun HUD on poistettu käytöstä tai ei ole saatavilla.</p>
 
 <h3>Uuden kohteen asettaminen</h3>
-<p>Samalla taivaankappaleella voit milloin tahansa avata ”Syötä kohde …” uudelleen ja asettaa toiset koordinaatit. Uusi kohde korvaa aiemman navigointikohteen. Vastaavilla sijaintitiedoilla kompassi päivittyy heti.</p>
+<p>Samalla taivaankappaleella voit milloin tahansa avata ”Manuaalinen syöttö …” uudelleen ja asettaa toiset koordinaatit. Uusi kohde korvaa aiemman navigointikohteen. Vastaavilla sijaintitiedoilla kompassi päivittyy heti.</p>
 <p>”Lopeta navigointi” poistaa nykyisen kohteen. Aseta vain uusi kohde seuraavaa lähestymistä varten.</p>
 
 <h3>Tietojen ajantasaisuus ja rajoitukset</h3>

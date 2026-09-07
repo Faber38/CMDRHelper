@@ -1,6 +1,6 @@
 # Planetarer Lat/Lon-Kompass
 
-**Explorer → Planeten-Navigation → Ziel eingeben …** öffnet die Zieleingabe jederzeit.
+**Explorer → Planeten-Navigation → Manuelle Eingabe …** öffnet die Zieleingabe jederzeit.
 Der aktuelle Body wird aus Status bzw. Journal übernommen. Alternativ lässt sich
 sein Name auswählen oder eingeben. Latitude und Longitude akzeptieren sechs
 Nachkommastellen, Null und negative Werte. Der Zielname ist optional.

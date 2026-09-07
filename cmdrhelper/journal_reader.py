@@ -6,6 +6,7 @@ import platform
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from cmdrhelper.cargo import srv_cargo_capacity
 from cmdrhelper.journal_files import journal_files
 from cmdrhelper.mission_manager import build_summary, default_next_step, mission_kind
 from cmdrhelper.models import (
@@ -759,6 +760,9 @@ def read_latest_state(
         "last_event": None,
         "last_cargo_event": None,
         "active_srv_type": "",
+        "active_srv_capacity": None,
+        "last_cargo_srv_type": "",
+        "last_cargo_srv_capacity": None,
         "star_pos": None,
         "body": "",
         "station": "",
@@ -1239,9 +1243,13 @@ def read_latest_state(
                         result["active_srv_type"] = str(
                             e.get("Ship_Localised") or e.get("Ship") or ""
                         ).strip()
+                        result["active_srv_capacity"] = srv_cargo_capacity(
+                            e.get("Ship"), e.get("CargoCapacity")
+                        )
                     else:
                         away_from_own_ship = False
                         result["active_srv_type"] = ""
+                        result["active_srv_capacity"] = None
                         result["ship"] = (
                             e.get("ShipName") or e.get("Ship_Localised")
                             or e.get("Ship") or result["ship"]
@@ -1312,6 +1320,10 @@ def read_latest_state(
 
                 elif et == "Cargo":
                     result["last_cargo_event"] = dict(e)
+                    # Keep the vehicle context belonging to this snapshot even
+                    # if DockSRV or a different LaunchSRV follows it.
+                    result["last_cargo_srv_type"] = result["active_srv_type"]
+                    result["last_cargo_srv_capacity"] = result["active_srv_capacity"]
                     if str(e.get("Vessel") or "").strip().casefold() == "ship":
                         cargo = _optional_int(e.get("Count"))
                         if cargo is not None:
@@ -1509,10 +1521,14 @@ def read_latest_state(
                         result["active_srv_type"] = str(
                             e.get("SRVType_Localised") or e.get("SRVType") or ""
                         ).strip()
+                        result["active_srv_capacity"] = srv_cargo_capacity(
+                            e.get("SRVType"), e.get("CargoCapacity")
+                        )
 
                 elif et == "DockSRV":
                     away_from_own_ship = False
                     result["active_srv_type"] = ""
+                    result["active_srv_capacity"] = None
 
                 elif et == "LaunchFighter":
                     if bool(e.get("PlayerControlled")):

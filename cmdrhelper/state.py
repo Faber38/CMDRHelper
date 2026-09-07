@@ -82,6 +82,7 @@ class AppState(QObject):
         self.ship = ""
         self.ship_loadout = ShipLoadoutData()
         self.cargo_snapshot = None
+        self.active_srv_type = ""
         self.last_timestamp = ""
 
         self.missions = []
@@ -957,6 +958,8 @@ class AppState(QObject):
         Copy before the snapshot write: merging display data must never turn
         historical scans into newly observed journal events in the database.
         Zero, False and empty collections are explicit live values, not gaps.
+        Durable BIO findings accumulate across journals; an empty live BIO list
+        only means that this session has not sampled anything on that body yet.
         """
         bodies = deepcopy(current_bodies)
         if self.commander_id is not None and self.system_address is not None:
@@ -974,6 +977,22 @@ class AppState(QObject):
                     bodies.append(current)
                     by_id[body_id] = current
                 else:
+                    bio_fields = ("genus", "species", "variant")
+                    ranks = {"log": 1, "sample": 2, "analyse": 3, "analyze": 3}
+                    biology = {
+                        tuple(entry.get(key) or "" for key in bio_fields): deepcopy(entry)
+                        for entry in historical.get("biology") or []
+                    }
+                    for entry in current.get("biology") or []:
+                        key = tuple(entry.get(field) or "" for field in bio_fields)
+                        previous = biology.get(key) or {}
+                        merged = {**previous, **entry}
+                        if ranks.get(str(previous.get("scan_type")).casefold(), 0) > ranks.get(
+                            str(entry.get("scan_type")).casefold(), 0
+                        ):
+                            merged["scan_type"] = previous["scan_type"]
+                        biology[key] = merged
+                    current["biology"] = list(biology.values())
                     for key, value in historical.items():
                         if current.get(key) is None or current.get(key) == "":
                             current[key] = deepcopy(value)
@@ -1286,6 +1305,7 @@ class AppState(QObject):
         self.station = ""
         self.ship = ""
         self.ship_loadout = ShipLoadoutData()
+        self.active_srv_type = ""
         self.cargo_snapshot = None
         cargo_signal = getattr(self, "cargoSnapshotChanged", None)
         if cargo_signal is not None:
@@ -1618,6 +1638,7 @@ class AppState(QObject):
         self.station = data["station"]
         self.ship = data["ship"]
         self.ship_loadout = data.get("ship_loadout") or ShipLoadoutData()
+        self.active_srv_type = data.get("active_srv_type") or ""
         self.last_timestamp = data["last_timestamp"]
         self.journal_files = data["journal_files"]
 
@@ -1845,7 +1866,8 @@ class AppState(QObject):
             fid=self.commander_fid,
             ship_id=loadout.ship_id,
             cargo_capacity=loadout.cargo_capacity,
-            srv_type=data.get("active_srv_type") or "",
+            srv_type=data.get("last_cargo_srv_type", data.get("active_srv_type")) or "",
+            srv_capacity=data.get("last_cargo_srv_capacity"),
             attempts=5,
             retry_delay=0.04,
         )

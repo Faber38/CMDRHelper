@@ -1276,7 +1276,7 @@ HELP_TOPICS = {'overview': ('Oversikt',
 <p>Den er ikke en interstellar ruteplanlegger og håndterer verken system- eller hoppnavigasjon. Du styrer skipet selv.</p>
 
 <h3>Åpne navigatoren og angi et mål</h3>
-<p>Åpne «Planetnavigasjon» i oversikten og velg «Angi mål …».</p>
+<p>Åpne «Planetnavigasjon» i oversikten og velg «Manuell inntasting …».</p>
 <ul>
 <li><b>Himmellegeme:</b> Velg målplaneten eller målmånen fra listen, eller bruk himmellegemet som allerede er registrert. Du kan også skrive inn navnet selv hvis det ikke finnes i listen ennå. Er du i tvil, bruk hele navnet, inkludert systemnavnet.</li>
 <li><b>Breddegrad:</b> Angi målets breddegrad mellom −90° og +90°.</li>
@@ -1333,7 +1333,7 @@ HELP_TOPICS = {'overview': ('Oversikt',
 <p>HUD-en er bare en ekstra visning. Den vanlige navigatoren fungerer uavhengig av den, også når HUD-en er avslått eller utilgjengelig.</p>
 
 <h3>Sette et nytt mål</h3>
-<p>På samme himmellegeme kan du når som helst åpne «Angi mål …» på nytt og sette andre koordinater. Det nye målet erstatter det forrige navigasjonsmålet. Med tilsvarende posisjonsdata oppdateres kompasset umiddelbart.</p>
+<p>På samme himmellegeme kan du når som helst åpne «Manuell inntasting …» på nytt og sette andre koordinater. Det nye målet erstatter det forrige navigasjonsmålet. Med tilsvarende posisjonsdata oppdateres kompasset umiddelbart.</p>
 <p>Med «Avslutt navigasjon» fjerner du det nåværende målet. For en ny innflyging setter du ganske enkelt et nytt mål.</p>
 
 <h3>Dataenes alder og begrensninger</h3>

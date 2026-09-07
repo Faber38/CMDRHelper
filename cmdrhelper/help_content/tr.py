@@ -1309,7 +1309,7 @@ HELP_TOPICS = {'overview': ('Genel Bakış',
 <p>Bu, yıldızlararası bir rota planlayıcısı değildir ve sistemler arası ya da sıçrama navigasyonunu üstlenmez. Gemini kendin kullanırsın.</p>
 
 <h3>Navigatörü açma ve hedef girme</h3>
-<p>Genel bakışta “Gezegen navigasyonu”nu aç ve “Hedef gir …” seçeneğini seç.</p>
+<p>Genel bakışta “Gezegen navigasyonu”nu aç ve “Manuel giriş …” seçeneğini seç.</p>
 <ul>
 <li><b>Gök cismi:</b> Listeden hedef gezegeni veya ayı seç ya da önceden algılanmış gök cismini kullan. Adı henüz listede yoksa gök cisminin adını kendin de girebilirsin. Emin değilsen sistem adı dâhil tam adı kullan.</li>
 <li><b>Enlem:</b> Hedef enlemini −90° ile +90° arasında gir.</li>
@@ -1366,7 +1366,7 @@ HELP_TOPICS = {'overview': ('Genel Bakış',
 <p>HUD yalnızca ek bir göstergedir. Normal navigatör ondan bağımsız çalışır; HUD kapalı veya kullanılamaz olduğunda da çalışmaya devam eder.</p>
 
 <h3>Yeni bir hedef belirleme</h3>
-<p>Aynı gök cisminde istediğin zaman “Hedef gir …” seçeneğini yeniden açıp farklı koordinatlar belirleyebilirsin. Yeni hedef, önceki navigasyon hedefinin yerini alır. Uygun konum verileriyle pusula hemen güncellenir.</p>
+<p>Aynı gök cisminde istediğin zaman “Manuel giriş …” seçeneğini yeniden açıp farklı koordinatlar belirleyebilirsin. Yeni hedef, önceki navigasyon hedefinin yerini alır. Uygun konum verileriyle pusula hemen güncellenir.</p>
 <p>“Navigasyonu sonlandır” ile güncel hedefi kaldırırsın. Başka bir yaklaşma için yeni bir hedef belirlemen yeterlidir.</p>
 
 <h3>Verilerin güncelliği ve sınırlar</h3>
