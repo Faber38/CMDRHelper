@@ -72,6 +72,23 @@ class WindowsHudTests(unittest.TestCase):
         self.addCleanup(self.hud.deleteLater)
         self.addCleanup(self.hud.close)
 
+    def test_temporary_message_uses_windows_placement_with_hud_off_and_on(self):
+        from PySide6.QtTest import QTest
+        for enabled in (False, True):
+            self.hud.set_enabled(enabled)
+            with patch.object(self.hud, 'activateWindow', side_effect=AssertionError), \
+                 patch.object(self.hud, 'raise_', side_effect=AssertionError):
+                self.hud.show_message(('★ saved', 'Sol 1'), 30)
+                self.assertEqual(self.hud.enabled, enabled)
+                self.assertTrue(self.hud.isVisible())
+                self.assertEqual(self.api.moves[-1], QRect(30, 40, 700, 500))
+                self.assertEqual(self.api.styles[int(self.hud.winId())], win.OVERLAY_STYLES)
+                self.assertEqual(self.api.foreground, 42)
+                QTest.qWait(60)
+                self.assertEqual(self.hud.isVisible(), enabled)
+                self.assertEqual(self.hud.enabled, enabled)
+                self.assertFalse(self.hud.message_lines)
+
     def test_move_resize_minimize_restore_close_and_focus(self):
         with patch.object(self.hud, 'activateWindow', side_effect=AssertionError), \
              patch.object(self.hud, 'setFocus', side_effect=AssertionError), \

@@ -99,8 +99,8 @@ class HelpTranslationTests(unittest.TestCase):
                 text = help_topic("explorer", language).text
                 ui = import_module(f"cmdrhelper.i18n.{language}").TRANSLATIONS
                 favorite_text = text[text.index("<h3>" + ui["favorites.title"] + "</h3>"):]
-                self.assertEqual(text.count("<h3>"), 24)
-                for tag, count in (("h3", 4), ("p", 12), ("ul", 1), ("li", 3)):
+                self.assertEqual(text.count("<h3>"), 25)
+                for tag, count in (("h3", 5), ("p", 16), ("ul", 1), ("li", 3)):
                     self.assertEqual(favorite_text.count(f"<{tag}>"), count)
                 for key in ("save_system", "save_body", "save_surface", "open", "edit",
                             "delete", "navigate", "latest", "choose_image", "use_image",

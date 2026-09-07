@@ -258,9 +258,11 @@ class ContextHelpTests(unittest.TestCase):
             "SRV-Fracht wird niemals als Schiffsfracht übernommen",
         ):
             self.assertIn(passage, topic.text)
-        self.assertEqual(topic.text.count("<h3>"), 24)
+        self.assertEqual(topic.text.count("<h3>"), 25)
         self.assertEqual(topic.text.count("<ul>"), 5)
-        for text in ("★ Favoriten", "Spätere Bewegungen im Spiel verändern diese Werte",
+        for text in ("★ Favoriten", "Schnell-Favorit ohne Maus", "Nicht belegt",
+                     "kein automatischer Screenshot", "Der gespeicherte HUD-Schalter",
+                     "Spätere Bewegungen im Spiel verändern diese Werte",
                      "Dieses Bild verwenden", "nur den Favoritendatensatz",
                      "an den vorhandenen Planeten-Navigator"):
             self.assertIn(text, topic.text)

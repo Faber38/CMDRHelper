@@ -13,6 +13,8 @@ from PIL import Image
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QDialog, QMessageBox, QMainWindow
+from cmdrhelper.global_hotkey import GlobalHotkey
+from cmdrhelper.ui.quick_favorite_settings import QuickFavoriteSettings
 from cmdrhelper.database import CMDRDatabase
 from cmdrhelper.favorites import FavoriteStore, freeze_surface_location, latest_screenshot, navigate_to_favorite
 from cmdrhelper.planet_navigation import PlanetNavigationController
@@ -304,6 +306,9 @@ class FavoriteTests(unittest.TestCase):
         window.state = self.state
         window._planet_navigation_controller = None
         window.ui_theme = 'dark'
+        window._quick_favorite_hotkey = GlobalHotkey(self.state.settings, backend_factory=Mock())
+        self.addCleanup(window._quick_favorite_hotkey.close)
+        window.quick_favorite_settings = QuickFavoriteSettings(window._quick_favorite_hotkey, window)
         window.setCentralWidget(window._explorer())
         self.addCleanup(window.deleteLater)
         self.addCleanup(window._favorites_window.close)
@@ -326,11 +331,59 @@ class FavoriteTests(unittest.TestCase):
         self.assertFalse(window._favorites_window.isVisible())
         window.favorites_button.click()
         self.assertTrue(window._favorites_window.isVisible())
+        with patch.object(window.quick_favorite_settings, 'choose') as choose:
+            view.quick_favorite_setup_button.click()
+            choose.assert_called_once_with()
         self.assertIs(window._favorites_window.layout().itemAt(0).widget(), view)
         window._favorites_window.close()
         window.favorites_button.click()
         self.assertIs(window.favorites_view, view)
         self.assertEqual(view.search.text(), 'retained search')
+
+    def hint_view(self, binding=''):
+        backend = Mock()
+        hotkey = GlobalHotkey(self.state.settings, backend_factory=Mock(return_value=backend))
+        self.addCleanup(hotkey.close)
+        if binding:
+            self.assertTrue(hotkey.set_hotkey(binding))
+        configure = Mock()
+        view = FavoritesView(self.state, Mock(), Mock(), quick_favorite_hotkey=hotkey,
+                             configure_hotkey_callback=configure)
+        self.addCleanup(view.close)
+        view.show()
+        return view, hotkey, backend, configure
+
+    def test_unassigned_hotkey_shows_hint_without_opening_configuration(self):
+        view, hotkey, backend, configure = self.hint_view()
+        self.assertTrue(view.quick_favorite_hint.isVisible())
+        configure.assert_not_called()
+        backend.register.assert_not_called()
+        view.quick_favorite_setup_button.click()
+        configure.assert_called_once_with()
+
+    def test_assigned_hotkey_hides_hint(self):
+        view, hotkey, backend, configure = self.hint_view('Ctrl+F8')
+        self.assertFalse(view.quick_favorite_hint.isVisible())
+
+    def test_successful_assignment_hides_hint_and_removal_restores_it(self):
+        view, hotkey, backend, configure = self.hint_view()
+        view.search.setText('keep filter')
+        self.assertTrue(hotkey.set_hotkey('Ctrl+F8'))
+        self.assertFalse(view.quick_favorite_hint.isVisible())
+        self.assertEqual(view.search.text(), 'keep filter')
+        self.assertTrue(hotkey.set_hotkey(''))
+        self.assertTrue(view.quick_favorite_hint.isVisible())
+        view.close()
+        view.show()
+        view.refresh()
+        self.assertTrue(view.quick_favorite_hint.isVisible())
+        self.assertEqual(view.search.text(), 'keep filter')
+
+    def test_failed_assignment_keeps_hint_visible(self):
+        view, hotkey, backend, configure = self.hint_view()
+        backend.register.side_effect = RuntimeError('conflict')
+        self.assertFalse(hotkey.set_hotkey('Ctrl+F8'))
+        self.assertTrue(view.quick_favorite_hint.isVisible())
 
     def live_status(self, latitude=0.0, longitude=0.0):
         self.state.journal_folder = str(self.root)

@@ -34,14 +34,14 @@ class PythonSupportTests(unittest.TestCase):
                       patch('cmdrhelper.python_support.sysconfig.get_platform', return_value=platform)):
                     self.assertFalse(is_supported((3, 14, 0)))
 
-    def test_linux_retains_previous_bounds_without_architecture_checks(self):
+    def test_linux_accepts_310_and_future_versions_without_architecture_checks(self):
         with (patch('cmdrhelper.python_support.sys.platform', 'linux'),
               patch('cmdrhelper.python_support.struct.calcsize', side_effect=AssertionError('no Linux architecture check')),
               patch('cmdrhelper.python_support.sysconfig.get_platform', side_effect=AssertionError('no Linux architecture check'))):
-            for minor in range(9, 100):
+            for minor in range(0, 100):
                 with self.subTest(minor=minor):
-                    self.assertEqual(is_supported((3, minor, 0)), 10 <= minor <= 13)
-            self.assertEqual(supported_description(), 'Python 3.10 bis 3.13 (64-Bit empfohlen)')
+                    self.assertEqual(is_supported((3, minor, 0)), minor >= 10)
+            self.assertEqual(supported_description(), 'Python 3.10 oder neuer (64-Bit empfohlen)')
 
 
 class WindowsBatchContractTests(unittest.TestCase):

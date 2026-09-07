@@ -98,6 +98,7 @@ exit 0
             )
             self.assertEqual(result.returncode, 10)
             self.assertIn("Keine unterstützte Python-Version", result.stderr)
+            self.assertIn("Python 3.10 oder neuer", result.stderr)
 
     def test_repair_marker_blocks_and_names_install_sh(self):
         with tempfile.TemporaryDirectory() as directory:
