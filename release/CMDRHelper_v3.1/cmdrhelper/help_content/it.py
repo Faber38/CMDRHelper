@@ -1,0 +1,1429 @@
+"""Italian content for contextual help."""
+
+
+HELP_TOPICS = {'overview': ('Panoramica',
+              '<h2>Panoramica</h2>\n'
+              '<p>La panoramica è la home page di CMDRHelper. Riepiloga le informazioni più '
+              "importanti sul comandante attualmente attivo e mostra a colpo d'occhio se il "
+              'diario, la posizione e i servizi online sono riconosciuti correttamente.</p>\n'
+              '\n'
+              '<h3>Comandante e nave</h3>\n'
+              "<p>Qui vengono visualizzati il \u200b\u200bcomandante riconosciuto dall'Elite "
+              'Dangerous Journal e la nave attualmente in uso.</p>\n'
+              "<p>CMDRHelper assegna i dati personali al rispettivo comandante in base all'ID "
+              'Frontier (FID). Ciò mantiene i dati di diversi comandanti separati gli uni dagli '
+              'altri.</p>\n'
+              '<p>Quando si cambia il comandante, vengono caricate le informazioni salvate '
+              'associate al nuovo comandante.</p>\n'
+              '\n'
+              '<h3>diario</h3>\n'
+              '<p>CMDRHelper utilizza i file journal di Elite Dangerous come fonte dati '
+              'principale.</p>\n'
+              '<p>La visualizzazione del diario informa se i file del diario sono stati trovati e '
+              'assegnati al comandante attivo. Le nuove voci del diario complete vengono elaborate '
+              'automaticamente durante il gioco.</p>\n'
+              '<p>Le aree del giornale che sono già state elaborate vengono salvate in modo che '
+              'CMDRHelper non debba valutare nuovamente completamente ciascun giornale al '
+              'successivo avvio.</p>\n'
+              '\n'
+              '<h3>Posizione attuale</h3>\n'
+              '<p>Mostra il sistema stellare attualmente conosciuto e, per quanto noto dal diario, '
+              'la posizione esatta del comandante.</p>\n'
+              '<p>La posizione viene aggiornata da eventi come salti, attracco e altri rapporti di '
+              'posizione e memorizzata comandante per comando.</p>\n'
+              '\n'
+              '<h3>Missioni</h3>\n'
+              "<p>Quest'area mostra il numero di missioni aperte attualmente conosciute.</p>\n"
+              '<p>Il pulsante o la voce di menu "Missioni" ti porta alla visualizzazione completa '
+              'della missione con gli obiettivi noti della missione e le informazioni sullo '
+              'stato.</p>\n'
+              '\n'
+              '<h3>Ultimo atto</h3>\n'
+              '<p>“Ultimo stato” riassume l’ultimo stato di comandante persistente conosciuto. Ciò '
+              'consente di ripristinare informazioni importanti anche dopo aver riavviato Elite '
+              'Dangerous o CMDRHelper.</p>\n'
+              '\n'
+              '<h3>Sistemi finali</h3>\n'
+              '<p>I sistemi recentemente visitati o riconosciuti dalla rivista vengono '
+              'visualizzati qui.</p>\n'
+              "<p>L'elenco serve come una rapida panoramica del recente viaggio del "
+              'Comandante.</p>\n'
+              '<p>La cronologia delle visite considera Location, FSDJump e CarrierJump anche durante la lettura del journal in tempo reale. Più eventi di posizione nello stesso soggiorno ininterrotto contano come una visita: A → A → A conta una volta. Un vero ritorno viene conservato: A → B → C → A conta quattro visite.</p>\n\n'
+              '<h3>Stato in linea</h3>\n'
+              '<p>Sono presenti ulteriori indicatori di stato nella parte superiore della finestra '
+              'principale:</p>\n'
+              '<ul>\n'
+              '<li><b>Riconosciuto il giornale</b>– CMDRHelper ha rilevato una fonte di giornale e '
+              "un'identità del comandante valide.</li>\n"
+              '<li><b>EDSM</b>– mostra lo stato corrente della trasmissione EDSM per il giornale '
+              'attivo FID.</li>\n'
+              '<li><b>INARA</b>– mostra lo stato corrente della trasmissione Inara per il giornale '
+              'attivo FID.</li>\n'
+              '</ul>\n'
+              '<p>I dati di accesso online sono gestiti separatamente per ciascun comandante. Un '
+              'comandante non usa mai automaticamente lo API-Key di un altro comandante.</p>\n'
+              '\n'
+              '<h3>Importante per più comandanti</h3>\n'
+              '<p>I dati in tempo reale dipendono sempre dal comandante che è stato chiaramente '
+              "identificato dall'attuale sessione del diario di Elite Dangerous.</p>\n"
+              '<p>La semplice visualizzazione di un comandante diverso in una vista non modifica '
+              'il comandante live attivo né influisce su alcuna trasmissione EDSM o Inara.</p>\n'
+              '\n'
+              '<h3>Mancia</h3>\n'
+              '<p>Se il comandante, la nave o la posizione non corrispondono allo stato attuale '
+              'del gioco, controlla prima la visualizzazione del diario in alto e poi controlla la '
+              'cartella del diario impostata in "Impostazioni".</p>'),
+ 'missions': ('Missioni',
+              '<h2>Missioni</h2>\n'
+              '<p>La visualizzazione delle missioni mostra le missioni del comandante attualmente '
+              "visualizzato conosciuto dall'Elite Dangerous Journal. CMDRHelper salva i dati della "
+              'missione in base al comando, in modo che le missioni aperte vengano mantenute anche '
+              'dopo il riavvio di Elite Dangerous o CMDRHelper.</p>\n'
+              '\n'
+              '<h3>Missioni aperte</h3>\n'
+              '<p>Stanno per uscire nuove missioni<code>MissionAccepted</code>preso in carico e '
+              'salvato permanentemente.</p>\n'
+              '<p>Finché non si verifica un evento della missione finale, la missione rimane '
+              'aperta. Una nuova sessione di gioco senza un elenco di missioni potrebbe non '
+              'rimuovere automaticamente le missioni aperte conosciute.</p>\n'
+              '\n'
+              '<h3>Stato della missione</h3>\n'
+              '<p>CMDRHelper elabora, tra gli altri, i seguenti cambiamenti di stato:</p>\n'
+              '<ul>\n'
+              '<li>Missione accettata</li>\n'
+              '<li>Missione completata</li>\n'
+              '<li>Missione fallita</li>\n'
+              '<li>Missione interrotta</li>\n'
+              '<li>Obiettivo della missione deviato</li>\n'
+              '<li>Progressi nelle missioni carico/deposito supportate</li>\n'
+              '</ul>\n'
+              '<p>Un evento finale cambia solo la missione associata.</p>\n'
+              '\n'
+              '<h3>Missioni dal diario</h3>\n'
+              '<p>Elite Dangerous fornisce informazioni sulla missione su vari eventi del diario. '
+              'CMDRHelper unisce questi eventi in uno stato di missione persistente.</p>\n'
+              '<p>Un vero evento di missione completo può fungere da istantanea autorevole. Se '
+              'manca un evento del genere, le missioni aperte più vecchie non verranno chiuse solo '
+              'per questo motivo.</p>\n'
+              '\n'
+              '<h3>Destinazioni e luoghi</h3>\n'
+              '<p>Nella misura in cui Elite fornisce le informazioni nel giornale, CMDRHelper '
+              'mostra:</p>\n'
+              '<ul>\n'
+              '<li>Sistema di obiettivi</li>\n'
+              '<li>Stazione di destinazione o destinazione</li>\n'
+              '<li>Prendi di mira il pianeta o il corpo</li>\n'
+              '<li>Designazione della missione</li>\n'
+              '<li>progressi conosciuti</li>\n'
+              '<li>stato attuale</li>\n'
+              '</ul>\n'
+              '<p>Non tutte le missioni forniscono tutte le informazioni. I dati mancanti non sono '
+              'inventati da CMDRHelper.</p>\n'
+              '\n'
+              '<h3>Persistenza e ripartenza</h3>\n'
+              '<p>Le missioni aperte vengono salvate nel database relativo al comandante.</p>\n'
+              '<p>Ciò significa che vengono conservati anche se:</p>\n'
+              '<ul>\n'
+              '<li>Elite Dangerous viene terminato e riavviato successivamente</li>\n'
+              '<li>CMDRHelper è chiuso nel mezzo</li>\n'
+              '<li>La nuova sessione del diario inizialmente non contiene eventi di missione</li>\n'
+              '</ul>\n'
+              '<p>Solo un evento di missione documentato modifica lo stato salvato.</p>\n'
+              '\n'
+              '<h3>Diversi comandanti</h3>\n'
+              '<p>Le missioni sono rigorosamente separate dal comandante.</p>\n'
+              '<p>Un evento di missione viene assegnato solo al comandante la cui sessione del '
+              'diario è stata identificata in modo univoco. Le missioni di un altro comandante non '
+              'possono essere visualizzate o modificate.</p>\n'
+              '\n'
+              '<h3>Missioni orfane o non più valide</h3>\n'
+              "<p>Se i dati del diario più vecchi o un'importazione precedente mantengono aperta "
+              'una missione anche se non esiste più nel gioco, è possibile utilizzare la funzione '
+              'di ripristino/pulizia delle missioni orfane esistenti.</p>\n'
+              '<p>Questa funzione dovrebbe essere utilizzata solo se è chiaro che la missione '
+              'visualizzata non è più attiva.</p>\n'
+              '\n'
+              '<h3>Servizi in linea</h3>\n'
+              '<p>Gli eventi di missione supportati possono inoltre essere trasmessi a Inara se è '
+              'impostato un accesso Inara valido e attivato per il giornale attivo FID.</p>\n'
+              '<p>Una connessione Inara mancante o irraggiungibile non influisce sulla '
+              'memorizzazione della missione locale.</p>\n'
+              '\n'
+              '<h3>Mancia</h3>\n'
+              '<p>Se una missione non appare o mostra uno stato errato, controlla prima se Elite '
+              "Dangerous ha già scritto l'evento della missione corrispondente sul diario.</p>\n"
+              '<p>CMDRHelper può visualizzare solo le informazioni fornite effettivamente dal '
+              'diario o che sono già state memorizzate da precedenti eventi di missione '
+              'unici.</p>'),
+ 'explorer': ('Esploratore',
+              '<h2>Esploratore</h2>\n'
+              "<p>L'Explorer valuta i sistemi e i corpi celesti scoperti e scansionati dal "
+              'comandante attivo. Combina i dati del tuo diario Elite Dangerous con informazioni '
+              "aggiuntive già disponibili e visualizza insieme l'esplorazione, la cartografia, i "
+              "segnali biologici/geologici e i dati sull'estrazione mineraria di superficie.</p>\n"
+              '\n'
+              '<h3>Sistema attuale</h3>\n'
+              "<p>L'attuale livello di conoscenza del sistema è riepilogato nell'area "
+              'superiore.</p>\n'
+              '<p>Questi includono, tra gli altri:</p>\n'
+              '<ul>\n'
+              '<li>corpi ben noti e persino registrati nel giornale</li>\n'
+              '<li>segnali esistenti</li>\n'
+              '<li>Scansiona i valori</li>\n'
+              '<li>valore cartografico già raggiunto</li>\n'
+              '<li>possibile valore totale se completamente mappato</li>\n'
+              '<li>Stato BIO e valori BIO stimati</li>\n'
+              '<li>Cartografia e dati BIO che non sono stati ancora inviati</li>\n'
+              '</ul>\n'
+              '<p>I valori indicati si basano sui dati effettivamente disponibili. Le informazioni '
+              'mancanti non vengono presentate come una scoperta separata.</p>\n'
+              '\n'
+              '<h3>Mappa del sistema</h3>\n'
+              '<p>La mappa del sistema rappresenta graficamente stelle, pianeti, lune e altri '
+              'corpi conosciuti nel sistema attuale.</p>\n'
+              '<p>È possibile fare clic su un corpo per aprirne la vista dettagliata.</p>\n'
+              '<p>Il display mostra, tra le altre cose, il tipo di corporatura, la distanza e, se '
+              'disponibili, i valori di scansione e cartografia, nonché proprietà speciali di '
+              'esplorazione.</p>\n'
+              '\n'
+              '<h3>BIOLOGICO ×N</h3>\n'
+              '<p>BIO ×N denota il numero di segnali biologici di un corpo riportati dal '
+              'gioco.</p>\n'
+              '<p>Il numero inizialmente indica solo quanti segnali o generi biologici sono stati '
+              'segnalati. Ciò non significa automaticamente che tutte le specie biologiche siano '
+              'già state trovate o analizzate.</p>\n'
+              '<p>Le effettive scoperte organiche proprie sono conservate separatamente.</p>\n'
+              '\n'
+              '<h3>GEO×N</h3>\n'
+              '<p>GEO×N mostra il numero di segnali geologici di un corpo segnalati dal '
+              'gioco.</p>\n'
+              '<p>Questi possono includere, ad esempio, caratteristiche geologiche come fumarole o '
+              'geyser. CMDRHelper visualizza solo le informazioni che appaiono dai dati del '
+              'giornale/corpo esistenti.</p>\n'
+              '\n'
+              '<h3>ABBAU ×N</h3>\n'
+              '<p>ABBAU ×N mostra il numero di siti minerari planetari di un corpo segnalati da '
+              'Elite Dangerous.</p>\n'
+              '<p>Esempio:</p>\n'
+              '<p><b>ABBAU ×24</b></p>\n'
+              '<p>significa che per questo corpo sono stati segnalati 24 siti minerari '
+              'planetari.</p>\n'
+              '<p>Il numero non dice quale materia prima può essere estratta in un unico '
+              'luogo.</p>\n'
+              '\n'
+              '<h3>Reperti minerari propri</h3>\n'
+              '<p>Se il comandante ha effettivamente effettuato operazioni di superficie con lo '
+              'Rhino, lo CMDRHelper memorizza i risultati personali documentati '
+              'separatamente.</p>\n'
+              '<p>Viene fatta una distinzione tra:</p>\n'
+              '<ul>\n'
+              '<li>merci effettivamente ottenute, ad es. B. Rame in tonnellate</li>\n'
+              "<li>materiali secondari raccolti durante l'estrazione</li>\n"
+              '<li>materiali generali della superficie del corpo</li>\n'
+              '</ul>\n'
+              '<p>Un esempio di ritrovamento personale potrebbe essere:</p>\n'
+              '<p><b>Rame – 56 t</b></p>\n'
+              '<p>Queste informazioni significano che questo comandante ha effettivamente estratto '
+              'lì 56 t di rame.</p>\n'
+              '<p>I reperti minerari personali vengono salvati per ciascun comandante e non '
+              'vengono mescolati con i reperti di altri comandanti.</p>\n'
+              '\n'
+              '<h3>Materiali della superficie corporea</h3>\n'
+              '<p><code>Scan.Materials</code>descrive la composizione generale del materiale '
+              'superficiale di un corpo.</p>\n'
+              '<p>Ad esempio, ferro, nichel, zolfo o altri materiali possono essere visualizzati '
+              'con valori percentuali.</p>\n'
+              '<p>Questi valori non vanno confusi con le materie prime di un deposito minerario '
+              'planetario. Frontier non fornisce alcuna associazione diretta documentata tra '
+              'questi materiali generali del corpo e i contenuti di un singolo sito minerario nel '
+              'Diario.</p>\n'
+              '\n'
+              '<h3>Terraformazione</h3>\n'
+              "<p>Il simbolo o l'etichetta per la terraformazione mostra che un corpo è "
+              'considerato un candidato alla terraformazione in base ai dati disponibili.</p>\n'
+              '\n'
+              '<h3>Prima scoperta</h3>\n'
+              '<p>«Già scoperto al momento della tua scansione» descrive lo stato precedente a quella scansione. Sì significa già scoperto, No significa non ancora scoperto allora; le informazioni mancanti restano Sconosciute. ★ indica un candidato First Discovery al momento della scansione, non un primato ufficiale ancora garantito oggi.</p>\n<p>Un valore storico WasDiscovered=false o WasMapped=false non significa che il corpo sia ancora non scoperto o non mappato oggi. Queste osservazioni restano storiche dopo la vendita dei dati o una nuova visita. La presenza in EDSM è un’informazione separata e non prova una scoperta ufficiale in Elite. Non se ne deduce alcun primo scopritore ufficiale.</p>\n'
+              '\n'
+              '<h3>Prima mappatura</h3>\n'
+              '<p>CMDRHelper distingue tra:</p>\n'
+              '<ul>\n'
+              '<li>◉ Candidato First Mapping al momento della scansione: non ancora mappato quando lo hai scansionato</li>\n<li>◎ Mappato da te: è registrato il completamento della tua mappatura DSS</li>\n<li>◉✓ Candidato alla scansione e tua mappatura documentati; primato ufficiale non confermato</li>\n'
+              '</ul>\n'
+              '<p>«Già mappato al momento della tua scansione» viene valutato indipendentemente dalla scoperta. Le informazioni mancanti restano Sconosciute. Un corpo già scoperto poteva non essere ancora mappato alla scansione. La tua mappatura non conferma un riconoscimento ufficiale First Mapping; dopo più visite, neppure l’ordine rispetto alla scansione salvata è sempre documentato.</p>\n<p>Il completamento della tua mappatura DSS salva ora in modo affidabile l’ora della mappatura, le sonde usate e l’obiettivo di efficienza. Le scansioni successive non fanno più perdere i dati esistenti.</p>\n'
+              '\n'
+              '<h3>Bar di campagna</h3>\n'
+              "<p>L'indicatore di atterrabilità identifica i corpi sui quali, secondo i dati "
+              "conosciuti, è possibile l'atterraggio.</p>\n"
+              '\n'
+              '<h3>Cornici dorate/corpi pregiati</h3>\n'
+              '<p>I corpi particolarmente preziosi possono essere evidenziati nella '
+              "visualizzazione dell'esploratore.</p>\n"
+              '<p>Il bordo dorato indica una stima di cartografia sopra la soglia impostata. Non è un indicatore First Discovery e non conferma dati invenduti o bonus di primato ancora disponibili oggi.</p>\n'
+              '<p>Non sostituisce la visualizzazione dettagliata del valore del corpo.</p>\n'
+              '\n'
+              '<h3>Elenco dei valori</h3>\n'
+              '<p>La lista dei valori mostra stime basate sulla scansione salvata, non pagamenti ancora dovuti garantiti. I bonus di primato restano non confermati. I suggerimenti di mappa e lista e i dettagli del corpo usano gli stessi stati riferiti al momento della scansione.</p>\n'
+              '<p>È particolarmente adatto per confrontare rapidamente corpi interessanti o '
+              'preziosi in un sistema.</p>\n'
+              '\n'
+              '<h3>ORGANICO/GEO/DEGRADAZIONE</h3>\n'
+              '<p>Questa visione raggruppa corpi con segnali di degrado biologico, geologico o '
+              'planetario.</p>\n'
+              '<p>Ciò significa che non è necessario cercare singolarmente i corpi interessanti '
+              'nella mappa completa del sistema.</p>\n'
+              '<p>Se disponi di dati di estrazione di superficie, possono essere visibili anche i '
+              'tuoi ritrovamenti minerari personali.</p>\n'
+              '<p>Le larghezze modificate manualmente nella tabella comune BIO / GEO / ABBAU dell’Explorer restano salvate dopo la riapertura e il riavvio. Il ripristino delle colonne dei popup è più robusto; valori non validi vengono sostituiti da larghezze predefinite sicure.</p>\n\n'
+              '<h3>Particolare del corpo</h3>\n'
+              '<p>Cliccando su un corpo si apre la vista dettagliata.</p>\n'
+              '<p>Per quanto è noto, lì può apparire quanto segue:</p>\n'
+              '<ul>\n'
+              '<li>Tipo di corporatura</li>\n'
+              '<li>massa</li>\n'
+              '<li>distanza</li>\n'
+              '<li>Gravità</li>\n'
+              '<li>atmosfera</li>\n'
+              '<li>Atterrabilità</li>\n'
+              '<li>Stato di terraformazione</li>\n'
+              '<li>Segnali BIO/GEO</li>\n'
+              '<li>siti minerari planetari</li>\n'
+              '<li>Materiali di superficie</li>\n'
+              '<li>propri reperti minerari</li>\n'
+              '<li>Valore di scansione</li>\n'
+              '<li>valore cartografico</li>\n'
+              '<li>valore corrente</li>\n'
+              '</ul>\n'
+              '<p>Non tutti gli enti dispongono di tutte le informazioni.</p>\n'
+              '\n'
+              '<h3>Previsioni BIO</h3>\n'
+              '<p>CMDRHelper può stimare possibili scoperte biologiche sulla base dei dati '
+              'esistenti su corpi idonei.</p>\n'
+              '<p>Le previsioni non sono una garanzia che una particolare specie sarà '
+              "effettivamente presente. Servono come aiuto decisionale per l'esplorazione.</p>\n"
+              '<p>Anche i valori BIO stimati sono previsioni e vengono trattati separatamente dai '
+              'risultati effettivi confermati.</p>\n'
+              '\n'
+              '<h3>Non ancora inviato</h3>\n'
+              '<p>CMDRHelper mantiene la cartografia nota relativa al comandante e i dati BIO che '
+              'non sono stati ancora inviati.</p>\n'
+              '<p>Le vendite di cartografia e le royalties biologiche vengono contabilizzate '
+              'utilizzando gli eventi del giornale corrispondenti.</p>\n'
+              '<p>I dati cartografici già venduti non dovrebbero apparire nuovamente aperti dopo '
+              'la ricostruzione.</p>\n'
+              '\n'
+              '<h3>Mostra auto</h3>\n'
+              '<p>I suggerimenti Explorer supportati, come Corpi di valore o Ritrovamenti BIO, '
+              'possono essere visualizzati automaticamente utilizzando gli interruttori nella '
+              'barra laterale sinistra.</p>\n'
+              '<p>Queste piccole finestre live servono come suggerimenti aggiuntivi durante il '
+              'gioco e non sostituiscono la visualizzazione completa di Explorer.</p>\n'
+              '<p>“Cargo” mostra le scorte confermate dello Ship o SRV determinato dalla FID attiva del Journal. Il Cargo dello SRV non viene mai acquisito come Cargo dello Ship; i Limpets contano nell’occupazione totale e vengono mostrati separatamente nella tabella Nome | Quantità.</p>\n'
+              '<p>Il progresso BIO è compatto: 1/3 giallo, 2/3 blu e 3/3 verde; anche lo stato completato «Completato» è verde. In «mostra automaticamente», GEO ha un proprio interruttore salvato: solo BIO, solo GEO o entrambi insieme.</p>\n<p>La finestra di carico adatta automaticamente l’altezza al contenuto. Con molte voci l’altezza è limitata e la tabella scorre; larghezza scelta e posizione restano invariate. L’interruttore esistente «HUD del carico» è ora in «mostra automaticamente», senza un secondo interruttore nella finestra di carico.</p>\n\n'
+              '<h3>Diversi comandanti</h3>\n'
+              "<p>I risultati dell'esplorazione personale, la cartografia, i reperti BIO e i "
+              'propri reperti minerari di superficie vengono assegnati al rispettivo '
+              'comandante.</p>\n'
+              '<p>Le proprietà astronomiche globali di un corpo - ad esempio il numero di siti '
+              'minerari planetari conosciuti - rimangono proprietà del corpo stesso.</p>\n'
+              '\n'
+              '<h3>Mancia</h3>\n'
+              '<p>Se hai un corpo interessante, vale la pena fare clic sulla vista dettagliata. '
+              'Questo è il posto migliore per distinguere tra dati generali del corpo, possibili '
+              "risultati dell'esplorazione e ritrovamenti effettivi documentati dal tuo "
+              'comandante.</p>'
+              """
+
+<h3>★ Preferiti</h3>
+<p>Il pulsante «★ Preferiti» in alto nell’Explorer apre una finestra dei preferiti separata e riutilizzabile. Qui puoi salvare sistemi, pianeti/lune e luoghi in superficie per il comandante attivo.</p>
+<p>L’elenco scorrevole, ordinato alfabeticamente per nome, mostra nome, tipo, sistema, corpo e latitudine/longitudine se pertinenti, categoria e una piccola anteprima dell’immagine. Ricerca a testo libero, filtro per tipo e filtro per categoria possono essere combinati. La ricerca considera nome, sistema, corpo e nota.</p>
+<p>«Apri / Mostra» mostra i dati salvati, la nota e un’anteprima più grande. «Mostra nell’Explorer» apre la panoramica del sistema o la vista dettagliata del corpo già esistenti, se il preferito appartiene al sistema attuale dell’Explorer e sono disponibili dati corrispondenti. Per gli altri sistemi restano visibili i dati salvati del preferito; non viene calcolata alcuna rotta tra sistemi.</p>
+
+<h3>Salvare un sistema, un pianeta o la posizione attuale</h3>
+<ul>
+<li>«★ Salva il sistema attuale» salva il sistema attuale senza coordinate di superficie.</li>
+<li>«★ Salva pianeta / luna» permette di scegliere un pianeta o una luna conosciuti del sistema attuale. Anche questo preferito non riceve coordinate di superficie.</li>
+<li>«★ Salva la posizione attuale» si trova in alto nella finestra dei preferiti, accanto alle altre due opzioni di salvataggio, ed è disponibile anche nel navigatore planetario. Nella finestra dei preferiti il pulsante resta sempre visibile ed è disattivato in assenza di dati di posizione planetaria attuali validi e di un comandante attivo. Il clic fissa comandante, sistema, corpo, latitudine e longitudine. I successivi movimenti nel gioco non modificano questi valori nella finestra di dialogo aperta.</li>
+</ul>
+<p>Inserisci un nome a scelta e seleziona esattamente una categoria: Bio, Geo, Estrazione, Panorama, Sito di atterraggio, Interessante o Altro. Nota e immagine sono facoltative. Gli ID tecnici conosciuti vengono acquisiti internamente; non devi inserirli. Anche latitudine o longitudine 0,0 sono coordinate valide.</p>
+<p>«Modifica» modifica nome, categoria, nota e immagine. Sistema, corpo e coordinate salvate vengono conservati. Per salvare un altro luogo in superficie, crea un nuovo preferito in quella posizione.</p>
+
+<h3>Preferito rapido senza mouse</h3>
+<p>In «Impostazioni → Preferito rapido» puoi impostare liberamente, modificare o rimuovere una scorciatoia da tastiera globale. Dopo l’installazione, per impostazione predefinita è «Non assegnata»: CMDRHelper non registra alcun tasto senza che venga richiesto. L’assegnazione viene salvata. Se una combinazione è già in uso o non è disponibile sul tuo sistema, compare un messaggio di errore; un’eventuale assegnazione precedentemente funzionante viene mantenuta.</p>
+<p>Su Linux/X11 e Windows, la scorciatoia funziona anche mentre Elite ha il focus – a piedi, nell’SRV e nella nave. Una pressione salva immediatamente la posizione attuale sulla superficie per il comandante attivo, senza finestre di dialogo e senza usare il mouse. Il comandante, il sistema, il corpo e i valori attuali di Latitude/Longitude vengono fissati in quel momento. Senza coordinate planetarie attuali valide non viene salvato nulla; le coordinate precedenti non vengono riutilizzate.</p>
+<p>Il preferito riceve un nome provvisorio univoco, come «Marcatore 07.09.2026 06:32:15», e la categoria «Altro». Nella normale finestra dei preferiti puoi in seguito rinominarlo, assegnarlo a un’altra categoria, aggiungere una nota o un’immagine. Nessuno screenshot viene acquisito o importato automaticamente.</p>
+<p>Per circa due secondi, «★ PREFERITO SALVATO» compare direttamente sopra la finestra attiva di Elite con il corpo e le coordinate; se la posizione non è disponibile, compare brevemente «⚠ NESSUNA COORDINATA PLANETARIA». La visualizzazione non prende il focus e non intercetta gli input. Funziona anche con l’HUD di navigazione disattivato e poi scompare completamente. Con l’HUD attivato, in seguito rimane la normale visualizzazione di navigazione. L’impostazione salvata dell’interruttore dell’HUD non viene modificata. La visualizzazione utilizza la stessa infrastruttura di sovrimpressione e gli stessi requisiti di piattaforma dell’HUD di navigazione.</p>
+
+<h3>Immagini dei preferiti</h3>
+<p>Le immagini dei preferiti sono separate dalla sezione Immagini. «Scegli immagine …» accetta PNG, JPEG e WebP. Solo al salvataggio CMDRHelper copia l’immagine selezionata nella propria cartella delle immagini dei preferiti. Il file originale non viene né spostato né modificato.</p>
+<p>«Usa l’ultimo screenshot» rilegge a ogni clic la cartella sorgente degli screenshot configurata e cerca screenshot leggibili con nomi di file tipici di Elite. Senza configurazione vengono considerate le consuete cartelle degli screenshot Elite su Windows o Steam/Proton. Viene cercato anche nella cartella del comandante attivo all’interno della destinazione di conversione configurata, per trovare gli screenshot Elite convertiti corrispondenti. Uno screenshot convertito resta così reperibile anche se il suo BMP originale è stato eliminato. Per stabilire lo scatto più recente conta una data e ora univoca nel nome del file, altrimenti la data del file; per le immagini convertite conta l’ora dello scatto salvata nel nome, non quella della conversione. CMDRHelper non scatta screenshot autonomamente e non cerca in cartelle di immagini generiche.</p>
+<p>Prima dell’utilizzo vengono mostrati nome del file, data e ora dello scatto e un’anteprima appena caricata. Conferma con «Usa questa immagine». Se non viene trovato uno screenshot adatto, puoi comunque usare «Scegli immagine …». Gli screenshot BMP di Elite vengono salvati come copia PNG interna.</p>
+<p>Un’immagine può essere sostituita nella finestra di modifica o deselezionata con «Rimuovi immagine». Al salvataggio viene eliminata la copia interna non più utilizzata. Se manca un file immagine, il preferito resta utilizzabile senza anteprima.</p>
+
+<h3>Destinazione del preferito e comandante</h3>
+<p>Per i luoghi in superficie, «▶ Vai alla destinazione» passa corpo, latitudine, longitudine e nome del preferito salvati al navigatore planetario esistente. La nuova destinazione sostituisce la precedente. I preferiti non hanno una logica di navigazione propria. Il navigatore continua a decidere autonomamente: dati planetari validi e corrispondenti attivano la navigazione; altrimenti attende tali dati.</p>
+<p>I preferiti appartengono esclusivamente al comandante attivo. Cambiando comandante, l’elenco viene aggiornato e un’eventuale finestra di modifica aperta viene annullata. Una destinazione ancora gestita come destinazione preferita del comandante precedente viene terminata. La selezione dei comandanti nella cronaca non estende questo elenco di preferiti.</p>
+<p>«Elimina» richiede conferma ed elimina soltanto il record del preferito e la sua copia interna dell’immagine. Lo screenshot originale o l’immagine originale selezionata e tutti i dati di Explorer, journal e corpi vengono conservati.</p>"""),
+ 'chronicle': (
+        'Cronaca',
+        """<h2>Cronaca</h2>
+<p>La cronaca è la storia personale dei viaggi e delle scoperte del comandante. Utilizza le informazioni del diario memorizzate in modo permanente per trovare sistemi che sono già stati visitati, per rappresentarli spazialmente e per cercare scoperte note.</p>
+
+<h3>Sistemi visitati</h3>
+<p>La Cronaca mostra i sistemi visitati e le loro posizioni nella galassia nota al Comandante.</p>
+<p>Se disponibili, vengono prese in considerazione la prima e l'ultima visita nonché le informazioni note sul corpo.</p>
+<p>Con un periodo attivo, il numero di visite, la prima visita e l’ultima visita nella mappa si riferiscono alle visite effettive ai sistemi selezionate dal filtro.</p>
+<p>La cronaca quindi non è solo una mappa, ma anche uno strumento per ritrovare mete e scoperte di viaggi precedenti.</p>
+
+<h3>Mappa 3D</h3>
+<p>I sistemi visitati sono rappresentati spazialmente utilizzando le loro coordinate galattiche X/Y/Z.</p>
+<p>Le istruzioni per l'uso si trovano direttamente sopra la mappa:</p>
+<ul>
+<li>Tieni premuto il pulsante sinistro del mouse → ruota la vista</li>
+<li>tenere premuto il pulsante centrale del mouse e trascinare → disegnare una finestra di zoom</li>
+<li>Tieni premuto il pulsante destro del mouse → sposta la vista</li>
+</ul>
+<p>Il display ad asse piccolo aiuta nell'orientamento nello spazio.</p>
+
+<h3>Posizione attuale</h3>
+<p>Con "Posizione attuale" la visualizzazione della mappa può essere allineata o riportata alla posizione attualmente nota del comandante attivo.</p>
+<p>Vengono prima applicati i filtri attuali. La vista viene centrata sul sistema attuale solo se è presente nella mappa risultante.</p>
+<p>Altrimenti compare «Il sistema attuale non è incluso in questa selezione di filtri.» I filtri non vengono rimossi.</p>
+
+<h3>Allinea</h3>
+<p>«Allinea» ripristina l’orientamento con una vista dall’alto del piano galattico. Spostamento e zoom vengono mantenuti.</p>
+<p>È utile quando molte rotazioni hanno reso la mappa poco chiara.</p>
+
+<h3>Aggiorna Cronaca</h3>
+<p>«Aggiorna Cronaca» ricarica i dati della cronaca in base ai filtri combinati attuali e aggiorna la visualizzazione. Testo libero, limiti di data attivati e filtri minerari vengono nuovamente valutati insieme; i filtri attivi non vengono ignorati.</p>
+<p>La funzione non modifica i file journal né crea nuovi dati di esplorazione. Aggiorna semplicemente la visualizzazione della cronologia in base ai dati CMDRHelper esistenti.</p>
+
+<h3>Ricerca testuale libera</h3>
+<p>È possibile cercare contenuti già noti utilizzando il campo "Cronologia ricerche...".</p>
+<p>La ricerca prende in considerazione – se disponibili nel database – tra l’altro:</p>
+<ul>
+<li>Nomi di sistema</li>
+<li>Caratteristiche del corpo</li>
+<li>dati biologici</li>
+<li>Materiali</li>
+<li>Dati del Codice</li>
+</ul>
+<p>Testo libero, periodo ed estrazione condividono un’unica area di filtri. «Applica» valuta insieme i filtri impostati. Invio nel campo di testo libero avvia lo stesso filtraggio combinato di «Applica».</p>
+
+<h3>Periodo Dal/Al (UTC)</h3>
+<p>Attiva «Dal» e «Al» con le rispettive caselle e scegli la data desiderata. È possibile usare anche un solo limite. Senza la casella attivata non vi è alcuna restrizione temporale su quel lato; senza entrambe le caselle non viene limitato alcun periodo.</p>
+<ul>
+<li><b>Dal:</b> Dall’inizio del giorno di calendario UTC selezionato, incluso.</li>
+<li><b>Al:</b> Viene incluso l’intero giorno di calendario UTC selezionato, fino all’istante immediatamente precedente l’inizio del giorno successivo.</li>
+</ul>
+<p>UTC è il tempo coordinato universale. I limiti di data si riferiscono ai giorni di calendario UTC, non a quelli del tuo fuso orario locale.</p>
+<p>Il filtro usa le visite effettive ai sistemi registrate in <code>system_visits</code>. È necessaria una visita effettiva del comandante interessato nel periodo. I valori memorizzati <code>first_seen</code> e <code>last_seen</code> non sostituiscono una visita reale: non basta che il periodo si trovi tra una prima visita precedente e un’ultima visita successiva.</p>
+<p>Il periodo filtra le visite, non i singoli eventi di scoperta, BIO, GEO o estrazione. Le informazioni sui ritrovamenti noti e le quantità estratte rimangono totali memorizzati. Dal/Al si possono usare da soli o insieme al testo libero e ai filtri minerari.</p>
+<p>Se Dal è successivo ad Al, compare «La data Dal non deve essere successiva alla data Al.» Non viene avviata alcuna query al database. Correggi i limiti di data e applica nuovamente i filtri.</p>
+
+<h3>Risultati della ricerca</h3>
+<p>I successi vengono visualizzati nell'elenco dei risultati esistenti sotto la scheda della cronaca.</p>
+<p>A seconda del tipo di colpo, possono apparire sistema, corpo e informazioni aggiuntive.</p>
+<p>Un risultato può essere utilizzato per trovare il sistema o l'organismo corrispondente già noto e per aprire le informazioni dettagliate esistenti.</p>
+
+<h3>Nessun risultato</h3>
+<p>Se un filtraggio valido non trova corrispondenze, la mappa e le rotte vengono svuotate. L’elenco dei risultati viene svuotato e nascosto, la visualizzazione dei dettagli viene reimpostata e un’eventuale finestra aperta dei dettagli di un sistema della cronaca viene chiusa.</p>
+<p>I vecchi risultati non rimangono visibili. In questo caso, controlla la combinazione di testo di ricerca, periodo e filtri minerari, nonché il comandante usato per la vista interessata.</p>
+
+<h3>Siti minerari planetari</h3>
+<p>Il filtro "Siti minerari planetari" può essere utilizzato per cercare specificamente corpi noti per i quali Elite Dangerous ha segnalato siti minerari planetari.</p>
+<p>La visualizzazione sottostante corrisponde a quella nota da Explorer:</p>
+<p><b>ABBAU ×N</b></p>
+<p>Il numero appartiene al corpo stesso e non è correlato al comandante.</p>
+
+<h3>Almeno</h3>
+<p>Usando "Almeno" puoi specificare il numero minimo di posizioni minerarie planetarie che un corpo dovrebbe avere.</p>
+<p>Esempio:</p>
+<p><b>Almeno 20</b></p>
+<p>mostra solo corpi conosciuti con almeno:</p>
+<p><b>ABBAU ×20</b></p>
+<p>Ciò consente di localizzare in modo mirato aree minerarie particolarmente estese.</p>
+
+<h3>Le mie scoperte minerarie</h3>
+<p>Con i «Reperti minerari propri» la ricerca si limita ai corpi sui quali il comandante in questione ha effettuato lui stesso, in modo dimostrabile, attività minerarie di superficie.</p>
+<p>Queste informazioni provengono dalla storia personale dell'attività mineraria di superficie e sono rigorosamente separate dal comandante.</p>
+<p>Un corpo può quindi avere segnali ABBAU ×N globali senza che il proprio comandante vi abbia già rimosso qualcosa.</p>
+
+<h3>Merce</h3>
+<p>Se è attivata l'opzione “Reperti minerari propri”, è disponibile anche la selezione “Materia prima”.</p>
+<p>L'elenco contiene solo le materie prime che il comandante in questione ha effettivamente già ottenuto dall'estrazione di superficie.</p>
+<p>Questo non è un elenco teorico di tutte le possibili materie prime minerarie.</p>
+<p>Per FABER38, ad esempio, la selezione può contenere:</p>
+<ul>
+<li>Tutto</li>
+<li>rame</li>
+</ul>
+<p>Se in seguito verranno effettivamente estratte ulteriori materie prime, queste appariranno automaticamente nella tua selezione personale.</p>
+
+<h3>Ricerca mirata delle materie prime</h3>
+<p>Ad esempio, se si seleziona "Rame" e poi si preme "Applica", la cronologia mostrerà solo i corpi sui quali il comandante in questione ha estratto rame in modo dimostrabile.</p>
+<p>Esempio:</p>
+<p><b>Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — rame 56 t</b></p>
+<p>Ciò significa che la cronaca può essere utilizzata come database di localizzazione personale: una materia prima già estratta può essere ritrovata in seguito.</p>
+
+<h3>Tutte le materie prime</h3>
+<p>Con “Materia prima: tutte” vengono prese in considerazione tutte le scoperte personali di estrazione mineraria di superficie corrispondenti.</p>
+<p>Se su un corpo sono note più merci, queste possono essere visualizzate insieme alle quantità ottenute fino a quel momento.</p>
+<p>Esempio:</p>
+<p><b>ABBAU ×24 — Elio-3 18 t, rame 56 t</b></p>
+<p>Le quantità sono i valori minerari personali del rispettivo comandante, che sono effettivamente documentati dagli eventi del diario.</p>
+<p>Anche con un periodo attivo, le quantità minerarie personali rimangono quantità totali memorizzate. <b>Rame 56 t</b> non significa automaticamente <b>56 t nel periodo selezionato</b>. Il periodo richiede una visita corrispondente al sistema, ma non limita a quel periodo la quantità estratta visualizzata.</p>
+
+<h3>Combina filtri</h3>
+<p>Testo libero, limiti Dal/Al attivati e filtri minerari possono essere combinati. Un risultato deve soddisfare contemporaneamente le condizioni impostate.</p>
+<p>Per esempio:</p>
+<ul>
+<li>Siti minerari planetari attivi</li>
+<li>Almeno 20</li>
+<li>I propri ritrovamenti minerari sono attivi</li>
+<li>Rame materia prima</li>
+</ul>
+<p>cerca corpi conosciuti con almeno 20 siti minerari planetari dove il comandante in questione ha già estratto lui stesso il rame.</p>
+<p>Viene considerato anche l’eventuale testo di ricerca aggiuntivo. Se viene aggiunto un periodo, il comandante visualizzato deve aver effettivamente visitato il sistema interessato in quel periodo; l’estrazione del rame non deve necessariamente essere avvenuta nello stesso periodo.</p>
+
+<h3>Applica</h3>
+<p>«Applica» esegue un filtraggio combinato con tutti i filtri di ricerca, periodo ed estrazione attualmente impostati:</p>
+<ul>
+<li>Testo libero</li>
+<li>Dal, se attivato</li>
+<li>Al, se attivato</li>
+<li>Siti minerari planetari</li>
+<li>Numero minimo</li>
+<li>Le mie scoperte minerarie</li>
+<li>Merce, se «Le mie scoperte minerarie» è attivato</li>
+</ul>
+<p>Invio nel campo di testo libero esegue esattamente lo stesso filtraggio. Senza testo libero e filtri minerari viene caricata la mappa normale per i comandanti selezionati sulla mappa, eventualmente limitata da Dal/Al.</p>
+
+<h3>Reimposta</h3>
+<p>«Reimposta» riporta l’area comune dei filtri allo stato iniziale:</p>
+<ul>
+<li>Il testo libero viene cancellato.</li>
+<li>Dal e Al vengono disattivati; i campi data mostrano di nuovo la data odierna e sono disattivati.</li>
+<li>Siti minerari planetari viene disattivato.</li>
+<li>Il numero minimo viene impostato a 0.</li>
+<li>Le mie scoperte minerarie viene disattivato.</li>
+<li>Merce viene riportato su «Tutti».</li>
+</ul>
+<p>La selezione dei comandanti viene mantenuta. La cronaca normale viene quindi ricaricata per questa selezione della mappa; i risultati di ricerca precedenti e le visualizzazioni dei dettagli vengono reimpostati.</p>
+
+<h3>Selezione del comandante</h3>
+<p>La cronaca può visualizzare dati di vari comandanti famosi.</p>
+<p>Esistono due concetti distinti di selezione:</p>
+<ul>
+<li><b>Selezione dei comandanti della mappa:</b> Le caselle dei comandanti determinano quali rotte dei comandanti vengono mostrate nella mappa normale senza ricerca testuale o mineraria. Un periodo attivato viene considerato.</li>
+<li><b>Comandante visualizzato:</b> Le ricerche personali testuali o minerarie usano il comandante visualizzato (<code>viewed_commander_id</code>), in alternativa il comandante attivo. Anche gli elenchi personali delle merci dipendono da questo comandante.</li>
+</ul>
+<p>Tuttavia, le informazioni personali come i ritrovamenti minerari e gli elenchi delle materie prime vengono sempre valutate separatamente per il comandante effettivamente visualizzato.</p>
+<p>Un comandante non vede nella sua selezione di materie prime scoperte minerarie che appartengono esclusivamente ad un altro comandante.</p>
+
+<h3>Tutti i comandanti</h3>
+<p>La visualizzazione della mappa/cronaca può prendere in considerazione più comandanti.</p>
+<p>«Tutti i comandanti» riguarda la selezione dei comandanti della mappa. Le caselle dei comandanti non estendono automaticamente le ricerche personali testuali o minerarie a più comandanti.</p>
+<p>Ciò non modifica l'assegnazione personale dei dati relativi al comandante. Le proprietà astronomiche globali di un sistema o di un corpo rimangono condivise, le scoperte personali rimangono separate.</p>
+
+<h3>Aiuto per la ricerca/legenda</h3>
+<p>Ulteriori informazioni sulla ricerca della cronaca e sul significato della visualizzazione sono accessibili tramite "Aiuto alla ricerca/legenda".</p>
+<p>Un termine di ricerca selezionato con un clic viene inserito nel campo di ricerca ed eseguito insieme ai filtri di periodo ed estrazione già impostati.</p>
+<p>Questa guida principale contestuale integra le brevi istruzioni per l'uso disponibili lì.</p>
+
+<h3>Suggerimento</h3>
+<p>La cronaca è particolarmente adatta per ritrovare luoghi interessanti scoperti durante un viaggio più lungo.</p>
+<p>Per l’estrazione mineraria di superficie, ad esempio, può rispondere:</p>
+<p>"Su quale pianeta ho mai estratto il rame?"</p>
+<p>O:</p>
+<p>"Quale dei pianeti che conosco ha un numero particolarmente elevato di siti minerari?"</p>""",
+    ),
+ 'jump_tip': ('Suggerimento per il salto',
+              '<h2>Suggerimento per il salto</h2>\n'
+              "<p>Il suggerimento di salto supporta l'esplorazione valutando i dati del sistema "
+              'già noti ed evidenziando sistemi target interessanti.</p>\n'
+              '<p>La funzione è intesa come aiuto decisionale. Non garantisce che un sistema '
+              'consigliato contenga effettivamente reperti rari o particolarmente preziosi.</p>\n'
+              '\n'
+              '<h3>Base della valutazione</h3>\n'
+              '<p>CMDRHelper utilizza le informazioni del journal e del database esistenti per '
+              'valutare modelli noti nei nomi e nelle classi di sistema.</p>\n'
+              "<p>Si possono prendere in considerazione tra l'altro le abbreviazioni del sistema, "
+              'i tipi di corpi già conosciuti e i ritrovamenti precedenti.</p>\n'
+              '\n'
+              '<h3>Abbreviazione del sistema</h3>\n'
+              '<p>Molti sistemi generati proceduralmente in Elite Dangerous contengono '
+              'combinazioni di lettere e numeri che identificano gruppi di sistemi specifici.</p>\n'
+              '<p>CMDRHelper può valutare statisticamente queste abbreviazioni e mostrare in quali '
+              'gruppi si sono verificati più frequentemente ritrovamenti interessanti nei dati '
+              'finora conosciuti.</p>\n'
+              '\n'
+              '<h3>Rivalutare</h3>\n'
+              '<p>Con “Re-evaluate” il database esistente viene nuovamente analizzato.</p>\n'
+              '<p>Vengono utilizzati i dati salvati del comandante. La funzione non crea nuovi '
+              'dati elite né modifica i file journal.</p>\n'
+              '\n'
+              '<h3>Elenco dei risultati</h3>\n'
+              "<p>L'elenco dei risultati mostra le abbreviazioni o i candidati di sistema più "
+              'interessanti secondo la valutazione attuale.</p>\n'
+              '<p>A seconda del database esistente, potrebbero essere presenti informazioni '
+              'su:</p>\n'
+              '<ul>\n'
+              '<li>classi planetarie interessanti</li>\n'
+              '<li>scoperte biologiche</li>\n'
+              '<li>Mondi acquatici</li>\n'
+              '<li>corpi terraformabili</li>\n'
+              '<li>altri notevoli risultati esplorativi</li>\n'
+              '</ul>\n'
+              '<p>apparire.</p>\n'
+              '\n'
+              '<h3>Probabilità invece di garanzia</h3>\n'
+              '<p>Un valore elevato o una buona classificazione significa soltanto che un '
+              'determinato modello è stato più spesso associato a risultati interessanti nei dati '
+              'finora valutati.</p>\n'
+              '<p>Non è una garanzia.</p>\n'
+              '<p>Un sistema consigliato può comunque essere del tutto privo di interesse, mentre '
+              'un sistema con una valutazione bassa può contenere reperti di valore.</p>\n'
+              '\n'
+              '<h3>Proprio database</h3>\n'
+              '<p>Il suggerimento per il salto funziona con i dati già noti del comandante.</p>\n'
+              '<p>Quanti più sistemi ed organismi vengono registrati nel tempo, tanto più grande '
+              'diventa il database personale per la valutazione.</p>\n'
+              '<p>Ciò significa che la classifica può cambiare in seguito.</p>\n'
+              '\n'
+              '<h3>Diversi comandanti</h3>\n'
+              '<p>Le valutazioni personali vengono gestite comandante per comando.</p>\n'
+              '<p>I dati di un altro comandante non devono falsificare la valutazione personale '
+              'senza che nessuno se ne accorga.</p>\n'
+              "<p>I dati anagrafici astronomici globali, d'altro canto, possono essere condivisi "
+              'purché non rappresentino risultati personali relativi al comandante.</p>\n'
+              '\n'
+              '<h3>Utilizzare nella pratica</h3>\n'
+              '<p>Il suggerimento per il salto è particolarmente adatto se ci sono diverse '
+              'possibili destinazioni tra cui scegliere e si desidera un ulteriore aiuto '
+              'decisionale.</p>\n'
+              '<p>Non sostituisce un pianificatore di percorso completo e non calcola un percorso '
+              'sicuro e ottimale.</p>\n'
+              '<p>Per la pianificazione specifica del percorso è disponibile la voce di menu '
+              '“Pianifica percorso”.</p>\n'
+              '\n'
+              '<h3>Mancia</h3>\n'
+              "<p>Usa il suggerimento per il salto come ulteriore aiuto per l'esplorazione:</p>\n"
+              '<p>"Secondo i miei dati precedenti, quale sistema sembra più interessante?"</p>\n'
+              '<p>Non come previsione:</p>\n'
+              '<p>"È garantito che ci sia un ritrovamento specifico in questo sistema."</p>'),
+ 'route_planner': ('Pianificatore di percorso',
+                   '<h2>Pianificatore di percorso</h2>\n'
+                   '<p>Il pianificatore di percorso supporta la pianificazione di viaggi più '
+                   'lunghi in nave o Fleet Carrier. CMDRHelper può utilizzare i dati del percorso '
+                   'esterno da Spansh e preparare il percorso pianificato per un ulteriore '
+                   'utilizzo.</p>\n'
+                   '\n'
+                   '<h3>Inizia e finisci</h3>\n'
+                   '<p>Per il calcolo del percorso sono necessari un sistema di partenza e di '
+                   'destinazione.</p>\n'
+                   "<p>Per quanto possibile, CMDRHelper potrebbe utilizzare l'attuale sistema "
+                   'conosciuto del Comandante come punto di partenza. Inizio e fine devono essere '
+                   'controllati prima del calcolo.</p>\n'
+                   '\n'
+                   '<h3>Spedisci o Fleet Carrier</h3>\n'
+                   '<p>Il pianificatore di percorso distingue tra viaggi con una nave normale e '
+                   'con una Fleet Carrier.</p>\n'
+                   '<p>Entrambi utilizzano requisiti e metodi di calcolo diversi. Pertanto, prima '
+                   'della pianificazione è necessario selezionare il tipo di percorso '
+                   'appropriato.</p>\n'
+                   '\n'
+                   '<h3>Rotta della nave</h3>\n'
+                   '<p>Per una rotta navale vengono prese in considerazione le proprietà di salto '
+                   'conosciute o inserite per la nave attiva.</p>\n'
+                   '<p>A seconda dei dati disponibili, nella pianificazione possono essere '
+                   'incorporati i dati FSD, i dati della nave, la massa, il carburante e altri '
+                   'parametri di salto.</p>\n'
+                   '<p>Un percorso calcolato è un aiuto per la pianificazione. Le modifiche alla '
+                   "nave o alla sua massa possono modificare l'effettiva distanza di salto "
+                   'ottenibile nel gioco.</p>\n'
+                   '\n'
+                   '<h3>Rotta della portaerei della flotta</h3>\n'
+                   '<p>Fleet Carrier hanno regole di salto diverse rispetto alle navi '
+                   'normali.</p>\n'
+                   '<p>CMDRHelper utilizza la pianificazione del vettore Spansh designata per i '
+                   'percorsi corrispondenti.</p>\n'
+                   '<p>Il percorso viene utilizzato per pianificare la sequenza di salto. Il '
+                   'consumo effettivo di trizio e la portata disponibile possono dipendere anche '
+                   'dalla massa e dallo stato attuale del portatore.</p>\n'
+                   '\n'
+                   '<h3>Spansh</h3>\n'
+                   '<p>Per il calcolo effettivo del percorso, CMDRHelper può utilizzare il '
+                   'servizio esterno Spansh.</p>\n'
+                   "<p>La richiesta viene elaborata in background in modo che l'interfaccia "
+                   'rimanga operativa durante un calcolo più lungo.</p>\n'
+                   '<p>CMDRHelper non ha alcuna influenza sulla disponibilità o sui tempi di '
+                   'risposta del servizio esterno.</p>\n'
+                   '\n'
+                   '<h3>calcolo</h3>\n'
+                   '<p>Dopo aver avviato il calcolo, la richiesta viene trasmessa al pianificatore '
+                   'di percorso selezionato.</p>\n'
+                   '<p>A seconda del percorso e del servizio, il calcolo potrebbe richiedere del '
+                   'tempo. Durante questo periodo non si dovrebbe avviare un secondo calcolo '
+                   'identico inutilmente.</p>\n'
+                   '\n'
+                   '<h3>Risultato</h3>\n'
+                   '<p>Un percorso calcolato con successo mostra i sistemi o i punti di salto '
+                   'previsti nel loro ordine.</p>\n'
+                   '<p>A seconda del tipo di percorso vengono visualizzate informazioni aggiuntive '
+                   'su distanza, salti, carburante o trizio e altri dati di percorso '
+                   'disponibili.</p>\n'
+                   '\n'
+                   '<h3>Rotta e attuale comandante</h3>\n'
+                   '<p>Il sistema e la nave attuali possono, purché siano chiaramente conosciuti '
+                   "nell'AppState attivo, essere utilizzati per la pre-assegnazione o per "
+                   'supportare la pianificazione.</p>\n'
+                   '<p>Tuttavia, la rotta effettiva rimane un piano e non modifica alcun dato del '
+                   'diario o del comandante.</p>\n'
+                   '\n'
+                   '<h3>Esportazione CTSVision</h3>\n'
+                   '<p>Le rotte calcolate del vettore della flotta possono essere esportate come '
+                   'CSV per CTSVision.</p>\n'
+                   '<p>Ciò significa che un percorso portante pianificato in CMDRHelper può quindi '
+                   "essere utilizzato in CTSVision per il controllo del salto o l'elaborazione del "
+                   'percorso lì.</p>\n'
+                   "<p>L'esportazione non modifica il percorso in CMDRHelper.</p>\n"
+                   '\n'
+                   '<h3>File CSV</h3>\n'
+                   '<p>Il file esportato contiene i dati del percorso richiesti per CTSVision '
+                   "nell'ordine previsto.</p>\n"
+                   '<p>Il file non deve essere modificato strutturalmente in modo incontrollato '
+                   "dopo l'esportazione se deve poi essere letto da CTSVision.</p>\n"
+                   '\n'
+                   '<h3>Errori e servizi esterni</h3>\n'
+                   '<p>Se Spansh non può essere raggiunto o il servizio restituisce un errore, '
+                   'CMDRHelper visualizza un messaggio di errore corrispondente.</p>\n'
+                   '<p>Un errore nel calcolo della rotta online non modifica i dati del comandante '
+                   'locale o del diario.</p>\n'
+                   '\n'
+                   '<h3>Pianificatore di percorso e suggerimento per saltare</h3>\n'
+                   '<p>Il suggerimento per il salto e il pianificatore di percorso svolgono '
+                   'diversi compiti:</p>\n'
+                   '<ul>\n'
+                   '<li>Jump tip valuta possibili obiettivi di esplorazione interessanti sulla '
+                   'base dei dati esistenti.</li>\n'
+                   '<li>Il pianificatore di percorso calcola un percorso specifico tra partenza e '
+                   'destinazione.</li>\n'
+                   '</ul>\n'
+                   '<p>Un buon consiglio per il salto non è quindi automaticamente parte di un '
+                   'percorso ottimale.</p>\n'
+                   '\n'
+                   '<h3>Diversi comandanti</h3>\n'
+                   '<p>Se vengono utilizzati dati relativi al comandante, come il sistema attuale '
+                   "o la nave, questi provengono dall'AppState live attivo e devono essere "
+                   'chiaramente assegnati lì.</p>\n'
+                   '<p>Il semplice fatto di guardare un altro comandante nella vista CMDR non '
+                   'sposta il pianificatore di rotta sul suo sistema o sulla sua nave.</p>\n'
+                   '<p>Il calcolo del percorso in sé non modifica i dati personali di un altro '
+                   'comandante.</p>\n'
+                   '\n'
+                   '<h3>Mancia</h3>\n'
+                   '<p>Prima di un lungo viaggio, controlla sempre:</p>\n'
+                   '<ul>\n'
+                   '<li>Sistema di partenza</li>\n'
+                   '<li>Sistema di obiettivi</li>\n'
+                   '<li>Tipo di rotta nave/portaerei</li>\n'
+                   '<li>per le rotte delle navi, la nave sottostante, FSD e parametri di '
+                   'salto</li>\n'
+                   '<li>per le rotte dei vettori, la riserva di trizio disponibile</li>\n'
+                   '</ul>\n'
+                   '<p>Per i viaggi in flotta è consigliabile prevedere anche riserve sufficienti '
+                   'per il viaggio di ritorno o per deviazioni non pianificate.</p>'),
+ 'images': ('Immagini',
+            '<h2>Immagini</h2>\n'
+            '<p>La sezione “Immagini” gestisce gli screenshot realizzati con Elite Dangerous. '
+            'CMDRHelper può riconoscere automaticamente le nuove registrazioni, elaborarle e '
+            'memorizzarle in una galleria basata sul comandante.</p>\n'
+            '\n'
+            '<h3>Cartella di origine</h3>\n'
+            '<p>La cartella di origine è la cartella in cui Elite Dangerous salva i suoi '
+            'screenshot in formato BMP.</p>\n'
+            '<p>CMDRHelper può monitorare questa cartella per nuovi file BMP. Affinché '
+            "l'elaborazione automatica funzioni, è necessario impostare la cartella degli "
+            'screenshot corretta.</p>\n'
+            '\n'
+            '<h3>Cartella di destinazione</h3>\n'
+            '<p>La cartella di destinazione è la cartella principale comune per le immagini '
+            'elaborate da CMDRHelper.</p>\n'
+            "<p>L'utente imposta questa cartella principale. CMDRHelper crea automaticamente le "
+            "sottocartelle relative al comandante richieste durante l'elaborazione.</p>\n"
+            '\n'
+            '<h3>Elaborazione automatica</h3>\n'
+            '<p>Se "Converti automaticamente" è attivato e sono impostate cartelle di origine e '
+            'destinazione valide, CMDRHelper controlla regolarmente la cartella di origine per '
+            'nuovi screenshot BMP.</p>\n'
+            '<p>Una volta attivati, i file BMP esistenti vengono inizialmente contrassegnati come '
+            'conosciuti e non vengono convertiti automaticamente senza che venga richiesto. A '
+            'questo scopo è disponibile la funzione separata per la conversione dei BMP '
+            'esistenti.</p>\n'
+            '<p>Un nuovo file non viene accodato finché non raggiunge la stessa dimensione diversa '
+            "da zero in due controlli consecutivi. Di conseguenza, un'operazione di scrittura "
+            'ancora in corso non viene elaborata immediatamente.</p>\n'
+            '\n'
+            '<h3>Conversione di immagini</h3>\n'
+            '<p>Come origine, CMDRHelper elabora i file BMP. È possibile selezionare “PNG” o “JPG” '
+            'come formato di destinazione.</p>\n'
+            '<p>I file JPG vengono salvati al livello di qualità 95. I file PNG vengono salvati in '
+            'modo ottimizzato.</p>\n'
+            '<p>Per impostazione predefinita, viene mantenuto il file BMP originale. Se è attivato '
+            '"Elimina BMP dopo la conversione", il BMP di origine verrà eliminato solo dopo che '
+            "l'immagine di destinazione sarà stata salvata con successo.</p>\n"
+            '\n'
+            "<h3>Illumina l'immagine</h3>\n"
+            '<p>La luminosità viene regolata dallo 0 al 50% utilizzando un cursore e un campo '
+            "numerico collegato. L'impostazione viene salvata.</p>\n"
+            '<p>Viene applicato automaticamente durante ogni conversione avviata successivamente, '
+            'sia per i file BMP esistenti appena monitorati che per quelli avviati manualmente. Lo '
+            '0% riprende la luminosità originale; valori più alti aumentano di conseguenza la '
+            "luminosità dell'immagine PNG o JPG generata.</p>\n"
+            '<p>La funzione non è una pura anteprima e non viene successivamente applicata ad '
+            "un'immagine selezionata nella gallery. La luminosità modificata viene salvata nel "
+            'nuovo file di destinazione.</p>\n'
+            '<p>Il BMP sorgente rimane invariato a meno che non venga attivata anche la '
+            'cancellazione del file BMP. Diario, comandante e dati di esplorazione non vengono '
+            'modificati.</p>\n'
+            '\n'
+            '<h3>Spazio di archiviazione relativo al comandante</h3>\n'
+            "<p>I nuovi screenshot vengono assegnati al comandante in gioco in base all'identità "
+            "del diario presente nell'AppState live attivo.</p>\n"
+            "<p>La struttura delle cartelle contiene il nome del comandante e l'ID Frontier, ad "
+            'esempio:</p>\n'
+            '<p><b>FABER38_F12520967/</b></p>\n'
+            '<p>Lo FID mantiene chiari i compiti anche con più comandanti. Ciò consente di '
+            'distinguere due comandanti con lo stesso nome.</p>\n'
+            '\n'
+            '<h3>nomi di file</h3>\n'
+            "<p>Le nuove immagini elaborate ricevono un nome con l'ora di acquisizione, il nome "
+            'del comandante e, se disponibile, il sistema stellare noto durante la coda.</p>\n'
+            '<p>Esempio:</p>\n'
+            '<p><b>2026-09-04_13-18-22_FABER38_Prua-Hypai-RB-D-c29-71.png</b></p>\n'
+            '<p>Lo FID si trova nel nome della cartella relativa al comandante, non ancora nel '
+            'nome del file immagine.</p>\n'
+            '\n'
+            '<h3>Nomi di file sicuri</h3>\n'
+            '<p>CMDRHelper disinfetta i nomi del comandante e del sistema da utilizzare come '
+            'componenti di file e cartelle.</p>\n'
+            '<p>Il controllo illegale e i caratteri Windows vengono sostituiti, gli spazi bianchi '
+            'vengono unificati, i punti problematici o gli spazi finali vengono rimossi e i nomi '
+            'Windows riservati come CON o NUL vengono protetti.</p>\n'
+            '\n'
+            '<h3>Tempo di registrazione</h3>\n'
+            "<p>Per la denominazione, CMDRHelper utilizza l'ora di modifica del file BMP "
+            "riconosciuto stabile. Solo se questo non può essere letto verrà utilizzata l'ora "
+            'corrente.</p>\n'
+            '<p>Ciò significa che il nome dipende solitamente dal file sorgente e non dal '
+            'successivo momento della conversione.</p>\n'
+            '\n'
+            '<h3>Più immagini nello stesso secondo</h3>\n'
+            '<p>Se il nome del file desiderato esiste già o è riservato per una conversione in '
+            'corso, CMDRHelper lo aggiunge '
+            'continuamente<code>_2</code>,<code>_3</code>,<code>_4</code>e così via.</p>\n'
+            '<p>Ciò significa che un altro screenshot con lo stesso timestamp non sovrascriverà '
+            "un'immagine di destinazione esistente.</p>\n"
+            '\n'
+            "<h3>Cambio del comandante durante l'elaborazione</h3>\n"
+            '<p>Commander, FID e il sistema vengono catturati insieme quando si mette in coda uno '
+            'screenshot.</p>\n'
+            "<p>Un successivo cambio di comandante non modifica l'assegnazione di questa immagine "
+            'già in attesa. Ciò significa che uno screenshot di FABER38 non verrà successivamente '
+            'scritto nella cartella di un altro comandante.</p>\n'
+            '\n'
+            '<h3>galleria</h3>\n'
+            '<p>La galleria mostra i file PNG, JPG e JPEG dalle directory associate al filtro '
+            'selezionato. Le immagini nuove, cancellate o spostate vengono rilevate '
+            'regolarmente.</p>\n'
+            '<p>Il filtro della raccolta non modifica la posizione di archiviazione o '
+            "l'assegnazione del comandante dei file.</p>\n"
+            '\n'
+            '<h3>Attuale comandante</h3>\n'
+            '<p>Il filtro Comandante corrente mostra le immagini dalla cartella del comandante '
+            'attualmente visualizzato nella vista CMDR.</p>\n'
+            '<p>Il comandante in questione determina solo la visualizzazione della galleria. '
+            "D'altra parte, l'assegnazione di un nuovo screenshot live utilizza l'identità del "
+            "journal attiva durante l'accodamento.</p>\n"
+            '\n'
+            '<h3>Tutti i comandanti</h3>\n'
+            '<p>Il filtro "Tutti i comandanti" mostra insieme le immagini delle sottocartelle '
+            'valide di tutti i comandanti conosciuti. Viene presa in considerazione anche la '
+            'cartella speciale per le registrazioni senza identità riconosciuta.</p>\n'
+            '<p>I file non vengono spostati o uniti.</p>\n'
+            '\n'
+            '<h3>Non assegnato</h3>\n'
+            '<p>Il filtro Non assegnati mostra i file di immagine supportati che si trovano '
+            'direttamente nella cartella principale di destinazione condivisa.</p>\n'
+            '<p>In particolare, le immagini più vecchie senza sottocartelle relative al comandante '
+            'rimangono visibili. CMDRHelper non cerca di indovinare la loro affiliazione a '
+            'posteriori.</p>\n'
+            '\n'
+            '<h3>Immagini esistenti</h3>\n'
+            '<p>Le immagini già esistenti nella cartella principale non vengono spostate o '
+            'rinominate automaticamente.</p>\n'
+            '<p>Rimangono accessibili tramite "Non assegnato" purché siano disponibili come PNG, '
+            'JPG o JPEG.</p>\n'
+            '\n'
+            "<h3>Seleziona e visualizza l'immagine</h3>\n"
+            "<p>Un semplice clic su un'immagine di anteprima mostra l'immagine ridimensionata "
+            "nell'area di anteprima e visualizza il nome del file.</p>\n"
+            "<p>Un doppio clic apre il file con l'applicazione del sistema operativo impostata per "
+            'le immagini.</p>\n'
+            '<p>È possibile contrassegnare più immagini contemporaneamente. Quando si modifica la '
+            "dimensione della finestra, l'anteprima dell'immagine corrente viene ridimensionata "
+            'per adattarsi.</p>\n'
+            '\n'
+            '<h3>Elimina immagine</h3>\n'
+            '<p>Le immagini contrassegnate possono essere eliminate utilizzando “Elimina '
+            "selezionati” o il tasto Elimina. Prima dell'eliminazione viene visualizzata una "
+            'domanda di sicurezza; Senza una selezione, viene prima evidenziata la selezione '
+            'necessaria.</p>\n'
+            '<p>Solo i file di destinazione PNG/JPG/JPEG selezionati vengono eliminati dalle '
+            'directory del filtro galleria corrente. Il file sorgente BMP originale non è '
+            'interessato.</p>\n'
+            '\n'
+            '<h3>Apri la cartella di destinazione</h3>\n'
+            '<p>"Apri cartella di destinazione" apre la posizione di archiviazione nel file '
+            'manager e, se necessario, crea la cartella principale condivisa.</p>\n'
+            '<p>Il filtro "Comandante corrente" apre la sottocartella Commander esistente. Se non '
+            'esiste ancora o è attivo un altro filtro, verrà aperta la cartella radice '
+            'condivisa.</p>\n'
+            '\n'
+            '<h3>Sicurezza dei percorsi delle immagini</h3>\n'
+            "<p>Prima dell'eliminazione, CMDRHelper controlla il percorso canonico di ciascun "
+            "file. Deve trovarsi all'interno della cartella di destinazione configurata e "
+            'direttamente in una directory consentita dal filtro della galleria corrente.</p>\n'
+            '<p>I collegamenti simbolici non vengono utilizzati come cartelle Commander o immagini '
+            'della galleria e non vengono eliminati tramite la galleria. I percorsi esterni '
+            "all'area di destinazione e i percorsi trasversali vengono rifiutati.</p>\n"
+            '\n'
+            '<h3>Se non è stato rilevato alcun comandante</h3>\n'
+            '<p>Se Commander e FID mancano quando si mette in coda una nuova registrazione, il '
+            'file non verrà messo in attesa e non verrà assegnato a un Commander noto.</p>\n'
+            '<p>Sarà nella sottocartella<b>SCONOSCIUTO_SCONOSCIUTO/</b>elaborato; il nome del file '
+            'utilizzato anche per il Commander<b>SCONOSCIUTO</b>. Questa cartella può essere '
+            'visualizzata tramite Tutti i Commander, non tramite il filtro Cartella radice non '
+            'allocata.</p>\n'
+            '\n'
+            '<h3>Diversi comandanti</h3>\n'
+            '<p>Alla gestione delle immagini si applicano due regole separate:</p>\n'
+            '<ul>\n'
+            "<li><b>Salva nuove immagini:</b>L'identità del journal attivo con Commander e FID "
+            'quando accodati determina la cartella di destinazione.</li>\n'
+            '<li><b>Visualizza le immagini:</b>Il comandante visualizzato o il filtro della '
+            'galleria selezionato determina le immagini visibili.</li>\n'
+            '</ul>\n'
+            '<p>Ciò significa che mentre si gioca a FABER38 è possibile visualizzare la gallery di '
+            'un altro comandante senza che nuovi screenshot finiscano nella cartella del '
+            'comandante in questione.</p>\n'
+            '\n'
+            '<h3>Mancia</h3>\n'
+            '<p>È sufficiente una cartella principale degli screenshot condivisa. CMDRHelper '
+            'separa automaticamente le immagini appena elaborate in Commander e FID.</p>\n'
+            '<p>Con "Comandante corrente", "Tutti i comandanti" e "Non assegnato" puoi passare '
+            'dalla galleria personale, alle sottocartelle di tutti i comandanti e alle immagini '
+            'più vecchie nella cartella principale.</p>\n'
+            "<p>Una luminosità più elevata può aiutare con le foto scure; influisce sull'immagine "
+            'di destinazione appena creata durante la conversione.</p>'),
+ 'commander_view': ('Vista CMDR',
+                    '<h2>Vista CMDR</h2>\n'
+                    '<p>La vista CMDR riassume le informazioni personali memorizzate in modo '
+                    'permanente di un comandante.</p>\n'
+                    "<p>Consente inoltre di passare da uno all'altro dei comandanti CMDRHelper "
+                    'conosciuti e di visualizzare i propri dati. Le informazioni personali vengono '
+                    "separate utilizzando l'ID Frontier (FID).</p>\n"
+                    '\n'
+                    '<h3>Seleziona Comandante</h3>\n'
+                    '<p>Se si conoscono più comandanti, è possibile utilizzare la selezione sopra '
+                    'per determinare di chi vengono visualizzate le informazioni salvate. Questo '
+                    'comandante è il comandante considerato.</p>\n'
+                    '<p>Il display lo contrassegna come “Live Active” o “View Only”.</p>\n'
+                    '\n'
+                    '<h3>Considerato Comandante e Comandante dal Vivo</h3>\n'
+                    '<p>La selezione di un altro comandante nella vista CMDR non lo rende il '
+                    'comandante del diario attivo.</p>\n'
+                    '<p>Il comandante in tempo reale viene determinato esclusivamente dalla '
+                    'sessione del diario di Elite Dangerous attualmente identificata in modo '
+                    'univoco. In questo modo è possibile visualizzare la cronologia di un altro '
+                    'comandante mentre Elite Dangerous continua a funzionare con FABER38.</p>\n'
+                    '\n'
+                    '<h3>Codice identificativo Frontier (FID)</h3>\n'
+                    "<p>Lo FID è l'identificatore stabile Frontier di un comandante.</p>\n"
+                    "<p>CMDRHelper lo utilizza e l'ID del comandante interno risolto da esso per "
+                    'separare in modo sicuro i dati personali. Restano separati anche i comandanti '
+                    'con nomi simili o identici.</p>\n'
+                    '\n'
+                    '<h3>Panoramica</h3>\n'
+                    '<p>La scheda "Panoramica" mostra solo le informazioni salvate in modo '
+                    'permanente per il comandante in questione:</p>\n'
+                    '<ul>\n'
+                    '<li>Nome del comandante, FID e stato "Live attivo" o "Sola '
+                    'visualizzazione"</li>\n'
+                    '<li>prima e ultima volta conosciuta</li>\n'
+                    '<li>Numero di sistemi visitati, scoperte bio e geo, voci di codici e vendite '
+                    'di cartografia</li>\n'
+                    '<li>Ultima posizione nota e numero di missioni aperte</li>\n'
+                    '<li>nave attuale o ultima</li>\n'
+                    '<li>Fleet Carrier e ubicazione del corriere</li>\n'
+                    '<li>Attività</li>\n'
+                    '<li>dati anagrafici aperti e dati cartografici aperti, comprese le stime '
+                    'esistenti</li>\n'
+                    '</ul>\n'
+                    '\n'
+                    '<h3>Beni/Crediti</h3>\n'
+                    '<p>Il campo "Attività" mostra il saldo del credito salvato più recentemente '
+                    'del comandante in questione da un evento del diario appropriato, formattato '
+                    'come, ad esempio<b>1.234.567 Credito</b>.</p>\n'
+                    '<p>CMDRHelper non aggiunge entrate o spese fittizie se non esiste un nuovo '
+                    'stato di registrazione sicuro.</p>\n'
+                    '\n'
+                    '<h3>Monete mercenarie</h3>\n'
+                    '<p>Le monete mercenarie provengono dai campi MercCoins forniti da Elite '
+                    'Dangerous<code>Statistics → Bank_Account</code>e vengono salvati relativi al '
+                    'comandante come istantanea Frontier.</p>\n'
+                    '<p>Sono visibili:</p>\n'
+                    '<ul>\n'
+                    '<li>Attuale</li>\n'
+                    '<li>Totale speso</li>\n'
+                    '<li>Ingegneria</li>\n'
+                    '<li>attrezzatura</li>\n'
+                    '<li>Segnalato da Frontier: guadagnato complessivamente</li>\n'
+                    '</ul>\n'
+                    '\n'
+                    '<h3>Attuale ed edizioni</h3>\n'
+                    '<p>Spettacoli “attuali”.<code>MercCoins_Corrente</code>. Prende il '
+                    'sopravvento il “Totale speso”.<code>MercCoins_Totale_Spesa</code>.</p>\n'
+                    '<p>“Engineering” e “Equipment” mostrano le azioni riportate separatamente da '
+                    'Frontier<code>MercCoins_Spent_On_Engineering</code>E<code>MercCoins_Spent_On_MercGear</code>.</p>\n'
+                    '<p>Per FABER38, ad esempio, un inventario attuale di<b>1.275</b>, in '
+                    'totale<b>220</b>speso e lontano<b>220</b>segnalato per ingegneria.</p>\n'
+                    '\n'
+                    '<h3>Nel complesso meritato</h3>\n'
+                    '<p>Viene visualizzato il messaggio "Segnalato da Frontier: guadagnato in '
+                    'totale".<code>MercCoins_Totale_Guadagnato</code>. CMDRHelper non calcola il '
+                    'proprio bilancio da questo.</p>\n'
+                    '<p>Non è necessario che il valore cumulativo di Frontier corrisponda '
+                    "matematicamente all'inventario corrente e alle spese riportate. Ad esempio, è "
+                    'possibile riportare contemporaneamente 1.275 corrente, 25 guadagnati totali e '
+                    '220 spesi totali.</p>\n'
+                    '<p>CMDRHelper non corregge questi valori, ma visualizza i singoli contatori '
+                    'Frontier invariati.</p>\n'
+                    '\n'
+                    '<h3>Perché non avere il tuo bilancio MercCoins?</h3>\n'
+                    '<p>Elite Dangerous non fornisce un record di registrazione univoco per ogni '
+                    'singola ricevuta o spesa di monete mercenarie. Gli MercCoins vengono '
+                    'visualizzati come totali in Statistics.</p>\n'
+                    '<p>Uno storico delle prenotazioni autocalcolato non sarebbe quindi '
+                    "affidabile. CMDRHelper salva invece l'ultima istantanea Frontier "
+                    'conosciuta.</p>\n'
+                    '\n'
+                    '<h3>Missioni</h3>\n'
+                    '<p>La scheda "Missioni" mostra le missioni salvate del comandante in '
+                    'questione sotto forma di tabella con stato, nome della missione, obiettivo, '
+                    'data di scadenza e ricompensa.</p>\n'
+                    '\n'
+                    '<h3>esplorazione</h3>\n'
+                    '<p>La scheda Esplorazione mostra i dati anagrafici aperti, i dati '
+                    'cartografici aperti, le bioscoperte, i primi passi, i corpi auto-mappati e '
+                    'mappati in modo efficiente e il numero di sistemi visitati.</p>\n'
+                    '<p>La scheda dedicata "Cronaca" all\'interno della vista CMDR è attualmente '
+                    "ancora un segnaposto. La cronaca completa si trova nell'omonima voce del menu "
+                    'principale.</p>\n'
+                    '\n'
+                    '<h3>Navi/Flotta</h3>\n'
+                    '<p>La scheda "Navi" mostra inizialmente la nave attiva o utilizzata più di '
+                    'recente con nome della nave, tipo di nave, posizione e ID nave.</p>\n'
+                    '<p>Le navi salvate del comandante in questione appaiono sotto di loro come '
+                    'carte espandibili. Possono essere ordinati in ordine crescente o decrescente '
+                    'in base a:</p>\n'
+                    '<ul>\n'
+                    '<li>ultimo o attualmente utilizzato</li>\n'
+                    '<li>Nome della nave o tipo di nave</li>\n'
+                    '<li>distanza massima di salto</li>\n'
+                    '<li>Capacità di carico o massa a vuoto</li>\n'
+                    '<li>ultima posizione o ora nota</li>\n'
+                    '</ul>\n'
+                    '<p>Puoi anche filtrare per tutte le navi, navi con un hangar per veicoli o '
+                    'navi con un hangar per caccia.</p>\n'
+                    '\n'
+                    '<h3>Dettagli della nave</h3>\n'
+                    '<p>Una mappa della nave aperta mostra, se salvata, ID della nave, ID della '
+                    'nave, posizione, ultima volta, portata massima di salto, booster FSD e '
+                    'Guardian, capacità di massa, carico e serbatoio, nonché tempo e stato di '
+                    'caricamento.</p>\n'
+                    "<p>Se i dati del modulo sono disponibili, vengono riepilogati anche l'hangar "
+                    'di veicoli e caccia, il generatore di scudi e il potenziatore di scudi, i '
+                    'rinforzi degli scudi del guardiano, le armi, i rinforzi dello scafo e dei '
+                    'moduli e le cabine passeggeri.</p>\n'
+                    '<p>Lo stato del caricamento può essere completo, incompleto o obsoleto. Le '
+                    'informazioni mancanti vengono visualizzate come "–" e non vengono '
+                    'compensate.</p>\n'
+                    '\n'
+                    '<h3>Fleet Carrier</h3>\n'
+                    '<p>Per uno Fleet Carrier personalizzato salvato, la visualizzazione mostra il '
+                    "nome dell'operatore, l'identificativo di chiamata, l'ID dell'operatore, "
+                    "l'ultima posizione e l'ora dell'ultimo aggiornamento.</p>\n"
+                    '\n'
+                    '<h3>Stato di comandante persistente</h3>\n'
+                    '<p>Le informazioni importanti sul comandante rimangono salvate in modo '
+                    'permanente. Ciò consente di visualizzare nuovamente i valori noti dopo il '
+                    'riavvio di CMDRHelper o Elite Dangerous senza valutare nuovamente '
+                    'completamente ciascun giornale.</p>\n'
+                    '<p>Nuovi eventi univoci del diario aggiornano lo stato salvato.</p>\n'
+                    '\n'
+                    '<h3>Ricostruzione storica</h3>\n'
+                    '<p>Per le funzioni aggiunte in seguito, CMDRHelper può cercare una volta '
+                    'nelle aree del diario esistenti che sono chiaramente assegnate a un '
+                    'comandante per informazioni già note.</p>\n'
+                    '<p>Ad esempio, è possibile adottare le istantanee MercCoins più vecchie. I '
+                    'controlli ripetuti non hanno lo scopo di produrre dati duplicati e non '
+                    'alterano le normali posizioni di lettura del giornale.</p>\n'
+                    '\n'
+                    '<h3>Diversi comandanti</h3>\n'
+                    '<p>In particolare, restano separati in termini di comandanti:</p>\n'
+                    '<ul>\n'
+                    '<li>Risorse e missioni</li>\n'
+                    '<li>propria cartografia e reperti organici</li>\n'
+                    "<li>Storia dell'estrazione mineraria di superficie e monete mercenarie</li>\n"
+                    '<li>Credenziali in linea</li>\n'
+                    '<li>screenshot relativi al comandante</li>\n'
+                    '</ul>\n'
+                    '<p>Le proprietà astronomiche globali di un sistema o di un corpo, tuttavia, '
+                    'possono essere utilizzate insieme.</p>\n'
+                    '\n'
+                    '<h3>Impatto su altri punti di vista</h3>\n'
+                    '<p>Cambiando il comandante in questione si aggiorna la vista CMDR stessa, la '
+                    'selezione personale delle materie prime minerarie della cronaca e, con '
+                    "l'apposito filtro, la galleria degli screenshot.</p>\n"
+                    "<p>Non sostituisce l'effettivo Live Commander per l'elaborazione del journal "
+                    'o i caricamenti online.</p>\n'
+                    '\n'
+                    '<h3>Inara e EDSM</h3>\n'
+                    '<p>Gli accessi Inara e EDSM sono gestiti separatamente rispettivamente per '
+                    'comandante e FID.</p>\n'
+                    '<p>Basta guardare un comandante per non avviare una trasmissione con il suo '
+                    'API-Key. Solo il giornale attivo FID è rilevante per i caricamenti live.</p>\n'
+                    "<p>I dati di accesso vengono gestiti nella sezione “Impostazioni” nell'area "
+                    'dei servizi online.</p>\n'
+                    '\n'
+                    '<h3>Mancia</h3>\n'
+                    '<p>Utilizza la visualizzazione CMDR se desideri visualizzare le informazioni '
+                    'personali salvate per un comandante specifico.</p>\n'
+                    '<p><b>Visualizzazione CMDR = Chi voglio visualizzare?</b></p>\n'
+                    '<p><b>Active Journal-FID = Chi sta effettivamente giocando in questo '
+                    'momento?</b></p>\n'
+                    '<p>Questa separazione impedisce che i dati personali o i caricamenti online '
+                    'di diversi comandanti vengano mescolati insieme.</p>'),
+ 'settings': ('Impostazioni',
+              '<h2>Impostazioni</h2>\n'
+              '<p>L\'area "Impostazioni" determina il modo in cui CMDRHelper funziona con Elite '
+              'Dangerous, file journal, database, servizi online, interfaccia e '
+              'aggiornamenti.</p>\n'
+              '<p>Le modifiche alle credenziali e ai percorsi devono essere apportate con '
+              'attenzione. Se necessario, le impostazioni relative al comandante vengono gestite '
+              "separatamente dall'ID Frontier.</p>\n"
+              '\n'
+              '<h3>diario</h3>\n'
+              '<p>La cartella del diario è una delle impostazioni più importanti. Deve puntare '
+              'alla cartella in cui si trova Elite Dangerous<code>Diario*.log</code>file del '
+              'profilo Windows o Proton utilizzato.</p>\n'
+              '<p>Le riviste forniscono, tra le altre cose:</p>\n'
+              '<ul>\n'
+              '<li>Identità, posizione e viaggio del comandante</li>\n'
+              '<li>Missioni, navi e risorse</li>\n'
+              '<li>Esplorazione, cartografia e dati BIO</li>\n'
+              '<li>Estrazione di superficie, monete mercenarie e altri stati supportati</li>\n'
+              '</ul>\n'
+              '\n'
+              '<h3>Visualizzazione e funzionamento del giornale</h3>\n'
+              '<p>Il gruppo di diari mostra il set di cartelle, il numero di diari trovati, i '
+              "diari più vecchi e quelli più nuovi, il nome del file più recente e l'ora "
+              "dell'ultima voce letta.</p>\n"
+              '<p>"Seleziona cartella diario" cambia la cartella. "Leggi ora" attiva '
+              'immediatamente il normale aggiornamento.</p>\n'
+              '<p>Le sessioni chiaramente identificabili vengono assegnate utilizzando FID. Le '
+              'nuove voci complete vengono elaborate in modo incrementale; Posizioni di lettura '
+              'sicure impediscono che ogni diario venga riletto inutilmente nella sua interezza al '
+              'successivo avvio.</p>\n'
+              '\n'
+              '<h3>banca dati</h3>\n'
+              '<p>CMDRHelper memorizza in modo permanente i dati richiesti in un database SQLite '
+              'locale. Ciò include i dati globali del sistema e del corpo, nonché le informazioni '
+              'esplicitamente assegnate a un comandante.</p>\n'
+              '<p>La pagina delle impostazioni mostra le statistiche sui dati salvati. Il database '
+              'non deve essere modificato manualmente mentre CMDRHelper è in esecuzione.</p>\n'
+              '\n'
+              "<h3>Importa l'archivio del diario</h3>\n"
+              '<p>“Importa archivio diario” confronta completamente i file di diario della '
+              'cartella di diario impostata con il database. Le aree del giornale già note vengono '
+              'prese in considerazione in base alle informazioni di importazione salvate e non '
+              'vengono duplicate ciecamente come nuovi dati.</p>\n'
+              "<p>Durante un'importazione visibile manualmente vengono visualizzati lo stato di "
+              'avanzamento, il numero e il file attualmente elaborato. Al termine, CMDRHelper '
+              'segnala dati importati o già noti oppure un errore.</p>\n'
+              "<p>L'importazione dell'archivio serve anche a riapprendere le informazioni storiche "
+              'supportate da riviste chiaramente assegnate.</p>\n'
+              '\n'
+              '<h3>Dati relativi al comandante</h3>\n'
+              "<p>CMDRHelper separa le informazioni personali in base allo FID e all'ID comandante "
+              'interno associato. Questi includono, ma non sono limitati a, missioni, risorse, '
+              'MercCoins, esplorazione personale e accesso online.</p>\n'
+              '<p>Una sessione del diario sconosciuta o ambigua non può essere assegnata '
+              'arbitrariamente a un comandante.</p>\n'
+              '\n'
+              '<h3>Servizi in linea</h3>\n'
+              '<p>CMDRHelper supporta EDSM e Inara. Entrambi gli accessi vengono elaborati e '
+              'salvati separatamente per ciascun comandante conosciuto o ciascun FID.</p>\n'
+              '<p>La selezione nelle impostazioni determina solo quale accesso è attualmente in '
+              'fase di modifica o test. Solo il comandante chiaramente identificato dalla sessione '
+              'del diario attiva è autorizzato a inviare in diretta.</p>\n'
+              '\n'
+              '<h3>EDSM accesso per</h3>\n'
+              '<p>“EDSM accesso per:” seleziona il comandante da modificare. La selezione mostrerà '
+              '"impostato" o "non impostato" a seconda che sia memorizzato uno API-Key.</p>\n'
+              '<p>Sono visibili il nome del comandante, il campo API-Key nascosto, "Usa EDSM", un '
+              'test di connessione e il suo ultimo stato di test.</p>\n'
+              '<p>Ogni comandante necessita del proprio accesso EDSM appropriato. La selezione non '
+              "sposta l'uploader live su questo comandante.</p>\n"
+              '\n'
+              '<h3>Utilizzare e testare EDSM</h3>\n'
+              '<p>"Utilizza EDSM" abilita o disabilita il servizio per lo FID selezionato. Le '
+              "credenziali mancanti o disattivate non influiscono sull'elaborazione del journal "
+              'locale.</p>\n'
+              '<p>“Test connessione EDSM” verifica i dati di accesso attualmente visibili nel '
+              'form. Un test riuscito conferma la connessione, ma non modifica il giornale attivo '
+              'FID o il Live Commander.</p>\n'
+              '\n'
+              '<h3>Inara accesso per</h3>\n'
+              '<p>"Inara Accesso per:" segue lo stesso principio multi-CMDR. L\'attivazione, il '
+              'nome del comandante Inara e API-Key vengono salvati separatamente per ogni '
+              'FID.</p>\n'
+              '<p>Anche in questo caso la selezione indica “impostato” o “non impostato”. Una '
+              'chiave di un comandante non viene utilizzata automaticamente per un altro '
+              'comandante.</p>\n'
+              '\n'
+              '<h3>Utilizzare e testare Inara</h3>\n'
+              '<p>Con Inara configurato e abilitato per il diario attivo FID, CMDRHelper può '
+              'trasmettere gli eventi di viaggio, posizione, missione e nave supportati. Non tutti '
+              'gli eventi del diario vengono inviati a Inara.</p>\n'
+              '<p>"Test connessione Inara" controlla i dati di accesso attualmente visibili senza '
+              'modificare il Live Commander.</p>\n'
+              '\n'
+              '<h3>Posta in uscita Inara</h3>\n'
+              '<p>Gli eventi Inara supportati vengono contrassegnati in modo persistente in una '
+              'casella di posta in uscita prima della trasmissione in rete.</p>\n'
+              '<p>Gli errori temporanei consentono di conservare queste voci per tentativi '
+              'successivi. Il lavoratore elabora solo la posta in uscita del giornale attivo in '
+              'modo univoco FID; Le voci di altri comandanti non sono incluse.</p>\n'
+              '\n'
+              "<h3>Stato online nell'intestazione</h3>\n"
+              '<p>EDSM attualmente mostra:</p>\n'
+              '<ul>\n'
+              '<li><b>EDSM</b>– non può essere utilizzato o disattivato per lo FID attivo</li>\n'
+              '<li><b>EDSM sta aspettando</b>– impostato e senza trasmissione in corso</li>\n'
+              "<li><b>Trasmissione EDSM</b>– l'ultimo ciclo di lavorazione EDSM si è concluso "
+              'senza errori; La descrizione comando indica se gli eventi sono stati inviati, i '
+              'dati del journal sono stati elaborati o se non sono stati trovati nuovi dati</li>\n'
+              "<li><b>Errore EDSM</b>– l'ultimo stato di trasmissione non è corretto</li>\n"
+              '</ul>\n'
+              '<p>Al momento non esiste uno stato aggiuntivo etichettato separatamente "EDSM '
+              'attivo" per EDSM.</p>\n'
+              '<p>Inara distingue più precisamente:</p>\n'
+              '<ul>\n'
+              '<li><b>INARA fuori</b>– disabilitato per il giornale attivo FID</li>\n'
+              '<li><b>INARA pronta</b>– impostato, ma ancora senza trasmissione confermata in '
+              'questa sessione</li>\n'
+              '<li><b>Trasmissione INARA</b>– il lavoratore sta attualmente inviando</li>\n'
+              "<li><b>INARA attiva</b>– l'ultimo trasferimento effettivo è stato confermato con "
+              'successo</li>\n'
+              "<li><b>Errore INARA</b>– l'ultimo tentativo di trasferimento non è riuscito</li>\n"
+              '</ul>\n'
+              '\n'
+              '<h3>Sicurezza API-Key</h3>\n'
+              '<p>Le API-Key sono credenziali personali. I campi di input sono nascosti; Sono '
+              "memorizzati in relazione al comandante nelle impostazioni dell'applicazione e non "
+              'nel database CMDRHelper.</p>\n'
+              '<p>Le chiavi non devono essere pubblicate, condivise in screenshot o aggiunte a '
+              'repository pubblici.</p>\n'
+              '\n'
+              '<h3>Immagini/Screenshot</h3>\n'
+              '<p>Cartella di origine, Cartella di destinazione, PNG/JPG, Elaborazione automatica, '
+              'Eliminazione BMP e Schiarimento da 0 a 50% si trovano esclusivamente nel menu '
+              'Immagini principale, non nella pagina Impostazioni.</p>\n'
+              '<p>La guida sensibile al contesto "Immagini" descrive queste opzioni in '
+              'dettaglio.</p>\n'
+              '\n'
+              '<h3>superficie</h3>\n'
+              "<p>Il gruppo di interfacce include l'aspetto, la lingua, il carattere, la "
+              'dimensione del carattere e la soglia del valore per i preziosi corpi degli '
+              'esploratori.</p>\n'
+              '\n'
+              '<h3>Modalità buio e luce</h3>\n'
+              "<p>Puoi passare direttamente dall'aspetto scuro a quello chiaro. Il tema viene "
+              "immediatamente applicato all'interfaccia, al sistema esistente e alle schede della "
+              'cronologia e salvato.</p>\n'
+              '\n'
+              '<h3>Lingua</h3>\n'
+              "<p>L'interfaccia offre dodici lingue tra cui scegliere. “Salva lingua” salva la "
+              'selezione; Per una conversione completamente uniforme dei widget esistenti è quindi '
+              'necessario un riavvio di CMDRHelper.</p>\n'
+              '\n'
+              '<h3>Carattere e dimensione del carattere</h3>\n'
+              '<p>È possibile selezionare e salvare la famiglia di caratteri e la dimensione del '
+              'carattere da 7 a 24 pt.</p>\n'
+              "<p>Entrambe le modifiche avranno pieno effetto solo dopo un riavvio. L'interfaccia "
+              'lo indica esplicitamente.</p>\n'
+              '\n'
+              '<h3>Soglia di valore</h3>\n'
+              '<p>La soglia del valore Explorer determina la stima del valore del credito da cui '
+              'gli enti vengono evidenziati come particolarmente pregiati. La modifica viene '
+              'salvata immediatamente e aggiorna la visualizzazione Explorer corrispondente.</p>\n'
+              '\n'
+              '<h3>Nascondi automaticamente</h3>\n'
+              '<p>"Corpi preziosi" e "Reperti BIO" si trovano saldamente nella barra laterale '
+              'sinistra, non nella pagina Impostazioni.</p>\n'
+              '<p>Gli interruttori vengono salvati e controllano le piccole finestre di '
+              "suggerimento live supportate durante l'esplorazione. La soglia del valore per gli "
+              "Enti di valore è impostata nelle impostazioni dell'interfaccia.</p>\n"
+              '\n'
+              '<p>La finestra Cargo utilizza esclusivamente lo snapshot Cargo confermato per la FID attiva del Journal. Il commander visualizzato in CMDR View e viewed_commander_id non influiscono su questa finestra live. Per uno Ship mostra occupato / massimo · libero; se CargoCapacity è sconosciuta, non viene stimato alcun valore.</p>\n'
+              '<p>«HUD stato EDSM» in «mostra automaticamente» è DISATTIVATO per impostazione predefinita. All’ingresso in un sistema compare un messaggio sopra Elite per circa 2,5 secondi. Più eventi Location nello stesso soggiorno non producono duplicati; un vero ritorno può essere verificato nuovamente.</p>\n<p>«EDSM: CONOSCIUTO» indica una corrispondenza EDSM valida per il sistema. «EDSM: SCONOSCIUTO» indica una risposta EDSM valida senza corrispondenza. «EDSM: NESSUNA RISPOSTA» indica un errore di rete, HTTP, timeout o una risposta non valida, mai un’assenza confermata di corrispondenza. La presenza in EDSM non equivale a una scoperta ufficiale in Elite; non vengono promessi nomi di primi scopritori o segnalatori.</p>\n<p>Il messaggio funziona indipendentemente dagli HUD di navigazione e carico. Le indicazioni permanenti e i messaggi del preferito rapido restano disponibili. La richiesta non blocca l’interfaccia; le risposte tardive per sistemi già lasciati vengono scartate.</p>\n\n'
+              '<h3>Aggiornamenti</h3>\n'
+              '<p>Il gruppo di aggiornamento mostra la versione installata e lo stato di GitHub. '
+              'Controlla ora controlla manualmente la presenza di una nuova versione CMDRHelper '
+              'pianificata; Inoltre dopo la partenza viene effettuato un controllo automatico '
+              'ritardato.</p>\n'
+              '<p>Se è disponibile una nuova versione, CMDRHelper chiederà prima di scaricarla e '
+              'installarla. Un aggiornamento del database annunciato viene mostrato separatamente '
+              'in questa finestra di dialogo.</p>\n'
+              '<p>Per le installazioni esistenti normalmente basta: installare l’aggiornamento → avviare CMDRHelper. Le correzioni storiche necessarie per dati BIO, visite e metadati DSS sono automatiche; prima delle riparazioni che scrivono dati viene creata una copia di sicurezza del database. Le riparazioni sono versionate e idempotenti: le revisioni riuscite non vengono rieseguite integralmente a ogni avvio. La ricostruzione richiede journal Elite ancora presenti, leggibili e attribuibili senza ambiguità a un commander. Le fonti mancanti non vengono inventate né considerate un successo; le riparazioni pendenti vengono ritentate all’avvio successivo. Normalmente non servono eliminazione del database, script manuali o reimportazione.</p>\n\n'
+              '<h3>Scarica i progressi</h3>\n'
+              '<p>Il download viene eseguito in background. Se la dimensione totale è nota, '
+              'CMDRHelper mostra il nome del file, i MiB ricevuti e totali, la percentuale, la '
+              'velocità di trasferimento e il tempo rimanente stimato.</p>\n'
+              '<p>Senza una dimensione totale nota, la barra di avanzamento funziona in modalità '
+              'occupato e continua a mostrare la quantità di dati ricevuti e, se determinabile, la '
+              "velocità. Prima dell'installazione, viene controllato lo ZIP scaricato.</p>\n"
+              '\n'
+              '<h3>Annulla aggiornamento</h3>\n'
+              '<p>"Annulla download" termina un download in corso in modo controllato. Un download '
+              'interrotto, incompleto o non valido non verrà installato.</p>\n'
+              '\n'
+              '<h3>Aggiornamento su Windows</h3>\n'
+              '<p>Su Windows, il processo di aggiornamento vero e proprio continua '
+              'indipendentemente dalla console di avvio originale. Uno spegnimento della console '
+              'non dovrebbe quindi interromperla involontariamente.</p>\n'
+              "<p>Se si verifica un errore dopo l'inizio delle modifiche ai file, il backup di "
+              'rollback esistente tenta di ripristinare la versione precedente.</p>\n'
+              '\n'
+              "<h3>Riavvia dopo l'aggiornamento</h3>\n"
+              "<p>Al termine dell'installazione, l'aggiornamento CMDRHelper si riavvia tramite il "
+              'percorso di avvio previsto e controlla brevemente se il nuovo processo funziona in '
+              'modo stabile.</p>\n'
+              '<p>Se una versione richiede un aggiornamento una tantum del database, anche '
+              "l'archivio del journal verrà rivalutato dopo il riavvio.</p>\n"
+              '\n'
+              '<h3>Diversi comandanti</h3>\n'
+              "<p><b>Selezione delle impostazioni = Di chi è l'accesso online che sto "
+              'modificando?</b></p>\n'
+              '<p><b>Active Journal-FID = Chi è autorizzato a trasmettere in diretta?</b></p>\n'
+              "<p>Né la selezione dell'account online né la visualizzazione CMDR sono consentite "
+              'per trasformare un uploader dal vivo in un comandante di sola visualizzazione.</p>\n'
+              '\n'
+              '<h3>Aiuto</h3>\n'
+              '<p>"? Aiuto" si trova nella barra laterale sinistra sopra "mostra automatica" e '
+              "apre la guida dell'area del menu principale attualmente visibile.</p>\n"
+              '<p>Nell\'area "Impostazioni", il pulsante apre direttamente la guida alle '
+              'impostazioni.</p>\n'
+              '\n'
+              '<h3>Mancia</h3>\n'
+              '<p>Se stai reinstallando o riscontri problemi, controlla prima:</p>\n'
+              '<ul>\n'
+              '<li>cartella del diario corretta e identità del comandante riconosciuta</li>\n'
+              '<li>lingua, tema, carattere e soglia del valore di Explorer desiderati</li>\n'
+              '<li>Accesso online allo FID corretto</li>\n'
+              '<li>In caso di problemi con le immagini, cartelle di origine e di destinazione nel '
+              'menu principale "Immagini".</li>\n'
+              '</ul>\n'
+              '<p>Se sono presenti più comandanti, prestare sempre attenzione a quale FID si '
+              'riferiscono ai dati di accesso online visibili.</p>'),
+    "planet_navigation": (
+        'Navigazione planetaria',
+        """<h2>Navigazione planetaria</h2>
+<p>Il navigatore planetario serve esclusivamente a raggiungere una determinata latitudine/longitudine su un pianeta o una luna. Imposti un obiettivo tramite coordinate e ottieni la distanza e la direzione per raggiungerlo.</p>
+<p>Non è un pianificatore di rotte interstellari e non gestisce la navigazione tra sistemi o i salti. Sei tu a pilotare la nave.</p>
+
+<h3>Aprire il navigatore e inserire un obiettivo</h3>
+<p>Nella panoramica, apri «Navigazione planetaria» e seleziona «Inserimento manuale …».</p>
+<ul>
+<li><b>Corpo celeste:</b> Seleziona il pianeta o la luna di destinazione dall’elenco oppure usa il corpo già rilevato. Puoi anche inserire il nome del corpo manualmente se non è ancora nell’elenco. In caso di dubbio, usa il nome completo, incluso il nome del sistema.</li>
+<li><b>Latitudine:</b> Inserisci la latitudine dell’obiettivo tra −90° e +90°.</li>
+<li><b>Longitudine:</b> Inserisci la longitudine dell’obiettivo tra −180° e +180°. Fai attenzione al segno di entrambe le coordinate.</li>
+<li><b>Nome obiettivo:</b> Puoi inserire una descrizione facoltativa per riconoscere più facilmente l’obiettivo.</li>
+</ul>
+<p>Con «Imposta obiettivo» confermi i dati inseriti. Non devi inserire ID tecnici come BodyID e SystemAddress: non sono normali dati richiesti all’utente.</p>
+
+<h3>Quando si attiva la bussola?</h3>
+<p>Non appena è impostato un obiettivo ed Elite fornisce dati di posizione planetaria validi per il corpo corrispondente, la navigazione si attiva automaticamente. Non devi premere un pulsante di avvio separato.</p>
+<p>Se questi dati mancano ancora o appartengono a un altro corpo, il navigatore attende mostrando «In attesa delle coordinate planetarie …». Puoi inserire un obiettivo anche prima di ricevere questi dati.</p>
+
+<h3>Globo planetario: oltre 380 km</h3>
+<p>Quando la distanza dall’obiettivo è superiore a 380 km, il navigatore mostra il globo planetario.</p>
+<ul>
+<li>Il <b>cerchio bianco</b> indica la tua posizione.</li>
+<li>Il <b>piccolo punto dell’obiettivo</b> è arancione quando l’obiettivo si trova sul lato visibile del pianeta.</li>
+<li>Se l’obiettivo si trova sul lato posteriore nascosto, il punto viene mostrato in rosso.</li>
+<li>La tua posizione rimane fissa nella rappresentazione. Il pianeta e l’obiettivo vengono rappresentati rispetto alla tua posizione e al tuo orientamento.</li>
+</ul>
+<p>La freccia bianca punta in avanti; quella gialla indica la direzione relativa dell’obiettivo. Il globo è un aiuto schematico all’orientamento, non una vista del terreno geograficamente precisa. Un punto rosso indica il lato posteriore del globo, non automaticamente «dietro la tua nave».</p>
+
+<h3>Griglia prospettica: fino a 380 km inclusi</h3>
+<p>A una distanza dall’obiettivo fino a 380 km inclusi, la visualizzazione passa automaticamente a una griglia prospettica inclinata. Se la distanza torna a superare 380 km, ricompare il globo.</p>
+<p>Le linee trasversali formano una <b>griglia delle distanze a intervalli di 50 km</b>. Il punto dell’obiettivo viene disegnato nella griglia in base alla distanza e alla direzione relativa. La prospettiva ti aiuta a proseguire l’avvicinamento; l’inclinazione fa apparire gli intervalli più ravvicinati verso il fondo. Per la rotta effettiva da seguire, osserva anche la rotta obiettivo e la direzione relativa.</p>
+
+<h3>Leggere correttamente i valori di navigazione</h3>
+<ul>
+<li><b>Distanza dall’obiettivo:</b> L’indicazione grande mostra la distanza residua dall’obiettivo lungo la superficie planetaria ideale.</li>
+<li><b>Coordinate obiettivo:</b> La coppia di coordinate inserita per l’obiettivo, prima la latitudine e poi la longitudine. Rimane invariata mentre ti muovi.</li>
+<li><b>Coordinate attuali:</b> La tua ultima coppia di coordinate confermata da Elite, sempre latitudine / longitudine.</li>
+<li><b>Distanza sulla superficie:</b> La stessa distanza sulla superficie indicata come distanza dall’obiettivo, eventualmente arrotondata con maggiore precisione nella visualizzazione dettagliata. Non è un secondo percorso né una distanza spaziale diretta attraverso l’aria.</li>
+<li><b>Rilevamento:</b> La direzione assoluta verso l’obiettivo dalla tua posizione attuale, espressa come angolo della bussola: 000° è nord, 090° est, 180° sud e 270° ovest.</li>
+<li><b>Prua:</b> Il tuo orientamento attuale, come fornito da Elite. Indica dove sei rivolto e non deve necessariamente coincidere già con il rilevamento.</li>
+<li><b>Direzione relativa:</b> La differenza tra il tuo orientamento e il rilevamento, ad esempio «23° a destra», «10° a sinistra» o «Dritto». A 180°, l’obiettivo è dietro di te.</li>
+<li><b>Rotta obiettivo:</b> Il rilevamento evidenziato come rotta assoluta sulla quale puoi allinearti nell’HUD di Elite. Non è un ulteriore angolo di virata.</li>
+</ul>
+<p>Esempio: con prua 051° e rotta obiettivo 074°, vira di 23° a destra finché la bussola di Elite indica circa 074°. Proseguendo il volo, il rilevamento e la rotta obiettivo possono cambiare: segui i valori aggiornati.</p>
+<p>Nella stessa posizione dell’obiettivo, a un polo o nel punto esattamente opposto sul pianeta, la direzione può essere indefinita. Il navigatore mostra allora l’avviso corrispondente anziché una rotta inventata.</p>
+
+<h3>Dimensioni della finestra</h3>
+<p>La finestra del navigatore è liberamente ridimensionabile. Il globo o la griglia prospettica si adattano proporzionalmente allo spazio disponibile. Le dimensioni minime mantengono leggibili i valori dettagliati; il globo rimane rotondo. La posizione e le dimensioni della finestra vengono salvate.</p>
+
+<h3>Attivare l’HUD di navigazione</h3>
+<p>A sinistra nella finestra principale, seleziona la casella sotto <b>visualizzazione automatica → HUD di navigazione</b>. Con una navigazione planetaria valida, l’HUD appare direttamente sopra la finestra visibile di Elite in primo piano.</p>
+<p>Mostra tre righe:</p>
+<ul>
+<li>direzione relativa</li>
+<li>rotta obiettivo</li>
+<li>distanza</li>
+</ul>
+<p>L’HUD è trasparente, lascia passare i clic e non prende il focus: non copre il gioco con un’area opaca, non intercetta i clic del mouse e non sottrae a Elite il focus di input quando appare automaticamente.</p>
+<p>Senza navigazione valida o una direzione univoca, diventa automaticamente invisibile. Viene nascosto anche quando Elite è ridotto a icona o non è in primo piano. La casella nella barra laterale può comunque restare selezionata: rappresenta la tua preferenza per la visualizzazione automatica, non la visibilità attuale.</p>
+<p>L’HUD è solo una visualizzazione aggiuntiva. Il navigatore normale funziona indipendentemente da esso, anche quando l’HUD è disattivato o non disponibile.</p>
+
+<h3>Impostare un nuovo obiettivo</h3>
+<p>Sullo stesso corpo puoi riaprire «Inserimento manuale …» in qualsiasi momento e impostare altre coordinate. Il nuovo obiettivo sostituisce quello di navigazione precedente. Con dati di posizione corrispondenti, la bussola si aggiorna immediatamente.</p>
+<p>Con «Termina navigazione» rimuovi l’obiettivo attuale. Per un altro avvicinamento, imposta semplicemente un nuovo obiettivo.</p>
+
+<h3>Aggiornamento dei dati e limiti</h3>
+<p>La navigazione si basa sui dati di stato forniti da Elite. Gli aggiornamenti possono arrivare in ritardo a seconda dello stato del gioco. L’indicazione dell’età nel navigatore mostra quanto tempo è trascorso dall’ultimo messaggio di stato confermato.</p>
+<p>La distanza sulla superficie descrive l’arco più breve su una sfera ideale. Non è un percorso sul terreno o stradale. Il navigatore non conosce gli ostacoli né le quote del terreno lungo il tragitto: altitudine di volo, velocità sicura ed evitamento degli ostacoli restano responsabilità tua.</p>
+
+<h3>Suggerimento</h3>
+<p>Prima dell’avvicinamento, controlla il nome del corpo e i segni delle coordinate dell’obiettivo. Allineati quindi alla rotta obiettivo sulla bussola di Elite e osserva direzione relativa e distanza. Se il navigatore è in attesa, verifica se Elite sta già fornendo coordinate planetarie per il corpo obiettivo.</p>""",
+    ),
+}
+
+DIALOG_TITLE = 'Aiuto – {area}'
+CLOSE_LABEL = 'Chiudi'

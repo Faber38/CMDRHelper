@@ -1,0 +1,1373 @@
+"""Turkish content for contextual help."""
+
+
+HELP_TOPICS = {'overview': ('Genel Bakış',
+              '<h2>Genel Bakış</h2>\n'
+              "<p>Genel bakış CMDRHelper'nin ana sayfasıdır. Şu anda aktif olan komutan hakkındaki "
+              'en önemli bilgileri özetler ve derginin, konumun ve çevrimiçi hizmetlerin doğru '
+              'şekilde tanınıp tanınmadığını bir bakışta gösterir.</p>\n'
+              '\n'
+              '<h3>Komutan ve gemi</h3>\n'
+              "<p>Elit Tehlikeli Günlüğü'nden tanınan komutan ve halihazırda kullanımda olan gemi "
+              'burada görüntülenir.</p>\n'
+              '<p>CMDRHelper, Frontier Kimliğine (FID) dayalı olarak kişisel verileri ilgili '
+              'komutana atar. Bu, farklı komutanlardan gelen verileri birbirinden ayrı tutar.</p>\n'
+              '<p>Komutan değiştirilirken yeni komutana ait kayıtlı bilgiler yüklenir.</p>\n'
+              '\n'
+              '<h3>günlük</h3>\n'
+              "<p>CMDRHelper, ana veri kaynağı olarak Elite Dangerous'nin günlük dosyalarını "
+              'kullanır.</p>\n'
+              '<p>Günlük ekranı, günlük dosyalarının bulunup bulunmadığı ve aktif komutana atanıp '
+              'atanmadığı konusunda bilgi verir. Yeni eksiksiz günlük girişleri oyun sırasında '
+              'otomatik olarak işlenir.</p>\n'
+              "<p>Zaten işlenmiş olan günlük alanları kaydedilir, böylece CMDRHelper'nin bir "
+              'sonraki başlatılışında her günlüğü yeniden tam olarak değerlendirmesi '
+              'gerekmez.</p>\n'
+              '\n'
+              '<h3>Mevcut konum</h3>\n'
+              '<p>Şu anda bilinen yıldız sistemini ve dergiden bilindiği kadarıyla komutanın tam '
+              'yerini gösterir.</p>\n'
+              '<p>Konum, atlamalar, yanaşma ve diğer konum raporları gibi olaylarla güncellenir ve '
+              'komutan bazında saklanır.</p>\n'
+              '\n'
+              '<h3>Görevler</h3>\n'
+              '<p>Bu alan şu anda bilinen açık görevlerin sayısını gösterir.</p>\n'
+              '<p>"Görevler" düğmesi veya menü öğesi sizi bilinen görev hedeflerini ve durum '
+              'bilgilerini içeren tam görev görünümüne götürür.</p>\n'
+              '\n'
+              '<h3>Son stand</h3>\n'
+              '<p>“Son durum” bilinen son kalıcı komutan durumunu özetlemektedir. Bu, Elite '
+              'Dangerous veya CMDRHelper yeniden başlatıldıktan sonra bile önemli bilgilerin geri '
+              'yüklenmesine olanak tanır.</p>\n'
+              '\n'
+              '<h3>Nihai sistemler</h3>\n'
+              '<p>Dergide yakın zamanda ziyaret edilen veya tanınan sistemler burada '
+              'görüntülenir.</p>\n'
+              '<p>Liste, Komutanın son yolculuğuna hızlı bir genel bakış görevi görüyor.</p>\n'
+              '<p>Ziyaret geçmişi canlı günlük takibinde de Location, FSDJump ve CarrierJump olaylarını dikkate alır. Aynı kesintisiz kalıştaki birden çok konum olayı tek ziyaret sayılır: A → A → A bir kez sayılır. Gerçek bir dönüş korunur: A → B → C → A dört ziyaret sayılır.</p>\n\n'
+              '<h3>Çevrimiçi durum</h3>\n'
+              '<p>Ana pencerenin üst kısmında ek durum göstergeleri vardır:</p>\n'
+              '<ul>\n'
+              '<li><b>Dergi tanındı</b>– CMDRHelper geçerli bir günlük kaynağı ve komutan kimliği '
+              'tespit etti.</li>\n'
+              '<li><b>EDSM</b>– FID aktif günlüğü için EDSM iletiminin mevcut durumunu '
+              'gösterir.</li>\n'
+              '<li><b>INARA</b>– FID aktif günlüğü için Inara iletiminin mevcut durumunu '
+              'gösterir.</li>\n'
+              '</ul>\n'
+              '<p>Çevrimiçi erişim verileri her komutan için ayrı ayrı yönetilmektedir. Bir '
+              "komutan asla başka bir komutanın API-Key'sini otomatik olarak kullanmaz.</p>\n"
+              '\n'
+              '<h3>Birden fazla komutan için önemli</h3>\n'
+              '<p>Canlı veriler her zaman mevcut Elit Tehlikeli günlük oturumunda açıkça '
+              'tanımlanan komutana bağlıdır.</p>\n'
+              '<p>Bir görünümde yalnızca farklı bir komutanın görüntülenmesi, aktif canlı komutanı '
+              'değiştirmez veya herhangi bir EDSM veya Inara yayınını etkilemez.</p>\n'
+              '\n'
+              '<h3>Uç</h3>\n'
+              '<p>Komutan, gemi veya konum oyunun mevcut durumuyla eşleşmiyorsa, önce üstteki '
+              'günlük ekranını kontrol edin, ardından "Ayarlar" altında ayarlanan günlük klasörünü '
+              'kontrol edin.</p>'),
+ 'missions': ('Görevler',
+              '<h2>Görevler</h2>\n'
+              "<p>Görev görünümü, Elit Tehlikeli Günlük'ten bilinen, o anda görüntülenen komutanın "
+              'görevlerini gösterir. CMDRHelper, görev verilerini komutan bazında kaydeder, '
+              'böylece açık görevler Elite Dangerous veya CMDRHelper yeniden başlatıldıktan sonra '
+              'bile korunur.</p>\n'
+              '\n'
+              '<h3>Açık görevler</h3>\n'
+              '<p>Yeni görevler çıkıyor<code>MissionAccepted</code>devralındı \u200b\u200bve '
+              'kalıcı olarak kaydedildi.</p>\n'
+              '<p>Nihai görev olayı olmadığı sürece görev açık kalır. Görev listesi olmayan yeni '
+              'bir oyun oturumu, bilinen açık görevleri otomatik olarak kaldırmayabilir.</p>\n'
+              '\n'
+              '<h3>Görev durumu</h3>\n'
+              '<p>CMDRHelper, diğerlerinin yanı sıra aşağıdaki durum değişikliklerini işler:</p>\n'
+              '<ul>\n'
+              '<li>Görev kabul edildi</li>\n'
+              '<li>Görev tamamlandı</li>\n'
+              '<li>Görev başarısız oldu</li>\n'
+              '<li>Görev iptal edildi</li>\n'
+              '<li>Görev hedefi saptırıldı</li>\n'
+              '<li>Desteklenen kargo/depo görevlerinde ilerleme</li>\n'
+              '</ul>\n'
+              '<p>Son bir etkinlik yalnızca ilgili görevi değiştirir.</p>\n'
+              '\n'
+              '<h3>Günlükten Görevler</h3>\n'
+              '<p>Elite Dangerous, çeşitli günlük etkinlikleri hakkında görev bilgileri sağlar. '
+              'CMDRHelper, bu olayları kalıcı bir görev durumunda birleştirir.</p>\n'
+              '<p>Gerçek bir tam görev olayı, güvenilir bir anlık görüntü görevi görebilir. Böyle '
+              'bir etkinliğin eksik olması durumunda eski açık görevler yalnızca bu nedenle '
+              'kapatılmayacaktır.</p>\n'
+              '\n'
+              '<h3>Hedefler ve yerler</h3>\n'
+              "<p>Elite'in dergideki bilgileri sağladığı ölçüde CMDRHelper şunları gösterir:</p>\n"
+              '<ul>\n'
+              '<li>Hedef sistemi</li>\n'
+              '<li>Hedef istasyon veya hedef</li>\n'
+              '<li>Hedef gezegen veya vücut</li>\n'
+              '<li>Görev tanımı</li>\n'
+              '<li>bilinen ilerleme</li>\n'
+              '<li>mevcut durum</li>\n'
+              '</ul>\n'
+              '<p>Her görev tüm bilgileri sağlamaz. Eksik veriler CMDRHelper tarafından icat '
+              'edilmemiştir.</p>\n'
+              '\n'
+              '<h3>Kalıcılık ve yeniden başlatma</h3>\n'
+              '<p>Açık görevler komutanla ilgili veri tabanına kaydedilir.</p>\n'
+              '<p>Bu, aşağıdaki durumlarda bile saklanacakları anlamına gelir:</p>\n'
+              '<ul>\n'
+              '<li>Elite Dangerous sonlandırıldı ve daha sonra yeniden başlatıldı</li>\n'
+              '<li>CMDRHelper arada kapalı</li>\n'
+              '<li>Yeni günlük oturumu başlangıçta herhangi bir görev olayı içermiyor</li>\n'
+              '</ul>\n'
+              '<p>Yalnızca belgelenmiş bir görev olayı kayıtlı durumu değiştirir.</p>\n'
+              '\n'
+              '<h3>Birkaç komutan</h3>\n'
+              '<p>Görevler komutan tarafından kesin olarak ayrılmıştır.</p>\n'
+              '<p>Bir görev olayı yalnızca günlük oturumu benzersiz şekilde tanımlanan komutana '
+              'atanır. Başka bir komutanın görevleri görüntülenemez veya değiştirilemez.</p>\n'
+              '\n'
+              '<h3>Artık geçerli olmayan veya artık geçerli olmayan görevler</h3>\n'
+              '<p>Eski günlük verileri veya önceki bir içe aktarma işlemi, oyunda artık mevcut '
+              'olmasa da bir görevi açık tutuyorsa, mevcut yetim görev sıfırlama/temizleme '
+              'özelliği kullanılabilir.</p>\n'
+              '<p>Bu işlev yalnızca görüntülenen görevin artık etkin olmadığı açıkça belli '
+              'olduğunda kullanılmalıdır.</p>\n'
+              '\n'
+              '<h3>Çevrimiçi Hizmetler</h3>\n'
+              '<p>Etkin günlük FID için geçerli ve etkinleştirilmiş bir Inara erişimi '
+              "ayarlanmışsa, desteklenen görev olayları ayrıca Inara'ye iletilebilir.</p>\n"
+              '<p>Eksik veya ulaşılamayan bir Inara bağlantısı, yerel görev depolamayı '
+              'etkilemez.</p>\n'
+              '\n'
+              '<h3>Uç</h3>\n'
+              '<p>Bir görev görünmüyorsa veya yanlış bir durum gösteriyorsa, öncelikle Elite '
+              "Dangerous'nin ilgili görev olayını günlüğe yazıp yazmadığını kontrol edin.</p>\n"
+              '<p>CMDRHelper yalnızca günlüğün gerçekten sağladığı veya önceki benzersiz görev '
+              'olaylarından zaten saklanan bilgileri görüntüleyebilir.</p>'),
+ 'explorer': ('Kaşif',
+              '<h2>Kaşif</h2>\n'
+              '<p>Explorer, aktif komutan tarafından keşfedilen ve taranan sistemleri ve gök '
+              'cisimlerini değerlendirir. Kendi Elite Dangerous günlük verilerinizi halihazırda '
+              'mevcut olan ek bilgilerle birleştirir ve keşif, haritacılık, biyolojik/jeolojik '
+              'sinyaller ve yüzey madenciliği verilerini bir arada görüntüler.</p>\n'
+              '\n'
+              '<h3>Mevcut sistem</h3>\n'
+              '<p>Sistem hakkındaki mevcut bilgi düzeyi üst alanda özetlenmiştir.</p>\n'
+              '<p>Bunlar, diğerlerinin yanı sıra şunları içerir:</p>\n'
+              '<ul>\n'
+              '<li>dergide tanınmış ve hatta kayıtlı organlar</li>\n'
+              '<li>mevcut sinyaller</li>\n'
+              '<li>Değerleri tara</li>\n'
+              '<li>haritacılık değerine zaten ulaşıldı</li>\n'
+              '<li>tam olarak eşlenirse olası toplam değer</li>\n'
+              '<li>BIO durumu ve tahmini BIO değerleri</li>\n'
+              '<li>Henüz gönderilmemiş haritacılık ve BIO verileri</li>\n'
+              '</ul>\n'
+              '<p>Gösterilen değerler gerçekte mevcut verilere dayanmaktadır. Eksik bilgiler ayrı '
+              'bir keşif olarak sunulmaz.</p>\n'
+              '\n'
+              '<h3>Sistem haritası</h3>\n'
+              '<p>Sistem haritası, mevcut sistemdeki yıldızları, gezegenleri, ayları ve bilinen '
+              'diğer cisimleri grafiksel olarak temsil eder.</p>\n'
+              '<p>Ayrıntılı görünümünü açmak için bir gövdeye tıklanabilir.</p>\n'
+              '<p>Ekranda diğer şeylerin yanı sıra vücut tipi, mesafe ve varsa tarama ve '
+              'haritacılık değerlerinin yanı sıra özel keşif özellikleri de gösteriliyor.</p>\n'
+              '\n'
+              '<h3>ORGANİK ×N</h3>\n'
+              '<p>BIO ×N, oyun tarafından bildirilen bir vücudun biyolojik sinyallerinin sayısını '
+              'belirtir.</p>\n'
+              '<p>Sayı başlangıçta yalnızca kaç tane biyolojik sinyalin veya cinsin rapor '
+              'edildiğini gösterir. Bu, otomatik olarak tüm biyolojik türlerin zaten bulunduğu '
+              'veya analiz edildiği anlamına gelmez.</p>\n'
+              '<p>Gerçek kendi organik keşifleri ayrı tutulur.</p>\n'
+              '\n'
+              '<h3>GEO × N</h3>\n'
+              '<p>GEO ×N, oyun tarafından bildirilen bir cismin jeolojik sinyallerinin sayısını '
+              'gösterir.</p>\n'
+              '<p>Bunlar, örneğin fumaroller veya gayzerler gibi jeolojik özellikleri içerebilir. '
+              'CMDRHelper yalnızca mevcut günlük/gövde verilerinden görünen bilgileri '
+              'görüntüler.</p>\n'
+              '\n'
+              '<h3>ABBAU ×N</h3>\n'
+              '<p>ABBAU ×N, Elite Dangerous tarafından bildirilen bir cismin gezegendeki '
+              'madencilik sahalarının sayısını gösterir.</p>\n'
+              '<p>Örnek:</p>\n'
+              '<p><b>ABBAU ×24</b></p>\n'
+              '<p>bu, bu cisim için 24 gezegensel maden sahasının rapor edildiği anlamına '
+              'gelir.</p>\n'
+              '<p>Rakam, tek bir yerden hangi ham maddenin çıkarılabileceğini söylemiyor.</p>\n'
+              '\n'
+              '<h3>Kendi madencilik buluntuları</h3>\n'
+              '<p>Komutan Rhino ile yüzey madenciliği gerçekleştirdiyse CMDRHelper, ayrı olarak '
+              'belgelenen kişisel bulguları saklar.</p>\n'
+              '<p>Aşağıdakiler arasında bir ayrım yapılır:</p>\n'
+              '<ul>\n'
+              '<li>fiilen elde edilen mallar, ör. B. Ton cinsinden bakır</li>\n'
+              '<li>madencilik sırasında toplanan ikincil malzemeler</li>\n'
+              '<li>Vücudun genel yüzey malzemeleri</li>\n'
+              '</ul>\n'
+              '<p>Kişisel bulguya bir örnek şöyle olabilir:</p>\n'
+              '<p><b>Bakır – 56 ton</b></p>\n'
+              '<p>Bu bilgi, bu komutanın aslında oradan 56 ton bakır çıkardığı anlamına '
+              'geliyor.</p>\n'
+              '<p>Kişisel madencilik buluntuları her komutan için kaydedilir ve diğer komutanların '
+              'buluntularıyla karıştırılmaz.</p>\n'
+              '\n'
+              '<h3>Gövde yüzey malzemeleri</h3>\n'
+              '<p><code>Scan.Materials</code>bir gövdenin genel yüzey malzemesi bileşimini '
+              'açıklar.</p>\n'
+              '<p>Örneğin demir, nikel, kükürt veya diğer malzemeler yüzde değerleriyle '
+              'görüntülenebilir.</p>\n'
+              '<p>Bu değerlerin gezegensel maden deposunun hammaddeleriyle karıştırılmaması '
+              'gerekir. Frontier, bu genel gövde malzemeleri ile ayrı bir madencilik sahasının '
+              "içeriği arasında Dergi'de belgelenmiş doğrudan bir ilişki sunmamaktadır.</p>\n"
+              '\n'
+              '<h3>Dünyalaştırma</h3>\n'
+              '<p>Dünyalaştırma sembolü veya etiketi, mevcut verilere göre bir gövdenin '
+              'dünyalaştırma adayı olarak değerlendirildiğini gösterir.</p>\n'
+              '\n'
+              '<h3>İlk keşif</h3>\n'
+              '<p>“Taraman sırasında zaten keşfedilmiş” ifadesi, o zamanki taramandan önceki durumu anlatır. Evet daha önce keşfedildiğini, Hayır o sırada henüz keşfedilmediğini belirtir; eksik bilgi Bilinmiyor olarak kalır. ★ tarama anındaki bir First Discovery adayını gösterir; bugün hâlâ mevcut olduğu garanti edilen resmî bir ilk keşif hakkını değil.</p>\n<p>Geçmişteki WasDiscovered=false veya WasMapped=false değeri, gökcisminin bugün hâlâ keşfedilmemiş ya da haritalanmamış olduğu anlamına gelmez. Bu gözlemler veri satışından veya yeniden ziyaretten sonra da geçmişe aittir. EDSM’de bilinme ayrı bir bilgidir ve Elite’te resmî keşfi kanıtlamaz. Buradan resmî ilk kâşif çıkarımı yapılmaz.</p>\n'
+              '\n'
+              '<h3>İlk haritalama</h3>\n'
+              '<p>CMDRHelper şunları ayırt eder:</p>\n'
+              '<ul>\n'
+              '<li>◉ Tarama anında First Mapping adayı: sen taradığında henüz haritalanmamıştı</li>\n<li>◎ Senin tarafından haritalandı: kendi DSS haritalamanın tamamlandığı kaydedilmiş</li>\n<li>◉✓ Tarama anındaki adaylık ve kendi haritalaman belgelenmiş; resmî ilk hak doğrulanmamış</li>\n'
+              '</ul>\n'
+              '<p>“Taraman sırasında zaten haritalanmış” durumu keşiften bağımsız değerlendirilir. Eksik bilgi Bilinmiyor olarak kalır. Önceden keşfedilmiş bir gökcismi tarama sırasında henüz haritalanmamış olabilir. Kendi haritalaman resmî First Mapping etiketini doğrulamaz; birden fazla ziyarette kayıtlı taramaya göre zaman sırası da her zaman kanıtlanamaz.</p>\n<p>Kendi DSS haritalaman tamamlandığında haritalama zamanı, kullanılan sondalar ve verimlilik hedefi artık güvenilir biçimde kaydedilir. Sonraki taramalar mevcut bilgilerin kaybolmasına yol açmaz.</p>\n'
+              '\n'
+              '<h3>Ülke çubuğu</h3>\n'
+              '<p>İnmeye elverişlilik göstergesi, bilinen verilere göre inişin mümkün olduğu '
+              'cisimleri tanımlar.</p>\n'
+              '\n'
+              '<h3>Altın çerçeveler / değerli gövdeler</h3>\n'
+              '<p>Gezgin ekranında özellikle değerli gövdeler vurgulanabilir.</p>\n'
+              '<p>Altın çerçeve, ayarlanan eşiğin üzerindeki haritalama tahminini gösterir. Bir First Discovery işareti değildir; satılmamış verileri veya bugün hâlâ alınabilecek ilk keşif bonuslarını doğrulamaz.</p>\n'
+              '<p>Vücudun değerinin ayrıntılı gösteriminin yerini almaz.</p>\n'
+              '\n'
+              '<h3>Değerlerin listesi</h3>\n'
+              '<p>Değer listesi kayıtlı taramaya dayalı tahminler gösterir; henüz alınmamış garantili ödemeler değil. İlk hak bonusları doğrulanmamış kalır. Harita ve liste ipuçları ile gökcismi ayrıntıları aynı zamana bağlı durumları kullanır.</p>\n'
+              '<p>Bir sistemdeki ilginç veya değerli gövdelerin hızlı bir şekilde '
+              'karşılaştırılması için özellikle uygundur.</p>\n'
+              '\n'
+              '<h3>ORGANİK / COĞRAFİ / BOZULMA</h3>\n'
+              '<p>Bu görünüm, cisimleri biyolojik, jeolojik veya gezegensel bozulma sinyallerine '
+              'göre gruplandırır.</p>\n'
+              '<p>Bu, ilginç cisimlerin komple sistem haritasında tek tek aranmasına gerek '
+              'olmadığı anlamına gelir.</p>\n'
+              '<p>Kendi yüzey madenciliği verileriniz varsa kişisel madencilik bulgularınız da '
+              'görülebilir.</p>\n'
+              '<p>Explorer’ın ortak BIO / GEO / ABBAU tablosunda elle ayarlanan sütun genişlikleri yeniden açılışta ve program yeniden başlatıldığında korunur. Açılır pencerelerin kayıtlı sütun genişlikleri daha sağlam geri yüklenir; geçersiz değerlerde güvenli varsayılan genişlikler kullanılır.</p>\n\n'
+              '<h3>Gövde detayı</h3>\n'
+              '<p>Bir gövdeye tıklamak ayrıntılı görünümü açar.</p>\n'
+              '<p>Bilindiği kadarıyla burada şunlar görünebilir:</p>\n'
+              '<ul>\n'
+              '<li>Gövde Tipi</li>\n'
+              '<li>yığın</li>\n'
+              '<li>mesafe</li>\n'
+              '<li>Yer çekimi</li>\n'
+              '<li>atmosfer</li>\n'
+              '<li>Karaya elverişlilik</li>\n'
+              '<li>Dünyalaştırma durumu</li>\n'
+              '<li>BIO/GEO sinyalleri</li>\n'
+              '<li>gezegensel madencilik sahaları</li>\n'
+              '<li>Yüzey malzemeleri</li>\n'
+              '<li>kendi maden buluntuları</li>\n'
+              '<li>Tarama değeri</li>\n'
+              '<li>haritacılık değeri</li>\n'
+              '<li>mevcut değer</li>\n'
+              '</ul>\n'
+              '<p>Her kurum tüm bilgilere sahip değildir.</p>\n'
+              '\n'
+              '<h3>BİYO tahminleri</h3>\n'
+              '<p>CMDRHelper, uygun cisimlere ilişkin mevcut verilere dayanarak olası biyolojik '
+              'keşifleri tahmin edebiliyor.</p>\n'
+              '<p>Tahminler, belirli bir türün gerçekten var olacağının garantisi değildir. Keşif '
+              'için karar verme yardımcısı olarak hizmet ederler.</p>\n'
+              '<p>Tahmini BIO değerleri de tahmindir ve gerçek doğrulanmış bulgulardan ayrı olarak '
+              'ele alınır.</p>\n'
+              '\n'
+              '<h3>Henüz gönderilmedi</h3>\n'
+              '<p>CMDRHelper, komutanla ilgili bilinen haritacılık ve henüz gönderilmemiş BIO '
+              'verilerini tutar.</p>\n'
+              '<p>Haritacılık satışları ve biyolojik telif hakları, ilgili günlük olayları '
+              'kullanılarak muhasebeleştirilir.</p>\n'
+              '<p>Halihazırda satılmış olan haritacılık verileri yeniden yapılanma sonrasında '
+              'tekrar açık görünmemelidir.</p>\n'
+              '\n'
+              '<h3>Arabayı göster</h3>\n'
+              '<p>Değerli Gövdeler veya BIO Buluntuları gibi desteklenen Explorer ipuçları, sol '
+              'kenar çubuğundaki anahtarlar kullanılarak otomatik olarak görüntülenebilir.</p>\n'
+              '<p>Bu küçük canlı pencereler, oyun oynarken ek ipuçları görevi görür ve tam '
+              'Explorer görünümünün yerini almaz.</p>\n'
+              '<p>“Cargo”, aktif Journal-FID tarafından belirlenen Ship veya SRV’nin doğrulanmış yükünü gösterir. SRV Cargo hiçbir zaman Ship Cargo olarak devralınmaz; Limpetler toplam doluluğa dahildir ve Ad | Miktar tablosunda ayrı gösterilir.</p>\n'
+              '<p>BIO ilerlemesi kısa gösterilir: 1/3 sarı, 2/3 mavi ve 3/3 yeşil; tamamlanmış “Tamamlandı” durumu da yeşildir. “otomatik göster” altında GEO’nun ayrı kaydedilen anahtarı vardır: yalnız BIO, yalnız GEO veya ikisi birlikte kullanılabilir.</p>\n<p>Kargo penceresi yüksekliğini içeriğe göre otomatik ayarlar. Çok sayıda kayıtta yükseklik sınırlanır ve tablo kaydırılabilir; seçilen genişlik ve pencere konumu korunur. Mevcut “Kargo HUD” anahtarı artık “otomatik göster” altındadır; kargo penceresinde ikinci bir anahtar bulunmaz.</p>\n\n'
+              '<h3>Birkaç komutan</h3>\n'
+              '<p>Kişisel keşif sonuçları, haritacılık, BIO buluntuları ve kendi yüzey madenciliği '
+              'buluntuları ilgili komutana atanır.</p>\n'
+              '<p>Bir cismin küresel astronomik özellikleri (örneğin, gezegendeki bilinen maden '
+              'sahalarının sayısı) cismin kendi özellikleri olarak kalır.</p>\n'
+              '\n'
+              '<h3>Uç</h3>\n'
+              '<p>İlginç bir vücudunuz varsa detaylı görünüme tıklamaya değer. Burası genel gövde '
+              'verileri, olası keşif sonuçları ve kendi komutanınız tarafından belgelenen gerçek '
+              'bulgular arasında ayrım yapmak için en iyi yerdir.</p>'
+              """
+
+<h3>★ Favoriler</h3>
+<p>Explorer’ın üst kısmındaki “★ Favoriler” düğmesi ayrı, yeniden kullanılabilen bir favoriler penceresi açar. Burada etkin komutan için sistemleri, gezegenleri/uyduları ve yüzey konumlarını kaydedersin.</p>
+<p>Ada göre alfabetik sıralanan, kaydırılabilir liste; ad, tür, sistem, uygun olduğunda gökcismi ve enlem/boylam, kategori ve küçük bir resim önizlemesi gösterir. Serbest metin araması, tür filtresi ve kategori filtresi birlikte kullanılabilir. Arama; ad, sistem, gökcismi ve notu kapsar.</p>
+<p>“Aç / Göster” kaydedilen bilgileri, notu ve daha büyük bir resim önizlemesini gösterir. “Explorer’da göster”, favori mevcut Explorer sistemine aitse ve ilgili veriler varsa mevcut sistem genel görünümünü veya gökcismi ayrıntı görünümünü açar. Diğer sistemler için kaydedilmiş favori verileri görünür kalır; sistemler arası rota hesaplanmaz.</p>
+
+<h3>Sistem, gezegen veya mevcut konumu kaydetme</h3>
+<ul>
+<li>“★ Mevcut sistemi kaydet” mevcut sistemi yüzey koordinatları olmadan kaydeder.</li>
+<li>“★ Gezegen / ay kaydet” mevcut sistemdeki bilinen bir gezegeni veya uyduyu seçmeni sağlar. Bu favoriye de yüzey koordinatları eklenmez.</li>
+<li>“★ Mevcut konumu kaydet”, favoriler penceresinin üst kısmında diğer iki kaydetme seçeneğinin yanında bulunur ve gezegen gezgininde de kullanılabilir. Favoriler penceresinde düğme her zaman görünür kalır; geçerli güncel gezegen konum verileri ve etkin bir komutan olmadan devre dışıdır. Tıklandığında komutan, sistem, gökcismi, enlem ve boylam sabitlenir. Oyundaki sonraki hareketler, açık iletişim kutusundaki bu değerleri değiştirmez.</li>
+</ul>
+<p>İstediğin bir ad gir ve tam olarak bir kategori seç: Biyo, Jeo, Madencilik, Manzara, İniş yeri, İlginç veya Diğer. Not ve resim isteğe bağlıdır. Bilinen teknik kimlikler dahili olarak aktarılır; bunları girmen gerekmez. Enlem veya boylam 0,0 da geçerli koordinatlardır.</p>
+<p>“Düzenle”; ad, kategori, not ve resmi değiştirir. Sistem, gökcismi ve kaydedilmiş koordinatlar korunur. Farklı bir yüzey konumu kaydetmek için o konumda yeni bir favori oluştur.</p>
+
+<h3>Fare kullanmadan hızlı favori</h3>
+<p>“Ayarlar → Hızlı favori” altında genel bir kısayol tuşunu serbestçe atayabilir, değiştirebilir veya kaldırabilirsin. Kurulumdan sonra varsayılan durum “Atanmamış” olur: CMDRHelper istenmeden hiçbir tuşu kaydetmez. Atama saklanır. Bir tuş birleşimi zaten kullanımdaysa veya sisteminde kullanılamıyorsa bir hata mesajı gösterilir; daha önce çalışan bir atama korunur.</p>
+<p>Linux/X11 ve Windows üzerinde kısayol, Elite odaktayken de çalışır – yaya olarak, SRV’de ve gemide. Tuşa basıldığında yüzeydeki mevcut konum, etkin komutan için hemen kaydedilir; iletişim kutusu açılmaz ve fare kullanımı gerekmez. Komutan, sistem, gök cismi ve mevcut Latitude/Longitude değerleri o anda sabitlenir. Geçerli güncel gezegen koordinatları yoksa hiçbir şey kaydedilmez; eski koordinatlar yeniden kullanılmaz.</p>
+<p>Favoriye “İşaretçi 07.09.2026 06:32:15” gibi benzersiz bir geçici ad ve “Diğer” kategorisi verilir. Normal favoriler penceresinde daha sonra adını değiştirebilir, başka bir kategori atayabilir, not veya resim ekleyebilirsin. Otomatik olarak ekran görüntüsü alınmaz veya içe aktarılmaz.</p>
+<p>Yaklaşık iki saniye boyunca etkin Elite penceresinin doğrudan üzerinde gök cismi ve koordinatlarla birlikte “★ FAVORI KAYDEDILDI” görünür; konum mevcut değilse kısa süreliğine “⚠ GEZEGEN KOORDINATLARI YOK” gösterilir. Gösterim odağı almaz ve girdileri yakalamaz. Navigasyon HUD’u kapalıyken de çalışır ve ardından tamamen kaybolur. HUD açıkken sonrasında normal navigasyon gösterimi kalır. HUD anahtarının kayıtlı ayarı değiştirilmez. Gösterim, navigasyon HUD’u ile aynı üst katman altyapısını ve platform gereksinimlerini kullanır.</p>
+
+<h3>Favori resimleri</h3>
+<p>Favori resimleri, Resimler bölümünden ayrıdır. “Resim seç …” PNG, JPEG ve WebP biçimlerini kabul eder. CMDRHelper, seçilen resmi kendi favori resimleri klasörüne yalnızca kaydederken kopyalar. Orijinal dosya taşınmaz veya değiştirilmez.</p>
+<p>“Son ekran görüntüsünü kullan”, her tıklamada yapılandırılmış ekran görüntüsü kaynak klasörünü yeniden okur ve tipik Elite dosya adlarına sahip okunabilir ekran görüntülerini arar. Bir ayar yoksa Windows veya Steam/Proton’daki olağan Elite ekran görüntüsü klasörleri dikkate alınır. Yapılandırılmış dönüştürme hedefindeki etkin komutana ait klasör de uygun dönüştürülmüş Elite ekran görüntüleri için aranır. Böylece orijinal BMP’si silinmiş olsa da dönüştürülmüş bir ekran görüntüsü bulunabilir. En yeni çekim zamanını belirlerken dosya adındaki açık zaman bilgisi, yoksa dosya zamanı esas alınır; dönüştürülmüş resimlerde dönüştürme zamanı yerine adda saklanan çekim zamanı kullanılır. CMDRHelper kendisi ekran görüntüsü almaz ve rastgele resim klasörlerini aramaz.</p>
+<p>Kullanımdan önce dosya adı, çekim zamanı ve yeni yüklenmiş bir önizleme gösterilir. “Bu resmi kullan” ile onayla. Uygun ekran görüntüsü bulunamazsa “Resim seç …” seçeneğini kullanmaya devam edebilirsin. Elite BMP ekran görüntüleri dahili PNG kopyası olarak kaydedilir.</p>
+<p>Bir resim düzenleme iletişim kutusunda değiştirilebilir veya “Resmi kaldır” ile seçimden çıkarılabilir. Kaydederken artık kullanılmayan dahili kopya silinir. Resim dosyası eksikse favori önizleme olmadan kullanılabilir durumda kalır.</p>
+
+<h3>Favori hedefi ve komutan</h3>
+<p>Yüzey konumlarında “▶ Hedefe git”, kaydedilmiş gökcismini, enlemi, boylamı ve favori adını mevcut gezegen gezginine aktarır. Yeni hedef önceki hedefin yerini alır. Favorilerin kendi gezinme mantığı yoktur. Gezgin karar vermeye aynı şekilde devam eder: eşleşen geçerli gezegen verileri gezinmeyi etkinleştirir; aksi hâlde bu verileri bekler.</p>
+<p>Favoriler yalnızca etkin komutana aittir. Komutan değiştirildiğinde liste güncellenir ve açık düzenleme iletişim kutusu iptal edilir. Hâlâ önceki komutanın favori hedefi olarak yönetilen bir hedef sonlandırılır. Günlükteki komutan seçimi bu favori listesini genişletmez.</p>
+<p>“Sil” onay gerektirir ve yalnızca favori kaydını ve onun dahili resim kopyasını kaldırır. Orijinal ekran görüntüsü veya seçilen orijinal resim ile tüm Explorer, günlük ve gökcismi verileri korunur.</p>"""),
+ 'chronicle': (
+        'Kronik',
+        """<h2>Kronik</h2>
+<p>Chronicle, komutanın kişisel seyahat ve keşif geçmişidir. Daha önce ziyaret edilmiş sistemleri bulmak, bunları mekansal olarak temsil etmek ve bilinen keşifleri aramak için kalıcı olarak saklanan günlük bilgilerini kullanır.</p>
+
+<h3>Ziyaret edilen sistemler</h3>
+<p>Chronicle, ziyaret edilen sistemleri ve bunların Komutanın bildiği galaksideki konumlarını gösterir.</p>
+<p>Varsa ilk ve son ziyaret ile bilinen vücut bilgileri dikkate alınır.</p>
+<p>Bir dönem etkin olduğunda harita görünümündeki ziyaret sayısı, ilk ziyaret ve son ziyaret, filtrelenmiş gerçek sistem ziyaretlerini ifade eder.</p>
+<p>Bu nedenle kronik yalnızca bir harita değil aynı zamanda daha önceki seyahat noktalarını ve keşifleri bulmaya yönelik bir araçtır.</p>
+
+<h3>3 boyutlu harita</h3>
+<p>Ziyaret edilen sistemler galaktik X/Y/Z koordinatları kullanılarak mekansal olarak temsil edilir.</p>
+<p>Çalıştırma talimatları doğrudan haritanın üzerinde bulunur:</p>
+<ul>
+<li>Farenin sol düğmesini basılı tutun → görünümü döndürün</li>
+<li>orta fare düğmesini basılı tutup sürükle → yakınlaştırma penceresi çiz</li>
+<li>Farenin sağ düğmesini basılı tutun → görünümü taşıyın</li>
+</ul>
+<p>Küçük eksenli ekran, uzayda yönlendirmeye yardımcı olur.</p>
+
+<h3>Mevcut konum</h3>
+<p>“Geçerli Konum” ile harita görünümü aktif komutanın halihazırda bilinen konumuna hizalanabilir veya bu konuma döndürülebilir.</p>
+<p>Önce mevcut filtreler uygulanır. Yalnızca mevcut sistem sonuç haritasında yer alıyorsa görünüm o sisteme ortalanır.</p>
+<p>Aksi takdirde “Mevcut sistem bu filtre seçimine dâhil değil.” mesajı gösterilir. Bu işlem filtreleri kaldırmaz.</p>
+
+<h3>Hizala</h3>
+<p>“Hizala”, yönelimi galaktik düzlemin üstten görünümüne döndürür. Kaydırma ve yakınlaştırma korunur.</p>
+<p>Bu, çok fazla döndürme nedeniyle harita anlaşılmaz hâle geldiğinde yararlıdır.</p>
+
+<h3>Kroniği yenile</h3>
+<p>“Kroniği yenile”, kronik verilerini mevcut birleşik filtrelere göre yeniden yükler ve görünümü günceller. Serbest metin, etkin tarih sınırları ve madencilik filtreleri yeniden birlikte değerlendirilir; etkin filtreler göz ardı edilmez.</p>
+<p>İşlev, günlük dosyalarını değiştirmez veya yeni keşif verileri oluşturmaz. Mevcut CMDRHelper verilerine göre geçmiş görünümünü günceller.</p>
+
+<h3>Serbest metin araması</h3>
+<p>Zaten bilinen içerik, “Arama geçmişi…” alanı kullanılarak aranabilir.</p>
+<p>Arama, diğer hususların yanı sıra - eğer veritabanında mevcutsa - dikkate alır:</p>
+<ul>
+<li>Sistem adları</li>
+<li>Gövde özellikleri</li>
+<li>biyolojik veriler</li>
+<li>Malzemeler</li>
+<li>Kodeks verileri</li>
+</ul>
+<p>Serbest metin, dönem ve madencilik ortak bir filtre alanında bulunur. “Uygula”, ayarlanan filtreleri birlikte değerlendirir. Serbest metin alanında Enter, “Uygula” ile aynı birleşik filtrelemeyi başlatır.</p>
+
+<h3>Başlangıç/Bitiş dönemi (UTC)</h3>
+<p>“Başlangıç” ve “Bitiş”i kendi onay kutularıyla etkinleştir ve istediğin tarihi seç. Yalnızca tek bir sınır da kullanılabilir. Bir kutu etkin değilse o tarafta zaman kısıtlaması yoktur; iki kutu da etkin değilse dönem kısıtlanmaz.</p>
+<ul>
+<li><b>Başlangıç:</b> Seçilen UTC takvim gününün başlangıcından itibaren, başlangıç dâhil.</li>
+<li><b>Bitiş:</b> Seçilen UTC takvim gününün tamamı, ertesi günün başlangıcından hemen öncesine kadar dâhil edilir.</li>
+</ul>
+<p>UTC, Eşgüdümlü Evrensel Zaman’dır. Tarih sınırları yerel saat dilimindeki takvim günlerine değil, UTC takvim günlerine karşılık gelir.</p>
+<p>Filtrelemenin kaynağı, gerçek sistem ziyaretlerinin tutulduğu <code>system_visits</code> tablosudur. İlgili komutanın dönem içinde gerçek bir ziyareti gerekir. Kaydedilmiş <code>first_seen</code> ve <code>last_seen</code> değerleri gerçek bir ziyaretin yerini tutmaz: dönemin yalnızca daha önceki bir ilk ziyaret ile daha sonraki bir son ziyaret arasında kalması yeterli değildir.</p>
+<p>Dönem, tek tek keşif, BIO, GEO veya madencilik olaylarını değil, ziyaretleri filtreler. Bilinen buluntu bilgileri ve madencilik miktarları kayıtlı toplam değerler olarak kalır. Başlangıç/Bitiş tek başına veya serbest metin ve madencilikle birlikte kullanılabilir.</p>
+<p>Başlangıç, Bitiş’ten sonraysa “Başlangıç tarihi Bitiş tarihinden sonra olamaz.” mesajı gösterilir. Hiçbir veritabanı sorgusu başlatılmaz. Tarih sınırlarını düzeltip filtreleri yeniden uygula.</p>
+
+<h3>Arama sonuçları</h3>
+<p>İsabetler, tarih kartının altındaki mevcut sonuçlar listesinde görüntülenir.</p>
+<p>Vuruş türüne bağlı olarak sistem ve gövdenin yanı sıra ek bilgiler de görünebilir.</p>
+<p>Bir isabet, zaten bilinen ilgili sistemi veya gövdeyi bulmak ve mevcut ayrıntılı bilgiyi açmak için kullanılabilir.</p>
+
+<h3>Sonuç yok</h3>
+<p>Geçerli bir filtreleme hiçbir eşleşme bulamazsa harita ve rotalar temizlenir. Sonuç listesi temizlenip gizlenir, ayrıntı görünümü sıfırlanır ve açık bir kronik sistem ayrıntısı penceresi kapatılır.</p>
+<p>Eski sonuçlar görünür kalmaz. Bu durumda arama metni, dönem ve madencilik filtrelerinin birleşimini ve ilgili görünümde kullanılan komutanı kontrol et.</p>
+
+<h3>Gezegensel maden sahaları</h3>
+<p>"Gezegensel madencilik sahaları" filtresi, özellikle Elite Dangerous'nin gezegensel madencilik sahalarını bildirdiği bilinen cisimleri aramak için kullanılabilir.</p>
+<p>Temel ekran Explorer'dan bilinene karşılık gelir:</p>
+<p><b>ABBAU ×N</b></p>
+<p>Numara vücudun kendisine aittir ve komutanla ilgisi yoktur.</p>
+
+<h3>En azından</h3>
+<p>"En azından" seçeneğini kullanarak bir kuruluşun sahip olması gereken minimum gezegen madenciliği konumu sayısını belirleyebilirsiniz.</p>
+<p>Örnek:</p>
+<p><b>En az 20</b></p>
+<p>yalnızca en azından aşağıdakileri içeren bilinen gövdeleri gösterir:</p>
+<p><b>ABBAU ×20</b></p>
+<p>Bu, özellikle geniş madencilik alanlarının özel olarak konumlandırılmasını mümkün kılar.</p>
+
+<h3>Kendi maden buluntularım</h3>
+<p>"Kendi maden buluntuları" durumunda arama, söz konusu komutanın kendisinin açık bir şekilde yüzey madenciliği yaptığı cesetlerle sınırlıdır.</p>
+<p>Bu bilgiler kişisel yüzey madenciliği geçmişinden gelir ve komutan tarafından kesin bir şekilde ayrılır.</p>
+<p>Bu nedenle bir vücut, kendi komutanının orada herhangi bir şeyi kaldırmasına gerek kalmadan küresel ABBAU ×N sinyallerine sahip olabilir.</p>
+
+<h3>Ticari mal</h3>
+<p>“Kendi madencilik buluntuları” etkinleştirilmişse, “Hammadde” seçimi de mevcuttur.</p>
+<p>Liste yalnızca söz konusu komutanın halihazırda yüzey madenciliğinden kazandığı malları içeriyor.</p>
+<p>Bu, tüm olası madencilik hammaddelerinin teorik bir listesi değildir.</p>
+<p>FABER38 için listede örneğin şunlar bulunabilir:</p>
+<ul>
+<li>Tüm</li>
+<li>bakır</li>
+</ul>
+<p>Daha sonra ek hammaddeler çıkarılırsa, bunlar otomatik olarak kişisel seçiminizde görünecektir.</p>
+
+<h3>Hammaddeler için hedefli arama</h3>
+<p>Örneğin, "Bakır" seçilirse ve ardından "Uygula"ya basılırsa, geçmiş yalnızca söz konusu komutanın bariz bir şekilde bakır çıkardığı cesetleri gösterecektir.</p>
+<p>Örnek:</p>
+<p><b>Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — bakır 56 ton</b></p>
+<p>Bu, kroniğin kişisel konum veri tabanı olarak kullanılabileceği anlamına gelir: daha önce çıkarılmış olan bir ham madde daha sonra tekrar bulunabilir.</p>
+
+<h3>Tüm hammaddeler</h3>
+<p>"Hammadde: Hepsi" ile eşleşen tüm kişisel yüzey madenciliği keşifleri dikkate alınır.</p>
+<p>Bir gövde üzerinde birden fazla mal biliniyorsa o ana kadar elde edilen miktarlarla birlikte sergilenebilir.</p>
+<p>Örnek:</p>
+<p><b>ABBAU ×24 — Helyum-3 18 ton, bakır 56 ton</b></p>
+<p>Miktarlar, ilgili komutanın kişisel madencilik değerleridir ve aslında günlük olaylarından belgelenmiştir.</p>
+<p>Bir dönem etkinken de kişisel madencilik miktarları kayıtlı toplam miktarlar olarak kalır. <b>Bakır 56 t</b> otomatik olarak şu anlama gelmez: <b>seçilen dönemde 56 t</b>. Dönem, uygun bir sistem ziyareti gerektirir ancak gösterilen çıkarılmış miktarı bu dönemle sınırlamaz.</p>
+
+<h3>Filtreleri birleştir</h3>
+<p>Serbest metin, etkin Başlangıç/Bitiş sınırları ve madencilik filtreleri birleştirilebilir. Bir eşleşme, ayarlanan koşulları birlikte karşılamalıdır.</p>
+<p>Örneğin:</p>
+<ul>
+<li>Gezegensel madencilik sahaları aktif</li>
+<li>En az 20</li>
+<li>Kendi madenciliği aktif bulundu</li>
+<li>Hammadde bakır</li>
+</ul>
+<p>Söz konusu komutanın halihazırda bakır çıkarmış olduğu en az 20 gezegen maden sahasına sahip bilinen cesetleri arar.</p>
+<p>Ek bir arama metni varsa o da dikkate alınır. Ayrıca bir dönem seçilmişse görüntülenen komutanın ilgili sistemi gerçekten o dönemde ziyaret etmiş olması gerekir; bakırın çıkarılması ise o dönemde gerçekleşmek zorunda değildir.</p>
+
+<h3>Uygula</h3>
+<p>“Uygula”, o anda ayarlanmış tüm arama, dönem ve madencilik filtreleriyle ortak bir filtreleme yapar:</p>
+<ul>
+<li>Serbest metin</li>
+<li>Başlangıç, etkinse</li>
+<li>Bitiş, etkinse</li>
+<li>Gezegensel maden sahaları</li>
+<li>Minimum sayı</li>
+<li>Kendi maden buluntularım</li>
+<li>Ticari mal, “Kendi maden buluntularım” etkinse</li>
+</ul>
+<p>Serbest metin alanında Enter tamamen aynı filtrelemeyi yapar. Serbest metin ve madencilik filtresi yoksa haritada işaretli komutanlar için normal harita yüklenir; varsa Başlangıç/Bitiş ile sınırlandırılır.</p>
+
+<h3>Sıfırla</h3>
+<p>“Sıfırla”, ortak filtre alanını ilk durumuna döndürür:</p>
+<ul>
+<li>Serbest metin temizlenir.</li>
+<li>Başlangıç ve Bitiş devre dışı bırakılır; tarih alanları yeniden bugünün tarihini gösterir ve devre dışıdır.</li>
+<li>Gezegensel maden sahaları devre dışı bırakılır.</li>
+<li>Minimum sayı 0 olarak ayarlanır.</li>
+<li>Kendi maden buluntularım devre dışı bırakılır.</li>
+<li>Ticari mal “Tümü”ne döndürülür.</li>
+</ul>
+<p>Komutan seçimi korunur. Ardından bu harita seçimi için normal kronik yeniden yüklenir; önceki arama sonuçları ve ayrıntı görünümleri sıfırlanır.</p>
+
+<h3>Komutan seçimi</h3>
+<p>Chronicle, çeşitli tanınmış komutanlardan gelen verileri görüntüleyebilir.</p>
+<p>Burada iki ayrı seçim kavramı vardır:</p>
+<ul>
+<li><b>Haritanın komutan seçimi:</b> Komutan kutuları, serbest metin/madencilik araması olmayan normal haritada hangi komutan rotalarının gösterileceğini belirler. Etkin bir dönem varsa dikkate alınır.</li>
+<li><b>Görüntülenen komutan:</b> Kişisel serbest metin/madencilik aramaları görüntülenen komutanı (<code>viewed_commander_id</code>), yoksa etkin komutanı kullanır. Kişisel ticari mal listeleri de bu komutana göre belirlenir.</li>
+</ul>
+<p>Ancak kendi maden buluntularınız ve hammadde listeleriniz gibi kişisel bilgiler, gerçekte görüntülenen komutan için her zaman ayrı olarak değerlendirilir.</p>
+<p>Bir komutan hammadde seçiminde münhasıran başka bir komutana ait olan herhangi bir maden bulgusunu görmez.</p>
+
+<h3>Tüm komutanlar</h3>
+<p>Harita/kronik ekranı birden fazla komutanı hesaba katabilir.</p>
+<p>“Tüm komutanlar”, haritanın komutan seçimini ifade eder. Komutan kutuları kişisel serbest metin/madencilik aramalarını otomatik olarak birden fazla komutana genişletmez.</p>
+<p>Bu, komutanla ilgili verilerin kişisel tahsisini değiştirmez. Bir sistemin veya cismin küresel astronomik özellikleri ortak kalır, kişisel bulgular ise ayrı kalır.</p>
+
+<h3>Arama yardımı/açıklama</h3>
+<p>Tarih araması ve ekranın anlamı hakkındaki ek bilgilere “Arama yardımı / açıklama” yoluyla erişilebilir.</p>
+<p>Tıklanan bir arama terimi arama alanına aktarılır ve önceden ayarlanmış dönem/madencilik filtreleriyle birlikte çalıştırılır.</p>
+<p>Bu bağlamla ilgili ana yardım, burada mevcut olan kısa çalıştırma talimatlarını tamamlar.</p>
+
+<h3>İpucu</h3>
+<p>Chronicle, özellikle uzun bir yolculuk sırasında keşfedilen ilginç yerleri bulmak için uygundur.</p>
+<p>Örneğin yüzey madenciliği için şu yanıtları verebilir:</p>
+<p>"Hangi gezegende bakır çıkardım?"</p>
+<p>veya:</p>
+<p>"Bilinen gezegenlerimden hangilerinde özellikle çok sayıda maden sahası var?"</p>""",
+    ),
+ 'jump_tip': ('Atlama ipucu',
+              '<h2>Atlama ipucu</h2>\n'
+              '<p>Atlama ipucu, halihazırda bilinen sistem verilerini değerlendirerek ve ilginç '
+              'hedef sistemleri vurgulayarak keşfi destekler.</p>\n'
+              '<p>İşlev karar vermede yardımcı olarak tasarlanmıştır. Önerilen bir sistemin '
+              'gerçekten nadir veya özellikle değerli buluntular içerdiğini garanti etmez.</p>\n'
+              '\n'
+              '<h3>Değerlendirmenin temeli</h3>\n'
+              '<p>CMDRHelper, sistem adları ve sistem sınıflarındaki bilinen kalıpları '
+              'değerlendirmek için mevcut günlük ve veritabanı bilgilerini kullanır.</p>\n'
+              '<p>Diğer şeylerin yanı sıra sistem kısaltmaları, halihazırda bilinen vücut tipleri '
+              've önceki buluntular dikkate alınabilir.</p>\n'
+              '\n'
+              '<h3>Sistem kısaltması</h3>\n'
+              "<p>Elite Dangerous'de prosedürel olarak oluşturulan sistemlerin çoğu, belirli "
+              'sistem gruplarını tanımlayan harf ve sayı kombinasyonlarını içerir.</p>\n'
+              '<p>CMDRHelper, bu kısaltmaları istatistiksel olarak değerlendirebiliyor ve bugüne '
+              'kadar bilinen verilerde ilginç bulguların hangi gruplarda daha sık ortaya çıktığını '
+              'gösterebiliyor.</p>\n'
+              '\n'
+              '<h3>Yeniden değerlendir</h3>\n'
+              '<p>“Yeniden Değerlendir” ile mevcut veri tabanı tekrar analiz edilir.</p>\n'
+              '<p>Komutanın kayıtlı verileri kullanılır. İşlev, yeni seçkin veriler oluşturmaz '
+              'veya günlük dosyalarını değiştirmez.</p>\n'
+              '\n'
+              '<h3>Sonuç listesi</h3>\n'
+              '<p>Sonuç listesi, mevcut değerlendirmeye göre en ilginç sistem kısaltmalarını veya '
+              'adaylarını gösterir.</p>\n'
+              '<p>Mevcut veritabanına bağlı olarak aşağıdakilerle ilgili bilgiler olabilir:</p>\n'
+              '<ul>\n'
+              '<li>ilginç gezegen sınıfları</li>\n'
+              '<li>biyolojik keşifler</li>\n'
+              '<li>Su dünyaları</li>\n'
+              '<li>dönüştürülebilir gövdeler</li>\n'
+              '<li>diğer önemli keşif sonuçları</li>\n'
+              '</ul>\n'
+              '<p>belli olmak.</p>\n'
+              '\n'
+              '<h3>Garanti yerine olasılık</h3>\n'
+              '<p>Yüksek bir değer veya iyi bir sıralama yalnızca belirli bir modelin şu ana kadar '
+              'değerlendirilen verilerdeki ilginç bulgularla daha sık ilişkilendirildiği anlamına '
+              'gelir.</p>\n'
+              '<p>Bu bir garanti değildir.</p>\n'
+              '<p>Önerilen bir sistem hala tamamen ilgi çekici olmayabilir, düşük puanlı bir '
+              'sistem ise değerli buluntular içerebilir.</p>\n'
+              '\n'
+              '<h3>Kendi veritabanı</h3>\n'
+              '<p>Atlama ipucu, komutanın zaten bilinen verileriyle çalışır.</p>\n'
+              '<p>Zaman içinde ne kadar çok sistem ve kuruluş kaydedilirse, değerlendirme için '
+              'kişisel veri tabanı da o kadar büyük olur.</p>\n'
+              '<p>Bu, sıralamanın daha sonra değişebileceği anlamına gelir.</p>\n'
+              '\n'
+              '<h3>Birkaç komutan</h3>\n'
+              '<p>Kişisel değerlendirmeler komutan bazında gerçekleştirilir.</p>\n'
+              '<p>Başka bir komutandan alınan veriler, kişisel derecelendirmeyi fark edilmeden '
+              'tahrif etmemelidir.</p>\n'
+              '<p>Küresel astronomik ana veriler ise komutanla ilgili kişisel bulguları '
+              'yansıtmadığı sürece paylaşılabilecek.</p>\n'
+              '\n'
+              '<h3>Pratikte kullanın</h3>\n'
+              '<p>Atlama ipucu, aralarından seçim yapılabilecek birden fazla olası varış noktası '
+              'varsa ve karar vermede ek yardım isteniyorsa özellikle uygundur.</p>\n'
+              '<p>Tam bir rota planlayıcının yerini almaz ve güvenli, en uygun rotayı '
+              'hesaplamaz.</p>\n'
+              '<p>Belirli bir rota planlaması için “Rota planlayıcı” menü öğesi mevcuttur.</p>\n'
+              '\n'
+              '<h3>Uç</h3>\n'
+              '<p>Atlama ucunu ek bir keşif yardımı olarak kullanın:</p>\n'
+              '<p>“Önceki verilerime göre hangi sistem daha ilginç görünüyor?”</p>\n'
+              '<p>Bir tahmin olarak değil:</p>\n'
+              '<p>“Bu sistemde spesifik bir bulgunun olması garantidir.”</p>'),
+ 'route_planner': ('Rota planlayıcı',
+                   '<h2>Rota planlayıcı</h2>\n'
+                   '<p>Rota planlayıcı, gemi veya Fleet Carrier ile daha uzun yolculukların '
+                   "planlanmasını destekler. CMDRHelper, Spansh'den gelen harici rota verilerini "
+                   'kullanabilir ve planlanan rotayı daha sonraki kullanım için '
+                   'hazırlayabilir.</p>\n'
+                   '\n'
+                   '<h3>Başla ve bitir</h3>\n'
+                   '<p>Rota hesaplaması için bir başlangıç \u200b\u200bve varış sistemi '
+                   'gereklidir.</p>\n'
+                   '<p>CMDRHelper, mümkün olduğu ölçüde, Komutanın mevcut bilinen sistemini '
+                   'başlangıç \u200b\u200bnoktası olarak kullanabilir. Hesaplamadan önce başlangıç '
+                   '\u200b\u200bve bitiş kontrol edilmelidir.</p>\n'
+                   '\n'
+                   '<h3>Gemi veya Fleet Carrier</h3>\n'
+                   '<p>Rota planlayıcı normal bir gemi ile Fleet Carrier ile yapılan yolculuklar '
+                   'arasında ayrım yapar.</p>\n'
+                   '<p>Her ikisi de farklı gereksinimler ve hesaplama yöntemleri kullanır. Bu '
+                   'nedenle planlama öncesinde uygun rota tipinin seçilmesi gerekmektedir.</p>\n'
+                   '\n'
+                   '<h3>Gemi rotası</h3>\n'
+                   '<p>Bir gemi rotası için, aktif gemi için bilinen veya girilen atlama '
+                   'özellikleri dikkate alınır.</p>\n'
+                   '<p>Mevcut verilere bağlı olarak FSD verileri, gemi verileri, kütle, yakıt ve '
+                   'diğer atlama parametreleri planlamaya dahil edilebilir.</p>\n'
+                   '<p>Hesaplanan rota bir planlama yardımcısıdır. Gemide veya kütlesinde yapılan '
+                   'değişiklikler, oyunda ulaşılabilecek gerçek atlama mesafesini '
+                   'değiştirebilir.</p>\n'
+                   '\n'
+                   '<h3>Filo taşıyıcı rotası</h3>\n'
+                   "<p>Fleet Carrier'nin normal gemilerden farklı atlama kuralları vardır.</p>\n"
+                   '<p>CMDRHelper, ilgili rotalar için belirlenmiş Spansh taşıyıcı planlamasını '
+                   'kullanır.</p>\n'
+                   '<p>Rota atlama sırasını planlamak için kullanılır. Gerçek trityum tüketimi ve '
+                   'mevcut aralık aynı zamanda kütleye ve mevcut taşıyıcı durumuna da bağlı '
+                   'olabilir.</p>\n'
+                   '\n'
+                   '<h3>Spansh</h3>\n'
+                   '<p>Gerçek rota hesaplaması için CMDRHelper, Spansh harici hizmetini '
+                   'kullanabilir.</p>\n'
+                   '<p>Daha uzun bir hesaplama sırasında arayüzün çalışır durumda kalması için '
+                   'istek arka planda işlenir.</p>\n'
+                   "<p>CMDRHelper'nin harici hizmetin kullanılabilirliği veya yanıt süresi "
+                   'üzerinde hiçbir etkisi yoktur.</p>\n'
+                   '\n'
+                   '<h3>hesaplama</h3>\n'
+                   '<p>Hesaplama başlatıldıktan sonra istek seçilen rota planlayıcıya '
+                   'iletilir.</p>\n'
+                   '<p>Güzergah ve hizmete bağlı olarak hesaplama biraz zaman alabilir. Bu süre '
+                   'içerisinde gereksiz yere ikinci bir özdeş hesaplamaya başlanmamalıdır.</p>\n'
+                   '\n'
+                   '<h3>Sonuç</h3>\n'
+                   '<p>Başarılı bir şekilde hesaplanan rota, amaçlanan sistemleri veya atlama '
+                   'noktalarını sırasıyla gösterir.</p>\n'
+                   '<p>Rota türüne bağlı olarak mesafe, atlamalar, yakıt veya trityum ve diğer '
+                   'mevcut rota verileri hakkında ek bilgiler görüntülenir.</p>\n'
+                   '\n'
+                   '<h3>Rota ve mevcut komutan</h3>\n'
+                   "<p>Mevcut sistem ve gemi, aktif AppState'te açıkça bilindiği sürece, ön atama "
+                   'veya planlamayı desteklemek için kullanılabilir.</p>\n'
+                   '<p>Ancak gerçek rota bir plan olarak kalır ve herhangi bir günlük veya komutan '
+                   'verisini değiştirmez.</p>\n'
+                   '\n'
+                   '<h3>CTSVision dışa aktarma</h3>\n'
+                   '<p>Hesaplanan filo taşıyıcı rotaları CTSVision için CSV olarak dışa '
+                   'aktarılabilir.</p>\n'
+                   "<p>Bu, CMDRHelper'de planlanan taşıyıcı rotanın daha sonra atlama kontrolü "
+                   "veya orada rota işleme için CTSVision'de kullanılabileceği anlamına "
+                   'gelir.</p>\n'
+                   "<p>Dışa aktarma CMDRHelper'deki rotayı değiştirmez.</p>\n"
+                   '\n'
+                   '<h3>CSV dosyası</h3>\n'
+                   '<p>Dışa aktarılan dosya, CTSVision için gereken rota verilerini amaçlanan '
+                   'sırayla içerir.</p>\n'
+                   '<p>Dosya, eğer CTSVision tarafından okunacaksa, dışa aktarma sonrasında '
+                   'yapısal olarak kontrolsüz bir şekilde değiştirilmemelidir.</p>\n'
+                   '\n'
+                   '<h3>Hatalar ve harici hizmetler</h3>\n'
+                   "<p>Spansh'ye ulaşılamazsa veya hizmet bir hata verirse, CMDRHelper ilgili bir "
+                   'hata mesajı görüntüler.</p>\n'
+                   '<p>Çevrimiçi rota hesaplamasındaki bir hata, yerel komutan veya günlük '
+                   'verilerini değiştirmez.</p>\n'
+                   '\n'
+                   '<h3>Rota planlayıcı ve atlama ipucu</h3>\n'
+                   '<p>Atlama ipucu ve rota planlayıcı farklı görevleri yerine getirir:</p>\n'
+                   '<ul>\n'
+                   '<li>Jump Tip, mevcut verilere dayanarak olası ilgi çekici keşif hedeflerini '
+                   'değerlendirir.</li>\n'
+                   '<li>Rota planlayıcı başlangıç \u200b\u200bve varış noktası arasında belirli '
+                   'bir rota hesaplar.</li>\n'
+                   '</ul>\n'
+                   '<p>Bu nedenle iyi bir atlama ipucu otomatik olarak optimum rotanın parçası '
+                   'değildir.</p>\n'
+                   '\n'
+                   '<h3>Birkaç komutan</h3>\n'
+                   '<p>Mevcut sistem veya gemi gibi komutanla ilgili veriler kullanılıyorsa, bu, '
+                   "aktif canlı AppState'ten gelir ve burada açıkça atanmalıdır.</p>\n"
+                   '<p>CMDR görünümünde başka bir komutana bakmak, rota planlayıcıyı kendi '
+                   'sistemine veya gemisine değiştirmez.</p>\n'
+                   '<p>Rota hesaplaması tek başına başka bir komutanın kişisel verilerini '
+                   'değiştirmez.</p>\n'
+                   '\n'
+                   '<h3>Uç</h3>\n'
+                   '<p>Uzun bir yolculuktan önce mutlaka tekrar kontrol edin:</p>\n'
+                   '<ul>\n'
+                   '<li>Başlangıç \u200b\u200bsistemi</li>\n'
+                   '<li>Hedef sistemi</li>\n'
+                   '<li>Rota tipi gemi/taşıyıcı</li>\n'
+                   '<li>gemi rotaları, temel gemi, FSD ve atlama parametreleri için</li>\n'
+                   '<li>taşıyıcı rotalar için mevcut trityum rezervi</li>\n'
+                   '</ul>\n'
+                   '<p>Filo taşıyıcı seyahatleri için, dönüş yolculuğu veya planlanmamış sapmalar '
+                   'için de yeterli rezervin planlanması tavsiye edilir.</p>'),
+ 'images': ('Resimler',
+            '<h2>Resimler</h2>\n'
+            '<p>“Görüntüler” bölümü Elite Dangerous ile çekilen ekran görüntülerini yönetir. '
+            'CMDRHelper, yeni kayıtları otomatik olarak tanıyabilir, işleyebilir ve komutana '
+            'dayalı bir galeride saklayabilir.</p>\n'
+            '\n'
+            '<h3>Kaynak klasörü</h3>\n'
+            "<p>Kaynak klasör, Elite Dangerous'nin ekran görüntülerini BMP formatında kaydettiği "
+            'klasördür.</p>\n'
+            '<p>CMDRHelper bu klasörü yeni BMP dosyaları açısından izleyebilir. Otomatik işlemenin '
+            'çalışması için doğru ekran görüntüsü klasörünün ayarlanması gerekir.</p>\n'
+            '\n'
+            '<h3>Hedef klasör</h3>\n'
+            '<p>Hedef klasör, CMDRHelper tarafından işlenen görüntülerin ortak kök '
+            'klasörüdür.</p>\n'
+            '<p>Kullanıcı bu kök klasörü ayarlar. CMDRHelper, işlem sırasında gerekli komutanla '
+            'ilgili alt klasörleri otomatik olarak oluşturur.</p>\n'
+            '\n'
+            '<h3>Otomatik işleme</h3>\n'
+            '<p>"Otomatik olarak dönüştür" etkinleştirilirse ve geçerli kaynak ve hedef klasörler '
+            'ayarlanmışsa, CMDRHelper, yeni BMP ekran görüntüleri için kaynak klasörü düzenli '
+            'olarak kontrol eder.</p>\n'
+            '<p>Etkinleştirildiğinde, mevcut BMP dosyaları başlangıçta biliniyor olarak '
+            "işaretlenir ve sorulmadan otomatik olarak dönüştürülmez. Bunun için mevcut BMP'leri "
+            'dönüştürmeye yönelik ayrı bir işlev mevcuttur.</p>\n'
+            '<p>Yeni bir dosya, birbirini takip eden iki denetimde aynı sıfırdan farklı boyuta '
+            'sahip olana kadar kuyruğa alınmaz. Sonuç olarak, halen devam eden bir yazma işlemi '
+            'hemen işlenmez.</p>\n'
+            '\n'
+            '<h3>Resim dönüştürme</h3>\n'
+            '<p>Kaynak olarak CMDRHelper, BMP dosyalarını işler. Hedef format olarak “PNG” veya '
+            '“JPG” seçilebilir.</p>\n'
+            '<p>JPG dosyaları 95 kalite seviyesinde kaydedilir. PNG dosyaları optimize edilmiş bir '
+            'şekilde kaydedilir.</p>\n'
+            '<p>Varsayılan olarak orijinal BMP dosyası korunur. "Dönüştürmeden sonra BMP\'yi sil" '
+            'etkinleştirilirse, kaynak BMP yalnızca hedef görüntü başarıyla kaydedildikten sonra '
+            'silinecektir.</p>\n'
+            '\n'
+            '<h3>Görüntüyü aydınlat</h3>\n'
+            '<p>Parlaklık, bir kaydırıcı ve bağlantılı sayı alanı kullanılarak yüzde 0 ila 50 '
+            'arasında ayarlanır. Ayar kaydedilir.</p>\n'
+            '<p>Daha sonra başlatılan her dönüşüm sırasında, hem yeni izlenen hem de manuel olarak '
+            'başlatılan mevcut BMP dosyaları için otomatik olarak uygulanır. Yüzde 0 orijinal '
+            'parlaklığı devralır; daha yüksek değerler, oluşturulan PNG veya JPG görüntüsünün '
+            'parlaklığını buna göre artırır.</p>\n'
+            '<p>İşlev yalnızca bir önizleme değildir ve daha sonra galeride seçilen bir görüntüye '
+            'uygulanmaz. Değiştirilen parlaklık yeni hedef dosyaya kaydedilir.</p>\n'
+            '<p>BMP dosyasının silinmesi de etkinleştirilmediği sürece kaynak BMP değişmeden '
+            'kalır. Günlük, komutan ve keşif verileri değişmedi.</p>\n'
+            '\n'
+            '<h3>Komutanla ilgili depolama</h3>\n'
+            "<p>Yeni ekran görüntüleri, aktif canlı AppState'te bulunan günlük kimliğine dayalı "
+            "olarak gerçek oynayan Komutan'a atanır.</p>\n"
+            '<p>Klasör yapısı komutan adını ve Frontier kimliğini içerir, örneğin:</p>\n'
+            '<p><b>FABER38_F12520967/</b></p>\n'
+            '<p>FID, birden fazla komutanla bile görevin net olmasını sağlar. Bu, aynı isimdeki '
+            'iki komutanın ayırt edilmesini sağlar.</p>\n'
+            '\n'
+            '<h3>dosya adları</h3>\n'
+            '<p>Yeni işlenen görüntüler, yakalanma zamanını, komutanın adını ve (varsa) sıraya '
+            'alınırken bilinen yıldız sistemini içeren bir ad alır.</p>\n'
+            '<p>Örnek:</p>\n'
+            '<p><b>2026-09-04_13-18-22_FABER38_Prua-Hypai-RB-D-c29-71.png</b></p>\n'
+            '<p>FID, yine görüntü dosyası adında değil, komutanla ilgili klasör adındadır.</p>\n'
+            '\n'
+            '<h3>Güvenli dosya adları</h3>\n'
+            '<p>CMDRHelper, dosya ve klasör bileşenleri olarak kullanılmak üzere komutan ve sistem '
+            'adlarını temizler.</p>\n'
+            '<p>Yasadışı kontrol ve Windows karakterleri değiştirilir, boşluklar birleştirilir, '
+            'sorunlu noktalar veya sondaki boşluklar kaldırılır ve CON veya NUL gibi ayrılmış '
+            'Windows adları güvence altına alınır.</p>\n'
+            '\n'
+            '<h3>Kayıt süresi</h3>\n'
+            '<p>Adlandırma için CMDRHelper, kararlı olarak tanınan BMP dosyasının değiştirilme '
+            'zamanını kullanır. Ancak bu okunamıyorsa mevcut saat kullanılacaktır.</p>\n'
+            '<p>Bu, adın genellikle sonraki dönüştürme zamanına değil kaynak dosyaya bağlı olduğu '
+            'anlamına gelir.</p>\n'
+            '\n'
+            '<h3>Aynı saniyede birden fazla görüntü</h3>\n'
+            '<p>Amaçlanan dosya adı zaten mevcutsa veya devam eden bir dönüştürme için ayrılmışsa, '
+            'CMDRHelper onu sürekli olarak '
+            'ekler<code>_2</code>,<code>_3</code>,<code>_4</code>vb.</p>\n'
+            '<p>Bu, aynı zaman damgasına sahip başka bir ekran görüntüsünün mevcut bir hedef '
+            'görüntünün üzerine yazmayacağı anlamına gelir.</p>\n'
+            '\n'
+            '<h3>İşlem sırasında komutan değişikliği</h3>\n'
+            '<p>Bir ekran görüntüsü sıraya alınırken Komutan, FID ve sistem birlikte '
+            'yakalanır.</p>\n'
+            '<p>Daha sonra yapılacak bir komutan değişikliği, halihazırda bekleyen bu görüntünün '
+            "atamasını değiştirmez. Bu, FABER38'in ekran görüntüsünün daha sonra başka bir "
+            'komutanın klasörüne yazılmayacağı anlamına gelir.</p>\n'
+            '\n'
+            '<h3>galeri</h3>\n'
+            '<p>Galeri, seçilen filtreyle ilişkili dizinlerdeki PNG, JPG ve JPEG dosyalarını '
+            'gösterir. Yeni, silinmiş veya taşınmış görüntüler düzenli olarak algılanır.</p>\n'
+            '<p>Galeri filtresi, dosyaların depolama konumunu veya komutan atamasını '
+            'değiştirmez.</p>\n'
+            '\n'
+            '<h3>Mevcut komutan</h3>\n'
+            '<p>Geçerli Komutan filtresi, CMDR görünümünde o anda görüntülenen komutanın '
+            'klasöründeki görüntüleri gösterir.</p>\n'
+            '<p>Söz konusu komutan yalnızca galeri gösterimini belirler. Öte yandan, yeni bir '
+            'canlı ekran görüntüsü atamak, sıraya alma sırasında etkin olan günlük kimliğini '
+            'kullanır.</p>\n'
+            '\n'
+            '<h3>Tüm komutanlar</h3>\n'
+            '<p>“Tüm Komutanlar” filtresi, bilinen tüm komutanların geçerli alt klasörlerindeki '
+            'görselleri bir arada gösterir. Tanınmış kimliği olmayan kayıtlar için özel klasör de '
+            'dikkate alınır.</p>\n'
+            '<p>Dosyalar taşınmaz veya birleştirilmez.</p>\n'
+            '\n'
+            '<h3>Atanmadı</h3>\n'
+            '<p>Atanmamış filtresi, doğrudan paylaşılan hedef kök klasörde bulunan desteklenen '
+            'görüntü dosyalarını gösterir.</p>\n'
+            '<p>Özellikle, komutanla ilgili alt klasörleri olmayan eski resimler görünür durumda '
+            'kalır. CMDRHelper olaydan sonra onların bağlılığını tahmin etmeye çalışmaz.</p>\n'
+            '\n'
+            '<h3>Mevcut resimler</h3>\n'
+            '<p>Kök klasörde zaten mevcut olan resimler otomatik olarak taşınmaz veya yeniden '
+            'adlandırılmaz.</p>\n'
+            '<p>PNG, JPG veya JPEG olarak mevcut oldukları sürece "Atanmamış" aracılığıyla '
+            'erişilebilir olmaya devam ederler.</p>\n'
+            '\n'
+            '<h3>Resmi seçin ve görüntüleyin</h3>\n'
+            '<p>Bir önizleme görüntüsüne basit bir tıklama, görüntüyü önizleme alanında '
+            'ölçeklendirilmiş olarak gösterir ve dosya adını görüntüler.</p>\n'
+            '<p>Çift tıklama, görüntülere yönelik işletim sistemi uygulama setini içeren dosyayı '
+            'açar.</p>\n'
+            '<p>Aynı anda birden fazla görüntü işaretlenebilir. Pencere boyutunu değiştirdiğinizde '
+            'geçerli görüntünün önizlemesi sığacak şekilde yeniden ölçeklendirilir.</p>\n'
+            '\n'
+            '<h3>Resmi sil</h3>\n'
+            '<p>İşaretlenen görüntüler “Seçilenleri sil” veya Sil tuşu kullanılarak silinebilir. '
+            'Silmeden önce bir güvenlik sorgusu görüntülenir; Seçim yapılmadığında öncelikle '
+            'gerekli seçime dikkat çekilir.</p>\n'
+            '<p>Geçerli galeri filtresinin dizinlerinden yalnızca seçilen PNG/JPG/JPEG hedef '
+            'dosyaları silinir. Orijinal BMP kaynak dosyası etkilenmez.</p>\n'
+            '\n'
+            '<h3>Hedef klasörü aç</h3>\n'
+            '<p>“Hedef klasörü aç”, dosya yöneticisindeki depolama konumunu açar ve gerekirse '
+            'paylaşılan kök klasörü oluşturur.</p>\n'
+            '<p>"Geçerli Komutan" filtresi mevcut Komutan alt klasörünü açar. Henüz mevcut değilse '
+            'veya başka bir filtre etkinse, paylaşılan kök klasör açılacaktır.</p>\n'
+            '\n'
+            '<h3>Görüntü yollarının güvenliği</h3>\n'
+            '<p>CMDRHelper, silmeden önce her dosyanın kurallı yolunu kontrol eder. '
+            'Yapılandırılmış hedef klasörün içinde ve doğrudan geçerli galeri filtresinin izin '
+            'verdiği bir dizinde olmalıdır.</p>\n'
+            '<p>Sembolik bağlantılar komutan klasörü veya galeri görseli olarak kullanılmaz ve '
+            'galeri üzerinden silinmez. Hedef alanın dışındaki yollar ve geçiş yolları '
+            'reddedilir.</p>\n'
+            '\n'
+            '<h3>Herhangi bir komutan tespit edilmezse</h3>\n'
+            '<p>Yeni bir kaydı sıraya alırken Commander ve FID eksikse dosya beklemeye alınmayacak '
+            've bilinen bir Komutana atanmayacaktır.</p>\n'
+            '<p>Alt klasörde olacak<b>BİLİNMİYOR_BİLİNMİYOR/</b>işlenmiş; Komutan için de '
+            'kullanılan dosya adı<b>BİLİNMİYOR</b>. Bu klasör, Ayrılmamış kök klasör filtresi '
+            'aracılığıyla değil, Tüm Komutanlar aracılığıyla görüntülenebilir.</p>\n'
+            '\n'
+            '<h3>Birkaç komutan</h3>\n'
+            '<p>Görüntü yönetimi için iki ayrı kural geçerlidir:</p>\n'
+            '<ul>\n'
+            '<li><b>Yeni görselleri kaydet:</b>Kuyruğa alındığında Commander ve FID ile etkin '
+            'günlük kimliği, hedef klasörü belirler.</li>\n'
+            '<li><b>Resimleri görüntüle:</b>Görüntülenen komutan veya seçilen galeri filtresi '
+            'görünür görüntüleri belirler.</li>\n'
+            '</ul>\n'
+            '<p>Bu, FABER38 oynatılırken başka bir komutanın galerisinin, yeni ekran görüntüleri '
+            'söz konusu komutanın klasörüne düşmeden görüntülenebileceği anlamına gelir.</p>\n'
+            '\n'
+            '<h3>Uç</h3>\n'
+            '<p>Paylaşılan bir ekran görüntüsü kök klasörü yeterlidir. CMDRHelper, yeni işlenen '
+            'görüntüleri otomatik olarak Commander ve FID olarak ayırır.</p>\n'
+            '<p>"Mevcut Komutan", "Tüm Komutanlar" ve "Atanmamış" seçenekleriyle kişisel galeri, '
+            'tüm komutanların alt klasörleri ve kök klasördeki eski görüntüler arasında geçiş '
+            'yapabilirsiniz.</p>\n'
+            '<p>Daha yüksek parlaklık, karanlık fotoğraflarda yardımcı olabilir; dönüşüm sırasında '
+            'yeni oluşturulan hedef görüntüyü etkiler.</p>'),
+ 'commander_view': ('CMDR görünümü',
+                    '<h2>CMDR görünümü</h2>\n'
+                    '<p>CMDR görünümü, bir komutanın kalıcı olarak saklanan kişisel bilgilerini '
+                    'özetler.</p>\n'
+                    '<p>Ayrıca CMDRHelper bilinen komutanlar arasında geçiş yapmanıza ve kendi '
+                    'verilerini görüntülemenize de olanak tanır. Kişisel bilgiler Frontier ID '
+                    '(FID) kullanılarak ayrılır.</p>\n'
+                    '\n'
+                    '<h3>Komutanı Seç</h3>\n'
+                    '<p>Birden fazla komutan biliniyorsa, kimin kayıtlı bilgilerinin '
+                    'görüntüleneceğini belirlemek için yukarıdaki seçimi kullanabilirsiniz. Bu '
+                    'komutan, sayılan komutandır.</p>\n'
+                    '<p>Ekran bunu "Canlı Etkin" veya "Yalnızca Görüntüleme" olarak '
+                    'işaretler.</p>\n'
+                    '\n'
+                    '<h3>Düşünülen Komutan ve Canlı Komutan</h3>\n'
+                    '<p>CMDR görünümünde başka bir komutanın seçilmesi onu aktif günlük komutanı '
+                    'yapmaz.</p>\n'
+                    '<p>Canlı komutan, yalnızca şu anda benzersiz olarak tanımlanmış Elit '
+                    'Tehlikeli günlük oturumuna göre belirlenir. Bu şekilde Elite Dangerous, '
+                    'FABER38 ile çalışmaya devam ederken başka bir komutanın geçmişi '
+                    'görüntülenebilir.</p>\n'
+                    '\n'
+                    '<h3>Frontier Kimliği (FID)</h3>\n'
+                    '<p>FID, bir komutanın kararlı Frontier tanımlayıcısıdır.</p>\n'
+                    '<p>CMDRHelper bunu kullanır ve kişisel verileri güvenli bir şekilde ayırmak '
+                    'için dahili komutan kimliğini çözer. Benzer veya aynı adlara sahip komutanlar '
+                    'da ayrı kalır.</p>\n'
+                    '\n'
+                    '<h3>Genel Bakış</h3>\n'
+                    '<p>"Genel Bakış" sekmesi yalnızca söz konusu komutan için kalıcı olarak '
+                    'kaydedilen bilgileri gösterir:</p>\n'
+                    '<ul>\n'
+                    '<li>Komutan adı, FID ve durumu "Canlı aktif" veya "Salt görüntüleme"</li>\n'
+                    '<li>bilinen ilk ve son zaman</li>\n'
+                    '<li>Ziyaret edilen sistem sayısı, biyo ve coğrafi keşifler, kodeks girişleri '
+                    've haritacılık satışları</li>\n'
+                    '<li>Bilinen son konum ve açık görev sayısı</li>\n'
+                    '<li>mevcut veya son gemi</li>\n'
+                    '<li>Fleet Carrier ve taşıyıcı konumu</li>\n'
+                    '<li>Varlıklar</li>\n'
+                    '<li>mevcut tahminler de dahil olmak üzere açık biyolojik veriler ve açık '
+                    'kartografik veriler</li>\n'
+                    '</ul>\n'
+                    '\n'
+                    '<h3>Varlıklar/Krediler</h3>\n'
+                    '<p>"Varlıklar" alanı, söz konusu komutanın uygun bir günlük etkinliğinden en '
+                    'son kaydedilen kredi bakiyesini, örneğin şu şekilde biçimlendirilmiş olarak '
+                    'gösterir:<b>1.234.567 Krom</b>.</p>\n'
+                    '<p>Yeni, güvenli bir günlük durumu yoksa CMDRHelper, hayali gelir veya '
+                    'giderleri eklemez.</p>\n'
+                    '\n'
+                    '<h3>Paralı paralar</h3>\n'
+                    '<p>Paralı paralar Elite Dangerous tarafından sağlanan MercCoins alanlarından '
+                    'gelir<code>Statistics → Bank_Account</code>ve komutanla ilgili olarak '
+                    'Frontier anlık görüntüsü olarak kaydedilir.</p>\n'
+                    '<p>Görünür olanlar:</p>\n'
+                    '<ul>\n'
+                    '<li>Akım</li>\n'
+                    '<li>Toplam harcanan</li>\n'
+                    '<li>Mühendislik</li>\n'
+                    '<li>teçhizat</li>\n'
+                    '<li>Frontier tarafından bildirildi: genel olarak kazanıldı</li>\n'
+                    '</ul>\n'
+                    '\n'
+                    '<h3>Güncel ve sürümler</h3>\n'
+                    '<p>“Güncel” gösteriler<code>MercCoins_Current</code>. "Toplam Harcanan" '
+                    'devraldı<code>MercCoins_Total_Spent</code>.</p>\n'
+                    '<p>"Mühendislik" ve "Ekipman" Frontier tarafından ayrı ayrı rapor edilen '
+                    'hisseleri '
+                    'gösterir<code>MercCoins_Spent_On_Engineering</code>Ve<code>MercCoins_Spent_On_MercGear</code>.</p>\n'
+                    '<p>Örneğin FABER38 için güncel bir envanter<b>1.275</b>, '
+                    'toplamda<b>220</b>harcandı ve uzakta<b>220</b>mühendislik için rapor '
+                    'edildi.</p>\n'
+                    '\n'
+                    '<h3>Genel olarak hak edildi</h3>\n'
+                    '<p>"Frontier tarafından bildirildi: genel olarak kazanıldı" '
+                    'gösterileri<code>MercCoins_Total_Earned</code>. CMDRHelper bundan kendi '
+                    'bilançosunu hesaplamaz.</p>\n'
+                    "<p>Frontier'nin kümülatif değerinin, mevcut envanter ve rapor edilen "
+                    'giderlerle matematiksel olarak eşleşmesi gerekmez. Örneğin 1.275 cari, 25 '
+                    'toplam kazanılan ve 220 toplam harcanan aynı anda raporlanabilmektedir.</p>\n'
+                    '<p>CMDRHelper bu değerleri düzeltmez ancak bireysel Frontier sayaçlarını '
+                    'değişmeden görüntüler.</p>\n'
+                    '\n'
+                    '<h3>Neden kendi MercCoins bilançonuz olmasın?</h3>\n'
+                    '<p>Elite Dangerous, paralı asker madeni paralarının her bir ayrı girişi veya '
+                    "harcaması için benzersiz bir yevmiye kaydı sağlamaz. MercCoins, Statistics'de "
+                    'toplam olarak görünür.</p>\n'
+                    '<p>Bu nedenle, kendi kendine hesaplanan bir rezervasyon geçmişi güvenilir '
+                    'olmayacaktır. CMDRHelper bunun yerine bilinen en son Frontier anlık '
+                    'görüntüsünü kaydeder.</p>\n'
+                    '\n'
+                    '<h3>Görevler</h3>\n'
+                    '<p>“Görevler” sekmesi, söz konusu komutanın kayıtlı görevlerini durum, görev '
+                    'adı, amaç, sona erme süresi ve ödülün yer aldığı bir tablo olarak '
+                    'gösterir.</p>\n'
+                    '\n'
+                    '<h3>keşif</h3>\n'
+                    '<p>Keşif sekmesi açık biyolojik verileri, açık haritacılık verilerini, '
+                    'biyolojik keşifleri, ilk ayak izlerini, kendi kendine haritalanan ve etkili '
+                    'bir şekilde haritalanan gövdeleri ve ziyaret edilen sistemlerin sayısını '
+                    'gösterir.</p>\n'
+                    '<p>CMDR görünümündeki özel "Günlük" sekmesi şu anda hala bir yer tutucudur. '
+                    'Kroniğin tamamını aynı isimli ana menü öğesinde bulabilirsiniz.</p>\n'
+                    '\n'
+                    '<h3>Gemiler/Filo</h3>\n'
+                    '<p>“Gemiler” sekmesi başlangıçta aktif veya en son kullanılan gemiyi gemi '
+                    'adı, gemi tipi, konumu ve ShipID ile birlikte gösterir.</p>\n'
+                    '<p>Söz konusu komutanın kaydedilmiş gemileri, bunların altında '
+                    'genişletilebilir kartlar olarak görünür. Artan veya azalan şekilde '
+                    'sıralanabilirler:</p>\n'
+                    '<ul>\n'
+                    '<li>son veya şu anda kullanılan</li>\n'
+                    '<li>Gemi adı veya gemi tipi</li>\n'
+                    '<li>maksimum atlama aralığı</li>\n'
+                    '<li>Kargo kapasitesi veya boş kütle</li>\n'
+                    '<li>bilinen son yer veya zaman</li>\n'
+                    '</ul>\n'
+                    '<p>Ayrıca tüm gemileri, araç hangarına sahip gemileri veya savaş hangarına '
+                    'sahip gemileri de filtreleyebilirsiniz.</p>\n'
+                    '\n'
+                    '<h3>Gemi ayrıntıları</h3>\n'
+                    '<p>Açılan bir gemi haritası - eğer kaydedilmişse - gemi kimliğini, Gemi '
+                    'Kimliğini, konumu, son zamanı, maksimum atlama menzilini, FSD ve Guardian '
+                    'güçlendiriciyi, kütleyi, kargo ve tank kapasitelerinin yanı sıra yükleme '
+                    'süresini ve durumunu gösterir.</p>\n'
+                    '<p>Modül verileri mevcutsa, araç ve savaş hangarı, kalkan jeneratörü ve '
+                    'kalkan güçlendirici, Muhafız kalkanı takviyeleri, silahlar, gövde ve modül '
+                    'takviyeleri ve yolcu kabinleri de özetlenir.</p>\n'
+                    '<p>Ekipman durumu tamamlanmış, eksik veya eski olabilir. Eksik bilgiler “–” '
+                    'olarak gösterilir ve telafi edilmez.</p>\n'
+                    '\n'
+                    '<h3>Fleet Carrier</h3>\n'
+                    '<p>Kaydedilmiş özel bir Fleet Carrier için görünüm operatör adını, çağrı '
+                    'işaretini, operatör kimliğini, son konumu ve son güncellemenin saatini '
+                    'gösterir.</p>\n'
+                    '\n'
+                    '<h3>Kalıcı komutan durumu</h3>\n'
+                    '<p>Önemli komutan bilgileri kalıcı olarak kayıtlı kalır. Bu, CMDRHelper veya '
+                    "Elite Dangerous'nin yeniden başlatılmasından sonra, her günlüğün yeniden tam "
+                    'olarak değerlendirilmesine gerek kalmadan bilinen değerlerin yeniden '
+                    'görüntülenmesine olanak tanır.</p>\n'
+                    '<p>Yeni benzersiz günlük etkinlikleri kayıtlı durumu günceller.</p>\n'
+                    '\n'
+                    '<h3>Tarihsel yeniden yapılanma</h3>\n'
+                    '<p>Daha sonra eklenen işlevler için CMDRHelper, halihazırda bilinen bilgiler '
+                    'için bir komutana açıkça atanmış mevcut günlük alanlarında arama '
+                    'yapabilir.</p>\n'
+                    '<p>Örneğin, daha eski MercCoins anlık görüntüleri benimsenebilir. Tekrarlanan '
+                    'kontrollerin mükerrer veri üretmesi amaçlanmamıştır ve normal günlük okuma '
+                    'konumlarını değiştirmez.</p>\n'
+                    '\n'
+                    '<h3>Birkaç komutan</h3>\n'
+                    '<p>Özellikle komutanlar açısından aşağıdaki hususlar ayrı kalmaktadır:</p>\n'
+                    '<ul>\n'
+                    '<li>Varlıklar ve Görevler</li>\n'
+                    '<li>kendi haritacılığı ve organik buluntular</li>\n'
+                    '<li>Yüzey madenciliği geçmişi ve paralı paralar</li>\n'
+                    '<li>Çevrimiçi kimlik bilgileri</li>\n'
+                    '<li>komutanla ilgili ekran görüntüleri</li>\n'
+                    '</ul>\n'
+                    '<p>Ancak bir sistemin veya cismin küresel astronomik özellikleri birlikte '
+                    'kullanılabilir.</p>\n'
+                    '\n'
+                    '<h3>Diğer görünümler üzerindeki etki</h3>\n'
+                    '<p>Söz konusu komutanın değiştirilmesi, CMDR görünümünün kendisini, kroniğin '
+                    'kişisel madencilik hammadde seçimini ve uygun filtreyle ekran görüntüsü '
+                    'galerisini günceller.</p>\n'
+                    '<p>Günlük işleme veya çevrimiçi yüklemeler için gerçek canlı komutanın yerini '
+                    'almaz.</p>\n'
+                    '\n'
+                    '<h3>Inara ve EDSM</h3>\n'
+                    '<p>Inara ve EDSM erişimleri sırasıyla komutan ve FID başına ayrı ayrı '
+                    'yönetilir.</p>\n'
+                    '<p>Basitçe bir komutana bakmak API-Key ile iletim başlatmaz. Yalnızca aktif '
+                    'günlük FID canlı yüklemelerle ilgilidir.</p>\n'
+                    '<p>Erişim verileri çevrimiçi hizmetler alanında "Ayarlar" altında '
+                    'yönetilir.</p>\n'
+                    '\n'
+                    '<h3>Uç</h3>\n'
+                    '<p>Belirli bir komutana ait kayıtlı kişisel bilgileri görüntülemek '
+                    'istiyorsanız CMDR görünümünü kullanın.</p>\n'
+                    '<p><b>CMDR görünümü = Kimi görüntülemek istiyorum?</b></p>\n'
+                    '<p><b>Active Journal-FID = Şu anda gerçekte kim oynuyor?</b></p>\n'
+                    '<p>Bu ayırma, farklı komutanlardan gelen kişisel verilerin veya çevrimiçi '
+                    'yüklemelerin birbirine karıştırılmasını önler.</p>'),
+ 'settings': ('Ayarlar',
+              '<h2>Ayarlar</h2>\n'
+              '<p>"Ayarlar" alanı CMDRHelper\'nin Elite Dangerous, günlük dosyaları, veritabanı, '
+              'çevrimiçi hizmetler, arayüz ve güncellemelerle nasıl çalışacağını belirler.</p>\n'
+              '<p>Kimlik bilgileri ve yollardaki değişiklikler dikkatli bir şekilde yapılmalıdır. '
+              'Komutanla ilgili ayarlar gerekirse Frontier ID tarafından ayrı olarak '
+              'yönetilir.</p>\n'
+              '\n'
+              '<h3>günlük</h3>\n'
+              '<p>Günlük klasörü en önemli ayarlardan biridir. Elite Dangerous dosyasının '
+              'bulunduğu klasörü işaret etmelidir.<code>Günlük*.log</code>Kullanılan Windows veya '
+              'Proton profilinin dosyaları.</p>\n'
+              '<p>Dergiler diğer şeylerin yanı sıra şunları sağlar:</p>\n'
+              '<ul>\n'
+              '<li>Komutanın kimliği, konumu ve seyahati</li>\n'
+              '<li>Görevler, gemiler ve varlıklar</li>\n'
+              '<li>Keşif, haritacılık ve BIO verileri</li>\n'
+              '<li>Yüzey madenciliği, paralı paralar ve desteklenen diğer durumlar</li>\n'
+              '</ul>\n'
+              '\n'
+              '<h3>Günlük ekranı ve çalışması</h3>\n'
+              '<p>Günlük grubu, klasör kümesini, bulunan dergi sayısını, en eski ve en yeni '
+              'günlükleri, en yeni dosyanın adını ve son okunan girdinin zamanını gösterir.</p>\n'
+              '<p>“Günlük klasörünü seç” klasörü değiştirir. “Şimdi oku” normal güncellemeyi hemen '
+              'tetikler.</p>\n'
+              '<p>Açıkça tanımlanabilir oturumlar FID kullanılarak atanır. Yeni tam girişler '
+              'aşamalı olarak işlenir; Güvenli okuma konumları, her günlüğün bir sonraki '
+              'başlatılışında gereksiz yere bütünüyle yeniden okunmasını önler.</p>\n'
+              '\n'
+              '<h3>veritabanı</h3>\n'
+              '<p>CMDRHelper, gerekli verileri yerel bir SQLite veritabanında kalıcı olarak '
+              'saklar. Buna küresel sistem ve vücut verilerinin yanı sıra açıkça bir komutana '
+              'atanan bilgiler de dahildir.</p>\n'
+              '<p>Ayarlar sayfası kaydedilen verilerle ilgili istatistikleri gösterir. CMDRHelper '
+              'çalışırken veritabanı manuel olarak düzenlenmemelidir.</p>\n'
+              '\n'
+              '<h3>Günlük arşivini içe aktar</h3>\n'
+              '<p>“Günlük arşivini içe aktar”, ayarlanan günlük klasörünün günlük dosyalarını '
+              'veritabanıyla tamamen karşılaştırır. Halihazırda bilinen günlük alanları, kayıtlı '
+              'içe aktarma bilgilerine göre dikkate alınır ve yeni veriler olarak körü körüne '
+              'kopyalanmaz.</p>\n'
+              '<p>Manüel olarak görülebilen bir içe aktarma sırasında ilerleme durumu, sayı ve o '
+              'anda işlenen dosya görüntülenir. Tamamlamanın ardından CMDRHelper, içe aktarılan '
+              'veya zaten bilinen verileri veya bir hatayı bildirir.</p>\n'
+              '<p>Arşiv içe aktarma aynı zamanda açıkça atanmış dergilerden desteklenen tarihsel '
+              'bilgilerin yeniden öğrenilmesine de hizmet eder.</p>\n'
+              '\n'
+              '<h3>Komutanla ilgili veriler</h3>\n'
+              "<p>CMDRHelper, kişisel bilgileri FID'ye ve ilgili dahili Komutan Kimliğine göre "
+              'ayırır. Bunlara görevler, varlıklar, MercCoins, kişisel keşif ve çevrimiçi erişim '
+              'dahildir ancak bunlarla sınırlı değildir.</p>\n'
+              '<p>Bilinmeyen veya belirsiz bir günlük oturumu keyfi olarak bir komutana '
+              'atanamaz.</p>\n'
+              '\n'
+              '<h3>Çevrimiçi Hizmetler</h3>\n'
+              "<p>CMDRHelper, EDSM ve Inara'yi destekler. Her iki erişim de bilinen her komutan "
+              'veya her FID için ayrı ayrı işlenir ve kaydedilir.</p>\n'
+              '<p>Ayarlardaki seçim yalnızca kimin erişiminin o anda düzenlenmekte veya test '
+              'edildiğini belirler. Yalnızca aktif günlük oturumu tarafından açıkça tanımlanan '
+              'komutanın canlı gönderim yapmasına izin verilir.</p>\n'
+              '\n'
+              '<h3>EDSM erişimi</h3>\n'
+              "<p>“EDSM erişimi:” düzenlenecek komutanı seçer. Seçim, API-Key'nin saklanıp "
+              'saklanmadığına bağlı olarak "kuruldu" veya "kurulmadı" ifadesini '
+              'gösterecektir.</p>\n'
+              '<p>Komutanın adı, gizli API-Key alanı, "EDSM Kullan", bir bağlantı testi ve son '
+              'test durumu görünür.</p>\n'
+              '<p>Her komutanın kendi uygun EDSM erişimine ihtiyacı vardır. Seçim, canlı '
+              'yükleyiciyi bu komutana değiştirmez.</p>\n'
+              '\n'
+              "<h3>EDSM'yi kullanın ve test edin</h3>\n"
+              '<p>“EDSM Kullan” seçilen FID için hizmeti etkinleştirir veya devre dışı bırakır. '
+              'Eksik veya devre dışı bırakılmış kimlik bilgileri yerel günlük işlemeyi '
+              'etkilemez.</p>\n'
+              '<p>“EDSM bağlantısını test et” formda o anda görünen erişim verilerini kontrol '
+              "eder. Başarılı bir test bağlantıyı doğrular ancak aktif günlük FID'yi veya canlı "
+              'komutanı değiştirmez.</p>\n'
+              '\n'
+              '<h3>Inara erişimi</h3>\n'
+              '<p>“Inara Erişimi:” aynı çoklu CMDR ilkesini izler. Etkinleştirme, Inara komutan '
+              'adı ve API-Key, her FID için ayrı ayrı kaydedilir.</p>\n'
+              '<p>Burada da seçim "kuruldu" veya "ayarlanmadı" olarak görünüyor. Bir komutanın '
+              'anahtarı otomatik olarak başka bir komutan için kullanılmaz.</p>\n'
+              '\n'
+              "<h3>Inara'yi kullanın ve test edin</h3>\n"
+              '<p>Inara aktif günlük FID için ayarlanıp etkinleştirildiğinde, CMDRHelper '
+              'desteklenen seyahat, konum, görev ve gemi olaylarını iletebilir. Her günlük '
+              "etkinliği Inara'ye gönderilmez.</p>\n"
+              '<p>"Inara bağlantısını test et", canlı kumandayı değiştirmeden mevcut görünür '
+              'erişim verilerini kontrol eder.</p>\n'
+              '\n'
+              '<h3>Inara giden kutusu</h3>\n'
+              '<p>Desteklenen Inara olayları, ağ aktarımından önce bir giden kutusunda kalıcı '
+              'olarak işaretlenir.</p>\n'
+              '<p>Geçici hatalar bu girişlerin daha sonraki denemeler için korunmasına olanak '
+              'tanır. Çalışan yalnızca benzersiz şekilde etkin olan FID günlüğünün giden kutusunu '
+              'işler; Diğer komutanların girişleri dahil değildir.</p>\n'
+              '\n'
+              '<h3>Başlıktaki çevrimiçi durum</h3>\n'
+              '<p>EDSM şu anda şunları gösteriyor:</p>\n'
+              '<ul>\n'
+              '<li><b>EDSM</b>– aktif FID için kullanılamaz veya devre dışı bırakılamaz</li>\n'
+              '<li><b>EDSM bekliyor</b>– kurulum ve devam eden iletim olmadan</li>\n'
+              '<li><b>EDSM şanzıman</b>– son EDSM işleme çalıştırması hatasız olarak sona erdi; '
+              'Araç ipucu olayların gönderilip gönderilmediğini, günlük verilerinin işlenip '
+              'işlenmediğini veya yeni veri bulunup bulunmadığını belirtir</li>\n'
+              '<li><b>EDSM hatası</b>– son aktarım durumu yanlış</li>\n'
+              '</ul>\n'
+              '<p>Şu anda EDSM için ayrı olarak etiketlenmiş ek bir "EDSM aktif" durumu '
+              'bulunmamaktadır.</p>\n'
+              '<p>Inara şunları daha kesin bir şekilde ayırt eder:</p>\n'
+              '<ul>\n'
+              '<li><b>INARA çıktı</b>– aktif günlük FID için devre dışı bırakıldı</li>\n'
+              "<li><b>INARA'ya hazır</b>– kuruldu ancak bu oturumda hâlâ onaylanmış iletim "
+              'yok</li>\n'
+              '<li><b>INARA iletimi</b>– işçi şu anda gönderiyor</li>\n'
+              '<li><b>INARA aktif</b>– son gerçek transfer başarıyla onaylandı</li>\n'
+              '<li><b>INARA hatası</b>– son aktarım girişimi başarısız oldu</li>\n'
+              '</ul>\n'
+              '\n'
+              '<h3>API-Key güvenliği</h3>\n'
+              "<p>API-Key'ler kişisel kimlik bilgileridir. Giriş alanları gizlidir; Bunlar, "
+              'CMDRHelper veritabanında değil, uygulama ayarlarında komutanla ilgili olarak '
+              'saklanır.</p>\n'
+              '<p>Anahtarlar yayımlanmamalı, ekran görüntülerinde paylaşılmamalı veya herkese '
+              'açık depolara eklenmemelidir.</p>\n'
+              '\n'
+              '<h3>Resimler/Ekran Görüntüleri</h3>\n'
+              "<p>Kaynak Klasör, Hedef Klasör, PNG/JPG, Otomatik İşleme, BMP Silme ve yüzde 0'dan "
+              "50'ye kadar Parlaklaştırma, Ayarlar sayfasında değil, yalnızca ana Görüntüler "
+              'menüsünde bulunur.</p>\n'
+              '<p>"Görüntüler"in bağlama duyarlı yardımında bu seçenekler ayrıntılı olarak '
+              'açıklanmaktadır.</p>\n'
+              '\n'
+              '<h3>yüzey</h3>\n'
+              '<p>Arayüz grubu, değerli kaşif gövdeleri için görünümü, dili, yazı tipini, yazı '
+              'tipi boyutunu ve değer eşiğini içerir.</p>\n'
+              '\n'
+              '<h3>Karanlık ve aydınlık modu</h3>\n'
+              '<p>Koyu ve açık görünüm arasında doğrudan geçiş yapabilirsiniz. Tema anında arayüze '
+              've mevcut sistem ve geçmiş kartlarına uygulanarak kaydedilir.</p>\n'
+              '\n'
+              '<h3>Dil</h3>\n'
+              '<p>Arayüz, aralarından seçim yapabileceğiniz on iki dil sunar. “Dili Kaydet” seçimi '
+              "kaydeder; Mevcut widget'ların tamamen tek tip bir dönüşümü için CMDRHelper'nin "
+              'yeniden başlatılması gerekir.</p>\n'
+              '\n'
+              '<h3>Yazı tipi ve yazı tipi boyutu</h3>\n'
+              '<p>Yazı tipi ailesi ve yazı tipi boyutu 7 ila 24 punto arasında seçilebilir ve '
+              'kaydedilebilir.</p>\n'
+              '<p>Her iki değişiklik de yalnızca yeniden başlatmanın ardından tam olarak etkili '
+              'olacaktır. Arayüz bunu açıkça gösteriyor.</p>\n'
+              '\n'
+              '<h3>Değer eşiği</h3>\n'
+              '<p>Explorer değeri eşiği, cesetlerin özellikle değerli olarak vurgulandığı tahmini '
+              'kredi değerini belirler. Değişiklik hemen kaydedilir ve ilgili Explorer ekranı '
+              'güncellenir.</p>\n'
+              '\n'
+              '<h3>Otomatik gizle</h3>\n'
+              '<p>"Değerli Bedenler" ve "BIO Buluntuları", Ayarlar sayfasında değil, sol kenar '
+              'çubuğunda sabit bir şekilde bulunur.</p>\n'
+              '<p>Anahtarlar kaydedilir ve keşif sırasında desteklenen küçük canlı ipucu '
+              'pencerelerini kontrol eder. Değerli Bedenler için değer eşiği arayüz ayarlarında '
+              'belirlenir.</p>\n'
+              '\n'
+              '<p>Cargo penceresi yalnızca aktif Journal-FID için doğrulanmış Cargo snapshotını kullanır. CMDR View içinde görüntülenen commander ve viewed_commander_id bu canlı pencereyi etkilemez. Ship için dolu / azami · boş gösterilir; CargoCapacity bilinmiyorsa hiçbir değer tahmin edilmez.</p>\n'
+              '<p>“otomatik göster” altındaki “EDSM durum HUD’u” varsayılan olarak KAPALIDIR. Bir sisteme girdikten sonra Elite üzerinde yaklaşık 2,5 saniyelik kısa bir mesaj görünür. Aynı kalıştaki birden çok Location olayı yinelenen mesaj oluşturmaz; gerçek bir dönüşte yeniden sorgulanabilir.</p>\n<p>“EDSM: BİLİNİYOR” sistem için geçerli bir EDSM eşleşmesi demektir. “EDSM: BİLİNMİYOR” sistem eşleşmesi içermeyen geçerli bir EDSM yanıtıdır. “EDSM: YANIT YOK” ağ, HTTP, zaman aşımı hatası veya geçersiz yanıt demektir; asla doğrulanmış eşleşme yokluğu değildir. EDSM’de bilinmek Elite’te resmî keşif ile aynı değildir; ilk kâşif veya ilk bildiren adları vaat edilmez.</p>\n<p>Mesaj, navigasyon ve kargo HUD’larından bağımsız çalışır. Kalıcı HUD göstergeleri ve hızlı favori mesajları korunur. Sorgu arayüzü engellemez; terk edilmiş sistemlere gelen gecikmiş yanıtlar atılır.</p>\n\n'
+              '<h3>Güncellemeler</h3>\n'
+              '<p>Güncelleme grubu yüklü sürümü ve GitHub durumunu gösterir. Şimdi Kontrol Et, '
+              'yeni planlanmış CMDRHelper sürümünü manuel olarak kontrol eder; Ayrıca, '
+              'çalıştırmanın ardından gecikmeli bir otomatik kontrol gerçekleştirilir.</p>\n'
+              '<p>Yeni bir sürüm mevcutsa CMDRHelper indirmeden ve yüklemeden önce soracaktır. '
+              'Duyurulan bir veritabanı güncellemesi bu iletişim kutusunda ayrı olarak '
+              'gösterilir.</p>\n'
+              '<p>Mevcut kurulumlarda normalde şu yeterlidir: güncellemeyi yükle → CMDRHelper’ı başlat. BIO verileri, ziyaret geçmişi ve DSS üst verilerindeki gerekli geçmiş düzeltmeleri otomatik çalışır; veri yazan onarımlardan önce veritabanı yedeği alınır. Onarımlar sürümlüdür ve idempotenttir: başarılı revizyonlar her açılışta baştan sona yeniden çalıştırılmaz. Yeniden oluşturma için Elite günlükleri hâlâ mevcut, okunabilir ve tek bir commander’a kesin olarak atanabilir olmalıdır. Eksik kaynaklar uydurulmaz veya başarı sayılmaz; bekleyen onarımlar sonraki açılışta yeniden denenir. Normalde veritabanını silmek, elle betik çalıştırmak veya yeniden içe aktarmak gerekmez.</p>\n\n'
+              '<h3>İndirme ilerlemesi</h3>\n'
+              '<p>İndirme arka planda çalışır. Toplam boyut biliniyorsa CMDRHelper, dosya adını, '
+              "alınan ve toplam MiB'yi, yüzdeyi, aktarım hızını ve tahmini kalan süreyi "
+              'gösterir.</p>\n'
+              '<p>Bilinen bir toplam boyut olmadan, ilerleme çubuğu meşgul modunda çalışır ve '
+              'alınan veri miktarını ve belirlenebilirse hızı göstermeye devam eder. Kurulumdan '
+              'önce indirilen ZIP kontrol edilir.</p>\n'
+              '\n'
+              '<h3>Güncellemeyi iptal et</h3>\n'
+              '<p>“İndirmeyi iptal et” devam eden bir indirmeyi kontrollü bir şekilde sonlandırır. '
+              'İptal edilen, eksik veya geçersiz bir indirme yüklenmeyecektir.</p>\n'
+              '\n'
+              "<h3>Windows'ta güncelleme</h3>\n"
+              "<p>Windows'ta asıl güncelleme işlemi orijinal başlangıç \u200b\u200bkonsolundan "
+              'bağımsız olarak devam eder. Bu nedenle konsolun kapatılması onu istemeden '
+              'sonlandırmamalıdır.</p>\n'
+              '<p>Dosya değişiklikleri başladıktan sonra bir hata oluşursa, mevcut geri alma '
+              'yedeği önceki sürümü geri yüklemeye çalışır.</p>\n'
+              '\n'
+              '<h3>Güncellemeden sonra yeniden başlat</h3>\n'
+              '<p>Başarılı bir kurulumun ardından güncelleyici, CMDRHelper uygulamasını öngörülen '
+              'başlatma yolu üzerinden yeniden başlatır ve yeni işlemin kararlı çalışıp '
+              'çalışmadığını kısaca denetler.</p>\n'
+              '<p>Bir sürüm tek seferlik veri tabanı güncellemesi gerektiriyorsa dergi arşivi '
+              'yeniden başlatmanın ardından yeniden değerlendirilecektir.</p>\n'
+              '\n'
+              '<h3>Birkaç komutan</h3>\n'
+              '<p><b>Ayarlar seçimi = Kimin çevrimiçi erişimini düzenliyorum?</b></p>\n'
+              '<p><b>Active Journal-FID = Kimlerin canlı yayın yapmasına izin verilir?</b></p>\n'
+              '<p>Ne çevrimiçi hesap seçiminin ne de CMDR görünümünün, canlı yükleyiciyi salt '
+              'görüntülenen bir komutana değiştirmesine izin verilmez.</p>\n'
+              '\n'
+              '<h3>Yardım</h3>\n'
+              '<p>"? Yardım" sol kenar çubuğunda "otomatik gösteri"nin üzerinde bulunur ve o anda '
+              'görünür olan ana menü alanının yardımını açar.</p>\n'
+              '<p>“Ayarlar” alanındaki düğme bu ayar yardımını doğrudan açar.</p>\n'
+              '\n'
+              '<h3>Uç</h3>\n'
+              '<p>Yeniden yüklüyorsanız veya sorun yaşıyorsanız öncelikle şunları kontrol '
+              'edin:</p>\n'
+              '<ul>\n'
+              '<li>doğru günlük klasörü ve tanınan komutan kimliği</li>\n'
+              '<li>istenilen dil, tema, yazı tipi ve explorer değeri eşiği</li>\n'
+              "<li>Doğru FID'ye çevrimiçi erişim</li>\n"
+              '<li>Görüntü sorunları olması durumunda “Görüntüler” ana menüsündeki kaynak ve hedef '
+              'klasörler</li>\n'
+              '</ul>\n'
+              '<p>Birden fazla komutan varsa her zaman görünür çevrimiçi erişim verilerinin hangi '
+              'FID için geçerli olduğuna dikkat edin.</p>'),
+    "planet_navigation": (
+        'Gezegen navigasyonu',
+        """<h2>Gezegen navigasyonu</h2>
+<p>Gezegen navigatörü yalnızca bir gezegen veya ay üzerindeki belirli bir enlem/boylama uçmana yardımcı olur. Koordinatlarla bir hedef belirlersin ve oraya olan mesafeyi ve yönü görürsün.</p>
+<p>Bu, yıldızlararası bir rota planlayıcısı değildir ve sistemler arası ya da sıçrama navigasyonunu üstlenmez. Gemini kendin kullanırsın.</p>
+
+<h3>Navigatörü açma ve hedef girme</h3>
+<p>Genel bakışta “Gezegen navigasyonu”nu aç ve “Manuel giriş …” seçeneğini seç.</p>
+<ul>
+<li><b>Gök cismi:</b> Listeden hedef gezegeni veya ayı seç ya da önceden algılanmış gök cismini kullan. Adı henüz listede yoksa gök cisminin adını kendin de girebilirsin. Emin değilsen sistem adı dâhil tam adı kullan.</li>
+<li><b>Enlem:</b> Hedef enlemini −90° ile +90° arasında gir.</li>
+<li><b>Boylam:</b> Hedef boylamını −180° ile +180° arasında gir. Her iki koordinatın da işaretine dikkat et.</li>
+<li><b>Hedef adı:</b> Hedefini daha kolay tanımak için isteğe bağlı bir ad girebilirsin.</li>
+</ul>
+<p>“Hedef belirle” ile girişini onaylarsın. BodyID ve SystemAddress gibi teknik kimlikleri girmen gerekmez; bunlar normal kullanıcı girişleri değildir.</p>
+
+<h3>Pusula ne zaman başlar?</h3>
+<p>Bir hedef belirlendiğinde ve Elite ilgili gök cismi için geçerli gezegensel konum verileri sağladığında navigasyon otomatik olarak etkinleşir. Ayrı bir başlat düğmesine basman gerekmez.</p>
+<p>Bu veriler henüz yoksa veya başka bir gök cismine aitse navigatör “Gezegen koordinatları bekleniyor …” mesajıyla bekler. Bu veriler gelmeden önce de bir hedef girebilirsin.</p>
+
+<h3>Gezegen küresi: 380 km’den fazla</h3>
+<p>Hedef mesafesi 380 km’den büyük olduğunda navigatör gezegen küresini gösterir.</p>
+<ul>
+<li><b>Beyaz daire</b> kendi konumunu işaretler.</li>
+<li><b>Küçük hedef noktası</b>, hedef gezegenin görünen tarafındaysa turuncudur.</li>
+<li>Hedef görünmeyen arka taraftaysa hedef noktası kırmızı gösterilir.</li>
+<li>Konumun gösterimde sabit kalır. Gezegen ve hedef, konumuna ve yönelimine göre gösterilir.</li>
+</ul>
+<p>Beyaz ok ileriye bakar; sarı ok hedefin göreli yönünü gösterir. Küre şematik bir yön bulma yardımcısıdır, coğrafi açıdan kesin bir arazi görünümü değildir. Kırmızı nokta kürenin arka tarafı demektir; otomatik olarak “geminin arkasında” anlamına gelmez.</p>
+
+<h3>Perspektif ızgarası: 380 km dâhil olmak üzere</h3>
+<p>Hedef mesafesi 380 km veya daha az olduğunda görünüm otomatik olarak eğimli bir perspektif ızgarasına geçer. Mesafe yeniden 380 km’nin üzerine çıkarsa küre tekrar görünür.</p>
+<p>Enine çizgiler <b>50 km aralıklı bir mesafe ızgarası</b> oluşturur. Hedef noktası, mesafeye ve göreli yöne göre ızgaranın içine çizilir. Perspektif, yaklaşmanın devamında sana yardımcı olur; eğim nedeniyle aralıklar arkaya doğru daha sık görünür. İzleyeceğin gerçek rota için ayrıca hedef rotasına ve göreli yöne dikkat et.</p>
+
+<h3>Navigasyon değerlerini doğru okuma</h3>
+<ul>
+<li><b>Hedef mesafesi:</b> Büyük gösterge, varsayımsal gezegen yüzeyi boyunca hedefe kalan mesafeyi gösterir.</li>
+<li><b>Hedef koordinatları:</b> Hedef için girilen koordinat çifti; önce enlem, ardından boylam. Sen hareket ederken değişmeden kalır.</li>
+<li><b>Güncel koordinatlar:</b> Elite’ten son doğrulanan koordinat çiftin; yine enlem / boylam.</li>
+<li><b>Yüzey boyunca mesafe:</b> Hedef mesafesiyle aynı yüzey mesafesidir; ayrıntı görünümünde daha hassas yuvarlanmış olabilir. İkinci bir güzergâh veya havadan geçen doğrudan bir uzaysal mesafe değildir.</li>
+<li><b>Kerteriz:</b> Güncel konumundan hedefe olan mutlak yön, pusula açısı olarak: 000° kuzey, 090° doğu, 180° güney ve 270° batıdır.</li>
+<li><b>Baş yönü:</b> Elite’in bildirdiği güncel yönelimin. Şu anda nereye baktığını gösterir ve henüz kerterizle aynı olmak zorunda değildir.</li>
+<li><b>Göreli yön:</b> Yönelimin ile kerteriz arasındaki fark; örneğin “23° sağa”, “10° sola” veya “Düz ileri”. 180° olduğunda hedef arkandadır.</li>
+<li><b>Hedef rotası:</b> Elite HUD’ında dönebileceğin mutlak bir rota olarak vurgulanan kerteriz. Ek bir dönüş açısı değildir.</li>
+</ul>
+<p>Örnek: Baş yönün 051° ve hedef rotan 074° ise 23° sağa dönerek Elite pusulanın yaklaşık 074° göstermesini sağla. Uçuşa devam ederken kerteriz ve hedef rotası değişebilir; güncellenen değerleri izle.</p>
+<p>Hedefle aynı konumda, bir kutupta veya gezegenin tam karşı noktasında yön tanımsız olabilir. Bu durumda navigatör uydurma bir rota yerine ilgili uyarıyı gösterir.</p>
+
+<h3>Pencere boyutu</h3>
+<p>Navigatör penceresinin boyutu serbestçe değiştirilebilir. Küre veya perspektif ızgarası, kullanılabilir alana orantılı olarak uyum sağlar. Minimum boyut, ayrıntılı değerlerin okunabilirliğini korur; küre yuvarlak kalır. Pencerenin konumu ve boyutu kaydedilir.</p>
+
+<h3>Navigasyon HUD’ını açma</h3>
+<p>Ana pencerenin solunda <b>otomatik göster → Navigasyon HUD</b> altındaki kutuyu işaretle. Geçerli gezegen navigasyonu olduğunda HUD, ön plandaki görünür Elite penceresinin doğrudan üzerinde belirir.</p>
+<p>Üç satır gösterir:</p>
+<ul>
+<li>göreli yön</li>
+<li>hedef rotası</li>
+<li>mesafe</li>
+</ul>
+<p>HUD saydamdır, tıklamaları geçirir ve odağı almaz: oyunu opak bir alanla örtmez, fare tıklamalarını yakalamaz ve otomatik olarak belirdiğinde Elite’in giriş odağını elinden almaz.</p>
+<p>Geçerli navigasyon veya kesin bir yön olmadığında otomatik olarak görünmez olur. Elite simge durumuna küçültüldüğünde veya ön planda olmadığında da gizlenir. Kenar çubuğundaki kutu yine de işaretli kalabilir; bu, o anki görünürlüğü değil, otomatik gösterim tercihini belirtir.</p>
+<p>HUD yalnızca ek bir göstergedir. Normal navigatör ondan bağımsız çalışır; HUD kapalı veya kullanılamaz olduğunda da çalışmaya devam eder.</p>
+
+<h3>Yeni bir hedef belirleme</h3>
+<p>Aynı gök cisminde istediğin zaman “Manuel giriş …” seçeneğini yeniden açıp farklı koordinatlar belirleyebilirsin. Yeni hedef, önceki navigasyon hedefinin yerini alır. Uygun konum verileriyle pusula hemen güncellenir.</p>
+<p>“Navigasyonu sonlandır” ile güncel hedefi kaldırırsın. Başka bir yaklaşma için yeni bir hedef belirlemen yeterlidir.</p>
+
+<h3>Verilerin güncelliği ve sınırlar</h3>
+<p>Navigasyon, Elite’in sağladığı durum verilerine dayanır. Güncellemeler oyun durumuna bağlı olarak gecikmeli gelebilir. Navigatördeki yaş göstergesi, son doğrulanan durum mesajından bu yana ne kadar zaman geçtiğini gösterir.</p>
+<p>Yüzey mesafesi, varsayımsal bir küre üzerindeki en kısa yayı ifade eder. Bir arazi veya yol güzergâhı değildir. Navigatör, güzergâh üzerindeki engelleri veya arazi yüksekliklerini bilmez; uçuş yüksekliği, güvenli hız ve engellerden kaçınma senin sorumluluğunda kalır.</p>
+
+<h3>İpucu</h3>
+<p>Yaklaşmadan önce gök cisminin adını ve hedef koordinatlarının işaretlerini kontrol et. Ardından Elite pusulasında hedef rotasına yönel ve göreli yönü ve mesafeyi izle. Navigatör bekliyorsa Elite’in hedef gök cismi için gezegen koordinatları sağlamaya başlayıp başlamadığını kontrol et.</p>""",
+    ),
+}
+
+DIALOG_TITLE = 'Yardım – {area}'
+CLOSE_LABEL = 'Kapat'
