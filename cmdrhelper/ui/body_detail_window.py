@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from cmdrhelper.exploration_status import status_rows
+
 from PySide6.QtCore import Qt, QTimer, QUrl
 from PySide6.QtGui import QPixmap
 from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
@@ -491,84 +493,9 @@ class BodyDetailWindow(QDialog):
             tr("common.yes") if journal else tr("common.no"),
         )
 
-        if not journal:
-            self._add_row(
-                form,
-                tr("body_detail.already_discovered") + ":",
-                tr("body_detail.unknown_wait_scan"),
-            )
-            self._add_row(
-                form,
-                tr("body_detail.already_mapped") + ":",
-                tr("body_detail.unknown_wait_scan"),
-            )
-            self._add_row(
-                form,
-                tr("body_detail.first_discovery") + ":",
-                tr("common.unknown"),
-            )
-            self._add_row(
-                form,
-                tr("body_detail.first_mapping") + ":",
-                tr("common.unknown"),
-            )
-        else:
-            discovered = self.body.get("was_discovered")
-            mapped = self.body.get("was_mapped")
-            self_mapped = bool(self.body.get("self_mapped"))
-
-            if discovered is True:
-                already_discovered = tr("common.yes")
-                first_discovery = tr("body_detail.no_already_discovered")
-            elif discovered is False:
-                already_discovered = tr("common.no")
-                first_discovery = tr("body_detail.first_discovery_possible")
-            else:
-                already_discovered = tr("common.unknown")
-                first_discovery = tr("common.unknown")
-
-            if mapped is True:
-                already_mapped = tr("common.yes")
-                first_mapping = tr("body_detail.no_already_mapped")
-            elif mapped is False:
-                already_mapped = tr("common.no")
-                if self_mapped:
-                    first_mapping = tr("body_detail.first_mapping_claimed")
-                else:
-                    first_mapping = tr("body_detail.first_mapping_possible")
-            else:
-                already_mapped = tr("common.unknown")
-                first_mapping = (
-                    tr("body_detail.mapped_by_you")
-                    if self_mapped
-                    else tr("common.unknown")
-                )
-
-            self._add_row(
-                form,
-                tr("body_detail.already_discovered") + ":",
-                already_discovered,
-            )
-            self._add_row(
-                form,
-                tr("body_detail.already_mapped") + ":",
-                already_mapped,
-            )
-            self._add_row(
-                form,
-                tr("body_detail.first_discovery") + ":",
-                first_discovery,
-            )
-            self._add_row(
-                form,
-                tr("body_detail.first_mapping") + ":",
-                first_mapping,
-            )
-            self._add_row(
-                form,
-                tr("body_detail.mapped_by_you_label") + ":",
-                tr("common.yes") if self_mapped else tr("common.no"),
-            )
+        for label, value in status_rows(self.body):
+            self._add_row(form, label + ":", value)
+        self._add_row(form, "", tr("exploration.historical_notice"))
 
         bio_count = int(self.body.get("biological_signals") or 0)
         self._add_row(form, tr("body_detail.bio_signals") + ":", bio_count)

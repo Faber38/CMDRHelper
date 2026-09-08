@@ -49,7 +49,7 @@ HELP_TOPICS = {'overview': ('Aperçu',
               '<p>Les systèmes récemment visités ou reconnus dans le journal sont affichés '
               'ici.</p>\n'
               '<p>La liste constitue un aperçu rapide du récent voyage du commandant.</p>\n'
-              '\n'
+              '<p>L’historique des visites tient compte de Location, FSDJump et CarrierJump lors du suivi du journal en direct. Plusieurs événements de position pendant un séjour ininterrompu comptent pour une visite : A → A → A compte une fois. Un véritable retour est conservé : A → B → C → A compte quatre visites.</p>\n\n'
               '<h3>Statut en ligne</h3>\n'
               "<p>Il y a des indicateurs d'état supplémentaires en haut de la fenêtre "
               'principale\xa0:</p>\n'
@@ -250,21 +250,14 @@ HELP_TOPICS = {'overview': ('Aperçu',
               'comme un candidat à la terraformation sur la base des données disponibles.</p>\n'
               '\n'
               '<h3>Première découverte</h3>\n'
-              '<p>Le premier indicateur de découverte identifie les organismes pour lesquels, '
-              'selon les données disponibles, une première découverte est possible ou a été '
-              "documentée en conséquence par le propre journal de l'organisme.</p>\n"
-              '<p>La note finale est basée sur les conditions signalées par Elite Dangerous ou sur '
-              'les données disponibles.</p>\n'
+              '<p>« Déjà découvert lors de votre scan » décrit l’état avant votre scan de l’époque. Oui signifie déjà découvert, Non signifie pas encore découvert à ce moment-là ; une information absente reste Inconnue. ★ indique un candidat à la première découverte au moment du scan, pas une attribution officielle encore garantie aujourd’hui.</p>\n<p>Une ancienne valeur WasDiscovered=false ou WasMapped=false ne signifie pas que le corps est encore non découvert ou non cartographié aujourd’hui. Ces observations restent historiques après la vente des données ou une nouvelle visite. La présence dans EDSM est une information distincte, sans valeur de preuve d’une découverte officielle dans Elite. Aucun premier découvreur officiel n’en est déduit.</p>\n'
               '\n'
               '<h3>Première cartographie</h3>\n'
               '<p>CMDRHelper fait la distinction entre\xa0:</p>\n'
               '<ul>\n'
-              '<li>Une première cartographie peut être disponible</li>\n'
-              '<li>cartographié par le commandant</li>\n'
-              '<li>Première cartographie revendiquée par le commandant</li>\n'
+              '<li>◉ Candidat First Mapping au moment du scan : pas encore cartographié lors de votre scan</li>\n<li>◎ Cartographié par vous : votre propre cartographie DSS terminée est enregistrée</li>\n<li>◉✓ Candidat lors du scan et votre propre cartographie attestés ; attribution officielle de la première cartographie non confirmée</li>\n'
               '</ul>\n'
-              '<p>Cela permet de voir si un corps a déjà été cartographié et si votre commandant '
-              'revendique le premier statut de cartographie.</p>\n'
+              '<p>« Déjà cartographié lors de votre scan » est évalué indépendamment de la découverte. Une information absente reste Inconnue. Un corps déjà découvert pouvait ne pas encore être cartographié lors du scan. Votre cartographie ne confirme pas une attribution officielle First Mapping ; après plusieurs visites, son ordre par rapport au scan enregistré n’est pas toujours établi non plus.</p>\n<p>La fin de votre propre cartographie DSS enregistre désormais de manière fiable l’heure de cartographie, les sondes utilisées et l’objectif d’efficacité. Les scans ultérieurs ne font plus perdre les informations existantes.</p>\n'
               '\n'
               '<h3>Bar de campagne</h3>\n'
               "<p>L'indicateur d'atterrissage identifie les corps sur lesquels, selon les données "
@@ -273,13 +266,11 @@ HELP_TOPICS = {'overview': ('Aperçu',
               '<h3>Cadres en or / corps précieux</h3>\n'
               "<p>Les corps particulièrement précieux peuvent être mis en évidence dans l'écran de "
               "l'explorateur.</p>\n"
-              "<p>Le cadre doré sert d'orientation visuelle rapide pour les corps dépassant le "
-              'seuil de valeur fourni dans CMDRHelper.</p>\n'
+              '<p>Le cadre doré indique une estimation de cartographie dépassant le seuil configuré. Ce n’est pas une marque de première découverte et il ne confirme ni des données invendues ni des bonus de première découverte ou cartographie encore disponibles aujourd’hui.</p>\n'
               "<p>Il ne remplace pas l'affichage détaillé de la valeur du corps.</p>\n"
               '\n'
               '<h3>Liste de valeurs</h3>\n'
-              '<p>La liste de valeurs fournit une vue plus compacte des corps connus et de leurs '
-              "valeurs d'exploration/cartographie.</p>\n"
+              '<p>La liste des valeurs présente des estimations selon le scan enregistré, pas des paiements encore dus garantis. Les bonus de première découverte ou cartographie restent non confirmés. Les infobulles de la carte et de la liste ainsi que les détails du corps utilisent les mêmes états situés dans le temps.</p>\n'
               '<p>Il est particulièrement adapté pour comparer rapidement des corps intéressants '
               'ou précieux dans un système.</p>\n'
               '\n'
@@ -290,7 +281,7 @@ HELP_TOPICS = {'overview': ('Aperçu',
               'corps intéressants dans la carte complète du système.</p>\n'
               '<p>Si vous disposez de vos propres données d’exploitation minière à ciel ouvert, '
               'vos découvertes minières personnelles peuvent également être visibles.</p>\n'
-              '\n'
+              '<p>Les largeurs ajustées manuellement dans la table commune BIO / GEO / ABBAU de l’Explorateur sont conservées à la réouverture et au redémarrage. La restauration des largeurs des fenêtres contextuelles est plus robuste ; les valeurs invalides sont remplacées par des largeurs par défaut utilisables.</p>\n\n'
               '<h3>Détail du corps</h3>\n'
               '<p>Cliquer sur un corps ouvre la vue détaillée.</p>\n'
               "<p>Pour autant que l'on sache, les éléments suivants peuvent y apparaître\xa0:</p>\n"
@@ -335,7 +326,7 @@ HELP_TOPICS = {'overview': ('Aperçu',
               "<p>Ces petites fenêtres en direct servent d'indices supplémentaires pendant la "
               "lecture et ne remplacent pas la vue complète de l'Explorateur.</p>\n"
               '<p>« Cargo » affiche le stock confirmé du Ship ou du SRV déterminé par la FID active du Journal. Le Cargo du SRV n’est jamais repris comme Cargo du Ship ; les Limpets comptent dans l’occupation totale et sont affichés séparément dans le tableau Nom | Quantité.</p>\n'
-              '\n'
+              '<p>La progression BIO est compacte : 1/3 en jaune, 2/3 en bleu et 3/3 en vert ; l’état terminé « Terminé » est également vert. Sous « afficher automatiquement », GEO dispose de son propre interrupteur mémorisé : BIO seul, GEO seul ou les deux ensemble sont possibles.</p>\n<p>La fenêtre de soute adapte automatiquement sa hauteur au contenu. Avec de nombreuses entrées, la hauteur reste limitée et la table défile ; la largeur choisie et la position sont conservées. L’interrupteur existant « HUD de soute » se trouve désormais sous « afficher automatiquement », sans interrupteur supplémentaire dans la fenêtre de soute.</p>\n\n'
               '<h3>Plusieurs commandants</h3>\n'
               "<p>Les résultats d'exploration personnels, la cartographie, les découvertes BIO et "
               'les propres découvertes minières à ciel ouvert sont attribués au commandant '
@@ -1319,7 +1310,7 @@ HELP_TOPICS = {'overview': ('Aperçu',
               "pour les corps précieux est défini dans les paramètres de l'interface.</p>\n"
               '\n'
               '<p>La fenêtre Cargo utilise exclusivement le snapshot Cargo confirmé pour la FID active du Journal. Le commander consulté dans CMDR View et viewed_commander_id n’influencent pas cette fenêtre en direct. Pour un Ship, elle affiche occupé / maximum · libre ; si CargoCapacity est inconnue, aucune valeur n’est estimée.</p>\n'
-              '\n'
+              '<p>« HUD de statut EDSM », sous « afficher automatiquement », est DÉSACTIVÉ par défaut. Après l’entrée dans un système, un bref message apparaît sur Elite pendant environ 2,5 secondes. Plusieurs événements Location pendant le même séjour ne produisent pas de doublons ; un véritable retour peut déclencher une nouvelle vérification.</p>\n<p>« EDSM : CONNU » signifie une correspondance EDSM valide pour le système. « EDSM : INCONNU » signifie une réponse EDSM valide sans correspondance. « EDSM : AUCUNE RÉPONSE » signifie une erreur réseau, HTTP, un délai dépassé ou une réponse invalide, jamais une absence de correspondance confirmée. La présence dans EDSM ne vaut pas découverte officielle dans Elite ; aucun nom de premier découvreur ou déclarant n’est promis.</p>\n<p>Le message fonctionne indépendamment des HUD de navigation et de soute. Les affichages permanents et les messages de favori rapide sont préservés. La requête ne bloque pas l’interface ; les réponses tardives concernant un système déjà quitté sont ignorées.</p>\n\n'
               '<h3>Mises à jour</h3>\n'
               "<p>Le groupe de mise à jour affiche la version installée et l'état de GitHub. "
               'Vérifier maintenant recherche manuellement une nouvelle version planifiée de '
@@ -1328,7 +1319,7 @@ HELP_TOPICS = {'overview': ('Aperçu',
               '<p>Si une nouvelle version est disponible, CMDRHelper vous le demandera avant de '
               "télécharger et d'installer. Une mise à jour de base de données annoncée est "
               'affichée séparément dans cette boîte de dialogue.</p>\n'
-              '\n'
+              '<p>Pour une installation existante, il suffit normalement d’installer la mise à jour → démarrer CMDRHelper. Les corrections historiques nécessaires des données BIO, des visites et des métadonnées DSS sont automatiques ; une sauvegarde de la base précède toute réparation écrivant des données. Les réparations sont versionnées et idempotentes : les révisions réussies ne sont pas entièrement réexécutées à chaque démarrage. La reconstruction exige des journaux Elite encore présents, lisibles et attribuables sans ambiguïté à un commandant. Les sources absentes ne sont ni inventées ni considérées comme un succès ; les réparations en attente sont retentées au démarrage suivant. Suppression de la base, scripts manuels et réimportation sont normalement inutiles.</p>\n\n'
               '<h3>Progression du téléchargement</h3>\n'
               "<p>Le téléchargement s'exécute en arrière-plan. Si la taille totale est connue, "
               'CMDRHelper affiche le nom du fichier, les MiB reçus et totaux, le pourcentage, le '

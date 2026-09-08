@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from cmdrhelper.exploration_status import exploration_status, journal_flag, status_tooltip
+
 from collections import defaultdict
 from math import ceil, log10
 from pathlib import Path
@@ -64,17 +66,11 @@ class SystemMapWidget(QWidget):
 
     @staticmethod
     def _already_discovered(body):
-        return (
-            body.get("was_discovered") is True
-            or body.get("edsm_was_discovered") is True
-        )
+        return journal_flag(body, "was_discovered") is True
 
     @staticmethod
     def _already_mapped(body):
-        return (
-            body.get("was_mapped") is True
-            or body.get("edsm_was_mapped") is True
-        )
+        return journal_flag(body, "was_mapped") is True
 
     @staticmethod
     def _body_sort_key(body):
@@ -751,40 +747,7 @@ class SystemMapWidget(QWidget):
                 )
             )
 
-        if body.get("journal_scanned", True):
-            was_discovered = body.get("was_discovered")
-            was_mapped = body.get("was_mapped")
-            self_mapped = bool(body.get("self_mapped"))
-
-            if (
-                was_discovered is False
-                and not self._already_discovered(body)
-            ):
-                parts.append(tr("system_view.first_discovery_possible"))
-            elif self._already_discovered(body):
-                parts.append(tr("system_view.already_discovered"))
-
-            is_star = bool(
-                body.get("star_type")
-                or body.get("body_type") == "Star"
-            )
-
-            if not is_star:
-                if (
-                    was_mapped is False
-                    and not self._already_mapped(body)
-                ):
-                    if self_mapped:
-                        parts.append(tr("system_view.first_mapping_claimed"))
-                    else:
-                        parts.append(tr("system_view.first_mapping_possible"))
-                elif self._already_mapped(body):
-                    parts.append(tr("system_view.already_mapped"))
-
-                if self_mapped:
-                    parts.append(tr("system_view.mapped_by_you"))
-        elif body.get("edsm_known"):
-            parts.append(tr("system_view.edsm_wait_own_scan"))
+        parts.append(status_tooltip(body))
 
         parts.append("")
 
@@ -1480,6 +1443,7 @@ class SystemMapWidget(QWidget):
             ry += 14
 
         markers = []
+        scan_status = exploration_status(body)
 
         if body.get("terraformable"):
             markers.append(
@@ -1487,23 +1451,19 @@ class SystemMapWidget(QWidget):
             )
 
         if body.get("journal_scanned", True):
-            if (
-                body.get("was_discovered") is False
-                and not self._already_discovered(body)
-            ):
+            if scan_status["first_discovery_candidate"]:
                 markers.append(
                     ("★", QColor("#ffae28"))
                 )
 
             if (
                 not is_star
-                and body.get("was_mapped") is False
-                and not self._already_mapped(body)
+                and scan_status["first_mapping_candidate"]
             ):
                 markers.append(
                     (
                         "◉✓"
-                        if body.get("self_mapped")
+                        if scan_status["self_mapped"] is True
                         else "◉",
                         QColor("#68c7ff")
                     )
@@ -1511,7 +1471,7 @@ class SystemMapWidget(QWidget):
 
         if (
             not is_star
-            and body.get("self_mapped")
+            and scan_status["self_mapped"] is True
         ):
             markers.append(
                 ("◎", QColor("#65d067"))

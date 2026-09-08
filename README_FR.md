@@ -1,4 +1,4 @@
-# CMDRHelper V3 (3.0)
+# CMDRHelper
 
 [🇩🇪 Deutsch](README_DE.md) \| [🇬🇧 English](README.md) \| [🇫🇷
 Français](README_FR.md) \| [🇮🇹 Italiano](README_IT.md) \| [🇳🇴
@@ -13,12 +13,28 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper est une application de bureau autonome qui analyse les journaux locaux d’Elite Dangerous et utilise les données de position planétaire de `Status.json`. Elle t’aide à repérer les corps intéressants, à retrouver des lieux enregistrés et à consulter tes voyages et découvertes. Les données personnelles sont conservées après un redémarrage et séparées par commandant.
 
+## Nouveautés de la v3.1 par rapport à la v3.0.3
+
+- La progression BIO est compacte : 1/3 en jaune, 2/3 en bleu et 3/3 en vert ; l’état terminé « Terminé » est également vert. Sous « afficher automatiquement », GEO dispose de son propre interrupteur mémorisé : BIO seul, GEO seul ou les deux ensemble sont possibles. Les largeurs ajustées manuellement dans la table commune BIO / GEO / ABBAU de l’Explorateur sont conservées à la réouverture et au redémarrage. La restauration des largeurs des fenêtres contextuelles est plus robuste ; les valeurs invalides sont remplacées par des largeurs par défaut utilisables.
+
+- Découverte et cartographie sont séparées et rapportées à votre scan : « Déjà découvert lors de votre scan » et « Déjà cartographié lors de votre scan ». Les données absentes restent Inconnues. Les candidats First Discovery et First Mapping concernent uniquement le moment du scan ; un ancien Non ne prouve pas que le corps reste à découvrir ou cartographier aujourd’hui. Votre cartographie ne confirme aucune attribution officielle de première découverte ou cartographie. La présence dans EDSM reste distincte.
+
+- « HUD de statut EDSM », sous « afficher automatiquement », est DÉSACTIVÉ par défaut. Après l’entrée dans un système, un bref message apparaît sur Elite pendant environ 2,5 secondes. « EDSM : CONNU » signifie une correspondance EDSM valide pour le système. « EDSM : INCONNU » signifie une réponse EDSM valide sans correspondance. « EDSM : AUCUNE RÉPONSE » signifie une erreur réseau, HTTP, un délai dépassé ou une réponse invalide, jamais une absence de correspondance confirmée. La présence dans EDSM ne vaut pas découverte officielle dans Elite ; aucun nom de premier découvreur ou déclarant n’est promis. Le message fonctionne indépendamment des HUD de navigation et de soute.
+
+- L’historique des visites tient compte de Location, FSDJump et CarrierJump lors du suivi du journal en direct. Plusieurs événements de position pendant un séjour ininterrompu comptent pour une visite : A → A → A compte une fois. Un véritable retour est conservé : A → B → C → A compte quatre visites.
+
+- La fin de votre propre cartographie DSS enregistre désormais de manière fiable l’heure de cartographie, les sondes utilisées et l’objectif d’efficacité. Les scans ultérieurs ne font plus perdre les informations existantes.
+
+- La fenêtre de soute adapte automatiquement sa hauteur au contenu. Avec de nombreuses entrées, la hauteur reste limitée et la table défile ; la largeur choisie et la position sont conservées. L’interrupteur existant « HUD de soute » se trouve désormais sous « afficher automatiquement », sans interrupteur supplémentaire dans la fenêtre de soute.
+
+- Pour une installation existante, il suffit normalement d’installer la mise à jour → démarrer CMDRHelper. Les corrections historiques nécessaires des données BIO, des visites et des métadonnées DSS sont automatiques ; une sauvegarde de la base précède toute réparation écrivant des données. Les réparations sont versionnées et idempotentes : les révisions réussies ne sont pas entièrement réexécutées à chaque démarrage. La reconstruction exige des journaux Elite encore présents, lisibles et attribuables sans ambiguïté à un commandant. Les sources absentes ne sont ni inventées ni considérées comme un succès ; les réparations en attente sont retentées au démarrage suivant. Suppression de la base, scripts manuels et réimportation sont normalement inutiles.
+
 ## Explorer
 
 L’Explorer présente le système actuel dans trois vues :
 
 - **Carte du système :** représentation graphique des étoiles, planètes et lunes connues. Un clic sur un corps ouvre ses détails. « Tout afficher » ouvre la vue d’ensemble du système.
-- **Liste des valeurs :** valeurs de scan et de cartographie des corps connus, valeur déjà obtenue et potentiel total. Les indicateurs aident à repérer les candidats à la terraformation, les premières découvertes et premières cartographies possibles.
+- **Liste des valeurs :** La liste des valeurs présente des estimations selon le scan enregistré, pas des paiements encore dus garantis. Les bonus de première découverte ou cartographie restent non confirmés. Les infobulles de la carte et de la liste ainsi que les détails du corps utilisent les mêmes états situés dans le temps.
 - **BIO / GEO / EXTRACTION :** signaux biologiques et géologiques, sites d’extraction planétaires et découvertes personnelles attestées.
 
 Les analyses distinguent les signaux signalés des découvertes personnelles réelles. **BIO ×N** indique le nombre de signaux signalés, pas la confirmation d’espèces entièrement analysées. **EXTRACTION ×N** compte les sites d’extraction planétaires sans révéler leurs ressources individuelles. Les marchandises personnellement extraites, les matériaux secondaires collectés pendant l’extraction et la composition générale en matériaux d’un corps restent séparés.

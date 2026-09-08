@@ -1,4 +1,4 @@
-# CMDRHelper V3 (3.0)
+# CMDRHelper
 
 [🇩🇪 Deutsch](README_DE.md) \| [🇬🇧 English](README.md) \| [🇫🇷
 Français](README_FR.md) \| [🇮🇹 Italiano](README_IT.md) \| [🇳🇴
@@ -13,13 +13,29 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper es una aplicación de escritorio independiente que analiza los diarios locales de Elite Dangerous y usa datos de posición planetaria de `Status.json`. Te ayuda a identificar cuerpos interesantes, volver a lugares guardados y consultar tus viajes y descubrimientos. Los datos personales se conservan tras reiniciar y se separan por comandante.
 
+## Novedades de v3.1 respecto a v3.0.3
+
+- El progreso BIO es compacto: 1/3 amarillo, 2/3 azul y 3/3 verde; el estado completado «Completado» también es verde. En «mostrar automáticamente», GEO tiene un interruptor propio que se guarda: solo BIO, solo GEO o ambos juntos. Los anchos de columna ajustados manualmente en la tabla compartida BIO / GEO / ABBAU del Explorador se conservan al reabrir y reiniciar. La restauración de columnas de las ventanas emergentes es más robusta; los valores inválidos se sustituyen por anchos predeterminados seguros.
+
+- Descubrimiento y cartografiado se separan y se refieren al momento de tu escaneo: «Ya descubierto al realizar tu escaneo» y «Ya cartografiado al realizar tu escaneo». Los datos ausentes siguen como Desconocido. Los candidatos a First Discovery y First Mapping solo se refieren al escaneo; un No histórico no demuestra que el cuerpo siga sin descubrir o cartografiar hoy. Tu cartografiado no confirma una primicia oficial. La presencia en EDSM permanece separada.
+
+- «HUD de estado EDSM» en «mostrar automáticamente» está DESACTIVADO por defecto. Al entrar en un sistema aparece un mensaje sobre Elite durante unos 2,5 segundos. «EDSM: CONOCIDO» significa una coincidencia EDSM válida para el sistema. «EDSM: NO CONOCIDO» significa una respuesta EDSM válida sin coincidencia. «EDSM: SIN RESPUESTA» significa un error de red, HTTP, tiempo de espera agotado o respuesta inválida, nunca una ausencia confirmada de coincidencia. La presencia en EDSM no equivale a un descubrimiento oficial en Elite; no se prometen nombres de primeros descubridores o informantes. El mensaje funciona independientemente de los HUD de navegación y carga.
+
+- El historial de visitas incluye Location, FSDJump y CarrierJump durante la lectura en directo del diario. Varios eventos de posición en una misma estancia ininterrumpida cuentan como una visita: A → A → A cuenta una vez. Se conserva un regreso real: A → B → C → A cuenta cuatro visitas.
+
+- Al finalizar tu propio cartografiado DSS se guardan de forma fiable la hora, las sondas utilizadas y el objetivo de eficiencia. Los escaneos posteriores ya no hacen perder los datos existentes.
+
+- La ventana de carga adapta automáticamente su altura al contenido. Con muchas entradas la altura se limita y la tabla permite desplazamiento; se conservan el ancho elegido y la posición. El interruptor existente «HUD de carga» está ahora en «mostrar automáticamente», sin otro interruptor en la ventana de carga.
+
+- En instalaciones existentes normalmente basta con instalar la actualización → iniciar CMDRHelper. Las correcciones históricas necesarias de datos BIO, visitas y metadatos DSS se ejecutan automáticamente; se crea una copia de seguridad de la base antes de las reparaciones que escriben datos. Las reparaciones tienen versiones y son idempotentes: las revisiones completadas no se ejecutan íntegramente en cada inicio. La reconstrucción requiere diarios de Elite que aún existan, sean legibles y se puedan asignar inequívocamente a un comandante. No se inventan fuentes ausentes ni se consideran un éxito; las reparaciones pendientes se reintentan al iniciar de nuevo. Normalmente no hace falta borrar la base, usar scripts manuales ni reimportar.
+
 ## Explorer
 
 El Explorer muestra el sistema actual en tres vistas:
 
 - **Mapa del sistema:** representación gráfica de estrellas, planetas y lunas conocidos. Un clic en un cuerpo abre sus detalles. «Mostrar todo» abre el resumen del sistema.
-- **Lista de valores:** valores de escaneo y cartografía de los cuerpos conocidos, valor ya obtenido y potencial total. Los indicadores ayudan a reconocer candidatos a terraformación, posibles primeros descubrimientos y primeros mapeos.
-- **BIO / GEO / MINERÍA:** señales biológicas y geológicas, lugares de extracción planetaria y hallazgos personales confirmados.
+- **Lista de valores:** La lista de valores muestra estimaciones según el escaneo guardado, no pagos pendientes garantizados. Las bonificaciones de primicia siguen sin confirmarse. Las ayudas del mapa y la lista y los detalles del cuerpo usan los mismos estados situados en el tiempo.
+- **BIO / GEO / ABBAU:** señales biológicas y geológicas, lugares de extracción planetaria y hallazgos personales confirmados.
 
 Los análisis distinguen las señales notificadas de los hallazgos personales reales. **BIO ×N** es el número de señales notificadas, no una confirmación de especies totalmente analizadas. **MINERÍA ×N** cuenta lugares de extracción planetaria sin revelar sus recursos individuales. Las mercancías extraídas personalmente, los materiales secundarios recogidos durante la extracción y la composición general de materiales del cuerpo permanecen separados.
 

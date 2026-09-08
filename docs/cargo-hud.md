@@ -1,9 +1,17 @@
 # Frachtraum im Elite-HUD
 
-Der kleine Schalter **Im Elite-HUD anzeigen** im Frachtraumfenster ist
+Der Schalter **Frachtraum-HUD** unter **auto einblenden** in der linken
+Seitenleiste ist
 standardmäßig aus. `cargo_hud/enabled` speichert ihn unabhängig vom
 Navigations-HUD und vom automatischen Einblenden des Frachtraumfensters.
 Das Schließen oder Ausblenden des Frachtraumfensters beendet das HUD nicht.
+
+Im Frachtraumfenster gibt es keinen zweiten HUD-Schalter. Seine Höhe passt
+sich automatisch an die sichtbaren Frachtzeilen an, bis maximal 560 Pixel
+beziehungsweise 70 % der verfügbaren Bildschirmhöhe. Danach scrollt die Tabelle.
+Benutzerbreite und Fensterposition bleiben erhalten; Überschrift, Mengenanzeige
+und der 8-Pixel-Füllstandsbalken des Fensters bleiben bestehen. Dieser Balken
+ist vom unten beschriebenen 5-Pixel-Balken im Elite-HUD zu unterscheiden.
 
 ## Daten und Fahrzeugwechsel
 
@@ -42,9 +50,10 @@ die Frachtraumgruppe, ohne den gespeicherten Schalter auszuschalten.
 
 ## Gemeinsamer Overlay-Dienst
 
-`NavigationHud` verwaltet drei unabhängig aktive Gruppen: Navigation,
-Frachtraum und temporäre Schnellfavoriten-Meldungen. Der Ablauf des
-Meldungstimers löscht nur die Meldung. Der bestehende 200-ms-Timer aktualisiert
+`NavigationHud` verwaltet vier unabhängig aktive Gruppen: Navigation,
+Frachtraum, temporäre Schnellfavoriten-Meldungen und EDSM-Statusmeldungen.
+Die temporären Gruppen besitzen getrennte Abläufe; ein abgelaufener
+Meldungstimer löscht nur seine eigene Meldung. Der bestehende 200-ms-Timer aktualisiert
 Geometrie, Sichtbarkeit und Frachtraumdaten auch bei ausgeschaltetem
 Navigations-HUD; dessen Navigationscontroller muss dafür nicht gestartet werden.
 

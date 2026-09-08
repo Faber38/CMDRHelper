@@ -203,7 +203,7 @@ class ExplorerLivePopupTests(unittest.TestCase):
         window._explorer_bio_live_window = self._popup([])
         window._explorer_value_yellow_threshold = lambda: 200_000
         window._ensure_explorer_live_windows = lambda: None
-        window._explorer_live_window_enabled = lambda _kind: False
+        window._explorer_live_window_enabled = lambda _kind: True
         window.explorer_value_table = QTableWidget(0, 8)
         window.explorer_bio_table = QTableWidget(0, 11)
         window.explorer_tabs = QTabWidget()
@@ -364,8 +364,8 @@ class ExplorerLivePopupTests(unittest.TestCase):
             predictions=[self._candidate("Bacterium Nebulus")], open_signals=0,
         )
         self.assertIn("Bacterium Tela – Grün", text)
-        self.assertIn(tr("bio_prediction.identified"), text)
-        self.assertIn(tr("explorer.sample_one"), text)
+        self.assertNotIn(tr("bio_prediction.identified"), text)
+        self.assertIn("1/3", text)
         self.assertNotIn("Bacterium Nebulus", text)
         self.assertNotIn(tr("bio_prediction.possible_more"), text)
         self.assertNotIn(tr("bio_prediction.more_candidates"), text)
@@ -410,12 +410,12 @@ class ExplorerLivePopupTests(unittest.TestCase):
         )
         self.assertNotIn("Stratum Tectonicas", text)
         self.assertIn("Bacterium Tela", text)
-        self.assertIn(tr("bio_prediction.found"), text)
+        self.assertIn(tr("explorer.scan_done"), text)
         self.assertIn("Bacterium Nebulus", text)
         self.assertIn("Bacterium Verrata", text)
-        self.assertIn(tr("bio_prediction.identified"), text)
-        self.assertIn(tr("explorer.sample_one"), text)
-        self.assertIn(tr("explorer.sample_two"), text)
+        self.assertNotIn(tr("bio_prediction.identified"), text)
+        self.assertIn("1/3", text)
+        self.assertIn("2/3", text)
 
     def test_bio_rows_receive_predictions_and_progress(self):
         window = MainWindow.__new__(MainWindow)

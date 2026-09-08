@@ -175,9 +175,13 @@ class NavigationHud(QWidget):
         self.cargo_data = None
         self.cargo_geometry = QRectF()
         self.message_lines = ()
+        self.edsm_message_lines = ()
         self.message_timer = QTimer(self)
         self.message_timer.setSingleShot(True)
         self.message_timer.timeout.connect(self.clear_message)
+        self.edsm_message_timer = QTimer(self)
+        self.edsm_message_timer.setSingleShot(True)
+        self.edsm_message_timer.timeout.connect(lambda: self.clear_message(channel="edsm"))
         self.safe_input = False
         self.status = "off"
         self.status_detail = ""
@@ -229,12 +233,16 @@ class NavigationHud(QWidget):
         self.enabled = bool(enabled)
         self._sync_visibility()
 
-    def show_message(self, lines, duration_ms=2000):
+    def show_message(self, lines, duration_ms=2000, *, channel="default"):
         """Temporary output shares native placement; never changes the HUD switch."""
         if not self._prepare_input():
             return
-        self.message_lines = tuple(str(line) for line in lines)
-        self.message_timer.start(duration_ms)
+        if channel == "edsm":
+            self.edsm_message_lines = tuple(str(line) for line in lines)
+            self.edsm_message_timer.start(duration_ms)
+        else:
+            self.message_lines = tuple(str(line) for line in lines)
+            self.message_timer.start(duration_ms)
         self._sync_visibility()
 
     def set_cargo_enabled(self, enabled):
@@ -246,13 +254,17 @@ class NavigationHud(QWidget):
             self.cargo_data = None
         self._sync_visibility()
 
-    def clear_message(self):
-        self.message_timer.stop()
-        self.message_lines = ()
+    def clear_message(self, *, channel="default"):
+        if channel == "edsm":
+            self.edsm_message_timer.stop()
+            self.edsm_message_lines = ()
+        else:
+            self.message_timer.stop()
+            self.message_lines = ()
         self._sync_visibility()
 
     def _sync_visibility(self):
-        if self.enabled or self.cargo_enabled or self.message_lines:
+        if self.enabled or self.cargo_enabled or self.message_lines or self.edsm_message_lines:
             self.timer.start()
             self.follow_target()
         else:
@@ -273,7 +285,7 @@ class NavigationHud(QWidget):
         if self._windows_failed:
             return  # Retry only after explicitly switching the HUD on again.
         self.cargo_data = self.cargo_provider() if self.cargo_enabled and self.cargo_provider else None
-        if (not self.cargo_data and not self.message_lines
+        if (not self.cargo_data and not self.message_lines and not self.edsm_message_lines
                 and (not self.enabled or not hud_lines(self.controller.state))):
             self.hide()
             self._status("waiting_navigation" if self.enabled else
@@ -328,6 +340,8 @@ class NavigationHud(QWidget):
         self.follow_target()
 
     def closeEvent(self, event):
+        self.edsm_message_timer.stop()
+        self.edsm_message_lines = ()
         self.message_timer.stop()
         self.message_lines = ()
         self.cargo_enabled = False
@@ -339,7 +353,7 @@ class NavigationHud(QWidget):
     def paintEvent(self, event):
         self.paint_count += 1
         self.cargo_geometry = QRectF()
-        if not self.enabled and not self.message_lines and not self.cargo_data:
+        if not self.enabled and not self.message_lines and not self.edsm_message_lines and not self.cargo_data:
             return
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
@@ -348,6 +362,8 @@ class NavigationHud(QWidget):
         rows = list(zip(navigation, (38, 26, 18), (10, 8, 8)))
         rows += [(text, 30 if index == 0 else 20, 10)
                  for index, text in enumerate(self.message_lines)]
+        rows += [(text, 30 if index == 0 else 20, 10)
+                 for index, text in enumerate(self.edsm_message_lines)]
         leftmost = float("inf")
         for text, pixel_size, gap in rows:
             font = painter.font()

@@ -1,4 +1,4 @@
-# CMDRHelper V3 (3.0)
+# CMDRHelper
 
 [🇩🇪 Deutsch](README_DE.md) \| [🇬🇧 English](README.md) \| [🇫🇷
 Français](README_FR.md) \| [🇮🇹 Italiano](README_IT.md) \| [🇳🇴
@@ -13,12 +13,28 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper ist ein eigenständiges Desktop-Programm, das die lokalen Journale von Elite Dangerous auswertet und planetare Positionsdaten aus `Status.json` verwendet. Es hilft dir, interessante Körper zu erkennen, gespeicherte Orte wiederzufinden und deine Reisen und Funde nachzuvollziehen. Persönliche Daten bleiben nach einem Neustart erhalten und werden nach Commander getrennt.
 
+## Neu in v3.1 gegenüber v3.0.3
+
+- Der BIO-Fortschritt erscheint kompakt: 1/3 gelb, 2/3 blau und 3/3 grün; der abgeschlossene Zustand „Fertig“ ist ebenfalls grün. Unter „auto einblenden“ besitzt GEO einen eigenen gespeicherten Schalter: BIO allein, GEO allein oder beide gemeinsam sind möglich. Manuell angepasste Spaltenbreiten der gemeinsamen Explorer-Tabelle BIO / GEO / ABBAU bleiben nach erneutem Öffnen und Programmneustart erhalten. Gespeicherte Popup-Spaltenbreiten werden robuster wiederhergestellt; ungültige Werte fallen auf sichere Standardbreiten zurück.
+
+- Entdeckung und Kartographierung werden getrennt und auf den eigenen Scanzeitpunkt bezogen: „Bei deinem Scan bereits entdeckt“ beziehungsweise „Bei deinem Scan bereits kartographiert“. Fehlende Angaben bleiben Unbekannt. First-Discovery- und First-Mapping-Kandidaten gelten nur zum Scanzeitpunkt; historische Nein-Werte beweisen keinen heute noch unentdeckten oder unkartographierten Körper. Eigene Kartographierung bestätigt keinen offiziellen Erstanspruch. EDSM-Bekanntheit bleibt davon getrennt.
+
+- „EDSM-Status-HUD“ unter „auto einblenden“ ist standardmäßig AUS. Nach einem Systemeintritt erscheint für ungefähr 2,5 Sekunden eine Kurzmeldung über Elite. „EDSM: BEKANNT“ bedeutet einen gültigen EDSM-Treffer für das System. „EDSM: NICHT BEKANNT“ bedeutet eine gültige EDSM-Antwort ohne Systemtreffer. „EDSM: KEINE ANTWORT“ bedeutet einen Netzwerk-, HTTP-, Timeoutfehler oder eine ungültige Antwort, niemals einen bestätigten fehlenden Treffer. EDSM-Bekanntheit ist nicht dasselbe wie offizielle Elite-Erstentdeckung; es werden keine Erstentdecker- oder Erstmeldernamen versprochen. Die Kurzmeldung funktioniert unabhängig von Navigations- und Frachtraum-HUD.
+
+- Die Besuchshistorie berücksichtigt Location, FSDJump und CarrierJump auch im laufenden Journalabgleich. Mehrere Standortereignisse im selben ununterbrochenen Aufenthalt ergeben einen Besuch: A → A → A zählt einmal. Eine echte Rückkehr bleibt erhalten: A → B → C → A zählt vier Besuche.
+
+- Nach Abschluss einer eigenen DSS-Kartographierung werden Mapping-Zeitpunkt, verwendete Sonden und Effizienzziel zuverlässig gespeichert. Spätere Scan-Ereignisse lassen vorhandene Angaben nicht mehr verloren gehen.
+
+- Das Frachtraumfenster passt seine Höhe automatisch an den Inhalt an. Bei vielen Einträgen bleibt die Höhe begrenzt und die Tabelle lässt sich scrollen; Benutzerbreite und Fensterposition bleiben erhalten. Der vorhandene Schalter „Frachtraum-HUD“ befindet sich jetzt unter „auto einblenden“, nicht zusätzlich im Frachtraumfenster.
+
+- Für bestehende Installationen genügt im Normalfall: Update installieren → CMDRHelper starten. Notwendige historische Korrekturen für BIO-Daten, Besuchshistorie und DSS-Metadaten laufen automatisch; vor schreibenden Datenreparaturen wird eine DB-Sicherung erstellt. Die Reparaturen sind versioniert und idempotent: Erfolgreiche Revisionen werden nicht bei jedem Start erneut vollständig ausgeführt. Rekonstruktion ist nur mit vorhandenen, lesbaren und eindeutig einem Commander zuordenbaren Elite-Journalen möglich. Fehlende Quellen werden nicht ersetzt oder als Erfolg gewertet; offene Reparaturen werden beim nächsten Start erneut versucht. Datenbanklöschung, manuelle Skripte und Neuimport sind im Normalfall nicht nötig.
+
 ## Explorer
 
 Der Explorer zeigt das aktuelle System in drei Ansichten:
 
 - **Systemkarte:** grafische Darstellung bekannter Sterne, Planeten und Monde. Ein Klick auf einen Körper öffnet seine Details. „Alles anzeigen“ öffnet die Systemübersicht.
-- **Wertliste:** Scan- und Kartographiewerte der bekannten Körper, bereits erreichter Wert und mögliches Gesamtpotenzial. Kennzeichnungen helfen beim Erkennen von Terraforming-Kandidaten, möglichen Erstentdeckungen und Erstkartographierungen.
+- **Wertliste:** Die Wertliste zeigt Schätzungen nach dem gespeicherten Scanstand, keine sicher noch auszahlbaren Erlöse. Erstboni bleiben unbestätigt. Tooltips in Karte und Liste sowie das Körperdetail verwenden dieselben zeitlich eingeordneten Zustände.
 - **BIO / GEO / ABBAU:** biologische und geologische Signale, planetare Abbaustandorte und belegte persönliche Funde.
 
 Die Auswertungen unterscheiden zwischen gemeldeten Signalen und tatsächlichen eigenen Funden. **BIO ×N** ist die gemeldete Signalzahl, keine Bestätigung vollständig analysierter Arten. **ABBAU ×N** zählt planetare Abbaustandorte und verrät nicht deren einzelne Rohstoffinhalte. Persönlich gewonnene Commodities, beim Abbau gesammelte Nebenmaterialien und die allgemeine Materialzusammensetzung eines Körpers bleiben getrennt.

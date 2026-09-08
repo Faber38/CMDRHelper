@@ -63,8 +63,9 @@ class ExplorerRevisitTests(unittest.TestCase):
                     mapped_value=0, self_mapped=False, mass_em=None, materials={})
         before = copy.deepcopy(live)
         body = next(b for b in self.load([live]) if b['body_id'] == 8)
-        for key in ('planet_class', 'scan_value', 'mapped_value', 'self_mapped', 'materials'):
+        for key in ('planet_class', 'scan_value', 'mapped_value', 'materials'):
             self.assertEqual(body[key], live[key])
+        self.assertTrue(body['self_mapped'])  # A new Scan cannot undo past own mapping.
         self.assertEqual(body['mass_em'], 0.5)
         self.assertEqual(live, before)
 

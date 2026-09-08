@@ -1,4 +1,4 @@
-# CMDRHelper V3 (3.0)
+# CMDRHelper
 
 [🇩🇪 Deutsch](README_DE.md) \| [🇬🇧 English](README.md) \| [🇫🇷
 Français](README_FR.md) \| [🇮🇹 Italiano](README_IT.md) \| [🇳🇴
@@ -13,13 +13,29 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper is een zelfstandig desktopprogramma dat de lokale journals van Elite Dangerous analyseert en planetaire positiegegevens uit `Status.json` gebruikt. Het helpt je interessante hemellichamen te herkennen, opgeslagen plaatsen terug te vinden en je reizen en ontdekkingen te bekijken. Persoonlijke gegevens blijven na een herstart behouden en worden per commander gescheiden.
 
+## Nieuw in v3.1 ten opzichte van v3.0.3
+
+- BIO-voortgang is compact: 1/3 geel, 2/3 blauw en 3/3 groen; de voltooide toestand ‘Voltooid’ is eveneens groen. Onder ‘automatisch tonen’ heeft GEO een eigen opgeslagen schakelaar: alleen BIO, alleen GEO of beide samen. Handmatig aangepaste kolombreedtes van de gezamenlijke Explorer-tabel BIO / GEO / ABBAU blijven na heropenen en herstarten behouden. Opgeslagen popupkolommen worden robuuster hersteld; ongeldige waarden vallen terug op veilige standaardbreedtes.
+
+- Ontdekking en kartering zijn gescheiden en verwijzen naar je scantijdstip: ‘Al ontdekt tijdens jouw scan’ en ‘Al in kaart gebracht tijdens jouw scan’. Ontbrekende gegevens blijven Onbekend. First Discovery- en First Mapping-kandidaten gelden alleen op het scantijdstip; een historisch Nee bewijst niet dat het hemellichaam vandaag nog onontdekt of ongekarteerd is. Je eigen kartering bevestigt geen officiële eerste claim. EDSM-bekendheid blijft afzonderlijk.
+
+- ‘EDSM-status-HUD’ onder ‘automatisch tonen’ staat standaard UIT. Na binnenkomst in een systeem verschijnt ongeveer 2,5 seconden een melding boven Elite. ‘EDSM: BEKEND’ betekent een geldige EDSM-treffer voor het systeem. ‘EDSM: NIET BEKEND’ betekent een geldig EDSM-antwoord zonder systeemtreffer. ‘EDSM: GEEN ANTWOORD’ betekent een netwerk-, HTTP- of timeoutfout of ongeldig antwoord, nooit een bevestigde afwezigheid van een treffer. EDSM-bekendheid is geen officiële ontdekking in Elite; namen van eerste ontdekkers of melders worden niet beloofd. De melding werkt onafhankelijk van navigatie- en vracht-HUD.
+
+- De bezoekgeschiedenis verwerkt Location, FSDJump en CarrierJump ook tijdens live journalupdates. Meerdere locatiegebeurtenissen tijdens één ononderbroken verblijf tellen als één bezoek: A → A → A telt eenmaal. Een echte terugkeer blijft behouden: A → B → C → A telt vier bezoeken.
+
+- Na je eigen voltooide DSS-kartering worden het karteringstijdstip, gebruikte sondes en efficiëntiedoel betrouwbaar opgeslagen. Latere scans laten bestaande gegevens niet meer verloren gaan.
+
+- Het vrachtvenster past zijn hoogte automatisch aan de inhoud aan. Bij veel regels blijft de hoogte begrensd en kan de tabel scrollen; je gekozen breedte en vensterpositie blijven behouden. De bestaande schakelaar ‘Vracht-HUD’ staat nu onder ‘automatisch tonen’, zonder extra schakelaar in het vrachtvenster.
+
+- Voor bestaande installaties volstaat normaal: update installeren → CMDRHelper starten. Noodzakelijke historische correcties voor BIO-gegevens, bezoeken en DSS-metadata lopen automatisch; vóór gegevensherstel met schrijfacties wordt een databaseback-up gemaakt. Reparaties hebben versies en zijn idempotent: geslaagde revisies worden niet bij elke start opnieuw volledig uitgevoerd. Reconstructie vereist Elite-journals die nog bestaan, leesbaar zijn en eenduidig aan een commander kunnen worden gekoppeld. Ontbrekende bronnen worden niet verzonnen of als succes behandeld; open reparaties worden bij de volgende start opnieuw geprobeerd. De database wissen, handmatige scripts en herimport zijn normaal niet nodig.
+
 ## Explorer
 
 De Explorer toont het huidige systeem in drie weergaven:
 
 - **Systeemkaart:** grafische weergave van bekende sterren, planeten en manen. Klik op een hemellichaam om de details te openen. ‘Alles tonen’ opent het systeemoverzicht.
-- **Waardelijst:** scan- en cartografiewaarden van bekende hemellichamen, al behaalde waarde en mogelijke totale opbrengst. Markeringen helpen terraformingskandidaten, mogelijke eerste ontdekkingen en eerste karteringen te herkennen.
-- **BIO / GEO / MIJNBOUW:** biologische en geologische signalen, planetaire mijnbouwlocaties en aangetoonde persoonlijke vondsten.
+- **Waardelijst:** De waardelijst toont schattingen op basis van de opgeslagen scan, geen gegarandeerde openstaande uitbetalingen. Eerste bonussen blijven onbevestigd. Tooltips in kaart en lijst en de lichaamsdetails gebruiken dezelfde tijdgebonden toestanden.
+- **BIO / GEO / ABBAU:** biologische en geologische signalen, planetaire mijnbouwlocaties en aangetoonde persoonlijke vondsten.
 
 De analyses onderscheiden gemelde signalen van daadwerkelijke eigen vondsten. **BIO ×N** is het gemelde aantal signalen, geen bevestiging van volledig geanalyseerde soorten. **MIJNBOUW ×N** telt planetaire mijnbouwlocaties zonder hun afzonderlijke grondstoffen te onthullen. Zelf gewonnen handelswaren, tijdens mijnbouw verzamelde bijmaterialen en de algemene materiaalsamenstelling van een hemellichaam blijven gescheiden.
 

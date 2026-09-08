@@ -1,4 +1,4 @@
-# CMDRHelper V3 (3.0)
+# CMDRHelper
 
 [🇩🇪 Deutsch](README_DE.md) \| [🇬🇧 English](README.md) \| [🇫🇷
 Français](README_FR.md) \| [🇮🇹 Italiano](README_IT.md) \| [🇳🇴
@@ -13,13 +13,29 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper är ett fristående skrivbordsprogram som analyserar de lokala Elite Dangerous-journalerna och använder planetära positionsdata från `Status.json`. Det hjälper dig att hitta intressanta himlakroppar, återvända till sparade platser och följa dina resor och fynd. Personliga data bevaras efter omstart och hålls åtskilda per befälhavare.
 
+## Nytt i v3.1 jämfört med v3.0.3
+
+- BIO-förloppet är kompakt: 1/3 gult, 2/3 blått och 3/3 grönt; det slutförda tillståndet ”Klart” är också grönt. Under ”visa automatiskt” har GEO en egen sparad omkopplare: enbart BIO, enbart GEO eller båda tillsammans. Manuellt justerade kolumnbredder i den gemensamma Explorer-tabellen BIO / GEO / ABBAU bevaras när fönstret öppnas igen och efter omstart. Sparade kolumnbredder i popupfönster återställs robustare; ogiltiga värden ersätts med säkra standardbredder.
+
+- Upptäckt och kartläggning skiljs åt och gäller ditt skanningstillfälle: ”Redan upptäckt vid din skanning” och ”Redan kartlagd vid din skanning”. Saknade uppgifter förblir Okända. First Discovery- och First Mapping-kandidater gäller bara vid skanningen; ett historiskt Nej bevisar inte att himlakroppen fortfarande är oupptäckt eller okartlagd i dag. Din egen kartläggning bekräftar ingen officiell förstakartläggning. EDSM-kännedom hålls separat.
+
+- ”EDSM-status-HUD” under ”visa automatiskt” är AV som standard. Efter ankomst till ett system visas ett kort meddelande över Elite i cirka 2,5 sekunder. ”EDSM: KÄNT” betyder en giltig EDSM-träff för systemet. ”EDSM: OKÄNT” betyder ett giltigt EDSM-svar utan systemträff. ”EDSM: INGET SVAR” betyder nätverksfel, HTTP-fel, timeout eller ogiltigt svar, aldrig en bekräftad avsaknad av träff. Kännedom i EDSM är inte samma sak som officiell upptäckt i Elite; namn på första upptäckare eller rapportör utlovas inte. Meddelandet fungerar oberoende av navigations- och last-HUD.
+
+- Besökshistoriken tar med Location, FSDJump och CarrierJump även vid löpande journaluppdatering. Flera platshändelser under en sammanhängande vistelse räknas som ett besök: A → A → A räknas en gång. En verklig återkomst bevaras: A → B → C → A räknas som fyra besök.
+
+- Slutförd egen DSS-kartläggning sparar nu tillförlitligt tidpunkten, använda sonder och effektivitetsmålet. Senare skanningar gör inte längre att befintliga uppgifter förloras.
+
+- Lastfönstret anpassar automatiskt höjden efter innehållet. Vid många poster begränsas höjden och tabellen kan rullas; vald bredd och fönsterposition bevaras. Den befintliga omkopplaren ”Lastutrymmets HUD” finns nu under ”visa automatiskt”, utan en extra omkopplare i lastfönstret.
+
+- För befintliga installationer räcker normalt: installera uppdateringen → starta CMDRHelper. Nödvändiga historiska rättelser av BIO-data, besök och DSS-metadata körs automatiskt; databasen säkerhetskopieras före reparationer som skriver data. Reparationerna är versionsstyrda och idempotenta: lyckade revisioner körs inte om fullständigt vid varje start. Rekonstruktion kräver Elite-journaler som finns kvar, är läsbara och entydigt kan kopplas till en commander. Saknade källor hittas inte på eller räknas som framgång; öppna reparationer provas igen vid nästa start. Databasradering, manuella skript och ny import behövs normalt inte.
+
 ## Explorer
 
 Explorer visar det aktuella systemet i tre vyer:
 
 - **Systemkarta:** grafisk visning av kända stjärnor, planeter och månar. Klicka på en himlakropp för att öppna detaljerna. ”Visa alla” öppnar systemöversikten.
-- **Värdelista:** skannings- och kartläggningsvärden för kända himlakroppar, redan uppnått värde och möjlig totalpotential. Markeringar hjälper dig att identifiera terraformningskandidater, möjliga förstaupptäckter och förstakartläggningar.
-- **BIO / GEO / GRUVDRIFT:** biologiska och geologiska signaler, planetära gruvplatser och belagda personliga fynd.
+- **Värdelista:** Värdelistan visar uppskattningar utifrån den sparade skanningen, inte garanterade återstående utbetalningar. Förstabonuser förblir obekräftade. Verktygstips i karta och lista samt kroppsdetaljer använder samma tidsbestämda tillstånd.
+- **BIO / GEO / ABBAU:** biologiska och geologiska signaler, planetära gruvplatser och belagda personliga fynd.
 
 Analyserna skiljer rapporterade signaler från faktiska egna fynd. **BIO ×N** är det rapporterade antalet signaler, ingen bekräftelse på fullständigt analyserade arter. **GRUVDRIFT ×N** räknar planetära gruvplatser utan att avslöja deras enskilda råvaruinnehåll. Personligen utvunna handelsvaror, sekundära material insamlade vid gruvdrift och himlakroppens allmänna materialsammansättning hålls åtskilda.
 

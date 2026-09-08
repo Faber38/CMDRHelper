@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import math
 
+from cmdrhelper.exploration_status import exploration_status, journal_flag
+
 # Geschätzte Elite-Dangerous-Explorationswerte.
 # Die Werte bleiben absichtlich als Schätzung gekennzeichnet.
 #
@@ -123,9 +125,9 @@ def calculate_body_values(body: dict, correction_factor: float = 1.0) -> dict:
     correction_factor = min(2.0, max(0.5, correction_factor))
     base *= correction_factor
 
-    was_discovered = body.get("was_discovered")
-    was_mapped = body.get("was_mapped")
-    self_mapped = bool(body.get("self_mapped"))
+    was_discovered = journal_flag(body, "was_discovered")
+    was_mapped = journal_flag(body, "was_mapped")
+    self_mapped = exploration_status(body)["self_mapped"] is True
     efficient_mapping = bool(body.get("efficient_mapping"))
 
     # Scanwert

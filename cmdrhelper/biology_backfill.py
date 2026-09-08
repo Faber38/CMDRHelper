@@ -5,12 +5,11 @@ migrate the user's database. No journal offsets or sale inventories are changed.
 """
 from __future__ import annotations
 
-import json
 import sqlite3
 from contextlib import closing
-from datetime import datetime, timezone
 from pathlib import Path
 
+from cmdrhelper.backfill_support import committed_journals, create_repair_backup
 from cmdrhelper.database import _biology_from_event, _store_biology_rows
 
 
@@ -22,29 +21,12 @@ def plan_biology_backfill(con, commander_id, *, journals=None,
     if commander is None:
         raise ValueError("Commander does not exist")
     allowed = None if journals is None else {str(Path(p).resolve()) for p in journals}
-    sessions = con.execute("""SELECT journal_file,last_read_offset,
-        last_complete_line_offset,fully_imported FROM journal_sessions
-        WHERE commander_id=? AND attribution_status='identified'
-        ORDER BY journal_file""", (commander_id,)).fetchall()
     findings = {}
     checked = []
     ranks = {"log": 1, "sample": 2, "analyse": 3, "analyze": 3}
-    for filename, read_offset, complete_offset, fully_imported in sessions:
+    for filename, events in committed_journals(con, commander_id, allowed):
         if allowed is not None and str(Path(filename).resolve()) not in allowed:
             continue
-        limit = int(complete_offset if fully_imported else read_offset or 0)
-        if limit <= 0:
-            continue
-        # A missing, shortened or corrupt selected journal aborts the plan.
-        with Path(filename).open("rb") as handle:
-            raw = handle.read(limit)
-        if len(raw) != limit or not raw.endswith(b"\n"):
-            raise ValueError(f"Journal prefix is incomplete: {filename}")
-        events = [json.loads(line) for line in raw.splitlines() if line.strip()]
-        identities = {str(e["FID"]) for e in events
-                      if e.get("event") in ("Commander", "LoadGame") and e.get("FID")}
-        if identities != {str(commander[0])}:
-            raise ValueError(f"Journal identity does not match commander: {filename}")
         checked.append(filename)
         for event in events:
             # Do not infer body/system from flight context during a repair.
@@ -89,18 +71,7 @@ def backfill_biology(database, commander_id, *, apply=False, backup_path=None, *
             plan = plan_biology_backfill(con, commander_id, **scope)
             result = {**plan, "inserted": 0, "backup": None}
             if apply and plan["missing"]:
-                backup = Path(backup_path) if backup_path else path.with_name(
-                    path.name + ".pre-biology-" + datetime.now(timezone.utc).strftime(
-                        "%Y%m%dT%H%M%S%fZ") + ".bak")
-                # Refuse to overwrite any backup. A second read connection can
-                # back up the pre-write state while BEGIN IMMEDIATE excludes writers.
-                with backup.open("xb"):
-                    pass
-                with closing(sqlite3.connect(path.as_uri() + "?mode=ro", uri=True)) as source:
-                    with closing(sqlite3.connect(backup)) as dest:
-                        source.backup(dest)
-                        if dest.execute("PRAGMA quick_check").fetchall() != [("ok",)]:
-                            raise ValueError("Backup integrity check failed")
+                backup = create_repair_backup(path, 'biology', backup_path)
                 result["backup"] = str(backup)
                 result["inserted"] = _store_biology_rows(con, plan["missing"], missing_only=True)
             con.commit()

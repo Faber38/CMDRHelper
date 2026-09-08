@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from cmdrhelper.exploration_status import exploration_status, journal_flag, status_tooltip
+
 from datetime import datetime
 from pathlib import Path
 import os
@@ -15,6 +17,7 @@ from cmdrhelper.ui.screenshot_view import ScreenshotView
 from cmdrhelper.ui.commander_view import CommanderView
 from cmdrhelper.ui.startup_progress import StartupProgressDialog
 from cmdrhelper.ui.cargo_hud import cargo_hud_enabled, cargo_hud_data
+from cmdrhelper.ui.table_widths import persist_column_widths
 from cmdrhelper.ui.help_dialog import HelpDialog
 from cmdrhelper.route_planner import RoutePlannerView
 from cmdrhelper.online_services import (
@@ -764,15 +767,10 @@ class ExplorerLiveListWindow(QDialog):
             if column < self.table.columnCount():
                 self.table.setColumnWidth(column, width)
 
-        self._header_state_key = f"{self.geometry_key}_header_state"
-        saved_header_state = self.settings.value(self._header_state_key)
-        if saved_header_state is not None:
-            try:
-                header.restoreState(saved_header_state)
-            except Exception:
-                pass
-
-        header.sectionResized.connect(self._save_header_state)
+        persist_column_widths(
+            self.table, self.settings, f"{self.geometry_key}_column_widths",
+            legacy_key=f"{self.geometry_key}_header_state",
+        )
 
         root.addWidget(self.table, 1)
 
@@ -787,13 +785,16 @@ class ExplorerLiveListWindow(QDialog):
                 background: transparent;
             }
             QTableWidget {
+                color: #f1f3f5;
                 background-color: #151012;
                 alternate-background-color: #1d1417;
                 gridline-color: #493038;
                 border: 1px solid #493038;
                 selection-background-color: #50313a;
             }
+            QHeaderView { color: #aeb5bc; }
             QHeaderView::section {
+                color: #aeb5bc;
                 background-color: #24171b;
                 border: 0;
                 border-right: 1px solid #493038;
@@ -815,16 +816,6 @@ class ExplorerLiveListWindow(QDialog):
 
     def _save_geometry(self):
         self.settings.setValue(self.geometry_key, self.saveGeometry())
-        self.settings.sync()
-
-    def _save_header_state(self, logical_index, old_size, new_size):
-        if not hasattr(self, "table") or not hasattr(self, "_header_state_key"):
-            return
-
-        self.settings.setValue(
-            self._header_state_key,
-            self.table.horizontalHeader().saveState(),
-        )
         self.settings.sync()
 
     @staticmethod
@@ -1004,11 +995,7 @@ class ExplorerLiveListWindow(QDialog):
                                 known=known_count,
                                 total=total_count,
                             ),
-                            "progress": tr(
-                                "explorer.complete_ratio",
-                                completed=completed_count,
-                                total=total_count,
-                            ),
+                            "progress": tr("explorer.scan_done"),
                             "value": (
                                 MainWindow._format_reward(known_value)
                                 if known_value > 0
@@ -1045,17 +1032,11 @@ class ExplorerLiveListWindow(QDialog):
                     if scan_key == "geo":
                         step_text = "–"
                     elif scan_key in ("analyse", "analyze"):
-                        step_text = tr("bio_prediction.found")
+                        step_text = f"3/3 · {tr('explorer.scan_done')}"
                     elif scan_key == "sample":
-                        step_text = (
-                            f"{tr('bio_prediction.identified')} · "
-                            f"{tr('explorer.sample_two')}"
-                        )
+                        step_text = "2/3"
                     elif scan_key == "log":
-                        step_text = (
-                            f"{tr('bio_prediction.identified')} · "
-                            f"{tr('explorer.sample_one')}"
-                        )
+                        step_text = "1/3"
                     else:
                         step_text = tr("explorer.dss_detected")
 
@@ -1167,9 +1148,9 @@ class ExplorerLiveListWindow(QDialog):
                     elif scan_key in ("analyse", "analyze"):
                         color = "#65d067"
                     elif scan_key == "sample":
-                        color = "#ffb000"
+                        color = "#68c7ff"
                     elif scan_key == "log":
-                        color = "#f1f3f5"
+                        color = "#ffb000"
                     elif scan_key == "prediction_high":
                         color = "#65d067"
                     elif scan_key == "prediction_medium":
@@ -1179,6 +1160,8 @@ class ExplorerLiveListWindow(QDialog):
                     else:
                         color = "#8e969e"
 
+                    if scan_key in ("log", "sample", "analyse", "analyze"):
+                        progress_item.setForeground(QColor(color))
                     from html import escape
 
                     if value_kind:
@@ -1239,7 +1222,6 @@ class ExplorerLiveListWindow(QDialog):
 
 class CargoLiveWindow(QDialog):
     """Compact movable view of the last authoritative live Cargo snapshot."""
-    hud_enabled_changed = Signal(bool)
 
     def __init__(self, settings, parent=None):
         super().__init__(parent)
@@ -1248,7 +1230,7 @@ class CargoLiveWindow(QDialog):
         self.setWindowFlags(self.windowFlags() | Qt.Window)
         self.setAttribute(Qt.WA_ShowWithoutActivating, True)
         self.resize(360, 300)
-        self.setMinimumSize(300, 190)
+        self.setMinimumSize(300, 100)
 
         root = QVBoxLayout(self)
         root.setContentsMargins(8, 8, 8, 8)
@@ -1275,14 +1257,6 @@ class CargoLiveWindow(QDialog):
         self.table.setShowGrid(False)
         root.addWidget(self.title_label)
         root.addWidget(self.summary_label)
-        self.hud_enabled_check = QCheckBox(tr("cargo.hud.enabled"))
-        # The existing cargo dialog keeps its dark panel in both app themes.
-        self.hud_enabled_check.setStyleSheet(
-            "font-size: 11px; color: #b6afb1; background: transparent;"
-        )
-        self.hud_enabled_check.setChecked(cargo_hud_enabled(self.settings))
-        self.hud_enabled_check.toggled.connect(self._set_hud_enabled)
-        root.addWidget(self.hud_enabled_check)
         root.addWidget(self.table, 1)
         self.fill_bar = QProgressBar(objectName="cargoFill")
         self.fill_bar.setRange(0, 100)
@@ -1296,11 +1270,14 @@ class CargoLiveWindow(QDialog):
             QDialog { background-color: #171012; }
             QLabel { background: transparent; }
             QTableWidget {
+                color: #f1f3f5;
                 background-color: #151012;
                 alternate-background-color: #1d1417;
                 border: 1px solid #493038;
             }
+            QHeaderView { color: #aeb5bc; }
             QHeaderView::section {
+                color: #aeb5bc;
                 background-color: #25191d;
                 border: 0;
                 border-bottom: 1px solid #493038;
@@ -1314,11 +1291,6 @@ class CargoLiveWindow(QDialog):
                 self.restoreGeometry(geometry)
             except Exception:
                 pass
-
-    def _set_hud_enabled(self, enabled):
-        self.settings.setValue("cargo_hud/enabled", bool(enabled))
-        self.settings.sync()
-        self.hud_enabled_changed.emit(bool(enabled))
 
     def _save_geometry(self):
         self.settings.setValue(self.geometry_key, self.saveGeometry())
@@ -1370,6 +1342,7 @@ class CargoLiveWindow(QDialog):
         self.fill_bar.setValue(max(0, min(100, percent)))
         self.fill_bar.setVisible(show_fill)
 
+        self.table.clearSpans()
         self.table.setRowCount(0)
         inventory = list(snapshot.get("inventory") or [])
         commodities = [item for item in inventory if not item.get("is_drones")]
@@ -1380,6 +1353,7 @@ class CargoLiveWindow(QDialog):
             empty_item.setFlags(empty_item.flags() & ~Qt.ItemFlag.ItemIsSelectable)
             self.table.setItem(0, 0, empty_item)
             self.table.setSpan(0, 0, 1, 2)
+            self._fit_content_height()
             return
         rows = commodities + drones
         self.table.setRowCount(len(rows))
@@ -1411,6 +1385,26 @@ class CargoLiveWindow(QDialog):
                     self.table.setRowHeight(row, self.table.rowHeight(row) + 5)
             self.table.setItem(row, 0, name_item)
             self.table.setItem(row, 1, count_item)
+        self._fit_content_height()
+
+    def _fit_content_height(self):
+        self.ensurePolished()
+        layout = self.layout()
+        layout.activate()
+        margins = layout.contentsMargins()
+        table_height = (self.table.horizontalHeader().sizeHint().height()
+                        + sum(self.table.rowHeight(i) for i in range(self.table.rowCount()))
+                        + 2 * self.table.frameWidth())
+        if self.table.horizontalScrollBar().isVisible():
+            table_height += self.table.horizontalScrollBar().sizeHint().height()
+        overhead = (margins.top() + margins.bottom()
+                    + self.title_label.sizeHint().height()
+                    + self.summary_label.sizeHint().height()
+                    + layout.spacing() * (3 if not self.fill_bar.isHidden() else 2)
+                    + (8 if not self.fill_bar.isHidden() else 0))
+        screen = self.screen()
+        maximum = min(560, int(screen.availableGeometry().height() * 0.7)) if screen else 560
+        self.resize(self.width(), max(self.minimumHeight(), min(maximum, overhead + table_height)))
 
 
 class MainWindow(QMainWindow):
@@ -1456,6 +1450,16 @@ class MainWindow(QMainWindow):
         self._planet_navigation_window = None
         self._planet_navigation_controller = None
         self._navigation_hud = None
+        from cmdrhelper.edsm_system_status import EdsmSystemStatus
+        self._edsm_system_status = EdsmSystemStatus(self.state.settings, self)
+        self._edsm_system_status.notice.connect(self._show_edsm_status)
+        self._edsm_system_status.cleared.connect(self._clear_edsm_status)
+        if hasattr(self.state, "journalPositionsReady"):
+            self.state.journalPositionsReady.connect(self._edsm_system_status.observe)
+        if hasattr(self.state, "commanderIdentityChanged"):
+            self.state.commanderIdentityChanged.connect(
+                lambda _id, fid, _name: self._edsm_system_status.observe([], fid)
+            )
         from cmdrhelper.global_hotkey import GlobalHotkey
         self._quick_favorite_hotkey = GlobalHotkey(self.state.settings, self)
         self._quick_favorite_hotkey.activated.connect(self._save_quick_favorite)
@@ -1663,6 +1667,19 @@ class MainWindow(QMainWindow):
             lambda checked: self._set_explorer_live_window_enabled("bio", checked)
         )
         live_layout.addWidget(self.explorer_bio_live_enabled_check)
+        # Preserve the old combined popup's on/off state once, then keep
+        # BIO and GEO independent. An existing disabled popup must stay off.
+        if self.state.settings.value("explorer_live/geo_enabled") is None:
+            self.state.settings.setValue(
+                "explorer_live/geo_enabled", self._explorer_live_window_enabled("bio")
+            )
+            self.state.settings.sync()
+        self.explorer_geo_live_enabled_check = QCheckBox(tr("settings.explorer_geo_live_window"))
+        self.explorer_geo_live_enabled_check.setChecked(self._explorer_live_window_enabled("geo"))
+        self.explorer_geo_live_enabled_check.toggled.connect(
+            lambda checked: self._set_explorer_live_window_enabled("geo", checked)
+        )
+        live_layout.addWidget(self.explorer_geo_live_enabled_check)
 
         self.cargo_live_enabled_check = QCheckBox(
             tr("settings.cargo_live_window")
@@ -1677,6 +1694,15 @@ class MainWindow(QMainWindow):
             self._set_cargo_live_window_enabled
         )
         live_layout.addWidget(self.cargo_live_enabled_check)
+        self.cargo_hud_enabled_check = QCheckBox(tr("settings.cargo_hud"))
+        self.cargo_hud_enabled_check.setChecked(cargo_hud_enabled(self.state.settings))
+        self.cargo_hud_enabled_check.toggled.connect(self._set_cargo_hud_enabled)
+        live_layout.addWidget(self.cargo_hud_enabled_check)
+
+        self.edsm_system_status_check = QCheckBox(tr("settings.edsm_system_status"))
+        self.edsm_system_status_check.setChecked(self._edsm_system_status.active)
+        self.edsm_system_status_check.toggled.connect(self._edsm_system_status.set_enabled)
+        live_layout.addWidget(self.edsm_system_status_check)
 
         self.navigation_hud_enabled_check = QCheckBox(tr("settings.navigation_hud"))
         self.navigation_hud_enabled_check.setChecked(self._navigation_hud_enabled())
@@ -2053,6 +2079,7 @@ class MainWindow(QMainWindow):
             )
             item.setTextFormat(Qt.RichText)
             item.setWordWrap(True)
+            item.setToolTip(tr("exploration.historical_notice") + "\n" + tr("exploration.value_estimate"))
 
             if str(text).startswith(tr("explorer.gold_frame_prefix")):
                 self.gold_frame_legend_label = item
@@ -2087,7 +2114,7 @@ class MainWindow(QMainWindow):
                 tr("explorer.col_distance"),
                 tr("explorer.col_scan_value"),
                 tr("explorer.col_current_value"),
-                "Möglicher Wert",
+                tr("body_detail.with_mapping"),
                 tr("explorer.col_mapping"),
                 tr("explorer.col_status"),
             ]
@@ -2155,6 +2182,9 @@ class MainWindow(QMainWindow):
         self.explorer_bio_table.setColumnWidth(7, 100)
         self.explorer_bio_table.setColumnWidth(8, 95)
         self.explorer_bio_table.setColumnWidth(9, 110)
+        persist_column_widths(
+            self.explorer_bio_table, self.state.settings, "explorer/bio_geo_mining_column_widths"
+        )
 
         self.explorer_tabs.addTab(
             self.explorer_bio_table,
@@ -2513,7 +2543,7 @@ class MainWindow(QMainWindow):
         bodies = list(getattr(self.state, "system_bodies", None) or [])
 
         # Sterne und Belt Cluster sind für die gewünschte Wertliste nicht
-        # relevant. Planeten und Monde nach dem noch erreichbaren Wert
+        # relevant. Planeten und Monde nach dem geschätzten Kartographiewert
         # absteigend, damit lohnende DSS-Ziele oben stehen.
         value_bodies = [
             body
@@ -2533,10 +2563,10 @@ class MainWindow(QMainWindow):
 
         for row, body in enumerate(value_bodies):
             visited = self._explorer_body_visited(body)
-            self_mapped = bool(body.get("self_mapped"))
+            self_mapped = exploration_status(body)["self_mapped"] is True
             current_value = int(body.get("current_value") or 0)
 
-            was_mapped = body.get("was_mapped")
+            was_mapped = journal_flag(body, "was_mapped")
 
             # Frontier liefert WasMapped beim Scan als Zustand VOR unserer
             # eigenen DSS-Kartierung. self_mapped zeigt dagegen, dass wir
@@ -2559,7 +2589,7 @@ class MainWindow(QMainWindow):
                     else tr("explorer.first_mapping_possible")
                 )
             else:
-                mapping_text = "–"
+                mapping_text = tr("common.unknown")
                 status = (
                     tr("explorer.scanned") if visited else tr("explorer.not_scanned")
                 )
@@ -2587,17 +2617,18 @@ class MainWindow(QMainWindow):
             for col, value in enumerate(values):
                 item = QTableWidgetItem(str(value))
                 item.setData(Qt.UserRole, body)
+                item.setToolTip(status_tooltip(body))
 
                 # Zahlenwerte auch intern numerisch hinterlegen.
                 if col == 4:
                     item.setData(Qt.UserRole + 1, current_value)
 
-                # Grün bleibt der aktuell bereits erreichte Wert.
-                # Der einstellbare Schwellenwert bewertet dagegen ab jetzt
-                # den noch erreichbaren Kartographiewert.
+                # Grün zeigt die Schätzung nach eigenem Scan-/Mappingstand.
+                # Der Schwellenwert bewertet die Kartographieschätzung,
+                # nicht einen bestätigten offenen Verkaufserlös.
                 if col == 4:
                     item.setForeground(QColor("#65d067"))
-                    item.setToolTip(tr("explorer.current_value_tooltip"))
+                    item.setToolTip(status_tooltip(body) + "\n" + tr("exploration.value_estimate"))
                 elif col == 5:
                     yellow_threshold = self._explorer_value_yellow_threshold()
 
@@ -2608,8 +2639,7 @@ class MainWindow(QMainWindow):
 
                     item.setData(Qt.UserRole + 1, possible_value)
                     item.setToolTip(
-                        "Noch erreichbarer Wert: mit Effizienzbonus / "
-                        "ohne Effizienzbonus"
+                        status_tooltip(body) + "\n" + tr("exploration.value_estimate")
                     )
                 elif col == 6:
                     if self_mapped:
@@ -2832,12 +2862,12 @@ class MainWindow(QMainWindow):
 
             if body.get("self_mapped"):
                 mapping = tr("explorer.self_mapped")
-            elif body.get("was_mapped") is True:
+            elif journal_flag(body, "was_mapped") is True:
                 mapping = tr("explorer.already_mapped")
-            elif body.get("was_mapped") is False:
+            elif journal_flag(body, "was_mapped") is False:
                 mapping = tr("explorer.first_mapping_possible")
             else:
-                mapping = "–"
+                mapping = tr("common.unknown")
 
             valuable_rows.append(
                 (
@@ -3070,6 +3100,20 @@ class MainWindow(QMainWindow):
                 }
             )
 
+        bio_enabled = self._explorer_live_window_enabled("bio")
+        geo_enabled = self._explorer_live_window_enabled("geo")
+        filtered_rows = []
+        for row in bio_rows:
+            row = dict(row)
+            if not geo_enabled:
+                row["geo_signals"] = 0
+                row["geo_text"] = "–"
+            if not bio_enabled:
+                row.update(signals=0, species=[], predictions=[], prediction_values={},
+                           identified_count=0, completed_count=0, open_signals=0, known_value=0)
+            if row["signals"] > 0 or row["geo_signals"] > 0:
+                filtered_rows.append(row)
+        bio_rows = filtered_rows
         self._ensure_explorer_live_windows()
 
         self._explorer_value_live_window.set_rows(system_name, valuable_rows)
@@ -3084,7 +3128,7 @@ class MainWindow(QMainWindow):
         elif self._explorer_value_live_window.isVisible():
             self._explorer_value_live_window.hide()
 
-        if bio_live_enabled and bio_rows:
+        if (bio_live_enabled or geo_enabled) and bio_rows:
             if not self._explorer_bio_live_window.isVisible():
                 self._explorer_bio_live_window.show()
         elif self._explorer_bio_live_window.isVisible():
@@ -3103,6 +3147,16 @@ class MainWindow(QMainWindow):
             self._navigation_hud.cargo_provider = lambda: cargo_hud_data(self.state)
             QApplication.instance().aboutToQuit.connect(self._navigation_hud.close)
         return self._navigation_hud
+
+    def _show_edsm_status(self, lines):
+        try:
+            self._ensure_navigation_hud().show_message(lines, 2500, channel="edsm")
+        except (RuntimeError, OSError, ValueError) as exc:
+            logging.getLogger(__name__).warning("EDSM status overlay unavailable: %s", exc)
+
+    def _clear_edsm_status(self):
+        if self._navigation_hud is not None:
+            self._navigation_hud.clear_message(channel="edsm")
 
     def _quick_favorite_message(self, lines):
         try:
@@ -5712,43 +5766,23 @@ class MainWindow(QMainWindow):
             self._chronicle_system_window.system_map.set_light_mode(theme == "light")
 
     def _explorer_live_window_enabled(self, window_kind):
-        key = (
-            "explorer_live/bio_enabled"
-            if str(window_kind) == "bio"
-            else "explorer_live/value_enabled"
-        )
-        value = self.state.settings.value(key, True)
-
+        kind = str(window_kind) if str(window_kind) in ("bio", "geo") else "value"
+        value = self.state.settings.value(f"explorer_live/{kind}_enabled", True)
         if isinstance(value, str):
             return value.strip().lower() not in ("0", "false", "no", "off")
-
         return bool(value)
 
     def _set_explorer_live_window_enabled(self, window_kind, enabled):
-        window_kind = "bio" if str(window_kind) == "bio" else "value"
-        enabled = bool(enabled)
-
-        key = (
-            "explorer_live/bio_enabled"
-            if window_kind == "bio"
-            else "explorer_live/value_enabled"
-        )
-        self.state.settings.setValue(key, enabled)
+        kind = str(window_kind) if str(window_kind) in ("bio", "geo") else "value"
+        self.state.settings.setValue(f"explorer_live/{kind}_enabled", bool(enabled))
         self.state.settings.sync()
-
-        window = (
-            self._explorer_bio_live_window
-            if window_kind == "bio"
-            else self._explorer_value_live_window
-        )
-
-        if not enabled and window is not None:
-            window.hide()
-
-        # Beim Einschalten sofort anhand der bereits bekannten Daten prüfen,
-        # ob das betreffende Fenster angezeigt werden soll.
-        if enabled and hasattr(self, "explorer_value_table"):
+        if hasattr(self, "explorer_value_table"):
             self._refresh_explorer_live_windows()
+
+    def _set_cargo_hud_enabled(self, enabled):
+        self.state.settings.setValue("cargo_hud/enabled", bool(enabled))
+        self.state.settings.sync()
+        self._apply_cargo_hud_enabled()
 
     def _cargo_live_window_enabled(self):
         value = self.state.settings.value("cargo_live/enabled", False)
@@ -5786,7 +5820,6 @@ class MainWindow(QMainWindow):
             self._cargo_live_window = CargoLiveWindow(
                 self.state.settings, parent=self
             )
-            self._cargo_live_window.hud_enabled_changed.connect(self._apply_cargo_hud_enabled)
         self._cargo_live_window.set_snapshot(snapshot)
         if not self._cargo_live_window.isVisible():
             self._cargo_live_window.show()
@@ -5831,9 +5864,8 @@ class MainWindow(QMainWindow):
         Verknüpft den Goldrahmen der Systemkarte mit demselben
         benutzerdefinierten Schwellenwert wie die Explorer-Wertliste.
 
-        Maßgeblich ist der noch erreichbare Kartographiewert des Körpers.
-        Ist der Körper bereits von uns kartiert, zählt der tatsächlich
-        erreichte und noch auszuzahlende Wert.
+        Maßgeblich ist die Kartographieschätzung nach gespeichertem Scanstand.
+        Der Rahmen bestätigt weder Erstansprüche noch unverkaufte Daten.
         """
         threshold = self._explorer_value_yellow_threshold()
 

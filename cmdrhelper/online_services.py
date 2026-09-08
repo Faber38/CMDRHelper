@@ -14,18 +14,22 @@ from cmdrhelper.body_classes import canonical_body_classes
 
 
 EDSM_RANKS_URL = "https://www.edsm.net/api-commander-v1/get-ranks"
+EDSM_SYSTEM_URL = "https://www.edsm.net/api-v1/system"
 EDSM_BODIES_URL = "https://www.edsm.net/api-system-v1/bodies"
 EDSM_CACHE_MAX_AGE = timedelta(hours=24)
 INARA_API_URL = "https://inara.cz/inapi/v1/"
 
 
-def _read_json_response(response) -> dict:
+def _read_json_response(response, *, allow_empty_list=False) -> dict:
     raw = response.read().decode("utf-8", errors="replace")
 
     if not raw.strip():
         raise ValueError("Der Server hat keine Daten zurückgegeben.")
 
     data = json.loads(raw)
+
+    if allow_empty_list and data == []:
+        return {}
 
     if not isinstance(data, dict):
         raise ValueError("Der Server hat ein unerwartetes Datenformat geliefert.")
@@ -463,19 +467,9 @@ def _normalize_edsm_body(
             body.get("isLandable", False)
         ),
         "terraformable": terraformable,
-        # Sobald EDSM den Körper kennt, ist eine Erstentdeckung
-        # für CMDRHelper nicht mehr als "möglich" zu markieren.
-        "was_discovered": True,
-        # Falls EDSM einen Mapping-Status liefert, behalten wir ihn.
-        "was_mapped": (
-            bool(body.get("isMapped"))
-            if body.get("isMapped") is not None
-            else (
-                bool(body.get("wasMapped"))
-                if body.get("wasMapped") is not None
-                else None
-            )
-        ),
+        # External metadata is not an observation from this commander's Scan.
+        "was_discovered": None,
+        "was_mapped": None,
         "atmosphere": (
             body.get("atmosphereType")
             or ""
@@ -514,27 +508,8 @@ def fetch_edsm_bodies(
     if cached is not None:
         return True, cached, "cache"
 
-    query = urlencode(
-        {
-            "systemName": system_name,
-        }
-    )
-
-    request = Request(
-        f"{EDSM_BODIES_URL}?{query}",
-        headers={
-            "User-Agent": "CMDRHelper/0.1.8.10",
-            "Accept": "application/json",
-        },
-        method="GET",
-    )
-
     try:
-        with urlopen(
-            request,
-            timeout=timeout
-        ) as response:
-            raw = _read_json_response(response)
+        raw = _fetch_edsm_json(EDSM_BODIES_URL, {"systemName": system_name}, timeout)
 
     except HTTPError as exc:
         return (
@@ -613,3 +588,43 @@ def fetch_edsm_bodies(
         pass
 
     return True, data, "network"
+
+
+def _fetch_edsm_json(url, parameters, timeout, *, allow_empty_list=False):
+    """Shared EDSM GET transport; HTTP/network/JSON failures remain exceptions."""
+    request = Request(
+        f"{url}?{urlencode(parameters)}",
+        headers={"User-Agent": "CMDRHelper/0.1.8.10", "Accept": "application/json"},
+        method="GET",
+    )
+    with urlopen(request, timeout=timeout) as response:
+        return _read_json_response(response, allow_empty_list=allow_empty_list)
+
+
+def fetch_edsm_system_status(system_name, system_address=None, timeout=8):
+    """Return known/unknown/no_response; never use the normalized bodies cache.
+
+    api-v1/system returns an empty JSON object/array for no matching system.
+    Empty HTTP bodies, malformed JSON, error objects and identity mismatches
+    are technical failures. No negative results or errors are cached.
+    This endpoint has no documented system-level first reporter; body discovery
+    records and arbitrary commander fields must not be presented as one.
+    """
+    name = str(system_name or "").strip()
+    if not name:
+        return "no_response"
+    try:
+        data = _fetch_edsm_json(EDSM_SYSTEM_URL, {"systemName": name, "showId": 1},
+                                timeout, allow_empty_list=True)
+        if data == {}:
+            return "unknown"
+        if (not isinstance(data.get("id"), int) or isinstance(data["id"], bool)
+                or data["id"] <= 0 or not isinstance(data.get("name"), str)
+                or data["name"].strip().casefold() != name.casefold()
+                or "error" in data or "msgnum" in data):
+            return "no_response"
+        if system_address is not None and "id64" in data and data["id64"] != system_address:
+            return "no_response"
+        return "known"
+    except Exception:
+        return "no_response"

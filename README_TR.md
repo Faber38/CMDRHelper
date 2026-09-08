@@ -1,4 +1,4 @@
-# CMDRHelper V3 (3.0)
+# CMDRHelper
 
 [🇩🇪 Deutsch](README_DE.md) \| [🇬🇧 English](README.md) \| [🇫🇷
 Français](README_FR.md) \| [🇮🇹 Italiano](README_IT.md) \| [🇳🇴
@@ -14,13 +14,29 @@ pilotunuz](cmdrhelper/assets/readme/cmdrhelper_readme_tr.png)
 
 CMDRHelper, Elite Dangerous’ın yerel günlüklerini inceleyen ve `Status.json` dosyasındaki gezegen konum verilerini kullanan bağımsız bir masaüstü uygulamasıdır. İlginç gökcisimlerini belirlemene, kaydedilmiş yerlere dönmene ve yolculuklarınla bulgularını incelemene yardımcı olur. Kişisel veriler yeniden başlatmadan sonra korunur ve komutanlara göre ayrı tutulur.
 
+## v3.0.3 sürümüne göre v3.1 yenilikleri
+
+- BIO ilerlemesi kısa gösterilir: 1/3 sarı, 2/3 mavi ve 3/3 yeşil; tamamlanmış “Tamamlandı” durumu da yeşildir. “otomatik göster” altında GEO’nun ayrı kaydedilen anahtarı vardır: yalnız BIO, yalnız GEO veya ikisi birlikte kullanılabilir. Explorer’ın ortak BIO / GEO / ABBAU tablosunda elle ayarlanan sütun genişlikleri yeniden açılışta ve program yeniden başlatıldığında korunur. Açılır pencerelerin kayıtlı sütun genişlikleri daha sağlam geri yüklenir; geçersiz değerlerde güvenli varsayılan genişlikler kullanılır.
+
+- Keşif ve haritalama ayrıdır ve kendi tarama zamanına bağlıdır: “Taraman sırasında zaten keşfedilmiş” ve “Taraman sırasında zaten haritalanmış”. Eksik bilgi Bilinmiyor olarak kalır. First Discovery ve First Mapping adayları yalnızca tarama anı için geçerlidir; geçmişteki Hayır, gökcisminin bugün hâlâ keşfedilmemiş veya haritalanmamış olduğunu kanıtlamaz. Kendi haritalaman resmî ilk hakkı doğrulamaz. EDSM’de bilinme ayrı tutulur.
+
+- “otomatik göster” altındaki “EDSM durum HUD’u” varsayılan olarak KAPALIDIR. Bir sisteme girdikten sonra Elite üzerinde yaklaşık 2,5 saniyelik kısa bir mesaj görünür. “EDSM: BİLİNİYOR” sistem için geçerli bir EDSM eşleşmesi demektir. “EDSM: BİLİNMİYOR” sistem eşleşmesi içermeyen geçerli bir EDSM yanıtıdır. “EDSM: YANIT YOK” ağ, HTTP, zaman aşımı hatası veya geçersiz yanıt demektir; asla doğrulanmış eşleşme yokluğu değildir. EDSM’de bilinmek Elite’te resmî keşif ile aynı değildir; ilk kâşif veya ilk bildiren adları vaat edilmez. Mesaj, navigasyon ve kargo HUD’larından bağımsız çalışır.
+
+- Ziyaret geçmişi canlı günlük takibinde de Location, FSDJump ve CarrierJump olaylarını dikkate alır. Aynı kesintisiz kalıştaki birden çok konum olayı tek ziyaret sayılır: A → A → A bir kez sayılır. Gerçek bir dönüş korunur: A → B → C → A dört ziyaret sayılır.
+
+- Kendi DSS haritalaman tamamlandığında haritalama zamanı, kullanılan sondalar ve verimlilik hedefi artık güvenilir biçimde kaydedilir. Sonraki taramalar mevcut bilgilerin kaybolmasına yol açmaz.
+
+- Kargo penceresi yüksekliğini içeriğe göre otomatik ayarlar. Çok sayıda kayıtta yükseklik sınırlanır ve tablo kaydırılabilir; seçilen genişlik ve pencere konumu korunur. Mevcut “Kargo HUD” anahtarı artık “otomatik göster” altındadır; kargo penceresinde ikinci bir anahtar bulunmaz.
+
+- Mevcut kurulumlarda normalde şu yeterlidir: güncellemeyi yükle → CMDRHelper’ı başlat. BIO verileri, ziyaret geçmişi ve DSS üst verilerindeki gerekli geçmiş düzeltmeleri otomatik çalışır; veri yazan onarımlardan önce veritabanı yedeği alınır. Onarımlar sürümlüdür ve idempotenttir: başarılı revizyonlar her açılışta baştan sona yeniden çalıştırılmaz. Yeniden oluşturma için Elite günlükleri hâlâ mevcut, okunabilir ve tek bir commander’a kesin olarak atanabilir olmalıdır. Eksik kaynaklar uydurulmaz veya başarı sayılmaz; bekleyen onarımlar sonraki açılışta yeniden denenir. Normalde veritabanını silmek, elle betik çalıştırmak veya yeniden içe aktarmak gerekmez.
+
 ## Explorer
 
 Explorer mevcut sistemi üç görünümde gösterir:
 
 - **Sistem haritası:** bilinen yıldızların, gezegenlerin ve uyduların grafik gösterimi. Bir gökcismine tıklamak ayrıntılarını açar. “Tümünü göster” sistem genel görünümünü açar.
-- **Değer listesi:** bilinen gökcisimlerinin tarama ve haritalama değerleri, elde edilmiş değer ve olası toplam değer. İşaretler, dünyalaştırma adaylarını, olası ilk keşifleri ve ilk haritalamaları bulmayı kolaylaştırır.
-- **BIO / GEO / MADENCİLİK:** biyolojik ve jeolojik sinyaller, gezegen madencilik sahaları ve doğrulanmış kişisel bulgular.
+- **Değer listesi:** Değer listesi kayıtlı taramaya dayalı tahminler gösterir; henüz alınmamış garantili ödemeler değil. İlk hak bonusları doğrulanmamış kalır. Harita ve liste ipuçları ile gökcismi ayrıntıları aynı zamana bağlı durumları kullanır.
+- **BIO / GEO / ABBAU:** biyolojik ve jeolojik sinyaller, gezegen madencilik sahaları ve doğrulanmış kişisel bulgular.
 
 Analizler, bildirilen sinyalleri gerçek kişisel bulgulardan ayırır. **BIO ×N** bildirilen sinyal sayısıdır; tamamen analiz edilmiş türlerin onayı değildir. **MADENCİLİK ×N**, gezegen madencilik sahalarını sayar ancak her birinin ham madde içeriğini açıklamaz. Kişisel olarak çıkarılan ticari mallar, madencilik sırasında toplanan yan malzemeler ve gökcisminin genel malzeme bileşimi ayrı tutulur.
 

@@ -71,31 +71,11 @@ class CargoHudTests(unittest.TestCase):
             srv_type=vehicle, srv_capacity=capacity)
         self.status(vessel)
 
-    def test_default_off_and_real_checkbox_persistence(self):
-        window = CargoLiveWindow(self.settings)
-        self.addCleanup(window.close)
-        self.addCleanup(window.deleteLater)
+    def test_default_off_and_existing_setting_values(self):
         self.assertFalse(cargo_hud_enabled(self.settings))
-        self.assertFalse(window.hud_enabled_check.isChecked())
-        self.assertEqual(window.hud_enabled_check.text(), "Im Elite-HUD anzeigen")
-        changes = []
-        window.hud_enabled_changed.connect(changes.append)
-        window.hud_enabled_check.setChecked(True)
-        saved = QSettings(self.settings_path, QSettings.IniFormat)
-        restored = CargoLiveWindow(saved)
-        self.addCleanup(restored.close)
-        self.addCleanup(restored.deleteLater)
-        self.assertTrue(restored.hud_enabled_check.isChecked())
-        for vessel in ("Ship", "SRV", "Ship"):
-            restored.set_snapshot({"vessel": vessel, "count": 0, "capacity": 72})
-            self.assertTrue(restored.hud_enabled_check.isChecked())
-        restored.hud_enabled_check.setChecked(False)
-        saved.sync()
-        self.assertFalse(cargo_hud_enabled(QSettings(self.settings_path, QSettings.IniFormat)))
-        self.assertEqual(changes, [True])
         for value in (False, "false", "0", "off", "no"):
-            saved.setValue("cargo_hud/enabled", value)
-            self.assertFalse(cargo_hud_enabled(saved))
+            self.settings.setValue("cargo_hud/enabled", value)
+            self.assertFalse(cargo_hud_enabled(self.settings))
 
     def test_ship_and_known_srvs_use_own_names_and_capacities(self):
         self.cargo()
@@ -290,9 +270,9 @@ class CargoHudTests(unittest.TestCase):
         main._set_cargo_live_window_enabled(True)
         window = main._cargo_live_window
         self.addCleanup(window.close)
-        window.hud_enabled_check.setChecked(False)
+        main._set_cargo_hud_enabled(False)
         self.assertFalse(self.hud.isVisible())
-        window.hud_enabled_check.setChecked(True)
+        main._set_cargo_hud_enabled(True)
         self.assertTrue(self.hud.isVisible())
         main._set_cargo_live_window_enabled(False)
         self.assertTrue(self.hud.isVisible())

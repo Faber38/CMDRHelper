@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from cmdrhelper.mapping_metadata import apply_mapping_metadata
+
 import copy
 import json
 import platform
@@ -1715,6 +1717,7 @@ def read_latest_state(
                                 "parent_id", "parent_star_id", "radius_m",
                                 "surface_temperature", "surface_pressure",
                                 "atmosphere_composition",
+                                "mapped_at", "probes_used", "efficiency_target",
                             ):
                                 if body.get(field) in (None, ""):
                                     body[field] = previous.get(field)
@@ -1802,7 +1805,7 @@ def read_latest_state(
 
                         if body:
                             body["self_mapped"] = True
-                            body["mapped_at"] = ts
+                            apply_mapping_metadata(body, e)
 
                             probes_used = e.get("ProbesUsed")
                             efficiency_target = e.get("EfficiencyTarget")
@@ -1814,8 +1817,6 @@ def read_latest_state(
                                 body["efficient_mapping"] = (
                                     probes_used <= efficiency_target
                                 )
-                                body["probes_used"] = probes_used
-                                body["efficiency_target"] = efficiency_target
 
                             apply_values(body)
 

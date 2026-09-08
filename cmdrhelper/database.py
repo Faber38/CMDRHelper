@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from cmdrhelper.mapping_metadata import apply_mapping_metadata, mapping_metadata
+
 import sqlite3
 import logging
 import json
@@ -14,7 +16,7 @@ from cmdrhelper.ship_identity import is_definite_non_ship
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 15
+SCHEMA_VERSION = 16
 
 COMMANDER_STATE_REPAIR_REVISIONS = {
     "unsold": 2,
@@ -23,6 +25,9 @@ COMMANDER_STATE_REPAIR_REVISIONS = {
     "position_gap": 1,
     "mercenary_credits": 1,
     "body_scan_attributes": 1,
+    "biology_findings": 1,
+    "system_visits": 1,
+    "mapping_metadata": 1,
 }
 
 PERSONAL_TABLES = (
@@ -443,7 +448,33 @@ class CMDRDatabase:
         self._maybe_migrate_v13()
         self._maybe_migrate_v14()
         self._maybe_migrate_v15()
+        self._maybe_migrate_v16()
         self.cleanup_non_ship_fleet_rows()
+
+    def _maybe_migrate_v16(self):
+        with self._connect() as con:
+            con.execute("BEGIN IMMEDIATE")
+            if int(con.execute("PRAGMA user_version").fetchone()[0]) >= 16:
+                return
+            repair_columns = {row[1] for row in con.execute("PRAGMA table_info(commander_state_repairs)")}
+            for name, declaration in (
+                ("status", "TEXT NOT NULL DEFAULT 'complete'"),
+                ("attempted_revision", "INTEGER NOT NULL DEFAULT 0"),
+                ("last_attempt_at", "TEXT NOT NULL DEFAULT ''"),
+                ("last_error", "TEXT NOT NULL DEFAULT ''"),
+            ):
+                if name not in repair_columns:
+                    con.execute(f"ALTER TABLE commander_state_repairs ADD COLUMN {name} {declaration}")
+            session_columns = {row[1] for row in con.execute("PRAGMA table_info(journal_sessions)")}
+            if 'repair_read_offset' not in session_columns:
+                con.execute("ALTER TABLE journal_sessions ADD COLUMN repair_read_offset INTEGER NOT NULL DEFAULT 0")
+            if 'repair_commander_id' not in session_columns:
+                con.execute("ALTER TABLE journal_sessions ADD COLUMN repair_commander_id INTEGER")
+            con.execute("""UPDATE journal_sessions SET
+                repair_read_offset=MAX(repair_read_offset,COALESCE(last_read_offset,0),
+                    CASE WHEN fully_imported=1 THEN COALESCE(last_complete_line_offset,0) ELSE 0 END),
+                repair_commander_id=COALESCE(repair_commander_id,commander_id)""")
+            con.execute("PRAGMA user_version=16")
 
     def _maybe_migrate_v15(self):
         with self._connect() as con:
@@ -1696,6 +1727,7 @@ class CMDRDatabase:
                                       safe_offset: int, enqueue_inara=False) -> None:
         """Atomically applies explicit journal facts and commits their byte offset."""
         from cmdrhelper.bio_valuation import base_value
+        from cmdrhelper.system_visits import store_visit_rows, visit_row
         from cmdrhelper.journal_reader import (
             _loadout_from_event, _new_mission, _optional_int,
             _update_mission_event, sold_bio_names,
@@ -1747,6 +1779,7 @@ class CMDRDatabase:
         inara_context = {"system": current_system, "station": current_station,
                          "ship_type": ship.get("ship_type"), "ship_id": ship.get("ship_id")}
 
+        visit_rows = []
         with self._connect() as con:
             old_offset_row = con.execute(
                 """SELECT last_read_offset,commander_id,attribution_status
@@ -1810,6 +1843,10 @@ class CMDRDatabase:
                     )
 
                 if et in ("Location", "FSDJump", "CarrierJump"):
+                    visit_rows.append(visit_row(
+                        commander_id, event.get("SystemAddress"),
+                        event.get("StarSystem"), ts, event.get("StarPos"),
+                    ))
                     current_system = str(event.get("StarSystem") or current_system)
                     if isinstance(event.get("SystemAddress"), int):
                         current_address = event["SystemAddress"]
@@ -2049,6 +2086,15 @@ class CMDRDatabase:
 
                 elif et == "SAAScanComplete" and address is not None and event.get("BodyID") is not None:
                     body_id = int(event["BodyID"])
+                    metadata = mapping_metadata(event)
+                    con.execute("""
+                        UPDATE commander_bodies SET
+                            mapped_at=COALESCE(NULLIF(mapped_at,''),?),
+                            probes_used=COALESCE(?,probes_used),
+                            efficiency_target=COALESCE(?,efficiency_target)
+                        WHERE commander_id=? AND system_address=? AND body_id=?
+                    """, (metadata.get("mapped_at"), metadata.get("probes_used"),
+                          metadata.get("efficiency_target"), commander_id, int(address), body_id))
                     body = scanned_bodies.get((int(address), body_id))
                     if body is None:
                         stored = con.execute("""
@@ -2147,6 +2193,7 @@ class CMDRDatabase:
                  int(bool(mining_context.get("surface_confirmed"))),
                  int(bool(mining_context.get("rhino_active"))),
                  str((events or [{}])[-1].get("timestamp") or "")))
+            store_visit_rows(con, visit_rows)
             con.execute("""UPDATE journal_sessions
                 SET last_read_offset=MAX(last_read_offset,?) WHERE journal_file=?""",
                 (int(safe_offset), str(journal_file)))
@@ -3149,6 +3196,12 @@ class CMDRDatabase:
                     modified_ns=excluded.modified_ns,
                     attribution_status=excluded.attribution_status,
                     sha256=COALESCE(excluded.sha256, journal_sessions.sha256),
+                    repair_read_offset=MAX(journal_sessions.repair_read_offset,
+                        COALESCE(journal_sessions.last_read_offset,0),
+                        CASE WHEN journal_sessions.fully_imported=1
+                            THEN COALESCE(journal_sessions.last_complete_line_offset,0) ELSE 0 END),
+                    repair_commander_id=COALESCE(journal_sessions.repair_commander_id,
+                        journal_sessions.commander_id),
                     last_read_offset=CASE
                         WHEN excluded.last_indexed_at IS NOT NULL
                         THEN excluded.last_read_offset
@@ -3411,7 +3464,8 @@ class CMDRDatabase:
                             was_footfalled_at_scan=COALESCE(excluded.was_footfalled_at_scan,
                                 commander_bodies.was_footfalled_at_scan),
                             self_mapped=MAX(commander_bodies.self_mapped,excluded.self_mapped),
-                            mapped_at=COALESCE(commander_bodies.mapped_at,excluded.mapped_at),
+                            mapped_at=COALESCE(NULLIF(commander_bodies.mapped_at,''),
+                                NULLIF(excluded.mapped_at,'')),
                             efficient_mapping=MAX(commander_bodies.efficient_mapping,
                                 excluded.efficient_mapping),
                             probes_used=COALESCE(excluded.probes_used,commander_bodies.probes_used),
@@ -5506,7 +5560,8 @@ class CMDRDatabase:
                     cb.first_seen, cb.last_seen,
                     b.parent_star_id, b.surface_temperature,
                     b.surface_pressure, b.atmosphere_composition,
-                    b.planetary_mining_signals
+                    b.planetary_mining_signals,
+                    cb.mapped_at, cb.probes_used, cb.efficiency_target
                 FROM bodies b
                 JOIN commander_bodies cb
                   ON cb.system_address=b.system_address AND cb.body_id=b.body_id
@@ -5630,6 +5685,9 @@ class CMDRDatabase:
                         "surface_pressure": row[33],
                         "atmosphere_composition": row[34] or "",
                         "planetary_mining_signals": row[35],
+                        "mapped_at": row[36],
+                        "probes_used": row[37],
+                        "efficiency_target": row[38],
                         "primary_star_id": system_row[5],
                         "primary_star_type": system_row[6] or "",
                         "materials": materials,
@@ -6829,10 +6887,8 @@ class CMDRDatabase:
                                     efficient = False
                                 if personal_body is not None:
                                     personal_body["self_mapped"] = True
-                                    personal_body["mapped_at"] = ts
+                                    apply_mapping_metadata(personal_body, event)
                                     personal_body["efficient_mapping"] = efficient
-                                    personal_body["probes_used"] = probes_used
-                                    personal_body["efficiency_target"] = efficiency_target
 
                         elif et in (
                             "SAASignalsFound",
@@ -7649,7 +7705,8 @@ class CMDRDatabase:
                     was_footfalled_at_scan=COALESCE(excluded.was_footfalled_at_scan,
                         commander_bodies.was_footfalled_at_scan),
                     self_mapped=MAX(commander_bodies.self_mapped,excluded.self_mapped),
-                    mapped_at=COALESCE(commander_bodies.mapped_at,excluded.mapped_at),
+                    mapped_at=COALESCE(NULLIF(commander_bodies.mapped_at,''),
+                                NULLIF(excluded.mapped_at,'')),
                     efficient_mapping=MAX(commander_bodies.efficient_mapping,
                         excluded.efficient_mapping),
                     probes_used=COALESCE(excluded.probes_used,commander_bodies.probes_used),
@@ -7668,20 +7725,9 @@ class CMDRDatabase:
                     high_value_cached=excluded.high_value_cached
             """, commander_body_rows)
 
-            # Besuche
-            con.executemany(
-                """
-                INSERT OR IGNORE INTO system_visits (
-                    commander_id,
-                    system_address,
-                    system_name,
-                    visited_at,
-                    x, y, z
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-                """,
-                list(visits.values()),
-            )
+            # Shared stay semantics for archive imports and live deltas.
+            from cmdrhelper.system_visits import store_visit_rows
+            store_visit_rows(con, visits.values())
 
             # Biologie
             biology_rows = []

@@ -1,4 +1,4 @@
-# CMDRHelper V3 (3.0)
+# CMDRHelper
 
 [🇩🇪 Deutsch](README_DE.md) \| [🇬🇧 English](README.md) \| [🇫🇷
 Français](README_FR.md) \| [🇮🇹 Italiano](README_IT.md) \| [🇳🇴
@@ -13,12 +13,28 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper on itsenäinen työpöytäsovellus, joka analysoi Elite Dangerousin paikallisia lokeja ja käyttää `Status.json`-tiedoston planetaarisia sijaintitietoja. Se auttaa tunnistamaan kiinnostavia taivaankappaleita, palaamaan tallennettuihin paikkoihin ja tarkastelemaan matkoja ja löytöjä. Henkilökohtaiset tiedot säilyvät uudelleenkäynnistyksessä ja pidetään erillään komentajittain.
 
+## Uutta versiossa v3.1 verrattuna versioon v3.0.3
+
+- BIO-edistyminen näkyy tiiviisti: 1/3 keltaisena, 2/3 sinisenä ja 3/3 vihreänä; valmis tila ”Valmis” on myös vihreä. Kohdassa ”näytä automaattisesti” GEO:lla on oma tallennettava kytkin: vain BIO, vain GEO tai molemmat yhdessä. Explorerin yhteisen BIO / GEO / ABBAU -taulukon käsin muutetut sarakeleveydet säilyvät uudelleen avattaessa ja ohjelman käynnistyessä uudelleen. Ponnahdusikkunoiden sarakeleveydet palautetaan luotettavammin; virheelliset arvot korvataan turvallisilla oletusleveyksillä.
+
+- Löytö ja kartoitus erotetaan ja sidotaan skannaushetkeesi: ”Jo löydetty skannauksesi aikaan” ja ”Jo kartoitettu skannauksesi aikaan”. Puuttuvat tiedot pysyvät Tuntemattomina. First Discovery- ja First Mapping -ehdokkuudet koskevat vain skannaushetkeä; historiallinen Ei ei todista kappaleen olevan edelleen löytämätön tai kartoittamaton tänään. Oma kartoituksesi ei vahvista virallista ensisijaisuutta. EDSM-tunnettuus pidetään erillään.
+
+- ”EDSM-tila-HUD” kohdassa ”näytä automaattisesti” on oletuksena POIS. Järjestelmään saapumisen jälkeen Eliten päällä näkyy viesti noin 2,5 sekuntia. ”EDSM: TUNNETTU” tarkoittaa kelvollista EDSM-osumaa järjestelmälle. ”EDSM: TUNTEMATON” tarkoittaa kelvollista EDSM-vastausta ilman järjestelmäosumaa. ”EDSM: EI VASTAUSTA” tarkoittaa verkko- tai HTTP-virhettä, aikakatkaisua tai virheellistä vastausta, ei koskaan vahvistettua osuman puuttumista. Tunnettuus EDSM:ssä ei ole sama kuin virallinen löytö Elitessä; ensilöytäjien tai ensimmäisten ilmoittajien nimiä ei luvata. Viesti toimii navigointi- ja rahti-HUDista riippumatta.
+
+- Vierailuhistoria huomioi Location-, FSDJump- ja CarrierJump-tapahtumat myös reaaliaikaisessa päiväkirjaseurannassa. Useat sijaintitapahtumat saman keskeytymättömän oleskelun aikana ovat yksi vierailu: A → A → A lasketaan kerran. Todellinen paluu säilyy: A → B → C → A lasketaan neljäksi vierailuksi.
+
+- Oman DSS-kartoituksen valmistuminen tallentaa nyt luotettavasti kartoitusajan, käytetyt luotaimet ja tehokkuustavoitteen. Myöhemmät skannaukset eivät enää hävitä olemassa olevia tietoja.
+
+- Rahti-ikkuna sovittaa korkeutensa automaattisesti sisältöön. Monilla riveillä korkeus rajataan ja taulukkoa voi vierittää; valittu leveys ja ikkunan sijainti säilyvät. Nykyinen ”Rahtitilan HUD”-kytkin on nyt kohdassa ”näytä automaattisesti”, ilman toista kytkintä rahti-ikkunassa.
+
+- Olemassa oleville asennuksille riittää yleensä: asenna päivitys → käynnistä CMDRHelper. Tarvittavat historialliset BIO-tietojen, vierailujen ja DSS-metatietojen korjaukset suoritetaan automaattisesti; tietokanta varmuuskopioidaan ennen tietoja kirjoittavia korjauksia. Korjaukset ovat versioituja ja idempotentteja: onnistuneita korjausversioita ei ajeta kokonaan uudelleen joka käynnistyksessä. Palautus vaatii Elite-päiväkirjat, jotka ovat yhä olemassa, luettavissa ja yksiselitteisesti yhdistettävissä komentajaan. Puuttuvia lähteitä ei keksitä eikä tulkita onnistumiseksi; avoimia korjauksia yritetään uudelleen seuraavassa käynnistyksessä. Tietokannan poistoa, käsin ajettavia skriptejä tai uudelleentuontia ei yleensä tarvita.
+
 ## Explorer
 
 Explorer esittää nykyisen järjestelmän kolmessa näkymässä:
 
 - **Järjestelmäkartta:** tunnettujen tähtien, planeettojen ja kuiden graafinen esitys. Taivaankappaleen napsautus avaa sen tiedot. ”Näytä kaikki” avaa järjestelmän yleiskuvan.
-- **Arvoluettelo:** tunnettujen taivaankappaleiden skannaus- ja kartoitusarvot, jo saavutettu arvo ja mahdollinen kokonaisarvo. Merkinnät auttavat tunnistamaan terraformointiehdokkaat, mahdolliset ensilöydöt ja ensikartoitukset.
+- **Arvoluettelo:** Arvoluettelo näyttää tallennettuun skannaukseen perustuvia arvioita, ei taattuja maksamatta olevia palkkioita. Ensibonukset pysyvät vahvistamattomina. Kartan ja luettelon vihjetekstit sekä kappaleen tiedot käyttävät samoja ajallisesti rajattuja tiloja.
 - **BIO / GEO / LOUHINTA:** biologiset ja geologiset signaalit, planetaariset louhintapaikat ja todennetut henkilökohtaiset löydöt.
 
 Analyysit erottavat ilmoitetut signaalit todellisista omista löydöistä. **BIO ×N** on ilmoitettu signaalimäärä, ei vahvistus kokonaan analysoiduista lajeista. **LOUHINTA ×N** laskee planetaariset louhintapaikat paljastamatta niiden yksittäisiä raaka-aineita. Itse louhitut kauppatavarat, louhinnassa kerätyt sivumateriaalit ja taivaankappaleen yleinen materiaalikoostumus pidetään erillään.

@@ -1,4 +1,4 @@
-# CMDRHelper V3 (3.0)
+# CMDRHelper
 
 [🇩🇪 Deutsch](README_DE.md) \| [🇬🇧 English](README.md) \| [🇫🇷
 Français](README_FR.md) \| [🇮🇹 Italiano](README_IT.md) \| [🇳🇴
@@ -13,13 +13,29 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper is a standalone desktop application that processes the local Elite Dangerous journals and uses planetary position data from `Status.json`. It helps you identify interesting bodies, return to saved locations and review your travels and discoveries. Personal data persists across restarts and is kept separate for each commander.
 
+## New in v3.1 compared with v3.0.3
+
+- BIO progress is compact: 1/3 yellow, 2/3 blue and 3/3 green; the completed state “Done” is also green. Under “auto show”, GEO has its own saved switch: BIO alone, GEO alone or both together are supported. Manually adjusted column widths in the shared Explorer BIO / GEO / ABBAU table survive reopening and application restarts. Saved popup column widths are restored more robustly; invalid values fall back to safe defaults.
+
+- Discovery and mapping are separate and refer to your scan time: “Already discovered at your scan” and “Already mapped at your scan”. Missing information remains Unknown. First Discovery and First Mapping candidates refer only to scan time; historical No values do not prove that a body is still undiscovered or unmapped today. Your own mapping does not confirm an official first claim. Being known to EDSM remains separate.
+
+- “EDSM status HUD” under “auto show” is OFF by default. After entering a system, a brief message appears over Elite for about 2.5 seconds. “EDSM: KNOWN” means a valid EDSM match for the system. “EDSM: UNKNOWN” means a valid EDSM response without a system match. “EDSM: NO RESPONSE” means a network, HTTP or timeout error, or an invalid response, never a confirmed absence of a match. Being known to EDSM is not the same as official discovery in Elite; no first discoverer or first reporter names are promised. The message works independently of the navigation and cargo HUDs.
+
+- Visit history includes Location, FSDJump and CarrierJump during live journal updates. Multiple location events during one uninterrupted stay count as one visit: A → A → A counts once. A genuine return is preserved: A → B → C → A counts as four visits.
+
+- Completing your own DSS mapping now reliably saves the mapping time, probes used and efficiency target. Later scan events no longer cause existing details to be lost.
+
+- The cargo window automatically adjusts its height to its contents. With many entries, height is capped and the table scrolls; your chosen width and window position are preserved. The existing “Cargo HUD” switch is now under “auto show”, with no additional switch in the cargo window.
+
+- For existing installations, the usual steps are simply: install the update → start CMDRHelper. Necessary historical corrections to BIO data, visit history and DSS metadata run automatically; a database backup is created before data repairs write changes. Repairs are versioned and idempotent: successful revisions are not fully rerun at every start. Reconstruction requires Elite journals that still exist, are readable and can be unambiguously assigned to a commander. Missing sources are not invented or treated as success; pending repairs are retried at the next start. Database deletion, manual scripts and reimport are normally unnecessary.
+
 ## Explorer
 
 The Explorer presents the current system in three views:
 
 - **System map:** a graphical display of known stars, planets and moons. Click a body to open its details. “Show all” opens the system overview.
-- **Value list:** scan and mapping values of known bodies, value already achieved and potential total value. Markers help identify terraforming candidates, possible first discoveries and first mappings.
-- **BIO / GEO / MINING:** biological and geological signals, planetary mining sites and confirmed personal finds.
+- **Value list:** The value list shows estimates based on the stored scan state, not guaranteed outstanding payouts. First bonuses remain unconfirmed. Tooltips in the map and list and the body details use the same time-qualified states.
+- **BIO / GEO / ABBAU:** biological and geological signals, planetary mining sites and confirmed personal finds.
 
 The analysis distinguishes reported signals from actual personal finds. **BIO ×N** is the reported signal count, not confirmation of fully analysed species. **MINING ×N** counts planetary mining sites without revealing their individual commodity contents. Personally mined commodities, secondary materials collected while mining and a body's general material composition remain separate.
 

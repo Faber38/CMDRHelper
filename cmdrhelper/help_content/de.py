@@ -31,6 +31,7 @@ HELP_TOPICS = {
 <h3>Letzte Systeme</h3>
 <p>Hier werden zuletzt besuchte beziehungsweise aus dem Journal erkannte Systeme angezeigt.</p>
 <p>Die Liste dient als schneller Überblick über die jüngste Reise des Commanders.</p>
+<p>Die Besuchshistorie berücksichtigt Location, FSDJump und CarrierJump auch im laufenden Journalabgleich. Mehrere Standortereignisse im selben ununterbrochenen Aufenthalt ergeben einen Besuch: A → A → A zählt einmal. Eine echte Rückkehr bleibt erhalten: A → B → C → A zählt vier Besuche.</p>
 
 <h3>Online-Status</h3>
 <p>Oben im Hauptfenster befinden sich zusätzliche Statusanzeigen:</p>
@@ -173,34 +174,36 @@ HELP_TOPICS = {
 <p>Das Symbol beziehungsweise die Kennzeichnung für Terraforming zeigt, dass ein Körper nach den vorhandenen Daten als Terraforming-Kandidat gilt.</p>
 
 <h3>Erstentdeckung</h3>
-<p>Die Erstentdeckungsanzeige kennzeichnet Körper, bei denen nach den verfügbaren Daten eine Erstentdeckung möglich beziehungsweise vom eigenen Journal entsprechend belegt ist.</p>
-<p>Die endgültige Wertung richtet sich nach den von Elite Dangerous beziehungsweise den verfügbaren Daten gemeldeten Zuständen.</p>
+<p>„Bei deinem Scan bereits entdeckt“ beschreibt den Zustand vor deinem damaligen Scan. Ja bedeutet zuvor entdeckt, Nein bedeutet damals noch nicht entdeckt; fehlende Informationen bleiben Unbekannt. ★ kennzeichnet einen First-Discovery-Kandidaten zum Scanzeitpunkt, keinen garantiert noch verfügbaren offiziellen Erstanspruch.</p>
+<p>Ein historisches WasDiscovered=false oder WasMapped=false bedeutet nicht, dass der Körper heute noch unentdeckt oder unkartographiert ist. Auch nach Datenverkauf oder Wiederbesuch bleiben diese Angaben historische Beobachtungen. EDSM-Bekanntheit ist eine separate Information und kein Beweis für offizielle Elite-Erstentdeckung. Daraus werden keine offiziellen Erstentdecker abgeleitet.</p>
 
 <h3>First Mapping</h3>
 <p>CMDRHelper unterscheidet zwischen:</p>
 <ul>
-<li>First Mapping möglicherweise verfügbar</li>
-<li>vom Commander kartographiert</li>
-<li>First Mapping vom Commander beansprucht</li>
+<li>◉ First-Mapping-Kandidat zum Scanzeitpunkt: beim eigenen Scan noch nicht kartographiert</li>
+<li>◎ Von dir kartographiert: eigener DSS-Abschluss aufgezeichnet</li>
+<li>◉✓ Kandidat beim Scan und eigene Kartographierung belegt; offizieller Erstanspruch unbestätigt</li>
 </ul>
-<p>Dadurch lässt sich erkennen, ob ein Körper bereits kartographiert wurde und ob der eigene Commander den First-Mapping-Status beansprucht.</p>
+<p>„Bei deinem Scan bereits kartographiert“ wird unabhängig von der Entdeckung ausgewertet. Fehlende Informationen bleiben Unbekannt. Ein bereits entdeckter Körper kann beim Scan noch nicht kartographiert gewesen sein. Eigene Kartographierung bestätigt keinen offiziellen First-Mapping-Tag; bei mehreren Besuchen ist auch die Reihenfolge zum gespeicherten Scan nicht immer belegt.</p>
+<p>Nach Abschluss einer eigenen DSS-Kartographierung werden Mapping-Zeitpunkt, verwendete Sonden und Effizienzziel zuverlässig gespeichert. Spätere Scan-Ereignisse lassen vorhandene Angaben nicht mehr verloren gehen.</p>
 
 <h3>Landbar</h3>
 <p>Die Landbarkeitsanzeige kennzeichnet Körper, auf denen nach den bekannten Daten eine Landung möglich ist.</p>
 
 <h3>Goldrahmen / wertvolle Körper</h3>
 <p>Besonders wertvolle Körper können in der Explorer-Darstellung hervorgehoben werden.</p>
-<p>Der Goldrahmen dient als schnelle optische Orientierung für Körper ab dem in CMDRHelper vorgesehenen Werteschwellwert.</p>
+<p>Der Goldrahmen kennzeichnet eine Kartographieschätzung ab dem eingestellten Schwellenwert. Er ist keine First-Discovery-Markierung und bestätigt weder unverkaufte Daten noch heute verfügbare Erstboni.</p>
 <p>Er ersetzt nicht die detaillierte Wertanzeige des Körpers.</p>
 
 <h3>Wertliste</h3>
-<p>Die Wertliste bietet eine kompaktere Ansicht der bekannten Körper und ihrer Exploration-/Kartographiewerte.</p>
+<p>Die Wertliste zeigt Schätzungen nach dem gespeicherten Scanstand, keine sicher noch auszahlbaren Erlöse. Erstboni bleiben unbestätigt. Tooltips in Karte und Liste sowie das Körperdetail verwenden dieselben zeitlich eingeordneten Zustände.</p>
 <p>Sie eignet sich besonders, um interessante oder wertvolle Körper eines Systems schnell miteinander zu vergleichen.</p>
 
 <h3>BIO / GEO / ABBAU</h3>
 <p>Diese Ansicht fasst Körper mit biologischen, geologischen oder planetaren Abbausignalen zusammen.</p>
 <p>Dadurch müssen interessante Bodies nicht einzeln in der vollständigen Systemkarte gesucht werden.</p>
 <p>Bei vorhandenen eigenen Surface-Mining-Daten können zusätzlich die persönlichen Abbau-Funde sichtbar werden.</p>
+<p>Manuell angepasste Spaltenbreiten der gemeinsamen Explorer-Tabelle BIO / GEO / ABBAU bleiben nach erneutem Öffnen und Programmneustart erhalten. Gespeicherte Popup-Spaltenbreiten werden robuster wiederhergestellt; ungültige Werte fallen auf sichere Standardbreiten zurück.</p>
 
 <h3>Body-Detail</h3>
 <p>Durch Anklicken eines Körpers öffnet sich die Detailansicht.</p>
@@ -237,6 +240,8 @@ HELP_TOPICS = {
 <p>Über die Schalter in der linken Seitenleiste können unterstützte Live-Hinweise wie Wertvolle Körper, BIO-Funde oder Frachtraum automatisch eingeblendet werden.</p>
 <p>Diese kleinen Livefenster dienen als zusätzliche Hinweise während des Spielens und ersetzen nicht die vollständige Exploreransicht.</p>
 <p>„Frachtraum“ zeigt den aktuell bestätigten Bestand des durch die aktive Journal-FID bestimmten Schiffs oder SRV. SRV-Fracht wird niemals als Schiffsfracht übernommen; Drohnen zählen zur Gesamtbelegung und werden in der Liste getrennt dargestellt.</p>
+<p>Der BIO-Fortschritt erscheint kompakt: 1/3 gelb, 2/3 blau und 3/3 grün; der abgeschlossene Zustand „Fertig“ ist ebenfalls grün. Unter „auto einblenden“ besitzt GEO einen eigenen gespeicherten Schalter: BIO allein, GEO allein oder beide gemeinsam sind möglich.</p>
+<p>Das Frachtraumfenster passt seine Höhe automatisch an den Inhalt an. Bei vielen Einträgen bleibt die Höhe begrenzt und die Tabelle lässt sich scrollen; Benutzerbreite und Fensterposition bleiben erhalten. Der vorhandene Schalter „Frachtraum-HUD“ befindet sich jetzt unter „auto einblenden“, nicht zusätzlich im Frachtraumfenster.</p>
 
 <h3>Mehrere Commander</h3>
 <p>Persönliche Explorationsergebnisse, Kartographie, BIO-Funde und eigene Surface-Mining-Funde werden dem jeweiligen Commander zugeordnet.</p>
@@ -920,10 +925,14 @@ HELP_TOPICS = {
 <p>„Wertvolle Körper“, „BIO-Funde“ und „Frachtraum“ befinden sich fest in der linken Seitenleiste, nicht innerhalb der Einstellungsseite.</p>
 <p>Die Schalter werden gespeichert und steuern die unterstützten kleinen Livefenster. Der Werteschwellwert für „Wertvolle Körper“ wird in den Oberflächeneinstellungen festgelegt.</p>
 <p>Das Frachtraumfenster verwendet ausschließlich den für die aktive Journal-FID bestätigten Cargo-Snapshot. Der in der CMDR Ansicht betrachtete Commander beeinflusst dieses Livefenster nicht.</p>
+<p>„EDSM-Status-HUD“ unter „auto einblenden“ ist standardmäßig AUS. Nach einem Systemeintritt erscheint für ungefähr 2,5 Sekunden eine Kurzmeldung über Elite. Mehrere Location-Ereignisse im selben Aufenthalt lösen keine Mehrfachmeldung aus; eine echte Rückkehr darf erneut geprüft werden.</p>
+<p>„EDSM: BEKANNT“ bedeutet einen gültigen EDSM-Treffer für das System. „EDSM: NICHT BEKANNT“ bedeutet eine gültige EDSM-Antwort ohne Systemtreffer. „EDSM: KEINE ANTWORT“ bedeutet einen Netzwerk-, HTTP-, Timeoutfehler oder eine ungültige Antwort, niemals einen bestätigten fehlenden Treffer. EDSM-Bekanntheit ist nicht dasselbe wie offizielle Elite-Erstentdeckung; es werden keine Erstentdecker- oder Erstmeldernamen versprochen.</p>
+<p>Die Kurzmeldung funktioniert unabhängig von Navigations- und Frachtraum-HUD. Dauerhafte HUD-Anzeigen und Schnellfavoriten-Meldungen bleiben erhalten. Die Abfrage blockiert die Oberfläche nicht; verspätete Antworten auf bereits verlassene Systeme werden verworfen.</p>
 
 <h3>Updates</h3>
 <p>Die Updategruppe zeigt installierte Version und GitHub-Status. „Jetzt prüfen“ sucht manuell nach einer neuen vorgesehenen CMDRHelper-Version; zusätzlich findet nach dem Start eine verzögerte automatische Prüfung statt.</p>
 <p>Ist eine neue Version verfügbar, fragt CMDRHelper vor dem Herunterladen und Installieren nach. Ein angekündigtes Datenbankupdate wird in diesem Dialog gesondert ausgewiesen.</p>
+<p>Für bestehende Installationen genügt im Normalfall: Update installieren → CMDRHelper starten. Notwendige historische Korrekturen für BIO-Daten, Besuchshistorie und DSS-Metadaten laufen automatisch; vor schreibenden Datenreparaturen wird eine DB-Sicherung erstellt. Die Reparaturen sind versioniert und idempotent: Erfolgreiche Revisionen werden nicht bei jedem Start erneut vollständig ausgeführt. Rekonstruktion ist nur mit vorhandenen, lesbaren und eindeutig einem Commander zuordenbaren Elite-Journalen möglich. Fehlende Quellen werden nicht ersetzt oder als Erfolg gewertet; offene Reparaturen werden beim nächsten Start erneut versucht. Datenbanklöschung, manuelle Skripte und Neuimport sind im Normalfall nicht nötig.</p>
 
 <h3>Downloadfortschritt</h3>
 <p>Der Download läuft im Hintergrund. Bei bekannter Gesamtgröße zeigt CMDRHelper Dateiname, empfangene und gesamte MiB, Prozent, Übertragungsrate und geschätzte Restzeit.</p>

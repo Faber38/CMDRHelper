@@ -18,9 +18,19 @@ Journaldatei keine oder nur einzelne Arten enthält.
 
 ## Fehlende historische Funde nachziehen
 
-Der Backfill ist ein explizites Werkzeug, kein automatischer Startimport.
-Er ändert weder Schema noch Journaloffsets, Verkaufsbestände oder vorhandene
-BIO-Zeilen. Er ergänzt ausschließlich fehlende Schlüssel in `biology`.
+Der bestehende BIO-Backfill wird sowohl vom expliziten Werkzeug als auch von
+der automatischen Start-Reparaturrevision `biology_findings` verwendet. Er
+ergänzt ausschließlich fehlende Schlüssel in `biology`; Journaloffsets,
+Verkaufsbestände und vorhandene BIO-Zeilen bleiben unverändert.
+
+Die Startverwaltung führt die nötige Schemamigration separat aus, erstellt vor
+schreibenden Datenreparaturen eine konsistente DB-Sicherung und speichert den
+Erfolg der Revision transaktional. Fehlende, unlesbare oder nicht eindeutig
+zuordenbare Journale ergeben keinen vollständigen Erfolg; der nächste Start
+versucht die offene Reparatur erneut. Erfolgreiche Revisionen überspringen
+die erneute Journalanalyse. Siehe [startup-repairs.md](startup-repairs.md).
+Der normale Archivimport bleibt davon getrennt. Die folgenden Befehle sind
+optionale Diagnose-/Reparaturwerkzeuge, keine erforderlichen Update-Schritte.
 
 Vorschau (ohne `--apply` wird die DB nur lesend geöffnet):
 

@@ -44,6 +44,7 @@ class AppState(QObject):
     shipLoadoutChanged = Signal(object)
     shipRouteInputsChanged = Signal(object)
     cargoSnapshotChanged = Signal(object)
+    journalPositionsReady = Signal(object, str)
     edsmBodiesReady = Signal(str, object, str)
     databaseImportProgress = Signal(int, int, str)
     databaseImportFinished = Signal(object, str)
@@ -178,16 +179,26 @@ class AppState(QObject):
             self.watcher.set_folder(
                 self.journal_folder
             )
-            QTimer.singleShot(0, self._start_initial_journal_index)
+        QTimer.singleShot(0, self._start_initial_journal_index)
 
     def _start_initial_journal_index(self):
         """Startet den potenziell teuren Erstindex außerhalb des GUI-Threads."""
-        if not self.journal_folder:
-            return
-        folder = Path(self.journal_folder)
+        folder = Path(self.journal_folder) if self.journal_folder else None
+
+        def repair_history():
+            try:
+                from cmdrhelper.startup_repairs import run_startup_repairs
+                run_startup_repairs(self.database.path)
+            except Exception:
+                logger.exception("Historische Start-Reparatur fehlgeschlagen; Start wird fortgesetzt")
 
         def worker():
+            repaired = False
             try:
+                if folder is None:
+                    repair_history()
+                    self.initializationFinished.emit("")
+                    return
                 from cmdrhelper.journal_index import (
                     journal_index_plan, scan_journal_folder,
                     should_show_index_progress,
@@ -208,6 +219,10 @@ class AppState(QObject):
                     self.database, folder,
                     progress_callback=progress if visible else None,
                 )
+                # Historical repair revisions run before normal live writes/import.
+                # Missing or damaged old journals must not prevent normal startup.
+                repair_history()
+                repaired = True
                 commander_ids = sorted({
                     int(item["commander_id"])
                     for item in sessions
@@ -267,7 +282,20 @@ class AppState(QObject):
                 self.journalIndexReady.emit(sessions)
             except Exception as exc:
                 logger.exception("Initialer Journalindex fehlgeschlagen")
-                self.initializationFinished.emit(str(exc))
+                if not repaired:
+                    repair_history()
+                # An unreadable historical file must not strand initialization.
+                # Retained identities allow the normal refresh/error path to start
+                # the watcher and continue showing consistent persisted state.
+                try:
+                    with self.database._connect() as con:
+                        cursor = con.execute("SELECT * FROM journal_sessions ORDER BY first_event_at,journal_file")
+                        names = [column[0] for column in cursor.description]
+                        retained = [dict(zip(names, row)) for row in cursor.fetchall()]
+                    self.journalIndexReady.emit(retained)
+                except Exception:
+                    logger.exception("Gespeicherter Journalindex konnte nicht geladen werden")
+                    self.initializationFinished.emit(str(exc))
 
         threading.Thread(
             target=worker, daemon=True, name="CMDRHelper-JournalIndex"
@@ -958,6 +986,7 @@ class AppState(QObject):
         Copy before the snapshot write: merging display data must never turn
         historical scans into newly observed journal events in the database.
         Zero, False and empty collections are explicit live values, not gaps.
+        Own mapping is cumulative: a new Scan does not undo an earlier DSS scan.
         Durable BIO findings accumulate across journals; an empty live BIO list
         only means that this session has not sampled anything on that body yet.
         """
@@ -977,6 +1006,8 @@ class AppState(QObject):
                     bodies.append(current)
                     by_id[body_id] = current
                 else:
+                    if historical.get("self_mapped") is True:
+                        current["self_mapped"] = True
                     bio_fields = ("genus", "species", "variant")
                     ranks = {"log": 1, "sample": 2, "analyse": 3, "analyze": 3}
                     biology = {
@@ -1051,6 +1082,21 @@ class AppState(QObject):
                 continue
 
             edsm_body = canonical_body_classes(edsm_body)
+            # Also sanitize normalized entries from older on-disk EDSM caches.
+            # Only physical metadata may fill gaps in an own journal scan.
+            personal_fields = {
+                "was_discovered", "was_mapped", "was_discovered_at_scan",
+                "was_mapped_at_scan", "self_mapped", "efficient_mapping",
+                "mapped_at", "probes_used", "efficiency_target",
+                "edsm_was_discovered", "edsm_was_mapped",
+                "first_discovery_candidate", "first_mapping_candidate",
+                "first_mapping_possible", "already_mapped", "mapping_state",
+                "scan_value", "mapped_value", "current_value", "possible_value",
+                "possible_value_without_efficiency", "high_value",
+            }
+            edsm_body = {key: value for key, value in edsm_body.items()
+                         if key not in personal_fields}
+
             body_id = edsm_body.get(
                 "body_id"
             )
@@ -1563,6 +1609,7 @@ class AppState(QObject):
             data,
             emit_signal=False,
         )
+        delta_events = []
         current_session = ((self._journal_index_sessions or [None])[-1])
         if (
             current_session
@@ -1632,6 +1679,7 @@ class AppState(QObject):
                     loadout_stale=bool(stored_ship.get("loadout_stale", True)),
                 )
         self._store_latest_journal_session(data)
+        self._emit_journal_positions(data, current_session, delta_events)
         self.system = data["system"]
         self.system_address = data.get("system_address")
         self.body = data["body"]
@@ -1817,6 +1865,21 @@ class AppState(QObject):
         self._upload_pending_to_inara()
         self._request_edsm_for_current_system()
         return True
+
+    def _emit_journal_positions(self, data, session, events):
+        """Forward only committed positions attributed to the live commander."""
+        if not (session and session.get("attribution_status") == "identified"
+                and session.get("fid_seen") == self.commander_fid
+                and session.get("commander_id") == self.commander_id):
+            self.journalPositionsReady.emit([], "")
+            return
+        positions = [e for e in events if e.get("event") in ("Location", "FSDJump", "CarrierJump")]
+        if not positions:
+            location = data.get("last_position") or {}
+            positions = [{"event": location.get("event_type"),
+                          "StarSystem": location.get("system_name"),
+                          "SystemAddress": location.get("system_address")}]
+        self.journalPositionsReady.emit(positions, self.commander_fid)
 
     def _apply_live_cargo_snapshot(self, data, current_session):
         """Bind Cargo.json only to the uniquely identified live journal FID."""
