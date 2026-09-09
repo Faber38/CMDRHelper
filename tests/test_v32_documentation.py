@@ -21,13 +21,13 @@ def readme(language):
 
 
 class DocumentationReleaseTests(unittest.TestCase):
-    def test_package_version_and_readme_release_headings_agree(self):
+    def test_central_version_and_historical_v32_readme_headings(self):
         self.assertEqual(cmdrhelper.__version__, __version__)
         for language in HELP_LANGUAGES:
             with self.subTest(language=language):
                 heading = readme(language).split('\n## ')[1].splitlines()[0]
-                self.assertIn(f'v{__version__}', heading)
-                self.assertEqual(__version__, '3.2')
+                # Patch releases retain the historical v3.2 feature overview.
+                self.assertIn('v3.2', heading)
                 self.assertIn('v3.1', heading)
                 self.assertNotIn('v3.0.3', heading)
 

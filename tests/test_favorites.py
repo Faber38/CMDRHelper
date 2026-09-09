@@ -289,7 +289,8 @@ class FavoriteTests(unittest.TestCase):
         self.addCleanup(view.deleteLater)
         button = view.action_buttons[-1]
         self.assertEqual(button.objectName(), 'favoriteNavigate')
-        self.assertTrue(all(b.objectName() != 'favoriteNavigate' for b in view.action_buttons[:-1]))
+        self.assertEqual(view.route_button.objectName(), 'favoriteNavigate')
+        self.assertTrue(all(b.objectName() != 'favoriteNavigate' for b in view.action_buttons[:-2]))
         for theme, colors in (
             (DARK_STYLESHEET, ('#c49a3c', '#f0c65b', '#9c7626', '#28323b')),
             (LIGHT_STYLESHEET, ('#a57b1c', '#c18e1c', '#76520b', '#bfc7ce')),
@@ -312,6 +313,125 @@ class FavoriteTests(unittest.TestCase):
                     button.style().drawControl(QStyle.CE_PushButton, option, painter, button)
                     painter.end()
                     self.assertEqual(image.pixelColor(90, 0).name(), expected)
+
+    def test_navigation_actions_follow_type_and_validity(self):
+        route, navigator = Mock(), Mock()
+        view = FavoritesView(self.state, navigator, Mock(), route_callback=route)
+        self.addCleanup(view.close)
+        cases = [(self.record('system'), True, False),
+                 (dict(self.record('body'), latitude=None, longitude=None), True, False),
+                 (self.record(), True, True),
+                 (dict(self.record(), system_name=''), False, False),
+                 (dict(self.record(), system_name=None), False, False),
+                 (dict(self.record(), body_name=''), True, False),
+                 (None, False, False)]
+        for key, values in [('latitude', [None, '0', True, float('nan'), float('inf'), 91, -91]),
+                            ('longitude', [None, '0', False, float('nan'), float('inf'), 181, -181])]:
+            cases.extend((dict(self.record(), **{key: value}), True, False) for value in values)
+        for record, has_route, has_coordinates in cases:
+            with self.subTest(record=record), patch.object(view, 'selected', return_value=record):
+                view._selection_changed()
+                for button, available in [(view.route_button, has_route),
+                                          (view.coordinates_button, has_coordinates)]:
+                    self.assertEqual(button.isEnabled(), available)
+                    self.assertEqual(not button.isHidden(), available)
+                    self.assertEqual(bool(button.toolTip()), available)
+                if not has_route:
+                    view.route_selected()
+        route.assert_not_called()
+        navigator.assert_not_called()
+
+    def test_route_handoff_and_selection_use_existing_planner(self):
+        from cmdrhelper.route_planner.route_planner_view import RoutePlannerView
+        planner = RoutePlannerView(self.state)
+        self.addCleanup(planner.close)
+        window = SimpleNamespace(PAGE_ROUTE_PLANNER=MainWindow.PAGE_ROUTE_PLANNER,
+                                 pages=Mock(widget=Mock(return_value=planner)), _show_page=Mock())
+        navigator = Mock()
+        view = FavoritesView(self.state, navigator, Mock(), route_callback=
+                             lambda system: MainWindow._open_material_trader_route(window, system))
+        self.addCleanup(view.close)
+        for kind, name in [('system', 'First'), ('body', 'Second'), ('surface_location', 'Third')]:
+            self.store.save(1, dict(self.record(kind), name=name, system_name=name))
+        view.refresh()
+        self.state.system = 'Plio Aip LG-G b52-0'
+        with patch.object(planner._thread_pool, 'start') as start:
+            for index in range(view.list.count()):
+                view.list.setCurrentRow(index)
+                view.route_button.click()
+                self.assertEqual(planner.ship_destination_system.text(), view.selected()['system_name'])
+                self.assertEqual(planner.ship_start_system.text(), self.state.system)
+            start.assert_not_called()
+        self.assertIsNone(planner._ship_controller.route)
+        self.assertIsNone(planner._carrier_route)
+        navigator.assert_not_called()
+        self.assertEqual(window._show_page.call_count, 3)
+
+    def test_incomplete_legacy_surface_is_displayable_and_cannot_start_navigation(self):
+        from cmdrhelper.ui.favorites_view import location_text
+        row = self.store.save(1, self.record())
+        navigator = Mock()
+        view = FavoritesView(self.state, navigator, Mock(), route_callback=Mock())
+        self.addCleanup(view.close)
+        view.list.setCurrentRow(0)
+        for changes in ({'latitude': None}, {'longitude': float('nan')},
+                        {'body_name': ''}, {'system_name': None}):
+            with self.subTest(changes=changes):
+                incomplete = dict(row, **changes)
+                self.assertIsInstance(location_text(incomplete), str)
+                with patch.object(view.store, 'get', return_value=incomplete):
+                    view._selection_changed()
+                    self.assertFalse(view.coordinates_button.isEnabled())
+                    view.navigate_selected()
+        navigator.assert_not_called()
+
+    def test_surface_selection_reuses_navigator_and_legacy_ids_are_optional(self):
+        controller = PlanetNavigationController(self.state)
+        route = Mock()
+        view = FavoritesView(self.state, lambda: controller, Mock(), route_callback=route)
+        self.addCleanup(view.close)
+        for name, lat, lon in [('First', 41.776123, -20.927311), ('Second', 0., 0.)]:
+            self.store.save(1, dict(self.record(), name=name, latitude=lat, longitude=lon,
+                                          system_address=None, body_id=None))
+        view.refresh()
+        with patch('cmdrhelper.ui.favorites_view.navigate_to_favorite', wraps=navigate_to_favorite) as navigate:
+            for index in range(view.list.count()):
+                view.list.setCurrentRow(index)
+                record = view.selected()
+                view.coordinates_button.click()
+                navigate.assert_called_with(view.store, 1, record['id'], controller)
+                self.assertEqual((controller.target.latitude, controller.target.longitude,
+                                  controller.target.binding.body_name),
+                                 (record['latitude'], record['longitude'], record['body_name']))
+        route.assert_not_called()
+        view.list.clearSelection()
+        view.list.setCurrentRow(-1)
+        self.assertFalse(view.coordinates_button.isEnabled())
+        self.assertFalse(view.route_button.isEnabled())
+
+    def test_action_labels_and_layout_in_all_languages_and_themes(self):
+        from cmdrhelper.i18n import _TRANSLATIONS, get_language, set_language, tr
+        original = get_language()
+        self.addCleanup(set_language, original)
+        self.store.save(1, self.record())
+        for language in _TRANSLATIONS:
+            set_language(language)
+            view = FavoritesView(self.state, Mock(), Mock(), route_callback=Mock())
+            self.addCleanup(view.close)
+            view.list.setCurrentRow(0)
+            for style in (DARK_STYLESHEET, LIGHT_STYLESHEET):
+                view.setStyleSheet(style)
+                view.resize(1000, 650)
+                view.show()
+                self.app.processEvents()
+                for button, key in [(view.route_button, 'route'), (view.coordinates_button, 'navigate')]:
+                    with self.subTest(language=language, key=key):
+                        self.assertEqual(button.text(), tr('favorites.' + key))
+                        self.assertGreaterEqual(button.width(), button.sizeHint().width())
+                        self.assertTrue(button.isVisible())
+                        self.assertTrue(button.isEnabled())
+                self.assertLess(view.route_button.geometry().right(), view.coordinates_button.geometry().left())
+            view.close()
 
     def test_invalid_coordinates_rejected(self):
         for latitude in (None,float('nan'),91):

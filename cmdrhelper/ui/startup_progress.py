@@ -100,14 +100,8 @@ class StartupProgressDialog(QDialog):
         layout.addWidget(self.close_button)
 
     def begin(self, total=0):
-        if total > 0:
-            self.progress.setRange(0, 100)
-            self.progress.setValue(0)
-            self.progress.setFormat("0 %")
-            self.count_label.setText(tr("startup.count", current=0, total=total))
-        else:
-            self.progress.setRange(0, 0)
-            self.count_label.setText(tr("startup.busy"))
+        self.close_button.hide()
+        self.set_progress(0, total, "startup.phase.preparing")
         self.ships.start()
         self.show()
         self.raise_()
@@ -142,4 +136,4 @@ class StartupProgressDialog(QDialog):
         self.progress.setRange(0, 100)
         self.progress.setValue(100)
         self.progress.setFormat("100 %")
-        QTimer.singleShot(120, self.accept)
+        self.accept()

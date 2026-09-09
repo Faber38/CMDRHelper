@@ -7,6 +7,12 @@ import re
 from cmdrhelper.i18n import get_language, tr
 
 RELEASE_SUMMARIES = {
+    "3.2.1": (
+        "release.3_2_1.windows_update",
+        "release.3_2_1.restart",
+        "release.3_2_1.single_instance",
+        "release.3_2_1.line_breaks",
+    ),
     "3.2": (
         "release.3_2.materials",
         "release.3_2.traders",

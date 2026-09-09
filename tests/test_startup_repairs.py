@@ -71,6 +71,13 @@ class StartupRepairTests(unittest.TestCase):
         state=SimpleNamespace(database=self.db,journal_folder=self.folder,
             initializationStarted=Mock(),initializationProgress=Mock(),initializationFinished=Mock(),
             journalIndexReady=Mock())
+        state._repair_indexed_commander_state = lambda sessions, folder: (
+            AppState._repair_indexed_commander_state(state, sessions, folder)
+        )
+        state._latest_identified_index_session = lambda sessions: (
+            AppState._latest_identified_index_session(state, sessions)
+        )
+        state._read_latest_position_event = AppState._read_latest_position_event
         with patch('cmdrhelper.state.threading.Thread') as thread:
             thread.side_effect=lambda **kw: SimpleNamespace(start=kw['target'])
             AppState._start_initial_journal_index(state)

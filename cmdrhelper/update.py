@@ -15,7 +15,7 @@ import zipfile
 from datetime import datetime
 from pathlib import Path
 
-from PySide6.QtCore import QObject, QRunnable, Signal, Slot
+from PySide6.QtCore import QObject, QRunnable, Signal, Slot, QDir, QLockFile
 
 from cmdrhelper.version import __version__
 from cmdrhelper.python_support import is_supported, supported_description
@@ -813,7 +813,7 @@ def launch_installer(
     # Deshalb nicht als einzelne Datei starten, sondern als Modul.
     # So bleibt der Projektordner im Python-Suchpfad und
     # "from cmdrhelper..." funktioniert auch im separaten Updater-Prozess.
-    _spawn(
+    process = _spawn(
         [
             sys.executable,
             "-m",
@@ -831,11 +831,14 @@ def launch_installer(
         ],
         cwd=install_dir,
     )
+    _log_update(install_dir, f"Updatehelfer PID: {process.pid}; Eltern-PID: {parent_pid}; Python: {sys.executable}")
 
 
 def _pid_exists(
     pid: int,
 ) -> bool:
+    if os.name == "nt":
+        raise RuntimeError("Windows-Prozesse müssen über einen Prozesshandle geprüft werden.")
     if pid <= 0:
         return False
 
@@ -849,8 +852,6 @@ def _pid_exists(
     except PermissionError:
         return True
     except OSError:
-        # Unter Windows kann os.kill(pid, 0) je nach Python/Prozessart
-        # einen OSError liefern. Dann behandeln wir den Prozess als beendet.
         return False
 
     return True
@@ -860,6 +861,10 @@ def _wait_for_parent_exit(
     pid: int,
     timeout: float = 30.0,
 ) -> None:
+    if os.name == "nt":
+        from cmdrhelper.windows_update import wait_for_process_exit
+        wait_for_process_exit(pid, timeout)
+        return
     deadline = (
         time.monotonic()
         + timeout
@@ -876,6 +881,15 @@ def _wait_for_parent_exit(
             "CMDRHelper wurde nicht rechtzeitig beendet. "
             "Update abgebrochen."
         )
+
+
+def _acquire_update_instance_lock(timeout: float = 10.0):
+    """After process exit, reserve the GUI lock during Windows installation."""
+    lock = QLockFile(QDir.temp().filePath("cmdrhelper.lock"))
+    lock.setStaleLockTime(0)
+    if not lock.tryLock(int(timeout * 1000)):
+        raise RuntimeError("Single-Instance-Sperre ist noch belegt. Update abgebrochen.")
+    return lock
 
 
 def _ensure_script_permissions(
@@ -1052,6 +1066,7 @@ def apply_update(
         f"Elternprozess PID: {parent_pid}"
     )
 
+    instance_lock = None
     try:
         _log_update(
             install_dir,
@@ -1064,6 +1079,9 @@ def apply_update(
             install_dir,
             "CMDRHelper ist beendet."
         )
+        if os.name == "nt":
+            instance_lock = _acquire_update_instance_lock()
+            _log_update(install_dir, "Single-Instance-Sperre für Dateiaustausch übernommen.")
     except (Exception, KeyboardInterrupt) as exc:
         _log_update(
             install_dir,
@@ -1215,9 +1233,14 @@ def apply_update(
         )
 
         phase = "Neustart prüfen"
+        if instance_lock is not None:
+            instance_lock.unlock()
+            instance_lock = None
+            _log_update(install_dir, "Single-Instance-Sperre vor Neustart freigegeben.")
         restarted = _restart_cmdrhelper(
             install_dir
         )
+        _log_update(install_dir, f"Neustart PID: {getattr(restarted, 'pid', 'unbekannt')}; Python: {sys.executable}")
         _verify_restart(restarted)
 
         _log_update(
@@ -1324,6 +1347,11 @@ def apply_update(
             )
             return 2
 
+        # On Windows a failed installation must not launch another GUI.
+        # Keep Linux's existing restart-after-rollback behavior unchanged.
+        if os.name == "nt":
+            return 2
+
         try:
             _log_update(
                 install_dir,
@@ -1346,6 +1374,8 @@ def apply_update(
         return 2
 
     finally:
+        if instance_lock is not None:
+            instance_lock.unlock()
         shutil.rmtree(
             temp_extract,
             ignore_errors=True,

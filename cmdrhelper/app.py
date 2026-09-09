@@ -1,6 +1,7 @@
 import sys
 import logging
 import platform
+import os
 from pathlib import Path
 from PySide6.QtWidgets import QApplication, QMessageBox
 from PySide6.QtCore import QSettings, QLockFile, QDir
@@ -62,6 +63,7 @@ def run():
         platform.python_version(),
     )
     logger.info("Logdatei: %s", log_file)
+    logger.info("Hauptprozess PID: %s | Python: %s | Argumente: %r", os.getpid(), sys.executable, sys.argv)
 
     app = QApplication(sys.argv)
     app.setApplicationName("CMDRHelper")
@@ -73,9 +75,12 @@ def run():
     # Nur eine CMDRHelper-Instanz gleichzeitig zulassen.
     lock_path = QDir.temp().filePath("cmdrhelper.lock")
     instance_lock = QLockFile(lock_path)
+    if os.name == "nt":
+        instance_lock.setStaleLockTime(0)
 
     if not instance_lock.tryLock(100):
         logger.warning("Programmstart abgebrochen: CMDRHelper läuft bereits.")
+        logger.warning("Abgewiesene PID: %s | Sperrinhaber: %r", os.getpid(), instance_lock.getLockInfo())
 
         QMessageBox.information(
             None,

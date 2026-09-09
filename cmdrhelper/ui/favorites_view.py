@@ -2,6 +2,7 @@
 from datetime import datetime
 from pathlib import Path
 import sqlite3
+import math
 
 from PySide6.QtCore import Qt, QSize, QRect, QTimer
 from PySide6.QtGui import QIcon, QPixmap, QImageReader
@@ -27,12 +28,30 @@ def preview(path, width=600, height=320):
 
 
 def location_text(record):
-    parts = [tr('favorites.type.' + record['type']), record['system_name']]
+    parts = [tr('favorites.type.' + record['type']), record.get('system_name') or '']
     if record.get('body_name'):
         parts.append(record['body_name'])
-    if record['type'] == 'surface_location':
+    if valid_surface_coordinates(record):
         parts.append(f"{record['latitude']:.6f}° / {record['longitude']:.6f}°")
     return ' · '.join(parts)
+
+
+def valid_surface_coordinates(record):
+    return bool(record and record.get('type') == 'surface_location' and all(
+        type(record.get(key)) in (int, float) and math.isfinite(record[key])
+        and -limit <= record[key] <= limit
+        for key, limit in (('latitude', 90), ('longitude', 180))))
+
+
+def route_system(record):
+    name = record.get('system_name') if record and record.get('type') in TYPES else None
+    return name.strip() if isinstance(name, str) else ''
+
+
+def can_navigate(record):
+    body = record.get('body_name') if record else None
+    return bool(route_system(record) and isinstance(body, str) and body.strip()
+                and valid_surface_coordinates(record))
 
 
 def text_label(text):
@@ -214,11 +233,12 @@ class _SaveActionsLayout(QLayout):
 class FavoritesView(QWidget):
     def __init__(self, state, navigator_callback, explorer_callback, parent=None,
                  *, location_controller_callback=None, quick_favorite_hotkey=None,
-                 configure_hotkey_callback=None):
+                 configure_hotkey_callback=None, route_callback=None):
         super().__init__(parent)
         self.state = state
         self.store = FavoriteStore(state.database)
         self.navigator_callback, self.explorer_callback = navigator_callback, explorer_callback
+        self.route_callback = route_callback
         self._location_controller_callback = location_controller_callback
         self._quick_favorite_hotkey = quick_favorite_hotkey
         self._configure_hotkey_callback = configure_hotkey_callback
@@ -246,12 +266,13 @@ class FavoritesView(QWidget):
         root.addWidget(self.list,1)
         self.empty = text_label(tr('favorites.empty')); root.addWidget(self.empty)
         actions = QHBoxLayout(); self.action_buttons = []
-        for key, callback in [('open',self.open_selected),('edit',self.edit_selected),('delete',self.delete_selected),('navigate',self.navigate_selected)]:
+        for key, callback in [('open',self.open_selected),('edit',self.edit_selected),('delete',self.delete_selected),('route',self.route_selected),('navigate',self.navigate_selected)]:
             button = QPushButton(tr('favorites.'+key)); button.clicked.connect(callback); actions.addWidget(button)
-            if key == 'navigate':
+            if key in ('route', 'navigate'):
                 button.setObjectName('favoriteNavigate')
             self.action_buttons.append(button)
         root.addLayout(actions)
+        self.route_button, self.coordinates_button = self.action_buttons[-2:]
         self.quick_favorite_hint = QWidget()
         hint_layout = QHBoxLayout(self.quick_favorite_hint)
         hint_layout.setContentsMargins(0, 8, 0, 0)
@@ -353,7 +374,18 @@ class FavoritesView(QWidget):
     def _selection_changed(self, *_):
         record = self.selected()
         for button in self.action_buttons:button.setEnabled(record is not None)
-        self.action_buttons[-1].setEnabled(bool(record and record['type']=='surface_location'))
+        for button, available, tooltip in (
+            (self.route_button, bool(route_system(record) and self.route_callback), 'route_tooltip'),
+            (self.coordinates_button, can_navigate(record), 'coordinates_tooltip'),
+        ):
+            button.setVisible(available)
+            button.setEnabled(available)
+            button.setToolTip(tr('favorites.' + tooltip) if available else '')
+
+    def route_selected(self):
+        system = route_system(self.selected())
+        if system and self.route_callback is not None:
+            self.route_callback(system)
 
     def edit_record(self, record):
         dialog = FavoriteDialog(self.store,self.state,record,self)
@@ -428,14 +460,17 @@ class FavoritesView(QWidget):
         def show():
             if self.state.commander_id==record['commander_id']:self.explorer_callback(record)
         button.clicked.connect(show)
-        if record['type']=='surface_location':
+        if can_navigate(record):
             target=QPushButton(tr('favorites.navigate'), objectName='favoriteNavigate'); layout.addWidget(target)
+            target.setToolTip(tr('favorites.coordinates_tooltip'))
             target.clicked.connect(lambda:self._navigate(record))
         dialog.exec(); self._details=None
 
     def _navigate(self, record):
         if self.state.commander_id!=record['commander_id']:return
         try:
+            record = self.store.get(self.state.commander_id, record['id'])
+            if not can_navigate(record):return
             controller=self.navigator_callback()
             navigate_to_favorite(self.store,self.state.commander_id,record['id'],controller)
             self._favorite_target = (controller, self._target_key(controller.target))

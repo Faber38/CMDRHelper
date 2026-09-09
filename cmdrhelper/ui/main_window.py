@@ -43,7 +43,7 @@ from cmdrhelper.update import (
     launch_installer,
 )
 
-from PySide6.QtCore import Qt, QTimer, QThreadPool, QUrl, QDate
+from PySide6.QtCore import Qt, QTimer, QThreadPool, QUrl, QDate, Slot
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 from PySide6.QtGui import (
     QDesktopServices,
@@ -1141,20 +1141,24 @@ class MainWindow(QMainWindow):
         # Hauptfenster zuerst vollständig erscheinen kann.
         QTimer.singleShot(1500, lambda: self._check_for_updates(automatic=True))
 
+    @Slot(bool, int)
     def _initialization_started(self, visible, total):
         if not visible:
             return
-        self._startup_progress_dialog = StartupProgressDialog(
-            light=self.ui_theme == "light", parent=self
-        )
+        if self._startup_progress_dialog is None:
+            self._startup_progress_dialog = StartupProgressDialog(
+                light=self.ui_theme == "light", parent=self
+            )
         self._startup_progress_dialog.begin(int(total))
 
+    @Slot(int, int, str, str)
     def _initialization_progress(self, current, total, phase_key, filename):
         if self._startup_progress_dialog is not None:
             self._startup_progress_dialog.set_progress(
                 current, total, phase_key, filename
             )
 
+    @Slot(str)
     def _initialization_finished(self, error):
         if self._startup_progress_dialog is None:
             if error:
@@ -1848,6 +1852,7 @@ class MainWindow(QMainWindow):
         self.favorites_view = FavoritesView(
             self.state, self._favorite_navigator, self._show_favorite_in_explorer,
             self._favorites_window,
+            route_callback=self._open_material_trader_route,
             location_controller_callback=self._ensure_planet_navigation_controller,
             quick_favorite_hotkey=self._quick_favorite_hotkey,
             configure_hotkey_callback=self._configure_quick_favorite_hotkey)
@@ -2799,7 +2804,7 @@ class MainWindow(QMainWindow):
 
     def _show_edsm_status(self, lines):
         try:
-            self._ensure_navigation_hud().show_message(lines, 2500, channel="edsm")
+            self._ensure_navigation_hud().show_message(lines, 4500, channel="edsm")
         except (RuntimeError, OSError, ValueError) as exc:
             logging.getLogger(__name__).warning("EDSM status overlay unavailable: %s", exc)
 
@@ -5045,6 +5050,13 @@ class MainWindow(QMainWindow):
     def _update_download_finished(self, zip_path):
         result = self._update_download_result or {}
         latest = str(result.get("version") or "").strip()
+        install_message = tr("settings.update_downloaded_message", version=latest)
+        if self._release_requires_database_update(result):
+            install_message += tr("settings.update_post_restart_database")
+        if os.name == "nt":
+            # The helper's bounded process wait starts only after confirmation.
+            self._finish_update_download_ui()
+            QMessageBox.information(self, tr("settings.update_title"), install_message)
         self._set_update_status(tr("settings.update_starting_updater"))
         try:
             install_dir = Path(__file__).resolve().parents[2]
@@ -5056,11 +5068,9 @@ class MainWindow(QMainWindow):
         except Exception as exc:
             self._update_download_failed(str(exc))
             return
-        self._finish_update_download_ui()
-        install_message = tr("settings.update_downloaded_message", version=latest)
-        if self._release_requires_database_update(result):
-            install_message += tr("settings.update_post_restart_database")
-        QMessageBox.information(self, tr("settings.update_title"), install_message)
+        if os.name != "nt":
+            self._finish_update_download_ui()
+            QMessageBox.information(self, tr("settings.update_title"), install_message)
         QApplication.quit()
 
     def _set_update_status(

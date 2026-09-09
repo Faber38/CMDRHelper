@@ -8,7 +8,7 @@ import sqlite3
 import threading
 from datetime import datetime, timezone
 
-from PySide6.QtCore import QObject, QSettings, Signal, QTimer
+from PySide6.QtCore import QObject, QSettings, Signal, QTimer, Slot, Qt
 
 from cmdrhelper.journal_reader import (
     JournalReadError,
@@ -160,7 +160,9 @@ class AppState(QObject):
         self.watcher.journalChanged.connect(
             self._refresh_from_watcher
         )
-        self.journalIndexReady.connect(self._finish_initial_journal_index)
+        self.journalIndexReady.connect(
+            self._finish_initial_journal_index, Qt.QueuedConnection
+        )
 
         saved = self.settings.value(
             "journal_folder",
@@ -183,13 +185,19 @@ class AppState(QObject):
 
     def _start_initial_journal_index(self):
         """Startet den potenziell teuren Erstindex außerhalb des GUI-Threads."""
+        if getattr(self, "_initial_journal_index_running", False):
+            return
         folder = Path(self.journal_folder) if self.journal_folder else None
+        self._initialization_error = ""
+        self._initial_journal_index_running = True
+        self._startup_position_read = None
 
         def repair_history():
             try:
                 from cmdrhelper.startup_repairs import run_startup_repairs
                 run_startup_repairs(self.database.path)
-            except Exception:
+            except Exception as exc:
+                self._initialization_error = str(exc)
                 logger.exception("Historische Start-Reparatur fehlgeschlagen; Start wird fortgesetzt")
 
         def worker():
@@ -197,7 +205,8 @@ class AppState(QObject):
             try:
                 if folder is None:
                     repair_history()
-                    self.initializationFinished.emit("")
+                    self._initial_journal_index_running = False
+                    self.initializationFinished.emit(self._initialization_error)
                     return
                 from cmdrhelper.journal_index import (
                     journal_index_plan, scan_journal_folder,
@@ -219,6 +228,7 @@ class AppState(QObject):
                     self.database, folder,
                     progress_callback=progress if visible else None,
                 )
+                self.initializationProgress.emit(0, 0, "startup.phase.history", "")
                 # Historical repair revisions run before normal live writes/import.
                 # Missing or damaged old journals must not prevent normal startup.
                 repair_history()
@@ -266,6 +276,7 @@ class AppState(QObject):
                             progress_callback=mining_progress if mining_total else None,
                         )
                         completed += commander_total
+                self.initializationProgress.emit(0, 0, "startup.phase.history", "")
                 for commander_id in commander_ids:
                     if self.database.commander_state_repair_needed(
                         commander_id, "body_scan_attributes"
@@ -279,8 +290,10 @@ class AppState(QObject):
                         self.database.backfill_mercenary_credits(
                             commander_id, sessions
                         )
+                self._repair_indexed_commander_state(sessions, folder)
                 self.journalIndexReady.emit(sessions)
             except Exception as exc:
+                self._initialization_error = str(exc)
                 logger.exception("Initialer Journalindex fehlgeschlagen")
                 if not repaired:
                     repair_history()
@@ -292,56 +305,67 @@ class AppState(QObject):
                         cursor = con.execute("SELECT * FROM journal_sessions ORDER BY first_event_at,journal_file")
                         names = [column[0] for column in cursor.description]
                         retained = [dict(zip(names, row)) for row in cursor.fetchall()]
+                    self._repair_indexed_commander_state(retained, folder)
                     self.journalIndexReady.emit(retained)
                 except Exception:
                     logger.exception("Gespeicherter Journalindex konnte nicht geladen werden")
+                    self._initial_journal_index_running = False
                     self.initializationFinished.emit(str(exc))
 
         threading.Thread(
             target=worker, daemon=True, name="CMDRHelper-JournalIndex"
         ).start()
 
-    def _finish_initial_journal_index(self, sessions):
-        """Übernimmt das Worker-Ergebnis und setzt im GUI-Thread fort."""
-        self._journal_index_sessions = list(sessions or [])
-        self._journal_index_current = (
-            str(Path(self._journal_index_sessions[-1]["journal_file"]))
-            if self._journal_index_sessions else None
-        )
-        active_session = self._prepare_indexed_live_state(emit_identity=True)
-        self._repair_latest_position_gap(active_session)
-        # Indexzahl, Identität und persistenter Zustand sind bereits sicher
-        # bekannt und sollen auch bei einem nachfolgenden Deltafehler sichtbar
-        # bleiben.
-        self.changed.emit()
+    def _repair_indexed_commander_state(self, sessions, folder):
+        """Historical reconstruction stays in the serial index worker."""
+        self.initializationProgress.emit(0, 0, "startup.phase.preparing", "")
+        session = self._latest_identified_index_session(sessions)
         try:
-            commander_id = (
-                active_session.get("commander_id") if active_session else None
-            )
-            if commander_id is not None:
+            if session is not None:
+                commander_id = int(session["commander_id"])
+                if self.database.commander_state_repair_needed(commander_id, "position_gap"):
+                    self._startup_position_read = self._read_latest_position_event(session)
                 features = [
                     feature for feature in ("unsold", "missions")
-                    if self.database.commander_state_repair_needed(
-                        int(commander_id), feature
-                    )
+                    if self.database.commander_state_repair_needed(commander_id, feature)
                 ]
                 if features:
                     self.database.repair_commander_state(
-                        self.journal_folder, self._journal_index_sessions,
-                        int(commander_id), features=features,
+                        folder, sessions, commander_id, features=features,
                     )
-        except Exception:
+        except Exception as exc:
+            self._initialization_error = str(exc)
             logger.exception("Commander-Zustandsreparatur fehlgeschlagen")
-        if not self.refresh():
-            self.watcher.start()
-            self.initializationFinished.emit(
-                self._last_refresh_error or "Journal konnte nicht gelesen werden."
-            )
-            return
-        self.watcher.start()
-        self.import_journal_archive(automatic=True)
 
-    def _repair_latest_position_gap(self, session):
+    @Slot(object)
+    def _finish_initial_journal_index(self, sessions):
+        """Übernimmt das Worker-Ergebnis und setzt im GUI-Thread fort."""
+        self._initial_journal_index_running = False
+        try:
+            self._journal_index_sessions = list(sessions or [])
+            self._journal_index_current = (
+                str(Path(self._journal_index_sessions[-1]["journal_file"]))
+                if self._journal_index_sessions else None
+            )
+            active_session = self._prepare_indexed_live_state(emit_identity=True)
+            self._repair_latest_position_gap(
+                active_session, prepared=getattr(self, "_startup_position_read", None)
+            )
+            self._startup_position_read = None
+            self.changed.emit()
+            if not self.refresh():
+                raise RuntimeError(
+                    self._last_refresh_error or "Journal konnte nicht gelesen werden."
+                )
+            self.watcher.start()
+            self.initializationProgress.emit(0, 0, "startup.phase.history", "")
+            self.import_journal_archive(automatic=True)
+        except Exception as exc:
+            logger.exception("Übernahme des initialen Journalindex fehlgeschlagen")
+            self.initializationFinished.emit(str(exc))
+            self.watcher.start()
+
+    def _repair_latest_position_gap(self, session, prepared=None):
         if not session or session.get("commander_id") is None:
             return False
         commander_id = int(session["commander_id"])
@@ -349,6 +373,18 @@ class AppState(QObject):
             commander_id, "position_gap"
         ):
             return False
+        readable, latest = (
+            prepared if prepared is not None else self._read_latest_position_event(session)
+        )
+        if not readable:
+            return False
+        return self.database.repair_commander_position_gap(
+            commander_id, Path(session["journal_file"]), latest or {},
+            enqueue_inara=self._inara_identity_matches(commander_id),
+        )
+
+    @staticmethod
+    def _read_latest_position_event(session):
         path = Path(session["journal_file"])
         limit = int(session.get("last_read_offset") or 0)
         latest = None
@@ -364,11 +400,8 @@ class AppState(QObject):
                     latest = event
         except OSError as exc:
             logger.warning("Positionsreparatur konnte Journal nicht lesen: %s", exc)
-            return False
-        return self.database.repair_commander_position_gap(
-            commander_id, path, latest or {},
-            enqueue_inara=self._inara_identity_matches(commander_id),
-        )
+            return False, None
+        return True, latest
 
     def database_stats(self):
         try:
@@ -420,12 +453,18 @@ class AppState(QObject):
             self.viewedCommanderChanged.emit(commander_id)
 
     def import_journal_archive(self, automatic=False):
+        if getattr(self, "_initial_journal_index_running", False):
+            if not automatic:
+                self._startup_manual_import_waiting = True
+            return
         if not self.journal_folder:
             if not automatic:
                 self.databaseImportFinished.emit(
                     None,
                     "Kein Journalordner eingestellt."
                 )
+            else:
+                self.initializationFinished.emit(getattr(self, "_initialization_error", ""))
             return
 
         # Verhindert, dass automatischer Startimport und manueller
@@ -464,8 +503,9 @@ class AppState(QObject):
             "automatisch" if automatic else "manuell",
         )
         self._database_import_manual_waiting = (
-            not automatic
+            not automatic or getattr(self, "_startup_manual_import_waiting", False)
         )
+        self._startup_manual_import_waiting = False
         self._database_import_last_progress = None
         folder = Path(self.journal_folder)
 
@@ -500,7 +540,9 @@ class AppState(QObject):
                     if not display_name.lower().endswith(".log"):
                         display_name = ""
                     self.initializationProgress.emit(
-                        current, total, "startup.phase.history", display_name
+                        current if total > 0 and current < total else 0,
+                        total if total > 0 and current < total else 0,
+                        "startup.phase.history", display_name
                     )
 
         def worker():
@@ -514,6 +556,8 @@ class AppState(QObject):
                 # Hier bleiben beide Lernroutinen unabhängig vom letzten
                 # Live-Event aktiv, damit historische Verkaufsdaten erhalten
                 # beziehungsweise neu übernommen werden.
+                if automatic:
+                    self.initializationProgress.emit(0, 0, "startup.phase.history", "")
                 self._run_journal_learning("", force=True, folder=folder)
 
                 logger.info(
@@ -531,7 +575,7 @@ class AppState(QObject):
                         ""
                     )
                 if automatic:
-                    self.initializationFinished.emit("")
+                    self.initializationFinished.emit(getattr(self, "_initialization_error", ""))
             except Exception as exc:
                 error_text = str(exc)
 
@@ -1385,9 +1429,10 @@ class AppState(QObject):
         self.edsm_source_status = ""
         self._edsm_request_system = ""
 
-    def _latest_identified_index_session(self):
+    def _latest_identified_index_session(self, sessions=None):
         """Returns the chronologically newest indexed, identified session."""
-        for session in reversed(self._journal_index_sessions or []):
+        indexed = self._journal_index_sessions if sessions is None else sessions
+        for session in reversed(indexed or []):
             if not isinstance(session, dict):
                 continue
             if (

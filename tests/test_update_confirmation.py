@@ -99,6 +99,27 @@ class UpdateConfirmationTests(unittest.TestCase):
         set_language('en')
         self.assertEqual(release_summary('4.0', notes), ['English point'])
 
+    def test_v321_summary_is_localized_and_contains_only_windows_fixes(self):
+        keys = RELEASE_SUMMARIES['3.2.1']
+        self.assertEqual(len(keys), 4)
+        self.assertTrue(all(key.startswith('release.3_2_1.') for key in keys))
+        self.assertTrue(set(keys).isdisjoint(RELEASE_SUMMARIES['3.2']))
+        for language, table in _TRANSLATIONS.items():
+            with self.subTest(language=language):
+                set_language(language)
+                self.assertTrue(all(table[key].strip() for key in keys))
+                summary = release_summary('v3.2.1')
+                self.assertEqual(summary, [table[key] for key in keys])
+                self.assertNotRegex(' '.join(summary), r'Materials|Odyssey|EDSM|ID64|Explorer|Spansh')
+                box = self.box('3.2.1')
+                for item in summary:
+                    self.assertIn(item, box.changes.toPlainText())
+        set_language('de')
+        self.assertEqual(release_summary('3.2.1')[0], 'Windows-Update verbessert')
+        self.assertIn('Neustart', release_summary('3.2.1')[1])
+        self.assertIn('CMDRHelper läuft bereits', release_summary('3.2.1')[2])
+        self.assertIn(r'\n\n', release_summary('3.2.1')[3])
+
     def test_invalid_or_missing_language_falls_back_without_changelog(self):
         for notes in ('# Full history\n- Old change', '<!-- cmdrhelper-update-summary broken -->', metadata({'de': [42]}), metadata({'de': []}), metadata({'en': ['English']})):
             self.assertEqual(len(release_summary('v3.2', notes)), 6)
