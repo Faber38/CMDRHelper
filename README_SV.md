@@ -13,7 +13,25 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper är ett fristående skrivbordsprogram som analyserar de lokala Elite Dangerous-journalerna och använder planetära positionsdata från `Status.json`. Det hjälper dig att hitta intressanta himlakroppar, återvända till sparade platser och följa dina resor och fynd. Personliga data bevaras efter omstart och hålls åtskilda per befälhavare.
 
-## Nytt i v3.1 jämfört med v3.0.3
+## Nytt i v3.2 jämfört med v3.1
+
+- Materialhantering för engineering: alla 146 material i Raw, Manufactured och Encoded, med grader, kapacitet och undantag. Aktuellt lager per commander, sökning, filter, fem diskreta radbakgrunder och sparade kolumnbredder och ordning ger överblick. Okänt lager skiljs från noll.
+
+- Odyssey-inventarium: den fjärde materialfliken innehåller 223 katalogidentiteter för varor, komponenter, data och förbrukningsvaror. Skeppsförråd, ryggsäck och tillförlitlig totalsumma hålls isär; uppdragsstaplar, uppdragsstatus och engineering-användning visas. Positiva antal visas i guld. Namn utan översättning visas på engelska.
+
+- Sökning efter materialhandlare (Hitta materialhandlare → Öppna ruttplaneraren): på begäran söker Spansh separat efter Raw, Manufactured och Encoded från commanderns aktuella system. Carriers utesluts och stationsdetaljer kontrolleras. Avståndet i ly är direkt mellan systemen; gemenskapsdata garanterar inte åtkomst. Överföring till ruttplaneraren anger bara målsystemet och startar ingen rutt. Ingen sökning efter Odyssey-handlare.
+
+- Systemöversikt: den nya Elite-inspirerade vyn ersätter miniatyröversikten i Explorer och Krönika. Stjärnor och planeter bildar huvudstrukturen med månar som grenar nedanför; flerstjärnesystem förblir lättlästa. Zoom, rullning, anpassning till fönstret och klick på himlakroppar ger tillgång till detaljer.
+
+- Kompakta asteroidbälten: kluster grupperas till bälten i översikten och de vanliga systemkartorna i Explorer och Krönika. Alla enskilda klusterdata bevaras.
+
+- Korrigerad kartografi: en skanning efter DSS-kartläggning återställer inte längre osålda utforskningsvärden, kartläggningstid eller effektivitet. Felaktiga poster repareras vid start från tillgängliga journaler med entydig commander-koppling. Saknade källor lämnar reparationen öppen; databasen behöver inte raderas.
+
+- Förbättrad ruttplanerare: starten följer automatiskt det aktuella systemet tills du anger en manuellt; tömning av fältet återställer automatiken. Skepp och carriers använder exakt validerade ID64-adresser utan att välja liknande namn. ”Unable to find route” förklaras som att ingen rutt hittades; kontrollera mål, räckvidd och ruttinställningar.
+
+- Bättre uppdateringsinformation: Ja/Nej-fönstret visar installerad och tillgänglig version samt upp till sex nyheter när en sammanfattning finns. Långa listor kan rullas och åtgärderna förblir tillgängliga. Vyn följer med v3.2; en oförändrad v3.1-klient visar den ännu inte.
+
+## v3.1 (v3.0.3 → v3.1)
 
 - BIO-förloppet är kompakt: 1/3 gult, 2/3 blått och 3/3 grönt; det slutförda tillståndet ”Klart” är också grönt. Under ”visa automatiskt” har GEO en egen sparad omkopplare: enbart BIO, enbart GEO eller båda tillsammans. Manuellt justerade kolumnbredder i den gemensamma Explorer-tabellen BIO / GEO / ABBAU bevaras när fönstret öppnas igen och efter omstart. Sparade kolumnbredder i popupfönster återställs robustare; ogiltiga värden ersätts med säkra standardbredder.
 

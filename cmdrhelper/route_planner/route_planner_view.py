@@ -47,6 +47,7 @@ class RoutePlannerView(QWidget):
         self._carrier_route = None
         self._ship_generation = 0
         self._ship_workers = {}
+        self._destination_identity = None
         self._ship_controller = ShipRouteController(
             copy_callback=self._copy_ship_target,
             changed_callback=self._refresh_ship_route_status,
@@ -58,10 +59,19 @@ class RoutePlannerView(QWidget):
         layout.addWidget(QLabel(tr("nav.route_planner"), objectName="sectionTitle"))
 
         tabs = QTabWidget()
+        self.route_tabs = tabs
         tabs.addTab(self._build_ship_tab(), tr("route_planner.ship_route"))
         tabs.addTab(self._build_carrier_tab(), tr("route_planner.carrier_route"))
         layout.addWidget(tabs, 1)
 
+        self._manual_starts = set()
+        for field in (self.ship_start_system, self.carrier_start_system):
+            field.textEdited.connect(
+                lambda text, field=field: self._start_system_edited(field, text)
+            )
+        if self.state is not None and hasattr(self.state, "changed"):
+            self.state.changed.connect(self._sync_current_system)
+        self._sync_current_system()
         if self.state is not None and hasattr(self.state, "positionChanged"):
             self.state.positionChanged.connect(self._ship_position_changed)
         if self.state is not None and hasattr(self.state, "shipLoadoutChanged"):
@@ -74,6 +84,32 @@ class RoutePlannerView(QWidget):
             getattr(self.state, "system_address", None) if self.state else None,
             "Location",
         )
+
+    def set_destination_system(self, system_name, system_id64=None):
+        """Prepare the existing ship planner without calculating or starting a route."""
+        self._sync_current_system()
+        self.ship_destination_system.setText(str(system_name).strip())
+        self._destination_identity = (str(system_name).strip().casefold(), system_id64)
+        self.route_tabs.setCurrentIndex(0)
+
+    def _start_system_edited(self, field, text):
+        if text.strip():
+            self._manual_starts.add(field)
+        else:
+            self._manual_starts.discard(field)
+
+    def _sync_current_system(self):
+        """Refresh planning defaults from AppState, without advancing any route."""
+        current = str(getattr(self.state, "system", "") or "").strip()
+        self.ship_current_system.setText(current or "–")
+        for field in (self.ship_start_system, self.carrier_start_system):
+            if field not in self._manual_starts or not field.text().strip():
+                self._manual_starts.discard(field)
+                field.setText(current)
+
+    def showEvent(self, event):
+        self._sync_current_system()
+        super().showEvent(event)
 
     def _build_ship_tab(self):
         tab = QWidget()
@@ -232,9 +268,9 @@ class RoutePlannerView(QWidget):
         )
         self.ship_calculate_button.clicked.connect(self._calculate_ship_route)
         self.ship_calculation_status = QLabel("", objectName="muted")
+        self.ship_calculation_status.setWordWrap(True)
         calculate_row.addWidget(self.ship_calculate_button)
-        calculate_row.addWidget(self.ship_calculation_status)
-        calculate_row.addStretch()
+        calculate_row.addWidget(self.ship_calculation_status, 1)
         input_layout.addLayout(calculate_row)
         layout.addWidget(input_card)
 
@@ -364,6 +400,12 @@ class RoutePlannerView(QWidget):
         request = ShipRouteRequest(
             source=source,
             destination=destination,
+            source_id64=(getattr(self.state, 'system_address', None)
+                         if source.casefold() == str(getattr(self.state, 'system', '') or '').strip().casefold()
+                         else None),
+            destination_id64=(self._destination_identity[1]
+                              if self._destination_identity and self._destination_identity[0] == destination.casefold()
+                              else None),
             is_supercharged=self.ship_is_supercharged.isChecked(),
             use_supercharge=self.ship_use_supercharge.isChecked(),
             use_injections=self.ship_use_injections.isChecked(),
@@ -385,7 +427,8 @@ class RoutePlannerView(QWidget):
         generation = self._ship_generation
         self._reset_ship_results()
         self.ship_calculation_status.setText(tr("route_planner.ship_calculating"))
-        worker = ShipRouteWorker(request, generation)
+        worker = ShipRouteWorker(request, generation,
+                                 database_path=getattr(getattr(self.state, 'database', None), 'path', None))
         worker.signals.finished.connect(self._ship_route_finished)
         worker.signals.failed.connect(self._ship_route_failed)
         self._ship_workers[generation] = worker
@@ -424,9 +467,9 @@ class RoutePlannerView(QWidget):
         if generation != self._ship_generation:
             return
         messages = {
-            "no_route": tr("route_planner.error_no_route"),
-            "source_unknown": tr("route_planner.error_source_unknown"),
-            "destination_unknown": tr("route_planner.error_destination_unknown"),
+            "no_route": tr("route_planner.ship_error_no_route"),
+            "source_unknown": tr("route_planner.system_source_unresolved"),
+            "destination_unknown": tr("route_planner.system_destination_unresolved"),
             "unreachable": tr("route_planner.error_unreachable"),
             "timeout": tr("route_planner.error_timeout"),
             "invalid_response": tr("route_planner.error_invalid_response"),
@@ -434,7 +477,15 @@ class RoutePlannerView(QWidget):
             "spansh_error": tr("route_planner.error_spansh"),
             "unexpected": tr("route_planner.error_unexpected"),
         }
-        self.ship_calculation_status.setText(messages.get(code, tr("route_planner.error_unexpected")))
+        message = messages.get(code, tr("route_planner.error_unexpected"))
+        if code == "no_route":
+            message += "\n" + tr("route_planner.ship_no_route_help")
+            message += "\n" + tr(
+                "route_planner.ship_no_route_tip",
+                apply=tr("route_planner.ship_loadout_apply"),
+                supercharge=tr("route_planner.ship_use_supercharge"),
+            )
+        self.ship_calculation_status.setText(message)
 
     def _reset_ship_results(self):
         self._ship_controller.clear_route()
@@ -445,6 +496,7 @@ class RoutePlannerView(QWidget):
         self.ship_clipboard_status.setText("")
 
     def _ship_position_changed(self, system, system_address, event_type):
+        self._sync_current_system()
         self._ship_controller.handle_position(system, system_address, event_type)
 
     def _copy_next_ship_system(self):
@@ -463,7 +515,7 @@ class RoutePlannerView(QWidget):
         if not hasattr(self, "ship_current_system"):
             return
         controller = self._ship_controller
-        self.ship_current_system.setText(controller.current_system or "–")
+        self.ship_current_system.setText(str(getattr(self.state, "system", "") or "–"))
         next_jump = controller.next_jump
         self.ship_next_system.setText(next_jump.system if next_jump else "–")
         self.ship_copy_button.setEnabled(next_jump is not None)
@@ -616,6 +668,9 @@ class RoutePlannerView(QWidget):
         request = CarrierRouteRequest(
             source=source,
             destination=destination,
+            source_id64=(getattr(self.state, 'system_address', None)
+                         if source.casefold() == str(getattr(self.state, 'system', '') or '').strip().casefold()
+                         else None),
             tritium_in_tank=tritium_in_tank,
             tritium_in_storage=tritium_in_storage,
             max_jump_range=self.carrier_jump_range.value(),
@@ -624,7 +679,8 @@ class RoutePlannerView(QWidget):
         self.carrier_calculate_button.setEnabled(False)
         self.carrier_status.setText(tr("route_planner.calculating"))
 
-        worker = CarrierRouteWorker(request)
+        worker = CarrierRouteWorker(request,
+                                    database_path=getattr(getattr(self.state, 'database', None), 'path', None))
         worker.signals.finished.connect(self._carrier_route_finished)
         worker.signals.failed.connect(self._carrier_route_failed)
         self._carrier_worker = worker
@@ -664,8 +720,8 @@ class RoutePlannerView(QWidget):
         self.carrier_calculate_button.setEnabled(True)
         self.carrier_export_button.setEnabled(False)
         messages = {
-            "source_unknown": tr("route_planner.error_source_unknown"),
-            "destination_unknown": tr("route_planner.error_destination_unknown"),
+            "source_unknown": tr("route_planner.system_source_unresolved"),
+            "destination_unknown": tr("route_planner.system_destination_unresolved"),
             "no_route": tr("route_planner.error_no_route"),
             "unreachable": tr("route_planner.error_unreachable"),
             "timeout": tr("route_planner.error_timeout"),

@@ -13,7 +13,25 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper to samodzielna aplikacja komputerowa analizująca lokalne dzienniki Elite Dangerous i korzystająca z planetarnych danych pozycji z `Status.json`. Pomaga rozpoznawać interesujące ciała niebieskie, wracać do zapisanych miejsc oraz przeglądać podróże i odkrycia. Dane osobiste pozostają po ponownym uruchomieniu i są rozdzielone według dowódców.
 
-## Nowości w v3.1 względem v3.0.3
+## Nowości w v3.2 względem v3.1
+
+- Zarządzanie materiałami inżynieryjnymi: wszystkie 146 materiałów Raw, Manufactured i Encoded wraz z klasami, pojemnościami i wyjątkami. Aktualne zapasy dowódcy, wyszukiwanie, filtry, pięć subtelnych teł wierszy oraz zapisana szerokość i kolejność kolumn ułatwiają przeglądanie. Nieznany stan pozostaje odróżniony od zera.
+
+- Ekwipunek Odyssey: czwarta karta zawiera 223 tożsamości katalogowe towarów, komponentów, danych i przedmiotów zużywalnych. Schowek, plecak i wiarygodna suma pozostają oddzielne; widoczne są stosy misji, status i zastosowania inżynieryjne. Dodatnie ilości mają złoty kolor. Brakujące tłumaczenia nazw zastępuje angielski.
+
+- Wyszukiwanie handlarzy materiałami (Znajdź handlarza → Otwórz planer trasy): na żądanie Spansh szuka osobno Raw, Manufactured i Encoded od bieżącego systemu dowódcy. Carriery są wykluczane, a dane stacji weryfikowane. Odległość w ly jest bezpośrednia między systemami; dane społeczności nie gwarantują dostępu. Przekazanie do planera ustawia tylko system docelowy i nie uruchamia trasy. Brak wyszukiwania handlarzy Odyssey.
+
+- Widok całego systemu: nowy układ w stylu Elite zastępuje miniaturę w Explorerze i Kronice. Gwiazdy i planety tworzą główną strukturę, a księżyce odgałęziają się poniżej; układy wielogwiazdowe pozostają czytelne. Zoom, przewijanie, dopasowanie do okna i kliknięcie ciała umożliwiają dostęp do szczegółów.
+
+- Zwarte pasy asteroid: skupiska są grupowane w pasy w widoku ogólnym oraz zwykłych mapach Explorera i Kroniki. Wszystkie dane poszczególnych skupisk są zachowane.
+
+- Poprawiona kartografia: skan po mapowaniu DSS nie zeruje już niesprzedanych wartości eksploracji, czasu mapowania ani wydajności. Błędne wpisy są naprawiane przy starcie z dostępnych dzienników jednoznacznie przypisanych do dowódcy. Bez źródeł naprawa oczekuje; nie trzeba usuwać bazy danych.
+
+- Ulepszony planer tras: start automatycznie śledzi bieżący system do ręcznego wpisania innego; wyczyszczenie pola przywraca automatykę. Statki i carriery używają dokładnie sprawdzonych adresów ID64 zamiast podobnych nazw. „Unable to find route” oznacza brak znalezionej trasy; sprawdź cele, zasięg i ustawienia.
+
+- Lepsza informacja o aktualizacji: okno Tak/Nie pokazuje wersję zainstalowaną i dostępną oraz do sześciu zmian, jeśli istnieje podsumowanie. Długie listy można przewijać, a działania pozostają dostępne. Widok jest instalowany z v3.2; niezmieniony klient v3.1 jeszcze go nie pokazuje.
+
+## v3.1 (v3.0.3 → v3.1)
 
 - Postęp BIO jest zwięzły: 1/3 żółte, 2/3 niebieskie i 3/3 zielone; ukończony stan „Gotowe” też jest zielony. W „pokazuj automatycznie” GEO ma własny zapisywany przełącznik: tylko BIO, tylko GEO lub oba razem. Ręcznie zmienione szerokości kolumn wspólnej tabeli BIO / GEO / ABBAU w Eksploratorze pozostają po ponownym otwarciu i restarcie programu. Szerokości kolumn okien podręcznych są przywracane odporniej na błędy; nieprawidłowe wartości zastępują bezpieczne szerokości domyślne.
 

@@ -1,7 +1,34 @@
 """Swedish content for contextual help."""
 
 
-HELP_TOPICS = {'overview': ('Översikt',
+HELP_TOPICS = {
+    "materials": (
+        'Material',
+        """<h2>Material</h2>
+<h3>CMDRHelper v3.2</h3>
+<p>Materialhantering för engineering: alla 146 material i Raw, Manufactured och Encoded, med grader, kapacitet och undantag. Aktuellt lager per commander, sökning, filter, fem diskreta radbakgrunder och sparade kolumnbredder och ordning ger överblick. Okänt lager skiljs från noll.</p>
+<p>Odyssey-inventarium: den fjärde materialfliken innehåller 223 katalogidentiteter för varor, komponenter, data och förbrukningsvaror. Skeppsförråd, ryggsäck och tillförlitlig totalsumma hålls isär; uppdragsstaplar, uppdragsstatus och engineering-användning visas. Positiva antal visas i guld. Namn utan översättning visas på engelska.</p>
+<p>Sökning efter materialhandlare (Hitta materialhandlare → Öppna ruttplaneraren): på begäran söker Spansh separat efter Raw, Manufactured och Encoded från commanderns aktuella system. Carriers utesluts och stationsdetaljer kontrolleras. Avståndet i ly är direkt mellan systemen; gemenskapsdata garanterar inte åtkomst. Överföring till ruttplaneraren anger bara målsystemet och startar ingen rutt. Ingen sökning efter Odyssey-handlare.</p>
+<p>Det här huvudområdet visar ingenjörsmaterialen för den commander som visas för tillfället. Valet i CMDR-vyn gäller även här; andra commanders data hålls åtskilda.</p>
+<h3>Tre kategorier</h3>
+<p>Flikarna Råmaterial, Tillverkade material och Kodade data innehåller alla 146 katalogmaterial, inklusive Guardian- och Thargoid-material. Listan sorteras efter grad och alfabetiskt inom varje grad.</p>
+<h3>Bestånd och staplar</h3>
+<p>Siffrorna visar bestånd / maximum, till exempel Vanadin 244 / 250. Den tillhörande stapeln visar 97,6 %. Även material som du aldrig har ägt visas med 0 när beståndet är tillförlitligt känt.</p>
+<p>Tomma bestånd markeras med dämpat rött, låga bestånd med gult/orange och nästan fulla eller fulla bestånd med grönt. Siffrorna förblir synliga oavsett färgerna.</p>
+<h3>Sökning och filter</h3>
+<p>Sökningen tar hänsyn till det visade och det engelska materialnamnet. Den kan kombineras med alla filter: Alla, Tomt (0), Lågt (över 0 till och med 20 %), Nästan fullt (från 80 % till under 100 %) och Fullt (100 %). Värden mellan 20 % och 80 % visas bara under Alla. Flikar och filter återställs vid nästa start.</p>
+<h3>Okända värden</h3>
+<p>Utan ett tillförlitligt fullständigt bestånd visas till exempel ? / 250. Om maximum är okänt kan det stå 12 / ?. I båda fallen visas varken procent eller stapel; sådana material visas enbart under Alla. En okänd grad visas i en egen grupp sist i listan.</p>
+<h3>Löpande uppdatering</h3>
+<p>Nya journalhändelser uppdaterar beståndet automatiskt, även efter materialbyten, ingenjörsarbete, syntes eller materialbelöningar. Under den första inläsningen visas ett laddningsmeddelande. Nyligen insamlat material markeras kort med en uppgift som Vanadin +1; förbrukning ger inget insamlingsmeddelande.</p>
+<h3>Materialnamn</h3>
+<p>Om ett materialnamn ännu inte finns på det valda språket visas dess engelska visningsnamn. Interna journalsymboler ersätter inte befintliga visningsnamn.</p>
+<h3>Odyssey</h3>
+<p>Den fjärde fliken under Material innehåller Varor, Komponenter, Data och Förbrukningsvaror. Skeppsförråd och Ryggsäck visar sina bestånd separat. Totalt visar summan endast när båda tillstånden stämmer överens på ett tillförlitligt sätt. Ett föråldrat ryggsäcksbestånd visas avsiktligt inte som aktuellt och räknas inte in i totalen; ? betyder okänt bestånd eller ett bestånd som för närvarande inte kan rekonstrueras tillförlitligt. Gränsen 1000 gäller varje kategori i skeppsförrådet, inte enskilda föremål. Exemplet för ingenjörsmaterial ovan definierar inget individuellt maximum för Odyssey-föremål. För förbrukningsvaror finns ännu ingen fullständigt validerad kapacitetsregel, så ingen obekräftad kapacitet visas.</p>
+<p>Användning visar föremålets användningsmarkeringar. Uppdrag betyder att den specifika inventariestapeln är kopplad till ett uppdrag, inte att föremålstypen generellt är ett uppdragsföremål. Vanliga och uppdragsbundna staplar hålls åtskilda. Även efter att uppdraget har slutförts förblir föremålet markerat så länge journalen listar det i beståndet; ett slutfört uppdrag tar inte automatiskt bort det. Verktygstipset visar uppdragsnummer och känd status. Ingenjörsarbete betyder att den statiska Odyssey-katalogen känner till minst en bekräftad användning: dräktuppgradering, vapenuppgradering, dräktmodifiering, vapenmodifiering eller upplåsning av en ingenjör. De enskilda användningarna visas i verktygstipset. Avsaknad av markering betyder inte att föremålet är oanvändbart eller enbart kan handlas. Även Powerplay-föremål och andra specialföremål kan visas.</p>
+<p>Sökningen hittar de visade lokala och engelska material-/föremålsnamnen. De sex Odyssey-filtren är Alla (alla föremål), Uppdrag (staplar kopplade till ett uppdrag), Ingenjörsarbete (föremål med bekräftad ingenjörsanvändning), Ryggsäck (ryggsäcksbestånd större än noll), Skeppsförråd (förrådsbestånd större än noll) och Bestånd 0 (tillförlitligt känt totalbestånd på 0). Okänt bestånd ? är inte 0 och ingår inte i Bestånd 0. Om en namnöversättning saknas används det engelska namnet, så vissa namn kan fortfarande visas på engelska i det valda språket. Detta är avsiktligt och är inget översättningsfel i beståndslogiken.</p>
+<p>Beståndet uppdateras automatiskt i bakgrunden. Bekräftade nya insamlingar kan markeras kort. Vid byte av commander tas gamla bestånd omedelbart bort. Underflikar, filter, kolumnbredder och kolumnordning sparas separat för Odyssey.</p>""",
+    ),'overview': ('Översikt',
               '<h2>Översikt</h2>\n'
               '<p>Översikten är startsidan för CMDRHelper. Den sammanfattar den viktigaste '
               'informationen om den för närvarande aktiva befälhavaren och visar med ett ögonkast '
@@ -149,7 +176,7 @@ HELP_TOPICS = {'overview': ('Översikt',
               '<p>CMDRHelper kan bara visa information som journalen faktiskt tillhandahåller '
               'eller som redan har lagrats från tidigare unika uppdragshändelser.</p>'),
  'explorer': ('Utforskare',
-              '<h2>Utforskare</h2>\n'
+              '<h2>Utforskare</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Systemöversikt: den nya Elite-inspirerade vyn ersätter miniatyröversikten i Explorer och Krönika. Stjärnor och planeter bildar huvudstrukturen med månar som grenar nedanför; flerstjärnesystem förblir lättlästa. Zoom, rullning, anpassning till fönstret och klick på himlakroppar ger tillgång till detaljer.</p>\n<p>Kompakta asteroidbälten: kluster grupperas till bälten i översikten och de vanliga systemkartorna i Explorer och Krönika. Alla enskilda klusterdata bevaras.</p>\n<p>Korrigerad kartografi: en skanning efter DSS-kartläggning återställer inte längre osålda utforskningsvärden, kartläggningstid eller effektivitet. Felaktiga poster repareras vid start från tillgängliga journaler med entydig commander-koppling. Saknade källor lämnar reparationen öppen; databasen behöver inte raderas.</p>\n'
               '<p>Utforskaren utvärderar de system och himlakroppar som upptäckts och skannades av '
               'den aktiva befälhavaren. Den kombinerar din egen Elite Dangerous-journaldata med '
               'redan tillgänglig ytterligare information och visar utforskning, kartografi, '
@@ -351,6 +378,9 @@ HELP_TOPICS = {'overview': ('Översikt',
  'chronicle': (
         'Krönika',
         """<h2>Krönika</h2>
+<h3>CMDRHelper v3.2</h3>
+<p>Systemöversikt: den nya Elite-inspirerade vyn ersätter miniatyröversikten i Explorer och Krönika. Stjärnor och planeter bildar huvudstrukturen med månar som grenar nedanför; flerstjärnesystem förblir lättlästa. Zoom, rullning, anpassning till fönstret och klick på himlakroppar ger tillgång till detaljer.</p>
+<p>Kompakta asteroidbälten: kluster grupperas till bälten i översikten och de vanliga systemkartorna i Explorer och Krönika. Alla enskilda klusterdata bevaras.</p>
 <p>Krönikan är befälhavarens personliga rese- och upptäcktshistoria. Den använder den permanent lagrade journalinformationen för att hitta system som redan har besökts, för att rumsligt representera dem och för att söka efter kända upptäckter.</p>
 
 <h3>System besökt</h3>
@@ -594,7 +624,7 @@ HELP_TOPICS = {'overview': ('Översikt',
               '<p>Inte som en förutsägelse:</p>\n'
               '<p>"Det kommer garanterat att finnas ett specifikt fynd i det här systemet."</p>'),
  'route_planner': ('Ruttplanerare',
-                   '<h2>Ruttplanerare</h2>\n'
+                   '<h2>Ruttplanerare</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Förbättrad ruttplanerare: starten följer automatiskt det aktuella systemet tills du anger en manuellt; tömning av fältet återställer automatiken. Skepp och carriers använder exakt validerade ID64-adresser utan att välja liknande namn. ”Unable to find route” förklaras som att ingen rutt hittades; kontrollera mål, räckvidd och ruttinställningar.</p>\n'
                    '<p>Ruttplaneraren stöder planering av längre resor med fartyg eller Fleet '
                    'Carrier. CMDRHelper kan använda extern ruttdata från Spansh och förbereda den '
                    'planerade rutten för vidare användning.</p>\n'
@@ -1061,7 +1091,7 @@ HELP_TOPICS = {'overview': ('Översikt',
                     '<p>Denna separation förhindrar att personlig data eller onlineuppladdningar '
                     'från olika befälhavare blandas ihop.</p>'),
  'settings': ('Inställningar',
-              '<h2>Inställningar</h2>\n'
+              '<h2>Inställningar</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Bättre uppdateringsinformation: Ja/Nej-fönstret visar installerad och tillgänglig version samt upp till sex nyheter när en sammanfattning finns. Långa listor kan rullas och åtgärderna förblir tillgängliga. Vyn följer med v3.2; en oförändrad v3.1-klient visar den ännu inte.</p>\n'
               '<p>Området "Inställningar" avgör hur CMDRHelper fungerar med Elite Dangerous, '
               'journalfiler, databas, onlinetjänster, gränssnitt och uppdateringar.</p>\n'
               '<p>Ändringar av referenser och sökvägar bör göras noggrant. Commander-relaterade '

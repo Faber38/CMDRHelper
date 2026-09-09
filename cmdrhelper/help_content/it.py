@@ -1,7 +1,34 @@
 """Italian content for contextual help."""
 
 
-HELP_TOPICS = {'overview': ('Panoramica',
+HELP_TOPICS = {
+    "materials": (
+        'Materiali',
+        """<h2>Materiali</h2>
+<h3>CMDRHelper v3.2</h3>
+<p>Gestione dei materiali di ingegneria: tutti i 146 materiali Raw, Manufactured ed Encoded, con gradi, capacità e casi speciali. Scorte aggiornate per comandante, ricerca, filtri, cinque sfondi discreti e larghezza/ordine delle colonne salvati facilitano la consultazione. Una quantità sconosciuta resta distinta da zero.</p>
+<p>Inventario Odyssey: la quarta scheda contiene 223 identità di catalogo per beni, componenti, dati e consumabili. Armadietto, zaino e totale attendibile restano separati; sono visibili pile di missione, stato e usi ingegneristici. Le quantità positive sono dorate. I nomi non tradotti usano l’inglese.</p>
+<p>Ricerca commercianti di materiali (Cerca commerciante → Apri pianificatore rotte): su richiesta, Spansh cerca separatamente Raw, Manufactured ed Encoded dal sistema attuale del comandante. I carrier sono esclusi e i dettagli delle stazioni verificati. La distanza in ly è diretta tra sistemi; i dati della comunità non garantiscono l’accesso. L’invio al pianificatore imposta solo il sistema di destinazione, senza avviare una rotta. Nessuna ricerca di commercianti Odyssey.</p>
+<p>Questa sezione principale mostra i materiali di ingegneria del comandante attualmente visualizzato. La selezione nella vista CMDR vale anche qui; i dati degli altri comandanti rimangono separati.</p>
+<h3>Tre categorie</h3>
+<p>Le schede Materiali grezzi, Materiali prodotti e Dati codificati contengono tutti i 146 materiali del catalogo, compresi quelli Guardian e Thargoid. L’elenco è ordinato per grado e alfabeticamente all’interno di ciascun grado.</p>
+<h3>Scorte e barre</h3>
+<p>I numeri indicano scorta / massimo, ad esempio Vanadio 244 / 250. La barra corrispondente indica 97,6 %. Anche i materiali mai posseduti vengono mostrati con 0 quando la scorta è nota in modo affidabile.</p>
+<p>Le scorte vuote sono evidenziate in rosso tenue, quelle scarse in giallo/arancione e quelle quasi piene o piene in verde. I numeri rimangono visibili indipendentemente dai colori.</p>
+<h3>Ricerca e filtri</h3>
+<p>La ricerca considera il nome visualizzato e quello inglese del materiale. Può essere combinata con tutti i filtri: Tutti, Vuoto (0), Scarso (oltre 0 fino al 20 %), Quasi pieno (dall’80 % a meno del 100 %) e Pieno (100 %). I valori tra il 20 % e l’80 % appaiono solo in Tutti. Schede e filtri vengono ripristinati al successivo avvio.</p>
+<h3>Valori sconosciuti</h3>
+<p>Senza un inventario completo affidabile viene mostrato, ad esempio, ? / 250. Se il massimo è sconosciuto, può apparire 12 / ?. In entrambi i casi non vengono mostrati percentuale o barra; questi materiali appaiono soltanto in Tutti. Un grado sconosciuto compare in un gruppo separato alla fine dell’elenco.</p>
+<h3>Aggiornamento in tempo reale</h3>
+<p>I nuovi eventi del diario aggiornano automaticamente le scorte, anche dopo scambi di materiali, interventi di ingegneria, sintesi o ricompense in materiali. Durante la lettura iniziale viene mostrato un messaggio di caricamento. Un materiale appena raccolto viene evidenziato brevemente con un’indicazione come Vanadio +1; il consumo non genera una notifica di raccolta.</p>
+<h3>Nomi dei materiali</h3>
+<p>Se il nome di un materiale non è ancora disponibile nella lingua scelta, viene usato il suo nome inglese. I simboli interni del diario non sostituiscono i nomi visualizzati esistenti.</p>
+<h3>Odyssey</h3>
+<p>La quarta scheda di Materiali contiene Beni, Componenti, Dati e Consumabili. Armadietto e Zaino mostrano separatamente le rispettive scorte. Totale mostra la loro somma solo quando entrambi gli stati sono coerenti in modo affidabile. Una scorta dello zaino obsoleta non viene volutamente presentata come attuale né sommata al totale; ? indica una scorta sconosciuta o attualmente non ricostruibile in modo affidabile. Il limite di 1000 vale per ciascuna categoria dell’armadietto, non per i singoli oggetti. L’esempio dei materiali di ingegneria sopra riportato non definisce un massimo individuale per gli oggetti Odyssey. Per i consumabili non esiste ancora una regola di capacità completamente validata, quindi non viene mostrata alcuna capacità non confermata.</p>
+<p>Utilizzo mostra le indicazioni d’uso dell’oggetto. Missione indica l’assegnazione a una missione della specifica pila d’inventario, non una proprietà generale del tipo di oggetto. Le pile normali e quelle legate a missioni rimangono separate. Anche dopo il completamento della missione, l’oggetto resta contrassegnato finché il diario lo riporta nell’inventario; il completamento non lo rimuove automaticamente. Il suggerimento mostra il numero della missione e lo stato noto. Ingegneria significa che il catalogo statico Odyssey conosce almeno un utilizzo confermato: potenziamento della tuta, potenziamento dell’arma, modifica della tuta, modifica dell’arma o sblocco di un ingegnere. I singoli utilizzi sono riportati nel suggerimento. L’assenza dell’indicazione non significa che l’oggetto sia inutile o soltanto commerciabile. Possono apparire anche oggetti Powerplay e altri oggetti speciali.</p>
+<p>La ricerca trova i nomi visualizzati locali e quelli inglesi dei materiali/oggetti. I sei filtri Odyssey sono Tutti (tutti gli oggetti), Missione (pile assegnate a una missione), Ingegneria (oggetti con un utilizzo di ingegneria confermato), Zaino (scorta nello zaino maggiore di zero), Armadietto (scorta nell’armadietto maggiore di zero) e Scorta 0 (scorta totale di 0 nota in modo affidabile). Una scorta sconosciuta ? non è 0 ed è esclusa da Scorta 0. In assenza di traduzione del nome viene usato quello inglese; alcuni nomi possono quindi rimanere in inglese nella lingua scelta. È un comportamento intenzionale, non un errore di traduzione della logica d’inventario.</p>
+<p>L’inventario viene aggiornato automaticamente in background. Le nuove raccolte confermate possono essere evidenziate brevemente. Quando si cambia comandante, le vecchie scorte vengono rimosse immediatamente. Sottoschede, filtri, larghezze e ordine delle colonne vengono salvati separatamente per Odyssey.</p>""",
+    ),'overview': ('Panoramica',
               '<h2>Panoramica</h2>\n'
               '<p>La panoramica è la home page di CMDRHelper. Riepiloga le informazioni più '
               "importanti sul comandante attualmente attivo e mostra a colpo d'occhio se il "
@@ -156,7 +183,7 @@ HELP_TOPICS = {'overview': ('Panoramica',
               'diario o che sono già state memorizzate da precedenti eventi di missione '
               'unici.</p>'),
  'explorer': ('Esploratore',
-              '<h2>Esploratore</h2>\n'
+              '<h2>Esploratore</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Panoramica del sistema: la nuova vista in stile Elite sostituisce la vecchia miniatura in Explorer e Cronaca. Stelle e pianeti formano la struttura principale, con lune ramificate sotto; i sistemi multipli restano leggibili. Zoom, scorrimento, adattamento alla finestra e clic sui corpi consentono di consultare i dettagli.</p>\n<p>Fasce di asteroidi compatte: i gruppi vengono riuniti in fasce nella panoramica e nelle normali mappe di Explorer e Cronaca. Tutti i dati dei singoli gruppi vengono conservati.</p>\n<p>Cartografia corretta: una scansione successiva alla mappatura DSS non azzera più valori esplorativi invenduti, ora della mappatura o efficienza. Le registrazioni errate vengono riparate all’avvio dai journal disponibili e attribuiti con certezza. Senza le fonti, la riparazione resta in sospeso; non occorre cancellare il database.</p>\n'
               "<p>L'Explorer valuta i sistemi e i corpi celesti scoperti e scansionati dal "
               'comandante attivo. Combina i dati del tuo diario Elite Dangerous con informazioni '
               "aggiuntive già disponibili e visualizza insieme l'esplorazione, la cartografia, i "
@@ -367,6 +394,9 @@ HELP_TOPICS = {'overview': ('Panoramica',
  'chronicle': (
         'Cronaca',
         """<h2>Cronaca</h2>
+<h3>CMDRHelper v3.2</h3>
+<p>Panoramica del sistema: la nuova vista in stile Elite sostituisce la vecchia miniatura in Explorer e Cronaca. Stelle e pianeti formano la struttura principale, con lune ramificate sotto; i sistemi multipli restano leggibili. Zoom, scorrimento, adattamento alla finestra e clic sui corpi consentono di consultare i dettagli.</p>
+<p>Fasce di asteroidi compatte: i gruppi vengono riuniti in fasce nella panoramica e nelle normali mappe di Explorer e Cronaca. Tutti i dati dei singoli gruppi vengono conservati.</p>
 <p>La cronaca è la storia personale dei viaggi e delle scoperte del comandante. Utilizza le informazioni del diario memorizzate in modo permanente per trovare sistemi che sono già stati visitati, per rappresentarli spazialmente e per cercare scoperte note.</p>
 
 <h3>Sistemi visitati</h3>
@@ -613,7 +643,7 @@ HELP_TOPICS = {'overview': ('Panoramica',
               '<p>Non come previsione:</p>\n'
               '<p>"È garantito che ci sia un ritrovamento specifico in questo sistema."</p>'),
  'route_planner': ('Pianificatore di percorso',
-                   '<h2>Pianificatore di percorso</h2>\n'
+                   '<h2>Pianificatore di percorso</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Pianificatore migliorato: la partenza segue il sistema attuale finché non ne inserisci una manualmente; svuotare il campo ripristina l’automatismo. Navi e carrier usano indirizzi ID64 verificati esattamente, senza scegliere nomi simili. «Unable to find route» indica che non è stata trovata una rotta; controlla destinazioni, autonomia e impostazioni.</p>\n'
                    '<p>Il pianificatore di percorso supporta la pianificazione di viaggi più '
                    'lunghi in nave o Fleet Carrier. CMDRHelper può utilizzare i dati del percorso '
                    'esterno da Spansh e preparare il percorso pianificato per un ulteriore '
@@ -1117,7 +1147,7 @@ HELP_TOPICS = {'overview': ('Panoramica',
                     '<p>Questa separazione impedisce che i dati personali o i caricamenti online '
                     'di diversi comandanti vengano mescolati insieme.</p>'),
  'settings': ('Impostazioni',
-              '<h2>Impostazioni</h2>\n'
+              '<h2>Impostazioni</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Informazioni di aggiornamento migliori: la finestra Sì/No mostra versione installata e disponibile e fino a sei novità, se esiste un riepilogo. Gli elenchi lunghi scorrono e le azioni restano accessibili. Questa vista arriva con v3.2; un client v3.1 invariato non la mostra ancora.</p>\n'
               '<p>L\'area "Impostazioni" determina il modo in cui CMDRHelper funziona con Elite '
               'Dangerous, file journal, database, servizi online, interfaccia e '
               'aggiornamenti.</p>\n'

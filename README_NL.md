@@ -13,7 +13,25 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper is een zelfstandig desktopprogramma dat de lokale journals van Elite Dangerous analyseert en planetaire positiegegevens uit `Status.json` gebruikt. Het helpt je interessante hemellichamen te herkennen, opgeslagen plaatsen terug te vinden en je reizen en ontdekkingen te bekijken. Persoonlijke gegevens blijven na een herstart behouden en worden per commander gescheiden.
 
-## Nieuw in v3.1 ten opzichte van v3.0.3
+## Nieuw in v3.2 ten opzichte van v3.1
+
+- Engineering-materiaalbeheer: alle 146 materialen in Raw, Manufactured en Encoded, met graden, capaciteiten en uitzonderingen. Actuele voorraad per commander, zoeken, filters, vijf subtiele rijachtergronden en opgeslagen kolombreedtes en volgorde bieden overzicht. Onbekende voorraad blijft onderscheiden van nul.
+
+- Odyssey-inventaris: het vierde tabblad bevat 223 catalogusidentiteiten voor goederen, componenten, gegevens en verbruiksartikelen. Scheepskluis, rugzak en betrouwbaar totaal blijven gescheiden; missiestapels, missiestatus en engineeringgebruik zijn zichtbaar. Positieve aantallen zijn goudkleurig. Ontbrekende naamvertalingen vallen terug op Engels.
+
+- Materiaalhandelaren zoeken (Handelaar zoeken → Open routeplanner): op verzoek zoekt Spansh afzonderlijk naar Raw, Manufactured en Encoded vanuit het huidige commandersysteem. Carriers worden uitgesloten en stationdetails gecontroleerd. De afstand in ly is rechtstreeks tussen systemen; gemeenschapsgegevens garanderen geen toegang. Doorsturen naar de routeplanner stelt alleen het doelsysteem in en start geen route. Er is geen zoekfunctie voor Odyssey-handelaren.
+
+- Systeemoverzicht: de nieuwe Elite-achtige weergave vervangt het miniatuuroverzicht in Explorer en Kroniek. Sterren en planeten vormen de hoofdstructuur met manen daaronder; meervoudige sterrenstelsels blijven leesbaar. Zoomen, scrollen, passend maken en klikken op hemellichamen geven toegang tot details.
+
+- Compacte asteroïdengordels: clusters worden gegroepeerd tot gordels in het overzicht en de gewone systeemkaarten van Explorer en Kroniek. Alle afzonderlijke clustergegevens blijven bewaard.
+
+- Cartografie hersteld: een scan na DSS-kartering zet onverkochte verkenningswaarden, karteringstijd en efficiëntie niet meer terug. Onjuiste registraties worden bij het starten hersteld uit beschikbare journals met eenduidige toewijzing. Zonder die bronnen blijft herstel openstaan; de database hoeft niet verwijderd te worden.
+
+- Verbeterde routeplanner: het vertrek volgt automatisch het huidige systeem totdat je handmatig een vertrek invult; leegmaken herstelt de automatische werking. Schepen en carriers gebruiken exact gecontroleerde ID64-adressen, zonder vergelijkbare namen te kiezen. ‘Unable to find route’ betekent dat geen route is gevonden; controleer doelen, bereik en route-instellingen.
+
+- Betere update-informatie: het Ja/Nee-venster toont geïnstalleerde en beschikbare versie plus maximaal zes wijzigingen als een samenvatting bestaat. Lange lijsten scrollen en acties blijven bereikbaar. Deze weergave wordt met v3.2 geïnstalleerd; een ongewijzigde v3.1-client toont haar nog niet.
+
+## v3.1 (v3.0.3 → v3.1)
 
 - BIO-voortgang is compact: 1/3 geel, 2/3 blauw en 3/3 groen; de voltooide toestand ‘Voltooid’ is eveneens groen. Onder ‘automatisch tonen’ heeft GEO een eigen opgeslagen schakelaar: alleen BIO, alleen GEO of beide samen. Handmatig aangepaste kolombreedtes van de gezamenlijke Explorer-tabel BIO / GEO / ABBAU blijven na heropenen en herstarten behouden. Opgeslagen popupkolommen worden robuuster hersteld; ongeldige waarden vallen terug op veilige standaardbreedtes.
 

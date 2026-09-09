@@ -11,6 +11,15 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 I18N_DIR = PROJECT_ROOT / "cmdrhelper" / "i18n"
 
+sys.path.insert(0, str(PROJECT_ROOT))
+from cmdrhelper.material_catalog import ENGLISH_FALLBACK_KEYS
+
+
+def intentional_english_fallback(key, reference):
+    """Only the validated new material keys may deliberately lack translations."""
+    return key in ENGLISH_FALLBACK_KEYS and bool(reference.get(key, "").strip())
+
+
 EXCLUDED_DIRS = {
     ".git",
     ".idea",
@@ -234,7 +243,11 @@ def main() -> int:
     mismatch_found = False
     for code, (path, translations, _) in languages.items():
         lang_keys = set(translations)
-        missing = sorted(ref_keys - lang_keys)
+        fallback = {key for key in ref_keys - lang_keys
+                    if intentional_english_fallback(key, reference)}
+        if fallback:
+            print(f"  {path.name}: {len(fallback)} Materialnamen mit englischem Fallback")
+        missing = sorted(ref_keys - lang_keys - fallback)
         extra = sorted(lang_keys - ref_keys)
 
         if not missing and not extra:
@@ -262,7 +275,7 @@ def main() -> int:
     for key in sorted(used_keys):
         missing_in = [
             code for code, (_, translations, _) in languages.items()
-            if key not in translations
+            if key not in translations and not intentional_english_fallback(key, reference)
         ]
 
         if not missing_in:
@@ -324,8 +337,8 @@ def main() -> int:
         return 1
 
     print(
-        f"✓ i18n: {len(ref_keys)} Keys vollständig in "
-        f"{len(languages)} Sprachen"
+        f"✓ i18n: {len(ref_keys)} Referenz-Keys in {len(languages)} Sprachen geprüft "
+        "(einschließlich ausgewiesener englischer Material-Fallbacks)"
     )
     print("✓ Platzhalter stimmen überein")
     print("✓ Keine doppelten Keys gefunden")

@@ -1,7 +1,34 @@
 """Norwegian content for contextual help."""
 
 
-HELP_TOPICS = {'overview': ('Oversikt',
+HELP_TOPICS = {
+    "materials": (
+        'Materialer',
+        """<h2>Materialer</h2>
+<h3>CMDRHelper v3.2</h3>
+<p>Materialoversikt for engineering: alle 146 materialer i Raw, Manufactured og Encoded, med grader, kapasitet og unntak. Oppdatert beholdning per commander, søk, filtre, fem diskrete radbakgrunner og lagrede kolonnebredder og rekkefølge gir oversikt. Ukjent beholdning skilles fra null.</p>
+<p>Odyssey-beholdning: den fjerde materialfanen inneholder 223 katalogidentiteter for varer, komponenter, data og forbruksvarer. Skipslager, ryggsekk og pålitelig total holdes atskilt; oppdragsstabler, oppdragsstatus og engineering-bruk vises. Positive antall er gullfargede. Navn uten oversettelse vises på engelsk.</p>
+<p>Søk etter materialhandlere (Finn materialhandler → Åpne ruteplanlegger): på forespørsel søker Spansh separat etter Raw, Manufactured og Encoded fra commanderens nåværende system. Carriers utelates og stasjonsdetaljer kontrolleres. Avstanden i ly er direkte mellom systemene; fellesskapsdata garanterer ikke tilgang. Overføring til ruteplanleggeren setter bare målsystemet og starter ingen rute. Ingen søk etter Odyssey-handlere.</p>
+<p>Dette hovedområdet viser ingeniørmaterialene til commanderen som vises for øyeblikket. Valget i CMDR-visningen gjelder også her; dataene til andre commandere holdes atskilt.</p>
+<h3>Tre kategorier</h3>
+<p>Fanene Råmaterialer, Produserte materialer og Kodede data inneholder alle de 146 katalogmaterialene, inkludert Guardian- og Thargoid-materialer. Listen er sortert etter grad og alfabetisk innenfor hver grad.</p>
+<h3>Beholdning og stolper</h3>
+<p>Tallene viser beholdning / maksimum, for eksempel Vanadium 244 / 250. Den tilhørende stolpen viser 97,6 %. Også materialer du aldri har eid, vises med 0 når beholdningen er pålitelig kjent.</p>
+<p>Tomme beholdninger markeres med dempet rødt, lave beholdninger med gult/oransje og nesten fulle eller fulle beholdninger med grønt. Tallene forblir synlige uavhengig av fargene.</p>
+<h3>Søk og filtre</h3>
+<p>Søket tar hensyn til det viste og det engelske materialnavnet. Det kan kombineres med alle filtre: Alle, Tom (0), Lav (over 0 til og med 20 %), Nesten full (fra 80 % til under 100 %) og Full (100 %). Verdier mellom 20 % og 80 % vises bare under Alle. Faner og filtre gjenopprettes ved neste oppstart.</p>
+<h3>Ukjente verdier</h3>
+<p>Uten en pålitelig fullstendig beholdning vises for eksempel ? / 250. Ved ukjent maksimum kan det stå 12 / ?. I begge tilfeller vises verken prosent eller stolpe; slike materialer vises bare under Alle. En ukjent grad vises i en egen gruppe nederst i listen.</p>
+<h3>Løpende oppdatering</h3>
+<p>Nye journalhendelser oppdaterer beholdningen automatisk, også etter materialbytte, ingeniørarbeid, syntese eller materialbelønninger. Under første innlesing vises en lastemelding. Nylig innsamlet materiale markeres kort med en angivelse som Vanadium +1; forbruk gir ingen innsamlingsmelding.</p>
+<h3>Materialnavn</h3>
+<p>Hvis et materialnavn ennå ikke finnes på det valgte språket, vises det engelske visningsnavnet. Interne journalsymboler erstatter ikke eksisterende visningsnavn.</p>
+<h3>Odyssey</h3>
+<p>Den fjerde fanen under Materialer inneholder Varer, Komponenter, Data og Forbruksvarer. Skipslager og Ryggsekk viser beholdningene hver for seg. Totalt viser summen bare når begge tilstandene passer pålitelig sammen. En utdatert ryggsekkbeholdning blir bevisst ikke vist som aktuell eller lagt til totalen; ? betyr ukjent beholdning eller beholdning som for øyeblikket ikke kan rekonstrueres pålitelig. Grensen på 1000 gjelder hver skipslagerkategori, ikke enkeltgjenstander. Eksemplet for ingeniørmaterialer ovenfor definerer ikke et individuelt maksimum for Odyssey-gjenstander. Forbruksvarer har fortsatt ingen fullstendig validert kapasitetsregel, så ingen ubekreftet kapasitet vises.</p>
+<p>Bruk viser gjenstandens bruksmerking. Oppdrag betyr at den konkrete beholdningsstabelen er knyttet til et oppdrag, ikke at gjenstandstypen generelt er en oppdragsgjenstand. Vanlige og oppdragsbundne stabler holdes atskilt. Også etter at oppdraget er fullført, forblir gjenstanden merket så lenge journalen fører den i beholdningen; fullføring fjerner den ikke automatisk. Verktøytipset viser oppdragsnummeret og kjent status. Ingeniørarbeid betyr at den statiske Odyssey-katalogen kjenner minst én bekreftet bruk: draktoppgradering, våpenoppgradering, draktmodifikasjon, våpenmodifikasjon eller opplåsing av en ingeniør. De enkelte bruksområdene vises i verktøytipset. Manglende merking betyr ikke at gjenstanden er ubrukelig eller bare kan handles. Powerplay-gjenstander og andre spesialgjenstander kan også vises.</p>
+<p>Søket finner de viste lokale og engelske material-/gjenstandsnavnene. De seks Odyssey-filtrene er Alle (alle gjenstander), Oppdrag (stabler knyttet til et oppdrag), Ingeniørarbeid (gjenstander med bekreftet ingeniørbruk), Ryggsekk (ryggsekkbeholdning større enn null), Skipslager (lagerbeholdning større enn null) og Beholdning 0 (pålitelig kjent totalbeholdning på 0). Ukjent beholdning ? er ikke 0 og tas ikke med i Beholdning 0. Manglende navneoversettelser erstattes med det engelske navnet, så enkelte navn kan fortsatt vises på engelsk i det valgte språket. Dette er tilsiktet og er ingen oversettelsesfeil i beholdningslogikken.</p>
+<p>Beholdningen oppdateres automatisk i bakgrunnen. Bekreftede nye innsamlinger kan markeres kort. Ved bytte av commander fjernes gamle beholdninger umiddelbart. Underfaner, filtre, kolonnebredder og kolonnerekkefølge lagres separat for Odyssey.</p>""",
+    ),'overview': ('Oversikt',
               '<h2>Oversikt</h2>\n'
               '<p>Oversikten er hjemmesiden til CMDRHelper. Den oppsummerer den viktigste '
               'informasjonen om den aktive fartøysjefen og viser med et blikk om journalen, '
@@ -148,7 +175,7 @@ HELP_TOPICS = {'overview': ('Oversikt',
               '<p>CMDRHelper kan bare vise informasjon som journalen faktisk gir eller som '
               'allerede er lagret fra tidligere unike oppdragsbegivenheter.</p>'),
  'explorer': ('Utforsker',
-              '<h2>Utforsker</h2>\n'
+              '<h2>Utforsker</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Systemoversikt: den nye Elite-inspirerte visningen erstatter miniatyroversikten i Explorer og Krønike. Stjerner og planeter danner hovedstrukturen med måner som grener under; flerstjernesystemer forblir oversiktlige. Zoom, rulling, tilpass til vinduet og klikk på himmellegemer gir tilgang til detaljer.</p>\n<p>Kompakte asteroidebelter: klynger samles til belter i oversikten og vanlige systemkart i Explorer og Krønike. Alle data om de enkelte klyngene beholdes.</p>\n<p>Korrigert kartografi: en skanning etter DSS-kartlegging nullstiller ikke lenger usolgte utforskningsverdier, kartleggingstid eller effektivitet. Feil registreringer repareres ved oppstart fra tilgjengelige journaler med entydig commander-tilordning. Manglende kilder lar reparasjonen stå åpen; databasen trenger ikke slettes.</p>\n'
               '<p>Utforskeren evaluerer systemene og himmellegemene oppdaget og skannet av den '
               'aktive sjefen. Den kombinerer dine egne Elite Dangerous-journaldata med allerede '
               'tilgjengelig tilleggsinformasjon og viser utforskning, kartografi, '
@@ -348,6 +375,9 @@ HELP_TOPICS = {'overview': ('Oversikt',
  'chronicle': (
         'Krønike',
         """<h2>Krønike</h2>
+<h3>CMDRHelper v3.2</h3>
+<p>Systemoversikt: den nye Elite-inspirerte visningen erstatter miniatyroversikten i Explorer og Krønike. Stjerner og planeter danner hovedstrukturen med måner som grener under; flerstjernesystemer forblir oversiktlige. Zoom, rulling, tilpass til vinduet og klikk på himmellegemer gir tilgang til detaljer.</p>
+<p>Kompakte asteroidebelter: klynger samles til belter i oversikten og vanlige systemkart i Explorer og Krønike. Alle data om de enkelte klyngene beholdes.</p>
 <p>Kronikken er fartøysjefens personlige reise- og oppdagelseshistorie. Den bruker den permanent lagrede journalinformasjonen til å finne systemer som allerede er besøkt, for å representere dem romlig og for å søke etter kjente funn.</p>
 
 <h3>Systemer besøkt</h3>
@@ -589,7 +619,7 @@ HELP_TOPICS = {'overview': ('Oversikt',
               '<p>Ikke som en spådom:</p>\n'
               '<p>"Det er garantert et spesifikt funn i dette systemet."</p>'),
  'route_planner': ('Ruteplanlegger',
-                   '<h2>Ruteplanlegger</h2>\n'
+                   '<h2>Ruteplanlegger</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Bedre ruteplanlegger: starten følger automatisk gjeldende system til du angir en manuelt; tømming av feltet gjenoppretter automatikken. Skip og carriers bruker nøyaktig validerte ID64-adresser uten å velge lignende navn. «Unable to find route» forklares som at ingen rute ble funnet; kontroller mål, rekkevidde og ruteinnstillinger.</p>\n'
                    '<p>Ruteplanleggeren støtter planlegging av lengre turer med skip eller Fleet '
                    'Carrier. CMDRHelper kan bruke eksterne rutedata fra Spansh og forberede den '
                    'planlagte ruten for videre bruk.</p>\n'
@@ -1044,7 +1074,7 @@ HELP_TOPICS = {'overview': ('Oversikt',
                     '<p>Denne separasjonen forhindrer at personlige data eller online opplastinger '
                     'fra forskjellige sjefer blandes sammen.</p>'),
  'settings': ('Innstillinger',
-              '<h2>Innstillinger</h2>\n'
+              '<h2>Innstillinger</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Bedre oppdateringsinformasjon: Ja/Nei-vinduet viser installert og tilgjengelig versjon samt opptil seks nyheter når et sammendrag finnes. Lange lister kan rulles og handlingene forblir tilgjengelige. Visningen følger med v3.2; en uendret v3.1-klient viser den ikke ennå.</p>\n'
               '<p>"Innstillinger"-området bestemmer hvordan CMDRHelper fungerer med Elite '
               'Dangerous, journalfiler, database, nettjenester, grensesnitt og oppdateringer.</p>\n'
               '<p>Endringer i legitimasjon og baner bør gjøres nøye. Kommandørrelaterte '

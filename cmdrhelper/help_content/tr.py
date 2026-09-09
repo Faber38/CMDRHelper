@@ -1,7 +1,34 @@
 """Turkish content for contextual help."""
 
 
-HELP_TOPICS = {'overview': ('Genel Bakış',
+HELP_TOPICS = {
+    "materials": (
+        'Malzemeler',
+        """<h2>Malzemeler</h2>
+<h3>CMDRHelper v3.2</h3>
+<p>Mühendislik malzemesi yönetimi: Raw, Manufactured ve Encoded kategorilerindeki 146 malzemenin tamamı; dereceler, kapasiteler ve istisnalarla birlikte. Komutana özel güncel stok, arama, filtreler, beş sade satır arka planı ve kaydedilen sütun genişliği/sırası görünümü kolaylaştırır. Bilinmeyen stok sıfırdan ayrı tutulur.</p>
+<p>Odyssey envanteri: dördüncü malzeme sekmesi mallar, bileşenler, veriler ve tüketim malzemeleri için 223 katalog kimliği içerir. Gemi dolabı, sırt çantası ve güvenilir toplam ayrı tutulur; görev yığınları, görev durumu ve mühendislik kullanımı gösterilir. Pozitif stok sayıları altın rengindedir. Çevrilmemiş adlar İngilizce gösterilir.</p>
+<p>Malzeme tüccarı araması (Tüccar ara → Rota planlayıcıyı aç): Spansh, istek üzerine komutanın mevcut sisteminden Raw, Manufactured ve Encoded için ayrı arama yapar. Carrier’lar dışlanır ve istasyon ayrıntıları doğrulanır. ly cinsinden mesafe sistemler arasındaki doğrudan uzaklıktır; topluluk verileri erişim garantisi vermez. Rota planlayıcısına aktarım yalnızca hedef sistemi ayarlar, rota başlatmaz. Odyssey tüccarı araması yoktur.</p>
+<p>Bu ana bölüm, o anda görüntülenen komutanın mühendislik malzemelerini gösterir. CMDR görünümündeki seçim burada da geçerlidir; diğer komutanların verileri ayrı tutulur.</p>
+<h3>Üç kategori</h3>
+<p>Ham malzemeler, Üretilmiş malzemeler ve Kodlanmış veriler sekmeleri, Guardian ve Thargoid malzemeleri dahil katalogdaki 146 malzemenin tamamını içerir. Liste dereceye göre, her derece içinde de alfabetik olarak sıralanır.</p>
+<h3>Stok ve çubuklar</h3>
+<p>Sayılar stok / üst sınır değerini gösterir; örneğin Vanadyum 244 / 250. İlgili çubuk 97,6 % gösterir. Hiç sahip olunmamış malzemeler de stok güvenilir biçimde biliniyorsa 0 ile gösterilir.</p>
+<p>Boş stoklar soluk kırmızıyla, az stoklar sarı/turuncuyla, neredeyse dolu veya dolu stoklar yeşille işaretlenir. Sayılar renklerden bağımsız olarak görünür kalır.</p>
+<h3>Arama ve filtreler</h3>
+<p>Arama, malzemenin görüntülenen ve İngilizce adını dikkate alır. Tüm filtrelerle birleştirilebilir: Tümü, Boş (0), Az (0’dan fazla, 20 % dahil), Neredeyse dolu (80 % dahil, 100 %’den az) ve Dolu (100 %). 20 % ile 80 % arasındaki değerler yalnızca Tümü altında görünür. Sekmeler ve filtreler sonraki başlatmada geri yüklenir.</p>
+<h3>Bilinmeyen değerler</h3>
+<p>Güvenilir ve tam bir stok bilgisi olmadan örneğin ? / 250 gösterilir. Üst sınır bilinmiyorsa 12 / ? gibi bir değer gösterilebilir. Her iki durumda da yüzde veya çubuk yoktur; bu malzemeler yalnızca Tümü altında görünür. Bilinmeyen derece, listenin sonunda ayrı bir grupta yer alır.</p>
+<h3>Canlı güncelleme</h3>
+<p>Yeni günlük olayları, malzeme takası, mühendislik, sentez veya malzeme ödüllerinden sonra da stoku otomatik günceller. İlk okuma sırasında yükleme bildirimi gösterilir. Yeni toplanan malzeme, Vanadyum +1 gibi bir ifadeyle kısa süreli vurgulanır; tüketim bir toplama bildirimi oluşturmaz.</p>
+<h3>Malzeme adları</h3>
+<p>Bir malzemenin adı seçilen dilde henüz mevcut değilse İngilizce görüntüleme adı kullanılır. Günlüğün dahili simgeleri mevcut görüntüleme adlarının yerini almaz.</p>
+<h3>Odyssey</h3>
+<p>Malzemeler altındaki dördüncü sekme Mallar, Bileşenler, Veriler ve Sarf malzemeleri bölümlerini içerir. Gemi dolabı ve Sırt çantası kendi stoklarını ayrı ayrı gösterir. Toplam, yalnızca iki durum güvenilir biçimde uyuştuğunda bunların toplamını gösterir. Güncelliğini yitirmiş sırt çantası stoku bilerek güncel stok olarak gösterilmez ve toplama eklenmez; ? bilinmeyen veya şu anda güvenilir biçimde yeniden oluşturulamayan stok anlamına gelir. 1000 sınırı tek tek nesneler için değil, her gemi dolabı kategorisi için geçerlidir. Yukarıdaki mühendislik malzemesi örneği Odyssey nesneleri için nesne başına bir üst sınır tanımlamaz. Sarf malzemeleri için hâlâ tamamen doğrulanmış bir kapasite kuralı yoktur; bu nedenle doğrulanmamış kapasite gösterilmez.</p>
+<p>Kullanım, nesnenin kullanım işaretlerini gösterir. Görev, envanterdeki belirli yığının bir göreve bağlı olduğu anlamına gelir; nesne türünün genel olarak bir görev nesnesi olduğu anlamına gelmez. Normal ve göreve bağlı yığınlar ayrı tutulur. Görev tamamlandıktan sonra da günlük nesneyi envanterde gösterdiği sürece işaret korunur; görevin tamamlanması nesneyi otomatik olarak kaldırmaz. Araç ipucu görev numarasını ve bilinen durumunu gösterir. Mühendislik, statik Odyssey kataloğunun en az bir doğrulanmış kullanım bildiği anlamına gelir: giysi yükseltmesi, silah yükseltmesi, giysi modifikasyonu, silah modifikasyonu veya bir mühendisin kilidini açma. Tek tek kullanımlar araç ipucunda yer alır. İşaretin olmaması nesnenin işe yaramaz veya yalnızca ticaret için olduğu anlamına gelmez. Powerplay nesneleri ve diğer özel nesneler de gösterilebilir.</p>
+<p>Arama, malzemelerin/nesnelerin görüntülenen yerel adlarını ve İngilizce adlarını bulur. Altı Odyssey filtresi şunlardır: Tümü (tüm nesneler), Görev (bir göreve bağlı yığınlar), Mühendislik (doğrulanmış mühendislik kullanımı olan nesneler), Sırt çantası (sırt çantası stoku sıfırdan büyük), Gemi dolabı (dolap stoku sıfırdan büyük) ve Stok 0 (güvenilir biçimde bilinen toplam stok 0). Bilinmeyen stok ? değeri 0 değildir ve Stok 0 filtresine dahil edilmez. Ad çevirisi eksikse İngilizce ad kullanılır; bu nedenle seçilen dilde bazı adlar İngilizce kalabilir. Bu kasıtlıdır ve envanter mantığında bir çeviri hatası değildir.</p>
+<p>Envanter arka planda otomatik olarak güncellenir. Doğrulanmış yeni toplamalar kısa süreli vurgulanabilir. Komutan değiştirildiğinde eski stoklar hemen kaldırılır. Alt sekmeler, filtreler, sütun genişlikleri ve sıralaması Odyssey için ayrı kaydedilir.</p>""",
+    ),'overview': ('Genel Bakış',
               '<h2>Genel Bakış</h2>\n'
               "<p>Genel bakış CMDRHelper'nin ana sayfasıdır. Şu anda aktif olan komutan hakkındaki "
               'en önemli bilgileri özetler ve derginin, konumun ve çevrimiçi hizmetlerin doğru '
@@ -147,7 +174,7 @@ HELP_TOPICS = {'overview': ('Genel Bakış',
               '<p>CMDRHelper yalnızca günlüğün gerçekten sağladığı veya önceki benzersiz görev '
               'olaylarından zaten saklanan bilgileri görüntüleyebilir.</p>'),
  'explorer': ('Kaşif',
-              '<h2>Kaşif</h2>\n'
+              '<h2>Kaşif</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Sistem genel görünümü: yeni Elite tarzı görünüm, Explorer ve Kronik’te önceki küçük görünümün yerini alır. Yıldızlar ve gezegenler ana yapıyı, aşağıya dallanan uydular alt yapıyı oluşturur; çok yıldızlı sistemler okunaklı kalır. Yakınlaştırma, kaydırma, pencereye sığdırma ve gök cismine tıklama ayrıntılara erişim sağlar.</p>\n<p>Kompakt asteroit kuşakları: kümeler genel görünümde ve Explorer/Kronik’in normal sistem haritalarında kuşaklar halinde gruplanır. Her kümenin verileri korunur.</p>\n<p>Düzeltilmiş haritacılık: DSS haritalamasından sonraki tarama artık satılmamış keşif değerlerini, haritalama zamanını veya verimliliği sıfırlamaz. Hatalı kayıtlar başlangıçta mevcut ve komutana kesin olarak atanmış günlüklerden onarılır. Kaynaklar eksikse onarım bekler; veritabanını silmek gerekmez.</p>\n'
               '<p>Explorer, aktif komutan tarafından keşfedilen ve taranan sistemleri ve gök '
               'cisimlerini değerlendirir. Kendi Elite Dangerous günlük verilerinizi halihazırda '
               'mevcut olan ek bilgilerle birleştirir ve keşif, haritacılık, biyolojik/jeolojik '
@@ -349,6 +376,9 @@ HELP_TOPICS = {'overview': ('Genel Bakış',
  'chronicle': (
         'Kronik',
         """<h2>Kronik</h2>
+<h3>CMDRHelper v3.2</h3>
+<p>Sistem genel görünümü: yeni Elite tarzı görünüm, Explorer ve Kronik’te önceki küçük görünümün yerini alır. Yıldızlar ve gezegenler ana yapıyı, aşağıya dallanan uydular alt yapıyı oluşturur; çok yıldızlı sistemler okunaklı kalır. Yakınlaştırma, kaydırma, pencereye sığdırma ve gök cismine tıklama ayrıntılara erişim sağlar.</p>
+<p>Kompakt asteroit kuşakları: kümeler genel görünümde ve Explorer/Kronik’in normal sistem haritalarında kuşaklar halinde gruplanır. Her kümenin verileri korunur.</p>
 <p>Chronicle, komutanın kişisel seyahat ve keşif geçmişidir. Daha önce ziyaret edilmiş sistemleri bulmak, bunları mekansal olarak temsil etmek ve bilinen keşifleri aramak için kalıcı olarak saklanan günlük bilgilerini kullanır.</p>
 
 <h3>Ziyaret edilen sistemler</h3>
@@ -592,7 +622,7 @@ HELP_TOPICS = {'overview': ('Genel Bakış',
               '<p>Bir tahmin olarak değil:</p>\n'
               '<p>“Bu sistemde spesifik bir bulgunun olması garantidir.”</p>'),
  'route_planner': ('Rota planlayıcı',
-                   '<h2>Rota planlayıcı</h2>\n'
+                   '<h2>Rota planlayıcı</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Geliştirilmiş rota planlayıcısı: elle bir başlangıç girene kadar mevcut sistem otomatik izlenir; alanı boşaltmak otomatiği geri getirir. Gemiler ve carrier’lar benzer adlar yerine tam doğrulanmış ID64 adresleri kullanır. “Unable to find route” rota bulunamadığı şeklinde açıklanır; hedefleri, menzili ve rota ayarlarını kontrol edin.</p>\n'
                    '<p>Rota planlayıcı, gemi veya Fleet Carrier ile daha uzun yolculukların '
                    "planlanmasını destekler. CMDRHelper, Spansh'den gelen harici rota verilerini "
                    'kullanabilir ve planlanan rotayı daha sonraki kullanım için '
@@ -1070,7 +1100,7 @@ HELP_TOPICS = {'overview': ('Genel Bakış',
                     '<p>Bu ayırma, farklı komutanlardan gelen kişisel verilerin veya çevrimiçi '
                     'yüklemelerin birbirine karıştırılmasını önler.</p>'),
  'settings': ('Ayarlar',
-              '<h2>Ayarlar</h2>\n'
+              '<h2>Ayarlar</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Daha iyi güncelleme bilgisi: Evet/Hayır penceresi kurulu ve mevcut sürümü, özet varsa en fazla altı yeniliği gösterir. Uzun listeler kaydırılırken eylemler erişilebilir kalır. Bu görünüm v3.2 ile kurulur; değişmemiş bir v3.1 istemcisi henüz göstermez.</p>\n'
               '<p>"Ayarlar" alanı CMDRHelper\'nin Elite Dangerous, günlük dosyaları, veritabanı, '
               'çevrimiçi hizmetler, arayüz ve güncellemelerle nasıl çalışacağını belirler.</p>\n'
               '<p>Kimlik bilgileri ve yollardaki değişiklikler dikkatli bir şekilde yapılmalıdır. '

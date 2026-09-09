@@ -11,6 +11,8 @@ class CarrierRouteRequest:
     tritium_in_tank: int
     tritium_in_storage: int
     max_jump_range: int
+    source_id64: int | None = None
+    destination_id64: int | None = None
 
 
 @dataclass(frozen=True)
@@ -77,6 +79,8 @@ class ShipRouteRequest:
     supercharge_multiplier: float = 4.0
     injection_multiplier: float = 2.0
     max_time: int = 60
+    source_id64: int | None = None
+    destination_id64: int | None = None
 
     def validation_error(self) -> str | None:
         if not self.source.strip():

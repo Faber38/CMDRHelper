@@ -13,7 +13,25 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper on itsenäinen työpöytäsovellus, joka analysoi Elite Dangerousin paikallisia lokeja ja käyttää `Status.json`-tiedoston planetaarisia sijaintitietoja. Se auttaa tunnistamaan kiinnostavia taivaankappaleita, palaamaan tallennettuihin paikkoihin ja tarkastelemaan matkoja ja löytöjä. Henkilökohtaiset tiedot säilyvät uudelleenkäynnistyksessä ja pidetään erillään komentajittain.
 
-## Uutta versiossa v3.1 verrattuna versioon v3.0.3
+## Uutta versiossa v3.2 verrattuna versioon v3.1
+
+- Engineering-materiaalien hallinta: kaikki 146 Raw-, Manufactured- ja Encoded-materiaalia tasoineen, enimmäismäärineen ja poikkeuksineen. Komentajakohtaiset ajantasaiset määrät, haku, suodattimet, viisi hillittyä rivitaustaa sekä tallennetut sarakeleveydet ja järjestys helpottavat selaamista. Tuntematon määrä erotetaan nollasta.
+
+- Odyssey-varasto: neljäs materiaalivälilehti sisältää 223 luetteloidentiteettiä tavaroille, komponenteille, datalle ja kulutustavaroille. Aluksen varasto, reppu ja luotettava yhteismäärä pidetään erillään; tehtäväpinot, tehtävän tila ja engineering-käyttö näkyvät. Positiiviset määrät näytetään kullanvärisinä. Puuttuvat nimikäännökset korvataan englannilla.
+
+- Materiaalikauppiaiden haku (Etsi materiaalikauppias → Avaa reittisuunnittelija): Spansh hakee pyynnöstä Raw-, Manufactured- ja Encoded-kauppiaat erikseen komentajan nykyisestä järjestelmästä. Carrierit jätetään pois ja asematiedot tarkistetaan. Etäisyys ly-yksiköissä on suora järjestelmien välinen etäisyys; yhteisötiedot eivät takaa pääsyä. Siirto reittisuunnittelijaan asettaa vain kohdejärjestelmän eikä käynnistä reittiä. Odyssey-kauppiaita ei haeta.
+
+- Järjestelmän yleiskuva: uusi Elite-tyylinen näkymä korvaa pienoisyleiskuvan Explorerissa ja Kronikassa. Tähdet ja planeetat muodostavat päärakenteen, kuut haarautuvat alapuolelle; monitähtijärjestelmät pysyvät selkeinä. Zoomaus, vieritys, ikkunaan sovitus ja taivaankappaleen napsautus avaavat yksityiskohtia.
+
+- Tiiviit asteroidivyöhykkeet: ryhmät yhdistetään vyöhykkeiksi yleiskuvassa sekä Explorerin ja Kronikan tavallisissa järjestelmäkartoissa. Kaikki yksittäisten ryhmien tiedot säilytetään.
+
+- Kartografia korjattu: DSS-kartoituksen jälkeinen skannaus ei enää nollaa myymättömiä tutkimusarvoja, kartoitusaikaa tai tehokkuutta. Virheelliset kirjaukset korjataan käynnistyksessä saatavilla olevista yksiselitteisesti komentajaan liitetyistä lokeista. Ilman lähteitä korjaus jää odottamaan; tietokantaa ei tarvitse poistaa.
+
+- Parannettu reittisuunnittelija: lähtö seuraa nykyistä järjestelmää, kunnes annat sen käsin; kentän tyhjentäminen palauttaa automatiikan. Alukset ja carrierit käyttävät tarkasti varmennettuja ID64-osoitteita samankaltaisten nimien sijaan. ”Unable to find route” kertoo, ettei reittiä löytynyt; tarkista kohteet, kantama ja reittiasetukset.
+
+- Paremmat päivitystiedot: Kyllä/Ei-ikkuna näyttää asennetun ja saatavilla olevan version sekä enintään kuusi muutosta, jos yhteenveto on saatavilla. Pitkiä listoja voi vierittää ja toiminnot pysyvät käytettävissä. Näkymä tulee version v3.2 mukana; muuttamaton v3.1-asiakas ei vielä näytä sitä.
+
+## v3.1 (v3.0.3 → v3.1)
 
 - BIO-edistyminen näkyy tiiviisti: 1/3 keltaisena, 2/3 sinisenä ja 3/3 vihreänä; valmis tila ”Valmis” on myös vihreä. Kohdassa ”näytä automaattisesti” GEO:lla on oma tallennettava kytkin: vain BIO, vain GEO tai molemmat yhdessä. Explorerin yhteisen BIO / GEO / ABBAU -taulukon käsin muutetut sarakeleveydet säilyvät uudelleen avattaessa ja ohjelman käynnistyessä uudelleen. Ponnahdusikkunoiden sarakeleveydet palautetaan luotettavammin; virheelliset arvot korvataan turvallisilla oletusleveyksillä.
 

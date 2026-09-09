@@ -1,21 +1,20 @@
 from __future__ import annotations
 
-import json
 import logging
-import socket
 import time
-from urllib.error import HTTPError, URLError
 from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
 
+from cmdrhelper.spansh_transport import TransportError, request_json
+
 from .models import ShipRoute, ShipRouteJump, ShipRouteRequest
 from .spansh_client import SpanshError, USER_AGENT
+from .system_resolution import resolve_system
 
 logger = logging.getLogger(__name__)
 
 ROUTE_URL = "https://www.spansh.co.uk/api/generic/route"
 RESULT_URL = "https://www.spansh.co.uk/api/results/{job}"
-SYSTEMS_URL = "https://www.spansh.co.uk/api/systems"
 ALGORITHMS = ("optimistic", "pessimistic", "fuel", "fuel_jumps", "guided")
 
 
@@ -32,11 +31,11 @@ class SpanshGalaxyClient:
         validation_error = request.validation_error()
         if validation_error:
             raise SpanshError("invalid_input", validation_error)
-        self._require_system(request.source, "source_unknown")
-        self._require_system(request.destination, "destination_unknown")
+        source = resolve_system(self._request_json, request.source, request.source_id64, "source_unknown")
+        destination = resolve_system(self._request_json, request.destination, request.destination_id64, "destination_unknown")
         payload = {
-            "source": request.source,
-            "destination": request.destination,
+            "source": source,
+            "destination": destination,
             "is_supercharged": int(request.is_supercharged),
             "use_supercharge": int(request.use_supercharge),
             "use_injections": int(request.use_injections),
@@ -68,21 +67,12 @@ class SpanshGalaxyClient:
             completed = self._poll(self.last_job_id)
         return self._parse_route(completed)
 
-    def _require_system(self, name: str, error_code: str) -> None:
-        query = urlencode({"q": name})
-        results = self._request_json(
-            f"{SYSTEMS_URL}?{query}", expected_type=list
-        )
-        wanted = name.strip().casefold()
-        if not any(
-            str(result).strip().casefold() == wanted for result in results
-        ):
-            raise SpanshError(error_code)
-
     def _poll(self, job: str) -> dict:
         url = RESULT_URL.format(job=quote(job, safe=""))
         for attempt in range(self.max_polls):
             data = self._request_json(url)
+            if self._is_no_route_error(data):
+                raise SpanshError("no_route")
             if data.get("status") == "ok" or data.get("state") == "completed":
                 return data
             if (
@@ -94,6 +84,12 @@ class SpanshGalaxyClient:
             if attempt < self.max_polls - 1:
                 time.sleep(self.poll_interval)
         raise SpanshError("timeout")
+
+    @staticmethod
+    def _is_no_route_error(data):
+        return (isinstance(data, dict)
+                and data.get("status") == "failed"
+                and data.get("error") == "Unable to find route")
 
     def _request_json(self, url: str, data=None, expected_type=dict):
         body = urlencode(data).encode("utf-8") if data is not None else None
@@ -108,39 +104,20 @@ class SpanshGalaxyClient:
             method="POST" if body is not None else "GET",
         )
         try:
-            with urlopen(request, timeout=self.timeout) as response:
-                raw = response.read().decode("utf-8", errors="replace")
-        except HTTPError as exc:
-            detail = self._http_error_detail(exc)
-            logger.warning("Spansh Galaxy HTTP error %s: %s", exc.code, detail)
-            code = "server_error" if exc.code >= 500 else "spansh_error"
-            raise SpanshError(code, detail) from exc
-        except (TimeoutError, socket.timeout) as exc:
-            raise SpanshError("timeout") from exc
-        except URLError as exc:
-            reason = getattr(exc, "reason", exc)
-            if isinstance(reason, (TimeoutError, socket.timeout)):
-                raise SpanshError("timeout") from exc
-            raise SpanshError("unreachable", str(reason)) from exc
-        except OSError as exc:
-            raise SpanshError("unreachable", str(exc)) from exc
-        try:
-            result = json.loads(raw)
-        except json.JSONDecodeError as exc:
-            raise SpanshError("invalid_response", "Invalid JSON") from exc
+            result = request_json(request, timeout=self.timeout, opener=urlopen)
+        except TransportError as exc:
+            code = {'network_error': 'unreachable', 'invalid_json': 'invalid_response'}.get(exc.code, exc.code)
+            if exc.code == 'http_error':
+                code = 'server_error' if exc.status >= 500 else 'spansh_error'
+                if (url.startswith(RESULT_URL.split('{job}')[0])
+                        and self._is_no_route_error(exc.response_json)):
+                    code = 'no_route'
+                logger.warning("Spansh HTTP error %s: %s", exc.status, exc.detail)
+            raise SpanshError(code, exc.detail) from exc
         if not isinstance(result, expected_type):
             expected = "object" if expected_type is dict else "list"
             raise SpanshError("invalid_response", f"Expected a JSON {expected}")
         return result
-
-    @staticmethod
-    def _http_error_detail(exc: HTTPError) -> str:
-        try:
-            raw = exc.read().decode("utf-8", errors="replace")
-            data = json.loads(raw)
-            return str(data.get("error") or raw[:500]) if isinstance(data, dict) else raw[:500]
-        except Exception:
-            return f"HTTP {exc.code}"
 
     @staticmethod
     def _has_route(data) -> bool:

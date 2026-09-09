@@ -14,7 +14,25 @@ pilotunuz](cmdrhelper/assets/readme/cmdrhelper_readme_tr.png)
 
 CMDRHelper, Elite Dangerous’ın yerel günlüklerini inceleyen ve `Status.json` dosyasındaki gezegen konum verilerini kullanan bağımsız bir masaüstü uygulamasıdır. İlginç gökcisimlerini belirlemene, kaydedilmiş yerlere dönmene ve yolculuklarınla bulgularını incelemene yardımcı olur. Kişisel veriler yeniden başlatmadan sonra korunur ve komutanlara göre ayrı tutulur.
 
-## v3.0.3 sürümüne göre v3.1 yenilikleri
+## v3.1’e göre v3.2 yenilikleri
+
+- Mühendislik malzemesi yönetimi: Raw, Manufactured ve Encoded kategorilerindeki 146 malzemenin tamamı; dereceler, kapasiteler ve istisnalarla birlikte. Komutana özel güncel stok, arama, filtreler, beş sade satır arka planı ve kaydedilen sütun genişliği/sırası görünümü kolaylaştırır. Bilinmeyen stok sıfırdan ayrı tutulur.
+
+- Odyssey envanteri: dördüncü malzeme sekmesi mallar, bileşenler, veriler ve tüketim malzemeleri için 223 katalog kimliği içerir. Gemi dolabı, sırt çantası ve güvenilir toplam ayrı tutulur; görev yığınları, görev durumu ve mühendislik kullanımı gösterilir. Pozitif stok sayıları altın rengindedir. Çevrilmemiş adlar İngilizce gösterilir.
+
+- Malzeme tüccarı araması (Tüccar ara → Rota planlayıcıyı aç): Spansh, istek üzerine komutanın mevcut sisteminden Raw, Manufactured ve Encoded için ayrı arama yapar. Carrier’lar dışlanır ve istasyon ayrıntıları doğrulanır. ly cinsinden mesafe sistemler arasındaki doğrudan uzaklıktır; topluluk verileri erişim garantisi vermez. Rota planlayıcısına aktarım yalnızca hedef sistemi ayarlar, rota başlatmaz. Odyssey tüccarı araması yoktur.
+
+- Sistem genel görünümü: yeni Elite tarzı görünüm, Explorer ve Kronik’te önceki küçük görünümün yerini alır. Yıldızlar ve gezegenler ana yapıyı, aşağıya dallanan uydular alt yapıyı oluşturur; çok yıldızlı sistemler okunaklı kalır. Yakınlaştırma, kaydırma, pencereye sığdırma ve gök cismine tıklama ayrıntılara erişim sağlar.
+
+- Kompakt asteroit kuşakları: kümeler genel görünümde ve Explorer/Kronik’in normal sistem haritalarında kuşaklar halinde gruplanır. Her kümenin verileri korunur.
+
+- Düzeltilmiş haritacılık: DSS haritalamasından sonraki tarama artık satılmamış keşif değerlerini, haritalama zamanını veya verimliliği sıfırlamaz. Hatalı kayıtlar başlangıçta mevcut ve komutana kesin olarak atanmış günlüklerden onarılır. Kaynaklar eksikse onarım bekler; veritabanını silmek gerekmez.
+
+- Geliştirilmiş rota planlayıcısı: elle bir başlangıç girene kadar mevcut sistem otomatik izlenir; alanı boşaltmak otomatiği geri getirir. Gemiler ve carrier’lar benzer adlar yerine tam doğrulanmış ID64 adresleri kullanır. “Unable to find route” rota bulunamadığı şeklinde açıklanır; hedefleri, menzili ve rota ayarlarını kontrol edin.
+
+- Daha iyi güncelleme bilgisi: Evet/Hayır penceresi kurulu ve mevcut sürümü, özet varsa en fazla altı yeniliği gösterir. Uzun listeler kaydırılırken eylemler erişilebilir kalır. Bu görünüm v3.2 ile kurulur; değişmemiş bir v3.1 istemcisi henüz göstermez.
+
+## v3.1 (v3.0.3 → v3.1)
 
 - BIO ilerlemesi kısa gösterilir: 1/3 sarı, 2/3 mavi ve 3/3 yeşil; tamamlanmış “Tamamlandı” durumu da yeşildir. “otomatik göster” altında GEO’nun ayrı kaydedilen anahtarı vardır: yalnız BIO, yalnız GEO veya ikisi birlikte kullanılabilir. Explorer’ın ortak BIO / GEO / ABBAU tablosunda elle ayarlanan sütun genişlikleri yeniden açılışta ve program yeniden başlatıldığında korunur. Açılır pencerelerin kayıtlı sütun genişlikleri daha sağlam geri yüklenir; geçersiz değerlerde güvenli varsayılan genişlikler kullanılır.
 

@@ -1,4 +1,4 @@
-"""Versioned startup orchestration of the existing three historical backfills."""
+"""Versioned startup orchestration of the versioned historical backfills."""
 from contextlib import closing
 from datetime import datetime, timezone
 import logging
@@ -13,7 +13,7 @@ from cmdrhelper.system_visits import apply_visit_plan
 from cmdrhelper.visits_backfill import plan_visits_backfill
 
 logger = logging.getLogger(__name__)
-FEATURES = ('biology_findings', 'system_visits', 'mapping_metadata')
+FEATURES = ('biology_findings', 'system_visits', 'mapping_metadata', 'unsold_cartography')
 
 
 def repair_status(con, commander_id, feature):
@@ -52,6 +52,13 @@ def _plan(con, commander_id, feature):
         UNION ALL SELECT 1 FROM biology WHERE commander_id=? LIMIT 1''',
         (commander_id, commander_id, commander_id)).fetchone():
         raise IncompleteRepair('Personal history exists without retained journal source records')
+    if feature == 'unsold_cartography':
+        if not sources and con.execute(
+                'SELECT 1 FROM commander_unsold_cartography WHERE commander_id=? LIMIT 1',
+                (commander_id,)).fetchone():
+            raise IncompleteRepair('Unsold cartography exists without retained journal sources')
+        from cmdrhelper.unsold_cartography import plan_cartography_repair
+        return plan_cartography_repair(con, commander_id)
     if feature == 'biology_findings':
         return plan_biology_backfill(con, commander_id)
     if feature == 'system_visits':
@@ -60,12 +67,17 @@ def _plan(con, commander_id, feature):
 
 
 def _has_changes(feature, plan):
+    if feature == 'unsold_cartography':
+        return plan['changed']
     if feature == 'mapping_metadata':
         return bool(plan['updates'])
     return bool(plan['missing'] or plan.get('redundant_ids'))
 
 
 def _apply(con, commander_id, feature, plan):
+    if feature == 'unsold_cartography':
+        from cmdrhelper.unsold_cartography import apply_cartography_repair
+        return apply_cartography_repair(con, commander_id, plan)
     if feature == 'biology_findings':
         return _store_biology_rows(con, plan['missing'], missing_only=True)
     if feature == 'system_visits':

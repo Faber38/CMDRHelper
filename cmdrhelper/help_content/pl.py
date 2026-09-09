@@ -1,7 +1,34 @@
 """Polish content for contextual help."""
 
 
-HELP_TOPICS = {'overview': ('Przegląd',
+HELP_TOPICS = {
+    "materials": (
+        'Materiały',
+        """<h2>Materiały</h2>
+<h3>CMDRHelper v3.2</h3>
+<p>Zarządzanie materiałami inżynieryjnymi: wszystkie 146 materiałów Raw, Manufactured i Encoded wraz z klasami, pojemnościami i wyjątkami. Aktualne zapasy dowódcy, wyszukiwanie, filtry, pięć subtelnych teł wierszy oraz zapisana szerokość i kolejność kolumn ułatwiają przeglądanie. Nieznany stan pozostaje odróżniony od zera.</p>
+<p>Ekwipunek Odyssey: czwarta karta zawiera 223 tożsamości katalogowe towarów, komponentów, danych i przedmiotów zużywalnych. Schowek, plecak i wiarygodna suma pozostają oddzielne; widoczne są stosy misji, status i zastosowania inżynieryjne. Dodatnie ilości mają złoty kolor. Brakujące tłumaczenia nazw zastępuje angielski.</p>
+<p>Wyszukiwanie handlarzy materiałami (Znajdź handlarza → Otwórz planer trasy): na żądanie Spansh szuka osobno Raw, Manufactured i Encoded od bieżącego systemu dowódcy. Carriery są wykluczane, a dane stacji weryfikowane. Odległość w ly jest bezpośrednia między systemami; dane społeczności nie gwarantują dostępu. Przekazanie do planera ustawia tylko system docelowy i nie uruchamia trasy. Brak wyszukiwania handlarzy Odyssey.</p>
+<p>Ta główna sekcja pokazuje materiały inżynieryjne aktualnie przeglądanego dowódcy. Wybór w widoku CMDR obowiązuje również tutaj; dane innych dowódców pozostają oddzielone.</p>
+<h3>Trzy kategorie</h3>
+<p>Karty Surowce, Materiały wytworzone i Dane kodowane zawierają wszystkie 146 materiałów katalogowych, w tym materiały Guardian i Thargoid. Lista jest posortowana według stopnia, a w obrębie każdego stopnia alfabetycznie.</p>
+<h3>Stan i paski</h3>
+<p>Liczby pokazują stan / maksimum, na przykład Wanad 244 / 250. Odpowiadający pasek pokazuje 97,6 %. Materiały, których nigdy nie posiadano, również pojawiają się ze stanem 0, jeśli stan jest wiarygodnie znany.</p>
+<p>Puste zapasy są oznaczone stonowaną czerwienią, niewielkie żółcią/pomarańczem, a prawie pełne lub pełne zielenią. Liczby pozostają widoczne niezależnie od kolorów.</p>
+<h3>Wyszukiwanie i filtry</h3>
+<p>Wyszukiwanie uwzględnia wyświetlaną i angielską nazwę materiału. Można je łączyć ze wszystkimi filtrami: Wszystkie, Puste (0), Mało (powyżej 0 do 20 % włącznie), Prawie pełne (od 80 % do poniżej 100 %) i Pełne (100 %). Wartości między 20 % a 80 % pojawiają się tylko w filtrze Wszystkie. Karty i filtry są przywracane przy następnym uruchomieniu.</p>
+<h3>Nieznane wartości</h3>
+<p>Bez wiarygodnego pełnego stanu wyświetlane jest na przykład ? / 250. Przy nieznanym maksimum może pojawić się 12 / ?. W obu przypadkach nie ma wartości procentowej ani paska; takie materiały pojawiają się wyłącznie w filtrze Wszystkie. Nieznany stopień trafia do osobnej grupy na końcu listy.</p>
+<h3>Aktualizacja na żywo</h3>
+<p>Nowe zdarzenia dziennika automatycznie aktualizują stan, również po wymianie materiałów, pracach inżynieryjnych, syntezie lub nagrodach w materiałach. Podczas pierwszego odczytu pojawia się komunikat o wczytywaniu. Świeżo zebrany materiał jest krótko wyróżniany oznaczeniem takim jak Wanad +1; zużycie nie powoduje powiadomienia o zebraniu.</p>
+<h3>Nazwy materiałów</h3>
+<p>Jeśli nazwa materiału nie jest jeszcze dostępna w wybranym języku, pojawia się jego angielska nazwa wyświetlana. Wewnętrzne symbole dziennika nie zastępują istniejących nazw wyświetlanych.</p>
+<h3>Odyssey</h3>
+<p>Czwarta karta w sekcji Materiały zawiera Towary, Komponenty, Dane i Materiały eksploatacyjne. Schowek i Plecak pokazują swoje stany oddzielnie. Łącznie pokazuje sumę tylko wtedy, gdy oba stany są wiarygodnie zgodne. Nieaktualny stan plecaka celowo nie jest pokazywany jako bieżący ani dodawany do sumy; ? oznacza stan nieznany lub obecnie niemożliwy do wiarygodnego odtworzenia. Limit 1000 dotyczy każdej kategorii schowka, nie pojedynczych przedmiotów. Powyższy przykład materiałów inżynieryjnych nie określa indywidualnego maksimum dla przedmiotów Odyssey. Dla materiałów eksploatacyjnych nadal nie ma w pełni zweryfikowanej reguły pojemności, więc nie jest wyświetlana niepotwierdzona pojemność.</p>
+<p>Zastosowanie pokazuje oznaczenia zastosowań przedmiotu. Misja oznacza, że konkretny stos w ekwipunku jest przypisany do misji, a nie że dany typ przedmiotu jest z zasady przedmiotem misyjnym. Zwykłe stosy i stosy powiązane z misją pozostają oddzielone. Nawet po ukończeniu misji przedmiot pozostaje oznaczony, dopóki dziennik wykazuje go w ekwipunku; ukończenie nie usuwa go automatycznie. Podpowiedź pokazuje numer misji i znany status. Inżynieria oznacza, że statyczny katalog Odyssey zna co najmniej jedno potwierdzone zastosowanie: ulepszenie kombinezonu, ulepszenie broni, modyfikację kombinezonu, modyfikację broni lub odblokowanie inżyniera. Poszczególne zastosowania są podane w podpowiedzi. Brak oznaczenia nie oznacza, że przedmiot jest bezużyteczny lub nadaje się wyłącznie do handlu. Mogą być też wyświetlane przedmioty Powerplay i inne przedmioty specjalne.</p>
+<p>Wyszukiwanie znajduje wyświetlane lokalne i angielskie nazwy materiałów/przedmiotów. Sześć filtrów Odyssey to Wszystkie (wszystkie przedmioty), Misja (stosy przypisane do misji), Inżynieria (przedmioty z potwierdzonym zastosowaniem inżynieryjnym), Plecak (stan plecaka większy od zera), Schowek (stan schowka większy od zera) i Stan 0 (wiarygodnie znany stan łączny równy 0). Nieznany stan ? nie jest równy 0 i nie należy do filtra Stan 0. Brakujące tłumaczenia nazw zastępuje nazwa angielska, dlatego niektóre nazwy mogą pozostać angielskie w wybranym języku. Jest to zamierzone i nie stanowi błędu tłumaczenia logiki ekwipunku.</p>
+<p>Ekwipunek jest automatycznie aktualizowany w tle. Potwierdzone nowe zebrania mogą być krótko wyróżniane. Przy zmianie dowódcy stare stany są natychmiast usuwane. Podkarty, filtry, szerokości i kolejność kolumn są zapisywane oddzielnie dla Odyssey.</p>""",
+    ),'overview': ('Przegląd',
               '<h2>Przegląd</h2>\n'
               '<p>Przegląd to strona główna CMDRHelper. Podsumowuje najważniejsze informacje o '
               'aktualnie aktywnym dowódcy i pokazuje w mgnieniu oka, czy dziennik, lokalizacja i '
@@ -152,7 +179,7 @@ HELP_TOPICS = {'overview': ('Przegląd',
               '<p>CMDRHelper może wyświetlać tylko informacje, które dziennik faktycznie dostarcza '
               'lub które zostały już zapisane z poprzednich unikalnych wydarzeń misji.</p>'),
  'explorer': ('Odkrywca',
-              '<h2>Odkrywca</h2>\n'
+              '<h2>Odkrywca</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Widok całego systemu: nowy układ w stylu Elite zastępuje miniaturę w Explorerze i Kronice. Gwiazdy i planety tworzą główną strukturę, a księżyce odgałęziają się poniżej; układy wielogwiazdowe pozostają czytelne. Zoom, przewijanie, dopasowanie do okna i kliknięcie ciała umożliwiają dostęp do szczegółów.</p>\n<p>Zwarte pasy asteroid: skupiska są grupowane w pasy w widoku ogólnym oraz zwykłych mapach Explorera i Kroniki. Wszystkie dane poszczególnych skupisk są zachowane.</p>\n<p>Poprawiona kartografia: skan po mapowaniu DSS nie zeruje już niesprzedanych wartości eksploracji, czasu mapowania ani wydajności. Błędne wpisy są naprawiane przy starcie z dostępnych dzienników jednoznacznie przypisanych do dowódcy. Bez źródeł naprawa oczekuje; nie trzeba usuwać bazy danych.</p>\n'
               '<p>Eksplorator ocenia systemy i ciała niebieskie odkryte i zeskanowane przez '
               'aktywnego dowódcę. Łączy Twoje własne dane z dziennika Elite Dangerous z już '
               'dostępnymi dodatkowymi informacjami i wyświetla razem eksplorację, kartografię, '
@@ -354,6 +381,9 @@ HELP_TOPICS = {'overview': ('Przegląd',
  'chronicle': (
         'Kronika',
         """<h2>Kronika</h2>
+<h3>CMDRHelper v3.2</h3>
+<p>Widok całego systemu: nowy układ w stylu Elite zastępuje miniaturę w Explorerze i Kronice. Gwiazdy i planety tworzą główną strukturę, a księżyce odgałęziają się poniżej; układy wielogwiazdowe pozostają czytelne. Zoom, przewijanie, dopasowanie do okna i kliknięcie ciała umożliwiają dostęp do szczegółów.</p>
+<p>Zwarte pasy asteroid: skupiska są grupowane w pasy w widoku ogólnym oraz zwykłych mapach Explorera i Kroniki. Wszystkie dane poszczególnych skupisk są zachowane.</p>
 <p>Kronika to osobista historia podróży i odkryć dowódcy. Wykorzystuje trwale przechowywane informacje z dziennika do wyszukiwania systemów, które zostały już odwiedzone, do ich przestrzennego przedstawienia i wyszukiwania znanych odkryć.</p>
 
 <h3>Odwiedzone systemy</h3>
@@ -598,7 +628,7 @@ HELP_TOPICS = {'overview': ('Przegląd',
               '<p>Nie jako prognoza:</p>\n'
               '<p>„Gwarantujemy, że w tym systemie znajdzie się konkretne znalezisko”.</p>'),
  'route_planner': ('Planowanie trasy',
-                   '<h2>Planowanie trasy</h2>\n'
+                   '<h2>Planowanie trasy</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Ulepszony planer tras: start automatycznie śledzi bieżący system do ręcznego wpisania innego; wyczyszczenie pola przywraca automatykę. Statki i carriery używają dokładnie sprawdzonych adresów ID64 zamiast podobnych nazw. „Unable to find route” oznacza brak znalezionej trasy; sprawdź cele, zasięg i ustawienia.</p>\n'
                    '<p>Planer tras wspiera planowanie dłuższych podróży statkiem lub Fleet '
                    'Carrier. CMDRHelper może korzystać z zewnętrznych danych o trasie z Spansh i '
                    'przygotowywać zaplanowaną trasę do dalszego wykorzystania.</p>\n'
@@ -1072,7 +1102,7 @@ HELP_TOPICS = {'overview': ('Przegląd',
                     '<p>To rozdzielenie zapobiega mieszaniu danych osobowych lub plików '
                     'przesyłanych online od różnych dowódców.</p>'),
  'settings': ('Ustawienia',
-              '<h2>Ustawienia</h2>\n'
+              '<h2>Ustawienia</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Lepsza informacja o aktualizacji: okno Tak/Nie pokazuje wersję zainstalowaną i dostępną oraz do sześciu zmian, jeśli istnieje podsumowanie. Długie listy można przewijać, a działania pozostają dostępne. Widok jest instalowany z v3.2; niezmieniony klient v3.1 jeszcze go nie pokazuje.</p>\n'
               '<p>Obszar „Ustawienia” określa sposób współpracy CMDRHelper z Elite Dangerous, '
               'plikami dziennika, bazą danych, usługami online, interfejsem i aktualizacjami.</p>\n'
               '<p>Zmiany poświadczeń i ścieżek należy wprowadzać ostrożnie. W razie potrzeby '

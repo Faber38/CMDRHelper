@@ -1,0 +1,9 @@
+{
+  "checked_at": "2026-09-09",
+  "arrival_unit": "unknown",
+  "reason": "Non-contemporaneous observations; OpenAPI describes kilometres. No conversion or universally confirmed unit inferred.",
+  "observations": [
+    {"market_id": 4368262147, "station_name": "Elizabethii Sanctuary", "journal_event": "Docked", "journal_field": "DistFromStarLS", "journal_timestamp": "2026-09-07T19:52:24Z", "journal_ls": 542.953628, "spansh_raw": 542.684355, "spansh_updated_at": "2026-08-19 15:27:05+00"},
+    {"market_id": 3231487744, "station_name": "Foden Orbital", "journal_event": "Docked", "journal_field": "DistFromStarLS", "journal_timestamp": "2026-08-28T19:01:19Z", "journal_ls": 80.180179, "spansh_raw": 89.349195, "spansh_updated_at": "2026-09-07 21:45:02+00"}
+  ]
+}

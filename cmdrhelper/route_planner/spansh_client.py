@@ -1,28 +1,20 @@
 from __future__ import annotations
 
-import json
 import logging
-import socket
 import time
-from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
+from cmdrhelper.spansh_transport import TransportError, request_json
+
 from .models import CarrierRoute, CarrierRouteJump, CarrierRouteRequest
+from .system_resolution import SpanshError, resolve_system
 
 logger = logging.getLogger(__name__)
 
-SEARCH_URL = "https://spansh.co.uk/api/search/systems"
 ROUTE_URL = "https://spansh.co.uk/api/fleetcarrier/route"
 RESULT_URL = "https://spansh.co.uk/api/results/{job}"
 USER_AGENT = "CMDRHelper/route-planner"
-
-
-class SpanshError(Exception):
-    def __init__(self, code: str, detail: str = ""):
-        super().__init__(detail or code)
-        self.code = code
-        self.detail = detail
 
 
 class SpanshFleetCarrierClient:
@@ -34,9 +26,9 @@ class SpanshFleetCarrierClient:
         self.max_polls = max_polls
 
     def calculate(self, request: CarrierRouteRequest) -> CarrierRoute:
-        source_id = self._resolve_system(request.source, "source_unknown")
-        destination_id = self._resolve_system(
-            request.destination, "destination_unknown"
+        source_id = resolve_system(self._request_json, request.source, request.source_id64, "source_unknown")
+        destination_id = resolve_system(
+            self._request_json, request.destination, request.destination_id64, "destination_unknown"
         )
 
         # Spansh behandelt den 1.000-t-Tank separat von der belegten
@@ -67,24 +59,6 @@ class SpanshFleetCarrierClient:
 
         return self._parse_route(completed)
 
-    def _resolve_system(self, name: str, error_code: str) -> int:
-        query = urlencode({"q": name})
-        data = self._request_json(f"{SEARCH_URL}?{query}")
-        results = data.get("results") if isinstance(data, dict) else None
-        if not isinstance(results, list):
-            raise SpanshError("invalid_response", "Invalid system search response")
-        wanted = name.strip().casefold()
-        for result in results:
-            if not isinstance(result, dict):
-                continue
-            if str(result.get("name") or "").strip().casefold() != wanted:
-                continue
-            try:
-                return int(result["id64"])
-            except (KeyError, TypeError, ValueError):
-                break
-        raise SpanshError(error_code)
-
     def _poll(self, job: str) -> dict:
         for attempt in range(self.max_polls):
             data = self._request_json(RESULT_URL.format(job=job))
@@ -113,42 +87,16 @@ class SpanshFleetCarrierClient:
             method="POST" if body is not None else "GET",
         )
         try:
-            with urlopen(request, timeout=self.timeout) as response:
-                raw = response.read().decode("utf-8", errors="replace")
-        except HTTPError as exc:
-            detail = self._http_error_detail(exc)
-            logger.warning("Spansh HTTP error %s: %s", exc.code, detail)
-            if exc.code >= 500:
-                raise SpanshError("server_error", detail) from exc
-            raise SpanshError("spansh_error", detail) from exc
-        except (TimeoutError, socket.timeout) as exc:
-            raise SpanshError("timeout") from exc
-        except URLError as exc:
-            reason = getattr(exc, "reason", exc)
-            if isinstance(reason, (TimeoutError, socket.timeout)):
-                raise SpanshError("timeout") from exc
-            raise SpanshError("unreachable", str(reason)) from exc
-        except OSError as exc:
-            raise SpanshError("unreachable", str(exc)) from exc
-
-        try:
-            result = json.loads(raw)
-        except json.JSONDecodeError as exc:
-            raise SpanshError("invalid_response", "Invalid JSON") from exc
+            result = request_json(request, timeout=self.timeout, opener=urlopen)
+        except TransportError as exc:
+            code = {'network_error': 'unreachable', 'invalid_json': 'invalid_response'}.get(exc.code, exc.code)
+            if exc.code == 'http_error':
+                code = 'server_error' if exc.status >= 500 else 'spansh_error'
+                logger.warning("Spansh HTTP error %s: %s", exc.status, exc.detail)
+            raise SpanshError(code, exc.detail) from exc
         if not isinstance(result, dict):
             raise SpanshError("invalid_response", "Expected a JSON object")
         return result
-
-    @staticmethod
-    def _http_error_detail(exc: HTTPError) -> str:
-        try:
-            raw = exc.read().decode("utf-8", errors="replace")
-            data = json.loads(raw)
-            if isinstance(data, dict) and data.get("error"):
-                return str(data["error"])
-            return raw[:500]
-        except Exception:
-            return f"HTTP {exc.code}"
 
     @staticmethod
     def _has_route(data) -> bool:

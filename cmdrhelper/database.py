@@ -16,10 +16,11 @@ from cmdrhelper.ship_identity import is_definite_non_ship
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 16
+SCHEMA_VERSION = 17
 
 COMMANDER_STATE_REPAIR_REVISIONS = {
     "unsold": 2,
+    "unsold_cartography": 1,
     "missions": 1,
     "surface_mining": 1,
     "position_gap": 1,
@@ -449,7 +450,23 @@ class CMDRDatabase:
         self._maybe_migrate_v14()
         self._maybe_migrate_v15()
         self._maybe_migrate_v16()
+        self._maybe_migrate_v17()
         self.cleanup_non_ship_fleet_rows()
+
+    def _maybe_migrate_v17(self):
+        """Persist mapping metadata on the sale-scoped claim itself."""
+        with self._connect() as con:
+            con.execute('BEGIN IMMEDIATE')
+            if con.execute('PRAGMA user_version').fetchone()[0] >= 17:
+                return
+            columns = {r[1] for r in con.execute('PRAGMA table_info(commander_unsold_cartography)')}
+            for field, declaration in (
+                ('efficient_mapping', 'INTEGER NOT NULL DEFAULT 0'),
+                ('probes_used', 'INTEGER'), ('efficiency_target', 'INTEGER'),
+            ):
+                if field not in columns:
+                    con.execute(f'ALTER TABLE commander_unsold_cartography ADD COLUMN {field} {declaration}')
+            con.execute('PRAGMA user_version=17')
 
     def _maybe_migrate_v16(self):
         with self._connect() as con:
@@ -1553,6 +1570,8 @@ class CMDRDatabase:
                 str(entry.get("planet_class") or ""),
                 (None if entry.get("terraformable") is None
                  else int(bool(entry.get("terraformable")))),
+                int(bool(entry.get("efficient_mapping"))),
+                entry.get("probes_used"), entry.get("efficiency_target"),
             ))
         with (nullcontext(_con) if _con is not None else self._connect()) as con:
             con.execute("DELETE FROM commander_unsold_biology WHERE commander_id=?", (commander_id,))
@@ -1564,7 +1583,8 @@ class CMDRDatabase:
             con.executemany("""INSERT INTO commander_unsold_cartography(
                 commander_id,system_address,body_id,system_name,body_name,scanned_at,
                 mapped_at,self_mapped,estimated_value,raw_estimated_value,planet_class,
-                terraformable) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)""", cart_rows)
+                terraformable,efficient_mapping,probes_used,efficiency_target)
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", cart_rows)
 
     @staticmethod
     def _frontier_item_name(value) -> str:
@@ -1723,6 +1743,34 @@ class CMDRDatabase:
             )
         ]
 
+    @staticmethod
+    def _unsold_cartography_claim(con, commander_id, address, body_id):
+        cursor = con.execute("""SELECT * FROM commander_unsold_cartography
+            WHERE commander_id=? AND system_address=? AND body_id=?""",
+            (commander_id, int(address), body_id))
+        row = cursor.fetchone()
+        return dict(zip((d[0] for d in cursor.description), row)) if row else None
+
+    @staticmethod
+    def _write_cartography_claim(con, commander_id, address, body_id, system, body, claim, factor):
+        raw = claim['estimated_value']
+        con.execute("""INSERT INTO commander_unsold_cartography(
+            commander_id,system_address,body_id,system_name,body_name,scanned_at,
+            mapped_at,self_mapped,estimated_value,raw_estimated_value,planet_class,
+            terraformable,efficient_mapping,probes_used,efficiency_target)
+            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            ON CONFLICT(commander_id,system_address,body_id) DO UPDATE SET
+            system_name=excluded.system_name,body_name=excluded.body_name,
+            scanned_at=excluded.scanned_at,mapped_at=excluded.mapped_at,
+            self_mapped=excluded.self_mapped,estimated_value=excluded.estimated_value,
+            raw_estimated_value=excluded.raw_estimated_value,planet_class=excluded.planet_class,
+            terraformable=excluded.terraformable,efficient_mapping=excluded.efficient_mapping,
+            probes_used=excluded.probes_used,efficiency_target=excluded.efficiency_target""",
+            (commander_id, int(address), body_id, system, body.get('name', ''),
+             claim.get('scanned_at', ''), claim.get('mapped_at', ''), int(claim.get('self_mapped', False)),
+             round(raw * factor), raw, body.get('planet_class', ''), int(bool(body.get('terraformable'))),
+             int(claim.get('efficient_mapping', False)), claim.get('probes_used'), claim.get('efficiency_target')))
+
     def apply_commander_journal_delta(self, commander_id, journal_file, events,
                                       safe_offset: int, enqueue_inara=False) -> None:
         """Atomically applies explicit journal facts and commits their byte offset."""
@@ -1736,7 +1784,6 @@ class CMDRDatabase:
             STATUS_ABANDONED, STATUS_COMPLETED, STATUS_FAILED,
         )
         from cmdrhelper.route_planner.models import GuardianFsdBooster, ShipLoadoutData
-        from cmdrhelper.valuation import apply_values
 
         commander_id = int(commander_id)
         summary = self.commander_summary(commander_id) or {}
@@ -1770,7 +1817,6 @@ class CMDRDatabase:
         cart_factor_value = self.cartography_learning_stats(
             commander_id
         )["correction_factor"]
-        cart_factor = lambda *_: cart_factor_value
         scanned_bodies = {}
         mission_by_id = {
             int(item["mission_id"]): item
@@ -2063,26 +2109,12 @@ class CMDRDatabase:
                         "was_mapped": event.get("WasMapped"), "self_mapped": False,
                         "efficient_mapping": False,
                     }
-                    apply_values(body)
+                    from cmdrhelper.unsold_cartography import scan_claim
+                    previous = self._unsold_cartography_claim(con, commander_id, address, body_id)
+                    claim = scan_claim(body, previous, ts)
                     scanned_bodies[(int(address), body_id)] = body
-                    raw_value = int(body.get("current_value") or 0)
-                    factor = float(cart_factor(body["planet_class"], body["terraformable"]) or 1.0)
-                    con.execute("""
-                        INSERT INTO commander_unsold_cartography(
-                            commander_id,system_address,body_id,system_name,body_name,
-                            scanned_at,mapped_at,self_mapped,estimated_value,
-                            raw_estimated_value,planet_class,terraformable)
-                        VALUES(?,?,?,?,?,?,?,0,?,?,?,?)
-                        ON CONFLICT(commander_id,system_address,body_id) DO UPDATE SET
-                            system_name=excluded.system_name,body_name=excluded.body_name,
-                            scanned_at=excluded.scanned_at,
-                            estimated_value=excluded.estimated_value,
-                            raw_estimated_value=excluded.raw_estimated_value,
-                            planet_class=excluded.planet_class,
-                            terraformable=excluded.terraformable
-                    """, (commander_id, int(address), body_id, current_system,
-                          body["name"], ts, "", int(round(raw_value * factor)), raw_value,
-                          body["planet_class"], int(body["terraformable"])))
+                    self._write_cartography_claim(con, commander_id, address, body_id,
+                                                 current_system, body, claim, cart_factor_value)
 
                 elif et == "SAAScanComplete" and address is not None and event.get("BodyID") is not None:
                     body_id = int(event["BodyID"])
@@ -2095,59 +2127,30 @@ class CMDRDatabase:
                         WHERE commander_id=? AND system_address=? AND body_id=?
                     """, (metadata.get("mapped_at"), metadata.get("probes_used"),
                           metadata.get("efficiency_target"), commander_id, int(address), body_id))
+                    from cmdrhelper.unsold_cartography import mapping_claim
                     body = scanned_bodies.get((int(address), body_id))
+                    previous = self._unsold_cartography_claim(con, commander_id, address, body_id)
                     if body is None:
-                        stored = con.execute("""
-                            SELECT b.name,b.planet_class,b.terraformable,
-                                   cb.scan_value_cached,cb.mapped_value_cached
-                            FROM bodies b
-                            LEFT JOIN commander_bodies cb
-                              ON cb.system_address=b.system_address
-                             AND cb.body_id=b.body_id
-                             AND cb.commander_id=?
-                            WHERE b.system_address=? AND b.body_id=?
-                        """, (commander_id, int(address), body_id)).fetchone()
-                        if stored is not None:
-                            existing = con.execute("""
-                                SELECT raw_estimated_value,scanned_at,system_name,body_name
-                                FROM commander_unsold_cartography
-                                WHERE commander_id=? AND system_address=? AND body_id=?
-                            """, (commander_id, int(address), body_id)).fetchone()
-                            raw_value = int(stored[4] or 0)
-                            if existing is None:
-                                raw_value = max(0, raw_value - int(stored[3] or 0))
-                            factor = float(cart_factor(stored[1], bool(stored[2])) or 1.0)
-                            con.execute("""
-                                INSERT INTO commander_unsold_cartography(
-                                    commander_id,system_address,body_id,system_name,body_name,
-                                    scanned_at,mapped_at,self_mapped,estimated_value,
-                                    raw_estimated_value,planet_class,terraformable)
-                                VALUES(?,?,?,?,?,?,?,1,?,?,?,?)
-                                ON CONFLICT(commander_id,system_address,body_id) DO UPDATE SET
-                                    mapped_at=excluded.mapped_at,self_mapped=1,
-                                    estimated_value=excluded.estimated_value,
-                                    raw_estimated_value=excluded.raw_estimated_value
-                            """, (commander_id, int(address), body_id,
-                                  (existing[2] if existing else current_system),
-                                  (existing[3] if existing else str(stored[0] or "")),
-                                  (existing[1] if existing else ""), ts,
-                                  int(round(raw_value * factor)), raw_value,
-                                  str(stored[1] or ""), stored[2]))
-                    else:
-                        body["self_mapped"] = True
-                        probes = event.get("ProbesUsed")
-                        target = event.get("EfficiencyTarget")
-                        body["efficient_mapping"] = bool(
-                            isinstance(probes, int) and isinstance(target, int) and probes <= target
-                        )
-                        apply_values(body)
-                        raw_value = int(body.get("current_value") or 0)
-                        factor = float(cart_factor(body.get("planet_class"), body.get("terraformable")) or 1.0)
-                        con.execute("""UPDATE commander_unsold_cartography SET
-                            mapped_at=?,self_mapped=1,estimated_value=?,raw_estimated_value=?
-                            WHERE commander_id=? AND system_address=? AND body_id=?""",
-                            (ts, int(round(raw_value * factor)), raw_value, commander_id,
-                             int(address), body_id))
+                        cursor = con.execute("""SELECT b.*, cb.was_discovered_at_scan,
+                            cb.was_mapped_at_scan, cb.scan_value_cached, cb.mapped_value_cached
+                            FROM bodies b LEFT JOIN commander_bodies cb
+                            ON cb.system_address=b.system_address AND cb.body_id=b.body_id
+                            AND cb.commander_id=? WHERE b.system_address=? AND b.body_id=?""",
+                            (commander_id, int(address), body_id))
+                        row = cursor.fetchone()
+                        if row is not None:
+                            body = dict(zip((d[0] for d in cursor.description), row))
+                            for field in ('was_discovered', 'was_mapped'):
+                                value = body.get(field + '_at_scan')
+                                body[field] = None if value is None else bool(value)
+                    if body is not None:
+                        claim = mapping_claim(body, previous, event)
+                        # Legacy incomplete bodies have only cached valuations.
+                        if body.get('mass_em') is None and 'mapped_value_cached' in body:
+                            claim['estimated_value'] = max(0, int(body.get('mapped_value_cached') or 0)
+                                - (int(body.get('scan_value_cached') or 0) if previous is None else 0))
+                        self._write_cartography_claim(con, commander_id, address, body_id,
+                                                     current_system, body, claim, cart_factor_value)
 
                 elif et in ("SellExplorationData", "MultiSellExplorationData"):
                     # Systems/Discovered melden nicht den vollständigen

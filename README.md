@@ -13,7 +13,25 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper is a standalone desktop application that processes the local Elite Dangerous journals and uses planetary position data from `Status.json`. It helps you identify interesting bodies, return to saved locations and review your travels and discoveries. Personal data persists across restarts and is kept separate for each commander.
 
-## New in v3.1 compared with v3.0.3
+## New in v3.2 compared with v3.1
+
+- Engineering material management: All 146 materials in Raw, Manufactured and Encoded, with grades, capacities and special cases. Commander-specific live stock, search, filters, five subtle row backgrounds and saved column widths/order make browsing easier. Unknown stock remains distinct from zero.
+
+- Odyssey inventory: The fourth material tab contains 223 catalog identities for goods, components, data and consumables. Ship Locker, Backpack and reliable totals remain separate; mission stacks, mission status and engineering uses are visible. Positive stock numbers appear in gold. Missing name translations fall back to English.
+
+- Material trader search (Find trader → Open route planner): On request, Spansh searches Raw, Manufactured and Encoded separately from the current commander system. Carriers are excluded and station details checked. Distance in ly is the direct system distance; community data cannot guarantee access. Sending a result to the route planner only sets the destination system and does not start a route. There is no Odyssey trader search.
+
+- System overview: The new Elite-style view replaces the previous miniature overview and is available in Explorer and Chronicle. Stars and planets form the main structure, with moons branching below; multiple-star systems remain readable. Zoom, scrolling, fit to window and body clicks provide access to details.
+
+- Compact asteroid belts: Belt clusters are grouped into clear belts in the overview and regular Explorer/Chronicle system maps. All individual cluster data is retained.
+
+- Cartography corrected: A later scan after DSS mapping no longer resets unsold exploration values, mapping time or efficiency. Existing incorrect claims are repaired at startup from available journals with clear commander attribution. Missing sources leave the repair pending; deleting the database is unnecessary.
+
+- Improved route planner: The current system follows your location automatically until you enter a manual start; clearing the start field restores automatic tracking. Ships and carriers use exactly validated ID64 system addresses instead of similar names. “Unable to find route” is explained as no route found; check destinations, range and route settings.
+
+- Better update information: The Yes/No window shows installed and available versions plus up to six highlights when a summary is available. Long lists scroll while actions remain accessible. This display ships with v3.2; an unchanged v3.1 client does not show it yet.
+
+## v3.1 (v3.0.3 → v3.1)
 
 - BIO progress is compact: 1/3 yellow, 2/3 blue and 3/3 green; the completed state “Done” is also green. Under “auto show”, GEO has its own saved switch: BIO alone, GEO alone or both together are supported. Manually adjusted column widths in the shared Explorer BIO / GEO / ABBAU table survive reopening and application restarts. Saved popup column widths are restored more robustly; invalid values fall back to safe defaults.
 

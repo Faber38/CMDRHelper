@@ -77,6 +77,20 @@ class ContextHelpTests(unittest.TestCase):
         self.window = MainWindow(self.state)
         self.addCleanup(self.window.close)
 
+    def test_material_navigation_is_appended_without_moving_existing_pages(self):
+        self.assertEqual(self.window.PAGE_COMMANDER_VIEW, 7)
+        self.assertEqual(self.window.PAGE_SETTINGS, 8)
+        self.assertEqual(self.window.PAGE_MATERIALS, 9)
+        self.assertEqual(self.window.pages.count(), 10)
+        self.assertEqual(len(self.window.nav_buttons), 10)
+        self.assertIn("Materialien", self.window.nav_buttons[9].text())
+        self.window.nav_buttons[9].click()
+        self.assertIs(self.window.pages.currentWidget(), self.window.material_view)
+        self.assertEqual(self.window.nav_buttons[9].objectName(), "navActive")
+        self.window.help_button.click()
+        self.assertIn("Materialien", self.window._help_dialog.windowTitle())
+        self.window._help_dialog.close()
+
     def test_help_button_is_above_the_complete_auto_show_area(self):
         self.assertEqual(self.window.help_button.text(), "?  Hilfe")
         self.assertEqual(self.window.help_button.objectName(), "helpButton")
@@ -262,7 +276,7 @@ class ContextHelpTests(unittest.TestCase):
             "SRV-Fracht wird niemals als Schiffsfracht übernommen",
         ):
             self.assertIn(passage, topic.text)
-        self.assertEqual(topic.text.count("<h3>"), 25)
+        self.assertEqual(topic.text.count("<h3>"), 26)
         self.assertEqual(topic.text.count("<ul>"), 5)
         for text in ("★ Favoriten", "Schnell-Favorit ohne Maus", "Nicht belegt",
                      "kein automatischer Screenshot", "Der gespeicherte HUD-Schalter",
@@ -322,7 +336,7 @@ class ContextHelpTests(unittest.TestCase):
             "verfügbare Tritiumreserve",
         ):
             self.assertIn(passage, topic.text)
-        self.assertEqual(topic.text.count("<h3>"), 14)
+        self.assertEqual(topic.text.count("<h3>"), 15)
         self.assertEqual(topic.text.count("<ul>"), 2)
 
     def test_images_help_contains_all_implemented_sections(self):
@@ -439,7 +453,7 @@ class ContextHelpTests(unittest.TestCase):
             "Globale astronomische Eigenschaften eines Systems oder Bodys",
         ):
             self.assertIn(passage, topic.text)
-        self.assertEqual(topic.text.count("<h3>"), 22)
+        self.assertEqual(topic.text.count("<h3>"), 23)
         self.assertEqual(topic.text.count("<ul>"), 8)
 
     def test_chronicle_help_explains_visit_filtering_and_preserved_totals(self):
@@ -515,13 +529,13 @@ class ContextHelpTests(unittest.TestCase):
             "aktive Journal-FID bestätigten Cargo-Snapshot",
         ):
             self.assertIn(passage, topic.text)
-        self.assertEqual(topic.text.count("<h3>"), 28)
+        self.assertEqual(topic.text.count("<h3>"), 29)
         self.assertEqual(topic.text.count("<ul>"), 4)
 
     def test_no_help_topics_remain_short(self):
         self.assertEqual(set(de.HELP_TOPICS),
                          set(self.window.HELP_CONTEXTS.values()) | {PlanetNavigationWindow.HELP_CONTEXT})
-        self.assertEqual(len(de.HELP_TOPICS), 10)
+        self.assertEqual(len(de.HELP_TOPICS), 11)
         for context in de.HELP_TOPICS:
             with self.subTest(context=context):
                 topic = help_topic(context)

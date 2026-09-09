@@ -1,7 +1,34 @@
 """Dutch content for contextual help."""
 
 
-HELP_TOPICS = {'overview': ('Overzicht',
+HELP_TOPICS = {
+    "materials": (
+        'Materialen',
+        """<h2>Materialen</h2>
+<h3>CMDRHelper v3.2</h3>
+<p>Engineering-materiaalbeheer: alle 146 materialen in Raw, Manufactured en Encoded, met graden, capaciteiten en uitzonderingen. Actuele voorraad per commander, zoeken, filters, vijf subtiele rijachtergronden en opgeslagen kolombreedtes en volgorde bieden overzicht. Onbekende voorraad blijft onderscheiden van nul.</p>
+<p>Odyssey-inventaris: het vierde tabblad bevat 223 catalogusidentiteiten voor goederen, componenten, gegevens en verbruiksartikelen. Scheepskluis, rugzak en betrouwbaar totaal blijven gescheiden; missiestapels, missiestatus en engineeringgebruik zijn zichtbaar. Positieve aantallen zijn goudkleurig. Ontbrekende naamvertalingen vallen terug op Engels.</p>
+<p>Materiaalhandelaren zoeken (Handelaar zoeken → Open routeplanner): op verzoek zoekt Spansh afzonderlijk naar Raw, Manufactured en Encoded vanuit het huidige commandersysteem. Carriers worden uitgesloten en stationdetails gecontroleerd. De afstand in ly is rechtstreeks tussen systemen; gemeenschapsgegevens garanderen geen toegang. Doorsturen naar de routeplanner stelt alleen het doelsysteem in en start geen route. Er is geen zoekfunctie voor Odyssey-handelaren.</p>
+<p>Dit hoofdonderdeel toont de engineeringmaterialen van de commander die momenteel wordt bekeken. De selectie in de CMDR-weergave geldt ook hier; de gegevens van andere commanders blijven gescheiden.</p>
+<h3>Drie categorieën</h3>
+<p>De tabbladen Grondstoffen, Vervaardigde materialen en Gecodeerde gegevens bevatten alle 146 catalogusmaterialen, inclusief Guardian- en Thargoid-materialen. De lijst is gesorteerd op graad en binnen elke graad alfabetisch.</p>
+<h3>Voorraad en balken</h3>
+<p>De getallen tonen voorraad / maximum, bijvoorbeeld Vanadium 244 / 250. De bijbehorende balk toont 97,6 %. Ook materialen die je nooit hebt bezeten verschijnen met 0 als de voorraad betrouwbaar bekend is.</p>
+<p>Lege voorraden zijn subtiel rood gemarkeerd, lage voorraden geel/oranje en bijna volle of volle voorraden groen. De getallen blijven onafhankelijk van de kleuren zichtbaar.</p>
+<h3>Zoeken en filters</h3>
+<p>De zoekfunctie houdt rekening met de weergegeven en de Engelse materiaalnaam. Zoeken kan met alle filters worden gecombineerd: Alle, Leeg (0), Laag (meer dan 0 tot en met 20 %), Bijna vol (vanaf 80 % tot minder dan 100 %) en Vol (100 %). Waarden tussen 20 % en 80 % verschijnen alleen onder Alle. Tabbladen en filters worden bij de volgende start hersteld.</p>
+<h3>Onbekende waarden</h3>
+<p>Zonder betrouwbare volledige voorraad verschijnt bijvoorbeeld ? / 250. Bij een onbekend maximum verschijnt bijvoorbeeld 12 / ?. In beide gevallen is er geen percentage of balk; deze materialen verschijnen uitsluitend onder Alle. Een onbekende graad staat in een aparte groep aan het einde van de lijst.</p>
+<h3>Live bijwerken</h3>
+<p>Nieuwe journaalgebeurtenissen werken de voorraad automatisch bij, ook na materiaalruil, engineering, synthese of materiaalbeloningen. Tijdens het eerste inlezen verschijnt een laadmelding. Nieuw verzameld materiaal wordt kort gemarkeerd met een aanduiding zoals Vanadium +1; verbruik veroorzaakt geen verzamelmelding.</p>
+<h3>Materiaalnamen</h3>
+<p>Als een materiaalnaam nog niet beschikbaar is in de gekozen taal, verschijnt de Engelse weergavenaam. Interne journaalsymbolen vervangen geen bestaande weergavenamen.</p>
+<h3>Odyssey</h3>
+<p>Het vierde tabblad onder Materialen bevat Goederen, Componenten, Data en Verbruiksartikelen. Scheepskluis en Rugzak tonen hun voorraden afzonderlijk. Totaal toont de som alleen wanneer beide toestanden betrouwbaar bij elkaar passen. Een verouderde rugzakvoorraad wordt bewust niet als actueel weergegeven of bij het totaal opgeteld; ? betekent een onbekende of momenteel niet betrouwbaar te reconstrueren voorraad. De grens van 1000 geldt per scheepskluiscategorie, niet voor afzonderlijke voorwerpen. Het bovenstaande voorbeeld voor engineeringmaterialen bepaalt geen individueel maximum voor Odyssey-voorwerpen. Voor verbruiksartikelen bestaat nog geen volledig gevalideerde capaciteitsregel; er wordt daarom geen onbevestigde capaciteit getoond.</p>
+<p>Gebruik toont de gebruiksaanduidingen van het voorwerp. Missie betekent dat de concrete inventarisstapel aan een missie is gekoppeld, niet dat het voorwerptype in het algemeen een missievoorwerp is. Gewone en missiegebonden stapels blijven gescheiden. Ook na voltooiing van een missie blijft een voorwerp gemarkeerd zolang het journaal het in de voorraad vermeldt; voltooiing verwijdert het niet automatisch. De tooltip toont het missienummer en de bekende status. Engineering betekent dat de statische Odyssey-catalogus minstens één bevestigd gebruik kent: pakupgrade, wapenupgrade, pakmodificatie, wapenmodificatie of het ontgrendelen van een ingenieur. De afzonderlijke toepassingen staan in de tooltip. Een ontbrekende aanduiding betekent niet dat het voorwerp nutteloos of uitsluitend verhandelbaar is. Ook Powerplay-voorwerpen en andere bijzondere voorwerpen kunnen worden weergegeven.</p>
+<p>De zoekfunctie vindt de weergegeven lokale en Engelse materiaal-/voorwerpnamen. De zes Odyssey-filters zijn Alle (alle voorwerpen), Missie (stapels met een missiekoppeling), Engineering (voorwerpen met bevestigd engineeringgebruik), Rugzak (rugzakvoorraad groter dan nul), Scheepskluis (kluisvoorraad groter dan nul) en Voorraad 0 (betrouwbaar bekende totale voorraad van 0). Onbekende voorraad ? is niet 0 en valt niet onder Voorraad 0. Ontbrekende naamvertalingen vallen terug op het Engels, zodat sommige namen in de gekozen taal Engels kunnen blijven. Dit is bedoeld en is geen vertaalfout in de voorraadlogica.</p>
+<p>De voorraad wordt op de achtergrond automatisch bijgewerkt. Bevestigde nieuwe vondsten kunnen kort worden gemarkeerd. Bij een commanderwissel worden oude voorraden direct verwijderd. Subtabbladen, filters, kolombreedtes en kolomvolgorde worden voor Odyssey afzonderlijk opgeslagen.</p>""",
+    ),'overview': ('Overzicht',
               '<h2>Overzicht</h2>\n'
               '<p>Het overzicht is de startpagina van CMDRHelper. Het vat de belangrijkste '
               'informatie over de momenteel actieve commandant samen en laat in één oogopslag zien '
@@ -156,7 +183,7 @@ HELP_TOPICS = {'overview': ('Overzicht',
               '<p>CMDRHelper kan alleen informatie weergeven die het journaal daadwerkelijk levert '
               'of die al is opgeslagen uit eerdere unieke missiegebeurtenissen.</p>'),
  'explorer': ('Ontdekkingsreiziger',
-              '<h2>Ontdekkingsreiziger</h2>\n'
+              '<h2>Ontdekkingsreiziger</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Systeemoverzicht: de nieuwe Elite-achtige weergave vervangt het miniatuuroverzicht in Explorer en Kroniek. Sterren en planeten vormen de hoofdstructuur met manen daaronder; meervoudige sterrenstelsels blijven leesbaar. Zoomen, scrollen, passend maken en klikken op hemellichamen geven toegang tot details.</p>\n<p>Compacte asteroïdengordels: clusters worden gegroepeerd tot gordels in het overzicht en de gewone systeemkaarten van Explorer en Kroniek. Alle afzonderlijke clustergegevens blijven bewaard.</p>\n<p>Cartografie hersteld: een scan na DSS-kartering zet onverkochte verkenningswaarden, karteringstijd en efficiëntie niet meer terug. Onjuiste registraties worden bij het starten hersteld uit beschikbare journals met eenduidige toewijzing. Zonder die bronnen blijft herstel openstaan; de database hoeft niet verwijderd te worden.</p>\n'
               '<p>De Explorer evalueert de systemen en hemellichamen die door de actieve '
               'commandant zijn ontdekt en gescand. Het combineert uw eigen Elite '
               'Dangerous-dagboekgegevens met reeds beschikbare aanvullende informatie en geeft '
@@ -367,6 +394,9 @@ HELP_TOPICS = {'overview': ('Overzicht',
  'chronicle': (
         'Kroniek',
         """<h2>Kroniek</h2>
+<h3>CMDRHelper v3.2</h3>
+<p>Systeemoverzicht: de nieuwe Elite-achtige weergave vervangt het miniatuuroverzicht in Explorer en Kroniek. Sterren en planeten vormen de hoofdstructuur met manen daaronder; meervoudige sterrenstelsels blijven leesbaar. Zoomen, scrollen, passend maken en klikken op hemellichamen geven toegang tot details.</p>
+<p>Compacte asteroïdengordels: clusters worden gegroepeerd tot gordels in het overzicht en de gewone systeemkaarten van Explorer en Kroniek. Alle afzonderlijke clustergegevens blijven bewaard.</p>
 <p>De kroniek is de persoonlijke reis- en ontdekkingsgeschiedenis van de commandant. Het gebruikt de permanent opgeslagen journaalinformatie om reeds bezochte systemen te vinden, deze ruimtelijk weer te geven en te zoeken naar bekende ontdekkingen.</p>
 
 <h3>Systemen bezocht</h3>
@@ -612,7 +642,7 @@ HELP_TOPICS = {'overview': ('Overzicht',
               '<p>Niet als voorspelling:</p>\n'
               '<p>“Er zit gegarandeerd een specifieke vondst in dit systeem.”</p>'),
  'route_planner': ('Routeplanner',
-                   '<h2>Routeplanner</h2>\n'
+                   '<h2>Routeplanner</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Verbeterde routeplanner: het vertrek volgt automatisch het huidige systeem totdat je handmatig een vertrek invult; leegmaken herstelt de automatische werking. Schepen en carriers gebruiken exact gecontroleerde ID64-adressen, zonder vergelijkbare namen te kiezen. ‘Unable to find route’ betekent dat geen route is gevonden; controleer doelen, bereik en route-instellingen.</p>\n'
                    '<p>De routeplanner ondersteunt het plannen van langere reizen per schip of '
                    'Fleet Carrier. CMDRHelper kan externe routegegevens van Spansh gebruiken en de '
                    'geplande route voorbereiden voor verder gebruik.</p>\n'
@@ -1110,7 +1140,7 @@ HELP_TOPICS = {'overview': ('Overzicht',
                     '<p>Deze scheiding voorkomt dat persoonlijke gegevens of online uploads van '
                     'verschillende commandanten met elkaar worden vermengd.</p>'),
  'settings': ('Instellingen',
-              '<h2>Instellingen</h2>\n'
+              '<h2>Instellingen</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Betere update-informatie: het Ja/Nee-venster toont geïnstalleerde en beschikbare versie plus maximaal zes wijzigingen als een samenvatting bestaat. Lange lijsten scrollen en acties blijven bereikbaar. Deze weergave wordt met v3.2 geïnstalleerd; een ongewijzigde v3.1-client toont haar nog niet.</p>\n'
               '<p>Het gebied “Instellingen” bepaalt hoe CMDRHelper werkt met Elite Dangerous, '
               'journaalbestanden, database, online services, interface en updates.</p>\n'
               '<p>Wijzigingen in referenties en paden moeten zorgvuldig worden aangebracht. '

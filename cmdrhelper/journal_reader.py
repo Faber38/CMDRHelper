@@ -1772,15 +1772,14 @@ def read_latest_state(
                             or "belt cluster" in body_name.lower()
                             or str(e.get("ScanType") or "") == "NavBeaconDetail"
                         ):
-                            unsold_cartography[(address, body_id_int)] = {
-                                "system_address": int(address), "body_id": body_id_int,
-                                "system_name": current_system,
-                                "body_name": body_name, "scanned_at": ts,
-                                "mapped_at": "", "self_mapped": False,
-                                "planet_class": body.get("planet_class") or "",
-                                "terraformable": bool(body.get("terraformable")),
-                                "estimated_value": int(body.get("current_value") or 0),
-                            }
+                            from cmdrhelper.unsold_cartography import scan_claim
+                            key = (address, body_id_int)
+                            claim = scan_claim(body, unsold_cartography.get(key), ts)
+                            claim.update(system_address=int(address), body_id=body_id_int,
+                                         system_name=current_system, body_name=body_name,
+                                         planet_class=body.get('planet_class') or '',
+                                         terraformable=bool(body.get('terraformable')))
+                            unsold_cartography[key] = claim
 
                 # ---------------------------------------------------------
                 # DSS Mapping
@@ -1820,25 +1819,14 @@ def read_latest_state(
 
                             apply_values(body)
 
+                            from cmdrhelper.unsold_cartography import mapping_claim
                             ledger_key = (address, body_id_int)
-                            mapped_value = int(body.get("current_value") or 0)
-                            if ledger_key in unsold_cartography:
-                                unsold_cartography[ledger_key].update({
-                                    "estimated_value": mapped_value,
-                                    "mapped_at": ts, "self_mapped": True,
-                                })
-                            else:
-                                # Scan bereits verkauft, DSS erst danach: nur Mehrwert offen.
-                                scan_value = int(body.get("scan_value") or 0)
-                                unsold_cartography[ledger_key] = {
-                                    "system_address": int(address), "body_id": body_id_int,
-                                    "system_name": current_system,
-                                    "body_name": body.get("name") or "", "scanned_at": "",
-                                    "mapped_at": ts, "self_mapped": True,
-                                    "planet_class": body.get("planet_class") or "",
-                                    "terraformable": bool(body.get("terraformable")),
-                                    "estimated_value": max(0, mapped_value - scan_value),
-                                }
+                            claim = mapping_claim(body, unsold_cartography.get(ledger_key), e)
+                            claim.update(system_address=int(address), body_id=body_id_int,
+                                         system_name=current_system, body_name=body.get('name') or '',
+                                         planet_class=body.get('planet_class') or '',
+                                         terraformable=bool(body.get('terraformable')))
+                            unsold_cartography[ledger_key] = claim
 
                 # ---------------------------------------------------------
                 # BIO / GEO Signals

@@ -37,10 +37,12 @@ class StartupRepairTests(unittest.TestCase):
                  Genus='Genus', Species='Species', Variant='Variant'),
             dict(event='SAAScanComplete', SystemAddress=1, BodyID=24, BodyName='A 1',
                  ProbesUsed=3, EfficiencyTarget=4)]
+        events.insert(1, dict(event='Scan', SystemAddress=1, BodyID=24, BodyName='A 1',
+                              PlanetClass='Rocky body', MassEM=1, WasDiscovered=True, WasMapped=False))
         for i,e in enumerate(events):e['timestamp']=f'2026-09-08T00:00:{i:02}Z'
         self.file.write_text(''.join(json.dumps(e)+'\n' for e in events))
         scan_journal_folder(self.db,self.folder)
-        self.db.store_snapshot(dict(system_address=1,system='A',last_timestamp='2026-09-08T00:00:06Z',
+        self.db.store_snapshot(dict(system_address=1,system='A',last_timestamp='2026-09-08T00:00:07Z',
             system_bodies=[dict(body_id=24,name='A 1',body_type='Planet',self_mapped=True,
                                 efficient_mapping=True,was_discovered=True,was_mapped=False)]),self.cid)
         with self.db._connect() as con:
@@ -48,7 +50,7 @@ class StartupRepairTests(unittest.TestCase):
                         (self.file.stat().st_size,self.file.stat().st_size))
         run_startup_repairs(self.db.path)
         with self.db._connect() as con:
-            con.execute('delete from commander_state_repairs where feature in (?,?,?)',FEATURES)
+            con.execute('delete from commander_state_repairs where feature in (?,?,?,?)',FEATURES)
             if 'bio' in kinds:con.execute('delete from biology')
             if 'visits' in kinds:
                 con.execute('delete from system_visits')
@@ -80,7 +82,7 @@ class StartupRepairTests(unittest.TestCase):
             self.assertEqual(repair_status(con,self.cid,FEATURES[0]),'not_run')
         with patch('cmdrhelper.startup_repairs.create_repair_backup') as backup:
             results=run_startup_repairs(self.db.path)
-        self.assertEqual([r['status'] for r in results],['complete']*3)
+        self.assertEqual([r['status'] for r in results],['complete']*len(FEATURES))
         backup.assert_not_called()
 
     def test_old_schema_actual_startup_all_gaps_and_second_start(self):
@@ -92,13 +94,13 @@ class StartupRepairTests(unittest.TestCase):
             con.execute('alter table journal_sessions drop column repair_commander_id')
             con.execute('pragma user_version=15')
         self.db=CMDRDatabase(self.db.path)
-        with self.db._connect() as con:self.assertEqual(con.execute('pragma user_version').fetchone()[0],16)
+        with self.db._connect() as con:self.assertEqual(con.execute('pragma user_version').fetchone()[0],17)
         self.startup()
         data=self.snapshot()
         self.assertEqual(len(data['biology']),1)
         with self.db._connect() as con:
             self.assertEqual(con.execute('select system_address from system_visits order by visited_at').fetchall(),[(1,),(2,),(1,)])
-            self.assertEqual(con.execute('select mapped_at,probes_used,efficiency_target,self_mapped,efficient_mapping from commander_bodies').fetchone(),('2026-09-08T00:00:06Z',3,4,1,1))
+            self.assertEqual(con.execute('select mapped_at,probes_used,efficiency_target,self_mapped,efficient_mapping from commander_bodies').fetchone(),('2026-09-08T00:00:07Z',3,4,1,1))
         self.assertTrue(list(self.folder.glob('*.pre-startup-repairs-*.bak')))
         self.assertTrue(all(self.status(f)=='complete' for f in FEATURES))
         with patch('cmdrhelper.startup_repairs._plan',side_effect=AssertionError('no second scan')):
@@ -106,13 +108,13 @@ class StartupRepairTests(unittest.TestCase):
         self.assertEqual(data,self.snapshot())
 
     def test_only_bio_gap(self):
-        self.seed(('bio',));self.assertEqual([r['changed'] for r in run_startup_repairs(self.db.path)],[1,0,0])
+        self.seed(('bio',));self.assertEqual([r['changed'] for r in run_startup_repairs(self.db.path)],[1,0,0,0])
 
     def test_only_visits_gap(self):
-        self.seed(('visits',));self.assertEqual([r['changed'] for r in run_startup_repairs(self.db.path)],[0,3,0])
+        self.seed(('visits',));self.assertEqual([r['changed'] for r in run_startup_repairs(self.db.path)],[0,3,0,0])
 
     def test_only_mapping_gap(self):
-        self.seed(('mapping',));self.assertEqual([r['changed'] for r in run_startup_repairs(self.db.path)],[0,0,1])
+        self.seed(('mapping',));self.assertEqual([r['changed'] for r in run_startup_repairs(self.db.path)],[0,0,1,0])
 
     def test_missing_journal_is_incomplete_and_retried(self):
         self.seed();text=self.file.read_text();self.file.unlink()
@@ -151,6 +153,8 @@ class StartupRepairTests(unittest.TestCase):
 
     def test_backup_failure_does_not_change_data_or_mark_success(self):
         self.seed();before=self.snapshot()
+        with self.db._connect() as con:
+            con.execute('UPDATE commander_unsold_cartography SET estimated_value=0')
         with patch.object(repairs,'create_repair_backup',side_effect=OSError('disk full')):
             run_startup_repairs(self.db.path)
         after=self.snapshot()
@@ -178,9 +182,9 @@ class StartupRepairTests(unittest.TestCase):
         with self.db._connect() as con:
             con.execute('update journal_sessions set last_read_offset=?',(self.file.stat().st_size,))
         results=run_startup_repairs(self.db.path)
-        self.assertEqual(results[-1]['status'],'incomplete')
+        self.assertEqual(next(r for r in results if r['feature']=='mapping_metadata')['status'],'incomplete')
         with self.db._connect() as con:
-            self.assertEqual(con.execute('select mapped_at,probes_used,efficiency_target from commander_bodies').fetchone(),('2026-09-08T00:00:06Z',None,4))
+            self.assertEqual(con.execute('select mapped_at,probes_used,efficiency_target from commander_bodies').fetchone(),('2026-09-08T00:00:07Z',None,4))
 
     def test_missing_import_without_session_is_not_silently_ignored(self):
         self.seed()
@@ -275,4 +279,4 @@ repairs.run_startup_repairs(sys.argv[1])
             self.assertEqual(con.execute('pragma user_version').fetchone()[0],15)
             self.assertNotIn('status',{r[1] for r in con.execute('pragma table_info(commander_state_repairs)')})
         self.db=CMDRDatabase(self.db.path)
-        with self.db._connect() as con:self.assertEqual(con.execute('pragma user_version').fetchone()[0],16)
+        with self.db._connect() as con:self.assertEqual(con.execute('pragma user_version').fetchone()[0],17)

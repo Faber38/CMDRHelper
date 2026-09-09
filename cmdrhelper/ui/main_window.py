@@ -9,12 +9,15 @@ import logging
 import re
 
 from cmdrhelper.chronicle_filters import ChronicleFilters
+from cmdrhelper.ui.update_confirmation import UpdateConfirmationBox
 from cmdrhelper.ui.system_view import SystemMapWidget
+from cmdrhelper.ui.system_overview import SystemOverviewDialog
 from cmdrhelper.bio_valuation import base_value, species_name
 from cmdrhelper.ui.body_detail_window import BodyDetailWindow
 from cmdrhelper.ui.chronicle_view import ChronicleMapWidget, commander_color
 from cmdrhelper.ui.screenshot_view import ScreenshotView
 from cmdrhelper.ui.commander_view import CommanderView
+from cmdrhelper.ui.material_view import MaterialView
 from cmdrhelper.ui.startup_progress import StartupProgressDialog
 from cmdrhelper.ui.cargo_hud import cargo_hud_enabled, cargo_hud_data
 from cmdrhelper.ui.table_widths import persist_column_widths
@@ -40,14 +43,11 @@ from cmdrhelper.update import (
     launch_installer,
 )
 
-from PySide6.QtCore import Qt, QTimer, QThreadPool, QUrl, QRectF, Signal, QDate
+from PySide6.QtCore import Qt, QTimer, QThreadPool, QUrl, QDate
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 from PySide6.QtGui import (
     QDesktopServices,
-    QPainter,
     QColor,
-    QPen,
-    QBrush,
     QFont,
     QFontDatabase,
 )
@@ -149,11 +149,16 @@ class OnlineServiceCommanderComboBox(QComboBox):
 
 
 class ChronicleSystemWindow(QDialog):
-    def __init__(self, system_name, bodies, header_text, body_callback, parent=None):
+    def __init__(self, system_name, bodies, header_text, body_callback, parent=None, *,
+                 system_address=None, commander_id=None, settings=None):
         super().__init__(parent)
 
         self.setWindowTitle(tr("chronicle.system_window_title", system=system_name))
         self.resize(1250, 760)
+        self.system_address, self.commander_id = system_address, commander_id
+        self.settings = settings
+        self._body_callback = body_callback
+        self._system_overview_window = None
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(10, 10, 10, 10)
@@ -181,6 +186,9 @@ class ChronicleSystemWindow(QDialog):
         layout.addWidget(scroll, 1)
 
         buttons = QHBoxLayout()
+        self.system_overview_button = QPushButton(tr("explorer.show_all"))
+        self.system_overview_button.clicked.connect(self._show_system_overview)
+        buttons.addWidget(self.system_overview_button)
         buttons.addStretch()
 
         close = QPushButton(tr("common.close"))
@@ -188,6 +196,27 @@ class ChronicleSystemWindow(QDialog):
         buttons.addWidget(close)
 
         layout.addLayout(buttons)
+
+    def _show_system_overview(self):
+        if self._system_overview_window is not None:
+            self._system_overview_window.close()
+            self._system_overview_window.deleteLater()
+        self._system_overview_window = SystemOverviewDialog(
+            self.system_map.system_name, self.system_map.bodies,
+            on_body_clicked=self._body_callback, parent=self,
+            light=self.system_map._light_mode, settings=self.settings,
+            system_address=self.system_address, commander_id=self.commander_id,
+        )
+        self._system_overview_window.show()
+        self._system_overview_window.raise_()
+        self._system_overview_window.activateWindow()
+
+    def closeEvent(self, event):
+        if self._system_overview_window is not None:
+            self._system_overview_window.close()
+            self._system_overview_window.deleteLater()
+            self._system_overview_window = None
+        super().closeEvent(event)
 
 
 class ChronicleSearchHelpDialog(QDialog):
@@ -316,402 +345,6 @@ class ChronicleSearchHelpDialog(QDialog):
     def _term_clicked(self, term):
         if callable(self._on_term_clicked):
             self._on_term_clicked(str(term))
-
-
-class SystemOverviewMiniMap(QWidget):
-    bodyClicked = Signal(object)
-
-    def __init__(self, source_map, parent=None):
-        super().__init__(parent)
-
-        self.source_map = source_map
-        self._click_rects = []
-
-        self.setMinimumSize(600, 420)
-        self.setMouseTracking(True)
-
-    def paintEvent(self, event):
-        painter = QPainter(self)
-
-        try:
-            painter.setRenderHint(
-                QPainter.Antialiasing,
-                True,
-            )
-
-            painter.fillRect(
-                self.rect(),
-                QColor("#080d12"),
-            )
-
-            self._click_rects = []
-
-            if self.source_map is None or not self.source_map.bodies:
-                painter.setPen(QColor("#8e969e"))
-                painter.drawText(
-                    self.rect(),
-                    Qt.AlignCenter,
-                    tr("explorer.no_system_data_available"),
-                )
-                return
-
-            (
-                positions,
-                children,
-                _families,
-                _used_units,
-                _depth_count,
-            ) = self.source_map._tree_layout()
-
-            if not positions:
-                return
-
-            left = min(pos["x"] for pos in positions.values())
-            top = min(pos["y"] for pos in positions.values())
-            right = max(pos["x"] + self.source_map.BODY_W for pos in positions.values())
-            bottom = max(
-                pos["y"] + self.source_map.BODY_H for pos in positions.values()
-            )
-
-            source_w = max(
-                1.0,
-                right - left,
-            )
-            source_h = max(
-                1.0,
-                bottom - top,
-            )
-
-            margin = 22.0
-
-            scale = min(
-                max(
-                    0.01,
-                    (self.width() - margin * 2) / source_w,
-                ),
-                max(
-                    0.01,
-                    (self.height() - margin * 2) / source_h,
-                ),
-            )
-
-            offset_x = (self.width() - source_w * scale) / 2.0
-
-            offset_y = (self.height() - source_h * scale) / 2.0
-
-            def map_point(x, y):
-                return (
-                    offset_x + (x - left) * scale,
-                    offset_y + (y - top) * scale,
-                )
-
-            # Zuerst die Parent-/Child-Verbindungen zeichnen.
-            painter.setPen(
-                QPen(
-                    QColor("#7f8993"),
-                    max(1.0, 1.2 * scale),
-                )
-            )
-
-            for parent_pos in positions.values():
-                parent = parent_pos["body"]
-
-                direct_children = [
-                    child
-                    for child in children.get(
-                        parent.get("body_id"),
-                        [],
-                    )
-                    if id(child) in positions
-                ]
-
-                if not direct_children:
-                    continue
-
-                px_raw = parent_pos["x"] + self.source_map.BODY_W / 2
-                py_raw = parent_pos["y"] + self.source_map.BODY_H
-
-                child_centers_raw = [
-                    (positions[id(child)]["x"] + self.source_map.BODY_W / 2)
-                    for child in direct_children
-                ]
-
-                child_tops_raw = [
-                    positions[id(child)]["y"] for child in direct_children
-                ]
-
-                nearest_top = min(child_tops_raw)
-
-                bus_y_raw = py_raw + (nearest_top - py_raw) * 0.45
-
-                px, py = map_point(
-                    px_raw,
-                    py_raw,
-                )
-                _, bus_y = map_point(
-                    px_raw,
-                    bus_y_raw,
-                )
-
-                painter.drawLine(
-                    int(px),
-                    int(py),
-                    int(px),
-                    int(bus_y),
-                )
-
-                if len(child_centers_raw) > 1:
-                    left_x, _ = map_point(
-                        min(child_centers_raw),
-                        bus_y_raw,
-                    )
-                    right_x, _ = map_point(
-                        max(child_centers_raw),
-                        bus_y_raw,
-                    )
-
-                    painter.drawLine(
-                        int(left_x),
-                        int(bus_y),
-                        int(right_x),
-                        int(bus_y),
-                    )
-
-                for child in direct_children:
-                    child_pos = positions[id(child)]
-
-                    cx_raw = child_pos["x"] + self.source_map.BODY_W / 2
-                    cy_raw = child_pos["y"]
-
-                    cx, cy = map_point(
-                        cx_raw,
-                        cy_raw,
-                    )
-
-                    if len(child_centers_raw) == 1 and abs(cx_raw - px_raw) > 1:
-                        painter.drawLine(
-                            int(px),
-                            int(bus_y),
-                            int(cx),
-                            int(bus_y),
-                        )
-
-                    painter.drawLine(
-                        int(cx),
-                        int(bus_y),
-                        int(cx),
-                        int(cy),
-                    )
-
-            # Körper als kompakte Miniatur-Symbole.
-            for pos in sorted(
-                positions.values(),
-                key=lambda item: (
-                    item["level"],
-                    item["x"],
-                ),
-            ):
-                body = pos["body"]
-
-                center_raw_x = pos["x"] + self.source_map.BODY_W / 2
-                center_raw_y = pos["y"] + 44
-
-                cx, cy = map_point(
-                    center_raw_x,
-                    center_raw_y,
-                )
-
-                is_star = bool(body.get("star_type") or body.get("body_type") == "Star")
-
-                is_belt = self.source_map._is_belt_cluster(body)
-
-                if is_star:
-                    radius = max(
-                        7.0,
-                        min(
-                            18.0,
-                            15.0 * scale + 5.0,
-                        ),
-                    )
-                elif is_belt:
-                    radius = max(
-                        3.0,
-                        min(
-                            7.0,
-                            5.0 * scale + 2.0,
-                        ),
-                    )
-                else:
-                    radius = max(
-                        4.0,
-                        min(
-                            11.0,
-                            8.0 * scale + 3.0,
-                        ),
-                    )
-
-                body_color = self.source_map._body_color(body)
-
-                bio_count = int(body.get("biological_signals") or 0)
-
-                geo_count = int(body.get("geological_signals") or 0)
-                mining_count = int(body.get("planetary_mining_signals") or 0)
-
-                if bio_count > 0:
-                    outline = QColor("#39ff56")
-                elif geo_count > 0:
-                    outline = QColor("#28c9e8")
-                elif mining_count > 0:
-                    outline = QColor("#ff9d00")
-                elif body.get("high_value"):
-                    outline = QColor("#ffb000")
-                else:
-                    outline = QColor("#d9dde1")
-
-                painter.setPen(
-                    QPen(
-                        outline,
-                        2,
-                    )
-                )
-
-                painter.setBrush(QBrush(body_color))
-
-                if is_belt:
-                    painter.drawEllipse(
-                        QRectF(
-                            cx - radius * 1.7,
-                            cy - radius * 0.55,
-                            radius,
-                            radius,
-                        )
-                    )
-                    painter.drawEllipse(
-                        QRectF(
-                            cx - radius * 0.4,
-                            cy - radius,
-                            radius * 1.2,
-                            radius * 1.2,
-                        )
-                    )
-                    painter.drawEllipse(
-                        QRectF(
-                            cx + radius * 0.8,
-                            cy - radius * 0.4,
-                            radius * 0.85,
-                            radius * 0.85,
-                        )
-                    )
-                else:
-                    painter.drawEllipse(
-                        QRectF(
-                            cx - radius,
-                            cy - radius,
-                            radius * 2,
-                            radius * 2,
-                        )
-                    )
-
-                # Größerer unsichtbarer Klickbereich als das Miniatursymbol.
-                click_r = max(
-                    10.0,
-                    radius + 5.0,
-                )
-
-                self._click_rects.append(
-                    (
-                        QRectF(
-                            cx - click_r,
-                            cy - click_r,
-                            click_r * 2,
-                            click_r * 2,
-                        ),
-                        body,
-                    )
-                )
-
-        finally:
-            # Wichtig: QPainter immer sauber beenden.
-            painter.end()
-
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            point = event.position()
-
-            for rect, body in self._click_rects:
-                if rect.contains(point):
-                    self.bodyClicked.emit(body)
-                    return
-
-        super().mousePressEvent(event)
-
-
-class SystemOverviewDialog(QDialog):
-    """Sichere Miniaturübersicht ohne Rendern eines bereits sichtbaren Widgets."""
-
-    def __init__(
-        self,
-        system_name,
-        bodies,
-        source_map,
-        on_body_clicked=None,
-        parent=None,
-    ):
-        super().__init__(parent)
-
-        self.system_name = system_name or ""
-
-        self.setWindowTitle(tr("explorer.show_all_title", system=self.system_name))
-
-        self.resize(
-            1050,
-            720,
-        )
-
-        root = QVBoxLayout(self)
-        root.setContentsMargins(
-            10,
-            10,
-            10,
-            10,
-        )
-        root.setSpacing(6)
-
-        title = QLabel(
-            self.system_name,
-            objectName="sectionTitle",
-        )
-        title.setStyleSheet("font-size: 17px; font-weight: 700;")
-        root.addWidget(title)
-
-        hint = QLabel(
-            tr("explorer.overview_hint"),
-            objectName="muted",
-        )
-        hint.setWordWrap(True)
-        root.addWidget(hint)
-
-        self.preview = SystemOverviewMiniMap(
-            source_map=source_map,
-            parent=self,
-        )
-
-        if callable(on_body_clicked):
-            self.preview.bodyClicked.connect(on_body_clicked)
-
-        root.addWidget(
-            self.preview,
-            1,
-        )
-
-        buttons = QHBoxLayout()
-        buttons.addStretch()
-
-        close = QPushButton(tr("common.close"))
-        close.clicked.connect(self.close)
-        buttons.addWidget(close)
-
-        root.addLayout(buttons)
 
 
 class ExplorerLiveListWindow(QDialog):
@@ -1417,6 +1050,7 @@ class MainWindow(QMainWindow):
     PAGE_IMAGES = 6
     PAGE_COMMANDER_VIEW = 7
     PAGE_SETTINGS = 8
+    PAGE_MATERIALS = 9
     HELP_CONTEXTS = {
         PAGE_OVERVIEW: "overview",
         PAGE_MISSIONS: "missions",
@@ -1427,6 +1061,7 @@ class MainWindow(QMainWindow):
         PAGE_IMAGES: "images",
         PAGE_COMMANDER_VIEW: "commander_view",
         PAGE_SETTINGS: "settings",
+        PAGE_MATERIALS: "materials",
     }
 
     def __init__(self, state):
@@ -1608,6 +1243,8 @@ class MainWindow(QMainWindow):
         side.addWidget(self._nav("♟  " + tr("nav.commander_view"), self.PAGE_COMMANDER_VIEW))
 
         side.addWidget(self._nav("⚙  " + tr("nav.settings"), self.PAGE_SETTINGS))
+
+        side.addWidget(self._nav("▤  " + tr("materials.title"), self.PAGE_MATERIALS))
 
         side.addStretch()
 
@@ -1808,6 +1445,10 @@ class MainWindow(QMainWindow):
 
         self.pages.addWidget(self._settings())
 
+        self.material_view = MaterialView(self.state, self)
+        self.material_view.routeRequested.connect(self._open_material_trader_route)
+        self.pages.addWidget(self.material_view)
+
         right_layout.addWidget(self.pages, 1)
 
         main.addWidget(right, 1)
@@ -1951,6 +1592,10 @@ class MainWindow(QMainWindow):
         self.recent_systems_table.horizontalHeader().setStretchLastSection(True)
         self.recent_systems_table.setColumnWidth(0, 150)
         self.recent_systems_table.setMinimumHeight(150)
+        persist_column_widths(
+            self.recent_systems_table, self.state.settings,
+            "overview/recent_systems_column_widths", preserve_default_stretch=True,
+        )
 
         recent_layout.addWidget(self.recent_systems_table)
 
@@ -1991,6 +1636,10 @@ class MainWindow(QMainWindow):
 
             self.recent_systems_table.setItem(row, 0, time_item)
             self.recent_systems_table.setItem(row, 1, system_item)
+
+    def _open_material_trader_route(self, system_name):
+        self.pages.widget(self.PAGE_ROUTE_PLANNER).set_destination_system(system_name)
+        self._show_page(self.PAGE_ROUTE_PLANNER)
 
     def _explorer(self):
         page = QWidget()
@@ -3263,6 +2912,7 @@ class MainWindow(QMainWindow):
         if self._system_overview_window is not None:
             try:
                 self._system_overview_window.close()
+                self._system_overview_window.deleteLater()
             except Exception:
                 pass
 
@@ -3276,8 +2926,11 @@ class MainWindow(QMainWindow):
                 or tr("explorer.current_system")
             ),
             bodies=bodies,
-            source_map=self.system_map,
-            on_body_clicked=self._focus_system_body,
+            on_body_clicked=self._show_body_details,
+            light=self.ui_theme == "light",
+            settings=self.state.settings,
+            system_address=getattr(self.state, "system_address", None),
+            commander_id=getattr(self.state, "commander_id", None),
             parent=self,
         )
 
@@ -4515,6 +4168,9 @@ class MainWindow(QMainWindow):
             header_text=header_text,
             body_callback=self._show_body_details,
             parent=self,
+            system_address=address,
+            commander_id=detail_commander_id,
+            settings=self.state.settings,
         )
 
         self._chronicle_system_window.system_map.set_light_mode(
@@ -5538,31 +5194,31 @@ class MainWindow(QMainWindow):
             if automatic and not self._update_notice_shown:
                 self._update_notice_shown = True
 
-                answer = QMessageBox.question(
+                answer = UpdateConfirmationBox(
                     self,
                     tr("settings.update_available_title"),
                     self._update_question_text(
                         result,
                         latest,
                     ),
-                    QMessageBox.Yes | QMessageBox.No,
-                    QMessageBox.Yes,
-                )
+                    latest,
+                    result.get("release_notes") or "",
+                ).exec()
 
                 if answer == QMessageBox.Yes:
                     self._install_update(result)
 
             elif not automatic:
-                answer = QMessageBox.question(
+                answer = UpdateConfirmationBox(
                     self,
                     tr("settings.update_available_title"),
                     self._update_question_text(
                         result,
                         latest,
                     ),
-                    QMessageBox.Yes | QMessageBox.No,
-                    QMessageBox.Yes,
-                )
+                    latest,
+                    result.get("release_notes") or "",
+                ).exec()
 
                 if answer == QMessageBox.Yes:
                     self._install_update(result)
@@ -5752,6 +5408,9 @@ class MainWindow(QMainWindow):
             base_stylesheet = LIGHT_STYLESHEET if theme == "light" else DARK_STYLESHEET
             app.setStyleSheet(base_stylesheet + self._font_stylesheet_suffix())
 
+        if hasattr(self, "material_view"):
+            self.material_view.set_light_mode(theme == "light")
+
         if hasattr(self, "system_map"):
             self.system_map.set_light_mode(theme == "light")
 
@@ -5764,6 +5423,11 @@ class MainWindow(QMainWindow):
             self._chronicle_system_window, "system_map"
         ):
             self._chronicle_system_window.system_map.set_light_mode(theme == "light")
+            overview = getattr(self._chronicle_system_window, "_system_overview_window", None)
+            if overview is not None:
+                overview.set_light_mode(theme == "light")
+        if getattr(self, "_system_overview_window", None) is not None:
+            self._system_overview_window.set_light_mode(theme == "light")
 
     def _explorer_live_window_enabled(self, window_kind):
         kind = str(window_kind) if str(window_kind) in ("bio", "geo") else "value"

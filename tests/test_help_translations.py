@@ -1,6 +1,8 @@
 import os
 import re
 import unittest
+from html.parser import HTMLParser
+from importlib import import_module
 from unittest.mock import patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -36,7 +38,7 @@ class HelpTranslationTests(unittest.TestCase):
 
     def test_all_languages_and_topics_are_registered(self):
         self.assertEqual(HELP_LANGUAGES, EXPECTED_LANGUAGES)
-        self.assertEqual(len(de.HELP_TOPICS), 10)
+        self.assertEqual(len(de.HELP_TOPICS), 11)
         expected_topics = tuple(de.HELP_TOPICS)
         for language in HELP_LANGUAGES:
             with self.subTest(language=language):
@@ -44,7 +46,7 @@ class HelpTranslationTests(unittest.TestCase):
                     f"cmdrhelper.help_content.{language}", fromlist=["HELP_TOPICS"]
                 )
                 self.assertEqual(tuple(catalog.HELP_TOPICS), expected_topics)
-                self.assertEqual(len(catalog.HELP_TOPICS), 10)
+                self.assertEqual(len(catalog.HELP_TOPICS), 11)
 
     def test_navigation_translations_preserve_numbers_and_have_no_german_passages(self):
         master = de.HELP_TOPICS["planet_navigation"][1]
@@ -99,7 +101,7 @@ class HelpTranslationTests(unittest.TestCase):
                 text = help_topic("explorer", language).text
                 ui = import_module(f"cmdrhelper.i18n.{language}").TRANSLATIONS
                 favorite_text = text[text.index("<h3>" + ui["favorites.title"] + "</h3>"):]
-                self.assertEqual(text.count("<h3>"), 25)
+                self.assertEqual(text.count("<h3>"), 26)
                 for tag, count in (("h3", 5), ("p", 16), ("ul", 1), ("li", 3)):
                     self.assertEqual(favorite_text.count(f"<{tag}>"), count)
                 for key in ("save_system", "save_body", "save_surface", "open", "edit",
@@ -126,8 +128,8 @@ class HelpTranslationTests(unittest.TestCase):
         for language in HELP_LANGUAGES:
             with self.subTest(language=language):
                 text = help_topic("chronicle", language).text
-                self.assertEqual(text.count("<h3>"), 22)
-                self.assertEqual(text.count("<p>"), 79)
+                self.assertEqual(text.count("<h3>"), 23)
+                self.assertEqual(text.count("<p>"), 81)
                 self.assertEqual(text.count("<ul>"), 8)
                 self.assertEqual(text.count("<li>"), 31)
                 self.assertEqual(re.findall(r"<code>(.*?)</code>", text),
@@ -204,6 +206,71 @@ class HelpTranslationTests(unittest.TestCase):
                     )
                     self.assertEqual(close_button.text(), topic.close_label)
                     dialog.close()
+
+    def test_material_help_is_localized_with_complete_odyssey_sections(self):
+        master = de.HELP_TOPICS['materials'][1]
+        german_paragraphs = re.findall(r'<p>(.*?)</p>', master)
+        for language in HELP_LANGUAGES:
+            with self.subTest(language=language):
+                module = import_module('cmdrhelper.help_content.' + language)
+                text = help_topic('materials', language).text
+                self.assertEqual(text, module.HELP_TOPICS['materials'][1])
+                self.assertEqual(_tag_structure(text), _tag_structure(master))
+                engineering, odyssey = text.split('<h3>Odyssey</h3>')
+                self.assertEqual(odyssey.count('<p>'), 4)
+                self.assertIn('1000', odyssey)
+                self.assertIn('?', odyssey)
+                self.assertNotIn('250', odyssey)
+                self.assertNotIn('244', odyssey)
+                self.assertEqual(re.findall(r'\d+', engineering),
+                                 re.findall(r'\d+', master.split('<h3>Odyssey</h3>')[0]))
+                if language != 'de':
+                    for paragraph in german_paragraphs:
+                        self.assertNotIn(paragraph, text)
+                    ui = import_module('cmdrhelper.i18n.' + language).TRANSLATIONS
+                    for key in ('items', 'components', 'data', 'consumables', 'locker',
+                                'backpack', 'total', 'usage', 'mission', 'engineering', 'empty'):
+                        self.assertIn(ui['odyssey.' + key], odyssey)
+                    filters = re.findall(r'<p>(.*?)</p>', odyssey)[2]
+                    for key in ('materials.all', 'odyssey.mission', 'odyssey.engineering',
+                                'odyssey.backpack', 'odyssey.locker', 'odyssey.empty'):
+                        self.assertIn(ui[key], filters)
+                    self.assertIn('Powerplay', odyssey)
+
+    def test_help_html_is_balanced_in_all_languages(self):
+        class BalancedHTML(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.stack = []
+
+            def handle_starttag(self, tag, attrs):
+                if tag not in ('br', 'hr', 'img', 'meta', 'link', 'input'):
+                    self.stack.append(tag)
+
+            def handle_endtag(self, tag):
+                if not self.stack or self.stack.pop() != tag:
+                    raise AssertionError('Unmatched HTML end tag: ' + tag)
+
+        for language in HELP_LANGUAGES:
+            module = import_module('cmdrhelper.help_content.' + language)
+            for topic, (_, text) in module.HELP_TOPICS.items():
+                with self.subTest(language=language, topic=topic):
+                    parser = BalancedHTML()
+                    parser.feed(text)
+                    parser.close()
+                    self.assertEqual(parser.stack, [])
+
+    def test_help_placeholders_match_german_master(self):
+        placeholders = lambda text: sorted(re.findall(r'\{[^{}]+\}', text))
+        for language in HELP_LANGUAGES:
+            module = import_module('cmdrhelper.help_content.' + language)
+            with self.subTest(language=language):
+                self.assertEqual(placeholders(module.DIALOG_TITLE), placeholders(de.DIALOG_TITLE))
+                self.assertEqual(placeholders(module.CLOSE_LABEL), placeholders(de.CLOSE_LABEL))
+            for topic, (area, text) in module.HELP_TOPICS.items():
+                with self.subTest(language=language, topic=topic):
+                    master_area, master_text = de.HELP_TOPICS[topic]
+                    self.assertEqual(placeholders(area + text), placeholders(master_area + master_text))
 
     def test_unknown_or_broken_catalog_falls_back_to_german(self):
         self.assertEqual(help_topic("overview", "xx"), help_topic("overview", "de"))

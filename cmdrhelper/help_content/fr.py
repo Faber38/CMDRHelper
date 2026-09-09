@@ -1,7 +1,34 @@
 """French content for contextual help."""
 
 
-HELP_TOPICS = {'overview': ('Aperçu',
+HELP_TOPICS = {
+    "materials": (
+        'Matériaux',
+        """<h2>Matériaux</h2>
+<h3>CMDRHelper v3.2</h3>
+<p>Gestion des matériaux d’ingénierie : les 146 matériaux Raw, Manufactured et Encoded, avec grades, capacités et cas particuliers. Stocks actualisés par commandant, recherche, filtres, cinq fonds de ligne discrets et mémorisation de la largeur et de l’ordre des colonnes. Un stock inconnu reste distinct de zéro.</p>
+<p>Inventaire Odyssey : le quatrième onglet contient 223 identités de catalogue pour les biens, composants, données et consommables. Casier, sac à dos et total fiable restent distincts ; lots de mission, statut et usages en ingénierie sont visibles. Les quantités positives apparaissent en doré. Les noms non traduits utilisent l’anglais.</p>
+<p>Recherche de marchands de matériaux  (Chercher un négociant → Ouvrir le planificateur): sur demande, Spansh recherche séparément Raw, Manufactured et Encoded depuis le système actuel du commandant. Les carriers sont exclus et les détails des stations vérifiés. La distance en ly est directe entre systèmes ; les données communautaires ne garantissent pas l’accès. Le transfert au planificateur définit seulement le système cible, sans lancer de route. Aucune recherche de marchands Odyssey.</p>
+<p>Cette rubrique principale affiche les matériaux d’ingénierie du commandant actuellement consulté. La sélection de la vue CMDR s’applique également ici ; les données des autres commandants restent séparées.</p>
+<h3>Trois catégories</h3>
+<p>Les onglets Matériaux bruts, Matériaux manufacturés et Données encodées contiennent les 146 matériaux du catalogue, y compris les matériaux Guardian et Thargoid. La liste est triée par grade, puis par ordre alphabétique au sein de chaque grade.</p>
+<h3>Stock et barres</h3>
+<p>Les nombres indiquent le stock / maximum, par exemple Vanadium 244 / 250. La barre correspondante indique 97,6 %. Les matériaux jamais possédés apparaissent également avec 0 lorsque le stock est connu de manière fiable.</p>
+<p>Les stocks vides sont signalés en rouge discret, les stocks faibles en jaune/orange et les stocks presque pleins ou pleins en vert. Les nombres restent visibles indépendamment des couleurs.</p>
+<h3>Recherche et filtres</h3>
+<p>La recherche prend en compte le nom affiché et le nom anglais du matériau. Elle peut être combinée avec tous les filtres : Tous, Vide (0), Faible (plus de 0 jusqu’à 20 %), Presque plein (de 80 % à moins de 100 %) et Plein (100 %). Les valeurs entre 20 % et 80 % apparaissent uniquement sous Tous. Les onglets et filtres sont restaurés au prochain démarrage.</p>
+<h3>Valeurs inconnues</h3>
+<p>Sans inventaire complet fiable, l’affichage indique par exemple ? / 250. Si le maximum est inconnu, il peut indiquer 12 / ?. Dans les deux cas, aucun pourcentage ni aucune barre n’est affiché ; ces matériaux apparaissent uniquement sous Tous. Un grade inconnu figure dans un groupe distinct en fin de liste.</p>
+<h3>Actualisation en direct</h3>
+<p>Les nouveaux événements du journal actualisent automatiquement le stock, y compris après un échange de matériaux, une opération d’ingénierie, une synthèse ou une récompense en matériaux. Un message de chargement apparaît pendant la lecture initiale. Un matériau nouvellement collecté est brièvement mis en évidence avec une indication telle que Vanadium +1 ; la consommation ne produit pas de notification de collecte.</p>
+<h3>Noms des matériaux</h3>
+<p>Si le nom d’un matériau n’est pas encore disponible dans la langue choisie, son nom d’affichage anglais est utilisé. Les symboles internes du journal ne remplacent pas les noms d’affichage existants.</p>
+<h3>Odyssey</h3>
+<p>Le quatrième onglet de Matériaux contient Biens, Composants, Données et Consommables. Casier et Sac à dos affichent séparément leurs stocks respectifs. Total n’affiche leur somme que si les deux états sont compatibles de manière fiable. Un ancien état du sac à dos n’est volontairement ni présenté comme actuel ni ajouté au total ; ? signifie un stock inconnu ou impossible à reconstituer de manière fiable pour le moment. La limite de 1000 s’applique à chaque catégorie du casier, pas aux objets individuels. L’exemple des matériaux d’ingénierie ci-dessus ne définit aucun maximum individuel pour les objets Odyssey. Les consommables n’ont toujours pas de règle de capacité entièrement validée ; aucune capacité non confirmée n’est donc affichée.</p>
+<p>Utilisation affiche les indications d’usage de l’objet. Mission désigne l’affectation à une mission de la pile d’inventaire concernée, et non une propriété générale du type d’objet. Les piles ordinaires et celles liées à une mission restent séparées. Même après la fin d’une mission, l’objet reste marqué tant que le journal le répertorie dans l’inventaire ; une mission terminée ne le fait pas disparaître automatiquement. L’infobulle indique le numéro de mission et son statut connu. Ingénierie signifie que le catalogue statique Odyssey connaît au moins une utilisation confirmée : amélioration de combinaison, amélioration d’arme, modification de combinaison, modification d’arme ou déblocage d’ingénieur. Les utilisations détaillées figurent dans l’infobulle. L’absence de cette indication ne signifie pas que l’objet est inutile ou uniquement échangeable. Les objets Powerplay et d’autres objets spéciaux peuvent également apparaître.</p>
+<p>La recherche porte sur les noms affichés des matériaux/objets et sur leurs noms anglais. Les six filtres Odyssey sont Tous (tous les objets), Mission (piles affectées à une mission), Ingénierie (objets ayant une utilisation d’ingénierie confirmée), Sac à dos (stock du sac à dos supérieur à zéro), Casier (stock du casier supérieur à zéro) et Stock nul (stock total de 0 connu de manière fiable). Un stock inconnu ? n’est pas 0 et est exclu de Stock nul. Si un nom n’est pas traduit, le nom anglais est utilisé ; certains noms peuvent donc rester en anglais dans la langue choisie. Ce comportement est voulu et ne constitue pas une erreur de traduction de la logique d’inventaire.</p>
+<p>L’inventaire est actualisé automatiquement en arrière-plan. Les nouvelles collectes confirmées peuvent être brièvement mises en évidence. Lors d’un changement de commandant, les anciens stocks sont immédiatement retirés. Les sous-onglets, les filtres, la largeur et l’ordre des colonnes sont enregistrés séparément pour Odyssey.</p>""",
+    ),'overview': ('Aperçu',
               '<h2>Aperçu</h2>\n'
               "<p>L'aperçu est la page d'accueil du CMDRHelper. Il résume les informations les "
               "plus importantes sur le commandant actuellement actif et montre en un coup d'œil si "
@@ -162,7 +189,7 @@ HELP_TOPICS = {'overview': ('Aperçu',
               "réellement ou qui ont déjà été stockées lors d'événements de mission uniques "
               'précédents.</p>'),
  'explorer': ('Explorateur',
-              '<h2>Explorateur</h2>\n'
+              '<h2>Explorateur</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Vue d’ensemble du système : la nouvelle présentation inspirée d’Elite remplace l’ancienne miniature dans Explorer et la Chronique. Étoiles et planètes forment la structure principale, les lunes se ramifient en dessous ; les systèmes multiples restent lisibles. Zoom, défilement, ajustement à la fenêtre et clic sur un corps donnent accès aux détails.</p>\n<p>Ceintures d’astéroïdes compactes : les amas sont regroupés en ceintures dans la vue d’ensemble et les cartes habituelles d’Explorer et de la Chronique. Toutes les données individuelles sont conservées.</p>\n<p>Cartographie corrigée : un scan après une cartographie DSS ne réinitialise plus les valeurs d’exploration invendues, l’heure de cartographie ni l’efficacité. Les créances incorrectes sont réparées au démarrage à partir des journaux disponibles et attribués sans ambiguïté. Sans ces sources, la réparation reste en attente ; inutile de supprimer la base.</p>\n'
               "<p>L'Explorateur évalue les systèmes et corps célestes découverts et scannés par le "
               'commandant actif. Il combine vos propres données de journal Elite Dangerous avec '
               'des informations supplémentaires déjà disponibles et affiche ensemble les données '
@@ -374,6 +401,9 @@ HELP_TOPICS = {'overview': ('Aperçu',
  'chronicle': (
         'Chronique',
         """<h2>Chronique</h2>
+<h3>CMDRHelper v3.2</h3>
+<p>Vue d’ensemble du système : la nouvelle présentation inspirée d’Elite remplace l’ancienne miniature dans Explorer et la Chronique. Étoiles et planètes forment la structure principale, les lunes se ramifient en dessous ; les systèmes multiples restent lisibles. Zoom, défilement, ajustement à la fenêtre et clic sur un corps donnent accès aux détails.</p>
+<p>Ceintures d’astéroïdes compactes : les amas sont regroupés en ceintures dans la vue d’ensemble et les cartes habituelles d’Explorer et de la Chronique. Toutes les données individuelles sont conservées.</p>
 <p>La chronique est l’historique personnel des voyages et des découvertes du commandant. Elle utilise les informations du journal enregistrées durablement pour retrouver les systèmes déjà visités, les représenter dans l’espace et rechercher des découvertes connues.</p>
 
 <h3>Systèmes visités</h3>
@@ -626,7 +656,7 @@ HELP_TOPICS = {'overview': ('Aperçu',
               '<p>Pas comme une prédiction\xa0:</p>\n'
               '<p>"Il est garanti qu\'il y aura une découverte spécifique dans ce système."</p>'),
  'route_planner': ("Planificateur d'itinéraire",
-                   "<h2>Planificateur d'itinéraire</h2>\n"
+                   "<h2>Planificateur d'itinéraire</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Planificateur amélioré : le départ suit automatiquement le système actuel jusqu’à votre saisie manuelle ; vider le champ réactive le suivi. Vaisseaux et carriers utilisent des adresses ID64 exactement vérifiées, sans choisir de noms similaires. « Unable to find route » indique qu’aucune route n’a été trouvée ; vérifiez destinations, portée et paramètres.</p>\n"
                    "<p>Le planificateur d'itinéraire prend en charge la planification de voyages "
                    'plus longs en bateau ou en Fleet Carrier. Le CMDRHelper peut utiliser les '
                    "données d'itinéraire externes du Spansh et préparer l'itinéraire planifié pour "
@@ -1135,7 +1165,7 @@ HELP_TOPICS = {'overview': ('Aperçu',
                     '<p>Cette séparation évite que les données personnelles ou les téléchargements '
                     'en ligne de différents commandants ne soient mélangés.</p>'),
  'settings': ('Paramètres',
-              '<h2>Paramètres</h2>\n'
+              '<h2>Paramètres</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Informations de mise à jour améliorées : la fenêtre Oui/Non affiche les versions installée et disponible et jusqu’à six nouveautés si un résumé existe. Les longues listes défilent et les actions restent accessibles. Cette présentation arrive avec v3.2 ; un client v3.1 inchangé ne l’affiche pas encore.</p>\n'
               '<p>La zone « Paramètres » détermine comment le CMDRHelper fonctionne avec le Elite '
               'Dangerous, les fichiers journaux, la base de données, les services en ligne, '
               "l'interface et les mises à jour.</p>\n"

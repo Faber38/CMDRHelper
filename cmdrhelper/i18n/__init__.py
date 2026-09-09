@@ -52,8 +52,13 @@ def get_language() -> str:
 
 
 def tr(key: str, **values) -> str:
+    return tr_for_language(_current_language, key, **values)
+
+
+def tr_for_language(language: str, key: str, /, **values) -> str:
+    """Translate without mutating the active UI language; English is fallback."""
     key = str(key)
-    language_table = _TRANSLATIONS.get(_current_language, DE)
+    language_table = _TRANSLATIONS.get(str(language).strip().lower(), EN)
 
     # Fallback-Reihenfolge:
     # 1. gewählte Sprache

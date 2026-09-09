@@ -13,7 +13,25 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper è un’applicazione desktop autonoma che analizza i journal locali di Elite Dangerous e utilizza i dati di posizione planetaria di `Status.json`. Ti aiuta a individuare corpi interessanti, ritrovare luoghi salvati e consultare viaggi e scoperte. I dati personali persistono dopo il riavvio e sono separati per comandante.
 
-## Novità della v3.1 rispetto alla v3.0.3
+## Novità di v3.2 rispetto a v3.1
+
+- Gestione dei materiali di ingegneria: tutti i 146 materiali Raw, Manufactured ed Encoded, con gradi, capacità e casi speciali. Scorte aggiornate per comandante, ricerca, filtri, cinque sfondi discreti e larghezza/ordine delle colonne salvati facilitano la consultazione. Una quantità sconosciuta resta distinta da zero.
+
+- Inventario Odyssey: la quarta scheda contiene 223 identità di catalogo per beni, componenti, dati e consumabili. Armadietto, zaino e totale attendibile restano separati; sono visibili pile di missione, stato e usi ingegneristici. Le quantità positive sono dorate. I nomi non tradotti usano l’inglese.
+
+- Ricerca commercianti di materiali (Cerca commerciante → Apri pianificatore rotte): su richiesta, Spansh cerca separatamente Raw, Manufactured ed Encoded dal sistema attuale del comandante. I carrier sono esclusi e i dettagli delle stazioni verificati. La distanza in ly è diretta tra sistemi; i dati della comunità non garantiscono l’accesso. L’invio al pianificatore imposta solo il sistema di destinazione, senza avviare una rotta. Nessuna ricerca di commercianti Odyssey.
+
+- Panoramica del sistema: la nuova vista in stile Elite sostituisce la vecchia miniatura in Explorer e Cronaca. Stelle e pianeti formano la struttura principale, con lune ramificate sotto; i sistemi multipli restano leggibili. Zoom, scorrimento, adattamento alla finestra e clic sui corpi consentono di consultare i dettagli.
+
+- Fasce di asteroidi compatte: i gruppi vengono riuniti in fasce nella panoramica e nelle normali mappe di Explorer e Cronaca. Tutti i dati dei singoli gruppi vengono conservati.
+
+- Cartografia corretta: una scansione successiva alla mappatura DSS non azzera più valori esplorativi invenduti, ora della mappatura o efficienza. Le registrazioni errate vengono riparate all’avvio dai journal disponibili e attribuiti con certezza. Senza le fonti, la riparazione resta in sospeso; non occorre cancellare il database.
+
+- Pianificatore migliorato: la partenza segue il sistema attuale finché non ne inserisci una manualmente; svuotare il campo ripristina l’automatismo. Navi e carrier usano indirizzi ID64 verificati esattamente, senza scegliere nomi simili. «Unable to find route» indica che non è stata trovata una rotta; controlla destinazioni, autonomia e impostazioni.
+
+- Informazioni di aggiornamento migliori: la finestra Sì/No mostra versione installata e disponibile e fino a sei novità, se esiste un riepilogo. Gli elenchi lunghi scorrono e le azioni restano accessibili. Questa vista arriva con v3.2; un client v3.1 invariato non la mostra ancora.
+
+## v3.1 (v3.0.3 → v3.1)
 
 - Il progresso BIO è compatto: 1/3 giallo, 2/3 blu e 3/3 verde; anche lo stato completato «Completato» è verde. In «mostra automaticamente», GEO ha un proprio interruttore salvato: solo BIO, solo GEO o entrambi insieme. Le larghezze modificate manualmente nella tabella comune BIO / GEO / ABBAU dell’Explorer restano salvate dopo la riapertura e il riavvio. Il ripristino delle colonne dei popup è più robusto; valori non validi vengono sostituiti da larghezze predefinite sicure.
 

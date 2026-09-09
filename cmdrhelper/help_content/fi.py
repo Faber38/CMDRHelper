@@ -1,7 +1,34 @@
 """Finnish content for contextual help."""
 
 
-HELP_TOPICS = {'overview': ('Yleiskatsaus',
+HELP_TOPICS = {
+    "materials": (
+        'Materiaalit',
+        """<h2>Materiaalit</h2>
+<h3>CMDRHelper v3.2</h3>
+<p>Engineering-materiaalien hallinta: kaikki 146 Raw-, Manufactured- ja Encoded-materiaalia tasoineen, enimmäismäärineen ja poikkeuksineen. Komentajakohtaiset ajantasaiset määrät, haku, suodattimet, viisi hillittyä rivitaustaa sekä tallennetut sarakeleveydet ja järjestys helpottavat selaamista. Tuntematon määrä erotetaan nollasta.</p>
+<p>Odyssey-varasto: neljäs materiaalivälilehti sisältää 223 luetteloidentiteettiä tavaroille, komponenteille, datalle ja kulutustavaroille. Aluksen varasto, reppu ja luotettava yhteismäärä pidetään erillään; tehtäväpinot, tehtävän tila ja engineering-käyttö näkyvät. Positiiviset määrät näytetään kullanvärisinä. Puuttuvat nimikäännökset korvataan englannilla.</p>
+<p>Materiaalikauppiaiden haku (Etsi materiaalikauppias → Avaa reittisuunnittelija): Spansh hakee pyynnöstä Raw-, Manufactured- ja Encoded-kauppiaat erikseen komentajan nykyisestä järjestelmästä. Carrierit jätetään pois ja asematiedot tarkistetaan. Etäisyys ly-yksiköissä on suora järjestelmien välinen etäisyys; yhteisötiedot eivät takaa pääsyä. Siirto reittisuunnittelijaan asettaa vain kohdejärjestelmän eikä käynnistä reittiä. Odyssey-kauppiaita ei haeta.</p>
+<p>Tämä pääosio näyttää parhaillaan tarkasteltavan komentajan insinöörimateriaalit. CMDR-näkymän valinta koskee myös tätä osiota; muiden komentajien tiedot pysyvät erillään.</p>
+<h3>Kolme luokkaa</h3>
+<p>Välilehdet Raaka-aineet, Valmistetut materiaalit ja Koodattu data sisältävät kaikki luettelon 146 materiaalia, myös Guardian- ja Thargoid-materiaalit. Luettelo on järjestetty laatuluokan mukaan ja kunkin luokan sisällä aakkosjärjestykseen.</p>
+<h3>Määrät ja palkit</h3>
+<p>Numerot näyttävät määrän / enimmäismäärän, esimerkiksi Vanadiini 244 / 250. Vastaava palkki näyttää 97,6 %. Myös materiaalit, joita et ole koskaan omistanut, näkyvät määrällä 0, kun varastotilanne tunnetaan luotettavasti.</p>
+<p>Tyhjät varastot merkitään hillityllä punaisella, vähäiset keltaisella/oranssilla ja lähes täydet tai täydet vihreällä. Numerot pysyvät näkyvissä väreistä riippumatta.</p>
+<h3>Haku ja suodattimet</h3>
+<p>Haku huomioi materiaalin näytetyn ja englanninkielisen nimen. Sen voi yhdistää kaikkiin suodattimiin: Kaikki, Tyhjä (0), Vähäinen (yli 0 ja enintään 20 %), Lähes täysi (vähintään 80 % mutta alle 100 %) ja Täysi (100 %). Arvot välillä 20 % ja 80 % näkyvät vain suodattimella Kaikki. Välilehdet ja suodattimet palautetaan seuraavalla käynnistyskerralla.</p>
+<h3>Tuntemattomat arvot</h3>
+<p>Ilman luotettavaa täydellistä varastotietoa näytetään esimerkiksi ? / 250. Jos enimmäismäärä on tuntematon, voidaan näyttää 12 / ?. Kummassakaan tapauksessa ei näytetä prosenttia tai palkkia; nämä materiaalit näkyvät vain suodattimella Kaikki. Tuntematon laatuluokka näkyy omana ryhmänään luettelon lopussa.</p>
+<h3>Reaaliaikainen päivitys</h3>
+<p>Uudet lokitapahtumat päivittävät määrät automaattisesti myös materiaalikaupan, insinöörityön, synteesin tai materiaalipalkintojen jälkeen. Ensimmäisen lukukerran aikana näytetään latausilmoitus. Juuri kerätty materiaali korostetaan hetkeksi esimerkiksi merkinnällä Vanadiini +1; kulutus ei aiheuta keräysilmoitusta.</p>
+<h3>Materiaalien nimet</h3>
+<p>Jos materiaalin nimeä ei vielä ole saatavilla valitulla kielellä, näytetään sen englanninkielinen näyttönimi. Lokin sisäiset tunnisteet eivät korvaa olemassa olevia näyttönimiä.</p>
+<h3>Odyssey</h3>
+<p>Materiaalit-osion neljäs välilehti sisältää alaluokat Tavarat, Komponentit, Data ja Kulutustavarat. Aluksen varasto ja Reppu näyttävät määränsä erikseen. Yhteensä näyttää summan vain, kun molemmat tilat sopivat luotettavasti yhteen. Vanhentunutta repun määrää ei tarkoituksella näytetä nykyisenä eikä lisätä kokonaismäärään; ? tarkoittaa tuntematonta määrää tai määrää, jota ei tällä hetkellä voida muodostaa luotettavasti lokitiedoista. Raja 1000 koskee kutakin aluksen varaston luokkaa, ei yksittäisiä esineitä. Yllä oleva insinöörimateriaalien esimerkki ei määritä yksittäisten Odyssey-esineiden enimmäismäärää. Kulutustavaroille ei edelleenkään ole täysin vahvistettua kapasiteettisääntöä, joten vahvistamatonta kapasiteettia ei näytetä.</p>
+<p>Käyttö näyttää esineen käyttömerkinnät. Tehtävä tarkoittaa, että juuri kyseinen varastopino on liitetty tehtävään, ei sitä, että esinetyyppi olisi yleisesti tehtäväesine. Tavalliset ja tehtävään sidotut pinot pysyvät erillään. Myös tehtävän valmistuttua esine pysyy merkittynä niin kauan kuin loki ilmoittaa sen kuuluvan varastoon; valmistuminen ei poista esinettä automaattisesti. Työkaluvihje näyttää tehtävän numeron ja tunnetun tilan. Insinöörityö tarkoittaa, että staattisessa Odyssey-luettelossa tunnetaan vähintään yksi vahvistettu käyttötarkoitus: puvun parannus, aseen parannus, puvun muokkaus, aseen muokkaus tai insinöörin avaaminen käyttöön. Yksittäiset käyttötarkoitukset näkyvät työkaluvihjeessä. Merkinnän puuttuminen ei tarkoita, että esine olisi hyödytön tai soveltuisi vain kaupankäyntiin. Myös Powerplay-esineitä ja muita erikoisesineitä voidaan näyttää.</p>
+<p>Haku löytää materiaalien/esineiden näytetyt paikalliset ja englanninkieliset nimet. Kuusi Odyssey-suodatinta ovat Kaikki (kaikki esineet), Tehtävä (tehtävään liitetyt pinot), Insinöörityö (esineet, joilla on vahvistettu insinöörikäyttö), Reppu (repun määrä suurempi kuin nolla), Aluksen varasto (aluksen varaston määrä suurempi kuin nolla) ja Määrä 0 (luotettavasti tunnettu kokonaismäärä 0). Tuntematon määrä ? ei ole 0 eikä kuulu Määrä 0 -suodattimeen. Jos nimen käännös puuttuu, käytetään englanninkielistä nimeä, joten jotkin nimet voivat näkyä englanniksi valitusta kielestä huolimatta. Tämä on tarkoituksellista eikä varastologiikan käännösvirhe.</p>
+<p>Varasto päivittyy automaattisesti taustalla. Vahvistetut uudet keräykset voidaan korostaa hetkeksi. Komentajaa vaihdettaessa vanhat määrät poistetaan heti näkyvistä. Alavälilehdet, suodattimet sekä sarakkeiden leveydet ja järjestys tallennetaan Odysseylle erikseen.</p>""",
+    ),'overview': ('Yleiskatsaus',
               '<h2>Yleiskatsaus</h2>\n'
               '<p>Yleiskatsaus on CMDRHelper:n kotisivu. Se tiivistää tärkeimmät tiedot tällä '
               'hetkellä aktiivisesta komentajasta ja näyttää yhdellä silmäyksellä, tunnistetaanko '
@@ -148,7 +175,7 @@ HELP_TOPICS = {'overview': ('Yleiskatsaus',
               '<p>CMDRHelper voi näyttää vain tiedot, jotka päiväkirja todella tarjoaa tai jotka '
               'on jo tallennettu aikaisemmista ainutlaatuisista tehtävätapahtumista.</p>'),
  'explorer': ('Tutkimusmatkailija',
-              '<h2>Tutkimusmatkailija</h2>\n'
+              '<h2>Tutkimusmatkailija</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Järjestelmän yleiskuva: uusi Elite-tyylinen näkymä korvaa pienoisyleiskuvan Explorerissa ja Kronikassa. Tähdet ja planeetat muodostavat päärakenteen, kuut haarautuvat alapuolelle; monitähtijärjestelmät pysyvät selkeinä. Zoomaus, vieritys, ikkunaan sovitus ja taivaankappaleen napsautus avaavat yksityiskohtia.</p>\n<p>Tiiviit asteroidivyöhykkeet: ryhmät yhdistetään vyöhykkeiksi yleiskuvassa sekä Explorerin ja Kronikan tavallisissa järjestelmäkartoissa. Kaikki yksittäisten ryhmien tiedot säilytetään.</p>\n<p>Kartografia korjattu: DSS-kartoituksen jälkeinen skannaus ei enää nollaa myymättömiä tutkimusarvoja, kartoitusaikaa tai tehokkuutta. Virheelliset kirjaukset korjataan käynnistyksessä saatavilla olevista yksiselitteisesti komentajaan liitetyistä lokeista. Ilman lähteitä korjaus jää odottamaan; tietokantaa ei tarvitse poistaa.</p>\n'
               '<p>Explorer arvioi aktiivisen komentajan löytämät ja skannaamat järjestelmät ja '
               'taivaankappaleet. Se yhdistää omat Elite Dangerous -päiväkirjatietosi jo saatavilla '
               'oleviin lisätietoihin ja näyttää yhdessä etsintä-, kartografia-, '
@@ -346,6 +373,9 @@ HELP_TOPICS = {'overview': ('Yleiskatsaus',
  'chronicle': (
         'Kronikka',
         """<h2>Kronikka</h2>
+<h3>CMDRHelper v3.2</h3>
+<p>Järjestelmän yleiskuva: uusi Elite-tyylinen näkymä korvaa pienoisyleiskuvan Explorerissa ja Kronikassa. Tähdet ja planeetat muodostavat päärakenteen, kuut haarautuvat alapuolelle; monitähtijärjestelmät pysyvät selkeinä. Zoomaus, vieritys, ikkunaan sovitus ja taivaankappaleen napsautus avaavat yksityiskohtia.</p>
+<p>Tiiviit asteroidivyöhykkeet: ryhmät yhdistetään vyöhykkeiksi yleiskuvassa sekä Explorerin ja Kronikan tavallisissa järjestelmäkartoissa. Kaikki yksittäisten ryhmien tiedot säilytetään.</p>
 <p>Kronikka on komentajan henkilökohtainen matka- ja löytöhistoria. Se käyttää pysyvästi tallennettuja päiväkirjatietoja löytääkseen järjestelmiä, joissa on jo vierailtu, esittämään niitä spatiaalisesti ja etsimään tunnettuja löytöjä.</p>
 
 <h3>Vieraillut järjestelmät</h3>
@@ -592,7 +622,7 @@ HELP_TOPICS = {'overview': ('Yleiskatsaus',
               '<p>Ei ennustuksena:</p>\n'
               '<p>"Tässä järjestelmässä on taatusti tietty löytö."</p>'),
  'route_planner': ('Reitin suunnittelija',
-                   '<h2>Reitin suunnittelija</h2>\n'
+                   '<h2>Reitin suunnittelija</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Parannettu reittisuunnittelija: lähtö seuraa nykyistä järjestelmää, kunnes annat sen käsin; kentän tyhjentäminen palauttaa automatiikan. Alukset ja carrierit käyttävät tarkasti varmennettuja ID64-osoitteita samankaltaisten nimien sijaan. ”Unable to find route” kertoo, ettei reittiä löytynyt; tarkista kohteet, kantama ja reittiasetukset.</p>\n'
                    '<p>Reittisuunnittelija tukee pidempien matkojen suunnittelua laivalla tai '
                    'Fleet Carrier:lla. CMDRHelper voi käyttää Spansh:n ulkoisia reittitietoja ja '
                    'valmistella suunnitellun reitin myöhempää käyttöä varten.</p>\n'
@@ -1067,7 +1097,7 @@ HELP_TOPICS = {'overview': ('Yleiskatsaus',
                     '<p>Tämä erottelu estää henkilökohtaisten tietojen tai online-latausten '
                     'sekoittumisen eri komentajilta.</p>'),
  'settings': ('Asetukset',
-              '<h2>Asetukset</h2>\n'
+              '<h2>Asetukset</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Paremmat päivitystiedot: Kyllä/Ei-ikkuna näyttää asennetun ja saatavilla olevan version sekä enintään kuusi muutosta, jos yhteenveto on saatavilla. Pitkiä listoja voi vierittää ja toiminnot pysyvät käytettävissä. Näkymä tulee version v3.2 mukana; muuttamaton v3.1-asiakas ei vielä näytä sitä.</p>\n'
               '<p>"Asetukset"-alue määrittää, kuinka CMDRHelper toimii Elite Dangerous:n, '
               'päiväkirjatiedostojen, tietokannan, online-palvelujen, käyttöliittymän ja '
               'päivitysten kanssa.</p>\n'

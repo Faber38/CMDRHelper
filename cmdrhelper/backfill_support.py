@@ -27,7 +27,7 @@ def create_repair_backup(database, label='startup-repairs', backup_path=None):
     return backup
 
 
-def committed_journals(con, commander_id, journals=None):
+def committed_journals(con, commander_id, journals=None, relevant_events=None):
     """Read only previously consumed prefixes, including pre-offset import records.
 
     Retained DB sessions/import records, not just files found in today's folder,
@@ -69,7 +69,8 @@ def committed_journals(con, commander_id, journals=None):
         events = [json.loads(line) for line in raw.splitlines() if line.strip()]
         if any(not isinstance(event, dict) for event in events):
             raise ValueError(f'Invalid journal event: {filename}')
-        relevant = {'ScanOrganic', 'SAAScanComplete', 'Location', 'FSDJump', 'CarrierJump'}
+        relevant = relevant_events if relevant_events is not None else {
+            'ScanOrganic', 'SAAScanComplete', 'Location', 'FSDJump', 'CarrierJump'}
         if not any(e.get('event') in relevant for e in events):
             # Menu-only/empty legacy journals have no facts for any of these
             # repairs. Certifying absence does not attribute data to a commander.

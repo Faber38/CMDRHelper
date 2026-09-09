@@ -2,6 +2,33 @@
 
 
 HELP_TOPICS = {
+    "materials": (
+        "Materialien",
+        """<h2>Materialien</h2>
+<h3>CMDRHelper v3.2</h3>
+<p>Engineering-Materialverwaltung: Alle 146 Materialien in Raw, Manufactured und Encoded, mit Graden, Maximalbeständen und Sonderfällen. Commanderbezogene Live-Bestände, Suche, Filter, fünf dezente Zeilenhintergründe und gespeicherte Spaltenbreiten/-reihenfolge erleichtern die Übersicht. Unbekannter Bestand bleibt von null unterschieden.</p>
+<p>Odyssey-Inventar: Der vierte Materialreiter enthält 223 Katalogidentitäten für Güter, Komponenten, Daten und Verbrauch. Schließfach, Rucksack und verlässlicher Gesamtbestand bleiben getrennt; Missionsstapel, Missionsstatus und Engineering-Verwendung sind sichtbar. Positive Bestandszahlen erscheinen in Gold. Fehlende Namensübersetzungen verwenden Englisch.</p>
+<p>Materialhändlersuche (Händler suchen → Zum Routenplaner): Die Suche nutzt Spansh-Community-Daten und sucht auf Knopfdruck getrennt nach Raw, Manufactured und Encoded vom aktuellen Commander-System aus. Carrier werden ausgeschlossen und Stationsdetails geprüft. Die Entfernung in ly ist die direkte Systementfernung; Zugang ist nicht garantiert. Die Übergabe an den Routenplaner setzt das Zielsystem, nicht die Station, und startet keine Route. Für Odyssey gibt es keine Händlersuche.</p>
+<p>Dieser Hauptbereich zeigt die Engineering-Materialien des aktuell betrachteten Commanders. Die Auswahl in der CMDR Ansicht gilt auch hier; die Daten anderer Commander bleiben getrennt.</p>
+<h3>Drei Kategorien</h3>
+<p>Die Reiter Rohmaterialien, Hergestellte Materialien und Verschlüsselte Daten enthalten alle 146 Katalogmaterialien, einschließlich Guardian- und Thargoid-Materialien. Die Liste ist nach Grad und innerhalb eines Grades alphabetisch sortiert.</p>
+<h3>Bestand und Balken</h3>
+<p>Die Zahlen zeigen Bestand / Maximum, beispielsweise Vanadium 244 / 250. Der Balken zeigt dazu 97,6 %. Auch nie besessene Materialien erscheinen bei zuverlässig bekanntem Bestand mit 0.</p>
+<p>Leere Bestände sind dezent rot, knappe gelb/orange und fast volle bzw. volle grün markiert. Die Zahlen bleiben unabhängig von den Farben sichtbar.</p>
+<h3>Suche und Filter</h3>
+<p>Die Suche berücksichtigt den angezeigten und den englischen Materialnamen. Sie lässt sich mit allen Filtern kombinieren: Alle, Leer (0), Knapp (mehr als 0 bis 20 %), Fast voll (ab 80 % bis unter 100 %) und Voll (100 %). Werte zwischen 20 % und 80 % erscheinen nur unter Alle. Reiter und Filter werden beim nächsten Start wiederhergestellt.</p>
+<h3>Unbekannte Werte</h3>
+<p>Ohne verlässlichen vollständigen Bestand steht zum Beispiel ? / 250. Bei unbekanntem Maximum steht etwa 12 / ?. In beiden Fällen gibt es keinen Prozentwert oder Balken; solche Materialien erscheinen ausschließlich unter Alle. Ein unbekannter Grad steht am Listenende in einer eigenen Gruppe.</p>
+<h3>Live-Aktualisierung</h3>
+<p>Neue Journalereignisse aktualisieren den Bestand automatisch, auch nach Materialtausch, Engineering, Synthese oder Materialbelohnungen. Während des ersten Einlesens wird ein Ladehinweis angezeigt. Frisch gesammeltes Material wird kurz mit einer Angabe wie Vanadium +1 hervorgehoben; Verbrauch erzeugt keine Sammelmeldung.</p>
+<h3>Materialnamen</h3>
+<p>Ist ein Materialname noch nicht in der gewählten Sprache verfügbar, erscheint sein englischer Anzeigename. Interne Journalsymbole ersetzen keine vorhandenen Anzeigenamen.</p>
+<h3>Odyssey</h3>
+<p>Der vierte Reiter enthält Güter, Komponenten, Daten und Verbrauchsgegenstände. Schließfach und Rucksack werden getrennt angezeigt. Gesamt erscheint nur, wenn beide Zustände zuverlässig zusammenpassen. Ein veralteter Rucksack wird nicht hinzugezählt; unbekannte Werte erscheinen als ?. Die Grenze 1000 gilt für die jeweilige Schließfachkategorie, nicht für einzelne Gegenstände. Für Verbrauchsgegenstände wird keine unbestätigte Kapazität angezeigt.</p>
+<p>Die Kennzeichnung Mission gehört zum jeweiligen Bestandsstapel. Normale und missionsgebundene Gegenstände bleiben getrennt. Auch nach Missionsabschluss bleibt ein Gegenstand gekennzeichnet, solange das Journal ihn im Bestand führt. Der Tooltip zeigt Missionsnummer und bekannten Status. Engineering weist auf mindestens eine Verwendung für Anzug, Waffen oder Ingenieurfreischaltung hin; die einzelnen Verwendungen stehen im Tooltip.</p>
+<p>Die Suche findet lokale und englische Namen. Die Odyssey-Filter zeigen alle Gegenstände, Missionsstapel, Engineering-Gegenstände, positiven Rucksack- oder Schließfachbestand oder sicher bekannten Gesamtbestand 0. Unbekannt ist nicht 0. Fehlende Übersetzungen fallen auf den englischen Namen zurück.</p>
+<p>Der Bestand wird im Hintergrund automatisch aktualisiert. Bestätigte neue Aufnahmen können kurz hervorgehoben werden. Beim Commanderwechsel werden alte Bestände sofort entfernt. Unterreiter, Filter sowie Spaltenbreiten und Reihenfolge werden für Odyssey separat gespeichert.</p>""",
+    ),
     "overview": (
         "Übersicht",
         """<h2>Übersicht</h2>
@@ -115,6 +142,10 @@ HELP_TOPICS = {
     "explorer": (
         "Explorer",
         """<h2>Explorer</h2>
+<h3>CMDRHelper v3.2</h3>
+<p>System-Gesamtansicht: Die neue ED-artige Darstellung ersetzt die bisherige Miniübersicht und ist in Explorer und Chronik verfügbar. Sterne und Planeten bilden die Hauptstruktur, Monde verzweigen darunter; Mehrsternsysteme bleiben übersichtlich. Zoom, Scrollen, Anpassen an das Fenster und Körperklick öffnen den Zugang zu den Details.</p>
+<p>Kompakte Asteroidengürtel: Belt-Cluster werden in Gesamtansicht und normalen Explorer-/Chronik-Systemkarten zu übersichtlichen Gürteln zusammengefasst. Alle einzelnen Clusterdaten bleiben erhalten.</p>
+<p>Kartographie korrigiert: Ein späterer Scan nach einer DSS-Kartographierung setzt unverkaufte Explorerwerte, Mappingzeitpunkt und Effizienz nicht mehr zurück. Bestehende fehlerhafte Ansprüche werden beim Start anhand verfügbarer, eindeutig zugeordneter Journale repariert. Fehlen diese Quellen, bleibt die Reparatur offen; eine Datenbanklöschung ist nicht nötig.</p>
 <p>Der Explorer wertet die vom aktiven Commander entdeckten und gescannten Systeme und Himmelskörper aus. Er verbindet die eigenen Elite-Dangerous-Journaldaten mit bereits verfügbaren Zusatzinformationen und zeigt Exploration, Kartographie, biologische/geologische Signale und Surface-Mining-Daten gemeinsam an.</p>
 
 <h3>Aktuelles System</h3>
@@ -284,6 +315,9 @@ HELP_TOPICS = {
     "chronicle": (
         "Chronik",
         """<h2>Chronik</h2>
+<h3>CMDRHelper v3.2</h3>
+<p>System-Gesamtansicht: Die neue ED-artige Darstellung ersetzt die bisherige Miniübersicht und ist in Explorer und Chronik verfügbar. Sterne und Planeten bilden die Hauptstruktur, Monde verzweigen darunter; Mehrsternsysteme bleiben übersichtlich. Zoom, Scrollen, Anpassen an das Fenster und Körperklick öffnen den Zugang zu den Details.</p>
+<p>Kompakte Asteroidengürtel: Belt-Cluster werden in Gesamtansicht und normalen Explorer-/Chronik-Systemkarten zu übersichtlichen Gürteln zusammengefasst. Alle einzelnen Clusterdaten bleiben erhalten.</p>
 <p>Die Chronik ist die persönliche Reise- und Fundhistorie des Commanders. Sie verwendet die dauerhaft gespeicherten Journalinformationen, um bereits besuchte Systeme wiederzufinden, räumlich darzustellen und nach bekannten Entdeckungen zu durchsuchen.</p>
 
 <h3>Besuchte Systeme</h3>
@@ -514,6 +548,8 @@ HELP_TOPICS = {
     "route_planner": (
         "Routenplaner",
         """<h2>Routenplaner</h2>
+<h3>CMDRHelper v3.2</h3>
+<p>Routenplaner verbessert: Das aktuelle System wird als Start automatisch nachgeführt, bis du einen eigenen Start eingibst; ein leeres Startfeld aktiviert die Automatik erneut. Schiff und Carrier verwenden exakt geprüfte ID64-Systemadressen statt ähnlicher Namen. Bei „Unable to find route“ erklärt Spansh, dass keine Route gefunden wurde; prüfe Ziele, Reichweite und Routeneinstellungen.</p>
 <p>Der Routenplaner unterstützt bei der Planung längerer Reisen mit Schiff oder Fleet Carrier. CMDRHelper kann dafür externe Routendaten von Spansh verwenden und die geplante Strecke für die weitere Nutzung aufbereiten.</p>
 
 <h3>Start und Ziel</h3>
@@ -823,6 +859,8 @@ HELP_TOPICS = {
     "settings": (
         "Einstellungen",
         """<h2>Einstellungen</h2>
+<h3>CMDRHelper v3.2</h3>
+<p>Bessere Updateinformation: Das Ja/Nein-Fenster zeigt installierte und verfügbare Version sowie bis zu sechs wichtige Änderungen, sofern eine Kurzbeschreibung vorliegt. Lange Listen scrollen, die Aktionen bleiben erreichbar. Die neue Darstellung wird mit v3.2 installiert; ein unveränderter v3.1-Client zeigt sie noch nicht.</p>
 <p>Im Bereich „Einstellungen“ wird festgelegt, wie CMDRHelper mit Elite Dangerous, Journaldateien, Datenbank, Online-Diensten, Oberfläche und Updates arbeitet.</p>
 <p>Änderungen an Zugangsdaten und Pfaden sollten sorgfältig vorgenommen werden. Commanderbezogene Einstellungen werden soweit erforderlich getrennt nach Frontier-ID verwaltet.</p>
 

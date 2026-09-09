@@ -13,7 +13,25 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper es una aplicación de escritorio independiente que analiza los diarios locales de Elite Dangerous y usa datos de posición planetaria de `Status.json`. Te ayuda a identificar cuerpos interesantes, volver a lugares guardados y consultar tus viajes y descubrimientos. Los datos personales se conservan tras reiniciar y se separan por comandante.
 
-## Novedades de v3.1 respecto a v3.0.3
+## Novedades de v3.2 respecto a v3.1
+
+- Gestión de materiales de ingeniería: los 146 materiales Raw, Manufactured y Encoded, con grados, capacidades y casos especiales. Existencias actualizadas por comandante, búsqueda, filtros, cinco fondos discretos y anchura/orden de columnas guardados. Una cantidad desconocida sigue siendo distinta de cero.
+
+- Inventario Odyssey: la cuarta pestaña contiene 223 identidades de catálogo de bienes, componentes, datos y consumibles. Taquilla, mochila y total fiable permanecen separados; se muestran pilas de misión, estado y usos de ingeniería. Las cantidades positivas aparecen en dorado. Los nombres sin traducir utilizan el inglés.
+
+- Búsqueda de comerciantes de materiales (Buscar comerciante → Abrir planificador de rutas): bajo petición, Spansh busca Raw, Manufactured y Encoded por separado desde el sistema actual del comandante. Se excluyen carriers y se verifican los detalles de las estaciones. La distancia en ly es directa entre sistemas; los datos comunitarios no garantizan acceso. Enviar al planificador solo fija el sistema de destino, sin iniciar una ruta. No hay búsqueda de comerciantes Odyssey.
+
+- Vista general del sistema: la nueva presentación al estilo Elite sustituye la miniatura anterior en Explorer y Crónica. Estrellas y planetas forman la estructura principal y las lunas se ramifican debajo; los sistemas múltiples siguen siendo legibles. Zoom, desplazamiento, ajuste a la ventana y clic en los cuerpos permiten consultar detalles.
+
+- Cinturones de asteroides compactos: los grupos se reúnen en cinturones en la vista general y los mapas habituales de Explorer y Crónica. Se conservan todos los datos individuales de los grupos.
+
+- Cartografía corregida: un escaneo posterior al cartografiado DSS ya no reinicia valores de exploración sin vender, hora de cartografiado ni eficiencia. Los registros erróneos se reparan al iniciar desde journals disponibles y atribuidos inequívocamente. Sin esas fuentes, la reparación queda pendiente; no hace falta borrar la base de datos.
+
+- Planificador mejorado: el origen sigue el sistema actual hasta que introduces uno manualmente; vaciar el campo restaura el seguimiento. Naves y carriers utilizan direcciones ID64 verificadas exactamente, sin elegir nombres parecidos. «Unable to find route» indica que no se encontró ruta; comprueba destinos, alcance y ajustes.
+
+- Mejor información de actualización: la ventana Sí/No muestra las versiones instalada y disponible y hasta seis novedades si hay resumen. Las listas largas se desplazan y las acciones siguen accesibles. Esta presentación llega con v3.2; un cliente v3.1 sin modificar todavía no la muestra.
+
+## v3.1 (v3.0.3 → v3.1)
 
 - El progreso BIO es compacto: 1/3 amarillo, 2/3 azul y 3/3 verde; el estado completado «Completado» también es verde. En «mostrar automáticamente», GEO tiene un interruptor propio que se guarda: solo BIO, solo GEO o ambos juntos. Los anchos de columna ajustados manualmente en la tabla compartida BIO / GEO / ABBAU del Explorador se conservan al reabrir y reiniciar. La restauración de columnas de las ventanas emergentes es más robusta; los valores inválidos se sustituyen por anchos predeterminados seguros.
 

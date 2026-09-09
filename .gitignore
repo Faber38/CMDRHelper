@@ -21,7 +21,9 @@ dist/
 *.zip
 
 # Logs / temporary files
+/logs/
 *.log
+*.log.[0-9]*
 *.bak
 *.tmp
 *~
@@ -41,3 +43,6 @@ Thumbs.db
 .ruff_cache/
 backup/
 texture_test.py
+
+# Generated release directories (already tracked historical files stay tracked)
+/release/CMDRHelper_v*/

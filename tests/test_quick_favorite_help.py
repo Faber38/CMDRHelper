@@ -170,9 +170,14 @@ CLAIMS = {
 
 
 def section(language):
-    # The new section occupies the same position between location saving/images.
+    # Locate the reviewed section by its localized title, independent of new topics.
     text = help_topic('explorer', language).text
-    return re.findall(r'<h3>.*?(?=<h3>|$)', text, re.S)[22]
+    title = import_module('cmdrhelper.i18n.' + language).TRANSLATIONS['quick_favorite.title']
+    matches = [block for block in re.findall(r'<h3>.*?(?=<h3>|$)', text, re.S)
+               if title.casefold() in block.split('</h3>', 1)[0].casefold()]
+    if len(matches) != 1:
+        raise AssertionError(f'{language}: expected exactly one quick-favorite help section')
+    return matches[0]
 
 
 class QuickFavoriteHelpTests(unittest.TestCase):
@@ -208,7 +213,7 @@ class QuickFavoriteHelpTests(unittest.TestCase):
                 text = help_topic('explorer', language).text
                 self.assertEqual(structure(text), structure(master))
                 sections = re.findall(r'<h3>(.*?)</h3>(.*?)(?=<h3>|$)', text, re.S)
-                self.assertEqual(len(sections), 25)
+                self.assertEqual(len(sections), 26)
                 for heading, body in sections:
                     self.assertTrue(heading.strip())
                     self.assertRegex(body, r'<(?:p|ul)>')

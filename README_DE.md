@@ -13,7 +13,25 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper ist ein eigenständiges Desktop-Programm, das die lokalen Journale von Elite Dangerous auswertet und planetare Positionsdaten aus `Status.json` verwendet. Es hilft dir, interessante Körper zu erkennen, gespeicherte Orte wiederzufinden und deine Reisen und Funde nachzuvollziehen. Persönliche Daten bleiben nach einem Neustart erhalten und werden nach Commander getrennt.
 
-## Neu in v3.1 gegenüber v3.0.3
+## Neu in v3.2 gegenüber v3.1
+
+- Engineering-Materialverwaltung: Alle 146 Materialien in Raw, Manufactured und Encoded, mit Graden, Maximalbeständen und Sonderfällen. Commanderbezogene Live-Bestände, Suche, Filter, fünf dezente Zeilenhintergründe und gespeicherte Spaltenbreiten/-reihenfolge erleichtern die Übersicht. Unbekannter Bestand bleibt von null unterschieden.
+
+- Odyssey-Inventar: Der vierte Materialreiter enthält 223 Katalogidentitäten für Güter, Komponenten, Daten und Verbrauch. Schließfach, Rucksack und verlässlicher Gesamtbestand bleiben getrennt; Missionsstapel, Missionsstatus und Engineering-Verwendung sind sichtbar. Positive Bestandszahlen erscheinen in Gold. Fehlende Namensübersetzungen verwenden Englisch.
+
+- Materialhändlersuche (Händler suchen → Zum Routenplaner): Die Suche nutzt Spansh-Community-Daten und sucht auf Knopfdruck getrennt nach Raw, Manufactured und Encoded vom aktuellen Commander-System aus. Carrier werden ausgeschlossen und Stationsdetails geprüft. Die Entfernung in ly ist die direkte Systementfernung; Zugang ist nicht garantiert. Die Übergabe an den Routenplaner setzt das Zielsystem, nicht die Station, und startet keine Route. Für Odyssey gibt es keine Händlersuche.
+
+- System-Gesamtansicht: Die neue ED-artige Darstellung ersetzt die bisherige Miniübersicht und ist in Explorer und Chronik verfügbar. Sterne und Planeten bilden die Hauptstruktur, Monde verzweigen darunter; Mehrsternsysteme bleiben übersichtlich. Zoom, Scrollen, Anpassen an das Fenster und Körperklick öffnen den Zugang zu den Details.
+
+- Kompakte Asteroidengürtel: Belt-Cluster werden in Gesamtansicht und normalen Explorer-/Chronik-Systemkarten zu übersichtlichen Gürteln zusammengefasst. Alle einzelnen Clusterdaten bleiben erhalten.
+
+- Kartographie korrigiert: Ein späterer Scan nach einer DSS-Kartographierung setzt unverkaufte Explorerwerte, Mappingzeitpunkt und Effizienz nicht mehr zurück. Bestehende fehlerhafte Ansprüche werden beim Start anhand verfügbarer, eindeutig zugeordneter Journale repariert. Fehlen diese Quellen, bleibt die Reparatur offen; eine Datenbanklöschung ist nicht nötig.
+
+- Routenplaner verbessert: Das aktuelle System wird als Start automatisch nachgeführt, bis du einen eigenen Start eingibst; ein leeres Startfeld aktiviert die Automatik erneut. Schiff und Carrier verwenden exakt geprüfte ID64-Systemadressen statt ähnlicher Namen. Bei „Unable to find route“ erklärt Spansh, dass keine Route gefunden wurde; prüfe Ziele, Reichweite und Routeneinstellungen.
+
+- Bessere Updateinformation: Das Ja/Nein-Fenster zeigt installierte und verfügbare Version sowie bis zu sechs wichtige Änderungen, sofern eine Kurzbeschreibung vorliegt. Lange Listen scrollen, die Aktionen bleiben erreichbar. Die neue Darstellung wird mit v3.2 installiert; ein unveränderter v3.1-Client zeigt sie noch nicht.
+
+## v3.1 (v3.0.3 → v3.1)
 
 - Der BIO-Fortschritt erscheint kompakt: 1/3 gelb, 2/3 blau und 3/3 grün; der abgeschlossene Zustand „Fertig“ ist ebenfalls grün. Unter „auto einblenden“ besitzt GEO einen eigenen gespeicherten Schalter: BIO allein, GEO allein oder beide gemeinsam sind möglich. Manuell angepasste Spaltenbreiten der gemeinsamen Explorer-Tabelle BIO / GEO / ABBAU bleiben nach erneutem Öffnen und Programmneustart erhalten. Gespeicherte Popup-Spaltenbreiten werden robuster wiederhergestellt; ungültige Werte fallen auf sichere Standardbreiten zurück.
 

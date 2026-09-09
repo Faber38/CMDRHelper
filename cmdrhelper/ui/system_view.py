@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from cmdrhelper.exploration_status import exploration_status, journal_flag, status_tooltip
+from cmdrhelper.belt_projection import body_sort_key, is_belt_cluster, project_belts
 
 from collections import defaultdict
 from math import ceil, log10
@@ -28,6 +29,7 @@ class SystemMapWidget(QWidget):
         super().__init__(parent)
         self.system_name = ""
         self.bodies = []
+        self._display_bodies = []
         self._body_rects = []
         self._light_mode = False
 
@@ -55,6 +57,7 @@ class SystemMapWidget(QWidget):
     def set_system(self, system_name: str, bodies: list[dict]):
         self.system_name = system_name or ""
         self.bodies = list(bodies or [])
+        self._display_bodies = project_belts(self.bodies)
         self._update_size()
         self.update()
 
@@ -74,35 +77,19 @@ class SystemMapWidget(QWidget):
 
     @staticmethod
     def _body_sort_key(body):
-        body_id = body.get("body_id")
-
-        try:
-            if body_id is not None:
-                return (0, int(body_id), "")
-        except Exception:
-            pass
-
-        return (
-            1,
-            999999,
-            str(
-                body.get("name")
-                or body.get("short_name")
-                or ""
-            ).lower(),
-        )
+        return body.get('_belt_sort_key', body_sort_key(body))
 
     def _children_map(self):
         children = defaultdict(list)
         by_id = {}
 
-        for body in self.bodies:
+        for body in self._display_bodies:
             body_id = body.get("body_id")
 
             if body_id is not None:
                 by_id[body_id] = body
 
-        for body in self.bodies:
+        for body in self._display_bodies:
             pid = body.get("parent_id")
             if pid is not None and pid in by_id:
                 children[pid].append(body)
@@ -115,7 +102,7 @@ class SystemMapWidget(QWidget):
     def _roots(self, by_id):
         roots = []
 
-        for body in self.bodies:
+        for body in self._display_bodies:
             pid = body.get("parent_id")
             if pid is None or pid not in by_id:
                 roots.append(body)
@@ -542,31 +529,7 @@ class SystemMapWidget(QWidget):
 
         return QColor("#8f9498")
 
-    @staticmethod
-    def _is_belt_cluster(body):
-        name = (
-            body.get("name")
-            or body.get("short_name")
-            or ""
-        ).lower()
-
-        body_type = (
-            body.get("body_type")
-            or ""
-        ).lower()
-
-        planet_class = (
-            body.get("planet_class")
-            or ""
-        ).lower()
-
-        return (
-            "belt cluster" in name
-            or "asteroid belt" in body_type
-            or "belt cluster" in body_type
-            or "asteroid belt" in planet_class
-            or "belt cluster" in planet_class
-        )
+    _is_belt_cluster = staticmethod(is_belt_cluster)
 
     @staticmethod
     def _format_credits(value):
@@ -895,9 +858,8 @@ class SystemMapWidget(QWidget):
             self.BODY_H
         )
 
-        self._body_rects.append(
-            (body_rect, body)
-        )
+        if not body.get("_belt_members"):
+            self._body_rects.append((body_rect, body))
 
         is_belt_cluster = self._is_belt_cluster(body)
         body_pixmap = self._body_pixmap(body)
@@ -1164,6 +1126,9 @@ class SystemMapWidget(QWidget):
             | Qt.AlignTop,
             visible_name
         )
+
+        if body.get("_belt_members"):
+            return  # A visual belt has no individual valuation, markers or detail target.
 
         font.setBold(False)
         font.setPointSize(8)
