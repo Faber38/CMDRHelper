@@ -24,7 +24,7 @@ from cmdrhelper.models import (
     STATUS_IN_TARGET_SYSTEM,
     STATUS_REDIRECTED,
 )
-from cmdrhelper.valuation import apply_values
+from cmdrhelper.valuation import apply_values, journal_valuation_context
 from cmdrhelper.route_planner.models import GuardianFsdBooster, ShipLoadoutData
 from cmdrhelper.ship_identity import is_definite_non_ship
 
@@ -950,6 +950,7 @@ def read_latest_state(
     pending_geo_by_address: dict[int, dict[int, int]] = {}
     pending_geo_name_by_address: dict[int, dict[str, int]] = {}
     pending_planetary_mining_by_address: dict[int, dict[int, int]] = {}
+    pending_mapping: dict[tuple[int, int], dict] = {}
 
     # SystemAddress -> BodyCount
     body_count_by_address: dict[int, int] = {}
@@ -1207,6 +1208,8 @@ def read_latest_state(
                 raise JournalReadError(journal, exc) from exc
             continue
 
+        valuation_context = journal_valuation_context(journal)
+        result.update(valuation_context)
         from contextlib import nullcontext
         with (nullcontext(handle) if isinstance(handle, list) else handle):
             for line in handle:
@@ -1650,6 +1653,7 @@ def read_latest_state(
                             ),
                             "star_type": e.get("StarType") or "",
                             "planet_class": e.get("PlanetClass") or "",
+                            **valuation_context,
                             "mass_em": e.get("MassEM"),
                             "stellar_mass": e.get("StellarMass"),
                             # Frontier-Journal liefert Radius in Metern.
@@ -1760,6 +1764,7 @@ def read_latest_state(
                                 previous.get("bio_genuses") or []
                             )
 
+                        body.update(pending_mapping.pop((address, body_id_int), {}))
                         _apply_pending_bio(address, body)
                         _apply_pending_geo(address, body)
                         apply_values(body)
@@ -1805,21 +1810,23 @@ def read_latest_state(
                             {}
                         ).get(body_id_int)
 
-                        if body:
-                            body["self_mapped"] = True
-                            apply_mapping_metadata(body, e)
+                        mapping_body = body if body is not None else pending_mapping.setdefault(
+                            (address, body_id_int), {}
+                        )
+                        mapping_body.update(valuation_context)
+                        mapping_body["self_mapped"] = True
+                        apply_mapping_metadata(mapping_body, e)
 
-                            probes_used = e.get("ProbesUsed")
-                            efficiency_target = e.get("EfficiencyTarget")
+                        probes_used = e.get("ProbesUsed")
+                        efficiency_target = e.get("EfficiencyTarget")
 
-                            if (
-                                isinstance(probes_used, int)
-                                and isinstance(efficiency_target, int)
-                            ):
-                                body["efficient_mapping"] = (
-                                    probes_used <= efficiency_target
-                                )
+                        if (
+                            type(probes_used) is int and probes_used >= 0
+                            and type(efficiency_target) is int and efficiency_target >= 0
+                        ):
+                            mapping_body["efficient_mapping"] = probes_used <= efficiency_target
 
+                        if body is not None:
                             apply_values(body)
 
                             from cmdrhelper.unsold_cartography import mapping_claim

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from cmdrhelper.mapping_metadata import apply_mapping_metadata, mapping_metadata
+from cmdrhelper.valuation import calculate_body_values, has_valuation_data, journal_valuation_context, journal_reaches_timestamp
 
 import sqlite3
 import logging
@@ -2102,6 +2103,7 @@ class CMDRDatabase:
                     body = {
                         "body_id": body_id, "name": event.get("BodyName") or "",
                         "body_type": "Planet", "star_type": "",
+                        **journal_valuation_context(journal_file),
                         "planet_class": event.get("PlanetClass") or "",
                         "mass_em": event.get("MassEM"), "stellar_mass": None,
                         "terraformable": event.get("TerraformState") == "Terraformable",
@@ -2119,13 +2121,20 @@ class CMDRDatabase:
                 elif et == "SAAScanComplete" and address is not None and event.get("BodyID") is not None:
                     body_id = int(event["BodyID"])
                     metadata = mapping_metadata(event)
+                    efficient = (
+                        int(metadata["probes_used"] <= metadata["efficiency_target"])
+                        if "probes_used" in metadata and "efficiency_target" in metadata
+                        else None
+                    )
                     con.execute("""
                         UPDATE commander_bodies SET
+                            self_mapped=1,
+                            efficient_mapping=COALESCE(?,efficient_mapping),
                             mapped_at=COALESCE(NULLIF(mapped_at,''),?),
                             probes_used=COALESCE(?,probes_used),
                             efficiency_target=COALESCE(?,efficiency_target)
                         WHERE commander_id=? AND system_address=? AND body_id=?
-                    """, (metadata.get("mapped_at"), metadata.get("probes_used"),
+                    """, (efficient, metadata.get("mapped_at"), metadata.get("probes_used"),
                           metadata.get("efficiency_target"), commander_id, int(address), body_id))
                     from cmdrhelper.unsold_cartography import mapping_claim
                     body = scanned_bodies.get((int(address), body_id))
@@ -2144,6 +2153,7 @@ class CMDRDatabase:
                                 value = body.get(field + '_at_scan')
                                 body[field] = None if value is None else bool(value)
                     if body is not None:
+                        body.update(journal_valuation_context(journal_file))
                         claim = mapping_claim(body, previous, event)
                         # Legacy incomplete bodies have only cached valuations.
                         if body.get('mass_em') is None and 'mapped_value_cached' in body:
@@ -5576,6 +5586,9 @@ class CMDRDatabase:
             ).fetchall()
 
             bodies = []
+            sessions = con.execute("""SELECT journal_file,first_event_at,last_event_at
+                FROM journal_sessions WHERE commander_id=? AND attribution_status='identified'
+                ORDER BY first_event_at DESC""", (commander_id,)).fetchall()
 
             for row in rows:
                 body_id = row[0]
@@ -5688,6 +5701,11 @@ class CMDRDatabase:
                         "surface_pressure": row[33],
                         "atmosphere_composition": row[34] or "",
                         "planetary_mining_signals": row[35],
+                        **next((journal_valuation_context(session[0]) for session in sessions
+                                if session[1] and session[2]
+                                and session[1] <= (row[36] or row[30] or "")
+                                and ((row[36] or row[30] or "") <= session[2]
+                                     or journal_reaches_timestamp(session[0], row[36] or row[30] or ""))), {}),
                         "mapped_at": row[36],
                         "probes_used": row[37],
                         "efficiency_target": row[38],
@@ -6413,6 +6431,7 @@ class CMDRDatabase:
             start=1,
         ):
             journal, file_commander_id = journal_item
+            valuation_context = journal_valuation_context(journal)
             # Dateigrenzen sind harte Grenzen: weder Identität noch Position
             # werden aus dem vorherigen Journal übernommen.
             current_system = ""
@@ -6692,6 +6711,7 @@ class CMDRDatabase:
                                     event.get("StarType")
                                     or ""
                                 ),
+                                **valuation_context,
                                 "planet_class": (
                                     event.get("PlanetClass")
                                     or ""
@@ -6867,6 +6887,7 @@ class CMDRDatabase:
                             body = bodies.get(key)
 
                             if body:
+                                body.update(valuation_context)
                                 probes_used = event.get(
                                     "ProbesUsed"
                                 )
@@ -7720,12 +7741,29 @@ class CMDRDatabase:
                     biological_signals_seen=MAX(commander_bodies.biological_signals_seen,
                         excluded.biological_signals_seen),
                     geological_signals_seen=MAX(commander_bodies.geological_signals_seen,
-                        excluded.geological_signals_seen),
-                    scan_value_cached=excluded.scan_value_cached,
-                    mapped_value_cached=excluded.mapped_value_cached,
-                    current_value_cached=excluded.current_value_cached,
-                    high_value_cached=excluded.high_value_cached
+                        excluded.geological_signals_seen)
             """, commander_body_rows)
+
+            # Mapping-only/import placeholders must not replace existing caches.
+            # Revalue only actual scans with sufficient data, using the merged
+            # personal flags (including mapping recorded in earlier imports).
+            for (commander_id, address, body_id), personal in commander_bodies.items():
+                body = bodies.get((address, body_id), {})
+                if not personal["scanned"] or not has_valuation_data(body):
+                    continue
+                flags = con.execute("""SELECT was_discovered_at_scan,was_mapped_at_scan,
+                    self_mapped,efficient_mapping FROM commander_bodies
+                    WHERE commander_id=? AND system_address=? AND body_id=?""",
+                    (commander_id, address, body_id)).fetchone()
+                valued = calculate_body_values(dict(body,
+                    was_discovered=None if flags[0] is None else bool(flags[0]),
+                    was_mapped=None if flags[1] is None else bool(flags[1]),
+                    self_mapped=bool(flags[2]), efficient_mapping=bool(flags[3])))
+                con.execute("""UPDATE commander_bodies SET scan_value_cached=?,
+                    mapped_value_cached=?,current_value_cached=?,high_value_cached=?
+                    WHERE commander_id=? AND system_address=? AND body_id=?""",
+                    (valued["scan_value"], valued["mapped_value"], valued["current_value"],
+                     int(valued["high_value"]), commander_id, address, body_id))
 
             # Shared stay semantics for archive imports and live deltas.
             from cmdrhelper.system_visits import store_visit_rows

@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_3_1.live_mapping": "Tamamlanan DSS haritalamaları artık canlı olarak güvenilir biçimde algılanıyor. İlgili tarama mevcut günlükte daha sonra görünse bile haritalama korunuyor.",
+    "release.3_3_1.valuation": "Live haritalama tahminleri artık doğru bonusları içerir; kredi tutarının ondalık kısmı yalnızca en sonunda atılır. Satışlardan öğrenilen düzeltme katsayıları artık normal keşif değerlerini değiştirmez.",
+    "release.3_3_1.persistence": "Kendi haritalama durumun, haritalama zamanı ve sonda verimliliği güvenilir biçimde kaydediliyor.",
+    "release.3_3_1.archive_values": "Arşiv içe aktarımı artık mevcut tarama ve haritalama değerlerini hatalı sıfırlarla değiştirmiyor.",
+    "release.3_3_1.recovery": "Hatadan etkilenen ve tam gök cismi verilerine sahip cisimlerin görüntülenen değerleri yükleme veya yenilemede düzeltiliyor.",
+    "release.3_3_1.regressions": "Ek regresyon testleri oturumlar arası haritalamayı ve haritalama verilerinin kalıcı kaydını kapsıyor.",
     "release.3_3.analysis": "Kişisel keşif deneyimine dayanan yeni sistem analizi",
     "release.3_3.game_mode": "Açık / Solo / Özel Grup oyun modu doğrudan genel bakışta",
     "release.3_3.copy_system": "Son sistemlerdeki sistem adlarını tek tıklamayla kopyalama",

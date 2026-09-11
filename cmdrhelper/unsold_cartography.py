@@ -1,5 +1,5 @@
 """Sale-scoped cartography claims, independent of cumulative body history."""
-from cmdrhelper.valuation import calculate_body_values
+from cmdrhelper.valuation import calculate_body_values, journal_valuation_context
 
 
 def scan_claim(body, previous, timestamp):
@@ -40,6 +40,7 @@ def plan_cartography_repair(con, commander_id):
             'Scan', 'SAAScanComplete', 'SellExplorationData', 'MultiSellExplorationData',
             'Location', 'FSDJump', 'CarrierJump'}):
         checked += 1
+        valuation_context = journal_valuation_context(filename)
         # The common validator permits irrelevant/menu-only files. Independently
         # require identified ownership before consuming any cartography facts.
         if events:
@@ -69,6 +70,7 @@ def plan_cartography_repair(con, commander_id):
                 body = dict(name=event.get('BodyName', ''), planet_class=event.get('PlanetClass', ''),
                             mass_em=event.get('MassEM'), terraformable=event.get('TerraformState') == 'Terraformable',
                             was_discovered=event.get('WasDiscovered'), was_mapped=event.get('WasMapped'))
+                body.update(valuation_context)
                 bodies[key] = body
                 if event.get('ScanType') == 'NavBeaconDetail':
                     continue
@@ -78,6 +80,7 @@ def plan_cartography_repair(con, commander_id):
                     unresolved.add(key)
                     continue
                 body = bodies[key]
+                body.update(valuation_context)
                 claim = mapping_claim(body, claims.get(key), event)
             else:
                 continue

@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_3_1.live_mapping": "Ukończone mapowanie DSS jest teraz niezawodnie wykrywane na bieżąco. Mapowanie zostaje zachowane nawet wtedy, gdy odpowiedni skan pojawi się później w bieżącym dzienniku.",
+    "release.3_3_1.valuation": "Szacunki wartości mapowania w Live uwzględniają teraz prawidłowe premie; ułamki kredytu są odrzucane dopiero na końcu. Współczynniki korekcyjne wyuczone ze sprzedaży nie zmieniają już zwykłych wartości eksploracji.",
+    "release.3_3_1.persistence": "Stan i czas twojego mapowania oraz wydajność sond są niezawodnie zapisywane.",
+    "release.3_3_1.archive_values": "Import archiwum nie zastępuje już istniejących wartości skanowania i mapowania błędnymi zerami.",
+    "release.3_3_1.recovery": "Obiekty dotknięte błędem, posiadające kompletne dane, odzyskują poprawne wyświetlane wartości przy wczytaniu lub odświeżeniu.",
+    "release.3_3_1.regressions": "Dodatkowe testy regresji obejmują mapowanie między sesjami i trwałe zapisywanie danych mapowania.",
     "release.3_3.analysis": "Nowa analiza systemu oparta na osobistym doświadczeniu eksploracyjnym",
     "release.3_3.game_mode": "Tryb gry Otwarty / Solo / Grupa prywatna bezpośrednio w przeglądzie",
     "release.3_3.copy_system": "Kopiowanie nazw ostatnich systemów jednym kliknięciem",

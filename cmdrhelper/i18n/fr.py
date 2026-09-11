@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_3_1.live_mapping": "Les cartographies DSS terminées sont désormais détectées de manière fiable en direct. La cartographie est conservée même si le scan correspondant apparaît plus tard dans le journal actuel.",
+    "release.3_3_1.valuation": "Les estimations de cartographie Live incluent désormais les bons bonus ; les fractions de crédit ne sont tronquées qu’à la fin. Les facteurs de correction issus des ventes ne modifient plus les valeurs d’exploration normales.",
+    "release.3_3_1.persistence": "Votre statut de cartographie, son heure et l’efficacité des sondes sont enregistrés de manière fiable.",
+    "release.3_3_1.archive_values": "L’import des archives ne remplace plus les valeurs existantes de scan et de cartographie par des zéros incorrects.",
+    "release.3_3_1.recovery": "Les corps affectés disposant de données complètes retrouvent des valeurs affichées correctes au chargement ou à l’actualisation.",
+    "release.3_3_1.regressions": "Des tests de non-régression supplémentaires couvrent la cartographie entre sessions et la conservation des données de cartographie.",
     "release.3_3.analysis": "Nouvelle analyse de système fondée sur votre expérience personnelle d’exploration",
     "release.3_3.game_mode": "Mode de jeu Ouvert / Solo / Groupe privé directement dans la vue d’ensemble",
     "release.3_3.copy_system": "Copiez les noms des systèmes récents en un clic",

@@ -13,6 +13,17 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper to samodzielna aplikacja komputerowa analizująca lokalne dzienniki Elite Dangerous i korzystająca z planetarnych danych pozycji z `Status.json`. Pomaga rozpoznawać interesujące ciała niebieskie, wracać do zapisanych miejsc oraz przeglądać podróże i odkrycia. Dane osobiste pozostają po ponownym uruchomieniu i są rozdzielone według dowódców.
 
+## Nowości w wersji 3.3.1 – Poprawki błędów
+
+- Ukończone mapowanie DSS jest teraz niezawodnie wykrywane na bieżąco.
+- Mapowanie zostaje zachowane nawet wtedy, gdy odpowiedni skan pojawi się później w bieżącym dzienniku.
+- Stan i czas twojego mapowania oraz wydajność sond są niezawodnie zapisywane.
+- Import archiwum nie zastępuje już istniejących wartości skanowania i mapowania błędnymi zerami.
+- Obiekty dotknięte błędem, posiadające kompletne dane, odzyskują poprawne wyświetlane wartości przy wczytaniu lub odświeżeniu.
+- Szacunki wartości mapowania w Live uwzględniają teraz prawidłowe premie; ułamki kredytu są odrzucane dopiero na końcu.
+- Współczynniki korekcyjne wyuczone ze sprzedaży nie zmieniają już zwykłych wartości eksploracji.
+- Dodatkowe testy regresji obejmują mapowanie między sesjami i trwałe zapisywanie danych mapowania.
+
 ## Nowości w wersji 3.3
 
 - Nowa analiza systemu oparta na osobistym doświadczeniu eksploracyjnym.

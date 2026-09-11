@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_3_1.live_mapping": "Slutförd DSS-kartläggning identifieras nu tillförlitligt i realtid. Kartläggningen bevaras även om motsvarande skanning visas senare i den aktuella journalen.",
+    "release.3_3_1.valuation": "Kartläggningsuppskattningar för Live inkluderar nu rätt bonusar; krediternas decimaler kapas först i slutet. Korrigeringsfaktorer från försäljningar ändrar inte längre vanliga utforskningsvärden.",
+    "release.3_3_1.persistence": "Din kartläggningsstatus, kartläggningstid och sondeffektivitet sparas tillförlitligt.",
+    "release.3_3_1.archive_values": "Arkivimport ersätter inte längre befintliga skannings- och kartläggningsvärden med felaktiga nollvärden.",
+    "release.3_3_1.recovery": "Berörda himlakroppar med fullständiga data får korrekta visningsvärden igen när de läses in eller uppdateras.",
+    "release.3_3_1.regressions": "Fler regressionstester täcker kartläggning mellan sessioner och beständig lagring av kartläggningsdata.",
     "release.3_3.analysis": "Ny systemanalys baserad på din personliga utforskningserfarenhet",
     "release.3_3.game_mode": "Spelläget Öppet / Solo / Privat grupp direkt i översikten",
     "release.3_3.copy_system": "Kopiera systemnamn från senaste system med ett klick",

@@ -19,7 +19,9 @@ from cmdrhelper.mission_manager import normalize_missions
 from cmdrhelper.journal_watcher import JournalWatcher
 from cmdrhelper.valuation import (
     apply_values,
+    valuation_signature,
     calculate_body_values,
+    has_valuation_data,
 )
 from cmdrhelper.online_services import (
     fetch_edsm_bodies,
@@ -1199,15 +1201,7 @@ class AppState(QObject):
             new_body["source"] = "EDSM"
 
             try:
-                factor = self.database.learned_cartography_factor(
-                    new_body.get("planet_class") or "",
-                    new_body.get("terraformable"),
-                    commander_id=self.commander_id,
-                )
-                apply_values(
-                    new_body,
-                    correction_factor=factor,
-                )
+                apply_values(new_body)
             except Exception:
                 pass
 
@@ -1811,29 +1805,7 @@ class AppState(QObject):
 
         self._run_journal_learning(latest_event)
 
-        # Gelernte Korrektur auf die aktuell sichtbaren Journal-Körper
-        # anwenden. Ohne Lerndaten liefert die Datenbank exakt Faktor 1.0.
-        for body in self.system_bodies:
-            if body.get("body_id") not in current_body_ids:
-                continue
-            try:
-                factor = self.database.learned_cartography_factor(
-                    body.get("planet_class") or "",
-                    body.get("terraformable"),
-                )
-            except Exception:
-                factor = 1.0
-
-            try:
-                apply_values(
-                    body,
-                    correction_factor=factor,
-                )
-            except Exception:
-                logger.exception(
-                    "Gelernter Kartographiewert konnte für %s nicht angewendet werden",
-                    body.get("name") or "?",
-                )
+        self._refresh_explorer_values(current_body_ids)
 
         for body in self.system_bodies:
             body["journal_scanned"] = True
@@ -1930,6 +1902,38 @@ class AppState(QObject):
         self._upload_pending_to_inara()
         self._request_edsm_for_current_system()
         return True
+
+    def _refresh_explorer_values(self, current_body_ids):
+        """Revalue live scans and recover invalid saved estimates for display."""
+        # Bounded to the visible system; reuse results across DB reloads when
+        # physical data, journal flags and game context have not changed.
+        previous = getattr(self, "_explorer_value_cache", {})
+        cache = {}
+        for body in self.system_bodies:
+            if not has_valuation_data(body):
+                continue
+            signature = valuation_signature(body)
+            fields = ("possible_value", "possible_value_without_efficiency")
+            planet = not (body.get("star_type") or body.get("body_type") == "Star")
+            complete = not planet or all(key in body for key in fields)
+            if body.get("_valuation_signature") == signature and complete:
+                pass
+            elif signature in previous:
+                body.update(previous[signature])
+                body["_valuation_signature"] = signature
+            else:
+                try:
+                    apply_values(body)
+                except Exception:
+                    logger.exception("Kartographiewert konnte für %s nicht angewendet werden",
+                                     body.get("name") or "?")
+                    continue
+            cache[signature] = {key: body[key] for key in (
+                "base_value", "scan_value", "mapped_value", "current_value",
+                "first_discovered_mapped_value", "first_discovered_mapped_efficiency_value",
+                "possible_value", "possible_value_without_efficiency", "mapping_state",
+                "first_mapping_possible", "already_mapped", "high_value") if key in body}
+        self._explorer_value_cache = cache
 
     def _emit_journal_positions(self, data, session, events):
         """Forward only committed positions attributed to the live commander."""

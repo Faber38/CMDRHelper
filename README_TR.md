@@ -14,6 +14,17 @@ pilotunuz](cmdrhelper/assets/readme/cmdrhelper_readme_tr.png)
 
 CMDRHelper, Elite Dangerous’ın yerel günlüklerini inceleyen ve `Status.json` dosyasındaki gezegen konum verilerini kullanan bağımsız bir masaüstü uygulamasıdır. İlginç gökcisimlerini belirlemene, kaydedilmiş yerlere dönmene ve yolculuklarınla bulgularını incelemene yardımcı olur. Kişisel veriler yeniden başlatmadan sonra korunur ve komutanlara göre ayrı tutulur.
 
+## 3.3.1 sürümündeki yenilikler – Hata düzeltmeleri
+
+- Tamamlanan DSS haritalamaları artık canlı olarak güvenilir biçimde algılanıyor.
+- İlgili tarama mevcut günlükte daha sonra görünse bile haritalama korunuyor.
+- Kendi haritalama durumun, haritalama zamanı ve sonda verimliliği güvenilir biçimde kaydediliyor.
+- Arşiv içe aktarımı artık mevcut tarama ve haritalama değerlerini hatalı sıfırlarla değiştirmiyor.
+- Hatadan etkilenen ve tam gök cismi verilerine sahip cisimlerin görüntülenen değerleri yükleme veya yenilemede düzeltiliyor.
+- Live haritalama tahminleri artık doğru bonusları içerir; kredi tutarının ondalık kısmı yalnızca en sonunda atılır.
+- Satışlardan öğrenilen düzeltme katsayıları artık normal keşif değerlerini değiştirmez.
+- Ek regresyon testleri oturumlar arası haritalamayı ve haritalama verilerinin kalıcı kaydını kapsıyor.
+
 ## 3.3 sürümündeki yenilikler
 
 - Kişisel keşif deneyimine dayanan yeni sistem analizi.

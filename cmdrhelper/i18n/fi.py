@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_3_1.live_mapping": "Valmis DSS-kartoitus tunnistetaan nyt luotettavasti reaaliajassa. Kartoitus säilyy, vaikka vastaava skannaus ilmestyisi nykyiseen lokiin vasta myöhemmin.",
+    "release.3_3_1.valuation": "Live-kartoitusarviot sisältävät nyt oikeat bonukset; krediittien desimaalit katkaistaan vasta lopuksi. Myynneistä opitut korjauskertoimet eivät enää muuta tavallisia tutkimusarvoja.",
+    "release.3_3_1.persistence": "Oman kartoituksesi tila, ajankohta ja luotainten tehokkuus tallennetaan luotettavasti.",
+    "release.3_3_1.archive_values": "Arkiston tuonti ei enää korvaa aiempia skannaus- ja kartoitusarvoja virheellisillä nollilla.",
+    "release.3_3_1.recovery": "Virheestä kärsineiden kappaleiden näyttöarvot palautuvat latauksen tai päivityksen yhteydessä, jos kappaletiedot ovat täydelliset.",
+    "release.3_3_1.regressions": "Uudet regressiotestit kattavat eri istuntojen väliset kartoitukset ja kartoitustietojen pysyvän tallennuksen.",
     "release.3_3.analysis": "Uusi järjestelmäanalyysi perustuu henkilökohtaiseen tutkimuskokemukseesi",
     "release.3_3.game_mode": "Pelitila Avoin / Solo / Yksityinen ryhmä suoraan yleiskatsauksessa",
     "release.3_3.copy_system": "Kopioi viimeisimpien järjestelmien nimet yhdellä napsautuksella",

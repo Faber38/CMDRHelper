@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_3_1.live_mapping": "Fullført DSS-kartlegging registreres nå pålitelig direkte. Kartleggingen beholdes selv om den tilhørende skanningen vises senere i den aktuelle journalen.",
+    "release.3_3_1.valuation": "Kartleggingsanslag for Live inkluderer nå riktige bonuser; desimaler i kredittbeløp kuttes først til slutt. Korreksjonsfaktorer lært fra salg endrer ikke lenger vanlige utforskningsverdier.",
+    "release.3_3_1.persistence": "Din kartleggingsstatus, kartleggingstid og sondeeffektivitet lagres pålitelig.",
+    "release.3_3_1.archive_values": "Arkivimport erstatter ikke lenger eksisterende skanne- og kartleggingsverdier med ugyldige nullverdier.",
+    "release.3_3_1.recovery": "Berørte legemer med fullstendige data får riktige visningsverdier igjen ved innlasting eller oppdatering.",
+    "release.3_3_1.regressions": "Flere regresjonstester dekker kartlegging på tvers av økter og varig lagring av kartleggingsdata.",
     "release.3_3.analysis": "Ny systemanalyse basert på din personlige utforskningserfaring",
     "release.3_3.game_mode": "Spillmodus Open / Solo / Privat gruppe direkte i oversikten",
     "release.3_3.copy_system": "Kopier systemnavn fra siste systemer med ett klikk",

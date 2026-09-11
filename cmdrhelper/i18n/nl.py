@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_3_1.live_mapping": "Voltooide DSS-karteringen worden nu betrouwbaar live herkend. De kartering blijft behouden, ook als de bijbehorende scan pas later in het huidige journaal verschijnt.",
+    "release.3_3_1.valuation": "Kaartschattingen voor Live bevatten nu de juiste bonussen; fracties van credits worden pas aan het einde afgekapt. Correctiefactoren uit verkopen veranderen de normale verkenningswaarden niet meer.",
+    "release.3_3_1.persistence": "Je eigen karteringsstatus, karteringstijd en sonde-efficiëntie worden betrouwbaar opgeslagen.",
+    "release.3_3_1.archive_values": "Archiefimport vervangt bestaande scan- en karteringswaarden niet meer door onjuiste nulwaarden.",
+    "release.3_3_1.recovery": "Getroffen hemellichamen met volledige gegevens krijgen bij het laden of vernieuwen weer correcte weergavewaarden.",
+    "release.3_3_1.regressions": "Extra regressietests controleren kartering over meerdere sessies en het bewaren van karteringsgegevens.",
     "release.3_3.analysis": "Nieuwe systeemanalyse op basis van je persoonlijke verkenningservaring",
     "release.3_3.game_mode": "Spelmodus Open / Solo / Privégroep direct in het overzicht",
     "release.3_3.copy_system": "Kopieer systeemnamen uit recente systemen met één klik",

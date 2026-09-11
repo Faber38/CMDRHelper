@@ -54,7 +54,8 @@ class UnsoldMappingRegressionTests(unittest.TestCase):
     def replay(self):
         return read_latest_state(self.folder, force_full_history=True)['unsold_cartography']
 
-    def assert_mapping(self, value=3536354):
+    # Final credit conversion truncates; the former rounded value was one Cr higher.
+    def assert_mapping(self, value=3536353):
         c = self.claim()
         self.assertEqual(c['raw_estimated_value'], value)
         self.assertEqual(c['mapped_at'], self.mapping['timestamp'])
@@ -90,7 +91,7 @@ class UnsoldMappingRegressionTests(unittest.TestCase):
                                     system=self.scan['StarSystem'], system_bodies=[body]), self.cid)
         self.append([self.scan]); self.apply()
         self.mapping['ProbesUsed'] = 8
-        self.append([self.mapping, self.follow]); self.apply(); self.assert_mapping(2829083)
+        self.append([self.mapping, self.follow]); self.apply(); self.assert_mapping(2829082)
 
     def test_discovery_and_efficiency_combinations(self):
         for discovered, mapped in ((False, False), (True, False), (True, True)):
@@ -126,7 +127,7 @@ class UnsoldMappingRegressionTests(unittest.TestCase):
     def test_sold_scan_then_mapping_follow_scan_only_mapping_increment(self):
         self.append([self.scan, dict(event='SellExplorationData', timestamp='2026-09-08T15:10:00Z'),
                      self.mapping, self.follow]); self.apply()
-        self.assert_mapping(3536354 - 764695)
+        self.assert_mapping(3536353 - 764695)
         self.assertEqual(self.claim()['scanned_at'], '')
 
     def corrupt(self):
@@ -145,6 +146,15 @@ class UnsoldMappingRegressionTests(unittest.TestCase):
         with sqlite3.connect(result['backup']) as backup:
             self.assertEqual(backup.execute('SELECT raw_estimated_value FROM commander_unsold_cartography').fetchone()[0],764695)
         self.assertEqual(self.repair(), [])
+
+    def test_live_context_survives_startup_repair(self):
+        original = self.path.read_text()
+        self.path.write_text(json.dumps(dict(event='Fileheader', gameversion='4.4.1.1',
+            timestamp='2026-09-08T14:00:00Z')) + '\n' + original)
+        self.corrupt()
+        result = self.repair()[0]
+        self.assertEqual(result['status'], 'complete')
+        self.assert_mapping(4597259)
 
     def test_missing_source_leaves_revision_open(self):
         self.corrupt(); self.path.unlink()

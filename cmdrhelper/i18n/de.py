@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_3_1.live_mapping": "Abgeschlossene DSS-Kartierungen werden jetzt zuverlässig live erkannt. Kartierungen bleiben auch erhalten, wenn der zugehörige Scan erst später im aktuellen Journal erscheint.",
+    "release.3_3_1.valuation": "Kartographieschätzungen für Live berücksichtigen jetzt die korrekten Boni; Credit-Nachkommastellen werden erst am Ende abgeschnitten. Aus Verkäufen gelernte Korrekturfaktoren verändern die regulären Explorationswerte nicht mehr.",
+    "release.3_3_1.persistence": "Eigener Kartierungsstatus, Kartierungszeit und Sondeneffizienz werden zuverlässig gespeichert.",
+    "release.3_3_1.archive_values": "Der Archivimport ersetzt vorhandene Scan- und Kartographiewerte nicht mehr durch ungültige Nullwerte.",
+    "release.3_3_1.recovery": "Bereits betroffene Körper mit vollständigen Körperdaten erhalten beim Laden oder Aktualisieren wieder korrekte Anzeigewerte.",
+    "release.3_3_1.regressions": "Zusätzliche Regressionstests sichern sitzungsübergreifende Kartierungen und die Speicherung der Kartierungsdaten ab.",
     "release.3_3.analysis": "Neue Systemanalyse auf Basis der persönlichen Explorationserfahrung",
     "release.3_3.game_mode": "Spielmodus Open / Solo / Private Gruppe direkt in der Übersicht",
     "release.3_3.copy_system": "Systemnamen aus „Letzte Systeme“ mit einem Klick kopieren",

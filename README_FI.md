@@ -13,6 +13,17 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper on itsenäinen työpöytäsovellus, joka analysoi Elite Dangerousin paikallisia lokeja ja käyttää `Status.json`-tiedoston planetaarisia sijaintitietoja. Se auttaa tunnistamaan kiinnostavia taivaankappaleita, palaamaan tallennettuihin paikkoihin ja tarkastelemaan matkoja ja löytöjä. Henkilökohtaiset tiedot säilyvät uudelleenkäynnistyksessä ja pidetään erillään komentajittain.
 
+## Uutta versiossa 3.3.1 – Virhekorjaukset
+
+- Valmis DSS-kartoitus tunnistetaan nyt luotettavasti reaaliajassa.
+- Kartoitus säilyy, vaikka vastaava skannaus ilmestyisi nykyiseen lokiin vasta myöhemmin.
+- Oman kartoituksesi tila, ajankohta ja luotainten tehokkuus tallennetaan luotettavasti.
+- Arkiston tuonti ei enää korvaa aiempia skannaus- ja kartoitusarvoja virheellisillä nollilla.
+- Virheestä kärsineiden kappaleiden näyttöarvot palautuvat latauksen tai päivityksen yhteydessä, jos kappaletiedot ovat täydelliset.
+- Live-kartoitusarviot sisältävät nyt oikeat bonukset; krediittien desimaalit katkaistaan vasta lopuksi.
+- Myynneistä opitut korjauskertoimet eivät enää muuta tavallisia tutkimusarvoja.
+- Uudet regressiotestit kattavat eri istuntojen väliset kartoitukset ja kartoitustietojen pysyvän tallennuksen.
+
 ## Uutta versiossa 3.3
 
 - Uusi järjestelmäanalyysi perustuu henkilökohtaiseen tutkimuskokemukseesi.

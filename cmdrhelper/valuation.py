@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import math
+import json
+from functools import lru_cache
+from pathlib import Path
 
 from cmdrhelper.exploration_status import exploration_status, journal_flag
 
@@ -45,6 +48,88 @@ BODY_VALUES = {
     "Water giant": (300, 93328),
     "Water giant with life": (300, 93328),
 }
+
+
+def is_live_valuation(body: dict) -> bool:
+    """Unknown context gets no Live bonus; explicit 4.x or Odyssey enables it."""
+    return (str(body.get("game_version") or "").startswith("4.")
+            or body.get("odyssey") is True)
+
+
+@lru_cache(maxsize=256)
+def _journal_context(path: str, modified_ns: int) -> dict:
+    context = {}
+    with Path(path).open(encoding="utf-8", errors="replace") as handle:
+        for line in handle:
+            try:
+                event = json.loads(line)
+            except ValueError:
+                continue
+            if event.get("event") == "Fileheader":
+                context["game_version"] = event.get("gameversion") or ""
+                if "Odyssey" in event:
+                    context["odyssey"] = event["Odyssey"]
+            elif event.get("event") == "LoadGame":
+                if "Odyssey" in event:
+                    context["odyssey"] = event["Odyssey"]
+                break
+            elif event.get("event") in ("Location", "FSDJump", "Scan"):
+                break
+    return context
+
+
+def journal_valuation_context(path) -> dict:
+    """Read existing journal metadata without adding persistent schema fields."""
+    try:
+        return dict(_journal_context(str(path), Path(path).stat().st_mtime_ns))
+    except OSError:
+        return {}
+
+
+@lru_cache(maxsize=256)
+def _journal_last_timestamp(path: str, modified_ns: int) -> str:
+    # The active file may have grown beyond journal_sessions.last_event_at.
+    with Path(path).open("rb") as handle:
+        handle.seek(0, 2)
+        handle.seek(max(0, handle.tell() - 65536))
+        lines = handle.read().splitlines()
+    for line in reversed(lines):
+        try:
+            event = json.loads(line)
+        except (ValueError, UnicodeDecodeError):
+            continue
+        if event.get("timestamp"):
+            return str(event["timestamp"])
+    return ""
+
+
+def journal_reaches_timestamp(path, timestamp: str) -> bool:
+    try:
+        return _journal_last_timestamp(str(path), Path(path).stat().st_mtime_ns) >= timestamp
+    except OSError:
+        return False
+
+
+def valuation_signature(body: dict) -> tuple:
+    return tuple(body.get(key) for key in (
+        "name", "body_type", "star_type", "planet_class", "mass_em", "stellar_mass",
+        "terraformable", "was_discovered", "was_mapped", "was_discovered_at_scan",
+        "was_mapped_at_scan", "self_mapped", "mapped_at", "efficient_mapping",
+        "journal_scanned", "source", "game_version", "odyssey"))
+
+
+def has_valuation_data(body: dict) -> bool:
+    """Do not turn incomplete archive placeholders into estimated scan values."""
+    if body.get("_placeholder"):
+        return False
+    if "belt cluster" in str(body.get("name") or "").lower():
+        return True
+    star = body.get("body_type") == "Star" or bool(body.get("star_type"))
+    mass = body.get("stellar_mass" if star else "mass_em")
+    return bool(
+        body.get("star_type" if star else "planet_class")
+        and type(mass) in (int, float) and math.isfinite(mass) and mass > 0
+    )
 
 
 def _planet_base_value(body: dict) -> float:
@@ -96,7 +181,7 @@ def calculate_body_values(body: dict, correction_factor: float = 1.0) -> dict:
         # Sterne können gescannt, aber nicht mit dem DSS kartographiert
         # werden. Daher gibt es keinen zusätzlichen Kartographiewert.
         base = _star_value(body)
-        value = int(round(base))
+        value = int(base)
         return {
             "base_value": value,
             "scan_value": value,
@@ -112,114 +197,44 @@ def calculate_body_values(body: dict, correction_factor: float = 1.0) -> dict:
 
     base = _planet_base_value(body)
 
-    try:
-        correction_factor = float(correction_factor)
-    except (TypeError, ValueError):
-        correction_factor = 1.0
-
-    if not math.isfinite(correction_factor) or correction_factor <= 0:
-        correction_factor = 1.0
-
-    # Lernwerte dürfen die bekannte Formel korrigieren, aber einzelne
-    # ungewöhnliche Verkaufs-Batches sollen die Anzeige nicht entgleisen lassen.
-    correction_factor = min(2.0, max(0.5, correction_factor))
-    base *= correction_factor
-
+    # Kept as a compatible argument; sales calibration never scales this formula.
     was_discovered = journal_flag(body, "was_discovered")
     was_mapped = journal_flag(body, "was_mapped")
     self_mapped = exploration_status(body)["self_mapped"] is True
     efficient_mapping = bool(body.get("efficient_mapping"))
 
-    # Scanwert
-    scan_value = base
-    if was_discovered is False:
-        scan_value *= FIRST_DISCOVERY_MULTIPLIER
+    def mapping_value(multiplier, first_discovery=False, efficient=False):
+        value = base * multiplier
+        if is_live_valuation(body):
+            value += max(value * 0.30, 555)
+        if first_discovery:
+            value *= FIRST_DISCOVERY_MULTIPLIER
+        if efficient:
+            value *= EFFICIENCY_MULTIPLIER
+        return value
 
-    # Potenzieller Wert nach Kartographie.
-    # Für die Anzeige nehmen wir effizientes Mapping als Zielwert an.
-    if was_discovered is False and was_mapped is False:
-        mapped_value = (
-            base
-            * FIRST_DISCOVERY_MULTIPLIER
-            * FIRST_DISCOVERED_MAPPED_MULTIPLIER
-            * EFFICIENCY_MULTIPLIER
-        )
-    elif was_discovered is True and was_mapped is False:
-        mapped_value = (
-            base
-            * FIRST_MAPPED_MULTIPLIER
-            * EFFICIENCY_MULTIPLIER
-        )
-    else:
-        mapped_value = (
-            base
-            * NORMAL_MAPPING_MULTIPLIER
-            * EFFICIENCY_MULTIPLIER
-        )
-
-    # Historischer Maximalvergleich unabhängig vom tatsächlichen Zustand.
-    first_discovered_mapped_value = (
-        base
-        * FIRST_DISCOVERY_MULTIPLIER
-        * FIRST_DISCOVERED_MAPPED_MULTIPLIER
-    )
-    first_discovered_mapped_efficiency_value = (
-        first_discovered_mapped_value * EFFICIENCY_MULTIPLIER
-    )
-
-    # Tatsächlich noch erreichbarer Kartographiewert für DIESEN Körper.
-    # Entscheidend ist der Zustand, den Frontier beim Scan meldet:
-    # - unentdeckt + unkartiert -> Erstentdeckung + Erstkartographie
-    # - entdeckt + unkartiert   -> Erstkartographie
-    # - bereits kartiert        -> normaler DSS-Wert
-    if was_discovered is False and was_mapped is False:
-        possible_value_without_efficiency = (
-            base
-            * FIRST_DISCOVERY_MULTIPLIER
-            * FIRST_DISCOVERED_MAPPED_MULTIPLIER
-        )
-    elif was_discovered is True and was_mapped is False:
-        possible_value_without_efficiency = (
-            base * FIRST_MAPPED_MULTIPLIER
-        )
-    else:
-        possible_value_without_efficiency = (
-            base * NORMAL_MAPPING_MULTIPLIER
-        )
-
-    possible_value = (
-        possible_value_without_efficiency
-        * EFFICIENCY_MULTIPLIER
-    )
-
+    # A previously mapped body cannot gain FD from a contradictory flag.
+    first_discovery = was_discovered is False and was_mapped is not True
+    scan_value = base * (FIRST_DISCOVERY_MULTIPLIER if first_discovery else 1)
+    combined = was_discovered is False and was_mapped is False
+    multiplier = (FIRST_DISCOVERED_MAPPED_MULTIPLIER if combined else
+                  FIRST_MAPPED_MULTIPLIER if was_mapped is False else
+                  NORMAL_MAPPING_MULTIPLIER)
+    mapped_value = mapping_value(multiplier, combined, True)
+    first_discovered_mapped_value = mapping_value(FIRST_DISCOVERED_MAPPED_MULTIPLIER, True)
+    first_discovered_mapped_efficiency_value = mapping_value(
+        FIRST_DISCOVERED_MAPPED_MULTIPLIER, True, True)
+    possible_value_without_efficiency = mapping_value(multiplier, combined)
+    possible_value = mapped_value
     current_value = scan_value
-
-    # Wenn wir den Körper selbst kartiert haben, den aktuell erreichten Wert
-    # statt nur des möglichen Zielwertes anzeigen.
     if self_mapped:
-        if was_discovered is False and was_mapped is False:
-            current_value = (
-                base
-                * FIRST_DISCOVERY_MULTIPLIER
-                * FIRST_DISCOVERED_MAPPED_MULTIPLIER
-            )
-        elif was_discovered is True and was_mapped is False:
-            current_value = base * FIRST_MAPPED_MULTIPLIER
+        # Match EDDiscovery's current-value selection when WasMapped is unknown.
+        if was_discovered is False and was_mapped is None:
+            current_value = scan_value
+            possible_value_without_efficiency = scan_value
         else:
-            current_value = base * NORMAL_MAPPING_MULTIPLIER
-
-        if efficient_mapping:
-            current_value *= EFFICIENCY_MULTIPLIER
-
-        # Nach eigener Kartierung ist nichts Höheres mehr "noch erreichbar".
-        # Für Schwellenwert/Livefenster zählt dann der tatsächlich erreichte
-        # und noch auszuzahlende Kartographiewert.
+            current_value = mapping_value(multiplier, combined, efficient_mapping)
         possible_value = current_value
-        possible_value_without_efficiency = (
-            current_value / EFFICIENCY_MULTIPLIER
-            if efficient_mapping
-            else current_value
-        )
 
     if self_mapped:
         mapping_state = "self_mapped"
@@ -231,14 +246,14 @@ def calculate_body_values(body: dict, correction_factor: float = 1.0) -> dict:
         mapping_state = "unknown"
 
     result = {
-        "base_value": int(round(base)),
-        "scan_value": int(round(scan_value)),
-        "mapped_value": int(round(mapped_value)),
-        "first_discovered_mapped_value": int(round(first_discovered_mapped_value)),
-        "first_discovered_mapped_efficiency_value": int(round(first_discovered_mapped_efficiency_value)),
-        "possible_value": int(round(possible_value)),
-        "possible_value_without_efficiency": int(round(possible_value_without_efficiency)),
-        "current_value": int(round(current_value)),
+        "base_value": int(base),
+        "scan_value": int(scan_value),
+        "mapped_value": int(mapped_value),
+        "first_discovered_mapped_value": int(first_discovered_mapped_value),
+        "first_discovered_mapped_efficiency_value": int(first_discovered_mapped_efficiency_value),
+        "possible_value": int(possible_value),
+        "possible_value_without_efficiency": int(possible_value_without_efficiency),
+        "current_value": int(current_value),
         "mapping_state": mapping_state,
         "first_mapping_possible": mapping_state == "first_mapping_possible",
         "already_mapped": mapping_state == "already_mapped",
@@ -255,6 +270,7 @@ def apply_values(body: dict, correction_factor: float = 1.0) -> dict:
             correction_factor=correction_factor,
         )
     )
+    body["_valuation_signature"] = valuation_signature(body)
     return body
 
 
@@ -268,18 +284,7 @@ def system_totals(
     high_value_count = 0
 
     for body in bodies:
-        factor = 1.0
-
-        if callable(correction_factor_func):
-            try:
-                factor = correction_factor_func(body)
-            except Exception:
-                factor = 1.0
-
-        values = calculate_body_values(
-            body,
-            correction_factor=factor,
-        )
+        values = calculate_body_values(body)
 
         scan_total += values["scan_value"]
         mapped_total += values["mapped_value"]

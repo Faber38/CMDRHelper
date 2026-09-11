@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_3_1.live_mapping": "Completed DSS mappings are now reliably detected live. Mapping is retained even when the corresponding scan appears later in the current journal.",
+    "release.3_3_1.valuation": "Live mapping estimates now include the correct bonuses and truncate fractions of a credit only at the end. Sales-based adjustment factors no longer alter regular exploration values.",
+    "release.3_3_1.persistence": "Your mapping status, mapping time and probe efficiency are reliably saved.",
+    "release.3_3_1.archive_values": "Archive imports no longer replace existing scan and mapping values with invalid zeros.",
+    "release.3_3_1.recovery": "Affected bodies with complete body data regain correct displayed values when loaded or refreshed.",
+    "release.3_3_1.regressions": "Additional regression tests cover mapping across sessions and persistence of mapping data.",
     "release.3_3.analysis": "New system analysis based on your personal exploration experience",
     "release.3_3.game_mode": "Open / Solo / Private Group game mode directly in the overview",
     "release.3_3.copy_system": "Copy system names from Recent systems with one click",

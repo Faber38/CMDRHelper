@@ -10,6 +10,13 @@ Für 3.3 sind fünf Hauptpunkte in allen zwölf Sprachen hinterlegt: Systemanaly
 Spielmodus, Kopieren letzter Systeme, verständlichere Erfahrungsdaten und der
 Archivimport-Fix. `tools/publish_release.py` verwendet dieselben Schlüssel für
 die GitHub-Release-Beschreibung und deren mehrsprachige Update-Metadaten.
+Für 3.3.1 sind sechs Bugfix-Punkte in allen zwölf Sprachen hinterlegt: zuverlässige
+DSS-Erkennung einschließlich später eintreffender Scans, korrigierte Live-Bewertung
+ohne Verkaufskorrekturfaktoren, Speicherung eigener Kartierungen, Werterhalt beim
+Archivimport, Wiederherstellung betroffener Anzeigewerte und Regressionstests.
+Legacy-Daten erhalten keinen Live-Bonus; die Creditwerte werden erst am Ende
+abgeschnitten. Fehlende Kartographieschätzungen werden auch bei positiven alten
+Cachewerten ergänzt.
 Weitere lokal bekannte Versionen können als weiterer Dictionary-Eintrag ergänzt
 werden, mit den zugehörigen Übersetzungen.
 

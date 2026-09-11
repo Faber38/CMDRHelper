@@ -5,12 +5,14 @@ import sqlite3
 import tempfile
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 from cmdrhelper.database import CMDRDatabase
 from cmdrhelper.exploration_status import status_rows
-from cmdrhelper.journal_reader import read_latest_state
+from cmdrhelper.journal_reader import read_latest_state, classify_journal_file
 from cmdrhelper.mapping_metadata_backfill import backfill_mapping_metadata
 from cmdrhelper.state import AppState
+from cmdrhelper.valuation import calculate_body_values
 
 
 NAME = 'Plio Aip KN-B d13-229 5 d'
@@ -131,6 +133,143 @@ class MappingMetadataTests(unittest.TestCase):
         self.assert_metadata(self.saved())
         self.db.import_journal_archive(self.folder)
         self.assert_metadata(self.saved())
+
+    def test_indexed_new_session_maps_before_scan(self):
+        self.write([self.scan])
+        old = self.folder / 'Journal.2026-09-07T071547.01.log'
+        self.journal.rename(old)
+        self.write([self.saa, {**self.scan, 'timestamp': '2026-09-08T08:12:41Z'}])
+        sessions = [classify_journal_file(p) for p in (old, self.journal)]
+        data = read_latest_state(self.folder, indexed_sessions=sessions)
+        body = next(b for b in data['system_bodies'] if b['body_id'] == 24)
+        self.assert_metadata(body)
+        self.assertTrue(body['self_mapped'])
+        self.assertTrue(body['efficient_mapping'])
+        self.assertTrue(body['was_discovered'])
+        self.assertFalse(body['was_mapped'])
+
+    def test_delta_updates_only_mapping_fields_and_preserves_invalid_optional_counts(self):
+        self.write([{**self.scan, 'MassEM': 0.785271}])
+        data, _ = self.live()
+        self.db.store_snapshot(data, self.commander)
+        before = self.saved()
+        with self.db._connect() as con:
+            physical_before = con.execute('SELECT * FROM bodies').fetchall()
+        self.db.apply_commander_journal_delta(self.commander, self.journal, [self.saa], 10)
+        saved = self.saved()
+        self.assertTrue(saved['self_mapped'])
+        self.assertTrue(saved['efficient_mapping'])
+        self.assert_metadata(saved)
+        mapping_fields = {*METADATA, 'self_mapped', 'efficient_mapping'}
+        self.assertEqual({k:v for k,v in before.items() if k not in mapping_fields},
+                         {k:v for k,v in saved.items() if k not in mapping_fields})
+        with self.db._connect() as con:
+            self.assertEqual(physical_before, con.execute('SELECT * FROM bodies').fetchall())
+        self.db.apply_commander_journal_delta(self.commander, self.journal,
+            [{**self.saa, 'ProbesUsed': -1}], 11)
+        self.assertTrue(self.saved()['efficient_mapping'])
+        self.assert_metadata(self.saved())
+        self.db.apply_commander_journal_delta(self.commander, self.journal,
+            [{**self.saa, 'ProbesUsed': 5}], 12)
+        self.assertFalse(self.saved()['efficient_mapping'])
+
+    def test_mapping_only_archive_preserves_existing_caches(self):
+        self.write([{**self.scan, 'MassEM': 0.785271}])
+        data, _ = self.live()
+        data['system_bodies'][0].update(scan_value=123456, mapped_value=765432,
+                                      current_value=123456, high_value=True)
+        self.db.store_snapshot(data, self.commander)
+        before = self.saved()
+        self.write([self.saa])
+        self.db.import_journal_archive(self.folder)
+        saved = self.saved()
+        for key in ('scan_value', 'mapped_value', 'current_value', 'high_value',
+                    'planet_class', 'mass_em', 'radius_m', 'terraformable'):
+            self.assertEqual(saved[key], before[key], key)
+        self.assertTrue(saved['self_mapped'])
+        self.assert_metadata(saved)
+
+    def test_incomplete_archive_scan_preserves_caches(self):
+        data, _ = self.live()
+        data['system_bodies'][0].update(scan_value=123456, mapped_value=765432,
+                                      current_value=765432, high_value=True)
+        self.db.store_snapshot(data, self.commander)
+        before = self.saved()
+        self.write([self.scan])  # No MassEM: not enough data to replace caches.
+        self.db.import_journal_archive(self.folder)
+        saved = self.saved()
+        for key in ('scan_value', 'mapped_value', 'current_value', 'high_value'):
+            self.assertEqual(saved[key], before[key], key)
+
+    def test_complete_belt_scan_can_replace_caches_with_real_zero(self):
+        data, _ = self.live()
+        self.db.store_snapshot(data, self.commander)
+        self.assertGreater(self.saved()['scan_value'], 0)
+        self.write([{**self.scan, 'BodyName': 'Example Belt Cluster 1'}])
+        self.db.import_journal_archive(self.folder)
+        saved = self.saved()
+        for key in ('scan_value', 'mapped_value', 'current_value'):
+            self.assertEqual(saved[key], 0, key)
+        self.assertFalse(saved['high_value'])
+
+    def test_complete_archive_scan_and_mapping_calculates_values(self):
+        self.write([{**self.scan, 'MassEM': 0.785271, 'TerraformState': 'Terraformable'},
+                    self.saa, {**self.scan, 'MassEM': 0.785271,
+                               'TerraformState': 'Terraformable'}])
+        self.db.import_journal_archive(self.folder)
+        saved = self.saved()
+        expected = calculate_body_values(saved)
+        for key in ('scan_value', 'mapped_value', 'current_value', 'high_value'):
+            self.assertEqual(saved[key], expected[key], key)
+        self.assertGreater(saved['scan_value'], 0)
+        self.assertGreater(saved['current_value'], saved['scan_value'])
+        # A later scan-only import must retain the cumulative mapping flags.
+        self.write([{**self.scan, 'MassEM': 1.5, 'TerraformState': 'Terraformable'}])
+        self.db.import_journal_archive(self.folder)
+        saved = self.saved()
+        self.assertTrue(saved['self_mapped'])
+        self.assertEqual(saved['current_value'], calculate_body_values(saved)['current_value'])
+        self.assertNotEqual(saved['scan_value'], expected['scan_value'])
+
+    def test_saved_zero_caches_recover_in_refresh_valuation(self):
+        self.write([{**self.scan, 'MassEM': 0.785271}, self.saa])
+        data, _ = self.live()
+        self.db.store_snapshot(data, self.commander)
+        with self.db._connect() as con:
+            con.execute('UPDATE commander_bodies SET scan_value_cached=0,'
+                        'mapped_value_cached=0,current_value_cached=0,high_value_cached=0')
+        state = SimpleNamespace(database=self.db, commander_id=self.commander,
+                                system_address=ADDRESS)
+        state.system_bodies = AppState._own_explorer_bodies(state, [])
+        self.assertEqual(state.system_bodies[0]['scan_value'], 0)
+        AppState._refresh_explorer_values(state, set())
+        body = state.system_bodies[0]
+        self.assertTrue(body['self_mapped'])
+        self.assert_metadata(body)
+        self.assertGreater(body['scan_value'], 0)
+        self.assertGreater(body['possible_value'], 0)
+        self.assertGreater(body['current_value'], body['scan_value'])
+        with patch('cmdrhelper.state.apply_values') as apply:
+            AppState._refresh_explorer_values(state, set())
+        apply.assert_not_called()
+
+    def test_refresh_updates_old_positive_caches_but_skips_incomplete_bodies(self):
+        state = SimpleNamespace(database=self.db, system_bodies=[
+            dict(body_id=1, planet_class='Rocky body', mass_em=1,
+                 scan_value=123, mapped_value=456, current_value=123),
+            dict(body_id=2, body_type='Star', star_type='G', stellar_mass=1,
+                 scan_value=123, mapped_value=0, current_value=123),
+            dict(body_id=3, name='Example Belt Cluster 1', scan_value=0,
+                 mapped_value=0, current_value=0),
+            dict(body_id=4, planet_class='', mass_em=None,
+                 scan_value=0, mapped_value=0, current_value=0)])
+        AppState._refresh_explorer_values(state, set())
+        self.assertNotEqual(state.system_bodies[0]['scan_value'], 123)
+        self.assertGreater(state.system_bodies[0]['possible_value'], 0)
+        self.assertEqual(state.system_bodies[3]['scan_value'], 0)
+        with patch('cmdrhelper.state.apply_values') as apply:
+            AppState._refresh_explorer_values(state, set())
+        apply.assert_not_called()
 
     def test_targeted_backfill_preview_backup_and_second_run_zero(self):
         self.seed_missing()
