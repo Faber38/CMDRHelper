@@ -1,4 +1,4 @@
-"""Short, localized release highlights for the update confirmation only."""
+"""Short, localized release highlights for the update confirmation and GitHub release."""
 from __future__ import annotations
 
 import json
@@ -7,6 +7,13 @@ import re
 from cmdrhelper.i18n import get_language, tr
 
 RELEASE_SUMMARIES = {
+    "3.3": (
+        "release.3_3.analysis",
+        "release.3_3.game_mode",
+        "release.3_3.copy_system",
+        "release.3_3.experience",
+        "release.3_3.archive_import",
+    ),
     "3.2.1": (
         "release.3_2_1.windows_update",
         "release.3_2_1.restart",

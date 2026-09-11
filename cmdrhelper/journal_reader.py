@@ -755,6 +755,9 @@ def read_latest_state(
         "commander_fid": "",
         "commander_identity_name": "",
         "commander_identity_timestamp": "",
+        "game_mode": "",
+        "group_name": "",
+        "game_mode_timestamp": "",
         "latest_journal_session": None,
         "system": "",
         "system_address": None,
@@ -2305,5 +2308,10 @@ def read_latest_state(
     )
     result["unsold_biology"] = list(unsold_biology.values())
     result["unsold_cartography"] = list(unsold_cartography.values())
+
+    from cmdrhelper.game_mode import reconstruct_game_mode
+    result.update(reconstruct_game_mode(
+        classified_sessions.values(), result["commander_fid"]
+    ))
 
     return result

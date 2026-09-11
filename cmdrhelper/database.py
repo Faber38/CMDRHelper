@@ -6025,12 +6025,11 @@ class CMDRDatabase:
 
                 if previous is None:
                     needs_import = True
-                elif session.get("unchanged"):
-                    # Metadaten können sich beim Kopieren ändern. Hat der
-                    # Index denselben SHA-256 bestätigt, ist kein erneuter
-                    # fachlicher Import nötig.
-                    needs_import = False
                 else:
+                    # "unchanged" vergleicht nur mit dem Journalindex,
+                    # nicht mit dem letzten erfolgreichen Archivimport.
+                    # Ein bereits indexierter Anhang muss trotzdem importiert
+                    # werden, solange der Archivmarker noch älter ist.
                     old_size, old_modified_ns = previous
                     needs_import = not (
                         int(old_size) == int(stat.st_size)

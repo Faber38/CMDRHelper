@@ -42,6 +42,7 @@ HELP_TOPICS = {
               '<p>Vid byte av befälhavare laddas den sparade informationen associerad med den nya '
               'befälhavaren.</p>\n'
               '\n'
+              '<p>CMDRHelper visar det spelläge som Elite senast rapporterade. Open, Solo och Privat grupp identifieras från LoadGame. För privata grupper visas gruppnamnet som Elite rapporterade utan ändringar. Detta betyder inte att Elite körs just nu.</p>\n'
               '<h3>tidning</h3>\n'
               '<p>CMDRHelper använder Elite Dangerouss journalfiler som sin huvudsakliga '
               'datakälla.</p>\n'
@@ -94,7 +95,8 @@ HELP_TOPICS = {
               '<h3>Dricks</h3>\n'
               '<p>Om befälhavaren, fartyget eller platsen inte stämmer överens med spelets '
               'nuvarande tillstånd, kontrollera först journalvisningen högst upp och kontrollera '
-              'sedan journalmappen som är inställd under "Inställningar".</p>'),
+              'sedan journalmappen som är inställd under "Inställningar".</p>'
+              '<p>Öppet visas i rött, Solo i guld och Privat grupp i grönt, med det rapporterade gruppnamnet. Läget återskapas från tillgängliga journaler och uppdateras med nya LoadGame-poster.</p>\n<p>Ett klick på en post under senaste system kopierar systemnamnet till urklipp. ”✓ Kopierat: &lt;System&gt;” visas en kort stund.</p>\n'),
  'missions': ('Uppdrag',
               '<h2>Uppdrag</h2>\n'
               '<p>Uppdragsvyn visar uppdragen för den för närvarande visade befälhavaren som är '
@@ -553,77 +555,22 @@ HELP_TOPICS = {
 <p>eller:</p>
 <p>"Vilka av mina kända planeter har ett särskilt stort antal gruvplatser?"</p>""",
     ),
- 'jump_tip': ('Hoppa tips',
-              '<h2>Hoppa tips</h2>\n'
-              '<p>Hopptipset stöder utforskning genom att utvärdera redan kända systemdata och '
-              'lyfta fram intressanta målsystem.</p>\n'
-              '<p>Funktionen är tänkt som ett beslutsstöd. Det garanterar inte att ett '
-              'rekommenderat system faktiskt innehåller sällsynta eller särskilt värdefulla '
-              'fynd.</p>\n'
-              '\n'
-              '<h3>Grund för utvärderingen</h3>\n'
-              '<p>CMDRHelper använder befintlig journal- och databasinformation för att utvärdera '
-              'kända mönster i systemnamn och systemklasser.</p>\n'
-              '<p>Bland annat kan systemförkortningar, redan kända kroppstyper och tidigare fynd '
-              'beaktas.</p>\n'
-              '\n'
-              '<h3>Systemförkortning</h3>\n'
-              '<p>Många procedurgenererade system i Elite Dangerous innehåller bokstavs- och '
-              'sifferkombinationer som identifierar specifika systemgrupper.</p>\n'
-              '<p>CMDRHelper kan statistiskt utvärdera dessa förkortningar och visa i vilka '
-              'grupper intressanta fynd förekom oftare i den hittills kända data.</p>\n'
-              '\n'
-              '<h3>Omvärdera</h3>\n'
-              '<p>Med "Re-evaluate" analyseras den befintliga databasen igen.</p>\n'
-              '<p>Befälhavarens sparade data används. Funktionen skapar inte ny elitdata eller '
-              'modifierar journalfiler.</p>\n'
-              '\n'
-              '<h3>Resultatlista</h3>\n'
-              '<p>Resultatlistan visar de mest intressanta systemförkortningarna eller '
-              'kandidaterna enligt den aktuella utvärderingen.</p>\n'
-              '<p>Beroende på den befintliga databasen kan det finnas information om:</p>\n'
-              '<ul>\n'
-              '<li>intressanta planetariska klasser</li>\n'
-              '<li>biologiska upptäckter</li>\n'
-              '<li>Vattenvärldar</li>\n'
-              '<li>terraformerbara kroppar</li>\n'
-              '<li>andra anmärkningsvärda prospekteringsresultat</li>\n'
-              '</ul>\n'
-              '<p>synas.</p>\n'
-              '\n'
-              '<h3>Sannolikhet istället för garanti</h3>\n'
-              '<p>Ett högt värde eller en bra ranking betyder bara att ett visst mönster oftare '
-              'förknippas med intressanta fynd i den hittills utvärderade datan.</p>\n'
-              '<p>Det är ingen garanti.</p>\n'
-              '<p>Ett rekommenderat system kan fortfarande vara helt ointressant, medan ett '
-              'lågskattat system kan innehålla värdefulla fynd.</p>\n'
-              '\n'
-              '<h3>Egen databas</h3>\n'
-              '<p>Hopptipset fungerar med befälhavarens redan kända data.</p>\n'
-              '<p>Ju fler system och organ som registreras över tid, desto större blir den '
-              'personliga databasen för utvärdering.</p>\n'
-              '<p>Detta innebär att rankningen kan ändras senare.</p>\n'
-              '\n'
-              '<h3>Flera befälhavare</h3>\n'
-              '<p>Personliga utvärderingar hanteras befälhavare för kommando.</p>\n'
-              '<p>Uppgifter från en annan befälhavare får inte obemärkt förfalska '
-              'personbetyget.</p>\n'
-              '<p>Globala astronomiska stamdata, å andra sidan, kan delas så länge de inte '
-              'representerar befälhavarerelaterade personliga fynd.</p>\n'
-              '\n'
-              '<h3>Använd i praktiken</h3>\n'
-              '<p>Hopptipset är särskilt lämpligt om det finns flera möjliga resmål att välja på '
-              'och ytterligare beslutshjälp önskas.</p>\n'
-              '<p>Den ersätter inte en komplett ruttplanerare och beräknar inte en säker, optimal '
-              'rutt.</p>\n'
-              '<p>Menyalternativet "Ruttplanerare" är tillgängligt för specifik '
-              'ruttplanering.</p>\n'
-              '\n'
-              '<h3>Dricks</h3>\n'
-              '<p>Använd hopptipset som ett extra hjälpmedel för utforskning:</p>\n'
-              '<p>"Vilket system verkar mer intressant enligt mina tidigare uppgifter?"</p>\n'
-              '<p>Inte som en förutsägelse:</p>\n'
-              '<p>"Det kommer garanterat att finnas ett specifikt fynd i det här systemet."</p>'),
+ 'jump_tip': (
+        'Analys',
+        """
+<h2>Analys</h2>
+<p>Analysen använder din personliga utforskningshistorik. Systemanalys bedömer ett angivet procedurgenererat systemnamn; Historiska data behåller den tidigare kodanalysen med historiska träffar och ny utvärdering. Båda ger beslutsstöd, inte garantier för fynd.</p>
+<h3>Jämförelseunderlag</h3>
+<p>Masskoden ger grunduppskattningen. Region och familj förfinar den försiktigt. Små lokala urval jämnas mot det större dataunderlaget. Lite data innebär osäkerhet, inte ett dåligt omdöme. Otillräckligt undersökta system räknas inte som negativa träffar.</p>
+<h3>Potentialindex</h3>
+<p>Potentialindex 100 motsvarar ditt personliga historiska genomsnitt av dämpad utforskningspotential. Indexet är inte en procentsannolikhet. Ett enhetligt kartläggningsscenario och dämpade extremvärden möjliggör jämförelse; median och utjämnad potential är uppskattade krediter, inte garanterad inkomst.</p>
+<h3>Särskilda fynd</h3>
+<p>Det sista systemnumret bedöms inte: Plio Aip KN-B d13-201 tillhör familjen Plio Aip KN-B d13. BIO är informativt och ingår inte i huvudbedömningen. Saknade analyser bevisar inte nollvärden.</p>
+<h3>Systemanalys</h3>
+<p>Ange ett system och välj Analysera eller tryck på Enter. Använd aktuellt system hämtar namnet från befintlig spelstatus. Analysen räknas om endast på användarens begäran. Jämförelseunderlag och resultat anger nivån; utan lokala jämförelser används överordnad erfarenhet. Datakvaliteten visas separat från rekommendationen.</p>
+<p>Historiska träffar per systemkod. Värdena beskriver din hittillsvarande utforskningserfarenhet och är ingen direkt prognos för ett enskilt målsystem. Dataunderlag och tillförlitlighet beskriver hur pålitliga jämförelsedata är, utifrån urvalet och dess fördelning mellan sektorer.</p>
+""",
+    ),
  'route_planner': ('Ruttplanerare',
                    '<h2>Ruttplanerare</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Förbättrad ruttplanerare: starten följer automatiskt det aktuella systemet tills du anger en manuellt; tömning av fältet återställer automatiken. Skepp och carriers använder exakt validerade ID64-adresser utan att välja liknande namn. ”Unable to find route” förklaras som att ingen rutt hittades; kontrollera mål, räckvidd och ruttinställningar.</p>\n'
                    '<p>Ruttplaneraren stöder planering av längre resor med fartyg eller Fleet '

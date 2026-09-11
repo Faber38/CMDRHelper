@@ -41,6 +41,7 @@ HELP_TOPICS = {
               'komutana atar. Bu, farklı komutanlardan gelen verileri birbirinden ayrı tutar.</p>\n'
               '<p>Komutan değiştirilirken yeni komutana ait kayıtlı bilgiler yüklenir.</p>\n'
               '\n'
+              '<p>CMDRHelper, Elite tarafından en son bildirilen oyun modunu gösterir. Open, Solo ve Özel grup, LoadGame üzerinden tanınır. Özel gruplarda Elite tarafından bildirilen grup adı değiştirilmeden gösterilir. Bu, Elite’ın şu anda çalıştığı anlamına gelmez.</p>\n'
               '<h3>günlük</h3>\n'
               "<p>CMDRHelper, ana veri kaynağı olarak Elite Dangerous'nin günlük dosyalarını "
               'kullanır.</p>\n'
@@ -94,7 +95,8 @@ HELP_TOPICS = {
               '<h3>Uç</h3>\n'
               '<p>Komutan, gemi veya konum oyunun mevcut durumuyla eşleşmiyorsa, önce üstteki '
               'günlük ekranını kontrol edin, ardından "Ayarlar" altında ayarlanan günlük klasörünü '
-              'kontrol edin.</p>'),
+              'kontrol edin.</p>'
+              '<p>Açık kırmızı, Solo altın rengi ve Özel Grup yeşil gösterilir; özel gruplarda bildirilen grup adı da görünür. Mod, mevcut günlüklerden yeniden oluşturulur ve yeni LoadGame kayıtlarıyla güncellenir.</p>\n<p>Son sistemlerdeki bir kayda tek tıklamak sistem adını panoya kopyalar. Kısa süreliğine “✓ Kopyalandı: &lt;Sistem&gt;” görünür.</p>\n'),
  'missions': ('Görevler',
               '<h2>Görevler</h2>\n'
               "<p>Görev görünümü, Elit Tehlikeli Günlük'ten bilinen, o anda görüntülenen komutanın "
@@ -551,77 +553,22 @@ HELP_TOPICS = {
 <p>veya:</p>
 <p>"Bilinen gezegenlerimden hangilerinde özellikle çok sayıda maden sahası var?"</p>""",
     ),
- 'jump_tip': ('Atlama ipucu',
-              '<h2>Atlama ipucu</h2>\n'
-              '<p>Atlama ipucu, halihazırda bilinen sistem verilerini değerlendirerek ve ilginç '
-              'hedef sistemleri vurgulayarak keşfi destekler.</p>\n'
-              '<p>İşlev karar vermede yardımcı olarak tasarlanmıştır. Önerilen bir sistemin '
-              'gerçekten nadir veya özellikle değerli buluntular içerdiğini garanti etmez.</p>\n'
-              '\n'
-              '<h3>Değerlendirmenin temeli</h3>\n'
-              '<p>CMDRHelper, sistem adları ve sistem sınıflarındaki bilinen kalıpları '
-              'değerlendirmek için mevcut günlük ve veritabanı bilgilerini kullanır.</p>\n'
-              '<p>Diğer şeylerin yanı sıra sistem kısaltmaları, halihazırda bilinen vücut tipleri '
-              've önceki buluntular dikkate alınabilir.</p>\n'
-              '\n'
-              '<h3>Sistem kısaltması</h3>\n'
-              "<p>Elite Dangerous'de prosedürel olarak oluşturulan sistemlerin çoğu, belirli "
-              'sistem gruplarını tanımlayan harf ve sayı kombinasyonlarını içerir.</p>\n'
-              '<p>CMDRHelper, bu kısaltmaları istatistiksel olarak değerlendirebiliyor ve bugüne '
-              'kadar bilinen verilerde ilginç bulguların hangi gruplarda daha sık ortaya çıktığını '
-              'gösterebiliyor.</p>\n'
-              '\n'
-              '<h3>Yeniden değerlendir</h3>\n'
-              '<p>“Yeniden Değerlendir” ile mevcut veri tabanı tekrar analiz edilir.</p>\n'
-              '<p>Komutanın kayıtlı verileri kullanılır. İşlev, yeni seçkin veriler oluşturmaz '
-              'veya günlük dosyalarını değiştirmez.</p>\n'
-              '\n'
-              '<h3>Sonuç listesi</h3>\n'
-              '<p>Sonuç listesi, mevcut değerlendirmeye göre en ilginç sistem kısaltmalarını veya '
-              'adaylarını gösterir.</p>\n'
-              '<p>Mevcut veritabanına bağlı olarak aşağıdakilerle ilgili bilgiler olabilir:</p>\n'
-              '<ul>\n'
-              '<li>ilginç gezegen sınıfları</li>\n'
-              '<li>biyolojik keşifler</li>\n'
-              '<li>Su dünyaları</li>\n'
-              '<li>dönüştürülebilir gövdeler</li>\n'
-              '<li>diğer önemli keşif sonuçları</li>\n'
-              '</ul>\n'
-              '<p>belli olmak.</p>\n'
-              '\n'
-              '<h3>Garanti yerine olasılık</h3>\n'
-              '<p>Yüksek bir değer veya iyi bir sıralama yalnızca belirli bir modelin şu ana kadar '
-              'değerlendirilen verilerdeki ilginç bulgularla daha sık ilişkilendirildiği anlamına '
-              'gelir.</p>\n'
-              '<p>Bu bir garanti değildir.</p>\n'
-              '<p>Önerilen bir sistem hala tamamen ilgi çekici olmayabilir, düşük puanlı bir '
-              'sistem ise değerli buluntular içerebilir.</p>\n'
-              '\n'
-              '<h3>Kendi veritabanı</h3>\n'
-              '<p>Atlama ipucu, komutanın zaten bilinen verileriyle çalışır.</p>\n'
-              '<p>Zaman içinde ne kadar çok sistem ve kuruluş kaydedilirse, değerlendirme için '
-              'kişisel veri tabanı da o kadar büyük olur.</p>\n'
-              '<p>Bu, sıralamanın daha sonra değişebileceği anlamına gelir.</p>\n'
-              '\n'
-              '<h3>Birkaç komutan</h3>\n'
-              '<p>Kişisel değerlendirmeler komutan bazında gerçekleştirilir.</p>\n'
-              '<p>Başka bir komutandan alınan veriler, kişisel derecelendirmeyi fark edilmeden '
-              'tahrif etmemelidir.</p>\n'
-              '<p>Küresel astronomik ana veriler ise komutanla ilgili kişisel bulguları '
-              'yansıtmadığı sürece paylaşılabilecek.</p>\n'
-              '\n'
-              '<h3>Pratikte kullanın</h3>\n'
-              '<p>Atlama ipucu, aralarından seçim yapılabilecek birden fazla olası varış noktası '
-              'varsa ve karar vermede ek yardım isteniyorsa özellikle uygundur.</p>\n'
-              '<p>Tam bir rota planlayıcının yerini almaz ve güvenli, en uygun rotayı '
-              'hesaplamaz.</p>\n'
-              '<p>Belirli bir rota planlaması için “Rota planlayıcı” menü öğesi mevcuttur.</p>\n'
-              '\n'
-              '<h3>Uç</h3>\n'
-              '<p>Atlama ucunu ek bir keşif yardımı olarak kullanın:</p>\n'
-              '<p>“Önceki verilerime göre hangi sistem daha ilginç görünüyor?”</p>\n'
-              '<p>Bir tahmin olarak değil:</p>\n'
-              '<p>“Bu sistemde spesifik bir bulgunun olması garantidir.”</p>'),
+ 'jump_tip': (
+        'Analiz',
+        """
+<h2>Analiz</h2>
+<p>Analiz, kişisel keşif geçmişinizi kullanır. Sistem analizi girilen prosedürel sistem adını değerlendirir; Geçmiş veriler, geçmiş bulgular ve yeniden değerlendirme ile önceki kod analizini korur. İkisi de karar desteğidir, keşif garantisi değildir.</p>
+<h3>Karşılaştırma temeli</h3>
+<p>Kütle kodu temel tahmini sağlar. Bölge ve aile bunu dikkatle iyileştirir. Küçük yerel örnekler daha büyük veri tabanına doğru dengelenir. Az veri belirsizlik demektir, kötü değerlendirme değil. Yeterince incelenmemiş sistemler olumsuz bulgu sayılmaz.</p>
+<h3>Potansiyel endeksi</h3>
+<p>Potansiyel endeksi 100, dengelenmiş keşif potansiyelinizin kişisel geçmiş ortalamasına karşılık gelir. Endeks bir yüzde olasılığı değildir. Tek tip haritalama senaryosu ve dengelenmiş uç değerler karşılaştırmayı sağlar; ortanca ve dengelenmiş potansiyel tahmini kredilerdir, garantili kazanç değildir.</p>
+<h3>Önemli bulgular</h3>
+<p>Sistemin son numarası değerlendirilmez: Plio Aip KN-B d13-201, Plio Aip KN-B d13 ailesine aittir. BIO yalnızca bilgi amaçlıdır ve ana değerlendirmeye katılmaz. Eksik analizler sıfır değer kanıtlamaz.</p>
+<h3>Sistem analizi</h3>
+<p>Bir sistem girip Analiz et seçeneğini kullanın veya Enter’a basın. Mevcut sistemi kullan, adı mevcut oyun durumundan alır. Analiz yalnızca kullanıcı eylemiyle yeniden hesaplanır. Karşılaştırma temeli ve sonuçlar düzeylerini belirtir; yerel karşılaştırma yoksa üst düzey deneyim kullanılır. Veri kalitesi öneriden ayrı gösterilir.</p>
+<p>Sistem koduna göre geçmiş bulgular. Bu değerler bugüne kadarki keşif deneyimini gösterir ve tek bir hedef sistem için doğrudan tahmin değildir. Veri temeli ve güvenilirlik, mevcut örnekleme ve sektörler arasındaki dağılımına göre karşılaştırma verilerinin güvenilirliğini açıklar.</p>
+""",
+    ),
  'route_planner': ('Rota planlayıcı',
                    '<h2>Rota planlayıcı</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Geliştirilmiş rota planlayıcısı: elle bir başlangıç girene kadar mevcut sistem otomatik izlenir; alanı boşaltmak otomatiği geri getirir. Gemiler ve carrier’lar benzer adlar yerine tam doğrulanmış ID64 adresleri kullanır. “Unable to find route” rota bulunamadığı şeklinde açıklanır; hedefleri, menzili ve rota ayarlarını kontrol edin.</p>\n'
                    '<p>Rota planlayıcı, gemi veya Fleet Carrier ile daha uzun yolculukların '

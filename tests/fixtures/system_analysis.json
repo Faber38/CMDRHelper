@@ -1,0 +1,162 @@
+{
+  "ok": true,
+  "target": "Plio Aip KN-B d13-201",
+  "mass": "d",
+  "sector": "Plio Aip",
+  "family_key": "Plio Aip KN-B d13",
+  "quality_counts": {
+    "partial": 854,
+    "complete": 1059,
+    "unknown": 49
+  },
+  "excluded_observations": 1228,
+  "levels": [
+    {
+      "kind": "mass",
+      "systems": 195,
+      "hits": 43,
+      "counts": {
+        "water_world": 25,
+        "terraformable_water_world": 18,
+        "earthlike": 1,
+        "ammonia_world": 1,
+        "terraformable_hmc": 75,
+        "valuable": 106
+      },
+      "median": 4829,
+      "winsorized_mean": 416245.07076923084,
+      "rate": 0.2205128205128205,
+      "adjusted_rate": 0.20783998018330443,
+      "rate_interval_95": [
+        0.16803334755318738,
+        0.28379162267437064
+      ],
+      "data_quality": "good",
+      "local_weight": 0.8863636363636364,
+      "rate_influence": 0.09884815457022542,
+      "potential_influence": 194338.85157573692,
+      "adjusted_potential": 391329.83338772604,
+      "bio": {
+        "signal_systems": 30,
+        "analysed_systems": 23,
+        "comparable_systems": 9,
+        "median_base_value": 19010800,
+        "scope": "conditional_on_known_signals_analysed"
+      }
+    },
+    {
+      "kind": "sector_mass",
+      "systems": 9,
+      "hits": 4,
+      "counts": {
+        "water_world": 5,
+        "terraformable_water_world": 5,
+        "earthlike": 1,
+        "ammonia_world": 0,
+        "terraformable_hmc": 8,
+        "valuable": 14
+      },
+      "median": 475490,
+      "winsorized_mean": 804346.038888889,
+      "rate": 0.4444444444444444,
+      "adjusted_rate": 0.2704705736641944,
+      "rate_interval_95": [
+        0.188775429471914,
+        0.7333526542559703
+      ],
+      "data_quality": "low",
+      "local_weight": 0.2647058823529412,
+      "rate_influence": 0.06263059348088998,
+      "potential_influence": 109327.81910324894,
+      "adjusted_potential": 500657.652490975,
+      "bio": {
+        "signal_systems": 2,
+        "analysed_systems": 0,
+        "comparable_systems": 0,
+        "median_base_value": null,
+        "scope": "conditional_on_known_signals_analysed"
+      }
+    },
+    {
+      "kind": "family",
+      "systems": 5,
+      "hits": 2,
+      "counts": {
+        "water_world": 3,
+        "terraformable_water_world": 3,
+        "earthlike": 0,
+        "ammonia_world": 0,
+        "terraformable_hmc": 6,
+        "valuable": 9
+      },
+      "median": 475490,
+      "winsorized_mean": 672711.0900000001,
+      "rate": 0.4,
+      "adjusted_rate": 0.29205881138682865,
+      "rate_interval_95": [
+        0.1176182311592533,
+        0.769280067791163
+      ],
+      "data_quality": "low",
+      "local_weight": 0.16666666666666666,
+      "rate_influence": 0.02158823772263424,
+      "potential_influence": 28675.57291817083,
+      "adjusted_potential": 529333.2254091458,
+      "bio": {
+        "signal_systems": 2,
+        "analysed_systems": 0,
+        "comparable_systems": 0,
+        "median_base_value": null,
+        "scope": "conditional_on_known_signals_analysed"
+      }
+    }
+  ],
+  "scenario": "normal_discovery_efficient_mapping",
+  "prior_systems": 25.0,
+  "global_reference": {
+    "systems": 734,
+    "hits": 80,
+    "counts": {
+      "water_world": 46,
+      "terraformable_water_world": 30,
+      "earthlike": 5,
+      "ammonia_world": 6,
+      "terraformable_hmc": 121,
+      "valuable": 182
+    },
+    "median": 3619.5,
+    "winsorized_mean": 196990.98181198913
+  },
+  "winsor_cap": 1818844.4500000004,
+  "valuable_rate": 0.29205881138682865,
+  "exploration_potential": 529333.2254091458,
+  "potential_index": 268.7093696067512,
+  "recommendation": "good",
+  "data_quality": "good",
+  "family_data_quality": "low",
+  "weights": {
+    "cartography": 1.0,
+    "biology": 0.0
+  },
+  "bio_hint": "BIO is conditional evidence, not a zero for unexamined systems.",
+  "weight_comparison": [
+    {
+      "cartography_weight": 1.0,
+      "bio_weight": 0.0,
+      "potential_index": 268.7093696067512,
+      "status": "selected"
+    },
+    {
+      "cartography_weight": 0.8,
+      "bio_weight": 0.2,
+      "potential_index": 238.35509267393533,
+      "status": "diagnostic_selection_biased"
+    },
+    {
+      "cartography_weight": 0.7,
+      "bio_weight": 0.3,
+      "potential_index": 223.1779542075274,
+      "status": "diagnostic_selection_biased"
+    }
+  ]
+}

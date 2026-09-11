@@ -6,6 +6,10 @@ weiterhin aus `check_latest_release()`; die installierte Version aus `version.py
 
 `cmdrhelper/release_summaries.py` ordnet Versionen Übersetzungsschlüssel zu.
 Für 3.2 sind sechs Hauptpunkte in allen zwölf `cmdrhelper/i18n/*.py` hinterlegt.
+Für 3.3 sind fünf Hauptpunkte in allen zwölf Sprachen hinterlegt: Systemanalyse,
+Spielmodus, Kopieren letzter Systeme, verständlichere Erfahrungsdaten und der
+Archivimport-Fix. `tools/publish_release.py` verwendet dieselben Schlüssel für
+die GitHub-Release-Beschreibung und deren mehrsprachige Update-Metadaten.
 Weitere lokal bekannte Versionen können als weiterer Dictionary-Eintrag ergänzt
 werden, mit den zugehörigen Übersetzungen.
 

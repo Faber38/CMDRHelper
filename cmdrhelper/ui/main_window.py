@@ -22,6 +22,8 @@ from cmdrhelper.ui.startup_progress import StartupProgressDialog
 from cmdrhelper.ui.cargo_hud import cargo_hud_enabled, cargo_hud_data
 from cmdrhelper.ui.table_widths import persist_column_widths
 from cmdrhelper.ui.help_dialog import HelpDialog
+from cmdrhelper.ui.game_mode import GameModeRow
+from cmdrhelper.ui.analysis_view import SystemAnalysisView
 from cmdrhelper.route_planner import RoutePlannerView
 from cmdrhelper.online_services import (
     test_edsm_connection,
@@ -1485,6 +1487,8 @@ class MainWindow(QMainWindow):
         )
         self.overview_location.setWordWrap(True)
         identity_layout.addWidget(self.overview_location)
+        self.overview_game_mode = GameModeRow()
+        identity_layout.addWidget(self.overview_game_mode)
 
         identity_row.addWidget(identity_card, 2)
 
@@ -1589,6 +1593,8 @@ class MainWindow(QMainWindow):
         self.recent_systems_table.setEditTriggers(QTableWidget.NoEditTriggers)
         self.recent_systems_table.setSelectionBehavior(QTableWidget.SelectRows)
         self.recent_systems_table.setSelectionMode(QTableWidget.SingleSelection)
+        self.recent_systems_table.setToolTip(tr("overview.copy_system_tooltip"))
+        self.recent_systems_table.cellClicked.connect(self._copy_recent_system)
         self.recent_systems_table.verticalHeader().setVisible(False)
         self.recent_systems_table.horizontalHeader().setSectionResizeMode(
             QHeaderView.Interactive
@@ -1602,10 +1608,31 @@ class MainWindow(QMainWindow):
         )
 
         recent_layout.addWidget(self.recent_systems_table)
+        self.recent_systems_copy_hint = QLabel("", objectName="statusOk")
+        self.recent_systems_copy_hint.setTextFormat(Qt.PlainText)
+        self.recent_systems_copy_hint.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
+        self.recent_systems_copy_hint.setFixedHeight(
+            self.recent_systems_copy_hint.fontMetrics().height()
+        )
+        recent_layout.addWidget(self.recent_systems_copy_hint)
+        self.recent_systems_copy_timer = QTimer(recent_card)
+        self.recent_systems_copy_timer.setSingleShot(True)
+        self.recent_systems_copy_timer.setInterval(1500)
+        self.recent_systems_copy_timer.timeout.connect(self.recent_systems_copy_hint.clear)
 
         page_layout.addWidget(recent_card, 1)
 
         return page
+
+    def _copy_recent_system(self, row, _column):
+        item = self.recent_systems_table.item(row, 1)
+        # Only real history entries carry a name, never placeholder/header rows.
+        name = item.data(Qt.UserRole) if item is not None else None
+        if not isinstance(name, str) or not name.strip() or name.strip() == "–":
+            return
+        QApplication.clipboard().setText(name)
+        self.recent_systems_copy_hint.setText(tr("overview.system_copied", system=name))
+        self.recent_systems_copy_timer.start()
 
     def _recent_systems_count_changed(self, value):
         value = max(3, min(50, int(value or 10)))
@@ -1637,6 +1664,8 @@ class MainWindow(QMainWindow):
 
             time_item = QTableWidgetItem(visited_at)
             system_item = QTableWidgetItem(system_name)
+            if isinstance(system_name, str) and system_name.strip() and system_name.strip() != "–":
+                system_item.setData(Qt.UserRole, system_name)
 
             self.recent_systems_table.setItem(row, 0, time_item)
             self.recent_systems_table.setItem(row, 1, system_item)
@@ -2978,6 +3007,16 @@ class MainWindow(QMainWindow):
         )
 
     def _score_page(self):
+        tabs = QTabWidget()
+        self.analysis_tabs = tabs
+        self.system_analysis_view = SystemAnalysisView(
+            self.state, self._format_reward, light=self.ui_theme == "light"
+        )
+        tabs.addTab(self.system_analysis_view, tr("analysis.system_tab"))
+        tabs.addTab(self._experience_page(), tr("analysis.history_tab"))
+        return tabs
+
+    def _experience_page(self):
         page = QWidget()
 
         layout = QVBoxLayout(page)
@@ -3346,14 +3385,14 @@ class MainWindow(QMainWindow):
         self.score_ranking_table.setRowCount(len(recommendations))
 
         for row_index, row in enumerate(recommendations):
-            stars = int(row.get("stars") or 0)
+            evidence_key = {"gering": "low", "mittel": "medium", "hoch": "high"}.get(row.get("confidence"), "unknown")
 
             values = [
                 int(row.get("rank") or (row_index + 1)),
                 str(row.get("key") or "–"),
                 str(row.get("success_text") or "–"),
                 self._score_percent(row.get("rate")),
-                str(row.get("recommendation_text") or "–"),
+                tr("analysis.evidence." + evidence_key),
             ]
 
             for col, value in enumerate(values):
@@ -3364,30 +3403,10 @@ class MainWindow(QMainWindow):
                     font.setBold(True)
                     item.setFont(font)
 
-                    if row_index == 0:
-                        item.setForeground(QColor("#65d067"))
-
                 elif col == 2:
                     item.setToolTip(tr("score.success_tooltip"))
 
                 elif col == 4:
-                    if stars >= 5:
-                        color = QColor("#65d067")
-                    elif stars >= 4:
-                        color = QColor("#a6df71")
-                    elif stars >= 3:
-                        color = QColor("#d9dde1")
-                    elif stars >= 2:
-                        color = QColor("#ffb000")
-                    else:
-                        color = QColor("#e06a6a")
-
-                    item.setForeground(color)
-
-                    font = item.font()
-                    font.setBold(True)
-                    item.setFont(font)
-
                     item.setToolTip(tr("score.recommendation_tooltip"))
 
                 self.score_ranking_table.setItem(
@@ -5421,6 +5440,9 @@ class MainWindow(QMainWindow):
         if hasattr(self, "material_view"):
             self.material_view.set_light_mode(theme == "light")
 
+        if hasattr(self, "system_analysis_view"):
+            self.system_analysis_view.set_light_mode(theme == "light")
+
         if hasattr(self, "system_map"):
             self.system_map.set_light_mode(theme == "light")
 
@@ -6000,6 +6022,10 @@ class MainWindow(QMainWindow):
 
         ship_text = self.state.ship or "–"
         self.overview_ship.setText(tr("overview.ship", ship=ship_text))
+        self.overview_game_mode.set_mode(
+            getattr(self.state, "game_mode", ""),
+            getattr(self.state, "group_name", ""),
+        )
         self.overview_location.setText(
             tr(
                 "overview.location",

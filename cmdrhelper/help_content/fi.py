@@ -42,6 +42,7 @@ HELP_TOPICS = {
               '<p>Kun vaihdat komentoa, uuteen komentajaan liittyvät tallennetut tiedot '
               'ladataan.</p>\n'
               '\n'
+              '<p>CMDRHelper näyttää Eliten viimeksi ilmoittaman pelitilan. Open, Solo ja Yksityinen ryhmä tunnistetaan LoadGame-tapahtumasta. Yksityisissä ryhmissä Eliten ilmoittama ryhmän nimi näytetään muuttamattomana. Tämä ei tarkoita, että Elite olisi parhaillaan käynnissä.</p>\n'
               '<h3>päiväkirja</h3>\n'
               '<p>CMDRHelper käyttää Elite Dangerous:n päiväkirjatiedostoja päätietolähteenä.</p>\n'
               '<p>Päiväkirjanäyttö ilmoittaa, onko päiväkirjatiedostoja löydetty ja määritetty '
@@ -93,7 +94,8 @@ HELP_TOPICS = {
               '<h3>Kärki</h3>\n'
               '<p>Jos komentaja, laiva tai sijainti ei vastaa pelin nykyistä tilaa, tarkista ensin '
               'yläreunassa oleva päiväkirjanäyttö ja sitten "Asetukset" -kohdassa asetettu '
-              'päiväkirjakansio.</p>'),
+              'päiväkirjakansio.</p>'
+              '<p>Avoin näkyy punaisena, Solo kullanvärisenä ja Yksityinen ryhmä vihreänä yhdessä ilmoitetun ryhmänimen kanssa. Tila muodostetaan saatavilla olevista journaleista ja päivitetään uusista LoadGame-merkinnöistä.</p>\n<p>Yksi napsautus viimeisimpien järjestelmien rivillä kopioi järjestelmän nimen leikepöydälle. ”✓ Kopioitu: &lt;Järjestelmä&gt;” näkyy hetken.</p>\n'),
  'missions': ('Tehtävät',
               '<h2>Tehtävät</h2>\n'
               '<p>Tehtävänäkymä näyttää Elite Dangerous Journalista tunnetun tällä hetkellä '
@@ -548,80 +550,22 @@ HELP_TOPICS = {
 <p>tai:</p>
 <p>"Millä tunnetuista planeetoistani on erityisen paljon kaivospaikkoja?"</p>""",
     ),
- 'jump_tip': ('Hyppyvinkki',
-              '<h2>Hyppyvinkki</h2>\n'
-              '<p>Hyppykärki tukee tutkimista arvioimalla jo tunnettua järjestelmädataa ja '
-              'korostamalla mielenkiintoisia kohdejärjestelmiä.</p>\n'
-              '<p>Toiminto on tarkoitettu päätöksenteon apuvälineeksi. Se ei takaa, että '
-              'suositeltu järjestelmä todella sisältää harvinaisia \u200b\u200btai erityisen '
-              'arvokkaita löytöjä.</p>\n'
-              '\n'
-              '<h3>Arvioinnin perusteet</h3>\n'
-              '<p>CMDRHelper käyttää olemassa olevia loki- ja tietokantatietoja arvioidakseen '
-              'tunnettuja malleja järjestelmän nimissä ja järjestelmäluokissa.</p>\n'
-              '<p>Huomioon voidaan ottaa muun muassa järjestelmälyhenteet, jo tunnetut '
-              'ruumistyypit ja aikaisemmat löydöt.</p>\n'
-              '\n'
-              '<h3>Järjestelmän lyhenne</h3>\n'
-              '<p>Monet Elite Dangerous:n proseduaalisesti luodut järjestelmät sisältävät kirjain- '
-              'ja numeroyhdistelmiä, jotka tunnistavat tietyt järjestelmäryhmät.</p>\n'
-              '<p>CMDRHelper voi tilastollisesti arvioida nämä lyhenteet ja näyttää, missä '
-              'ryhmissä mielenkiintoisia löytöjä esiintyi useammin tähän mennessä tunnetuissa '
-              'tiedoissa.</p>\n'
-              '\n'
-              '<h3>Arvioi uudelleen</h3>\n'
-              '<p>"Arvioi uudelleen" -toiminnolla olemassa oleva tietokanta analysoidaan '
-              'uudelleen.</p>\n'
-              '<p>Komentajan tallennettuja tietoja käytetään. Toiminto ei luo uutta huipputietoa '
-              'tai muokkaa päiväkirjatiedostoja.</p>\n'
-              '\n'
-              '<h3>Tulosluettelo</h3>\n'
-              '<p>Tuloslistassa näkyvät kiinnostavimmat järjestelmälyhenteet tai ehdokkaat '
-              'nykyisen arvioinnin mukaan.</p>\n'
-              '<p>Olemassa olevasta tietokannasta riippuen siellä voi olla tietoja:</p>\n'
-              '<ul>\n'
-              '<li>mielenkiintoisia planetaarisia luokkia</li>\n'
-              '<li>biologisia löytöjä</li>\n'
-              '<li>Vesimaailmat</li>\n'
-              '<li>terramuotoituvat rungot</li>\n'
-              '<li>muita merkittäviä tutkimustuloksia</li>\n'
-              '</ul>\n'
-              '<p>näkyviin.</p>\n'
-              '\n'
-              '<h3>Todennäköisyys takuun sijaan</h3>\n'
-              '<p>Korkea arvo tai hyvä sijoitus tarkoittaa vain sitä, että tietty malli liittyi '
-              'useammin mielenkiintoisiin löydöksiin tähän mennessä arvioiduissa tiedoissa.</p>\n'
-              '<p>Se ei ole takuu.</p>\n'
-              '<p>Suositeltu järjestelmä voi silti olla täysin epäkiinnostava, kun taas huonosti '
-              'arvostettu järjestelmä voi sisältää arvokkaita löytöjä.</p>\n'
-              '\n'
-              '<h3>Oma tietokanta</h3>\n'
-              '<p>Hyppykärki toimii komentajan jo tiedossa olevien tietojen kanssa.</p>\n'
-              '<p>Mitä enemmän järjestelmiä ja elimiä tallennetaan ajan mittaan, sitä suurempi on '
-              'arvioitava henkilökohtainen tietokanta.</p>\n'
-              '<p>Tämä tarkoittaa, että sijoitus voi muuttua myöhemmin.</p>\n'
-              '\n'
-              '<h3>Useita komentajia</h3>\n'
-              '<p>Henkilökohtaiset arvioinnit käsitellään komentajakohtaisesti.</p>\n'
-              '<p>Toiselta päällikköltä saadut tiedot eivät saa väärentää henkilökohtaista '
-              'kelpuutusta huomaamatta.</p>\n'
-              '<p>Maailmanlaajuista tähtitieteellistä perustietoa voidaan toisaalta jakaa niin '
-              'kauan kuin se ei edusta komentajaan liittyviä henkilökohtaisia '
-              '\u200b\u200blöydöksiä.</p>\n'
-              '\n'
-              '<h3>Käytä käytännössä</h3>\n'
-              '<p>Hyppykärki sopii erityisen hyvin, jos valittavana on useita mahdollisia kohteita '
-              'ja halutaan lisäapua päätöksentekoon.</p>\n'
-              '<p>Se ei korvaa täydellistä reittisuunnittelijaa eikä laske turvallista, '
-              'optimaalista reittiä.</p>\n'
-              '<p>Valikkokohta "Reittisuunnittelija" on käytettävissä tiettyä reittisuunnittelua '
-              'varten.</p>\n'
-              '\n'
-              '<h3>Kärki</h3>\n'
-              '<p>Käytä hyppykärkiä lisäetsintäapuna:</p>\n'
-              '<p>"Kumpi järjestelmä näyttää aiempien tietojeni mukaan kiinnostavammalta?"</p>\n'
-              '<p>Ei ennustuksena:</p>\n'
-              '<p>"Tässä järjestelmässä on taatusti tietty löytö."</p>'),
+ 'jump_tip': (
+        'Analyysi',
+        """
+<h2>Analyysi</h2>
+<p>Analyysi käyttää henkilökohtaista tutkimushistoriaasi. Järjestelmäanalyysi arvioi annetun menetelmällisesti luodun järjestelmänimen; Historiatiedot säilyttää aiemman koodianalyysin osumineen ja uudelleenarviointeineen. Molemmat tukevat päätöksiä eivätkä takaa löytöjä.</p>
+<h3>Vertailuperusta</h3>
+<p>Massakoodi muodostaa perusarvion. Alue ja perhe tarkentavat sitä varovasti. Pienet paikalliset otokset tasoitetaan kohti laajempaa tietopohjaa. Niukat tiedot tarkoittavat epävarmuutta, eivät huonoa arviota. Puutteellisesti tutkittuja järjestelmiä ei lasketa negatiivisiksi osumiksi.</p>
+<h3>Potentiaali-indeksi</h3>
+<p>Potentiaali-indeksi 100 vastaa henkilökohtaista historiallista keskiarvoasi vaimennetusta tutkimuspotentiaalista. Indeksi ei ole prosenttitodennäköisyys. Yhtenäinen kartoitusskenaario ja vaimennetut ääriarvot mahdollistavat vertailun; mediaani ja tasoitettu potentiaali ovat arvioituja krediittejä, eivät taattuja tuloja.</p>
+<h3>Erityiset löydöt</h3>
+<p>Järjestelmän viimeistä numeroa ei arvioida: Plio Aip KN-B d13-201 kuuluu perheeseen Plio Aip KN-B d13. BIO on lisätietoa eikä vaikuta pääarvioon. Puuttuvat analyysit eivät osoita nolla-arvoja.</p>
+<h3>Järjestelmäanalyysi</h3>
+<p>Anna järjestelmä ja valitse Analysoi tai paina Enter. Käytä nykyistä järjestelmää hakee nimen olemassa olevasta pelitilasta. Analyysi lasketaan uudelleen vain käyttäjän toimesta. Vertailuperusta ja tulokset nimeävät tasonsa; ilman paikallisia vertailuja käytetään ylemmän tason kokemusta. Tiedon laatu näytetään erillään suosituksesta.</p>
+<p>Historialliset osumat järjestelmäkoodeittain. Arvot kuvaavat tähänastista tutkimuskokemustasi eivätkä ole suora ennuste yksittäiselle kohdejärjestelmälle. Tietopohja ja luotettavuus kuvaavat vertailutietojen luotettavuutta käytettävissä olevan otoksen ja sen sektorijakauman perusteella.</p>
+""",
+    ),
  'route_planner': ('Reitin suunnittelija',
                    '<h2>Reitin suunnittelija</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Parannettu reittisuunnittelija: lähtö seuraa nykyistä järjestelmää, kunnes annat sen käsin; kentän tyhjentäminen palauttaa automatiikan. Alukset ja carrierit käyttävät tarkasti varmennettuja ID64-osoitteita samankaltaisten nimien sijaan. ”Unable to find route” kertoo, ettei reittiä löytynyt; tarkista kohteet, kantama ja reittiasetukset.</p>\n'
                    '<p>Reittisuunnittelija tukee pidempien matkojen suunnittelua laivalla tai '

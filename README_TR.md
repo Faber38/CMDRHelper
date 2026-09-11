@@ -14,6 +14,16 @@ pilotunuz](cmdrhelper/assets/readme/cmdrhelper_readme_tr.png)
 
 CMDRHelper, Elite Dangerous’ın yerel günlüklerini inceleyen ve `Status.json` dosyasındaki gezegen konum verilerini kullanan bağımsız bir masaüstü uygulamasıdır. İlginç gökcisimlerini belirlemene, kaydedilmiş yerlere dönmene ve yolculuklarınla bulgularını incelemene yardımcı olur. Kişisel veriler yeniden başlatmadan sonra korunur ve komutanlara göre ayrı tutulur.
 
+## 3.3 sürümündeki yenilikler
+
+- Kişisel keşif deneyimine dayanan yeni sistem analizi.
+- Açık / Solo / Özel Grup oyun modu doğrudan genel bakışta.
+- Son sistemlerdeki sistem adlarını tek tıklamayla kopyalama.
+- Daha anlaşılır deneyim verileri ve analiz.
+- Sonradan genişletilen günlük dosyaları için daha güvenilir arşiv içe aktarımı.
+
+Önceki sıçrama ipucunun adı artık Analiz; Sistem analizi ve mevcut deneyim verileri burada bulunur. Sistem analizi bir hedefi kişisel geçmişinle karşılaştırır: kütle kodu temel tahmini sağlar, bölge ve aile bunu ihtiyatlı biçimde ayrıntılandırır. Potansiyel endeksi 100, uç değerlerin etkisi azaltılmış keşif potansiyelinin kişisel geçmiş ortalamasına karşılık gelir; yüzde olasılık değildir. Veri temeli ve kanıt gücü değerlendirmeden ayrı tutulur; sondaki numara puanı etkilemez ve BIO şu anda yalnızca bilgi amaçlıdır.
+
 ## v3.1’e göre v3.2 yenilikleri
 
 - Mühendislik malzemesi yönetimi: Raw, Manufactured ve Encoded kategorilerindeki 146 malzemenin tamamı; dereceler, kapasiteler ve istisnalarla birlikte. Komutana özel güncel stok, arama, filtreler, beş sade satır arka planı ve kaydedilen sütun genişliği/sırası görünümü kolaylaştırır. Bilinmeyen stok sıfırdan ayrı tutulur.

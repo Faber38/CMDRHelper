@@ -43,6 +43,7 @@ HELP_TOPICS = {
               '<p>Quando si cambia il comandante, vengono caricate le informazioni salvate '
               'associate al nuovo comandante.</p>\n'
               '\n'
+              '<p>CMDRHelper mostra l’ultima modalità di gioco comunicata da Elite. Open, Solo e Gruppo privato vengono riconosciuti da LoadGame. Per i gruppi privati, il nome del gruppo comunicato da Elite viene mostrato senza modifiche. Questo non significa che Elite sia attualmente in esecuzione.</p>\n'
               '<h3>diario</h3>\n'
               '<p>CMDRHelper utilizza i file journal di Elite Dangerous come fonte dati '
               'principale.</p>\n'
@@ -99,7 +100,8 @@ HELP_TOPICS = {
               '<h3>Mancia</h3>\n'
               '<p>Se il comandante, la nave o la posizione non corrispondono allo stato attuale '
               'del gioco, controlla prima la visualizzazione del diario in alto e poi controlla la '
-              'cartella del diario impostata in "Impostazioni".</p>'),
+              'cartella del diario impostata in "Impostazioni".</p>'
+              '<p>Open appare in rosso, Solo in oro e Gruppo privato in verde, con il nome del gruppo comunicato. La modalità viene ricostruita dai journal disponibili e aggiornata con le nuove voci LoadGame.</p>\n<p>Un singolo clic su una voce dei sistemi recenti copia il nome del sistema negli appunti. Appare brevemente «✓ Copiato: &lt;Sistema&gt;».</p>\n'),
  'missions': ('Missioni',
               '<h2>Missioni</h2>\n'
               '<p>La visualizzazione delle missioni mostra le missioni del comandante attualmente '
@@ -569,80 +571,22 @@ HELP_TOPICS = {
 <p>O:</p>
 <p>"Quale dei pianeti che conosco ha un numero particolarmente elevato di siti minerari?"</p>""",
     ),
- 'jump_tip': ('Suggerimento per il salto',
-              '<h2>Suggerimento per il salto</h2>\n'
-              "<p>Il suggerimento di salto supporta l'esplorazione valutando i dati del sistema "
-              'già noti ed evidenziando sistemi target interessanti.</p>\n'
-              '<p>La funzione è intesa come aiuto decisionale. Non garantisce che un sistema '
-              'consigliato contenga effettivamente reperti rari o particolarmente preziosi.</p>\n'
-              '\n'
-              '<h3>Base della valutazione</h3>\n'
-              '<p>CMDRHelper utilizza le informazioni del journal e del database esistenti per '
-              'valutare modelli noti nei nomi e nelle classi di sistema.</p>\n'
-              "<p>Si possono prendere in considerazione tra l'altro le abbreviazioni del sistema, "
-              'i tipi di corpi già conosciuti e i ritrovamenti precedenti.</p>\n'
-              '\n'
-              '<h3>Abbreviazione del sistema</h3>\n'
-              '<p>Molti sistemi generati proceduralmente in Elite Dangerous contengono '
-              'combinazioni di lettere e numeri che identificano gruppi di sistemi specifici.</p>\n'
-              '<p>CMDRHelper può valutare statisticamente queste abbreviazioni e mostrare in quali '
-              'gruppi si sono verificati più frequentemente ritrovamenti interessanti nei dati '
-              'finora conosciuti.</p>\n'
-              '\n'
-              '<h3>Rivalutare</h3>\n'
-              '<p>Con “Re-evaluate” il database esistente viene nuovamente analizzato.</p>\n'
-              '<p>Vengono utilizzati i dati salvati del comandante. La funzione non crea nuovi '
-              'dati elite né modifica i file journal.</p>\n'
-              '\n'
-              '<h3>Elenco dei risultati</h3>\n'
-              "<p>L'elenco dei risultati mostra le abbreviazioni o i candidati di sistema più "
-              'interessanti secondo la valutazione attuale.</p>\n'
-              '<p>A seconda del database esistente, potrebbero essere presenti informazioni '
-              'su:</p>\n'
-              '<ul>\n'
-              '<li>classi planetarie interessanti</li>\n'
-              '<li>scoperte biologiche</li>\n'
-              '<li>Mondi acquatici</li>\n'
-              '<li>corpi terraformabili</li>\n'
-              '<li>altri notevoli risultati esplorativi</li>\n'
-              '</ul>\n'
-              '<p>apparire.</p>\n'
-              '\n'
-              '<h3>Probabilità invece di garanzia</h3>\n'
-              '<p>Un valore elevato o una buona classificazione significa soltanto che un '
-              'determinato modello è stato più spesso associato a risultati interessanti nei dati '
-              'finora valutati.</p>\n'
-              '<p>Non è una garanzia.</p>\n'
-              '<p>Un sistema consigliato può comunque essere del tutto privo di interesse, mentre '
-              'un sistema con una valutazione bassa può contenere reperti di valore.</p>\n'
-              '\n'
-              '<h3>Proprio database</h3>\n'
-              '<p>Il suggerimento per il salto funziona con i dati già noti del comandante.</p>\n'
-              '<p>Quanti più sistemi ed organismi vengono registrati nel tempo, tanto più grande '
-              'diventa il database personale per la valutazione.</p>\n'
-              '<p>Ciò significa che la classifica può cambiare in seguito.</p>\n'
-              '\n'
-              '<h3>Diversi comandanti</h3>\n'
-              '<p>Le valutazioni personali vengono gestite comandante per comando.</p>\n'
-              '<p>I dati di un altro comandante non devono falsificare la valutazione personale '
-              'senza che nessuno se ne accorga.</p>\n'
-              "<p>I dati anagrafici astronomici globali, d'altro canto, possono essere condivisi "
-              'purché non rappresentino risultati personali relativi al comandante.</p>\n'
-              '\n'
-              '<h3>Utilizzare nella pratica</h3>\n'
-              '<p>Il suggerimento per il salto è particolarmente adatto se ci sono diverse '
-              'possibili destinazioni tra cui scegliere e si desidera un ulteriore aiuto '
-              'decisionale.</p>\n'
-              '<p>Non sostituisce un pianificatore di percorso completo e non calcola un percorso '
-              'sicuro e ottimale.</p>\n'
-              '<p>Per la pianificazione specifica del percorso è disponibile la voce di menu '
-              '“Pianifica percorso”.</p>\n'
-              '\n'
-              '<h3>Mancia</h3>\n'
-              "<p>Usa il suggerimento per il salto come ulteriore aiuto per l'esplorazione:</p>\n"
-              '<p>"Secondo i miei dati precedenti, quale sistema sembra più interessante?"</p>\n'
-              '<p>Non come previsione:</p>\n'
-              '<p>"È garantito che ci sia un ritrovamento specifico in questo sistema."</p>'),
+ 'jump_tip': (
+        'Analisi',
+        """
+<h2>Analisi</h2>
+<p>L’analisi usa la tua cronologia personale di esplorazione. Analisi del sistema valuta un nome procedurale inserito; Dati storici conserva la precedente analisi dei codici con i riscontri passati e la rivalutazione. Sono strumenti decisionali, non garanzie di scoperte.</p>
+<h3>Base di confronto</h3>
+<p>Il codice di massa fornisce la stima di base. Regione e famiglia la affinano con cautela. I piccoli campioni locali vengono attenuati verso la base più ampia. Pochi dati significano incertezza, non una valutazione negativa. I sistemi studiati insufficientemente non contano come riscontri negativi.</p>
+<h3>Indice di potenziale</h3>
+<p>L’indice di potenziale 100 rappresenta la media storica personale del potenziale esplorativo attenuato. Non è una probabilità percentuale. Uno scenario di mappatura uniforme e valori estremi attenuati consentono il confronto; mediana e potenziale attenuato sono crediti stimati, non guadagni garantiti.</p>
+<h3>Scoperte notevoli</h3>
+<p>Il numero finale del sistema non viene valutato: Plio Aip KN-B d13-201 appartiene alla famiglia Plio Aip KN-B d13. BIO è informativo e non contribuisce alla valutazione principale. Le analisi mancanti non dimostrano valori nulli.</p>
+<h3>Analisi del sistema</h3>
+<p>Inserisci un sistema e scegli Analizza oppure premi Invio. Usa il sistema attuale prende il nome dallo stato di gioco esistente. Il ricalcolo avviene solo su azione dell’utente. Base di confronto e risultati indicano il livello; senza confronti locali si usa l’esperienza superiore. La qualità dei dati è separata dalla raccomandazione.</p>
+<p>Risultati storici per codice di sistema. Questi valori descrivono la tua esperienza di esplorazione passata e non sono una previsione diretta per un singolo sistema di destinazione. La base dati e l’attendibilità descrivono l’affidabilità dei confronti in base al campione disponibile e alla sua distribuzione tra i settori.</p>
+""",
+    ),
  'route_planner': ('Pianificatore di percorso',
                    '<h2>Pianificatore di percorso</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Pianificatore migliorato: la partenza segue il sistema attuale finché non ne inserisci una manualmente; svuotare il campo ripristina l’automatismo. Navi e carrier usano indirizzi ID64 verificati esattamente, senza scegliere nomi simili. «Unable to find route» indica che non è stata trovata una rotta; controlla destinazioni, autonomia e impostazioni.</p>\n'
                    '<p>Il pianificatore di percorso supporta la pianificazione di viaggi più '

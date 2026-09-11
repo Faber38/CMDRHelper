@@ -74,6 +74,9 @@ class AppState(QObject):
         self.commander = ""
         self.commander_id = None
         self.commander_fid = ""
+        self.game_mode = ""
+        self.group_name = ""
+        self.game_mode_timestamp = ""
         self.viewed_commander_id = self._saved_viewed_commander_id()
         self._viewed_commander_user_selected = False
         self.system = ""
@@ -322,6 +325,9 @@ class AppState(QObject):
         session = self._latest_identified_index_session(sessions)
         try:
             if session is not None:
+                # Warm compact LoadGame summaries in the existing startup worker.
+                from cmdrhelper.game_mode import reconstruct_game_mode
+                reconstruct_game_mode(sessions, session.get("fid_seen"))
                 commander_id = int(session["commander_id"])
                 if self.database.commander_state_repair_needed(commander_id, "position_gap"):
                     self._startup_position_read = self._read_latest_position_event(session)
@@ -1389,6 +1395,9 @@ class AppState(QObject):
     def reset_commander_runtime_state(self):
         """Leert ausschließlich persönliche, flüchtige Commander-Zustände."""
         self.commander = ""
+        self.game_mode = ""
+        self.group_name = ""
+        self.game_mode_timestamp = ""
         self.system = ""
         self.system_address = None
         self.body = ""
@@ -1513,6 +1522,10 @@ class AppState(QObject):
         fid = str(session.get("fid_seen") or "").strip()
         name = str(session.get("commander_name_seen") or "").strip()
         previous_fid = self.commander_fid
+        if previous_fid != fid:
+            self.game_mode = ""
+            self.group_name = ""
+            self.game_mode_timestamp = ""
         if previous_fid and previous_fid != fid:
             AppState._invalidate_inara_worker(self)
             AppState._invalidate_edsm_worker(self)
@@ -1563,6 +1576,10 @@ class AppState(QObject):
         self.database.set_active_commander(commander_id)
 
         previous_fid = self.commander_fid
+        if previous_fid != fid:
+            self.game_mode = ""
+            self.group_name = ""
+            self.game_mode_timestamp = ""
         if previous_fid and previous_fid != fid:
             AppState._invalidate_inara_worker(self)
             AppState._invalidate_edsm_worker(self)
@@ -1733,6 +1750,9 @@ class AppState(QObject):
         self.ship_loadout = data.get("ship_loadout") or ShipLoadoutData()
         self.active_srv_type = data.get("active_srv_type") or ""
         self.last_timestamp = data["last_timestamp"]
+        self.game_mode = data.get("game_mode") or ""
+        self.group_name = data.get("group_name") or ""
+        self.game_mode_timestamp = data.get("game_mode_timestamp") or ""
         self.journal_files = data["journal_files"]
 
         self._apply_live_cargo_snapshot(data, current_session)

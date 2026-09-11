@@ -13,6 +13,16 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper ist ein eigenständiges Desktop-Programm, das die lokalen Journale von Elite Dangerous auswertet und planetare Positionsdaten aus `Status.json` verwendet. Es hilft dir, interessante Körper zu erkennen, gespeicherte Orte wiederzufinden und deine Reisen und Funde nachzuvollziehen. Persönliche Daten bleiben nach einem Neustart erhalten und werden nach Commander getrennt.
 
+## Neu in Version 3.3
+
+- Neue Systemanalyse auf Basis der persönlichen Explorationserfahrung.
+- Spielmodus Open / Solo / Private Gruppe direkt in der Übersicht.
+- Systemnamen aus „Letzte Systeme“ mit einem Klick kopieren.
+- Erfahrungsdaten und Analyse übersichtlicher und nachvollziehbarer aufbereitet.
+- Zuverlässigerer Journal-Archivimport bei nachträglich erweiterten Journaldateien.
+
+Der bisherige Sprungtipp heißt jetzt Analyse und bietet Systemanalyse sowie die weiterhin verfügbaren Erfahrungsdaten. Die Systemanalyse vergleicht ein Ziel mit deiner persönlichen Historie: Der Massencode liefert die Grundschätzung, Region und Familie verfeinern sie vorsichtig. Potenzialindex 100 entspricht deinem persönlichen historischen Durchschnitt des gedämpften Explorationspotenzials, keiner Prozentwahrscheinlichkeit. Datenbasis und Aussagekraft bleiben von der Bewertung getrennt; die Endnummer hat keine Scorewirkung und BIO ist derzeit nur informativ.
+
 ## Neu in v3.2 gegenüber v3.1
 
 - Engineering-Materialverwaltung: Alle 146 Materialien in Raw, Manufactured und Encoded, mit Graden, Maximalbeständen und Sonderfällen. Commanderbezogene Live-Bestände, Suche, Filter, fünf dezente Zeilenhintergründe und gespeicherte Spaltenbreiten/-reihenfolge erleichtern die Übersicht. Unbekannter Bestand bleibt von null unterschieden.

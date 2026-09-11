@@ -43,6 +43,7 @@ HELP_TOPICS = {
               '<p>Ved endring av fartøysjefen lastes den lagrede informasjonen knyttet til den nye '
               'fartøysjefen.</p>\n'
               '\n'
+              '<p>CMDRHelper viser spillmodusen som Elite sist rapporterte. Open, Solo og Privat gruppe gjenkjennes fra LoadGame. For private grupper vises gruppenavnet som Elite rapporterte, uendret. Dette betyr ikke at Elite kjører akkurat nå.</p>\n'
               '<h3>tidsskrift</h3>\n'
               '<p>CMDRHelper bruker Elite Dangerous sine journalfiler som sin hoveddatakilde.</p>\n'
               '<p>Journalvisningen informerer om journalfiler er funnet og tildelt den aktive '
@@ -93,7 +94,8 @@ HELP_TOPICS = {
               '<h3>Tupp</h3>\n'
               '<p>Hvis fartøysjefen, skipet eller plasseringen ikke samsvarer med gjeldende status '
               'i spillet, sjekk først journalvisningen øverst og sjekk deretter journalmappen satt '
-              'under "Innstillinger".</p>'),
+              'under "Innstillinger".</p>'
+              '<p>Open vises i rødt, Solo i gull og Privat gruppe i grønt, med det rapporterte gruppenavnet. Modusen rekonstrueres fra tilgjengelige journaler og oppdateres med nye LoadGame-oppføringer.</p>\n<p>Ett klikk på en oppføring under siste systemer kopierer systemnavnet til utklippstavlen. «✓ Kopiert: &lt;System&gt;» vises kort.</p>\n'),
  'missions': ('Oppdrag',
               '<h2>Oppdrag</h2>\n'
               '<p>Oppdragsvisningen viser oppdragene til den nåværende sjefen som er kjent fra '
@@ -550,75 +552,22 @@ HELP_TOPICS = {
 <p>eller:</p>
 <p>"Hvilke av mine kjente planeter har et spesielt høyt antall gruveplasser?"</p>""",
     ),
- 'jump_tip': ('Hopptips',
-              '<h2>Hopptips</h2>\n'
-              '<p>Hopptipset støtter utforskning ved å evaluere allerede kjente systemdata og '
-              'fremheve interessante målsystemer.</p>\n'
-              '<p>Funksjonen er ment som et beslutningshjelpemiddel. Det garanterer ikke at et '
-              'anbefalt system faktisk inneholder sjeldne eller spesielt verdifulle funn.</p>\n'
-              '\n'
-              '<h3>Grunnlag for evalueringen</h3>\n'
-              '<p>CMDRHelper bruker eksisterende journal- og databaseinformasjon for å evaluere '
-              'kjente mønstre i systemnavn og systemklasser.</p>\n'
-              '<p>Det kan blant annet tas hensyn til systemforkortelser, allerede kjente '
-              'kroppstyper og tidligere funn.</p>\n'
-              '\n'
-              '<h3>Systemforkortelse</h3>\n'
-              '<p>Mange prosedyregenererte systemer i Elite Dangerous inneholder bokstav- og '
-              'tallkombinasjoner som identifiserer spesifikke systemgrupper.</p>\n'
-              '<p>CMDRHelper kan statistisk evaluere disse forkortelsene og vise i hvilke grupper '
-              'interessante funn forekom hyppigere i dataene som er kjent til dags dato.</p>\n'
-              '\n'
-              '<h3>Revurdere</h3>\n'
-              '<p>Med "Re-evaluate" analyseres den eksisterende databasen på nytt.</p>\n'
-              '<p>Fartøysjefens lagrede data brukes. Funksjonen oppretter ikke nye elitedata eller '
-              'endrer journalfiler.</p>\n'
-              '\n'
-              '<h3>Resultatliste</h3>\n'
-              '<p>Resultatlisten viser de mest interessante systemforkortelsene eller kandidatene '
-              'i henhold til den aktuelle evalueringen.</p>\n'
-              '<p>Avhengig av eksisterende database kan det være informasjon om:</p>\n'
-              '<ul>\n'
-              '<li>interessante planetariske klasser</li>\n'
-              '<li>biologiske funn</li>\n'
-              '<li>Vannverdener</li>\n'
-              '<li>terraformerbare kropper</li>\n'
-              '<li>andre bemerkelsesverdige leteresultater</li>\n'
-              '</ul>\n'
-              '<p>vises.</p>\n'
-              '\n'
-              '<h3>Sannsynlighet i stedet for garanti</h3>\n'
-              '<p>En høy verdi eller en god rangering betyr bare at et bestemt mønster oftere ble '
-              'assosiert med interessante funn i dataene som er evaluert så langt.</p>\n'
-              '<p>Det er ingen garanti.</p>\n'
-              '<p>Et anbefalt system kan fortsatt være helt uinteressant, mens et lavt vurdert '
-              'system kan inneholde verdifulle funn.</p>\n'
-              '\n'
-              '<h3>Egen database</h3>\n'
-              '<p>Hopptipset fungerer med fartøysjefens allerede kjente data.</p>\n'
-              '<p>Jo flere systemer og organer som registreres over tid, desto større blir den '
-              'personlige databasen for evaluering.</p>\n'
-              '<p>Dette betyr at rangeringen kan endres senere.</p>\n'
-              '\n'
-              '<h3>Flere befal</h3>\n'
-              '<p>Personlige evalueringer håndteres på kommando-for-kommando basis.</p>\n'
-              '<p>Data fra en annen fartøysjef må ikke forfalske den personlige vurderingen '
-              'ubemerket.</p>\n'
-              '<p>Globale astronomiske masterdata kan derimot deles så lenge de ikke representerer '
-              'befalsrelaterte personlige funn.</p>\n'
-              '\n'
-              '<h3>Bruk i praksis</h3>\n'
-              '<p>Hopptipset egner seg spesielt hvis det er flere mulige destinasjoner å velge '
-              'mellom og det ønskes ytterligere beslutningshjelp.</p>\n'
-              '<p>Den erstatter ikke en komplett ruteplanlegger og beregner ikke en sikker, '
-              'optimal rute.</p>\n'
-              '<p>Menypunktet "Ruteplanlegger" er tilgjengelig for spesifikk ruteplanlegging.</p>\n'
-              '\n'
-              '<h3>Tupp</h3>\n'
-              '<p>Bruk hopptipset som en ekstra letehjelp:</p>\n'
-              '<p>"I følge mine tidligere data, hvilket system virker mer interessant?"</p>\n'
-              '<p>Ikke som en spådom:</p>\n'
-              '<p>"Det er garantert et spesifikt funn i dette systemet."</p>'),
+ 'jump_tip': (
+        'Analyse',
+        """
+<h2>Analyse</h2>
+<p>Analysen bruker din personlige utforskningshistorikk. Systemanalyse vurderer et oppgitt prosedyregenerert systemnavn; Historiske data beholder den tidligere kodeanalysen med historiske treff og ny vurdering. Begge er beslutningsstøtte, ikke garantier for funn.</p>
+<h3>Sammenligningsgrunnlag</h3>
+<p>Massekoden gir grunnanslaget. Region og familie presiserer det forsiktig. Små lokale utvalg jevnes mot det større datagrunnlaget. Lite data betyr usikkerhet, ikke dårlig vurdering. Utilstrekkelig undersøkte systemer teller ikke som negative treff.</p>
+<h3>Potensialindeks</h3>
+<p>Potensialindeks 100 tilsvarer ditt personlige historiske gjennomsnitt av dempet utforskningspotensial. Indeksen er ikke en prosentsannsynlighet. Et ensartet kartleggingsscenario og dempede ekstremverdier gjør sammenligning mulig; median og utjevnet potensial er anslåtte kreditter, ikke garanterte inntekter.</p>
+<h3>Spesielle funn</h3>
+<p>Det siste systemnummeret vurderes ikke: Plio Aip KN-B d13-201 tilhører familien Plio Aip KN-B d13. BIO er kun informasjon og inngår ikke i hovedvurderingen. Manglende analyser betyr ikke påviste nullverdier.</p>
+<h3>Systemanalyse</h3>
+<p>Skriv inn et system og velg Analyser eller trykk Enter. Bruk gjeldende system henter navnet fra eksisterende spilltilstand. Analysen beregnes på nytt bare på brukerhandling. Sammenligningsgrunnlag og resultater angir nivået; uten lokale sammenligninger brukes overordnet erfaring. Datakvalitet vises separat fra anbefalingen.</p>
+<p>Historiske treff etter systemkode. Verdiene beskriver utforskingserfaringen din hittil og er ikke en direkte prognose for et enkelt målsystem. Datagrunnlag og pålitelighet beskriver hvor pålitelige sammenligningsdataene er, ut fra utvalget og fordelingen mellom sektorer.</p>
+""",
+    ),
  'route_planner': ('Ruteplanlegger',
                    '<h2>Ruteplanlegger</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Bedre ruteplanlegger: starten følger automatisk gjeldende system til du angir en manuelt; tømming av feltet gjenoppretter automatikken. Skip og carriers bruker nøyaktig validerte ID64-adresser uten å velge lignende navn. «Unable to find route» forklares som at ingen rute ble funnet; kontroller mål, rekkevidde og ruteinnstillinger.</p>\n'
                    '<p>Ruteplanleggeren støtter planlegging av lengre turer med skip eller Fleet '

@@ -87,11 +87,15 @@ QLabel#cardValue {
     color: #f6f7f8;
 }
 
-QLabel#statusOk {
+QLabel[gameMode="Open"] {
+    color: #ff6b6b;
+}
+
+QLabel[gameMode="Group"], QLabel#statusOk {
     color: #79d45a;
 }
 
-QLabel#statusWarn {
+QLabel[gameMode="Solo"], QLabel#statusWarn {
     color: #f0ad4e;
 }
 
@@ -280,11 +284,15 @@ QLabel#cardValue {
     color: #171b1f;
 }
 
-QLabel#statusOk {
+QLabel[gameMode="Open"] {
+    color: #b83232;
+}
+
+QLabel[gameMode="Group"], QLabel#statusOk {
     color: #37852d;
 }
 
-QLabel#statusWarn {
+QLabel[gameMode="Solo"], QLabel#statusWarn {
     color: #b36a00;
 }
 

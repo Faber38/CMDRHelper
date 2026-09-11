@@ -43,6 +43,7 @@ HELP_TOPICS = {
               '<p>Bij het wisselen van commandant wordt de opgeslagen informatie geladen die bij '
               'de nieuwe commandant hoort.</p>\n'
               '\n'
+              '<p>CMDRHelper toont de spelmodus die Elite het laatst heeft gemeld. Open, Solo en Privégroep worden herkend via LoadGame. Bij privégroepen wordt de door Elite gemelde groepsnaam ongewijzigd weergegeven. Dit betekent niet dat Elite momenteel actief is.</p>\n'
               '<h3>tijdschrift</h3>\n'
               '<p>CMDRHelper gebruikt de journaalbestanden van Elite Dangerous als belangrijkste '
               'gegevensbron.</p>\n'
@@ -97,7 +98,8 @@ HELP_TOPICS = {
               '<h3>Tip</h3>\n'
               '<p>Als de commandant, het schip of de locatie niet overeenkomt met de huidige '
               'status van het spel, controleer dan eerst de journaalweergave bovenaan en '
-              'controleer vervolgens de journaalmap die is ingesteld onder “Instellingen”.</p>'),
+              'controleer vervolgens de journaalmap die is ingesteld onder “Instellingen”.</p>'
+              '<p>Open verschijnt in rood, Solo in goud en Privégroep in groen, met de gemelde groepsnaam. De modus wordt uit beschikbare journalen gereconstrueerd en bij nieuwe LoadGame-vermeldingen bijgewerkt.</p>\n<p>Een enkele klik op een vermelding bij recente systemen kopieert de systeemnaam naar het klembord. “✓ Gekopieerd: &lt;Systeem&gt;” verschijnt kort.</p>\n'),
  'missions': ('Missies',
               '<h2>Missies</h2>\n'
               '<p>De missieweergave toont de missies van de momenteel bekeken commandant bekend '
@@ -569,79 +571,22 @@ HELP_TOPICS = {
 <p>of:</p>
 <p>"Welke van mijn bekende planeten hebben een bijzonder groot aantal mijnsites?"</p>""",
     ),
- 'jump_tip': ('Springtip',
-              '<h2>Springtip</h2>\n'
-              '<p>De jumptip ondersteunt verkenning door reeds bekende systeemgegevens te '
-              'evalueren en interessante doelsystemen te benadrukken.</p>\n'
-              '<p>De functie is bedoeld als hulpmiddel bij het nemen van beslissingen. Het '
-              'garandeert niet dat een aanbevolen systeem daadwerkelijk zeldzame of bijzonder '
-              'waardevolle vondsten bevat.</p>\n'
-              '\n'
-              '<h3>Basis van de evaluatie</h3>\n'
-              '<p>CMDRHelper gebruikt bestaande journaal- en database-informatie om bekende '
-              'patronen in systeemnamen en systeemklassen te evalueren.</p>\n'
-              '<p>Er kan onder meer rekening worden gehouden met systeemafkortingen, reeds bekende '
-              'lichaamstypes en eerdere vondsten.</p>\n'
-              '\n'
-              '<h3>Systeem afkorting</h3>\n'
-              '<p>Veel procedureel gegenereerde systemen in Elite Dangerous bevatten letter- en '
-              'cijfercombinaties die specifieke systeemgroepen identificeren.</p>\n'
-              '<p>CMDRHelper kan deze afkortingen statistisch evalueren en laten zien in welke '
-              'groepen interessante vondsten vaker voorkomen in de tot nu toe bekende '
-              'gegevens.</p>\n'
-              '\n'
-              '<h3>Evalueer opnieuw</h3>\n'
-              '<p>Met “Re-evaluate” wordt de bestaande database opnieuw geanalyseerd.</p>\n'
-              '<p>Er wordt gebruik gemaakt van de opgeslagen gegevens van de commandant. De '
-              'functie creëert geen nieuwe elitegegevens en wijzigt geen journaalbestanden.</p>\n'
-              '\n'
-              '<h3>Resultatenlijst</h3>\n'
-              '<p>De resultatenlijst toont de meest interessante systeemafkortingen of kandidaten '
-              'volgens de huidige evaluatie.</p>\n'
-              '<p>Afhankelijk van de bestaande database kan er informatie zijn over:</p>\n'
-              '<ul>\n'
-              '<li>interessante planetaire klassen</li>\n'
-              '<li>biologische ontdekkingen</li>\n'
-              '<li>Waterwerelden</li>\n'
-              '<li>terravormbare lichamen</li>\n'
-              '<li>andere opmerkelijke verkenningsresultaten</li>\n'
-              '</ul>\n'
-              '<p>verschijnen.</p>\n'
-              '\n'
-              '<h3>Waarschijnlijkheid in plaats van garantie</h3>\n'
-              '<p>Een hoge waarde of een goede ranking betekent alleen dat een bepaald patroon '
-              'vaker werd geassocieerd met interessante bevindingen in de tot nu toe geëvalueerde '
-              'gegevens.</p>\n'
-              '<p>Het is geen garantie.</p>\n'
-              '<p>Een aanbevolen systeem kan nog steeds volkomen oninteressant zijn, terwijl een '
-              'laag gewaardeerd systeem waardevolle vondsten kan bevatten.</p>\n'
-              '\n'
-              '<h3>Eigen databank</h3>\n'
-              '<p>De sprongtip werkt met de reeds bekende gegevens van de commandant.</p>\n'
-              '<p>Hoe meer systemen en instanties in de loop van de tijd worden geregistreerd, hoe '
-              'groter de persoonlijke database voor evaluatie wordt.</p>\n'
-              '<p>Dit betekent dat de rangschikking later kan veranderen.</p>\n'
-              '\n'
-              '<h3>Verschillende commandanten</h3>\n'
-              '<p>Persoonlijke evaluaties worden per commando afgehandeld.</p>\n'
-              '<p>Gegevens van een andere commandant mogen de persoonlijke beoordeling niet '
-              'ongemerkt vervalsen.</p>\n'
-              '<p>Mondiale astronomische masterdata kunnen daarentegen worden gedeeld zolang deze '
-              'geen persoonlijke bevindingen van de commandant vertegenwoordigen.</p>\n'
-              '\n'
-              '<h3>Gebruik in de praktijk</h3>\n'
-              '<p>De springtip is met name geschikt als er meerdere mogelijke bestemmingen zijn om '
-              'uit te kiezen en aanvullende beslissingsondersteuning gewenst is.</p>\n'
-              '<p>Het vervangt geen volledige routeplanner en berekent geen veilige, optimale '
-              'route.</p>\n'
-              '<p>Voor een specifieke routeplanning is het menupunt “Routeplanner” '
-              'beschikbaar.</p>\n'
-              '\n'
-              '<h3>Tip</h3>\n'
-              '<p>Gebruik de springtip als extra verkenningshulpmiddel:</p>\n'
-              '<p>“Welk systeem lijkt volgens mijn eerdere gegevens interessanter?”</p>\n'
-              '<p>Niet als voorspelling:</p>\n'
-              '<p>“Er zit gegarandeerd een specifieke vondst in dit systeem.”</p>'),
+ 'jump_tip': (
+        'Analyse',
+        """
+<h2>Analyse</h2>
+<p>Analyse gebruikt je persoonlijke exploratiegeschiedenis. Systeemanalyse beoordeelt een ingevoerde procedurele systeemnaam; Historische gegevens behoudt de eerdere codeanalyse met historische treffers en opnieuw evalueren. Beide helpen bij beslissingen en garanderen geen ontdekkingen.</p>
+<h3>Vergelijkingsbasis</h3>
+<p>De massacode levert de basisschatting. Regio en familie verfijnen die voorzichtig. Kleine lokale steekproeven worden naar de grotere gegevensbasis afgevlakt. Weinig gegevens betekent onzekerheid, niet een slechte beoordeling. Onvoldoende onderzochte systemen tellen niet als negatieve treffers.</p>
+<h3>Potentieelindex</h3>
+<p>Potentieelindex 100 staat voor je persoonlijke historische gemiddelde van afgezwakt exploratiepotentieel. De index is geen procentuele kans. Een uniform karteringsscenario en afgezwakte uitschieters maken vergelijking mogelijk; mediaan en afgevlakt potentieel zijn geschatte credits, geen gegarandeerde opbrengsten.</p>
+<h3>Bijzondere vondsten</h3>
+<p>Het laatste systeemnummer wordt niet beoordeeld: Plio Aip KN-B d13-201 behoort tot familie Plio Aip KN-B d13. BIO is informatief en telt niet mee in de hoofdbeoordeling. Ontbrekende analyses bewijzen geen nulwaarden.</p>
+<h3>Systeemanalyse</h3>
+<p>Voer een systeem in en kies Analyseren of druk op Enter. Huidig systeem gebruiken neemt de naam uit de bestaande spelstatus. Alleen een gebruikersactie herberekent de analyse. Vergelijkingsbasis en resultaten vermelden hun niveau; zonder lokale vergelijkingen wordt bovenliggende ervaring gebruikt. Gegevenskwaliteit staat los van de aanbeveling.</p>
+<p>Historische treffers per systeemcode. Deze waarden beschrijven je verkenningservaring tot nu toe en zijn geen directe voorspelling voor een afzonderlijk doelsysteem. Gegevensbasis en bewijskracht beschrijven de betrouwbaarheid van de vergelijkingsgegevens op basis van de beschikbare steekproef en de spreiding over sectoren.</p>
+""",
+    ),
  'route_planner': ('Routeplanner',
                    '<h2>Routeplanner</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Verbeterde routeplanner: het vertrek volgt automatisch het huidige systeem totdat je handmatig een vertrek invult; leegmaken herstelt de automatische werking. Schepen en carriers gebruiken exact gecontroleerde ID64-adressen, zonder vergelijkbare namen te kiezen. ‘Unable to find route’ betekent dat geen route is gevonden; controleer doelen, bereik en route-instellingen.</p>\n'
                    '<p>De routeplanner ondersteunt het plannen van langere reizen per schip of '

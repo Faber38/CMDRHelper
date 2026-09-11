@@ -25,7 +25,7 @@ class ScoreAnalyzer:
 
         match = re.match(
             r"^(?P<sector>.+?)\s+"
-            r"(?P<code>[A-Z]{1,2}-[A-Z])\s+"
+            r"(?P<code>[A-Z]{2}-[A-Z])\s+"
             r"(?P<mass>[A-H])(?P<number>\d+)"
             r"(?:-(?P<suffix>\d+))?$",
             text,
@@ -37,6 +37,9 @@ class ScoreAnalyzer:
         sector = " ".join(match.group("sector").split())
         code = match.group("code").upper()
         mass = match.group("mass").lower()
+        number = int(match.group("number"))
+        suffix = int(match.group("suffix")) if match.group("suffix") is not None else None
+        boxel_number = number if suffix is not None else 0
 
         return {
             "sector": sector,
@@ -49,6 +52,10 @@ class ScoreAnalyzer:
                 else None
             ),
             "code_mass": f"{code} {mass}",
+            # Keep the legacy lexical fields above for the existing UI/API.
+            "boxel_number": boxel_number,
+            "system_index": suffix if suffix is not None else number,
+            "family_key": f"{sector} {code} {mass}{boxel_number}",
         }
 
     @staticmethod
@@ -508,7 +515,7 @@ class ScoreAnalyzer:
                       ON cb.system_address=b.system_address AND cb.body_id=b.body_id
                      AND cb.commander_id=?
                     WHERE {conditions[target_key]}
-                    GROUP BY system_address
+                    GROUP BY b.system_address
                     """
                 , (commander_id,)).fetchall()
 

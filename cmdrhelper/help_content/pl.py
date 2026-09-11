@@ -43,6 +43,7 @@ HELP_TOPICS = {
               '<p>Podczas zmiany dowódcy ładowane są zapisane informacje powiązane z nowym '
               'dowódcą.</p>\n'
               '\n'
+              '<p>CMDRHelper pokazuje ostatni tryb gry zgłoszony przez Elite. Open, Solo i Grupa prywatna są rozpoznawane na podstawie LoadGame. W przypadku grup prywatnych nazwa grupy zgłoszona przez Elite jest wyświetlana bez zmian. Nie oznacza to, że Elite jest obecnie uruchomione.</p>\n'
               '<h3>dziennik</h3>\n'
               '<p>CMDRHelper wykorzystuje pliki dziennika Elite Dangerous jako główne źródło '
               'danych.</p>\n'
@@ -96,7 +97,8 @@ HELP_TOPICS = {
               '<h3>Wskazówka</h3>\n'
               '<p>Jeśli dowódca, statek lub lokalizacja nie odpowiadają aktualnemu stanowi gry, '
               'najpierw sprawdź wyświetlacz dziennika u góry, a następnie sprawdź folder dziennika '
-              'ustawiony w „Ustawieniach”.</p>'),
+              'ustawiony w „Ustawieniach”.</p>'
+              '<p>Tryb Otwarty jest czerwony, Solo złoty, a Grupa prywatna zielona, z podaną nazwą grupy. Tryb jest odtwarzany z dostępnych dzienników i aktualizowany po nowych wpisach LoadGame.</p>\n<p>Pojedyncze kliknięcie wpisu ostatnich systemów kopiuje nazwę systemu do schowka. Na chwilę pojawia się „✓ Skopiowano: &lt;System&gt;”.</p>\n'),
  'missions': ('Misje',
               '<h2>Misje</h2>\n'
               '<p>Widok misji przedstawia misje aktualnie oglądanego dowódcy znanego z Elite '
@@ -556,78 +558,22 @@ HELP_TOPICS = {
 <p>Lub:</p>
 <p>„Które z moich znanych planet mają szczególnie dużą liczbę miejsc wydobycia?”</p>""",
     ),
- 'jump_tip': ('Wskazówka dotycząca skoku',
-              '<h2>Wskazówka dotycząca skoku</h2>\n'
-              '<p>Wskazówka skoku wspiera eksplorację poprzez ocenę znanych już danych systemowych '
-              'i wyróżnianie interesujących systemów docelowych.</p>\n'
-              '<p>Funkcja ma służyć jako pomoc w podejmowaniu decyzji. Nie gwarantuje, że '
-              'rekomendowany system faktycznie zawiera rzadkie lub szczególnie cenne '
-              'znaleziska.</p>\n'
-              '\n'
-              '<h3>Podstawa oceny</h3>\n'
-              '<p>CMDRHelper wykorzystuje istniejące informacje z dziennika i bazy danych do oceny '
-              'znanych wzorców w nazwach systemów i klasach systemów.</p>\n'
-              '<p>Można uwzględnić między innymi skróty systemowe, znane już typy nadwozia i '
-              'wcześniejsze znaleziska.</p>\n'
-              '\n'
-              '<h3>Skrót systemowy</h3>\n'
-              '<p>Wiele proceduralnie generowanych systemów w Elite Dangerous zawiera kombinacje '
-              'liter i cyfr, które identyfikują określone grupy systemów.</p>\n'
-              '<p>CMDRHelper może statystycznie ocenić te skróty i pokazać, w jakich grupach w '
-              'znanych dotychczas danych częściej pojawiały się interesujące znaleziska.</p>\n'
-              '\n'
-              '<h3>Dokonaj ponownej oceny</h3>\n'
-              '<p>Dzięki opcji „Re-evaluate” istniejąca baza danych jest ponownie '
-              'analizowana.</p>\n'
-              '<p>Wykorzystywane są zapisane dane dowódcy. Funkcja nie tworzy nowych elitarnych '
-              'danych ani nie modyfikuje plików dziennika.</p>\n'
-              '\n'
-              '<h3>Lista wyników</h3>\n'
-              '<p>Lista wyników pokazuje najciekawsze skróty systemowe lub kandydatów według '
-              'aktualnej oceny.</p>\n'
-              '<p>W zależności od istniejącej bazy danych mogą znajdować się tam informacje '
-              'o:</p>\n'
-              '<ul>\n'
-              '<li>ciekawe klasy planetarne</li>\n'
-              '<li>odkrycia biologiczne</li>\n'
-              '<li>Wodne światy</li>\n'
-              '<li>ciała nadające się do terraformowania</li>\n'
-              '<li>inne godne uwagi wyniki poszukiwań</li>\n'
-              '</ul>\n'
-              '<p>pojawić się.</p>\n'
-              '\n'
-              '<h3>Prawdopodobieństwo zamiast gwarancji</h3>\n'
-              '<p>Wysoka wartość lub dobry ranking oznacza jedynie, że dany wzorzec częściej '
-              'wiązał się z interesującymi wynikami w dotychczas ocenianych danych.</p>\n'
-              '<p>To nie jest gwarancja.</p>\n'
-              '<p>Polecany system może w dalszym ciągu być zupełnie nieciekawy, natomiast nisko '
-              'oceniony system może zawierać cenne znaleziska.</p>\n'
-              '\n'
-              '<h3>Własna baza danych</h3>\n'
-              '<p>Końcówka skoku współpracuje ze znanymi już danymi dowódcy.</p>\n'
-              '<p>Im więcej systemów i organów jest rejestrowanych w miarę upływu czasu, tym '
-              'większa staje się osobista baza danych do celów oceny.</p>\n'
-              '<p>Oznacza to, że ranking może później ulec zmianie.</p>\n'
-              '\n'
-              '<h3>Kilku dowódców</h3>\n'
-              '<p>Oceny osobiste przeprowadzane są na zasadzie każdego dowódcy.</p>\n'
-              '<p>Dane innego dowódcy nie mogą niezauważone fałszować osobistych ocen.</p>\n'
-              '<p>Z drugiej strony, globalne podstawowe dane astronomiczne mogą być udostępniane, '
-              'o ile nie odzwierciedlają osobistych ustaleń dowódcy.</p>\n'
-              '\n'
-              '<h3>Wykorzystaj w praktyce</h3>\n'
-              '<p>Wskazówka dotycząca skoków jest szczególnie przydatna, jeśli do wyboru jest '
-              'kilka możliwych miejsc docelowych i wymagana jest dodatkowa pomoc w podjęciu '
-              'decyzji.</p>\n'
-              '<p>Nie zastępuje kompletnego narzędzia do planowania trasy i nie oblicza '
-              'bezpiecznej, optymalnej trasy.</p>\n'
-              '<p>Punkt menu „Planowanie trasy” umożliwia planowanie konkretnych tras.</p>\n'
-              '\n'
-              '<h3>Wskazówka</h3>\n'
-              '<p>Użyj końcówki skoku jako dodatkowej pomocy w eksploracji:</p>\n'
-              '<p>„Według moich wcześniejszych danych, który system wydaje mi się ciekawszy?”</p>\n'
-              '<p>Nie jako prognoza:</p>\n'
-              '<p>„Gwarantujemy, że w tym systemie znajdzie się konkretne znalezisko”.</p>'),
+ 'jump_tip': (
+        'Analiza',
+        """
+<h2>Analiza</h2>
+<p>Analiza wykorzystuje Twoją osobistą historię eksploracji. Analiza układu ocenia wpisaną nazwę proceduralną; Dane historyczne zachowują wcześniejszą analizę kodów z historycznymi trafieniami i ponowną oceną. Oba narzędzia wspierają decyzje, ale nie gwarantują odkryć.</p>
+<h3>Podstawa porównania</h3>
+<p>Kod masy daje oszacowanie bazowe. Region i rodzina ostrożnie je doprecyzowują. Małe lokalne próby są wygładzane w kierunku większej bazy danych. Mało danych oznacza niepewność, a nie złą ocenę. Niedostatecznie zbadane układy nie liczą się jako negatywne trafienia.</p>
+<h3>Indeks potencjału</h3>
+<p>Indeks potencjału 100 odpowiada Twojej osobistej średniej historycznej tłumionego potencjału eksploracji. Indeks nie jest procentowym prawdopodobieństwem. Jednolity scenariusz mapowania i tłumione wartości skrajne umożliwiają porównanie; mediana i wygładzony potencjał to szacowane kredyty, nie gwarantowany zarobek.</p>
+<h3>Szczególne odkrycia</h3>
+<p>Końcowy numer układu nie jest oceniany: Plio Aip KN-B d13-201 należy do rodziny Plio Aip KN-B d13. BIO ma charakter informacyjny i nie wpływa na główną ocenę. Brak analiz nie dowodzi wartości zerowej.</p>
+<h3>Analiza układu</h3>
+<p>Wpisz układ i wybierz Analizuj lub naciśnij Enter. Użyj bieżącego układu pobiera nazwę z istniejącego stanu gry. Przeliczenie wymaga działania użytkownika. Podstawa porównania i wyniki wskazują poziom; bez lokalnych porównań używane jest doświadczenie wyższego poziomu. Jakość danych jest oddzielona od rekomendacji.</p>
+<p>Historyczne trafienia według kodu układu. Wartości opisują Twoje dotychczasowe doświadczenie eksploracyjne i nie są bezpośrednią prognozą dla pojedynczego układu docelowego. Podstawa danych i wiarygodność opisują rzetelność porównań na podstawie dostępnej próby i jej rozkładu między sektorami.</p>
+""",
+    ),
  'route_planner': ('Planowanie trasy',
                    '<h2>Planowanie trasy</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Ulepszony planer tras: start automatycznie śledzi bieżący system do ręcznego wpisania innego; wyczyszczenie pola przywraca automatykę. Statki i carriery używają dokładnie sprawdzonych adresów ID64 zamiast podobnych nazw. „Unable to find route” oznacza brak znalezionej trasy; sprawdź cele, zasięg i ustawienia.</p>\n'
                    '<p>Planer tras wspiera planowanie dłuższych podróży statkiem lub Fleet '

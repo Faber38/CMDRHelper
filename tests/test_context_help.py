@@ -285,31 +285,15 @@ class ContextHelpTests(unittest.TestCase):
                      "an den vorhandenen Planeten-Navigator"):
             self.assertIn(text, topic.text)
 
-    def test_jump_tip_help_contains_all_detailed_sections(self):
+    def test_analysis_navigation_and_help_explain_both_views(self):
         topic = help_topic("jump_tip")
-        self.assertEqual(topic.area, "Sprungtipp")
-        for heading in (
-            "Sprungtipp", "Grundlage der Auswertung", "Systemkürzel",
-            "Neu auswerten", "Ergebnisliste",
-            "Wahrscheinlichkeit statt Garantie", "Eigene Datenbasis",
-            "Mehrere Commander", "Verwendung in der Praxis", "Tipp",
-        ):
-            self.assertIn(heading, topic.text)
-        for passage in (
-            "als Entscheidungshilfe gedacht",
-            "Kürzel statistisch auswerten",
-            "erzeugt keine neuen Elite-Daten",
-            "terraformierbare Körper",
-            "Es handelt sich nicht um eine Garantie",
-            "persönliche Datenbasis für die Auswertung",
-            "Persönliche Auswertungen werden commanderbezogen behandelt",
-            "Er ersetzt keinen vollständigen Routenplaner",
-            "Für konkrete Streckenplanung",
-            "Nicht als Vorhersage",
-        ):
-            self.assertIn(passage, topic.text)
-        self.assertEqual(topic.text.count("<h3>"), 9)
-        self.assertEqual(topic.text.count("<ul>"), 1)
+        self.assertEqual(topic.area, "Analyse")
+        self.assertIn("Analyse", self.window.nav_buttons[self.window.PAGE_JUMP_TIP].text())
+        for text in ("Systemanalyse", "Erfahrungsdaten", "persönlichen Explorationhistorie",
+                     "Massencode", "Region", "Familie", "geglättet", "Potenzialindex 100",
+                     "keine Prozentwahrscheinlichkeit", "Endnummer", "BIO",
+                     "nicht in der Hauptbewertung gewichtet", "Neu auswerten"):
+            self.assertIn(text, topic.text)
 
     def test_route_planner_help_contains_all_detailed_sections(self):
         topic = help_topic("route_planner")

@@ -39,6 +39,8 @@ HELP_TOPICS = {
 <p>CMDRHelper ordnet persönliche Daten anhand der Frontier-ID (FID) dem jeweiligen Commander zu. Dadurch bleiben Daten verschiedener Commander voneinander getrennt.</p>
 <p>Beim Wechsel des Commanders werden die zum neuen Commander gehörenden gespeicherten Informationen geladen.</p>
 
+<p>CMDRHelper zeigt den zuletzt durch Elite gemeldeten Spielmodus. Open, Solo und Private Gruppe werden aus LoadGame erkannt. Bei privaten Gruppen wird der von Elite gemeldete Gruppenname unverändert angezeigt. Dies bedeutet nicht, dass Elite gerade läuft.</p>
+
 <h3>Journal</h3>
 <p>CMDRHelper verwendet die Journaldateien von Elite Dangerous als wichtigste Datenquelle.</p>
 <p>Die Journalanzeige informiert darüber, ob Journaldateien gefunden und dem aktiven Commander zugeordnet wurden. Neue vollständige Journaleinträge werden während des Spiels automatisch verarbeitet.</p>
@@ -74,7 +76,8 @@ HELP_TOPICS = {
 <p>Das bloße Anzeigen eines anderen Commanders in einer Ansicht verändert den aktiven Live-Commander nicht und beeinflusst keine EDSM- oder Inara-Übertragung.</p>
 
 <h3>Tipp</h3>
-<p>Wenn Commander, Schiff oder Standort nicht zum aktuellen Spielstand passen, zuerst die Journalanzeige oben und anschließend unter „Einstellungen“ den eingestellten Journalordner prüfen.</p>""",
+<p>Wenn Commander, Schiff oder Standort nicht zum aktuellen Spielstand passen, zuerst die Journalanzeige oben und anschließend unter „Einstellungen“ den eingestellten Journalordner prüfen.</p>"""
+              '<p>Open erscheint rot, Solo gold und Private Gruppe grün, bei privaten Gruppen mit dem gemeldeten Gruppennamen. Der Modus wird aus vorhandenen Journalen rekonstruiert und bei neuen LoadGame-Einträgen aktualisiert.</p>\n<p>Ein einfacher Klick auf einen Eintrag unter „Letzte Systeme“ kopiert den Systemnamen in die Zwischenablage. Kurz erscheint „✓ Kopiert: &lt;System&gt;“.</p>\n',
     ),
     "missions": (
         "Missionen",
@@ -491,60 +494,20 @@ HELP_TOPICS = {
 <p>„Welche meiner bekannten Planeten besitzen besonders viele Abbaustandorte?“</p>""",
     ),
     "jump_tip": (
-        "Sprungtipp",
-        """<h2>Sprungtipp</h2>
-<p>Der Sprungtipp unterstützt bei der Exploration, indem bereits bekannte Systemdaten ausgewertet und interessante Zielsysteme hervorgehoben werden.</p>
-<p>Die Funktion ist als Entscheidungshilfe gedacht. Sie garantiert nicht, dass ein empfohlenes System tatsächlich seltene oder besonders wertvolle Funde enthält.</p>
-
-<h3>Grundlage der Auswertung</h3>
-<p>CMDRHelper verwendet vorhandene Journal- und Datenbankinformationen, um bekannte Muster in Systemnamen und Systemklassen auszuwerten.</p>
-<p>Dabei können unter anderem Systemkürzel, bereits bekannte Körperarten und frühere Funde berücksichtigt werden.</p>
-
-<h3>Systemkürzel</h3>
-<p>Viele prozedural erzeugte Systeme in Elite Dangerous enthalten Buchstaben- und Zahlenkombinationen, die bestimmte Systemgruppen kennzeichnen.</p>
-<p>CMDRHelper kann diese Kürzel statistisch auswerten und anzeigen, in welchen Gruppen in den eigenen bisher bekannten Daten häufiger interessante Funde aufgetreten sind.</p>
-
-<h3>Neu auswerten</h3>
-<p>Mit „Neu auswerten“ wird die vorhandene Datenbasis erneut analysiert.</p>
-<p>Dabei werden die gespeicherten Daten des Commanders verwendet. Die Funktion erzeugt keine neuen Elite-Daten und verändert keine Journaldateien.</p>
-
-<h3>Ergebnisliste</h3>
-<p>Die Ergebnisliste zeigt die nach der aktuellen Auswertung interessantesten Systemkürzel beziehungsweise Kandidaten.</p>
-<p>Je nach vorhandener Datenbasis können dort unter anderem Hinweise auf:</p>
-<ul>
-<li>interessante Planetenklassen</li>
-<li>biologische Funde</li>
-<li>Wasserwelten</li>
-<li>terraformierbare Körper</li>
-<li>andere auffällige Explorationsergebnisse</li>
-</ul>
-<p>erscheinen.</p>
-
-<h3>Wahrscheinlichkeit statt Garantie</h3>
-<p>Ein hoher Wert oder eine gute Platzierung bedeutet nur, dass in den bisher ausgewerteten Daten ein bestimmtes Muster häufiger mit interessanten Funden verbunden war.</p>
-<p>Es handelt sich nicht um eine Garantie.</p>
-<p>Ein empfohlenes System kann trotzdem vollständig uninteressant sein, während ein niedrig bewertetes System wertvolle Funde enthalten kann.</p>
-
-<h3>Eigene Datenbasis</h3>
-<p>Der Sprungtipp arbeitet mit den bereits bekannten Daten des Commanders.</p>
-<p>Je mehr Systeme und Bodies im Laufe der Zeit erfasst werden, desto größer wird die persönliche Datenbasis für die Auswertung.</p>
-<p>Dadurch kann sich die Rangfolge später verändern.</p>
-
-<h3>Mehrere Commander</h3>
-<p>Persönliche Auswertungen werden commanderbezogen behandelt.</p>
-<p>Daten eines anderen Commanders dürfen die persönliche Bewertung nicht unbemerkt verfälschen.</p>
-<p>Globale astronomische Stammdaten können dagegen gemeinsam genutzt werden, sofern sie nicht commanderbezogene persönliche Funde darstellen.</p>
-
-<h3>Verwendung in der Praxis</h3>
-<p>Der Sprungtipp eignet sich besonders, wenn mehrere mögliche Ziele zur Auswahl stehen und eine zusätzliche Entscheidungshilfe gewünscht ist.</p>
-<p>Er ersetzt keinen vollständigen Routenplaner und berechnet keine sichere optimale Route.</p>
-<p>Für konkrete Streckenplanung steht der Menüpunkt „Routenplaner“ zur Verfügung.</p>
-
-<h3>Tipp</h3>
-<p>Verwende den Sprungtipp als zusätzliche Explorationhilfe:</p>
-<p>„Welches System wirkt nach meinen bisherigen Daten interessanter?“</p>
-<p>Nicht als Vorhersage:</p>
-<p>„In diesem System befindet sich garantiert ein bestimmter Fund.“</p>""",
+        'Analyse',
+        """
+<h2>Analyse</h2>
+<p>Die Analyse basiert auf deiner persönlichen Explorationhistorie. Systemanalyse bewertet einen eingegebenen prozeduralen Systemnamen; Erfahrungsdaten erhält die bisherige Kürzelauswertung mit historischen Treffern und „Neu auswerten“. Beide Bereiche sind Entscheidungshilfen, keine Fundgarantie.</p>
+<h3>Vergleichsgrundlage</h3>
+<p>Der Massencode bildet die Grundschätzung. Region und Familie verfeinern sie vorsichtig. Kleine lokale Datenmengen werden zur größeren Datenbasis hin geglättet. Wenige Daten bedeuten Unsicherheit, nicht eine schlechte Bewertung. Unzureichend untersuchte Systeme zählen nicht als negative Treffer.</p>
+<h3>Potenzialindex</h3>
+<p>Potenzialindex 100 entspricht dem persönlichen historischen Durchschnitt des gedämpften Explorationspotenzials. Der Index ist keine Prozentwahrscheinlichkeit. Ein einheitliches Mapping-Szenario und gedämpfte Extremwerte ermöglichen den Vergleich; Median und geglättetes Potenzial sind geschätzte Credits, keine zugesicherten Erlöse.</p>
+<h3>Besondere Funde</h3>
+<p>Die Endnummer eines Systems wird nicht bewertet: Plio Aip KN-B d13-201 gehört zur Familie Plio Aip KN-B d13. BIO wird informativ gezeigt, nicht in der Hauptbewertung gewichtet. Fehlende Analysen bedeuten keine nachgewiesenen Nullwerte.</p>
+<h3>Systemanalyse</h3>
+<p>Systemnamen eingeben und Analysieren drücken oder Enter verwenden. Aktuelles System übernehmen nutzt den vorhandenen Spielstand. Die Analyse wird nur auf Benutzeraktion neu berechnet. Vergleichsgrundlage und Erfahrungswerte nennen ihre Ebene; ohne lokale Vergleiche wird übergeordnete Erfahrung verwendet. Die Datenbasis wird getrennt von der Empfehlung angezeigt.</p>
+<p>Historische Treffer nach Systemkürzel. Diese Werte zeigen deine bisherige Explorationserfahrung und sind keine direkte Prognose für ein einzelnes Zielsystem. Datenbasis und Aussagekraft beschreiben die Verlässlichkeit der Vergleichsdaten anhand der vorhandenen Stichprobe und ihrer Verteilung über Sektoren.</p>
+""",
     ),
     "route_planner": (
         "Routenplaner",

@@ -20,13 +20,22 @@ def readme(language):
     return (ROOT / name).read_text(encoding='utf-8')
 
 
+def v32_section(text):
+    """Find the historical feature section even after newer releases are added."""
+    sections = [section for section in text.split('\n## ')[1:]
+                if re.search(r'\bv3\.2\b', section.splitlines()[0])]
+    if len(sections) != 1:
+        raise AssertionError(f'Expected one historical v3.2 section, found {len(sections)}')
+    return sections[0]
+
+
 class DocumentationReleaseTests(unittest.TestCase):
     def test_central_version_and_historical_v32_readme_headings(self):
         self.assertEqual(cmdrhelper.__version__, __version__)
         for language in HELP_LANGUAGES:
             with self.subTest(language=language):
-                heading = readme(language).split('\n## ')[1].splitlines()[0]
-                # Patch releases retain the historical v3.2 feature overview.
+                heading = v32_section(readme(language)).splitlines()[0]
+                # New releases retain the historical v3.2 feature overview.
                 self.assertIn('v3.2', heading)
                 self.assertIn('v3.1', heading)
                 self.assertNotIn('v3.0.3', heading)
@@ -40,7 +49,7 @@ class DocumentationReleaseTests(unittest.TestCase):
                 text = readme(language)
                 self.assertEqual(headings(text), headings(master))
                 self.assertEqual(fences(text), fences(master))
-                self.assertEqual(len(text.split('\n## ')[1].split('\n- ')) - 1, 8)
+                self.assertEqual(len(v32_section(text).split('\n- ')) - 1, 8)
 
     def test_new_controls_and_statuses_use_localized_ui_names(self):
         keys = ('settings.auto_show', 'settings.edsm_system_status', 'settings.cargo_hud',
@@ -69,7 +78,7 @@ class DocumentationReleaseTests(unittest.TestCase):
     def test_release_highlights_cover_the_eight_user_changes(self):
         for language in HELP_LANGUAGES:
             with self.subTest(language=language):
-                section = readme(language).split('\n## ')[1]
+                section = v32_section(readme(language))
                 points = section.split('\n- ')[1:]
                 self.assertEqual(len(points), 8)
                 for token in ('146', 'Raw', 'Manufactured', 'Encoded'):
@@ -88,7 +97,7 @@ class DocumentationReleaseTests(unittest.TestCase):
                 self.assertNotIn('EDSM', section)
                 self.assertNotIn('github.sh', section)
                 self.assertNotIn('Schema', section)
-        german = readme('de').split('\n## ')[1].split('\n- ')[1:]
+        german = v32_section(readme('de')).split('\n- ')[1:]
         self.assertNotIn('Gold', german[0])
         self.assertIn('Gold', german[1])
         self.assertIn('Unbekannter Bestand', german[0])

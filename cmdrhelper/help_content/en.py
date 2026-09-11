@@ -43,6 +43,7 @@ HELP_TOPICS = {
               '<p>When changing the commander, the saved information associated with the new '
               'commander is loaded.</p>\n'
               '\n'
+              '<p>CMDRHelper shows the game mode last reported by Elite. Open, Solo and Private Group are recognized from LoadGame. For private groups, the group name reported by Elite is displayed unchanged. This does not mean that Elite is currently running.</p>\n'
               '<h3>journal</h3>\n'
               "<p>CMDRHelper uses Elite Dangerous's journal files as its main data source.</p>\n"
               '<p>The journal display informs whether journal files have been found and assigned '
@@ -93,7 +94,8 @@ HELP_TOPICS = {
               '<h3>Tip</h3>\n'
               '<p>If the commander, ship or location does not match the current state of the game, '
               'first check the journal display at the top and then check the journal folder set '
-              'under “Settings”.</p>'),
+              'under “Settings”.</p>'
+              '<p>Open is red, Solo gold and Private Group green, with the reported group name for private groups. The mode is reconstructed from available journals and updated with new LoadGame entries.</p>\n<p>A single click on an entry in Recent systems copies the system name to the clipboard. “✓ Copied: &lt;System&gt;” appears briefly.</p>\n'),
  'missions': ('Missions',
               '<h2>Missions</h2>\n'
               '<p>The mission view shows the missions of the currently viewed commander known from '
@@ -557,75 +559,22 @@ HELP_TOPICS = {
 <p>or:</p>
 <p>“Which of my known planets have a particularly high number of mining sites?”</p>""",
     ),
- 'jump_tip': ('Jump tip',
-              '<h2>Jump tip</h2>\n'
-              '<p>The jump tip supports exploration by evaluating already known system data and '
-              'highlighting interesting target systems.</p>\n'
-              '<p>The function is intended as a decision-making aid. It does not guarantee that a '
-              'recommended system actually contains rare or particularly valuable finds.</p>\n'
-              '\n'
-              '<h3>Basis of the evaluation</h3>\n'
-              '<p>CMDRHelper uses existing journal and database information to evaluate known '
-              'patterns in system names and system classes.</p>\n'
-              '<p>Among other things, system abbreviations, already known body types and previous '
-              'finds can be taken into account.</p>\n'
-              '\n'
-              '<h3>System abbreviation</h3>\n'
-              '<p>Many procedurally generated systems in Elite Dangerous contain letter and number '
-              'combinations that identify specific system groups.</p>\n'
-              '<p>CMDRHelper can statistically evaluate these abbreviations and show in which '
-              'groups interesting finds occurred more frequently in the data known to date.</p>\n'
-              '\n'
-              '<h3>Re-evaluate</h3>\n'
-              '<p>With “Re-evaluate” the existing database is analyzed again.</p>\n'
-              "<p>The commander's saved data is used. The function does not create new elite data "
-              'or modify journal files.</p>\n'
-              '\n'
-              '<h3>Results list</h3>\n'
-              '<p>The results list shows the most interesting system abbreviations or candidates '
-              'according to the current evaluation.</p>\n'
-              '<p>Depending on the existing database, there may be information about:</p>\n'
-              '<ul>\n'
-              '<li>interesting planetary classes</li>\n'
-              '<li>biological discoveries</li>\n'
-              '<li>Water worlds</li>\n'
-              '<li>terraformable bodies</li>\n'
-              '<li>other notable exploration results</li>\n'
-              '</ul>\n'
-              '<p>appear.</p>\n'
-              '\n'
-              '<h3>Probability instead of guarantee</h3>\n'
-              '<p>A high value or a good ranking only means that a certain pattern was more often '
-              'associated with interesting findings in the data evaluated so far.</p>\n'
-              '<p>It is not a guarantee.</p>\n'
-              '<p>A recommended system may still be completely uninteresting, while a low-rated '
-              'system may contain valuable finds.</p>\n'
-              '\n'
-              '<h3>Own database</h3>\n'
-              "<p>The jump tip works with the commander's already known data.</p>\n"
-              '<p>The more systems and bodies are recorded over time, the larger the personal '
-              'database for evaluation becomes.</p>\n'
-              '<p>This means the ranking can change later.</p>\n'
-              '\n'
-              '<h3>Several commanders</h3>\n'
-              '<p>Personal evaluations are handled on a commander-by-command basis.</p>\n'
-              '<p>Data from another commander must not falsify the personal rating unnoticed.</p>\n'
-              '<p>Global astronomical master data, on the other hand, can be shared as long as it '
-              'does not represent commander-related personal findings.</p>\n'
-              '\n'
-              '<h3>Use in practice</h3>\n'
-              '<p>The jumping tip is particularly suitable if there are several possible '
-              'destinations to choose from and additional decision-making assistance is '
-              'desired.</p>\n'
-              '<p>It does not replace a complete route planner and does not calculate a safe, '
-              'optimal route.</p>\n'
-              '<p>The “Route planner” menu item is available for specific route planning.</p>\n'
-              '\n'
-              '<h3>Tip</h3>\n'
-              '<p>Use the jump tip as an additional exploration aid:</p>\n'
-              '<p>“According to my previous data, which system seems more interesting?”</p>\n'
-              '<p>Not as a prediction:</p>\n'
-              '<p>“There is guaranteed to be a specific find in this system.”</p>'),
+ 'jump_tip': (
+        'Analysis',
+        """
+<h2>Analysis</h2>
+<p>Analysis uses your personal exploration history. System analysis evaluates an entered procedural system name; Historical data retains the previous code analysis with historical hits and Re-evaluate. Both are decision aids, not guarantees of discoveries.</p>
+<h3>Comparison basis</h3>
+<p>The mass code provides the baseline. Region and family refine it cautiously. Small local samples are smoothed towards the larger evidence base. Limited data means uncertainty, not a poor rating. Insufficiently investigated systems do not count as negative hits.</p>
+<h3>Potential index</h3>
+<p>Potential index 100 represents your personal historical average of damped exploration potential. The index is not a percentage probability. A uniform mapping scenario and damped outliers enable comparison; the median and smoothed potential are estimated credits, not guaranteed earnings.</p>
+<h3>Notable finds</h3>
+<p>The final system number is not rated: Plio Aip KN-B d13-201 belongs to family Plio Aip KN-B d13. BIO is informational and does not contribute to the main rating. Missing analyses do not establish zero values.</p>
+<h3>System analysis</h3>
+<p>Enter a system name and choose Analyse or press Enter. Use current system takes the name from the existing game state. Analysis is recalculated only on user action. Comparison basis and historical results identify their level; without local comparisons, parent-level experience is used. Evidence quality is shown separately from the recommendation.</p>
+<p>Historical hits by system code. These values describe your exploration experience so far and are not a direct prediction for an individual target system. Data basis and evidence strength describe the reliability of the comparison data, based on the available sample and its distribution across sectors.</p>
+""",
+    ),
  'route_planner': ('Route planner',
                    '<h2>Route planner</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Improved route planner: The current system follows your location automatically until you enter a manual start; clearing the start field restores automatic tracking. Ships and carriers use exactly validated ID64 system addresses instead of similar names. “Unable to find route” is explained as no route found; check destinations, range and route settings.</p>\n'
                    '<p>The route planner supports planning longer trips by ship or Fleet Carrier. '

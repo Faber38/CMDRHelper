@@ -44,6 +44,7 @@ HELP_TOPICS = {
               '<p>Lors du changement de commandant, les informations enregistrées associées au '
               'nouveau commandant sont chargées.</p>\n'
               '\n'
+              '<p>CMDRHelper affiche le dernier mode de jeu signalé par Elite. Open, Solo et Groupe privé sont reconnus à partir de LoadGame. Pour les groupes privés, le nom du groupe signalé par Elite est affiché sans modification. Cela ne signifie pas qu’Elite est actuellement en cours d’exécution.</p>\n'
               '<h3>journal</h3>\n'
               '<p>CMDRHelper utilise les fichiers journaux de Elite Dangerous comme source de '
               'données principale.</p>\n'
@@ -100,7 +101,8 @@ HELP_TOPICS = {
               '<h3>Conseil</h3>\n'
               "<p>Si le commandant, le navire ou l'emplacement ne correspond pas à l'état actuel "
               "du jeu, vérifiez d'abord l'affichage du journal en haut, puis vérifiez le dossier "
-              'du journal défini sous « Paramètres ».</p>'),
+              'du journal défini sous « Paramètres ».</p>'
+              '<p>Le mode Ouvert apparaît en rouge, Solo en doré et Groupe privé en vert, avec le nom de groupe signalé. Le mode est reconstitué à partir des journaux disponibles et actualisé avec les nouvelles entrées LoadGame.</p>\n<p>Un simple clic sur une entrée des systèmes récents copie son nom dans le presse-papiers. « ✓ Copié : &lt;Système&gt; » apparaît brièvement.</p>\n'),
  'missions': ('Missions',
               '<h2>Missions</h2>\n'
               '<p>La vue des missions montre les missions du commandant actuellement consulté, '
@@ -576,86 +578,22 @@ HELP_TOPICS = {
 <p>ou:</p>
 <p>« Laquelle de mes planètes connues possède un nombre particulièrement élevé de sites miniers ? »</p>""",
     ),
- 'jump_tip': ('Astuce de saut',
-              '<h2>Astuce de saut</h2>\n'
-              "<p>La pointe de saut prend en charge l'exploration en évaluant les données système "
-              'déjà connues et en mettant en évidence les systèmes cibles intéressants.</p>\n'
-              '<p>La fonction est conçue comme une aide à la décision. Cela ne garantit pas qu’un '
-              'système recommandé contienne réellement des trouvailles rares ou particulièrement '
-              'précieuses.</p>\n'
-              '\n'
-              "<h3>Base de l'évaluation</h3>\n"
-              '<p>CMDRHelper utilise les informations de journal et de base de données existantes '
-              'pour évaluer les modèles connus dans les noms de système et les classes '
-              'système.</p>\n'
-              '<p>Entre autres choses, les abréviations du système, les types de corps déjà connus '
-              'et les découvertes antérieures peuvent être pris en compte.</p>\n'
-              '\n'
-              '<h3>Abréviation du système</h3>\n'
-              '<p>De nombreux systèmes générés de manière procédurale dans Elite Dangerous '
-              'contiennent des combinaisons de lettres et de chiffres qui identifient des groupes '
-              'de systèmes spécifiques.</p>\n'
-              '<p>CMDRHelper peut évaluer statistiquement ces abréviations et montrer dans quels '
-              'groupes les découvertes intéressantes se sont produites plus fréquemment dans les '
-              'données connues à ce jour.</p>\n'
-              '\n'
-              '<h3>Réévaluer</h3>\n'
-              '<p>Avec «\xa0Réévaluer\xa0», la base de données existante est à nouveau '
-              'analysée.</p>\n'
-              '<p>Les données enregistrées par le commandant sont utilisées. La fonction ne crée '
-              "pas de nouvelles données d'élite ni ne modifie les fichiers journaux.</p>\n"
-              '\n'
-              '<h3>Liste des résultats</h3>\n'
-              '<p>La liste des résultats montre les abréviations de système ou les candidats les '
-              "plus intéressants selon l'évaluation actuelle.</p>\n"
-              '<p>En fonction de la base de données existante, il peut y avoir des informations '
-              'sur\xa0:</p>\n'
-              '<ul>\n'
-              '<li>cours planétaires intéressants</li>\n'
-              '<li>découvertes biologiques</li>\n'
-              '<li>Mondes aquatiques</li>\n'
-              '<li>corps terraformables</li>\n'
-              "<li>autres résultats d'exploration notables</li>\n"
-              '</ul>\n'
-              '<p>apparaître.</p>\n'
-              '\n'
-              '<h3>La probabilité au lieu de la garantie</h3>\n'
-              "<p>Une valeur élevée ou un bon classement signifie simplement qu'un certain modèle "
-              'était plus souvent associé à des résultats intéressants dans les données évaluées '
-              "jusqu'à présent.</p>\n"
-              "<p>Ce n'est pas une garantie.</p>\n"
-              "<p>Un système recommandé peut rester totalement inintéressant, tandis qu'un système "
-              'mal noté peut contenir des découvertes précieuses.</p>\n'
-              '\n'
-              '<h3>Propre base de données</h3>\n'
-              '<p>La pointe de saut fonctionne avec les données déjà connues du commandant.</p>\n'
-              '<p>Plus les systèmes et les organismes sont enregistrés au fil du temps, plus la '
-              'base de données personnelle destinée à l’évaluation s’agrandit.</p>\n'
-              '<p>Cela signifie que le classement peut changer ultérieurement.</p>\n'
-              '\n'
-              '<h3>Plusieurs commandants</h3>\n'
-              '<p>Les évaluations personnelles sont traitées commandant par commandement.</p>\n'
-              "<p>Les données provenant d'un autre commandant ne doivent pas falsifier la "
-              "qualification personnelle sans que l'on s'en aperçoive.</p>\n"
-              '<p>En revanche, les données de référence astronomiques mondiales peuvent être '
-              'partagées à condition qu’elles ne représentent pas des découvertes personnelles '
-              'liées au commandant.</p>\n'
-              '\n'
-              '<h3>Utilisation en pratique</h3>\n'
-              "<p>La pointe de saut est particulièrement adaptée s'il existe plusieurs "
-              'destinations possibles parmi lesquelles choisir et si une aide supplémentaire à la '
-              'décision est souhaitée.</p>\n'
-              "<p>Il ne remplace pas un planificateur d'itinéraire complet et ne calcule pas un "
-              'itinéraire sûr et optimal.</p>\n'
-              "<p>L'élément de menu «\xa0Planificateur d'itinéraire\xa0» est disponible pour la "
-              "planification d'itinéraires spécifiques.</p>\n"
-              '\n'
-              '<h3>Conseil</h3>\n'
-              "<p>Utilisez la pointe de saut comme aide à l'exploration supplémentaire\xa0:</p>\n"
-              '<p>"D\'après mes données précédentes, quel système semble le plus intéressant '
-              '?"</p>\n'
-              '<p>Pas comme une prédiction\xa0:</p>\n'
-              '<p>"Il est garanti qu\'il y aura une découverte spécifique dans ce système."</p>'),
+ 'jump_tip': (
+        'Analyse',
+        """
+<h2>Analyse</h2>
+<p>L’analyse utilise votre historique personnel d’exploration. Analyse du système évalue un nom procédural saisi ; Données historiques conserve l’ancienne analyse des codes avec les résultats passés et la réévaluation. Ces deux outils aident à décider sans garantir de découvertes.</p>
+<h3>Base de comparaison</h3>
+<p>Le code de masse fournit l’estimation de base. La région et la famille l’affinent prudemment. Les petits échantillons locaux sont lissés vers la base plus large. Peu de données signifie une incertitude, pas une mauvaise évaluation. Les systèmes insuffisamment étudiés ne comptent pas comme résultats négatifs.</p>
+<h3>Indice de potentiel</h3>
+<p>L’indice de potentiel 100 représente votre moyenne historique personnelle du potentiel d’exploration atténué. Ce n’est pas une probabilité en pourcentage. Un scénario de cartographie uniforme et des valeurs extrêmes atténuées permettent la comparaison ; médiane et potentiel lissé sont des crédits estimés, pas des gains garantis.</p>
+<h3>Découvertes remarquables</h3>
+<p>Le numéro final du système n’est pas évalué : Plio Aip KN-B d13-201 appartient à la famille Plio Aip KN-B d13. BIO est informatif et ne contribue pas à l’évaluation principale. L’absence d’analyses ne prouve pas une valeur nulle.</p>
+<h3>Analyse du système</h3>
+<p>Saisissez un système et cliquez sur Analyser ou appuyez sur Entrée. Utiliser le système actuel reprend le nom de l’état de jeu existant. Le recalcul nécessite une action de l’utilisateur. La base et les résultats précisent leur niveau ; sans comparaison locale, l’expérience du niveau supérieur est utilisée. La qualité des données est distincte de la recommandation.</p>
+<p>Résultats historiques par code système. Ces valeurs décrivent votre expérience d’exploration passée et ne constituent pas une prédiction directe pour un système cible individuel. La base et la solidité des données décrivent la fiabilité des comparaisons selon l’échantillon disponible et sa répartition entre les secteurs.</p>
+""",
+    ),
  'route_planner': ("Planificateur d'itinéraire",
                    "<h2>Planificateur d'itinéraire</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Planificateur amélioré : le départ suit automatiquement le système actuel jusqu’à votre saisie manuelle ; vider le champ réactive le suivi. Vaisseaux et carriers utilisent des adresses ID64 exactement vérifiées, sans choisir de noms similaires. « Unable to find route » indique qu’aucune route n’a été trouvée ; vérifiez destinations, portée et paramètres.</p>\n"
                    "<p>Le planificateur d'itinéraire prend en charge la planification de voyages "
