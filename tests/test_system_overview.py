@@ -12,7 +12,7 @@ os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 from PySide6.QtCore import QEvent, QPoint, QPointF, QSettings, Qt
 from PySide6.QtGui import QWheelEvent
 from PySide6.QtTest import QTest
-from PySide6.QtWidgets import QApplication, QLabel, QMainWindow
+from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QPushButton
 
 from cmdrhelper.ui.main_window import MainWindow, ChronicleSystemWindow
 from cmdrhelper.ui.system_overview import (
@@ -218,6 +218,35 @@ class OverviewViewTests(unittest.TestCase):
         item = self.click_body(dialog.preview, ('body', 1))
         callback.assert_called_once_with(item.node.body)
         self.assertTrue(item.isSelected())
+
+    def test_existing_overview_actions_have_hand_cursor_in_both_themes(self):
+        for light, style in ((False, DARK_STYLESHEET), (True, LIGHT_STYLESHEET)):
+            self.app.setStyleSheet(style)
+            callback = Mock()
+            dialog = self.dialog(light=light, on_body_clicked=callback)
+            view = dialog.preview
+            layout = {key: item.sceneBoundingRect() for key, item in view.items_by_key.items()}
+            for item in view.items_by_key.values():
+                self.assertEqual(item.cursor().shape(), Qt.PointingHandCursor)
+            for button in dialog.findChildren(QPushButton):
+                self.assertEqual(button.cursor().shape(), Qt.PointingHandCursor)
+            for label in dialog.findChildren(QLabel):
+                self.assertEqual(label.cursor().shape(), Qt.ArrowCursor)
+            for line in view.connections:
+                self.assertFalse(line.hasCursor())
+            self.assertEqual(dialog.cursor().shape(), Qt.ArrowCursor)
+            self.click_body(view, ('body', 1))
+            callback.assert_called_once_with(view.items_by_key['body', 1].node.body)
+            view.scale(1.2, 1.2)
+            QTest.mouseClick(dialog.reset_button, Qt.LeftButton)
+            self.assertEqual(view.transform().m11(), 1.0)
+            QTest.mouseClick(dialog.fit_button, Qt.LeftButton)
+            self.assertLessEqual(view.transform().m11(), 1.0)
+            self.assertEqual(layout, {key: item.sceneBoundingRect() for key, item in view.items_by_key.items()})
+            close, = [b for b in dialog.findChildren(QPushButton)
+                      if b not in (dialog.reset_button, dialog.fit_button)]
+            QTest.mouseClick(close, Qt.LeftButton)
+            self.assertFalse(dialog.isVisible())
 
     def test_snapshot_is_independent_of_current_journal_state(self):
         bodies = [star(), planet()]

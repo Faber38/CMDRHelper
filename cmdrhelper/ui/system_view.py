@@ -1612,6 +1612,18 @@ class SystemMapWidget(QWidget):
         bar.setValue(bar.value() - pixels)
         event.accept()
 
+    def _update_pointer_cursor(self, pos):
+        # Use exactly the existing body-click hitboxes, not the map container.
+        if any(rect.contains(pos) for rect, _body in self._body_rects):
+            self.setCursor(Qt.PointingHandCursor)
+        else:
+            self.unsetCursor()
+
+    def enterEvent(self, event):
+        if not self._right_drag_active:
+            self._update_pointer_cursor(event.position())
+        super().enterEvent(event)
+
     def mouseMoveEvent(self, event):
         if self._right_drag_active:
             scroll_area = self._scroll_area()
@@ -1629,6 +1641,7 @@ class SystemMapWidget(QWidget):
             return
 
         pos = event.position()
+        self._update_pointer_cursor(pos)
 
         for rect, body in self._body_rects:
             if rect.contains(pos):
@@ -1664,12 +1677,14 @@ class SystemMapWidget(QWidget):
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.RightButton and self._right_drag_active:
             self._right_drag_active = False
-            self.unsetCursor()
+            self._update_pointer_cursor(event.position())
             event.accept()
             return
 
         super().mouseReleaseEvent(event)
 
     def leaveEvent(self, event):
+        if not self._right_drag_active:
+            self.unsetCursor()
         QToolTip.hideText()
         super().leaveEvent(event)

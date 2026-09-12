@@ -13,6 +13,23 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper is een zelfstandig desktopprogramma dat de lokale journals van Elite Dangerous analyseert en planetaire positiegegevens uit `Status.json` gebruikt. Het helpt je interessante hemellichamen te herkennen, opgeslagen plaatsen terug te vinden en je reizen en ontdekkingen te bekijken. Persoonlijke gegevens blijven na een herstart behouden en worden per commander gescheiden.
 
+## Nieuw in versie 3.4 – Mining en voorraad
+
+- Nieuw Mining-gedeelte met goederen, richtprijzen en waardeklassen.
+- Schip-/SRV-voorraad en handmatig bevestigde carriervoorraad met automatische transferregistratie.
+- Combineerbaar zoeken en filters voor planetaire winning en asteroïden/ringen.
+- ABBAU ×N opent direct het juiste Mining-overzicht.
+- Correcte cartografiewaarden bij sessiewisselingen.
+- Verbeterde hulp, tabelvormgeving en bediening.
+
+Eén gezamenlijke tabel bevat 57 mijnbouwgoederen met herkomst Surface, Asteroid of Both. Bekende richtprijzen en afgeleide waardeklassen blijven vaste oriëntatiewaarden, geen live marktgegevens.
+
+Geverifieerde schip-/SRV-vracht; dubbelklik om carriervoorraad te bevestigen, te corrigeren of op onbekend terug te zetten. Alleen ondubbelzinnige CargoTransfer-gebeurtenissen naar/van je eigen carrier worden vanaf een bevestigde beginvoorraad bijgehouden. Totaal verschijnt alleen bij twee bekende hoeveelheden; onbekend blijft —.
+
+Filters voor positieve voorraad, waardeklasse en herkomst zijn combineerbaar; hun standen, sortering en kolombreedtes worden opgeslagen. ABBAU ×N kiest automatisch planetaire winning. Handmatig verversen van vracht heeft een statusanimatie en behoudt carrierwaarden.
+
+Verbeterde Mining-tabel, carriertoelichtingen en versieonafhankelijke geïntegreerde Mining-hulp. Handcursor op bestaande interactieve hemellichamen en bedieningselementen van de systeemkaart. De A-6-a-placeholdercorrectie behoudt juiste cartografiewaarden tussen sessies.
+
 ## Nieuw in versie 3.3.1 – Foutcorrecties
 
 - Voltooide DSS-karteringen worden nu betrouwbaar live herkend.

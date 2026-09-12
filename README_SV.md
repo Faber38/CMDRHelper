@@ -13,6 +13,23 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper är ett fristående skrivbordsprogram som analyserar de lokala Elite Dangerous-journalerna och använder planetära positionsdata från `Status.json`. Det hjälper dig att hitta intressanta himlakroppar, återvända till sparade platser och följa dina resor och fynd. Personliga data bevaras efter omstart och hålls åtskilda per befälhavare.
 
+## Nytt i version 3.4 – Mining och lager
+
+- Ny Mining-del med varor, referenspriser och värdeklasser.
+- Skepps-/SRV-lager och manuellt bekräftat carrierlager med automatisk spårning av överföringar.
+- Kombinerbar sökning och filter för planetutvinning och asteroider/ringar.
+- ABBAU ×N öppnar rätt Mining-översikt direkt.
+- Korrekta kartografivärden vid sessionsbyte.
+- Förbättrad hjälp, tabellutseende och användbarhet.
+
+En gemensam tabell innehåller 57 gruvvaror med ursprung Surface, Asteroid eller Both. Kända referenspriser och härledda värdeklasser är fasta riktvärden, inte marknadsdata i realtid.
+
+Verifierad skepps-/SRV-last; dubbelklicka för att bekräfta, korrigera eller återställa carrierlagret till okänt. Endast entydiga CargoTransfer-händelser till/från din egen carrier följs från ett bekräftat startlager. Totalen visas endast när båda mängderna är kända; okänt förblir —.
+
+Filter för positivt lager, värdeklass och ursprung kan kombineras; tillstånd, sortering och kolumnbredder sparas. ABBAU ×N väljer automatiskt planetutvinning. Manuell lastuppdatering har statusanimation och bevarar carriervärden.
+
+Förbättrad Mining-tabell, carrierverktygstips och versionsoberoende integrerad Mining-hjälp. Handpekare på befintliga interaktiva himlakroppar och kontroller i systemkartan. A-6-a-platshållarfixen bevarar korrekta kartografivärden mellan sessioner.
+
 ## Nytt i version 3.3.1 – Felrättningar
 
 - Slutförd DSS-kartläggning identifieras nu tillförlitligt i realtid.

@@ -13,6 +13,23 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper is a standalone desktop application that processes the local Elite Dangerous journals and uses planetary position data from `Status.json`. It helps you identify interesting bodies, return to saved locations and review your travels and discoveries. Personal data persists across restarts and is kept separate for each commander.
 
+## New in version 3.4 – Mining and inventory
+
+- New Mining area with commodities, reference prices and value classes.
+- Ship/SRV stock and manually confirmed carrier stock with automatic transfer tracking.
+- Combined search and filters for planetary surface and asteroid/ring mining.
+- ABBAU ×N opens the matching Mining overview directly.
+- Correct cartography values across session changes.
+- Improved help, table styling and usability.
+
+One shared table contains 57 mining commodities with Surface, Asteroid or Both origins. Known reference prices and derived value classes remain fixed guidance values, not live market data.
+
+Verified ship/SRV cargo; double-click to confirm, correct or reset carrier stock to unknown. Only unambiguous CargoTransfer events to/from your own carrier are tracked from a confirmed starting stock. Totals appear only when both amounts are known; unknown remains —.
+
+Combine the in-stock, value-class and origin filters; their states, sorting and column widths are saved. ABBAU ×N automatically selects planetary surface mining. Manual cargo refresh includes status animation and preserves carrier values.
+
+Refined Mining table styling, carrier tooltips and version-independent integrated Mining help. Hand cursors on existing interactive system-map bodies and controls. The A-6-a placeholder fix preserves correct cartography values across sessions.
+
 ## New in version 3.3.1 – Bug fixes
 
 - Completed DSS mappings are now reliably detected live.

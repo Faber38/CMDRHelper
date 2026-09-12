@@ -14,6 +14,23 @@ pilotunuz](cmdrhelper/assets/readme/cmdrhelper_readme_tr.png)
 
 CMDRHelper, Elite Dangerous’ın yerel günlüklerini inceleyen ve `Status.json` dosyasındaki gezegen konum verilerini kullanan bağımsız bir masaüstü uygulamasıdır. İlginç gökcisimlerini belirlemene, kaydedilmiş yerlere dönmene ve yolculuklarınla bulgularını incelemene yardımcı olur. Kişisel veriler yeniden başlatmadan sonra korunur ve komutanlara göre ayrı tutulur.
 
+## 3.4 sürümündeki yenilikler – Mining ve stoklar
+
+- Emtialar, referans fiyatlar ve değer sınıflarıyla yeni Mining bölümü.
+- Gemi/SRV stoku ve elle onaylanan carrier stoku için otomatik transfer takibi.
+- Gezegen yüzeyi ve asteroit/halka madenciliği için birleştirilebilir arama ve filtreler.
+- ABBAU ×N doğrudan ilgili Mining görünümünü açar.
+- Oturum değişimlerinde doğru haritacılık değerleri.
+- İyileştirilmiş yardım, tablo görünümü ve kullanım.
+
+Ortak tablo, kökeni Surface, Asteroid veya Both olan 57 madencilik emtiasını içerir. Bilinen referans fiyatlar ve türetilen değer sınıfları sabit yol gösterici değerlerdir; canlı piyasa verileri değildir.
+
+Doğrulanmış gemi/SRV kargosu; çift tıklamayla carrier stokunu onaylayın, düzeltin veya bilinmiyor durumuna sıfırlayın. Yalnızca kendi carrier’ınıza veya carrier’ınızdan yapılan kesin CargoTransfer olayları, onaylanmış başlangıç stokundan itibaren izlenir. Toplam yalnızca her iki miktar biliniyorsa görünür; bilinmeyen — olarak kalır.
+
+Pozitif stok, değer sınıfı ve köken filtreleri birleştirilebilir; durumları, sıralama ve sütun genişlikleri kaydedilir. ABBAU ×N otomatik olarak gezegen yüzeyi madenciliğini seçer. Elle kargo yenileme durum animasyonu gösterir ve carrier değerlerini korur.
+
+İyileştirilmiş Mining tablosu, carrier araç ipuçları ve sürümden bağımsız entegre Mining yardımı. Sistem haritasının zaten etkileşimli olan gök cisimleri ve kontrollerinde el imleci. A-6-a yer tutucu düzeltmesi, oturumlar arasında doğru haritacılık değerlerini korur.
+
 ## 3.3.1 sürümündeki yenilikler – Hata düzeltmeleri
 
 - Tamamlanan DSS haritalamaları artık canlı olarak güvenilir biçimde algılanıyor.

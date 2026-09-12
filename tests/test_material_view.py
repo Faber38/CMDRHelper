@@ -70,7 +70,7 @@ class MaterialViewTests(unittest.TestCase):
         self.view.set_inventory(self.reducer.result, "FABER38")
 
     def test_three_categories_all_special_groups_visible(self):
-        self.assertEqual(self.view.tabs.count(), 4)
+        self.assertEqual(self.view.tabs.count(), 5)
         groups = set()
         total = 0
         for index, count in enumerate((28, 71, 47)):

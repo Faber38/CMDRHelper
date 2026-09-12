@@ -70,7 +70,7 @@ class OdysseyViewTests(unittest.TestCase):
         self.view.filter.setCurrentIndex(self.view.filter.findData(key))
 
     def test_four_main_tabs_gold_and_four_flat_categories(self):
-        self.assertEqual(self.page.tabs.count(), 4)
+        self.assertEqual(self.page.tabs.count(), 5)
         self.assertEqual(self.page.tabs.tabText(3), 'Odyssey')
         self.assertEqual(self.view.tabs.count(), 4)
         self.assertFalse(self.page.tree.isVisible())

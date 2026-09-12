@@ -139,3 +139,67 @@ class ValuationReferenceTests(unittest.TestCase):
                 self.assertFalse(saved['was_discovered'])
                 self.assertFalse(saved['was_mapped'])
                 self.assertTrue(saved['self_mapped'])
+
+    def test_session_switch_restores_placeholder_mapping_state_and_values(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            address = 4753044000115
+            body_name = 'Flyua Phoea HE-E d13-138 A 6 a'
+            header = [
+                dict(event='Fileheader', gameversion='4.4.1.1'),
+                dict(event='Commander', FID='F1', Name='Test'),
+                dict(event='LoadGame', FID='F1', Commander='Test', Odyssey=True),
+            ]
+            session_a = header + [
+                dict(event='Location', StarSystem='Flyua Phoea HE-E d13-138',
+                     SystemAddress=address),
+                dict(event='Scan', SystemAddress=address, StarSystem='Flyua Phoea HE-E d13-138',
+                     BodyID=11, BodyName=body_name, PlanetClass='Rocky body',
+                     MassEM=0.008328, WasDiscovered=False, WasMapped=False),
+                dict(event='SAAScanComplete', SystemAddress=address, BodyID=11,
+                     BodyName=body_name, ProbesUsed=3, EfficiencyTarget=4),
+                dict(event='SAASignalsFound', SystemAddress=address, BodyID=11,
+                     BodyName=body_name,
+                     Signals=[{'Type': '$SAA_SignalType_Mining;', 'Count': 12}]),
+                dict(event='Scan', SystemAddress=address, StarSystem='Flyua Phoea HE-E d13-138',
+                     BodyID=11, BodyName=body_name, PlanetClass='Rocky body',
+                     MassEM=0.008328, WasDiscovered=False, WasMapped=False),
+            ]
+            session_b = header + [
+                dict(event='Location', StarSystem='Flyua Phoea HE-E d13-138',
+                     SystemAddress=address, Body=body_name),
+                dict(event='SAASignalsFound', SystemAddress=address, BodyID=11,
+                     BodyName=body_name,
+                     Signals=[{'Type': '$SAA_SignalType_Mining;', 'Count': 12}]),
+            ]
+            for events, filename in ((session_a, 'Journal.2026-09-11T120000.01.log'),
+                                     (session_b, 'Journal.2026-09-11T130000.01.log')):
+                for index, event in enumerate(events):
+                    event['timestamp'] = f'2026-09-11T{12 + (index // 60):02}:{index % 60:02}:00Z'
+                (folder / filename).write_text(
+                    ''.join(json.dumps(event) + '\n' for event in events),
+                    encoding='utf-8',
+                )
+
+            db = CMDRDatabase(folder / 'test.db')
+            commander = db.upsert_commander('F1', 'Test')
+            db.import_journal_archive(folder)
+            current = read_latest_state(folder)
+            body = next(body for body in current['system_bodies'] if body['body_id'] == 11)
+            state = SimpleNamespace(database=db, commander_id=commander,
+                                    system_address=address)
+            state.system_bodies = AppState._own_explorer_bodies(state, [body])
+            AppState._refresh_explorer_values(state, {11})
+            body = state.system_bodies[0]
+
+            self.assertIs(body['was_discovered'], False)
+            self.assertIs(body['was_mapped'], False)
+            self.assertTrue(body['self_mapped'])
+            self.assertTrue(body['efficient_mapping'])
+            self.assertEqual(body['probes_used'], 3)
+            self.assertEqual(body['efficiency_target'], 4)
+            self.assertTrue(body['game_version'].startswith('4.'))
+            self.assertEqual(body['scan_value'], 1300)
+            self.assertEqual(body['current_value'], 7815)
+            self.assertEqual(body['possible_value'], 7815)
+            self.assertEqual(body['possible_value_without_efficiency'], 6252)

@@ -9,6 +9,7 @@ from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QApplication, QTabBar
 
 from cmdrhelper.ui.material_view import MaterialView
+from cmdrhelper.mining_catalog import MINING_COMMODITIES
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 from test_material_view import StubController
 
@@ -37,7 +38,7 @@ class MaterialCategoryTabTests(unittest.TestCase):
     def assert_only_active_border(self):
         tabs = self.view.tabs
         image = tabs.grab().toImage()
-        for i in range(4):
+        for i in range(5):
             rect = tabs.tabRect(i)
             pixel = image.pixelColor(rect.center().x(), rect.top() + 1)
             if i == tabs.currentIndex():
@@ -45,17 +46,19 @@ class MaterialCategoryTabTests(unittest.TestCase):
             else:
                 self.assertNotEqual(pixel, tabs.active_border_color)
 
-    def test_mouse_switch_moves_border_immediately_across_all_four_tabs_and_themes(self):
+    def test_mouse_switch_moves_border_immediately_across_all_five_tabs_and_themes(self):
         for light in (False, True):
             self.theme(light)
             self.assertEqual(self.view.tabs.active_border_color.name(), '#9a620e' if light else '#c57a00')
-            for index in (0, 1, 2, 3, 0):
+            for index in (0, 1, 2, 3, 4, 0):
                 QTest.mouseClick(self.view.tabs, Qt.MouseButton.LeftButton, pos=self.view.tabs.tabRect(index).center())
                 self.assertEqual(self.view.tabs.currentIndex(), index)
                 if index < 3:
                     self.assertEqual(len(self.view.items), (28, 71, 47)[index])
-                else:
+                elif index == 3:
                     self.assertEqual(len(self.view.odyssey.items), 61)
+                else:
+                    self.assertEqual(self.view.mining.tree.topLevelItemCount(), len(MINING_COMMODITIES))
                 self.assert_only_active_border()
 
     def test_keyboard_switching_keeps_native_behavior(self):
@@ -77,14 +80,14 @@ class MaterialCategoryTabTests(unittest.TestCase):
         self.addCleanup(plain.close)
         plain.setExpanding(tabs.expanding())
         plain.setUsesScrollButtons(tabs.usesScrollButtons())
-        for index in range(4):
+        for index in range(5):
             plain.addTab(tabs.tabText(index))
         plain.resize(tabs.size())
         plain.show()
         for light in (False, True):
             self.theme(light)
             plain.resize(tabs.size())
-            for selected in range(4):
+            for selected in range(5):
                 tabs.setCurrentIndex(selected)
                 plain.setCurrentIndex(selected)
                 plain.clearFocus()
@@ -92,7 +95,7 @@ class MaterialCategoryTabTests(unittest.TestCase):
                 self.app.processEvents()
                 self.assertEqual(tabs.sizeHint(), plain.sizeHint())
                 custom_image, plain_image = tabs.grab().toImage(), plain.grab().toImage()
-                for index in range(4):
+                for index in range(5):
                     self.assertEqual(tabs.tabRect(index), plain.tabRect(index))
                     self.assertEqual(tabs.tabText(index), plain.tabText(index))
                     if index != selected:

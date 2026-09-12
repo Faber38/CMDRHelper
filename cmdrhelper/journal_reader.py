@@ -1924,8 +1924,12 @@ def read_latest_state(
                                 "planetary_mining_signals": mining_count,
                                 "biology": [],
                                 "bio_genuses": list(bio_genuses),
-                                "self_mapped": False,
-                                "efficient_mapping": False,
+                                # SAASignalsFound does not establish either
+                                # ownership or mapping efficiency.  Keep both
+                                # states unknown so historical DB data can be
+                                # restored after a session switch.
+                                "self_mapped": None,
+                                "efficient_mapping": None,
                                 "_placeholder": True,
                             }
                             scans_by_address[address][body_id_int] = body

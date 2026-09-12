@@ -132,6 +132,8 @@ class BeltViewTests(unittest.TestCase):
             view = dialog.preview
             group_item, = [i for i in view.items_by_key.values() if i.node.belt_members]
             self.assertEqual(group_item.acceptedMouseButtons(), Qt.MouseButton.NoButton)
+            self.assertFalse(group_item.hasCursor())
+            self.assertEqual(view.items_by_key['body', 3].cursor().shape(), Qt.PointingHandCursor)
             self.click_body(view, group_item.node.key)
             self.assertFalse(group_item.isSelected())
             callback.assert_not_called()

@@ -13,6 +13,23 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper è un’applicazione desktop autonoma che analizza i journal locali di Elite Dangerous e utilizza i dati di posizione planetaria di `Status.json`. Ti aiuta a individuare corpi interessanti, ritrovare luoghi salvati e consultare viaggi e scoperte. I dati personali persistono dopo il riavvio e sono separati per comandante.
 
+## Novità della versione 3.4 – Mining e scorte
+
+- Nuova sezione Mining con merci, prezzi indicativi e classi di valore.
+- Scorte nave/SRV e scorte carrier confermate manualmente, con tracciamento automatico dei trasferimenti.
+- Ricerca e filtri combinabili per estrazione planetaria e asteroidi/anelli.
+- ABBAU ×N apre direttamente la panoramica Mining corrispondente.
+- Valori cartografici corretti anche al cambio di sessione.
+- Guida, aspetto delle tabelle e usabilità migliorati.
+
+Una tabella comune contiene 57 merci minerarie di origine Surface, Asteroid o Both. I prezzi di riferimento noti e le classi di valore derivate restano indicativi, senza dati di mercato in tempo reale.
+
+Carico nave/SRV verificato; doppio clic per confermare, correggere o riportare a sconosciute le scorte del carrier. Solo gli eventi CargoTransfer inequivocabili verso/dal proprio carrier aggiornano una scorta iniziale confermata. Il totale richiede entrambe le quantità note; sconosciuto resta —.
+
+I filtri di scorta positiva, classe e origine si combinano; stati, ordinamento e larghezze delle colonne vengono salvati. ABBAU ×N seleziona automaticamente l’estrazione planetaria. L’aggiornamento manuale del carico ha un’animazione di stato e conserva i valori del carrier.
+
+Aspetto della tabella Mining migliorato, tooltip del carrier e guida Mining integrata indipendente dalla versione. Cursore a mano sui corpi e comandi già interattivi delle mappe di sistema. La correzione del segnaposto A-6-a mantiene i valori cartografici corretti tra le sessioni.
+
 ## Novità della versione 3.3.1 – Correzioni
 
 - Le mappature DSS completate vengono ora rilevate in modo affidabile in tempo reale.

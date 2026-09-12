@@ -13,6 +13,23 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper est une application de bureau autonome qui analyse les journaux locaux d’Elite Dangerous et utilise les données de position planétaire de `Status.json`. Elle t’aide à repérer les corps intéressants, à retrouver des lieux enregistrés et à consulter tes voyages et découvertes. Les données personnelles sont conservées après un redémarrage et séparées par commandant.
 
+## Nouveautés de la version 3.4 – Mining et stocks
+
+- Nouvelle section Mining avec marchandises, prix indicatifs et classes de valeur.
+- Stocks du vaisseau/SRV et stocks du carrier confirmés manuellement, avec suivi automatique des transferts.
+- Recherche et filtres combinables pour l’extraction planétaire et les astéroïdes/anneaux.
+- ABBAU ×N ouvre directement la vue Mining correspondante.
+- Valeurs cartographiques correctes lors des changements de session.
+- Aide, présentation des tableaux et ergonomie améliorées.
+
+Un tableau commun contient 57 marchandises minières d’origine Surface, Asteroid ou Both. Les prix de référence connus et les classes de valeur calculées restent indicatifs, sans données de marché en direct.
+
+Fret du vaisseau/SRV vérifié ; double-cliquez pour confirmer, corriger ou remettre le stock du carrier à inconnu. Seuls les événements CargoTransfer non ambigus vers/depuis votre propre carrier sont suivis à partir d’un stock initial confirmé. Le total exige deux quantités connues ; inconnu reste —.
+
+Les filtres de stock positif, de classe et d’origine se combinent ; leurs états, le tri et les largeurs des colonnes sont enregistrés. ABBAU ×N sélectionne automatiquement l’extraction planétaire. L’actualisation manuelle du fret affiche une animation d’état et conserve les valeurs du carrier.
+
+Présentation du tableau Mining améliorée, infobulles du carrier et aide Mining intégrée indépendante de la version. Curseur main sur les corps et commandes déjà interactifs des cartes système. Le correctif du corps provisoire A-6-a préserve les valeurs cartographiques entre les sessions.
+
 ## Nouveautés de la version 3.3.1 – Corrections
 
 - Les cartographies DSS terminées sont désormais détectées de manière fiable en direct.

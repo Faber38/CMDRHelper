@@ -90,6 +90,17 @@ from PySide6.QtWidgets import (
 )
 
 
+class _MiningLegendLabel(QLabel):
+    """Keep normal legend typography while making the whole label clickable."""
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.LeftButton and self.rect().contains(event.position().toPoint()):
+            self.linkActivated.emit("mining")
+            event.accept()
+            return
+        super().mouseReleaseEvent(event)
+
+
 class OnlineServiceCommanderComboBox(QComboBox):
     """Commander selector whose contents never dictate the window width."""
 
@@ -1674,6 +1685,17 @@ class MainWindow(QMainWindow):
         self.pages.widget(self.PAGE_ROUTE_PLANNER).set_destination_system(system_name)
         self._show_page(self.PAGE_ROUTE_PLANNER)
 
+    def _open_mining(self, *_):
+        self.material_view.tabs.setCurrentIndex(self.material_view.CATEGORIES.index("Mining"))
+        self.material_view.mining.set_origin_filter("surface")
+        self._show_page(self.PAGE_MATERIALS)
+
+    def _explorer_mining_clicked(self, item):
+        body = item.data(Qt.UserRole)
+        if (item.column() == 4 and isinstance(body, dict)
+                and int(body.get("planetary_mining_signals") or 0) > 0):
+            self._open_mining()
+
     def _explorer(self):
         page = QWidget()
 
@@ -1754,7 +1776,8 @@ class MainWindow(QMainWindow):
         ]
 
         for symbol, text, color in legend_items:
-            item = QLabel(
+            label_type = _MiningLegendLabel if symbol == "ABBAU ×N" else QLabel
+            item = label_type(
                 f'<span style="color:{color}; font-size:14px; '
                 f'font-weight:700;">{symbol}</span> '
                 f'<span style="font-size:11px;">{text}</span>'
@@ -1762,6 +1785,11 @@ class MainWindow(QMainWindow):
             item.setTextFormat(Qt.RichText)
             item.setWordWrap(True)
             item.setToolTip(tr("exploration.historical_notice") + "\n" + tr("exploration.value_estimate"))
+            if symbol == "ABBAU ×N":
+                item.setCursor(Qt.PointingHandCursor)
+                item.linkActivated.connect(self._open_mining)
+                item.setToolTip(tr("mining.open_tooltip"))
+                self.mining_legend_label = item
 
             if str(text).startswith(tr("explorer.gold_frame_prefix")):
                 self.gold_frame_legend_label = item
@@ -1848,6 +1876,7 @@ class MainWindow(QMainWindow):
         self.explorer_bio_table.setSelectionMode(QTableWidget.SingleSelection)
         self.explorer_bio_table.verticalHeader().setVisible(False)
         self.explorer_bio_table.setSortingEnabled(False)
+        self.explorer_bio_table.itemClicked.connect(self._explorer_mining_clicked)
         self.explorer_bio_table.itemDoubleClicked.connect(
             self._explorer_table_body_activated
         )
@@ -2449,8 +2478,11 @@ class MainWindow(QMainWindow):
 
                 if col == 4 and mining_signals > 0:
                     item.setForeground(QColor("#ff9d00"))
+                    font = item.font()
+                    font.setUnderline(True)
+                    item.setFont(font)
                     item.setToolTip(
-                        self._explorer_planetary_mining_tooltip(body)
+                        self._explorer_planetary_mining_tooltip(body) + "\n\n" + tr("mining.open_tooltip")
                     )
                 elif analysed:
                     item.setForeground(QColor("#65d067"))

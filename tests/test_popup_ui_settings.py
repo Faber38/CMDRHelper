@@ -8,13 +8,15 @@ from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
-from PySide6.QtCore import QByteArray, QSettings
+from PySide6.QtCore import QByteArray, QPoint, QSettings, Qt
+from PySide6.QtTest import QTest
 from PySide6.QtGui import QPalette
-from PySide6.QtWidgets import QApplication, QTableWidget, QWidget
+from PySide6.QtWidgets import QApplication, QLabel, QTableWidget, QWidget
 from cmdrhelper.i18n import tr, set_language, _TRANSLATIONS
 from cmdrhelper.ui.main_window import CargoLiveWindow, ExplorerLiveListWindow, MainWindow
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 from cmdrhelper.ui.cargo_hud import cargo_hud_enabled
+from cmdrhelper.mining_catalog import MINING_COMMODITIES
 
 
 class PopupUiSettingsTests(unittest.TestCase):
@@ -83,6 +85,84 @@ class PopupUiSettingsTests(unittest.TestCase):
             self.assertEqual(popup.table.item(1, 2).text(), "Fertig")
             self.assertEqual(popup.table.item(1, 2).foreground().color().name(), "#65d067")
             self.assertFalse(popup.grab().isNull())
+
+    def test_mining_legend_and_body_cell_open_central_materials_tab(self):
+        main = self.main()
+        explorer = self.explorer(main)
+        main.pages.removeWidget(main.pages.widget(main.PAGE_EXPLORER))
+        main.pages.insertWidget(main.PAGE_EXPLORER, explorer)
+        main.state.system_bodies = [dict(name="Test 1", short_name="1", body_id=1,
+                                        planetary_mining_signals=12)]
+        main._refresh_explorer_tables()
+        main.resize(1300, 850)
+        main.show()
+        main._show_page(main.PAGE_EXPLORER)
+        main.explorer_tabs.setCurrentIndex(2)
+        self.app.processEvents()
+        item = main.explorer_bio_table.item(0, 4)
+        self.assertEqual(item.text(), "ABBAU ×12")
+        QTest.mouseClick(main.explorer_bio_table.viewport(), Qt.MouseButton.LeftButton,
+                         pos=main.explorer_bio_table.visualItemRect(item).center())
+        self.assertEqual(main.pages.currentIndex(), main.PAGE_MATERIALS)
+        self.assertEqual(main.material_view.CATEGORIES[main.material_view.tabs.currentIndex()], "Mining")
+        mining = main.material_view.mining
+        self.assertEqual(mining.origin_filter.currentData(), "surface")
+        mining.set_origin_filter("asteroid")
+        main._show_page(main.PAGE_EXPLORER)
+        main.material_view.tabs.setCurrentIndex(0)
+        main.mining_legend_label.linkActivated.emit("mining")
+        self.assertEqual(main.pages.currentIndex(), main.PAGE_MATERIALS)
+        self.assertEqual(main.material_view.tabs.currentIndex(), 4)
+        self.assertIs(main.material_view.mining, mining)
+        self.assertEqual(mining.tree.topLevelItemCount(), len(MINING_COMMODITIES))
+        self.assertEqual(mining.origin_filter.currentData(), "surface")
+        main._show_page(main.PAGE_EXPLORER)
+        main._explorer_mining_clicked(main.explorer_bio_table.item(0, 0))
+        self.assertEqual(main.pages.currentIndex(), main.PAGE_EXPLORER)
+        item.setData(Qt.UserRole, dict(planetary_mining_signals=0))
+        main._explorer_mining_clicked(item)
+        self.assertEqual(main.pages.currentIndex(), main.PAGE_EXPLORER)
+
+    def test_mining_legend_keeps_normal_typography_and_whole_label_click_in_both_themes(self):
+        main = self.main()
+        explorer = self.explorer(main)
+        main.pages.removeWidget(main.pages.widget(main.PAGE_EXPLORER))
+        main.pages.insertWidget(main.PAGE_EXPLORER, explorer)
+        main.resize(1500, 900)
+        main.show()
+        label = main.mining_legend_label
+        expected = ('<span style="color:#ff9d00; font-size:14px; '
+                    'font-weight:700;">ABBAU ×N</span> '
+                    f'<span style="font-size:11px;">{tr("explorer.legend_planetary_mining")}</span>')
+        self.assertEqual(label.text(), expected)
+        self.assertNotIn('<a ', label.text())
+        self.assertNotIn('underline', label.text())
+        self.assertEqual(label.cursor().shape(), Qt.PointingHandCursor)
+        reference = self.keep(QLabel(expected, label.parentWidget()))
+        reference.setTextFormat(Qt.RichText)
+        reference.setWordWrap(True)
+        reference.hide()
+        for style, color in ((DARK_STYLESHEET, '#d8dde3'), (LIGHT_STYLESHEET, '#20262c')):
+            self.app.setStyleSheet(style)
+            main._show_page(main.PAGE_EXPLORER)
+            main.explorer_tabs.setCurrentIndex(0)
+            self.app.processEvents()
+            self.assertTrue(label.isVisible())
+            self.assertEqual(label.palette().color(QPalette.WindowText).name(), color)
+            self.assertEqual(label.sizeHint(), reference.sizeHint())
+            self.assertEqual(label.heightForWidth(label.width()), reference.heightForWidth(label.width()))
+            for position in (QPoint(2, 2), label.rect().center(),
+                             QPoint(label.width() - 2, label.height() - 2)):
+                main._show_page(main.PAGE_EXPLORER)
+                self.app.processEvents()
+                QTest.mouseClick(label, Qt.RightButton, pos=position)
+                self.assertEqual(main.pages.currentIndex(), main.PAGE_EXPLORER)
+                QTest.mouseClick(label, Qt.LeftButton, pos=position)
+                self.assertEqual(main.pages.currentIndex(), main.PAGE_MATERIALS)
+                self.assertEqual(main.material_view.tabs.currentIndex(), 4)
+                mining = main.material_view.mining
+                self.assertEqual(mining.origin_filter.currentData(), 'surface')
+                mining.set_origin_filter('asteroid')
 
     def test_geo_and_bio_controls_filter_one_popup_and_persist(self):
         main = self.main()

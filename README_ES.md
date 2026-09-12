@@ -13,6 +13,23 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper es una aplicación de escritorio independiente que analiza los diarios locales de Elite Dangerous y usa datos de posición planetaria de `Status.json`. Te ayuda a identificar cuerpos interesantes, volver a lugares guardados y consultar tus viajes y descubrimientos. Los datos personales se conservan tras reiniciar y se separan por comandante.
 
+## Novedades de la versión 3.4 – Mining y existencias
+
+- Nueva sección Mining con mercancías, precios orientativos y clases de valor.
+- Existencias de nave/SRV y del carrier confirmadas manualmente, con seguimiento automático de transferencias.
+- Búsqueda y filtros combinables para minería planetaria y de asteroides/anillos.
+- ABBAU ×N abre directamente la vista Mining correspondiente.
+- Valores cartográficos correctos al cambiar de sesión.
+- Ayuda, aspecto de tablas y usabilidad mejorados.
+
+Una tabla común contiene 57 mercancías mineras de origen Surface, Asteroid o Both. Los precios de referencia conocidos y sus clases de valor son orientativos y fijos, no datos de mercado en directo.
+
+Carga de nave/SRV verificada; doble clic para confirmar, corregir o restablecer a desconocidas las existencias del carrier. Solo se siguen eventos CargoTransfer inequívocos hacia/desde tu propio carrier a partir de una cantidad inicial confirmada. El total requiere ambas cantidades conocidas; desconocido sigue siendo —.
+
+Los filtros de existencias positivas, clase y origen se combinan; se guardan sus estados, el orden y las anchuras de columnas. ABBAU ×N selecciona automáticamente la minería planetaria. La actualización manual de carga muestra una animación de estado y conserva los valores del carrier.
+
+Tabla Mining mejorada, descripciones del carrier y ayuda Mining integrada independiente de la versión. Cursor de mano en cuerpos y controles ya interactivos del mapa del sistema. La corrección del marcador provisional A-6-a conserva los valores cartográficos entre sesiones.
+
 ## Novedades de la versión 3.3.1 – Correcciones
 
 - Los cartografiados DSS completados se detectan ahora de forma fiable en tiempo real.

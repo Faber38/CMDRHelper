@@ -13,6 +13,23 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper on itsenäinen työpöytäsovellus, joka analysoi Elite Dangerousin paikallisia lokeja ja käyttää `Status.json`-tiedoston planetaarisia sijaintitietoja. Se auttaa tunnistamaan kiinnostavia taivaankappaleita, palaamaan tallennettuihin paikkoihin ja tarkastelemaan matkoja ja löytöjä. Henkilökohtaiset tiedot säilyvät uudelleenkäynnistyksessä ja pidetään erillään komentajittain.
 
+## Uutta versiossa 3.4 – Mining ja varastot
+
+- Uusi Mining-osio: hyödykkeet, viitehinnat ja arvoluokat.
+- Aluksen/SRV:n varasto ja käsin vahvistettu carrierin varasto sekä siirtojen automaattinen seuranta.
+- Yhdistettävä haku ja suodattimet planeettapintojen sekä asteroidien/renkaiden louhintaan.
+- ABBAU ×N avaa suoraan sopivan Mining-näkymän.
+- Oikeat kartoitusarvot myös istunnon vaihtuessa.
+- Parannettu ohje, taulukoiden ulkoasu ja käytettävyys.
+
+Yhteinen taulukko sisältää 57 kaivoshyödykettä, joiden alkuperä on Surface, Asteroid tai Both. Tunnetut viitehinnat ja niistä johdetut arvoluokat ovat kiinteitä suuntaa antavia arvoja, eivät reaaliaikaisia markkinatietoja.
+
+Varmennettu aluksen/SRV:n rahti; kaksoisnapsautuksella carrierin määrän voi vahvistaa, korjata tai palauttaa tuntemattomaksi. Vain yksiselitteisiä CargoTransfer-tapahtumia omaan carrieriin tai sieltä pois seurataan vahvistetusta lähtömäärästä. Yhteismäärä näytetään vain, kun molemmat määrät tunnetaan; tuntematon pysyy merkintänä —.
+
+Positiivisen varaston, arvoluokan ja alkuperän suodattimet voi yhdistää; tilat, lajittelu ja sarakeleveydet tallennetaan. ABBAU ×N valitsee automaattisesti planeettapinnan louhinnan. Rahdin käsin tehtävä päivitys näyttää tilaanimaation ja säilyttää carrierin arvot.
+
+Parannettu Mining-taulukko, carrierin työkaluvihjeet ja versiosta riippumaton integroitu Mining-ohje. Käsikohdistin järjestelmäkartan jo vuorovaikutteisissa taivaankappaleissa ja ohjaimissa. A-6-a-paikkamerkkikorjaus säilyttää oikeat kartoitusarvot istuntojen välillä.
+
 ## Uutta versiossa 3.3.1 – Virhekorjaukset
 
 - Valmis DSS-kartoitus tunnistetaan nyt luotettavasti reaaliajassa.

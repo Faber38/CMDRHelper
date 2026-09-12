@@ -7,6 +7,14 @@ import re
 from cmdrhelper.i18n import get_language, tr
 
 RELEASE_SUMMARIES = {
+    "3.4": (
+        "release.3_4.mining",
+        "release.3_4.inventory",
+        "release.3_4.filters",
+        "release.3_4.navigation",
+        "release.3_4.cartography",
+        "release.3_4.usability",
+    ),
     "3.3.1": (
         "release.3_3_1.live_mapping",
         "release.3_3_1.valuation",

@@ -217,6 +217,8 @@ class HelpTranslationTests(unittest.TestCase):
                 self.assertEqual(text, module.HELP_TOPICS['materials'][1])
                 self.assertEqual(_tag_structure(text), _tag_structure(master))
                 engineering, odyssey = text.split('<h3>Odyssey</h3>')
+                odyssey, mining = odyssey.split('<h3>Mining</h3>')
+                self.assertTrue(mining.strip())
                 self.assertEqual(odyssey.count('<p>'), 4)
                 self.assertIn('1000', odyssey)
                 self.assertIn('?', odyssey)
@@ -236,6 +238,83 @@ class HelpTranslationTests(unittest.TestCase):
                                 'odyssey.backpack', 'odyssey.locker', 'odyssey.empty'):
                         self.assertIn(ui[key], filters)
                     self.assertIn('Powerplay', odyssey)
+
+    def test_help_brand_headings_are_version_independent(self):
+        for language in HELP_LANGUAGES:
+            catalog = import_module('cmdrhelper.help_content.' + language)
+            combined = '\n'.join(text for _, text in catalog.HELP_TOPICS.values())
+            with self.subTest(language=language):
+                self.assertNotRegex(combined, r'CMDRHelper\s+v?\d+\.\d+')
+                self.assertNotRegex(combined, r'v3\.[12]')
+                self.assertEqual(combined.count('<h3>CMDRHelper</h3>'), 5)
+
+    def test_mining_help_is_complete_and_localized_in_every_language(self):
+        master = help_topic('materials', 'de').text.split('<h3>Mining</h3>')[1]
+        german_paragraphs = re.findall(r'<p>(.*?)</p>', master)
+        for language in HELP_LANGUAGES:
+            with self.subTest(language=language):
+                text = help_topic('materials', language).text.split('<h3>Mining</h3>')[1]
+                ui = import_module('cmdrhelper.i18n.' + language).TRANSLATIONS
+                self.assertEqual(_tag_structure(text), _tag_structure(master))
+                self.assertEqual(text.count('<p>'), 10)
+                for term in ('57', 'Elite Dangerous', 'CMDRHelper', 'CargoTransfer',
+                             '— =', 'ABBAU ×N', 'Surface', 'Asteroid', 'Both', 'Cr/t'):
+                    self.assertIn(term, text)
+                # Ignore localized thousands separators when checking boundaries.
+                compact = re.sub(r'[.,\s]', '', text)
+                for threshold in ('100000', '25000', '99999'):
+                    self.assertIn(threshold, compact)
+                for key in ('name', 'vehicle', 'carrier', 'total', 'average_price',
+                            'value_class', 'high', 'medium', 'low', 'refresh',
+                            'origin_surface', 'origin_asteroid', 'only_stock'):
+                    self.assertIn(ui['mining.' + key], text)
+                self.assertIn(ui['materials.all'], text)
+                navigation = re.findall(r'<p>(.*?)</p>', text)[7]
+                self.assertIn(ui['materials.title'] + ' → Mining', navigation)
+                self.assertIn(ui['mining.origin_surface'], navigation)
+                if language != 'de':
+                    for paragraph in german_paragraphs:
+                        self.assertNotIn(paragraph, text)
+                self.assertNotRegex(text, r'\[\[|\]\]|\{[^}]+\}')
+
+    def test_mining_help_explains_carrier_unknown_refresh_and_filter_limits(self):
+        text = help_topic('materials', 'de').text.split('<h3>Mining</h3>')[1]
+        for explanation in (
+                'keine vollständige persönliche Carrier-Lagerliste',
+                'Carrier-Zelle doppelklicken', 'manuell bestätigen',
+                'zwischen Schiff und eigenem Carrier automatisch',
+                '— = Bestand unbekannt', 'Ohne bestätigten Ausgangsbestand',
+                'ändern, korrigieren oder auf unbekannt zurücksetzen',
+                'widersprüchliches oder negatives Ergebnis',
+                'erneut manuell bestätigt', 'Schiff und SRV werden nicht addiert',
+                'Vollständige Cargo-Snapshots haben Vorrang',
+                'Manuell bestätigte Carrierwerte werden dabei nicht gelöscht',
+                'Live-Aktualisierung läuft weiterhin automatisch',
+                'Grün bedeutet', 'Farbanimation', 'Rot einen fehlgeschlagenen',
+                'lassen sich kombinieren', 'positiver Schiff-/SRV-Bestand bleibt',
+                'keine zweite Mining-Tabelle', 'werden gespeichert',
+                'keine Live-Marktpreise', 'Ohne bekannten Preis gibt es keine Wertklasse'):
+            self.assertIn(explanation, text)
+        self.assertNotRegex(text, r'Bestpreis|Umkreis|lohnt sich|Handelsrouten|'
+                                  r'Seltene Waren|Gesamtverkaufswert')
+        self.assertNotIn('Suchtext wird gespeichert', text)
+
+    def test_material_dialog_displays_mining_help_in_both_themes(self):
+        from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
+        previous = self.app.styleSheet()
+        self.addCleanup(self.app.setStyleSheet, previous)
+        for style in (DARK_STYLESHEET, LIGHT_STYLESHEET):
+            self.app.setStyleSheet(style)
+            dialog = HelpDialog('materials', language='de')
+            try:
+                dialog.show()
+                self.app.processEvents()
+                self.assertIn('<h3>Mining</h3>', dialog.help_text.text())
+                self.assertIn('<h3>CMDRHelper</h3>', dialog.help_text.text())
+                self.assertTrue(dialog.help_text.wordWrap())
+                self.assertTrue(dialog.scroll_area.widgetResizable())
+            finally:
+                dialog.close()
 
     def test_help_html_is_balanced_in_all_languages(self):
         class BalancedHTML(HTMLParser):

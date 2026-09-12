@@ -37,13 +37,14 @@ class MaterialCategoryTabs(QTabBar):
 
 class MaterialView(QWidget):
     routeRequested = Signal(str)
-    CATEGORIES = ("Raw", "Manufactured", "Encoded", "Odyssey")
+    CATEGORIES = ("Raw", "Manufactured", "Encoded", "Odyssey", "Mining")
     FILTERS = ("all", "empty", "low", "near_full", "full")
 
     def __init__(self, state, parent=None, *, controller=None, odyssey_controller=None, trader_service=None):
         super().__init__(parent)
         self.state = state
         self.odyssey = None
+        self.mining = None
         self._odyssey_controller = odyssey_controller
         self.inventory = MaterialInventory(0, "")
         self.rows = ()
@@ -75,6 +76,7 @@ class MaterialView(QWidget):
         for key in ("raw", "manufactured", "encoded"):
             self.tabs.addTab(tr("materials." + key))
         self.tabs.addTab(tr("odyssey.title"))
+        self.tabs.addTab(tr("mining.title"))
         saved_tab = str(state.settings.value("materials/category", "Raw"))
         self.tabs.setCurrentIndex(self.CATEGORIES.index(saved_tab) if saved_tab in self.CATEGORIES else 0)
         layout.addWidget(self.tabs)
@@ -179,6 +181,8 @@ class MaterialView(QWidget):
         self.row_delegate.light = self._light
         if self.odyssey is not None:
             self.odyssey.set_light_mode(self._light)
+        if self.mining is not None:
+            self.mining.set_light_mode(self._light)
         self.render()
 
     def render(self, *_):
@@ -191,15 +195,26 @@ class MaterialView(QWidget):
             self.odyssey.set_light_mode(self._light)
             self._controls.addWidget(self.odyssey.filter)
             self._page_layout.addWidget(self.odyssey, 1)
-        self.tree.setVisible(not is_odyssey)
-        self.commander_label.setVisible(not is_odyssey)
-        self.filter.setVisible(not is_odyssey)
-        self.status.setVisible(not is_odyssey and bool(self.status.text()))
+        is_mining = self.CATEGORIES[self.tabs.currentIndex()] == "Mining"
+        if is_mining and self.mining is None:
+            from cmdrhelper.ui.mining_view import MiningView
+            self.mining = MiningView(self.state.settings, self, state=self.state)
+            self.mining.set_light_mode(self._light)
+            self._page_layout.addWidget(self.mining, 1)
+        if self.mining is not None:
+            self.mining.setVisible(is_mining)
+        self.search.setVisible(not is_mining)
+        self.tree.setVisible(not is_odyssey and not is_mining)
+        self.commander_label.setVisible(not is_odyssey and not is_mining)
+        self.filter.setVisible(not is_odyssey and not is_mining)
+        self.status.setVisible(not is_odyssey and not is_mining and bool(self.status.text()))
         if self.odyssey is not None:
             self.odyssey.setVisible(is_odyssey)
             self.odyssey.filter.setVisible(is_odyssey)
         if is_odyssey:
             self.odyssey.render()
+            return
+        if is_mining:
             return
         scroll = self.tree.verticalScrollBar().value()
         selected_items = self.tree.selectedItems()

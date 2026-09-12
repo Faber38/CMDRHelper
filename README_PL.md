@@ -13,6 +13,23 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper to samodzielna aplikacja komputerowa analizująca lokalne dzienniki Elite Dangerous i korzystająca z planetarnych danych pozycji z `Status.json`. Pomaga rozpoznawać interesujące ciała niebieskie, wracać do zapisanych miejsc oraz przeglądać podróże i odkrycia. Dane osobiste pozostają po ponownym uruchomieniu i są rozdzielone według dowódców.
 
+## Nowości w wersji 3.4 – Mining i zapasy
+
+- Nowa sekcja Mining z towarami, cenami orientacyjnymi i klasami wartości.
+- Zapasy statku/SRV i ręcznie potwierdzone zapasy carriera z automatycznym śledzeniem transferów.
+- Łączone wyszukiwanie i filtry wydobycia planetarnego oraz asteroid/pierścieni.
+- ABBAU ×N otwiera bezpośrednio odpowiedni widok Mining.
+- Poprawne wartości kartograficzne przy zmianie sesji.
+- Ulepszona pomoc, wygląd tabel i obsługa.
+
+Wspólna tabela zawiera 57 towarów górniczych o pochodzeniu Surface, Asteroid lub Both. Znane ceny referencyjne i wynikające z nich klasy wartości pozostają stałymi wskazówkami, a nie danymi rynkowymi na żywo.
+
+Zweryfikowany ładunek statku/SRV; dwukrotne kliknięcie pozwala potwierdzić, skorygować lub zresetować zapas carriera do nieznanego. Tylko jednoznaczne zdarzenia CargoTransfer do/z własnego carriera aktualizują potwierdzony zapas początkowy. Suma pojawia się tylko przy obu znanych ilościach; nieznane pozostaje —.
+
+Filtry dodatniego zapasu, klasy i pochodzenia można łączyć; ich stany, sortowanie i szerokości kolumn są zapisywane. ABBAU ×N automatycznie wybiera wydobycie planetarne. Ręczne odświeżanie ładunku ma animację stanu i zachowuje wartości carriera.
+
+Ulepszony wygląd tabeli Mining, podpowiedzi carriera i zintegrowana pomoc Mining niezależna od wersji. Kursor dłoni na już interaktywnych ciałach i przyciskach mapy systemu. Poprawka zastępczego wpisu A-6-a zachowuje poprawne wartości kartograficzne między sesjami.
+
 ## Nowości w wersji 3.3.1 – Poprawki błędów
 
 - Ukończone mapowanie DSS jest teraz niezawodnie wykrywane na bieżąco.

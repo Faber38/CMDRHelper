@@ -107,7 +107,8 @@ class DocumentationReleaseTests(unittest.TestCase):
         for language in HELP_LANGUAGES:
             with self.subTest(language=language):
                 for topic in ('materials', 'explorer', 'chronicle', 'route_planner', 'settings'):
-                    self.assertIn('<h3>CMDRHelper v3.2</h3>', help_topic(topic, language).text)
+                    self.assertIn('<h3>CMDRHelper</h3>', help_topic(topic, language).text)
+                    self.assertNotIn('<h3>CMDRHelper v3.2</h3>', help_topic(topic, language).text)
                 material = help_topic('materials', language).text
                 for token in ('146', '223', 'Spansh', 'Raw', 'Manufactured', 'Encoded', 'ly'):
                     self.assertIn(token, material)
@@ -117,7 +118,7 @@ class DocumentationReleaseTests(unittest.TestCase):
                 self.assertIn('ID64', route)
                 self.assertIn('Unable to find route', route)
                 self.assertIn('DSS', help_topic('explorer', language).text)
-                self.assertIn('v3.1', help_topic('settings', language).text)
+                self.assertNotRegex(help_topic('settings', language).text, r'\bv3\.[12]\b')
 
     def test_release_notes_keep_six_localized_highlights(self):
         from cmdrhelper.release_summaries import RELEASE_SUMMARIES

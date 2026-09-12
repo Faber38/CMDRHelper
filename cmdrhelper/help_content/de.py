@@ -5,7 +5,7 @@ HELP_TOPICS = {
     "materials": (
         "Materialien",
         """<h2>Materialien</h2>
-<h3>CMDRHelper v3.2</h3>
+<h3>CMDRHelper</h3>
 <p>Engineering-Materialverwaltung: Alle 146 Materialien in Raw, Manufactured und Encoded, mit Graden, Maximalbeständen und Sonderfällen. Commanderbezogene Live-Bestände, Suche, Filter, fünf dezente Zeilenhintergründe und gespeicherte Spaltenbreiten/-reihenfolge erleichtern die Übersicht. Unbekannter Bestand bleibt von null unterschieden.</p>
 <p>Odyssey-Inventar: Der vierte Materialreiter enthält 223 Katalogidentitäten für Güter, Komponenten, Daten und Verbrauch. Schließfach, Rucksack und verlässlicher Gesamtbestand bleiben getrennt; Missionsstapel, Missionsstatus und Engineering-Verwendung sind sichtbar. Positive Bestandszahlen erscheinen in Gold. Fehlende Namensübersetzungen verwenden Englisch.</p>
 <p>Materialhändlersuche (Händler suchen → Zum Routenplaner): Die Suche nutzt Spansh-Community-Daten und sucht auf Knopfdruck getrennt nach Raw, Manufactured und Encoded vom aktuellen Commander-System aus. Carrier werden ausgeschlossen und Stationsdetails geprüft. Die Entfernung in ly ist die direkte Systementfernung; Zugang ist nicht garantiert. Die Übergabe an den Routenplaner setzt das Zielsystem, nicht die Station, und startet keine Route. Für Odyssey gibt es keine Händlersuche.</p>
@@ -27,7 +27,18 @@ HELP_TOPICS = {
 <p>Der vierte Reiter enthält Güter, Komponenten, Daten und Verbrauchsgegenstände. Schließfach und Rucksack werden getrennt angezeigt. Gesamt erscheint nur, wenn beide Zustände zuverlässig zusammenpassen. Ein veralteter Rucksack wird nicht hinzugezählt; unbekannte Werte erscheinen als ?. Die Grenze 1000 gilt für die jeweilige Schließfachkategorie, nicht für einzelne Gegenstände. Für Verbrauchsgegenstände wird keine unbestätigte Kapazität angezeigt.</p>
 <p>Die Kennzeichnung Mission gehört zum jeweiligen Bestandsstapel. Normale und missionsgebundene Gegenstände bleiben getrennt. Auch nach Missionsabschluss bleibt ein Gegenstand gekennzeichnet, solange das Journal ihn im Bestand führt. Der Tooltip zeigt Missionsnummer und bekannten Status. Engineering weist auf mindestens eine Verwendung für Anzug, Waffen oder Ingenieurfreischaltung hin; die einzelnen Verwendungen stehen im Tooltip.</p>
 <p>Die Suche findet lokale und englische Namen. Die Odyssey-Filter zeigen alle Gegenstände, Missionsstapel, Engineering-Gegenstände, positiven Rucksack- oder Schließfachbestand oder sicher bekannten Gesamtbestand 0. Unbekannt ist nicht 0. Fehlende Übersetzungen fallen auf den englischen Namen zurück.</p>
-<p>Der Bestand wird im Hintergrund automatisch aktualisiert. Bestätigte neue Aufnahmen können kurz hervorgehoben werden. Beim Commanderwechsel werden alte Bestände sofort entfernt. Unterreiter, Filter sowie Spaltenbreiten und Reihenfolge werden für Odyssey separat gespeichert.</p>""",
+<p>Der Bestand wird im Hintergrund automatisch aktualisiert. Bestätigte neue Aufnahmen können kurz hervorgehoben werden. Beim Commanderwechsel werden alte Bestände sofort entfernt. Unterreiter, Filter sowie Spaltenbreiten und Reihenfolge werden für Odyssey separat gespeichert.</p>
+<h3>Mining</h3>
+<p>Materialien → Mining ist die zentrale Übersicht für derzeit 57 bekannte handelbare Mining-Commodities, getrennt von Engineering-Materialien. Eine gemeinsame Tabelle umfasst planetaren Oberflächenabbau und Asteroiden-/Ring-Mining. Die festen Richtpreise dienen nur zur Orientierung und sind keine Live-Marktpreise.</p>
+<p><b>Spalten</b><br><b>Rohstoff:</b> Name der Commodity bzw. des Rohstoffs.<br><b>Schiff/SRV:</b> sicher bekannter Bestand im aktuell relevanten Fahrzeug.<br><b>Carrier:</b> Bestand auf dem eigenen Carrier; Elite liefert keine vollständige persönliche Lagerliste, daher ist eine manuelle Bestätigung des Ausgangsbestands nötig.<br><b>Gesamt:</b> Schiff/SRV + Carrier, nur wenn beide Teilbestände bekannt sind. Unbekannt wird nicht als 0 addiert.<br><b>Ø-Preis Cr/t:</b> fester Richtwert ohne Garantie für einen aktuellen Verkaufspreis. Fehlende Richtpreise bleiben unbekannt.<br><b>Wertklasse:</b> HOCH ab 100.000 Cr/t; MITTEL von 25.000–99.999 Cr/t; NIEDRIG unter 25.000 Cr/t. Ohne bekannten Preis gibt es keine Wertklasse.</p>
+<p><b>Carrierbestand bestätigen</b><br>Elite Dangerous stellt CMDRHelper keine vollständige persönliche Carrier-Lagerliste bereit. So legst du für eine Ware einen bekannten Ausgangspunkt fest: 1. Carrier-Zelle doppelklicken. 2. Aktuellen Bestand als ganze Zahl ab 0 eingeben. 3. Den Wert übernehmen und damit manuell bestätigen. 4. Danach verfolgt CMDRHelper eindeutige CargoTransfer-Ereignisse zwischen Schiff und eigenem Carrier automatisch. Der Tooltip zeigt die manuelle Bestätigung und gegebenenfalls die spätere Fortschreibung.</p>
+<p><b>— = Bestand unbekannt</b><br>Ohne bestätigten Ausgangsbestand ergeben einzelne Transfers keinen zuverlässigen absoluten Carrierbestand. Du kannst einen Wert jederzeit per Doppelklick ändern, korrigieren oder auf unbekannt zurücksetzen. Würde ein Transfer ein widersprüchliches oder negatives Ergebnis erzeugen, wird der Bestand wieder unbekannt und muss erneut manuell bestätigt werden.</p>
+<p><b>Schiff und SRV</b><br>CMDRHelper verwendet verifizierte Cargo-Daten. Schiff und SRV werden nicht addiert: Die Tabelle zeigt den jeweils relevanten Fahrzeugbestand. Vollständige Cargo-Snapshots haben Vorrang vor aus einzelnen Änderungen fortgeschriebenen Beständen.</p>
+<p><b>↻ Aktualisieren</b><br>Der Button liest den aktuellen Schiff-/SRV-Frachtbestand erneut ein und dient als manueller Kontroll- und Refresh-Mechanismus. Die normale Live-Aktualisierung läuft weiterhin automatisch. Manuell bestätigte Carrierwerte werden dabei nicht gelöscht. Grün bedeutet bereit oder erfolgreich, die Farbanimation zeigt die laufende Aktualisierung, Rot einen fehlgeschlagenen Versuch. Fehlende oder nicht verifizierbare Daten werden nicht als leerer Bestand ausgegeben.</p>
+<p><b>Filter kombinieren</b><br>Die Rohstoffsuche filtert nach Namen. Die Wertklasse bietet Alle, HOCH, MITTEL und NIEDRIG; die Herkunft bietet Alle, Planetarer Abbau und Asteroiden/Ringe. Nur Bestand zeigt nur Waren mit sicher bekanntem positivem Bestand. Ein positiver Schiff-/SRV-Bestand bleibt auch bei unbekanntem Carrierbestand sichtbar. Suche, Wertklasse, Herkunft und Bestandsfilter lassen sich kombinieren.</p>
+<p><b>ABBAU ×N im Explorer</b><br>Ein Klick öffnet Materialien → Mining und setzt den Herkunftsfilter automatisch auf Planetarer Abbau. Im Explorer gibt es keine zweite Mining-Tabelle.</p>
+<p><b>Sortierung und Breiten</b><br>Klicke auf Spaltenüberschriften, um auf- oder absteigend zu sortieren. Bestände und Preise werden numerisch sortiert; unbekannte Werte stehen am Ende. Ziehe die Spaltengrenzen mit der Maus, um die Breiten anzupassen. Sortierung und Spaltenbreiten sowie die Zustände von Wertklasse, Herkunft und Nur Bestand werden gespeichert.</p>
+<p><b>Herkunft</b><br>Surface bedeutet planetarer Oberflächenabbau, Asteroid steht für Asteroiden-/Ring-Mining. Manche Rohstoffe stammen aus beiden Bereichen (Both) und erscheinen in beiden passenden Herkunftsfiltern.</p>""",
     ),
     "overview": (
         "Übersicht",
@@ -145,7 +156,7 @@ HELP_TOPICS = {
     "explorer": (
         "Explorer",
         """<h2>Explorer</h2>
-<h3>CMDRHelper v3.2</h3>
+<h3>CMDRHelper</h3>
 <p>System-Gesamtansicht: Die neue ED-artige Darstellung ersetzt die bisherige Miniübersicht und ist in Explorer und Chronik verfügbar. Sterne und Planeten bilden die Hauptstruktur, Monde verzweigen darunter; Mehrsternsysteme bleiben übersichtlich. Zoom, Scrollen, Anpassen an das Fenster und Körperklick öffnen den Zugang zu den Details.</p>
 <p>Kompakte Asteroidengürtel: Belt-Cluster werden in Gesamtansicht und normalen Explorer-/Chronik-Systemkarten zu übersichtlichen Gürteln zusammengefasst. Alle einzelnen Clusterdaten bleiben erhalten.</p>
 <p>Kartographie korrigiert: Ein späterer Scan nach einer DSS-Kartographierung setzt unverkaufte Explorerwerte, Mappingzeitpunkt und Effizienz nicht mehr zurück. Bestehende fehlerhafte Ansprüche werden beim Start anhand verfügbarer, eindeutig zugeordneter Journale repariert. Fehlen diese Quellen, bleibt die Reparatur offen; eine Datenbanklöschung ist nicht nötig.</p>
@@ -319,7 +330,7 @@ HELP_TOPICS = {
     "chronicle": (
         "Chronik",
         """<h2>Chronik</h2>
-<h3>CMDRHelper v3.2</h3>
+<h3>CMDRHelper</h3>
 <p>System-Gesamtansicht: Die neue ED-artige Darstellung ersetzt die bisherige Miniübersicht und ist in Explorer und Chronik verfügbar. Sterne und Planeten bilden die Hauptstruktur, Monde verzweigen darunter; Mehrsternsysteme bleiben übersichtlich. Zoom, Scrollen, Anpassen an das Fenster und Körperklick öffnen den Zugang zu den Details.</p>
 <p>Kompakte Asteroidengürtel: Belt-Cluster werden in Gesamtansicht und normalen Explorer-/Chronik-Systemkarten zu übersichtlichen Gürteln zusammengefasst. Alle einzelnen Clusterdaten bleiben erhalten.</p>
 <p>Die Chronik ist die persönliche Reise- und Fundhistorie des Commanders. Sie verwendet die dauerhaft gespeicherten Journalinformationen, um bereits besuchte Systeme wiederzufinden, räumlich darzustellen und nach bekannten Entdeckungen zu durchsuchen.</p>
@@ -512,7 +523,7 @@ HELP_TOPICS = {
     "route_planner": (
         "Routenplaner",
         """<h2>Routenplaner</h2>
-<h3>CMDRHelper v3.2</h3>
+<h3>CMDRHelper</h3>
 <p>Routenplaner verbessert: Das aktuelle System wird als Start automatisch nachgeführt, bis du einen eigenen Start eingibst; ein leeres Startfeld aktiviert die Automatik erneut. Schiff und Carrier verwenden exakt geprüfte ID64-Systemadressen statt ähnlicher Namen. Bei „Unable to find route“ erklärt Spansh, dass keine Route gefunden wurde; prüfe Ziele, Reichweite und Routeneinstellungen.</p>
 <p>Der Routenplaner unterstützt bei der Planung längerer Reisen mit Schiff oder Fleet Carrier. CMDRHelper kann dafür externe Routendaten von Spansh verwenden und die geplante Strecke für die weitere Nutzung aufbereiten.</p>
 
@@ -823,8 +834,8 @@ HELP_TOPICS = {
     "settings": (
         "Einstellungen",
         """<h2>Einstellungen</h2>
-<h3>CMDRHelper v3.2</h3>
-<p>Bessere Updateinformation: Das Ja/Nein-Fenster zeigt installierte und verfügbare Version sowie bis zu sechs wichtige Änderungen, sofern eine Kurzbeschreibung vorliegt. Lange Listen scrollen, die Aktionen bleiben erreichbar. Die neue Darstellung wird mit v3.2 installiert; ein unveränderter v3.1-Client zeigt sie noch nicht.</p>
+<h3>CMDRHelper</h3>
+<p>Bessere Updateinformation: Das Ja/Nein-Fenster zeigt installierte und verfügbare Version sowie bis zu sechs wichtige Änderungen, sofern eine Kurzbeschreibung vorliegt. Lange Listen scrollen, die Aktionen bleiben erreichbar.</p>
 <p>Im Bereich „Einstellungen“ wird festgelegt, wie CMDRHelper mit Elite Dangerous, Journaldateien, Datenbank, Online-Diensten, Oberfläche und Updates arbeitet.</p>
 <p>Änderungen an Zugangsdaten und Pfaden sollten sorgfältig vorgenommen werden. Commanderbezogene Einstellungen werden soweit erforderlich getrennt nach Frontier-ID verwaltet.</p>
 

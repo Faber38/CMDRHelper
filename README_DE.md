@@ -13,6 +13,23 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper ist ein eigenständiges Desktop-Programm, das die lokalen Journale von Elite Dangerous auswertet und planetare Positionsdaten aus `Status.json` verwendet. Es hilft dir, interessante Körper zu erkennen, gespeicherte Orte wiederzufinden und deine Reisen und Funde nachzuvollziehen. Persönliche Daten bleiben nach einem Neustart erhalten und werden nach Commander getrennt.
 
+## Neu in Version 3.4 – Mining und Bestände
+
+- Neuer Mining-Bereich mit Rohstoffen, Richtwerten und Wertklassen.
+- Schiff/SRV-Bestände und manuell bestätigte Carrierbestände mit automatischer Transferverfolgung.
+- Kombinierbare Suche und Filter für planetaren Abbau und Asteroiden-/Ring-Mining.
+- ABBAU ×N öffnet direkt die passende Mining-Übersicht.
+- Korrekte Kartographiewerte auch bei Sitzungswechseln.
+- Verbesserte Hilfe, Tabellenoptik und Bedienung.
+
+Eine gemeinsame Tabelle enthält 57 Mining-Commodities mit Herkunft Surface, Asteroid oder Both. Bekannte Richtpreise und daraus abgeleitete Wertklassen bleiben feste Orientierungswerte, keine Live-Marktdaten.
+
+Verifizierte Schiff-/SRV-Fracht; Carrierwerte per Doppelklick bestätigen, korrigieren oder auf unbekannt zurücksetzen. Nur eindeutige CargoTransfer-Ereignisse zum/vom eigenen Carrier werden ab bestätigtem Ausgangsbestand fortgeschrieben. Gesamt erscheint nur bei bekannten Teilbeständen; unbekannt bleibt —.
+
+„Nur Bestand“, Wertklassen- und Herkunftsfilter sind kombinierbar und werden ebenso wie Sortierung und Spaltenbreiten gespeichert. ABBAU ×N wählt automatisch „Planetarer Abbau“. Manueller Cargo-Refresh mit Statusanimation; Carrierwerte bleiben erhalten.
+
+Überarbeitete Mining-Tabellenoptik, Carrier-Tooltips und versionsunabhängige integrierte Mining-Hilfe. Hand-Cursor an den bereits interaktiven Systemkarten-Körpern und Bedienelementen. Der A-6-a-Placeholder-Fix erhält korrekte Kartographiewerte über Sitzungswechsel hinweg.
+
 ## Neu in Version 3.3.1 – Fehlerkorrekturen
 
 - Abgeschlossene DSS-Kartierungen werden jetzt zuverlässig live erkannt.

@@ -5,7 +5,7 @@ HELP_TOPICS = {
     "materials": (
         'Materials',
         """<h2>Materials</h2>
-<h3>CMDRHelper v3.2</h3>
+<h3>CMDRHelper</h3>
 <p>Engineering material management: All 146 materials in Raw, Manufactured and Encoded, with grades, capacities and special cases. Commander-specific live stock, search, filters, five subtle row backgrounds and saved column widths/order make browsing easier. Unknown stock remains distinct from zero.</p>
 <p>Odyssey inventory: The fourth material tab contains 223 catalog identities for goods, components, data and consumables. Ship Locker, Backpack and reliable totals remain separate; mission stacks, mission status and engineering uses are visible. Positive stock numbers appear in gold. Missing name translations fall back to English.</p>
 <p>Material trader search (Find trader → Open route planner): On request, Spansh searches Raw, Manufactured and Encoded separately from the current commander system. Carriers are excluded and station details checked. Distance in ly is the direct system distance; community data cannot guarantee access. Sending a result to the route planner only sets the destination system and does not start a route. There is no Odyssey trader search.</p>
@@ -27,7 +27,18 @@ HELP_TOPICS = {
 <p>The fourth tab under Materials contains Goods, Components, Data and Consumables. Ship locker and Backpack show their respective stocks separately. Total shows their sum only when both states reliably agree. Stale backpack data is deliberately not presented as current stock or added to the total; ? means unknown or currently not reliably reconstructible stock. The limit of 1000 applies to each ship locker category, not to individual items. The engineering material example above does not define an individual maximum for Odyssey items. Consumables still have no fully validated capacity rule, so no unconfirmed capacity is displayed.</p>
 <p>Usage shows the item's usage labels. Mission refers to a mission assignment of the specific inventory stack, not to the item type in general. Normal and mission-bound stacks remain separate. Even after mission completion, an item remains marked while the journal still lists it in the inventory; completion does not automatically remove it. The tooltip shows the mission number and known status. Engineering means that the static Odyssey catalog knows at least one confirmed use: a suit upgrade, weapon upgrade, suit modification, weapon modification or engineer unlock. The individual uses appear in the tooltip. A missing label does not mean the item is useless or only tradable. Powerplay and other special items may also be displayed.</p>
 <p>The search matches the displayed local and English material/item names. The six Odyssey filters are All (all items), Mission (mission-assigned stacks), Engineering (items with confirmed engineering use), Backpack (backpack stock greater than zero), Ship locker (locker stock greater than zero) and Stock 0 (reliably known total stock of 0). Unknown stock ? is not 0 and is excluded from Stock 0. Missing name translations fall back to English, so individual names may still appear in English in the selected language. This is intentional and is not a translation error in the inventory logic.</p>
-<p>The inventory is updated automatically in the background. Confirmed new pickups may be highlighted briefly. When switching commanders, old stocks are removed immediately. Subtabs, filters, column widths and column order are saved separately for Odyssey.</p>""",
+<p>The inventory is updated automatically in the background. Confirmed new pickups may be highlighted briefly. When switching commanders, old stocks are removed immediately. Subtabs, filters, column widths and column order are saved separately for Odyssey.</p>
+<h3>Mining</h3>
+<p>Materials → Mining is the central overview of 57 currently known tradable mining commodities, separate from engineering materials. One table covers planetary surface mining and asteroid/ring mining. Fixed reference prices are for guidance only, not live market prices.</p>
+<p><b>Columns</b><br><b>Commodity:</b> the commodity or resource name.<br><b>Ship/SRV:</b> reliably known stock in the currently relevant vehicle.<br><b>Carrier:</b> stock on your own carrier; Elite does not supply a complete personal inventory, so the initial stock must be confirmed manually.<br><b>Total:</b> ship/SRV + carrier, only when both amounts are known. Unknown is not added as 0.<br><b>Avg price Cr/t:</b> a fixed reference value, not a guaranteed current selling price. Missing reference prices remain unknown.<br><b>Value class:</b> HIGH from 100,000 Cr/t; MEDIUM at 25,000–99,999 Cr/t; LOW below 25,000 Cr/t. An unknown price has no value class.</p>
+<p><b>Confirming carrier stock</b><br>Elite Dangerous does not provide CMDRHelper with a complete personal carrier inventory. Establish a known starting point for a commodity: 1. Double-click its carrier cell. 2. Enter the current stock as a whole number of 0 or more. 3. Apply the value to confirm it manually. 4. CMDRHelper then automatically tracks unambiguous CargoTransfer events between your ship and your own carrier. The tooltip shows the manual confirmation and any subsequent tracking.</p>
+<p><b>— = stock unknown</b><br>Without a confirmed starting stock, individual transfers cannot establish a reliable absolute carrier stock. Double-click at any time to change, correct or reset a value to unknown. If a transfer would produce a contradictory or negative result, the stock becomes unknown again and must be manually reconfirmed.</p>
+<p><b>Ship and SRV</b><br>CMDRHelper uses verified cargo data. Ship and SRV are not added together: the table shows the stock of the relevant vehicle. Complete cargo snapshots take precedence over stock calculated from individual changes.</p>
+<p><b>↻ Refresh</b><br>The button rereads the current ship/SRV cargo as a manual check and refresh mechanism. Normal live updates continue automatically. Manually confirmed carrier values are not deleted. Green means ready or successful, the colour animation indicates an update in progress, and red indicates a failed attempt. Missing or unverifiable data is not reported as empty stock.</p>
+<p><b>Combining filters</b><br>Resource search filters by name. Value class offers All, HIGH, MEDIUM and LOW; origin offers All, Planetary mining and Asteroids/Rings. In stock only shows only commodities with reliably known positive stock. Positive ship/SRV stock remains visible even when carrier stock is unknown. Search, value class, origin and stock filters can be combined.</p>
+<p><b>ABBAU ×N in Explorer</b><br>Clicking opens Materials → Mining and automatically sets the origin filter to Planetary mining. There is no second mining table in Explorer.</p>
+<p><b>Sorting and widths</b><br>Click column headings to sort ascending or descending. Stock and prices sort numerically, with unknown values last. Drag column boundaries with the mouse to adjust widths. Sorting, column widths and the value class, origin and In stock only filter states are saved.</p>
+<p><b>Origin</b><br>Surface means planetary surface mining; Asteroid means asteroid/ring mining. Some commodities come from both sources (Both) and appear in both matching origin filters.</p>""",
     ),'overview': ('Overview',
               '<h2>Overview</h2>\n'
               '<p>The overview is the home page of CMDRHelper. It summarizes the most important '
@@ -179,7 +190,7 @@ HELP_TOPICS = {
               '<p>CMDRHelper can only display information that the journal actually provides or '
               'that has already been stored from previous unique mission events.</p>'),
  'explorer': ('Explorer',
-              '<h2>Explorer</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>System overview: The new Elite-style view replaces the previous miniature overview and is available in Explorer and Chronicle. Stars and planets form the main structure, with moons branching below; multiple-star systems remain readable. Zoom, scrolling, fit to window and body clicks provide access to details.</p>\n<p>Compact asteroid belts: Belt clusters are grouped into clear belts in the overview and regular Explorer/Chronicle system maps. All individual cluster data is retained.</p>\n<p>Cartography corrected: A later scan after DSS mapping no longer resets unsold exploration values, mapping time or efficiency. Existing incorrect claims are repaired at startup from available journals with clear commander attribution. Missing sources leave the repair pending; deleting the database is unnecessary.</p>\n'
+              '<h2>Explorer</h2>\n<h3>CMDRHelper</h3>\n<p>System overview: The new Elite-style view replaces the previous miniature overview and is available in Explorer and Chronicle. Stars and planets form the main structure, with moons branching below; multiple-star systems remain readable. Zoom, scrolling, fit to window and body clicks provide access to details.</p>\n<p>Compact asteroid belts: Belt clusters are grouped into clear belts in the overview and regular Explorer/Chronicle system maps. All individual cluster data is retained.</p>\n<p>Cartography corrected: A later scan after DSS mapping no longer resets unsold exploration values, mapping time or efficiency. Existing incorrect claims are repaired at startup from available journals with clear commander attribution. Missing sources leave the repair pending; deleting the database is unnecessary.</p>\n'
               '<p>The Explorer evaluates the systems and celestial bodies discovered and scanned '
               'by the active commander. It combines your own Elite Dangerous journal data with '
               'already available additional information and displays exploration, cartography, '
@@ -385,7 +396,7 @@ HELP_TOPICS = {
  'chronicle': (
         'Chronicle',
         """<h2>Chronicle</h2>
-<h3>CMDRHelper v3.2</h3>
+<h3>CMDRHelper</h3>
 <p>System overview: The new Elite-style view replaces the previous miniature overview and is available in Explorer and Chronicle. Stars and planets form the main structure, with moons branching below; multiple-star systems remain readable. Zoom, scrolling, fit to window and body clicks provide access to details.</p>
 <p>Compact asteroid belts: Belt clusters are grouped into clear belts in the overview and regular Explorer/Chronicle system maps. All individual cluster data is retained.</p>
 <p>The chronicle is the commander's personal travel and discovery history. It uses the permanently stored journal information to find systems that have already been visited, to spatially represent them and to search for known discoveries.</p>
@@ -576,7 +587,7 @@ HELP_TOPICS = {
 """,
     ),
  'route_planner': ('Route planner',
-                   '<h2>Route planner</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Improved route planner: The current system follows your location automatically until you enter a manual start; clearing the start field restores automatic tracking. Ships and carriers use exactly validated ID64 system addresses instead of similar names. “Unable to find route” is explained as no route found; check destinations, range and route settings.</p>\n'
+                   '<h2>Route planner</h2>\n<h3>CMDRHelper</h3>\n<p>Improved route planner: The current system follows your location automatically until you enter a manual start; clearing the start field restores automatic tracking. Ships and carriers use exactly validated ID64 system addresses instead of similar names. “Unable to find route” is explained as no route found; check destinations, range and route settings.</p>\n'
                    '<p>The route planner supports planning longer trips by ship or Fleet Carrier. '
                    'CMDRHelper can use external route data from Spansh and prepare the planned '
                    'route for further use.</p>\n'
@@ -1040,7 +1051,7 @@ HELP_TOPICS = {
                     '<p>This separation prevents personal data or online uploads from different '
                     'commanders from being mixed together.</p>'),
  'settings': ('Settings',
-              '<h2>Settings</h2>\n<h3>CMDRHelper v3.2</h3>\n<p>Better update information: The Yes/No window shows installed and available versions plus up to six highlights when a summary is available. Long lists scroll while actions remain accessible. This display ships with v3.2; an unchanged v3.1 client does not show it yet.</p>\n'
+              '<h2>Settings</h2>\n<h3>CMDRHelper</h3>\n<p>Better update information: The Yes/No window shows installed and available versions plus up to six highlights when a summary is available. Long lists scroll while actions remain accessible.</p>\n'
               '<p>The “Settings” area determines how CMDRHelper works with Elite Dangerous, '
               'journal files, database, online services, interface and updates.</p>\n'
               '<p>Changes to credentials and paths should be made carefully. Commander-related '

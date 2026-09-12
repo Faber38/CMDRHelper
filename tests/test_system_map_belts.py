@@ -6,9 +6,9 @@ from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
-from PySide6.QtCore import QPoint, Qt
+from PySide6.QtCore import QEvent, QPoint, Qt
 from PySide6.QtTest import QTest
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget
+from PySide6.QtWidgets import QApplication, QMainWindow, QScrollArea, QWidget
 
 from cmdrhelper.belt_projection import project_belts
 from cmdrhelper.ui.main_window import ChronicleSystemWindow, MainWindow
@@ -116,12 +116,59 @@ class NormalMapBeltTests(unittest.TestCase):
                 self.assertTrue(all(b is not group for _, b in widget._body_rects))
                 for target in (group, body):
                     x, y = widget.body_center(target)
+                    before = widget.grab().toImage()
+                    QTest.mouseMove(widget, QPoint(int(x), int(y)))
+                    self.assertEqual(widget.cursor().shape(),
+                                     Qt.ArrowCursor if target is group else Qt.PointingHandCursor)
+                    self.assertEqual(widget.grab().toImage(), before)
                     QTest.mouseClick(widget, Qt.LeftButton, pos=QPoint(int(x), int(y)))
                     if target is group:
                         callback.assert_not_called()
                 callback.assert_called_once_with(body)
+                QTest.mouseMove(widget, QPoint(2, 2))
+                self.assertEqual(widget.cursor().shape(), Qt.ArrowCursor)
+                QTest.mouseClick(widget, Qt.LeftButton, pos=QPoint(2, 2))
+                callback.assert_called_once_with(body)
                 self.assertFalse(widget.grab().isNull())
                 widget.close()
+
+    def test_cursor_covers_existing_hitboxes_and_resets_on_leave(self):
+        widget = self.widget([star(), planet(1, biological_signals=2, geological_signals=3,
+                                               planetary_mining_signals=4)])
+        widget.resize(widget.sizeHint())
+        widget.show()
+        self.app.processEvents()
+        callback = Mock()
+        widget.bodyClicked.connect(callback)
+        for rect, body in widget._body_rects:
+            for point in (rect.center().toPoint(), rect.topLeft().toPoint() + QPoint(2, 2),
+                          rect.bottomRight().toPoint() - QPoint(2, 2)):
+                QTest.mouseMove(widget, point)
+                self.assertEqual(widget.cursor().shape(), Qt.PointingHandCursor)
+                QTest.mouseClick(widget, Qt.LeftButton, pos=point)
+                callback.assert_called_with(body)
+        self.app.sendEvent(widget, QEvent(QEvent.Type.Leave))
+        self.assertEqual(widget.cursor().shape(), Qt.ArrowCursor)
+
+    def test_right_drag_keeps_closed_hand_and_restores_cursor_for_current_target(self):
+        widget = self.widget([star()])
+        scroll = QScrollArea()
+        self.addCleanup(scroll.close)
+        scroll.setWidget(widget)
+        self.addCleanup(scroll.takeWidget)
+        scroll.resize(1000, 400)
+        scroll.show()
+        self.app.processEvents()
+        rect, _ = widget._body_rects[0]
+        point = rect.center().toPoint()
+        QTest.mouseMove(widget, point)
+        QTest.mousePress(widget, Qt.RightButton, pos=point)
+        self.assertEqual(widget.cursor().shape(), Qt.ClosedHandCursor)
+        QTest.mouseRelease(widget, Qt.RightButton, pos=point)
+        self.assertEqual(widget.cursor().shape(), Qt.PointingHandCursor)
+        QTest.mousePress(widget, Qt.RightButton, pos=QPoint(2, 2))
+        QTest.mouseRelease(widget, Qt.RightButton, pos=QPoint(2, 2))
+        self.assertEqual(widget.cursor().shape(), Qt.ArrowCursor)
 
     def test_overview_and_normal_map_share_identical_membership(self):
         bodies = plio_aip()['bodies']

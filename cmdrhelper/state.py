@@ -1058,6 +1058,13 @@ class AppState(QObject):
                     bodies.append(current)
                     by_id[body_id] = current
                 else:
+                    if current.get("_placeholder"):
+                        if (historical.get("self_mapped") is True
+                                and current.get("self_mapped") is False):
+                            current["self_mapped"] = True
+                        if (historical.get("efficient_mapping") is True
+                                and current.get("efficient_mapping") is False):
+                            current["efficient_mapping"] = True
                     if historical.get("self_mapped") is True:
                         current["self_mapped"] = True
                     bio_fields = ("genus", "species", "variant")
@@ -1079,6 +1086,11 @@ class AppState(QObject):
                     for key, value in historical.items():
                         if current.get(key) is None or current.get(key) == "":
                             current[key] = deepcopy(value)
+                    if (current.get("_placeholder")
+                            and current.get("planet_class")
+                            and isinstance(current.get("mass_em"), (int, float))
+                            and current.get("mass_em") > 0):
+                        current.pop("_placeholder", None)
         for body in bodies:
             body.update(journal_scanned=True, source="Journal", edsm_known=False)
         return sorted(bodies, key=lambda body: (

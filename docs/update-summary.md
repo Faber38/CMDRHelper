@@ -5,6 +5,10 @@ QMessageBox mit unveränderten Ja/Nein-Aktionen. Version und Release Notes komme
 weiterhin aus `check_latest_release()`; die installierte Version aus `version.py`.
 
 `cmdrhelper/release_summaries.py` ordnet Versionen Übersetzungsschlüssel zu.
+Für 3.4 sind sechs aktuelle Punkte in allen zwölf Sprachen hinterlegt: Mining,
+Schiff/SRV und manuell bestätigte Carrierbestände mit Transferverfolgung,
+kombinierbare Filter, ABBAU-Navigation, Kartographiewerte bei Sitzungswechseln
+und Hilfe/Bedienung. Die integrierte Hilfe bleibt versionsunabhängig.
 Für 3.2 sind sechs Hauptpunkte in allen zwölf `cmdrhelper/i18n/*.py` hinterlegt.
 Für 3.3 sind fünf Hauptpunkte in allen zwölf Sprachen hinterlegt: Systemanalyse,
 Spielmodus, Kopieren letzter Systeme, verständlichere Erfahrungsdaten und der

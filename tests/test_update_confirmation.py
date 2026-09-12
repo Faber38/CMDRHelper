@@ -51,6 +51,24 @@ class UpdateConfirmationTests(unittest.TestCase):
         self.assertEqual(box.standardButtons(), QMessageBox.Yes | QMessageBox.No)
         self.assertEqual(box.defaultButton(), box.button(QMessageBox.Yes))
 
+    def test_v34_update_window_shows_current_localized_highlights(self):
+        for theme in (DARK_STYLESHEET, LIGHT_STYLESHEET):
+            self.app.setStyleSheet(theme)
+            for language in _TRANSLATIONS:
+                with self.subTest(language=language, theme=theme):
+                    set_language(language)
+                    box = self.box('3.4')
+                    box.show()
+                    self.app.processEvents()
+                    self.assertIn('3.4', box.text())
+                    self.assertTrue(box.changes.isVisible())
+                    self.assertNotIn('3.3.1', box.changes.toPlainText())
+                    for point in release_summary('3.4'):
+                        self.assertIn(point, box.changes.toPlainText())
+                    self.assertEqual(box.standardButtons(), QMessageBox.Yes | QMessageBox.No)
+                    self.assertLessEqual(box.changes.height(), 200)
+                    box.close()
+
     def test_all_languages_and_themes_show_six_points_and_reachable_buttons(self):
         self.assertEqual(len(_TRANSLATIONS), 12)
         for theme in (DARK_STYLESHEET, LIGHT_STYLESHEET):

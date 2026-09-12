@@ -73,24 +73,25 @@ class WindowsHudTests(unittest.TestCase):
         self.addCleanup(self.hud.close)
 
     def test_temporary_message_uses_windows_placement_with_hud_off_and_on(self):
-        from PySide6.QtTest import QTest
+        from PySide6.QtTest import QSignalSpy
         for enabled in (False, True):
             self.hud.set_enabled(enabled)
             with patch.object(self.hud, 'activateWindow', side_effect=AssertionError), \
                  patch.object(self.hud, 'raise_', side_effect=AssertionError):
+                expired = QSignalSpy(self.hud.message_timer.timeout)
                 self.hud.show_message(('★ saved', 'Sol 1'), 30)
                 self.assertEqual(self.hud.enabled, enabled)
                 self.assertTrue(self.hud.isVisible())
                 self.assertEqual(self.api.moves[-1], QRect(30, 40, 700, 500))
                 self.assertEqual(self.api.styles[int(self.hud.winId())], win.OVERLAY_STYLES)
                 self.assertEqual(self.api.foreground, 42)
-                QTest.qWait(60)
+                self.assertTrue(expired.wait(1000), 'Temporary HUD message did not expire')
                 self.assertEqual(self.hud.isVisible(), enabled)
                 self.assertEqual(self.hud.enabled, enabled)
                 self.assertFalse(self.hud.message_lines)
 
     def test_cargo_group_uses_native_backend_independently_with_message_expiry(self):
-        from PySide6.QtTest import QTest
+        from PySide6.QtTest import QSignalSpy
         from cmdrhelper.ui.cargo_hud import CargoHudData
         data = CargoHudData("ERFT-BÜFFEL", 128, 256)
         self.hud.cargo_provider = lambda: data
@@ -104,8 +105,9 @@ class WindowsHudTests(unittest.TestCase):
             self.assertEqual(self.api.moves[-1], QRect(30, 40, 700, 500))
             for enabled in (False, True):
                 self.hud.set_enabled(enabled)
+                expired = QSignalSpy(self.hud.message_timer.timeout)
                 self.hud.show_message(('★ saved', 'Sol 1'), 20)
-                QTest.qWait(50)
+                self.assertTrue(expired.wait(1000), 'Temporary HUD message did not expire')
                 self.assertTrue(self.hud.isVisible())
                 self.assertTrue(self.hud.cargo_enabled)
                 self.assertEqual(self.hud.enabled, enabled)
