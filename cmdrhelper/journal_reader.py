@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from cmdrhelper.body_parents import parent_metadata, choose_parents
+
 from cmdrhelper.mapping_metadata import apply_mapping_metadata
 
 import copy
@@ -1644,6 +1646,7 @@ def read_latest_state(
 
                         body = {
                             "body_id": body_id_int,
+                            **parent_metadata(e.get('Parents'), 'Journal'),
                             "name": body_name,
                             "short_name": short_name,
                             "body_type": (
@@ -1764,6 +1767,7 @@ def read_latest_state(
                                 previous.get("bio_genuses") or []
                             )
 
+                        body.update(choose_parents(previous or {}, body))
                         body.update(pending_mapping.pop((address, body_id_int), {}))
                         _apply_pending_bio(address, body)
                         _apply_pending_geo(address, body)

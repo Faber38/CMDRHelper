@@ -341,22 +341,8 @@ def _save_edsm_bodies_cache(
 
 
 def _edsm_parent_id(body: dict):
-    parents = body.get("parents") or []
-
-    if not parents:
-        return None
-
-    try:
-        last = parents[-1]
-
-        if isinstance(last, dict) and last:
-            return int(
-                next(iter(last.values()))
-            )
-    except Exception:
-        pass
-
-    return None
+    from cmdrhelper.body_parents import parent_metadata
+    return parent_metadata(body.get('parents'), 'EDSM').get('parent_id')
 
 
 def _normalize_materials(value) -> dict:
@@ -410,6 +396,7 @@ def _normalize_edsm_body(
     body: dict,
     system_name: str,
 ) -> dict:
+    from cmdrhelper.body_parents import parent_metadata
     body_name = body.get("name") or ""
     short_name = body_name
 
@@ -461,6 +448,7 @@ def _normalize_edsm_body(
         "mass_em": body.get("earthMasses"),
         "stellar_mass": body.get("solarMasses"),
         "parent_id": _edsm_parent_id(body),
+        **parent_metadata(body.get('parents'), 'EDSM'),
         "gravity_g": body.get("gravity"),
         "distance_ls": body.get("distanceToArrival"),
         "landable": bool(

@@ -1343,3 +1343,7 @@ HELP_TOPICS = {
 
 DIALOG_TITLE = 'Hjälp – {area}'
 CLOSE_LABEL = 'Stäng'
+
+
+# Database update guidance; help itself remains version independent.
+HELP_TOPICS["overview"] = (HELP_TOPICS["overview"][0], HELP_TOPICS["overview"][1] + '<h3>Databasen behöver uppdateras</h3><p>Databasuppdateringen rättar äldre sparade relationer mellan stjärnor, planeter och månar. Journalerna läses endast. Stäng Elite Dangerous först och gör historiska journaler tillgängliga om möjligt. Hela CMDRHelper-databasen säkerhetskopieras i förväg; vid fel ångras ändringarna och säkerhetskopian återställs vid behov. Kopian behålls som säkerhet. Avbryt låter dig skjuta upp uppdateringen.</p>')

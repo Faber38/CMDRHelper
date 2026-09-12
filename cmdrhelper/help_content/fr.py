@@ -1430,3 +1430,7 @@ HELP_TOPICS = {
 
 DIALOG_TITLE = 'Aide – {area}'
 CLOSE_LABEL = 'Fermer'
+
+
+# Database update guidance; help itself remains version independent.
+HELP_TOPICS["overview"] = (HELP_TOPICS["overview"][0], HELP_TOPICS["overview"][1] + '<h3>Mise à jour de la base de données nécessaire</h3><p>La mise à jour corrige d’anciennes relations enregistrées entre étoiles, planètes et lunes. Les journaux sont uniquement lus. Ferme Elite Dangerous et rends les anciens journaux disponibles si possible. La base CMDRHelper est intégralement sauvegardée au préalable ; en cas d’erreur, les changements sont annulés et la sauvegarde est restaurée si nécessaire. Elle est conservée par sécurité. Annuler permet de reporter la mise à jour.</p>')

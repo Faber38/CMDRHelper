@@ -1,14 +1,15 @@
 from __future__ import annotations
 
 from cmdrhelper.exploration_status import exploration_status, journal_flag, status_tooltip
-from cmdrhelper.belt_projection import body_sort_key, is_belt_cluster, project_belts
+from cmdrhelper.belt_projection import body_sort_key, is_belt_cluster
+from cmdrhelper.ui.system_layout import build_positions, connector_points
 
 from collections import defaultdict
 from math import ceil, log10
 from pathlib import Path
 
-from PySide6.QtCore import Qt, QRectF, QSize, Signal
-from PySide6.QtGui import QColor, QPainter, QPen, QBrush, QPixmap
+from PySide6.QtCore import Qt, QRectF, QSize, Signal, QPointF
+from PySide6.QtGui import QColor, QPainter, QPen, QBrush, QPixmap, QPainterPath
 from PySide6.QtWidgets import QWidget, QToolTip, QAbstractScrollArea
 
 from cmdrhelper.i18n import tr
@@ -30,6 +31,7 @@ class SystemMapWidget(QWidget):
         self.system_name = ""
         self.bodies = []
         self._display_bodies = []
+        self._layout_nodes = {}
         self._body_rects = []
         self._light_mode = False
 
@@ -57,7 +59,10 @@ class SystemMapWidget(QWidget):
     def set_system(self, system_name: str, bodies: list[dict]):
         self.system_name = system_name or ""
         self.bodies = list(bodies or [])
-        self._display_bodies = project_belts(self.bodies)
+        self._layout_nodes = build_positions(self.bodies, width=self.BODY_W,
+                                            height=lambda node: self.BODY_H, gap=self.X_GAP,
+                                            image_radius=lambda node: self._visual_body_size(node.body) / 2)
+        self._display_bodies = [n.body for n in self._layout_nodes.values() if n.body is not None]
         self._update_size()
         self.update()
 
@@ -79,180 +84,30 @@ class SystemMapWidget(QWidget):
     def _body_sort_key(body):
         return body.get('_belt_sort_key', body_sort_key(body))
 
-    def _children_map(self):
-        children = defaultdict(list)
-        by_id = {}
-
-        for body in self._display_bodies:
-            body_id = body.get("body_id")
-
-            if body_id is not None:
-                by_id[body_id] = body
-
-        for body in self._display_bodies:
-            pid = body.get("parent_id")
-            if pid is not None and pid in by_id:
-                children[pid].append(body)
-
-        for items in children.values():
-            items.sort(key=self._body_sort_key)
-
-        return children, by_id
-
-    def _roots(self, by_id):
-        roots = []
-
-        for body in self._display_bodies:
-            pid = body.get("parent_id")
-            if pid is None or pid not in by_id:
-                roots.append(body)
-
-        roots.sort(key=self._body_sort_key)
-        return roots
-
-    def _family_roots(self):
-        children, by_id = self._children_map()
-        roots = self._roots(by_id)
-        return roots, children, by_id
-
-    def _subtree_units(self, body, children, memo):
-        """
-        Ermittelt, wie viel horizontalen Platz ein Ast benötigt.
-
-        Ein Blatt benötigt eine Einheit. Ein Elternkörper erhält mindestens
-        so viel Platz wie alle seine Kinder zusammen. Dadurch bleiben Monde
-        sichtbar unter ihrem Planeten und Familien überschneiden sich nicht.
-        """
-        key = id(body)
-        if key in memo:
-            return memo[key]
-
-        items = children.get(body.get("body_id"), [])
-        if not items:
-            memo[key] = 1
-            return 1
-
-        units = max(
-            1,
-            sum(self._subtree_units(child, children, memo) for child in items)
-        )
-        memo[key] = units
-        return units
-
     def _tree_layout(self):
-        """
-        Elite-artige Systemkarte.
-
-        Jeder Root-Körper (typischerweise Stern) bildet eine eigene Familie.
-        Kinder liegen unterhalb ihres Parents; Monde wiederum unterhalb ihres
-        Planeten. Die reale Parent-Struktur aus dem Journal bleibt erhalten.
-        """
-        roots, children, _by_id = self._family_roots()
-
-        if not roots:
-            return {}, children, [], 1, 1
-
-        memo = {}
-        x_step = self.BODY_W + self.X_GAP
-        y_step = self.BODY_H + 42
-
         positions = {}
-        families = []
-
-        cursor_units = 0
-        max_depth = 0
-        family_gap_units = 1
-
-        def place(body, depth, left_unit):
-            nonlocal max_depth
-            max_depth = max(max_depth, depth)
-
-            body_children = children.get(body.get("body_id"), [])
-            subtree_units = self._subtree_units(body, children, memo)
-
-            if body_children:
-                child_cursor = left_unit
-                child_centers = []
-
-                for child in body_children:
-                    child_units = self._subtree_units(child, children, memo)
-                    child_center = place(child, depth + 1, child_cursor)
-                    child_centers.append(child_center)
-                    child_cursor += child_units
-
-                center_unit = (
-                    child_centers[0] + child_centers[-1]
-                ) / 2.0
-            else:
-                center_unit = left_unit + 0.5
-
-            x = (
-                self.MARGIN_X
-                + center_unit * x_step
-                - self.BODY_W / 2
-            )
-            y = self.MARGIN_Y + depth * y_step
-
-            positions[id(body)] = {
-                "x": x,
-                "y": y,
-                "body": body,
-                "level": depth,
-                "center_unit": center_unit,
-            }
-
-            return center_unit
-
-        for root in roots:
-            units = self._subtree_units(root, children, memo)
-            family_left = cursor_units
-
-            place(root, 0, family_left)
-
-            families.append(
-                {
-                    "root": root,
-                    "left_unit": family_left,
-                    "units": units,
-                }
-            )
-
-            cursor_units += units + family_gap_units
-
-        used_units = max(1, cursor_units - family_gap_units)
-        return positions, children, families, used_units, max_depth + 1
+        children = defaultdict(list)
+        for node in self._layout_nodes.values():
+            if node.body is None:
+                continue
+            level, parent = 0, node.parent
+            while parent in self._layout_nodes:
+                level += 1
+                parent = self._layout_nodes[parent].parent
+            positions[id(node.body)] = dict(x=node.x, y=node.y, body=node.body,
+                                            level=level, center_unit=0)
+            parent = self._layout_nodes.get(node.parent)
+            if parent is not None and parent.body is not None:
+                children[parent.body.get('body_id')].append(node.body)
+        right = max((n.x + n.layout_width for n in self._layout_nodes.values()), default=0)
+        depth = max((p['level'] for p in positions.values()), default=0) + 1
+        return positions, children, [], max(1, ceil(right / (self.BODY_W + self.X_GAP))), depth
 
     def _update_size(self):
-        positions, _children, _families, used_units, depth_count = (
-            self._tree_layout()
-        )
-
-        x_step = self.BODY_W + self.X_GAP
-        y_step = self.BODY_H + 42
-
-        width = (
-            self.MARGIN_X * 2
-            + used_units * x_step
-        )
-
-        height = (
-            self.MARGIN_Y * 2
-            + max(1, depth_count) * y_step
-        )
-
-        # Falls ein sehr breiter Parent über viele Kinder zentriert wurde,
-        # die tatsächlichen Körperrechtecke ebenfalls berücksichtigen.
-        if positions:
-            right = max(
-                pos["x"] + self.BODY_W
-                for pos in positions.values()
-            )
-            width = max(width, right + self.MARGIN_X)
-
-        self.setMinimumSize(
-            max(900, int(width)),
-            max(360, int(height))
-        )
+        width = max((n.x + n.layout_width for n in self._layout_nodes.values()), default=0)
+        height = max((n.y + n.layout_height for n in self._layout_nodes.values()), default=0)
+        self.setMinimumSize(max(900, ceil(width + self.MARGIN_X)),
+                            max(360, ceil(height + self.MARGIN_Y)))
 
     @staticmethod
     def _body_image_name(body):
@@ -738,90 +593,19 @@ class SystemMapWidget(QWidget):
 
         return "\n".join(parts)
 
-    def _draw_tree_connections(
-        self,
-        painter,
-        children,
-        positions
-    ):
-        """
-        Rechtwinklige Parent-/Child-Verbindungen ähnlich der Elite-Systemkarte.
-        """
-        painter.setPen(
-            QPen(
-                QColor("#7f8993"),
-                1.2
-            )
-        )
-
-        for parent_pos in positions.values():
-            body = parent_pos["body"]
-            body_children = [
-                child
-                for child in children.get(body.get("body_id"), [])
-                if id(child) in positions
-            ]
-
-            if not body_children:
-                continue
-
-            px = parent_pos["x"] + self.BODY_W / 2
-            parent_bottom = parent_pos["y"] + self.BODY_H
-
-            child_centers = [
-                positions[id(child)]["x"] + self.BODY_W / 2
-                for child in body_children
-            ]
-            child_tops = [
-                positions[id(child)]["y"]
-                for child in body_children
-            ]
-
-            nearest_child_top = min(child_tops)
-            bus_y = parent_bottom + (
-                nearest_child_top - parent_bottom
-            ) * 0.45
-
-            # Stamm vom Parent zur gemeinsamen Orbit-/Familienlinie.
-            painter.drawLine(
-                int(px),
-                int(parent_bottom),
-                int(px),
-                int(bus_y)
-            )
-
-            # Gemeinsame horizontale Linie über alle direkten Kinder.
-            if len(child_centers) > 1:
-                painter.drawLine(
-                    int(min(child_centers)),
-                    int(bus_y),
-                    int(max(child_centers)),
-                    int(bus_y)
-                )
-
-            # Jedes Kind hängt senkrecht an der gemeinsamen Linie.
-            for child in body_children:
-                child_pos = positions[id(child)]
-                cx = child_pos["x"] + self.BODY_W / 2
-                cy = child_pos["y"]
-
-                # Bei nur einem Kind braucht es trotzdem die horizontale
-                # Verbindung, wenn Parent und Kind nicht exakt übereinander
-                # liegen.
-                if len(child_centers) == 1 and abs(cx - px) > 1:
-                    painter.drawLine(
-                        int(px),
-                        int(bus_y),
-                        int(cx),
-                        int(bus_y)
-                    )
-
-                painter.drawLine(
-                    int(cx),
-                    int(bus_y),
-                    int(cx),
-                    int(cy)
-                )
+    def _draw_tree_connections(self, painter, children, positions):
+        painter.setPen(QPen(QColor('#9caab7' if self._light_mode else '#7f8993'), 1.2))
+        painter.setBrush(Qt.NoBrush)
+        for node in self._layout_nodes.values():
+            parent = self._layout_nodes.get(node.parent)
+            if parent is not None:
+                points = connector_points(parent, node, self.X_GAP)
+                path = QPainterPath(QPointF(*points[0]))
+                for point in points[1:]:
+                    path.lineTo(QPointF(*point))
+                painter.drawPath(path)
+            if node.body is None:
+                painter.drawEllipse(QPointF(node.x, node.y), 3, 3)
 
     def _body_name_layout(self, body, x, y, name, metrics):
         """Return the fixed body label or a wider, bounded stellar label."""

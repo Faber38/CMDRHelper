@@ -1400,3 +1400,7 @@ HELP_TOPICS = {
 
 DIALOG_TITLE = 'Hulp – {area}'
 CLOSE_LABEL = 'Sluiten'
+
+
+# Database update guidance; help itself remains version independent.
+HELP_TOPICS["overview"] = (HELP_TOPICS["overview"][0], HELP_TOPICS["overview"][1] + '<h3>Database-update vereist</h3><p>De database-update corrigeert oude opgeslagen relaties tussen sterren, planeten en manen. Journalen worden uitsluitend gelezen. Sluit Elite Dangerous eerst af en stel waar mogelijk historische journalen beschikbaar. Er wordt vooraf een volledige reservekopie van de CMDRHelper-database gemaakt; bij fouten worden wijzigingen teruggedraaid en wordt zo nodig de reservekopie hersteld. Deze blijft bewaard voor de veiligheid. Met Annuleren kun je de update uitstellen.</p>')

@@ -5,6 +5,9 @@ QMessageBox mit unveränderten Ja/Nein-Aktionen. Version und Release Notes komme
 weiterhin aus `check_latest_release()`; die installierte Version aus `version.py`.
 
 `cmdrhelper/release_summaries.py` ordnet Versionen Übersetzungsschlüssel zu.
+Für 3.4.1 sind fünf Punkte in allen zwölf Sprachen hinterlegt: Korrektur alter
+Systemhierarchien, verbesserte Systemkarte, sichere Datenbankmigration mit
+Backup/Rollback, ausschließlich gelesene Journale und Stabilitätsverbesserungen.
 Für 3.4 sind sechs aktuelle Punkte in allen zwölf Sprachen hinterlegt: Mining,
 Schiff/SRV und manuell bestätigte Carrierbestände mit Transferverfolgung,
 kombinierbare Filter, ABBAU-Navigation, Kartographiewerte bei Sitzungswechseln

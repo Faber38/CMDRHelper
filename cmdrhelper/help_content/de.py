@@ -1059,3 +1059,7 @@ HELP_TOPICS = {
 
 DIALOG_TITLE = "Hilfe – {area}"
 CLOSE_LABEL = "Schließen"
+
+
+# Database update guidance; help itself remains version independent.
+HELP_TOPICS["overview"] = (HELP_TOPICS["overview"][0], HELP_TOPICS["overview"][1] + '<h3>Datenbank-Aktualisierung erforderlich</h3><p>Die Datenbank-Aktualisierung korrigiert ältere gespeicherte Zuordnungen von Sternen, Planeten und Monden. Journale werden ausschließlich gelesen. Beende Elite Dangerous vorher und stelle möglichst auch historische Journale bereit. Die CMDRHelper-Datenbank wird vorher vollständig gesichert; bei Fehlern werden Änderungen zurückgerollt und nötigenfalls wird die Sicherung wiederhergestellt. Das Backup bleibt als Sicherheitskopie erhalten. Mit Abbrechen kannst du die Aktualisierung verschieben.</p>')

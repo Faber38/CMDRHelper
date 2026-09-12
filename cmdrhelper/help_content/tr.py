@@ -1360,3 +1360,7 @@ HELP_TOPICS = {
 
 DIALOG_TITLE = 'Yardım – {area}'
 CLOSE_LABEL = 'Kapat'
+
+
+# Database update guidance; help itself remains version independent.
+HELP_TOPICS["overview"] = (HELP_TOPICS["overview"][0], HELP_TOPICS["overview"][1] + '<h3>Veritabanı güncellemesi gerekli</h3><p>Veritabanı güncellemesi, yıldızlar, gezegenler ve uydular arasındaki eski kayıtlı ilişkileri düzeltir. Günlükler yalnızca okunur. Önce Elite Dangerous’ı kapat ve mümkünse geçmiş günlükleri hazır bulundur. CMDRHelper veritabanının tamamı önceden yedeklenir; hata durumunda değişiklikler geri alınır ve gerekirse yedek geri yüklenir. Yedek, güvenlik kopyası olarak saklanır. İptal ile güncellemeyi erteleyebilirsin.</p>')

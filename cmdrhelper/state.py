@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from cmdrhelper.body_parents import choose_parents, verified_parents
+
 from copy import deepcopy
 from pathlib import Path
 import logging
@@ -1058,6 +1060,7 @@ class AppState(QObject):
                     bodies.append(current)
                     by_id[body_id] = current
                 else:
+                    current.update(choose_parents(historical, current))
                     if current.get("_placeholder"):
                         if (historical.get("self_mapped") is True
                                 and current.get("self_mapped") is False):
@@ -1086,6 +1089,7 @@ class AppState(QObject):
                     for key, value in historical.items():
                         if current.get(key) is None or current.get(key) == "":
                             current[key] = deepcopy(value)
+                    current.update(verified_parents(current))
                     if (current.get("_placeholder")
                             and current.get("planet_class")
                             and isinstance(current.get("mass_em"), (int, float))
@@ -1146,6 +1150,12 @@ class AppState(QObject):
                 continue
 
             edsm_body = canonical_body_classes(edsm_body)
+            # Old normalized caches have no verifiable ancestry. Keep their
+            # physical data, but never import their potentially flattened IDs.
+            ancestry = verified_parents(edsm_body)
+            edsm_body = {k: v for k, v in edsm_body.items() if k not in (
+                'parent_id', 'parent_star_id', 'parent_path', 'parent_source')}
+            edsm_body.update(ancestry)
             # Also sanitize normalized entries from older on-disk EDSM caches.
             # Only physical metadata may fill gaps in an own journal scan.
             personal_fields = {
@@ -1180,6 +1190,7 @@ class AppState(QObject):
                 existing = by_name[name]
 
             if existing is not None:
+                existing.update(choose_parents(existing, edsm_body))
                 existing["edsm_known"] = True
                 if existing.get("journal_scanned"):
                     existing["source"] = "Journal"

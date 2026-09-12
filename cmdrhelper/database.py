@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from cmdrhelper.body_parents import parent_metadata, persist_parents
+
 from cmdrhelper.mapping_metadata import apply_mapping_metadata, mapping_metadata
 from cmdrhelper.valuation import calculate_body_values, has_valuation_data, journal_valuation_context, journal_reaches_timestamp
 
@@ -2577,6 +2579,7 @@ class CMDRDatabase:
                         "body_type": "Star" if event.get("StarType") else "Planet",
                         "star_type": event.get("StarType") or "",
                         "planet_class": event.get("PlanetClass") or "",
+                        **parent_metadata(event.get('Parents'), 'Journal'),
                         "parent_id": _direct_parent_id(event.get("Parents") or []),
                         "parent_star_id": _parent_star_id(event.get("Parents") or []),
                         "mass_em": event.get("MassEM"),
@@ -3446,6 +3449,7 @@ class CMDRDatabase:
                     body.get("planetary_mining_signals"),
                 ))
 
+                persist_parents(con, address, body)
                 if (body.get("star_type") and int(body_id) == 0
                         and body.get("parent_id") is None):
                     con.execute(
@@ -5528,6 +5532,53 @@ class CMDRDatabase:
         ]
 
 
+    def repair_system_parents(self, system_address, journal_paths=None):
+        """Explicit, targeted repair from original Scans; never replay other state.
+
+        Only existing bodies with matching SystemAddress/BodyID are updated.
+        Conflicting paths are left untouched rather than selected by file order.
+        """
+        address = int(system_address)
+        with self._connect() as con:
+            if journal_paths is None:
+                journal_paths = [r[0] for r in con.execute('SELECT journal_file FROM journal_sessions')]
+        candidates = {}
+        for path in journal_paths:
+            try:
+                with Path(path).open(encoding='utf-8') as stream:
+                    for line in stream:
+                        try:
+                            event = json.loads(line)
+                        except ValueError:
+                            continue
+                        if not isinstance(event, dict):
+                            continue
+                        if event.get('event') != 'Scan' or event.get('SystemAddress') != address:
+                            continue
+                        body_id = event.get('BodyID')
+                        if type(body_id) is not int or body_id < 0:
+                            continue
+                        metadata = parent_metadata(event.get('Parents'), 'Journal')
+                        if metadata:
+                            candidates.setdefault(body_id, {})[json.dumps(metadata, sort_keys=True)] = metadata
+            except (OSError, UnicodeError):
+                continue
+        changes = []
+        with self._connect() as con:
+            for body_id, alternatives in sorted(candidates.items()):
+                if len(alternatives) != 1:
+                    continue
+                old = con.execute('SELECT name,parent_id,parent_star_id FROM bodies WHERE system_address=? AND body_id=?',
+                                  (address, body_id)).fetchone()
+                if old is None:
+                    continue
+                metadata = next(iter(alternatives.values()))
+                persist_parents(con, address, dict(metadata, body_id=body_id))
+                if (old[1], old[2]) != (metadata['parent_id'], metadata['parent_star_id']):
+                    changes.append(dict(body_id=body_id, name=old[0], old_parent_id=old[1],
+                                        **metadata))
+        return changes
+
     def chronicle_system_details(self, system_address, commander_id=None, *, scanned_only=False):
         """
         Lädt ein bereits besuchtes System vollständig aus der lokalen
@@ -5721,6 +5772,12 @@ class CMDRDatabase:
                         "source": "Journal",
                     }
                 )
+
+            for body in bodies:
+                key = f'body_parents.v1:{address}:{body["body_id"]}'
+                ancestry = con.execute('SELECT value FROM app_meta WHERE key=?', (key,)).fetchone()
+                if ancestry:
+                    body.update(json.loads(ancestry[0]))
 
         return {
             "system_address": address,
@@ -6716,6 +6773,7 @@ class CMDRDatabase:
                                     event.get("PlanetClass")
                                     or ""
                                 ),
+                                **parent_metadata(event.get('Parents'), 'Journal'),
                                 "parent_id": parent_id if parent_id is not None else previous.get("parent_id"),
                                 "parent_star_id": parent_star_id if parent_star_id is not None else previous.get("parent_star_id"),
                                 "mass_em": event.get(
@@ -7614,6 +7672,7 @@ class CMDRDatabase:
                     ),
                 )
 
+                persist_parents(con, address, body)
                 if (body.get("star_type") and int(body_id) == 0
                         and body.get("parent_id") is None):
                     con.execute(

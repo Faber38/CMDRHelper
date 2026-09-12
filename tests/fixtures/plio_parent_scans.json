@@ -1,0 +1,864 @@
+[
+  {
+    "timestamp": "2026-06-01T06:32:00Z",
+    "event": "ScanBaryCentre",
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "BodyID": 30,
+    "SemiMajorAxis": 989404714107.5134
+  },
+  {
+    "timestamp": "2026-06-01T06:32:00Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 8",
+    "BodyID": 40,
+    "Parents": [
+      {
+        "Null": 30
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "High metal content body",
+    "MassEM": 5.388251,
+    "SemiMajorAxis": 9180131018.161774
+  },
+  {
+    "timestamp": "2026-06-01T06:32:00Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 7 e",
+    "BodyID": 38,
+    "Parents": [
+      {
+        "Planet": 31
+      },
+      {
+        "Null": 30
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Rocky body",
+    "MassEM": 0.000516,
+    "SemiMajorAxis": 994643211.364746
+  },
+  {
+    "timestamp": "2026-06-01T06:32:00Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 7 f",
+    "BodyID": 39,
+    "Parents": [
+      {
+        "Planet": 31
+      },
+      {
+        "Null": 30
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Rocky body",
+    "MassEM": 0.000845,
+    "SemiMajorAxis": 1290117502.212524
+  },
+  {
+    "timestamp": "2026-06-01T06:32:00Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 7 b",
+    "BodyID": 35,
+    "Parents": [
+      {
+        "Planet": 31
+      },
+      {
+        "Null": 30
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Rocky body",
+    "MassEM": 0.001588,
+    "SemiMajorAxis": 346603989.601135
+  },
+  {
+    "timestamp": "2026-06-01T06:32:00Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 7 a",
+    "BodyID": 34,
+    "Parents": [
+      {
+        "Planet": 31
+      },
+      {
+        "Null": 30
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Rocky body",
+    "MassEM": 0.000498,
+    "SemiMajorAxis": 196151137.35199
+  },
+  {
+    "timestamp": "2026-06-01T06:32:00Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 7 d",
+    "BodyID": 37,
+    "Parents": [
+      {
+        "Planet": 31
+      },
+      {
+        "Null": 30
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Rocky body",
+    "MassEM": 0.000516,
+    "SemiMajorAxis": 746163308.620453
+  },
+  {
+    "timestamp": "2026-06-01T06:32:00Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 7",
+    "BodyID": 31,
+    "Parents": [
+      {
+        "Null": 30
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Sudarsky class I gas giant",
+    "MassEM": 84.648529,
+    "SemiMajorAxis": 584323006.868362,
+    "Rings": [
+      {
+        "Name": "Plio Aihm UC-V d2-159 7 A Ring",
+        "RingClass": "eRingClass_MetalRich",
+        "MassMT": 63842000000.0,
+        "InnerRad": 90117000.0,
+        "OuterRad": 102000000.0
+      },
+      {
+        "Name": "Plio Aihm UC-V d2-159 7 B Ring",
+        "RingClass": "eRingClass_Rocky",
+        "MassMT": 461450000000.0,
+        "InnerRad": 102100000.0,
+        "OuterRad": 162490000.0
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-06-01T06:32:00Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 7 c",
+    "BodyID": 36,
+    "Parents": [
+      {
+        "Planet": 31
+      },
+      {
+        "Null": 30
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Rocky body",
+    "MassEM": 0.000537,
+    "SemiMajorAxis": 492664515.972137
+  },
+  {
+    "timestamp": "2026-06-01T06:35:06Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159",
+    "BodyID": 0,
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "StarType": "F",
+    "StellarMass": 1.644531,
+    "Rings": [
+      {
+        "Name": "Plio Aihm UC-V d2-159 A Belt",
+        "RingClass": "eRingClass_MetalRich",
+        "MassMT": 3.9173e+16,
+        "InnerRad": 14960000000.0,
+        "OuterRad": 239360000000.0
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-06-01T06:35:06Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 4",
+    "BodyID": 15,
+    "Parents": [
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "StarType": "Y",
+    "StellarMass": 0.019531,
+    "SemiMajorAxis": 379965442419.0521,
+    "Rings": [
+      {
+        "Name": "Plio Aihm UC-V d2-159 4 A Ring",
+        "RingClass": "eRingClass_Rocky",
+        "MassMT": 8257400000000.0,
+        "InnerRad": 102150000.0,
+        "OuterRad": 679020000.0
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-06-01T06:36:29Z",
+    "event": "ScanBaryCentre",
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "BodyID": 19,
+    "SemiMajorAxis": 571001458168.0298
+  },
+  {
+    "timestamp": "2026-06-01T06:36:29Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 6",
+    "BodyID": 25,
+    "Parents": [
+      {
+        "Null": 19
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Sudarsky class II gas giant",
+    "MassEM": 48.424511,
+    "SemiMajorAxis": 31119063496.58966,
+    "Rings": [
+      {
+        "Name": "Plio Aihm UC-V d2-159 6 A Ring",
+        "RingClass": "eRingClass_MetalRich",
+        "MassMT": 21275000000.0,
+        "InnerRad": 76077000.0,
+        "OuterRad": 84929000.0
+      },
+      {
+        "Name": "Plio Aihm UC-V d2-159 6 B Ring",
+        "RingClass": "eRingClass_Rocky",
+        "MassMT": 132680000000.0,
+        "InnerRad": 85029000.0,
+        "OuterRad": 126890000.0
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-06-01T06:36:42Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 6 a",
+    "BodyID": 28,
+    "Parents": [
+      {
+        "Planet": 25
+      },
+      {
+        "Null": 19
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Rocky body",
+    "MassEM": 0.000253,
+    "SemiMajorAxis": 397764301.300049
+  },
+  {
+    "timestamp": "2026-06-01T06:36:54Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 6 b",
+    "BodyID": 29,
+    "Parents": [
+      {
+        "Planet": 25
+      },
+      {
+        "Null": 19
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Rocky body",
+    "MassEM": 0.000354,
+    "SemiMajorAxis": 561802488.565445
+  },
+  {
+    "timestamp": "2026-06-01T06:37:16Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 5",
+    "BodyID": 20,
+    "Parents": [
+      {
+        "Null": 19
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Sudarsky class III gas giant",
+    "MassEM": 2552.276855,
+    "SemiMajorAxis": 590390312.671661,
+    "Rings": [
+      {
+        "Name": "Plio Aihm UC-V d2-159 5 A Ring",
+        "RingClass": "eRingClass_MetalRich",
+        "MassMT": 291590000000.0,
+        "InnerRad": 116380000.0,
+        "OuterRad": 155760000.0
+      },
+      {
+        "Name": "Plio Aihm UC-V d2-159 5 B Ring",
+        "RingClass": "eRingClass_Rocky",
+        "MassMT": 6503000000000.0,
+        "InnerRad": 155860000.0,
+        "OuterRad": 493600000.0
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-06-01T06:37:31Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 5 a",
+    "BodyID": 23,
+    "Parents": [
+      {
+        "Planet": 20
+      },
+      {
+        "Null": 19
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Water world",
+    "MassEM": 0.237986,
+    "SemiMajorAxis": 4034865438.938141,
+    "Rings": [
+      {
+        "Name": "Plio Aihm UC-V d2-159 5 a A Ring",
+        "RingClass": "eRingClass_MetalRich",
+        "MassMT": 867500.0,
+        "InnerRad": 8843800.0,
+        "OuterRad": 21574000.0
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-06-01T06:37:48Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 A Belt Cluster 8",
+    "BodyID": 13,
+    "Parents": [
+      {
+        "Ring": 5
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075
+  },
+  {
+    "timestamp": "2026-06-01T06:37:48Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 A Belt Cluster 1",
+    "BodyID": 6,
+    "Parents": [
+      {
+        "Ring": 5
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075
+  },
+  {
+    "timestamp": "2026-06-01T06:37:48Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 A Belt Cluster 2",
+    "BodyID": 7,
+    "Parents": [
+      {
+        "Ring": 5
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075
+  },
+  {
+    "timestamp": "2026-06-01T06:37:48Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 A Belt Cluster 3",
+    "BodyID": 8,
+    "Parents": [
+      {
+        "Ring": 5
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075
+  },
+  {
+    "timestamp": "2026-06-01T06:37:48Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 A Belt Cluster 4",
+    "BodyID": 9,
+    "Parents": [
+      {
+        "Ring": 5
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075
+  },
+  {
+    "timestamp": "2026-06-01T06:37:48Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 A Belt Cluster 5",
+    "BodyID": 10,
+    "Parents": [
+      {
+        "Ring": 5
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075
+  },
+  {
+    "timestamp": "2026-06-01T06:37:48Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 A Belt Cluster 6",
+    "BodyID": 11,
+    "Parents": [
+      {
+        "Ring": 5
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075
+  },
+  {
+    "timestamp": "2026-06-01T06:37:48Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 A Belt Cluster 7",
+    "BodyID": 12,
+    "Parents": [
+      {
+        "Ring": 5
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075
+  },
+  {
+    "timestamp": "2026-06-01T06:37:48Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 A Belt Cluster 9",
+    "BodyID": 14,
+    "Parents": [
+      {
+        "Ring": 5
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075
+  },
+  {
+    "timestamp": "2026-06-01T06:38:13Z",
+    "event": "ScanBaryCentre",
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "BodyID": 1,
+    "SemiMajorAxis": 4365609824.65744
+  },
+  {
+    "timestamp": "2026-06-01T06:38:13Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 2",
+    "BodyID": 3,
+    "Parents": [
+      {
+        "Null": 1
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "High metal content body",
+    "MassEM": 9.15423,
+    "SemiMajorAxis": 57129108.905792
+  },
+  {
+    "timestamp": "2026-06-01T06:38:20Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 1",
+    "BodyID": 2,
+    "Parents": [
+      {
+        "Null": 1
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "High metal content body",
+    "MassEM": 9.62733,
+    "SemiMajorAxis": 54321691.393852
+  },
+  {
+    "timestamp": "2026-06-01T06:38:33Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 3",
+    "BodyID": 4,
+    "Parents": [
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "High metal content body",
+    "MassEM": 6.260592,
+    "SemiMajorAxis": 8084425032.138824
+  },
+  {
+    "timestamp": "2026-06-01T06:38:54Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 9",
+    "BodyID": 41,
+    "Parents": [
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Sudarsky class III gas giant",
+    "MassEM": 1626.694092,
+    "SemiMajorAxis": 1229882001876.831,
+    "Rings": [
+      {
+        "Name": "Plio Aihm UC-V d2-159 9 A Ring",
+        "RingClass": "eRingClass_MetalRich",
+        "MassMT": 1294100000000.0,
+        "InnerRad": 128790000.0,
+        "OuterRad": 409430000.0
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-06-01T06:39:05Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 9 a",
+    "BodyID": 43,
+    "Parents": [
+      {
+        "Planet": 41
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Rocky body",
+    "MassEM": 0.000671,
+    "SemiMajorAxis": 886808913.946152
+  },
+  {
+    "timestamp": "2026-06-01T06:39:13Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 9 d",
+    "BodyID": 46,
+    "Parents": [
+      {
+        "Planet": 41
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Rocky body",
+    "MassEM": 0.001514,
+    "SemiMajorAxis": 2794812500.476837
+  },
+  {
+    "timestamp": "2026-06-01T06:39:21Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 9 b",
+    "BodyID": 44,
+    "Parents": [
+      {
+        "Planet": 41
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Rocky body",
+    "MassEM": 0.000862,
+    "SemiMajorAxis": 1180235922.336578
+  },
+  {
+    "timestamp": "2026-06-01T06:39:29Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 9 c",
+    "BodyID": 45,
+    "Parents": [
+      {
+        "Planet": 41
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Rocky body",
+    "MassEM": 0.001757,
+    "SemiMajorAxis": 1675896704.19693
+  },
+  {
+    "timestamp": "2026-06-01T06:39:38Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 9 g",
+    "BodyID": 49,
+    "Parents": [
+      {
+        "Planet": 41
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Rocky body",
+    "MassEM": 0.014427,
+    "SemiMajorAxis": 8426669895.648956
+  },
+  {
+    "timestamp": "2026-06-01T06:39:47Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 9 f",
+    "BodyID": 48,
+    "Parents": [
+      {
+        "Planet": 41
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Rocky body",
+    "MassEM": 0.003468,
+    "SemiMajorAxis": 6216877162.456512
+  },
+  {
+    "timestamp": "2026-06-01T06:39:55Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 9 e",
+    "BodyID": 47,
+    "Parents": [
+      {
+        "Planet": 41
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Rocky body",
+    "MassEM": 0.003519,
+    "SemiMajorAxis": 4605762302.875519
+  },
+  {
+    "timestamp": "2026-06-01T06:40:06Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 9 h",
+    "BodyID": 51,
+    "Parents": [
+      {
+        "Planet": 41
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Icy body",
+    "MassEM": 0.109533,
+    "SemiMajorAxis": 25971834659.576416
+  },
+  {
+    "timestamp": "2026-06-01T06:40:37Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 4 a",
+    "BodyID": 17,
+    "Parents": [
+      {
+        "Star": 15
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Earthlike body",
+    "MassEM": 0.420317,
+    "SemiMajorAxis": 12472990155.220032
+  },
+  {
+    "timestamp": "2026-06-01T06:45:10Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 4 a",
+    "BodyID": 17,
+    "Parents": [
+      {
+        "Star": 15
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Earthlike body",
+    "MassEM": 0.420317,
+    "SemiMajorAxis": 12472990155.220032
+  },
+  {
+    "timestamp": "2026-06-01T06:48:36Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 5 a",
+    "BodyID": 23,
+    "Parents": [
+      {
+        "Planet": 20
+      },
+      {
+        "Null": 19
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Water world",
+    "MassEM": 0.237986,
+    "SemiMajorAxis": 4034865438.938141,
+    "Rings": [
+      {
+        "Name": "Plio Aihm UC-V d2-159 5 a A Ring",
+        "RingClass": "eRingClass_MetalRich",
+        "MassMT": 867500.0,
+        "InnerRad": 8843800.0,
+        "OuterRad": 21574000.0
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-06-01T06:52:19Z",
+    "event": "Scan",
+    "BodyName": "Plio Aihm UC-V d2-159 9 g",
+    "BodyID": 49,
+    "Parents": [
+      {
+        "Planet": 41
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Plio Aihm UC-V d2-159",
+    "SystemAddress": 5474145570075,
+    "PlanetClass": "Rocky body",
+    "MassEM": 0.014427,
+    "SemiMajorAxis": 8426669895.648956
+  }
+]

@@ -109,6 +109,22 @@ def run():
 
     app.setStyleSheet(LIGHT_STYLESHEET if theme == "light" else DARK_STYLESHEET)
 
+    # Gate before schema initialization, journal watchers and startup repairs.
+    from cmdrhelper.database import default_database_path
+    from cmdrhelper.journal_reader import default_journal_paths
+    from cmdrhelper.parent_migration import migration_required
+    from cmdrhelper.ui.parent_migration import ParentMigrationDialog
+    from PySide6.QtWidgets import QDialog
+
+    db_path = default_database_path()
+    if migration_required(db_path):
+        saved = settings.value("journal_folder", "")
+        folders = default_journal_paths()
+        folder = Path(saved) if saved and Path(saved).exists() else (folders[0] if folders else None)
+        dialog = ParentMigrationDialog(db_path, folder, light=theme == "light")
+        if dialog.exec() != QDialog.Accepted:
+            return
+
     state = AppState()
     window = MainWindow(state)
     _resize_initial_window(window, app.primaryScreen())

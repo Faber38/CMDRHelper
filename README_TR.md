@@ -14,6 +14,16 @@ pilotunuz](cmdrhelper/assets/readme/cmdrhelper_readme_tr.png)
 
 CMDRHelper, Elite Dangerous’ın yerel günlüklerini inceleyen ve `Status.json` dosyasındaki gezegen konum verilerini kullanan bağımsız bir masaüstü uygulamasıdır. İlginç gökcisimlerini belirlemene, kaydedilmiş yerlere dönmene ve yolculuklarınla bulgularını incelemene yardımcı olur. Kişisel veriler yeniden başlatmadan sonra korunur ve komutanlara göre ayrı tutulur.
 
+## 3.4.1 sürümündeki yenilikler
+
+- Eski kayıtlı sistem hiyerarşilerini düzeltir
+- Gezegenlerin, uyduların ve çoklu sistemlerin geliştirilmiş gösterimi
+- Otomatik yedekleme ve hatalarda geri alma ile güvenli veritabanı güncellemesi
+- Elite günlük dosyaları değişmeden kalır
+- Ek kararlılık ve görüntüleme iyileştirmeleri
+
+Veritabanı güncellemesi, yıldızlar, gezegenler ve uydular arasındaki eski kayıtlı ilişkileri düzeltir. Günlükler yalnızca okunur. Önce Elite Dangerous’ı kapat ve mümkünse geçmiş günlükleri hazır bulundur. CMDRHelper veritabanının tamamı önceden yedeklenir; hata durumunda değişiklikler geri alınır ve gerekirse yedek geri yüklenir. Yedek, güvenlik kopyası olarak saklanır. İptal ile güncellemeyi erteleyebilirsin.
+
 ## 3.4 sürümündeki yenilikler – Mining ve stoklar
 
 - Emtialar, referans fiyatlar ve değer sınıflarıyla yeni Mining bölümü.

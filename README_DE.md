@@ -13,6 +13,16 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper ist ein eigenständiges Desktop-Programm, das die lokalen Journale von Elite Dangerous auswertet und planetare Positionsdaten aus `Status.json` verwendet. Es hilft dir, interessante Körper zu erkennen, gespeicherte Orte wiederzufinden und deine Reisen und Funde nachzuvollziehen. Persönliche Daten bleiben nach einem Neustart erhalten und werden nach Commander getrennt.
 
+## Neu in Version 3.4.1
+
+- Korrigiert ältere gespeicherte Systemhierarchien
+- Verbesserte Darstellung von Planeten, Monden und Mehrfachsystemen
+- Sichere Datenbank-Aktualisierung mit automatischer Sicherung und Rollback bei Fehlern
+- Elite-Journaldateien bleiben unverändert
+- Weitere Stabilitäts- und Darstellungsverbesserungen
+
+Die Datenbank-Aktualisierung korrigiert ältere gespeicherte Zuordnungen von Sternen, Planeten und Monden. Journale werden ausschließlich gelesen. Beende Elite Dangerous vorher und stelle möglichst auch historische Journale bereit. Die CMDRHelper-Datenbank wird vorher vollständig gesichert; bei Fehlern werden Änderungen zurückgerollt und nötigenfalls wird die Sicherung wiederhergestellt. Das Backup bleibt als Sicherheitskopie erhalten. Mit Abbrechen kannst du die Aktualisierung verschieben.
+
 ## Neu in Version 3.4 – Mining und Bestände
 
 - Neuer Mining-Bereich mit Rohstoffen, Richtwerten und Wertklassen.

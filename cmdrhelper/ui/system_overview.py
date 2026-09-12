@@ -1,9 +1,9 @@
-"""Offline system overview; independent layout, shared CMDRHelper body assets."""
+"""Offline system overview with shared orbital layout and CMDRHelper assets."""
 from __future__ import annotations
 
 from copy import deepcopy
 from dataclasses import dataclass
-from cmdrhelper.belt_projection import BodyNode, build_body_nodes, node_sort_key
+from cmdrhelper.ui.system_layout import LayoutNode, build_positions, connector_points
 
 from PySide6.QtCore import QPointF, QRectF, Qt, Signal, QTimer
 from PySide6.QtGui import QBitmap, QColor, QFont, QPainter, QPainterPath, QPen, QRegion
@@ -24,7 +24,6 @@ THEMES = {
 }
 CELL_WIDTH = 176.0
 GAP = 26.0
-MOONS_PER_COLUMN = 4
 
 
 def _is_star(body):
@@ -43,7 +42,7 @@ def body_diameter(body):
 
 
 @dataclass
-class OverviewNode(BodyNode):
+class OverviewNode(LayoutNode):
     x: float = 0
     y: float = 0
 
@@ -57,82 +56,21 @@ class OverviewNode(BodyNode):
 
     @property
     def center(self):
+        if self.body is None:
+            return QPointF(self.x, self.y)
         return QPointF(self.x + CELL_WIDTH / 2, self.y + 82)
 
     @property
     def rect(self):
+        if self.body is None:
+            return QRectF(self.x, self.y, 0, 0)
         return QRectF(self.x, self.y, CELL_WIDTH, self.height)
 
 
 def build_layout(bodies):
-    """Make a deterministic forest. Names label bodies, never determine parents.
-
-    Stars/barycentres have horizontal planet axes and separate companion lanes.
-    Planet satellites occupy vertical branches, split after four direct children.
-    Subtree rectangles reserve space before adjacent branches are placed.
-    """
-    nodes = build_body_nodes(bodies, OverviewNode)
-    roots = sorted((n for n in nodes.values() if n.parent is None),
-                   key=lambda n: (not (n.body is None or _is_star(n.body)), node_sort_key(n)))
-
-    def translate(group, dx, dy):
-        for node in group:
-            node.x += dx
-            node.y += dy
-
-    def place(node):
-        group = [node]
-        width, height = CELL_WIDTH, node.height
-        if node.body is None or _is_star(node.body):
-            planets = [n for n in node.children if n.body is not None and not _is_star(n.body)]
-            companions = [n for n in node.children if n not in planets]
-            index = 0
-            while index < len(planets):
-                column = [planets[index]]
-                index += 1
-                if not column[0].belt_members and SystemMapWidget._is_belt_cluster(column[0].body):
-                    while (index < len(planets) and len(column) < MOONS_PER_COLUMN
-                           and not planets[index].belt_members
-                           and SystemMapWidget._is_belt_cluster(planets[index].body)):
-                        column.append(planets[index])
-                        index += 1
-                column_y, column_width = 0, 0
-                for child in column:
-                    members, w, h = place(child)
-                    translate(members, width + GAP, column_y)
-                    group.extend(members)
-                    column_width = max(column_width, w)
-                    column_y += h + GAP
-                width += GAP + column_width
-                height = max(height, column_y - GAP)
-            for child in companions:
-                members, w, h = place(child)
-                translate(members, 48, height + 48)
-                group.extend(members)
-                width = max(width, 48 + w)
-                height += 48 + h
-        else:
-            column_x = 40.0
-            for start in range(0, len(node.children), MOONS_PER_COLUMN):
-                column_y = node.height + GAP
-                column_width = 0
-                for child in node.children[start:start + MOONS_PER_COLUMN]:
-                    members, w, h = place(child)
-                    translate(members, column_x, column_y)
-                    group.extend(members)
-                    column_width = max(column_width, w)
-                    column_y += h + GAP
-                width = max(width, column_x + column_width)
-                height = max(height, column_y - GAP)
-                column_x += column_width + GAP
-        return group, width, height
-
-    bottom = 0
-    for root in roots:
-        group, width, height = place(root)
-        translate(group, 0, bottom)
-        bottom += height + 64
-    return nodes
+    return build_positions(bodies, OverviewNode, width=CELL_WIDTH,
+                           height=lambda node: node.height, gap=GAP,
+                           image_center=82, image_radius=lambda node: node.diameter / 2)
 
 
 class BodyItem(QGraphicsObject):
@@ -254,22 +192,17 @@ class SystemOverviewView(QGraphicsView):
         for node in self.nodes.values():
             if node.parent in self.nodes:
                 parent_node = self.nodes[node.parent]
-                path = QPainterPath(parent_node.center)
-                if node.center.y() != parent_node.center.y():
-                    trunk = parent_node.x + 8
-                    if (parent_node.body is None or _is_star(parent_node.body)) and node.body is not None and not _is_star(node.body):
-                        trunk = node.x - 18
-                    path.lineTo(trunk, parent_node.center.y())
-                    if parent_node.body is not None and not _is_star(parent_node.body):
-                        branch_y = parent_node.y + parent_node.height + GAP / 2
-                        path.lineTo(trunk, branch_y)
-                        trunk = node.x - 18
-                        path.lineTo(trunk, branch_y)
-                    path.lineTo(trunk, node.center.y())
-                path.lineTo(node.center)
+                points = connector_points(parent_node, node, GAP)
+                path = QPainterPath(QPointF(*points[0]))
+                for point in points[1:]:
+                    path.lineTo(QPointF(*point))
                 line = self.scene().addPath(path)
                 line.setZValue(-1)
                 self.connections.append(line)
+            if node.body is None:
+                marker = self.scene().addEllipse(node.x - 3, node.y - 3, 6, 6)
+                marker.setAcceptedMouseButtons(Qt.MouseButton.NoButton)
+                self.connections.append(marker)
             if node.body is not None:
                 item = BodyItem(node, self.resolver, system_name, light)
                 item.clicked.connect(self.bodyClicked)

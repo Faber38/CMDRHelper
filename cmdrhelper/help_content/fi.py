@@ -1351,3 +1351,7 @@ HELP_TOPICS = {
 
 DIALOG_TITLE = 'Ohje – {area}'
 CLOSE_LABEL = 'Sulje'
+
+
+# Database update guidance; help itself remains version independent.
+HELP_TOPICS["overview"] = (HELP_TOPICS["overview"][0], HELP_TOPICS["overview"][1] + '<h3>Tietokanta on päivitettävä</h3><p>Tietokannan päivitys korjaa vanhoja tallennettuja tähtien, planeettojen ja kuiden välisiä suhteita. Lokeja vain luetaan. Sulje Elite Dangerous ensin ja tuo historialliset lokit saataville mahdollisuuksien mukaan. Koko CMDRHelper-tietokanta varmuuskopioidaan etukäteen; virhetilanteessa muutokset perutaan ja varmuuskopio palautetaan tarvittaessa. Varmuuskopio säilytetään turvana. Peruuta siirtää päivityksen myöhemmäksi.</p>')

@@ -72,15 +72,15 @@ class NormalMapBeltTests(unittest.TestCase):
         self.assertEqual({id(b) for b in rendered + members}, {id(b) for b in bodies})
         self.assertEqual({b['short_name']: len(b['_belt_members']) for b in groups(widget)}, {'A Belt': 5, 'B Belt': 10})
 
-    def test_real_planet_two_moon_offsets_remain_unchanged(self):
+    def test_real_planet_two_moons_use_compact_columns(self):
         widget = self.widget(plio_aip()['bodies'])
         positions = {p['body'].get('body_id'): p for p in widget._tree_layout()[0].values()}
         parent = positions[19]
-        # Recorded from the normal map before belt projection was introduced.
-        for body_id, dx in zip((22, 23, 24, 25, 26), (-338, -169, 0, 169, 338)):
+        for body_id in (22, 23, 24, 25, 26):
             pos = positions[body_id]
             self.assertEqual(pos['body']['parent_id'], 19)
-            self.assertEqual((pos['x'] - parent['x'], pos['y'] - parent['y']), (dx, 272))
+            self.assertGreater(pos['y'], parent['y'])
+        self.assertEqual(len({positions[i]['x'] for i in (22,23,24,25,26)}), 2)
 
     def test_no_belt_preserves_objects_hierarchy_and_submoons(self):
         bodies = [star(), planet(1), planet(2, 1), planet(3, 2)]

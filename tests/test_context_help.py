@@ -210,7 +210,7 @@ class ContextHelpTests(unittest.TestCase):
             "den eingestellten Journalordner prüfen",
         ):
             self.assertIn(passage, topic.text)
-        self.assertEqual(topic.text.count("<h3>"), 9)
+        self.assertEqual(topic.text.count("<h3>"), 10)
 
     def test_missions_help_contains_all_detailed_sections(self):
         topic = help_topic("missions")
@@ -469,7 +469,7 @@ class ContextHelpTests(unittest.TestCase):
 
     def test_overview_help_remains_unchanged(self):
         topic = help_topic("overview")
-        self.assertEqual(topic.text.count("<h3>"), 9)
+        self.assertEqual(topic.text.count("<h3>"), 10)
         self.assertIn("Die Übersicht ist die Startseite von CMDRHelper.", topic.text)
         self.assertIn("Ein Commander verwendet niemals automatisch den API-Key", topic.text)
         self.assertIn("den eingestellten Journalordner prüfen", topic.text)

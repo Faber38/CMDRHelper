@@ -1344,3 +1344,7 @@ HELP_TOPICS = {
 
 DIALOG_TITLE = 'Help – {area}'
 CLOSE_LABEL = 'Close'
+
+
+# Database update guidance; help itself remains version independent.
+HELP_TOPICS["overview"] = (HELP_TOPICS["overview"][0], HELP_TOPICS["overview"][1] + '<h3>Database update required</h3><p>The database update corrects older stored relationships between stars, planets and moons. Journals are only read. Close Elite Dangerous first and make historical journals available where possible. The entire CMDRHelper database is backed up beforehand; errors roll back changes and the backup is restored if necessary. The backup is retained as a safety copy. Cancel lets you postpone the update.</p>')

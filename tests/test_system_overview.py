@@ -96,15 +96,16 @@ class OverviewLayoutTests(unittest.TestCase):
         self.assertEqual(len(groups[0].belt_members), 10)
         self.assert_no_overlap(nodes)
 
-    def test_binary_companion_gets_separate_axis(self):
+    def test_binary_companion_stays_close_to_main_axis(self):
         nodes = build_layout([star(), star(10, 0)])
         self.assertEqual(nodes['body', 10].parent, ('body', 0))
-        self.assertGreater(nodes['body', 10].y, nodes['body', 0].y)
+        self.assertEqual(nodes['body', 10].y, nodes['body', 0].y)
+        self.assertGreater(nodes['body', 10].x, nodes['body', 0].x)
         self.assertGreater(nodes['body', 10].diameter, 100)
 
     def test_second_star_has_its_own_planets(self):
         nodes = build_layout([star(), planet(), star(10, 0), planet(11, 10), planet(12, 11)])
-        self.assertEqual(nodes['body', 11].y, nodes['body', 10].y)
+        self.assertGreater(nodes['body', 11].y, nodes['body', 10].y)
         self.assertEqual(nodes['body', 12].parent, ('body', 11))
         self.assert_no_overlap(nodes)
 

@@ -13,6 +13,16 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper on itsenäinen työpöytäsovellus, joka analysoi Elite Dangerousin paikallisia lokeja ja käyttää `Status.json`-tiedoston planetaarisia sijaintitietoja. Se auttaa tunnistamaan kiinnostavia taivaankappaleita, palaamaan tallennettuihin paikkoihin ja tarkastelemaan matkoja ja löytöjä. Henkilökohtaiset tiedot säilyvät uudelleenkäynnistyksessä ja pidetään erillään komentajittain.
 
+## Uutta versiossa 3.4.1
+
+- Korjaa vanhoja tallennettuja järjestelmähierarkioita
+- Planeettojen, kuiden ja monitähtijärjestelmien parempi esitys
+- Turvallinen tietokantapäivitys, automaattinen varmuuskopio ja muutosten peruminen virhetilanteessa
+- Eliten lokitiedostot säilyvät muuttumattomina
+- Lisää vakaus- ja näyttöparannuksia
+
+Tietokannan päivitys korjaa vanhoja tallennettuja tähtien, planeettojen ja kuiden välisiä suhteita. Lokeja vain luetaan. Sulje Elite Dangerous ensin ja tuo historialliset lokit saataville mahdollisuuksien mukaan. Koko CMDRHelper-tietokanta varmuuskopioidaan etukäteen; virhetilanteessa muutokset perutaan ja varmuuskopio palautetaan tarvittaessa. Varmuuskopio säilytetään turvana. Peruuta siirtää päivityksen myöhemmäksi.
+
 ## Uutta versiossa 3.4 – Mining ja varastot
 
 - Uusi Mining-osio: hyödykkeet, viitehinnat ja arvoluokat.

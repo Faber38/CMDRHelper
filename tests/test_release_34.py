@@ -19,7 +19,7 @@ class Release34Tests(unittest.TestCase):
         self.addCleanup(set_language, get_language())
 
     def test_central_version_and_publisher_agree(self):
-        self.assertEqual(__version__, '3.4')
+        self.assertEqual(__version__, '3.4.1')
         self.assertEqual(cmdrhelper.__version__, __version__)
         self.assertEqual(version_at(ROOT), __version__)
 
@@ -50,7 +50,8 @@ class Release34Tests(unittest.TestCase):
         for language in HELP_LANGUAGES:
             name = 'README.md' if language == 'en' else 'README_' + language.upper() + '.md'
             text = (ROOT / name).read_text(encoding='utf-8')
-            section = re.split(r'^## ', text, flags=re.MULTILINE)[1]
+            section = next(part for part in re.split(r'^## ', text, flags=re.MULTILINE)[1:]
+                           if re.search(r'3\.4(?![.\d])', part.splitlines()[0]))
             with self.subTest(language=language):
                 self.assertIn('3.4', section.splitlines()[0])
                 for term in ('57', 'Surface', 'Asteroid', 'Both', 'CargoTransfer', '—', 'ABBAU ×N', 'A-6-a'):
