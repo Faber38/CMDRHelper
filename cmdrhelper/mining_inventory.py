@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 import hashlib
 import json
 from pathlib import Path
+from typing import NamedTuple
 
 from .cargo import cargo_snapshot, read_cargo_snapshot
 from .journal_files import journal_sort_key
@@ -22,8 +23,15 @@ EVENTS = {"LoadGame", "ClearSavedGame", "Died", "Loadout", "LaunchSRV", "DockSRV
           "Resurrect", "_InvalidCargo"}
 
 
-def total_stock(vehicle, carrier):
-    return vehicle + carrier if vehicle is not None and carrier is not None else None
+def total_stock(*amounts):
+    return sum(amounts) if all(amount is not None for amount in amounts) else None
+
+
+class MiningStock(NamedTuple):
+    srv_amount: int | None
+    ship_amount: int | None
+    carrier_amount: int | None
+    total_amount: int | None
 
 
 @dataclass
@@ -31,7 +39,8 @@ class MiningInventory:
     commander_id: int
     fid: str
     vessel: str = "Ship"
-    vehicle: dict | None = None
+    srv: dict | None = None
+    ship: dict | None = None
     carrier: dict | None = None
     checkpoints: dict = field(default_factory=dict)
     snapshot_verified: bool = False  # Read diagnostics only; never affects cargo reconstruction.
@@ -39,10 +48,17 @@ class MiningInventory:
     carrier_feed: dict | None = field(default=None, repr=False)
     carrier_records: dict = field(default_factory=dict)
 
+    @property
+    def vehicle(self):
+        """Active vessel for refresh validation; never a combined balance."""
+        return self.srv if self.vessel == "SRV" else self.ship
+
     def stock(self, symbol):
-        vehicle = self.vehicle.get(symbol, 0) if self.vehicle is not None else None
-        carrier = self.carrier.get(symbol, 0) if self.carrier is not None else None
-        return vehicle, carrier, total_stock(vehicle, carrier)
+        srv_amount = self.srv.get(symbol, 0) if self.srv is not None else None
+        ship_amount = self.ship.get(symbol, 0) if self.ship is not None else None
+        carrier_amount = self.carrier.get(symbol, 0) if self.carrier is not None else None
+        return MiningStock(srv_amount, ship_amount, carrier_amount,
+                           total_stock(srv_amount, ship_amount, carrier_amount))
 
 
 def validated_cargo(event, fid):
@@ -167,7 +183,8 @@ class MiningReducer:
                 self.stocks[self.result.vessel] = None
         except (ValueError, TypeError, AttributeError):
             self.stocks = {"Ship": None, "SRV": None}
-        self.result.vehicle = deepcopy(self.stocks[self.result.vessel])
+        self.result.srv = deepcopy(self.stocks["SRV"])
+        self.result.ship = deepcopy(self.stocks["Ship"])
 
 
 class MiningInventoryReader:

@@ -95,6 +95,7 @@ class MiningInventoryController(QObject):
 
     def refresh_now(self):
         """Manually reread verified snapshots without the event debounce delay."""
+        logger.info("Manual mining/cargo refresh started")
         self.request()  # Recheck commander and journal identity, just like live updates.
         self._manual_before = self._inventory_signature(self._last_inventory)
         self.timer.stop()
@@ -150,7 +151,8 @@ class MiningInventoryController(QObject):
         def stock_signature(stock):
             return None if stock is None else tuple(sorted((name, count) for name, count in stock.items() if count))
         return (inventory.commander_id, inventory.fid, inventory.vessel,
-                stock_signature(inventory.vehicle), stock_signature(inventory.carrier))
+                stock_signature(inventory.srv), stock_signature(inventory.ship),
+                stock_signature(inventory.carrier))
 
     def _remember_inventory(self, inventory):
         self._last_inventory = inventory
@@ -159,6 +161,7 @@ class MiningInventoryController(QObject):
         if not self._active_manual:
             return
         self._active_manual = False
+        logger.info("Manual mining/cargo refresh finished")
         if inventory is None or not inventory.snapshot_verified or inventory.vehicle is None:
             self.refreshFinished.emit("error")
         else:

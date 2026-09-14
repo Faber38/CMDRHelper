@@ -53,14 +53,14 @@ class CarrierLedgerTests(unittest.TestCase):
 
     def test_unknown_partial_inventory_total_and_reset(self):
         ledger = self.transfer(20, "toship")
-        inventory = MiningInventory(1, "F1", vehicle={"gold": 60})
+        inventory = MiningInventory(1, "F1", srv={}, ship={"gold": 60})
         self.store.attach(inventory, ledger)
-        self.assertEqual(inventory.stock("gold"), (60, None, None))
+        self.assertEqual(inventory.stock("gold"), (0, 60, None, None))
         self.store.attach(inventory, self.confirm())
-        self.assertEqual(inventory.stock("gold"), (60, 504, 564))
-        self.assertEqual(inventory.stock("copper"), (0, None, None))
+        self.assertEqual(inventory.stock("gold"), (0, 60, 504, 564))
+        self.assertEqual(inventory.stock("copper"), (0, 0, None, None))
         self.store.attach(inventory, self.confirm(None))
-        self.assertEqual(inventory.stock("gold"), (60, None, None))
+        self.assertEqual(inventory.stock("gold"), (0, 60, None, None))
         self.assertNotIn("gold", self.transfer(10, "tocarrier")["records"])
 
     def test_negative_invalidates_and_manual_correction_is_new_baseline(self):
@@ -127,9 +127,9 @@ class CarrierLedgerTests(unittest.TestCase):
         self.assertIsNone(self.transfer(-1, "toship", CarrierID=123)["records"]["gold"]["count"])
 
     def test_known_zero_and_conflicting_stable_ids(self):
-        inventory = MiningInventory(1, "F1", vehicle={"gold": 60})
+        inventory = MiningInventory(1, "F1", srv={}, ship={"gold": 60})
         self.store.attach(inventory, self.confirm(0))
-        self.assertEqual(inventory.stock("gold"), (60, 0, 60))
+        self.assertEqual(inventory.stock("gold"), (0, 60, 0, 60))
         self.assertIsNone(self.transfer(1, "tocarrier", CarrierID=123, MarketID=999)["records"]["gold"]["count"])
         self.confirm(504)
         self.events.append(dict(event="Docked", MarketID=999, StationType="FleetCarrier"))

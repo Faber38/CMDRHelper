@@ -276,7 +276,7 @@ class ContextHelpTests(unittest.TestCase):
             "SRV-Fracht wird niemals als Schiffsfracht übernommen",
         ):
             self.assertIn(passage, topic.text)
-        self.assertEqual(topic.text.count("<h3>"), 26)
+        self.assertEqual(topic.text.count("<h3>"), 30)
         self.assertEqual(topic.text.count("<ul>"), 5)
         for text in ("★ Favoriten", "Schnell-Favorit ohne Maus", "Nicht belegt",
                      "kein automatischer Screenshot", "Der gespeicherte HUD-Schalter",
@@ -513,7 +513,8 @@ class ContextHelpTests(unittest.TestCase):
             "aktive Journal-FID bestätigten Cargo-Snapshot",
         ):
             self.assertIn(passage, topic.text)
-        self.assertEqual(topic.text.count("<h3>"), 29)
+        self.assertEqual(topic.text.count("<h3>"), 30)
+        self.assertIn("diagnose_summary.txt", topic.text)
         self.assertEqual(topic.text.count("<ul>"), 4)
 
     def test_no_help_topics_remain_short(self):

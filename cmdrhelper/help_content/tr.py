@@ -30,12 +30,12 @@ HELP_TOPICS = {
 <p>Envanter arka planda otomatik olarak güncellenir. Doğrulanmış yeni toplamalar kısa süreli vurgulanabilir. Komutan değiştirildiğinde eski stoklar hemen kaldırılır. Alt sekmeler, filtreler, sütun genişlikleri ve sıralaması Odyssey için ayrı kaydedilir.</p>
 <h3>Mining</h3>
 <p>Malzemeler → Mining, mühendislik malzemelerinden ayrı olarak, şu anda bilinen 57 ticareti yapılabilir madencilik emtiasının ortak görünümüdür. Tek tablo hem gezegen yüzeyi hem de asteroit/halka madenciliğini kapsar. Sabit referans fiyatlar yalnızca yol göstericidir; canlı piyasa fiyatları değildir.</p>
-<p><b>Sütunlar</b><br><b>Ham madde:</b> emtianın veya kaynağın adı.<br><b>Gemi/SRV:</b> o anda ilgili araçta kesin olarak bilinen stok.<br><b>Filo taşıyıcısı:</b> kendi carrier’ınızdaki stok; Elite tam kişisel envanter sağlamadığından başlangıç stoku elle onaylanmalıdır.<br><b>Toplam:</b> gemi/SRV + carrier; yalnızca her iki miktar da biliniyorsa hesaplanır. Bilinmeyen değer 0 olarak eklenmez.<br><b>Ort. fiyat Cr/t:</b> güncel satış fiyatını garanti etmeyen sabit referans değeri. Eksik referans fiyatlar bilinmiyor olarak kalır.<br><b>Değer sınıfı:</b> YÜKSEK en az 100.000 Cr/t; ORTA 25.000–99.999 Cr/t; DÜŞÜK 25.000 Cr/t altında. Fiyat bilinmiyorsa değer sınıfı atanmaz.</p>
+<p><b>Sütunlar</b><br><b>Ham madde:</b> emtianın veya kaynağın adı.<br><b>SRV:</b> SRV içindeki doğrulanmış stok.<br><b>Gemi:</b> gemideki doğrulanmış stok.<br><b>Filo taşıyıcısı:</b> kendi carrier’ınızdaki stok; Elite tam kişisel envanter sağlamadığından başlangıç stoku elle onaylanmalıdır.<br><b>Toplam:</b> SRV + Gemi + Carrier, yalnızca üç stok da biliniyorsa. Aksi halde —; bilinmeyen sıfır değildir.<br><b>Ort. fiyat Cr/t:</b> güncel satış fiyatını garanti etmeyen sabit referans değeri. Eksik referans fiyatlar bilinmiyor olarak kalır.<br><b>Değer sınıfı:</b> YÜKSEK en az 100.000 Cr/t; ORTA 25.000–99.999 Cr/t; DÜŞÜK 25.000 Cr/t altında. Fiyat bilinmiyorsa değer sınıfı atanmaz.</p>
 <p><b>Carrier stokunu onaylama</b><br>Elite Dangerous, CMDRHelper’a tam kişisel carrier envanteri sağlamaz. Bir emtia için bilinen başlangıç noktası oluşturmak için: 1. Carrier hücresine çift tıklayın. 2. Mevcut stoku 0 veya daha büyük bir tam sayı olarak girin. 3. Değeri uygulayarak elle onaylayın. 4. CMDRHelper bundan sonra geminiz ile kendi carrier’ınız arasındaki açık ve kesin CargoTransfer olaylarını otomatik izler. Araç ipucu elle onayı ve varsa sonraki otomatik güncellemeyi gösterir.</p>
 <p><b>— = stok bilinmiyor</b><br>Onaylanmış başlangıç stoku olmadan tekil transferlerden güvenilir bir mutlak carrier stoku hesaplanamaz. Çift tıklayarak değeri istediğiniz zaman değiştirebilir, düzeltebilir veya bilinmiyor durumuna sıfırlayabilirsiniz. Bir transfer çelişkili ya da negatif sonuç oluşturacaksa stok yeniden bilinmiyor olarak işaretlenir ve elle tekrar onaylanmalıdır.</p>
-<p><b>Gemi ve SRV</b><br>CMDRHelper doğrulanmış kargo verilerini kullanır. Gemi ve SRV stokları toplanmaz: tablo o anda ilgili aracın stokunu gösterir. Tam kargo anlık görüntüleri, tekil değişimlerden hesaplanan stoklardan önceliklidir.</p>
-<p><b>↻ Yenile</b><br>Bu düğme elle kontrol ve yenileme için güncel gemi/SRV kargosunu yeniden okur. Normal canlı güncellemeler otomatik olarak devam eder. Elle onaylanmış carrier değerleri silinmez. Yeşil hazır veya başarılı, renk animasyonu devam eden yenileme, kırmızı ise başarısız deneme anlamına gelir. Eksik ya da doğrulanamayan veriler boş stok olarak gösterilmez.</p>
-<p><b>Filtreleri birleştirme</b><br>Kaynak araması ada göre filtreler. Değer sınıfı Tümü, YÜKSEK, ORTA ve DÜŞÜK seçeneklerini; köken ise Tümü, Gezegensel madencilik ve Asteroitler/Halkalar seçeneklerini sunar. Yalnızca stoktakiler yalnızca kesin olarak bilinen pozitif stoku olan emtiaları gösterir. Carrier stoku bilinmese bile pozitif gemi/SRV stoku görünür kalır. Arama, değer sınıfı, köken ve stok filtresi birlikte kullanılabilir.</p>
+<p><b>Gemi ve SRV</b><br>SRV ve gemi stokları doğrulanmış kargo verilerinden ayrı ayrı oluşturulur. Bilinmeyen miktarlar — olarak kalır. Tam kargo anlık görüntüleri hesaplanan değişikliklerden önce gelir.</p>
+<p><b>↻ Yenile</b><br>SRV stoku ve gemi stoku doğrulanmış verilerle ayrı ayrı yenilenir. Onaylanmış carrier stoku bundan bağımsız olarak korunur. Normal canlı güncellemeler otomatik olarak devam eder. Yeşil hazır veya başarılı, renk animasyonu devam eden yenileme, kırmızı ise başarısız deneme anlamına gelir. Eksik ya da doğrulanamayan veriler boş stok olarak gösterilmez.</p>
+<p><b>Filtreleri birleştirme</b><br>Kaynak araması ada göre filtreler. Değer sınıfı Tümü, YÜKSEK, ORTA ve DÜŞÜK seçeneklerini; köken ise Tümü, Gezegensel madencilik ve Asteroitler/Halkalar seçeneklerini sunar. “Yalnızca stoktakiler”, SRV, gemi veya carrier içindeki bilinen stoklardan en az biri pozitifse emtiayı gösterir. Bilinmeyen stoklar 0 sayılmaz ve başka bir konumdaki bilinen pozitif stoku gizlemez. Arama, değer sınıfı, köken ve stok filtresi birlikte kullanılabilir.</p>
 <p><b>Keşif görünümünde ABBAU ×N</b><br>Tıklamak Malzemeler → Mining bölümünü açar ve köken filtresini otomatik olarak Gezegensel madencilik yapar. Keşif görünümünde ikinci bir Mining tablosu yoktur.</p>
 <p><b>Sıralama ve genişlikler</b><br>Artan veya azalan sıralama için sütun başlıklarına tıklayın. Stoklar ve fiyatlar sayısal sıralanır; bilinmeyenler sona gelir. Genişlikleri ayarlamak için sütun sınırlarını fareyle sürükleyin. Sıralama, sütun genişlikleri ve değer sınıfı, köken ile Yalnızca stoktakiler filtre durumları kaydedilir.</p>
 <p><b>Köken</b><br>Surface gezegen yüzeyi madenciliği, Asteroid asteroit/halka madenciliği demektir. Bazı kaynaklar her iki ortamdan gelir (Both) ve ilgili iki köken filtresinde de görünür.</p>""",
@@ -215,7 +215,7 @@ HELP_TOPICS = {
               '<p>Ekranda diğer şeylerin yanı sıra vücut tipi, mesafe ve varsa tarama ve '
               'haritacılık değerlerinin yanı sıra özel keşif özellikleri de gösteriliyor.</p>\n'
               '\n'
-              '<h3>ORGANİK ×N</h3>\n'
+              '<h3>BIO ×N</h3>\n'
               '<p>BIO ×N, oyun tarafından bildirilen bir vücudun biyolojik sinyallerinin sayısını '
               'belirtir.</p>\n'
               '<p>Sayı başlangıçta yalnızca kaç tane biyolojik sinyalin veya cinsin rapor '
@@ -278,7 +278,7 @@ HELP_TOPICS = {
               '</ul>\n'
               '<p>“Taraman sırasında zaten haritalanmış” durumu keşiften bağımsız değerlendirilir. Eksik bilgi Bilinmiyor olarak kalır. Önceden keşfedilmiş bir gökcismi tarama sırasında henüz haritalanmamış olabilir. Kendi haritalaman resmî First Mapping etiketini doğrulamaz; birden fazla ziyarette kayıtlı taramaya göre zaman sırası da her zaman kanıtlanamaz.</p>\n<p>Kendi DSS haritalaman tamamlandığında haritalama zamanı, kullanılan sondalar ve verimlilik hedefi artık güvenilir biçimde kaydedilir. Sonraki taramalar mevcut bilgilerin kaybolmasına yol açmaz.</p>\n'
               '\n'
-              '<h3>Ülke çubuğu</h3>\n'
+              '<h3>İniş yapılabilir</h3>\n'
               '<p>İnmeye elverişlilik göstergesi, bilinen verilere göre inişin mümkün olduğu '
               'cisimleri tanımlar.</p>\n'
               '\n'
@@ -292,15 +292,20 @@ HELP_TOPICS = {
               '<p>Bir sistemdeki ilginç veya değerli gövdelerin hızlı bir şekilde '
               'karşılaştırılması için özellikle uygundur.</p>\n'
               '\n'
-              '<h3>ORGANİK / COĞRAFİ / BOZULMA</h3>\n'
-              '<p>Bu görünüm, cisimleri biyolojik, jeolojik veya gezegensel bozulma sinyallerine '
-              'göre gruplandırır.</p>\n'
+              '<h3>BIO / GEO / ABBAU</h3>\n'
+              '<p>Bu görünüm biyolojik, jeolojik veya gezegensel madencilik sinyalleri bulunan gökcisimlerini '
+              'gruplar.</p>\n'
               '<p>Bu, ilginç cisimlerin komple sistem haritasında tek tek aranmasına gerek '
               'olmadığı anlamına gelir.</p>\n'
               '<p>Kendi yüzey madenciliği verileriniz varsa kişisel madencilik bulgularınız da '
               'görülebilir.</p>\n'
               '<p>Explorer’ın ortak BIO / GEO / ABBAU tablosunda elle ayarlanan sütun genişlikleri yeniden açılışta ve program yeniden başlatıldığında korunur. Açılır pencerelerin kayıtlı sütun genişlikleri daha sağlam geri yüklenir; geçersiz değerlerde güvenli varsayılan genişlikler kullanılır.</p>\n\n'
-              '<h3>Gövde detayı</h3>\n'
+              '<h3>Tabloların kullanımı</h3>\n<p>Değer listesinde ve BIO / GEO / ABBAU tablosunda sıralamak '
+              'için sütun başlığına tıklayın; tekrar tıklamak yönü tersine çevirir. Genişlikleri değiştirmek '
+              'için sütun sınırlarını fareyle sürükleyin. Sıralama ve sütun genişlikleri her tablo için ayrı '
+              'kaydedilir. Gökcismi adları doğal sıralanır; örneğin A 2, A 10’dan önce gelir. Mesafeler, '
+              'krediler ve adetler sayısal sıralanır. Durum, analiz ve ziyaret sütunları alfabetik olarak '
+              'değil, anlamlarına göre sıralanır.</p>\n\n<h3>Gövde detayı</h3>\n'
               '<p>Bir gövdeye tıklamak ayrıntılı görünümü açar.</p>\n'
               '<p>Bilindiği kadarıyla burada şunlar görünebilir:</p>\n'
               '<ul>\n'
@@ -337,7 +342,7 @@ HELP_TOPICS = {
               '<p>Halihazırda satılmış olan haritacılık verileri yeniden yapılanma sonrasında '
               'tekrar açık görünmemelidir.</p>\n'
               '\n'
-              '<h3>Arabayı göster</h3>\n'
+              '<h3>Otomatik göster</h3>\n'
               '<p>Değerli Gövdeler veya BIO Buluntuları gibi desteklenen Explorer ipuçları, sol '
               'kenar çubuğundaki anahtarlar kullanılarak otomatik olarak görüntülenebilir.</p>\n'
               '<p>Bu küçük canlı pencereler, oyun oynarken ek ipuçları görevi görür ve tam '
@@ -361,6 +366,19 @@ HELP_TOPICS = {
 <p>Ada göre alfabetik sıralanan, kaydırılabilir liste; ad, tür, sistem, uygun olduğunda gökcismi ve enlem/boylam, kategori ve küçük bir resim önizlemesi gösterir. Serbest metin araması, tür filtresi ve kategori filtresi birlikte kullanılabilir. Arama; ad, sistem, gökcismi ve notu kapsar.</p>
 <p>“Aç / Göster” kaydedilen bilgileri, notu ve daha büyük bir resim önizlemesini gösterir. “Explorer’da göster”, favori mevcut Explorer sistemine aitse ve ilgili veriler varsa mevcut sistem genel görünümünü veya gökcismi ayrıntı görünümünü açar. Diğer sistemler için kaydedilmiş favori verileri görünür kalır; sistemler arası rota hesaplanmaz.</p>
 
+<h3>Mesafe filtresi</h3>
+<p>“Mesafe filtresi” varsayılan olarak kapalıdır. “Azami mesafe:” başlangıçta 500 ly değerindedir; 1 ile 100.000 ly arasında ayarlanabilir. Mesafe, yerel olarak mevcut sistem koordinatları kullanılarak bilinen güncel sistemden hesaplanır. Yalnızca bu filtre için canlı ağ sorgusu yapılmaz.</p>
+<p>Bilinen mesafesi sınırı aşan favoriler gizlenir. Mesafesi bilinmeyen favoriler görünür kalır. Güncel sistemin koordinatları eksikse mesafe filtresi hiçbir kaydı gizlemez. Arama, tür ve kategori filtreleri geçerliliğini korur. Sistem değişiminden sonra filtreleme otomatik yenilenir. Anahtarın durumu ve azami mesafe kaydedilir.</p>
+
+<h3>Favorileri dışa aktarma</h3>
+<p>“Dışa aktar”, etkin komutanın tüm favorilerini içeren taşınabilir bir ZIP oluşturur; yalnızca arama, tür, kategori veya mesafe filtreleriyle görünen kayıtları değil. favorites.json yapılandırılmış favori verilerini içerir; mevcut favori görselleri images/ altında bulunur. Paket Linux ve Windows arasında aktarılabilir.</p>
+<p>Mevcut favoriler ve orijinal görseller değiştirilmez. Aynı içeriğe sahip görseller pakette yalnızca bir kez saklanır. Eksik veya bozuk görseller favori verilerinin dışa aktarılmasını engellemez. İçe ve dışa aktarmada dosya başına en fazla 32 MiB, sıkıştırılmamış paket içeriği için toplam 256 MiB sınırı vardır.</p>
+
+<h3>Favorileri içe aktarma</h3>
+<p>“İçe aktar” önce ZIP dosyasını denetler ve değişikliklerden önce yeni ve mevcut favorilerin özetini gösterir. İçe aktarılan favoriler o anda etkin olan komutana atanır. Yinelenenler tür, kategori, ad ve konuma göre belirlenir: bilinen sistem/gökcismi kimlikleri ve koordinatlar, bunlar yoksa sistem/gökcismi adları. Paket içindeki yinelenenler de dikkate alınır.</p>
+<p>Algılanan tüm yinelenenlere aynı seçim uygulanır: “Atla” varsayılandır ve mevcut kayıtları korur; “Mevcut favoriyi değiştir” içe aktarılan verileri mevcut favoriye uygular; “Yeni kayıt olarak içe aktar” ek bir kayıt oluşturur. İptal edildiğinde hiçbir şey aktarılmaz.</p>
+<p>Geçersiz favori verileri tüm içe aktarmayı engeller. İçe aktarma hatasında kısmi aktarım kalmaması için veritabanı değişiklikleri geri alınır. Eksik veya bozuk görseller geçerli verilerin içe aktarılmasını engellemez; bu favoriler görselsiz aktarılır. İçe aktarılan görseller CMDRHelper tarafından yerel olarak yönetilir.</p>
+
 <h3>Sistem, gezegen veya mevcut konumu kaydetme</h3>
 <ul>
 <li>“★ Mevcut sistemi kaydet” mevcut sistemi yüzey koordinatları olmadan kaydeder.</li>
@@ -381,6 +399,7 @@ HELP_TOPICS = {
 <p>“Son ekran görüntüsünü kullan”, her tıklamada yapılandırılmış ekran görüntüsü kaynak klasörünü yeniden okur ve tipik Elite dosya adlarına sahip okunabilir ekran görüntülerini arar. Bir ayar yoksa Windows veya Steam/Proton’daki olağan Elite ekran görüntüsü klasörleri dikkate alınır. Yapılandırılmış dönüştürme hedefindeki etkin komutana ait klasör de uygun dönüştürülmüş Elite ekran görüntüleri için aranır. Böylece orijinal BMP’si silinmiş olsa da dönüştürülmüş bir ekran görüntüsü bulunabilir. En yeni çekim zamanını belirlerken dosya adındaki açık zaman bilgisi, yoksa dosya zamanı esas alınır; dönüştürülmüş resimlerde dönüştürme zamanı yerine adda saklanan çekim zamanı kullanılır. CMDRHelper kendisi ekran görüntüsü almaz ve rastgele resim klasörlerini aramaz.</p>
 <p>Kullanımdan önce dosya adı, çekim zamanı ve yeni yüklenmiş bir önizleme gösterilir. “Bu resmi kullan” ile onayla. Uygun ekran görüntüsü bulunamazsa “Resim seç …” seçeneğini kullanmaya devam edebilirsin. Elite BMP ekran görüntüleri dahili PNG kopyası olarak kaydedilir.</p>
 <p>Bir resim düzenleme iletişim kutusunda değiştirilebilir veya “Resmi kaldır” ile seçimden çıkarılabilir. Kaydederken artık kullanılmayan dahili kopya silinir. Resim dosyası eksikse favori önizleme olmadan kullanılabilir durumda kalır.</p>
+<p>Favori görselleri dışa aktarıma dahil edilebilir ve içe aktarımda yerel olarak kopyalanır. Paylaşılan dahili görsel kopyaları başka bir favori ihtiyaç duyduğu sürece korunur. İçe aktarma favorileri değiştirdiğinde eski görsel dosyaları şu anda önlem olarak saklanır.</p>
 
 <h3>Favori hedefi ve komutan</h3>
 <p>“▶ Rotaya git”, favorinin bilinen sistemini rota planlayıcıda hedef olarak ayarlar. Başlangıç mevcut davranışa göre güncel AppState üzerinden belirlenir; elle girilmiş başlangıç korunur. Otomatik rota hesaplanmaz. “◎ Koordinatlara git”, sistem, gökcismi ve geçerli koordinatlar kayıtlıysa mevcut HUD ile yüzey konumuna mevcut gezegen gezinmesini başlatır. Sisteme yolculuk ve yüzey gezinmesi, otomatik seyahat dizisi olmadan iki ayrı adımdır. Yüzey koordinatları olmadan yalnızca rota kullanılabilir; gerekli verileri eksik olan eylemler gizlenir.</p>
@@ -1364,3 +1383,5 @@ CLOSE_LABEL = 'Kapat'
 
 # Database update guidance; help itself remains version independent.
 HELP_TOPICS["overview"] = (HELP_TOPICS["overview"][0], HELP_TOPICS["overview"][1] + '<h3>Veritabanı güncellemesi gerekli</h3><p>Veritabanı güncellemesi, yıldızlar, gezegenler ve uydular arasındaki eski kayıtlı ilişkileri düzeltir. Günlükler yalnızca okunur. Önce Elite Dangerous’ı kapat ve mümkünse geçmiş günlükleri hazır bulundur. CMDRHelper veritabanının tamamı önceden yedeklenir; hata durumunda değişiklikler geri alınır ve gerekirse yedek geri yüklenir. Yedek, güvenlik kopyası olarak saklanır. İptal ile güncellemeyi erteleyebilirsin.</p>')
+
+HELP_TOPICS["settings"] = (HELP_TOPICS["settings"][0], HELP_TOPICS["settings"][1] + '<h3>Tanılama ve günlükler</h3><p>Ayarlar → Tanılama ve günlükler bölümünden günlük dosyasını açabilir veya tanılama paketi oluşturabilirsiniz. Günlükler, kurulum klasöründeki logs/ altındadır (cmdrhelper.log ve en fazla dört eski dosya). ZIP; temizlenmiş teknik günlükler, system_info.json ve diagnose_summary.txt içerir; Journal dosyaları, veritabanı, FID/komutan verileri, kimlik bilgileri, favoriler veya resimler içermez. Kişisel yollar yer tutucularla değiştirilir. Gizlilik filtresinden önceki eski günlüklerin içeriği atlanır. ZIP dosyasının kaydedileceği yeri seçin ve gerekirse destek ekibiyle paylaşın; dosya hiçbir zaman otomatik gönderilmez.</p>')

@@ -14,25 +14,33 @@ from cmdrhelper.ui.material_row_style import THEMES
 
 
 def _migrate_columns(settings, columns):
-    """Retain all Phase 1 widths/order by identity when inserting stock columns."""
+    """Migrate only mining layouts, keeping existing identities and widths."""
     key = "materials/mining/columns"
     saved = settings.value(key)
-    old = ["name", "average_price", "value_class"]
+    legacy = ["name", "average_price", "value_class"]
+    combined = ["name", "vehicle", "carrier", "total", "average_price", "value_class"]
     if (not isinstance(saved, dict) or type(saved.get("version")) is not int
-            or saved["version"] != 1 or saved.get("columns") != old):
+            or saved["version"] != 1 or saved.get("columns") not in (legacy, combined)):
         return
-    widths = _validated_widths(saved.get("widths"), 3)
+    old = saved["columns"]
+    widths = _validated_widths(saved.get("widths"), len(old))
     order = saved.get("order")
-    if (widths is None or not isinstance(order, list) or len(order) != 3
-            or any(type(i) is not int for i in order) or sorted(order) != [0, 1, 2]):
+    if (widths is None or not isinstance(order, list) or len(order) != len(old)
+            or any(type(i) is not int for i in order) or sorted(order) != list(range(len(old)))):
         return
     migrated_order = []
+    sizes = dict(zip(old, widths))
     for logical in order:
-        migrated_order.append(columns.index(old[logical]))
-        if logical == 0:
-            migrated_order.extend([1, 2, 3])
+        name = old[logical]
+        if name == "vehicle":
+            migrated_order.extend([columns.index("srv"), columns.index("ship")])
+        else:
+            migrated_order.append(columns.index(name))
+            if name == "name" and old == legacy:
+                migrated_order.extend([1, 2, 3, 4])
+    sizes["srv"] = sizes["ship"] = sizes.get("vehicle", 95)
     settings.setValue(key, dict(version=1, columns=list(columns),
-        widths=[widths[0], 95, 95, 95, widths[1], widths[2]], order=migrated_order))
+        widths=[sizes.get(name, 95) for name in columns], order=migrated_order))
     settings.sync()
 
 
@@ -92,7 +100,7 @@ class _CarrierDelegate(QStyledItemDelegate):
             background = self._blend(background, QColor(theme["selected"]), 0.35)
         elif hovered.isValid() and hovered.row() == index.row():
             background = self._blend(background, QColor(theme["hover"]), 0.25)
-        if index.column() == 2 and hovered == index:
+        if index.column() == 3 and hovered == index:
             background = self._blend(background, self.color, 0.11)
         # Native selection would replace both background and semantic text
         # colors. Keep the item's foreground and paint only our subtle tones.
@@ -102,7 +110,7 @@ class _CarrierDelegate(QStyledItemDelegate):
 
 
 class MiningView(QWidget):
-    COLUMNS = ("name", "vehicle", "carrier", "total", "average_price", "value_class")
+    COLUMNS = ("name", "srv", "ship", "carrier", "total", "average_price", "value_class")
     SORT_KEY = "materials/mining/sort"
     STOCK_FILTER_KEY = "materials/mining/only_stock"
     ORIGIN_FILTER_KEY = "materials/mining/origin_filter"
@@ -118,7 +126,7 @@ class MiningView(QWidget):
         outer = QHBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         self.content = QWidget()
-        self.content.setMaximumWidth(1120)
+        self.content.setMaximumWidth(1215)
         outer.addWidget(self.content, 5)
         outer.addStretch(1)  # Reserved space; no future controls or stock logic yet.
         layout = QVBoxLayout(self.content)
@@ -189,11 +197,11 @@ class MiningView(QWidget):
         self.tree = QTreeWidget()
         self.tree.collator = QCollator(QLocale(get_language()))
         self.tree.setColumnCount(len(self.COLUMNS))
-        self.tree.setHeaderLabels([tr("mining.name"), tr("mining.vehicle"), tr("mining.carrier_marked", value=tr("mining.carrier")),
+        self.tree.setHeaderLabels([tr("mining.name"), tr("mining.srv"), tr("mining.ship"), tr("mining.carrier_marked", value=tr("mining.carrier")),
                                    tr("mining.total"), tr("mining.average_price"),
                                    tr("mining.value_class")])
         self.tree.headerItem().setTextAlignment(0, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-        self.tree.headerItem().setToolTip(2, tr("mining.carrier_header_help"))
+        self.tree.headerItem().setToolTip(3, tr("mining.carrier_header_help"))
         for column in range(1, len(self.COLUMNS)):
             self.tree.headerItem().setTextAlignment(column, Qt.AlignmentFlag.AlignCenter)
         self.carrier_delegate = _CarrierDelegate(self.tree)
@@ -209,34 +217,38 @@ class MiningView(QWidget):
         for commodity in commodities:
             price = commodity.average_price
             category = value_class(price)
-            item = _MiningItem(self.tree, [tr(commodity.name_key), "—", "—", "—",
+            item = _MiningItem(self.tree, [tr(commodity.name_key), "—", "—", "—", "—",
                 locale.toString(price) if price is not None else "—",
                 "● " + tr("mining." + category) if category else "—"])
             if price is None:
-                item.setToolTip(4, tr("mining.reference_unknown"))
                 item.setToolTip(5, tr("mining.reference_unknown"))
+                item.setToolTip(6, tr("mining.reference_unknown"))
             self.items[commodity.symbol] = item
             self._search_text[commodity.symbol] = "\n".join((
                 tr(commodity.name_key), tr_for_language("en", commodity.name_key),
                 commodity.symbol,
             )).casefold()
             item.setData(0, Qt.ItemDataRole.UserRole, commodity.symbol)
-            item.setData(4, Qt.ItemDataRole.UserRole, price)
-            item.setData(5, Qt.ItemDataRole.UserRole,
+            item.setData(5, Qt.ItemDataRole.UserRole, price)
+            item.setData(6, Qt.ItemDataRole.UserRole,
                          {"low": 0, "medium": 1, "high": 2}.get(category))
             item.setTextAlignment(0, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
             for column in range(1, len(self.COLUMNS)):
                 item.setTextAlignment(column, Qt.AlignmentFlag.AlignCenter)
             item.setSizeHint(0, QSize(0, max(30, self.fontMetrics().height() + 12)))
-            price_font = item.font(4)
+            price_font = item.font(5)
             price_font.setBold(True)
-            item.setFont(4, price_font)
+            item.setFont(5, price_font)
             item.setToolTip(0, tr(commodity.name_key))
         _migrate_columns(settings, self.COLUMNS)
         persist_header_layout(self.tree.header(), settings, "materials/mining/columns",
-                              columns=self.COLUMNS, default_widths=(320, 95, 95, 95, 180, 160))
+                              columns=self.COLUMNS, default_widths=(320, 95, 95, 95, 95, 180, 160))
         saved = settings.value(self.SORT_KEY)
-        column, order = 4, Qt.SortOrder.DescendingOrder
+        if isinstance(saved, dict) and saved.get("column") == "vehicle":
+            saved = {**saved, "column": "ship"}
+            settings.setValue(self.SORT_KEY, saved)
+            settings.sync()
+        column, order = 5, Qt.SortOrder.DescendingOrder
         if (isinstance(saved, dict) and saved.get("column") in self.COLUMNS
                 and saved.get("direction") in ("ascending", "descending")):
             column = self.COLUMNS.index(saved["column"])
@@ -271,7 +283,7 @@ class MiningView(QWidget):
             for column, count in enumerate(inventory.stock(symbol), 1):
                 item.setData(column, Qt.ItemDataRole.UserRole, count)
                 text = locale.toString(count) if count is not None else "—"
-                item.setText(column, tr("mining.carrier_marked", value=text) if column == 2 else text)
+                item.setText(column, tr("mining.carrier_marked", value=text) if column == 3 else text)
                 item.setToolTip(column, tr("mining.stock_unknown") if count is None else "")
             record = inventory.carrier_records.get(symbol)
             tooltip = ""
@@ -285,13 +297,13 @@ class MiningView(QWidget):
                     tooltip += "\n" + tr("mining.carrier_inconsistent")
             elif inventory.carrier is None or inventory.carrier.get(symbol) is None:
                 tooltip = tr("mining.carrier_unknown_help")
-            item.setToolTip(2, tr("mining.carrier_edit_hint") + ("\n" + tooltip if tooltip else ""))
+            item.setToolTip(3, tr("mining.carrier_edit_hint") + ("\n" + tooltip if tooltip else ""))
             self._style_stock(item)
         self.tree.setSortingEnabled(True)
         self._apply_filters()
 
     def _edit_carrier(self, item, column):
-        if column != 2:
+        if column != 3:
             return
         from .mining_carrier_dialog import CarrierStockDialog
         inventory = self._inventory
@@ -299,7 +311,7 @@ class MiningView(QWidget):
         symbol = item.data(0, Qt.ItemDataRole.UserRole)
         editable = (self.controller is not None and inventory.carrier_id is not None
                     and inventory.carrier_feed is not None)
-        dialog = CarrierStockDialog(item.text(0), inventory.stock(symbol)[1], editable, self)
+        dialog = CarrierStockDialog(item.text(0), inventory.stock(symbol).carrier_amount, editable, self)
         try:
             if dialog.exec() == QDialog.DialogCode.Accepted and editable:
                 try:
@@ -371,7 +383,7 @@ class MiningView(QWidget):
         self._apply_filters()
 
     def _style_stock(self, item):
-        for column in (1, 2, 3):
+        for column in (1, 2, 3, 4):
             count = item.data(column, Qt.ItemDataRole.UserRole)
             positive = count is not None and count > 0
             item.setForeground(column, QColor(self._stock_colors[1 if positive else 0]))
@@ -389,7 +401,7 @@ class MiningView(QWidget):
             item = self.tree.topLevelItem(row)
             matches = (query in self._search_text[item.data(0, Qt.ItemDataRole.UserRole)]
                        and (origin == "all" or self._origins[item.data(0, Qt.ItemDataRole.UserRole)] in (origin, "both"))
-                       and (rank is None or rank == item.data(5, Qt.ItemDataRole.UserRole))
+                       and (rank is None or rank == item.data(6, Qt.ItemDataRole.UserRole))
                        and (not self.only_stock.isChecked() or any(
                            item.data(column, Qt.ItemDataRole.UserRole) is not None
                            and item.data(column, Qt.ItemDataRole.UserRole) > 0
@@ -425,8 +437,8 @@ class MiningView(QWidget):
         self.tree.viewport().update()
         for row in range(self.tree.topLevelItemCount()):
             item = self.tree.topLevelItem(row)
-            rank = item.data(5, Qt.ItemDataRole.UserRole)
-            item.setForeground(5, QColor(colors[rank if rank is not None else 0]))
+            rank = item.data(6, Qt.ItemDataRole.UserRole)
+            item.setForeground(6, QColor(colors[rank if rank is not None else 0]))
             self._style_stock(item)
 
     def _save_sort(self, column, order):

@@ -30,12 +30,12 @@ HELP_TOPICS = {
 <p>The inventory is updated automatically in the background. Confirmed new pickups may be highlighted briefly. When switching commanders, old stocks are removed immediately. Subtabs, filters, column widths and column order are saved separately for Odyssey.</p>
 <h3>Mining</h3>
 <p>Materials → Mining is the central overview of 57 currently known tradable mining commodities, separate from engineering materials. One table covers planetary surface mining and asteroid/ring mining. Fixed reference prices are for guidance only, not live market prices.</p>
-<p><b>Columns</b><br><b>Commodity:</b> the commodity or resource name.<br><b>Ship/SRV:</b> reliably known stock in the currently relevant vehicle.<br><b>Carrier:</b> stock on your own carrier; Elite does not supply a complete personal inventory, so the initial stock must be confirmed manually.<br><b>Total:</b> ship/SRV + carrier, only when both amounts are known. Unknown is not added as 0.<br><b>Avg price Cr/t:</b> a fixed reference value, not a guaranteed current selling price. Missing reference prices remain unknown.<br><b>Value class:</b> HIGH from 100,000 Cr/t; MEDIUM at 25,000–99,999 Cr/t; LOW below 25,000 Cr/t. An unknown price has no value class.</p>
+<p><b>Columns</b><br><b>Commodity:</b> the commodity or resource name.<br><b>SRV:</b> verified stock in the SRV.<br><b>Ship:</b> verified stock in the ship.<br><b>Carrier:</b> stock on your own carrier; Elite does not supply a complete personal inventory, so the initial stock must be confirmed manually.<br><b>Total:</b> SRV + Ship + Carrier, only when all three balances are known. Otherwise —; unknown is not zero.<br><b>Avg price Cr/t:</b> a fixed reference value, not a guaranteed current selling price. Missing reference prices remain unknown.<br><b>Value class:</b> HIGH from 100,000 Cr/t; MEDIUM at 25,000–99,999 Cr/t; LOW below 25,000 Cr/t. An unknown price has no value class.</p>
 <p><b>Confirming carrier stock</b><br>Elite Dangerous does not provide CMDRHelper with a complete personal carrier inventory. Establish a known starting point for a commodity: 1. Double-click its carrier cell. 2. Enter the current stock as a whole number of 0 or more. 3. Apply the value to confirm it manually. 4. CMDRHelper then automatically tracks unambiguous CargoTransfer events between your ship and your own carrier. The tooltip shows the manual confirmation and any subsequent tracking.</p>
 <p><b>— = stock unknown</b><br>Without a confirmed starting stock, individual transfers cannot establish a reliable absolute carrier stock. Double-click at any time to change, correct or reset a value to unknown. If a transfer would produce a contradictory or negative result, the stock becomes unknown again and must be manually reconfirmed.</p>
-<p><b>Ship and SRV</b><br>CMDRHelper uses verified cargo data. Ship and SRV are not added together: the table shows the stock of the relevant vehicle. Complete cargo snapshots take precedence over stock calculated from individual changes.</p>
-<p><b>↻ Refresh</b><br>The button rereads the current ship/SRV cargo as a manual check and refresh mechanism. Normal live updates continue automatically. Manually confirmed carrier values are not deleted. Green means ready or successful, the colour animation indicates an update in progress, and red indicates a failed attempt. Missing or unverifiable data is not reported as empty stock.</p>
-<p><b>Combining filters</b><br>Resource search filters by name. Value class offers All, HIGH, MEDIUM and LOW; origin offers All, Planetary mining and Asteroids/Rings. In stock only shows only commodities with reliably known positive stock. Positive ship/SRV stock remains visible even when carrier stock is unknown. Search, value class, origin and stock filters can be combined.</p>
+<p><b>Ship and SRV</b><br>SRV and ship stocks are reconstructed separately from verified cargo data. Missing balances remain —. Complete cargo snapshots take precedence over calculated changes.</p>
+<p><b>↻ Refresh</b><br>SRV stock and ship stock are refreshed separately using verified data. Confirmed carrier stock is preserved independently. Normal live updates continue automatically. Green means ready or successful, the colour animation indicates an update in progress, and red indicates a failed attempt. Missing or unverifiable data is not reported as empty stock.</p>
+<p><b>Combining filters</b><br>Resource search filters by name. Value class offers All, HIGH, MEDIUM and LOW; origin offers All, Planetary mining and Asteroids/Rings. “In stock only” shows a commodity when at least one known balance in the SRV, ship or carrier is positive. Unknown balances are not treated as 0 and do not hide a known positive balance at another location. Search, value class, origin and stock filters can be combined.</p>
 <p><b>ABBAU ×N in Explorer</b><br>Clicking opens Materials → Mining and automatically sets the origin filter to Planetary mining. There is no second mining table in Explorer.</p>
 <p><b>Sorting and widths</b><br>Click column headings to sort ascending or descending. Stock and prices sort numerically, with unknown values last. Drag column boundaries with the mouse to adjust widths. Sorting, column widths and the value class, origin and In stock only filter states are saved.</p>
 <p><b>Origin</b><br>Surface means planetary surface mining; Asteroid means asteroid/ring mining. Some commodities come from both sources (Both) and appear in both matching origin filters.</p>""",
@@ -220,7 +220,7 @@ HELP_TOPICS = {
               'scan and cartography values \u200b\u200bas well as special exploration '
               'properties.</p>\n'
               '\n'
-              '<h3>ORGANIC ×N</h3>\n'
+              '<h3>BIO ×N</h3>\n'
               '<p>BIO ×N denotes the number of biological signals of a body reported by the '
               'game.</p>\n'
               '<p>The number initially only indicates how many biological signals or genera were '
@@ -284,7 +284,7 @@ HELP_TOPICS = {
               '</ul>\n'
               '<p>“Already mapped at your scan” is evaluated separately from discovery. Missing information remains Unknown. An already discovered body may have been unmapped when you scanned it. Your own mapping does not confirm an official First Mapping tag; across multiple visits, its order relative to the stored scan is not always established either.</p>\n<p>Completing your own DSS mapping now reliably saves the mapping time, probes used and efficiency target. Later scan events no longer cause existing details to be lost.</p>\n'
               '\n'
-              '<h3>Country bar</h3>\n'
+              '<h3>Landable</h3>\n'
               '<p>The landability indicator identifies bodies on which, according to known data, '
               'landing is possible.</p>\n'
               '\n'
@@ -298,15 +298,19 @@ HELP_TOPICS = {
               '<p>It is particularly suitable for quickly comparing interesting or valuable bodies '
               'in a system.</p>\n'
               '\n'
-              '<h3>ORGANIC / GEO / DEGRADATION</h3>\n'
-              '<p>This view groups bodies with biological, geological or planetary degradation '
-              'signals.</p>\n'
+              '<h3>BIO / GEO / ABBAU</h3>\n'
+              '<p>This view groups bodies with biological, geological or planetary mining signals.</p>\n'
               '<p>This means that interesting bodies do not have to be searched for individually '
               'in the complete system map.</p>\n'
               '<p>If you have your own surface mining data, your personal mining finds can also be '
               'visible.</p>\n'
               '<p>Manually adjusted column widths in the shared Explorer BIO / GEO / ABBAU table survive reopening and application restarts. Saved popup column widths are restored more robustly; invalid values fall back to safe defaults.</p>\n\n'
-              '<h3>Body detail</h3>\n'
+              '<h3>Using the tables</h3>\n<p>In the value list and BIO / GEO / ABBAU, click a column heading to '
+              'sort; click it again to reverse the direction. Drag column boundaries with the mouse to resize '
+              'them. Sorting and column widths are saved separately for each table. Body names use natural '
+              'ordering, for example A 2 before A 10. Distances, credits and counts sort numerically. Status, '
+              'analysis and visited columns sort by their meaning rather than alphabetically.</p>\n\n<h3>Body '
+              'detail</h3>\n'
               '<p>Clicking on a body opens the detailed view.</p>\n'
               '<p>As far as is known, the following can appear there:</p>\n'
               '<ul>\n'
@@ -343,7 +347,7 @@ HELP_TOPICS = {
               '<p>Cartography data that has already been sold should not appear as open again '
               'after reconstruction.</p>\n'
               '\n'
-              '<h3>Show car</h3>\n'
+              '<h3>Auto show</h3>\n'
               '<p>Supported live information such as Valuable Bodies, BIO Finds or Cargo can be '
               'automatically displayed using the switches in the left sidebar.</p>\n'
               '<p>These small live windows serve as additional hints while playing and do not '
@@ -367,6 +371,19 @@ HELP_TOPICS = {
 <p>The scrollable list, sorted alphabetically by name, shows the name, type, system, body and latitude/longitude where applicable, category and a small image preview. Free-text search, type and category filters can be used together. The search covers the name, system, body and note.</p>
 <p>“Open / View” shows the saved information, note and a larger image preview. “Show in Explorer” opens the existing system overview or body detail view if the favorite belongs to the current Explorer system and matching data is available. For other systems, the saved favorite data remains visible; no system route is calculated.</p>
 
+<h3>Distance filter</h3>
+<p>“Distance filter” is off by default. “Max. distance:” defaults to 500 ly, with a range of 1 to 100,000 ly. Distance is measured from the currently known system using locally available system coordinates. No live query is made just for this filter.</p>
+<p>Favorites with known distances beyond the limit are hidden. Favorites with unknown distances remain visible. If the current system’s coordinates are missing, the distance filter hides no entries. Search, type and category filters still apply. Filtering updates automatically after a system change. The switch and maximum distance are saved.</p>
+
+<h3>Exporting favorites</h3>
+<p>“Export” creates a portable ZIP containing all favorites of the active commander, not just entries visible through search, type, category or distance filters. favorites.json contains the structured favorite data; available favorite images are included under images/. The package can be transferred between Linux and Windows.</p>
+<p>Existing favorites and original images are not changed. Identical image contents are stored only once in the package. Missing or damaged images do not prevent exporting favorite data. Import and export allow up to 32 MiB per file and 256 MiB in total for the uncompressed package contents.</p>
+
+<h3>Importing favorites</h3>
+<p>“Import” first checks the ZIP and shows a summary of new and existing favorites before making changes. Imported favorites belong to the currently active commander. Duplicates are identified by type, category, name and location: known system/body IDs and coordinates, otherwise system/body names. Duplicates within the package are also considered.</p>
+<p>One choice applies to all detected duplicates: “Skip” is the default and keeps existing entries unchanged; “Replace existing favorite” applies the imported data to the existing favorite; “Import as a new entry” creates an additional entry. Cancelling imports nothing.</p>
+<p>Invalid favorite data prevents the entire import. If an import error occurs, database changes are rolled back to avoid a partial import. Missing or damaged images do not prevent importing valid favorite data; those favorites are imported without an image. Imported images are managed locally by CMDRHelper.</p>
+
 <h3>Save a system, planet or current location</h3>
 <ul>
 <li>“★ Save current system” saves the current system without surface coordinates.</li>
@@ -387,6 +404,7 @@ HELP_TOPICS = {
 <p>“Use latest screenshot” rescans the configured screenshot source folder on every click and looks for readable screenshots with typical Elite filenames. Without a configured folder, the usual Elite screenshot directories on Windows or Steam/Proton are considered. The folder belonging to the active commander in the configured conversion destination is also searched for matching converted Elite screenshots. A converted screenshot can therefore still be found if its original BMP has been deleted. The newest capture is determined by an unambiguous timestamp in the filename, otherwise by the file time; for converted images, the capture time stored in the name counts instead of the conversion time. CMDRHelper does not trigger screenshots itself or search arbitrary image folders.</p>
 <p>Before use, the filename, capture time and a freshly loaded preview are displayed. Confirm with “Use this image”. If no suitable screenshot is found, you can still use “Choose image …”. Elite BMP screenshots are saved as an internal PNG copy.</p>
 <p>An image can be replaced in the edit dialog or deselected with “Remove image”. Saving removes the internal copy that is no longer used. If an image file is missing, the favorite remains usable without a preview.</p>
+<p>Favorite images can be included in exports and are copied locally on import. Shared internal image copies are retained while another favorite still needs them. When an import replaces favorites, old image files are currently retained as a precaution.</p>
 
 <h3>Favorite target and commander</h3>
 <p>“▶ To route” sets the favorite’s known system as the destination in the route planner. The start follows the existing behavior using the current AppState; a manually entered start is preserved. No route is calculated automatically. “◎ To coordinates” starts the existing planetary navigation to the surface location with the existing navigation HUD when a system, body and valid coordinates are saved. Traveling to the system and surface navigation are two separate steps, with no automatic travel sequence. Without surface coordinates, only the route action is available; actions with missing required data are hidden.</p>
@@ -1348,3 +1366,5 @@ CLOSE_LABEL = 'Close'
 
 # Database update guidance; help itself remains version independent.
 HELP_TOPICS["overview"] = (HELP_TOPICS["overview"][0], HELP_TOPICS["overview"][1] + '<h3>Database update required</h3><p>The database update corrects older stored relationships between stars, planets and moons. Journals are only read. Close Elite Dangerous first and make historical journals available where possible. The entire CMDRHelper database is backed up beforehand; errors roll back changes and the backup is restored if necessary. The backup is retained as a safety copy. Cancel lets you postpone the update.</p>')
+
+HELP_TOPICS["settings"] = (HELP_TOPICS["settings"][0], HELP_TOPICS["settings"][1] + '<h3>Diagnostics and logs</h3><p>In Settings → Diagnostics and logs, open the log file or create a diagnostic package. Logs are in the installation folder under logs/ (cmdrhelper.log and up to four rotations). The ZIP contains sanitized technical logs, system_info.json and diagnose_summary.txt; no journals, database, FID/commander data, credentials, favorites or images. Personal paths are replaced with placeholders. Contents of older logs that predate privacy filtering are omitted. Choose where to save the ZIP and share it with support if needed; it is never sent automatically.</p>')

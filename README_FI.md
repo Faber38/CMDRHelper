@@ -13,6 +13,42 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper on itsenäinen työpöytäsovellus, joka analysoi Elite Dangerousin paikallisia lokeja ja käyttää `Status.json`-tiedoston planetaarisia sijaintitietoja. Se auttaa tunnistamaan kiinnostavia taivaankappaleita, palaamaan tallennettuihin paikkoihin ja tarkastelemaan matkoja ja löytöjä. Henkilökohtaiset tiedot säilyvät uudelleenkäynnistyksessä ja pidetään erillään komentajittain.
 
+## 🚀 Pika-aloitus
+
+Lataa **uusimman CMDRHelper-julkaisun ZIP-tiedosto** (`CMDRHelper_v*.zip`) [GitHub Releases](https://github.com/Faber38/CMDRHelper/releases/latest) -sivun **Assets**-kohdasta ja pura koko ZIP omaan kansioonsa.
+
+### Windows
+
+1. Suorita **`install.bat` kerran** puretussa kansiossa. Se luo paikallisen Python-ympäristön (`venv`) ja asentaa riippuvuudet. Jos sopiva Python puuttuu, se voidaan asentaa automaattisesti `winget`-työkalulla suostumuksellasi; `winget`-työkalun on oltava käytettävissä.
+2. Käynnistä asennuksen jälkeen tiedostolla **`start.bat`**. Käytä samaa tiedostoa myös myöhemmillä käynnistyskerroilla.
+
+### Linux
+
+Python **3.10 tai uudempi** ja sitä vastaava `venv`-moduuli on oltava jo asennettuina. Avaa pääte puretussa kansiossa ja suorita kerran:
+
+```bash
+bash install.sh
+```
+
+Skripti luo paikallisen ympäristön ja asentaa riippuvuudet; se ei asenna järjestelmäpaketteja. Käynnistä CMDRHelper sen jälkeen ja myöhemmillä kerroilla komennolla **`bash start.sh`**.
+
+### Ensimmäinen käynnistys ja päivitykset
+
+Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos kansio puuttuu tai on väärä, valitse se **Asetuksissa**.
+
+CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
+
+## Uutta versiossa 3.4.3
+
+- Laajennetut suosikit: etäisyyssuodatin sekä siirrettävä ZIP-vienti ja -tuonti kuvineen.
+- Explorer-taulukoiden lajittelu sekä lajittelun ja sarakeleveyksien tallennus erikseen kullekin taulukolle.
+- Louhinta näyttää SRV:n, aluksen, tukialuksen ja kokonaismäärän erikseen; varastosuodatin huomioi kaikki kolme varastoa.
+- Diagnostiikkapaketit ja yksityisyyttä suojaavat kiertävät lokit tukipyyntöihin ilman automaattista lähetystä.
+- Turvallinen tietokantapäivitys suoraan vanhemmista versioista; siirron varmuuskopiot säilyvät ne luoneen version ajan.
+- Parempi käytettävyys, päivitetty ohje ja selvästi napsautettavat pisteet aikakirjan kartalla.
+
+Etäisyyssuodatin on aluksi pois käytöstä (oletus 500 valovuotta), käyttää paikallisia järjestelmäkoordinaatteja ja päivittyy järjestelmän vaihtuessa. Suosikkivienti sisältää favorites.json-tiedoston ja saatavilla olevat kuvat; kaksoiskappaleet voidaan ohittaa, korvata tai tuoda uusina. Arvoluettelo ja BIO/GEO/LOUHINTA-taulukot tukevat luonnollista, numeerista ja semanttista lajittelua. Versiota 3.4.1 ei tarvitse asentaa ensin.
+
 ## Uutta versiossa 3.4.1
 
 - Korjaa vanhoja tallennettuja järjestelmähierarkioita

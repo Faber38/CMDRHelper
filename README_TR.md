@@ -14,6 +14,42 @@ pilotunuz](cmdrhelper/assets/readme/cmdrhelper_readme_tr.png)
 
 CMDRHelper, Elite Dangerous’ın yerel günlüklerini inceleyen ve `Status.json` dosyasındaki gezegen konum verilerini kullanan bağımsız bir masaüstü uygulamasıdır. İlginç gökcisimlerini belirlemene, kaydedilmiş yerlere dönmene ve yolculuklarınla bulgularını incelemene yardımcı olur. Kişisel veriler yeniden başlatmadan sonra korunur ve komutanlara göre ayrı tutulur.
 
+## 🚀 Hızlı başlangıç
+
+En güncel **CMDRHelper sürümünün ZIP dosyasını** (`CMDRHelper_v*.zip`) [GitHub Releases](https://github.com/Faber38/CMDRHelper/releases/latest) sayfasındaki **Assets** bölümünden indirin ve ZIP dosyasının tamamını ayrı bir klasöre çıkarın.
+
+### Windows
+
+1. Çıkarılan klasörde **`install.bat` dosyasını bir kez çalıştırın**. Yerel Python ortamını (`venv`) ve bağımlılıkları kurar. Uygun Python yoksa onayınızla `winget` üzerinden otomatik olarak yükleyebilir; `winget` kullanılabilir olmalıdır.
+2. Kurulumdan sonra **`start.bat`** ile başlatın. Sonraki normal başlatmalarda da bu dosyayı kullanın.
+
+### Linux
+
+Python **3.10 veya üzeri** ve buna uygun `venv` modülü önceden kurulu olmalıdır. Çıkarılan klasörde bir terminal açıp bir kez çalıştırın:
+
+```bash
+bash install.sh
+```
+
+Betik yerel ortamı ve bağımlılıkları kurar; sistem paketlerini yüklemez. Ardından ve sonraki açılışlarda CMDRHelper’ı **`bash start.sh`** ile başlatın.
+
+### İlk başlatma ve güncellemeler
+
+Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eksik veya yanlışsa **Ayarlar** bölümünden seçin.
+
+CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
+
+## 3.4.3 sürümündeki yenilikler
+
+- Geliştirilmiş favoriler: mesafe filtresi ve resimler dahil taşınabilir ZIP dışa/içe aktarımı.
+- Explorer tablolarını sıralayın; sıralamayı ve sütun genişliklerini her tablo için ayrı kaydedin.
+- Madencilik SRV, gemi, filo gemisi ve toplamı ayrı gösterir; stok filtresi üç depoyu da dikkate alır.
+- Destek için gizliliği koruyan dönen günlükler ve tanılama paketleri; otomatik gönderim yoktur.
+- Eski sürümlerden doğrudan güvenli veritabanı yükseltmesi; geçiş yedekleri oluşturuldukları sürüm boyunca korunur.
+- İyileştirilmiş kullanım, güncel yardım ve tarihçe haritasında açıkça tıklanabilir noktalar.
+
+Mesafe filtresi başlangıçta kapalıdır (varsayılan 500 ışık yılı), yerel sistem koordinatlarını kullanır ve sistem değişince yenilenir. Favori dışa aktarımı favorites.json ile mevcut resimleri içerir; yinelenenler atlanabilir, değiştirilebilir veya yeni olarak içe aktarılabilir. Değer listesi ve BIO/GEO/MADENCİLİK tabloları doğal, sayısal ve anlamsal sıralamayı destekler. Önce 3.4.1 sürümünü kurmak gerekmez.
+
 ## 3.4.1 sürümündeki yenilikler
 
 - Eski kayıtlı sistem hiyerarşilerini düzeltir

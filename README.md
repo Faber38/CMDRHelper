@@ -13,6 +13,42 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper is a standalone desktop application that processes the local Elite Dangerous journals and uses planetary position data from `Status.json`. It helps you identify interesting bodies, return to saved locations and review your travels and discoveries. Personal data persists across restarts and is kept separate for each commander.
 
+## 🚀 Quick Start
+
+Download the latest **CMDRHelper release ZIP** (`CMDRHelper_v*.zip`) from [GitHub Releases](https://github.com/Faber38/CMDRHelper/releases/latest) under **Assets** and extract the entire ZIP into its own folder.
+
+### Windows
+
+1. Run **`install.bat` once** in the extracted folder. It sets up the local Python environment (`venv`) and dependencies. If suitable Python is missing, it can install Python automatically through `winget` after your consent; `winget` must be available.
+2. After installation, launch with **`start.bat`**. Use this file for normal starts as well.
+
+### Linux
+
+Python **3.10 or newer** with its matching `venv` module must already be installed. Open a terminal in the extracted folder and run once:
+
+```bash
+bash install.sh
+```
+
+The script sets up the local environment and dependencies; it does not install system packages. Then start CMDRHelper, and on subsequent launches, with **`bash start.sh`**.
+
+### First start and updates
+
+The Elite Dangerous journal folder is detected automatically when possible. If it is missing or incorrect, select it in **Settings**.
+
+CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
+
+## New in version 3.4.3
+
+- Expanded favorites: distance filter and portable ZIP export/import including images.
+- Sort Explorer tables and save sorting and column widths separately for each table.
+- Mining shows SRV, ship, carrier and total separately; “In stock only” considers all three storage locations.
+- Diagnostic packages and privacy-conscious rotating logs for support, with no automatic upload.
+- Safe database upgrades directly from older versions; migration backups are retained throughout the release that created them.
+- Improved usability, updated help and clearly clickable points on the Chronicle map.
+
+The distance filter starts off (default 500 ly), uses local system coordinates and updates when the system changes. Favorites exports contain favorites.json and available images; duplicates can be skipped, replaced or imported as new entries. The value list and BIO/GEO/MINING tables support natural, numeric and semantic sorting. Installing 3.4.1 first is not required.
+
 ## New in version 3.4.1
 
 - Corrects older stored system hierarchies

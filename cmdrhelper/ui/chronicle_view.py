@@ -779,6 +779,9 @@ class ChronicleMapWidget(QWidget):
     # Maus
     # ------------------------------------------------------------------
 
+    def _set_hit_cursor(self, hit):
+        self.setCursor(Qt.PointingHandCursor if hit >= 0 else Qt.ArrowCursor)
+
     def wheelEvent(self, event):
         factor = (
             1.16
@@ -794,6 +797,7 @@ class ChronicleMapWidget(QWidget):
             ),
         )
 
+        self._set_hit_cursor(self._hit(event.position()))
         self.update()
 
     def mousePressEvent(self, event):
@@ -913,12 +917,14 @@ class ChronicleMapWidget(QWidget):
                     event.position()
                 )
 
+            self._set_hit_cursor(self._hit(event.position()))
             self.update()
             return
 
         hit = self._hit(
             event.position()
         )
+        self._set_hit_cursor(hit)
 
         if hit != self.hover_index:
             self.hover_index = hit
@@ -1076,6 +1082,7 @@ class ChronicleMapWidget(QWidget):
         self._zoom_rect_start = None
         self._zoom_rect_end = None
 
+        self._set_hit_cursor(self._hit(event.position()))
         self.update()
 
     def mouseDoubleClickEvent(self, event):
@@ -1083,6 +1090,7 @@ class ChronicleMapWidget(QWidget):
             self.reset_view()
 
     def leaveEvent(self, event):
+        self.unsetCursor()
         QToolTip.hideText()
         super().leaveEvent(event)
 

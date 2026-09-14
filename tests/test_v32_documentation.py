@@ -1,5 +1,6 @@
 """Cross-language checks for the v3.2 release documentation."""
 import cmdrhelper
+from cmdrhelper.version import __version__
 import re
 import ast
 import json
@@ -30,6 +31,32 @@ def v32_section(text):
 
 
 class DocumentationReleaseTests(unittest.TestCase):
+    def test_quick_start_precedes_history_and_uses_shipped_scripts(self):
+        for language in HELP_LANGUAGES:
+            with self.subTest(language=language):
+                text = readme(language)
+                sections = text.split('\n## ')[1:]
+                quick = sections[0]
+                self.assertTrue(quick.startswith('🚀 '))
+                self.assertEqual(text.count('\n## 🚀 '), 1)
+                self.assertIn(__version__, sections[1].splitlines()[0])
+                self.assertIn('https://github.com/Faber38/CMDRHelper/releases/latest', quick)
+                self.assertIn('Assets', quick)
+                self.assertIn('CMDRHelper_v*.zip', quick)
+                self.assertIn('### Windows\n', quick)
+                self.assertIn('### Linux\n', quick)
+                for name in ('install.bat', 'start.bat', 'install.sh', 'start.sh'):
+                    self.assertIn(name, quick)
+                    self.assertTrue((ROOT / name).is_file())
+                self.assertIn('bash install.sh\n', quick)
+                self.assertIn('`bash start.sh`', quick)
+                self.assertIn('winget', quick)
+                self.assertIn('3.10', quick)
+                self.assertIn('`venv`', quick)
+                self.assertNotIn('git clone', quick)
+                self.assertNotIn('pip install', quick)
+                self.assertNotRegex(quick, r'CMDRHelper[_ ]v?\d+\.\d+')
+
     def test_central_version_and_historical_v32_readme_headings(self):
         self.assertEqual(cmdrhelper.__version__, __version__)
         for language in HELP_LANGUAGES:

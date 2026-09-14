@@ -1,10 +1,12 @@
 """Safety contract for the opt-in 3.4.1 migration, using disposable databases."""
 import json
+from contextlib import ExitStack
+from types import SimpleNamespace
 from pathlib import Path
 import sqlite3
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from PySide6.QtCore import QEventLoop, QTimer
 from PySide6.QtWidgets import QApplication, QDialog
@@ -57,6 +59,142 @@ class MigrationTests(unittest.TestCase):
         self.assertEqual(self.snapshot(), self.before)
         self.assertTrue(m.migration_required(self.path))
         self.assertEqual(m.digest(self.journal), self.hash)
+
+    def release(self, version='3.4.3'):
+        return dict(ok=True, version=version, published_at='2026-09-14T12:00:00Z')
+
+    def test_actual_startup_gate_uses_db_marker_in_future_release(self):
+        from cmdrhelper import app as entry
+        for migrated in (False, True):
+            if migrated:
+                self.run_migration()
+            before = self.snapshot()
+            files = set(self.root.iterdir())
+            for attempt in range(2):
+                with ExitStack() as stack:
+                    stack.enter_context(patch.object(entry.sys, 'excepthook'))
+                    stack.enter_context(patch.object(entry, '__version__', '3.4.3'))
+                    stack.enter_context(patch.object(entry, 'configure_logging', return_value='isolated'))
+                    qt = stack.enter_context(patch.object(entry, 'QApplication'))
+                    qt.return_value.exec.return_value = 0
+                    settings = stack.enter_context(patch.object(entry, 'QSettings'))
+                    settings.return_value.value.side_effect = lambda key, default='': default
+                    stack.enter_context(patch.object(entry, 'QLockFile'))
+                    stack.enter_context(patch.object(entry, 'set_language'))
+                    stack.enter_context(patch.object(entry, 'consume_update_status', return_value=None))
+                    state = stack.enter_context(patch.object(entry, 'AppState'))
+                    stack.enter_context(patch.object(entry, 'MainWindow'))
+                    stack.enter_context(patch.object(entry, '_resize_initial_window'))
+                    stack.enter_context(patch('cmdrhelper.database.default_database_path', return_value=self.path))
+                    stack.enter_context(patch('cmdrhelper.journal_reader.default_journal_paths', return_value=[self.folder]))
+                    dialog = stack.enter_context(patch('cmdrhelper.ui.parent_migration.ParentMigrationDialog'))
+                    dialog.return_value.exec.return_value = QDialog.Rejected
+                    if migrated:
+                        with self.assertRaises(SystemExit):
+                            entry.run()
+                        dialog.assert_not_called()
+                        state.assert_called_once()
+                    else:
+                        entry.run()
+                        dialog.assert_called_once()
+                        state.assert_not_called()
+                self.assertEqual(self.snapshot(), before)
+                self.assertEqual(set(self.root.iterdir()), files)
+
+    def test_ui_cleanup_waits_for_startup_and_publication_in_either_order(self):
+        from cmdrhelper.ui.main_window import MainWindow
+        for release_first in (False, True):
+            host = SimpleNamespace(state=SimpleNamespace(database=SimpleNamespace(path=self.path)),
+                                   _startup_progress_dialog=None)
+            host._cleanup_parent_backup = lambda: MainWindow._cleanup_parent_backup(host)
+            with patch('cmdrhelper.parent_migration.cleanup_backup') as cleanup:
+                if release_first:
+                    host._parent_backup_release = self.release()
+                    host._cleanup_parent_backup()
+                    cleanup.assert_not_called()
+                MainWindow._initialization_finished(host, '')
+                if not release_first:
+                    self.assertIsNone(cleanup.call_args.kwargs['release'])
+                    host._parent_backup_release = self.release()
+                    host._cleanup_parent_backup()
+                self.assertEqual(cleanup.call_args.kwargs['release'], self.release())
+                self.assertTrue(cleanup.call_args.kwargs['startup_succeeded'])
+
+    def test_legacy_committed_metadata_can_be_retired(self):
+        with patch.object(m, '__version__', '3.4.1'):
+            backup = Path(self.run_migration()['backup'])
+        # The original 3.4.1 sidecar equals the metadata committed with COMPLETE.
+        legacy = backup.with_suffix('.db.json').read_text(encoding='utf-8')
+        with sqlite3.connect(self.path) as con:
+            con.execute('UPDATE app_meta SET value=? WHERE key=?', (legacy, m.BACKUP_KEY))
+        self.assertTrue(m.cleanup_backup(self.path, '3.4.3', startup_succeeded=True, release=self.release()))
+        self.assertFalse(backup.exists())
+
+    def test_direct_upgrade_and_same_release_retention(self):
+        for version in ('3.4.3', '3.5.0'):
+            with self.subTest(version=version), patch.object(m, '__version__', version):
+                self.assertTrue(m.migration_required(self.path))
+                result = self.run_migration()
+                backup = Path(result['backup'])
+                with m.readonly(self.path) as con:
+                    meta = json.loads(con.execute('SELECT value FROM app_meta WHERE key=?', (m.BACKUP_KEY,)).fetchone()[0])
+                self.assertEqual(meta['release'], version)
+                self.assertTrue(meta['completed'])
+                self.assertFalse(m.migration_required(self.path))
+                self.assertFalse(m.cleanup_backup(self.path, version, startup_succeeded=True, release=self.release(version)))
+                self.assertTrue(backup.exists())
+                # Reset only the disposable fixture for the next simulated release.
+                with sqlite3.connect(self.path) as con:
+                    con.execute('DELETE FROM app_meta WHERE key=?', (m.MIGRATION_KEY,))
+
+    def test_later_published_successful_start_cleans_verified_backup(self):
+        with patch.object(m, '__version__', '3.4.1'):
+            result = self.run_migration()
+        backup = Path(result['backup'])
+        before = self.snapshot()
+        for version, success, release in (
+            ('3.4.3', False, self.release()),
+            ('3.4.3', True, None),
+            ('3.4.3-dev', True, self.release('3.4.3-dev')),
+            ('3.4.3', True, dict(self.release(), prerelease=True)),
+            ('3.4.3', True, dict(self.release(), published_at='invalid')),
+            ('3.4.3', True, self.release('3.5.0')),
+        ):
+            self.assertFalse(m.cleanup_backup(self.path, version, startup_succeeded=success, release=release))
+            self.assertTrue(backup.exists())
+            self.assertEqual(self.snapshot(), before)
+        self.assertTrue(m.cleanup_backup(self.path, '3.4.3', startup_succeeded=True, release=self.release()))
+        self.assertFalse(backup.exists())
+        self.assertFalse(backup.with_suffix('.db.json').exists())
+        self.assertFalse(m.migration_required(self.path))
+
+    def test_unknown_metadata_and_foreign_paths_retain_backup(self):
+        backup = Path(self.run_migration()['backup'])
+        with m.readonly(self.path) as con:
+            original = json.loads(con.execute('SELECT value FROM app_meta WHERE key=?', (m.BACKUP_KEY,)).fetchone()[0])
+        variants = [{}, dict(original, release='unknown'), dict(original, completed=False),
+                    dict(original, path=r'C:\\Users\\Pilot\\backup.db'),
+                    dict(original, path='/another-machine/backup.db')]
+        for key in ('release', 'created_utc', 'sha256', 'purpose'):
+            variant = dict(original)
+            del variant[key]
+            variants.append(variant)
+        for meta in variants:
+            with sqlite3.connect(self.path) as con:
+                con.execute('UPDATE app_meta SET value=? WHERE key=?', (json.dumps(meta), m.BACKUP_KEY))
+            self.assertFalse(m.cleanup_backup(self.path, '3.5.0', startup_succeeded=True, release=self.release('3.5.0')))
+            self.assertTrue(backup.exists())
+
+    def test_failed_backup_cannot_be_cleaned_by_later_release(self):
+        def broken(con, candidates):
+            m.apply_candidates(con, candidates)
+            raise RuntimeError('simulated failure')
+        with self.assertRaises(m.MigrationError) as error:
+            self.run_migration(repair=broken)
+        self.assertTrue(error.exception.restored)
+        self.assert_unchanged()
+        self.assertFalse(m.cleanup_backup(self.path, '3.4.3', startup_succeeded=True, release=self.release()))
+        self.assertEqual(len(list(self.root.glob('cmdrhelper_pre_parent_repair_*.db'))), 1)
 
     def test_cancel_is_readonly_without_backup(self):
         db_hash = m.digest(self.path)

@@ -8,7 +8,7 @@ from PySide6.QtCore import QSettings, QLockFile, QDir
 from cmdrhelper.state import AppState
 from cmdrhelper.ui.main_window import MainWindow
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
-from cmdrhelper.logging_config import configure_logging
+from cmdrhelper.logging_config import configure_logging, log_event
 from cmdrhelper.version import __version__
 from cmdrhelper.i18n import tr, set_language
 from cmdrhelper.update import consume_update_status
@@ -63,7 +63,11 @@ def run():
         platform.python_version(),
     )
     logger.info("Logdatei: %s", log_file)
-    logger.info("Hauptprozess PID: %s | Python: %s | Argumente: %r", os.getpid(), sys.executable, sys.argv)
+    from cmdrhelper.diagnostics import system_info
+    info = system_info()
+    log_event(logger, 'Application started; installation=<installation>; database=<database>; journals=<journals>',
+              version=info['version'], os=info['os'], python=info['python'],
+              qt=info['qt'], pyside=info['pyside'], architecture=info['architecture'], pid=os.getpid())
 
     app = QApplication(sys.argv)
     app.setApplicationName("CMDRHelper")
@@ -80,7 +84,7 @@ def run():
 
     if not instance_lock.tryLock(100):
         logger.warning("Programmstart abgebrochen: CMDRHelper läuft bereits.")
-        logger.warning("Abgewiesene PID: %s | Sperrinhaber: %r", os.getpid(), instance_lock.getLockInfo())
+        log_event(logger, "Application instance lock busy", pid=os.getpid())
 
         QMessageBox.information(
             None,
@@ -129,4 +133,7 @@ def run():
     window = MainWindow(state)
     _resize_initial_window(window, app.primaryScreen())
     window.show()
-    raise SystemExit(app.exec())
+    try:
+        raise SystemExit(app.exec())
+    finally:
+        logger.info("Application ended; database access ended")

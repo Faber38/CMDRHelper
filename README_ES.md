@@ -13,6 +13,42 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper es una aplicación de escritorio independiente que analiza los diarios locales de Elite Dangerous y usa datos de posición planetaria de `Status.json`. Te ayuda a identificar cuerpos interesantes, volver a lugares guardados y consultar tus viajes y descubrimientos. Los datos personales se conservan tras reiniciar y se separan por comandante.
 
+## 🚀 Inicio rápido
+
+Descarga el **ZIP de la última versión de CMDRHelper** (`CMDRHelper_v*.zip`) desde [GitHub Releases](https://github.com/Faber38/CMDRHelper/releases/latest), en **Assets**, y extrae todo el ZIP en una carpeta propia.
+
+### Windows
+
+1. Ejecuta **`install.bat` una sola vez** en la carpeta extraída. Configura el entorno local de Python (`venv`) y las dependencias. Si falta una versión adecuada de Python, puede instalarla automáticamente mediante `winget` con tu consentimiento; `winget` debe estar disponible.
+2. Tras la instalación, inicia con **`start.bat`**. Utiliza también este archivo para los siguientes inicios.
+
+### Linux
+
+Python **3.10 o posterior** y su módulo `venv` correspondiente deben estar ya instalados. Abre una terminal en la carpeta extraída y ejecuta una vez:
+
+```bash
+bash install.sh
+```
+
+El script configura el entorno local y las dependencias; no instala paquetes del sistema. Después inicia CMDRHelper, también en los siguientes inicios, con **`bash start.sh`**.
+
+### Primer inicio y actualizaciones
+
+La carpeta de diarios de Elite Dangerous se detecta automáticamente cuando es posible. Si falta o es incorrecta, selecciónala en **Ajustes**.
+
+CMDRHelper busca actualizaciones al iniciarse y dispone de un actualizador integrado. Confirma una actualización ofrecida en la aplicación; actualizará el programa y las dependencias y reiniciará CMDRHelper. Tras la primera instalación, normalmente basta con usar `start.bat` (Windows) o `bash start.sh` (Linux). No es necesario volver a ejecutar manualmente `install.bat` o `install.sh` para las actualizaciones normales.
+
+## Novedades de la versión 3.4.3
+
+- Favoritos ampliados: filtro de distancia y exportación/importación ZIP portátil con imágenes.
+- Ordena las tablas de Explorer y guarda por separado su orden y el ancho de las columnas.
+- Minería muestra SRV, nave, portanaves y total por separado; «Solo existencias» considera los tres almacenes.
+- Paquetes de diagnóstico y registros rotativos con protección de datos para soporte, sin envío automático.
+- Actualización segura de la base de datos directamente desde versiones antiguas; las copias de migración se conservan durante la versión que las creó.
+- Mejoras de uso, ayuda actualizada y puntos claramente seleccionables en el mapa de la crónica.
+
+El filtro de distancia empieza desactivado (valor predeterminado: 500 al), usa coordenadas locales y se actualiza al cambiar de sistema. La exportación de favoritos contiene favorites.json y las imágenes disponibles; los duplicados se pueden omitir, reemplazar o importar como nuevos. La lista de valores y las tablas BIO/GEO/MINERÍA admiten ordenación natural, numérica y semántica. No es necesario instalar antes la versión 3.4.1.
+
 ## Novedades de la versión 3.4.1
 
 - Corrige jerarquías antiguas de sistemas guardados

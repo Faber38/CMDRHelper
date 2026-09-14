@@ -34,7 +34,9 @@ class Release341Tests(unittest.TestCase):
                 self.assertIn(table['migration.help'], help_topic('overview', language).text)
                 self.assertNotRegex(help_topic('overview', language).text, r'CMDRHelper\s+v?\d+\.\d+')
                 readme = ROOT / ('README.md' if language == 'en' else f'README_{language.upper()}.md')
-                first = re.split(r'^## ', readme.read_text(), flags=re.MULTILINE)[1]
+                sections = re.split(r'^## ', readme.read_text(), flags=re.MULTILINE)[1:]
+                first = next(section for section in sections
+                             if re.search(r'\b3\.4\.1\b', section.splitlines()[0]))
                 self.assertIn('3.4.1', first.splitlines()[0])
                 for i in range(5):
                     self.assertIn(table[f'migration.release{i}'], first)

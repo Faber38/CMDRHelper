@@ -1,9 +1,12 @@
 """Opt-in, startup-only parent repair. Journals are always opened read-only."""
 from __future__ import annotations
+from cmdrhelper.logging_config import logged_operation
 
 import hashlib
 import json
 import os
+import re
+import logging
 from pathlib import Path
 import shutil
 import sqlite3
@@ -12,6 +15,7 @@ from datetime import datetime, timezone
 
 from cmdrhelper.body_parents import parent_metadata
 from cmdrhelper.journal_files import journal_files
+from cmdrhelper.version import __version__
 
 MIGRATION_KEY = 'parent_hierarchy_migration'
 COMPLETE = '3.4.1-complete'
@@ -156,8 +160,10 @@ def verify_backup(source, backup):
 
 def check_integrity(con):
     if con.execute('PRAGMA integrity_check').fetchall() != [('ok',)]:
+        logging.getLogger(__name__).error('Database integrity check failed')
         raise MigrationError('integrity_error')
     if con.execute('PRAGMA foreign_key_check').fetchall():
+        logging.getLogger(__name__).error('Database integrity check failed')
         raise MigrationError('integrity_error')
 
 
@@ -179,6 +185,7 @@ def fingerprint(con, *, protected=False):
     return result
 
 
+@logged_operation('Parent migration')
 def migrate(path, folder, *, progress=lambda step: None, process_check=elite_running,
             expected_inventory=None, repair=apply_candidates, integrity=check_integrity):
     path = Path(path)
@@ -223,7 +230,7 @@ def migrate(path, folder, *, progress=lambda step: None, process_check=elite_run
                 target.flush()
                 os.fsync(target.fileno())
             metadata = verify_backup(path, backup)
-            metadata.update(path=str(backup.resolve()), release='3.4.1', created_utc=stamp,
+            metadata.update(path=str(backup.resolve()), release=__version__, created_utc=stamp,
                             purpose='pre-parent-hierarchy-migration', retain=True)
             # Sidecar survives a failed/rolled-back DB transaction.
             with backup.with_suffix('.db.json').open('x', encoding='utf-8') as stream:
@@ -232,6 +239,7 @@ def migrate(path, folder, *, progress=lambda step: None, process_check=elite_run
                 os.fsync(stream.fileno())
         except Exception as exc:
             raise MigrationError('backup_error', detail=str(exc)) from exc
+        logging.getLogger(__name__).info("Parent migration backup verified")
         progress(2)
         check_integrity(con)
         progress(3)
@@ -247,6 +255,7 @@ def migrate(path, folder, *, progress=lambda step: None, process_check=elite_run
             raise MigrationError('consistency_error')
         if inventory(folder) != before or process_check() or any(digest(p) != sha for p, sha in hashes.items()):
             raise MigrationError('active')
+        metadata.update(completed=True, completed_utc=datetime.now(timezone.utc).isoformat())
         con.execute('INSERT OR REPLACE INTO app_meta(key,value) VALUES(?,?)',
                     (BACKUP_KEY, json.dumps(metadata, sort_keys=True)))
         con.execute('INSERT OR REPLACE INTO app_meta(key,value) VALUES(?,?)', (MIGRATION_KEY, COMPLETE))
@@ -275,8 +284,76 @@ def migrate(path, folder, *, progress=lambda step: None, process_check=elite_run
                     restored = fingerprint(con) == baseline
                 except Exception:
                     pass
+        from cmdrhelper.logging_config import log_event
+        log_event(logging.getLogger(__name__), 'Parent migration rollback finished', restored=restored)
         key = exc.key if isinstance(exc, MigrationError) else 'failed'
         raise MigrationError(key, restored=restored, detail=str(exc)) from exc
     finally:
         if con is not None:
             con.close()
+
+
+def cleanup_backup(path, current_version, *, startup_succeeded=False, release=None):
+    """Retire only a verified backup after a later, published, successful start.
+
+    Publication evidence comes from the existing GitHub update check, never an
+    extra request. The committed app_meta record plus COMPLETE prove migration
+    success; legacy records used that same transaction without a completed flag.
+    Unknown metadata, offline starts and development versions retain the backup.
+    The filename's 3.4.1 denotes the migration, not the producing app version.
+    """
+    def stable(value):
+        if not isinstance(value, str) or not re.fullmatch(r'\d+\.\d+\.\d+', value):
+            return None
+        return tuple(map(int, value.split('.')))
+
+    current = stable(current_version)
+    if (not startup_succeeded or not current or not isinstance(release, dict)
+            or release.get('ok') is not True or release.get('version') != current_version
+            or not release.get('published_at') or release.get('prerelease')
+            or release.get('draft')):
+        return False
+    try:
+        datetime.fromisoformat(release['published_at'].replace('Z', '+00:00'))
+        path = Path(path).resolve()
+        if not path.is_file():
+            return False
+        with sqlite3.connect(path, timeout=0) as con:
+            con.execute('BEGIN IMMEDIATE')
+            marker = con.execute('SELECT value FROM app_meta WHERE key=?', (MIGRATION_KEY,)).fetchone()
+            row = con.execute('SELECT value FROM app_meta WHERE key=?', (BACKUP_KEY,)).fetchone()
+            if marker != (COMPLETE,) or not row:
+                return False
+            meta = json.loads(row[0])
+            origin = stable(meta.get('release'))
+            if (not origin or current <= origin or meta.get('completed', meta.get('release') == '3.4.1') is not True
+                    or meta.get('purpose') != 'pre-parent-hierarchy-migration'
+                    or meta.get('retain') is not True or meta.get('byte_equal') is not True):
+                return False
+            stamp = meta['created_utc']
+            datetime.strptime(stamp, '%Y%m%dT%H%M%S%fZ')
+            backup = Path(meta['path'])
+            # Never follow imported/foreign paths or links outside this DB's folder.
+            if (not backup.is_absolute() or backup.is_symlink()
+                    or backup.parent.resolve() != path.parent
+                    or backup.name != f'cmdrhelper_pre_parent_repair_3.4.1_{stamp}.db'):
+                return False
+            sidecar = backup.with_suffix('.db.json')
+            if sidecar.is_symlink():
+                return False
+            saved = json.loads(sidecar.read_text(encoding='utf-8'))
+            for key in ('path', 'release', 'created_utc', 'purpose', 'size', 'sha256', 'byte_equal', 'retain'):
+                if key not in meta or saved.get(key) != meta[key]:
+                    return False
+            if backup.stat().st_size != meta['size'] or digest(backup) != meta['sha256']:
+                return False
+            backup.unlink()
+            sidecar.unlink()
+            meta.update(retain=False, removed_under=current_version,
+                        removed_utc=datetime.now(timezone.utc).isoformat())
+            con.execute('UPDATE app_meta SET value=? WHERE key=?',
+                        (json.dumps(meta, sort_keys=True), BACKUP_KEY))
+        return True
+    except (OSError, ValueError, TypeError, KeyError, AttributeError, sqlite3.Error):
+        logging.getLogger(__name__).debug('Parent backup retained or cleanup incomplete', exc_info=True)
+        return False

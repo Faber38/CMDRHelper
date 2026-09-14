@@ -4,16 +4,39 @@ from pathlib import Path
 import sqlite3
 import math
 
-from PySide6.QtCore import Qt, QSize, QRect, QTimer
+from PySide6.QtCore import Qt, QSize, QRect, QTimer, QLocale, QSaveFile, QIODevice
 from PySide6.QtGui import QIcon, QPixmap, QImageReader
 from PySide6.QtWidgets import (QWidget, QDialog, QVBoxLayout, QHBoxLayout, QFormLayout,
     QLabel, QLineEdit, QTextEdit, QPushButton, QComboBox, QListWidget, QListWidgetItem,
-    QDialogButtonBox, QFileDialog, QMessageBox, QLayout)
+    QDialogButtonBox, QFileDialog, QMessageBox, QLayout, QCheckBox, QDoubleSpinBox)
 
 from cmdrhelper.favorites import (FavoriteStore, TYPES, CATEGORIES, latest_screenshot,
                                  freeze_surface_location, navigate_to_favorite,
                                  screenshot_capture_time)
-from cmdrhelper.i18n import tr
+from cmdrhelper.i18n import tr, get_language
+from cmdrhelper.material_traders import Coordinates
+from cmdrhelper.favorites_transfer import (export_package, read_package,
+    prepare_import, apply_import, TransferError)
+
+
+def stored_coordinates(connection, address, name):
+    """Resolve known XYZ locally; an address takes precedence over a name lookup."""
+    if address is not None:
+        rows = connection.execute(
+            'SELECT x,y,z FROM systems WHERE system_address=?', (address,))
+    elif name:
+        rows = connection.execute(
+            'SELECT x,y,z FROM systems WHERE name=? COLLATE NOCASE', (name,))
+    else:
+        return None
+    coordinates = []
+    for row in rows:
+        try:
+            coordinates.append(Coordinates(*row))
+        except (TypeError, ValueError):
+            continue
+    # Ambiguous names must never produce a guessed position.
+    return coordinates[0] if coordinates and all(c == coordinates[0] for c in coordinates) else None
 
 
 def preview(path, width=600, height=320):
@@ -262,6 +285,31 @@ class FavoritesView(QWidget):
         for category in CATEGORIES:self.category.addItem(tr('favorites.category.'+category),category)
         filters.addWidget(self.search,1); filters.addWidget(self.kind); filters.addWidget(self.category)
         root.addLayout(filters)
+        distance_filters = QHBoxLayout()
+        self.distance_filter = QCheckBox(tr('favorites.distance_filter'))
+        enabled = state.settings.value('favorites/distance_filter_enabled', False)
+        self.distance_filter.setChecked(str(enabled).lower() in ('true', '1'))
+        self.max_distance = QDoubleSpinBox()
+        self.max_distance.setLocale(QLocale(get_language()))
+        self.max_distance.setRange(1, 100000)
+        self.max_distance.setDecimals(1)
+        self.max_distance.setSuffix(' ' + tr('favorites.distance_unit'))
+        try:
+            maximum = float(state.settings.value('favorites/max_distance_ly', 500))
+        except (TypeError, ValueError):
+            maximum = 500
+        self.max_distance.setValue(maximum if math.isfinite(maximum) else 500)
+        self.max_distance.setEnabled(self.distance_filter.isChecked())
+        distance_label = QLabel(tr('favorites.max_distance'))
+        distance_label.setBuddy(self.max_distance)
+        distance_filters.addWidget(self.distance_filter)
+        distance_filters.addWidget(distance_label)
+        distance_filters.addWidget(self.max_distance)
+        distance_filters.addStretch()
+        root.addLayout(distance_filters)
+        self.distance_status = text_label('')
+        self.distance_status.setObjectName('muted')
+        root.addWidget(self.distance_status)
         self.list = QListWidget(); self.list.setIconSize(QSize(80,60)); self.list.setUniformItemSizes(True)
         root.addWidget(self.list,1)
         self.empty = text_label(tr('favorites.empty')); root.addWidget(self.empty)
@@ -272,6 +320,15 @@ class FavoritesView(QWidget):
                 button.setObjectName('favoriteNavigate')
             self.action_buttons.append(button)
         root.addLayout(actions)
+        transfer_actions = QHBoxLayout()
+        transfer_actions.addStretch()
+        self.export_button = QPushButton(tr('favorites.transfer.export'))
+        self.import_button = QPushButton(tr('favorites.transfer.import'))
+        self.export_button.clicked.connect(self.export_favorites)
+        self.import_button.clicked.connect(self.import_favorites)
+        transfer_actions.addWidget(self.export_button)
+        transfer_actions.addWidget(self.import_button)
+        root.addLayout(transfer_actions)
         self.route_button, self.coordinates_button = self.action_buttons[-2:]
         self.quick_favorite_hint = QWidget()
         hint_layout = QHBoxLayout(self.quick_favorite_hint)
@@ -295,10 +352,21 @@ class FavoritesView(QWidget):
         self.search.textChanged.connect(self.refresh)
         self.kind.currentIndexChanged.connect(self.refresh)
         self.category.currentIndexChanged.connect(self.refresh)
+        self.distance_filter.toggled.connect(self._distance_filter_changed)
+        self.max_distance.valueChanged.connect(self._distance_filter_changed)
         self.list.currentItemChanged.connect(self._selection_changed)
         self.list.itemDoubleClicked.connect(self.open_selected)
         signal = getattr(state,'commanderIdentityChanged',None)
         if signal is not None:signal.connect(self.sync_commander)
+        # Position signals can precede store_snapshot; defer until state processing
+        # has finished, and coalesce positionChanged + changed from the same jump.
+        self._distance_refresh_timer = QTimer(self)
+        self._distance_refresh_timer.setSingleShot(True)
+        self._distance_refresh_timer.timeout.connect(self.refresh)
+        for name in ('positionChanged', 'changed'):
+            signal = getattr(state, name, None)
+            if signal is not None:
+                signal.connect(self._schedule_distance_refresh)
         self._location_timer = QTimer(self)
         self._location_timer.setInterval(250)
         self._location_timer.timeout.connect(self._refresh_location_availability)
@@ -306,6 +374,7 @@ class FavoritesView(QWidget):
 
     def showEvent(self, event):
         super().showEvent(event)
+        self.refresh()
         self._refresh_quick_favorite_hint()
         self._refresh_location_availability()
         self._location_timer.start()
@@ -349,14 +418,52 @@ class FavoritesView(QWidget):
             self._commander = current
             self.refresh()
 
+    def _schedule_distance_refresh(self, *_):
+        self._distance_refresh_timer.start(0)
+
+    def _distance_filter_changed(self, *_):
+        enabled = self.distance_filter.isChecked()
+        self.max_distance.setEnabled(enabled)
+        self.state.settings.setValue('favorites/distance_filter_enabled', enabled)
+        self.state.settings.setValue('favorites/max_distance_ly', self.max_distance.value())
+        self.refresh()
+
+    def _distances(self, records):
+        with self.state.database._connect() as connection:
+            reference = stored_coordinates(connection, getattr(self.state, 'system_address', None),
+                                           getattr(self.state, 'system', ''))
+            distances = {}
+            cache = {}
+            for record in records:
+                key = (record.get('system_address'), record.get('system_name'))
+                if key not in cache:
+                    target = stored_coordinates(connection, *key) if reference is not None else None
+                    cache[key] = reference.distance_to(target) if target is not None else None
+                distances[record['id']] = cache[key]
+        return reference, distances
+
     def refresh(self, *_):
         self._refresh_quick_favorite_hint()
+        for button in (self.export_button, self.import_button):
+            button.setEnabled(bool(getattr(self.state, 'commander_id', None)))
         selected = self.list.currentItem()
         favorite_id = selected.data(Qt.UserRole) if selected else None
         self.list.clear()
-        for record in self.store.list(getattr(self.state,'commander_id',None), self.search.text(),
-                                      self.kind.currentData(),self.category.currentData()):
-            item = QListWidgetItem(record['name']+'\n'+location_text(record)+'\n'+tr('favorites.category.'+record['category']))
+        records = self.store.list(getattr(self.state,'commander_id',None), self.search.text(),
+                                  self.kind.currentData(),self.category.currentData())
+        reference, distances = self._distances(records)
+        enabled = self.distance_filter.isChecked()
+        self.distance_status.setText(tr('favorites.distance_reference_unknown'))
+        self.distance_status.setVisible(enabled and reference is None)
+        locale = QLocale(get_language())
+        for record in records:
+            distance = distances[record['id']]
+            if enabled and distance is not None and distance > self.max_distance.value():
+                continue
+            distance_text = ('—' if distance is None else
+                             locale.toString(distance, 'f', 1) + ' ' + tr('favorites.distance_unit'))
+            item = QListWidgetItem(record['name']+'\n'+location_text(record)+'\n'+
+                                   tr('favorites.category.'+record['category'])+' · '+distance_text)
             item.setData(Qt.UserRole,record['id'])
             pixmap = preview(self.store.image_file(record['image_path']),80,60)
             if not pixmap.isNull():item.setIcon(QIcon(pixmap))
@@ -370,6 +477,86 @@ class FavoritesView(QWidget):
         if item is None:return None
         try:return self.store.get(getattr(self.state,'commander_id',None),item.data(Qt.UserRole))
         except ValueError:return None
+
+    def _transfer_error(self, error):
+        key = str(error) if isinstance(error, TransferError) else 'io_error'
+        QMessageBox.warning(self, tr('favorites.title'), tr('favorites.transfer.' + key))
+
+    def export_favorites(self):
+        commander = getattr(self.state, 'commander_id', None)
+        if not commander:
+            return
+        filename, _ = QFileDialog.getSaveFileName(
+            self, tr('favorites.transfer.export'),
+            'CMDRHelper_Favoriten_' + datetime.now().strftime('%Y-%m-%d') + '.zip',
+            'ZIP (*.zip)')  # Qt's overwrite confirmation remains enabled.
+        if not filename or commander != self.state.commander_id:
+            return
+        try:
+            data, result = export_package(self.store, commander)
+            target = QSaveFile(filename)
+            if not target.open(QIODevice.WriteOnly):
+                raise OSError(target.errorString())
+            if target.write(data) != len(data):
+                target.cancelWriting()
+                raise OSError(target.errorString())
+            if not target.commit():
+                raise OSError(target.errorString())
+        except (OSError, ValueError, sqlite3.Error) as exc:
+            self._transfer_error(exc)
+            return
+        QMessageBox.information(self, tr('favorites.title'),
+                                tr('favorites.transfer.exported', **result))
+
+    def _confirm_import(self, plan):
+        dialog = QDialog(self)
+        dialog.setWindowTitle(tr('favorites.transfer.import'))
+        layout = QVBoxLayout(dialog)
+        layout.addWidget(text_label(tr('favorites.transfer.summary', count=len(plan.records),
+                                      new=plan.new_count, duplicates=plan.duplicate_count)))
+        layout.addWidget(text_label(tr('favorites.transfer.images', missing=plan.missing_images)))
+        policy = QComboBox()
+        if plan.duplicate_count:
+            layout.addWidget(text_label(tr('favorites.transfer.duplicates')))
+            for key in ('skip', 'replace', 'new'):
+                policy.addItem(tr('favorites.transfer.' + key), key)
+            layout.addWidget(policy)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.button(QDialogButtonBox.Ok).setText(tr('favorites.transfer.import'))
+        buttons.button(QDialogButtonBox.Cancel).setText(tr('planet_nav.cancel'))
+        buttons.button(QDialogButtonBox.Cancel).setDefault(True)
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        layout.addWidget(buttons)
+        if dialog.exec() != QDialog.Accepted:
+            return None
+        return policy.currentData() or 'skip'
+
+    def import_favorites(self):
+        commander = getattr(self.state, 'commander_id', None)
+        if not commander:
+            return
+        filename, _ = QFileDialog.getOpenFileName(
+            self, tr('favorites.transfer.import'), '', 'ZIP (*.zip)')
+        if not filename:
+            return
+        try:
+            records, images, missing = read_package(filename)
+            plan = prepare_import(self.store, commander, records, images, missing)
+            if commander != self.state.commander_id:
+                raise TransferError('commander_changed')
+            policy = self._confirm_import(plan)
+            if policy is None:
+                return
+            if commander != self.state.commander_id:
+                raise TransferError('commander_changed')
+            result = apply_import(self.store, plan, policy)
+        except (OSError, ValueError, sqlite3.Error) as exc:
+            self._transfer_error(exc)
+            return
+        self.refresh()
+        QMessageBox.information(self, tr('favorites.title'),
+                                tr('favorites.transfer.imported', **result))
 
     def _selection_changed(self, *_):
         record = self.selected()

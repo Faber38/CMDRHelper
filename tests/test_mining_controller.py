@@ -75,18 +75,18 @@ class MiningControllerTests(unittest.TestCase):
     def test_start_live_refinement_and_restart_with_persisted_sidecar(self):
         controller, results = self.make_controller()
         self.wait_for(results, 1)
-        self.assertEqual(results[-1].stock("gold")[0], 12)
+        self.assertEqual(results[-1].stock("gold").ship_amount, 12)
         self.assertTrue(self.state.settings.value("materials/mining/cargo_checkpoints/1"))
         self.events.append(dict(event="MiningRefined", Type="gold"))
         self.write()
         self.state.changed.emit()
         self.wait_for(results, 2)
-        self.assertEqual(results[-1].stock("gold")[0], 13)
+        self.assertEqual(results[-1].stock("gold").ship_amount, 13)
         (self.folder / "Cargo.json").write_text("{}")
         self.state.settings = QSettings(self.settings_path, QSettings.Format.IniFormat)
         restarted, restored = self.make_controller()
         self.wait_for(restored, 1)
-        self.assertEqual(restored[-1].stock("gold")[0], 13)
+        self.assertEqual(restored[-1].stock("gold").ship_amount, 13)
         self.assertFalse(restarted.timer.isActive())  # No polling loop.
 
     def test_commander_switch_clears_immediately_and_rejects_old_results(self):
@@ -98,16 +98,16 @@ class MiningControllerTests(unittest.TestCase):
         self.state.viewed_commander_id = 2
         self.state.viewedCommanderChanged.emit(2)
         self.assertEqual(len(loading), 2)
-        controller._finished(old_generation, MiningInventory(1, "F1", vehicle={"gold": 1000}))
+        controller._finished(old_generation, MiningInventory(1, "F1", srv={}, ship={"gold": 1000}))
         self.assertEqual(len(results), 1)
         self.wait_for(results, 2)
         self.assertEqual(results[-1].fid, "F2")
-        self.assertIsNone(results[-1].stock("gold")[0])
+        self.assertIsNone(results[-1].stock("gold").ship_amount)
 
     def test_ambiguous_current_session_does_not_display_previous_live_stock(self):
         controller, results = self.make_controller()
         self.wait_for(results, 1)
-        self.assertEqual(results[-1].stock("gold")[0], 12)
+        self.assertEqual(results[-1].stock("gold").ship_amount, 12)
         self.state._journal_index_sessions[-1]["attribution_status"] = "ambiguous"
         self.state.changed.emit()
         self.wait_for(results, 2)
@@ -126,7 +126,7 @@ class MiningControllerTests(unittest.TestCase):
         controller.refreshFinished.connect(outcomes.append)
         view = self.make_view(controller)
         self.wait_for(results, 1)
-        self.assertEqual(view.items["gold"].text(1), "—")
+        self.assertEqual(view.items["gold"].text(2), "—")
         # Only the sidecar changes; no journal event or state signal is emitted.
         (self.folder / "Cargo.json").write_text(snapshot)
         QTest.mouseClick(view.refresh_button, Qt.MouseButton.LeftButton)
@@ -134,14 +134,14 @@ class MiningControllerTests(unittest.TestCase):
         self.assertFalse(controller.timer.isActive())
         self.wait_for(results, 2)
         self.assertEqual(results[-1].vessel, "Ship")
-        self.assertEqual(view.items["gold"].text(1), "12")
+        self.assertEqual(view.items["gold"].text(2), "12")
         self.assertEqual(outcomes, ["updated"])
-        self.assertEqual(view.items["gold"].text(2), "— ✎")
+        self.assertEqual(view.items["gold"].text(3), "— ✎")
         self.events.append(dict(event="MiningRefined", Type="gold"))
         self.write()
         self.state.changed.emit()
         self.wait_for(results, 3)
-        self.assertEqual(view.items["gold"].text(1), "13")
+        self.assertEqual(view.items["gold"].text(2), "13")
         self.assertFalse(controller.timer.isActive())
 
     def test_manual_status_distinguishes_unchanged_and_invalid_sidecar_with_checkpoint(self):
@@ -156,7 +156,7 @@ class MiningControllerTests(unittest.TestCase):
         (self.folder / "Cargo.json").write_text("{}")
         controller.refresh_now()
         self.wait_for(results, 3)
-        self.assertEqual(results[-1].stock("gold")[0], 12)  # Keep valid persisted cargo.
+        self.assertEqual(results[-1].stock("gold").ship_amount, 12)  # Keep valid persisted cargo.
         self.assertEqual(outcomes, ["unchanged", "error"])
 
     def test_manual_refresh_switches_to_verified_srv_snapshot(self):
@@ -170,7 +170,42 @@ class MiningControllerTests(unittest.TestCase):
         QTest.mouseClick(view.refresh_button, Qt.MouseButton.LeftButton)
         self.wait_for(results, 2)
         self.assertEqual(results[-1].vessel, "SRV")
-        self.assertEqual(view.items["gold"].text(1), "3")  # Not Ship + SRV.
+        self.assertEqual(view.items["gold"].text(1), "3")
+        self.assertEqual(view.items["gold"].text(2), "12")
+        # Docking invalidates both bases; only a fresh Ship snapshot is known.
+        self.events.extend([dict(event="DockSRV"), dict(event="Cargo", Vessel="Ship", Count=15)])
+        self.write()
+        (self.folder / "Cargo.json").write_text(json.dumps({**self.events[-1],
+            "Inventory": [dict(Name="gold", Count=15)]}))
+        controller.refresh_now()
+        self.wait_for(results, 3)
+        self.assertEqual(view.items["gold"].text(1), "—")
+        self.assertEqual(view.items["gold"].text(2), "15")
+        # A new launch must not resurrect the previous SRV payload.
+        self.events.extend([dict(event="LaunchSRV"), dict(event="Cargo", Vessel="SRV", Count=0)])
+        self.write()
+        (self.folder / "Cargo.json").write_text(json.dumps({**self.events[-1], "Inventory": []}))
+        controller.refresh_now()
+        self.wait_for(results, 4)
+        self.assertEqual(view.items["gold"].text(1), "0")
+        self.assertEqual(view.items["gold"].text(2), "15")
+
+    def test_refresh_detects_changes_in_inactive_ship_stock(self):
+        controller, results = self.make_controller()
+        self.wait_for(results, 1)
+        self.events.extend([dict(event="LaunchSRV"),
+            dict(event="Cargo", Vessel="SRV", Count=20, Inventory=[dict(Name="gold", Count=20)])])
+        self.write()
+        controller.refresh_now()
+        self.wait_for(results, 2)
+        outcomes = []
+        controller.refreshFinished.connect(outcomes.append)
+        self.events.append(dict(event="MarketBuy", Type="gold", Count=48))
+        self.write()
+        controller.refresh_now()
+        self.wait_for(results, 3)
+        self.assertEqual(results[-1].stock("gold"), (20, 60, None, None))
+        self.assertEqual(outcomes, ["updated"])
 
     def test_manual_refresh_missing_snapshot_stays_unknown(self):
         (self.folder / "Cargo.json").unlink()
@@ -180,7 +215,7 @@ class MiningControllerTests(unittest.TestCase):
         QTest.mouseClick(view.refresh_button, Qt.MouseButton.LeftButton)
         self.wait_for(results, 2)
         self.assertIsNone(results[-1].vehicle)
-        self.assertEqual(view.items["gold"].text(1), "—")
+        self.assertEqual(view.items["gold"].text(2), "—")
 
     def test_manual_refresh_rejects_wrong_fid_and_vessel(self):
         (self.folder / "Cargo.json").unlink()
@@ -216,8 +251,8 @@ class MiningControllerTests(unittest.TestCase):
         self.assertEqual(outcomes, ["unchanged"])
 
     def test_status_comparison_ignores_explicit_zero_entries(self):
-        self.assertEqual(MiningInventoryController._inventory_signature(MiningInventory(1, "F1", vehicle={})),
-                         MiningInventoryController._inventory_signature(MiningInventory(1, "F1", vehicle={"gold": 0})))
+        self.assertEqual(MiningInventoryController._inventory_signature(MiningInventory(1, "F1", srv={}, ship={})),
+                         MiningInventoryController._inventory_signature(MiningInventory(1, "F1", srv={}, ship={"gold": 0})))
 
     def test_manual_status_accepts_verified_empty_journal_cargo(self):
         self.events[-1]["Count"] = 0
@@ -255,36 +290,36 @@ class MiningControllerTests(unittest.TestCase):
         controller, results = self.make_controller()
         view = self.make_view(controller)
         self.wait_for(results, 1)
-        self.assertEqual(view.items["gold"].text(2), "— ✎")
+        self.assertEqual(view.items["gold"].text(3), "— ✎")
         identity = (1, "F1", 123)
         controller.confirm_carrier("gold", 504, identity)
-        self.assertEqual(view.items["gold"].text(2), "504 ✎")
-        self.assertEqual(view.items["gold"].text(3), "516")
+        self.assertEqual(view.items["gold"].text(3), "504 ✎")
+        self.assertEqual(view.items["gold"].text(4), "—")
         before = len(results)
         controller.refresh_now()
         self.wait_for(results, before + 1)
-        self.assertEqual(view.items["gold"].text(2), "504 ✎")
+        self.assertEqual(view.items["gold"].text(3), "504 ✎")
         self.assertEqual(results[-1].carrier_records["gold"]["status"], "manual")
-        self.assertIn("504", view.items["gold"].text(2))
+        self.assertIn("504", view.items["gold"].text(3))
         restarted, restored = self.make_controller()
         self.wait_for(restored, 1)
-        self.assertEqual(restored[-1].stock("gold")[1], 504)
+        self.assertEqual(restored[-1].stock("gold").carrier_amount, 504)
         (self.folder / "Cargo.json").write_text("{}")
         before = len(results)
         controller.refresh_now()
         self.wait_for(results, before + 1)
-        self.assertEqual(results[-1].stock("gold")[1], 504)
+        self.assertEqual(results[-1].stock("gold").carrier_amount, 504)
         self.events.extend([dict(event="Docked", MarketID=123, StationType="FleetCarrier"),
             dict(event="CargoTransfer", Transfers=[dict(Type="gold", Count=50, Direction="toship")])])
         self.write()
         before = len(results)
         self.state.changed.emit()
         self.wait_for(results, before + 1)
-        self.assertEqual(results[-1].stock("gold"), (62, 454, 516))
+        self.assertEqual(results[-1].stock("gold"), (None, 62, 454, None))
         self.assertEqual(results[-1].carrier_records["gold"]["status"], "tracked")
         controller.confirm_carrier("gold", None, identity)
-        self.assertEqual(view.items["gold"].text(2), "— ✎")
-        self.assertEqual(view.items["gold"].text(3), "—")
+        self.assertEqual(view.items["gold"].text(3), "— ✎")
+        self.assertEqual(view.items["gold"].text(4), "—")
 
     def test_carrier_confirmation_rejects_changed_identity_and_missing_owner(self):
         self.add_owned_carrier()
@@ -309,7 +344,7 @@ class MiningControllerTests(unittest.TestCase):
         before = len(results)
         controller.refresh_now()
         self.wait_for(results, before + 1)
-        self.assertEqual(results[-1].stock("gold")[1], 504)
+        self.assertEqual(results[-1].stock("gold").carrier_amount, 504)
 
     def test_jadeite_cargo_snapshot_and_live_refinement_are_visible_with_filters(self):
         self.events[-1]["Count"] = 22
@@ -322,13 +357,13 @@ class MiningControllerTests(unittest.TestCase):
         view.only_stock.setChecked(True)
         self.wait_for(results, 1)
         jadeite = view.items["jadeite"]
-        self.assertEqual(jadeite.text(1), "22")
-        self.assertEqual(jadeite.data(4, Qt.ItemDataRole.UserRole), 41895)
+        self.assertEqual(jadeite.text(2), "22")
+        self.assertEqual(jadeite.data(5, Qt.ItemDataRole.UserRole), 41895)
         self.assertFalse(jadeite.isHidden())
         self.assertEqual({symbol for symbol, item in view.items.items() if not item.isHidden()}, {"jadeite"})
         self.events.append(dict(event="MiningRefined", Type="jadeite"))
         self.write()
         self.state.changed.emit()
         self.wait_for(results, 2)
-        self.assertEqual(jadeite.text(1), "23")
+        self.assertEqual(jadeite.text(2), "23")
         self.assertFalse(jadeite.isHidden())

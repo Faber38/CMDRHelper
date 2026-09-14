@@ -147,6 +147,17 @@ def default_database_path() -> Path:
     return Path(__file__).resolve().parent.parent / "data" / "cmdrhelper.db"
 
 
+class _DiagnosticConnection(sqlite3.Connection):
+    def __exit__(self, exc_type, exc, tb):
+        if exc_type is not None:
+            logger.error("Database transaction rolled back", exc_info=(exc_type, exc, tb))
+        try:
+            return super().__exit__(exc_type, exc, tb)
+        except sqlite3.Error:
+            logger.exception("Database commit/rollback failed")
+            raise
+
+
 class CMDRDatabase:
     def __init__(self, path=None):
         self.path = Path(path) if path else default_database_path()
@@ -155,10 +166,15 @@ class CMDRDatabase:
         self.active_commander_id = None
         self._bio_predictor_cache = None
         self._bio_predictor_revision = None
-        self._create_schema()
+        try:
+            self._create_schema()
+        except Exception:
+            logger.exception("Database open/schema initialization failed")
+            raise
+        logger.info("Database opened")
 
     def _connect(self):
-        con = sqlite3.connect(self.path)
+        con = sqlite3.connect(self.path, factory=_DiagnosticConnection)
         con.execute("PRAGMA foreign_keys = ON")
         con.execute("PRAGMA journal_mode = WAL")
         return con
@@ -6134,6 +6150,7 @@ class CMDRDatabase:
             )
 
         total = len(journals)
+        diagnostic_events = 0
 
         if total == 0:
             logger.info(
@@ -6527,6 +6544,7 @@ class CMDRDatabase:
                         except json.JSONDecodeError:
                             continue
 
+                        diagnostic_events += 1
                         et = event.get("event")
                         current_event_name = str(et or "")
                         ts = event.get("timestamp") or ""
@@ -7995,6 +8013,8 @@ class CMDRDatabase:
             "Datenbankimport abgeschlossen: %s Journaldatei(en)",
             total,
         )
+        from cmdrhelper.logging_config import log_event
+        log_event(logger, "Journal import completed", files=total, events=diagnostic_events)
         stats["imported_journals"] = total
         stats["skipped_journals"] = skipped_count
         return stats

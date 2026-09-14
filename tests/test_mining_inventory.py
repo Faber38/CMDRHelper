@@ -24,59 +24,59 @@ class MiningInventoryTests(unittest.TestCase):
 
     def test_ship_snapshot_and_zero_for_absent_commodity(self):
         result = self.apply(cargo(thortveitite=12, uraninite=16))
-        self.assertEqual(result.stock("uraninite"), (16, None, None))
-        self.assertEqual(result.stock("gold"), (0, None, None))
+        self.assertEqual(result.stock("uraninite"), (None, 16, None, None))
+        self.assertEqual(result.stock("gold"), (None, 0, None, None))
 
-    def test_srv_switch_never_adds_ship_and_srv_and_dock_waits_for_snapshot(self):
+    def test_srv_switch_keeps_separate_stocks_and_dock_waits_for_snapshot(self):
         self.apply(cargo(thortveitite=12), dict(event="LaunchSRV", PlayerControlled=True))
         self.assertIsNone(self.reducer.result.vehicle)
         result = self.apply(cargo("SRV", thortveitite=4))
-        self.assertEqual(result.stock("thortveitite")[0], 4)
+        self.assertEqual(result.stock("thortveitite").srv_amount, 4)
         self.assertEqual(result.vessel, "SRV")
         self.apply(dict(event="DockSRV", PlayerControlled=True))
         self.assertIsNone(self.reducer.result.vehicle)
         result = self.apply(cargo(thortveitite=16))
-        self.assertEqual(result.stock("thortveitite")[0], 16)
+        self.assertEqual(result.stock("thortveitite").ship_amount, 16)
 
     def test_refining_collection_ejection_trade_and_full_snapshot_wins(self):
         self.apply(cargo(copper=10))
         self.apply(dict(event="MiningRefined", Type="$copper_name;"))
-        self.assertEqual(self.reducer.result.stock("copper")[0], 11)
+        self.assertEqual(self.reducer.result.stock("copper").ship_amount, 11)
         self.apply(dict(event="CollectCargo", Type="Copper"),
                    dict(event="EjectCargo", Type="copper", Count=2),
                    dict(event="MarketBuy", Type="copper", Count=10),
                    dict(event="MarketSell", Type="copper", Count=4))
-        self.assertEqual(self.reducer.result.stock("copper")[0], 16)
+        self.assertEqual(self.reducer.result.stock("copper").ship_amount, 16)
         self.apply(cargo(copper=7))
-        self.assertEqual(self.reducer.result.stock("copper")[0], 7)
+        self.assertEqual(self.reducer.result.stock("copper").ship_amount, 7)
         self.apply(dict(event="MiningRefined", Type="copper"), cargo(copper=8))
-        self.assertEqual(self.reducer.result.stock("copper")[0], 8)
+        self.assertEqual(self.reducer.result.stock("copper").ship_amount, 8)
 
     def test_refinement_without_baseline_is_unknown_and_sources_are_idempotent(self):
         self.apply(dict(event="MiningRefined", Type="copper"))
-        self.assertIsNone(self.reducer.result.stock("copper")[0])
+        self.assertIsNone(self.reducer.result.stock("copper").ship_amount)
         self.apply(cargo(copper=2))
         event = dict(event="MiningRefined", Type="copper")
         self.reducer.apply(event, ("file", 77))
         self.reducer.apply(event, ("file", 77))
-        self.assertEqual(self.reducer.result.stock("copper")[0], 3)
+        self.assertEqual(self.reducer.result.stock("copper").ship_amount, 3)
 
     def test_count_only_conflict_and_negative_inventory_are_unknown_until_snapshot(self):
         self.apply(cargo(copper=2), dict(event="Cargo", Vessel="Ship", Count=2))
-        self.assertEqual(self.reducer.result.stock("copper")[0], 2)
+        self.assertEqual(self.reducer.result.stock("copper").ship_amount, 2)
         self.apply(dict(event="Cargo", Vessel="Ship", Count=3))
         self.assertIsNone(self.reducer.result.vehicle)
         self.apply(cargo(copper=1), dict(event="MarketSell", Type="copper", Count=2))
         self.assertIsNone(self.reducer.result.vehicle)
         self.apply(cargo(copper=5))
-        self.assertEqual(self.reducer.result.stock("copper")[0], 5)
+        self.assertEqual(self.reducer.result.stock("copper").ship_amount, 5)
 
     def test_ship_transfer_deltas_do_not_create_carrier_inventory(self):
         self.apply(cargo(gold=10), dict(event="CargoTransfer", Transfers=[
             dict(Type="gold", Count=4, Direction="tocarrier")]))
-        self.assertEqual(self.reducer.result.stock("gold"), (6, None, None))
+        self.assertEqual(self.reducer.result.stock("gold"), (None, 6, None, None))
         self.apply(dict(event="CargoTransfer", Transfers=[dict(Type="gold", Count=2, Direction="toship")]))
-        self.assertEqual(self.reducer.result.stock("gold"), (8, None, None))
+        self.assertEqual(self.reducer.result.stock("gold"), (None, 8, None, None))
         self.apply(dict(event="CarrierStats", SpaceUsage=dict(Cargo=200)),
                    dict(event="CarrierTradeOrder", Commodity="gold", SaleOrder=200),
                    dict(event="CarrierMarket", Items=[dict(Name="gold", Stock=200)]))
@@ -85,10 +85,10 @@ class MiningInventoryTests(unittest.TestCase):
     def test_transfer_between_ship_and_srv_keeps_separate_snapshots(self):
         self.apply(cargo(gold=10), dict(event="LaunchSRV"), cargo("SRV", gold=2))
         self.apply(dict(event="CargoTransfer", Transfers=[dict(Type="gold", Count=3, Direction="tosrv")]))
-        self.assertEqual(self.reducer.result.stock("gold")[0], 5)
+        self.assertEqual(self.reducer.result.stock("gold").srv_amount, 5)
         self.assertEqual(self.reducer.stocks["Ship"]["gold"], 7)
         self.apply(dict(event="CargoTransfer", Transfers=[dict(Type="gold", Count=2, Direction="toship")]))
-        self.assertEqual(self.reducer.result.stock("gold")[0], 3)
+        self.assertEqual(self.reducer.result.stock("gold").srv_amount, 3)
         self.assertEqual(self.reducer.stocks["Ship"]["gold"], 9)
 
     def test_new_ship_session_and_invalid_snapshots_do_not_keep_old_stock(self):
@@ -105,14 +105,41 @@ class MiningInventoryTests(unittest.TestCase):
                                (0, 0, 0), (None, None, None)):
             self.assertEqual(total_stock(a, b), expected)
 
+    def test_split_balances_and_total_require_three_known_parts(self):
+        for srv, ship in ((68, 0), (0, 68), (20, 48)):
+            with self.subTest(srv=srv, ship=ship):
+                result = self.apply(cargo("Ship", gold=ship), cargo("SRV", gold=srv))
+                result.carrier = None
+                self.assertEqual(result.stock("gold"), (srv, ship, None, None))
+                result.carrier = {"gold": 10}
+                self.assertEqual(result.stock("gold"), (srv, ship, 10, 78))
+        for amounts in ((None, 48, 10), (20, None, 10), (20, 48, None)):
+            self.assertIsNone(total_stock(*amounts))
+        self.assertEqual(total_stock(0, 0, 0), 0)
+
+    def test_transfers_conserve_known_local_total_in_both_directions(self):
+        result = self.apply(cargo(gold=48), dict(event="LaunchSRV"), cargo("SRV", gold=20))
+        result.carrier = {"gold": 10}
+        self.apply(dict(event="CargoTransfer", Transfers=[dict(Type="gold", Count=20, Direction="toship")]))
+        self.assertEqual(result.stock("gold"), (0, 68, 10, 78))
+        self.apply(dict(event="CargoTransfer", Transfers=[dict(Type="gold", Count=68, Direction="tosrv")]))
+        self.assertEqual(result.stock("gold"), (68, 0, 10, 78))
+
+    def test_unknown_vessel_and_missing_baseline_never_invent_balances(self):
+        result = self.apply(cargo(gold=48), dict(event="LaunchSRV"))
+        self.apply(dict(event="CargoTransfer", Transfers=[dict(Type="gold", Count=20, Direction="tosrv")]))
+        self.assertEqual(result.stock("gold"), (None, 28, None, None))
+        self.apply(cargo("Unknown", gold=68))
+        self.assertEqual(result.stock("gold"), (None, None, None, None))
+
     def test_non_cargo_rewards_keep_stock_but_commodity_changes_require_snapshot(self):
         self.apply(cargo(gold=4), dict(event="MissionCompleted", Reward=1000),
                    dict(event="EngineerContribution", Type="Materials", Commodity="iron", Quantity=2))
-        self.assertEqual(self.reducer.result.stock("gold")[0], 4)
+        self.assertEqual(self.reducer.result.stock("gold").ship_amount, 4)
         self.apply(dict(event="MissionCompleted", CommodityReward=[dict(Name="gold", Count=2)]))
         self.assertIsNone(self.reducer.result.vehicle)
         self.apply(cargo(gold=6))
-        self.assertEqual(self.reducer.result.stock("gold")[0], 6)
+        self.assertEqual(self.reducer.result.stock("gold").ship_amount, 6)
 
 
 class MiningReaderTests(unittest.TestCase):
@@ -137,7 +164,7 @@ class MiningReaderTests(unittest.TestCase):
             self.sidecar.write_text(json.dumps(full))
             result = MiningInventoryReader().reconstruct(1, "F1", self.sessions, live_path=self.path)
             self.assertEqual(result.vessel, vessel)
-            self.assertEqual(result.stock("gold")[0], 16)
+            self.assertEqual(result.stock("gold")[0 if vessel == "SRV" else 1], 16)
             other = MiningInventoryReader().reconstruct(2, "F2", self.sessions, live_path=self.path)
             self.assertIsNone(other.vehicle)
 
@@ -152,15 +179,37 @@ class MiningReaderTests(unittest.TestCase):
         reader = MiningInventoryReader()
         for _ in range(2):
             result = reader.reconstruct(1, "F1", self.sessions, checkpoints=first.checkpoints)
-            self.assertEqual(result.stock("gold")[0], 17)
+            self.assertEqual(result.stock("gold").ship_amount, 17)
         self.write([trigger, cargo(gold=3), dict(event="MarketSell", Type="gold", Count=2)])
         result = reader.reconstruct(1, "F1", self.sessions, checkpoints=first.checkpoints)
-        self.assertEqual(result.stock("gold")[0], 1)
+        self.assertEqual(result.stock("gold").ship_amount, 1)
 
     def test_embedded_snapshot_restarts_without_sidecar_or_settings(self):
         self.write([cargo("SRV", copper=8), dict(event="MiningRefined", Type="copper")])
         result = MiningInventoryReader().reconstruct(1, "F1", self.sessions)
-        self.assertEqual(result.stock("copper")[0], 9)
+        self.assertEqual(result.stock("copper").srv_amount, 9)
+
+    def test_both_verified_sidecars_survive_restart_and_transfer_replay(self):
+        ship = dict(cargo(gold=48), timestamp="2026-09-12T12:00:02Z")
+        ship_trigger = {k: v for k, v in ship.items() if k != "Inventory"}
+        self.write([ship_trigger])
+        self.sidecar.write_text(json.dumps(ship))
+        first = MiningInventoryReader().reconstruct(1, "F1", self.sessions, live_path=self.path)
+        srv = dict(cargo("SRV", gold=20), timestamp="2026-09-12T12:00:04Z")
+        srv_trigger = {k: v for k, v in srv.items() if k != "Inventory"}
+        events = [ship_trigger, dict(event="LaunchSRV"), srv_trigger]
+        self.write(events)
+        self.sidecar.write_text(json.dumps(srv))
+        second = MiningInventoryReader().reconstruct(1, "F1", self.sessions,
+            checkpoints=first.checkpoints, live_path=self.path)
+        self.assertEqual(second.stock("gold"), (20, 48, None, None))
+        self.sidecar.unlink()
+        self.write(events + [dict(event="CargoTransfer", Transfers=[
+            dict(Type="gold", Count=20, Direction="toship")])])
+        for _ in range(2):
+            restarted = MiningInventoryReader().reconstruct(1, "F1", self.sessions,
+                checkpoints=second.checkpoints, live_path=self.path)
+            self.assertEqual(restarted.stock("gold"), (0, 68, None, None))
 
     def test_wrong_vessel_sidecar_and_conflicting_file_identity_are_rejected(self):
         full = dict(cargo("SRV", gold=16), timestamp="2026-09-12T12:00:02Z")

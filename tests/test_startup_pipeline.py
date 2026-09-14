@@ -50,6 +50,7 @@ class StartupPipelineTests(unittest.TestCase):
         host = QWidget()
         host.ui_theme = 'dark'
         host._startup_progress_dialog = None
+        host._cleanup_parent_backup = Mock()
         try:
             MainWindow._initialization_started(host, True, 3881)
             dialog = host._startup_progress_dialog

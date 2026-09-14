@@ -30,12 +30,12 @@ HELP_TOPICS = {
 <p>Ekwipunek jest automatycznie aktualizowany w tle. Potwierdzone nowe zebrania mogą być krótko wyróżniane. Przy zmianie dowódcy stare stany są natychmiast usuwane. Podkarty, filtry, szerokości i kolejność kolumn są zapisywane oddzielnie dla Odyssey.</p>
 <h3>Mining</h3>
 <p>Materiały → Mining to wspólne zestawienie 57 obecnie znanych surowców górniczych przeznaczonych do handlu, oddzielonych od materiałów inżynieryjnych. Jedna tabela obejmuje wydobycie na powierzchni planet oraz w asteroidach/pierścieniach. Stałe ceny referencyjne są orientacyjne, a nie aktualnymi cenami rynkowymi.</p>
-<p><b>Kolumny</b><br><b>Surowiec:</b> nazwa towaru lub surowca.<br><b>Statek/SRV:</b> pewny, znany zapas w aktualnie właściwym pojeździe.<br><b>Lotniskowiec:</b> zapas na własnym carrierze; Elite nie dostarcza pełnej osobistej listy magazynowej, więc zapas początkowy trzeba potwierdzić ręcznie.<br><b>Łącznie:</b> statek/SRV + carrier, tylko gdy obie ilości są znane. Wartość nieznana nie jest dodawana jako 0.<br><b>Średnia cena Cr/t:</b> stała wartość orientacyjna bez gwarancji aktualnej ceny sprzedaży. Brakująca cena pozostaje nieznana.<br><b>Klasa wartości:</b> WYSOKA od 100 000 Cr/t; ŚREDNIA w zakresie 25 000–99 999 Cr/t; NISKA poniżej 25 000 Cr/t. Nieznana cena nie ma klasy wartości.</p>
+<p><b>Kolumny</b><br><b>Surowiec:</b> nazwa towaru lub surowca.<br><b>SRV:</b> zweryfikowany zapas w SRV.<br><b>Statek:</b> zweryfikowany zapas na statku.<br><b>Lotniskowiec:</b> zapas na własnym carrierze; Elite nie dostarcza pełnej osobistej listy magazynowej, więc zapas początkowy trzeba potwierdzić ręcznie.<br><b>Łącznie:</b> SRV + Statek + Carrier, tylko gdy wszystkie trzy ilości są znane. W przeciwnym razie —; nieznany nie oznacza zera.<br><b>Średnia cena Cr/t:</b> stała wartość orientacyjna bez gwarancji aktualnej ceny sprzedaży. Brakująca cena pozostaje nieznana.<br><b>Klasa wartości:</b> WYSOKA od 100 000 Cr/t; ŚREDNIA w zakresie 25 000–99 999 Cr/t; NISKA poniżej 25 000 Cr/t. Nieznana cena nie ma klasy wartości.</p>
 <p><b>Potwierdzanie zapasu carriera</b><br>Elite Dangerous nie przekazuje CMDRHelper pełnej osobistej listy magazynowej carriera. Aby ustalić znany punkt początkowy dla towaru: 1. Kliknij dwukrotnie komórkę Carrier. 2. Wpisz aktualny zapas jako liczbę całkowitą nie mniejszą niż 0. 3. Zastosuj wartość, potwierdzając ją ręcznie. 4. CMDRHelper następnie automatycznie śledzi jednoznaczne zdarzenia CargoTransfer między statkiem a własnym carrierem. Podpowiedź pokazuje ręczne potwierdzenie i ewentualne późniejsze aktualizacje.</p>
 <p><b>— = zapas nieznany</b><br>Bez potwierdzonego zapasu początkowego pojedyncze transfery nie pozwalają obliczyć wiarygodnego bezwzględnego zapasu carriera. Dwukrotne kliknięcie pozwala w dowolnej chwili zmienić, skorygować lub zresetować wartość do nieznanej. Jeśli transfer prowadziłby do sprzecznego lub ujemnego wyniku, zapas ponownie staje się nieznany i wymaga ręcznego potwierdzenia.</p>
-<p><b>Statek i SRV</b><br>CMDRHelper korzysta ze zweryfikowanych danych ładunku. Statek i SRV nie są sumowane: tabela pokazuje zapas właściwego pojazdu. Pełne migawki ładunku mają pierwszeństwo przed ilościami obliczonymi z pojedynczych zmian.</p>
-<p><b>↻ Odśwież</b><br>Przycisk ponownie odczytuje aktualny ładunek statku/SRV w celu ręcznej kontroli i odświeżenia. Zwykłe aktualizacje na żywo nadal działają automatycznie. Ręcznie potwierdzone wartości carriera nie są usuwane. Zielony oznacza gotowość lub sukces, animacja kolorów trwające odświeżanie, a czerwony nieudaną próbę. Brakujące lub nieweryfikowalne dane nie są pokazywane jako pusty zapas.</p>
-<p><b>Łączenie filtrów</b><br>Wyszukiwanie filtruje surowce według nazwy. Klasa wartości oferuje Wszystkie, WYSOKA, ŚREDNIA i NISKA; pochodzenie oferuje Wszystkie, Wydobycie planetarne i Asteroidy/Pierścienie. Tylko posiadane pokazuje tylko towary z pewnym, znanym dodatnim zapasem. Dodatni zapas statku/SRV pozostaje widoczny, nawet gdy zapas carriera jest nieznany. Wyszukiwanie, klasę, pochodzenie i filtr zapasu można łączyć.</p>
+<p><b>Statek i SRV</b><br>Zapasy SRV i statku są odtwarzane oddzielnie ze zweryfikowanych danych ładunku. Nieznane ilości pozostają jako —. Pełne migawki ładunku mają pierwszeństwo przed obliczonymi zmianami.</p>
+<p><b>↻ Odśwież</b><br>Zapasy SRV i statku są odświeżane osobno na podstawie zweryfikowanych danych. Potwierdzony zapas carriera pozostaje zachowany niezależnie od tego. Zwykłe aktualizacje na żywo nadal działają automatycznie. Zielony oznacza gotowość lub sukces, animacja kolorów trwające odświeżanie, a czerwony nieudaną próbę. Brakujące lub nieweryfikowalne dane nie są pokazywane jako pusty zapas.</p>
+<p><b>Łączenie filtrów</b><br>Wyszukiwanie filtruje surowce według nazwy. Klasa wartości oferuje Wszystkie, WYSOKA, ŚREDNIA i NISKA; pochodzenie oferuje Wszystkie, Wydobycie planetarne i Asteroidy/Pierścienie. „Tylko posiadane” pokazuje surowiec, jeśli co najmniej jeden znany zapas w SRV, statku lub carrierze jest dodatni. Nieznany zapas nie jest traktowany jak 0 i nie ukrywa znanego dodatniego zapasu w innym miejscu. Wyszukiwanie, klasę, pochodzenie i filtr zapasu można łączyć.</p>
 <p><b>ABBAU ×N w odkrywcy</b><br>Kliknięcie otwiera Materiały → Mining i automatycznie ustawia filtr pochodzenia na Wydobycie planetarne. W odkrywcy nie ma drugiej tabeli Mining.</p>
 <p><b>Sortowanie i szerokości</b><br>Kliknij nagłówki kolumn, aby sortować rosnąco lub malejąco. Zapasy i ceny są sortowane liczbowo, a wartości nieznane trafiają na koniec. Przeciągaj granice kolumn myszą, aby zmieniać szerokości. Sortowanie, szerokości oraz filtry klasy, pochodzenia i Tylko posiadane są zapisywane.</p>
 <p><b>Pochodzenie</b><br>Surface oznacza wydobycie na powierzchni planet; Asteroid oznacza wydobycie w asteroidach/pierścieniach. Niektóre surowce pochodzą z obu środowisk (Both) i pojawiają się w obu odpowiednich filtrach pochodzenia.</p>""",
@@ -220,7 +220,7 @@ HELP_TOPICS = {
               '<p>Wyświetlacz pokazuje między innymi typ ciała, odległość i – jeśli są dostępne – '
               'wartości skanowania i kartografii, a także specjalne właściwości eksploracji.</p>\n'
               '\n'
-              '<h3>ORGANICZNE ×N</h3>\n'
+              '<h3>BIO ×N</h3>\n'
               '<p>BIO ×N oznacza liczbę sygnałów biologicznych ciała zgłaszanych przez grę.</p>\n'
               '<p>Liczba początkowo wskazuje jedynie, ile sygnałów biologicznych lub rodzajów '
               'zgłoszono. Nie oznacza to automatycznie, że wszystkie gatunki biologiczne zostały '
@@ -282,7 +282,7 @@ HELP_TOPICS = {
               '</ul>\n'
               '<p>„Już zmapowane w chwili twojego skanu” jest oceniane niezależnie od odkrycia. Brak informacji pozostaje stanem Nieznanym. Wcześniej odkryte ciało mogło być jeszcze niezmapowane podczas skanowania. Twoje mapowanie nie potwierdza oficjalnego oznaczenia First Mapping; po wielu wizytach nie zawsze znana jest również kolejność względem zapisanego skanowania.</p>\n<p>Ukończenie własnego mapowania DSS zapisuje teraz niezawodnie czas mapowania, użyte sondy i cel wydajności. Późniejsze skanowania nie powodują już utraty istniejących informacji.</p>\n'
               '\n'
-              '<h3>Wiejski bar</h3>\n'
+              '<h3>Możliwość lądowania</h3>\n'
               '<p>Wskaźnik możliwości lądowania identyfikuje ciała, na których według znanych '
               'danych możliwe jest lądowanie.</p>\n'
               '\n'
@@ -296,15 +296,20 @@ HELP_TOPICS = {
               '<p>Jest szczególnie przydatny do szybkiego porównywania interesujących lub '
               'wartościowych obiektów w systemie.</p>\n'
               '\n'
-              '<h3>ORGANICZNE / GEO / DEGRADACJA</h3>\n'
-              '<p>Pogląd ten grupuje ciała posiadające sygnały biologiczne, geologiczne lub '
-              'planetarne.</p>\n'
+              '<h3>BIO / GEO / ABBAU</h3>\n'
+              '<p>Ten widok grupuje ciała niebieskie z sygnałami biologicznymi, geologicznymi lub wydobycia '
+              'planetarnego.</p>\n'
               '<p>Oznacza to, że interesujących obiektów nie trzeba wyszukiwać pojedynczo na całej '
               'mapie systemu.</p>\n'
               '<p>Jeśli posiadasz własne dane dotyczące górnictwa odkrywkowego, widoczne mogą być '
               'również Twoje osobiste znaleziska górnicze.</p>\n'
               '<p>Ręcznie zmienione szerokości kolumn wspólnej tabeli BIO / GEO / ABBAU w Eksploratorze pozostają po ponownym otwarciu i restarcie programu. Szerokości kolumn okien podręcznych są przywracane odporniej na błędy; nieprawidłowe wartości zastępują bezpieczne szerokości domyślne.</p>\n\n'
-              '<h3>Szczegóły ciała</h3>\n'
+              '<h3>Obsługa tabel</h3>\n<p>Na liście wartości i w BIO / GEO / ABBAU kliknij nagłówek kolumny, '
+              'aby sortować; ponowne kliknięcie odwraca kierunek. Przeciągaj granice kolumn myszą, aby '
+              'zmieniać szerokości. Sortowanie i szerokości są zapisywane osobno dla każdej tabeli. Nazwy ciał '
+              'niebieskich są sortowane naturalnie, np. A 2 przed A 10. Odległości, kredyty i ilości są '
+              'sortowane liczbowo. Status, analiza i odwiedziny są sortowane według znaczenia, nie '
+              'alfabetycznie.</p>\n\n<h3>Szczegóły ciała</h3>\n'
               '<p>Kliknięcie na bryłę otwiera widok szczegółowy.</p>\n'
               '<p>O ile wiadomo, mogą się tam pojawić:</p>\n'
               '<ul>\n'
@@ -341,7 +346,7 @@ HELP_TOPICS = {
               '<p>Dane kartograficzne, które zostały już sprzedane, po rekonstrukcji nie powinny '
               'być ponownie wyświetlane jako otwarte.</p>\n'
               '\n'
-              '<h3>Pokaż samochód</h3>\n'
+              '<h3>Pokazuj automatycznie</h3>\n'
               '<p>Obsługiwane wskazówki eksploratora, takie jak cenne ciała lub znaleziska BIO, '
               'mogą być automatycznie wyświetlane za pomocą przełączników na lewym pasku '
               'bocznym.</p>\n'
@@ -366,6 +371,19 @@ HELP_TOPICS = {
 <p>Przewijana lista, posortowana alfabetycznie według nazw, pokazuje nazwę, typ, system, w odpowiednich przypadkach ciało niebieskie i szerokość/długość geograficzną, kategorię oraz mały podgląd obrazu. Wyszukiwanie tekstowe oraz filtry typu i kategorii można stosować wspólnie. Wyszukiwanie obejmuje nazwę, system, ciało niebieskie i notatkę.</p>
 <p>„Otwórz / Pokaż” pokazuje zapisane dane, notatkę i większy podgląd obrazu. „Pokaż w Explorerze” otwiera istniejący przegląd systemu lub szczegóły ciała niebieskiego, jeśli ulubiony należy do bieżącego systemu Explorera i dostępne są odpowiednie dane. W przypadku innych systemów zapisane dane ulubionego pozostają widoczne; trasa między systemami nie jest obliczana.</p>
 
+<h3>Filtr odległości</h3>
+<p>„Filtr odległości” jest domyślnie wyłączony. „Maks. odległość:” ma początkowo wartość 500 ly, z zakresem od 1 do 100 000 ly. Odległość jest liczona od aktualnie znanego systemu na podstawie dostępnych lokalnie współrzędnych systemów. Tylko dla tego filtra nie są wykonywane zapytania sieciowe.</p>
+<p>Ulubione ze znaną odległością poza limitem są ukrywane. Ulubione o nieznanej odległości pozostają widoczne. Jeśli brakuje współrzędnych bieżącego systemu, filtr odległości nie ukrywa wpisów. Wyszukiwanie oraz filtry typu i kategorii nadal obowiązują. Po zmianie systemu filtrowanie aktualizuje się automatycznie. Stan przełącznika i maksymalna odległość są zapisywane.</p>
+
+<h3>Eksport ulubionych</h3>
+<p>„Eksportuj” tworzy przenośny ZIP ze wszystkimi ulubionymi aktywnego dowódcy, nie tylko wpisami widocznymi przez wyszukiwanie lub filtry typu, kategorii i odległości. favorites.json zawiera ustrukturyzowane dane ulubionych; dostępne obrazy znajdują się w images/. Pakiet można przenosić między Linuksem i Windows.</p>
+<p>Istniejące ulubione i oryginalne obrazy nie są zmieniane. Obrazy o identycznej zawartości są zapisywane w pakiecie tylko raz. Brakujące lub uszkodzone obrazy nie blokują eksportu danych. Import i eksport dopuszczają maksymalnie 32 MiB na plik oraz łącznie 256 MiB nieskompresowanej zawartości pakietu.</p>
+
+<h3>Import ulubionych</h3>
+<p>„Importuj” najpierw sprawdza ZIP i przed zmianami pokazuje podsumowanie nowych i istniejących ulubionych. Importowane ulubione są przypisywane do aktualnie aktywnego dowódcy. Duplikaty są rozpoznawane po typie, kategorii, nazwie i położeniu: znanych identyfikatorach systemu/ciała i współrzędnych, a w przeciwnym razie nazwach systemu/ciała. Uwzględniane są także duplikaty wewnątrz pakietu.</p>
+<p>Jeden wybór dotyczy wszystkich wykrytych duplikatów: „Pomiń” jest domyślny i zachowuje istniejące wpisy; „Zastąp istniejący wpis” przenosi importowane dane do istniejącego ulubionego; „Importuj jako nowy wpis” tworzy dodatkowy wpis. Anulowanie niczego nie importuje.</p>
+<p>Nieprawidłowe dane ulubionych blokują cały import. Przy błędzie importu zmiany w bazie są wycofywane, aby nie pozostawić częściowego importu. Brakujące lub uszkodzone obrazy nie blokują importu prawidłowych danych; te ulubione są importowane bez obrazu. CMDRHelper zarządza importowanymi obrazami lokalnie.</p>
+
 <h3>Zapisywanie systemu, planety lub bieżącej pozycji</h3>
 <ul>
 <li>„★ Zapisz bieżący system” zapisuje bieżący system bez współrzędnych powierzchniowych.</li>
@@ -386,6 +404,7 @@ HELP_TOPICS = {
 <p>„Użyj ostatniego zrzutu ekranu” przy każdym kliknięciu ponownie odczytuje skonfigurowany folder źródłowy zrzutów ekranu i szuka czytelnych zrzutów o nazwach typowych dla Elite. Bez ustawionego folderu uwzględniane są standardowe katalogi zrzutów Elite w Windows lub Steam/Proton. Przeszukiwany jest też folder aktywnego dowódcy w skonfigurowanym miejscu docelowym konwersji, aby znaleźć pasujące przekonwertowane zrzuty Elite. Dzięki temu przekonwertowany zrzut można znaleźć nawet po usunięciu jego oryginalnego BMP. O najnowszym czasie wykonania decyduje jednoznaczny znacznik czasu w nazwie pliku, a w przeciwnym razie czas pliku; dla obrazów po konwersji liczy się czas wykonania zapisany w nazwie, a nie czas konwersji. CMDRHelper sam nie wykonuje zrzutów ekranu ani nie przeszukuje dowolnych folderów z obrazami.</p>
 <p>Przed użyciem wyświetlane są nazwa pliku, czas wykonania i świeżo wczytany podgląd. Potwierdź przyciskiem „Użyj tego obrazu”. Jeśli nie znaleziono odpowiedniego zrzutu, nadal możesz użyć „Wybierz obraz …”. Zrzuty BMP z Elite są zapisywane jako wewnętrzna kopia PNG.</p>
 <p>Obraz można zastąpić w oknie edycji lub odznaczyć przyciskiem „Usuń obraz”. Zapis usuwa nieużywaną już kopię wewnętrzną. Jeśli brakuje pliku obrazu, ulubiony pozostaje użyteczny bez podglądu.</p>
+<p>Obrazy ulubionych mogą być eksportowane i są kopiowane lokalnie przy imporcie. Współdzielone kopie wewnętrzne pozostają, dopóki potrzebuje ich inny ulubiony. Gdy import zastępuje ulubione, stare pliki obrazów są obecnie zachowywane dla ostrożności.</p>
 
 <h3>Cel ulubionego i dowódca</h3>
 <p>„▶ Do trasy” ustawia znany system ulubionego jako cel w planerze tras. Punkt początkowy korzysta z aktualnego AppState zgodnie z dotychczasowym zachowaniem; ręcznie wpisany początek zostaje zachowany. Trasa nie jest obliczana automatycznie. „◎ Do współrzędnych” uruchamia istniejącą nawigację planetarną do miejsca na powierzchni z istniejącym HUD, jeśli zapisano system, ciało niebieskie i prawidłowe współrzędne. Podróż do systemu i nawigacja po powierzchni to dwa oddzielne kroki bez automatycznej sekwencji podróży. Bez współrzędnych powierzchniowych dostępna jest tylko trasa; działania bez wymaganych danych są ukrywane.</p>
@@ -1367,3 +1386,5 @@ CLOSE_LABEL = 'Zamknij'
 
 # Database update guidance; help itself remains version independent.
 HELP_TOPICS["overview"] = (HELP_TOPICS["overview"][0], HELP_TOPICS["overview"][1] + '<h3>Wymagana aktualizacja bazy danych</h3><p>Aktualizacja bazy poprawia stare zapisane powiązania gwiazd, planet i księżyców. Dzienniki są tylko odczytywane. Najpierw zamknij Elite Dangerous i w miarę możliwości udostępnij historyczne dzienniki. Wcześniej powstaje pełna kopia bazy CMDRHelper; w razie błędu zmiany są wycofywane, a kopia jest przywracana, jeśli to konieczne. Kopia pozostaje jako zabezpieczenie. Anuluj pozwala odłożyć aktualizację.</p>')
+
+HELP_TOPICS["settings"] = (HELP_TOPICS["settings"][0], HELP_TOPICS["settings"][1] + '<h3>Diagnostyka i logi</h3><p>W Ustawienia → Diagnostyka i logi możesz otworzyć log lub utworzyć pakiet diagnostyczny. Logi znajdują się w logs/ w katalogu instalacji (cmdrhelper.log i do czterech starszych plików). ZIP zawiera oczyszczone logi techniczne, system_info.json i diagnose_summary.txt; bez dzienników, bazy danych, danych FID/dowódcy, danych logowania, ulubionych i obrazów. Ścieżki osobiste są zastępowane symbolami. Treść starych logów sprzed wprowadzenia filtrowania prywatności jest pomijana. Wybierz miejsce zapisu ZIP i w razie potrzeby przekaż go pomocy technicznej; nigdy nie jest wysyłany automatycznie.</p>')

@@ -30,12 +30,12 @@ HELP_TOPICS = {
 <p>De voorraad wordt op de achtergrond automatisch bijgewerkt. Bevestigde nieuwe vondsten kunnen kort worden gemarkeerd. Bij een commanderwissel worden oude voorraden direct verwijderd. Subtabbladen, filters, kolombreedtes en kolomvolgorde worden voor Odyssey afzonderlijk opgeslagen.</p>
 <h3>Mining</h3>
 <p>Materialen → Mining is het centrale overzicht van de 57 momenteel bekende verhandelbare mijnbouwgoederen, los van engineeringmaterialen. Eén tabel bevat zowel planetaire oppervlaktewinning als mijnbouw in asteroïden/ringen. De vaste richtprijzen zijn alleen ter oriëntatie, geen live marktprijzen.</p>
-<p><b>Kolommen</b><br><b>Grondstof:</b> naam van het goed of de grondstof.<br><b>Schip/SRV:</b> betrouwbaar bekende voorraad in het momenteel relevante voertuig.<br><b>Carrier:</b> voorraad op je eigen carrier; Elite levert geen volledige persoonlijke inventaris, dus de beginvoorraad moet handmatig worden bevestigd.<br><b>Totaal:</b> schip/SRV + carrier, alleen als beide hoeveelheden bekend zijn. Onbekend wordt niet als 0 opgeteld.<br><b>Gem. prijs Cr/t:</b> vaste richtwaarde, zonder garantie voor de actuele verkoopprijs. Ontbrekende richtprijzen blijven onbekend.<br><b>Waardeklasse:</b> HOOG vanaf 100.000 Cr/t; GEMIDDELD bij 25.000–99.999 Cr/t; LAAG onder 25.000 Cr/t. Bij een onbekende prijs is er geen waardeklasse.</p>
+<p><b>Kolommen</b><br><b>Grondstof:</b> naam van het goed of de grondstof.<br><b>SRV:</b> geverifieerde voorraad in de SRV.<br><b>Schip:</b> geverifieerde voorraad in het schip.<br><b>Carrier:</b> voorraad op je eigen carrier; Elite levert geen volledige persoonlijke inventaris, dus de beginvoorraad moet handmatig worden bevestigd.<br><b>Totaal:</b> SRV + Schip + Carrier, alleen als alle drie voorraden bekend zijn. Anders —; onbekend is niet nul.<br><b>Gem. prijs Cr/t:</b> vaste richtwaarde, zonder garantie voor de actuele verkoopprijs. Ontbrekende richtprijzen blijven onbekend.<br><b>Waardeklasse:</b> HOOG vanaf 100.000 Cr/t; GEMIDDELD bij 25.000–99.999 Cr/t; LAAG onder 25.000 Cr/t. Bij een onbekende prijs is er geen waardeklasse.</p>
 <p><b>Carriervoorraad bevestigen</b><br>Elite Dangerous levert CMDRHelper geen volledige persoonlijke carrierinventaris. Zo stel je een bekend uitgangspunt voor een goed vast: 1. Dubbelklik op de carriercel. 2. Voer de huidige voorraad in als geheel getal van 0 of meer. 3. Pas de waarde toe om deze handmatig te bevestigen. 4. CMDRHelper volgt daarna automatisch ondubbelzinnige CargoTransfer-gebeurtenissen tussen je schip en je eigen carrier. De tooltip toont de handmatige bevestiging en eventuele latere bijwerking.</p>
 <p><b>— = voorraad onbekend</b><br>Zonder bevestigde beginvoorraad leveren afzonderlijke overdrachten geen betrouwbare absolute carriervoorraad op. Je kunt een waarde altijd met een dubbelklik wijzigen, corrigeren of terugzetten op onbekend. Als een overdracht een tegenstrijdig of negatief resultaat zou opleveren, wordt de voorraad weer onbekend en moet deze opnieuw handmatig worden bevestigd.</p>
-<p><b>Schip en SRV</b><br>CMDRHelper gebruikt geverifieerde vrachtgegevens. Schip en SRV worden niet opgeteld: de tabel toont de voorraad van het relevante voertuig. Volledige vrachtsnapshots hebben voorrang op voorraden berekend uit afzonderlijke wijzigingen.</p>
-<p><b>↻ Vernieuwen</b><br>De knop leest de huidige vracht van schip/SRV opnieuw als handmatige controle en verversing. Normale live-updates blijven automatisch werken. Handmatig bevestigde carrierwaarden worden niet verwijderd. Groen betekent gereed of geslaagd, de kleuranimatie toont een lopende verversing en rood een mislukte poging. Ontbrekende of niet verifieerbare gegevens worden niet als lege voorraad weergegeven.</p>
-<p><b>Filters combineren</b><br>Zoeken filtert grondstoffen op naam. De waardeklasse biedt Alle, HOOG, GEMIDDELD en LAAG; herkomst biedt Alle, Planetaire mijnbouw en Asteroïden/Ringen. Alleen op voorraad toont alleen goederen met betrouwbaar bekende positieve voorraad. Positieve schip-/SRV-voorraad blijft zichtbaar bij onbekende carriervoorraad. Zoeken, waardeklasse, herkomst en voorraadfilter zijn combineerbaar.</p>
+<p><b>Schip en SRV</b><br>SRV- en scheepsvoorraden worden afzonderlijk opgebouwd uit geverifieerde vrachtgegevens. Onbekende voorraden blijven —. Volledige vrachtmomentopnamen hebben voorrang op berekende wijzigingen.</p>
+<p><b>↻ Vernieuwen</b><br>SRV-voorraad en scheepsvoorraad worden afzonderlijk bijgewerkt met geverifieerde gegevens. Bevestigde carriervoorraad blijft onafhankelijk daarvan behouden. Normale live-updates blijven automatisch werken. Groen betekent gereed of geslaagd, de kleuranimatie toont een lopende verversing en rood een mislukte poging. Ontbrekende of niet verifieerbare gegevens worden niet als lege voorraad weergegeven.</p>
+<p><b>Filters combineren</b><br>Zoeken filtert grondstoffen op naam. De waardeklasse biedt Alle, HOOG, GEMIDDELD en LAAG; herkomst biedt Alle, Planetaire mijnbouw en Asteroïden/Ringen. ‘Alleen op voorraad’ toont een goed zodra ten minste één bekende voorraad in SRV, schip of carrier positief is. Onbekende voorraden tellen niet als 0 en verbergen geen bekende positieve voorraad op een andere locatie. Zoeken, waardeklasse, herkomst en voorraadfilter zijn combineerbaar.</p>
 <p><b>ABBAU ×N in de verkenner</b><br>Een klik opent Materialen → Mining en zet het herkomstfilter automatisch op Planetaire mijnbouw. Er is geen tweede Mining-tabel in de verkenner.</p>
 <p><b>Sortering en breedtes</b><br>Klik op kolomkoppen om oplopend of aflopend te sorteren. Voorraden en prijzen worden numeriek gesorteerd, met onbekende waarden achteraan. Sleep kolomgrenzen met de muis om breedtes aan te passen. Sortering, kolombreedtes en de filters voor waardeklasse, herkomst en Alleen op voorraad worden opgeslagen.</p>
 <p><b>Herkomst</b><br>Surface betekent planetaire oppervlaktewinning; Asteroid betekent mijnbouw in asteroïden/ringen. Sommige grondstoffen komen uit beide omgevingen (Both) en verschijnen in beide passende herkomstfilters.</p>""",
@@ -228,7 +228,7 @@ HELP_TOPICS = {
               '<p>Het display toont onder meer lichaamstype, afstand en – indien beschikbaar – '
               'scan- en cartografiewaarden, evenals speciale verkenningseigenschappen.</p>\n'
               '\n'
-              '<h3>BIOLOGISCH ×N</h3>\n'
+              '<h3>BIO ×N</h3>\n'
               '<p>BIO ×N geeft het aantal biologische signalen van een lichaam aan dat door het '
               'spel wordt gerapporteerd.</p>\n'
               '<p>Het getal geeft in eerste instantie alleen aan hoeveel biologische signalen of '
@@ -292,7 +292,7 @@ HELP_TOPICS = {
               '</ul>\n'
               '<p>‘Al in kaart gebracht tijdens jouw scan’ wordt los van ontdekking beoordeeld. Ontbrekende informatie blijft Onbekend. Een al ontdekt hemellichaam kan bij de scan nog ongekarteerd zijn geweest. Je eigen kartering bevestigt geen officiële First Mapping-tag; na meerdere bezoeken is ook de volgorde ten opzichte van de opgeslagen scan niet altijd aangetoond.</p>\n<p>Na je eigen voltooide DSS-kartering worden het karteringstijdstip, gebruikte sondes en efficiëntiedoel betrouwbaar opgeslagen. Latere scans laten bestaande gegevens niet meer verloren gaan.</p>\n'
               '\n'
-              '<h3>Landelijke bar</h3>\n'
+              '<h3>Landing mogelijk</h3>\n'
               '<p>De landbaarheidsindicator identificeert lichamen waarop, volgens bekende '
               'gegevens, landen mogelijk is.</p>\n'
               '\n'
@@ -307,15 +307,20 @@ HELP_TOPICS = {
               '<p>Het is met name geschikt om snel interessante of waardevolle instanties in een '
               'systeem te vergelijken.</p>\n'
               '\n'
-              '<h3>BIOLOGISCH / GEO / DEGRADATIE</h3>\n'
-              '<p>Deze visie groepeert lichamen met biologische, geologische of planetaire '
-              'degradatiesignalen.</p>\n'
+              '<h3>BIO / GEO / ABBAU</h3>\n'
+              '<p>Deze weergave groepeert hemellichamen met biologische, geologische of planetaire '
+              'mijnbouwsignalen.</p>\n'
               '<p>Dit betekent dat interessante lichamen niet individueel in de volledige '
               'systeemkaart hoeven te worden opgezocht.</p>\n'
               '<p>Als u over uw eigen mijnbouwgegevens beschikt, kunnen uw persoonlijke '
               'mijnvondsten ook zichtbaar zijn.</p>\n'
               '<p>Handmatig aangepaste kolombreedtes van de gezamenlijke Explorer-tabel BIO / GEO / ABBAU blijven na heropenen en herstarten behouden. Opgeslagen popupkolommen worden robuuster hersteld; ongeldige waarden vallen terug op veilige standaardbreedtes.</p>\n\n'
-              '<h3>Lichaamsdetail</h3>\n'
+              '<h3>De tabellen gebruiken</h3>\n<p>Klik in de waardelijst en BIO / GEO / ABBAU op een kolomkop '
+              'om te sorteren; klik opnieuw om de richting om te keren. Sleep kolomgrenzen met de muis om de '
+              'breedte te wijzigen. Sortering en kolombreedtes worden voor elke tabel afzonderlijk opgeslagen. '
+              'Namen van hemellichamen worden natuurlijk gesorteerd, bijvoorbeeld A 2 vóór A 10. Afstanden, '
+              'credits en aantallen worden numeriek gesorteerd. Status, analyse en bezocht worden op hun '
+              'betekenis gesorteerd, niet alfabetisch.</p>\n\n<h3>Lichaamsdetail</h3>\n'
               '<p>Als u op een lichaam klikt, wordt de detailweergave geopend.</p>\n'
               '<p>Voor zover bekend kan daar het volgende voorkomen:</p>\n'
               '<ul>\n'
@@ -353,7 +358,7 @@ HELP_TOPICS = {
               '<p>Reeds verkochte cartografische gegevens mogen na reconstructie niet meer als '
               'open worden weergegeven.</p>\n'
               '\n'
-              '<h3>Showauto</h3>\n'
+              '<h3>Automatisch tonen</h3>\n'
               '<p>Ondersteunde Explorer-hints zoals Waardevolle Lichamen of BIO-vondsten kunnen '
               'automatisch worden weergegeven met behulp van de schakelaars in de '
               'linkerzijbalk.</p>\n'
@@ -379,6 +384,19 @@ HELP_TOPICS = {
 <p>De schuifbare lijst, alfabetisch gesorteerd op naam, toont naam, type, systeem, waar van toepassing hemellichaam en breedte-/lengtegraad, categorie en een kleine afbeeldingsvoorvertoning. Vrij zoeken, het typefilter en het categoriefilter kunnen samen worden gebruikt. De zoekopdracht doorzoekt naam, systeem, hemellichaam en notitie.</p>
 <p>‘Openen / Tonen’ toont de opgeslagen gegevens, de notitie en een grotere afbeeldingsvoorvertoning. ‘In Explorer tonen’ opent het bestaande systeemoverzicht of de detailweergave van het hemellichaam als de favoriet bij het huidige Explorer-systeem hoort en bijpassende gegevens beschikbaar zijn. Voor andere systemen blijven de opgeslagen favorietgegevens zichtbaar; er wordt geen systeemroute berekend.</p>
 
+<h3>Afstandsfilter</h3>
+<p>‘Afstandsfilter’ staat standaard uit. ‘Max. afstand:’ staat aanvankelijk op 500 ly, instelbaar van 1 tot 100.000 ly. De afstand wordt gemeten vanaf het momenteel bekende systeem met lokaal beschikbare systeemcoördinaten. Alleen voor dit filter wordt geen live-aanvraag gedaan.</p>
+<p>Favorieten met een bekende afstand buiten de grens worden verborgen. Favorieten met onbekende afstand blijven zichtbaar. Ontbreken de coördinaten van het huidige systeem, dan verbergt het afstandsfilter geen vermeldingen. Zoeken en de type- en categoriefilters blijven gelden. Na een systeemwissel wordt automatisch opnieuw gefilterd. De schakelaar en maximale afstand worden opgeslagen.</p>
+
+<h3>Favorieten exporteren</h3>
+<p>‘Exporteren’ maakt een draagbaar ZIP-bestand met alle favorieten van de actieve commander, niet alleen de vermeldingen die zichtbaar zijn door zoeken of type-, categorie- en afstandsfilters. favorites.json bevat de gestructureerde favorietgegevens; beschikbare afbeeldingen staan onder images/. Het pakket kan tussen Linux en Windows worden overgebracht.</p>
+<p>Bestaande favorieten en originele afbeeldingen blijven ongewijzigd. Afbeeldingen met dezelfde inhoud worden slechts eenmaal opgeslagen. Ontbrekende of beschadigde afbeeldingen verhinderen de export van favorietgegevens niet. Import en export staan maximaal 32 MiB per bestand en 256 MiB in totaal aan ongecomprimeerde pakketinhoud toe.</p>
+
+<h3>Favorieten importeren</h3>
+<p>‘Importeren’ controleert eerst het ZIP-bestand en toont vóór wijzigingen een overzicht van nieuwe en bestaande favorieten. Geïmporteerde favorieten worden toegewezen aan de momenteel actieve commander. Duplicaten worden herkend aan type, categorie, naam en locatie: bekende systeem-/hemellichaam-ID’s en coördinaten, anders systeem-/hemellichaamnamen. Ook duplicaten binnen het pakket tellen mee.</p>
+<p>Eén keuze geldt voor alle gevonden duplicaten: ‘Overslaan’ is de standaard en behoudt bestaande vermeldingen; ‘Bestaande favoriet vervangen’ past de geïmporteerde gegevens toe op de bestaande favoriet; ‘Als nieuw item importeren’ maakt een extra vermelding. Annuleren importeert niets.</p>
+<p>Ongeldige favorietgegevens blokkeren de volledige import. Bij een importfout worden databasewijzigingen teruggedraaid om een gedeeltelijke import te voorkomen. Ontbrekende of beschadigde afbeeldingen verhinderen de import van geldige gegevens niet; die favorieten worden zonder afbeelding geïmporteerd. CMDRHelper beheert geïmporteerde afbeeldingen lokaal.</p>
+
 <h3>Een systeem, planeet of huidige locatie opslaan</h3>
 <ul>
 <li>‘★ Huidig systeem opslaan’ slaat het huidige systeem op zonder oppervlaktecoördinaten.</li>
@@ -399,6 +417,7 @@ HELP_TOPICS = {
 <p>‘Laatste screenshot gebruiken’ leest bij elke klik de ingestelde screenshotbronmap opnieuw in en zoekt leesbare screenshots met typische Elite-bestandsnamen. Zonder instelling worden de gebruikelijke Elite-screenshotmappen onder Windows of Steam/Proton meegenomen. Ook de map van de actieve commander in de ingestelde conversiebestemming wordt doorzocht op bijpassende geconverteerde Elite-screenshots. Zo blijft een geconverteerd screenshot vindbaar als de oorspronkelijke BMP is verwijderd. De nieuwste opnametijd wordt bepaald door een ondubbelzinnige tijdsaanduiding in de bestandsnaam, anders door de bestandstijd; bij geconverteerde afbeeldingen telt de opnametijd in de naam in plaats van het conversietijdstip. CMDRHelper maakt zelf geen screenshots en doorzoekt geen willekeurige afbeeldingsmappen.</p>
 <p>Vóór gebruik worden bestandsnaam, opnametijd en een vers geladen voorvertoning getoond. Bevestig met ‘Deze afbeelding gebruiken’. Als geen geschikt screenshot wordt gevonden, kun je nog steeds ‘Afbeelding kiezen …’ gebruiken. Elite-BMP-screenshots worden als interne PNG-kopie opgeslagen.</p>
 <p>Een afbeelding kan in het bewerkingsvenster worden vervangen of met ‘Afbeelding verwijderen’ worden gedeselecteerd. Bij het opslaan wordt de niet meer gebruikte interne kopie verwijderd. Ontbreekt een afbeeldingsbestand, dan blijft de favoriet zonder voorvertoning bruikbaar.</p>
+<p>Favorietafbeeldingen kunnen worden geëxporteerd en worden bij import lokaal gekopieerd. Gedeelde interne afbeeldingskopieën blijven bewaard zolang een andere favoriet ze nodig heeft. Als een import favorieten vervangt, blijven oude afbeeldingsbestanden momenteel uit voorzorg bewaard.</p>
 
 <h3>Favorietdoel en commander</h3>
 <p>‘▶ Naar route’ stelt het bekende systeem van de favoriet in als bestemming in de routeplanner. Het vertrek volgt het bestaande gedrag met de huidige AppState; een handmatig ingevoerd vertrek blijft behouden. Er wordt geen route automatisch berekend. ‘◎ Naar coördinaten’ start de bestaande planeetnavigatie naar de oppervlaktelocatie met de bestaande HUD als systeem, hemellichaam en geldige coördinaten zijn opgeslagen. De reis naar het systeem en oppervlaktenavigatie zijn twee afzonderlijke stappen, zonder automatische reisvolgorde. Zonder oppervlaktecoördinaten is alleen de route beschikbaar; acties waarvoor vereiste gegevens ontbreken worden verborgen.</p>
@@ -1404,3 +1423,5 @@ CLOSE_LABEL = 'Sluiten'
 
 # Database update guidance; help itself remains version independent.
 HELP_TOPICS["overview"] = (HELP_TOPICS["overview"][0], HELP_TOPICS["overview"][1] + '<h3>Database-update vereist</h3><p>De database-update corrigeert oude opgeslagen relaties tussen sterren, planeten en manen. Journalen worden uitsluitend gelezen. Sluit Elite Dangerous eerst af en stel waar mogelijk historische journalen beschikbaar. Er wordt vooraf een volledige reservekopie van de CMDRHelper-database gemaakt; bij fouten worden wijzigingen teruggedraaid en wordt zo nodig de reservekopie hersteld. Deze blijft bewaard voor de veiligheid. Met Annuleren kun je de update uitstellen.</p>')
+
+HELP_TOPICS["settings"] = (HELP_TOPICS["settings"][0], HELP_TOPICS["settings"][1] + '<h3>Diagnose en logboeken</h3><p>Via Instellingen → Diagnose en logboeken kun je het logbestand openen of een diagnosepakket maken. De logboeken staan in logs/ in de installatiemap (cmdrhelper.log en maximaal vier oudere bestanden). Het ZIP-bestand bevat opgeschoonde technische logboeken, system_info.json en diagnose_summary.txt; geen journals, database, FID-/commandantgegevens, inloggegevens, favorieten of afbeeldingen. Persoonlijke paden worden vervangen door aanduidingen. De inhoud van oude logs van vóór het privacyfilter wordt weggelaten. Kies waar je het ZIP-bestand opslaat en deel het zo nodig met support; het wordt nooit automatisch verzonden.</p>')

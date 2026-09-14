@@ -13,6 +13,42 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper est une application de bureau autonome qui analyse les journaux locaux d’Elite Dangerous et utilise les données de position planétaire de `Status.json`. Elle t’aide à repérer les corps intéressants, à retrouver des lieux enregistrés et à consulter tes voyages et découvertes. Les données personnelles sont conservées après un redémarrage et séparées par commandant.
 
+## 🚀 Démarrage rapide
+
+Téléchargez le **ZIP de la dernière version de CMDRHelper** (`CMDRHelper_v*.zip`) depuis [GitHub Releases](https://github.com/Faber38/CMDRHelper/releases/latest), sous **Assets**, et extrayez entièrement le ZIP dans un dossier dédié.
+
+### Windows
+
+1. Exécutez **`install.bat` une seule fois** dans le dossier extrait. Il configure l’environnement Python local (`venv`) et les dépendances. Si aucun Python adapté n’est disponible, il peut l’installer automatiquement via `winget` avec votre accord ; `winget` doit être disponible.
+2. Après l’installation, lancez **`start.bat`**. Utilisez aussi ce fichier pour les démarrages suivants.
+
+### Linux
+
+Python **3.10 ou ultérieur** et le module `venv` correspondant doivent déjà être installés. Ouvrez un terminal dans le dossier extrait et exécutez une fois :
+
+```bash
+bash install.sh
+```
+
+Le script configure l’environnement local et les dépendances ; il n’installe pas de paquets système. Lancez ensuite CMDRHelper, ainsi que lors des démarrages suivants, avec **`bash start.sh`**.
+
+### Premier démarrage et mises à jour
+
+Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsque c’est possible. S’il est absent ou incorrect, sélectionnez-le dans les **Paramètres**.
+
+CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
+
+## Nouveautés de la version 3.4.3
+
+- Favoris enrichis : filtre de distance et export/import ZIP portable avec les images.
+- Triez les tableaux Explorer et mémorisez séparément leur tri et la largeur des colonnes.
+- Le minage distingue SRV, vaisseau, porte-vaisseaux et total ; le filtre de stock tient compte des trois réserves.
+- Paquets de diagnostic et journaux rotatifs respectueux des données pour le support, sans envoi automatique.
+- Mise à niveau sûre de la base directement depuis les anciennes versions ; les sauvegardes de migration restent conservées dans la version qui les a créées.
+- Utilisation améliorée, aide actualisée et points clairement cliquables sur la carte de la chronique.
+
+Le filtre de distance est initialement désactivé (500 al par défaut), utilise les coordonnées locales et se réactualise lors d’un changement de système. L’export des favoris contient favorites.json et les images disponibles ; les doublons peuvent être ignorés, remplacés ou importés comme nouveaux éléments. La liste des valeurs et les tableaux BIO/GEO/MINAGE proposent un tri naturel, numérique et sémantique. Il n’est pas nécessaire d’installer d’abord la version 3.4.1.
+
 ## Nouveautés de la version 3.4.1
 
 - Correction des anciennes hiérarchies de systèmes enregistrées

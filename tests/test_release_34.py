@@ -19,7 +19,7 @@ class Release34Tests(unittest.TestCase):
         self.addCleanup(set_language, get_language())
 
     def test_central_version_and_publisher_agree(self):
-        self.assertEqual(__version__, '3.4.1')
+        self.assertRegex(__version__, r'^\d+\.\d+(?:\.\d+)?$')
         self.assertEqual(cmdrhelper.__version__, __version__)
         self.assertEqual(version_at(ROOT), __version__)
 

@@ -30,12 +30,12 @@ HELP_TOPICS = {
 <p>El inventario se actualiza automáticamente en segundo plano. Las nuevas recogidas confirmadas pueden resaltarse brevemente. Al cambiar de comandante, las existencias anteriores se retiran inmediatamente. Las subpestañas, los filtros, las anchuras y el orden de las columnas se guardan por separado para Odyssey.</p>
 <h3>Mining</h3>
 <p>Materiales → Mining es la vista central de las 57 mercancías mineras comerciables conocidas actualmente, separadas de los materiales de ingeniería. Una sola tabla reúne la extracción en superficies planetarias y en asteroides/anillos. Los precios de referencia fijos son orientativos, no precios de mercado en directo.</p>
-<p><b>Columnas</b><br><b>Mercancía:</b> nombre de la mercancía o recurso.<br><b>Nave/SRV:</b> existencias conocidas con certeza en el vehículo actualmente relevante.<br><b>Portanaves:</b> existencias en tu propio carrier; Elite no proporciona un inventario personal completo, por lo que debes confirmar manualmente las existencias iniciales.<br><b>Total:</b> nave/SRV + carrier, solo si ambas cantidades son conocidas. Un valor desconocido no se suma como 0.<br><b>Precio medio Cr/t:</b> referencia fija, sin garantía del precio de venta actual. Los precios ausentes permanecen desconocidos.<br><b>Clase de valor:</b> ALTA desde 100.000 Cr/t; MEDIA entre 25.000–99.999 Cr/t; BAJA por debajo de 25.000 Cr/t. Un precio desconocido no tiene clase de valor.</p>
+<p><b>Columnas</b><br><b>Mercancía:</b> nombre de la mercancía o recurso.<br><b>SRV:</b> existencias verificadas en el SRV.<br><b>Nave:</b> existencias verificadas en la nave.<br><b>Portanaves:</b> existencias en tu propio carrier; Elite no proporciona un inventario personal completo, por lo que debes confirmar manualmente las existencias iniciales.<br><b>Total:</b> SRV + Nave + Carrier, solo si se conocen las tres cantidades. En caso contrario —; desconocido no es cero.<br><b>Precio medio Cr/t:</b> referencia fija, sin garantía del precio de venta actual. Los precios ausentes permanecen desconocidos.<br><b>Clase de valor:</b> ALTA desde 100.000 Cr/t; MEDIA entre 25.000–99.999 Cr/t; BAJA por debajo de 25.000 Cr/t. Un precio desconocido no tiene clase de valor.</p>
 <p><b>Confirmar existencias del carrier</b><br>Elite Dangerous no entrega a CMDRHelper un inventario personal completo del carrier. Para establecer una base conocida de una mercancía: 1. Haz doble clic en su celda Carrier. 2. Introduce las existencias actuales como entero mayor o igual que 0. 3. Aplica el valor para confirmarlo manualmente. 4. CMDRHelper sigue después automáticamente los eventos CargoTransfer inequívocos entre tu nave y tu propio carrier. La descripción emergente muestra la confirmación manual y el seguimiento posterior, si lo hay.</p>
 <p><b>— = existencias desconocidas</b><br>Sin una cantidad inicial confirmada, las transferencias aisladas no permiten calcular unas existencias absolutas fiables. Puedes hacer doble clic en cualquier momento para cambiar, corregir o restablecer el valor a desconocido. Si una transferencia produjera un resultado contradictorio o negativo, las existencias vuelven a ser desconocidas y deben confirmarse manualmente de nuevo.</p>
-<p><b>Nave y SRV</b><br>CMDRHelper utiliza datos de carga verificados. Nave y SRV no se suman: la tabla muestra las existencias del vehículo relevante. Las instantáneas completas de carga tienen prioridad sobre las cantidades calculadas a partir de cambios individuales.</p>
-<p><b>↻ Actualizar</b><br>El botón vuelve a leer la carga actual de la nave/SRV como comprobación y actualización manual. Las actualizaciones automáticas continúan normalmente. No se borran los valores del carrier confirmados manualmente. Verde significa listo o correcto, la animación de color indica una actualización en curso y rojo un intento fallido. Los datos ausentes o no verificables no se presentan como existencias vacías.</p>
-<p><b>Combinar filtros</b><br>La búsqueda filtra recursos por nombre. La clase ofrece Todos, ALTA, MEDIA y BAJA; el origen ofrece Todos, Minería planetaria y Asteroides/Anillos. Solo con existencias muestra solo mercancías con existencias positivas conocidas con certeza. Las existencias positivas en nave/SRV siguen visibles aunque las del carrier sean desconocidas. Búsqueda, clase, origen y filtro de existencias se pueden combinar.</p>
+<p><b>Nave y SRV</b><br>Las existencias del SRV y de la nave se reconstruyen por separado a partir de datos de carga verificados. Las cantidades desconocidas siguen como —. Las instantáneas completas tienen prioridad sobre los cambios calculados.</p>
+<p><b>↻ Actualizar</b><br>Las existencias del SRV y de la nave se actualizan por separado con datos verificados. Las existencias confirmadas del carrier se conservan independientemente. Las actualizaciones automáticas continúan normalmente. Verde significa listo o correcto, la animación de color indica una actualización en curso y rojo un intento fallido. Los datos ausentes o no verificables no se presentan como existencias vacías.</p>
+<p><b>Combinar filtros</b><br>La búsqueda filtra recursos por nombre. La clase ofrece Todos, ALTA, MEDIA y BAJA; el origen ofrece Todos, Minería planetaria y Asteroides/Anillos. «Solo con existencias» muestra una mercancía si al menos una cantidad conocida en el SRV, la nave o el carrier es positiva. Las cantidades desconocidas no cuentan como 0 ni ocultan una cantidad positiva conocida en otro lugar. Búsqueda, clase, origen y filtro de existencias se pueden combinar.</p>
 <p><b>ABBAU ×N en el explorador</b><br>Un clic abre Materiales → Mining y establece automáticamente el filtro de origen en Minería planetaria. No hay una segunda tabla Mining en el explorador.</p>
 <p><b>Orden y anchuras</b><br>Haz clic en las cabeceras para ordenar de forma ascendente o descendente. Existencias y precios se ordenan numéricamente, con los valores desconocidos al final. Arrastra los límites de las columnas para ajustar su anchura. Se guardan el orden, las anchuras y los filtros de clase, origen y Solo con existencias.</p>
 <p><b>Origen</b><br>Surface significa extracción en superficies planetarias; Asteroid, minería en asteroides/anillos. Algunos recursos proceden de ambos entornos (Both) y aparecen en los dos filtros de origen correspondientes.</p>""",
@@ -228,7 +228,7 @@ HELP_TOPICS = {
               'están disponibles, los valores de escaneo y cartografía, así como propiedades '
               'especiales de exploración.</p>\n'
               '\n'
-              '<h3>ORGÁNICO ×N</h3>\n'
+              '<h3>BIO ×N</h3>\n'
               '<p>BIO ×N denota el número de señales biológicas de un cuerpo reportadas por el '
               'juego.</p>\n'
               '<p>Inicialmente, el número sólo indica cuántas señales biológicas o géneros se '
@@ -292,7 +292,7 @@ HELP_TOPICS = {
               '</ul>\n'
               '<p>«Ya cartografiado al realizar tu escaneo» se evalúa por separado del descubrimiento. Los datos ausentes permanecen como Desconocido. Un cuerpo ya descubierto podía no estar cartografiado al escanearlo. Tu cartografiado no confirma una etiqueta oficial First Mapping; tras varias visitas, tampoco siempre consta su orden respecto al escaneo guardado.</p>\n<p>Al finalizar tu propio cartografiado DSS se guardan de forma fiable la hora, las sondas utilizadas y el objetivo de eficiencia. Los escaneos posteriores ya no hacen perder los datos existentes.</p>\n'
               '\n'
-              '<h3>bar campestre</h3>\n'
+              '<h3>Aterrizaje posible</h3>\n'
               '<p>El indicador de aterrizabilidad identifica los cuerpos en los que, según datos '
               'conocidos, es posible aterrizar.</p>\n'
               '\n'
@@ -307,15 +307,19 @@ HELP_TOPICS = {
               '<p>Es particularmente adecuado para comparar rápidamente cuerpos interesantes o '
               'valiosos en un sistema.</p>\n'
               '\n'
-              '<h3>ORGÁNICO / GEO / DEGRADACIÓN</h3>\n'
-              '<p>Esta visión agrupa cuerpos con señales de degradación biológica, geológica o '
-              'planetaria.</p>\n'
+              '<h3>BIO / GEO / ABBAU</h3>\n'
+              '<p>Esta vista agrupa cuerpos con señales biológicas, geológicas o de minería planetaria.</p>\n'
               '<p>Esto significa que no es necesario buscar cuerpos interesantes individualmente '
               'en el mapa completo del sistema.</p>\n'
               '<p>Si tiene sus propios datos de minería a cielo abierto, sus hallazgos mineros '
               'personales también pueden ser visibles.</p>\n'
               '<p>Los anchos de columna ajustados manualmente en la tabla compartida BIO / GEO / ABBAU del Explorador se conservan al reabrir y reiniciar. La restauración de columnas de las ventanas emergentes es más robusta; los valores inválidos se sustituyen por anchos predeterminados seguros.</p>\n\n'
-              '<h3>Detalle del cuerpo</h3>\n'
+              '<h3>Uso de las tablas</h3>\n<p>En la lista de valores y BIO / GEO / ABBAU, pulsa una cabecera '
+              'para ordenar y vuelve a pulsarla para invertir el sentido. Arrastra los límites de las columnas '
+              'con el ratón para cambiar su anchura. El orden y las anchuras se guardan por separado para cada '
+              'tabla. Los nombres de cuerpos siguen un orden natural, por ejemplo A 2 antes de A 10. '
+              'Distancias, créditos y cantidades se ordenan numéricamente. Estado, análisis y visita se '
+              'ordenan por su significado, no alfabéticamente.</p>\n\n<h3>Detalle del cuerpo</h3>\n'
               '<p>Al hacer clic en un cuerpo se abre la vista detallada.</p>\n'
               '<p>Hasta donde se sabe, allí puede aparecer lo siguiente:</p>\n'
               '<ul>\n'
@@ -353,7 +357,7 @@ HELP_TOPICS = {
               '<p>Los datos cartográficos que ya se han vendido no deberían volver a aparecer '
               'abiertos después de la reconstrucción.</p>\n'
               '\n'
-              '<h3>mostrar auto</h3>\n'
+              '<h3>Mostrar automáticamente</h3>\n'
               '<p>Las sugerencias de Explorer compatibles, como Valuable Bodies o BIO Finds, se '
               'pueden mostrar automáticamente usando los interruptores en la barra lateral '
               'izquierda.</p>\n'
@@ -380,6 +384,19 @@ HELP_TOPICS = {
 <p>La lista desplazable, ordenada alfabéticamente por nombre, muestra el nombre, tipo, sistema, cuerpo y latitud/longitud cuando corresponda, categoría y una pequeña vista previa de imagen. La búsqueda de texto libre y los filtros de tipo y categoría se pueden combinar. La búsqueda abarca nombre, sistema, cuerpo y nota.</p>
 <p>«Abrir / Mostrar» muestra los datos guardados, la nota y una vista previa de imagen más grande. «Mostrar en Explorer» abre la vista general del sistema o los detalles del cuerpo existentes si el favorito pertenece al sistema actual del Explorer y hay datos correspondientes disponibles. Para otros sistemas siguen visibles los datos guardados del favorito; no se calcula ninguna ruta entre sistemas.</p>
 
+<h3>Filtro de distancia</h3>
+<p>«Filtro de distancia» está desactivado de forma predeterminada. «Distancia máx.:» tiene un valor inicial de 500 al, ajustable de 1 a 100.000 al. La distancia se refiere al sistema conocido actualmente y usa coordenadas de sistemas disponibles localmente. No se realizan consultas en directo solo para este filtro.</p>
+<p>Se ocultan los favoritos con distancia conocida superior al límite. Los de distancia desconocida siguen visibles. Si faltan las coordenadas del sistema actual, el filtro de distancia no oculta ninguna entrada. La búsqueda y los filtros de tipo y categoría siguen aplicándose. El filtrado se actualiza automáticamente al cambiar de sistema. Se guardan la activación y la distancia máxima.</p>
+
+<h3>Exportar favoritos</h3>
+<p>«Exportar» crea un ZIP portátil con todos los favoritos del comandante activo, no solo las entradas visibles mediante búsqueda o filtros de tipo, categoría y distancia. favorites.json contiene los datos estructurados de los favoritos; las imágenes disponibles se incluyen en images/. El paquete se puede transferir entre Linux y Windows.</p>
+<p>Los favoritos existentes y las imágenes originales no se modifican. Las imágenes con contenido idéntico se guardan una sola vez en el paquete. Las imágenes ausentes o dañadas no impiden exportar los datos. La importación y exportación admiten hasta 32 MiB por archivo y 256 MiB en total de contenido sin comprimir.</p>
+
+<h3>Importar favoritos</h3>
+<p>«Importar» comprueba primero el ZIP y muestra un resumen de favoritos nuevos y existentes antes de cambiar nada. Los favoritos importados se asignan al comandante activo en ese momento. Los duplicados se identifican por tipo, categoría, nombre y ubicación: identificadores conocidos de sistema/cuerpo y coordenadas, o nombres de sistema/cuerpo si faltan los identificadores. También se consideran los duplicados dentro del paquete.</p>
+<p>Una misma elección se aplica a todos los duplicados detectados: «Omitir» es la opción predeterminada y mantiene las entradas existentes; «Reemplazar el favorito existente» aplica los datos importados al favorito existente; «Importar como nueva entrada» crea una entrada adicional. Cancelar no importa nada.</p>
+<p>Los datos de favoritos no válidos bloquean toda la importación. Si se produce un error, se revierten los cambios en la base de datos para evitar una importación parcial. Las imágenes ausentes o dañadas no impiden importar datos válidos; esos favoritos se importan sin imagen. CMDRHelper gestiona localmente las imágenes importadas.</p>
+
 <h3>Guardar un sistema, planeta o la ubicación actual</h3>
 <ul>
 <li>«★ Guardar sistema actual» guarda el sistema actual sin coordenadas de superficie.</li>
@@ -400,6 +417,7 @@ HELP_TOPICS = {
 <p>«Usar última captura» vuelve a leer en cada clic la carpeta de origen de capturas configurada y busca capturas legibles con nombres de archivo típicos de Elite. Sin una configuración, se tienen en cuenta las carpetas habituales de capturas Elite en Windows o Steam/Proton. También se busca en la carpeta del comandante activo dentro del destino de conversión configurado para encontrar las capturas Elite convertidas correspondientes. Así puede encontrarse una captura convertida aunque se haya eliminado su BMP original. Para determinar la captura más reciente cuenta una fecha y hora inequívoca en el nombre de archivo o, en su defecto, la fecha del archivo; en las imágenes convertidas cuenta la hora de captura guardada en el nombre y no la hora de conversión. CMDRHelper no realiza capturas por sí mismo ni busca en carpetas de imágenes arbitrarias.</p>
 <p>Antes de usarla se muestran el nombre del archivo, la fecha y hora de captura y una vista previa recién cargada. Confirma con «Usar esta imagen». Si no se encuentra una captura adecuada, puedes seguir usando «Elegir imagen …». Las capturas BMP de Elite se guardan como una copia PNG interna.</p>
 <p>Puedes sustituir una imagen en el diálogo de edición o deseleccionarla con «Quitar imagen». Al guardar se elimina la copia interna que ya no se utiliza. Si falta un archivo de imagen, el favorito sigue siendo utilizable sin vista previa.</p>
+<p>Las imágenes de favoritos pueden incluirse en las exportaciones y se copian localmente al importar. Las copias internas compartidas se conservan mientras otro favorito las necesite. Al reemplazar favoritos mediante una importación, los archivos de imagen antiguos se conservan actualmente por precaución.</p>
 
 <h3>Destino del favorito y comandante</h3>
 <p>«▶ A la ruta» establece el sistema conocido del favorito como destino en el planificador. El inicio sigue el comportamiento existente usando el AppState actual; se conserva un inicio introducido manualmente. No se calcula ninguna ruta automáticamente. «◎ A las coordenadas» inicia la navegación planetaria existente al lugar en la superficie con el HUD existente si hay sistema, cuerpo y coordenadas válidas guardados. El viaje al sistema y la navegación en superficie son dos pasos separados, sin secuencia automática. Sin coordenadas de superficie solo está disponible la ruta; las acciones sin los datos necesarios se ocultan.</p>
@@ -1406,3 +1424,5 @@ CLOSE_LABEL = 'Cerrar'
 
 # Database update guidance; help itself remains version independent.
 HELP_TOPICS["overview"] = (HELP_TOPICS["overview"][0], HELP_TOPICS["overview"][1] + '<h3>Se requiere actualizar la base de datos</h3><p>La actualización corrige relaciones antiguas guardadas entre estrellas, planetas y lunas. Los diarios solo se leen. Cierra Elite Dangerous antes y proporciona diarios históricos siempre que sea posible. Se crea una copia completa de la base de datos de CMDRHelper; en caso de error se revierten los cambios y se restaura la copia si es necesario. La copia se conserva por seguridad. Cancelar permite posponer la actualización.</p>')
+
+HELP_TOPICS["settings"] = (HELP_TOPICS["settings"][0], HELP_TOPICS["settings"][1] + '<h3>Diagnóstico y registros</h3><p>En Ajustes → Diagnóstico y registros puedes abrir el registro o crear un paquete de diagnóstico. Los registros están en logs/ dentro de la carpeta de instalación (cmdrhelper.log y hasta cuatro archivos anteriores). El ZIP contiene registros técnicos depurados, system_info.json y diagnose_summary.txt; no diarios, base de datos, datos FID/del comandante, credenciales, favoritos ni imágenes. Las rutas personales se sustituyen por marcadores. Se omite el contenido de registros antiguos sin filtrado de privacidad. Elige dónde guardar el ZIP y compártelo con soporte si lo necesitas; nunca se envía automáticamente.</p>')

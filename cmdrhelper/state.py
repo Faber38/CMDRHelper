@@ -589,10 +589,7 @@ class AppState(QObject):
             except Exception as exc:
                 error_text = str(exc)
 
-                if automatic:
-                    logger.exception(
-                        "Automatischer Archivabgleich fehlgeschlagen"
-                    )
+                logger.exception("Journal archive import failed")
 
                 # Auch beim automatischen Startimport an die Oberfläche
                 # melden. So ist sofort sichtbar, in welcher Datei/Zeile

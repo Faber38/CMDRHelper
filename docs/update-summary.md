@@ -48,3 +48,13 @@ dem bestehenden Theme übernommen, die Buttons liegen außerhalb des Bereichs.
 Die Erweiterung wird erst von Installationen angezeigt, die diesen Dialogcode
 bereits enthalten; ein unveränderter älterer Client erhält keine neue UI allein
 durch die Release Notes.
+
+## 3.4.3
+
+Sechs neue Punkte in allen zwölf Sprachen (`release.3_4_3.0` bis `.5`):
+Favoriten mit Entfernungsfilter und portablem ZIP-Transfer inklusive Bildern,
+Explorer-Sortierung und gespeicherte Spaltenbreiten, getrennte Mining-Bestände,
+Diagnosepaket und datensparsame Logs, direkte Datenbank-Upgrades mit sicherer
+Backup-Aufbewahrung sowie Bedienungs-, Hilfe- und Chronikverbesserungen.
+Die Zuordnung steht zusätzlich zu den unveränderten historischen Einträgen in
+`RELEASE_SUMMARIES`. Es sind keine zukünftigen Funktionen enthalten.

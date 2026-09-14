@@ -1,4 +1,5 @@
 from __future__ import annotations
+from cmdrhelper.logging_config import logged_operation
 
 import argparse
 import json
@@ -141,6 +142,25 @@ def _log_update(
     message: str,
 ) -> None:
     """Schreibt eine dauerhafte Diagnose des Update-Ablaufs."""
+    # Updater messages may contain subprocess output and server errors. Keep
+    # only a closed set of phases in the legacy status log and main logger.
+    import logging
+    lowered = str(message).lower()
+    phase = next((name for word, name in (
+        ('fehl', 'failure'), ('rollback', 'rollback'), ('abbruch', 'aborted'),
+        ('neustart', 'restart'), ('backup', 'backup'), ('sicherung', 'backup'),
+        ('install', 'installation'), ('entpack', 'extract'), ('prüf', 'verification'),
+        ('gestartet', 'started'), ('aufgeräumt', 'cleanup'),
+    ) if word in lowered), 'progress')
+    restored = message == 'Rollback erfolgreich.'
+    message = 'Rollback erfolgreich.' if restored else 'Update phase: ' + phase
+    from cmdrhelper.logging_config import log_event
+    logger = logging.getLogger('cmdrhelper.update')
+    if sys.exc_info()[0] is not None and phase in ('failure', 'aborted'):
+        message += ' (' + sys.exc_info()[0].__name__ + ')'
+        logger.exception('Update step failed')
+    else:
+        log_event(logger, 'Update step', phase=phase, **({'restored': True} if restored else {}))
     try:
         log_dir = install_dir / "backup"
         log_dir.mkdir(
@@ -150,17 +170,16 @@ def _log_update(
 
         log_path = log_dir / "update.log"
 
-        timestamp = datetime.now().strftime(
-            "%Y-%m-%d %H:%M:%S"
-        )
-
-        with log_path.open(
-            "a",
-            encoding="utf-8",
-        ) as handle:
-            handle.write(
-                f"[{timestamp}] {message}\n"
-            )
+        # Preserve the updater's existing status-log path, but bound it too.
+        from cmdrhelper.logging_config import PrivacyRotatingFileHandler, PrivacyFormatter, LOG_MAX_BYTES
+        handler = PrivacyRotatingFileHandler(log_path, maxBytes=LOG_MAX_BYTES,
+                                             backupCount=1, encoding='utf-8')
+        handler.setFormatter(PrivacyFormatter('[%(asctime)s] %(message)s', datefmt='%Y-%m-%d %H:%M:%S'))
+        try:
+            handler.handle(logging.LogRecord('cmdrhelper.update', logging.INFO, __file__, 0,
+                                             message, (), None))
+        finally:
+            handler.close()
     except Exception:
         pass
 
@@ -233,6 +252,7 @@ def _request(
     )
 
 
+@logged_operation('Update check')
 def check_latest_release(
     owner: str = GITHUB_OWNER,
     repository: str = GITHUB_REPO,
@@ -367,6 +387,8 @@ def check_latest_release(
         "name": payload.get("name") or tag,
         "html_url": payload.get("html_url") or "",
         "published_at": payload.get("published_at") or "",
+        "prerelease": bool(payload.get("prerelease")),
+        "draft": bool(payload.get("draft")),
         "release_notes": payload.get("body") or "",
         "assets": assets,
         "asset_name": asset_name,
@@ -1024,6 +1046,7 @@ def _verify_restart(process: subprocess.Popen, timeout: float = 2.0) -> None:
     )
 
 
+@logged_operation('Update application')
 def apply_update(
     *,
     zip_path: Path,
@@ -1395,6 +1418,8 @@ def apply_update(
 
 
 def _main() -> int:
+    from cmdrhelper.logging_config import configure_logging
+    configure_logging()
     parser = argparse.ArgumentParser()
 
     parser.add_argument(

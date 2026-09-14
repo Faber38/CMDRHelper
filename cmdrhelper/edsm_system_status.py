@@ -1,4 +1,5 @@
 """Optional arrival notices. Requests are isolated by commander and stay generation."""
+import logging
 from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal, Slot
 from cmdrhelper.online_services import fetch_edsm_system_status
 from cmdrhelper.i18n import tr
@@ -30,7 +31,7 @@ class StatusWorker(QRunnable):
             try:
                 result = self.fetch(self.name, self.address)
             except Exception:
-                pass
+                logging.getLogger(__name__).exception("EDSM system status request failed")
         self.signals.finished.emit(self.generation, result)
 
 

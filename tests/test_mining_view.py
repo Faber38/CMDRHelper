@@ -87,12 +87,12 @@ class MiningViewTests(unittest.TestCase):
             self.assertEqual(self.visible_symbols(), {c.symbol for c in MINING_COMMODITIES
                 if origin == "all" or c.origin in (origin, "both")})
             self.assertIn("platinum", self.visible_symbols())
-        mining.set_inventory(MiningInventory(1, "F1", vehicle={"jadeite": 60, "platinum": 12, "benitoite": 7}))
+        mining.set_inventory(MiningInventory(1, "F1", srv={}, ship={"jadeite": 60, "platinum": 12, "benitoite": 7}))
         mining.set_origin_filter("surface")
         mining.only_stock.setChecked(True)
         self.assertEqual(self.visible_symbols(), {"jadeite", "platinum"})
-        self.assertEqual(mining.items["jadeite"].text(1), "60")
-        self.assertEqual(mining.items["jadeite"].text(4), "41.895")
+        self.assertEqual(mining.items["jadeite"].text(2), "60")
+        self.assertEqual(mining.items["jadeite"].text(5), "41.895")
         mining.search.setText("Jadeit")
         mining.class_filter.setCurrentIndex(mining.class_filter.findData(1))
         self.assertEqual(self.visible_symbols(), {"jadeite"})
@@ -103,15 +103,15 @@ class MiningViewTests(unittest.TestCase):
         mining.class_filter.setCurrentIndex(0)
         self.assertEqual(self.visible_symbols(), {"platinum", "benitoite"})
         item = mining.items["benitoite"]
-        self.assertEqual(item.text(4), "—")
         self.assertEqual(item.text(5), "—")
-        self.assertIsNone(item.data(4, Qt.ItemDataRole.UserRole))
+        self.assertEqual(item.text(6), "—")
         self.assertIsNone(item.data(5, Qt.ItemDataRole.UserRole))
+        self.assertIsNone(item.data(6, Qt.ItemDataRole.UserRole))
 
     def test_origin_and_class_filters_persist_without_changing_header_settings(self):
         mining = self.view.mining
-        mining.tree.header().resizeSection(2, 141)
-        mining.tree.sortItems(4, Qt.SortOrder.AscendingOrder)
+        mining.tree.header().resizeSection(3, 141)
+        mining.tree.sortItems(5, Qt.SortOrder.AscendingOrder)
         layout = mining.settings.value("materials/mining/columns")
         sort = mining.settings.value(mining.SORT_KEY)
         mining.set_origin_filter("surface")
@@ -123,7 +123,7 @@ class MiningViewTests(unittest.TestCase):
         self.assertTrue(restarted.only_stock.isChecked())
         self.assertEqual(restarted.settings.value("materials/mining/columns"), layout)
         self.assertEqual(restarted.settings.value(mining.SORT_KEY), sort)
-        self.assertEqual(restarted.tree.header().sectionSize(2), 141)
+        self.assertEqual(restarted.tree.header().sectionSize(3), 141)
         restarted.set_origin_filter("asteroid")
         self.assertEqual(self.make_view().mining.origin_filter.currentData(), "asteroid")
 
@@ -158,9 +158,9 @@ class MiningViewTests(unittest.TestCase):
     def test_sorting_and_settings_survive_combined_filters(self):
         mining = self.view.mining
         header = mining.tree.header()
-        for column, width in enumerate((410, 95, 95, 95, 190, 175)):
+        for column, width in enumerate((410, 95, 95, 95, 95, 190, 175)):
             header.resizeSection(column, width)
-        for column in (0, 4, 5):
+        for column in (0, 5, 6):
             for order in (Qt.SortOrder.AscendingOrder, Qt.SortOrder.DescendingOrder):
                 mining.tree.sortItems(column, order)
                 saved_sort = self.view.state.settings.value(mining.SORT_KEY)
@@ -188,7 +188,7 @@ class MiningViewTests(unittest.TestCase):
                 self.assertEqual(self.view.state.settings.value("materials/mining/columns"), saved_layout)
         restarted = self.make_view()
         self.assertEqual(restarted.state.settings.value(mining.SORT_KEY), saved_sort)
-        self.assertEqual([restarted.mining.tree.header().sectionSize(i) for i in range(6)], [410, 95, 95, 95, 190, 175])
+        self.assertEqual([restarted.mining.tree.header().sectionSize(i) for i in range(7)], [410, 95, 95, 95, 95, 190, 175])
 
     def test_heading_count_is_derived_from_supplied_catalog(self):
         subset = MINING_COMMODITIES[:3]
@@ -210,9 +210,10 @@ class MiningViewTests(unittest.TestCase):
         restarted.resize(1500, 700)
         self.app.processEvents()
         mining = restarted.mining
-        self.assertLessEqual(mining.content.width(), 1120)
-        self.assertGreater(mining.width() - mining.content.width(), 300)
-        self.assertEqual([mining.tree.header().sectionSize(i) for i in range(6)], [320, 95, 95, 95, 180, 160])
+        self.assertLessEqual(mining.content.width(), 1215)
+        self.assertGreater(mining.width() - mining.content.width(), 200)
+        self.assertFalse(mining.tree.horizontalScrollBar().isVisible())
+        self.assertEqual([mining.tree.header().sectionSize(i) for i in range(7)], [320, 95, 95, 95, 95, 180, 160])
         self.assertFalse(mining.tree.header().stretchLastSection())
 
     def test_value_colors_and_price_format_in_both_themes(self):
@@ -221,19 +222,19 @@ class MiningViewTests(unittest.TestCase):
             self.app.setStyleSheet(LIGHT_STYLESHEET if light else DARK_STYLESHEET)
             self.view.set_light_mode(light)
             for item in self.visible_items():
-                rank = item.data(5, Qt.ItemDataRole.UserRole)
-                self.assertEqual(item.foreground(5).color().name(), colors[rank if rank is not None else 0])
-                self.assertEqual(item.text(5).startswith("● "), rank is not None)
-                self.assertNotIn("Cr", item.text(4))
-                self.assertEqual(item.textAlignment(4), Qt.AlignmentFlag.AlignCenter)
-                self.assertTrue(item.font(4).bold())
-                self.assertEqual(item.foreground(4).style(), Qt.BrushStyle.NoBrush)
+                rank = item.data(6, Qt.ItemDataRole.UserRole)
+                self.assertEqual(item.foreground(6).color().name(), colors[rank if rank is not None else 0])
+                self.assertEqual(item.text(6).startswith("● "), rank is not None)
+                self.assertNotIn("Cr", item.text(5))
+                self.assertEqual(item.textAlignment(5), Qt.AlignmentFlag.AlignCenter)
+                self.assertTrue(item.font(5).bold())
+                self.assertEqual(item.foreground(5).style(), Qt.BrushStyle.NoBrush)
 
     def test_mining_tab_and_reference_rows(self):
         self.assertEqual(self.view.tabs.count(), 5)
         self.assertEqual(self.view.tabs.tabText(4), tr("mining.title"))
         tree = self.view.mining.tree
-        self.assertEqual(tree.columnCount(), 6)
+        self.assertEqual(tree.columnCount(), 7)
         self.assertEqual(tree.topLevelItemCount(), len(MINING_COMMODITIES))
         self.assertEqual(set(self.values(0)), {c.symbol for c in MINING_COMMODITIES})
         self.assertFalse(self.view.tree.isVisible())
@@ -250,10 +251,10 @@ class MiningViewTests(unittest.TestCase):
 
     def test_stock_columns_numeric_sort_unknown_last_and_live_updates_keep_filters(self):
         mining = self.view.mining
-        inventory = MiningInventory(1, "F1", vehicle={"gold": 2, "copper": 120, "iridium": 10},
+        inventory = MiningInventory(1, "F1", srv={}, ship={"gold": 2, "copper": 120, "iridium": 10},
                                     carrier={"gold": 12, "copper": 0, "iridium": 5})
         mining.set_inventory(inventory)
-        for column in (1, 2, 3):
+        for column in (1, 2, 3, 4):
             # Mix known and unknown rows to verify placement in both directions.
             mining.items["water"].setData(column, Qt.ItemDataRole.UserRole, None)
             for order in (Qt.SortOrder.AscendingOrder, Qt.SortOrder.DescendingOrder):
@@ -261,18 +262,18 @@ class MiningViewTests(unittest.TestCase):
                 values = self.values(column)
                 self.assertIsNone(values[-1])
                 self.assertEqual(values[:-1], sorted(values[:-1], reverse=order == Qt.SortOrder.DescendingOrder))
-        self.assertEqual(mining.items["gold"].text(3), "14")
-        self.assertEqual(mining.items["gold"].textAlignment(5), Qt.AlignmentFlag.AlignCenter)
-        self.assertEqual(mining.tree.headerItem().textAlignment(5), Qt.AlignmentFlag.AlignCenter)
+        self.assertEqual(mining.items["gold"].text(4), "14")
+        self.assertEqual(mining.items["gold"].textAlignment(6), Qt.AlignmentFlag.AlignCenter)
+        self.assertEqual(mining.tree.headerItem().textAlignment(6), Qt.AlignmentFlag.AlignCenter)
         mining.search.setText("iridium")
         mining.class_filter.setCurrentIndex(mining.class_filter.findData(2))
         before = mining.tree.sortColumn(), mining.tree.header().sortIndicatorOrder()
-        mining.set_inventory(MiningInventory(1, "F1", vehicle={"iridium": 17}))
+        mining.set_inventory(MiningInventory(1, "F1", srv={}, ship={"iridium": 17}))
         self.assertEqual(self.visible_symbols(), {"iridium"})
-        self.assertEqual(mining.items["iridium"].text(1), "17")
-        self.assertEqual(mining.items["iridium"].text(2), "— ✎")
-        self.assertEqual(mining.items["iridium"].text(3), "—")
-        self.assertEqual(mining.items["gold"].text(1), "0")
+        self.assertEqual(mining.items["iridium"].text(2), "17")
+        self.assertEqual(mining.items["iridium"].text(3), "— ✎")
+        self.assertEqual(mining.items["iridium"].text(4), "—")
+        self.assertEqual(mining.items["gold"].text(2), "0")
         self.assertEqual(before, (mining.tree.sortColumn(), mining.tree.header().sortIndicatorOrder()))
 
     def test_legacy_order_and_sort_identity_migrate_and_new_columns_move_persistently(self):
@@ -283,14 +284,14 @@ class MiningViewTests(unittest.TestCase):
         settings.sync()
         restarted = self.make_view()
         header = restarted.mining.tree.header()
-        self.assertEqual([header.logicalIndex(i) for i in range(6)], [5, 0, 1, 2, 3, 4])
-        self.assertEqual([header.sectionSize(i) for i in (0, 4, 5)], [420, 185, 165])
-        self.assertEqual(restarted.mining.tree.sortColumn(), 5)
-        header.moveSection(header.visualIndex(2), 0)
-        header.resizeSection(2, 123)
+        self.assertEqual([header.logicalIndex(i) for i in range(7)], [6, 0, 1, 2, 3, 4, 5])
+        self.assertEqual([header.sectionSize(i) for i in (0, 5, 6)], [420, 185, 165])
+        self.assertEqual(restarted.mining.tree.sortColumn(), 6)
+        header.moveSection(header.visualIndex(3), 0)
+        header.resizeSection(3, 123)
         again = self.make_view()
-        self.assertEqual(again.mining.tree.header().logicalIndex(0), 2)
-        self.assertEqual(again.mining.tree.header().sectionSize(2), 123)
+        self.assertEqual(again.mining.tree.header().logicalIndex(0), 3)
+        self.assertEqual(again.mining.tree.header().sectionSize(3), 123)
 
     def test_value_class_boundaries(self):
         # Thresholds are independent of the currently bundled price snapshot.
@@ -299,15 +300,53 @@ class MiningViewTests(unittest.TestCase):
             with self.subTest(price=price):
                 self.assertEqual(value_class(price), expected)
 
+    def test_split_columns_filter_and_partial_totals(self):
+        mining = self.view.mining
+        self.assertEqual([mining.tree.headerItem().text(i) for i in range(5)],
+                         ["Rohstoff", "SRV", "Schiff", "Carrier ✎", "Gesamt"])
+        for srv, ship, carrier, total in ((68, 0, None, "—"), (0, 68, None, "—"),
+                (20, 48, 10, "78"), (0, 0, 10, "10"), (0, 0, 0, "0"),
+                (None, 68, 10, "—"), (20, None, 10, "—")):
+            with self.subTest(srv=srv, ship=ship, carrier=carrier):
+                mining.set_inventory(MiningInventory(1, "F1",
+                    srv=None if srv is None else {"gold": srv},
+                    ship=None if ship is None else {"gold": ship},
+                    carrier=None if carrier is None else {"gold": carrier}))
+                item = mining.items["gold"]
+                self.assertEqual(item.text(4), total)
+                for column, amount in enumerate((srv, ship, carrier), 1):
+                    self.assertEqual(item.data(column, Qt.ItemDataRole.UserRole), amount)
+                    self.assertEqual(item.font(column).bold(), amount is not None and amount > 0)
+                mining.only_stock.setChecked(True)
+                self.assertEqual(not item.isHidden(), any(x is not None and x > 0 for x in (srv, ship, carrier)))
+
+    def test_combined_layout_migrates_by_identity_and_leaves_other_settings(self):
+        settings = self.view.state.settings
+        untouched = {key: settings.value(key) for key in settings.allKeys()
+                     if not key.startswith("materials/mining/")}
+        settings.setValue("materials/mining/columns", dict(version=1,
+            columns=["name", "vehicle", "carrier", "total", "average_price", "value_class"],
+            widths=[400, 110, 120, 130, 190, 170], order=[5, 2, 0, 1, 4, 3]))
+        settings.setValue("materials/mining/sort", dict(column="vehicle", direction="ascending"))
+        restarted = self.make_view().mining
+        header = restarted.tree.header()
+        self.assertEqual([header.sectionSize(i) for i in range(7)], [400, 110, 110, 120, 130, 190, 170])
+        self.assertEqual([header.logicalIndex(i) for i in range(7)], [6, 3, 0, 1, 2, 5, 4])
+        self.assertEqual(restarted.tree.sortColumn(), 2)
+        self.assertEqual(settings.value("materials/mining/sort"), dict(column="ship", direction="ascending"))
+        self.assertEqual({key: settings.value(key) for key in untouched}, untouched)
+        again = self.make_view().mining.tree.header()
+        self.assertEqual([again.sectionSize(i) for i in range(7)], [header.sectionSize(i) for i in range(7)])
+
     def test_default_price_descending_and_numeric_ascending(self):
         tree = self.view.mining.tree
-        self.assertEqual(tree.sortColumn(), 4)
+        self.assertEqual(tree.sortColumn(), 5)
         self.assertEqual(tree.header().sortIndicatorOrder(), Qt.SortOrder.DescendingOrder)
-        self.assertEqual(self.values(4), self.numeric_sorted(self.values(4), reverse=True))
+        self.assertEqual(self.values(5), self.numeric_sorted(self.values(5), reverse=True))
         self.assertEqual(self.values(0)[0], "monazite")
-        self.assertEqual(self.values(0)[self.values(4).index(496)], "water")
-        tree.sortItems(4, Qt.SortOrder.AscendingOrder)
-        self.assertEqual(self.values(4), self.numeric_sorted(self.values(4)))
+        self.assertEqual(self.values(0)[self.values(5).index(496)], "water")
+        tree.sortItems(5, Qt.SortOrder.AscendingOrder)
+        self.assertEqual(self.values(5), self.numeric_sorted(self.values(5)))
 
     def test_header_clicks_sort_localized_names_both_directions(self):
         tree = self.view.mining.tree
@@ -324,13 +363,13 @@ class MiningViewTests(unittest.TestCase):
     def test_value_class_sort_has_semantic_order(self):
         tree = self.view.mining.tree
         for order in (Qt.SortOrder.AscendingOrder, Qt.SortOrder.DescendingOrder):
-            tree.sortItems(5, order)
-            self.assertEqual(self.values(5), self.numeric_sorted(self.values(5),
+            tree.sortItems(6, order)
+            self.assertEqual(self.values(6), self.numeric_sorted(self.values(6),
                              reverse=order == Qt.SortOrder.DescendingOrder))
-            self.assertEqual(set(self.values(5)), {None, 0, 1, 2})
+            self.assertEqual(set(self.values(6)), {None, 0, 1, 2})
 
     def test_sort_survives_new_settings_instance_and_restart(self):
-        for column in range(6):
+        for column in range(7):
             for order in (Qt.SortOrder.AscendingOrder, Qt.SortOrder.DescendingOrder):
                 self.view.mining.tree.sortItems(column, order)
                 self.view.close()
@@ -344,7 +383,7 @@ class MiningViewTests(unittest.TestCase):
     def test_mouse_widths_survive_hide_close_and_restart(self):
         header = self.view.mining.tree.header()
         self.assertFalse(header.stretchLastSection())
-        for column in range(6):
+        for column in range(7):
             self.assertEqual(header.sectionResizeMode(column), QHeaderView.ResizeMode.Interactive)
             before = header.sectionSize(column)
             start = QPoint(header.sectionViewportPosition(column) + before - 1, header.height() // 2)
@@ -353,13 +392,13 @@ class MiningViewTests(unittest.TestCase):
             QTest.mouseMove(header.viewport(), end, 20)
             QTest.mouseRelease(header.viewport(), Qt.MouseButton.LeftButton, pos=end)
             self.assertGreater(header.sectionSize(column), before)
-        expected = [header.sectionSize(i) for i in range(6)]
+        expected = [header.sectionSize(i) for i in range(7)]
         self.view.tabs.setCurrentIndex(0)
         self.view.resize(1200, 700)
         self.view.tabs.setCurrentIndex(4)
         self.view.close()
         restarted = self.make_view()
-        self.assertEqual([restarted.mining.tree.header().sectionSize(i) for i in range(6)], expected)
+        self.assertEqual([restarted.mining.tree.header().sectionSize(i) for i in range(7)], expected)
 
     def test_invalid_sort_settings_restore_default(self):
         for saved in ("bad", {}, {"column": "unknown", "direction": "ascending"},
@@ -367,14 +406,14 @@ class MiningViewTests(unittest.TestCase):
             self.view.state.settings.setValue("materials/mining/sort", saved)
             self.view.state.settings.sync()
             restarted = self.make_view()
-            self.assertEqual(restarted.mining.tree.sortColumn(), 4)
+            self.assertEqual(restarted.mining.tree.sortColumn(), 5)
             self.assertEqual(restarted.mining.tree.header().sortIndicatorOrder(), Qt.SortOrder.DescendingOrder)
             restarted.close()
 
     def test_five_row_tones_follow_live_theme_without_changing_layout(self):
         tree = self.view.mining.tree
         header = tree.header()
-        widths = [header.sectionSize(i) for i in range(6)]
+        widths = [header.sectionSize(i) for i in range(7)]
         for light, style in ((False, DARK_STYLESHEET), (True, LIGHT_STYLESHEET)):
             self.app.setStyleSheet(style)
             self.view.set_light_mode(light)
@@ -382,18 +421,18 @@ class MiningViewTests(unittest.TestCase):
             self.app.sendEvent(tree.viewport(), QEvent(QEvent.Type.Leave))
             tree.clearSelection()
             pixels = tree.viewport().grab().toImage()
-            for row in range(6):
+            for row in range(7):
                 rect = tree.visualItemRect(tree.topLevelItem(row))
                 self.assertEqual(pixels.pixelColor(300, rect.center().y()).name(),
                                  THEMES[light]["rows"][row % 5])
-            self.assertEqual([header.sectionSize(i) for i in range(6)], widths)
-            self.assertEqual(self.values(4), self.numeric_sorted(self.values(4), reverse=True))
+            self.assertEqual([header.sectionSize(i) for i in range(7)], widths)
+            self.assertEqual(self.values(5), self.numeric_sorted(self.values(5), reverse=True))
 
     def test_subtle_selection_hover_and_semantic_text_in_both_themes(self):
         mining = self.view.mining
         tree = mining.tree
         delegate = mining.carrier_delegate
-        mining.set_inventory(MiningInventory(1, "F1", vehicle={"gold": 50}, carrier={"gold": 20}))
+        mining.set_inventory(MiningInventory(1, "F1", srv={}, ship={"gold": 50}, carrier={"gold": 20}))
         mining.search.setText("gold")
         item = mining.items["gold"]
         for light, style in ((False, DARK_STYLESHEET), (True, LIGHT_STYLESHEET)):
@@ -416,7 +455,7 @@ class MiningViewTests(unittest.TestCase):
             self.assertGreater(distance(selected, normal), distance(hover, normal))
             self.assertLess(distance(selected, normal), 100)
             self.assertNotEqual(selected, tree.palette().color(QPalette.ColorRole.Highlight))
-            for column in (1, 2, 3, 5):
+            for column in (1, 2, 3, 4, 6):
                 option = QStyleOptionViewItem()
                 option.palette = tree.palette()
                 option.palette.setColor(QPalette.ColorRole.Highlight, QColor("#00bfff"))
@@ -445,9 +484,9 @@ class MiningViewTests(unittest.TestCase):
             self.app.setStyleSheet(style)
             mining.set_light_mode(light)
             for inventory, expected in (
-                    (MiningInventory(1, "F1", vehicle={"gold": 50}, carrier={"gold": 20}), (50, 20, 70)),
-                    (MiningInventory(1, "F1", vehicle={}, carrier={}), (0, 0, 0)),
-                    (MiningInventory(1, "F1"), (None, None, None))):
+                    (MiningInventory(1, "F1", srv={}, ship={"gold": 50}, carrier={"gold": 20}), (0, 50, 20, 70)),
+                    (MiningInventory(1, "F1", srv={}, ship={}, carrier={}), (0, 0, 0, 0)),
+                    (MiningInventory(1, "F1"), (None, None, None, None))):
                 mining.set_inventory(inventory)
                 for column, count in enumerate(expected, 1):
                     item = mining.items["gold"]
@@ -455,26 +494,26 @@ class MiningViewTests(unittest.TestCase):
                     self.assertEqual(item.font(column).bold(), positive)
                     self.assertEqual(item.foreground(column).color().name(), green if positive else muted)
                     text = str(count) if count is not None else "—"
-                    self.assertEqual(item.text(column), text + " ✎" if column == 2 else text)
-            mining.set_inventory(MiningInventory(1, "F1", vehicle={"gold": 50}))
+                    self.assertEqual(item.text(column), text + " ✎" if column == 3 else text)
+            mining.set_inventory(MiningInventory(1, "F1", srv={}, ship={"gold": 50}))
             mining.set_light_mode(not light)
-            self.assertEqual(mining.items["gold"].foreground(1).color().name(),
+            self.assertEqual(mining.items["gold"].foreground(2).color().name(),
                              "#79d45a" if light else "#37852d")
-            self.assertTrue(mining.items["gold"].font(1).bold())
+            self.assertTrue(mining.items["gold"].font(2).bold())
 
     def test_only_stock_combines_filters_and_reacts_to_inventory_updates(self):
         mining = self.view.mining
-        mining.set_inventory(MiningInventory(1, "F1", vehicle={"gold": 50, "uraninite": 60, "copper": 178}))
+        mining.set_inventory(MiningInventory(1, "F1", srv={}, ship={"gold": 50, "uraninite": 60, "copper": 178}))
         self.assertFalse(mining.only_stock.isChecked())
         self.assertEqual(len(self.visible_items()), len(MINING_COMMODITIES))
         mining.only_stock.setChecked(True)
         self.assertEqual(self.visible_symbols(), {"gold", "uraninite", "copper"})
-        self.assertEqual(mining.items["gold"].text(2), "— ✎")
+        self.assertEqual(mining.items["gold"].text(3), "— ✎")
         mining.class_filter.setCurrentIndex(mining.class_filter.findData(0))
         self.assertEqual(self.visible_symbols(), {"uraninite", "copper"})
         mining.search.setText("Kupfer")
         self.assertEqual(self.visible_symbols(), {"copper"})
-        mining.set_inventory(MiningInventory(1, "F1", vehicle={"uraninite": 60}))
+        mining.set_inventory(MiningInventory(1, "F1", srv={}, ship={"uraninite": 60}))
         self.assertFalse(self.visible_items())
         self.assertTrue(mining.empty_label.isVisible())
         mining.search.clear()
@@ -490,12 +529,12 @@ class MiningViewTests(unittest.TestCase):
 
     def test_only_stock_sort_layout_and_filter_persist(self):
         mining = self.view.mining
-        inventory = MiningInventory(1, "F1", vehicle={"gold": 50, "uraninite": 60, "copper": 178})
+        inventory = MiningInventory(1, "F1", srv={}, ship={"gold": 50, "uraninite": 60, "copper": 178})
         mining.set_inventory(inventory)
-        mining.tree.header().resizeSection(1, 123)
+        mining.tree.header().resizeSection(2, 123)
         saved_layout = mining.settings.value("materials/mining/columns")
         mining.only_stock.setChecked(True)
-        for column in (0, 1, 4, 5):
+        for column in (0, 1, 2, 5, 6):
             for order in (Qt.SortOrder.AscendingOrder, Qt.SortOrder.DescendingOrder):
                 mining.tree.sortItems(column, order)
                 items = self.visible_items()
@@ -512,7 +551,7 @@ class MiningViewTests(unittest.TestCase):
         self.assertEqual(sum(not item.isHidden() for item in restarted.items.values()), 3)
         self.assertEqual(restarted.settings.value(mining.SORT_KEY), saved_sort)
         self.assertEqual(restarted.settings.value("materials/mining/columns"), saved_layout)
-        self.assertEqual(restarted.tree.header().sectionSize(1), 123)
+        self.assertEqual(restarted.tree.header().sectionSize(2), 123)
         restarted.only_stock.setChecked(False)
         self.assertFalse(self.make_view().mining.only_stock.isChecked())
 
@@ -537,8 +576,8 @@ class MiningViewTests(unittest.TestCase):
             self.assertEqual(controller.calls, before + 1)
             QTest.mouseClick(view.refresh_button, Qt.MouseButton.LeftButton)
             self.assertEqual(controller.calls, before + 1)
-            controller.ready.emit(MiningInventory(1, "F1", vehicle={"gold": 50}))
-            self.assertEqual(view.items["gold"].text(1), "50")  # No animation delay for data.
+            controller.ready.emit(MiningInventory(1, "F1", srv={}, ship={"gold": 50}))
+            self.assertEqual(view.items["gold"].text(2), "50")  # No animation delay for data.
             controller.refreshFinished.emit(result)
             self.assertFalse(view.refresh_button.isEnabled())
             view.refresh_animation.setCurrentTime(750)
@@ -598,7 +637,7 @@ class MiningViewTests(unittest.TestCase):
         expected = {"mining." + key for key in (
             "title", "name", "average_price", "value_class", "high", "medium", "low",
             "reference_notice", "open_tooltip", "heading", "count_summary",
-            "reference_short", "search", "no_matches", "vehicle", "carrier", "total", "stock_unknown",
+            "reference_short", "search", "no_matches", "vehicle", "srv", "ship", "carrier", "total", "stock_unknown",
             "refresh", "refresh_tooltip", "only_stock", "only_stock_tooltip",
             "refresh_updated", "refresh_unchanged", "refresh_error",
             "origin", "origin_surface", "origin_asteroid", "reference_unknown")}
@@ -635,14 +674,14 @@ class MiningViewTests(unittest.TestCase):
 
     def test_carrier_header_and_unknown_cell_explain_initial_confirmation(self):
         mining = self.view.mining
-        self.assertEqual(mining.tree.headerItem().toolTip(2), tr("mining.carrier_header_help"))
-        self.assertFalse(mining.tree.headerItem().toolTip(1))
+        self.assertEqual(mining.tree.headerItem().toolTip(3), tr("mining.carrier_header_help"))
+        self.assertFalse(mining.tree.headerItem().toolTip(2))
         item = mining.items["gold"]
-        self.assertIn(tr("mining.carrier_unknown_help"), item.toolTip(2))
-        self.assertTrue(item.toolTip(2).startswith(tr("mining.carrier_edit_hint")))
-        self.assertEqual(item.text(2), "— ✎")
-        self.assertIsNone(item.data(2, Qt.ItemDataRole.UserRole))
+        self.assertIn(tr("mining.carrier_unknown_help"), item.toolTip(3))
+        self.assertTrue(item.toolTip(3).startswith(tr("mining.carrier_edit_hint")))
+        self.assertEqual(item.text(3), "— ✎")
         self.assertIsNone(item.data(3, Qt.ItemDataRole.UserRole))
+        self.assertIsNone(item.data(4, Qt.ItemDataRole.UserRole))
 
     def test_carrier_dialog_help_is_muted_wrapped_and_available_in_both_themes(self):
         for style in (DARK_STYLESHEET, LIGHT_STYLESHEET):
@@ -666,38 +705,38 @@ class MiningViewTests(unittest.TestCase):
     def test_carrier_help_preserves_confirmation_tracking_and_inconsistent_status(self):
         mining = self.view.mining
         for status, count in (("manual", 504), ("tracked", 454), ("inconsistent", None)):
-            inventory = MiningInventory(1, "F1", vehicle={"gold": 60}, carrier={"gold": count},
+            inventory = MiningInventory(1, "F1", srv={}, ship={"gold": 60}, carrier={"gold": count},
                 carrier_records={"gold": dict(count=count, status=status,
                     confirmed_at="2026-09-12T10:30:00.000Z")})
             mining.set_inventory(inventory)
             item = mining.items["gold"]
-            tooltip = item.toolTip(2)
+            tooltip = item.toolTip(3)
             self.assertIn("12.09.26", tooltip)
             self.assertNotIn(tr("mining.carrier_unknown_help"), tooltip)
             self.assertEqual(tr("mining.carrier_tracked") in tooltip, status == "tracked")
             self.assertEqual(tr("mining.carrier_inconsistent") in tooltip, status == "inconsistent")
-            self.assertEqual(item.data(2, Qt.ItemDataRole.UserRole), count)
-            self.assertEqual(item.data(3, Qt.ItemDataRole.UserRole), 60 + count if count is not None else None)
+            self.assertEqual(item.data(3, Qt.ItemDataRole.UserRole), count)
+            self.assertEqual(item.data(4, Qt.ItemDataRole.UserRole), 60 + count if count is not None else None)
             self.assertEqual(inventory.carrier_records["gold"]["status"], status)
 
     def test_edit_markers_alignment_and_numeric_data(self):
         mining = self.view.mining
-        mining.set_inventory(MiningInventory(1, "F1", vehicle={"gold": 2},
+        mining.set_inventory(MiningInventory(1, "F1", srv={}, ship={"gold": 2},
             carrier={"gold": 30, "copper": 100, "water": None}))
-        self.assertEqual(mining.tree.headerItem().text(2), tr("mining.carrier_marked", value=tr("mining.carrier")))
-        self.assertEqual(mining.items["gold"].text(2), "30 ✎")
-        self.assertEqual(mining.items["water"].text(2), "— ✎")
-        self.assertIsNone(mining.items["water"].data(2, Qt.ItemDataRole.UserRole))
-        for column in range(6):
+        self.assertEqual(mining.tree.headerItem().text(3), tr("mining.carrier_marked", value=tr("mining.carrier")))
+        self.assertEqual(mining.items["gold"].text(3), "30 ✎")
+        self.assertEqual(mining.items["water"].text(3), "— ✎")
+        self.assertIsNone(mining.items["water"].data(3, Qt.ItemDataRole.UserRole))
+        for column in range(7):
             expected = (Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
                         if column == 0 else Qt.AlignmentFlag.AlignCenter)
             self.assertEqual(mining.tree.headerItem().textAlignment(column), expected)
             for item in mining.items.values():
                 self.assertEqual(item.textAlignment(column), expected)
-                self.assertTrue(item.toolTip(2).startswith(tr("mining.carrier_edit_hint")))
+                self.assertTrue(item.toolTip(3).startswith(tr("mining.carrier_edit_hint")))
         for order in (Qt.SortOrder.AscendingOrder, Qt.SortOrder.DescendingOrder):
-            mining.tree.sortItems(2, order)
-            values = self.values(2)
+            mining.tree.sortItems(3, order)
+            values = self.values(3)
             self.assertIsNone(values[-1])
             self.assertEqual(values[:-1], sorted(values[:-1], reverse=order == Qt.SortOrder.DescendingOrder))
 
@@ -710,16 +749,16 @@ class MiningViewTests(unittest.TestCase):
             mining.set_light_mode(light)
             self.app.processEvents()
             row = tree.visualItemRect(tree.topLevelItem(0))
-            x = tree.header().sectionViewportPosition(2) + 8
+            x = tree.header().sectionViewportPosition(3) + 8
             position = QPoint(x, row.center().y())
-            other = QPoint(tree.header().sectionViewportPosition(1) + 8, row.center().y())
+            other = QPoint(tree.header().sectionViewportPosition(2) + 8, row.center().y())
             QTest.mouseMove(viewport, QPoint(x, row.bottom() + 5))
             self.app.sendEvent(viewport, QEvent(QEvent.Type.Leave))
             before = viewport.grab().toImage()
             QTest.mouseMove(viewport, position)
             self.app.processEvents()
             self.assertEqual(mining.carrier_delegate.color.name(), color)
-            self.assertEqual(tree.indexAt(mining.carrier_delegate.hover_position).column(), 2)
+            self.assertEqual(tree.indexAt(mining.carrier_delegate.hover_position).column(), 3)
             hovered = viewport.grab().toImage()
             self.assertNotEqual(before.pixelColor(position), hovered.pixelColor(position))
             self.assertNotEqual(before.pixelColor(other), hovered.pixelColor(other))
@@ -733,7 +772,7 @@ class MiningViewTests(unittest.TestCase):
 
     def test_carrier_cell_double_click_dispatch_and_tooltips(self):
         view, controller = self.make_refresh_view()
-        inventory = MiningInventory(1, "F1", vehicle={"gold": 60}, carrier={"gold": 504},
+        inventory = MiningInventory(1, "F1", srv={}, ship={"gold": 60}, carrier={"gold": 504},
             carrier_id=123, carrier_feed={"path": "test"}, carrier_records={"gold": dict(
                 count=504, status="manual", confirmed_at="2026-09-12T10:30:00.000Z")})
         controller.ready.emit(inventory)
@@ -741,17 +780,17 @@ class MiningViewTests(unittest.TestCase):
         controller.confirm_carrier = lambda *args: calls.append(args)
         item = view.items["gold"]
         with patch.object(CarrierStockDialog, "exec", return_value=QDialog.DialogCode.Accepted):
-            view.tree.itemDoubleClicked.emit(item, 1)
+            view.tree.itemDoubleClicked.emit(item, 2)
             self.assertFalse(calls)
             # Accepted reset uses None; cancel must never call the controller.
-            view.tree.itemDoubleClicked.emit(item, 2)
+            view.tree.itemDoubleClicked.emit(item, 3)
             self.assertEqual(calls, [("gold", None, (1, "F1", 123))])
         with patch.object(CarrierStockDialog, "exec", return_value=QDialog.DialogCode.Rejected):
-            view.tree.itemDoubleClicked.emit(item, 2)
+            view.tree.itemDoubleClicked.emit(item, 3)
             self.assertEqual(len(calls), 1)
-        self.assertIn("12.09.26", item.toolTip(2))  # German locale's short date format.
-        self.assertEqual(item.text(3), "564")
+        self.assertIn("12.09.26", item.toolTip(3))  # German locale's short date format.
+        self.assertEqual(item.text(4), "564")
         for status, key in (("tracked", "carrier_tracked"), ("inconsistent", "carrier_inconsistent")):
             inventory.carrier_records["gold"]["status"] = status
             controller.ready.emit(inventory)
-            self.assertIn(tr("mining." + key), item.toolTip(2))
+            self.assertIn(tr("mining." + key), item.toolTip(3))

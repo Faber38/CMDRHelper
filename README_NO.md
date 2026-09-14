@@ -13,6 +13,42 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper er et selvstendig skrivebordsprogram som analyserer de lokale Elite Dangerous-journalene og bruker planetære posisjonsdata fra `Status.json`. Det hjelper deg å oppdage interessante himmellegemer, finne tilbake til lagrede steder og gjennomgå reiser og funn. Personlige data beholdes etter omstart og holdes atskilt for hver kommandør.
 
+## 🚀 Hurtigstart
+
+Last ned **ZIP-filen for den nyeste CMDRHelper-utgivelsen** (`CMDRHelper_v*.zip`) fra [GitHub Releases](https://github.com/Faber38/CMDRHelper/releases/latest) under **Assets**, og pakk ut hele ZIP-filen i en egen mappe.
+
+### Windows
+
+1. Kjør **`install.bat` én gang** i den utpakkede mappen. Den setter opp det lokale Python-miljøet (`venv`) og avhengighetene. Hvis egnet Python mangler, kan det installeres automatisk via `winget` etter ditt samtykke; `winget` må være tilgjengelig.
+2. Etter installasjonen starter du med **`start.bat`**. Bruk også denne filen ved senere oppstarter.
+
+### Linux
+
+Python **3.10 eller nyere** med tilhørende `venv`-modul må allerede være installert. Åpne en terminal i den utpakkede mappen og kjør én gang:
+
+```bash
+bash install.sh
+```
+
+Skriptet setter opp det lokale miljøet og avhengighetene; det installerer ikke systempakker. Start deretter CMDRHelper, også ved senere oppstarter, med **`bash start.sh`**.
+
+### Første oppstart og oppdateringer
+
+Journalmappen til Elite Dangerous oppdages automatisk når det er mulig. Hvis den mangler eller er feil, velger du den i **Innstillinger**.
+
+CMDRHelper søker etter oppdateringer ved oppstart og har en innebygd oppdateringsfunksjon. Bekreft en tilbudt oppdatering i programmet; den oppdaterer programmet og avhengighetene og starter CMDRHelper på nytt. Etter førstegangsinstallasjonen bruker du normalt bare `start.bat` (Windows) eller `bash start.sh` (Linux). Du trenger ikke å kjøre `install.bat` eller `install.sh` manuelt på nytt for vanlige oppdateringer.
+
+## Nytt i versjon 3.4.3
+
+- Utvidede favoritter: avstandsfilter og portabel ZIP-eksport/import med bilder.
+- Sorter Explorer-tabeller og lagre sortering og kolonnebredder separat for hver tabell.
+- Gruvedrift viser SRV, skip, carrier og total separat; lagerfilteret tar hensyn til alle tre lagrene.
+- Diagnosepakker og personvernvennlige roterende logger for brukerstøtte, uten automatisk sending.
+- Trygg databaseoppgradering direkte fra eldre versjoner; migreringskopier beholdes gjennom hele versjonen som opprettet dem.
+- Bedre betjening, oppdatert hjelp og tydelig klikkbare punkter på kronikkartet.
+
+Avstandsfilteret er av som standard (500 lysår), bruker lokale systemkoordinater og oppdateres ved systembytte. Favoritteksport inneholder favorites.json og tilgjengelige bilder; duplikater kan hoppes over, erstattes eller importeres som nye. Verdilisten og BIO/GEO/GRUVEDRIFT-tabellene støtter naturlig, numerisk og semantisk sortering. Det er ikke nødvendig å installere 3.4.1 først.
+
 ## Nytt i versjon 3.4.1
 
 - Retter eldre lagrede systemhierarkier

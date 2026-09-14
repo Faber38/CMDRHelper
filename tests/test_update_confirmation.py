@@ -165,7 +165,7 @@ class UpdateConfirmationTests(unittest.TestCase):
                 window = SimpleNamespace(
                     _update_notice_shown=False, _release_update_worker=Mock(),
                     _set_update_status=Mock(), _update_question_text=Mock(return_value='question'),
-                    _install_update=Mock(),
+                    _install_update=Mock(), _cleanup_parent_backup=Mock(),
                 )
                 with patch('cmdrhelper.ui.main_window.UpdateConfirmationBox') as dialog, patch('cmdrhelper.ui.main_window.QTimer.singleShot'), patch('cmdrhelper.ui.main_window.__version__', '3.1'):
                     dialog.return_value.exec.return_value = answer

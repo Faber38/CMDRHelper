@@ -131,6 +131,7 @@ def run_startup_repairs(database, progress=None):
                 except BaseException as exc:
                     con.rollback()
                     status = 'incomplete' if isinstance(exc, IncompleteRepair) else 'failed'
+                    logger.exception('Startup repair failed')
                     detail = f'{type(exc).__name__}: {exc}'
                     changed = 0
                     try:
@@ -144,6 +145,6 @@ def run_startup_repairs(database, progress=None):
                               changed=changed, detail=detail, backup=str(backup) if backup else None)
                 results.append(result)
                 log = logger.info if status == 'complete' else logger.warning
-                log('Startup repair commander=%s feature=%s status=%s changed=%s %s',
-                    commander_id, feature, status, changed, detail)
+                log('Startup repair feature=%s status=%s changed=%s',
+                    feature, status, changed)
     return results

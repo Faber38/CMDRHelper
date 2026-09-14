@@ -30,12 +30,12 @@ HELP_TOPICS = {
 <p>Varasto päivittyy automaattisesti taustalla. Vahvistetut uudet keräykset voidaan korostaa hetkeksi. Komentajaa vaihdettaessa vanhat määrät poistetaan heti näkyvistä. Alavälilehdet, suodattimet sekä sarakkeiden leveydet ja järjestys tallennetaan Odysseylle erikseen.</p>
 <h3>Mining</h3>
 <p>Materiaalit → Mining on 57 tällä hetkellä tunnetun kaupattavan kaivoshyödykkeen yhteinen näkymä, erillään insinöörimateriaaleista. Sama taulukko kattaa sekä planeettojen pinnalta että asteroideista/renkaista louhittavat hyödykkeet. Kiinteät viitehinnat ovat vain suuntaa antavia, eivät reaaliaikaisia markkinahintoja.</p>
-<p><b>Sarakkeet</b><br><b>Raaka-aine:</b> hyödykkeen tai raaka-aineen nimi.<br><b>Alus/SRV:</b> varmasti tunnettu määrä kulloinkin olennaisessa ajoneuvossa.<br><b>Tukialus:</b> oman carrierin varasto; Elite ei toimita täydellistä henkilökohtaista varastoluetteloa, joten lähtömäärä on vahvistettava käsin.<br><b>Yhteensä:</b> alus/SRV + carrier, vain kun molemmat määrät tunnetaan. Tuntematonta ei lasketa mukaan arvona 0.<br><b>Keskihinta Cr/t:</b> kiinteä viitearvo, ei taattu nykyinen myyntihinta. Puuttuva viitehinta jää tuntemattomaksi.<br><b>Arvoluokka:</b> KORKEA alkaen 100 000 Cr/t; KESKITASO välillä 25 000–99 999 Cr/t; MATALA alle 25 000 Cr/t. Tuntemattomalla hinnalla ei ole arvoluokkaa.</p>
+<p><b>Sarakkeet</b><br><b>Raaka-aine:</b> hyödykkeen tai raaka-aineen nimi.<br><b>SRV:</b> varmistettu SRV:n varasto.<br><b>Alus:</b> varmistettu aluksen varasto.<br><b>Tukialus:</b> oman carrierin varasto; Elite ei toimita täydellistä henkilökohtaista varastoluetteloa, joten lähtömäärä on vahvistettava käsin.<br><b>Yhteensä:</b> SRV + Alus + Carrier, vain kun kaikki kolme määrää tunnetaan. Muuten —; tuntematon ei ole nolla.<br><b>Keskihinta Cr/t:</b> kiinteä viitearvo, ei taattu nykyinen myyntihinta. Puuttuva viitehinta jää tuntemattomaksi.<br><b>Arvoluokka:</b> KORKEA alkaen 100 000 Cr/t; KESKITASO välillä 25 000–99 999 Cr/t; MATALA alle 25 000 Cr/t. Tuntemattomalla hinnalla ei ole arvoluokkaa.</p>
 <p><b>Carrierin varaston vahvistaminen</b><br>Elite Dangerous ei toimita CMDRHelperille täydellistä henkilökohtaista carrierin varastoluetteloa. Määritä hyödykkeelle tunnettu lähtötilanne näin: 1. Kaksoisnapsauta carrier-solua. 2. Anna nykyinen määrä kokonaislukuna, vähintään 0. 3. Ota arvo käyttöön vahvistaaksesi sen käsin. 4. CMDRHelper seuraa sen jälkeen automaattisesti yksiselitteisiä CargoTransfer-tapahtumia aluksen ja oman carrierin välillä. Työkaluvihje näyttää käsin tehdyn vahvistuksen ja mahdollisen myöhemmän automaattisen päivityksen.</p>
 <p><b>— = määrä tuntematon</b><br>Ilman vahvistettua lähtömäärää yksittäisistä siirroista ei voida laskea luotettavaa carrierin kokonaisvarastoa. Kaksoisnapsauttamalla voit milloin tahansa muuttaa, korjata tai palauttaa arvon tuntemattomaksi. Jos siirto johtaisi ristiriitaiseen tai negatiiviseen tulokseen, määrä muuttuu taas tuntemattomaksi ja se on vahvistettava uudelleen käsin.</p>
-<p><b>Alus ja SRV</b><br>CMDRHelper käyttää varmennettuja rahtitietoja. Alusta ja SRV:tä ei lasketa yhteen: taulukossa näkyy kulloinkin olennaisen ajoneuvon varasto. Täydelliset rahtitilannekuvat ovat ensisijaisia yksittäisistä muutoksista laskettuihin määriin nähden.</p>
-<p><b>↻ Päivitä</b><br>Painike lukee aluksen/SRV:n nykyisen rahdin uudelleen käsin tehtävää tarkistusta ja päivitystä varten. Tavalliset reaaliaikaiset päivitykset jatkuvat automaattisesti. Käsin vahvistettuja carrierin arvoja ei poisteta. Vihreä tarkoittaa valmista tai onnistunutta, värianimaatio päivitystä ja punainen epäonnistunutta yritystä. Puuttuvia tai varmentamattomia tietoja ei esitetä tyhjänä varastona.</p>
-<p><b>Suodattimien yhdistäminen</b><br>Raaka-ainehaku suodattaa nimen perusteella. Arvoluokan vaihtoehdot ovat Kaikki, KORKEA, KESKITASO ja MATALA; alkuperän vaihtoehdot Kaikki, Planeettojen kaivostoiminta ja Asteroidit/Renkaat. Vain varastossa näyttää vain hyödykkeet, joilla on varmasti tunnettu positiivinen määrä. Positiivinen aluksen/SRV:n määrä näkyy myös carrierin määrän ollessa tuntematon. Haun, arvoluokan, alkuperän ja varastosuodattimen voi yhdistää.</p>
+<p><b>Alus ja SRV</b><br>SRV:n ja aluksen varastot muodostetaan erikseen varmistetuista lastitiedoista. Tuntemattomat määrät näkyvät merkkinä —. Täydelliset lastitilannekuvat ovat etusijalla laskettuihin muutoksiin nähden.</p>
+<p><b>↻ Päivitä</b><br>SRV:n ja aluksen varastot päivitetään erikseen varmennetuista tiedoista. Vahvistettu carrierin varasto säilyy tästä riippumatta. Tavalliset reaaliaikaiset päivitykset jatkuvat automaattisesti. Vihreä tarkoittaa valmista tai onnistunutta, värianimaatio päivitystä ja punainen epäonnistunutta yritystä. Puuttuvia tai varmentamattomia tietoja ei esitetä tyhjänä varastona.</p>
+<p><b>Suodattimien yhdistäminen</b><br>Raaka-ainehaku suodattaa nimen perusteella. Arvoluokan vaihtoehdot ovat Kaikki, KORKEA, KESKITASO ja MATALA; alkuperän vaihtoehdot Kaikki, Planeettojen kaivostoiminta ja Asteroidit/Renkaat. ”Vain varastossa” näyttää hyödykkeen, jos vähintään yksi tunnettu määrä SRV:ssä, aluksessa tai carrierissa on positiivinen. Tuntemattomia määriä ei tulkita nollaksi, eivätkä ne piilota toisessa paikassa tunnettua positiivista määrää. Haun, arvoluokan, alkuperän ja varastosuodattimen voi yhdistää.</p>
 <p><b>ABBAU ×N tutkimusnäkymässä</b><br>Napsautus avaa Materiaalit → Mining -näkymän ja asettaa alkuperäsuodattimeksi automaattisesti Planeettojen kaivostoiminta. Tutkimusnäkymässä ei ole toista Mining-taulukkoa.</p>
 <p><b>Lajittelu ja leveydet</b><br>Napsauta sarakeotsikoita lajitellaksesi nousevasti tai laskevasti. Määrät ja hinnat lajitellaan numeroina, tuntemattomat viimeisinä. Muuta leveyksiä vetämällä sarakkeiden rajoja hiirellä. Lajittelu, sarakeleveydet sekä arvoluokan, alkuperän ja Vain varastossa-suodattimen tilat tallennetaan.</p>
 <p><b>Alkuperä</b><br>Surface tarkoittaa planeettojen pinnalla tapahtuvaa louhintaa; Asteroid tarkoittaa asteroidien/renkaiden louhintaa. Joitakin raaka-aineita saa molemmista (Both), ja ne näkyvät kummassakin sopivassa alkuperäsuodattimessa.</p>""",
@@ -216,7 +216,7 @@ HELP_TOPICS = {
               '<p>Näytöllä näkyy muun muassa kehon tyyppi, etäisyys ja – jos saatavilla – '
               'skannaus- ja kartografiaarvot sekä erityiset etsintäominaisuudet.</p>\n'
               '\n'
-              '<h3>ORGAANISET ×N</h3>\n'
+              '<h3>BIO ×N</h3>\n'
               '<p>BIO ×N tarkoittaa pelin ilmoittamien kehon biologisten signaalien määrää.</p>\n'
               '<p>Numero kertoo aluksi vain, kuinka monta biologista signaalia tai sukua on '
               'raportoitu. Se ei automaattisesti tarkoita, että kaikki biologiset lajit on jo '
@@ -275,7 +275,7 @@ HELP_TOPICS = {
               '</ul>\n'
               '<p>”Jo kartoitettu skannauksesi aikaan” arvioidaan erillään löydöstä. Puuttuva tieto pysyy Tuntemattomana. Jo löydetty taivaankappale saattoi olla kartoittamaton skannaushetkellä. Oma kartoituksesi ei vahvista virallista First Mapping -merkintää; useiden vierailujen jälkeen järjestys suhteessa tallennettuun skannaukseenkaan ei ole aina todistettavissa.</p>\n<p>Oman DSS-kartoituksen valmistuminen tallentaa nyt luotettavasti kartoitusajan, käytetyt luotaimet ja tehokkuustavoitteen. Myöhemmät skannaukset eivät enää hävitä olemassa olevia tietoja.</p>\n'
               '\n'
-              '<h3>Maalaisbaari</h3>\n'
+              '<h3>Laskeutumiskelpoinen</h3>\n'
               '<p>Laskeutuvuusindikaattori tunnistaa kappaleet, joille laskeutuminen on tiedossa '
               'olevien tietojen mukaan mahdollista.</p>\n'
               '\n'
@@ -289,15 +289,20 @@ HELP_TOPICS = {
               '<p>Se sopii erityisen hyvin mielenkiintoisten tai arvokkaiden kappaleiden nopeaan '
               'vertailuun systeemissä.</p>\n'
               '\n'
-              '<h3>ORGAANISET / GEO / HAJOAMINEN</h3>\n'
-              '<p>Tämä näkymä ryhmittelee kappaleet, joilla on biologisia, geologisia tai '
-              'planeettojen hajoamissignaaleja.</p>\n'
+              '<h3>BIO / GEO / ABBAU</h3>\n'
+              '<p>Tämä näkymä kokoaa taivaankappaleet, joilla on biologisia, geologisia tai planeettojen '
+              'kaivostoiminnan signaaleja.</p>\n'
               '<p>Tämä tarkoittaa, että mielenkiintoisia kappaleita ei tarvitse etsiä yksitellen '
               'täydellisestä järjestelmäkartasta.</p>\n'
               '<p>Jos sinulla on omat pintakaivostietosi, voivat myös henkilökohtaiset '
               'kaivoslöydösi olla näkyvissä.</p>\n'
               '<p>Explorerin yhteisen BIO / GEO / ABBAU -taulukon käsin muutetut sarakeleveydet säilyvät uudelleen avattaessa ja ohjelman käynnistyessä uudelleen. Ponnahdusikkunoiden sarakeleveydet palautetaan luotettavammin; virheelliset arvot korvataan turvallisilla oletusleveyksillä.</p>\n\n'
-              '<h3>Rungon yksityiskohta</h3>\n'
+              '<h3>Taulukoiden käyttö</h3>\n<p>Napsauta sarakeotsikkoa arvoluettelossa tai BIO / GEO / ABBAU '
+              '-taulukossa lajitellaksesi; uusi napsautus kääntää suunnan. Muuta leveyksiä vetämällä '
+              'sarakkeiden rajoja hiirellä. Lajittelu ja sarakeleveydet tallennetaan kummallekin taulukolle '
+              'erikseen. Taivaankappaleiden nimet lajitellaan luonnollisesti, esimerkiksi A 2 ennen A 10:tä. '
+              'Etäisyydet, krediitit ja määrät lajitellaan numeroina. Tila-, analyysi- ja vierailusarakkeet '
+              'lajitellaan merkityksen, ei aakkosten mukaan.</p>\n\n<h3>Rungon yksityiskohta</h3>\n'
               '<p>Tekstin napsauttaminen avaa yksityiskohtaisen näkymän.</p>\n'
               '<p>Sikäli kuin tiedetään, siellä voi esiintyä seuraavaa:</p>\n'
               '<ul>\n'
@@ -334,7 +339,7 @@ HELP_TOPICS = {
               '<p>Jo myyty karttatieto ei saa näkyä uudelleen avoimina jälleenrakennuksen '
               'jälkeen.</p>\n'
               '\n'
-              '<h3>Näytä auto</h3>\n'
+              '<h3>Näytä automaattisesti</h3>\n'
               '<p>Tuetut Explorer-vinkit, kuten arvokkaat ruumiit tai BIO-löydöt, voidaan näyttää '
               'automaattisesti käyttämällä vasemman sivupalkin kytkimiä.</p>\n'
               '<p>Nämä pienet live-ikkunat toimivat lisävinkkeinä pelatessasi eivätkä korvaa koko '
@@ -358,6 +363,19 @@ HELP_TOPICS = {
 <p>Nimen mukaan aakkostettu, vieritettävä luettelo näyttää nimen, tyypin, järjestelmän, tarvittaessa taivaankappaleen ja leveys-/pituusasteen, luokan sekä pienen kuvan esikatselun. Vapaatekstihakua sekä tyyppi- ja luokkasuodattimia voi käyttää yhdessä. Haku kattaa nimen, järjestelmän, taivaankappaleen ja muistiinpanon.</p>
 <p>”Avaa / Näytä” näyttää tallennetut tiedot, muistiinpanon ja suuremman kuvan esikatselun. ”Näytä Explorerissa” avaa olemassa olevan järjestelmän yleiskuvan tai taivaankappaleen tietonäkymän, jos suosikki kuuluu Explorerin nykyiseen järjestelmään ja vastaavat tiedot ovat saatavilla. Muiden järjestelmien suosikkien tallennetut tiedot pysyvät näkyvissä; järjestelmien välistä reittiä ei lasketa.</p>
 
+<h3>Etäisyyssuodatin</h3>
+<p>”Etäisyyssuodatin” on oletuksena pois käytöstä. ”Enimmäisetäisyys:” on aluksi 500 ly, ja sen voi asettaa välille 1–100 000 ly. Etäisyys lasketaan nykyisestä tunnetusta järjestelmästä paikallisesti saatavilla olevien järjestelmäkoordinaattien avulla. Pelkästään tätä suodatinta varten ei tehdä verkkokyselyä.</p>
+<p>Suosikit, joiden tunnettu etäisyys ylittää rajan, piilotetaan. Tuntemattoman etäisyyden suosikit pysyvät näkyvissä. Jos nykyisen järjestelmän koordinaatit puuttuvat, etäisyyssuodatin ei piilota merkintöjä. Haku sekä tyyppi- ja luokkasuodattimet ovat edelleen voimassa. Suodatus päivittyy automaattisesti järjestelmän vaihduttua. Kytkimen tila ja enimmäisetäisyys tallennetaan.</p>
+
+<h3>Suosikkien vienti</h3>
+<p>”Vie” luo siirrettävän ZIP-paketin kaikista aktiivisen komentajan suosikeista, ei vain haun tai tyyppi-, luokka- ja etäisyyssuodattimien näyttämistä merkinnöistä. favorites.json sisältää suosikkien rakenteiset tiedot; saatavilla olevat kuvat ovat images/-kansiossa. Paketin voi siirtää Linuxin ja Windowsin välillä.</p>
+<p>Olemassa olevia suosikkeja ja alkuperäisiä kuvia ei muuteta. Samansisältöiset kuvat tallennetaan pakettiin vain kerran. Puuttuvat tai vioittuneet kuvat eivät estä suosikkitietojen vientiä. Tuonnissa ja viennissä enimmäiskoko on 32 MiB tiedostoa kohti ja yhteensä 256 MiB pakkaamatonta sisältöä.</p>
+
+<h3>Suosikkien tuonti</h3>
+<p>”Tuo” tarkistaa ensin ZIP-paketin ja näyttää yhteenvedon uusista ja olemassa olevista suosikeista ennen muutoksia. Tuodut suosikit liitetään sillä hetkellä aktiiviseen komentajaan. Kaksoiskappaleet tunnistetaan tyypin, luokan, nimen ja sijainnin perusteella: tunnetut järjestelmän/taivaankappaleen tunnisteet ja koordinaatit, muuten järjestelmän/taivaankappaleen nimet. Myös paketin sisäiset kaksoiskappaleet huomioidaan.</p>
+<p>Sama valinta koskee kaikkia tunnistettuja kaksoiskappaleita: ”Ohita” on oletus ja säilyttää nykyiset merkinnät; ”Korvaa olemassa oleva suosikki” siirtää tuodut tiedot nykyiseen suosikkiin; ”Tuo uutena merkintänä” luo lisämerkinnän. Peruuttaminen ei tuo mitään.</p>
+<p>Virheelliset suosikkitiedot estävät koko tuonnin. Tuontivirheessä tietokantamuutokset perutaan, jotta osittaista tuontia ei jää. Puuttuvat tai vioittuneet kuvat eivät estä kelvollisten tietojen tuontia; nämä suosikit tuodaan ilman kuvaa. CMDRHelper hallitsee tuotuja kuvia paikallisesti.</p>
+
 <h3>Järjestelmän, planeetan tai nykyisen sijainnin tallentaminen</h3>
 <ul>
 <li>”★ Tallenna nykyinen järjestelmä” tallentaa nykyisen järjestelmän ilman pintakoordinaatteja.</li>
@@ -378,6 +396,7 @@ HELP_TOPICS = {
 <p>”Käytä uusinta kuvakaappausta” lukee määritetyn kuvakaappausten lähdekansion uudelleen jokaisella napsautuksella ja etsii luettavia kuvakaappauksia, joilla on Elitelle tyypillinen tiedostonimi. Jos kansiota ei ole määritetty, käytetään Windowsin tai Steam/Protonin tavallisia Elite-kuvakaappauskansioita. Myös määritetyn muunnoskohteen aktiiviselle komentajalle kuuluva kansio käydään läpi vastaavien muunnettujen Elite-kuvakaappausten löytämiseksi. Muunnettu kuvakaappaus löytyy siten edelleen, vaikka sen alkuperäinen BMP olisi poistettu. Uusin kuvausaika määräytyy tiedostonimen yksiselitteisen aikaleiman mukaan tai muuten tiedostoajan mukaan; muunnetuissa kuvissa käytetään nimeen tallennettua kuvausaikaa muunnosajan sijaan. CMDRHelper ei itse ota kuvakaappauksia eikä etsi mielivaltaisista kuvakansioista.</p>
 <p>Ennen käyttöä näytetään tiedostonimi, kuvausaika ja juuri ladattu esikatselu. Vahvista painamalla ”Käytä tätä kuvaa”. Jos sopivaa kuvakaappausta ei löydy, voit edelleen käyttää toimintoa ”Valitse kuva …”. Eliten BMP-kuvakaappaukset tallennetaan sisäisinä PNG-kopioina.</p>
 <p>Kuvan voi korvata muokkausikkunassa tai poistaa valinnan painamalla ”Poista kuva”. Tallennettaessa poistetaan sisäinen kopio, jota ei enää käytetä. Jos kuvatiedosto puuttuu, suosikki on edelleen käytettävissä ilman esikatselua.</p>
+<p>Suosikkikuvat voidaan viedä paketissa, ja tuonnissa ne kopioidaan paikallisesti. Jaetut sisäiset kuvakopiot säilytetään niin kauan kuin toinen suosikki tarvitsee niitä. Kun tuonti korvaa suosikkeja, vanhat kuvatiedostot säilytetään toistaiseksi varmuuden vuoksi.</p>
 
 <h3>Suosikkikohde ja komentaja</h3>
 <p>”▶ Reitille” asettaa suosikin tunnetun järjestelmän reittisuunnittelijan kohteeksi. Lähtö noudattaa nykyistä toimintaa käyttäen ajantasaista AppState-tilaa; käsin asetettu lähtö säilytetään. Reittiä ei lasketa automaattisesti. ”◎ Koordinaatteihin” käynnistää olemassa olevan planeettanavigoinnin pintakohteeseen nykyisellä HUD-näytöllä, kun järjestelmä, taivaankappale ja kelvolliset koordinaatit on tallennettu. Matka järjestelmään ja pintanavigointi ovat kaksi erillistä vaihetta ilman automaattista matkaketjua. Ilman pintakoordinaatteja vain reittitoiminto on käytettävissä; tarvittavien tietojen puuttuessa toiminto piilotetaan.</p>
@@ -1355,3 +1374,5 @@ CLOSE_LABEL = 'Sulje'
 
 # Database update guidance; help itself remains version independent.
 HELP_TOPICS["overview"] = (HELP_TOPICS["overview"][0], HELP_TOPICS["overview"][1] + '<h3>Tietokanta on päivitettävä</h3><p>Tietokannan päivitys korjaa vanhoja tallennettuja tähtien, planeettojen ja kuiden välisiä suhteita. Lokeja vain luetaan. Sulje Elite Dangerous ensin ja tuo historialliset lokit saataville mahdollisuuksien mukaan. Koko CMDRHelper-tietokanta varmuuskopioidaan etukäteen; virhetilanteessa muutokset perutaan ja varmuuskopio palautetaan tarvittaessa. Varmuuskopio säilytetään turvana. Peruuta siirtää päivityksen myöhemmäksi.</p>')
+
+HELP_TOPICS["settings"] = (HELP_TOPICS["settings"][0], HELP_TOPICS["settings"][1] + '<h3>Diagnostiikka ja lokit</h3><p>Asetukset → Diagnostiikka ja lokit -kohdassa voit avata lokin tai luoda diagnostiikkapaketin. Lokit ovat asennuskansion logs/-kansiossa (cmdrhelper.log ja enintään neljä aiempaa lokia). ZIP sisältää puhdistetut tekniset lokit, system_info.json- ja diagnose_summary.txt-tiedostot; ei Journal-tiedostoja, tietokantaa, FID-/komentajatietoja, tunnuksia, suosikkeja tai kuvia. Henkilökohtaiset polut korvataan paikkamerkeillä. Vanhojen, yksityisyyssuodatusta edeltävien lokien sisältö jätetään pois. Valitse ZIP-tiedoston tallennuspaikka ja jaa se tarvittaessa tuelle; sitä ei koskaan lähetetä automaattisesti.</p>')

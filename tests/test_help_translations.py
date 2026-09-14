@@ -101,8 +101,8 @@ class HelpTranslationTests(unittest.TestCase):
                 text = help_topic("explorer", language).text
                 ui = import_module(f"cmdrhelper.i18n.{language}").TRANSLATIONS
                 favorite_text = text[text.index("<h3>" + ui["favorites.title"] + "</h3>"):]
-                self.assertEqual(text.count("<h3>"), 26)
-                for tag, count in (("h3", 5), ("p", 17), ("ul", 1), ("li", 3)):
+                self.assertEqual(text.count("<h3>"), 30)
+                for tag, count in (("h3", 8), ("p", 25), ("ul", 1), ("li", 3)):
                     self.assertEqual(favorite_text.count(f"<{tag}>"), count)
                 for key in ("save_system", "save_body", "save_surface", "open", "edit",
                             "delete", "route", "navigate", "latest", "choose_image", "use_image",
@@ -264,7 +264,7 @@ class HelpTranslationTests(unittest.TestCase):
                 compact = re.sub(r'[.,\s]', '', text)
                 for threshold in ('100000', '25000', '99999'):
                     self.assertIn(threshold, compact)
-                for key in ('name', 'vehicle', 'carrier', 'total', 'average_price',
+                for key in ('name', 'srv', 'ship', 'carrier', 'total', 'average_price',
                             'value_class', 'high', 'medium', 'low', 'refresh',
                             'origin_surface', 'origin_asteroid', 'only_stock'):
                     self.assertIn(ui['mining.' + key], text)
@@ -286,18 +286,94 @@ class HelpTranslationTests(unittest.TestCase):
                 '— = Bestand unbekannt', 'Ohne bestätigten Ausgangsbestand',
                 'ändern, korrigieren oder auf unbekannt zurücksetzen',
                 'widersprüchliches oder negatives Ergebnis',
-                'erneut manuell bestätigt', 'Schiff und SRV werden nicht addiert',
+                'erneut manuell bestätigt', 'SRV und Schiff werden getrennt',
+                'nur wenn alle drei Teilbestände bekannt sind',
                 'Vollständige Cargo-Snapshots haben Vorrang',
-                'Manuell bestätigte Carrierwerte werden dabei nicht gelöscht',
+                'Bestätigter Carrierbestand bleibt davon unabhängig erhalten',
                 'Live-Aktualisierung läuft weiterhin automatisch',
                 'Grün bedeutet', 'Farbanimation', 'Rot einen fehlgeschlagenen',
-                'lassen sich kombinieren', 'positiver Schiff-/SRV-Bestand bleibt',
+                'lassen sich kombinieren', 'in SRV, Schiff oder Carrier positiv',
                 'keine zweite Mining-Tabelle', 'werden gespeichert',
                 'keine Live-Marktpreise', 'Ohne bekannten Preis gibt es keine Wertklasse'):
             self.assertIn(explanation, text)
         self.assertNotRegex(text, r'Bestpreis|Umkreis|lohnt sich|Handelsrouten|'
                                   r'Seltene Waren|Gesamtverkaufswert')
         self.assertNotIn('Suchtext wird gespeichert', text)
+
+    def test_explorer_help_covers_distance_transfer_and_actual_limits(self):
+        from cmdrhelper.favorites_transfer import MAX_MEMBER_SIZE, MAX_PACKAGE_SIZE
+        for language in HELP_LANGUAGES:
+            with self.subTest(language=language):
+                text = help_topic('explorer', language).text
+                ui = import_module('cmdrhelper.i18n.' + language).TRANSLATIONS
+                for key in ('distance_filter', 'max_distance', 'transfer.export',
+                            'transfer.import', 'transfer.skip', 'transfer.replace', 'transfer.new'):
+                    self.assertIn(ui['favorites.' + key], text)
+                for term in ('favorites.json', 'images/', 'ZIP', 'Linux', 'Windows',
+                             'A 2', 'A 10', '500 ' + ui['favorites.distance_unit'],
+                             f'{MAX_MEMBER_SIZE // (1024**2)} MiB',
+                             f'{MAX_PACKAGE_SIZE // (1024**2)} MiB'):
+                    self.assertIn(term, text)
+                self.assertIn('100000', re.sub(r'[.,\s]', '', text))
+                self.assertNotIn('QSettings', text)
+
+    def test_mining_refresh_and_filter_keep_three_separate_balances(self):
+        # Check the corrected paragraphs, independently of the already-correct headings.
+        old_phrases = ('Schiff-/SRV', 'ship/SRV', 'σκάφους/SRV', 'nave/SRV',
+                       'aluksen/SRV', 'vaisseau/SRV', 'schip/SRV', 'skipets/SRV',
+                       'skip-/SRV', 'statku/SRV', 'skepp/SRV', 'skepps-/SRV', 'gemi/SRV')
+        for language in HELP_LANGUAGES:
+            text = help_topic('materials', language).text.split('<h3>Mining</h3>')[1]
+            paragraphs = re.findall(r'<p>(.*?)</p>', text)
+            with self.subTest(language=language):
+                for index in (5, 6):
+                    paragraph = paragraphs[index]
+                    self.assertIn('SRV', paragraph)
+                    self.assertIn('carrier', paragraph.casefold())
+                    for phrase in old_phrases:
+                        self.assertNotIn(phrase.casefold(), paragraph.casefold())
+                self.assertIn('nollaksi' if language == 'fi' else '0', paragraphs[6])
+
+    def test_explorer_has_no_known_mistranslated_headings_or_mining_signals(self):
+        old_headings = ('Country bar', 'bar campestre', 'Maalaisbaari', 'Bar de campagne',
+                        'Bar di campagna', 'Landelijke bar', 'Wiejski bar', 'Ülke çubuğu',
+                        'Show car', 'Εμφάνιση αυτοκινήτου', 'mostrar auto', 'Näytä auto',
+                        'Montrer la voiture', 'Mostra auto', 'Showauto', 'Vis bil',
+                        'Pokaż samochód', 'Visa bil', 'Arabayı göster')
+        for language in HELP_LANGUAGES:
+            text = help_topic('explorer', language).text
+            with self.subTest(language=language):
+                self.assertIn('<h3>BIO / GEO / ABBAU</h3>', text)
+                self.assertIn('<h3>BIO ×N</h3>', text)
+                for heading in old_headings:
+                    self.assertNotIn('<h3>' + heading + '</h3>', text)
+                bio = text.split('<h3>BIO / GEO / ABBAU</h3>')[1].split('<h3>')[0]
+                self.assertNotRegex(bio.casefold(), r'degrad|dégrad|degr[aá]d|nedbryt|'
+                                    r'hajoamis|υποβάθμ|bozulma|decompos|decay')
+
+    def test_updated_explorer_and_mining_help_render_in_both_themes(self):
+        from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
+        previous = self.app.styleSheet()
+        self.addCleanup(self.app.setStyleSheet, previous)
+        for style in (DARK_STYLESHEET, LIGHT_STYLESHEET):
+            self.app.setStyleSheet(style)
+            for language in HELP_LANGUAGES:
+                for context in ('explorer', 'materials'):
+                    with self.subTest(language=language, context=context):
+                        dialog = HelpDialog(context, language=language)
+                        try:
+                            dialog.show()
+                            self.app.processEvents()
+                            self.assertEqual(dialog.help_text.text(), help_topic(context, language).text)
+                            self.assertTrue(dialog.help_text.wordWrap())
+                            bar = dialog.scroll_area.verticalScrollBar()
+                            self.assertGreater(bar.maximum(), 0)
+                            bar.setValue(bar.maximum())
+                            self.app.processEvents()
+                            self.assertTrue(dialog.buttons.isVisible())
+                            self.assertFalse(dialog.grab().isNull())
+                        finally:
+                            dialog.close()
 
     def test_material_dialog_displays_mining_help_in_both_themes(self):
         from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET

@@ -34,6 +34,26 @@ even from a sale order, market stock, fuel reserve or total occupied space.
 Carrier stock stays unknown unless the user explicitly confirms an opening
 balance. This is a manually maintained ledger, not an Elite inventory snapshot.
 
+## Split-vessel source audit (2026-09-13)
+
+Before implementation the local Elite journal archive and current Cargo.json
+were inspected again against Frontier's manual, sections 3.1 and 13.52:
+3,047 Cargo events, exclusively Vessel=Ship (496 full, 1,564 count-only) or
+Vessel=SRV (173 full, 814 count-only). The current sidecar explicitly identified
+SRV and contained 12 tonnes of thortveitite. Cargo.json is one overwritten
+vehicle snapshot, not a pair of inventories. Missing snapshots for the other
+vehicle remain unknown. Full journal snapshots and trigger-bound checkpoints
+provide separate trustworthy bases where available; transfers never invent one.
+
+`Vessel=SRV` maps only to SRV; `Vessel=Ship` only to Ship (case-insensitive).
+Unsupported or absent Vessel values invalidate the local projection. Existing
+transfer rules remain: tosrv subtracts Ship/adds SRV, toship adds Ship and
+subtracts SRV only in active SRV context. Carrier tracking is unchanged.
+
+The stock filter checks positive SRV, Ship or Carrier stock independently.
+Manual refresh reconstructs both local stocks and compares both for its status;
+its existing verified-active-snapshot requirement and animation remain intact.
+
 ## Vehicle projection and live updates
 
 `MiningInventoryReader` reads only identified `journal_sessions` belonging to
@@ -60,10 +80,10 @@ Invalid quantities, missing/changed files and malformed complete lines fail clos
 Other potentially cargo-changing event rules not implemented here invalidate the
 affected projection until the next complete Cargo snapshot.
 
-Only one transporting vehicle is displayed. Ship and SRV are held separately;
+Ship and SRV are reconstructed and displayed separately;
 LaunchSRV waits for its own snapshot, DockSRV waits for a fresh ship snapshot
 because docking can automatically unload cargo. Ship changes and new LoadGame
-sessions discard stale bases. No ship/SRV summation is performed.
+sessions discard stale bases. No absent baseline is inferred as zero.
 
 CargoTransfer updates only known vehicle stocks: tocarrier subtracts from Ship;
 tosrv subtracts from Ship and adds to SRV; toship adds to Ship and subtracts from
@@ -76,8 +96,10 @@ check rejects obsolete results after commander changes. There is no new polling
 loop and no database write or schema change.
 
 Missing snapshots are displayed as `—`, not zero. Missing commodities within a
-known full vehicle inventory are zero. Total is vehicle + carrier only when both
-are known; an unknown carrier therefore also makes Total unknown.
+known full vehicle inventory are zero. Total is SRV + Ship + Carrier only when all three
+are known; any unknown component makes Total unknown (`—`), never a partial
+number presented as a complete balance. `MiningStock` exposes `srv_amount`,
+`ship_amount`, `carrier_amount` and `total_amount`.
 
 ## Manually confirmed carrier ledger
 
@@ -115,12 +137,15 @@ Ship/SRV refresh animation, stock filters and table settings are unchanged.
 
 ## Table settings
 
-Columns: name, vehicle, carrier, total, average_price, value_class. Stock columns
-are numeric and right-aligned. Unknown values sort last in both directions.
+Columns: name, srv, ship, carrier, total, average_price, value_class. All numeric
+columns and value classes are centered; resource names remain left-aligned. Unknown values sort last in both directions.
 The class heading and values remain centered, with the existing colored dots.
 
 Sort settings still use column identities, so old price/class sorts retain their
 meaning. The old three-column layout is migrated by identity, preserving widths
 and the relative user order; new stock columns are inserted after name.
-The existing persist_header_layout helper stores all six widths/order. Live
+The previous six-column layout replaces vehicle with srv and ship, copying its
+width to both and preserving the other identities and relative order. A saved
+vehicle sort migrates to ship; existing price/class/carrier/total sorts retain
+their meaning. The existing persist_header_layout helper stores all seven widths/order. Live
 inventory updates modify items in place, preserving search, filters and settings.

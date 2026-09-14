@@ -30,12 +30,12 @@ HELP_TOPICS = {
 <p>Beholdningen oppdateres automatisk i bakgrunnen. Bekreftede nye innsamlinger kan markeres kort. Ved bytte av commander fjernes gamle beholdninger umiddelbart. Underfaner, filtre, kolonnebredder og kolonnerekkefølge lagres separat for Odyssey.</p>
 <h3>Mining</h3>
 <p>Materialer → Mining er den sentrale oversikten over 57 kjente, omsettelige gruvevarer, atskilt fra engineering-materialer. Én tabell dekker både utvinning på planetoverflater og i asteroider/ringer. Faste referansepriser er kun veiledende, ikke direkte markedspriser.</p>
-<p><b>Kolonner</b><br><b>Råvare:</b> varens eller råstoffets navn.<br><b>Skip/SRV:</b> sikkert kjent beholdning i det aktuelle kjøretøyet.<br><b>Carrier:</b> beholdning på din egen carrier; Elite leverer ingen fullstendig personlig lagerliste, så startbeholdningen må bekreftes manuelt.<br><b>Totalt:</b> skip/SRV + carrier, bare når begge mengdene er kjent. Ukjent legges ikke til som 0.<br><b>Snittpris Cr/t:</b> fast referanseverdi uten garanti for dagens salgspris. Manglende referansepriser forblir ukjente.<br><b>Verdiklasse:</b> HØY fra 100 000 Cr/t; MIDDELS ved 25 000–99 999 Cr/t; LAV under 25 000 Cr/t. Ukjent pris gir ingen verdiklasse.</p>
+<p><b>Kolonner</b><br><b>Råvare:</b> varens eller råstoffets navn.<br><b>SRV:</b> bekreftet beholdning i SRV.<br><b>Skip:</b> bekreftet beholdning i skipet.<br><b>Carrier:</b> beholdning på din egen carrier; Elite leverer ingen fullstendig personlig lagerliste, så startbeholdningen må bekreftes manuelt.<br><b>Totalt:</b> SRV + Skip + Carrier, bare når alle tre beholdninger er kjent. Ellers —; ukjent er ikke null.<br><b>Snittpris Cr/t:</b> fast referanseverdi uten garanti for dagens salgspris. Manglende referansepriser forblir ukjente.<br><b>Verdiklasse:</b> HØY fra 100 000 Cr/t; MIDDELS ved 25 000–99 999 Cr/t; LAV under 25 000 Cr/t. Ukjent pris gir ingen verdiklasse.</p>
 <p><b>Bekrefte carrierbeholdning</b><br>Elite Dangerous gir ikke CMDRHelper en fullstendig personlig lagerliste for carrieren. Slik angir du et kjent utgangspunkt for en vare: 1. Dobbeltklikk på carrier-cellen. 2. Oppgi dagens beholdning som et heltall fra 0 og oppover. 3. Bruk verdien for å bekrefte den manuelt. 4. CMDRHelper følger deretter automatisk entydige CargoTransfer-hendelser mellom skipet og din egen carrier. Verktøytipset viser den manuelle bekreftelsen og eventuell senere oppdatering.</p>
 <p><b>— = ukjent beholdning</b><br>Uten en bekreftet startbeholdning kan enkeltstående overføringer ikke gi en pålitelig absolutt carrierbeholdning. Dobbeltklikk når som helst for å endre, korrigere eller tilbakestille verdien til ukjent. Hvis en overføring ville gi et motstridende eller negativt resultat, blir beholdningen ukjent igjen og må bekreftes manuelt på nytt.</p>
-<p><b>Skip og SRV</b><br>CMDRHelper bruker verifiserte lastedata. Skip og SRV summeres ikke: tabellen viser beholdningen i det aktuelle kjøretøyet. Fullstendige øyeblikksbilder av lasten har forrang fremfor beholdninger beregnet fra enkeltendringer.</p>
-<p><b>↻ Oppdater</b><br>Knappen leser skipets/SRV-ens nåværende last på nytt som manuell kontroll og oppdatering. Vanlige direkteoppdateringer fortsetter automatisk. Manuelt bekreftede carrierverdier slettes ikke. Grønt betyr klar eller vellykket, fargeanimasjonen viser pågående oppdatering, og rødt betyr et mislykket forsøk. Manglende eller ikke verifiserbare data vises ikke som tom beholdning.</p>
-<p><b>Kombinere filtre</b><br>Råstoffsøket filtrerer etter navn. Verdiklassen tilbyr Alle, HØY, MIDDELS og LAV; opprinnelse tilbyr Alle, Planetarisk gruvedrift og Asteroider/Ringer. Kun på lager viser bare varer med sikkert kjent positiv beholdning. Positiv skip-/SRV-beholdning vises også når carrierbeholdningen er ukjent. Søk, verdiklasse, opprinnelse og beholdningsfilter kan kombineres.</p>
+<p><b>Skip og SRV</b><br>SRV- og skipsbeholdning rekonstrueres separat fra bekreftede lastdata. Ukjente mengder forblir —. Fullstendige lastøyeblikksbilder har forrang fremfor beregnede endringer.</p>
+<p><b>↻ Oppdater</b><br>SRV-beholdning og skipsbeholdning oppdateres separat fra bekreftede data. Bekreftet carrierbeholdning bevares uavhengig av dette. Vanlige direkteoppdateringer fortsetter automatisk. Grønt betyr klar eller vellykket, fargeanimasjonen viser pågående oppdatering, og rødt betyr et mislykket forsøk. Manglende eller ikke verifiserbare data vises ikke som tom beholdning.</p>
+<p><b>Kombinere filtre</b><br>Råstoffsøket filtrerer etter navn. Verdiklassen tilbyr Alle, HØY, MIDDELS og LAV; opprinnelse tilbyr Alle, Planetarisk gruvedrift og Asteroider/Ringer. «Kun på lager» viser en vare hvis minst én kjent beholdning i SRV, skip eller carrier er positiv. Ukjente beholdninger regnes ikke som 0 og skjuler ikke en kjent positiv beholdning et annet sted. Søk, verdiklasse, opprinnelse og beholdningsfilter kan kombineres.</p>
 <p><b>ABBAU ×N i utforskeren</b><br>Et klikk åpner Materialer → Mining og setter opprinnelsesfilteret automatisk til Planetarisk gruvedrift. Det finnes ingen ekstra Mining-tabell i utforskeren.</p>
 <p><b>Sortering og bredder</b><br>Klikk på kolonneoverskriftene for stigende eller synkende sortering. Beholdninger og priser sorteres numerisk, med ukjente verdier til slutt. Dra kolonnegrensene med musen for å endre breddene. Sortering, kolonnebredder og filtrene for verdiklasse, opprinnelse og Kun på lager lagres.</p>
 <p><b>Opprinnelse</b><br>Surface betyr utvinning på planetoverflater; Asteroid betyr gruvedrift i asteroider/ringer. Noen råstoffer finnes begge steder (Both) og vises i begge passende opprinnelsesfiltre.</p>""",
@@ -216,7 +216,7 @@ HELP_TOPICS = {
               '<p>Displayet viser blant annet kroppstype, avstand og – hvis tilgjengelig – '
               'skannings- og kartografiverdier samt spesielle leteegenskaper.</p>\n'
               '\n'
-              '<h3>ØKOLOGISK ×N</h3>\n'
+              '<h3>BIO ×N</h3>\n'
               '<p>BIO ×N angir antall biologiske signaler fra en kropp som er rapportert av '
               'spillet.</p>\n'
               '<p>Tallet indikerer i utgangspunktet bare hvor mange biologiske signaler eller '
@@ -277,7 +277,7 @@ HELP_TOPICS = {
               '</ul>\n'
               '<p>«Allerede kartlagt ved skanningen din» vurderes uavhengig av oppdagelse. Manglende informasjon forblir Ukjent. Et allerede oppdaget himmellegeme kan ha vært ukartlagt ved skanningen. Egen kartlegging bekrefter ikke en offisiell First Mapping-merkelapp; ved flere besøk er heller ikke rekkefølgen i forhold til den lagrede skanningen alltid dokumentert.</p>\n<p>Fullført egen DSS-kartlegging lagrer nå kartleggingstidspunkt, brukte sonder og effektivitetsmål pålitelig. Senere skanninger fører ikke lenger til tap av eksisterende opplysninger.</p>\n'
               '\n'
-              '<h3>Country bar</h3>\n'
+              '<h3>Landing mulig</h3>\n'
               '<p>Landbarhetsindikatoren identifiserer kropper som, ifølge kjente data, er mulig å '
               'lande på.</p>\n'
               '\n'
@@ -291,15 +291,19 @@ HELP_TOPICS = {
               '<p>Den er spesielt egnet for raskt å sammenligne interessante eller verdifulle '
               'kropper i et system.</p>\n'
               '\n'
-              '<h3>ØKOLOGISK / GEO / DEGRADERING</h3>\n'
-              '<p>Dette synet grupperer kropper med biologiske, geologiske eller planetariske '
-              'nedbrytningssignaler.</p>\n'
+              '<h3>BIO / GEO / ABBAU</h3>\n'
+              '<p>Denne visningen samler himmellegemer med biologiske, geologiske eller planetariske '
+              'gruvesignaler.</p>\n'
               '<p>Dette betyr at interessante kropper ikke trenger å søkes opp individuelt i det '
               'komplette systemkartet.</p>\n'
               '<p>Hvis du har dine egne gruvedata på overflaten, kan dine personlige gruvefunn '
               'også være synlige.</p>\n'
               '<p>Manuelt justerte kolonnebredder i den felles Explorer-tabellen BIO / GEO / ABBAU beholdes ved gjenåpning og omstart. Lagrede kolonnebredder i sprettoppvinduer gjenopprettes mer robust; ugyldige verdier erstattes med trygge standardbredder.</p>\n\n'
-              '<h3>Kroppsdetalj</h3>\n'
+              '<h3>Bruke tabellene</h3>\n<p>Klikk på en kolonneoverskrift i verdilisten eller BIO / GEO / ABBAU '
+              'for å sortere; klikk igjen for å snu retningen. Dra kolonnegrensene med musen for å endre '
+              'breddene. Sortering og kolonnebredder lagres separat for hver tabell. Navn på himmellegemer '
+              'sorteres naturlig, for eksempel A 2 før A 10. Avstander, kreditter og antall sorteres numerisk. '
+              'Status, analyse og besøkt sorteres etter betydning, ikke alfabetisk.</p>\n\n<h3>Kroppsdetalj</h3>\n'
               '<p>Ved å klikke på en kropp åpnes den detaljerte visningen.</p>\n'
               '<p>Så vidt kjent kan følgende vises der:</p>\n'
               '<ul>\n'
@@ -336,7 +340,7 @@ HELP_TOPICS = {
               '<p>Kartografidata som allerede er solgt skal ikke vises som åpne igjen etter '
               'rekonstruksjon.</p>\n'
               '\n'
-              '<h3>Vis bil</h3>\n'
+              '<h3>Vis automatisk</h3>\n'
               '<p>Støttede Explorer-tips som verdifulle kropper eller BIO-funn kan vises '
               'automatisk ved hjelp av bryterne i venstre sidefelt.</p>\n'
               '<p>Disse små live-vinduene fungerer som ekstra hint mens du spiller og erstatter '
@@ -360,6 +364,19 @@ HELP_TOPICS = {
 <p>Den rullbare listen, alfabetisk sortert etter navn, viser navn, type, system, himmellegeme og breddegrad/lengdegrad der det er relevant, kategori og en liten bildeforhåndsvisning. Fritekstsøk, typefilter og kategorifilter kan brukes sammen. Søket omfatter navn, system, himmellegeme og notat.</p>
 <p>«Åpne / Vis» viser de lagrede opplysningene, notatet og en større bildeforhåndsvisning. «Vis i Explorer» åpner den eksisterende systemoversikten eller detaljvisningen for himmellegemet hvis favoritten tilhører det gjeldende Explorer-systemet og passende data er tilgjengelige. For andre systemer forblir de lagrede favorittdataene synlige; ingen systemrute beregnes.</p>
 
+<h3>Avstandsfilter</h3>
+<p>«Avstandsfilter» er avslått som standard. «Maks. avstand:» er først satt til 500 ly og kan justeres fra 1 til 100 000 ly. Avstanden regnes fra det nåværende kjente systemet med lokalt tilgjengelige systemkoordinater. Det gjøres ingen nettforespørsel bare for dette filteret.</p>
+<p>Favoritter med kjent avstand utenfor grensen skjules. Favoritter med ukjent avstand forblir synlige. Mangler koordinatene til det nåværende systemet, skjuler avstandsfilteret ingen oppføringer. Søk, type og kategori gjelder fortsatt. Filtreringen oppdateres automatisk etter et systembytte. Bryteren og maksimal avstand lagres.</p>
+
+<h3>Eksportere favoritter</h3>
+<p>«Eksporter» lager en portabel ZIP med alle favorittene til den aktive kommandøren, ikke bare oppføringene som vises gjennom søk eller type-, kategori- og avstandsfiltre. favorites.json inneholder de strukturerte favorittdataene; tilgjengelige favorittbilder ligger under images/. Pakken kan overføres mellom Linux og Windows.</p>
+<p>Eksisterende favoritter og originalbilder endres ikke. Bilder med identisk innhold lagres bare én gang i pakken. Manglende eller skadede bilder hindrer ikke eksport av favorittdata. Import og eksport tillater maksimalt 32 MiB per fil og 256 MiB totalt for ukomprimert pakkeinnhold.</p>
+
+<h3>Importere favoritter</h3>
+<p>«Importer» kontrollerer først ZIP-filen og viser en oversikt over nye og eksisterende favoritter før endringer. Importerte favoritter tilordnes den nåværende aktive kommandøren. Duplikater gjenkjennes etter type, kategori, navn og sted: kjente system-/himmellegeme-ID-er og koordinater, ellers system-/himmellegemenavn. Duplikater inne i pakken regnes også med.</p>
+<p>Ett valg gjelder alle oppdagede duplikater: «Hopp over» er standard og bevarer eksisterende oppføringer; «Erstatt eksisterende favoritt» overfører de importerte dataene til den eksisterende favoritten; «Importer som ny oppføring» lager en ekstra oppføring. Avbryt importerer ingenting.</p>
+<p>Ugyldige favorittdata stopper hele importen. Ved importfeil rulles databaseendringer tilbake for å unngå delvis import. Manglende eller skadede bilder hindrer ikke import av gyldige data; disse favorittene importeres uten bilde. CMDRHelper håndterer importerte bilder lokalt.</p>
+
 <h3>Lagre et system, en planet eller gjeldende posisjon</h3>
 <ul>
 <li>«★ Lagre nåværende system» lagrer det gjeldende systemet uten overflatekoordinater.</li>
@@ -380,6 +397,7 @@ HELP_TOPICS = {
 <p>«Bruk siste skjermbilde» leser den konfigurerte kildemappen for skjermbilder på nytt ved hvert klikk og ser etter lesbare skjermbilder med typiske Elite-filnavn. Uten en innstilling tas de vanlige Elite-skjermbildemappene på Windows eller Steam/Proton med. Mappen til den aktive kommandøren i det konfigurerte konverteringsmålet gjennomsøkes også etter passende konverterte Elite-skjermbilder. Dermed kan et konvertert skjermbilde fortsatt finnes hvis den opprinnelige BMP-filen er slettet. Det nyeste opptakstidspunktet bestemmes av en entydig tidsangivelse i filnavnet, ellers av filtiden; for konverterte bilder brukes opptakstiden som er lagret i navnet, ikke konverteringstidspunktet. CMDRHelper tar ikke skjermbilder selv og søker ikke i vilkårlige bildemapper.</p>
 <p>Før bruk vises filnavn, opptakstid og en nylastet forhåndsvisning. Bekreft med «Bruk dette bildet». Hvis ingen passende skjermbilder blir funnet, kan du fortsatt bruke «Velg bilde …». Elite-skjermbilder i BMP-format lagres som en intern PNG-kopi.</p>
 <p>Et bilde kan erstattes i redigeringsdialogen eller velges bort med «Fjern bilde». Ved lagring slettes den interne kopien som ikke lenger brukes. Hvis en bildefil mangler, kan favoritten fortsatt brukes uten forhåndsvisning.</p>
+<p>Favorittbilder kan eksporteres og kopieres lokalt ved import. Delte interne bildekopier beholdes så lenge en annen favoritt trenger dem. Når en import erstatter favoritter, beholdes gamle bildefiler foreløpig som en forholdsregel.</p>
 
 <h3>Favorittmål og kommandør</h3>
 <p>«▶ Til ruten» setter favorittens kjente system som mål i ruteplanleggeren. Starten følger eksisterende oppførsel med gjeldende AppState; en manuelt angitt start beholdes. Ingen rute beregnes automatisk. «◎ Til koordinatene» starter eksisterende planetnavigasjon til overflatestedet med eksisterende HUD når system, himmellegeme og gyldige koordinater er lagret. Reisen til systemet og overflatenavigasjonen er to separate trinn, uten automatisk reiseforløp. Uten overflatekoordinater er bare ruten tilgjengelig; handlinger som mangler nødvendige data skjules.</p>
@@ -1333,3 +1351,5 @@ CLOSE_LABEL = 'Lukk'
 
 # Database update guidance; help itself remains version independent.
 HELP_TOPICS["overview"] = (HELP_TOPICS["overview"][0], HELP_TOPICS["overview"][1] + '<h3>Databaseoppdatering kreves</h3><p>Databaseoppdateringen retter eldre lagrede forhold mellom stjerner, planeter og måner. Journalene blir bare lest. Avslutt Elite Dangerous først og gjør historiske journaler tilgjengelige hvis mulig. Hele CMDRHelper-databasen sikkerhetskopieres på forhånd; ved feil rulles endringene tilbake, og sikkerhetskopien gjenopprettes om nødvendig. Kopien beholdes for sikkerhets skyld. Avbryt lar deg utsette oppdateringen.</p>')
+
+HELP_TOPICS["settings"] = (HELP_TOPICS["settings"][0], HELP_TOPICS["settings"][1] + '<h3>Diagnostikk og logger</h3><p>Under Innstillinger → Diagnostikk og logger kan du åpne loggfilen eller opprette en diagnosepakke. Loggene ligger i logs/ i installasjonsmappen (cmdrhelper.log og opptil fire eldre filer). ZIP-filen inneholder rensede tekniske logger, system_info.json og diagnose_summary.txt; ingen journaler, database, FID-/kommandørdata, påloggingsopplysninger, favoritter eller bilder. Personlige stier erstattes med plassholdere. Innholdet i gamle logger fra før personvernfiltreringen utelates. Velg hvor ZIP-filen skal lagres, og del den med brukerstøtte ved behov; den sendes aldri automatisk.</p>')

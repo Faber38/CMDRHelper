@@ -21,6 +21,9 @@ from cmdrhelper.ui.material_view import MaterialView
 from cmdrhelper.ui.startup_progress import StartupProgressDialog
 from cmdrhelper.ui.cargo_hud import cargo_hud_enabled, cargo_hud_data
 from cmdrhelper.ui.table_widths import persist_column_widths
+from cmdrhelper.ui.explorer_value_sort import (
+    ValueItem, sort_keys, bio_sort_keys, setup_sort, apply_sort,
+)
 from cmdrhelper.ui.help_dialog import HelpDialog
 from cmdrhelper.ui.game_mode import GameModeRow
 from cmdrhelper.ui.analysis_view import SystemAnalysisView
@@ -1173,6 +1176,8 @@ class MainWindow(QMainWindow):
 
     @Slot(str)
     def _initialization_finished(self, error):
+        self._parent_backup_startup_succeeded = not bool(error)
+        self._cleanup_parent_backup()
         if self._startup_progress_dialog is None:
             if error:
                 QMessageBox.warning(
@@ -1181,6 +1186,14 @@ class MainWindow(QMainWindow):
                 )
             return
         self._startup_progress_dialog.finish(str(error or ""))
+
+    def _cleanup_parent_backup(self):
+        from cmdrhelper.parent_migration import cleanup_backup
+        if getattr(self, "_parent_backup_startup_succeeded", False):
+            cleanup_backup(
+                self.state.database.path, __version__, startup_succeeded=True,
+                release=getattr(self, "_parent_backup_release", None),
+            )
 
     def _nav(self, text, idx):
         button = QPushButton(text)
@@ -1848,6 +1861,11 @@ class MainWindow(QMainWindow):
         self.explorer_value_table.setColumnWidth(4, 145)
         self.explorer_value_table.setColumnWidth(5, 235)
         self.explorer_value_table.setColumnWidth(6, 150)
+        persist_column_widths(
+            self.explorer_value_table, self.state.settings, "explorer/value_column_widths",
+            preserve_default_stretch=True,
+        )
+        setup_sort(self.explorer_value_table, self.state.settings)
 
         self.explorer_tabs.addTab(
             self.explorer_value_table,
@@ -1896,6 +1914,7 @@ class MainWindow(QMainWindow):
         persist_column_widths(
             self.explorer_bio_table, self.state.settings, "explorer/bio_geo_mining_column_widths"
         )
+        setup_sort(self.explorer_bio_table, self.state.settings, "explorer/bio_geo_mining")
 
         self.explorer_tabs.addTab(
             self.explorer_bio_table,
@@ -2326,8 +2345,9 @@ class MainWindow(QMainWindow):
                 status,
             ]
 
+            keys = sort_keys(body, values, visited, self_mapped, was_mapped, possible_value)
             for col, value in enumerate(values):
-                item = QTableWidgetItem(str(value))
+                item = ValueItem(value, keys[col])
                 item.setData(Qt.UserRole, body)
                 item.setToolTip(status_tooltip(body))
 
@@ -2365,6 +2385,8 @@ class MainWindow(QMainWindow):
                         item.setForeground(QColor("#9aa3ab"))
 
                 self.explorer_value_table.setItem(row, col, item)
+
+        apply_sort(self.explorer_value_table)
 
         # BIO/GEO/Abbau-Körper gemeinsam. Auch reine GEO-/Abbau-Körper werden hier
         # angezeigt; Körper mit beiden Signalarten erscheinen nur einmal.
@@ -2454,6 +2476,9 @@ class MainWindow(QMainWindow):
                 status if signals > 0 else tr("explorer.open"),
             ]
 
+            keys = bio_sort_keys(
+                body, values, bio_names, known_bio_value, visited, found, completed, analysed,
+            )
             for col, value in enumerate(values):
                 # BIO-Funde brauchen Rich Text, damit jeder Name einzeln
                 # entsprechend seinem Scan-Fortschritt eingefärbt werden kann.
@@ -2465,9 +2490,14 @@ class MainWindow(QMainWindow):
                     label.setContentsMargins(8, 0, 4, 0)
                     label.setToolTip(tr("explorer.bio_colors_tooltip"))
                     self.explorer_bio_table.setCellWidget(row, col, label)
+                    # The label keeps its existing rich-text presentation; an
+                    # underlying item lets Qt sort and move the complete row.
+                    item = ValueItem("", keys[col])
+                    item.setData(Qt.UserRole, body)
+                    self.explorer_bio_table.setItem(row, col, item)
                     continue
 
-                item = QTableWidgetItem(str(value))
+                item = ValueItem(value, keys[col])
 
                 if col == 6 and known_bio_value > 0 and first_footfall:
                     item.setToolTip(
@@ -2492,6 +2522,8 @@ class MainWindow(QMainWindow):
                     item.setForeground(QColor("#d9dde1"))
 
                 self.explorer_bio_table.setItem(row, col, item)
+
+        apply_sort(self.explorer_bio_table)
 
         self.explorer_tabs.setTabText(
             1,
@@ -4414,6 +4446,8 @@ class MainWindow(QMainWindow):
         content = QWidget()
         layout = QVBoxLayout(content)
         layout.setContentsMargins(12, 10, 12, 10)
+        from cmdrhelper.ui.diagnostics_panel import DiagnosticsPanel
+        layout.addWidget(DiagnosticsPanel(self.state, content))
         layout.setSpacing(8)
 
         layout.addWidget(QLabel(tr("settings.title"), objectName="sectionTitle"))
@@ -5240,6 +5274,8 @@ class MainWindow(QMainWindow):
                 QMessageBox.warning(self, tr("settings.update_check_title"), error)
             return
 
+        self._parent_backup_release = result
+        self._cleanup_parent_backup()
         latest = result.get("version") or ""
 
         if latest and is_newer_version(

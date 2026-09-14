@@ -1,4 +1,5 @@
 from __future__ import annotations
+import logging
 
 import json
 import hashlib
@@ -72,19 +73,24 @@ def test_edsm_connection(
             data = _read_json_response(response)
 
     except HTTPError as exc:
+        logging.getLogger(__name__).exception("Online service connection check failed")
         return False, f"EDSM HTTP-Fehler {exc.code}."
 
     except URLError as exc:
+        logging.getLogger(__name__).exception("Online service connection check failed")
         reason = getattr(exc, "reason", exc)
         return False, f"EDSM nicht erreichbar: {reason}"
 
     except TimeoutError:
+        logging.getLogger(__name__).exception("Online service connection check failed")
         return False, "Zeitüberschreitung bei der EDSM-Anfrage."
 
     except json.JSONDecodeError:
+        logging.getLogger(__name__).exception("Online service connection check failed")
         return False, "EDSM hat keine gültige JSON-Antwort geliefert."
 
     except Exception as exc:
+        logging.getLogger(__name__).exception("Online service connection check failed")
         return False, f"EDSM-Test fehlgeschlagen: {exc}"
 
     msgnum = data.get("msgnum")
@@ -170,6 +176,7 @@ def test_inara_connection(
             data = _read_json_response(response)
 
     except HTTPError as exc:
+        logging.getLogger(__name__).exception("Online service connection check failed")
         if exc.code == 403:
             return False, (
                 "Inara hat die Anfrage mit HTTP 403 abgewiesen. "
@@ -178,16 +185,20 @@ def test_inara_connection(
         return False, f"Inara HTTP-Fehler {exc.code}."
 
     except URLError as exc:
+        logging.getLogger(__name__).exception("Online service connection check failed")
         reason = getattr(exc, "reason", exc)
         return False, f"Inara nicht erreichbar: {reason}"
 
     except TimeoutError:
+        logging.getLogger(__name__).exception("Online service connection check failed")
         return False, "Zeitüberschreitung bei der Inara-Anfrage."
 
     except json.JSONDecodeError:
+        logging.getLogger(__name__).exception("Online service connection check failed")
         return False, "Inara hat keine gültige JSON-Antwort geliefert."
 
     except Exception as exc:
+        logging.getLogger(__name__).exception("Online service connection check failed")
         return False, f"Inara-Test fehlgeschlagen: {exc}"
 
     header = data.get("header") or {}
@@ -500,6 +511,7 @@ def fetch_edsm_bodies(
         raw = _fetch_edsm_json(EDSM_BODIES_URL, {"systemName": system_name}, timeout)
 
     except HTTPError as exc:
+        logging.getLogger(__name__).exception("Explorer EDSM bodies request failed")
         return (
             False,
             None,
@@ -507,6 +519,7 @@ def fetch_edsm_bodies(
         )
 
     except URLError as exc:
+        logging.getLogger(__name__).exception("Explorer EDSM bodies request failed")
         reason = getattr(
             exc,
             "reason",
@@ -519,6 +532,7 @@ def fetch_edsm_bodies(
         )
 
     except TimeoutError:
+        logging.getLogger(__name__).exception("Explorer EDSM bodies request failed")
         return (
             False,
             None,
@@ -526,6 +540,7 @@ def fetch_edsm_bodies(
         )
 
     except json.JSONDecodeError:
+        logging.getLogger(__name__).exception("Explorer EDSM bodies request failed")
         return (
             False,
             None,
@@ -533,6 +548,7 @@ def fetch_edsm_bodies(
         )
 
     except Exception as exc:
+        logging.getLogger(__name__).exception("Explorer EDSM bodies request failed")
         return (
             False,
             None,
@@ -558,6 +574,7 @@ def fetch_edsm_bodies(
     try:
         body_count = int(body_count or 0)
     except Exception:
+        logging.getLogger(__name__).exception("Explorer EDSM bodies request failed")
         body_count = 0
 
     data = {
@@ -573,6 +590,7 @@ def fetch_edsm_bodies(
         )
     except Exception:
         # Ein Cache-Fehler darf die EDSM-Daten nicht unbrauchbar machen.
+        logging.getLogger(__name__).exception("Explorer EDSM bodies request failed")
         pass
 
     return True, data, "network"

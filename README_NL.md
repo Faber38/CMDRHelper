@@ -13,6 +13,42 @@ Türkçe](README_TR.md) \| [🇬🇷 Ελληνικά](README_EL.md)
 
 CMDRHelper is een zelfstandig desktopprogramma dat de lokale journals van Elite Dangerous analyseert en planetaire positiegegevens uit `Status.json` gebruikt. Het helpt je interessante hemellichamen te herkennen, opgeslagen plaatsen terug te vinden en je reizen en ontdekkingen te bekijken. Persoonlijke gegevens blijven na een herstart behouden en worden per commander gescheiden.
 
+## 🚀 Snel aan de slag
+
+Download het **ZIP-bestand van de nieuwste CMDRHelper-release** (`CMDRHelper_v*.zip`) via [GitHub Releases](https://github.com/Faber38/CMDRHelper/releases/latest) onder **Assets** en pak het volledige ZIP-bestand uit in een eigen map.
+
+### Windows
+
+1. Voer **`install.bat` één keer uit** in de uitgepakte map. Dit stelt de lokale Python-omgeving (`venv`) en afhankelijkheden in. Als geschikte Python ontbreekt, kan deze na jouw toestemming automatisch via `winget` worden geïnstalleerd; `winget` moet beschikbaar zijn.
+2. Start na de installatie met **`start.bat`**. Gebruik dit bestand ook voor volgende starts.
+
+### Linux
+
+Python **3.10 of nieuwer** met de bijbehorende `venv`-module moet al geïnstalleerd zijn. Open een terminal in de uitgepakte map en voer eenmalig uit:
+
+```bash
+bash install.sh
+```
+
+Het script stelt de lokale omgeving en afhankelijkheden in; het installeert geen systeempakketten. Start CMDRHelper daarna, en bij volgende starts, met **`bash start.sh`**.
+
+### Eerste start en updates
+
+De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontbreekt de map of is deze onjuist, selecteer hem dan in **Instellingen**.
+
+CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
+
+## Nieuw in versie 3.4.3
+
+- Uitgebreide favorieten: afstandsfilter en overdraagbare ZIP-export/import inclusief afbeeldingen.
+- Sorteer Explorer-tabellen en bewaar sortering en kolombreedtes afzonderlijk per tabel.
+- Mijnbouw toont SRV, schip, carrier en totaal apart; het voorraadfilter houdt rekening met alle drie de opslaglocaties.
+- Diagnosepakketten en privacybewuste roterende logs voor support, zonder automatische verzending.
+- Veilige database-upgrade rechtstreeks vanuit oudere versies; migratieback-ups blijven behouden in de versie die ze heeft gemaakt.
+- Betere bediening, bijgewerkte hulp en duidelijk aanklikbare punten op de chroniekkaart.
+
+Het afstandsfilter staat aanvankelijk uit (standaard 500 lj), gebruikt lokale systeemcoördinaten en wordt vernieuwd bij een systeemwisseling. Favorietenexport bevat favorites.json en beschikbare afbeeldingen; duplicaten kunnen worden overgeslagen, vervangen of als nieuw geïmporteerd. De waardelijst en BIO/GEO/MIJNBOUW-tabellen ondersteunen natuurlijke, numerieke en semantische sortering. Versie 3.4.1 hoeft niet eerst te worden geïnstalleerd.
+
 ## Nieuw in versie 3.4.1
 
 - Corrigeert oudere opgeslagen systeemhiërarchieën

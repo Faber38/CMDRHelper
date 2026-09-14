@@ -31,7 +31,11 @@ def main():
     parser.add_argument('backup', type=Path)
     parser.add_argument('--journals', type=Path)
     parser.add_argument('--reference-341', action='store_true', help='Assert the known original 3.4 backup totals')
+    parser.add_argument('--app-version', help='Simulate a later runtime without changing version.py')
     args = parser.parse_args()
+    if args.app_version:
+        from cmdrhelper import parent_migration
+        parent_migration.__version__ = args.app_version
     source = args.backup.resolve()
     original_hash = digest(source)
     with readonly(source) as con:
