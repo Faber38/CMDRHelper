@@ -164,6 +164,15 @@ class OnlineServiceCommanderComboBox(QComboBox):
         self.view().setMaximumWidth(view_width)
 
 
+class _ChronicleSystemNameLabel(QLabel):
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.LeftButton and self.rect().contains(event.position().toPoint()):
+            QApplication.clipboard().setText(self.text())
+            event.accept()
+            return
+        super().mouseReleaseEvent(event)
+
+
 class ChronicleSystemWindow(QDialog):
     def __init__(self, system_name, bodies, header_text, body_callback, parent=None, *,
                  system_address=None, commander_id=None, settings=None):
@@ -180,7 +189,9 @@ class ChronicleSystemWindow(QDialog):
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(6)
 
-        title = QLabel(system_name, objectName="sectionTitle")
+        title = _ChronicleSystemNameLabel(system_name, objectName="sectionTitle")
+        title.setTextFormat(Qt.PlainText)
+        title.setCursor(Qt.PointingHandCursor)
         title.setStyleSheet("font-size: 18px; font-weight: 700;")
         layout.addWidget(title)
 

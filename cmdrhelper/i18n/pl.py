@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_4_5.0': 'Stabilniejszy import archiwum przy dużych zbiorach dzienników.',
+    'release.3_4_5.1': 'Sprawniej reagujący interfejs podczas długiego przetwarzania danych.',
+    'release.3_4_5.2': 'Lepsze uzupełnianie danych z nowych i powiększonych dzienników po imporcie.',
+    'release.3_4_5.3': 'Szybsze przetwarzanie archiwum i odświeżanie danych wydobycia.',
+    'release.3_4_5.4': 'Kliknij nazwę systemu w otwartym widoku systemu w kronice, aby ją skopiować.',
+    'release.3_4_5.5': 'Dalsze ulepszenia wydajności i stabilności.',
     'release.3_4_4.0': 'Naprawiono błędy związane z bardzo dużymi identyfikatorami misji, zapewniając niezawodny zapis misji.',
     'release.3_4_4.1': 'Po błędzie zapisu przetwarzanie dziennika ponawia próbę z coraz dłuższymi przerwami, bez pomijania wpisów.',
     'release.3_4_4.2': 'Usprawniono uruchamianie, gdy aktywny dowódca nie został jeszcze rozpoznany.',

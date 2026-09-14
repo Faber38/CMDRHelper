@@ -65,7 +65,7 @@ def _complete_line_offset(path: Path, start: int = 0) -> int:
     return complete
 
 
-def scan_journal_folder(database, folder: Path, progress_callback=None):
+def scan_journal_folder(database, folder: Path, progress_callback=None, validate_input=None):
     """Ein scandir-Pass; unveränderte Dateien werden weder geöffnet noch gehasht."""
     folder = Path(folder)
     database.ensure_schema_v10()
@@ -108,6 +108,8 @@ def scan_journal_folder(database, folder: Path, progress_callback=None):
                 "fully_imported": bool(old[12]), "unchanged": True,
             }
         else:
+            if validate_input is not None:
+                validate_input(path)
             digest = _sha256(path)
             # Gleicher Inhalt mit lediglich abweichender mtime: Metadaten
             # aktualisieren, ohne erneut zu klassifizieren.

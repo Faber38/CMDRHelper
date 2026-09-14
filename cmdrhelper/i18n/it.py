@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_4_5.0': 'Importazione degli archivi più affidabile con grandi raccolte di diari.',
+    'release.3_4_5.1': 'Interfaccia più reattiva durante le elaborazioni prolungate dei dati.',
+    'release.3_4_5.2': 'Migliore recupero dei diari nuovi e aggiornati dopo l’importazione.',
+    'release.3_4_5.3': 'Elaborazione degli archivi e aggiornamento dei dati minerari più rapidi.',
+    'release.3_4_5.4': 'Fai clic sul nome del sistema nella vista del sistema aperta nella cronaca per copiarlo.',
+    'release.3_4_5.5': 'Ulteriori miglioramenti delle prestazioni e della stabilità.',
     'release.3_4_4.0': 'Corretti gli errori con identificativi di missione molto grandi, per salvare le missioni in modo affidabile.',
     'release.3_4_4.1': 'Dopo un errore di salvataggio, l’elaborazione del diario riprova con pause crescenti, senza saltare voci.',
     'release.3_4_4.2': 'Avvio migliorato quando non è ancora stato rilevato un comandante attivo.',

@@ -36,11 +36,8 @@ class _Read(QRunnable):
                     carrier = con.execute("SELECT carrier_id FROM commander_carriers WHERE commander_id=?", (self.cid,)).fetchone()
             if commander and commander["fid"]:
                 inventory = self.reader.reconstruct(self.cid, commander["fid"], sessions,
-                    checkpoints=self.checkpoints, live_path=self.live_path)
+                    checkpoints=self.checkpoints, live_path=self.live_path, include_carrier_feed=True)
                 inventory.carrier_id = stable_id(carrier["carrier_id"]) if carrier else None
-                live_rows = [s for s in sessions if self.live_path and Path(s["journal_file"]).resolve() == Path(self.live_path).resolve()]
-                if live_rows and all(s["fid_seen"] == commander["fid"] and s["attribution_status"] == "identified" for s in live_rows):
-                    inventory.carrier_feed = read_carrier_feed(self.live_path, commander["fid"])
         except Exception:
             logger.exception("Mining inventory reconstruction failed")
         self.signals.ready.emit(self.generation, inventory)

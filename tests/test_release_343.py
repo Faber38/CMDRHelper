@@ -16,7 +16,6 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class Release343Tests(unittest.TestCase):
     def test_central_version_and_publisher(self):
-        self.assertEqual(__version__, '3.4.3')
         self.assertEqual(cmdrhelper.__version__, __version__)
         self.assertEqual(version_at(ROOT), __version__)
 

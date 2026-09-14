@@ -56,6 +56,7 @@ class AppState(QObject):
     initializationProgress = Signal(int, int, str, str)
     initializationFinished = Signal(str)
     journalIndexReady = Signal(object)
+    journalCatchupReady = Signal(object, str)
 
     def __init__(self):
         super().__init__()
@@ -70,6 +71,9 @@ class AppState(QObject):
         self._database_import_running = False
         self._database_import_manual_waiting = False
         self._database_import_last_progress = None
+        self._journal_catchup = None
+        self._journal_catchup_running = False
+        self.journalCatchupReady.connect(self._finish_journal_catchup, Qt.QueuedConnection)
         self._journal_index_sessions = None
         self._journal_index_current = None
         self._initialization_visible = False
@@ -486,6 +490,12 @@ class AppState(QObject):
         # auf "Vorbereitung …" hängen bleiben. Der manuelle Aufruf hängt
         # sich deshalb an den bereits laufenden Import an und bekommt dessen
         # Fortschritt/Abschluss mitgeteilt.
+        if (not self._database_import_running
+                and (getattr(self, "_journal_catchup", None) is not None
+                     or getattr(self, "_journal_catchup_running", False))):
+            if not automatic:
+                self.databaseImportFinished.emit(None, "Journal catch-up is still pending.")
+            return
         if self._database_import_running:
             if not automatic:
                 self._database_import_manual_waiting = True
@@ -508,6 +518,8 @@ class AppState(QObject):
             return
 
         self._database_import_running = True
+        self._journal_catchup_running = True
+        logger.info("Live journal processing deferred during archive import")
         logger.info(
             "Journal-Archivimport gestartet (%s)",
             "automatisch" if automatic else "manuell",
@@ -518,6 +530,9 @@ class AppState(QObject):
         self._startup_manual_import_waiting = False
         self._database_import_last_progress = None
         folder = Path(self.journal_folder)
+        enqueue_fid = (getattr(self, "commander_fid", "")
+                       if getattr(self, "commander_id", None) is not None
+                       and self._inara_identity_matches(self.commander_id) else None)
 
         def progress(current, total, name):
             current = int(current)
@@ -556,10 +571,15 @@ class AppState(QObject):
                     )
 
         def worker():
+            catchup_sessions, catchup_error = None, ""
+            stats, import_error = None, ""
             try:
+                from cmdrhelper.journal_catchup import capture, validate_input
+                self._journal_catchup = capture(self.database, folder)
                 stats = self.database.import_journal_archive(
                     folder,
                     progress_callback=progress,
+                    validate_input=lambda path: validate_input(self._journal_catchup, path),
                 )
 
                 # Der Archivimport ist der vorgesehene vollständige Abgleich.
@@ -576,34 +596,28 @@ class AppState(QObject):
                     stats.get("skipped_journals", 0),
                 )
 
-                if (
-                    not automatic
-                    or self._database_import_manual_waiting
-                ):
-                    self.databaseImportFinished.emit(
-                        stats,
-                        ""
-                    )
-                if automatic:
-                    self.initializationFinished.emit(getattr(self, "_initialization_error", ""))
             except Exception as exc:
-                error_text = str(exc)
-
+                import_error = str(exc)
                 logger.exception("Journal archive import failed")
-
-                # Auch beim automatischen Startimport an die Oberfläche
-                # melden. So ist sofort sichtbar, in welcher Datei/Zeile
-                # ein altes oder ungewöhnliches Journal klemmt.
-                self.databaseImportFinished.emit(
-                    None,
-                    error_text
-                )
-                if automatic:
-                    self.initializationFinished.emit(error_text)
             finally:
+                try:
+                    if self._journal_catchup is not None:
+                        from cmdrhelper.journal_catchup import catch_up
+                        catchup_sessions = catch_up(self.database, self._journal_catchup,
+                                                    enqueue_fid=enqueue_fid)
+                except Exception:
+                    catchup_error = "Journal catch-up failed; input remains pending"
+                    logger.warning(catchup_error)
+                notify_manual = not automatic or self._database_import_manual_waiting
                 self._database_import_running = False
                 self._database_import_manual_waiting = False
                 self._database_import_last_progress = None
+                self.journalCatchupReady.emit(catchup_sessions, catchup_error)
+                if notify_manual or import_error or catchup_error:
+                    self.databaseImportFinished.emit(stats, import_error or catchup_error)
+                if automatic:
+                    self.initializationFinished.emit(import_error or catchup_error
+                        or getattr(self, "_initialization_error", ""))
 
         threading.Thread(
             target=worker,
@@ -616,6 +630,12 @@ class AppState(QObject):
         ).start()
 
     def set_journal_folder(self, folder):
+        if (getattr(self, "_database_import_running", False)
+                or getattr(self, "_journal_catchup_running", False)):
+            self._pending_journal_folder = Path(folder)
+            return
+        self._journal_resume_context = None
+        self._journal_catchup = None
         self.journal_folder = Path(folder)
         logger.info("Journalordner geändert: %s", self.journal_folder)
 
@@ -1360,13 +1380,85 @@ class AppState(QObject):
         self.changed.emit()
 
     def _refresh_from_watcher(self):
+        if (getattr(self, "_database_import_running", False)
+                or getattr(self, "_journal_catchup_running", False)):
+            self.watcher.refresh_deferred()
+            return
+        # Keep the import baseline for rotations after handoff, too. Several
+        # files can appear between the worker's directory scan and a GUI poll.
+        if (getattr(self, "_journal_resume_context", None) is not None
+                and (self.watcher._catchup_requested
+                     or str(self.watcher._current) != self._journal_index_current)):
+            self._journal_catchup = self._journal_resume_context
+        if getattr(self, "_journal_catchup", None) is not None:
+            self._start_journal_catchup()
+            return
         success = False
         try:
             success = self.refresh()
+            sessions = getattr(self, "_journal_index_sessions", None) or []
+            pending = self.watcher._pending_sig
+            if success and sessions and pending:
+                current = sessions[-1]
+                if (pending[0] == current['journal_file']
+                        and pending[1] > int(current.get('last_read_offset') or 0)):
+                    success = False
         except Exception:
             logger.exception("Journalaktualisierung unerwartet fehlgeschlagen")
         finally:
             self.watcher.refresh_finished(success)
+
+    def _start_journal_catchup(self):
+        """Retry pending import input off the GUI thread, using watcher backoff."""
+        self._journal_catchup_running = True
+        context = self._journal_catchup
+        enqueue_fid = (getattr(self, "commander_fid", "")
+                       if getattr(self, "commander_id", None) is not None
+                       and self._inara_identity_matches(self.commander_id) else None)
+
+        def worker():
+            try:
+                from cmdrhelper.journal_catchup import catch_up
+                sessions = catch_up(self.database, context, enqueue_fid=enqueue_fid)
+                self.journalCatchupReady.emit(sessions, "")
+            except Exception:
+                logger.warning("Journal catch-up failed; input remains pending")
+                self.journalCatchupReady.emit(None, "Journal catch-up failed; input remains pending")
+
+        threading.Thread(target=worker, daemon=True, name="CMDRHelper-JournalCatchup").start()
+
+    @Slot(object, str)
+    def _finish_journal_catchup(self, sessions, error):
+        self._journal_catchup_running = False
+        pending_folder = getattr(self, "_pending_journal_folder", None)
+        if pending_folder is not None:
+            self._pending_journal_folder = None
+            self.set_journal_folder(pending_folder)
+            return
+        if error:
+            self.watcher.refresh_finished(False)
+            return
+        if sessions is None:
+            return
+        self._journal_index_sessions = sessions
+        self._journal_index_current = sessions[-1]['journal_file'] if sessions else None
+        self._journal_resume_context = self._journal_catchup
+        if self._journal_resume_context is not None:
+            self._journal_resume_context['current'] = self._journal_index_current
+            self.watcher._catchup_signatures = {
+                name: self._journal_resume_context['baseline'][name]['signature']
+                for name in self._journal_resume_context['tracked']
+                if name in self._journal_resume_context['baseline']
+                and name != self._journal_index_current
+            }
+            self.watcher._catchup_requested = False
+        self._journal_catchup = None
+        # Rescan at handoff: a newer file may have appeared after the pending
+        # poll, or after the worker's scan. Never acknowledge that older poll
+        # as if it described the newly adopted session.
+        self.watcher.refresh_deferred()
+        self.watcher._current = None
+        self.watcher.check_now()
 
     def _run_journal_learning(self, latest_event, force=False, folder=None):
         """Startet teure Lernläufe nur bei passenden Verkaufsevents."""
@@ -1624,6 +1716,11 @@ class AppState(QObject):
         self.database.store_journal_session(session)
 
     def refresh(self):
+        if (getattr(self, "_database_import_running", False)
+                or getattr(self, "_initial_journal_index_running", False)
+                or getattr(self, "_journal_catchup", None) is not None
+                or getattr(self, "_journal_catchup_running", False)):
+            return False
         self._last_refresh_error = ""
         if not self.journal_folder:
             self.connected = False

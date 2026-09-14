@@ -8,6 +8,7 @@ from cmdrhelper.valuation import calculate_body_values, has_valuation_data, jour
 import sqlite3
 import logging
 import json
+import os
 from collections import Counter
 from contextlib import nullcontext
 from datetime import datetime, timezone
@@ -1791,7 +1792,7 @@ class CMDRDatabase:
              int(claim.get('efficient_mapping', False)), claim.get('probes_used'), claim.get('efficiency_target')))
 
     def apply_commander_journal_delta(self, commander_id, journal_file, events,
-                                      safe_offset: int, enqueue_inara=False) -> None:
+                                      safe_offset: int, enqueue_inara=False, session=None) -> None:
         """Atomically applies explicit journal facts and commits their byte offset."""
         from cmdrhelper.bio_valuation import base_value
         from cmdrhelper.system_visits import store_visit_rows, visit_row
@@ -1846,6 +1847,29 @@ class CMDRDatabase:
 
         visit_rows = []
         with self._connect() as con:
+            if session is not None:
+                # Import catch-up owns this verified input snapshot. Publish
+                # its index metadata only with the facts and committed cursor.
+                con.execute("""INSERT INTO journal_sessions(
+                    journal_file,commander_id,fid_seen,commander_name_seen,
+                    first_event_at,last_event_at,file_size,modified_ns,sha256,
+                    attribution_status,last_read_offset,last_complete_line_offset)
+                    VALUES(?,?,?,?,?,?,?,?,?,'identified',0,?)
+                    ON CONFLICT(journal_file) DO UPDATE SET
+                    commander_id=excluded.commander_id,fid_seen=excluded.fid_seen,
+                    commander_name_seen=excluded.commander_name_seen,
+                    first_event_at=excluded.first_event_at,last_event_at=excluded.last_event_at,
+                    file_size=excluded.file_size,modified_ns=excluded.modified_ns,
+                    sha256=excluded.sha256,attribution_status='identified',
+                    fully_imported=CASE
+                        WHEN journal_sessions.file_size=excluded.file_size
+                         AND journal_sessions.modified_ns=excluded.modified_ns
+                        THEN journal_sessions.fully_imported ELSE 0 END,
+                    last_complete_line_offset=excluded.last_complete_line_offset""",
+                    (str(journal_file), commander_id, session['fid_seen'],
+                     session['commander_name_seen'], session['first_event_at'],
+                     session['last_event_at'], session['file_size'], session['modified_ns'],
+                     session['sha256'], int(safe_offset)))
             old_offset_row = con.execute(
                 """SELECT last_read_offset,commander_id,attribution_status
                    FROM journal_sessions WHERE journal_file=?""",
@@ -1904,7 +1928,8 @@ class CMDRDatabase:
                 if et in ("MiningRefined", "MaterialCollected"):
                     self._record_surface_mining_event(
                         con, commander_id, journal_file,
-                        f"delta:{int(safe_offset)}:{event_index}", event, mining_context,
+                        (session['source_keys'][event_index] if session is not None
+                         else f"delta:{int(safe_offset)}:{event_index}"), event, mining_context,
                     )
 
                 if et in ("Location", "FSDJump", "CarrierJump"):
@@ -6055,6 +6080,7 @@ class CMDRDatabase:
         self,
         folder,
         progress_callback=None,
+        validate_input=None,
     ) -> dict:
         """
         Liest das vorhandene Journalarchiv chronologisch und baut
@@ -6079,7 +6105,7 @@ class CMDRDatabase:
         from cmdrhelper.journal_index import scan_journal_folder
 
         indexed_sessions = scan_journal_folder(
-            self, folder, progress_callback=progress_callback
+            self, folder, progress_callback=progress_callback, validate_input=validate_input
         )
         all_journals = [Path(item["journal_file"]) for item in indexed_sessions]
 
@@ -6536,6 +6562,8 @@ class CMDRDatabase:
             start=1,
         ):
             journal, file_commander_id = journal_item
+            if validate_input is not None:
+                validate_input(journal)
             valuation_context = journal_valuation_context(journal)
             # Dateigrenzen sind harte Grenzen: weder Identität noch Position
             # werden aus dem vorherigen Journal übernommen.
@@ -6556,20 +6584,26 @@ class CMDRDatabase:
                 )
 
             try:
-                handle = journal.open(
-                    "r",
-                    encoding="utf-8",
-                    errors="replace",
-                )
+                handle = journal.open("rb")
+                read_stat = os.fstat(handle.fileno())
+                read_offset = 0
             except OSError:
                 continue
 
             try:
                 with handle:
-                    for current_line_number, line in enumerate(
-                        handle,
-                        start=1,
-                    ):
+                    # Freeze the input boundary. Never confirm a partial line
+                    # or bytes appended after this descriptor was opened.
+                    def complete_lines():
+                        nonlocal read_offset
+                        while read_offset < read_stat.st_size:
+                            line = handle.readline(read_stat.st_size - read_offset)
+                            if not line.endswith(b"\n"):
+                                break
+                            read_offset += len(line)
+                            yield line.decode("utf-8", errors="replace")
+
+                    for current_line_number, line in enumerate(complete_lines(), start=1):
                         try:
                             event = json.loads(line)
                         except json.JSONDecodeError:
@@ -7442,7 +7476,9 @@ class CMDRDatabase:
             except OSError:
                 stat = None
 
-            if stat is not None and file_commander_id is not None:
+            if (stat is not None and file_commander_id is not None
+                    and (stat.st_dev, stat.st_ino) == (read_stat.st_dev, read_stat.st_ino)
+                    and stat.st_size >= read_stat.st_size):
                 now = (
                     datetime.now(timezone.utc)
                     .isoformat()
@@ -7453,8 +7489,8 @@ class CMDRDatabase:
                     (
                         int(file_commander_id),
                         str(journal),
-                        int(stat.st_size),
-                        int(stat.st_mtime_ns),
+                        read_offset,
+                        int(read_stat.st_mtime_ns),
                         now,
                     )
                 )
@@ -7469,6 +7505,10 @@ class CMDRDatabase:
                 "Schreibe Datenbank …",
             )
 
+        bodies_by_system = {}
+        for (address, _body_id), body in bodies.items():
+            bodies_by_system.setdefault(address, []).append(body)
+
         with self._connect() as con:
             for commander_id, journal_file, source_key, event, context in surface_mining_events:
                 self._record_surface_mining_event(
@@ -7476,14 +7516,7 @@ class CMDRDatabase:
                 )
             # Systeme
             for address, system in systems.items():
-                system_bodies = [
-                    body
-                    for (
-                        body_address,
-                        _body_id,
-                    ), body in bodies.items()
-                    if body_address == address
-                ]
+                system_bodies = bodies_by_system.get(address, ())
 
                 seen = (
                     system.get("last_seen")

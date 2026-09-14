@@ -23,6 +23,8 @@ class JournalWatcher(QObject):
         self._directory_check_interval = 10
         self._retry_delay = 0
         self._retry_at = 0
+        self._catchup_signatures = {}
+        self._catchup_requested = False
 
         self.timer = QTimer(self)
         self.timer.setInterval(1000)
@@ -41,6 +43,8 @@ class JournalWatcher(QObject):
         self._poll_count = 0
         self._retry_delay = 0
         self._retry_at = 0
+        self._catchup_signatures = {}
+        self._catchup_requested = False
 
     def start(self):
         if not self.timer.isActive():
@@ -49,6 +53,11 @@ class JournalWatcher(QObject):
     def check_now(self):
         """Prüft sofort, unter Beachtung eines ausstehenden Fehler-Backoffs."""
         self._poll()
+
+    def refresh_deferred(self):
+        """Release a deferred poll without acknowledging input or adding backoff."""
+        self._pending_sig = None
+        self._refresh_in_progress = False
 
     def refresh_finished(self, success):
         """Bestätigt eine Änderung erst nach erfolgreichem State-Refresh."""
@@ -107,6 +116,17 @@ class JournalWatcher(QObject):
         if time.monotonic() < self._retry_at:
             return
 
+        # Files involved in an import pause can still receive a late tail
+        # after rotation. Keep observing those few paths, not just the newest.
+        for name, previous in self._catchup_signatures.items():
+            try:
+                st = Path(name).stat()
+                current = (st.st_dev, st.st_ino, st.st_size, st.st_mtime_ns, st.st_ctime_ns)
+            except OSError:
+                current = None
+            if current != previous:
+                self._catchup_requested = True
+
         self._poll_count += 1
         rescan = self._current is None or (
             self._poll_count % self._directory_check_interval == 0
@@ -151,7 +171,7 @@ class JournalWatcher(QObject):
         if sig is None:
             return
 
-        if sig == self._sig:
+        if sig == self._sig and not self._catchup_requested:
             return
 
         if self._sig is not None and self._sig[0] != str(current):

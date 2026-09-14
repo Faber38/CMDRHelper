@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_4_5.0': 'Stabilare arkivimport med stora journalsamlingar.',
+    'release.3_4_5.1': 'Ett mer responsivt gränssnitt under långvarig databehandling.',
+    'release.3_4_5.2': 'Förbättrad inhämtning av nya och utökade journaler efter import.',
+    'release.3_4_5.3': 'Snabbare arkivbearbetning och uppdatering av gruvdata.',
+    'release.3_4_5.4': 'Klicka på systemnamnet i krönikans öppna systemvy för att kopiera det.',
+    'release.3_4_5.5': 'Ytterligare prestanda- och stabilitetsförbättringar.',
     'release.3_4_4.0': 'Åtgärdat fel med mycket stora uppdrags-ID:n så att uppdrag sparas tillförlitligt.',
     'release.3_4_4.1': 'Efter ett lagringsfel försöker journalbearbetningen igen med allt längre pauser, utan att hoppa över poster.',
     'release.3_4_4.2': 'Förbättrad uppstart när ingen aktiv befälhavare har identifierats ännu.',

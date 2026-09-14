@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_4_5.0': 'Importation des archives plus fiable avec de grandes collections de journaux.',
+    'release.3_4_5.1': 'Interface plus réactive pendant les traitements de données prolongés.',
+    'release.3_4_5.2': 'Meilleure prise en compte des journaux nouveaux ou complétés après l’importation.',
+    'release.3_4_5.3': 'Traitement des archives et actualisation du minage plus rapides.',
+    'release.3_4_5.4': 'Cliquez sur le nom du système dans la vue système ouverte de la chronique pour le copier.',
+    'release.3_4_5.5': 'Autres améliorations des performances et de la stabilité.',
     'release.3_4_4.0': 'Correction des erreurs liées aux identifiants de mission très grands, pour une sauvegarde fiable des missions.',
     'release.3_4_4.1': 'Après un échec de sauvegarde, le traitement du journal réessaie avec des pauses croissantes, sans ignorer aucune entrée.',
     'release.3_4_4.2': 'Démarrage amélioré lorsque le commandant actif n’a pas encore été identifié.',

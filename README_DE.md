@@ -38,6 +38,15 @@ Der Journalordner von Elite Dangerous wird nach Möglichkeit automatisch erkannt
 
 CMDRHelper prüft beim Start auf Updates und besitzt einen integrierten Updater. Bestätige ein angebotenes Update im Programm; es aktualisiert Programm und Abhängigkeiten und startet CMDRHelper neu. Nach der Erstinstallation genügt normalerweise `start.bat` (Windows) beziehungsweise `bash start.sh` (Linux). Für normale Updates musst du `install.bat` oder `install.sh` nicht erneut manuell ausführen.
 
+## Neu in Version 3.4.5
+
+- Stabilerer Archivimport bei großen Journalbeständen.
+- Reaktionsfähigere Oberfläche während langer Datenverarbeitung.
+- Verbesserte Nachholung neuer und gewachsener Journale nach dem Import.
+- Schnellere Archivverarbeitung und Mining-Aktualisierung.
+- Systemnamen in der geöffneten Chronik-Systemansicht per Klick kopieren.
+- Weitere Performance- und Stabilitätsverbesserungen.
+
 ## Neu in Version 3.4.4 – Hotfix
 
 - Fehler bei sehr großen Missions-IDs behoben; Missionen werden zuverlässig gespeichert.

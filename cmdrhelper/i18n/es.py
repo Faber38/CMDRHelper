@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_4_5.0': 'Importación más fiable de archivos históricos con grandes colecciones de diarios.',
+    'release.3_4_5.1': 'Interfaz más fluida durante el procesamiento prolongado de datos.',
+    'release.3_4_5.2': 'Mejor recuperación de diarios nuevos y ampliados tras la importación.',
+    'release.3_4_5.3': 'Procesamiento del archivo histórico y actualización de minería más rápidos.',
+    'release.3_4_5.4': 'Haz clic en el nombre del sistema en la vista de sistema abierta de la crónica para copiarlo.',
+    'release.3_4_5.5': 'Más mejoras de rendimiento y estabilidad.',
     'release.3_4_4.0': 'Corregidos los errores con identificadores de misión muy grandes para guardar las misiones de forma fiable.',
     'release.3_4_4.1': 'Tras un fallo al guardar, el procesamiento del diario reintenta la operación con pausas crecientes, sin omitir entradas.',
     'release.3_4_4.2': 'Mejorado el inicio cuando aún no se ha detectado un comandante activo.',

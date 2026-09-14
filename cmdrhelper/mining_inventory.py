@@ -191,13 +191,14 @@ class MiningInventoryReader:
     def __init__(self):
         self._cache = {}
 
-    def _read(self, path):
+    def _read(self, path, *, carrier_feed=None):
         stat = path.stat()
         signature = (stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns)
         old = self._cache.get(path)
-        if old and old[0] == signature:
+        if carrier_feed is None and old and old[0] == signature:
             return old[1]
         events, identities = [], set()
+        raw_lines, all_events, valid = [], [], True
         with path.open("rb") as stream:
             while True:
                 offset = stream.tell()
@@ -211,17 +212,25 @@ class MiningInventoryReader:
                     if event.get("event") in ("Commander", "LoadGame") and event.get("FID"):
                         identities.add(event["FID"])
                 except (ValueError, TypeError):
+                    valid = False
                     event = {"event": "_InvalidCargo"}
+                if carrier_feed is not None:
+                    raw_lines.append(line)
+                    all_events.append((offset, event))
                 if event.get("event") in EVENTS:
                     events.append((offset, event))
         after = path.stat()
         if signature != (after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns):
             raise OSError("journal changed during cargo reconstruction")
+        if carrier_feed is not None and valid:
+            carrier_feed.update(path=str(path), raw=b"".join(raw_lines), events=all_events)
         self._cache[path] = (signature, (identities, events))
         return identities, events
 
-    def reconstruct(self, commander_id, fid, sessions, *, checkpoints=None, live_path=None):
+    def reconstruct(self, commander_id, fid, sessions, *, checkpoints=None, live_path=None,
+                    include_carrier_feed=False):
         reducer = MiningReducer(commander_id, fid)
+        live_path = Path(live_path).resolve() if live_path else None
         saved = deepcopy(checkpoints) if isinstance(checkpoints, dict) else {}
         events = []
         paths = {}
@@ -235,17 +244,20 @@ class MiningInventoryReader:
                    or row.get("attribution_status") != "identified" for row in rows):
                 continue
             try:
-                identities, facts = self._read(path)
+                feed = {} if include_carrier_feed and path == live_path else None
+                identities, facts = self._read(path, carrier_feed=feed)
                 if identities != {fid}:
                     events.append((path, -1, {"event": "_InvalidCargo"}))
                     continue
+                if feed:
+                    reducer.result.carrier_feed = feed
                 events.extend((path, offset, event) for offset, event in facts)
             except OSError:
                 events.append((path, -1, {"event": "_InvalidCargo"}))
         latest = next(((path, offset) for path, offset, e in reversed(events) if e.get("event") == "Cargo"), None)
         for path, offset, original in events:
             event = original
-            is_live_snapshot = bool(live_path and path == Path(live_path).resolve()
+            is_live_snapshot = bool(live_path and path == live_path
                                     and (path, offset) == latest)
             if is_live_snapshot:
                 reducer.result.snapshot_verified = validated_cargo(original, fid) is not None
@@ -260,7 +272,7 @@ class MiningInventoryReader:
                     if (isinstance(candidate, dict) and validated_cargo(candidate, fid) is not None
                             and all(candidate.get(k) == original.get(k) for k in ("Vessel", "timestamp", "Count"))):
                         event = candidate
-                if live_path and path == Path(live_path).resolve() and (path, offset) == latest:
+                if is_live_snapshot:
                     snapshot = read_cargo_snapshot(path.parent / "Cargo.json", original,
                                                    fid=fid, attempts=2, retry_delay=0.04)
                     if snapshot is not None:

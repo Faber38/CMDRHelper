@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_4_5.0': 'Mer pålitelig arkivimport med store journalsamlinger.',
+    'release.3_4_5.1': 'Et mer responsivt grensesnitt under langvarig databehandling.',
+    'release.3_4_5.2': 'Bedre innhenting av nye og utvidede journaler etter import.',
+    'release.3_4_5.3': 'Raskere arkivbehandling og oppdatering av gruvedata.',
+    'release.3_4_5.4': 'Klikk på systemnavnet i den åpne systemvisningen i krøniken for å kopiere det.',
+    'release.3_4_5.5': 'Flere ytelses- og stabilitetsforbedringer.',
     'release.3_4_4.0': 'Rettet feil med svært store oppdrags-ID-er, slik at oppdrag lagres pålitelig.',
     'release.3_4_4.1': 'Etter en lagringsfeil prøver journalbehandlingen på nytt med stadig lengre pauser, uten å hoppe over oppføringer.',
     'release.3_4_4.2': 'Forbedret oppstart når ingen aktiv kommandør er registrert ennå.',

@@ -70,3 +70,19 @@ Die neue Zuordnung in `RELEASE_SUMMARIES` ergänzt die unveränderten historisch
 Einträge. Das Updatefenster zeigt nur diese benutzerorientierten Hotfix-Hinweise;
 keine internen SQLite-Erklärungen, Supportfallnamen oder zukünftigen Funktionen.
 Die integrierte Hilfe bleibt unverändert und versionsunabhängig.
+
+## 3.4.5
+
+Sechs Punkte in allen zwölf Sprachen (`release.3_4_5.0` bis `.5`): stabilerer
+Archivimport bei großen Journalbeständen, reaktionsfähigere Oberfläche während
+langer Verarbeitung, verbesserte Nachholung neuer und gewachsener Journale,
+schnellere Archivverarbeitung und Mining-Aktualisierung, Kopieren des geöffneten
+Chronik-Systemnamens per Klick sowie weitere Performance- und
+Stabilitätsverbesserungen.
+
+Die Zuordnung in `RELEASE_SUMMARIES` ergänzt die historischen Einträge. Das
+Updatefenster verwendet kurze benutzerorientierte Texte ohne interne
+Implementierungsdetails. Die Hotfix-Inhalte aus 3.4.4 werden nicht erneut als
+Neuerungen aufgeführt. Die integrierte Hilfe bleibt unverändert und
+versionsunabhängig; für die stille Chronik-Kopierfunktion gibt es keinen neuen
+Hilfetext.

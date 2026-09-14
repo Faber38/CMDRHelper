@@ -29,6 +29,11 @@ class StartupPipelineTests(unittest.TestCase):
         self.assertTrue(condition())
 
     def state(self):
+        # These tests isolate startup orchestration from real journal/DB IO.
+        for target, result in (("capture", {}), ("catch_up", None)):
+            mocked = patch(f'cmdrhelper.journal_catchup.{target}', return_value=result)
+            mocked.start()
+            self.addCleanup(mocked.stop)
         state = AppState.__new__(AppState)
         QObject.__init__(state)
         state.journal_folder = Path('/isolated-journals')
@@ -44,6 +49,7 @@ class StartupPipelineTests(unittest.TestCase):
         state._initialization_visible = True
         state._run_journal_learning = Mock()
         state.journalIndexReady.connect(state._finish_initial_journal_index, Qt.QueuedConnection)
+        state.journalCatchupReady.connect(state._finish_journal_catchup, Qt.QueuedConnection)
         return state
 
     def test_one_dialog_reused_for_index_and_history_and_closed(self):
