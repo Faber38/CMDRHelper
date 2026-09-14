@@ -40,6 +40,7 @@ excluded=(
     cmdrhelper/assets/readme/text/de.py
     cmdrhelper/assets/readme/cmdrhelper_readme_master.png
     docs/planet-navigation-i18n-audit.md
+    docs/support-343-mission-overflow.md
 )
 
 mkdir -p -- "$RELEASE_ROOT"
