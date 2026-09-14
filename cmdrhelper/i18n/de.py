@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_4_4.0': 'Fehler bei sehr großen Missions-IDs behoben; Missionen werden zuverlässig gespeichert.',
+    'release.3_4_4.1': 'Nach Speicherfehlern wiederholt die Journalverarbeitung den Versuch mit zunehmenden Pausen, ohne Einträge zu überspringen.',
+    'release.3_4_4.2': 'Verbesserter Programmstart, wenn noch kein aktiver Commander erkannt wurde.',
+    'release.3_4_4.3': 'Aussagekräftigere technische Diagnose für diese Fehler, ohne konkrete Missions-IDs zu protokollieren.',
+
     'release.3_4_3.0': 'Favoriten erweitert: Entfernungsfilter und portabler ZIP-Export/-Import inklusive Bilder.',
     'release.3_4_3.1': 'Explorer-Tabellen sortieren und Sortierung sowie Spaltenbreiten getrennt speichern.',
     'release.3_4_3.2': 'Mining zeigt SRV, Schiff, Carrier und Gesamt getrennt; „Nur Bestand“ berücksichtigt alle drei Lagerorte.',

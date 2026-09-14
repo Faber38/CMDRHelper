@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_4_4.0': 'Rettet feil med svært store oppdrags-ID-er, slik at oppdrag lagres pålitelig.',
+    'release.3_4_4.1': 'Etter en lagringsfeil prøver journalbehandlingen på nytt med stadig lengre pauser, uten å hoppe over oppføringer.',
+    'release.3_4_4.2': 'Forbedret oppstart når ingen aktiv kommandør er registrert ennå.',
+    'release.3_4_4.3': 'Mer nyttig teknisk diagnostikk for disse feilene, uten å logge konkrete oppdrags-ID-er.',
+
     'release.3_4_3.0': 'Utvidede favoritter: avstandsfilter og portabel ZIP-eksport/import med bilder.',
     'release.3_4_3.1': 'Sorter Explorer-tabeller og lagre sortering og kolonnebredder separat for hver tabell.',
     'release.3_4_3.2': 'Gruvedrift viser SRV, skip, carrier og total separat; lagerfilteret tar hensyn til alle tre lagrene.',

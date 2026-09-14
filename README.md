@@ -38,6 +38,13 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## New in version 3.4.4 – Hotfix
+
+- Fixed errors with very large mission IDs so missions are saved reliably.
+- After a save failure, journal processing retries with increasing delays without skipping entries.
+- Improved startup when no active commander has been detected yet.
+- More useful technical diagnostics for these errors without logging actual mission IDs.
+
 ## New in version 3.4.3
 
 - Expanded favorites: distance filter and portable ZIP export/import including images.

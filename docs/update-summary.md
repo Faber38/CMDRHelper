@@ -58,3 +58,15 @@ Diagnosepaket und datensparsame Logs, direkte Datenbank-Upgrades mit sicherer
 Backup-Aufbewahrung sowie Bedienungs-, Hilfe- und Chronikverbesserungen.
 Die Zuordnung steht zusätzlich zu den unveränderten historischen Einträgen in
 `RELEASE_SUMMARIES`. Es sind keine zukünftigen Funktionen enthalten.
+
+## 3.4.4 – Hotfix
+
+Vier Punkte in allen zwölf Sprachen (`release.3_4_4.0` bis `.3`): zuverlässige
+Speicherung sehr großer Missions-IDs, erneute Journalübernahme mit zunehmenden
+Pausen nach Speicherfehlern, verbesserter Start ohne bereits erkannten aktiven
+Commander und aussagekräftigere technische Diagnose ohne konkrete Missions-IDs.
+
+Die neue Zuordnung in `RELEASE_SUMMARIES` ergänzt die unveränderten historischen
+Einträge. Das Updatefenster zeigt nur diese benutzerorientierten Hotfix-Hinweise;
+keine internen SQLite-Erklärungen, Supportfallnamen oder zukünftigen Funktionen.
+Die integrierte Hilfe bleibt unverändert und versionsunabhängig.

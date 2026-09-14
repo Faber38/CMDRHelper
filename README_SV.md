@@ -38,6 +38,13 @@ Journalmappen för Elite Dangerous hittas automatiskt när det är möjligt. Om 
 
 CMDRHelper söker efter uppdateringar vid start och har en inbyggd uppdateringsfunktion. Bekräfta en erbjuden uppdatering i programmet; den uppdaterar programmet och beroendena och startar om CMDRHelper. Efter den första installationen använder du normalt bara `start.bat` (Windows) eller `bash start.sh` (Linux). Du behöver inte köra `install.bat` eller `install.sh` manuellt igen för vanliga uppdateringar.
 
+## Nytt i version 3.4.4 – Hotfix
+
+- Åtgärdat fel med mycket stora uppdrags-ID:n så att uppdrag sparas tillförlitligt.
+- Efter ett lagringsfel försöker journalbearbetningen igen med allt längre pauser, utan att hoppa över poster.
+- Förbättrad uppstart när ingen aktiv befälhavare har identifierats ännu.
+- Mer användbar teknisk diagnostik för dessa fel, utan att logga faktiska uppdrags-ID:n.
+
 ## Nytt i version 3.4.3
 
 - Utökade favoriter: avståndsfilter och portabel ZIP-export/import inklusive bilder.

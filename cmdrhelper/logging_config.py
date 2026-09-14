@@ -54,13 +54,17 @@ def sanitize(value):
 # Only explicitly named technical fields can bypass argument suppression.
 _FIELDS = {'version', 'os', 'python', 'qt', 'pyside', 'architecture', 'pid',
            'count', 'files', 'events', 'images', 'missing', 'fields', 'remaining',
-           'success', 'restored', 'phase', 'mode'}
+           'success', 'restored', 'phase', 'mode', 'field', 'python_type',
+           'value_class', 'outside_sqlite_int64', 'retry_seconds'}
 
 
 def _technical_fields(fields):
     safe = {}
     versions = {'version', 'python', 'qt', 'pyside'}
     enums = {
+        'field': {'mission_id'},
+        'python_type': {'int'},
+        'value_class': {'unsigned_64', 'above_unsigned_64', 'below_signed_64'},
         'os': {'Linux', 'Windows', 'Darwin'},
         'architecture': {'x86_64', 'AMD64', 'arm64', 'aarch64', 'i386', 'i686', 'x86', 'armv7l'},
         'phase': {'rollback', 'failure', 'aborted', 'restart', 'backup', 'installation',
@@ -69,6 +73,14 @@ def _technical_fields(fields):
     }
     for key, value in fields.items():
         if key not in _FIELDS:
+            continue
+        if key == 'outside_sqlite_int64':
+            if type(value) is bool:
+                safe[key] = value
+            continue
+        if key == 'retry_seconds':
+            if type(value) is int and 0 <= value <= 60:
+                safe[key] = value
             continue
         if key in versions and isinstance(value, str) and re.fullmatch(r'\d+(?:\.\d+){1,3}(?:[ab]\d+|rc\d+)?', value):
             safe[key] = value

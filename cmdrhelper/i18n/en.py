@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_4_4.0': 'Fixed errors with very large mission IDs so missions are saved reliably.',
+    'release.3_4_4.1': 'After a save failure, journal processing retries with increasing delays without skipping entries.',
+    'release.3_4_4.2': 'Improved startup when no active commander has been detected yet.',
+    'release.3_4_4.3': 'More useful technical diagnostics for these errors without logging actual mission IDs.',
+
     'release.3_4_3.0': 'Expanded favorites: distance filter and portable ZIP export/import including images.',
     'release.3_4_3.1': 'Sort Explorer tables and save sorting and column widths separately for each table.',
     'release.3_4_3.2': 'Mining shows SRV, ship, carrier and total separately; “In stock only” considers all three storage locations.',

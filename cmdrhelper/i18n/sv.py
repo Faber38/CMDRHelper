@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_4_4.0': 'Åtgärdat fel med mycket stora uppdrags-ID:n så att uppdrag sparas tillförlitligt.',
+    'release.3_4_4.1': 'Efter ett lagringsfel försöker journalbearbetningen igen med allt längre pauser, utan att hoppa över poster.',
+    'release.3_4_4.2': 'Förbättrad uppstart när ingen aktiv befälhavare har identifierats ännu.',
+    'release.3_4_4.3': 'Mer användbar teknisk diagnostik för dessa fel, utan att logga faktiska uppdrags-ID:n.',
+
     'release.3_4_3.0': 'Utökade favoriter: avståndsfilter och portabel ZIP-export/import inklusive bilder.',
     'release.3_4_3.1': 'Sortera Explorer-tabeller och spara sortering och kolumnbredder separat för varje tabell.',
     'release.3_4_3.2': 'Gruvdrift visar SRV, skepp, carrier och totalt separat; lagerfiltret tar hänsyn till alla tre lagren.',

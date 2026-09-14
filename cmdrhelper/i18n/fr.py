@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_4_4.0': 'Correction des erreurs liées aux identifiants de mission très grands, pour une sauvegarde fiable des missions.',
+    'release.3_4_4.1': 'Après un échec de sauvegarde, le traitement du journal réessaie avec des pauses croissantes, sans ignorer aucune entrée.',
+    'release.3_4_4.2': 'Démarrage amélioré lorsque le commandant actif n’a pas encore été identifié.',
+    'release.3_4_4.3': 'Diagnostic technique plus utile pour ces erreurs, sans consigner les identifiants réels des missions.',
+
     'release.3_4_3.0': 'Favoris enrichis : filtre de distance et export/import ZIP portable avec les images.',
     'release.3_4_3.1': 'Triez les tableaux Explorer et mémorisez séparément leur tri et la largeur des colonnes.',
     'release.3_4_3.2': 'Le minage distingue SRV, vaisseau, porte-vaisseaux et total ; le filtre de stock tient compte des trois réserves.',

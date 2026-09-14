@@ -94,6 +94,16 @@ class PlanetTargetRegressionTests(unittest.TestCase):
     def test_ammonia_world(self):
         self.assert_target("ammonia_world", 1)
 
+    def test_startup_without_active_commander_then_selection(self):
+        from unittest.mock import patch
+        self.database.set_active_commander(None)
+        with patch.object(self.database, '_connect', side_effect=AssertionError('premature query')):
+            self.assertEqual(self.analyzer._target_system_rows('bio_any'), [])
+            result = self.analyzer.jump_recommendations('water_world')
+            self.assertEqual(result['systems'], 0)
+        self.database.set_active_commander(self.commander)
+        self.assert_target('water_world', 2)
+
 
 if __name__ == "__main__":
     unittest.main()

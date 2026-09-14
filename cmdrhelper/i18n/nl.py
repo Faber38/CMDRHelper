@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_4_4.0': 'Fouten met zeer grote missie-ID’s verholpen, zodat missies betrouwbaar worden opgeslagen.',
+    'release.3_4_4.1': 'Na een opslagfout probeert de journaalverwerking het opnieuw met steeds langere pauzes, zonder vermeldingen over te slaan.',
+    'release.3_4_4.2': 'Verbeterd opstartgedrag wanneer er nog geen actieve commander is herkend.',
+    'release.3_4_4.3': 'Duidelijkere technische diagnose van deze fouten, zonder concrete missie-ID’s te loggen.',
+
     'release.3_4_3.0': 'Uitgebreide favorieten: afstandsfilter en overdraagbare ZIP-export/import inclusief afbeeldingen.',
     'release.3_4_3.1': 'Sorteer Explorer-tabellen en bewaar sortering en kolombreedtes afzonderlijk per tabel.',
     'release.3_4_3.2': 'Mijnbouw toont SRV, schip, carrier en totaal apart; het voorraadfilter houdt rekening met alle drie de opslaglocaties.',

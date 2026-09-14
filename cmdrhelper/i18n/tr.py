@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_4_4.0': 'Çok büyük görev kimlikleriyle ilgili hatalar giderildi; görevler güvenilir biçimde kaydedilir.',
+    'release.3_4_4.1': 'Kayıt hatasından sonra günlük işleme, hiçbir girdiyi atlamadan giderek uzayan aralıklarla yeniden denenir.',
+    'release.3_4_4.2': 'Etkin komutan henüz algılanmadığında uygulamanın başlatılması iyileştirildi.',
+    'release.3_4_4.3': 'Gerçek görev kimlikleri günlüğe yazılmadan bu hatalar için daha yararlı teknik tanılama bilgileri sağlanır.',
+
     'release.3_4_3.0': 'Geliştirilmiş favoriler: mesafe filtresi ve resimler dahil taşınabilir ZIP dışa/içe aktarımı.',
     'release.3_4_3.1': 'Explorer tablolarını sıralayın; sıralamayı ve sütun genişliklerini her tablo için ayrı kaydedin.',
     'release.3_4_3.2': 'Madencilik SRV, gemi, filo gemisi ve toplamı ayrı gösterir; stok filtresi üç depoyu da dikkate alır.',

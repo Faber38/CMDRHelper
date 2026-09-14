@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_4_4.0': 'Naprawiono błędy związane z bardzo dużymi identyfikatorami misji, zapewniając niezawodny zapis misji.',
+    'release.3_4_4.1': 'Po błędzie zapisu przetwarzanie dziennika ponawia próbę z coraz dłuższymi przerwami, bez pomijania wpisów.',
+    'release.3_4_4.2': 'Usprawniono uruchamianie, gdy aktywny dowódca nie został jeszcze rozpoznany.',
+    'release.3_4_4.3': 'Ulepszono diagnostykę techniczną tych błędów bez zapisywania konkretnych identyfikatorów misji w logach.',
+
     'release.3_4_3.0': 'Rozszerzone ulubione: filtr odległości oraz przenośny eksport/import ZIP wraz z obrazami.',
     'release.3_4_3.1': 'Sortowanie tabel Explorer i osobne zapisywanie sortowania oraz szerokości kolumn dla każdej tabeli.',
     'release.3_4_3.2': 'Górnictwo pokazuje oddzielnie SRV, statek, lotniskowiec i sumę; filtr zapasów uwzględnia wszystkie trzy magazyny.',

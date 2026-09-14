@@ -38,6 +38,13 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## Nieuw in versie 3.4.4 – Hotfix
+
+- Fouten met zeer grote missie-ID’s verholpen, zodat missies betrouwbaar worden opgeslagen.
+- Na een opslagfout probeert de journaalverwerking het opnieuw met steeds langere pauzes, zonder vermeldingen over te slaan.
+- Verbeterd opstartgedrag wanneer er nog geen actieve commander is herkend.
+- Duidelijkere technische diagnose van deze fouten, zonder concrete missie-ID’s te loggen.
+
 ## Nieuw in versie 3.4.3
 
 - Uitgebreide favorieten: afstandsfilter en overdraagbare ZIP-export/import inclusief afbeeldingen.

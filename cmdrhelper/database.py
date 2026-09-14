@@ -2733,12 +2733,28 @@ class CMDRDatabase:
             return mission.get(key, default)
         return getattr(mission, key, default)
 
+    @staticmethod
+    def _mission_id_to_sql(value):
+        """Keep legacy INTEGER keys; encode larger IDs without numeric affinity.
+
+        Decimal-only TEXT becomes an imprecise REAL in the existing INTEGER
+        column. A prefix preserves every digit without a schema migration or
+        a signed/unsigned alias. IDs remain Python ints outside persistence.
+        """
+        value = int(value)
+        return value if -(2**63) <= value < 2**63 else f"id:{value}"
+
+    @staticmethod
+    def _mission_id_from_sql(value):
+        return int(value[3:] if isinstance(value, str) and value.startswith("id:") else value)
+
     def store_commander_missions(self, commander_id, active_missions,
                                  terminal_missions=(), authoritative=False,
                                  _con=None):
         commander_id = int(commander_id)
         active_ids = set()
         rows = []
+        id_classes = set()
         for mission, is_open in [
             *((item, True) for item in (active_missions or [])),
             *((item, False) for item in (terminal_missions or [])),
@@ -2746,7 +2762,11 @@ class CMDRDatabase:
             mission_id = self._mission_value(mission, "mission_id", None)
             if mission_id is None:
                 continue
-            mission_id = int(mission_id)
+            mission_id = self._mission_id_to_sql(mission_id)
+            if isinstance(mission_id, str):
+                value = self._mission_id_from_sql(mission_id)
+                id_classes.add("below_signed_64" if value < 0 else
+                               "unsigned_64" if value < 2**64 else "above_unsigned_64")
             if is_open:
                 active_ids.add(mission_id)
             terminal_state = self._mission_value(mission, "terminal_state", "")
@@ -2769,6 +2789,11 @@ class CMDRDatabase:
                 str(self._mission_value(mission, "last_update", "") or ""),
                 str(terminal_state or ""), int(is_open),
             ))
+        for value_class in sorted(id_classes):
+            logger.info("Mission identifier requires lossless TEXT storage", extra={
+                "diagnostic_fields": {"field": "mission_id", "python_type": "int",
+                                      "value_class": value_class, "outside_sqlite_int64": True},
+            })
         with (nullcontext(_con) if _con is not None else self._connect()) as con:
             con.executemany("""
                 INSERT INTO commander_missions(
@@ -2797,7 +2822,7 @@ class CMDRDatabase:
                     "SELECT mission_id FROM commander_missions WHERE commander_id=? AND is_open=1",
                     (commander_id,),
                 ).fetchall()
-                missing = [int(row[0]) for row in open_rows if int(row[0]) not in active_ids]
+                missing = [row[0] for row in open_rows if row[0] not in active_ids]
                 con.executemany(
                     """UPDATE commander_missions SET is_open=0,
                            terminal_state='inactive',status='Nicht mehr aktiv'
@@ -2820,7 +2845,13 @@ class CMDRDatabase:
                 "destination_system","destination_station","destination_body","expiry",
                 "reward","summary","next_step","progress_text","accepted_at","last_update",
                 "terminal_state","is_open")
-        return [dict(zip(keys, row)) for row in rows]
+        result = [dict(zip(keys, row)) for row in rows]
+        for item in result:
+            item["mission_id"] = self._mission_id_from_sql(item["mission_id"])
+        # Preserve the numeric tie-breaker across INTEGER and encoded TEXT keys.
+        result.sort(key=lambda item: (item["is_open"], item["last_update"],
+                                      item["mission_id"]), reverse=True)
+        return result
 
     def store_commander_location(self, commander_id, location, _con=None):
         if not isinstance(location, dict) or not location.get("event_timestamp"):

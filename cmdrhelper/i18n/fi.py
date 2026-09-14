@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_4_4.0': 'Erittäin suurten tehtävätunnisteiden aiheuttamat virheet korjattu, jotta tehtävät tallentuvat luotettavasti.',
+    'release.3_4_4.1': 'Tallennusvirheen jälkeen lokin käsittelyä yritetään uudelleen pitenevin väliajoin ohittamatta merkintöjä.',
+    'release.3_4_4.2': 'Käynnistystä parannettu, kun aktiivista komentajaa ei ole vielä tunnistettu.',
+    'release.3_4_4.3': 'Näiden virheiden teknistä diagnostiikkaa parannettu tallentamatta varsinaisia tehtävätunnisteita lokiin.',
+
     'release.3_4_3.0': 'Laajennetut suosikit: etäisyyssuodatin sekä siirrettävä ZIP-vienti ja -tuonti kuvineen.',
     'release.3_4_3.1': 'Explorer-taulukoiden lajittelu sekä lajittelun ja sarakeleveyksien tallennus erikseen kullekin taulukolle.',
     'release.3_4_3.2': 'Louhinta näyttää SRV:n, aluksen, tukialuksen ja kokonaismäärän erikseen; varastosuodatin huomioi kaikki kolme varastoa.',

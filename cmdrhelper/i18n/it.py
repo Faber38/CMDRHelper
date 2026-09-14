@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_4_4.0': 'Corretti gli errori con identificativi di missione molto grandi, per salvare le missioni in modo affidabile.',
+    'release.3_4_4.1': 'Dopo un errore di salvataggio, l’elaborazione del diario riprova con pause crescenti, senza saltare voci.',
+    'release.3_4_4.2': 'Avvio migliorato quando non è ancora stato rilevato un comandante attivo.',
+    'release.3_4_4.3': 'Diagnostica tecnica più utile per questi errori, senza registrare gli identificativi effettivi delle missioni.',
+
     'release.3_4_3.0': 'Preferiti ampliati: filtro distanza ed esportazione/importazione ZIP portabile con immagini.',
     'release.3_4_3.1': 'Ordina le tabelle Explorer e salva separatamente ordinamento e larghezza delle colonne per ogni tabella.',
     'release.3_4_3.2': 'La sezione mineraria distingue SRV, nave, portaerei e totale; il filtro delle scorte considera tutti e tre i depositi.',

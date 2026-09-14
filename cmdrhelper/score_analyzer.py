@@ -441,8 +441,11 @@ class ScoreAnalyzer:
         """
         target_key = str(target_key or "bio_any")
 
+        commander_id = self.database.active_commander_id
+        if commander_id is None:
+            return []
+
         with self.database._connect() as con:
-            commander_id = self.database._require_commander_id()
             system_rows = con.execute(
                 """
                 SELECT systems.system_address, systems.name

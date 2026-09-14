@@ -1,6 +1,7 @@
 from pathlib import Path
 import logging
 import os
+import time
 
 from PySide6.QtCore import QObject, QTimer, Signal
 
@@ -20,6 +21,8 @@ class JournalWatcher(QObject):
         self._current = None
         self._poll_count = 0
         self._directory_check_interval = 10
+        self._retry_delay = 0
+        self._retry_at = 0
 
         self.timer = QTimer(self)
         self.timer.setInterval(1000)
@@ -36,13 +39,15 @@ class JournalWatcher(QObject):
         self._refresh_in_progress = False
         self._current = None
         self._poll_count = 0
+        self._retry_delay = 0
+        self._retry_at = 0
 
     def start(self):
         if not self.timer.isActive():
             self.timer.start()
 
     def check_now(self):
-        """Prüft sofort; reguläre Folgeprüfungen bleiben beim 1-s-Timer."""
+        """Prüft sofort, unter Beachtung eines ausstehenden Fehler-Backoffs."""
         self._poll()
 
     def refresh_finished(self, success):
@@ -52,15 +57,18 @@ class JournalWatcher(QObject):
 
         pending = self._pending_sig
         if success and pending is not None:
+            self._retry_delay = 0
+            self._retry_at = 0
             old_path = self._sig[0] if self._sig else ""
             self._sig = pending
             if old_path != pending[0]:
                 logger.info("Journal überwacht: %s", Path(pending[0]).name)
         elif pending is not None:
+            self._retry_delay = min(60, max(2, self._retry_delay * 2))
+            self._retry_at = time.monotonic() + self._retry_delay
             logger.warning(
-                "Journaländerung nicht bestätigt; erneuter Versuch beim "
-                "nächsten Poll: %s",
-                pending[0],
+                "Journaländerung nicht bestätigt; erneuter Versuch nach Backoff",
+                extra={"diagnostic_fields": {"retry_seconds": self._retry_delay}},
             )
 
         self._pending_sig = None
@@ -93,6 +101,10 @@ class JournalWatcher(QObject):
 
     def _poll(self):
         if not self.folder or self._refresh_in_progress:
+            return
+        # Keep the acknowledged signature unchanged. Even if the file grows,
+        # retry the uncommitted input only after the delay (timer stays at 1 s).
+        if time.monotonic() < self._retry_at:
             return
 
         self._poll_count += 1

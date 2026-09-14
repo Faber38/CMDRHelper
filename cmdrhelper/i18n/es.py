@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_4_4.0': 'Corregidos los errores con identificadores de misión muy grandes para guardar las misiones de forma fiable.',
+    'release.3_4_4.1': 'Tras un fallo al guardar, el procesamiento del diario reintenta la operación con pausas crecientes, sin omitir entradas.',
+    'release.3_4_4.2': 'Mejorado el inicio cuando aún no se ha detectado un comandante activo.',
+    'release.3_4_4.3': 'Diagnóstico técnico más útil para estos errores, sin registrar los identificadores concretos de las misiones.',
+
     'release.3_4_3.0': 'Favoritos ampliados: filtro de distancia y exportación/importación ZIP portátil con imágenes.',
     'release.3_4_3.1': 'Ordena las tablas de Explorer y guarda por separado su orden y el ancho de las columnas.',
     'release.3_4_3.2': 'Minería muestra SRV, nave, portanaves y total por separado; «Solo existencias» considera los tres almacenes.',

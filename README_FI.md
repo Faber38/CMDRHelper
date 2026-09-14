@@ -38,6 +38,13 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## Uutta versiossa 3.4.4 – Hotfix
+
+- Erittäin suurten tehtävätunnisteiden aiheuttamat virheet korjattu, jotta tehtävät tallentuvat luotettavasti.
+- Tallennusvirheen jälkeen lokin käsittelyä yritetään uudelleen pitenevin väliajoin ohittamatta merkintöjä.
+- Käynnistystä parannettu, kun aktiivista komentajaa ei ole vielä tunnistettu.
+- Näiden virheiden teknistä diagnostiikkaa parannettu tallentamatta varsinaisia tehtävätunnisteita lokiin.
+
 ## Uutta versiossa 3.4.3
 
 - Laajennetut suosikit: etäisyyssuodatin sekä siirrettävä ZIP-vienti ja -tuonti kuvineen.
