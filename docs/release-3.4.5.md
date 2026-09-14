@@ -69,6 +69,32 @@ kopiert exakt den Namen über die Qt-Zwischenablage. Ein Hand-Cursor zeigt die
 Klickbarkeit. Darstellung und Chronikdaten bleiben erhalten; es gibt keine
 zusätzliche Schaltfläche, keinen Dialog und keine Erfolgsmeldung.
 
+## Windows-Tabs im Dark Mode
+
+Nicht vollständig gestylte `QTabWidget`-/`QTabBar`-Zustände ließen bei der nativen
+Qt-Windows-Darstellung helle Flächen aus dem Basisstil zu. Zusammen mit heller
+Schrift konnte dadurch der Text der Materialien- und Routenplaner-Tabs schlecht
+lesbar werden. Der vorhandene aktive Rahmen der Materialien-Tabs allein deckte
+diese Flächen nicht ab.
+
+`cmdrhelper/ui/styles.py` enthält jetzt explizite Light-/Dark-Styles für
+`QTabWidget`, `QTabWidget::pane`, `QTabBar`, `QTabBar::tab`, `:selected`,
+`:!selected` (unselected), `:hover` und `:selected:hover`. Hintergründe,
+Schriftfarben und Rahmen stammen aus dem jeweiligen Theme. Im Dark Mode bleiben
+die Flächen dunkel und die Schrift hell; im Light Mode ist es umgekehrt.
+Für Eingabefelder, ComboBoxen und SpinBoxen war keine Änderung nötig.
+
+Die bereits abgeschlossene Prüfung umfasste **522 Offscreen-Tabprüfungen** mit
+den Qt-Stilen „Windows“ und „Fusion“ für beide Views, beide Themes, Themewechsel
+sowie ausgewählte, nicht ausgewählte und Hover-Zustände. Der geprüfte
+Theme-Textkontrast beträgt mindestens **11,81:1**. Pane-Rahmen und
+Seitenhintergründe wurden ebenfalls geprüft. **24 Regressionstests bestanden**;
+beim Bildvergleich lag die Maus außerhalb der Tabs, damit kein unterschiedlicher
+Hover-Zustand den Vergleich verfälscht. **Kein nativer Windows-Test** wurde
+durchgeführt; die Offscreen-Prüfung des Qt-Stils „Windows“ ersetzt diesen nicht.
+Der getestete Produktivfix bleibt während dieser Releaseergänzung unverändert;
+es wird keine weitere große Testserie ausgeführt.
+
 ## Synthetische Messungen
 
 Die folgenden Werte stammen aus der bereits durchgeführten synthetischen

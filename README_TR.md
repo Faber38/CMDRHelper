@@ -39,6 +39,15 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## 3.4.6 sürümündeki yenilikler
+
+- Büyük günlük koleksiyonlarında daha kararlı arşiv içe aktarımı.
+- Uzun veri işlemleri sırasında daha hızlı yanıt veren arayüz.
+- İçe aktarımdan sonra yeni ve büyüyen günlüklerin daha güvenilir şekilde işlenmesi.
+- Daha hızlı arşiv işleme ve madencilik yenileme.
+- Kronikte açılan sistem görünümündeki sistem adına tıklayarak adı kopyalayın.
+- Windows’ta koyu modda sekmelerin görünümü düzeltildi.
+
 ## 3.4.5 sürümündeki yenilikler
 
 - Büyük günlük koleksiyonlarında daha kararlı arşiv içe aktarımı.
@@ -47,6 +56,7 @@ CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici 
 - Daha hızlı arşiv işleme ve madencilik yenileme.
 - Kronikte açılan sistem görünümündeki sistem adına tıklayarak adı kopyalayın.
 - Ek performans ve kararlılık iyileştirmeleri.
+- Windows’ta koyu modda sekmelerin görünümü düzeltildi.
 
 ## 3.4.4 sürümündeki yenilikler – Hotfix
 

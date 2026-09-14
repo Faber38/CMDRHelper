@@ -77,8 +77,10 @@ Sechs Punkte in allen zwölf Sprachen (`release.3_4_5.0` bis `.5`): stabilerer
 Archivimport bei großen Journalbeständen, reaktionsfähigere Oberfläche während
 langer Verarbeitung, verbesserte Nachholung neuer und gewachsener Journale,
 schnellere Archivverarbeitung und Mining-Aktualisierung, Kopieren des geöffneten
-Chronik-Systemnamens per Klick sowie weitere Performance- und
-Stabilitätsverbesserungen.
+Chronik-Systemnamens per Klick sowie die korrigierte Darstellung der Tabs unter
+Windows im Dark Mode. Der konkrete Darstellungsfix ersetzt den bisherigen
+allgemeinen Performance-/Stabilitätspunkt; die Liste bleibt bei sechs Punkten
+und wird im Updatefenster vollständig angezeigt.
 
 Die Zuordnung in `RELEASE_SUMMARIES` ergänzt die historischen Einträge. Das
 Updatefenster verwendet kurze benutzerorientierte Texte ohne interne
@@ -86,3 +88,16 @@ Implementierungsdetails. Die Hotfix-Inhalte aus 3.4.4 werden nicht erneut als
 Neuerungen aufgeführt. Die integrierte Hilfe bleibt unverändert und
 versionsunabhängig; für die stille Chronik-Kopierfunktion gibt es keinen neuen
 Hilfetext.
+
+## 3.4.6
+
+Sechs Punkte in allen zwölf Sprachen (`release.3_4_6.0` bis `.5`): stabilerer
+Archivimport bei großen Journalbeständen, reaktionsfähigere Oberfläche während
+längerer Verarbeitung, verbesserte Journal-Nachholung, schnellere Archivverarbeitung
+und Mining-Aktualisierung, Kopieren des Chronik-Systemnamens per Klick sowie
+lesbare Windows-Tabs im Dark Mode.
+
+Die neue Zuordnung in `RELEASE_SUMMARIES` erhält alle älteren Releaseeinträge.
+Das Updatefenster zeigt die sechs kurzen, benutzerorientierten Hinweise ohne
+technische Interna. Die integrierte Hilfe bleibt unverändert; Catch-up-Mechanik,
+stille Chronik-Kopierfunktion und Tab-Darstellungsfix benötigen keinen Hilfetext.

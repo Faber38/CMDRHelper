@@ -38,6 +38,15 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## Novità della versione 3.4.6
+
+- Importazione degli archivi più affidabile con grandi raccolte di diari.
+- Interfaccia più reattiva durante le elaborazioni prolungate dei dati.
+- Migliore recupero dei diari nuovi e aggiornati dopo l’importazione.
+- Elaborazione degli archivi e aggiornamento dei dati minerari più rapidi.
+- Fai clic sul nome del sistema nella vista del sistema aperta nella cronaca per copiarlo.
+- Corretta la visualizzazione delle schede su Windows in modalità scura.
+
 ## Novità della versione 3.4.5
 
 - Importazione degli archivi più affidabile con grandi raccolte di diari.
@@ -46,6 +55,7 @@ CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiorname
 - Elaborazione degli archivi e aggiornamento dei dati minerari più rapidi.
 - Fai clic sul nome del sistema nella vista del sistema aperta nella cronaca per copiarlo.
 - Ulteriori miglioramenti delle prestazioni e della stabilità.
+- Corretta la visualizzazione delle schede su Windows in modalità scura.
 
 ## Novità della versione 3.4.4 – Hotfix
 

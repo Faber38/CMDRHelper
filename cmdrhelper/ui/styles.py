@@ -15,6 +15,45 @@ QWidget {
     font-size: 12px;
 }
 
+/* Explicit tab surfaces keep the native style from supplying light fills. */
+QTabWidget, QTabBar {
+    background: #080d12;
+    color: #d8dde3;
+}
+
+QTabWidget::pane {
+    background: #080d12;
+    border: 1px solid #28323b;
+}
+
+QTabBar::tab {
+    background: #111820;
+    color: #d8dde3;
+    border: 1px solid #28323b;
+    padding: 3px 11px;
+}
+
+QTabBar::tab:!selected {
+    background: #111820;
+    color: #d8dde3;
+}
+
+QTabBar::tab:selected {
+    background: #20180b;
+    color: #d8dde3;
+    border-color: #c57a00;
+}
+
+QTabBar::tab:hover {
+    background: #17222c;
+    color: #d8dde3;
+    border-color: #c57a00;
+}
+
+QTabBar::tab:selected:hover {
+    background: #20180b;
+}
+
 QMainWindow {
     background: #080d12;
 }
@@ -210,6 +249,45 @@ QWidget {
     background: #eef1f4;
     color: #20262c;
     font-size: 12px;
+}
+
+/* Explicit tab surfaces keep the native style from supplying light fills. */
+QTabWidget, QTabBar {
+    background: #eef1f4;
+    color: #20262c;
+}
+
+QTabWidget::pane {
+    background: #eef1f4;
+    border: 1px solid #bfc7ce;
+}
+
+QTabBar::tab {
+    background: #f7f8fa;
+    color: #20262c;
+    border: 1px solid #bfc7ce;
+    padding: 3px 11px;
+}
+
+QTabBar::tab:!selected {
+    background: #f7f8fa;
+    color: #20262c;
+}
+
+QTabBar::tab:selected {
+    background: #fff1da;
+    color: #20262c;
+    border-color: #9a620e;
+}
+
+QTabBar::tab:hover {
+    background: #e9edf1;
+    color: #20262c;
+    border-color: #9a620e;
+}
+
+QTabBar::tab:selected:hover {
+    background: #fff1da;
 }
 
 QMainWindow {

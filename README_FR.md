@@ -38,6 +38,15 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## Nouveautés de la version 3.4.6
+
+- Importation des archives plus fiable avec de grandes collections de journaux.
+- Interface plus réactive pendant les traitements de données prolongés.
+- Meilleure prise en compte des journaux nouveaux ou complétés après l’importation.
+- Traitement des archives et actualisation du minage plus rapides.
+- Cliquez sur le nom du système dans la vue système ouverte de la chronique pour le copier.
+- Correction de l’affichage des onglets sous Windows en mode sombre.
+
 ## Nouveautés de la version 3.4.5
 
 - Importation des archives plus fiable avec de grandes collections de journaux.
@@ -46,6 +55,7 @@ CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de 
 - Traitement des archives et actualisation du minage plus rapides.
 - Cliquez sur le nom du système dans la vue système ouverte de la chronique pour le copier.
 - Autres améliorations des performances et de la stabilité.
+- Correction de l’affichage des onglets sous Windows en mode sombre.
 
 ## Nouveautés de la version 3.4.4 – Hotfix
 

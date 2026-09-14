@@ -38,6 +38,15 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## New in version 3.4.6
+
+- More reliable archive imports with large journal collections.
+- A more responsive interface during lengthy data processing.
+- Improved catch-up of new and expanded journals after imports.
+- Faster archive processing and mining refreshes.
+- Click the system name in an open Chronicle system view to copy it.
+- Fixed tab rendering on Windows in dark mode.
+
 ## New in version 3.4.5
 
 - More reliable archive imports with large journal collections.
@@ -46,6 +55,7 @@ CMDRHelper checks for updates at startup and offers an integrated updater. Confi
 - Faster archive processing and mining refreshes.
 - Click the system name in an open Chronicle system view to copy it.
 - Further performance and stability improvements.
+- Fixed tab rendering on Windows in dark mode.
 
 ## New in version 3.4.4 – Hotfix
 
