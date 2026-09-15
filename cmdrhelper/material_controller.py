@@ -67,18 +67,27 @@ class MaterialController(QObject):
         self._generation = 0
         self._running = False
         self._dirty = False
-        for signal_name in ("changed", "viewedCommanderChanged", "commanderIdentityChanged",
+        for signal_name in ("inventoryChanged" if hasattr(state, "inventoryChanged") else "changed", "viewedCommanderChanged", "commanderIdentityChanged",
                             "journalIndexReady", "databaseImportFinished"):
             signal = getattr(state, signal_name, None)
             if signal is not None:
-                signal.connect(self.request)
+                if signal_name in ("journalIndexReady", "databaseImportFinished"):
+                    signal.connect(lambda *args: self.request(force=True))
+                else:
+                    signal.connect(self.request)
         QTimer.singleShot(0, self.request)
 
     @Slot()
-    def request(self, *args):
+    def request(self, *args, force=False):
         cid = getattr(self.state, "viewed_commander_id", None) or getattr(self.state, "commander_id", None)
         fid = getattr(self.state, "commander_fid", "") if cid == getattr(self.state, "commander_id", None) else ""
         identity = (cid, fid)
+        revisions = getattr(self.state, "_inventory_revisions", None)
+        if revisions is not None:
+            signature = (identity, revisions.get("materials", 0))
+            if not force and signature == getattr(self, "_request_signature", None):
+                return
+            self._request_signature = signature
         if identity != self._identity:
             self._identity = identity
             self._generation += 1
@@ -86,6 +95,11 @@ class MaterialController(QObject):
         self._dirty = True
         if not self.timer.isActive():
             self.timer.start()
+
+    def refresh_now(self):
+        self.request(force=True)
+        self.timer.stop()
+        self._start()
 
     def _start(self):
         if self._running or not self._dirty:

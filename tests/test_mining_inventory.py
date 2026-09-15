@@ -143,6 +143,28 @@ class MiningInventoryTests(unittest.TestCase):
 
 
 class MiningReaderTests(unittest.TestCase):
+    def test_pending_sidecar_never_checkpointed_and_later_snapshot_recovers(self):
+        reader=MiningInventoryReader()
+        old=dict(cargo(gold=1),timestamp='2026-09-12T12:00:02Z')
+        trigger=dict(event='Cargo',Vessel='Ship',Count=1,timestamp='2026-09-12T12:00:06Z')
+        self.write([old,trigger])
+        for payload in (old,{**trigger,'Inventory':[dict(Name='gold',Count=-1)]}):
+            self.sidecar.write_text(json.dumps(payload))
+            pending=reader.reconstruct(1,'F1',self.sessions,live_path=self.path)
+            self.assertTrue(pending.cargo_pending)
+            self.assertIsNone(pending.ship)
+            self.assertNotIn('Ship',pending.checkpoints)
+            self.assertEqual(pending.vehicle_records['Ship']['last_confirmed'],{'gold':1})
+        self.sidecar.write_text(json.dumps({**trigger,'Inventory':[dict(Name='silver',Count=1)]}))
+        result=reader.reconstruct(1,'F1',self.sessions,live_path=self.path,checkpoints=pending.checkpoints)
+        self.assertFalse(result.cargo_pending)
+        self.assertEqual(result.ship,{'silver':1})
+        self.assertEqual(result.checkpoints['Ship']['source'][0],str(self.path))
+        self.write([old,trigger,dict(trigger)])
+        ambiguous=reader.reconstruct(1,'F1',self.sessions,live_path=self.path)
+        self.assertTrue(ambiguous.cargo_pending)
+        self.assertNotIn('Ship',ambiguous.checkpoints)
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)

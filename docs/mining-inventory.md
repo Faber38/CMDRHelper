@@ -64,7 +64,11 @@ an empty inventory. Duplicate commodity entries (including mission cargo) are
 combined; total carried tonnes include stolen cargo, just as in the Cargo view.
 
 For the last Cargo notification in the currently identified live journal, the
-existing `read_cargo_snapshot` validates Cargo.json's vessel, time and total.
+existing `read_cargo_snapshot` strictly validates Cargo.json's entries, vessel, exact
+timestamp and total, with device/inode/size/mtime/ctime stability checks. The reader
+also rejects ambiguous same-timestamp triggers and journals changed around the
+sidecar read. An unmatched current snapshot remains pending; the controller makes
+at most three delayed retries without a global State refresh.
 Verified sidecar payloads are saved via QSettings under
 `materials/mining/cargo_checkpoints/<commander_id>`, at most one per vessel.
 Each is bound to its FID, resolved journal path, byte offset and event hash.
@@ -82,12 +86,13 @@ affected projection until the next complete Cargo snapshot.
 
 Ship and SRV are reconstructed and displayed separately;
 LaunchSRV waits for its own snapshot, DockSRV waits for a fresh ship snapshot
-because docking can automatically unload cargo. Ship changes and new LoadGame
-sessions discard stale bases. No absent baseline is inferred as zero.
+because docking can automatically unload cargo. Ship changes or unproven LoadGame identities discard stale bases. A continuous
+journal sequence with the same FID, ship type and ShipID preserves independent
+Ship/SRV bases; a new Ship snapshot does not overwrite SRV stock. No absent baseline is inferred as zero.
 
 CargoTransfer updates only known vehicle stocks: tocarrier subtracts from Ship;
 tosrv subtracts from Ship and adds to SRV; toship adds to Ship and subtracts from
-SRV when that vehicle is active. No carrier balance is maintained.
+SRV when that vehicle is active. The separate CarrierLedger handles explicitly attributed carrier transfers.
 
 `MiningInventoryController` subscribes to existing AppState change, cargo,
 commander, journal-index and archive-import signals. A single-shot debounce
@@ -112,7 +117,9 @@ remains independently unknown until confirmed, including a known zero.
 `materials/mining/carrier/<escaped-FID>/<CarrierID>` is one QSettings value with
 version, identity, commodity records, UTC confirmation timestamps and a journal
 cursor (resolved filename, byte offset, SHA-256 prefix hash). No schema changes.
-Balance and cursor are saved together. Confirmation anchors at the current end
+Balance and cursor are saved together. Ledger and cargo-checkpoint publication
+checks QSettings status after sync; failures restore previous settings values on
+a best-effort basis and do not publish a successful new cursor. Confirmation anchors at the current end
 of complete journal events, not at an earlier UI snapshot. Corrections replace
 only that commodity's baseline. Reset removes its record.
 
@@ -125,8 +132,13 @@ Ship/SRV transfers are excluded. Unknown opening balances stay unknown.
 
 Negative results and ambiguous relevant transfers invalidate the affected stock;
 malformed transfers or uncertain journal continuity invalidate known records.
-Truncated/replaced journals and a different live journal require reconfirmation:
-no archive backfill is attempted to bridge a gap. Re-reading the same prefix,
+Truncated/replaced journals or an unverifiable indexed chain make current stock
+unknown. A different live journal alone does not break continuity: verified
+indexed successors are replayed from the saved prefix/offset, exactly once.
+Temporary chain failures retain the old cursor and resume_count for a verified
+retry; they never restore stock from the manual confirmation alone. Same-FID
+Commander/LoadGame records do not erase established docking context within this
+verified continuation. Positive location changes and conflicting identities do. Re-reading the same prefix,
 including after restart, never reapplies consumed transfers. A missing Cargo.json
 does not remove carrier balances when the live journal remains verifiable.
 

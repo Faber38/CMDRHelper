@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from cmdrhelper.exploration_status import exploration_status, journal_flag, status_tooltip
 
+from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
 import os
@@ -48,7 +49,7 @@ from cmdrhelper.update import (
     launch_installer,
 )
 
-from PySide6.QtCore import Qt, QTimer, QThreadPool, QUrl, QDate, Slot
+from PySide6.QtCore import Qt, QTimer, QThreadPool, QUrl, QDate, Slot, Signal
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 from PySide6.QtGui import (
     QDesktopServices,
@@ -65,6 +66,7 @@ from PySide6.QtWidgets import (
     QGridLayout,
     QLabel,
     QPushButton,
+    QToolButton,
     QFrame,
     QStackedWidget,
     QFileDialog,
@@ -165,9 +167,11 @@ class OnlineServiceCommanderComboBox(QComboBox):
 
 
 class _ChronicleSystemNameLabel(QLabel):
+    clicked = Signal()
+
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton and self.rect().contains(event.position().toPoint()):
-            QApplication.clipboard().setText(self.text())
+            self.clicked.emit()
             event.accept()
             return
         super().mouseReleaseEvent(event)
@@ -193,7 +197,29 @@ class ChronicleSystemWindow(QDialog):
         title.setTextFormat(Qt.PlainText)
         title.setCursor(Qt.PointingHandCursor)
         title.setStyleSheet("font-size: 18px; font-weight: 700;")
-        layout.addWidget(title)
+        copy_button = QToolButton(objectName="chronicleCopySystemName")
+        copy_button.setText("⧉")
+        copy_button.setAutoRaise(True)
+        copy_button.setCursor(Qt.PointingHandCursor)
+        self._copy_feedback_timer = QTimer(self)
+        self._copy_feedback_timer.setSingleShot(True)
+        self._copy_feedback_timer.setInterval(700)
+        self._copy_feedback_timer.timeout.connect(lambda: copy_button.setText("⧉"))
+
+        def copy_system_name():
+            QApplication.clipboard().setText(title.text())
+            copy_button.setText("✓")
+            self._copy_feedback_timer.start()
+
+        title.clicked.connect(copy_system_name)
+        copy_button.clicked.connect(copy_system_name)
+        title_row = QHBoxLayout()
+        title_row.setContentsMargins(0, 0, 0, 0)
+        title_row.setSpacing(4)
+        title_row.addWidget(title)
+        title_row.addWidget(copy_button)
+        title_row.addStretch()
+        layout.addLayout(title_row)
 
         info = QLabel(header_text, objectName="muted")
         info.setWordWrap(True)
@@ -1217,6 +1243,11 @@ class MainWindow(QMainWindow):
 
     def _show_page(self, idx):
         self.pages.setCurrentIndex(idx)
+        if hasattr(self, "missions_table"):
+            if idx == self.PAGE_SETTINGS:
+                self.refresh_all()
+            else:
+                self._refresh_visible_details()
 
         for i, button in enumerate(self.nav_buttons):
             button.setObjectName("navActive" if i == idx else "")
@@ -2587,6 +2618,7 @@ class MainWindow(QMainWindow):
         self._explorer_live_system = system_name
 
         if system_changed:
+            self._explorer_live_render_key = None
             # Beim Eintritt in ein anderes System beide alten Livefenster
             # sofort schließen und leeren. Dieser Refresh wird anschließend
             # beendet, damit Restdaten aus dem vorherigen System das Fenster
@@ -2600,6 +2632,22 @@ class MainWindow(QMainWindow):
                 self._explorer_bio_live_window.table.setRowCount(0)
 
             return
+
+        render_key = (getattr(self.state, "commander_id", None), system_name, bodies,
+                      self.__dict__.get("ui_theme", "dark"),
+                      self._explorer_value_yellow_threshold(),
+                      tuple(self._explorer_live_window_enabled(kind) for kind in ("value", "bio", "geo")),
+                      getattr(self.state, "_learning_revision", 0), get_language())
+        if render_key == getattr(self, "_explorer_live_render_key", None):
+            # Reopen qualifying popups without recalculating unchanged rows.
+            for window, present in zip(
+                (self._explorer_value_live_window, self._explorer_bio_live_window),
+                getattr(self, "_explorer_live_present", (False, False)),
+            ):
+                if present and window is not None and not window.isVisible():
+                    window.show()
+            return
+        self._explorer_live_render_key = deepcopy(render_key)
 
         threshold = self._explorer_value_yellow_threshold()
         valuable_rows = []
@@ -2880,6 +2928,10 @@ class MainWindow(QMainWindow):
         value_live_enabled = self._explorer_live_window_enabled("value")
         bio_live_enabled = self._explorer_live_window_enabled("bio")
 
+        self._explorer_live_present = (
+            bool(value_live_enabled and valuable_rows),
+            bool((bio_live_enabled or geo_enabled) and bio_rows),
+        )
         if value_live_enabled and valuable_rows:
             if not self._explorer_value_live_window.isVisible():
                 self._explorer_value_live_window.show()
@@ -5011,6 +5063,9 @@ class MainWindow(QMainWindow):
         error,
     ):
         self.database_import_button.setEnabled(True)
+        self._explorer_render_key = None
+        self._explorer_live_render_key = None
+        self._explorer_dirty = True
 
         if error:
             self.database_progress_bar.setRange(0, 100)
@@ -5852,6 +5907,9 @@ class MainWindow(QMainWindow):
         Zeigt, ob neuere Dateien vorhanden sind als der letzte
         von CMDRHelper gelesene Journal-Eintrag.
         """
+        pages = getattr(self, "pages", None)
+        if pages is not None and pages.currentIndex() != self.PAGE_SETTINGS:
+            return getattr(self, "_journal_diagnostics_cache", None)
         folder = self.state.journal_folder
 
         if not folder:
@@ -5876,11 +5934,12 @@ class MainWindow(QMainWindow):
             oldest_dt = datetime.fromtimestamp(oldest.stat().st_mtime)
             newest_dt = datetime.fromtimestamp(newest.stat().st_mtime)
 
-            return {
+            self._journal_diagnostics_cache = {
                 "oldest_time": oldest_dt.strftime("%d.%m.%Y %H:%M:%S"),
                 "newest_time": newest_dt.strftime("%d.%m.%Y %H:%M:%S"),
                 "newest_name": newest.name,
             }
+            return self._journal_diagnostics_cache
 
         except Exception as exc:
             return {
@@ -6314,14 +6373,18 @@ class MainWindow(QMainWindow):
         # Kartographiewert-Schwellenwerts setzen.
         self._apply_gold_frame_threshold()
 
-        self.system_map.set_system(system, self.state.system_bodies)
+        explorer_key = (self.state.commander_id, system, self.state.system_bodies,
+                        self.__dict__.get("ui_theme", "dark"), self._explorer_value_yellow_threshold(),
+                        getattr(self.state, "_learning_revision", 0), get_language())
+        if explorer_key != getattr(self, "_explorer_render_key", None):
+            self._explorer_render_key = deepcopy(explorer_key)
+            self._explorer_dirty = True
 
         # Aktuelle Position auch in einer bereits geöffneten Chronik
         # unmittelbar nach einem Systemwechsel aktualisieren.
         self._mark_current_chronicle_system()
 
         if hasattr(self, "explorer_value_table"):
-            self._refresh_explorer_tables()
             self._refresh_explorer_live_windows()
 
         self.journal_path_edit.setText(str(self.state.journal_folder or ""))
@@ -6343,6 +6406,22 @@ class MainWindow(QMainWindow):
             self._format_timestamp(self.state.last_timestamp)
         )
 
+        mission_key = (self.state.commander_id, self.state.missions, get_language())
+        if mission_key != getattr(self, "_missions_render_key", None):
+            self._missions_render_key = deepcopy(mission_key)
+            self._missions_dirty = True
+        self._refresh_visible_details()
+
+    def _refresh_visible_details(self):
+        if self.pages.currentIndex() == self.PAGE_EXPLORER and getattr(self, "_explorer_dirty", True):
+            self.system_map.set_system(self.state.system, self.state.system_bodies)
+            self._refresh_explorer_tables()
+            self._explorer_dirty = False
+        if self.pages.currentIndex() == self.PAGE_MISSIONS and getattr(self, "_missions_dirty", True):
+            self._refresh_missions_table()
+            self._missions_dirty = False
+
+    def _refresh_missions_table(self):
         current_row = self.missions_table.currentRow()
 
         self.missions_table.setRowCount(len(self.state.missions))

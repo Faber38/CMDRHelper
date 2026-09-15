@@ -9,6 +9,32 @@ from cmdrhelper.mining_inventory import MiningInventory
 
 
 class CarrierLedgerTests(unittest.TestCase):
+    def test_save_failure_preserves_old_cursor_and_balance(self):
+        from unittest.mock import patch
+        old=self.confirm(0)
+        with patch.object(self.settings,'status',return_value=QSettings.Status.AccessError):
+            with self.assertRaises(OSError):
+                self.transfer(4,'tocarrier')
+        self.assertEqual(self.store._load('F1',123),old)
+        self.assertEqual(self.store.update('F1',123,self.feed())['records']['gold']['count'],4)
+
+    def test_location_evidence_survives_same_identity_and_missing_fields(self):
+        self.confirm(0)
+        self.events += [dict(event='Commander',FID='F1'),dict(event='LoadGame',FID='F1',Ship='CobraMkIII'),
+                        dict(event='Location'),dict(event='CarrierJump'),dict(event='Disembark')]
+        self.assertEqual(self.transfer(4,'tocarrier')['records']['gold']['count'],4)
+        self.assertEqual(self.transfer(4,'toship')['records']['gold']['count'],0)
+        for change in (dict(event='Undocked'),dict(event='FSDJump'),dict(event='SupercruiseEntry'),dict(event='Died'),
+                       dict(event='Location',Docked=False),dict(event='Docked',MarketID=99,StationType='Coriolis'),
+                       dict(event='CarrierJump',MarketID=99,StationType='FleetCarrier',Docked=True)):
+            with self.subTest(change=change):
+                ledger=self.store._load('F1',123)
+                dock,_=self.store._consume(ledger,dict(events=[(0,change)]),0,(123,False))
+                self.assertNotEqual(dock,123)
+        ledger=self.store._load('F1',123)
+        dock,_=self.store._consume(ledger,dict(events=[(0,dict(event='Commander',FID='F2'))]),0,(123,False))
+        self.assertIsNone(dock)
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)

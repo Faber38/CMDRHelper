@@ -113,15 +113,53 @@ def _matches_trigger(payload, trigger, tolerance_seconds):
     ).casefold():
         return False
     try:
-        if int(payload.get("Count")) != int(trigger.get("Count")):
+        if (type(trigger.get("Count")) is not int or trigger["Count"] < 0
+                or type(payload.get("Count")) is not int
+                or payload["Count"] != trigger["Count"]):
             return False
     except (TypeError, ValueError):
         return False
     payload_time = _timestamp(payload.get("timestamp"))
     trigger_time = _timestamp(trigger.get("timestamp"))
-    if payload_time is None or trigger_time is None:
+    if (payload_time is None or trigger_time is None
+            or payload_time.tzinfo is None or trigger_time.tzinfo is None):
         return False
-    return abs((payload_time - trigger_time).total_seconds()) <= tolerance_seconds
+    # Retain the keyword for callers, but never use a fuzzy time window to bind
+    # two inventories which can have the same total and different composition.
+    return payload_time == trigger_time
+
+
+def _valid_sidecar_inventory(payload):
+    """Validate before permissive display normalization; do not alter its callers."""
+    from .material_inventory import frontier_name
+    if not isinstance(payload, dict) or type(payload.get("Count")) is not int or payload["Count"] < 0:
+        return False
+    items = payload.get("Inventory")
+    if not isinstance(items, list):
+        return False
+    try:
+        total = 0
+        for item in items:
+            frontier_name(item.get("Name"))
+            count = item.get("Count")
+            if type(count) is not int or count < 0:
+                return False
+            stolen = item.get("Stolen", 0)
+            if type(stolen) is not int or not 0 <= stolen <= count:
+                return False
+            total += count
+        return total == payload["Count"]
+    except (ValueError, TypeError, AttributeError):
+        return False
+
+
+def _unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("ambiguous duplicate Cargo field")
+        result[key] = value
+    return result
 
 
 def read_cargo_snapshot(path, trigger, *, fid, ship_id=None,
@@ -146,12 +184,12 @@ def read_cargo_snapshot(path, trigger, *, fid, ship_id=None,
             before = path.stat()
             raw = path.read_bytes()
             after = path.stat()
-            if (before.st_size, before.st_mtime_ns) != (
-                after.st_size, after.st_mtime_ns
-            ):
+            signature = lambda s: (s.st_dev, s.st_ino, s.st_size, s.st_mtime_ns, s.st_ctime_ns)
+            if signature(before) != signature(after):
                 raise OSError("Cargo.json changed while being read")
-            payload = json.loads(raw.decode("utf-8-sig"))
-            if not _matches_trigger(payload, trigger, tolerance_seconds):
+            payload = json.loads(raw.decode("utf-8-sig"), object_pairs_hook=_unique_object)
+            if (not _valid_sidecar_inventory(payload)
+                    or not _matches_trigger(payload, trigger, tolerance_seconds)):
                 raise ValueError("Cargo.json does not match the Cargo event")
             snapshot = cargo_snapshot(
                 payload, fid=fid, ship_id=ship_id,

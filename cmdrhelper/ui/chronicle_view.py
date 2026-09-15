@@ -84,6 +84,8 @@ class ChronicleMapWidget(QWidget):
     # ------------------------------------------------------------------
 
     def set_systems(self, systems, routes=None, commander_colors=None):
+        self._projection_cache = None
+        self._current_marker_key = None
         selected = self.selected_address
         self.systems = list(systems or [])
         self.routes = list(routes or [])
@@ -131,7 +133,12 @@ class ChronicleMapWidget(QWidget):
 
     def set_current_system(self, system_name):
         """Markiert das aktuell besuchte System in der Chronik."""
-        self.current_system_name = str(system_name or "").strip()
+        name = str(system_name or "").strip()
+        marker_key = (id(self.systems), name)
+        if getattr(self, "_current_marker_key", None) == marker_key:
+            return
+        self._current_marker_key = marker_key
+        self.current_system_name = name
         self.current_system_address = None
 
         if self.current_system_name:
@@ -244,16 +251,18 @@ class ChronicleMapWidget(QWidget):
         z = float(system["z"]) - cz
 
         # Drehung um galaktische Y-Achse (Yaw)
-        cos_yaw = math.cos(self.yaw)
-        sin_yaw = math.sin(self.yaw)
+        rotation_key = (self.yaw, self.pitch, self._display_pitch_offset)
+        if getattr(self, "_rotation_key", None) != rotation_key:
+            self._rotation_key = rotation_key
+            pitch = self.pitch + self._display_pitch_offset
+            self._rotation_values = (math.cos(self.yaw), math.sin(self.yaw),
+                                     math.cos(pitch), math.sin(pitch))
+        cos_yaw, sin_yaw, cos_pitch, sin_pitch = self._rotation_values
 
         x1 = x * cos_yaw - z * sin_yaw
         z1 = x * sin_yaw + z * cos_yaw
 
         # Drehung um X-Achse (Pitch)
-        display_pitch = self.pitch + self._display_pitch_offset
-        cos_pitch = math.cos(display_pitch)
-        sin_pitch = math.sin(display_pitch)
 
         y2 = y * cos_pitch - z1 * sin_pitch
         depth = y * sin_pitch + z1 * cos_pitch
@@ -261,24 +270,30 @@ class ChronicleMapWidget(QWidget):
         return x1, y2, depth
 
     def _project(self, system):
+        # One projection basis per camera/data state, shared by paint and hit
+        # testing. Hover and tooltips deliberately do not invalidate it.
+        key = (id(self.systems), len(self.systems), self._center, self.yaw,
+               self.pitch, self._display_pitch_offset, self.scale,
+               self.pan.x(), self.pan.y(), self.width(), self.height())
+        cache = getattr(self, "_projection_cache", None)
+        if cache is None or cache[0] != key:
+            depths = [self._camera_coordinates(s)[2]
+                      for s in self.systems[::max(1, len(self.systems) // 80)]]
+            span = max(max(depths) - min(depths), 1.0) if depths else None
+            cache = self._projection_cache = (key, span, {})
+        point_key = (system["x"], system["y"], system["z"])
+        if point_key in cache[2]:
+            point, depth, perspective = cache[2][point_key]
+            return QPointF(point), depth, perspective
         x, y, depth = self._camera_coordinates(system)
 
         # Leichte Perspektive. Große Galaxiereisen bleiben so lesbar,
         # ohne dass nahe Punkte übertrieben groß werden.
         perspective = 1.0
 
-        if self.systems:
-            depths = [
-                self._camera_coordinates(s)[2]
-                for s in self.systems[::max(1, len(self.systems) // 80)]
-            ]
-            if depths:
-                depth_span = max(
-                    max(depths) - min(depths),
-                    1.0,
-                )
-                perspective = 1.0 + (depth / depth_span) * 0.16
-                perspective = max(0.82, min(1.18, perspective))
+        if cache[1] is not None:
+            perspective = 1.0 + (depth / cache[1]) * 0.16
+            perspective = max(0.82, min(1.18, perspective))
 
         px = (
             self.width() / 2.0
@@ -292,6 +307,7 @@ class ChronicleMapWidget(QWidget):
             + self.pan.y()
         )
 
+        cache[2][point_key] = (QPointF(px, py), depth, perspective)
         return QPointF(px, py), depth, perspective
 
 

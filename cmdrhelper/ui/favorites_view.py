@@ -419,7 +419,9 @@ class FavoritesView(QWidget):
             self.refresh()
 
     def _schedule_distance_refresh(self, *_):
-        self._distance_refresh_timer.start(0)
+        if self.isVisible():
+            self._distance_refresh_timer.start(0)
+        # showEvent always reloads the current records and distances.
 
     def _distance_filter_changed(self, *_):
         enabled = self.distance_filter.isChecked()

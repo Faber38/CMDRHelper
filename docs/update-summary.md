@@ -1,4 +1,18 @@
-# Kurzbeschreibung im Update-Dialog
+# Updatehinweise für CMDRHelper 3.5
+
+- Schnellere Chronik und reaktionsfähigere Oberfläche; BIO-/Kartographie-Arbeit im Hintergrund.
+- Odyssey mit aktuellen persönlichen Beständen, Kategoriebelegung und Carrierprojektion.
+- Verständliche Carrier-Ersteinrichtung über !; 0 und — bleiben getrennt.
+- Carrierbestand und für Barkeeper-Kaufangebote reservierte Lagerkapazität getrennt.
+- Stabilere Mining-Bestände und sicherere Speicherung über Neustarts hinweg.
+- Fresh-Install-Migrationsfix und zahlreiche Aktualisierungs-/Bedienkorrekturen.
+
+Das Updatefenster verwendet `release.3_5.0` bis `release.3_5.5` in allen zwölf
+Sprachen. Die sechs Kurztexte stehen in `RELEASE_SUMMARIES["3.5"]`; ältere
+Versionszuordnungen bleiben erhalten. Carrierwerte sind fortgeschriebene
+Projektionen, keine garantierten Live-Abfragen. Details: [Release 3.5](release-3.5.md).
+
+## Technische Zuordnung und historische Hinweise
 
 `MainWindow._update_check_finished()` öffnet `UpdateConfirmationBox`, eine
 QMessageBox mit unveränderten Ja/Nein-Aktionen. Version und Release Notes kommen

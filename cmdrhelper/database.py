@@ -163,12 +163,22 @@ class CMDRDatabase:
     def __init__(self, path=None):
         self.path = Path(path) if path else default_database_path()
         self.path.parent.mkdir(parents=True, exist_ok=True)
+        db_was_new = not self.path.exists()
         logger.info("Datenbank: %s", self.path)
         self.active_commander_id = None
         self._bio_predictor_cache = None
         self._bio_predictor_revision = None
         try:
             self._create_schema()
+            if db_was_new:
+                # Only a newly created, fully initialized database is exempt
+                # from the historical repair. Existing databases keep their marker.
+                from cmdrhelper.parent_migration import MIGRATION_KEY, COMPLETE
+                with self._connect() as con:
+                    con.execute(
+                        "INSERT INTO app_meta(key, value) VALUES (?, ?)",
+                        (MIGRATION_KEY, COMPLETE),
+                    )
         except Exception:
             logger.exception("Database open/schema initialization failed")
             raise
@@ -1716,10 +1726,10 @@ class CMDRDatabase:
         )
         return True
 
-    def surface_mining_for_body(self, system_address, body_id, commander_id=None):
+    def surface_mining_for_body(self, system_address, body_id, commander_id=None, *, _con=None):
         commander_id = self._require_commander_id(commander_id)
         result = {"commodities": [], "materials": []}
-        with self._connect() as con:
+        with (self._connect() if _con is None else nullcontext(_con)) as con:
             for key, table, first_col, last_col in (
                 ("commodities", "surface_mining_commodities", "first_mined_at", "last_mined_at"),
                 ("materials", "surface_mining_materials", "first_collected_at", "last_collected_at"),
@@ -2855,7 +2865,7 @@ class CMDRDatabase:
                     [(commander_id, mission_id) for mission_id in missing],
                 )
 
-    def commander_missions(self, commander_id) -> list[dict]:
+    def commander_missions(self, commander_id, *, only_open=False) -> list[dict]:
         commander_id = int(commander_id)
         with self._connect() as con:
             rows = con.execute("""
@@ -2864,6 +2874,7 @@ class CMDRDatabase:
                        reward,summary,next_step,progress_text,accepted_at,last_updated,
                        terminal_state,is_open
                 FROM commander_missions WHERE commander_id=?
+            """ + (" AND is_open=1" if only_open else "") + """
                 ORDER BY is_open DESC,last_updated DESC,mission_id DESC
             """, (commander_id,)).fetchall()
         keys = ("mission_id","name","internal_name","mission_type","faction","status",
@@ -3801,7 +3812,29 @@ class CMDRDatabase:
             for row in rows
         ]
 
-    def learn_bio_values_from_journals(self, folder, commander_id=None):
+    def _learning_journals(self, folder, commander_fid, indexed_sessions=None):
+        """Reuse index identity only while the exact indexed file is unchanged."""
+        from cmdrhelper.journal_reader import classify_journal_file
+        grouped = {}
+        for row in indexed_sessions or ():
+            grouped.setdefault(str(row.get("journal_file")), []).append(row)
+        journals = []
+        for journal in journal_files(folder):
+            try:
+                stat = journal.stat()
+                rows = grouped.get(str(journal), [])
+                if len(rows) == 1 and (rows[0].get("file_size"), rows[0].get("modified_ns")) == (stat.st_size, stat.st_mtime_ns):
+                    session = rows[0]
+                else:
+                    session = classify_journal_file(journal)
+            except OSError:
+                continue
+            if (session.get("attribution_status") == "identified"
+                    and session.get("fid_seen") == commander_fid):
+                journals.append(journal)
+        return journals
+
+    def learn_bio_values_from_journals(self, folder, commander_id=None, *, indexed_sessions=None):
         """
         Lernt Vista-Genomics-Basiswerte direkt aus SellOrganicData.
 
@@ -3829,19 +3862,7 @@ class CMDRDatabase:
         if not folder.is_dir():
             return result
 
-        from cmdrhelper.journal_reader import classify_journal_file
-
-        journals = []
-        for journal in journal_files(folder):
-            try:
-                session = classify_journal_file(journal)
-            except OSError:
-                continue
-            if (
-                session.get("attribution_status") == "identified"
-                and session.get("fid_seen") == commander_fid
-            ):
-                journals.append(journal)
+        journals = self._learning_journals(folder, commander_fid, indexed_sessions)
 
         if not journals:
             return result
@@ -4263,6 +4284,7 @@ class CMDRDatabase:
         folder,
         valuation_func=None,
         commander_id=None,
+        *, indexed_sessions=None,
     ):
         """
         Rekonstruiert Verkaufs-Batches aus den Journalen und speichert
@@ -4287,19 +4309,7 @@ class CMDRDatabase:
         if not folder.is_dir():
             return result
 
-        from cmdrhelper.journal_reader import classify_journal_file
-
-        journals = []
-        for journal in journal_files(folder):
-            try:
-                session = classify_journal_file(journal)
-            except OSError:
-                continue
-            if (
-                session.get("attribution_status") == "identified"
-                and session.get("fid_seen") == commander_fid
-            ):
-                journals.append(journal)
+        journals = self._learning_journals(folder, commander_fid, indexed_sessions)
         if not journals:
             return result
 
@@ -5779,7 +5789,7 @@ class CMDRDatabase:
                 ]
 
                 mining = self.surface_mining_for_body(
-                    address, body_id, commander_id=commander_id
+                    address, body_id, commander_id=commander_id, _con=con
                 )
 
                 bodies.append(

@@ -39,6 +39,38 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## 3.5 sürümündeki yenilikler
+
+- Daha hızlı günlük ve arayüz; BIO ve haritacılık işlemleri arka planda çalışır.
+- Odyssey; dolap, sırt çantası, kategori başına kişisel doluluk ve hesaplanan filo gemisi stokunu gösterir.
+- ! üzerinden kurulum, onaylanmış 0 ile bilinmeyen — değerini açıkça ayırır.
+- Filo gemisi stoku, barmen alım emirlerinin ayırdığı depo alanından ayrı gösterilir.
+- Daha güvenilir Mining stokları: güvenli Cargo anlık görüntüleri, kaçırılan aktarımlar ve denetlenen kayıt.
+- Yeni kurulumdaki hatalı geçiş isteği düzeltildi; günlük kopyalama ve gizli görünüm güncellemeleri iyileştirildi.
+
+![Dolap, sırt çantası ve otomatik güncellenen Fleet Carrier stoku ile Odyssey malzeme yönetimi](cmdrhelper/assets/readme/cmdrhelper_v3_5.png)
+
+Dolap ve sırt çantası doğrulanmış güncel ShipLocker/Backpack verilerini kullanır. Mallar, Malzemeler ve Veriler ayrı ayrı 1000 kişisel dolap kapasitesine sahiptir. Toplam; dolap + sırt çantası + filo gemisini yalnızca bilinen, tutarlı değerlerle toplar. Alım, satım ve takas özel aktarımlardan ayrılır. Yeniden başlatmada konum oluşturulur ve yeni kişisel temel belirlenir; kaçırılmış Odyssey aktarımları uydurulmaz. Oyun örneği: 713 birim + alımlar için ayrılmış 121 yer = 834 / 1000. Bu 121 malzeme değildir. Eski veya belirsiz pazar verileri sözde güncel doluluk oluşturmaz.
+
+### Filo gemisi stokunu ayarla
+
+CMDRHelper, Fleet Carrier geminin özel Odyssey stokunu otomatik güncelleyebilir. Önce onaylanmış bir başlangıç stoku gerekir.
+
+Kendi filo geminde envanter aktarımını aç ve Mallar, Malzemeler ile Veriler bölümlerini karşılaştır.
+
+Filo gemisi sütununa çift tıklayıp HER kalem için gemideki mevcut miktarı gir. TÜM boş kalemleri de açıkça 0 ile onayla.
+
+— = henüz onaylanmadı / bilinmiyor
+0 = açıkça onaylanmış boş stok
+
+Kurulum tamamlandıktan sonra CMDRHelper, açıkça kendi filo geminde bulunduğunda kişisel dolabın ile gemin arasındaki aktarımları otomatik izler. Başka yerlerdeki kişisel değişiklikler geminin stokunu değiştirmez.
+
+Her değeri çift tıklayarak düzeltebilir veya yeniden onaylayabilirsin.
+
+Barmendeki açık alım emirleri ek depo kapasitesi ayırır. Oyundaki doluluk mevcut malzemelerin toplamından yüksek olabilir. Özellikle diğer oyuncuların barmen ticareti gerçek stoku değiştirebilir. Gerektiğinde hesaplanan stoku kontrol edip yeniden onayla.
+
+Mining; Gemi, SRV ve Filo Gemisini ayrı tutar. Açık CargoTransfer olayları doğrulanmış günlük sınırlarından tam bir kez tamamlanır; Cargo.json ve kayıtlı kontrol noktaları daha sıkı doğrulanır. Bu, Odyssey fark mantığı değildir. Başkalarının ticareti yeniden onay gerektirebilir. Yeni veritabanları başlatmadan sonra Parent-Hierarchy işaretini alır; ilk içe aktarma hatalı tarihsel geçiş başlatmaz. İşaretsiz eski veritabanları Elite kapalıyken hâlâ geçiş gerektirir. ⧉ günlük adlarını kopyalar, ✓ kısaca onaylar. Görevler daha seçici yüklenir, gizli görünümler gereksiz yere yeniden oluşturulmaz.
+
 ## 3.4.6 sürümündeki yenilikler
 
 - Büyük günlük koleksiyonlarında daha kararlı arşiv içe aktarımı.

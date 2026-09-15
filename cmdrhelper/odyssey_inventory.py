@@ -1,7 +1,7 @@
 """Commander-local Odyssey inventory, reconstructed without Qt or database writes.
 
-Journal snapshots are authoritative. Sidecars are deliberately not read: their
-unscoped, overwritten contents cannot establish a historical commander identity.
+Journal snapshots and explicitly journal-bound personal sidecars are authoritative.
+Unscoped sidecars cannot establish a historical commander identity.
 Actions which also emit BackpackChange are observations, not a second delta.
 """
 from __future__ import annotations
@@ -83,10 +83,11 @@ class Container:
     stacks: dict[StackKey, Stack] = field(default_factory=dict)
     pending: list[tuple] = field(default_factory=list)
     issues: list[str] = field(default_factory=list)
+    awaiting_snapshot: str | None = None
 
     @property
     def known(self):
-        return self.valid and not self.pending
+        return self.valid and not self.pending and self.awaiting_snapshot is None
 
     def count(self, name, selected_category=None):
         if not self.known:
@@ -119,6 +120,9 @@ class OdysseyInventory:
     coherent: bool = False
     issues: list[str] = field(default_factory=list)
     last_change: dict | None = None
+    # Manual carrier projection; never part of the personal inventory reducer.
+    carrier_id: int | None = None
+    carrier_records: dict = field(default_factory=dict)
 
     @property
     def known(self):
@@ -169,6 +173,9 @@ class OdysseyReducer:
         cat = selected or category(item.get("Type", item.get("Category")))
         if cat not in CATEGORIES:
             raise ValueError("unresolved Odyssey category")
+        if selected and any(field in item and category(item[field]) != selected
+                            for field in ("Type", "Category")):
+            raise ValueError("snapshot category disagrees with item")
         mission = item.get("MissionID")
         if mission in (None, 0, 18446744073709551615):
             mission = None
@@ -192,8 +199,10 @@ class OdysseyReducer:
         name = event["event"]
         c = self.result.containers[name]
         if not any(cat in event for cat in CATEGORIES):
-            # Notification cannot supply a replacement, nor certify old counts.
-            self._invalidate(name, "snapshot notification awaits full journal contents")
+            # Preserve the last safe snapshot internally, without advertising it
+            # as current while a replacement is pending.
+            c.awaiting_snapshot = event["timestamp"]
+            self.result.coherent = False
             return
         fresh = {}
         for cat in CATEGORIES:
@@ -208,6 +217,7 @@ class OdysseyReducer:
         c.stacks = fresh
         c.snapshot_timestamp = c.updated_at = event["timestamp"]
         c.valid = True
+        c.awaiting_snapshot = None
         c.pending.clear()
         c.issues.clear()
         if name == "Backpack":
@@ -220,7 +230,7 @@ class OdysseyReducer:
 
     def _delta(self, container, changes, event, source):
         c = self.result.containers[container]
-        if not c.valid:
+        if not c.valid or c.awaiting_snapshot is not None:
             return
         fresh = dict(c.stacks)
         applied = []
@@ -344,6 +354,26 @@ class OdysseyReducer:
             self._invalidate(affected, f"{source}: {et}: {exc}")
 
 
+def validate_snapshot(event, expected):
+    """Validate an entire personal snapshot before it can replace any state."""
+    if not isinstance(event, dict) or event.get("event") != expected or expected not in CONTAINERS:
+        raise ValueError("unexpected personal snapshot event")
+    _time(event.get("timestamp"))
+    if any(not isinstance(event.get(cat), list) for cat in CATEGORIES):
+        raise ValueError("incomplete personal snapshot")
+    validator = OdysseyReducer(1, "validation")
+    try:
+        validator._snapshot(event)
+        from .odyssey_catalog import get_material
+        for key in validator.result.containers[expected].stacks:
+            material = get_material(key.name)
+            if material is not None and material.category != key.category:
+                raise ValueError("material belongs to another category")
+    except (KeyError, TypeError, AttributeError) as exc:
+        raise ValueError("invalid personal snapshot") from exc
+    return deepcopy(event)
+
+
 class OdysseyInventoryReader:
     """Read only identified journal_sessions; cache immutable parsed file facts.
 
@@ -355,6 +385,8 @@ class OdysseyInventoryReader:
     def __init__(self):
         self._cache = {}
         self._results = {}
+        self._prefixes = {}
+        self._plan = None
 
     @staticmethod
     def _signature(path):
@@ -367,6 +399,7 @@ class OdysseyInventoryReader:
             return self._cache[path][1]
         events, identities, errors = [], set(), []
         digest = hashlib.sha256()
+        prefixes = {}
         with path.open("rb") as stream:
             while True:
                 offset = stream.tell()
@@ -380,19 +413,48 @@ class OdysseyInventoryReader:
                         identities.add(event["FID"])
                     if event.get("event") in EVENTS:
                         events.append((_time(event.get("timestamp")), offset, event))
+                        if event.get("event") in CONTAINERS:
+                            prefixes[offset] = digest.hexdigest()
                 except (ValueError, AttributeError, TypeError) as exc:
                     errors.append(f"{path}:{offset}: {exc}")
         if self._signature(path) != signature:
             raise OSError(f"journal changed during read: {path}; retry")
         facts = events, identities, errors, digest.hexdigest()
         self._cache[path] = signature, facts
+        self._prefixes[path] = prefixes
         return facts
 
-    def reconstruct(self, commander_id, fid, sessions, *, until=None):
+    def _replay(self, commander_id, fid, events, errors, sidecars):
+        bound = {}
+        if sidecars and sidecars.get("fid") == fid:
+            for proof in sidecars.get("snapshots", []):
+                path, offset = Path(proof["journal_file"]), proof["offset"]
+                if (proof["fid"] == fid and self._prefixes.get(path, {}).get(offset) == proof["prefix"]):
+                    bound[(str(path), offset)] = proof["snapshot"]
+        reducer = OdysseyReducer(commander_id, fid)
+        for _, path, offset, event in events:
+            replacement = bound.get((path, offset))
+            if (replacement and not any(cat in event for cat in CATEGORIES)
+                    and replacement["event"] == event["event"]
+                    and _time(replacement["timestamp"]) == _time(event["timestamp"])):
+                event = validate_snapshot(replacement, event["event"])
+            reducer.apply(event, (path, offset))
+        reducer.result.issues.extend(errors)
+        if errors:
+            for name in CONTAINERS:
+                reducer._invalidate(name, "incomplete or untrusted journal history")
+        return reducer.result
+
+    def reconstruct(self, commander_id, fid, sessions, *, until=None, sidecars=None, sidecar_only=False):
         if type(commander_id) is not int or commander_id <= 0 or not isinstance(fid, str) or not fid.strip():
             raise ValueError("explicit commander ID and FID required")
         fid = fid.strip()
         limit = _time(until) if until else None
+        if sidecar_only and sidecars and self._plan:
+            key, events, errors = self._plan
+            current = (Path(sidecars["journal_file"]), sidecars["journal_signature"])
+            if key[:3] == (commander_id, fid, limit) and current in key[3] and not errors:
+                return self._replay(commander_id, fid, events, errors, sidecars)
         grouped = {}
         for raw in sessions:
             row = dict(raw)
@@ -411,7 +473,9 @@ class OdysseyInventoryReader:
         if not errors and cache_key in self._results:
             # Callers may annotate/mutate a returned result; never share it with
             # the cached result or a different commander request.
-            return deepcopy(self._results[cache_key])
+            events = self._results[cache_key]
+            self._plan = cache_key, events, errors
+            return self._replay(commander_id, fid, events, errors, sidecars)
         for path, _ in eligible:
             try:
                 facts, identities, problems, digest = self._read(path)
@@ -425,15 +489,10 @@ class OdysseyInventoryReader:
                     digests.add(digest)
             except OSError as exc:
                 errors.append(str(exc))
-        reducer = OdysseyReducer(commander_id, fid)
-        for _, path, offset, event in sorted(events, key=lambda row: row[:3]):
-            reducer.apply(event, (path, offset))
-        reducer.result.issues.extend(errors)
-        if errors:
-            for name in CONTAINERS:
-                reducer._invalidate(name, "incomplete or untrusted journal history")
+        events.sort(key=lambda row: row[:3])
+        self._plan = cache_key, events, errors
         if not errors:
             if len(self._results) >= 8:
                 self._results.pop(next(iter(self._results)))
-            self._results[cache_key] = deepcopy(reducer.result)
-        return reducer.result
+            self._results[cache_key] = events
+        return self._replay(commander_id, fid, events, errors, sidecars)

@@ -38,6 +38,38 @@ Journalmappen til Elite Dangerous oppdages automatisk når det er mulig. Hvis de
 
 CMDRHelper søker etter oppdateringer ved oppstart og har en innebygd oppdateringsfunksjon. Bekreft en tilbudt oppdatering i programmet; den oppdaterer programmet og avhengighetene og starter CMDRHelper på nytt. Etter førstegangsinstallasjonen bruker du normalt bare `start.bat` (Windows) eller `bash start.sh` (Linux). Du trenger ikke å kjøre `install.bat` eller `install.sh` manuelt på nytt for vanlige oppdateringer.
 
+## Nytt i versjon 3.5
+
+- Raskere krønike og grensesnitt; BIO- og kartografibehandling i bakgrunnen.
+- Odyssey viser skap, ryggsekk, personlig belegg per kategori og beregnet hangarskipsbeholdning.
+- Oppsett via ! skiller tydelig mellom bekreftet 0 og ukjent —.
+- Hangarskipets beholdning vises separat fra plass reservert til bartenderens kjøpsordrer.
+- Mer pålitelige Mining-beholdninger med sikrere Cargo-bilder, etterbehandling av overføringer og kontrollert lagring.
+- Feil migrasjonsforespørsel ved nyinstallasjon rettet; kopiering i krøniken og skjulte visninger forbedret.
+
+![Odyssey-materialhåndtering med skap, ryggsekk og automatisk beregnet Fleet Carrier-beholdning](cmdrhelper/assets/readme/cmdrhelper_v3_5.png)
+
+Skap og ryggsekk bruker validerte aktuelle ShipLocker/Backpack-data. Varer, Materialer og Data viser hver sin personlige kapasitet på 1000. Totalt summerer skap + ryggsekk + hangarskip bare med kjente, samstemte verdier. Kjøp, salg og bytte skilles fra private overføringer. Etter omstart rekonstrueres stedet og en ny personlig basis settes; tapte Odyssey-overføringer blir ikke oppdiktet. Eksempel fra spillet: 713 enheter + 121 plasser reservert for kjøp = 834 / 1000. De 121 er ikke materialer. Gamle eller usikre markedsdata gir ikke et antatt aktuelt belegg.
+
+### Sett opp hangarskipets beholdning
+
+CMDRHelper kan oppdatere den private Odyssey-beholdningen på ditt Fleet Carrier automatisk. Først trengs en bekreftet startbeholdning.
+
+Åpne inventaroverføring på ditt eget hangarskip og sammenlign Varer, Materialer og Data.
+
+Dobbeltklikk i kolonnen Hangarskip og angi aktuell mengde for HVER posisjon. Bekreft også ALLE tomme posisjoner uttrykkelig med 0.
+
+— = ennå ikke bekreftet / ukjent
+0 = uttrykkelig bekreftet tom beholdning
+
+Etter fullstendig oppsett følger CMDRHelper overføringer mellom ditt personlige skap og hangarskipet automatisk når du tydelig er på ditt eget hangarskip. Personlige endringer andre steder endrer ikke hangarskipets beholdning.
+
+Du kan korrigere eller bekrefte hver verdi på nytt med dobbeltklikk.
+
+Åpne kjøpsordrer hos bartenderen reserverer også lagerplass. Belegget i spillet kan overstige summen av materialene. Bartenderhandel, særlig fra andre spillere, kan endre faktisk beholdning. Kontroller og bekreft den beregnede beholdningen på nytt ved behov.
+
+Mining holder Skip, SRV og Hangarskip atskilt. Eksplisitte CargoTransfer-hendelser etterbehandles nøyaktig én gang over verifiserte journalgrenser; Cargo.json og lagrede kontrollpunkter valideres strengere. Dette er ikke Odyssey-differanselogikk. Andre spilleres handel kan kreve ny bekreftelse. Nye databaser får Parent-Hierarchy-markøren etter initialisering, så første import ikke utløser feil historisk migrering. Gamle databaser uten markør trenger fortsatt migrering med Elite lukket. ⧉ kopierer krønikenavn og ✓ bekrefter kort. Oppdrag lastes mer målrettet og skjulte visninger bygges ikke unødvendig på nytt.
+
 ## Nytt i versjon 3.4.6
 
 - Mer pålitelig arkivimport med store journalsamlinger.

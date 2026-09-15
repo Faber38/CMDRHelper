@@ -52,6 +52,45 @@ def _cargo(vessel="Ship", count=0, inventory=None, timestamp="2026-09-04T16:31:2
 
 
 class CargoSnapshotTests(unittest.TestCase):
+    def test_sidecar_strict_counts_names_empty_and_signature(self):
+        from unittest.mock import patch
+        with TemporaryDirectory() as folder:
+            path = Path(folder) / 'Cargo.json'
+            trigger = _cargo(count=0)
+            invalid = [dict(Name='gold',Count=n) for n in (-4,True,1.5,'0',None)]
+            invalid += [dict(Name=n,Count=0) for n in ('',None,'Gold Ore')]
+            invalid += [None,dict(Name='gold',Count=0,Stolen=True)]
+            for row in invalid:
+                path.write_text(json.dumps({**trigger,'Inventory':[row]}))
+                self.assertIsNone(read_cargo_snapshot(path,trigger,fid='F-A',attempts=1))
+            for count in (-1,True,'0'):
+                path.write_text(json.dumps({**trigger,'Count':count,'Inventory':[]}))
+                self.assertIsNone(read_cargo_snapshot(path,trigger,fid='F-A',attempts=1))
+            path.write_text(json.dumps({**trigger,'Inventory':[]}))
+            self.assertEqual(read_cargo_snapshot(path,trigger,fid='F-A',attempts=1)['count'],0)
+            path.write_text(json.dumps({**trigger,'Inventory':[]}).replace('"Count": 0','"Count": -4, "Count": 0'))
+            self.assertIsNone(read_cargo_snapshot(path,trigger,fid='F-A',attempts=1))
+            path.write_text(json.dumps({**trigger,'Inventory':[]}))
+            read = Path.read_bytes
+            def unstable(p):
+                raw = read(p)
+                p.write_bytes(raw+b' ')
+                return raw
+            with patch.object(Path,'read_bytes',unstable):
+                self.assertIsNone(read_cargo_snapshot(path,trigger,fid='F-A',attempts=1))
+
+    def test_sidecar_requires_exact_trigger_and_retries_later_snapshot(self):
+        with TemporaryDirectory() as folder:
+            path=Path(folder)/'Cargo.json'
+            trigger={**_cargo(count=1),'timestamp':'2026-09-15T10:00:04Z'}
+            old={**trigger,'timestamp':'2026-09-15T10:00:00Z','Inventory':[dict(Name='gold',Count=1)]}
+            current={**trigger,'Inventory':[dict(Name='silver',Count=1)]}
+            path.write_text(json.dumps(old))
+            self.assertIsNone(read_cargo_snapshot(path,trigger,fid='F-A',attempts=1))
+            result=read_cargo_snapshot(path,trigger,fid='F-A',attempts=2,
+                sleeper=lambda _:path.write_text(json.dumps(current)))
+            self.assertEqual(result['inventory'][0]['frontier_name'],'silver')
+
     def test_reader_exposes_latest_cargo_event_and_active_rhino(self):
         with TemporaryDirectory() as folder:
             path = Path(folder) / "Journal.2026-09-04T160000.01.log"

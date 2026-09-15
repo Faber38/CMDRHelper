@@ -38,6 +38,38 @@ Folder dzienników Elite Dangerous jest wykrywany automatycznie, jeśli to możl
 
 CMDRHelper sprawdza aktualizacje przy uruchomieniu i ma wbudowany mechanizm aktualizacji. Potwierdź proponowaną aktualizację w aplikacji; zaktualizuje ona program i zależności oraz uruchomi CMDRHelper ponownie. Po pierwszej instalacji zwykle wystarczy używać `start.bat` (Windows) lub `bash start.sh` (Linux). Przy zwykłych aktualizacjach nie trzeba ponownie ręcznie uruchamiać `install.bat` ani `install.sh`.
 
+## Nowości w wersji 3.5
+
+- Szybsza kronika i interfejs; przetwarzanie BIO i kartografii działa w tle.
+- Odyssey pokazuje szafkę, plecak, osobistą zajętość kategorii i obliczony zapas lotniskowca.
+- Konfiguracja przez ! wyraźnie odróżnia potwierdzone 0 od nieznanego —.
+- Zapas lotniskowca jest oddzielony od miejsca zarezerwowanego przez zlecenia kupna u barmana.
+- Pewniejsze zapasy Mining: bezpieczniejsze dane Cargo, nadrabianie transferów i sprawdzony zapis.
+- Naprawiono żądanie migracji po nowej instalacji; ulepszono kopiowanie w kronice i aktualizację ukrytych widoków.
+
+![Materiały Odyssey: szafka, plecak i automatycznie aktualizowany zapas lotniskowca](cmdrhelper/assets/readme/cmdrhelper_v3_5.png)
+
+Szafka i plecak korzystają ze sprawdzonych aktualnych danych ShipLocker/Backpack. Towary, Materiały i Dane mają osobną pojemność osobistej szafki 1000. Suma obejmuje szafkę + plecak + lotniskowiec tylko przy znanych, spójnych wartościach. Zakupy, sprzedaż i wymiany są odróżniane od prywatnych transferów. Po restarcie odtwarzana jest lokalizacja i ustalana nowa osobista baza; pominięte transfery Odyssey nie są zgadywane. Przykład z gry: 713 jednostek + 121 miejsc na zakupy = 834 / 1000. Te 121 nie są materiałami. Stare lub niepewne dane rynkowe nie dają rzekomo aktualnej zajętości.
+
+### Konfiguracja zapasu lotniskowca
+
+CMDRHelper może automatycznie aktualizować prywatny zapas Odyssey Twojego lotniskowca. Najpierw potrzebuje potwierdzonego stanu początkowego.
+
+Na własnym lotniskowcu otwórz transfer ekwipunku i porównaj Towary, Materiały i Dane.
+
+Kliknij dwukrotnie kolumnę Lotniskowiec i wpisz aktualną ilość dla KAŻDEJ pozycji. Potwierdź również WSZYSTKIE puste pozycje wartością 0.
+
+— = jeszcze niepotwierdzone / nieznane
+0 = wyraźnie potwierdzony pusty zapas
+
+Po pełnej konfiguracji CMDRHelper śledzi transfery między osobistą szafką a lotniskowcem, gdy jednoznacznie przebywasz na własnym lotniskowcu. Osobiste zmiany poza nim nie zmieniają jego zapasu.
+
+Każdą wartość można poprawić lub ponownie potwierdzić dwukrotnym kliknięciem.
+
+Otwarte zlecenia kupna u barmana dodatkowo rezerwują miejsce. Zajętość w grze może przekraczać sumę obecnych materiałów. Handel u barmana, zwłaszcza innych graczy, może zmieniać rzeczywisty zapas. W razie potrzeby sprawdź i ponownie potwierdź obliczony stan.
+
+Mining rozdziela Statek, SRV i Lotniskowiec. Jawne CargoTransfer są nadrabiane dokładnie raz przez zweryfikowane granice dzienników; Cargo.json i zapisane punkty kontrolne są sprawdzane rygorystyczniej. To nie logika różnic Odyssey. Handel innych graczy może wymagać ponownego potwierdzenia. Nowe bazy otrzymują znacznik Parent-Hierarchy po inicjalizacji, więc pierwszy import nie wywołuje błędnej migracji historycznej. Stare bazy bez znacznika nadal wymagają migracji przy wyłączonym Elite. ⧉ kopiuje nazwy kroniki, a ✓ krótko potwierdza. Misje są wczytywane selektywniej, a ukryte widoki nie są niepotrzebnie przebudowywane.
+
 ## Nowości w wersji 3.4.6
 
 - Stabilniejszy import archiwum przy dużych zbiorach dzienników.

@@ -38,6 +38,38 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## Uutta versiossa 3.5
+
+- Nopeampi kronikka ja käyttöliittymä; BIO- ja kartografiakäsittely toimii taustalla.
+- Odyssey näyttää kaapin, repun, henkilökohtaisen luokkakohtaisen tilankäytön ja lasketun tukialusvaraston.
+- Tukialuksen määritys !-painikkeella erottaa vahvistetun 0:n tuntemattomasta —-arvosta.
+- Tukialusvarasto näytetään erillään baarimikon ostotarjousten varaamasta tilasta.
+- Luotettavammat Mining-varastot: turvallisemmat Cargo-tilannekuvat, siirtojen jälkikäsittely ja tarkistettu tallennus.
+- Uuden asennuksen virheellinen siirtopyyntö korjattu; kronikan kopiointi ja piilotettujen näkymien päivitys parannettu.
+
+![Odyssey-materiaalihallinta: kaappi, reppu ja automaattisesti laskettu Fleet Carrier -varasto](cmdrhelper/assets/readme/cmdrhelper_v3_5.png)
+
+Kaappi ja reppu käyttävät tarkistettuja ajantasaisia ShipLocker/Backpack-tietoja. Tavarat, Materiaalit ja Data näyttävät oman henkilökohtaisen tilankäyttönsä, kukin kapasiteetilla 1000. Yhteensä sisältää kaapin + repun + tukialuksen vain tunnettujen ja yhtenäisten määrien osalta. Ostot, myynnit ja vaihdot erotetaan yksityisistä siirroista. Uudelleenkäynnistyksessä sijainti selvitetään ja asetetaan uusi henkilökohtainen lähtötilanne; puuttuvia Odyssey-siirtoja ei keksitä. Peliesimerkki: 713 yksikköä + 121 ostoille varattua paikkaa = 834 / 1000. Varatut 121 eivät ole materiaaleja. Vanhat tai epävarmat markkinatiedot eivät tuota oletettua nykyistä tilankäyttöä.
+
+### Tukialuksen varaston määritys
+
+CMDRHelper voi päivittää Fleet Carrierisi yksityistä Odyssey-varastoa automaattisesti. Se tarvitsee ensin vahvistetun lähtömäärän.
+
+Avaa omalla tukialuksellasi varaston siirtotila ja vertaa Tavarat-, Materiaalit- ja Data-luokkia.
+
+Kaksoisnapsauta Tukialus-saraketta ja syötä nykyinen määrä JOKAISELLE nimikkeelle. Vahvista myös KAIKKI tyhjät nimikkeet nimenomaisesti arvolla 0.
+
+— = ei vielä vahvistettu / tuntematon
+0 = nimenomaisesti vahvistettu tyhjä varasto
+
+Kun määritys on valmis, CMDRHelper seuraa kaapin ja tukialuksen välisiä siirtoja automaattisesti ollessasi selvästi omalla tukialuksellasi. Henkilökohtaiset muutokset muualla eivät muuta tukialuksen varastoa.
+
+Voit korjata tai vahvistaa määrän uudelleen kaksoisnapsautuksella.
+
+Baarimikon avoimet ostotarjoukset varaavat lisää varastotilaa. Pelin tilankäyttö voi siksi ylittää materiaalien summan. Baarimikon kaupat, etenkin muiden pelaajien tekemät, voivat muuttaa todellista varastoa. Tarkista ja vahvista laskettu määrä tarvittaessa uudelleen.
+
+Mining pitää Aluksen, SRV:n ja Tukialuksen erillään. CargoTransfer-tapahtumat käsitellään täsmälleen kerran varmennettujen lokirajojen yli; Cargo.json ja tallennetut tarkistuspisteet tarkistetaan tiukemmin. Tämä ei ole Odysseyn erotuslogiikkaa. Muiden pelaajien kaupat voivat vaatia uutta vahvistusta. Uusi tietokanta saa Parent-Hierarchy-valmistumismerkinnän alustuksen jälkeen, eikä ensituonti aiheuta virheellistä vanhaa siirtoa. Vanhat merkitsemättömät kannat tarvitsevat edelleen siirron Elite suljettuna. ⧉ kopioi kronikan nimen, ✓ vahvistaa lyhyesti. Tehtävät ladataan valikoivammin, eikä piilotettuja näkymiä rakenneta turhaan uudelleen.
+
 ## Uutta versiossa 3.4.6
 
 - Vakaampi arkistotuonti suurilla lokimäärillä.

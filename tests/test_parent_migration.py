@@ -15,6 +15,73 @@ from cmdrhelper import parent_migration as m
 from cmdrhelper.ui.parent_migration import ParentMigrationDialog
 
 
+class FreshDatabaseTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.path = self.root / 'cmdrhelper.db'
+
+    def marker(self):
+        with m.readonly(self.path) as con:
+            return con.execute('SELECT value FROM app_meta WHERE key=?',
+                               (m.MIGRATION_KEY,)).fetchone()
+
+    def test_new_database_is_complete_and_survives_reopen(self):
+        self.assertFalse(m.migration_required(self.path))
+        CMDRDatabase(self.path)
+        self.assertEqual(self.marker(), (m.COMPLETE,))
+        self.assertFalse(m.migration_required(self.path))
+        CMDRDatabase(self.path)
+        self.assertEqual(self.marker(), (m.COMPLETE,))
+        self.assertFalse(m.migration_required(self.path))
+
+    def test_first_journal_import_keeps_fresh_database_exempt(self):
+        from cmdrhelper.journal_index import scan_journal_folder
+        db = CMDRDatabase(self.path)
+        events = [
+            dict(event='Commander', FID='F-fresh', Name='Fresh'),
+            dict(event='Location', StarSystem='Example', SystemAddress=123),
+            dict(event='Scan', SystemAddress=123, StarSystem='Example',
+                 BodyID=0, BodyName='Example', Parents=[]),
+            dict(event='Scan', SystemAddress=123, StarSystem='Example',
+                 BodyID=1, BodyName='Example 1', Parents=[{'Star': 0}]),
+        ]
+        for index, event in enumerate(events):
+            event['timestamp'] = f'2026-06-01T06:00:0{index}Z'
+        journal = self.root / 'Journal.2026-06-01T060000.01.log'
+        journal.write_text('\n'.join(map(json.dumps, events)) + '\n', encoding='utf-8')
+        scan_journal_folder(db, self.root)
+        self.assertEqual(self.marker(), (m.COMPLETE,))
+        result = db.import_journal_archive(self.root)
+        self.assertEqual(result['imported_journals'], 1)
+        with m.readonly(self.path) as con:
+            self.assertEqual(con.execute('SELECT COUNT(*) FROM systems').fetchone(), (1,))
+            self.assertEqual(con.execute('SELECT COUNT(*) FROM bodies').fetchone(), (2,))
+            self.assertEqual(con.execute('SELECT parent_id,parent_star_id FROM bodies '
+                                         'WHERE body_id=1').fetchone(), (0, 0))
+        self.assertEqual(self.marker(), (m.COMPLETE,))
+        self.assertFalse(m.migration_required(self.path))
+        CMDRDatabase(self.path).import_journal_archive(self.root)
+        self.assertEqual(self.marker(), (m.COMPLETE,))
+        self.assertFalse(m.migration_required(self.path))
+
+    def test_existing_empty_file_is_not_certified_as_new(self):
+        self.path.touch()
+        CMDRDatabase(self.path)
+        self.assertIsNone(self.marker())
+
+    def test_failed_initialization_does_not_write_completion_marker(self):
+        with patch.object(CMDRDatabase, '_maybe_migrate_v17',
+                          side_effect=RuntimeError('injected initialization failure')):
+            with self.assertRaisesRegex(RuntimeError, 'injected initialization failure'):
+                CMDRDatabase(self.path)
+        self.assertIsNone(self.marker())
+        # A subsequent open must not reinterpret the surviving file as new.
+        CMDRDatabase(self.path)
+        self.assertIsNone(self.marker())
+
+
 class MigrationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -33,6 +100,9 @@ class MigrationTests(unittest.TestCase):
             dict(body_id=2, name='Moon', parent_id=0, parent_star_id=0),
             dict(body_id=3, name='No journal', parent_id=0, parent_star_id=0),
         ]), commander)
+        # This fixture represents a pre-repair user database, not a fresh install.
+        with sqlite3.connect(self.path) as con:
+            con.execute('DELETE FROM app_meta WHERE key=?', (m.MIGRATION_KEY,))
         self.folder = self.root / 'journals'
         self.folder.mkdir()
         self.journal = self.folder / 'Journal.2026-09-01T010000.01.log'
@@ -62,6 +132,13 @@ class MigrationTests(unittest.TestCase):
 
     def release(self, version='3.4.3'):
         return dict(ok=True, version=version, published_at='2026-09-14T12:00:00Z')
+
+    def test_existing_schema_17_without_marker_still_requires_migration(self):
+        with m.readonly(self.path) as con:
+            self.assertEqual(con.execute('PRAGMA user_version').fetchone(), (17,))
+        CMDRDatabase(self.path)
+        self.assertTrue(m.migration_required(self.path))
+        self.assertEqual(self.snapshot(), self.before)
 
     def test_actual_startup_gate_uses_db_marker_in_future_release(self):
         from cmdrhelper import app as entry

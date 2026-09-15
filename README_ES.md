@@ -38,6 +38,38 @@ La carpeta de diarios de Elite Dangerous se detecta automáticamente cuando es p
 
 CMDRHelper busca actualizaciones al iniciarse y dispone de un actualizador integrado. Confirma una actualización ofrecida en la aplicación; actualizará el programa y las dependencias y reiniciará CMDRHelper. Tras la primera instalación, normalmente basta con usar `start.bat` (Windows) o `bash start.sh` (Linux). No es necesario volver a ejecutar manualmente `install.bat` o `install.sh` para las actualizaciones normales.
 
+## Novedades de la versión 3.5
+
+- Crónica e interfaz más rápidas; el procesamiento BIO/cartográfico se realiza en segundo plano.
+- Odyssey muestra armario, mochila, ocupación personal por categoría y existencias calculadas del carrier.
+- La configuración del carrier mediante ! distingue el 0 confirmado del — desconocido.
+- Las existencias del carrier se separan del espacio reservado por órdenes de compra del camarero.
+- Existencias de Mining más fiables con instantáneas Cargo seguras, recuperación de transferencias y guardado verificado.
+- Corregida la solicitud de migración tras una instalación nueva; mejoradas la copia en Crónica y las vistas ocultas.
+
+![Gestión de materiales Odyssey con armario, mochila y existencias del Fleet Carrier actualizadas automáticamente](cmdrhelper/assets/readme/cmdrhelper_v3_5.png)
+
+Armario y mochila utilizan datos actuales validados de ShipLocker/Backpack. Mercancías, Materiales y Datos muestran cada uno su ocupación personal con capacidad propia de 1000. Total suma armario + mochila + carrier solo con valores conocidos y coherentes. Compras, ventas e intercambios se distinguen de transferencias privadas. Tras reiniciar se reconstruye la ubicación y se fija una nueva base personal; no se inventan transferencias Odyssey perdidas. Ejemplo real: 713 unidades + 121 plazas reservadas para compras = 834 / 1000. Las 121 no son materiales. Los datos de mercado antiguos o inciertos no generan una ocupación actual supuesta.
+
+### Configurar existencias del carrier
+
+CMDRHelper puede actualizar automáticamente las existencias privadas Odyssey de tu Fleet Carrier. Primero necesita un saldo inicial confirmado.
+
+En tu propio carrier, abre la transferencia de inventario y compara Mercancías, Materiales y Datos.
+
+Haz doble clic en la columna Carrier e introduce la cantidad actual para CADA posición. Confirma explícitamente TODAS las posiciones vacías con 0.
+
+— = aún sin confirmar / desconocido
+0 = existencias vacías confirmadas explícitamente
+
+Tras completar la configuración, CMDRHelper registra automáticamente las transferencias entre tu armario personal y tu carrier cuando estás claramente en tu propio carrier. Los cambios personales en otros lugares no modifican sus existencias.
+
+Puedes corregir o confirmar cualquier valor con un doble clic.
+
+Las órdenes de compra abiertas del camarero reservan espacio adicional. La ocupación en el juego puede superar la suma de materiales existentes. Las operaciones del camarero, especialmente de otros jugadores, pueden cambiar las existencias reales. Comprueba y confirma de nuevo el saldo calculado cuando sea necesario.
+
+Mining mantiene Nave, SRV y Carrier separados. Los CargoTransfer explícitos se recuperan exactamente una vez entre diarios verificados; Cargo.json y puntos guardados se validan más estrictamente. No es la lógica de diferencias Odyssey. El comercio de otros jugadores puede exigir nueva confirmación. Las bases nuevas reciben la marca Parent-Hierarchy tras inicializarse, evitando una migración histórica errónea tras la primera importación. Las bases antiguas sin marca aún requieren migración con Elite cerrado. ⧉ copia nombres de Crónica y ✓ confirma brevemente. Las misiones se cargan selectivamente y las vistas ocultas evitan reconstrucciones innecesarias.
+
 ## Novedades de la versión 3.4.6
 
 - Importación más fiable de archivos históricos con grandes colecciones de diarios.

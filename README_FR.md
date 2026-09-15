@@ -38,6 +38,38 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## Nouveautés de la version 3.5
+
+- Chronique et interface plus rapides ; traitement BIO/cartographique en arrière-plan.
+- Odyssey affiche casier, sac à dos, occupation personnelle par catégorie et stock calculé du porte-vaisseaux.
+- La configuration via ! distingue clairement le 0 confirmé du — inconnu.
+- Le stock du porte-vaisseaux est séparé de la capacité réservée par les ordres d’achat du barman.
+- Stocks Mining plus fiables : instantanés Cargo sécurisés, rattrapage des transferts et sauvegarde vérifiée.
+- Correction de la migration demandée après une nouvelle installation ; copie dans la Chronique et vues masquées améliorées.
+
+![Gestion des matériaux Odyssey avec casier, sac à dos et suivi automatique du stock du porte-vaisseaux](cmdrhelper/assets/readme/cmdrhelper_v3_5.png)
+
+Casier et sac à dos utilisent les données actuelles validées de ShipLocker/Backpack. Marchandises, Matériaux et Données affichent chacun une capacité personnelle de 1000. Total additionne casier + sac à dos + porte-vaisseaux uniquement avec des valeurs connues et cohérentes. Achats, ventes et échanges sont distingués des transferts privés. Après redémarrage, la position est reconstruite et une nouvelle base personnelle est fixée ; aucun transfert Odyssey manqué n’est inventé. Exemple réel : 713 unités + 121 places réservées aux achats = 834 / 1000. Les 121 ne sont pas des matériaux. Des données de marché anciennes ou incertaines ne produisent pas d’occupation actuelle supposée.
+
+### Configurer le stock du porte-vaisseaux
+
+CMDRHelper peut suivre automatiquement votre stock privé Odyssey. Il lui faut d’abord un stock initial confirmé.
+
+Sur votre propre porte-vaisseaux, ouvrez le transfert d’inventaire et comparez Marchandises, Matériaux et Données.
+
+Double-cliquez dans la colonne Porte-vaisseaux et saisissez la quantité actuelle pour CHAQUE position. Confirmez explicitement TOUTES les positions vides avec 0.
+
+— = pas encore confirmé / inconnu
+0 = stock vide explicitement confirmé
+
+Après la configuration complète, CMDRHelper suit les transferts entre votre casier personnel et votre porte-vaisseaux lorsque votre présence à bord de celui-ci est certaine. Les changements personnels ailleurs ne modifient pas son stock.
+
+Vous pouvez corriger ou confirmer à nouveau chaque valeur par double clic.
+
+Les ordres d’achat ouverts du barman réservent aussi de l’espace. L’occupation en jeu peut dépasser la somme des matériaux présents. Les échanges du barman, surtout ceux des autres joueurs, peuvent modifier le stock réel. Vérifiez et confirmez à nouveau le stock calculé si nécessaire.
+
+Mining sépare Vaisseau, SRV et Porte-vaisseaux. Les CargoTransfer explicites sont rattrapés exactement une fois à travers les journaux vérifiés ; Cargo.json et points sauvegardés sont validés plus strictement. Ce n’est pas la logique de différences Odyssey. Le commerce des autres joueurs peut nécessiter une nouvelle confirmation. Les nouvelles bases reçoivent le marqueur Parent-Hierarchy après initialisation, évitant une fausse migration historique après le premier import. Les anciennes bases sans marqueur doivent toujours être migrées avec Elite fermé. ⧉ copie les noms de la Chronique et ✓ confirme brièvement. Missions et vues masquées sont actualisées plus sélectivement.
+
 ## Nouveautés de la version 3.4.6
 
 - Importation des archives plus fiable avec de grandes collections de journaux.

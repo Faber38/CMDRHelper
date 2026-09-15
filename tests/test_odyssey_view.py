@@ -16,6 +16,7 @@ from PySide6.QtWidgets import QApplication, QStyleOptionViewItem, QStyle
 
 from cmdrhelper.i18n import set_language, get_language, _TRANSLATIONS
 from cmdrhelper.odyssey_inventory import OdysseyInventory, OdysseyReducer
+from cmdrhelper.odyssey_catalog import all_materials
 from cmdrhelper.odyssey_controller import OdysseyController
 from cmdrhelper.ui.material_view import MaterialView
 from cmdrhelper.ui.material_row_style import THEMES, COLLECTED_ROLE
@@ -61,7 +62,10 @@ class OdysseyViewTests(unittest.TestCase):
         self.app.processEvents()
 
     def set_inventory(self, inv):
-        self.controller.ready.emit(copy.deepcopy(inv), f'Commander {inv.commander_id}')
+        inv = copy.deepcopy(inv)
+        inv.carrier_id = 123
+        inv.carrier_records = {f'{m.category}/{m.symbol}': {'current_amount': 0, 'status': 'manual'} for m in all_materials()}
+        self.controller.ready.emit(inv, f'Commander {inv.commander_id}')
 
     def rows(self, name):
         return [(key, value) for key, value in self.view.items.items() if key.name == name]
@@ -105,44 +109,45 @@ class OdysseyViewTests(unittest.TestCase):
                 self.assertEqual(len(self.view.items), expected, key)
             else:
                 self.assertTrue(self.view.items)
-                self.assertTrue(all('Engineering' in v.text(4) for v in self.view.items.values()))
+                self.assertTrue(all('Engineering' in v.text(5) for v in self.view.items.values()))
         self.set_inventory(OdysseyInventory(1, 'F1'))
         self.assertFalse(self.view.items)
         self.select_filter('all')
         self.assertEqual(len(self.view.items), 61)
-        self.assertTrue(all(v.text(3) == '?' for v in self.view.items.values()))
+        self.assertTrue(all(v.text(4) == '—' for v in self.view.items.values()))
 
     def test_separate_mission_completed_owner_and_stolen_stacks(self):
         records = pair() + [event('MissionCompleted', 1, MissionID=42)]
         self.set_inventory(inventory(records))
         mission = [(k, v) for k, v in self.rows('vehicleschematic') if k.mission_id][0]
-        self.assertEqual(mission[1].text(3), '1')
-        self.assertIn('Mission', mission[1].text(4))
-        self.assertIn('42: abgeschlossen', mission[1].toolTip(4))
+        self.assertEqual(mission[1].text(4), '—')
+        self.assertEqual(self.view.summaries[('Items', 'vehicleschematic')].text(4), '3')
+        self.assertIn('Mission', mission[1].text(5))
+        self.assertIn('42: abgeschlossen', mission[1].toolTip(5))
         normal = [(k, v) for k, v in self.rows('vehicleschematic') if not k.mission_id][0]
-        self.assertEqual(normal[1].text(3), '2')
-        self.assertNotIn('Mission', normal[1].text(4))
+        self.assertEqual(normal[1].text(4), '—')
+        self.assertNotIn('Mission', normal[1].text(5))
         records = [snapshot('ShipLocker', Items=[dict(Name='vehicleschematic', Count=3, OwnerID=7, Stolen=True),
                                                dict(Name='vehicleschematic', Count=4, OwnerID=8)]), snapshot('Backpack')]
         self.set_inventory(inventory(records))
         self.assertEqual(len(self.rows('vehicleschematic')), 2)
-        self.assertTrue(any('Gestohlen' in v.text(4) for k,v in self.rows('vehicleschematic')))
+        self.assertTrue(any('Gestohlen' in v.text(5) for k,v in self.rows('vehicleschematic')))
 
     def test_engineering_tooltip_and_special_groups(self):
         self.view.tabs.setCurrentIndex(1)
         row = self.rows('graphene')[0][1]
-        self.assertIn('Engineering', row.text(4))
-        self.assertTrue('Modifikation' in row.toolTip(4) or 'Upgrade' in row.toolTip(4))
+        self.assertIn('Engineering', row.text(5))
+        self.assertTrue('Modifikation' in row.toolTip(5) or 'Upgrade' in row.toolTip(5))
         seen = set()
         for index in range(4):
             self.view.tabs.setCurrentIndex(index)
             for row in self.view.rows:
                 if row.definition and row.definition.special_group != 'standard' and row.key in self.view.items:
                     seen.add(row.definition.special_group)
-                    self.assertTrue(self.view.items[row.key].text(4))
+                    self.assertTrue(self.view.items[row.key].text(5))
         self.assertEqual(seen, {'powerplay', 'thargoid_spire', 'operations', 'unica'})
 
-    def test_only_usage_column_centered_in_all_categories_and_themes(self):
+    def test_numeric_columns_centered_names_and_usage_left_in_all_categories_and_themes(self):
         self.set_inventory(inventory(pair() + [snapshot('ShipLocker', 1, Items=[
             item('vehicleschematic', 1, MissionID=42, Stolen=True),
         ])]))
@@ -155,16 +160,15 @@ class OdysseyViewTests(unittest.TestCase):
                 with self.subTest(light=light, category=category):
                     self.view.tabs.setCurrentIndex(category)
                     header = self.view.tree.headerItem()
-                    self.assertEqual(header.textAlignment(4) & horizontal, Qt.AlignmentFlag.AlignHCenter)
-                    for col in range(4):
-                        self.assertIsNone(header.data(col, Qt.ItemDataRole.TextAlignmentRole))
+                    for col in range(6):
+                        self.assertEqual(header.textAlignment(col) & horizontal,
+                                         Qt.AlignmentFlag.AlignLeft if col in (0,5) else Qt.AlignmentFlag.AlignHCenter)
                     for row in self.view.items.values():
-                        seen.update(row.text(4).split(' · '))
-                        self.assertEqual(row.textAlignment(4) & horizontal, Qt.AlignmentFlag.AlignHCenter)
-                        self.assertIsNone(row.data(0, Qt.ItemDataRole.TextAlignmentRole))
-                        for col in (1, 2, 3):
-                            self.assertEqual(row.textAlignment(col),
-                                             Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+                        seen.update(row.text(5).split(' · '))
+                        for col in (0,5):
+                            self.assertEqual(row.textAlignment(col) & horizontal, Qt.AlignmentFlag.AlignLeft)
+                        for col in (1, 2, 3, 4):
+                            self.assertEqual(row.textAlignment(col), Qt.AlignmentFlag.AlignCenter)
             self.assertTrue({'Engineering', 'Powerplay', 'Mission', 'Gestohlen'} <= seen, seen)
 
     def test_stock_text_colors_in_both_themes_and_row_states(self):
@@ -184,18 +188,18 @@ class OdysseyViewTests(unittest.TestCase):
                 self.page.set_light_mode(light)
                 self.app.processEvents()
                 row = self.rows('graphene')[0][1]
-                self.assertEqual([row.text(col) for col in (1, 2, 3)], ['10', '2', '12'])
-                for col in (1, 2, 3):
+                self.assertEqual([row.text(col) for col in (1, 2, 4)], ['10', '2', '12'])
+                for col in (1, 2, 4):
                     option = style(row, col)
                     self.assertEqual(option.palette.color(QPalette.ColorRole.Text).name(),
                                      STOCK_TEXT_COLORS[light])
-                for col in (0, 4):
+                for col in (0, 5):
                     option = style(row, col)
                     self.assertEqual(option.palette.color(QPalette.ColorRole.Text).name(),
                                      THEMES[light]['text'])
                 QTest.mouseMove(self.view.tree.header().viewport(), QPoint(10, 5))
                 QTest.mouseMove(self.view.tree.viewport(), self.view.tree.visualItemRect(row).center())
-                for col in (1, 2, 3):
+                for col in (1, 2, 4):
                     hovered = style(row, col)
                     self.assertEqual(hovered.backgroundBrush.color().name(), THEMES[light]['hover'])
                     self.assertEqual(hovered.palette.color(QPalette.ColorRole.Text).name(), STOCK_TEXT_COLORS[light])
@@ -205,26 +209,29 @@ class OdysseyViewTests(unittest.TestCase):
 
     def test_zero_and_unknown_stock_keep_normal_text_and_tooltips(self):
         for inv, expected in ((inventory([snapshot('ShipLocker'), snapshot('Backpack')]), '0'),
-                              (OdysseyInventory(1, 'F1'), '?')):
+                              (OdysseyInventory(1, 'F1'), '—')):
             self.set_inventory(inv)
             for light in (False, True):
                 self.app.setStyleSheet(LIGHT_STYLESHEET if light else DARK_STYLESHEET)
                 self.page.set_light_mode(light)
                 for row in self.view.items.values():
-                    for col in (1, 2, 3):
+                    for col in (1, 2, 4):
                         with self.subTest(value=expected, light=light, column=col):
                             self.assertEqual(row.text(col), expected)
                             option = QStyleOptionViewItem()
                             option.initFrom(self.view.tree)
                             self.view.row_delegate.initStyleOption(option, self.view.tree.indexFromItem(row, col))
                             self.assertEqual(option.palette.color(QPalette.ColorRole.Text).name(), THEMES[light]['text'])
-                            self.assertEqual(row.toolTip(col), _TRANSLATIONS['de']['materials.unknown_stock'] if expected == '?' else '')
+                            if col == 4 and expected == '0':
+                                self.assertIn(_TRANSLATIONS['de']['odyssey.carrier_total'], row.toolTip(col))
+                            else:
+                                self.assertEqual(row.toolTip(col), _TRANSLATIONS['de']['materials.unknown_stock'] if expected == '—' else '')
 
     def test_containers_totals_and_no_per_item_bars(self):
         self.set_inventory(inventory(pair()))
         self.view.tabs.setCurrentIndex(1)
         row = self.rows('graphene')[0][1]
-        self.assertEqual([row.text(i) for i in (1,2,3)], ['10','2','12'])
+        self.assertEqual([row.text(i) for i in (1,2,4)], ['10','2','12'])
         self.assertIn('10 / 1000', self.view.status.text())
         self.assertTrue(all(self.view.tree.itemWidget(row, i) is None for i in range(5)))
         self.view.tabs.setCurrentIndex(3)
@@ -234,10 +241,10 @@ class OdysseyViewTests(unittest.TestCase):
         self.set_inventory(inventory(pair() + [event('Embark', 1), snapshot('ShipLocker', 2, Components=[item(count=12)])]))
         self.view.tabs.setCurrentIndex(1)
         row = self.rows('graphene')[0][1]
-        self.assertEqual([row.text(i) for i in (1,2,3)], ['12','0','12'])
+        self.assertEqual([row.text(i) for i in (1,2,4)], ['12','0','12'])
         self.set_inventory(inventory(pair() + [event('Disembark', 1)]))
         row = self.rows('graphene')[0][1]
-        self.assertEqual([row.text(i) for i in (1,2,3)], ['?','?','?'])
+        self.assertEqual([row.text(i) for i in (1,2,4)], ['—','—','—'])
         self.select_filter('empty')
         self.assertFalse(self.view.items)
 
@@ -246,15 +253,15 @@ class OdysseyViewTests(unittest.TestCase):
         self.view.tabs.setCurrentIndex(1)
         self.page.search.setText('graphene')
         self.controller.loading.emit()
-        self.assertEqual(self.rows('graphene')[0][1].text(3), '?')
+        self.assertEqual(self.rows('graphene')[0][1].text(4), '—')
         self.assertFalse(self.view.commander_label.text())
         other = inventory([snapshot('ShipLocker', Components=[item(count=80)]), snapshot('Backpack')], 2)
         self.set_inventory(other)
-        self.assertEqual(self.rows('graphene')[0][1].text(3), '80')
+        self.assertEqual(self.rows('graphene')[0][1].text(4), '80')
         self.assertEqual(self.page.search.text(), 'graphene')
         self.assertFalse(self.view.highlight)
         self.set_inventory(inventory(pair()))
-        self.assertEqual(self.rows('graphene')[0][1].text(3), '12')
+        self.assertEqual(self.rows('graphene')[0][1].text(4), '12')
 
     def test_live_collection_deduplicated_expires_consumption_and_transfer(self):
         self.view.tabs.setCurrentIndex(1)
@@ -264,7 +271,7 @@ class OdysseyViewTests(unittest.TestCase):
         result = inventory(pair() + pickup)
         self.view.highlight_timer.setInterval(30)
         self.set_inventory(result)
-        self.assertEqual(self.rows('graphene')[0][1].text(3), '13')
+        self.assertEqual(self.rows('graphene')[0][1].text(4), '13')
         self.assertIn('+1', self.rows('graphene')[0][1].text(0))
         self.assertEqual(len(self.view.highlight), 1)
         QTest.qWait(60)
@@ -312,9 +319,9 @@ class OdysseyViewTests(unittest.TestCase):
             restarted = MaterialView(self.state, controller=StubController(), odyssey_controller=StubController())
             self.addCleanup(restarted.close)
             header = restarted.odyssey.tree.header()
-            self.assertEqual([header.sectionSize(i) for i in range(5)], [340,105,105,95,220])
-            self.assertEqual([header.logicalIndex(i) for i in range(5)], list(range(5)))
-            self.assertTrue(all(not header.isSectionHidden(i) for i in range(5)))
+            self.assertEqual([header.sectionSize(i) for i in range(6)], [340,105,105,110,95,220])
+            self.assertEqual([header.logicalIndex(i) for i in range(6)], list(range(6)))
+            self.assertTrue(all(not header.isSectionHidden(i) for i in range(6)))
 
     def test_mouse_header_resize_and_reorder_saved(self):
         header = self.view.tree.header()
@@ -330,8 +337,8 @@ class OdysseyViewTests(unittest.TestCase):
         QTest.mouseMove(header.viewport(),start+QPoint(25,0),30)
         QTest.mouseMove(header.viewport(),target,30)
         QTest.mouseRelease(header.viewport(),Qt.MouseButton.LeftButton,pos=target)
-        self.assertEqual([header.logicalIndex(i) for i in range(5)],[0,2,3,1,4])
-        self.assertEqual(self.state.settings.value('materials/odyssey/columns')['order'],[0,2,3,1,4])
+        self.assertEqual([header.logicalIndex(i) for i in range(6)],[0,2,3,1,4,5])
+        self.assertEqual(self.state.settings.value('materials/odyssey/columns')['order'],[0,2,3,1,4,5])
 
     def test_five_colors_selection_live_hover_dark_light(self):
         for light in (False, True):
@@ -360,12 +367,156 @@ class OdysseyViewTests(unittest.TestCase):
 
     def test_english_fallback_and_all_ui_languages(self):
         keys = {k for k in _TRANSLATIONS['en'] if k.startswith('odyssey.')}
-        self.assertEqual(len(keys), 31)
+        self.assertEqual(len(keys), 60)
         for lang, translations in _TRANSLATIONS.items():
             self.assertTrue(all(translations.get(k) for k in keys), lang)
         set_language('fi')
         self.view.render()
         self.assertEqual(self.rows('powerinventory')[0][1].text(0), 'Inventory Record')
+
+    def test_elite_category_labels_and_unelided_tabs_in_all_languages(self):
+        from cmdrhelper.ui.odyssey_view import CATEGORIES
+        from cmdrhelper.ui.material_view import MaterialCategoryTabs
+        self.assertEqual(CATEGORIES, ('Items','Components','Data','Consumables'))
+        self.assertEqual([self.view.tabs.tabText(i) for i in range(4)],
+                         ['Waren 0 / 1000','Materialien 0 / 1000','Daten 0 / 1000','Verbrauchsgegenstände'])
+        self.assertEqual(_TRANSLATIONS['en']['odyssey.components'], 'Assets')
+        self.assertEqual(self.view.tabs.elideMode(),Qt.ElideNone)
+        self.assertTrue(self.view.tabs.usesScrollButtons())
+        for lang, translations in _TRANSLATIONS.items():
+            for light in (False,True):
+                bar=MaterialCategoryTabs(light)
+                bar.setUsesScrollButtons(self.view.tabs.usesScrollButtons())
+                bar.setElideMode(self.view.tabs.elideMode())
+                bar.setExpanding(True)
+                bar.setStyleSheet(LIGHT_STYLESHEET if light else DARK_STYLESHEET)
+                for category in CATEGORIES:
+                    text=translations['odyssey.'+category.lower()]
+                    self.assertTrue(text)
+                    if category != 'Consumables':
+                        text += ' 1000 / 1000'
+                    bar.addTab(text)
+                bar.show()
+                for width in (320,640):
+                    bar.resize(width,bar.sizeHint().height())
+                    for i in range(4):
+                        bar.setCurrentIndex(i)
+                        self.app.processEvents()
+                        rect=bar.tabRect(i)
+                        self.assertGreaterEqual(rect.width(),bar.fontMetrics().horizontalAdvance(bar.tabText(i)),(lang,width))
+                        self.assertGreaterEqual(rect.left(),0,(lang,width))
+                        self.assertLessEqual(rect.right(),bar.width(),(lang,width))
+                        if i:
+                            self.assertLess(bar.tabRect(i-1).right(),rect.left())
+                bar.close()
+                bar.deleteLater()
+
+    def test_category_tabs_show_live_locker_occupancy_only(self):
+        def labels():
+            return [self.view.tabs.tabText(i) for i in range(4)]
+
+        self.set_inventory(OdysseyInventory(1, 'F1'))
+        self.assertEqual(labels(), ['Waren — / 1000', 'Materialien — / 1000',
+                                    'Daten — / 1000', 'Verbrauchsgegenstände'])
+        records = [snapshot('ShipLocker',
+                            Items=[item('vehicleschematic', 500),
+                                   item('vehicleschematic', 68, MissionID=42)],
+                            Components=[item('chemicalcatalyst', 787)],
+                            Data=[item('chemicalexperimentdata', 877)]),
+                   snapshot('Backpack', Components=[item('chemicalcatalyst', 5)])]
+        self.set_inventory(inventory(records))
+        expected = ['Waren 568 / 1000', 'Materialien 787 / 1000',
+                    'Daten 877 / 1000', 'Verbrauchsgegenstände']
+        carrier_text = self.view.carrier_status.text()
+        for light in (False, True):
+            self.page.set_light_mode(light)
+            for i in range(4):
+                self.view.tabs.setCurrentIndex(i)
+                self.assertEqual(labels(), expected)
+        records.append(snapshot('ShipLocker', 1,
+                                Components=[item('chemicalcatalyst', 1000)]))
+        self.set_inventory(inventory(records))
+        self.assertEqual(labels(), ['Waren 0 / 1000', 'Materialien 1000 / 1000',
+                                    'Daten 0 / 1000', 'Verbrauchsgegenstände'])
+        self.assertEqual(self.view.carrier_status.text(), carrier_text)
+
+    def test_market_capacity_does_not_change_material_totals(self):
+        from cmdrhelper.odyssey_carrier import material_amounts, inventory_carrier_capacity
+        self.state.commander_fid = 'F1'
+        self.state.journal_folder = Path(self.tmp.name)
+        path = self.state.journal_folder / 'FCMaterials.json'
+        inv = copy.deepcopy(self.view.inventory)
+        inv.reconstructed_at = '2026-09-15T07:14:55Z'
+        inv.carrier_records['Components/chemicalcatalyst']['current_amount'] = 713
+        original = copy.deepcopy(inv)
+        market = dict(event='FCMaterials', timestamp=inv.reconstructed_at, MarketID=123,
+                      Items=[dict(Name='healthmonitor', Demand=121, Stock=999)])
+        for demand, expected in ((121,834),(0,713)):
+            market['Items'][0]['Demand'] = demand
+            path.write_text(json.dumps(market))
+            self.view.set_inventory(inv)
+            self.assertIn(f'Carrierbestand: 713 · Lager: {expected} / 1.000',self.view.carrier_status.text())
+            self.assertIn('Marktstand:',self.view.carrier_status.text())
+            self.assertEqual(inv,original)
+            self.assertEqual(inventory_carrier_capacity(inv).known_amount,713)
+            self.assertEqual(material_amounts(inv,'Components','chemicalcatalyst'),(0,0,713,713))
+        path.unlink()
+        self.view.render()
+        self.assertIn('Carrierbestand: 713 · Lager: — / 1.000',self.view.carrier_status.text())
+        self.assertIn('reservieren Lagerkapazität',self.view.carrier_status.toolTip())
+        market['timestamp']='2026-09-15T06:00:00Z'
+        path.write_text(json.dumps(market))
+        self.view.render()
+        self.assertIn('Lager: —',self.view.carrier_status.text())
+
+    def test_carrier_setup_help_click_only_and_read_only(self):
+        from PySide6.QtWidgets import QMessageBox
+        button = self.view.carrier_help
+        self.assertTrue(button.isVisible())
+        self.assertEqual(button.text(), '!')
+        self.assertEqual(button.cursor().shape(), Qt.PointingHandCursor)
+        self.assertEqual(button.toolTip(), '')
+        for light, accent in ((True,'#9a620e'), (False,'#c57a00')):
+            self.view.set_light_mode(light)
+            self.assertIn(f'color: {accent}',button.styleSheet())
+            self.assertIn(f'border: 1px solid {accent}',button.styleSheet())
+            self.assertIn('padding: 2px 7px',button.styleSheet())
+            self.assertIn('QToolButton:hover',button.styleSheet())
+            self.assertTrue(button.font().bold())
+        before = copy.deepcopy(self.view.inventory)
+        settings = {k:self.state.settings.value(k) for k in self.state.settings.allKeys()}
+        with patch.object(QMessageBox, 'exec', return_value=0) as execute:
+            QTest.mouseMove(button, button.rect().center())
+            self.app.processEvents()
+            execute.assert_not_called()
+        observed = []
+        def close_help():
+            dialog = self.app.activeModalWidget()
+            if isinstance(dialog, QMessageBox):
+                observed.append((dialog.windowTitle(),dialog.text(),len(dialog.buttons()),dialog.buttons()[0].text()))
+                dialog.buttons()[0].click()
+        QTimer.singleShot(50, close_help)
+        QTest.mouseClick(button, Qt.LeftButton)
+        self.assertEqual(len(observed),1)
+        title,text,count,close = observed[0]
+        self.assertEqual(title,'Carrierbestand einrichten')
+        for fragment in ('JEDE Position','ALLE leeren Positionen','— =','0 =',
+                         'außerhalb des eigenen Carriers','reservieren zusätzlich Lagerkapazität',
+                         'andere Spieler'):
+            self.assertIn(fragment,text)
+        self.assertEqual((count,close),(1,'Schließen'))
+        self.assertEqual(self.view.inventory,before)
+        self.assertEqual({k:self.state.settings.value(k) for k in self.state.settings.allKeys()},settings)
+
+    def test_carrier_setup_help_in_all_languages(self):
+        self.assertEqual(set(_TRANSLATIONS),set(('de','en','el','es','fi','fr','it','nl','no','pl','sv','tr')))
+        for lang,translations in _TRANSLATIONS.items():
+            with self.subTest(lang=lang):
+                self.assertTrue(translations['odyssey.carrier_setup_title'])
+                text=translations['odyssey.carrier_setup_text']
+                self.assertIn('— =',text)
+                self.assertIn('0 =',text)
+                self.assertTrue(translations['common.close'])
 
     def test_real_faber38_pair_and_embarked_mission_survives(self):
         records = json.loads((Path(__file__).parent/'fixtures/odyssey_faber38.json').read_text())
@@ -376,12 +527,12 @@ class OdysseyViewTests(unittest.TestCase):
             self.assertEqual(tuple(sum(getattr(r.stock,k) for r in observed) for k in ('locker','backpack','total')), expected)
             vehicle = self.rows('vehicleschematic')[0]
             self.assertEqual(vehicle[0].mission_id,1064707191)
-            self.assertEqual(vehicle[1].text(3),'1')
-            self.assertIn('abgeschlossen', vehicle[1].toolTip(4))
+            self.assertEqual(vehicle[1].text(4),'1')
+            self.assertIn('abgeschlossen', vehicle[1].toolTip(5))
             for cat, symbols in ((1,{'graphene':3,'microelectrode':113}), (2,{'manufacturinginstructions':68,'weapontestdata':34}), (3,{'healthpack':100,'energycell':100})):
                 self.view.tabs.setCurrentIndex(cat)
                 for symbol,count in symbols.items():
-                    self.assertEqual(sum(int(v.text(3)) for k,v in self.rows(symbol)),count)
+                    self.assertEqual(sum(int(v.text(4)) for k,v in self.rows(symbol)),count)
             self.view.tabs.setCurrentIndex(0)
 
 

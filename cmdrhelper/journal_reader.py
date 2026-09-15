@@ -42,30 +42,66 @@ class JournalReadError(OSError):
 
 # Nur die aktive Sitzung wird gehalten. Der Byteoffset zeigt stets hinter die
 # letzte newline-terminierte Zeile; ein unvollständiger Rest wird erneut gelesen.
-_LIVE_LINE_CACHE: dict[str, tuple[int, int, list[str]]] = {}
+_LIVE_LINE_CACHE: dict[str, tuple] = {}
 
 
-def _live_complete_lines(path: Path) -> tuple[list[str], int]:
+def _live_complete_events(path: Path) -> tuple[list[dict], int]:
+    """Keep only parsed, complete events of the active file; never cache a tail."""
     key = str(path)
     stat = path.stat()
-    size = stat.st_size
-    modified_ns = int(stat.st_mtime_ns)
-    old_offset, old_modified_ns, lines = _LIVE_LINE_CACHE.get(key, (0, 0, []))
-    if size < old_offset or (size == old_offset and old_modified_ns != modified_ns):
-        old_offset, lines = 0, []
+    signature = (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns)
+    old = _LIVE_LINE_CACHE.get(key)
+    if (old is None or old[0][:2] != signature[:2]
+            or signature[2] < old[0][2]
+            or (signature[2] == old[0][2] and signature != old[0])):
+        offset, events, positions = 0, [], []
+    else:
+        offset, events, positions = old[1], old[2], old[3]
+    if old is not None and signature == old[0]:
+        return events, offset
     with path.open("rb") as handle:
-        handle.seek(old_offset)
+        if offset and old is not None:
+            # A longer replacement on the same inode must not masquerade as an
+            # append. Check the cached prefix and append boundary (bounded IO).
+            handle.seek(0)
+            prefix = handle.read(min(offset, 4096))
+            handle.seek(max(0, offset - 4096))
+            boundary = handle.read(min(offset, 4096))
+            if (prefix, boundary) != old[4]:
+                offset, events, positions = 0, [], []
+        handle.seek(offset)
         added = handle.read()
+        newline = added.rfind(b"\n")
+        complete_offset = offset + newline + 1 if newline >= 0 else offset
+        handle.seek(0)
+        prefix = handle.read(min(complete_offset, 4096))
+        handle.seek(max(0, complete_offset - 4096))
+        boundary = handle.read(min(complete_offset, 4096))
+        after = path.stat()
+        if (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns,
+                after.st_ctime_ns) != signature:
+            raise OSError("live journal changed while reading")
     newline = added.rfind(b"\n")
-    if newline < 0:
-        return lines, old_offset
-    complete = added[:newline + 1]
-    new_lines = complete.decode("utf-8", errors="replace").splitlines()
-    result = lines + new_lines
-    offset = old_offset + newline + 1
+    if newline >= 0:
+        parsed, new_positions = [], []
+        line_offset = offset
+        for raw in added[:newline + 1].splitlines(keepends=True):
+            start = line_offset
+            line_offset += len(raw)
+            try:
+                event = json.loads(raw.decode("utf-8", errors="replace"))
+            except json.JSONDecodeError:
+                continue
+            if isinstance(event, dict):
+                parsed.append(event)
+                new_positions.append(start)
+        # Publish only after a successful, stable read.
+        events = events + parsed
+        positions = positions + new_positions
+        offset += newline + 1
     _LIVE_LINE_CACHE.clear()
-    _LIVE_LINE_CACHE[key] = (offset, modified_ns, result)
-    return result, offset
+    _LIVE_LINE_CACHE[key] = (signature, offset, events, positions, (prefix, boundary))
+    return events, offset
 
 
 def read_journal_delta(path: Path, start_offset: int) -> tuple[list[dict], int]:
@@ -76,6 +112,15 @@ def read_journal_delta(path: Path, start_offset: int) -> tuple[list[dict], int]:
     if start > size:
         # A truncated/replaced journal cannot safely be treated as an append.
         start = 0
+    cached = _LIVE_LINE_CACHE.get(str(path))
+    if cached is not None:
+        stat = path.stat()
+        signature = (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns)
+        if cached[0] == signature:
+            from bisect import bisect_left
+            index = bisect_left(cached[3], start)
+            if start in (0, cached[1]) or (index < len(cached[3]) and cached[3][index] == start):
+                return copy.deepcopy(cached[2][index:]), cached[1]
     with path.open("rb") as handle:
         handle.seek(start)
         raw = handle.read()
@@ -1159,16 +1204,12 @@ def read_latest_state(
         input_lines = None
         if indexed_sessions is not None and session is not None:
             try:
-                input_lines, safe_offset = _live_complete_lines(journal)
+                input_lines, safe_offset = _live_complete_events(journal)
             except OSError as exc:
                 raise JournalReadError(journal, exc) from exc
             session["last_complete_line_offset"] = safe_offset
             identities = {}
-            for raw_line in input_lines:
-                try:
-                    identity_event = json.loads(raw_line)
-                except json.JSONDecodeError:
-                    continue
+            for identity_event in input_lines:
                 event_type = identity_event.get("event")
                 if event_type not in ("Commander", "LoadGame"):
                     continue
@@ -1216,7 +1257,7 @@ def read_latest_state(
         with (nullcontext(handle) if isinstance(handle, list) else handle):
             for line in handle:
                 try:
-                    e = json.loads(line)
+                    e = line if indexed_sessions is not None else json.loads(line)
                 except json.JSONDecodeError:
                     continue
 
@@ -2329,4 +2370,8 @@ def read_latest_state(
         classified_sessions.values(), result["commander_fid"]
     ))
 
+    session = result.get("latest_journal_session")
+    result = copy.deepcopy({key: value for key, value in result.items()
+                            if key != "latest_journal_session"})
+    result["latest_journal_session"] = session
     return result

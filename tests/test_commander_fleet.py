@@ -157,7 +157,10 @@ class CommanderFleetTests(unittest.TestCase):
             def setValue(self, key, value): self.values[key] = value
 
         state.settings = settings or Settings()
-        return CommanderView(state)
+        view = CommanderView(state)
+        view.show()
+        self.addCleanup(view.close)
+        return view
 
     @staticmethod
     def _fleet_order(view):

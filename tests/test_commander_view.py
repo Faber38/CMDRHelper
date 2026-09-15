@@ -116,6 +116,8 @@ class CommanderSelectionTests(unittest.TestCase):
     def test_live_is_default_and_status_is_live(self):
         self.state.commander_id = self.a
         view = CommanderView(self.state)
+        view.show()
+        self.addCleanup(view.close)
         self.assertEqual(self.state.viewed_commander_id, self.a)
         self.assertEqual(view.commander_combo.currentData(), self.a)
         self.assertEqual(view.status_label.objectName(), "statusOk")
@@ -124,6 +126,8 @@ class CommanderSelectionTests(unittest.TestCase):
     def test_manual_view_does_not_change_live_or_follow_live_switch(self):
         self.state.commander_id = self.a
         view = CommanderView(self.state)
+        view.show()
+        self.addCleanup(view.close)
         self.state.select_viewed_commander(self.b)
         self.assertEqual(self.state.commander_id, self.a)
         self.assertEqual(self.state.viewed_commander_id, self.b)
@@ -141,6 +145,8 @@ class CommanderSelectionTests(unittest.TestCase):
     def test_unselected_view_follows_live_switch(self):
         self.state.commander_id = self.a
         view = CommanderView(self.state)
+        view.show()
+        self.addCleanup(view.close)
         self.state.commander_fid = "FID-A"
         self.state._apply_commander_identity({
             "commander_fid": "FID-B", "commander_identity_name": "Bravo"
@@ -152,6 +158,8 @@ class CommanderSelectionTests(unittest.TestCase):
     def test_missing_location_is_rendered_unknown(self):
         self.state.commander_id = self.a
         view = CommanderView(self.state)
+        view.show()
+        self.addCleanup(view.close)
         self.assertEqual(view.values["last_location"].text(), "–")
 
     def test_mercenary_credits_are_scoped_and_show_frontier_tooltip(self):
@@ -165,6 +173,8 @@ class CommanderSelectionTests(unittest.TestCase):
         })
         self.state.commander_id = self.a
         view = CommanderView(self.state)
+        view.show()
+        self.addCleanup(view.close)
         self.assertEqual(view.mercenary_values["current"].text(), "1.275")
         self.assertEqual(view.mercenary_values["spent_on_gear"].text(), "0")
         self.assertTrue(view.mercenary_values["total_earned"].toolTip())

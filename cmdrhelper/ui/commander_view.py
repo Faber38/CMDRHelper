@@ -342,7 +342,25 @@ class CommanderView(QWidget):
         self.status_label.style().polish(self.status_label)
         self.values["status"].setText(text)
 
+    def showEvent(self, event):
+        super().showEvent(event)
+        if getattr(self, "_refresh_dirty", True):
+            self.refresh()
+
     def refresh(self, *args):
+        if not self.isVisible():
+            self._refresh_dirty = True
+            return
+        if getattr(self, "_refresh_running", False):
+            return  # resolve_viewed_commander may synchronously emit its identity.
+        self._refresh_running = True
+        try:
+            self._refresh_visible()
+            self._refresh_dirty = False
+        finally:
+            self._refresh_running = False
+
+    def _refresh_visible(self):
         commanders = self.state.database.list_commanders()
         viewed_id = self.state.resolve_viewed_commander(commanders)
 
@@ -356,8 +374,10 @@ class CommanderView(QWidget):
         self.commander_combo.setCurrentIndex(selected_index)
         self.commander_combo.blockSignals(False)
 
-        summary = self.state.database.commander_summary(viewed_id)
-        if summary is None:
+        shared = getattr(self.state, "_refresh_summary", None)
+        summary = (shared[1] if shared and shared[0] == viewed_id
+                   else self.state.database.commander_summary(viewed_id))
+        if not summary:
             self.identity_label.setText("–")
             self.status_label.setText("–")
             self.status_label.setObjectName("muted")

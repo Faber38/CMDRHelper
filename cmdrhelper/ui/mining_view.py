@@ -316,7 +316,7 @@ class MiningView(QWidget):
             if dialog.exec() == QDialog.DialogCode.Accepted and editable:
                 try:
                     self.controller.confirm_carrier(symbol, dialog.count, identity)
-                except ValueError:
+                except (ValueError, OSError):
                     QMessageBox.warning(self, tr("mining.carrier_edit"), tr("mining.carrier_unavailable"))
         finally:
             dialog.deleteLater()

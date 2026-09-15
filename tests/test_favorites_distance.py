@@ -52,6 +52,7 @@ class FavoritesDistanceTests(unittest.TestCase):
 
     def make_view(self):
         view = FavoritesView(self.state, Mock(), Mock(), route_callback=Mock())
+        view.show()
         self.addCleanup(view.close)
         return view
 

@@ -134,6 +134,8 @@ class CommanderPersistentStateTests(unittest.TestCase):
 
         state = state_for(self.database, self.a)
         view = CommanderView(state)
+        view.show()
+        self.addCleanup(view.close)
         state.select_viewed_commander(self.b)
         self.assertEqual(state.commander_id, self.a)
         self.assertEqual(view.values["last_ship"].text(), "B Ship")

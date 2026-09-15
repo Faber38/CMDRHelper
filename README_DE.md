@@ -38,6 +38,38 @@ Der Journalordner von Elite Dangerous wird nach Möglichkeit automatisch erkannt
 
 CMDRHelper prüft beim Start auf Updates und besitzt einen integrierten Updater. Bestätige ein angebotenes Update im Programm; es aktualisiert Programm und Abhängigkeiten und startet CMDRHelper neu. Nach der Erstinstallation genügt normalerweise `start.bat` (Windows) beziehungsweise `bash start.sh` (Linux). Für normale Updates musst du `install.bat` oder `install.sh` nicht erneut manuell ausführen.
 
+## Neu in Version 3.5
+
+- Chronik und Oberfläche reagieren schneller; BIO-/Kartographie-Auswertung läuft im Hintergrund.
+- Odyssey zeigt Schließfach, Rucksack, persönliche Kategoriebelegung und fortgeschriebene Carrierbestände.
+- Carrier-Ersteinrichtung über !: bestätigte 0 und unbekanntes — bleiben klar getrennt.
+- Carrierbestand und durch Barkeeper-Kaufangebote belegte Lagerkapazität werden getrennt dargestellt.
+- Stabilere Mining-Bestände mit sichereren Cargo-Snapshots, Transfer-Nachholung und geprüfter Speicherung.
+- Fresh-Install-Migrationsfehler behoben; Chronik-Kopiersymbol und Aktualisierung verdeckter Ansichten verbessert.
+
+![Odyssey-Materialverwaltung mit Schließfach, Rucksack und automatisch fortgeschriebenem Fleet-Carrier-Bestand](cmdrhelper/assets/readme/cmdrhelper_v3_5.png)
+
+Schließfach und Rucksack verwenden die validierten aktuellen ShipLocker-/Backpack-Daten. Waren, Materialien und Daten zeigen jeweils ihre persönliche Schließfachbelegung mit eigener Kapazität 1000. Gesamt umfasst Schließfach + Rucksack + Carrier nur bei bekannten, kohärenten Teilbeständen. Käufe, Verkäufe und Tausch werden von privaten Transfers unterschieden. Nach Neustart wird der Standort rekonstruiert und eine neue persönliche Basis gesetzt; verpasste Odyssey-Transfers werden nicht erfunden. Beispiel aus dem Spiel: 713 vorhandene Einheiten + 121 für Kaufangebote reservierte Plätze = 834 / 1000 Lagerbelegung. Die 121 sind kein Materialbestand. Veraltete oder unsichere Marktdaten ergeben keine berechnete aktuelle Lagerbelegung.
+
+### Carrierbestand einrichten
+
+CMDRHelper kann den privaten Odyssey-Bestand deines Fleet Carriers automatisch weiterführen. Dafür benötigt der Helper zunächst einen bestätigten Ausgangsbestand.
+
+Öffne auf deinem eigenen Fleet Carrier den Inventar-Transfermodus und vergleiche nacheinander Waren, Materialien und Daten.
+
+Trage im CMDRHelper per Doppelklick in der Spalte „Carrier“ für JEDE Position den aktuell auf dem Carrier vorhandenen Bestand ein. Bestätige auch ALLE leeren Positionen ausdrücklich mit 0.
+
+— = noch nicht bestätigt / unbekannt
+0 = ausdrücklich bestätigter leerer Bestand
+
+Nach vollständiger Ersteinrichtung verfolgt CMDRHelper Transfers zwischen deinem persönlichen Schließfach und deinem Carrier automatisch, wenn du dich eindeutig auf deinem eigenen Carrier befindest. Persönliche Änderungen außerhalb des eigenen Carriers verändern den Carrierbestand nicht.
+
+Du kannst die Werte jederzeit per Doppelklick auf die Carrier-Zelle korrigieren oder erneut bestätigen.
+
+Offene Kaufangebote beim Carrier-Barkeeper reservieren zusätzlich Lagerkapazität. Die Ingame-Belegung kann deshalb höher sein als die Summe der vorhandenen Materialien. Barkeeper-Aktivitäten, insbesondere durch andere Spieler, können den tatsächlichen Bestand verändern. Prüfe und bestätige den fortgeschriebenen Stand bei Bedarf erneut.
+
+Mining hält Schiff, SRV und Carrier getrennt. Explizite CargoTransfer-Ereignisse werden über verifizierte Journalgrenzen genau einmal nachgeholt; Cargo.json und gespeicherte Checkpoints werden strenger geprüft. Dies ist keine Odyssey-Differenzlogik. Fremdhandel kann eine manuelle Neubestätigung nötig machen. Neue Datenbanken erhalten nach erfolgreicher Initialisierung den Parent-Hierarchy-Abschlussmarker, sodass der Erstimport keine falsche historische Migration auslöst. Alte Datenbanken ohne Marker bleiben migrationspflichtig; Elite muss für die notwendige historische Migration weiterhin beendet werden. Chroniknamen lassen sich mit ⧉ kopieren; ✓ bestätigt kurz. Missionsinhalte werden gezielter geladen, verdeckte Ansichten nicht unnötig neu aufgebaut.
+
 ## Neu in Version 3.4.6
 
 - Stabilerer Archivimport bei großen Journalbeständen.

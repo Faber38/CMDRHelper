@@ -4,12 +4,15 @@ import os
 import time
 
 from PySide6.QtCore import QObject, QTimer, Signal
+from cmdrhelper.odyssey_sidecars import OdysseySidecars
 
 logger = logging.getLogger(__name__)
 
 
 class JournalWatcher(QObject):
     journalChanged = Signal()
+    odysseySidecarsChanged = Signal()
+    odysseyTrackingUpdated = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -25,6 +28,7 @@ class JournalWatcher(QObject):
         self._retry_at = 0
         self._catchup_signatures = {}
         self._catchup_requested = False
+        self.odyssey_sidecars = OdysseySidecars()
 
         self.timer = QTimer(self)
         self.timer.setInterval(1000)
@@ -45,6 +49,7 @@ class JournalWatcher(QObject):
         self._retry_at = 0
         self._catchup_signatures = {}
         self._catchup_requested = False
+        self.odyssey_sidecars = OdysseySidecars()
 
     def start(self):
         if not self.timer.isActive():
@@ -170,6 +175,12 @@ class JournalWatcher(QObject):
 
         if sig is None:
             return
+
+        # Small personal files may finish after the journal notification. This
+        # capture also runs when no material view exists, without a State refresh.
+        if self.odyssey_sidecars.poll(current):
+            self.odysseySidecarsChanged.emit()
+        self.odysseyTrackingUpdated.emit()
 
         if sig == self._sig and not self._catchup_requested:
             return

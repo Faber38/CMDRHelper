@@ -1,10 +1,13 @@
 import json
+from copy import deepcopy
 import os
 from pathlib import Path
 import sqlite3
 import tempfile
+import threading
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 from PySide6.QtCore import QObject, Signal, QSettings, Qt
@@ -23,6 +26,39 @@ class State(QObject):
 
 
 class MiningControllerTests(unittest.TestCase):
+    def test_failed_checkpoint_write_does_not_publish_new_ledger_cursor(self):
+        controller,results=self.make_controller()
+        controller.timer.stop()
+        old_ledger=dict(version=1,fid='F1',carrier_id=123,records={},anchor={'offset':10})
+        ledger_key=controller.carrier_ledger.key('F1',123)
+        checkpoint_key='materials/mining/cargo_checkpoints/1'
+        self.state.settings.setValue(ledger_key,old_ledger)
+        self.state.settings.setValue(checkpoint_key,{'old':True})
+        self.state.settings.sync()
+        inv=MiningInventory(1,'F1',ship={'gold':9},carrier_id=123,
+            carrier_ledger_before=old_ledger,carrier_ledger={**old_ledger,'anchor':{'offset':20}},
+            checkpoints={'new':True})
+        with patch.object(self.state.settings,'status',return_value=QSettings.Status.AccessError):
+            with self.assertLogs('cmdrhelper.mining_controller',level='ERROR'):
+                controller._finished(controller._generation,inv)
+        self.assertEqual(self.state.settings.value(ledger_key),old_ledger)
+        self.assertEqual(self.state.settings.value(checkpoint_key),{'old':True})
+        self.assertIsNone(results[-1].ship)
+        self.assertIsNone(results[-1].carrier_ledger)
+
+    def test_pending_sidecar_retries_without_another_journal_event(self):
+        sidecar=self.folder/'Cargo.json'
+        sidecar.write_text('{}')
+        controller,results=self.make_controller()
+        self.wait_for(results,1)
+        self.assertTrue(results[-1].cargo_pending)
+        self.assertNotIn('Ship',results[-1].checkpoints)
+        sidecar.write_text(json.dumps({**self.events[-1],'Inventory':[dict(Name='gold',Count=12)]}))
+        self.wait_for(results,2)
+        self.assertEqual(results[-1].ship,{'gold':12})
+        self.assertFalse(results[-1].cargo_pending)
+        self.assertFalse(controller.cargo_retry.isActive())
+
     @classmethod
     def setUpClass(cls):
         cls.app = QApplication.instance() or QApplication([])
@@ -144,7 +180,7 @@ class MiningControllerTests(unittest.TestCase):
         self.assertEqual(view.items["gold"].text(2), "13")
         self.assertFalse(controller.timer.isActive())
 
-    def test_manual_status_distinguishes_unchanged_and_invalid_sidecar_with_checkpoint(self):
+    def test_manual_status_accepts_verified_checkpoint_without_current_sidecar(self):
         controller, results = self.make_controller()
         outcomes = []
         controller.refreshFinished.connect(outcomes.append)
@@ -157,7 +193,7 @@ class MiningControllerTests(unittest.TestCase):
         controller.refresh_now()
         self.wait_for(results, 3)
         self.assertEqual(results[-1].stock("gold").ship_amount, 12)  # Keep valid persisted cargo.
-        self.assertEqual(outcomes, ["unchanged", "error"])
+        self.assertEqual(outcomes, ["unchanged", "unchanged"])
 
     def test_manual_refresh_switches_to_verified_srv_snapshot(self):
         controller, results = self.make_controller()
@@ -345,6 +381,99 @@ class MiningControllerTests(unittest.TestCase):
         controller.refresh_now()
         self.wait_for(results, before + 1)
         self.assertEqual(results[-1].stock("gold").carrier_amount, 504)
+
+    def test_session_change_zero_snapshot_restart_and_manual_refresh_keep_verified_stocks(self):
+        self.add_owned_carrier()
+        self.events[1]["ShipID"] = 1
+        self.events[-1].update(Count=48, Inventory=[dict(Name="gold", Count=48)])
+        self.events.extend([dict(event="LaunchSRV"), dict(event="Cargo", Vessel="SRV", Count=20,
+                                                        Inventory=[dict(Name="gold", Count=20)])])
+        self.write()
+        controller, results = self.make_controller()
+        self.wait_for(results, 1)
+        controller.confirm_carrier("gold", 504, (1, "F1", 123))
+        self.assertEqual(results[-1].stock("gold"), (20, 48, 504, 572))
+        self.journal = self.folder / "Journal.2026-09-13T120000.01.log"
+        self.events = [dict(event="Commander", FID="F1"),
+                       dict(event="LoadGame", FID="F1", ShipID=1, Ship="CobraMkIII"),
+                       dict(event="Cargo", Vessel="Ship", Count=0)]
+        self.write()
+        with sqlite3.connect(self.database) as con:
+            con.execute("INSERT INTO journal_sessions VALUES(?,?,?,?)", (str(self.journal), 1, "F1", "identified"))
+        self.state._journal_index_sessions.append(dict(journal_file=str(self.journal), commander_id=1,
+                                                       fid_seen="F1", attribution_status="identified"))
+        self.state.settings = QSettings(self.settings_path, QSettings.Format.IniFormat)
+        restarted, restored = self.make_controller()
+        view = self.make_view(restarted)
+        self.wait_for(restored, 1)
+        self.assertEqual(restored[-1].stock("gold"), (20, 0, 504, 524))
+        self.assertEqual([view.items["gold"].text(i) for i in range(1, 5)], ["20", "0", "504 ✎", "524"])
+        outcomes = []
+        restarted.refreshFinished.connect(outcomes.append)
+        restarted.refresh_now()
+        self.wait_for(restored, 2)
+        self.assertEqual(restored[-1].stock("gold"), (20, 0, 504, 524))
+        self.assertEqual(outcomes, ["unchanged"])
+
+    def test_worker_cannot_overwrite_a_newer_confirmed_ledger(self):
+        self.add_owned_carrier()
+        controller, results = self.make_controller()
+        self.wait_for(results, 1)
+        controller.confirm_carrier("gold", 504, (1, "F1", 123))
+        key = controller.carrier_ledger.key("F1", 123)
+        before = deepcopy(self.state.settings.value(key))
+        stale = MiningInventory(1, "F1", carrier_id=123, carrier_ledger_before=before,
+                                carrier_ledger=deepcopy(before))
+        stale.carrier_ledger["records"]["gold"]["count"] = 400
+        controller.confirm_carrier("gold", 600, (1, "F1", 123))
+        count = len(results)
+        controller._finished(controller._generation, stale)
+        self.assertEqual(len(results), count)
+        self.assertEqual(self.state.settings.value(key)["records"]["gold"]["count"], 600)
+        self.wait_for(results, count + 1)
+        self.assertEqual(results[-1].stock("gold").carrier_amount, 600)
+
+    def test_manual_refresh_accepts_proven_continuity_without_new_cargo_event(self):
+        self.events[1]["ShipID"] = 1
+        self.events[-1]["Inventory"] = [dict(Name="gold", Count=12)]
+        self.write()
+        controller, results = self.make_controller()
+        self.wait_for(results, 1)
+        self.journal = self.folder / "Journal.2026-09-13T120000.01.log"
+        self.events = [dict(event="Commander", FID="F1"),
+                       dict(event="LoadGame", FID="F1", ShipID=1, Ship="CobraMkIII")]
+        self.write()
+        with sqlite3.connect(self.database) as con:
+            con.execute("INSERT INTO journal_sessions VALUES(?,?,?,?)", (str(self.journal), 1, "F1", "identified"))
+        self.state._journal_index_sessions.append(dict(journal_file=str(self.journal), commander_id=1,
+                                                       fid_seen="F1", attribution_status="identified"))
+        outcomes = []
+        controller.refreshFinished.connect(outcomes.append)
+        controller.refresh_now()
+        self.wait_for(results, 2)
+        self.assertFalse(results[-1].snapshot_verified)  # No new live Cargo event.
+        self.assertEqual(results[-1].ship, {"gold": 12})
+        self.assertEqual(outcomes, ["unchanged"])
+
+    def test_carrier_catchup_runs_in_worker_and_result_arrives_on_gui_thread(self):
+        from cmdrhelper.mining_carrier import CarrierLedger
+        self.add_owned_carrier()
+        gui_thread = threading.get_ident()
+        worker_threads, result_threads = [], []
+        original = CarrierLedger.advance
+
+        def advance(store, *args, **kwargs):
+            worker_threads.append(threading.get_ident())
+            self.assertIsNone(store.settings)  # No GUI-owned QSettings in the worker.
+            return original(store, *args, **kwargs)
+
+        with patch.object(CarrierLedger, "advance", advance):
+            controller, results = self.make_controller()
+            controller.ready.connect(lambda _: result_threads.append(threading.get_ident()))
+            self.wait_for(results, 1)
+        self.assertTrue(worker_threads)
+        self.assertTrue(all(thread != gui_thread for thread in worker_threads))
+        self.assertEqual(result_threads, [gui_thread])
 
     def test_jadeite_cargo_snapshot_and_live_refinement_are_visible_with_filters(self):
         self.events[-1]["Count"] = 22

@@ -59,6 +59,8 @@ class OdysseyInventoryTests(unittest.TestCase):
         r = self.read(*self.pair(), event("ShipLocker", 1))
         self.assertIsNone(r.count("graphene", "ShipLocker"))
         self.assertEqual(sum(s.count for s in r.containers['ShipLocker'].stacks.values()), 10)
+        self.assertTrue(r.containers['ShipLocker'].valid)
+        self.assertEqual(r.containers['ShipLocker'].awaiting_snapshot, event('ShipLocker',1)['timestamp'])
 
     def test_mismatched_snapshot_times_are_not_added(self):
         r = self.read(*self.pair(), snapshot("ShipLocker", 2, Components=[item(count=12)]))
@@ -209,7 +211,7 @@ class OdysseyInventoryTests(unittest.TestCase):
         reducer.apply(e, ('a', 2))
         self.assertEqual(reducer.result.total_count, 13)
 
-    def test_sidecars_are_never_read(self):
+    def test_unbound_sidecars_are_never_used_for_historical_reconstruction(self):
         a = self.session(self.pair() + [event('Embark', 1),
                          snapshot('ShipLocker', 2, Components=[item(count=12)])])
         (Path(self.tmp.name) / 'Backpack.json').write_text(json.dumps(self.pair()[1]))

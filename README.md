@@ -38,6 +38,38 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## New in version 3.5
+
+- Faster Chronicle and interface; BIO/cartography processing runs in the background.
+- Odyssey shows locker, backpack, personal category occupancy and projected carrier stock.
+- Carrier setup via ! clearly distinguishes confirmed 0 from unknown —.
+- Carrier stock is displayed separately from storage reserved by bartender buy orders.
+- More reliable Mining stock with safer Cargo snapshots, transfer catch-up and checked persistence.
+- Fixed fresh-install migration prompts; improved Chronicle copy feedback and hidden-view updates.
+
+![Odyssey material management with locker, backpack and automatically projected Fleet Carrier stock](cmdrhelper/assets/readme/cmdrhelper_v3_5.png)
+
+Locker and backpack use validated current ShipLocker/Backpack data. Goods, Assets and Data each show personal locker occupancy with their own capacity of 1000. Total includes locker + backpack + carrier only when the required balances are known and coherent. Purchases, sales and trades are distinguished from private transfers. After restart, location is reconstructed and a new personal baseline is set; missed Odyssey transfers are not invented. In-game example: 713 existing units + 121 spaces reserved for buy orders = 834 / 1000 occupied. The 121 are not material stock. Stale or uncertain market data never produces a supposed current occupancy.
+
+### Set up carrier stock
+
+CMDRHelper can automatically maintain your Fleet Carrier’s private Odyssey stock. It first needs a confirmed starting balance.
+
+On your own Fleet Carrier, open inventory transfer and compare Goods, Assets and Data in turn.
+
+Double-click the Carrier column in CMDRHelper and enter the current carrier quantity for EVERY position. Explicitly confirm ALL empty positions as 0 too.
+
+— = not yet confirmed / unknown
+0 = explicitly confirmed empty stock
+
+After completing setup, CMDRHelper tracks transfers between your personal locker and carrier automatically while you are clearly on your own carrier. Personal changes elsewhere do not change carrier stock.
+
+Double-click a Carrier cell at any time to correct or confirm it again.
+
+Open buy orders at the carrier bartender also reserve storage space. In-game occupancy can therefore exceed the sum of existing materials. Bartender activity, especially by other players, can change actual stock. Check and reconfirm the projected balance when needed.
+
+Mining keeps Ship, SRV and Carrier separate. Explicit CargoTransfer events are caught up exactly once across verified journal boundaries; Cargo.json and saved checkpoints receive stricter validation. This is not Odyssey delta tracking. Other players’ trades may require manual reconfirmation. New databases receive the Parent-Hierarchy completion marker after successful initialization, avoiding a false historical migration after first import. Old unmarked databases still require migration, with Elite closed for that historical repair. Chronicle names can be copied with ⧉ and a brief ✓ confirmation. Mission data is loaded more selectively and hidden views avoid unnecessary rebuilds.
+
 ## New in version 3.4.6
 
 - More reliable archive imports with large journal collections.

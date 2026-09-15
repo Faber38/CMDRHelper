@@ -38,6 +38,38 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## Novità della versione 3.5
+
+- Cronaca e interfaccia più rapide; elaborazione BIO/cartografica in background.
+- Odyssey mostra armadietto, zaino, occupazione personale per categoria e scorte calcolate della portaflotta.
+- La configurazione tramite ! distingue chiaramente lo 0 confermato dal — sconosciuto.
+- Le scorte della portaflotta sono separate dallo spazio riservato agli ordini di acquisto del barista.
+- Scorte Mining più affidabili con istantanee Cargo sicure, recupero dei trasferimenti e salvataggio verificato.
+- Corretta la migrazione richiesta dopo una nuova installazione; migliorate la copia nella Cronaca e le viste nascoste.
+
+![Gestione materiali Odyssey con armadietto, zaino e scorte della portaflotta aggiornate automaticamente](cmdrhelper/assets/readme/cmdrhelper_v3_5.png)
+
+Armadietto e zaino usano dati correnti validati di ShipLocker/Backpack. Merci, Materiali e Dati mostrano ciascuno la capacità personale di 1000. Totale somma armadietto + zaino + portaflotta solo con valori noti e coerenti. Acquisti, vendite e scambi sono distinti dai trasferimenti privati. Dopo il riavvio si ricostruisce la posizione e si imposta una nuova base personale; non si inventano trasferimenti Odyssey mancanti. Esempio reale: 713 unità + 121 posti riservati agli acquisti = 834 / 1000. I 121 non sono materiali. Dati di mercato vecchi o incerti non producono una presunta occupazione attuale.
+
+### Configurare le scorte della portaflotta
+
+CMDRHelper può aggiornare automaticamente le scorte private Odyssey della tua portaflotta. Occorre prima confermare un saldo iniziale.
+
+Sulla tua portaflotta, apri il trasferimento inventario e confronta Merci, Materiali e Dati.
+
+Fai doppio clic nella colonna Portaflotta e inserisci la quantità attuale per OGNI posizione. Conferma esplicitamente anche TUTTE le posizioni vuote con 0.
+
+— = non ancora confermato / sconosciuto
+0 = scorte vuote confermate esplicitamente
+
+Dopo la configurazione completa, CMDRHelper segue i trasferimenti tra armadietto personale e portaflotta quando sei chiaramente sulla tua portaflotta. Le modifiche personali altrove non cambiano le sue scorte.
+
+Puoi correggere o riconfermare ogni valore con un doppio clic.
+
+Gli ordini di acquisto aperti del barista riservano altro spazio. L’occupazione nel gioco può superare la somma dei materiali presenti. Gli scambi del barista, soprattutto di altri giocatori, possono cambiare le scorte reali. Controlla e riconferma il saldo calcolato quando necessario.
+
+Mining mantiene Nave, SRV e Portaflotta separati. Gli eventi CargoTransfer espliciti vengono recuperati esattamente una volta attraverso diari verificati; Cargo.json e punti salvati sono validati più rigorosamente. Non è la logica delle differenze Odyssey. Il commercio altrui può richiedere una nuova conferma. I nuovi database ricevono il marcatore Parent-Hierarchy dopo l’inizializzazione, evitando una falsa migrazione storica dopo il primo import. I vecchi database senza marcatore richiedono ancora la migrazione con Elite chiuso. ⧉ copia i nomi della Cronaca e ✓ conferma brevemente. Missioni e viste nascoste vengono aggiornate in modo più selettivo.
+
 ## Novità della versione 3.4.6
 
 - Importazione degli archivi più affidabile con grandi raccolte di diari.

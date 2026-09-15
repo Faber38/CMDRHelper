@@ -8,6 +8,7 @@ from PySide6.QtCore import QObject, QRunnable, QThreadPool, QTimer, Signal
 
 from .mining_inventory import MiningInventory, MiningInventoryReader
 from .mining_carrier import CarrierLedger, read_carrier_feed, stable_id
+from .mining_persistence import save_values
 
 logger = logging.getLogger(__name__)
 
@@ -17,11 +18,12 @@ class _Result(QObject):
 
 
 class _Read(QRunnable):
-    def __init__(self, reader, path, cid, generation, checkpoints, live_path, signals):
+    def __init__(self, reader, path, cid, generation, checkpoints, live_path, signals, carrier_saved=None):
         super().__init__()
         self.reader, self.path, self.cid = reader, path, cid
         self.generation, self.checkpoints, self.live_path = generation, checkpoints, live_path
         self.signals = signals
+        self.carrier_saved = carrier_saved or {}
 
     def run(self):
         inventory = MiningInventory(self.cid, "")
@@ -30,7 +32,8 @@ class _Read(QRunnable):
                 con.row_factory = sqlite3.Row
                 commander = con.execute("SELECT fid FROM commanders WHERE id=?", (self.cid,)).fetchone()
                 sessions = [dict(row) for row in con.execute(
-                    "SELECT * FROM journal_sessions WHERE commander_id=?", (self.cid,))]
+                    "SELECT * FROM journal_sessions WHERE commander_id=? OR commander_id IS NULL "
+                    "OR attribution_status<>'identified'", (self.cid,))]
                 carrier = None
                 if con.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='commander_carriers'").fetchone():
                     carrier = con.execute("SELECT carrier_id FROM commander_carriers WHERE commander_id=?", (self.cid,)).fetchone()
@@ -38,6 +41,14 @@ class _Read(QRunnable):
                 inventory = self.reader.reconstruct(self.cid, commander["fid"], sessions,
                     checkpoints=self.checkpoints, live_path=self.live_path, include_carrier_feed=True)
                 inventory.carrier_id = stable_id(carrier["carrier_id"]) if carrier else None
+                if inventory.carrier_id is not None:
+                    key = CarrierLedger.key(inventory.fid, inventory.carrier_id)
+                    inventory.carrier_ledger_before = self.carrier_saved.get(key)
+                    ledger = CarrierLedger.normalize(inventory.fid, inventory.carrier_id,
+                                                     inventory.carrier_ledger_before)
+                    # File verification, catch-up and hashing stay in this worker.
+                    inventory.carrier_ledger = CarrierLedger(None).advance(
+                        ledger, inventory.carrier_feed, sessions=sessions)
         except Exception:
             logger.exception("Mining inventory reconstruction failed")
         self.signals.ready.emit(self.generation, inventory)
@@ -67,21 +78,39 @@ class MiningInventoryController(QObject):
         self._active_manual = False
         self._last_inventory = None
         self._manual_before = None
+        self._cargo_retries = 0
+        self.cargo_retry = QTimer(self)
+        self.cargo_retry.setSingleShot(True)
+        self.cargo_retry.setInterval(500)
+        self.cargo_retry.timeout.connect(lambda: self.request(force=True, cargo_retry=True))
         self.ready.connect(self._remember_inventory)
-        for name in ("changed", "cargoSnapshotChanged", "viewedCommanderChanged",
+        for name in ("inventoryChanged" if hasattr(state, "inventoryChanged") else "changed", "cargoSnapshotChanged", "viewedCommanderChanged",
                      "commanderIdentityChanged", "journalIndexReady", "databaseImportFinished"):
             signal = getattr(state, name, None)
             if signal is not None:
-                signal.connect(self.request)
+                if name in ("journalIndexReady", "databaseImportFinished"):
+                    signal.connect(lambda *args: self.request(force=True))
+                else:
+                    signal.connect(self.request)
         QTimer.singleShot(0, self.request)
 
-    def request(self, *_):
+    def request(self, *_, force=False, cargo_retry=False):
+        if not cargo_retry:
+            self._cargo_retries = 0
+            self.cargo_retry.stop()
         cid = getattr(self.state, "viewed_commander_id", None) or getattr(self.state, "commander_id", None)
         sessions = getattr(self.state, "_journal_index_sessions", None) or []
         live = sessions[-1] if sessions else {}
         live_identity = tuple(live.get(key) for key in ("journal_file", "commander_id", "fid_seen", "attribution_status"))
         identity = (cid, getattr(self.state, "commander_fid", ""),
                     str(getattr(getattr(self.state, "database", None), "path", "")), live_identity)
+        revisions = getattr(self.state, "_inventory_revisions", None)
+        if revisions is not None:
+            snapshot = getattr(self.state, "cargo_snapshot", None) or {}
+            signature = (identity, revisions.get("mining", 0), deepcopy(snapshot))
+            if not force and signature == getattr(self, "_request_signature", None):
+                return
+            self._request_signature = signature
         if identity != self._identity:
             self._identity = identity
             self._generation += 1
@@ -93,7 +122,7 @@ class MiningInventoryController(QObject):
     def refresh_now(self):
         """Manually reread verified snapshots without the event debounce delay."""
         logger.info("Manual mining/cargo refresh started")
-        self.request()  # Recheck commander and journal identity, just like live updates.
+        self.request(force=True)  # Recheck commander and journal identity, just like live updates.
         self._manual_before = self._inventory_signature(self._last_inventory)
         self.timer.stop()
         self._manual_pending = True
@@ -120,19 +149,50 @@ class MiningInventoryController(QObject):
             self._report_manual(None)
             return
         self._running = True
-        self.pool.start(_Read(self.reader, path, cid, self._generation, checkpoints, live_path, self.results))
+        self.state.settings.beginGroup("materials/mining/carrier")
+        try:
+            carrier_saved = {f"materials/mining/carrier/{key}": deepcopy(self.state.settings.value(key))
+                             for key in self.state.settings.allKeys()}
+        finally:
+            self.state.settings.endGroup()
+        self.pool.start(_Read(self.reader, path, cid, self._generation, checkpoints, live_path,
+                             self.results, carrier_saved))
 
     def _finished(self, generation, inventory):
         self._running = False
         if generation == self._generation:
-            if inventory.carrier_id is not None and inventory.carrier_feed is not None:
-                ledger = self.carrier_ledger.update(inventory.fid, inventory.carrier_id, inventory.carrier_feed)
-                self.carrier_ledger.attach(inventory, ledger)
+            ledger = inventory.carrier_ledger
+            writes = {}
+            if ledger is not None:
+                key = self.carrier_ledger.key(inventory.fid, inventory.carrier_id)
+                if self.state.settings.value(key) != inventory.carrier_ledger_before:
+                    # Another accepted confirmation/update supersedes the worker's
+                    # starting cursor. Recalculate, never overwrite newer balances.
+                    self._dirty = True
+                    self.timer.start()
+                    if self._active_manual:
+                        self._manual_pending = True
+                        self._active_manual = False
+                    return
+                writes[key] = ledger
             key = f"materials/mining/cargo_checkpoints/{inventory.commander_id}"
-            if inventory.checkpoints and self.state.settings.value(key) != inventory.checkpoints:
-                self.state.settings.setValue(key, inventory.checkpoints)
-                self.state.settings.sync()
+            if inventory.checkpoints:
+                writes[key] = inventory.checkpoints
+            try:
+                save_values(self.state.settings, writes)
+            except OSError:
+                logger.exception("Mining result not published: settings write failed")
+                self.ready.emit(MiningInventory(inventory.commander_id, inventory.fid))
+                self._report_manual(None)
+                if self._dirty:
+                    self.timer.start()
+                return
+            if ledger is not None:
+                self.carrier_ledger.attach(inventory, ledger)
             self.ready.emit(inventory)
+            if inventory.cargo_pending and self._cargo_retries < 3:
+                self._cargo_retries += 1
+                self.cargo_retry.start()
         self._report_manual(inventory if generation == self._generation else None)
         if self._dirty:
             if self._manual_pending:
@@ -159,7 +219,9 @@ class MiningInventoryController(QObject):
             return
         self._active_manual = False
         logger.info("Manual mining/cargo refresh finished")
-        if inventory is None or not inventory.snapshot_verified or inventory.vehicle is None:
+        # A verified replay/checkpoint is also a valid refresh result when the
+        # new session has not written another Cargo notification yet.
+        if inventory is None or inventory.vehicle is None:
             self.refreshFinished.emit("error")
         else:
             self.refreshFinished.emit("unchanged" if self._inventory_signature(inventory)

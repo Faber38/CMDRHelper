@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from cmdrhelper.body_parents import choose_parents, verified_parents
 
-from copy import deepcopy
+from copy import copy, deepcopy
 from pathlib import Path
 import logging
 import json
@@ -22,7 +22,6 @@ from cmdrhelper.journal_watcher import JournalWatcher
 from cmdrhelper.valuation import (
     apply_values,
     valuation_signature,
-    calculate_body_values,
     has_valuation_data,
 )
 from cmdrhelper.online_services import (
@@ -42,6 +41,8 @@ logger = logging.getLogger(__name__)
 
 class AppState(QObject):
     changed = Signal()
+    inventoryChanged = Signal()
+    odysseySidecarsChanged = Signal()
     commanderIdentityChanged = Signal(object, str, str)
     viewedCommanderChanged = Signal(object)
     positionChanged = Signal(str, object, str)
@@ -93,6 +94,7 @@ class AppState(QObject):
         self.station = ""
         self.ship = ""
         self.ship_loadout = ShipLoadoutData()
+        self._inventory_revisions = {"materials": 0, "mining": 0, "odyssey": 0}
         self.cargo_snapshot = None
         self.active_srv_type = ""
         self.last_timestamp = ""
@@ -168,6 +170,10 @@ class AppState(QObject):
         self.connected = False
 
         self.watcher = JournalWatcher(self)
+        from cmdrhelper.odyssey_tracking import OdysseyCarrierTracking
+        self.odyssey_carrier_tracking = OdysseyCarrierTracking(self)
+        self.watcher.odysseyTrackingUpdated.connect(self.odyssey_carrier_tracking.poll)
+        self.watcher.odysseySidecarsChanged.connect(self.odysseySidecarsChanged.emit)
         self.watcher.journalChanged.connect(
             self._refresh_from_watcher
         )
@@ -570,6 +576,9 @@ class AppState(QObject):
                         "startup.phase.history", display_name
                     )
 
+        learning_request = (copy(self.database), getattr(self, "commander_id", None),
+                            deepcopy(getattr(self, "_journal_index_sessions", None) or []))
+
         def worker():
             catchup_sessions, catchup_error = None, ""
             stats, import_error = None, ""
@@ -588,7 +597,8 @@ class AppState(QObject):
                 # beziehungsweise neu übernommen werden.
                 if automatic:
                     self.initializationProgress.emit(0, 0, "startup.phase.history", "")
-                self._run_journal_learning("", force=True, folder=folder)
+                self._run_journal_learning("", force=True, folder=folder,
+                                           _request=learning_request)
 
                 logger.info(
                     "Journal-Archivimport beendet: importiert=%s, übersprungen=%s",
@@ -1460,43 +1470,37 @@ class AppState(QObject):
         self.watcher._current = None
         self.watcher.check_now()
 
-    def _run_journal_learning(self, latest_event, force=False, folder=None):
-        """Startet teure Lernläufe nur bei passenden Verkaufsevents."""
-        folder = Path(folder or self.journal_folder)
-
+    def _run_journal_learning(self, latest_event, force=False, folder=None, *, _request=None):
+        """Keep archive learning in its worker; enqueue live sales off the GUI."""
+        kinds = set()
         if force or latest_event == "SellOrganicData":
-            try:
-                learn_result = self.database.learn_bio_values_from_journals(folder)
-                if int(learn_result.get("values_changed") or 0):
-                    logger.info(
-                        "BIO-Wertetabelle aktualisiert: %s neue/geänderte Werte",
-                        int(learn_result.get("values_changed") or 0),
-                    )
-            except Exception:
-                logger.exception(
-                    "BIO-Verkaufswerte konnten nicht aus dem Journal gelernt werden"
-                )
+            kinds.add("bio")
+        if force or latest_event in ("SellExplorationData", "MultiSellExplorationData"):
+            kinds.add("cartography")
+        commander_id = self.commander_id if _request is None else _request[1]
+        if not kinds or commander_id is None:
+            return
+        from cmdrhelper.journal_learning import JournalLearningController, learn
+        if threading.current_thread() is not threading.main_thread():
+            # The existing archive worker must finish learning before its handoff.
+            database, commander_id, sessions = _request or (
+                copy(self.database), commander_id, deepcopy(self._journal_index_sessions or []))
+            learn(database, Path(folder or self.journal_folder), commander_id, kinds, sessions)
+            return
+        controller = getattr(self, "_journal_learning", None)
+        if controller is None:
+            controller = self._journal_learning = JournalLearningController(self)
+            controller.ready.connect(self._journal_learning_finished)
+        controller.request(kinds)
 
-        if force or latest_event in (
-            "SellExplorationData",
-            "MultiSellExplorationData",
-        ):
-            try:
-                result = self.database.learn_cartography_values_from_journals(
-                    folder,
-                    valuation_func=calculate_body_values,
-                )
-                if int(result.get("sales_stored") or 0):
-                    logger.info(
-                        "Kartographie-Lerndaten aktualisiert: %s Verkauf/Verkäufe, "
-                        "%s Körper",
-                        int(result.get("sales_stored") or 0),
-                        int(result.get("bodies_stored") or 0),
-                    )
-            except Exception:
-                logger.exception(
-                    "Kartographie-Verkaufswerte konnten nicht aus dem Journal gelernt werden"
-                )
+    @Slot(object)
+    def _journal_learning_finished(self, results):
+        # The controller has checked identity/session/location before delivery.
+        # Its completed signature prevents this refresh from enqueueing itself.
+        if any(result.get("values_changed") or result.get("sales_stored")
+               for result in results.values()):
+            self._learning_revision = getattr(self, "_learning_revision", 0) + 1
+            self.refresh()
 
     def reset_commander_runtime_state(self):
         """Leert ausschließlich persönliche, flüchtige Commander-Zustände."""
@@ -1600,7 +1604,7 @@ class AppState(QObject):
             self.ship_loadout = self._stored_ship_loadout(stored_ship)
         self.missions = normalize_missions([
             mission
-            for mission in self.database.commander_missions(self.commander_id)
+            for mission in self.database.commander_missions(self.commander_id, only_open=True)
             if mission.get("is_open")
         ])
         persistent_cart = summary.get("unsold_cartography") or {}
@@ -1616,7 +1620,7 @@ class AppState(QObject):
             persistent_bio.get("unknown_values") or 0
         )
 
-    def _prepare_indexed_live_state(self, emit_identity=False):
+    def _prepare_indexed_live_state(self, emit_identity=False, *, restore=True):
         """Adopts index facts before processing bytes after the journal offset."""
         self.journal_files = len(self._journal_index_sessions or [])
         self.connected = self.journal_files > 0
@@ -1652,9 +1656,10 @@ class AppState(QObject):
             if previous_viewed != commander_id:
                 self.viewedCommanderChanged.emit(commander_id)
 
-        self._restore_persistent_commander_state(
-            self.database.commander_summary(commander_id)
-        )
+        if restore or previous_fid != fid:
+            self._restore_persistent_commander_state(
+                self.database.commander_summary(commander_id)
+            )
         if emit_identity and previous_fid != fid:
             self.commanderIdentityChanged.emit(commander_id, fid, self.commander)
         return session
@@ -1742,7 +1747,7 @@ class AppState(QObject):
                     str(Path(self._journal_index_sessions[-1]["journal_file"]))
                     if self._journal_index_sessions else None
                 )
-            self._prepare_indexed_live_state(emit_identity=False)
+            self._prepare_indexed_live_state(emit_identity=False, restore=False)
             data = read_latest_state(
                 self.journal_folder,
                 mission_reset_at=self.mission_reset_at,
@@ -1815,9 +1820,25 @@ class AppState(QObject):
                     self.changed.emit()
                     return False
                 current_session["last_read_offset"] = safe_offset
+        from cmdrhelper.material_inventory import EVENTS as material_events
+        from cmdrhelper.mining_inventory import EVENTS as mining_events
+        from cmdrhelper.odyssey_inventory import EVENTS as odyssey_events
+        revisions = getattr(self, "_inventory_revisions", None)
+        if revisions is None:
+            revisions = self._inventory_revisions = dict(materials=0, mining=0, odyssey=0)
+        event_names = {event.get("event") for event in delta_events}
+        inventory_changed = False
+        for kind, relevant in (("materials", material_events), ("mining", mining_events),
+                               ("odyssey", odyssey_events)):
+            if event_names & relevant or (kind == "odyssey" and "CarrierStats" in event_names):
+                revisions[kind] += 1
+                inventory_changed = True
+
         persistent_summary = (
             self.database.commander_summary(self.commander_id)
-            if self.commander_id is not None else None
+            if self.commander_id is not None and (
+                not data.get("system") or getattr(data.get("ship_loadout"), "ship_id", None) is None
+            ) else None
         ) or {}
         stored_location = persistent_summary.get("persistent_location") or {}
         if not data.get("system") and stored_location:
@@ -1900,7 +1921,7 @@ class AppState(QObject):
         self.missions = normalize_missions(data["missions"])
         if self.commander_id is not None:
             self.missions = normalize_missions([
-                mission for mission in self.database.commander_missions(self.commander_id)
+                mission for mission in self.database.commander_missions(self.commander_id, only_open=True)
                 if mission.get("is_open")
             ])
 
@@ -2013,7 +2034,13 @@ class AppState(QObject):
                 self.commander,
             )
 
-        self.changed.emit()
+        if inventory_changed:
+            self.inventoryChanged.emit()
+        self._refresh_summary = (self.commander_id, persistent)
+        try:
+            self.changed.emit()
+        finally:
+            self._refresh_summary = None
 
         self._upload_journal_to_edsm()
         self._upload_pending_to_inara()

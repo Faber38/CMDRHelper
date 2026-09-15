@@ -38,6 +38,38 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## Nieuw in versie 3.5
+
+- Snellere kroniek en interface; BIO- en cartografieverwerking op de achtergrond.
+- Odyssey toont kluis, rugzak, persoonlijke bezetting per categorie en berekende carriervoorraad.
+- Carrier instellen via ! maakt onderscheid tussen bevestigde 0 en onbekende —.
+- Carriervoorraad wordt apart getoond van ruimte gereserveerd voor kooporders bij de bartender.
+- Betrouwbaardere Mining-voorraden met veiligere Cargo-momentopnamen, ingehaalde overdrachten en gecontroleerde opslag.
+- Onterechte migratievraag bij nieuwe installaties opgelost; kopiëren in de kroniek en verborgen weergaven verbeterd.
+
+![Odyssey-materiaalbeheer met kluis, rugzak en automatisch bijgehouden Fleet Carrier-voorraad](cmdrhelper/assets/readme/cmdrhelper_v3_5.png)
+
+Kluis en rugzak gebruiken gevalideerde actuele ShipLocker/Backpack-gegevens. Goederen, Materialen en Data tonen elk hun persoonlijke bezetting met een eigen capaciteit van 1000. Totaal telt kluis + rugzak + carrier alleen op bij bekende, samenhangende waarden. Aankopen, verkopen en ruil worden onderscheiden van privéoverdrachten. Na herstart wordt de locatie gereconstrueerd en een nieuwe persoonlijke basis gezet; gemiste Odyssey-overdrachten worden niet verzonnen. Praktijkvoorbeeld: 713 eenheden + 121 gereserveerde koopplaatsen = 834 / 1000. De 121 zijn geen materialen. Oude of onzekere marktgegevens leveren geen vermeende actuele bezetting op.
+
+### Carriervoorraad instellen
+
+CMDRHelper kan de privévoorraad Odyssey van je Fleet Carrier automatisch bijhouden. Daarvoor is eerst een bevestigde beginvoorraad nodig.
+
+Open op je eigen carrier de inventarisoverdracht en vergelijk Goederen, Materialen en Data.
+
+Dubbelklik in de kolom Carrier en voer voor ELKE positie de huidige carriervoorraad in. Bevestig ook ALLE lege posities uitdrukkelijk met 0.
+
+— = nog niet bevestigd / onbekend
+0 = uitdrukkelijk bevestigde lege voorraad
+
+Na de volledige inrichting volgt CMDRHelper overdrachten tussen je persoonlijke kluis en carrier automatisch wanneer je duidelijk op je eigen carrier bent. Persoonlijke wijzigingen elders veranderen de carriervoorraad niet.
+
+Je kunt elke waarde met een dubbelklik corrigeren of opnieuw bevestigen.
+
+Open kooporders bij de bartender reserveren extra opslagruimte. De bezetting in het spel kan dus hoger zijn dan de aanwezige materialen. Bartenderhandel, vooral van andere spelers, kan de werkelijke voorraad veranderen. Controleer en bevestig de berekende voorraad zo nodig opnieuw.
+
+Mining houdt Schip, SRV en Carrier gescheiden. Expliciete CargoTransfer-gebeurtenissen worden precies eenmaal ingehaald over geverifieerde loggrenzen; Cargo.json en opgeslagen controlepunten worden strenger gecontroleerd. Dit is geen Odyssey-verschillogica. Handel van anderen kan herbevestiging vereisen. Nieuwe databases krijgen na initialisatie de Parent-Hierarchy-markering, zodat de eerste import geen onterechte historische migratie veroorzaakt. Oude ongemarkeerde databases vereisen nog migratie met Elite afgesloten. ⧉ kopieert kronieknamen en ✓ bevestigt kort. Missies worden gerichter geladen en verborgen weergaven niet onnodig herbouwd.
+
 ## Nieuw in versie 3.4.6
 
 - Betrouwbaardere archiefimport bij grote verzamelingen journaalbestanden.
