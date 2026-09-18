@@ -474,6 +474,16 @@ jest wspierany, certyfikowany lub wydawany przez NASA. W przypadku
 dalszego wykorzystania materiałów NASA obowiązują odpowiednie informacje
 i zasady reprodukcji podane w oryginalnych źródłach.
 
+## Wsparcie sztucznej inteligencji
+
+CMDRHelper jest rozwijany przez Faber38. Narzędzia sztucznej inteligencji
+wspomagają rozwój programu, analizę kodu, testowanie, tłumaczenia
+oraz tworzenie materiałów graficznych. Wyniki są weryfikowane i testowane
+przed publikacją.
+
+Niektóre materiały graficzne używane w aplikacji zostały stworzone
+z wykorzystaniem generatywnej sztucznej inteligencji.
+
 ## Licencja
 
 CMDRHelper jest wolnym oprogramowaniem i jest publikowany na warunkach

@@ -475,6 +475,16 @@ soutenu, certifié ou publié par la NASA. Pour toute réutilisation des
 médias de la NASA, les indications et directives de reproduction des
 sources originales s'appliquent.
 
+## Assistance de l’IA
+
+CMDRHelper est développé par Faber38. Des outils d’IA sont utilisés en
+appui au développement, à l’analyse du code, aux tests, aux traductions
+et à la création de ressources graphiques. Les résultats sont vérifiés
+et testés avant leur publication.
+
+Certaines ressources graphiques utilisées dans l’application ont été
+créées à l’aide d’une IA générative.
+
 ## Licence
 
 CMDRHelper est un logiciel libre publié sous la **GNU General Public

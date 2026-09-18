@@ -475,6 +475,16 @@ tarafından desteklendiği, onaylandığı veya yayımlandığı anlamına gelme
 NASA medyasının yeniden kullanımında orijinal kaynaklardaki ilgili
 açıklamalar ve çoğaltma yönergeleri geçerlidir.
 
+## Yapay zekâ desteği
+
+CMDRHelper, Faber38 tarafından geliştirilmektedir. Geliştirme, kod analizi,
+test, çeviri ve görsel içerik oluşturma çalışmalarında yapay zekâ
+araçlarından destek alınmaktadır. Sonuçlar yayımlanmadan önce incelenir
+ve test edilir.
+
+Uygulamada kullanılan bazı görsel içerikler üretken yapay zekâ ile
+oluşturulmuştur.
+
 ## Lisans
 
 CMDRHelper özgür yazılımdır ve **GNU General Public License Version 3

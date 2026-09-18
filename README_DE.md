@@ -475,6 +475,16 @@ von NASA unterstützt, zertifiziert oder herausgegeben wird. Für die
 Weiterverwendung der NASA-Medien gelten die jeweiligen Hinweise und
 Reproduktionsrichtlinien der Originalquellen.
 
+## KI-Unterstützung
+
+CMDRHelper wird von Faber38 entwickelt. Bei Entwicklung, Codeanalyse,
+Tests, Übersetzungen und grafischen Assets kommen unterstützend
+KI-Werkzeuge zum Einsatz. Die Ergebnisse werden vor der Veröffentlichung
+geprüft und getestet.
+
+Einige der im Programm verwendeten grafischen Assets wurden mit
+generativer KI erstellt.
+
 ## Lizenz
 
 CMDRHelper ist freie Software und wird unter der **GNU General Public

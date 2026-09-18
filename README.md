@@ -473,6 +473,15 @@ is supported, certified, or published by NASA. Reuse of NASA media is
 subject to the respective notices and reproduction guidelines of the
 original sources.
 
+## AI Assistance
+
+CMDRHelper is developed by Faber38. AI tools are used to assist with
+development, code analysis, testing, translations and graphical assets.
+The results are reviewed and tested before publication.
+
+Some of the graphical assets used in the application were created with
+generative AI.
+
 ## License
 
 CMDRHelper is free software released under the **GNU General Public

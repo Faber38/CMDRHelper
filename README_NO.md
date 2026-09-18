@@ -473,6 +473,15 @@ støttes, sertifiseres eller utgis av NASA. Ved videre bruk av
 NASA-mediene gjelder de respektive merknadene og retningslinjene for
 reproduksjon fra originalkildene.
 
+## KI-støtte
+
+CMDRHelper utvikles av Faber38. KI-verktøy brukes som støtte i utvikling,
+kodeanalyse, testing, oversettelser og utforming av grafisk materiale.
+Resultatene gjennomgås og testes før publisering.
+
+Noe av det grafiske materialet som brukes i programmet, er laget med
+generativ KI.
+
 ## Lisens
 
 CMDRHelper er fri programvare og publiseres under **GNU General Public

@@ -473,6 +473,16 @@ door NASA wordt ondersteund, gecertificeerd of uitgegeven. Voor verder
 gebruik van NASA-media gelden de betreffende aanwijzingen en
 reproductierichtlijnen van de oorspronkelijke bronnen.
 
+## Ondersteuning door AI
+
+CMDRHelper wordt ontwikkeld door Faber38. AI-hulpmiddelen worden ingezet
+ter ondersteuning van de ontwikkeling, codeanalyse, tests, vertalingen
+en het maken van grafisch materiaal. De resultaten worden vóór
+publicatie gecontroleerd en getest.
+
+Een deel van het grafische materiaal in de toepassing is gemaakt met
+generatieve AI.
+
 ## Licentie
 
 CMDRHelper is vrije software en wordt gepubliceerd onder de **GNU

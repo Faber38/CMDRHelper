@@ -475,6 +475,16 @@ tukisi, sertifioisi tai julkaisisi CMDRHelperia. NASA-median
 jatkokäytössä sovelletaan alkuperäislähteiden omia ohjeita ja
 jäljentämiskäytäntöjä.
 
+## Tekoälyn käyttö apuna
+
+CMDRHelperin kehittäjä on Faber38. Tekoälytyökaluja käytetään apuna
+kehityksessä, koodin analysoinnissa, testauksessa, käännöksissä ja
+graafisen aineiston luomisessa. Tulokset tarkistetaan ja testataan
+ennen julkaisua.
+
+Osa sovelluksessa käytetystä graafisesta aineistosta on luotu
+generatiivisella tekoälyllä.
+
 ## Lisenssi
 
 CMDRHelper on vapaa ohjelmisto ja se julkaistaan **GNU General Public

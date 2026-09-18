@@ -474,6 +474,15 @@ stöds, certifieras eller ges ut av NASA. För vidare användning av
 NASA-medier gäller respektive anvisningar och reproduktionsriktlinjer
 från originalkällorna.
 
+## AI-stöd
+
+CMDRHelper utvecklas av Faber38. AI-verktyg används som stöd vid
+utveckling, kodanalys, testning, översättning och framtagning av grafiskt
+material. Resultaten granskas och testas före publicering.
+
+En del av det grafiska material som används i programmet har skapats med
+generativ AI.
+
 ## Licens
 
 CMDRHelper är fri programvara och publiceras under **GNU General Public
