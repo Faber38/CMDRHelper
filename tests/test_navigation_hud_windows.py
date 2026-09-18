@@ -19,6 +19,8 @@ from cmdrhelper.ui.navigation_hud_windows import (
 
 
 class Controller(QObject):
+    consumer_acquire = Mock()
+    consumer_release = Mock()
     changed = Signal(object)
 
 

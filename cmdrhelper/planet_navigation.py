@@ -186,13 +186,24 @@ class PlanetNavigationController(QObject):
         self.state = NavigationState()
         self.last_confirmed_at = None
         self._polling = False
+        self._consumers = set()
         self.timer = QTimer(self)
         self.timer.setInterval(250)
         self.timer.timeout.connect(self.poll)
 
-    def start(self):
-        self.poll()
-        self.timer.start()
+    def consumer_acquire(self, name):
+        """Idempotent leases; only the first visible consumer starts polling."""
+        if name in self._consumers:
+            return
+        self._consumers.add(name)
+        if not self.timer.isActive():
+            self.timer.start()
+            self.poll()
+
+    def consumer_release(self, name):
+        self._consumers.discard(name)
+        if not self._consumers:
+            self.timer.stop()
 
     def _publish(self, snapshot=None, solution=None, reason=""):
         state = NavigationState(self.target, snapshot, solution, reason, self.last_confirmed_at)

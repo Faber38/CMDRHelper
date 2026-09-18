@@ -367,6 +367,8 @@ class QuickSaveTests(QtTests):
 class TemporaryHudTests(QtTests):
     def setUp(self):
         class Controller(QObject):
+            consumer_acquire = Mock()
+            consumer_release = Mock()
             changed = Signal(object)
         self.controller = Controller()
         self.controller.state = SimpleNamespace(snapshot=object(), solution=SimpleNamespace(

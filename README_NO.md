@@ -38,6 +38,15 @@ Journalmappen til Elite Dangerous oppdages automatisk når det er mulig. Hvis de
 
 CMDRHelper søker etter oppdateringer ved oppstart og har en innebygd oppdateringsfunksjon. Bekreft en tilbudt oppdatering i programmet; den oppdaterer programmet og avhengighetene og starter CMDRHelper på nytt. Etter førstegangsinstallasjonen bruker du normalt bare `start.bat` (Windows) eller `bash start.sh` (Linux). Du trenger ikke å kjøre `install.bat` eller `install.sh` manuelt på nytt for vanlige oppdateringer.
 
+## Nytt i versjon 3.6
+
+- Stasjoner og anlegg på systemkartet og en egen stasjonsfane med søk, filtre og sortering.
+- Stasjonsbilder, bildeviser og detaljer om kjente tjenester, landingsplasser, kilder og tidsstempler.
+- Valgfri Spansh-stasjonsinformasjon under Innstillinger → Nettjenester, av som standard. Etter en vellykket henting blokkeres flere manuelle forespørsler samme lokale dag. Uten Spansh vises en merknad om begrensningene i journaldataene.
+- Personlige skips- og carrierbilder, type-/standardbilder og bildeviser. Fjern skip fra flåten eller gjenopprett dem ved å lese inn alle skip på nytt; solgte skip gjenkjennes mer pålitelig.
+- Forbedret kart, verdiliste med farget kartleggingsstatus, Cargo HUD og navigasjon. Mindre bakgrunnsbelastning på Linux og for skjermbilder, galleri og Explorer.
+- Rettet: harmløse korte Elite-journaler avbryter ikke lenger carrierens gruvebeholdninger. Ukjente eller usikre data forblir tydelig merket.
+
 ## Nytt i versjon 3.5
 
 - Raskere krønike og grensesnitt; BIO- og kartografibehandling i bakgrunnen.

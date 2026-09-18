@@ -39,6 +39,15 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## 3.6 sürümündeki yenilikler
+
+- Sistem haritasında istasyonlar ve tesisler; arama, filtreleme ve sıralama içeren ayrı istasyon sekmesi.
+- İstasyon resimleri, resim görüntüleyici ve bilinen hizmetler, iniş alanları, kaynaklar ve zaman damgaları hakkında ayrıntılar.
+- Ayarlar → Çevrimiçi Hizmetler altında isteğe bağlı Spansh istasyon bilgileri; varsayılan olarak kapalıdır. Başarılı bir alımdan sonra aynı yerel günde başka elle istek gönderilmez. Spansh kapalıyken günlük verilerinin sınırlı olduğu belirtilir.
+- Kişisel gemi ve carrier resimleri, tür/varsayılan resimler ve görüntüleyici. Gemileri filodan kaldırın veya tüm gemileri yeniden okuyarak geri getirin; satılan gemiler daha güvenilir biçimde tanınır.
+- Geliştirilmiş harita, renkli haritalama durumlu değer listesi, Cargo HUD ve navigasyon. Linux, ekran görüntüleri, galeri ve Explorer için daha düşük arka plan yükü.
+- Düzeltildi: zararsız kısa Elite günlükleri artık carrier madencilik stoklarının sürekliliğini bozmuyor. Bilinmeyen veya belirsiz veriler açıkça belirtilmeye devam ediyor.
+
 ## 3.5 sürümündeki yenilikler
 
 - Daha hızlı günlük ve arayüz; BIO ve haritacılık işlemleri arka planda çalışır.

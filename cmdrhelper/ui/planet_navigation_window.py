@@ -113,8 +113,18 @@ class PlanetNavigationWindow(QDialog):
         self._age_timer = QTimer(self)
         self._age_timer.setInterval(1000)
         self._age_timer.timeout.connect(self._refresh_age)
-        self._age_timer.start()
         self.refresh_navigation(controller.state)
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.controller.consumer_acquire("navigation_window")
+        self.refresh_navigation(self.controller.state)
+        self._age_timer.start()
+
+    def hideEvent(self, event):
+        self._age_timer.stop()
+        self.controller.consumer_release("navigation_window")
+        super().hideEvent(event)
 
     def _open_help(self):
         if self._help_dialog is not None:
@@ -158,7 +168,6 @@ class PlanetNavigationWindow(QDialog):
 
     def closeEvent(self, event):
         self._save_geometry()
-        self.controller.timer.stop()
         super().closeEvent(event)
 
     def _refresh_age(self):

@@ -50,6 +50,7 @@ class AppState(QObject):
     shipRouteInputsChanged = Signal(object)
     cargoSnapshotChanged = Signal(object)
     journalPositionsReady = Signal(object, str)
+    stationModelChanged = Signal(object)
     edsmBodiesReady = Signal(str, object, str)
     databaseImportProgress = Signal(int, int, str)
     databaseImportFinished = Signal(object, str)
@@ -66,6 +67,11 @@ class AppState(QObject):
             "CMDRHelper",
             "CMDRHelper"
         )
+
+        from cmdrhelper.spansh_stations import SpanshStations
+        self.spansh_stations = SpanshStations(self.settings, self)
+        self.spansh_stations.updated.connect(self._spansh_stations_updated)
+        self._watcher_live_refresh = False
 
         self.journal_folder = None
         self.database = CMDRDatabase()
@@ -135,6 +141,7 @@ class AppState(QObject):
         )
 
         self.system_bodies = []
+        self.system_stations = []
         self.system_body_count = 0
         self.system_signals_count = 0
         self.system_all_bodies_found = False
@@ -1269,6 +1276,9 @@ class AppState(QObject):
         )
 
         self.edsm_added_count = added
+        if hasattr(self, '_journal_system_stations'):
+            self.system_stations = AppState.station_display_model(
+                self, self.system_address, self.system_bodies, self._journal_system_stations)
 
     def _load_edsm_cache_for_current_system(
         self,
@@ -1405,6 +1415,7 @@ class AppState(QObject):
             return
         success = False
         try:
+            self._watcher_live_refresh = True
             success = self.refresh()
             sessions = getattr(self, "_journal_index_sessions", None) or []
             pending = self.watcher._pending_sig
@@ -1416,6 +1427,7 @@ class AppState(QObject):
         except Exception:
             logger.exception("Journalaktualisierung unerwartet fehlgeschlagen")
         finally:
+            self._watcher_live_refresh = False
             self.watcher.refresh_finished(success)
 
     def _start_journal_catchup(self):
@@ -1523,6 +1535,7 @@ class AppState(QObject):
         self.missions = []
 
         self.system_bodies = []
+        self.system_stations = []
         self.system_body_count = 0
         self.system_signals_count = 0
         self.system_all_bodies_found = False
@@ -1807,6 +1820,7 @@ class AppState(QObject):
                     self.database.apply_commander_journal_delta(
                         int(current_session["commander_id"]),
                         current_session["journal_file"], delta_events, safe_offset,
+                        live_current=True,
                         enqueue_inara=self._inara_identity_matches(
                             current_session["commander_id"]
                         ),
@@ -1927,6 +1941,17 @@ class AppState(QObject):
 
         current_bodies = data.get("system_bodies", [])
         self.system_bodies = self._own_explorer_bodies(current_bodies)
+        self._journal_system_stations = self.database.system_stations(
+            self.system_address, self.system_bodies, self.commander_id)
+        self.system_stations = AppState.station_display_model(
+            self, self.system_address, self.system_bodies, self._journal_system_stations)
+        spansh = getattr(self, 'spansh_stations', None)
+        if spansh is not None:
+            identified = (current_session and current_session.get('attribution_status') == 'identified'
+                          and current_session.get('fid_seen') == self.commander_fid
+                          and current_session.get('commander_id') == self.commander_id)
+            spansh.observe(delta_events if identified else [], self.commander_fid,
+                           self.system_address, live=bool(identified and getattr(self, '_watcher_live_refresh', False)))
         current_body_ids = {body.get("body_id") for body in current_bodies}
 
         # Phase 1: Journaldaten zusätzlich dauerhaft speichern.
@@ -2078,6 +2103,20 @@ class AppState(QObject):
                 "possible_value", "possible_value_without_efficiency", "mapping_state",
                 "first_mapping_possible", "already_mapped", "high_value") if key in body}
         self._explorer_value_cache = cache
+
+    def station_display_model(self, address, bodies, journal):
+        from cmdrhelper.spansh_cache import merge_stations
+        spansh = getattr(self, 'spansh_stations', None)
+        return merge_stations(journal, spansh.cached(address) if spansh else None, bodies, address)
+
+    @Slot(object)
+    def _spansh_stations_updated(self, address):
+        if address != self.system_address:
+            self.stationModelChanged.emit(address)
+            return
+        self.system_stations = self.station_display_model(
+            address, self.system_bodies, getattr(self, '_journal_system_stations', []))
+        self.stationModelChanged.emit(address)
 
     def _emit_journal_positions(self, data, session, events):
         """Forward only committed positions attributed to the live commander."""

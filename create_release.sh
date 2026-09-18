@@ -126,7 +126,8 @@ find "$payload" \( \
         -iname .ruff_cache -o -iname .tox -o -iname .cache -o -iname build -o -iname dist -o \
         -iname release -o -iname backup -o -iname backups -o -iname tmp -o -iname temp -o \
         -iname favorites -o -iname config -o -iname .config -o -iname settings -o \
-        -iname screenshots -o -iname data \) \) \
+        -iname screenshots -o -iname ship_images -o -iname carrier_images -o \
+        -iname attempts -o -iname external -o -iname data \) \) \
 \) ! -path "$payload/data" -print0 > "$staging/unexpected"
 unexpected=0
 while IFS= read -r -d '' item; do

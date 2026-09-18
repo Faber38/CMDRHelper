@@ -155,6 +155,7 @@ class ScreenshotMultiCommanderTests(unittest.TestCase):
         self.assertTrue(self.view.pool.workers[2].target.stem.endswith("_2"))
 
     def test_gallery_current_follows_viewed_commander(self):
+        self.view.show()
         a = self._image(self.root / "Same_F-A" / "a.png")
         b = self._image(self.root / "Same_F-B" / "b.png")
         self._set_filter("current")

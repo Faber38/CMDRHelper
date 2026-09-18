@@ -29,6 +29,7 @@ from cmdrhelper.models import (
 from cmdrhelper.valuation import apply_values, journal_valuation_context
 from cmdrhelper.route_planner.models import GuardianFsdBooster, ShipLoadoutData
 from cmdrhelper.ship_identity import is_definite_non_ship
+from cmdrhelper.ship_ownership import journal_time, ship_sale, stored_ship_observations
 
 
 class JournalReadError(OSError):
@@ -920,6 +921,7 @@ def read_latest_state(
     pending_mission_offers: list[dict] = []
     owned_carrier = None
     fleet_ships: dict[int, dict] = {}
+    fleet_sales = {}
     away_from_own_ship = False
 
     def _remember_ship(timestamp="", location=None):
@@ -927,6 +929,8 @@ def read_latest_state(
         if ship_id is None:
             return
         ship_id = int(ship_id)
+        if ship_id in fleet_sales and (journal_time(timestamp) or "") <= fleet_sales[ship_id]:
+            return
         previous = fleet_ships.get(ship_id) or {}
         fleet_ships[ship_id] = {
             "loadout": copy.deepcopy(ship_loadout),
@@ -1267,6 +1271,16 @@ def read_latest_state(
 
                 et = e.get("event")
                 result["last_event"] = str(et or "")
+                sale = ship_sale(e)
+                if sale is not None:
+                    sid = sale["ship_id"]
+                    fleet_sales[sid] = max(fleet_sales.get(sid, ""), sale["sold_at"])
+                    previous = fleet_ships.get(sid, {})
+                    if (journal_time(previous.get("last_seen")) or "") <= fleet_sales[sid]:
+                        fleet_ships.pop(sid, None)
+                        if ship_loadout.ship_id == sid:
+                            ship_loadout = ShipLoadoutData()
+                            result["ship"] = ""
 
                 # ---------------------------------------------------------
                 # Basisstatus
@@ -1339,9 +1353,9 @@ def read_latest_state(
                     away_from_own_ship = False
                     _remember_ship(ts, _known_ship_location(ts))
 
-                elif et in ("ShipyardSwap", "ShipyardBuy"):
+                elif et in ("ShipyardSwap", "ShipyardBuy", "ShipyardNew"):
                     ship_loadout = ShipLoadoutData(
-                        ship_id=_optional_int(e.get("ShipID")),
+                        ship_id=_optional_int(e.get("NewShipID") if et == "ShipyardNew" else e.get("ShipID")),
                         ship_type=(
                             str(e.get("ShipType") or "").strip() or None
                         ),
@@ -1354,6 +1368,20 @@ def read_latest_state(
                         or result["ship"]
                     )
                     _remember_ship(ts, _known_ship_location(ts))
+
+                elif et == "StoredShips":
+                    for stored, stored_location in stored_ship_observations(e):
+                        sid = stored.ship_id
+                        if sid in fleet_sales and (journal_time(ts) or "") <= fleet_sales[sid]:
+                            continue
+                        previous = fleet_ships.get(sid, {})
+                        known = copy.deepcopy(previous.get("loadout") or stored)
+                        known.ship_type = stored.ship_type or known.ship_type
+                        known.ship_name = stored.ship_name or known.ship_name
+                        fleet_ships[sid] = {"loadout": known,
+                            "first_seen": previous.get("first_seen") or ts, "last_seen": ts,
+                            "location": stored_location or previous.get("location"),
+                            "is_current": previous.get("is_current", False)}
 
                 elif et in (
                     "ModuleBuy",

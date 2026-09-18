@@ -3,9 +3,9 @@ import unittest
 from pathlib import Path
 from types import SimpleNamespace
 
-from PySide6.QtCore import QSettings, Qt
+from PySide6.QtCore import QSettings, Qt, QEvent, QPointF
 from PySide6.QtTest import QTest
-from PySide6.QtGui import QImage
+from PySide6.QtGui import QImage, QHoverEvent
 from PySide6.QtWidgets import QApplication, QTabBar
 
 from cmdrhelper.ui.material_view import MaterialView
@@ -93,6 +93,13 @@ class MaterialCategoryTabTests(unittest.TestCase):
                 plain.clearFocus()
                 tabs.clearFocus()
                 self.app.processEvents()
+                # Compare equal non-hover states regardless of cursor position
+                # left by earlier GUI tests in this QApplication.
+                for bar in (tabs, plain):
+                    QApplication.sendEvent(bar, QEvent(QEvent.Type.Leave))
+                    QApplication.sendEvent(bar, QHoverEvent(
+                        QEvent.Type.HoverLeave, QPointF(-1, -1), QPointF(-1, -1)))
+                    bar.setAttribute(Qt.WidgetAttribute.WA_UnderMouse, False)
                 self.assertEqual(tabs.sizeHint(), plain.sizeHint())
                 custom_image, plain_image = tabs.grab().toImage(), plain.grab().toImage()
                 for index in range(5):

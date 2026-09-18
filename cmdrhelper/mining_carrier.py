@@ -52,6 +52,41 @@ def read_carrier_feed(path, fid):
         return None
 
 
+def _read_safe_preamble(path, rows):
+    """Verify an indexed, closed intermediate file; unknown events fail closed."""
+    if any(row.get("attribution_status") != "unknown"
+           or row.get("commander_id") is not None or row.get("fid_seen")
+           or row.get("commander_name_seen") for row in rows):
+        return None
+    try:
+        path = Path(path)
+        before = path.stat()
+        # Require unchanged index evidence as well as stability during reading.
+        if any(row.get("file_size") != before.st_size
+               or row.get("modified_ns") != before.st_mtime_ns for row in rows):
+            return None
+        raw = path.read_bytes()
+        events, offset = [], 0
+        if not raw.endswith(b"\n") or len(raw) != before.st_size:
+            return None
+        for line in raw.splitlines(keepends=True):
+            event = json.loads(line)
+            if not isinstance(event, dict) or event.get("event") not in ("Fileheader", "Friends"):
+                return None
+            events.append((offset, event))
+            offset += len(line)
+        if not events or events[0][1]["event"] != "Fileheader":
+            return None
+        after = path.stat()
+        signature = lambda stat: (stat.st_dev, stat.st_ino, stat.st_size,
+                                  stat.st_mtime_ns, stat.st_ctime_ns)
+        if signature(before) != signature(after):
+            return None
+        return dict(path=str(path), raw=raw, events=events, complete=True)
+    except (OSError, ValueError, TypeError):
+        return None
+
+
 def stable_id(value):
     return value if type(value) is int and value > 0 else None
 
@@ -189,13 +224,20 @@ class CarrierLedger:
         paths = ordered[start:end + 1]
         if any(not journal_successor(a, b) for a, b in zip(paths, paths[1:])):
             return None
+        preambles = set()
         for path in paths:
             if any(row.get("fid_seen") != ledger["fid"] or row.get("attribution_status") != "identified"
                    for row in rows[path]):
-                return None
-        # Do not retain the whole historical chain in memory.
-        return (feed if path == feed["path"] else read_carrier_feed(path, ledger["fid"])
-                for path in paths)
+                # Never exempt the anchor or live feed. Only strictly intermediate,
+                # genuinely unattributed files may pass the narrow content check.
+                if path in (anchor_path, feed["path"]):
+                    return None
+                preambles.add(path)
+        # Validate preambles lazily with the other chain parts. Any failed read
+        # rolls back tentative deltas through advance's existing baseline path.
+        return (feed if path == feed["path"] else
+                _read_safe_preamble(path, rows[path]) if path in preambles else
+                read_carrier_feed(path, ledger["fid"]) for path in paths)
 
     def confirm(self, fid, carrier_id, symbol, count, feed):
         if not fid or stable_id(carrier_id) is None or feed is None:

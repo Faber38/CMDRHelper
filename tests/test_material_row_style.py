@@ -2,8 +2,10 @@ import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
-from PySide6.QtCore import QSettings, Qt, QPoint, QEvent
+from PySide6.QtCore import QSettings, Qt, QPoint, QPointF, QEvent
+from PySide6.QtGui import QMouseEvent
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QStyle, QStyleOptionViewItem
 
@@ -119,7 +121,15 @@ class MaterialRowStyleTests(unittest.TestCase):
             self.hover(item)
             self.assertEqual(self.color(item), THEMES[light]['live'])
             self.assertEqual(self.pixel(item), THEMES[light]['live'])
-            self.view.clear_highlight()
+            # Supply a stationary pointer explicitly: other offscreen windows
+            # in the full suite can move Qt's process-global cursor/hover state.
+            point = self.point(item)
+            global_point = self.view.tree.viewport().mapToGlobal(point)
+            move = QMouseEvent(QEvent.Type.MouseMove, QPointF(point), QPointF(global_point),
+                               Qt.NoButton, Qt.NoButton, Qt.NoModifier)
+            QApplication.sendEvent(self.view.tree.viewport(), move)
+            with patch('cmdrhelper.ui.material_row_style.QCursor.pos', return_value=global_point):
+                self.view.clear_highlight()
             self.assertEqual(self.color(self.view.items["carbon"]), THEMES[light]["hover"])
             QApplication.sendEvent(self.view.tree.viewport(), QEvent(QEvent.Type.Leave))
             item = self.view.items['carbon']

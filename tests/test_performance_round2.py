@@ -329,13 +329,15 @@ class PerformanceRound2Tests(unittest.TestCase):
         view = SimpleNamespace(state=state, PAGE_EXPLORER=2, PAGE_MISSIONS=1,
             pages=SimpleNamespace(currentIndex=lambda: 0), _explorer_dirty=True,
             _missions_dirty=True, system_map=Mock(), _refresh_explorer_tables=Mock(),
+            explorer_tabs=SimpleNamespace(currentIndex=lambda: 0, setTabText=Mock()),
             _refresh_missions_table=Mock())
+        view._mark_explorer_tabs_dirty = lambda: MainWindow._mark_explorer_tabs_dirty(view)
         MainWindow._refresh_visible_details(view)
         view.system_map.set_system.assert_not_called()
         view._refresh_missions_table.assert_not_called()
         view.pages.currentIndex = lambda: 2
         MainWindow._refresh_visible_details(view)
-        view.system_map.set_system.assert_called_once_with('Latest', state.system_bodies)
+        view.system_map.set_system.assert_called_once_with('Latest', state.system_bodies, [])
         self.assertFalse(view._explorer_dirty)
         view.pages.currentIndex = lambda: 1
         MainWindow._refresh_visible_details(view)

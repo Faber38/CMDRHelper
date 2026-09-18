@@ -38,6 +38,15 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## Nouveautés de la version 3.6
+
+- Stations et installations sur la carte du système, avec un onglet stations dédié proposant recherche, filtres et tri.
+- Images de stations, visionneuse et détails des services connus, aires d’atterrissage, sources et horodatages.
+- Informations Spansh facultatives dans Paramètres → Services en ligne, désactivées par défaut. Après une récupération réussie, les nouvelles demandes manuelles sont bloquées le même jour local. Sans Spansh, un message rappelle les limites des données du journal.
+- Images personnelles de vaisseaux et de carrier, images par type/par défaut et visionneuse. Retrait de vaisseaux de la flotte et restauration en relisant tous les vaisseaux ; meilleure reconnaissance des vaisseaux vendus.
+- Carte, liste de valeurs avec état de cartographie coloré, Cargo HUD et navigation améliorés. Charge réduite sous Linux, pour les captures, la galerie et Explorer.
+- Correction : les courts journaux Elite inoffensifs n’interrompent plus les stocks miniers du carrier. Les données inconnues ou incertaines restent signalées.
+
 ## Nouveautés de la version 3.5
 
 - Chronique et interface plus rapides ; traitement BIO/cartographique en arrière-plan.

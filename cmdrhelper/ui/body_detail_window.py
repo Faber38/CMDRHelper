@@ -4,7 +4,7 @@ from pathlib import Path
 
 from cmdrhelper.exploration_status import status_rows
 
-from PySide6.QtCore import Qt, QTimer, QUrl
+from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QPixmap
 from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
 from PySide6.QtMultimediaWidgets import QVideoWidget
@@ -23,6 +23,7 @@ from PySide6.QtWidgets import (
 from cmdrhelper.ui.system_view import SystemMapWidget
 from cmdrhelper.ui.planet_3d_widget import Planet3DWidget
 from cmdrhelper.ui.belt_cluster_widget import BeltClusterWidget
+from cmdrhelper.ui.visible_animation import VisibleAnimationTimer
 from cmdrhelper.i18n import tr, get_language
 
 
@@ -389,7 +390,7 @@ class BodyDetailWindow(QDialog):
         if self._body_image_label is None:
             return
 
-        self._body_image_timer = QTimer(self)
+        self._body_image_timer = VisibleAnimationTimer(self)
         self._body_image_timer.setInterval(80)
         self._body_image_timer.timeout.connect(self._animate_body_image)
         self._body_image_timer.start()

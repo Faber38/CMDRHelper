@@ -245,7 +245,7 @@ class OverviewViewTests(unittest.TestCase):
             self.assertLessEqual(view.transform().m11(), 1.0)
             self.assertEqual(layout, {key: item.sceneBoundingRect() for key, item in view.items_by_key.items()})
             close, = [b for b in dialog.findChildren(QPushButton)
-                      if b not in (dialog.reset_button, dialog.fit_button)]
+                      if b not in (dialog.reset_button, dialog.fit_button, dialog.spansh_button)]
             QTest.mouseClick(close, Qt.LeftButton)
             self.assertFalse(dialog.isVisible())
 
@@ -392,6 +392,7 @@ class OverviewViewTests(unittest.TestCase):
         saved = real_systems()[0]
         database = Mock()
         database.chronicle_system_details.return_value = saved
+        database.system_stations.return_value = []
         window.state = SimpleNamespace(database=database, commander_id=99, viewed_commander_id=99,
                                        system='Unrelated live system', settings=self.settings)
         window.ui_theme = 'dark'
@@ -401,6 +402,7 @@ class OverviewViewTests(unittest.TestCase):
         window._chronicle_system_clicked(dict(name=saved['system'], system_address=saved['system_address'],
                                               detail_commander_id=saved['commander_id']))
         database.chronicle_system_details.assert_called_once_with(saved['system_address'], saved['commander_id'])
+        database.system_stations.assert_called_once_with(saved['system_address'], saved['bodies'], saved['commander_id'])
         historical = window._chronicle_system_window
         self.addCleanup(historical.close)
         historical.system_overview_button.click()

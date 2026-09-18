@@ -13,6 +13,7 @@ from PySide6.QtGui import QColor, QPainter, QPen, QBrush, QPixmap, QPainterPath
 from PySide6.QtWidgets import QWidget, QToolTip, QAbstractScrollArea
 
 from cmdrhelper.i18n import tr
+from cmdrhelper.ui import station_items
 
 
 class SystemMapWidget(QWidget):
@@ -30,9 +31,13 @@ class SystemMapWidget(QWidget):
         super().__init__(parent)
         self.system_name = ""
         self.bodies = []
+        self.stations = []
         self._display_bodies = []
         self._layout_nodes = {}
         self._body_rects = []
+        self._facility_links = []
+        self._facility_blocks = []
+        self._facility_footer = None
         self._light_mode = False
 
         # Rechte Maustaste: Systemkarte vertikal verschieben.
@@ -56,13 +61,19 @@ class SystemMapWidget(QWidget):
         self._light_mode = bool(enabled)
         self.update()
 
-    def set_system(self, system_name: str, bodies: list[dict]):
+    def set_system(self, system_name: str, bodies: list[dict], stations=None):
         self.system_name = system_name or ""
         self.bodies = list(bodies or [])
+        self.stations = list(stations or [])
+        groups = station_items.facility_groups(self.stations, self.bodies)
         self._layout_nodes = build_positions(self.bodies, width=self.BODY_W,
+                                            reserved_width=lambda n: station_items.CARD_WIDTH if groups.get(n.body.get("body_id")) else 0,
+                                            extra_height=lambda n: station_items.extra_height(groups.get(n.body.get("body_id"), [])) if not n.belt_members else 0,
                                             height=lambda node: self.BODY_H, gap=self.X_GAP,
                                             image_radius=lambda node: self._visual_body_size(node.body) / 2)
         self._display_bodies = [n.body for n in self._layout_nodes.values() if n.body is not None]
+        self._facility_links = station_items.parent_links(self._layout_nodes, groups)
+        self._facility_blocks, self._facility_footer = station_items.blocks(self._layout_nodes, groups, self.BODY_W)
         self._update_size()
         self.update()
 
@@ -106,6 +117,8 @@ class SystemMapWidget(QWidget):
     def _update_size(self):
         width = max((n.x + n.layout_width for n in self._layout_nodes.values()), default=0)
         height = max((n.y + n.layout_height for n in self._layout_nodes.values()), default=0)
+        width = max([width] + [r.right() for r, _ in self._facility_blocks])
+        height = max([height] + [r.bottom() for r, _ in self._facility_blocks])
         self.setMinimumSize(max(900, ceil(width + self.MARGIN_X)),
                             max(360, ceil(height + self.MARGIN_Y)))
 
@@ -1306,7 +1319,7 @@ class SystemMapWidget(QWidget):
 
         self._body_rects = []
 
-        if not self.bodies:
+        if not self.bodies and not self.stations:
             painter.setPen(
                 QColor("#8e969e")
             )
@@ -1345,6 +1358,15 @@ class SystemMapWidget(QWidget):
                 pos["x"],
                 pos["y"]
             )
+
+        if self._facility_footer is not None and self._facility_footer.height():
+            painter.setPen(QColor("#536574" if self._light_mode else "#9ba9b7"))
+            painter.drawText(self._facility_footer, Qt.AlignVCenter, tr('facilities.other'))
+        painter.setPen(QPen(QColor(station_items.THEMES[self._light_mode]['line']), 1.2))
+        for x1, y1, x2, y2 in self._facility_links:
+            painter.drawLine(QPointF(x1, y1), QPointF(x2, y2))
+        for rect, stations in self._facility_blocks:
+            station_items.paint_facility(painter, rect, stations, self._light_mode)
 
     def body_center(self, body):
         """
@@ -1427,6 +1449,11 @@ class SystemMapWidget(QWidget):
         pos = event.position()
         self._update_pointer_cursor(pos)
 
+        for rect, stations in self._facility_blocks:
+            if rect.contains(pos):
+                self.setCursor(Qt.PointingHandCursor)
+                QToolTip.showText(event.globalPosition().toPoint(), station_items.tooltip(stations), self)
+                return
         for rect, body in self._body_rects:
             if rect.contains(pos):
                 QToolTip.showText(
@@ -1451,6 +1478,10 @@ class SystemMapWidget(QWidget):
         if event.button() == Qt.LeftButton:
             pos = event.position()
 
+            for rect, stations in self._facility_blocks:
+                if rect.contains(pos):
+                    station_items.show_details(self, stations, self.system_name, light=self._light_mode)
+                    return
             for rect, body in self._body_rects:
                 if rect.contains(pos):
                     self.bodyClicked.emit(body)

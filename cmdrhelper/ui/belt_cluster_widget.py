@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 import random
 
-from PySide6.QtCore import Qt, QTimer, QSize, QPointF
+from PySide6.QtCore import Qt, QSize, QPointF
 from PySide6.QtGui import (
     QPainter,
     QColor,
@@ -13,6 +13,8 @@ from PySide6.QtGui import (
     QRadialGradient,
 )
 from PySide6.QtWidgets import QWidget
+
+from cmdrhelper.ui.visible_animation import VisibleAnimationTimer
 
 
 class BeltClusterWidget(QWidget):
@@ -53,7 +55,7 @@ class BeltClusterWidget(QWidget):
         self._asteroids = self._create_asteroids()
         self._dust = self._create_dust()
 
-        self._timer = QTimer(self)
+        self._timer = VisibleAnimationTimer(self)
         self._timer.setInterval(50)
         self._timer.timeout.connect(self._advance)
         self._timer.start()
@@ -488,5 +490,4 @@ class BeltClusterWidget(QWidget):
             )
 
     def stop(self):
-        if self._timer.isActive():
-            self._timer.stop()
+        self._timer.stop()

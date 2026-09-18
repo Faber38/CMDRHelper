@@ -114,10 +114,11 @@ class ExplorerValueSortTests(unittest.TestCase):
                       (False, True, True)])]
         self.refresh(bodies[::-1])
         self.click(7)
-        self.assertEqual(self.names(), list('0123456'))
+        self.assertEqual(self.names()[:3], list('654'))
+        self.assertEqual(set(self.names()[3:]), set('0123'))
         self.click(7)
-        self.assertEqual(self.names()[:4], list('6543'))
-        self.assertEqual(set(self.names()[4:]), set('012'))
+        self.assertEqual(set(self.names()[:4]), set('0123'))
+        self.assertEqual(self.names()[4:], list('456'))
         self.click(6)
         keys = [self.table.item(r, 6).sort_key for r in range(7)]
         self.assertEqual(keys, [0, 0, 0, 0, 1, 2, 3])

@@ -1,3 +1,7 @@
+# Updatehinweise für CMDRHelper 3.6
+
+Die sechs lokalisierten Hinweise `release.3_6.0` bis `.5` stehen für alle zwölf Sprachen in `RELEASE_SUMMARIES["3.6"]`. Sie beschreiben Stationen, Spansh, Flottenverwaltung, UI-Verbesserungen und den Mining-Carrierfix. Details: [Release 3.6](release-3.6.md).
+
 # Updatehinweise für CMDRHelper 3.5
 
 - Schnellere Chronik und reaktionsfähigere Oberfläche; BIO-/Kartographie-Arbeit im Hintergrund.

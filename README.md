@@ -38,6 +38,15 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## New in version 3.6
+
+- Stations and facilities on the system map, plus a dedicated STATIONS tab with search, filters and sorting.
+- Station images, an image viewer and details of known services, landing pads, sources and timestamps.
+- Optional Spansh station information in Settings → Online Services, disabled by default. After a successful fetch, further manual fetches are blocked for the same local day. Without Spansh, the stations tab explains the limits of journal knowledge.
+- Personal ship and carrier images, type/default images and an image viewer. Remove ships from the fleet or restore them with “Reread all ships”; sold ships are recognised more reliably.
+- Improved system map, value list with coloured mapping status, Cargo HUD and navigation. Lower background load on Linux and for screenshots, the gallery and Explorer.
+- Fixed: harmless short Elite journals no longer interrupt Mining carrier balances. Unknown or uncertain data remains clearly identified.
+
 ## New in version 3.5
 
 - Faster Chronicle and interface; BIO/cartography processing runs in the background.

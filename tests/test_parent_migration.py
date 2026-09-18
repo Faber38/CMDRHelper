@@ -10,7 +10,7 @@ from unittest.mock import Mock, patch
 
 from PySide6.QtCore import QEventLoop, QTimer
 from PySide6.QtWidgets import QApplication, QDialog
-from cmdrhelper.database import CMDRDatabase
+from cmdrhelper.database import CMDRDatabase, SCHEMA_VERSION
 from cmdrhelper import parent_migration as m
 from cmdrhelper.ui.parent_migration import ParentMigrationDialog
 
@@ -135,7 +135,7 @@ class MigrationTests(unittest.TestCase):
 
     def test_existing_schema_17_without_marker_still_requires_migration(self):
         with m.readonly(self.path) as con:
-            self.assertEqual(con.execute('PRAGMA user_version').fetchone(), (17,))
+            self.assertEqual(con.execute('PRAGMA user_version').fetchone(), (SCHEMA_VERSION,))
         CMDRDatabase(self.path)
         self.assertTrue(m.migration_required(self.path))
         self.assertEqual(self.snapshot(), self.before)

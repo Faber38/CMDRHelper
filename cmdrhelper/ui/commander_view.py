@@ -1,14 +1,21 @@
 from __future__ import annotations
 
 import hashlib
+import sqlite3
+from pathlib import Path
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QThreadPool
 from PySide6.QtGui import QColor, QPalette
 from PySide6.QtWidgets import (
     QComboBox,
+    QFileDialog,
+    QMessageBox,
+    QPushButton,
     QFormLayout,
     QFrame,
     QHBoxLayout,
+    QGridLayout,
+    QSizePolicy,
     QLabel,
     QTabWidget,
     QTableWidget,
@@ -23,6 +30,14 @@ from PySide6.QtWidgets import (
 from cmdrhelper.i18n import tr
 from cmdrhelper.mission_manager import translate_mission_text
 from cmdrhelper.ship_equipment import analyze_ship_modules
+from cmdrhelper.ui.ship_assets import ship_display_name, carrier_preview
+from cmdrhelper.ui.personal_ship_images import (
+    IMAGE_NAME_PATTERNS, personal_ship_image, import_ship_image, remove_ship_image,
+    personal_carrier_image, import_carrier_image, remove_carrier_image,
+)
+from cmdrhelper.ui.fleet_actions import FleetReadTask, reversible_image_removal
+from cmdrhelper.journal_files import journal_files
+from cmdrhelper.ui.ship_widgets import ElidedShipLabel, ShipImage, FleetHeader
 
 
 class CommanderView(QWidget):
@@ -44,6 +59,9 @@ class CommanderView(QWidget):
     def __init__(self, state, parent=None):
         super().__init__(parent)
         self.state = state
+        self._fleet_rebuild_id = None
+        self._protected_ship_id = None
+        self._ship_image_fid = ""
         self._fleet_commander_id = None
         self._expanded_ship_ids = set()
         self._build_ui()
@@ -192,31 +210,45 @@ class CommanderView(QWidget):
         tab_layout.addWidget(self.fleet_scroll)
         layout.addWidget(QLabel(tr("commander_view.fleet.current"), objectName="sectionTitle"))
         self.current_ship_card = QFrame(objectName="card")
-        current_form = QFormLayout(self.current_ship_card)
-        self.current_ship_values = {}
+        current_layout = QHBoxLayout(self.current_ship_card)
+        self.current_ship_image = ShipImage(144, 100)
+        current_layout.addWidget(self.current_ship_image, 0, Qt.AlignTop)
+        current_info = QVBoxLayout()
+        current_layout.addLayout(current_info, 1)
+        name = ElidedShipLabel()
+        font = name.font()
+        font.setPointSizeF(font.pointSizeF() + 2)
+        font.setBold(True)
+        name.setFont(font)
+        current_info.addWidget(name)
+        current_form = QFormLayout()
+        current_form.setRowWrapPolicy(QFormLayout.WrapLongRows)
+        current_info.addLayout(current_form)
+        self.current_ship_values = {"name": name}
         for field, label in (
-            ("name", tr("commander_view.ship.ship_name")),
             ("type", tr("commander_view.ship.ship_type")),
             ("location", tr("commander_view.ship.location")),
             ("ship_id", tr("commander_view.ship.ship_id")),
         ):
-            value = QLabel("–")
+            value = ElidedShipLabel()
             self.current_ship_values[field] = value
             current_form.addRow(label, value)
+        self.current_ship_status = ElidedShipLabel()
+        current_form.addRow(tr("commander_view.field.status"), self.current_ship_status)
         self.ship_values = self.current_ship_values
         layout.addWidget(self.current_ship_card)
 
         self.fleet_title = QLabel(objectName="sectionTitle")
         sort_bar = QFrame(objectName="card")
-        sort_layout = QHBoxLayout(sort_bar)
+        sort_layout = QGridLayout(sort_bar)
         sort_layout.setContentsMargins(8, 4, 8, 4)
-        sort_layout.addWidget(QLabel(tr("commander_view.fleet.sort_by")))
+        sort_layout.addWidget(QLabel(tr("commander_view.fleet.sort_by")), 0, 0)
         self.fleet_sort_combo = QComboBox()
         for key in self.FLEET_SORT_DEFAULT_DIRECTIONS:
             self.fleet_sort_combo.addItem(
                 tr(f"commander_view.fleet.sort.{key}"), key
             )
-        sort_layout.addWidget(self.fleet_sort_combo, 1)
+        sort_layout.addWidget(self.fleet_sort_combo, 0, 1)
         self.fleet_sort_direction_combo = QComboBox()
         self.fleet_sort_direction_combo.addItem(
             tr("commander_view.fleet.sort.ascending"), "ascending"
@@ -224,14 +256,14 @@ class CommanderView(QWidget):
         self.fleet_sort_direction_combo.addItem(
             tr("commander_view.fleet.sort.descending"), "descending"
         )
-        sort_layout.addWidget(self.fleet_sort_direction_combo)
-        sort_layout.addWidget(QLabel(tr("commander_view.fleet.filter_by")))
+        sort_layout.addWidget(self.fleet_sort_direction_combo, 0, 2)
+        sort_layout.addWidget(QLabel(tr("commander_view.fleet.filter_by")), 1, 0)
         self.fleet_filter_combo = QComboBox()
         for key in ("all", "vehicle_hangar", "fighter_hangar"):
             self.fleet_filter_combo.addItem(
                 tr(f"commander_view.fleet.filter.{key}"), key
             )
-        sort_layout.addWidget(self.fleet_filter_combo)
+        sort_layout.addWidget(self.fleet_filter_combo, 1, 1, 1, 2)
         self._restore_fleet_sort_settings()
         self.fleet_sort_combo.currentIndexChanged.connect(
             self._fleet_sort_criterion_changed
@@ -242,6 +274,12 @@ class CommanderView(QWidget):
         self.fleet_filter_combo.currentIndexChanged.connect(
             self._fleet_filter_changed
         )
+        self.fleet_rebuild_button = QPushButton(tr("commander_view.fleet.rebuild.button"))
+        self.fleet_rebuild_button.clicked.connect(self._request_fleet_rebuild)
+        sort_layout.addWidget(self.fleet_rebuild_button, 2, 0, 1, 3)
+        self.fleet_action_status = QLabel()
+        self.fleet_action_status.setWordWrap(True)
+        sort_layout.addWidget(self.fleet_action_status, 3, 0, 1, 3)
         layout.addWidget(sort_bar)
         layout.addWidget(self.fleet_title)
         self.fleet_container = QWidget()
@@ -251,19 +289,44 @@ class CommanderView(QWidget):
 
         layout.addWidget(QLabel(tr("commander_view.carrier.title"), objectName="sectionTitle"))
         carrier_card = QFrame(objectName="card")
-        carrier_form = QFormLayout(carrier_card)
-        self.carrier_values = {}
+        carrier_layout = QVBoxLayout(carrier_card)
+        carrier_row = QHBoxLayout()
+        self.carrier_image = ShipImage(144, 100, preview_resolver=carrier_preview)
+        carrier_row.addWidget(self.carrier_image, 0, Qt.AlignTop)
+        carrier_details = QVBoxLayout()
+        carrier_name = ElidedShipLabel()
+        font = carrier_name.font()
+        font.setBold(True)
+        font.setPointSize(font.pointSize() + 2)
+        carrier_name.setFont(font)
+        carrier_details.addWidget(carrier_name)
+        carrier_form = QFormLayout()
+        carrier_form.setRowWrapPolicy(QFormLayout.WrapLongRows)
+        carrier_details.addLayout(carrier_form)
+        carrier_row.addLayout(carrier_details, 1)
+        carrier_layout.addLayout(carrier_row)
+        self.carrier_values = {"name": carrier_name}
         for field, label in (
-            ("name", tr("commander_view.carrier.name")),
             ("callsign", tr("commander_view.carrier.callsign")),
             ("carrier_id", tr("commander_view.carrier.carrier_id")),
             ("location", tr("commander_view.carrier.location")),
             ("last_updated", tr("commander_view.carrier.last_updated")),
         ):
-            value = QLabel("–")
+            value = ElidedShipLabel()
             self.carrier_values[field] = value
             carrier_form.addRow(label, value)
+        carrier_actions = QHBoxLayout()
+        self.carrier_select_image = QPushButton(tr("commander_view.carrier.image.select"))
+        self.carrier_remove_image = QPushButton(tr("commander_view.ship.image.remove"))
+        self.carrier_select_image.clicked.connect(self._select_carrier_image)
+        self.carrier_remove_image.clicked.connect(self._remove_carrier_image)
+        carrier_actions.addWidget(self.carrier_select_image)
+        carrier_actions.addWidget(self.carrier_remove_image)
+        carrier_actions.addStretch()
+        carrier_layout.addLayout(carrier_actions)
+        self._carrier_image_identity = None
         layout.addWidget(carrier_card)
+        layout.addStretch()
         self.fleet_layout.addStretch()
         return tab
 
@@ -511,15 +574,25 @@ class CommanderView(QWidget):
         commander_id = summary.get("id") if summary else None
         ships = self.state.database.commander_ships(commander_id)
         current = next((ship for ship in ships if ship["is_current"]), ships[0] if ships else None)
+        self._protected_ship_id = current.get("ship_id") if current else None
+        self.fleet_rebuild_button.setEnabled(bool(summary) and self._fleet_rebuild_id is None)
         current_data = {
-            "name": self._ship_name(current),
-            "type": current.get("ship_type") if current else None,
+            "name": self._ship_display_title(current),
+            "type": ship_display_name(current.get("ship_type")) if current else None,
             "location": self._ship_location(current),
             "ship_id": current.get("ship_id") if current else None,
         }
         for field, label in self.current_ship_values.items():
             value = current_data[field]
             label.setText(str(value) if value not in (None, "") else "–")
+
+        self._ship_image_fid = summary.get("fid", "") if summary else ""
+        self.current_ship_image.set_ship(
+            current.get("ship_type") if current else None,
+            self._personal_ship_image(current.get("ship_id")) if current else None,
+            self._ship_display_title(current),
+        )
+        self.current_ship_status.setText(tr("commander_view.fleet.current_marker") if current else "–")
 
         if commander_id == self._fleet_commander_id:
             self._remember_visible_expanded_ship_ids()
@@ -569,6 +642,22 @@ class CommanderView(QWidget):
         for field, label in self.carrier_values.items():
             value = carrier_data[field]
             label.setText(str(value) if value not in (None, "") else "–")
+        try:
+            carrier_id = int(carrier_data["carrier_id"])
+            self._carrier_image_identity = (self._ship_image_fid, carrier_id) if self._ship_image_fid else None
+        except (ValueError, TypeError):
+            self._carrier_image_identity = None
+        personal = (personal_carrier_image(self.state.settings, *self._carrier_image_identity)
+                    if self._carrier_image_identity else None)
+        self.carrier_image.set_ship(None, personal, carrier_data["name"] or "–")
+        self.carrier_select_image.setEnabled(self._carrier_image_identity is not None)
+        self.carrier_remove_image.setEnabled(personal is not None)
+
+    @staticmethod
+    def _ship_display_title(ship):
+        if not ship:
+            return "–"
+        return ship.get("ship_name") or ship_display_name(ship.get("ship_type"))
 
     @staticmethod
     def _ship_name(ship):
@@ -708,18 +797,60 @@ class CommanderView(QWidget):
                 f"QFrame#card > QToolButton {{ color: {color.name()}; font-weight: 600; }}"
             )
         layout = QVBoxLayout(card)
+        layout.setContentsMargins(8, 4, 8, 4)
+        layout.setSpacing(4)
+        card.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
+        header = FleetHeader()
+        row = QHBoxLayout(header)
+        row.setContentsMargins(4, 4, 28, 4)
+        picture = ShipImage(72, 52)
+        picture.set_ship(ship.get("ship_type"), self._personal_ship_image(ship.get("ship_id")),
+                         self._ship_display_title(ship))
+        row.addWidget(picture)
+        text = QVBoxLayout()
+        text.setSpacing(2)
+        row.addLayout(text, 1)
+        title = ElidedShipLabel(self._ship_display_title(ship))
+        font = title.font()
+        font.setBold(True)
+        title.setFont(font)
+        text.addWidget(title)
         marker = f" · {tr('commander_view.fleet.current_marker')}" if ship["is_current"] else ""
-        header = QToolButton()
-        header.setCheckable(True)
-        header.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-        header.setArrowType(Qt.RightArrow)
-        header.setText(
-            f"{self._ship_name(ship)} · {ship.get('ship_type') or '–'} · "
-            f"{self._ship_location(ship)}{marker}"
-        )
+        text.addWidget(ElidedShipLabel(ship_display_name(ship.get("ship_type")) + marker))
+        location = self._ship_location(ship)
+        text.addWidget(ElidedShipLabel(f"{tr('commander_view.ship.location')}: {location}"))
+        header.setAccessibleName(f"{title.text()} · {ship_display_name(ship.get('ship_type'))} · {location}{marker}")
+        header.setToolTip(header.accessibleName())
+        for child in header.findChildren(QWidget):
+            child.setAttribute(Qt.WA_TransparentForMouseEvents, not isinstance(child, ShipImage))
         layout.addWidget(header)
         details = QWidget()
         form = QFormLayout(details)
+        form.setRowWrapPolicy(QFormLayout.WrapLongRows)
+        actions = QWidget()
+        actions_layout = QHBoxLayout(actions)
+        actions_layout.setContentsMargins(0, 0, 0, 0)
+        select_image = QPushButton(tr("commander_view.ship.image.select"))
+        remove_image = QPushButton(tr("commander_view.ship.image.remove"))
+        fid, ship_id = self._ship_image_fid, ship.get("ship_id")
+        select_image.setEnabled(bool(fid) and ship_id is not None)
+        remove_image.setEnabled(self._personal_ship_image(ship_id) is not None)
+        select_image.clicked.connect(lambda _checked=False: self._select_ship_image(fid, ship_id))
+        remove_image.clicked.connect(lambda _checked=False: self._remove_ship_image(fid, ship_id))
+        actions_layout.addWidget(select_image)
+        actions_layout.addWidget(remove_image)
+        delete_ship = QPushButton(tr("commander_view.ship.delete.button"))
+        delete_ship.setObjectName("deleteFleetShip")
+        delete_ship.setStyleSheet("QPushButton:enabled { color: #e87979; }")
+        protected = ship_id == self._protected_ship_id or self._is_live_ship(self._fleet_commander_id, ship_id)
+        delete_ship.setEnabled(not protected and self._fleet_rebuild_id is None)
+        if protected:
+            delete_ship.setToolTip(tr("commander_view.ship.delete.active"))
+        commander_id = self._fleet_commander_id
+        delete_ship.clicked.connect(lambda _checked=False: self._delete_ship(commander_id, fid, ship))
+        actions_layout.addWidget(delete_ship)
+        actions_layout.addStretch()
+        form.addRow(actions)
         boosters = ", ".join(
             item.get("item") or "" for item in ship.get("guardian_fsd_boosters", [])
             if item.get("item")
@@ -781,7 +912,7 @@ class CommanderView(QWidget):
              equipment["passenger_cabins"] if has_module_data else None),
         )
         for title, value in fields:
-            form.addRow(title, QLabel(str(value) if value not in (None, "") else "–"))
+            form.addRow(title, ElidedShipLabel(str(value) if value not in (None, "") else "–"))
         details.setVisible(False)
         header.toggled.connect(details.setVisible)
         header.toggled.connect(lambda checked, button=header: button.setArrowType(
@@ -790,3 +921,152 @@ class CommanderView(QWidget):
         layout.addWidget(details)
         header.setChecked(expanded)
         return card
+
+    def _personal_ship_image(self, ship_id):
+        return personal_ship_image(self.state.settings, self._ship_image_fid, ship_id)
+
+    def _select_carrier_image(self):
+        identity = self._carrier_image_identity
+        if identity is None:
+            return
+        filename, _filter = QFileDialog.getOpenFileName(
+            self, tr("commander_view.carrier.image.select"), "",
+            f"{tr('commander_view.ship.image.filter')} ({IMAGE_NAME_PATTERNS})",
+        )
+        if not filename:
+            return
+        try:
+            import_carrier_image(self.state.settings, *identity, filename)
+        except (OSError, ValueError):
+            QMessageBox.warning(self, tr("commander_view.carrier.image.select"),
+                                tr("commander_view.carrier.image.error"))
+            return
+        self._refresh_ship_for_current_commander()
+
+    def _remove_carrier_image(self):
+        if self._carrier_image_identity is None:
+            return
+        try:
+            remove_carrier_image(self.state.settings, *self._carrier_image_identity)
+        except (OSError, ValueError):
+            QMessageBox.warning(self, tr("commander_view.ship.image.remove"),
+                                tr("commander_view.carrier.image.error"))
+            return
+        self._refresh_ship_for_current_commander()
+
+    def _select_ship_image(self, fid, ship_id):
+        filename, _filter = QFileDialog.getOpenFileName(
+            self, tr("commander_view.ship.image.select"), "",
+            f"{tr('commander_view.ship.image.filter')} ({IMAGE_NAME_PATTERNS})",
+        )
+        if not filename:
+            return
+        try:
+            import_ship_image(self.state.settings, fid, ship_id, filename)
+        except (OSError, ValueError):
+            QMessageBox.warning(self, tr("commander_view.ship.image.select"),
+                                tr("commander_view.ship.image.error"))
+            return
+        self._refresh_ship_for_current_commander()
+
+    def _remove_ship_image(self, fid, ship_id):
+        try:
+            remove_ship_image(self.state.settings, fid, ship_id)
+        except (OSError, ValueError):
+            QMessageBox.warning(self, tr("commander_view.ship.image.remove"),
+                                tr("commander_view.ship.image.error"))
+            return
+        self._refresh_ship_for_current_commander()
+
+    def _is_live_ship(self, commander_id, ship_id):
+        return (commander_id == self.state.commander_id
+                and getattr(getattr(self.state, "ship_loadout", None), "ship_id", None) == ship_id)
+
+    def _confirm_fleet_action(self, title, body, action, destructive=False):
+        dialog = QMessageBox(QMessageBox.Warning, title, body, parent=self)
+        dialog.setTextFormat(Qt.PlainText)
+        cancel = dialog.addButton(tr("migration.cancel"), QMessageBox.RejectRole)
+        confirm = dialog.addButton(action, QMessageBox.DestructiveRole if destructive else QMessageBox.AcceptRole)
+        if destructive:
+            confirm.setStyleSheet("color: #e87979;")
+        dialog.setDefaultButton(cancel)
+        dialog.setEscapeButton(cancel)
+        dialog.exec()
+        return dialog.clickedButton() is confirm
+
+    def _delete_ship(self, commander_id, fid, ship):
+        ship_id = ship["ship_id"]
+        if self._fleet_rebuild_id is not None:
+            return
+        if ship.get("is_current") or self._is_live_ship(commander_id, ship_id):
+            QMessageBox.warning(self, tr("commander_view.ship.delete.title"), tr("commander_view.ship.delete.active"))
+            return
+        if not self._confirm_fleet_action(
+            tr("commander_view.ship.delete.title"),
+            tr("commander_view.ship.delete.body", name=self._ship_display_title(ship),
+               ship_type=ship_display_name(ship.get("ship_type")), ship_id=ship_id),
+            tr("commander_view.ship.delete.confirm"), destructive=True,
+        ):
+            return
+        try:
+            with reversible_image_removal(self.state.settings, fid, ship_id) as cleanup:
+                self.state.database.delete_commander_ship(
+                    commander_id, ship_id, before_commit=cleanup,
+                    live_ship_id=(getattr(getattr(self.state, "ship_loadout", None), "ship_id", None)
+                                  if commander_id == self.state.commander_id else None),
+                )
+        except (sqlite3.Error, OSError, ValueError, RuntimeError) as exc:
+            key = "active" if str(exc) == "active_ship" else "error"
+            QMessageBox.warning(self, tr("commander_view.ship.delete.title"), tr("commander_view.ship.delete." + key))
+            return
+        self._expanded_ship_ids.discard(ship_id)
+        self._refresh_ship_for_current_commander()
+
+    def _request_fleet_rebuild(self):
+        if self._fleet_rebuild_id is not None:
+            return
+        commander_id = self._fleet_commander_id
+        if commander_id is None or not self._confirm_fleet_action(
+            tr("commander_view.fleet.rebuild.title"), tr("commander_view.fleet.rebuild.body"),
+            tr("commander_view.fleet.rebuild.confirm"),
+        ):
+            return
+        try:
+            with self.state.database._connect() as con:
+                paths = {Path(row[0]) for row in con.execute(
+                    "SELECT journal_file FROM journal_sessions WHERE commander_id=?", (commander_id,)
+                ) if Path(row[0]).is_file()}
+            folder = getattr(self.state, "journal_folder", None)
+            if folder:
+                paths.update(journal_files(Path(folder)))
+            if not paths:
+                raise ValueError("No journals available")
+            task = FleetReadTask(paths, self._ship_image_fid)
+        except (OSError, ValueError, sqlite3.Error):
+            self.fleet_action_status.setText(tr("commander_view.fleet.rebuild.error"))
+            return
+        self._fleet_rebuild_id = commander_id
+        self._fleet_read_task = task
+        task.signals.done.connect(self._fleet_rebuild_finished, Qt.QueuedConnection)
+        self.fleet_action_status.setText(tr("commander_view.fleet.rebuild.running"))
+        self._refresh_ship_for_current_commander()
+        QThreadPool.globalInstance().start(task)
+
+    def _fleet_rebuild_finished(self, fleet, error):
+        commander_id = self._fleet_rebuild_id
+        try:
+            if error or commander_id is None:
+                raise ValueError(error)
+            self.state.database.rebuild_commander_fleet(
+                commander_id, fleet,
+                live_ship_id=(getattr(getattr(self.state, "ship_loadout", None), "ship_id", None)
+                              if commander_id == self.state.commander_id else None),
+            )
+        except (OSError, ValueError, sqlite3.Error):
+            self.fleet_action_status.setText(tr("commander_view.fleet.rebuild.error"))
+        else:
+            self.fleet_action_status.setText(tr("commander_view.fleet.rebuild.done"))
+        finally:
+            self._fleet_rebuild_id = None
+            self._fleet_read_task = None
+            self._refresh_ship_for_current_commander()

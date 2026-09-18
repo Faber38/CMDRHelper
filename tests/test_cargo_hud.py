@@ -21,6 +21,8 @@ from cmdrhelper.ui.navigation_hud import NavigationHud, TargetWindow
 
 
 class Controller(QObject):
+    consumer_acquire = Mock()
+    consumer_release = Mock()
     changed = Signal(object)
 
     def __init__(self):
@@ -70,6 +72,135 @@ class CargoHudTests(unittest.TestCase):
         }, fid="F-A", ship_id=51, cargo_capacity=256,
             srv_type=vehicle, srv_capacity=capacity)
         self.status(vessel)
+
+    def ship_fallback_context(self):
+        self.cargo("SRV", 0, "Nomad")
+        self.state.active_srv_type = ""
+        self.state.commander_id = 1
+        self.state._journal_index_sessions = [dict(
+            commander_id=1, fid_seen="F-A", attribution_status="identified",
+            first_event_at="2026-09-04T15:00:00Z")]
+        self.state.game_mode_timestamp = "2026-09-04T15:00:01Z"
+        self.state.ship = "ERFT-NOMADE"
+        self.state.ship_loadout = ShipLoadoutData(
+            ship_id=38, ship_type="explorer_nx", ship_name="ERFT-NOMADE",
+            cargo_capacity=43, loadout_complete=True, loadout_stale=False,
+            loadout_timestamp="2026-09-04T16:00:30Z")
+        self.status(Cargo=0.0)
+
+    def test_status_fallback_srv_to_ship_and_snapshot_resumes_priority(self):
+        self.ship_fallback_context()
+        self.hud.set_cargo_enabled(True)
+        self.assertEqual(self.hud.cargo_data.text, "ERFT-NOMADE · FRACHTRAUM 0 / 43 t")
+        self.assertTrue(self.hud.isVisible())
+        self.state.cargo_snapshot = cargo_snapshot(dict(
+            event="Cargo", timestamp="2026-09-04T16:00:45Z", Vessel="Ship",
+            Count=7, Inventory=[dict(Name="copper", Count=7)]),
+            fid="F-A", ship_id=38, cargo_capacity=43)
+        self.hud.timer.timeout.emit()
+        self.assertEqual(self.hud.cargo_data.used, 7)  # Status still says zero.
+        self.status(Cargo=-1)
+        self.assertEqual(cargo_hud_data(self.state).used, 7)
+
+    def test_status_fallback_totals_without_snapshot_and_loadout_capacity_only(self):
+        self.ship_fallback_context()
+        self.state.cargo_snapshot = None
+        for amount in (0, 0.0, 20, 20.0, 43.0):
+            with self.subTest(amount=amount):
+                self.status(Cargo=amount, CargoCapacity=999)
+                data = cargo_hud_data(self.state)
+                self.assertEqual((data.used, data.capacity), (int(amount), 43))
+                self.assertIs(type(data.used), int)
+
+    def test_status_fallback_rejects_invalid_quantities_without_clamping(self):
+        self.ship_fallback_context()
+        for amount in (-1, 44, 20.5, "20", None, True, False,
+                       float("nan"), float("inf"), -float("inf"), 10**100):
+            with self.subTest(amount=amount):
+                self.status(Cargo=amount)
+                self.assertIsNone(cargo_hud_data(self.state))
+        self.status()
+        self.assertIsNone(cargo_hud_data(self.state))
+
+    def test_status_fallback_requires_current_commander_session_and_loadout(self):
+        mutations = (
+            lambda: setattr(self.state, "commander_fid", "F-B"),
+            lambda: setattr(self.state, "commander_id", 2),
+            lambda: setattr(self.state, "_journal_index_sessions", []),
+            lambda: self.state._journal_index_sessions[-1].update(attribution_status="ambiguous"),
+            lambda: self.state._journal_index_sessions[-1].update(first_event_at="2026-09-04T16:00:40Z"),
+            lambda: setattr(self.state, "game_mode_timestamp", "2026-09-04T16:00:40Z"),
+            lambda: setattr(self.state.ship_loadout, "loadout_stale", True),
+            lambda: setattr(self.state.ship_loadout, "loadout_complete", False),
+            lambda: setattr(self.state.ship_loadout, "loadout_timestamp", None),
+            lambda: setattr(self.state.ship_loadout, "ship_id", None),
+            lambda: setattr(self.state.ship_loadout, "ship_type", "testbuggy"),
+            lambda: setattr(self.state, "active_srv_type", "Nomad"),
+            lambda: self.status(Cargo=0, timestamp="2026-09-04T16:00:29Z"),
+            lambda: self.status(Cargo=0, timestamp="2099-01-01T00:00:00Z"),
+            lambda: self.status(Cargo=0, Flags=(1 << 24) | (1 << 26)),
+            lambda: self.status(Cargo=0, Flags2=1),
+            lambda: self.status(Cargo=0, Flags2=2),
+            lambda: self.status(Cargo=0, Flags2=4),
+        )
+        for number, mutation in enumerate(mutations):
+            with self.subTest(case=number):
+                self.state.commander_fid = "F-A"
+                self.ship_fallback_context()
+                mutation()
+                self.assertIsNone(cargo_hud_data(self.state))
+        for capacity in (None, -1, True, "43", 43.0):
+            with self.subTest(capacity=capacity):
+                self.ship_fallback_context()
+                self.state.ship_loadout.cargo_capacity = capacity
+                self.assertIsNone(cargo_hud_data(self.state))
+
+    def test_status_fallback_cannot_bypass_newer_confirmed_cargo(self):
+        self.ship_fallback_context()
+        self.state.cargo_snapshot["timestamp"] = "2026-09-04T16:02:00Z"
+        self.assertIsNone(cargo_hud_data(self.state))
+
+    def test_status_fallback_never_uses_ship_capacity_in_srv(self):
+        self.ship_fallback_context()
+        self.state.cargo_snapshot = None
+        self.status("SRV", Cargo=20)
+        self.assertIsNone(cargo_hud_data(self.state))
+        self.cargo("SRV", 2, "testbuggy")
+        self.status("SRV", Cargo=20)
+        data = cargo_hud_data(self.state)
+        self.assertEqual((data.used, data.capacity), (2, 4))
+
+    def test_status_fallback_is_read_only_and_contains_no_inventory(self):
+        from copy import deepcopy
+        from dataclasses import asdict
+        self.ship_fallback_context()
+        before = deepcopy(self.state.cargo_snapshot)
+        loadout = deepcopy(self.state.ship_loadout)
+        sessions = deepcopy(self.state._journal_index_sessions)
+        status_bytes = (self.folder / "Status.json").read_bytes()
+        with patch.object(self.settings, "setValue", side_effect=AssertionError("No writes")), \
+                patch.object(self.settings, "sync", side_effect=AssertionError("No writes")):
+            data = cargo_hud_data(self.state)
+        self.assertEqual(set(asdict(data)), {"vehicle_name", "used", "capacity"})
+        self.assertEqual(self.state.cargo_snapshot, before)
+        self.assertEqual(self.state.ship_loadout, loadout)
+        self.assertEqual(self.state._journal_index_sessions, sessions)
+        self.assertEqual((self.folder / "Status.json").read_bytes(), status_bytes)
+        self.assertFalse(Path(self.settings_path).exists())
+        # This state deliberately has no database, mining or carrier service.
+
+    def test_status_fallback_still_hides_when_elite_not_foreground(self):
+        self.ship_fallback_context()
+        self.settings.setValue("cargo_live/enabled", False)
+        self.hud.set_cargo_enabled(True)
+        self.assertTrue(self.hud.isVisible())
+        self.tracker.current.return_value = None
+        self.tracker.reason = "foreground"
+        self.hud.follow_target()
+        self.assertEqual(self.hud.cargo_data.used, 0)
+        self.assertFalse(self.hud.isVisible())
+        self.assertEqual(self.hud.status, "foreground")
+        self.assertTrue(self.hud.timer.isActive())
 
     def test_default_off_and_existing_setting_values(self):
         self.assertFalse(cargo_hud_enabled(self.settings))

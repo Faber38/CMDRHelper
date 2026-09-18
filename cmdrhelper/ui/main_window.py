@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from cmdrhelper.ui.explorer_status import mapping_status_presentation
 from cmdrhelper.exploration_status import exploration_status, journal_flag, status_tooltip
 
 from copy import deepcopy
@@ -179,7 +180,7 @@ class _ChronicleSystemNameLabel(QLabel):
 
 class ChronicleSystemWindow(QDialog):
     def __init__(self, system_name, bodies, header_text, body_callback, parent=None, *,
-                 system_address=None, commander_id=None, settings=None):
+                 system_address=None, commander_id=None, settings=None, stations=None):
         super().__init__(parent)
 
         self.setWindowTitle(tr("chronicle.system_window_title", system=system_name))
@@ -227,7 +228,7 @@ class ChronicleSystemWindow(QDialog):
 
         self.system_map = SystemMapWidget()
         self.system_map.bodyClicked.connect(body_callback)
-        self.system_map.set_system(system_name, bodies)
+        self.system_map.set_system(system_name, bodies, stations)
 
         scroll = QScrollArea()
         scroll.setWidgetResizable(False)
@@ -256,9 +257,11 @@ class ChronicleSystemWindow(QDialog):
             self._system_overview_window.deleteLater()
         self._system_overview_window = SystemOverviewDialog(
             self.system_map.system_name, self.system_map.bodies,
+            stations=self.system_map.stations,
             on_body_clicked=self._body_callback, parent=self,
             light=self.system_map._light_mode, settings=self.settings,
             system_address=self.system_address, commander_id=self.commander_id,
+            spansh=getattr(getattr(self.parent(), "state", None), "spansh_stations", None),
         )
         self._system_overview_window.show()
         self._system_overview_window.raise_()
@@ -1148,6 +1151,8 @@ class MainWindow(QMainWindow):
             self.state.commanderIdentityChanged.connect(
                 lambda _id, fid, _name: self._edsm_system_status.observe([], fid)
             )
+        if hasattr(self.state, "stationModelChanged"):
+            self.state.stationModelChanged.connect(self._station_model_updated)
         from cmdrhelper.global_hotkey import GlobalHotkey
         self._quick_favorite_hotkey = GlobalHotkey(self.state.settings, self)
         self._quick_favorite_hotkey.activated.connect(self._save_quick_favorite)
@@ -1404,6 +1409,7 @@ class MainWindow(QMainWindow):
         )
         live_layout.addWidget(self.cargo_live_enabled_check)
         self.cargo_hud_enabled_check = QCheckBox(tr("settings.cargo_hud"))
+        self.cargo_hud_enabled_check.setToolTip(tr("settings.hud_display_hint"))
         self.cargo_hud_enabled_check.setChecked(cargo_hud_enabled(self.state.settings))
         self.cargo_hud_enabled_check.toggled.connect(self._set_cargo_hud_enabled)
         live_layout.addWidget(self.cargo_hud_enabled_check)
@@ -1414,6 +1420,7 @@ class MainWindow(QMainWindow):
         live_layout.addWidget(self.edsm_system_status_check)
 
         self.navigation_hud_enabled_check = QCheckBox(tr("settings.navigation_hud"))
+        self.navigation_hud_enabled_check.setToolTip(tr("settings.hud_display_hint"))
         self.navigation_hud_enabled_check.setChecked(self._navigation_hud_enabled())
         self.navigation_hud_enabled_check.toggled.connect(self._set_navigation_hud_enabled)
         live_layout.addWidget(self.navigation_hud_enabled_check)
@@ -1963,6 +1970,11 @@ class MainWindow(QMainWindow):
             tr("explorer.bio_planets"),
         )
 
+        from cmdrhelper.ui.stations_view import StationsView
+        self.stations_view = StationsView(
+            light=self.ui_theme == "light", spansh=getattr(self.state, 'spansh_stations', None))
+        self.explorer_tabs.addTab(self.stations_view, self.stations_view.tab_title)
+
         from cmdrhelper.ui.favorites_view import FavoritesView
         self._favorites_window = QDialog(self)
         self._favorites_window.setWindowTitle(tr("favorites.title"))
@@ -1976,6 +1988,8 @@ class MainWindow(QMainWindow):
             quick_favorite_hotkey=self._quick_favorite_hotkey,
             configure_hotkey_callback=self._configure_quick_favorite_hotkey)
         favorites_layout.addWidget(self.favorites_view)
+        self._explorer_dirty_tabs = {0, 1, 2, 3}
+        self.explorer_tabs.currentChanged.connect(self._refresh_visible_details)
         system_layout.addWidget(self.explorer_tabs, 1)
         page_layout.addWidget(system_card, 1)
 
@@ -2312,7 +2326,7 @@ class MainWindow(QMainWindow):
         if isinstance(body, dict):
             self._show_body_details(body)
 
-    def _refresh_explorer_tables(self):
+    def _refresh_explorer_tables(self, tab=None):
         bodies = list(getattr(self.state, "system_bodies", None) or [])
 
         # Sterne und Belt Cluster sind für die gewünschte Wertliste nicht
@@ -2332,103 +2346,94 @@ class MainWindow(QMainWindow):
             )
         )
 
-        self.explorer_value_table.setRowCount(len(value_bodies))
+        if tab in (None, 1):
+            self.explorer_value_table.setRowCount(len(value_bodies))
 
-        for row, body in enumerate(value_bodies):
-            visited = self._explorer_body_visited(body)
-            self_mapped = exploration_status(body)["self_mapped"] is True
-            current_value = int(body.get("current_value") or 0)
+            for row, body in enumerate(value_bodies):
+                visited = self._explorer_body_visited(body)
+                exploration = exploration_status(body)
+                self_mapped = exploration["self_mapped"] is True
+                status, status_tip, status_color, status_rank = mapping_status_presentation(
+                    exploration, light=getattr(self, "ui_theme", "dark") == "light")
+                current_value = int(body.get("current_value") or 0)
 
-            was_mapped = journal_flag(body, "was_mapped")
+                was_mapped = journal_flag(body, "was_mapped")
 
-            # Frontier liefert WasMapped beim Scan als Zustand VOR unserer
-            # eigenen DSS-Kartierung. self_mapped zeigt dagegen, dass wir
-            # später selbst SurfaceScanComplete erhalten haben.
-            if self_mapped:
-                mapping_text = "✓ " + tr("explorer.self_mapped")
-                status = tr("explorer.status_scanned_self_mapped")
-            elif was_mapped is True:
-                mapping_text = tr("explorer.already_mapped")
-                status = (
-                    tr("explorer.status_scanned_already_mapped")
-                    if visited
-                    else tr("explorer.already_mapped_cap")
+                # Frontier liefert WasMapped beim Scan als Zustand VOR unserer
+                # eigenen DSS-Kartierung. self_mapped zeigt dagegen, dass wir
+                # später selbst SurfaceScanComplete erhalten haben.
+                if self_mapped:
+                    mapping_text = "✓ " + tr("explorer.self_mapped")
+                elif was_mapped is True:
+                    mapping_text = tr("explorer.already_mapped")
+                elif was_mapped is False:
+                    mapping_text = "○ " + tr("explorer.first_mapping_possible")
+                else:
+                    mapping_text = tr("common.unknown")
+
+                possible_value = int(body.get("possible_value") or current_value or 0)
+                possible_value_without_eff = int(
+                    body.get("possible_value_without_efficiency") or possible_value or 0
                 )
-            elif was_mapped is False:
-                mapping_text = "○ " + tr("explorer.first_mapping_possible")
-                status = (
-                    tr("explorer.status_scanned_first_mapping")
-                    if visited
-                    else tr("explorer.first_mapping_possible")
-                )
-            else:
-                mapping_text = tr("common.unknown")
-                status = (
-                    tr("explorer.scanned") if visited else tr("explorer.not_scanned")
+                possible_value_text = (
+                    f"{self._format_reward(possible_value)} / "
+                    f"{self._format_reward(possible_value_without_eff)}"
                 )
 
-            possible_value = int(body.get("possible_value") or current_value or 0)
-            possible_value_without_eff = int(
-                body.get("possible_value_without_efficiency") or possible_value or 0
-            )
-            possible_value_text = (
-                f"{self._format_reward(possible_value)} / "
-                f"{self._format_reward(possible_value_without_eff)}"
-            )
+                values = [
+                    self._explorer_body_name(body),
+                    SystemMapWidget._type_text(body),
+                    self._explorer_distance_text(body),
+                    self._format_reward(body.get("scan_value", 0)),
+                    self._format_reward(current_value),
+                    possible_value_text,
+                    mapping_text,
+                    status,
+                ]
 
-            values = [
-                self._explorer_body_name(body),
-                SystemMapWidget._type_text(body),
-                self._explorer_distance_text(body),
-                self._format_reward(body.get("scan_value", 0)),
-                self._format_reward(current_value),
-                possible_value_text,
-                mapping_text,
-                status,
-            ]
+                keys = sort_keys(body, values, visited, self_mapped, was_mapped, possible_value)
+                keys[7] = status_rank
+                for col, value in enumerate(values):
+                    item = ValueItem(value, keys[col])
+                    item.setData(Qt.UserRole, body)
+                    item.setToolTip(status_tooltip(body))
 
-            keys = sort_keys(body, values, visited, self_mapped, was_mapped, possible_value)
-            for col, value in enumerate(values):
-                item = ValueItem(value, keys[col])
-                item.setData(Qt.UserRole, body)
-                item.setToolTip(status_tooltip(body))
+                    # Zahlenwerte auch intern numerisch hinterlegen.
+                    if col == 4:
+                        item.setData(Qt.UserRole + 1, current_value)
 
-                # Zahlenwerte auch intern numerisch hinterlegen.
-                if col == 4:
-                    item.setData(Qt.UserRole + 1, current_value)
-
-                # Grün zeigt die Schätzung nach eigenem Scan-/Mappingstand.
-                # Der Schwellenwert bewertet die Kartographieschätzung,
-                # nicht einen bestätigten offenen Verkaufserlös.
-                if col == 4:
-                    item.setForeground(QColor("#65d067"))
-                    item.setToolTip(status_tooltip(body) + "\n" + tr("exploration.value_estimate"))
-                elif col == 5:
-                    yellow_threshold = self._explorer_value_yellow_threshold()
-
-                    if yellow_threshold > 0 and possible_value >= yellow_threshold:
-                        item.setForeground(QColor("#ffb000"))
-                    else:
-                        item.setForeground(QColor("#d9dde1"))
-
-                    item.setData(Qt.UserRole + 1, possible_value)
-                    item.setToolTip(
-                        status_tooltip(body) + "\n" + tr("exploration.value_estimate")
-                    )
-                elif col == 6:
-                    if self_mapped:
+                    # Grün zeigt die Schätzung nach eigenem Scan-/Mappingstand.
+                    # Der Schwellenwert bewertet die Kartographieschätzung,
+                    # nicht einen bestätigten offenen Verkaufserlös.
+                    if col == 4:
                         item.setForeground(QColor("#65d067"))
-                    elif was_mapped is False:
-                        item.setForeground(QColor("#68c7ff"))
-                    elif was_mapped is True:
-                        item.setForeground(QColor("#9aa3ab"))
-                elif col == 7:
-                    if not visited:
-                        item.setForeground(QColor("#9aa3ab"))
+                        item.setToolTip(status_tooltip(body) + "\n" + tr("exploration.value_estimate"))
+                    elif col == 5:
+                        yellow_threshold = self._explorer_value_yellow_threshold()
 
-                self.explorer_value_table.setItem(row, col, item)
+                        if yellow_threshold > 0 and possible_value >= yellow_threshold:
+                            item.setForeground(QColor("#ffb000"))
+                        else:
+                            item.setForeground(QColor("#d9dde1"))
 
-        apply_sort(self.explorer_value_table)
+                        item.setData(Qt.UserRole + 1, possible_value)
+                        item.setToolTip(
+                            status_tooltip(body) + "\n" + tr("exploration.value_estimate")
+                        )
+                    elif col == 6:
+                        if self_mapped:
+                            item.setForeground(QColor("#65d067"))
+                        elif was_mapped is False:
+                            item.setForeground(QColor("#68c7ff"))
+                        elif was_mapped is True:
+                            item.setForeground(QColor("#9aa3ab"))
+                    elif col == 7:
+                        item.setForeground(QColor(status_color))
+                        item.setToolTip(status_tip)
+
+                    self.explorer_value_table.setItem(row, col, item)
+
+            apply_sort(self.explorer_value_table)
 
         # BIO/GEO/Abbau-Körper gemeinsam. Auch reine GEO-/Abbau-Körper werden hier
         # angezeigt; Körper mit beiden Signalarten erscheinen nur einmal.
@@ -2454,118 +2459,119 @@ class MainWindow(QMainWindow):
             )
         )
 
-        self.explorer_bio_table.setRowCount(len(bio_bodies))
+        if tab in (None, 2):
+            self.explorer_bio_table.setRowCount(len(bio_bodies))
 
-        try:
-            learned_bio_values = self.state.database.learned_bio_values()
-        except Exception:
-            learned_bio_values = {}
+            try:
+                learned_bio_values = self.state.database.learned_bio_values()
+            except Exception:
+                learned_bio_values = {}
 
-        for row, body in enumerate(bio_bodies):
-            visited = self._explorer_body_visited(body)
-            signals = int(body.get("biological_signals") or 0)
-            geo_signals = int(body.get("geological_signals") or 0)
-            mining_signals = int(body.get("planetary_mining_signals") or 0)
-            found, completed, analysed = self._explorer_bio_progress(body)
-            bio_names = self._explorer_bio_names(body)
-            bio_names_text = self._explorer_bio_names_html(bio_names)
-            known_bio_value = self._explorer_bio_known_value(
-                body,
-                learned_bio_values,
-            )
-            first_footfall = bool(body.get("first_footfall"))
-            if known_bio_value > 0:
-                bio_value_text = self._format_reward(known_bio_value)
-                if first_footfall:
-                    bio_value_text += (
-                        f" / {self._format_reward(known_bio_value * 5)} möglich"
-                    )
-            else:
-                bio_value_text = "–"
-
-            if analysed:
-                analysis_text = (
-                    tr("explorer.completed_count", count=completed)
-                    if completed
-                    else tr("explorer.complete")
+            for row, body in enumerate(bio_bodies):
+                visited = self._explorer_body_visited(body)
+                signals = int(body.get("biological_signals") or 0)
+                geo_signals = int(body.get("geological_signals") or 0)
+                mining_signals = int(body.get("planetary_mining_signals") or 0)
+                found, completed, analysed = self._explorer_bio_progress(body)
+                bio_names = self._explorer_bio_names(body)
+                bio_names_text = self._explorer_bio_names_html(bio_names)
+                known_bio_value = self._explorer_bio_known_value(
+                    body,
+                    learned_bio_values,
                 )
-                status = tr("explorer.bio_analyzed")
-            elif visited:
-                analysis_text = (
-                    tr("explorer.recorded_count", count=found)
-                    if found
-                    else tr("explorer.open")
-                )
-                status = tr("explorer.visited_bio_open")
-            else:
-                # Direkt nach dem DSS-/Signalscan steht die Anzahl der
-                # biologischen Signale bereits fest, auch wenn der Körper
-                # noch nicht angeflogen wurde.
-                analysis_text = tr("explorer.signal_count", count=signals)
-                status = tr("explorer.bio_found_not_visited")
-
-            values = [
-                self._explorer_body_name(body),
-                SystemMapWidget._type_text(body),
-                str(signals) if signals > 0 else "–",
-                self._explorer_geo_text(body) if geo_signals > 0 else "–",
-                self._explorer_planetary_mining_text(body),
-                bio_names_text if signals > 0 else "–",
-                bio_value_text if signals > 0 else "–",
-                self._explorer_distance_text(body),
-                tr("explorer.visited") if visited else tr("explorer.open_cap"),
-                analysis_text if signals > 0 else tr("explorer.open"),
-                status if signals > 0 else tr("explorer.open"),
-            ]
-
-            keys = bio_sort_keys(
-                body, values, bio_names, known_bio_value, visited, found, completed, analysed,
-            )
-            for col, value in enumerate(values):
-                # BIO-Funde brauchen Rich Text, damit jeder Name einzeln
-                # entsprechend seinem Scan-Fortschritt eingefärbt werden kann.
-                if col == 5:
-                    label = QLabel()
-                    label.setTextFormat(Qt.RichText)
-                    label.setText(str(value))
-                    label.setTextInteractionFlags(Qt.NoTextInteraction)
-                    label.setContentsMargins(8, 0, 4, 0)
-                    label.setToolTip(tr("explorer.bio_colors_tooltip"))
-                    self.explorer_bio_table.setCellWidget(row, col, label)
-                    # The label keeps its existing rich-text presentation; an
-                    # underlying item lets Qt sort and move the complete row.
-                    item = ValueItem("", keys[col])
-                    item.setData(Qt.UserRole, body)
-                    self.explorer_bio_table.setItem(row, col, item)
-                    continue
-
-                item = ValueItem(value, keys[col])
-
-                if col == 6 and known_bio_value > 0 and first_footfall:
-                    item.setToolTip(
-                        f"Erstbetretung erkannt: möglicher BIO-Wert "
-                        f"{self._format_reward(known_bio_value * 5)}"
-                    )
-                item.setData(Qt.UserRole, body)
-
-                if col == 4 and mining_signals > 0:
-                    item.setForeground(QColor("#ff9d00"))
-                    font = item.font()
-                    font.setUnderline(True)
-                    item.setFont(font)
-                    item.setToolTip(
-                        self._explorer_planetary_mining_tooltip(body) + "\n\n" + tr("mining.open_tooltip")
-                    )
-                elif analysed:
-                    item.setForeground(QColor("#65d067"))
-                elif visited:
-                    item.setForeground(QColor("#ffb000"))
+                first_footfall = bool(body.get("first_footfall"))
+                if known_bio_value > 0:
+                    bio_value_text = self._format_reward(known_bio_value)
+                    if first_footfall:
+                        bio_value_text += (
+                            f" / {self._format_reward(known_bio_value * 5)} möglich"
+                        )
                 else:
-                    item.setForeground(QColor("#d9dde1"))
+                    bio_value_text = "–"
 
-                self.explorer_bio_table.setItem(row, col, item)
+                if analysed:
+                    analysis_text = (
+                        tr("explorer.completed_count", count=completed)
+                        if completed
+                        else tr("explorer.complete")
+                    )
+                    status = tr("explorer.bio_analyzed")
+                elif visited:
+                    analysis_text = (
+                        tr("explorer.recorded_count", count=found)
+                        if found
+                        else tr("explorer.open")
+                    )
+                    status = tr("explorer.visited_bio_open")
+                else:
+                    # Direkt nach dem DSS-/Signalscan steht die Anzahl der
+                    # biologischen Signale bereits fest, auch wenn der Körper
+                    # noch nicht angeflogen wurde.
+                    analysis_text = tr("explorer.signal_count", count=signals)
+                    status = tr("explorer.bio_found_not_visited")
 
-        apply_sort(self.explorer_bio_table)
+                values = [
+                    self._explorer_body_name(body),
+                    SystemMapWidget._type_text(body),
+                    str(signals) if signals > 0 else "–",
+                    self._explorer_geo_text(body) if geo_signals > 0 else "–",
+                    self._explorer_planetary_mining_text(body),
+                    bio_names_text if signals > 0 else "–",
+                    bio_value_text if signals > 0 else "–",
+                    self._explorer_distance_text(body),
+                    tr("explorer.visited") if visited else tr("explorer.open_cap"),
+                    analysis_text if signals > 0 else tr("explorer.open"),
+                    status if signals > 0 else tr("explorer.open"),
+                ]
+
+                keys = bio_sort_keys(
+                    body, values, bio_names, known_bio_value, visited, found, completed, analysed,
+                )
+                for col, value in enumerate(values):
+                    # BIO-Funde brauchen Rich Text, damit jeder Name einzeln
+                    # entsprechend seinem Scan-Fortschritt eingefärbt werden kann.
+                    if col == 5:
+                        label = QLabel()
+                        label.setTextFormat(Qt.RichText)
+                        label.setText(str(value))
+                        label.setTextInteractionFlags(Qt.NoTextInteraction)
+                        label.setContentsMargins(8, 0, 4, 0)
+                        label.setToolTip(tr("explorer.bio_colors_tooltip"))
+                        self.explorer_bio_table.setCellWidget(row, col, label)
+                        # The label keeps its existing rich-text presentation; an
+                        # underlying item lets Qt sort and move the complete row.
+                        item = ValueItem("", keys[col])
+                        item.setData(Qt.UserRole, body)
+                        self.explorer_bio_table.setItem(row, col, item)
+                        continue
+
+                    item = ValueItem(value, keys[col])
+
+                    if col == 6 and known_bio_value > 0 and first_footfall:
+                        item.setToolTip(
+                            f"Erstbetretung erkannt: möglicher BIO-Wert "
+                            f"{self._format_reward(known_bio_value * 5)}"
+                        )
+                    item.setData(Qt.UserRole, body)
+
+                    if col == 4 and mining_signals > 0:
+                        item.setForeground(QColor("#ff9d00"))
+                        font = item.font()
+                        font.setUnderline(True)
+                        item.setFont(font)
+                        item.setToolTip(
+                            self._explorer_planetary_mining_tooltip(body) + "\n\n" + tr("mining.open_tooltip")
+                        )
+                    elif analysed:
+                        item.setForeground(QColor("#65d067"))
+                    elif visited:
+                        item.setForeground(QColor("#ffb000"))
+                    else:
+                        item.setForeground(QColor("#d9dde1"))
+
+                    self.explorer_bio_table.setItem(row, col, item)
+
+            apply_sort(self.explorer_bio_table)
 
         self.explorer_tabs.setTabText(
             1,
@@ -2922,8 +2928,14 @@ class MainWindow(QMainWindow):
         bio_rows = filtered_rows
         self._ensure_explorer_live_windows()
 
-        self._explorer_value_live_window.set_rows(system_name, valuable_rows)
-        self._explorer_bio_live_window.set_rows(system_name, bio_rows)
+        if self._explorer_live_window_enabled("value"):
+            self._explorer_value_live_window.set_rows(system_name, valuable_rows)
+        elif self._explorer_value_live_window.table.rowCount():
+            self._explorer_value_live_window.table.setRowCount(0)
+        if bio_enabled or geo_enabled:
+            self._explorer_bio_live_window.set_rows(system_name, bio_rows)
+        elif self._explorer_bio_live_window.table.rowCount():
+            self._explorer_bio_live_window.table.setRowCount(0)
 
         value_live_enabled = self._explorer_live_window_enabled("value")
         bio_live_enabled = self._explorer_live_window_enabled("bio")
@@ -2994,8 +3006,6 @@ class MainWindow(QMainWindow):
     def _apply_navigation_hud_enabled(self):
         enabled = self._navigation_hud_enabled()
         if enabled:
-            controller = self._ensure_planet_navigation_controller()
-            controller.start()
             try:
                 self._ensure_navigation_hud().set_enabled(True)
             except (RuntimeError, OSError) as exc:
@@ -3003,11 +3013,6 @@ class MainWindow(QMainWindow):
                 logging.getLogger(__name__).warning("Navigation HUD unavailable: %s", exc)
         elif self._navigation_hud is not None:
             self._navigation_hud.set_enabled(False)
-
-    def _planet_navigation_closed(self, _result):
-        # The independent HUD still needs the existing controller's updates.
-        if self._navigation_hud_enabled():
-            self._planet_navigation_controller.start()
 
     def _show_planet_navigation(self):
         from cmdrhelper.ui.planet_navigation_window import PlanetNavigationWindow
@@ -3018,8 +3023,6 @@ class MainWindow(QMainWindow):
                 controller, self.state.settings, self)
             self._planet_navigation_window.save_location_requested.connect(
                 lambda: self.favorites_view.save_surface(controller))
-            self._planet_navigation_window.finished.connect(self._planet_navigation_closed)
-        controller.start()
         if not self._planet_navigation_window.isVisible():
             self._planet_navigation_window.show()
 
@@ -3051,6 +3054,43 @@ class MainWindow(QMainWindow):
                 self._show_body_details(body)
             else:
                 QMessageBox.information(self, tr("favorites.title"), tr("favorites.no_body"))
+
+    def _station_display_model(self, address, bodies, journal):
+        from cmdrhelper.spansh_cache import merge_stations
+        spansh = getattr(self.state, 'spansh_stations', None)
+        return merge_stations(journal, spansh.cached(address) if spansh else None, bodies, address)
+
+    def _station_model_updated(self, address):
+        # Only affected maps; no global state.refresh(), inventory or DB writes.
+        if address == self.state.system_address:
+            self._mark_explorer_tabs_dirty({0, 3})
+            self._refresh_visible_details()
+        overview = getattr(self, '_system_overview_window', None)
+        if overview is not None and overview.system_address == address:
+            if address == self.state.system_address:
+                stations = self.state.system_stations
+            else:
+                bodies = overview.preview.bodies
+                journal = self.state.database.system_stations(address, bodies, overview.commander_id)
+                stations = self._station_display_model(address, bodies, journal)
+            overview.preview.set_stations(stations)
+        historical = getattr(self, '_chronicle_system_window', None)
+        if historical is not None and historical.system_address == address:
+            bodies = historical.system_map.bodies
+            journal = self.state.database.system_stations(address, bodies, historical.commander_id)
+            stations = self._station_display_model(address, bodies, journal)
+            historical.system_map.set_system(historical.system_map.system_name, bodies, stations)
+            if historical._system_overview_window is not None:
+                historical._system_overview_window.preview.set_stations(stations)
+
+    def _refresh_stations_tab(self):
+        if not hasattr(self, 'stations_view'):
+            return
+        self.stations_view.set_system(
+            self.state.system_address, self.state.system,
+            getattr(self.state, 'system_stations', []))
+        self.explorer_tabs.setTabText(
+            self.explorer_tabs.indexOf(self.stations_view), self.stations_view.tab_title)
 
     def _show_system_overview(self):
         bodies = list(
@@ -3087,6 +3127,8 @@ class MainWindow(QMainWindow):
                 or tr("explorer.current_system")
             ),
             bodies=bodies,
+            stations=getattr(self.state, "system_stations", []),
+            spansh=getattr(self.state, "spansh_stations", None),
             on_body_clicked=self._show_body_details,
             light=self.ui_theme == "light",
             settings=self.state.settings,
@@ -4321,6 +4363,8 @@ class MainWindow(QMainWindow):
             parent=self,
             system_address=address,
             commander_id=detail_commander_id,
+            stations=self._station_display_model(address, bodies,
+                self.state.database.system_stations(address, bodies, detail_commander_id)),
             settings=self.state.settings,
         )
 
@@ -4584,6 +4628,14 @@ class MainWindow(QMainWindow):
         # -----------------------------
         # EDSM
         # -----------------------------
+        self.spansh_stations_check = QCheckBox(tr('spansh.enabled'))
+        spansh = getattr(self.state, 'spansh_stations', None)
+        self.spansh_stations_check.setChecked(bool(spansh and spansh.active))
+        self.spansh_stations_check.setToolTip(tr('spansh.hint'))
+        if spansh is not None:
+            self.spansh_stations_check.toggled.connect(spansh.set_enabled)
+        online_layout.addWidget(self.spansh_stations_check)
+
         edsm_title = QLabel("EDSM")
         edsm_title.setStyleSheet("font-weight: 700;")
         online_layout.addWidget(edsm_title)
@@ -5579,6 +5631,8 @@ class MainWindow(QMainWindow):
 
         if hasattr(self, "system_map"):
             self.system_map.set_light_mode(theme == "light")
+        if hasattr(self, "stations_view"):
+            self.stations_view.set_light_mode(theme == "light")
 
         if hasattr(self, "chronicle_map"):
             self.chronicle_map.set_light_mode(theme == "light")
@@ -5680,14 +5734,8 @@ class MainWindow(QMainWindow):
                 + "</span>"
             )
 
-        if hasattr(self, "explorer_value_table"):
-            self._refresh_explorer_tables()
-
-        if hasattr(self, "system_map"):
-            self.system_map.set_system(
-                self.state.system or "–",
-                self.state.system_bodies,
-            )
+        self._mark_explorer_tabs_dirty({0, 1})
+        self._refresh_visible_details()
 
     def _apply_gold_frame_threshold(self):
         """
@@ -6374,6 +6422,7 @@ class MainWindow(QMainWindow):
         self._apply_gold_frame_threshold()
 
         explorer_key = (self.state.commander_id, system, self.state.system_bodies,
+                        getattr(self.state, "system_stations", []),
                         self.__dict__.get("ui_theme", "dark"), self._explorer_value_yellow_threshold(),
                         getattr(self.state, "_learning_revision", 0), get_language())
         if explorer_key != getattr(self, "_explorer_render_key", None):
@@ -6412,11 +6461,42 @@ class MainWindow(QMainWindow):
             self._missions_dirty = True
         self._refresh_visible_details()
 
-    def _refresh_visible_details(self):
-        if self.pages.currentIndex() == self.PAGE_EXPLORER and getattr(self, "_explorer_dirty", True):
-            self.system_map.set_system(self.state.system, self.state.system_bodies)
-            self._refresh_explorer_tables()
+    def _mark_explorer_tabs_dirty(self, tabs=None):
+        dirty = getattr(self, "_explorer_dirty_tabs", set())
+        dirty.update({0, 1, 2, 3} if tabs is None else tabs)
+        self._explorer_dirty_tabs = dirty
+        # Counts are cheap model projections, independent of widget builds.
+        if hasattr(self, "explorer_tabs"):
+            bodies = [body for body in getattr(self.state, "system_bodies", [])
+                      if not body.get("star_type") and body.get("body_type") != "Star"
+                      and not SystemMapWidget._is_belt_cluster(body)]
+            bio_count = sum(any(int(body.get(key) or 0) > 0 for key in
+                               ("biological_signals", "geological_signals", "planetary_mining_signals"))
+                            for body in bodies)
+            self.explorer_tabs.setTabText(1, tr("explorer.value_list_count", count=len(bodies)))
+            self.explorer_tabs.setTabText(2, f"BIO / GEO / ABBAU ({bio_count})")
+            self.explorer_tabs.setTabText(3, tr("stations.tab", count=len(
+                getattr(self.state, "system_stations", []))))
+
+    def _refresh_visible_details(self, *_):
+        if not hasattr(self, "pages"):
+            return  # Explorer construction precedes installation in the page stack.
+        if getattr(self, "_explorer_dirty", False):
+            self._mark_explorer_tabs_dirty()
             self._explorer_dirty = False
+        if self.pages.currentIndex() == self.PAGE_EXPLORER:
+            tab = self.explorer_tabs.currentIndex()
+            dirty = getattr(self, "_explorer_dirty_tabs", {0, 1, 2, 3})
+            if tab in dirty:
+                if tab == 0:
+                    self.system_map.set_system(self.state.system, self.state.system_bodies,
+                                               getattr(self.state, "system_stations", []))
+                elif tab in (1, 2):
+                    self._refresh_explorer_tables(tab=tab)
+                elif tab == 3:
+                    MainWindow._refresh_stations_tab(self)
+                dirty.discard(tab)
+                self._explorer_dirty_tabs = dirty
         if self.pages.currentIndex() == self.PAGE_MISSIONS and getattr(self, "_missions_dirty", True):
             self._refresh_missions_table()
             self._missions_dirty = False

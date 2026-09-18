@@ -465,7 +465,7 @@ class FavoriteTests(unittest.TestCase):
         self.addCleanup(window.deleteLater)
         self.addCleanup(window._favorites_window.close)
 
-        self.assertEqual(window.explorer_tabs.count(), 3)
+        self.assertEqual(window.explorer_tabs.count(), 4)
         self.assertEqual([window.explorer_tabs.widget(i) for i in range(3)],
                          [window.system_scroll, window.explorer_value_table,
                           window.explorer_bio_table])
@@ -551,6 +551,28 @@ class FavoriteTests(unittest.TestCase):
         self.addCleanup(view.close)
         return view, controller
 
+    def test_visible_favorites_share_controller_poll_and_release_when_hidden(self):
+        self.live_status()
+        view, controller = self.location_view()
+        controller.consumer_acquire('navigation_hud')
+        with patch.object(controller, 'poll', wraps=controller.poll) as poll:
+            view.show()
+            self.assertTrue(view.save_location_button.isEnabled())
+            # Showing a second consumer uses the existing sample, no extra IO.
+            poll.assert_not_called()
+            for _ in range(5):
+                view._refresh_location_availability()
+            poll.assert_not_called()
+        self.assertEqual(controller._consumers, {'navigation_hud', 'favorites'})
+        view.hide()
+        self.assertTrue(controller.timer.isActive())
+        controller.consumer_release('navigation_hud')
+        self.assertFalse(controller.timer.isActive())
+        view.show()
+        self.assertTrue(controller.timer.isActive())
+        view.close()
+        self.assertFalse(controller.timer.isActive())
+
     def test_location_button_visible_and_automatically_tracks_live_validity(self):
         view, controller = self.location_view()
         view.show()
@@ -565,6 +587,7 @@ class FavoriteTests(unittest.TestCase):
         self.assertTrue(view.save_location_button.isVisible())
         self.live_status()
         self.state.commander_id = None
+        self.state.commanderIdentityChanged.emit(None, "", "")
         QTest.qWait(350)
         self.assertFalse(view.save_location_button.isEnabled())
 
@@ -621,7 +644,7 @@ class FavoriteTests(unittest.TestCase):
         message.assert_called_once()
         self.assertEqual(self.store.list(1), [])
         view.hide()
-        self.assertFalse(view._location_timer.isActive())
+        self.assertFalse(controller.timer.isActive())
 
     def test_three_save_buttons_wrap_without_clipping(self):
         view, _ = self.location_view()

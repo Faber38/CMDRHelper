@@ -7,6 +7,7 @@ import logging
 import re
 import subprocess
 import sys
+import time
 
 from PySide6.QtCore import QPointF, QRect, QRectF, Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QFontMetricsF, QGuiApplication, QPainter, QPen, QPainterPath
@@ -38,7 +39,10 @@ class TargetWindow:
 
 class X11WindowTracker:
     """Read-only foreground/client geometry tracking. Never activates a window."""
+    IDENTITY_TTL = 1.0
+
     def __init__(self):
+        self._reset_cache()
         if QGuiApplication.platformName() != "xcb":
             raise RuntimeError("HUD prototype requires Linux/X11 (Qt xcb).")
         libraries = [find_library(name) for name in ("X11", "Xext")]
@@ -57,6 +61,15 @@ class X11WindowTracker:
         self.x11.XGetSelectionOwner.restype = ctypes.c_ulong
         self.x11.XCloseDisplay.argtypes = [ctypes.c_void_p]
         self.x11.XFree.argtypes = [ctypes.c_void_p]
+        self.x11.XDefaultRootWindow.argtypes = [ctypes.c_void_p]
+        self.x11.XDefaultRootWindow.restype = ctypes.c_ulong
+        self.x11.XGetWindowProperty.argtypes = [
+            ctypes.c_void_p, ctypes.c_ulong, ctypes.c_ulong, ctypes.c_long,
+            ctypes.c_long, ctypes.c_int, ctypes.c_ulong,
+            ctypes.POINTER(ctypes.c_ulong), ctypes.POINTER(ctypes.c_int),
+            ctypes.POINTER(ctypes.c_ulong), ctypes.POINTER(ctypes.c_ulong),
+            ctypes.POINTER(ctypes.c_void_p)]
+        self.x11.XGetWindowProperty.restype = ctypes.c_int
         self.shape.XShapeQueryExtension.argtypes = [ctypes.c_void_p,
             ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int)]
         event_base, error_base = ctypes.c_int(), ctypes.c_int()
@@ -66,6 +79,47 @@ class X11WindowTracker:
         self.shape.XShapeGetRectangles.argtypes = [ctypes.c_void_p, ctypes.c_ulong,
             ctypes.c_int, ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int)]
         self.shape.XShapeGetRectangles.restype = ctypes.c_void_p
+
+    def _reset_cache(self):
+        self._identity = None
+        self._identity_until = 0.0
+        self._retry_after = 0.0
+
+    def _active_window(self):
+        """Read only the stable root window, avoiding child-window BadWindow races.
+
+        libX11 is already required for compositor/input-shape checks. No global
+        X error handler or extra dependency is needed for this root property.
+        Foreground is deliberately never cached.
+        """
+        if not self.display:
+            raise RuntimeError("X11 display is closed")
+        atom = self.x11.XInternAtom(self.display, b"_NET_ACTIVE_WINDOW", 0)
+        actual_type, count, remaining = ctypes.c_ulong(), ctypes.c_ulong(), ctypes.c_ulong()
+        actual_format, data = ctypes.c_int(), ctypes.c_void_p()
+        try:
+            result = self.x11.XGetWindowProperty(
+                self.display, self.x11.XDefaultRootWindow(self.display), atom,
+                0, 1, 0, 33, ctypes.byref(actual_type), ctypes.byref(actual_format),
+                ctypes.byref(count), ctypes.byref(remaining), ctypes.byref(data))
+            # XA_WINDOW=33; Xlib exposes format-32 values as native unsigned longs.
+            if (result != 0 or actual_type.value != 33 or actual_format.value != 32
+                    or count.value != 1 or remaining.value or not data.value):
+                raise RuntimeError("Cannot read X11 foreground window")
+            return ctypes.cast(data, ctypes.POINTER(ctypes.c_ulong))[0]
+        finally:
+            if data.value:
+                self.x11.XFree(data)
+
+    def _elite_identity(self, now):
+        if now >= self._identity_until:
+            rows = self._read("wmctrl", "-lx").splitlines()
+            matches = [row for row in rows if 'steam_app_359320' in row.lower()
+                       and re.search(r'Elite\s*-\s*Dangerous', row, re.I)]
+            self._identity = int(matches[0].split()[0], 16) if matches else None
+            # Cache absence too; discover new windows on the first tick after TTL.
+            self._identity_until = time.monotonic() + self.IDENTITY_TTL
+        return self._identity
 
     def close(self):
         if self.display:
@@ -96,44 +150,59 @@ class X11WindowTracker:
         return count.value == 0
 
     def window_is_viewable(self, window_id):
+        self.viewability_failed = False
         try:
-            return "Map State: IsViewable" in self._read("xwininfo", "-id", hex(window_id))
-        except (OSError, subprocess.SubprocessError):
+            info = self._read("xwininfo", "-id", hex(window_id))
+            if "Map State: IsViewable" in info:
+                return True
+            if "Map State: IsUnMapped" in info or "Map State: IsUnviewable" in info:
+                return False
+            raise ValueError("Missing X11 map state")
+        except (OSError, subprocess.SubprocessError, ValueError):
+            self.viewability_failed = True
+            self._retry_after = time.monotonic() + self.IDENTITY_TTL
             return False
 
     def current(self):
         self.reason, self.error, self.last_target = "not_found", "", None
+        now = time.monotonic()
         try:
             if not self.compositor_available():
                 self.reason = "no_compositor"
                 return None
-            active = self._read("xprop", "-root", "_NET_ACTIVE_WINDOW")
-            match = re.search(r"0x[0-9a-fA-F]+", active)
-            active_id = int(match[0], 16) if match else 0
-            # Discover Elite even while the user is clicking the Helper's switch.
-            rows = self._read("wmctrl", "-lx").splitlines()
-            matches = [row for row in rows if 'steam_app_359320' in row.lower()
-                       and re.search(r'Elite\s*-\s*Dangerous', row, re.I)]
-            if not matches:
+            if now < self._retry_after:
+                self.reason = "error"
+                self.error = "X11 tracking retry pending"
                 return None
-            wid = matches[0].split()[0]
+            active_id = self._active_window()
+            window_id = self._elite_identity(now)
+            if window_id is None:
+                return None
+            if window_id != active_id:
+                self.reason = "foreground"
+                return None
+            wid = hex(window_id)
             props = self._read("xprop", "-id", wid, "_NET_WM_STATE")
             info = self._read("xwininfo", "-id", wid)
             values = [int(re.search(pattern + r"\s*(-?\d+)", info)[1]) for pattern in
                       ("Absolute upper-left X:", "Absolute upper-left Y:", "Width:", "Height:")]
             if values[2] <= 0 or values[3] <= 0:
                 raise ValueError("Invalid Elite window dimensions")
-            self.last_target = TargetWindow(int(wid, 16), QRect(*values))
+            self.last_target = TargetWindow(window_id, QRect(*values))
             if '_NET_WM_STATE_HIDDEN' in props or "Map State: IsViewable" not in info:
                 self.reason = "hidden"
                 return None
-            if int(wid, 16) != active_id:
+            # Recheck after the subprocesses, so a focus switch during a slow
+            # query cannot show the HUD over the newly foreground application.
+            if window_id != self._active_window():
                 self.reason = "foreground"
                 return None
             self.reason = "active"
             return self.last_target
-        except (OSError, subprocess.SubprocessError, TypeError, ValueError) as exc:
+        except (OSError, subprocess.SubprocessError, RuntimeError, TypeError, ValueError, IndexError) as exc:
             self.reason, self.error = "error", str(exc)
+            self._identity, self._identity_until = None, 0.0
+            self._retry_after = time.monotonic() + self.IDENTITY_TTL
             return None
 
 
@@ -187,6 +256,7 @@ class NavigationHud(QWidget):
         self.status_detail = ""
         self.paint_count = 0
         self.target_geometry = None
+        self._render_state = None
         self.setWindowOpacity(1.0)
         self.timer = QTimer(self)
         self.timer.setInterval(200)
@@ -224,6 +294,7 @@ class NavigationHud(QWidget):
                 self._windows_failure(exc)
                 return False
             self.enabled = False
+            self.controller.consumer_release("navigation_hud")
             raise
         return True
 
@@ -231,6 +302,10 @@ class NavigationHud(QWidget):
         if enabled and not self._prepare_input():
             return
         self.enabled = bool(enabled)
+        if self.enabled:
+            self.controller.consumer_acquire("navigation_hud")
+        else:
+            self.controller.consumer_release("navigation_hud")
         self._sync_visibility()
 
     def show_message(self, lines, duration_ms=2000, *, channel="default"):
@@ -276,6 +351,7 @@ class NavigationHud(QWidget):
         self._windows_failed = True
         self.enabled = self.safe_input = False
         self.cargo_enabled = False
+        self.controller.consumer_release("navigation_hud")
         self.timer.stop()
         self.hide()
         self._status("error", str(exc))
@@ -295,7 +371,9 @@ class NavigationHud(QWidget):
             target = self.tracker.current() if self.safe_input else None
         except (OSError, RuntimeError, ValueError) as exc:
             if not self._native_windows:
-                raise
+                self.hide()
+                self._status("error", str(exc))
+                return
             self._windows_failure(exc)
             return
         if target is None:
@@ -328,13 +406,24 @@ class NavigationHud(QWidget):
             return
         if self.geometry() != logical:
             self.setGeometry(logical)
+        was_visible = self.isVisible()
         if not self.isVisible():
             self.show()
         if not self.tracker.window_is_viewable(int(self.winId())):
+            # A genuinely unmapped overlay is already invisible and can still
+            # be awaiting its initial map. A failed check must hide even when
+            # the real mapping state is unknown.
+            if getattr(self.tracker, "viewability_failed", False) is True:
+                self.hide()
             self._status("native_hidden")
             return
         self._status("active", f"{logical.width()} × {logical.height()} @ {logical.x()}, {logical.y()}")
-        self.update()
+        render_state = (hud_lines(self.controller.state) if self.enabled else (),
+                        self.message_lines, self.edsm_message_lines, self.cargo_data,
+                        logical.getRect(), self.devicePixelRatioF(), get_language())
+        if not was_visible or render_state != self._render_state:
+            self._render_state = render_state
+            self.update()
 
     def refresh_navigation(self, _state):
         self.follow_target()

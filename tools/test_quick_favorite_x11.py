@@ -91,6 +91,12 @@ def desktop():
 
     class Controller(QObject):
         changed = Signal(object)
+
+        def consumer_acquire(self, name):
+            pass  # Probe supplies snapshots; no journal polling.
+
+        def consumer_release(self, name):
+            pass
     controller = Controller()
     controller.state = SimpleNamespace(snapshot=None, solution=None)
     tracker = Tracker()

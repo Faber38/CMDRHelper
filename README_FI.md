@@ -38,6 +38,15 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## Uutta versiossa 3.6
+
+- Asemat ja laitokset järjestelmäkartalla sekä oma asemavälilehti, jossa on haku, suodattimet ja lajittelu.
+- Asemakuvat, kuvankatselin sekä tunnettujen palvelujen, laskeutumisalustojen, lähteiden ja aikaleimojen tiedot.
+- Valinnaiset Spansh-asematiedot kohdassa Asetukset → Verkkopalvelut, oletuksena pois käytöstä. Onnistuneen haun jälkeen uudet manuaaliset haut estetään samana paikallisena päivänä. Ilman Spanshia näytetään huomautus lokitietojen rajallisuudesta.
+- Omat alus- ja carrier-kuvat, tyyppi-/oletuskuvat ja kuvankatselin. Aluksia voi poistaa laivastosta ja palauttaa lukemalla kaikki alukset uudelleen; myydyt alukset tunnistetaan luotettavammin.
+- Parannettu kartta, arvolista värillisellä kartoitustilalla, Cargo HUD ja navigointi. Vähemmän taustakuormaa Linuxissa sekä kuvakaappauksissa, galleriassa ja Explorerissa.
+- Korjattu: harmittomat lyhyet Elite-lokit eivät enää katkaise carrierin kaivosvarantojen seurantaa. Tuntemattomat tai epävarmat tiedot erottuvat edelleen.
+
 ## Uutta versiossa 3.5
 
 - Nopeampi kronikka ja käyttöliittymä; BIO- ja kartografiakäsittely toimii taustalla.

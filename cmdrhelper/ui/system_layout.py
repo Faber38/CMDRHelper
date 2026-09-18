@@ -17,7 +17,8 @@ class LayoutNode(BodyNode):
 
 
 def build_positions(bodies, factory=LayoutNode, *, width=145, height=lambda n: 230,
-                    gap=24, image_center=44, image_radius=lambda n: 30):
+                    gap=24, image_center=44, image_radius=lambda n: 30,
+                    extra_height=lambda n: 0, reserved_width=lambda n: 0):
     # Parent metadata is only adapted for the existing graph builder. Restore
     # original dictionaries afterward, retaining identity for detail/navigation.
     originals = {}
@@ -39,7 +40,8 @@ def build_positions(bodies, factory=LayoutNode, *, width=145, height=lambda n: 2
         elif node.body is not None:
             node.body = originals[id(node.body)]
         node.layout_width = width if node.body is not None else 0
-        node.layout_height = height(node) if node.body is not None else 0
+        node.layout_height = height(node) + extra_height(node) if node.body is not None else 0
+        node.reserved_width = reserved_width(node) if node.body is not None else 0
         node.image_center_y = image_center
         node.image_radius = image_radius(node) if node.body is not None else 0
 
@@ -71,7 +73,7 @@ def build_positions(bodies, factory=LayoutNode, *, width=145, height=lambda n: 2
 
     def place(node, axis=False):
         group = [node]
-        w, h = node.layout_width, node.layout_height
+        w, h = max(node.layout_width, node.reserved_width), node.layout_height
         if node.body is None or axis:
             cursor = w + gap if node.body is not None else 0
             child_centers = []

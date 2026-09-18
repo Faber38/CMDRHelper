@@ -11,7 +11,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
-from cmdrhelper.database import CMDRDatabase
+from cmdrhelper.database import CMDRDatabase, SCHEMA_VERSION
 from cmdrhelper.journal_index import scan_journal_folder
 from cmdrhelper.startup_repairs import FEATURES, repair_status, run_startup_repairs
 from cmdrhelper.state import AppState
@@ -50,7 +50,7 @@ class StartupRepairTests(unittest.TestCase):
                         (self.file.stat().st_size,self.file.stat().st_size))
         run_startup_repairs(self.db.path)
         with self.db._connect() as con:
-            con.execute('delete from commander_state_repairs where feature in (?,?,?,?)',FEATURES)
+            con.execute('delete from commander_state_repairs where feature in (' + ','.join('?' for _ in FEATURES) + ')',FEATURES)
             if 'bio' in kinds:con.execute('delete from biology')
             if 'visits' in kinds:
                 con.execute('delete from system_visits')
@@ -101,7 +101,7 @@ class StartupRepairTests(unittest.TestCase):
             con.execute('alter table journal_sessions drop column repair_commander_id')
             con.execute('pragma user_version=15')
         self.db=CMDRDatabase(self.db.path)
-        with self.db._connect() as con:self.assertEqual(con.execute('pragma user_version').fetchone()[0],17)
+        with self.db._connect() as con:self.assertEqual(con.execute('pragma user_version').fetchone()[0],SCHEMA_VERSION)
         self.startup()
         data=self.snapshot()
         self.assertEqual(len(data['biology']),1)
@@ -115,13 +115,13 @@ class StartupRepairTests(unittest.TestCase):
         self.assertEqual(data,self.snapshot())
 
     def test_only_bio_gap(self):
-        self.seed(('bio',));self.assertEqual([r['changed'] for r in run_startup_repairs(self.db.path)],[1,0,0,0])
+        self.seed(('bio',));self.assertEqual([r['changed'] for r in run_startup_repairs(self.db.path)],[1,0,0,0,0])
 
     def test_only_visits_gap(self):
-        self.seed(('visits',));self.assertEqual([r['changed'] for r in run_startup_repairs(self.db.path)],[0,3,0,0])
+        self.seed(('visits',));self.assertEqual([r['changed'] for r in run_startup_repairs(self.db.path)],[0,3,0,0,0])
 
     def test_only_mapping_gap(self):
-        self.seed(('mapping',));self.assertEqual([r['changed'] for r in run_startup_repairs(self.db.path)],[0,0,1,0])
+        self.seed(('mapping',));self.assertEqual([r['changed'] for r in run_startup_repairs(self.db.path)],[0,0,1,0,0])
 
     def test_missing_journal_is_incomplete_and_retried(self):
         self.seed();text=self.file.read_text();self.file.unlink()
@@ -166,7 +166,8 @@ class StartupRepairTests(unittest.TestCase):
             run_startup_repairs(self.db.path)
         after=self.snapshot()
         for table in ('biology','system_visits','commander_bodies'):self.assertEqual(before[table],after[table])
-        self.assertTrue(all(self.status(f)=='failed' for f in FEATURES))
+        self.assertTrue(all(self.status(f)=='failed' for f in FEATURES if f != 'stations'))
+        self.assertEqual(self.status('stations'), 'complete')  # No station facts need a backup.
 
     def test_correct_data_and_other_commander_are_preserved(self):
         self.seed(());other=self.db.upsert_commander('F-B','Bravo')
@@ -286,4 +287,4 @@ repairs.run_startup_repairs(sys.argv[1])
             self.assertEqual(con.execute('pragma user_version').fetchone()[0],15)
             self.assertNotIn('status',{r[1] for r in con.execute('pragma table_info(commander_state_repairs)')})
         self.db=CMDRDatabase(self.db.path)
-        with self.db._connect() as con:self.assertEqual(con.execute('pragma user_version').fetchone()[0],17)
+        with self.db._connect() as con:self.assertEqual(con.execute('pragma user_version').fetchone()[0],SCHEMA_VERSION)

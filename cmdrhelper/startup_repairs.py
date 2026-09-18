@@ -13,7 +13,7 @@ from cmdrhelper.system_visits import apply_visit_plan
 from cmdrhelper.visits_backfill import plan_visits_backfill
 
 logger = logging.getLogger(__name__)
-FEATURES = ('biology_findings', 'system_visits', 'mapping_metadata', 'unsold_cartography')
+FEATURES = ('biology_findings', 'system_visits', 'mapping_metadata', 'unsold_cartography', 'stations')
 
 
 def repair_status(con, commander_id, feature):
@@ -52,6 +52,9 @@ def _plan(con, commander_id, feature):
         UNION ALL SELECT 1 FROM biology WHERE commander_id=? LIMIT 1''',
         (commander_id, commander_id, commander_id)).fetchone():
         raise IncompleteRepair('Personal history exists without retained journal source records')
+    if feature == 'stations':
+        from cmdrhelper.stations import plan_backfill
+        return plan_backfill(con, commander_id)
     if feature == 'unsold_cartography':
         if not sources and con.execute(
                 'SELECT 1 FROM commander_unsold_cartography WHERE commander_id=? LIMIT 1',
@@ -67,6 +70,8 @@ def _plan(con, commander_id, feature):
 
 
 def _has_changes(feature, plan):
+    if feature == "stations":
+        return bool(plan["stations"])
     if feature == 'unsold_cartography':
         return plan['changed']
     if feature == 'mapping_metadata':
@@ -75,6 +80,12 @@ def _has_changes(feature, plan):
 
 
 def _apply(con, commander_id, feature, plan):
+    if feature == 'stations':
+        from cmdrhelper.stations import store_observation
+        before = con.total_changes
+        for row in plan['stations']:
+            store_observation(con, row)
+        return con.total_changes - before
     if feature == 'unsold_cartography':
         from cmdrhelper.unsold_cartography import apply_cartography_repair
         return apply_cartography_repair(con, commander_id, plan)

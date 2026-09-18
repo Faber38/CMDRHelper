@@ -159,9 +159,10 @@ class FavoriteStore:
         self._remove_unreferenced(record['image_path'])
 
 
-def freeze_surface_location(controller):
-    """Poll once, then copy scalar identity/position values before opening an editor."""
-    controller.poll()
+def freeze_surface_location(controller, *, refresh=True):
+    """Freeze validated scalars; display checks may use the live controller sample."""
+    if refresh:
+        controller.poll()
     app = controller.app_state
     snapshot = controller.state.snapshot
     commander_id = getattr(app, 'commander_id', None)

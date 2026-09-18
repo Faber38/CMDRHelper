@@ -12,6 +12,7 @@ from urllib.request import Request, urlopen
 
 
 from cmdrhelper.body_classes import canonical_body_classes
+from cmdrhelper.version import __version__
 
 
 EDSM_RANKS_URL = "https://www.edsm.net/api-commander-v1/get-ranks"
@@ -62,7 +63,7 @@ def test_edsm_connection(
     request = Request(
         f"{EDSM_RANKS_URL}?{query}",
         headers={
-            "User-Agent": "CMDRHelper/0.1.8.7",
+            "User-Agent": f"CMDRHelper/{__version__}",
             "Accept": "application/json",
         },
         method="GET",
@@ -142,7 +143,7 @@ def test_inara_connection(
     payload = {
         "header": {
             "appName": "CMDRHelper",
-            "appVersion": "0.1.8.7",
+            "appVersion": __version__,
             "isBeingDeveloped": True,
             "APIkey": api_key,
             "commanderName": commander,
@@ -164,7 +165,7 @@ def test_inara_connection(
         INARA_API_URL,
         data=body,
         headers={
-            "User-Agent": "CMDRHelper/0.1.8.7",
+            "User-Agent": f"CMDRHelper/{__version__}",
             "Content-Type": "application/json",
             "Accept": "application/json",
         },
@@ -600,7 +601,7 @@ def _fetch_edsm_json(url, parameters, timeout, *, allow_empty_list=False):
     """Shared EDSM GET transport; HTTP/network/JSON failures remain exceptions."""
     request = Request(
         f"{url}?{urlencode(parameters)}",
-        headers={"User-Agent": "CMDRHelper/0.1.8.10", "Accept": "application/json"},
+        headers={"User-Agent": f"CMDRHelper/{__version__}", "Accept": "application/json"},
         method="GET",
     )
     with urlopen(request, timeout=timeout) as response:

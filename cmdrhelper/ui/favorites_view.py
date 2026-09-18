@@ -367,20 +367,24 @@ class FavoritesView(QWidget):
             signal = getattr(state, name, None)
             if signal is not None:
                 signal.connect(self._schedule_distance_refresh)
-        self._location_timer = QTimer(self)
-        self._location_timer.setInterval(250)
-        self._location_timer.timeout.connect(self._refresh_location_availability)
+        self._location_controller = None
         self.sync_commander()
 
     def showEvent(self, event):
         super().showEvent(event)
         self.refresh()
         self._refresh_quick_favorite_hint()
+        if self._location_controller_callback is not None and self._location_controller is None:
+            self._location_controller = self._location_controller_callback()
+            self._location_controller.changed.connect(self._refresh_location_availability)
+            self._location_controller.consumer_acquire("favorites")
         self._refresh_location_availability()
-        self._location_timer.start()
 
     def hideEvent(self, event):
-        self._location_timer.stop()
+        if self._location_controller is not None:
+            self._location_controller.changed.disconnect(self._refresh_location_availability)
+            self._location_controller.consumer_release("favorites")
+            self._location_controller = None
         super().hideEvent(event)
 
     def _refresh_quick_favorite_hint(self):
@@ -389,12 +393,12 @@ class FavoritesView(QWidget):
             and self._configure_hotkey_callback is not None
             and not self._quick_favorite_hotkey.active)
 
-    def _refresh_location_availability(self):
+    def _refresh_location_availability(self, *_):
         available = False
-        if self._location_controller_callback is not None:
+        if self._location_controller is not None:
             try:
                 # Use the exact same validity and identity checks as saving.
-                freeze_surface_location(self._location_controller_callback())
+                freeze_surface_location(self._location_controller, refresh=False)
                 available = True
             except ValueError:
                 pass
@@ -406,6 +410,7 @@ class FavoritesView(QWidget):
             self.save_surface(self._location_controller_callback())
 
     def sync_commander(self, *_):
+        self._refresh_location_availability()
         current = getattr(self.state,'commander_id',None)
         if current != self._commander:
             self.save_location_button.setEnabled(False)

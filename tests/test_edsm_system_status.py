@@ -246,6 +246,8 @@ class EdsmOverlayTests(unittest.TestCase):
 
     def hud(self, windows=False):
         class Controller(QObject):
+            consumer_acquire = Mock()
+            consumer_release = Mock()
             changed = Signal(object)
         controller = Controller()
         controller.state = SimpleNamespace(snapshot=None, solution=None)

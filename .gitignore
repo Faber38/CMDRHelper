@@ -46,3 +46,14 @@ texture_test.py
 
 # Generated release directories (already tracked historical files stay tracked)
 /release/CMDRHelper_v*/
+/release/.cmdrhelper-stage.*/
+
+# Runtime data must never become bundled artwork or fixtures.
+external/spansh/
+ship_images/
+carrier_images/
+screenshots/
+Journal.*.log
+CMDRHelper.conf
+*.bak-shm
+*.bak-wal

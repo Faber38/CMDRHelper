@@ -17,12 +17,14 @@ from pathlib import Path
 from cmdrhelper.chronicle_filters import matching_visit_sql, visit_period_sql
 from cmdrhelper.journal_files import journal_files
 from cmdrhelper.ship_identity import is_definite_non_ship
+from cmdrhelper.ship_ownership import journal_time, ship_sale, stored_ship_observations
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 17
+SCHEMA_VERSION = 20
 
 COMMANDER_STATE_REPAIR_REVISIONS = {
+    "stations": 1,
     "unsold": 2,
     "unsold_cartography": 1,
     "missions": 1,
@@ -169,6 +171,11 @@ class CMDRDatabase:
         self._bio_predictor_cache = None
         self._bio_predictor_revision = None
         try:
+            if not db_was_new:
+                with sqlite3.connect(self.path) as con:
+                    previous_version = con.execute("PRAGMA user_version").fetchone()[0]
+                if 17 <= previous_version < 20:
+                    self._create_migration_backup(20)
             self._create_schema()
             if db_was_new:
                 # Only a newly created, fully initialized database is exempt
@@ -481,7 +488,61 @@ class CMDRDatabase:
         self._maybe_migrate_v15()
         self._maybe_migrate_v16()
         self._maybe_migrate_v17()
+        self._maybe_migrate_v18()
+        self._maybe_migrate_v19()
+        self._maybe_migrate_v20()
         self.cleanup_non_ship_fleet_rows()
+
+    def _maybe_migrate_v20(self):
+        """Add independent facility observations; leave celestial bodies unchanged."""
+        with self._connect() as con:
+            con.execute("BEGIN IMMEDIATE")
+            if con.execute("PRAGMA user_version").fetchone()[0] >= 20:
+                return
+            con.execute("""CREATE TABLE IF NOT EXISTS station_observations (
+                identity TEXT NOT NULL, event_type TEXT NOT NULL,
+                system_address INTEGER NOT NULL, station_name TEXT, station_type TEXT,
+                market_id INTEGER, body_id INTEGER, body_name TEXT, parent_body_id INTEGER,
+                is_planetary INTEGER, latitude REAL, longitude REAL,
+                last_seen TEXT NOT NULL, source TEXT NOT NULL,
+                PRIMARY KEY(identity,event_type)
+            )""")
+            con.execute("CREATE INDEX IF NOT EXISTS idx_station_system ON station_observations(system_address)")
+            con.execute("PRAGMA user_version=20")
+
+    def system_stations(self, address, bodies, commander_id=None):
+        from cmdrhelper.stations import load_stations
+        with self._connect() as con:
+            return load_stations(con, address, bodies, commander_id)
+
+    def _maybe_migrate_v19(self):
+        """Journal sale watermarks are facts, not user deletion preferences."""
+        with self._connect() as con:
+            con.execute("BEGIN IMMEDIATE")
+            if con.execute("PRAGMA user_version").fetchone()[0] >= 19:
+                return
+            con.execute("""CREATE TABLE IF NOT EXISTS commander_ship_sales (
+                commander_id INTEGER NOT NULL REFERENCES commanders(id),
+                ship_id INTEGER NOT NULL,
+                sold_at TEXT NOT NULL,
+                event_type TEXT NOT NULL,
+                PRIMARY KEY(commander_id, ship_id)
+            )""")
+            con.execute("PRAGMA user_version=19")
+
+    def _maybe_migrate_v18(self):
+        """Add commander-scoped manual fleet deletion markers; no data rewrite."""
+        with self._connect() as con:
+            con.execute("BEGIN IMMEDIATE")
+            if con.execute("PRAGMA user_version").fetchone()[0] >= 18:
+                return
+            con.execute("""CREATE TABLE IF NOT EXISTS commander_deleted_ships (
+                commander_id INTEGER NOT NULL REFERENCES commanders(id),
+                ship_id INTEGER NOT NULL,
+                deleted_at TEXT NOT NULL,
+                PRIMARY KEY(commander_id, ship_id)
+            )""")
+            con.execute("PRAGMA user_version=18")
 
     def _maybe_migrate_v17(self):
         """Persist mapping metadata on the sale-scoped claim itself."""
@@ -1802,9 +1863,10 @@ class CMDRDatabase:
              int(claim.get('efficient_mapping', False)), claim.get('probes_used'), claim.get('efficiency_target')))
 
     def apply_commander_journal_delta(self, commander_id, journal_file, events,
-                                      safe_offset: int, enqueue_inara=False, session=None) -> None:
+                                      safe_offset: int, enqueue_inara=False, session=None, live_current=False) -> None:
         """Atomically applies explicit journal facts and commits their byte offset."""
         from cmdrhelper.bio_valuation import base_value
+        from cmdrhelper.stations import observation, store_observation
         from cmdrhelper.system_visits import store_visit_rows, visit_row
         from cmdrhelper.journal_reader import (
             _loadout_from_event, _new_mission, _optional_int,
@@ -1857,6 +1919,7 @@ class CMDRDatabase:
 
         visit_rows = []
         with self._connect() as con:
+            con.execute("BEGIN IMMEDIATE")
             if session is not None:
                 # Import catch-up owns this verified input snapshot. Publish
                 # its index metadata only with the facts and committed cursor.
@@ -1892,6 +1955,8 @@ class CMDRDatabase:
             )
             if old_offset_row is not None and int(safe_offset) <= int(old_offset_row[0] or 0):
                 return
+            if live_current:
+                self._restore_confirmed_live_ship(con, commander_id, events)
             context_row = con.execute(
                 """SELECT system_address,body_id,body_name,surface_confirmed,rhino_active
                    FROM surface_mining_contexts
@@ -1908,6 +1973,15 @@ class CMDRDatabase:
             for event_index, event in enumerate(events or []):
                 et = str(event.get("event") or "")
                 ts = str(event.get("timestamp") or "")
+                store_observation(con, observation(event))
+                sale = ship_sale(event)
+                if sale is not None:
+                    self.record_commander_ship_sale(commander_id, sale, _con=con)
+                    if loadout.ship_id == sale["ship_id"] and not con.execute(
+                        "SELECT 1 FROM commander_ships WHERE commander_id=? AND ship_id=?",
+                        (commander_id, sale["ship_id"]),
+                    ).fetchone():
+                        loadout = ShipLoadoutData()
                 if enqueue_inara and ts:
                     try:
                         from cmdrhelper.inara_uploader import map_journal_event
@@ -2000,7 +2074,7 @@ class CMDRDatabase:
                         loadout.ship_name = str(event.get("ShipName") or "") or loadout.ship_name
                         loadout.ship_ident = str(event.get("ShipIdent") or "") or loadout.ship_ident
                         self.store_commander_ship(commander_id, loadout, ts,
-                            location=location, _con=con)
+                            location=location, _con=con, ownership_confirmed=True)
 
                 elif et == "Statistics" and session_identified:
                     bank = event.get("Bank_Account")
@@ -2024,17 +2098,26 @@ class CMDRDatabase:
                 elif et == "Loadout":
                     loadout = _loadout_from_event(event, loadout)
                     self.store_commander_ship(commander_id, loadout, ts,
-                        location=location, _con=con)
+                        location=location, _con=con, ownership_confirmed=True)
 
-                elif et in ("ShipyardSwap", "ShipyardBuy"):
+                elif et in ("ShipyardSwap", "ShipyardBuy", "ShipyardNew"):
                     candidate = ShipLoadoutData(
-                        ship_id=_optional_int(event.get("ShipID")),
+                        ship_id=_optional_int(event.get("NewShipID") if et == "ShipyardNew" else event.get("ShipID")),
                         ship_type=str(event.get("ShipType") or "") or None,
                         loadout_complete=False, loadout_stale=True,
                     )
                     self.store_commander_ship(commander_id, candidate, ts,
-                        location=location, _con=con)
+                        location=location, _con=con, ownership_confirmed=True)
                     loadout = candidate
+
+                elif et == "StoredShips":
+                    for stored, stored_location in stored_ship_observations(event):
+                        current = con.execute("SELECT is_current,loadout_stale FROM commander_ships WHERE commander_id=? AND ship_id=?",
+                                              (commander_id, stored.ship_id)).fetchone()
+                        if current:
+                            stored.loadout_stale = bool(current[1])
+                        self.store_commander_ship(commander_id, stored, ts, location=stored_location,
+                            is_current=bool(current and current[0]), _con=con, ownership_confirmed=True)
 
                 elif et in (
                     "ModuleBuy", "ModuleSell", "ModuleSwap", "ModuleStore",
@@ -2909,7 +2992,7 @@ class CMDRDatabase:
                     str(location.get("event_type") or "")))
 
     def store_commander_ship(self, commander_id, loadout, observed_at="",
-                             location=None, is_current=True, first_seen="", _con=None):
+                             location=None, is_current=True, first_seen="", _con=None, ownership_confirmed=False):
         if loadout is None or getattr(loadout, "ship_id", None) is None:
             return
         if is_definite_non_ship(getattr(loadout, "ship_type", None)):
@@ -2924,6 +3007,22 @@ class CMDRDatabase:
             if isinstance(module, dict)
         ]
         with (nullcontext(_con) if _con is not None else self._connect()) as con:
+            if _con is None:
+                con.execute("BEGIN IMMEDIATE")
+            if con.execute("SELECT 1 FROM commander_deleted_ships WHERE commander_id=? AND ship_id=?",
+                           (int(commander_id), int(loadout.ship_id))).fetchone():
+                return
+            sale = con.execute("SELECT sold_at FROM commander_ship_sales WHERE commander_id=? AND ship_id=?",
+                               (int(commander_id), int(loadout.ship_id))).fetchone()
+            if sale:
+                observed = journal_time(observed_at)
+                if observed is None or observed <= sale[0]:
+                    return
+                if not ownership_confirmed and not con.execute(
+                    "SELECT 1 FROM commander_ships WHERE commander_id=? AND ship_id=?",
+                    (int(commander_id), int(loadout.ship_id)),
+                ).fetchone():
+                    return
             if is_current:
                 con.execute(
                     "UPDATE commander_ships SET is_current=0 WHERE commander_id=?",
@@ -2970,6 +3069,113 @@ class CMDRDatabase:
                     int(loadout.loadout_stale), int(bool(is_current)),
                     json.dumps(modules, ensure_ascii=False, sort_keys=True)))
 
+    def record_commander_ship_sale(self, commander_id, sale, _con=None):
+        """Persist the latest sale and remove only observations at/before it."""
+        with (nullcontext(_con) if _con is not None else self._connect()) as con:
+            if _con is None:
+                con.execute("BEGIN IMMEDIATE")
+            con.execute("""INSERT INTO commander_ship_sales VALUES(?,?,?,?)
+                ON CONFLICT(commander_id,ship_id) DO UPDATE SET
+                    sold_at=excluded.sold_at,event_type=excluded.event_type
+                WHERE excluded.sold_at > commander_ship_sales.sold_at""",
+                (commander_id, sale["ship_id"], sale["sold_at"], sale["event_type"]))
+            cutoff = con.execute("SELECT sold_at FROM commander_ship_sales WHERE commander_id=? AND ship_id=?",
+                                 (commander_id, sale["ship_id"])).fetchone()[0]
+            row = con.execute("SELECT last_seen FROM commander_ships WHERE commander_id=? AND ship_id=?",
+                              (commander_id, sale["ship_id"])).fetchone()
+            if row and (journal_time(row[0]) or "") <= cutoff:
+                con.execute("DELETE FROM commander_ships WHERE commander_id=? AND ship_id=?",
+                            (commander_id, sale["ship_id"]))
+
+    @staticmethod
+    def _restore_confirmed_live_ship(con, commander_id, events):
+        # Only the final explicit active-ship observation in the newest live
+        # journal qualifies. Replayed historical events cannot lift a marker.
+        active = None
+        for event in events or []:
+            sale = ship_sale(event)
+            if sale is not None and active and active["ShipID"] == sale["ship_id"]:
+                if (journal_time(active.get("timestamp")) or "") <= sale["sold_at"]:
+                    active = None
+            if event.get("event") == "ShipyardNew":
+                event = dict(event, ShipID=event.get("NewShipID"))
+            if event.get("event") not in ("LoadGame", "Loadout", "ShipyardSwap", "ShipyardBuy", "ShipyardNew"):
+                continue
+            ship_type = event.get("Ship") or event.get("ShipType")
+            if is_definite_non_ship(ship_type, event.get("Ship_Localised")):
+                continue
+            if isinstance(event.get("ShipID"), int):
+                active = event
+        if active is None:
+            return
+        row = con.execute("SELECT deleted_at FROM commander_deleted_ships WHERE commander_id=? AND ship_id=?",
+                          (commander_id, active["ShipID"])).fetchone()
+        if row is None:
+            return
+        try:
+            observed = datetime.fromisoformat(active.get("timestamp", "").replace("Z", "+00:00"))
+            deleted = datetime.fromisoformat(row[0].replace("Z", "+00:00"))
+            if observed <= deleted or observed > datetime.now(timezone.utc):
+                return
+        except (ValueError, TypeError):
+            return
+        con.execute("DELETE FROM commander_deleted_ships WHERE commander_id=? AND ship_id=?",
+                    (commander_id, active["ShipID"]))
+
+    def delete_commander_ship(self, commander_id, ship_id, before_commit=None, live_ship_id=None):
+        """Marker + fleet removal commit together; journals are never touched."""
+        with self._connect() as con:
+            con.execute("BEGIN IMMEDIATE")
+            current = con.execute("""SELECT ship_id FROM commander_ships WHERE commander_id=?
+                ORDER BY is_current DESC,last_seen DESC,ship_id LIMIT 1""", (commander_id,)).fetchone()
+            if (current and current[0] == ship_id) or live_ship_id == ship_id:
+                raise ValueError("active_ship")
+            if not con.execute("SELECT 1 FROM commander_ships WHERE commander_id=? AND ship_id=?",
+                               (commander_id, ship_id)).fetchone():
+                raise ValueError("missing_ship")
+            con.execute("""INSERT INTO commander_deleted_ships VALUES(?,?,?)
+                ON CONFLICT(commander_id,ship_id) DO UPDATE SET deleted_at=excluded.deleted_at""",
+                (commander_id, ship_id, datetime.now(timezone.utc).isoformat()))
+            con.execute("DELETE FROM commander_ships WHERE commander_id=? AND ship_id=?", (commander_id, ship_id))
+            if before_commit is not None:
+                before_commit()
+
+    def rebuild_commander_fleet(self, commander_id, fleet, live_ship_id=None):
+        """Publish only fleet facts and lift this commander's deletion markers."""
+        sales = getattr(fleet, "sales", {})
+        if not fleet and not sales:
+            raise ValueError("No identified ships found")
+        with self._connect() as con:
+            con.execute("BEGIN IMMEDIATE")
+            con.execute("DELETE FROM commander_deleted_ships WHERE commander_id=?", (commander_id,))
+            for sale in sales.values():
+                self.record_commander_ship_sale(commander_id, sale, _con=con)
+            # Retain records absent from the available archive, and observations
+            # newer than the worker's snapshot (including concurrent live updates).
+            for item in fleet:
+                loadout = item["loadout"]
+                existing = con.execute("SELECT last_seen FROM commander_ships WHERE commander_id=? AND ship_id=?",
+                                       (commander_id, loadout.ship_id)).fetchone()
+                if existing and (journal_time(existing[0]) or existing[0]) > (journal_time(item["last_seen"]) or item["last_seen"]):
+                    continue
+                self.store_commander_ship(commander_id, loadout, item["last_seen"],
+                    location=item.get("location"), first_seen=item["first_seen"],
+                    is_current=False, _con=con, ownership_confirmed=True)
+            preferred = next((item["loadout"].ship_id for item in fleet if item.get("is_current")), None)
+            current = con.execute("SELECT ship_id FROM commander_ships WHERE commander_id=? AND ship_id=?",
+                                  (commander_id, live_ship_id)).fetchone() if live_ship_id is not None else None
+            if current is None:
+                current = con.execute("""SELECT ship_id FROM commander_ships WHERE commander_id=?
+                    AND (is_current=1 OR ship_id=?) ORDER BY last_seen DESC LIMIT 1""",
+                    (commander_id, preferred)).fetchone()
+            if current is None:
+                current = con.execute("SELECT ship_id FROM commander_ships WHERE commander_id=? ORDER BY last_seen DESC,ship_id LIMIT 1",
+                                      (commander_id,)).fetchone()
+            con.execute("UPDATE commander_ships SET is_current=0 WHERE commander_id=?", (commander_id,))
+            if current:
+                con.execute("UPDATE commander_ships SET is_current=1 WHERE commander_id=? AND ship_id=?",
+                            (commander_id, current[0]))
+
     def store_commander_fleet(self, commander_id, fleet, _con=None):
         for ship in fleet or []:
             loadout = ship.get("loadout") if isinstance(ship, dict) else None
@@ -2977,7 +3183,7 @@ class CMDRDatabase:
                 commander_id, loadout, ship.get("last_seen") or "",
                 location=ship.get("location"), is_current=bool(ship.get("is_current")),
                 first_seen=ship.get("first_seen") or "",
-                _con=_con,
+                _con=_con, ownership_confirmed=True,
             )
 
     def cleanup_non_ship_fleet_rows(self) -> int:
@@ -6255,6 +6461,8 @@ class CMDRDatabase:
         codex_entries = {}
         journal_marks = []
         surface_mining_events = []
+        station_facts = {}
+        from cmdrhelper.stations import observation, store_observation
 
         def ensure_system(address, name="", timestamp=""):
             if address is None:
@@ -6619,6 +6827,11 @@ class CMDRDatabase:
                         except json.JSONDecodeError:
                             continue
 
+                        station_fact = observation(event)
+                        if station_fact:
+                            key = station_fact['identity'], station_fact['event_type']
+                            if key not in station_facts or station_fact['last_seen'] >= station_facts[key]['last_seen']:
+                                station_facts[key] = station_fact
                         diagnostic_events += 1
                         et = event.get("event")
                         current_event_name = str(et or "")
@@ -7520,6 +7733,8 @@ class CMDRDatabase:
             bodies_by_system.setdefault(address, []).append(body)
 
         with self._connect() as con:
+            for station_fact in station_facts.values():
+                store_observation(con, station_fact)
             for commander_id, journal_file, source_key, event, context in surface_mining_events:
                 self._record_surface_mining_event(
                     con, commander_id, journal_file, source_key, event, context

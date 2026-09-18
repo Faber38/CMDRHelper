@@ -177,7 +177,7 @@ def _catch_up_pass(database, context, *, enqueue_fid=None):
                            sha256=hashlib.sha256(raw[:complete]).hexdigest(), source_keys=source_keys)
             database.apply_commander_journal_delta(
                 cid, path, parsed, complete, enqueue_inara=fid == enqueue_fid,
-                session=session)
+                session=session, live_current=(path == paths[-1]))
             files += 1
             events_count += len(parsed)
         # Do not overtake an unfinished event in an older file or acknowledge

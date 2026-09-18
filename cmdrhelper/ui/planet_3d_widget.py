@@ -5,9 +5,11 @@ from pathlib import Path
 
 import numpy as np
 
-from PySide6.QtCore import Qt, QTimer, QSize, QPointF, QRectF
+from PySide6.QtCore import Qt, QSize, QPointF, QRectF
 from PySide6.QtGui import QImage, QPainter, QColor, QRadialGradient, QBrush, QPainterPath, QPen
 from PySide6.QtWidgets import QWidget, QSizePolicy
+
+from cmdrhelper.ui.visible_animation import VisibleAnimationTimer
 
 NAV_GRID_MAX_M = 380_000
 NAV_PERSPECTIVE_SCALE_M = 400_000
@@ -97,7 +99,7 @@ class Planet3DWidget(QWidget):
         self._load_texture()
 
         # Ca. 20 FPS reichen bei 230 px völlig aus.
-        self._timer = QTimer(self)
+        self._timer = VisibleAnimationTimer(self)
         self._timer.setInterval(50)
         self._timer.timeout.connect(self._advance_rotation)
 
@@ -1058,5 +1060,4 @@ class Planet3DWidget(QWidget):
         painter.restore()
 
     def stop(self):
-        if self._timer.isActive():
-            self._timer.stop()
+        self._timer.stop()

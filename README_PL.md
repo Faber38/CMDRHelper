@@ -38,6 +38,15 @@ Folder dzienników Elite Dangerous jest wykrywany automatycznie, jeśli to możl
 
 CMDRHelper sprawdza aktualizacje przy uruchomieniu i ma wbudowany mechanizm aktualizacji. Potwierdź proponowaną aktualizację w aplikacji; zaktualizuje ona program i zależności oraz uruchomi CMDRHelper ponownie. Po pierwszej instalacji zwykle wystarczy używać `start.bat` (Windows) lub `bash start.sh` (Linux). Przy zwykłych aktualizacjach nie trzeba ponownie ręcznie uruchamiać `install.bat` ani `install.sh`.
 
+## Nowości w wersji 3.6
+
+- Stacje i placówki na mapie układu oraz osobna karta stacji z wyszukiwaniem, filtrami i sortowaniem.
+- Obrazy stacji, przeglądarka obrazów i szczegóły znanych usług, lądowisk, źródeł oraz dat.
+- Opcjonalne informacje Spansh w Ustawienia → Usługi online, domyślnie wyłączone. Po udanym pobraniu kolejne ręczne żądania tego samego lokalnego dnia są blokowane. Bez Spansh karta informuje o ograniczeniach danych dziennika.
+- Własne obrazy statków i carriera, obrazy typów/domyślne oraz przeglądarka. Usuwanie statków z floty i przywracanie przez ponowny odczyt wszystkich statków; pewniejsze rozpoznawanie sprzedanych statków.
+- Ulepszona mapa, lista wartości z kolorowym stanem mapowania, Cargo HUD i nawigacja. Mniejsze obciążenie w Linuksie oraz przy zrzutach ekranu, galerii i Explorerze.
+- Naprawiono: nieszkodliwe krótkie dzienniki Elite nie przerywają już ciągłości zapasów górniczych carriera. Dane nieznane lub niepewne pozostają wyraźnie oznaczone.
+
 ## Nowości w wersji 3.5
 
 - Szybsza kronika i interfejs; przetwarzanie BIO i kartografii działa w tle.

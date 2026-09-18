@@ -13,6 +13,8 @@ from cmdrhelper.planet_geometry import solve
 
 
 class Controller(QObject):
+    consumer_acquire = Mock()
+    consumer_release = Mock()
     changed = Signal(object)
     state = SimpleNamespace(solution=None)
 
@@ -138,6 +140,36 @@ class HudTests(unittest.TestCase):
         self.tracker.window_is_viewable.return_value = True
         self.hud.follow_target()
         self.assertEqual(self.hud.status, "active")
+
+    def test_failed_native_visibility_check_hides_even_if_qt_thinks_visible(self):
+        self.hud.set_enabled(True)
+        self.tracker.window_is_viewable.return_value = False
+        self.tracker.viewability_failed = True
+        self.hud.follow_target()
+        self.assertFalse(self.hud.isVisible())
+
+    def test_tracker_exception_hides_visible_overlay(self):
+        self.hud.set_enabled(True)
+        self.tracker.current.side_effect = RuntimeError('X11 unavailable')
+        self.hud.follow_target()
+        self.assertFalse(self.hud.isVisible())
+        self.assertEqual(self.hud.status, 'error')
+
+    def test_unchanged_linux_content_does_not_request_another_paint(self):
+        self.hud.set_enabled(True)
+        with patch.object(self.hud, 'update') as update:
+            for _ in range(5):
+                self.hud.follow_target()
+            update.assert_not_called()
+            self.hud.message_lines = ('new message',)
+            self.hud.follow_target()
+            update.assert_called_once()
+            update.reset_mock()
+            self.tracker.current.return_value = None
+            self.hud.follow_target()
+            self.tracker.current.return_value = TargetWindow(42, QRect(30, 40, 800, 600))
+            self.hud.follow_target()
+            update.assert_called_once()
 
     def test_offscreen_geometry_reports_reason_without_mapping(self):
         self.tracker.current.return_value = TargetWindow(42, QRect(99999, 99999, 800, 600))
@@ -290,11 +322,9 @@ class SidebarHudTests(unittest.TestCase):
         with patch("cmdrhelper.ui.navigation_hud.NavigationHud") as cls:
             self.main._apply_navigation_hud_enabled()
             cls.assert_called_once_with(controller)
-            controller.start.assert_called_once()
+            controller.start.assert_not_called()
             self.assertIsNone(self.main._planet_navigation_window)
             cls.return_value.set_enabled.assert_called_with(True)
-            self.main._planet_navigation_closed(0)
-            self.assertEqual(controller.start.call_count, 2)
             self.main._set_navigation_hud_enabled(False)
             cls.return_value.set_enabled.assert_called_with(False)
             controller.stop_target.assert_not_called()
@@ -304,22 +334,23 @@ class SidebarHudTests(unittest.TestCase):
         with patch("cmdrhelper.ui.navigation_hud.NavigationHud", side_effect=RuntimeError("unsupported")):
             self.main._set_navigation_hud_enabled(True)
         self.assertTrue(self.main._navigation_hud_enabled())
-        self.assertTrue(self.main._planet_navigation_controller.timer.isActive())
+        self.assertFalse(self.main._planet_navigation_controller.timer.isActive())
         self.main._show_planet_navigation()
         window = self.main._planet_navigation_window
         self.addCleanup(window.deleteLater)
         self.assertTrue(window.isVisible())
         window.close()
-        self.assertTrue(self.main._planet_navigation_controller.timer.isActive())
+        self.assertFalse(self.main._planet_navigation_controller.timer.isActive())
         self.main._planet_navigation_controller.timer.stop()
 
 
 class TrackerTests(unittest.TestCase):
     def tracker(self, rows=None, state="", info=None, active="0xe600001"):
         tracker = X11WindowTracker.__new__(X11WindowTracker)
+        tracker._reset_cache()
         tracker.compositor_available = Mock(return_value=True)
+        tracker._active_window = Mock(return_value=int(active, 16))
         tracker._read = Mock(side_effect=[
-            f'_NET_ACTIVE_WINDOW(WINDOW): window id # {active}',
             rows if rows is not None else '0xe600001 0 steam_app_359320.steam_app_359320 host Elite - Dangerous (CLIENT)',
             state,
             info if info is not None else 'Absolute upper-left X: 1920\nAbsolute upper-left Y: -20\nWidth: 1920\nHeight: 1080\nMap State: IsViewable'])
@@ -350,7 +381,8 @@ class TrackerTests(unittest.TestCase):
         tracker = self.tracker(active='0x123')
         self.assertIsNone(tracker.current())
         self.assertEqual(tracker.reason, 'foreground')
-        self.assertEqual(tracker.last_target.geometry, QRect(1920, -20, 1920, 1080))
+        self.assertIsNone(tracker.last_target)
+        self.assertEqual(tracker._read.call_count, 1)
 
     def test_disappearing_window_reports_error(self):
         tracker = self.tracker()

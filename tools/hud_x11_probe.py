@@ -52,7 +52,7 @@ def main():
     if args.live_target:
         if args.journal_folder is None:
             parser.error("--live-target requires --journal-folder")
-        controller.start()
+        controller.consumer_acquire("probe")
         controller.set_target(*args.live_target)
     window = PlanetNavigationWindow(controller, ProbeSettings()) if args.window or args.verify_switch else None
     standalone = NavigationHud(controller)

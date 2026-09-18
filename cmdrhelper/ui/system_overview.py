@@ -13,15 +13,13 @@ from PySide6.QtWidgets import (
 )
 
 from cmdrhelper.i18n import tr
+from cmdrhelper.ui import station_items
 from cmdrhelper.ui.system_view import SystemMapWidget
 
 
-THEMES = {
-    False: dict(background='#080d12', line='#465361', text='#d8dde3',
-                muted='#9ba9b7', hover='#c4a264', selected='#ffb34f'),
-    True: dict(background='#f1f4f7', line='#9caab7', text='#20262c',
-               muted='#536574', hover='#927035', selected='#965900'),
-}
+from cmdrhelper.ui.system_theme import THEMES
+
+
 CELL_WIDTH = 176.0
 GAP = 26.0
 
@@ -67,9 +65,12 @@ class OverviewNode(LayoutNode):
         return QRectF(self.x, self.y, CELL_WIDTH, self.height)
 
 
-def build_layout(bodies):
+def build_layout(bodies, groups=None):
+    groups = groups or {}
     return build_positions(bodies, OverviewNode, width=CELL_WIDTH,
                            height=lambda node: node.height, gap=GAP,
+                           reserved_width=lambda n: station_items.CARD_WIDTH if groups.get(n.body.get("body_id")) else 0,
+                           extra_height=lambda n: station_items.extra_height(groups.get(n.body.get("body_id"), [])) if not n.belt_members else 0,
                            image_center=82, image_radius=lambda node: node.diameter / 2)
 
 
@@ -173,11 +174,10 @@ class BodyItem(QGraphicsObject):
 class SystemOverviewView(QGraphicsView):
     bodyClicked = Signal(object)
 
-    def __init__(self, system_name, bodies, *, light=False, parent=None):
+    def __init__(self, system_name, bodies, *, stations=None, light=False, parent=None):
         super().__init__(parent)
         self.system_name = system_name
         self.bodies = deepcopy(list(bodies or []))
-        self.nodes = build_layout(self.bodies)
         self.resolver = SystemMapWidget(self)
         self.resolver.hide()
         self.setScene(QGraphicsScene(self))
@@ -186,6 +186,16 @@ class SystemOverviewView(QGraphicsView):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorUnderMouse)
+        self._populate_scene(stations, light)
+        self._first_show = True
+        self._initial_scroll_timer = QTimer(self)
+        self._initial_scroll_timer.setSingleShot(True)
+        self._initial_scroll_timer.timeout.connect(self._scroll_to_start)
+
+    def _populate_scene(self, stations, light):
+        self.scene().clear()
+        groups = station_items.facility_groups(stations, self.bodies)
+        self.nodes = build_layout(self.bodies, groups)
         self.items_by_key = {}
         self.connections = []
         self.empty_label = None
@@ -204,18 +214,33 @@ class SystemOverviewView(QGraphicsView):
                 marker.setAcceptedMouseButtons(Qt.MouseButton.NoButton)
                 self.connections.append(marker)
             if node.body is not None:
-                item = BodyItem(node, self.resolver, system_name, light)
+                item = BodyItem(node, self.resolver, self.system_name, light)
                 item.clicked.connect(self.bodyClicked)
                 self.scene().addItem(item)
                 self.items_by_key[node.key] = item
-        if not self.items_by_key:
+        for x1, y1, x2, y2 in station_items.parent_links(self.nodes, groups):
+            line = self.scene().addLine(x1, y1, x2, y2)
+            line.setZValue(-1)
+            self.connections.append(line)
+        self.facility_items = []
+        facility_blocks, footer = station_items.blocks(self.nodes, groups, CELL_WIDTH)
+        self.facility_footer = self.scene().addText(tr('facilities.other')) if footer is not None and footer.height() else None
+        if self.facility_footer is not None:
+            self.facility_footer.setPos(footer.topLeft())
+        for rect, group in facility_blocks:
+            item = station_items.FacilityItem(rect, group, light)
+            item.clicked.connect(lambda stations: station_items.show_details(self, stations, self.system_name, light=self.light))
+            self.scene().addItem(item)
+            self.facility_items.append(item)
+        if not self.items_by_key and not self.facility_items:
             self.empty_label = self.scene().addText(tr('explorer.no_system_data_available'))
         self.setSceneRect(self.scene().itemsBoundingRect().adjusted(-28, -28, 28, 28))
         self.set_light_mode(light)
-        self._first_show = True
-        self._initial_scroll_timer = QTimer(self)
-        self._initial_scroll_timer.setSingleShot(True)
-        self._initial_scroll_timer.timeout.connect(self._scroll_to_start)
+
+    def set_stations(self, stations):
+        center = self.mapToScene(self.viewport().rect().center())
+        self._populate_scene(stations, self.light)
+        self.centerOn(center)
 
     def showEvent(self, event):
         super().showEvent(event)
@@ -233,6 +258,11 @@ class SystemOverviewView(QGraphicsView):
         self.setBackgroundBrush(QColor(theme['background']))
         if self.empty_label is not None:
             self.empty_label.setDefaultTextColor(QColor(theme['muted']))
+        if self.facility_footer is not None:
+            self.facility_footer.setDefaultTextColor(QColor(theme['muted']))
+        for item in self.facility_items:
+            item.light = self.light
+            item.update()
         for line in self.connections:
             line.setPen(QPen(QColor(theme['line']), 1.2))
         for item in self.items_by_key.values():
@@ -260,7 +290,7 @@ class SystemOverviewView(QGraphicsView):
 
 class SystemOverviewDialog(QDialog):
     def __init__(self, system_name, bodies, on_body_clicked=None, parent=None, *,
-                 light=False, settings=None, system_address=None, commander_id=None):
+                 light=False, settings=None, system_address=None, commander_id=None, stations=None, spansh=None):
         super().__init__(parent)
         self.system_name = system_name or ''
         self.system_address, self.commander_id = system_address, commander_id
@@ -276,7 +306,7 @@ class SystemOverviewDialog(QDialog):
         hint = QLabel(tr('explorer.overview_hint'), objectName='muted')
         hint.setWordWrap(True)
         root.addWidget(hint)
-        self.preview = SystemOverviewView(self.system_name, bodies, light=light, parent=self)
+        self.preview = SystemOverviewView(self.system_name, bodies, stations=stations, light=light, parent=self)
         if callable(on_body_clicked):
             self.preview.bodyClicked.connect(on_body_clicked)
         root.addWidget(self.preview, 1)
@@ -289,12 +319,54 @@ class SystemOverviewDialog(QDialog):
         self.fit_button.setCursor(Qt.PointingHandCursor)
         self.fit_button.clicked.connect(self.preview.fit_system)
         buttons.addWidget(self.fit_button)
+        self.spansh = spansh
+        self.spansh_button = QPushButton(tr('spansh.refresh'))
+        self.spansh_button.setCursor(Qt.PointingHandCursor)
+        self.spansh_button.setStyleSheet(
+            'QPushButton:disabled { color: #888888; background-color: rgba(128, 128, 128, 35); border-color: #888888; }')
+        self.spansh_status = QLabel('', objectName='muted')
+        self.spansh_status.setWordWrap(True)
+        root.addWidget(self.spansh_status)
+        buttons.addWidget(self.spansh_button)
+        self.spansh_button.clicked.connect(self._refresh_spansh)
+        if spansh is not None:
+            spansh.activityChanged.connect(self._spansh_activity)
+            spansh.completed.connect(self._spansh_completed)
+            spansh.alreadyUpdated.connect(self._spansh_already_updated)
+        self._spansh_activity()
         buttons.addStretch()
         close = QPushButton(tr('common.close'))
         close.setCursor(Qt.PointingHandCursor)
         close.clicked.connect(self.close)
         buttons.addWidget(close)
         root.addLayout(buttons)
+
+    def _spansh_activity(self):
+        from cmdrhelper.spansh_cache import valid_id
+        active = bool(self.spansh and self.spansh.active)
+        busy = bool(self.spansh and self.spansh.busy(self.system_address))
+        self.spansh_button.setEnabled(active and valid_id(self.system_address) and not busy)
+        disabled_hint = tr('spansh.refresh_disabled')
+        busy_hint = tr('spansh.refresh_busy')
+        hint = disabled_hint if not active else busy_hint if busy else ''
+        self.spansh_button.setToolTip(hint)
+        # Disabled widgets do not reliably receive tooltip events on every platform.
+        # Keep the reason readable in the existing status line as well.
+        if hint or self.spansh_status.text() in (disabled_hint, busy_hint):
+            self.spansh_status.setText(hint)
+
+    def _refresh_spansh(self):
+        self._spansh_activity()
+        if self.spansh_button.isEnabled():
+            self.spansh.refresh_system(self.system_address)
+
+    def _spansh_completed(self, address, success):
+        if address == self.system_address:
+            self.spansh_status.setText(tr('spansh.refresh_success' if success else 'spansh.refresh_failed'))
+
+    def _spansh_already_updated(self, address):
+        if address == self.system_address:
+            self.spansh_status.setText(tr('spansh.refresh_already_today'))
 
     def set_light_mode(self, light):
         self.preview.set_light_mode(light)

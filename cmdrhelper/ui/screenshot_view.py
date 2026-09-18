@@ -70,6 +70,8 @@ class ScreenshotView(QWidget):
         self._workers: set[_ConvertWorker] = set()
         self._reserved_targets: set[Path] = set()
         self._gallery_state = None
+        self._gallery_dirty = True
+        self._gallery_selection = None
         self._loading_settings = False
 
         self._build_ui()
@@ -82,7 +84,7 @@ class ScreenshotView(QWidget):
         self.timer.timeout.connect(self._scan)
 
         self._load_settings()
-        self._refresh_gallery()
+        self._request_gallery_refresh()
         self._update_watch_state()
 
         # Galerie unabhängig von der BMP-Überwachung aktuell halten.
@@ -90,7 +92,6 @@ class ScreenshotView(QWidget):
         self.gallery_timer = QTimer(self)
         self.gallery_timer.setInterval(2000)
         self.gallery_timer.timeout.connect(self._check_gallery_changes)
-        self.gallery_timer.start()
         if hasattr(self.state, "viewedCommanderChanged"):
             self.state.viewedCommanderChanged.connect(
                 self._viewed_commander_changed
@@ -231,13 +232,13 @@ class ScreenshotView(QWidget):
         self.gallery_filter.addItem(tr("images.filter_current"), "current")
         self.gallery_filter.addItem(tr("images.filter_all"), "all")
         self.gallery_filter.addItem(tr("images.filter_unassigned"), "unassigned")
-        self.gallery_filter.currentIndexChanged.connect(self._refresh_gallery)
+        self.gallery_filter.currentIndexChanged.connect(self._request_gallery_refresh)
         top.addWidget(self.gallery_filter)
         self.delete_selected_button = QPushButton(tr("images.delete_selected"))
         self.delete_selected_button.clicked.connect(self._delete_selected_images)
         top.addWidget(self.delete_selected_button)
 
-        b = QPushButton(tr("images.refresh_gallery")); b.clicked.connect(self._refresh_gallery); top.addWidget(b)
+        b = QPushButton(tr("images.refresh_gallery")); b.clicked.connect(self._request_gallery_refresh); top.addWidget(b)
         gallery_layout.addLayout(top)
 
         splitter = QSplitter(Qt.Horizontal)
@@ -432,7 +433,7 @@ class ScreenshotView(QWidget):
     def _save_settings_clicked(self):
         self._save_settings()
         self._baseline()
-        self._refresh_gallery()
+        self._request_gallery_refresh()
         self._update_watch_state()
 
         self.save_settings_status.setText(tr("images.settings_saved"))
@@ -448,7 +449,7 @@ class ScreenshotView(QWidget):
     def _path_edited(self):
         self._save_settings()
         self._baseline()
-        self._refresh_gallery()
+        self._request_gallery_refresh()
         self._update_watch_state()
 
     def _source(self):
@@ -467,7 +468,7 @@ class ScreenshotView(QWidget):
     def _choose_target(self):
         folder = QFileDialog.getExistingDirectory(self, tr("images.choose_target_title"), self.target_edit.text() or str(Path.home()))
         if folder:
-            self.target_edit.setText(folder); self._save_settings(); self._refresh_gallery(); self._update_watch_state()
+            self.target_edit.setText(folder); self._save_settings(); self._request_gallery_refresh(); self._update_watch_state()
 
     def _auto_toggled(self, checked):
         self._save_settings()
@@ -498,10 +499,14 @@ class ScreenshotView(QWidget):
         self.status.style().unpolish(self.status); self.status.style().polish(self.status)
 
     def _scan(self):
+        if not self.auto_check.isChecked():
+            return
         source = self._source()
         if not source or not source.is_dir():
             self._update_watch_state(); return
-        files = [p for p in source.iterdir() if p.is_file() and p.suffix.lower() == ".bmp"]
+        # Check the suffix before statting unrelated files. Directory mtime is
+        # insufficient: an existing BMP can still be growing between ticks.
+        files = [p for p in source.iterdir() if p.suffix.lower() == ".bmp" and p.is_file()]
         current = {str(p.resolve()) for p in files}
         self._known.intersection_update(current)
         for p in files:
@@ -657,7 +662,7 @@ class ScreenshotView(QWidget):
         if ok:
             logger.info("Screenshot konvertiert: %s -> %s", source.name, target.name)
             self.last_action.setText(tr("images.converted", source=source.name, target=target.name))
-            self._refresh_gallery(target)
+            self._request_gallery_refresh(target)
         else:
             logger.warning("Screenshot-Konvertierung fehlgeschlagen: %s", error)
             self.last_action.setText(tr("images.convert_error", name=source.name, error=error))
@@ -705,12 +710,23 @@ class ScreenshotView(QWidget):
         return tuple(entries)
 
     def _check_gallery_changes(self):
+        if not self.isVisible():
+            return
         snapshot = self._gallery_snapshot()
 
-        if snapshot != self._gallery_state:
-            self._refresh_gallery()
+        if self._gallery_dirty or snapshot != self._gallery_state:
+            self._refresh_gallery(self._gallery_selection)
+
+    def _request_gallery_refresh(self, select_path=None):
+        self._gallery_dirty = True
+        if isinstance(select_path, (str, Path)):
+            self._gallery_selection = select_path
+        if self.isVisible():
+            self._refresh_gallery(self._gallery_selection)
 
     def _refresh_gallery(self, select_path: Path | None = None):
+        self._gallery_dirty = False
+        self._gallery_selection = None
         explicit = isinstance(select_path, (str, Path))
         previous = self.gallery.currentItem()
         wanted = Path(select_path) if explicit else (
@@ -766,7 +782,12 @@ class ScreenshotView(QWidget):
 
     def showEvent(self, event):
         super().showEvent(event)
-        self._refresh_gallery()
+        self._check_gallery_changes()
+        self.gallery_timer.start()
+
+    def hideEvent(self, event):
+        self.gallery_timer.stop()
+        super().hideEvent(event)
 
     def eventFilter(self, watched, event):
         if watched is self.gallery and event.type() == event.Type.KeyPress:
@@ -897,7 +918,7 @@ class ScreenshotView(QWidget):
 
     def _viewed_commander_changed(self, *_args):
         if str(self.gallery_filter.currentData() or "current") == "current":
-            self._refresh_gallery()
+            self._request_gallery_refresh()
 
     def _is_allowed_gallery_path(self, path):
         target = self._target()
