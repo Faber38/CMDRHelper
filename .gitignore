@@ -20,6 +20,9 @@ build/
 dist/
 *.zip
 
+# Internal release check reports
+RELEASE_CHECK_*.md
+
 # Logs / temporary files
 /logs/
 *.log
