@@ -1,4 +1,4 @@
-"""Live bounty snapshots with bounded current-journal resume; no archive/DB access."""
+"""Live combat bond snapshots with bounded current-journal resume; no archive/DB access."""
 from copy import deepcopy
 from datetime import datetime, timezone
 import json
@@ -19,11 +19,15 @@ logger = logging.getLogger(__name__)
 UNKNOWN_FACTION = ""  # Translate only for display; never persist translated keys.
 
 
+def _invalid_constant(value):
+    raise ValueError("Non-JSON numeric constant")
+
+
 def _amount(value):
     return type(value) is int and value >= 0
 
 
-class BountyManager(QObject):
+class CombatBondManager(QObject):
     changed = Signal()
 
     def __init__(self, root=None, parent=None):
@@ -49,7 +53,7 @@ class BountyManager(QObject):
             location = QStandardPaths.writableLocation(QStandardPaths.AppDataLocation)
             if not location:
                 raise OSError("AppDataLocation is unavailable")
-            return Path(location) / "bounties"
+            return Path(location) / "combat_bonds"
         return self._root
 
     @staticmethod
@@ -60,7 +64,8 @@ class BountyManager(QObject):
     def _empty(fid, name="", uncertain=False):
         return dict(schema=1, fid=fid, commander_name=name, updated_at="",
                     total=0, factions={}, uncertain=uncertain, from_now=True,
-                    last_reset="", last_event=None)
+                    last_reset="", last_event=None, redemption_pending=False, last_redemption=None,
+                    capture_gap=uncertain, pending_redemptions=[])
 
     def _load(self, fid, name):
         empty = self._empty(fid, name)
@@ -77,21 +82,38 @@ class BountyManager(QObject):
                     or sum(data["factions"].values()) != data["total"]
                     or type(data.get("uncertain", False)) is not bool
                     or type(data.get("from_now", False)) is not bool
-                    or data.get("last_reset", "") not in ("", "manual", "died", "redeemed")):
-                raise ValueError("Invalid bounty snapshot")
+                    or type(data.get("redemption_pending", False)) is not bool
+                    or (data.get("last_redemption") is not None and not isinstance(data["last_redemption"], dict))
+                    or data.get("last_reset", "") not in ("", "manual", "redeemed", "died")):
+                raise ValueError("Invalid combat bond snapshot")
+            reasons_present = "capture_gap" in data and "pending_redemptions" in data
+            if reasons_present:
+                if (type(data["capture_gap"]) is not bool
+                        or not isinstance(data["pending_redemptions"], list)
+                        or any(not isinstance(f, str) for f in data["pending_redemptions"])
+                        or data.get("redemption_pending", False) != bool(data["pending_redemptions"])
+                        or data.get("uncertain", False) != bool(data["capture_gap"] or data["pending_redemptions"])):
+                    raise ValueError("Invalid combat bond uncertainty reasons")
+            else:
+                # Legacy booleans cannot prove that no independent gap existed.
+                # Upgrade in memory only; never replay an old redemption.
+                data["capture_gap"] = data.get("uncertain", False)
+                data["pending_redemptions"] = ([""] if data.get("redemption_pending") else [])
             last = data.get("last_event")
             empty.update({key: data[key] for key in empty if key in data})
             if last is not None and not self._valid_anchor(last):
-                logger.warning("Invalid bounty journal anchor for FID %s; keeping balance", fid)
-                empty.update(last_event=None, uncertain=True, from_now=False)
+                logger.warning("Invalid combat bond journal anchor for FID %s; keeping balance", fid)
+                empty.update(last_event=None, uncertain=True, capture_gap=True, from_now=False)
+            self._sync_uncertainty(empty)
             self.known_snapshots.add(fid)
             return empty
         except FileNotFoundError:
             return empty
         except (OSError, ValueError, TypeError):
-            logger.exception("Cannot load bounty snapshot for FID %s", fid)
+            logger.exception("Cannot load combat bond snapshot for FID %s", fid)
             self.damaged.add(fid)
             empty["uncertain"] = True
+            empty["capture_gap"] = True
             empty["from_now"] = False
             return empty
 
@@ -142,7 +164,7 @@ class BountyManager(QObject):
         temporary = None
         try:
             with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=directory,
-                                             prefix=".bounty-", suffix=".tmp", delete=False) as stream:
+                                             prefix=".combat-bond-", suffix=".tmp", delete=False) as stream:
                 temporary = stream.name
                 json.dump(data, stream, ensure_ascii=False, allow_nan=False, indent=2)
                 stream.write("\n")
@@ -153,59 +175,80 @@ class BountyManager(QObject):
             if temporary and os.path.exists(temporary):
                 os.unlink(temporary)
 
-    @staticmethod
-    def _is_reset(event):
-        return event.get("event") == "Died" or (event.get("event") == "RedeemVoucher"
-                and str(event.get("Type", "")).casefold() == "bounty")
-
     def apply(self, fid, name, event, source, offset, prefix_sha256):
-        """Commit one event and its identity together; failure leaves it retryable."""
+        """Commit a credit, redemption or loss together with its journal anchor."""
         kind = event.get("event")
-        reset = self._is_reset(event)
-        if kind != "Bounty" and not reset:
+        redemption = kind == "RedeemVoucher" and str(event.get("Type", "")).casefold() == "combatbond"
+        if kind not in ("FactionKillBond", "Died") and not redemption:
             return True
         if not self._valid_fid(fid):
-            logger.warning("Ignoring live bounty event without an identified FID")
             return True
         self.identify(fid, name)
         previous = self.states[fid]
         last = previous["last_event"]
         if (last and last["file"] == source and offset <= last["offset"]
-                and (offset < last["offset"]
-                     or last.get("prefix_sha256") == prefix_sha256)):
+                and (offset < last["offset"] or last["prefix_sha256"] == prefix_sha256)):
             return True
         data = deepcopy(previous)
-        if reset:
-            data.update(total=0, factions={}, uncertain=False, from_now=False,
-                        last_reset="died" if kind == "Died" else "redeemed")
-        else:
-            rewards = event.get("Rewards")
-            if (not isinstance(rewards, list) or not rewards
-                    or any(not isinstance(r, dict) or not _amount(r.get("Reward")) for r in rewards)
-                    or not _amount(event.get("TotalReward"))
-                    or sum(r["Reward"] for r in rewards) != event["TotalReward"]):
-                logger.error("Invalid live Bounty rewards at %s:%s", source, offset)
-                data["uncertain"] = True
+        if redemption:
+            # One last event, not a redemption/kill history. Exact local evidence
+            # survives restart; never send its arbitrary payload to general logs.
+            data["last_redemption"] = deepcopy(event)
+            faction = self._redemption_faction(event)
+            if faction is None:
+                if "" not in data["pending_redemptions"]:
+                    data["pending_redemptions"].append("")
             else:
-                for reward in rewards:
-                    faction = reward.get("Faction")
-                    faction = faction.strip() if isinstance(faction, str) else UNKNOWN_FACTION
-                    if reward["Reward"]:
-                        data["factions"][faction] = data["factions"].get(faction, 0) + reward["Reward"]
-                data["total"] = sum(data["factions"].values())
+                data["factions"].pop(faction, None)
+                data["pending_redemptions"] = [f for f in data["pending_redemptions"] if f != faction]
+                data["from_now"] = False
+        elif kind == "Died":
+            data.update(factions={}, pending_redemptions=[], from_now=False, last_reset="died")
+            # A witnessed loss clears bonds and redemption doubts, not a
+            # separately recorded capture/integrity gap.
+        else:
+            reward = event.get("Reward")
+            if not _amount(reward):
+                data["capture_gap"] = True
+            else:
+                data["from_now"] = False
+                faction = event.get("AwardingFaction")
+                faction = faction.strip() if isinstance(faction, str) else UNKNOWN_FACTION
+                if reward:
+                    data["factions"][faction] = data["factions"].get(faction, 0) + reward
+        data["total"] = sum(data["factions"].values())
         data["last_event"] = dict(file=source, offset=offset, prefix_sha256=prefix_sha256)
-        return self._commit(fid, data)
+        success = self._commit(fid, data)
+        if success and redemption:
+            from cmdrhelper.logging_config import log_event
+            log_event(logger, "CombatBond redemption captured in local snapshot",
+                      fields=len(event), success=faction is not None)
+        return success
+
+    @staticmethod
+    def _redemption_faction(event):
+        """Confirmed redeem-all path for a single named faction; amounts are diagnostic."""
+        faction = event.get("Faction")
+        if not isinstance(faction, str) or not faction.strip() or "Factions" in event:
+            return None
+        return faction.strip()
+
+    @staticmethod
+    def _sync_uncertainty(data):
+        data["redemption_pending"] = bool(data["pending_redemptions"])
+        data["uncertain"] = bool(data["capture_gap"] or data["redemption_pending"])
 
     def _commit(self, fid, data):
+        self._sync_uncertainty(data)
         previous = self.states[fid]
         data["updated_at"] = datetime.now(timezone.utc).isoformat()
         self.states[fid] = data
         try:
             self._save(data)
-        except OSError:
+        except (OSError, ValueError, TypeError):
             self.states[fid] = previous
             self.storage_errors.add(fid)
-            logger.exception("Cannot persist live bounty event; cursor not acknowledged")
+            logger.exception("Cannot persist live combat bond event; cursor not acknowledged")
             self.changed.emit()
             return False
         self.storage_errors.discard(fid)
@@ -215,7 +258,7 @@ class BountyManager(QObject):
 
     def _initialize_current(self, path, cursor):
         """One startup read of CURRENT journal only. Hash old bytes, replay only
-        a verified suffix; otherwise look for its last explicit reset for FID.
+        a verified suffix; otherwise preserve the amount and start at EOF.
         Never open the file named by an old snapshot's anchor.
         """
         fid = cursor["fid"]
@@ -237,47 +280,20 @@ class BountyManager(QObject):
                      and hashlib.sha256(raw[:anchor["offset"]]).hexdigest() == anchor["prefix_sha256"])
             start = anchor["offset"] if valid else None
             if not valid:
-                # The index supplied this file's FID. Explicit identity records
-                # still prevent another Commander's reset from becoming ours.
-                identity = fid
-                position = 0
-                # A manual reset has no journal event. An invalid anchor in
-                # that same file must not resurrect kills before that reset.
-                manual_boundary = (state["last_reset"] == "manual"
-                                   and (anchor is None or anchor.get("file") == str(path)))
-                for line in raw[:complete].splitlines(keepends=True):
-                    try:
-                        event = json.loads(line)
-                        if not isinstance(event, dict):
-                            raise ValueError("Expected journal object")
-                        if event.get("event") in ("Commander", "LoadGame"):
-                            identity = event.get("FID", "")
-                        if identity == fid and self._is_reset(event) and not manual_boundary:
-                            start = position
-                    except (ValueError, UnicodeError):
-                        pass
-                    position += len(line)
-                if start is None:
-                    # No safe null point: keep the old balance, acknowledge EOF
-                    # and explicitly record a gap (or first capture from now).
-                    start = complete
-                    data = deepcopy(state)
-                    existing = fid in self.known_snapshots or fid in self.damaged
-                    data.update(uncertain=existing, from_now=not existing,
-                                last_event=dict(file=str(path), offset=start,
-                                                prefix_sha256=hashlib.sha256(raw[:start]).hexdigest()))
-                    if not self._commit(fid, data):
-                        return False
-                else:
-                    # Discard only the unusable dedup anchor in memory. The
-                    # actual reset + its new anchor are committed together.
-                    self.states[fid] = deepcopy(state)
-                    self.states[fid]["last_event"] = None
+                # Never reconstruct old rewards, even after a redemption/death.
+                start = complete
+                data = deepcopy(state)
+                existing = fid in self.known_snapshots or fid in self.damaged
+                data.update(capture_gap=existing or state["capture_gap"], from_now=not existing,
+                            last_event=dict(file=str(path), offset=start,
+                                            prefix_sha256=hashlib.sha256(raw[:start]).hexdigest()))
+                if not self._commit(fid, data):
+                    return False
             cursor.update(offset=start, digest=hashlib.sha256(raw[:start]),
                           identity=(after.st_dev, after.st_ino), ready=True, checkpoint=True)
             return True
         except OSError:
-            logger.exception("Cannot resume current bounty journal %s", path)
+            logger.exception("Cannot resume current combat bond journal %s", path)
             return False
 
     def manual_reset(self, expected_fid):
@@ -304,20 +320,21 @@ class BountyManager(QObject):
                 raise ValueError("Cannot verify current journal for manual reset")
             complete = raw.rfind(b"\n") + 1
             for line in raw[cursor["offset"]:complete].splitlines():
-                event = json.loads(line)
+                event = json.loads(line, parse_constant=_invalid_constant)
                 if (not isinstance(event, dict) or (event.get("event") in ("Commander", "LoadGame")
                         and event.get("FID") != expected_fid)):
                     raise ValueError("Current journal identity changed during reset")
             digest = hashlib.sha256(raw[:complete])
             data = deepcopy(self.states[expected_fid])
-            data.update(total=0, factions={}, uncertain=False, from_now=False, last_reset="manual",
+            data.update(total=0, factions={}, uncertain=False, from_now=False, last_reset="manual", redemption_pending=False, last_redemption=None,
+                        capture_gap=False, pending_redemptions=[],
                         last_event=dict(file=key, offset=complete, prefix_sha256=digest.hexdigest()))
             if not self._commit(expected_fid, data):
                 return False
             cursor.update(offset=complete, digest=digest, checkpoint=False)
             return True
         except (OSError, ValueError, UnicodeError):
-            logger.exception("Cannot safely reset bounty snapshot for FID %s", expected_fid)
+            logger.exception("Cannot safely reset combat bond snapshot for FID %s", expected_fid)
             return False
 
     def set_folder(self, folder):
@@ -338,7 +355,7 @@ class BountyManager(QObject):
                 self.cursors[str(current)] = self._cursor(current, current.stat().st_size, ready=False)
             self.armed = True
         except OSError:
-            logger.exception("Cannot establish live bounty EOF boundary; tracking disabled")
+            logger.exception("Cannot establish live combat bond EOF boundary; tracking disabled")
 
     @staticmethod
     def _cursor(path, offset=0, ready=True):
@@ -380,11 +397,13 @@ class BountyManager(QObject):
                 if cursor["blocked"]:
                     continue
                 if (stat.st_dev, stat.st_ino) != cursor["identity"] or stat.st_size < cursor["offset"]:
-                    logger.error("Live bounty journal replaced/truncated; not replaying %s", path)
-                    cursor["blocked"] = True
+                    logger.error("Live combat bond journal replaced/truncated; not replaying %s", path)
                     if cursor["fid"] in self.states:
-                        self.states[cursor["fid"]]["uncertain"] = True
-                        self.changed.emit()
+                        data = deepcopy(self.states[cursor["fid"]])
+                        data["capture_gap"] = True
+                        if not self._commit(cursor["fid"], data):
+                            return False
+                    cursor["blocked"] = True
                     continue
                 with open_journal(path) as stream:
                     stream.seek(cursor["offset"])
@@ -396,14 +415,14 @@ class BountyManager(QObject):
                         digest = cursor["digest"].copy()
                         digest.update(line)
                         try:
-                            event = json.loads(line)
+                            event = json.loads(line, parse_constant=_invalid_constant)
                             if not isinstance(event, dict):
                                 raise ValueError("Expected journal object")
                         except (ValueError, UnicodeError):
                             logger.error("Invalid new live journal line at %s:%s", key, end)
                             if cursor["fid"] in self.states:
                                 data = deepcopy(self.states[cursor["fid"]])
-                                data.update(uncertain=True, last_event=dict(
+                                data.update(capture_gap=True, last_event=dict(
                                     file=key, offset=end, prefix_sha256=digest.hexdigest()))
                                 if not self._commit(cursor["fid"], data):
                                     return False
@@ -429,7 +448,7 @@ class BountyManager(QObject):
                             return False
                     cursor["checkpoint"] = False
             except OSError:
-                logger.exception("Cannot consume live bounty journal %s", path)
+                logger.exception("Cannot consume live combat bond journal %s", path)
                 return False
         # Retain just the current and preceding file, not a growing archive index.
         keys = sorted(self.cursors, key=lambda key: journal_sort_key(Path(key)))

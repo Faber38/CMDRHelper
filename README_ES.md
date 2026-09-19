@@ -38,6 +38,15 @@ La carpeta de diarios de Elite Dangerous se detecta automáticamente cuando es p
 
 CMDRHelper busca actualizaciones al iniciarse y dispone de un actualizador integrado. Confirma una actualización ofrecida en la aplicación; actualizará el programa y las dependencias y reiniciará CMDRHelper. Tras la primera instalación, normalmente basta con usar `start.bat` (Windows) o `bash start.sh` (Linux). No es necesario volver a ejecutar manualmente `install.bat` o `install.sh` para las actualizaciones normales.
 
+## Novedades de la versión 3.6.2
+
+- Bonos de combate en « Misiones y recompensas », con importes por facción, total y reinicio local.
+- Los bonos registrados en directo se conservan por comandante tras reiniciar; los puntos verificados del diario evitan recuentos duplicados.
+- Recompensas por cazarrecompensas, bonos de combate y Odyssey comparten la lectura del diario con confirmaciones independientes.
+- Un canje inequívoco vacía el saldo observado de la facción indicada; las cantidades antiguas y el importe canjeado no afectan a otras facciones.
+- La muerte elimina los bonos observados sin canjear; la resurrección y la pérdida del SRV no provocan otro reinicio.
+- Las recompensas por cazarrecompensas y los bonos de combate siguen separados. Se indican lagunas de registro y errores de guardado.
+
 ## Novedades de la versión 3.6.1
 
 - Recompensas por cazarrecompensas en directo en Misiones, guardadas de forma persistente y separada por comandante.

@@ -5,6 +5,7 @@ import time
 
 from PySide6.QtCore import QObject, QTimer, Signal
 from cmdrhelper.odyssey_sidecars import OdysseySidecars
+from cmdrhelper.live_journal import journal_batch
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,8 @@ class JournalWatcher(QObject):
         self._catchup_signatures = {}
         self._catchup_requested = False
         self.odyssey_sidecars = OdysseySidecars()
-        self.live_observer = None
+        self.live_observer = None  # Compatibility for existing single-observer callers.
+        self.live_observers = []
         self._live_pending = False
 
         self.timer = QTimer(self)
@@ -52,9 +54,15 @@ class JournalWatcher(QObject):
         self._catchup_signatures = {}
         self._catchup_requested = False
         self.odyssey_sidecars = OdysseySidecars()
-        if self.live_observer is not None:
-            self.live_observer.set_folder(self.folder)
+        for observer in self._observers():
+            observer.set_folder(self.folder)
         self._live_pending = False
+
+    def _observers(self):
+        observers = list(self.live_observers)
+        if self.live_observer is not None and self.live_observer not in observers:
+            observers.insert(0, self.live_observer)
+        return observers
 
     def start(self):
         if not self.timer.isActive():
@@ -182,19 +190,25 @@ class JournalWatcher(QObject):
         if sig is None:
             return
 
-        # Small personal files may finish after the journal notification. This
-        # capture also runs when no material view exists, without a State refresh.
-        if self.odyssey_sidecars.poll(current):
-            self.odysseySidecarsChanged.emit()
-        self.odysseyTrackingUpdated.emit()
+        # All live readers share this notification's bytes, including the
+        # existing sidecar observer. Their independent cursors remain retryable.
+        with journal_batch():
+            if self.odyssey_sidecars.poll(current):
+                self.odysseySidecarsChanged.emit()
+            self.odysseyTrackingUpdated.emit()
 
-        if sig == self._sig and not self._catchup_requested and not self._live_pending:
-            return
+            if sig == self._sig and not self._catchup_requested and not self._live_pending:
+                return
 
-        # Live consumers have their own confirmed startup/resume boundary. They must
-        # never receive the archive/catch-up reader's historical event batches.
-        if self.live_observer is not None:
-            self._live_pending = not self.live_observer.consume(candidates or files)
+            # Never deliver archive/catch-up batches to the live observers.
+            results = []
+            for observer in self._observers():
+                try:
+                    results.append(observer.consume(candidates or files))
+                except Exception:
+                    logger.exception("Live journal observer failed; retrying independently")
+                    results.append(False)
+            self._live_pending = not all(results)
         # A snapshot write failure must not block unrelated application state.
         # Retry its unacknowledged bytes through this existing watcher only.
         if sig == self._sig and not self._catchup_requested:

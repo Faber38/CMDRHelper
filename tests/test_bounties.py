@@ -338,7 +338,9 @@ class BountyTests(unittest.TestCase):
         from cmdrhelper.models import Mission
         host = QMainWindow()
         self.addCleanup(host.close)
-        host.state = SimpleNamespace(bounties=self.manager, refresh=lambda: None, missions=[
+        from cmdrhelper.combat_bond_manager import CombatBondManager
+        bonds = CombatBondManager(self.folder / "combat_bonds")
+        host.state = SimpleNamespace(bounties=self.manager, combat_bonds=bonds, refresh=lambda: None, missions=[
             Mission(name='Mission A', summary='Details A', progress_text='1 / 3'),
             Mission(name='Mission B', summary='Details B', progress_text='2 / 4')],
                                      settings=SimpleNamespace(value=lambda *args: None, setValue=Mock()))
@@ -358,7 +360,8 @@ class BountyTests(unittest.TestCase):
         details = host.mission_detail_title.parentWidget()
         layout = page.layout()
         self.assertEqual(layout.indexOf(host.bounty_view), layout.indexOf(active) + 1)
-        self.assertEqual(layout.indexOf(details), layout.indexOf(host.bounty_view) + 1)
+        self.assertEqual(layout.indexOf(host.combat_bond_view), layout.indexOf(host.bounty_view) + 1)
+        self.assertEqual(layout.indexOf(details), layout.indexOf(host.combat_bond_view) + 1)
         self.assertEqual(layout.stretch(layout.indexOf(active)), 1)
         self.assertEqual(host.bounty_view.sizePolicy().verticalPolicy(), QSizePolicy.Maximum)
         host.missions_table.setRowCount(2)

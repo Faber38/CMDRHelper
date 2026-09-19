@@ -174,7 +174,9 @@ class AppState(QObject):
         self.watcher = JournalWatcher(self)
         from cmdrhelper.bounty_manager import BountyManager
         self.bounties = BountyManager(parent=self)
-        self.watcher.live_observer = self.bounties
+        from cmdrhelper.combat_bond_manager import CombatBondManager
+        self.combat_bonds = CombatBondManager(parent=self)
+        self.watcher.live_observers = [self.bounties, self.combat_bonds]
         from cmdrhelper.odyssey_tracking import OdysseyCarrierTracking
         self.odyssey_carrier_tracking = OdysseyCarrierTracking(self)
         self.watcher.odysseyTrackingUpdated.connect(self.odyssey_carrier_tracking.poll)
@@ -1628,8 +1630,11 @@ class AppState(QObject):
         commander_id = int(session["commander_id"])
         fid = str(session.get("fid_seen") or "").strip()
         name = str(session.get("commander_name_seen") or "").strip()
-        if hasattr(self, "bounties"):
-            self.bounties.identify(fid, name, session["journal_file"])
+        from cmdrhelper.live_journal import journal_batch
+        with journal_batch():
+            for attribute in ("bounties", "combat_bonds"):
+                if hasattr(self, attribute):
+                    getattr(self, attribute).identify(fid, name, session["journal_file"])
         previous_fid = self.commander_fid
         if previous_fid != fid:
             self.game_mode = ""
@@ -1672,8 +1677,9 @@ class AppState(QObject):
         name = str(
             data.get("commander_identity_name") or data.get("commander") or ""
         ).strip()
-        if hasattr(self, "bounties"):
-            self.bounties.identify(fid, name)
+        for attribute in ("bounties", "combat_bonds"):
+            if hasattr(self, attribute):
+                getattr(self, attribute).identify(fid, name)
         commander_id = self.database.upsert_commander(
             fid,
             name,

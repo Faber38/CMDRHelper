@@ -39,6 +39,15 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## 3.6.2 sürümündeki yenilikler
+
+- “Görevler ve Ödüller” altında fraksiyon tutarları, toplam ve yerel sıfırlama ile savaş tahvilleri.
+- Canlı kaydedilen savaş tahvilleri yeniden başlatmalarda komutan bazında korunur; doğrulanmış günlük konumları çift sayımı önler.
+- Ödül avı kazançları, savaş tahvilleri ve Odyssey, bağımsız onaylarla canlı günlük okumasını paylaşır.
+- Kesin olarak belirlenen bir bozdurma, adı verilen fraksiyonun gözlenen bakiyesini temizler; eski bakiyeler ve bozdurma tutarı diğer fraksiyonları etkilemez.
+- Ölüm, gözlenen ve bozdurulmamış savaş tahvillerini siler; yeniden doğma ve SRV kaybı ek sıfırlama yapmaz.
+- Ödül avı kazançları ve savaş tahvilleri ayrı kalır. Kayıt boşlukları ve kaydetme hataları açıkça gösterilir.
+
 ## 3.6.1 sürümündeki yenilikler
 
 - Görevler altında canlı ödül avı kazançları, her komutan için kalıcı ve ayrı olarak saklanır.

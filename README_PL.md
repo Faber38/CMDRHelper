@@ -38,6 +38,15 @@ Folder dzienników Elite Dangerous jest wykrywany automatycznie, jeśli to możl
 
 CMDRHelper sprawdza aktualizacje przy uruchomieniu i ma wbudowany mechanizm aktualizacji. Potwierdź proponowaną aktualizację w aplikacji; zaktualizuje ona program i zależności oraz uruchomi CMDRHelper ponownie. Po pierwszej instalacji zwykle wystarczy używać `start.bat` (Windows) lub `bash start.sh` (Linux). Przy zwykłych aktualizacjach nie trzeba ponownie ręcznie uruchamiać `install.bat` ani `install.sh`.
 
+## Nowości w wersji 3.6.2
+
+- Obligacje bojowe w sekcji „Misje i nagrody”: kwoty według frakcji, suma i lokalne zerowanie.
+- Obligacje rejestrowane na żywo są zachowywane osobno dla dowódców po restarcie; zweryfikowane punkty dziennika zapobiegają podwójnemu naliczaniu.
+- Nagrody za głowy, obligacje bojowe i Odyssey współdzielą odczyt bieżącego dziennika z niezależnymi potwierdzeniami.
+- Jednoznaczna realizacja usuwa obserwowane saldo wskazanej frakcji; stare środki i kwota realizacji nie wpływają na inne frakcje.
+- Śmierć usuwa obserwowane niezrealizowane obligacje bojowe; odrodzenie i utrata SRV nie powodują dodatkowego zerowania.
+- Nagrody za głowy i obligacje bojowe pozostają rozdzielone. Luki w rejestracji i błędy zapisu są wyraźnie oznaczane.
+
 ## Nowości w wersji 3.6.1
 
 - Bieżące nagrody za głowy w Misjach, zapisywane trwale i osobno dla każdego dowódcy.

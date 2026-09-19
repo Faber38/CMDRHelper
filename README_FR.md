@@ -38,6 +38,15 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## Nouveautés de la version 3.6.2
+
+- Bons de combat dans « Missions et récompenses », avec montants par faction, total et remise à zéro locale.
+- Les bons de combat suivis en direct persistent par commandant après redémarrage ; des repères de journal vérifiés empêchent les doublons.
+- Primes, bons de combat et traitement Odyssey partagent la lecture du journal en direct avec des validations indépendantes.
+- Un encaissement non ambigu efface le solde observé de la faction nommée ; les anciens avoirs et le montant encaissé ne modifient pas les autres factions.
+- La mort supprime les bons de combat observés non encaissés ; la résurrection et la perte du SRV ne déclenchent aucune remise à zéro supplémentaire.
+- Primes et bons de combat restent séparés. Les lacunes de suivi et les erreurs de sauvegarde sont signalées.
+
 ## Nouveautés de la version 3.6.1
 
 - Primes en direct dans Missions, enregistrées durablement et séparément pour chaque commandant.

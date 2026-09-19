@@ -1238,7 +1238,7 @@ class MainWindow(QMainWindow):
             )
 
     def _nav(self, text, idx):
-        button = QPushButton(text)
+        button = QPushButton(text.replace("&", "&&"))
 
         button.clicked.connect(lambda: self._show_page(idx))
 
@@ -1289,7 +1289,8 @@ class MainWindow(QMainWindow):
 
         side_frame = QFrame(objectName="sidebar")
 
-        side_frame.setFixedWidth(210)
+        side_frame.setMinimumWidth(210)
+        side_frame.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
 
         side = QVBoxLayout(side_frame)
         side.setContentsMargins(12, 12, 12, 12)
@@ -4499,6 +4500,10 @@ class MainWindow(QMainWindow):
         from cmdrhelper.ui.bounty_view import BountyView
         self.bounty_view = BountyView(self.state.bounties, self._format_reward)
         layout.addWidget(self.bounty_view)
+
+        from cmdrhelper.ui.combat_bond_view import CombatBondView
+        self.combat_bond_view = CombatBondView(self.state.combat_bonds, self._format_reward)
+        layout.addWidget(self.combat_bond_view)
 
         detail_card, detail_layout = self._card(tr("missions.details"))
 

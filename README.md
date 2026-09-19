@@ -38,6 +38,15 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## New in version 3.6.2
+
+- Combat bonds in “Missions & Rewards”, with faction balances, a total and a local reset.
+- Live combat bonds persist per commander across Helper restarts; verified journal anchors prevent duplicate counting.
+- Bounties, combat bonds and Odyssey processing share live journal reads with independent acknowledgements.
+- An unambiguous combat-bond redemption clears the observed balance of the named faction; old holdings and the redemption amount do not affect other factions.
+- Death removes observed unredeemed combat bonds; resurrection and SRV loss cause no additional reset.
+- Bounties and combat bonds remain separate. Capture gaps and storage errors are shown clearly.
+
 ## New in version 3.6.1
 
 - Live bounties under Missions, stored persistently and separately for each commander.

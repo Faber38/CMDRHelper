@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 
 from .odyssey_inventory import CONTAINERS, _time, validate_snapshot
+from .live_journal import open_journal
 
 
 def signature(path):
@@ -77,7 +78,7 @@ class OdysseySidecars:
         timestamps = {} if reset else dict(self._timestamps)
         trusted = True if reset else self._trusted
         events = []
-        with path.open("rb") as stream:
+        with open_journal(path) as stream:
             stream.seek(offset)
             while True:
                 start = stream.tell()

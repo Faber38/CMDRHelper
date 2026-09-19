@@ -38,6 +38,15 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## Novità della versione 3.6.2
+
+- Obbligazioni di combattimento in « Missioni e ricompense », con importi per fazione, totale e azzeramento locale.
+- Le obbligazioni rilevate in tempo reale persistono per comandante dopo il riavvio; riferimenti verificati al diario impediscono doppi conteggi.
+- Taglie, obbligazioni di combattimento e gestione Odyssey condividono la lettura del diario con conferme indipendenti.
+- Un riscatto univoco azzera il saldo osservato della fazione indicata; saldi precedenti e importo riscattato non influiscono sulle altre fazioni.
+- La morte elimina le obbligazioni osservate non riscattate; resurrezione e perdita del SRV non causano ulteriori azzeramenti.
+- Taglie e obbligazioni restano separate. Lacune nella rilevazione ed errori di salvataggio sono segnalati.
+
 ## Novità della versione 3.6.1
 
 - Taglie in tempo reale in Missioni, salvate in modo persistente e separato per ogni comandante.

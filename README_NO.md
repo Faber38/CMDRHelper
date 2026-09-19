@@ -38,6 +38,15 @@ Journalmappen til Elite Dangerous oppdages automatisk når det er mulig. Hvis de
 
 CMDRHelper søker etter oppdateringer ved oppstart og har en innebygd oppdateringsfunksjon. Bekreft en tilbudt oppdatering i programmet; den oppdaterer programmet og avhengighetene og starter CMDRHelper på nytt. Etter førstegangsinstallasjonen bruker du normalt bare `start.bat` (Windows) eller `bash start.sh` (Linux). Du trenger ikke å kjøre `install.bat` eller `install.sh` manuelt på nytt for vanlige oppdateringer.
 
+## Nytt i versjon 3.6.2
+
+- Kampobligasjoner under «Oppdrag og belønninger», med beløp per fraksjon, totalsum og lokal nullstilling.
+- Kampobligasjoner registrert direkte lagres per kommandør gjennom omstarter; verifiserte journalankre hindrer dobbelttelling.
+- Dusører, kampobligasjoner og Odyssey deler lesing av den aktive journalen med separate bekreftelser.
+- En entydig innløsning tømmer den observerte beholdningen til den navngitte fraksjonen; eldre beholdninger og innløsningsbeløpet påvirker ikke andre fraksjoner.
+- Død fjerner observerte, uinnløste kampobligasjoner; gjenoppliving og tap av SRV utløser ingen ekstra nullstilling.
+- Dusører og kampobligasjoner holdes atskilt. Registreringshull og lagringsfeil vises tydelig.
+
 ## Nytt i versjon 3.6.1
 
 - Dusører i sanntid under Oppdrag, lagret varig og separat for hver kommandant.

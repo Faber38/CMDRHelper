@@ -38,6 +38,15 @@ Journalmappen för Elite Dangerous hittas automatiskt när det är möjligt. Om 
 
 CMDRHelper söker efter uppdateringar vid start och har en inbyggd uppdateringsfunktion. Bekräfta en erbjuden uppdatering i programmet; den uppdaterar programmet och beroendena och startar om CMDRHelper. Efter den första installationen använder du normalt bara `start.bat` (Windows) eller `bash start.sh` (Linux). Du behöver inte köra `install.bat` eller `install.sh` manuellt igen för vanliga uppdateringar.
 
+## Nytt i version 3.6.2
+
+- Stridsobligationer under ”Uppdrag och belöningar”, med belopp per fraktion, totalsumma och lokal återställning.
+- Stridsobligationer som registreras live sparas per befälhavare över omstarter; verifierade journalankare förhindrar dubbelräkning.
+- Premier, stridsobligationer och Odyssey delar läsningen av den aktiva journalen med separata bekräftelser.
+- En entydig inlösen tömmer det observerade saldot för den namngivna fraktionen; äldre innehav och inlösenbeloppet påverkar inte andra fraktioner.
+- Död tar bort observerade, ej inlösta stridsobligationer; återupplivning och förlust av SRV orsakar ingen extra återställning.
+- Premier och stridsobligationer hålls åtskilda. Registreringsluckor och lagringsfel visas tydligt.
+
 ## Nytt i version 3.6.1
 
 - Aktuella prispengar under Uppdrag, sparade varaktigt och separat för varje befälhavare.

@@ -38,6 +38,15 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## Uutta versiossa 3.6.2
+
+- Taistelupalkkiot kohdassa ”Tehtävät ja palkkiot”: summat ryhmittymittäin, yhteissumma ja paikallinen nollaus.
+- Reaaliaikaisesti kirjatut taistelupalkkiot säilyvät komentajakohtaisesti uudelleenkäynnistyksissä; tarkistetut lokiankkurit estävät kaksoislaskennan.
+- Tappopalkkiot, taistelupalkkiot ja Odyssey jakavat reaaliaikaisen lokin lukemisen erillisillä kuittauksilla.
+- Yksiselitteinen lunastus tyhjentää nimetyn ryhmittymän havaitun saldon; vanhat saldot ja lunastussumma eivät vaikuta muihin ryhmittymiin.
+- Kuolema poistaa havaitut lunastamattomat taistelupalkkiot; elvytys ja SRV:n menetys eivät aiheuta uutta nollausta.
+- Tappopalkkiot ja taistelupalkkiot pysyvät erillään. Seurannan aukot ja tallennusvirheet näytetään selvästi.
+
 ## Uutta versiossa 3.6.1
 
 - Reaaliaikaiset tappopalkkiot Tehtävät-näkymässä, tallennettu pysyvästi ja erikseen jokaiselle komentajalle.

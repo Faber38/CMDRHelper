@@ -38,6 +38,15 @@ Der Journalordner von Elite Dangerous wird nach Möglichkeit automatisch erkannt
 
 CMDRHelper prüft beim Start auf Updates und besitzt einen integrierten Updater. Bestätige ein angebotenes Update im Programm; es aktualisiert Programm und Abhängigkeiten und startet CMDRHelper neu. Nach der Erstinstallation genügt normalerweise `start.bat` (Windows) beziehungsweise `bash start.sh` (Linux). Für normale Updates musst du `install.bat` oder `install.sh` nicht erneut manuell ausführen.
 
+## Neu in Version 3.6.2
+
+- Kampfbelohnungen unter „Missionen & Belohnungen“ mit Fraktionsbeträgen, Gesamtsumme und lokalem Reset.
+- Live erfasste Combat Bonds bleiben je Commander über Helper-Neustarts erhalten; sichere Journalanker verhindern Doppelzählung.
+- Kopfgelder, Kampfbelohnungen und Odyssey-Verarbeitung teilen den Live-Journal-Leseweg mit getrennten Bestätigungen.
+- Eine eindeutige Combat-Bond-Einlösung leert den beobachteten Bestand der genannten Fraktion; Altbestände und Einlösungsbetrag verändern andere Fraktionen nicht.
+- Tod entfernt nicht eingelöste beobachtete Kampfbelohnungen; Wiederbelebung und SRV-Verlust lösen keinen weiteren Reset aus.
+- Kopfgelder und Kampfbelohnungen bleiben getrennt. Erfassungslücken und Speicherfehler werden sichtbar angezeigt.
+
 ## Neu in Version 3.6.1
 
 - Live-Kopfgelder unter Missionen, dauerhaft und getrennt je Commander gespeichert.
