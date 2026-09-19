@@ -33,14 +33,9 @@ done
 [[ ! -L "$RELEASE_DIR" && ( ! -e "$RELEASE_DIR" || -d "$RELEASE_DIR" ) ]] || fail "Ungültiges Release-Ziel: $RELEASE_DIR"
 [[ ! -L "$ARCHIVE" && ( ! -e "$ARCHIVE" || -f "$ARCHIVE" ) ]] || fail "Ungültiges ZIP-Ziel: $ARCHIVE"
 
-# These are authoring/backup files, not application assets.
+# This authoring source is not an application asset.
 excluded=(
-    cmdrhelper/ui/backup_main_window.py
-    cmdrhelper/ui/_main_window.py
-    cmdrhelper/assets/readme/text/de.py
     cmdrhelper/assets/readme/cmdrhelper_readme_master.png
-    docs/planet-navigation-i18n-audit.md
-    docs/support-343-mission-overflow.md
 )
 
 mkdir -p -- "$RELEASE_ROOT"

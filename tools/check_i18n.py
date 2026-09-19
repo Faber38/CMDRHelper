@@ -29,6 +29,9 @@ EXCLUDED_DIRS = {
     ".venv",
     "build",
     "dist",
+    "release",
+    "backup",
+    "backups",
 }
 
 REFERENCE_LANGUAGE = "en"

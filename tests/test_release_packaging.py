@@ -11,12 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 REQUIRED = ['main.py', 'requirements.txt', 'LICENSE', 'README.md'] + [
     f'README_{lang}.md' for lang in 'DE FR IT NO SV FI PL NL ES TR EL'.split()
 ] + ['install.sh', 'start.sh', 'install.bat', 'install-windows.ps1', 'start.bat']
-EXCLUDED = [
-    'cmdrhelper/ui/backup_main_window.py', 'cmdrhelper/ui/_main_window.py',
-    'cmdrhelper/assets/readme/text/de.py',
-    'cmdrhelper/assets/readme/cmdrhelper_readme_master.png',
-    'docs/planet-navigation-i18n-audit.md',
-]
+EXCLUDED = ['cmdrhelper/assets/readme/cmdrhelper_readme_master.png']
 
 
 @unittest.skipUnless(all(shutil.which(t) for t in ('bash', 'zip', 'unzip')), 'requires bash/zip/unzip')
@@ -133,10 +128,10 @@ class ReleasePackagingTests(unittest.TestCase):
 
     def test_cleanup_failure_is_not_ignored(self):
         real_rm = shutil.which('rm')
-        env = self.fake_tool('rm', f'for arg in "$@"; do\n case "$arg" in */backup_main_window.py) exit 42 ;; esac\ndone\nexec "{real_rm}" "$@"\n')
+        env = self.fake_tool('rm', f'for arg in "$@"; do\n case "$arg" in */cmdrhelper_readme_master.png) exit 42 ;; esac\ndone\nexec "{real_rm}" "$@"\n')
         result = self.run_script(env)
         self.assert_preserved(result)
-        self.assertIn('backup_main_window.py', result.stderr)
+        self.assertIn('cmdrhelper_readme_master.png', result.stderr)
 
     def test_zip_failure_preserves_existing_releases(self):
         result = self.run_script(self.fake_tool('zip', 'exit 42\n'))

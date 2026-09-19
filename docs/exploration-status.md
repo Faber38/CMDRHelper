@@ -48,8 +48,7 @@ und dessen drei Ergebnisse bleiben unverändert.
   historische Einordnung. Marker/Legende und Wertvolle-Körper-Liste verwenden
   dieselbe zeitliche Semantik. Goldrahmen bleibt eine Wertschwelle, keine
   Bestätigung von First Discovery oder unverkauften Daten.
-- `_main_window.py` und `backup_main_window.py` sind nicht importierte alte
-  Kopien; die aktive UI läuft über `ui/main_window.py`.
+- Die aktive UI läuft über `ui/main_window.py`.
 
 ## Reale, ausschließlich lesend geprüfte Fälle
 

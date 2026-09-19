@@ -47,9 +47,8 @@ Thumbs.db
 backup/
 texture_test.py
 
-# Generated release directories (already tracked historical files stay tracked)
-/release/CMDRHelper_v*/
-/release/.cmdrhelper-stage.*/
+# Local release products
+/release/
 
 # Runtime data must never become bundled artwork or fixtures.
 external/spansh/
@@ -60,3 +59,33 @@ Journal.*.log
 CMDRHelper.conf
 *.bak-shm
 *.bak-wal
+
+# SQLite
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+
+# Personal runtime state
+bounties/
+combat_bonds/
+CMDRHelper.ini
+
+# Backups / editor leftovers
+backups/
+*.old
+*.orig
+*.rej
+*.swp
+*.swo
+*.temp
+
+# Local environment / credentials
+.env
+.env.*
+!.env.example
+
+# Internal working directories
+/.codex/
+/.agents/
+/.local-audit/
