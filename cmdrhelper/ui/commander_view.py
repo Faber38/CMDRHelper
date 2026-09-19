@@ -545,7 +545,7 @@ class CommanderView(QWidget):
 
     def _refresh_missions(self, commander_id):
         missions = (
-            self.state.database.commander_missions(commander_id)
+            self.state.database.commander_missions(commander_id, only_open=True)
             if commander_id is not None else []
         )
         self.missions_table.setRowCount(len(missions))

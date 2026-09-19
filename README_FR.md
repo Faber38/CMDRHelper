@@ -38,6 +38,15 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## Nouveautés de la version 3.6.1
+
+- Primes en direct dans Missions, enregistrées durablement et séparément pour chaque commandant.
+- Les missions de rencontre et de messager sont visibles avant la disponibilité du MissionID définitif.
+- Les offres de rencontre sont conservées après redémarrage et deviennent des missions normales après confirmation sans ambiguïté, sans doublons.
+- Correspondance améliorée des marchandises, quantités, destinations, récompenses et horaires ; aucune supposition en cas d’ambiguïté. Les offres non confirmées expirent après 24 heures.
+- Commandant → Missions affiche les missions actuelles. Les nouvelles fins de mission ne créent plus d’archives croissantes ; les anciennes lignes sont conservées.
+- Le traitement des rencontres est à nouveau entièrement raccordé ; les anciens événements ne remplacent pas un état plus récent. Réinitialisation contradictoire des missions supprimée.
+
 ## Nouveautés de la version 3.6
 
 - Stations et installations sur la carte du système, avec un onglet stations dédié proposant recherche, filtres et tri.

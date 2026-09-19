@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from cmdrhelper.i18n import tr
+from cmdrhelper.commodities import commodity_name
 from cmdrhelper.models import Mission, STATUS_ACCEPTED
 
 
@@ -180,6 +181,30 @@ def translate_mission_text(value: str) -> str:
     if " Einheiten besorgen und liefern: " in text:
         count, commodity = text.split(" Einheiten besorgen und liefern: ", 1)
         if count.isdigit():
-            return tr("mission_name.collect_count", count=count, commodity=commodity)
+            return tr("mission_name.collect_count", count=count, commodity=commodity_name(commodity))
 
     return text
+
+
+def pending_missions(offers):
+    """Project the existing offers into the normal view; never invent an ID."""
+    rows = []
+    for offer in offers:
+        commodity = commodity_name(offer.get("commodity"))
+        name = tr("missions.encounter_collect", count=offer.get("count", 0), commodity=commodity)
+        rows.append({
+            **offer, "mission_id": None, "name": name,
+            "commodity": commodity, "status": tr("missions.encounter"),
+            "next_step": name, "expiry": "", "progress_text": "", "accepted_at": "",
+            "summary": " · ".join([name, *[
+                f"{tr(label)}: {offer[field]}"
+                for field, label in (("destination_system", "missions.col_system"),
+                                     ("destination_station", "missions.col_place"))
+                if offer.get(field)]]),
+            "extra": {"pending_offer": True, "offer_source": offer.get("source")},
+        })
+    return normalize_missions(rows)
+
+
+def confirmed_mission_reward(missions):
+    return sum(int(m.reward or 0) for m in missions if not m.extra.get("pending_offer"))

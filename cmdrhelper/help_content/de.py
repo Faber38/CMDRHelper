@@ -649,13 +649,13 @@ HELP_TOPICS = {
 <h3>Commanderbezogene Ablage</h3>
 <p>Neue Screenshots werden anhand der im aktiven Live-AppState vorhandenen Journalidentität dem tatsächlich spielenden Commander zugeordnet.</p>
 <p>Die Ordnerstruktur enthält Commandername und Frontier-ID, beispielsweise:</p>
-<p><b>FABER38_F12520967/</b></p>
+<p><b>EXAMPLE_F12345678/</b></p>
 <p>Die FID hält die Zuordnung auch bei mehreren Commandern eindeutig. Zwei Commander mit gleichem Namen können dadurch unterschieden werden.</p>
 
 <h3>Dateinamen</h3>
 <p>Neue verarbeitete Bilder erhalten einen Namen mit Aufnahmezeitpunkt, Commandername und – wenn vorhanden – dem beim Einreihen bekannten Sternensystem.</p>
 <p>Beispiel:</p>
-<p><b>2026-09-04_13-18-22_FABER38_Prua-Hypai-RB-D-c29-71.png</b></p>
+<p><b>2026-09-04_13-18-22_EXAMPLE_Sol.png</b></p>
 <p>Die FID steht im commanderbezogenen Ordnernamen, nicht noch einmal im Bilddateinamen.</p>
 
 <h3>Sichere Dateinamen</h3>

@@ -102,10 +102,10 @@ class ScreenshotMultiCommanderTests(unittest.TestCase):
         stamp = datetime(2026, 9, 4, 13, 18, 22).timestamp()
         source = self._source(stamp=stamp)
         self.state.commander = "FABER38"
-        self.state.commander_fid = "F12520967"
+        self.state.commander_fid = "F12345678"
         self.state.system = "Prua Hypai RB-D c29-71"
         path = self.view._output_path(source)
-        self.assertEqual(path.parent.name, "FABER38_F12520967")
+        self.assertEqual(path.parent.name, "FABER38_F12345678")
         self.assertEqual(
             path.name,
             "2026-09-04_13-18-22_FABER38_Prua-Hypai-RB-D-c29-71.png",

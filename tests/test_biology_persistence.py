@@ -53,11 +53,11 @@ class BiologyPersistenceTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.folder = Path(self.temp.name)
         self.db = CMDRDatabase(self.folder / "state.db")
-        self.commander = self.db.upsert_commander("F12520967", "FABER38")
+        self.commander = self.db.upsert_commander("F12345678", "FABER38")
         self.other = self.db.upsert_commander("OTHER", "Other")
         self.journal = self.folder / "Journal.2026-09-04T134325.01.log"
 
-    def prepare(self, events, *, already_read=False, fid="F12520967"):
+    def prepare(self, events, *, already_read=False, fid="F12345678"):
         entries = [{"event": "LoadGame", "timestamp": "2026-09-04T11:43:53Z",
                     "FID": fid, "Commander": "FABER38"}, *events]
         self.journal.write_text("".join(json.dumps(e) + "\n" for e in entries))
@@ -168,7 +168,7 @@ class BiologyPersistenceTests(unittest.TestCase):
             self.backfill(apply=True)
         self.prepare([organic()], already_read=True)
         raw = self.journal.read_text()
-        self.journal.write_text(raw.replace("F12520967", "F00000000"))
+        self.journal.write_text(raw.replace("F12345678", "F00000000"))
         with self.assertRaises(ValueError):
             self.backfill(apply=True)
         self.journal.write_text(raw[:-2])

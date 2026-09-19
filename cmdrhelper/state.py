@@ -107,11 +107,6 @@ class AppState(QObject):
 
         self.missions = []
 
-        self.mission_reset_at = self.settings.value(
-            "mission_reset_at",
-            ""
-        ) or ""
-
         # Online-Dienste
         self.edsm_commander = ""
         self.edsm_api_key = ""
@@ -177,6 +172,9 @@ class AppState(QObject):
         self.connected = False
 
         self.watcher = JournalWatcher(self)
+        from cmdrhelper.bounty_manager import BountyManager
+        self.bounties = BountyManager(parent=self)
+        self.watcher.live_observer = self.bounties
         from cmdrhelper.odyssey_tracking import OdysseyCarrierTracking
         self.odyssey_carrier_tracking = OdysseyCarrierTracking(self)
         self.watcher.odysseyTrackingUpdated.connect(self.odyssey_carrier_tracking.poll)
@@ -353,7 +351,7 @@ class AppState(QObject):
                 if self.database.commander_state_repair_needed(commander_id, "position_gap"):
                     self._startup_position_read = self._read_latest_position_event(session)
                 features = [
-                    feature for feature in ("unsold", "missions")
+                    feature for feature in ("unsold",)
                     if self.database.commander_state_repair_needed(commander_id, feature)
                 ]
                 if features:
@@ -667,22 +665,6 @@ class AppState(QObject):
         self._journal_index_sessions = None
         self._journal_index_current = None
         self._start_initial_journal_index()
-
-    def reset_missions(self):
-        self.mission_reset_at = (
-            datetime.now(timezone.utc)
-            .isoformat()
-            .replace("+00:00", "Z")
-        )
-
-        self.settings.setValue(
-            "mission_reset_at",
-            self.mission_reset_at
-        )
-
-        self.missions = []
-        self.changed.emit()
-        self.refresh()
 
     def set_edsm_settings(
         self,
@@ -1514,6 +1496,12 @@ class AppState(QObject):
             self._learning_revision = getattr(self, "_learning_revision", 0) + 1
             self.refresh()
 
+    def _visible_commander_missions(self):
+        from cmdrhelper.mission_manager import pending_missions
+        confirmed = normalize_missions(self.database.commander_missions(
+            self.commander_id, only_open=True))
+        return confirmed + pending_missions(self.database.pending_mission_offers(self.commander_id))
+
     def reset_commander_runtime_state(self):
         """Leert ausschließlich persönliche, flüchtige Commander-Zustände."""
         self.commander = ""
@@ -1615,11 +1603,7 @@ class AppState(QObject):
         if stored_ship:
             self.ship = stored_ship.get("ship_name") or stored_ship.get("ship_type") or ""
             self.ship_loadout = self._stored_ship_loadout(stored_ship)
-        self.missions = normalize_missions([
-            mission
-            for mission in self.database.commander_missions(self.commander_id, only_open=True)
-            if mission.get("is_open")
-        ])
+        self.missions = self._visible_commander_missions()
         persistent_cart = summary.get("unsold_cartography") or {}
         self.unsold_cartography_value = int(
             persistent_cart.get("estimated_value") or 0
@@ -1644,6 +1628,8 @@ class AppState(QObject):
         commander_id = int(session["commander_id"])
         fid = str(session.get("fid_seen") or "").strip()
         name = str(session.get("commander_name_seen") or "").strip()
+        if hasattr(self, "bounties"):
+            self.bounties.identify(fid, name, session["journal_file"])
         previous_fid = self.commander_fid
         if previous_fid != fid:
             self.game_mode = ""
@@ -1686,6 +1672,8 @@ class AppState(QObject):
         name = str(
             data.get("commander_identity_name") or data.get("commander") or ""
         ).strip()
+        if hasattr(self, "bounties"):
+            self.bounties.identify(fid, name)
         commander_id = self.database.upsert_commander(
             fid,
             name,
@@ -1763,7 +1751,6 @@ class AppState(QObject):
             self._prepare_indexed_live_state(emit_identity=False, restore=False)
             data = read_latest_state(
                 self.journal_folder,
-                mission_reset_at=self.mission_reset_at,
                 indexed_sessions=self._journal_index_sessions,
             )
         except JournalReadError as exc:
@@ -1813,7 +1800,7 @@ class AppState(QObject):
             from cmdrhelper.journal_reader import read_journal_delta
             committed_offset = int(current_session.get("last_read_offset") or 0)
             delta_events, safe_offset = read_journal_delta(
-                Path(current_session["journal_file"]), committed_offset,
+                Path(current_session["journal_file"]), committed_offset, include_positions=True,
             )
             if safe_offset > committed_offset:
                 try:
@@ -1934,10 +1921,7 @@ class AppState(QObject):
 
         self.missions = normalize_missions(data["missions"])
         if self.commander_id is not None:
-            self.missions = normalize_missions([
-                mission for mission in self.database.commander_missions(self.commander_id, only_open=True)
-                if mission.get("is_open")
-            ])
+            self.missions = self._visible_commander_missions()
 
         current_bodies = data.get("system_bodies", [])
         self.system_bodies = self._own_explorer_bodies(current_bodies)

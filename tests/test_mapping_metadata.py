@@ -28,7 +28,7 @@ class MappingMetadataTests(unittest.TestCase):
         self.folder = Path(self.tmp.name)
         self.path = self.folder / 'test.db'
         self.db = CMDRDatabase(self.path)
-        self.commander = self.db.upsert_commander('F12520967', 'FABER38')
+        self.commander = self.db.upsert_commander('F12345678', 'FABER38')
         self.journal = self.folder / 'Journal.2026-09-08T071547.01.log'
         self.scan = dict(event='Scan', timestamp='2026-09-08T08:04:39Z',
             BodyName=NAME, BodyID=24, SystemAddress=ADDRESS,
@@ -41,7 +41,7 @@ class MappingMetadataTests(unittest.TestCase):
 
     def write(self, events):
         identity = dict(event='Commander', timestamp='2026-09-08T05:16:32Z',
-                        FID='F12520967', Name='FABER38')
+                        FID='F12345678', Name='FABER38')
         location = dict(event='Location', timestamp='2026-09-08T08:02:00Z',
                         StarSystem='Plio Aip KN-B d13-229', SystemAddress=ADDRESS)
         self.journal.write_text(''.join(json.dumps(e)+'\n' for e in [identity, location, *events]))
@@ -63,7 +63,7 @@ class MappingMetadataTests(unittest.TestCase):
         self.db.store_snapshot(data, self.commander)
 
     def repair(self, **extra):
-        return backfill_mapping_metadata(self.path, self.journal, 'F12520967',
+        return backfill_mapping_metadata(self.path, self.journal, 'F12345678',
             ADDRESS, 24, NAME, STAMP, **extra)
 
     def test_completion_and_later_scan_keep_timestamp_and_both_counts(self):
@@ -304,7 +304,7 @@ class MappingMetadataTests(unittest.TestCase):
     def test_backfill_refuses_wrong_commander_and_existing_backup(self):
         self.seed_missing()
         text = self.journal.read_text()
-        self.journal.write_text(text.replace('F12520967','OTHER'))
+        self.journal.write_text(text.replace('F12345678','OTHER'))
         with self.assertRaises(ValueError):
             self.repair(apply=True)
         self.journal.write_text(text)

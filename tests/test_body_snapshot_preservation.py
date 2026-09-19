@@ -17,7 +17,7 @@ class BodySnapshotPreservationTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)
         self.db = CMDRDatabase(self.root / "test.db")
-        self.commander_id = self.db.upsert_commander("F12520967", "FABER38")
+        self.commander_id = self.db.upsert_commander("F12345678", "FABER38")
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -106,7 +106,7 @@ class BodySnapshotPreservationTests(unittest.TestCase):
         size = journal.stat().st_size
         session = {
             "journal_file": str(journal), "attribution_status": "identified",
-            "fid_seen": "F12520967", "commander_name_seen": "FABER38",
+            "fid_seen": "F12345678", "commander_name_seen": "FABER38",
             "file_size": size, "modified_ns": journal.stat().st_mtime_ns,
             "last_read_offset": size, "last_complete_line_offset": size,
             "last_indexed_at": "2026-09-02T18:06:00Z",

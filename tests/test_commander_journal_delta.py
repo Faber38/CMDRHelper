@@ -161,10 +161,10 @@ class CommanderJournalDeltaTests(unittest.TestCase):
         self.write([event("MissionCompleted", 2, MissionID=7, Reward=10)], append=True)
         session = scan_journal_folder(self.db, self.folder)[0]
         self.apply(session)
-        self.assertFalse(self.db.commander_missions(self.commander)[0]["is_open"])
+        self.assertEqual(self.db.commander_missions(self.commander), [])
         self.assertTrue(self.db.commander_missions(other)[0]["is_open"])
 
-    def test_failed_and_abandoned_are_persisted_independently(self):
+    def test_failed_and_abandoned_are_removed_independently(self):
         self.write([
             event("LoadGame", 0, FID="FID-A", Commander="Alpha"),
             event("MissionAccepted", 1, MissionID=1, Name="Mission_One"),
@@ -173,11 +173,7 @@ class CommanderJournalDeltaTests(unittest.TestCase):
             event("MissionAbandoned", 4, MissionID=2),
         ])
         self.apply(self.indexed())
-        rows = {row["mission_id"]: row for row in self.db.commander_missions(self.commander)}
-        self.assertEqual(rows[1]["terminal_state"], "failed")
-        self.assertEqual(rows[2]["terminal_state"], "abandoned")
-        self.assertFalse(rows[1]["is_open"])
-        self.assertFalse(rows[2]["is_open"])
+        self.assertEqual(self.db.commander_missions(self.commander), [])
 
     def test_absent_events_preserve_location_ship_carrier_and_wealth(self):
         self.db.store_commander_location(self.commander, {
@@ -309,7 +305,11 @@ class CommanderJournalDeltaTests(unittest.TestCase):
             )
         # Revision 1 enthält noch die alte namensbasierte UC-Semantik.
         self.assertTrue(self.db.commander_state_repair_needed(self.commander, "unsold"))
-        with patch.object(self.db, "store_commander_missions", side_effect=RuntimeError("db")):
+        original_store = self.db.store_commander_unsold_data
+        def fail_after_write(*args, **kwargs):
+            original_store(*args, **kwargs)
+            raise RuntimeError("db")
+        with patch.object(self.db, "store_commander_unsold_data", side_effect=fail_after_write):
             with self.assertRaises(RuntimeError):
                 self.db.repair_commander_state(
                     self.folder, sessions, self.commander,

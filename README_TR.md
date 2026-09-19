@@ -39,6 +39,15 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## 3.6.1 sürümündeki yenilikler
+
+- Görevler altında canlı ödül avı kazançları, her komutan için kalıcı ve ayrı olarak saklanır.
+- Uzay karşılaşmalarından ve habercilerden gelen görevler, kesin MissionID oluşmadan önce görünür.
+- Karşılaşma teklifleri yeniden başlatmalarda korunur ve kesin doğrulamadan sonra kopya oluşturmadan normal göreve dönüşür.
+- Mal, miktar, hedef, ödül ve zaman eşleştirmesi iyileştirildi; belirsiz teklifler için tahmin yapılmaz. Doğrulanmamış teklifler 24 saat sonra sona erer.
+- Komutan → Görevler güncel görevleri gösterir. Yeni tamamlanmalar artık büyüyen bir görev arşivi oluşturmaz; mevcut geçmiş kayıtları korunur.
+- Karşılaşma işleme yeniden tamamen bağlandı; eski olaylar daha yeni görev durumunun üzerine yazamaz. Çelişkili görev sıfırlama kaldırıldı.
+
 ## 3.6 sürümündeki yenilikler
 
 - Sistem haritasında istasyonlar ve tesisler; arama, filtreleme ve sıralama içeren ayrı istasyon sekmesi.

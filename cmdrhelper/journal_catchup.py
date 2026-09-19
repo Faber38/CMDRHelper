@@ -138,7 +138,7 @@ def _catch_up_pass(database, context, *, enqueue_fid=None):
                                   digest=hashlib.sha256(raw).hexdigest(), offset=offset,
                                   fid=row.get('fid_seen'))
             continue
-        identities, parsed, source_keys, position = {}, [], [], 0
+        identities, parsed, source_keys, event_offsets, position = {}, [], [], [], 0
         first = last = ''
         for line_number, line in enumerate(raw[:complete].splitlines(keepends=True), 1):
             if position < offset < position + len(line):
@@ -162,6 +162,7 @@ def _catch_up_pass(database, context, *, enqueue_fid=None):
             if position >= offset:
                 parsed.append(event)
                 source_keys.append(f'line:{line_number}')
+                event_offsets.append(position)
             position += len(line)
         if complete > offset:
             if len(identities) != 1:
@@ -174,7 +175,8 @@ def _catch_up_pass(database, context, *, enqueue_fid=None):
                            commander_name_seen=commander_name, first_event_at=first,
                            last_event_at=last, file_size=complete,
                            modified_ns=before.st_mtime_ns,
-                           sha256=hashlib.sha256(raw[:complete]).hexdigest(), source_keys=source_keys)
+                           sha256=hashlib.sha256(raw[:complete]).hexdigest(), source_keys=source_keys,
+                           event_offsets=event_offsets)
             database.apply_commander_journal_delta(
                 cid, path, parsed, complete, enqueue_inara=fid == enqueue_fid,
                 session=session, live_current=(path == paths[-1]))

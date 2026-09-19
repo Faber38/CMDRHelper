@@ -767,7 +767,7 @@ HELP_TOPICS = {
             "<p>Yeni ekran görüntüleri, aktif canlı AppState'te bulunan günlük kimliğine dayalı "
             "olarak gerçek oynayan Komutan'a atanır.</p>\n"
             '<p>Klasör yapısı komutan adını ve Frontier kimliğini içerir, örneğin:</p>\n'
-            '<p><b>FABER38_F12520967/</b></p>\n'
+            '<p><b>EXAMPLE_F12345678/</b></p>\n'
             '<p>FID, birden fazla komutanla bile görevin net olmasını sağlar. Bu, aynı isimdeki '
             'iki komutanın ayırt edilmesini sağlar.</p>\n'
             '\n'
@@ -775,7 +775,7 @@ HELP_TOPICS = {
             '<p>Yeni işlenen görüntüler, yakalanma zamanını, komutanın adını ve (varsa) sıraya '
             'alınırken bilinen yıldız sistemini içeren bir ad alır.</p>\n'
             '<p>Örnek:</p>\n'
-            '<p><b>2026-09-04_13-18-22_FABER38_Prua-Hypai-RB-D-c29-71.png</b></p>\n'
+            '<p><b>2026-09-04_13-18-22_EXAMPLE_Sol.png</b></p>\n'
             '<p>FID, yine görüntü dosyası adında değil, komutanla ilgili klasör adındadır.</p>\n'
             '\n'
             '<h3>Güvenli dosya adları</h3>\n'

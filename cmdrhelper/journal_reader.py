@@ -105,7 +105,7 @@ def _live_complete_events(path: Path) -> tuple[list[dict], int]:
     return events, offset
 
 
-def read_journal_delta(path: Path, start_offset: int) -> tuple[list[dict], int]:
+def read_journal_delta(path: Path, start_offset: int, *, include_positions=False) -> tuple[list[dict], int]:
     """Reads only newline-terminated JSON events after a committed byte offset."""
     path = Path(path)
     start = max(0, int(start_offset or 0))
@@ -121,7 +121,11 @@ def read_journal_delta(path: Path, start_offset: int) -> tuple[list[dict], int]:
             from bisect import bisect_left
             index = bisect_left(cached[3], start)
             if start in (0, cached[1]) or (index < len(cached[3]) and cached[3][index] == start):
-                return copy.deepcopy(cached[2][index:]), cached[1]
+                result = copy.deepcopy(cached[2][index:])
+                if include_positions:
+                    for event, position in zip(result, cached[3][index:]):
+                        event["_journal_offset"] = position
+                return result, cached[1]
     with path.open("rb") as handle:
         handle.seek(start)
         raw = handle.read()
@@ -130,12 +134,17 @@ def read_journal_delta(path: Path, start_offset: int) -> tuple[list[dict], int]:
         return [], start
     safe_offset = start + newline + 1
     events = []
-    for line in raw[:newline + 1].decode("utf-8", errors="replace").splitlines():
+    position = start
+    for line in raw[:newline + 1].splitlines(keepends=True):
+        event_position = position
+        position += len(line)
         try:
-            event = json.loads(line)
+            event = json.loads(line.decode("utf-8", errors="replace"))
         except json.JSONDecodeError:
             continue
         if isinstance(event, dict):
+            if include_positions:
+                event["_journal_offset"] = event_position
             events.append(event)
     return events, safe_offset
 
@@ -454,6 +463,7 @@ def _receive_text_offer(event: dict) -> dict | None:
 
     return {
         "mission_type": "collect",
+        "internal_name": message.split("_MessengerChat", 1)[0].lstrip("$"),
         "timestamp": event.get("timestamp") or "",
         "sender": event.get("From_Localised") or event.get("From") or "",
         "message": event.get("Message_Localised") or "",
@@ -489,55 +499,101 @@ def _matching_pending_offer(
     mission_item: dict,
     snapshot_timestamp: str,
 ) -> dict | None:
-    internal_name = str(mission_item.get("Name") or "")
-    if "Mission_Collect" not in internal_name:
-        return None
+    from cmdrhelper.commodities import commodity_key
 
+    name = str(mission_item.get("Name") or mission_item.get("internal_name") or "")
+    if name and name != "Mission" and "Mission_Collect" not in name:
+        return None
     snapshot_dt = _event_dt(snapshot_timestamp)
     candidates = []
-
+    fields = {
+        "commodity": ("Commodity", "CargoType", "commodity"),
+        "count": ("Count", "TotalItemsToDeliver", "count"),
+        "destination_station": ("DestinationStation", "destination_station"),
+        "destination_system": ("DestinationSystem", "destination_system"),
+        "reward": ("Reward", "reward"),
+    }
     for offer in pending_offers:
-        if offer.get("matched"):
+        if offer.get("matched") or offer.get("mission_type") != "collect":
             continue
-        if offer.get("mission_type") != "collect":
+        offered_type = offer.get("internal_name") or ""
+        if name.startswith("Mission_Collect") and offered_type and name != offered_type:
             continue
-
         offer_dt = _event_dt(offer.get("timestamp") or "")
-        if snapshot_dt is not None and offer_dt is not None:
+        if snapshot_dt is None or offer_dt is None:
+            continue
+        try:
             age = snapshot_dt - offer_dt
-            if age < timedelta(0) or age > timedelta(hours=24):
+            accepted_dt = _event_dt(mission_item.get("accepted_at") or "")
+            if accepted_dt is not None and accepted_dt < offer_dt:
                 continue
+        except TypeError:
+            continue
+        if age < timedelta(0) or age > timedelta(hours=24):
+            continue
+        matches = set()
+        conflict = False
+        for field, aliases in fields.items():
+            value = next((mission_item[k] for k in aliases
+                          if mission_item.get(k) not in (None, "")), None)
+            proposed = offer.get(field)
+            if value is None or proposed in (None, "", 0):
+                continue
+            if field in ("count", "reward"):
+                try:
+                    same = int(value) == int(proposed)
+                except (ValueError, TypeError):
+                    same = False
+            elif field == "commodity":
+                same = commodity_key(value) == commodity_key(proposed)
+            else:
+                same = str(value).strip().casefold() == str(proposed).strip().casefold()
+            if not same:
+                conflict = True
+                break
+            matches.add(field)
+        # Type/time alone never establish identity. A commodity or a complete
+        # destination must be positively corroborated; missing fields do not.
+        if not conflict and ("commodity" in matches or
+                             {"destination_system", "destination_station"} <= matches):
+            candidates.append(offer)
+    return candidates[0] if len(candidates) == 1 else None
 
-        candidates.append(offer)
 
-    # Nur bei eindeutiger Zuordnung automatisch verknüpfen.
-    if len(candidates) != 1:
-        return None
-
-    return candidates[0]
+def _pending_offer_matches(pending_offers, items, timestamp):
+    """One-to-one matching across the whole snapshot, never list-order guessing."""
+    candidates = [[offer for offer in pending_offers
+                   if _matching_pending_offer([offer], item, timestamp) is offer]
+                  for item in items]
+    return [row[0] if len(row) == 1 and
+            sum(any(offer is row[0] for offer in other) for other in candidates) == 1
+            else None for row in candidates]
 
 
 def _enrich_mission_from_offer(mission: dict, offer: dict):
     commodity = offer.get("commodity") or ""
     count = int(offer.get("count") or 0)
 
-    if commodity:
+    if commodity and not mission.get("commodity"):
         mission["commodity"] = commodity
-    if count:
+    if count and not mission.get("count"):
         mission["count"] = count
-    if offer.get("destination_system"):
+    if offer.get("destination_system") and not mission.get("destination_system"):
         mission["destination_system"] = offer["destination_system"]
-    if offer.get("destination_station"):
+    if offer.get("destination_station") and not mission.get("destination_station"):
         mission["destination_station"] = offer["destination_station"]
-    if offer.get("reward"):
+    if offer.get("reward") and not mission.get("reward"):
         mission["reward"] = int(offer["reward"])
 
-    if commodity and count:
-        mission["name"] = f"{count} Einheiten besorgen und liefern: {commodity}"
-    elif commodity:
-        mission["name"] = f"Beschaffungsmission: {commodity}"
-    else:
-        mission["name"] = "Beschaffungsmission"
+    commodity = mission.get("commodity") or commodity
+    count = int(mission.get("count") or count)
+    if not mission.get("name") or mission["name"] == "Mission" or mission["name"].startswith("Mission_"):
+        if commodity and count:
+            mission["name"] = f"{count} Einheiten besorgen und liefern: {commodity}"
+        elif commodity:
+            mission["name"] = f"Beschaffungsmission: {commodity}"
+        else:
+            mission["name"] = "Beschaffungsmission"
 
     extra = dict(mission.get("extra") or {})
     extra.update({
@@ -2121,50 +2177,30 @@ def read_latest_state(
                 elif et == "Missions":
                     if not _after_mission_reset(ts):
                         continue
+                    from cmdrhelper.mission_persistence import valid_snapshot, snapshot_mission
+                    if not valid_snapshot(e):
+                        continue
                     missions_snapshot_seen = True
-                    active_ids = {
-                        item.get("MissionID")
-                        for item in (e.get("Active") or [])
-                        if item.get("MissionID") is not None
-                    }
-
+                    active_items = e["Active"]
+                    retained_items = active_items + e.get("Complete", [])
+                    retained_ids = {item["MissionID"] for item in retained_items}
                     for old_id in list(missions):
-                        if old_id not in active_ids:
+                        if old_id not in retained_ids:
                             missions.pop(old_id, None)
-
-                    for item in (e.get("Active") or []):
-                        mid = item.get("MissionID")
-
-                        if mid is None or mid in missions:
-                            continue
-
-                        raw = {
-                            "MissionID": mid,
-                            "Name": item.get("Name") or "Mission",
-                            "LocalisedName": (
-                                item.get("LocalisedName")
-                                or item.get("Name_Localised")
-                            ),
-                            "Expiry": item.get("Expiry") or "",
-                            "timestamp": ts,
-                        }
-
-                        mission = _new_mission(raw)
-
-                        offer = _matching_pending_offer(
-                            pending_mission_offers,
-                            item,
-                            ts,
-                        )
+                    matches = _pending_offer_matches(pending_mission_offers, active_items, ts)
+                    for item, offer in zip(active_items, matches):
+                        mid = item["MissionID"]
+                        mission = snapshot_mission(item, ts, missions.get(mid))
                         if offer is not None:
-                            _enrich_mission_from_offer(
-                                mission,
-                                offer,
-                            )
+                            _enrich_mission_from_offer(mission, offer)
                             offer["matched"] = True
-
                         missions[mid] = mission
                         known_missions[int(mid)] = mission
+                    for item in e.get("Complete", []):
+                        mid = item["MissionID"]
+                        if mid not in {entry["MissionID"] for entry in active_items}:
+                            missions[mid] = snapshot_mission(item, ts, missions.get(mid))
+                            known_missions[int(mid)] = missions[mid]
 
                 elif et == "MissionAccepted":
                     if not _after_mission_reset(ts):

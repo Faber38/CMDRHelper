@@ -38,6 +38,15 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## Nieuw in versie 3.6.1
+
+- Live premies onder Missies, blijvend en afzonderlijk per commandant opgeslagen.
+- Opdrachten van ruimteontmoetingen en boodschappers zijn zichtbaar voordat de definitieve MissionID beschikbaar is.
+- Ontmoetingsaanbiedingen blijven na herstart bewaard en worden na eenduidige bevestiging normale missies, zonder duplicaten.
+- Betere vergelijking van handelswaar, hoeveelheid, bestemming, beloning en tijd; bij twijfel wordt niet gegokt. Onbevestigde aanbiedingen vervallen na 24 uur.
+- Commandant → Missies toont huidige missies. Nieuwe afrondingen bouwen geen groeiend missiearchief meer op; bestaande historische rijen blijven behouden.
+- Ontmoetingsverwerking is weer volledig aangesloten; oude gebeurtenissen overschrijven geen nieuwere missiestatus. Tegenstrijdige missiereset verwijderd.
+
 ## Nieuw in versie 3.6
 
 - Stations en faciliteiten op de systeemkaart en een eigen stationstabblad met zoeken, filters en sorteren.

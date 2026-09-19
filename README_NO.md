@@ -38,6 +38,15 @@ Journalmappen til Elite Dangerous oppdages automatisk når det er mulig. Hvis de
 
 CMDRHelper søker etter oppdateringer ved oppstart og har en innebygd oppdateringsfunksjon. Bekreft en tilbudt oppdatering i programmet; den oppdaterer programmet og avhengighetene og starter CMDRHelper på nytt. Etter førstegangsinstallasjonen bruker du normalt bare `start.bat` (Windows) eller `bash start.sh` (Linux). Du trenger ikke å kjøre `install.bat` eller `install.sh` manuelt på nytt for vanlige oppdateringer.
 
+## Nytt i versjon 3.6.1
+
+- Dusører i sanntid under Oppdrag, lagret varig og separat for hver kommandant.
+- Oppdrag fra rommøter og budbringere vises før endelig MissionID er tilgjengelig.
+- Tilbud fra møter beholdes etter omstart og blir vanlige oppdrag etter entydig bekreftelse, uten duplikater.
+- Bedre samsvarskontroll av vare, mengde, mål, belønning og tid; tvetydige tilbud gjettes ikke. Ubekreftede tilbud utløper etter 24 timer.
+- Kommandant → Oppdrag viser gjeldende oppdrag. Nye avslutninger bygger ikke lenger et voksende oppdragsarkiv; eksisterende historiske rader beholdes.
+- Behandling av møter er fullt tilkoblet igjen; gamle hendelser overskriver ikke nyere oppdragsstatus. Motstridende nullstilling av oppdrag er fjernet.
+
 ## Nytt i versjon 3.6
 
 - Stasjoner og anlegg på systemkartet og en egen stasjonsfane med søk, filtre og sortering.

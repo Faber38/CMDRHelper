@@ -155,7 +155,7 @@ class StartupPipelineTests(unittest.TestCase):
             state._run_journal_learning.assert_called_once()
             self.assertEqual(progress[-1][:2], (0, 0))
         state.database.repair_commander_state.assert_called_once_with(
-            state.journal_folder, sessions, 7, features=['unsold', 'missions'])
+            state.journal_folder, sessions, 7, features=['unsold'])
         state.watcher.start.assert_called_once()
 
     def test_history_runs_off_gui_then_adopts_and_imports(self):

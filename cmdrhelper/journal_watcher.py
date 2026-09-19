@@ -29,6 +29,8 @@ class JournalWatcher(QObject):
         self._catchup_signatures = {}
         self._catchup_requested = False
         self.odyssey_sidecars = OdysseySidecars()
+        self.live_observer = None
+        self._live_pending = False
 
         self.timer = QTimer(self)
         self.timer.setInterval(1000)
@@ -50,6 +52,9 @@ class JournalWatcher(QObject):
         self._catchup_signatures = {}
         self._catchup_requested = False
         self.odyssey_sidecars = OdysseySidecars()
+        if self.live_observer is not None:
+            self.live_observer.set_folder(self.folder)
+        self._live_pending = False
 
     def start(self):
         if not self.timer.isActive():
@@ -136,6 +141,7 @@ class JournalWatcher(QObject):
         rescan = self._current is None or (
             self._poll_count % self._directory_check_interval == 0
         )
+        candidates = []
         try:
             if rescan:
                 # Genau ein scandir-Durchlauf; nur beim Start und danach
@@ -182,6 +188,15 @@ class JournalWatcher(QObject):
             self.odysseySidecarsChanged.emit()
         self.odysseyTrackingUpdated.emit()
 
+        if sig == self._sig and not self._catchup_requested and not self._live_pending:
+            return
+
+        # Live consumers have their own confirmed startup/resume boundary. They must
+        # never receive the archive/catch-up reader's historical event batches.
+        if self.live_observer is not None:
+            self._live_pending = not self.live_observer.consume(candidates or files)
+        # A snapshot write failure must not block unrelated application state.
+        # Retry its unacknowledged bytes through this existing watcher only.
         if sig == self._sig and not self._catchup_requested:
             return
 

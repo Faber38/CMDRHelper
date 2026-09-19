@@ -259,12 +259,12 @@ class PerformanceRound2Tests(unittest.TestCase):
             self.assertEqual(db._learning_journals(self.root, 'A', [row]), [])
             self.assertEqual(classify.call_count, 1)
 
-    def test_open_missions_query_keeps_closed_history_available(self):
+    def test_open_missions_query_excludes_retained_inactive_rows(self):
         db = CMDRDatabase(self.root/'db.sqlite')
         cid = db.upsert_commander('A', 'A')
         with db._connect() as con:
-            con.executemany('INSERT INTO commander_missions(commander_id,mission_id,is_open) VALUES(?,?,?)',
-                            [(cid, 1, 1), (cid, 2, 0)])
+            con.executemany('INSERT INTO commander_missions(commander_id,mission_id,is_open,terminal_state) VALUES(?,?,?,?)',
+                            [(cid, 1, 1, ''), (cid, 2, 0, 'inactive')])
         self.assertEqual([m['mission_id'] for m in db.commander_missions(cid, only_open=True)], [1])
         self.assertEqual(len(db.commander_missions(cid)), 2)
 

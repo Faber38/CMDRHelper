@@ -38,6 +38,15 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## Uutta versiossa 3.6.1
+
+- Reaaliaikaiset tappopalkkiot Tehtävät-näkymässä, tallennettu pysyvästi ja erikseen jokaiselle komentajalle.
+- Avaruuskohtaamisten ja lähettien tehtävät näkyvät jo ennen lopullisen MissionID-tunnuksen saamista.
+- Kohtaamistarjoukset säilyvät uudelleenkäynnistyksissä ja muuttuvat tavallisiksi tehtäviksi yksiselitteisen vahvistuksen jälkeen ilman kaksoiskappaleita.
+- Tavaran, määrän, kohteen, palkkion ja ajan vertailua parannettu; epäselviä osumia ei arvata. Vahvistamattomat tarjoukset vanhenevat 24 tunnin kuluttua.
+- Komentaja → Tehtävät näyttää nykyiset tehtävät. Uudet päättyneet tehtävät eivät enää kasvata tehtäväarkistoa; vanhat historiarivit säilyvät.
+- Kohtaamisten käsittely on jälleen kokonaan kytketty; vanhat tapahtumat eivät korvaa uudempaa tehtävätilaa. Ristiriitainen tehtävien nollaus poistettu.
+
 ## Uutta versiossa 3.6
 
 - Asemat ja laitokset järjestelmäkartalla sekä oma asemavälilehti, jossa on haku, suodattimet ja lajittelu.

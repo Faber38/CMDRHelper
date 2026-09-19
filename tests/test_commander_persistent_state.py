@@ -86,8 +86,9 @@ class CommanderPersistentStateTests(unittest.TestCase):
             "terminal_state": terminal_state,
         }
 
-    def test_same_mission_id_is_separate_and_terminal_history_stays_with_b(self):
+    def test_same_mission_id_is_separate_and_terminal_removes_only_b(self):
         self.database.store_commander_missions(self.a, [self.mission("Alpha")])
+        self.database.store_commander_missions(self.b, [self.mission("Bravo")])
         self.database.store_commander_missions(
             self.b, [], [self.mission("Bravo", "Aufgabe erledigt", "completed")]
         )
@@ -95,9 +96,7 @@ class CommanderPersistentStateTests(unittest.TestCase):
         b_rows = self.database.commander_missions(self.b)
         self.assertEqual([(row["mission_id"], row["name"]) for row in a_rows], [(77, "Alpha")])
         self.assertTrue(a_rows[0]["is_open"])
-        self.assertEqual([(row["mission_id"], row["name"]) for row in b_rows], [(77, "Bravo")])
-        self.assertFalse(b_rows[0]["is_open"])
-        self.assertEqual(b_rows[0]["terminal_state"], "completed")
+        self.assertEqual(b_rows, [])
 
     def test_locations_station_and_body_are_separate(self):
         self.database.store_commander_location(self.a, {

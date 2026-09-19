@@ -4416,10 +4416,6 @@ class MainWindow(QMainWindow):
 
         header.addWidget(refresh)
 
-        reset_missions = QPushButton(tr("missions.reset"))
-        reset_missions.clicked.connect(self._reset_missions)
-        header.addWidget(reset_missions)
-
         layout.addLayout(header)
 
         card, card_layout = self._card(tr("missions.active"))
@@ -4499,6 +4495,10 @@ class MainWindow(QMainWindow):
         card_layout.addWidget(self.missions_table)
 
         layout.addWidget(card, 1)
+
+        from cmdrhelper.ui.bounty_view import BountyView
+        self.bounty_view = BountyView(self.state.bounties, self._format_reward)
+        layout.addWidget(self.bounty_view)
 
         detail_card, detail_layout = self._card(tr("missions.details"))
 
@@ -5777,17 +5777,6 @@ class MainWindow(QMainWindow):
         except (TypeError, ValueError):
             return 200_000
 
-    def _reset_missions(self):
-        answer = QMessageBox.question(
-            self,
-            tr("missions.reset"),
-            tr("missions.reset_question"),
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No,
-        )
-
-        if answer == QMessageBox.Yes:
-            self.state.reset_missions()
 
     def _set_service_test_status(
         self,
@@ -6222,9 +6211,8 @@ class MainWindow(QMainWindow):
         mission_count = len(self.state.missions)
         self.active_missions_value.setText(str(mission_count))
 
-        mission_total_reward = sum(
-            int(getattr(mission, "reward", 0) or 0) for mission in self.state.missions
-        )
+        from cmdrhelper.mission_manager import confirmed_mission_reward
+        mission_total_reward = confirmed_mission_reward(self.state.missions)
 
         if hasattr(self, "mission_total_reward_label"):
             self.mission_total_reward_label.setText(
@@ -6513,12 +6501,16 @@ class MainWindow(QMainWindow):
                 self._place_text(mission),
                 self._translate_mission_text(mission.status),
                 self._translate_mission_text(mission.next_step),
-                self._format_reward(mission.reward),
-                self._format_expiry(mission.expiry),
+                (tr("missions.reward_offer", value=self._format_reward(mission.reward))
+                 if mission.extra.get("pending_offer") else self._format_reward(mission.reward)),
+                (tr("common.unknown") if mission.extra.get("pending_offer")
+                 else self._format_expiry(mission.expiry)),
             ]
 
             for col, value in enumerate(values):
                 item = QTableWidgetItem(str(value or ""))
+                if mission.extra.get("pending_offer"):
+                    item.setToolTip(tr("missions.encounter_hint"))
 
                 if col == 3:
                     if mission.status in (

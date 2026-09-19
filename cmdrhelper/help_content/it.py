@@ -799,7 +799,7 @@ HELP_TOPICS = {
             "del diario presente nell'AppState live attivo.</p>\n"
             "<p>La struttura delle cartelle contiene il nome del comandante e l'ID Frontier, ad "
             'esempio:</p>\n'
-            '<p><b>FABER38_F12520967/</b></p>\n'
+            '<p><b>EXAMPLE_F12345678/</b></p>\n'
             '<p>Lo FID mantiene chiari i compiti anche con più comandanti. Ciò consente di '
             'distinguere due comandanti con lo stesso nome.</p>\n'
             '\n'
@@ -807,7 +807,7 @@ HELP_TOPICS = {
             "<p>Le nuove immagini elaborate ricevono un nome con l'ora di acquisizione, il nome "
             'del comandante e, se disponibile, il sistema stellare noto durante la coda.</p>\n'
             '<p>Esempio:</p>\n'
-            '<p><b>2026-09-04_13-18-22_FABER38_Prua-Hypai-RB-D-c29-71.png</b></p>\n'
+            '<p><b>2026-09-04_13-18-22_EXAMPLE_Sol.png</b></p>\n'
             '<p>Lo FID si trova nel nome della cartella relativa al comandante, non ancora nel '
             'nome del file immagine.</p>\n'
             '\n'

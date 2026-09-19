@@ -38,6 +38,15 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## Novità della versione 3.6.1
+
+- Taglie in tempo reale in Missioni, salvate in modo persistente e separato per ogni comandante.
+- Gli incarichi da incontri spaziali e messaggeri sono visibili prima del MissionID definitivo.
+- Le offerte degli incontri sopravvivono ai riavvii e diventano missioni normali dopo una conferma univoca, senza duplicati.
+- Abbinamento migliorato di merce, quantità, destinazione, ricompensa e orario; nessuna scelta arbitraria nei casi ambigui. Le offerte non confermate scadono dopo 24 ore.
+- Comandante → Missioni mostra le missioni attuali. Le nuove conclusioni non alimentano più un archivio crescente; le righe storiche restano intatte.
+- Elaborazione degli incontri nuovamente collegata per intero; i vecchi eventi non sovrascrivono lo stato più recente. Rimosso il ripristino delle missioni incoerente.
+
 ## Novità della versione 3.6
 
 - Stazioni e strutture nella mappa del sistema e una scheda stazioni dedicata con ricerca, filtri e ordinamento.

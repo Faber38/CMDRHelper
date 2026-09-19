@@ -38,6 +38,15 @@ La carpeta de diarios de Elite Dangerous se detecta automáticamente cuando es p
 
 CMDRHelper busca actualizaciones al iniciarse y dispone de un actualizador integrado. Confirma una actualización ofrecida en la aplicación; actualizará el programa y las dependencias y reiniciará CMDRHelper. Tras la primera instalación, normalmente basta con usar `start.bat` (Windows) o `bash start.sh` (Linux). No es necesario volver a ejecutar manualmente `install.bat` o `install.sh` para las actualizaciones normales.
 
+## Novedades de la versión 3.6.1
+
+- Recompensas por cazarrecompensas en directo en Misiones, guardadas de forma persistente y separada por comandante.
+- Los encargos de encuentros espaciales y mensajeros son visibles antes de disponer del MissionID definitivo.
+- Las ofertas de encuentros se conservan al reiniciar y se convierten en misiones normales tras una confirmación inequívoca, sin duplicados.
+- Mejor comparación de mercancía, cantidad, destino, recompensa y hora; no se adivinan coincidencias ambiguas. Las ofertas sin confirmar caducan a las 24 horas.
+- Comandante → Misiones muestra las misiones actuales. Las nuevas finalizaciones ya no amplían el archivo de misiones; se conservan las filas históricas existentes.
+- Procesamiento de encuentros completamente conectado de nuevo; los eventos antiguos no sobrescriben el estado más reciente. Eliminado el reinicio contradictorio de misiones.
+
 ## Novedades de la versión 3.6
 
 - Estaciones e instalaciones en el mapa del sistema y una pestaña de estaciones con búsqueda, filtros y ordenación.

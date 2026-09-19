@@ -346,7 +346,7 @@ class ContextHelpTests(unittest.TestCase):
             "Schieberegler und ein gekoppeltes Zahlenfeld von 0 bis 50 Prozent",
             "während jeder danach gestarteten Konvertierung angewendet",
             "keine reine Vorschau",
-            "FABER38_F12520967/",
+            "EXAMPLE_F12345678/",
             "beim Einreihen aktive Journalidentität",
             "Filter „Aktueller Commander“",
             "Filter „Alle Commander“",

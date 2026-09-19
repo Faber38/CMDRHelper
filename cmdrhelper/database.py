@@ -11,7 +11,7 @@ import json
 import os
 from collections import Counter
 from contextlib import nullcontext
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from cmdrhelper.chronicle_filters import matching_visit_sql, visit_period_sql
@@ -1862,6 +1862,60 @@ class CMDRDatabase:
              round(raw * factor), raw, body.get('planet_class', ''), int(bool(body.get('terraformable'))),
              int(claim.get('efficient_mapping', False)), claim.get('probes_used'), claim.get('efficiency_target')))
 
+    @staticmethod
+    def _prune_pending_mission_offers(offers):
+        """Discard locally unconfirmed offers, not expired Elite missions."""
+        now = datetime.now(timezone.utc)
+        retained = []
+        for offer in offers:
+            timestamp = offer.get("timestamp")
+            try:
+                created = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+                if created.tzinfo is None or created.utcoffset() is None:
+                    raise ValueError("ReceiveText timestamp has no timezone")
+                age = now - created.astimezone(timezone.utc)
+            except (AttributeError, TypeError, ValueError, OverflowError):
+                logger.warning("Pending encounter TTL skipped: invalid ReceiveText timestamp %r",
+                               timestamp)
+                retained.append(offer)
+                continue
+            if age < timedelta(hours=24):
+                retained.append(offer)
+            else:
+                logger.debug("Locally discarded encounter offer unconfirmed for at least 24 hours")
+        return retained
+
+    def pending_mission_offers(self, commander_id, _con=None):
+        if _con is None:
+            with self._connect() as con:
+                # Loading can prune: serialize read + update with live promotion.
+                con.execute("BEGIN IMMEDIATE")
+                return self.pending_mission_offers(commander_id, _con=con)
+        row = _con.execute("SELECT fid FROM commanders WHERE id=?", (commander_id,)).fetchone()
+        if not row:
+            return []
+        stored = _con.execute("SELECT value FROM app_meta WHERE key=?",
+                              ("pending_mission_offers/" + row[0],)).fetchone()
+        if not stored:
+            return []
+        payload = json.loads(stored[0])
+        if payload.get("schema") != 1 or payload.get("fid") != row[0]:
+            raise ValueError("Invalid pending mission offer state")
+        offers = payload.get("offers")
+        if not isinstance(offers, list) or any(not isinstance(o, dict) for o in offers):
+            raise ValueError("Invalid pending mission offers")
+        retained = self._prune_pending_mission_offers(offers)
+        if len(retained) != len(offers):
+            self._store_pending_mission_offers(_con, commander_id, retained)
+        return retained
+
+    def _store_pending_mission_offers(self, con, commander_id, offers):
+        fid = con.execute("SELECT fid FROM commanders WHERE id=?", (commander_id,)).fetchone()[0]
+        con.execute("INSERT INTO app_meta(key,value) VALUES(?,?) "
+                    "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+                    ("pending_mission_offers/" + fid,
+                     json.dumps({"schema": 1, "fid": fid, "offers": offers}, ensure_ascii=False)))
+
     def apply_commander_journal_delta(self, commander_id, journal_file, events,
                                       safe_offset: int, enqueue_inara=False, session=None, live_current=False) -> None:
         """Atomically applies explicit journal facts and commits their byte offset."""
@@ -1870,10 +1924,12 @@ class CMDRDatabase:
         from cmdrhelper.system_visits import store_visit_rows, visit_row
         from cmdrhelper.journal_reader import (
             _loadout_from_event, _new_mission, _optional_int,
-            _update_mission_event, sold_bio_names,
+            _update_mission_event, sold_bio_names, _receive_text_offer,
+            _pending_offer_matches, _enrich_mission_from_offer,
         )
-        from cmdrhelper.models import (
-            STATUS_ABANDONED, STATUS_COMPLETED, STATUS_FAILED,
+        from cmdrhelper.mission_persistence import (
+            MISSION_EVENTS, TERMINAL_EVENTS, load_anchor, save_anchor,
+            utc_stamp, valid_snapshot, snapshot_mission,
         )
         from cmdrhelper.route_planner.models import GuardianFsdBooster, ShipLoadoutData
 
@@ -1910,10 +1966,6 @@ class CMDRDatabase:
             commander_id
         )["correction_factor"]
         scanned_bodies = {}
-        mission_by_id = {
-            int(item["mission_id"]): item
-            for item in self.commander_missions(commander_id)
-        }
         inara_context = {"system": current_system, "station": current_station,
                          "ship_type": ship.get("ship_type"), "ship_id": ship.get("ship_id")}
 
@@ -1955,6 +2007,27 @@ class CMDRDatabase:
             )
             if old_offset_row is not None and int(safe_offset) <= int(old_offset_row[0] or 0):
                 return
+            mission_by_id = {
+                int(item["mission_id"]): item
+                for item in self.commander_missions(commander_id)
+            }
+            anchor_key, mission_anchor = load_anchor(con, commander_id)
+            original_anchor = mission_anchor
+            pending = self.pending_mission_offers(commander_id, _con=con)
+            original_pending = json.dumps(pending, sort_keys=True)
+
+            def match_data(existing, event):
+                # Persisted defaults (e.g. reward=0) are unknown, whereas an
+                # explicit zero in this journal event is authoritative.
+                return {**{key: value for key, value in (existing or {}).items()
+                           if value not in (None, "", 0)}, **event}
+
+            def promote(mission, offer):
+                if offer is not None:
+                    _enrich_mission_from_offer(mission, offer)
+                    pending.remove(offer)
+                return mission
+
             if live_current:
                 self._restore_confirmed_live_ship(con, commander_id, events)
             context_row = con.execute(
@@ -1973,6 +2046,25 @@ class CMDRDatabase:
             for event_index, event in enumerate(events or []):
                 et = str(event.get("event") or "")
                 ts = str(event.get("timestamp") or "")
+                mission_event = False
+                if et in MISSION_EVENTS:
+                    stamp = utc_stamp(ts)
+                    source_offset = event.get('_journal_offset')
+                    if source_offset is None and session is not None:
+                        offsets = session.get('event_offsets')
+                        if offsets is not None:
+                            source_offset = offsets[event_index]
+                    position = (stamp, str(journal_file),
+                                int(source_offset if source_offset is not None else safe_offset),
+                                0 if source_offset is not None else event_index)
+                    valid = (valid_snapshot(event) and session_identified if et == "Missions"
+                             else type(event.get("MissionID")) is int)
+                    mission_event = bool(stamp and valid and position > mission_anchor)
+                    if mission_event:
+                        mission_anchor = position
+                if et in ("ReceiveText", "MissionAccepted", "Missions", "CargoDepot",
+                          "MissionRedirected"):
+                    pending = self._prune_pending_mission_offers(pending)
                 store_observation(con, observation(event))
                 sale = ship_sale(event)
                 if sale is not None:
@@ -2132,56 +2224,74 @@ class CMDRDatabase:
                             commander_id, loadout, ts, location=location, _con=con
                         )
 
-                elif et == "MissionAccepted":
+                elif et == "ReceiveText" and live_current:
+                    offer = _receive_text_offer(event)
+                    if offer is not None:
+                        # Exact line position from the live reader. Other callers
+                        # can use the existing committed-delta outbox convention.
+                        offer["source"] = {"journal_file": str(journal_file),
+                                           "offset": int(event.get("_journal_offset", safe_offset)),
+                                           "timestamp": ts}
+                        if "_journal_offset" not in event:
+                            offer["source"]["event_index"] = event_index
+                        if not any(o.get("source") == offer["source"] for o in pending):
+                            pending.append(offer)
+                        pending = self._prune_pending_mission_offers(pending)
+
+                elif et == "MissionAccepted" and mission_event:
                     mission = _new_mission(event)
+                    if live_current:
+                        mission = promote(mission, _pending_offer_matches(pending, [event], ts)[0])
                     mission_by_id[int(mission["mission_id"])] = mission
                     self.store_commander_missions(commander_id, [mission], _con=con)
 
-                elif et in ("MissionRedirected", "CargoDepot"):
+                elif et in ("MissionRedirected", "CargoDepot") and mission_event:
                     mid = event.get("MissionID")
                     existing = mission_by_id.get(int(mid)) if mid is not None else None
                     mission = existing or _new_mission(event)
+                    if et == "CargoDepot" and live_current:
+                        offer = _pending_offer_matches(pending, [match_data(existing, event)], ts)[0]
+                        mission = promote(mission, offer)
+                        if offer is not None and event.get("CargoType_Localised"):
+                            mission["commodity"] = event["CargoType_Localised"]
                     _update_mission_event(mission, event)
+                    mission.update(is_open=1, terminal_state="")
                     mission_by_id[int(mission["mission_id"])] = mission
                     self.store_commander_missions(commander_id, [mission], _con=con)
 
-                elif et in ("MissionCompleted", "MissionFailed", "MissionAbandoned"):
-                    mid = event.get("MissionID")
-                    if mid is not None:
-                        existing = mission_by_id.get(int(mid))
-                        mission = existing or _new_mission(event)
-                        mission["terminal_state"] = {
-                            "MissionCompleted": "completed", "MissionFailed": "failed",
-                            "MissionAbandoned": "abandoned",
-                        }[et]
-                        mission["status"] = {
-                            "MissionCompleted": STATUS_COMPLETED,
-                            "MissionFailed": STATUS_FAILED,
-                            "MissionAbandoned": STATUS_ABANDONED,
-                        }[et]
-                        mission["last_update"] = ts
-                        if event.get("Reward") is not None:
-                            mission["reward"] = int(event.get("Reward") or 0)
-                        self.store_commander_missions(
-                            commander_id, [], [mission], _con=con
-                        )
-                        mission_by_id[int(mid)] = mission
+                elif et in TERMINAL_EVENTS and mission_event:
+                    mid = int(event["MissionID"])
+                    self.store_commander_missions(
+                        commander_id, [], [{"mission_id": mid}], _con=con
+                    )
+                    mission_by_id.pop(mid, None)
 
-                elif et == "Missions":
+                elif et == "Missions" and mission_event:
                     active = []
-                    for item in event.get("Active") or []:
-                        if item.get("MissionID") is None:
-                            continue
-                        active.append(_new_mission({
-                            "MissionID": item["MissionID"],
-                            "Name": item.get("Name") or "Mission",
-                            "LocalisedName": item.get("LocalisedName") or item.get("Name_Localised"),
-                            "Expiry": item.get("Expiry") or "", "timestamp": ts,
-                        }))
+                    items = event["Active"]
+                    match_items = [match_data(mission_by_id.get(int(item["MissionID"])), item)
+                                   for item in items]
+                    matches = (_pending_offer_matches(pending, match_items, ts) if live_current
+                               else [None] * len(items))
+                    for item, offer in zip(items, matches):
+                        mission = snapshot_mission(item, ts, mission_by_id.get(int(item["MissionID"])))
+                        active.append(promote(mission, offer))
+                    # Complete is not MissionCompleted: keep return-to-terminal tasks.
+                    # Failed is not used as a deletion signal either; absent missions
+                    # retain the conservative inactive representation below.
+                    active_ids = {int(m["mission_id"]) for m in active}
+                    for item in event.get("Complete", []):
+                        if int(item["MissionID"]) not in active_ids:
+                            active.append(snapshot_mission(
+                                item, ts, mission_by_id.get(int(item["MissionID"]))))
+                            active_ids.add(int(item["MissionID"]))
                     self.store_commander_missions(
                         commander_id, active, authoritative=True, _con=con
                     )
-                    mission_by_id = {int(item["mission_id"]): item for item in active}
+                    for mid, mission in mission_by_id.items():
+                        if mid not in active_ids and mission.get("is_open", True):
+                            mission.update(is_open=0, terminal_state="inactive", status="Nicht mehr aktiv")
+                    mission_by_id.update({int(item["mission_id"]): item for item in active})
 
                 elif et == "ScanOrganic":
                     finding = _biology_from_event(event, address)
@@ -2342,6 +2452,10 @@ class CMDRDatabase:
                  int(bool(mining_context.get("surface_confirmed"))),
                  int(bool(mining_context.get("rhino_active"))),
                  str((events or [{}])[-1].get("timestamp") or "")))
+            if mission_anchor != original_anchor:
+                save_anchor(con, anchor_key, mission_anchor)
+            if json.dumps(pending, sort_keys=True) != original_pending:
+                self._store_pending_mission_offers(con, commander_id, pending)
             store_visit_rows(con, visit_rows)
             con.execute("""UPDATE journal_sessions
                 SET last_read_offset=MAX(last_read_offset,?) WHERE journal_file=?""",
@@ -2750,12 +2864,14 @@ class CMDRDatabase:
         return {"skipped": False, "journals": len(rows), "events": len(scans)}
 
     def repair_commander_state(self, folder, sessions, commander_id,
-                               features=("unsold", "missions")) -> dict:
+                               features=("unsold",)) -> dict:
         """Explicit full-history repair; replacement and markers are atomic."""
         from cmdrhelper.journal_reader import read_latest_state
 
         commander_id = int(commander_id)
-        wanted = tuple(dict.fromkeys(str(item) for item in features))
+        wanted = tuple(dict.fromkeys(str(item) for item in features if str(item) != "missions"))
+        if not wanted:
+            return {"missions_repair_skipped": True}
         selected = [item for item in (sessions or [])
                     if item.get("commander_id") == commander_id]
         data = read_latest_state(
@@ -2777,12 +2893,6 @@ class CMDRDatabase:
                     learned_bio_values=self.learned_bio_values(),
                     cartography_factor_func=lambda *_: repair_cart_factor,
                     _con=con,
-                )
-            if "missions" in wanted:
-                self.store_commander_missions(
-                    commander_id, data.get("missions") or [],
-                    data.get("mission_terminal_updates") or [],
-                    authoritative=True, _con=con,
                 )
             con.executemany("""
                 INSERT INTO commander_state_repairs(
@@ -2869,14 +2979,17 @@ class CMDRDatabase:
     def store_commander_missions(self, commander_id, active_missions,
                                  terminal_missions=(), authoritative=False,
                                  _con=None):
+        """Write current rows; terminal inputs delete, missing snapshot rows go inactive.
+
+        Journal callers must pass the ordering guard in apply_commander_journal_delta.
+        This low-level storage method does not replay or reconstruct history.
+        """
         commander_id = int(commander_id)
         active_ids = set()
         rows = []
         id_classes = set()
-        for mission, is_open in [
-            *((item, True) for item in (active_missions or [])),
-            *((item, False) for item in (terminal_missions or [])),
-        ]:
+        for mission in active_missions or []:
+            is_open = True
             mission_id = self._mission_value(mission, "mission_id", None)
             if mission_id is None:
                 continue
@@ -2935,6 +3048,11 @@ class CMDRDatabase:
                     last_updated=excluded.last_updated,terminal_state=excluded.terminal_state,
                     is_open=excluded.is_open
             """, rows)
+            con.executemany(
+                "DELETE FROM commander_missions WHERE commander_id=? AND mission_id=?",
+                [(commander_id, self._mission_id_to_sql(self._mission_value(m, "mission_id", None)))
+                 for m in terminal_missions or [] if self._mission_value(m, "mission_id", None) is not None],
+            )
             if authoritative:
                 open_rows = con.execute(
                     "SELECT mission_id FROM commander_missions WHERE commander_id=? AND is_open=1",

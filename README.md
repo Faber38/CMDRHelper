@@ -38,6 +38,15 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## New in version 3.6.1
+
+- Live bounties under Missions, stored persistently and separately for each commander.
+- Encounter and messenger jobs from space encounters are visible before the final MissionID is available.
+- Encounter offers survive restarts and become normal missions after unambiguous confirmation, without duplicates.
+- Improved matching of commodity, quantity, destination, reward and time; ambiguous offers are not guessed. Unconfirmed offers expire after 24 hours.
+- Commander → Missions shows current missions. New completions no longer build a growing mission archive; existing historical rows are preserved.
+- Encounter processing is fully connected again; old events cannot overwrite newer mission state. Removed the conflicting mission reset.
+
 ## New in version 3.6
 
 - Stations and facilities on the system map, plus a dedicated STATIONS tab with search, filters and sorting.

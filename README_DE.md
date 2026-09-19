@@ -38,6 +38,15 @@ Der Journalordner von Elite Dangerous wird nach Möglichkeit automatisch erkannt
 
 CMDRHelper prüft beim Start auf Updates und besitzt einen integrierten Updater. Bestätige ein angebotenes Update im Programm; es aktualisiert Programm und Abhängigkeiten und startet CMDRHelper neu. Nach der Erstinstallation genügt normalerweise `start.bat` (Windows) beziehungsweise `bash start.sh` (Linux). Für normale Updates musst du `install.bat` oder `install.sh` nicht erneut manuell ausführen.
 
+## Neu in Version 3.6.1
+
+- Live-Kopfgelder unter Missionen, dauerhaft und getrennt je Commander gespeichert.
+- Encounter- und Messenger-Aufträge aus Weltraumbegegnungen sind schon vor der endgültigen MissionID sichtbar.
+- Encounter-Angebote bleiben über Neustarts erhalten und werden nach eindeutiger Bestätigung ohne Dubletten zur normalen Mission.
+- Verbesserter Abgleich von Ware, Menge, Ziel, Belohnung und Zeit; mehrdeutige Angebote werden nicht geraten. Unbestätigte Angebote verfallen nach 24 Stunden.
+- Commander → Missionen zeigt aktuelle Missionen. Neue Abschlüsse werden nicht mehr als wachsende Missionshistorie gespeichert; bestehende Altzeilen bleiben erhalten.
+- Encounter-Verarbeitung wieder vollständig angebunden; alte Ereignisse überschreiben keinen neueren Missionsbestand. Widersprüchlichen Missionsreset entfernt.
+
 ## Neu in Version 3.6
 
 - Stationen und Einrichtungen in der Systemkarte sowie ein eigener STATIONEN-Reiter mit Suche, Filtern und Sortierung.

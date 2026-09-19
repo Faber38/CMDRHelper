@@ -69,19 +69,18 @@ class MissionIdPersistenceTests(unittest.TestCase):
         reconstructed = read_latest_state(self.folder, indexed_sessions=sessions, force_full_history=True)
         self.assertEqual({r['mission_id'] for r in reconstructed['missions']}, set(IDS) - set(IDS[2:5]))
         self.db.repair_commander_state(self.folder, sessions, self.commander, features=('missions',))
-        self.assertFalse(self.db.commander_state_repair_needed(self.commander, 'missions'))
+        self.assertEqual(self.db.commander_missions(self.commander), [])  # no historical repair
         self.apply()
         self.db = CMDRDatabase(self.db_path)
         rows = {r['mission_id']: r for r in self.db.commander_missions(self.commander)}
-        self.assertEqual(set(rows), set(IDS))
-        self.assertEqual(rows[IDS[2]]['reward'], 456)
-        for mid, status in zip(IDS[2:5], ('completed', 'failed', 'abandoned')):
-            self.assertEqual(rows[mid]['terminal_state'], status)
-            self.assertFalse(rows[mid]['is_open'])
+        self.assertEqual(set(rows), set(IDS) - set(IDS[2:5]))
+        self.assertTrue(all(row['is_open'] for row in rows.values()))
         self.db.store_commander_missions(self.commander, [rows[42]], authoritative=True)
         self.assertEqual([r['mission_id'] for r in self.db.commander_missions(self.commander) if r['is_open']], [42])
         self.assertEqual(self.db.commander_missions(other)[0]['name'], 'Other')
-        self.assertEqual(len(self.db.commander_missions(self.commander)), len(IDS))
+        self.assertEqual(len(self.db.commander_missions(self.commander)), len(IDS) - 3)
+        inactive = [r for r in self.db.commander_missions(self.commander) if not r['is_open']]
+        self.assertTrue(all(r['terminal_state'] == 'inactive' for r in inactive))
 
     def test_existing_integer_schema_and_adjacent_ids(self):
         with self.db._connect() as con:
