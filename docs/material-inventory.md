@@ -84,24 +84,30 @@ invalidieren den Cache. Änderungen während des Lesens erfordern eine erneute A
 
 ## Regression und offene Aufgaben
 
-Die portable Regression in `tests/fixtures/materials_faber38.json` enthält einen
-früheren echten vollständigen Snapshot (einschließlich dataminedwake), den letzten
+Die portable Regression in `tests/fixtures/materials_reference.json` enthält einen
+früheren vollständigen Referenzsnapshot (einschließlich dataminedwake), den letzten
 vollständigen Snapshot und alle 43 folgenden MaterialCollected-Ereignisse. Andere
 Spielaktivitäten wurden nicht übernommen.
 
-Der zusätzliche lokale Integrationstest verwendet die Originaljournale von FABER38/FTEST0001
-bis einschließlich Journal.2026-09-08T123632.01.log. Ohne diese privaten lokalen
-Daten wird nur dieser Integrationstest übersprungen; die synthetischen Tests sind
-portabel. Belegter Endbestand: sulphur 300, vanadium 244, tin 53, molybdenum 63,
-niobium 53, yttrium 35. Historisch bekannte Kategorien: 28/56/35, davon positiv
-28/56/34; dataminedwake ist bekannt mit 0.
+Die lokalen Integrationstests sind ausdrücklich opt-in. Erforderlich sind
+`CMDRHELPER_TEST_DATABASE` (Pfad zu einer Referenz-DB),
+`CMDRHELPER_TEST_COMMANDER` (Name des Referenz-Commanders) und
+`CMDRHELPER_TEST_JOURNAL_UNTIL` (letzter einzubeziehender Journaldateiname).
+Ohne diese Variablen wird keine Benutzer-DB geöffnet. Bei expliziter Konfiguration
+führen fehlende Daten zu einem Testfehler statt zu einem stillen Überspringen.
+
+Die konfigurierte Datenbasis muss den folgenden Referenzbestand reproduzieren;
+die Tests sind keine Prüfung beliebiger aktueller Benutzerbestände:
+sulphur 300, vanadium 244, tin 53, molybdenum 63, niobium 53, yttrium 35.
+Kategorien: 28/56/35, davon positiv 28/56/34; dataminedwake ist bekannt mit 0.
+Die gleichen fachlichen Erwartungen werden ohne lokale Daten durch die portable
+Fixture geprüft. Mengen und Ereignisreihenfolge bleiben erhalten, Zeitstempel
+sind einheitlich um 3650 Tage verschoben.
 
 Phase 2 ergänzt den statischen Katalog und `merge_inventory(inventory)` für alle
 146 Katalogzeilen; siehe [Materialkatalog](material-catalog.md). Phase-1-Zugriffe
 `material()`/`by_category()` und ihre historischen Identitätsmengen bleiben erhalten.
 
-Separater offener Bug, hier unverändert: Die Rhino-Fundhistorie kann dieselben
-Ereignisse unter `delta:…` und `line:…` mehrfach zählen. Am 08.09.2026 stehen für
-Body 24/System 7879797001587 in der DB Vanadium 17, Molybdän 8 und Zinn 8 gegenüber
-Journalmengen 15/7/7. Diese neue Bestandsauswertung liest keine der betroffenen
-surface_mining-Tabellen oder deren Verarbeitungsmarker.
+Abgrenzung: Die Rhino-Fundhistorie kann dieselben Ereignisse unter `delta:…`
+und `line:…` mehrfach zählen. Diese Bestandsauswertung liest weder die betroffenen
+surface_mining-Tabellen noch deren Verarbeitungsmarker.

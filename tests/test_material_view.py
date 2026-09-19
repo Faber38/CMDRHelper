@@ -1,4 +1,5 @@
 import json
+import os
 import sqlite3
 import tempfile
 import threading
@@ -64,10 +65,10 @@ class MaterialViewTests(unittest.TestCase):
 
     def fixture(self):
         self.reducer = _Reducer(1, "FTEST0001")
-        events = json.loads((Path(__file__).parent / "fixtures/materials_faber38.json").read_text())
+        events = json.loads((Path(__file__).parent / "fixtures/materials_reference.json").read_text())
         for i, e in enumerate(events):
-            self.reducer.apply(e, ("faber", i))
-        self.view.set_inventory(self.reducer.result, "FABER38")
+            self.reducer.apply(e, ("reference", i))
+        self.view.set_inventory(self.reducer.result, "TEST_CMDR")
 
     def test_three_categories_all_special_groups_visible(self):
         self.assertEqual(self.view.tabs.count(), 5)
@@ -148,7 +149,7 @@ class MaterialViewTests(unittest.TestCase):
             self.view.filter.setCurrentIndex(index)
             self.assertNotIn("tg_shipsystemsdata", self.view.items)
 
-    def test_faber38_values_and_percent(self):
+    def test_reference_values_and_percent(self):
         self.fixture()
         for symbol, count in dict(sulphur=300, vanadium=244, tin=53, molybdenum=63, niobium=53, yttrium=35).items():
             self.assertTrue(self.view.items[symbol].text(2).startswith(f"{count} / "))
@@ -158,19 +159,24 @@ class MaterialViewTests(unittest.TestCase):
         self.assertEqual(self.view.items["dataminedwake"].text(2), "0 / 100")
         self.assertFalse(self.view.highlight)  # Initial reconstruction is not a fresh collection.
 
-    def test_real_faber38_journals_render_correctly(self):
-        database = Path(__file__).resolve().parents[1] / "data/cmdrhelper.db"
-        if not database.exists():
-            self.skipTest("local FABER38 database unavailable")
+    def test_real_reference_journals_render_correctly(self):
+        database_path = os.environ.get("CMDRHELPER_TEST_DATABASE")
+        commander_name = os.environ.get("CMDRHELPER_TEST_COMMANDER")
+        journal_until = os.environ.get("CMDRHELPER_TEST_JOURNAL_UNTIL")
+        if not all((database_path, commander_name, journal_until)):
+            self.skipTest("opt-in reference DB test: set CMDRHELPER_TEST_DATABASE, "
+                          "CMDRHELPER_TEST_COMMANDER and CMDRHELPER_TEST_JOURNAL_UNTIL")
+        database = Path(database_path).expanduser().resolve()
+        self.assertTrue(database.is_file(), "configured reference database unavailable")
         with sqlite3.connect(database.as_uri() + "?mode=ro&immutable=1", uri=True) as con:
             con.row_factory = sqlite3.Row
-            commander = con.execute("SELECT id,current_name,fid FROM commanders WHERE current_name='FABER38' COLLATE NOCASE").fetchone()
-            if commander is None:
-                self.skipTest("local FABER38 commander unavailable")
+            commander = con.execute("SELECT id,current_name,fid FROM commanders WHERE current_name=? COLLATE NOCASE", (commander_name,)).fetchone()
+            self.assertIsNotNone(commander, "configured reference commander unavailable")
             sessions = [dict(row) for row in con.execute("SELECT * FROM journal_sessions WHERE commander_id=?", (commander["id"],))
-                        if Path(row["journal_file"]).name <= "Journal.2026-09-08T123632.01.log"]
-        if not sessions or not all(Path(s["journal_file"]).exists() for s in sessions):
-            self.skipTest("original FABER38 journals unavailable")
+                        if Path(row["journal_file"]).name <= journal_until]
+        self.assertTrue(sessions, "no reference sessions selected")
+        self.assertTrue(all(Path(s["journal_file"]).is_file() for s in sessions),
+                        "configured reference journals unavailable")
         inventory = MaterialInventoryReader().reconstruct(commander["id"], commander["fid"], sessions)
         self.assertTrue(inventory.known, inventory.issues)
         self.view.set_inventory(inventory, commander["current_name"])

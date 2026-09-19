@@ -17,9 +17,9 @@ from cmdrhelper.i18n import set_language, tr, _TRANSLATIONS
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 
 
-def bounty(amount=52528, faction='Explorers of Nabudis', **extra):
-    # Technical fixture from the observed 2026-09-18 event; never seed production.
-    return dict(timestamp='2026-09-18T13:35:46Z', event='Bounty',
+def bounty(amount=52528, faction='Example Faction', **extra):
+    # Anonymized technical reference fixture; never seed production.
+    return dict(timestamp='2016-09-20T13:35:46Z', event='Bounty',
                 Rewards=[dict(Faction=faction, Reward=amount)], TotalReward=amount, **extra)
 
 
@@ -47,7 +47,7 @@ class BountyTests(unittest.TestCase):
     def saved(self, fid='FID-A'):
         return json.loads((self.root / f'{fid}.json').read_text())
 
-    def journal(self, name='Journal.2026-09-18T140000.01.log', events=()):
+    def journal(self, name='Journal.2016-09-20T140000.01.log', events=()):
         path = self.folder / name
         path.write_text(''.join(json.dumps(e) + '\n' for e in events))
         return path
@@ -71,10 +71,10 @@ class BountyTests(unittest.TestCase):
         self.assertTrue(self.saved()['from_now'])
         self.assertEqual(self.saved()['last_event']['offset'], path.stat().st_size)
 
-    def test_real_fixture_saved_immediately(self):
+    def test_reference_fixture_saved_immediately(self):
         self.apply(bounty())
         self.assertEqual(self.manager.snapshot()['total'], 52528)
-        self.assertEqual(self.saved()['factions'], {'Explorers of Nabudis': 52528})
+        self.assertEqual(self.saved()['factions'], {'Example Faction': 52528})
         self.assertFalse(any(k in self.saved() for k in ['PilotName', 'Target', 'Ship']))
 
     def test_same_faction_adds(self):
@@ -161,8 +161,8 @@ class BountyTests(unittest.TestCase):
         path = self.journal()
         self.arm(path)
         self.append(path, bounty(10))
-        part = self.journal('Journal.2026-09-18T140000.02.log', [bounty(20)])
-        newer = self.journal('Journal.2026-09-18T150000.01.log',
+        part = self.journal('Journal.2016-09-20T140000.02.log', [bounty(20)])
+        newer = self.journal('Journal.2016-09-20T150000.01.log',
                              [dict(event='Commander', FID='FID-A', Name='A'), bounty(30)])
         for _ in range(2):
             self.manager.consume([path, part, newer])
@@ -173,7 +173,7 @@ class BountyTests(unittest.TestCase):
         path = self.journal()
         self.arm(path)
         self.append(path, bounty(10))
-        newer = self.journal('Journal.2026-09-18T150000.01.log',
+        newer = self.journal('Journal.2016-09-20T150000.01.log',
                              [dict(event='Commander', FID='FID-B', Name='B'), bounty(30)])
         self.manager.consume([path, newer])
         self.assertEqual(self.saved()['total'], 10)
@@ -182,7 +182,7 @@ class BountyTests(unittest.TestCase):
     def test_new_session_without_fid_does_not_inherit_commander(self):
         path = self.journal()
         self.arm(path)
-        newer = self.journal('Journal.2026-09-18T150000.01.log', [bounty()])
+        newer = self.journal('Journal.2016-09-20T150000.01.log', [bounty()])
         self.manager.consume([newer])
         self.assertEqual(self.manager.snapshot()['total'], 0)
         self.assertEqual(self.saved()['total'], 0)
@@ -442,7 +442,7 @@ class BountyTests(unittest.TestCase):
         self.manager.identify(fid, fid, path)
 
     def test_first_start_uses_last_reset_in_current_journal_only(self):
-        old = self.journal('Journal.2026-09-17T140000.01.log', [bounty(999999)])
+        old = self.journal('Journal.2016-09-19T140000.01.log', [bounty(999999)])
         current = self.journal(events=[dict(event='Commander', FID='FID-A', Name='A'),
                                       bounty(999), dict(event='Died'), bounty(111),
                                       dict(event='RedeemVoucher', Type='bounty'), bounty()])
@@ -453,7 +453,7 @@ class BountyTests(unittest.TestCase):
             return original_open(path, *args, **kwargs)
         with patch.object(Path, 'open', current_only):
             self.restart(current)
-        self.assertEqual(self.saved()['factions'], {'Explorers of Nabudis': 52528})
+        self.assertEqual(self.saved()['factions'], {'Example Faction': 52528})
         self.assertFalse(self.saved()['from_now'])
         self.assertFalse(self.saved()['uncertain'])
         self.assertEqual(self.saved()['last_event']['offset'], current.stat().st_size)
@@ -503,7 +503,7 @@ class BountyTests(unittest.TestCase):
         old = self.journal(events=[dict(event='Died'), bounty()])
         self.arm(old)
         self.append(old, bounty(999))
-        current = self.journal('Journal.2026-09-19T140000.01.log',
+        current = self.journal('Journal.2016-09-21T140000.01.log',
                                [dict(event='Commander', FID='FID-A'), bounty(9999)])
         original_open = Path.open
         def no_old(path, *args, **kwargs):
@@ -521,7 +521,7 @@ class BountyTests(unittest.TestCase):
     def test_changed_journal_with_reset_resynchronizes(self):
         old = self.journal(events=[dict(event='Died'), bounty()])
         self.arm(old)
-        current = self.journal('Journal.2026-09-19T140000.01.log',
+        current = self.journal('Journal.2016-09-21T140000.01.log',
                                [dict(event='Commander', FID='FID-A'), bounty(9999),
                                 dict(event='RedeemVoucher', Type='bounty'), bounty(10)])
         self.restart(current)
@@ -553,11 +553,11 @@ class BountyTests(unittest.TestCase):
     def test_commander_switches_have_separate_anchors(self):
         a = self.journal(events=[dict(event='Commander', FID='FID-A'), dict(event='Died'), bounty(10)])
         self.arm(a)
-        b = self.journal('Journal.2026-09-19T140000.01.log',
+        b = self.journal('Journal.2016-09-21T140000.01.log',
                          [dict(event='Commander', FID='FID-B'), dict(event='Died'), bounty(20)])
         self.restart(b, 'FID-B')
         b_bytes = (self.root / 'FID-B.json').read_bytes()
-        a_new = self.journal('Journal.2026-09-20T140000.01.log', [dict(event='Commander', FID='FID-A')])
+        a_new = self.journal('Journal.2016-09-22T140000.01.log', [dict(event='Commander', FID='FID-A')])
         self.restart(a_new)
         self.assertEqual(self.saved()['total'], 10)
         self.assertEqual(self.saved()['last_event']['file'], str(a_new))
@@ -566,7 +566,7 @@ class BountyTests(unittest.TestCase):
     def test_live_rotation_checkpoints_new_file_without_bounty(self):
         a = self.journal(events=[dict(event='Died'), bounty(10)])
         self.arm(a)
-        b = self.journal('Journal.2026-09-19T140000.01.log', [dict(event='Commander', FID='FID-A')])
+        b = self.journal('Journal.2016-09-21T140000.01.log', [dict(event='Commander', FID='FID-A')])
         self.manager.consume([b])
         self.assertEqual(self.saved()['last_event']['file'], str(b))
         self.append(b, bounty(20))

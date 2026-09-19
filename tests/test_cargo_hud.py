@@ -45,7 +45,7 @@ class CargoHudTests(unittest.TestCase):
         self.state = SimpleNamespace(
             settings=self.settings, commander_fid="F-A", journal_folder=self.folder,
             ship="Cobra", ship_loadout=ShipLoadoutData(
-                ship_id=51, ship_name="ERFT-BÜFFEL", cargo_capacity=256),
+                ship_id=51, ship_name="TEST-BÜFFEL", cargo_capacity=256),
             active_srv_type="", cargo_snapshot=None,
         )
         self.controller = Controller()
@@ -81,9 +81,9 @@ class CargoHudTests(unittest.TestCase):
             commander_id=1, fid_seen="F-A", attribution_status="identified",
             first_event_at="2026-09-04T15:00:00Z")]
         self.state.game_mode_timestamp = "2026-09-04T15:00:01Z"
-        self.state.ship = "ERFT-NOMADE"
+        self.state.ship = "TEST-NOMADE"
         self.state.ship_loadout = ShipLoadoutData(
-            ship_id=38, ship_type="explorer_nx", ship_name="ERFT-NOMADE",
+            ship_id=38, ship_type="explorer_nx", ship_name="TEST-NOMADE",
             cargo_capacity=43, loadout_complete=True, loadout_stale=False,
             loadout_timestamp="2026-09-04T16:00:30Z")
         self.status(Cargo=0.0)
@@ -91,7 +91,7 @@ class CargoHudTests(unittest.TestCase):
     def test_status_fallback_srv_to_ship_and_snapshot_resumes_priority(self):
         self.ship_fallback_context()
         self.hud.set_cargo_enabled(True)
-        self.assertEqual(self.hud.cargo_data.text, "ERFT-NOMADE · FRACHTRAUM 0 / 43 t")
+        self.assertEqual(self.hud.cargo_data.text, "TEST-NOMADE · FRACHTRAUM 0 / 43 t")
         self.assertTrue(self.hud.isVisible())
         self.state.cargo_snapshot = cargo_snapshot(dict(
             event="Cargo", timestamp="2026-09-04T16:00:45Z", Vessel="Ship",
@@ -211,7 +211,7 @@ class CargoHudTests(unittest.TestCase):
     def test_ship_and_known_srvs_use_own_names_and_capacities(self):
         self.cargo()
         self.assertEqual(cargo_hud_data(self.state).text,
-                         "ERFT-BÜFFEL · FRACHTRAUM 128 / 256 t")
+                         "TEST-BÜFFEL · FRACHTRAUM 128 / 256 t")
         for vehicle, maximum in (("mev_rhino", 72), ("testbuggy", 4),
                                  ("combat_multicrew_srv_01", 2)):
             with self.subTest(vehicle=vehicle):
@@ -232,7 +232,7 @@ class CargoHudTests(unittest.TestCase):
         self.cargo()
         self.state.ship_loadout.cargo_capacity = None
         self.state.cargo_snapshot["capacity"] = None
-        self.assertEqual(cargo_hud_data(self.state).text, "ERFT-BÜFFEL · FRACHTRAUM 128 t")
+        self.assertEqual(cargo_hud_data(self.state).text, "TEST-BÜFFEL · FRACHTRAUM 128 t")
 
     def test_capacity_changes_and_explicit_values_take_precedence(self):
         self.cargo()

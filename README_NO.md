@@ -74,9 +74,7 @@ CMDRHelper søker etter oppdateringer ved oppstart og har en innebygd oppdaterin
 - Mer pålitelige Mining-beholdninger med sikrere Cargo-bilder, etterbehandling av overføringer og kontrollert lagring.
 - Feil migrasjonsforespørsel ved nyinstallasjon rettet; kopiering i krøniken og skjulte visninger forbedret.
 
-![Odyssey-materialhåndtering med skap, ryggsekk og automatisk beregnet Fleet Carrier-beholdning](cmdrhelper/assets/readme/cmdrhelper_v3_5.png)
-
-Skap og ryggsekk bruker validerte aktuelle ShipLocker/Backpack-data. Varer, Materialer og Data viser hver sin personlige kapasitet på 1000. Totalt summerer skap + ryggsekk + hangarskip bare med kjente, samstemte verdier. Kjøp, salg og bytte skilles fra private overføringer. Etter omstart rekonstrueres stedet og en ny personlig basis settes; tapte Odyssey-overføringer blir ikke oppdiktet. Eksempel fra spillet: 713 enheter + 121 plasser reservert for kjøp = 834 / 1000. De 121 er ikke materialer. Gamle eller usikre markedsdata gir ikke et antatt aktuelt belegg.
+Skap og ryggsekk bruker validerte aktuelle ShipLocker/Backpack-data. Varer, Materialer og Data viser hver sin personlige kapasitet på 1000. Totalt summerer skap + ryggsekk + hangarskip bare med kjente, samstemte verdier. Kjøp, salg og bytte skilles fra private overføringer. Etter omstart rekonstrueres stedet og en ny personlig basis settes; tapte Odyssey-overføringer blir ikke oppdiktet. Fiktivt eksempel: 500 enheter + 100 plasser reservert for kjøp = 600 / 1000. De 100 er ikke materialer. Gamle eller usikre markedsdata gir ikke et antatt aktuelt belegg.
 
 ### Sett opp hangarskipets beholdning
 

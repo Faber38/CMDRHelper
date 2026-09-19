@@ -80,7 +80,7 @@ def main():
         assert not hud.isVisible()
         target.setGeometry(100, 100, 850, 500)
         target.show()
-        data = CargoHudData("ERFT-BÜFFEL", 128, 256)
+        data = CargoHudData("TEST-BÜFFEL", 128, 256)
         QTest.qWait(250)
         assert hud.isVisible() and hud.geometry() == target.geometry()
         assert hud.cargo_data == data and active() == foreground

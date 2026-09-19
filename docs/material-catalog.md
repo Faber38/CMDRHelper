@@ -172,11 +172,11 @@ werden anhand ihrer Quellenidentität erkannt.
 
 ## Regression und UI-Anbindung
 
-Alle 119 historisch bekannten FABER38-Symbole (28/56/35) lösen sich eindeutig auf.
+Alle 119 bekannten Symbole der Referenzfixture (28/56/35) lösen sich eindeutig auf.
 Die Projektion liefert 146 Zeilen: 118 positive, 28 Nullbestände, darunter
 27 zuvor nie beobachtete Katalogsymbole und `dataminedwake=0`.
 Bestätigt: sulphur=300, vanadium=244/250=97,6%, tin=53, molybdenum=63,
-niobium=53, yttrium=35. Portable Originalevent-Fixture und optionaler Test über
+niobium=53, yttrium=35. Portable anonymisierte Referenzfixture und optionaler Test über
 die vorhandenen Originaljournale prüfen dies; der lokale Test misst zusätzlich
 kalte/warme Rekonstruktion und Katalogprojektion.
 

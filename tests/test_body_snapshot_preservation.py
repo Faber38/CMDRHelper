@@ -17,7 +17,7 @@ class BodySnapshotPreservationTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)
         self.db = CMDRDatabase(self.root / "test.db")
-        self.commander_id = self.db.upsert_commander("F12345678", "FABER38")
+        self.commander_id = self.db.upsert_commander("F12345678", "TEST_CMDR")
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -34,7 +34,7 @@ class BodySnapshotPreservationTests(unittest.TestCase):
         }
         body.update(changes)
         return {"system_address": ADDRESS, "system": SYSTEM,
-                "last_timestamp": "2026-09-02T18:05:46Z",
+                "last_timestamp": "2016-09-04T18:05:46Z",
                 "system_bodies": [body]}
 
     def row(self):
@@ -94,9 +94,9 @@ class BodySnapshotPreservationTests(unittest.TestCase):
         ), self.commander_id)
         journal = self.root / "Journal.real.log"
         events = [
-            {"timestamp": "2026-09-02T18:00:00Z", "event": "FSDJump",
+            {"timestamp": "2016-09-04T18:00:00Z", "event": "FSDJump",
              "StarSystem": SYSTEM, "SystemAddress": ADDRESS},
-            {"timestamp": "2026-09-02T18:05:46Z", "event": "Scan",
+            {"timestamp": "2016-09-04T18:05:46Z", "event": "Scan",
              "BodyName": BODY, "BodyID": 1, "SystemAddress": ADDRESS,
              "PlanetClass": "Rocky ice body", "Landable": True,
              "Radius": 1269296.375},
@@ -106,10 +106,10 @@ class BodySnapshotPreservationTests(unittest.TestCase):
         size = journal.stat().st_size
         session = {
             "journal_file": str(journal), "attribution_status": "identified",
-            "fid_seen": "F12345678", "commander_name_seen": "FABER38",
+            "fid_seen": "F12345678", "commander_name_seen": "TEST_CMDR",
             "file_size": size, "modified_ns": journal.stat().st_mtime_ns,
             "last_read_offset": size, "last_complete_line_offset": size,
-            "last_indexed_at": "2026-09-02T18:06:00Z",
+            "last_indexed_at": "2016-09-04T18:06:00Z",
         }
         self.db.store_journal_session(session)
         session["commander_id"] = self.commander_id

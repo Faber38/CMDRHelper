@@ -101,14 +101,14 @@ class ScreenshotMultiCommanderTests(unittest.TestCase):
     def test_filename_uses_bmp_time_commander_and_safe_system(self):
         stamp = datetime(2026, 9, 4, 13, 18, 22).timestamp()
         source = self._source(stamp=stamp)
-        self.state.commander = "FABER38"
+        self.state.commander = "TEST_CMDR"
         self.state.commander_fid = "F12345678"
         self.state.system = "Prua Hypai RB-D c29-71"
         path = self.view._output_path(source)
-        self.assertEqual(path.parent.name, "FABER38_F12345678")
+        self.assertEqual(path.parent.name, "TEST_CMDR_F12345678")
         self.assertEqual(
             path.name,
-            "2026-09-04_13-18-22_FABER38_Prua-Hypai-RB-D-c29-71.png",
+            "2026-09-04_13-18-22_TEST_CMDR_Prua-Hypai-RB-D-c29-71.png",
         )
 
     def test_unknown_identity_and_optional_system(self):

@@ -170,8 +170,8 @@ these APIs without modifying the Engineering view or O1 stack semantics.
 
 ## Validation
 
-The existing real O1 fixture supplies all 131 FABER38 symbols. All resolve without
-aliases. Its synchronous 2026-09-08T14:58:01Z pair remains total 3,139, as does the
-post-Embark snapshot. Mission 1064707191 remains completed, with the vehicle
+The anonymized O1 reference fixture supplies all 131 reference symbols. All resolve without
+aliases. Its synchronous reference pair remains total 3,139, as does the
+post-Embark snapshot. The reference mission remains completed, with the vehicle
 schematic present and mission-tagged. Two simulated commanders are projected
 through the same reader with different inventories/actions and no mixing.

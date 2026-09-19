@@ -19,12 +19,12 @@ from cmdrhelper.i18n import set_language, _TRANSLATIONS
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 
 
-def bond(amount=28018, faction='Explorers of Nabudis', **extra):
+def bond(amount=28018, faction='Example Faction', **extra):
     return dict(event='FactionKillBond', Reward=amount, AwardingFaction=faction,
-                VictimFaction='Ice Storm Squadron', **extra)
+                VictimFaction='Example Opponent', **extra)
 
 
-def redeem(amount=100, faction='Explorers of Nabudis', **extra):
+def redeem(amount=100, faction='Example Faction', **extra):
     return dict(event='RedeemVoucher', Type='CombatBond', Amount=amount, Faction=faction, **extra)
 
 
@@ -52,7 +52,7 @@ class CombatBondTests(unittest.TestCase):
     def saved(self, fid='FID-A'):
         return json.loads((self.root / f'{fid}.json').read_text())
 
-    def journal(self, name='Journal.2026-09-19T153848.01.log', events=()):
+    def journal(self, name='Journal.2016-09-21T153848.01.log', events=()):
         path = self.folder / name
         path.write_text(''.join(json.dumps(e) + '\n' for e in events))
         return path
@@ -76,13 +76,13 @@ class CombatBondTests(unittest.TestCase):
         self.manager.consume([path])
         self.assertEqual(self.saved()['total'], 28018)
 
-    def test_real_five_event_fixture(self):
+    def test_reference_five_event_fixture(self):
         events = [bond(value) for value in [28018, 71091, 59840, 50520, 28163]]
         self.assertEqual(len(events), 5)
         for event in events:
             self.assertTrue(self.apply(event))
         self.assertEqual(self.saved()['total'], 237632)
-        self.assertEqual(self.saved()['factions'], {'Explorers of Nabudis': 237632})
+        self.assertEqual(self.saved()['factions'], {'Example Faction': 237632})
         self.assertNotIn('kills', self.saved())
         self.assertNotIn('VictimFaction', self.saved())
 
@@ -166,7 +166,7 @@ class CombatBondTests(unittest.TestCase):
         self.arm(path)
         self.append(path, bond(10))
         self.manager.consume([path])
-        newer = self.journal('Journal.2026-09-19T170000.01.log', [dict(event='Commander', FID='FID-B', Name='B'), bond(20)])
+        newer = self.journal('Journal.2016-09-21T170000.01.log', [dict(event='Commander', FID='FID-B', Name='B'), bond(20)])
         self.append(path, bond(5))
         self.manager.consume([path, newer])
         self.manager.consume([path, newer])
@@ -176,7 +176,7 @@ class CombatBondTests(unittest.TestCase):
     def test_numbered_part_inherits_identity(self):
         path = self.journal()
         self.arm(path)
-        newer = self.journal('Journal.2026-09-19T153848.02.log', [bond(20)])
+        newer = self.journal('Journal.2016-09-21T153848.02.log', [bond(20)])
         self.manager.consume([newer])
         self.manager.consume([newer])
         self.assertEqual(self.saved()['total'], 20)
@@ -186,7 +186,7 @@ class CombatBondTests(unittest.TestCase):
         self.arm(old)
         self.append(old, bond(10))
         self.manager.consume([old])
-        current = self.journal('Journal.2026-09-19T170000.01.log', [bond(999)])
+        current = self.journal('Journal.2016-09-21T170000.01.log', [bond(999)])
         original = Path.open
         def guard(path, *args, **kwargs):
             if path == old:
@@ -204,7 +204,7 @@ class CombatBondTests(unittest.TestCase):
         self.arm(path)
         self.append(path, bond(10))
         self.manager.consume([path])
-        path.write_text(path.read_text().replace('Ice Storm', 'Ice StOrm'))
+        path.write_text(path.read_text().replace('Example Opponent', 'Example OppOnent'))
         restarted = CombatBondManager(self.root)
         self.arm(path, restarted)
         self.assertEqual(restarted.snapshot()['total'], 10)
@@ -238,7 +238,7 @@ class CombatBondTests(unittest.TestCase):
         cases = [redeem(100, None), redeem(100, ''), redeem(100, '  '), redeem(100, 7),
                  redeem(100, Factions=[]),
                  dict(event='RedeemVoucher', Type='CombatBond', Amount=100,
-                      Factions=[dict(Faction='Explorers of Nabudis', Amount=99)])]
+                      Factions=[dict(Faction='Example Faction', Amount=99)])]
         for event in cases:
             with self.subTest(event=event):
                 self.manager.states['FID-A'] = self.manager._empty('FID-A')
@@ -391,7 +391,7 @@ class CombatBondTests(unittest.TestCase):
         self.assertFalse(watcher._live_pending)
         self.assertEqual(self.saved()['total'], 43684)
 
-    def test_real_live_restart_keeps_exact_43684_without_old_balance(self):
+    def test_reference_live_restart_keeps_exact_43684_without_old_balance(self):
         path = self.journal(events=[bond(v) for v in [28018, 71091, 59840, 50520, 28163]])
         self.arm(path)
         self.assertEqual(self.saved()['total'], 0)
@@ -402,7 +402,7 @@ class CombatBondTests(unittest.TestCase):
         self.arm(path, restarted)
         self.assertTrue(restarted.consume([path]))
         self.assertTrue(restarted.consume([path]))
-        self.assertEqual(restarted.snapshot()['factions'], {'Explorers of Nabudis': 43684})
+        self.assertEqual(restarted.snapshot()['factions'], {'Example Faction': 43684})
         self.assertEqual(restarted.snapshot()['last_event'], anchor)
 
     def test_startup_batch_reads_current_file_once(self):
@@ -522,10 +522,10 @@ class CombatBondTests(unittest.TestCase):
             manager = CombatBondManager()
             self.assertEqual(manager.root, self.folder / 'combat_bonds')
 
-    def test_real_redemption_clears_observed_subset(self):
+    def test_reference_redemption_clears_observed_subset(self):
         self.apply(bond(43684))
-        event = dict(timestamp='2026-09-19T14:44:30Z', event='RedeemVoucher',
-                     Type='CombatBond', Amount=953470, Faction='Explorers of Nabudis')
+        event = dict(timestamp='2016-09-21T14:44:30Z', event='RedeemVoucher',
+                     Type='CombatBond', Amount=953470, Faction='Example Faction')
         self.apply(event)
         self.assertEqual(self.saved()['factions'], {})
         self.assertEqual(self.saved()['total'], 0)

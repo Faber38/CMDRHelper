@@ -53,37 +53,17 @@ den Versuch offen; beim nächsten Start wird erneut geprüft. Erfolgreiche
 Revisionen werden nicht erneut vollständig analysiert. Details stehen in
 [startup-repairs.md](startup-repairs.md).
 
-## Durchgeführte Reparatur am 08.09.2026
+## Reproduzierbare Besuchsregression
 
-Nach Tests auf temporärer DB und vollständiger SQLite-Kopie wurde Commander 1
-(FABER38) in `data/cmdrhelper.db` repariert:
+Ein neutraler Testablauf A → B → C → D → A ergibt fünf Aufenthalte.
+Weitere `Location`-Ereignisse während des ersten oder letzten A-Aufenthalts
+sind Fortsetzungen und dürfen keine zusätzlichen Besuche erzeugen.
 
-- 409 identifizierte Journalpräfixe, 3.883 Positionsereignisse geprüft.
-- 22 fehlende Aufenthaltsanfänge eingefügt, 600 redundante Ereigniszeilen
-  zusammengeführt; anschließend 3.274 Besuche statt zuvor 3.852 Zeilen.
-- Zweiter Backfill auf Kopie und echter DB: jeweils 0 Ergänzungen,
-  0 Bereinigungen.
-- `integrity_check` erfolgreich, keine Fremdschlüsselfehler; alle 32 anderen
-  Tabellen gegenüber der Sicherung inhaltlich unverändert.
-- Sicherung: `data/cmdrhelper.db.pre-visits-20260908T063636306854Z.bak`.
+Die Tests prüfen fehlende Aufenthaltsanfänge, redundante Ereigniszeilen,
+Commandertrennung und Wiederholbarkeit. Ein zweiter Backfill darf keine weiteren
+Änderungen vornehmen. Integrität, Fremdschlüssel und die übrigen Tabellen müssen
+unverändert bleiben. Sicherungen verwenden das Muster
+`data/cmdrhelper.db.pre-visits-<UTC-Zeit>.bak`.
 
-Die tatsächliche Besuchsfolge für das Beispiel lautet (UTC):
-
-| Aufenthaltsbeginn | System |
-| --- | --- |
-| 05.09.2026 13:29:42 | Prua Hypai RB-D c29-73 |
-| 07.09.2026 09:22:53 | Prua Hypai RB-D c29-39 |
-| 07.09.2026 09:33:54 | Prua Hypai QB-D c29-69 |
-| 07.09.2026 09:48:14 | Prua Hypai TK-C d14-58 |
-| 07.09.2026 10:09:08 | Prua Hypai RB-D c29-73 |
-
-Die Location-Ereignisse vom 07.09. um 04:52:22 und 05:16:17 UTC gehören zum
-bereits am 05.09. begonnenen Aufenthalt. Das Location-Ereignis um 11:34:53 UTC
-gehört zum Rückkehrbesuch von 10:09:08 UTC. Sie erzeugen keine weiteren Besuche.
-
-Teststand der Besuchsreparatur vor der späteren Start-Reparaturintegration
-und Dokumentationspflege: 95 gezielte Journal-/Besuchs-/Übersichts- und
-Chronik-Regressionstests erfolgreich; Gesamtsuite mit
-`QT_QPA_PLATFORM=offscreen venv/bin/python -m unittest discover -s tests`:
-555 Tests erfolgreich. `venv/bin/python -m compileall -q cmdrhelper tests tools main.py`
-und `git diff --check` ebenfalls erfolgreich. Kein Commit, kein Push.
+Gezielte Prüfung: `tests/test_system_visits.py` und
+`tests/test_startup_repairs.py`.

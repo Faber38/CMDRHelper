@@ -64,45 +64,22 @@ Indexlauf neu klassifiziert oder dessen normaler Leseoffset zurückgesetzt wird.
 Diese Felder verändern nicht den normalen Importoffset. Auch die Migration auf
 Schema 16 ist transaktional und nach Abbruch erneut ausführbar.
 
-## Geprüfte Upgrade-Simulationen vom 08.09.2026
+## Reproduzierbare Upgrade-Prüfung
 
-Die echte Benutzer-DB wurde nicht verändert. Die Journale wurden für die
-Simulation in einen temporären Ordner kopiert und damit für beide Starts
-unverändert gehalten. Der normale Start-Worker wurde mit synchron ausgeführtem
-Test-Thread und abgefangenen UI-Signalen verwendet.
+Die Regressionen arbeiten mit temporären Datenbanken und Journalquellen.
+Eine Schema-15-Kopie wird nach Schema 16 migriert; fehlende BIO-, Besuchs- und
+Mappingdaten werden ergänzt. Vorher wird eine konsistente Sicherung erstellt.
+Der zweite Start lässt den SQL-Datenbestand unverändert und ruft die erfolgreich
+abgeschlossenen Reparaturplaner nicht erneut auf.
 
-1. Vollständige Kopie der echten Sicherung
-   `cmdrhelper.db.pre-biology-20260907T112201835317Z.bak`:
-   Schema 15 → 16, BIO am bekannten Körper 0 → 6, alle drei Revisionen erfolgreich,
-   Sicherung vorhanden. Start 2: kompletter SQL-Datenbestand unverändert, kein
-   erneuter Aufruf der Reparaturplaner.
-2. Vollständige Schema-15-Kopie mit den echten BIO-/Besuchsdaten vor den jeweiligen
-   früheren Reparaturen sowie der noch bestehenden Mapping-Lücke:
-   alle drei Revisionen erfolgreich; Start 2 ebenfalls vollständig unverändert.
+Geprüft werden außerdem fehlende, unlesbare und beschädigte Journale,
+Commandertrennung, Backupfehler, unterbrochene Migration und harter Prozessabbruch.
+Location-Fortsetzungen erzeugen keine zusätzlichen Aufenthalte. Mapping ergänzt
+nur fehlende Metadaten; `probes_used=3` und `efficiency_target=4` ergeben etwa ein
+effizientes Mapping, ohne vorhandene Werte zu überschreiben.
 
-Reale Regressionen in der zweiten Kopie:
-
-- **Prua Hypai RB-D c29-73 AB 2 f:** dauerhaft 6/6 BIO-Funde.
-- **07.09.2026:** laufender Aufenthalt in RB-D c29-73 (Beginn 05.09. 13:29:42Z),
-  anschließend RB-D c29-39 um 09:22:53Z, QB-D c29-69 um 09:33:54Z,
-  TK-C d14-58 um 09:48:14Z und echte Rückkehr nach RB-D c29-73 um 10:09:08Z.
-  Location-Fortsetzungen ergeben keinen künstlichen weiteren Aufenthalt.
-- **Plio Aip KN-B d13-229 5 d:**
-  `mapped_at=2026-09-08T08:12:40Z`, `probes_used=3`, `efficiency_target=4`,
-  `self_mapped=1`, `efficient_mapping=1`.
-- Insgesamt erhielten in dieser Kopie 1.128 Körper ausschließlich fehlende
-  Mapping-Metadaten; die veränderten Spalten waren genau die drei vorgesehenen.
-
-Testartefakte des abschließenden Wiederholungslaufs liegen unter
-`/tmp/cmdr-full-upgrade-eoh4vm9x/`, einschließlich der
-vor Datenreparatur automatisch erstellten SQLite-Sicherungen.
-
-Teststand der Start-Reparaturimplementierung vor der anschließenden
-Dokumentationspflege: 99 gezielte Start-/Persistenz-/Migrationstests bestanden;
-vollständige Gesamtsuite mit 629 Tests bestanden (Qt offscreen). Darin enthalten
-sind 20 neue Start-Reparaturtests einschließlich fehlender/unlesbarer/beschädigter
-Journale, Commandertrennung, Backupfehler, unterbrochener Migration und hartem
-Prozessabbruch. `compileall` und `git diff --check` sind ebenfalls erfolgreich.
+Siehe `tests/test_startup_repairs.py`, `tests/test_system_visits.py` und
+`tests/test_mapping_metadata.py`.
 
 ## Zusage und Grenze
 

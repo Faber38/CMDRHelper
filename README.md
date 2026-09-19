@@ -74,9 +74,7 @@ CMDRHelper checks for updates at startup and offers an integrated updater. Confi
 - More reliable Mining stock with safer Cargo snapshots, transfer catch-up and checked persistence.
 - Fixed fresh-install migration prompts; improved Chronicle copy feedback and hidden-view updates.
 
-![Odyssey material management with locker, backpack and automatically projected Fleet Carrier stock](cmdrhelper/assets/readme/cmdrhelper_v3_5.png)
-
-Locker and backpack use validated current ShipLocker/Backpack data. Goods, Assets and Data each show personal locker occupancy with their own capacity of 1000. Total includes locker + backpack + carrier only when the required balances are known and coherent. Purchases, sales and trades are distinguished from private transfers. After restart, location is reconstructed and a new personal baseline is set; missed Odyssey transfers are not invented. In-game example: 713 existing units + 121 spaces reserved for buy orders = 834 / 1000 occupied. The 121 are not material stock. Stale or uncertain market data never produces a supposed current occupancy.
+Locker and backpack use validated current ShipLocker/Backpack data. Goods, Assets and Data each show personal locker occupancy with their own capacity of 1000. Total includes locker + backpack + carrier only when the required balances are known and coherent. Purchases, sales and trades are distinguished from private transfers. After restart, location is reconstructed and a new personal baseline is set; missed Odyssey transfers are not invented. Illustrative example: 500 existing units + 100 spaces reserved for buy orders = 600 / 1000 occupied. The 100 are not material stock. Stale or uncertain market data never produces a supposed current occupancy.
 
 ### Set up carrier stock
 

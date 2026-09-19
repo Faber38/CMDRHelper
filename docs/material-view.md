@@ -101,9 +101,9 @@ Die goldene Schrift positiver Bestände gehört ausschließlich zur Odyssey-Ansi
 Engineering verwendet weiterhin die normale Theme-Textfarbe.
 
 `tests/test_material_view.py` prüft Darstellung, Filter, Sortierung, unbekannte
-Werte, echte FABER38-Journale (optional, wenn lokal vorhanden), Live-Ereignisse,
+Werte, explizit konfigurierte Referenzjournale (opt-in), Live-Ereignisse,
 Timer-Hervorhebung, verzögerte Worker-Ergebnisse, zwei Commander, Reader-Wiederverwendung,
-QSettings und beide Themes. Die portable FABER38-Fixture bleibt ohne private
+QSettings und beide Themes. Die portable Referenzfixture bleibt ohne private
 Journaldateien nutzbar. Navigation und kontextbezogene Hilfe sind zusätzlich durch
 `tests/test_context_help.py` und `tests/test_help_translations.py` abgesichert.
 

@@ -518,9 +518,9 @@ class OdysseyViewTests(unittest.TestCase):
                 self.assertIn('0 =',text)
                 self.assertTrue(translations['common.close'])
 
-    def test_real_faber38_pair_and_embarked_mission_survives(self):
-        records = json.loads((Path(__file__).parent/'fixtures/odyssey_faber38.json').read_text())
-        for cutoff, expected in (('2026-09-08T14:58:01Z',(3131,8,3139)), ('2026-09-08T14:58:26Z',(3139,0,3139))):
+    def test_real_reference_pair_and_embarked_mission_survives(self):
+        records = json.loads((Path(__file__).parent/'fixtures/odyssey_reference.json').read_text())
+        for cutoff, expected in (('2016-09-10T14:58:01Z',(3131,8,3139)), ('2016-09-10T14:58:26Z',(3139,0,3139))):
             inv = inventory([e for e in records if e['timestamp'] <= cutoff])
             self.set_inventory(inv)
             observed = [r for r in self.view.rows if r.observed]

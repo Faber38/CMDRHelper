@@ -136,8 +136,8 @@ class MaterialCatalogTests(unittest.TestCase):
         self.assertEqual(indexed(inventory)["sulphur"].count, 0)
         self.assertTrue(all(r.count is None for r in merge_inventory(reduced(reward))))
 
-    def test_faber38_catalog_projection(self):
-        events = json.loads((Path(__file__).parent / "fixtures/materials_faber38.json").read_text())
+    def test_reference_catalog_projection(self):
+        events = json.loads((Path(__file__).parent / "fixtures/materials_reference.json").read_text())
         inventory = reduced(*events)
         self.assertTrue(inventory.known, inventory.issues)
         self.assertEqual([len(inventory.by_category(c)) for c in ("Raw", "Manufactured", "Encoded")], [28, 56, 35])

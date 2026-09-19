@@ -30,7 +30,7 @@ VARIANTS = (
 
 
 def organic(variant=VARIANTS[0], progress="Analyse", **extra):
-    return {"event": "ScanOrganic", "timestamp": "2026-09-04T12:37:06Z",
+    return {"event": "ScanOrganic", "timestamp": "2016-09-06T12:37:06Z",
             "SystemAddress": ADDRESS, "Body": 51, "ScanType": progress,
             "Genus_Localised": variant.split()[0],
             "Species_Localised": variant.split(" - ")[0],
@@ -53,13 +53,13 @@ class BiologyPersistenceTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.folder = Path(self.temp.name)
         self.db = CMDRDatabase(self.folder / "state.db")
-        self.commander = self.db.upsert_commander("F12345678", "FABER38")
+        self.commander = self.db.upsert_commander("F12345678", "TEST_CMDR")
         self.other = self.db.upsert_commander("OTHER", "Other")
-        self.journal = self.folder / "Journal.2026-09-04T134325.01.log"
+        self.journal = self.folder / "Journal.2016-09-06T134325.01.log"
 
     def prepare(self, events, *, already_read=False, fid="F12345678"):
-        entries = [{"event": "LoadGame", "timestamp": "2026-09-04T11:43:53Z",
-                    "FID": fid, "Commander": "FABER38"}, *events]
+        entries = [{"event": "LoadGame", "timestamp": "2016-09-06T11:43:53Z",
+                    "FID": fid, "Commander": "TEST_CMDR"}, *events]
         self.journal.write_text("".join(json.dumps(e) + "\n" for e in entries))
         scan_journal_folder(self.db, self.folder)
         if already_read:
@@ -84,9 +84,9 @@ class BiologyPersistenceTests(unittest.TestCase):
         self.assertEqual(len(self.findings()), 1)
         # Even replayed older progress at a new offset must not demote Analyse.
         self.db.apply_commander_journal_delta(self.commander, self.journal,
-            [organic(progress="Log", timestamp="2026-09-04T12:33:34Z")], offset + 1)
+            [organic(progress="Log", timestamp="2016-09-06T12:33:34Z")], offset + 1)
         self.assertEqual(self.findings()[0]["scan_type"], "Analyse")
-        self.assertEqual(self.findings()[0]["last_seen"], "2026-09-04T12:37:06Z")
+        self.assertEqual(self.findings()[0]["last_seen"], "2016-09-06T12:37:06Z")
 
     def test_log_and_sample_persist_before_completion(self):
         events, offset = self.prepare([organic(progress="Log"),
@@ -97,7 +97,7 @@ class BiologyPersistenceTests(unittest.TestCase):
 
     def test_sale_leaves_all_six_durable_findings_and_body_detail(self):
         events, offset = self.prepare([*[organic(v) for v in VARIANTS],
-            {"event": "SellOrganicData", "timestamp": "2026-09-04T13:16:32Z",
+            {"event": "SellOrganicData", "timestamp": "2016-09-06T13:16:32Z",
              "BioData": [{"Variant_Localised": v} for v in VARIANTS]}])
         self.db.apply_commander_journal_delta(self.commander, self.journal, events, offset)
         self.assertEqual(self.db.commander_summary(self.commander)["unsold_biology"]["findings"], 0)
@@ -135,7 +135,7 @@ class BiologyPersistenceTests(unittest.TestCase):
         self.prepare([organic(v, progress=p) for v in VARIANTS
                       for p in ("Log", "Sample", "Analyse")], already_read=True)
         self.db.store_biology(ADDRESS, 51, "Fungoida", "Fungoida Setisis", VARIANTS[0],
-                             "Analyse", "2026-09-04T12:30:00Z", self.commander)
+                             "Analyse", "2016-09-06T12:30:00Z", self.commander)
         before = contents(self.db.path)
         self.assertEqual(len(self.backfill()["missing"]), 5)
         self.assertEqual(contents(self.db.path), before)

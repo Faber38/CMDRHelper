@@ -185,15 +185,15 @@ class CommanderFleetTests(unittest.TestCase):
 
     def _sale_chain(self):
         return [
-            {"event": "Commander", "FID": "FID-A", "Name": "Alpha", "timestamp": "2026-07-19T16:49:00Z"},
-            {"event": "ShipyardSwap", "ShipID": 23, "ShipType": "type9", "timestamp": "2026-07-19T16:49:10Z"},
-            {"event": "Loadout", "ShipID": 23, "Ship": "type9", "ShipName": "[EOT] = Betonmischer =", "ShipIdent": "FAB-38", "Modules": [], "timestamp": "2026-07-19T16:53:14Z"},
-            {"event": "ShipyardSwap", "ShipID": 36, "ShipType": "sidewinder", "StoreShipID": 23, "timestamp": "2026-07-19T16:53:35Z"},
-            {"event": "ShipyardSell", "SellShipID": 23, "ShipType": "type9", "timestamp": "2026-07-19T16:53:56Z"},
-            {"event": "StoredShips", "ShipsHere": [{"ShipID": 4, "ShipType": "asp", "Name": "[EOT] = Erft-Habicht ="}], "timestamp": "2026-07-19T16:53:58Z"},
+            {"event": "Commander", "FID": "FID-A", "Name": "Alpha", "timestamp": "2026-07-26T16:49:00Z"},
+            {"event": "ShipyardSwap", "ShipID": 23, "ShipType": "type9", "timestamp": "2026-07-26T16:49:10Z"},
+            {"event": "Loadout", "ShipID": 23, "Ship": "type9", "ShipName": "[TEST] = Testfrachter =", "ShipIdent": "TST-01", "Modules": [], "timestamp": "2026-07-26T16:53:14Z"},
+            {"event": "ShipyardSwap", "ShipID": 36, "ShipType": "sidewinder", "StoreShipID": 23, "timestamp": "2026-07-26T16:53:35Z"},
+            {"event": "ShipyardSell", "SellShipID": 23, "ShipType": "type9", "timestamp": "2026-07-26T16:53:56Z"},
+            {"event": "StoredShips", "ShipsHere": [{"ShipID": 4, "ShipType": "asp", "Name": "[TEST] = Test-Habicht ="}], "timestamp": "2026-07-26T16:53:58Z"},
         ]
 
-    def _write_sale_journal(self, events, name="Journal.2026-07-19T084810.01.log"):
+    def _write_sale_journal(self, events, name="Journal.2026-07-26T084810.01.log"):
         folder = Path(self.tmp.name) / "sale-journals"
         folder.mkdir(exist_ok=True)
         path = folder / name
@@ -214,7 +214,7 @@ class CommanderFleetTests(unittest.TestCase):
             self.assertIsNone(ship_sale(event("ShipyardSell", 1, SellShipID=sid)))
         self.assertIsNone(ship_sale({"event": "ShipyardSell", "SellShipID": 23}))
 
-    def test_betonmischer_sale_reconstruction_updates_fleet_and_keeps_other_data_and_images(self):
+    def test_reference_ship_sale_reconstruction_updates_fleet_and_keeps_other_data_and_images(self):
         from cmdrhelper.fleet_reconstruction import reconstruct_fleet
         images, settings, root, source = self._personal_image_environment()
         self._deletion_fleet()
@@ -250,14 +250,14 @@ class CommanderFleetTests(unittest.TestCase):
         context = capture(self.db, folder)
         catch_up(self.db, context)
         self.assertIn(23, {s["ship_id"] for s in self.db.commander_ships(self.a)})
-        second = self._write_sale_journal([chain[0], *chain[4:]], "Journal.2026-07-19T170000.01.log")
+        second = self._write_sale_journal([chain[0], *chain[4:]], "Journal.2026-07-26T170000.01.log")
         catch_up(self.db, context)
         self.assertNotIn(23, {s["ship_id"] for s in self.db.commander_ships(self.a)})
         self.db = CMDRDatabase(self.path)
         old = [chain[2], event("StoredShips", 1, ShipsHere=[{"ShipID": 23, "ShipType": "type9"}])]
         self.db.apply_commander_journal_delta(self.a, "old-sales-replay.log", old, 100)
         self.db.apply_commander_journal_delta(self.a, "module-after-sale.log", [dict(chain[2]),
-            {"event": "ModuleBuy", "ShipID": 23, "timestamp": "2026-07-20T00:00:00Z"}], 100)
+            {"event": "ModuleBuy", "ShipID": 23, "timestamp": "2026-07-27T00:00:00Z"}], 100)
         self.assertNotIn(23, {s["ship_id"] for s in self.db.commander_ships(self.a)})
         self.assertEqual(self._deleted_ids(self.a), [])
         self.assertTrue(first.exists() and second.exists())
@@ -265,12 +265,12 @@ class CommanderFleetTests(unittest.TestCase):
     def test_later_confirmed_ownership_is_allowed_but_older_sale_cannot_remove_it(self):
         chain = self._sale_chain()
         self.db.apply_commander_journal_delta(self.a, "initial-sale.log", chain, 100)
-        later = dict(chain[2], timestamp="2026-07-20T00:00:00Z")
+        later = dict(chain[2], timestamp="2026-07-27T00:00:00Z")
         self.db.apply_commander_journal_delta(self.a, "later-ownership.log", [later], 100)
         self.assertIn(23, {s["ship_id"] for s in self.db.commander_ships(self.a)})
         self.db.apply_commander_journal_delta(self.a, "old-sale-again.log", [chain[4]], 100)
         self.assertIn(23, {s["ship_id"] for s in self.db.commander_ships(self.a)})
-        self.db.apply_commander_journal_delta(self.a, "second-sale.log", [dict(chain[4], timestamp="2026-07-21T00:00:00Z")], 100)
+        self.db.apply_commander_journal_delta(self.a, "second-sale.log", [dict(chain[4], timestamp="2026-07-28T00:00:00Z")], 100)
         self.assertNotIn(23, {s["ship_id"] for s in self.db.commander_ships(self.a)})
 
     def test_buy_swap_and_rebuy_sales_and_shipyard_new_are_applied(self):
@@ -324,7 +324,7 @@ class CommanderFleetTests(unittest.TestCase):
         self.assertNotIn(23, {s["loadout"].ship_id for s in runtime["fleet_ships"]})
         self.assertEqual(runtime["ship_loadout"].ship_id, 36)
         # An old ownership event in a later-named journal must still precede the sale.
-        old_path = self._write_sale_journal([chain[0], chain[2]], "Journal.2026-07-22T000000.01.log")
+        old_path = self._write_sale_journal([chain[0], chain[2]], "Journal.2026-07-29T000000.01.log")
         fleet = reconstruct_fleet([old_path, path], "FID-A")
         self.assertNotIn(23, {s["loadout"].ship_id for s in fleet})
 
@@ -397,9 +397,9 @@ class CommanderFleetTests(unittest.TestCase):
         folder = Path(self.tmp.name) / "journals"
         own, _ = self._fleet_journal(folder)
         other, _ = self._fleet_journal(folder, "FID-B", "Journal.2026-02-02T000000.01.log")
-        other.write_text(other.read_text().replace("Betonmischer", "Other commander"))
+        other.write_text(other.read_text().replace("Testfrachter", "Other commander"))
         fleet = reconstruct_fleet([own, other], "FID-A")
-        self.assertEqual(next(i["loadout"].ship_name for i in fleet if i["loadout"].ship_id == 23), "Betonmischer")
+        self.assertEqual(next(i["loadout"].ship_name for i in fleet if i["loadout"].ship_id == 23), "Testfrachter")
         before = self.db.commander_ships(self.a)
         with self.db._connect() as con:
             con.execute("CREATE TRIGGER fail_rebuild BEFORE INSERT ON commander_ships BEGIN SELECT RAISE(ABORT,'test'); END")
@@ -412,7 +412,7 @@ class CommanderFleetTests(unittest.TestCase):
         for cid in (self.a, self.b):
             for sid in (23, 4, 1):
                 ship = self.ship(sid, f"Ship {sid}", "type9" if sid == 23 else "asp")
-                ship.ship_ident = "FAB-38"
+                ship.ship_ident = "TST-01"
                 self.db.store_commander_ship(cid, ship, f"2026-01-0{3 if sid == 1 else 2}T00:00:00Z")
 
     def _deleted_ids(self, commander_id):
@@ -422,9 +422,9 @@ class CommanderFleetTests(unittest.TestCase):
     def _fleet_journal(self, folder, fid="FID-A", filename="Journal.2026-02-01T000000.01.log"):
         folder.mkdir(exist_ok=True)
         events = [event("Commander", 0, FID=fid, Name="Alpha"),
-                  event("LoadGame", 1, FID=fid, ShipID=23, Ship="type9", ShipIdent="FAB-38"),
-                  event("Loadout", 2, ShipID=23, Ship="type9", ShipName="Betonmischer", ShipIdent="FAB-38", Modules=[]),
-                  event("Loadout", 3, ShipID=4, Ship="asp", ShipName="Erft-Habicht", ShipIdent="FAB-38", Modules=[]),
+                  event("LoadGame", 1, FID=fid, ShipID=23, Ship="type9", ShipIdent="TST-01"),
+                  event("Loadout", 2, ShipID=23, Ship="type9", ShipName="Testfrachter", ShipIdent="TST-01", Modules=[]),
+                  event("Loadout", 3, ShipID=4, Ship="asp", ShipName="Test-Habicht", ShipIdent="TST-01", Modules=[]),
                   event("Loadout", 4, ShipID=1, Ship="cobramkv", ShipName="Current", Modules=[]),
                   event("Scan", 5, BodyID=123, BodyName="Must not import"),
                   event("MissionAccepted", 6, MissionID=456)]
@@ -487,7 +487,7 @@ class CommanderFleetTests(unittest.TestCase):
         images, settings, root, source = self._personal_image_environment()
         self._deletion_fleet()
         equipped = self.ship(23, "Ship 23", "type9", modules=({"Slot": "FighterBay01", "Item": "int_fighterbay_size5_class1"},))
-        equipped.ship_ident = "FAB-38"
+        equipped.ship_ident = "TST-01"
         self.db.store_commander_ship(self.a, equipped, "2026-01-02T00:00:00Z", is_current=False)
         target = images.import_ship_image(settings, "FID-A", 23, source)
         other = images.import_ship_image(settings, "FID-A", 4, source)
@@ -671,7 +671,7 @@ class CommanderFleetTests(unittest.TestCase):
         full_image.fill(QColor("gray"))
         full_image.save(str(source), "PNG")
         images.import_ship_image(settings, "FID-A", 12, source)
-        self.db.store_commander_ship(self.a, self.ship(12, "Erft-Krähe", "cobramkv"), "T1")
+        self.db.store_commander_ship(self.a, self.ship(12, "Test-Krähe", "cobramkv"), "T1")
         before = {key: settings.value(key) for key in settings.allKeys()}
         view = self._view(self.a, settings=settings)
         view.tabs.setCurrentIndex(4)
@@ -686,7 +686,7 @@ class CommanderFleetTests(unittest.TestCase):
             QTest.mouseDClick(thumbnail, Qt.LeftButton)
             self.app.processEvents()
             viewer = next(window for window in view.findChildren(ShipImageViewer) if window.isVisible())
-            self.assertEqual(viewer.windowTitle(), "Erft-Krähe")
+            self.assertEqual(viewer.windowTitle(), "Test-Krähe")
             self.assertEqual(viewer.canvas.image.size(), full_image.size())
             self.assertGreater(viewer.canvas.image.width(), thumbnail.pixmap().width())
             self.assertTrue(view.screen().availableGeometry().contains(viewer.geometry()))
@@ -808,7 +808,7 @@ class CommanderFleetTests(unittest.TestCase):
         image = QImage(1600, 900, QImage.Format_RGB32)
         image.fill(QColor("gray"))
         image.save(str(source), "PNG")
-        self.db.store_commander_carrier(self.a, {"carrier_id": 42, "carrier_name": "[EOT] = RHEIN-ERFT =", "callsign": "ABC-123", "system_name": "Sol", "last_updated": "2026-09-16"})
+        self.db.store_commander_carrier(self.a, {"carrier_id": 42, "carrier_name": "[TEST] = TEST-CARRIER =", "callsign": "ABC-123", "system_name": "Sol", "last_updated": "2026-09-23"})
         view = self._view(self.a, settings=settings)
         view.tabs.setCurrentIndex(4)
         # WAL checkpoints can change the physical DB bytes after read-only UI
@@ -830,7 +830,7 @@ class CommanderFleetTests(unittest.TestCase):
             QTest.mouseDClick(view.carrier_image, Qt.LeftButton)
             self.app.processEvents()
             viewer = next(w for w in view.findChildren(ShipImageViewer) if w.isVisible())
-            self.assertEqual(viewer.windowTitle(), "[EOT] = RHEIN-ERFT =")
+            self.assertEqual(viewer.windowTitle(), "[TEST] = TEST-CARRIER =")
             if expected_size:
                 self.assertEqual(viewer.canvas.image.size(), expected_size)
             QTest.keyClick(viewer, Qt.Key_Escape)
@@ -1047,7 +1047,7 @@ class CommanderFleetTests(unittest.TestCase):
         self.addCleanup(asset_patch.stop)
         from PySide6.QtTest import QTest
         from cmdrhelper.ui.ship_widgets import ElidedShipLabel, ShipImage
-        long_name = "[EOT] = Erft-Krähe = " * 12
+        long_name = "[TEST] = Test-Krähe = " * 12
         long_location = "Plio Aihm UC-V d2-159 / Ridorana Forge " * 12
         self.db.store_commander_ship(self.a, self.ship(12, long_name, "cobramkv"), "T1",
                                      location={"system_name": long_location})

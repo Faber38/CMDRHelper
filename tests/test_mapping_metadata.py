@@ -17,7 +17,7 @@ from cmdrhelper.valuation import calculate_body_values
 
 NAME = 'Plio Aip KN-B d13-229 5 d'
 ADDRESS = 7879797001587
-STAMP = '2026-09-08T08:12:40Z'
+STAMP = '2016-09-10T08:12:40Z'
 METADATA = dict(mapped_at=STAMP, probes_used=3, efficiency_target=4)
 
 
@@ -28,9 +28,9 @@ class MappingMetadataTests(unittest.TestCase):
         self.folder = Path(self.tmp.name)
         self.path = self.folder / 'test.db'
         self.db = CMDRDatabase(self.path)
-        self.commander = self.db.upsert_commander('F12345678', 'FABER38')
-        self.journal = self.folder / 'Journal.2026-09-08T071547.01.log'
-        self.scan = dict(event='Scan', timestamp='2026-09-08T08:04:39Z',
+        self.commander = self.db.upsert_commander('F12345678', 'TEST_CMDR')
+        self.journal = self.folder / 'Journal.2016-09-10T071547.01.log'
+        self.scan = dict(event='Scan', timestamp='2016-09-10T08:04:39Z',
             BodyName=NAME, BodyID=24, SystemAddress=ADDRESS,
             StarSystem='Plio Aip KN-B d13-229', PlanetClass='Rocky body',
             WasDiscovered=True, WasMapped=False)
@@ -40,9 +40,9 @@ class MappingMetadataTests(unittest.TestCase):
         self.write([self.scan, self.saa, {**self.scan, 'timestamp': STAMP}])
 
     def write(self, events):
-        identity = dict(event='Commander', timestamp='2026-09-08T05:16:32Z',
-                        FID='F12345678', Name='FABER38')
-        location = dict(event='Location', timestamp='2026-09-08T08:02:00Z',
+        identity = dict(event='Commander', timestamp='2016-09-10T05:16:32Z',
+                        FID='F12345678', Name='TEST_CMDR')
+        location = dict(event='Location', timestamp='2016-09-10T08:02:00Z',
                         StarSystem='Plio Aip KN-B d13-229', SystemAddress=ADDRESS)
         self.journal.write_text(''.join(json.dumps(e)+'\n' for e in [identity, location, *events]))
 
@@ -93,8 +93,8 @@ class MappingMetadataTests(unittest.TestCase):
                 ({'ProbesUsed': 0}, {**METADATA, 'probes_used': 0}),
                 ({'EfficiencyTarget': 5}, {**METADATA, 'efficiency_target': 5})]:
             partial = {k:v for k,v in self.saa.items() if k not in ('ProbesUsed','EfficiencyTarget')}
-            partial.update(timestamp='2026-09-08T08:13:00Z', **supplied)
-            self.write([self.scan, self.saa, partial, {**self.scan, 'timestamp':'2026-09-08T08:14:00Z'}])
+            partial.update(timestamp='2016-09-10T08:13:00Z', **supplied)
+            self.write([self.scan, self.saa, partial, {**self.scan, 'timestamp':'2016-09-10T08:14:00Z'}])
             data, body = self.live()
             self.assert_metadata(body, expected)
             self.assertTrue(body['self_mapped'])
@@ -136,9 +136,9 @@ class MappingMetadataTests(unittest.TestCase):
 
     def test_indexed_new_session_maps_before_scan(self):
         self.write([self.scan])
-        old = self.folder / 'Journal.2026-09-07T071547.01.log'
+        old = self.folder / 'Journal.2016-09-09T071547.01.log'
         self.journal.rename(old)
-        self.write([self.saa, {**self.scan, 'timestamp': '2026-09-08T08:12:41Z'}])
+        self.write([self.saa, {**self.scan, 'timestamp': '2016-09-10T08:12:41Z'}])
         sessions = [classify_journal_file(p) for p in (old, self.journal)]
         data = read_latest_state(self.folder, indexed_sessions=sessions)
         body = next(b for b in data['system_bodies'] if b['body_id'] == 24)

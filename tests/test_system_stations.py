@@ -104,11 +104,11 @@ class StationFactsTests(unittest.TestCase):
         bodies = [dict(body_id=37, name='Plio Aihm UC-V d2-159 7 d', body_type='Planet'),
                   dict(body_id=49, name='Plio Aihm UC-V d2-159 9 g', body_type='Planet')]
         result = project_stations([observation(e) for e in events], 5474145570075, bodies,
-                                  dict(carrier_id=3705965312, carrier_name='[EOT] = RHEIN-ERFT ='))
+                                  dict(carrier_id=9000000001, carrier_name='[TEST] = TEST-CARRIER ='))
         self.assertEqual(len(result), 7)
         by_name = {s['station_name']: s for s in result}
         self.assertEqual(by_name['Ridorana Metalworks']['parent_body_id'], 49)
-        self.assertEqual(by_name['[EOT] = RHEIN-ERFT =']['parent_body_id'], 37)
+        self.assertEqual(by_name['[TEST] = TEST-CARRIER =']['parent_body_id'], 37)
         self.assertIsNone(by_name['Ridorana Forge']['parent_body_id'])
         self.assertEqual(by_name['Ridorana Forge']['station_type'], 'Dodec')
         self.assertEqual(sum(s['parent_body_id'] is None for s in result), 5)

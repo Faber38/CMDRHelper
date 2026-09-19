@@ -74,9 +74,7 @@ CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoi
 - Luotettavammat Mining-varastot: turvallisemmat Cargo-tilannekuvat, siirtojen jälkikäsittely ja tarkistettu tallennus.
 - Uuden asennuksen virheellinen siirtopyyntö korjattu; kronikan kopiointi ja piilotettujen näkymien päivitys parannettu.
 
-![Odyssey-materiaalihallinta: kaappi, reppu ja automaattisesti laskettu Fleet Carrier -varasto](cmdrhelper/assets/readme/cmdrhelper_v3_5.png)
-
-Kaappi ja reppu käyttävät tarkistettuja ajantasaisia ShipLocker/Backpack-tietoja. Tavarat, Materiaalit ja Data näyttävät oman henkilökohtaisen tilankäyttönsä, kukin kapasiteetilla 1000. Yhteensä sisältää kaapin + repun + tukialuksen vain tunnettujen ja yhtenäisten määrien osalta. Ostot, myynnit ja vaihdot erotetaan yksityisistä siirroista. Uudelleenkäynnistyksessä sijainti selvitetään ja asetetaan uusi henkilökohtainen lähtötilanne; puuttuvia Odyssey-siirtoja ei keksitä. Peliesimerkki: 713 yksikköä + 121 ostoille varattua paikkaa = 834 / 1000. Varatut 121 eivät ole materiaaleja. Vanhat tai epävarmat markkinatiedot eivät tuota oletettua nykyistä tilankäyttöä.
+Kaappi ja reppu käyttävät tarkistettuja ajantasaisia ShipLocker/Backpack-tietoja. Tavarat, Materiaalit ja Data näyttävät oman henkilökohtaisen tilankäyttönsä, kukin kapasiteetilla 1000. Yhteensä sisältää kaapin + repun + tukialuksen vain tunnettujen ja yhtenäisten määrien osalta. Ostot, myynnit ja vaihdot erotetaan yksityisistä siirroista. Uudelleenkäynnistyksessä sijainti selvitetään ja asetetaan uusi henkilökohtainen lähtötilanne; puuttuvia Odyssey-siirtoja ei keksitä. Kuvitteellinen esimerkki: 500 yksikköä + 100 ostoille varattua paikkaa = 600 / 1000. Varatut 100 eivät ole materiaaleja. Vanhat tai epävarmat markkinatiedot eivät tuota oletettua nykyistä tilankäyttöä.
 
 ### Tukialuksen varaston määritys
 

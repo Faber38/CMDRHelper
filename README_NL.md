@@ -74,9 +74,7 @@ CMDRHelper controleert bij het starten op updates en heeft een ingebouwde update
 - Betrouwbaardere Mining-voorraden met veiligere Cargo-momentopnamen, ingehaalde overdrachten en gecontroleerde opslag.
 - Onterechte migratievraag bij nieuwe installaties opgelost; kopiëren in de kroniek en verborgen weergaven verbeterd.
 
-![Odyssey-materiaalbeheer met kluis, rugzak en automatisch bijgehouden Fleet Carrier-voorraad](cmdrhelper/assets/readme/cmdrhelper_v3_5.png)
-
-Kluis en rugzak gebruiken gevalideerde actuele ShipLocker/Backpack-gegevens. Goederen, Materialen en Data tonen elk hun persoonlijke bezetting met een eigen capaciteit van 1000. Totaal telt kluis + rugzak + carrier alleen op bij bekende, samenhangende waarden. Aankopen, verkopen en ruil worden onderscheiden van privéoverdrachten. Na herstart wordt de locatie gereconstrueerd en een nieuwe persoonlijke basis gezet; gemiste Odyssey-overdrachten worden niet verzonnen. Praktijkvoorbeeld: 713 eenheden + 121 gereserveerde koopplaatsen = 834 / 1000. De 121 zijn geen materialen. Oude of onzekere marktgegevens leveren geen vermeende actuele bezetting op.
+Kluis en rugzak gebruiken gevalideerde actuele ShipLocker/Backpack-gegevens. Goederen, Materialen en Data tonen elk hun persoonlijke bezetting met een eigen capaciteit van 1000. Totaal telt kluis + rugzak + carrier alleen op bij bekende, samenhangende waarden. Aankopen, verkopen en ruil worden onderscheiden van privéoverdrachten. Na herstart wordt de locatie gereconstrueerd en een nieuwe persoonlijke basis gezet; gemiste Odyssey-overdrachten worden niet verzonnen. Fictief voorbeeld: 500 eenheden + 100 gereserveerde koopplaatsen = 600 / 1000. De 100 zijn geen materialen. Oude of onzekere marktgegevens leveren geen vermeende actuele bezetting op.
 
 ### Carriervoorraad instellen
 

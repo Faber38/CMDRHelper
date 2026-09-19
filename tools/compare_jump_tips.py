@@ -27,6 +27,7 @@ def compare(connection, commander_id):
 
     rows = HierarchicalJumpTip(Snapshot()).observations()
     qualified = [r for r in rows if r["qualified"]]
+    # Public procedural-name reference also used by tests/fixtures/system_analysis.json.
     names = ["Plio Aip KN-B d13-201"]
     names += [r["name"] for r in sorted(qualified, key=lambda r: (-r["exploration_potential"], r["name"]))[:3]]
     names += [r["name"] for r in sorted(qualified, key=lambda r: (r["exploration_potential"], r["name"]))[:3]]

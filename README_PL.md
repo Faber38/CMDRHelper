@@ -74,9 +74,7 @@ CMDRHelper sprawdza aktualizacje przy uruchomieniu i ma wbudowany mechanizm aktu
 - Pewniejsze zapasy Mining: bezpieczniejsze dane Cargo, nadrabianie transferów i sprawdzony zapis.
 - Naprawiono żądanie migracji po nowej instalacji; ulepszono kopiowanie w kronice i aktualizację ukrytych widoków.
 
-![Materiały Odyssey: szafka, plecak i automatycznie aktualizowany zapas lotniskowca](cmdrhelper/assets/readme/cmdrhelper_v3_5.png)
-
-Szafka i plecak korzystają ze sprawdzonych aktualnych danych ShipLocker/Backpack. Towary, Materiały i Dane mają osobną pojemność osobistej szafki 1000. Suma obejmuje szafkę + plecak + lotniskowiec tylko przy znanych, spójnych wartościach. Zakupy, sprzedaż i wymiany są odróżniane od prywatnych transferów. Po restarcie odtwarzana jest lokalizacja i ustalana nowa osobista baza; pominięte transfery Odyssey nie są zgadywane. Przykład z gry: 713 jednostek + 121 miejsc na zakupy = 834 / 1000. Te 121 nie są materiałami. Stare lub niepewne dane rynkowe nie dają rzekomo aktualnej zajętości.
+Szafka i plecak korzystają ze sprawdzonych aktualnych danych ShipLocker/Backpack. Towary, Materiały i Dane mają osobną pojemność osobistej szafki 1000. Suma obejmuje szafkę + plecak + lotniskowiec tylko przy znanych, spójnych wartościach. Zakupy, sprzedaż i wymiany są odróżniane od prywatnych transferów. Po restarcie odtwarzana jest lokalizacja i ustalana nowa osobista baza; pominięte transfery Odyssey nie są zgadywane. Przykład fikcyjny: 500 jednostek + 100 miejsc na zakupy = 600 / 1000. Te 100 nie są materiałami. Stare lub niepewne dane rynkowe nie dają rzekomo aktualnej zajętości.
 
 ### Konfiguracja zapasu lotniskowca
 

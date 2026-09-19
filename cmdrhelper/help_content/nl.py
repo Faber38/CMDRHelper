@@ -248,8 +248,8 @@ HELP_TOPICS = {
               '<p>ABBAU ×N toont het aantal planetaire mijnlocaties van een lichaam gerapporteerd '
               'door Elite Dangerous.</p>\n'
               '<p>Voorbeeld:</p>\n'
-              '<p><b>ABBAU ×24</b></p>\n'
-              '<p>betekent dat er voor dit lichaam 24 planetaire mijnlocaties zijn '
+              '<p><b>ABBAU ×12</b></p>\n'
+              '<p>betekent dat er voor dit lichaam 12 planetaire mijnlocaties zijn '
               'gerapporteerd.</p>\n'
               '<p>Het getal zegt niet welke grondstof op één locatie gewonnen kan worden.</p>\n'
               '\n'
@@ -263,8 +263,8 @@ HELP_TOPICS = {
               '<li>algemene oppervlaktematerialen van het lichaam</li>\n'
               '</ul>\n'
               '<p>Een voorbeeld van een persoonlijke vondst zou zijn:</p>\n'
-              '<p><b>Koper – 56 t</b></p>\n'
-              '<p>Uit deze informatie blijkt dat deze commandant daar daadwerkelijk 56 ton koper '
+              '<p><b>Koper – 40 t</b></p>\n'
+              '<p>Uit deze informatie blijkt dat deze commandant daar daadwerkelijk 40 ton koper '
               'heeft gewonnen.</p>\n'
               '<p>De persoonlijke mijnvondsten worden per commandant bewaard en worden niet '
               'vermengd met de vondsten van andere commandanten.</p>\n'
@@ -517,7 +517,7 @@ HELP_TOPICS = {
 <p>Als “Eigen mijnvondsten” is geactiveerd, is de selectie “Grondstof” ook beschikbaar.</p>
 <p>Op de lijst staan ​​alleen grondstoffen die de betreffende commandant feitelijk al heeft gewonnen uit de dagbouw.</p>
 <p>Dit is geen theoretische lijst van alle mogelijke mijnbouwgrondstoffen.</p>
-<p>Voor FABER38 kan de keuzelijst bijvoorbeeld bevatten:</p>
+<p>Voor EXAMPLE kan de keuzelijst bijvoorbeeld bevatten:</p>
 <ul>
 <li>Alle</li>
 <li>koper</li>
@@ -527,16 +527,16 @@ HELP_TOPICS = {
 <h3>Gericht zoeken naar grondstoffen</h3>
 <p>Als bijvoorbeeld ‘Koper’ wordt geselecteerd en vervolgens op ‘Toepassen’ wordt gedrukt, toont de historie alleen lichamen waarop de betreffende commandant aantoonbaar koper heeft gedolven.</p>
 <p>Voorbeeld:</p>
-<p><b>Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — koper 56 t</b></p>
+<p><b>Example System / 2 — ABBAU ×12 — koper 40 t</b></p>
 <p>Dit betekent dat de kroniek kan worden gebruikt als persoonlijke locatiedatabase: een grondstof die al is gedolven, kan later opnieuw worden gevonden.</p>
 
 <h3>Alle grondstoffen</h3>
 <p>Met “Raw Material: All” wordt rekening gehouden met alle overeenkomende persoonlijke ontdekkingen op het gebied van dagbouw.</p>
 <p>Als er meerdere goederen op een lichaam bekend zijn, kunnen deze worden weergegeven samen met de hoeveelheden die ze tot nu toe hebben verkregen.</p>
 <p>Voorbeeld:</p>
-<p><b>ABBAU ×24 — Helium-3 18 t, koper 56 t</b></p>
+<p><b>ABBAU ×12 — Helium-3 10 t, koper 40 t</b></p>
 <p>De hoeveelheden zijn de persoonlijke mijnwaarden van de betreffende commandant, die feitelijk zijn gedocumenteerd uit dagboekgebeurtenissen.</p>
-<p>Ook bij een actieve periode blijven persoonlijke mijnbouwhoeveelheden opgeslagen totaalhoeveelheden. <b>Koper 56 t</b> betekent niet automatisch <b>56 t in de geselecteerde periode</b>. De periode vereist een passend systeembezoek, maar beperkt de weergegeven gewonnen hoeveelheid niet tot die periode.</p>
+<p>Ook bij een actieve periode blijven persoonlijke mijnbouwhoeveelheden opgeslagen totaalhoeveelheden. <b>Koper 40 t</b> betekent niet automatisch <b>40 t in de geselecteerde periode</b>. De periode vereist een passend systeembezoek, maar beperkt de weergegeven gewonnen hoeveelheid niet tot die periode.</p>
 
 <h3>Combineer filters</h3>
 <p>Vrije tekst, ingeschakelde Van-/Tot-grenzen en mijnbouwfilters kunnen worden gecombineerd. Een resultaat moet tegelijkertijd aan de ingestelde voorwaarden voldoen.</p>
@@ -832,7 +832,7 @@ HELP_TOPICS = {
             '<p>Commander, FID en systeem worden samen vastgelegd tijdens het in de wachtrij '
             'plaatsen van een screenshot.</p>\n'
             '<p>Een latere wisseling van commandant verandert niets aan de toewijzing van dit toch '
-            'al wachtende beeld. Dit betekent dat een screenshot van FABER38 vervolgens niet naar '
+            'al wachtende beeld. Dit betekent dat een screenshot van EXAMPLE vervolgens niet naar '
             'de map van een andere commandant wordt geschreven.</p>\n'
             '\n'
             '<h3>galerij</h3>\n'
@@ -918,7 +918,7 @@ HELP_TOPICS = {
             'galerijfilter bepaalt de zichtbare afbeeldingen.</li>\n'
             '</ul>\n'
             '<p>Dit betekent dat de galerij van een andere commandant kan worden bekeken terwijl '
-            'FABER38 wordt afgespeeld, zonder dat er nieuwe screenshots in de map van de '
+            'EXAMPLE wordt afgespeeld, zonder dat er nieuwe screenshots in de map van de '
             'betreffende commandant terechtkomen.</p>\n'
             '\n'
             '<h3>Tip</h3>\n'
@@ -949,7 +949,7 @@ HELP_TOPICS = {
                     '<p>De live commandant wordt uitsluitend bepaald op basis van de momenteel '
                     'uniek geïdentificeerde Elite Dangerous-journaalsessie. Zo kan de historie van '
                     'een andere commandant worden bekeken terwijl Elite Dangerous blijft draaien '
-                    'met FABER38.</p>\n'
+                    'met EXAMPLE.</p>\n'
                     '\n'
                     '<h3>Frontier-ID (FID)</h3>\n'
                     '<p>De FID is de stabiele Frontier-identificatie van een commandant.</p>\n'
@@ -999,8 +999,8 @@ HELP_TOPICS = {
                     '<p>“Engineering” en “Apparatuur” tonen de aandelen die afzonderlijk worden '
                     'gerapporteerd door '
                     'Frontier<code>MercCoins_Spent_On_Engineering</code>En<code>MercCoins_Spent_On_MercGear</code>.</p>\n'
-                    '<p>Voor FABER38 bijvoorbeeld een actuele inventaris van<b>1.275</b>, in '
-                    'totaal<b>220</b>besteed en weg<b>220</b>gemeld voor techniek.</p>\n'
+                    '<p>Voor EXAMPLE bijvoorbeeld een actuele inventaris van<b>1.000</b>, in '
+                    'totaal<b>200</b>besteed en weg<b>200</b>gemeld voor techniek.</p>\n'
                     '\n'
                     '<h3>Kortom verdiend</h3>\n'
                     "<p>'Gerapporteerd door Frontier: overall "
@@ -1008,7 +1008,7 @@ HELP_TOPICS = {
                     'hieruit niet zijn eigen balans.</p>\n'
                     '<p>De cumulatieve waarde van Frontier hoeft niet wiskundig overeen te komen '
                     'met de huidige voorraad en gerapporteerde uitgaven. Er kunnen bijvoorbeeld '
-                    'tegelijkertijd 1.275 huidige, 25 totaal verdiende en 220 totale uitgaven '
+                    'tegelijkertijd 1.000 huidige, 25 totaal verdiende en 200 totale uitgaven '
                     'worden gerapporteerd.</p>\n'
                     '<p>CMDRHelper corrigeert deze waarden niet, maar geeft de afzonderlijke '
                     'Frontier-tellers ongewijzigd weer.</p>\n'

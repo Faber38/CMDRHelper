@@ -95,21 +95,19 @@ Up to eight reconstruction results are cached by commander/FID, eligible source
 signatures and cutoff. Appends, replacements or attribution changes invalidate
 the result. No worker threads or AppState changes are introduced in O1.
 
-## Real regression and provenance
+## Anonymized reference regression
 
-`tests/fixtures/odyssey_faber38.json` contains original selected events from the
-identified FABER38 / FTEST0001 journals: MissionCompleted 1064707191 on
-2026-08-30T11:32:06Z, the simultaneous Backpack/ShipLocker pair on
-2026-09-08T14:58:01Z, and Embark/locker updates through 14:58:26Z.
+`tests/fixtures/odyssey_reference.json` preserves a completed mission, a
+simultaneous Backpack/ShipLocker pair and subsequent Embark/locker updates.
+All timestamps have been shifted by the same offset; ordering, equality and
+time intervals remain unchanged. MissionID is a regression join key.
 
 At the paired snapshot: locker 3,131, backpack 8, total 3,139. After Embark and
 the new full locker snapshot: locker 3,139, backpack 0, total 3,139 (not 3,147).
-The vehicle schematic remains quantity one with MissionID 1064707191 and status
-completed. These are regression fixtures, not hardcoded inventory or repair rules.
-
-The same results were checked read-only against all 411 identified FABER38
-sessions (43 unknown sessions excluded). At the inspected latest Disembark,
-2026-09-08T16:08:45Z, no new pair exists: the current total is correctly unknown.
+The vehicle schematic remains quantity one with its mission marked completed.
+These counts assert conservation and prevent double counting; they are reference
+values, not a published current inventory or hardcoded application rules.
+A Disembark without a reliable new snapshot pair must report an unknown total.
 
 ## O2 remains separate
 

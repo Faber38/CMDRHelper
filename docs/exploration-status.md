@@ -50,33 +50,22 @@ und dessen drei Ergebnisse bleiben unverändert.
   Bestätigung von First Discovery oder unverkauften Daten.
 - Die aktive UI läuft über `ui/main_window.py`.
 
-## Reale, ausschließlich lesend geprüfte Fälle
+## Neutrale Referenzfälle
 
-Commander-ID 1, `data/cmdrhelper.db`; Journalzeiten unten in UTC.
+Die Beispiele beschreiben synthetische Zustände, keine persönliche Besuchshistorie.
 
-| Körper | Entdeckt beim Scan | Kartographiert beim Scan | Selbst kartographiert | Neue Interpretation |
+| Körper | Entdeckt beim Scan | Kartographiert beim Scan | Selbst kartographiert | Interpretation |
 | --- | --- | --- | --- | --- |
-| Nuekuae LS-B d28 1 b | Ja | Nein | Ja | Kein Discovery-Kandidat laut Scan; historischer Mapping-Kandidat mit eigener Kartographierung, Erstanspruch unbestätigt. |
-| Prua Hypai RB-D c29-73 AB 2 f | Nein | Nein | Ja | Historischer Discovery- und Mapping-Kandidat; eigene Kartographierung belegt, offizielle Erstansprüche unbestätigt. |
-| Colonia 1 | Ja | Ja | Nein | Beim Scan beides bereits vorhanden; keine eigene Kartographierung aufgezeichnet. |
-| HIP 77917 A, echter alter EDSM-Cache | Unbekannt | Unbekannt | Unbekannt | EDSM bekannt, keine eigenen Elite-Statusangaben daraus. Stern: Mapping nicht anwendbar. |
+| Beispielplanet A | Ja | Nein | Ja | Historischer Mapping-Kandidat; Erstanspruch unbestätigt. |
+| Beispielplanet B | Nein | Nein | Ja | Historischer Discovery-/Mapping-Kandidat; eigene Kartographierung belegt. |
+| Beispielplanet C | Ja | Ja | Nein | Beides beim Scan vorhanden; keine eigene Kartographierung aufgezeichnet. |
+| Beispielstern aus EDSM | Unbekannt | Unbekannt | Unbekannt | Keine persönlichen Elite-Statusangaben aus der externen Quelle. |
 
-Journalbelege:
-
-- Nuekuae: `Journal.2026-05-22T062213.01.log`, Scan 04:33:52Z mit
-  `WasDiscovered=true`, `WasMapped=false`; eigener `SAAScanComplete` 04:38:44Z.
-  Auch der nachfolgende Scan um 04:38:44Z meldet true/false.
-- Prua Hypai: `Journal.2026-09-04T134325.01.log`, Scan 12:20:57Z mit false/false;
-  eigener `SAAScanComplete` 12:29:47Z und nachfolgender Scan erneut false/false.
-  Die DB nennt als letzten Körperkontakt 07.09.2026 05:16:17Z; dieser Kontakt
-  macht aus den älteren Flags keine neue aktuelle Verfügbarkeitsauskunft.
-- Die lokale Verkaufs-Lerntabelle ordnet Nuekuae einem Verkauf vom 22.05.2026
-  14:24:19Z und Prua Hypai einem Verkauf vom 04.09.2026 13:15:27Z zu. Diese
-  Zuordnung sammelt offene Körper für Wertschätzungen. Sie ist kein individueller
-  Beleg für einen offiziell zuerkannten Discovery-/Mapping-Erstanspruch.
-- Der echte Cache `e052c91ac207c44360787722.json` enthält für HIP 77917 A noch
-  das frühere synthetische `was_discovered=true`. Nach dem neuen Merge ist
-  der eigene Discovery-Status unbekannt, EDSM-Bekanntheit bleibt erhalten.
+Ein Scan vor und nach `SAAScanComplete` darf dieselben historischen Flags liefern.
+Ein späterer Kontakt macht daraus keine neue Verfügbarkeitsauskunft. Auch eine
+Zuordnung zu einem späteren Verkauf belegt keinen offiziellen Erstanspruch.
+Ein alter EDSM-Cache mit synthetischem `was_discovered=true` darf nach dem Merge
+keinen eigenen Discovery-Status begründen; EDSM-Bekanntheit bleibt davon getrennt.
 
 ## Grenzen und Prüfung
 

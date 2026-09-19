@@ -74,9 +74,7 @@ CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de 
 - Stocks Mining plus fiables : instantanés Cargo sécurisés, rattrapage des transferts et sauvegarde vérifiée.
 - Correction de la migration demandée après une nouvelle installation ; copie dans la Chronique et vues masquées améliorées.
 
-![Gestion des matériaux Odyssey avec casier, sac à dos et suivi automatique du stock du porte-vaisseaux](cmdrhelper/assets/readme/cmdrhelper_v3_5.png)
-
-Casier et sac à dos utilisent les données actuelles validées de ShipLocker/Backpack. Marchandises, Matériaux et Données affichent chacun une capacité personnelle de 1000. Total additionne casier + sac à dos + porte-vaisseaux uniquement avec des valeurs connues et cohérentes. Achats, ventes et échanges sont distingués des transferts privés. Après redémarrage, la position est reconstruite et une nouvelle base personnelle est fixée ; aucun transfert Odyssey manqué n’est inventé. Exemple réel : 713 unités + 121 places réservées aux achats = 834 / 1000. Les 121 ne sont pas des matériaux. Des données de marché anciennes ou incertaines ne produisent pas d’occupation actuelle supposée.
+Casier et sac à dos utilisent les données actuelles validées de ShipLocker/Backpack. Marchandises, Matériaux et Données affichent chacun une capacité personnelle de 1000. Total additionne casier + sac à dos + porte-vaisseaux uniquement avec des valeurs connues et cohérentes. Achats, ventes et échanges sont distingués des transferts privés. Après redémarrage, la position est reconstruite et une nouvelle base personnelle est fixée ; aucun transfert Odyssey manqué n’est inventé. Exemple fictif : 500 unités + 100 places réservées aux achats = 600 / 1000. Les 100 ne sont pas des matériaux. Des données de marché anciennes ou incertaines ne produisent pas d’occupation actuelle supposée.
 
 ### Configurer le stock du porte-vaisseaux
 

@@ -238,8 +238,8 @@ HELP_TOPICS = {
               '<p>ABBAU ×N pokazuje liczbę planetarnych miejsc wydobycia ciała zgłoszoną przez '
               'Elite Dangerous.</p>\n'
               '<p>Przykład:</p>\n'
-              '<p><b>ABBAU ×24</b></p>\n'
-              '<p>oznacza, że \u200b\u200bdla tego ciała zgłoszono 24 planetarne miejsca '
+              '<p><b>ABBAU ×12</b></p>\n'
+              '<p>oznacza, że \u200b\u200bdla tego ciała zgłoszono 12 planetarne miejsca '
               'wydobycia.</p>\n'
               '<p>Liczba nie mówi, jaki surowiec można wydobyć w jednym miejscu.</p>\n'
               '\n'
@@ -253,8 +253,8 @@ HELP_TOPICS = {
               '<li>ogólne materiały powierzchniowe ciała</li>\n'
               '</ul>\n'
               '<p>Przykładem osobistego znaleziska może być:</p>\n'
-              '<p><b>Miedź – 56 t</b></p>\n'
-              '<p>Z tej informacji wynika, że \u200b\u200bkomendant ten faktycznie wydobył tam 56 '
+              '<p><b>Miedź – 40 t</b></p>\n'
+              '<p>Z tej informacji wynika, że \u200b\u200bkomendant ten faktycznie wydobył tam 40 '
               'ton miedzi.</p>\n'
               '<p>Osobiste znaleziska górnicze są zapisywane dla każdego dowódcy i nie są mieszane '
               'ze znaleziskami innych dowódców.</p>\n'
@@ -504,7 +504,7 @@ HELP_TOPICS = {
 <p>Jeżeli aktywna jest opcja „Własne znaleziska górnicze”, dostępna jest także opcja „Surowiec”.</p>
 <p>Na liście znajdują się wyłącznie towary, które dany dowódca faktycznie zdobył już w górnictwie odkrywkowym.</p>
 <p>Nie jest to teoretyczna lista wszystkich możliwych surowców wydobywczych.</p>
-<p>Dla FABER38 lista może na przykład zawierać:</p>
+<p>Dla EXAMPLE lista może na przykład zawierać:</p>
 <ul>
 <li>Wszystko</li>
 <li>miedź</li>
@@ -514,16 +514,16 @@ HELP_TOPICS = {
 <h3>Ukierunkowane wyszukiwanie surowców</h3>
 <p>Na przykład, jeśli wybierzesz „Miedź”, a następnie naciśniesz „Zastosuj”, historia pokaże tylko ciała, na których dany dowódca w sposób oczywisty wydobywał miedź.</p>
 <p>Przykład:</p>
-<p><b>Prua Hypai NV-E c28-66/2 — ABBAU ×24 — miedź 56 t</b></p>
+<p><b>Example System/2 — ABBAU ×12 — miedź 40 t</b></p>
 <p>Oznacza to, że kronikę można wykorzystać jako osobistą bazę lokalizacyjną: wydobyty już surowiec można później ponownie odnaleźć.</p>
 
 <h3>Wszystkie surowce</h3>
 <p>W przypadku opcji „Surowiec: Wszystko” uwzględniane są wszystkie pasujące osobiste odkrycia w zakresie górnictwa odkrywkowego.</p>
 <p>Jeżeli na korpusie znanych jest kilka towarów, można je wyświetlić razem z ilościami, jakie dotychczas uzyskali.</p>
 <p>Przykład:</p>
-<p><b>ABBAU ×24 — Hel-3 18 t, miedź 56 t</b></p>
+<p><b>ABBAU ×12 — Hel-3 10 t, miedź 40 t</b></p>
 <p>Ilości są osobistymi wartościami górniczymi odpowiedniego dowódcy, które faktycznie są udokumentowane na podstawie wydarzeń w dzienniku.</p>
-<p>Także przy aktywnym okresie osobiste wydobyte ilości pozostają zapisanymi ilościami łącznymi. <b>Miedź 56 t</b> nie oznacza automatycznie <b>56 t w wybranym okresie</b>. Okres wymaga pasującej wizyty w systemie, ale nie ogranicza wyświetlanej wydobytej ilości do tego okresu.</p>
+<p>Także przy aktywnym okresie osobiste wydobyte ilości pozostają zapisanymi ilościami łącznymi. <b>Miedź 40 t</b> nie oznacza automatycznie <b>40 t w wybranym okresie</b>. Okres wymaga pasującej wizyty w systemie, ale nie ogranicza wyświetlanej wydobytej ilości do tego okresu.</p>
 
 <h3>Połącz filtry</h3>
 <p>Tekst, włączone granice Od/Do i filtry wydobycia można łączyć. Wynik musi spełniać ustawione warunki jednocześnie.</p>
@@ -808,7 +808,7 @@ HELP_TOPICS = {
             '<p>Commander, FID i system są rejestrowane razem podczas umieszczania w kolejce '
             'zrzutu ekranu.</p>\n'
             '<p>Późniejsza zmiana dowódcy nie powoduje zmiany przypisania tego już oczekującego '
-            'obrazu. Oznacza to, że zrzut ekranu FABER38 nie jest później zapisywany do folderu '
+            'obrazu. Oznacza to, że zrzut ekranu EXAMPLE nie jest później zapisywany do folderu '
             'innego dowódcy.</p>\n'
             '\n'
             '<h3>galeria</h3>\n'
@@ -887,7 +887,7 @@ HELP_TOPICS = {
             '<li><b>Zobacz obrazy:</b>Wyświetlane przez dowódcę lub wybrany filtr galerii określa '
             'widoczne obrazy.</li>\n'
             '</ul>\n'
-            '<p>Oznacza to, że galerię innego dowódcy można przeglądać podczas gry w FABER38, bez '
+            '<p>Oznacza to, że galerię innego dowódcy można przeglądać podczas gry w EXAMPLE, bez '
             'konieczności umieszczania nowych zrzutów ekranu w folderze danego dowódcy.</p>\n'
             '\n'
             '<h3>Wskazówka</h3>\n'
@@ -917,7 +917,7 @@ HELP_TOPICS = {
                     '<p>Dowódca na żywo jest ustalany wyłącznie na podstawie aktualnie '
                     'jednoznacznie zidentyfikowanej sesji dziennika Elite Dangerous. W ten sposób '
                     'można przeglądać historię innego dowódcy, podczas gdy Elite Dangerous będzie '
-                    'nadal działać z FABER38.</p>\n'
+                    'nadal działać z EXAMPLE.</p>\n'
                     '\n'
                     '<h3>Identyfikator Frontier (FID)</h3>\n'
                     '<p>FID to stabilny identyfikator dowódcy Frontier.</p>\n'
@@ -966,8 +966,8 @@ HELP_TOPICS = {
                     'przejmuje kontrolę<code>MercCoins_Total_Spent</code>.</p>\n'
                     '<p>„Inżynieria” i „Sprzęt” pokazują udziały zgłoszone oddzielnie przez '
                     'Frontier<code>MercCoins_Spent_On_Engineering</code>I<code>MercCoins_Spent_On_MercGear</code>.</p>\n'
-                    '<p>Dla przykładu FABER38 aktualny stan magazynowy<b>1275</b>w '
-                    'sumie<b>220</b>spędzony i odszedł<b>220</b>zgłoszony do inżynierii.</p>\n'
+                    '<p>Dla przykładu EXAMPLE aktualny stan magazynowy<b>1000</b>w '
+                    'sumie<b>200</b>spędzony i odszedł<b>200</b>zgłoszony do inżynierii.</p>\n'
                     '\n'
                     '<h3>Ogólnie zasłużone</h3>\n'
                     '<p>Pokazuje się „Zgłoszone przez Frontier: ogólnie '
@@ -975,7 +975,7 @@ HELP_TOPICS = {
                     'podstawie własnego bilansu.</p>\n'
                     '<p>Wartość skumulowana Frontier nie musi być matematycznie zgodna z bieżącym '
                     'stanem magazynowym i wykazanymi wydatkami. Na przykład jednocześnie można '
-                    'zgłosić 1275 bieżących, 25 zarobionych ogółem i 220 wydanych ogółem.</p>\n'
+                    'zgłosić 1000 bieżących, 25 zarobionych ogółem i 200 wydanych ogółem.</p>\n'
                     '<p>CMDRHelper nie koryguje tych wartości, ale wyświetla poszczególne liczniki '
                     'Frontier bez zmian.</p>\n'
                     '\n'

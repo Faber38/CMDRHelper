@@ -37,7 +37,7 @@ class FastStartCommanderTests(unittest.TestCase):
             ShipLoadoutData(
                 ship_id=51,
                 ship_type="lakonminer",
-                ship_name="Erft-Büffel",
+                ship_name="Test-Büffel",
                 loadout_complete=True,
                 loadout_stale=False,
             ),
@@ -142,7 +142,7 @@ class FastStartCommanderTests(unittest.TestCase):
                          (self.bravo, "FID-B", "Bravo"))
         self.assertEqual((state.journal_files, state.connected), (3, True))
         self.assertEqual((state.system, state.station), ("Colonia", "Jaques Station"))
-        self.assertEqual((state.ship_loadout.ship_id, state.ship), (51, "Erft-Büffel"))
+        self.assertEqual((state.ship_loadout.ship_id, state.ship), (51, "Test-Büffel"))
         self.assertEqual([mission.mission_id for mission in state.missions], [7])
         self.assertEqual((state.unsold_bio_count, state.unsold_cartography_count), (1, 1))
 

@@ -23,7 +23,7 @@ TECHNICAL_TERMS = (
     "FSDJump", "MissionAccepted", "Statistics", "Bank_Account", "MercCoins",
     "MiningRefined", "MaterialCollected", "Scan.Materials", "PlanetClass",
     "frontier_name", "display_name", "viewed_commander_id",
-    "Prua Hypai NV-E c28-66",
+    "Example System",
 )
 
 

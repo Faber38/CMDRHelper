@@ -73,7 +73,7 @@ class StationPresentationTests(unittest.TestCase):
             self.assertGreaterEqual(fonts[-1].pointSizeF(), 9)
 
     def test_card_click_opens_large_detail_and_preserves_map(self):
-        for kind, name in [('FleetCarrier', '[EOT] = RHEIN-ERFT ='), ('CraterOutpost', 'Ridorana Metalworks')]:
+        for kind, name in [('FleetCarrier', '[TEST] = TEST-CARRIER ='), ('CraterOutpost', 'Ridorana Metalworks')]:
             facility = dict(station(name=name), station_type=kind)
             view = SystemOverviewView('Test', BODIES, stations=[facility])
             original = copy.deepcopy(view.bodies)

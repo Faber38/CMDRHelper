@@ -74,9 +74,7 @@ CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiorname
 - Scorte Mining più affidabili con istantanee Cargo sicure, recupero dei trasferimenti e salvataggio verificato.
 - Corretta la migrazione richiesta dopo una nuova installazione; migliorate la copia nella Cronaca e le viste nascoste.
 
-![Gestione materiali Odyssey con armadietto, zaino e scorte della portaflotta aggiornate automaticamente](cmdrhelper/assets/readme/cmdrhelper_v3_5.png)
-
-Armadietto e zaino usano dati correnti validati di ShipLocker/Backpack. Merci, Materiali e Dati mostrano ciascuno la capacità personale di 1000. Totale somma armadietto + zaino + portaflotta solo con valori noti e coerenti. Acquisti, vendite e scambi sono distinti dai trasferimenti privati. Dopo il riavvio si ricostruisce la posizione e si imposta una nuova base personale; non si inventano trasferimenti Odyssey mancanti. Esempio reale: 713 unità + 121 posti riservati agli acquisti = 834 / 1000. I 121 non sono materiali. Dati di mercato vecchi o incerti non producono una presunta occupazione attuale.
+Armadietto e zaino usano dati correnti validati di ShipLocker/Backpack. Merci, Materiali e Dati mostrano ciascuno la capacità personale di 1000. Totale somma armadietto + zaino + portaflotta solo con valori noti e coerenti. Acquisti, vendite e scambi sono distinti dai trasferimenti privati. Dopo il riavvio si ricostruisce la posizione e si imposta una nuova base personale; non si inventano trasferimenti Odyssey mancanti. Esempio fittizio: 500 unità + 100 posti riservati agli acquisti = 600 / 1000. I 100 non sono materiali. Dati di mercato vecchi o incerti non producono una presunta occupazione attuale.
 
 ### Configurare le scorte della portaflotta
 

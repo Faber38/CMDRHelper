@@ -75,9 +75,7 @@ CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici 
 - Daha güvenilir Mining stokları: güvenli Cargo anlık görüntüleri, kaçırılan aktarımlar ve denetlenen kayıt.
 - Yeni kurulumdaki hatalı geçiş isteği düzeltildi; günlük kopyalama ve gizli görünüm güncellemeleri iyileştirildi.
 
-![Dolap, sırt çantası ve otomatik güncellenen Fleet Carrier stoku ile Odyssey malzeme yönetimi](cmdrhelper/assets/readme/cmdrhelper_v3_5.png)
-
-Dolap ve sırt çantası doğrulanmış güncel ShipLocker/Backpack verilerini kullanır. Mallar, Malzemeler ve Veriler ayrı ayrı 1000 kişisel dolap kapasitesine sahiptir. Toplam; dolap + sırt çantası + filo gemisini yalnızca bilinen, tutarlı değerlerle toplar. Alım, satım ve takas özel aktarımlardan ayrılır. Yeniden başlatmada konum oluşturulur ve yeni kişisel temel belirlenir; kaçırılmış Odyssey aktarımları uydurulmaz. Oyun örneği: 713 birim + alımlar için ayrılmış 121 yer = 834 / 1000. Bu 121 malzeme değildir. Eski veya belirsiz pazar verileri sözde güncel doluluk oluşturmaz.
+Dolap ve sırt çantası doğrulanmış güncel ShipLocker/Backpack verilerini kullanır. Mallar, Malzemeler ve Veriler ayrı ayrı 1000 kişisel dolap kapasitesine sahiptir. Toplam; dolap + sırt çantası + filo gemisini yalnızca bilinen, tutarlı değerlerle toplar. Alım, satım ve takas özel aktarımlardan ayrılır. Yeniden başlatmada konum oluşturulur ve yeni kişisel temel belirlenir; kaçırılmış Odyssey aktarımları uydurulmaz. Kurgusal örnek: 500 birim + alımlar için ayrılmış 100 yer = 600 / 1000. Bu 100 malzeme değildir. Eski veya belirsiz pazar verileri sözde güncel doluluk oluşturmaz.
 
 ### Filo gemisi stokunu ayarla
 

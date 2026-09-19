@@ -237,8 +237,8 @@ HELP_TOPICS = {
               '<p>ABBAU ×N visar antalet planetariska gruvplatser för en kropp som rapporterats av '
               'Elite Dangerous.</p>\n'
               '<p>Exempel:</p>\n'
-              '<p><b>ABBAU ×24</b></p>\n'
-              '<p>betyder att 24 planetariska gruvplatser har rapporterats för denna kropp.</p>\n'
+              '<p><b>ABBAU ×12</b></p>\n'
+              '<p>betyder att 12 planetariska gruvplatser har rapporterats för denna kropp.</p>\n'
               '<p>Siffran säger inte vilken råvara som kan utvinnas på en enda plats.</p>\n'
               '\n'
               '<h3>Egna gruvfynd</h3>\n'
@@ -251,8 +251,8 @@ HELP_TOPICS = {
               '<li>kroppens allmänna ytmaterial</li>\n'
               '</ul>\n'
               '<p>Ett exempel på ett personligt fynd skulle vara:</p>\n'
-              '<p><b>Koppar – 56 t</b></p>\n'
-              '<p>Denna information betyder att befälhavaren faktiskt utvann 56 ton koppar '
+              '<p><b>Koppar – 40 t</b></p>\n'
+              '<p>Denna information betyder att befälhavaren faktiskt utvann 40 ton koppar '
               'där.</p>\n'
               '<p>De personliga gruvfynden sparas för varje befäl och blandas inte med andra '
               'befälhavares fynd.</p>\n'
@@ -500,7 +500,7 @@ HELP_TOPICS = {
 <p>Om "Egna gruvfynd" är aktiverat är valet "Råmaterial" också tillgängligt.</p>
 <p>Listan innehåller bara varor som befälhavaren i fråga faktiskt redan har vunnit från ytbrytning.</p>
 <p>Detta är inte en teoretisk lista över alla möjliga gruvråvaror.</p>
-<p>För FABER38 kan listan till exempel innehålla:</p>
+<p>För EXAMPLE kan listan till exempel innehålla:</p>
 <ul>
 <li>Alla</li>
 <li>koppar</li>
@@ -510,16 +510,16 @@ HELP_TOPICS = {
 <h3>Riktat sökande efter råvaror</h3>
 <p>Till exempel, om "Copper" väljs och sedan "Apply" trycks, kommer historiken endast att visa kroppar på vilka befälhavaren i fråga bevisligen har brutit koppar.</p>
 <p>Exempel:</p>
-<p><b>Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — koppar 56 t</b></p>
+<p><b>Example System / 2 — ABBAU ×12 — koppar 40 t</b></p>
 <p>Det innebär att krönikan kan användas som en personlig platsdatabas: en råvara som redan har bryts kan hittas igen senare.</p>
 
 <h3>Alla råvaror</h3>
 <p>Med "Råmaterial: Alla" beaktas alla matchande personliga gruvupptäckter på ytan.</p>
 <p>Om flera varor är kända på en kropp kan de visas tillsammans med de kvantiteter de hittills har erhållit.</p>
 <p>Exempel:</p>
-<p><b>ABBAU ×24 — Helium-3 18 t, koppar 56 t</b></p>
+<p><b>ABBAU ×12 — Helium-3 10 t, koppar 40 t</b></p>
 <p>Kvantiteterna är de personliga gruvvärdena för respektive befälhavare, som faktiskt dokumenteras från journalhändelser.</p>
-<p>Även med en aktiv period förblir personliga utvunna mängder lagrade totalmängder. <b>Koppar 56 t</b> betyder inte automatiskt <b>56 t under den valda perioden</b>. Perioden kräver ett motsvarande systembesök men begränsar inte den visade utvunna mängden till den perioden.</p>
+<p>Även med en aktiv period förblir personliga utvunna mängder lagrade totalmängder. <b>Koppar 40 t</b> betyder inte automatiskt <b>40 t under den valda perioden</b>. Perioden kräver ett motsvarande systembesök men begränsar inte den visade utvunna mängden till den perioden.</p>
 
 <h3>Kombinera filter</h3>
 <p>Fritext, aktiverade Från-/Till-gränser och gruvfilter kan kombineras. En träff måste uppfylla de inställda villkoren tillsammans.</p>
@@ -801,7 +801,7 @@ HELP_TOPICS = {
             '<h3>Befälhavarebyte under bearbetning</h3>\n'
             '<p>Commander, FID och systemet fångas tillsammans när en skärmdump köar.</p>\n'
             '<p>Ett senare byte av befäl ändrar inte tilldelningen av denna redan väntande bild. '
-            'Detta innebär att en skärmdump av FABER38 inte skrivs till mappen för en annan '
+            'Detta innebär att en skärmdump av EXAMPLE inte skrivs till mappen för en annan '
             'befälhavare.</p>\n'
             '\n'
             '<h3>galleri</h3>\n'
@@ -878,7 +878,7 @@ HELP_TOPICS = {
             '<li><b>Visa bilder:</b>Den befälhavare som visas eller det valda gallerifiltret '
             'bestämmer vilka bilder som visas.</li>\n'
             '</ul>\n'
-            '<p>Detta innebär att en annan befälhavares galleri kan ses medan FABER38 spelas utan '
+            '<p>Detta innebär att en annan befälhavares galleri kan ses medan EXAMPLE spelas utan '
             'att nya skärmdumpar hamnar i mappen hos befälhavaren i fråga.</p>\n'
             '\n'
             '<h3>Dricks</h3>\n'
@@ -908,7 +908,7 @@ HELP_TOPICS = {
                     '<p>Den levande befälhavaren bestäms uteslutande från den för närvarande unikt '
                     'identifierade Elite Dangerous journalsessionen. På så sätt kan historiken för '
                     'en annan befälhavare ses medan Elite Dangerous fortsätter att köra med '
-                    'FABER38.</p>\n'
+                    'EXAMPLE.</p>\n'
                     '\n'
                     '<h3>Frontier ID (FID)</h3>\n'
                     '<p>FID är den stabila Frontier-identifieraren för en befälhavare.</p>\n'
@@ -957,16 +957,16 @@ HELP_TOPICS = {
                     'över<code>MercCoins_Total_Spent</code>.</p>\n'
                     '<p>"Engineering" och "Equipment" visar andelarna som rapporteras separat av '
                     'Frontier<code>MercCoins_Spent_On_Engineering</code>och<code>MercCoins_Spent_On_MercGear</code>.</p>\n'
-                    '<p>För FABER38, till exempel, en aktuell inventering av<b>1 275</b>, '
-                    'totalt<b>220</b>spenderat och borta<b>220</b>anmäld för ingenjörsarbete.</p>\n'
+                    '<p>För EXAMPLE, till exempel, en aktuell inventering av<b>1 000</b>, '
+                    'totalt<b>200</b>spenderat och borta<b>200</b>anmäld för ingenjörsarbete.</p>\n'
                     '\n'
                     '<h3>Överlag välförtjänt</h3>\n'
                     '<p>"Rapporterat av Frontier: tjänat totalt" '
                     'visar<code>MercCoins_Total_Earned</code>. CMDRHelper beräknar inte sin egen '
                     'balansräkning utifrån detta.</p>\n'
                     '<p>Frontier:s ackumulerade värde behöver inte matematiskt matcha det aktuella '
-                    'lagret och de rapporterade kostnaderna. Till exempel kan 1 275 aktuella, 25 '
-                    'totala intjänade och 220 totala spenderade rapporteras samtidigt.</p>\n'
+                    'lagret och de rapporterade kostnaderna. Till exempel kan 1 000 aktuella, 25 '
+                    'totala intjänade och 200 totala spenderade rapporteras samtidigt.</p>\n'
                     '<p>CMDRHelper korrigerar inte dessa värden, men visar de individuella '
                     'Frontier-räknarna oförändrade.</p>\n'
                     '\n'

@@ -1,33 +1,18 @@
 # Flottenanalyse und manuelle Löschung (Entwicklungsstand 3.5)
 
-## Reale Journalbelege, nur lesend untersucht
+## Neutrale Journalbeispiele
 
-Die Datenbank führt beide Schiffe unter Commander-ID 1. Der Primärschlüssel ist
-`(commander_id, ship_id)`, nicht die frei benannte Kennung.
+Zwei Schiffe desselben Test-Commanders haben unterschiedliche ShipIDs (23 und 4),
+aber dieselbe frei benannte Kennung `TST-01`. Die Identität ist
+`(commander_id, ship_id)`, nicht der frei wählbare Schiffsname oder die Kennung.
 
-| Schiff | Früher Nachweis im verfügbaren Archiv | Letzter gespeicherter Loadout |
-| --- | --- | --- |
-| ShipID 23, type9, `[EOT] = Betonmischer =`, FAB-38 | `Journal.2026-05-19T200511.01.log`, Zeilen 1071/1074: ShipyardSwap 19:44:22Z, Loadout 19:44:23Z | `Journal.2026-07-19T084810.01.log`, Zeile 2421, 2026-07-19T16:53:14Z |
-| ShipID 4, asp, `[EOT] = Erft-Habicht =`, FAB-38 | `Journal.2026-06-06T172647.01.log`, Zeilen 2347/2350: ShipyardSwap 17:15:39Z, Loadout 17:17:52Z; damals `[EOT] = KUDDEL =` | `Journal.2026-08-23T170339.01.log`, Zeilen 739/741: ShipyardSwap 16:08:51Z, Loadout 16:08:53Z |
+Ein `ShipyardSwap` mit `StoreShipID: 23` belegt zunächst nur die Einlagerung.
+Erst ein späteres `ShipyardSell` mit `SellShipID: 23` belegt den Verkauf.
+Ein anschließendes `StoredShips` mit ShipID 4 bestätigt weiterhin deren Besitz.
+Eine ältere Standortangabe eines eingelagerten Schiffs ist kein Verkaufsbeleg.
 
-**Verkauf von ShipID 23 ist nachgewiesen:** In
-`Journal.2026-07-19T084810.01.log` folgt in Zeile 2424 um 16:53:35Z ein Wechsel
-auf Sidewinder/ShipID 36 mit `StoreShipID: 23`. Zeile 2430 meldet um
-**2026-07-19T16:53:56Z `ShipyardSell`, `SellShipID: 23`, `ShipType: type9`,
-`ShipType_Localised: Type-9 Heavy`**.
-
-Für ShipID 4 wurde im verfügbaren Archiv kein Verkaufsereignis gefunden.
-`Journal.2026-09-16T093326.01.log`, unter anderem Zeile 103 um 07:47:36Z,
-führt sie weiterhin in `StoredShips`: Asp Explorer, Erft-Habicht,
-Plio Aihm UC-V d2-159. Die damals ältere Standortanzeige stammte aus Aktiv-/Loadout-Beobachtungen.
-Die Verkaufs-Ergänzung wertet inzwischen auch explizite StoredShips-Einträge aus.
-
-Beide Loadouts melden unabhängig FAB-38. Es handelt sich nachweislich um zwei
-verschiedene ShipIDs und Typen, nicht um einen durch die Kennung erkannten
-Doppeleintrag. Eine ausschließliche Wiedervergabe nach einem Verkauf lässt sich
-nicht behaupten: beide Kennungen sind bereits vor dem Verkauf dokumentiert.
-Die vorhandene Identitätslogik garantiert auch nicht, dass Elite eine ShipID
-niemals wiederverwenden könnte.
+Die Kennung kann bereits vor einem Verkauf mehrfach vorkommen. Auch eine
+mögliche Wiederverwendung einer ShipID darf nicht ohne Beleg ausgeschlossen werden.
 
 ## Bisherige Persistenz
 
@@ -39,7 +24,7 @@ LoadGame, Loadout, ShipyardSwap/Buy und Modulereignisse schreiben die Flotte.
 ShipyardSell/SellShip/SellStoredShip und SellShipID beim Kauf werden bisher
 nicht als Flottenentfernung verarbeitet. Historische Schiffe bleiben dadurch
 liegen; eine ausdrücklich modellierte Verkaufs-/Historienentscheidung gab es
-nicht. Der Betonmischer bleibt also wegen fehlender Verkaufsbehandlung erhalten.
+nicht. Das Beispielschiff bleibt also wegen fehlender Verkaufsbehandlung erhalten.
 Die ursprüngliche manuelle Löschfunktion führte keine automatische
 Verkaufsbereinigung ein. Die unten beschriebene Ergänzung verarbeitet jetzt
 nachgewiesene Journalverkäufe.
@@ -95,7 +80,7 @@ bleiben aus Sicherheitsgründen erhalten; neuere Live-Beobachtungen werden nicht
 mit älteren Daten überschrieben. Das zuletzt bekannte Schiff bleibt geschützt.
 
 Manuell gelöschte Schiffe können wieder erscheinen, soweit die nachfolgende
-Ereigniskette keinen späteren Verkauf belegt. Der verkaufte Betonmischer erscheint
+Ereigniskette keinen späteren Verkauf belegt. Das verkaufte Beispielschiff erscheint
 mit der Verkaufs-Ergänzung nicht wieder.
 Bilder werden nicht aus Journalen erzeugt. Wiederhergestellte Schiffe verwenden
 Typbild bzw. standart.png, solange kein neues persönliches Bild gewählt wurde.
@@ -142,9 +127,7 @@ gelöscht: Hintergrundimporte verändern weder QSettings noch Benutzerdateien.
 Die vorhandene manuelle Löschaktion entfernt weiterhin das zugehörige Bild.
 Typbilder und standart.png bleiben unverändert. Es entstehen keine neuen UI-Texte.
 
-Lesender Praxistest mit 440 verfügbaren Journals des betroffenen Commanders:
-20 rekonstruierte Schiffe, ShipID 23 nicht enthalten, ShipID 4 weiterhin enthalten.
-Der Verkaufsbeleg für ShipID 23 ist 2026-07-19T16:53:56Z / ShipyardSell.
-Die reale Datenbank wurde dafür nicht verändert. Bereits quittierte alte Journale
-werden beim normalen Start nicht pauschal erneut eingelesen; für diesen Altbestand
+Die Regression prüft, dass ein ausdrücklich verkauftes Beispielschiff fehlt,
+während das andere weiterhin vorhanden ist. Bereits quittierte alte Journale
+werden beim normalen Start nicht pauschal erneut eingelesen; für solche Altbestände
 ist „Alle Schiffe neu einlesen…“ der gezielte Aktualisierungsweg.

@@ -19,20 +19,20 @@ class UnsoldMappingRegressionTests(unittest.TestCase):
         self.addCleanup(self.tmp.cleanup)
         self.folder = Path(self.tmp.name)
         self.db = CMDRDatabase(self.folder / 'test.db')
-        self.cid = self.db.upsert_commander('FTEST0001', 'FABER38')
-        self.path = self.folder / 'Journal.2026-09-08T152958.01.log'
-        self.scan = dict(event='Scan', timestamp='2026-09-08T15:09:38Z',
+        self.cid = self.db.upsert_commander('FTEST0001', 'TEST_CMDR')
+        self.path = self.folder / 'Journal.2016-09-10T152958.01.log'
+        self.scan = dict(event='Scan', timestamp='2016-09-10T15:09:38Z',
                          SystemAddress=6745908858227, BodyID=6,
                          StarSystem='Plio Aip JN-B d13-196', BodyName='Plio Aip JN-B d13-196 5',
                          ScanType='Detailed', PlanetClass='Water world', TerraformState='Terraformable',
                          MassEM=1.627342, WasDiscovered=False, WasMapped=False)
-        self.mapping = dict(event='SAAScanComplete', timestamp='2026-09-08T15:24:31Z',
+        self.mapping = dict(event='SAAScanComplete', timestamp='2016-09-10T15:24:31Z',
                             SystemAddress=self.scan['SystemAddress'], BodyID=6,
                             BodyName=self.scan['BodyName'], ProbesUsed=7, EfficiencyTarget=7)
         self.follow = dict(self.scan, timestamp=self.mapping['timestamp'])
-        self.append([dict(event='LoadGame', timestamp='2026-09-08T15:00:00Z',
-                          FID='FTEST0001', Commander='FABER38'),
-                     dict(event='Location', timestamp='2026-09-08T15:00:01Z',
+        self.append([dict(event='LoadGame', timestamp='2016-09-10T15:00:00Z',
+                          FID='FTEST0001', Commander='TEST_CMDR'),
+                     dict(event='Location', timestamp='2016-09-10T15:00:01Z',
                           SystemAddress=self.scan['SystemAddress'], StarSystem=self.scan['StarSystem'])])
 
     def append(self, events):
@@ -67,12 +67,12 @@ class UnsoldMappingRegressionTests(unittest.TestCase):
             self.assertEqual(c[field], r[field])
         self.assertEqual(r['estimated_value'], value)
 
-    def test_faber38_same_delta_follow_scan(self):
+    def test_reference_same_delta_follow_scan(self):
         self.append([self.scan, self.mapping, self.follow]); self.apply(); self.assert_mapping()
 
     def test_scan_mapping_same_timestamp(self):
         self.scan['timestamp'] = self.mapping['timestamp']
-        self.test_faber38_same_delta_follow_scan()
+        self.test_reference_same_delta_follow_scan()
 
     def test_follow_scan_next_delta(self):
         self.append([self.scan, self.mapping]); self.apply()
@@ -99,7 +99,7 @@ class UnsoldMappingRegressionTests(unittest.TestCase):
                 with self.subTest(discovered=discovered, mapped=mapped, probes=probes):
                     scan = dict(self.scan, WasDiscovered=discovered, WasMapped=mapped)
                     mapping = dict(self.mapping, ProbesUsed=probes)
-                    self.append([dict(event='SellExplorationData', timestamp='2026-09-08T15:00:00Z'),
+                    self.append([dict(event='SellExplorationData', timestamp='2016-09-10T15:00:00Z'),
                                  scan, mapping, dict(scan, timestamp=self.follow['timestamp'])])
                     self.apply()
                     value = calculate_body_values(dict(planet_class='Water world', mass_em=1.627342,
@@ -112,8 +112,8 @@ class UnsoldMappingRegressionTests(unittest.TestCase):
         for kind in ('SellExplorationData', 'MultiSellExplorationData'):
             with self.subTest(kind=kind):
                 self.append([self.scan, self.mapping]); self.apply()
-                self.append([dict(event=kind, timestamp='2026-09-08T15:25:00Z'),
-                             dict(self.follow, timestamp='2026-09-08T15:26:00Z')]); self.apply()
+                self.append([dict(event=kind, timestamp='2016-09-10T15:25:00Z'),
+                             dict(self.follow, timestamp='2016-09-10T15:26:00Z')]); self.apply()
                 self.assertEqual(self.claim()['raw_estimated_value'], 764695)
                 self.assertEqual(self.claim()['self_mapped'], 0)
                 self.assertEqual(self.replay()[0]['estimated_value'], 764695)
@@ -121,11 +121,11 @@ class UnsoldMappingRegressionTests(unittest.TestCase):
 
     def test_follow_scan_then_sale_clears_claim(self):
         self.append([self.scan, self.mapping, self.follow,
-                     dict(event='MultiSellExplorationData', timestamp='2026-09-08T15:25:00Z')])
+                     dict(event='MultiSellExplorationData', timestamp='2016-09-10T15:25:00Z')])
         self.apply(); self.assertIsNone(self.claim()); self.assertEqual(self.replay(), [])
 
     def test_sold_scan_then_mapping_follow_scan_only_mapping_increment(self):
-        self.append([self.scan, dict(event='SellExplorationData', timestamp='2026-09-08T15:10:00Z'),
+        self.append([self.scan, dict(event='SellExplorationData', timestamp='2016-09-10T15:10:00Z'),
                      self.mapping, self.follow]); self.apply()
         self.assert_mapping(3536353 - 764695)
         self.assertEqual(self.claim()['scanned_at'], '')
@@ -150,7 +150,7 @@ class UnsoldMappingRegressionTests(unittest.TestCase):
     def test_live_context_survives_startup_repair(self):
         original = self.path.read_text()
         self.path.write_text(json.dumps(dict(event='Fileheader', gameversion='4.4.1.1',
-            timestamp='2026-09-08T14:00:00Z')) + '\n' + original)
+            timestamp='2016-09-10T14:00:00Z')) + '\n' + original)
         self.corrupt()
         result = self.repair()[0]
         self.assertEqual(result['status'], 'complete')
@@ -201,9 +201,9 @@ class UnsoldMappingRegressionTests(unittest.TestCase):
                 self_mapped=True, efficient_mapping=True, was_discovered=False, was_mapped=False,
                 mapped_at=self.mapping['timestamp'], probes_used=7, efficiency_target=7)]), self.cid)
         self.append([self.scan, self.mapping,
-                     dict(event='SellExplorationData', timestamp='2026-09-08T15:25:00Z')]); self.apply()
+                     dict(event='SellExplorationData', timestamp='2016-09-10T15:25:00Z')]); self.apply()
         self.db = CMDRDatabase(self.db.path)
-        self.append([dict(self.follow,timestamp='2026-09-08T15:26:00Z')]); self.apply()
+        self.append([dict(self.follow,timestamp='2016-09-10T15:26:00Z')]); self.apply()
         self.assertEqual(self.claim()['raw_estimated_value'],764695)
         self.assertFalse(self.claim()['self_mapped'])
 

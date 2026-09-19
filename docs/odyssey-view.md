@@ -46,24 +46,19 @@ deduplicates observational `CollectItems` events. Consumption, transfer, unknown
 states and historical changes on first loading do not produce a pickup label.
 Re-reading the same source does not restart the highlight.
 
-## Validation on 2026-09-08
+## Reference validation
 
-Read-only reconstruction of the 411 FABER38 sessions and UI projection confirmed:
+The anonymized fixture verifies UI projection before and after Embark:
 
-| UTC cutoff | Locker | Backpack | Total |
+| Reference state | Locker | Backpack | Total |
 |---|---:|---:|---:|
-| 14:58:01 | 3131 | 8 | 3139 |
-| 14:58:26, after Embark | 3139 | 0 | 3139 |
+| Simultaneous snapshots | 3131 | 8 | 3139 |
+| 25 seconds later, after Embark | 3139 | 0 | 3139 |
 
-Vehicle Schematic remains quantity 1, mission 1064707191, completed. Manufacturing
+Vehicle Schematic remains quantity 1 with a completed mission. Manufacturing
 Instructions 68, Weapon Test Data 34, Graphene 3, Microelectrode 113, Medkit 100 and
-Energy Cell 100 are preserved. Cold reconstruction took approximately 4.2 s;
-repeat reconstruction about 25 ms in this environment.
-
-The later journal state at 16:08:45 UTC follows Disembark without a reliable new
-snapshot pair: O1 correctly reports unknown. Historical screenshots must not be
-interpreted as the current live state. Dark/Light examples of the safe 14:58:26
-state were rendered to `/tmp/cmdrhelper-odyssey-{dark,light}-{goods,data}.png`.
+Energy Cell 100 are retained as regression expectations. A later Disembark without
+a reliable new snapshot pair reports unknown. Both themes use the same safe model.
 
 31 new UI keys are present in all 12 UI languages. Item name coverage remains
 O2's: en/es 223, de 221, it 217, fr 205; no/sv/fi/pl/nl/tr/el use English fallback.

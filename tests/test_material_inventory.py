@@ -1,4 +1,5 @@
 import json
+import os
 import sqlite3
 import tempfile
 import time
@@ -36,13 +37,13 @@ class MaterialInventoryTests(unittest.TestCase):
     def read(self, *events):
         return self.reader.reconstruct(1, "F1", [self.session(events=list(events))])
 
-    def test_portable_faber38_original_material_events(self):
-        fixture = Path(__file__).parent / "fixtures" / "materials_faber38.json"
+    def test_portable_reference_original_material_events(self):
+        fixture = Path(__file__).parent / "fixtures" / "materials_reference.json"
         events = json.loads(fixture.read_text())
         session = self.session(fid="FTEST0001", events=events)
         result = self.reader.reconstruct(1, "FTEST0001", [session])
         self.assertTrue(result.known, result.issues)
-        self.assertEqual(result.snapshot_timestamp, "2026-09-08T10:37:28Z")
+        self.assertEqual(result.snapshot_timestamp, "2016-09-10T10:37:28Z")
         for name, count in dict(sulphur=300, vanadium=244, tin=53,
                                 molybdenum=63, niobium=53, yttrium=35).items():
             self.assertEqual(result.material(name).count, count, name)
@@ -237,20 +238,25 @@ class MaterialInventoryTests(unittest.TestCase):
 
 
 class RealMaterialInventoryTests(unittest.TestCase):
-    def test_faber38_original_journals(self):
-        database = Path(__file__).resolve().parents[1] / "data" / "cmdrhelper.db"
-        if not database.exists():
-            self.skipTest("local FABER38 database unavailable")
+    def test_reference_original_journals(self):
+        database_path = os.environ.get("CMDRHELPER_TEST_DATABASE")
+        commander_name = os.environ.get("CMDRHELPER_TEST_COMMANDER")
+        journal_until = os.environ.get("CMDRHELPER_TEST_JOURNAL_UNTIL")
+        if not all((database_path, commander_name, journal_until)):
+            self.skipTest("opt-in reference DB test: set CMDRHELPER_TEST_DATABASE, "
+                          "CMDRHELPER_TEST_COMMANDER and CMDRHELPER_TEST_JOURNAL_UNTIL")
+        database = Path(database_path).expanduser().resolve()
+        self.assertTrue(database.is_file(), "configured reference database unavailable")
         with sqlite3.connect(database.as_uri() + "?mode=ro&immutable=1", uri=True) as connection:
             connection.row_factory = sqlite3.Row
-            commander = connection.execute("SELECT id,fid FROM commanders WHERE current_name='FABER38' COLLATE NOCASE").fetchone()
-            if commander is None:
-                self.skipTest("local FABER38 commander unavailable")
+            commander = connection.execute("SELECT id,fid FROM commanders WHERE current_name=? COLLATE NOCASE", (commander_name,)).fetchone()
+            self.assertIsNotNone(commander, "configured reference commander unavailable")
             sessions = [dict(row) for row in connection.execute(
-                "SELECT * FROM journal_sessions WHERE commander_id=? AND journal_file<=? ORDER BY journal_file",
-                (commander[0], str(Path(connection.execute("SELECT journal_file FROM journal_sessions ORDER BY journal_file DESC LIMIT 1").fetchone()[0]).parent / "Journal.2026-09-08T123632.01.log")))]
-        if not sessions or not all(Path(s["journal_file"]).exists() for s in sessions):
-            self.skipTest("original FABER38 journal files unavailable")
+                "SELECT * FROM journal_sessions WHERE commander_id=? ORDER BY journal_file",
+                (commander["id"],)) if Path(row["journal_file"]).name <= journal_until]
+        self.assertTrue(sessions, "no reference sessions selected")
+        self.assertTrue(all(Path(s["journal_file"]).is_file() for s in sessions),
+                        "configured reference journals unavailable")
         reader = MaterialInventoryReader()
         started = time.perf_counter()
         result = reader.reconstruct(commander[0], commander["fid"], sessions)
@@ -278,5 +284,5 @@ class RealMaterialInventoryTests(unittest.TestCase):
         self.assertEqual(sum(row.count == 0 for row in rows.values()), 28)
         self.assertTrue(all(rows[s].count == 0 for s in rows if s not in result.stocks))
         self.assertEqual(tuple(rows.values()), merge_inventory(again))
-        print(f"\nFABER38: {len(sessions)} journals; cold={cold:.3f}s warm={warm:.3f}s")
+        print(f"\nReference: {len(sessions)} journals; cold={cold:.3f}s warm={warm:.3f}s")
         print(f"Catalog: {len(rows)} rows; projection={projection * 1000:.3f}ms; vanadium=244/250 (97.6%)")

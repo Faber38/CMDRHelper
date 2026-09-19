@@ -38,27 +38,15 @@ Die vorhandene große Detailansicht zeigt bekannte Zusatzinformationen, kompakte
 
 Die Anfrage übermittelt nur die öffentliche id64 sowie feste HTTP-Header. Keine FID, Commandernamen, Inventare oder sonstige Commanderinformationen.
 
-## Einmaliger Realtest am 16.09.2026
+## Referenzfälle für die Zusammenführung
 
-Plio Aihm UC-V d2-159, id64 **5474145570075**, wurde einmal gezielt abgefragt. Empfang: **2026-09-16 12:08:38 UTC**; Spansh-Systemdatenstand: **2026-09-13 23:11:44 UTC**. Einzelne Stationen haben ältere eigene Zeitstempel.
-
-70 gelieferte Einträge, davon sechs Carrier ausgeschlossen: **64 externe Einrichtungen** im lokalen Cache (37.845 Bytes). Zusammen mit Journalwissen: **65 eindeutige MarketIDs**, davon **32 mit sicherem Parent**, **33 ohne Parent**. Der eigene Carrier ist genau einmal enthalten.
-
-| Einrichtung | MarketID | Parent im Anzeigemodell | Pads L/M/S |
-| --- | --- | --- | --- |
-| Ridorana Metalworks | 4359793667 | 9 g / 49 | 4/4/4 |
-| Ridorana Forge | 4362443267 | unbekannt | 7/14/8 |
-| Ridorana City | 4360397059 | unbekannt | 6/10/6 |
-| Sori Relay | 4361726723 | unbekannt | 0/1/3 |
-| Bulgarin Vision | 4361762051 | unbekannt | 0/1/3 |
-| Ridorana Labs | 4366241539 | unbekannt | 5/12/8 |
-| Eigener Carrier B5Y-8XN | 3705965312 | 7 d / 37 | nicht ergänzt |
-
-Die fünf bisher unbekannten Parents werden auch durch diese Spansh-Antwort nicht aufgelöst. Metalworks wird explizit unter Körper 49 geliefert. Bei Labs widerspricht Spansh mit `Coriolis Starport` dem historischen Journaltyp `SurfaceStation`; Journaltyp bleibt erhalten, Abweichung wird intern markiert.
-
-Beispiel Forge: Federation, Democracy, Explorers of Nabudis, Refinery, Entfernung 3074,868464 ls; Services Markt, Ausstattung, Werft, Universal Cartographics, Vista Genomics, Reparatur, Auftanken, Munition und Search and Rescue. Es werden ausschließlich tatsächlich gelieferte Services angezeigt.
-
-Der Testcache liegt ausschließlich im oben genannten lokalen Benutzerpfad. Die Option wurde nicht automatisch aktiviert. Die reale DB wurde nur gelesen: Schema **20**, **336 station_observations**; Datei-Hash unverändert. Kein fachfremder Import, keine Migration.
+Die Offline-Tests decken einen Carrier ausschließlich aus Journal-/Eigentumsdaten,
+eine Oberflächenstation mit sicherem Parent und Orbitalstationen ohne Parent ab.
+Spansh darf fehlende Parents ergänzen, wenn dafür ein expliziter Beleg vorliegt.
+Eine bloße Stations-BodyID reicht nicht. Widerspricht der externe Typ einem
+Journalbeleg, bleibt der Journaltyp erhalten; die Abweichung wird intern markiert.
+Services, Pads und Ankunftsentfernung werden nur aus tatsächlich gelieferten
+Feldern angezeigt. Externe Carrier werden nicht zusätzlich importiert.
 
 ## Gezielte Prüfung und Dateien
 

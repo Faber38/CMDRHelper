@@ -65,8 +65,7 @@ It never enlarges a small system automatically. The shared geometry is saved und
 
 ## Offline regression data and images
 
-`tests/fixtures/system_overview_saved.json` was extracted through the existing
-Chronicle projection using a read-only SQLite connection to the local database:
+`tests/fixtures/system_overview_saved.json` contains anonymized reference data in the existing Chronicle projection format:
 
 | System | Address | Bodies | Purpose |
 | --- | --- | ---: | --- |
@@ -74,8 +73,8 @@ Chronicle projection using a read-only SQLite connection to the local database:
 | Slengie EM-A b28-0 | 712025519345 | 39 | Planets, moons and belt clusters |
 | Prua Hypai VF-C d14-126 | 4340324470011 | 46 | Two stars, child planets, submoon and belts |
 
-The fixtures retain commander ID 1 and the saved body data; no database migration
-or update was performed. Tests also cover synthetic barycentres, missing parents,
+The fixtures use synthetic commander ID 1 and uniformly shifted timestamps.
+Public astronomical identities, hierarchy, physical values and layout geometry remain unchanged. Tests also cover synthetic barycentres, missing parents,
 cycles and 64-body layouts.
 
 Generate native-size full-scene images and actual window screenshots for both themes:
@@ -88,8 +87,7 @@ The output contains `small`, `complex` and `binary`, each with `dark`/`light` an
 `window`/`full` PNG variants. No new body assets are generated.
 
 The belt regression fixture `tests/fixtures/system_overview_plio_aip.json` contains
-**Plio Aip KN-B d13-201** (address 6917724327283), loaded read-only through the same
-Chronicle projection. Its 24 saved bodies include five A Belt clusters and ten
+**Plio Aip KN-B d13-201** (address 6917724327283), represented in the same Chronicle projection format. Its 24 saved bodies include five A Belt clusters and ten
 B Belt clusters. These render as two belt elements; the five moons of planet 2
 retain their recorded pre-grouping relative layout, parents and sizes.
 

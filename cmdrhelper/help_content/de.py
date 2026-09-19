@@ -194,8 +194,8 @@ HELP_TOPICS = {
 <h3>ABBAU ×N</h3>
 <p>ABBAU ×N zeigt die Anzahl der von Elite Dangerous gemeldeten planetaren Abbaustandorte eines Körpers.</p>
 <p>Beispiel:</p>
-<p><b>ABBAU ×24</b></p>
-<p>bedeutet, dass für diesen Body 24 planetare Abbaustandorte gemeldet wurden.</p>
+<p><b>ABBAU ×12</b></p>
+<p>bedeutet, dass für diesen Body 12 planetare Abbaustandorte gemeldet wurden.</p>
 <p>Die Zahl sagt nicht, welcher Rohstoff an einem einzelnen Standort gewonnen werden kann.</p>
 
 <h3>Eigene Abbau-Funde</h3>
@@ -207,8 +207,8 @@ HELP_TOPICS = {
 <li>allgemeinen Oberflächenmaterialien des Bodys</li>
 </ul>
 <p>Ein Beispiel für einen persönlichen Fund wäre:</p>
-<p><b>Kupfer – 56 t</b></p>
-<p>Diese Angabe bedeutet, dass dieser Commander dort tatsächlich 56 t Kupfer gewonnen hat.</p>
+<p><b>Kupfer – 40 t</b></p>
+<p>Diese Angabe bedeutet, dass dieser Commander dort tatsächlich 40 t Kupfer gewonnen hat.</p>
 <p>Die persönlichen Abbau-Funde werden commanderbezogen gespeichert und nicht mit den Funden anderer Commander vermischt.</p>
 
 <h3>Oberflächenmaterialien des Bodys</h3>
@@ -437,7 +437,7 @@ HELP_TOPICS = {
 <p>Ist „Eigene Abbau-Funde“ aktiviert, steht zusätzlich die Auswahl „Rohstoff“ zur Verfügung.</p>
 <p>Die Liste enthält ausschließlich Commodities, die der betrachtete Commander tatsächlich schon selbst beim Surface Mining gewonnen hat.</p>
 <p>Es handelt sich nicht um eine theoretische Liste aller möglichen Mining-Rohstoffe.</p>
-<p>Für FABER38 kann beispielsweise erscheinen:</p>
+<p>Für EXAMPLE kann beispielsweise erscheinen:</p>
 <ul>
 <li>Alle</li>
 <li>Kupfer</li>
@@ -447,16 +447,16 @@ HELP_TOPICS = {
 <h3>Gezielte Rohstoffsuche</h3>
 <p>Wird beispielsweise „Kupfer“ ausgewählt und anschließend „Anwenden“ gedrückt, zeigt die Chronik nur Bodies, auf denen der betrachtete Commander nachweislich Kupfer abgebaut hat.</p>
 <p>Beispiel:</p>
-<p><b>Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — Kupfer 56 t</b></p>
+<p><b>Example System / 2 — ABBAU ×12 — Kupfer 40 t</b></p>
 <p>Damit kann die Chronik als persönliche Fundort-Datenbank verwendet werden: Ein bereits früher abgebauter Rohstoff lässt sich später gezielt wiederfinden.</p>
 
 <h3>Alle Rohstoffe</h3>
 <p>Bei „Rohstoff: Alle“ werden alle passenden persönlichen Surface-Mining-Funde berücksichtigt.</p>
 <p>Sind auf einem Body mehrere Commodities bekannt, können diese mit ihren bisher selbst gewonnenen Mengen gemeinsam angezeigt werden.</p>
 <p>Beispiel:</p>
-<p><b>ABBAU ×24 — Helium-3 18 t, Kupfer 56 t</b></p>
+<p><b>ABBAU ×12 — Helium-3 10 t, Kupfer 40 t</b></p>
 <p>Die Mengen sind persönliche, tatsächlich aus Journalereignissen belegte Abbauwerte des jeweiligen Commanders.</p>
-<p>Auch bei aktivem Zeitraum bleiben persönliche Mining-Mengen gespeicherte Gesamtmengen. <b>Kupfer 56 t</b> bedeutet nicht automatisch <b>56 t im ausgewählten Zeitraum</b>. Der Zeitraum verlangt einen passenden Systembesuch, begrenzt aber nicht die angezeigte Abbaumenge auf diesen Zeitraum.</p>
+<p>Auch bei aktivem Zeitraum bleiben persönliche Mining-Mengen gespeicherte Gesamtmengen. <b>Kupfer 40 t</b> bedeutet nicht automatisch <b>40 t im ausgewählten Zeitraum</b>. Der Zeitraum verlangt einen passenden Systembesuch, begrenzt aber nicht die angezeigte Abbaumenge auf diesen Zeitraum.</p>
 
 <h3>Filter kombinieren</h3>
 <p>Freitext, aktivierte Von-/Bis-Grenzen und Mining-Filter können miteinander kombiniert werden. Ein Treffer muss die gesetzten Bedingungen gemeinsam erfüllen.</p>
@@ -672,7 +672,7 @@ HELP_TOPICS = {
 
 <h3>Commanderwechsel während der Verarbeitung</h3>
 <p>Commander, FID und System werden beim Einreihen eines Screenshots gemeinsam festgehalten.</p>
-<p>Ein späterer Commanderwechsel verändert die Zuordnung dieses bereits wartenden Bildes nicht. Ein Screenshot von FABER38 wird dadurch nicht nachträglich in den Ordner eines anderen Commanders geschrieben.</p>
+<p>Ein späterer Commanderwechsel verändert die Zuordnung dieses bereits wartenden Bildes nicht. Ein Screenshot von EXAMPLE wird dadurch nicht nachträglich in den Ordner eines anderen Commanders geschrieben.</p>
 
 <h3>Galerie</h3>
 <p>Die Galerie zeigt PNG-, JPG- und JPEG-Dateien aus den zum gewählten Filter gehörenden Verzeichnissen. Neue, gelöschte oder verschobene Bilder werden regelmäßig erkannt.</p>
@@ -721,7 +721,7 @@ HELP_TOPICS = {
 <li><b>Neue Bilder speichern:</b> Die beim Einreihen aktive Journalidentität mit Commander und FID bestimmt den Zielordner.</li>
 <li><b>Bilder anzeigen:</b> Der betrachtete Commander beziehungsweise der ausgewählte Galeriefilter bestimmt die sichtbaren Bilder.</li>
 </ul>
-<p>So kann die Galerie eines anderen Commanders betrachtet werden, während FABER38 gespielt wird, ohne dass neue Screenshots im Ordner des betrachteten Commanders landen.</p>
+<p>So kann die Galerie eines anderen Commanders betrachtet werden, während EXAMPLE gespielt wird, ohne dass neue Screenshots im Ordner des betrachteten Commanders landen.</p>
 
 <h3>Tipp</h3>
 <p>Ein gemeinsamer Screenshot-Stammordner reicht aus. CMDRHelper übernimmt darunter für neu verarbeitete Bilder automatisch die Trennung nach Commander und FID.</p>
@@ -740,7 +740,7 @@ HELP_TOPICS = {
 
 <h3>Betrachteter Commander und Live-Commander</h3>
 <p>Das Auswählen eines anderen Commanders in der CMDR Ansicht macht ihn nicht zum aktiven Journal-Commander.</p>
-<p>Der Live-Commander wird ausschließlich aus der aktuell eindeutig identifizierten Elite-Dangerous-Journalsitzung bestimmt. So kann die Historie eines anderen Commanders betrachtet werden, während Elite Dangerous weiterhin mit FABER38 läuft.</p>
+<p>Der Live-Commander wird ausschließlich aus der aktuell eindeutig identifizierten Elite-Dangerous-Journalsitzung bestimmt. So kann die Historie eines anderen Commanders betrachtet werden, während Elite Dangerous weiterhin mit EXAMPLE läuft.</p>
 
 <h3>Frontier-ID (FID)</h3>
 <p>Die FID ist die stabile Frontier-Kennung eines Commanders.</p>
@@ -777,11 +777,11 @@ HELP_TOPICS = {
 <h3>Aktuell und Ausgaben</h3>
 <p>„Aktuell“ zeigt <code>MercCoins_Current</code>. „Insgesamt ausgegeben“ übernimmt <code>MercCoins_Total_Spent</code>.</p>
 <p>„Engineering“ und „Ausrüstung“ zeigen die von Frontier separat gemeldeten Anteile <code>MercCoins_Spent_On_Engineering</code> und <code>MercCoins_Spent_On_MercGear</code>.</p>
-<p>Für FABER38 wurden beispielsweise ein aktueller Bestand von <b>1.275</b>, insgesamt <b>220</b> ausgegeben und davon <b>220</b> für Engineering gemeldet.</p>
+<p>Für EXAMPLE wurden beispielsweise ein aktueller Bestand von <b>1.000</b>, insgesamt <b>200</b> ausgegeben und davon <b>200</b> für Engineering gemeldet.</p>
 
 <h3>Insgesamt verdient</h3>
 <p>„Von Frontier gemeldet: insgesamt verdient“ zeigt <code>MercCoins_Total_Earned</code>. CMDRHelper berechnet daraus keine eigene Bilanz.</p>
-<p>Frontiers kumulierter Wert muss rechnerisch nicht zum aktuellen Bestand und den gemeldeten Ausgaben passen. Beispielsweise können gleichzeitig 1.275 aktuell, 25 insgesamt verdient und 220 insgesamt ausgegeben gemeldet sein.</p>
+<p>Frontiers kumulierter Wert muss rechnerisch nicht zum aktuellen Bestand und den gemeldeten Ausgaben passen. Beispielsweise können gleichzeitig 1.000 aktuell, 25 insgesamt verdient und 200 insgesamt ausgegeben gemeldet sein.</p>
 <p>CMDRHelper korrigiert diese Werte nicht, sondern zeigt die einzelnen Frontier-Zähler unverändert an.</p>
 
 <h3>Warum keine eigene MercCoins-Bilanz?</h3>

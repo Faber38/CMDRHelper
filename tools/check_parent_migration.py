@@ -30,7 +30,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('backup', type=Path)
     parser.add_argument('--journals', type=Path)
-    parser.add_argument('--reference-341', action='store_true', help='Assert the known original 3.4 backup totals')
+    parser.add_argument('--system', action='append', default=[],
+                        help='Optional system name to include in the regression report')
+    parser.add_argument('--reference-341', action='store_true', help='Assert the aggregate 3.4 reference regression totals')
     parser.add_argument('--app-version', help='Simulate a later runtime without changing version.py')
     args = parser.parse_args()
     if args.app_version:
@@ -109,8 +111,7 @@ def main():
                     for other, other_rect in rects[i+1:]:
                         assert not rect.intersects(other_rect), (system['name'], key, other, build.__name__)
             layouts += 1
-            if system['name'] in ('Plio Aihm UC-V d2-159', 'Prieluia NL-O c6-30',
-                                   'Puekee TF-N c20-600', 'Granoae LI-Z d1-1949'):
+            if system['name'] in args.system:
                 regressions[system['name']] = len(bodies)
     assert digest(source) == original_hash
     assert journals_before == {p: digest(p) for p in inventory(folder)}

@@ -253,8 +253,8 @@ HELP_TOPICS = {
               "<p>ABBAU ×N montre le nombre de sites miniers planétaires d'un corps rapporté par "
               'Elite Dangerous.</p>\n'
               '<p>Exemple:</p>\n'
-              '<p><b>ABBAU ×24</b></p>\n'
-              '<p>Cela signifie que 24 sites miniers planétaires ont été signalés pour cet '
+              '<p><b>ABBAU ×12</b></p>\n'
+              '<p>Cela signifie que 12 sites miniers planétaires ont été signalés pour cet '
               'organisme.</p>\n'
               '<p>Le chiffre ne précise pas quelle matière première peut être extraite en un seul '
               'endroit.</p>\n'
@@ -270,8 +270,8 @@ HELP_TOPICS = {
               '<li>matériaux de surface généraux du corps</li>\n'
               '</ul>\n'
               '<p>Un exemple de découverte personnelle serait\xa0:</p>\n'
-              '<p><b>Cuivre – 56 tonnes</b></p>\n'
-              '<p>Cette information signifie que ce commandant y a effectivement extrait 56 t de '
+              '<p><b>Cuivre – 40 tonnes</b></p>\n'
+              '<p>Cette information signifie que ce commandant y a effectivement extrait 40 t de '
               'cuivre.</p>\n'
               '<p>Les découvertes minières personnelles sont enregistrées pour chaque commandant '
               'et ne sont pas mélangées avec les découvertes des autres commandants.</p>\n'
@@ -525,7 +525,7 @@ HELP_TOPICS = {
 <p>Lorsque « Mes découvertes minières » est activé, la sélection « Marchandise » est également disponible.</p>
 <p>La liste ne contient que les marchandises que le commandant consulté a réellement extraites en surface.</p>
 <p>Il ne s’agit pas d’une liste théorique de toutes les matières premières minières possibles.</p>
-<p>Pour FABER38, la sélection peut par exemple contenir :</p>
+<p>Pour EXAMPLE, la sélection peut par exemple contenir :</p>
 <ul>
 <li>Tous</li>
 <li>cuivre</li>
@@ -535,16 +535,16 @@ HELP_TOPICS = {
 <h3>Recherche ciblée de matières premières</h3>
 <p>Si « Cuivre » est sélectionné puis « Appliquer » activé, la chronique ne montre que les corps sur lesquels le commandant consulté a effectivement extrait du cuivre.</p>
 <p>Exemple:</p>
-<p><b>Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — cuivre 56 t</b></p>
+<p><b>Example System / 2 — ABBAU ×12 — cuivre 40 t</b></p>
 <p>Cela signifie que la chronique peut être utilisée comme base de données de localisation personnelle : une matière première déjà extraite peut être retrouvée ultérieurement.</p>
 
 <h3>Toutes les matières premières</h3>
 <p>« Marchandise : Tous » prend en compte toutes les découvertes personnelles d’extraction de surface correspondantes.</p>
 <p>Si plusieurs marchandises sont connues sur un corps, elles peuvent être affichées avec les quantités que le commandant a lui-même extraites jusqu’à présent.</p>
 <p>Exemple:</p>
-<p><b>ABBAU ×24 — Hélium-3 18 t, cuivre 56 t</b></p>
+<p><b>ABBAU ×12 — Hélium-3 10 t, cuivre 40 t</b></p>
 <p>Les quantités sont les quantités personnelles extraites par le commandant concerné, effectivement attestées par les événements du journal.</p>
-<p>Même lorsqu’une période est active, les quantités personnelles extraites restent des quantités totales enregistrées. <b>Cuivre 56 t</b> ne signifie pas automatiquement <b>56 t pendant la période sélectionnée</b>. La période exige une visite de système correspondante, mais ne limite pas la quantité extraite affichée à cette période.</p>
+<p>Même lorsqu’une période est active, les quantités personnelles extraites restent des quantités totales enregistrées. <b>Cuivre 40 t</b> ne signifie pas automatiquement <b>40 t pendant la période sélectionnée</b>. La période exige une visite de système correspondante, mais ne limite pas la quantité extraite affichée à cette période.</p>
 
 <h3>Combiner les filtres</h3>
 <p>Le texte libre, les bornes Du/Au activées et les filtres miniers peuvent être combinés. Un résultat doit satisfaire simultanément les conditions définies.</p>
@@ -845,7 +845,7 @@ HELP_TOPICS = {
             '<p>Le Commander, le FID et le système sont capturés ensemble lors de la mise en file '
             "d'attente d'une capture d'écran.</p>\n"
             '<p>Un changement ultérieur de commandant ne modifie pas l’affectation de cette image '
-            "déjà en attente. Cela signifie qu'une capture d'écran de FABER38 n'est pas ensuite "
+            "déjà en attente. Cela signifie qu'une capture d'écran de EXAMPLE n'est pas ensuite "
             "écrite dans le dossier d'un autre commandant.</p>\n"
             '\n'
             '<h3>galerie</h3>\n'
@@ -930,7 +930,7 @@ HELP_TOPICS = {
             'sélectionné détermine les images visibles.</li>\n'
             '</ul>\n'
             "<p>Cela signifie que la galerie d'un autre commandant peut être consultée pendant la "
-            "lecture de FABER38 sans que de nouvelles captures d'écran ne finissent dans le "
+            "lecture de EXAMPLE sans que de nouvelles captures d'écran ne finissent dans le "
             'dossier du commandant en question.</p>\n'
             '\n'
             '<h3>Conseil</h3>\n'
@@ -961,7 +961,7 @@ HELP_TOPICS = {
                     '<p>Le commandant réel est déterminé exclusivement à partir de la session de '
                     'journal Elite Dangerous actuellement identifiée de manière unique. De cette '
                     "façon, l'historique d'un autre commandant peut être consulté pendant que le "
-                    'Elite Dangerous continue de fonctionner avec FABER38.</p>\n'
+                    'Elite Dangerous continue de fonctionner avec EXAMPLE.</p>\n'
                     '\n'
                     '<h3>ID Frontier (FID)</h3>\n'
                     "<p>Le FID est l'identifiant stable Frontier d'un commandant.</p>\n"
@@ -1013,8 +1013,8 @@ HELP_TOPICS = {
                     '<p>«\xa0Ingénierie\xa0» et «\xa0Équipement\xa0» montrent les parts déclarées '
                     'séparément par '
                     'Frontier<code>MercCoins_Spent_On_Engineering</code>et<code>MercCoins_Spent_On_MercGear</code>.</p>\n'
-                    '<p>Pour FABER38, par exemple, un inventaire actuel de<b>1 275</b>, au '
-                    "total<b>220</b>dépensé et parti<b>220</b>signalé pour l'ingénierie.</p>\n"
+                    '<p>Pour EXAMPLE, par exemple, un inventaire actuel de<b>1 000</b>, au '
+                    "total<b>200</b>dépensé et parti<b>200</b>signalé pour l'ingénierie.</p>\n"
                     '\n'
                     '<h3>Globalement mérité</h3>\n'
                     '<p>«\xa0Rapporté par Frontier\xa0: gagné globalement\xa0» '
@@ -1022,7 +1022,7 @@ HELP_TOPICS = {
                     'propre bilan à partir de cela.</p>\n'
                     "<p>Il n'est pas nécessaire que la valeur cumulée de Frontier corresponde "
                     "mathématiquement à l'inventaire actuel et aux dépenses déclarées. Par "
-                    'exemple, 1\xa0275\xa0actuels, 25\xa0au total gagnés et 220 au total dépensés '
+                    'exemple, 1\xa0275\xa0actuels, 25\xa0au total gagnés et 200 au total dépensés '
                     'peuvent être déclarés en même temps.</p>\n'
                     '<p>CMDRHelper ne corrige pas ces valeurs, mais affiche les compteurs '
                     'individuels Frontier inchangés.</p>\n'

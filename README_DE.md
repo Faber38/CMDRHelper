@@ -74,9 +74,7 @@ CMDRHelper prüft beim Start auf Updates und besitzt einen integrierten Updater.
 - Stabilere Mining-Bestände mit sichereren Cargo-Snapshots, Transfer-Nachholung und geprüfter Speicherung.
 - Fresh-Install-Migrationsfehler behoben; Chronik-Kopiersymbol und Aktualisierung verdeckter Ansichten verbessert.
 
-![Odyssey-Materialverwaltung mit Schließfach, Rucksack und automatisch fortgeschriebenem Fleet-Carrier-Bestand](cmdrhelper/assets/readme/cmdrhelper_v3_5.png)
-
-Schließfach und Rucksack verwenden die validierten aktuellen ShipLocker-/Backpack-Daten. Waren, Materialien und Daten zeigen jeweils ihre persönliche Schließfachbelegung mit eigener Kapazität 1000. Gesamt umfasst Schließfach + Rucksack + Carrier nur bei bekannten, kohärenten Teilbeständen. Käufe, Verkäufe und Tausch werden von privaten Transfers unterschieden. Nach Neustart wird der Standort rekonstruiert und eine neue persönliche Basis gesetzt; verpasste Odyssey-Transfers werden nicht erfunden. Beispiel aus dem Spiel: 713 vorhandene Einheiten + 121 für Kaufangebote reservierte Plätze = 834 / 1000 Lagerbelegung. Die 121 sind kein Materialbestand. Veraltete oder unsichere Marktdaten ergeben keine berechnete aktuelle Lagerbelegung.
+Schließfach und Rucksack verwenden die validierten aktuellen ShipLocker-/Backpack-Daten. Waren, Materialien und Daten zeigen jeweils ihre persönliche Schließfachbelegung mit eigener Kapazität 1000. Gesamt umfasst Schließfach + Rucksack + Carrier nur bei bekannten, kohärenten Teilbeständen. Käufe, Verkäufe und Tausch werden von privaten Transfers unterschieden. Nach Neustart wird der Standort rekonstruiert und eine neue persönliche Basis gesetzt; verpasste Odyssey-Transfers werden nicht erfunden. Fiktives Beispiel: 500 vorhandene Einheiten + 100 für Kaufangebote reservierte Plätze = 600 / 1000 Lagerbelegung. Die 100 sind kein Materialbestand. Veraltete oder unsichere Marktdaten ergeben keine berechnete aktuelle Lagerbelegung.
 
 ### Carrierbestand einrichten
 

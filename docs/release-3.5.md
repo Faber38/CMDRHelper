@@ -5,8 +5,6 @@ Stabilitätsarbeiten. Neue Funktionen während der Releasevorbereitung sind nich
 Teil dieses Releases. Die bestehenden Datenbank- und Einstellungsnamensräume
 bleiben erhalten; es gibt keine neue DB-Schemamigration.
 
-![Odyssey-Materialverwaltung mit Schließfach, Rucksack und automatisch fortgeschriebenem Fleet-Carrier-Bestand](../cmdrhelper/assets/readme/cmdrhelper_v3_5.png)
-
 ## Performance und Live-Verarbeitung
 
 - Die Chronik verwendet Kameratransformationen und Projektionen für denselben
@@ -71,13 +69,13 @@ Das private Odyssey-Carrierlager teilt gemeinsam 1000 Plätze über Waren,
 Materialien und Daten. Offene Barkeeper-Kaufangebote reservieren zusätzlich
 Kapazität; sie sind keine vorhandenen Materialien.
 
-**Praxisbeispiel, keine festen Programmdaten:**
+**Fiktives Beispiel, keine festen Programmdaten:**
 
 | Größe | Einheiten |
 |---|---:|
-| Vorhandener Carrierbestand | 713 |
-| Für Kaufangebote reserviert | 121 |
-| Ingame-Lagerbelegung | 834 / 1000 |
+| Vorhandener Carrierbestand | 500 |
+| Für Kaufangebote reserviert | 100 |
+| Ingame-Lagerbelegung | 600 / 1000 |
 
 Die Anzeige trennt Carrierbestand und Lagerbelegung. FCMaterials liefert dafür
 nur die offenen Demand-Mengen eines passenden numerischen MarketID-Snapshots.

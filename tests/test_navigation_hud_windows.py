@@ -95,7 +95,7 @@ class WindowsHudTests(unittest.TestCase):
     def test_cargo_group_uses_native_backend_independently_with_message_expiry(self):
         from PySide6.QtTest import QSignalSpy
         from cmdrhelper.ui.cargo_hud import CargoHudData
-        data = CargoHudData("ERFT-BÜFFEL", 128, 256)
+        data = CargoHudData("TEST-BÜFFEL", 128, 256)
         self.hud.cargo_provider = lambda: data
         with patch.object(self.hud, 'activateWindow', side_effect=AssertionError), \
              patch.object(self.hud, 'raise_', side_effect=AssertionError), \

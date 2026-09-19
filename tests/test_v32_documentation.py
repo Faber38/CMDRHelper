@@ -180,7 +180,7 @@ class DocumentationReleaseTests(unittest.TestCase):
                 self.assertEqual(result.returncode, 0 if name in ignored else 1, name)
 
     def test_portable_material_fixture_uses_neutral_identity(self):
-        fixture = (ROOT / 'tests/fixtures/materials_faber38.json').read_text()
+        fixture = (ROOT / 'tests/fixtures/materials_reference.json').read_text()
         self.assertNotRegex(fixture, r'\bF\d{6,}\b')
         records = json.loads(fixture)
         identities = {e['FID'] for e in records if 'FID' in e}

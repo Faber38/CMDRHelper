@@ -217,10 +217,10 @@ class OdysseyInventoryTests(unittest.TestCase):
         (Path(self.tmp.name) / 'Backpack.json').write_text(json.dumps(self.pair()[1]))
         self.assertEqual(self.reader.reconstruct(1, 'F1', [a]).total_count, 12)
 
-    def test_real_faber38_synchronous_and_after_embark(self):
-        records = json.loads((Path(__file__).parent / 'fixtures/odyssey_faber38.json').read_text())
+    def test_real_reference_synchronous_and_after_embark(self):
+        records = json.loads((Path(__file__).parent / 'fixtures/odyssey_reference.json').read_text())
         session = self.session(records, fid='FTEST0001')
-        pair = self.reader.reconstruct(1, 'FTEST0001', [session], until='2026-09-08T14:58:01Z')
+        pair = self.reader.reconstruct(1, 'FTEST0001', [session], until='2016-09-10T14:58:01Z')
         after = self.reader.reconstruct(1, 'FTEST0001', [session])
         self.assertEqual(pair.total_count, 3139)
         self.assertEqual(after.total_count, 3139)

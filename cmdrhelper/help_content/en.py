@@ -240,8 +240,8 @@ HELP_TOPICS = {
               '<p>ABBAU ×N shows the number of planetary mining sites of a body reported by Elite '
               'Dangerous.</p>\n'
               '<p>Example:</p>\n'
-              '<p><b>ABBAU ×24</b></p>\n'
-              '<p>means that 24 planetary mining sites have been reported for this body.</p>\n'
+              '<p><b>ABBAU ×12</b></p>\n'
+              '<p>means that 12 planetary mining sites have been reported for this body.</p>\n'
               '<p>The number does not say which raw material can be extracted at a single '
               'location.</p>\n'
               '\n'
@@ -255,8 +255,8 @@ HELP_TOPICS = {
               '<li>general surface materials of the body</li>\n'
               '</ul>\n'
               '<p>An example of a personal find would be:</p>\n'
-              '<p><b>Copper – 56 t</b></p>\n'
-              '<p>This information means that this commander actually extracted 56 t of copper '
+              '<p><b>Copper – 40 t</b></p>\n'
+              '<p>This information means that this commander actually extracted 40 t of copper '
               'there.</p>\n'
               '<p>The personal mining finds are saved for each commander and are not mixed with '
               'the finds of other commanders.</p>\n'
@@ -504,7 +504,7 @@ HELP_TOPICS = {
 <p>When “My mining finds” is enabled, the “Commodity” selection is also available.</p>
 <p>The list contains only commodities that the viewed commander has actually extracted through surface mining.</p>
 <p>This is not a theoretical list of all possible mining raw materials.</p>
-<p>For FABER38, the selection might contain:</p>
+<p>For EXAMPLE, the selection might contain:</p>
 <ul>
 <li>All</li>
 <li>copper</li>
@@ -514,16 +514,16 @@ HELP_TOPICS = {
 <h3>Targeted search for raw materials</h3>
 <p>For example, if “Copper” is selected and then “Apply” is pressed, the history will only show bodies on which the commander in question has demonstrably mined copper.</p>
 <p>Example:</p>
-<p><b>Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — copper 56 t</b></p>
+<p><b>Example System / 2 — ABBAU ×12 — copper 40 t</b></p>
 <p>This means that the chronicle can be used as a personal location database: a raw material that has already been mined can be found again later.</p>
 
 <h3>All raw materials</h3>
 <p>“Commodity: All” includes all matching personal surface mining finds.</p>
 <p>If several commodities are known on a body, they can be displayed together with the commander’s own quantities mined so far.</p>
 <p>Example:</p>
-<p><b>ABBAU ×24 — Helium-3 18 t, copper 56 t</b></p>
+<p><b>ABBAU ×12 — Helium-3 10 t, copper 40 t</b></p>
 <p>The quantities are the respective commander’s personal mined quantities actually recorded in journal events.</p>
-<p>Even with an active period, personal mining quantities remain stored totals. <b>Copper 56 t</b> does not automatically mean <b>56 t in the selected period</b>. The period requires a matching system visit, but does not restrict the displayed mined quantity to that period.</p>
+<p>Even with an active period, personal mining quantities remain stored totals. <b>Copper 40 t</b> does not automatically mean <b>40 t in the selected period</b>. The period requires a matching system visit, but does not restrict the displayed mined quantity to that period.</p>
 
 <h3>Combine filters</h3>
 <p>Free text, enabled From/To bounds and mining filters can be combined. A match must satisfy the configured conditions together.</p>
@@ -801,7 +801,7 @@ HELP_TOPICS = {
             '<h3>Commander change during processing</h3>\n'
             '<p>Commander, FID and system are captured together when queuing a screenshot.</p>\n'
             '<p>A later change of commander does not change the assignment of this already waiting '
-            'image. This means that a screenshot of FABER38 is not subsequently written to the '
+            'image. This means that a screenshot of EXAMPLE is not subsequently written to the '
             'folder of another commander.</p>\n'
             '\n'
             '<h3>gallery</h3>\n'
@@ -878,7 +878,7 @@ HELP_TOPICS = {
             '<li><b>View images:</b>The commander viewed or the selected gallery filter determines '
             'the visible images.</li>\n'
             '</ul>\n'
-            '<p>This means that the gallery of another commander can be viewed while FABER38 is '
+            '<p>This means that the gallery of another commander can be viewed while EXAMPLE is '
             'being played without new screenshots ending up in the folder of the commander in '
             'question.</p>\n'
             '\n'
@@ -910,7 +910,7 @@ HELP_TOPICS = {
                     '<p>The live commander is determined exclusively from the currently uniquely '
                     'identified Elite Dangerous journal session. This way the history of another '
                     'commander can be viewed while Elite Dangerous continues to run with '
-                    'FABER38.</p>\n'
+                    'EXAMPLE.</p>\n'
                     '\n'
                     '<h3>Frontier ID (FID)</h3>\n'
                     '<p>The FID is the stable Frontier identifier of a commander.</p>\n'
@@ -959,16 +959,16 @@ HELP_TOPICS = {
                     'over<code>MercCoins_Total_Spent</code>.</p>\n'
                     '<p>“Engineering” and “Equipment” show the shares reported separately by '
                     'Frontier<code>MercCoins_Spent_On_Engineering</code>and<code>MercCoins_Spent_On_MercGear</code>.</p>\n'
-                    '<p>For FABER38, for example, a current inventory of<b>1,275</b>, in '
-                    'total<b>220</b>spent and away<b>220</b>reported for engineering.</p>\n'
+                    '<p>For EXAMPLE, for example, a current inventory of<b>1,000</b>, in '
+                    'total<b>200</b>spent and away<b>200</b>reported for engineering.</p>\n'
                     '\n'
                     '<h3>Overall deserved</h3>\n'
                     '<p>“Reported by Frontier: earned overall” '
                     'shows<code>MercCoins_Total_Earned</code>. CMDRHelper does not calculate its '
                     'own balance sheet from this.</p>\n'
                     "<p>Frontier's cumulative value does not have to mathematically match the "
-                    'current inventory and reported expenses. For example, 1,275 current, 25 total '
-                    'earned, and 220 total spent may be reported at the same time.</p>\n'
+                    'current inventory and reported expenses. For example, 1,000 current, 25 total '
+                    'earned, and 200 total spent may be reported at the same time.</p>\n'
                     '<p>CMDRHelper does not correct these values, but displays the individual '
                     'Frontier counters unchanged.</p>\n'
                     '\n'

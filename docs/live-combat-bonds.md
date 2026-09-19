@@ -3,8 +3,7 @@
 Die Karte zeigt ausschließlich live beobachtete Kampfbelohnungen, keinen
 vollständigen Ingame-Kontostand. Keine Abschüsse oder Kampfgebiete werden als
 Historie gespeichert. Keine DB-Migration, Archivsuche oder produktive Vorbefüllung.
-Die fünf realen Rewards vom 19.09.2026 (237.632 Cr für Explorers of Nabudis)
-stehen ausschließlich in isolierten Tests.
+Mehrere Rewards und ihre Summierung werden ausschließlich in isolierten Tests geprüft.
 
 ## Verarbeitung und Persistenz
 
@@ -77,16 +76,15 @@ andere Sitzungen benötigen Commander/LoadGame. Zustände bleiben pro FID getren
 ## Einlösung und Diagnose für den Praxistest
 
 `RedeemVoucher(Type=CombatBond)` wird unabhängig von Groß-/Kleinschreibung erkannt.
-Der reale Praxistest vom 19.09.2026 bestätigt den einzelnen Fraktionspfad:
+Ein neutrales Beispiel für den einzelnen Fraktionspfad:
 
 ```json
-{"timestamp":"2026-09-19T14:44:30Z","event":"RedeemVoucher","Type":"CombatBond","Amount":953470,"Faction":"Explorers of Nabudis"}
+{"timestamp":"2000-01-01T12:00:00Z","event":"RedeemVoucher","Type":"CombatBond","Amount":1000,"Faction":"Example Faction"}
 ```
 
-Der Helper kannte 43.684 Cr. Die Ingame-Aktion „ALLE KAMPFBELOHNUNGEN-
-BESCHEINIGUNGEN EINLÖSEN“ führte laut Benutzer unmittelbar zur Anzeige
-„KEINE KAMPFBELOHNUNGEN ENTDECKT“. Deshalb entfernt ein Event mit eindeutigem,
-nichtleerem `Faction` den gesamten beobachteten Bestand dieser Fraktion.
+Der Helper könnte nur 100 Cr beobachtet haben. Die Ingame-Aktion löst trotzdem
+alle Bescheinigungen dieser Fraktion ein. Deshalb entfernt ein Event mit
+eindeutigem, nichtleerem `Faction` den gesamten beobachteten Fraktionsbestand.
 Andere Fraktionen bleiben unverändert; `total` wird neu summiert. `Amount`
 ist ausschließlich Diagnose und wird weder verglichen noch abgezogen.
 Auch `BrokerPercentage` verändert diese fraktionsbezogene Leerung nicht.

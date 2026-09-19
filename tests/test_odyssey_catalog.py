@@ -208,8 +208,8 @@ class OdysseyCatalogTests(unittest.TestCase):
         self.assertEqual(next(row.name for row in rows if row.key.name == 'futurething'), 'Future item')
         self.assertEqual(sum(row.stock.total for row in rows), 5)
 
-    def test_real_faber38_reader_and_projection(self):
-        fixture = Path(__file__).parent / 'fixtures/odyssey_faber38.json'
+    def test_real_reference_reader_and_projection(self):
+        fixture = Path(__file__).parent / 'fixtures/odyssey_reference.json'
         records = json.loads(fixture.read_text())
         reader = OdysseyInventoryReader()
         with tempfile.TemporaryDirectory() as directory:
@@ -218,7 +218,7 @@ class OdysseyCatalogTests(unittest.TestCase):
                             [event('Commander', FID='FTEST0001')] + records))
             sessions = [dict(journal_file=str(path), commander_id=1, fid_seen='FTEST0001',
                              attribution_status='identified')]
-            for cutoff in ('2026-09-08T14:58:01Z', None):
+            for cutoff in ('2016-09-10T14:58:01Z', None):
                 r = reader.reconstruct(1, 'FTEST0001', sessions, until=cutoff)
                 rows = merge_inventory(r, 'de')
                 self.assertEqual(len({row.key.name for row in rows if row.observed}), 131)

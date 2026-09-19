@@ -235,8 +235,8 @@ HELP_TOPICS = {
               '<p>ABBAU ×N, Elite Dangerous tarafından bildirilen bir cismin gezegendeki '
               'madencilik sahalarının sayısını gösterir.</p>\n'
               '<p>Örnek:</p>\n'
-              '<p><b>ABBAU ×24</b></p>\n'
-              '<p>bu, bu cisim için 24 gezegensel maden sahasının rapor edildiği anlamına '
+              '<p><b>ABBAU ×12</b></p>\n'
+              '<p>bu, bu cisim için 12 gezegensel maden sahasının rapor edildiği anlamına '
               'gelir.</p>\n'
               '<p>Rakam, tek bir yerden hangi ham maddenin çıkarılabileceğini söylemiyor.</p>\n'
               '\n'
@@ -250,8 +250,8 @@ HELP_TOPICS = {
               '<li>Vücudun genel yüzey malzemeleri</li>\n'
               '</ul>\n'
               '<p>Kişisel bulguya bir örnek şöyle olabilir:</p>\n'
-              '<p><b>Bakır – 56 ton</b></p>\n'
-              '<p>Bu bilgi, bu komutanın aslında oradan 56 ton bakır çıkardığı anlamına '
+              '<p><b>Bakır – 40 ton</b></p>\n'
+              '<p>Bu bilgi, bu komutanın aslında oradan 40 ton bakır çıkardığı anlamına '
               'geliyor.</p>\n'
               '<p>Kişisel madencilik buluntuları her komutan için kaydedilir ve diğer komutanların '
               'buluntularıyla karıştırılmaz.</p>\n'
@@ -499,7 +499,7 @@ HELP_TOPICS = {
 <p>“Kendi madencilik buluntuları” etkinleştirilmişse, “Hammadde” seçimi de mevcuttur.</p>
 <p>Liste yalnızca söz konusu komutanın halihazırda yüzey madenciliğinden kazandığı malları içeriyor.</p>
 <p>Bu, tüm olası madencilik hammaddelerinin teorik bir listesi değildir.</p>
-<p>FABER38 için listede örneğin şunlar bulunabilir:</p>
+<p>EXAMPLE için listede örneğin şunlar bulunabilir:</p>
 <ul>
 <li>Tüm</li>
 <li>bakır</li>
@@ -509,16 +509,16 @@ HELP_TOPICS = {
 <h3>Hammaddeler için hedefli arama</h3>
 <p>Örneğin, "Bakır" seçilirse ve ardından "Uygula"ya basılırsa, geçmiş yalnızca söz konusu komutanın bariz bir şekilde bakır çıkardığı cesetleri gösterecektir.</p>
 <p>Örnek:</p>
-<p><b>Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — bakır 56 ton</b></p>
+<p><b>Example System / 2 — ABBAU ×12 — bakır 40 ton</b></p>
 <p>Bu, kroniğin kişisel konum veri tabanı olarak kullanılabileceği anlamına gelir: daha önce çıkarılmış olan bir ham madde daha sonra tekrar bulunabilir.</p>
 
 <h3>Tüm hammaddeler</h3>
 <p>"Hammadde: Hepsi" ile eşleşen tüm kişisel yüzey madenciliği keşifleri dikkate alınır.</p>
 <p>Bir gövde üzerinde birden fazla mal biliniyorsa o ana kadar elde edilen miktarlarla birlikte sergilenebilir.</p>
 <p>Örnek:</p>
-<p><b>ABBAU ×24 — Helyum-3 18 ton, bakır 56 ton</b></p>
+<p><b>ABBAU ×12 — Helyum-3 10 ton, bakır 40 ton</b></p>
 <p>Miktarlar, ilgili komutanın kişisel madencilik değerleridir ve aslında günlük olaylarından belgelenmiştir.</p>
-<p>Bir dönem etkinken de kişisel madencilik miktarları kayıtlı toplam miktarlar olarak kalır. <b>Bakır 56 t</b> otomatik olarak şu anlama gelmez: <b>seçilen dönemde 56 t</b>. Dönem, uygun bir sistem ziyareti gerektirir ancak gösterilen çıkarılmış miktarı bu dönemle sınırlamaz.</p>
+<p>Bir dönem etkinken de kişisel madencilik miktarları kayıtlı toplam miktarlar olarak kalır. <b>Bakır 40 t</b> otomatik olarak şu anlama gelmez: <b>seçilen dönemde 40 t</b>. Dönem, uygun bir sistem ziyareti gerektirir ancak gösterilen çıkarılmış miktarı bu dönemle sınırlamaz.</p>
 
 <h3>Filtreleri birleştir</h3>
 <p>Serbest metin, etkin Başlangıç/Bitiş sınırları ve madencilik filtreleri birleştirilebilir. Bir eşleşme, ayarlanan koşulları birlikte karşılamalıdır.</p>
@@ -802,7 +802,7 @@ HELP_TOPICS = {
             '<p>Bir ekran görüntüsü sıraya alınırken Komutan, FID ve sistem birlikte '
             'yakalanır.</p>\n'
             '<p>Daha sonra yapılacak bir komutan değişikliği, halihazırda bekleyen bu görüntünün '
-            "atamasını değiştirmez. Bu, FABER38'in ekran görüntüsünün daha sonra başka bir "
+            "atamasını değiştirmez. Bu, EXAMPLE'in ekran görüntüsünün daha sonra başka bir "
             'komutanın klasörüne yazılmayacağı anlamına gelir.</p>\n'
             '\n'
             '<h3>galeri</h3>\n'
@@ -880,7 +880,7 @@ HELP_TOPICS = {
             '<li><b>Resimleri görüntüle:</b>Görüntülenen komutan veya seçilen galeri filtresi '
             'görünür görüntüleri belirler.</li>\n'
             '</ul>\n'
-            '<p>Bu, FABER38 oynatılırken başka bir komutanın galerisinin, yeni ekran görüntüleri '
+            '<p>Bu, EXAMPLE oynatılırken başka bir komutanın galerisinin, yeni ekran görüntüleri '
             'söz konusu komutanın klasörüne düşmeden görüntülenebileceği anlamına gelir.</p>\n'
             '\n'
             '<h3>Uç</h3>\n'
@@ -911,7 +911,7 @@ HELP_TOPICS = {
                     'yapmaz.</p>\n'
                     '<p>Canlı komutan, yalnızca şu anda benzersiz olarak tanımlanmış Elit '
                     'Tehlikeli günlük oturumuna göre belirlenir. Bu şekilde Elite Dangerous, '
-                    'FABER38 ile çalışmaya devam ederken başka bir komutanın geçmişi '
+                    'EXAMPLE ile çalışmaya devam ederken başka bir komutanın geçmişi '
                     'görüntülenebilir.</p>\n'
                     '\n'
                     '<h3>Frontier Kimliği (FID)</h3>\n'
@@ -962,8 +962,8 @@ HELP_TOPICS = {
                     '<p>"Mühendislik" ve "Ekipman" Frontier tarafından ayrı ayrı rapor edilen '
                     'hisseleri '
                     'gösterir<code>MercCoins_Spent_On_Engineering</code>Ve<code>MercCoins_Spent_On_MercGear</code>.</p>\n'
-                    '<p>Örneğin FABER38 için güncel bir envanter<b>1.275</b>, '
-                    'toplamda<b>220</b>harcandı ve uzakta<b>220</b>mühendislik için rapor '
+                    '<p>Örneğin EXAMPLE için güncel bir envanter<b>1.000</b>, '
+                    'toplamda<b>200</b>harcandı ve uzakta<b>200</b>mühendislik için rapor '
                     'edildi.</p>\n'
                     '\n'
                     '<h3>Genel olarak hak edildi</h3>\n'
@@ -971,8 +971,8 @@ HELP_TOPICS = {
                     'gösterileri<code>MercCoins_Total_Earned</code>. CMDRHelper bundan kendi '
                     'bilançosunu hesaplamaz.</p>\n'
                     "<p>Frontier'nin kümülatif değerinin, mevcut envanter ve rapor edilen "
-                    'giderlerle matematiksel olarak eşleşmesi gerekmez. Örneğin 1.275 cari, 25 '
-                    'toplam kazanılan ve 220 toplam harcanan aynı anda raporlanabilmektedir.</p>\n'
+                    'giderlerle matematiksel olarak eşleşmesi gerekmez. Örneğin 1.000 cari, 25 '
+                    'toplam kazanılan ve 200 toplam harcanan aynı anda raporlanabilmektedir.</p>\n'
                     '<p>CMDRHelper bu değerleri düzeltmez ancak bireysel Frontier sayaçlarını '
                     'değişmeden görüntüler.</p>\n'
                     '\n'

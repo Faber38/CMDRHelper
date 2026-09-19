@@ -86,7 +86,7 @@ unverified even if some access metadata exists; missing permit flags do not mean
 "no permit required". The service does not select for a particular ship's pad size
 or possession of permits. The later UI must not promise an accessible/open trader.
 
-## Arrival distance reference check, 2026-09-09
+## Arrival distance reference check
 
 The official https://docs.spansh.co.uk/ OpenAPI 2.3.2 describes station arrival
 values as kilometres. Read-only local Docked/DistFromStarLS observations were
@@ -98,7 +98,8 @@ compared with two public `/station/{market_id}` responses:
 | Foden Orbital | 3231487744 | 80.180179 | 89.349195 |
 
 The fixture `tests/fixtures/material_trader_arrival_reference.json` records both
-observation dates and source timestamps, without commander identity. These values
+observation dates and source timestamps shifted uniformly by 3650 days, without
+commander identity. The absolute dates are synthetic; relative timing is retained. These values
 support the light-second interpretation, but are not simultaneous measurements:
 Foden differs by about 11.4%. They do not settle a universal endpoint contract
 against the contradictory schema. **arrival_distance_unit remains unknown**;
@@ -153,8 +154,6 @@ Plio Aip KN-B d13-201 (4425.875, 77.625, 10335.21875) found:
 | Encoded | Hay Hub | Desubi | 11072.872854148585 |
 
 Each card was checked and handed to the real route planner without starting a
-route. Dark/Light images are under /tmp/cmdrhelper-trader-ui; their material stocks
-are replayed from the existing offline material fixture, while trader results were
-obtained through the real service. UI text has 13 new keys in all twelve languages.
+route. Dark/Light checks replay material stocks from the offline reference fixture. UI text has 13 new keys in all twelve languages.
 The trader explanation is available in all twelve help languages, including
 explicit categories, direct system distance, uncertain access and route handoff.

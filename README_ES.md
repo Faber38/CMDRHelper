@@ -74,9 +74,7 @@ CMDRHelper busca actualizaciones al iniciarse y dispone de un actualizador integ
 - Existencias de Mining más fiables con instantáneas Cargo seguras, recuperación de transferencias y guardado verificado.
 - Corregida la solicitud de migración tras una instalación nueva; mejoradas la copia en Crónica y las vistas ocultas.
 
-![Gestión de materiales Odyssey con armario, mochila y existencias del Fleet Carrier actualizadas automáticamente](cmdrhelper/assets/readme/cmdrhelper_v3_5.png)
-
-Armario y mochila utilizan datos actuales validados de ShipLocker/Backpack. Mercancías, Materiales y Datos muestran cada uno su ocupación personal con capacidad propia de 1000. Total suma armario + mochila + carrier solo con valores conocidos y coherentes. Compras, ventas e intercambios se distinguen de transferencias privadas. Tras reiniciar se reconstruye la ubicación y se fija una nueva base personal; no se inventan transferencias Odyssey perdidas. Ejemplo real: 713 unidades + 121 plazas reservadas para compras = 834 / 1000. Las 121 no son materiales. Los datos de mercado antiguos o inciertos no generan una ocupación actual supuesta.
+Armario y mochila utilizan datos actuales validados de ShipLocker/Backpack. Mercancías, Materiales y Datos muestran cada uno su ocupación personal con capacidad propia de 1000. Total suma armario + mochila + carrier solo con valores conocidos y coherentes. Compras, ventas e intercambios se distinguen de transferencias privadas. Tras reiniciar se reconstruye la ubicación y se fija una nueva base personal; no se inventan transferencias Odyssey perdidas. Ejemplo ficticio: 500 unidades + 100 plazas reservadas para compras = 600 / 1000. Las 100 no son materiales. Los datos de mercado antiguos o inciertos no generan una ocupación actual supuesta.
 
 ### Configurar existencias del carrier
 

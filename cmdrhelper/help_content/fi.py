@@ -234,8 +234,8 @@ HELP_TOPICS = {
               '<p>ABBAU ×N näyttää Elite Dangerous:n ilmoittaman kappaleen planeettojen '
               'louhintapaikkojen määrän.</p>\n'
               '<p>Esimerkki:</p>\n'
-              '<p><b>ABBAU ×24</b></p>\n'
-              '<p>tarkoittaa, että tälle ruumiille on raportoitu 24 planeetan kaivospaikkaa.</p>\n'
+              '<p><b>ABBAU ×12</b></p>\n'
+              '<p>tarkoittaa, että tälle ruumiille on raportoitu 12 planeetan kaivospaikkaa.</p>\n'
               '<p>Numero ei kerro, mitä raaka-ainetta voidaan louhia yhdessä paikassa.</p>\n'
               '\n'
               '<h3>Omat kaivoslöydöt</h3>\n'
@@ -248,8 +248,8 @@ HELP_TOPICS = {
               '<li>kehon yleiset pintamateriaalit</li>\n'
               '</ul>\n'
               '<p>Esimerkki henkilökohtaisesta löydöstä olisi:</p>\n'
-              '<p><b>Kupari - 56 t</b></p>\n'
-              '<p>Tämä tieto tarkoittaa, että tämä komentaja louhi siellä 56 tonnia kuparia.</p>\n'
+              '<p><b>Kupari - 40 t</b></p>\n'
+              '<p>Tämä tieto tarkoittaa, että tämä komentaja louhi siellä 40 tonnia kuparia.</p>\n'
               '<p>Henkilökohtaiset kaivoslöydöt tallennetaan jokaiselle komentajalle, eikä niitä '
               'sekoiteta muiden komentajien löytöihin.</p>\n'
               '\n'
@@ -496,7 +496,7 @@ HELP_TOPICS = {
 <p>Jos ”Omat kaivoslöydöt” on aktivoitu, on myös ”Raaka-aine”-valinta käytettävissä.</p>
 <p>Lista sisältää vain hyödykkeet, jotka kyseinen komentaja on itse asiassa jo voittanut pintalouhinnasta.</p>
 <p>Tämä ei ole teoreettinen luettelo kaikista mahdollisista kaivosraaka-aineista.</p>
-<p>FABER38:n valikoimassa voi olla esimerkiksi:</p>
+<p>EXAMPLE:n valikoimassa voi olla esimerkiksi:</p>
 <ul>
 <li>Kaikki</li>
 <li>kupari</li>
@@ -506,16 +506,16 @@ HELP_TOPICS = {
 <h3>Kohdennettu raaka-aineiden haku</h3>
 <p>Jos esimerkiksi valitaan "Kupari" ja sitten painetaan "Käytä", historia näyttää vain kappaleet, joihin kyseinen komentaja on todistettavasti louhinut kuparia.</p>
 <p>Esimerkki:</p>
-<p><b>Prua Hypai NV-E c28-66 / 2 — ABBAU ×24 — kupari 56 t</b></p>
+<p><b>Example System / 2 — ABBAU ×12 — kupari 40 t</b></p>
 <p>Tämä tarkoittaa, että kronikkaa voidaan käyttää henkilökohtaisena sijaintitietokantana: jo louhittu raaka-aine löytyy myöhemmin uudelleen.</p>
 
 <h3>Kaikki raaka-aineet</h3>
 <p>"Raaka-aine: Kaikki" -asetuksella otetaan huomioon kaikki vastaavat henkilökohtaiset pintakaivoslöydöt.</p>
 <p>Jos kappaleessa tunnetaan useita hyödykkeitä, ne voidaan esittää yhdessä niiden tähän mennessä saamien määrien kanssa.</p>
 <p>Esimerkki:</p>
-<p><b>ABBAU ×24 — Helium-3 18 t, kupari 56 t</b></p>
+<p><b>ABBAU ×12 — Helium-3 10 t, kupari 40 t</b></p>
 <p>Määrät ovat vastaavan komentajan henkilökohtaisia ​​kaivosarvoja, jotka on tosiasiallisesti dokumentoitu päiväkirjatapahtumista.</p>
-<p>Myös ajanjakson ollessa käytössä henkilökohtaiset louhitut määrät pysyvät tallennettuina kokonaismäärinä. <b>Kupari 56 t</b> ei automaattisesti tarkoita <b>56 t valitulla ajanjaksolla</b>. Ajanjakso edellyttää vastaavaa järjestelmäkäyntiä, mutta ei rajaa näytettyä louhintamäärää tähän ajanjaksoon.</p>
+<p>Myös ajanjakson ollessa käytössä henkilökohtaiset louhitut määrät pysyvät tallennettuina kokonaismäärinä. <b>Kupari 40 t</b> ei automaattisesti tarkoita <b>40 t valitulla ajanjaksolla</b>. Ajanjakso edellyttää vastaavaa järjestelmäkäyntiä, mutta ei rajaa näytettyä louhintamäärää tähän ajanjaksoon.</p>
 
 <h3>Yhdistä suodattimet</h3>
 <p>Vapaa teksti, käyttöön otetut Alkaen-/Asti-rajat ja kaivossuodattimet voidaan yhdistää. Osuman on täytettävä asetetut ehdot yhdessä.</p>
@@ -797,7 +797,7 @@ HELP_TOPICS = {
             '<h3>Komentaja vaihtuu käsittelyn aikana</h3>\n'
             '<p>Commander, FID ja järjestelmä kaapataan yhdessä, kun kuvakaappaus on jonossa.</p>\n'
             '<p>Myöhempi komentajan vaihto ei muuta tämän jo odottavan kuvan tehtävää. Tämä '
-            'tarkoittaa, että kuvakaappausta FABER38:sta ei kirjoiteta myöhemmin toisen komentajan '
+            'tarkoittaa, että kuvakaappausta EXAMPLE:sta ei kirjoiteta myöhemmin toisen komentajan '
             'kansioon.</p>\n'
             '\n'
             '<h3>galleria</h3>\n'
@@ -878,7 +878,7 @@ HELP_TOPICS = {
             '<li><b>Katso kuvat:</b>Katsottu komento tai valittu galleriasuodatin määrittää '
             'näkyvät kuvat.</li>\n'
             '</ul>\n'
-            '<p>Tämä tarkoittaa, että toisen komentajan galleriaa voidaan tarkastella FABER38:n '
+            '<p>Tämä tarkoittaa, että toisen komentajan galleriaa voidaan tarkastella EXAMPLE:n '
             'toiston aikana ilman, että uudet kuvakaappaukset päätyvät kyseisen komentajan '
             'kansioon.</p>\n'
             '\n'
@@ -910,7 +910,7 @@ HELP_TOPICS = {
                     '<p>Live-komentaja määritetään yksinomaan tällä hetkellä yksilöllisesti '
                     'tunnistetun Elite Dangerous -päiväkirjaistunnon perusteella. Tällä tavalla '
                     'toisen komentajan historiaa voidaan tarkastella, kun Elite Dangerous jatkaa '
-                    'toimintaansa FABER38:n kanssa.</p>\n'
+                    'toimintaansa EXAMPLE:n kanssa.</p>\n'
                     '\n'
                     '<h3>Frontier ID (FID)</h3>\n'
                     '<p>FID on komentajan vakaa Frontier-tunniste.</p>\n'
@@ -958,16 +958,16 @@ HELP_TOPICS = {
                     'kokonaismäärä" ottaa vallan<code>MercCoins_Yhteensä_Käytetty</code>.</p>\n'
                     '<p>"Insinöörityö" ja "laitteet" näyttävät Frontier:n erikseen raportoimat '
                     'osakkeet<code>MercCoins_Spent_On_Engineering</code>ja<code>MercCoins_Spent_On_MercGear</code>.</p>\n'
-                    '<p>Esimerkiksi FABER38:lle nykyinen varasto<b>1,275</b>, '
-                    'yhteensä<b>220</b>käytetty ja pois<b>220</b>ilmoitettu insinööriksi.</p>\n'
+                    '<p>Esimerkiksi EXAMPLE:lle nykyinen varasto<b>1,000</b>, '
+                    'yhteensä<b>200</b>käytetty ja pois<b>200</b>ilmoitettu insinööriksi.</p>\n'
                     '\n'
                     '<h3>Kokonaisuudessaan ansaittu</h3>\n'
                     '<p>"Raportoi Frontier: ansaittu kokonaisuutena" '
                     'näkyy<code>MercCoins_Total_Earned</code>. CMDRHelper ei laske tästä omaa '
                     'tasettaan.</p>\n'
                     '<p>Frontier:n kumulatiivisen arvon ei tarvitse matemaattisesti vastata '
-                    'nykyistä varastoa ja raportoituja kuluja. Esimerkiksi 1 275 nykyistä, 25 '
-                    'yhteensä ansaittua ja 220 kokonaiskulutusta voidaan raportoida '
+                    'nykyistä varastoa ja raportoituja kuluja. Esimerkiksi 1 000 nykyistä, 25 '
+                    'yhteensä ansaittua ja 200 kokonaiskulutusta voidaan raportoida '
                     'samanaikaisesti.</p>\n'
                     '<p>CMDRHelper ei korjaa näitä arvoja, mutta näyttää yksittäiset '
                     'Frontier-laskurit muuttumattomina.</p>\n'
