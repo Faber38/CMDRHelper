@@ -53,7 +53,7 @@ def read_carrier_feed(path, fid):
 
 
 def _read_safe_preamble(path, rows):
-    """Verify an indexed, closed intermediate file; unknown events fail closed."""
+    """Verify an unknown intermediate Fileheader, Friends*, optional final Shutdown."""
     if any(row.get("attribution_status") != "unknown"
            or row.get("commander_id") is not None or row.get("fid_seen")
            or row.get("commander_name_seen") for row in rows):
@@ -71,7 +71,11 @@ def _read_safe_preamble(path, rows):
             return None
         for line in raw.splitlines(keepends=True):
             event = json.loads(line)
-            if not isinstance(event, dict) or event.get("event") not in ("Fileheader", "Friends"):
+            if not isinstance(event, dict):
+                return None
+            allowed = ("Fileheader",) if not events else ("Friends", "Shutdown")
+            if (event.get("event") not in allowed
+                    or (events and events[-1][1]["event"] == "Shutdown")):
                 return None
             events.append((offset, event))
             offset += len(line)

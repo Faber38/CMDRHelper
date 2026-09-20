@@ -2,6 +2,7 @@
 from copy import deepcopy
 import json
 from pathlib import Path
+from types import SimpleNamespace
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -49,13 +50,26 @@ class SafePreambleTests(unittest.TestCase):
         self.assertEqual(result['anchor'], self.ledger['anchor'])
 
     def test_allowed_preambles_resume_existing_balance_not_last_confirmed(self):
-        for events in ([{'event': 'Fileheader'}],
-                       [{'event': 'Fileheader'}, {'event': 'Friends'}, {'event': 'Friends'}]):
-            self.write(1, events)
-            result = self.result()
-            self.assertEqual(result['records']['gold']['count'], 17)
-            self.assertEqual(result['records']['gold']['status'], 'tracked')
-            self.assertNotIn('resume_count', result['records']['gold'])
+        for friends in range(3):
+            for shutdown in (False, True):
+                with self.subTest(friends=friends, shutdown=shutdown):
+                    events = ['Fileheader'] + ['Friends'] * friends + ['Shutdown'] * shutdown
+                    self.write(1, [{'event': event} for event in events])
+                    result = self.result()
+                    self.assertEqual(result['records']['gold']['count'], 17)
+                    self.assertEqual(result['records']['gold']['last_confirmed'], 999)
+                    self.assertEqual(result['records']['gold']['status'], 'tracked')
+                    self.assertNotIn('resume_count', result['records']['gold'])
+
+    def test_invalid_preamble_order_is_rejected(self):
+        for events in (['Shutdown', 'Fileheader'], ['Fileheader', 'Shutdown', 'Friends'],
+                       ['Fileheader', 'Shutdown', 'Cargo'], ['Fileheader', 'Shutdown', 'Shutdown'],
+                       ['Friends'], ['Friends', 'Fileheader'], ['Shutdown'],
+                       ['Fileheader', 'Fileheader'], ['Fileheader', 'Friends', 'Fileheader'],
+                       ['Fileheader', 'Shutdown', 'Fileheader']):
+            with self.subTest(events=events):
+                self.write(1, [{'event': event} for event in events])
+                self.rejected()
 
     def test_every_non_whitelisted_event_is_rejected(self):
         for event in ['NewUnknownEvent', 'Commander', 'LoadGame', 'Cargo', 'CargoTransfer',
@@ -67,14 +81,17 @@ class SafePreambleTests(unittest.TestCase):
 
     def test_foreign_or_partially_attributed_files_rejected(self):
         original = deepcopy(self.sessions[1])
-        for changes in [dict(fid_seen='F2'), dict(commander_id=2), dict(commander_name_seen='Other'),
+        for changes in [dict(fid_seen='F2'), dict(fid_seen='F1'), dict(commander_id=1),
+                        dict(commander_id=2), dict(commander_name_seen='Other'),
                         dict(attribution_status='identified'), dict(attribution_status='conflict')]:
             with self.subTest(changes=changes):
                 self.sessions[1] = {**original, **changes}
                 self.rejected()
 
     def test_corrupt_truncated_empty_and_non_object_files_rejected(self):
-        for raw in [b'', b'{"event":"Fileheader"}', b'{"event":"Fileheader"}\n{bad}\n',
+        for raw in [b'', b'{"event":"Fileheader"}',
+                    b'{"event":"Fileheader"}\n{"event":"Shutdown"}',
+                    b'{"event":"Fileheader"}\n{bad}\n',
                     b'{"event":"Fileheader"}\n{', b'[]\n', b'null\n', b'\xff\n']:
             with self.subTest(raw=raw):
                 self.paths[1].write_bytes(raw)
@@ -104,15 +121,60 @@ class SafePreambleTests(unittest.TestCase):
         self.paths[1].unlink()
         self.rejected()
 
+    def test_each_index_signature_mismatch_is_rejected(self):
+        for field in ('file_size', 'modified_ns'):
+            with self.subTest(field=field):
+                original = self.sessions[1][field]
+                self.sessions[1][field] = original + 1
+                self.rejected()
+                self.sessions[1][field] = original
+
+    def test_identity_and_metadata_changes_during_read_are_rejected(self):
+        original = Path.stat
+        fields = ('st_dev', 'st_ino', 'st_size', 'st_mtime_ns', 'st_ctime_ns')
+        for changed in fields:
+            with self.subTest(field=changed):
+                reads = 0
+
+                def changing(path, *args, **kwargs):
+                    nonlocal reads
+                    stat = original(path, *args, **kwargs)
+                    if path != self.paths[1]:
+                        return stat
+                    reads += 1
+                    values = {field: getattr(stat, field) for field in fields}
+                    if reads > 1:
+                        values[changed] += 1
+                    return SimpleNamespace(**values)
+
+                # Direct helper call isolates its before/after stat checks.
+                from cmdrhelper.mining_carrier import _read_safe_preamble
+                with patch.object(Path, 'stat', changing):
+                    self.assertIsNone(_read_safe_preamble(self.paths[1], [self.sessions[1]]))
+
+    def test_unknown_anchor_is_not_exempted(self):
+        self.write(0, [{'event': 'Fileheader'}, {'event': 'Shutdown'}])
+        self.sessions[0].update(fid_seen=None, commander_id=None, attribution_status='unknown')
+        self.ledger['anchor'] = CarrierLedger._anchor(
+            dict(path=str(self.paths[0]), raw=self.paths[0].read_bytes()))
+        self.assertIsNone(CarrierLedger._chain(
+            self.ledger, read_carrier_feed(self.paths[2], 'F1'), self.sessions))
+        self.rejected()
+
     def test_anchor_hash_still_checked(self):
         self.ledger['anchor']['digest'] = 'bad'
         self.rejected()
 
     def test_live_unknown_file_is_not_exempted(self):
+        self.write(2, [{'event': 'Fileheader'}, {'event': 'Shutdown'}])
         self.sessions[2].update(fid_seen=None, commander_id=None, attribution_status='unknown')
         self.rejected()
+        # Even a caller-supplied feed cannot exempt the live endpoint.
+        feed = dict(path=str(self.paths[2]), raw=self.paths[2].read_bytes(), events=[], complete=True)
+        self.assertIsNone(CarrierLedger._chain(self.ledger, feed, self.sessions))
 
     def test_transfer_after_preamble_and_srv_independence(self):
+        self.write(1, [{'event': 'Fileheader'}, {'event': 'Friends'}, {'event': 'Shutdown'}])
         self.write(2, [{'event': 'Commander', 'FID': 'F1'},
                        {'event': 'CargoTransfer', 'CarrierID': 123,
                         'Transfers': [{'Type': 'gold', 'Count': 3, 'Direction': 'tocarrier'}]}])
