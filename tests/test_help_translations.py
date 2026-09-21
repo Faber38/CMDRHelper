@@ -38,7 +38,7 @@ class HelpTranslationTests(unittest.TestCase):
 
     def test_all_languages_and_topics_are_registered(self):
         self.assertEqual(HELP_LANGUAGES, EXPECTED_LANGUAGES)
-        self.assertEqual(len(de.HELP_TOPICS), 11)
+        self.assertEqual(len(de.HELP_TOPICS), 12)
         expected_topics = tuple(de.HELP_TOPICS)
         for language in HELP_LANGUAGES:
             with self.subTest(language=language):
@@ -46,7 +46,7 @@ class HelpTranslationTests(unittest.TestCase):
                     f"cmdrhelper.help_content.{language}", fromlist=["HELP_TOPICS"]
                 )
                 self.assertEqual(tuple(catalog.HELP_TOPICS), expected_topics)
-                self.assertEqual(len(catalog.HELP_TOPICS), 11)
+                self.assertEqual(len(catalog.HELP_TOPICS), 12)
 
     def test_navigation_translations_preserve_numbers_and_have_no_german_passages(self):
         master = de.HELP_TOPICS["planet_navigation"][1]

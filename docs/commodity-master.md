@@ -98,3 +98,61 @@ just its length. Unknown future symbols remain representable without network
 access. Later consumer migrations must separately address existing persisted
 lowercase keys and localized mission descriptions; importing this module does
 not migrate any data or change an existing normalizer.
+
+## German display names (Phase 4a)
+
+`commodity_localization.commodity_name()` resolves display text separately from
+master identity. `_commodity_localization_de.py` contains 354 immutable tuples
+`(frontier_id, canonical_symbol, German_name, source)`. Both ID and symbol must
+match the master. The 57 existing German mining names remain in `i18n/de.py`:
+411/412 names are maintained, including all 142 Rare Goods and 99 Salvage entries.
+No identity, category, Rare flag, mining origin or master reference name changed.
+
+The display order is maintained German catalog / existing locale mining name,
+then English master name, then a readable symbol for a future unknown entry.
+Other eleven languages retain their existing mining translations and English
+fallback. The picker has no language-qualified Frontier observation, so it does
+not insert a runtime Localised fallback or a learning cache. A future consumer
+with a safely language-qualified observation may use it before English; never
+silently replace a curated name or infer language from the UI setting alone.
+
+Sources were checked against the 412 identities on 2026-09-21. Per-entry pinned
+URLs, chosen names and review decisions are in
+[commodity-localization-sources.csv](commodity-localization-sources.csv).
+The sources are EDDI `Commodities.de.resx` at
+`d3b964ea7c8bb959ad6537f55b308f293a326905` and EliteDangerousCore's German TLP
+at `c86bee245acd482dd68f7e445fd3e67d4dc99bb1`. EDDI provides an ID/symbol
+bridge; Core joins symbol through MCMRType's English resource key. Display-name
+similarity was never used to infer identity. Local German Market names were
+used only as corroborating evidence for already openly licensed values.
+Conflicts without exact corroboration were individually reviewed; this is a
+maintained community catalog, not a claim that every name is Frontier-certified.
+
+The two upstream catalogs use Apache-2.0. Redistribute
+[the full license](licenses/Apache-2.0.txt) and
+[attribution/change notice](licenses/commodity-localization-NOTICE.txt)
+with these data. Neither reviewed upstream tree contained a separate NOTICE.
+Local observations are not declared Apache-licensed. No INARA values or new
+FDevIDs translations were imported. Game assets were not extracted.
+
+Mining decisions: keep **Kobalt**; correct **Praseodym** and **Periklas-Dunit**
+as German mineral spellings. All other 54 German mining names and all mining
+names in other languages are retained. Two non-mining proper-name typos in the
+community data were editorially corrected to **Shintara-Wasser** and
+**Korro-Kung-Pellets** using the master spelling; their original source remains
+recorded in the attribution. Other community alternatives are not automatically
+applied to the mining catalog.
+
+`CuratedCommodity`, ID **129045961**, category **Industrial Materials**, keeps
+**Curated Commodity Package** as its English fallback. It is not Rare and has no
+recorded mining origin. It is user-relevant: the
+[ED Odyssey Materials Helper release notes](https://github.com/jixxed/ed-odyssey-materials-helper/releases)
+identify it as a Community Goal commodity. Market observations on
+[EDSM](https://www.edsm.net/en/system/stations/id/23408/name/AD%2BLeonis/details/idS/588672/nameS/Cartmill%2BDepot/facility/market)
+also list the commodity; this does not guarantee current availability. It remains
+selectable, with no new trading restriction or invented German translation.
+
+Updates require identity validation, per-entry source/license review, conflict
+review and offline regression tests. Missing languages are a separate phase;
+there is no startup download, mass translation, database migration, price storage
+or persistent collection of observed names.

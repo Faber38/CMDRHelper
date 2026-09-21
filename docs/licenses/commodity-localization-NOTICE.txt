@@ -1,0 +1,26 @@
+German commodity names in cmdrhelper/_commodity_localization_de.py
+
+EDDI: Copyright 2017 by the EDCD organization EDDI development team
+https://github.com/EDCD/EDDI/tree/d3b964ea7c8bb959ad6537f55b308f293a326905
+DataDefinitions/Properties/Commodities.de.resx; CommodityDefinition.cs identity bridge.
+
+EliteDangerousCore: Copyright 2016-2025 EDDiscovery development team
+https://github.com/EDDiscovery/EliteDangerousCore/tree/c86bee245acd482dd68f7e445fd3e67d4dc99bb1
+EliteDangerous/Translations/translation-deutsch-ed.tlp;
+EliteDangerous/FrontierData/Items/MCMRType.cs identity bridge.
+
+Licensed under the Apache License, Version 2.0. A complete copy accompanies
+this notice in Apache-2.0.txt. Distributed on an AS IS BASIS, WITHOUT WARRANTIES
+OR CONDITIONS OF ANY KIND, either express or implied. See that license for
+permissions and limitations. No upstream NOTICE file was present in the reviewed trees.
+
+CMDRHelper modifications: selected German subset, identity joins, data format,
+reviewed choice among conflicting names; corrected Shintara and Korro spelling.
+Per-entry source URLs and decisions: docs/commodity-localization-sources.csv.
+Retain this attribution and the Apache license when redistributing these data.
+
+The existing CMDRHelper mining translations have not been relicensed by this
+notice. Praseodym and Periklas-Dunit are editorial corrections of German mineral
+names, explicitly requested for CMDRHelper; local Frontier observations were
+validation evidence, not a freely licensed dataset. No Frontier game assets,
+INARA data or FDevIDs translations are included in the new translation subset.

@@ -197,6 +197,24 @@ class MarketProviderTests(unittest.TestCase):
         self.assertEqual(h.provider.search_sell(query(required_pad=PadSize.LARGE)).offers[0].largest_pad, PadSize.LARGE)
         self.assertEqual(h.payloads[0]['filters']['has_large_pad'], {'value': True})
 
+    def test_pad_acceptance_matrix_keeps_minimum_size_semantics(self):
+        rows = [station('Large', 1),
+                station('Medium', 2, has_large_pad=False, large_pads=0, medium_pads=1),
+                station('Small', 3, has_large_pad=False, large_pads=0, small_pads=1),
+                station('Unknown', 4, has_large_pad=None, large_pads=None, medium_pads=None, small_pads=None)]
+        for pad, expected, branches in (
+            (PadSize.ANY, {'Large', 'Medium', 'Small', 'Unknown'}, 1),
+            (PadSize.SMALL, {'Large', 'Medium', 'Small'}, 3),
+            (PadSize.MEDIUM, {'Large', 'Medium'}, 2),
+            (PadSize.LARGE, {'Large'}, 1),
+        ):
+            with self.subTest(pad=pad):
+                h = Harness(*(response(*rows) for _ in range(branches)))
+                result = h.provider.search_sell(query(required_pad=pad))
+                self.assertEqual({offer.station_name for offer in result.offers}, expected)
+                if pad == PadSize.ANY:
+                    self.assertFalse({'has_large_pad', 'medium_pads', 'small_pads'} & h.payloads[0]['filters'].keys())
+
     def test_medium_includes_large_and_medium(self):
         h = Harness(response(station()), response(station('Medium', 2, has_large_pad=False,
                                                          large_pads=0, medium_pads=1)))

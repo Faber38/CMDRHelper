@@ -1107,6 +1107,7 @@ class MainWindow(QMainWindow):
     PAGE_COMMANDER_VIEW = 7
     PAGE_SETTINGS = 8
     PAGE_MATERIALS = 9
+    PAGE_TRADE = 10
     HELP_CONTEXTS = {
         PAGE_OVERVIEW: "overview",
         PAGE_MISSIONS: "missions",
@@ -1118,6 +1119,7 @@ class MainWindow(QMainWindow):
         PAGE_COMMANDER_VIEW: "commander_view",
         PAGE_SETTINGS: "settings",
         PAGE_MATERIALS: "materials",
+        PAGE_TRADE: "trade",
     }
 
     def __init__(self, state):
@@ -1322,7 +1324,12 @@ class MainWindow(QMainWindow):
 
         side.addWidget(self._nav("⚙  " + tr("nav.settings"), self.PAGE_SETTINGS))
 
-        side.addWidget(self._nav("▤  " + tr("materials.title"), self.PAGE_MATERIALS))
+        materials_button = self._nav("▤  " + tr("materials.title"), self.PAGE_MATERIALS)
+        trade_button = self._nav("⇄  " + tr("nav.trade"), self.PAGE_TRADE)
+        # Visual order is independent of the stable page/nav_buttons indices.
+        explorer_position = side.indexOf(self.nav_buttons[self.PAGE_EXPLORER])
+        side.insertWidget(explorer_position + 1, materials_button)
+        side.insertWidget(explorer_position + 2, trade_button)
 
         side.addStretch()
 
@@ -1528,6 +1535,10 @@ class MainWindow(QMainWindow):
         self.material_view = MaterialView(self.state, self)
         self.material_view.routeRequested.connect(self._open_material_trader_route)
         self.pages.addWidget(self.material_view)
+
+        from cmdrhelper.ui.trade_view import TradeView
+        self.trade_view = TradeView(self.state, self)
+        self.pages.addWidget(self.trade_view)
 
         right_layout.addWidget(self.pages, 1)
 

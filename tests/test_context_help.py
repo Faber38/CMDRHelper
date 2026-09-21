@@ -14,7 +14,7 @@ from PySide6.QtWidgets import (
 
 from cmdrhelper.help_content import help_topic
 from cmdrhelper.help_content import de
-from cmdrhelper.i18n import set_language, tr
+from cmdrhelper.i18n import _TRANSLATIONS, set_language, tr
 from cmdrhelper.ui.help_dialog import HelpDialog
 from cmdrhelper.ui.main_window import MainWindow
 from cmdrhelper.ui.planet_navigation_window import PlanetNavigationWindow
@@ -81,8 +81,8 @@ class ContextHelpTests(unittest.TestCase):
         self.assertEqual(self.window.PAGE_COMMANDER_VIEW, 7)
         self.assertEqual(self.window.PAGE_SETTINGS, 8)
         self.assertEqual(self.window.PAGE_MATERIALS, 9)
-        self.assertEqual(self.window.pages.count(), 10)
-        self.assertEqual(len(self.window.nav_buttons), 10)
+        self.assertEqual(self.window.pages.count(), 11)
+        self.assertEqual(len(self.window.nav_buttons), 11)
         self.assertIn("Materialien", self.window.nav_buttons[9].text())
         self.window.nav_buttons[9].click()
         self.assertIs(self.window.pages.currentWidget(), self.window.material_view)
@@ -90,6 +90,35 @@ class ContextHelpTests(unittest.TestCase):
         self.window.help_button.click()
         self.assertIn("Materialien", self.window._help_dialog.windowTitle())
         self.window._help_dialog.close()
+
+    def test_trade_navigation_after_materials_and_explorer(self):
+        button = self.window.nav_buttons[self.window.PAGE_TRADE]
+        layout = button.parentWidget().layout()
+        explorer = layout.indexOf(self.window.nav_buttons[self.window.PAGE_EXPLORER])
+        self.assertEqual(layout.indexOf(self.window.nav_buttons[self.window.PAGE_MATERIALS]), explorer + 1)
+        self.assertEqual(layout.indexOf(button), explorer + 2)
+        self.assertIn("Handel", button.text())
+        button.click()
+        self.assertIs(self.window.pages.currentWidget(), self.window.trade_view)
+        self.assertEqual(button.objectName(), "navActive")
+        self.window.help_button.click()
+        self.assertEqual(self.window._help_dialog.context, "trade")
+        self.window._help_dialog.close()
+
+    def test_trade_navigation_in_all_twelve_languages(self):
+        for language, translations in _TRANSLATIONS.items():
+            with self.subTest(language=language):
+                self.state.settings.values["ui_language"] = language
+                window = MainWindow(self.state)
+                button = window.nav_buttons[window.PAGE_TRADE]
+                self.assertIn(translations["nav.trade"], button.text())
+                button.click()
+                self.assertIs(window.pages.currentWidget(), window.trade_view)
+                self.assertEqual(window.trade_view.tabs.tabText(0), translations["trade.sell"])
+                window.close()
+                window.deleteLater()
+                self.app.processEvents()
+        set_language("de")
 
     def test_help_button_is_above_the_complete_auto_show_area(self):
         self.assertEqual(self.window.help_button.text(), "?  Hilfe")
@@ -520,7 +549,7 @@ class ContextHelpTests(unittest.TestCase):
     def test_no_help_topics_remain_short(self):
         self.assertEqual(set(de.HELP_TOPICS),
                          set(self.window.HELP_CONTEXTS.values()) | {PlanetNavigationWindow.HELP_CONTEXT})
-        self.assertEqual(len(de.HELP_TOPICS), 11)
+        self.assertEqual(len(de.HELP_TOPICS), 12)
         for context in de.HELP_TOPICS:
             with self.subTest(context=context):
                 topic = help_topic(context)
