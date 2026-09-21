@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
 
 from cmdrhelper.commodity_master import lookup_by_id
 from cmdrhelper.i18n import get_language, tr
-from cmdrhelper.market_data import MarketSearch, MarketSearchResult, MarketStatus, PadSize
+from cmdrhelper.market_data import MarketSearch, MarketSearchResult, MarketStatus, PadSize, TradeSide
 from cmdrhelper.spansh_market import SpanshMarketProvider
 from cmdrhelper.ui.commodity_picker import CommodityField
 
@@ -30,16 +30,18 @@ class MarketSignals(QObject):
 
 
 class MarketWorker(QRunnable):
-    def __init__(self, provider, query):
+    def __init__(self, provider, query, side=TradeSide.SELL, generation=0):
         super().__init__()
         self.provider, self.query = provider, query
+        self.side, self.generation = side, generation
         self.cancel = Event()
         self.signals = MarketSignals()
 
     @Slot()
     def run(self):
         try:
-            result = self.provider.search_sell(self.query, cancel=self.cancel)
+            search = self.provider.search_buy if self.side == TradeSide.BUY else self.provider.search_sell
+            result = search(self.query, cancel=self.cancel)
         except Exception:
             # No raw exception or HTTP response is exposed to the user.
             result = MarketSearchResult(MarketStatus.INVALID_RESPONSE, query=self.query)
@@ -99,7 +101,7 @@ _STATUS_KEYS = {
 
 
 class TradeView(QWidget):
-    """Sell is an independent tab; later trade workflows can add their own tabs."""
+    """Two trade directions share one transient form, table, provider and worker."""
 
     def __init__(self, state, parent=None, *, provider=None, pool=None):
         super().__init__(parent)
@@ -110,6 +112,8 @@ class TradeView(QWidget):
         self._query = None
         self.offers = ()
         self._reference = None
+        self.side = TradeSide.SELL
+        self._generation = 0
         layout = QVBoxLayout(self)
         layout.addWidget(QLabel(tr('nav.trade'), objectName='sectionTitle'))
         self.tabs = QTabWidget()
@@ -118,7 +122,13 @@ class TradeView(QWidget):
         scroll.setWidgetResizable(True)
         content = QWidget()
         scroll.setWidget(content)
-        self.tabs.addTab(scroll, tr('trade.sell'))
+        self._scroll = scroll
+        for key in ('trade.sell', 'trade.buy'):
+            page = QWidget()
+            page_layout = QVBoxLayout(page)
+            page_layout.setContentsMargins(0, 0, 0, 0)
+            self.tabs.addTab(page, tr(key))
+        self.tabs.widget(0).layout().addWidget(scroll)
         body = QVBoxLayout(content)
         self.reference = QLabel()
         self.reference.setTextFormat(Qt.TextFormat.PlainText)
@@ -202,6 +212,31 @@ class TradeView(QWidget):
         # A removed page must also stop background work without waiting on the GUI thread.
         self._cancel_event = None
         self.refresh_reference()
+        self.tabs.currentChanged.connect(self._change_side)
+
+    @Slot(int)
+    def _change_side(self, index):
+        self._generation += 1
+        self.cancel_search()
+        self.side = TradeSide.BUY if index == 1 else TradeSide.SELL
+        # Move the same form instead of copying filter state or widget trees.
+        self.tabs.widget(index).layout().addWidget(self._scroll)
+        self._scroll.show()
+        self.offers = ()
+        self.table.setRowCount(0)
+        self.search_button.setText(tr('trade.buy_search' if self.side == TradeSide.BUY else 'trade.search'))
+        self.search_button.setToolTip(tr('trade.buy_help' if self.side == TradeSide.BUY else 'trade.help'))
+        for column, key in ((4, 'trade.buy_supply' if self.side == TradeSide.BUY else 'trade.demand'),
+                            (5, 'trade.buy_cost' if self.side == TradeSide.BUY else 'trade.revenue')):
+            self.table.horizontalHeaderItem(column).setText(tr(key))
+        self.table.horizontalHeaderItem(3).setData(Qt.ItemDataRole.InitialSortOrderRole, self._price_order())
+        self.table.sortItems(3, self._price_order())
+        self.table.resizeColumnsToContents()
+        self.status.setText(tr('trade.cancelling') if self.worker is not None else
+                            tr('trade.ready') if self._reference else tr('trade.no_system'))
+
+    def _price_order(self):
+        return Qt.SortOrder.AscendingOrder if self.side == TradeSide.BUY else Qt.SortOrder.DescendingOrder
 
     @Slot()
     def _invalidate_results(self):
@@ -259,12 +294,12 @@ class TradeView(QWidget):
         )
         self.table.setRowCount(0)
         self.offers = ()
-        self.status.setText(tr('trade.sell_searching'))
+        self.status.setText(tr('trade.buy_searching' if self.side == TradeSide.BUY else 'trade.sell_searching'))
         self.filters.setEnabled(False)
         self.search_button.setEnabled(False)
         self.cancel_button.setEnabled(True)
         self.cancel_button.show()
-        self.worker = MarketWorker(self.provider, self._query)
+        self.worker = MarketWorker(self.provider, self._query, self.side, self._generation)
         self._cancel_event = self.worker.cancel
         self.destroyed.connect(self._cancel_event.set)
         self.worker.signals.finished.connect(self._finished)
@@ -284,6 +319,7 @@ class TradeView(QWidget):
 
     @Slot(object)
     def _finished(self, result):
+        stale_direction = self.worker is not None and self.worker.generation != self._generation
         cancelled = self.worker is not None and self.worker.cancel.is_set()
         self.destroyed.disconnect(self._cancel_event.set)
         self.worker = None
@@ -292,6 +328,9 @@ class TradeView(QWidget):
         self.search_button.setEnabled(True)
         self.cancel_button.setEnabled(False)
         self.cancel_button.hide()
+        if stale_direction:
+            self._invalidate_results()
+            return
         if cancelled or self._query.reference_system != self._reference:
             result = MarketSearchResult(MarketStatus.CANCELLED, query=self._query)
         self.show_result(result, self._query)
@@ -301,18 +340,23 @@ class TradeView(QWidget):
         now = datetime.now(timezone.utc)
         locale = QLocale(get_language())
         self.offers = result.offers[:100] if result.status == MarketStatus.OK else ()
+        if self.side == TradeSide.BUY:
+            self.offers = tuple(o for o in self.offers if o.commander_buy_price is not None
+                                and o.commander_buy_price > 0 and o.supply is not None
+                                and o.supply >= (query.minimum_quantity or 1))
         self.table.setSortingEnabled(False)
         self.table.setRowCount(len(self.offers))
         for row, offer in enumerate(self.offers):
-            price = offer.commander_sell_price
-            revenue = (price * query.minimum_quantity if price is not None and offer.demand is not None
-                       and offer.demand >= query.minimum_quantity else None)
+            price = offer.commander_buy_price if self.side == TradeSide.BUY else offer.commander_sell_price
+            amount = offer.supply if self.side == TradeSide.BUY else offer.demand
+            revenue = (price * query.minimum_quantity if price is not None and amount is not None
+                       and amount >= query.minimum_quantity else None)
             age = max(0, (now - offer.market_updated_at).total_seconds())
             items = [
                 TextItem(offer.system_name), TextItem(offer.station_name),
                 NumericItem(locale.toString(float(offer.distance_ly), 'f', 1) + ' ly', offer.distance_ly),
                 NumericItem('–' if price is None else locale.toString(price) + ' Cr', price),
-                NumericItem('–' if offer.demand is None else locale.toString(offer.demand), offer.demand),
+                NumericItem('–' if amount is None else locale.toString(amount), amount),
                 NumericItem('–' if revenue is None else locale.toString(revenue) + ' Cr', revenue),
                 NumericItem('–' if offer.distance_to_arrival_ls is None else locale.toString(float(offer.distance_to_arrival_ls), 'f', 0), offer.distance_to_arrival_ls),
                 PadItem(tr('trade.pad_' + offer.largest_pad.value) if offer.largest_pad else '–', offer.largest_pad),
@@ -324,7 +368,7 @@ class TradeView(QWidget):
             for column, item in enumerate(items):
                 self.table.setItem(row, column, item)
         self.table.setSortingEnabled(True)
-        self.table.sortItems(3, Qt.SortOrder.DescendingOrder)
+        self.table.sortItems(3, self._price_order())
         self.table.resizeColumnsToContents()
         # Keep long system/station names usable via tooltips and horizontal scrolling.
         for row in range(self.table.rowCount()):
@@ -334,8 +378,10 @@ class TradeView(QWidget):
         for column in (0, 1):
             self.table.setColumnWidth(column, min(300, self.table.columnWidth(column)))
         status_key = _STATUS_KEYS.get(result.status, 'trade.invalid_response')
-        if result.status == MarketStatus.OK and len(self.offers) == 1:
-            status_key = 'trade.sell_success_one'
+        prefix = 'trade.buy_' if self.side == TradeSide.BUY else 'trade.sell_'
+        if result.status in (MarketStatus.OK, MarketStatus.NO_RESULTS):
+            status_key = prefix + ('success_one' if len(self.offers) == 1 else
+                                   'success' if self.offers else 'no_results')
         message = tr(status_key, count=len(self.offers))
         if result.truncated:
             message += '\n' + tr('trade.truncated')

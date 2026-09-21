@@ -1,8 +1,8 @@
-# Manual commodity sales (Phase 4)
+# Manual commodity trading (Phases 4/4a and 5)
 
 The main navigation places **Materials → Trade** after Explorer. Existing page
-indices stay stable. Trade has one functional **Sell** tab and its own help.
-There are no placeholder purchase, recommendation, rare-goods or route actions.
+indices stay stable. Trade has functional **Sell** and **Buy** tabs and its own help.
+There are no recommendation, rare-goods or route actions.
 
 ## Inputs and identity
 
@@ -106,3 +106,62 @@ performed while preparing the commit. No commander identifiers, locations,
 prices, timestamps from market responses or other personal runtime data are
 included. The final corrections concerned UI, text, sorting and picker focus;
 no new live Spansh request was required for the commit checks.
+
+## Buying (Phase 5)
+
+Buy and Sell move the same scrollable form and results table between two tab
+pages. Commodity picker, all filter widgets, worker/status/cancellation, data-age
+rendering, sorting items and community-data notice are shared. Current filter
+values survive tab switches in memory; displayed results are cleared. No settings
+or database writes are introduced. The existing 412-entry picker and German
+411/412 localization are unchanged.
+
+The worker captures the trade direction and a UI generation at submission. Buy
+calls only `MarketDataProvider.search_buy()`, using the existing Spansh adapter.
+Quantity becomes minimum **supply**. Price / t is `commander_buy_price`, Angebot
+(supply) is the reported available quantity, and total cost is purchase price
+times requested tonnes. Rows without sufficient supply or a positive purchase
+price are not displayed. The provider remains responsible for reference, radius,
+age, pad, carrier and optional arrival-distance filtering. No second transport,
+cache or price normalization exists.
+
+Buy starts with price ascending; Sell keeps price descending. Text columns are
+case-insensitive/stable, numerical columns use raw values, pads use S/M/L with
+unknown last, and age uses elapsed seconds with the first header click showing
+freshest data first. Existing age text and UTC tooltip remain unchanged. Up to
+100 results are visible; truncated results retain the shared refinement notice.
+
+Switching tabs cancels any active search and increments the generation, even
+when switching back to the original direction. The form stays disabled until
+the old worker finishes; its result is discarded if its generation differs.
+Thus no overlapping UI searches or late cross-direction results are accepted.
+A new search is manual. Cancel is visible only while the request is cancellable.
+The same provider instance retains its existing side-specific in-memory cache
+keys, allowing repeated Buy or Sell searches to reuse their respective entries.
+
+Result wording follows the market perspective: Commander Sell finds market
+buying offers (German Ankaufsangebote); Commander Buy finds market selling offers
+(German Verkaufsangebote). The new `trade.buy_*` texts, Buy tab label and extended
+trade help cover all twelve languages. Help explains the payable price, reported
+supply and cost calculation, and warns that supply may be lower on arrival.
+The common notice explicitly asks users to check data age; it is no guarantee.
+
+`test_trade_buy.py` covers direction dispatch, minimum supply, costs, cache
+separation, cancellation/generation rejection, shared state, filters, sorting,
+errors, truncation, twelve-language help, both themes and enlarged fonts.
+Existing sell, picker identity, commodity, provider and MainWindow regressions
+remain required. The Phase 4/4a acceptance recorded above applies to selling;
+the separate Phase 5 acceptance is recorded below. No market prices or personal
+runtime data are stored in this documentation or in fixtures.
+
+## Phase 5 manual acceptance
+
+The user confirmed live acceptance of Trade → Buy before requesting the
+development commit. The manual scenario used Beer, 1 tonne, a 100 ly radius,
+market data at most 24 hours old, Fleet Carriers excluded and any landing pad.
+The UI displayed two market selling offers and correctly presented price per
+tonne, supply, total cost, distance, arrival distance, landing pad and data age.
+This is a user-reported acceptance record, not a fixed expected live result or
+an automated fixture. No prices, station/system names, commander identifiers or
+personal runtime records are included. No further live Spansh search was made
+while preparing the commit.
