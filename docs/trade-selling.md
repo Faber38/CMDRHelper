@@ -165,3 +165,12 @@ This is a user-reported acceptance record, not a fixed expected live result or
 an automated fixture. No prices, station/system names, commander identifiers or
 personal runtime records are included. No further live Spansh search was made
 while preparing the commit.
+
+### Eigene Marktdaten
+
+Unter dem Ausgangspunkt steht die Anzahl selbst beobachteter Stationsmärkte des
+aktiven Commanders und das Alter der jüngsten Beobachtung. Ein Markt wird beim
+Öffnen des Warenmarkts in Elite bei laufendem Helper automatisch aufgenommen.
+Jede MarketID zählt einmal; nur lokale Snapshots unter 24 Stunden zählen.
+Spansh-Ergebnisse sind in dieser Zahl nicht enthalten. Die Statuszeile verändert
+weder Verkaufs- noch Einkaufssuche. Details: [Lokaler Marktcache](observed-market-cache.md#status-auf-der-handel-seite).

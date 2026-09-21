@@ -1570,4 +1570,9 @@ TRANSLATIONS = {
     'trade.buy_success_one': 'Fant 1 tilbud om å selge varer til deg.',
     'trade.buy_success': 'Fant {count} tilbud om å selge varer til deg.',
     'trade.buy_help': 'Velg vare og mengde, angi filtre og start kjøpssøket manuelt. Pris / t er prisen kommandøren betaler. Tilbud er rapportert tilgjengelig mengde og må dekke ønsket mengde. Totalkostnad = pris × ønsket mengde. Markedsdata fra fellesskapet kan endres: kontroller hvor gamle de er. Tilbudet kan være mindre ved ankomst. Bytte av fane avbryter et aktivt søk og beholder filtrene.',
+    'trade.observed_one': 'Egne markedsdata: {count} stasjon',
+    'trade.observed_many': 'Egne markedsdata: {count} stasjoner',
+    'trade.observed_now': 'sist observert akkurat nå',
+    'trade.observed_last': 'sist observert for {age} siden',
+    'trade.observed_tooltip': 'Stasjonsmarkeder du selv har observert i Elite. De lagres i maksimalt 24 timer. Eldre markedsdata fjernes automatisk. Markedet registreres automatisk når du åpner varemarkedet i Elite.',
 }

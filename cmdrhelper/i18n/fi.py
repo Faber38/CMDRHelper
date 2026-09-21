@@ -1570,4 +1570,9 @@ TRANSLATIONS = {
     'trade.buy_success_one': 'Löytyi 1 myyntitarjous sinulle.',
     'trade.buy_success': 'Löytyi {count} myyntitarjousta sinulle.',
     'trade.buy_help': 'Valitse tavara ja määrä, aseta suodattimet ja käynnistä ostohaku käsin. Hinta / t on komentajan maksama hinta. Tarjonta on ilmoitettu saatavilla oleva määrä, jonka on katettava pyydetty määrä. Kokonaiskustannus = hinta × pyydetty määrä. Yhteisön markkinatiedot voivat muuttua: tarkista tietojen ikä. Tarjonta voi olla pienempi saapuessasi. Välilehden vaihtaminen peruuttaa käynnissä olevan haun ja säilyttää suodattimet.',
+    'trade.observed_one': 'Omat markkinatiedot: {count} asema',
+    'trade.observed_many': 'Omat markkinatiedot: {count} asemaa',
+    'trade.observed_now': 'viimeisin havainto juuri nyt',
+    'trade.observed_last': 'viimeisin havainto {age} sitten',
+    'trade.observed_tooltip': 'Itse Elite-pelissä havaitsemasi asemien markkinat. Tiedot säilytetään enintään 24 tuntia. Vanhemmat markkinatiedot poistetaan automaattisesti. Markkinat tallennetaan automaattisesti, kun avaat hyödykemarkkinat Elite-pelissä.',
 }

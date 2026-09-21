@@ -43,6 +43,7 @@ class AppState(QObject):
     changed = Signal()
     inventoryChanged = Signal()
     odysseySidecarsChanged = Signal()
+    observedMarketsChanged = Signal()
     commanderIdentityChanged = Signal(object, str, str)
     viewedCommanderChanged = Signal(object)
     positionChanged = Signal(str, object, str)
@@ -176,7 +177,9 @@ class AppState(QObject):
         self.bounties = BountyManager(parent=self)
         from cmdrhelper.combat_bond_manager import CombatBondManager
         self.combat_bonds = CombatBondManager(parent=self)
-        self.watcher.live_observers = [self.bounties, self.combat_bonds]
+        from cmdrhelper.observed_market_observer import ObservedMarketObserver
+        self.observed_markets = ObservedMarketObserver(on_changed=self.observedMarketsChanged.emit)
+        self.watcher.live_observers = [self.bounties, self.combat_bonds, self.observed_markets]
         from cmdrhelper.odyssey_tracking import OdysseyCarrierTracking
         self.odyssey_carrier_tracking = OdysseyCarrierTracking(self)
         self.watcher.odysseyTrackingUpdated.connect(self.odyssey_carrier_tracking.poll)

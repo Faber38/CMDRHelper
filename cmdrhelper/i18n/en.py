@@ -1694,4 +1694,9 @@ TRANSLATIONS = {
     'trade.buy_success_one': 'Found 1 offer to sell you goods.',
     'trade.buy_success': 'Found {count} offers to sell you goods.',
     'trade.buy_help': 'Choose a commodity and quantity, set filters and start the purchase search manually. Price / t is the price paid by the commander. Supply is the reported available quantity and must cover the requested amount. Total cost = price × requested quantity. Community market data can change: check its age. Supply may be lower on arrival. Switching tabs cancels an active search and preserves the filters.',
+    'trade.observed_one': 'Own market data: {count} station',
+    'trade.observed_many': 'Own market data: {count} stations',
+    'trade.observed_now': 'last observed just now',
+    'trade.observed_last': 'last observed {age} ago',
+    'trade.observed_tooltip': 'Station markets you observed in Elite. They are stored for a maximum of 24 hours. Older market snapshots are automatically removed. A market is recorded automatically when you open the commodity market in Elite.',
 }

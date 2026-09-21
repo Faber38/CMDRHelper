@@ -1570,4 +1570,9 @@ TRANSLATIONS = {
     'trade.buy_success_one': 'Size mal satmak için 1 teklif bulundu.',
     'trade.buy_success': 'Size mal satmak için {count} teklif bulundu.',
     'trade.buy_help': 'Malı ve miktarı seçin, filtreleri ayarlayın ve satın alma aramasını elle başlatın. Fiyat / t, komutanın ödeyeceği fiyattır. Arz, bildirilen mevcut miktardır ve istenen miktarı karşılamalıdır. Toplam maliyet = fiyat × istenen miktar. Topluluk piyasa verileri değişebilir: verilerin yaşına dikkat edin. Varışta arz daha düşük olabilir. Sekme değiştirmek etkin aramayı iptal eder ve filtreleri korur.',
+    'trade.observed_one': 'Kendi pazar verilerin: {count} istasyon',
+    'trade.observed_many': 'Kendi pazar verilerin: {count} istasyon',
+    'trade.observed_now': 'son gözlem az önce',
+    'trade.observed_last': 'son gözlem {age} önce',
+    'trade.observed_tooltip': 'Elite içinde bizzat gözlemlediğin istasyon pazarları. En fazla 24 saat saklanır. Eski pazar kayıtları otomatik olarak silinir. Elite içinde emtia pazarını açtığında pazar otomatik olarak kaydedilir.',
 }

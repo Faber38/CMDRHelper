@@ -1683,4 +1683,9 @@ TRANSLATIONS = {
     'trade.buy_success_one': '1 offre de vente pour vous trouvée.',
     'trade.buy_success': '{count} offres de vente pour vous trouvées.',
     'trade.buy_help': 'Choisissez une marchandise et une quantité, réglez les filtres et lancez manuellement la recherche d’achat. Prix / t est le prix payé par le commandant. Offre est la quantité disponible signalée et doit couvrir la quantité demandée. Coût total = prix × quantité demandée. Les données communautaires du marché peuvent changer : vérifiez leur ancienneté. L’offre peut être plus faible à votre arrivée. Changer d’onglet annule la recherche active et conserve les filtres.',
+    'trade.observed_one': 'Données de marché personnelles : {count} station',
+    'trade.observed_many': 'Données de marché personnelles : {count} stations',
+    'trade.observed_now': 'dernière observation à l’instant',
+    'trade.observed_last': 'dernière observation il y a {age}',
+    'trade.observed_tooltip': 'Marchés de stations que vous avez observés dans Elite. Ils sont conservés pendant 24 heures au maximum. Les relevés plus anciens sont automatiquement supprimés. Le marché est enregistré automatiquement lorsque vous ouvrez le marché des marchandises dans Elite.',
 }

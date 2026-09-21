@@ -1570,4 +1570,9 @@ TRANSLATIONS = {
     'trade.buy_success_one': 'Znaleziono 1 ofertę sprzedaży towaru dla ciebie.',
     'trade.buy_success': 'Znaleziono oferty sprzedaży towaru dla ciebie: {count}.',
     'trade.buy_help': 'Wybierz towar i ilość, ustaw filtry i ręcznie rozpocznij wyszukiwanie zakupu. Cena / t to cena płacona przez dowódcę. Podaż to zgłoszona dostępna ilość, która musi pokrywać żądaną ilość. Koszt całkowity = cena × żądana ilość. Społecznościowe dane rynkowe mogą się zmienić: sprawdź ich wiek. Podaż może być mniejsza po przybyciu. Zmiana zakładki anuluje aktywne wyszukiwanie i zachowuje filtry.',
+    'trade.observed_one': 'Własne dane rynkowe: {count} stacja',
+    'trade.observed_many': 'Własne dane rynkowe — liczba stacji: {count}',
+    'trade.observed_now': 'ostatnia obserwacja przed chwilą',
+    'trade.observed_last': 'ostatnia obserwacja {age} temu',
+    'trade.observed_tooltip': 'Rynki stacji zaobserwowane osobiście w Elite. Są przechowywane przez maksymalnie 24 godziny. Starsze dane rynkowe są automatycznie usuwane. Rynek jest rejestrowany automatycznie po otwarciu rynku towarów w Elite.',
 }

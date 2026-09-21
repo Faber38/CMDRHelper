@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
 from cmdrhelper.commodity_master import lookup_by_id
 from cmdrhelper.i18n import get_language, tr
 from cmdrhelper.market_data import MarketSearch, MarketSearchResult, MarketStatus, PadSize, TradeSide
+from cmdrhelper.observed_market_cache import timestamp
 from cmdrhelper.spansh_market import SpanshMarketProvider
 from cmdrhelper.ui.commodity_picker import CommodityField
 
@@ -134,6 +135,11 @@ class TradeView(QWidget):
         self.reference.setTextFormat(Qt.TextFormat.PlainText)
         self.reference.setWordWrap(True)
         body.addWidget(self.reference)
+        self.observed_status = QLabel(objectName='muted')
+        self.observed_status.setTextFormat(Qt.TextFormat.PlainText)
+        self.observed_status.setWordWrap(True)
+        self._refreshing_observed = False
+        body.addWidget(self.observed_status)
         self.filters = QWidget()
         form = QFormLayout(self.filters)
         form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapLongRows)
@@ -208,6 +214,10 @@ class TradeView(QWidget):
         changed = getattr(state, 'changed', None)
         if changed is not None:
             changed.connect(self.refresh_reference)
+        for name in ('observedMarketsChanged', 'commanderIdentityChanged'):
+            signal = getattr(state, name, None)
+            if signal is not None:
+                signal.connect(self.refresh_observed_markets)
         QApplication.instance().aboutToQuit.connect(self.cancel_search)
         # A removed page must also stop background work without waiting on the GUI thread.
         self._cancel_event = None
@@ -258,6 +268,35 @@ class TradeView(QWidget):
             if self.worker is None:
                 self.status.setText(tr('trade.ready') if reference else tr('trade.no_system'))
         self.reference.setText(tr('trade.reference', system=reference or '–'))
+        self.refresh_observed_markets()
+
+    @Slot()
+    def refresh_observed_markets(self):
+        # all() owns TTL and physical cleanup. Its notification may re-enter us.
+        if self._refreshing_observed:
+            return
+        self._refreshing_observed = True
+        try:
+            observer = getattr(self.state, 'observed_markets', None)
+            fid = getattr(self.state, 'commander_fid', '')
+            markets = observer.cache.all(fid) if observer is not None and fid else []
+            markets = {row['market_id']: row for row in markets
+                       if row['fid'] == fid and row['source'] == 'local_elite'}
+            count = len(markets)
+            text = tr('trade.observed_one' if count == 1 else 'trade.observed_many', count=count)
+            if markets:
+                latest = max(timestamp(row['observed_at']) for row in markets.values())
+                now = observer.cache.clock()
+                text += ' · ' + (tr('trade.observed_now') if (now - latest).total_seconds() < 60
+                                else tr('trade.observed_last', age=format_age(latest, now)))
+            self.observed_status.setText(text)
+            self.observed_status.setToolTip(tr('trade.observed_tooltip'))
+        finally:
+            self._refreshing_observed = False
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.refresh_observed_markets()
 
     @Slot()
     def start_search(self):

@@ -1682,4 +1682,9 @@ TRANSLATIONS = {
     'trade.buy_success_one': 'Se encontró 1 oferta de venta para ti.',
     'trade.buy_success': 'Se encontraron {count} ofertas de venta para ti.',
     'trade.buy_help': 'Elige mercancía y cantidad, ajusta los filtros e inicia manualmente la búsqueda de compra. Precio / t es el precio que paga el comandante. Oferta es la cantidad disponible comunicada y debe cubrir la cantidad solicitada. Coste total = precio × cantidad solicitada. Los datos de mercado de la comunidad pueden cambiar: revisa su antigüedad. La oferta puede ser menor al llegar. Cambiar de pestaña cancela la búsqueda activa y conserva los filtros.',
+    'trade.observed_one': 'Datos de mercado propios: {count} estación',
+    'trade.observed_many': 'Datos de mercado propios: {count} estaciones',
+    'trade.observed_now': 'última observación ahora mismo',
+    'trade.observed_last': 'última observación hace {age}',
+    'trade.observed_tooltip': 'Mercados de estaciones que has observado en Elite. Se guardan durante un máximo de 24 horas. Los datos más antiguos se eliminan automáticamente. El mercado se registra automáticamente al abrir el mercado de mercancías en Elite.',
 }

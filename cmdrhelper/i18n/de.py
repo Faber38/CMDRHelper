@@ -1694,4 +1694,9 @@ TRANSLATIONS = {
     'trade.buy_success_one': '1 Verkaufsangebot gefunden.',
     'trade.buy_success': '{count} Verkaufsangebote gefunden.',
     'trade.buy_help': 'Ware und gewünschte Menge wählen, Filter festlegen und die Einkaufssuche manuell starten. Preis / t ist der vom Commander zu zahlende Preis. Angebot ist die gemeldete verfügbare Menge; sie muss mindestens der gewünschten Menge entsprechen. Gesamtkosten = Preis × gewünschte Menge. Community-Marktdaten können sich ändern: Datenalter beachten. Das Angebot kann bei Ankunft geringer sein. Beim Reiterwechsel wird eine laufende Suche abgebrochen; die Filter bleiben erhalten.',
+    'trade.observed_one': 'Eigene Marktdaten: {count} Station',
+    'trade.observed_many': 'Eigene Marktdaten: {count} Stationen',
+    'trade.observed_now': 'zuletzt gerade eben',
+    'trade.observed_last': 'zuletzt vor {age}',
+    'trade.observed_tooltip': 'Selbst beobachtete Stationsmärkte aus Elite. Sie werden maximal 24 Stunden gespeichert. Ältere Marktstände werden automatisch entfernt. Der Markt wird automatisch erfasst, wenn du in Elite den Warenmarkt öffnest.',
 }

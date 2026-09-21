@@ -1570,4 +1570,9 @@ TRANSLATIONS = {
     'trade.buy_success_one': '1 verkoopaanbieding voor jou gevonden.',
     'trade.buy_success': '{count} verkoopaanbiedingen voor jou gevonden.',
     'trade.buy_help': 'Kies een handelswaar en hoeveelheid, stel filters in en start de inkoopzoekopdracht handmatig. Prijs / t is de prijs die de commandant betaalt. Aanbod is de gemelde beschikbare hoeveelheid en moet de gevraagde hoeveelheid dekken. Totale kosten = prijs × gevraagde hoeveelheid. Marktgegevens uit de gemeenschap kunnen veranderen: let op hun ouderdom. Het aanbod kan bij aankomst kleiner zijn. Wisselen van tabblad annuleert een actieve zoekopdracht en behoudt de filters.',
+    'trade.observed_one': 'Eigen marktgegevens: {count} station',
+    'trade.observed_many': 'Eigen marktgegevens: {count} stations',
+    'trade.observed_now': 'laatst waargenomen zojuist',
+    'trade.observed_last': 'laatst waargenomen {age} geleden',
+    'trade.observed_tooltip': 'Stationsmarkten die je zelf in Elite hebt waargenomen. Ze worden maximaal 24 uur bewaard. Oudere marktgegevens worden automatisch verwijderd. De markt wordt automatisch vastgelegd wanneer je in Elite de goederenmarkt opent.',
 }

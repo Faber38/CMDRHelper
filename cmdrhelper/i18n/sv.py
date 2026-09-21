@@ -1570,4 +1570,9 @@ TRANSLATIONS = {
     'trade.buy_success_one': 'Hittade 1 erbjudande om att sälja varor till dig.',
     'trade.buy_success': 'Hittade {count} erbjudanden om att sälja varor till dig.',
     'trade.buy_help': 'Välj vara och mängd, ange filter och starta köpsökningen manuellt. Pris / t är priset befälhavaren betalar. Utbud är den rapporterade tillgängliga mängden och måste täcka önskad mängd. Totalkostnad = pris × önskad mängd. Gemenskapens marknadsdata kan ändras: kontrollera hur gamla uppgifterna är. Utbudet kan vara mindre vid ankomst. Byte av flik avbryter en aktiv sökning och behåller filtren.',
+    'trade.observed_one': 'Egna marknadsdata: {count} station',
+    'trade.observed_many': 'Egna marknadsdata: {count} stationer',
+    'trade.observed_now': 'senast observerat just nu',
+    'trade.observed_last': 'senast observerat för {age} sedan',
+    'trade.observed_tooltip': 'Stationsmarknader som du själv har observerat i Elite. De sparas i högst 24 timmar. Äldre marknadsdata tas bort automatiskt. Marknaden registreras automatiskt när du öppnar råvarumarknaden i Elite.',
 }
