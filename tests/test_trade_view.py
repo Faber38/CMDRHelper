@@ -107,7 +107,8 @@ class TradeViewTests(unittest.TestCase):
         self.view.show_result(MarketSearchResult(MarketStatus.OK, offers, query, **kwargs), query)
 
     def test_sell_and_buy_tabs_and_initial_table_empty(self):
-        self.assertEqual(self.view.tabs.count(), 2)
+        self.assertEqual(self.view.tabs.count(), 3)
+        self.assertEqual(self.view.tabs.tabText(2), tr('recommend.title'))
         self.assertEqual(self.view.tabs.tabText(0), 'Verkaufen')
         self.assertEqual(self.view.table.rowCount(), 0)
         self.assertEqual(self.view.table.columnCount(), 10)

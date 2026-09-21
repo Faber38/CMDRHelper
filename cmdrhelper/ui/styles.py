@@ -1,10 +1,24 @@
 DARK_STYLESHEET = r"""
+QLabel#observedMarketStatus { padding-left: 20px; }
+QLabel#observedMarketStatus[observed="true"] { color: #79bd8a; }
+
 QProgressBar#cargoFill {
     background: #1b252e;
     border: 1px solid #2d3943;
     border-radius: 3px;
 }
 QProgressBar#cargoFill::chunk {
+    background: #c57a00;
+    border-radius: 2px;
+}
+
+QProgressBar#recommendationProgress {
+    background: #1b252e;
+    border: 1px solid #2d3943;
+    border-radius: 3px;
+}
+
+QProgressBar#recommendationProgress::chunk {
     background: #c57a00;
     border-radius: 2px;
 }
@@ -172,6 +186,25 @@ QPushButton#favoriteNavigate:disabled {
     background: #111820;
 }
 
+QPushButton#recommendationSearch:enabled {
+    border-color: #c49a3c;
+}
+
+QPushButton#recommendationSearch:enabled:hover {
+    border-color: #f0c65b;
+}
+
+QPushButton#recommendationSearch:enabled:focus {
+    border: 2px solid #f0c65b;
+    padding: 2px 6px;
+}
+
+QPushButton#recommendationSearch:disabled {
+    border-color: #28323b;
+    color: #8e969e;
+    background: #111820;
+}
+
 QLabel#navigationTargetName {
     color: #ff9d00;
 }
@@ -235,12 +268,26 @@ QStatusBar {
 
 
 LIGHT_STYLESHEET = r"""
+QLabel#observedMarketStatus { padding-left: 20px; }
+QLabel#observedMarketStatus[observed="true"] { color: #247a41; }
+
 QProgressBar#cargoFill {
     background: #eef1f4;
     border: 1px solid #b7c0c8;
     border-radius: 3px;
 }
 QProgressBar#cargoFill::chunk {
+    background: #c56f00;
+    border-radius: 2px;
+}
+
+QProgressBar#recommendationProgress {
+    background: #eef1f4;
+    border: 1px solid #b7c0c8;
+    border-radius: 3px;
+}
+
+QProgressBar#recommendationProgress::chunk {
     background: #c56f00;
     border-radius: 2px;
 }
@@ -403,6 +450,25 @@ QPushButton#favoriteNavigate:enabled:pressed {
 }
 
 QPushButton#favoriteNavigate:disabled {
+    border-color: #bfc7ce;
+    color: #65717c;
+    background: #ffffff;
+}
+
+QPushButton#recommendationSearch:enabled {
+    border-color: #a57b1c;
+}
+
+QPushButton#recommendationSearch:enabled:hover {
+    border-color: #c18e1c;
+}
+
+QPushButton#recommendationSearch:enabled:focus {
+    border: 2px solid #c18e1c;
+    padding: 2px 6px;
+}
+
+QPushButton#recommendationSearch:disabled {
     border-color: #bfc7ce;
     color: #65717c;
     background: #ffffff;

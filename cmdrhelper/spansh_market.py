@@ -1,18 +1,19 @@
 """Spansh adapter for bounded market searches; memory only, synchronous/cancellable."""
 from collections import OrderedDict
-from dataclasses import replace
+from dataclasses import replace, asdict
 from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from http.client import HTTPException
 import json
 import math
-from threading import Lock
+from threading import Lock, local
+from types import SimpleNamespace
 import time
 from urllib.request import Request
 
 from .commodity_master import lookup_by_id, lookup_by_symbol
 from .market_data import (MarketOffer, MarketSearch, MarketSearchResult, MarketStatus,
-                          PadSize, TradeSide)
+                          PadSize, TradeSide, ProviderDiagnostics)
 from .spansh_transport import TransportError, request_json
 
 
@@ -99,6 +100,7 @@ class SpanshMarketProvider:
         self._rate_limit_until = 0
         self._retry_after = None
         self._lock = Lock()
+        self._diagnostics = local()
 
     def search_sell(self, query, *, cancel=None):
         return self._search(query, TradeSide.SELL, cancel)
@@ -134,7 +136,10 @@ class SpanshMarketProvider:
             self._last_request = self.clock()
             try:
                 try:
-                    data = request_json(req, timeout=self.timeout, opener=self.opener)
+                    diagnostics = getattr(self._diagnostics, 'current', None)
+                    if diagnostics is not None and attempt > 0:
+                        diagnostics.retries += 1
+                    data = request_json(req, timeout=self.timeout, opener=self.opener, diagnostics=diagnostics)
                 except HTTPException as exc:
                     # urllib can surface truncated HTTP bodies outside OSError.
                     raise TransportError('network_error') from exc
@@ -260,11 +265,37 @@ class SpanshMarketProvider:
         offers.sort(key=lambda o: ((-o.commander_sell_price if side == TradeSide.SELL else o.commander_buy_price),
                                   -o.market_updated_at.timestamp(), o.distance_ly,
                                   o.station_name, o.system_name, o.market_id))
+        diagnostics = getattr(self._diagnostics, 'current', None)
+        if diagnostics is not None:
+            diagnostics.page_limit_reached = bool(truncated)
+            diagnostics.result_limit_reached = len(offers) > q.limit
+            diagnostics.cache_hits = int(cached)
         return MarketSearchResult(MarketStatus.OK if offers else MarketStatus.NO_RESULTS,
                                   tuple(offers[:q.limit]), q, truncated=truncated or len(offers) > q.limit,
                                   from_cache=cached)
 
     def _search(self, q, side, cancel):
+        # Per-thread scope prevents queued Sell/Buy/Recommendation calls from
+        # attributing another worker's requests to this commodity.
+        diagnostics = SimpleNamespace(**asdict(ProviderDiagnostics(
+            page_limit=self.max_pages, result_limit=getattr(q, 'limit', 0))))
+        self._diagnostics.current = diagnostics
+        try:
+            result = self._search_impl(q, side, cancel)
+            if result.http_status is not None:
+                diagnostics.last_http_status = result.http_status
+            if result.retry_after is not None:
+                diagnostics.retry_after = result.retry_after
+            return replace(result, diagnostics=ProviderDiagnostics(**vars(diagnostics)))
+        except Exception as exc:
+            # Preserve counters even when the caller's existing exception guard
+            # handles an unexpected commodity failure. Do not change propagation.
+            exc.market_diagnostics = ProviderDiagnostics(**vars(diagnostics))
+            raise
+        finally:
+            del self._diagnostics.current
+
+    def _search_impl(self, q, side, cancel):
         if not _valid_query(q):
             return MarketSearchResult(MarketStatus.INVALID_QUERY, query=q)
         item = lookup_by_id(q.commodity) if type(q.commodity) is int else lookup_by_symbol(q.commodity)
@@ -297,6 +328,7 @@ class SpanshMarketProvider:
                            'sort': [{'market_' + price: [{'name': item.english_name,
                                     'direction': 'desc' if side == TradeSide.SELL else 'asc'}]}],
                            'size': self.page_size, 'page': page}
+                self._diagnostics.current.pages_started += 1
                 data = self._request('/stations/search', payload, cancel)
                 retrieved = self.utcnow()
                 if 'reference' in data and data['reference'] is None:
@@ -315,6 +347,7 @@ class SpanshMarketProvider:
                         if previous is None or offer.market_updated_at > previous.market_updated_at:
                             offers[offer.market_id] = offer
                 pages[branch] += 1
+                self._diagnostics.current.pages_completed += 1
                 if pages[branch] * self.page_size < count:
                     active.append(branch)
             self._cancel(cancel)

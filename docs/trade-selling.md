@@ -174,3 +174,13 @@ aktiven Commanders und das Alter der jüngsten Beobachtung. Ein Markt wird beim
 Jede MarketID zählt einmal; nur lokale Snapshots unter 24 Stunden zählen.
 Spansh-Ergebnisse sind in dieser Zahl nicht enthalten. Die Statuszeile verändert
 weder Verkaufs- noch Einkaufssuche. Details: [Lokaler Marktcache](observed-market-cache.md#status-auf-der-handel-seite).
+
+### Empfehlungen (Phase 7)
+
+Der dritte Reiter verbindet den aktuellen eigenen Einkaufsmarkt und den bestätigten
+freien Schiffsfrachtraum mit lokalen und Spansh-Zielen. Die Suche startet manuell,
+vergleicht Marktzeitpunkte bei gleicher MarketID und zeigt das beste geprüfte Ziel
+je lokal kaufbarer Ware nach Gesamtgewinn. Sie verwendet eine frei einstellbare
+Mindestmarge und dieselben Arten von Zielfiltern wie die vorhandene Handelssuche.
+Details zu Formeln, Quellen, fehlenden Metadaten und Requestgrenzen stehen in
+[Handelsempfehlungen](trade-recommendations.md).

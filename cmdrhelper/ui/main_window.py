@@ -22,6 +22,7 @@ from cmdrhelper.ui.commander_view import CommanderView
 from cmdrhelper.ui.material_view import MaterialView
 from cmdrhelper.ui.startup_progress import StartupProgressDialog
 from cmdrhelper.ui.cargo_hud import cargo_hud_enabled, cargo_hud_data
+from cmdrhelper.cargo import free_cargo_space
 from cmdrhelper.ui.table_widths import persist_column_widths
 from cmdrhelper.ui.explorer_value_sort import (
     ValueItem, sort_keys, bio_sort_keys, setup_sort, apply_sort,
@@ -1023,7 +1024,7 @@ class CargoLiveWindow(QDialog):
             capacity = max(0, int(capacity))
             self.summary_label.setText(tr(
                 "cargo.live.capacity", count=count, capacity=capacity,
-                free=max(0, capacity - count),
+                free=free_cargo_space(count, capacity),
             ))
 
         show_fill = vessel == "SRV" and capacity is not None and int(capacity) > 0

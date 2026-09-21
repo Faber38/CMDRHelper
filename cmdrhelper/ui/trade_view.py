@@ -222,12 +222,19 @@ class TradeView(QWidget):
         # A removed page must also stop background work without waiting on the GUI thread.
         self._cancel_event = None
         self.refresh_reference()
+        from .recommendations_view import RecommendationsView
+        self.recommendations = RecommendationsView(state, self.provider, self.pool)
+        self.tabs.addTab(self.recommendations, tr('recommend.title'))
         self.tabs.currentChanged.connect(self._change_side)
 
     @Slot(int)
     def _change_side(self, index):
         self._generation += 1
         self.cancel_search()
+        self.recommendations.cancel_for_context()
+        if index == 2:
+            self.recommendations.refresh()
+            return
         self.side = TradeSide.BUY if index == 1 else TradeSide.SELL
         # Move the same form instead of copying filter state or widget trees.
         self.tabs.widget(index).layout().addWidget(self._scroll)
@@ -354,6 +361,7 @@ class TradeView(QWidget):
 
     def closeEvent(self, event):
         self.cancel_search()
+        self.recommendations.cancel_search()
         super().closeEvent(event)
 
     @Slot(object)

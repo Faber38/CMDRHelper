@@ -16,6 +16,13 @@ _SRV_CAPACITIES = {
 }
 
 
+def free_cargo_space(count, capacity):
+    """Shared cargo-window/recommendation arithmetic; no guessed capacity."""
+    if type(count) is not int or count < 0 or type(capacity) is not int or capacity < 0:
+        return None
+    return max(0, capacity - count)
+
+
 def srv_cargo_capacity(srv_type, explicit=None) -> int | None:
     """Resolve SRV capacity independently of the mothership's loadout."""
     if isinstance(explicit, int) and not isinstance(explicit, bool) and explicit >= 0:

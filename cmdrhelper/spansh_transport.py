@@ -12,12 +12,19 @@ class TransportError(Exception):
         self.response_json = response_json
 
 
-def request_json(request, *, timeout=15, opener=None):
+def request_json(request, *, timeout=15, opener=None, diagnostics=None):
     try:
+        if diagnostics is not None:
+            diagnostics.http_requests += 1
         with (opener or urlopen)(request, timeout=timeout) as response:
+            if diagnostics is not None and type(getattr(response, 'status', None)) is int:
+                diagnostics.last_http_status = response.status
             raw = response.read().decode('utf-8', errors='replace')
     except HTTPError as exc:
         retry_after = exc.headers.get('Retry-After') if exc.headers else None
+        if diagnostics is not None:
+            diagnostics.last_http_status = exc.code
+            diagnostics.retry_after = retry_after
         data = None
         try:
             raw = exc.read().decode('utf-8', errors='replace')

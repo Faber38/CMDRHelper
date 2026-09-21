@@ -1,5 +1,5 @@
 """Provider-independent, transient market search contracts. No UI or persistence."""
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from threading import Event
@@ -49,18 +49,18 @@ class MarketSearch:
 
 @dataclass(frozen=True)
 class MarketOffer:
-    commodity_id: int
+    commodity_id: int | None
     commodity_symbol: str
     commodity_name: str
     system_name: str
-    system_id64: int
+    system_id64: int | None
     station_name: str
     market_id: int
     station_type: str
-    distance_ly: float
+    distance_ly: float | None
     distance_to_arrival_ls: float | None
     largest_pad: PadSize | None
-    is_fleet_carrier: bool
+    is_fleet_carrier: bool | None
     carrier_docking_access: str | None
     commander_buy_price: int | None
     commander_sell_price: int | None
@@ -69,6 +69,22 @@ class MarketOffer:
     market_updated_at: datetime
     retrieved_at: datetime
     provider: str
+
+
+@dataclass(frozen=True)
+class ProviderDiagnostics:
+    """One provider call, including transport attempts; never prices or URLs."""
+    http_requests: int = 0
+    cache_hits: int = 0
+    retries: int = 0
+    last_http_status: int | None = None
+    retry_after: str | None = None
+    pages_started: int = 0
+    pages_completed: int = 0
+    page_limit: int = 0
+    result_limit: int = 0
+    page_limit_reached: bool = False
+    result_limit_reached: bool = False
 
 
 @dataclass(frozen=True)
@@ -82,6 +98,7 @@ class MarketSearchResult:
     # True means bounded search, not an exhaustive global best-price claim.
     truncated: bool = False
     from_cache: bool = False
+    diagnostics: ProviderDiagnostics | None = field(default=None, compare=False)
 
 
 class MarketDataProvider(Protocol):
