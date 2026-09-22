@@ -928,6 +928,8 @@ TRANSLATIONS = {
     'explorer.col_progress': 'Edistyminen',
     'explorer.show_all_title': 'CMDRHelper – Järjestelmän yleiskuva – {system}',
     'explorer.overview_fit': 'Sovita ikkunaan',
+    'explorer.overview_auto_fit': 'Sovita automaattisesti ikkunaan',
+    'explorer.overview_auto_fit_hint': 'Sovittaa yleisnäkymän automaattisesti ikkunan kokoon avattaessa.',
     'explorer.overview_hint': 'Järjestelmän rakenne · Napsauta taivaankappaletta: tiedot · Ctrl + hiiren rulla: zoomaus · 100 %: palauta zoomaus',
     'explorer.no_system_data_available': 'Järjestelmätietoja ei ole saatavilla.',
     'explorer.no_body_data': 'Nykyisestä järjestelmästä ei ole vielä kappaletietoja.',

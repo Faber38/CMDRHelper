@@ -299,6 +299,7 @@ class OverviewViewTests(unittest.TestCase):
             self.assertGreater(view.items_by_key['body', 0].node.diameter, 100)
 
     def test_large_system_is_scrollable_and_starts_at_main_star(self):
+        self.settings.setValue('system_overview/auto_fit', False)
         dialog = self.dialog([star()] + [planet(i) for i in range(1, 35)])
         view = dialog.preview
         bar = view.horizontalScrollBar()

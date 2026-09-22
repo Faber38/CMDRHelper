@@ -928,6 +928,8 @@ TRANSLATIONS = {
     'explorer.col_progress': 'Progression',
     'explorer.show_all_title': 'CMDRHelper – Vue d’ensemble – {system}',
     'explorer.overview_fit': 'Adapter à la fenêtre',
+    'explorer.overview_auto_fit': 'Ajuster automatiquement à la fenêtre',
+    'explorer.overview_auto_fit_hint': 'Ajuste automatiquement la vue générale à la taille de la fenêtre à son ouverture.',
     'explorer.overview_hint': 'Structure du système · Clic sur un corps : détails · Ctrl + molette : zoom · 100 % : réinitialiser le zoom',
     'explorer.no_system_data_available': 'Aucune donnée système disponible.',
     'explorer.no_body_data': 'Aucune donnée de corps n’est encore disponible pour le système actuel.',

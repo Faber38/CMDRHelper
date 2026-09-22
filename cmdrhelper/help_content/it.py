@@ -196,6 +196,30 @@ HELP_TOPICS = {
               'disponibili, i valori di scansione e cartografia, nonché proprietà speciali di '
               'esplorazione.</p>\n'
               '\n'
+              '<p>«Adatta automaticamente alla finestra» è attivo per impostazione predefinita e conserva la scelta dopo il riavvio. Adatta ogni nuova vista generale alla finestra una sola volta; attivarlo in una finestra aperta esegue un singolo adattamento. Poi puoi continuare a ingrandire e spostare la vista manualmente. «Adatta alla finestra» resta disponibile per adattarla di nuovo manualmente.</p>\n'
+              '\n'
+              '<h3>Stazioni e strutture</h3>\n'
+              '<p>La scheda «STAZIONI (N)» mostra le stazioni e le strutture note del sistema attuale dell’Explorer come schede espandibili. Il numero nel titolo conta tutte le voci note, anche quelle nascoste dai filtri. Non è un elenco completo delle stazioni della galassia.</p>\n'
+              '<p>La base sono le osservazioni del diario di Elite note localmente. Se l’integrazione Spansh è attiva, si aggiungono informazioni dalla cache separata delle stazioni. La fonte può essere «Journal», «Spansh» o «Journal + Spansh»; in caso di conflitto prevale il diario. Spansh non aggiunge Fleet Carrier qui. Il tuo carrier può apparire se è noto localmente.</p>\n'
+              '\n'
+              '<h3>Ricerca, filtri e ordinamento delle stazioni</h3>\n'
+              '<p>«Cerca nome della stazione…» cerca subito nomi di stazioni o parti di nomi, senza distinguere maiuscole e minuscole. Una ricerca vuota non limita i nomi. Ricerca ed entrambi i filtri devono essere soddisfatti insieme.</p>\n'
+              '<ul>\n'
+              '<li><b>Tipo:</b> Limita l’elenco a stazioni orbitali, avamposti, stazioni di superficie, insediamenti, meganavi, Fleet Carrier o altre strutture. «Tutti i tipi» rimuove il limite di tipo.</li>\n'
+              '<li><b>Corpo associato:</b> Seleziona un corpo associato noto. «Tutti i corpi» ammette tutte le posizioni; «Sconosciuto» appare quando alcune voci non sono associabili con certezza a un corpo noto.</li>\n'
+              '<li><b>Ordina per:</b> Inizialmente in ordine alfabetico per «Nome». In alternativa, ordine crescente per «Tipo», «Corpo associato» o «Distanza dal punto di arrivo». La distanza è ordinata numericamente; distanze o corpi sconosciuti vengono per ultimi nel rispettivo ordinamento.</li>\n'
+              '</ul>\n'
+              '<p>Non ci sono intestazioni di colonne delle stazioni da cliccare: i selettori ordinano le schede. Ricerca, filtri e ordinamento non inviano richieste di rete. Cambiare sistema azzera ricerca e filtri di tipo/corpo. Una vista vuota distingue l’assenza di voci note dalle voci che non soddisfano i filtri.</p>\n'
+              '\n'
+              '<h3>Dettagli delle stazioni e servizi</h3>\n'
+              '<p>Clicca l’intestazione di una scheda per aprire o chiudere i dettagli. Se noti, vengono mostrati nome, tipo, sistema, corpo associato, MarketID, ultimo aggiornamento e fonte. Un doppio clic sull’anteprima apre il visualizzatore immagini.</p>\n'
+              '<p>Spansh può aggiungere distanza di arrivo in secondi luce, affiliazione, governo, fazione dominante, dati economici e numero di piattaforme grandi, medie e piccole. Le date dei dati della stazione, del sistema e del recupero sono mostrate separatamente, se disponibili; un nuovo recupero non garantisce dati della stazione più recenti.</p>\n'
+              '<p>I «Servizi» noti appaiono come campi etichettati, ad esempio «Mercato», «Cantiere navale», «Equipaggiamento», «Riparazione», «Rifornimento» o «Commerciante di materiali». L’intestazione mostra al massimo tre servizi e, se necessario, il numero di quelli aggiuntivi; espandendo la scheda si vedono tutti i servizi riconosciuti da CMDRHelper. I dati mancanti non vengono inventati e non dimostrano che un servizio sia assente.</p>\n'
+              '\n'
+              '<h3>Stazioni sulla mappa e aggiornamento</h3>\n'
+              '<p>La mappa del sistema e «Vista completa» usano le stesse informazioni note sulle stazioni. Le strutture associate con certezza a un corpo compaiono accanto ad esso; le altre sotto «Altre strutture». Un clic apre i dettagli o, per gruppi, prima un elenco di selezione.</p>\n'
+              '<p>In «Vista completa», «Aggiorna dati Spansh» aggiorna le informazioni Spansh sulle stazioni del sistema visualizzato nella finestra. L’opzione Spansh deve essere attiva e l’identità del sistema nota. La riga di stato indica richieste in corso, successo, errore o un aggiornamento già effettuato oggi. In caso di errore restano disponibili i dati locali e quelli utilizzabili in cache. La guida delle impostazioni spiega richieste automatiche, cache e aggiornamento manuale.</p>\n'
+              '\n'
               '<h3>BIO ×N</h3>\n'
               '<p>BIO ×N denota il numero di segnali biologici di un corpo riportati dal '
               'gioco.</p>\n'
@@ -418,6 +442,11 @@ HELP_TOPICS = {
 </ul>
 <p>Il display ad asse piccolo aiuta nell'orientamento nello spazio.</p>
 
+<p>La rotellina del mouse ingrandisce o riduce la vista senza tasti aggiuntivi.</p>
+<p>Un doppio clic in uno spazio vuoto della mappa ripristina la vista inclinata iniziale, azzera lo spostamento e adatta alla finestra tutti i sistemi visualizzati. I filtri e il sistema selezionato vengono mantenuti.</p>
+<p>Quando inizi una rotazione con il pulsante sinistro, il sistema cliccato diventa il centro di rotazione. In uno spazio vuoto si usa il punto sotto il cursore sul piano galattico; con una vista quasi orizzontale si usa invece il centro della mappa su quel piano. Anche l’allineamento ruota attorno al centro di rotazione attuale.</p>
+<p>Fai clic su un sistema per aprire la finestra dei dettagli. Qui, un clic sinistro sul nome in alto o sull’icona ⧉ accanto copia negli appunti solo il nome del sistema. Un breve ✓ conferma la copia.</p>
+
 <h3>Posizione attuale</h3>
 <p>Con "Posizione attuale" la visualizzazione della mappa può essere allineata o riportata alla posizione attualmente nota del comandante attivo.</p>
 <p>Vengono prima applicati i filtri attuali. La vista viene centrata sul sistema attuale solo se è presente nella mappa risultante.</p>
@@ -584,131 +613,63 @@ HELP_TOPICS = {
 <p>Il numero finale del sistema non viene valutato: Plio Aip KN-B d13-201 appartiene alla famiglia Plio Aip KN-B d13. BIO è informativo e non contribuisce alla valutazione principale. Le analisi mancanti non dimostrano valori nulli.</p>
 <h3>Analisi del sistema</h3>
 <p>Inserisci un sistema e scegli Analizza oppure premi Invio. Usa il sistema attuale prende il nome dallo stato di gioco esistente. Il ricalcolo avviene solo su azione dell’utente. Base di confronto e risultati indicano il livello; senza confronti locali si usa l’esperienza superiore. La qualità dei dati è separata dalla raccomandazione.</p>
+<p>Il campo «Sistema» accetta un nome digitato liberamente. «Usa il sistema attuale» compila soltanto il campo; poi premi «Analizza» o Invio. Il nome viene verificato localmente rispetto al modello di denominazione procedurale supportato. Non sono presenti una ricerca del sistema online o un elenco per nomi ambigui.</p>
+<p>Un campo vuoto, un nome non supportato, dati comparativi qualificati mancanti o un errore sostituiscono il risultato precedente con un messaggio. Un’analisi riuscita mostra raccomandazione, indice di potenziale e base dati locale. La tabella confronta codice di massa, regione e famiglia con numero di sistemi e base dati; seguono valori storici e ritrovamenti particolari noti.</p>
+<h3>Dati storici</h3>
 <p>Risultati storici per codice di sistema. Questi valori descrivono la tua esperienza di esplorazione passata e non sono una previsione diretta per un singolo sistema di destinazione. La base dati e l’attendibilità descrivono l’affidabilità dei confronti in base al campione disponibile e alla sua distribuzione tra i settori.</p>
+<p>In «Dati storici», scegli in «Obiettivo» un tipo di ritrovamento, non una destinazione: per esempio un obiettivo esplorativo, un genere o una specie BIO. La prima valutazione avviene alla creazione della vista. Dopo aver cambiato obiettivo o minimo, la classifica precedente rimane fino a quando premi «Rivaluta».</p>
+<p>Il campo numerico accanto alla selezione dell’obiettivo imposta il campione minimo per codice: da 1 a 50 sistemi esaminati, inizialmente 3. I codici con meno sistemi o senza ritrovamenti storici del tipo scelto sono esclusi dalla classifica.</p>
+<p>La tabella «Schemi storici» mostra fino a 50 codici con posizione, successi passati (sistemi con ritrovamenti / sistemi esaminati), frequenza di successo e solidità dei dati. L’ordine segue la valutazione storica smussata, non soltanto la frequenza di successo. Entrambe le tabelle hanno un ordine fisso, senza ordinamento per colonna o azioni di dettaglio. In assenza di schemi adatti compare un messaggio; un errore di valutazione svuota la classifica e mostra un messaggio di errore. L’analisi non calcola un itinerario.</p>
 """,
     ),
  'route_planner': ('Pianificatore di percorso',
-                   '<h2>Pianificatore di percorso</h2>\n<h3>CMDRHelper</h3>\n<p>Pianificatore migliorato: la partenza segue il sistema attuale finché non ne inserisci una manualmente; svuotare il campo ripristina l’automatismo. Navi e carrier usano indirizzi ID64 verificati esattamente, senza scegliere nomi simili. «Unable to find route» indica che non è stata trovata una rotta; controlla destinazioni, autonomia e impostazioni.</p>\n'
-                   '<p>Il pianificatore di percorso supporta la pianificazione di viaggi più '
-                   'lunghi in nave o Fleet Carrier. CMDRHelper può utilizzare i dati del percorso '
-                   'esterno da Spansh e preparare il percorso pianificato per un ulteriore '
-                   'utilizzo.</p>\n'
-                   '\n'
-                   '<h3>Inizia e finisci</h3>\n'
-                   '<p>Per il calcolo del percorso sono necessari un sistema di partenza e di '
-                   'destinazione.</p>\n'
-                   "<p>Per quanto possibile, CMDRHelper potrebbe utilizzare l'attuale sistema "
-                   'conosciuto del Comandante come punto di partenza. Inizio e fine devono essere '
-                   'controllati prima del calcolo.</p>\n'
-                   '\n'
-                   '<h3>Spedisci o Fleet Carrier</h3>\n'
-                   '<p>Il pianificatore di percorso distingue tra viaggi con una nave normale e '
-                   'con una Fleet Carrier.</p>\n'
-                   '<p>Entrambi utilizzano requisiti e metodi di calcolo diversi. Pertanto, prima '
-                   'della pianificazione è necessario selezionare il tipo di percorso '
-                   'appropriato.</p>\n'
-                   '\n'
-                   '<h3>Rotta della nave</h3>\n'
-                   '<p>Per una rotta navale vengono prese in considerazione le proprietà di salto '
-                   'conosciute o inserite per la nave attiva.</p>\n'
-                   '<p>A seconda dei dati disponibili, nella pianificazione possono essere '
-                   'incorporati i dati FSD, i dati della nave, la massa, il carburante e altri '
-                   'parametri di salto.</p>\n'
-                   '<p>Un percorso calcolato è un aiuto per la pianificazione. Le modifiche alla '
-                   "nave o alla sua massa possono modificare l'effettiva distanza di salto "
-                   'ottenibile nel gioco.</p>\n'
-                   '\n'
-                   '<h3>Rotta della portaerei della flotta</h3>\n'
-                   '<p>Fleet Carrier hanno regole di salto diverse rispetto alle navi '
-                   'normali.</p>\n'
-                   '<p>CMDRHelper utilizza la pianificazione del vettore Spansh designata per i '
-                   'percorsi corrispondenti.</p>\n'
-                   '<p>Il percorso viene utilizzato per pianificare la sequenza di salto. Il '
-                   'consumo effettivo di trizio e la portata disponibile possono dipendere anche '
-                   'dalla massa e dallo stato attuale del portatore.</p>\n'
-                   '\n'
-                   '<h3>Spansh</h3>\n'
-                   '<p>Per il calcolo effettivo del percorso, CMDRHelper può utilizzare il '
-                   'servizio esterno Spansh.</p>\n'
-                   "<p>La richiesta viene elaborata in background in modo che l'interfaccia "
-                   'rimanga operativa durante un calcolo più lungo.</p>\n'
-                   '<p>CMDRHelper non ha alcuna influenza sulla disponibilità o sui tempi di '
-                   'risposta del servizio esterno.</p>\n'
-                   '\n'
-                   '<h3>calcolo</h3>\n'
-                   '<p>Dopo aver avviato il calcolo, la richiesta viene trasmessa al pianificatore '
-                   'di percorso selezionato.</p>\n'
-                   '<p>A seconda del percorso e del servizio, il calcolo potrebbe richiedere del '
-                   'tempo. Durante questo periodo non si dovrebbe avviare un secondo calcolo '
-                   'identico inutilmente.</p>\n'
-                   '\n'
-                   '<h3>Risultato</h3>\n'
-                   '<p>Un percorso calcolato con successo mostra i sistemi o i punti di salto '
-                   'previsti nel loro ordine.</p>\n'
-                   '<p>A seconda del tipo di percorso vengono visualizzate informazioni aggiuntive '
-                   'su distanza, salti, carburante o trizio e altri dati di percorso '
-                   'disponibili.</p>\n'
-                   '\n'
-                   '<h3>Rotta e attuale comandante</h3>\n'
-                   '<p>Il sistema e la nave attuali possono, purché siano chiaramente conosciuti '
-                   "nell'AppState attivo, essere utilizzati per la pre-assegnazione o per "
-                   'supportare la pianificazione.</p>\n'
-                   '<p>Tuttavia, la rotta effettiva rimane un piano e non modifica alcun dato del '
-                   'diario o del comandante.</p>\n'
-                   '\n'
-                   '<h3>Esportazione CTSVision</h3>\n'
-                   '<p>Le rotte calcolate del vettore della flotta possono essere esportate come '
-                   'CSV per CTSVision.</p>\n'
-                   '<p>Ciò significa che un percorso portante pianificato in CMDRHelper può quindi '
-                   "essere utilizzato in CTSVision per il controllo del salto o l'elaborazione del "
-                   'percorso lì.</p>\n'
-                   "<p>L'esportazione non modifica il percorso in CMDRHelper.</p>\n"
-                   '\n'
-                   '<h3>File CSV</h3>\n'
-                   '<p>Il file esportato contiene i dati del percorso richiesti per CTSVision '
-                   "nell'ordine previsto.</p>\n"
-                   '<p>Il file non deve essere modificato strutturalmente in modo incontrollato '
-                   "dopo l'esportazione se deve poi essere letto da CTSVision.</p>\n"
-                   '\n'
-                   '<h3>Errori e servizi esterni</h3>\n'
-                   '<p>Se Spansh non può essere raggiunto o il servizio restituisce un errore, '
-                   'CMDRHelper visualizza un messaggio di errore corrispondente.</p>\n'
-                   '<p>Un errore nel calcolo della rotta online non modifica i dati del comandante '
-                   'locale o del diario.</p>\n'
-                   '\n'
-                   '<h3>Pianificatore di percorso e suggerimento per saltare</h3>\n'
-                   '<p>Il suggerimento per il salto e il pianificatore di percorso svolgono '
-                   'diversi compiti:</p>\n'
-                   '<ul>\n'
-                   '<li>Jump tip valuta possibili obiettivi di esplorazione interessanti sulla '
-                   'base dei dati esistenti.</li>\n'
-                   '<li>Il pianificatore di percorso calcola un percorso specifico tra partenza e '
-                   'destinazione.</li>\n'
-                   '</ul>\n'
-                   '<p>Un buon consiglio per il salto non è quindi automaticamente parte di un '
-                   'percorso ottimale.</p>\n'
-                   '\n'
-                   '<h3>Diversi comandanti</h3>\n'
-                   '<p>Se vengono utilizzati dati relativi al comandante, come il sistema attuale '
-                   "o la nave, questi provengono dall'AppState live attivo e devono essere "
-                   'chiaramente assegnati lì.</p>\n'
-                   '<p>Il semplice fatto di guardare un altro comandante nella vista CMDR non '
-                   'sposta il pianificatore di rotta sul suo sistema o sulla sua nave.</p>\n'
-                   '<p>Il calcolo del percorso in sé non modifica i dati personali di un altro '
-                   'comandante.</p>\n'
-                   '\n'
-                   '<h3>Mancia</h3>\n'
-                   '<p>Prima di un lungo viaggio, controlla sempre:</p>\n'
-                   '<ul>\n'
-                   '<li>Sistema di partenza</li>\n'
-                   '<li>Sistema di obiettivi</li>\n'
-                   '<li>Tipo di rotta nave/portaerei</li>\n'
-                   '<li>per le rotte delle navi, la nave sottostante, FSD e parametri di '
-                   'salto</li>\n'
-                   '<li>per le rotte dei vettori, la riserva di trizio disponibile</li>\n'
-                   '</ul>\n'
-                   '<p>Per i viaggi in flotta è consigliabile prevedere anche riserve sufficienti '
-                   'per il viaggio di ritorno o per deviazioni non pianificate.</p>'),
+                   """<h2>Pianificatore di percorso</h2>
+<h3>Panoramica</h3>
+<p>Il pianificatore calcola percorsi tra sistemi tramite Spansh. Scegli «Rotta della nave» o «Fleet Carrier / CTSVision». Serve una connessione di rete; CMDRHelper non pilota nave o carrier.</p>
+
+<h3>Partenza e destinazione</h3>
+<p>«Sistema di partenza» segue il sistema attuale noto del comandante attivo finché non inserisci una partenza diversa. Svuotando il campo ripristini questo comportamento. Inserisci il nome completo in «Sistema di destinazione»; una destinazione dai preferiti prepara la rotta della nave senza calcolarla.</p>
+<p>Partenza e destinazione devono essere identificate senza ambiguità. Non vengono sostituite con nomi simili. Nomi sconosciuti o ambigui producono un messaggio: correggi la voce.</p>
+
+<h3>Rotta della nave</h3>
+<p>Non c’è un selettore di nave: i dati noti della nave attiva precompilano i campi tecnici. Le modifiche restano impostazioni manuali. «Applica dati della nave» riapplica i dati disponibili. Controlla l’indicazione di dati completi, incompleti, vecchi o FSD sconosciuto.</p>
+<p>Controlla «Capacità serbatoio principale», «Carico attuale», «Massa base», «Capacità serbatoio di riserva», «Carburante di riserva», «Massa ottimale FSD», «Carburante FSD massimo per salto», «Potenza carburante», «Moltiplicatore carburante» e «Bonus portata». La capacità di salto deriva da questi valori; non c’è un singolo campo per la portata normale della nave. Carico ed equipaggiamento possono cambiare la portata effettiva.</p>
+
+<h3>Opzioni della nave e calcolo</h3>
+<p>«Algoritmo di rotta» offre optimistic, pessimistic, fuel, fuel_jumps e guided. La scelta viene inviata a Spansh.</p>
+<p>Le opzioni sono «Usa supercarica/stelle di neutroni», «La nave parte già supercaricata», «Usa iniezioni FSD», «Escludi stelle secondarie» e «Rifornisci a ogni stella raccoglibile»: supporto neutronico, partenza già potenziata, iniezioni FSD, stelle secondarie e rifornimenti. Avvia con «Calcola rotta nave con Spansh».</p>
+
+<h3>Rotta del carrier</h3>
+<p>«Fleet Carrier / CTSVision» pianifica senza scegliere o controllare un carrier specifico. Inserisci «Tritio nel serbatoio» e «Tritio nel deposito della carrier», al massimo 25.000 t complessive. «Massa calcolata della carrier» mostra 25.000 t più entrambe le quantità.</p>
+<p>«Portata massima di salto» va da 1 a 500 ly, con 500 ly predefiniti. «Calcola rotta con Spansh» avvia il calcolo. Il pulsante è disabilitato durante questa richiesta.</p>
+
+<h3>Spansh e attesa</h3>
+<p>Spansh calcola la rotta in background. Lo stato mostra la richiesta e poi esito positivo o errore. Si calcolano rotte, non prezzi commerciali o informazioni sulle stazioni. Questa vista non offre un pulsante per annullare un calcolo in corso.</p>
+
+<h3>Risultato della rotta</h3>
+<p>La lista mantiene l’ordine della rotta: numero, sistema, distanza del salto e distanza restante. Non è ordinabile liberamente. Le rotte nave aggiungono consumo, carburante residuo, neutroni e rifornimento; quelle carrier il consumo di trizio.</p>
+<p>I totali mostrano distanza, numero di salti e consumo o trizio stimato. I dati mancanti restano «–». Confronta il piano con la situazione reale nel gioco.</p>
+
+<h3>Avanzamento e prossima destinazione</h3>
+<p>Una rotta nave calcolata correttamente viene adottata automaticamente. «Sistema attuale», «Prossima destinazione» e «Stato della rotta» mostrano posizione, prossimo passo e stato. La lista rimane, senza spunte aggiuntive per i passi completati.</p>
+<p>Un salto nave riconosciuto al prossimo sistema o a uno successivo della rotta avanza il progresso e copia automaticamente il nome del sistema seguente negli appunti. Messaggi di posizione ripetuti e salti carrier non contano come questi avanzamenti.</p>
+<p>Caricare la rotta non copia automaticamente un nome. Usa «Copia prossima destinazione» all’inizio o in seguito finché esiste una prossima destinazione. Viene copiato solo il nome del sistema: nessun incollaggio automatico o controllo di Elite.</p>
+
+<h3>Deviazione e completamento</h3>
+<p>Un salto fuori dalla rotta restante mostra «Il sistema attuale è fuori rotta». Rotta e precedente prossima destinazione restano disponibili, senza ricalcolo automatico. Un successivo salto corrispondente può riprendere il progresso. Puoi anche calcolare volontariamente una nuova rotta.</p>
+<p>All’ultimo sistema appare «Rotta completata». «Prossima destinazione» diventa «–», il pulsante di copia è disabilitato e non viene copiato un altro nome. Gli appunti non vengono svuotati. La lista resta visibile.</p>
+
+<h3>Esportazione CTSVision</h3>
+<p>Solo la rotta carrier offre «Esporta per CTSVision». Dopo il calcolo scegli un nuovo file CSV. Contiene la sequenza e i dati disponibili di distanza, carburante, trizio e rifornimento per l’uso successivo in CTSVision.</p>
+<p>È un’esportazione di file, non un collegamento diretto o controllo automatico del carrier. I file esistenti non vengono sovrascritti. Annullare il dialogo non crea file; gli errori di scrittura vengono segnalati.</p>
+
+<h3>Errori e consigli</h3>
+<p>Sistemi mancanti, parametri incompleti o non validi e trizio eccessivo vengono segnalati. I valori richiesti di serbatoio, massa e FSD devono essere positivi; la riserva non può superare la capacità del serbatoio di riserva.</p>
+<p>Nessuna rotta trovata, problemi di rete, attesa eccessiva o risposta Spansh inutilizzabile producono un messaggio, mai un risultato inventato. Verifica nomi, dati nave e opzioni prima di ricalcolare.</p>
+
+<h3>Analisi e comandante</h3>
+<p>«Analisi», con «Analisi del sistema» e «Dati storici», valuta sistemi ed esperienze disponibili. Il pianificatore calcola il percorso concreto tra partenza e destinazione.</p>
+<p>Le impostazioni iniziali usano il comandante attivo e la sua nave. Visualizzare un altro comandante nella vista CMDR non cambia questa base.</p>"""),
  'images': ('Immagini',
             '<h2>Immagini</h2>\n'
             '<p>La sezione “Immagini” gestisce gli screenshot realizzati con Elite Dangerous. '
@@ -999,6 +960,19 @@ HELP_TOPICS = {
               'fase di modifica o test. Solo il comandante chiaramente identificato dalla sessione '
               'del diario attiva è autorizzato a inviare in diretta.</p>\n'
               '\n'
+              '<h3>Informazioni sulle stazioni Spansh</h3>\n'
+              '<p>In «SERVIZI ONLINE», «Aggiungi informazioni sulle stazioni da Spansh» attiva l’integrazione facoltativa di stazioni e strutture nell’Explorer e nelle viste sistema. Inizialmente è disattivata. Viene inviato solo l’identificativo pubblico del sistema, non informazioni sul comandante; non serve una chiave API personale. L’opzione non controlla le ricerche dei mercati commerciali.</p>\n'
+              '<p>Se disattivata, sono mostrate solo informazioni locali del diario e non partono nuove richieste di stazioni Spansh; anche l’aggiornamento manuale è disabilitato. La cache esistente non viene eliminata, ma non integra la vista. Riattivare l’opzione rende nuovamente disponibili i dati in cache senza avviare da sola una richiesta di rete.</p>\n'
+              '\n'
+              '<h3>Richieste automatiche e cache delle stazioni</h3>\n'
+              '<p>Il controllo automatico avviene solo a un nuovo ingresso dal vivo del comandante attivo del diario in un altro sistema, ad esempio dopo un salto della nave, del carrier o una nuova posizione confermata. Avvio, cambio di comandante, importazione di archivi e semplice apertura dell’Explorer o di una vista sistema non avviano richieste automatiche.</p>\n'
+              '<p>La cache separata delle stazioni sopravvive ai riavvii di Helper. Un recupero di meno di 7 giorni fa è considerato recente ed evita una nuova richiesta automatica. Dati mancanti o più vecchi possono essere aggiornati al successivo ingresso dal vivo idoneo. È previsto al massimo un tentativo automatico per sistema e giorno del calendario locale; contano anche gli errori, persino dopo un riavvio. Non esiste un aggiornamento continuo in background di tutti i sistemi salvati. I vecchi dati utilizzabili in cache possono restare visibili anche senza connessione.</p>\n'
+              '<p>Questa cache contiene informazioni aggiuntive sulle stazioni, non prezzi dei mercati commerciali. I dati comunitari Spansh per vendita, acquisto e raccomandazioni hanno una propria cache di ricerca temporanea in RAM. Le istantanee commerciali osservate personalmente in Elite sono salvate separatamente: sopravvivono al riavvio, ma sono valide solo se più recenti di 24 ore.</p>\n'
+              '\n'
+              '<h3>Aggiornare manualmente le stazioni</h3>\n'
+              '<p>Apri «Vista completa» e scegli «Aggiorna dati Spansh». Vengono aggiornate solo le informazioni sulle stazioni Spansh del sistema mostrato nella finestra, non tutti i sistemi salvati né i prezzi dei mercati. L’opzione deve essere attiva; durante una richiesta per quel sistema l’azione è disabilitata.</p>\n'
+              '<p>L’azione manuale può ignorare il periodo di 7 giorni e un tentativo automatico fallito quel giorno. Se il sistema è già stato recuperato con successo oggi secondo il calendario locale, non viene inviata un’altra richiesta: «I dati Spansh sono già stati aggiornati oggi.» Un recupero riuscito rinnova la cache. In caso di errore restano i dati locali e quelli utilizzabili in cache; la riga di stato segnala l’errore. Un tentativo manuale fallito può essere ripetuto.</p>\n'
+              '\n'
               '<h3>EDSM accesso per</h3>\n'
               '<p>“EDSM accesso per:” seleziona il comandante da modificare. La selezione mostrerà '
               '"impostato" o "non impostato" a seconda che sia memorizzato uno API-Key.</p>\n'
@@ -1175,7 +1149,7 @@ HELP_TOPICS = {
 <p>Non è un pianificatore di rotte interstellari e non gestisce la navigazione tra sistemi o i salti. Sei tu a pilotare la nave.</p>
 
 <h3>Aprire il navigatore e inserire un obiettivo</h3>
-<p>Nella panoramica, apri «Navigazione planetaria» e seleziona «Inserimento manuale …».</p>
+<p>Apri «Navigazione planetaria» nell’Explorer e scegli «Inserimento manuale …». Puoi aprire la finestra e inserire una destinazione prima che sia disponibile una posizione attuale sulla superficie.</p>
 <ul>
 <li><b>Corpo celeste:</b> Seleziona il pianeta o la luna di destinazione dall’elenco oppure usa il corpo già rilevato. Puoi anche inserire il nome del corpo manualmente se non è ancora nell’elenco. In caso di dubbio, usa il nome completo, incluso il nome del sistema.</li>
 <li><b>Latitudine:</b> Inserisci la latitudine dell’obiettivo tra −90° e +90°.</li>
@@ -1187,6 +1161,16 @@ HELP_TOPICS = {
 <h3>Quando si attiva la bussola?</h3>
 <p>Non appena è impostato un obiettivo ed Elite fornisce dati di posizione planetaria validi per il corpo corrispondente, la navigazione si attiva automaticamente. Non devi premere un pulsante di avvio separato.</p>
 <p>Se questi dati mancano ancora o appartengono a un altro corpo, il navigatore attende mostrando «In attesa delle coordinate planetarie …». Puoi inserire un obiettivo anche prima di ricevere questi dati.</p>
+
+<p>La navigazione attiva richiede coordinate, nome del corpo, orientamento e raggio planetario validi forniti da Elite per il corpo di destinazione. Non serve atterrare: i dati possono arrivare durante l’avvicinamento. Senza posizione valida o su un altro corpo, il navigatore attende senza inventare una posizione.</p>
+
+<h3>Salvare la posizione attuale</h3>
+<p>«★ Salva la posizione attuale» salva la posizione attuale confermata, non la destinazione inserita. Servono una posizione Elite valida, un comandante identificato e un sistema noto. Altrimenti l’azione è disabilitata o appare un avviso.</p>
+<p>All’apertura vengono fissati sistema, corpo e coordinate. Nel dialogo dei preferiti puoi modificare nome, categoria e nota e associare un’immagine. Solo «Salva» salva localmente per quel comandante; annullare non salva nulla. Gli spostamenti successivi non cambiano la posizione fissata.</p>
+
+<h3>Usare le posizioni salvate</h3>
+<p>Apri «★ Preferiti» nell’Explorer. Seleziona un luogo di superficie e «◎ Alle coordinate» per usare corpo, coordinate e nome come destinazione. Sostituisce la destinazione precedente; su un altro corpo il navigatore attende dati di posizione corrispondenti.</p>
+<p>«Modifica» modifica nome, categoria e nota. «Elimina» elimina il preferito dopo conferma, senza cancellare dati Elite. I preferiti sopravvivono ai riavvii e sono separati per comandante; la destinazione di navigazione attuale dura solo per la sessione.</p>
 
 <h3>Globo planetario: oltre 380 km</h3>
 <p>Quando la distanza dall’obiettivo è superiore a 380 km, il navigatore mostra il globo planetario.</p>
@@ -1235,9 +1219,13 @@ HELP_TOPICS = {
 <p>Sullo stesso corpo puoi riaprire «Inserimento manuale …» in qualsiasi momento e impostare altre coordinate. Il nuovo obiettivo sostituisce quello di navigazione precedente. Con dati di posizione corrispondenti, la bussola si aggiorna immediatamente.</p>
 <p>Con «Termina navigazione» rimuovi l’obiettivo attuale. Per un altro avvicinamento, imposta semplicemente un nuovo obiettivo.</p>
 
+<p>Chiudere la finestra non elimina la destinazione. Il HUD di navigazione attivo può continuare; «Termina navigazione» rimuove la destinazione. Lasciare il corpo corrispondente o perdere i dati di posizione mette la navigazione in attesa e nasconde il suo HUD.</p>
+
 <h3>Aggiornamento dei dati e limiti</h3>
 <p>La navigazione si basa sui dati di stato forniti da Elite. Gli aggiornamenti possono arrivare in ritardo a seconda dello stato del gioco. L’indicazione dell’età nel navigatore mostra quanto tempo è trascorso dall’ultimo messaggio di stato confermato.</p>
 <p>La distanza sulla superficie descrive l’arco più breve su una sfera ideale. Non è un percorso sul terreno o stradale. Il navigatore non conosce gli ostacoli né le quote del terreno lungo il tragitto: altitudine di volo, velocità sicura ed evitamento degli ostacoli restano responsabilità tua.</p>
+
+<p>La posizione attuale proviene da Status.json; il diario completa le associazioni di corpo e sistema. La finestra e il HUD attivo mantengono gli aggiornamenti quando servono. La visualizzazione dipende dai dati Elite disponibili, senza precisione garantita in metri.</p>
 
 <h3>Suggerimento</h3>
 <p>Prima dell’avvicinamento, controlla il nome del corpo e i segni delle coordinate dell’obiettivo. Allineati quindi alla rotta obiettivo sulla bussola di Elite e osserva direzione relativa e distanza. Se il navigatore è in attesa, verifica se Elite sta già fornendo coordinate planetarie per il corpo obiettivo.</p>""",

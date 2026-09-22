@@ -9,7 +9,7 @@ from PySide6.QtCore import QPointF, QRectF, Qt, Signal, QTimer
 from PySide6.QtGui import QBitmap, QColor, QFont, QPainter, QPainterPath, QPen, QRegion
 from PySide6.QtWidgets import (
     QDialog, QGraphicsObject, QGraphicsScene, QGraphicsView, QHBoxLayout,
-    QLabel, QPushButton, QVBoxLayout,
+    QCheckBox, QLabel, QPushButton, QVBoxLayout,
 )
 
 from cmdrhelper.i18n import tr
@@ -319,6 +319,21 @@ class SystemOverviewDialog(QDialog):
         self.fit_button.setCursor(Qt.PointingHandCursor)
         self.fit_button.clicked.connect(self.preview.fit_system)
         buttons.addWidget(self.fit_button)
+        buttons.addStretch()
+        root.addLayout(buttons)
+        self.auto_fit_checkbox = QCheckBox(tr('explorer.overview_auto_fit'))
+        self.auto_fit_checkbox.setToolTip(tr('explorer.overview_auto_fit_hint'))
+        self.auto_fit_checkbox.setCursor(Qt.PointingHandCursor)
+        self.auto_fit_checkbox.setChecked(
+            settings.value('system_overview/auto_fit', True, type=bool)
+            if settings is not None else True)
+        self.auto_fit_checkbox.toggled.connect(self._auto_fit_changed)
+        root.addWidget(self.auto_fit_checkbox)
+        self._opening_fit_timer = QTimer(self)
+        self._opening_fit_timer.setSingleShot(True)
+        self._opening_fit_timer.timeout.connect(self._fit_on_open)
+        self._first_show = True
+        buttons = QHBoxLayout()
         self.spansh = spansh
         self.spansh_button = QPushButton(tr('spansh.refresh'))
         self.spansh_button.setCursor(Qt.PointingHandCursor)
@@ -340,6 +355,25 @@ class SystemOverviewDialog(QDialog):
         close.clicked.connect(self.close)
         buttons.addWidget(close)
         root.addLayout(buttons)
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        if self._first_show:
+            self._first_show = False
+            # Run after the initial layout and the preview's queued scrolling.
+            self._opening_fit_timer.start(0)
+
+    def _fit_on_open(self):
+        if self.auto_fit_checkbox.isChecked():
+            self.preview.fit_system()
+
+    def _auto_fit_changed(self, enabled):
+        if self.settings is not None:
+            self.settings.setValue('system_overview/auto_fit', enabled)
+            self.settings.sync()
+        if enabled and self.isVisible():
+            self._opening_fit_timer.stop()
+            self.preview.fit_system()
 
     def _spansh_activity(self):
         from cmdrhelper.spansh_cache import valid_id

@@ -189,6 +189,30 @@ HELP_TOPICS = {
               '<p>Displayen visar bland annat kroppstyp, avstånd och – om tillgängligt – '
               'skannings- och kartografivärden samt speciella prospekteringsegenskaper.</p>\n'
               '\n'
+              '<p>”Anpassa automatiskt till fönstret” är på som standard och kommer ihåg ditt val efter omstart. Varje ny översikt anpassas till fönstret en gång; aktivering i ett öppet fönster anpassar också en gång. Därefter kan du fortfarande zooma och flytta vyn manuellt. ”Anpassa till fönstret” finns kvar för att anpassa vyn manuellt igen.</p>\n'
+              '\n'
+              '<h3>Stationer och anläggningar</h3>\n'
+              '<p>Fliken ”STATIONER (N)” visar kända stationer och anläggningar i Explorerns aktuella system som utfällbara kort. Antalet i rubriken räknar alla kända poster, även dem som döljs av filter. Det är ingen fullständig katalog över galaxens stationer.</p>\n'
+              '<p>Grunden är lokalt kända observationer från Elites journal. Med Spansh-komplettering aktiverad tillkommer information från den separata stationscachen. Källan kan vara ”Journal”, ”Spansh” eller ”Journal + Spansh”; vid motstridiga uppgifter har journalen företräde. Spansh lägger inte till Fleet Carriers här. Din egen carrier kan visas om den är känd lokalt.</p>\n'
+              '\n'
+              '<h3>Stationssökning, filter och sortering</h3>\n'
+              '<p>”Sök stationsnamn…” söker direkt efter stationsnamn eller delar av namn, utan skillnad mellan stora och små bokstäver. En tom sökning begränsar inte namnen. Sökningen och båda filtren måste stämma samtidigt.</p>\n'
+              '<ul>\n'
+              '<li><b>Typ:</b> Begränsar listan till omloppsstationer, utposter, ytstationer, bosättningar, megaskepp, Fleet Carriers eller andra anläggningar. ”Alla typer” tar bort typbegränsningen.</li>\n'
+              '<li><b>Tillhörande himlakropp:</b> Väljer en känd tillhörande himlakropp. ”Alla himlakroppar” tillåter alla platser; ”Okänd” visas när poster inte säkert kan kopplas till en känd kropp.</li>\n'
+              '<li><b>Sortera efter:</b> Från början alfabetiskt efter ”Namn”. Alternativt stigande efter ”Typ”, ”Tillhörande himlakropp” eller ”Avstånd från ankomstpunkt”. Avstånd sorteras numeriskt; okända avstånd eller kroppar hamnar sist vid respektive sortering.</li>\n'
+              '</ul>\n'
+              '<p>Det finns inga stationskolumnrubriker att klicka på: urvalslistorna sorterar korten. Sökning, filter och sortering gör inga nätverksanrop. Vid systembyte återställs sökningen och typ-/kroppsfiltren. En tom vy skiljer mellan inga kända poster och poster som inte matchar filtren.</p>\n'
+              '\n'
+              '<h3>Stationsdetaljer och tjänster</h3>\n'
+              '<p>Klicka på ett stationskorts rubrik för att visa eller dölja detaljerna. Om uppgifterna är kända visas namn, typ, system, tillhörande kropp, MarketID, senaste uppdatering och källa. Dubbelklicka på förhandsbilden för att öppna bildvisaren.</p>\n'
+              '<p>Spansh kan lägga till ankomstavstånd i ljussekunder, tillhörighet, styrelseskick, kontrollerande fraktion, ekonomiuppgifter och antalet stora, medelstora och små landningsplattformar. Tider för stationsdata, systemdata och hämtning visas separat när de finns; en ny hämtning garanterar inte nyare stationsdata.</p>\n'
+              '<p>Kända ”Tjänster” visas som namngivna fält, exempelvis ”Marknad”, ”Skeppsvarv”, ”Utrustning”, ”Reparation”, ”Tankning” eller ”Materialhandlare”. Kortrubriken visar högst tre tjänster och vid behov antalet övriga; utfällt visas alla tjänster som CMDRHelper känner igen. Saknade uppgifter gissas inte och bevisar inte att en tjänst saknas.</p>\n'
+              '\n'
+              '<h3>Stationer på kartan och uppdatering</h3>\n'
+              '<p>Systemkartan och ”Systemöversikt” använder samma kända stationsuppgifter. Säkert kopplade anläggningar visas vid sin himlakropp, övriga under ”Övriga anläggningar”. Ett klick öppnar detaljer eller, för grupper, först en urvalslista.</p>\n'
+              '<p>I ”Systemöversikt” uppdaterar ”Uppdatera Spansh-data” Spansh-stationsuppgifterna för systemet som visas i fönstret. Spansh-stationsinformation måste vara aktiverad och systemets identitet känd. Statusraden visar pågående anrop, framgång, fel eller en uppdatering som redan gjorts i dag. Vid fel finns lokala uppgifter och användbara cachedata kvar. Inställningshjälpen förklarar automatiska anrop, cache och manuell uppdatering.</p>\n'
+              '\n'
               '<h3>BIO ×N</h3>\n'
               '<p>BIO ×N anger antalet biologiska signaler från en kropp som rapporterats av '
               'spelet.</p>\n'
@@ -403,6 +427,11 @@ HELP_TOPICS = {
 </ul>
 <p>Den lilla axeldisplayen hjälper till med orientering i rymden.</p>
 
+<p>Använd mushjulet för att zooma in eller ut utan någon extra tangent.</p>
+<p>Dubbelklicka på tom kartmark för att återställa den ursprungliga sneda vyn, nollställa förskjutningen och passa in alla visade system i fönstret. Filter och valt system behålls.</p>
+<p>När du börjar rotera med vänster musknapp blir det klickade systemet rotationscentrum. På tom yta används punkten under pekaren på det galaktiska planet; vid nästan vågrät vy används i stället kartans mitt på samma plan. Även uppriktningen roterar kring det aktuella rotationscentrumet.</p>
+<p>Klicka på ett system för att öppna dess detaljfönster. Där kopierar ett vänsterklick på systemnamnet överst eller kopieringsikonen ⧉ intill enbart systemnamnet till urklipp. Ett kort ✓ bekräftar kopieringen.</p>
+
 <h3>Aktuell position</h3>
 <p>Med "Current Position" kan kartvyn justeras eller återgå till den aktuella kända platsen för den aktiva befälhavaren.</p>
 <p>Först tillämpas de aktuella filtren. Vyn centreras på det aktuella systemet endast om det finns med i den resulterande kartan.</p>
@@ -569,120 +598,63 @@ HELP_TOPICS = {
 <p>Det sista systemnumret bedöms inte: Plio Aip KN-B d13-201 tillhör familjen Plio Aip KN-B d13. BIO är informativt och ingår inte i huvudbedömningen. Saknade analyser bevisar inte nollvärden.</p>
 <h3>Systemanalys</h3>
 <p>Ange ett system och välj Analysera eller tryck på Enter. Använd aktuellt system hämtar namnet från befintlig spelstatus. Analysen räknas om endast på användarens begäran. Jämförelseunderlag och resultat anger nivån; utan lokala jämförelser används överordnad erfarenhet. Datakvaliteten visas separat från rekommendationen.</p>
+<p>I fältet ”System” skriver du ett namn fritt. ”Använd aktuellt system” fyller bara i fältet; starta sedan med ”Analysera” eller Enter. Namnet kontrolleras lokalt mot det stödda procedurgenererade namnmönstret. Här finns ingen systemuppslagning på nätet eller urvalslista för tvetydiga namn.</p>
+<p>Tom inmatning, ett namn som inte stöds, saknade kvalificerade jämförelsedata eller ett fel ersätter föregående resultat med ett meddelande. En lyckad analys visar rekommendation, potentialindex och lokalt dataunderlag. Jämförelsetabellen innehåller masskod, region och familj med systemantal och dataunderlag; nedanför visas erfarenhetsvärden och kända särskilda fynd.</p>
+<h3>Historiska data</h3>
 <p>Historiska träffar per systemkod. Värdena beskriver din hittillsvarande utforskningserfarenhet och är ingen direkt prognos för ett enskilt målsystem. Dataunderlag och tillförlitlighet beskriver hur pålitliga jämförelsedata är, utifrån urvalet och dess fördelning mellan sektorer.</p>
+<p>I ”Historiska data” väljer du under ”Mål” en fyndtyp, inte ett resmål: exempelvis ett utforskningsmål, ett BIO-släkte eller en BIO-art. Den första utvärderingen sker när vyn byggs. Efter ändring av mål eller minimiantal står den tidigare rankningen kvar tills du trycker på ”Utvärdera igen”.</p>
+<p>Sifferfältet bredvid målvalet anger minsta urval per kod: 1 till 50 undersökta system, från början 3. Koder med färre system eller utan historiska träffar för vald fyndtyp tas inte med i rankningen.</p>
+<p>Tabellen ”Historiska mönster” visar upp till 50 koder med rang, tidigare framgång (system med träffar / undersökta system), träffandel och underlagets styrka. Ordningen följer den utjämnade historiska bedömningen, inte enbart träffandelen. Båda tabellerna har fast ordning utan kolumnsortering eller detaljåtgärder. Saknas passande mönster visas ett meddelande; ett utvärderingsfel tömmer rankningen och visar ett felmeddelande. Analys beräknar ingen resrutt.</p>
 """,
     ),
  'route_planner': ('Ruttplanerare',
-                   '<h2>Ruttplanerare</h2>\n<h3>CMDRHelper</h3>\n<p>Förbättrad ruttplanerare: starten följer automatiskt det aktuella systemet tills du anger en manuellt; tömning av fältet återställer automatiken. Skepp och carriers använder exakt validerade ID64-adresser utan att välja liknande namn. ”Unable to find route” förklaras som att ingen rutt hittades; kontrollera mål, räckvidd och ruttinställningar.</p>\n'
-                   '<p>Ruttplaneraren stöder planering av längre resor med fartyg eller Fleet '
-                   'Carrier. CMDRHelper kan använda extern ruttdata från Spansh och förbereda den '
-                   'planerade rutten för vidare användning.</p>\n'
-                   '\n'
-                   '<h3>Starta och avsluta</h3>\n'
-                   '<p>Ett start- och målsystem krävs för ruttberäkning.</p>\n'
-                   '<p>I den mån det är möjligt kan CMDRHelper använda befälhavarens nuvarande '
-                   'kända system som utgångspunkt. Start och mål bör kontrolleras före '
-                   'beräkning.</p>\n'
-                   '\n'
-                   '<h3>Skicka eller Fleet Carrier</h3>\n'
-                   '<p>Ruttplaneraren skiljer mellan resor med ett vanligt fartyg och med en Fleet '
-                   'Carrier.</p>\n'
-                   '<p>Båda använder olika krav och beräkningsmetoder. Därför måste lämplig '
-                   'rutttyp väljas innan du planerar.</p>\n'
-                   '\n'
-                   '<h3>Fartygsrutt</h3>\n'
-                   '<p>För en fartygsrutt beaktas de hoppegenskaper som är kända eller angivna för '
-                   'det aktiva fartyget.</p>\n'
-                   '<p>Beroende på tillgängliga data kan FSD-data, fartygsdata, massa, bränsle och '
-                   'andra hoppparametrar inkluderas i planeringen.</p>\n'
-                   '<p>En beräknad rutt är ett planeringshjälp. Ändringar av skeppet eller dess '
-                   'massa kan ändra det faktiska hoppavståndet som kan uppnås i spelet.</p>\n'
-                   '\n'
-                   '<h3>Fleet carrier route</h3>\n'
-                   '<p>Fleet Carrier har andra hoppregler än vanliga fartyg.</p>\n'
-                   '<p>CMDRHelper använder den utsedda Spansh operatörsplaneringen för motsvarande '
-                   'rutter.</p>\n'
-                   '<p>Rutten används för att planera hoppsekvensen. Faktisk tritiumförbrukning '
-                   'och tillgängligt räckvidd kan också bero på massa och aktuell '
-                   'bärarstatus.</p>\n'
-                   '\n'
-                   '<h3>Spansh</h3>\n'
-                   '<p>För själva ruttberäkningen kan CMDRHelper använda den externa tjänsten '
-                   'Spansh.</p>\n'
-                   '<p>Begäran behandlas i bakgrunden så att gränssnittet förblir funktionsdugligt '
-                   'under en längre beräkning.</p>\n'
-                   '<p>CMDRHelper har inget inflytande på tillgängligheten eller svarstiden för '
-                   'den externa tjänsten.</p>\n'
-                   '\n'
-                   '<h3>beräkning</h3>\n'
-                   '<p>Efter start av en beräkning skickas begäran vidare till den valda '
-                   'ruttplaneraren.</p>\n'
-                   '<p>Beroende på rutt och tjänst kan beräkningen ta lite tid. Under denna tid '
-                   'bör ingen andra identisk beräkning startas i onödan.</p>\n'
-                   '\n'
-                   '<h3>Resultat</h3>\n'
-                   '<p>En framgångsrikt beräknad rutt visar de avsedda systemen eller '
-                   'hopppunkterna i deras ordning.</p>\n'
-                   '<p>Beroende på rutttyp visas ytterligare information om distans, hopp, bränsle '
-                   'eller tritium och annan tillgänglig ruttdata.</p>\n'
-                   '\n'
-                   '<h3>Rutt och nuvarande befäl</h3>\n'
-                   '<p>Det nuvarande systemet och fartyget kan - så länge de är tydligt kända i '
-                   'den aktiva AppState - användas för förhandstilldelning eller för att stödja '
-                   'planering.</p>\n'
-                   '<p>Den faktiska rutten förblir dock en plan och ändrar inte några journal- '
-                   'eller befäldata.</p>\n'
-                   '\n'
-                   '<h3>CTSVision export</h3>\n'
-                   '<p>Beräknade transportrutter för flottan kan exporteras som CSV för '
-                   'CTSVision.</p>\n'
-                   '<p>Detta innebär att en operatörsrutt planerad i CMDRHelper sedan kan användas '
-                   'i CTSVision för hoppkontroll eller ruttbearbetning där.</p>\n'
-                   '<p>Exporten ändrar inte rutten i CMDRHelper.</p>\n'
-                   '\n'
-                   '<h3>CSV-fil</h3>\n'
-                   '<p>Den exporterade filen innehåller ruttdata som krävs för CTSVision i avsedd '
-                   'ordning.</p>\n'
-                   '<p>Filen ska inte ändras strukturellt på ett okontrollerat sätt efter export '
-                   'om den sedan ska läsas in av CTSVision.</p>\n'
-                   '\n'
-                   '<h3>Fel och externa tjänster</h3>\n'
-                   '<p>Om Spansh inte kan nås eller tjänsten returnerar ett fel, visar CMDRHelper '
-                   'ett motsvarande felmeddelande.</p>\n'
-                   '<p>Ett fel i online-ruttberäkning ändrar inte lokal befälhavare eller '
-                   'journaldata.</p>\n'
-                   '\n'
-                   '<h3>Ruttplanerare och hopptips</h3>\n'
-                   '<p>Hopptips och ruttplanerare fyller olika uppgifter:</p>\n'
-                   '<ul>\n'
-                   '<li>Jump tip utvärderar möjliga intressanta prospekteringsmål baserat på '
-                   'befintlig data.</li>\n'
-                   '<li>Ruttplanerare beräknar en specifik rutt mellan start och '
-                   'destination.</li>\n'
-                   '</ul>\n'
-                   '<p>Ett bra hopptips är därför inte automatiskt en del av en optimal rutt.</p>\n'
-                   '\n'
-                   '<h3>Flera befälhavare</h3>\n'
-                   '<p>Om befälhavarerelaterade data som nuvarande system eller fartyg används '
-                   'kommer detta från den aktiva live AppState och måste tydligt tilldelas '
-                   'dit.</p>\n'
-                   '<p>Att bara titta på en annan befälhavare i CMDR-vyn ändrar inte '
-                   'ruttplaneraren till deras system eller fartyg.</p>\n'
-                   '<p>En ruttberäkning i sig ändrar inte en annan befälhavares '
-                   'personuppgifter.</p>\n'
-                   '\n'
-                   '<h3>Dricks</h3>\n'
-                   '<p>Innan en lång resa, kontrollera alltid igen:</p>\n'
-                   '<ul>\n'
-                   '<li>Startsystem</li>\n'
-                   '<li>Målsystem</li>\n'
-                   '<li>Rutttyp fartyg/transportör</li>\n'
-                   '<li>för fartygsrutter, det underliggande fartyget, FSD och '
-                   'hoppparametrar</li>\n'
-                   '<li>för transportrutter, den tillgängliga tritiumreserven</li>\n'
-                   '</ul>\n'
-                   '<p>För transportörsresor är det tillrådligt att även planera tillräckliga '
-                   'reserver för återresan eller oplanerade omvägar.</p>'),
+                   """<h2>Ruttplanerare</h2>
+<h3>Översikt</h3>
+<p>Planeraren beräknar rutter mellan system via Spansh. Välj ”Fartygsrutt” eller ”Fleet Carrier / CTSVision”. Nätanslutning krävs; CMDRHelper styr varken skepp eller carrier.</p>
+
+<h3>Start och mål</h3>
+<p>”Startsystem” följer den aktiva befälhavarens kända aktuella system tills du skriver en egen start. Ett tomt fält återställer detta. Ange hela namnet i ”Målsystem”; ett mål från favoriter förbereder skeppsrutten utan att beräkna den.</p>
+<p>Start och mål måste identifieras entydigt. Liknande namn används inte som ersättning. Okända eller tvetydiga namn ger ett meddelande; rätta inmatningen.</p>
+
+<h3>Skeppsrutt</h3>
+<p>Här finns ingen skeppsväljare: kända uppgifter från det aktiva skeppet fyller teknikfälten. Egna ändringar behålls som manuella värden. ”Använd fartygsdata” hämtar tillgängliga skeppsdata på nytt. Kontrollera meddelandet om kompletta, ofullständiga, gamla eller okända FSD-data.</p>
+<p>Kontrollera ”Huvudtankens kapacitet”, ”Aktuell last”, ”Basmassa”, ”Reservtankens kapacitet”, ”Reservbränsle”, ”Optimal FSD-massa”, ”Maximalt FSD-bränsle per hopp”, ”Bränsleeffekt”, ”Bränslemultiplikator” och ”Räckviddsbonus”. Dessa avgör hoppegenskaperna; det finns inget ensamt fält för normal skeppsräckvidd. Last och utrustning kan ändra faktisk räckvidd.</p>
+
+<h3>Skeppsval och beräkning</h3>
+<p>”Ruttalgoritm” erbjuder optimistic, pessimistic, fuel, fuel_jumps och guided. Valet skickas till Spansh.</p>
+<p>Alternativen är ”Använd supercharge/neutronstjärnor”, ”Fartyget startar redan supercharged”, ”Använd FSD-injektioner”, ”Uteslut sekundärstjärnor” och ”Tanka vid varje scoopbar stjärna”: neutronstöd, redan förstärkt start, FSD-injektioner, sekundärstjärnor och tankstopp. Starta med ”Beräkna fartygsrutt med Spansh”.</p>
+
+<h3>Carrierrutt</h3>
+<p>”Fleet Carrier / CTSVision” planerar utan att välja eller styra en viss carrier. Fyll i ”Tritium i tanken” och ”Tritium i carrier-lagret”, sammanlagt högst 25 000 t. ”Beräknad carrier-massa” visar 25 000 t plus dessa mängder.</p>
+<p>”Maximal hoppräckvidd” kan vara 1 till 500 ly, med 500 ly som standard. ”Beräkna rutt med Spansh” startar beräkningen. Carrierknappen är avstängd under anropet.</p>
+
+<h3>Spansh och väntetid</h3>
+<p>Spansh beräknar rutten i bakgrunden. Status visar anropet och sedan framgång eller fel. Detta gäller rutter, inte handelspriser eller stationsinformation. Vyn har ingen avbrytknapp för pågående beräkning.</p>
+
+<h3>Ruttresultat</h3>
+<p>Listan har fast ruttordning: nummer, system, hoppavstånd och återstående avstånd. Den kan inte sorteras fritt. Skeppsrutter visar även förbrukning, tankinnehåll, neutron- och tankningsuppgifter; carrierrutter visar tritiumförbrukning.</p>
+<p>Nedan visas totalavstånd, antal hopp och förbrukning eller uppskattat tritium. Saknade värden förblir ”–”. Jämför planen med det faktiska läget i spelet.</p>
+
+<h3>Framsteg och nästa mål</h3>
+<p>En framgångsrikt beräknad skeppsrutt tas över automatiskt. ”Aktuellt system”, ”Nästa mål” och ”Ruttstatus” visar position, nästa steg och tillstånd. Listan finns kvar utan extra bockar för avslutade steg.</p>
+<p>Ett identifierat skeppshopp till nästa eller ett senare system på rutten flyttar framstegen framåt och kopierar automatiskt namnet på systemet därefter. Upprepade positionsmeddelanden och carrierhopp räknas inte som sådana framstegshopp.</p>
+<p>Att läsa in rutten kopierar inget namn automatiskt. Använd ”Kopiera nästa mål” först eller senare så länge ett nästa mål finns. Bara systemnamnet kopieras: ingen automatisk inklistring eller styrning av Elite.</p>
+
+<h3>Avvikelse och slutförande</h3>
+<p>Ett hopp utanför återstående rutt visar ”Aktuellt system ligger utanför rutten”. Rutten och tidigare nästa mål behålls; ingen automatisk omberäkning sker. Ett senare passande hopp framåt kan återuppta rutten. Du kan också medvetet beräkna en ny rutt.</p>
+<p>Vid sista systemet visas ”Rutt slutförd”. ”Nästa mål” blir ”–”, kopieringsknappen stängs av och inget nytt namn kopieras. Urklipp töms inte. Resultatlistan står kvar.</p>
+
+<h3>CTSVision-export</h3>
+<p>Bara carrierrutten erbjuder ”Exportera för CTSVision”. Välj en ny CSV-fil efter lyckad beräkning. Den innehåller ruttföljden och tillgängliga avstånds-, bränsle-, tritium- och påfyllningsdata för senare användning i CTSVision.</p>
+<p>Detta är filexport, ingen direktanslutning eller automatisk carrierstyrning. Befintliga filer skrivs inte över. Avbryt i fildialogen skapar ingen fil; skrivfel rapporteras.</p>
+
+<h3>Fel och råd</h3>
+<p>Saknade system, ofullständiga eller ogiltiga skeppsparametrar och för mycket tritium rapporteras. Nödvändiga tank-, massa- och FSD-värden måste vara positiva; reservbränsle får inte överstiga reservtankens kapacitet.</p>
+<p>Ingen rutt, nätproblem, för lång väntan eller oanvändbart Spansh-svar ger ett meddelande, aldrig ett påhittat resultat. Kontrollera namn, skeppsdata och val innan ny beräkning.</p>
+
+<h3>Analys och befälhavare</h3>
+<p>”Analys”, med ”Systemanalys” och ”Historiska data”, bedömer system och tillgänglig erfarenhet. Ruttplaneraren beräknar den konkreta resan mellan start och mål.</p>
+<p>Förvalen använder aktiv befälhavare och skepp. Att bara visa en annan befälhavare i CMDR-vyn ändrar inte detta.</p>"""),
  'images': ('Bilder',
             '<h2>Bilder</h2>\n'
             '<p>Avsnittet "Bilder" hanterar skärmbilder tagna med Elite Dangerous. CMDRHelper kan '
@@ -952,6 +924,19 @@ HELP_TOPICS = {
               'eller testas. Endast befälhavaren tydligt identifierad av den aktiva '
               'journalsessionen får skicka live.</p>\n'
               '\n'
+              '<h3>Spansh-stationsinformation</h3>\n'
+              '<p>Under ”ONLINETJÄNSTER” aktiverar ”Lägg till stationsinformation från Spansh” frivilliga kompletteringar om stationer och anläggningar i Explorer och systemvyer. Alternativet är av från början. Endast systemets offentliga identifierare skickas, inga befälhavaruppgifter; ingen egen API-nyckel behövs. Alternativet styr inte handelsmarknadssökningar.</p>\n'
+              '<p>När det är avstängt visas bara lokala journaluppgifter och inga nya Spansh-stationsanrop startas; även manuell uppdatering är avstängd. Befintliga stationscachedata raderas inte men används inte för att komplettera vyn. Aktivering gör cachedata tillgängliga igen utan att i sig starta ett nätverksanrop.</p>\n'
+              '\n'
+              '<h3>Automatiska stationsanrop och cache</h3>\n'
+              '<p>Automatisk kontroll sker bara när den aktiva journalbefälhavarens nya inträde i ett annat system registreras live, exempelvis efter ett skeppshopp, carrierhopp eller en ny bekräftad positionsrapport. Uppstart, befälhavarbyte, arkivimport och att bara öppna Explorer eller en systemvy startar inget automatiskt anrop.</p>\n'
+              '<p>Den separata stationscachen bevaras efter omstart av Helper. En hämtning som är mindre än 7 dagar gammal räknas som färsk och undviker ett nytt automatiskt nätverksanrop. Saknade eller äldre data kan uppdateras vid nästa kvalificerande systeminträde live. Högst ett automatiskt försök per system och lokal kalenderdag tillåts; även fel räknas, också efter omstart. Alla sparade system uppdateras inte kontinuerligt i bakgrunden. Äldre användbara cachedata kan fortsätta visas, även offline.</p>\n'
+              '<p>Den här cachen innehåller kompletterande stationsuppgifter, inte handelsmarknadspriser. Spanshs gemenskapsdata för försäljning, inköp och rekommendationer har en egen tillfällig sökcache i RAM. Handelsmarknadsbilder som du själv observerat i Elite sparas separat: de överlever en omstart men är bara giltiga om de är yngre än 24 timmar.</p>\n'
+              '\n'
+              '<h3>Uppdatera stationsdata manuellt</h3>\n'
+              '<p>Öppna ”Systemöversikt” och välj ”Uppdatera Spansh-data”. Bara Spansh-stationsuppgifter för systemet i detta fönster uppdateras, inte alla sparade system eller handelsmarknadspriser. Alternativet måste vara aktiverat; under ett pågående anrop för systemet är åtgärden avstängd.</p>\n'
+              '<p>Manuell uppdatering kan kringgå perioden på 7 dagar och ett misslyckat automatiskt försök samma dag. Om systemet redan hämtats framgångsrikt i dag enligt lokal kalender görs inget nytt anrop: ”Spansh-data har redan uppdaterats idag.” En lyckad hämtning förnyar stationscachen. Vid fel bevaras lokala uppgifter och användbara cachedata, och statusraden visar felet. Ett misslyckat manuellt försök kan upprepas.</p>\n'
+              '\n'
               '<h3>EDSM åtkomst för</h3>\n'
               '<p>"EDSM åtkomst för:" väljer kommandot som ska redigeras. Valet kommer att visa '
               '"set up" eller "not set up" beroende på om en API-Key är lagrad.</p>\n'
@@ -1115,7 +1100,7 @@ HELP_TOPICS = {
 <p>Den är inte en interstellär ruttplanerare och hanterar varken system- eller hoppnavigering. Du styr ditt skepp själv.</p>
 
 <h3>Öppna navigatorn och ange ett mål</h3>
-<p>Öppna ”Planetnavigering” i översikten och välj ”Manuell inmatning …”.</p>
+<p>Öppna ”Planetnavigering” i Explorer och välj ”Manuell inmatning …”. Fönstret kan öppnas och ett mål anges innan en aktuell ytposition finns.</p>
 <ul>
 <li><b>Himlakropp:</b> Välj målplaneten eller målmånen i listan eller använd den himlakropp som redan identifierats. Du kan också skriva in namnet själv om det ännu inte finns i listan. Om du är osäker, använd hela namnet inklusive systemnamnet.</li>
 <li><b>Latitud:</b> Ange målets latitud mellan −90° och +90°.</li>
@@ -1127,6 +1112,16 @@ HELP_TOPICS = {
 <h3>När startar kompassen?</h3>
 <p>Så snart ett mål är satt och Elite levererar giltiga planetära positionsdata för rätt himlakropp aktiveras navigeringen automatiskt. Du behöver inte trycka på någon separat startknapp.</p>
 <p>Om dessa data fortfarande saknas eller tillhör en annan himlakropp väntar navigatorn med ”Väntar på planetkoordinater …”. Du kan ange ett mål redan innan dessa data kommer.</p>
+
+<p>Aktiv navigering kräver giltiga koordinater, kroppsnamn, riktning och planetradie från Elite för målkroppen. Landning krävs inte: data kan komma under inflygning. Utan giltig position eller på en annan kropp väntar navigatorn utan att hitta på en position.</p>
+
+<h3>Spara aktuell plats</h3>
+<p>”★ Spara aktuell position” sparar din bekräftade aktuella position, inte det inmatade navigeringsmålet. Giltig Elite-position, identifierad befälhavare och känt system krävs. Annars är åtgärden avstängd eller ett meddelande visas.</p>
+<p>System, kropp och koordinater låses när åtgärden öppnas. I favoritdialogen kan du ändra namn, kategori och anteckning och lägga till en bild. Först ”Spara” sparar lokalt för befälhavaren; avbryt sparar inget. Senare rörelser ändrar inte den fångade positionen.</p>
+
+<h3>Använda sparade positioner</h3>
+<p>Öppna ”★ Favoriter” i Explorer. Välj en sparad ytplats och ”◎ Till koordinaterna” för att använda kropp, koordinater och namn som mål. Det ersätter tidigare mål; på en annan kropp väntar navigatorn på passande positionsdata.</p>
+<p>”Redigera” ändrar namn, kategori och anteckning. ”Ta bort” tar bort favoriten efter bekräftelse, inga Elite-data. Favoriter bevaras vid omstart och hålls åtskilda per befälhavare; själva navigeringsmålet gäller bara under sessionen.</p>
 
 <h3>Planetglob: mer än 380 km</h3>
 <p>När målavståndet är större än 380 km visar navigatorn planetgloben.</p>
@@ -1175,9 +1170,13 @@ HELP_TOPICS = {
 <p>På samma himlakropp kan du när som helst öppna ”Manuell inmatning …” igen och ange andra koordinater. Det nya målet ersätter det tidigare navigeringsmålet. Med motsvarande positionsdata uppdateras kompassen omedelbart.</p>
 <p>Med ”Avsluta navigering” tar du bort det aktuella målet. För en ny inflygning anger du helt enkelt ett nytt mål.</p>
 
+<p>Att stänga fönstret tar inte bort målet. En aktiverad navigerings-HUD kan fortsätta; ”Avsluta navigering” tar bort målet. När du lämnar rätt kropp eller saknar positionsdata väntar navigeringen och navigerings-HUD:en döljs.</p>
+
 <h3>Dataålder och begränsningar</h3>
 <p>Navigeringen bygger på statusdata från Elite. Uppdateringar kan komma med fördröjning beroende på spelets tillstånd. Åldersvisningen i navigatorn visar hur lång tid som gått sedan det senaste bekräftade statusmeddelandet.</p>
 <p>Ytavståndet beskriver den kortaste bågen på ett tänkt klot. Det är inte en terräng- eller vägrutt. Navigatorn känner inte till hinder eller terränghöjder längs sträckan; flyghöjd, säker hastighet och att undvika hinder är fortfarande ditt ansvar.</p>
+
+<p>Positionen kommer från Status.json; journalen kompletterar kropps- och systemkopplingar. Fönstret och aktiverad navigerings-HUD håller uppdateringar aktiva vid behov. Visningen beror på tillgängliga Elite-data, utan garanterad noggrannhet i meter.</p>
 
 <h3>Tips</h3>
 <p>Kontrollera himlakroppens namn och målkoordinaternas tecken före inflygningen. Rikta sedan in dig efter målkursen i Elite-kompassen och följ relativ riktning och avstånd. Om navigatorn väntar, kontrollera om Elite redan levererar planetkoordinater för målhimlakroppen.</p>""",

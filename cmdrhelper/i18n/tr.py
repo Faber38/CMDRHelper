@@ -928,6 +928,8 @@ TRANSLATIONS = {
     'explorer.col_progress': 'İlerleme',
     'explorer.show_all_title': 'CMDRHelper – Sistem genel görünümü – {system}',
     'explorer.overview_fit': 'Pencereye sığdır',
+    'explorer.overview_auto_fit': 'Pencereye otomatik sığdır',
+    'explorer.overview_auto_fit_hint': 'Genel görünümü açılışta pencere boyutuna otomatik olarak sığdırır.',
     'explorer.overview_hint': 'Sistem yapısı · Bir gök cismine tıklayın: ayrıntılar · Ctrl + fare tekerleği: yakınlaştırma · 100 %: yakınlaştırmayı sıfırla',
     'explorer.no_system_data_available': 'Sistem verisi mevcut değil.',
     'explorer.no_body_data': 'Mevcut sistem için henüz gökcismi verisi yok.',

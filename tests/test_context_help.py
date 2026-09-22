@@ -317,8 +317,8 @@ class ContextHelpTests(unittest.TestCase):
             "SRV-Fracht wird niemals als Schiffsfracht übernommen",
         ):
             self.assertIn(passage, topic.text)
-        self.assertEqual(topic.text.count("<h3>"), 30)
-        self.assertEqual(topic.text.count("<ul>"), 5)
+        self.assertEqual(topic.text.count("<h3>"), 34)
+        self.assertEqual(topic.text.count("<ul>"), 6)
         for text in ("★ Favoriten", "Schnell-Favorit ohne Maus", "Nicht belegt",
                      "kein automatischer Screenshot", "Der gespeicherte HUD-Schalter",
                      "Spätere Bewegungen im Spiel verändern diese Werte",
@@ -340,29 +340,21 @@ class ContextHelpTests(unittest.TestCase):
         topic = help_topic("route_planner")
         self.assertEqual(topic.area, "Routenplaner")
         for heading in (
-            "Routenplaner", "Start und Ziel", "Schiff oder Fleet Carrier",
-            "Schiffsroute", "Fleet-Carrier-Route", "Spansh", "Berechnung",
-            "Ergebnis", "Route und aktueller Commander", "CTSVision-Export",
-            "CSV-Datei", "Fehler und externe Dienste",
-            "Routenplaner und Sprungtipp", "Mehrere Commander", "Tipp",
+            "Überblick", "Start und Ziel", "Schiffsroute", "Schiffsoptionen und Berechnung",
+            "Carrierroute", "Spansh und Wartezeit", "Routenergebnis",
+            "Fortschritt und nächstes Ziel", "Abweichung und Abschluss", "CTSVision-Export",
+            "Fehler und Hinweise", "Analyse und Commanderbezug",
         ):
             self.assertIn(heading, topic.text)
         for passage in (
-            "normalen Schiff und mit einem Fleet Carrier",
-            "FSD-Daten, Schiffsdaten, Masse, Treibstoff",
-            "Spansh-Carrierplanung",
-            "Anfrage wird im Hintergrund verarbeitet",
-            "Treibstoff beziehungsweise Tritium",
-            "Berechnete Fleet-Carrier-Routen können für CTSVision als CSV exportiert",
-            "Sprungtipp bewertet mögliche interessante Explorationsziele",
-            "Routenplaner berechnet eine konkrete Strecke",
-            "aktiven Live-AppState",
+            "Netzwerkverbindung erforderlich", "automatisch übernommen",
+            "folgenden Systemnamen automatisch in die Zwischenablage",
+            "keine automatische Neuberechnung", "nicht überschrieben",
             "Das bloße Betrachten eines anderen Commanders",
-            "verfügbare Tritiumreserve",
         ):
             self.assertIn(passage, topic.text)
-        self.assertEqual(topic.text.count("<h3>"), 15)
-        self.assertEqual(topic.text.count("<ul>"), 2)
+        self.assertNotIn("Sprungtipp", topic.text)
+        self.assertEqual(topic.text.count("<h3>"), 12)
 
     def test_images_help_contains_all_implemented_sections(self):
         topic = help_topic("images")
@@ -567,7 +559,7 @@ class ContextHelpTests(unittest.TestCase):
             "aktive Journal-FID bestätigten Cargo-Snapshot",
         ):
             self.assertIn(passage, topic.text)
-        self.assertEqual(topic.text.count("<h3>"), 30)
+        self.assertEqual(topic.text.count("<h3>"), 33)
         self.assertIn("diagnose_summary.txt", topic.text)
         self.assertEqual(topic.text.count("<ul>"), 4)
 
@@ -611,7 +603,7 @@ class ContextHelpTests(unittest.TestCase):
             "Das neue Ziel ersetzt", "automatisch aktiv",
         ):
             self.assertIn(text, topic.text)
-        for obsolete in ("Favoriten", "Anflugprofil", "Tunnel", "ApproachBody", "LeaveBody",
+        for obsolete in ("Anflugprofil", "Tunnel", "ApproachBody", "LeaveBody",
                          "Binding", "Barrier", "Prototyp"):
             self.assertNotIn(obsolete, topic.text)
         self.assertGreaterEqual(topic.text.count("<h3>"), 10)

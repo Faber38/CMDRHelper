@@ -928,6 +928,8 @@ TRANSLATIONS = {
     'explorer.col_progress': 'Framsteg',
     'explorer.show_all_title': 'CMDRHelper – Systemöversikt – {system}',
     'explorer.overview_fit': 'Anpassa till fönstret',
+    'explorer.overview_auto_fit': 'Anpassa automatiskt till fönstret',
+    'explorer.overview_auto_fit_hint': 'Anpassar översikten automatiskt till fönsterstorleken när den öppnas.',
     'explorer.overview_hint': 'Systemstruktur · Klicka på en himlakropp: detaljer · Ctrl + mushjul: zoom · 100 %: återställ zoom',
     'explorer.no_system_data_available': 'Inga systemdata tillgängliga.',
     'explorer.no_body_data': 'Det finns ännu inga kroppsdata för det aktuella systemet.',

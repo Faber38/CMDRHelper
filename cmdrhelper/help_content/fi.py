@@ -188,6 +188,30 @@ HELP_TOPICS = {
               '<p>Näytöllä näkyy muun muassa kehon tyyppi, etäisyys ja – jos saatavilla – '
               'skannaus- ja kartografiaarvot sekä erityiset etsintäominaisuudet.</p>\n'
               '\n'
+              '<p>«Sovita automaattisesti ikkunaan» on oletuksena käytössä, ja valinta säilyy uudelleenkäynnistyksen jälkeen. Se sovittaa uuden yleisnäkymän ikkunaan kerran; käyttöönotto avoimessa ikkunassa sovittaa näkymän myös kerran. Sen jälkeen voit edelleen zoomata ja siirtää näkymää käsin. «Sovita ikkunaan» on yhä käytettävissä uutta manuaalista sovitusta varten.</p>\n'
+              '\n'
+              '<h3>Asemat ja palvelupaikat</h3>\n'
+              '<p>Välilehti ”ASEMAT (N)” näyttää Explorerin nykyisen järjestelmän tunnetut asemat ja palvelupaikat avattavina kortteina. Otsikon luku sisältää kaikki tunnetut kohteet, myös suodattimien piilottamat. Luettelo ei kata kaikkia galaksin asemia.</p>\n'
+              '<p>Pohjana ovat paikallisesti tunnetut Eliten päiväkirjahavainnot. Kun Spansh-täydennys on käytössä, tietoja lisätään erillisestä asemavälimuistista. Lähde voi olla ”Journal”, ”Spansh” tai ”Journal + Spansh”; ristiriidoissa päiväkirjatieto on etusijalla. Spansh ei lisää tähän Fleet Carriereita. Oma carrierisi voi näkyä, jos se tunnetaan paikallisesti.</p>\n'
+              '\n'
+              '<h3>Asemien haku, suodatus ja lajittelu</h3>\n'
+              '<p>”Hae aseman nimeä…” hakee heti asemien nimillä tai nimien osilla kirjainkoosta riippumatta. Tyhjä haku ei rajoita nimiä. Haun ja molempien suodattimien on täytyttävä yhdessä.</p>\n'
+              '<ul>\n'
+              '<li><b>Tyyppi:</b> Rajaa luettelon kiertorata-asemiin, etuvartioasemiin, pinta-asemiin, siirtokuntiin, mega-aluksiin, Fleet Carriereihin tai muihin kohteisiin. ”Kaikki tyypit” poistaa tyyppirajoituksen.</li>\n'
+              '<li><b>Emokappale:</b> Valitsee tunnetun siihen liittyvän taivaankappaleen. ”Kaikki taivaankappaleet” sallii kaikki sijainnit; ”Tuntematon” näkyy, jos kohteita ei voida varmasti liittää tunnettuun kappaleeseen.</li>\n'
+              '<li><b>Lajittele:</b> Aluksi aakkosjärjestys kentän ”Nimi” mukaan. Vaihtoehtoina ovat nouseva järjestys kenttien ”Tyyppi”, ”Emokappale” tai ”Etäisyys saapumispisteestä” mukaan. Etäisyys lajitellaan numerona; tuntemattomat etäisyydet tai kappaleet tulevat vastaavassa lajittelussa viimeisiksi.</li>\n'
+              '</ul>\n'
+              '<p>Asemilla ei ole napsautettavia sarakeotsikoita: valintalistat lajittelevat kortit. Haku, suodatus ja lajittelu eivät lähetä verkkopyyntöjä. Järjestelmän vaihtuessa haku sekä tyyppi- ja kappalesuodattimet nollautuvat. Tyhjä näkymä erottaa puuttuvat tunnetut kohteet kohteista, jotka eivät vastaa suodattimia.</p>\n'
+              '\n'
+              '<h3>Asemien tiedot ja palvelut</h3>\n'
+              '<p>Avaa tai sulje tiedot napsauttamalla asemakortin otsikkoa. Jos tiedot tunnetaan, näkyvät nimi, tyyppi, järjestelmä, siihen liittyvä kappale, MarketID, viimeisin päivitys ja lähde. Esikatselukuvan kaksoisnapsautus avaa kuvankatselun.</p>\n'
+              '<p>Spansh voi lisätä saapumisetäisyyden valosekunteina, liittouman, hallintomuodon, hallitsevan ryhmittymän, taloustiedot sekä suurten, keskikokoisten ja pienten laskeutumisalustojen määrät. Asema- ja järjestelmätietojen ajankohdat sekä hakuaika näkyvät erikseen, jos saatavilla; uusi haku ei takaa uudempaa asematietoa.</p>\n'
+              '<p>Tunnetut ”Palvelut” näkyvät nimettyinä kenttinä, esimerkiksi ”Markkinat”, ”Telakka”, ”Varustelu”, ”Korjaus”, ”Tankkaus” tai ”Materiaalikauppias”. Otsikko näyttää enintään kolme palvelua ja tarvittaessa muiden määrän; avattu kortti näyttää kaikki CMDRHelperin tunnistamat palvelut. Puuttuvia tietoja ei arvata, eivätkä ne todista palvelun puuttumista.</p>\n'
+              '\n'
+              '<h3>Asemat kartalla ja päivitys</h3>\n'
+              '<p>Järjestelmäkartta ja ”Järjestelmän yleiskuva” käyttävät samoja tunnettuja asematietoja. Varmasti yhdistetyt kohteet näkyvät kappaleensa vieressä, muut kohdassa ”Muut laitokset”. Napsautus avaa tiedot tai ryhmälle ensin valintaluettelon.</p>\n'
+              '<p>Näkymässä ”Järjestelmän yleiskuva” toiminto ”Päivitä Spansh-tiedot” päivittää ikkunassa näkyvän järjestelmän Spansh-asematiedot. Spansh-asematietojen on oltava käytössä ja järjestelmän tunnisteen tunnettu. Tilarivi kertoo käynnissä olevasta pyynnöstä, onnistumisesta, virheestä tai jo tänään tehdystä päivityksestä. Virheessä paikalliset tiedot ja käyttökelpoiset välimuistitiedot säilyvät. Asetusten ohje selittää automaattiset pyynnöt, välimuistin ja käsin päivittämisen.</p>\n'
+              '\n'
               '<h3>BIO ×N</h3>\n'
               '<p>BIO ×N tarkoittaa pelin ilmoittamien kehon biologisten signaalien määrää.</p>\n'
               '<p>Numero kertoo aluksi vain, kuinka monta biologista signaalia tai sukua on '
@@ -399,6 +423,11 @@ HELP_TOPICS = {
 </ul>
 <p>Pienen akselin näyttö auttaa avaruudessa suuntautumisessa.</p>
 
+<p>Hiiren rullalla voit lähentää ja loitontaa ilman lisänäppäintä.</p>
+<p>Kaksoisnapsautus kartan tyhjään kohtaan palauttaa alkuperäisen vinon näkymän, nollaa siirron ja sovittaa kaikki näkyvät järjestelmät ikkunaan. Suodattimet ja valittu järjestelmä säilyvät.</p>
+<p>Kun aloitat kiertämisen hiiren vasemmalla painikkeella, napsautettu järjestelmä toimii kiertokeskuksena. Tyhjässä kohdassa käytetään osoittimen alla olevaa pistettä galaktisella tasolla; lähes vaakasuorassa näkymässä käytetään sen sijaan kartan keskipistettä samalla tasolla. Myös kohdistus kiertää nykyisen kiertokeskuksen ympäri.</p>
+<p>Avaa järjestelmän tietoikkuna napsauttamalla järjestelmää. Napsauta siellä vasemmalla painikkeella yläreunan järjestelmänimeä tai sen vieressä olevaa ⧉-kuvaketta: leikepöydälle kopioidaan vain järjestelmän nimi. Hetkeksi näkyvä ✓ vahvistaa kopioinnin.</p>
+
 <h3>Nykyinen sijainti</h3>
 <p>"Nykyinen sijainti" -toiminnolla karttanäkymä voidaan kohdistaa tai palauttaa aktiivisen komentajan tällä hetkellä tunnettuun sijaintiin.</p>
 <p>Nykyiset suodattimet otetaan ensin käyttöön. Näkymä keskitetään nykyiseen järjestelmään vain, jos se sisältyy tuloksena olevaan karttaan.</p>
@@ -565,121 +594,63 @@ HELP_TOPICS = {
 <p>Järjestelmän viimeistä numeroa ei arvioida: Plio Aip KN-B d13-201 kuuluu perheeseen Plio Aip KN-B d13. BIO on lisätietoa eikä vaikuta pääarvioon. Puuttuvat analyysit eivät osoita nolla-arvoja.</p>
 <h3>Järjestelmäanalyysi</h3>
 <p>Anna järjestelmä ja valitse Analysoi tai paina Enter. Käytä nykyistä järjestelmää hakee nimen olemassa olevasta pelitilasta. Analyysi lasketaan uudelleen vain käyttäjän toimesta. Vertailuperusta ja tulokset nimeävät tasonsa; ilman paikallisia vertailuja käytetään ylemmän tason kokemusta. Tiedon laatu näytetään erillään suosituksesta.</p>
+<p>Kenttään ”Järjestelmä” voi kirjoittaa nimen vapaasti. ”Käytä nykyistä järjestelmää” täyttää vain kentän; käynnistä sitten ”Analysoi” tai paina Enter. Nimi tarkistetaan paikallisesti tuettua proseduraalista nimimallia vasten. Tässä ei ole järjestelmän verkkohakua eikä valintalistaa moniselitteisille nimille.</p>
+<p>Tyhjä syöte, tukematon nimi, kelvollisten vertailutietojen puuttuminen tai virhe korvaa edellisen tuloksen ilmoituksella. Onnistunut analyysi näyttää suosituksen, potentiaali-indeksin ja paikallisen tietopohjan. Vertailutaulukossa ovat massakoodi, alue ja perhe sekä järjestelmämäärät ja tietopohja; alla näkyvät kokemusarvot ja tunnetut erityiset löydöt.</p>
+<h3>Historiatiedot</h3>
 <p>Historialliset osumat järjestelmäkoodeittain. Arvot kuvaavat tähänastista tutkimuskokemustasi eivätkä ole suora ennuste yksittäiselle kohdejärjestelmälle. Tietopohja ja luotettavuus kuvaavat vertailutietojen luotettavuutta käytettävissä olevan otoksen ja sen sektorijakauman perusteella.</p>
+<p>Välilehdellä ”Historiatiedot” valitaan kohdasta ”Kohde” löydön tyyppi, ei matkakohdetta: esimerkiksi tutkimuskohde, BIO-suku tai BIO-laji. Ensimmäinen arviointi tapahtuu näkymää luotaessa. Kun muutat kohdetta tai vähimmäismäärää, edellinen järjestyslista säilyy, kunnes painat ”Arvioi uudelleen”.</p>
+<p>Kohdevalinnan vieressä oleva numerokenttä asettaa vähimmäisotoksen koodia kohti: 1–50 tutkittua järjestelmää, aluksi 3. Koodit, joilla on vähemmän järjestelmiä tai ei aiempaa valitun tyypin löytöä, jätetään järjestyslistan ulkopuolelle.</p>
+<p>Taulukko ”Historialliset kuviot” näyttää enintään 50 koodia sekä sijan, aiemman onnistumisen (löytöjärjestelmät / tutkitut järjestelmät), osumaosuuden ja näytön vahvuuden. Järjestys perustuu tasoitettuun historialliseen arvioon, ei vain osumaosuuteen. Molemmissa taulukoissa on kiinteä järjestys ilman sarakelajittelua tai lisätietotoimintoa. Jos sopivia malleja ei löydy, näkyviin tulee ilmoitus; arviointivirhe tyhjentää järjestyslistan ja näyttää virheilmoituksen. Analyysi ei laske matkareittiä.</p>
 """,
     ),
  'route_planner': ('Reitin suunnittelija',
-                   '<h2>Reitin suunnittelija</h2>\n<h3>CMDRHelper</h3>\n<p>Parannettu reittisuunnittelija: lähtö seuraa nykyistä järjestelmää, kunnes annat sen käsin; kentän tyhjentäminen palauttaa automatiikan. Alukset ja carrierit käyttävät tarkasti varmennettuja ID64-osoitteita samankaltaisten nimien sijaan. ”Unable to find route” kertoo, ettei reittiä löytynyt; tarkista kohteet, kantama ja reittiasetukset.</p>\n'
-                   '<p>Reittisuunnittelija tukee pidempien matkojen suunnittelua laivalla tai '
-                   'Fleet Carrier:lla. CMDRHelper voi käyttää Spansh:n ulkoisia reittitietoja ja '
-                   'valmistella suunnitellun reitin myöhempää käyttöä varten.</p>\n'
-                   '\n'
-                   '<h3>Aloita ja lopeta</h3>\n'
-                   '<p>Reitin laskemiseen tarvitaan aloitus- ja kohdejärjestelmä.</p>\n'
-                   '<p>Mahdollisuuksien mukaan CMDRHelper voi käyttää komentajan nykyistä '
-                   'tunnettua järjestelmää lähtökohtana. Lähtö ja maali tulee tarkistaa ennen '
-                   'laskemista.</p>\n'
-                   '\n'
-                   '<h3>Lähetys tai Fleet Carrier</h3>\n'
-                   '<p>Reittisuunnittelija erottaa matkat tavallisella laivalla ja Fleet '
-                   'Carrier:llä.</p>\n'
-                   '<p>Molemmat käyttävät erilaisia \u200b\u200bvaatimuksia ja laskentamenetelmiä. '
-                   'Siksi sopiva reittityyppi on valittava ennen suunnittelua.</p>\n'
-                   '\n'
-                   '<h3>Laivan reitti</h3>\n'
-                   '<p>Laivareitillä huomioidaan aktiiviselle alukselle tunnetut tai syötetyt '
-                   'hyppyominaisuudet.</p>\n'
-                   '<p>Suunnitteluun voidaan sisällyttää käytettävissä olevista tiedoista riippuen '
-                   'FSD-tiedot, laivatiedot, massa, polttoaine ja muut hyppyparametrit.</p>\n'
-                   '<p>Laskettu reitti on suunnitteluapua. Muutokset laivaan tai sen massaan '
-                   'voivat muuttaa pelissä saavutettavaa todellista hyppymatkaa.</p>\n'
-                   '\n'
-                   '<h3>Laivaston harjoittaja reitti</h3>\n'
-                   '<p>Fleet Carrier:llä on erilaiset hyppysäännöt kuin normaaleissa '
-                   'laivoissa.</p>\n'
-                   '<p>CMDRHelper käyttää nimettyä Spansh-operaattorisuunnittelua vastaaville '
-                   'reiteille.</p>\n'
-                   '<p>Reittiä käytetään hyppysarjan suunnitteluun. Todellinen tritiumin kulutus '
-                   'ja käytettävissä oleva toiminta-alue voivat myös riippua massasta ja sen '
-                   'hetkisestä kantajan tilasta.</p>\n'
-                   '\n'
-                   '<h3>Spansh</h3>\n'
-                   '<p>Varsinaiseen reitin laskemiseen CMDRHelper voi käyttää ulkoista palvelua '
-                   'Spansh.</p>\n'
-                   '<p>Pyyntö käsitellään taustalla, jotta käyttöliittymä pysyy toimintakunnossa '
-                   'pidemmänkin laskennan ajan.</p>\n'
-                   '<p>CMDRHelper ei vaikuta ulkoisen palvelun käytettävyyteen tai '
-                   'vasteaikaan.</p>\n'
-                   '\n'
-                   '<h3>laskeminen</h3>\n'
-                   '<p>Laskennan aloittamisen jälkeen pyyntö välitetään valitulle '
-                   'reittisuunnittelijalle.</p>\n'
-                   '<p>Reitistä ja palvelusta riippuen laskenta saattaa kestää jonkin aikaa. Tänä '
-                   'aikana toista identtistä laskentaa ei saa aloittaa tarpeettomasti.</p>\n'
-                   '\n'
-                   '<h3>Tulos</h3>\n'
-                   '<p>Onnistuneesti laskettu reitti näyttää aiotut järjestelmät tai hyppypisteet '
-                   'järjestyksessä.</p>\n'
-                   '<p>Reittityypistä riippuen näkyviin tulee lisätietoja matkasta, hyppyistä, '
-                   'polttoaineesta tai tritiumista ja muista käytettävissä olevista '
-                   'reittitiedoista.</p>\n'
-                   '\n'
-                   '<h3>Reitti ja nykyinen komentaja</h3>\n'
-                   '<p>Nykyistä järjestelmää ja alusta voidaan - niin kauan kuin ne ovat selkeästi '
-                   'tiedossa aktiivisessa AppStatessa - käyttää esitehtäviin tai suunnittelun '
-                   'tukena.</p>\n'
-                   '<p>Todellinen reitti jää kuitenkin suunnitelmaksi, eikä se muuta päiväkirjaa '
-                   'tai komentajatietoja.</p>\n'
-                   '\n'
-                   '<h3>CTSVision vienti</h3>\n'
-                   '<p>Lasketut lentoyhtiöiden reitit voidaan viedä CSV-muodossa '
-                   'CTSVision:lle.</p>\n'
-                   '<p>Tämä tarkoittaa, että CMDRHelper:ssä suunniteltua operaattorireittiä '
-                   'voidaan sitten käyttää CTSVision:ssä hyppyohjaukseen tai reitin käsittelyyn '
-                   'siellä.</p>\n'
-                   '<p>Vienti ei muuta reittiä CMDRHelper:ssä.</p>\n'
-                   '\n'
-                   '<h3>CSV-tiedosto</h3>\n'
-                   '<p>Viety tiedosto sisältää CTSVision:lle vaadittavat reittitiedot aiotussa '
-                   'järjestyksessä.</p>\n'
-                   '<p>Tiedostoa ei saa muuttaa rakenteellisesti hallitsemattomasti viennin '
-                   'jälkeen, jos CTSVision sen jälkeen lukee sen.</p>\n'
-                   '\n'
-                   '<h3>Virheet ja ulkoiset palvelut</h3>\n'
-                   '<p>Jos Spansh:tä ei tavoiteta tai palvelu palauttaa virheilmoituksen, '
-                   'CMDRHelper näyttää vastaavan virheilmoituksen.</p>\n'
-                   '<p>Virhe online-reitin laskennassa ei muuta paikallista komentoa tai '
-                   'lokitietoja.</p>\n'
-                   '\n'
-                   '<h3>Reitin suunnittelija ja hyppyvinkki</h3>\n'
-                   '<p>Hyppyvinkki ja reittisuunnittelija suorittavat erilaisia '
-                   '\u200b\u200btehtäviä:</p>\n'
-                   '<ul>\n'
-                   '<li>Hyppyvinkki arvioi mahdolliset mielenkiintoiset etsintäkohteet olemassa '
-                   'olevan datan perusteella.</li>\n'
-                   '<li>Reitinsuunnittelija laskee tietyn reitin alun ja määränpään välillä.</li>\n'
-                   '</ul>\n'
-                   '<p>Hyvä hyppykärki ei siis automaattisesti ole osa optimaalista reittiä.</p>\n'
-                   '\n'
-                   '<h3>Useita komentajia</h3>\n'
-                   '<p>Jos käytetään komentajaan liittyviä tietoja, kuten nykyistä järjestelmää '
-                   'tai laivaa, se tulee aktiivisesta live-sovellustilasta ja se on osoitettava '
-                   'selkeästi sinne.</p>\n'
-                   '<p>Pelkästään toisen komentajan katsominen CMDR-näkymässä ei vaihda '
-                   'reittisuunnittelijaa heidän järjestelmäänsä tai alukseensa.</p>\n'
-                   '<p>Itse reitinlaskenta ei muuta toisen päällikön henkilötietoja.</p>\n'
-                   '\n'
-                   '<h3>Kärki</h3>\n'
-                   '<p>Tarkista aina ennen pitkää matkaa uudelleen:</p>\n'
-                   '<ul>\n'
-                   '<li>Käynnistysjärjestelmä</li>\n'
-                   '<li>Kohdejärjestelmä</li>\n'
-                   '<li>Reittityyppi laiva/rahdinkuljettaja</li>\n'
-                   '<li>alusreiteille alla oleva alus, FSD ja hyppyparametrit</li>\n'
-                   '<li>kuljetusreiteillä käytettävissä oleva tritiumreservi</li>\n'
-                   '</ul>\n'
-                   '<p>Laivastonkuljettajien matkoille kannattaa varata riittävästi varauksia myös '
-                   'paluumatkalle tai suunnittelemattomille kiertoteille.</p>'),
+                   """<h2>Reitin suunnittelija</h2>
+<h3>Yleiskuva</h3>
+<p>Suunnittelija laskee järjestelmien väliset reitit Spanshin avulla. Valitse «Aluksen reitti» tai «Fleet Carrier / CTSVision». Verkkoyhteys tarvitaan; CMDRHelper ei ohjaa alusta tai carrieria.</p>
+
+<h3>Lähtö ja kohde</h3>
+<p>«Lähtöjärjestelmä» seuraa aktiivisen komentajan tunnettua nykyjärjestelmää, kunnes kirjoitat oman lähtöpaikan. Tyhjä kenttä palauttaa tämän toiminnan. Anna «Kohdejärjestelmä» kokonaisena; suosikeista tuotu kohde valmistelee aluksen reitin käynnistämättä laskentaa.</p>
+<p>Lähtö ja kohde on tunnistettava yksiselitteisesti. Samankaltaista nimeä ei valita korvikkeeksi. Tuntematon tai moniselitteinen nimi aiheuttaa ilmoituksen; korjaa syöte.</p>
+
+<h3>Aluksen reitti</h3>
+<p>Alusta ei valita tässä: aktiivisen aluksen tunnetut tiedot täyttävät tekniset kentät. Omat muutokset säilyvät käsin asetettuina. «Käytä aluksen tietoja» ottaa saatavilla olevat alustiedot uudelleen käyttöön. Tarkista ilmoitus täydellisistä, puutteellisista, vanhoista tai tuntemattomista FSD-tiedoista.</p>
+<p>Tarkista «Päätankin kapasiteetti», «Nykyinen lasti», «Perusmassa», «Varatankin kapasiteetti», «Varapolttoaine», «FSD:n optimaalinen massa», «FSD:n enimmäispolttoaine hyppyä kohti», «Polttoaineteho», «Polttoainekerroin» ja «Kantamalisä». Hyppyominaisuudet määräytyvät näistä; tavalliselle aluksen hyppykantamalle ei ole yhtä kenttää. Lasti ja varustus voivat muuttaa todellista kantamaa.</p>
+
+<h3>Aluksen valinnat ja laskenta</h3>
+<p>«Reititysalgoritmi» tarjoaa optimistic-, pessimistic-, fuel-, fuel_jumps- ja guided-vaihtoehdot. Valinta lähetetään Spanshille.</p>
+<p>Valinnat ovat «Käytä superchargea/neutronitähtiä», «Alus aloittaa valmiiksi supercharged-tilassa», «Käytä FSD-injektioita», «Sulje sivutähdet pois» ja «Tankkaa jokaisella scoopattavalla tähdellä»: neutronituki, valmiiksi tehostettu lähtö, FSD-injektiot, toissijaiset tähdet ja tankkaukset. Aloita painamalla «Laske alusreitti Spanshilla».</p>
+
+<h3>Carrierin reitti</h3>
+<p>«Fleet Carrier / CTSVision» suunnittelee reitin valitsematta tai ohjaamatta tiettyä carrieria. Anna «Tritium tankissa» ja «Tritium carrierin varastossa», yhteensä enintään 25 000 t. «Laskettu carrierin massa» näyttää 25 000 t sekä nämä kaksi määrää.</p>
+<p>«Suurin hyppyetäisyys» sallii 1–500 ly, oletuksena 500 ly. «Laske reitti Spanshilla» aloittaa laskennan. Carrierin laskentapainike ei ole käytettävissä pyynnön aikana.</p>
+
+<h3>Spansh ja odotus</h3>
+<p>Spansh laskee reitin taustalla. Tila näyttää pyynnön ja sitten onnistumisen tai virheen. Tässä lasketaan reittejä, ei haeta kauppahintoja tai asematietoja. Näkymässä ei ole käynnissä olevan laskennan peruutuspainiketta.</p>
+
+<h3>Reitin tulokset</h3>
+<p>Lista säilyttää reittijärjestyksen: numero, järjestelmä, hyppymatka ja jäljellä oleva matka. Sitä ei voi lajitella vapaasti. Alusreitillä näkyvät lisäksi kulutus, polttoaine säiliössä, neutroni- ja tankkaustiedot; carrierreitillä tritiumin kulutus.</p>
+<p>Alla näkyvät kokonaismatka, hyppyjen määrä ja kulutus tai arvioitu tritium. Puuttuvat arvot näkyvät muodossa «–». Vertaa suunnitelmaa pelin todelliseen tilanteeseen.</p>
+
+<h3>Eteneminen ja seuraava kohde</h3>
+<p>Onnistuneesti laskettu alusreitti otetaan automaattisesti käyttöön. «Nykyinen järjestelmä», «Seuraava kohde» ja «Reitin tila» näyttävät sijainnin, seuraavan vaiheen ja tilan. Lista säilyy ilman suoritettujen vaiheiden lisärasteja.</p>
+<p>Tunnistettu aluksen hyppy seuraavaan tai myöhempään reittijärjestelmään vie etenemistä eteenpäin ja kopioi sitä seuraavan järjestelmän nimen automaattisesti leikepöydälle. Toistuvat sijainti-ilmoitukset ja carrierhypyt eivät ole tällaisia etenemishyppyjä.</p>
+<p>Reitin lataaminen ei kopioi nimeä automaattisesti. Käytä «Kopioi seuraava kohde» aluksi tai myöhemmin, kun seuraava kohde on olemassa. Vain järjestelmän nimi kopioidaan: ei automaattista liittämistä tai Eliten ohjausta.</p>
+
+<h3>Poikkeama ja valmistuminen</h3>
+<p>Hyppy jäljellä olevan reitin ulkopuolelle näyttää «Nykyinen järjestelmä ei ole reitillä». Reitti ja entinen seuraava kohde säilyvät; automaattista uudelleenlaskentaa ei tehdä. Myöhempi sopiva hyppy eteenpäin voi jatkaa reittiä. Voit myös laskea uuden reitin itse.</p>
+<p>Viimeisessä järjestelmässä näkyy «Reitti valmis». «Seuraava kohde» muuttuu merkiksi «–», kopiointipainike poistuu käytöstä eikä uutta nimeä kopioida. Leikepöytää ei tyhjennetä. Tuloslista jää näkyviin.</p>
+
+<h3>CTSVision-vienti</h3>
+<p>Vain carrierreitillä on «Vie CTSVisionille». Valitse onnistuneen laskennan jälkeen uusi CSV-tiedosto. Siinä ovat reittijärjestys ja saatavilla olevat matka-, polttoaine-, tritium- ja täydennystiedot myöhempää CTSVision-käyttöä varten.</p>
+<p>Tämä on tiedostovienti, ei suora yhteys tai carrierin automaattiohjaus. Olemassa olevia tiedostoja ei korvata. Tiedostoikkunan peruutus ei luo tiedostoa; kirjoitusvirheistä ilmoitetaan.</p>
+
+<h3>Virheet ja ohjeet</h3>
+<p>Puuttuvista järjestelmistä, puutteellisista tai virheellisistä alusparametreista ja liiasta tritiumista ilmoitetaan. Vaadittujen säiliö-, massa- ja FSD-arvojen on oltava positiivisia; varapolttoaine ei saa ylittää varasäiliön tilavuutta.</p>
+<p>Reitin puuttuminen, verkkovirhe, liian pitkä odotus tai käyttökelvoton Spansh-vastaus tuottaa ilmoituksen, ei keksittyä tulosta. Tarkista nimet, alustiedot ja valinnat ennen uutta laskentaa.</p>
+
+<h3>Analyysi ja komentaja</h3>
+<p>«Analyysi», jonka osat ovat «Järjestelmäanalyysi» ja «Historiatiedot», arvioi järjestelmiä ja olemassa olevaa kokemusta. Reittisuunnittelija laskee varsinaisen matkan lähtöpaikasta kohteeseen.</p>
+<p>Esitäyttö käyttää aktiivista komentajaa ja hänen alustaan. Toisen komentajan katselu CMDR-näkymässä ei muuta tätä.</p>"""),
  'images': ('Kuvia',
             '<h2>Kuvia</h2>\n'
             '<p>"Kuvat"-osio hallitsee Elite Dangerous:lla otettuja kuvakaappauksia. CMDRHelper '
@@ -956,6 +927,19 @@ HELP_TOPICS = {
               'testataan parhaillaan. Vain aktiivisessa päiväkirjaistunnossa selvästi tunnistettu '
               'komentaja saa lähettää suoran lähetyksen.</p>\n'
               '\n'
+              '<h3>Spanshin asematiedot</h3>\n'
+              '<p>Kohdassa ”VERKKOPALVELUT” valinta ”Lisää Spanshin asematiedot” ottaa käyttöön valinnaiset täydentävät asema- ja palvelupaikkatiedot Explorerissa ja järjestelmänäkymissä. Oletuksena se on pois käytöstä. Vain julkinen järjestelmätunniste lähetetään, ei komentajatietoja; omaa API-avainta ei tarvita. Valinta ei ohjaa kauppamarkkinahakuja.</p>\n'
+              '<p>Kun valinta on pois käytöstä, näkyvät vain paikalliset päiväkirjatiedot eikä uusia Spansh-asemapyyntöjä käynnistetä; myös käsin päivitys on estetty. Olemassa olevaa asemavälimuistia ei poisteta, mutta sillä ei täydennetä näkymää. Käyttöönotto palauttaa välimuistin tiedot käyttöön käynnistämättä itsessään verkkopyyntöä.</p>\n'
+              '\n'
+              '<h3>Automaattiset asemapyynnöt ja välimuisti</h3>\n'
+              '<p>Automaattinen tarkistus tehdään vain aktiivisen päiväkirjakomentajan uudesta reaaliaikaisesta siirtymisestä toiseen järjestelmään, esimerkiksi aluksen tai carrierin hypyn tai uuden vahvistetun sijainti-ilmoituksen jälkeen. Käynnistys, komentajan vaihto, arkistotuonti tai pelkkä Explorerin tai järjestelmänäkymän avaaminen eivät käynnistä automaattista pyyntöä.</p>\n'
+              '<p>Erillinen asemavälimuisti säilyy Helperin uudelleenkäynnistyksissä. Alle 7 päivää sitten haettu tieto katsotaan tuoreeksi, joten uutta automaattista verkkopyyntöä ei tarvita. Puuttuvat tai vanhemmat tiedot voidaan päivittää seuraavan ehdot täyttävän reaaliaikaisen järjestelmään saapumisen yhteydessä. Järjestelmää kohti sallitaan enintään yksi automaattinen yritys paikallisena kalenteripäivänä; myös epäonnistumiset lasketaan uudelleenkäynnistyksen yli. Kaikkia tallennettuja järjestelmiä ei päivitetä jatkuvasti taustalla. Vanhoja käyttökelpoisia välimuistitietoja voidaan yhä näyttää myös ilman verkkoyhteyttä.</p>\n'
+              '<p>Tämä välimuisti sisältää täydentäviä asematietoja, ei kauppamarkkinoiden hintoja. Spanshin yhteisömarkkinatiedoilla myyntiä, ostoa ja suosituksia varten on oma tilapäinen RAM-hakuvälimuisti. Itse Elitessä havaitut kauppamarkkinoiden tilannekuvat tallennetaan jälleen erikseen: ne säilyvät uudelleenkäynnistyksessä, mutta ovat voimassa vain alle 24 tunnin ikäisinä.</p>\n'
+              '\n'
+              '<h3>Asematietojen päivittäminen käsin</h3>\n'
+              '<p>Avaa ”Järjestelmän yleiskuva” ja valitse ”Päivitä Spansh-tiedot”. Vain kyseisessä ikkunassa näkyvän järjestelmän Spansh-asematiedot päivitetään, eivät kaikki tallennetut järjestelmät tai kauppahinnat. Valinnan on oltava käytössä; järjestelmän pyynnön ollessa käynnissä toiminto on estetty.</p>\n'
+              '<p>Käsin päivitys voi ohittaa 7 päivän tuoreusajan ja samana päivänä epäonnistuneen automaattisen yrityksen. Jos järjestelmä on jo haettu onnistuneesti tänään paikallisen kalenterin mukaan, uutta pyyntöä ei tehdä: ”Spanshin tiedot on jo päivitetty tänään.” Onnistunut haku uusii asemavälimuistin. Virheessä paikalliset ja käyttökelpoiset välimuistitiedot säilyvät ja tilarivi kertoo virheestä. Epäonnistuneen käsin tehdyn yrityksen voi uusia.</p>\n'
+              '\n'
               '<h3>EDSM pääsy</h3>\n'
               '<p>"EDSM access for:" valitsee muokattavan ohjaimen. Valinta näyttää "asetettu" tai '
               '"ei asetettu" sen mukaan, onko API-Key tallennettu.</p>\n'
@@ -1122,7 +1106,7 @@ HELP_TOPICS = {
 <p>Se ei ole tähtienvälinen reittisuunnittelija eikä hoida järjestelmien välistä navigointia tai hyppyjä. Ohjaat alustasi itse.</p>
 
 <h3>Navigaattorin avaaminen ja kohteen syöttäminen</h3>
-<p>Avaa yleiskatsauksessa ”Planeettanavigointi” ja valitse ”Manuaalinen syöttö …”.</p>
+<p>Avaa Explorerissa «Planeettanavigointi» ja valitse «Manuaalinen syöttö …». Voit avata ikkunan ja syöttää kohteen ennen kuin nykyinen pintasijainti on saatavilla.</p>
 <ul>
 <li><b>Taivaankappale:</b> Valitse kohdeplaneetta tai -kuu luettelosta tai käytä jo tunnistettua taivaankappaletta. Voit myös kirjoittaa taivaankappaleen nimen itse, jos sitä ei vielä ole luettelossa. Käytä epäselvässä tapauksessa koko nimeä, myös järjestelmän nimeä.</li>
 <li><b>Leveysaste:</b> Syötä kohteen leveysaste väliltä −90° ja +90°.</li>
@@ -1134,6 +1118,16 @@ HELP_TOPICS = {
 <h3>Milloin kompassi käynnistyy?</h3>
 <p>Kun kohde on asetettu ja Elite toimittaa kelvolliset planetaariset sijaintitiedot oikealle taivaankappaleelle, navigointi aktivoituu automaattisesti. Erillistä käynnistyspainiketta ei tarvitse painaa.</p>
 <p>Jos nämä tiedot vielä puuttuvat tai kuuluvat toiselle taivaankappaleelle, navigaattori odottaa viestillä ”Odotetaan planetaarisia koordinaatteja …”. Voit syöttää kohteen jo ennen näiden tietojen saapumista.</p>
+
+<p>Aktiivinen navigointi tarvitsee Eliteltä kelvolliset koordinaatit, taivaankappaleen nimen, suunnan ja planeetan säteen kohdekappaleelle. Laskeutumista ei vaadita: tiedot voivat tulla jo lähestyttäessä. Ilman kelvollista sijaintia tai toisella kappaleella navigaattori odottaa keksimättä sijaintia.</p>
+
+<h3>Tallenna nykyinen sijainti</h3>
+<p>«★ Tallenna nykyinen sijainti» tallentaa vahvistetun nykyisen sijaintisi, ei syötettyä navigointikohdetta. Kelvollinen Elite-sijainti, tunnistettu komentaja ja tunnettu järjestelmä tarvitaan. Muuten toiminto ei ole käytettävissä tai saat ilmoituksen.</p>
+<p>Järjestelmä, kappale ja koordinaatit lukitaan avattaessa. Suosikki-ikkunassa voit muokata nimeä, luokkaa ja muistiinpanoa sekä lisätä kuvan. Vasta «Tallenna» tallentaa paikallisesti komentajalle; peruutus ei tallenna mitään. Myöhempi liikkuminen ei muuta talteen otettua sijaintia.</p>
+
+<h3>Tallennettujen sijaintien käyttö</h3>
+<p>Avaa Explorerissa «★ Suosikit». Valitse tallennettu pintapaikka ja «◎ Koordinaatteihin» ottaaksesi kappaleen, koordinaatit ja nimen kohteeksi. Tämä korvaa aiemman kohteen; toisella kappaleella navigaattori odottaa sopivia sijaintitietoja.</p>
+<p>«Muokkaa» muuttaa nimeä, luokkaa ja muistiinpanoa. «Poista» poistaa suosikin vahvistuksen jälkeen, ei Elite-tietoja. Suosikit säilyvät uudelleenkäynnistyksissä ja erotellaan komentajittain; nykyinen navigointikohde kestää vain istunnon ajan.</p>
 
 <h3>Planeettapallo: yli 380 km</h3>
 <p>Kun kohde-etäisyys on yli 380 km, navigaattori näyttää planeettapallon.</p>
@@ -1182,9 +1176,13 @@ HELP_TOPICS = {
 <p>Samalla taivaankappaleella voit milloin tahansa avata ”Manuaalinen syöttö …” uudelleen ja asettaa toiset koordinaatit. Uusi kohde korvaa aiemman navigointikohteen. Vastaavilla sijaintitiedoilla kompassi päivittyy heti.</p>
 <p>”Lopeta navigointi” poistaa nykyisen kohteen. Aseta vain uusi kohde seuraavaa lähestymistä varten.</p>
 
+<p>Ikkunan sulkeminen ei poista kohdetta. Käytössä oleva navigointi-HUD voi jatkaa; «Lopeta navigointi» poistaa kohteen. Oikealta kappaleelta poistuminen tai puuttuvat sijaintitiedot jättävät navigoinnin odottamaan ja piilottavat navigointi-HUDin.</p>
+
 <h3>Tietojen ajantasaisuus ja rajoitukset</h3>
 <p>Navigointi perustuu Eliten toimittamiin tilatietoihin. Päivitykset voivat saapua viiveellä pelitilanteen mukaan. Navigaattorin ikänäyttö kertoo, kuinka kauan viimeisestä vahvistetusta tilaviestistä on kulunut.</p>
 <p>Pintaetäisyys kuvaa lyhintä kaarta ajatellulla pallolla. Se ei ole maasto- tai tiereitti. Navigaattori ei tunne reitin esteitä eikä maaston korkeuksia; lentokorkeus, turvallinen nopeus ja esteiden välttäminen jäävät sinun vastuullesi.</p>
+
+<p>Sijainti tulee Status.json-tiedosta; päiväkirja täydentää kappale- ja järjestelmäyhteyksiä. Ikkuna ja käytössä oleva navigointi-HUD ylläpitävät päivityksiä tarpeen mukaan. Näyttö riippuu saatavilla olevista Elite-tiedoista eikä takaa metrien tarkkuutta.</p>
 
 <h3>Vinkki</h3>
 <p>Tarkista ennen lähestymistä taivaankappaleen nimi ja kohdekoordinaattien etumerkit. Käänny sitten kohdesuuntaan Elite-kompassissa ja tarkkaile suhteellista suuntaa ja etäisyyttä. Jos navigaattori odottaa, tarkista, toimittaako Elite jo planetaarisia koordinaatteja kohdetaivaankappaleelle.</p>""",

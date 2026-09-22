@@ -188,6 +188,30 @@ HELP_TOPICS = {
               '<p>Displayet viser blant annet kroppstype, avstand og – hvis tilgjengelig – '
               'skannings- og kartografiverdier samt spesielle leteegenskaper.</p>\n'
               '\n'
+              '<p>«Tilpass automatisk til vinduet» er på som standard og husker valget etter omstart. Hver ny oversikt tilpasses vinduet én gang; aktivering i et åpent vindu tilpasser også én gang. Etterpå kan du fortsatt zoome og flytte visningen manuelt. «Tilpass til vinduet» er fortsatt tilgjengelig for ny manuell tilpasning.</p>\n'
+              '\n'
+              '<h3>Stasjoner og fasiliteter</h3>\n'
+              '<p>Fanen «STASJONER (N)» viser kjente stasjoner og fasiliteter i Explorerens nåværende system som utvidbare kort. Tallet i tittelen teller alle kjente oppføringer, også dem som skjules av filtre. Dette er ikke en fullstendig katalog over galaksens stasjoner.</p>\n'
+              '<p>Grunnlaget er lokalt kjente observasjoner fra Elite-journalen. Med Spansh-tillegg aktivert kommer informasjon fra den separate stasjonsbufferen i tillegg. Kilden kan være «Journal», «Spansh» eller «Journal + Spansh»; ved motstridende opplysninger har journalen forrang. Spansh legger ikke til Fleet Carriers her. Din egen carrier kan vises dersom den er kjent lokalt.</p>\n'
+              '\n'
+              '<h3>Stasjonssøk, filtre og sortering</h3>\n'
+              '<p>«Søk etter stasjonsnavn…» søker umiddelbart etter stasjonsnavn eller deler av navn, uavhengig av store og små bokstaver. Et tomt søk begrenser ikke navnene. Søket og begge filtrene må oppfylles samtidig.</p>\n'
+              '<ul>\n'
+              '<li><b>Type:</b> Begrenser listen til orbitalstasjoner, utposter, overflatestasjoner, bosetninger, megaskip, Fleet Carriers eller andre fasiliteter. «Alle typer» fjerner typebegrensningen.</li>\n'
+              '<li><b>Tilhørende himmellegeme:</b> Velger et kjent tilhørende himmellegeme. «Alle himmellegemer» tillater alle steder; «Ukjent» vises når oppføringer ikke kan knyttes sikkert til et kjent legeme.</li>\n'
+              '<li><b>Sorter etter:</b> Standard er alfabetisk etter «Navn». Alternativt stigende etter «Type», «Tilhørende himmellegeme» eller «Avstand fra ankomstpunkt». Avstand sorteres numerisk; ukjente avstander eller legemer plasseres sist ved den aktuelle sorteringen.</li>\n'
+              '</ul>\n'
+              '<p>Det finnes ingen stasjonskolonneoverskrifter å klikke på: valglistene sorterer kortene. Søk, filtre og sortering sender ingen nettforespørsel. Ved systembytte nullstilles søket og type-/legemefiltrene. En tom visning skiller mellom ingen kjente oppføringer og oppføringer som ikke passer filtrene.</p>\n'
+              '\n'
+              '<h3>Stasjonsdetaljer og tjenester</h3>\n'
+              '<p>Klikk på overskriften til et stasjonskort for å åpne eller lukke detaljene. Når kjent vises navn, type, system, tilhørende legeme, MarketID, siste oppdatering og kilde. Dobbeltklikk på forhåndsvisningsbildet åpner bildeviseren.</p>\n'
+              '<p>Spansh kan legge til ankomstavstand i lyssekunder, tilhørighet, styreform, kontrollerende fraksjon, økonomidata og antall store, mellomstore og små landingsplattformer. Tidspunkter for stasjonsdata, systemdata og innhenting vises separat når tilgjengelig; ny innhenting garanterer ikke nyere stasjonsdata.</p>\n'
+              '<p>Kjente «Tjenester» vises som merkede felt, for eksempel «Marked», «Skipsverft», «Utrustning», «Reparasjon», «Drivstoff» eller «Materialhandler». Kortoverskriften viser høyst tre tjenester og eventuelt antallet øvrige; utvidet vises alle tjenester CMDRHelper kjenner igjen. Manglende opplysninger gjettes ikke og beviser ikke at en tjeneste mangler.</p>\n'
+              '\n'
+              '<h3>Stasjoner på kartet og oppdatering</h3>\n'
+              '<p>Systemkartet og «Systemoversikt» bruker de samme kjente stasjonsopplysningene. Sikkert tilknyttede fasiliteter står ved sitt legeme, andre under «Andre anlegg». Et klikk åpner detaljer eller, for grupper, først en valgliste.</p>\n'
+              '<p>I «Systemoversikt» oppdaterer «Oppdater Spansh-data» Spansh-stasjonsinformasjon for systemet som vises i vinduet. Spansh-stasjonsinformasjon må være aktivert og systemets identitet kjent. Statuslinjen viser pågående forespørsler, suksess, feil eller en oppdatering som allerede er utført i dag. Ved feil beholdes lokal informasjon og brukbare bufferdata. Innstillingshjelpen forklarer automatiske forespørsler, buffer og manuell oppdatering.</p>\n'
+              '\n'
               '<h3>BIO ×N</h3>\n'
               '<p>BIO ×N angir antall biologiske signaler fra en kropp som er rapportert av '
               'spillet.</p>\n'
@@ -400,6 +424,11 @@ HELP_TOPICS = {
 </ul>
 <p>Displayet med liten akse hjelper med orientering i rommet.</p>
 
+<p>Bruk musehjulet til å zoome inn eller ut uten noen ekstra tast.</p>
+<p>Dobbeltklikk på tom plass i kartet for å gjenopprette den opprinnelige skrå visningen, nullstille forskyvningen og tilpasse alle viste systemer til vinduet. Filtre og valgt system beholdes.</p>
+<p>Når du begynner å rotere med venstre museknapp, blir systemet du klikker på, rotasjonspunktet. På tom plass brukes punktet under pekeren på det galaktiske planet; ved nesten vannrett visning brukes i stedet kartets sentrum på dette planet. Innretting roterer også rundt det gjeldende rotasjonspunktet.</p>
+<p>Klikk på et system for å åpne detaljvinduet. Der kopierer et venstreklikk på systemnavnet øverst eller kopieringsikonet ⧉ ved siden av bare systemnavnet til utklippstavlen. Et kort ✓ bekrefter kopieringen.</p>
+
 <h3>Nåværende posisjon</h3>
 <p>Med "Current Position" kan kartvisningen justeres eller returneres til den gjeldende kjente plasseringen til den aktive fartøysjefen.</p>
 <p>Først brukes de gjeldende filterinnstillingene. Visningen sentreres bare på det nåværende systemet hvis det finnes i kartet som blir vist.</p>
@@ -566,116 +595,63 @@ HELP_TOPICS = {
 <p>Det siste systemnummeret vurderes ikke: Plio Aip KN-B d13-201 tilhører familien Plio Aip KN-B d13. BIO er kun informasjon og inngår ikke i hovedvurderingen. Manglende analyser betyr ikke påviste nullverdier.</p>
 <h3>Systemanalyse</h3>
 <p>Skriv inn et system og velg Analyser eller trykk Enter. Bruk gjeldende system henter navnet fra eksisterende spilltilstand. Analysen beregnes på nytt bare på brukerhandling. Sammenligningsgrunnlag og resultater angir nivået; uten lokale sammenligninger brukes overordnet erfaring. Datakvalitet vises separat fra anbefalingen.</p>
+<p>Feltet «System» lar deg skrive inn et navn fritt. «Bruk gjeldende system» fyller bare ut feltet; start deretter med «Analyser» eller Enter. Navnet kontrolleres lokalt mot det støttede prosedyremessige navnemønsteret. Her finnes verken nettbasert systemoppslag eller valgliste for tvetydige navn.</p>
+<p>Tom inndata, et navn som ikke støttes, manglende kvalifiserte sammenligningsdata eller en feil erstatter forrige resultat med en melding. En vellykket analyse viser anbefaling, potensialindeks og lokalt datagrunnlag. Sammenligningstabellen viser massekode, region og familie med systemantall og datagrunnlag; nedenfor vises erfaringsverdier og kjente spesielle funn.</p>
+<h3>Historiske data</h3>
 <p>Historiske treff etter systemkode. Verdiene beskriver utforskingserfaringen din hittil og er ikke en direkte prognose for et enkelt målsystem. Datagrunnlag og pålitelighet beskriver hvor pålitelige sammenligningsdataene er, ut fra utvalget og fordelingen mellom sektorer.</p>
+<p>I «Historiske data» velger du under «Mål» en funntype, ikke et reisemål: for eksempel et utforskningsmål, en BIO-slekt eller BIO-art. Første vurdering skjer når visningen bygges. Etter endring av mål eller minsteantall står den forrige rangeringen til du trykker «Vurder på nytt».</p>
+<p>Tallfeltet ved målvalget setter minste utvalg per kode: 1 til 50 undersøkte systemer, i utgangspunktet 3. Koder med færre systemer eller uten historiske treff for valgt funntype utelates fra rangeringen.</p>
+<p>Tabellen «Historiske mønstre» viser opptil 50 koder med rang, tidligere suksess (systemer med treff / undersøkte systemer), treffandel og bevisstyrke. Rekkefølgen følger den utjevnede historiske vurderingen, ikke bare treffandelen. Begge tabellene har fast rekkefølge uten kolonnesortering eller detaljhandling. Ingen passende mønstre gir en melding om tomt resultat; en vurderingsfeil tømmer rangeringen og viser en feilmelding. Analyse beregner ingen reiserute.</p>
 """,
     ),
  'route_planner': ('Ruteplanlegger',
-                   '<h2>Ruteplanlegger</h2>\n<h3>CMDRHelper</h3>\n<p>Bedre ruteplanlegger: starten følger automatisk gjeldende system til du angir en manuelt; tømming av feltet gjenoppretter automatikken. Skip og carriers bruker nøyaktig validerte ID64-adresser uten å velge lignende navn. «Unable to find route» forklares som at ingen rute ble funnet; kontroller mål, rekkevidde og ruteinnstillinger.</p>\n'
-                   '<p>Ruteplanleggeren støtter planlegging av lengre turer med skip eller Fleet '
-                   'Carrier. CMDRHelper kan bruke eksterne rutedata fra Spansh og forberede den '
-                   'planlagte ruten for videre bruk.</p>\n'
-                   '\n'
-                   '<h3>Start og slutt</h3>\n'
-                   '<p>Et start- og målsystem kreves for ruteberegning.</p>\n'
-                   '<p>I den grad det er mulig kan CMDRHelper bruke fartøysjefens gjeldende kjente '
-                   'system som utgangspunkt. Start og mål bør kontrolleres før beregning.</p>\n'
-                   '\n'
-                   '<h3>Send eller Fleet Carrier</h3>\n'
-                   '<p>Ruteplanleggeren skiller mellom turer med et vanlig skip og med en Fleet '
-                   'Carrier.</p>\n'
-                   '<p>Begge bruker ulike krav og beregningsmetoder. Derfor må riktig rutetype '
-                   'velges før planlegging.</p>\n'
-                   '\n'
-                   '<h3>Skipsrute</h3>\n'
-                   '<p>For en skipsrute er det tatt hensyn til hoppegenskapene som er kjent eller '
-                   'lagt inn for det aktive skipet.</p>\n'
-                   '<p>Avhengig av tilgjengelige data kan FSD-data, skipsdata, masse, drivstoff og '
-                   'andre hoppparametere inkluderes i planleggingen.</p>\n'
-                   '<p>En beregnet rute er et planleggingshjelpemiddel. Endringer i skipet eller '
-                   'dets masse kan endre den faktiske hoppedistansen som er oppnåelig i '
-                   'spillet.</p>\n'
-                   '\n'
-                   '<h3>Flåtetransportrute</h3>\n'
-                   '<p>Fleet Carrier har andre hoppregler enn vanlige skip.</p>\n'
-                   '<p>CMDRHelper bruker den utpekte Spansh transportørplanleggingen for '
-                   'tilsvarende ruter.</p>\n'
-                   '<p>Ruten brukes til å planlegge hoppsekvensen. Faktisk tritiumforbruk og '
-                   'tilgjengelig rekkevidde kan også avhenge av masse og gjeldende '
-                   'transportørstatus.</p>\n'
-                   '\n'
-                   '<h3>Spansh</h3>\n'
-                   '<p>For selve ruteberegningen kan CMDRHelper bruke den eksterne tjenesten '
-                   'Spansh.</p>\n'
-                   '<p>Forespørselen behandles i bakgrunnen slik at grensesnittet forblir '
-                   'operativt under en lengre beregning.</p>\n'
-                   '<p>CMDRHelper har ingen innflytelse på tilgjengeligheten eller responstiden '
-                   'til den eksterne tjenesten.</p>\n'
-                   '\n'
-                   '<h3>beregning</h3>\n'
-                   '<p>Etter å ha startet en beregning, sendes forespørselen videre til den valgte '
-                   'ruteplanleggeren.</p>\n'
-                   '<p>Avhengig av ruten og tjenesten, kan beregningen ta litt tid. I løpet av '
-                   'denne tiden skal ingen andre identiske beregninger startes unødvendig.</p>\n'
-                   '\n'
-                   '<h3>Resultat</h3>\n'
-                   '<p>En vellykket beregnet rute viser de tiltenkte systemene eller hopppunktene '
-                   'i deres rekkefølge.</p>\n'
-                   '<p>Avhengig av rutetypen vises tilleggsinformasjon om distanse, hopp, '
-                   'drivstoff eller tritium og andre tilgjengelige rutedata.</p>\n'
-                   '\n'
-                   '<h3>Rute og nåværende sjef</h3>\n'
-                   '<p>Det nåværende systemet og skipet kan – så lenge de er klart kjent i den '
-                   'aktive AppState – brukes til forhåndstildeling eller for å støtte '
-                   'planlegging.</p>\n'
-                   '<p>Den faktiske ruten forblir imidlertid en plan og endrer ingen journal- '
-                   'eller fartøydata.</p>\n'
-                   '\n'
-                   '<h3>CTSVision eksport</h3>\n'
-                   '<p>Beregnede flåtetransportruter kan eksporteres som CSV for CTSVision.</p>\n'
-                   '<p>Dette betyr at en transportørrute planlagt i CMDRHelper så kan brukes i '
-                   'CTSVision for hoppkontroll eller rutebehandling der.</p>\n'
-                   '<p>Eksporten endrer ikke ruten i CMDRHelper.</p>\n'
-                   '\n'
-                   '<h3>CSV-fil</h3>\n'
-                   '<p>Den eksporterte filen inneholder rutedataene som kreves for CTSVision i den '
-                   'tiltenkte rekkefølgen.</p>\n'
-                   '<p>Filen bør ikke endres strukturelt på en ukontrollert måte etter eksport '
-                   'hvis den da skal leses inn av CTSVision.</p>\n'
-                   '\n'
-                   '<h3>Feil og eksterne tjenester</h3>\n'
-                   '<p>Hvis Spansh ikke kan nås eller tjenesten returnerer en feil, viser '
-                   'CMDRHelper en tilsvarende feilmelding.</p>\n'
-                   '<p>En feil i online ruteberegning endrer ikke lokale fartøysjef eller '
-                   'journaldata.</p>\n'
-                   '\n'
-                   '<h3>Ruteplanlegger og hopptips</h3>\n'
-                   '<p>Hopptips og ruteplanlegger utfører forskjellige oppgaver:</p>\n'
-                   '<ul>\n'
-                   '<li>Jump tips evaluerer mulige interessante letemål basert på eksisterende '
-                   'data.</li>\n'
-                   '<li>Ruteplanlegger beregner en bestemt rute mellom start og destinasjon.</li>\n'
-                   '</ul>\n'
-                   '<p>Et godt hopptips er derfor ikke automatisk en del av en optimal rute.</p>\n'
-                   '\n'
-                   '<h3>Flere befal</h3>\n'
-                   '<p>Hvis fartøysjefrelaterte data som nåværende system eller skip brukes, '
-                   'kommer disse fra den aktive live AppState og må tydelig tilordnes der.</p>\n'
-                   '<p>Bare å se på en annen fartøysjef i CMDR-visningen bytter ikke '
-                   'ruteplanleggeren til deres system eller skip.</p>\n'
-                   '<p>En ruteberegning i seg selv endrer ikke personopplysningene til en annen '
-                   'fartøysjef.</p>\n'
-                   '\n'
-                   '<h3>Tupp</h3>\n'
-                   '<p>Før en lang tur, sjekk alltid igjen:</p>\n'
-                   '<ul>\n'
-                   '<li>Startsystem</li>\n'
-                   '<li>Målsystem</li>\n'
-                   '<li>Rutetype skip/transportør</li>\n'
-                   '<li>for skipsruter, det underliggende skipet, FSD og hoppparametere</li>\n'
-                   '<li>for transportørruter, den tilgjengelige tritiumreserven</li>\n'
-                   '</ul>\n'
-                   '<p>For flåtetransportører er det tilrådelig å også planlegge tilstrekkelige '
-                   'reserver for hjemreise eller uplanlagte omveier.</p>'),
+                   """<h2>Ruteplanlegger</h2>
+<h3>Oversikt</h3>
+<p>Planleggeren beregner ruter mellom systemer via Spansh. Velg «Skipsrute» eller «Fleet Carrier / CTSVision». Nettforbindelse kreves; CMDRHelper styrer verken skip eller carrier.</p>
+
+<h3>Start og mål</h3>
+<p>«Startsystem» følger den aktive kommandørens kjente nåværende system til du skriver inn en egen start. Et tomt felt gjenoppretter dette. Skriv hele navnet i «Målsystem»; et mål fra favoritter klargjør skipsruten uten å beregne den.</p>
+<p>Start og mål må identifiseres entydig. Lignende navn brukes ikke som erstatning. Ukjente eller tvetydige navn gir en melding; rett opp inntastingen.</p>
+
+<h3>Skipsrute</h3>
+<p>Her er det ingen skipsvelger: kjente data fra det aktive skipet fyller de tekniske feltene. Egne endringer beholdes som manuelle verdier. «Bruk skipsdata» henter tilgjengelige skipsdata på nytt. Se meldingen om komplette, ufullstendige, gamle eller ukjente FSD-data.</p>
+<p>Kontroller «Hovedtankkapasitet», «Nåværende last», «Grunnmasse», «Reservetankkapasitet», «Reservebrensel», «Optimal FSD-masse», «Maksimalt FSD-brensel per hopp», «Brenseleffekt», «Brenselmultiplikator» og «Rekkeviddebonus». Disse bestemmer hoppegenskapene; det finnes ikke ett felt for vanlig skipsrekkevidde. Last og utstyr kan endre faktisk rekkevidde.</p>
+
+<h3>Skipsvalg og beregning</h3>
+<p>«Rutealgoritme» tilbyr optimistic, pessimistic, fuel, fuel_jumps og guided. Valget sendes til Spansh.</p>
+<p>Valgene er «Bruk supercharge/nøytronstjerner», «Skipet starter allerede supercharged», «Bruk FSD-injeksjoner», «Ekskluder sekundærstjerner» og «Fyll drivstoff ved hver scoopbar stjerne»: nøytronstøtte, allerede forsterket start, FSD-injeksjoner, sekundærstjerner og tankstopp. Start med «Beregn skipsrute med Spansh».</p>
+
+<h3>Carrierrute</h3>
+<p>«Fleet Carrier / CTSVision» planlegger uten å velge eller styre en bestemt carrier. Fyll inn «Tritium i tanken» og «Tritium i carrier-lageret», til sammen høyst 25 000 t. «Beregnet carrier-masse» viser 25 000 t pluss disse to mengdene.</p>
+<p>«Maksimal hopperekkevidde» kan være 1 til 500 ly, med 500 ly som standard. «Beregn rute med Spansh» starter beregningen. Carrierknappen er deaktivert under forespørselen.</p>
+
+<h3>Spansh og ventetid</h3>
+<p>Spansh beregner ruten i bakgrunnen. Status viser forespørselen og deretter suksess eller feil. Dette er ruter, ikke handelspriser eller stasjonsinformasjon. Visningen har ingen avbrytknapp for en pågående beregning.</p>
+
+<h3>Ruteresultat</h3>
+<p>Listen har fast ruterekkefølge: nummer, system, hoppavstand og gjenværende avstand. Den kan ikke sorteres fritt. Skipsruter viser også forbruk, drivstoff i tanken, nøytron- og tankanvisninger; carrierruter viser tritiumforbruk.</p>
+<p>Nedenfor står totalavstand, antall hopp og forbruk eller anslått tritium. Manglende verdier forblir «–». Kontroller planen mot den faktiske tilstanden i spillet.</p>
+
+<h3>Fremdrift og neste mål</h3>
+<p>En vellykket beregnet skipsrute tas i bruk automatisk. «Nåværende system», «Neste mål» og «Rutestatus» viser posisjon, neste steg og tilstand. Listen beholdes uten ekstra haker for fullførte steg.</p>
+<p>Et gjenkjent skipshopp til neste eller et senere system på ruten flytter fremdriften fremover og kopierer automatisk navnet på systemet etter dette. Gjentatte posisjonsmeldinger og carrierhopp teller ikke som slike fremdriftshopp.</p>
+<p>Innlasting av ruten kopierer ikke et navn automatisk. Bruk «Kopier neste mål» først eller senere så lenge et neste mål finnes. Bare systemnavnet kopieres: ingen automatisk innliming eller styring av Elite.</p>
+
+<h3>Avvik og fullføring</h3>
+<p>Et hopp utenfor den gjenværende ruten viser «Nåværende system er utenfor ruten». Ruten og forrige neste mål beholdes; ingen automatisk nyberegning skjer. Et senere passende hopp fremover kan gjenoppta ruten. Du kan også bevisst beregne en ny rute.</p>
+<p>Ved siste system vises «Rute fullført». «Neste mål» blir «–», kopieringsknappen deaktiveres og ingen flere navn kopieres. Utklippstavlen tømmes ikke. Resultatlisten blir stående.</p>
+
+<h3>CTSVision-eksport</h3>
+<p>Bare carrierruten tilbyr «Eksporter for CTSVision». Etter vellykket beregning velger du en ny CSV-fil. Den inneholder ruterekkefølgen og tilgjengelige avstands-, drivstoff-, tritium- og etterfyllingsdata for senere bruk i CTSVision.</p>
+<p>Dette er fileksport, ikke direkte forbindelse eller automatisk carrierstyring. Eksisterende filer overskrives ikke. Avbryt i fildialogen oppretter ingen fil; skrivefeil meldes.</p>
+
+<h3>Feil og råd</h3>
+<p>Manglende systemer, ufullstendige eller ugyldige skipsparametere og for mye tritium meldes. Påkrevde tank-, masse- og FSD-verdier må være positive; reservedrivstoff må ikke overstige reservetankens kapasitet.</p>
+<p>Ingen rute, nettproblemer, for lang ventetid eller ubrukelig Spansh-svar gir også melding, aldri et oppdiktet resultat. Kontroller navn, skipsdata og valg før ny beregning.</p>
+
+<h3>Analyse og kommandør</h3>
+<p>«Analyse», med «Systemanalyse» og «Historiske data», vurderer systemer og tilgjengelig erfaring. Ruteplanleggeren beregner den konkrete reisen mellom start og mål.</p>
+<p>Forhåndsutfyllingen bruker aktiv kommandør og skip. Å bare vise en annen kommandør i CMDR-visningen endrer ikke dette.</p>"""),
  'images': ('Bilder',
             '<h2>Bilder</h2>\n'
             '<p>"Bilder"-delen administrerer skjermbildene tatt med Elite Dangerous. CMDRHelper '
@@ -940,6 +916,19 @@ HELP_TOPICS = {
               'redigert eller testet. Bare sjefen som er tydelig identifisert av den aktive '
               'journaløkten, har lov til å sende live.</p>\n'
               '\n'
+              '<h3>Spansh-stasjonsinformasjon</h3>\n'
+              '<p>Under «NETTJENESTER» aktiverer «Legg til stasjonsinformasjon fra Spansh» valgfrie tilleggsopplysninger om stasjoner og fasiliteter i Explorer og systemvisninger. Valget er av som standard. Bare den offentlige systemidentifikatoren sendes, ikke kommandørinformasjon; ingen egen API-nøkkel kreves. Valget styrer ikke handelsmarkedssøk.</p>\n'
+              '<p>Når det er deaktivert, vises bare lokale journalopplysninger, og ingen nye Spansh-stasjonsforespørsler startes; manuell oppdatering er også deaktivert. Eksisterende stasjonsbuffer slettes ikke, men brukes ikke til å supplere visningen. Aktivering gjør bufferdata tilgjengelige igjen uten i seg selv å starte en nettforespørsel.</p>\n'
+              '\n'
+              '<h3>Automatiske stasjonsforespørsler og buffer</h3>\n'
+              '<p>Automatisk kontroll skjer bare ved en ny registrert direkte innreise for den aktive journalkommandøren til et annet system, for eksempel etter et skips- eller carrierhopp eller en ny bekreftet posisjonsmelding. Oppstart, kommandørbytte, arkivimport eller bare åpning av Explorer eller en systemvisning starter ingen automatisk forespørsel.</p>\n'
+              '<p>Den separate stasjonsbufferen bevares ved omstart av Helper. En innhenting som er mindre enn 7 dager gammel, regnes som fersk og hindrer en ny automatisk nettforespørsel. Manglende eller eldre data kan oppdateres ved neste kvalifiserende direkte systeminnreise. Det tillates høyst ett automatisk forsøk per system per lokal kalenderdag; også feil teller, selv etter omstart. Alle lagrede systemer oppdateres ikke kontinuerlig i bakgrunnen. Eldre brukbare bufferdata kan fortsatt vises, også uten nett.</p>\n'
+              '<p>Denne bufferen inneholder ekstra stasjonsinformasjon, ikke handelsmarkedspriser. Spansh-fellesskapsdata for salg, kjøp og anbefalinger har sin egen midlertidige søkebuffer i RAM. Handelsmarkedsbilder du selv observerer i Elite, lagres separat igjen: de overlever omstart, men er bare gyldige når de er yngre enn 24 timer.</p>\n'
+              '\n'
+              '<h3>Oppdatere stasjonsdata manuelt</h3>\n'
+              '<p>Åpne «Systemoversikt» og velg «Oppdater Spansh-data». Bare Spansh-stasjonsdata for systemet i dette vinduet oppdateres, ikke alle lagrede systemer eller handelsmarkedspriser. Valget må være aktivert; under en pågående forespørsel for systemet er handlingen deaktivert.</p>\n'
+              '<p>Manuell oppdatering kan omgå perioden på 7 dager og et mislykket automatisk forsøk samme dag. Hvis systemet allerede ble hentet med hell i dag etter lokal kalender, sendes ingen ny forespørsel: «Spansh-dataene er allerede oppdatert i dag.» Vellykket innhenting fornyer stasjonsbufferen. Ved feil beholdes lokale og brukbare bufferdata, og statuslinjen viser feilen. Et mislykket manuelt forsøk kan gjentas.</p>\n'
+              '\n'
               '<h3>EDSM tilgang for</h3>\n'
               '<p>"EDSM tilgang for:" velger kommandoen som skal redigeres. Valget vil vise '
               '"oppsett" eller "ikke satt opp" avhengig av om en API-Key er lagret.</p>\n'
@@ -1103,7 +1092,7 @@ HELP_TOPICS = {
 <p>Den er ikke en interstellar ruteplanlegger og håndterer verken system- eller hoppnavigasjon. Du styrer skipet selv.</p>
 
 <h3>Åpne navigatoren og angi et mål</h3>
-<p>Åpne «Planetnavigasjon» i oversikten og velg «Manuell inntasting …».</p>
+<p>Åpne «Planetnavigasjon» i Explorer og velg «Manuell inntasting …». Vinduet kan åpnes og et mål angis før en aktuell overflateposisjon er tilgjengelig.</p>
 <ul>
 <li><b>Himmellegeme:</b> Velg målplaneten eller målmånen fra listen, eller bruk himmellegemet som allerede er registrert. Du kan også skrive inn navnet selv hvis det ikke finnes i listen ennå. Er du i tvil, bruk hele navnet, inkludert systemnavnet.</li>
 <li><b>Breddegrad:</b> Angi målets breddegrad mellom −90° og +90°.</li>
@@ -1115,6 +1104,16 @@ HELP_TOPICS = {
 <h3>Når starter kompasset?</h3>
 <p>Så snart et mål er satt og Elite leverer gyldige planetære posisjonsdata for det tilsvarende himmellegemet, blir navigasjonen automatisk aktiv. Du trenger ikke å trykke på en egen startknapp.</p>
 <p>Hvis disse dataene fortsatt mangler eller gjelder et annet himmellegeme, venter navigatoren med «Venter på planetkoordinater …». Du kan angi et mål allerede før disse dataene kommer.</p>
+
+<p>Aktiv navigasjon krever gyldige koordinater, legemenavn, retning og planetradius fra Elite for mållegemet. Landing kreves ikke: data kan komme under innflyging. Uten gyldig posisjon eller på et annet legeme venter navigatøren uten å finne på en posisjon.</p>
+
+<h3>Lagre nåværende sted</h3>
+<p>«★ Lagre nåværende posisjon» lagrer din bekreftede nåværende posisjon, ikke navigasjonsmålet du skrev inn. Gyldig Elite-posisjon, identifisert kommandør og kjent system kreves. Ellers er handlingen deaktivert eller en melding vises.</p>
+<p>System, legeme og koordinater fryses når handlingen åpnes. I favorittdialogen kan du endre navn, kategori og notat og legge til et bilde. Først «Lagre» lagrer lokalt for kommandøren; avbryt lagrer ingenting. Senere bevegelser endrer ikke den fryste posisjonen.</p>
+
+<h3>Bruke lagrede posisjoner</h3>
+<p>Åpne «★ Favoritter» i Explorer. Velg et lagret overflatested og «◎ Til koordinatene» for å bruke legeme, koordinater og navn som mål. Det erstatter forrige mål; på et annet legeme venter navigatøren på passende posisjonsdata.</p>
+<p>«Rediger» endrer navn, kategori og notat. «Slett» fjerner favoritten etter bekreftelse, ikke Elite-data. Favoritter bevares ved omstart og er skilt etter kommandør; selve navigasjonsmålet gjelder bare denne økten.</p>
 
 <h3>Planetkule: mer enn 380 km</h3>
 <p>Når målavstanden er større enn 380 km, viser navigatoren planetkulen.</p>
@@ -1163,9 +1162,13 @@ HELP_TOPICS = {
 <p>På samme himmellegeme kan du når som helst åpne «Manuell inntasting …» på nytt og sette andre koordinater. Det nye målet erstatter det forrige navigasjonsmålet. Med tilsvarende posisjonsdata oppdateres kompasset umiddelbart.</p>
 <p>Med «Avslutt navigasjon» fjerner du det nåværende målet. For en ny innflyging setter du ganske enkelt et nytt mål.</p>
 
+<p>Å lukke vinduet fjerner ikke målet. En aktivert navigasjons-HUD kan fortsette; «Avslutt navigasjon» fjerner målet. Når du forlater riktig legeme eller mangler posisjonsdata, venter navigasjonen og navigasjons-HUD-en skjules.</p>
+
 <h3>Dataenes alder og begrensninger</h3>
 <p>Navigasjonen bygger på statusdataene fra Elite. Oppdateringer kan komme forsinket avhengig av spilltilstanden. Aldersvisningen i navigatoren viser hvor lenge det er siden den siste bekreftede statusmeldingen.</p>
 <p>Overflateavstanden beskriver den korteste buen på en tenkt kule. Den er ikke en terreng- eller veirute. Navigatoren kjenner verken hindringer eller terrenghøyder langs strekningen; flyhøyde, trygg hastighet og å unngå hindringer er fortsatt ditt ansvar.</p>
+
+<p>Posisjonen kommer fra Status.json; journalen supplerer koblinger til legeme og system. Vinduet og aktivert navigasjons-HUD holder oppdateringer aktive ved behov. Visningen avhenger av tilgjengelige Elite-data, uten garantert nøyaktighet i meter.</p>
 
 <h3>Tips</h3>
 <p>Før innflygingen kontrollerer du navnet på himmellegemet og fortegnene til målkoordinatene. Still deg deretter inn på målkursen i Elite-kompasset og følg med på relativ retning og avstand. Hvis navigatoren venter, sjekk om Elite allerede leverer planetkoordinater for himmellegemet du skal til.</p>""",

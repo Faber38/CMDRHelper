@@ -213,7 +213,7 @@ class QuickFavoriteHelpTests(unittest.TestCase):
                 text = help_topic('explorer', language).text
                 self.assertEqual(structure(text), structure(master))
                 sections = re.findall(r'<h3>(.*?)</h3>(.*?)(?=<h3>|$)', text, re.S)
-                self.assertEqual(len(sections), 30)
+                self.assertEqual(len(sections), 34)
                 for heading, body in sections:
                     self.assertTrue(heading.strip())
                     self.assertRegex(body, r'<(?:p|ul)>')

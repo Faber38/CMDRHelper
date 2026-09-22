@@ -191,6 +191,30 @@ HELP_TOPICS = {
               '<p>Wyświetlacz pokazuje między innymi typ ciała, odległość i – jeśli są dostępne – '
               'wartości skanowania i kartografii, a także specjalne właściwości eksploracji.</p>\n'
               '\n'
+              '<p>Opcja „Automatycznie dopasuj do okna” jest domyślnie włączona i zapamiętuje wybór po ponownym uruchomieniu. Każdy nowy widok ogólny zostaje dopasowany do okna jeden raz; włączenie opcji w otwartym oknie również dopasowuje widok raz. Potem nadal możesz ręcznie zmieniać powiększenie i przesuwać widok. „Dopasuj do okna” pozostaje dostępne do ponownego ręcznego dopasowania.</p>\n'
+              '\n'
+              '<h3>Stacje i obiekty</h3>\n'
+              '<p>Karta „STACJE (N)” pokazuje znane stacje i obiekty bieżącego systemu Explorera jako rozwijane karty. Liczba w tytule obejmuje wszystkie znane wpisy, również ukryte przez filtry. To nie jest pełny katalog stacji galaktyki.</p>\n'
+              '<p>Podstawą są lokalnie znane obserwacje z dziennika Elite. Po włączeniu uzupełniania przez Spansh dochodzą informacje z osobnej pamięci podręcznej stacji. Źródłem może być „Journal”, „Spansh” lub „Journal + Spansh”; przy sprzecznych danych pierwszeństwo ma dziennik. Spansh nie dodaje tutaj Fleet Carrierów. Twój własny carrier może się pojawić, jeśli jest znany lokalnie.</p>\n'
+              '\n'
+              '<h3>Wyszukiwanie stacji, filtry i sortowanie</h3>\n'
+              '<p>„Szukaj nazwy stacji…” od razu wyszukuje nazwy stacji lub ich fragmenty, niezależnie od wielkości liter. Puste wyszukiwanie nie ogranicza nazw. Warunek wyszukiwania i oba filtry muszą być spełnione jednocześnie.</p>\n'
+              '<ul>\n'
+              '<li><b>Typ:</b> Ogranicza listę do stacji orbitalnych, posterunków, stacji powierzchniowych, osad, megastatków, Fleet Carrierów lub innych obiektów. „Wszystkie typy” usuwa ograniczenie typu.</li>\n'
+              '<li><b>Powiązane ciało niebieskie:</b> Wybiera znane powiązane ciało niebieskie. „Wszystkie ciała” dopuszcza wszystkie lokalizacje; „Nieznane” pojawia się, gdy wpisów nie można pewnie przypisać do znanego ciała.</li>\n'
+              '<li><b>Sortuj według:</b> Domyślnie alfabetycznie według „Nazwa”. Można też sortować rosnąco według „Typ”, „Powiązane ciało niebieskie” lub „Odległość od punktu przylotu”. Odległość jest sortowana liczbowo; nieznane odległości lub ciała trafiają na koniec przy odpowiednim sortowaniu.</li>\n'
+              '</ul>\n'
+              '<p>Nie ma nagłówków kolumn stacji do klikania: listy wyboru sortują karty. Wyszukiwanie, filtry i sortowanie nie wysyłają zapytań sieciowych. Zmiana systemu zeruje wyszukiwanie oraz filtry typu i ciała. Pusty widok rozróżnia brak znanych wpisów od wpisów niepasujących do filtrów.</p>\n'
+              '\n'
+              '<h3>Szczegóły stacji i usługi</h3>\n'
+              '<p>Kliknij nagłówek karty stacji, aby rozwinąć lub zwinąć szczegóły. Jeśli są znane, wyświetlane są nazwa, typ, system, powiązane ciało, MarketID, ostatnia aktualizacja i źródło. Dwukrotne kliknięcie miniatury otwiera przeglądarkę obrazów.</p>\n'
+              '<p>Spansh może uzupełnić odległość od punktu przylotu w sekundach świetlnych, przynależność, rząd, frakcję kontrolującą, dane gospodarcze oraz liczbę dużych, średnich i małych lądowisk. Daty danych stacji, danych systemu i pobrania są pokazywane osobno, jeśli dostępne; nowe pobranie nie gwarantuje nowszych danych stacji.</p>\n'
+              '<p>Znane „Usługi” są pokazywane jako opisane pola, np. „Rynek”, „Stocznia”, „Wyposażenie”, „Naprawa”, „Tankowanie” lub „Handlarz materiałami”. Nagłówek karty pokazuje najwyżej trzy usługi i ewentualnie liczbę pozostałych; po rozwinięciu widać wszystkie usługi rozpoznawane przez CMDRHelper. Brakujących informacji program nie zgaduje, a ich brak nie dowodzi braku danej usługi.</p>\n'
+              '\n'
+              '<h3>Stacje na mapie i aktualizacja</h3>\n'
+              '<p>Mapa systemu i „Widok całego układu” korzystają z tych samych znanych informacji o stacjach. Pewnie przypisane obiekty znajdują się przy odpowiednim ciele, pozostałe pod „Pozostałe placówki”. Kliknięcie otwiera szczegóły stacji, a dla grup najpierw listę wyboru.</p>\n'
+              '<p>W „Widok całego układu” przycisk „Odśwież dane Spansh” aktualizuje informacje Spansh o stacjach systemu wyświetlanego w tym oknie. Informacje o stacjach Spansh muszą być włączone, a tożsamość systemu znana. Wiersz stanu pokazuje trwające zapytania, powodzenie, błąd lub aktualizację wykonaną już dzisiaj. Przy błędach zachowane są lokalne informacje i użyteczne dane podręczne. Pomoc ustawień wyjaśnia zapytania automatyczne, pamięć podręczną i aktualizację ręczną.</p>\n'
+              '\n'
               '<h3>BIO ×N</h3>\n'
               '<p>BIO ×N oznacza liczbę sygnałów biologicznych ciała zgłaszanych przez grę.</p>\n'
               '<p>Liczba początkowo wskazuje jedynie, ile sygnałów biologicznych lub rodzajów '
@@ -406,6 +430,11 @@ HELP_TOPICS = {
 </ul>
 <p>Mały wyświetlacz osi pomaga w orientacji w przestrzeni.</p>
 
+<p>Kółko myszy przybliża lub oddala widok bez dodatkowego klawisza.</p>
+<p>Dwukrotne kliknięcie pustego miejsca na mapie przywraca początkowy ukośny widok, zeruje przesunięcie i dopasowuje wszystkie wyświetlane systemy do okna. Filtry i wybrany system pozostają zachowane.</p>
+<p>Przy rozpoczęciu obracania lewym przyciskiem myszy kliknięty system staje się środkiem obrotu. W pustym miejscu używany jest punkt pod kursorem na płaszczyźnie galaktycznej; przy niemal poziomym widoku używany jest zamiast niego środek mapy na tej płaszczyźnie. Wyrównanie również obraca wokół bieżącego środka obrotu.</p>
+<p>Kliknij system, aby otworzyć jego okno szczegółów. Kliknięcie lewym przyciskiem nazwy u góry lub sąsiedniej ikony ⧉ kopiuje do schowka wyłącznie nazwę systemu. Krótko widoczny ✓ potwierdza skopiowanie.</p>
+
 <h3>Aktualna pozycja</h3>
 <p>Dzięki „Aktualnej pozycji” widok mapy można wyrównać lub przywrócić do aktualnie znanej lokalizacji aktywnego dowódcy.</p>
 <p>Najpierw stosowane są aktualne filtry. Widok jest centrowany na bieżącym systemie tylko wtedy, gdy znajduje się on na wynikowej mapie.</p>
@@ -572,118 +601,63 @@ HELP_TOPICS = {
 <p>Końcowy numer układu nie jest oceniany: Plio Aip KN-B d13-201 należy do rodziny Plio Aip KN-B d13. BIO ma charakter informacyjny i nie wpływa na główną ocenę. Brak analiz nie dowodzi wartości zerowej.</p>
 <h3>Analiza układu</h3>
 <p>Wpisz układ i wybierz Analizuj lub naciśnij Enter. Użyj bieżącego układu pobiera nazwę z istniejącego stanu gry. Przeliczenie wymaga działania użytkownika. Podstawa porównania i wyniki wskazują poziom; bez lokalnych porównań używane jest doświadczenie wyższego poziomu. Jakość danych jest oddzielona od rekomendacji.</p>
+<p>W polu „Układ” wpisujesz dowolnie nazwę. „Użyj bieżącego układu” tylko wypełnia pole; następnie wybierz „Analizuj” lub naciśnij Enter. Nazwa jest sprawdzana lokalnie według obsługiwanego wzorca nazw proceduralnych. Nie ma tu wyszukiwania systemów online ani listy wyboru dla niejednoznacznych nazw.</p>
+<p>Puste pole, nieobsługiwana nazwa, brak kwalifikujących się danych porównawczych lub błąd zastępują poprzedni wynik komunikatem. Udana analiza pokazuje rekomendację, indeks potencjału i lokalną podstawę danych. Tabela porównuje kod masy, region i rodzinę wraz z liczbą systemów i podstawą danych; niżej znajdują się wartości historyczne i znane szczególne odkrycia.</p>
+<h3>Dane historyczne</h3>
 <p>Historyczne trafienia według kodu układu. Wartości opisują Twoje dotychczasowe doświadczenie eksploracyjne i nie są bezpośrednią prognozą dla pojedynczego układu docelowego. Podstawa danych i wiarygodność opisują rzetelność porównań na podstawie dostępnej próby i jej rozkładu między sektorami.</p>
+<p>Na karcie „Dane historyczne” w polu „Cel” wybierasz rodzaj znaleziska, nie cel podróży: na przykład cel eksploracyjny, rodzaj lub gatunek BIO. Pierwsza ocena odbywa się podczas tworzenia widoku. Po zmianie celu lub minimum poprzedni ranking pozostaje do naciśnięcia „Oceń ponownie”.</p>
+<p>Pole liczbowe obok wyboru celu ustala minimalną próbę dla kodu: od 1 do 50 zbadanych systemów, początkowo 3. Kody z mniejszą liczbą systemów lub bez historycznego trafienia dla wybranego rodzaju znaleziska nie pojawiają się w rankingu.</p>
+<p>Tabela „Wzorce historyczne” pokazuje do 50 kodów wraz z pozycją, dotychczasowym sukcesem (systemy z trafieniami / zbadane systemy), odsetkiem trafień i siłą danych. Kolejność wynika z wygładzonej oceny historycznej, nie tylko z odsetka trafień. Obie tabele mają stałą kolejność, bez sortowania kolumn i otwierania szczegółów. Brak pasujących wzorców powoduje wyświetlenie komunikatu; błąd oceny czyści ranking i wyświetla komunikat błędu. Analiza nie oblicza trasy podróży.</p>
 """,
     ),
  'route_planner': ('Planowanie trasy',
-                   '<h2>Planowanie trasy</h2>\n<h3>CMDRHelper</h3>\n<p>Ulepszony planer tras: start automatycznie śledzi bieżący system do ręcznego wpisania innego; wyczyszczenie pola przywraca automatykę. Statki i carriery używają dokładnie sprawdzonych adresów ID64 zamiast podobnych nazw. „Unable to find route” oznacza brak znalezionej trasy; sprawdź cele, zasięg i ustawienia.</p>\n'
-                   '<p>Planer tras wspiera planowanie dłuższych podróży statkiem lub Fleet '
-                   'Carrier. CMDRHelper może korzystać z zewnętrznych danych o trasie z Spansh i '
-                   'przygotowywać zaplanowaną trasę do dalszego wykorzystania.</p>\n'
-                   '\n'
-                   '<h3>Zacznij i zakończ</h3>\n'
-                   '<p>Do obliczenia trasy wymagany jest system początkowy i docelowy.</p>\n'
-                   '<p>W miarę możliwości CMDRHelper może wykorzystywać obecnie znany system '
-                   'Dowódcy jako punkt wyjścia. Początek i koniec należy sprawdzić przed '
-                   'obliczeniem.</p>\n'
-                   '\n'
-                   '<h3>Statek lub Fleet Carrier</h3>\n'
-                   '<p>Planista trasy rozróżnia podróże zwykłym statkiem i Fleet Carrier.</p>\n'
-                   '<p>W obu przypadkach stosuje się różne wymagania i metody obliczeń. Dlatego '
-                   'przed planowaniem należy wybrać odpowiedni rodzaj trasy.</p>\n'
-                   '\n'
-                   '<h3>Trasa statku</h3>\n'
-                   '<p>W przypadku trasy statku uwzględniane są właściwości skoku znane lub '
-                   'wprowadzone dla aktywnego statku.</p>\n'
-                   '<p>W zależności od dostępnych danych, w planowaniu można uwzględnić dane FSD, '
-                   'dane statku, masę, paliwo i inne parametry skoku.</p>\n'
-                   '<p>Wyznaczona trasa stanowi pomoc w planowaniu. Zmiany statku lub jego masy '
-                   'mogą zmienić rzeczywistą odległość skoku osiągalną w grze.</p>\n'
-                   '\n'
-                   '<h3>Trasa przewoźnika flotowego</h3>\n'
-                   '<p>Fleet Carrier mają inne zasady skoków niż zwykłe statki.</p>\n'
-                   '<p>CMDRHelper wykorzystuje planowanie przewoźnika Spansh dla odpowiednich '
-                   'tras.</p>\n'
-                   '<p>Trasa służy do planowania sekwencji skoków. Rzeczywiste zużycie trytu i '
-                   'dostępny zasięg mogą również zależeć od masy i aktualnego stanu nośnika.</p>\n'
-                   '\n'
-                   '<h3>Spansh</h3>\n'
-                   '<p>Do faktycznego obliczenia trasy CMDRHelper może skorzystać z usługi '
-                   'zewnętrznej Spansh.</p>\n'
-                   '<p>Żądanie jest przetwarzane w tle, dzięki czemu interfejs pozostaje sprawny '
-                   'podczas dłuższych obliczeń.</p>\n'
-                   '<p>CMDRHelper nie ma wpływu na dostępność i czas reakcji serwisu '
-                   'zewnętrznego.</p>\n'
-                   '\n'
-                   '<h3>obliczenie</h3>\n'
-                   '<p>Po rozpoczęciu kalkulacji zapytanie zostaje przekazane wybranemu planiście '
-                   'trasy.</p>\n'
-                   '<p>W zależności od trasy i usługi obliczenia mogą zająć trochę czasu. W tym '
-                   'czasie nie należy niepotrzebnie rozpoczynać drugiego identycznego '
-                   'obliczenia.</p>\n'
-                   '\n'
-                   '<h3>Wynik</h3>\n'
-                   '<p>Pomyślnie obliczona trasa pokazuje zamierzone systemy lub punkty skoku w '
-                   'ich kolejności.</p>\n'
-                   '<p>W zależności od rodzaju trasy pojawiają się dodatkowe informacje dotyczące '
-                   'dystansu, skoków, paliwa lub trytu oraz inne dostępne dane trasy.</p>\n'
-                   '\n'
-                   '<h3>Trasa i aktualny dowódca</h3>\n'
-                   '<p>Obecny system i statek można – o ile są wyraźnie znane w aktywnym AppState '
-                   '– wykorzystać do wstępnego przypisania lub do wsparcia planowania.</p>\n'
-                   '<p>Jednak rzeczywista trasa pozostaje planem i nie zmienia żadnych danych '
-                   'dziennika ani dowódcy.</p>\n'
-                   '\n'
-                   '<h3>Eksport CTSVision</h3>\n'
-                   '<p>Obliczone trasy przewoźników flotowych można wyeksportować jako plik CSV '
-                   'dla CTSVision.</p>\n'
-                   '<p>Oznacza to, że trasa nośna zaplanowana w CMDRHelper może być następnie '
-                   'wykorzystana w CTSVision do sterowania skokami lub przetwarzania trasy.</p>\n'
-                   '<p>Eksport nie zmienia trasy w CMDRHelper.</p>\n'
-                   '\n'
-                   '<h3>plik CSV</h3>\n'
-                   '<p>Wyeksportowany plik zawiera dane trasy wymagane dla CTSVision w zamierzonej '
-                   'kolejności.</p>\n'
-                   '<p>Plik nie powinien być zmieniany strukturalnie w sposób niekontrolowany po '
-                   'eksporcie, jeśli ma być następnie wczytany przez CTSVision.</p>\n'
-                   '\n'
-                   '<h3>Błędy i usługi zewnętrzne</h3>\n'
-                   '<p>Jeśli nie można uzyskać dostępu do Spansh lub usługa zwróci błąd, '
-                   'CMDRHelper wyświetli odpowiedni komunikat o błędzie.</p>\n'
-                   '<p>Błąd w obliczaniu trasy online nie powoduje zmiany danych lokalnego dowódcy '
-                   'ani dziennika.</p>\n'
-                   '\n'
-                   '<h3>Planowanie trasy i wskazówka dotycząca skoków</h3>\n'
-                   '<p>Wskazówki dotyczące skoków i planowanie trasy spełniają różne zadania:</p>\n'
-                   '<ul>\n'
-                   '<li>Wskazówka skoku ocenia możliwe interesujące cele eksploracji na podstawie '
-                   'istniejących danych.</li>\n'
-                   '<li>Planowanie trasy oblicza konkretną trasę między punktem początkowym a '
-                   'miejscem docelowym.</li>\n'
-                   '</ul>\n'
-                   '<p>Dlatego dobra wskazówka dotycząca skoków nie jest automatycznie częścią '
-                   'optymalnej trasy.</p>\n'
-                   '\n'
-                   '<h3>Kilku dowódców</h3>\n'
-                   '<p>Jeśli używane są dane dowódcy, takie jak bieżący system lub statek, '
-                   'pochodzą one z aktywnego aktywnego AppState i muszą być tam wyraźnie '
-                   'przypisane.</p>\n'
-                   '<p>Samo spojrzenie na innego dowódcę w widoku CMDR nie przełącza planisty '
-                   'trasy na jego system lub statek.</p>\n'
-                   '<p>Samo wyliczenie trasy nie powoduje zmiany danych osobowych innego '
-                   'dowódcy.</p>\n'
-                   '\n'
-                   '<h3>Wskazówka</h3>\n'
-                   '<p>Przed długą podróżą zawsze sprawdź jeszcze raz:</p>\n'
-                   '<ul>\n'
-                   '<li>Układ startowy</li>\n'
-                   '<li>System docelowy</li>\n'
-                   '<li>Typ trasy statek/przewoźnik</li>\n'
-                   '<li>w przypadku tras statków – podstawowy statek, FSD i parametry skoku</li>\n'
-                   '<li>w przypadku tras przewoźników dostępna rezerwa trytu</li>\n'
-                   '</ul>\n'
-                   '<p>W przypadku podróży przewoźnikiem flotowym zaleca się zaplanowanie '
-                   'wystarczających rezerw na podróż powrotną lub nieplanowane objazdy.</p>'),
+                   """<h2>Planowanie trasy</h2>
+<h3>Przegląd</h3>
+<p>Planer oblicza trasy między systemami przez Spansh. Wybierz „Trasa statku” lub „Fleet Carrier / CTSVision”. Wymagane jest połączenie sieciowe; CMDRHelper nie steruje statkiem ani carrierem.</p>
+
+<h3>Start i cel</h3>
+<p>„System początkowy” śledzi znany bieżący system aktywnego dowódcy, dopóki nie wpiszesz własnego początku. Puste pole przywraca to zachowanie. Wpisz pełne „System docelowy”; cel z ulubionych przygotowuje trasę statku bez uruchamiania obliczeń.</p>
+<p>Start i cel muszą zostać rozpoznane jednoznacznie. Podobne nazwy nie są wybierane zastępczo. Nieznana lub niejednoznaczna nazwa powoduje komunikat; popraw wpis.</p>
+
+<h3>Trasa statku</h3>
+<p>Nie ma tu wyboru statku: znane dane aktywnego statku wypełniają pola techniczne. Własne zmiany pozostają ręcznymi ustawieniami. „Zastosuj dane statku” ponownie pobiera dostępne dane statku. Sprawdź komunikat o kompletnych, niepełnych, starych danych lub nieznanym FSD.</p>
+<p>Sprawdź „Pojemność głównego zbiornika”, „Aktualny ładunek”, „Masa bazowa”, „Pojemność zbiornika rezerwowego”, „Paliwo rezerwowe”, „Optymalna masa FSD”, „Maksymalne paliwo FSD na skok”, „Potęga paliwa”, „Mnożnik paliwa” i „Premia zasięgu”. Z tych wartości wynikają możliwości skoku; nie ma jednego pola zwykłego zasięgu statku. Ładunek i wyposażenie mogą zmieniać rzeczywisty zasięg.</p>
+
+<h3>Opcje statku i obliczanie</h3>
+<p>„Algorytm trasy” oferuje optimistic, pessimistic, fuel, fuel_jumps i guided. Wybór jest przesyłany do Spansh.</p>
+<p>Opcje to „Używaj doładowania/gwiazd neutronowych”, „Statek zaczyna już doładowany”, „Używaj syntezy FSD”, „Wyklucz gwiazdy drugorzędne” i „Tankuj przy każdej gwieździe z paliwem”: wsparcie neutronowe, już wzmocniony start, iniekcje FSD, gwiazdy wtórne i tankowanie. Rozpocznij przez „Oblicz trasę statku przez Spansh”.</p>
+
+<h3>Trasa carriera</h3>
+<p>„Fleet Carrier / CTSVision” planuje bez wybierania lub sterowania konkretnym carrierem. Podaj „Tryt w zbiorniku” i „Tryt w magazynie carriera”, łącznie najwyżej 25 000 t. „Obliczona masa carriera” pokazuje 25 000 t plus obie ilości.</p>
+<p>„Maksymalny zasięg skoku” można ustawić od 1 do 500 ly, domyślnie 500 ly. „Oblicz trasę ze Spansh” uruchamia obliczenia. Przycisk carriera jest wyłączony podczas tego zapytania.</p>
+
+<h3>Spansh i oczekiwanie</h3>
+<p>Spansh oblicza trasę w tle. Stan pokazuje zapytanie, a potem powodzenie lub błąd. To obliczenia tras, nie pobieranie cen handlowych ani informacji o stacjach. Widok nie ma przycisku anulowania trwającego obliczania.</p>
+
+<h3>Wynik trasy</h3>
+<p>Lista zachowuje kolejność trasy: numer, system, odległość skoku i pozostała odległość. Nie można jej dowolnie sortować. Trasy statków pokazują też zużycie, paliwo w zbiorniku, neutrony i tankowanie; trasy carrierów zużycie trytu.</p>
+<p>Poniżej są łączna odległość, liczba skoków i zużycie lub szacowany tryt. Brakujące wartości pozostają „–”. Porównaj plan z rzeczywistym stanem w grze.</p>
+
+<h3>Postęp i następny cel</h3>
+<p>Pomyślnie obliczona trasa statku zostaje automatycznie przyjęta. „Aktualny system”, „Następny cel” i „Stan trasy” pokazują pozycję, następny krok i stan. Lista pozostaje bez dodatkowych znaczników wykonanych kroków.</p>
+<p>Rozpoznany skok statku do następnego lub późniejszego systemu trasy przesuwa postęp naprzód i automatycznie kopiuje nazwę kolejnego systemu do schowka. Powtórzone zgłoszenia pozycji i skoki carriera nie liczą się jako takie postępy.</p>
+<p>Wczytanie trasy nie kopiuje automatycznie nazwy. Użyj „Kopiuj następny cel” na początku lub później, gdy istnieje następny cel. Kopiowana jest tylko nazwa systemu: bez automatycznego wklejania lub sterowania Elite.</p>
+
+<h3>Zboczenie i zakończenie</h3>
+<p>Skok poza pozostałą trasę wyświetla „Aktualny system jest poza trasą”. Trasa i poprzedni następny cel pozostają; nie ma automatycznego przeliczania. Późniejszy pasujący skok naprzód może wznowić trasę. Możesz też świadomie obliczyć nową trasę.</p>
+<p>W ostatnim systemie pojawia się „Trasa ukończona”. „Następny cel” zmienia się na „–”, kopiowanie zostaje wyłączone i nie jest kopiowana kolejna nazwa. Schowek nie jest czyszczony. Lista wyników pozostaje.</p>
+
+<h3>Eksport CTSVision</h3>
+<p>Tylko trasa carriera oferuje „Eksportuj dla CTSVision”. Po obliczeniu wybierz nowy plik CSV. Zawiera kolejność trasy i dostępne dane odległości, paliwa, trytu i uzupełniania zapasów do późniejszego użycia w CTSVision.</p>
+<p>To eksport pliku, nie bezpośrednie połączenie ani automatyczne sterowanie carrierem. Istniejące pliki nie są nadpisywane. Anulowanie okna pliku niczego nie tworzy; błędy zapisu są zgłaszane.</p>
+
+<h3>Błędy i wskazówki</h3>
+<p>Brakujące systemy, niepełne lub nieprawidłowe parametry i nadmiar trytu są zgłaszane. Wymagane wartości zbiornika, masy i FSD muszą być dodatnie; paliwo rezerwowe nie może przekraczać pojemności zbiornika rezerwowego.</p>
+<p>Brak trasy, problemy sieciowe, zbyt długie oczekiwanie lub bezużyteczna odpowiedź Spansh powodują komunikat zamiast zmyślonego wyniku. Sprawdź nazwy, dane statku i opcje przed ponownym obliczeniem.</p>
+
+<h3>Analiza i dowódca</h3>
+<p>„Analiza”, z „Analiza układu” i „Dane historyczne”, ocenia systemy i dostępne doświadczenia. Planer oblicza konkretną drogę między startem a celem.</p>
+<p>Domyślne dane pochodzą od aktywnego dowódcy i jego statku. Samo oglądanie innego dowódcy w widoku CMDR tego nie zmienia.</p>"""),
  'images': ('Kino',
             '<h2>Kino</h2>\n'
             '<p>Sekcja „Obrazy” zarządza zrzutami ekranu wykonanymi za pomocą Elite Dangerous. '
@@ -964,6 +938,19 @@ HELP_TOPICS = {
               'testowany. Tylko dowódca wyraźnie zidentyfikowany przez aktywną sesję dziennika '
               'może wysyłać na żywo.</p>\n'
               '\n'
+              '<h3>Informacje Spansh o stacjach</h3>\n'
+              '<p>W „USŁUGI ONLINE” opcja „Dodaj informacje o stacjach ze Spansh” włącza dodatkowe informacje o stacjach i obiektach w Explorerze oraz widokach systemu. Domyślnie jest wyłączona. Przesyłany jest publiczny identyfikator systemu, bez danych dowódcy; własny klucz API nie jest wymagany. Opcja nie steruje wyszukiwaniem rynków handlowych.</p>\n'
+              '<p>Po wyłączeniu wyświetlane są tylko lokalne informacje z dziennika i nie są rozpoczynane nowe zapytania o stacje Spansh; aktualizacja ręczna też jest niedostępna. Zapisana pamięć podręczna stacji nie jest usuwana, ale nie uzupełnia widoku. Włączenie ponownie udostępnia dane podręczne, lecz samo nie uruchamia zapytania sieciowego.</p>\n'
+              '\n'
+              '<h3>Automatyczne zapytania o stacje i pamięć podręczna</h3>\n'
+              '<p>Automatyczne sprawdzenie następuje tylko przy nowo rozpoznanym na żywo wejściu aktywnego dowódcy dziennika do innego systemu, np. po skoku statku, skoku carriera lub nowym potwierdzonym zgłoszeniu lokalizacji. Uruchomienie programu, zmiana dowódcy, import archiwum i samo otwarcie Explorera lub widoku systemu nie rozpoczynają automatycznego zapytania.</p>\n'
+              '<p>Osobna pamięć podręczna stacji pozostaje po ponownym uruchomieniu Helpera. Pobranie sprzed mniej niż 7 dni jest uznawane za świeże i zapobiega nowemu automatycznemu zapytaniu sieciowemu. Brakujące lub starsze dane mogą zostać zaktualizowane przy następnym odpowiednim wejściu na żywo do systemu. Dla systemu przewidziano najwyżej jedną automatyczną próbę na lokalny dzień kalendarzowy; niepowodzenie też się liczy, również po ponownym uruchomieniu. Nie ma ciągłej aktualizacji wszystkich zapisanych systemów w tle. Starsze użyteczne dane podręczne mogą nadal być wyświetlane, także bez sieci.</p>\n'
+              '<p>Ta pamięć zawiera dodatkowe informacje o stacjach, a nie ceny rynkowe. Społecznościowe dane handlowe Spansh dla sprzedaży, zakupów i rekomendacji mają osobną ulotną pamięć wyszukiwania w RAM. Własne obserwacje rynków handlowych w Elite są przechowywane jeszcze osobno: pozostają po ponownym uruchomieniu, ale są ważne tylko przez mniej niż 24 godziny.</p>\n'
+              '\n'
+              '<h3>Ręczna aktualizacja danych stacji</h3>\n'
+              '<p>Otwórz „Widok całego układu” i wybierz „Odśwież dane Spansh”. Aktualizowane są tylko informacje Spansh o stacjach systemu w tym oknie, a nie wszystkie zapisane systemy ani ceny handlowe. Opcja musi być włączona; podczas trwającego zapytania dla tego systemu działanie jest niedostępne.</p>\n'
+              '<p>Aktualizacja ręczna może ominąć okres 7 dni i nieudaną automatyczną próbę danego dnia. Jeśli system został już dzisiaj pomyślnie pobrany według lokalnego kalendarza, nowego zapytania nie będzie: „Dane Spansh zostały już dzisiaj zaktualizowane.” Udane pobranie odnawia pamięć podręczną stacji. Przy błędach pozostają dane lokalne i użyteczne dane podręczne, a wiersz stanu pokazuje niepowodzenie. Nieudaną próbę ręczną można ponowić.</p>\n'
+              '\n'
               '<h3>Dostęp EDSM dla</h3>\n'
               '<p>„EDSM dostęp dla:” wybiera dowódcę do edycji. Wybór pokaże „ustawiony” lub „nie '
               'skonfigurowany” w zależności od tego, czy przechowywany jest API-Key.</p>\n'
@@ -1134,7 +1121,7 @@ HELP_TOPICS = {
 <p>Nie jest to planer tras międzygwiezdnych i nie obsługuje nawigacji między systemami ani skoków. Samodzielnie pilotujesz statek.</p>
 
 <h3>Otwieranie nawigatora i wprowadzanie celu</h3>
-<p>W przeglądzie otwórz „Nawigacja planetarna” i wybierz „Wprowadzanie ręczne …”.</p>
+<p>Otwórz „Nawigacja planetarna” w Explorerze i wybierz „Wprowadzanie ręczne …”. Okno można otworzyć i wpisać cel przed uzyskaniem bieżącej pozycji na powierzchni.</p>
 <ul>
 <li><b>Ciało niebieskie:</b> Wybierz docelową planetę lub księżyc z listy albo użyj już rozpoznanego ciała. Możesz też samodzielnie wpisać jego nazwę, jeśli jeszcze nie ma go na liście. W razie wątpliwości użyj pełnej nazwy wraz z nazwą systemu.</li>
 <li><b>Szerokość geograficzna:</b> Podaj szerokość celu między −90° a +90°.</li>
@@ -1146,6 +1133,16 @@ HELP_TOPICS = {
 <h3>Kiedy uruchamia się kompas?</h3>
 <p>Gdy cel jest ustawiony, a Elite dostarcza prawidłowe planetarne dane pozycji dla odpowiedniego ciała, nawigacja włącza się automatycznie. Nie musisz naciskać osobnego przycisku startu.</p>
 <p>Jeśli tych danych jeszcze brakuje lub dotyczą innego ciała, nawigator czeka z komunikatem „Oczekiwanie na współrzędne planetarne …”. Cel można wprowadzić jeszcze przed otrzymaniem tych danych.</p>
+
+<p>Aktywna nawigacja wymaga prawidłowych współrzędnych, nazwy ciała, kierunku i promienia planety z Elite dla docelowego ciała. Lądowanie nie jest wymagane: dane mogą być dostępne podczas podejścia. Bez prawidłowej pozycji lub na innym ciele nawigator czeka, nie wymyślając pozycji.</p>
+
+<h3>Zapisanie bieżącej lokalizacji</h3>
+<p>„★ Zapisz bieżącą pozycję” zapisuje potwierdzoną bieżącą pozycję, nie wpisany cel nawigacji. Potrzebne są prawidłowa pozycja Elite, rozpoznany dowódca i znany system. Inaczej działanie jest wyłączone lub pojawia się komunikat.</p>
+<p>Przy otwarciu utrwalane są system, ciało i współrzędne. W oknie ulubionych możesz zmienić nazwę, kategorię i notatkę oraz dodać obraz. Dopiero „Zapisz” zapisuje lokalnie dla danego dowódcy; anulowanie niczego nie zapisuje. Późniejszy ruch nie zmienia utrwalonej pozycji.</p>
+
+<h3>Korzystanie z zapisanych pozycji</h3>
+<p>Otwórz „★ Ulubione” w Explorerze. Wybierz zapisane miejsce na powierzchni i „◎ Do współrzędnych”, aby przyjąć ciało, współrzędne i nazwę jako cel. Zastępuje to poprzedni cel; na innym ciele nawigator czeka na zgodne dane pozycji.</p>
+<p>„Edytuj” zmienia nazwę, kategorię i notatkę. „Usuń” usuwa ulubiony wpis po potwierdzeniu, bez usuwania danych Elite. Ulubione pozostają po restarcie i są rozdzielone według dowódców; bieżący cel nawigacji trwa tylko przez sesję.</p>
 
 <h3>Globus planety: ponad 380 km</h3>
 <p>Gdy odległość do celu jest większa niż 380 km, nawigator wyświetla globus planety.</p>
@@ -1194,9 +1191,13 @@ HELP_TOPICS = {
 <p>Na tym samym ciele możesz w dowolnym momencie ponownie otworzyć „Wprowadzanie ręczne …” i ustawić inne współrzędne. Nowy cel zastępuje poprzedni cel nawigacyjny. Przy odpowiednich danych pozycji kompas aktualizuje się natychmiast.</p>
 <p>„Zakończ nawigację” usuwa aktualny cel. Aby wykonać kolejny dolot, wystarczy ustawić nowy cel.</p>
 
+<p>Zamknięcie okna nie usuwa celu. Włączony HUD nawigacji może działać dalej; „Zakończ nawigację” usuwa cel. Opuszczenie właściwego ciała lub brak danych pozycji powoduje oczekiwanie nawigacji i ukrycie jej HUD-u.</p>
+
 <h3>Aktualność danych i ograniczenia</h3>
 <p>Nawigacja opiera się na danych stanu dostarczanych przez Elite. Aktualizacje mogą docierać z opóźnieniem zależnym od stanu gry. Wskaźnik wieku danych w nawigatorze pokazuje czas, jaki upłynął od ostatniego potwierdzonego komunikatu stanu.</p>
 <p>Odległość po powierzchni opisuje najkrótszy łuk na umownej kuli. Nie jest trasą terenową ani drogową. Nawigator nie zna przeszkód ani wysokości terenu wzdłuż trasy; wysokość lotu, bezpieczna prędkość i omijanie przeszkód pozostają twoim zadaniem.</p>
+
+<p>Pozycja pochodzi z Status.json; dziennik uzupełnia powiązania ciała i systemu. Okno i włączony HUD nawigacji utrzymują aktualizacje w razie potrzeby. Wskazania zależą od dostępnych danych Elite, bez gwarancji dokładności w metrach.</p>
 
 <h3>Wskazówka</h3>
 <p>Przed dolotem sprawdź nazwę ciała oraz znaki współrzędnych celu. Następnie ustaw się według kursu do celu na kompasie Elite i obserwuj kierunek względny oraz odległość. Jeśli nawigator czeka, sprawdź, czy Elite dostarcza już współrzędne planetarne dla docelowego ciała.</p>""",

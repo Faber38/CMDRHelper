@@ -929,6 +929,8 @@ TRANSLATIONS = {
     'explorer.col_progress': 'Progress',
     'explorer.show_all_title': 'CMDRHelper – System overview – {system}',
     'explorer.overview_fit': 'Fit to window',
+    'explorer.overview_auto_fit': 'Automatically fit to window',
+    'explorer.overview_auto_fit_hint': 'Automatically fits the overview to the window size when opened.',
     'explorer.overview_hint': 'System structure · Click a body: details · Ctrl + mouse wheel: zoom · 100 %: reset zoom',
     'explorer.no_system_data_available': 'No system data available.',
     'explorer.no_body_data': 'No body data is available for the current system yet.',

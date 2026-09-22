@@ -929,6 +929,8 @@ TRANSLATIONS = {
     'explorer.col_progress': 'Fortschritt',
     'explorer.show_all_title': 'CMDRHelper – Gesamtansicht – {system}',
     'explorer.overview_fit': 'An Fenster anpassen',
+    'explorer.overview_auto_fit': 'Automatisch an Fenster anpassen',
+    'explorer.overview_auto_fit_hint': 'Passt die Gesamtansicht beim Öffnen automatisch an die Fenstergröße an.',
     'explorer.overview_hint': 'Systemstruktur · Körper anklicken: Details · Strg + Mausrad: Zoom · 100 %: Zoom zurücksetzen',
     'explorer.no_system_data_available': 'Keine Systemdaten verfügbar.',
     'explorer.no_body_data': 'Für das aktuelle System liegen noch keine Körperdaten vor.',

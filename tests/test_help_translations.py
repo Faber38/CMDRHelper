@@ -69,7 +69,7 @@ class HelpTranslationTests(unittest.TestCase):
                                     r"Zielkurs|Breitengrad|Längengrad|Oberflächenabstand|"
                                     r"klickdurchlässig|Navigationswerte|Warte auf planetare")
                 sections = re.split(r"<h3>.*?</h3>", topic.text)[1:]
-                self.assertEqual(len(sections), 10)
+                self.assertEqual(len(sections), 12)
                 for section in sections:
                     self.assertRegex(section, r"<(?:p|li)>.+?</(?:p|li)>")
 
@@ -101,7 +101,7 @@ class HelpTranslationTests(unittest.TestCase):
                 text = help_topic("explorer", language).text
                 ui = import_module(f"cmdrhelper.i18n.{language}").TRANSLATIONS
                 favorite_text = text[text.index("<h3>" + ui["favorites.title"] + "</h3>"):]
-                self.assertEqual(text.count("<h3>"), 30)
+                self.assertEqual(text.count("<h3>"), 34)
                 for tag, count in (("h3", 8), ("p", 25), ("ul", 1), ("li", 3)):
                     self.assertEqual(favorite_text.count(f"<{tag}>"), count)
                 for key in ("save_system", "save_body", "save_surface", "open", "edit",
@@ -129,7 +129,7 @@ class HelpTranslationTests(unittest.TestCase):
             with self.subTest(language=language):
                 text = help_topic("chronicle", language).text
                 self.assertEqual(text.count("<h3>"), 23)
-                self.assertEqual(text.count("<p>"), 81)
+                self.assertEqual(text.count("<p>"), 85)
                 self.assertEqual(text.count("<ul>"), 8)
                 self.assertEqual(text.count("<li>"), 31)
                 self.assertEqual(re.findall(r"<code>(.*?)</code>", text),
@@ -246,7 +246,7 @@ class HelpTranslationTests(unittest.TestCase):
             with self.subTest(language=language):
                 self.assertNotRegex(combined, r'CMDRHelper\s+v?\d+\.\d+')
                 self.assertNotRegex(combined, r'v3\.[12]')
-                self.assertEqual(combined.count('<h3>CMDRHelper</h3>'), 5)
+                self.assertEqual(combined.count('<h3>CMDRHelper</h3>'), 4)
 
     def test_mining_help_is_complete_and_localized_in_every_language(self):
         master = help_topic('materials', 'de').text.split('<h3>Mining</h3>')[1]

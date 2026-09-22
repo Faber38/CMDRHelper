@@ -170,6 +170,30 @@ HELP_TOPICS = {
 <p>Ein Körper kann angeklickt werden, um seine Detailansicht zu öffnen.</p>
 <p>Die Darstellung zeigt unter anderem Körperart, Entfernung und – soweit vorhanden – Scan- und Kartographiewerte sowie besondere Explorationseigenschaften.</p>
 
+<p>„Automatisch an Fenster anpassen“ ist standardmäßig eingeschaltet und merkt sich deine Auswahl auch nach einem Neustart. Eine neue Gesamtansicht wird damit einmal an die Fenstergröße angepasst; Einschalten im geöffneten Fenster passt sie ebenfalls einmal ein. Danach kannst du weiterhin manuell zoomen und verschieben. „An Fenster anpassen“ bleibt zum erneuten manuellen Einpassen verfügbar.</p>
+
+<h3>Stationen &amp; Einrichtungen</h3>
+<p>Der Reiter „STATIONEN (N)“ zeigt die bekannten Stationen und Einrichtungen des aktuellen Explorer-Systems als aufklappbare Karten. Die Zahl im Reitertitel zählt alle bekannten Einträge, auch wenn Filter einige ausblenden. Die Liste ist kein vollständiges Verzeichnis aller Stationen der Galaxis.</p>
+<p>Grundlage sind lokal bekannte Journal-Beobachtungen aus Elite. Bei aktivierter Spansh-Ergänzung kommen Stationsinformationen aus dem separaten Stationscache hinzu. Die Quelle kann „Journal“, „Spansh“ oder „Journal + Spansh“ sein; bei widersprüchlichen Angaben haben Journalinformationen Vorrang. Spansh ergänzt hier keine Fleet Carrier. Ein lokal bekannter eigener Carrier kann angezeigt werden.</p>
+
+<h3>Stationssuche, Filter und Sortierung</h3>
+<p>„Stationsname suchen…“ sucht sofort nach Stationsnamen oder Namensteilen, unabhängig von Groß-/Kleinschreibung. Eine leere Suche schränkt den Namen nicht ein. Suche und beide Filter müssen gemeinsam erfüllt sein.</p>
+<ul>
+<li><b>Typ:</b> Beschränkt die Liste auf Orbitalstationen, Außenposten, Oberflächenstationen, Siedlungen, Megaschiffe, Fleet Carrier oder weitere Einrichtungen. „Alle Typen“ hebt die Typbeschränkung auf.</li>
+<li><b>Zugehöriger Körper:</b> Wählt einen bekannten zugehörigen Körper. „Alle Körper“ lässt alle Standorte zu; „Unbekannt“ erscheint, wenn Einträge keinem bekannten Körper sicher zugeordnet sind.</li>
+<li><b>Sortieren nach:</b> Standard ist alphabetisch nach „Name“. Alternativ nach „Typ“, „Zugehöriger Körper“ oder „Entfernung zum Ankunftspunkt“ aufsteigend sortieren. Entfernung wird numerisch sortiert; unbekannte Entfernungen beziehungsweise Körper stehen bei ihrer Sortierung zuletzt.</li>
+</ul>
+<p>Es gibt keine Stationsspalten zum Anklicken. Die Auswahlfelder sortieren die Karten. Suche, Filter und Sortierung lösen keine Netzabfrage aus. Beim Systemwechsel werden Suche und Typ-/Körperfilter zurückgesetzt. Eine leere Anzeige unterscheidet fehlende bekannte Einträge von Einträgen, die nicht zu den Filtern passen.</p>
+
+<h3>Stationsdetails und Services</h3>
+<p>Klicke auf den Kopf einer Stationskarte, um Details auf- oder zuzuklappen. Angezeigt werden, soweit bekannt, Name, Typ, System, zugehöriger Körper, MarketID, letzte Aktualisierung und Quelle. Ein Doppelklick auf das Vorschaubild öffnet den Bildbetrachter.</p>
+<p>Spansh kann Entfernung zum Ankunftspunkt in Lichtsekunden, Zugehörigkeit, Regierung, kontrollierende Fraktion, Wirtschaftsdaten sowie die Anzahl großer, mittlerer und kleiner Landeplätze ergänzen. Stationsdatenstand, Systemdatenstand und Abrufzeit werden getrennt angezeigt, soweit vorhanden; ein neuer Abruf garantiert keinen neuen Stationsdatenstand.</p>
+<p>Bekannte „Services“ erscheinen als beschriftete Felder, etwa „Markt“, „Werft“, „Ausstattung“, „Reparatur“, „Auftanken“ oder „Materialhändler“. Der Kartenkopf zeigt höchstens drei Services und gegebenenfalls die Zahl weiterer Einträge; aufgeklappt sind alle von CMDRHelper erkannten Services sichtbar. Fehlende Angaben werden nicht geschätzt und bedeuten nicht sicher, dass eine Einrichtung fehlt.</p>
+
+<h3>Stationen auf der Karte und Aktualisierung</h3>
+<p>Die Systemkarte und „Gesamtansicht“ verwenden dieselben bekannten Stationsinformationen. Sicher zugeordnete Einrichtungen stehen beim zugehörigen Körper, andere unter „Weitere Einrichtungen“. Ein Klick öffnet Stationsdetails oder bei Gruppen zunächst eine Auswahlliste.</p>
+<p>In „Gesamtansicht“ aktualisiert „Spansh-Daten aktualisieren“ die Spansh-Stationsinformationen des dort angezeigten Systems. Voraussetzung sind aktivierte Spansh-Stationsinformationen und eine bekannte Systemidentität. Die Statuszeile meldet laufende Abfragen, Erfolg, Fehler oder eine bereits heute erfolgte Aktualisierung. Bei Fehlern bleiben lokale Informationen und vorhandene verwendbare Cachedaten erhalten. Die Regeln für automatische Abfragen, Cache und manuelles Aktualisieren stehen in der Einstellungen-Hilfe.</p>
+
 <h3>BIO ×N</h3>
 <p>BIO ×N bezeichnet die Anzahl der vom Spiel gemeldeten biologischen Signale eines Körpers.</p>
 <p>Die Zahl sagt zunächst nur aus, wie viele biologische Signale beziehungsweise Gattungen gemeldet wurden. Sie bedeutet nicht automatisch, dass alle biologischen Arten bereits gefunden oder analysiert wurden.</p>
@@ -357,6 +381,11 @@ HELP_TOPICS = {
 </ul>
 <p>Die kleine Achsenanzeige hilft bei der Orientierung im Raum.</p>
 
+<p>Mit dem Mausrad zoomst du ohne Zusatztaste hinein oder heraus.</p>
+<p>Ein Doppelklick auf freien Kartenraum stellt die anfängliche Schrägansicht wieder her, setzt die Verschiebung zurück und passt alle aktuell dargestellten Systeme ins Fenster ein. Filter und Systemauswahl bleiben erhalten.</p>
+<p>Beim Beginn einer Drehung mit der linken Maustaste wird das angeklickte System zum Drehpunkt. Im freien Raum dient der Punkt unter der Maus auf der galaktischen Ebene als Drehpunkt; bei nahezu waagerechter Ansicht wird stattdessen die Kartenmitte auf dieser Ebene verwendet. Auch „Ausrichten“ dreht um das aktuelle Rotationszentrum.</p>
+<p>Ein Klick auf ein System öffnet dessen Detailfenster. Dort kopiert ein linker Klick auf den Systemnamen oben oder auf das Kopiersymbol ⧉ daneben ausschließlich den Systemnamen in die Zwischenablage. Ein kurzes ✓ bestätigt das Kopieren.</p>
+
 <h3>Aktuelle Position</h3>
 <p>Mit „Aktuelle Position“ kann die Kartenansicht auf den aktuell bekannten Standort des aktiven Commanders ausgerichtet beziehungsweise dorthin zurückgeführt werden.</p>
 <p>Zuerst wird der aktuelle Filterzustand angewendet. Nur wenn das aktuelle System in der resultierenden Karte enthalten ist, wird darauf zentriert.</p>
@@ -523,87 +552,64 @@ HELP_TOPICS = {
 <p>Die Endnummer eines Systems wird nicht bewertet: Plio Aip KN-B d13-201 gehört zur Familie Plio Aip KN-B d13. BIO wird informativ gezeigt, nicht in der Hauptbewertung gewichtet. Fehlende Analysen bedeuten keine nachgewiesenen Nullwerte.</p>
 <h3>Systemanalyse</h3>
 <p>Systemnamen eingeben und Analysieren drücken oder Enter verwenden. Aktuelles System übernehmen nutzt den vorhandenen Spielstand. Die Analyse wird nur auf Benutzeraktion neu berechnet. Vergleichsgrundlage und Erfahrungswerte nennen ihre Ebene; ohne lokale Vergleiche wird übergeordnete Erfahrung verwendet. Die Datenbasis wird getrennt von der Empfehlung angezeigt.</p>
+<p>Das Feld „System“ ist eine freie Namenseingabe. „Aktuelles System übernehmen“ füllt nur das Feld; starte danach mit „Analysieren“ oder Enter. Der Name wird lokal auf das unterstützte prozedurale Namensmuster geprüft. Eine Online-Systemauflösung oder Auswahlliste bei Mehrdeutigkeit gibt es hier nicht.</p>
+<p>Bei leerer Eingabe, ungeeignetem Namen, fehlenden qualifizierten Vergleichsdaten oder einem Fehler erscheint ein Hinweis statt des bisherigen Ergebnisses. Eine erfolgreiche Analyse zeigt Empfehlung, Potenzialindex und lokale Datenbasis. Die Vergleichstabelle enthält Massencode, Region und Familie mit Systemanzahl und Datenbasis; darunter stehen Erfahrungswerte und bekannte besondere Funde.</p>
+<h3>Erfahrungsdaten</h3>
 <p>Historische Treffer nach Systemkürzel. Diese Werte zeigen deine bisherige Explorationserfahrung und sind keine direkte Prognose für ein einzelnes Zielsystem. Datenbasis und Aussagekraft beschreiben die Verlässlichkeit der Vergleichsdaten anhand der vorhandenen Stichprobe und ihrer Verteilung über Sektoren.</p>
+<p>Im Reiter „Erfahrungsdaten“ wählst du unter „Ziel“ eine Fundart, kein Reiseziel: etwa ein Explorer-Ziel, eine BIO-Gattung oder BIO-Art. Die erste Auswertung erfolgt beim Aufbau der Ansicht. Nach Änderungen an Ziel oder Mindestanzahl bleibt die bisherige Rangliste stehen, bis du „Neu auswerten“ drückst.</p>
+<p>Das Zahlenfeld neben der Zielauswahl legt die Mindeststichprobe je Kürzel fest: 1 bis 50 untersuchte Systeme, anfangs 3. Kürzel mit weniger Systemen oder ohne historischen Treffer für die gewählte Fundart erscheinen nicht in der Rangliste.</p>
+<p>Die Tabelle „Historische Muster“ zeigt bis zu 50 Kürzel mit Rang, Erfolg bisher (Treffer-Systeme / untersuchte Systeme), Trefferquote und Aussagekraft. Die Reihenfolge folgt der geglätteten historischen Bewertung, nicht allein der Trefferquote. Beide Tabellen haben eine feste Reihenfolge ohne Spaltensortierung oder Detailaktion. Ohne passende Muster erscheint ein Leerhinweis; bei einem Auswertungsfehler wird die Rangliste geleert und ein Fehlerhinweis angezeigt. Die Analyse berechnet keine Reiseroute.</p>
 """,
     ),
     "route_planner": (
         "Routenplaner",
         """<h2>Routenplaner</h2>
-<h3>CMDRHelper</h3>
-<p>Routenplaner verbessert: Das aktuelle System wird als Start automatisch nachgeführt, bis du einen eigenen Start eingibst; ein leeres Startfeld aktiviert die Automatik erneut. Schiff und Carrier verwenden exakt geprüfte ID64-Systemadressen statt ähnlicher Namen. Bei „Unable to find route“ erklärt Spansh, dass keine Route gefunden wurde; prüfe Ziele, Reichweite und Routeneinstellungen.</p>
-<p>Der Routenplaner unterstützt bei der Planung längerer Reisen mit Schiff oder Fleet Carrier. CMDRHelper kann dafür externe Routendaten von Spansh verwenden und die geplante Strecke für die weitere Nutzung aufbereiten.</p>
+<h3>Überblick</h3>
+<p>Der Routenplaner berechnet Strecken zwischen Systemen über Spansh. Wähle „Schiffsroute“ oder „Fleet Carrier / CTSVision“. Dafür ist eine Netzwerkverbindung erforderlich; CMDRHelper steuert weder Schiff noch Carrier.</p>
 
 <h3>Start und Ziel</h3>
-<p>Für eine Routenberechnung werden Start- und Zielsystem benötigt.</p>
-<p>Soweit möglich, kann CMDRHelper das aktuell bekannte System des Commanders als Ausgangspunkt verwenden. Start und Ziel sollten vor der Berechnung kontrolliert werden.</p>
-
-<h3>Schiff oder Fleet Carrier</h3>
-<p>Der Routenplaner unterscheidet zwischen Reisen mit einem normalen Schiff und mit einem Fleet Carrier.</p>
-<p>Beide verwenden unterschiedliche Anforderungen und Berechnungsverfahren. Deshalb muss vor der Planung der passende Routentyp gewählt werden.</p>
+<p>„Startsystem“ folgt dem aktuell bekannten System des aktiven Commanders, bis du einen eigenen Start eingibst. Ein leeres Startfeld aktiviert diese Vorbelegung wieder. Gib das vollständige „Zielsystem“ ein; ein aus Favoriten übernommenes Routenziel bereitet die Schiffsroute vor, startet aber keine Berechnung.</p>
+<p>Start und Ziel werden vor der Berechnung eindeutig geprüft. Ähnlich geschriebene Systeme werden nicht ersatzweise gewählt. Bei unbekannten oder mehrdeutigen Namen erscheint eine Meldung; korrigiere die Eingabe.</p>
 
 <h3>Schiffsroute</h3>
-<p>Bei einer Schiffsroute werden die für das aktive Schiff bekannten beziehungsweise eingegebenen Sprungeigenschaften berücksichtigt.</p>
-<p>Je nach verfügbarer Datenlage können FSD-Daten, Schiffsdaten, Masse, Treibstoff und weitere Sprungparameter in die Planung einfließen.</p>
-<p>Eine berechnete Route ist eine Planungshilfe. Änderungen am Schiff oder seiner Masse können die tatsächlich im Spiel erreichbare Sprungweite verändern.</p>
+<p>Eine Schiffsauswahl gibt es hier nicht: Bekannte Daten des aktiven Schiffs belegen die technischen Felder vor. Selbst geänderte Werte bleiben als manuelle Vorgaben erhalten. „Schiffsdaten übernehmen“ übernimmt erneut die verfügbaren Schiffsdaten. Beachte die Anzeige zu vollständigen, unvollständigen, veralteten oder unbekannten FSD-Daten.</p>
+<p>Prüfe „Haupttankkapazität“, „Aktuelle Fracht“, „Basismasse“, „Reservetankkapazität“, „Reservekraftstoff“, „FSD-Optimalmasse“, „Maximales FSD-Fuel pro Sprung“, „Fuel Power“, „Fuel-Multiplikator“ und „Reichweitenbonus“. Die Sprungeigenschaften ergeben sich aus diesen Angaben; ein einzelnes Feld für die normale Schiffs-Sprungreichweite gibt es nicht. Änderungen an Fracht oder Ausstattung können die erreichbare Reichweite verändern.</p>
 
-<h3>Fleet-Carrier-Route</h3>
-<p>Fleet Carrier besitzen andere Sprungregeln als normale Schiffe.</p>
-<p>CMDRHelper verwendet für entsprechende Routen die dafür vorgesehene Spansh-Carrierplanung.</p>
-<p>Die Route dient der Planung der Sprungfolge. Tatsächlicher Tritiumverbrauch und verfügbare Reichweite können zusätzlich von Masse und aktuellem Carrierzustand abhängen.</p>
+<h3>Schiffsoptionen und Berechnung</h3>
+<p>„Routingalgorithmus“ bietet optimistic, pessimistic, fuel, fuel_jumps und guided. Diese Auswahl wird an Spansh übergeben.</p>
+<p>Die Optionen sind „Supercharge/Neutronensterne verwenden“, „Schiff startet bereits supercharged“, „FSD-Injektionen verwenden“, „Sekundärsterne ausschließen“ und „An jedem scoopbaren Stern tanken“. Sie betreffen Neutronenunterstützung, einen bereits verstärkten Start, FSD-Injektionen, Sekundärsterne und Tankstopps. Starte mit „Schiffsroute mit Spansh berechnen“.</p>
 
-<h3>Spansh</h3>
-<p>Für die eigentliche Routenberechnung kann CMDRHelper den externen Dienst Spansh verwenden.</p>
-<p>Die Anfrage wird im Hintergrund verarbeitet, damit die Oberfläche während einer längeren Berechnung bedienbar bleibt.</p>
-<p>CMDRHelper hat keinen Einfluss auf die Verfügbarkeit oder Antwortzeit des externen Dienstes.</p>
+<h3>Carrierroute</h3>
+<p>„Fleet Carrier / CTSVision“ plant eine Carrierroute ohne Auswahl oder Steuerung eines bestimmten Carriers. Gib „Tritium im Tank“ und „Tritium im Carrier-Lager“ ein; zusammen sind höchstens 25.000 t zulässig. „Berechnete Carrier-Masse“ zeigt 25.000 t zuzüglich dieser beiden Angaben.</p>
+<p>„Maximale Sprungreichweite“ ist von 1 bis 500 ly einstellbar, mit 500 ly als Vorgabe. „Route mit Spansh berechnen“ startet die Berechnung. Während dieser Anfrage ist der Carrier-Berechnungsbutton gesperrt.</p>
 
-<h3>Berechnung</h3>
-<p>Nach dem Start einer Berechnung wird die Anfrage an den gewählten Routenplaner übergeben.</p>
-<p>Je nach Strecke und Dienst kann die Berechnung einige Zeit benötigen. Währenddessen sollte keine zweite identische Berechnung unnötig gestartet werden.</p>
+<h3>Spansh und Wartezeit</h3>
+<p>Die eigentliche Routenberechnung läuft im Hintergrund bei Spansh. Die Statusanzeige meldet die laufende Anfrage und danach Erfolg oder Fehler. Hier werden Routen berechnet, keine Handelsmarktpreise oder Stationsinformationen abgerufen. Die Routenansicht bietet keinen Abbrechen-Button für eine laufende Berechnung.</p>
 
-<h3>Ergebnis</h3>
-<p>Eine erfolgreich berechnete Route zeigt die vorgesehenen Systeme beziehungsweise Sprungpunkte in ihrer Reihenfolge.</p>
-<p>Je nach Routentyp erscheinen zusätzliche Informationen zu Entfernung, Sprüngen, Treibstoff beziehungsweise Tritium und weiteren verfügbaren Routendaten.</p>
+<h3>Routenergebnis</h3>
+<p>Die Liste zeigt die feste Routenfolge mit Nummer, System, Sprungentfernung und Restentfernung. Sie ist keine frei sortierbare Angebotsliste. Bei Schiffsrouten kommen Treibstoffverbrauch, Tankinhalt, Neutronen- und Tankhinweise hinzu; bei Carrierrouten Tritiumverbrauch.</p>
+<p>Darunter stehen Gesamtentfernung, Sprungzahl und Gesamtverbrauch beziehungsweise geschätztes Tritium. Fehlende Angaben bleiben als „–“ erkennbar. Prüfe die Planung gegen den tatsächlichen Zustand im Spiel.</p>
 
-<h3>Route und aktueller Commander</h3>
-<p>Aktuelles System und Schiff können – soweit im aktiven AppState eindeutig bekannt – zur Vorbelegung beziehungsweise Unterstützung der Planung verwendet werden.</p>
-<p>Die eigentliche Route bleibt jedoch eine Planung und verändert keine Journal- oder Commander-Daten.</p>
+<h3>Fortschritt und nächstes Ziel</h3>
+<p>Eine erfolgreich berechnete Schiffsroute wird automatisch übernommen. „Aktuelles System“, „Nächstes Ziel“ und „Routenstatus“ zeigen die aktuelle Position, den nächsten Routenschritt und den Zustand. Die Liste bleibt erhalten; erledigte Schritte erhalten keine zusätzliche Häkchenanzeige.</p>
+<p>Ein erkannter Schiffssprung zum nächsten oder einem späteren System der Route setzt den Fortschritt vorwärts und kopiert den danach folgenden Systemnamen automatisch in die Zwischenablage. Wiederholte Standortmeldungen und Carrier-Sprünge zählen nicht als solche Fortschrittssprünge.</p>
+<p>Beim Laden der Route wird noch kein Name automatisch kopiert. Verwende dafür „Nächstes Ziel kopieren“; der Button ist auch später verfügbar, solange ein nächstes Ziel existiert. Kopiert wird nur der Systemname: kein automatisches Einfügen und keine Steuerung von Elite.</p>
+
+<h3>Abweichung und Abschluss</h3>
+<p>Ein Sprung außerhalb der noch folgenden Route führt zu „Aktuelles System liegt außerhalb der Route“. Die Route und das bisherige nächste Ziel bleiben erhalten; es gibt keine automatische Neuberechnung. Ein späterer passender Vorwärtssprung kann die Route wieder aufnehmen. Alternativ berechnest du bewusst eine neue Route.</p>
+<p>Am letzten Routensystem erscheint „Route abgeschlossen“. „Nächstes Ziel“ zeigt „–“, der Kopierbutton ist gesperrt und es wird kein weiterer Name kopiert. Der bisherige Inhalt der Zwischenablage wird nicht gelöscht. Die Ergebnisliste bleibt stehen.</p>
 
 <h3>CTSVision-Export</h3>
-<p>Berechnete Fleet-Carrier-Routen können für CTSVision als CSV exportiert werden.</p>
-<p>Dadurch kann eine in CMDRHelper geplante Carrierroute anschließend in CTSVision für die dortige Sprungsteuerung beziehungsweise Routenverarbeitung verwendet werden.</p>
-<p>Der Export verändert die Route in CMDRHelper nicht.</p>
+<p>Nur die Carrierroute bietet „Für CTSVision exportieren“. Nach erfolgreicher Berechnung wählst du eine neue CSV-Datei. Sie enthält die Routenfolge und die verfügbaren Entfernungs-, Treibstoff-, Tritium- und Nachfüllangaben für die anschließende Verwendung in CTSVision.</p>
+<p>Es handelt sich um einen Dateiexport, nicht um eine direkte Verbindung oder automatische Carriersteuerung. Eine vorhandene Datei wird nicht überschrieben. Abbrechen im Dateidialog erzeugt keine Datei; Schreibfehler werden gemeldet.</p>
 
-<h3>CSV-Datei</h3>
-<p>Die exportierte Datei enthält die für CTSVision benötigten Routendaten in der vorgesehenen Reihenfolge.</p>
-<p>Die Datei sollte nach dem Export nicht unkontrolliert strukturell verändert werden, wenn sie anschließend von CTSVision eingelesen werden soll.</p>
+<h3>Fehler und Hinweise</h3>
+<p>Fehlende Systeme, unvollständige oder ungültige Schiffsparameter und zu hohe Tritiumangaben werden gemeldet. Erforderliche Tank-, Masse- und FSD-Werte müssen positiv sein; Reservekraftstoff darf die Reservetankkapazität nicht übersteigen.</p>
+<p>Auch eine nicht gefundene Route, Netzwerkprobleme, zu lange Wartezeit oder eine unbrauchbare Spansh-Antwort führen zu einer Meldung statt zu einem erfundenen Ergebnis. Prüfe Systemnamen, Schiffsdaten und Optionen und berechne bei Bedarf erneut.</p>
 
-<h3>Fehler und externe Dienste</h3>
-<p>Kann Spansh nicht erreicht werden oder liefert der Dienst einen Fehler, zeigt CMDRHelper eine entsprechende Fehlermeldung.</p>
-<p>Ein Fehler bei der Online-Routenberechnung verändert keine lokalen Commander- oder Journaldaten.</p>
-
-<h3>Routenplaner und Sprungtipp</h3>
-<p>Sprungtipp und Routenplaner erfüllen unterschiedliche Aufgaben:</p>
-<ul>
-<li>Sprungtipp bewertet mögliche interessante Explorationsziele anhand vorhandener Daten.</li>
-<li>Routenplaner berechnet eine konkrete Strecke zwischen Start und Ziel.</li>
-</ul>
-<p>Ein guter Sprungtipp ist daher nicht automatisch Bestandteil einer optimalen Route.</p>
-
-<h3>Mehrere Commander</h3>
-<p>Soweit commanderbezogene Daten wie aktuelles System oder Schiff verwendet werden, stammen diese aus dem aktiven Live-AppState und müssen dort eindeutig zugeordnet sein.</p>
-<p>Das bloße Betrachten eines anderen Commanders in der CMDR-Ansicht stellt den Routenplaner nicht auf dessen System oder Schiff um.</p>
-<p>Eine Routenberechnung selbst verändert keine persönlichen Daten eines anderen Commanders.</p>
-
-<h3>Tipp</h3>
-<p>Kontrolliere vor einer längeren Reise immer noch einmal:</p>
-<ul>
-<li>Startsystem</li>
-<li>Zielsystem</li>
-<li>Routentyp Schiff/Carrier</li>
-<li>bei Schiffsrouten die zugrunde gelegten Schiff-, FSD- und Sprungparameter</li>
-<li>bei Carrierrouten die verfügbare Tritiumreserve</li>
-</ul>
-<p>Für Fleet-Carrier-Reisen empfiehlt es sich, zusätzlich ausreichend Reserve für Rückweg oder ungeplante Umwege einzuplanen.</p>""",
+<h3>Analyse und Commanderbezug</h3>
+<p>„Analyse“ mit „Systemanalyse“ und „Erfahrungsdaten“ dient der Bewertung von Systemen und vorhandenen Erfahrungen. Der Routenplaner berechnet dagegen die konkrete Strecke zwischen Start und Ziel.</p>
+<p>Die Vorbelegung verwendet den aktiven Commander und sein Schiff. Das bloße Betrachten eines anderen Commanders in der CMDR-Ansicht stellt diese Grundlage nicht um.</p>""",
     ),
     "images": (
         "Bilder",
@@ -789,6 +795,19 @@ HELP_TOPICS = {
 <p>CMDRHelper unterstützt EDSM und Inara. Beide Zugänge werden getrennt für jeden bekannten Commander beziehungsweise jede FID bearbeitet und gespeichert.</p>
 <p>Die Auswahl in den Einstellungen bestimmt nur, wessen Zugang gerade bearbeitet oder getestet wird. Live senden darf ausschließlich der durch die aktive Journalsitzung eindeutig bestimmte Commander.</p>
 
+<h3>Spansh-Stationsinformationen</h3>
+<p>Unter „ONLINE-DIENSTE“ schaltet „Spansh-Stationsinformationen ergänzen“ die optionale Ergänzung von Stationen und Einrichtungen im Explorer und in Systemansichten ein. Der Schalter ist anfangs aus. Übermittelt wird die öffentliche Systemkennung, keine Commanderinformationen; ein eigener API-Key ist nicht erforderlich. Die Option steuert keine Handelsmarktsuche.</p>
+<p>Deaktiviert werden nur lokale Journalinformationen angezeigt und keine neuen Spansh-Stationsabfragen gestartet; auch die manuelle Aktualisierung ist gesperrt. Vorhandene Stationscache-Daten werden nicht gelöscht, aber nicht zur Anzeige ergänzt. Einschalten macht vorhandene Cachedaten wieder nutzbar, startet für sich allein jedoch keine Netzabfrage.</p>
+
+<h3>Automatische Stationsabfrage und Cache</h3>
+<p>Automatisch wird nur bei einem neu erkannten Live-Eintritt des aktiven Journal-Commanders in ein anderes System geprüft, etwa nach einem Schiffssprung, Carrier-Sprung oder einer neuen bestätigten Standortmeldung. Programmstart, Commanderwechsel, Archivimport und bloßes Öffnen des Explorers oder einer Systemansicht starten keine automatische Abfrage.</p>
+<p>Der separate Stationscache bleibt über Helper-Neustarts erhalten. Ein Abruf, der weniger als 7 Tage zurückliegt, gilt als frisch und vermeidet eine neue automatische Netzabfrage. Fehlende oder ältere Daten können beim nächsten passenden Live-Systemeintritt aktualisiert werden. Pro System ist höchstens ein automatischer Versuch je lokalem Kalendertag vorgesehen; auch ein Fehlschlag zählt, über Neustarts hinweg. Es gibt keine laufende Hintergrundaktualisierung aller gespeicherten Systeme. Ältere verwendbare Cachedaten dürfen weiterhin angezeigt werden, auch offline.</p>
+<p>Dieser Cache enthält ergänzende Stationsinformationen, keine Handelsmarktpreise. Spansh-Community-Marktdaten für Verkaufen, Einkaufen und Empfehlungen haben einen eigenen flüchtigen RAM-Suchcache. Selbst in Elite beobachtete Handelsmarktstände sind wiederum getrennt gespeichert: Sie überleben einen Neustart, sind aber nur unter 24 Stunden gültig.</p>
+
+<h3>Stationsdaten manuell aktualisieren</h3>
+<p>Öffne „Gesamtansicht“ und wähle „Spansh-Daten aktualisieren“. Aktualisiert werden nur die Spansh-Stationsinformationen des in diesem Fenster angezeigten Systems, nicht alle gespeicherten Systeme und keine Handelsmarktpreise. Der Schalter muss aktiv sein; während einer laufenden Abfrage für dieses System ist die Aktion gesperrt.</p>
+<p>Die manuelle Aktion kann die 7-Tage-Frist und einen fehlgeschlagenen automatischen Tagesversuch umgehen. Wurde das System heute nach lokalem Kalender bereits erfolgreich abgerufen, erfolgt kein erneuter Abruf: „Spansh-Daten wurden heute bereits aktualisiert.“ Ein erfolgreicher Abruf erneuert den Stationscache. Bei Fehlern bleiben vorhandene lokale und verwendbare Cachedaten erhalten; die Statuszeile zeigt den Fehlschlag. Ein fehlgeschlagener manueller Versuch kann erneut gestartet werden.</p>
+
 <h3>EDSM-Zugang für</h3>
 <p>„EDSM-Zugang für:“ wählt den zu bearbeitenden Commander. Die Auswahl zeigt „eingerichtet“ oder „nicht eingerichtet“, abhängig davon, ob ein API-Key gespeichert ist.</p>
 <p>Sichtbar sind Commandername, verdecktes API-Key-Feld, „EDSM verwenden“, ein Verbindungstest und dessen letzter Teststatus.</p>
@@ -906,7 +925,7 @@ HELP_TOPICS = {
 <p>Er ist kein interstellarer Routenplaner und übernimmt keine System- oder Sprungnavigation. Du steuerst dein Schiff selbst.</p>
 
 <h3>Navigator öffnen und Ziel eingeben</h3>
-<p>Öffne in der Übersicht „Planeten-Navigation“ und wähle „Manuelle Eingabe …“.</p>
+<p>Öffne im Explorer „Planeten-Navigation“ und wähle „Manuelle Eingabe …“. Das Navigatorfenster kann auch ohne aktuelle Oberflächenposition geöffnet und ein Ziel vorab eingegeben werden.</p>
 <ul>
 <li><b>Body:</b> Wähle den Zielplaneten oder Zielmond aus der Liste oder verwende den bereits erkannten Body. Du kannst den Bodynamen auch selbst eingeben, wenn er noch nicht in der Liste steht. Verwende im Zweifel den vollständigen Namen einschließlich Systemname.</li>
 <li><b>Breitengrad (Latitude):</b> Gib die Zielbreite zwischen −90° und +90° ein.</li>
@@ -918,6 +937,16 @@ HELP_TOPICS = {
 <h3>Wann startet der Kompass?</h3>
 <p>Sobald ein Ziel gesetzt ist und Elite für den passenden Body gültige planetare Positionsdaten liefert, wird die Navigation automatisch aktiv. Du musst keinen gesonderten Startknopf betätigen.</p>
 <p>Fehlen diese Daten noch oder gehören sie zu einem anderen Body, wartet der Navigator mit „Warte auf planetare Koordinaten …“. Ein Ziel lässt sich auch schon vor dem Empfang dieser Daten eingeben.</p>
+
+<p>Für eine aktive Navigation benötigt Elite gültige Koordinaten, Bodyname, Ausrichtung und Planetenradius für den Zielkörper. Eine Landung ist nicht erforderlich: passende Daten können bereits beim Anflug vorliegen. Ohne gültige Position oder bei einem anderen Körper wartet der Navigator; er erfindet keine Position.</p>
+
+<h3>Aktuellen Standort speichern</h3>
+<p>„★ Aktuellen Standort speichern“ speichert deine bestätigte aktuelle Position, nicht das eingegebene Navigationsziel. Dafür müssen eine gültige Elite-Position, ein zugeordneter Commander und das System bekannt sein. Fehlen diese Angaben, ist die Aktion gesperrt oder es erscheint ein Hinweis.</p>
+<p>Beim Aufruf werden System, Körper und Koordinaten festgehalten. Im Favoriten-Dialog kannst du Name, Kategorie und Notiz bearbeiten und optional ein Bild zuordnen. Erst „Speichern“ legt den Eintrag lokal und commanderbezogen ab; Abbrechen speichert nichts. Spätere Bewegungen ändern die festgehaltene Position nicht.</p>
+
+<h3>Gespeicherte Positionen verwenden</h3>
+<p>Öffne „★ Favoriten“ im Explorer. Wähle einen gespeicherten Oberflächenort und „◎ Zu den Koordinaten“, um Körper, Koordinaten und Namen als Navigationsziel zu übernehmen. Das ersetzt ein bisheriges Ziel; auf einem anderen Körper wartet der Navigator auf passende Positionsdaten.</p>
+<p>Über „Bearbeiten“ kannst du Name, Kategorie und Notiz ändern. „Löschen“ entfernt den Favoriten erst nach Bestätigung, keine Elite-Daten. Favoriten bleiben über Helper-Neustarts erhalten und sind nach Commander getrennt; das aktuelle Navigationsziel selbst ist nur für die laufende Sitzung gesetzt.</p>
 
 <h3>Planetenkugel: mehr als 380 km</h3>
 <p>Bei einer Zielentfernung größer als 380 km zeigt der Navigator die Planetenkugel.</p>
@@ -966,9 +995,13 @@ HELP_TOPICS = {
 <p>Auf demselben Body kannst du jederzeit erneut „Manuelle Eingabe …“ öffnen und andere Koordinaten setzen. Das neue Ziel ersetzt das bisherige Navigationsziel. Bei passenden Positionsdaten aktualisiert sich der Kompass unmittelbar.</p>
 <p>Mit „Navigation beenden“ entfernst du das aktuelle Ziel. Für einen weiteren Anflug setzt du einfach ein neues Ziel.</p>
 
+<p>Das Schließen des Navigatorfensters beendet das Ziel nicht. Ein eingeschaltetes Navigations-HUD kann weiterarbeiten; „Navigation beenden“ entfernt das Ziel. Beim Verlassen des passenden Körpers oder bei fehlenden Positionsdaten wartet die Navigation und das Navigations-HUD verschwindet.</p>
+
 <h3>Datenstand und Grenzen</h3>
 <p>Die Navigation basiert auf den von Elite gelieferten Statusdaten. Aktualisierungen können abhängig vom Spielzustand verzögert eintreffen. Die Altersanzeige im Navigator zeigt, wie lange die letzte bestätigte Statusmeldung zurückliegt.</p>
 <p>Der Oberflächenabstand beschreibt den kürzesten Bogen auf einer gedachten Kugel. Er ist keine Gelände- oder Straßenroute. Der Navigator kennt keine Hindernisse und keine Geländehöhen entlang der Strecke; Flughöhe, sichere Geschwindigkeit und Hindernisvermeidung bleiben deine Aufgabe.</p>
+
+<p>Die aktuelle Position kommt aus Status.json; das Journal ergänzt Körper- und Systemzuordnungen. Das Fenster und das aktivierte Navigations-HUD halten die Aktualisierung bei Bedarf aktiv. Die Anzeige hängt von den verfügbaren Elite-Daten ab und verspricht keine garantierte Genauigkeit in Metern.</p>
 
 <h3>Tipp</h3>
 <p>Prüfe vor dem Anflug Bodyname und Vorzeichen der Zielkoordinaten. Richte dich anschließend nach dem Zielkurs im Elite-Kompass aus und beobachte relative Richtung und Entfernung. Wenn der Navigator wartet, kontrolliere, ob Elite bereits planetare Koordinaten für den Zielbody liefert.</p>""",

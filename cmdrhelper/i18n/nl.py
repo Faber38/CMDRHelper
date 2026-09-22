@@ -928,6 +928,8 @@ TRANSLATIONS = {
     'explorer.col_progress': 'Voortgang',
     'explorer.show_all_title': 'CMDRHelper – Systeemoverzicht – {system}',
     'explorer.overview_fit': 'Aan venster aanpassen',
+    'explorer.overview_auto_fit': 'Automatisch aan venster aanpassen',
+    'explorer.overview_auto_fit_hint': 'Past het overzicht bij het openen automatisch aan de venstergrootte aan.',
     'explorer.overview_hint': 'Systeemstructuur · Klik op een hemellichaam: details · Ctrl + muiswiel: zoomen · 100 %: zoom herstellen',
     'explorer.no_system_data_available': 'Geen systeemgegevens beschikbaar.',
     'explorer.no_body_data': 'Er zijn nog geen gegevens over hemellichamen voor het huidige systeem.',

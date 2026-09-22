@@ -928,6 +928,8 @@ TRANSLATIONS = {
     'explorer.col_progress': 'Πρόοδος',
     'explorer.show_all_title': 'CMDRHelper – Συνολική προβολή – {system}',
     'explorer.overview_fit': 'Προσαρμογή στο παράθυρο',
+    'explorer.overview_auto_fit': 'Αυτόματη προσαρμογή στο παράθυρο',
+    'explorer.overview_auto_fit_hint': 'Προσαρμόζει αυτόματα τη συνολική προβολή στο μέγεθος του παραθύρου κατά το άνοιγμα.',
     'explorer.overview_hint': 'Δομή συστήματος · Κλικ σε σώμα: λεπτομέρειες · Ctrl + τροχός ποντικιού: ζουμ · 100 %: επαναφορά ζουμ',
     'explorer.no_system_data_available': 'Δεν υπάρχουν διαθέσιμα δεδομένα συστήματος.',
     'explorer.no_body_data': 'Δεν υπάρχουν ακόμη δεδομένα σωμάτων για το τρέχον σύστημα.',

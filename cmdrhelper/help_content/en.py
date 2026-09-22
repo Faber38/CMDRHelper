@@ -190,6 +190,30 @@ HELP_TOPICS = {
               'scan and cartography values \u200b\u200bas well as special exploration '
               'properties.</p>\n'
               '\n'
+              '<p>“Automatically fit to window” is enabled by default and remembers your choice across restarts. It fits each new overview to the window once; enabling it in an open window also fits once. Afterwards you can still zoom and pan manually. “Fit to window” remains available to fit the view again manually.</p>\n'
+              '\n'
+              '<h3>Stations and facilities</h3>\n'
+              '<p>The “STATIONS (N)” tab shows known stations and facilities in the current Explorer system as expandable cards. The tab count includes all known entries, even those hidden by filters. This is not a complete directory of every station in the galaxy.</p>\n'
+              '<p>The starting point is locally known Elite journal observations. With Spansh supplementation enabled, the separate station cache adds station information. Sources can be “Journal”, “Spansh” or “Journal + Spansh”; journal information takes precedence where facts conflict. Spansh does not add Fleet Carriers here. A locally known carrier belonging to you can appear.</p>\n'
+              '\n'
+              '<h3>Station search, filters and sorting</h3>\n'
+              '<p>“Search station name…” immediately searches station names or parts of names, ignoring case. An empty search does not restrict names. The search and both filters must all match.</p>\n'
+              '<ul>\n'
+              '<li><b>Type:</b> Limits the list to orbital stations, outposts, surface stations, settlements, megaships, Fleet Carriers or other facilities. “All types” removes the type restriction.</li>\n'
+              '<li><b>Parent body:</b> Selects a known associated body. “All bodies” allows all locations; “Unknown” appears when entries cannot be safely assigned to a known body.</li>\n'
+              '<li><b>Sort by:</b> Initially alphabetical by “Name”. Alternatively sort ascending by “Type”, “Parent body” or “Distance to arrival”. Distance is sorted numerically; unknown distances or bodies appear last when sorting by that field.</li>\n'
+              '</ul>\n'
+              '<p>There are no station column headers to click. The selectors sort the cards. Search, filters and sorting do not make network requests. Changing systems clears the search and type/body filters. An empty display distinguishes no known entries from entries that do not match the filters.</p>\n'
+              '\n'
+              '<h3>Station details and services</h3>\n'
+              '<p>Click a station card header to expand or collapse its details. Where known, these show name, type, system, associated body, MarketID, last update and source. Double-clicking the preview image opens the image viewer.</p>\n'
+              '<p>Spansh can add distance to arrival in light seconds, allegiance, government, controlling faction, economy information and counts of large, medium and small landing pads. Station update, system update and retrieval times are shown separately where available; a new retrieval does not guarantee newer station information.</p>\n'
+              '<p>Known “Services” appear as labelled fields, such as “Market”, “Shipyard”, “Outfitting”, “Repair”, “Refuel” or “Material Trader”. The card header shows up to three services and, when applicable, the number of further entries; expanding shows all services recognised by CMDRHelper. Missing information is not guessed and does not prove that a facility is absent.</p>\n'
+              '\n'
+              '<h3>Stations on the map and refreshing</h3>\n'
+              '<p>The system map and “System overview” use the same known station information. Facilities with a confirmed body association appear beside that body; others appear under “Other facilities”. Clicking opens station details, or a selection list first for groups.</p>\n'
+              '<p>In “System overview”, “Refresh Spansh data” refreshes Spansh station information for the system displayed in that window. Spansh station information must be enabled and the system identity known. The status line reports running requests, success, failure or an update already performed today. On failure, local information and usable cached data remain available. Settings help explains automatic requests, caching and manual refresh rules.</p>\n'
+              '\n'
               '<h3>BIO ×N</h3>\n'
               '<p>BIO ×N denotes the number of biological signals of a body reported by the '
               'game.</p>\n'
@@ -405,6 +429,11 @@ HELP_TOPICS = {
 </ul>
 <p>The small axis display helps with orientation in space.</p>
 
+<p>Use the mouse wheel to zoom in or out without a modifier key.</p>
+<p>Double-click empty map space to restore the initial tilted view, reset panning and fit all currently displayed systems into the window. Filters and the selected system are retained.</p>
+<p>When you start rotating with the left mouse button, the clicked system becomes the pivot. In empty space, the point beneath the pointer on the galactic plane is used; with a nearly horizontal view, the map centre on that plane is used instead. Align also rotates around the current pivot.</p>
+<p>Click a system to open its detail window. There, left-click the system name at the top or the adjacent copy icon ⧉ to copy only the system name to the clipboard. A brief ✓ confirms the copy.</p>
+
 <h3>Current position</h3>
 <p>With “Current Position” the map view can be aligned or returned to the currently known location of the active commander.</p>
 <p>The current filter settings are applied first. The view is centred on the current system only if it is included in the resulting map.</p>
@@ -571,117 +600,63 @@ HELP_TOPICS = {
 <p>The final system number is not rated: Plio Aip KN-B d13-201 belongs to family Plio Aip KN-B d13. BIO is informational and does not contribute to the main rating. Missing analyses do not establish zero values.</p>
 <h3>System analysis</h3>
 <p>Enter a system name and choose Analyse or press Enter. Use current system takes the name from the existing game state. Analysis is recalculated only on user action. Comparison basis and historical results identify their level; without local comparisons, parent-level experience is used. Evidence quality is shown separately from the recommendation.</p>
+<p>The “System” field accepts a typed name. “Use current system” only fills the field; then use “Analyse” or Enter. The name is checked locally against the supported procedural naming pattern. There is no online system lookup or list for resolving ambiguous names here.</p>
+<p>An empty entry, unsupported name, missing qualified comparison data or an error replaces the previous result with a message. A successful analysis shows the recommendation, potential index and local data basis. The comparison table lists mass code, region and family with system counts and data basis; historical values and known special finds appear below.</p>
+<h3>Historical data</h3>
 <p>Historical hits by system code. These values describe your exploration experience so far and are not a direct prediction for an individual target system. Data basis and evidence strength describe the reliability of the comparison data, based on the available sample and its distribution across sectors.</p>
+<p>In “Historical data”, choose a type of find under “Target”, rather than a destination: for example an exploration target, BIO genus or BIO species. The initial evaluation runs when the view is built. After changing the target or minimum count, the previous ranking remains until you press “Re-evaluate”.</p>
+<p>The number field beside the target selector sets the minimum sample per code: 1 to 50 surveyed systems, initially 3. Codes with fewer systems or no historical hit for the selected type of find are excluded from the ranking.</p>
+<p>The “Historical patterns” table shows up to 50 codes with rank, past success (hit systems / surveyed systems), hit rate and strength of evidence. Ordering follows the smoothed historical assessment, not just hit rate. Both tables have a fixed order without column sorting or detail actions. No matching patterns produces an empty-results message; an evaluation error clears the ranking and shows an error message. Analysis does not calculate a travel route.</p>
 """,
     ),
  'route_planner': ('Route planner',
-                   '<h2>Route planner</h2>\n<h3>CMDRHelper</h3>\n<p>Improved route planner: The current system follows your location automatically until you enter a manual start; clearing the start field restores automatic tracking. Ships and carriers use exactly validated ID64 system addresses instead of similar names. “Unable to find route” is explained as no route found; check destinations, range and route settings.</p>\n'
-                   '<p>The route planner supports planning longer trips by ship or Fleet Carrier. '
-                   'CMDRHelper can use external route data from Spansh and prepare the planned '
-                   'route for further use.</p>\n'
-                   '\n'
-                   '<h3>Start and finish</h3>\n'
-                   '<p>A start and destination system are required for route calculation.</p>\n'
-                   "<p>To the extent possible, CMDRHelper may use the Commander's current known "
-                   'system as a starting point. Start and finish should be checked before '
-                   'calculation.</p>\n'
-                   '\n'
-                   '<h3>Ship or Fleet Carrier</h3>\n'
-                   '<p>The route planner differentiates between trips with a normal ship and with '
-                   'a Fleet Carrier.</p>\n'
-                   '<p>Both use different requirements and calculation methods. Therefore, the '
-                   'appropriate route type must be selected before planning.</p>\n'
-                   '\n'
-                   '<h3>Ship route</h3>\n'
-                   '<p>For a ship route, the jump properties known or entered for the active ship '
-                   'are taken into account.</p>\n'
-                   '<p>Depending on the available data, FSD data, ship data, mass, fuel and other '
-                   'jump parameters can be incorporated into the planning.</p>\n'
-                   '<p>A calculated route is a planning aid. Changes to the ship or its mass may '
-                   'change the actual jump distance achievable in the game.</p>\n'
-                   '\n'
-                   '<h3>Fleet carrier route</h3>\n'
-                   '<p>Fleet Carrier have different jumping rules than normal ships.</p>\n'
-                   '<p>CMDRHelper uses the designated Spansh carrier planning for corresponding '
-                   'routes.</p>\n'
-                   '<p>The route is used to plan the jump sequence. Actual tritium consumption and '
-                   'available range may also depend on mass and current carrier status.</p>\n'
-                   '\n'
-                   '<h3>Spansh</h3>\n'
-                   '<p>For the actual route calculation, CMDRHelper can use the external service '
-                   'Spansh.</p>\n'
-                   '<p>The request is processed in the background so that the interface remains '
-                   'operable during a longer calculation.</p>\n'
-                   '<p>CMDRHelper has no influence on the availability or response time of the '
-                   'external service.</p>\n'
-                   '\n'
-                   '<h3>calculation</h3>\n'
-                   '<p>After starting a calculation, the request is passed on to the selected '
-                   'route planner.</p>\n'
-                   '<p>Depending on the route and service, the calculation may take some time. '
-                   'During this time, no second identical calculation should be started '
-                   'unnecessarily.</p>\n'
-                   '\n'
-                   '<h3>Result</h3>\n'
-                   '<p>A successfully calculated route shows the intended systems or jump points '
-                   'in their order.</p>\n'
-                   '<p>Depending on the route type, additional information appears on distance, '
-                   'jumps, fuel or tritium and other available route data.</p>\n'
-                   '\n'
-                   '<h3>Route and current commander</h3>\n'
-                   '<p>The current system and ship can - as long as they are clearly known in the '
-                   'active AppState - be used for pre-assignment or to support planning.</p>\n'
-                   '<p>However, the actual route remains a plan and does not change any journal or '
-                   'commander data.</p>\n'
-                   '\n'
-                   '<h3>CTSVision export</h3>\n'
-                   '<p>Calculated fleet carrier routes can be exported as CSV for CTSVision.</p>\n'
-                   '<p>This means that a carrier route planned in CMDRHelper can then be used in '
-                   'CTSVision for jump control or route processing there.</p>\n'
-                   '<p>The export does not change the route in CMDRHelper.</p>\n'
-                   '\n'
-                   '<h3>CSV file</h3>\n'
-                   '<p>The exported file contains the route data required for CTSVision in the '
-                   'intended order.</p>\n'
-                   '<p>The file should not be structurally changed in an uncontrolled manner after '
-                   'export if it is then to be read in by CTSVision.</p>\n'
-                   '\n'
-                   '<h3>Errors and external services</h3>\n'
-                   '<p>If Spansh cannot be reached or the service returns an error, CMDRHelper '
-                   'displays a corresponding error message.</p>\n'
-                   '<p>An error in online route calculation does not change local commander or '
-                   'journal data.</p>\n'
-                   '\n'
-                   '<h3>Route planner and jumping tip</h3>\n'
-                   '<p>Jump tip and route planner fulfill different tasks:</p>\n'
-                   '<ul>\n'
-                   '<li>Jump tip evaluates possible interesting exploration targets based on '
-                   'existing data.</li>\n'
-                   '<li>Route planner calculates a specific route between start and '
-                   'destination.</li>\n'
-                   '</ul>\n'
-                   '<p>A good jumping tip is therefore not automatically part of an optimal '
-                   'route.</p>\n'
-                   '\n'
-                   '<h3>Several commanders</h3>\n'
-                   '<p>If commander-related data such as current system or ship is used, this '
-                   'comes from the active live AppState and must be clearly assigned there.</p>\n'
-                   '<p>Simply looking at another commander in the CMDR view does not switch the '
-                   'route planner to their system or ship.</p>\n'
-                   '<p>A route calculation itself does not change the personal data of another '
-                   'commander.</p>\n'
-                   '\n'
-                   '<h3>Tip</h3>\n'
-                   '<p>Before a long trip, always check again:</p>\n'
-                   '<ul>\n'
-                   '<li>Starting system</li>\n'
-                   '<li>Target system</li>\n'
-                   '<li>Route type ship/carrier</li>\n'
-                   '<li>for ship routes, the underlying ship, FSD and jump parameters</li>\n'
-                   '<li>for carrier routes, the available tritium reserve</li>\n'
-                   '</ul>\n'
-                   '<p>For fleet carrier trips, it is advisable to also plan sufficient reserves '
-                   'for the return journey or unplanned detours.</p>'),
+                   """<h2>Route planner</h2>
+<h3>Overview</h3>
+<p>The planner calculates routes between systems through Spansh. Select “Ship route” or “Fleet Carrier / CTSVision”. A network connection is required; CMDRHelper does not control your ship or carrier.</p>
+
+<h3>Start and destination</h3>
+<p>“Start system” follows the active commander’s known current system until you enter your own start. Clearing the field restores this default behaviour. Enter the full “Destination system”; a route target taken from favourites prepares the ship route without calculating it.</p>
+<p>Start and destination must resolve unambiguously before calculation. Similar names are not substituted. Unknown or ambiguous names produce a message; correct the entry.</p>
+
+<h3>Ship route</h3>
+<p>There is no ship selector here: known active-ship data prefill the technical fields. Edited values remain manual overrides. “Apply ship data” reapplies available ship data. Check the indication for complete, incomplete, stale or unknown FSD data.</p>
+<p>Check “Main tank capacity”, “Current cargo”, “Base mass”, “Reserve tank capacity”, “Reserve fuel”, “FSD optimal mass”, “Maximum FSD fuel per jump”, “Fuel power”, “Fuel multiplier” and “Range boost”. Jump capability follows from these inputs; there is no single normal ship jump-range field. Cargo or equipment changes can alter achievable range.</p>
+
+<h3>Ship options and calculation</h3>
+<p>“Routing algorithm” offers optimistic, pessimistic, fuel, fuel_jumps and guided. The selection is sent to Spansh.</p>
+<p>Options are “Use supercharge/neutron stars”, “Ship starts already supercharged”, “Use FSD injections”, “Exclude secondary stars” and “Refuel at every scoopable star”: neutron assistance, an already boosted start, FSD injections, secondary stars and refuelling stops. Start with “Calculate ship route with Spansh”.</p>
+
+<h3>Carrier route</h3>
+<p>“Fleet Carrier / CTSVision” plans a carrier route without selecting or controlling a particular carrier. Enter “Tritium in tank” and “Tritium in carrier storage”, at most 25,000 t combined. “Calculated carrier mass” shows 25,000 t plus those two amounts.</p>
+<p>“Maximum jump range” accepts 1 to 500 ly, defaulting to 500 ly. “Calculate route with Spansh” starts calculation. The carrier calculation button is disabled while that request runs.</p>
+
+<h3>Spansh and waiting</h3>
+<p>The actual route calculation runs in the background through Spansh. Status reports the request followed by success or failure. This calculates routes, not trade prices or station information. There is no cancel button for an ongoing calculation in this view.</p>
+
+<h3>Route results</h3>
+<p>The list follows the fixed route order: number, system, jump distance and remaining distance. It is not freely sortable. Ship routes also show fuel used, fuel in tank, neutron and refuelling indications; carrier routes show tritium used.</p>
+<p>Totals below show distance, jump count and fuel consumption or estimated tritium. Missing values remain “–”. Compare the plan with the actual in-game state.</p>
+
+<h3>Progress and next target</h3>
+<p>A successfully calculated ship route is adopted automatically. “Current system”, “Next destination” and “Route status” show position, next route step and state. The list remains; completed steps do not receive additional checkmarks.</p>
+<p>A recognised ship jump to the next or a later route system advances progress and automatically copies the following system name to the clipboard. Repeated location reports and carrier jumps do not count as these progress jumps.</p>
+<p>Loading the route does not automatically copy a name. Use “Copy next destination” initially or later while a next target exists. Only the system name is copied: no automatic pasting or control of Elite.</p>
+
+<h3>Deviation and completion</h3>
+<p>A jump outside the remaining route shows “Current system is off route”. The route and previous next target remain; there is no automatic recalculation. A later matching forward jump can resume the route. Alternatively, deliberately calculate a new route.</p>
+<p>At the last route system, “Route complete” appears. “Next destination” becomes “–”, the copy button is disabled and no further name is copied. The existing clipboard content is not cleared. The results remain displayed.</p>
+
+<h3>CTSVision export</h3>
+<p>Only carrier routes offer “Export for CTSVision”. After successful calculation, choose a new CSV file. It contains the route sequence and available distance, fuel, tritium and restocking information for subsequent use in CTSVision.</p>
+<p>This is a file export, not a direct connection or automatic carrier control. Existing files are not overwritten. Cancelling the file dialog creates no file; write failures are reported.</p>
+
+<h3>Errors and advice</h3>
+<p>Missing systems, incomplete or invalid ship parameters and excessive tritium are reported. Required tank, mass and FSD values must be positive; reserve fuel must not exceed reserve tank capacity.</p>
+<p>No route found, network problems, excessive waiting or an unusable Spansh response also produce a message instead of an invented result. Check system names, ship data and options, then calculate again as needed.</p>
+
+<h3>Analysis and commander context</h3>
+<p>“Analysis”, with “System analysis” and “Historical data”, assesses systems and existing experience. The route planner calculates the actual journey between start and destination.</p>
+<p>Defaults use the active commander and ship. Merely viewing another commander in CMDR view does not change that basis.</p>"""),
  'images': ('Pictures',
             '<h2>Pictures</h2>\n'
             '<p>The “Images” section manages the screenshots taken with Elite Dangerous. '
@@ -953,6 +928,19 @@ HELP_TOPICS = {
               'edited or tested. Only the commander clearly identified by the active journal '
               'session is allowed to send live.</p>\n'
               '\n'
+              '<h3>Spansh station information</h3>\n'
+              '<p>Under “ONLINE SERVICES”, “Add Spansh station information” enables optional station and facility information in Explorer and system views. It is off by default. Only the public system identifier is sent, not commander information; no personal API key is needed. This option does not control trade market searches.</p>\n'
+              '<p>When disabled, only local journal information is shown and no new Spansh station requests are started; manual refresh is also disabled. Existing station cache data is not deleted, but is not added to the display. Enabling makes existing cached data available again without itself making a network request.</p>\n'
+              '\n'
+              '<h3>Automatic station requests and cache</h3>\n'
+              '<p>Automatic checks occur only on a newly detected live entry of the active journal commander into another system, for example after a ship jump, carrier jump or new confirmed location report. Startup, commander changes, archive imports and simply opening Explorer or a system view do not start automatic requests.</p>\n'
+              '<p>The separate station cache survives Helper restarts. A retrieval less than 7 days old is considered fresh and avoids another automatic network request. Missing or older data may be refreshed on the next qualifying live system entry. At most one automatic attempt per system per local calendar day is allowed; failures count, including across restarts. There is no continuous background refresh of all stored systems. Older usable cached data may still be displayed, including offline.</p>\n'
+              '<p>This cache contains supplementary station information, not trade market prices. Spansh community market data for selling, buying and recommendations has its own temporary RAM search cache. Trade market snapshots personally observed in Elite are stored separately again: they survive a restart but are valid only while less than 24 hours old.</p>\n'
+              '\n'
+              '<h3>Refreshing station data manually</h3>\n'
+              '<p>Open “System overview” and choose “Refresh Spansh data”. This refreshes only Spansh station information for the system shown in that window, not every stored system or trade market prices. The option must be enabled; while a request for that system is running, the action is disabled.</p>\n'
+              '<p>Manual refresh can bypass the 7-day freshness period and a failed automatic attempt that day. If the system was already retrieved successfully today by the local calendar, no new request is made: “Spansh data has already been updated today.” A successful retrieval renews the station cache. On failure, existing local and usable cached information remains available and the status line reports the failure. A failed manual attempt can be retried.</p>\n'
+              '\n'
               '<h3>EDSM access for</h3>\n'
               '<p>“EDSM access for:” selects the commander to be edited. The selection will show '
               '“set up” or “not set up” depending on whether a API-Key is stored.</p>\n'
@@ -1115,7 +1103,7 @@ HELP_TOPICS = {
 <p>It is not an interstellar route planner and does not handle system or jump navigation. You fly your ship yourself.</p>
 
 <h3>Opening the navigator and entering a target</h3>
-<p>Open “Planet navigation” in the overview and select “Manual input…”.</p>
+<p>Open “Planet navigation” in Explorer and select “Manual input…”. You can open the navigator and enter a target before a current surface position is available.</p>
 <ul>
 <li><b>Body:</b> Select the target planet or moon from the list or use the body already detected. You can also enter the body name yourself if it is not yet listed. If in doubt, use the full name including the system name.</li>
 <li><b>Latitude:</b> Enter the target latitude between −90° and +90°.</li>
@@ -1127,6 +1115,16 @@ HELP_TOPICS = {
 <h3>When does the compass start?</h3>
 <p>Once a target is set and Elite provides valid planetary position data for the matching body, navigation becomes active automatically. You do not need to press a separate start button.</p>
 <p>If this data is still missing or belongs to a different body, the navigator waits with “Waiting for planetary coordinates …”. You can enter a target even before this data arrives.</p>
+
+<p>Active navigation requires valid coordinates, body name, heading and planet radius from Elite for the target body. Landing is not required: suitable data can arrive during approach. Without a valid position, or on another body, the navigator waits rather than inventing a position.</p>
+
+<h3>Save current location</h3>
+<p>“★ Save current location” saves your confirmed current position, not the entered navigation target. A valid Elite position, an identified commander and a known system are required. Otherwise the action is disabled or a message appears.</p>
+<p>System, body and coordinates are captured when invoked. In the favourites dialog, edit the name, category and note and optionally attach an image. Only “Save” stores the record locally for that commander; cancelling saves nothing. Later movement does not change the captured position.</p>
+
+<h3>Use saved positions</h3>
+<p>Open “★ Favorites” in Explorer. Select a saved surface location and “◎ To coordinates” to adopt its body, coordinates and name as the navigation target. This replaces any previous target; on another body the navigator waits for matching position data.</p>
+<p>“Edit” changes the name, category and note. “Delete” removes the favourite only after confirmation, without removing Elite data. Favourites survive Helper restarts and are separated by commander; the current navigation target itself lasts only for the session.</p>
 
 <h3>Planet globe: more than 380 km</h3>
 <p>When the target distance is greater than 380 km, the navigator displays the planet globe.</p>
@@ -1175,9 +1173,13 @@ HELP_TOPICS = {
 <p>On the same body, you can reopen “Manual input…” at any time and set different coordinates. The new target replaces the previous navigation target. With matching position data, the compass updates immediately.</p>
 <p>“Stop navigation” removes the current target. Simply set a new target for another approach.</p>
 
+<p>Closing the navigator window does not end the target. An enabled navigation HUD can continue; “Stop navigation” removes the target. Leaving the matching body or losing position data pauses navigation and hides the navigation HUD.</p>
+
 <h3>Data freshness and limitations</h3>
 <p>Navigation is based on the status data provided by Elite. Updates may arrive with a delay depending on the game state. The age display in the navigator shows how much time has passed since the last confirmed status message.</p>
 <p>The surface distance describes the shortest arc on an idealised sphere. It is not a terrain or road route. The navigator does not know about obstacles or terrain heights along the route; flight altitude, safe speed and obstacle avoidance remain your responsibility.</p>
+
+<p>The current position comes from Status.json; the journal supplements body and system associations. The window and enabled navigation HUD keep updates active as needed. The display depends on available Elite data and does not guarantee accuracy in metres.</p>
 
 <h3>Tip</h3>
 <p>Before approaching, check the body name and the signs of the target coordinates. Then align with the target course on the Elite compass and watch the relative direction and distance. If the navigator is waiting, check whether Elite is already providing planetary coordinates for the target body.</p>""",

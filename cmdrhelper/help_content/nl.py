@@ -196,6 +196,30 @@ HELP_TOPICS = {
               '<p>Het display toont onder meer lichaamstype, afstand en – indien beschikbaar – '
               'scan- en cartografiewaarden, evenals speciale verkenningseigenschappen.</p>\n'
               '\n'
+              '<p>‘Automatisch aan venster aanpassen’ staat standaard aan en onthoudt je keuze na een herstart. Elk nieuw overzicht wordt eenmaal aan het venster aangepast; inschakelen in een geopend venster past de weergave ook eenmaal aan. Daarna kun je nog steeds handmatig zoomen en verschuiven. ‘Aan venster aanpassen’ blijft beschikbaar om de weergave opnieuw handmatig aan te passen.</p>\n'
+              '\n'
+              '<h3>Stations en voorzieningen</h3>\n'
+              '<p>Het tabblad ‘STATIONS (N)’ toont bekende stations en voorzieningen van het huidige Explorer-systeem als uitklapbare kaarten. Het aantal in de titel telt alle bekende vermeldingen, ook die door filters verborgen zijn. Dit is geen volledige catalogus van alle stations in het sterrenstelsel.</p>\n'
+              '<p>De basis bestaat uit lokaal bekende Elite-journaalwaarnemingen. Als aanvulling door Spansh is ingeschakeld, komen er gegevens uit de afzonderlijke stationcache bij. De bron kan ‘Journal’, ‘Spansh’ of ‘Journal + Spansh’ zijn; bij tegenstrijdige gegevens heeft het journaal voorrang. Spansh voegt hier geen Fleet Carriers toe. Je eigen carrier kan worden getoond als die lokaal bekend is.</p>\n'
+              '\n'
+              '<h3>Stations zoeken, filteren en sorteren</h3>\n'
+              '<p>‘Zoek op stationsnaam…’ zoekt direct naar stationsnamen of delen daarvan, zonder onderscheid tussen hoofdletters en kleine letters. Een leeg zoekveld beperkt de namen niet. Zoekopdracht en beide filters moeten samen passen.</p>\n'
+              '<ul>\n'
+              '<li><b>Type:</b> Beperkt de lijst tot ruimtestations, buitenposten, oppervlaktestations, nederzettingen, megaschepen, Fleet Carriers of andere voorzieningen. ‘Alle typen’ heft de typebeperking op.</li>\n'
+              '<li><b>Bijbehorend hemellichaam:</b> Selecteert een bekend bijbehorend hemellichaam. ‘Alle hemellichamen’ staat alle locaties toe; ‘Onbekend’ verschijnt als vermeldingen niet met zekerheid aan een bekend hemellichaam zijn gekoppeld.</li>\n'
+              '<li><b>Sorteren op:</b> Standaard alfabetisch op ‘Naam’. Ook oplopend sorteren op ‘Type’, ‘Bijbehorend hemellichaam’ of ‘Afstand tot aankomstpunt’ is mogelijk. Afstand wordt numeriek gesorteerd; onbekende afstanden of hemellichamen staan bij de betreffende sortering onderaan.</li>\n'
+              '</ul>\n'
+              '<p>Er zijn geen stationskolomkoppen om op te klikken: de keuzelijsten sorteren de kaarten. Zoeken, filteren en sorteren starten geen netwerkverzoek. Bij een systeemwissel worden zoektekst en type-/lichaamfilters gewist. Een lege weergave maakt onderscheid tussen geen bekende vermeldingen en geen vermeldingen die aan de filters voldoen.</p>\n'
+              '\n'
+              '<h3>Stationdetails en diensten</h3>\n'
+              '<p>Klik op de kop van een stationskaart om details in of uit te klappen. Voor zover bekend worden naam, type, systeem, bijbehorend hemellichaam, MarketID, laatste update en bron getoond. Dubbelklikken op de voorbeeldafbeelding opent de afbeeldingsviewer.</p>\n'
+              '<p>Spansh kan aankomstafstand in lichtseconden, affiliatie, bestuur, controlerende factie, economiegegevens en aantallen grote, middelgrote en kleine landingsplatforms toevoegen. Datums van stationgegevens, systeemgegevens en ophalen worden apart getoond indien beschikbaar; opnieuw ophalen garandeert geen nieuwere stationgegevens.</p>\n'
+              '<p>Bekende ‘Diensten’ verschijnen als velden met een label, bijvoorbeeld ‘Markt’, ‘Scheepswerf’, ‘Uitrusting’, ‘Reparatie’, ‘Bijtanken’ of ‘Materiaalhandelaar’. De kaartkop toont hoogstens drie diensten en zo nodig het aantal overige; uitgeklapt zijn alle door CMDRHelper herkende diensten zichtbaar. Ontbrekende gegevens worden niet geschat en bewijzen niet dat een voorziening ontbreekt.</p>\n'
+              '\n'
+              '<h3>Stations op de kaart en vernieuwen</h3>\n'
+              '<p>De systeemkaart en ‘Systeemoverzicht’ gebruiken dezelfde bekende stationgegevens. Zeker gekoppelde voorzieningen staan bij het bijbehorende hemellichaam, andere onder ‘Overige faciliteiten’. Klikken opent details of bij groepen eerst een keuzelijst.</p>\n'
+              '<p>In ‘Systeemoverzicht’ vernieuwt ‘Spansh-gegevens vernieuwen’ de Spansh-stationgegevens voor het systeem dat in dat venster staat. Spansh-stationinformatie moet zijn ingeschakeld en de systeemidentiteit bekend. De statusregel meldt lopende verzoeken, succes, fouten of een update die vandaag al is uitgevoerd. Bij fouten blijven lokale informatie en bruikbare cachegegevens beschikbaar. De instellingenhulp legt automatische verzoeken, cache en handmatig vernieuwen uit.</p>\n'
+              '\n'
               '<h3>BIO ×N</h3>\n'
               '<p>BIO ×N geeft het aantal biologische signalen van een lichaam aan dat door het '
               'spel wordt gerapporteerd.</p>\n'
@@ -416,6 +440,11 @@ HELP_TOPICS = {
 </ul>
 <p>Het kleine asdisplay helpt bij de oriëntatie in de ruimte.</p>
 
+<p>Met het muiswiel zoom je in of uit zonder extra toets.</p>
+<p>Dubbelklik op lege kaartruimte om de oorspronkelijke schuine weergave te herstellen, de verschuiving terug te zetten en alle getoonde systemen in het venster te passen. Filters en het geselecteerde systeem blijven behouden.</p>
+<p>Bij het beginnen van een draai met de linkermuisknop wordt het aangeklikte systeem het draaipunt. In lege ruimte wordt het punt onder de aanwijzer op het galactische vlak gebruikt; bij een vrijwel horizontale weergave wordt in plaats daarvan het kaartmidden op dat vlak gebruikt. Ook uitlijnen draait om het huidige draaipunt.</p>
+<p>Klik op een systeem om het detailvenster te openen. Daar kopieert een linkerklik op de systeemnaam bovenaan of het kopieerpictogram ⧉ ernaast uitsluitend de systeemnaam naar het klembord. Een kort ✓ bevestigt het kopiëren.</p>
+
 <h3>Huidige positie</h3>
 <p>Met “Huidige positie” kan de kaartweergave worden uitgelijnd of teruggezet naar de momenteel bekende locatie van de actieve commandant.</p>
 <p>Eerst worden de huidige filters toegepast. Er wordt alleen op het huidige systeem gecentreerd als het in de resulterende kaart voorkomt.</p>
@@ -582,126 +611,63 @@ HELP_TOPICS = {
 <p>Het laatste systeemnummer wordt niet beoordeeld: Plio Aip KN-B d13-201 behoort tot familie Plio Aip KN-B d13. BIO is informatief en telt niet mee in de hoofdbeoordeling. Ontbrekende analyses bewijzen geen nulwaarden.</p>
 <h3>Systeemanalyse</h3>
 <p>Voer een systeem in en kies Analyseren of druk op Enter. Huidig systeem gebruiken neemt de naam uit de bestaande spelstatus. Alleen een gebruikersactie herberekent de analyse. Vergelijkingsbasis en resultaten vermelden hun niveau; zonder lokale vergelijkingen wordt bovenliggende ervaring gebruikt. Gegevenskwaliteit staat los van de aanbeveling.</p>
+<p>In het veld ‘Systeem’ typ je vrij een naam. ‘Huidig systeem gebruiken’ vult alleen het veld; start daarna met ‘Analyseren’ of Enter. De naam wordt lokaal aan het ondersteunde procedurele naampatroon getoetst. Er is hier geen online systeemzoekactie of keuzelijst voor dubbelzinnige namen.</p>
+<p>Bij een lege invoer, ongeschikte naam, ontbrekende geschikte vergelijkingsgegevens of een fout vervangt een melding het vorige resultaat. Een geslaagde analyse toont aanbeveling, potentieelindex en lokale gegevensbasis. De vergelijkingstabel bevat massacode, regio en familie met systeemaantallen en gegevensbasis; daaronder staan ervaringswaarden en bekende bijzondere vondsten.</p>
+<h3>Historische gegevens</h3>
 <p>Historische treffers per systeemcode. Deze waarden beschrijven je verkenningservaring tot nu toe en zijn geen directe voorspelling voor een afzonderlijk doelsysteem. Gegevensbasis en bewijskracht beschrijven de betrouwbaarheid van de vergelijkingsgegevens op basis van de beschikbare steekproef en de spreiding over sectoren.</p>
+<p>In ‘Historische gegevens’ kies je onder ‘Doel’ een soort vondst, geen reisbestemming: bijvoorbeeld een verkenningsdoel, BIO-geslacht of BIO-soort. De eerste berekening gebeurt bij het opbouwen van de weergave. Na wijzigingen aan doel of minimum blijft de vorige ranglijst staan totdat je op ‘Opnieuw beoordelen’ drukt.</p>
+<p>Het getalveld naast de doelkeuze stelt de minimale steekproef per code in: 1 tot 50 onderzochte systemen, aanvankelijk 3. Codes met minder systemen of zonder historische vondst van het gekozen type verschijnen niet in de ranglijst.</p>
+<p>De tabel ‘Historische patronen’ toont maximaal 50 codes met rang, eerder succes (systemen met vondsten / onderzochte systemen), trefpercentage en bewijskracht. De volgorde volgt de afgevlakte historische beoordeling, niet alleen het trefpercentage. Beide tabellen hebben een vaste volgorde zonder kolomsortering of detailactie. Zonder passende patronen verschijnt een melding; bij een berekeningsfout wordt de ranglijst leeggemaakt en verschijnt een foutmelding. Analyse berekent geen reisroute.</p>
 """,
     ),
  'route_planner': ('Routeplanner',
-                   '<h2>Routeplanner</h2>\n<h3>CMDRHelper</h3>\n<p>Verbeterde routeplanner: het vertrek volgt automatisch het huidige systeem totdat je handmatig een vertrek invult; leegmaken herstelt de automatische werking. Schepen en carriers gebruiken exact gecontroleerde ID64-adressen, zonder vergelijkbare namen te kiezen. ‘Unable to find route’ betekent dat geen route is gevonden; controleer doelen, bereik en route-instellingen.</p>\n'
-                   '<p>De routeplanner ondersteunt het plannen van langere reizen per schip of '
-                   'Fleet Carrier. CMDRHelper kan externe routegegevens van Spansh gebruiken en de '
-                   'geplande route voorbereiden voor verder gebruik.</p>\n'
-                   '\n'
-                   '<h3>Begin en eind</h3>\n'
-                   '<p>Voor de routeberekening is een start- en bestemmingssysteem vereist.</p>\n'
-                   '<p>Voor zover mogelijk kan CMDRHelper het huidige bekende systeem van de '
-                   'commandant als uitgangspunt nemen. Start en finish moeten vóór de berekening '
-                   'worden gecontroleerd.</p>\n'
-                   '\n'
-                   '<h3>Verzenden of Fleet Carrier</h3>\n'
-                   '<p>De routeplanner maakt onderscheid tussen tochten met een normaal schip en '
-                   'met een Fleet Carrier.</p>\n'
-                   '<p>Beiden hanteren verschillende eisen en berekeningsmethoden. Daarom moet '
-                   'vóór het plannen het juiste routetype worden geselecteerd.</p>\n'
-                   '\n'
-                   '<h3>Scheepsroute</h3>\n'
-                   '<p>Bij een scheepsroute wordt rekening gehouden met de voor het actieve schip '
-                   'bekende of ingevoerde sprongeigenschappen.</p>\n'
-                   '<p>Afhankelijk van de beschikbare gegevens kunnen FSD-gegevens, '
-                   'scheepsgegevens, massa, brandstof en andere sprongparameters in de planning '
-                   'worden opgenomen.</p>\n'
-                   '<p>Een berekende route is een planningshulpmiddel. Veranderingen aan het schip '
-                   'of de massa ervan kunnen de daadwerkelijk bereikbare sprongafstand in het spel '
-                   'veranderen.</p>\n'
-                   '\n'
-                   '<h3>Route van vlootvervoerders</h3>\n'
-                   '<p>Fleet Carrier hebben andere springregels dan normale schepen.</p>\n'
-                   '<p>CMDRHelper gebruikt de aangewezen Spansh-vervoerdersplanning voor '
-                   'overeenkomstige routes.</p>\n'
-                   '<p>De route wordt gebruikt om de sprongreeks te plannen. Het werkelijke '
-                   'tritiumverbruik en het beschikbare bereik kunnen ook afhankelijk zijn van de '
-                   'massa en de huidige vervoerderstatus.</p>\n'
-                   '\n'
-                   '<h3>Spansh</h3>\n'
-                   '<p>Voor de daadwerkelijke routeberekening kan CMDRHelper gebruik maken van de '
-                   'externe service Spansh.</p>\n'
-                   '<p>Het verzoek wordt op de achtergrond verwerkt, zodat de interface ook '
-                   'tijdens een langere berekening operationeel blijft.</p>\n'
-                   '<p>CMDRHelper heeft geen invloed op de beschikbaarheid of responstijd van de '
-                   'externe dienst.</p>\n'
-                   '\n'
-                   '<h3>berekening</h3>\n'
-                   '<p>Na het starten van een berekening wordt de aanvraag doorgegeven aan de '
-                   'geselecteerde routeplanner.</p>\n'
-                   '<p>Afhankelijk van de route en dienst kan de berekening enige tijd duren. '
-                   'Gedurende deze tijd mag geen tweede identieke berekening onnodig worden '
-                   'gestart.</p>\n'
-                   '\n'
-                   '<h3>Resultaat</h3>\n'
-                   '<p>Een succesvol berekende route toont de beoogde systemen of sprongpunten in '
-                   'hun volgorde.</p>\n'
-                   '<p>Afhankelijk van het routetype verschijnt aanvullende informatie over '
-                   'afstand, sprongen, brandstof of tritium en andere beschikbare '
-                   'routegegevens.</p>\n'
-                   '\n'
-                   '<h3>Route en huidige commandant</h3>\n'
-                   '<p>Het huidige systeem en schip kunnen – zolang ze duidelijk bekend zijn in de '
-                   'actieve AppState – worden gebruikt voor voorbezetting of ter ondersteuning van '
-                   'de planning.</p>\n'
-                   '<p>De daadwerkelijke route blijft echter een plan en verandert niets aan '
-                   'journaal- of commandantgegevens.</p>\n'
-                   '\n'
-                   '<h3>CTSVision-export</h3>\n'
-                   '<p>Berekende routes van wagenparkvervoerders kunnen worden geëxporteerd als '
-                   'CSV voor CTSVision.</p>\n'
-                   '<p>Dit betekent dat een in CMDRHelper geplande transportroute vervolgens in '
-                   'CTSVision kan worden gebruikt voor sprongbesturing of routeverwerking '
-                   'daar.</p>\n'
-                   '<p>De export verandert de route in CMDRHelper niet.</p>\n'
-                   '\n'
-                   '<h3>CSV-bestand</h3>\n'
-                   '<p>Het geëxporteerde bestand bevat de routegegevens die nodig zijn voor '
-                   'CTSVision in de beoogde volgorde.</p>\n'
-                   '<p>Het bestand mag na het exporteren niet ongecontroleerd structureel worden '
-                   'gewijzigd, als het vervolgens door CTSVision moet worden ingelezen.</p>\n'
-                   '\n'
-                   '<h3>Fouten en externe services</h3>\n'
-                   '<p>Als Spansh niet kan worden bereikt of de service een fout retourneert, '
-                   'geeft CMDRHelper een overeenkomstige foutmelding weer.</p>\n'
-                   '<p>Een fout in de online routeberekening verandert de lokale commandant- of '
-                   'journaalgegevens niet.</p>\n'
-                   '\n'
-                   '<h3>Routeplanner en springtip</h3>\n'
-                   '<p>Jumptip en routeplanner vervullen verschillende taken:</p>\n'
-                   '<ul>\n'
-                   '<li>Jump tip evalueert mogelijke interessante verkenningsdoelen op basis van '
-                   'bestaande gegevens.</li>\n'
-                   '<li>Routeplanner berekent een specifieke route tussen start en '
-                   'bestemming.</li>\n'
-                   '</ul>\n'
-                   '<p>Een goede springtip hoort dus niet automatisch bij een optimaal '
-                   'traject.</p>\n'
-                   '\n'
-                   '<h3>Verschillende commandanten</h3>\n'
-                   '<p>Als er gebruik wordt gemaakt van commandantgerelateerde gegevens zoals '
-                   'huidig \u200b\u200bsysteem of schip, komt deze uit de actieve live AppState en '
-                   'moet daar duidelijk worden toegewezen.</p>\n'
-                   '<p>Door simpelweg naar een andere commandant te kijken in de CMDR-weergave, '
-                   'wordt de routeplanner niet naar zijn/haar systeem of schip '
-                   'overgeschakeld.</p>\n'
-                   '<p>Een routeberekening zelf verandert niets aan de persoonsgegevens van een '
-                   'andere commandant.</p>\n'
-                   '\n'
-                   '<h3>Tip</h3>\n'
-                   '<p>Controleer vóór een lange reis altijd nogmaals:</p>\n'
-                   '<ul>\n'
-                   '<li>Startsysteem</li>\n'
-                   '<li>Doelsysteem</li>\n'
-                   '<li>Routetype schip/vervoerder</li>\n'
-                   '<li>voor scheepsroutes het onderliggende schip, FSD en sprongparameters</li>\n'
-                   '<li>voor vliegroutes: de beschikbare tritiumreserve</li>\n'
-                   '</ul>\n'
-                   '<p>Bij wagenparkreizen is het raadzaam om ook voor de terugreis of ongeplande '
-                   'omwegen voldoende reserve te plannen.</p>'),
+                   """<h2>Routeplanner</h2>
+<h3>Overzicht</h3>
+<p>De planner berekent routes tussen systemen via Spansh. Kies ‘Scheepsroute’ of ‘Fleet Carrier / CTSVision’. Een netwerkverbinding is nodig; CMDRHelper bestuurt geen schip of carrier.</p>
+
+<h3>Start en bestemming</h3>
+<p>‘Startsysteem’ volgt het bekende huidige systeem van de actieve commander totdat je zelf een start invoert. Een leeg veld herstelt dit gedrag. Vul ‘Doelsysteem’ volledig in; een doel uit favorieten bereidt de scheepsroute voor zonder die te berekenen.</p>
+<p>Start en bestemming moeten eenduidig worden herkend. Gelijkende namen worden niet als vervanging gekozen. Onbekende of dubbelzinnige namen geven een melding; corrigeer de invoer.</p>
+
+<h3>Scheepsroute</h3>
+<p>Er is geen scheepskeuze: bekende gegevens van het actieve schip vullen de technische velden. Eigen wijzigingen blijven handmatige waarden. ‘Scheepsgegevens toepassen’ neemt de beschikbare gegevens opnieuw over. Let op de melding over volledige, onvolledige, verouderde of onbekende FSD-gegevens.</p>
+<p>Controleer ‘Capaciteit hoofdtank’, ‘Huidige lading’, ‘Basismassa’, ‘Capaciteit reservetank’, ‘Reservebrandstof’, ‘Optimale FSD-massa’, ‘Maximale FSD-brandstof per sprong’, ‘Brandstofvermogen’, ‘Brandstofvermenigvuldiger’ en ‘Bereikbonus’. Deze bepalen de sprongeigenschappen; er is geen enkel veld voor het normale scheepsbereik. Vracht en uitrusting kunnen het haalbare bereik veranderen.</p>
+
+<h3>Scheepsopties en berekening</h3>
+<p>‘Route-algoritme’ biedt optimistic, pessimistic, fuel, fuel_jumps en guided. De keuze gaat naar Spansh.</p>
+<p>Opties zijn ‘Supercharge/neutronensterren gebruiken’, ‘Schip start al supercharged’, ‘FSD-injecties gebruiken’, ‘Secundaire sterren uitsluiten’ en ‘Bij elke scoopbare ster tanken’: neutronenondersteuning, al versterkt starten, FSD-injecties, secundaire sterren en tankstops. Begin met ‘Scheepsroute met Spansh berekenen’.</p>
+
+<h3>Carrierroute</h3>
+<p>‘Fleet Carrier / CTSVision’ plant zonder een specifieke carrier te selecteren of besturen. Vul ‘Tritium in de tank’ en ‘Tritium in carrier-opslag’ in, samen maximaal 25.000 t. ‘Berekende carrier-massa’ toont 25.000 t plus deze twee hoeveelheden.</p>
+<p>‘Maximaal sprongbereik’ loopt van 1 tot 500 ly, standaard 500 ly. ‘Route berekenen met Spansh’ start de berekening. De carrierknop is tijdens die aanvraag uitgeschakeld.</p>
+
+<h3>Spansh en wachttijd</h3>
+<p>Spansh berekent de route op de achtergrond. De status meldt de aanvraag en daarna succes of een fout. Dit betreft routes, geen handelsprijzen of stationsinformatie. Er is geen annuleerknop voor een lopende berekening.</p>
+
+<h3>Routeresultaat</h3>
+<p>De lijst houdt de vaste routevolgorde aan: nummer, systeem, sprongafstand en resterende afstand. Vrij sorteren is niet mogelijk. Scheepsroutes tonen ook verbruik, tankinhoud, neutronen en tankaanwijzingen; carrierroutes tonen tritiumverbruik.</p>
+<p>Onder de lijst staan totale afstand, sprongen en verbruik of geschat tritium. Ontbrekende waarden blijven ‘–’. Vergelijk de planning met de werkelijke toestand in het spel.</p>
+
+<h3>Voortgang en volgend doel</h3>
+<p>Een succesvol berekende scheepsroute wordt automatisch overgenomen. ‘Huidig systeem’, ‘Volgende bestemming’ en ‘Routestatus’ tonen positie, volgende stap en toestand. De lijst blijft staan, zonder extra vinkjes voor afgeronde stappen.</p>
+<p>Een herkende scheepssprong naar het volgende of een later routesysteem zet de voortgang vooruit en kopieert automatisch de daaropvolgende systeemnaam. Herhaalde positiemeldingen en carriersprongen tellen niet als zulke voortgangssprongen.</p>
+<p>Bij het laden wordt nog geen naam automatisch gekopieerd. Gebruik ‘Volgende bestemming kopiëren’, ook later zolang een volgend doel bestaat. Alleen de systeemnaam wordt gekopieerd: geen automatisch plakken of besturing van Elite.</p>
+
+<h3>Afwijking en voltooiing</h3>
+<p>Een sprong buiten de resterende route toont ‘Huidig systeem ligt buiten de route’. De route en het eerdere volgende doel blijven behouden; er volgt geen automatische herberekening. Een latere passende voorwaartse sprong kan de route hervatten. Je kunt ook bewust een nieuwe route berekenen.</p>
+<p>Bij het laatste systeem verschijnt ‘Route voltooid’. ‘Volgende bestemming’ wordt ‘–’, de kopieerknop wordt uitgeschakeld en er wordt geen nieuwe naam gekopieerd. Het klembord wordt niet geleegd. De lijst blijft zichtbaar.</p>
+
+<h3>CTSVision-export</h3>
+<p>Alleen carrierroutes bieden ‘Exporteren voor CTSVision’. Kies na een geslaagde berekening een nieuw CSV-bestand. Dit bevat de routevolgorde en beschikbare afstands-, brandstof-, tritium- en bevoorradingsgegevens voor later gebruik in CTSVision.</p>
+<p>Dit is bestandsexport, geen directe verbinding of automatische carrierbesturing. Bestaande bestanden worden niet overschreven. Annuleren in de bestandsdialoog maakt niets aan; schrijffouten worden gemeld.</p>
+
+<h3>Fouten en aanwijzingen</h3>
+<p>Ontbrekende systemen, onvolledige of ongeldige scheepsparameters en te veel tritium worden gemeld. Vereiste tank-, massa- en FSD-waarden moeten positief zijn; reservebrandstof mag de reservetankcapaciteit niet overschrijden.</p>
+<p>Geen route, netwerkproblemen, te lange wachttijd of een onbruikbaar Spansh-antwoord geven een melding in plaats van een verzonnen resultaat. Controleer namen, scheepsgegevens en opties voordat je opnieuw berekent.</p>
+
+<h3>Analyse en commander</h3>
+<p>‘Analyse’, met ‘Systeemanalyse’ en ‘Historische gegevens’, beoordeelt systemen en beschikbare ervaring. De routeplanner berekent de concrete reis tussen start en bestemming.</p>
+<p>De voorgestelde waarden komen van de actieve commander en diens schip. Een andere commander bekijken in de CMDR-weergave verandert dat niet.</p>"""),
  'images': ('Afbeeldingen',
             '<h2>Afbeeldingen</h2>\n'
             '<p>In het gedeelte "Afbeeldingen" worden de schermafbeeldingen beheerd die zijn '
@@ -992,6 +958,19 @@ HELP_TOPICS = {
               'bewerkt of getest. Alleen de commandant die duidelijk geïdentificeerd is door de '
               'actieve journaalsessie mag live zenden.</p>\n'
               '\n'
+              '<h3>Spansh-stationinformatie</h3>\n'
+              '<p>Onder ‘ONLINE DIENSTEN’ schakelt ‘Spansh-stationsinformatie toevoegen’ de optionele aanvulling van stations en voorzieningen in Explorer en systeemweergaven in. De optie staat standaard uit. Alleen de openbare systeemidentificatie wordt verstuurd, geen commandergegevens; een eigen API-sleutel is niet nodig. Deze optie regelt geen handelsmarktzoekopdrachten.</p>\n'
+              '<p>Uitgeschakeld worden alleen lokale journaalgegevens getoond en starten geen nieuwe Spansh-stationverzoeken; ook handmatig vernieuwen is uitgeschakeld. Bestaande stationcachegegevens worden niet gewist, maar vullen de weergave niet aan. Inschakelen maakt de cache weer bruikbaar zonder op zichzelf een netwerkverzoek te starten.</p>\n'
+              '\n'
+              '<h3>Automatische stationverzoeken en cache</h3>\n'
+              '<p>Een automatische controle gebeurt alleen bij een nieuw vastgestelde live binnenkomst van de actieve journaalcommander in een ander systeem, bijvoorbeeld na een scheepssprong, carriersprong of nieuwe bevestigde locatiemelding. Opstarten, commanderwissels, archiefimport en alleen Explorer of een systeemweergave openen starten geen automatisch verzoek.</p>\n'
+              '<p>De afzonderlijke stationcache blijft behouden na Helper-herstarts. Gegevens die minder dan 7 dagen geleden zijn opgehaald gelden als recent en vermijden een nieuw automatisch netwerkverzoek. Ontbrekende of oudere gegevens kunnen bij de volgende passende live systeemintrede worden vernieuwd. Per systeem is maximaal één automatische poging per lokale kalenderdag voorzien; ook fouten tellen, zelfs na herstarten. Niet alle opgeslagen systemen worden voortdurend op de achtergrond vernieuwd. Oudere bruikbare cachegegevens kunnen zichtbaar blijven, ook offline.</p>\n'
+              '<p>Deze cache bevat aanvullende stationinformatie, geen handelsmarktprijzen. Spansh-gemeenschapsgegevens voor verkopen, inkopen en aanbevelingen hebben een eigen tijdelijke zoekcache in RAM. Handelsmarktstanden die je zelf in Elite waarneemt worden weer apart opgeslagen: ze overleven een herstart, maar zijn alleen geldig zolang ze jonger dan 24 uur zijn.</p>\n'
+              '\n'
+              '<h3>Stationgegevens handmatig vernieuwen</h3>\n'
+              '<p>Open ‘Systeemoverzicht’ en kies ‘Spansh-gegevens vernieuwen’. Alleen Spansh-stationgegevens voor het systeem in dat venster worden vernieuwd, niet alle opgeslagen systemen of handelsmarktprijzen. De optie moet ingeschakeld zijn; tijdens een verzoek voor dat systeem is de actie uitgeschakeld.</p>\n'
+              '<p>Handmatig vernieuwen kan de periode van 7 dagen en een mislukte automatische poging van die dag omzeilen. Is het systeem vandaag volgens de lokale kalender al succesvol opgehaald, dan volgt geen nieuw verzoek: ‘De Spansh-gegevens zijn vandaag al bijgewerkt.’ Succesvol ophalen vernieuwt de stationcache. Bij fouten blijven lokale en bruikbare cachegegevens behouden en meldt de statusregel de fout. Een mislukte handmatige poging kan opnieuw worden gestart.</p>\n'
+              '\n'
               '<h3>EDSM toegang voor</h3>\n'
               '<p>“EDSM access for:” selecteert de commandant die moet worden bewerkt. De selectie '
               'toont ‘set up’ of ‘not set up’, afhankelijk van of er een API-Key is '
@@ -1162,7 +1141,7 @@ HELP_TOPICS = {
 <p>Het is geen interstellaire routeplanner en hij verzorgt geen systeem- of sprongnavigatie. Je bestuurt je schip zelf.</p>
 
 <h3>De navigator openen en een doel invoeren</h3>
-<p>Open in het overzicht ‘Planeetnavigatie’ en kies ‘Handmatige invoer …’.</p>
+<p>Open ‘Planeetnavigatie’ in Explorer en kies ‘Handmatige invoer …’. Je kunt het venster openen en een doel invoeren voordat een actuele oppervlaktepositie beschikbaar is.</p>
 <ul>
 <li><b>Hemellichaam:</b> Kies de doelplaneet of doelmaan uit de lijst of gebruik het al herkende hemellichaam. Je kunt de naam ook zelf invoeren als die nog niet in de lijst staat. Gebruik bij twijfel de volledige naam, inclusief de systeemnaam.</li>
 <li><b>Breedtegraad:</b> Voer de breedtegraad van het doel in tussen −90° en +90°.</li>
@@ -1174,6 +1153,16 @@ HELP_TOPICS = {
 <h3>Wanneer start het kompas?</h3>
 <p>Zodra een doel is ingesteld en Elite geldige planetaire positiegegevens voor het bijbehorende hemellichaam levert, wordt de navigatie automatisch actief. Je hoeft niet op een aparte startknop te drukken.</p>
 <p>Als deze gegevens nog ontbreken of bij een ander hemellichaam horen, wacht de navigator met ‘Wachten op planetaire coördinaten …’. Je kunt al een doel invoeren voordat deze gegevens binnenkomen.</p>
+
+<p>Actieve navigatie vereist geldige coördinaten, hemellichaamnaam, koers en planeetstraal van Elite voor het doellichaam. Landen is niet verplicht: geschikte gegevens kunnen tijdens de nadering beschikbaar zijn. Zonder geldige positie of op een ander lichaam wacht de navigator zonder een positie te verzinnen.</p>
+
+<h3>Huidige locatie opslaan</h3>
+<p>‘★ Huidige locatie opslaan’ bewaart je bevestigde huidige positie, niet het ingevoerde navigatiedoel. Een geldige Elite-positie, geïdentificeerde commander en bekend systeem zijn nodig. Anders is de actie uitgeschakeld of verschijnt een melding.</p>
+<p>Bij het openen worden systeem, lichaam en coördinaten vastgelegd. In de favorietendialoog kun je naam, categorie en notitie wijzigen en een afbeelding toevoegen. Pas ‘Opslaan’ bewaart lokaal voor die commander; annuleren slaat niets op. Latere bewegingen wijzigen de vastgelegde positie niet.</p>
+
+<h3>Opgeslagen posities gebruiken</h3>
+<p>Open ‘★ Favorieten’ in Explorer. Kies een opgeslagen oppervlaktelocatie en ‘◎ Naar coördinaten’ om lichaam, coördinaten en naam als doel over te nemen. Dit vervangt een vorig doel; op een ander lichaam wacht de navigator op passende positiegegevens.</p>
+<p>‘Bewerken’ wijzigt naam, categorie en notitie. ‘Verwijderen’ verwijdert de favoriet na bevestiging, geen Elite-gegevens. Favorieten blijven na herstarts bewaard en zijn per commander gescheiden; het huidige navigatiedoel geldt alleen voor de sessie.</p>
 
 <h3>Planeetbol: meer dan 380 km</h3>
 <p>Bij een doelafstand groter dan 380 km toont de navigator de planeetbol.</p>
@@ -1222,9 +1211,13 @@ HELP_TOPICS = {
 <p>Op hetzelfde hemellichaam kun je op elk moment opnieuw ‘Handmatige invoer …’ openen en andere coördinaten instellen. Het nieuwe doel vervangt het vorige navigatiedoel. Met bijbehorende positiegegevens wordt het kompas onmiddellijk bijgewerkt.</p>
 <p>Met ‘Navigatie beëindigen’ verwijder je het huidige doel. Voor een volgende nadering stel je gewoon een nieuw doel in.</p>
 
+<p>Het venster sluiten verwijdert het doel niet. Een ingeschakelde navigatie-HUD kan doorgaan; ‘Navigatie beëindigen’ verwijdert het doel. Bij het verlaten van het juiste lichaam of ontbrekende positiegegevens wacht de navigatie en verdwijnt de navigatie-HUD.</p>
+
 <h3>Actualiteit van gegevens en beperkingen</h3>
 <p>De navigatie is gebaseerd op de statusgegevens van Elite. Updates kunnen afhankelijk van de speltoestand vertraagd binnenkomen. De ouderdomsweergave in de navigator toont hoe lang geleden de laatste bevestigde statusmelding was.</p>
 <p>De oppervlakteafstand beschrijft de kortste boog op een denkbeeldige bol. Het is geen terrein- of wegroute. De navigator kent geen obstakels of terreinhoogten langs de route; vlieghoogte, veilige snelheid en het vermijden van obstakels blijven jouw verantwoordelijkheid.</p>
+
+<p>De actuele positie komt uit Status.json; het journaal vult lichaam- en systeemkoppelingen aan. Het venster en de ingeschakelde navigatie-HUD houden updates naar behoefte actief. De weergave hangt af van beschikbare Elite-gegevens, zonder gegarandeerde nauwkeurigheid in meters.</p>
 
 <h3>Tip</h3>
 <p>Controleer vóór de nadering de naam van het hemellichaam en de tekens van de doelcoördinaten. Richt je vervolgens op de doelkoers in het Elite-kompas en houd relatieve richting en afstand in de gaten. Als de navigator wacht, controleer dan of Elite al planetaire coördinaten voor het doelhemellichaam levert.</p>""",

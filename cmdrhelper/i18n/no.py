@@ -928,6 +928,8 @@ TRANSLATIONS = {
     'explorer.col_progress': 'Fremdrift',
     'explorer.show_all_title': 'CMDRHelper – Systemoversikt – {system}',
     'explorer.overview_fit': 'Tilpass til vinduet',
+    'explorer.overview_auto_fit': 'Tilpass automatisk til vinduet',
+    'explorer.overview_auto_fit_hint': 'Tilpasser oversikten automatisk til vindusstørrelsen når den åpnes.',
     'explorer.overview_hint': 'Systemstruktur · Klikk på et legeme: detaljer · Ctrl + musehjul: zoom · 100 %: tilbakestill zoom',
     'explorer.no_system_data_available': 'Ingen systemdata tilgjengelig.',
     'explorer.no_body_data': 'Det finnes ennå ingen data om legemer for det nåværende systemet.',

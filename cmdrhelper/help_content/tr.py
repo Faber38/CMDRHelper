@@ -189,6 +189,30 @@ HELP_TOPICS = {
               '<p>Ekranda diğer şeylerin yanı sıra vücut tipi, mesafe ve varsa tarama ve '
               'haritacılık değerlerinin yanı sıra özel keşif özellikleri de gösteriliyor.</p>\n'
               '\n'
+              '<p>“Pencereye otomatik sığdır” varsayılan olarak açıktır ve seçiminizi yeniden başlatmalarda korur. Her yeni genel görünüm pencereye bir kez sığdırılır; açık pencerede etkinleştirmek de bir kez sığdırır. Ardından elle yakınlaştırmaya ve görünümü kaydırmaya devam edebilirsiniz. Yeniden elle sığdırmak için “Pencereye sığdır” düğmesi kullanılabilir.</p>\n'
+              '\n'
+              '<h3>İstasyonlar ve tesisler</h3>\n'
+              '<p>“İSTASYONLAR (N)” sekmesi, Explorer’ın mevcut sistemindeki bilinen istasyonları ve tesisleri açılabilir kartlar halinde gösterir. Başlıktaki sayı, filtrelerin gizledikleri dahil tüm bilinen kayıtları kapsar. Liste, galaksideki bütün istasyonların eksiksiz bir dizini değildir.</p>\n'
+              '<p>Temel kaynak, Elite günlüğünden yerel olarak bilinen gözlemlerdir. Spansh desteği açıkken ayrı istasyon önbelleğinden bilgiler eklenir. Kaynak “Journal”, “Spansh” veya “Journal + Spansh” olabilir; çelişen bilgilerde günlük verileri önceliklidir. Spansh buraya Fleet Carrier eklemez. Kendi carrier’ınız yerel olarak biliniyorsa gösterilebilir.</p>\n'
+              '\n'
+              '<h3>İstasyon araması, filtreler ve sıralama</h3>\n'
+              '<p>“İstasyon adı ara…” istasyon adlarında veya ad parçalarında büyük/küçük harf ayrımı yapmadan anında arar. Boş arama adları sınırlamaz. Arama ve her iki filtre birlikte karşılanmalıdır.</p>\n'
+              '<ul>\n'
+              '<li><b>Tür:</b> Listeyi yörünge istasyonları, ileri karakollar, yüzey istasyonları, yerleşimler, mega gemiler, Fleet Carrier’lar veya diğer tesislerle sınırlar. “Tüm türler” tür sınırlamasını kaldırır.</li>\n'
+              '<li><b>Bağlı gök cismi:</b> Bilinen bağlı gök cismini seçer. “Tüm gök cisimleri” tüm konumları kabul eder; kayıtlar bilinen bir cisme güvenle bağlanamadığında “Bilinmiyor” görünür.</li>\n'
+              '<li><b>Sıralama ölçütü:</b> Başlangıçta “Ad” alanına göre alfabetik sıralanır. İsterseniz “Tür”, “Bağlı gök cismi” veya “Varış noktasına uzaklık” alanına göre artan sıralama seçebilirsiniz. Mesafe sayısal sıralanır; bilinmeyen mesafeler veya cisimler ilgili sıralamada sona gelir.</li>\n'
+              '</ul>\n'
+              '<p>Tıklanacak istasyon sütun başlıkları yoktur: seçim kutuları kartları sıralar. Arama, filtre ve sıralama ağ isteği başlatmaz. Sistem değişince arama ile tür ve cisim filtreleri sıfırlanır. Boş görünüm, bilinen kayıt olmaması ile kayıtların filtrelere uymamasını ayırt eder.</p>\n'
+              '\n'
+              '<h3>İstasyon ayrıntıları ve hizmetler</h3>\n'
+              '<p>Ayrıntıları açmak veya kapatmak için istasyon kartının başlığına tıklayın. Biliniyorsa ad, tür, sistem, bağlı cisim, MarketID, son güncelleme ve kaynak gösterilir. Önizleme resmine çift tıklamak resim görüntüleyiciyi açar.</p>\n'
+              '<p>Spansh, varış noktasına ışık saniyesi cinsinden mesafe, bağlılık, yönetim, kontrol eden grup, ekonomi bilgileri ve büyük, orta, küçük iniş alanlarının sayısını ekleyebilir. İstasyon verisi, sistem verisi ve indirme zamanları varsa ayrı gösterilir; yeni indirme, istasyon verisinin daha yeni olduğunu garanti etmez.</p>\n'
+              '<p>Bilinen “Hizmetler”, örneğin “Pazar”, “Tersane”, “Donanım”, “Onarım”, “Yakıt ikmali” veya “Malzeme tüccarı” etiketli alanlar halinde görünür. Kart başlığında en fazla üç hizmet ve varsa kalanların sayısı gösterilir; kart açılınca CMDRHelper’ın tanıdığı tüm hizmetler görünür. Eksik bilgiler tahmin edilmez ve bir tesisin bulunmadığını kesin olarak göstermez.</p>\n'
+              '\n'
+              '<h3>Haritada istasyonlar ve güncelleme</h3>\n'
+              '<p>Sistem haritası ve “Sistem genel görünümü” aynı bilinen istasyon bilgilerini kullanır. Güvenle eşleştirilmiş tesisler bağlı cismin yanında, diğerleri “Diğer tesisler” altında yer alır. Tıklama istasyon ayrıntılarını veya gruplar için önce bir seçim listesini açar.</p>\n'
+              '<p>“Sistem genel görünümü” içinde “Spansh verilerini yenile”, o pencerede gösterilen sistemin Spansh istasyon bilgilerini günceller. Spansh istasyon bilgileri açık olmalı ve sistem kimliği bilinmelidir. Durum satırı devam eden istekleri, başarıyı, hatayı veya bugün zaten yapılan güncellemeyi bildirir. Hatalarda yerel bilgiler ve kullanılabilir önbellek verileri korunur. Otomatik istek, önbellek ve elle güncelleme kuralları ayarlar yardımında açıklanır.</p>\n'
+              '\n'
               '<h3>BIO ×N</h3>\n'
               '<p>BIO ×N, oyun tarafından bildirilen bir vücudun biyolojik sinyallerinin sayısını '
               'belirtir.</p>\n'
@@ -404,6 +428,11 @@ HELP_TOPICS = {
 </ul>
 <p>Küçük eksenli ekran, uzayda yönlendirmeye yardımcı olur.</p>
 
+<p>Fare tekerleğiyle ek bir tuşa basmadan yakınlaştırabilir veya uzaklaştırabilirsin.</p>
+<p>Haritanın boş bir alanına çift tıklamak başlangıçtaki eğik görünümü geri getirir, kaydırmayı sıfırlar ve görüntülenen tüm sistemleri pencereye sığdırır. Filtreler ve seçili sistem korunur.</p>
+<p>Sol fare düğmesiyle döndürmeye başladığında tıkladığın sistem dönme merkezi olur. Boş alanda, galaktik düzlemde imlecin altındaki nokta kullanılır; görünüm neredeyse yataysa bunun yerine aynı düzlemdeki harita merkezi kullanılır. Hizalama da mevcut dönme merkezi etrafında döner.</p>
+<p>Ayrıntı penceresini açmak için bir sisteme tıkla. Burada üstteki sistem adına veya yanındaki ⧉ kopyalama simgesine sol tıklamak panoya yalnızca sistem adını kopyalar. Kısa süre görünen ✓ kopyalamayı onaylar.</p>
+
 <h3>Mevcut konum</h3>
 <p>“Geçerli Konum” ile harita görünümü aktif komutanın halihazırda bilinen konumuna hizalanabilir veya bu konuma döndürülebilir.</p>
 <p>Önce mevcut filtreler uygulanır. Yalnızca mevcut sistem sonuç haritasında yer alıyorsa görünüm o sisteme ortalanır.</p>
@@ -570,122 +599,63 @@ HELP_TOPICS = {
 <p>Sistemin son numarası değerlendirilmez: Plio Aip KN-B d13-201, Plio Aip KN-B d13 ailesine aittir. BIO yalnızca bilgi amaçlıdır ve ana değerlendirmeye katılmaz. Eksik analizler sıfır değer kanıtlamaz.</p>
 <h3>Sistem analizi</h3>
 <p>Bir sistem girip Analiz et seçeneğini kullanın veya Enter’a basın. Mevcut sistemi kullan, adı mevcut oyun durumundan alır. Analiz yalnızca kullanıcı eylemiyle yeniden hesaplanır. Karşılaştırma temeli ve sonuçlar düzeylerini belirtir; yerel karşılaştırma yoksa üst düzey deneyim kullanılır. Veri kalitesi öneriden ayrı gösterilir.</p>
+<p>“Sistem” alanına serbestçe bir ad yazabilirsin. “Mevcut sistemi kullan” yalnızca alanı doldurur; ardından “Analiz et” veya Enter ile başlat. Ad, desteklenen prosedürel adlandırma kalıbına göre yerel olarak denetlenir. Burada çevrimiçi sistem çözümlemesi veya belirsiz adlar için seçim listesi yoktur.</p>
+<p>Boş giriş, desteklenmeyen ad, uygun karşılaştırma verisinin eksikliği veya hata durumunda önceki sonucun yerine bir mesaj gösterilir. Başarılı analiz öneriyi, potansiyel endeksini ve yerel veri temelini gösterir. Karşılaştırma tablosunda kütle kodu, bölge ve aile, sistem sayısı ve veri temeliyle birlikte yer alır; aşağıda geçmiş değerler ve bilinen özel buluntular görünür.</p>
+<h3>Geçmiş veriler</h3>
 <p>Sistem koduna göre geçmiş bulgular. Bu değerler bugüne kadarki keşif deneyimini gösterir ve tek bir hedef sistem için doğrudan tahmin değildir. Veri temeli ve güvenilirlik, mevcut örnekleme ve sektörler arasındaki dağılımına göre karşılaştırma verilerinin güvenilirliğini açıklar.</p>
+<p>“Geçmiş veriler” sekmesinde “Hedef” altında bir seyahat hedefi değil, bir buluntu türü seçersin: örneğin keşif hedefi, BIO cinsi veya BIO türü. İlk değerlendirme görünüm oluşturulurken yapılır. Hedefi veya asgari sayıyı değiştirdikten sonra “Yeniden değerlendir” düğmesine basana kadar önceki sıralama kalır.</p>
+<p>Hedef seçiminin yanındaki sayı alanı kod başına asgari örneklemi belirler: 1 ile 50 incelenmiş sistem, başlangıçta 3. Daha az sisteme sahip kodlar veya seçilen buluntu türü için geçmişte hiç isabeti olmayanlar sıralamaya alınmaz.</p>
+<p>“Geçmiş örüntüler” tablosu en fazla 50 kodu sıra, geçmiş başarı (isabetli sistemler / incelenmiş sistemler), isabet oranı ve kanıt gücüyle gösterir. Sıralama yalnızca isabet oranına değil, yumuşatılmış geçmiş değerlendirmeye dayanır. Her iki tablonun sırası sabittir; sütun sıralaması veya ayrıntı işlemi yoktur. Uygun kalıp bulunmadığında bir mesaj görünür; değerlendirme hatası sıralamayı temizler ve hata mesajı gösterir. Analiz bir seyahat rotası hesaplamaz.</p>
 """,
     ),
  'route_planner': ('Rota planlayıcı',
-                   '<h2>Rota planlayıcı</h2>\n<h3>CMDRHelper</h3>\n<p>Geliştirilmiş rota planlayıcısı: elle bir başlangıç girene kadar mevcut sistem otomatik izlenir; alanı boşaltmak otomatiği geri getirir. Gemiler ve carrier’lar benzer adlar yerine tam doğrulanmış ID64 adresleri kullanır. “Unable to find route” rota bulunamadığı şeklinde açıklanır; hedefleri, menzili ve rota ayarlarını kontrol edin.</p>\n'
-                   '<p>Rota planlayıcı, gemi veya Fleet Carrier ile daha uzun yolculukların '
-                   "planlanmasını destekler. CMDRHelper, Spansh'den gelen harici rota verilerini "
-                   'kullanabilir ve planlanan rotayı daha sonraki kullanım için '
-                   'hazırlayabilir.</p>\n'
-                   '\n'
-                   '<h3>Başla ve bitir</h3>\n'
-                   '<p>Rota hesaplaması için bir başlangıç \u200b\u200bve varış sistemi '
-                   'gereklidir.</p>\n'
-                   '<p>CMDRHelper, mümkün olduğu ölçüde, Komutanın mevcut bilinen sistemini '
-                   'başlangıç \u200b\u200bnoktası olarak kullanabilir. Hesaplamadan önce başlangıç '
-                   '\u200b\u200bve bitiş kontrol edilmelidir.</p>\n'
-                   '\n'
-                   '<h3>Gemi veya Fleet Carrier</h3>\n'
-                   '<p>Rota planlayıcı normal bir gemi ile Fleet Carrier ile yapılan yolculuklar '
-                   'arasında ayrım yapar.</p>\n'
-                   '<p>Her ikisi de farklı gereksinimler ve hesaplama yöntemleri kullanır. Bu '
-                   'nedenle planlama öncesinde uygun rota tipinin seçilmesi gerekmektedir.</p>\n'
-                   '\n'
-                   '<h3>Gemi rotası</h3>\n'
-                   '<p>Bir gemi rotası için, aktif gemi için bilinen veya girilen atlama '
-                   'özellikleri dikkate alınır.</p>\n'
-                   '<p>Mevcut verilere bağlı olarak FSD verileri, gemi verileri, kütle, yakıt ve '
-                   'diğer atlama parametreleri planlamaya dahil edilebilir.</p>\n'
-                   '<p>Hesaplanan rota bir planlama yardımcısıdır. Gemide veya kütlesinde yapılan '
-                   'değişiklikler, oyunda ulaşılabilecek gerçek atlama mesafesini '
-                   'değiştirebilir.</p>\n'
-                   '\n'
-                   '<h3>Filo taşıyıcı rotası</h3>\n'
-                   "<p>Fleet Carrier'nin normal gemilerden farklı atlama kuralları vardır.</p>\n"
-                   '<p>CMDRHelper, ilgili rotalar için belirlenmiş Spansh taşıyıcı planlamasını '
-                   'kullanır.</p>\n'
-                   '<p>Rota atlama sırasını planlamak için kullanılır. Gerçek trityum tüketimi ve '
-                   'mevcut aralık aynı zamanda kütleye ve mevcut taşıyıcı durumuna da bağlı '
-                   'olabilir.</p>\n'
-                   '\n'
-                   '<h3>Spansh</h3>\n'
-                   '<p>Gerçek rota hesaplaması için CMDRHelper, Spansh harici hizmetini '
-                   'kullanabilir.</p>\n'
-                   '<p>Daha uzun bir hesaplama sırasında arayüzün çalışır durumda kalması için '
-                   'istek arka planda işlenir.</p>\n'
-                   "<p>CMDRHelper'nin harici hizmetin kullanılabilirliği veya yanıt süresi "
-                   'üzerinde hiçbir etkisi yoktur.</p>\n'
-                   '\n'
-                   '<h3>hesaplama</h3>\n'
-                   '<p>Hesaplama başlatıldıktan sonra istek seçilen rota planlayıcıya '
-                   'iletilir.</p>\n'
-                   '<p>Güzergah ve hizmete bağlı olarak hesaplama biraz zaman alabilir. Bu süre '
-                   'içerisinde gereksiz yere ikinci bir özdeş hesaplamaya başlanmamalıdır.</p>\n'
-                   '\n'
-                   '<h3>Sonuç</h3>\n'
-                   '<p>Başarılı bir şekilde hesaplanan rota, amaçlanan sistemleri veya atlama '
-                   'noktalarını sırasıyla gösterir.</p>\n'
-                   '<p>Rota türüne bağlı olarak mesafe, atlamalar, yakıt veya trityum ve diğer '
-                   'mevcut rota verileri hakkında ek bilgiler görüntülenir.</p>\n'
-                   '\n'
-                   '<h3>Rota ve mevcut komutan</h3>\n'
-                   "<p>Mevcut sistem ve gemi, aktif AppState'te açıkça bilindiği sürece, ön atama "
-                   'veya planlamayı desteklemek için kullanılabilir.</p>\n'
-                   '<p>Ancak gerçek rota bir plan olarak kalır ve herhangi bir günlük veya komutan '
-                   'verisini değiştirmez.</p>\n'
-                   '\n'
-                   '<h3>CTSVision dışa aktarma</h3>\n'
-                   '<p>Hesaplanan filo taşıyıcı rotaları CTSVision için CSV olarak dışa '
-                   'aktarılabilir.</p>\n'
-                   "<p>Bu, CMDRHelper'de planlanan taşıyıcı rotanın daha sonra atlama kontrolü "
-                   "veya orada rota işleme için CTSVision'de kullanılabileceği anlamına "
-                   'gelir.</p>\n'
-                   "<p>Dışa aktarma CMDRHelper'deki rotayı değiştirmez.</p>\n"
-                   '\n'
-                   '<h3>CSV dosyası</h3>\n'
-                   '<p>Dışa aktarılan dosya, CTSVision için gereken rota verilerini amaçlanan '
-                   'sırayla içerir.</p>\n'
-                   '<p>Dosya, eğer CTSVision tarafından okunacaksa, dışa aktarma sonrasında '
-                   'yapısal olarak kontrolsüz bir şekilde değiştirilmemelidir.</p>\n'
-                   '\n'
-                   '<h3>Hatalar ve harici hizmetler</h3>\n'
-                   "<p>Spansh'ye ulaşılamazsa veya hizmet bir hata verirse, CMDRHelper ilgili bir "
-                   'hata mesajı görüntüler.</p>\n'
-                   '<p>Çevrimiçi rota hesaplamasındaki bir hata, yerel komutan veya günlük '
-                   'verilerini değiştirmez.</p>\n'
-                   '\n'
-                   '<h3>Rota planlayıcı ve atlama ipucu</h3>\n'
-                   '<p>Atlama ipucu ve rota planlayıcı farklı görevleri yerine getirir:</p>\n'
-                   '<ul>\n'
-                   '<li>Jump Tip, mevcut verilere dayanarak olası ilgi çekici keşif hedeflerini '
-                   'değerlendirir.</li>\n'
-                   '<li>Rota planlayıcı başlangıç \u200b\u200bve varış noktası arasında belirli '
-                   'bir rota hesaplar.</li>\n'
-                   '</ul>\n'
-                   '<p>Bu nedenle iyi bir atlama ipucu otomatik olarak optimum rotanın parçası '
-                   'değildir.</p>\n'
-                   '\n'
-                   '<h3>Birkaç komutan</h3>\n'
-                   '<p>Mevcut sistem veya gemi gibi komutanla ilgili veriler kullanılıyorsa, bu, '
-                   "aktif canlı AppState'ten gelir ve burada açıkça atanmalıdır.</p>\n"
-                   '<p>CMDR görünümünde başka bir komutana bakmak, rota planlayıcıyı kendi '
-                   'sistemine veya gemisine değiştirmez.</p>\n'
-                   '<p>Rota hesaplaması tek başına başka bir komutanın kişisel verilerini '
-                   'değiştirmez.</p>\n'
-                   '\n'
-                   '<h3>Uç</h3>\n'
-                   '<p>Uzun bir yolculuktan önce mutlaka tekrar kontrol edin:</p>\n'
-                   '<ul>\n'
-                   '<li>Başlangıç \u200b\u200bsistemi</li>\n'
-                   '<li>Hedef sistemi</li>\n'
-                   '<li>Rota tipi gemi/taşıyıcı</li>\n'
-                   '<li>gemi rotaları, temel gemi, FSD ve atlama parametreleri için</li>\n'
-                   '<li>taşıyıcı rotalar için mevcut trityum rezervi</li>\n'
-                   '</ul>\n'
-                   '<p>Filo taşıyıcı seyahatleri için, dönüş yolculuğu veya planlanmamış sapmalar '
-                   'için de yeterli rezervin planlanması tavsiye edilir.</p>'),
+                   """<h2>Rota planlayıcı</h2>
+<h3>Genel bakış</h3>
+<p>Planlayıcı, Spansh üzerinden sistemler arası rota hesaplar. “Gemi rotası” veya “Fleet Carrier / CTSVision” seçin. Ağ bağlantısı gerekir; CMDRHelper gemiyi veya carrier’ı yönetmez.</p>
+
+<h3>Başlangıç ve hedef</h3>
+<p>“Başlangıç sistemi”, siz özel bir başlangıç girene kadar etkin komutanın bilinen mevcut sistemini izler. Alanı boşaltmak bu davranışı geri getirir. “Hedef sistem” alanına tam adı yazın; favorilerden alınan hedef gemi rotasını hazırlar, hesaplamayı başlatmaz.</p>
+<p>Başlangıç ve hedef kesin olarak tanımlanmalıdır. Benzer adlar yerine seçilmez. Bilinmeyen veya belirsiz adlarda bir mesaj gösterilir; girdiyi düzeltin.</p>
+
+<h3>Gemi rotası</h3>
+<p>Burada gemi seçimi yoktur: etkin geminin bilinen verileri teknik alanları doldurur. Kendi değişiklikleriniz elle girilmiş değerler olarak korunur. “Gemi verilerini uygula” mevcut gemi verilerini yeniden uygular. Eksiksiz, eksik, eski veya bilinmeyen FSD verisi uyarısını kontrol edin.</p>
+<p>“Ana tank kapasitesi”, “Mevcut kargo”, “Temel kütle”, “Yedek tank kapasitesi”, “Yedek yakıt”, “FSD optimum kütlesi”, “Atlayış başına azami FSD yakıtı”, “Yakıt gücü”, “Yakıt çarpanı” ve “Menzil takviyesi” değerlerini kontrol edin. Sıçrama özellikleri bunlardan hesaplanır; normal gemi menzili için tek bir alan yoktur. Yük ve donanım gerçek menzili değiştirebilir.</p>
+
+<h3>Gemi seçenekleri ve hesaplama</h3>
+<p>“Rota algoritması” seçenekleri optimistic, pessimistic, fuel, fuel_jumps ve guided değerleridir. Seçim Spansh’e gönderilir.</p>
+<p>Seçenekler “Süperşarj/nötron yıldızlarını kullan”, “Gemi zaten süperşarjlı başlar”, “FSD enjeksiyonlarını kullan”, “İkincil yıldızları hariç tut” ve “Yakıt alınabilen her yıldızda ikmal yap”: nötron desteği, önceden güçlendirilmiş başlangıç, FSD enjeksiyonları, ikincil yıldızlar ve yakıt durakları. “Spansh ile gemi rotası hesapla” ile başlatın.</p>
+
+<h3>Carrier rotası</h3>
+<p>“Fleet Carrier / CTSVision”, belirli bir carrier seçmeden veya yönetmeden rota planlar. “Depodaki trityum” ve “Carrier ambarındaki trityum” girin; toplam en fazla 25.000 t olabilir. “Hesaplanan carrier kütlesi”, 25.000 t ile bu iki miktarın toplamını gösterir.</p>
+<p>“Azami atlama menzili” 1–500 ly arasında ayarlanır; varsayılan 500 ly’dir. “Spansh ile rota hesapla” hesaplamayı başlatır. Bu istek sırasında carrier hesaplama düğmesi devre dışıdır.</p>
+
+<h3>Spansh ve bekleme</h3>
+<p>Rota Spansh tarafından arka planda hesaplanır. Durum, isteği ve ardından başarıyı veya hatayı gösterir. Burada ticaret fiyatları veya istasyon bilgileri değil, rotalar işlenir. Görünümde devam eden hesaplamayı iptal düğmesi yoktur.</p>
+
+<h3>Rota sonucu</h3>
+<p>Liste rota sırasını korur: numara, sistem, sıçrama mesafesi ve kalan mesafe. Serbest sıralama yapılamaz. Gemi rotalarında tüketim, depodaki yakıt, nötron ve yakıt ikmali; carrier rotalarında trityum tüketimi de gösterilir.</p>
+<p>Altta toplam mesafe, sıçrama sayısı ve tüketim veya tahmini trityum yer alır. Eksik değerler “–” olarak kalır. Planı oyundaki gerçek durumla karşılaştırın.</p>
+
+<h3>İlerleme ve sonraki hedef</h3>
+<p>Başarıyla hesaplanan gemi rotası otomatik olarak alınır. “Mevcut sistem”, “Sonraki hedef” ve “Rota durumu” konumu, sonraki adımı ve durumu gösterir. Liste korunur; tamamlanan adımlara ek onay işareti konmaz.</p>
+<p>Rotanın sonraki veya daha ilerideki sistemine algılanan gemi sıçraması ilerlemeyi öne taşır ve bundan sonraki sistemin adını otomatik olarak panoya kopyalar. Tekrarlanan konum bildirimleri ve carrier sıçramaları bu ilerleme sıçramalarından sayılmaz.</p>
+<p>Rotayı yüklemek adı otomatik kopyalamaz. İlk başta veya sonraki hedef bulunduğu sürece “Sonraki hedefi kopyala” kullanın. Yalnızca sistem adı kopyalanır: otomatik yapıştırma veya Elite’i yönetme yoktur.</p>
+
+<h3>Sapma ve tamamlanma</h3>
+<p>Kalan rotanın dışına sıçramak “Mevcut sistem rota dışında” gösterir. Rota ve önceki sonraki hedef korunur; otomatik yeniden hesaplama yapılmaz. Daha sonra eşleşen ileri bir sıçrama rotayı sürdürebilir. İsterseniz yeni bir rota hesaplayabilirsiniz.</p>
+<p>Son sistemde “Rota tamamlandı” görünür. “Sonraki hedef”, “–” olur; kopyalama düğmesi kapanır ve yeni ad kopyalanmaz. Pano içeriği silinmez. Sonuç listesi kalır.</p>
+
+<h3>CTSVision dışa aktarımı</h3>
+<p>Yalnızca carrier rotasında “CTSVision için dışa aktar” vardır. Başarılı hesaplamadan sonra yeni bir CSV dosyası seçin. Dosya, CTSVision’da daha sonra kullanmak için rota sırasını ve mevcut mesafe, yakıt, trityum ve ikmal verilerini içerir.</p>
+<p>Bu bir dosya aktarımıdır; doğrudan bağlantı veya otomatik carrier yönetimi değildir. Mevcut dosyaların üzerine yazılmaz. Dosya penceresini iptal etmek dosya oluşturmaz; yazma hataları bildirilir.</p>
+
+<h3>Hatalar ve ipuçları</h3>
+<p>Eksik sistemler, eksik veya geçersiz gemi parametreleri ve fazla trityum bildirilir. Gerekli depo, kütle ve FSD değerleri pozitif olmalıdır; yedek yakıt, yedek depo kapasitesini aşamaz.</p>
+<p>Rota bulunamaması, ağ sorunları, uzun bekleme veya kullanılamayan Spansh yanıtı da uydurma sonuç yerine mesaj üretir. Yeniden hesaplamadan önce adları, gemi verilerini ve seçenekleri kontrol edin.</p>
+
+<h3>Analiz ve komutan</h3>
+<p>“Analiz”, “Sistem analizi” ve “Geçmiş veriler” ile sistemleri ve mevcut deneyimleri değerlendirir. Rota planlayıcı ise başlangıçla hedef arasındaki gerçek güzergâhı hesaplar.</p>
+<p>Ön doldurma, etkin komutanı ve gemisini kullanır. CMDR görünümünde başka bir komutana bakmak bunu değiştirmez.</p>"""),
  'images': ('Resimler',
             '<h2>Resimler</h2>\n'
             '<p>“Görüntüler” bölümü Elite Dangerous ile çekilen ekran görüntülerini yönetir. '
@@ -958,6 +928,19 @@ HELP_TOPICS = {
               'edildiğini belirler. Yalnızca aktif günlük oturumu tarafından açıkça tanımlanan '
               'komutanın canlı gönderim yapmasına izin verilir.</p>\n'
               '\n'
+              '<h3>Spansh istasyon bilgileri</h3>\n'
+              '<p>“ÇEVRİMİÇİ HİZMETLER” altında “Spansh istasyon bilgilerini ekle”, Explorer ve sistem görünümlerine isteğe bağlı istasyon ve tesis bilgileri ekler. Seçenek başlangıçta kapalıdır. Komutan bilgileri değil, herkese açık sistem kimliği gönderilir; kişisel API anahtarı gerekmez. Bu seçenek ticaret pazarı aramasını yönetmez.</p>\n'
+              '<p>Kapalıyken yalnızca yerel günlük bilgileri gösterilir ve yeni Spansh istasyon istekleri başlatılmaz; elle güncelleme de devre dışıdır. Mevcut istasyon önbelleği silinmez, ancak görünümü tamamlamak için kullanılmaz. Açmak, önbellek verilerini yeniden kullanılabilir kılar; tek başına ağ isteği başlatmaz.</p>\n'
+              '\n'
+              '<h3>Otomatik istasyon istekleri ve önbellek</h3>\n'
+              '<p>Otomatik kontrol yalnızca etkin günlük komutanının farklı bir sisteme yeni canlı girişi algılandığında yapılır; örneğin gemi veya carrier sıçramasından ya da yeni doğrulanmış konum bildiriminden sonra. Programı başlatmak, komutan değiştirmek, arşiv içe aktarmak ve yalnızca Explorer’ı veya sistem görünümünü açmak otomatik istek başlatmaz.</p>\n'
+              '<p>Ayrı istasyon önbelleği Helper yeniden başlatıldığında korunur. Üzerinden 7 günden az geçen bir indirme güncel sayılır ve yeni otomatik ağ isteğini önler. Eksik veya eski veriler, koşulları karşılayan bir sonraki canlı sistem girişinde güncellenebilir. Sistem başına yerel takvim gününde en fazla bir otomatik deneme yapılır; başarısızlık da sayılır ve bu sınır yeniden başlatmalarda korunur. Kayıtlı tüm sistemler arka planda sürekli güncellenmez. Kullanılabilir eski önbellek verileri çevrimdışıyken de gösterilebilir.</p>\n'
+              '<p>Bu önbellek ticaret fiyatlarını değil, ek istasyon bilgilerini içerir. Satış, alış ve önerilerdeki Spansh topluluk pazar verilerinin ayrı, geçici RAM arama önbelleği vardır. Elite’te bizzat gözlemlediğiniz ticaret pazarı kayıtları ise ayrıca saklanır: yeniden başlatmadan sonra korunur, ancak yalnızca 24 saatten daha yeniyken geçerlidir.</p>\n'
+              '\n'
+              '<h3>İstasyon verilerini elle güncelleme</h3>\n'
+              '<p>“Sistem genel görünümü” açıp “Spansh verilerini yenile” seçin. Kayıtlı tüm sistemler veya ticaret fiyatları değil, yalnızca bu penceredeki sistemin Spansh istasyon bilgileri güncellenir. Seçenek açık olmalıdır; bu sistem için devam eden istek sırasında işlem devre dışıdır.</p>\n'
+              '<p>Elle güncelleme, 7 günlük süreyi ve o gün başarısız olmuş otomatik denemeyi atlayabilir. Sistem yerel takvime göre bugün zaten başarıyla indirilmişse yeni istek yapılmaz: “Spansh verileri bugün zaten güncellendi.” Başarılı indirme istasyon önbelleğini yeniler. Hatalarda yerel ve kullanılabilir önbellek verileri korunur; durum satırı başarısızlığı gösterir. Başarısız elle deneme tekrarlanabilir.</p>\n'
+              '\n'
               '<h3>EDSM erişimi</h3>\n'
               "<p>“EDSM erişimi:” düzenlenecek komutanı seçer. Seçim, API-Key'nin saklanıp "
               'saklanmadığına bağlı olarak "kuruldu" veya "kurulmadı" ifadesini '
@@ -1128,7 +1111,7 @@ HELP_TOPICS = {
 <p>Bu, yıldızlararası bir rota planlayıcısı değildir ve sistemler arası ya da sıçrama navigasyonunu üstlenmez. Gemini kendin kullanırsın.</p>
 
 <h3>Navigatörü açma ve hedef girme</h3>
-<p>Genel bakışta “Gezegen navigasyonu”nu aç ve “Manuel giriş …” seçeneğini seç.</p>
+<p>Explorer’da “Gezegen navigasyonu” açıp “Manuel giriş …” seçin. Mevcut yüzey konumu olmadan da pencere açılabilir ve hedef önceden girilebilir.</p>
 <ul>
 <li><b>Gök cismi:</b> Listeden hedef gezegeni veya ayı seç ya da önceden algılanmış gök cismini kullan. Adı henüz listede yoksa gök cisminin adını kendin de girebilirsin. Emin değilsen sistem adı dâhil tam adı kullan.</li>
 <li><b>Enlem:</b> Hedef enlemini −90° ile +90° arasında gir.</li>
@@ -1140,6 +1123,16 @@ HELP_TOPICS = {
 <h3>Pusula ne zaman başlar?</h3>
 <p>Bir hedef belirlendiğinde ve Elite ilgili gök cismi için geçerli gezegensel konum verileri sağladığında navigasyon otomatik olarak etkinleşir. Ayrı bir başlat düğmesine basman gerekmez.</p>
 <p>Bu veriler henüz yoksa veya başka bir gök cismine aitse navigatör “Gezegen koordinatları bekleniyor …” mesajıyla bekler. Bu veriler gelmeden önce de bir hedef girebilirsin.</p>
+
+<p>Etkin navigasyon için Elite’in hedef cisme ait geçerli koordinatları, cisim adı, yönü ve gezegen yarıçapı gerekir. İniş zorunlu değildir: uygun veriler yaklaşırken gelebilir. Geçerli konum yoksa veya başka cisimdeyseniz gezgin konum uydurmadan bekler.</p>
+
+<h3>Mevcut konumu kaydetme</h3>
+<p>“★ Mevcut konumu kaydet”, girilen navigasyon hedefini değil, doğrulanmış mevcut konumunuzu kaydeder. Geçerli Elite konumu, tanımlanmış komutan ve bilinen sistem gerekir. Eksikler varsa işlem devre dışıdır veya mesaj görünür.</p>
+<p>Açılışta sistem, cisim ve koordinatlar sabitlenir. Favori penceresinde ad, kategori ve not düzenlenebilir, resim eklenebilir. Yalnızca “Kaydet” bu komutan için yerel kayıt oluşturur; iptal etmek hiçbir şey kaydetmez. Sonraki hareketler sabitlenen konumu değiştirmez.</p>
+
+<h3>Kayıtlı konumları kullanma</h3>
+<p>Explorer’da “★ Favoriler” açın. Kayıtlı bir yüzey yeri ve “◎ Koordinatlara git” seçerek cismi, koordinatları ve adı hedef olarak alın. Önceki hedefin yerini alır; başka cisimde gezgin uygun konum verilerini bekler.</p>
+<p>“Düzenle” ad, kategori ve notu değiştirir. “Sil” onaydan sonra favoriyi kaldırır, Elite verilerini silmez. Favoriler yeniden başlatmada korunur ve komutana göre ayrılır; mevcut navigasyon hedefi yalnızca oturum boyunca geçerlidir.</p>
 
 <h3>Gezegen küresi: 380 km’den fazla</h3>
 <p>Hedef mesafesi 380 km’den büyük olduğunda navigatör gezegen küresini gösterir.</p>
@@ -1188,9 +1181,13 @@ HELP_TOPICS = {
 <p>Aynı gök cisminde istediğin zaman “Manuel giriş …” seçeneğini yeniden açıp farklı koordinatlar belirleyebilirsin. Yeni hedef, önceki navigasyon hedefinin yerini alır. Uygun konum verileriyle pusula hemen güncellenir.</p>
 <p>“Navigasyonu sonlandır” ile güncel hedefi kaldırırsın. Başka bir yaklaşma için yeni bir hedef belirlemen yeterlidir.</p>
 
+<p>Pencereyi kapatmak hedefi kaldırmaz. Açık navigasyon HUD’ı devam edebilir; “Navigasyonu sonlandır” hedefi kaldırır. Doğru cisimden ayrılmak veya konum verilerini kaybetmek navigasyonu bekletir ve navigasyon HUD’ını gizler.</p>
+
 <h3>Verilerin güncelliği ve sınırlar</h3>
 <p>Navigasyon, Elite’in sağladığı durum verilerine dayanır. Güncellemeler oyun durumuna bağlı olarak gecikmeli gelebilir. Navigatördeki yaş göstergesi, son doğrulanan durum mesajından bu yana ne kadar zaman geçtiğini gösterir.</p>
 <p>Yüzey mesafesi, varsayımsal bir küre üzerindeki en kısa yayı ifade eder. Bir arazi veya yol güzergâhı değildir. Navigatör, güzergâh üzerindeki engelleri veya arazi yüksekliklerini bilmez; uçuş yüksekliği, güvenli hız ve engellerden kaçınma senin sorumluluğunda kalır.</p>
+
+<p>Mevcut konum Status.json’dan gelir; günlük, cisim ve sistem ilişkilerini tamamlar. Pencere ve etkin navigasyon HUD’ı gerektiğinde güncellemeleri sürdürür. Görünüm mevcut Elite verilerine bağlıdır; metre cinsinden kesinlik garantisi vermez.</p>
 
 <h3>İpucu</h3>
 <p>Yaklaşmadan önce gök cisminin adını ve hedef koordinatlarının işaretlerini kontrol et. Ardından Elite pusulasında hedef rotasına yönel ve göreli yönü ve mesafeyi izle. Navigatör bekliyorsa Elite’in hedef gök cismi için gezegen koordinatları sağlamaya başlayıp başlamadığını kontrol et.</p>""",
