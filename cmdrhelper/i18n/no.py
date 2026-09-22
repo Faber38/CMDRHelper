@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_7_0.0': 'Ny hoveddel for handel: salg og innkjøp kombinerer egne observerte markeder med Spansh-tilbud. Hvis fellessøk feiler, forblir passende lokale treff brukbare og merkes som ufullstendige.',
+    'release.3_7_0.1': 'Når varemarkedet i Elite åpnes, registreres stasjonsmarkedet automatisk. Egne observasjoner bevares etter omstart, er gyldige i under 24 timer og erstatter eldre tilbud fra samme marked.',
+    'release.3_7_0.2': 'Anbefalinger bruker ditt nåværende observerte kjøpsmarked, ledig skipslasterom, tilbud og etterspørsel. Minstemargin, mulig mengde og mulig fortjeneste hjelper deg å velge; du kan begrense målene til egne markeder.',
+    'release.3_7_0.3': 'Handel viser fremdrift, kopierbar diagnostikk og markedsstatus. En husket handelsflyging bevarer varen og målet; målsystemets navn kan kopieres.',
+    'release.3_7_0.4': 'Den fullstendige systemoversikten kan tilpasses vinduet én gang ved åpning. Valget er på som standard og lagres; manuell zoom er fortsatt mulig.',
+    'release.3_7_0.5': 'Hjelpen er kontrollert og utvidet i tolv emner og tolv språk, med bedre oversettelser og stor skrift. Gruvevarelager på carrier bevares ved korte avslutningsjournaler.',
+
     "release.3_6_2.0": "Kampobligasjoner under «Oppdrag og belønninger», med beløp per fraksjon, totalsum og lokal nullstilling.",
     "release.3_6_2.1": "Kampobligasjoner registrert direkte lagres per kommandør gjennom omstarter; verifiserte journalankre hindrer dobbelttelling.",
     "release.3_6_2.2": "Dusører, kampobligasjoner og Odyssey deler lesing av den aktive journalen med separate bekreftelser.",

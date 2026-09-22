@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_7_0.0': 'Neuer Hauptbereich Handel: Verkaufen und Einkaufen kombinieren eigene Marktstände mit Spansh-Angeboten. Bei Community-Ausfall bleiben passende eigene Treffer als unvollständiges Ergebnis nutzbar.',
+    'release.3_7_0.1': 'Beim Öffnen des Elite-Warenmarkts werden eigene Stationsmärkte automatisch erfasst. Sie bleiben über Neustarts erhalten, gelten strikt unter 24 Stunden und ersetzen ältere Angebote desselben Markts.',
+    'release.3_7_0.2': 'Empfehlungen nutzen den aktuellen eigenen Einkaufsmarkt, freien Schiffsfrachtraum, Angebot und Nachfrage. Mindestgewinn, mögliche Menge und möglicher Gewinn helfen bei der Auswahl; optional nur eigene Zielmärkte.',
+    'release.3_7_0.3': 'Handel mit Fortschrittsanzeige, kopierbarer Diagnose und Marktstatus. Ein gemerkter Handelsflug hält Ware und Ziel fest; der Zielsystemname lässt sich kopieren.',
+    'release.3_7_0.4': 'Die Gesamtansicht passt sich beim Öffnen auf Wunsch einmal automatisch ans Fenster an. Die standardmäßig aktive Option wird gespeichert; manuelles Zoomen bleibt möglich.',
+    'release.3_7_0.5': 'In-App-Hilfe in zwölf Themen und zwölf Sprachen geprüft und ergänzt, Übersetzungen und große Schrift verbessert. Mining-Carrierbestände bleiben bei kurzen Shutdown-Journalen zuverlässig erhalten.',
+
     "release.3_6_2.0": "Kampfbelohnungen unter „Missionen & Belohnungen“ mit Fraktionsbeträgen, Gesamtsumme und lokalem Reset.",
     "release.3_6_2.1": "Live erfasste Combat Bonds bleiben je Commander über Helper-Neustarts erhalten; sichere Journalanker verhindern Doppelzählung.",
     "release.3_6_2.2": "Kopfgelder, Kampfbelohnungen und Odyssey-Verarbeitung teilen den Live-Journal-Leseweg mit getrennten Bestätigungen.",

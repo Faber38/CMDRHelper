@@ -38,6 +38,15 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## Nouveautés de la version 3.7.0
+
+- Nouvelle rubrique Commerce : vente et achat combinent vos marchés observés et les offres Spansh. Si la recherche communautaire échoue, les résultats locaux restent utilisables et sont signalés comme incomplets.
+- Ouvrir le marché de marchandises dans Elite enregistre automatiquement le marché de la station. Vos observations survivent aux redémarrages, restent valides strictement moins de 24 heures et remplacent les offres plus anciennes du même marché.
+- Les recommandations utilisent votre marché d’achat actuel observé, la soute libre, l’offre et la demande. Marge minimale, quantité possible et bénéfice potentiel facilitent le choix ; les destinations peuvent être limitées à vos marchés.
+- Le commerce affiche la progression, un diagnostic copiable et l’état du marché. Un trajet commercial mémorisé conserve la marchandise et la destination ; le nom du système cible peut être copié.
+- La vue complète du système peut s’adapter une fois à la fenêtre à son ouverture. Cette option, activée par défaut, est mémorisée ; le zoom manuel reste disponible.
+- Aide intégrée vérifiée et enrichie : douze thèmes et douze langues, traductions et grandes polices améliorées. Les stocks miniers du carrier sont préservés avec les journaux courts de fermeture.
+
 ## Nouveautés de la version 3.6.2
 
 - Bons de combat dans « Missions et récompenses », avec montants par faction, total et remise à zéro locale.

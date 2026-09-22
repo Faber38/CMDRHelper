@@ -38,6 +38,15 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## Uutta versiossa 3.7.0
+
+- Uusi Kauppa-pääosio: myynti ja osto yhdistävät itse havaitut markkinat Spansh-tarjouksiin. Jos yhteisöhaku epäonnistuu, sopivat paikalliset tulokset säilyvät käytettävinä ja ne merkitään puutteellisiksi.
+- Eliten hyödykemarkkinan avaaminen tallentaa aseman markkinat automaattisesti. Omat havainnot säilyvät uudelleenkäynnistyksissä, ovat voimassa alle 24 tuntia ja korvaavat saman markkinan vanhemmat tarjoukset.
+- Suositukset käyttävät nykyistä itse havaittua ostomarkkinaa, aluksen vapaata rahtitilaa, tarjontaa ja kysyntää. Vähimmäiskate, mahdollinen määrä ja mahdollinen voitto auttavat valinnassa; kohteet voi rajata omiin markkinoihin.
+- Kauppa näyttää etenemisen, kopioitavan diagnostiikan ja markkinatilan. Muistiin merkitty kauppalento säilyttää hyödykkeen ja kohteen; kohdejärjestelmän nimen voi kopioida.
+- Koko järjestelmän näkymä voidaan sovittaa ikkunaan kerran avattaessa. Oletuksena käytössä oleva valinta tallennetaan; käsin zoomaus on edelleen mahdollista.
+- Sovelluksen ohjeet on tarkistettu ja täydennetty kahdessatoista aiheessa ja kielessä. Käännöksiä ja suurten fonttien näyttöä on parannettu. Carrierin kaivosvarastot säilyvät lyhyiden sulkemislokien yhteydessä.
+
 ## Uutta versiossa 3.6.2
 
 - Taistelupalkkiot kohdassa ”Tehtävät ja palkkiot”: summat ryhmittymittäin, yhteissumma ja paikallinen nollaus.

@@ -38,6 +38,15 @@ Journalmappen för Elite Dangerous hittas automatiskt när det är möjligt. Om 
 
 CMDRHelper söker efter uppdateringar vid start och har en inbyggd uppdateringsfunktion. Bekräfta en erbjuden uppdatering i programmet; den uppdaterar programmet och beroendena och startar om CMDRHelper. Efter den första installationen använder du normalt bara `start.bat` (Windows) eller `bash start.sh` (Linux). Du behöver inte köra `install.bat` eller `install.sh` manuellt igen för vanliga uppdateringar.
 
+## Nytt i version 3.7.0
+
+- Ny huvuddel Handel: försäljning och inköp kombinerar egna observerade marknader med Spansh-erbjudanden. Om gemenskapens sökning misslyckas förblir passande lokala träffar användbara och markeras som ofullständiga.
+- När varumarknaden i Elite öppnas registreras stationsmarknaden automatiskt. Egna observationer finns kvar efter omstart, gäller i strikt mindre än 24 timmar och ersätter äldre erbjudanden från samma marknad.
+- Rekommendationer använder din aktuella observerade inköpsmarknad, ledigt lastutrymme, tillgång och efterfrågan. Minsta marginal, möjlig mängd och möjlig vinst hjälper vid valet; mål kan begränsas till egna marknader.
+- Handel visar förlopp, kopierbar diagnostik och marknadsstatus. En sparad handelsflygning behåller varan och målet; målsystemets namn kan kopieras.
+- Den fullständiga systemöversikten kan anpassas till fönstret en gång när den öppnas. Alternativet är på som standard och sparas; manuell zoom är fortfarande möjlig.
+- Hjälpen har granskats och utökats i tolv ämnen och tolv språk, med bättre översättningar och stor text. Gruvvarulager på carrier bevaras vid korta avslutningsjournaler.
+
 ## Nytt i version 3.6.2
 
 - Stridsobligationer under ”Uppdrag och belöningar”, med belopp per fraktion, totalsumma och lokal återställning.

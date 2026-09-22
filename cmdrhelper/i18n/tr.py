@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_7_0.0': 'Yeni Ticaret ana bölümü: satış ve alış, gözlemlediğin pazarları Spansh teklifleriyle birleştirir. Topluluk araması başarısız olursa uygun yerel sonuçlar eksik sonuç uyarısıyla kullanılabilir kalır.',
+    'release.3_7_0.1': 'Elite emtia pazarı açıldığında istasyon pazarı otomatik kaydedilir. Kendi gözlemlerin yeniden başlatmada korunur, 24 saatten kısa süre geçerlidir ve aynı pazarın eski tekliflerinin yerini alır.',
+    'release.3_7_0.2': 'Öneriler mevcut gözlemlenmiş alış pazarını, geminin boş kargo alanını, arzı ve talebi kullanır. Asgari kâr marjı, olası miktar ve olası kâr seçime yardımcı olur; hedefler yalnızca kendi pazarlarınla sınırlandırılabilir.',
+    'release.3_7_0.3': 'Ticarette ilerleme, kopyalanabilir tanılama ve pazar durumu gösterilir. Hatırlanan ticaret uçuşu emtiayı ve hedefi saklar; hedef sistemin adı kopyalanabilir.',
+    'release.3_7_0.4': 'Tam sistem görünümü açılırken pencereye bir kez otomatik sığdırılabilir. Varsayılan olarak açık olan seçenek kaydedilir; elle yakınlaştırma kullanılmaya devam eder.',
+    'release.3_7_0.5': 'Uygulama içi yardım on iki konuda ve on iki dilde denetlendi ve genişletildi; çeviriler ve büyük yazı gösterimi iyileştirildi. Carrier madencilik stokları kısa kapanış günlüklerinde korunur.',
+
     "release.3_6_2.0": "“Görevler ve Ödüller” altında fraksiyon tutarları, toplam ve yerel sıfırlama ile savaş tahvilleri.",
     "release.3_6_2.1": "Canlı kaydedilen savaş tahvilleri yeniden başlatmalarda komutan bazında korunur; doğrulanmış günlük konumları çift sayımı önler.",
     "release.3_6_2.2": "Ödül avı kazançları, savaş tahvilleri ve Odyssey, bağımsız onaylarla canlı günlük okumasını paylaşır.",

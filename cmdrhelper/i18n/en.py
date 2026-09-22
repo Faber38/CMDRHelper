@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_7_0.0': 'New Trade section: selling and buying combine your observed markets with Spansh offers. Matching local results remain usable, marked incomplete, if the community search fails.',
+    'release.3_7_0.1': 'Opening an Elite commodity market automatically records the station market. Your observations survive restarts, remain valid for strictly less than 24 hours and replace older offers from the same market.',
+    'release.3_7_0.2': 'Recommendations use your current observed buying market, free ship cargo space, supply and demand. Minimum margin, possible quantity and potential profit help you choose; optionally use only your own destination markets.',
+    'release.3_7_0.3': 'Trade includes progress, copyable diagnostics and market status. A remembered trade flight keeps the commodity and destination; copy the destination system name.',
+    'release.3_7_0.4': 'The full system overview can fit the window once when opened. The option is enabled by default and remembered; manual zoom remains available.',
+    'release.3_7_0.5': 'In-app help reviewed and expanded across twelve topics and twelve languages, with translation and large-font improvements. Mining carrier stock is preserved across short shutdown journals.',
+
     "release.3_6_2.0": "Combat bonds in “Missions & Rewards”, with faction balances, a total and a local reset.",
     "release.3_6_2.1": "Live combat bonds persist per commander across Helper restarts; verified journal anchors prevent duplicate counting.",
     "release.3_6_2.2": "Bounties, combat bonds and Odyssey processing share live journal reads with independent acknowledgements.",

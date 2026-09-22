@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_7_0.0': 'Ny huvuddel Handel: försäljning och inköp kombinerar egna observerade marknader med Spansh-erbjudanden. Om gemenskapens sökning misslyckas förblir passande lokala träffar användbara och markeras som ofullständiga.',
+    'release.3_7_0.1': 'När varumarknaden i Elite öppnas registreras stationsmarknaden automatiskt. Egna observationer finns kvar efter omstart, gäller i strikt mindre än 24 timmar och ersätter äldre erbjudanden från samma marknad.',
+    'release.3_7_0.2': 'Rekommendationer använder din aktuella observerade inköpsmarknad, ledigt lastutrymme, tillgång och efterfrågan. Minsta marginal, möjlig mängd och möjlig vinst hjälper vid valet; mål kan begränsas till egna marknader.',
+    'release.3_7_0.3': 'Handel visar förlopp, kopierbar diagnostik och marknadsstatus. En sparad handelsflygning behåller varan och målet; målsystemets namn kan kopieras.',
+    'release.3_7_0.4': 'Den fullständiga systemöversikten kan anpassas till fönstret en gång när den öppnas. Alternativet är på som standard och sparas; manuell zoom är fortfarande möjlig.',
+    'release.3_7_0.5': 'Hjälpen har granskats och utökats i tolv ämnen och tolv språk, med bättre översättningar och stor text. Gruvvarulager på carrier bevaras vid korta avslutningsjournaler.',
+
     "release.3_6_2.0": "Stridsobligationer under ”Uppdrag och belöningar”, med belopp per fraktion, totalsumma och lokal återställning.",
     "release.3_6_2.1": "Stridsobligationer som registreras live sparas per befälhavare över omstarter; verifierade journalankare förhindrar dubbelräkning.",
     "release.3_6_2.2": "Premier, stridsobligationer och Odyssey delar läsningen av den aktiva journalen med separata bekräftelser.",

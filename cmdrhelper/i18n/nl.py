@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_7_0.0': 'Nieuw hoofdonderdeel Handel: verkopen en inkopen combineren eigen waargenomen markten met Spansh-aanbiedingen. Bij een mislukte communityzoekopdracht blijven passende lokale resultaten bruikbaar, met een melding dat ze onvolledig zijn.',
+    'release.3_7_0.1': 'Het openen van een goederenmarkt in Elite legt de stationsmarkt automatisch vast. Eigen waarnemingen blijven na herstarts bewaard, zijn strikt minder dan 24 uur geldig en vervangen oudere aanbiedingen van dezelfde markt.',
+    'release.3_7_0.2': 'Aanbevelingen gebruiken de huidige eigen inkoopmarkt, vrije scheepsvrachtruimte, aanbod en vraag. Minimummarge, mogelijke hoeveelheid en mogelijke winst helpen bij de keuze; optioneel alleen eigen doelmarkten.',
+    'release.3_7_0.3': 'Handel toont voortgang, kopieerbare diagnose en marktstatus. Een onthouden handelsvlucht bewaart de waar en bestemming; de naam van het doelsysteem kan worden gekopieerd.',
+    'release.3_7_0.4': 'Het volledige systeemoverzicht kan bij het openen eenmaal aan het venster worden aangepast. De standaard ingeschakelde optie wordt onthouden; handmatig zoomen blijft mogelijk.',
+    'release.3_7_0.5': 'In-app-hulp gecontroleerd en aangevuld voor twaalf onderwerpen en twaalf talen, met betere vertalingen en grote letters. Miningvoorraden op de carrier blijven behouden bij korte afsluitjournalen.',
+
     "release.3_6_2.0": "Gevechtsobligaties onder ‘Missies en beloningen’, met bedragen per factie, totaal en lokale reset.",
     "release.3_6_2.1": "Live geregistreerde gevechtsobligaties blijven per commandant bewaard na een herstart; gecontroleerde journaalankers voorkomen dubbeltelling.",
     "release.3_6_2.2": "Premies, gevechtsobligaties en Odyssey delen het lezen van het live journaal met afzonderlijke bevestigingen.",

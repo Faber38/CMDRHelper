@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_7_0.0': 'Nueva sección Comercio: vender y comprar combinan tus mercados observados con ofertas de Spansh. Si falla la búsqueda comunitaria, los resultados locales siguen disponibles, marcados como incompletos.',
+    'release.3_7_0.1': 'Al abrir el mercado de mercancías de Elite se registra automáticamente el mercado de la estación. Tus observaciones se conservan tras reinicios, son válidas durante menos de 24 horas y sustituyen ofertas más antiguas del mismo mercado.',
+    'release.3_7_0.2': 'Las recomendaciones usan tu mercado de compra actual observado, la bodega libre, oferta y demanda. El margen mínimo, la cantidad posible y el beneficio potencial ayudan a elegir; puedes limitar los destinos a tus propios mercados.',
+    'release.3_7_0.3': 'El comercio incluye progreso, diagnóstico copiable y estado del mercado. Un vuelo comercial recordado conserva mercancía y destino; puedes copiar el nombre del sistema de destino.',
+    'release.3_7_0.4': 'La vista completa del sistema puede ajustarse una vez a la ventana al abrirse. La opción está activada por defecto y se guarda; el zoom manual sigue disponible.',
+    'release.3_7_0.5': 'Ayuda integrada revisada y ampliada en doce temas y doce idiomas, con mejoras de traducción y letra grande. Se conservan las existencias mineras del carrier ante registros breves de cierre.',
+
     "release.3_6_2.0": "Bonos de combate en « Misiones y recompensas », con importes por facción, total y reinicio local.",
     "release.3_6_2.1": "Los bonos registrados en directo se conservan por comandante tras reiniciar; los puntos verificados del diario evitan recuentos duplicados.",
     "release.3_6_2.2": "Recompensas por cazarrecompensas, bonos de combate y Odyssey comparten la lectura del diario con confirmaciones independientes.",

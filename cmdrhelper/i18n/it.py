@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_7_0.0': 'Nuova sezione Commercio: vendita e acquisto combinano i mercati osservati con le offerte Spansh. Se la ricerca della comunità fallisce, i risultati locali restano utilizzabili e sono indicati come incompleti.',
+    'release.3_7_0.1': 'Aprire il mercato merci di Elite registra automaticamente il mercato della stazione. Le osservazioni restano dopo il riavvio, sono valide per meno di 24 ore e sostituiscono offerte più vecchie dello stesso mercato.',
+    'release.3_7_0.2': 'I consigli usano il mercato di acquisto attuale osservato, la stiva libera, offerta e domanda. Margine minimo, quantità possibile e profitto potenziale aiutano nella scelta; le destinazioni possono essere limitate ai propri mercati.',
+    'release.3_7_0.3': 'Il commercio include avanzamento, diagnostica copiabile e stato del mercato. Un viaggio commerciale memorizzato conserva merce e destinazione; si può copiare il nome del sistema di destinazione.',
+    'release.3_7_0.4': 'La vista completa del sistema può adattarsi una volta alla finestra all’apertura. L’opzione è attiva per impostazione predefinita e viene salvata; lo zoom manuale resta disponibile.',
+    'release.3_7_0.5': 'Guida integrata verificata e ampliata in dodici argomenti e dodici lingue, con traduzioni e caratteri grandi migliorati. Le scorte minerarie del carrier restano conservate con journal brevi di chiusura.',
+
     "release.3_6_2.0": "Obbligazioni di combattimento in « Missioni e ricompense », con importi per fazione, totale e azzeramento locale.",
     "release.3_6_2.1": "Le obbligazioni rilevate in tempo reale persistono per comandante dopo il riavvio; riferimenti verificati al diario impediscono doppi conteggi.",
     "release.3_6_2.2": "Taglie, obbligazioni di combattimento e gestione Odyssey condividono la lettura del diario con conferme indipendenti.",

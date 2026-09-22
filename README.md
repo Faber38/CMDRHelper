@@ -38,6 +38,15 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## New in version 3.7.0
+
+- New Trade section: selling and buying combine your observed markets with Spansh offers. Matching local results remain usable, marked incomplete, if the community search fails.
+- Opening an Elite commodity market automatically records the station market. Your observations survive restarts, remain valid for strictly less than 24 hours and replace older offers from the same market.
+- Recommendations use your current observed buying market, free ship cargo space, supply and demand. Minimum margin, possible quantity and potential profit help you choose; optionally use only your own destination markets.
+- Trade includes progress, copyable diagnostics and market status. A remembered trade flight keeps the commodity and destination; copy the destination system name.
+- The full system overview can fit the window once when opened. The option is enabled by default and remembered; manual zoom remains available.
+- In-app help reviewed and expanded across twelve topics and twelve languages, with translation and large-font improvements. Mining carrier stock is preserved across short shutdown journals.
+
 ## New in version 3.6.2
 
 - Combat bonds in “Missions & Rewards”, with faction balances, a total and a local reset.

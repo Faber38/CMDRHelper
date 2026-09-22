@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_7_0.0': 'Nouvelle rubrique Commerce : vente et achat combinent vos marchés observés et les offres Spansh. Si la recherche communautaire échoue, les résultats locaux restent utilisables et sont signalés comme incomplets.',
+    'release.3_7_0.1': 'Ouvrir le marché de marchandises dans Elite enregistre automatiquement le marché de la station. Vos observations survivent aux redémarrages, restent valides strictement moins de 24 heures et remplacent les offres plus anciennes du même marché.',
+    'release.3_7_0.2': 'Les recommandations utilisent votre marché d’achat actuel observé, la soute libre, l’offre et la demande. Marge minimale, quantité possible et bénéfice potentiel facilitent le choix ; les destinations peuvent être limitées à vos marchés.',
+    'release.3_7_0.3': 'Le commerce affiche la progression, un diagnostic copiable et l’état du marché. Un trajet commercial mémorisé conserve la marchandise et la destination ; le nom du système cible peut être copié.',
+    'release.3_7_0.4': 'La vue complète du système peut s’adapter une fois à la fenêtre à son ouverture. Cette option, activée par défaut, est mémorisée ; le zoom manuel reste disponible.',
+    'release.3_7_0.5': 'Aide intégrée vérifiée et enrichie : douze thèmes et douze langues, traductions et grandes polices améliorées. Les stocks miniers du carrier sont préservés avec les journaux courts de fermeture.',
+
     "release.3_6_2.0": "Bons de combat dans « Missions et récompenses », avec montants par faction, total et remise à zéro locale.",
     "release.3_6_2.1": "Les bons de combat suivis en direct persistent par commandant après redémarrage ; des repères de journal vérifiés empêchent les doublons.",
     "release.3_6_2.2": "Primes, bons de combat et traitement Odyssey partagent la lecture du journal en direct avec des validations indépendantes.",

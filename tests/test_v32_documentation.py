@@ -131,10 +131,17 @@ class DocumentationReleaseTests(unittest.TestCase):
         self.assertIn('Alle einzelnen Clusterdaten bleiben erhalten', german[4])
 
     def test_v32_help_explains_changes_in_the_correct_topics(self):
+        route_overview = {
+            'de': 'Überblick', 'en': 'Overview', 'fr': 'Vue d’ensemble',
+            'it': 'Panoramica', 'no': 'Oversikt', 'sv': 'Översikt',
+            'fi': 'Yleiskuva', 'pl': 'Przegląd', 'nl': 'Overzicht',
+            'es': 'Resumen', 'tr': 'Genel bakış', 'el': 'Επισκόπηση',
+        }
         for language in HELP_LANGUAGES:
             with self.subTest(language=language):
                 for topic in ('materials', 'explorer', 'chronicle', 'route_planner', 'settings'):
-                    self.assertIn('<h3>CMDRHelper</h3>', help_topic(topic, language).text)
+                    heading = route_overview[language] if topic == 'route_planner' else 'CMDRHelper'
+                    self.assertIn(f'<h3>{heading}</h3>', help_topic(topic, language).text)
                     self.assertNotIn('<h3>CMDRHelper v3.2</h3>', help_topic(topic, language).text)
                 material = help_topic('materials', language).text
                 for token in ('146', '223', 'Spansh', 'Raw', 'Manufactured', 'Encoded', 'ly'):
@@ -142,8 +149,12 @@ class DocumentationReleaseTests(unittest.TestCase):
                 for key in ('trader.search', 'trader.route'):
                     self.assertIn(_TRANSLATIONS[language][key], material)
                 route = help_topic('route_planner', language).text
-                self.assertIn('ID64', route)
-                self.assertIn('Unable to find route', route)
+                # Current help explains user actions, not internal provider terms.
+                self.assertNotIn('ID64', route)
+                self.assertNotIn('Unable to find route', route)
+                if language == 'de':
+                    self.assertIn('Start und Ziel werden vor der Berechnung eindeutig geprüft.', route)
+                    self.assertIn('eine nicht gefundene Route', route)
                 self.assertIn('DSS', help_topic('explorer', language).text)
                 self.assertNotRegex(help_topic('settings', language).text, r'\bv3\.[12]\b')
 

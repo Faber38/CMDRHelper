@@ -38,6 +38,15 @@ Der Journalordner von Elite Dangerous wird nach Möglichkeit automatisch erkannt
 
 CMDRHelper prüft beim Start auf Updates und besitzt einen integrierten Updater. Bestätige ein angebotenes Update im Programm; es aktualisiert Programm und Abhängigkeiten und startet CMDRHelper neu. Nach der Erstinstallation genügt normalerweise `start.bat` (Windows) beziehungsweise `bash start.sh` (Linux). Für normale Updates musst du `install.bat` oder `install.sh` nicht erneut manuell ausführen.
 
+## Neu in Version 3.7.0
+
+- Neuer Hauptbereich Handel: Verkaufen und Einkaufen kombinieren eigene Marktstände mit Spansh-Angeboten. Bei Community-Ausfall bleiben passende eigene Treffer als unvollständiges Ergebnis nutzbar.
+- Beim Öffnen des Elite-Warenmarkts werden eigene Stationsmärkte automatisch erfasst. Sie bleiben über Neustarts erhalten, gelten strikt unter 24 Stunden und ersetzen ältere Angebote desselben Markts.
+- Empfehlungen nutzen den aktuellen eigenen Einkaufsmarkt, freien Schiffsfrachtraum, Angebot und Nachfrage. Mindestgewinn, mögliche Menge und möglicher Gewinn helfen bei der Auswahl; optional nur eigene Zielmärkte.
+- Handel mit Fortschrittsanzeige, kopierbarer Diagnose und Marktstatus. Ein gemerkter Handelsflug hält Ware und Ziel fest; der Zielsystemname lässt sich kopieren.
+- Die Gesamtansicht passt sich beim Öffnen auf Wunsch einmal automatisch ans Fenster an. Die standardmäßig aktive Option wird gespeichert; manuelles Zoomen bleibt möglich.
+- In-App-Hilfe in zwölf Themen und zwölf Sprachen geprüft und ergänzt, Übersetzungen und große Schrift verbessert. Mining-Carrierbestände bleiben bei kurzen Shutdown-Journalen zuverlässig erhalten.
+
 ## Neu in Version 3.6.2
 
 - Kampfbelohnungen unter „Missionen & Belohnungen“ mit Fraktionsbeträgen, Gesamtsumme und lokalem Reset.

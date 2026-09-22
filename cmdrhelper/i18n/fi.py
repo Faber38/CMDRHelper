@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_7_0.0': 'Uusi Kauppa-pääosio: myynti ja osto yhdistävät itse havaitut markkinat Spansh-tarjouksiin. Jos yhteisöhaku epäonnistuu, sopivat paikalliset tulokset säilyvät käytettävinä ja ne merkitään puutteellisiksi.',
+    'release.3_7_0.1': 'Eliten hyödykemarkkinan avaaminen tallentaa aseman markkinat automaattisesti. Omat havainnot säilyvät uudelleenkäynnistyksissä, ovat voimassa alle 24 tuntia ja korvaavat saman markkinan vanhemmat tarjoukset.',
+    'release.3_7_0.2': 'Suositukset käyttävät nykyistä itse havaittua ostomarkkinaa, aluksen vapaata rahtitilaa, tarjontaa ja kysyntää. Vähimmäiskate, mahdollinen määrä ja mahdollinen voitto auttavat valinnassa; kohteet voi rajata omiin markkinoihin.',
+    'release.3_7_0.3': 'Kauppa näyttää etenemisen, kopioitavan diagnostiikan ja markkinatilan. Muistiin merkitty kauppalento säilyttää hyödykkeen ja kohteen; kohdejärjestelmän nimen voi kopioida.',
+    'release.3_7_0.4': 'Koko järjestelmän näkymä voidaan sovittaa ikkunaan kerran avattaessa. Oletuksena käytössä oleva valinta tallennetaan; käsin zoomaus on edelleen mahdollista.',
+    'release.3_7_0.5': 'Sovelluksen ohjeet on tarkistettu ja täydennetty kahdessatoista aiheessa ja kielessä. Käännöksiä ja suurten fonttien näyttöä on parannettu. Carrierin kaivosvarastot säilyvät lyhyiden sulkemislokien yhteydessä.',
+
     "release.3_6_2.0": "Taistelupalkkiot kohdassa ”Tehtävät ja palkkiot”: summat ryhmittymittäin, yhteissumma ja paikallinen nollaus.",
     "release.3_6_2.1": "Reaaliaikaisesti kirjatut taistelupalkkiot säilyvät komentajakohtaisesti uudelleenkäynnistyksissä; tarkistetut lokiankkurit estävät kaksoislaskennan.",
     "release.3_6_2.2": "Tappopalkkiot, taistelupalkkiot ja Odyssey jakavat reaaliaikaisen lokin lukemisen erillisillä kuittauksilla.",

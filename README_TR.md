@@ -39,6 +39,15 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## 3.7.0 sürümündeki yenilikler
+
+- Yeni Ticaret ana bölümü: satış ve alış, gözlemlediğin pazarları Spansh teklifleriyle birleştirir. Topluluk araması başarısız olursa uygun yerel sonuçlar eksik sonuç uyarısıyla kullanılabilir kalır.
+- Elite emtia pazarı açıldığında istasyon pazarı otomatik kaydedilir. Kendi gözlemlerin yeniden başlatmada korunur, 24 saatten kısa süre geçerlidir ve aynı pazarın eski tekliflerinin yerini alır.
+- Öneriler mevcut gözlemlenmiş alış pazarını, geminin boş kargo alanını, arzı ve talebi kullanır. Asgari kâr marjı, olası miktar ve olası kâr seçime yardımcı olur; hedefler yalnızca kendi pazarlarınla sınırlandırılabilir.
+- Ticarette ilerleme, kopyalanabilir tanılama ve pazar durumu gösterilir. Hatırlanan ticaret uçuşu emtiayı ve hedefi saklar; hedef sistemin adı kopyalanabilir.
+- Tam sistem görünümü açılırken pencereye bir kez otomatik sığdırılabilir. Varsayılan olarak açık olan seçenek kaydedilir; elle yakınlaştırma kullanılmaya devam eder.
+- Uygulama içi yardım on iki konuda ve on iki dilde denetlendi ve genişletildi; çeviriler ve büyük yazı gösterimi iyileştirildi. Carrier madencilik stokları kısa kapanış günlüklerinde korunur.
+
 ## 3.6.2 sürümündeki yenilikler
 
 - “Görevler ve Ödüller” altında fraksiyon tutarları, toplam ve yerel sıfırlama ile savaş tahvilleri.

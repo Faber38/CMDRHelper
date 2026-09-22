@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_7_0.0': 'Nowy dział Handel: sprzedaż i zakup łączą własne zaobserwowane rynki z ofertami Spansh. Po błędzie wyszukiwania społecznościowego pasujące wyniki lokalne pozostają dostępne, oznaczone jako niepełne.',
+    'release.3_7_0.1': 'Otwarcie rynku towarów w Elite automatycznie zapisuje rynek stacji. Własne obserwacje przetrwają restart, są ważne przez mniej niż 24 godziny i zastępują starsze oferty tego samego rynku.',
+    'release.3_7_0.2': 'Rekomendacje używają bieżącego własnego rynku zakupu, wolnej ładowni, podaży i popytu. Minimalna marża, możliwa ilość i możliwy zysk pomagają wybrać ofertę; cele można ograniczyć do własnych rynków.',
+    'release.3_7_0.3': 'Handel pokazuje postęp, diagnostykę do skopiowania i stan rynku. Zapamiętany lot handlowy zachowuje towar i cel; można skopiować nazwę systemu docelowego.',
+    'release.3_7_0.4': 'Pełny widok systemu może jednorazowo dopasować się do okna przy otwarciu. Opcja jest domyślnie włączona i zapamiętywana; ręczne przybliżanie pozostaje dostępne.',
+    'release.3_7_0.5': 'Pomoc w aplikacji sprawdzono i uzupełniono w dwunastu tematach i językach, poprawiając tłumaczenia i duże czcionki. Zapasy górnicze carriera są zachowywane przy krótkich dziennikach zamknięcia.',
+
     "release.3_6_2.0": "Obligacje bojowe w sekcji „Misje i nagrody”: kwoty według frakcji, suma i lokalne zerowanie.",
     "release.3_6_2.1": "Obligacje rejestrowane na żywo są zachowywane osobno dla dowódców po restarcie; zweryfikowane punkty dziennika zapobiegają podwójnemu naliczaniu.",
     "release.3_6_2.2": "Nagrody za głowy, obligacje bojowe i Odyssey współdzielą odczyt bieżącego dziennika z niezależnymi potwierdzeniami.",

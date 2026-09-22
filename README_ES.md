@@ -38,6 +38,15 @@ La carpeta de diarios de Elite Dangerous se detecta automáticamente cuando es p
 
 CMDRHelper busca actualizaciones al iniciarse y dispone de un actualizador integrado. Confirma una actualización ofrecida en la aplicación; actualizará el programa y las dependencias y reiniciará CMDRHelper. Tras la primera instalación, normalmente basta con usar `start.bat` (Windows) o `bash start.sh` (Linux). No es necesario volver a ejecutar manualmente `install.bat` o `install.sh` para las actualizaciones normales.
 
+## Novedades de la versión 3.7.0
+
+- Nueva sección Comercio: vender y comprar combinan tus mercados observados con ofertas de Spansh. Si falla la búsqueda comunitaria, los resultados locales siguen disponibles, marcados como incompletos.
+- Al abrir el mercado de mercancías de Elite se registra automáticamente el mercado de la estación. Tus observaciones se conservan tras reinicios, son válidas durante menos de 24 horas y sustituyen ofertas más antiguas del mismo mercado.
+- Las recomendaciones usan tu mercado de compra actual observado, la bodega libre, oferta y demanda. El margen mínimo, la cantidad posible y el beneficio potencial ayudan a elegir; puedes limitar los destinos a tus propios mercados.
+- El comercio incluye progreso, diagnóstico copiable y estado del mercado. Un vuelo comercial recordado conserva mercancía y destino; puedes copiar el nombre del sistema de destino.
+- La vista completa del sistema puede ajustarse una vez a la ventana al abrirse. La opción está activada por defecto y se guarda; el zoom manual sigue disponible.
+- Ayuda integrada revisada y ampliada en doce temas y doce idiomas, con mejoras de traducción y letra grande. Se conservan las existencias mineras del carrier ante registros breves de cierre.
+
 ## Novedades de la versión 3.6.2
 
 - Bonos de combate en « Misiones y recompensas », con importes por facción, total y reinicio local.

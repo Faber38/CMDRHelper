@@ -38,6 +38,15 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## Nieuw in versie 3.7.0
+
+- Nieuw hoofdonderdeel Handel: verkopen en inkopen combineren eigen waargenomen markten met Spansh-aanbiedingen. Bij een mislukte communityzoekopdracht blijven passende lokale resultaten bruikbaar, met een melding dat ze onvolledig zijn.
+- Het openen van een goederenmarkt in Elite legt de stationsmarkt automatisch vast. Eigen waarnemingen blijven na herstarts bewaard, zijn strikt minder dan 24 uur geldig en vervangen oudere aanbiedingen van dezelfde markt.
+- Aanbevelingen gebruiken de huidige eigen inkoopmarkt, vrije scheepsvrachtruimte, aanbod en vraag. Minimummarge, mogelijke hoeveelheid en mogelijke winst helpen bij de keuze; optioneel alleen eigen doelmarkten.
+- Handel toont voortgang, kopieerbare diagnose en marktstatus. Een onthouden handelsvlucht bewaart de waar en bestemming; de naam van het doelsysteem kan worden gekopieerd.
+- Het volledige systeemoverzicht kan bij het openen eenmaal aan het venster worden aangepast. De standaard ingeschakelde optie wordt onthouden; handmatig zoomen blijft mogelijk.
+- In-app-hulp gecontroleerd en aangevuld voor twaalf onderwerpen en twaalf talen, met betere vertalingen en grote letters. Miningvoorraden op de carrier blijven behouden bij korte afsluitjournalen.
+
 ## Nieuw in versie 3.6.2
 
 - Gevechtsobligaties onder ‘Missies en beloningen’, met bedragen per factie, totaal en lokale reset.
