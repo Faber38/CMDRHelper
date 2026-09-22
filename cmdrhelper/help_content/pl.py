@@ -111,87 +111,57 @@ HELP_TOPICS = {
               'najpierw sprawdź wyświetlacz dziennika u góry, a następnie sprawdź folder dziennika '
               'ustawiony w „Ustawieniach”.</p>'
               '<p>Tryb Otwarty jest czerwony, Solo złoty, a Grupa prywatna zielona, z podaną nazwą grupy. Tryb jest odtwarzany z dostępnych dzienników i aktualizowany po nowych wpisach LoadGame.</p>\n<p>Pojedyncze kliknięcie wpisu ostatnich systemów kopiuje nazwę systemu do schowka. Na chwilę pojawia się „✓ Skopiowano: &lt;System&gt;”.</p>\n'),
- 'missions': ('Misje',
-              '<h2>Misje</h2>\n'
-              '<p>Widok misji przedstawia misje aktualnie oglądanego dowódcy znanego z Elite '
-              'Dangerous Journal. CMDRHelper zapisuje dane misji dla każdego dowódcy, dzięki czemu '
-              'otwarte misje zostaną zachowane nawet po ponownym uruchomieniu Elite Dangerous lub '
-              'CMDRHelper.</p>\n'
-              '\n'
-              '<h3>Misje otwarte</h3>\n'
-              '<p>Wychodzą nowe misje<code>MissionAccepted</code>przejęte i zapisane na '
-              'stałe.</p>\n'
-              '<p>Dopóki nie nastąpi ostatnie wydarzenie misji, misja pozostaje otwarta. Nowa '
-              'sesja gry bez listy misji może nie usunąć automatycznie znanych otwartych '
-              'misji.</p>\n'
-              '\n'
-              '<h3>Stan misji</h3>\n'
-              '<p>CMDRHelper przetwarza między innymi następujące zmiany statusów:</p>\n'
-              '<ul>\n'
-              '<li>Misja przyjęta</li>\n'
-              '<li>Misja zakończona</li>\n'
-              '<li>Misja nie powiodła się</li>\n'
-              '<li>Misja przerwana</li>\n'
-              '<li>Cel misji zmieniony</li>\n'
-              '<li>Postęp w zakresie wspieranych misji związanych z ładunkiem/składem</li>\n'
-              '</ul>\n'
-              '<p>Ostatnie wydarzenie zmienia jedynie powiązaną z nim misję.</p>\n'
-              '\n'
-              '<h3>Misje z dziennika</h3>\n'
-              '<p>Elite Dangerous dostarcza informacji o misji na temat różnych wydarzeń w '
-              'dzienniku. CMDRHelper łączy te zdarzenia w trwały stan misji.</p>\n'
-              '<p>Prawdziwe wydarzenie z pełną misją może służyć jako wiarygodna migawka. Jeśli '
-              'zabraknie takiego wydarzenia, starsze misje otwarte nie zostaną zamknięte tylko z '
-              'tego powodu.</p>\n'
-              '\n'
-              '<h3>Cele i miejsca</h3>\n'
-              '<p>W zakresie, w jakim Elite dostarcza informacje w dzienniku, CMDRHelper '
-              'pokazuje:</p>\n'
-              '<ul>\n'
-              '<li>System docelowy</li>\n'
-              '<li>Stacja docelowa lub miejsce docelowe</li>\n'
-              '<li>Celuj w planetę lub ciało</li>\n'
-              '<li>Oznaczenie misji</li>\n'
-              '<li>znany postęp</li>\n'
-              '<li>aktualny stan</li>\n'
-              '</ul>\n'
-              '<p>Nie każda misja dostarcza wszystkich informacji. Brakujące dane nie zostały '
-              'wymyślone przez CMDRHelper.</p>\n'
-              '\n'
-              '<h3>Trwałość i restart</h3>\n'
-              '<p>Misje otwarte zapisywane są w bazie danych dowódców.</p>\n'
-              '<p>Oznacza to, że zostaną one zachowane nawet jeśli:</p>\n'
-              '<ul>\n'
-              '<li>Elite Dangerous zostanie zakończony i uruchomiony ponownie później</li>\n'
-              '<li>CMDRHelper jest zamknięty pomiędzy</li>\n'
-              '<li>Nowa sesja dziennika początkowo nie zawiera żadnych wydarzeń misji</li>\n'
-              '</ul>\n'
-              '<p>Tylko udokumentowane wydarzenie misji zmienia zapisany stan.</p>\n'
-              '\n'
-              '<h3>Kilku dowódców</h3>\n'
-              '<p>Misje są ściśle oddzielone od dowódcy.</p>\n'
-              '<p>Wydarzenie misji jest przydzielane wyłącznie dowódcy, którego sesja dziennika '
-              'została jednoznacznie zidentyfikowana. Nie można wyświetlać ani modyfikować misji '
-              'innego dowódcy.</p>\n'
-              '\n'
-              '<h3>Misje osierocone lub nieaktualne</h3>\n'
-              '<p>Jeśli starsze dane dziennika lub poprzedni import sprawią, że misja pozostanie '
-              'otwarta, mimo że już jej nie ma w grze, można skorzystać z istniejącej funkcji '
-              'resetowania/czyszczenia misji osieroconych.</p>\n'
-              '<p>Tej funkcji należy używać tylko wtedy, gdy jest jasne, że wyświetlana misja nie '
-              'jest już aktywna.</p>\n'
-              '\n'
-              '<h3>Usługi internetowe</h3>\n'
-              '<p>Obsługiwane zdarzenia misji mogą być dodatkowo przesyłane do Inara, jeśli dla '
-              'aktywnego dziennika FID skonfigurowano ważny i aktywowany dostęp Inara.</p>\n'
-              '<p>Brakujące lub nieosiągalne połączenie Inara nie ma wpływu na lokalne '
-              'przechowywanie misji.</p>\n'
-              '\n'
-              '<h3>Wskazówka</h3>\n'
-              '<p>Jeśli misja nie pojawia się lub pokazuje nieprawidłowy status, najpierw sprawdź, '
-              'czy Elite Dangerous nie zapisał już odpowiedniego zdarzenia misji w dzienniku.</p>\n'
-              '<p>CMDRHelper może wyświetlać tylko informacje, które dziennik faktycznie dostarcza '
-              'lub które zostały już zapisane z poprzednich unikalnych wydarzeń misji.</p>'),
+ 'missions': (
+        'Misje i nagrody',
+        """<h2>Misje i nagrody</h2>
+<p>Ta strona główna pokazuje misje i zaobserwowane nagrody aktualnie aktywnego dowódcy z dziennika. Wybranie innego dowódcy w osobnym widoku CMDR nie zmienia tej strony. Dane każdego dowódcy pozostają oddzielne.</p>
+
+<h3>Korzystanie ze strony</h3>
+<ol>
+<li>Otwórz „Misje i nagrody” i wybierz misję z listy.</li>
+<li>Sprawdź „Stan” i „SZCZEGÓŁY MISJI”. „Następny krok” pomaga ustalić dalsze działanie.</li>
+<li>W razie potrzeby użyj „Odśwież dziennik”, aby ponownie odczytać dostępne dane dziennika.</li>
+<li>Rozpatruj osobno nagrody za misje oraz sekcje „Nagrody za głowy” i „Obligacje bojowe”.</li>
+</ol>
+
+<h3>Lista i szczegóły</h3>
+<p>Lista zawiera potwierdzone otwarte misje i rozpoznane wstępne oferty ze spotkań. Pokazuje misję, system, planetę / miejsce, stan, następny krok, nagrodę i termin. Wybranie wpisu wyświetla dostępne szczegóły celu i postępu. Informacje nieobecne w dzienniku pozostają nieznane; termin wstępnych ofert jest nieznany.</p>
+
+<h3>Stan misji</h3>
+<p>Stan wynika z dostępnych danych misji, położenia i postępu. Nie każdy typ misji dostarcza wszystkie etapy pośrednie.</p>
+<ul>
+<li><b>Misja przyjęta / W drodze:</b> Misja jest znana; dotarcie do celu nie zostało jeszcze rozpoznane.</li>
+<li><b>W systemie docelowym:</b> Jesteś w systemie docelowym, ale jeszcze nie w rozpoznanym miejscu docelowym misji.</li>
+<li><b>W celu misji:</b> Osiągnięto odpowiednią stację lub ciało niebieskie będące celem.</li>
+<li><b>Cel zmieniony:</b> Zgłoszono nowy cel misji.</li>
+<li><b>Towar odebrany:</b> Rozpoznano odbiór ładunku misji.</li>
+<li><b>Dostawa w toku:</b> Zarejestrowano dostawę; wyświetlany jest znany postęp ilościowy.</li>
+<li><b>Zadanie ukończone / Dane otrzymane:</b> Zadanie lub zbieranie danych zostało wykonane. Misja może nadal być otwarta, na przykład z komunikatem „Wróć do terminala misji”. Nie potwierdza to jeszcze wypłaty.</li>
+</ul>
+<p>Rozpoznane zakończenie, niepowodzenie lub porzucenie usuwa daną misję z listy otwartych. Nowy kompletny stan misji może wskazać starsze wpisy jako już nieaktywne.</p>
+
+<h3>Łączna nagroda</h3>
+<p>„Łączna nagroda” sumuje znane nagrody w kredytach za potwierdzone otwarte misje. Nie jest to saldo już wypłaconych środków. Nie obejmuje wstępnych ofert ze spotkań, nagród za głowy ani obligacji bojowych.</p>
+
+<h3>Misje ze spotkań</h3>
+<p>Obsługiwane spotkania w przestrzeni mogą pojawiać się jako wstępne oferty „Zlecenie ze spotkania”, nawet bez ostatecznego MissionID. „Oferowana nagroda” nie jest więc jeszcze potwierdzoną nagrodą otwartej misji i nie wlicza się do nagrody łącznej.</p>
+<p>Jeśli późniejsze dane dziennika jednoznacznie powiążą ofertę z misją, wpisy zostaną połączone. W razie niejednoznaczności oferta pozostaje wstępna. Niepotwierdzone oferty są lokalnie ukrywane po 24 godzinach; nie oznacza to terminu misji w grze.</p>
+
+<h3>Nagrody za głowy</h3>
+<p>Ta sekcja pokazuje lokalnie zaobserwowane nagrody za głowy, łącznie i według frakcji. Zna tylko zarejestrowane dane, a nie gwarantowane pełne saldo z gry. „Rejestrowanie od teraz.” oznacza początek rejestrowania; luki sygnalizuje „Niepełna synchronizacja: może brakować niektórych zdarzeń.”.</p>
+<p>Rozpoznana realizacja nagród za głowy lub śmierć zeruje całe lokalne saldo tych nagród, niezależnie od stanu misji.</p>
+
+<h3>Obligacje bojowe</h3>
+<p>Tutaj widoczne są zaobserwowane obligacje bojowe według frakcji, których realizacji jeszcze nie rozpoznano. Ewentualne saldo sprzed rozpoczęcia rejestrowania nie jest uwzględnione. W razie niepewności pojawia się „Zaobserwowana kwota” wraz z „Saldo nie jest w pełni potwierdzone.”.</p>
+<p>Jednoznacznie przypisana realizacja usuwa zaobserwowaną kwotę wskazanej frakcji; pozostałe frakcje pozostają bez zmian. Gdy przypisanie jest niejasne, kwoty pozostają i pojawia się „Wykryto wykup – sprawdź saldo.”. Rozpoznana śmierć usuwa zaobserwowane obligacje bojowe.</p>
+
+<h3>Lokalne zerowanie</h3>
+<p>„Resetuj…” w danej sekcji nagród zeruje po potwierdzeniu wyłącznie jej lokalne saldo dla aktywnego dowódcy. <b>Nie zmienia to żadnych wartości w Elite Dangerous.</b> Nagrody za głowy i obligacje bojowe są zerowane oddzielnie; misje nie są przy tym ani usuwane, ani kończone.</p>
+
+<h3>Odświeżanie i ponowne uruchomienie</h3>
+<p>Znane otwarte misje i lokalne salda nagród są zachowywane po ponownym uruchomieniu Helpera. Nowa sesja dziennika bez listy misji nie usuwa automatycznie otwartych misji. Luki w rejestrowaniu mogą powodować niekompletność zwłaszcza sald nagród. „Odśwież dziennik” może jedynie odczytać istniejące informacje, nie utworzyć brakujących danych gry.</p>
+<p>Lokalny widok misji nie wymaga połączenia z Inara. Przy włączonym połączeniu skonfigurowanym dla aktywnego dowódcy obsługiwane zdarzenia misji mogą być również przesyłane.</p>""",
+    ),
  'explorer': ('Odkrywca',
               '<h2>Odkrywca</h2>\n<h3>CMDRHelper</h3>\n<p>Widok całego systemu: nowy układ w stylu Elite zastępuje miniaturę w Explorerze i Kronice. Gwiazdy i planety tworzą główną strukturę, a księżyce odgałęziają się poniżej; układy wielogwiazdowe pozostają czytelne. Zoom, przewijanie, dopasowanie do okna i kliknięcie ciała umożliwiają dostęp do szczegółów.</p>\n<p>Zwarte pasy asteroid: skupiska są grupowane w pasy w widoku ogólnym oraz zwykłych mapach Explorera i Kroniki. Wszystkie dane poszczególnych skupisk są zachowane.</p>\n<p>Poprawiona kartografia: skan po mapowaniu DSS nie zeruje już niesprzedanych wartości eksploracji, czasu mapowania ani wydajności. Błędne wpisy są naprawiane przy starcie z dostępnych dzienników jednoznacznie przypisanych do dowódcy. Bez źródeł naprawa oczekuje; nie trzeba usuwać bazy danych.</p>\n'
               '<p>Eksplorator ocenia systemy i ciała niebieskie odkryte i zeskanowane przez '
@@ -898,187 +868,39 @@ HELP_TOPICS = {
             'obrazami w folderze głównym.</p>\n'
             '<p>Wyższa jasność może pomóc w przypadku ciemnych zdjęć; wpływa to na nowo utworzony '
             'obraz docelowy podczas konwersji.</p>'),
- 'commander_view': ('Widok CMDR',
-                    '<h2>Widok CMDR</h2>\n'
-                    '<p>Widok CMDR podsumowuje trwale przechowywane dane osobowe dowódcy.</p>\n'
-                    '<p>Umożliwia także przełączanie pomiędzy znanymi dowódcami CMDRHelper i '
-                    'przeglądanie ich własnych danych. Dane osobowe oddzielane są za pomocą '
-                    'identyfikatora Frontier (FID).</p>\n'
-                    '\n'
-                    '<h3>Wybierz Dowódcę</h3>\n'
-                    '<p>Jeśli znanych jest kilku dowódców, możesz skorzystać z powyższej opcji, '
-                    'aby określić, czyje zapisane informacje będą wyświetlane. Ten dowódca jest '
-                    'uważany za dowódcę.</p>\n'
-                    '<p>Na wyświetlaczu jest to oznaczone jako „Live Active” lub „View Only”.</p>\n'
-                    '\n'
-                    '<h3>Uważany za dowódcę i dowódcę na żywo</h3>\n'
-                    '<p>Wybranie innego dowódcy w widoku CMDR nie czyni go aktywnym dowódcą '
-                    'dziennika.</p>\n'
-                    '<p>Dowódca na żywo jest ustalany wyłącznie na podstawie aktualnie '
-                    'jednoznacznie zidentyfikowanej sesji dziennika Elite Dangerous. W ten sposób '
-                    'można przeglądać historię innego dowódcy, podczas gdy Elite Dangerous będzie '
-                    'nadal działać z EXAMPLE.</p>\n'
-                    '\n'
-                    '<h3>Identyfikator Frontier (FID)</h3>\n'
-                    '<p>FID to stabilny identyfikator dowódcy Frontier.</p>\n'
-                    '<p>CMDRHelper wykorzystuje go i wyodrębniony z niego wewnętrzny identyfikator '
-                    'dowódcy, aby bezpiecznie oddzielić dane osobowe. Dowódcy o podobnych lub '
-                    'identycznych nazwiskach również pozostają rozdzieleni.</p>\n'
-                    '\n'
-                    '<h3>Przegląd</h3>\n'
-                    '<p>Zakładka „Przegląd” pokazuje tylko zapisane na stałe informacje dotyczące '
-                    'danego dowódcy:</p>\n'
-                    '<ul>\n'
-                    '<li>Nazwa dowódcy, FID i status „Na żywo aktywny” lub „Tylko '
-                    'przeglądanie”</li>\n'
-                    '<li>pierwszy i ostatni znany raz</li>\n'
-                    '<li>Liczba odwiedzonych systemów, odkryć biologicznych i geograficznych, '
-                    'wpisów do kodeksu i sprzedaży kartografii</li>\n'
-                    '<li>Ostatnia znana lokalizacja i liczba otwartych misji</li>\n'
-                    '<li>obecny lub ostatni statek</li>\n'
-                    '<li>Fleet Carrier i lokalizacja przewoźnika</li>\n'
-                    '<li>Aktywa</li>\n'
-                    '<li>otwarte dane osobowe i otwarte dane kartograficzne, w tym istniejące '
-                    'szacunki</li>\n'
-                    '</ul>\n'
-                    '\n'
-                    '<h3>Aktywa/Kredyty</h3>\n'
-                    '<p>Pole „Aktywa” pokazuje ostatnio zapisane saldo kredytowe danego dowódcy z '
-                    'odpowiedniego zdarzenia w dzienniku, w formacie np.<b>1 234 567 kr</b>.</p>\n'
-                    '<p>CMDRHelper nie dodaje fikcyjnych dochodów ani wydatków, jeśli nie ma '
-                    'nowego, bezpiecznego statusu dziennika.</p>\n'
-                    '\n'
-                    '<h3>Monety najemników</h3>\n'
-                    '<p>Monety najemników pochodzą z pól MercCoins dostarczonych przez Elite '
-                    'Dangerous<code>Statistics → Bank_Account</code>i są zapisywane dla dowódcy '
-                    'jako migawka Frontier.</p>\n'
-                    '<p>Widoczne są:</p>\n'
-                    '<ul>\n'
-                    '<li>Aktualny</li>\n'
-                    '<li>Razem wydane</li>\n'
-                    '<li>Inżynieria</li>\n'
-                    '<li>sprzęt</li>\n'
-                    '<li>Zgłoszone przez Frontier: zarobione ogółem</li>\n'
-                    '</ul>\n'
-                    '\n'
-                    '<h3>Aktualne i wydania</h3>\n'
-                    '<p>„Aktualne” spektakle<code>MercCoins_Current</code>. „Całkowite wydane” '
-                    'przejmuje kontrolę<code>MercCoins_Total_Spent</code>.</p>\n'
-                    '<p>„Inżynieria” i „Sprzęt” pokazują udziały zgłoszone oddzielnie przez '
-                    'Frontier<code>MercCoins_Spent_On_Engineering</code>I<code>MercCoins_Spent_On_MercGear</code>.</p>\n'
-                    '<p>Dla przykładu EXAMPLE aktualny stan magazynowy<b>1000</b>w '
-                    'sumie<b>200</b>spędzony i odszedł<b>200</b>zgłoszony do inżynierii.</p>\n'
-                    '\n'
-                    '<h3>Ogólnie zasłużone</h3>\n'
-                    '<p>Pokazuje się „Zgłoszone przez Frontier: ogólnie '
-                    'zarobione”.<code>MercCoins_Total_Earned</code>. CMDRHelper nie oblicza na tej '
-                    'podstawie własnego bilansu.</p>\n'
-                    '<p>Wartość skumulowana Frontier nie musi być matematycznie zgodna z bieżącym '
-                    'stanem magazynowym i wykazanymi wydatkami. Na przykład jednocześnie można '
-                    'zgłosić 1000 bieżących, 25 zarobionych ogółem i 200 wydanych ogółem.</p>\n'
-                    '<p>CMDRHelper nie koryguje tych wartości, ale wyświetla poszczególne liczniki '
-                    'Frontier bez zmian.</p>\n'
-                    '\n'
-                    '<h3>Dlaczego nie mieć własnego bilansu MercCoins?</h3>\n'
-                    '<p>Elite Dangerous nie zapewnia unikalnego zapisu w dzienniku dla każdego '
-                    'indywidualnego otrzymania lub wydania monet najemników. MercCoins pojawiają '
-                    'się jako sumy w Statistics.</p>\n'
-                    '<p>W związku z tym samodzielnie obliczona historia rezerwacji nie byłaby '
-                    'wiarygodna. Zamiast tego CMDRHelper zapisuje najnowszą znaną migawkę '
-                    'Frontier.</p>\n'
-                    '\n'
-                    '<h3>Misje</h3>\n'
-                    '<p>Zakładka „Misje” pokazuje zapisane misje danego dowódcy w formie tabeli ze '
-                    'statusem, nazwą misji, celem, czasem wygaśnięcia i nagrodą.</p>\n'
-                    '\n'
-                    '<h3>badanie</h3>\n'
-                    '<p>Karta Eksploracja pokazuje otwarte dane biologiczne, otwarte dane '
-                    'kartograficzne, odkrycia biologiczne, pierwsze kroki, samodzielnie i '
-                    'skutecznie zmapowane ciała oraz liczbę odwiedzonych systemów.</p>\n'
-                    '<p>Dedykowana zakładka „Kronika” w widoku CMDR jest obecnie nadal elementem '
-                    'zastępczym. Pełną kronikę znajdziesz w pozycji menu głównego o tej samej '
-                    'nazwie.</p>\n'
-                    '\n'
-                    '<h3>Statki/Flota</h3>\n'
-                    '<p>Zakładka „Statki” początkowo pokazuje aktywny lub ostatnio używany statek '
-                    'z nazwą statku, typem statku, lokalizacją i identyfikatorem statku.</p>\n'
-                    '<p>Zapisane statki danego dowódcy pojawiają się pod nimi jako karty '
-                    'rozszerzalne. Można je sortować rosnąco lub malejąco według:</p>\n'
-                    '<ul>\n'
-                    '<li>ostatnio lub obecnie używany</li>\n'
-                    '<li>Nazwa statku lub typ statku</li>\n'
-                    '<li>maksymalny zasięg skoku</li>\n'
-                    '<li>Ładowność lub masa pusta</li>\n'
-                    '<li>ostatnia znana lokalizacja lub czas</li>\n'
-                    '</ul>\n'
-                    '<p>Możesz także filtrować według wszystkich statków, statków z hangarem '
-                    'samochodowym lub statków z hangarem myśliwskim.</p>\n'
-                    '\n'
-                    '<h3>Szczegóły statku</h3>\n'
-                    '<p>Otwarta mapa statku pokazuje – jeśli została zapisana – identyfikator '
-                    'statku, identyfikator statku, lokalizację, ostatni czas, maksymalny zasięg '
-                    'skoku, wzmacniacz FSD i Guardian, masę, pojemność ładunku i zbiornika, a '
-                    'także czas i status załadunku.</p>\n'
-                    '<p>Jeśli dostępne są dane modułów, podsumowane są także hangar pojazdów i '
-                    'myśliwców, generator tarcz i wzmacniacz tarcz, wzmocnienia tarcz Strażników, '
-                    'broń, wzmocnienia kadłuba i modułów oraz kabiny pasażerskie.</p>\n'
-                    '<p>Stan ładowania może być kompletny, niekompletny lub nieaktualny. Brakujące '
-                    'informacje są wyświetlane jako „–” i nie są uzupełniane.</p>\n'
-                    '\n'
-                    '<h3>Fleet Carrier</h3>\n'
-                    '<p>W przypadku zapisanego niestandardowego Fleet Carrier widok pokazuje nazwę '
-                    'operatora, znak wywoławczy, identyfikator operatora, ostatnią lokalizację i '
-                    'czas ostatniej aktualizacji.</p>\n'
-                    '\n'
-                    '<h3>Trwały stan dowódczy</h3>\n'
-                    '<p>Ważne informacje o dowódcy pozostają trwale zapisane. Umożliwia to ponowne '
-                    'wyświetlenie znanych wartości po ponownym uruchomieniu CMDRHelper lub Elite '
-                    'Dangerous bez konieczności ponownego pełnego oceniania każdego '
-                    'dziennika.</p>\n'
-                    '<p>Nowe unikalne zdarzenia w dzienniku aktualizują zapisany stan.</p>\n'
-                    '\n'
-                    '<h3>Rekonstrukcja historyczna</h3>\n'
-                    '<p>W przypadku funkcji dodanych później CMDRHelper może jednorazowo '
-                    'przeszukiwać istniejące obszary dziennika, które są wyraźnie przypisane do '
-                    'dowódcy, w celu uzyskania już znanych informacji.</p>\n'
-                    '<p>Można na przykład zastosować starsze migawki MercCoins. Powtarzane '
-                    'kontrole nie mają na celu tworzenia duplikatów danych i nie zmieniają '
-                    'normalnych pozycji odczytu dziennika.</p>\n'
-                    '\n'
-                    '<h3>Kilku dowódców</h3>\n'
-                    '<p>W szczególności pod względem dowódców odrębne pozostają:</p>\n'
-                    '<ul>\n'
-                    '<li>Zasoby i misje</li>\n'
-                    '<li>własna kartografia i znaleziska organiczne</li>\n'
-                    '<li>Historia górnictwa odkrywkowego i monety najemników</li>\n'
-                    '<li>Dane uwierzytelniające online</li>\n'
-                    '<li>zrzuty ekranu związane z dowódcą</li>\n'
-                    '</ul>\n'
-                    '<p>Globalne właściwości astronomiczne układu lub ciała można jednak '
-                    'wykorzystać łącznie.</p>\n'
-                    '\n'
-                    '<h3>Wpływ na inne poglądy</h3>\n'
-                    '<p>Zmiana danego dowódcy aktualizuje sam widok CMDR, osobisty wybór surowców '
-                    'wydobywczych w kronice oraz, przy odpowiednim filtrze, galerię zrzutów '
-                    'ekranu.</p>\n'
-                    '<p>Nie zastępuje rzeczywistego dowódcy na żywo do przetwarzania dzienników '
-                    'lub przesyłania online.</p>\n'
-                    '\n'
-                    '<h3>Inara i EDSM</h3>\n'
-                    '<p>Dostępami Inara i EDSM zarządza się oddzielnie, odpowiednio dla każdego '
-                    'dowódcy i FID.</p>\n'
-                    '<p>Samo spojrzenie na dowódcę nie rozpoczyna transmisji za pomocą API-Key. '
-                    'Tylko aktywny dziennik FID jest istotny dla przesyłania na żywo.</p>\n'
-                    '<p>Zarządzanie danymi dostępowymi odbywa się w „Ustawieniach” w obszarze '
-                    'usług online.</p>\n'
-                    '\n'
-                    '<h3>Wskazówka</h3>\n'
-                    '<p>Użyj widoku CMDR, jeśli chcesz zobaczyć zapisane dane osobowe konkretnego '
-                    'dowódcy.</p>\n'
-                    '<p><b>Widok CMDR = Kogo chcę przeglądać?</b></p>\n'
-                    '<p><b>Active Journal-FID = Kto właściwie teraz gra?</b></p>\n'
-                    '<p>To rozdzielenie zapobiega mieszaniu danych osobowych lub plików '
-                    'przesyłanych online od różnych dowódców.</p>'),
+ 'commander_view': (
+        'Widok CMDR',
+        """<h2>Widok CMDR</h2>
+<h3>Wybór dowódcy</h3>
+<p>Lista u góry określa, czyje zapisane dane oglądasz. ● Aktywny na żywo oznacza aktywnego dowódcę dziennika, a Tylko podgląd inny zapisany profil. Wybór nie zmienia aktywnego dowódcy dziennika: główna strona „Misje i nagrody” nadal korzysta z dowódcy, który faktycznie gra. Dane osobiste są rozdzielone według FID, nawet przy identycznych nazwach. Samo przeglądanie nie uruchamia wysyłania danych do usług internetowych.</p>
+
+<h3>Przegląd, majątek i MercCoins</h3>
+<p>„Przegląd” pokazuje nazwę, FID, stan, pierwszy i ostatni zapis, odwiedzone systemy, znaleziska biologiczne/geologiczne, wpisy Codex i sprzedaż danych kartograficznych, pozycję, otwarte misje, statek, lotniskowiec oraz niesprzedane dane biologiczne/kartograficzne ze znanymi szacunkami. „Majątek” to ostatnio zapisane saldo kredytów. „Mercenary credits” przedstawia wartości zgłoszone przez Frontier: „Current”, „Total spent”, „Engineering”, „Gear” i „Reported by Frontier: total earned”. Liczniki nie muszą zgadzać się rachunkowo; CMDRHelper ich nie koryguje ani nie tworzy fikcyjnej historii transakcji. Nieznane wartości pozostają jako „–”.</p>
+
+<h3>Misje i eksploracja</h3>
+<p>„Misje” pokazuje zapisane otwarte misje oglądanego dowódcy: stan, nazwę, cel, termin i nagrodę. Tabela służy do przeglądania, bez szczegółów i działań misji dostępnych na stronie głównej. „Eksploracja” pokazuje niesprzedane dane biologiczne/kartograficzne, znaleziska biologiczne, pierwsze kroki, samodzielnie i efektywnie zmapowane ciała oraz odwiedzone systemy. „Kronika” jest tutaj miejscem zarezerwowanym; pełną kronikę otworzysz z menu głównego.</p>
+
+<h3>Flota i szczegóły statków</h3>
+<p>„Statki” pokazuje u góry obecny lub ostatnio używany statek, a niżej zapisaną flotę dowódcy. Kliknij nagłówek karty statku, aby rozwinąć szczegóły. Sortuj rosnąco/malejąco według użycia, nazwy, typu, zasięgu skoku, ładowności, masy własnej, pozycji lub czasu; filtruj wszystkie statki albo wyposażone w hangar pojazdów/myśliwców. Zieleń oznacza aktywny statek odczytywany na żywo, inne kolory grupują znane pozycje. Szczegóły obejmują oznaczenie, ShipID, pozycję, czasy, FSD/wzmacniacz Guardian, zasięg, masę, pojemności ładunku/paliwa i stan wyposażenia (pełny, niepełny lub nieaktualny). Znane moduły uzupełniają hangary, osłony i wzmocnienia, broń oraz kabiny pasażerskie. Brakujące dane pozostają jako „–”.</p>
+
+<h3>Własny lotniskowiec</h3>
+<p>„Własny Fleet Carrier” pokazuje nazwę, znak wywoławczy, CarrierID, ostatnią pozycję i aktualizację zapisanego własnego lotniskowca. Nie są to oferty handlowe ani zapasy górnicze.</p>
+
+<h3>Własne obrazy statków i lotniskowca</h3>
+<p>Użyj „Wybierz obraz statku…” w rozwiniętych szczegółach lub „Wybierz obraz lotniskowca…” przy lotniskowcu. Obsługiwane są PNG, JPG/JPEG i WEBP. CMDRHelper przechowuje własną lokalną kopię, oddzielną dla dowódcy i statku lub lotniskowca, również po ponownym uruchomieniu. Nowy wybór zastępuje kopię. „Usuń własny obraz” usuwa kopię i powiązanie; oryginalny plik pozostaje. Bez własnego obrazu pojawia się dostępny standardowy podgląd lub symbol zastępczy. Bez jednoznacznej identyfikacji lotniskowca wybór obrazu jest wyłączony. Zrzuty ekranu nie są przypisywane automatycznie.</p>
+
+<h3>Przeglądarka obrazów</h3>
+<p>Dwukrotnie kliknij dostępny obraz statku lub lotniskowca, aby otworzyć osobną przeglądarkę korzystającą z pliku obrazu, nie tylko miniatury. Obraz dopasowuje się proporcjonalnie do okna. Możesz powiększyć lub zmaksymalizować okno i zamknąć je klawiszem Esc albo przyciskiem zamykania. Nie ma tu przechodzenia między obrazami ani sterowania powiększeniem. Główna sekcja „Obrazy” zarządza natomiast zrzutami ekranu.</p>
+
+<h3>Usuwanie statku</h3>
+<p>„Usuń statek…” wymaga wyraźnego potwierdzenia; domyślnie wybrane jest anulowanie. Usuwa lokalny wpis statku, zapisane wyposażenie i kopię własnego obrazu. Obecny lub ostatnio używany statek oraz rozpoznany aktywny statek z odczytu na żywo są chronione; podczas ponownego odczytu usuwanie jest zablokowane. Lokalny znacznik zapobiega natychmiastowemu odtworzeniu ze starych dzienników. Nowa jednoznaczna informacja o tym statku jako aktywnym w dzienniku na żywo, późniejsza niż usunięcie, może go przywrócić. Potwierdzony ponowny odczyt także może usunąć znacznik. Usunięta kopia własnego obrazu nie wraca.</p>
+
+<h3>Ponowny odczyt wszystkich statków</h3>
+<p>„Wczytaj ponownie wszystkie statki…” pomaga odzyskać dane floty z istniejących dzienników lub odnaleźć lokalnie usunięte statki. Po potwierdzeniu znane pliki i pliki w ustawionym folderze dzienników są ponownie czytane dla oglądanego dowódcy, wyłącznie na potrzeby floty. Elite nie musi być uruchomione. Nowsze zapisane dane i statki nieobecne w dostępnych dziennikach pozostają; rozpoznane sprzedaże są uwzględniane. Po powodzeniu ręczne znaczniki usunięcia tego dowódcy są zdejmowane. Istniejące własne obrazy pozostają, usunięte nie wracają. Inni dowódcy nie są objęci zmianą. Jeśli odczyt lub zastosowanie danych zawiedzie, znaczniki pozostają: sprawdź dostęp do dzienników i spróbuj ponownie.</p>
+
+<h3>Dane lokalne i bezpieczeństwo</h3>
+<p>Zapisane informacje można oglądać bez sieci i po ponownym uruchomieniu; przedstawiają ostatni znany stan. Obrazy, usuwanie i ponowny odczyt dotyczą wyłącznie CMDRHelper. Nie zmieniają statków, lotniskowców ani kredytów w Elite Dangerous i nie przepisują dzienników.</p>""",
+    ),
  'settings': ('Ustawienia',
               '<h2>Ustawienia</h2>\n<h3>CMDRHelper</h3>\n<p>Lepsza informacja o aktualizacji: okno Tak/Nie pokazuje wersję zainstalowaną i dostępną oraz do sześciu zmian, jeśli istnieje podsumowanie. Długie listy można przewijać, a działania pozostają dostępne.</p>\n'
               '<p>Obszar „Ustawienia” określa sposób współpracy CMDRHelper z Elite Dangerous, '
@@ -1390,8 +1212,82 @@ HELP_TOPICS["overview"] = (HELP_TOPICS["overview"][0], HELP_TOPICS["overview"][1
 
 HELP_TOPICS["settings"] = (HELP_TOPICS["settings"][0], HELP_TOPICS["settings"][1] + '<h3>Diagnostyka i logi</h3><p>W Ustawienia → Diagnostyka i logi możesz otworzyć log lub utworzyć pakiet diagnostyczny. Logi znajdują się w logs/ w katalogu instalacji (cmdrhelper.log i do czterech starszych plików). ZIP zawiera oczyszczone logi techniczne, system_info.json i diagnose_summary.txt; bez dzienników, bazy danych, danych FID/dowódcy, danych logowania, ulubionych i obrazów. Ścieżki osobiste są zastępowane symbolami. Treść starych logów sprzed wprowadzenia filtrowania prywatności jest pomijana. Wybierz miejsce zapisu ZIP i w razie potrzeby przekaż go pomocy technicznej; nigdy nie jest wysyłany automatycznie.</p>')
 
-HELP_TOPICS["trade"] = ('Handel', '<h2>Handel</h2><h3>Sprzedaż</h3><p>Wyszukaj i wybierz towar, ustaw ilość oraz filtry, a następnie rozpocznij wyszukiwanie sprzedaży. Punktem odniesienia jest bieżący system dowódcy. Cena / t to cena sprzedaży; możliwy przychód dotyczy podanej ilości przy wystarczającym popycie. Dane rynkowe mogą się zmieniać. Wyszukiwanie jest ograniczone; dalsze wyniki wymagają węższych filtrów. Anulowanie może czekać na trwającą odpowiedź sieciową. Ceny pozostają tylko w pamięci. Rare Goods i działania związane z trasą pojawią się później.</p><h3>Kupowanie</h3><p>Wybierz towar i ilość, ustaw filtry i ręcznie rozpocznij wyszukiwanie zakupu. Cena / t to cena płacona przez dowódcę. Podaż to zgłoszona dostępna ilość, która musi pokrywać żądaną ilość. Koszt całkowity = cena × żądana ilość. Społecznościowe dane rynkowe mogą się zmienić: sprawdź ich wiek. Podaż może być mniejsza po przybyciu. Zmiana zakładki anuluje aktywne wyszukiwanie i zachowuje filtry.</p>')
+HELP_TOPICS["trade"] = (
+    'Handel',
+    """<h2>Handel</h2>
+<h3>Handel w skrócie</h3>
+<p>„Sprzedaż” znajduje rynki skupujące twój towar. „Kupowanie” znajduje konkretny towar do kupienia. „Rekomendacje” pokazuje, co możesz kupić na obecnej stacji i odsprzedać z zyskiem zgodnie ze swoimi warunkami.</p>
 
-HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<h3>Rekomendacje</h3><p>Zakup korzysta wyłącznie z aktualnego rynku Elite osobiście zaobserwowanego przez aktywnego dowódcę, z danymi młodszymi niż 24 godziny. Jeśli ich brak, otwórz rynek w Elite. Cele pochodzą z własnych obserwacji i Spansh. Dla tej samej MarketID wygrywają nowsze prawidłowe dane, a przy równej dacie lokalne. Zysk/t = cena sprzedaży u celu − lokalna cena zakupu. Zysk % = zysk/t ÷ cena zakupu × 100. Minimalny zysk musi być osiągnięty. Ilość = minimum z potwierdzonej wolnej ładowni, lokalnej podaży i popytu u celu. Łączny zysk = zysk/t × ilość. Dla każdego towaru pokazany jest najlepszy sprawdzony cel według łącznego zysku, ze źródłem i wiekiem danych. Nieznana odległość wyklucza lokalny cel; brak danych o lądowisku, carrierze lub przylocie nie spełnia odpowiednich ograniczeń. Ręczne wyszukiwanie sprawdza kolejno tylko lokalnie oferowane towary, z postępem i anulowaniem. Częściowe wyniki i limity są oznaczone. Ceny, podaż i popyt mogą się zmienić.</p>')
+<h3>Dane rynkowe i ich wiek</h3>
+<p>Sprzedaż i zakup automatycznie łączą ważne zapisane własne obserwacje rynku z danymi społeczności pobieranymi przez Spansh. Rekomendacje kupują wyłącznie na obecnym, osobiście zaobserwowanym rynku Elite; cele zwykle pochodzą z własnych obserwacji i Spansh. Wyniki społeczności są przechowywane tylko tymczasowo w pamięci.</p>
+<p>Wszystkie dane przedstawiają stan z konkretnej chwili, również własne obserwacje. Cena, podaż i popyt mogą zmienić się przed przylotem. Sprawdzaj wiek danych: dostępność i zysk nie są gwarantowane.</p>
+<p>Jeśli ten sam rynek jest znany z własnej obserwacji i z danych społeczności, CMDRHelper używa nowszego ważnego stanu rynku.</p>
 
-HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>„Tylko własne dane rynkowe” sprawdza wyłącznie rynki zaobserwowane przez ciebie mniej niż 24 godziny temu. Nadal obowiązują wybrany maksymalny wiek danych docelowych, promień i pozostałe filtry. Brak zapytań do społeczności sprawia, że wyszukiwanie lokalne jest bardzo szybkie. Ceny, podaż i popyt mogły jednak zmienić się od czasu obserwacji.</p>')
+<h3>Wybór towaru</h3>
+<p>Kliknij „Towar”, wyszukaj nazwę wyświetlaną, angielską lub symbol i wybierz towar. Niemieckie nazwy pochodzą z utrzymywanego niemieckiego katalogu. Gdy brak dostępnego tłumaczenia, pojawia się angielska nazwa katalogowa lub czytelna nazwa zastępcza.</p>
+
+<h3>Sprzedaż</h3>
+<p>Wyszukiwanie korzysta zarówno z ważnych własnych obserwacji rynku, jak i danych rynkowych społeczności. Wybierz towar, „Ilość (t)” i filtry, następnie „Znajdź najlepszą sprzedaż”. Wyszukiwane są oferty skupu z popytem wystarczającym dla podanej ilości. „Cena / t” to cena otrzymywana przy sprzedaży. „Możliwy przychód” = cena × podana ilość. Punktem wyjścia jest obecny system dowódcy. Domyślnie najwyższa cena sprzedaży jest pierwsza.</p>
+
+<h3>Kupowanie</h3>
+<p>Wyszukiwanie korzysta zarówno z ważnych własnych obserwacji rynku, jak i danych rynkowych społeczności. Wybierz towar, żądaną ilość i filtry, następnie „Znajdź najtańszy zakup”. Zgłoszona „Podaż” musi wystarczyć na całą ilość. „Cena / t” to twoja cena zakupu; „Koszt całkowity” = cena × żądana ilość. Punktem wyjścia jest obecny system. Domyślnie najniższa cena zakupu jest pierwsza. To wyszukiwanie konkretnego towaru, a nie rekomendacja zysku.</p>
+
+<h3>Filtry i tabele wyników</h3>
+<ul>
+<li><b>Promień (ly):</b> maksymalna odległość między systemem wyjściowym a docelowym.</li>
+<li><b>Maksymalny wiek danych rynkowych / Wiek danych celu:</b> największy dopuszczalny wiek danych; dla rekomendacji dotyczy celu.</li>
+<li><b>Rozmiar lądowiska:</b> minimalny wymagany rozmiar lądowiska, nie dokładny rozmiar stacji. „Średnie” dopuszcza także duże lądowiska; „Dowolny” nie ogranicza rozmiaru.</li>
+<li><b>Uwzględnij Fleet Carriery:</b> uwzględniaj lub wykluczaj lotniskowce.</li>
+<li><b>Maks. odległość dolotu (Ls):</b> maksymalna odległość stacji od gwiazdy przylotu. Puste pole oznacza brak ograniczenia. Cel bez znanej odległości dolotu nie spełnia tego filtra.</li>
+</ul>
+<p>Własne wyniki i wyniki społeczności podlegają tym samym filtrom wieku danych, promienia, lądowiska, carrierów i odległości od punktu przylotu. Brakujące informacje nie są szacowane. Cele bez znanej odległości między systemami lub bez potwierdzenia spełnienia ustawionego ograniczenia są wykluczane. Dla własnych rynków dotyczy to szczególnie brakujących danych lądowisk i dolotu; po wykluczeniu lotniskowców musi być wiadomo, że cel nie jest lotniskowcem.</p>
+<p>Klikaj nagłówki kolumn, aby sortować: liczby według wartości, wiek danych według rzeczywistego wieku, lądowiska według klasy wielkości. Sprzedaż i zakup pokazują najwyżej 100 wyników. „Są dalsze wyniki. Zawęź filtry.” wskazuje ograniczone wyszukiwanie. Dostępne własne wyniki i wyniki społeczności są wspólnie sortowane według ceny przed ograniczeniem listy. Ze względu na limity wyszukiwania usługi społecznościowej nie ma gwarancji, że są to najlepsze oferty ogółem.</p>
+<p>Jeśli wyszukiwanie społecznościowe podczas sprzedaży lub zakupu nie powiedzie się, pasujące własne wyniki nadal można wykorzystać. CMDRHelper oznacza wtedy wyszukiwanie jako niepełne: może brakować lepszych ofert społeczności.</p>
+
+<h3>Własne dane rynkowe</h3>
+<p>Otwórz rynek towarowy w Elite po zadokowaniu. Gdy CMDRHelper działa, automatycznie zapisuje rynek, jeśli można go bezpiecznie przypisać do obecnej stacji. Ręczny import nie jest potrzebny. Ponowne otwarcie aktualizuje zapisany stan.</p>
+<p>Dla każdego rynku i dowódcy pozostaje jeden aktualny stan, młodszy niż 24 godziny. Starsze są automatycznie usuwane; nie powstaje trwała historia cen. Ważne własne obserwacje przetrwają restart Helpera. „Własne dane rynkowe — liczba stacji: X” liczy ważne własne rynki stacji aktywnego dowódcy. Wybrany maksymalny wiek danych rynkowych obowiązuje dodatkowo dla własnych wyników.</p>
+<ul>
+<li><b>✓ Wczytano:</b> W rekomendacjach istnieje ważny własny stan rynku obecnej stacji.</li>
+<li><b>Otwórz rynek towarów:</b> Brak użytecznego własnego stanu dla tej stacji.</li>
+<li><b>Dane nieaktualne:</b> Wcześniej wyświetlany stan stracił ważność. Otwórz rynek ponownie.</li>
+</ul>
+<p>Jeśli stary stan został usunięty przed otwarciem widoku, również pojawi się „Otwórz rynek towarów”. W locie nie jest pokazywany pozytywny status poprzedniej stacji.</p>
+
+<h3>Rekomendacje</h3>
+<p>Potrzebne są obecna stacja, jej ważny własny stan rynku oraz znany aktualny statek z pewną informacją o wolnej ładowni. Zajęte miejsce jest odliczane. Przy nieznanym wolnym miejscu lub pełnej ładowni nowego wyszukiwania nie można rozpocząć; ilości nie są zgadywane. Po odlocie nie oblicza się ponownie na podstawie starego miejsca pobytu.</p>
+<p>Ustaw „Minimalny zysk”: 10 % uwzględnia tylko możliwości z marżą co najmniej 10 %. Wyszukiwane są towary oferowane lokalnie. Stacja zakupu sama nie jest celem. Dla tej samej stacji docelowej (ten sam MarketID) liczy się nowszy ważny stan. Każdy towar pokazuje sprawdzony cel z najwyższym „Potencjalny zysk” przy twoich filtrach, niekoniecznie najlepszy w galaktyce. Tabela zaczyna się od najwyższego możliwego zysku; „Źródło” pokazuje „Elite lokalnie” lub „Spansh”, a „Wiek danych celu” wiek danych celu.</p>
+
+<h3>Tylko własne dane rynkowe</h3>
+<p>To pole wyboru jest dostępne tylko w Rekomendacjach. Sprzedaż i zakup automatycznie korzystają z obu źródeł. To pole ogranicza rekomendacje do ważnych rynków docelowych zaobserwowanych osobiście. Nie ma zapytania do społeczności; Spansh nie jest potrzebny. Promień, dodatkowy limit wieku danych celu, minimalny zysk, lądowisko, lotniskowce i dolot nadal obowiązują, a dostępne informacje muszą pozwalać sprawdzić te warunki. Świadome pominięcie wyszukiwania społecznościowego nie jest błędem i nie czyni wyszukiwania niepełnym. Pozwala szybko szukać między już odwiedzonymi stacjami.</p>
+
+<h3>Możliwy zysk i ilość</h3>
+<ul>
+<li><b>Zysk / t:</b> cena sprzedaży u celu − cena zakupu tutaj. „Zysk %” = zysk na tonę ÷ cena zakupu × 100.</li>
+<li><b>Ilość (t):</b> najmniejsza z wartości: wolna ładownia, podaż rynku zakupu i popyt u celu.</li>
+<li><b>Potencjalny zysk:</b> zysk na tonę × możliwa ilość; oszacowanie według znanych stanów rynku.</li>
+</ul>
+<p>Przykład: 280 t wolne, podaż 150 t, popyt 20 000 t → możliwa ilość 150 t. Nie każdy towar automatycznie zapełni całą wolną ładownię.</p>
+
+<h3>Zapamiętany lot handlowy</h3>
+<p>Zaznacz pole, aby zapamiętać dokładnie jedną rekomendację. Inny wybór ją zastępuje. Osobna notatka pokazuje towar, stację i system docelowy oraz „Potencjalny zysk” z chwili zaznaczenia. To przypomnienie, nie stale przeliczana rekomendacja.</p>
+<p>Pozostaje po zakupie, zmianie ładunku, odlocie, zmianie systemu, dokowaniu i otwarciu rynku. Znika po „Usuń” lub odznaczeniu pola, gdy faktycznie rozpocznie się nowe wyszukiwanie rekomendacji, przy zmianie dowódcy i zamknięciu Helpera. Nie jest zachowywana po restarcie.</p>
+<p>„Kopiuj system” kopiuje do schowka wyłącznie nazwę systemu docelowego. Stacja pozostaje widoczna w notatce; trasa nie jest tworzona.</p>
+
+<h3>Wyszukiwanie, postęp i anulowanie</h3>
+<p>Uruchamiaj wyszukiwanie ręcznie. Rekomendacje sprawdzają wiele towarów i mogą trwać dłużej. Po ustaleniu zakresu pasek i „Sprawdzanie towarów: x z y …” pokazują faktycznie sprawdzone towary. „Anuluj” jest dostępne tylko podczas wyszukiwania, które można anulować; trwająca odpowiedź sieciowa może opóźnić anulowanie. Zmiana zakładki anuluje wyszukiwanie; wspólne filtry sprzedaży/zakupu pozostają.</p>
+<p>Gdy pojedyncze zapytania społecznościowe zawiodą lub zostaną osiągnięte limity, ważne sprawdzone rekomendacje mogą pozostać widoczne. Niepełne wyszukiwanie oznacza, że wyniki dotyczą sprawdzonych danych, ale nie wszystkie towary lub cele zbadano w całości. Przeczytaj komunikat, zawęź filtry po osiągnięciu limitów lub spróbuj później. Ręczne anulowanie odrzuca bieżącą listę wyników.</p>
+
+<h3>Diagnostyka problemów</h3>
+<p>„Kopiuj diagnostykę” kopiuje informacje techniczne o ostatnim zakończonym wyszukiwaniu rekomendacji do analizy problemów. Tekst nie zawiera danych dowódcy/FID ani cen rynkowych. Diagnostyka pozostaje w pamięci; nie powstaje trwały plik i nic nie jest automatycznie wysyłane. W razie potrzeby samodzielnie przekaż skopiowany tekst wsparciu.</p>
+
+<h3>Jak wykonać lot handlowy</h3>
+<ol>
+<li>Zadokuj na stacji i otwórz rynek w Elite.</li>
+<li>Otwórz „Handel” → „Rekomendacje” i sprawdź „Wczytano”.</li>
+<li>Ustaw minimalny zysk i filtry, następnie wybierz „Szukaj rekomendacji”.</li>
+<li>Zaznacz wybraną rekomendację do zapamiętania i kup towar w Elite.</li>
+<li>W razie potrzeby użyj „Kopiuj system” i poleć do celu; stacja pozostaje widoczna w notatce.</li>
+<li>Sprzedaj w Elite. Otwórz tam rynek, aby zaktualizować także własne dane nowego rynku.</li>
+</ol>""",
+)

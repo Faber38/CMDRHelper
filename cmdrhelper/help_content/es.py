@@ -114,90 +114,57 @@ HELP_TOPICS = {
               'juego, primero revisa la pantalla del diario en la parte superior y luego revisa la '
               'carpeta del diario configurada en "Configuración".</p>'
               '<p>Abierto aparece en rojo, Solo en dorado y Grupo privado en verde, con el nombre de grupo comunicado. El modo se reconstruye a partir de los diarios disponibles y se actualiza con las nuevas entradas LoadGame.</p>\n<p>Un solo clic en una entrada de los sistemas recientes copia el nombre del sistema al portapapeles. Aparece brevemente «✓ Copiado: &lt;Sistema&gt;».</p>\n'),
- 'missions': ('Misiones',
-              '<h2>Misiones</h2>\n'
-              '<p>La vista de misión muestra las misiones del comandante visto actualmente '
-              'conocidas por Elite Dangerous Journal. CMDRHelper guarda los datos de la misión '
-              'comandante por comando para que las misiones abiertas se conserven incluso después '
-              'de reiniciar Elite Dangerous o CMDRHelper.</p>\n'
-              '\n'
-              '<h3>Misiones abiertas</h3>\n'
-              '<p>Nuevas misiones estan saliendo<code>MissionAccepted</code>asumido y guardado '
-              'permanentemente.</p>\n'
-              '<p>Mientras no haya un evento de misión final, la misión permanecerá abierta. Es '
-              'posible que una nueva sesión de juego sin una lista de misiones no elimine '
-              'automáticamente las misiones abiertas conocidas.</p>\n'
-              '\n'
-              '<h3>Estado de la misión</h3>\n'
-              '<p>CMDRHelper procesa, entre otros, los siguientes cambios de estado:</p>\n'
-              '<ul>\n'
-              '<li>Misión aceptada</li>\n'
-              '<li>Misión completada</li>\n'
-              '<li>Misión fallida</li>\n'
-              '<li>Misión abortada</li>\n'
-              '<li>Objetivo de la misión desviado</li>\n'
-              '<li>Progreso en misiones de carga/depósito apoyadas</li>\n'
-              '</ul>\n'
-              '<p>Un evento final sólo cambia la misión asociada.</p>\n'
-              '\n'
-              '<h3>Misiones del Diario</h3>\n'
-              '<p>Elite Dangerous proporciona información de la misión sobre varios eventos del '
-              'diario. CMDRHelper fusiona estos eventos en un estado de misión persistente.</p>\n'
-              '<p>Un evento real de misión completa puede servir como una instantánea autorizada. '
-              'Si falta un evento de este tipo, las misiones abiertas más antiguas no se cerrarán '
-              'solo por este motivo.</p>\n'
-              '\n'
-              '<h3>Destinos y lugares</h3>\n'
-              '<p>En la medida que Elite proporciona la información en el diario, CMDRHelper '
-              'muestra:</p>\n'
-              '<ul>\n'
-              '<li>Sistema de destino</li>\n'
-              '<li>Estación de destino o destino</li>\n'
-              '<li>Planeta o cuerpo objetivo</li>\n'
-              '<li>Designación de la misión</li>\n'
-              '<li>progreso conocido</li>\n'
-              '<li>estado actual</li>\n'
-              '</ul>\n'
-              '<p>No todas las misiones proporcionan toda la información. Los datos faltantes no '
-              'los inventa CMDRHelper.</p>\n'
-              '\n'
-              '<h3>Persistencia y reinicio</h3>\n'
-              '<p>Las misiones abiertas se guardan en la base de datos relacionada con el '
-              'comandante.</p>\n'
-              '<p>Esto significa que se retienen incluso si:</p>\n'
-              '<ul>\n'
-              '<li>Elite Dangerous finaliza y se reinicia más tarde</li>\n'
-              '<li>CMDRHelper está cerrado en el medio</li>\n'
-              '<li>La nueva sesión del diario inicialmente no contiene ningún evento de '
-              'misión.</li>\n'
-              '</ul>\n'
-              '<p>Sólo un evento de misión documentado cambia el estado guardado.</p>\n'
-              '\n'
-              '<h3>Varios comandantes</h3>\n'
-              '<p>Las misiones están estrictamente separadas por comandante.</p>\n'
-              '<p>Un evento de misión sólo se asigna al comandante cuya sesión de diario se ha '
-              'identificado de forma única. Las misiones de otro comandante no se pueden mostrar '
-              'ni modificar.</p>\n'
-              '\n'
-              '<h3>Misiones huérfanas o que ya no son válidas</h3>\n'
-              '<p>Si los datos del diario más antiguos o una importación anterior mantienen '
-              'abierta una misión aunque ya no exista en el juego, se puede utilizar la función de '
-              'limpieza/restablecimiento de misiones huérfanas existentes.</p>\n'
-              '<p>Esta función solo debe usarse si está claro que la misión mostrada ya no está '
-              'activa.</p>\n'
-              '\n'
-              '<h3>Servicios en línea</h3>\n'
-              '<p>Los eventos de misión admitidos también se pueden transmitir a Inara si se '
-              'configura un acceso Inara válido y activado para el diario activo FID.</p>\n'
-              '<p>Una conexión Inara faltante o inalcanzable no afecta el almacenamiento de la '
-              'misión local.</p>\n'
-              '\n'
-              '<h3>Consejo</h3>\n'
-              '<p>Si una misión no aparece o muestra un estado incorrecto, primero verifique si '
-              'Elite Dangerous ya ha escrito el evento de misión correspondiente en el '
-              'diario.</p>\n'
-              '<p>CMDRHelper solo puede mostrar información que el diario realmente proporciona o '
-              'que ya ha sido almacenada de eventos de misiones únicos anteriores.</p>'),
+ 'missions': (
+        'Misiones y recompensas',
+        """<h2>Misiones y recompensas</h2>
+<p>Esta página principal muestra las misiones y recompensas observadas del comandante activo del diario. Seleccionar otro comandante en la vista CMDR independiente no cambia esta página. Los datos de cada comandante se mantienen separados.</p>
+
+<h3>Cómo usar esta página</h3>
+<ol>
+<li>Abre «Misiones y recompensas» y selecciona una misión de la lista.</li>
+<li>Revisa «Estado» y «DETALLES DE LA MISIÓN». «Siguiente paso» sirve de orientación.</li>
+<li>Si es necesario, usa «Actualizar diario» para volver a leer los datos disponibles del diario.</li>
+<li>Consulta por separado las recompensas de misiones, «Recompensas» y «Bonos de combate».</li>
+</ol>
+
+<h3>Lista y detalles</h3>
+<p>La lista contiene misiones abiertas confirmadas y ofertas provisionales detectadas en encuentros. Muestra misión, sistema, planeta / lugar, estado, siguiente paso, recompensa y plazo. Al seleccionar una entrada aparecen los detalles disponibles del destino y el progreso. La información ausente del diario queda como desconocida; el plazo de las ofertas provisionales es desconocido.</p>
+
+<h3>Estado de las misiones</h3>
+<p>El estado sigue los datos disponibles de misión, ubicación y progreso. No todos los tipos de misión proporcionan todos los estados intermedios.</p>
+<ul>
+<li><b>Misión aceptada / En ruta:</b> La misión es conocida; todavía no se ha detectado la llegada al destino.</li>
+<li><b>En el sistema objetivo:</b> Estás en el sistema objetivo, pero aún no en el destino identificado de la misión.</li>
+<li><b>En el destino de la misión:</b> Se ha alcanzado la estación o el cuerpo celeste correspondiente al destino.</li>
+<li><b>Destino cambiado:</b> Se ha comunicado un nuevo destino de misión.</li>
+<li><b>Carga recogida:</b> Se ha detectado la recogida de carga de misión.</li>
+<li><b>Entrega en curso:</b> Se ha registrado una entrega; se muestra el progreso conocido de las cantidades.</li>
+<li><b>Tarea completada / Datos recibidos:</b> La tarea o la recogida de datos ha terminado. La misión puede seguir abierta, por ejemplo con «Volver al terminal de misiones». Esto todavía no confirma un pago.</li>
+</ul>
+<p>Las finalizaciones, los fracasos y los abandonos detectados retiran la misión afectada de la lista abierta. Un nuevo estado completo de misiones puede identificar entradas antiguas como inactivas.</p>
+
+<h3>Recompensa total</h3>
+<p>«Recompensa total» suma las recompensas conocidas en créditos de las misiones abiertas confirmadas. No es un saldo ya cobrado. Quedan excluidas las ofertas provisionales de encuentros, las recompensas por cazarrecompensas y los bonos de combate.</p>
+
+<h3>Misiones de encuentros</h3>
+<p>Los encuentros espaciales compatibles pueden aparecer como ofertas provisionales «Encargo de encuentro» aunque aún no exista una MissionID definitiva. Por tanto, «Recompensa ofrecida» todavía no es una recompensa confirmada de misión abierta y no se incluye en la recompensa total.</p>
+<p>Si datos posteriores del diario relacionan inequívocamente una oferta con una misión, ambas se fusionan. Si hay ambigüedad, la oferta sigue siendo provisional. Las ofertas no confirmadas se ocultan localmente después de 24 horas; esto no indica un plazo de misión dentro del juego.</p>
+
+<h3>Recompensas</h3>
+<p>Esta sección muestra las recompensas por cazarrecompensas observadas localmente, con un total y cantidades por facción. Solo conoce los datos registrados, no un saldo completo garantizado del juego. «Registro a partir de ahora.» indica el inicio del registro; las lagunas se señalan con «Sincronización incompleta: pueden faltar eventos.».</p>
+<p>Un canje de estas recompensas o una muerte detectados ponen a cero todo su saldo local, independientemente del estado de las misiones.</p>
+
+<h3>Bonos de combate</h3>
+<p>Aquí se muestran por facción los bonos de combate observados cuyo canje aún no se ha detectado. Falta cualquier saldo anterior al inicio del registro. Si existe incertidumbre, aparece «Importe observado» junto con «Saldo no verificado por completo.».</p>
+<p>Un canje atribuido inequívocamente elimina el importe observado de la facción indicada; las demás facciones se conservan. Si la atribución no está clara, los importes permanecen y aparece «Canje detectado: revisa el saldo.». Una muerte detectada elimina los bonos de combate observados.</p>
+
+<h3>Restablecimiento local</h3>
+<p>«Restablecer…» en cada sección de recompensas pone a cero únicamente su saldo local para el comandante activo, tras confirmar. <b>No cambia ningún valor en Elite Dangerous.</b> Las recompensas por cazarrecompensas y los bonos de combate se restablecen por separado; no se eliminan ni se completan misiones.</p>
+
+<h3>Actualización y reinicio</h3>
+<p>Las misiones abiertas conocidas y los saldos locales de recompensas se conservan al reiniciar Helper. Una nueva sesión del diario sin lista de misiones no elimina automáticamente las misiones abiertas. Las lagunas de registro pueden dejar incompletos, sobre todo, los saldos de recompensas. «Actualizar diario» solo puede leer información existente, no crear datos del juego que falten.</p>
+<p>La vista local de misiones no necesita conexión con Inara. Con una conexión habilitada y configurada para el comandante activo, también pueden transmitirse los eventos de misión compatibles.</p>""",
+    ),
  'explorer': ('Explorador',
               '<h2>Explorador</h2>\n<h3>CMDRHelper</h3>\n<p>Vista general del sistema: la nueva presentación al estilo Elite sustituye la miniatura anterior en Explorer y Crónica. Estrellas y planetas forman la estructura principal y las lunas se ramifican debajo; los sistemas múltiples siguen siendo legibles. Zoom, desplazamiento, ajuste a la ventana y clic en los cuerpos permiten consultar detalles.</p>\n<p>Cinturones de asteroides compactos: los grupos se reúnen en cinturones en la vista general y los mapas habituales de Explorer y Crónica. Se conservan todos los datos individuales de los grupos.</p>\n<p>Cartografía corregida: un escaneo posterior al cartografiado DSS ya no reinicia valores de exploración sin vender, hora de cartografiado ni eficiencia. Los registros erróneos se reparan al iniciar desde journals disponibles y atribuidos inequívocamente. Sin esas fuentes, la reparación queda pendiente; no hace falta borrar la base de datos.</p>\n'
               '<p>El Explorer evalúa los sistemas y cuerpos celestes descubiertos y escaneados por '
@@ -924,194 +891,39 @@ HELP_TOPICS = {
             'más antiguas en la carpeta raíz.</p>\n'
             '<p>Un brillo más alto puede ayudar con fotografías oscuras; Afecta a la imagen de '
             'destino recién creada durante la conversión.</p>'),
- 'commander_view': ('Vista CMDR',
-                    '<h2>Vista CMDR</h2>\n'
-                    '<p>La vista CMDR resume la información personal almacenada permanentemente de '
-                    'un comandante.</p>\n'
-                    '<p>También le permite cambiar entre los comandantes conocidos CMDRHelper y '
-                    'ver sus propios datos. La información personal se separa mediante el ID '
-                    'Frontier (FID).</p>\n'
-                    '\n'
-                    '<h3>Seleccionar comandante</h3>\n'
-                    '<p>Si conoces varios comandantes, puedes usar la selección anterior para '
-                    'determinar de quién se muestra la información guardada. Este comandante es el '
-                    'comandante considerado.</p>\n'
-                    '<p>La pantalla lo marca como “Live Active” o “View Only”.</p>\n'
-                    '\n'
-                    '<h3>Considerado Commander y Live Commander</h3>\n'
-                    '<p>Seleccionar otro comandante en la vista CMDR no lo convierte en el '
-                    'comandante de diario activo.</p>\n'
-                    '<p>El comandante en vivo se determina exclusivamente a partir de la sesión '
-                    'del diario Elite Dangerous actualmente identificada de forma única. De esta '
-                    'manera se puede ver el historial de otro comandante mientras Elite Dangerous '
-                    'continúa ejecutándose con EXAMPLE.</p>\n'
-                    '\n'
-                    '<h3>Identificación de Frontier (FID)</h3>\n'
-                    '<p>El FID es el identificador estable Frontier de un comandante.</p>\n'
-                    '<p>CMDRHelper lo utiliza y el ID del comandante interno se resuelve a partir '
-                    'de él para separar de forma segura los datos personales. Los comandantes con '
-                    'nombres similares o idénticos también permanecen separados.</p>\n'
-                    '\n'
-                    '<h3>Descripción general</h3>\n'
-                    '<p>La pestaña "Descripción general" solo muestra información guardada '
-                    'permanentemente para el comandante en cuestión:</p>\n'
-                    '<ul>\n'
-                    '<li>Nombre del comandante, FID y estado “En vivo activo” o “Solo ver”</li>\n'
-                    '<li>primera y última hora conocida</li>\n'
-                    '<li>Número de sistemas visitados, descubrimientos biológicos y geográficos, '
-                    'entradas de códices y ventas de cartografía</li>\n'
-                    '<li>Última ubicación conocida y número de misiones abiertas</li>\n'
-                    '<li>barco actual o último</li>\n'
-                    '<li>Fleet Carrier y ubicación del transportista</li>\n'
-                    '<li>Activos</li>\n'
-                    '<li>biodatos abiertos y datos cartográficos abiertos, incluidas estimaciones '
-                    'existentes</li>\n'
-                    '</ul>\n'
-                    '\n'
-                    '<h3>Activos/Créditos</h3>\n'
-                    '<p>El campo "Activos" muestra el saldo de crédito guardado más recientemente '
-                    'del comandante en cuestión de un evento de diario apropiado, con el formato, '
-                    'por ejemplo<b>1.234.567 millones</b>.</p>\n'
-                    '<p>CMDRHelper no agrega ingresos ni gastos ficticios si no hay un estado de '
-                    'diario nuevo y seguro.</p>\n'
-                    '\n'
-                    '<h3>Monedas mercenarias</h3>\n'
-                    '<p>Las monedas mercenarias provienen de los campos MercCoins proporcionados '
-                    'por Elite Dangerous.<code>Statistics → Bank_Account</code>y se guardan '
-                    'relacionados con el comandante como una instantánea Frontier.</p>\n'
-                    '<p>Visibles son:</p>\n'
-                    '<ul>\n'
-                    '<li>Actual</li>\n'
-                    '<li>Total gastado</li>\n'
-                    '<li>Ingeniería</li>\n'
-                    '<li>equipo</li>\n'
-                    '<li>Informado por Frontier: obtenido en general</li>\n'
-                    '</ul>\n'
-                    '\n'
-                    '<h3>Actual y ediciones</h3>\n'
-                    '<p>Programas “actuales”<code>MercCoins_Actual</code>. El “gasto total” toma '
-                    'el relevo<code>MercCoins_Total_Gastado</code>.</p>\n'
-                    '<p>“Ingeniería” y “Equipo” muestran las acciones reportadas por separado por '
-                    'Frontier<code>MercCoins_Gastado_En_Ingeniería</code>y<code>MercCoins_Gastado_En_MercGear</code>.</p>\n'
-                    '<p>Para EXAMPLE, por ejemplo, un inventario actual de<b>1.000</b>, en '
-                    'total<b>200</b>gastado y lejos<b>200</b>reportado para ingeniería.</p>\n'
-                    '\n'
-                    '<h3>En general merecido</h3>\n'
-                    '<p>"Reportado por Frontier: obtenido en general" '
-                    'muestra<code>MercCoins_Total_Ganado</code>. CMDRHelper no calcula su propio '
-                    'balance a partir de esto.</p>\n'
-                    '<p>El valor acumulado de Frontier no tiene que coincidir matemáticamente con '
-                    'el inventario actual y los gastos reportados. Por ejemplo, se pueden informar '
-                    'al mismo tiempo 1000 actuales, 25 ganados en total y 200 gastados en '
-                    'total.</p>\n'
-                    '<p>CMDRHelper no corrige estos valores, pero muestra los contadores Frontier '
-                    'individuales sin cambios.</p>\n'
-                    '\n'
-                    '<h3>¿Por qué no tener su propio balance MercCoins?</h3>\n'
-                    '<p>Elite Dangerous no proporciona un registro de asiento de diario único para '
-                    'cada recibo o gasto individual de monedas mercenarias. Los MercCoins aparecen '
-                    'como totales en Statistics.</p>\n'
-                    '<p>Por lo tanto, un historial de reservas calculado por uno mismo no sería '
-                    'fiable. En su lugar, CMDRHelper guarda la última instantánea conocida de '
-                    'Frontier.</p>\n'
-                    '\n'
-                    '<h3>Misiones</h3>\n'
-                    '<p>La pestaña "Misiones" muestra las misiones guardadas del comandante en '
-                    'cuestión como una tabla con estado, nombre de la misión, objetivo, tiempo de '
-                    'vencimiento y recompensa.</p>\n'
-                    '\n'
-                    '<h3>exploración</h3>\n'
-                    '<p>La pestaña Exploración muestra biodatos abiertos, datos de cartografía '
-                    'abierta, biodescubrimientos, primeros pasos, cuerpos automapeados y '
-                    'cartografiados de manera eficiente, y la cantidad de sistemas visitados.</p>\n'
-                    '<p>La pestaña dedicada "Crónica" dentro de la vista CMDR sigue siendo '
-                    'actualmente un marcador de posición. La crónica completa se puede encontrar '
-                    'en el elemento del menú principal del mismo nombre.</p>\n'
-                    '\n'
-                    '<h3>Barcos/Flota</h3>\n'
-                    '<p>La pestaña "Barcos" muestra inicialmente el barco activo o utilizado más '
-                    'recientemente con el nombre del barco, el tipo de barco, la ubicación y el ID '
-                    'del barco.</p>\n'
-                    '<p>Los barcos salvados del comandante en cuestión aparecen debajo como '
-                    'tarjetas ampliables. Se pueden ordenar de forma ascendente o descendente '
-                    'por:</p>\n'
-                    '<ul>\n'
-                    '<li>último o utilizado actualmente</li>\n'
-                    '<li>Nombre del barco o tipo de barco</li>\n'
-                    '<li>rango máximo de salto</li>\n'
-                    '<li>Capacidad de carga o masa vacía</li>\n'
-                    '<li>última ubicación o hora conocida</li>\n'
-                    '</ul>\n'
-                    '<p>También puedes filtrar por todos los barcos, barcos con un hangar para '
-                    'vehículos o barcos con un hangar para cazas.</p>\n'
-                    '\n'
-                    '<h3>Detalles del barco</h3>\n'
-                    '<p>Un mapa de barco abierto muestra, si se guarda, ID del barco, ID del '
-                    'barco, ubicación, última vez, alcance máximo de salto, FSD y refuerzo '
-                    'Guardian, masa, carga y capacidades del tanque, así como el tiempo y el '
-                    'estado de carga.</p>\n'
-                    '<p>Si los datos del módulo están disponibles, también se resumen los hangares '
-                    'de vehículos y cazas, el generador de escudo y el refuerzo de escudo, los '
-                    'refuerzos del escudo Guardián, las armas, los refuerzos del casco y del '
-                    'módulo y las cabinas de pasajeros.</p>\n'
-                    '<p>El estado del equipamiento puede ser completo, incompleto o obsoleto. La '
-                    'información faltante se muestra como “–” y no se completa.</p>\n'
-                    '\n'
-                    '<h3>Fleet Carrier</h3>\n'
-                    '<p>Para un Fleet Carrier personalizado guardado, la vista muestra el nombre '
-                    'del operador, el distintivo de llamada, el ID del operador, la última '
-                    'ubicación y la hora de la última actualización.</p>\n'
-                    '\n'
-                    '<h3>Estado comandante persistente</h3>\n'
-                    '<p>La información importante del comandante permanece guardada '
-                    'permanentemente. Esto permite que los valores conocidos se muestren '
-                    'nuevamente después de reiniciar CMDRHelper o Elite Dangerous sin volver a '
-                    'evaluar completamente cada diario.</p>\n'
-                    '<p>Los nuevos eventos de diario únicos actualizan el estado guardado.</p>\n'
-                    '\n'
-                    '<h3>Reconstrucción histórica</h3>\n'
-                    '<p>Para funciones que se agregan más adelante, CMDRHelper puede buscar una '
-                    'vez en áreas de diario existentes que están claramente asignadas a un '
-                    'comandante información que ya se conoce.</p>\n'
-                    '<p>Por ejemplo, se pueden adoptar instantáneas MercCoins más antiguas. Las '
-                    'comprobaciones repetidas no tienen como objetivo producir datos duplicados y '
-                    'no alteran las posiciones normales de lectura del diario.</p>\n'
-                    '\n'
-                    '<h3>Varios comandantes</h3>\n'
-                    '<p>En particular, los siguientes permanecen separados en términos de '
-                    'comandantes:</p>\n'
-                    '<ul>\n'
-                    '<li>Activos y misiones</li>\n'
-                    '<li>Cartografía propia y hallazgos orgánicos.</li>\n'
-                    '<li>Historia de la minería a cielo abierto y monedas mercenarias.</li>\n'
-                    '<li>Credenciales en línea</li>\n'
-                    '<li>capturas de pantalla relacionadas con el comandante</li>\n'
-                    '</ul>\n'
-                    '<p>Sin embargo, las propiedades astronómicas globales de un sistema o cuerpo '
-                    'se pueden utilizar juntas.</p>\n'
-                    '\n'
-                    '<h3>Impacto en otras vistas</h3>\n'
-                    '<p>Al cambiar el comandante en cuestión se actualiza la propia vista CMDR, la '
-                    'selección de materia prima de minería personal de la crónica y, con el filtro '
-                    'adecuado, la galería de capturas de pantalla.</p>\n'
-                    '<p>No reemplaza al Live Commander real para el procesamiento de diarios o '
-                    'cargas en línea.</p>\n'
-                    '\n'
-                    '<h3>Inara y EDSM</h3>\n'
-                    '<p>Los accesos Inara y EDSM se administran por separado por comandante y FID, '
-                    'respectivamente.</p>\n'
-                    '<p>Simplemente mirar a un comandante no inicia una transmisión con su '
-                    'API-Key. Solo el diario activo FID es relevante para las cargas en vivo.</p>\n'
-                    '<p>Los datos de acceso se gestionan en “Configuración” en el área de '
-                    'servicios online.</p>\n'
-                    '\n'
-                    '<h3>Consejo</h3>\n'
-                    '<p>Utilice la vista CMDR si desea ver la información personal guardada de un '
-                    'comandante específico.</p>\n'
-                    '<p><b>Vista CMDR = ¿A quién quiero ver?</b></p>\n'
-                    '<p><b>Active Journal-FID = ¿Quién está jugando actualmente?</b></p>\n'
-                    '<p>Esta separación evita que se mezclen datos personales o cargas en línea de '
-                    'diferentes comandantes.</p>'),
+ 'commander_view': (
+        'Vista CMDR',
+        """<h2>Vista CMDR</h2>
+<h3>Elegir comandante</h3>
+<p>El selector superior determina de quién ves los datos guardados. ● En vivo activo identifica al comandante activo del diario; Solo vista, a otro perfil guardado. Elegirlo no cambia el comandante activo del diario: la página principal «Misiones y recompensas» sigue usando al que está jugando. Los datos personales se separan por FID, incluso con nombres iguales. Consultar un perfil no inicia ningún envío en línea.</p>
+
+<h3>Resumen, patrimonio y MercCoins</h3>
+<p>«Resumen» muestra nombre, FID, estado, primer y último registro, sistemas visitados, hallazgos biológicos/geológicos, entradas del Codex y ventas cartográficas, ubicación, misiones abiertas, nave, portanaves y datos biológicos/cartográficos sin vender con estimaciones conocidas. «Patrimonio» es el último saldo de créditos guardado. «Mercenary credits» muestra los valores de Frontier: «Current», «Total spent», «Engineering», «Gear» y «Reported by Frontier: total earned». Estos contadores no tienen por qué cuadrar; CMDRHelper no los corrige ni inventa un historial de transacciones. Los valores desconocidos quedan como «–».</p>
+
+<h3>Misiones y exploración</h3>
+<p>«Misiones» muestra las misiones abiertas guardadas del comandante consultado, con estado, nombre, destino, vencimiento y recompensa. Es una tabla de consulta, sin detalles ni acciones de misión como los de la página principal. «Exploración» muestra datos biológicos/cartográficos sin vender, hallazgos biológicos, primeras pisadas, cuerpos cartografiados personalmente o de forma eficiente y sistemas visitados. «Crónica» es aquí un espacio reservado; la crónica completa se abre desde el menú principal.</p>
+
+<h3>Flota y detalles de las naves</h3>
+<p>«Naves» muestra arriba la nave actual o la última utilizada y debajo la flota guardada del comandante. Pulsa la cabecera de una ficha para desplegar sus detalles. Ordena en ambos sentidos por uso, nombre, tipo, alcance de salto, capacidad de carga, masa en vacío, ubicación o fecha; filtra todas las naves o las que tienen hangar de vehículos/cazas. El verde identifica la nave activa en directo; otros colores agrupan ubicaciones conocidas. Los detalles incluyen matrícula, ShipID, ubicación, fechas, FSD/propulsor Guardian, alcance, masa, capacidades de carga/combustible y estado del equipamiento (completo, incompleto o antiguo). Los módulos conocidos añaden hangares, escudos y refuerzos, armas y cabinas. Los datos ausentes quedan como «–».</p>
+
+<h3>Tu propio portanaves</h3>
+<p>«Fleet Carrier propio» muestra nombre, indicativo, CarrierID, última ubicación y última actualización del portanaves propio guardado. No son ofertas comerciales ni existencias de minería.</p>
+
+<h3>Imágenes personales de naves y portanaves</h3>
+<p>Usa «Elegir imagen de la nave…» en los detalles desplegados o «Seleccionar imagen del portanaves…» para el portanaves. Se admiten PNG, JPG/JPEG y WEBP. CMDRHelper guarda una copia local propia, separada por comandante y nave o portanaves, que persiste tras reiniciar. Otra selección sustituye esa copia. «Eliminar imagen personal» elimina la copia y su asociación; conserva el archivo original. Sin imagen personal aparece una vista previa estándar disponible o un marcador. Si no se identifica el portanaves sin ambigüedad, la selección de imagen se desactiva. No se asignan capturas de pantalla automáticamente.</p>
+
+<h3>Visor de imágenes</h3>
+<p>Haz doble clic en una imagen disponible de nave o portanaves para abrir el visor independiente con el archivo de imagen, no solo la miniatura. La imagen se adapta proporcionalmente a la ventana. Puedes agrandarla o maximizarla y cerrarla con Esc o el botón de cierre. No hay navegación entre imágenes ni control de zoom. La sección principal «Imágenes» gestiona capturas de pantalla.</p>
+
+<h3>Eliminar una nave</h3>
+<p>«Eliminar nave…» exige confirmación expresa; Cancelar está preseleccionado. Elimina el registro local, los datos de equipamiento guardados y la copia de imagen personal. La nave actual o última utilizada y la identificada como activa en directo están protegidas; la eliminación se bloquea durante la relectura. Una marca local evita que los diarios antiguos la hagan reaparecer de inmediato. Una nueva indicación inequívoca de esa nave como activa en el diario en directo después de eliminarla puede recuperarla. La relectura confirmada también puede quitar la marca. La copia de imagen eliminada no se recupera.</p>
+
+<h3>Volver a leer todas las naves</h3>
+<p>«Volver a leer todas las naves…» permite recuperar información de flota de diarios existentes o encontrar naves eliminadas localmente. Tras confirmar, se releen los archivos conocidos y los de la carpeta de diarios configurada para el comandante consultado, solo para la flota. No hace falta ejecutar Elite. Se conservan los datos guardados más recientes y las naves ausentes de los diarios disponibles; se tienen en cuenta las ventas reconocidas. Si termina correctamente, se retiran las marcas de eliminación manual de ese comandante. Las imágenes personales existentes se conservan; las eliminadas no vuelven. Otros comandantes no se ven afectados. Si falla la lectura o aplicación, las marcas permanecen: comprueba el acceso a los diarios e inténtalo de nuevo.</p>
+
+<h3>Datos locales y seguridad</h3>
+<p>Los datos guardados pueden consultarse sin conexión y tras reiniciar; representan el último estado conocido. Imágenes, eliminación y relectura solo afectan a CMDRHelper. No modifican naves, portanaves ni créditos en Elite Dangerous ni reescriben los diarios.</p>""",
+    ),
  'settings': ('Ajustes',
               '<h2>Ajustes</h2>\n<h3>CMDRHelper</h3>\n<p>Mejor información de actualización: la ventana Sí/No muestra las versiones instalada y disponible y hasta seis novedades si hay resumen. Las listas largas se desplazan y las acciones siguen accesibles.</p>\n'
               '<p>El área "Configuración" determina cómo funciona CMDRHelper con Elite Dangerous, '
@@ -1428,8 +1240,82 @@ HELP_TOPICS["overview"] = (HELP_TOPICS["overview"][0], HELP_TOPICS["overview"][1
 
 HELP_TOPICS["settings"] = (HELP_TOPICS["settings"][0], HELP_TOPICS["settings"][1] + '<h3>Diagnóstico y registros</h3><p>En Ajustes → Diagnóstico y registros puedes abrir el registro o crear un paquete de diagnóstico. Los registros están en logs/ dentro de la carpeta de instalación (cmdrhelper.log y hasta cuatro archivos anteriores). El ZIP contiene registros técnicos depurados, system_info.json y diagnose_summary.txt; no diarios, base de datos, datos FID/del comandante, credenciales, favoritos ni imágenes. Las rutas personales se sustituyen por marcadores. Se omite el contenido de registros antiguos sin filtrado de privacidad. Elige dónde guardar el ZIP y compártelo con soporte si lo necesitas; nunca se envía automáticamente.</p>')
 
-HELP_TOPICS["trade"] = ('Comercio', '<h2>Comercio</h2><h3>Vender</h3><p>Busca y selecciona una mercancía, fija la cantidad y los filtros e inicia la búsqueda de venta. La referencia es el sistema actual del comandante. Precio / t es el precio de venta; los ingresos posibles usan la cantidad indicada si hay demanda suficiente. Los datos de mercado pueden cambiar. La búsqueda es limitada; usa filtros más restrictivos para otros resultados. La cancelación puede esperar una respuesta de red en curso. Los precios solo se conservan en memoria. Rare Goods y acciones de ruta llegarán más adelante.</p><h3>Comprar</h3><p>Elige mercancía y cantidad, ajusta los filtros e inicia manualmente la búsqueda de compra. Precio / t es el precio que paga el comandante. Oferta es la cantidad disponible comunicada y debe cubrir la cantidad solicitada. Coste total = precio × cantidad solicitada. Los datos de mercado de la comunidad pueden cambiar: revisa su antigüedad. La oferta puede ser menor al llegar. Cambiar de pestaña cancela la búsqueda activa y conserva los filtros.</p>')
+HELP_TOPICS["trade"] = (
+    'Comercio',
+    """<h2>Comercio</h2>
+<h3>El comercio de un vistazo</h3>
+<p>«Vender» encuentra mercados que compran tu mercancía. «Comprar» encuentra una mercancía concreta para comprar. «Recomendaciones» muestra qué puedes comprar en tu estación actual y revender con beneficio según tus criterios.</p>
 
-HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<h3>Recomendaciones</h3><p>Las compras usan solo el mercado Elite actual observado personalmente por el comandante activo, con menos de 24 horas. Si falta, abre el mercado en Elite. Los destinos proceden de observaciones propias y Spansh. Para la misma MarketID gana el dato válido más reciente; en caso de empate, el local. Beneficio/t = precio de venta en destino − precio de compra local. Beneficio % = beneficio/t ÷ precio de compra × 100. Debe alcanzarse el margen mínimo. Cantidad = mínimo entre espacio libre confirmado, oferta local y demanda del destino. Beneficio total = beneficio/t × cantidad. Cada mercancía muestra el mejor destino comprobado por beneficio total, con fuente y antigüedad. Una distancia desconocida excluye destinos locales; los metadatos ausentes de plataforma, carrier o llegada no satisfacen restricciones correspondientes. La búsqueda manual comprueba secuencialmente solo mercancías ofrecidas localmente, con progreso y cancelación. Se indican resultados parciales y límites. Precios, oferta y demanda pueden cambiar.</p>')
+<h3>Datos de mercado y antigüedad</h3>
+<p>Vender y comprar combinan automáticamente instantáneas propias válidas guardadas con datos de mercado de la comunidad a través de Spansh. Las recomendaciones compran exclusivamente en tu mercado Elite actual observado; los destinos normalmente proceden de tus observaciones y de Spansh. Los resultados comunitarios solo se guardan temporalmente en memoria.</p>
+<p>Todos los datos son instantáneas, incluidas tus observaciones. Precio, oferta y demanda pueden cambiar antes de llegar. Comprueba su antigüedad: ni la disponibilidad ni el beneficio están garantizados.</p>
+<p>Si un mismo mercado se conoce por una observación propia y por la comunidad, CMDRHelper utiliza la instantánea válida más reciente.</p>
 
-HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>«Solo mis datos de mercado» comprueba únicamente mercados que observaste hace menos de 24 horas. También se aplican la antigüedad máxima de los datos de destino, el radio y los demás filtros. No se consulta a la comunidad, por lo que la búsqueda local es muy rápida. Los precios, la oferta y la demanda pueden haber cambiado desde la observación.</p>')
+<h3>Elegir una mercancía</h3>
+<p>Pulsa «Mercancía», busca por nombre mostrado, nombre inglés o símbolo y selecciona la mercancía. Los nombres alemanes proceden del catálogo alemán mantenido. Si no existe una traducción disponible, aparece el nombre del catálogo inglés o una denominación legible.</p>
+
+<h3>Vender</h3>
+<p>La búsqueda utiliza tanto instantáneas propias válidas como datos de mercado de la comunidad. Elige mercancía, «Cantidad (t)» y filtros; después, «Buscar la mejor venta». Se buscan ofertas de compra con demanda suficiente para la cantidad introducida. «Precio / t» es lo que recibes al vender. «Ingresos posibles» = precio × cantidad introducida. El origen es el sistema actual del comandante. Por defecto, aparece primero el precio de venta más alto.</p>
+
+<h3>Comprar</h3>
+<p>La búsqueda utiliza tanto instantáneas propias válidas como datos de mercado de la comunidad. Elige mercancía, cantidad deseada y filtros; después, «Buscar la compra más barata». La «Oferta» indicada debe cubrir toda la cantidad. «Precio / t» es tu precio de compra; «Coste total» = precio × cantidad deseada. El origen es tu sistema actual. Por defecto, aparece primero el precio de compra más bajo. Es una búsqueda de una mercancía concreta, no una recomendación de beneficio.</p>
+
+<h3>Filtros y tablas de resultados</h3>
+<ul>
+<li><b>Radio (ly):</b> distancia máxima entre el sistema de origen y el de destino.</li>
+<li><b>Antigüedad máxima del mercado / Antigüedad de datos del destino:</b> antigüedad máxima permitida de los datos; en recomendaciones se aplica al destino.</li>
+<li><b>Tamaño de plataforma:</b> tamaño mínimo de plataforma necesario, no tamaño exacto de la estación. «Mediana» también permite plataformas grandes; «Cualquiera» no restringe el tamaño.</li>
+<li><b>Incluir Fleet Carriers:</b> incluir o excluir portanaves.</li>
+<li><b>Distancia máx. de llegada (Ls):</b> distancia máxima desde la estrella de llegada hasta la estación. Vacío significa sin límite. Un destino sin distancia de aproximación conocida no cumple este filtro.</li>
+</ul>
+<p>Los resultados propios y comunitarios usan los mismos filtros de antigüedad, radio, plataforma de aterrizaje, carriers y distancia de llegada. Los datos ausentes no se estiman. Se excluyen destinos sin distancia entre sistemas conocida o sin datos que demuestren que cumplen una restricción activa. En mercados propios afecta especialmente a plataformas y distancias de aproximación desconocidas; si se excluyen portanaves, debe saberse que el destino no es uno.</p>
+<p>Pulsa los encabezados para ordenar: números por valor numérico, antigüedad por edad real y plataformas por tamaño. Vender y comprar muestran como máximo 100 resultados. «Hay más resultados. Restringe los filtros.» señala una búsqueda limitada. Los resultados propios y comunitarios disponibles se ordenan juntos por precio antes de limitar la lista. Debido a los límites de búsqueda del servicio comunitario, no se garantiza que sean las mejores ofertas en general.</p>
+<p>Si falla la búsqueda comunitaria al vender o comprar, los resultados propios que cumplen los filtros siguen siendo utilizables. CMDRHelper indica que la búsqueda está incompleta: pueden faltar mejores ofertas de la comunidad.</p>
+
+<h3>Tus datos de mercado</h3>
+<p>Abre el mercado de mercancías en Elite mientras estás atracado. Con CMDRHelper en funcionamiento, el mercado se registra automáticamente si puede asociarse con seguridad a la estación actual. No hace falta importar manualmente. Volver a abrirlo actualiza la instantánea.</p>
+<p>Se conserva una instantánea actual por mercado y comandante, de menos de 24 horas. Las antiguas se eliminan automáticamente; no hay historial permanente de precios. Las observaciones válidas sobreviven al reinicio de Helper. «Datos de mercado propios: X estaciones» cuenta los mercados propios válidos del comandante activo. El límite de antigüedad de los datos de mercado elegido también se aplica a los resultados propios.</p>
+<ul>
+<li><b>✓ Registrado:</b> En recomendaciones hay una instantánea propia válida de la estación actual.</li>
+<li><b>Abrir mercado:</b> No hay una instantánea propia utilizable para esta estación.</li>
+<li><b>Datos desactualizados:</b> Una instantánea mostrada antes ya no es válida. Abre de nuevo el mercado.</li>
+</ul>
+<p>Si una instantánea antigua se eliminó antes de abrir la vista, también aparece «Abrir mercado». En vuelo no se muestra un estado positivo de la estación anterior.</p>
+
+<h3>Recomendaciones</h3>
+<p>Necesitas una estación actual, su instantánea propia válida y la nave actual conocida con espacio libre de carga determinado con seguridad. Se descuenta el espacio ocupado. Si la bodega está llena o su espacio libre se desconoce, no puede iniciarse otra búsqueda; no se inventan cantidades. Tras despegar no se vuelve a calcular usando la ubicación anterior.</p>
+<p>Ajusta «Beneficio mínimo»: 10 % solo admite oportunidades con al menos un 10 % de margen. Se buscan mercancías ofrecidas localmente. La estación de compra no es un destino. Para la misma estación de destino (misma MarketID) se usa la instantánea válida más reciente. Cada mercancía muestra el destino comprobado con mayor «Beneficio potencial» según tus filtros, no necesariamente el mejor de la galaxia. La tabla empieza por el mayor beneficio posible; «Fuente» muestra «Elite local» o «Spansh», y «Antigüedad de datos del destino», la antigüedad del mercado de destino.</p>
+
+<h3>Solo mis datos de mercado</h3>
+<p>Esta casilla solo está disponible en Recomendaciones. Vender y comprar utilizan automáticamente ambas fuentes. Esta casilla limita las recomendaciones a destinos válidos que has observado personalmente. No hay consulta comunitaria; Spansh no es necesario. Siguen aplicándose radio, límite adicional de antigüedad del destino, beneficio mínimo, plataforma, portanaves y aproximación, y los datos disponibles deben permitir comprobarlos. Omitir deliberadamente la búsqueda comunitaria no es un error ni hace incompleta la búsqueda. Así puedes buscar rápidamente entre estaciones ya visitadas.</p>
+
+<h3>Beneficio posible y cantidad</h3>
+<ul>
+<li><b>Beneficio / t:</b> precio de venta en destino − precio de compra aquí. «Beneficio %» = beneficio por tonelada ÷ precio de compra × 100.</li>
+<li><b>Cantidad (t):</b> el mínimo entre espacio libre de carga, oferta del mercado de compra y demanda en destino.</li>
+<li><b>Beneficio potencial:</b> beneficio por tonelada × cantidad posible; una estimación según las instantáneas conocidas.</li>
+</ul>
+<p>Ejemplo: 280 t libres, oferta de 150 t, demanda de 20.000 t → cantidad posible de 150 t. No todas las mercancías llenan automáticamente todo el espacio libre.</p>
+
+<h3>Vuelo comercial marcado</h3>
+<p>Marca la casilla para recordar una sola recomendación. Seleccionar otra la reemplaza. El recordatorio separado muestra mercancía, estación y sistema de destino y «Beneficio potencial» en el momento de marcarla. Es una nota, no una recomendación recalculada continuamente.</p>
+<p>Permanece tras comprar, cambiar la carga, despegar, cambiar de sistema, atracar y abrir un mercado. Desaparece con «Quitar» o al desmarcar, al iniciarse realmente una nueva búsqueda de recomendaciones, al cambiar de comandante y al cerrar Helper. No se conserva tras reiniciarlo.</p>
+<p>«Copiar sistema» copia únicamente el nombre del sistema de destino al portapapeles. La estación sigue visible en la nota; no se crea ninguna ruta.</p>
+
+<h3>Búsqueda, progreso y cancelación</h3>
+<p>Inicia las búsquedas manualmente. Las recomendaciones revisan varias mercancías y pueden tardar más. Una vez definido el alcance, la barra y «Comprobando mercancías: x de y …» muestran las mercancías realmente comprobadas. «Cancelar» solo está disponible durante una búsqueda cancelable; una respuesta de red pendiente puede retrasar la cancelación. Cambiar de pestaña cancela la búsqueda; los filtros compartidos de vender/comprar se conservan.</p>
+<p>Si fallan consultas comunitarias individuales o se alcanzan límites, pueden seguir visibles recomendaciones válidas ya comprobadas. Una búsqueda incompleta significa que los resultados corresponden a los datos revisados, pero no se comprobaron por completo todas las mercancías o destinos. Lee el aviso, restringe los filtros si se alcanzó un límite o vuelve a intentarlo más tarde. La cancelación manual descarta la lista actual.</p>
+
+<h3>Diagnóstico de problemas</h3>
+<p>«Copiar diagnóstico» copia información técnica de la última búsqueda de recomendaciones finalizada para investigar problemas. No contiene datos de comandante/FID ni precios de mercado. El diagnóstico permanece en memoria; no se crea un archivo permanente ni se transmite nada automáticamente. Comparte tú mismo el texto copiado con soporte si es necesario.</p>
+
+<h3>Cómo hacer un viaje comercial</h3>
+<ol>
+<li>Atraca en una estación y abre el mercado en Elite.</li>
+<li>Abre «Comercio» → «Recomendaciones» y comprueba «Registrado».</li>
+<li>Ajusta beneficio mínimo y filtros; después, elige «Buscar recomendaciones».</li>
+<li>Marca la recomendación que quieres recordar y compra la mercancía en Elite.</li>
+<li>Usa «Copiar sistema» si hace falta y vuela al destino; la estación sigue visible en la nota.</li>
+<li>Vende en Elite. Abre allí el mercado para actualizar también tus datos propios del nuevo mercado.</li>
+</ol>""",
+)

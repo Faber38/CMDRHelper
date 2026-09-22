@@ -92,67 +92,55 @@ HELP_TOPICS = {
               '<p>Open erscheint rot, Solo gold und Private Gruppe grün, bei privaten Gruppen mit dem gemeldeten Gruppennamen. Der Modus wird aus vorhandenen Journalen rekonstruiert und bei neuen LoadGame-Einträgen aktualisiert.</p>\n<p>Ein einfacher Klick auf einen Eintrag unter „Letzte Systeme“ kopiert den Systemnamen in die Zwischenablage. Kurz erscheint „✓ Kopiert: &lt;System&gt;“.</p>\n',
     ),
     "missions": (
-        "Missionen",
-        """<h2>Missionen</h2>
-<p>Die Missionsansicht zeigt die aus dem Elite-Dangerous-Journal bekannten Missionen des aktuell betrachteten Commanders. CMDRHelper speichert Missionsdaten commanderbezogen, damit offene Missionen auch nach einem Neustart von Elite Dangerous oder CMDRHelper erhalten bleiben.</p>
+        'Missionen & Belohnungen',
+        """<h2>Missionen &amp; Belohnungen</h2>
+<p>Diese Hauptseite zeigt die Missionen und beobachteten Belohnungen des aktuell aktiven Journal-Commanders. Die Auswahl eines anderen Commanders in der separaten CMDR Ansicht ändert diese Hauptseite nicht. Die Daten bleiben nach Commander getrennt.</p>
 
-<h3>Offene Missionen</h3>
-<p>Neue Missionen werden aus <code>MissionAccepted</code> übernommen und dauerhaft gespeichert.</p>
-<p>Solange kein abschließendes Missionsereignis vorliegt, bleibt die Mission als offen erhalten. Eine neue Spielsitzung ohne Missionsliste darf bereits bekannte offene Missionen nicht automatisch entfernen.</p>
+<h3>So verwendest du die Seite</h3>
+<ol>
+<li>Öffne „Missionen &amp; Belohnungen“ und wähle eine Mission in der Liste aus.</li>
+<li>Prüfe „Status“ und die „MISSIONSDETAILS“. „Nächster Schritt“ hilft bei der Orientierung.</li>
+<li>Verwende bei Bedarf „Journal aktualisieren“, um vorhandene Journaldaten erneut einzulesen.</li>
+<li>Betrachte Missionsbelohnungen, „Kopfgelder“ und „Kampfbelohnungen“ getrennt.</li>
+</ol>
+
+<h3>Liste und Details</h3>
+<p>Die Liste enthält bestätigte offene Missionen und erkannte vorläufige Encounter-Angebote. Sie zeigt Mission, System, Planet / Ort, Status, nächsten Schritt, Belohnung und Frist. Die Auswahl öffnet die Details mit den verfügbaren Ziel- und Fortschrittsangaben. Fehlende Journalangaben bleiben unbekannt; bei vorläufigen Angeboten ist die Frist unbekannt.</p>
 
 <h3>Missionsstatus</h3>
-<p>CMDRHelper verarbeitet unter anderem folgende Statusänderungen:</p>
+<p>Der Status folgt den verfügbaren Missions-, Standort- und Fortschrittsdaten. Nicht jede Missionsart liefert alle Zwischenstände.</p>
 <ul>
-<li>Mission angenommen</li>
-<li>Mission abgeschlossen</li>
-<li>Mission fehlgeschlagen</li>
-<li>Mission abgebrochen</li>
-<li>Missionsziel umgeleitet</li>
-<li>Fortschritt bei unterstützten Fracht-/Depotmissionen</li>
+<li><b>Mission angenommen / Unterwegs:</b> Der Auftrag ist bekannt; das Ziel ist noch nicht als erreicht erkannt.</li>
+<li><b>Im Zielsystem:</b> Du bist im Zielsystem, aber noch nicht am erkannten Missionsziel.</li>
+<li><b>Am Missionsziel:</b> Die passende Zielstation oder der Zielkörper wurde erreicht.</li>
+<li><b>Ziel geändert:</b> Ein neues Missionsziel wurde gemeldet.</li>
+<li><b>Ware aufgenommen:</b> Die Aufnahme von Missionsfracht wurde erkannt.</li>
+<li><b>Lieferung läuft:</b> Eine Lieferung wurde erfasst; bekannter Mengenfortschritt wird angezeigt.</li>
+<li><b>Aufgabe erledigt / Daten erhalten:</b> Die Aufgabe beziehungsweise Datenerfassung ist erledigt. Die Mission kann noch offen sein, etwa mit „Zurück zum Missionsterminal“. Dies bestätigt noch keine Auszahlung.</li>
 </ul>
-<p>Ein abschließendes Ereignis verändert nur die dazugehörige Mission.</p>
+<p>Erkannte Abschlüsse, Fehlschläge und Abbrüche entfernen die betroffene Mission aus der offenen Liste. Ein vollständiger neuer Missionsstand kann ältere Einträge als nicht mehr aktiv erkennen.</p>
 
-<h3>Missionen aus dem Journal</h3>
-<p>Elite Dangerous liefert Missionsinformationen über verschiedene Journalereignisse. CMDRHelper führt diese Ereignisse zu einem dauerhaften Missionszustand zusammen.</p>
-<p>Ein echtes vollständiges Missions-Ereignis kann als autoritativer Snapshot dienen. Fehlt ein solches Ereignis, werden ältere offene Missionen nicht allein deshalb geschlossen.</p>
+<h3>Gesamtbelohnung</h3>
+<p>„Gesamtbelohnung“ summiert die bekannten Credit-Belohnungen der bestätigten offenen Missionen. Sie ist kein bereits ausgezahltes Guthaben. Vorläufige Encounter-Angebote, Kopfgelder und Kampfbelohnungen zählen nicht dazu.</p>
 
-<h3>Ziele und Orte</h3>
-<p>Soweit Elite die Informationen im Journal liefert, zeigt CMDRHelper:</p>
-<ul>
-<li>Zielsystem</li>
-<li>Zielstation oder Zielort</li>
-<li>Zielplanet beziehungsweise Body</li>
-<li>Missionsbezeichnung</li>
-<li>bekannten Fortschritt</li>
-<li>aktuellen Status</li>
-</ul>
-<p>Nicht jede Mission liefert alle Angaben. Fehlende Daten werden nicht von CMDRHelper erfunden.</p>
+<h3>Encounter-Aufträge</h3>
+<p>Aus unterstützten Weltraumbegegnungen können vorläufige Angebote als „Encounter-Auftrag“ erscheinen, obwohl noch keine endgültige MissionID vorliegt. „Belohnungsangebot“ ist deshalb noch keine bestätigte offene Missionsbelohnung und fließt nicht in die Gesamtbelohnung ein.</p>
+<p>Ordnen spätere Journaldaten ein Angebot eindeutig einer Mission zu, wird es mit dieser zusammengeführt. Bei Mehrdeutigkeit bleibt es vorläufig. Unbestätigte Angebote werden nach 24 Stunden lokal ausgeblendet; dies ist keine Aussage über eine Missionsfrist im Spiel.</p>
 
-<h3>Persistenz und Neustart</h3>
-<p>Offene Missionen werden in der commanderbezogenen Datenbank gespeichert.</p>
-<p>Dadurch bleiben sie auch erhalten, wenn:</p>
-<ul>
-<li>Elite Dangerous beendet und später neu gestartet wird</li>
-<li>CMDRHelper zwischendurch geschlossen wird</li>
-<li>die neue Journalsitzung zunächst keine Missionsereignisse enthält</li>
-</ul>
-<p>Erst ein belegtes Missionsereignis ändert den gespeicherten Zustand.</p>
+<h3>Kopfgelder</h3>
+<p>Dieser Bereich zeigt lokal beobachtete Kopfgelder mit Gesamtbetrag und Fraktionsbeträgen. Er kennt nur erfasste Daten, keinen verlässlich vollständigen Spielbestand. „Erfassung ab jetzt.“ kennzeichnet den Beginn der Erfassung; bei Lücken erscheint „Nicht vollständig synchronisiert: Es können Erfassungslücken bestehen.“.</p>
+<p>Eine erkannte Kopfgeldeinlösung oder ein erkannter Tod setzt den gesamten lokalen Kopfgeldstand auf null. Dies ist vom Missionsstatus unabhängig.</p>
 
-<h3>Mehrere Commander</h3>
-<p>Missionen werden strikt nach Commander getrennt.</p>
-<p>Ein Missionsereignis wird nur dem Commander zugeordnet, dessen Journalsitzung eindeutig identifiziert wurde. Missionen eines anderen Commanders dürfen weder angezeigt noch verändert werden.</p>
+<h3>Kampfbelohnungen</h3>
+<p>Hier stehen beobachtete, noch nicht als eingelöst erkannte Kampfbelohnungen nach Fraktion. Ein möglicher Bestand vor Beginn der Erfassung fehlt. Bei Unsicherheit erscheint „Beobachteter Betrag“ mit „Bestand nicht vollständig gesichert.“.</p>
+<p>Eine eindeutig zugeordnete Einlösung leert den beobachteten Betrag der genannten Fraktion; andere Fraktionen bleiben erhalten. Bei unklarer Zuordnung bleiben die Beträge stehen und „Einlösung erkannt – Bestand prüfen.“ erscheint. Ein erkannter Tod leert die beobachteten Kampfbelohnungen.</p>
 
-<h3>Verwaiste oder nicht mehr gültige Missionen</h3>
-<p>Falls ältere Journaldaten oder ein früherer Import eine Mission offen halten, obwohl sie im Spiel nicht mehr existiert, kann die vorhandene Reset-/Bereinigungsfunktion für verwaiste Missionen verwendet werden.</p>
-<p>Diese Funktion sollte nur eingesetzt werden, wenn eindeutig feststeht, dass die angezeigte Mission nicht mehr aktiv ist.</p>
+<h3>Lokal zurücksetzen</h3>
+<p>„Zurücksetzen…“ im jeweiligen Belohnungsbereich setzt nach Bestätigung nur dessen lokalen Stand für den aktiven Commander auf null. <b>Dies verändert keine Werte in Elite Dangerous.</b> Kopfgelder und Kampfbelohnungen werden getrennt zurückgesetzt; Missionen werden dabei weder bereinigt noch abgeschlossen.</p>
 
-<h3>Online-Dienste</h3>
-<p>Unterstützte Missionsereignisse können zusätzlich an Inara übertragen werden, wenn für die aktive Journal-FID ein gültiger und aktivierter Inara-Zugang eingerichtet ist.</p>
-<p>Eine fehlende oder nicht erreichbare Inara-Verbindung beeinflusst die lokale Missionsspeicherung nicht.</p>
-
-<h3>Tipp</h3>
-<p>Wenn eine Mission nicht erscheint oder einen falschen Status zeigt, zuerst prüfen, ob Elite Dangerous das entsprechende Missionsereignis bereits ins Journal geschrieben hat.</p>
-<p>CMDRHelper kann nur Informationen anzeigen, die das Journal tatsächlich liefert oder die bereits aus früheren eindeutigen Missionsereignissen gespeichert wurden.</p>""",
+<h3>Aktualisierung und Neustart</h3>
+<p>Bekannte offene Missionen und die lokalen Belohnungsstände bleiben über Helper-Neustarts erhalten. Eine neue Journalsitzung ohne Missionsliste entfernt offene Missionen nicht automatisch. Erfassungslücken können insbesondere Belohnungsstände unvollständig lassen. „Journal aktualisieren“ kann nur vorhandene Informationen einlesen, keine fehlenden Spieldaten erzeugen.</p>
+<p>Die lokale Missionsanzeige benötigt keine Inara-Verbindung. Bei aktivierter, passend zum aktiven Commander eingerichteter Verbindung können unterstützte Missionsereignisse zusätzlich übertragen werden.</p>""",
     ),
     "explorer": (
         "Explorer",
@@ -729,125 +717,37 @@ HELP_TOPICS = {
 <p>Eine höhere Aufhellung kann bei dunklen Aufnahmen helfen; sie wirkt auf das bei der Konvertierung neu erzeugte Zielbild.</p>""",
     ),
     "commander_view": (
-        "CMDR Ansicht",
+        'CMDR Ansicht',
         """<h2>CMDR Ansicht</h2>
-<p>Die CMDR Ansicht fasst dauerhaft gespeicherte persönliche Informationen eines Commanders zusammen.</p>
-<p>Sie ermöglicht außerdem, zwischen den CMDRHelper bekannten Commandern zu wechseln und deren jeweils eigene Daten anzusehen. Persönliche Daten werden anhand der Frontier-ID (FID) voneinander getrennt.</p>
-
 <h3>Commander auswählen</h3>
-<p>Sind mehrere Commander bekannt, kann über die Auswahl oben festgelegt werden, wessen gespeicherte Informationen angezeigt werden. Dieser Commander ist der betrachtete Commander.</p>
-<p>Die Anzeige kennzeichnet ihn entweder als „Live aktiv“ oder als „Nur Ansicht“.</p>
+<p>Die Auswahl oben bestimmt, wessen gespeicherte Daten du betrachtest. ● Live aktiv kennzeichnet den aktiven Journal-Commander; Nur Ansicht kennzeichnet eine andere gespeicherte Ansicht. Die Auswahl macht diesen Commander nicht zum aktiven Journal-Commander: Der Hauptbereich „Missionen &amp; Belohnungen“ verwendet weiterhin den tatsächlich aktiven Commander. Persönliche Daten bleiben auch bei gleichen Namen anhand der FID getrennt. Das Betrachten startet keine Online-Übertragung.</p>
 
-<h3>Betrachteter Commander und Live-Commander</h3>
-<p>Das Auswählen eines anderen Commanders in der CMDR Ansicht macht ihn nicht zum aktiven Journal-Commander.</p>
-<p>Der Live-Commander wird ausschließlich aus der aktuell eindeutig identifizierten Elite-Dangerous-Journalsitzung bestimmt. So kann die Historie eines anderen Commanders betrachtet werden, während Elite Dangerous weiterhin mit EXAMPLE läuft.</p>
+<h3>Übersicht, Vermögen und Söldnermünzen</h3>
+<p>„Übersicht“ zeigt Name, FID, Status, erste und letzte Erfassung, besuchte Systeme, Bio-/Geo-Funde, Codex-Einträge und Kartographieverkäufe, Standort, offene Missionen, Schiff, Carrier sowie unverkaufte Bio-/Kartographiedaten mit bekannten Schätzwerten. „Vermögen“ ist der zuletzt gespeicherte Creditstand. „Söldnermünzen“ zeigt Frontiers gemeldete Werte: „Aktuell“, „Insgesamt ausgegeben“, „Engineering“, „Ausrüstung“ und „Von Frontier gemeldet: insgesamt verdient“. Diese Zähler müssen rechnerisch nicht zusammenpassen; CMDRHelper korrigiert sie nicht und erfindet keine Buchungshistorie. Unbekannte Werte bleiben „–“.</p>
 
-<h3>Frontier-ID (FID)</h3>
-<p>Die FID ist die stabile Frontier-Kennung eines Commanders.</p>
-<p>CMDRHelper verwendet sie und die daraus aufgelöste interne Commander-ID, um persönliche Daten sicher voneinander zu trennen. Auch ähnlich oder identisch benannte Commander bleiben dadurch getrennt.</p>
+<h3>Missionen und Exploration</h3>
+<p>„Missionen“ zeigt gespeicherte offene Missionen des betrachteten Commanders mit Status, Missionsbezeichnung, Ziel, Ablaufzeit und Belohnung. Die Tabelle dient zum Ansehen; hier gibt es keine Missionsdetails oder Missionsaktionen wie im Hauptbereich. „Exploration“ zeigt unverkaufte Bio-/Kartographiedaten, Bio-Funde, First Footfalls, selbst und effizient kartierte Körper sowie besuchte Systeme. „Chronik“ ist hier ein Platzhalter; die vollständige Chronik öffnest du im Hauptmenü.</p>
 
-<h3>Übersicht</h3>
-<p>Der Tab „Übersicht“ zeigt ausschließlich dauerhaft gespeicherte Angaben des betrachteten Commanders:</p>
-<ul>
-<li>Commandername, FID und Status „Live aktiv“ oder „Nur Ansicht“</li>
-<li>erster und letzter bekannter Zeitpunkt</li>
-<li>Anzahl besuchter Systeme, Bio- und Geo-Funde, Codex-Einträge und Kartographieverkäufe</li>
-<li>letzter bekannter Standort und Anzahl offener Missionen</li>
-<li>aktuelles beziehungsweise letztes Schiff</li>
-<li>Fleet Carrier und Carrier-Standort</li>
-<li>Vermögen</li>
-<li>offene Biodaten und offene Kartographiedaten samt vorhandener Schätzwerte</li>
-</ul>
+<h3>Flotte und Schiffsdetails</h3>
+<p>„Schiffe“ zeigt oben das aktuelle bzw. zuletzt verwendete Schiff, darunter die gespeicherte Flotte dieses Commanders. Klicke auf den Kopf einer Schiffskarte, um Details aufzuklappen. Sortiere auf-/absteigend nach Verwendung, Name, Typ, Sprungreichweite, Frachtkapazität, Leermasse, Standort oder Zeitpunkt; filtere alle Schiffe oder solche mit Fahrzeug-/Fighter-Hangar. Grün kennzeichnet das Live-Schiff, andere Farben gruppieren bekannte Standorte. Details zeigen Kennung, ShipID, Standort, Zeitpunkte, FSD/Guardian-Booster, Reichweite, Masse, Fracht-/Tankkapazitäten und Ausrüstungsstatus (vollständig, unvollständig oder veraltet). Vorhandene Moduldaten ergänzen Hangars, Schilde und Verstärkungen, Waffen und Passagierkabinen. Fehlende Angaben bleiben „–“.</p>
 
-<h3>Vermögen / Credits</h3>
-<p>Das Feld „Vermögen“ zeigt den zuletzt aus einem geeigneten Journalereignis gespeicherten Creditstand des betrachteten Commanders, formatiert beispielsweise als <b>1.234.567 Cr</b>.</p>
-<p>CMDRHelper ergänzt keine fiktiven Einnahmen oder Ausgaben, wenn kein neuer sicherer Journalstand vorliegt.</p>
+<h3>Eigener Fleet Carrier</h3>
+<p>„Eigener Fleet Carrier“ zeigt für den gespeicherten eigenen Carrier Name, Callsign, CarrierID, letzten Standort und letzte Aktualisierung. Das sind Angaben zum eigenen Carrier, keine Handelsangebote oder Mining-Bestände.</p>
 
-<h3>Söldnermünzen</h3>
-<p>Die Söldnermünzen stammen aus den von Elite Dangerous gelieferten MercCoins-Feldern unter <code>Statistics → Bank_Account</code> und werden commanderbezogen als Frontier-Snapshot gespeichert.</p>
-<p>Sichtbar sind:</p>
-<ul>
-<li>Aktuell</li>
-<li>Insgesamt ausgegeben</li>
-<li>Engineering</li>
-<li>Ausrüstung</li>
-<li>Von Frontier gemeldet: insgesamt verdient</li>
-</ul>
+<h3>Persönliche Schiffs- und Carrierbilder</h3>
+<p>Wähle „Schiffsbild auswählen…“ in den aufgeklappten Schiffsdetails oder „Carrierbild auswählen…“ beim Carrier. Unterstützt werden PNG, JPG/JPEG und WEBP. CMDRHelper speichert eine eigene lokale Kopie, getrennt nach Commander und Schiff bzw. Carrier, auch über Neustarts hinweg. Erneutes Auswählen ersetzt diese Kopie. „Eigenes Bild entfernen“ entfernt die eigene Kopie und Zuordnung; die ursprüngliche Bilddatei bleibt erhalten. Ohne eigenes Bild erscheint eine verfügbare Standardvorschau oder ein Platzhalter. Ohne eindeutige Carrier-Zuordnung ist die Bildauswahl deaktiviert. Screenshots werden nicht automatisch zugeordnet.</p>
 
-<h3>Aktuell und Ausgaben</h3>
-<p>„Aktuell“ zeigt <code>MercCoins_Current</code>. „Insgesamt ausgegeben“ übernimmt <code>MercCoins_Total_Spent</code>.</p>
-<p>„Engineering“ und „Ausrüstung“ zeigen die von Frontier separat gemeldeten Anteile <code>MercCoins_Spent_On_Engineering</code> und <code>MercCoins_Spent_On_MercGear</code>.</p>
-<p>Für EXAMPLE wurden beispielsweise ein aktueller Bestand von <b>1.000</b>, insgesamt <b>200</b> ausgegeben und davon <b>200</b> für Engineering gemeldet.</p>
+<h3>Bildbetrachter</h3>
+<p>Ein Doppelklick auf ein verfügbares Schiffs- oder Carrierbild öffnet den separaten Bildbetrachter mit der Bilddatei statt nur der kleinen Vorschau. Die Darstellung passt sich proportional der Fenstergröße an. Du kannst das Fenster vergrößern oder maximieren und mit Esc oder dem Fensterschließen schließen. Es gibt hier keine Bildnavigation oder Zoomsteuerung. Der Hauptbereich „Bilder“ verwaltet dagegen Screenshots.</p>
 
-<h3>Insgesamt verdient</h3>
-<p>„Von Frontier gemeldet: insgesamt verdient“ zeigt <code>MercCoins_Total_Earned</code>. CMDRHelper berechnet daraus keine eigene Bilanz.</p>
-<p>Frontiers kumulierter Wert muss rechnerisch nicht zum aktuellen Bestand und den gemeldeten Ausgaben passen. Beispielsweise können gleichzeitig 1.000 aktuell, 25 insgesamt verdient und 200 insgesamt ausgegeben gemeldet sein.</p>
-<p>CMDRHelper korrigiert diese Werte nicht, sondern zeigt die einzelnen Frontier-Zähler unverändert an.</p>
+<h3>Schiff löschen</h3>
+<p>„Schiff löschen…“ verlangt eine ausdrückliche Bestätigung; Abbrechen ist vorausgewählt. Die Aktion entfernt den lokalen Schiffseintrag einschließlich gespeicherter Ausrüstungsdaten und persönlicher Bildkopie. Das aktuelle bzw. zuletzt verwendete Schiff und ein erkanntes Live-Schiff sind geschützt; während des Neueinlesens ist Löschen gesperrt. Eine lokale Löschmarkierung verhindert das sofortige Wiederauftauchen aus alten Journaldaten. Eine neue eindeutige Aktivmeldung dieses Schiffs im Live-Journal nach der Löschung kann es wieder anzeigen. Auch das bestätigte Neueinlesen kann die Markierung aufheben. Die gelöschte persönliche Bildkopie kehrt dadurch nicht zurück.</p>
 
-<h3>Warum keine eigene MercCoins-Bilanz?</h3>
-<p>Elite Dangerous liefert nicht für jede einzelne Einnahme oder Ausgabe von Söldnermünzen einen eindeutigen Journalbuchungssatz. Die MercCoins erscheinen als Gesamtstände in Statistics.</p>
-<p>Eine selbst errechnete Buchungshistorie wäre deshalb nicht zuverlässig. CMDRHelper speichert stattdessen den neuesten bekannten Frontier-Snapshot.</p>
+<h3>Alle Schiffe neu einlesen</h3>
+<p>„Alle Schiffe neu einlesen…“ ist sinnvoll, um Flottenangaben aus vorhandenen Journalen erneut zu gewinnen oder lokal entfernte Schiffe wiederzufinden. Nach Bestätigung werden bekannte Journaldateien und Dateien im eingestellten Journalordner für den betrachteten Commander erneut ausgewertet – nur für die Flotte. Elite muss dafür nicht laufen. Neuere gespeicherte Angaben und Schiffe ohne Fund in den verfügbaren Journalen bleiben erhalten; erkannte Verkäufe werden berücksichtigt. Bei Erfolg werden die manuellen Löschmarkierungen dieses Commanders aufgehoben. Vorhandene persönliche Bilder bleiben erhalten, bereits gelöschte nicht. Andere Commander bleiben unberührt. Schlägt das Lesen oder Übernehmen fehl, bleiben die Markierungen erhalten: Journalzugriff prüfen und erneut versuchen.</p>
 
-<h3>Missionen</h3>
-<p>Der Tab „Missionen“ zeigt die gespeicherten Missionen des betrachteten Commanders als Tabelle mit Status, Missionsbezeichnung, Ziel, Ablaufzeit und Belohnung.</p>
-
-<h3>Exploration</h3>
-<p>Der Tab „Exploration“ zeigt offene Biodaten, offene Kartographiedaten, Bio-Funde, First Footfalls, selbst kartierte und effizient kartierte Körper sowie die Anzahl besuchter Systeme.</p>
-<p>Der eigene Tab „Chronik“ innerhalb der CMDR Ansicht ist derzeit noch ein Platzhalter. Die vollständige Chronik befindet sich im gleichnamigen Hauptmenüpunkt.</p>
-
-<h3>Schiffe / Flotte</h3>
-<p>Der Tab „Schiffe“ zeigt zunächst das aktive beziehungsweise zuletzt verwendete Schiff mit Schiffsname, Schiffstyp, Standort und ShipID.</p>
-<p>Darunter erscheinen die gespeicherten Schiffe des betrachteten Commanders als aufklappbare Karten. Sie können auf- oder absteigend sortiert werden nach:</p>
-<ul>
-<li>zuletzt beziehungsweise aktuell verwendet</li>
-<li>Schiffname oder Schiffstyp</li>
-<li>maximaler Sprungreichweite</li>
-<li>Frachtkapazität oder Leermasse</li>
-<li>letztem bekannten Standort oder Zeitpunkt</li>
-</ul>
-<p>Zusätzlich kann nach allen Schiffen, Schiffen mit Fahrzeughangar oder Schiffen mit Fighter-Hangar gefiltert werden.</p>
-
-<h3>Schiffsdetails</h3>
-<p>Eine aufgeklappte Schiffskarte zeigt – soweit gespeichert – Schiffskennung, ShipID, Standort, letzten Zeitpunkt, maximale Sprungreichweite, FSD und Guardian-Booster, Masse, Fracht- und Tankkapazitäten sowie Loadout-Zeitpunkt und -Status.</p>
-<p>Bei vorhandenen Moduldaten werden außerdem Fahrzeug- und Fighter-Hangar, Schildgenerator und Shield Booster, Guardian-Schildverstärkungen, Waffen, Hüllen- und Modulverstärkungen sowie Passagierkabinen zusammengefasst.</p>
-<p>Der Loadout-Status kann vollständig, unvollständig oder veraltet sein. Fehlende Angaben werden als „–“ angezeigt und nicht erfunden.</p>
-
-<h3>Fleet Carrier</h3>
-<p>Für einen gespeicherten eigenen Fleet Carrier zeigt die Ansicht Carriername, Callsign, CarrierID, letzten Standort und den Zeitpunkt der letzten Aktualisierung.</p>
-
-<h3>Persistenter Commanderzustand</h3>
-<p>Wichtige Commanderinformationen bleiben dauerhaft gespeichert. Dadurch können bekannte Werte nach einem Neustart von CMDRHelper oder Elite Dangerous wieder angezeigt werden, ohne jedes Journal erneut vollständig auszuwerten.</p>
-<p>Neue eindeutige Journalereignisse aktualisieren den gespeicherten Zustand.</p>
-
-<h3>Historische Rekonstruktion</h3>
-<p>Für später ergänzte Funktionen kann CMDRHelper vorhandene, eindeutig einem Commander zugeordnete Journalbereiche einmalig nach bereits bekannten Angaben durchsuchen.</p>
-<p>So können beispielsweise ältere MercCoins-Snapshots übernommen werden. Wiederholte Prüfungen sollen keine doppelten Daten erzeugen und verändern die normalen Journal-Lesepositionen nicht.</p>
-
-<h3>Mehrere Commander</h3>
-<p>Commanderbezogen getrennt bleiben insbesondere:</p>
-<ul>
-<li>Vermögen und Missionen</li>
-<li>eigene Kartographie und BIO-Funde</li>
-<li>Surface-Mining-Historie und Söldnermünzen</li>
-<li>Online-Zugangsdaten</li>
-<li>commanderbezogene Screenshots</li>
-</ul>
-<p>Globale astronomische Eigenschaften eines Systems oder Bodys können dagegen gemeinsam genutzt werden.</p>
-
-<h3>Auswirkungen auf andere Ansichten</h3>
-<p>Ein Wechsel des betrachteten Commanders aktualisiert die CMDR Ansicht selbst, die persönliche Mining-Rohstoffauswahl der Chronik und bei entsprechendem Filter die Screenshot-Galerie.</p>
-<p>Er ersetzt nicht den tatsächlichen Live-Commander für Journalverarbeitung oder Online-Uploads.</p>
-
-<h3>Inara und EDSM</h3>
-<p>Inara- und EDSM-Zugänge werden separat pro Commander beziehungsweise FID verwaltet.</p>
-<p>Das bloße Betrachten eines Commanders startet keine Übertragung mit dessen API-Key. Für Live-Uploads ist ausschließlich die aktive Journal-FID maßgeblich.</p>
-<p>Die Zugangsdaten werden unter „Einstellungen“ im Bereich der Online-Dienste verwaltet.</p>
-
-<h3>Tipp</h3>
-<p>Verwende die CMDR Ansicht, wenn du gespeicherte persönliche Daten eines bestimmten Commanders ansehen möchtest.</p>
-<p><b>CMDR Ansicht = Wen möchte ich betrachten?</b></p>
-<p><b>Aktive Journal-FID = Wer spielt gerade tatsächlich?</b></p>
-<p>Diese Trennung verhindert, dass persönliche Daten oder Online-Uploads verschiedener Commander miteinander vermischt werden.</p>""",
+<h3>Lokale Daten und Sicherheit</h3>
+<p>Gespeicherte Angaben können auch offline und nach einem Neustart angezeigt werden; sie sind der letzte bekannte Stand. Bilder, Löschen und Neueinlesen betreffen ausschließlich CMDRHelper. Sie verändern keine Schiffe, Carrier oder Credits in Elite Dangerous und schreiben keine Journale um.</p>""",
     ),
     "settings": (
         "Einstellungen",
@@ -1084,8 +984,82 @@ HELP_TOPICS["overview"] = (HELP_TOPICS["overview"][0], HELP_TOPICS["overview"][1
 
 HELP_TOPICS["settings"] = (HELP_TOPICS["settings"][0], HELP_TOPICS["settings"][1] + '<h3>Diagnose und Protokolle</h3><p>Unter Einstellungen → Diagnose und Protokolle kannst du die Logdatei öffnen oder ein Diagnosepaket erstellen. Die Logs liegen im Installationsordner unter logs/ (cmdrhelper.log und bis zu vier Rotationen). Das ZIP enthält bereinigte technische Logs, system_info.json und diagnose_summary.txt, keine Journale, Datenbank, FID-/Commander-Daten, Zugangsdaten, Favoriten oder Bilder. Persönliche Pfade werden durch Platzhalter ersetzt. Inhalte alter, noch nicht datenschutzbereinigter Logs werden ausgelassen. Wähle selbst den Speicherort und gib das ZIP bei Bedarf an den Support weiter; es wird nie automatisch versendet.</p>')
 
-HELP_TOPICS["trade"] = ('Handel', '<h2>Handel</h2><h3>Verkaufen</h3><p>Ware suchen und auswählen, Menge und Filter festlegen, dann die Verkaufssuche starten. Ausgangspunkt ist das aktuelle Commander-System. Preis / t ist der Verkaufspreis; der mögliche Erlös gilt für die eingegebene Menge bei ausreichender Nachfrage. Marktdaten können sich ändern. Die Suche ist begrenzt; weitere Treffer erfordern engere Filter. Abbrechen kann auf eine laufende Netzwerkantwort warten. Preise bleiben ausschließlich im Arbeitsspeicher. Rare Goods und Routenübergabe folgen später.</p><h3>Einkaufen</h3><p>Ware und gewünschte Menge wählen, Filter festlegen und die Einkaufssuche manuell starten. Preis / t ist der vom Commander zu zahlende Preis. Angebot ist die gemeldete verfügbare Menge; sie muss mindestens der gewünschten Menge entsprechen. Gesamtkosten = Preis × gewünschte Menge. Community-Marktdaten können sich ändern: Datenalter beachten. Das Angebot kann bei Ankunft geringer sein. Beim Reiterwechsel wird eine laufende Suche abgebrochen; die Filter bleiben erhalten.</p>')
+HELP_TOPICS["trade"] = (
+    'Handel',
+    """<h2>Handel</h2>
+<h3>Handel – Überblick</h3>
+<p>„Verkaufen“ findet Märkte, die deine Ware ankaufen. „Einkaufen“ findet eine bestimmte Ware zum Kaufen. „Empfehlungen“ zeigt, was du an deiner aktuellen Station kaufen und unter deinen Vorgaben mit Gewinn weiterverkaufen kannst.</p>
 
-HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<h3>Empfehlungen</h3><p>Der Einkauf erfolgt ausschließlich am aktuellen, selbst beobachteten Elite-Markt des aktiven Commanders, jünger als 24 Stunden. Öffne bei fehlendem Marktstand den Warenmarkt in Elite. Ziele stammen aus eigenen Beobachtungen und Spansh. Bei gleicher MarketID gewinnt der jüngere gültige Marktstand; bei Zeitgleichheit der lokale. Gewinn/t = Zielverkaufspreis − lokaler Einkaufspreis. Gewinn % = Gewinn/t ÷ Einkaufspreis × 100. Die eingestellte Mindestmarge muss erreicht werden. Menge = Minimum aus sicher bekanntem freiem Schiffsfrachtraum, lokalem Angebot und Zielnachfrage. Gesamter Gewinn = Gewinn/t × Menge. Pro Ware erscheint das beste geprüfte Ziel nach Gesamtgewinn. Quelle und Datenalter sind sichtbar. Unbekannte Entfernung schließt lokale Ziele aus; fehlende Landeplatz-, Carrier- oder Anflugdaten erlauben keine entsprechende Einschränkung. Die manuelle Suche prüft nur lokal angebotene Waren nacheinander, mit Fortschritt und Abbruch. Teilresultate und Suchgrenzen sind gekennzeichnet. Preise, Angebot und Nachfrage können sich ändern.</p>')
+<h3>Marktdaten und Datenalter</h3>
+<p>Verkaufen und Einkaufen kombinieren automatisch gültige gespeicherte eigene Marktstände mit Community-Marktdaten über Spansh. Empfehlungen kaufen ausschließlich am aktuellen eigenen Elite-Markt ein; ihre Ziele stammen normalerweise aus eigenen Beobachtungen und Spansh. Community-Ergebnisse werden nur vorübergehend im Arbeitsspeicher gehalten.</p>
+<p>Alle Marktstände sind Momentaufnahmen, auch eigene Beobachtungen. Preis, Angebot und Nachfrage können sich bis zur Ankunft ändern. Beachte das Datenalter: Weder Verfügbarkeit noch Gewinn sind garantiert.</p>
+<p>Ist derselbe Markt aus eigener Beobachtung und über die Community bekannt, verwendet CMDRHelper den jüngeren gültigen Marktstand.</p>
 
-HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>„Nur eigene Marktdaten“ prüft ausschließlich selbst beobachtete Märkte, jünger als 24 Stunden. Das eingestellte Zieldatenalter gilt zusätzlich; Radius und alle übrigen Filter bleiben wirksam. Es gibt keine Community-Abfrage, daher ist die lokale Suche sehr schnell. Preise, Angebot und Nachfrage können sich trotzdem seit der Beobachtung geändert haben.</p>')
+<h3>Ware auswählen</h3>
+<p>Klicke auf „Ware“, suche nach dem angezeigten Namen, dem englischen Namen oder dem Symbol und wähle die Ware aus. Deutsche Namen stammen aus dem gepflegten deutschen Warenkatalog. Fehlt ein gepflegter Sprachname, erscheint der englische Katalogname oder eine lesbare Bezeichnung.</p>
+
+<h3>Verkaufen</h3>
+<p>Gesucht wird in gültigen eigenen Marktständen und Community-Marktdaten. Wähle Ware, „Menge (t)“ und Filter, dann „Besten Verkauf suchen“. Gesucht werden Ankaufsangebote mit ausreichender Nachfrage für die eingegebene Menge. „Preis / t“ ist der Preis, den du beim Verkauf erhältst. „Möglicher Erlös“ = Preis × eingegebene Menge. Ausgangspunkt ist dein aktuelles Commander-System. Standardmäßig steht der höchste Verkaufspreis zuerst.</p>
+
+<h3>Einkaufen</h3>
+<p>Gesucht wird in gültigen eigenen Marktständen und Community-Marktdaten. Wähle Ware, gewünschte Menge und Filter, dann „Günstigsten Einkauf suchen“. Das gemeldete „Angebot“ muss für die ganze Menge reichen. „Preis / t“ ist dein Einkaufspreis; „Gesamtkosten“ = Preis × gewünschte Menge. Ausgangspunkt ist dein aktuelles System. Standardmäßig steht der günstigste Einkaufspreis zuerst. Dies ist eine gezielte Warensuche, keine Gewinnempfehlung.</p>
+
+<h3>Filter und Ergebnistabellen</h3>
+<ul>
+<li><b>Umkreis (ly):</b> maximale Entfernung des Zielsystems vom Ausgangssystem.</li>
+<li><b>Max. Marktdatenalter / Datenalter Ziel:</b> höchstes zugelassenes Alter des Marktstands; bei Empfehlungen gilt der Filter für das Ziel.</li>
+<li><b>Landeplatz:</b> mindestens benötigte Landeplatzgröße, keine exakte Stationsgröße. „Mittel“ erlaubt auch große Landeplätze; „Alle“ schränkt nicht ein.</li>
+<li><b>Fleet Carrier einbeziehen:</b> Carrier zulassen oder ausschließen.</li>
+<li><b>Max. Anflug (Ls):</b> maximale Entfernung der Station vom Ankunftsstern. Leer bedeutet keine Einschränkung. Ohne bekannte Anflugdistanz kann ein Ziel diesen Filter nicht erfüllen.</li>
+</ul>
+<p>Für eigene und Community-Treffer gelten dieselben Filter für Datenalter, Umkreis, Landeplatz, Carrier und Anflug. Fehlende Angaben werden nicht geschätzt. Ziele ohne bekannte Systementfernung oder ohne Nachweis einer gesetzten Einschränkung werden ausgeschlossen. Das betrifft bei eigenen Märkten besonders fehlende Landeplatz- und Anflugdaten; bei ausgeschlossenen Carriern muss bekannt sein, dass ein Ziel kein Carrier ist.</p>
+<p>Klicke auf Spaltenüberschriften zum Sortieren: Zahlen nach Zahlenwert, Datenalter nach tatsächlichem Alter und Landeplätze nach Größenklasse. Verkaufen und Einkaufen zeigen höchstens 100 Treffer. „Es gibt weitere Treffer. Filter einschränken.“ weist auf eine begrenzte Suche hin. Die verfügbaren eigenen und Community-Treffer werden gemeinsam nach Preis sortiert, bevor die Liste begrenzt wird. Wegen der Suchgrenzen des Community-Dienstes sind dies nicht garantiert die besten Angebote insgesamt.</p>
+<p>Scheitert bei Verkaufen oder Einkaufen die Community-Suche, bleiben passende eigene Treffer nutzbar. CMDRHelper kennzeichnet die Suche dann als unvollständig: Möglicherweise fehlen bessere Community-Angebote.</p>
+
+<h3>Eigene Marktdaten</h3>
+<p>Öffne beim angedockten Commander den Warenmarkt in Elite. Während CMDRHelper läuft, übernimmt es den Markt automatisch, wenn die Zuordnung zur aktuellen Station sicher ist. Ein manueller Import ist nicht nötig. Erneutes Öffnen aktualisiert den Stand.</p>
+<p>Pro Markt und Commander bleibt ein aktueller Stand erhalten, jünger als 24 Stunden. Ältere Stände werden automatisch entfernt; es gibt keine dauerhafte Preishistorie. Gültige eigene Stände überleben einen Helper-Neustart. „Eigene Marktdaten: X Stationen“ zählt die gültigen eigenen Stationsmärkte des aktiven Commanders. Der eingestellte Filter „Max. Marktdatenalter“ gilt zusätzlich für eigene Treffer.</p>
+<ul>
+<li><b>✓ Eingelesen:</b> Unter Empfehlungen liegt ein gültiger eigener Marktstand der aktuellen Station vor.</li>
+<li><b>Warenmarkt öffnen:</b> Für diese Station fehlt ein verwendbarer eigener Stand.</li>
+<li><b>Marktstand veraltet:</b> Ein zuvor angezeigter Stand ist inzwischen ungültig. Öffne den Warenmarkt erneut.</li>
+</ul>
+<p>Wurde ein alter Stand bereits vor Öffnen der Ansicht entfernt, erscheint ebenfalls „Warenmarkt öffnen“. Im Flug wird kein positiver Status für die vorige Station gezeigt.</p>
+
+<h3>Empfehlungen</h3>
+<p>Voraussetzungen sind die aktuelle Station, ihr gültiger eigener Marktstand sowie das bekannte aktuelle Schiff mit sicher bekanntem freiem Frachtraum. Bereits belegter Platz wird abgezogen. Bei unbekanntem oder vollem Frachtraum ist keine neue Suche möglich; Mengen werden nicht erfunden. Nach dem Abflug wird nicht auf Basis des alten Aufenthalts neu gerechnet.</p>
+<p>Stelle „Mindestgewinn“ ein: 10 % berücksichtigt nur Möglichkeiten ab mindestens 10 % Marge. Gesucht wird für lokal angebotene Waren. Die Einkaufsstation selbst ist kein Ziel. Bei derselben Zielstation (gleiche MarketID) zählt der jüngere gültige Marktstand. Pro Ware erscheint das geprüfte Ziel mit dem höchsten „Möglicher Gewinn“ unter deinen Filtern, nicht zwingend das beste Ziel der gesamten Galaxis. Die Tabelle beginnt mit dem höchsten möglichen Gewinn; „Quelle“ zeigt „Elite lokal“ oder „Spansh“, „Datenalter Ziel“ das Alter des Zielstands.</p>
+
+<h3>Nur eigene Marktdaten</h3>
+<p>Diese Checkbox gibt es nur unter „Empfehlungen“. Verkaufen und Einkaufen verwenden automatisch beide Quellen. Diese Checkbox beschränkt die Empfehlungssuche auf gültige selbst beobachtete Zielmärkte. Es gibt keine Community-Abfrage; Spansh wird hierfür nicht benötigt. Umkreis, zusätzliches Zieldatenalter, Mindestgewinn sowie Landeplatz-, Carrier- und Anflugfilter gelten weiterhin und müssen anhand vorhandener Angaben erfüllbar sein. Das bewusste Auslassen der Community-Suche ist kein Fehler und macht die Suche nicht unvollständig. So kannst du schnell zwischen bereits besuchten Stationen suchen.</p>
+
+<h3>Möglicher Gewinn und Menge</h3>
+<ul>
+<li><b>Gewinn / t:</b> Verkaufspreis am Ziel − Einkaufspreis hier. „Gewinn %“ = Gewinn pro Tonne ÷ Einkaufspreis × 100.</li>
+<li><b>Menge (t):</b> die kleinste Menge aus freiem Frachtraum, Angebot am Einkaufsmarkt und Nachfrage am Ziel.</li>
+<li><b>Möglicher Gewinn:</b> Gewinn pro Tonne × mögliche Menge; eine Schätzung anhand der bekannten Marktstände.</li>
+</ul>
+<p>Beispiel: 280 t frei, 150 t Angebot, 20.000 t Nachfrage → 150 t mögliche Menge. Nicht jede Ware füllt automatisch den gesamten freien Frachtraum.</p>
+
+<h3>Gemerkter Handelsflug</h3>
+<p>Merke mit dem Häkchen genau eine Empfehlung. Eine andere Auswahl ersetzt sie. Der separate Merkbereich zeigt Ware, Zielstation, Zielsystem und „Möglicher Gewinn“ zum Zeitpunkt des Merkens. Er ist ein Merkzettel, keine laufend neu berechnete Empfehlung.</p>
+<p>Er bleibt bei Kauf, Frachtraumänderung, Abflug, Systemwechsel, Docking und Marktöffnung erhalten. Er verschwindet durch „Entfernen“ oder Abwählen des Häkchens, bei einer tatsächlich gestarteten neuen Empfehlungssuche, beim Commanderwechsel und beim Beenden des Helpers. Über einen Neustart wird er nicht gespeichert.</p>
+<p>„System kopieren“ kopiert ausschließlich den Zielsystemnamen in die Zwischenablage. Die Zielstation bleibt im Merkbereich sichtbar; es wird keine Route erstellt.</p>
+
+<h3>Suche, Fortschritt und Abbruch</h3>
+<p>Starte Suchen manuell. Empfehlungen prüfen mehrere Waren und können länger dauern. Nach Ermittlung des Suchumfangs zeigen Fortschrittsbalken und „Prüfe Waren: x von y …“ die tatsächlich geprüften Waren. „Abbrechen“ ist nur während einer abbrechbaren Suche verfügbar; eine laufende Netzwerkantwort kann den Abbruch verzögern. Ein Reiterwechsel bricht die laufende Suche ab; die gemeinsamen Filter von Verkaufen/Einkaufen bleiben erhalten.</p>
+<p>Bei einzelnen fehlgeschlagenen Community-Abfragen oder erreichten Suchgrenzen können gültige geprüfte Empfehlungen stehen bleiben. „Unvollständige Suche“ bedeutet: Die angezeigten Treffer gelten für die geprüften Daten, aber nicht alle Waren oder Ziele wurden vollständig geprüft. Prüfe den Hinweis, schränke bei Suchgrenzen die Filter ein oder versuche es später erneut. Ein manueller Abbruch verwirft die aktuelle Ergebnisliste.</p>
+
+<h3>Diagnose bei Problemen</h3>
+<p>„Diagnose kopieren“ kopiert technische Informationen zum letzten abgeschlossenen Empfehlungslauf für die Fehlersuche. Der Text enthält keine Commander-/FID-Daten und keine Marktpreise. Die Diagnose bleibt im Arbeitsspeicher; es wird keine dauerhafte Diagnosedatei angelegt und nichts automatisch übertragen. Gib den kopierten Text bei Bedarf selbst an den Support weiter.</p>
+
+<h3>So funktioniert eine Handelsrunde</h3>
+<ol>
+<li>Lande auf einer Station und öffne in Elite den Warenmarkt.</li>
+<li>Öffne „Handel“ → „Empfehlungen“ und achte auf „Eingelesen“.</li>
+<li>Stelle Mindestgewinn und Filter ein, dann wähle „Empfehlungen suchen“.</li>
+<li>Merke die gewünschte Empfehlung mit dem Häkchen und kaufe die Ware in Elite.</li>
+<li>Nutze bei Bedarf „System kopieren“ und fliege zum Ziel; die Station bleibt im Merkzettel sichtbar.</li>
+<li>Verkaufe in Elite. Öffne dort den Warenmarkt, um auch die eigenen Daten des neuen Markts zu aktualisieren.</li>
+</ol>""",
+)

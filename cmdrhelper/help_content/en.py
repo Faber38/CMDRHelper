@@ -108,88 +108,57 @@ HELP_TOPICS = {
               'first check the journal display at the top and then check the journal folder set '
               'under “Settings”.</p>'
               '<p>Open is red, Solo gold and Private Group green, with the reported group name for private groups. The mode is reconstructed from available journals and updated with new LoadGame entries.</p>\n<p>A single click on an entry in Recent systems copies the system name to the clipboard. “✓ Copied: &lt;System&gt;” appears briefly.</p>\n'),
- 'missions': ('Missions',
-              '<h2>Missions</h2>\n'
-              '<p>The mission view shows the missions of the currently viewed commander known from '
-              'the Elite Dangerous Journal. CMDRHelper saves mission data on a '
-              'commander-by-command basis so that open missions are retained even after a restart '
-              'of Elite Dangerous or CMDRHelper.</p>\n'
-              '\n'
-              '<h3>Open missions</h3>\n'
-              '<p>New missions are coming out<code>MissionAccepted</code>taken over and saved '
-              'permanently.</p>\n'
-              '<p>As long as there is no final mission event, the mission remains open. A new game '
-              'session without a mission list may not automatically remove known open '
-              'missions.</p>\n'
-              '\n'
-              '<h3>Mission status</h3>\n'
-              '<p>CMDRHelper processes, among others, the following status changes:</p>\n'
-              '<ul>\n'
-              '<li>Mission accepted</li>\n'
-              '<li>Mission completed</li>\n'
-              '<li>Mission failed</li>\n'
-              '<li>Mission aborted</li>\n'
-              '<li>Mission objective diverted</li>\n'
-              '<li>Progress on supported cargo/depot missions</li>\n'
-              '</ul>\n'
-              '<p>A final event only changes the associated mission.</p>\n'
-              '\n'
-              '<h3>Missions from the Journal</h3>\n'
-              '<p>Elite Dangerous provides mission information about various journal events. '
-              'CMDRHelper merges these events into a persistent mission state.</p>\n'
-              '<p>A real full mission event can serve as an authoritative snapshot. If such an '
-              'event is missing, older open missions will not be closed for this reason '
-              'alone.</p>\n'
-              '\n'
-              '<h3>Destinations and places</h3>\n'
-              '<p>To the extent that Elite provides the information in the journal, CMDRHelper '
-              'shows:</p>\n'
-              '<ul>\n'
-              '<li>Target system</li>\n'
-              '<li>Destination station or destination</li>\n'
-              '<li>Target planet or body</li>\n'
-              '<li>Mission designation</li>\n'
-              '<li>known progress</li>\n'
-              '<li>current status</li>\n'
-              '</ul>\n'
-              '<p>Not every mission provides all the information. Missing data is not invented by '
-              'CMDRHelper.</p>\n'
-              '\n'
-              '<h3>Persistence and restart</h3>\n'
-              '<p>Open missions are saved in the commander-related database.</p>\n'
-              '<p>This means they are retained even if:</p>\n'
-              '<ul>\n'
-              '<li>Elite Dangerous is terminated and restarted later</li>\n'
-              '<li>CMDRHelper is closed in between</li>\n'
-              '<li>The new journal session initially does not contain any mission events</li>\n'
-              '</ul>\n'
-              '<p>Only a documented mission event changes the saved state.</p>\n'
-              '\n'
-              '<h3>Several commanders</h3>\n'
-              '<p>Missions are strictly separated by commander.</p>\n'
-              '<p>A mission event is only assigned to the commander whose journal session has been '
-              'uniquely identified. Missions of another commander may not be displayed or '
-              'modified.</p>\n'
-              '\n'
-              '<h3>Orphaned or no longer valid missions</h3>\n'
-              '<p>If older journal data or a previous import keeps a mission open even though it '
-              'no longer exists in the game, the existing orphan mission reset/cleanup feature can '
-              'be used.</p>\n'
-              '<p>This function should only be used if it is clear that the displayed mission is '
-              'no longer active.</p>\n'
-              '\n'
-              '<h3>Online Services</h3>\n'
-              '<p>Supported mission events can additionally be transmitted to Inara if a valid and '
-              'activated Inara access is set up for the active journal FID.</p>\n'
-              '<p>A missing or unreachable Inara connection does not affect local mission '
-              'storage.</p>\n'
-              '\n'
-              '<h3>Tip</h3>\n'
-              '<p>If a mission does not appear or shows an incorrect status, first check whether '
-              'Elite Dangerous has already written the corresponding mission event to the '
-              'journal.</p>\n'
-              '<p>CMDRHelper can only display information that the journal actually provides or '
-              'that has already been stored from previous unique mission events.</p>'),
+ 'missions': (
+        'Missions & Rewards',
+        """<h2>Missions &amp; Rewards</h2>
+<p>This main page shows missions and observed rewards for the currently active journal Commander. Selecting another Commander in the separate CMDR view does not change this page. Each Commander's data stays separate.</p>
+
+<h3>Using this page</h3>
+<ol>
+<li>Open “Missions &amp; Rewards” and select a mission in the list.</li>
+<li>Check “Status” and “MISSION DETAILS”. Use “Next step” for guidance.</li>
+<li>If needed, use “Refresh journal” to read the available journal data again.</li>
+<li>Consider mission rewards, “Bounties” and “Combat bonds” separately.</li>
+</ol>
+
+<h3>List and details</h3>
+<p>The list contains confirmed open missions and detected provisional encounter offers. It shows the mission, system, planet / location, status, next step, reward and deadline. Selecting an entry displays the available destination and progress details. Missing journal information remains unknown; provisional offers have an unknown deadline.</p>
+
+<h3>Mission status</h3>
+<p>Status follows the available mission, location and progress information. Not every mission type provides all intermediate stages.</p>
+<ul>
+<li><b>Mission accepted / En route:</b> The mission is known; arrival at its destination has not yet been detected.</li>
+<li><b>In target system:</b> You are in the target system, but not yet at the detected mission destination.</li>
+<li><b>At mission destination:</b> The matching destination station or body has been reached.</li>
+<li><b>Destination changed:</b> A new mission destination has been reported.</li>
+<li><b>Cargo collected:</b> Collection of mission cargo has been detected.</li>
+<li><b>Delivery in progress:</b> A delivery has been recorded; known quantity progress is shown.</li>
+<li><b>Task completed / Data received:</b> The task or data collection is done. The mission may still be open, for example with “Return to mission terminal”. This does not yet confirm payment.</li>
+</ul>
+<p>Detected completions, failures and abandonments remove the affected mission from the open list. A complete new mission snapshot may identify older entries as no longer active.</p>
+
+<h3>Total reward</h3>
+<p>“Total reward” adds up the known credit rewards of confirmed open missions. It is not a balance already paid out. Provisional encounter offers, bounties and combat bonds are excluded.</p>
+
+<h3>Encounter missions</h3>
+<p>Supported space encounters can appear as provisional “Encounter assignment” entries before a final MissionID is available. “Reward offer” is therefore not yet a confirmed open mission reward and is excluded from the total reward.</p>
+<p>If later journal information unambiguously links an offer to a mission, the two are merged. Ambiguous offers remain provisional. Unconfirmed offers disappear locally after 24 hours; this does not indicate an in-game mission deadline.</p>
+
+<h3>Bounties</h3>
+<p>This area shows locally observed bounties with a total and amounts by faction. It only knows captured data, not a reliably complete in-game balance. “Recording from now on.” marks the start of capture; gaps are indicated by “Not fully synchronized: some events may be missing.”.</p>
+<p>A detected bounty redemption or death clears the entire local bounty balance. This is independent of mission status.</p>
+
+<h3>Combat bonds</h3>
+<p>This area lists observed combat bonds by faction that have not been detected as redeemed. Any balance from before capture began is missing. Uncertainty is shown as “Observed amount” with “Balance not fully verified.”.</p>
+<p>An unambiguously attributed redemption clears the observed amount for the named faction; other factions remain unchanged. If attribution is unclear, amounts remain and “Redemption detected – check balance.” appears. A detected death clears observed combat bonds.</p>
+
+<h3>Resetting locally</h3>
+<p>“Reset…” in a reward area clears only that area's local balance for the active Commander after confirmation. <b>This changes no values in Elite Dangerous.</b> Bounties and combat bonds are reset separately; missions are neither cleaned up nor completed.</p>
+
+<h3>Updates and restarts</h3>
+<p>Known open missions and local reward balances survive Helper restarts. A new journal session without a mission list does not automatically remove open missions. Capture gaps can leave reward balances incomplete in particular. “Refresh journal” can only read existing information, not create missing game data.</p>
+<p>The local mission display needs no Inara connection. With an enabled connection configured for the active Commander, supported mission events can also be uploaded.</p>""",
+    ),
  'explorer': ('Explorer',
               '<h2>Explorer</h2>\n<h3>CMDRHelper</h3>\n<p>System overview: The new Elite-style view replaces the previous miniature overview and is available in Explorer and Chronicle. Stars and planets form the main structure, with moons branching below; multiple-star systems remain readable. Zoom, scrolling, fit to window and body clicks provide access to details.</p>\n<p>Compact asteroid belts: Belt clusters are grouped into clear belts in the overview and regular Explorer/Chronicle system maps. All individual cluster data is retained.</p>\n<p>Cartography corrected: A later scan after DSS mapping no longer resets unsold exploration values, mapping time or efficiency. Existing incorrect claims are repaired at startup from available journals with clear commander attribution. Missing sources leave the repair pending; deleting the database is unnecessary.</p>\n'
               '<p>The Explorer evaluates the systems and celestial bodies discovered and scanned '
@@ -890,185 +859,39 @@ HELP_TOPICS = {
             'folder.</p>\n'
             '<p>Higher brightness can help with dark photos; it affects the newly created target '
             'image during the conversion.</p>'),
- 'commander_view': ('CMDR view',
-                    '<h2>CMDR view</h2>\n'
-                    "<p>The CMDR view summarizes a commander's permanently stored personal "
-                    'information.</p>\n'
-                    '<p>It also allows you to switch between the CMDRHelper known commanders and '
-                    'view their own data. Personal information is separated using the Frontier ID '
-                    '(FID).</p>\n'
-                    '\n'
-                    '<h3>Select Commander</h3>\n'
-                    '<p>If several commanders are known, you can use the selection above to '
-                    'determine whose saved information is displayed. This commander is the '
-                    'considered commander.</p>\n'
-                    '<p>The display marks it as either “Live Active” or “View Only”.</p>\n'
-                    '\n'
-                    '<h3>Considered Commander and Live Commander</h3>\n'
-                    '<p>Selecting another commander in the CMDR view does not make it the active '
-                    'journal commander.</p>\n'
-                    '<p>The live commander is determined exclusively from the currently uniquely '
-                    'identified Elite Dangerous journal session. This way the history of another '
-                    'commander can be viewed while Elite Dangerous continues to run with '
-                    'EXAMPLE.</p>\n'
-                    '\n'
-                    '<h3>Frontier ID (FID)</h3>\n'
-                    '<p>The FID is the stable Frontier identifier of a commander.</p>\n'
-                    '<p>CMDRHelper uses it and the internal commander ID resolved from it to '
-                    'securely separate personal data. Commanders with similar or identical names '
-                    'also remain separated.</p>\n'
-                    '\n'
-                    '<h3>Overview</h3>\n'
-                    '<p>The “Overview” tab only shows permanently saved information for the '
-                    'commander in question:</p>\n'
-                    '<ul>\n'
-                    '<li>Commander name, FID and status “Live active” or “View only”</li>\n'
-                    '<li>first and last known time</li>\n'
-                    '<li>Number of systems visited, bio and geo discoveries, codex entries and '
-                    'cartography sales</li>\n'
-                    '<li>Last known location and number of open missions</li>\n'
-                    '<li>current or last ship</li>\n'
-                    '<li>Fleet Carrier and carrier location</li>\n'
-                    '<li>Assets</li>\n'
-                    '<li>open biodata and open cartographic data including existing '
-                    'estimates</li>\n'
-                    '</ul>\n'
-                    '\n'
-                    '<h3>Assets/Credits</h3>\n'
-                    '<p>The “Assets” field shows the most recently saved credit balance of the '
-                    'commander in question from an appropriate journal event, formatted as, for '
-                    'example<b>1,234,567 Cr</b>.</p>\n'
-                    '<p>CMDRHelper does not add fictitious income or expenses if there is no new, '
-                    'secure journal status.</p>\n'
-                    '\n'
-                    '<h3>Mercenary coins</h3>\n'
-                    '<p>The mercenary coins come from the MercCoins fields provided by Elite '
-                    'Dangerous<code>Statistics → Bank_Account</code>and are saved '
-                    'commander-related as a Frontier snapshot.</p>\n'
-                    '<p>Visible are:</p>\n'
-                    '<ul>\n'
-                    '<li>Current</li>\n'
-                    '<li>Total spent</li>\n'
-                    '<li>Engineering</li>\n'
-                    '<li>equipment</li>\n'
-                    '<li>Reported by Frontier: earned overall</li>\n'
-                    '</ul>\n'
-                    '\n'
-                    '<h3>Current and editions</h3>\n'
-                    '<p>“Current” shows<code>MercCoins_Current</code>. “Total Spent” takes '
-                    'over<code>MercCoins_Total_Spent</code>.</p>\n'
-                    '<p>“Engineering” and “Equipment” show the shares reported separately by '
-                    'Frontier<code>MercCoins_Spent_On_Engineering</code>and<code>MercCoins_Spent_On_MercGear</code>.</p>\n'
-                    '<p>For EXAMPLE, for example, a current inventory of<b>1,000</b>, in '
-                    'total<b>200</b>spent and away<b>200</b>reported for engineering.</p>\n'
-                    '\n'
-                    '<h3>Overall deserved</h3>\n'
-                    '<p>“Reported by Frontier: earned overall” '
-                    'shows<code>MercCoins_Total_Earned</code>. CMDRHelper does not calculate its '
-                    'own balance sheet from this.</p>\n'
-                    "<p>Frontier's cumulative value does not have to mathematically match the "
-                    'current inventory and reported expenses. For example, 1,000 current, 25 total '
-                    'earned, and 200 total spent may be reported at the same time.</p>\n'
-                    '<p>CMDRHelper does not correct these values, but displays the individual '
-                    'Frontier counters unchanged.</p>\n'
-                    '\n'
-                    '<h3>Why not have your own MercCoins balance sheet?</h3>\n'
-                    '<p>Elite Dangerous does not provide a unique journal entry record for each '
-                    'individual receipt or expenditure of mercenary coins. The MercCoins appear as '
-                    'totals in Statistics.</p>\n'
-                    '<p>A self-calculated booking history would therefore not be reliable. '
-                    'CMDRHelper saves the latest known Frontier snapshot instead.</p>\n'
-                    '\n'
-                    '<h3>Missions</h3>\n'
-                    '<p>The “Missions” tab shows the saved missions of the commander in question '
-                    'as a table with status, mission name, objective, expiration time and '
-                    'reward.</p>\n'
-                    '\n'
-                    '<h3>exploration</h3>\n'
-                    '<p>The Exploration tab shows open biodata, open cartography data, '
-                    'biodiscoveries, first footfalls, self-mapped and efficiently mapped bodies, '
-                    'and the number of systems visited.</p>\n'
-                    '<p>The dedicated “Chronicle” tab within the CMDR view is currently still a '
-                    'placeholder. The complete chronicle can be found in the main menu item of the '
-                    'same name.</p>\n'
-                    '\n'
-                    '<h3>Ships/Fleet</h3>\n'
-                    '<p>The “Ships” tab initially shows the active or most recently used ship with '
-                    'ship name, ship type, location and ShipID.</p>\n'
-                    '<p>The saved ships of the commander in question appear below them as '
-                    'expandable cards. They can be sorted ascending or descending by:</p>\n'
-                    '<ul>\n'
-                    '<li>last or currently used</li>\n'
-                    '<li>Ship name or ship type</li>\n'
-                    '<li>maximum jumping range</li>\n'
-                    '<li>Cargo capacity or empty mass</li>\n'
-                    '<li>last known location or time</li>\n'
-                    '</ul>\n'
-                    '<p>You can also filter for all ships, ships with a vehicle hangar or ships '
-                    'with a fighter hangar.</p>\n'
-                    '\n'
-                    '<h3>Ship details</h3>\n'
-                    '<p>An opened ship map shows - if saved - ship ID, ShipID, location, last '
-                    'time, maximum jump range, FSD and Guardian booster, mass, cargo and tank '
-                    'capacities as well as loadout time and status.</p>\n'
-                    '<p>If module data is available, vehicle and fighter hangar, shield generator '
-                    'and shield booster, Guardian shield reinforcements, weapons, hull and module '
-                    'reinforcements and passenger cabins are also summarized.</p>\n'
-                    '<p>The loadout status can be complete, incomplete or stale. Missing '
-                    'information is displayed as “–” and is not made up.</p>\n'
-                    '\n'
-                    '<h3>Fleet Carrier</h3>\n'
-                    '<p>For a saved custom Fleet Carrier, the view shows carrier name, call sign, '
-                    'carrier ID, last location and the time of the last update.</p>\n'
-                    '\n'
-                    '<h3>Persistent commander state</h3>\n'
-                    '<p>Important commander information remains permanently saved. This allows '
-                    'known values \u200b\u200bto be displayed again after a restart of CMDRHelper '
-                    'or Elite Dangerous without fully evaluating each journal again.</p>\n'
-                    '<p>New unique journal events update the saved state.</p>\n'
-                    '\n'
-                    '<h3>Historical reconstruction</h3>\n'
-                    '<p>For functions that are added later, CMDRHelper can search existing journal '
-                    'areas that are clearly assigned to a commander once for information that is '
-                    'already known.</p>\n'
-                    '<p>For example, older MercCoins snapshots can be adopted. Repeated checks are '
-                    'not intended to produce duplicate data and do not alter normal journal read '
-                    'positions.</p>\n'
-                    '\n'
-                    '<h3>Several commanders</h3>\n'
-                    '<p>In particular, the following remain separate in terms of commanders:</p>\n'
-                    '<ul>\n'
-                    '<li>Assets and Missions</li>\n'
-                    '<li>own cartography and organic finds</li>\n'
-                    '<li>Surface mining history and mercenary coins</li>\n'
-                    '<li>Online credentials</li>\n'
-                    '<li>commander related screenshots</li>\n'
-                    '</ul>\n'
-                    '<p>Global astronomical properties of a system or body, however, can be used '
-                    'together.</p>\n'
-                    '\n'
-                    '<h3>Impact on other views</h3>\n'
-                    '<p>Changing the commander in question updates the CMDR view itself, the '
-                    'personal mining raw material selection of the chronicle and, with the '
-                    'appropriate filter, the screenshot gallery.</p>\n'
-                    '<p>It does not replace the actual live commander for journal processing or '
-                    'online uploads.</p>\n'
-                    '\n'
-                    '<h3>Inara and EDSM</h3>\n'
-                    '<p>Inara and EDSM accesses are managed separately per commander and FID, '
-                    'respectively.</p>\n'
-                    '<p>Simply looking at a commander does not start a transmission with their '
-                    'API-Key. Only the active journal FID is relevant for live uploads.</p>\n'
-                    '<p>The access data is managed under “Settings” in the online services '
-                    'area.</p>\n'
-                    '\n'
-                    '<h3>Tip</h3>\n'
-                    '<p>Use the CMDR view if you want to view saved personal information for a '
-                    'specific commander.</p>\n'
-                    '<p><b>CMDR view = Who do I want to view?</b></p>\n'
-                    '<p><b>Active Journal-FID = Who is actually playing right now?</b></p>\n'
-                    '<p>This separation prevents personal data or online uploads from different '
-                    'commanders from being mixed together.</p>'),
+ 'commander_view': (
+        'CMDR view',
+        """<h2>CMDR view</h2>
+<h3>Choosing a commander</h3>
+<p>The selector at the top determines whose saved data you view. ● Live active identifies the active journal commander; View only identifies another saved profile. Selecting a commander does not make them the active journal commander: the main “Missions &amp; Rewards” page still uses the commander actually playing. Personal data remains separate by FID, even for identical names. Viewing a profile does not start an online upload.</p>
+
+<h3>Overview, wealth and MercCoins</h3>
+<p>“Overview” shows name, FID, status, first and last records, visited systems, biological/geological finds, Codex entries and cartography sales, location, open missions, ship, carrier and unsold biological/cartographic data with known estimates. “Wealth” is the last saved credit balance. “Mercenary credits” displays Frontier’s reported values: “Current”, “Total spent”, “Engineering”, “Gear” and “Reported by Frontier: total earned”. These counters need not balance mathematically; CMDRHelper neither corrects them nor invents a transaction history. Unknown values remain “–”.</p>
+
+<h3>Missions and exploration</h3>
+<p>“Missions” shows the viewed commander’s saved open missions with status, mission name, destination, expiry and reward. This table is for viewing; it has no mission details or mission actions like the main page. “Exploration” shows unsold biological/cartographic data, biological finds, First Footfalls, personally and efficiently mapped bodies, and visited systems. “Chronicle” is a placeholder here; open the full chronicle from the main menu.</p>
+
+<h3>Fleet and ship details</h3>
+<p>“Ships” shows the current or last-used ship at the top, followed by this commander’s saved fleet. Click a ship card’s header to expand its details. Sort ascending or descending by use, name, type, jump range, cargo capacity, unladen mass, location or time; filter all ships or those with vehicle/fighter hangars. Green identifies the live ship; other colours group known locations. Details include identification, ShipID, location, timestamps, FSD/Guardian booster, range, mass, cargo/fuel capacities and loadout status (complete, incomplete or stale). Available module data adds hangars, shields and reinforcements, weapons and passenger cabins. Missing values remain “–”.</p>
+
+<h3>Your own fleet carrier</h3>
+<p>“Owned Fleet Carrier” shows the saved carrier’s name, callsign, CarrierID, last location and last update. These are details of your own carrier, not trade offers or mining stocks.</p>
+
+<h3>Personal ship and carrier images</h3>
+<p>Use “Choose ship image…” in expanded ship details or “Select carrier image…” for the carrier. PNG, JPG/JPEG and WEBP are supported. CMDRHelper stores its own local copy, separated by commander and ship or carrier, which survives restarts. Choosing another image replaces this copy. “Remove personal image” removes the copy and its association; the original image file is preserved. Without a personal image, an available standard preview or a placeholder appears. Image selection is disabled when the carrier cannot be identified unambiguously. Screenshots are not assigned automatically.</p>
+
+<h3>Image viewer</h3>
+<p>Double-click an available ship or carrier image to open the separate viewer using the image file rather than just the thumbnail. The image scales proportionally to the window. You can enlarge or maximise the window and close it with Esc or the window’s close button. There is no image navigation or zoom control here. The main “Images” section instead manages screenshots.</p>
+
+<h3>Deleting a ship</h3>
+<p>“Delete ship…” requires explicit confirmation; Cancel is selected by default. It removes the local ship record, including saved loadout data and the personal image copy. The current or last-used ship and an identified live ship are protected; deletion is blocked while rereading. A local deletion marker prevents old journal data from immediately bringing the ship back. A new unambiguous active-ship report in the live journal after deletion can restore it. Confirmed rereading can also clear the marker. Neither restores the deleted personal image copy.</p>
+
+<h3>Rereading all ships</h3>
+<p>“Reread all ships…” is useful for recovering fleet information from existing journals or finding locally removed ships again. After confirmation, known journal files and files in the configured journal folder are read again for the viewed commander, for fleet data only. Elite does not need to be running. Newer saved information and ships absent from the available journals are retained; recognised sales are taken into account. On success, this commander’s manual deletion markers are cleared. Existing personal images are kept; deleted ones stay deleted. Other commanders are unaffected. If reading or applying the data fails, markers remain: check journal access and try again.</p>
+
+<h3>Local data and safety</h3>
+<p>Saved information can be viewed offline and after a restart; it represents the last known state. Images, deletion and rereading affect CMDRHelper only. They do not change ships, carriers or credits in Elite Dangerous or rewrite journals.</p>""",
+    ),
  'settings': ('Settings',
               '<h2>Settings</h2>\n<h3>CMDRHelper</h3>\n<p>Better update information: The Yes/No window shows installed and available versions plus up to six highlights when a summary is available. Long lists scroll while actions remain accessible.</p>\n'
               '<p>The “Settings” area determines how CMDRHelper works with Elite Dangerous, '
@@ -1370,8 +1193,82 @@ HELP_TOPICS["overview"] = (HELP_TOPICS["overview"][0], HELP_TOPICS["overview"][1
 
 HELP_TOPICS["settings"] = (HELP_TOPICS["settings"][0], HELP_TOPICS["settings"][1] + '<h3>Diagnostics and logs</h3><p>In Settings → Diagnostics and logs, open the log file or create a diagnostic package. Logs are in the installation folder under logs/ (cmdrhelper.log and up to four rotations). The ZIP contains sanitized technical logs, system_info.json and diagnose_summary.txt; no journals, database, FID/commander data, credentials, favorites or images. Personal paths are replaced with placeholders. Contents of older logs that predate privacy filtering are omitted. Choose where to save the ZIP and share it with support if needed; it is never sent automatically.</p>')
 
-HELP_TOPICS["trade"] = ('Trade', '<h2>Trade</h2><h3>Sell</h3><p>Find and select a commodity, set quantity and filters, then start the sale search. The reference is the current commander system. Price / t is the selling price; potential revenue uses the entered quantity when demand is sufficient. Market data can change. The search is bounded; more results require narrower filters. Cancellation may wait for an ongoing network response. Prices remain in memory only. Rare Goods and route actions will follow later.</p><h3>Buy</h3><p>Choose a commodity and quantity, set filters and start the purchase search manually. Price / t is the price paid by the commander. Supply is the reported available quantity and must cover the requested amount. Total cost = price × requested quantity. Community market data can change: check its age. Supply may be lower on arrival. Switching tabs cancels an active search and preserves the filters.</p>')
+HELP_TOPICS["trade"] = (
+    'Trade',
+    """<h2>Trade</h2>
+<h3>Trading at a glance</h3>
+<p>“Sell” finds markets that buy your commodity. “Buy” finds a specific commodity to purchase. “Recommendations” shows what you can buy at your current station and sell elsewhere for a profit within your requirements.</p>
 
-HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<h3>Recommendations</h3><p>Purchases use only the active commander’s current, personally observed Elite market, less than 24 hours old. Open the market in Elite if the snapshot is missing. Destinations come from your observations and Spansh. For the same MarketID, the newer valid snapshot wins; equal timestamps prefer local data. Profit/t = destination selling price − local buying price. Profit % = profit/t ÷ buying price × 100. The minimum margin must be met. Quantity = minimum of confirmed free ship cargo space, local supply and destination demand. Total profit = profit/t × quantity. Each commodity shows the best checked destination by total profit, with source and data age. Unknown distance excludes local destinations; missing pad, carrier or arrival metadata cannot satisfy the corresponding restriction. Manual searches check only locally offered commodities sequentially, with progress and cancellation. Partial results and search limits are indicated. Prices, supply and demand can change.</p>')
+<h3>Market data and age</h3>
+<p>Selling and buying automatically combine valid saved observations of your own markets with community market data through Spansh. Recommendations buy exclusively from your current observed Elite market; destinations normally come from your observations and Spansh. Community results are held temporarily in memory only.</p>
+<p>All market data is a snapshot, including your own observations. Prices, supply and demand can change before arrival. Check the data age: neither availability nor profit is guaranteed.</p>
+<p>If the same market is known from your own observation and the community, CMDRHelper uses the newer valid snapshot.</p>
 
-HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>“Only my observed markets” checks only markets you observed less than 24 hours ago. The selected target-data age also applies, as do radius and all other filters. No community query is made, so the local search is very fast. Prices, supply and demand may still have changed since observation.</p>')
+<h3>Selecting a commodity</h3>
+<p>Click “Commodity”, search by displayed name, English name or symbol, then select the commodity. German names come from the maintained German commodity catalogue. If no maintained translation exists, the English catalogue name or a readable name is shown.</p>
+
+<h3>Sell</h3>
+<p>The search uses both valid observations of your own markets and community market data. Select a commodity, “Quantity (t)” and filters, then “Find best sale”. The search finds buying offers with enough demand for the entered quantity. “Price / t” is the price you receive when selling. “Potential revenue” = price × entered quantity. The starting point is your Commander's current system. The highest selling price appears first by default.</p>
+
+<h3>Buy</h3>
+<p>The search uses both valid observations of your own markets and community market data. Select a commodity, desired quantity and filters, then “Find cheapest purchase”. The reported “Supply” must cover the entire quantity. “Price / t” is your purchase price; “Total cost” = price × desired quantity. The starting point is your current system. The lowest purchase price appears first by default. This searches for a specific commodity, not a profitable trade.</p>
+
+<h3>Filters and result tables</h3>
+<ul>
+<li><b>Radius (ly):</b> maximum distance from the starting system to the destination system.</li>
+<li><b>Maximum market data age / Destination data age:</b> maximum permitted age of the market data; for recommendations, this applies to the destination.</li>
+<li><b>Pad size:</b> minimum required landing pad size, not an exact station size. “Medium” also permits large pads; “Any” imposes no restriction.</li>
+<li><b>Include Fleet Carriers:</b> allow or exclude carriers.</li>
+<li><b>Max. arrival distance (Ls):</b> maximum distance from the arrival star to the station. Leave blank for no restriction. A destination with unknown arrival distance cannot satisfy this filter.</li>
+</ul>
+<p>Own and community results use the same filters for data age, radius, landing pad, carriers and arrival distance. Missing information is not estimated. Destinations with unknown system distance or without evidence that they meet an enabled restriction are excluded. For observed markets, this particularly affects missing pad and arrival data; when carriers are excluded, a destination must be known not to be a carrier.</p>
+<p>Click column headings to sort: numbers by numeric value, data age by actual age and pads by size class. Selling and buying show at most 100 results. “There are more results. Narrow the filters.” indicates a limited search. Available own and community results are sorted together by price before the list is limited. Because of the community service’s search limits, these are not guaranteed to be the best offers overall.</p>
+<p>If the community search fails when selling or buying, matching own results remain usable. CMDRHelper marks the search as incomplete: better community offers may be missing.</p>
+
+<h3>Your observed markets</h3>
+<p>Open the commodity market in Elite while docked. While CMDRHelper is running, it captures the market automatically if it can safely match it to the current station. No manual import is needed. Opening it again updates the snapshot.</p>
+<p>One current snapshot is kept per market and Commander, less than 24 hours old. Older snapshots are removed automatically; there is no permanent price history. Valid observations survive a Helper restart. “Own market data: X stations” counts the active Commander's valid observed station markets. The selected maximum market data age also applies to own results.</p>
+<ul>
+<li><b>✓ Captured:</b> Recommendations has a valid observed snapshot for the current station.</li>
+<li><b>Open commodity market:</b> No usable observed snapshot is available for this station.</li>
+<li><b>Market data outdated:</b> A previously displayed snapshot is no longer valid. Open the market again.</li>
+</ul>
+<p>If an old snapshot was removed before opening the view, “Open commodity market” also appears. In flight, no positive status is shown for the previous station.</p>
+
+<h3>Recommendations</h3>
+<p>You need a current station, a valid observed snapshot for it and a known current ship with reliably known free cargo space. Occupied space is deducted. With unknown or full cargo space, a new search cannot start; quantities are not invented. After departure, no new calculation uses your former location.</p>
+<p>Set “Minimum profit”: 10 % includes only opportunities with at least a 10 % margin. The search checks locally available commodities. The buying station itself is not a destination. For the same destination station (same MarketID), the newer valid snapshot is used. Each commodity shows the checked destination with the highest “Potential profit” under your filters, not necessarily the best destination in the galaxy. The table starts with the highest possible profit; “Source” shows “Elite local” or “Spansh”, and “Destination data age” shows the destination snapshot's age.</p>
+
+<h3>Only my observed markets</h3>
+<p>This checkbox is available only under Recommendations. Selling and buying automatically use both sources. This checkbox limits recommendations to valid destination markets you have observed yourself. No community query is made; Spansh is not needed for this search. Radius, the additional destination age limit, minimum profit, pad, carrier and arrival filters still apply and must be satisfied using available information. Deliberately omitting the community search is not an error and does not make the search incomplete. This lets you search quickly between previously visited stations.</p>
+
+<h3>Possible profit and quantity</h3>
+<ul>
+<li><b>Profit / t:</b> selling price at the destination − purchase price here. “Profit %” = profit per tonne ÷ purchase price × 100.</li>
+<li><b>Quantity (t):</b> the smallest of free cargo space, supply at the buying market and demand at the destination.</li>
+<li><b>Potential profit:</b> profit per tonne × possible quantity; an estimate based on the known snapshots.</li>
+</ul>
+<p>Example: 280 t free, 150 t supply, 20,000 t demand → 150 t possible quantity. Not every commodity can automatically fill all free cargo space.</p>
+
+<h3>Remembered trade flight</h3>
+<p>Use the checkbox to remember exactly one recommendation. Selecting another replaces it. The separate note shows the commodity, destination station, destination system and “Potential profit” at the time of selection. It is a reminder, not a continuously recalculated recommendation.</p>
+<p>It survives purchases, cargo changes, departure, system changes, docking and opening a market. It disappears with “Remove” or clearing the checkbox, when a new recommendation search actually starts, when switching Commander and when quitting Helper. It is not saved across restarts.</p>
+<p>“Copy system” copies only the destination system name to the clipboard. The station stays visible in the note; no route is created.</p>
+
+<h3>Search, progress and cancellation</h3>
+<p>Start searches manually. Recommendations check multiple commodities and may take longer. Once the search scope is known, the progress bar and “Checking commodities: x of y …” show the commodities actually checked. “Cancel” is available only during a cancellable search; a pending network response may delay cancellation. Switching tabs cancels the running search; the shared selling/buying filters are retained.</p>
+<p>If individual community queries fail or search limits are reached, valid checked recommendations may remain visible. “Incomplete search” means the displayed results apply to the checked data, but not all commodities or destinations were fully checked. Read the message, narrow the filters when limits are reached or try again later. Manual cancellation discards the current results list.</p>
+
+<h3>Diagnostics for problems</h3>
+<p>“Copy diagnostic” copies technical information about the last finished recommendation run for troubleshooting. It contains no Commander/FID data or market prices. Diagnostics stay in memory; no permanent diagnostic file is created and nothing is sent automatically. Share the copied text with support yourself if needed.</p>
+
+<h3>Making a trade run</h3>
+<ol>
+<li>Dock at a station and open the commodity market in Elite.</li>
+<li>Open “Trade” → “Recommendations” and check for “Captured”.</li>
+<li>Set minimum profit and filters, then choose “Find recommendations”.</li>
+<li>Tick the recommendation you want to remember and buy the commodity in Elite.</li>
+<li>Use “Copy system” if needed and fly to the destination; the station remains visible in the note.</li>
+<li>Sell in Elite. Open the market there to update your own observations of the new market too.</li>
+</ol>""",
+)

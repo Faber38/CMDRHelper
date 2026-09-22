@@ -3,11 +3,12 @@ from copy import deepcopy
 from dataclasses import dataclass
 from datetime import timedelta
 
-from PySide6.QtCore import QObject, QRunnable, QLocale, Qt, Signal, Slot, QTimer, QSignalBlocker
-from PySide6.QtGui import QBrush, QColor
+from PySide6.QtCore import QObject, QRunnable, QLocale, Qt, Signal, Slot, QTimer, QSignalBlocker, QRectF
+from PySide6.QtGui import QBrush, QColor, QPainter, QPainterPath, QPen
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, QLabel,
     QSpinBox, QComboBox, QCheckBox, QLineEdit, QPushButton, QScrollArea, QTableWidget,
-    QHeaderView, QApplication, QProgressBar, QFrame, QTableWidgetItem, QStyledItemDelegate, QStyle)
+    QHeaderView, QApplication, QProgressBar, QFrame, QTableWidgetItem, QStyledItemDelegate, QStyle,
+    QStyleOptionViewItem)
 
 from cmdrhelper.cargo import free_cargo_space
 from cmdrhelper.ship_identity import is_definite_non_ship
@@ -177,6 +178,49 @@ class RememberedRecommendationDelegate(QStyledItemDelegate):
             option.backgroundBrush = QBrush(QColor(
                 *[round(base.getRgb()[i] * .8 + accent.getRgb()[i] * .2) for i in range(3)]))
             option.state &= ~QStyle.StateFlag.State_Selected
+
+    def paint(self, painter, option, index):
+        if index.column() != 0:
+            return super().paint(painter, option, index)
+        option = QStyleOptionViewItem(option)
+        self.initStyleOption(option, index)
+        if not option.features & QStyleOptionViewItem.ViewItemFeature.HasCheckIndicator:
+            return super().paint(painter, option, index)
+        style = option.widget.style() if option.widget else QApplication.style()
+        indicator = style.subElementRect(QStyle.SubElement.SE_ItemViewItemCheckIndicator,
+                                        option, option.widget)
+        # Keep the native indicator geometry, hit target and row sizing. Only
+        # replace its paint; selection/focus and the remembered row stay native.
+        option.features &= ~QStyleOptionViewItem.ViewItemFeature.HasCheckIndicator
+        style.drawControl(QStyle.ControlElement.CE_ItemViewItem, option, painter, option.widget)
+        light = option.palette.base().color().lightness() > 128
+        enabled = bool(option.state & QStyle.StateFlag.State_Enabled)
+        emphasized = enabled and bool(option.state & (
+            QStyle.StateFlag.State_MouseOver | QStyle.StateFlag.State_HasFocus))
+        checked = option.checkState == Qt.CheckState.Checked
+        accent = QColor('#b47613' if light else '#ffb000')
+        border = QColor('#995600' if light else '#ffc65c') if emphasized else accent
+        fill = QColor('#c57a00' if light else '#ffb000')
+        tick = QColor('#080d12')
+        if not enabled:
+            border = fill = QColor('#a0a8af' if light else '#58636d')
+            tick = QColor('#edf1f5' if light else '#b8c0c8')
+        painter.save()
+        painter.setClipRect(option.rect)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        box = QRectF(indicator).adjusted(.5, .5, -.5, -.5)
+        painter.setPen(QPen(border, 1.6 if emphasized else 1.0))
+        painter.setBrush(QBrush(fill) if checked else Qt.BrushStyle.NoBrush)
+        painter.drawRoundedRect(box, 1.5, 1.5)
+        if checked:
+            path = QPainterPath()
+            path.moveTo(box.left() + box.width() * .22, box.top() + box.height() * .50)
+            path.lineTo(box.left() + box.width() * .43, box.top() + box.height() * .72)
+            path.lineTo(box.left() + box.width() * .80, box.top() + box.height() * .27)
+            painter.setPen(QPen(tick, 1.8, Qt.PenStyle.SolidLine,
+                                Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin))
+            painter.drawPath(path)
+        painter.restore()
 
 
 class RecommendationsView(QWidget):

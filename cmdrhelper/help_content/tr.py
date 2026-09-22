@@ -109,84 +109,57 @@ HELP_TOPICS = {
               'günlük ekranını kontrol edin, ardından "Ayarlar" altında ayarlanan günlük klasörünü '
               'kontrol edin.</p>'
               '<p>Açık kırmızı, Solo altın rengi ve Özel Grup yeşil gösterilir; özel gruplarda bildirilen grup adı da görünür. Mod, mevcut günlüklerden yeniden oluşturulur ve yeni LoadGame kayıtlarıyla güncellenir.</p>\n<p>Son sistemlerdeki bir kayda tek tıklamak sistem adını panoya kopyalar. Kısa süreliğine “✓ Kopyalandı: &lt;Sistem&gt;” görünür.</p>\n'),
- 'missions': ('Görevler',
-              '<h2>Görevler</h2>\n'
-              "<p>Görev görünümü, Elit Tehlikeli Günlük'ten bilinen, o anda görüntülenen komutanın "
-              'görevlerini gösterir. CMDRHelper, görev verilerini komutan bazında kaydeder, '
-              'böylece açık görevler Elite Dangerous veya CMDRHelper yeniden başlatıldıktan sonra '
-              'bile korunur.</p>\n'
-              '\n'
-              '<h3>Açık görevler</h3>\n'
-              '<p>Yeni görevler çıkıyor<code>MissionAccepted</code>devralındı \u200b\u200bve '
-              'kalıcı olarak kaydedildi.</p>\n'
-              '<p>Nihai görev olayı olmadığı sürece görev açık kalır. Görev listesi olmayan yeni '
-              'bir oyun oturumu, bilinen açık görevleri otomatik olarak kaldırmayabilir.</p>\n'
-              '\n'
-              '<h3>Görev durumu</h3>\n'
-              '<p>CMDRHelper, diğerlerinin yanı sıra aşağıdaki durum değişikliklerini işler:</p>\n'
-              '<ul>\n'
-              '<li>Görev kabul edildi</li>\n'
-              '<li>Görev tamamlandı</li>\n'
-              '<li>Görev başarısız oldu</li>\n'
-              '<li>Görev iptal edildi</li>\n'
-              '<li>Görev hedefi saptırıldı</li>\n'
-              '<li>Desteklenen kargo/depo görevlerinde ilerleme</li>\n'
-              '</ul>\n'
-              '<p>Son bir etkinlik yalnızca ilgili görevi değiştirir.</p>\n'
-              '\n'
-              '<h3>Günlükten Görevler</h3>\n'
-              '<p>Elite Dangerous, çeşitli günlük etkinlikleri hakkında görev bilgileri sağlar. '
-              'CMDRHelper, bu olayları kalıcı bir görev durumunda birleştirir.</p>\n'
-              '<p>Gerçek bir tam görev olayı, güvenilir bir anlık görüntü görevi görebilir. Böyle '
-              'bir etkinliğin eksik olması durumunda eski açık görevler yalnızca bu nedenle '
-              'kapatılmayacaktır.</p>\n'
-              '\n'
-              '<h3>Hedefler ve yerler</h3>\n'
-              "<p>Elite'in dergideki bilgileri sağladığı ölçüde CMDRHelper şunları gösterir:</p>\n"
-              '<ul>\n'
-              '<li>Hedef sistemi</li>\n'
-              '<li>Hedef istasyon veya hedef</li>\n'
-              '<li>Hedef gezegen veya vücut</li>\n'
-              '<li>Görev tanımı</li>\n'
-              '<li>bilinen ilerleme</li>\n'
-              '<li>mevcut durum</li>\n'
-              '</ul>\n'
-              '<p>Her görev tüm bilgileri sağlamaz. Eksik veriler CMDRHelper tarafından icat '
-              'edilmemiştir.</p>\n'
-              '\n'
-              '<h3>Kalıcılık ve yeniden başlatma</h3>\n'
-              '<p>Açık görevler komutanla ilgili veri tabanına kaydedilir.</p>\n'
-              '<p>Bu, aşağıdaki durumlarda bile saklanacakları anlamına gelir:</p>\n'
-              '<ul>\n'
-              '<li>Elite Dangerous sonlandırıldı ve daha sonra yeniden başlatıldı</li>\n'
-              '<li>CMDRHelper arada kapalı</li>\n'
-              '<li>Yeni günlük oturumu başlangıçta herhangi bir görev olayı içermiyor</li>\n'
-              '</ul>\n'
-              '<p>Yalnızca belgelenmiş bir görev olayı kayıtlı durumu değiştirir.</p>\n'
-              '\n'
-              '<h3>Birkaç komutan</h3>\n'
-              '<p>Görevler komutan tarafından kesin olarak ayrılmıştır.</p>\n'
-              '<p>Bir görev olayı yalnızca günlük oturumu benzersiz şekilde tanımlanan komutana '
-              'atanır. Başka bir komutanın görevleri görüntülenemez veya değiştirilemez.</p>\n'
-              '\n'
-              '<h3>Artık geçerli olmayan veya artık geçerli olmayan görevler</h3>\n'
-              '<p>Eski günlük verileri veya önceki bir içe aktarma işlemi, oyunda artık mevcut '
-              'olmasa da bir görevi açık tutuyorsa, mevcut yetim görev sıfırlama/temizleme '
-              'özelliği kullanılabilir.</p>\n'
-              '<p>Bu işlev yalnızca görüntülenen görevin artık etkin olmadığı açıkça belli '
-              'olduğunda kullanılmalıdır.</p>\n'
-              '\n'
-              '<h3>Çevrimiçi Hizmetler</h3>\n'
-              '<p>Etkin günlük FID için geçerli ve etkinleştirilmiş bir Inara erişimi '
-              "ayarlanmışsa, desteklenen görev olayları ayrıca Inara'ye iletilebilir.</p>\n"
-              '<p>Eksik veya ulaşılamayan bir Inara bağlantısı, yerel görev depolamayı '
-              'etkilemez.</p>\n'
-              '\n'
-              '<h3>Uç</h3>\n'
-              '<p>Bir görev görünmüyorsa veya yanlış bir durum gösteriyorsa, öncelikle Elite '
-              "Dangerous'nin ilgili görev olayını günlüğe yazıp yazmadığını kontrol edin.</p>\n"
-              '<p>CMDRHelper yalnızca günlüğün gerçekten sağladığı veya önceki benzersiz görev '
-              'olaylarından zaten saklanan bilgileri görüntüleyebilir.</p>'),
+ 'missions': (
+        'Görevler ve Ödüller',
+        """<h2>Görevler ve Ödüller</h2>
+<p>Bu ana sayfa, günlükteki etkin komutanın görevlerini ve gözlemlenen ödüllerini gösterir. Ayrı CMDR görünümünde başka bir komutan seçmek bu sayfayı değiştirmez. Her komutanın verileri ayrı tutulur.</p>
+
+<h3>Sayfanın kullanımı</h3>
+<ol>
+<li>“Görevler ve Ödüller” sayfasını açın ve listeden bir görev seçin.</li>
+<li>“Durum” ve “GÖREV AYRINTILARI” bilgilerini inceleyin. “Sonraki adım” yol gösterir.</li>
+<li>Gerekirse mevcut günlük verilerini yeniden okumak için “Günlüğü yenile” düğmesini kullanın.</li>
+<li>Görev ödüllerini, “Kelle ödülleri” ve “Savaş tahvilleri” bölümlerini ayrı ayrı değerlendirin.</li>
+</ol>
+
+<h3>Liste ve ayrıntılar</h3>
+<p>Liste, onaylanmış açık görevleri ve karşılaşmalardan tanınan geçici teklifleri içerir. Görev, sistem, gezegen / konum, durum, sonraki adım, ödül ve son tarihi gösterir. Bir satır seçildiğinde mevcut hedef ve ilerleme ayrıntıları açılır. Günlükte bulunmayan bilgiler bilinmiyor olarak kalır; geçici tekliflerin son tarihi bilinmez.</p>
+
+<h3>Görev durumu</h3>
+<p>Durum, mevcut görev, konum ve ilerleme verilerine göre belirlenir. Her görev türü tüm ara aşamaları sağlamaz.</p>
+<ul>
+<li><b>Görev kabul edildi / Yolda:</b> Görev biliniyor; hedefe varış henüz algılanmadı.</li>
+<li><b>Hedef sistemde:</b> Hedef sistemdesiniz, ancak henüz belirlenen görev hedefine ulaşmadınız.</li>
+<li><b>Görev hedefinde:</b> İlgili hedef istasyona veya gök cismine ulaşıldı.</li>
+<li><b>Hedef değiştirildi:</b> Yeni bir görev hedefi bildirildi.</li>
+<li><b>Yük alındı:</b> Görev kargosunun alındığı algılandı.</li>
+<li><b>Teslimat sürüyor:</b> Bir teslimat kaydedildi; bilinen miktar ilerlemesi gösterilir.</li>
+<li><b>Görev tamamlandı / Veri alındı:</b> İş veya veri toplama tamamlandı. Görev, örneğin “Görev terminaline dön” ile hâlâ açık olabilir. Bu, ödemenin yapıldığını henüz doğrulamaz.</li>
+</ul>
+<p>Algılanan tamamlanma, başarısızlık veya vazgeçme ilgili görevi açık görev listesinden kaldırır. Yeni ve eksiksiz bir görev durumu, eski kayıtların artık etkin olmadığını gösterebilir.</p>
+
+<h3>Toplam ödül</h3>
+<p>“Toplam ödül”, onaylanmış açık görevlerin bilinen kredi ödüllerini toplar. Bu, ödenmiş bir bakiye değildir. Geçici karşılaşma teklifleri, baş ödülleri ve savaş tahvilleri dahil edilmez.</p>
+
+<h3>Karşılaşma görevleri</h3>
+<p>Desteklenen uzay karşılaşmaları, henüz kesin bir MissionID olmasa da geçici “Karşılaşma görevi” teklifleri olarak görünebilir. Bu nedenle “Teklif edilen ödül” henüz onaylanmış açık bir görev ödülü değildir ve toplam ödüle dahil edilmez.</p>
+<p>Daha sonraki günlük verileri bir teklifi bir görevle kesin olarak eşleştirirse ikisi birleştirilir. Eşleştirme belirsizse teklif geçici kalır. Onaylanmamış teklifler 24 saat sonra yerel olarak gizlenir; bu, oyundaki görev süresini belirtmez.</p>
+
+<h3>Kelle ödülleri</h3>
+<p>Bu bölüm yerel olarak gözlemlenen baş ödüllerini, toplam tutarı ve fraksiyon başına tutarları gösterir. Yalnızca kaydedilmiş verileri bilir; oyun bakiyesinin eksiksiz olduğunu garanti etmez. “Kayıt şu andan itibaren başlar.” kaydın başlangıcını belirtir; boşluklar “Tam olarak eşitlenmedi: bazı olaylar eksik olabilir.” ile bildirilir.</p>
+<p>Algılanan bir baş ödülü tahsilatı veya ölüm, baş ödüllerinin tüm yerel bakiyesini sıfırlar. Bu, görev durumundan bağımsızdır.</p>
+
+<h3>Savaş tahvilleri</h3>
+<p>Burada, tahsil edildiği henüz algılanmamış gözlemlenen savaş tahvilleri fraksiyona göre gösterilir. Kayıt başlamadan önceki olası bakiye dahil değildir. Belirsizlik durumunda “Gözlemlenen tutar” ile “Bakiye tam olarak doğrulanmadı.” görünür.</p>
+<p>Kesin olarak eşleştirilen bir tahsilat, belirtilen fraksiyonun gözlemlenen tutarını temizler; diğer fraksiyonlar korunur. Eşleştirme belirsizse tutarlar kalır ve “Tahsilat algılandı – bakiyeyi kontrol edin.” görünür. Algılanan ölüm, gözlemlenen savaş tahvillerini temizler.</p>
+
+<h3>Yerel sıfırlama</h3>
+<p>Bir ödül bölümündeki “Sıfırla…”, onaydan sonra yalnızca o bölümün etkin komutana ait yerel bakiyesini sıfırlar. <b>Bu işlem Elite Dangerous içindeki hiçbir değeri değiştirmez.</b> Baş ödülleri ve savaş tahvilleri ayrı sıfırlanır; görevler temizlenmez veya tamamlanmaz.</p>
+
+<h3>Güncelleme ve yeniden başlatma</h3>
+<p>Bilinen açık görevler ve yerel ödül bakiyeleri, Helper yeniden başlatıldığında korunur. Görev listesi içermeyen yeni bir günlük oturumu, açık görevleri otomatik olarak kaldırmaz. Kayıt boşlukları özellikle ödül bakiyelerinin eksik kalmasına neden olabilir. “Günlüğü yenile” yalnızca mevcut bilgileri okuyabilir; eksik oyun verilerini oluşturamaz.</p>
+<p>Yerel görev görünümü Inara bağlantısı gerektirmez. Etkin komutan için yapılandırılmış ve etkinleştirilmiş bir bağlantı varsa desteklenen görev olayları ayrıca aktarılabilir.</p>""",
+    ),
  'explorer': ('Kaşif',
               '<h2>Kaşif</h2>\n<h3>CMDRHelper</h3>\n<p>Sistem genel görünümü: yeni Elite tarzı görünüm, Explorer ve Kronik’te önceki küçük görünümün yerini alır. Yıldızlar ve gezegenler ana yapıyı, aşağıya dallanan uydular alt yapıyı oluşturur; çok yıldızlı sistemler okunaklı kalır. Yakınlaştırma, kaydırma, pencereye sığdırma ve gök cismine tıklama ayrıntılara erişim sağlar.</p>\n<p>Kompakt asteroit kuşakları: kümeler genel görünümde ve Explorer/Kronik’in normal sistem haritalarında kuşaklar halinde gruplanır. Her kümenin verileri korunur.</p>\n<p>Düzeltilmiş haritacılık: DSS haritalamasından sonraki tarama artık satılmamış keşif değerlerini, haritalama zamanını veya verimliliği sıfırlamaz. Hatalı kayıtlar başlangıçta mevcut ve komutana kesin olarak atanmış günlüklerden onarılır. Kaynaklar eksikse onarım bekler; veritabanını silmek gerekmez.</p>\n'
               '<p>Explorer, aktif komutan tarafından keşfedilen ve taranan sistemleri ve gök '
@@ -891,193 +864,39 @@ HELP_TOPICS = {
             'yapabilirsiniz.</p>\n'
             '<p>Daha yüksek parlaklık, karanlık fotoğraflarda yardımcı olabilir; dönüşüm sırasında '
             'yeni oluşturulan hedef görüntüyü etkiler.</p>'),
- 'commander_view': ('CMDR görünümü',
-                    '<h2>CMDR görünümü</h2>\n'
-                    '<p>CMDR görünümü, bir komutanın kalıcı olarak saklanan kişisel bilgilerini '
-                    'özetler.</p>\n'
-                    '<p>Ayrıca CMDRHelper bilinen komutanlar arasında geçiş yapmanıza ve kendi '
-                    'verilerini görüntülemenize de olanak tanır. Kişisel bilgiler Frontier ID '
-                    '(FID) kullanılarak ayrılır.</p>\n'
-                    '\n'
-                    '<h3>Komutanı Seç</h3>\n'
-                    '<p>Birden fazla komutan biliniyorsa, kimin kayıtlı bilgilerinin '
-                    'görüntüleneceğini belirlemek için yukarıdaki seçimi kullanabilirsiniz. Bu '
-                    'komutan, sayılan komutandır.</p>\n'
-                    '<p>Ekran bunu "Canlı Etkin" veya "Yalnızca Görüntüleme" olarak '
-                    'işaretler.</p>\n'
-                    '\n'
-                    '<h3>Düşünülen Komutan ve Canlı Komutan</h3>\n'
-                    '<p>CMDR görünümünde başka bir komutanın seçilmesi onu aktif günlük komutanı '
-                    'yapmaz.</p>\n'
-                    '<p>Canlı komutan, yalnızca şu anda benzersiz olarak tanımlanmış Elit '
-                    'Tehlikeli günlük oturumuna göre belirlenir. Bu şekilde Elite Dangerous, '
-                    'EXAMPLE ile çalışmaya devam ederken başka bir komutanın geçmişi '
-                    'görüntülenebilir.</p>\n'
-                    '\n'
-                    '<h3>Frontier Kimliği (FID)</h3>\n'
-                    '<p>FID, bir komutanın kararlı Frontier tanımlayıcısıdır.</p>\n'
-                    '<p>CMDRHelper bunu kullanır ve kişisel verileri güvenli bir şekilde ayırmak '
-                    'için dahili komutan kimliğini çözer. Benzer veya aynı adlara sahip komutanlar '
-                    'da ayrı kalır.</p>\n'
-                    '\n'
-                    '<h3>Genel Bakış</h3>\n'
-                    '<p>"Genel Bakış" sekmesi yalnızca söz konusu komutan için kalıcı olarak '
-                    'kaydedilen bilgileri gösterir:</p>\n'
-                    '<ul>\n'
-                    '<li>Komutan adı, FID ve durumu "Canlı aktif" veya "Salt görüntüleme"</li>\n'
-                    '<li>bilinen ilk ve son zaman</li>\n'
-                    '<li>Ziyaret edilen sistem sayısı, biyo ve coğrafi keşifler, kodeks girişleri '
-                    've haritacılık satışları</li>\n'
-                    '<li>Bilinen son konum ve açık görev sayısı</li>\n'
-                    '<li>mevcut veya son gemi</li>\n'
-                    '<li>Fleet Carrier ve taşıyıcı konumu</li>\n'
-                    '<li>Varlıklar</li>\n'
-                    '<li>mevcut tahminler de dahil olmak üzere açık biyolojik veriler ve açık '
-                    'kartografik veriler</li>\n'
-                    '</ul>\n'
-                    '\n'
-                    '<h3>Varlıklar/Krediler</h3>\n'
-                    '<p>"Varlıklar" alanı, söz konusu komutanın uygun bir günlük etkinliğinden en '
-                    'son kaydedilen kredi bakiyesini, örneğin şu şekilde biçimlendirilmiş olarak '
-                    'gösterir:<b>1.234.567 Krom</b>.</p>\n'
-                    '<p>Yeni, güvenli bir günlük durumu yoksa CMDRHelper, hayali gelir veya '
-                    'giderleri eklemez.</p>\n'
-                    '\n'
-                    '<h3>Paralı paralar</h3>\n'
-                    '<p>Paralı paralar Elite Dangerous tarafından sağlanan MercCoins alanlarından '
-                    'gelir<code>Statistics → Bank_Account</code>ve komutanla ilgili olarak '
-                    'Frontier anlık görüntüsü olarak kaydedilir.</p>\n'
-                    '<p>Görünür olanlar:</p>\n'
-                    '<ul>\n'
-                    '<li>Akım</li>\n'
-                    '<li>Toplam harcanan</li>\n'
-                    '<li>Mühendislik</li>\n'
-                    '<li>teçhizat</li>\n'
-                    '<li>Frontier tarafından bildirildi: genel olarak kazanıldı</li>\n'
-                    '</ul>\n'
-                    '\n'
-                    '<h3>Güncel ve sürümler</h3>\n'
-                    '<p>“Güncel” gösteriler<code>MercCoins_Current</code>. "Toplam Harcanan" '
-                    'devraldı<code>MercCoins_Total_Spent</code>.</p>\n'
-                    '<p>"Mühendislik" ve "Ekipman" Frontier tarafından ayrı ayrı rapor edilen '
-                    'hisseleri '
-                    'gösterir<code>MercCoins_Spent_On_Engineering</code>Ve<code>MercCoins_Spent_On_MercGear</code>.</p>\n'
-                    '<p>Örneğin EXAMPLE için güncel bir envanter<b>1.000</b>, '
-                    'toplamda<b>200</b>harcandı ve uzakta<b>200</b>mühendislik için rapor '
-                    'edildi.</p>\n'
-                    '\n'
-                    '<h3>Genel olarak hak edildi</h3>\n'
-                    '<p>"Frontier tarafından bildirildi: genel olarak kazanıldı" '
-                    'gösterileri<code>MercCoins_Total_Earned</code>. CMDRHelper bundan kendi '
-                    'bilançosunu hesaplamaz.</p>\n'
-                    "<p>Frontier'nin kümülatif değerinin, mevcut envanter ve rapor edilen "
-                    'giderlerle matematiksel olarak eşleşmesi gerekmez. Örneğin 1.000 cari, 25 '
-                    'toplam kazanılan ve 200 toplam harcanan aynı anda raporlanabilmektedir.</p>\n'
-                    '<p>CMDRHelper bu değerleri düzeltmez ancak bireysel Frontier sayaçlarını '
-                    'değişmeden görüntüler.</p>\n'
-                    '\n'
-                    '<h3>Neden kendi MercCoins bilançonuz olmasın?</h3>\n'
-                    '<p>Elite Dangerous, paralı asker madeni paralarının her bir ayrı girişi veya '
-                    "harcaması için benzersiz bir yevmiye kaydı sağlamaz. MercCoins, Statistics'de "
-                    'toplam olarak görünür.</p>\n'
-                    '<p>Bu nedenle, kendi kendine hesaplanan bir rezervasyon geçmişi güvenilir '
-                    'olmayacaktır. CMDRHelper bunun yerine bilinen en son Frontier anlık '
-                    'görüntüsünü kaydeder.</p>\n'
-                    '\n'
-                    '<h3>Görevler</h3>\n'
-                    '<p>“Görevler” sekmesi, söz konusu komutanın kayıtlı görevlerini durum, görev '
-                    'adı, amaç, sona erme süresi ve ödülün yer aldığı bir tablo olarak '
-                    'gösterir.</p>\n'
-                    '\n'
-                    '<h3>keşif</h3>\n'
-                    '<p>Keşif sekmesi açık biyolojik verileri, açık haritacılık verilerini, '
-                    'biyolojik keşifleri, ilk ayak izlerini, kendi kendine haritalanan ve etkili '
-                    'bir şekilde haritalanan gövdeleri ve ziyaret edilen sistemlerin sayısını '
-                    'gösterir.</p>\n'
-                    '<p>CMDR görünümündeki özel "Günlük" sekmesi şu anda hala bir yer tutucudur. '
-                    'Kroniğin tamamını aynı isimli ana menü öğesinde bulabilirsiniz.</p>\n'
-                    '\n'
-                    '<h3>Gemiler/Filo</h3>\n'
-                    '<p>“Gemiler” sekmesi başlangıçta aktif veya en son kullanılan gemiyi gemi '
-                    'adı, gemi tipi, konumu ve ShipID ile birlikte gösterir.</p>\n'
-                    '<p>Söz konusu komutanın kaydedilmiş gemileri, bunların altında '
-                    'genişletilebilir kartlar olarak görünür. Artan veya azalan şekilde '
-                    'sıralanabilirler:</p>\n'
-                    '<ul>\n'
-                    '<li>son veya şu anda kullanılan</li>\n'
-                    '<li>Gemi adı veya gemi tipi</li>\n'
-                    '<li>maksimum atlama aralığı</li>\n'
-                    '<li>Kargo kapasitesi veya boş kütle</li>\n'
-                    '<li>bilinen son yer veya zaman</li>\n'
-                    '</ul>\n'
-                    '<p>Ayrıca tüm gemileri, araç hangarına sahip gemileri veya savaş hangarına '
-                    'sahip gemileri de filtreleyebilirsiniz.</p>\n'
-                    '\n'
-                    '<h3>Gemi ayrıntıları</h3>\n'
-                    '<p>Açılan bir gemi haritası - eğer kaydedilmişse - gemi kimliğini, Gemi '
-                    'Kimliğini, konumu, son zamanı, maksimum atlama menzilini, FSD ve Guardian '
-                    'güçlendiriciyi, kütleyi, kargo ve tank kapasitelerinin yanı sıra yükleme '
-                    'süresini ve durumunu gösterir.</p>\n'
-                    '<p>Modül verileri mevcutsa, araç ve savaş hangarı, kalkan jeneratörü ve '
-                    'kalkan güçlendirici, Muhafız kalkanı takviyeleri, silahlar, gövde ve modül '
-                    'takviyeleri ve yolcu kabinleri de özetlenir.</p>\n'
-                    '<p>Ekipman durumu tamamlanmış, eksik veya eski olabilir. Eksik bilgiler “–” '
-                    'olarak gösterilir ve telafi edilmez.</p>\n'
-                    '\n'
-                    '<h3>Fleet Carrier</h3>\n'
-                    '<p>Kaydedilmiş özel bir Fleet Carrier için görünüm operatör adını, çağrı '
-                    'işaretini, operatör kimliğini, son konumu ve son güncellemenin saatini '
-                    'gösterir.</p>\n'
-                    '\n'
-                    '<h3>Kalıcı komutan durumu</h3>\n'
-                    '<p>Önemli komutan bilgileri kalıcı olarak kayıtlı kalır. Bu, CMDRHelper veya '
-                    "Elite Dangerous'nin yeniden başlatılmasından sonra, her günlüğün yeniden tam "
-                    'olarak değerlendirilmesine gerek kalmadan bilinen değerlerin yeniden '
-                    'görüntülenmesine olanak tanır.</p>\n'
-                    '<p>Yeni benzersiz günlük etkinlikleri kayıtlı durumu günceller.</p>\n'
-                    '\n'
-                    '<h3>Tarihsel yeniden yapılanma</h3>\n'
-                    '<p>Daha sonra eklenen işlevler için CMDRHelper, halihazırda bilinen bilgiler '
-                    'için bir komutana açıkça atanmış mevcut günlük alanlarında arama '
-                    'yapabilir.</p>\n'
-                    '<p>Örneğin, daha eski MercCoins anlık görüntüleri benimsenebilir. Tekrarlanan '
-                    'kontrollerin mükerrer veri üretmesi amaçlanmamıştır ve normal günlük okuma '
-                    'konumlarını değiştirmez.</p>\n'
-                    '\n'
-                    '<h3>Birkaç komutan</h3>\n'
-                    '<p>Özellikle komutanlar açısından aşağıdaki hususlar ayrı kalmaktadır:</p>\n'
-                    '<ul>\n'
-                    '<li>Varlıklar ve Görevler</li>\n'
-                    '<li>kendi haritacılığı ve organik buluntular</li>\n'
-                    '<li>Yüzey madenciliği geçmişi ve paralı paralar</li>\n'
-                    '<li>Çevrimiçi kimlik bilgileri</li>\n'
-                    '<li>komutanla ilgili ekran görüntüleri</li>\n'
-                    '</ul>\n'
-                    '<p>Ancak bir sistemin veya cismin küresel astronomik özellikleri birlikte '
-                    'kullanılabilir.</p>\n'
-                    '\n'
-                    '<h3>Diğer görünümler üzerindeki etki</h3>\n'
-                    '<p>Söz konusu komutanın değiştirilmesi, CMDR görünümünün kendisini, kroniğin '
-                    'kişisel madencilik hammadde seçimini ve uygun filtreyle ekran görüntüsü '
-                    'galerisini günceller.</p>\n'
-                    '<p>Günlük işleme veya çevrimiçi yüklemeler için gerçek canlı komutanın yerini '
-                    'almaz.</p>\n'
-                    '\n'
-                    '<h3>Inara ve EDSM</h3>\n'
-                    '<p>Inara ve EDSM erişimleri sırasıyla komutan ve FID başına ayrı ayrı '
-                    'yönetilir.</p>\n'
-                    '<p>Basitçe bir komutana bakmak API-Key ile iletim başlatmaz. Yalnızca aktif '
-                    'günlük FID canlı yüklemelerle ilgilidir.</p>\n'
-                    '<p>Erişim verileri çevrimiçi hizmetler alanında "Ayarlar" altında '
-                    'yönetilir.</p>\n'
-                    '\n'
-                    '<h3>Uç</h3>\n'
-                    '<p>Belirli bir komutana ait kayıtlı kişisel bilgileri görüntülemek '
-                    'istiyorsanız CMDR görünümünü kullanın.</p>\n'
-                    '<p><b>CMDR görünümü = Kimi görüntülemek istiyorum?</b></p>\n'
-                    '<p><b>Active Journal-FID = Şu anda gerçekte kim oynuyor?</b></p>\n'
-                    '<p>Bu ayırma, farklı komutanlardan gelen kişisel verilerin veya çevrimiçi '
-                    'yüklemelerin birbirine karıştırılmasını önler.</p>'),
+ 'commander_view': (
+        'CMDR görünümü',
+        """<h2>CMDR görünümü</h2>
+<h3>Komutan seçimi</h3>
+<p>Üstteki seçim, kimin kayıtlı verilerini görüntülediğinizi belirler. ● Canlı aktif etkin günlük komutanını, Yalnızca görüntüleme başka bir kayıtlı profili gösterir. Seçim etkin günlük komutanını değiştirmez: ana “Görevler ve Ödüller” sayfası gerçekten oynayan komutanı kullanmaya devam eder. Adlar aynı olsa bile kişisel veriler FID ile ayrı tutulur. Bir profili görüntülemek çevrimiçi veri gönderimi başlatmaz.</p>
+
+<h3>Genel bakış, servet ve MercCoins</h3>
+<p>“Genel bakış”; ad, FID, durum, ilk ve son kayıt, ziyaret edilen sistemler, biyolojik/jeolojik bulgular, Codex kayıtları ve haritacılık satışları, konum, açık görevler, gemi, taşıyıcı ve bilinen tahminleriyle satılmamış biyolojik/haritacılık verilerini gösterir. “Servet” son kaydedilen kredi bakiyesidir. “Mercenary credits”, Frontier’ın bildirdiği değerleri gösterir: “Current”, “Total spent”, “Engineering”, “Gear” ve “Reported by Frontier: total earned”. Bu sayaçlar matematiksel olarak uyuşmayabilir; CMDRHelper bunları düzeltmez veya hayali işlem geçmişi oluşturmaz. Bilinmeyen değerler “–” olarak kalır.</p>
+
+<h3>Görevler ve keşif</h3>
+<p>“Görevler”, görüntülenen komutanın kayıtlı açık görevlerini durum, görev adı, hedef, bitiş zamanı ve ödülle gösterir. Tablo yalnızca inceleme içindir; ana sayfadaki görev ayrıntıları veya görev işlemleri burada yoktur. “Keşif”; satılmamış biyolojik/haritacılık verilerini, biyolojik bulguları, ilk ayak basışları, kişisel ve verimli haritalanan gök cisimlerini ve ziyaret edilen sistemleri gösterir. “Kronik” burada bir yer tutucudur; tam tarihçeyi ana menüden açabilirsiniz.</p>
+
+<h3>Filo ve gemi ayrıntıları</h3>
+<p>“Gemiler”, üstte mevcut veya son kullanılan gemiyi, altında komutanın kayıtlı filosunu gösterir. Ayrıntıları açmak için gemi kartının başlığına tıklayın. Kullanım, ad, tür, sıçrama menzili, kargo kapasitesi, boş kütle, konum veya zamana göre artan/azalan sıralayın; tüm gemileri ya da araç/avcı hangarı olanları filtreleyin. Yeşil, canlı veride etkin gemiyi belirtir; diğer renkler bilinen konumları gruplar. Ayrıntılarda kimlik, ShipID, konum, zamanlar, FSD/Guardian güçlendirici, menzil, kütle, kargo/yakıt kapasiteleri ve donanım durumu (tam, eksik veya eski) yer alır. Bilinen modül verileri hangarları, kalkanları ve takviyeleri, silahları ve yolcu kabinlerini ekler. Eksik bilgiler “–” olarak kalır.</p>
+
+<h3>Kendi filo taşıyıcınız</h3>
+<p>“Kendi Fleet Carrier”, kayıtlı kendi taşıyıcınızın adını, çağrı işaretini, CarrierID bilgisini, son konumunu ve güncelleme zamanını gösterir. Bunlar ticaret teklifleri veya madencilik stokları değildir.</p>
+
+<h3>Kişisel gemi ve taşıyıcı resimleri</h3>
+<p>Açılmış gemi ayrıntılarında “Gemi görseli seç…”, taşıyıcıda “Filo gemisi resmi seç…” kullanın. PNG, JPG/JPEG ve WEBP desteklenir. CMDRHelper, komutana ve gemiye veya taşıyıcıya özel yerel bir kopya saklar; yeniden başlatıldığında da korunur. Yeni seçim bu kopyayı değiştirir. “Kişisel görseli kaldır” kopyayı ve bağlantısını kaldırır; özgün resim dosyası korunur. Kişisel resim yoksa mevcut standart önizleme veya yer tutucu gösterilir. Taşıyıcı kesin olarak tanımlanamıyorsa resim seçimi devre dışıdır. Ekran görüntüleri otomatik eşleştirilmez.</p>
+
+<h3>Resim görüntüleyici</h3>
+<p>Mevcut bir gemi veya taşıyıcı resmine çift tıklamak, yalnızca küçük önizlemeyi değil resim dosyasını kullanan ayrı görüntüleyiciyi açar. Resim, oranları korunarak pencereye sığdırılır. Pencereyi büyütebilir veya ekranı kaplatabilir, Esc ya da kapatma düğmesiyle kapatabilirsiniz. Resimler arasında gezinme veya yakınlaştırma denetimi yoktur. Ana “Görseller” bölümü ise ekran görüntülerini yönetir.</p>
+
+<h3>Gemi silme</h3>
+<p>“Gemiyi sil…” açık onay gerektirir; varsayılan seçim iptaldir. İşlem yerel gemi kaydını, kayıtlı donanım verilerini ve kişisel resim kopyasını kaldırır. Mevcut veya son kullanılan gemi ile canlı veride etkin olarak tanınan gemi korunur; yeniden okuma sırasında silme engellenir. Yerel silme işareti, eski günlük verilerinin gemiyi hemen geri getirmesini önler. Silmeden sonra canlı günlükte bu geminin etkin olduğuna dair yeni ve kesin bir bildirim gemiyi geri getirebilir. Onaylanan yeniden okuma da işareti kaldırabilir. Silinen kişisel resim kopyası geri gelmez.</p>
+
+<h3>Tüm gemileri yeniden okuma</h3>
+<p>“Tüm gemileri yeniden oku…”, mevcut günlüklerden filo bilgilerini tekrar almak veya yerel olarak silinen gemileri bulmak için kullanışlıdır. Onaydan sonra bilinen günlük dosyaları ve ayarlanmış günlük klasöründeki dosyalar, görüntülenen komutan için yalnızca filo verileri amacıyla yeniden okunur. Elite’in çalışması gerekmez. Daha yeni kayıtlı bilgiler ve mevcut günlüklerde bulunmayan gemiler korunur; tanınan satışlar dikkate alınır. Başarıyla tamamlanırsa bu komutanın elle silme işaretleri kaldırılır. Mevcut kişisel resimler korunur; silinenler geri gelmez. Diğer komutanlar etkilenmez. Okuma veya uygulama başarısız olursa işaretler kalır: günlüklere erişimi kontrol edip yeniden deneyin.</p>
+
+<h3>Yerel veriler ve güvenlik</h3>
+<p>Kayıtlı bilgiler çevrimdışı ve yeniden başlatma sonrasında da görülebilir; bilinen son durumu temsil eder. Resimler, silme ve yeniden okuma yalnızca CMDRHelper’ı etkiler. Elite Dangerous’taki gemileri, taşıyıcıları veya kredileri değiştirmez, günlükleri yeniden yazmaz.</p>""",
+    ),
  'settings': ('Ayarlar',
               '<h2>Ayarlar</h2>\n<h3>CMDRHelper</h3>\n<p>Daha iyi güncelleme bilgisi: Evet/Hayır penceresi kurulu ve mevcut sürümü, özet varsa en fazla altı yeniliği gösterir. Uzun listeler kaydırılırken eylemler erişilebilir kalır.</p>\n'
               '<p>"Ayarlar" alanı CMDRHelper\'nin Elite Dangerous, günlük dosyaları, veritabanı, '
@@ -1387,8 +1206,82 @@ HELP_TOPICS["overview"] = (HELP_TOPICS["overview"][0], HELP_TOPICS["overview"][1
 
 HELP_TOPICS["settings"] = (HELP_TOPICS["settings"][0], HELP_TOPICS["settings"][1] + '<h3>Tanılama ve günlükler</h3><p>Ayarlar → Tanılama ve günlükler bölümünden günlük dosyasını açabilir veya tanılama paketi oluşturabilirsiniz. Günlükler, kurulum klasöründeki logs/ altındadır (cmdrhelper.log ve en fazla dört eski dosya). ZIP; temizlenmiş teknik günlükler, system_info.json ve diagnose_summary.txt içerir; Journal dosyaları, veritabanı, FID/komutan verileri, kimlik bilgileri, favoriler veya resimler içermez. Kişisel yollar yer tutucularla değiştirilir. Gizlilik filtresinden önceki eski günlüklerin içeriği atlanır. ZIP dosyasının kaydedileceği yeri seçin ve gerekirse destek ekibiyle paylaşın; dosya hiçbir zaman otomatik gönderilmez.</p>')
 
-HELP_TOPICS["trade"] = ('Ticaret', '<h2>Ticaret</h2><h3>Satış</h3><p>Bir mal arayıp seçin, miktarı ve filtreleri ayarlayın, ardından satış aramasını başlatın. Referans, komutanın mevcut sistemidir. Fiyat / t satış fiyatıdır; olası gelir, yeterli talep varsa girilen miktara göre hesaplanır. Piyasa verileri değişebilir. Arama sınırlıdır; başka sonuçlar için filtreleri daraltın. İptal işlemi süren ağ yanıtını bekleyebilir. Fiyatlar yalnızca bellekte tutulur. Rare Goods ve rota işlemleri daha sonra eklenecektir.</p><h3>Satın al</h3><p>Malı ve miktarı seçin, filtreleri ayarlayın ve satın alma aramasını elle başlatın. Fiyat / t, komutanın ödeyeceği fiyattır. Arz, bildirilen mevcut miktardır ve istenen miktarı karşılamalıdır. Toplam maliyet = fiyat × istenen miktar. Topluluk piyasa verileri değişebilir: verilerin yaşına dikkat edin. Varışta arz daha düşük olabilir. Sekme değiştirmek etkin aramayı iptal eder ve filtreleri korur.</p>')
+HELP_TOPICS["trade"] = (
+    'Ticaret',
+    """<h2>Ticaret</h2>
+<h3>Ticarete genel bakış</h3>
+<p>“Satış” malınızı satın alan pazarları bulur. “Satın al” satın almak istediğiniz belirli bir malı bulur. “Öneriler”, mevcut istasyonunuzda ne alıp koşullarınıza uygun olarak başka yerde kârla satabileceğinizi gösterir.</p>
 
-HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<h3>Öneriler</h3><p>Alışlar yalnızca aktif komutanın bizzat gözlemlediği, 24 saatten yeni mevcut Elite pazarını kullanır. Veri yoksa Elite içinde pazarı aç. Hedefler kendi gözlemlerinden ve Spansh’tan gelir. Aynı MarketID için daha yeni geçerli kayıt kazanır; zamanlar eşitse yerel kayıt seçilir. Kâr/t = hedef satış fiyatı − yerel alış fiyatı. Kâr % = kâr/t ÷ alış fiyatı × 100. Asgari kâr karşılanmalıdır. Miktar = doğrulanmış boş kargo alanı, yerel arz ve hedef talebinin en küçüğü. Toplam kâr = kâr/t × miktar. Her mal için toplam kâra göre kontrol edilmiş en iyi hedef, kaynak ve veri yaşı gösterilir. Bilinmeyen mesafe yerel hedefi dışlar; eksik iniş alanı, carrier veya varış bilgisi ilgili kısıtlamayı karşılamaz. Elle başlatılan arama sadece yerel olarak sunulan malları sırayla kontrol eder, ilerlemeyi gösterir ve iptal edilebilir. Kısmi sonuçlar ve arama sınırları belirtilir. Fiyatlar, arz ve talep değişebilir.</p>')
+<h3>Pazar verileri ve yaşı</h3>
+<p>Satış ve alış, kaydedilmiş geçerli kendi pazar gözlemlerinizi Spansh üzerinden alınan topluluk pazar verileriyle otomatik olarak birleştirir. Önerilerde alış yalnızca mevcut, bizzat gözlemlediğiniz Elite pazarından yapılır; hedefler normalde kendi gözlemlerinizden ve Spansh'ten gelir. Topluluk sonuçları yalnızca geçici olarak bellekte tutulur.</p>
+<p>Kendi gözlemleriniz dahil tüm pazar verileri belirli bir anı yansıtır. Fiyat, arz ve talep siz varana kadar değişebilir. Veri yaşını kontrol edin: bulunabilirlik ve kâr garanti edilmez.</p>
+<p>Aynı pazar hem kendi gözleminizden hem de topluluktan biliniyorsa CMDRHelper daha yeni geçerli pazar kaydını kullanır.</p>
 
-HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>“Yalnızca kendi pazar verilerim” sadece 24 saatten daha kısa süre önce kendin gözlemlediğin pazarları kontrol eder. Seçilen hedef veri yaşı, yarıçap ve diğer filtreler de geçerlidir. Topluluk sorgusu yapılmadığı için yerel arama çok hızlıdır. Fiyatlar, arz ve talep gözlemden bu yana yine de değişmiş olabilir.</p>')
+<h3>Mal seçme</h3>
+<p>“Mal” alanına tıklayın, görünen ad, İngilizce ad veya sembolle arayın ve malı seçin. Almanca adlar bakımı yapılan Almanca mal kataloğundan gelir. Kullanılabilir çeviri yoksa İngilizce katalog adı veya okunabilir bir ad gösterilir.</p>
+
+<h3>Satış</h3>
+<p>Arama hem geçerli kendi pazar gözlemlerinizi hem de topluluk pazar verilerini kullanır. Malı, “Miktar (t)” ve filtreleri seçin; ardından “En iyi satışı bul” düğmesine basın. Girilen miktarı karşılayacak talebi olan alım teklifleri aranır. “Fiyat / t”, satışta alacağınız fiyattır. “Olası gelir” = fiyat × girilen miktar. Başlangıç noktası komutanın mevcut sistemidir. Varsayılan olarak en yüksek satış fiyatı önce gelir.</p>
+
+<h3>Satın al</h3>
+<p>Arama hem geçerli kendi pazar gözlemlerinizi hem de topluluk pazar verilerini kullanır. Malı, istenen miktarı ve filtreleri seçin; ardından “En ucuz alımı bul” düğmesine basın. Bildirilen “Arz” miktarın tamamına yetmelidir. “Fiyat / t” alış fiyatınızdır; “Toplam maliyet” = fiyat × istenen miktar. Başlangıç noktası mevcut sisteminizdir. Varsayılan olarak en düşük alış fiyatı önce gelir. Bu, belirli bir mal aramasıdır; kâr önerisi değildir.</p>
+
+<h3>Filtreler ve sonuç tabloları</h3>
+<ul>
+<li><b>Yarıçap (ly):</b> başlangıç sisteminden hedef sisteme azami uzaklık.</li>
+<li><b>Piyasa verisinin azami yaşı / Hedef verisinin yaşı:</b> pazar verisinin izin verilen azami yaşı; önerilerde hedef için geçerlidir.</li>
+<li><b>Pist boyutu:</b> gereken asgari iniş alanı boyutu, istasyonun tam boyutu değil. “Orta” büyük alanları da kabul eder; “Tümü” boyutu sınırlamaz.</li>
+<li><b>Fleet Carrier gemilerini dahil et:</b> taşıyıcıları dahil edin veya dışlayın.</li>
+<li><b>Azami varış mesafesi (Ls):</b> varış yıldızından istasyona azami uzaklık. Boş alan sınırsız demektir. Yaklaşma uzaklığı bilinmeyen bir hedef bu filtreyi karşılayamaz.</li>
+</ul>
+<p>Kendi sonuçlarınıza ve topluluk sonuçlarına veri yaşı, yarıçap, iniş pisti, carrier ve varış mesafesi için aynı filtreler uygulanır. Eksik bilgiler tahmin edilmez. Sistem uzaklığı bilinmeyen veya etkin bir kısıtı karşıladığı doğrulanamayan hedefler dışlanır. Kendi pazarlarınızda özellikle iniş alanı ve yaklaşma verilerinin eksikliği önemlidir; taşıyıcılar dışlanıyorsa hedefin taşıyıcı olmadığı bilinmelidir.</p>
+<p>Sıralamak için sütun başlıklarına tıklayın: sayılar sayısal değere, veri yaşı gerçek yaşa, iniş alanları boyut sınıfına göre sıralanır. Satış ve alış en fazla 100 sonuç gösterir. “Daha fazla sonuç var. Filtreleri daraltın.” sınırlı bir aramayı belirtir. Mevcut kendi sonuçlarınız ve topluluk sonuçları, liste sınırlandırılmadan önce birlikte fiyata göre sıralanır. Topluluk hizmetinin arama sınırları nedeniyle bunların genel olarak en iyi teklifler olduğu garanti edilmez.</p>
+<p>Satış veya alış sırasında topluluk araması başarısız olursa uygun kendi sonuçlarınız kullanılabilir kalır. CMDRHelper bu durumda aramayı eksik olarak işaretler: daha iyi topluluk teklifleri eksik olabilir.</p>
+
+<h3>Kendi pazar verileriniz</h3>
+<p>Kenetlenmiş durumdayken Elite'teki mal pazarını açın. CMDRHelper çalışırken, mevcut istasyonla bağlantı güvenle kurulabiliyorsa pazar otomatik kaydedilir. Elle içe aktarma gerekmez. Pazarı yeniden açmak anlık kaydı günceller.</p>
+<p>Her pazar ve komutan için 24 saatten yeni tek bir güncel kayıt tutulur. Eski kayıtlar otomatik kaldırılır; kalıcı fiyat geçmişi oluşturulmaz. Geçerli gözlemler Helper yeniden başlatıldığında korunur. “Kendi pazar verilerin: X istasyon”, etkin komutanın geçerli kendi istasyon pazarlarını sayar. Seçilen azami pazar verisi yaşı, kendi sonuçlarınız için de ayrıca geçerlidir.</p>
+<ul>
+<li><b>✓ Okundu:</b> Öneriler bölümünde mevcut istasyonun geçerli bir kişisel pazar kaydı vardır.</li>
+<li><b>Mal pazarını aç:</b> Bu istasyon için kullanılabilir kişisel kayıt yoktur.</li>
+<li><b>Pazar verisi eski:</b> Daha önce gösterilen kayıt artık geçerli değildir. Pazarı yeniden açın.</li>
+</ul>
+<p>Eski kayıt görünüm açılmadan önce kaldırılmışsa yine “Mal pazarını aç” görünür. Uçuşta önceki istasyon için olumlu durum gösterilmez.</p>
+
+<h3>Öneriler</h3>
+<p>Mevcut istasyon, o istasyonun geçerli kişisel kaydı ve boş kargo alanı güvenilir biçimde bilinen mevcut gemi gerekir. Dolu alan düşülür. Boş alan bilinmiyorsa veya kargo doluysa yeni arama başlatılamaz; miktar uydurulmaz. Kalkıştan sonra eski konum temel alınarak yeni hesap yapılmaz.</p>
+<p>“Asgari kâr” değerini ayarlayın: 10 %, en az %10 marj sağlayan olanakları dikkate alır. Yerel olarak sunulan mallar aranır. Alış istasyonu hedef olarak kullanılmaz. Aynı hedef istasyon için (aynı MarketID) daha yeni geçerli kayıt kullanılır. Her mal için filtrelerinize uyan, kontrol edilmiş en yüksek “Olası kâr” değerli hedef gösterilir; bu mutlaka galaksinin en iyi hedefi değildir. Tablo en yüksek olası kârla başlar; “Kaynak”, “Elite yerel” veya “Spansh” gösterir, “Hedef verisinin yaşı” ise hedef verisinin yaşını belirtir.</p>
+
+<h3>Yalnızca kendi pazar verilerim</h3>
+<p>Bu onay kutusu yalnızca Öneriler altında bulunur. Satış ve alış otomatik olarak her iki kaynağı kullanır. Bu kutu önerileri, bizzat gözlemlediğiniz geçerli hedef pazarlarla sınırlar. Topluluk sorgusu yapılmaz; Spansh gerekmez. Yarıçap, hedef verisinin ek yaş sınırı, asgari kâr, iniş alanı, taşıyıcı ve yaklaşma filtreleri geçerliliğini korur ve mevcut bilgilerle doğrulanabilmelidir. Topluluk aramasını bilerek atlamak hata değildir ve aramayı eksik yapmaz. Böylece önceden ziyaret ettiğiniz istasyonlar arasında hızla arama yapabilirsiniz.</p>
+
+<h3>Olası kâr ve miktar</h3>
+<ul>
+<li><b>Kâr / t:</b> hedefteki satış fiyatı − buradaki alış fiyatı. “Kâr %” = ton başına kâr ÷ alış fiyatı × 100.</li>
+<li><b>Miktar (t):</b> boş kargo alanı, alış pazarının arzı ve hedefin talebi arasındaki en küçük miktar.</li>
+<li><b>Olası kâr:</b> ton başına kâr × mümkün miktar; bilinen pazar kayıtlarına dayanan bir tahmin.</li>
+</ul>
+<p>Örnek: 280 t boş alan, 150 t arz, 20.000 t talep → mümkün miktar 150 t. Her mal tüm boş kargo alanını otomatik olarak dolduramaz.</p>
+
+<h3>İşaretlenen ticaret uçuşu</h3>
+<p>Onay kutusuyla yalnızca bir öneriyi hatırlanacak olarak işaretleyin. Başka bir seçim öncekini değiştirir. Ayrı not alanı malı, hedef istasyonu, hedef sistemi ve seçim anındaki “Olası kâr” değerini gösterir. Bu bir hatırlatma notudur; sürekli yeniden hesaplanan öneri değildir.</p>
+<p>Not; satın alma, kargo değişikliği, kalkış, sistem değişikliği, kenetlenme ve pazar açılışında kalır. “Kaldır” ile veya işaret kaldırıldığında, yeni bir öneri araması gerçekten başladığında, komutan değiştiğinde ve Helper kapandığında silinir. Yeniden başlatmada korunmaz.</p>
+<p>“Sistemi kopyala”, panoya yalnızca hedef sistemin adını kopyalar. Hedef istasyon notta görünmeye devam eder; rota oluşturulmaz.</p>
+
+<h3>Arama, ilerleme ve iptal</h3>
+<p>Aramaları elle başlatın. Öneriler birden fazla malı kontrol eder ve daha uzun sürebilir. Arama kapsamı belirlendikten sonra ilerleme çubuğu ve “Mallar kontrol ediliyor: x / y …” gerçekten kontrol edilen malları gösterir. “İptal” yalnızca iptal edilebilir arama sırasında kullanılabilir; sürmekte olan ağ yanıtı iptali geciktirebilir. Sekme değiştirmek aramayı iptal eder; satış/alışın ortak filtreleri korunur.</p>
+<p>Bazı topluluk sorguları başarısız olursa veya arama sınırlarına ulaşılırsa geçerli, kontrol edilmiş öneriler görünür kalabilir. Eksik arama, sonuçların kontrol edilmiş veriler için geçerli olduğu ancak tüm malların veya hedeflerin tamamen incelenmediği anlamına gelir. Mesajı okuyun, sınırlara ulaşıldığında filtreleri daraltın veya daha sonra yeniden deneyin. Elle iptal, mevcut sonuç listesini kaldırır.</p>
+
+<h3>Sorunlarda tanılama</h3>
+<p>“Tanı bilgilerini kopyala”, sorun incelemesi için son biten öneri aramasının teknik bilgilerini kopyalar. Metin komutan/FID verisi veya pazar fiyatı içermez. Tanılama bellekte kalır; kalıcı tanılama dosyası oluşturulmaz ve hiçbir şey otomatik gönderilmez. Gerektiğinde kopyalanan metni desteğe kendiniz iletin.</p>
+
+<h3>Bir ticaret uçuşu nasıl yapılır?</h3>
+<ol>
+<li>Bir istasyona kenetlenin ve Elite'teki mal pazarını açın.</li>
+<li>“Ticaret” → “Öneriler” bölümünü açıp “Okundu” durumunu kontrol edin.</li>
+<li>Asgari kâr ve filtreleri ayarlayıp “Öneri ara” seçin.</li>
+<li>Hatırlamak istediğiniz öneriyi işaretleyin ve malı Elite'te satın alın.</li>
+<li>Gerekirse “Sistemi kopyala” kullanıp hedefe uçun; istasyon notta görünür kalır.</li>
+<li>Elite'te satın. Yeni pazarın kişisel verilerini de güncellemek için oradaki pazarı açın.</li>
+</ol>""",
+)

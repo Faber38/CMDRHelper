@@ -14,6 +14,8 @@ from cmdrhelper.i18n import get_language, tr
 from cmdrhelper.market_data import MarketSearch, MarketSearchResult, MarketStatus, PadSize, TradeSide
 from cmdrhelper.observed_market_cache import timestamp
 from cmdrhelper.spansh_market import SpanshMarketProvider
+from cmdrhelper.trade_search import search_trade
+from cmdrhelper.trade_result_text import community_failure_text, market_notice_text
 from cmdrhelper.ui.commodity_picker import CommodityField
 
 
@@ -31,18 +33,21 @@ class MarketSignals(QObject):
 
 
 class MarketWorker(QRunnable):
-    def __init__(self, provider, query, side=TradeSide.SELL, generation=0):
+    def __init__(self, provider, query, side=TradeSide.SELL, generation=0, *, local_markets=(),
+                 distances=None, fid='', clock=None):
         super().__init__()
         self.provider, self.query = provider, query
         self.side, self.generation = side, generation
+        self.local_markets, self.distances, self.fid = local_markets, distances, fid
+        self.clock = clock or (lambda: datetime.now(timezone.utc))
         self.cancel = Event()
         self.signals = MarketSignals()
 
     @Slot()
     def run(self):
         try:
-            search = self.provider.search_buy if self.side == TradeSide.BUY else self.provider.search_sell
-            result = search(self.query, cancel=self.cancel)
+            result = search_trade(self.provider, self.query, self.side, self.local_markets,
+                                  self.distances, self.fid, cancel=self.cancel, clock=self.clock)
         except Exception:
             # No raw exception or HTTP response is exposed to the user.
             result = MarketSearchResult(MarketStatus.INVALID_RESPONSE, query=self.query)
@@ -115,6 +120,7 @@ class TradeView(QWidget):
         self._reference = None
         self.side = TradeSide.SELL
         self._generation = 0
+        self._fid = getattr(state, 'commander_fid', '')
         layout = QVBoxLayout(self)
         layout.addWidget(QLabel(tr('nav.trade'), objectName='sectionTitle'))
         self.tabs = QTabWidget()
@@ -279,6 +285,14 @@ class TradeView(QWidget):
 
     @Slot()
     def refresh_observed_markets(self):
+        fid = getattr(self.state, 'commander_fid', '')
+        if fid != self._fid:
+            self._fid = fid
+            self._generation += 1
+            self.cancel_search()
+            self.offers = ()
+            self.table.setRowCount(0)
+            self._invalidate_results()
         # all() owns TTL and physical cleanup. Its notification may re-enter us.
         if self._refreshing_observed:
             return
@@ -345,7 +359,16 @@ class TradeView(QWidget):
         self.search_button.setEnabled(False)
         self.cancel_button.setEnabled(True)
         self.cancel_button.show()
-        self.worker = MarketWorker(self.provider, self._query, self.side, self._generation)
+        from .recommendations_view import local_distances
+        observer = getattr(self.state, 'observed_markets', None)
+        cache = observer.cache if observer is not None else None
+        local = cache.all(self._fid) if cache is not None and self._fid else []
+        origin = dict(system_name=self._reference,
+                      system_address=getattr(self.state, 'system_address', None))
+        distances = local_distances(self.state, origin, local) if local else {}
+        self.worker = MarketWorker(self.provider, self._query, self.side, self._generation,
+                                   local_markets=local, distances=distances, fid=self._fid,
+                                   clock=cache.clock if cache is not None else None)
         self._cancel_event = self.worker.cancel
         self.destroyed.connect(self._cancel_event.set)
         self.worker.signals.finished.connect(self._finished)
@@ -391,6 +414,9 @@ class TradeView(QWidget):
             self.offers = tuple(o for o in self.offers if o.commander_buy_price is not None
                                 and o.commander_buy_price > 0 and o.supply is not None
                                 and o.supply >= (query.minimum_quantity or 1))
+        self.market_notice.setText(market_notice_text(get_language())
+                                   if any(o.provider == 'local_elite' for o in self.offers)
+                                   else tr('trade.market_notice'))
         self.table.setSortingEnabled(False)
         self.table.setRowCount(len(self.offers))
         for row, offer in enumerate(self.offers):
@@ -421,7 +447,9 @@ class TradeView(QWidget):
         for row in range(self.table.rowCount()):
             for column in (0, 1):
                 item = self.table.item(row, column)
-                item.setToolTip(item.text())
+                source = self.table.item(row, 0).data(Qt.ItemDataRole.UserRole).provider
+                label = tr('recommend.local') if source == 'local_elite' else 'Spansh'
+                item.setToolTip(item.text() + '\n' + tr('recommend.source') + ': ' + label)
         for column in (0, 1):
             self.table.setColumnWidth(column, min(300, self.table.columnWidth(column)))
         status_key = _STATUS_KEYS.get(result.status, 'trade.invalid_response')
@@ -430,8 +458,10 @@ class TradeView(QWidget):
             status_key = prefix + ('success_one' if len(self.offers) == 1 else
                                    'success' if self.offers else 'no_results')
         message = tr(status_key, count=len(self.offers))
+        if result.community_failure is not None:
+            message += '\n' + community_failure_text(get_language())
         if result.truncated:
             message += '\n' + tr('trade.truncated')
         if result.from_cache:
-            message += '\n' + tr('trade.cached')
+            message += '\n' + ('Spansh: ' if any(o.provider == 'local_elite' for o in self.offers) else '') + tr('trade.cached')
         self.status.setText(message)

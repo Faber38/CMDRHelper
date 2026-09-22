@@ -271,6 +271,11 @@ class BuyTradeTests(unittest.TestCase):
     def test_real_provider_buy_cache_supply_and_sell_separation(self):
         row=station();row['market'][0].update(buy_price=1467,supply=100,sell_price=203385,demand=200)
         h=Harness(response(row),response(row));self.view.provider=h.provider
+        # The combined search rechecks age after provider completion. Keep both
+        # clocks on the same synthetic instant, independent of the real date.
+        clock_patch = patch('cmdrhelper.ui.trade_view.datetime', wraps=datetime)
+        clock = clock_patch.start(); self.addCleanup(clock_patch.stop)
+        clock.now.return_value = h.provider.utcnow()
         self.view.quantity.setValue(100);self.search();first=len(h.requests)
         self.assertEqual(self.view.table.item(0,3).value,1467)
         market_filter=h.payloads[0]['filters']['market'][0]

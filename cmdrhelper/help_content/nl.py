@@ -112,90 +112,57 @@ HELP_TOPICS = {
               'status van het spel, controleer dan eerst de journaalweergave bovenaan en '
               'controleer vervolgens de journaalmap die is ingesteld onder “Instellingen”.</p>'
               '<p>Open verschijnt in rood, Solo in goud en Privégroep in groen, met de gemelde groepsnaam. De modus wordt uit beschikbare journalen gereconstrueerd en bij nieuwe LoadGame-vermeldingen bijgewerkt.</p>\n<p>Een enkele klik op een vermelding bij recente systemen kopieert de systeemnaam naar het klembord. “✓ Gekopieerd: &lt;Systeem&gt;” verschijnt kort.</p>\n'),
- 'missions': ('Missies',
-              '<h2>Missies</h2>\n'
-              '<p>De missieweergave toont de missies van de momenteel bekeken commandant bekend '
-              'uit het Elite Dangerous Journal. CMDRHelper slaat missiegegevens op per '
-              'commandobasis op, zodat open missies behouden blijven, zelfs na een herstart van '
-              'Elite Dangerous of CMDRHelper.</p>\n'
-              '\n'
-              '<h3>Open missies</h3>\n'
-              '<p>Er komen nieuwe missies uit<code>MissionAccepted</code>overgenomen en permanent '
-              'opgeslagen.</p>\n'
-              '<p>Zolang er geen laatste missiegebeurtenis is, blijft de missie open. Een nieuwe '
-              'spelsessie zonder missielijst verwijdert mogelijk niet automatisch bekende open '
-              'missies.</p>\n'
-              '\n'
-              '<h3>Missiestatus</h3>\n'
-              '<p>CMDRHelper verwerkt onder meer de volgende statuswijzigingen:</p>\n'
-              '<ul>\n'
-              '<li>Missie geaccepteerd</li>\n'
-              '<li>Missie voltooid</li>\n'
-              '<li>Missie mislukt</li>\n'
-              '<li>Missie afgebroken</li>\n'
-              '<li>Missiedoel omgeleid</li>\n'
-              '<li>Vooruitgang bij ondersteunde vracht-/depotmissies</li>\n'
-              '</ul>\n'
-              '<p>Een laatste gebeurtenis verandert alleen de bijbehorende missie.</p>\n'
-              '\n'
-              '<h3>Missies van het tijdschrift</h3>\n'
-              '<p>Elite Dangerous biedt missie-informatie over verschillende dagboekevenementen. '
-              'CMDRHelper voegt deze gebeurtenissen samen tot een aanhoudende missiestatus.</p>\n'
-              '<p>Een echte volledige missie-gebeurtenis kan dienen als een gezaghebbende '
-              'momentopname. Als een dergelijk evenement ontbreekt, zullen oudere open missies '
-              'alleen om deze reden niet worden gesloten.</p>\n'
-              '\n'
-              '<h3>Bestemmingen en plaatsen</h3>\n'
-              '<p>Voor zover Elite de informatie in het tijdschrift verstrekt, toont CMDRHelper '
-              'het volgende:</p>\n'
-              '<ul>\n'
-              '<li>Doelsysteem</li>\n'
-              '<li>Bestemmingsstation of bestemming</li>\n'
-              '<li>Doelplaneet of lichaam</li>\n'
-              '<li>Missie-aanduiding</li>\n'
-              '<li>bekende vooruitgang</li>\n'
-              '<li>huidige status</li>\n'
-              '</ul>\n'
-              '<p>Niet elke missie levert alle informatie op. Ontbrekende gegevens zijn niet '
-              'bedacht door CMDRHelper.</p>\n'
-              '\n'
-              '<h3>Volharding en herstart</h3>\n'
-              '<p>Open missies worden opgeslagen in de commandantgerelateerde database.</p>\n'
-              '<p>Dit betekent dat ze behouden blijven, zelfs als:</p>\n'
-              '<ul>\n'
-              '<li>Elite Dangerous wordt beëindigd en later opnieuw gestart</li>\n'
-              '<li>CMDRHelper is daartussen gesloten</li>\n'
-              '<li>De nieuwe journaalsessie bevat aanvankelijk geen missiegebeurtenissen</li>\n'
-              '</ul>\n'
-              '<p>Alleen een gedocumenteerde missiegebeurtenis verandert de opgeslagen '
-              'status.</p>\n'
-              '\n'
-              '<h3>Verschillende commandanten</h3>\n'
-              '<p>Missies worden strikt gescheiden door de commandant.</p>\n'
-              '<p>Een missiegebeurtenis wordt alleen toegewezen aan de commandant wiens '
-              'dagboeksessie uniek is geïdentificeerd. Missies van een andere commandant mogen '
-              'niet worden weergegeven of aangepast.</p>\n'
-              '\n'
-              '<h3>Verweesde of niet langer geldige missies</h3>\n'
-              '<p>Als oudere dagboekgegevens of een eerdere import een missie openhouden, ook al '
-              'bestaat deze niet meer in het spel, kan de bestaande functie voor het opnieuw '
-              'instellen/opschonen van verweesde missies worden gebruikt.</p>\n'
-              '<p>Deze functie mag alleen worden gebruikt als duidelijk is dat de weergegeven '
-              'missie niet langer actief is.</p>\n'
-              '\n'
-              '<h3>Onlinediensten</h3>\n'
-              '<p>Ondersteunde missiegebeurtenissen kunnen bovendien naar Inara worden verzonden '
-              'als er een geldige en geactiveerde Inara-toegang is ingesteld voor het actieve '
-              'journaal FID.</p>\n'
-              '<p>Een ontbrekende of onbereikbare Inara-verbinding heeft geen invloed op de lokale '
-              'missieopslag.</p>\n'
-              '\n'
-              '<h3>Tip</h3>\n'
-              '<p>Als een missie niet verschijnt of een onjuiste status vertoont, controleer dan '
-              'eerst of Elite Dangerous de bijbehorende missiegebeurtenis al naar het journaal '
-              'heeft geschreven.</p>\n'
-              '<p>CMDRHelper kan alleen informatie weergeven die het journaal daadwerkelijk levert '
-              'of die al is opgeslagen uit eerdere unieke missiegebeurtenissen.</p>'),
+ 'missions': (
+        'Missies en beloningen',
+        """<h2>Missies en beloningen</h2>
+<p>Deze hoofdpagina toont de missies en waargenomen beloningen van de momenteel actieve journaalcommander. Een andere commander kiezen in de afzonderlijke CMDR-weergave verandert deze pagina niet. De gegevens blijven per commander gescheiden.</p>
+
+<h3>Deze pagina gebruiken</h3>
+<ol>
+<li>Open ‘Missies en beloningen’ en selecteer een missie in de lijst.</li>
+<li>Bekijk ‘Status’ en ‘MISSIEDETAILS’. Gebruik ‘Volgende stap’ als leidraad.</li>
+<li>Gebruik zo nodig ‘Journal vernieuwen’ om de beschikbare journaalgegevens opnieuw te lezen.</li>
+<li>Bekijk missiebeloningen, ‘Premies’ en ‘Gevechtsobligaties’ afzonderlijk.</li>
+</ol>
+
+<h3>Lijst en details</h3>
+<p>De lijst bevat bevestigde open missies en herkende voorlopige aanbiedingen uit ontmoetingen. Je ziet missie, systeem, planeet / locatie, status, volgende stap, beloning en deadline. Selecteer een regel voor de beschikbare bestemmings- en voortgangsdetails. Ontbrekende journaalinformatie blijft onbekend; bij voorlopige aanbiedingen is de deadline onbekend.</p>
+
+<h3>Missiestatus</h3>
+<p>De status volgt de beschikbare missie-, locatie- en voortgangsgegevens. Niet elk missietype levert alle tussenstappen.</p>
+<ul>
+<li><b>Missie geaccepteerd / Onderweg:</b> De missie is bekend; aankomst op de bestemming is nog niet herkend.</li>
+<li><b>In het doelsysteem:</b> Je bent in het doelsysteem, maar nog niet op de herkende missiebestemming.</li>
+<li><b>Bij missiedoel:</b> Het bijbehorende doelstation of hemellichaam is bereikt.</li>
+<li><b>Doel gewijzigd:</b> Er is een nieuwe missiebestemming gemeld.</li>
+<li><b>Lading opgehaald:</b> Het ophalen van missievracht is herkend.</li>
+<li><b>Levering bezig:</b> Een levering is geregistreerd; de bekende voortgang in aantallen wordt getoond.</li>
+<li><b>Opdracht voltooid / Gegevens ontvangen:</b> De taak of gegevensverzameling is voltooid. De missie kan nog openstaan, bijvoorbeeld met ‘Terug naar missieterminal’. Dit bevestigt nog geen uitbetaling.</li>
+</ul>
+<p>Herkende voltooiingen, mislukkingen en afbrekingen verwijderen de betreffende missie uit de open lijst. Een nieuwe volledige missiestand kan oudere vermeldingen als niet meer actief herkennen.</p>
+
+<h3>Totale beloning</h3>
+<p>‘Totale beloning’ telt de bekende creditbeloningen van bevestigde open missies op. Dit is geen reeds uitbetaald saldo. Voorlopige aanbiedingen uit ontmoetingen, premies en gevechtsobligaties tellen niet mee.</p>
+
+<h3>Missies uit ontmoetingen</h3>
+<p>Ondersteunde ontmoetingen in de ruimte kunnen als voorlopige aanbiedingen ‘Ontmoetingsopdracht’ verschijnen, ook als er nog geen definitieve MissionID is. ‘Aangeboden beloning’ is daarom nog geen bevestigde beloning van een open missie en telt niet mee voor de totale beloning.</p>
+<p>Als latere journaalgegevens een aanbieding ondubbelzinnig aan een missie koppelen, worden beide samengevoegd. Bij twijfel blijft de aanbieding voorlopig. Onbevestigde aanbiedingen verdwijnen lokaal na 24 uur; dit zegt niets over een missiedeadline in het spel.</p>
+
+<h3>Premies</h3>
+<p>Dit gedeelte toont lokaal waargenomen premies met een totaal en bedragen per factie. Het kent alleen geregistreerde gegevens, geen gegarandeerd volledig spelsaldo. ‘Registratie vanaf nu.’ markeert het begin van de registratie; hiaten worden gemeld met ‘Niet volledig gesynchroniseerd: er kunnen gebeurtenissen ontbreken.’.</p>
+<p>Een herkende premie-inwisseling of dood zet het volledige lokale premiesaldo op nul, onafhankelijk van de missiestatus.</p>
+
+<h3>Gevechtsobligaties</h3>
+<p>Hier staan per factie de waargenomen gevechtsobligaties waarvan nog geen inwisseling is herkend. Een mogelijk saldo van vóór de registratie ontbreekt. Bij onzekerheid verschijnt ‘Waargenomen bedrag’ met ‘Saldo niet volledig bevestigd.’.</p>
+<p>Een ondubbelzinnig toegewezen inwisseling wist het waargenomen bedrag van de genoemde factie; andere facties blijven behouden. Bij onduidelijke toewijzing blijven de bedragen staan en verschijnt ‘Inwisseling gedetecteerd – controleer het saldo.’. Een herkende dood wist de waargenomen gevechtsobligaties.</p>
+
+<h3>Lokaal terugzetten</h3>
+<p>‘Resetten…’ in een beloningsgedeelte zet na bevestiging alleen het eigen lokale saldo voor de actieve commander op nul. <b>Dit verandert geen waarden in Elite Dangerous.</b> Premies en gevechtsobligaties worden afzonderlijk teruggezet; missies worden daarbij niet opgeschoond of voltooid.</p>
+
+<h3>Bijwerken en herstarten</h3>
+<p>Bekende open missies en lokale beloningssaldi blijven bewaard na een herstart van Helper. Een nieuwe journaalsessie zonder missielijst verwijdert open missies niet automatisch. Hiaten in de registratie kunnen vooral beloningssaldi onvolledig laten. ‘Journal vernieuwen’ kan alleen bestaande informatie lezen, geen ontbrekende spelgegevens aanmaken.</p>
+<p>De lokale missieweergave heeft geen Inara-verbinding nodig. Met een ingeschakelde verbinding die voor de actieve commander is ingesteld, kunnen ondersteunde missiegebeurtenissen ook worden verzonden.</p>""",
+    ),
  'explorer': ('Ontdekkingsreiziger',
               '<h2>Ontdekkingsreiziger</h2>\n<h3>CMDRHelper</h3>\n<p>Systeemoverzicht: de nieuwe Elite-achtige weergave vervangt het miniatuuroverzicht in Explorer en Kroniek. Sterren en planeten vormen de hoofdstructuur met manen daaronder; meervoudige sterrenstelsels blijven leesbaar. Zoomen, scrollen, passend maken en klikken op hemellichamen geven toegang tot details.</p>\n<p>Compacte asteroïdengordels: clusters worden gegroepeerd tot gordels in het overzicht en de gewone systeemkaarten van Explorer en Kroniek. Alle afzonderlijke clustergegevens blijven bewaard.</p>\n<p>Cartografie hersteld: een scan na DSS-kartering zet onverkochte verkenningswaarden, karteringstijd en efficiëntie niet meer terug. Onjuiste registraties worden bij het starten hersteld uit beschikbare journals met eenduidige toewijzing. Zonder die bronnen blijft herstel openstaan; de database hoeft niet verwijderd te worden.</p>\n'
               '<p>De Explorer evalueert de systemen en hemellichamen die door de actieve '
@@ -929,193 +896,39 @@ HELP_TOPICS = {
             'afbeeldingen in de hoofdmap.</p>\n'
             "<p>Een hogere helderheid kan helpen bij donkere foto's; het beïnvloedt de nieuw "
             'gemaakte doelafbeelding tijdens de conversie.</p>'),
- 'commander_view': ('CMDR-weergave',
-                    '<h2>CMDR-weergave</h2>\n'
-                    '<p>De CMDR-weergave vat de permanent opgeslagen persoonlijke informatie van '
-                    'een commandant samen.</p>\n'
-                    '<p>Ook kunt u hiermee schakelen tussen de bekende CMDRHelper-commandanten en '
-                    'hun eigen gegevens bekijken. Persoonlijke informatie wordt gescheiden met '
-                    'behulp van de Frontier ID (FID).</p>\n'
-                    '\n'
-                    '<h3>Selecteer Commandant</h3>\n'
-                    '<p>Als er meerdere commandanten bekend zijn, kunt u met bovenstaande selectie '
-                    'bepalen wiens opgeslagen informatie wordt weergegeven. Deze commandant is de '
-                    'beschouwde commandant.</p>\n'
-                    '<p>Het display markeert het als “Live Active” of “View Only”.</p>\n'
-                    '\n'
-                    '<h3>Beschouwd als Commander en Live Commander</h3>\n'
-                    '<p>Als u een andere commandant in de CMDR-weergave selecteert, wordt deze '
-                    'niet de actieve journaalcommandant.</p>\n'
-                    '<p>De live commandant wordt uitsluitend bepaald op basis van de momenteel '
-                    'uniek geïdentificeerde Elite Dangerous-journaalsessie. Zo kan de historie van '
-                    'een andere commandant worden bekeken terwijl Elite Dangerous blijft draaien '
-                    'met EXAMPLE.</p>\n'
-                    '\n'
-                    '<h3>Frontier-ID (FID)</h3>\n'
-                    '<p>De FID is de stabiele Frontier-identificatie van een commandant.</p>\n'
-                    '<p>CMDRHelper gebruikt het en de interne commandant-ID die daaruit is '
-                    'afgeleid om persoonlijke gegevens veilig te scheiden. Commandanten met '
-                    'vergelijkbare of identieke namen blijven ook gescheiden.</p>\n'
-                    '\n'
-                    '<h3>Overzicht</h3>\n'
-                    '<p>Het tabblad “Overzicht” toont alleen permanent opgeslagen informatie van '
-                    'de betreffende commandant:</p>\n'
-                    '<ul>\n'
-                    '<li>Commandernaam, FID en status “Live actief” of “Alleen bekijken”</li>\n'
-                    '<li>eerste en laatst bekende tijdstip</li>\n'
-                    '<li>Aantal bezochte systemen, bio- en geo-ontdekkingen, codex-inzendingen en '
-                    'cartografie-verkopen</li>\n'
-                    '<li>Laatst bekende locatie en aantal open missies</li>\n'
-                    '<li>huidige of laatste schip</li>\n'
-                    '<li>Fleet Carrier en transportlocatie</li>\n'
-                    '<li>Activa</li>\n'
-                    '<li>open biodata en open cartografische gegevens, inclusief bestaande '
-                    'schattingen</li>\n'
-                    '</ul>\n'
-                    '\n'
-                    '<h3>Activa/Kredieten</h3>\n'
-                    '<p>Het veld “Activa” toont het meest recentelijk opgeslagen tegoed van de '
-                    'betreffende commandant uit een desbetreffende journaalgebeurtenis, opgemaakt '
-                    'als bijvoorbeeld<b>1.234.567 cr</b>.</p>\n'
-                    '<p>CMDRHelper telt geen fictieve inkomsten of uitgaven op als er geen nieuwe, '
-                    'veilige tijdschriftstatus is.</p>\n'
-                    '\n'
-                    '<h3>Huurlingen munten</h3>\n'
-                    '<p>De huurlingenmunten zijn afkomstig uit de MercCoins-velden van Elite '
-                    'Dangerous<code>Statistics → Bank_Account</code>en worden '
-                    'commandantgerelateerd opgeslagen als een Frontier-snapshot.</p>\n'
-                    '<p>Zichtbaar zijn:</p>\n'
-                    '<ul>\n'
-                    '<li>Huidig</li>\n'
-                    '<li>Totaal uitgegeven</li>\n'
-                    '<li>Engineering</li>\n'
-                    '<li>apparatuur</li>\n'
-                    '<li>Gerapporteerd door Frontier: overall verdiend</li>\n'
-                    '</ul>\n'
-                    '\n'
-                    '<h3>Actueel en edities</h3>\n'
-                    "<p>'Huidige' shows<code>MercCoins_Huidige</code>. “Total Spent” neemt het "
-                    'over<code>MercCoins_Totaal_Uitgegeven</code>.</p>\n'
-                    '<p>“Engineering” en “Apparatuur” tonen de aandelen die afzonderlijk worden '
-                    'gerapporteerd door '
-                    'Frontier<code>MercCoins_Spent_On_Engineering</code>En<code>MercCoins_Spent_On_MercGear</code>.</p>\n'
-                    '<p>Voor EXAMPLE bijvoorbeeld een actuele inventaris van<b>1.000</b>, in '
-                    'totaal<b>200</b>besteed en weg<b>200</b>gemeld voor techniek.</p>\n'
-                    '\n'
-                    '<h3>Kortom verdiend</h3>\n'
-                    "<p>'Gerapporteerd door Frontier: overall "
-                    "verdiend'-shows<code>MercCoins_Totaal_Verdiend</code>. CMDRHelper berekent "
-                    'hieruit niet zijn eigen balans.</p>\n'
-                    '<p>De cumulatieve waarde van Frontier hoeft niet wiskundig overeen te komen '
-                    'met de huidige voorraad en gerapporteerde uitgaven. Er kunnen bijvoorbeeld '
-                    'tegelijkertijd 1.000 huidige, 25 totaal verdiende en 200 totale uitgaven '
-                    'worden gerapporteerd.</p>\n'
-                    '<p>CMDRHelper corrigeert deze waarden niet, maar geeft de afzonderlijke '
-                    'Frontier-tellers ongewijzigd weer.</p>\n'
-                    '\n'
-                    '<h3>Waarom heeft u geen eigen MercCoins-balans?</h3>\n'
-                    '<p>Elite Dangerous biedt geen unieke journaalboeking voor elke individuele '
-                    'ontvangst of uitgave van huursoldaten. De MercCoins verschijnen als totalen '
-                    'in Statistics.</p>\n'
-                    '<p>Een zelfberekende boekingsgeschiedenis zou daarom niet betrouwbaar zijn. '
-                    'CMDRHelper slaat in plaats daarvan de laatst bekende Frontier-momentopname '
-                    'op.</p>\n'
-                    '\n'
-                    '<h3>Missies</h3>\n'
-                    '<p>Op het tabblad ‘Missies’ worden de opgeslagen missies van de betreffende '
-                    'commandant weergegeven als een tabel met status, missienaam, doelstelling, '
-                    'vervaltijd en beloning.</p>\n'
-                    '\n'
-                    '<h3>verkenning</h3>\n'
-                    '<p>Het tabblad Verkenning toont open persoonsgegevens, open cartografische '
-                    'gegevens, bioontdekkingen, eerste voetstappen, zelf in kaart gebrachte en '
-                    'efficiënt in kaart gebrachte lichamen en het aantal bezochte systemen.</p>\n'
-                    '<p>Het speciale tabblad ‘Kroniek’ binnen de CMDR-weergave is momenteel nog '
-                    'steeds een tijdelijke aanduiding. De volledige kroniek is te vinden in het '
-                    'gelijknamige hoofdmenu-item.</p>\n'
-                    '\n'
-                    '<h3>Schepen/vloot</h3>\n'
-                    '<p>Het tabblad “Schepen” toont in eerste instantie het actieve of meest '
-                    'recent gebruikte schip met scheepsnaam, scheepstype, locatie en ShipID.</p>\n'
-                    '<p>De opgeslagen schepen van de betreffende commandant verschijnen daaronder '
-                    'als uitbreidbare kaarten. Ze kunnen oplopend of aflopend worden gesorteerd '
-                    'op:</p>\n'
-                    '<ul>\n'
-                    '<li>laatst of momenteel gebruikt</li>\n'
-                    '<li>Scheepsnaam of scheepstype</li>\n'
-                    '<li>maximaal springbereik</li>\n'
-                    '<li>Laadvermogen of lege massa</li>\n'
-                    '<li>laatst bekende locatie of tijd</li>\n'
-                    '</ul>\n'
-                    '<p>Je kunt ook filteren op alle schepen, schepen met een voertuighangar of '
-                    'schepen met een jachthangar.</p>\n'
-                    '\n'
-                    '<h3>Scheepsgegevens</h3>\n'
-                    '<p>Een geopende scheepskaart toont - indien opgeslagen - scheeps-ID, ShipID, '
-                    'locatie, laatste keer, maximaal sprongbereik, FSD- en Guardian-booster, '
-                    'massa, vracht- en tankcapaciteiten, evenals de laadtijd en -status.</p>\n'
-                    '<p>Als modulegegevens beschikbaar zijn, worden voertuig- en gevechtshangar, '
-                    'schildgenerator en schildbooster, Guardian-schildversterkingen, wapens, romp- '
-                    'en moduleversterkingen en passagierscabines ook samengevat.</p>\n'
-                    '<p>De uitrustingsstatus kan compleet, onvolledig of verouderd zijn. '
-                    'Ontbrekende informatie wordt weergegeven als “–” en is niet aangevuld.</p>\n'
-                    '\n'
-                    '<h3>Fleet Carrier</h3>\n'
-                    '<p>Voor een opgeslagen aangepaste Fleet Carrier toont de weergave de naam van '
-                    'de provider, de roepnaam, de provider-ID, de laatste locatie en het tijdstip '
-                    'van de laatste update.</p>\n'
-                    '\n'
-                    '<h3>Aanhoudende commandantstaat</h3>\n'
-                    '<p>Belangrijke commandantinformatie blijft permanent opgeslagen. Hierdoor '
-                    'kunnen bekende waarden na een herstart van CMDRHelper of Elite Dangerous '
-                    'opnieuw worden weergegeven zonder elk journaal opnieuw volledig te '
-                    'evalueren.</p>\n'
-                    '<p>Nieuwe unieke journaalgebeurtenissen werken de opgeslagen status bij.</p>\n'
-                    '\n'
-                    '<h3>Historische reconstructie</h3>\n'
-                    '<p>Voor functies die later worden toegevoegd, kan de CMDRHelper bestaande '
-                    'journaalgebieden die duidelijk aan een commandant zijn toegewezen, eenmalig '
-                    'doorzoeken op informatie die al bekend is.</p>\n'
-                    '<p>Er kunnen bijvoorbeeld oudere MercCoins-snapshots worden overgenomen. '
-                    'Herhaalde controles zijn niet bedoeld om dubbele gegevens te produceren en '
-                    'veranderen de normale leesposities van journaal niet.</p>\n'
-                    '\n'
-                    '<h3>Verschillende commandanten</h3>\n'
-                    '<p>In het bijzonder blijven de volgende gescheiden in termen van '
-                    'commandanten:</p>\n'
-                    '<ul>\n'
-                    '<li>Activa en missies</li>\n'
-                    '<li>eigen cartografie en organische vondsten</li>\n'
-                    '<li>Geschiedenis van mijnbouw en huurlingenmunten</li>\n'
-                    '<li>Online inloggegevens</li>\n'
-                    '<li>commandant-gerelateerde schermafbeeldingen</li>\n'
-                    '</ul>\n'
-                    '<p>Globale astronomische eigenschappen van een systeem of lichaam kunnen '
-                    'echter samen worden gebruikt.</p>\n'
-                    '\n'
-                    '<h3>Impact op andere opvattingen</h3>\n'
-                    '<p>Als u de commandant in kwestie wijzigt, worden de CMDR-weergave zelf, de '
-                    'persoonlijke mijnbouwgrondstofselectie van de kroniek en, met het juiste '
-                    'filter, de screenshotgalerij bijgewerkt.</p>\n'
-                    '<p>Het vervangt niet de daadwerkelijke live-commandant voor '
-                    'journaalverwerking of online uploads.</p>\n'
-                    '\n'
-                    '<h3>Inara en EDSM</h3>\n'
-                    '<p>De toegangen tot de Inara en EDSM worden afzonderlijk per commandant en '
-                    'FID beheerd.</p>\n'
-                    '<p>Alleen al door naar een commandant te kijken, wordt er geen transmissie '
-                    'gestart met hun API-Key. Alleen het actieve dagboek FID is relevant voor live '
-                    'uploads.</p>\n'
-                    '<p>De toegangsgegevens worden beheerd onder “Instellingen” in het gedeelte '
-                    'Onlinediensten.</p>\n'
-                    '\n'
-                    '<h3>Tip</h3>\n'
-                    '<p>Gebruik de CMDR-weergave als u opgeslagen persoonlijke informatie van een '
-                    'specifieke commandant wilt bekijken.</p>\n'
-                    '<p><b>CMDR-weergave = Wie wil ik bekijken?</b></p>\n'
-                    '<p><b>Active Journal-FID = Wie speelt er momenteel eigenlijk?</b></p>\n'
-                    '<p>Deze scheiding voorkomt dat persoonlijke gegevens of online uploads van '
-                    'verschillende commandanten met elkaar worden vermengd.</p>'),
+ 'commander_view': (
+        'CMDR-weergave',
+        """<h2>CMDR-weergave</h2>
+<h3>Een commander kiezen</h3>
+<p>Met de keuzelijst bovenaan bepaal je wiens opgeslagen gegevens je bekijkt. ● Live actief duidt de actieve journal-commander aan; Alleen bekijken een ander opgeslagen profiel. Deze keuze verandert de actieve journal-commander niet: de hoofdpagina ‘Missies en beloningen’ blijft de daadwerkelijk spelende commander gebruiken. Persoonlijke gegevens blijven via de FID gescheiden, ook bij gelijke namen. Een profiel bekijken start geen online verzending.</p>
+
+<h3>Overzicht, vermogen en MercCoins</h3>
+<p>‘Overzicht’ toont naam, FID, status, eerste en laatste registratie, bezochte systemen, biologische/geologische vondsten, Codex-vermeldingen en cartografieverkoop, locatie, open missies, schip, carrier en onverkochte bio-/cartografiegegevens met bekende schattingen. ‘Vermogen’ is het laatst opgeslagen creditsaldo. ‘Mercenary credits’ toont de door Frontier gemelde waarden: ‘Current’, ‘Total spent’, ‘Engineering’, ‘Gear’ en ‘Reported by Frontier: total earned’. Deze tellers hoeven rekenkundig niet op elkaar aan te sluiten; CMDRHelper corrigeert ze niet en verzint geen transactiegeschiedenis. Onbekende waarden blijven ‘–’.</p>
+
+<h3>Missies en verkenning</h3>
+<p>‘Missies’ toont de opgeslagen open missies van de bekeken commander met status, missienaam, bestemming, afloop en beloning. De tabel is alleen voor inzage, zonder missiedetails of missieacties zoals op de hoofdpagina. ‘Verkenning’ toont onverkochte bio-/cartografiegegevens, biologische vondsten, eerste voetstappen, zelf en efficiënt gekarteerde hemellichamen en bezochte systemen. ‘Kroniek’ is hier een tijdelijke lege sectie; de volledige kroniek open je via het hoofdmenu.</p>
+
+<h3>Vloot en scheepsdetails</h3>
+<p>‘Schepen’ toont bovenaan het huidige of laatst gebruikte schip, daaronder de opgeslagen vloot van deze commander. Klik op de kop van een scheepskaart om details uit te klappen. Sorteer oplopend/aflopend op gebruik, naam, type, springbereik, laadcapaciteit, lege massa, locatie of tijd; filter alle schepen of schepen met voertuig-/jagerhangar. Groen markeert het live-schip; andere kleuren groeperen bekende locaties. Details omvatten identificatie, ShipID, locatie, tijdstippen, FSD/Guardian-booster, bereik, massa, laad-/brandstofcapaciteit en uitrustingsstatus (volledig, onvolledig of verouderd). Bekende modulegegevens voegen hangars, schilden en versterkingen, wapens en passagierscabines toe. Ontbrekende waarden blijven ‘–’.</p>
+
+<h3>Je eigen fleet carrier</h3>
+<p>‘Eigen Fleet Carrier’ toont naam, roepnaam, CarrierID, laatste locatie en laatste update van je opgeslagen eigen carrier. Dit zijn geen handelsaanbiedingen of mijnbouwvoorraden.</p>
+
+<h3>Persoonlijke scheeps- en carrierafbeeldingen</h3>
+<p>Gebruik ‘Scheepsafbeelding kiezen…’ in de uitgeklapte details of ‘Carrierafbeelding kiezen…’ bij de carrier. PNG, JPG/JPEG en WEBP worden ondersteund. CMDRHelper bewaart een eigen lokale kopie, gescheiden per commander en schip of carrier, ook na herstarten. Opnieuw kiezen vervangt deze kopie. ‘Eigen afbeelding verwijderen’ verwijdert de kopie en koppeling; het oorspronkelijke bestand blijft behouden. Zonder persoonlijke afbeelding verschijnt een beschikbare standaardafbeelding of een plaatsaanduiding. Zonder eenduidige carrieridentiteit is de afbeeldingskeuze uitgeschakeld. Schermafbeeldingen worden niet automatisch gekoppeld.</p>
+
+<h3>Afbeeldingsviewer</h3>
+<p>Dubbelklik op een beschikbare scheeps- of carrierafbeelding om de aparte viewer met het afbeeldingsbestand te openen, niet alleen de miniatuur. De afbeelding schaalt naar verhouding mee met het venster. Je kunt het venster vergroten of maximaliseren en sluiten met Esc of de sluitknop. Er is geen afbeeldingsnavigatie of zoombediening. Het hoofdonderdeel ‘Afbeeldingen’ beheert daarentegen schermafbeeldingen.</p>
+
+<h3>Een schip verwijderen</h3>
+<p>‘Schip verwijderen…’ vraagt uitdrukkelijke bevestiging; Annuleren is vooraf geselecteerd. De actie verwijdert de lokale scheepsgegevens, inclusief opgeslagen uitrusting en de persoonlijke afbeeldingskopie. Het huidige of laatst gebruikte schip en een herkend live-schip zijn beschermd; tijdens opnieuw inlezen is verwijderen geblokkeerd. Een lokale verwijdermarkering voorkomt dat oude journalgegevens het schip meteen terugbrengen. Een nieuwe eenduidige melding van dit schip als actief in het live-journal na verwijdering kan het herstellen. Bevestigd opnieuw inlezen kan de markering ook opheffen. De verwijderde persoonlijke afbeeldingskopie komt daarmee niet terug.</p>
+
+<h3>Alle schepen opnieuw inlezen</h3>
+<p>‘Alle schepen opnieuw inlezen…’ helpt vlootgegevens uit bestaande journals terug te halen of lokaal verwijderde schepen terug te vinden. Na bevestiging worden bekende bestanden en bestanden in de ingestelde journalmap opnieuw gelezen voor de bekeken commander, uitsluitend voor de vloot. Elite hoeft niet te draaien. Nieuwere opgeslagen gegevens en schepen die niet in de beschikbare journals staan blijven behouden; herkende verkopen worden verwerkt. Bij succes worden de handmatige verwijdermarkeringen van deze commander opgeheven. Bestaande persoonlijke afbeeldingen blijven behouden; verwijderde niet. Andere commanders blijven ongemoeid. Mislukt het lezen of verwerken, dan blijven de markeringen staan: controleer toegang tot de journals en probeer opnieuw.</p>
+
+<h3>Lokale gegevens en veiligheid</h3>
+<p>Opgeslagen informatie is ook offline en na een herstart zichtbaar; het is de laatst bekende stand. Afbeeldingen, verwijderen en opnieuw inlezen betreffen alleen CMDRHelper. Ze wijzigen geen schepen, carriers of credits in Elite Dangerous en herschrijven geen journals.</p>""",
+    ),
  'settings': ('Instellingen',
               '<h2>Instellingen</h2>\n<h3>CMDRHelper</h3>\n<p>Betere update-informatie: het Ja/Nee-venster toont geïnstalleerde en beschikbare versie plus maximaal zes wijzigingen als een samenvatting bestaat. Lange lijsten scrollen en acties blijven bereikbaar.</p>\n'
               '<p>Het gebied “Instellingen” bepaalt hoe CMDRHelper werkt met Elite Dangerous, '
@@ -1427,8 +1240,82 @@ HELP_TOPICS["overview"] = (HELP_TOPICS["overview"][0], HELP_TOPICS["overview"][1
 
 HELP_TOPICS["settings"] = (HELP_TOPICS["settings"][0], HELP_TOPICS["settings"][1] + '<h3>Diagnose en logboeken</h3><p>Via Instellingen → Diagnose en logboeken kun je het logbestand openen of een diagnosepakket maken. De logboeken staan in logs/ in de installatiemap (cmdrhelper.log en maximaal vier oudere bestanden). Het ZIP-bestand bevat opgeschoonde technische logboeken, system_info.json en diagnose_summary.txt; geen journals, database, FID-/commandantgegevens, inloggegevens, favorieten of afbeeldingen. Persoonlijke paden worden vervangen door aanduidingen. De inhoud van oude logs van vóór het privacyfilter wordt weggelaten. Kies waar je het ZIP-bestand opslaat en deel het zo nodig met support; het wordt nooit automatisch verzonden.</p>')
 
-HELP_TOPICS["trade"] = ('Handel', '<h2>Handel</h2><h3>Verkopen</h3><p>Zoek en selecteer een handelswaar, stel hoeveelheid en filters in en start de verkoopzoekopdracht. Het huidige systeem van de commandant is het uitgangspunt. Prijs / t is de verkoopprijs; de mogelijke opbrengst gebruikt de ingevoerde hoeveelheid bij voldoende vraag. Marktgegevens kunnen veranderen. De zoekopdracht is begrensd; verfijn de filters voor andere resultaten. Annuleren kan wachten op een lopend netwerkantwoord. Prijzen blijven alleen in het geheugen. Rare Goods en routeacties volgen later.</p><h3>Inkopen</h3><p>Kies een handelswaar en hoeveelheid, stel filters in en start de inkoopzoekopdracht handmatig. Prijs / t is de prijs die de commandant betaalt. Aanbod is de gemelde beschikbare hoeveelheid en moet de gevraagde hoeveelheid dekken. Totale kosten = prijs × gevraagde hoeveelheid. Marktgegevens uit de gemeenschap kunnen veranderen: let op hun ouderdom. Het aanbod kan bij aankomst kleiner zijn. Wisselen van tabblad annuleert een actieve zoekopdracht en behoudt de filters.</p>')
+HELP_TOPICS["trade"] = (
+    'Handel',
+    """<h2>Handel</h2>
+<h3>Handel in het kort</h3>
+<p>‘Verkopen’ vindt markten die jouw waar kopen. ‘Inkopen’ vindt een bepaalde waar om te kopen. ‘Aanbevelingen’ toont wat je op je huidige station kunt kopen en volgens jouw voorwaarden met winst kunt doorverkopen.</p>
 
-HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<h3>Aanbevelingen</h3><p>Aankopen gebruiken uitsluitend de huidige, zelf waargenomen Elite-markt van de actieve commandant, jonger dan 24 uur. Open de markt in Elite als gegevens ontbreken. Bestemmingen komen uit eigen waarnemingen en Spansh. Bij dezelfde MarketID wint de nieuwste geldige waarneming; bij gelijke tijd de lokale. Winst/t = verkoopprijs op bestemming − lokale koopprijs. Winst % = winst/t ÷ koopprijs × 100. De minimumwinst moet worden gehaald. Hoeveelheid = minimum van bevestigde vrije vrachtruimte, lokaal aanbod en vraag op bestemming. Totale winst = winst/t × hoeveelheid. Per handelswaar verschijnt de beste gecontroleerde bestemming op totale winst, met bron en gegevensouderdom. Onbekende afstand sluit lokale doelen uit; ontbrekende platform-, carrier- of aankomstgegevens voldoen niet aan bijbehorende beperkingen. De handmatige zoekopdracht controleert alleen lokaal aangeboden goederen na elkaar, met voortgang en annuleren. Gedeeltelijke resultaten en limieten worden aangegeven. Prijzen, aanbod en vraag kunnen veranderen.</p>')
+<h3>Marktgegevens en ouderdom</h3>
+<p>Verkopen en inkopen combineren automatisch geldige opgeslagen eigen marktwaarnemingen met gemeenschapsgegevens via Spansh. Aanbevelingen kopen uitsluitend op je huidige zelf waargenomen Elite-markt; bestemmingen komen normaal uit eigen waarnemingen en Spansh. Gemeenschapsresultaten blijven alleen tijdelijk in het geheugen.</p>
+<p>Alle marktgegevens zijn momentopnamen, ook eigen waarnemingen. Prijs, aanbod en vraag kunnen vóór aankomst veranderen. Let op de ouderdom: beschikbaarheid en winst zijn niet gegarandeerd.</p>
+<p>Als dezelfde markt bekend is uit een eigen waarneming en uit de gemeenschap, gebruikt CMDRHelper de nieuwere geldige momentopname.</p>
 
-HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>“Alleen mijn eigen marktgegevens” controleert alleen markten die je minder dan 24 uur geleden zelf hebt waargenomen. Ook de gekozen maximale ouderdom van doelgegevens, de straal en overige filters blijven gelden. Er zijn geen communityaanvragen, dus de lokale zoekopdracht is zeer snel. Prijzen, aanbod en vraag kunnen sinds de waarneming toch zijn veranderd.</p>')
+<h3>Een waar kiezen</h3>
+<p>Klik op ‘Handelswaar’, zoek op weergegeven naam, Engelse naam of symbool en kies de waar. Duitse namen komen uit de onderhouden Duitse warencatalogus. Ontbreekt een beschikbare vertaling, dan verschijnt de Engelse catalogusnaam of een leesbare benaming.</p>
+
+<h3>Verkopen</h3>
+<p>De zoekopdracht gebruikt zowel geldige eigen marktwaarnemingen als gemeenschapsgegevens. Kies waar, ‘Hoeveelheid (t)’ en filters, vervolgens ‘Beste verkoop zoeken’. Er worden aankoopaanbiedingen gezocht met genoeg vraag voor de ingevoerde hoeveelheid. ‘Prijs / t’ is de prijs die je bij verkoop ontvangt. ‘Mogelijke opbrengst’ = prijs × ingevoerde hoeveelheid. Het vertrekpunt is het huidige systeem van je commander. Standaard staat de hoogste verkoopprijs bovenaan.</p>
+
+<h3>Inkopen</h3>
+<p>De zoekopdracht gebruikt zowel geldige eigen marktwaarnemingen als gemeenschapsgegevens. Kies waar, gewenste hoeveelheid en filters, vervolgens ‘Goedkoopste aankoop zoeken’. Het gemelde ‘Aanbod’ moet de hele hoeveelheid dekken. ‘Prijs / t’ is jouw inkoopprijs; ‘Totale kosten’ = prijs × gewenste hoeveelheid. Het vertrekpunt is je huidige systeem. Standaard staat de laagste inkoopprijs bovenaan. Dit is een gerichte zoekopdracht naar een waar, geen winstadvies.</p>
+
+<h3>Filters en resultaattabellen</h3>
+<ul>
+<li><b>Straal (ly):</b> maximale afstand van het vertrekstelsel tot het doelstelsel.</li>
+<li><b>Maximale ouderdom marktgegevens / Ouderdom doelgegevens:</b> maximaal toegestane ouderdom van de marktgegevens; bij aanbevelingen geldt dit voor het doel.</li>
+<li><b>Platformgrootte:</b> minimaal vereiste landingsplatformgrootte, geen exacte stationsgrootte. ‘Middelgroot’ staat ook grote platforms toe; ‘Alle’ beperkt niet.</li>
+<li><b>Fleet Carriers opnemen:</b> carriers toestaan of uitsluiten.</li>
+<li><b>Max. aanvliegafstand (Ls):</b> maximale afstand van de aankomstster tot het station. Leeg betekent geen beperking. Een doel zonder bekende aanvliegafstand voldoet niet aan dit filter.</li>
+</ul>
+<p>Voor eigen en gemeenschapsresultaten gelden dezelfde filters voor gegevensouderdom, straal, landingsplatform, carriers en aankomstafstand. Ontbrekende gegevens worden niet geschat. Doelen zonder bekende systeemafstand of zonder bewijs dat ze aan een ingestelde beperking voldoen, vallen af. Bij eigen markten betreft dit vooral ontbrekende platform- en aanvlieggegevens; als carriers zijn uitgesloten, moet bekend zijn dat het doel geen carrier is.</p>
+<p>Klik op kolomkoppen om te sorteren: getallen op numerieke waarde, gegevensouderdom op werkelijke ouderdom en platforms op grootteklasse. Verkopen en inkopen tonen maximaal 100 resultaten. ‘Er zijn meer resultaten. Verfijn de filters.’ wijst op een begrensde zoekopdracht. Beschikbare eigen en gemeenschapsresultaten worden samen op prijs gesorteerd voordat de lijst wordt begrensd. Door de zoekgrenzen van de gemeenschapsdienst zijn dit niet gegarandeerd de beste aanbiedingen in het algemeen.</p>
+<p>Als de gemeenschapszoekopdracht bij verkopen of inkopen mislukt, blijven passende eigen resultaten bruikbaar. CMDRHelper markeert de zoekopdracht dan als onvolledig: betere gemeenschapsaanbiedingen kunnen ontbreken.</p>
+
+<h3>Eigen marktgegevens</h3>
+<p>Open na het aanmeren de warenmarkt in Elite. Terwijl CMDRHelper draait, neemt het de markt automatisch over als de koppeling aan het huidige station zeker is. Handmatig importeren is niet nodig. Opnieuw openen werkt de momentopname bij.</p>
+<p>Per markt en commander blijft één actuele opname bewaard, jonger dan 24 uur. Oudere opnamen verdwijnen automatisch; er is geen blijvende prijsgeschiedenis. Geldige eigen waarnemingen blijven na een Helper-herstart behouden. ‘Eigen marktgegevens: X stations’ telt de geldige eigen stationsmarkten van de actieve commander. De gekozen maximale ouderdom van marktgegevens geldt ook voor eigen resultaten.</p>
+<ul>
+<li><b>✓ Ingelezen:</b> Bij aanbevelingen is een geldige eigen momentopname van het huidige station beschikbaar.</li>
+<li><b>Open goederenmarkt:</b> Voor dit station ontbreekt een bruikbare eigen momentopname.</li>
+<li><b>Marktgegevens verouderd:</b> Een eerder getoonde opname is niet meer geldig. Open de markt opnieuw.</li>
+</ul>
+<p>Als een oude opname al vóór het openen van de weergave is verwijderd, verschijnt eveneens ‘Open goederenmarkt’. Tijdens de vlucht wordt geen positieve status voor het vorige station getoond.</p>
+
+<h3>Aanbevelingen</h3>
+<p>Je hebt een huidig station, een geldige eigen opname daarvan en een bekend huidig schip met betrouwbaar bekende vrije laadruimte nodig. Bezette ruimte wordt afgetrokken. Bij onbekende of volle laadruimte kan geen nieuwe zoekopdracht starten; hoeveelheden worden niet verzonnen. Na vertrek wordt niet opnieuw gerekend vanuit je vorige verblijfplaats.</p>
+<p>Stel ‘Minimale winst’ in: 10 % laat alleen mogelijkheden met minstens 10 % marge toe. Er wordt gezocht voor lokaal aangeboden waren. Het inkoopstation zelf is geen doel. Voor hetzelfde doelstation (dezelfde MarketID) geldt de nieuwste geldige opname. Per waar verschijnt het gecontroleerde doel met de hoogste ‘Mogelijke winst’ binnen je filters, niet noodzakelijk het beste in de hele melkweg. De tabel begint met de hoogste mogelijke winst; ‘Bron’ toont ‘Elite lokaal’ of ‘Spansh’, en ‘Ouderdom doelgegevens’ de ouderdom van de doelmarkt.</p>
+
+<h3>Alleen mijn eigen marktgegevens</h3>
+<p>Dit selectievakje is alleen beschikbaar onder Aanbevelingen. Verkopen en inkopen gebruiken automatisch beide bronnen. Dit vakje beperkt aanbevelingen tot geldige doelmarkten die je zelf hebt waargenomen. Er is geen gemeenschapsaanvraag; Spansh is hiervoor niet nodig. Straal, aanvullende ouderdomsgrens voor het doel, minimale winst, platform-, carrier- en aanvliegfilters blijven gelden en moeten met beschikbare gegevens toetsbaar zijn. Bewust de gemeenschapszoekopdracht overslaan is geen fout en maakt de zoekopdracht niet onvolledig. Zo zoek je snel tussen eerder bezochte stations.</p>
+
+<h3>Mogelijke winst en hoeveelheid</h3>
+<ul>
+<li><b>Winst / t:</b> verkoopprijs op het doel − inkoopprijs hier. ‘Winst %’ = winst per ton ÷ inkoopprijs × 100.</li>
+<li><b>Hoeveelheid (t):</b> de kleinste hoeveelheid van vrije laadruimte, aanbod op de inkoopmarkt en vraag op het doel.</li>
+<li><b>Mogelijke winst:</b> winst per ton × mogelijke hoeveelheid; een schatting op basis van bekende momentopnamen.</li>
+</ul>
+<p>Voorbeeld: 280 t vrij, 150 t aanbod, 20.000 t vraag → 150 t mogelijke hoeveelheid. Niet elke waar vult automatisch alle vrije laadruimte.</p>
+
+<h3>Onthouden handelsvlucht</h3>
+<p>Vink precies één aanbeveling aan om die te onthouden. Een andere keuze vervangt haar. Het afzonderlijke notitievak toont waar, doelstation, doelsysteem en ‘Mogelijke winst’ op het moment van kiezen. Het is een geheugensteun, geen doorlopend herberekende aanbeveling.</p>
+<p>De notitie blijft bij aankoop, vrachtwijziging, vertrek, systeemwissel, aanmeren en openen van de markt bestaan. Ze verdwijnt via ‘Verwijderen’ of uitvinken, zodra een nieuwe aanbevelingszoekopdracht echt start, bij commanderwissel en bij afsluiten van Helper. Ze wordt niet over een herstart bewaard.</p>
+<p>‘Systeem kopiëren’ kopieert uitsluitend de naam van het doelsysteem naar het klembord. Het doelstation blijft in de notitie zichtbaar; er wordt geen route gemaakt.</p>
+
+<h3>Zoeken, voortgang en afbreken</h3>
+<p>Start zoekopdrachten handmatig. Aanbevelingen controleren meerdere waren en kunnen langer duren. Zodra de omvang bekend is, tonen de voortgangsbalk en ‘Handelswaren controleren: x van y …’ de werkelijk gecontroleerde waren. ‘Annuleren’ is alleen beschikbaar tijdens een afbreekbare zoekopdracht; een lopend netwerkantwoord kan het afbreken vertragen. Wisselen van tab breekt de zoekopdracht af; de gedeelde verkoop-/inkoopfilters blijven behouden.</p>
+<p>Bij mislukte afzonderlijke gemeenschapsaanvragen of zoeklimieten kunnen geldige gecontroleerde aanbevelingen zichtbaar blijven. Een onvolledige zoekopdracht betekent dat de resultaten gelden voor de gecontroleerde gegevens, maar niet alle waren of doelen volledig zijn onderzocht. Lees de melding, beperk de filters bij zoeklimieten of probeer het later opnieuw. Handmatig afbreken wist de huidige resultatenlijst.</p>
+
+<h3>Diagnose bij problemen</h3>
+<p>‘Diagnose kopiëren’ kopieert technische informatie van de laatst beëindigde aanbevelingszoekopdracht voor probleemonderzoek. De tekst bevat geen commander-/FID-gegevens of marktprijzen. De diagnose blijft in het geheugen; er wordt geen blijvend diagnosebestand gemaakt en niets automatisch verstuurd. Deel de gekopieerde tekst zo nodig zelf met ondersteuning.</p>
+
+<h3>Een handelsvlucht uitvoeren</h3>
+<ol>
+<li>Meer aan bij een station en open de warenmarkt in Elite.</li>
+<li>Open ‘Handel’ → ‘Aanbevelingen’ en controleer ‘Ingelezen’.</li>
+<li>Stel minimale winst en filters in en kies ‘Aanbevelingen zoeken’.</li>
+<li>Vink de gewenste aanbeveling aan en koop de waar in Elite.</li>
+<li>Gebruik zo nodig ‘Systeem kopiëren’ en vlieg naar het doel; het station blijft in de notitie zichtbaar.</li>
+<li>Verkoop in Elite. Open daar de markt om ook je eigen gegevens van de nieuwe markt bij te werken.</li>
+</ol>""",
+)

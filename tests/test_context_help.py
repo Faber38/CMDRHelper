@@ -243,31 +243,43 @@ class ContextHelpTests(unittest.TestCase):
 
     def test_missions_help_contains_all_detailed_sections(self):
         topic = help_topic("missions")
-        self.assertEqual(topic.area, "Missionen")
+        self.assertEqual(topic.area, "Missionen & Belohnungen")
         for heading in (
-            "Missionen", "Offene Missionen", "Missionsstatus",
-            "Missionen aus dem Journal", "Ziele und Orte",
-            "Persistenz und Neustart", "Mehrere Commander",
-            "Verwaiste oder nicht mehr gültige Missionen",
-            "Online-Dienste", "Tipp",
+            "Missionen &amp; Belohnungen", "So verwendest du die Seite",
+            "Liste und Details", "Missionsstatus", "Gesamtbelohnung",
+            "Encounter-Aufträge", "Kopfgelder", "Kampfbelohnungen",
+            "Lokal zurücksetzen", "Aktualisierung und Neustart",
         ):
             self.assertIn(heading, topic.text)
         for passage in (
-            "aktuell betrachteten Commanders",
-            "<code>MissionAccepted</code>",
-            "Eine neue Spielsitzung ohne Missionsliste",
-            "Missionsziel umgeleitet",
-            "autoritativer Snapshot",
-            "Zielplanet beziehungsweise Body",
-            "die neue Journalsitzung zunächst keine Missionsereignisse enthält",
-            "Missionen werden strikt nach Commander getrennt",
-            "Reset-/Bereinigungsfunktion für verwaiste Missionen",
-            "Inara-Verbindung beeinflusst die lokale Missionsspeicherung nicht",
-            "die das Journal tatsächlich liefert",
+            "aktuell aktiven Journal-Commanders",
+            "in der separaten CMDR Ansicht ändert diese Hauptseite nicht",
+            "Journal aktualisieren", "Nächster Schritt", "MISSIONSDETAILS",
+            "Unterwegs", "Im Zielsystem", "Am Missionsziel", "Ziel geändert",
+            "Ware aufgenommen", "Lieferung läuft", "Aufgabe erledigt",
+            "Daten erhalten", "Dies bestätigt noch keine Auszahlung",
+            "Credit-Belohnungen der bestätigten offenen Missionen",
+            "Vorläufige Encounter-Angebote, Kopfgelder und Kampfbelohnungen zählen nicht dazu",
+            "noch keine endgültige MissionID", "Bei Mehrdeutigkeit bleibt es vorläufig",
+            "nach 24 Stunden lokal ausgeblendet", "Gesamtbetrag und Fraktionsbeträgen",
+            "Erfassung ab jetzt", "Erfassungslücken", "Beobachteter Betrag",
+            "andere Fraktionen bleiben erhalten", "Einlösung erkannt – Bestand prüfen",
+            "Zurücksetzen…", "nach Bestätigung", "nur dessen lokalen Stand",
+            "Dies verändert keine Werte in Elite Dangerous",
+            "Missionen werden dabei weder bereinigt noch abgeschlossen",
+            "Eine neue Journalsitzung ohne Missionsliste",
+            "Die lokale Missionsanzeige benötigt keine Inara-Verbindung",
         ):
             self.assertIn(passage, topic.text)
+        for obsolete in (
+            "<h2>Missionen</h2>", "aktuell betrachteten Commanders",
+            "Reset-/Bereinigungsfunktion", "Missionen zurücksetzen",
+            "Verwaiste oder nicht mehr gültige Missionen",
+        ):
+            self.assertNotIn(obsolete, topic.text)
         self.assertEqual(topic.text.count("<h3>"), 9)
-        self.assertEqual(topic.text.count("<ul>"), 3)
+        self.assertEqual(topic.text.count("<ol>"), 1)
+        self.assertEqual(topic.text.count("<ul>"), 1)
 
     def test_explorer_help_contains_all_detailed_sections(self):
         topic = help_topic("explorer")
@@ -394,45 +406,58 @@ class ContextHelpTests(unittest.TestCase):
         self.assertEqual(topic.text.count("<ul>"), 1)
 
     def test_commander_view_help_contains_all_implemented_sections(self):
-        topic = help_topic("commander_view")
+        from html import escape
+        from importlib import import_module
+        import re
+        from cmdrhelper.help_content import HELP_LANGUAGES
+
+        topic = help_topic("commander_view", "de")
         self.assertEqual(topic.area, "CMDR Ansicht")
-        for heading in (
-            "CMDR Ansicht", "Commander auswählen",
-            "Betrachteter Commander und Live-Commander", "Frontier-ID (FID)",
-            "Übersicht", "Vermögen / Credits", "Söldnermünzen",
-            "Aktuell und Ausgaben", "Insgesamt verdient",
-            "Warum keine eigene MercCoins-Bilanz?", "Missionen", "Exploration",
-            "Schiffe / Flotte", "Schiffsdetails", "Fleet Carrier",
-            "Persistenter Commanderzustand", "Historische Rekonstruktion",
-            "Mehrere Commander", "Auswirkungen auf andere Ansichten",
-            "Inara und EDSM", "Tipp",
-        ):
-            self.assertIn(heading, topic.text)
         for passage in (
-            "entweder als „Live aktiv“ oder als „Nur Ansicht“",
-            "macht ihn nicht zum aktiven Journal-Commander",
-            "letzter bekannter Standort und Anzahl offener Missionen",
-            "formatiert beispielsweise als <b>1.234.567 Cr</b>",
-            "Statistics → Bank_Account",
-            "MercCoins_Current",
-            "MercCoins_Total_Spent",
-            "MercCoins_Spent_On_Engineering",
-            "MercCoins_Spent_On_MercGear",
-            "MercCoins_Total_Earned",
-            "korrigiert diese Werte nicht",
+            "nicht zum aktiven Journal-Commander",
+            "tatsächlich aktiven Commander",
+            "zuletzt gespeicherte Creditstand",
+            "CMDRHelper korrigiert sie nicht",
+            "gespeicherte offene Missionen des betrachteten Commanders",
             "Status, Missionsbezeichnung, Ziel, Ablaufzeit und Belohnung",
-            "First Footfalls",
-            "Tab „Chronik“ innerhalb der CMDR Ansicht ist derzeit noch ein Platzhalter",
-            "Schiffskennung, ShipID, Standort",
-            "Carriername, Callsign, CarrierID",
-            "normalen Journal-Lesepositionen nicht",
-            "persönliche Mining-Rohstoffauswahl der Chronik",
-            "Für Live-Uploads ist ausschließlich die aktive Journal-FID maßgeblich",
-            "CMDR Ansicht = Wen möchte ich betrachten?",
+            "hier gibt es keine Missionsdetails oder Missionsaktionen",
+            "First Footfalls", "Platzhalter", "Fahrzeug-/Fighter-Hangar",
+            "vollständig, unvollständig oder veraltet",
+            "CarrierID", "eigene lokale Kopie", "ursprüngliche Bilddatei bleibt erhalten",
+            "Screenshots werden nicht automatisch zugeordnet",
+            "Doppelklick", "Esc", "keine Bildnavigation oder Zoomsteuerung",
+            "ausdrückliche Bestätigung", "Abbrechen ist vorausgewählt",
+            "einschließlich gespeicherter Ausrüstungsdaten und persönlicher Bildkopie",
+            "sind geschützt", "Löschmarkierung", "nach der Löschung",
+            "Elite muss dafür nicht laufen", "bleiben erhalten",
+            "erkannte Verkäufe werden berücksichtigt",
+            "Andere Commander bleiben unberührt",
+            "keine Schiffe, Carrier oder Credits in Elite Dangerous",
+            "schreiben keine Journale um",
         ):
             self.assertIn(passage, topic.text)
-        self.assertEqual(topic.text.count("<h3>"), 20)
-        self.assertEqual(topic.text.count("<ul>"), 4)
+        self.assertNotIn("MercCoins_Current", topic.text)
+        master_tags = re.findall(r"</?[a-z0-9]+>", topic.text)
+        self.assertEqual(topic.text.count("<h3>"), 10)
+        for language in HELP_LANGUAGES:
+            with self.subTest(language=language):
+                localized = help_topic("commander_view", language)
+                translations = import_module(f"cmdrhelper.i18n.{language}").TRANSLATIONS
+                self.assertEqual(re.findall(r"</?[a-z0-9]+>", localized.text), master_tags)
+                for key in (
+                    "commander_view.status.live", "commander_view.status.view_only",
+                    "commander_view.tab.missions", "missions.title",
+                    "commander_view.mercenary.current", "commander_view.mercenary.total_earned",
+                    "commander_view.ship.image.select", "commander_view.carrier.image.select",
+                    "commander_view.ship.image.remove", "commander_view.ship.delete.button",
+                    "commander_view.fleet.rebuild.button", "nav.images",
+                ):
+                    self.assertIn(escape(translations[key]), localized.text)
+                self.assertNotIn("[[", localized.text)
+                self.assertNotRegex(localized.text, r"\{[^}]+\}")
+                if language != "en":
+                    for paragraph in re.findall(r"<p>(.*?)</p>", help_topic("commander_view", "en").text):
+                        self.assertNotIn(paragraph, localized.text)
 
     def test_chronicle_help_contains_all_detailed_sections(self):
         topic = help_topic("chronicle")

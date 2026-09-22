@@ -99,6 +99,8 @@ class MarketSearchResult:
     truncated: bool = False
     from_cache: bool = False
     diagnostics: ProviderDiagnostics | None = field(default=None, compare=False)
+    # Usable local results despite a failed community search; unrelated to limits.
+    community_failure: MarketStatus | None = None
 
 
 class MarketDataProvider(Protocol):

@@ -108,86 +108,57 @@ HELP_TOPICS = {
               'yläreunassa oleva päiväkirjanäyttö ja sitten "Asetukset" -kohdassa asetettu '
               'päiväkirjakansio.</p>'
               '<p>Avoin näkyy punaisena, Solo kullanvärisenä ja Yksityinen ryhmä vihreänä yhdessä ilmoitetun ryhmänimen kanssa. Tila muodostetaan saatavilla olevista journaleista ja päivitetään uusista LoadGame-merkinnöistä.</p>\n<p>Yksi napsautus viimeisimpien järjestelmien rivillä kopioi järjestelmän nimen leikepöydälle. ”✓ Kopioitu: &lt;Järjestelmä&gt;” näkyy hetken.</p>\n'),
- 'missions': ('Tehtävät',
-              '<h2>Tehtävät</h2>\n'
-              '<p>Tehtävänäkymä näyttää Elite Dangerous Journalista tunnetun tällä hetkellä '
-              'tarkasteltavan komentajan tehtävät. CMDRHelper tallentaa tehtävätiedot '
-              'komentokohtaisesti, jotta avoimet tehtävät säilyvät myös Elite Dangerous:n tai '
-              'CMDRHelper:n uudelleenkäynnistyksen jälkeen.</p>\n'
-              '\n'
-              '<h3>Avoimet tehtävät</h3>\n'
-              '<p>Uusia tehtäviä on tulossa<code>MissionAccepted</code>otettu haltuun ja '
-              'tallennettu pysyvästi.</p>\n'
-              '<p>Niin kauan kuin viimeistä tehtävätapahtumaa ei ole, tehtävä pysyy avoinna. Uusi '
-              'peliistunto ilman tehtäväluetteloa ei välttämättä poista automaattisesti tunnettuja '
-              'avoimia tehtäviä.</p>\n'
-              '\n'
-              '<h3>Tehtävän tila</h3>\n'
-              '<p>CMDRHelper käsittelee muun muassa seuraavat tilamuutokset:</p>\n'
-              '<ul>\n'
-              '<li>Tehtävä hyväksytty</li>\n'
-              '<li>Tehtävä suoritettu</li>\n'
-              '<li>Tehtävä epäonnistui</li>\n'
-              '<li>Tehtävä keskeytetty</li>\n'
-              '<li>Tehtävän tavoite on muutettu</li>\n'
-              '<li>Edistyminen tuetuissa lasti-/varastotehtävissä</li>\n'
-              '</ul>\n'
-              '<p>Viimeinen tapahtuma muuttaa vain siihen liittyvää tehtävää.</p>\n'
-              '\n'
-              '<h3>Tehtävät lehdestä</h3>\n'
-              '<p>Elite Dangerous tarjoaa tietoa erilaisista päivälehtien tapahtumista. CMDRHelper '
-              'yhdistää nämä tapahtumat jatkuvaan tehtävätilaan.</p>\n'
-              '<p>Todellinen täyden tehtävän tapahtuma voi toimia arvovaltaisena tilannekuvana. '
-              'Jos tällainen tapahtuma puuttuu, vanhempia avoimia tehtäviä ei suljeta pelkästään '
-              'tästä syystä.</p>\n'
-              '\n'
-              '<h3>Kohteet ja paikat</h3>\n'
-              '<p>Siltä osin kuin Elite tarjoaa tiedot lehdessä, CMDRHelper näyttää:</p>\n'
-              '<ul>\n'
-              '<li>Kohdejärjestelmä</li>\n'
-              '<li>Kohdeasema tai määränpää</li>\n'
-              '<li>Kohdeplaneetta tai -keho</li>\n'
-              '<li>Tehtävän nimitys</li>\n'
-              '<li>tiedossa oleva edistys</li>\n'
-              '<li>nykyinen tila</li>\n'
-              '</ul>\n'
-              '<p>Kaikki tehtävät eivät tarjoa kaikkea tietoa. Puuttuvat tiedot eivät ole '
-              'CMDRHelper:n keksimiä.</p>\n'
-              '\n'
-              '<h3>Pysyvyys ja uudelleenkäynnistys</h3>\n'
-              '<p>Avoimet tehtävät tallennetaan komentajaan liittyvään tietokantaan.</p>\n'
-              '<p>Tämä tarkoittaa, että ne säilytetään, vaikka:</p>\n'
-              '<ul>\n'
-              '<li>Elite Dangerous lopetetaan ja käynnistetään uudelleen myöhemmin</li>\n'
-              '<li>CMDRHelper on suljettu välissä</li>\n'
-              '<li>Uusi päiväkirjaistunto ei aluksi sisällä yhtään lähetystapahtumaa</li>\n'
-              '</ul>\n'
-              '<p>Vain dokumentoitu tehtävätapahtuma muuttaa tallennettua tilaa.</p>\n'
-              '\n'
-              '<h3>Useita komentajia</h3>\n'
-              '<p>Komentaja erottaa tehtävät tiukasti.</p>\n'
-              '<p>Tehtävätapahtuma osoitetaan vain komentajalle, jonka päiväkirja-istunto on '
-              'yksilöllisesti tunnistettu. Toisen komentajan tehtäviä ei saa näyttää tai '
-              'muokata.</p>\n'
-              '\n'
-              '<h3>Orvot tai ei enää voimassa olevat tehtävät</h3>\n'
-              '<p>Jos vanhemmat päiväkirjatiedot tai aiempi tuonti pitää tehtävän auki, vaikka '
-              'sitä ei enää olisi pelissä, olemassa olevaa orpotehtävän '
-              'nollaus-/puhdistusominaisuutta voidaan käyttää.</p>\n'
-              '<p>Tätä toimintoa tulee käyttää vain, jos on selvää, että näytettävä tehtävä ei ole '
-              'enää aktiivinen.</p>\n'
-              '\n'
-              '<h3>Online-palvelut</h3>\n'
-              '<p>Tuetut tehtävätapahtumat voidaan lisäksi lähettää Inara:lle, jos aktiiviselle '
-              'päiväkirjalle FID on määritetty kelvollinen ja aktivoitu Inara-käyttöoikeus.</p>\n'
-              '<p>Puuttuva tai tavoittamaton Inara-yhteys ei vaikuta paikallisen tehtävän '
-              'tallennustilaan.</p>\n'
-              '\n'
-              '<h3>Kärki</h3>\n'
-              '<p>Jos tehtävä ei tule näkyviin tai sen tila on virheellinen, tarkista ensin, onko '
-              'Elite Dangerous jo kirjoittanut vastaavan tehtävätapahtuman päiväkirjaan.</p>\n'
-              '<p>CMDRHelper voi näyttää vain tiedot, jotka päiväkirja todella tarjoaa tai jotka '
-              'on jo tallennettu aikaisemmista ainutlaatuisista tehtävätapahtumista.</p>'),
+ 'missions': (
+        'Tehtävät ja palkkiot',
+        """<h2>Tehtävät ja palkkiot</h2>
+<p>Tämä pääsivu näyttää lokin nykyisen aktiivisen komentajan tehtävät ja havaitut palkkiot. Toisen komentajan valitseminen erillisessä CMDR-näkymässä ei muuta tätä sivua. Tiedot pidetään erillään komentajittain.</p>
+
+<h3>Sivun käyttäminen</h3>
+<ol>
+<li>Avaa ”Tehtävät ja palkkiot” ja valitse tehtävä luettelosta.</li>
+<li>Tarkista ”Tila” ja ”TEHTÄVÄN TIEDOT”. ”Seuraava vaihe” auttaa etenemään.</li>
+<li>Lue tarvittaessa saatavilla olevat lokitiedot uudelleen painamalla ”Päivitä loki”.</li>
+<li>Tarkastele tehtäväpalkkioita sekä osioita ”Tappopalkkiot” ja ”Taistelupalkkiot” erikseen.</li>
+</ol>
+
+<h3>Luettelo ja tiedot</h3>
+<p>Luettelo sisältää vahvistetut avoimet tehtävät ja kohtaamisista tunnistetut alustavat tarjoukset. Siinä näkyvät tehtävä, järjestelmä, planeetta / paikka, tila, seuraava vaihe, palkkio ja määräaika. Valinta näyttää saatavilla olevat kohde- ja edistymistiedot. Lokista puuttuvat tiedot jäävät tuntemattomiksi; alustavien tarjousten määräaika on tuntematon.</p>
+
+<h3>Tehtävän tila</h3>
+<p>Tila perustuu saatavilla oleviin tehtävä-, sijainti- ja edistymistietoihin. Kaikki tehtävätyypit eivät anna tietoja kaikista välivaiheista.</p>
+<ul>
+<li><b>Tehtävä hyväksytty / Matkalla:</b> Tehtävä tunnetaan, mutta saapumista kohteeseen ei ole vielä tunnistettu.</li>
+<li><b>Kohdejärjestelmässä:</b> Olet kohdejärjestelmässä, mutta et vielä tunnistetussa tehtäväkohteessa.</li>
+<li><b>Tehtävän kohteessa:</b> Kohteena oleva asema tai taivaankappale on saavutettu.</li>
+<li><b>Kohde muuttui:</b> Tehtävälle on ilmoitettu uusi kohde.</li>
+<li><b>Rahti noudettu:</b> Tehtävärahdin noutaminen on tunnistettu.</li>
+<li><b>Toimitus käynnissä:</b> Toimitus on kirjattu; tunnettu määrällinen edistyminen näytetään.</li>
+<li><b>Tehtävä suoritettu / Tiedot vastaanotettu:</b> Tehtävän suoritus tai tietojen keruu on valmis. Tehtävä voi silti olla avoin, esimerkiksi ohjeella ”Palaa tehtäväterminaalille”. Tämä ei vielä vahvista maksua.</li>
+</ul>
+<p>Tunnistettu valmistuminen, epäonnistuminen tai hylkääminen poistaa kyseisen tehtävän avoimesta luettelosta. Uusi täydellinen tehtävätilanne voi osoittaa, etteivät vanhemmat merkinnät ole enää aktiivisia.</p>
+
+<h3>Kokonaispalkkio</h3>
+<p>”Kokonaispalkkio” laskee yhteen vahvistettujen avoimien tehtävien tunnetut krediittipalkkiot. Se ei ole jo maksettu saldo. Kohtaamisten alustavat tarjoukset, pääpalkkiot ja taistelupalkkiot eivät sisälly siihen.</p>
+
+<h3>Kohtaamistehtävät</h3>
+<p>Tuetut avaruuskohtaamiset voivat näkyä alustavina ”Kohtaamistehtävä”-tarjouksina, vaikka lopullista MissionID-tunnistetta ei vielä olisi. ”Tarjottu palkkio” ei siis vielä ole vahvistetun avoimen tehtävän palkkio eikä sisälly kokonaispalkkioon.</p>
+<p>Jos myöhemmät lokitiedot yhdistävät tarjouksen yksiselitteisesti tehtävään, merkinnät yhdistetään. Epäselvä tarjous pysyy alustavana. Vahvistamattomat tarjoukset piilotetaan paikallisesti 24 tunnin jälkeen; tämä ei kerro tehtävän määräajasta pelissä.</p>
+
+<h3>Tappopalkkiot</h3>
+<p>Tässä näkyvät paikallisesti havaitut pääpalkkiot yhteissummana ja ryhmittymittäin. Näyttö tuntee vain kirjatut tiedot, ei varmasti täydellistä pelisaldoa. ”Kirjaus alkaa tästä hetkestä.” kertoo kirjaamisen alusta; puutteista ilmoittaa ”Synkronointi ei ole täydellinen: tapahtumia voi puuttua.”.</p>
+<p>Tunnistettu pääpalkkioiden lunastus tai kuolema nollaa koko paikallisen pääpalkkiosaldon. Tämä ei riipu tehtävien tilasta.</p>
+
+<h3>Taistelupalkkiot</h3>
+<p>Tässä näkyvät ryhmittymittäin havaitut taistelupalkkiot, joiden lunastusta ei ole tunnistettu. Mahdollinen saldo ennen kirjaamisen alkua puuttuu. Epävarmassa tilanteessa näkyvät ”Havaittu summa” ja ”Saldoa ei ole täysin vahvistettu.”.</p>
+<p>Yksiselitteisesti kohdistettu lunastus poistaa nimetyn ryhmittymän havaitun summan; muiden ryhmittymien summat säilyvät. Jos kohdistus on epäselvä, summat säilyvät ja näkyviin tulee ”Lunastus havaittu – tarkista saldo.”. Tunnistettu kuolema poistaa havaitut taistelupalkkiot.</p>
+
+<h3>Paikallinen nollaus</h3>
+<p>”Nollaa…” nollaa vahvistuksen jälkeen vain kyseisen palkkio-osion paikallisen saldon aktiiviselta komentajalta. <b>Se ei muuta mitään arvoja Elite Dangerousissa.</b> Pääpalkkiot ja taistelupalkkiot nollataan erikseen; tehtäviä ei siivota eikä merkitä suoritetuiksi.</p>
+
+<h3>Päivitys ja uudelleenkäynnistys</h3>
+<p>Tunnetut avoimet tehtävät ja paikalliset palkkiosaldot säilyvät Helperin uudelleenkäynnistyksessä. Uusi loki-istunto ilman tehtäväluetteloa ei poista avoimia tehtäviä automaattisesti. Kirjaamisen aukot voivat jättää etenkin palkkiosaldot puutteellisiksi. ”Päivitä loki” voi vain lukea olemassa olevia tietoja, ei luoda puuttuvia pelitietoja.</p>
+<p>Paikallinen tehtävänäkymä ei tarvitse Inara-yhteyttä. Jos aktiiviselle komentajalle määritetty yhteys on käytössä, myös tuetut tehtävätapahtumat voidaan lähettää.</p>""",
+    ),
  'explorer': ('Tutkimusmatkailija',
               '<h2>Tutkimusmatkailija</h2>\n<h3>CMDRHelper</h3>\n<p>Järjestelmän yleiskuva: uusi Elite-tyylinen näkymä korvaa pienoisyleiskuvan Explorerissa ja Kronikassa. Tähdet ja planeetat muodostavat päärakenteen, kuut haarautuvat alapuolelle; monitähtijärjestelmät pysyvät selkeinä. Zoomaus, vieritys, ikkunaan sovitus ja taivaankappaleen napsautus avaavat yksityiskohtia.</p>\n<p>Tiiviit asteroidivyöhykkeet: ryhmät yhdistetään vyöhykkeiksi yleiskuvassa sekä Explorerin ja Kronikan tavallisissa järjestelmäkartoissa. Kaikki yksittäisten ryhmien tiedot säilytetään.</p>\n<p>Kartografia korjattu: DSS-kartoituksen jälkeinen skannaus ei enää nollaa myymättömiä tutkimusarvoja, kartoitusaikaa tai tehokkuutta. Virheelliset kirjaukset korjataan käynnistyksessä saatavilla olevista yksiselitteisesti komentajaan liitetyistä lokeista. Ilman lähteitä korjaus jää odottamaan; tietokantaa ei tarvitse poistaa.</p>\n'
               '<p>Explorer arvioi aktiivisen komentajan löytämät ja skannaamat järjestelmät ja '
@@ -890,188 +861,39 @@ HELP_TOPICS = {
             'vanhempien kuvien välillä.</p>\n'
             '<p>Suurempi kirkkaus voi auttaa tummissa kuvissa; se vaikuttaa juuri luotuun '
             'kohdekuvaan muunnoksen aikana.</p>'),
- 'commander_view': ('CMDR-näkymä',
-                    '<h2>CMDR-näkymä</h2>\n'
-                    '<p>CMDR-näkymässä on yhteenveto komentajan pysyvästi tallennetuista '
-                    'henkilötiedoista.</p>\n'
-                    '<p>Sen avulla voit myös vaihtaa CMDRHelper tunnettujen komentojen välillä ja '
-                    'tarkastella omia tietojaan. Henkilötiedot erotetaan Frontier-tunnuksella '
-                    '(FID).</p>\n'
-                    '\n'
-                    '<h3>Valitse Commander</h3>\n'
-                    '<p>Jos tunnet useita komentoja, voit käyttää yllä olevaa valintaa '
-                    'määrittääksesi, kenen tallennetut tiedot näytetään. Tämä komentaja on '
-                    'katsottu komentaja.</p>\n'
-                    '<p>Näyttö merkitsee sen joko "Live Active" tai "View Only".</p>\n'
-                    '\n'
-                    '<h3>Pidetään komentajana ja live-komentajana</h3>\n'
-                    '<p>Toisen komentajan valitseminen CMDR-näkymässä ei tee siitä aktiivista '
-                    'päiväkirjan komentoa.</p>\n'
-                    '<p>Live-komentaja määritetään yksinomaan tällä hetkellä yksilöllisesti '
-                    'tunnistetun Elite Dangerous -päiväkirjaistunnon perusteella. Tällä tavalla '
-                    'toisen komentajan historiaa voidaan tarkastella, kun Elite Dangerous jatkaa '
-                    'toimintaansa EXAMPLE:n kanssa.</p>\n'
-                    '\n'
-                    '<h3>Frontier ID (FID)</h3>\n'
-                    '<p>FID on komentajan vakaa Frontier-tunniste.</p>\n'
-                    '<p>CMDRHelper käyttää sitä ja siitä määritettyä sisäistä komentajatunnusta '
-                    'henkilötietojen turvalliseen erottamiseen. Myös komentajat, joilla on '
-                    'samanlaiset tai identtiset nimet, pysyvät erillään.</p>\n'
-                    '\n'
-                    '<h3>Yleiskatsaus</h3>\n'
-                    '<p>"Yleiskatsaus"-välilehti näyttää vain pysyvästi tallennetut tiedot '
-                    'kyseisestä komentajasta:</p>\n'
-                    '<ul>\n'
-                    '<li>Komentajan nimi, FID ja tila "Live aktiivinen" tai "Vain katselu"</li>\n'
-                    '<li>ensimmäinen ja viimeinen tunnettu kerta</li>\n'
-                    '<li>Vierailtujen järjestelmien lukumäärä, bio- ja geolöydöt, '
-                    'koodeksimerkinnät ja kartografian myynti</li>\n'
-                    '<li>Viimeisin tunnettu sijainti ja avoimien tehtävien lukumäärä</li>\n'
-                    '<li>nykyinen tai viimeinen laiva</li>\n'
-                    '<li>Fleet Carrier ja operaattorin sijainti</li>\n'
-                    '<li>Omaisuus</li>\n'
-                    '<li>avoimet elämätiedot ja avoimet kartografiset tiedot, mukaan lukien '
-                    'olemassa olevat arviot</li>\n'
-                    '</ul>\n'
-                    '\n'
-                    '<h3>Omaisuus/luotto</h3>\n'
-                    '<p>"Assets" -kentässä näkyy kyseisen päällikön viimeksi tallennettu saldo '
-                    'sopivasta päiväkirjatapahtumasta muotoiltuna esim.<b>1 234 567 Kr</b>.</p>\n'
-                    '<p>CMDRHelper ei lisää kuvitteellisia tuloja tai kuluja, jos uutta, suojattua '
-                    'päiväkirjatilaa ei ole.</p>\n'
-                    '\n'
-                    '<h3>Palkkasoturikolikot</h3>\n'
-                    '<p>Palkkasoturikolikot tulevat MercCoins-kentiltä, \u200b\u200bjoita tarjoaa '
-                    'Elite Dangerous<code>Statistics → Bank_Account</code>ja ne on tallennettu '
-                    'komentajakohtaisesti Frontier-tilannekuvana.</p>\n'
-                    '<p>Näkyviä ovat:</p>\n'
-                    '<ul>\n'
-                    '<li>Nykyinen</li>\n'
-                    '<li>Yhteensä käytetty</li>\n'
-                    '<li>Tekniikka</li>\n'
-                    '<li>laitteet</li>\n'
-                    '<li>Raportoi Frontier: ansaittu kokonaisuudessaan</li>\n'
-                    '</ul>\n'
-                    '\n'
-                    '<h3>Nykyiset ja versiot</h3>\n'
-                    '<p>"Nykyiset" -ohjelmat<code>MercCoins_Virta</code>. "Käytettyjen '
-                    'kokonaismäärä" ottaa vallan<code>MercCoins_Yhteensä_Käytetty</code>.</p>\n'
-                    '<p>"Insinöörityö" ja "laitteet" näyttävät Frontier:n erikseen raportoimat '
-                    'osakkeet<code>MercCoins_Spent_On_Engineering</code>ja<code>MercCoins_Spent_On_MercGear</code>.</p>\n'
-                    '<p>Esimerkiksi EXAMPLE:lle nykyinen varasto<b>1,000</b>, '
-                    'yhteensä<b>200</b>käytetty ja pois<b>200</b>ilmoitettu insinööriksi.</p>\n'
-                    '\n'
-                    '<h3>Kokonaisuudessaan ansaittu</h3>\n'
-                    '<p>"Raportoi Frontier: ansaittu kokonaisuutena" '
-                    'näkyy<code>MercCoins_Total_Earned</code>. CMDRHelper ei laske tästä omaa '
-                    'tasettaan.</p>\n'
-                    '<p>Frontier:n kumulatiivisen arvon ei tarvitse matemaattisesti vastata '
-                    'nykyistä varastoa ja raportoituja kuluja. Esimerkiksi 1 000 nykyistä, 25 '
-                    'yhteensä ansaittua ja 200 kokonaiskulutusta voidaan raportoida '
-                    'samanaikaisesti.</p>\n'
-                    '<p>CMDRHelper ei korjaa näitä arvoja, mutta näyttää yksittäiset '
-                    'Frontier-laskurit muuttumattomina.</p>\n'
-                    '\n'
-                    '<h3>Mikset omista MercCoins tasetta?</h3>\n'
-                    '<p>Elite Dangerous ei tarjoa yksilöllistä päiväkirjatietuetta jokaiselle '
-                    'yksittäiselle palkkasoturikolikoiden vastaanotolle tai kululle. MercCoins '
-                    'näkyvät kokonaislukuina Statistics:ssä.</p>\n'
-                    '<p>Itse laskettu varaushistoria ei siis olisi luotettava. CMDRHelper '
-                    'tallentaa sen sijaan uusimman tunnetun Frontier-tilanteen.</p>\n'
-                    '\n'
-                    '<h3>Tehtävät</h3>\n'
-                    '<p>"Tehtävät"-välilehti näyttää kyseisen komentajan tallennetut tehtävät '
-                    'taulukona, jossa on tila, tehtävän nimi, tavoite, päättymisaika ja '
-                    'palkinto.</p>\n'
-                    '\n'
-                    '<h3>etsintä</h3>\n'
-                    '<p>Tutkimus-välilehti näyttää avoimet elämätiedot, avoimet kartografiset '
-                    'tiedot, biologiset löydöt, ensimmäiset askeleet, itse kartoitetut ja '
-                    'tehokkaasti kartoitetut kappaleet sekä vierailtujen järjestelmien '
-                    'lukumäärän.</p>\n'
-                    '<p>CMDR-näkymässä oleva Kroniikka-välilehti on tällä hetkellä edelleen '
-                    'paikkamerkki. Koko kronikka löytyy samannimisestä päävalikon kohdasta.</p>\n'
-                    '\n'
-                    '<h3>Laivat/laivasto</h3>\n'
-                    '<p>"Laivat"-välilehti näyttää aluksi aktiivisen tai viimeksi käytetyn aluksen '
-                    'aluksen nimen, aluksen tyypin, sijainnin ja ShipID:n kanssa.</p>\n'
-                    '<p>Kyseisen komentajan pelastetut alukset näkyvät niiden alla laajennettavina '
-                    'korteina. Ne voidaan lajitella nousevaan tai laskevaan järjestykseen:</p>\n'
-                    '<ul>\n'
-                    '<li>viimeksi tai tällä hetkellä käytössä</li>\n'
-                    '<li>Laivan nimi tai aluksen tyyppi</li>\n'
-                    '<li>suurin hyppyalue</li>\n'
-                    '<li>Lastikapasiteetti tai tyhjä massa</li>\n'
-                    '<li>viimeisin tunnettu paikka tai aika</li>\n'
-                    '</ul>\n'
-                    '<p>Voit myös suodattaa kaikille laivoille, laivoille, joissa on ajoneuvohalli '
-                    'tai laivoille, joissa on hävittäjähalli.</p>\n'
-                    '\n'
-                    '<h3>Lähetyksen tiedot</h3>\n'
-                    '<p>Avattu laivakartta näyttää - jos se on tallennettu - aluksen ID, ShipID, '
-                    'sijainti, viimeinen aika, maksimi hyppymatka, FSD- ja Guardian-tehostin, '
-                    'massa, lasti ja tankkikapasiteetti sekä lastausaika ja tila.</p>\n'
-                    '<p>Jos moduulitietoja on saatavilla, yhteenveto on myös ajoneuvo- ja '
-                    'hävittäjähalli, kilpigeneraattori ja kilpivahvistin, Guardian-kilven '
-                    'vahvistukset, aseet, rungon ja moduulivahvikkeet sekä matkustajahyt.</p>\n'
-                    '<p>Lataustila voi olla täydellinen, keskeneräinen tai vanhentunut. Puuttuvat '
-                    'tiedot näkyvät merkillä “–”, eikä niitä ole keksitty.</p>\n'
-                    '\n'
-                    '<h3>Fleet Carrier</h3>\n'
-                    '<p>Tallennetun mukautetun Fleet Carrier:n kohdalla näkymässä näkyy '
-                    'operaattorin nimi, kutsutunnus, operaattorin tunnus, viimeinen sijainti ja '
-                    'viimeisimmän päivityksen aika.</p>\n'
-                    '\n'
-                    '<h3>Pysyvä komentajan tila</h3>\n'
-                    '<p>Tärkeät komentajan tiedot säilyvät pysyvästi tallennettuina. Tämä '
-                    'mahdollistaa tunnettujen arvojen näyttämisen uudelleen CMDRHelper:n tai Elite '
-                    'Dangerous:n uudelleenkäynnistyksen jälkeen ilman, että jokainen päiväkirja on '
-                    'täysin arvioitu uudelleen.</p>\n'
-                    '<p>Uudet ainutlaatuiset päiväkirjatapahtumat päivittävät tallennetun '
-                    'tilan.</p>\n'
-                    '\n'
-                    '<h3>Historiallinen jälleenrakennus</h3>\n'
-                    '<p>Myöhemmin lisättävien toimintojen osalta CMDRHelper voi etsiä jo '
-                    'tunnettuja tietoja olemassa olevilta päiväkirjaalueilta, jotka on selkeästi '
-                    'osoitettu komentajalle.</p>\n'
-                    '<p>Esimerkiksi vanhemmat MercCoins tilannekuvat voidaan ottaa käyttöön. '
-                    'Toistuvien tarkistusten tarkoituksena ei ole tuottaa päällekkäisiä tietoja, '
-                    'eivätkä ne muuta normaaleja päiväkirjan lukupaikkoja.</p>\n'
-                    '\n'
-                    '<h3>Useita komentajia</h3>\n'
-                    '<p>Erityisesti seuraavat pysyvät erillisinä komentajien suhteen:</p>\n'
-                    '<ul>\n'
-                    '<li>Omaisuus ja tehtävät</li>\n'
-                    '<li>omaa kartografiaa ja luomulöytöjä</li>\n'
-                    '<li>Pintakaivoshistoriaa ja palkkasoturikolikoita</li>\n'
-                    '<li>Verkkotunnukset</li>\n'
-                    '<li>komentajaan liittyvät kuvakaappaukset</li>\n'
-                    '</ul>\n'
-                    '<p>Järjestelmän tai kappaleen globaaleja tähtitieteellisiä ominaisuuksia '
-                    'voidaan kuitenkin käyttää yhdessä.</p>\n'
-                    '\n'
-                    '<h3>Vaikutus muihin näkemyksiin</h3>\n'
-                    '<p>Kyseisen komentajan vaihtaminen päivittää itse CMDR-näkymän, kronikan '
-                    'henkilökohtaisen kaivosraaka-ainevalikoiman ja sopivalla suodattimella '
-                    'kuvakaappausgallerian.</p>\n'
-                    '<p>Se ei korvaa todellista live-komentoa päiväkirjojen käsittelyssä tai '
-                    'online-latauksissa.</p>\n'
-                    '\n'
-                    '<h3>Inara ja EDSM</h3>\n'
-                    '<p>Inara- ja EDSM-pääsyjä hallitaan erikseen komentokohtaisesti ja '
-                    'FID-käyttöoikeuksia vastaavasti.</p>\n'
-                    '<p>Pelkästään komentajan katsominen ei käynnistä lähetystä niiden API-Key:n '
-                    'kanssa. Vain aktiivinen päiväkirja FID on merkityksellinen '
-                    'live-latauksille.</p>\n'
-                    '<p>Käyttötietoja hallitaan verkkopalvelualueen "Asetukset" -kohdassa.</p>\n'
-                    '\n'
-                    '<h3>Kärki</h3>\n'
-                    '<p>Käytä CMDR-näkymää, jos haluat tarkastella tietyn komentajan tallennettuja '
-                    'henkilökohtaisia \u200b\u200btietoja.</p>\n'
-                    '<p><b>CMDR-näkymä = Kenet haluan nähdä?</b></p>\n'
-                    '<p><b>Active Journal-FID = Kuka pelaa juuri nyt?</b></p>\n'
-                    '<p>Tämä erottelu estää henkilökohtaisten tietojen tai online-latausten '
-                    'sekoittumisen eri komentajilta.</p>'),
+ 'commander_view': (
+        'CMDR-näkymä',
+        """<h2>CMDR-näkymä</h2>
+<h3>Komentajan valinta</h3>
+<p>Yläreunan valinta määrää, kenen tallennettuja tietoja tarkastelet. ● Live aktiivinen tarkoittaa aktiivista lokin komentajaa, Vain katselu toista tallennettua profiilia. Valinta ei vaihda aktiivista lokin komentajaa: pääsivu ”Tehtävät ja palkkiot” käyttää edelleen parhaillaan pelaavaa komentajaa. Henkilökohtaiset tiedot erotetaan FID-tunnuksella myös samannimisillä komentajilla. Profiilin tarkastelu ei käynnistä verkkolähetystä.</p>
+
+<h3>Yleiskatsaus, varallisuus ja MercCoins</h3>
+<p>”Yleiskatsaus” näyttää nimen, FID:n, tilan, ensimmäisen ja viimeisen havainnon, vieraillut järjestelmät, biologiset/geologiset löydöt, Codex-merkinnät ja kartoitustietojen myynnit, sijainnin, avoimet tehtävät, aluksen, tukialuksen sekä myymättömät bio-/kartoitustiedot tunnettuine arvioineen. ”Varallisuus” on viimeksi tallennettu krediittisaldo. ”Mercenary credits” näyttää Frontierin ilmoittamat arvot: ”Current”, ”Total spent”, ”Engineering”, ”Gear” ja ”Reported by Frontier: total earned”. Laskurit eivät välttämättä täsmää keskenään; CMDRHelper ei korjaa niitä eikä keksi tapahtumahistoriaa. Tuntemattomien arvojen kohdalla on ”–”.</p>
+
+<h3>Tehtävät ja tutkimus</h3>
+<p>”Tehtävät” näyttää tarkasteltavan komentajan tallennetut avoimet tehtävät: tila, tehtävän nimi, kohde, määräaika ja palkkio. Taulukko on katselua varten; siinä ei ole pääsivun tehtävätietoja tai tehtävätoimintoja. ”Tutkimus” näyttää myymättömät bio-/kartoitustiedot, biologiset löydöt, ensimmäiset jalan tehdyt laskeutumiset, itse ja tehokkaasti kartoitetut taivaankappaleet sekä vieraillut järjestelmät. ”Kronikka” on tässä paikkamerkki; koko kronikka avataan päävalikosta.</p>
+
+<h3>Laivasto ja alusten tiedot</h3>
+<p>”Alukset” näyttää ylhäällä nykyisen tai viimeksi käytetyn aluksen ja sen alla komentajan tallennetun laivaston. Avaa tiedot napsauttamalla aluskortin otsikkoa. Lajittele nousevasti/laskevasti käytön, nimen, tyypin, hyppykantaman, rahtikapasiteetin, tyhjämassan, sijainnin tai ajan mukaan; suodata kaikki alukset tai ajoneuvo-/hävittäjähangaarilla varustetut. Vihreä merkitsee reaaliaikaisesti aktiivista alusta, muut värit ryhmittelevät tunnetut sijainnit. Tiedot sisältävät tunnuksen, ShipID:n, sijainnin, ajankohdat, FSD:n/Guardian-tehostimen, kantaman, massan, rahti-/polttoainekapasiteetit ja varustelun tilan (täydellinen, puutteellinen tai vanhentunut). Tunnetut moduulitiedot lisäävät hangaarit, suojat ja vahvikkeet, aseet ja matkustajahytit. Puuttuvien tietojen kohdalla on ”–”.</p>
+
+<h3>Oma tukialus</h3>
+<p>”Oma Fleet Carrier” näyttää tallennetun oman tukialuksen nimen, kutsutunnuksen, CarrierID:n, viimeisen sijainnin ja päivitysajan. Kyse ei ole kauppatarjouksista tai kaivosvarastoista.</p>
+
+<h3>Alusten ja tukialuksen omat kuvat</h3>
+<p>Valitse ”Valitse aluksen kuva…” avatuista alustiedoista tai ”Valitse tukialuksen kuva…” tukialuksen kohdalta. Tuettuja muotoja ovat PNG, JPG/JPEG ja WEBP. CMDRHelper tallentaa oman paikallisen kopion erikseen komentajaa ja alusta tai tukialusta varten myös uudelleenkäynnistysten yli. Uusi valinta korvaa kopion. ”Poista oma kuva” poistaa kopion ja liitoksen; alkuperäinen kuvatiedosto säilyy. Ilman omaa kuvaa näytetään saatavilla oleva vakiokuva tai paikkamerkki. Kuvan valinta on estetty ilman yksiselitteistä tukialuksen tunnistusta. Kuvakaappauksia ei liitetä automaattisesti.</p>
+
+<h3>Kuvankatselin</h3>
+<p>Kaksoisnapsauta saatavilla olevaa aluksen tai tukialuksen kuvaa avataksesi erillisen katselimen, joka käyttää kuvatiedostoa pelkän pikkukuvan sijaan. Kuva skaalautuu ikkunaan mittasuhteet säilyttäen. Ikkunaa voi suurentaa tai maksimoida ja sen voi sulkea Esc-näppäimellä tai sulkupainikkeella. Kuvien selausta tai zoomaussäätimiä ei ole. Päävalikon ”Kuvat” puolestaan hallitsee kuvakaappauksia.</p>
+
+<h3>Aluksen poistaminen</h3>
+<p>”Poista alus…” vaatii nimenomaisen vahvistuksen; Peruuta on oletusvalinta. Toiminto poistaa paikallisen aluksen tiedot, tallennetun varustelun ja oman kuvakopion. Nykyinen tai viimeksi käytetty alus sekä tunnistettu reaaliaikaisesti aktiivinen alus on suojattu; poistaminen on estetty uudelleenluvun aikana. Paikallinen poistomerkintä estää vanhoja lokitietoja palauttamasta alusta heti. Poistamisen jälkeinen uusi yksiselitteinen aktiivisen aluksen ilmoitus reaaliaikaisessa lokissa voi palauttaa sen. Myös vahvistettu uudelleenluku voi poistaa merkinnän. Poistettu oma kuvakopio ei palaudu.</p>
+
+<h3>Kaikkien alusten lukeminen uudelleen</h3>
+<p>”Lue kaikki alukset uudelleen…” auttaa palauttamaan laivastotietoja olemassa olevista lokeista tai löytämään paikallisesti poistettuja aluksia. Vahvistuksen jälkeen tunnetut lokitiedostot ja määritetyn lokikansion tiedostot luetaan uudelleen tarkasteltavan komentajan osalta, vain laivastoa varten. Eliten ei tarvitse olla käynnissä. Uudemmat tallennetut tiedot ja käytettävissä olevista lokeista puuttuvat alukset säilyvät; tunnistetut myynnit huomioidaan. Onnistuessa tämän komentajan käsin tehdyt poistomerkinnät poistetaan. Olemassa olevat omat kuvat säilyvät, poistetut eivät palaudu. Muiden komentajien tietoja ei muuteta. Jos lukeminen tai tietojen käyttöönotto epäonnistuu, merkinnät säilyvät: tarkista pääsy lokeihin ja yritä uudelleen.</p>
+
+<h3>Paikalliset tiedot ja turvallisuus</h3>
+<p>Tallennetut tiedot näkyvät myös ilman verkkoyhteyttä ja uudelleenkäynnistyksen jälkeen; ne ovat viimeisin tunnettu tilanne. Kuvat, poistaminen ja uudelleenluku koskevat vain CMDRHelperiä. Ne eivät muuta aluksia, tukialuksia tai krediittejä Elite Dangerousissa eivätkä kirjoita lokeja uudelleen.</p>""",
+    ),
  'settings': ('Asetukset',
               '<h2>Asetukset</h2>\n<h3>CMDRHelper</h3>\n<p>Paremmat päivitystiedot: Kyllä/Ei-ikkuna näyttää asennetun ja saatavilla olevan version sekä enintään kuusi muutosta, jos yhteenveto on saatavilla. Pitkiä listoja voi vierittää ja toiminnot pysyvät käytettävissä.</p>\n'
               '<p>"Asetukset"-alue määrittää, kuinka CMDRHelper toimii Elite Dangerous:n, '
@@ -1378,8 +1200,82 @@ HELP_TOPICS["overview"] = (HELP_TOPICS["overview"][0], HELP_TOPICS["overview"][1
 
 HELP_TOPICS["settings"] = (HELP_TOPICS["settings"][0], HELP_TOPICS["settings"][1] + '<h3>Diagnostiikka ja lokit</h3><p>Asetukset → Diagnostiikka ja lokit -kohdassa voit avata lokin tai luoda diagnostiikkapaketin. Lokit ovat asennuskansion logs/-kansiossa (cmdrhelper.log ja enintään neljä aiempaa lokia). ZIP sisältää puhdistetut tekniset lokit, system_info.json- ja diagnose_summary.txt-tiedostot; ei Journal-tiedostoja, tietokantaa, FID-/komentajatietoja, tunnuksia, suosikkeja tai kuvia. Henkilökohtaiset polut korvataan paikkamerkeillä. Vanhojen, yksityisyyssuodatusta edeltävien lokien sisältö jätetään pois. Valitse ZIP-tiedoston tallennuspaikka ja jaa se tarvittaessa tuelle; sitä ei koskaan lähetetä automaattisesti.</p>')
 
-HELP_TOPICS["trade"] = ('Kauppa', '<h2>Kauppa</h2><h3>Myy</h3><p>Etsi ja valitse kauppatavara, aseta määrä ja suodattimet ja käynnistä myyntihaku. Vertailukohta on komentajan nykyinen järjestelmä. Hinta / t on myyntihinta; mahdollinen tuotto lasketaan annetulle määrälle, jos kysyntä riittää. Markkinatiedot voivat muuttua. Haku on rajattu; muita tuloksia varten tarvitaan tiukemmat suodattimet. Peruutus voi odottaa käynnissä olevaa verkkovastausta. Hinnat säilyvät vain muistissa. Rare Goods ja reittitoiminnot tulevat myöhemmin.</p><h3>Osta</h3><p>Valitse tavara ja määrä, aseta suodattimet ja käynnistä ostohaku käsin. Hinta / t on komentajan maksama hinta. Tarjonta on ilmoitettu saatavilla oleva määrä, jonka on katettava pyydetty määrä. Kokonaiskustannus = hinta × pyydetty määrä. Yhteisön markkinatiedot voivat muuttua: tarkista tietojen ikä. Tarjonta voi olla pienempi saapuessasi. Välilehden vaihtaminen peruuttaa käynnissä olevan haun ja säilyttää suodattimet.</p>')
+HELP_TOPICS["trade"] = (
+    'Kauppa',
+    """<h2>Kauppa</h2>
+<h3>Kaupankäynti lyhyesti</h3>
+<p>”Myy” etsii markkinoita, jotka ostavat tavarasi. ”Osta” etsii tiettyä ostettavaa tavaraa. ”Suositukset” näyttää, mitä voit ostaa nykyiseltä asemalta ja myydä voitolla muualla omien ehtojesi puitteissa.</p>
 
-HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<h3>Suositukset</h3><p>Ostot käyttävät vain aktiivisen komentajan nykyisen, itse havaitun Elite-markkinan alle 24 tunnin ikäisiä tietoja. Jos tiedot puuttuvat, avaa markkinat Elitessä. Kohteet tulevat omista havainnoista ja Spanshista. Samalla MarketID:llä uudempi kelvollinen tieto voittaa, tasatilanteessa paikallinen. Voitto/t = kohteen myyntihinta − paikallinen ostohinta. Voitto % = voitto/t ÷ ostohinta × 100. Vähimmäisvoiton on täytyttävä. Määrä = pienin vahvistetusta vapaasta rahtitilasta, paikallisesta tarjonnasta ja kohteen kysynnästä. Kokonaisvoitto = voitto/t × määrä. Jokaiselle hyödykkeelle näytetään paras tarkistettu kohde kokonaisvoiton mukaan sekä lähde ja tietojen ikä. Tuntematon etäisyys sulkee paikallisen kohteen pois. Puuttuvat laskeutumispaikka-, carrier- tai saapumistiedot eivät täytä vastaavia rajoituksia. Käsin käynnistetty haku tarkistaa vain paikallisesti tarjotut hyödykkeet peräkkäin, näyttää edistymisen ja sallii perumisen. Osittaiset tulokset ja rajat ilmoitetaan. Hinnat, tarjonta ja kysyntä voivat muuttua.</p>')
+<h3>Markkinatiedot ja niiden ikä</h3>
+<p>Myynti ja osto yhdistävät automaattisesti voimassa olevat tallennetut omat markkinahavainnot ja Spanshin kautta haetut yhteisön markkinatiedot. Suosituksissa ostetaan vain nykyiseltä itse havaitulta Elite-markkinalta; kohteet tulevat tavallisesti omista havainnoista ja Spanshista. Yhteisötulokset säilytetään vain tilapäisesti muistissa.</p>
+<p>Kaikki markkinatiedot ovat tilannekuvia, myös omat havainnot. Hinta, tarjonta ja kysyntä voivat muuttua ennen saapumista. Tarkista tietojen ikä: saatavuutta tai voittoa ei taata.</p>
+<p>Jos sama markkina tunnetaan sekä omasta havainnosta että yhteisön tiedoista, CMDRHelper käyttää uudempaa voimassa olevaa tilannekuvaa.</p>
 
-HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>”Vain omat markkinatiedot” tarkistaa vain alle 24 tuntia sitten itse havaitsemasi markkinat. Myös kohdetietojen valittu enimmäisikä, säde ja muut suodattimet ovat voimassa. Yhteisökyselyjä ei tehdä, joten paikallinen haku on erittäin nopea. Hinnat, tarjonta ja kysyntä ovat silti voineet muuttua havainnon jälkeen.</p>')
+<h3>Tavaran valitseminen</h3>
+<p>Napsauta ”Kauppatavara”, hae näytettävällä nimellä, englanninkielisellä nimellä tai symbolilla ja valitse tavara. Saksankieliset nimet tulevat ylläpidetystä saksalaisesta tavaraluettelosta. Jos käännöstä ei ole, näytetään englanninkielinen luettelonimi tai luettava nimitys.</p>
+
+<h3>Myy</h3>
+<p>Haku käyttää sekä voimassa olevia omia markkinahavaintoja että yhteisön markkinatietoja. Valitse tavara, ”Määrä (t)” ja suodattimet, sitten ”Etsi paras myyntipaikka”. Haku etsii ostotarjouksia, joiden kysyntä riittää syötetylle määrälle. ”Hinta / t” on myydessäsi saamasi hinta. ”Mahdollinen tuotto” = hinta × syötetty määrä. Lähtökohtana on komentajan nykyinen järjestelmä. Korkein myyntihinta näytetään oletuksena ensin.</p>
+
+<h3>Osta</h3>
+<p>Haku käyttää sekä voimassa olevia omia markkinahavaintoja että yhteisön markkinatietoja. Valitse tavara, haluttu määrä ja suodattimet, sitten ”Etsi edullisin ostopaikka”. Ilmoitetun tarjonnan ”Tarjonta” on katettava koko määrä. ”Hinta / t” on ostohintasi; ”Kokonaiskustannus” = hinta × haluttu määrä. Lähtökohtana on nykyinen järjestelmäsi. Alin ostohinta näytetään oletuksena ensin. Tämä on tietyn tavaran haku, ei voittosuositus.</p>
+
+<h3>Suodattimet ja tulostaulukot</h3>
+<ul>
+<li><b>Säde (ly):</b> suurin etäisyys lähtöjärjestelmästä kohdejärjestelmään.</li>
+<li><b>Markkinatietojen enimmäisikä / Kohdetietojen ikä:</b> markkinatietojen suurin sallittu ikä; suosituksissa tämä koskee kohdetta.</li>
+<li><b>Laskeutumisalustan koko:</b> laskeutumisalustan vähimmäiskoko, ei aseman tarkka koko. ”Keskikokoinen” sallii myös suuret alustat; ”Kaikki” ei rajoita kokoa.</li>
+<li><b>Sisällytä Fleet Carrierit:</b> salli tai sulje pois laivastotukialukset.</li>
+<li><b>Saapumisetäisyys enintään (Ls):</b> suurin etäisyys saapumistähdestä asemalle. Tyhjä kenttä ei rajoita etäisyyttä. Kohde, jonka lähestymisetäisyys on tuntematon, ei täytä tätä suodatinta.</li>
+</ul>
+<p>Omiin ja yhteisön tuloksiin sovelletaan samoja tietojen ikää, sädettä, laskeutumisalustaa, carriereita ja saapumisetäisyyttä koskevia suodattimia. Puuttuvia tietoja ei arvioida. Kohteet ilman tunnettua järjestelmien välistä etäisyyttä tai näyttöä asetetun rajoituksen täyttymisestä suljetaan pois. Omissa markkinoissa tämä koskee erityisesti puuttuvia alusta- ja lähestymistietoja; tukialuksia pois rajattaessa on tiedettävä, ettei kohde ole tukialus.</p>
+<p>Lajittele napsauttamalla sarakeotsikoita: luvut lukuarvon, tietojen ikä todellisen iän ja alustat kokoluokan mukaan. Myynti ja osto näyttävät enintään 100 osumaa. ”Tuloksia on lisää. Rajaa suodattimia.” kertoo rajoitetusta hausta. Saatavilla olevat omat ja yhteisön tulokset järjestetään yhdessä hinnan mukaan ennen listan rajaamista. Yhteisöpalvelun hakurajojen vuoksi ne eivät välttämättä ole kaikkien markkinoiden parhaat tarjoukset.</p>
+<p>Jos yhteisöhaku epäonnistuu myynnissä tai ostossa, sopivia omia tuloksia voi edelleen käyttää. CMDRHelper merkitsee haun puutteelliseksi: parempia yhteisön tarjouksia saattaa puuttua.</p>
+
+<h3>Omat markkinatiedot</h3>
+<p>Avaa Eliten tavaramarkkinat telakoituneena. CMDRHelperin ollessa käynnissä se tallentaa markkinan automaattisesti, jos yhteys nykyiseen asemaan on varma. Manuaalista tuontia ei tarvita. Avaaminen uudelleen päivittää tilannekuvan.</p>
+<p>Kustakin markkinasta säilytetään komentajakohtaisesti yksi nykyinen, alle 24 tunnin ikäinen tilannekuva. Vanhemmat poistetaan automaattisesti; pysyvää hintahistoriaa ei ole. Voimassa olevat omat havainnot säilyvät Helperin uudelleenkäynnistyksessä. ”Omat markkinatiedot: X asemaa” laskee aktiivisen komentajan voimassa olevat omat asemamarkkinat. Valittu markkinatietojen enimmäisikä koskee lisäksi omia tuloksia.</p>
+<ul>
+<li><b>✓ Luettu:</b> Suosituksissa on käytettävissä nykyisen aseman voimassa oleva oma tilannekuva.</li>
+<li><b>Avaa hyödykemarkkina:</b> Asemalta puuttuu käyttökelpoinen oma tilannekuva.</li>
+<li><b>Tiedot vanhentuneet:</b> Aiemmin näytetty tilannekuva ei enää ole voimassa. Avaa markkinat uudelleen.</li>
+</ul>
+<p>Jos vanha tilannekuva poistettiin jo ennen näkymän avaamista, näkyy myös ”Avaa hyödykemarkkina”. Lennon aikana edelliselle asemalle ei näytetä myönteistä tilaa.</p>
+
+<h3>Suositukset</h3>
+<p>Tarvitset nykyisen aseman, sen voimassa olevan oman tilannekuvan sekä tunnetun nykyisen aluksen, jonka vapaa rahtitila tunnetaan luotettavasti. Varattu tila vähennetään. Jos vapaa tila on tuntematon tai ruuma täynnä, uutta hakua ei voi aloittaa; määriä ei keksitä. Lähdön jälkeen vanhan oleskelupaikan pohjalta ei tehdä uutta laskelmaa.</p>
+<p>Aseta ”Vähimmäisvoitto”: 10 % hyväksyy vain mahdollisuudet, joissa kate on vähintään 10 %. Haku koskee paikallisesti tarjottuja tavaroita. Ostoasema itse ei ole kohde. Samalle kohdeasemalle (sama MarketID) käytetään uudempaa voimassa olevaa tilannekuvaa. Kullekin tavaralle näytetään tarkistettu kohde, jolla ”Mahdollinen voitto” on suurin suodattimiesi puitteissa, ei välttämättä koko galaksin paras. Taulukko alkaa suurimmasta mahdollisesta voitosta; ”Lähde” näyttää ”Elite paikallinen” tai ”Spansh” ja ”Kohdetietojen ikä” kohteen tietojen iän.</p>
+
+<h3>Vain omat markkinatiedot</h3>
+<p>Tämä valintaruutu on vain Suosituksissa. Myynti ja osto käyttävät automaattisesti molempia lähteitä. Valintaruutu rajaa suositukset itse havaittuihin voimassa oleviin kohdemarkkinoihin. Yhteisökyselyä ei tehdä eikä Spanshia tarvita. Säde, kohdetietojen lisäikäraja, vähimmäisvoitto sekä alusta-, tukialus- ja lähestymissuodattimet ovat edelleen voimassa, ja käytettävissä olevien tietojen on osoitettava niiden täyttyminen. Yhteisöhaun tarkoituksellinen ohittaminen ei ole virhe eikä tee hausta epätäydellistä. Näin etsit nopeasti jo vierailtujen asemien väliltä.</p>
+
+<h3>Mahdollinen voitto ja määrä</h3>
+<ul>
+<li><b>Voitto / t:</b> myyntihinta kohteessa − ostohinta täällä. ”Voitto %” = voitto tonnilta ÷ ostohinta × 100.</li>
+<li><b>Määrä (t):</b> pienin seuraavista: vapaa rahtitila, ostomarkkinan tarjonta ja kohteen kysyntä.</li>
+<li><b>Mahdollinen voitto:</b> voitto tonnilta × mahdollinen määrä; arvio tunnettujen tilannekuvien perusteella.</li>
+</ul>
+<p>Esimerkki: 280 t vapaana, tarjonta 150 t, kysyntä 20 000 t → mahdollinen määrä 150 t. Jokainen tavara ei automaattisesti täytä kaikkea vapaata rahtitilaa.</p>
+
+<h3>Merkitty kauppalento</h3>
+<p>Merkitse valintaruudulla yksi suositus muistiin. Toinen valinta korvaa sen. Erillinen muistialue näyttää tavaran, kohdeaseman, kohdejärjestelmän ja arvon ”Mahdollinen voitto” valintahetkellä. Se on muistilappu, ei jatkuvasti uudelleen laskettava suositus.</p>
+<p>Muistilappu säilyy oston, rahtimuutoksen, lähdön, järjestelmän vaihdon, telakoitumisen ja markkinoiden avaamisen yhteydessä. Se poistuu painikkeella ”Poista” tai poistamalla valinta, uuden suositushaun todella alkaessa, komentajan vaihtuessa ja Helperin sulkeutuessa. Se ei säily uudelleenkäynnistyksessä.</p>
+<p>”Kopioi järjestelmä” kopioi leikepöydälle vain kohdejärjestelmän nimen. Kohdeasema näkyy edelleen muistilapussa; reittiä ei luoda.</p>
+
+<h3>Haku, edistyminen ja keskeytys</h3>
+<p>Aloita haut käsin. Suositukset tarkistavat useita tavaroita ja voivat kestää kauemmin. Kun haun laajuus tiedetään, edistymispalkki ja ”Tarkistetaan hyödykkeitä: x/y …” näyttävät todella tarkistetut tavarat. ”Peruuta” on käytettävissä vain keskeytettävän haun aikana; odotettava verkkovastaus voi viivyttää keskeytystä. Välilehden vaihtaminen keskeyttää haun; myynnin/oston yhteiset suodattimet säilyvät.</p>
+<p>Jos yksittäiset yhteisökyselyt epäonnistuvat tai hakurajat tulevat vastaan, tarkistetut voimassa olevat suositukset voivat jäädä näkyviin. Epätäydellinen haku tarkoittaa, että tulokset koskevat tarkistettuja tietoja, mutta kaikkia tavaroita tai kohteita ei tutkittu kokonaan. Lue ilmoitus, tiukenna suodattimia hakurajojen tullessa vastaan tai yritä myöhemmin uudelleen. Manuaalinen keskeytys hylkää nykyisen tulosluettelon.</p>
+
+<h3>Diagnostiikka ongelmatilanteissa</h3>
+<p>”Kopioi diagnostiikka” kopioi tekniset tiedot viimeksi päättyneestä suositushausta vian selvittämiseen. Teksti ei sisällä komentaja-/FID-tietoja eikä markkinahintoja. Diagnostiikka pysyy muistissa; pysyvää diagnostiikkatiedostoa ei luoda eikä mitään lähetetä automaattisesti. Toimita kopioitu teksti itse tukeen tarvittaessa.</p>
+
+<h3>Näin teet kauppalennon</h3>
+<ol>
+<li>Telakoidu asemalle ja avaa tavaramarkkinat Elitessä.</li>
+<li>Avaa ”Kauppa” → ”Suositukset” ja tarkista ”Luettu”.</li>
+<li>Aseta vähimmäisvoitto ja suodattimet, sitten valitse ”Etsi suosituksia”.</li>
+<li>Merkitse haluttu suositus muistiin ja osta tavara Elitessä.</li>
+<li>Käytä tarvittaessa ”Kopioi järjestelmä” ja lennä kohteeseen; asema pysyy muistilapussa näkyvissä.</li>
+<li>Myy Elitessä. Avaa markkinat siellä päivittääksesi myös uuden markkinan omat tiedot.</li>
+</ol>""",
+)

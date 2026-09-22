@@ -109,86 +109,57 @@ HELP_TOPICS = {
               'nuvarande tillstånd, kontrollera först journalvisningen högst upp och kontrollera '
               'sedan journalmappen som är inställd under "Inställningar".</p>'
               '<p>Öppet visas i rött, Solo i guld och Privat grupp i grönt, med det rapporterade gruppnamnet. Läget återskapas från tillgängliga journaler och uppdateras med nya LoadGame-poster.</p>\n<p>Ett klick på en post under senaste system kopierar systemnamnet till urklipp. ”✓ Kopierat: &lt;System&gt;” visas en kort stund.</p>\n'),
- 'missions': ('Uppdrag',
-              '<h2>Uppdrag</h2>\n'
-              '<p>Uppdragsvyn visar uppdragen för den för närvarande visade befälhavaren som är '
-              'känd från Elite Dangerous Journal. CMDRHelper sparar uppdragsdata på '
-              'kommando-för-kommando-basis så att öppna uppdrag behålls även efter en omstart av '
-              'Elite Dangerous eller CMDRHelper.</p>\n'
-              '\n'
-              '<h3>Öppna uppdrag</h3>\n'
-              '<p>Nya uppdrag kommer ut<code>MissionAccepted</code>övertagits och sparats '
-              'permanent.</p>\n'
-              '<p>Så länge det inte finns något slutgiltigt uppdragsevenemang förblir uppdraget '
-              'öppet. En ny spelsession utan uppdragslista kanske inte automatiskt tar bort kända '
-              'öppna uppdrag.</p>\n'
-              '\n'
-              '<h3>Uppdragsstatus</h3>\n'
-              '<p>CMDRHelper bearbetar bland annat följande statusändringar:</p>\n'
-              '<ul>\n'
-              '<li>Uppdrag accepterat</li>\n'
-              '<li>Uppdraget avslutat</li>\n'
-              '<li>Uppdraget misslyckades</li>\n'
-              '<li>Uppdraget avbröts</li>\n'
-              '<li>Uppdragsmålet avleds</li>\n'
-              '<li>Framsteg med stödda last-/depåuppdrag</li>\n'
-              '</ul>\n'
-              '<p>En sista händelse ändrar bara det associerade uppdraget.</p>\n'
-              '\n'
-              '<h3>Uppdrag från tidskriften</h3>\n'
-              '<p>Elite Dangerous ger uppdragsinformation om olika journalhändelser. CMDRHelper '
-              'slår samman dessa händelser till ett beständigt uppdragstillstånd.</p>\n'
-              '<p>En verklig full mission händelse kan fungera som en auktoritativ ögonblicksbild. '
-              'Om en sådan händelse saknas kommer äldre öppna uppdrag inte att stängas av enbart '
-              'av denna anledning.</p>\n'
-              '\n'
-              '<h3>Destinationer och platser</h3>\n'
-              '<p>I den mån Elite tillhandahåller informationen i journalen visar CMDRHelper:</p>\n'
-              '<ul>\n'
-              '<li>Målsystem</li>\n'
-              '<li>Destinationsstation eller destination</li>\n'
-              '<li>Målplanet eller kropp</li>\n'
-              '<li>Uppdragsbeteckning</li>\n'
-              '<li>kända framsteg</li>\n'
-              '<li>aktuell status</li>\n'
-              '</ul>\n'
-              '<p>Inte varje uppdrag ger all information. Saknade data är inte uppfunna av '
-              'CMDRHelper.</p>\n'
-              '\n'
-              '<h3>Uthållighet och starta om</h3>\n'
-              '<p>Öppna uppdrag sparas i den befälhavarerelaterade databasen.</p>\n'
-              '<p>Detta innebär att de behålls även om:</p>\n'
-              '<ul>\n'
-              '<li>Elite Dangerous avslutas och startas om senare</li>\n'
-              '<li>CMDRHelper är stängd däremellan</li>\n'
-              '<li>Den nya journalsessionen innehåller initialt inga uppdragshändelser</li>\n'
-              '</ul>\n'
-              '<p>Endast en dokumenterad uppdragshändelse ändrar det sparade tillståndet.</p>\n'
-              '\n'
-              '<h3>Flera befälhavare</h3>\n'
-              '<p>Uppdragen är strikt åtskilda av befälhavaren.</p>\n'
-              '<p>En uppdragshändelse tilldelas endast befälhavaren vars journalsession har '
-              'identifierats unikt. Uppdrag från en annan befälhavare får inte visas eller '
-              'ändras.</p>\n'
-              '\n'
-              '<h3>Föräldralösa eller inte längre giltiga uppdrag</h3>\n'
-              '<p>Om äldre journaldata eller en tidigare import håller ett uppdrag öppet trots att '
-              'det inte längre finns i spelet, kan den befintliga funktionen för '
-              'återställning/rensning av föräldralösa uppdrag användas.</p>\n'
-              '<p>Denna funktion bör endast användas om det är tydligt att det visade uppdraget '
-              'inte längre är aktivt.</p>\n'
-              '\n'
-              '<h3>Onlinetjänster</h3>\n'
-              '<p>Uppdragshändelser som stöds kan dessutom överföras till Inara om en giltig och '
-              'aktiverad Inara-åtkomst är inställd för den aktiva journalen FID.</p>\n'
-              '<p>En saknad eller oåtkomlig Inara-anslutning påverkar inte den lokala '
-              'uppdragslagringen.</p>\n'
-              '\n'
-              '<h3>Dricks</h3>\n'
-              '<p>Om ett uppdrag inte visas eller visar en felaktig status, kontrollera först om '
-              'Elite Dangerous redan har skrivit motsvarande uppdragshändelse till journalen.</p>\n'
-              '<p>CMDRHelper kan bara visa information som journalen faktiskt tillhandahåller '
-              'eller som redan har lagrats från tidigare unika uppdragshändelser.</p>'),
+ 'missions': (
+        'Uppdrag och belöningar',
+        """<h2>Uppdrag och belöningar</h2>
+<p>Den här huvudsidan visar uppdrag och observerade belöningar för den aktiva befälhavaren i journalen. Att välja en annan befälhavare i den separata CMDR-vyn ändrar inte den här sidan. Uppgifterna hålls åtskilda för varje befälhavare.</p>
+
+<h3>Så använder du sidan</h3>
+<ol>
+<li>Öppna ”Uppdrag och belöningar” och välj ett uppdrag i listan.</li>
+<li>Kontrollera ”Status” och ”UPPDRAGSDETALJER”. Använd ”Nästa steg” som vägledning.</li>
+<li>Använd vid behov ”Uppdatera journal” för att läsa tillgängliga journaluppgifter igen.</li>
+<li>Betrakta uppdragsbelöningar, ”Prispengar” och ”Stridsobligationer” var för sig.</li>
+</ol>
+
+<h3>Lista och detaljer</h3>
+<p>Listan innehåller bekräftade öppna uppdrag och identifierade preliminära erbjudanden från möten. Den visar uppdrag, system, planet / plats, status, nästa steg, belöning och tidsgräns. När du väljer en rad visas tillgängliga detaljer om mål och framsteg. Uppgifter som saknas i journalen förblir okända; preliminära erbjudanden har okänd tidsgräns.</p>
+
+<h3>Uppdragsstatus</h3>
+<p>Statusen följer tillgängliga uppgifter om uppdrag, position och framsteg. Alla uppdragstyper ger inte alla mellansteg.</p>
+<ul>
+<li><b>Uppdrag accepterat / På väg:</b> Uppdraget är känt; ankomst till målet har ännu inte identifierats.</li>
+<li><b>I målsystemet:</b> Du är i målsystemet, men ännu inte vid det identifierade uppdragsmålet.</li>
+<li><b>Vid uppdragsmålet:</b> Den aktuella målstationen eller himlakroppen har nåtts.</li>
+<li><b>Mål ändrat:</b> Ett nytt uppdragsmål har rapporterats.</li>
+<li><b>Last hämtad:</b> Hämtning av uppdragslast har identifierats.</li>
+<li><b>Leverans pågår:</b> En leverans har registrerats; kända framsteg i mängd visas.</li>
+<li><b>Uppgift slutförd / Data mottagna:</b> Uppgiften eller datainsamlingen är klar. Uppdraget kan fortfarande vara öppet, exempelvis med ”Återvänd till uppdragsterminalen”. Detta bekräftar ännu ingen utbetalning.</li>
+</ul>
+<p>Identifierade slutföranden, misslyckanden och avbrott tar bort det berörda uppdraget från listan över öppna uppdrag. En ny fullständig uppdragsöversikt kan identifiera äldre poster som inte längre aktiva.</p>
+
+<h3>Total belöning</h3>
+<p>”Total belöning” summerar kända kreditbelöningar för bekräftade öppna uppdrag. Det är inget redan utbetalt saldo. Preliminära erbjudanden från möten, prispengar och stridsobligationer ingår inte.</p>
+
+<h3>Uppdrag från möten</h3>
+<p>Möten i rymden som stöds kan visas som preliminära erbjudanden av typen ”Uppdrag från möte”, även innan ett slutgiltigt MissionID finns. ”Erbjuden belöning” är därför ännu ingen bekräftad belöning för ett öppet uppdrag och räknas inte in i den totala belöningen.</p>
+<p>Om senare journaluppgifter entydigt kopplar ett erbjudande till ett uppdrag slås de samman. Vid oklarhet förblir erbjudandet preliminärt. Obekräftade erbjudanden döljs lokalt efter 24 timmar; det säger inget om uppdragets tidsgräns i spelet.</p>
+
+<h3>Prispengar</h3>
+<p>Här visas lokalt observerade prispengar med totalsumma och belopp per fraktion. Vyn känner bara till registrerade uppgifter, inte ett garanterat fullständigt spelsaldo. ”Registrering från och med nu.” markerar registreringens början; luckor anges med ”Inte fullständigt synkroniserat: vissa händelser kan saknas.”.</p>
+<p>En identifierad inlösen av prispengar eller död nollställer hela det lokala saldot för prispengar, oberoende av uppdragsstatus.</p>
+
+<h3>Stridsobligationer</h3>
+<p>Här visas observerade stridsobligationer per fraktion vars inlösen ännu inte har identifierats. Ett eventuellt saldo från före registreringens början saknas. Vid osäkerhet visas ”Observerat belopp” tillsammans med ”Saldot är inte fullständigt verifierat.”.</p>
+<p>En entydigt kopplad inlösen tar bort det observerade beloppet för den angivna fraktionen; andra fraktioner finns kvar. Vid oklar koppling står beloppen kvar och ”Inlösen upptäckt – kontrollera saldot.” visas. En identifierad död tar bort observerade stridsobligationer.</p>
+
+<h3>Lokal återställning</h3>
+<p>”Återställ…” i en belöningsdel nollställer efter bekräftelse endast den delens lokala saldo för den aktiva befälhavaren. <b>Det ändrar inga värden i Elite Dangerous.</b> Prispengar och stridsobligationer återställs separat; uppdrag varken rensas bort eller slutförs.</p>
+
+<h3>Uppdatering och omstart</h3>
+<p>Kända öppna uppdrag och lokala belöningssaldon bevaras när Helper startas om. En ny journalsession utan uppdragslista tar inte automatiskt bort öppna uppdrag. Luckor i registreringen kan särskilt göra belöningssaldon ofullständiga. ”Uppdatera journal” kan bara läsa befintlig information, inte skapa speldata som saknas.</p>
+<p>Den lokala uppdragsvyn behöver ingen Inara-anslutning. Med en aktiverad anslutning som är konfigurerad för den aktiva befälhavaren kan uppdragshändelser som stöds även överföras.</p>""",
+    ),
  'explorer': ('Utforskare',
               '<h2>Utforskare</h2>\n<h3>CMDRHelper</h3>\n<p>Systemöversikt: den nya Elite-inspirerade vyn ersätter miniatyröversikten i Explorer och Krönika. Stjärnor och planeter bildar huvudstrukturen med månar som grenar nedanför; flerstjärnesystem förblir lättlästa. Zoom, rullning, anpassning till fönstret och klick på himlakroppar ger tillgång till detaljer.</p>\n<p>Kompakta asteroidbälten: kluster grupperas till bälten i översikten och de vanliga systemkartorna i Explorer och Krönika. Alla enskilda klusterdata bevaras.</p>\n<p>Korrigerad kartografi: en skanning efter DSS-kartläggning återställer inte längre osålda utforskningsvärden, kartläggningstid eller effektivitet. Felaktiga poster repareras vid start från tillgängliga journaler med entydig commander-koppling. Saknade källor lämnar reparationen öppen; databasen behöver inte raderas.</p>\n'
               '<p>Utforskaren utvärderar de system och himlakroppar som upptäckts och skannades av '
@@ -888,186 +859,39 @@ HELP_TOPICS = {
             'personligt galleri, undermappar för alla kommandon och äldre bilder i rotmappen.</p>\n'
             '<p>Högre ljusstyrka kan hjälpa till med mörka foton; det påverkar den nyskapade '
             'målbilden under konverteringen.</p>'),
- 'commander_view': ('CMDR-vy',
-                    '<h2>CMDR-vy</h2>\n'
-                    '<p>CMDR-vyn sammanfattar en befälhavares permanent lagrade personliga '
-                    'information.</p>\n'
-                    '<p>Det låter dig också växla mellan de kända befälhavarna för CMDRHelper och '
-                    'se deras egna data. Personlig information separeras med Frontier ID '
-                    '(FID).</p>\n'
-                    '\n'
-                    '<h3>Välj Commander</h3>\n'
-                    '<p>Om flera befäl är kända kan du använda valet ovan för att avgöra vems '
-                    'sparade information som visas. Denna befälhavare är den betraktade '
-                    'befälhavaren.</p>\n'
-                    '<p>Displayen markerar den som antingen "Live Active" eller "View Only".</p>\n'
-                    '\n'
-                    '<h3>Anses som Commander och Live Commander</h3>\n'
-                    '<p>Att välja en annan befälhavare i CMDR-vyn gör den inte till den aktiva '
-                    'journalbefälhavaren.</p>\n'
-                    '<p>Den levande befälhavaren bestäms uteslutande från den för närvarande unikt '
-                    'identifierade Elite Dangerous journalsessionen. På så sätt kan historiken för '
-                    'en annan befälhavare ses medan Elite Dangerous fortsätter att köra med '
-                    'EXAMPLE.</p>\n'
-                    '\n'
-                    '<h3>Frontier ID (FID)</h3>\n'
-                    '<p>FID är den stabila Frontier-identifieraren för en befälhavare.</p>\n'
-                    '<p>CMDRHelper använder det och det interna befäl-ID:t som lösts från det för '
-                    'att separera personuppgifter på ett säkert sätt. Befälhavare med liknande '
-                    'eller identiska namn förblir också åtskilda.</p>\n'
-                    '\n'
-                    '<h3>Översikt</h3>\n'
-                    '<p>Fliken "Översikt" visar endast permanent sparad information för '
-                    'befälhavaren i fråga:</p>\n'
-                    '<ul>\n'
-                    '<li>Befälhavarens namn, FID och status "Live active" eller "View only"</li>\n'
-                    '<li>första och sista kända tidpunkten</li>\n'
-                    '<li>Antal besökta system, bio- och geo-upptäckter, codex-poster och '
-                    'kartografiförsäljning</li>\n'
-                    '<li>Senast kända plats och antal öppna uppdrag</li>\n'
-                    '<li>nuvarande eller sista fartyget</li>\n'
-                    '<li>Fleet Carrier och transportörens plats</li>\n'
-                    '<li>Tillgångar</li>\n'
-                    '<li>öppna biodata och öppna kartografiska data inklusive befintliga '
-                    'uppskattningar</li>\n'
-                    '</ul>\n'
-                    '\n'
-                    '<h3>Tillgångar/krediter</h3>\n'
-                    '<p>Fältet "Tillgångar" visar det senast sparade saldot för befälhavaren i '
-                    'fråga från en lämplig journalhändelse, formaterad som t.ex.<b>1 234 567 '
-                    'kr</b>.</p>\n'
-                    '<p>CMDRHelper lägger inte till fiktiva inkomster eller utgifter om det inte '
-                    'finns någon ny, säker journalstatus.</p>\n'
-                    '\n'
-                    '<h3>legosoldatmynt</h3>\n'
-                    '<p>Legosoldatmynten kommer från MercCoins-fälten som tillhandahålls av Elite '
-                    'Dangerous<code>Statistics → Bank_Account</code>och sparas '
-                    'commander-relaterade som en Frontier ögonblicksbild.</p>\n'
-                    '<p>Synliga är:</p>\n'
-                    '<ul>\n'
-                    '<li>Nuvarande</li>\n'
-                    '<li>Totalt spenderat</li>\n'
-                    '<li>Teknik</li>\n'
-                    '<li>utrustning</li>\n'
-                    '<li>Rapporterad av Frontier: tjänat totalt</li>\n'
-                    '</ul>\n'
-                    '\n'
-                    '<h3>Aktuell och upplagor</h3>\n'
-                    '<p>"Aktuell" visar<code>MercCoins_Current</code>. "Total Spent" tar '
-                    'över<code>MercCoins_Total_Spent</code>.</p>\n'
-                    '<p>"Engineering" och "Equipment" visar andelarna som rapporteras separat av '
-                    'Frontier<code>MercCoins_Spent_On_Engineering</code>och<code>MercCoins_Spent_On_MercGear</code>.</p>\n'
-                    '<p>För EXAMPLE, till exempel, en aktuell inventering av<b>1 000</b>, '
-                    'totalt<b>200</b>spenderat och borta<b>200</b>anmäld för ingenjörsarbete.</p>\n'
-                    '\n'
-                    '<h3>Överlag välförtjänt</h3>\n'
-                    '<p>"Rapporterat av Frontier: tjänat totalt" '
-                    'visar<code>MercCoins_Total_Earned</code>. CMDRHelper beräknar inte sin egen '
-                    'balansräkning utifrån detta.</p>\n'
-                    '<p>Frontier:s ackumulerade värde behöver inte matematiskt matcha det aktuella '
-                    'lagret och de rapporterade kostnaderna. Till exempel kan 1 000 aktuella, 25 '
-                    'totala intjänade och 200 totala spenderade rapporteras samtidigt.</p>\n'
-                    '<p>CMDRHelper korrigerar inte dessa värden, men visar de individuella '
-                    'Frontier-räknarna oförändrade.</p>\n'
-                    '\n'
-                    '<h3>Varför inte ha en egen MercCoins balansräkning?</h3>\n'
-                    '<p>Elite Dangerous tillhandahåller inte en unik journalpost för varje enskilt '
-                    'mottagande eller utgift av legosoldatmynt. MercCoins visas som summor i '
-                    'Statistics.</p>\n'
-                    '<p>En självberäknad bokningshistorik skulle därför inte vara tillförlitlig. '
-                    'CMDRHelper sparar den senaste kända Frontier ögonblicksbilden istället.</p>\n'
-                    '\n'
-                    '<h3>Uppdrag</h3>\n'
-                    '<p>Fliken "Uppdrag" visar de sparade uppdragen för befälhavaren i fråga som '
-                    'en tabell med status, uppdragsnamn, mål, utgångstid och belöning.</p>\n'
-                    '\n'
-                    '<h3>utforskning</h3>\n'
-                    '<p>Fliken Utforskning visar öppna biodata, öppna kartografidata, biologiska '
-                    'upptäckter, första fotfall, självkarterade och effektivt kartlagda kroppar '
-                    'och antalet besökta system.</p>\n'
-                    '<p>Den dedikerade "Chronicle"-fliken i CMDR-vyn är för närvarande fortfarande '
-                    'en platshållare. Hela krönikan finns i huvudmenyn med samma namn.</p>\n'
-                    '\n'
-                    '<h3>Fartyg/flotta</h3>\n'
-                    '<p>Fliken "Fartyg" visar initialt det aktiva eller senast använda fartyget '
-                    'med fartygsnamn, fartygstyp, plats och ShipID.</p>\n'
-                    '<p>Befälhavarens sparade skepp visas under dem som utbyggbara kort. De kan '
-                    'sorteras stigande eller fallande efter:</p>\n'
-                    '<ul>\n'
-                    '<li>senast eller för närvarande använd</li>\n'
-                    '<li>Fartygsnamn eller fartygstyp</li>\n'
-                    '<li>maximalt hoppområde</li>\n'
-                    '<li>Lastkapacitet eller tom massa</li>\n'
-                    '<li>senast kända plats eller tid</li>\n'
-                    '</ul>\n'
-                    '<p>Du kan också filtrera för alla fartyg, fartyg med en fordonshangar eller '
-                    'fartyg med en stridshangar.</p>\n'
-                    '\n'
-                    '<h3>Fartygsdetaljer</h3>\n'
-                    '<p>En öppnad fartygskarta visar - om den sparas - fartygs-ID, ShipID, plats, '
-                    'senaste tid, maximalt hoppområde, FSD och Guardian booster, massa, last- och '
-                    'tankkapaciteter samt lastningstid och status.</p>\n'
-                    '<p>Om moduldata finns tillgänglig sammanfattas även fordons- och '
-                    'jaktplanshangar, sköldgenerator och sköldförstärkare, '
-                    'Guardian-sköldförstärkningar, vapen, skrov- och modulförstärkningar samt '
-                    'passagerarhytter.</p>\n'
-                    '<p>Laddningsstatusen kan vara komplett, ofullständig eller inaktuell. Saknad '
-                    'information visas som "–" och är inte påhittad.</p>\n'
-                    '\n'
-                    '<h3>Fleet Carrier</h3>\n'
-                    '<p>För en sparad anpassad Fleet Carrier visar vyn operatörens namn, '
-                    'anropssignal, operatörs-ID, senaste plats och tidpunkten för den senaste '
-                    'uppdateringen.</p>\n'
-                    '\n'
-                    '<h3>Ihållande befälhavarstat</h3>\n'
-                    '<p>Viktig befälhavarinformation förblir permanent sparad. Detta gör att kända '
-                    'värden kan visas igen efter en omstart av CMDRHelper eller Elite Dangerous '
-                    'utan att fullständigt utvärdera varje journal igen.</p>\n'
-                    '<p>Nya unika journalhändelser uppdaterar det sparade tillståndet.</p>\n'
-                    '\n'
-                    '<h3>Historisk rekonstruktion</h3>\n'
-                    '<p>För funktioner som läggs till senare kan CMDRHelper söka i befintliga '
-                    'journalområden som tydligt är tilldelade en befälhavare en gång efter '
-                    'information som redan är känd.</p>\n'
-                    '<p>Till exempel kan äldre MercCoins ögonblicksbilder användas. Upprepade '
-                    'kontroller är inte avsedda att producera dubbletter av data och ändrar inte '
-                    'normala journalläsningspositioner.</p>\n'
-                    '\n'
-                    '<h3>Flera befälhavare</h3>\n'
-                    '<p>I synnerhet förblir följande separata när det gäller befälhavare:</p>\n'
-                    '<ul>\n'
-                    '<li>Tillgångar och uppdrag</li>\n'
-                    '<li>egen kartografi och ekologiska fynd</li>\n'
-                    '<li>Surface mining historia och legosoldater mynt</li>\n'
-                    '<li>Online-referenser</li>\n'
-                    '<li>befälhavarerelaterade skärmdumpar</li>\n'
-                    '</ul>\n'
-                    '<p>Globala astronomiska egenskaper hos ett system eller en kropp kan dock '
-                    'användas tillsammans.</p>\n'
-                    '\n'
-                    '<h3>Inverkan på andra åsikter</h3>\n'
-                    '<p>Genom att ändra befälhavaren i fråga uppdateras själva CMDR-vyn, valet av '
-                    'personligt gruvråmaterial i krönikan och, med lämpligt filter, '
-                    'skärmbildsgalleriet.</p>\n'
-                    '<p>Den ersätter inte den faktiska befälhavaren för journalbearbetning eller '
-                    'onlineuppladdningar.</p>\n'
-                    '\n'
-                    '<h3>Inara och EDSM</h3>\n'
-                    '<p>Inara- och EDSM-åtkomster hanteras separat per befälhavare respektive '
-                    'FID.</p>\n'
-                    '<p>Att bara titta på en befälhavare startar inte en överföring med deras '
-                    'API-Key. Endast den aktiva tidskriften FID är relevant för '
-                    'liveuppladdningar.</p>\n'
-                    '<p>Åtkomstdata hanteras under "Inställningar" i området för '
-                    'onlinetjänster.</p>\n'
-                    '\n'
-                    '<h3>Dricks</h3>\n'
-                    '<p>Använd CMDR-vyn om du vill se sparad personlig information för en specifik '
-                    'befälhavare.</p>\n'
-                    '<p><b>CMDR-vy = Vem vill jag se?</b></p>\n'
-                    '<p><b>Active Journal-FID = Vem spelar egentligen just nu?</b></p>\n'
-                    '<p>Denna separation förhindrar att personlig data eller onlineuppladdningar '
-                    'från olika befälhavare blandas ihop.</p>'),
+ 'commander_view': (
+        'CMDR-vy',
+        """<h2>CMDR-vy</h2>
+<h3>Välja befälhavare</h3>
+<p>Valet högst upp avgör vems sparade uppgifter du visar. ● Live aktiv markerar den aktiva journalbefälhavaren; Endast visning en annan sparad profil. Valet ändrar inte den aktiva journalbefälhavaren: huvudsidan ”Uppdrag och belöningar” använder fortfarande den som faktiskt spelar. Personliga uppgifter hålls åtskilda med FID, även vid identiska namn. Att visa en profil startar ingen överföring till nättjänster.</p>
+
+<h3>Översikt, förmögenhet och MercCoins</h3>
+<p>”Översikt” visar namn, FID, status, första och senaste registrering, besökta system, biologiska/geologiska fynd, Codex-poster och kartografiförsäljning, plats, öppna uppdrag, skepp, hangarfartyg och osålda bio-/kartografidata med kända uppskattningar. ”Förmögenhet” är det senast sparade kreditsaldot. ”Mercenary credits” visar Frontiers rapporterade värden: ”Current”, ”Total spent”, ”Engineering”, ”Gear” och ”Reported by Frontier: total earned”. Räknarna behöver inte stämma matematiskt överens; CMDRHelper korrigerar dem inte och hittar inte på någon transaktionshistorik. Okända värden visas som ”–”.</p>
+
+<h3>Uppdrag och utforskning</h3>
+<p>”Uppdrag” visar den betraktade befälhavarens sparade öppna uppdrag med status, namn, mål, sluttid och belöning. Tabellen är till för visning, utan uppdragsdetaljer eller uppdragsåtgärder som på huvudsidan. ”Utforskning” visar osålda bio-/kartografidata, biologiska fynd, första fotsteg, personligen och effektivt kartlagda himlakroppar och besökta system. ”Krönika” är en platshållare här; den fullständiga krönikan öppnas från huvudmenyn.</p>
+
+<h3>Flotta och skeppsdetaljer</h3>
+<p>”Skepp” visar det aktuella eller senast använda skeppet överst och därefter befälhavarens sparade flotta. Klicka på ett skeppskorts rubrik för att fälla ut detaljerna. Sortera stigande/fallande efter användning, namn, typ, hoppräckvidd, lastkapacitet, tommassa, plats eller tid; filtrera alla skepp eller skepp med fordons-/jaktplanshangar. Grönt markerar det aktiva skeppet i realtid; andra färger grupperar kända platser. Detaljerna omfattar beteckning, ShipID, plats, tidpunkter, FSD/Guardian-förstärkare, räckvidd, massa, last-/bränslekapacitet och utrustningsstatus (fullständig, ofullständig eller inaktuell). Kända moduldata lägger till hangarer, sköldar och förstärkningar, vapen och passagerarhytter. Saknade uppgifter visas som ”–”.</p>
+
+<h3>Eget hangarfartyg</h3>
+<p>”Egen Fleet Carrier” visar namn, anropssignal, CarrierID, senaste plats och uppdatering för ditt sparade hangarfartyg. Detta är inte handelserbjudanden eller gruvlager.</p>
+
+<h3>Personliga bilder av skepp och hangarfartyg</h3>
+<p>Använd ”Välj skeppsbild…” i de utfällda skeppsdetaljerna eller ”Välj bild för hangarfartyget…” vid hangarfartyget. PNG, JPG/JPEG och WEBP stöds. CMDRHelper sparar en egen lokal kopia, åtskild per befälhavare och skepp eller hangarfartyg, även efter omstart. Ett nytt val ersätter kopian. ”Ta bort egen bild” tar bort kopian och kopplingen; originalfilen finns kvar. Utan egen bild visas en tillgänglig standardförhandsbild eller platshållare. Bildval är inaktiverat om hangarfartyget inte kan identifieras entydigt. Skärmbilder kopplas inte automatiskt.</p>
+
+<h3>Bildvisare</h3>
+<p>Dubbelklicka på en tillgänglig skepps- eller hangarfartygsbild för att öppna den separata visaren med bildfilen, inte bara miniatyren. Bilden anpassas proportionellt till fönstret. Du kan förstora eller maximera fönstret och stänga det med Esc eller stängningsknappen. Det finns ingen bildnavigering eller zoomkontroll här. Huvudområdet ”Bilder” hanterar i stället skärmbilder.</p>
+
+<h3>Ta bort ett skepp</h3>
+<p>”Ta bort skepp…” kräver uttrycklig bekräftelse; Avbryt är förvalt. Åtgärden tar bort den lokala skeppsposten, sparade utrustningsdata och den personliga bildkopian. Det aktuella eller senast använda skeppet och ett identifierat aktivt realtidsskepp är skyddade; borttagning är spärrad under ny inläsning. En lokal borttagningsmarkering hindrar gamla journaldata från att omedelbart återställa skeppet. En ny entydig rapport om skeppet som aktivt i realtidsjournalen efter borttagningen kan återställa det. Bekräftad ny inläsning kan också ta bort markeringen. Den borttagna personliga bildkopian återställs inte.</p>
+
+<h3>Läsa in alla skepp på nytt</h3>
+<p>”Läs in alla skepp igen…” hjälper dig att återfå flottuppgifter från befintliga journaler eller hitta lokalt borttagna skepp igen. Efter bekräftelse läses kända journalfiler och filer i den inställda journalmappen på nytt för den betraktade befälhavaren, enbart för flottan. Elite behöver inte vara igång. Nyare sparade uppgifter och skepp som saknas i tillgängliga journaler behålls; identifierade försäljningar beaktas. Vid framgång tas befälhavarens manuella borttagningsmarkeringar bort. Befintliga personliga bilder behålls; borttagna återställs inte. Andra befälhavare påverkas inte. Om läsning eller tillämpning misslyckas behålls markeringarna: kontrollera journalåtkomsten och försök igen.</p>
+
+<h3>Lokala uppgifter och säkerhet</h3>
+<p>Sparade uppgifter kan visas offline och efter omstart; de motsvarar senast kända tillstånd. Bilder, borttagning och ny inläsning gäller bara CMDRHelper. De ändrar inga skepp, hangarfartyg eller krediter i Elite Dangerous och skriver inte om journalerna.</p>""",
+    ),
  'settings': ('Inställningar',
               '<h2>Inställningar</h2>\n<h3>CMDRHelper</h3>\n<p>Bättre uppdateringsinformation: Ja/Nej-fönstret visar installerad och tillgänglig version samt upp till sex nyheter när en sammanfattning finns. Långa listor kan rullas och åtgärderna förblir tillgängliga.</p>\n'
               '<p>Området "Inställningar" avgör hur CMDRHelper fungerar med Elite Dangerous, '
@@ -1369,8 +1193,82 @@ HELP_TOPICS["overview"] = (HELP_TOPICS["overview"][0], HELP_TOPICS["overview"][1
 
 HELP_TOPICS["settings"] = (HELP_TOPICS["settings"][0], HELP_TOPICS["settings"][1] + '<h3>Diagnostik och loggar</h3><p>Under Inställningar → Diagnostik och loggar kan du öppna loggfilen eller skapa ett diagnostikpaket. Loggarna finns i logs/ i installationsmappen (cmdrhelper.log och upp till fyra äldre filer). ZIP-filen innehåller rensade tekniska loggar, system_info.json och diagnose_summary.txt; inga journaler, databaser, FID-/befälhavardata, inloggningsuppgifter, favoriter eller bilder. Personliga sökvägar ersätts med platshållare. Innehållet i gamla loggar från före integritetsfiltreringen utelämnas. Välj var ZIP-filen ska sparas och dela den med supporten vid behov; den skickas aldrig automatiskt.</p>')
 
-HELP_TOPICS["trade"] = ('Handel', '<h2>Handel</h2><h3>Sälj</h3><p>Sök och välj en handelsvara, ange mängd och filter och starta försäljningssökningen. Referensen är befälhavarens nuvarande system. Pris / t är försäljningspriset; möjlig intäkt gäller angiven mängd vid tillräcklig efterfrågan. Marknadsdata kan ändras. Sökningen är begränsad; fler resultat kräver snävare filter. Avbrott kan vänta på ett pågående nätverkssvar. Priserna stannar endast i minnet. Rare Goods och ruttåtgärder kommer senare.</p><h3>Köp</h3><p>Välj vara och mängd, ange filter och starta köpsökningen manuellt. Pris / t är priset befälhavaren betalar. Utbud är den rapporterade tillgängliga mängden och måste täcka önskad mängd. Totalkostnad = pris × önskad mängd. Gemenskapens marknadsdata kan ändras: kontrollera hur gamla uppgifterna är. Utbudet kan vara mindre vid ankomst. Byte av flik avbryter en aktiv sökning och behåller filtren.</p>')
+HELP_TOPICS["trade"] = (
+    'Handel',
+    """<h2>Handel</h2>
+<h3>Handel i korthet</h3>
+<p>”Sälj” hittar marknader som köper din vara. ”Köp” hittar en viss vara att köpa. ”Rekommendationer” visar vad du kan köpa på din nuvarande station och sälja vidare med vinst enligt dina villkor.</p>
 
-HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<h3>Rekommendationer</h3><p>Köp använder endast den aktiva befälhavarens aktuella, själv observerade Elite-marknad, yngre än 24 timmar. Öppna marknaden i Elite om data saknas. Mål kommer från egna observationer och Spansh. För samma MarketID vinner nyaste giltiga data, vid lika tid lokala data. Vinst/t = försäljningspris vid målet − lokalt inköpspris. Vinst % = vinst/t ÷ inköpspris × 100. Minsta vinsten måste uppnås. Mängd = minimum av bekräftat ledigt lastutrymme, lokalt utbud och målets efterfrågan. Total vinst = vinst/t × mängd. Varje vara visar bästa kontrollerade mål efter total vinst, med källa och dataålder. Okänt avstånd utesluter lokala mål; saknade landningsplats-, carrier- eller ankomstdata uppfyller inte motsvarande begränsningar. Manuell sökning kontrollerar endast lokalt erbjudna varor i följd, med förlopp och avbrytning. Delresultat och sökgränser anges. Priser, utbud och efterfrågan kan ändras.</p>')
+<h3>Marknadsdata och ålder</h3>
+<p>Försäljning och inköp kombinerar automatiskt giltiga sparade egna marknadsobservationer med gemenskapens marknadsdata via Spansh. Rekommendationer köper enbart på din nuvarande observerade Elite-marknad; mål kommer normalt från egna observationer och Spansh. Gemenskapens resultat sparas bara tillfälligt i minnet.</p>
+<p>Alla marknadsdata är ögonblicksbilder, även egna observationer. Pris, utbud och efterfrågan kan ändras före ankomst. Kontrollera åldern: varken tillgänglighet eller vinst garanteras.</p>
+<p>Om samma marknad är känd från din egen observation och från gemenskapen använder CMDRHelper den nyare giltiga ögonblicksbilden.</p>
 
-HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>”Endast egna marknadsdata” kontrollerar bara marknader som du själv observerade för mindre än 24 timmar sedan. Vald maximal ålder för måldata, radie och övriga filter gäller också. Inga förfrågningar skickas till gemenskapen, så den lokala sökningen är mycket snabb. Priser, utbud och efterfrågan kan ändå ha ändrats sedan observationen.</p>')
+<h3>Välja en vara</h3>
+<p>Klicka på ”Handelsvara”, sök efter visat namn, engelskt namn eller symbol och välj varan. Tyska namn kommer från den underhållna tyska varukatalogen. Saknas en tillgänglig översättning visas det engelska katalognamnet eller en läsbar benämning.</p>
+
+<h3>Sälj</h3>
+<p>Sökningen använder både giltiga egna marknadsobservationer och gemenskapens marknadsdata. Välj vara, ”Mängd (t)” och filter, sedan ”Hitta bästa försäljning”. Sökningen hittar köperbjudanden med tillräcklig efterfrågan för angiven mängd. ”Pris / t” är priset du får vid försäljning. ”Möjlig intäkt” = pris × angiven mängd. Utgångspunkten är befälhavarens nuvarande system. Högsta försäljningspris visas först som standard.</p>
+
+<h3>Köp</h3>
+<p>Sökningen använder både giltiga egna marknadsobservationer och gemenskapens marknadsdata. Välj vara, önskad mängd och filter, sedan ”Hitta billigaste köp”. Rapporterat ”Utbud” måste räcka till hela mängden. ”Pris / t” är ditt inköpspris; ”Totalkostnad” = pris × önskad mängd. Utgångspunkten är ditt nuvarande system. Lägsta inköpspris visas först som standard. Detta söker efter en viss vara, inte en vinstmöjlighet.</p>
+
+<h3>Filter och resultattabeller</h3>
+<ul>
+<li><b>Radie (ly):</b> maximalt avstånd från utgångssystemet till målsystemet.</li>
+<li><b>Högsta ålder på marknadsdata / Måldataålder:</b> högsta tillåtna ålder för marknadsdata; för rekommendationer gäller filtret målet.</li>
+<li><b>Landningsplattans storlek:</b> minsta nödvändiga landningsplatta, inte exakt stationsstorlek. ”Mellanstor” tillåter även stora plattor; ”Alla” begränsar inte storleken.</li>
+<li><b>Inkludera Fleet Carriers:</b> tillåt eller uteslut hangarfartyg.</li>
+<li><b>Max. inflygningsavstånd (Ls):</b> maximalt avstånd från ankomststjärnan till stationen. Tomt betyder ingen begränsning. Ett mål med okänt inflygningsavstånd uppfyller inte filtret.</li>
+</ul>
+<p>Egna resultat och gemenskapens resultat använder samma filter för dataålder, radie, landningsplattform, carriers och ankomstavstånd. Saknade uppgifter uppskattas inte. Mål utan känt systemavstånd eller belägg för att de uppfyller en aktiverad begränsning utesluts. För egna marknader gäller detta särskilt saknade platt- och inflygningsdata; när hangarfartyg utesluts måste det vara känt att målet inte är ett hangarfartyg.</p>
+<p>Klicka på kolumnrubriker för att sortera: tal efter talvärde, dataålder efter faktisk ålder och plattor efter storleksklass. Försäljning och inköp visar högst 100 träffar. ”Det finns fler träffar. Begränsa filtren.” anger en begränsad sökning. Tillgängliga egna resultat och gemenskapens resultat sorteras tillsammans efter pris innan listan begränsas. På grund av gemenskapstjänstens sökgränser är de inte garanterat de bästa erbjudandena totalt sett.</p>
+<p>Om gemenskapssökningen misslyckas vid försäljning eller inköp är passande egna resultat fortfarande användbara. CMDRHelper markerar då sökningen som ofullständig: bättre erbjudanden från gemenskapen kan saknas.</p>
+
+<h3>Egna marknadsdata</h3>
+<p>Öppna varumarknaden i Elite medan du är dockad. När CMDRHelper körs registreras marknaden automatiskt om kopplingen till den nuvarande stationen är säker. Ingen manuell import behövs. Öppnar du marknaden igen uppdateras ögonblicksbilden.</p>
+<p>En aktuell ögonblicksbild sparas per marknad och befälhavare, yngre än 24 timmar. Äldre bilder tas bort automatiskt; ingen permanent prishistorik finns. Giltiga egna observationer finns kvar efter omstart av Helper. ”Egna marknadsdata: X stationer” räknar den aktiva befälhavarens giltiga egna stationsmarknader. Den valda högsta åldern för marknadsdata gäller även egna resultat.</p>
+<ul>
+<li><b>✓ Inläst:</b> Under rekommendationer finns en giltig egen ögonblicksbild för den nuvarande stationen.</li>
+<li><b>Öppna varumarknaden:</b> Det saknas en användbar egen ögonblicksbild för stationen.</li>
+<li><b>Marknadsdata inaktuella:</b> En tidigare visad ögonblicksbild är inte längre giltig. Öppna marknaden igen.</li>
+</ul>
+<p>Om en gammal ögonblicksbild togs bort innan vyn öppnades visas också ”Öppna varumarknaden”. Under flygning visas ingen positiv status för den föregående stationen.</p>
+
+<h3>Rekommendationer</h3>
+<p>Du behöver en nuvarande station, dess giltiga egna ögonblicksbild och ett känt nuvarande skepp med säkert känt ledigt lastutrymme. Upptaget utrymme dras av. Vid okänt eller fullt lastutrymme kan ingen ny sökning starta; mängder hittas inte på. Efter avgång görs ingen ny beräkning utifrån din gamla vistelseort.</p>
+<p>Ställ in ”Minsta vinst”: 10 % tar bara med möjligheter med minst 10 % marginal. Sökningen gäller lokalt erbjudna varor. Inköpsstationen är inte själv ett mål. För samma målstation (samma MarketID) används den nyare giltiga ögonblicksbilden. Varje vara visar det kontrollerade målet med högst ”Möjlig vinst” enligt filtren, inte nödvändigtvis det bästa i galaxen. Tabellen börjar med högsta möjliga vinst; ”Källa” visar ”Elite lokalt” eller ”Spansh”, och ”Måldataålder” visar måldataåldern.</p>
+
+<h3>Endast egna marknadsdata</h3>
+<p>Den här kryssrutan finns bara under Rekommendationer. Försäljning och inköp använder automatiskt båda källorna. Kryssrutan begränsar rekommendationerna till giltiga målmarknader du själv har observerat. Ingen gemenskapsförfrågan görs; Spansh behövs inte. Radie, extra åldersgräns för måldata, minsta vinst samt platt-, hangarfartygs- och inflygningsfilter gäller fortfarande och måste kunna uppfyllas med tillgängliga uppgifter. Att avsiktligt hoppa över gemenskapssökningen är inget fel och gör inte sökningen ofullständig. Så kan du snabbt söka mellan redan besökta stationer.</p>
+
+<h3>Möjlig vinst och mängd</h3>
+<ul>
+<li><b>Vinst / t:</b> försäljningspris vid målet − inköpspris här. ”Vinst %” = vinst per ton ÷ inköpspris × 100.</li>
+<li><b>Mängd (t):</b> den minsta av ledigt lastutrymme, utbud på inköpsmarknaden och efterfrågan vid målet.</li>
+<li><b>Möjlig vinst:</b> vinst per ton × möjlig mängd; en uppskattning utifrån kända ögonblicksbilder.</li>
+</ul>
+<p>Exempel: 280 t ledigt, 150 t utbud, 20 000 t efterfrågan → 150 t möjlig mängd. Alla varor kan inte automatiskt fylla hela det lediga lastutrymmet.</p>
+
+<h3>Sparad handelsflygning</h3>
+<p>Kryssa för att komma ihåg exakt en rekommendation. Ett annat val ersätter den. Den separata anteckningen visar vara, målstation, målsystem och ”Möjlig vinst” vid valtillfället. Det är en minneslapp, inte en rekommendation som räknas om löpande.</p>
+<p>Den finns kvar vid köp, laständring, avgång, systembyte, dockning och marknadsöppning. Den försvinner med ”Ta bort” eller genom att ta bort krysset, när en ny rekommendationssökning faktiskt startar, vid befälhavarbyte och när Helper avslutas. Den sparas inte över omstart.</p>
+<p>”Kopiera system” kopierar bara målsystemets namn till urklipp. Målstationen finns kvar i anteckningen; ingen rutt skapas.</p>
+
+<h3>Sökning, förlopp och avbrott</h3>
+<p>Starta sökningar manuellt. Rekommendationer kontrollerar flera varor och kan ta längre tid. När omfattningen är känd visar förloppsindikatorn och ”Kontrollerar varor: x av y …” de faktiskt kontrollerade varorna. ”Avbryt” är bara tillgängligt under en sökning som kan avbrytas; ett pågående nätverkssvar kan fördröja avbrottet. Flikbyte avbryter sökningen; gemensamma filter för försäljning/inköp behålls.</p>
+<p>Om enskilda gemenskapsförfrågningar misslyckas eller sökgränser nås kan giltiga kontrollerade rekommendationer visas vidare. En ofullständig sökning betyder att träffarna gäller kontrollerade data, men att inte alla varor eller mål undersökts fullständigt. Läs meddelandet, snäva in filtren vid sökgränser eller försök igen senare. Manuellt avbrott kastar den aktuella resultatlistan.</p>
+
+<h3>Diagnostik vid problem</h3>
+<p>”Kopiera diagnostik” kopierar teknisk information från den senast avslutade rekommendationssökningen för felsökning. Texten innehåller inga befälhavar-/FID-uppgifter eller marknadspriser. Diagnostiken finns kvar i minnet; ingen permanent diagnostikfil skapas och inget skickas automatiskt. Dela själv den kopierade texten med support vid behov.</p>
+
+<h3>Så genomför du en handelsrunda</h3>
+<ol>
+<li>Docka vid en station och öppna varumarknaden i Elite.</li>
+<li>Öppna ”Handel” → ”Rekommendationer” och kontrollera ”Inläst”.</li>
+<li>Ställ in minsta vinst och filter och välj ”Sök rekommendationer”.</li>
+<li>Kryssa för rekommendationen du vill minnas och köp varan i Elite.</li>
+<li>Använd ”Kopiera system” vid behov och flyg till målet; stationen finns kvar i anteckningen.</li>
+<li>Sälj i Elite. Öppna marknaden där för att också uppdatera dina egna data om den nya marknaden.</li>
+</ol>""",
+)
