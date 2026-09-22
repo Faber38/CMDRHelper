@@ -24,6 +24,9 @@ HELP_TOPICS = {
 <h3>Noms des matériaux</h3>
 <p>Si le nom d’un matériau n’est pas encore disponible dans la langue choisie, son nom d’affichage anglais est utilisé. Les symboles internes du journal ne remplacent pas les noms d’affichage existants.</p>
 <h3>Odyssey</h3>
+<p>« Volé » marque une pile explicitement signalée comme volée dans les données Elite enregistrées. Une indication absente ne confirme pas que la pile n’est pas volée. Si un identifiant de propriétaire est connu, l’infobulle l’affiche sous « Propriétaire » ; aucun nom inconnu n’est ajouté.</p>
+<p>L’infobulle « Disponibilité actuelle non confirmée » indique une source d’obtention non confirmée pour les matériaux spéciaux concernés. CMDRHelper ne peut fournir d’information actuelle vérifiée sur leur acquisition ; cela ne signifie pas que l’objet est introuvable.</p>
+
 <p>Le quatrième onglet de Matériaux contient Marchandises, Matériaux, Données et Consommables. Le casier et le sac à dos affichent les stocks personnels. Porte-vaisseaux ✎ affiche le stock privé confirmé manuellement sur votre propre porte-vaisseaux pour les marchandises, matériaux et données. Double-cliquez pour confirmer, corriger ou définir comme inconnu. — signifie inconnu ; 0 doit être confirmé explicitement. La colonne « Total » inclut casier, sac à dos et porte-vaisseaux uniquement si les valeurs sont connues et cohérentes. Avec plusieurs lots, le stock du porte-vaisseaux apparaît une fois dans le récapitulatif ; les lots restent séparés. Les consommables conservent le total personnel sans porte-vaisseaux. FCMaterials n’est pas un inventaire complet du porte-vaisseaux et n’est pas utilisé comme tel. La limite de 1000 du casier s’applique par catégorie, pas par objet. Le stock du porte-vaisseaux est estimé depuis la dernière confirmation. Les variations du casier sont compensées uniquement à bord de votre propre porte-vaisseaux, après déduction des transactions personnelles explicites. Les achats et ventes au bar, notamment par d’autres joueurs, peuvent modifier le stock réel sans être enregistrés automatiquement. Double-cliquez pour confirmer à nouveau si nécessaire. Le total utilise une projection du dernier stock confirmé, sans garantie de consultation en direct. Le stockage privé Odyssey partage 1 000 places entre marchandises, matériaux et données. La somme des stocks est complète uniquement lorsque toutes les positions et les matériaux supplémentaires sont confirmés, y compris les zéros. Sinon, un minimum est affiché. En cas de dépassement, les valeurs sont conservées et Total devient inconnu. Casier, sac à dos et réservations du marché ne sont pas du stock privé du porte-vaisseaux.<br><b>! – Configurer le stock du porte-vaisseaux</b><br>Double-cliquez dans la colonne Porte-vaisseaux et saisissez la quantité actuelle pour CHAQUE position. Confirmez explicitement TOUTES les positions vides avec 0.<br>— = pas encore confirmé / inconnu<br>0 = stock vide explicitement confirmé</p>
 <p>Les ordres d’achat ouverts du barman réservent de la capacité. L’occupation en jeu peut donc dépasser le stock de matériaux. Les réservations ne sont pas des matériaux et ne comptent pas dans leurs totaux. Sans données de marché suffisamment actuelles, l’occupation reste inconnue. Les échanges des autres joueurs peuvent modifier cet instantané.</p>
 <p>Utilisation affiche les indications d’usage de l’objet. Mission désigne l’affectation à une mission de la pile d’inventaire concernée, et non une propriété générale du type d’objet. Les piles ordinaires et celles liées à une mission restent séparées. Même après la fin d’une mission, l’objet reste marqué tant que le journal le répertorie dans l’inventaire ; une mission terminée ne le fait pas disparaître automatiquement. L’infobulle indique le numéro de mission et son statut connu. Ingénierie signifie que le catalogue statique Odyssey connaît au moins une utilisation confirmée : amélioration de combinaison, amélioration d’arme, modification de combinaison, modification d’arme ou déblocage d’ingénieur. Les utilisations détaillées figurent dans l’infobulle. L’absence de cette indication ne signifie pas que l’objet est inutile ou uniquement échangeable. Les objets Powerplay et d’autres objets spéciaux peuvent également apparaître.</p>
@@ -76,16 +79,16 @@ HELP_TOPICS = {
               '\n'
               '<h3>Missions</h3>\n'
               '<p>Cette zone affiche le nombre de missions ouvertes actuellement connues.</p>\n'
-              "<p>Le bouton ou l'élément de menu «\xa0Missions\xa0» vous amène à la vue complète "
-              'de la mission avec les objectifs de mission connus et les informations sur '
-              "l'état.</p>\n"
+              "<p>« Missions → » ouvr"
+              'e la rubrique principale « Missions et récompenses » avec les objectifs de mission connus et leur '
+              "état.</p>\n"
               '\n'
-              '<h3>Dernier combat</h3>\n'
+              '<h3>Dernier état</h3>\n'
               '<p>«\xa0Dernier état\xa0» résume le dernier état persistant connu du commandant. '
               'Cela permet de restaurer les informations importantes même après le redémarrage du '
               'Elite Dangerous ou du CMDRHelper.</p>\n'
               '\n'
-              '<h3>Systèmes finaux</h3>\n'
+              '<h3>Systèmes récemment visités</h3>\n'
               '<p>Les systèmes récemment visités ou reconnus dans le journal sont affichés '
               'ici.</p>\n'
               '<p>La liste constitue un aperçu rapide du récent voyage du commandant.</p>\n'
@@ -692,8 +695,8 @@ HELP_TOPICS = {
             "<p>L'utilisateur définit ce dossier racine. CMDRHelper crée automatiquement les "
             'sous-dossiers requis liés au commandant pendant le traitement.</p>\n'
             '\n'
-            '<h3>Traitement automatique</h3>\n'
-            '<p>Si «\xa0Convertir automatiquement\xa0» est activé et que des dossiers source et de '
+            '<h3>Enregistrer les paramètres</h3>\n<p>« Enregistrer les paramètres » enregistre les dossiers source et destination, le format de sortie, l’éclaircissement et les deux cases à cocher. La surveillance est réinitialisée avec ces choix ; les BMP existants sont marqués comme connus. La galerie est également actualisée.</p>\n<p>« Actualiser la galerie » recharge la galerie à partir des images existantes pour le filtre actuel. Cette action ne lance aucune conversion BMP.</p>\n\n<h3>Traitement automatique</h3>\n'
+            '<p>Si «Convertir automatiquement les nouveaux fichiers BMP» est activé et que des dossiers source et de '
             'destination valides sont définis, CMDRHelper vérifie régulièrement le dossier source '
             "pour de nouvelles captures d'écran BMP.</p>\n"
             "<p>Lorsqu'ils sont activés, les fichiers BMP existants sont initialement marqués "
@@ -709,8 +712,8 @@ HELP_TOPICS = {
             'être sélectionnés comme format cible.</p>\n'
             '<p>Les fichiers JPG sont enregistrés au niveau de qualité 95. Les fichiers PNG sont '
             'enregistrés de manière optimisée.</p>\n'
-            "<p>Par défaut, le fichier BMP d'origine est conservé. Si «\xa0Supprimer le BMP après "
-            "la conversion\xa0» est activé, le BMP source ne sera supprimé qu'une fois l'image "
+            "<p>Par défaut, le fichier BMP d'origine est conservé. Si «Supprimer le BMP après "
+            "une conversion réussie» est activé, le BMP source ne sera supprimé qu'une fois l'image "
             'cible enregistrée avec succès.</p>\n'
             '\n'
             "<h3>Éclaircir l'image</h3>\n"
@@ -741,7 +744,7 @@ HELP_TOPICS = {
             'commandant et - si disponible - le système stellaire connu lors de la file '
             "d'attente.</p>\n"
             '<p>Exemple:</p>\n'
-            '<p><b>2026-09-04_13-18-22_EXAMPLE_Sol.png</b></p>\n'
+            '<p><b>2026-09-04_&#8203;13-18-22_&#8203;EXAMPLE_&#8203;Sol.png</b></p>\n'
             '<p>Le FID se trouve dans le nom du dossier associé au commandant, et non dans le nom '
             'du fichier image.</p>\n'
             '\n'
@@ -762,7 +765,7 @@ HELP_TOPICS = {
             '<h3>Plusieurs images dans la même seconde</h3>\n'
             '<p>Si le nom de fichier souhaité existe déjà ou est réservé pour une conversion en '
             "cours, CMDRHelper l'ajoute "
-            'continuellement<code>_2</code>,<code>_3</code>,<code>_4</code>et ainsi de suite.</p>\n'
+            'continuellement <code>_2</code>,<code>_3</code>,<code>_4</code> et ainsi de suite.</p>\n'
             "<p>Cela signifie qu'une autre capture d'écran avec le même horodatage n'écrasera pas "
             'une image cible existante.</p>\n'
             '\n'
@@ -841,17 +844,17 @@ HELP_TOPICS = {
             "<p>Si Commander et FID sont manquants lors de la mise en file d'attente d'un nouvel "
             'enregistrement, le fichier ne sera pas mis en attente et ne sera pas attribué à un '
             'Commander connu.</p>\n'
-            '<p>Ce sera dans le sous-dossier<b>UNKNOWN_UNKNOWN/</b>traité; le nom de fichier '
-            'également utilisé pour le Commander<b>INCONNU</b>. Ce dossier peut être consulté via '
+            '<p>Ce sera dans le sous-dossier <b>UNKNOWN_&#8203;UNKNOWN/</b> traité; le nom de fichier '
+            'également utilisé pour le Commander <b>UNKNOWN</b>. Ce dossier peut être consulté via '
             'Tous les commandants, et non via le filtre du dossier racine non alloué.</p>\n'
             '\n'
             '<h3>Plusieurs commandants</h3>\n'
             "<p>Deux règles distinctes s'appliquent à la gestion des images\xa0:</p>\n"
             '<ul>\n'
-            "<li><b>Enregistrer de nouvelles images\xa0:</b>L'identité du journal actif avec "
+            "<li><b>Enregistrer de nouvelles images\xa0:</b> L'identité du journal actif avec "
             "Commander et FID lorsqu'ils sont mis en file d'attente détermine le dossier de "
             'destination.</li>\n'
-            '<li><b>Voir les images\xa0:</b>Le commandant visualisé ou le filtre de galerie '
+            '<li><b>Voir les images\xa0:</b> Le commandant visualisé ou le filtre de galerie '
             'sélectionné détermine les images visibles.</li>\n'
             '</ul>\n'
             "<p>Cela signifie que la galerie d'un autre commandant peut être consultée pendant la "
@@ -906,11 +909,11 @@ HELP_TOPICS = {
               "l'interface et les mises à jour.</p>\n"
               '<p>Les modifications des informations d’identification et des parcours doivent être '
               'effectuées avec soin. Les paramètres liés au contrôleur sont gérés séparément par '
-              "l'ID Frontier si nécessaire.</p>\n"
+              "l'ID Frontier si nécessaire.</p>\n\n<h3>Favori rapide</h3>\n<p>Dans « Favori rapide », utilisez « Définir le raccourci » pour définir un raccourci global ou « Modifier le raccourci » pour le modifier. « Supprimer le raccourci » supprime l’affectation ; l’état initial est « Non attribué ». Le choix est enregistré. Un conflit d’enregistrement affiche un message. Le raccourci sauvegarde sans dialogue une position actuelle valide en surface comme favori du commandant, sans capture d’écran. Sans données de position adaptées, rien n’est enregistré.</p>\n"
               '\n'
               '<h3>journal</h3>\n'
               "<p>Le dossier du journal est l'un des paramètres les plus importants. Il doit "
-              'pointer vers le dossier où Elite Dangerous le<code>Journal*.log</code>fichiers du '
+              'pointer vers le dossier où Elite Dangerous le <code>Journal*.log</code> fichiers du '
               'profil Windows ou Proton utilisé.</p>\n'
               '<p>Les revues fournissent, entre autres :</p>\n'
               '<ul>\n'
@@ -977,7 +980,7 @@ HELP_TOPICS = {
               '\n'
               '<h3>Actualiser manuellement les stations</h3>\n'
               '<p>Ouvrez « Vue d’ensemble » et choisissez « Actualiser les données Spansh ». Seules les informations de stations Spansh du système affiché dans cette fenêtre sont actualisées, pas tous les systèmes enregistrés ni les prix des marchés. L’option doit être activée ; pendant une requête pour ce système, l’action est désactivée.</p>\n'
-              '<p>L’action manuelle peut ignorer le délai de 7 jours et une tentative automatique échouée le même jour. Si le système a déjà été récupéré avec succès aujourd’hui selon le calendrier local, aucune nouvelle requête n’est faite : « Les données Spansh ont déjà été mises à jour aujourd’hui. » Une récupération réussie renouvelle le cache de stations. En cas d’échec, les informations locales et les données utilisables du cache sont conservées et la ligne d’état indique l’échec. Une tentative manuelle échouée peut être relancée.</p>\n'
+              '<p>L’action manuelle peut ignorer le délai de 7 jours et une tentative automatique échouée le même jour. Si le système a déjà été récupéré avec succès aujourd’hui selon le calendrier local, aucune nouvelle requête n’est faite : « Les données Spansh ont déjà été mises à jour aujourd’hui. » Une récupération réussie renouvelle le cache de stations. En cas d’échec, les informations locales et les données utilisables du cache sont conservées et la ligne d’état indique l’échec. Une tentative manuelle échouée peut être relancée.</p>\n\n<h3>Données des corps EDSM et cache</h3>\n<p>« Utiliser EDSM » contrôle aussi les données complémentaires des corps du système actuel du commandant actif du journal dans Explorer. Après « Enregistrer les accès en ligne » et lors des mises à jour normales du journal, un cache utilisable est chargé ou EDSM est interrogé en arrière-plan. Cette consultation publique nécessite le réseau mais aucune clé API ; l’envoi du journal est une opération distincte.</p>\n<p>Les données de corps obtenues sont conservées localement par système et réutilisables depuis le cache pendant au plus 24 heures, même après un redémarrage. Les données plus anciennes déclenchent une nouvelle demande lors d’une mise à jour appropriée. Si la fonction est désactivée, ce cache n’enrichit pas l’affichage et aucune nouvelle demande de corps ne démarre ; les fichiers du cache ne sont pas supprimés. Les données locales du journal restent utilisables. Un échec ne crée aucun corps fictif.</p>\n'
               '\n'
               '<h3>Accès EDSM pour</h3>\n'
               '<p>«\xa0Accès EDSM pour\xa0:\xa0» sélectionne le commandant à modifier. La '
@@ -1089,7 +1092,7 @@ HELP_TOPICS = {
               '\n'
               '<p>La fenêtre Cargo utilise exclusivement le snapshot Cargo confirmé pour la FID active du Journal. Le commander consulté dans CMDR View et viewed_commander_id n’influencent pas cette fenêtre en direct. Pour un Ship, elle affiche occupé / maximum · libre ; si CargoCapacity est inconnue, aucune valeur n’est estimée.</p>\n'
               '<p>« HUD de statut EDSM », sous « afficher automatiquement », est DÉSACTIVÉ par défaut. Après l’entrée dans un système, un bref message apparaît sur Elite pendant environ 2,5 secondes. Plusieurs événements Location pendant le même séjour ne produisent pas de doublons ; un véritable retour peut déclencher une nouvelle vérification.</p>\n<p>« EDSM : CONNU » signifie une correspondance EDSM valide pour le système. « EDSM : INCONNU » signifie une réponse EDSM valide sans correspondance. « EDSM : AUCUNE RÉPONSE » signifie une erreur réseau, HTTP, un délai dépassé ou une réponse invalide, jamais une absence de correspondance confirmée. La présence dans EDSM ne vaut pas découverte officielle dans Elite ; aucun nom de premier découvreur ou déclarant n’est promis.</p>\n<p>Le message fonctionne indépendamment des HUD de navigation et de soute. Les affichages permanents et les messages de favori rapide sont préservés. La requête ne bloque pas l’interface ; les réponses tardives concernant un système déjà quitté sont ignorées.</p>\n\n'
-              '<h3>Mises à jour</h3>\n'
+              '<p>Les interrupteurs « afficher automatiquement » de la barre latérale sont indépendants : « Corps de grande valeur », « Découvertes BIO », « GEO » et « Soute » contrôlent leurs fenêtres respectives. « HUD de soute » affiche la cargaison en surimpression, « HUD de navigation » la navigation planétaire active. Ces interrupteurs d’affichage ne lancent pas eux-mêmes de requête en ligne ; les HUD nécessitent Elite au premier plan et des données adaptées.</p>\n<p>« HUD de statut EDSM » nécessite en revanche sa propre requête publique à EDSM, indépendamment de « Utiliser EDSM », de son cache des corps et d’une clé API. L’envoi Inara et les informations de stations Spansh ont leurs propres interrupteurs ; ceux des HUD ne les activent pas.</p>\n\n<h3>Mises à jour</h3>\n'
               "<p>Le groupe de mise à jour affiche la version installée et l'état de GitHub. "
               'Vérifier maintenant recherche manuellement une nouvelle version planifiée de '
               'CMDRHelper\xa0; De plus, un contrôle automatique différé a lieu après le '

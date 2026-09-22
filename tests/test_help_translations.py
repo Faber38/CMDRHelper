@@ -219,7 +219,7 @@ class HelpTranslationTests(unittest.TestCase):
                 engineering, odyssey = text.split('<h3>Odyssey</h3>')
                 odyssey, mining = odyssey.split('<h3>Mining</h3>')
                 self.assertTrue(mining.strip())
-                self.assertEqual(odyssey.count('<p>'), 5)
+                self.assertEqual(odyssey.count('<p>'), 7)
                 self.assertIn('1000', odyssey)
                 self.assertIn('—', odyssey)
                 self.assertNotIn('250', odyssey)
@@ -233,7 +233,7 @@ class HelpTranslationTests(unittest.TestCase):
                     for key in ('items', 'components', 'data', 'consumables', 'locker',
                                 'backpack', 'total', 'usage', 'mission', 'engineering', 'empty'):
                         self.assertIn(ui['odyssey.' + key], odyssey)
-                    filters = re.findall(r'<p>(.*?)</p>', odyssey)[3]
+                    filters = re.findall(r'<p>(.*?)</p>', odyssey)[5]
                     for key in ('materials.all', 'odyssey.mission', 'odyssey.engineering',
                                 'odyssey.backpack', 'odyssey.locker', 'odyssey.empty'):
                         self.assertIn(ui[key], filters)

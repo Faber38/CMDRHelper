@@ -52,7 +52,7 @@ class StationHelpTests(unittest.TestCase):
                 ('explorer', ('stations.search', 'stations.all_bodies', 'spansh.services',
                               'spansh.refresh', 'explorer.overview_auto_fit', 'explorer.overview_fit'), 34),
                 ('settings', ('spansh.enabled', 'settings.online_services',
-                              'spansh.refresh', 'spansh.refresh_already_today'), 33),
+                              'spansh.refresh', 'spansh.refresh_already_today'), 35),
             ):
                 with self.subTest(language=language, context=context):
                     text = help_topic(context, language).text
@@ -83,10 +83,6 @@ class StationHelpTests(unittest.TestCase):
                     for context in ('explorer', 'settings'):
                         with self.subTest(language=language, light=light, size=size, context=context):
                             dialog = HelpDialog(context, language=language)
-                            # Greek settings already needs a wider window at 24 pt
-                            # in the baseline help; keep unrelated sections intact.
-                            if language == 'el' and context == 'settings' and size == 24:
-                                dialog.resize(900, 480)
                             dialog.show()
                             self.app.processEvents()
                             scroll = dialog.scroll_area

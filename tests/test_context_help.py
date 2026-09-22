@@ -394,7 +394,7 @@ class ContextHelpTests(unittest.TestCase):
             "Bilder anzeigen:",
         ):
             self.assertIn(passage, topic.text)
-        self.assertEqual(topic.text.count("<h3>"), 23)
+        self.assertEqual(topic.text.count("<h3>"), 24)
         self.assertEqual(topic.text.count("<ul>"), 1)
 
     def test_commander_view_help_contains_all_implemented_sections(self):
@@ -559,7 +559,7 @@ class ContextHelpTests(unittest.TestCase):
             "aktive Journal-FID bestätigten Cargo-Snapshot",
         ):
             self.assertIn(passage, topic.text)
-        self.assertEqual(topic.text.count("<h3>"), 33)
+        self.assertEqual(topic.text.count("<h3>"), 35)
         self.assertIn("diagnose_summary.txt", topic.text)
         self.assertEqual(topic.text.count("<ul>"), 4)
 

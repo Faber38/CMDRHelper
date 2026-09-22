@@ -24,6 +24,9 @@ HELP_TOPICS = {
 <h3>Materialnamen</h3>
 <p>Ist ein Materialname noch nicht in der gewählten Sprache verfügbar, erscheint sein englischer Anzeigename. Interne Journalsymbole ersetzen keine vorhandenen Anzeigenamen.</p>
 <h3>Odyssey</h3>
+<p>„Gestohlen“ kennzeichnet einen Inventarstapel, dessen gespeicherte Elite-Daten ihn ausdrücklich als gestohlen ausweisen. Fehlt diese Angabe, wird daraus kein bestätigtes „nicht gestohlen“. Ist eine Besitzerkennung bekannt, erscheint sie im Tooltip als „Besitzer“; ein unbekannter Besitzername wird nicht ergänzt.</p>
+<p>Der Tooltip „Aktuelle Beschaffbarkeit nicht bestätigt“ weist bei entsprechenden Sondermaterialien auf eine unbestätigte Bezugsquelle hin. CMDRHelper kann dann keine gesicherte aktuelle Beschaffungsinformation nennen; das bedeutet nicht, dass der Gegenstand nicht beschaffbar ist.</p>
+
 <p>Der vierte Reiter enthält Waren, Materialien, Daten und Verbrauchsgegenstände. Schließfach und Rucksack zeigen persönliche Bestände. Carrier ✎ zeigt für Waren, Materialien und Daten den manuell bestätigten privaten Bestand auf dem eigenen Carrier. Doppelklick zum Bestätigen, Korrigieren oder Auf-unbekannt-Setzen. — bedeutet unbekannt; 0 muss ausdrücklich bestätigt werden. Gesamt enthält Schließfach, Rucksack und Carrier nur bei bekannten, zusammenpassenden Werten. Bei mehreren Stapeln steht der Carrierbestand einmal in der Summenzeile; die Stapel bleiben getrennt. Verbrauchsgegenstände behalten die persönliche Summe ohne Carrier. FCMaterials ist kein vollständiger Carrierbestand und wird nicht als solcher verwendet. Die Schließfachgrenze von 1000 gilt je Kategorie, nicht je Gegenstand. Der Carrierbestand wird aus dem zuletzt bestätigten Stand fortgeschrieben. Nur auf dem eindeutig eigenen Carrier werden Schließfachänderungen nach Abzug expliziter persönlicher Vorgänge gegengebucht. Käufe und Verkäufe über den Carrier-Barkeeper, insbesondere durch andere Spieler, können den tatsächlichen Bestand verändern und werden möglicherweise nicht automatisch erfasst. Bei Bedarf per Doppelklick neu bestätigen. Gesamt verwendet die Projektion aus dem zuletzt bestätigten Carrierstand, keine garantierte Live-Abfrage. Das private Odyssey-Carrierlager hat gemeinsam 1.000 Plätze für Waren, Materialien und Daten. Die Bestandsumme ist nur vollständig bekannt, wenn alle Katalogpositionen und zusätzlich erfassten Materialien einschließlich 0 bestätigt sind. Sonst wird ein Mindestbestand angezeigt. Bei Überschreitung bleiben Eingaben erhalten; Gesamt wird unbekannt. Schließfach, Rucksack und Marktreservierungen zählen nicht zum privaten Materialbestand.<br><b>! – Carrierbestand einrichten</b><br>Trage im CMDRHelper per Doppelklick in der Spalte „Carrier“ für JEDE Position den aktuell auf dem Carrier vorhandenen Bestand ein. Bestätige auch ALLE leeren Positionen ausdrücklich mit 0.<br>— = noch nicht bestätigt / unbekannt<br>0 = ausdrücklich bestätigter leerer Bestand</p>
 <p>Offene Kaufangebote beim Carrier-Barkeeper reservieren Lagerkapazität. Deshalb kann die Ingame-Lagerbelegung höher sein als der vorhandene Materialbestand. Reservierungen zählen nicht zum Materialbestand oder zu Material-Gesamtsummen. Ohne passend aktuelle Marktdaten bleibt die Lagerbelegung unbekannt. Angezeigte Marktstände sind Momentaufnahmen; Handel anderer Spieler kann sie verändern.</p>
 <p>Die Kennzeichnung Mission gehört zum jeweiligen Bestandsstapel. Normale und missionsgebundene Gegenstände bleiben getrennt. Auch nach Missionsabschluss bleibt ein Gegenstand gekennzeichnet, solange das Journal ihn im Bestand führt. Der Tooltip zeigt Missionsnummer und bekannten Status. Engineering weist auf mindestens eine Verwendung für Anzug, Waffen oder Ingenieurfreischaltung hin; die einzelnen Verwendungen stehen im Tooltip.</p>
@@ -64,7 +67,7 @@ HELP_TOPICS = {
 
 <h3>Missionen</h3>
 <p>Dieser Bereich zeigt die Anzahl der derzeit bekannten offenen Missionen.</p>
-<p>Über die Schaltfläche beziehungsweise den Menüpunkt „Missionen“ gelangt man zur vollständigen Missionsansicht mit den bekannten Missionszielen und Statusinformationen.</p>
+<p>Über „Missionen →“ gelangst du zum Hauptbereich „Missionen &amp; Belohnungen“ mit den bekannten Missionszielen und Statusinformationen.</p>
 
 <h3>Letzter Stand</h3>
 <p>„Letzter Stand“ fasst den zuletzt bekannten persistenten Commanderzustand zusammen. Dadurch können wichtige Informationen auch nach einem Neustart von Elite Dangerous oder CMDRHelper wiederhergestellt werden.</p>
@@ -624,15 +627,19 @@ HELP_TOPICS = {
 <p>Der Zielordner ist der gemeinsame Stammordner für die von CMDRHelper verarbeiteten Bilder.</p>
 <p>Der Benutzer legt diesen Stammordner fest. CMDRHelper erstellt darunter bei der Verarbeitung automatisch die benötigten commanderbezogenen Unterordner.</p>
 
+<h3>Einstellungen speichern</h3>
+<p>„Einstellungen speichern“ speichert Quell- und Zielordner, Zielformat, Aufhellung sowie beide Checkboxzustände. Die Überwachung wird anhand dieser Auswahl neu eingerichtet; bereits vorhandene BMPs werden dabei als bekannt markiert. Auch die Galerie wird aktualisiert.</p>
+<p>„Galerie aktualisieren“ lädt die Galerie aus den vorhandenen Bilddateien für den aktuellen Galeriefilter neu. Es startet keine BMP-Konvertierung.</p>
+
 <h3>Automatische Verarbeitung</h3>
-<p>Ist „Automatisch konvertieren“ aktiviert und sind gültige Quell- und Zielordner gesetzt, prüft CMDRHelper den Quellordner regelmäßig auf neue BMP-Screenshots.</p>
+<p>Ist „Neue BMP-Dateien automatisch konvertieren“ aktiviert und sind gültige Quell- und Zielordner gesetzt, prüft CMDRHelper den Quellordner regelmäßig auf neue BMP-Screenshots.</p>
 <p>Beim Aktivieren werden bereits vorhandene BMP-Dateien zunächst als bekannt markiert und nicht ungefragt automatisch konvertiert. Dafür steht die separate Funktion zum Konvertieren vorhandener BMPs bereit.</p>
 <p>Eine neue Datei wird erst eingereiht, wenn sie bei zwei aufeinanderfolgenden Prüfungen dieselbe von null verschiedene Größe besitzt. Dadurch wird ein noch laufender Schreibvorgang nicht sofort verarbeitet.</p>
 
 <h3>Bildkonvertierung</h3>
 <p>Als Quelle verarbeitet CMDRHelper BMP-Dateien. Als Zielformat kann „PNG“ oder „JPG“ gewählt werden.</p>
 <p>JPG-Dateien werden mit Qualitätsstufe 95 gespeichert. PNG-Dateien werden optimiert gespeichert.</p>
-<p>Standardmäßig bleibt die ursprüngliche BMP-Datei erhalten. Ist „BMP nach Konvertierung löschen“ aktiviert, wird die Quell-BMP erst nach erfolgreicher Speicherung des Zielbildes gelöscht.</p>
+<p>Standardmäßig bleibt die ursprüngliche BMP-Datei erhalten. Ist „BMP nach erfolgreicher Konvertierung löschen“ aktiviert, wird die Quell-BMP erst nach erfolgreicher Speicherung des Zielbildes gelöscht.</p>
 
 <h3>Bild aufhellen</h3>
 <p>Die Aufhellung wird über einen Schieberegler und ein gekoppeltes Zahlenfeld von 0 bis 50 Prozent eingestellt. Die Einstellung wird gespeichert.</p>
@@ -649,7 +656,7 @@ HELP_TOPICS = {
 <h3>Dateinamen</h3>
 <p>Neue verarbeitete Bilder erhalten einen Namen mit Aufnahmezeitpunkt, Commandername und – wenn vorhanden – dem beim Einreihen bekannten Sternensystem.</p>
 <p>Beispiel:</p>
-<p><b>2026-09-04_13-18-22_EXAMPLE_Sol.png</b></p>
+<p><b>2026-09-04_&#8203;13-18-22_&#8203;EXAMPLE_&#8203;Sol.png</b></p>
 <p>Die FID steht im commanderbezogenen Ordnernamen, nicht noch einmal im Bilddateinamen.</p>
 
 <h3>Sichere Dateinamen</h3>
@@ -763,6 +770,9 @@ HELP_TOPICS = {
 <p>Im Bereich „Einstellungen“ wird festgelegt, wie CMDRHelper mit Elite Dangerous, Journaldateien, Datenbank, Online-Diensten, Oberfläche und Updates arbeitet.</p>
 <p>Änderungen an Zugangsdaten und Pfaden sollten sorgfältig vorgenommen werden. Commanderbezogene Einstellungen werden soweit erforderlich getrennt nach Frontier-ID verwaltet.</p>
 
+<h3>Schnell-Favorit</h3>
+<p>Unter „Schnell-Favorit“ legst du mit „Hotkey festlegen“ eine globale Tastenkombination fest oder änderst sie mit „Hotkey ändern“. „Hotkey entfernen“ entfernt die Belegung; anfangs gilt „Nicht belegt“. Die Auswahl wird gespeichert. Bei einem Registrierungskonflikt erscheint ein Hinweis. Die Taste speichert eine gültige aktuelle Oberflächenposition ohne Dialog als commanderbezogenen Favoriten, keinen Screenshot. Ohne passende Positionsdaten wird nichts gespeichert.</p>
+
 <h3>Journal</h3>
 <p>Der Journalordner ist eine der wichtigsten Einstellungen. Er muss auf den Ordner zeigen, in dem Elite Dangerous die <code>Journal*.log</code>-Dateien des verwendeten Windows- beziehungsweise Proton-Profils ablegt.</p>
 <p>Die Journale liefern unter anderem:</p>
@@ -807,6 +817,10 @@ HELP_TOPICS = {
 <h3>Stationsdaten manuell aktualisieren</h3>
 <p>Öffne „Gesamtansicht“ und wähle „Spansh-Daten aktualisieren“. Aktualisiert werden nur die Spansh-Stationsinformationen des in diesem Fenster angezeigten Systems, nicht alle gespeicherten Systeme und keine Handelsmarktpreise. Der Schalter muss aktiv sein; während einer laufenden Abfrage für dieses System ist die Aktion gesperrt.</p>
 <p>Die manuelle Aktion kann die 7-Tage-Frist und einen fehlgeschlagenen automatischen Tagesversuch umgehen. Wurde das System heute nach lokalem Kalender bereits erfolgreich abgerufen, erfolgt kein erneuter Abruf: „Spansh-Daten wurden heute bereits aktualisiert.“ Ein erfolgreicher Abruf erneuert den Stationscache. Bei Fehlern bleiben vorhandene lokale und verwendbare Cachedaten erhalten; die Statuszeile zeigt den Fehlschlag. Ein fehlgeschlagener manueller Versuch kann erneut gestartet werden.</p>
+
+<h3>EDSM-Körperdaten und Cache</h3>
+<p>„EDSM verwenden“ steuert für den aktiven Journal-Commander auch ergänzende Körperdaten des aktuellen Systems im Explorer. Nach „Online-Zugänge speichern“ und bei der normalen Journalaktualisierung wird ein nutzbarer Cache geladen oder andernfalls im Hintergrund bei EDSM angefragt. Der öffentliche Körperabruf benötigt Netzwerk, aber keinen API-Key; die Journalübertragung ist davon zu unterscheiden.</p>
+<p>Erfolgreich abgerufene Körperdaten werden je System lokal gespeichert und können über Neustarts hinweg bis zu 24 Stunden aus dem Cache verwendet werden. Ältere Daten lösen bei einer passenden Aktualisierung einen neuen Abruf aus. Bei deaktiviertem Dienst werden keine Körperdaten aus diesem Cache zur Anzeige ergänzt und keine neuen Körperabfragen gestartet; Cachedateien werden dadurch nicht gelöscht. Lokale Journaldaten bleiben nutzbar. Bei Abruffehlern werden keine fehlenden Körper erfunden.</p>
 
 <h3>EDSM-Zugang für</h3>
 <p>„EDSM-Zugang für:“ wählt den zu bearbeitenden Commander. Die Auswahl zeigt „eingerichtet“ oder „nicht eingerichtet“, abhängig davon, ob ein API-Key gespeichert ist.</p>
@@ -878,6 +892,9 @@ HELP_TOPICS = {
 <p>„EDSM-Status-HUD“ unter „auto einblenden“ ist standardmäßig AUS. Nach einem Systemeintritt erscheint für ungefähr 2,5 Sekunden eine Kurzmeldung über Elite. Mehrere Location-Ereignisse im selben Aufenthalt lösen keine Mehrfachmeldung aus; eine echte Rückkehr darf erneut geprüft werden.</p>
 <p>„EDSM: BEKANNT“ bedeutet einen gültigen EDSM-Treffer für das System. „EDSM: NICHT BEKANNT“ bedeutet eine gültige EDSM-Antwort ohne Systemtreffer. „EDSM: KEINE ANTWORT“ bedeutet einen Netzwerk-, HTTP-, Timeoutfehler oder eine ungültige Antwort, niemals einen bestätigten fehlenden Treffer. EDSM-Bekanntheit ist nicht dasselbe wie offizielle Elite-Erstentdeckung; es werden keine Erstentdecker- oder Erstmeldernamen versprochen.</p>
 <p>Die Kurzmeldung funktioniert unabhängig von Navigations- und Frachtraum-HUD. Dauerhafte HUD-Anzeigen und Schnellfavoriten-Meldungen bleiben erhalten. Die Abfrage blockiert die Oberfläche nicht; verspätete Antworten auf bereits verlassene Systeme werden verworfen.</p>
+
+<p>Die Schalter unter „auto einblenden“ in der linken Seitenleiste wirken unabhängig: „Wertvolle Körper“, „BIO-Funde“, „GEO“ und „Frachtraum“ steuern die jeweiligen Livefenster. „Frachtraum-HUD“ zeigt Fracht im Overlay, „Navigations-HUD“ die laufende Planeten-Navigation. Diese Anzeigeschalter starten selbst keine Onlineabfrage; HUDs benötigen Elite im Vordergrund und passende Daten.</p>
+<p>„EDSM-Status-HUD“ benötigt dagegen eine eigene öffentliche EDSM-Netzabfrage, unabhängig von „EDSM verwenden“, dessen Körpercache und einem API-Key. Inara-Übertragung und Spansh-Stationsinformationen besitzen ihre eigenen Dienstschalter; HUD-Schalter aktivieren sie nicht.</p>
 
 <h3>Updates</h3>
 <p>Die Updategruppe zeigt installierte Version und GitHub-Status. „Jetzt prüfen“ sucht manuell nach einer neuen vorgesehenen CMDRHelper-Version; zusätzlich findet nach dem Start eine verzögerte automatische Prüfung statt.</p>

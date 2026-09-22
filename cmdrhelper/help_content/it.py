@@ -24,6 +24,9 @@ HELP_TOPICS = {
 <h3>Nomi dei materiali</h3>
 <p>Se il nome di un materiale non è ancora disponibile nella lingua scelta, viene usato il suo nome inglese. I simboli interni del diario non sostituiscono i nomi visualizzati esistenti.</p>
 <h3>Odyssey</h3>
+<p>«Rubato» contrassegna una pila esplicitamente registrata come rubata nei dati Elite salvati. L’assenza dell’indicazione non conferma che non sia rubata. Se è noto un identificativo del proprietario, il suggerimento lo mostra come «Proprietario»; un nome sconosciuto non viene aggiunto.</p>
+<p>Il suggerimento «Disponibilità attuale non confermata» indica una fonte di acquisizione non confermata per i materiali speciali interessati. CMDRHelper non può fornire informazioni attuali verificate sull’acquisizione; ciò non significa che l’oggetto sia introvabile.</p>
+
 <p>La quarta scheda di Materiali contiene Merci, Materiali, Dati e Consumabili. Armadietto e zaino mostrano le scorte personali. Portaflotta ✎ mostra le scorte private confermate manualmente sulla propria portaflotta per merci, materiali e dati. Doppio clic per confermare, correggere o impostare come sconosciuto. — significa sconosciuto; 0 richiede una conferma esplicita. La colonna « Totale » include armadietto, zaino e portaflotta solo con valori noti e coerenti. Con più pile, le scorte della portaflotta compaiono una volta nel riepilogo; le pile restano separate. I consumabili mantengono il totale personale senza portaflotta. FCMaterials non è un inventario completo della portaflotta e non viene usato come tale. Il limite di 1000 dell’armadietto vale per categoria, non per oggetto. Le scorte della portaflotta sono calcolate dall’ultima conferma. Le variazioni dell’armadietto vengono compensate solo sulla propria portaflotta, sottraendo le transazioni personali esplicite. Acquisti e vendite dal barista, soprattutto da altri giocatori, possono modificare le scorte reali senza essere rilevati automaticamente. Fare doppio clic per confermare nuovamente se necessario. Il totale usa una proiezione delle ultime scorte confermate, senza garanzia di dati in tempo reale. Il deposito privato Odyssey condivide 1.000 posti tra merci, materiali e dati. La somma delle scorte è completa solo quando tutte le posizioni e i materiali aggiuntivi sono confermati, inclusi gli zeri. Altrimenti si mostra un minimo. Se il limite è superato, i valori restano e Totale diventa sconosciuto. Armadietto, zaino e prenotazioni del mercato non sono scorte private della portaflotta.<br><b>! – Configurare le scorte della portaflotta</b><br>Fai doppio clic nella colonna Portaflotta e inserisci la quantità attuale per OGNI posizione. Conferma esplicitamente anche TUTTE le posizioni vuote con 0.<br>— = non ancora confermato / sconosciuto<br>0 = scorte vuote confermate esplicitamente</p>
 <p>Gli ordini di acquisto aperti del barista riservano spazio. L’occupazione nel gioco può superare le scorte di materiali. Le prenotazioni non sono materiali e non entrano nei totali. Senza dati di mercato sufficientemente aggiornati, l’occupazione resta sconosciuta. Gli scambi di altri giocatori possono modificare questa istantanea.</p>
 <p>Utilizzo mostra le indicazioni d’uso dell’oggetto. Missione indica l’assegnazione a una missione della specifica pila d’inventario, non una proprietà generale del tipo di oggetto. Le pile normali e quelle legate a missioni rimangono separate. Anche dopo il completamento della missione, l’oggetto resta contrassegnato finché il diario lo riporta nell’inventario; il completamento non lo rimuove automaticamente. Il suggerimento mostra il numero della missione e lo stato noto. Ingegneria significa che il catalogo statico Odyssey conosce almeno un utilizzo confermato: potenziamento della tuta, potenziamento dell’arma, modifica della tuta, modifica dell’arma o sblocco di un ingegnere. I singoli utilizzi sono riportati nel suggerimento. L’assenza dell’indicazione non significa che l’oggetto sia inutile o soltanto commerciabile. Possono apparire anche oggetti Powerplay e altri oggetti speciali.</p>
@@ -74,17 +77,17 @@ HELP_TOPICS = {
               '\n'
               '<h3>Missioni</h3>\n'
               "<p>Quest'area mostra il numero di missioni aperte attualmente conosciute.</p>\n"
-              '<p>Il pulsante o la voce di menu "Missioni" ti porta alla visualizzazione completa '
-              'della missione con gli obiettivi noti della missione e le informazioni sullo '
+              '<p>«Missioni →» apre la sezione principale '
+              '«Missioni e ricompense» con gli obiettivi di missione noti e il relativo '
               'stato.</p>\n'
               '\n'
-              '<h3>Ultimo atto</h3>\n'
+              '<h3>Ultimo stato</h3>\n'
               '<p>“Ultimo stato” riassume l’ultimo stato di comandante persistente conosciuto. Ciò '
               'consente di ripristinare informazioni importanti anche dopo aver riavviato Elite '
               'Dangerous o CMDRHelper.</p>\n'
               '\n'
-              '<h3>Sistemi finali</h3>\n'
-              '<p>I sistemi recentemente visitati o riconosciuti dalla rivista vengono '
+              '<h3>Sistemi visitati di recente</h3>\n'
+              '<p>I sistemi recentemente visitati o riconosciuti dal registro vengono '
               'visualizzati qui.</p>\n'
               "<p>L'elenco serve come una rapida panoramica del recente viaggio del "
               'Comandante.</p>\n'
@@ -109,7 +112,7 @@ HELP_TOPICS = {
               '<p>La semplice visualizzazione di un comandante diverso in una vista non modifica '
               'il comandante live attivo né influisce su alcuna trasmissione EDSM o Inara.</p>\n'
               '\n'
-              '<h3>Mancia</h3>\n'
+              '<h3>Suggerimento</h3>\n'
               '<p>Se il comandante, la nave o la posizione non corrispondono allo stato attuale '
               'del gioco, controlla prima la visualizzazione del diario in alto e poi controlla la '
               'cartella del diario impostata in "Impostazioni".</p>'
@@ -366,7 +369,7 @@ HELP_TOPICS = {
               '<p>Le proprietà astronomiche globali di un corpo - ad esempio il numero di siti '
               'minerari planetari conosciuti - rimangono proprietà del corpo stesso.</p>\n'
               '\n'
-              '<h3>Mancia</h3>\n'
+              '<h3>Suggerimento</h3>\n'
               '<p>Se hai un corpo interessante, vale la pena fare clic sulla vista dettagliata. '
               'Questo è il posto migliore per distinguere tra dati generali del corpo, possibili '
               "risultati dell'esplorazione e ritrovamenti effettivi documentati dal tuo "
@@ -689,8 +692,8 @@ HELP_TOPICS = {
             "<p>L'utente imposta questa cartella principale. CMDRHelper crea automaticamente le "
             "sottocartelle relative al comandante richieste durante l'elaborazione.</p>\n"
             '\n'
-            '<h3>Elaborazione automatica</h3>\n'
-            '<p>Se "Converti automaticamente" è attivato e sono impostate cartelle di origine e '
+            '<h3>Salva impostazioni</h3>\n<p>«Salva impostazioni» salva cartelle di origine e destinazione, formato, schiarimento e le due caselle. Il monitoraggio viene reimpostato con queste scelte; i BMP esistenti sono segnati come noti. Viene aggiornata anche la galleria.</p>\n<p>«Aggiorna galleria» ricarica la galleria dai file immagine esistenti per il filtro corrente. Non avvia una conversione BMP.</p>\n\n<h3>Elaborazione automatica</h3>\n'
+            '<p>Se "Converti automaticamente i nuovi file BMP" è attivato e sono impostate cartelle di origine e '
             'destinazione valide, CMDRHelper controlla regolarmente la cartella di origine per '
             'nuovi screenshot BMP.</p>\n'
             '<p>Una volta attivati, i file BMP esistenti vengono inizialmente contrassegnati come '
@@ -707,7 +710,7 @@ HELP_TOPICS = {
             '<p>I file JPG vengono salvati al livello di qualità 95. I file PNG vengono salvati in '
             'modo ottimizzato.</p>\n'
             '<p>Per impostazione predefinita, viene mantenuto il file BMP originale. Se è attivato '
-            '"Elimina BMP dopo la conversione", il BMP di origine verrà eliminato solo dopo che '
+            '"Elimina BMP dopo conversione riuscita", il BMP di origine verrà eliminato solo dopo che '
             "l'immagine di destinazione sarà stata salvata con successo.</p>\n"
             '\n'
             "<h3>Illumina l'immagine</h3>\n"
@@ -737,7 +740,7 @@ HELP_TOPICS = {
             "<p>Le nuove immagini elaborate ricevono un nome con l'ora di acquisizione, il nome "
             'del comandante e, se disponibile, il sistema stellare noto durante la coda.</p>\n'
             '<p>Esempio:</p>\n'
-            '<p><b>2026-09-04_13-18-22_EXAMPLE_Sol.png</b></p>\n'
+            '<p><b>2026-09-04_&#8203;13-18-22_&#8203;EXAMPLE_&#8203;Sol.png</b></p>\n'
             '<p>Lo FID si trova nel nome della cartella relativa al comandante, non ancora nel '
             'nome del file immagine.</p>\n'
             '\n'
@@ -758,7 +761,7 @@ HELP_TOPICS = {
             '<h3>Più immagini nello stesso secondo</h3>\n'
             '<p>Se il nome del file desiderato esiste già o è riservato per una conversione in '
             'corso, CMDRHelper lo aggiunge '
-            'continuamente<code>_2</code>,<code>_3</code>,<code>_4</code>e così via.</p>\n'
+            'continuamente <code>_2</code>,<code>_3</code>,<code>_4</code> e così via.</p>\n'
             '<p>Ciò significa che un altro screenshot con lo stesso timestamp non sovrascriverà '
             "un'immagine di destinazione esistente.</p>\n"
             '\n'
@@ -838,24 +841,24 @@ HELP_TOPICS = {
             '<h3>Se non è stato rilevato alcun comandante</h3>\n'
             '<p>Se Commander e FID mancano quando si mette in coda una nuova registrazione, il '
             'file non verrà messo in attesa e non verrà assegnato a un Commander noto.</p>\n'
-            '<p>Sarà nella sottocartella<b>SCONOSCIUTO_SCONOSCIUTO/</b>elaborato; il nome del file '
-            'utilizzato anche per il Commander<b>SCONOSCIUTO</b>. Questa cartella può essere '
+            '<p>Sarà nella sottocartella <b>UNKNOWN_&#8203;UNKNOWN/</b> elaborato; il nome del file '
+            'utilizzato anche per il Commander <b>UNKNOWN</b>. Questa cartella può essere '
             'visualizzata tramite Tutti i Commander, non tramite il filtro Cartella radice non '
             'allocata.</p>\n'
             '\n'
             '<h3>Diversi comandanti</h3>\n'
             '<p>Alla gestione delle immagini si applicano due regole separate:</p>\n'
             '<ul>\n'
-            "<li><b>Salva nuove immagini:</b>L'identità del journal attivo con Commander e FID "
+            "<li><b>Salva nuove immagini:</b> L'identità del journal attivo con Commander e FID "
             'quando accodati determina la cartella di destinazione.</li>\n'
-            '<li><b>Visualizza le immagini:</b>Il comandante visualizzato o il filtro della '
+            '<li><b>Visualizza le immagini:</b> Il comandante visualizzato o il filtro della '
             'galleria selezionato determina le immagini visibili.</li>\n'
             '</ul>\n'
             '<p>Ciò significa che mentre si gioca a EXAMPLE è possibile visualizzare la gallery di '
             'un altro comandante senza che nuovi screenshot finiscano nella cartella del '
             'comandante in questione.</p>\n'
             '\n'
-            '<h3>Mancia</h3>\n'
+            '<h3>Suggerimento</h3>\n'
             '<p>È sufficiente una cartella principale degli screenshot condivisa. CMDRHelper '
             'separa automaticamente le immagini appena elaborate in Commander e FID.</p>\n'
             '<p>Con "Comandante corrente", "Tutti i comandanti" e "Non assegnato" puoi passare '
@@ -903,11 +906,11 @@ HELP_TOPICS = {
               'aggiornamenti.</p>\n'
               '<p>Le modifiche alle credenziali e ai percorsi devono essere apportate con '
               'attenzione. Se necessario, le impostazioni relative al comandante vengono gestite '
-              "separatamente dall'ID Frontier.</p>\n"
+              "separatamente dall'ID Frontier.</p>\n\n<h3>Preferito rapido</h3>\n<p>In «Preferito rapido», usa «Imposta scorciatoia» per assegnare una scorciatoia globale o «Modifica scorciatoia» per modificarla. «Rimuovi scorciatoia» rimuove l’assegnazione; inizialmente compare «Non assegnata». La scelta viene salvata. Un conflitto di registrazione mostra un avviso. La scorciatoia salva una posizione attuale valida sulla superficie come preferito del comandante senza dialogo, non una schermata. Senza dati di posizione adatti non viene salvato nulla.</p>\n"
               '\n'
               '<h3>diario</h3>\n'
               '<p>La cartella del diario è una delle impostazioni più importanti. Deve puntare '
-              'alla cartella in cui si trova Elite Dangerous<code>Diario*.log</code>file del '
+              'alla cartella in cui si trova Elite Dangerous <code>Journal*.log</code> file del '
               'profilo Windows o Proton utilizzato.</p>\n'
               '<p>Le riviste forniscono, tra le altre cose:</p>\n'
               '<ul>\n'
@@ -971,7 +974,7 @@ HELP_TOPICS = {
               '\n'
               '<h3>Aggiornare manualmente le stazioni</h3>\n'
               '<p>Apri «Vista completa» e scegli «Aggiorna dati Spansh». Vengono aggiornate solo le informazioni sulle stazioni Spansh del sistema mostrato nella finestra, non tutti i sistemi salvati né i prezzi dei mercati. L’opzione deve essere attiva; durante una richiesta per quel sistema l’azione è disabilitata.</p>\n'
-              '<p>L’azione manuale può ignorare il periodo di 7 giorni e un tentativo automatico fallito quel giorno. Se il sistema è già stato recuperato con successo oggi secondo il calendario locale, non viene inviata un’altra richiesta: «I dati Spansh sono già stati aggiornati oggi.» Un recupero riuscito rinnova la cache. In caso di errore restano i dati locali e quelli utilizzabili in cache; la riga di stato segnala l’errore. Un tentativo manuale fallito può essere ripetuto.</p>\n'
+              '<p>L’azione manuale può ignorare il periodo di 7 giorni e un tentativo automatico fallito quel giorno. Se il sistema è già stato recuperato con successo oggi secondo il calendario locale, non viene inviata un’altra richiesta: «I dati Spansh sono già stati aggiornati oggi.» Un recupero riuscito rinnova la cache. In caso di errore restano i dati locali e quelli utilizzabili in cache; la riga di stato segnala l’errore. Un tentativo manuale fallito può essere ripetuto.</p>\n\n<h3>Dati dei corpi EDSM e cache</h3>\n<p>«Usa EDSM» controlla anche i dati aggiuntivi dei corpi del sistema attuale del comandante attivo del diario in Explorer. Dopo «Salva accessi online» e durante i normali aggiornamenti del diario, viene caricata una cache utilizzabile oppure interrogato EDSM in background. Questa consultazione pubblica richiede la rete, ma non una chiave API; l’invio del diario è un’operazione distinta.</p>\n<p>I dati dei corpi recuperati vengono salvati localmente per sistema e riutilizzati dalla cache fino a 24 ore, anche dopo un riavvio. I dati più vecchi causano una nuova richiesta durante un aggiornamento appropriato. Se disattivata, la funzione non aggiunge dati dalla cache alla vista e non avvia nuove richieste di corpi; i file della cache non vengono eliminati. I dati locali del diario restano utilizzabili. Gli errori di richiesta non producono corpi inventati.</p>\n'
               '\n'
               '<h3>EDSM accesso per</h3>\n'
               '<p>“EDSM accesso per:” seleziona il comandante da modificare. La selezione mostrerà '
@@ -1083,7 +1086,7 @@ HELP_TOPICS = {
               '\n'
               '<p>La finestra Cargo utilizza esclusivamente lo snapshot Cargo confermato per la FID attiva del Journal. Il commander visualizzato in CMDR View e viewed_commander_id non influiscono su questa finestra live. Per uno Ship mostra occupato / massimo · libero; se CargoCapacity è sconosciuta, non viene stimato alcun valore.</p>\n'
               '<p>«HUD stato EDSM» in «mostra automaticamente» è DISATTIVATO per impostazione predefinita. All’ingresso in un sistema compare un messaggio sopra Elite per circa 2,5 secondi. Più eventi Location nello stesso soggiorno non producono duplicati; un vero ritorno può essere verificato nuovamente.</p>\n<p>«EDSM: CONOSCIUTO» indica una corrispondenza EDSM valida per il sistema. «EDSM: SCONOSCIUTO» indica una risposta EDSM valida senza corrispondenza. «EDSM: NESSUNA RISPOSTA» indica un errore di rete, HTTP, timeout o una risposta non valida, mai un’assenza confermata di corrispondenza. La presenza in EDSM non equivale a una scoperta ufficiale in Elite; non vengono promessi nomi di primi scopritori o segnalatori.</p>\n<p>Il messaggio funziona indipendentemente dagli HUD di navigazione e carico. Le indicazioni permanenti e i messaggi del preferito rapido restano disponibili. La richiesta non blocca l’interfaccia; le risposte tardive per sistemi già lasciati vengono scartate.</p>\n\n'
-              '<h3>Aggiornamenti</h3>\n'
+              '<p>Gli interruttori sotto «mostra automaticamente» nella barra laterale sono indipendenti: «Corpi di valore», «Ritrovamenti BIO», «GEO» e «Stiva» controllano le rispettive finestre. «HUD del carico» mostra il carico in sovrimpressione, «HUD di navigazione» la navigazione planetaria attiva. Questi controlli di visualizzazione non avviano richieste online; gli HUD richiedono Elite in primo piano e dati adatti.</p>\n<p>«HUD stato EDSM» richiede invece una propria interrogazione pubblica EDSM, indipendente da «Usa EDSM», dalla cache dei corpi e da una chiave API. L’invio a Inara e le informazioni delle stazioni Spansh hanno interruttori propri; quelli degli HUD non li attivano.</p>\n\n<h3>Aggiornamenti</h3>\n'
               '<p>Il gruppo di aggiornamento mostra la versione installata e lo stato di GitHub. '
               'Controlla ora controlla manualmente la presenza di una nuova versione CMDRHelper '
               'pianificata; Inoltre dopo la partenza viene effettuato un controllo automatico '
@@ -1131,7 +1134,7 @@ HELP_TOPICS = {
               '<p>Nell\'area "Impostazioni", il pulsante apre direttamente la guida alle '
               'impostazioni.</p>\n'
               '\n'
-              '<h3>Mancia</h3>\n'
+              '<h3>Suggerimento</h3>\n'
               '<p>Se stai reinstallando o riscontri problemi, controlla prima:</p>\n'
               '<ul>\n'
               '<li>cartella del diario corretta e identità del comandante riconosciuta</li>\n'
