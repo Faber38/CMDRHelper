@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'explorer.value_fit_width': 'Tilpass til vindusbredden',
+    'explorer.value_fit_width_tip': 'Tilpasser kolonnene i verdilisten automatisk til den tilgjengelige vindusbredden.',
+    'explorer.first_footfall': 'FØRSTE FOTAVTRYKK',
+    'explorer.first_footfall_tip': 'Første fotavtrykk utledet fra journalen: himmellegemet var tidligere registrert som ikke besøkt til fots, og du steg ut der. Dette tyder på at du kan ha vært først til fots, ikke en uttrykkelig bekreftelse fra Elite.',
     'release.3_7_0.0': 'Ny hoveddel for handel: salg og innkjøp kombinerer egne observerte markeder med Spansh-tilbud. Hvis fellessøk feiler, forblir passende lokale treff brukbare og merkes som ufullstendige.',
     'release.3_7_0.1': 'Når varemarkedet i Elite åpnes, registreres stasjonsmarkedet automatisk. Egne observasjoner bevares etter omstart, er gyldige i under 24 timer og erstatter eldre tilbud fra samme marked.',
     'release.3_7_0.2': 'Anbefalinger bruker ditt nåværende observerte kjøpsmarked, ledig skipslasterom, tilbud og etterspørsel. Minstemargin, mulig mengde og mulig fortjeneste hjelper deg å velge; du kan begrense målene til egne markeder.',

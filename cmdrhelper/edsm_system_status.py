@@ -5,6 +5,8 @@ from cmdrhelper.online_services import fetch_edsm_system_status
 from cmdrhelper.i18n import tr
 
 SETTING = "edsm_system_status/enabled"
+STATUS_KEYS = {"known": "edsm_status.known", "unknown": "edsm_status.unknown",
+               "no_response": "edsm_status.no_response"}
 
 
 def enabled(settings):
@@ -38,6 +40,7 @@ class StatusWorker(QRunnable):
 class EdsmSystemStatus(QObject):
     notice = Signal(object)
     cleared = Signal()
+    changed = Signal()
 
     def __init__(self, settings, parent=None, *, fetch=fetch_edsm_system_status, pool=None):
         super().__init__(parent)
@@ -45,6 +48,7 @@ class EdsmSystemStatus(QObject):
         self.pool = pool or QThreadPool(self)
         if pool is None:
             self.pool.setMaxThreadCount(2)
+        self.status = None
         self.generation = 0
         self.commander = ""
         self.name, self.address = "", None
@@ -59,7 +63,9 @@ class EdsmSystemStatus(QObject):
 
     def _invalidate(self):
         self.generation += 1
+        self.status = None
         self.cleared.emit()
+        self.changed.emit()
 
     @Slot(object, str)
     def observe(self, events, commander):
@@ -98,6 +104,6 @@ class EdsmSystemStatus(QObject):
             return
         if status not in ("known", "unknown", "no_response"):
             status = "no_response"
-        keys = {"known": "edsm_status.known", "unknown": "edsm_status.unknown",
-                "no_response": "edsm_status.no_response"}
-        self.notice.emit((tr(keys[status]),))
+        self.status = status
+        self.notice.emit((tr(STATUS_KEYS[status]),))
+        self.changed.emit()

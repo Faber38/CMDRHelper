@@ -38,6 +38,13 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## Versione interna 3.7.5
+
+Versione interna per le prove durante il gioco; non pubblicata.
+
+- Explorer: stato EDSM e normalizzazione delle classi stellari, integrazione dei corpi mancanti mantenuta, primo sbarco tra sessioni con fusione corretta, larghezza automatica e disposizione lineare della lista valori. Icona per copiare i sistemi recenti; guida, traduzioni e test aggiornati.
+- [Note dettagliate (tedesco)](docs/release-3.7.5.md)
+
 ## Novità della versione 3.7.0
 
 - Nuova sezione Commercio: vendita e acquisto combinano i mercati osservati con le offerte Spansh. Se la ricerca della comunità fallisce, i risultati locali restano utilizzabili e sono indicati come incompleti.

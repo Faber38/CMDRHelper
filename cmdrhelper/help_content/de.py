@@ -92,7 +92,7 @@ HELP_TOPICS = {
 
 <h3>Tipp</h3>
 <p>Wenn Commander, Schiff oder Standort nicht zum aktuellen Spielstand passen, zuerst die Journalanzeige oben und anschließend unter „Einstellungen“ den eingestellten Journalordner prüfen.</p>"""
-              '<p>Open erscheint rot, Solo gold und Private Gruppe grün, bei privaten Gruppen mit dem gemeldeten Gruppennamen. Der Modus wird aus vorhandenen Journalen rekonstruiert und bei neuen LoadGame-Einträgen aktualisiert.</p>\n<p>Ein einfacher Klick auf einen Eintrag unter „Letzte Systeme“ kopiert den Systemnamen in die Zwischenablage. Kurz erscheint „✓ Kopiert: &lt;System&gt;“.</p>\n',
+              '<p>Open erscheint rot, Solo gold und Private Gruppe grün, bei privaten Gruppen mit dem gemeldeten Gruppennamen. Der Modus wird aus vorhandenen Journalen rekonstruiert und bei neuen LoadGame-Einträgen aktualisiert.</p>\n<p>Ein einfacher Klick auf einen Eintrag unter „Letzte Systeme“ kopiert den Systemnamen in die Zwischenablage. Kurz erscheint „✓ Kopiert: &lt;System&gt;“. Das Symbol ⧉ direkt neben jedem Systemnamen kopiert ebenfalls nur diesen Namen in die Zwischenablage.</p>\n',
     ),
     "missions": (
         'Missionen & Belohnungen',
@@ -147,7 +147,7 @@ HELP_TOPICS = {
     ),
     "explorer": (
         "Explorer",
-        """<h2>Explorer</h2>
+        """<h2>Explorer</h2><p>Die Kopfzeile zeigt zusätzlich denselben EDSM-Status wie das EDSM-Status-HUD: Blau = in EDSM bekannt, Gelb = kein EDSM-Treffer, Grau = keine verwertbare Antwort. „EDSM: —“ bedeutet noch kein Ergebnis, etwa bei ausgeschaltetem HUD oder laufender Abfrage. Die bestehende HUD-Einstellung steuert die Abfrage. Dies ist keine Aussage über eine Elite-Erstentdeckung.</p>
 <h3>CMDRHelper</h3>
 <p>System-Gesamtansicht: Die neue ED-artige Darstellung ersetzt die bisherige Miniübersicht und ist in Explorer und Chronik verfügbar. Sterne und Planeten bilden die Hauptstruktur, Monde verzweigen darunter; Mehrsternsysteme bleiben übersichtlich. Zoom, Scrollen, Anpassen an das Fenster und Körperklick öffnen den Zugang zu den Details.</p>
 <p>Kompakte Asteroidengürtel: Belt-Cluster werden in Gesamtansicht und normalen Explorer-/Chronik-Systemkarten zu übersichtlichen Gürteln zusammengefasst. Alle einzelnen Clusterdaten bleiben erhalten.</p>
@@ -1112,4 +1112,16 @@ HELP_TOPICS["trade"] = (
 <li>Nutze bei Bedarf „System kopieren“ und fliege zum Ziel; die Station bleibt im Merkzettel sichtbar.</li>
 <li>Verkaufe in Elite. Öffne dort den Warenmarkt, um auch die eigenen Daten des neuen Markts zu aktualisieren.</li>
 </ol>""",
+)
+
+
+HELP_TOPICS["explorer"] = (
+    HELP_TOPICS["explorer"][0],
+    HELP_TOPICS["explorer"][1] + '<h3>ERSTBETRETUNG</h3><p>ERSTBETRETUNG erscheint gelb in der Status-Spalte am betreffenden Körper, zusätzlich zum Kartierungsstatus. CMDRHelper leitet sie aus verfügbaren Elite-Journalinformationen ab, unabhängig von biologischen Funden. Es ist keine Abgabe bei Universal Cartographics oder Vista Genomics nötig; nach einem Verkauf gibt es keinen Wechsel von Gelb zu Grün.</p>',
+)
+
+
+HELP_TOPICS["explorer"] = (
+    HELP_TOPICS["explorer"][0],
+    HELP_TOPICS["explorer"][1] + '<p>„An Fensterbreite anpassen“ verteilt die Spalten der Wertliste automatisch auf die verfügbare Breite. Die Option ist standardmäßig eingeschaltet und wird gespeichert. Bei sehr schmalem Fenster oder großer Schrift kann weiterhin horizontales Scrollen erforderlich sein. Ausgeschaltet bleiben die Spalten manuell einstellbar. Diese Option ist unabhängig von der automatischen Anpassung der grafischen Gesamtansicht.</p>',
 )

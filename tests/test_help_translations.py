@@ -94,14 +94,21 @@ class HelpTranslationTests(unittest.TestCase):
 
     def test_favorites_help_preserves_structure_and_localized_actions(self):
         from importlib import import_module
-        master = de.HELP_TOPICS["explorer"][1].split("<h3>★ Favoriten</h3>")[1]
+
+        def favorites_text(text, ui):
+            start = text.index("<h3>" + ui["favorites.title"] + "</h3>")
+            end = text.index("<h3>" + ui["explorer.first_footfall"] + "</h3>", start)
+            return text[start:end]
+
+        master = favorites_text(de.HELP_TOPICS["explorer"][1],
+                                import_module("cmdrhelper.i18n.de").TRANSLATIONS)
         german_passages = re.findall(r"<p>(.*?)</p>", master)
         for language in HELP_LANGUAGES:
             with self.subTest(language=language):
                 text = help_topic("explorer", language).text
                 ui = import_module(f"cmdrhelper.i18n.{language}").TRANSLATIONS
-                favorite_text = text[text.index("<h3>" + ui["favorites.title"] + "</h3>"):]
-                self.assertEqual(text.count("<h3>"), 34)
+                favorite_text = favorites_text(text, ui)
+                self.assertEqual(text.count("<h3>"), 35)
                 for tag, count in (("h3", 8), ("p", 25), ("ul", 1), ("li", 3)):
                     self.assertEqual(favorite_text.count(f"<{tag}>"), count)
                 for key in ("save_system", "save_body", "save_surface", "open", "edit",

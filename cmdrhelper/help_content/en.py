@@ -110,7 +110,7 @@ HELP_TOPICS = {
               '<p>If the commander, ship or location does not match the current state of the game, '
               'first check the journal display at the top and then check the journal folder set '
               'under “Settings”.</p>'
-              '<p>Open is red, Solo gold and Private Group green, with the reported group name for private groups. The mode is reconstructed from available journals and updated with new LoadGame entries.</p>\n<p>A single click on an entry in Recent systems copies the system name to the clipboard. “✓ Copied: &lt;System&gt;” appears briefly.</p>\n'),
+              '<p>Open is red, Solo gold and Private Group green, with the reported group name for private groups. The mode is reconstructed from available journals and updated with new LoadGame entries.</p>\n<p>A single click on an entry in Recent systems copies the system name to the clipboard. “✓ Copied: &lt;System&gt;” appears briefly. The ⧉ icon directly beside each system name also copies only that name to the clipboard.</p>\n'),
  'missions': (
         'Missions & Rewards',
         """<h2>Missions &amp; Rewards</h2>
@@ -163,7 +163,7 @@ HELP_TOPICS = {
 <p>The local mission display needs no Inara connection. With an enabled connection configured for the active Commander, supported mission events can also be uploaded.</p>""",
     ),
  'explorer': ('Explorer',
-              '<h2>Explorer</h2>\n<h3>CMDRHelper</h3>\n<p>System overview: The new Elite-style view replaces the previous miniature overview and is available in Explorer and Chronicle. Stars and planets form the main structure, with moons branching below; multiple-star systems remain readable. Zoom, scrolling, fit to window and body clicks provide access to details.</p>\n<p>Compact asteroid belts: Belt clusters are grouped into clear belts in the overview and regular Explorer/Chronicle system maps. All individual cluster data is retained.</p>\n<p>Cartography corrected: A later scan after DSS mapping no longer resets unsold exploration values, mapping time or efficiency. Existing incorrect claims are repaired at startup from available journals with clear commander attribution. Missing sources leave the repair pending; deleting the database is unnecessary.</p>\n'
+              '<h2>Explorer</h2><p>The header also shows the same EDSM status as the EDSM status HUD: blue = known to EDSM, yellow = no EDSM match, grey = no usable response. “EDSM: —” means no result yet, for example when the HUD is disabled or a request is pending. The existing HUD setting controls the request. This does not establish first discovery in Elite.</p>\n<h3>CMDRHelper</h3>\n<p>System overview: The new Elite-style view replaces the previous miniature overview and is available in Explorer and Chronicle. Stars and planets form the main structure, with moons branching below; multiple-star systems remain readable. Zoom, scrolling, fit to window and body clicks provide access to details.</p>\n<p>Compact asteroid belts: Belt clusters are grouped into clear belts in the overview and regular Explorer/Chronicle system maps. All individual cluster data is retained.</p>\n<p>Cartography corrected: A later scan after DSS mapping no longer resets unsold exploration values, mapping time or efficiency. Existing incorrect claims are repaired at startup from available journals with clear commander attribution. Missing sources leave the repair pending; deleting the database is unnecessary.</p>\n'
               '<p>The Explorer evaluates the systems and celestial bodies discovered and scanned '
               'by the active commander. It combines your own Elite Dangerous journal data with '
               'already available additional information and displays exploration, cartography, '
@@ -1276,4 +1276,16 @@ HELP_TOPICS["trade"] = (
 <li>Use “Copy system” if needed and fly to the destination; the station remains visible in the note.</li>
 <li>Sell in Elite. Open the market there to update your own observations of the new market too.</li>
 </ol>""",
+)
+
+
+HELP_TOPICS["explorer"] = (
+    HELP_TOPICS["explorer"][0],
+    HELP_TOPICS["explorer"][1] + '<h3>FIRST FOOTFALL</h3><p>FIRST FOOTFALL appears in yellow in the body’s Status column alongside its mapping status. CMDRHelper infers it from available Elite journal information, independently of biological finds. No submission to Universal Cartographics or Vista Genomics is required; selling data does not change yellow to green.</p>',
+)
+
+
+HELP_TOPICS["explorer"] = (
+    HELP_TOPICS["explorer"][0],
+    HELP_TOPICS["explorer"][1] + '<p>“Fit to window width” automatically distributes the value-list columns across the available width. It is on by default and the preference is saved. Very narrow windows or large fonts may still require horizontal scrolling. When off, column widths remain manually adjustable. This option is independent of automatic fitting in the graphical overview.</p>',
 )

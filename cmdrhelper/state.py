@@ -1091,6 +1091,8 @@ class AppState(QObject):
                             current["efficient_mapping"] = True
                     if historical.get("self_mapped") is True:
                         current["self_mapped"] = True
+                    if historical.get("first_footfall") is True:
+                        current["first_footfall"] = True
                     bio_fields = ("genus", "species", "variant")
                     ranks = {"log": 1, "sample": 2, "analyse": 3, "analyze": 3}
                     biology = {

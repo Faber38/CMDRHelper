@@ -1916,6 +1916,17 @@ class CMDRDatabase:
                     ("pending_mission_offers/" + fid,
                      json.dumps({"schema": 1, "fid": fid, "offers": offers}, ensure_ascii=False)))
 
+    @staticmethod
+    def _record_persisted_first_footfall(con, commander_id, address, body_id, timestamp):
+        """Combine an exact personal scan observation with a planet Disembark."""
+        if type(address) is not int or type(body_id) is not int:
+            return
+        con.execute("""UPDATE commander_bodies
+            SET first_footfall=1, first_footfall_at=?
+            WHERE commander_id=? AND system_address=? AND body_id=?
+              AND was_footfalled_at_scan=0 AND first_footfall=0""",
+                    (timestamp, commander_id, address, body_id))
+
     def apply_commander_journal_delta(self, commander_id, journal_file, events,
                                       safe_offset: int, enqueue_inara=False, session=None, live_current=False) -> None:
         """Atomically applies explicit journal facts and commits their byte offset."""
@@ -2096,6 +2107,22 @@ class CMDRDatabase:
                 address = event.get("SystemAddress")
                 if not isinstance(address, int):
                     address = current_address
+
+                if (et == "Disembark" and event.get("OnPlanet") is True
+                        and event.get("OnStation") is not True):
+                    self._record_persisted_first_footfall(
+                        con, commander_id, event.get("SystemAddress"),
+                        event.get("BodyID"), ts,
+                    )
+                elif et == "Scan" and type(event.get("WasFootfalled")) is bool:
+                    # A later explicit scan must supersede the stored observation
+                    # before any following Disembark in this delta is evaluated.
+                    if type(address) is int and type(event.get("BodyID")) is int:
+                        con.execute("""UPDATE commander_bodies
+                            SET was_footfalled_at_scan=?
+                            WHERE commander_id=? AND system_address=? AND body_id=?""",
+                                    (int(event["WasFootfalled"]), commander_id,
+                                     address, event["BodyID"]))
 
                 self._advance_surface_mining_context(
                     mining_context, event, fallback_address=address
@@ -6567,6 +6594,7 @@ class CMDRDatabase:
         commander_systems = {}
         commander_bodies = {}
         first_footfall_disembarks = set()
+        persisted_footfall_candidates = []
         pending_bio = {}
         pending_geo = {}
         pending_planetary_mining = {}
@@ -7027,7 +7055,8 @@ class CMDRDatabase:
                                     ),
                                 )
 
-                        elif et == "Disembark" and event.get("OnPlanet"):
+                        elif (et == "Disembark" and event.get("OnPlanet") is True
+                              and event.get("OnStation") is not True):
                             address = self._system_address_from_event(event, current_address)
                             body_id = event.get("BodyID")
                             if file_commander_id is None or address is None or body_id is None:
@@ -7038,12 +7067,21 @@ class CMDRDatabase:
                                 )
                             except (TypeError, ValueError):
                                 continue
+                            if (type(event.get("SystemAddress")) is not int
+                                    or type(body_id) is not int):
+                                continue
                             first_footfall_disembarks.add(footfall_key)
                             personal_body = commander_bodies.get(footfall_key)
                             if (personal_body is not None
-                                    and personal_body.get("was_footfalled_at_scan") is False):
+                                    and personal_body.get("was_footfalled_at_scan") is False
+                                    and not personal_body["first_footfall"]):
                                 personal_body["first_footfall"] = True
                                 personal_body["first_footfall_at"] = ts
+                            elif (personal_body is None
+                                  or personal_body.get("was_footfalled_at_scan") is None):
+                                # Resolve against the DB before this import's scans
+                                # are written, not against a later scan in this batch.
+                                persisted_footfall_candidates.append((*footfall_key, ts))
 
                         elif et == "FSSDiscoveryScan":
                             address = self._system_address_from_event(
@@ -7330,7 +7368,11 @@ class CMDRDatabase:
                                     "scanned": True,
                                     "was_discovered_at_scan": event.get("WasDiscovered"),
                                     "was_mapped_at_scan": event.get("WasMapped"),
-                                    "was_footfalled_at_scan": event.get("WasFootfalled"),
+                                    "was_footfalled_at_scan": (
+                                        event.get("WasFootfalled")
+                                        if event.get("WasFootfalled") is not None
+                                        else personal_body.get("was_footfalled_at_scan")
+                                    ),
                                     "biological_signals_seen": int(body.get("biological_signals") or 0),
                                     "geological_signals_seen": int(body.get("geological_signals") or 0),
                                     "scan_value_cached": int(body.get("scan_value") or 0),
@@ -7340,7 +7382,8 @@ class CMDRDatabase:
                                 })
                                 footfall_key = (int(file_commander_id), int(address), int(body_id))
                                 if (footfall_key in first_footfall_disembarks
-                                        and event.get("WasFootfalled") is False):
+                                        and event.get("WasFootfalled") is False
+                                        and not personal_body["first_footfall"]):
                                     personal_body["first_footfall"] = True
                                     personal_body["first_footfall_at"] = ts
 
@@ -8174,6 +8217,9 @@ class CMDRDatabase:
                     all_bodies_found_at=COALESCE(commander_systems.all_bodies_found_at,
                                                  excluded.all_bodies_found_at)
             """, commander_system_rows)
+
+            for candidate in persisted_footfall_candidates:
+                self._record_persisted_first_footfall(con, *candidate)
 
             commander_body_rows = [
                 (

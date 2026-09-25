@@ -38,6 +38,13 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## Sisäinen versio 3.7.5
+
+Sisäinen versio pelissä testaamista varten; ei julkaistu.
+
+- Explorer: EDSM-tila ja tähtiluokkien normalisointi, puuttuvien taivaankappaleiden täydentäminen säilytetty, ensiaskeleen tunnistus istuntojen välillä ja korjattu yhdistäminen, arvolistan automaattinen leveys ja lineaarinen asettelu. Kopiointikuvake viimeisimmille järjestelmille; päivitetyt ohjeet, käännökset ja testit.
+- [Yksityiskohtaiset versiotiedot (saksaksi)](docs/release-3.7.5.md)
+
 ## Uutta versiossa 3.7.0
 
 - Uusi Kauppa-pääosio: myynti ja osto yhdistävät itse havaitut markkinat Spansh-tarjouksiin. Jos yhteisöhaku epäonnistuu, sopivat paikalliset tulokset säilyvät käytettävinä ja ne merkitään puutteellisiksi.

@@ -38,6 +38,13 @@ Folder dzienników Elite Dangerous jest wykrywany automatycznie, jeśli to możl
 
 CMDRHelper sprawdza aktualizacje przy uruchomieniu i ma wbudowany mechanizm aktualizacji. Potwierdź proponowaną aktualizację w aplikacji; zaktualizuje ona program i zależności oraz uruchomi CMDRHelper ponownie. Po pierwszej instalacji zwykle wystarczy używać `start.bat` (Windows) lub `bash start.sh` (Linux). Przy zwykłych aktualizacjach nie trzeba ponownie ręcznie uruchamiać `install.bat` ani `install.sh`.
 
+## Wersja wewnętrzna 3.7.5
+
+Wersja wewnętrzna do testów podczas gry; nieopublikowana.
+
+- Explorer: status EDSM i normalizacja klas gwiazd, zachowane uzupełnianie brakujących ciał niebieskich, pierwsze zejście na powierzchnię między sesjami z poprawionym scalaniem, automatyczna szerokość i liniowy układ listy wartości. Ikona kopiowania ostatnich systemów; zaktualizowana pomoc, tłumaczenia i testy.
+- [Szczegółowe informacje (po niemiecku)](docs/release-3.7.5.md)
+
 ## Nowości w wersji 3.7.0
 
 - Nowy dział Handel: sprzedaż i zakup łączą własne zaobserwowane rynki z ofertami Spansh. Po błędzie wyszukiwania społecznościowego pasujące wyniki lokalne pozostają dostępne, oznaczone jako niepełne.

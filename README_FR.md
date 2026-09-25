@@ -38,6 +38,13 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## Version interne 3.7.5
+
+Version interne pour les essais en jeu ; non publiée.
+
+- Explorateur : état EDSM et normalisation des classes stellaires, ajout conservé des corps manquants, premier pas entre sessions avec fusion corrigée, largeur automatique et disposition linéaire de la liste des valeurs. Icône de copie des systèmes récents ; aide, traductions et tests complétés.
+- [Notes détaillées (allemand)](docs/release-3.7.5.md)
+
 ## Nouveautés de la version 3.7.0
 
 - Nouvelle rubrique Commerce : vente et achat combinent vos marchés observés et les offres Spansh. Si la recherche communautaire échoue, les résultats locaux restent utilisables et sont signalés comme incomplets.

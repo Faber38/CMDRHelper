@@ -111,7 +111,7 @@ HELP_TOPICS = {
               '<p>Komutan, gemi veya konum oyunun mevcut durumuyla eşleşmiyorsa, önce üstteki '
               'günlük ekranını kontrol edin, ardından "Ayarlar" altında ayarlanan günlük klasörünü '
               'kontrol edin.</p>'
-              '<p>Açık kırmızı, Solo altın rengi ve Özel Grup yeşil gösterilir; özel gruplarda bildirilen grup adı da görünür. Mod, mevcut günlüklerden yeniden oluşturulur ve yeni LoadGame kayıtlarıyla güncellenir.</p>\n<p>Son sistemlerdeki bir kayda tek tıklamak sistem adını panoya kopyalar. Kısa süreliğine “✓ Kopyalandı: &lt;Sistem&gt;” görünür.</p>\n'),
+              '<p>Açık kırmızı, Solo altın rengi ve Özel Grup yeşil gösterilir; özel gruplarda bildirilen grup adı da görünür. Mod, mevcut günlüklerden yeniden oluşturulur ve yeni LoadGame kayıtlarıyla güncellenir.</p>\n<p>Son sistemlerdeki bir kayda tek tıklamak sistem adını panoya kopyalar. Kısa süreliğine “✓ Kopyalandı: &lt;Sistem&gt;” görünür. Her sistem adının hemen yanındaki ⧉ simgesi de panoya yalnızca o adı kopyalar.</p>\n'),
  'missions': (
         'Görevler ve Ödüller',
         """<h2>Görevler ve Ödüller</h2>
@@ -164,7 +164,7 @@ HELP_TOPICS = {
 <p>Yerel görev görünümü Inara bağlantısı gerektirmez. Etkin komutan için yapılandırılmış ve etkinleştirilmiş bir bağlantı varsa desteklenen görev olayları ayrıca aktarılabilir.</p>""",
     ),
  'explorer': ('Kaşif',
-              '<h2>Kaşif</h2>\n<h3>CMDRHelper</h3>\n<p>Sistem genel görünümü: yeni Elite tarzı görünüm, Explorer ve Kronik’te önceki küçük görünümün yerini alır. Yıldızlar ve gezegenler ana yapıyı, aşağıya dallanan uydular alt yapıyı oluşturur; çok yıldızlı sistemler okunaklı kalır. Yakınlaştırma, kaydırma, pencereye sığdırma ve gök cismine tıklama ayrıntılara erişim sağlar.</p>\n<p>Kompakt asteroit kuşakları: kümeler genel görünümde ve Explorer/Kronik’in normal sistem haritalarında kuşaklar halinde gruplanır. Her kümenin verileri korunur.</p>\n<p>Düzeltilmiş haritacılık: DSS haritalamasından sonraki tarama artık satılmamış keşif değerlerini, haritalama zamanını veya verimliliği sıfırlamaz. Hatalı kayıtlar başlangıçta mevcut ve komutana kesin olarak atanmış günlüklerden onarılır. Kaynaklar eksikse onarım bekler; veritabanını silmek gerekmez.</p>\n'
+              '<h2>Kaşif</h2><p>Başlık ayrıca EDSM durum HUD’u ile aynı EDSM durumunu gösterir: mavi = EDSM’de biliniyor, sarı = EDSM eşleşmesi yok, gri = kullanılabilir yanıt yok. “EDSM: —” henüz sonuç olmadığı anlamına gelir; örneğin HUD kapalıyken veya sorgu sürerken. Mevcut HUD ayarı sorguyu kontrol eder. Bu, Elite’te ilk keşfi doğrulamaz.</p>\n<h3>CMDRHelper</h3>\n<p>Sistem genel görünümü: yeni Elite tarzı görünüm, Explorer ve Kronik’te önceki küçük görünümün yerini alır. Yıldızlar ve gezegenler ana yapıyı, aşağıya dallanan uydular alt yapıyı oluşturur; çok yıldızlı sistemler okunaklı kalır. Yakınlaştırma, kaydırma, pencereye sığdırma ve gök cismine tıklama ayrıntılara erişim sağlar.</p>\n<p>Kompakt asteroit kuşakları: kümeler genel görünümde ve Explorer/Kronik’in normal sistem haritalarında kuşaklar halinde gruplanır. Her kümenin verileri korunur.</p>\n<p>Düzeltilmiş haritacılık: DSS haritalamasından sonraki tarama artık satılmamış keşif değerlerini, haritalama zamanını veya verimliliği sıfırlamaz. Hatalı kayıtlar başlangıçta mevcut ve komutana kesin olarak atanmış günlüklerden onarılır. Kaynaklar eksikse onarım bekler; veritabanını silmek gerekmez.</p>\n'
               '<p>Explorer, aktif komutan tarafından keşfedilen ve taranan sistemleri ve gök '
               'cisimlerini değerlendirir. Kendi Elite Dangerous günlük verilerinizi halihazırda '
               'mevcut olan ek bilgilerle birleştirir ve keşif, haritacılık, biyolojik/jeolojik '
@@ -1284,4 +1284,16 @@ HELP_TOPICS["trade"] = (
 <li>Gerekirse “Sistemi kopyala” kullanıp hedefe uçun; istasyon notta görünür kalır.</li>
 <li>Elite'te satın. Yeni pazarın kişisel verilerini de güncellemek için oradaki pazarı açın.</li>
 </ol>""",
+)
+
+
+HELP_TOPICS["explorer"] = (
+    HELP_TOPICS["explorer"][0],
+    HELP_TOPICS["explorer"][1] + '<h3>İLK AYAK BASIŞ</h3><p>İLK AYAK BASIŞ, gök cisminin durum sütununda haritalama durumuyla birlikte sarı renkte görünür. CMDRHelper bunu mevcut Elite günlük bilgilerinden, biyolojik bulgulardan bağımsız olarak çıkarır. Universal Cartographics veya Vista Genomics’e veri teslimi gerekmez; satış sarıyı yeşile dönüştürmez.</p>',
+)
+
+
+HELP_TOPICS["explorer"] = (
+    HELP_TOPICS["explorer"][0],
+    HELP_TOPICS["explorer"][1] + '<p>“Pencere genişliğine sığdır”, değer listesinin sütunlarını kullanılabilir genişliğe otomatik olarak dağıtır. Varsayılan olarak açıktır ve tercih kaydedilir. Çok dar pencerelerde veya büyük yazı tiplerinde yatay kaydırma yine de gerekebilir. Kapalıyken genişlikler elle ayarlanabilir. Bu seçenek, grafik genel görünümün otomatik sığdırma ayarından bağımsızdır.</p>',
 )

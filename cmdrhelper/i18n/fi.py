@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'explorer.value_fit_width': 'Sovita ikkunan leveyteen',
+    'explorer.value_fit_width_tip': 'Sovittaa arvolistan sarakkeet automaattisesti ikkunan käytettävissä olevaan leveyteen.',
+    'explorer.first_footfall': 'ENSIMMÄINEN JALANJÄLKI',
+    'explorer.first_footfall_tip': 'Ensimmäinen jalanjälki on päätelty lokitiedoista: kohteella ei aiemman tiedon mukaan ollut käyty jalan, ja poistuit siellä aluksesta tai ajoneuvosta. Tämä viittaa mahdolliseen ensimmäiseen käyntiisi, ei Eliten nimenomaiseen vahvistukseen.',
     'release.3_7_0.0': 'Uusi Kauppa-pääosio: myynti ja osto yhdistävät itse havaitut markkinat Spansh-tarjouksiin. Jos yhteisöhaku epäonnistuu, sopivat paikalliset tulokset säilyvät käytettävinä ja ne merkitään puutteellisiksi.',
     'release.3_7_0.1': 'Eliten hyödykemarkkinan avaaminen tallentaa aseman markkinat automaattisesti. Omat havainnot säilyvät uudelleenkäynnistyksissä, ovat voimassa alle 24 tuntia ja korvaavat saman markkinan vanhemmat tarjoukset.',
     'release.3_7_0.2': 'Suositukset käyttävät nykyistä itse havaittua ostomarkkinaa, aluksen vapaata rahtitilaa, tarjontaa ja kysyntää. Vähimmäiskate, mahdollinen määrä ja mahdollinen voitto auttavat valinnassa; kohteet voi rajata omiin markkinoihin.',

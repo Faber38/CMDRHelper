@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'explorer.value_fit_width': 'Dopasuj do szerokości okna',
+    'explorer.value_fit_width_tip': 'Automatycznie dopasowuje kolumny listy wartości do dostępnej szerokości okna.',
+    'explorer.first_footfall': 'PIERWSZY KROK',
+    'explorer.first_footfall_tip': 'Pierwszy krok wywnioskowany z dziennika: ciało było wcześniej oznaczone jako nieodwiedzone pieszo, a ty tam wysiadłeś. To wskazuje na możliwe pierwszeństwo twojej wizyty pieszej, nie na wyraźne potwierdzenie przez Elite.',
     'release.3_7_0.0': 'Nowy dział Handel: sprzedaż i zakup łączą własne zaobserwowane rynki z ofertami Spansh. Po błędzie wyszukiwania społecznościowego pasujące wyniki lokalne pozostają dostępne, oznaczone jako niepełne.',
     'release.3_7_0.1': 'Otwarcie rynku towarów w Elite automatycznie zapisuje rynek stacji. Własne obserwacje przetrwają restart, są ważne przez mniej niż 24 godziny i zastępują starsze oferty tego samego rynku.',
     'release.3_7_0.2': 'Rekomendacje używają bieżącego własnego rynku zakupu, wolnej ładowni, podaży i popytu. Minimalna marża, możliwa ilość i możliwy zysk pomagają wybrać ofertę; cele można ograniczyć do własnych rynków.',

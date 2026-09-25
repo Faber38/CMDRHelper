@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-from cmdrhelper.ui.explorer_status import mapping_status_presentation
+from cmdrhelper.ui.explorer_status import (
+    mapping_status_presentation, edsm_status_html, FootfallStatusDelegate,
+    FOOTFALL_COLOR_ROLE, STATUS_COLORS_DARK, STATUS_COLORS_LIGHT,
+)
+from html import escape
 from cmdrhelper.exploration_status import exploration_status, journal_flag, status_tooltip
 
 from copy import deepcopy
@@ -24,6 +28,8 @@ from cmdrhelper.ui.startup_progress import StartupProgressDialog
 from cmdrhelper.ui.cargo_hud import cargo_hud_enabled, cargo_hud_data
 from cmdrhelper.cargo import free_cargo_space
 from cmdrhelper.ui.table_widths import persist_column_widths
+from cmdrhelper.ui.recent_system_copy import RecentSystemCopyDelegate
+from cmdrhelper.ui.explorer_width_fit import ValueListWidthFit
 from cmdrhelper.ui.explorer_value_sort import (
     ValueItem, sort_keys, bio_sort_keys, setup_sort, apply_sort,
 )
@@ -1148,6 +1154,7 @@ class MainWindow(QMainWindow):
         self._edsm_system_status = EdsmSystemStatus(self.state.settings, self)
         self._edsm_system_status.notice.connect(self._show_edsm_status)
         self._edsm_system_status.cleared.connect(self._clear_edsm_status)
+        self._edsm_system_status.changed.connect(self._refresh_explorer_scan_header)
         if hasattr(self.state, "journalPositionsReady"):
             self.state.journalPositionsReady.connect(self._edsm_system_status.observe)
         if hasattr(self.state, "commanderIdentityChanged"):
@@ -1676,12 +1683,17 @@ class MainWindow(QMainWindow):
         self.recent_systems_table = QTableWidget(0, 2)
         self.recent_systems_table.setHorizontalHeaderLabels(["Zeit", "System"])
         self.recent_systems_table.setAlternatingRowColors(True)
+        self.recent_systems_table.setWordWrap(False)
         self.recent_systems_table.setEditTriggers(QTableWidget.NoEditTriggers)
         self.recent_systems_table.setSelectionBehavior(QTableWidget.SelectRows)
         self.recent_systems_table.setSelectionMode(QTableWidget.SingleSelection)
         self.recent_systems_table.setToolTip(tr("overview.copy_system_tooltip"))
         self.recent_systems_table.cellClicked.connect(self._copy_recent_system)
+        self.recent_systems_copy_delegate = RecentSystemCopyDelegate(self.recent_systems_table)
+        self.recent_systems_copy_delegate.copyRequested.connect(self._copy_recent_system)
+        self.recent_systems_table.setItemDelegateForColumn(1, self.recent_systems_copy_delegate)
         self.recent_systems_table.verticalHeader().setVisible(False)
+        self.recent_systems_table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.recent_systems_table.horizontalHeader().setSectionResizeMode(
             QHeaderView.Interactive
         )
@@ -1716,7 +1728,8 @@ class MainWindow(QMainWindow):
         name = item.data(Qt.UserRole) if item is not None else None
         if not isinstance(name, str) or not name.strip() or name.strip() == "–":
             return
-        QApplication.clipboard().setText(name)
+        from cmdrhelper.ui.system_clipboard import copy_system_name
+        copy_system_name(name)
         self.recent_systems_copy_hint.setText(tr("overview.system_copied", system=name))
         self.recent_systems_copy_timer.start()
 
@@ -1786,6 +1799,7 @@ class MainWindow(QMainWindow):
             tr("explorer.no_system_data"), objectName="muted"
         )
         self.system_scan_header.setWordWrap(True)
+        self.system_scan_header.setTextFormat(Qt.RichText)
         self.system_scan_header.setToolTip(tr("explorer.scan_tooltip"))
         system_layout.addWidget(self.system_scan_header)
 
@@ -1909,6 +1923,9 @@ class MainWindow(QMainWindow):
         self.explorer_value_table.setSelectionBehavior(QTableWidget.SelectRows)
         self.explorer_value_table.setSelectionMode(QTableWidget.SingleSelection)
         self.explorer_value_table.verticalHeader().setVisible(False)
+        self.explorer_value_table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.explorer_value_table.setItemDelegateForColumn(
+            7, FootfallStatusDelegate(self.explorer_value_table))
         self.explorer_value_table.setSortingEnabled(False)
         self.explorer_value_table.itemDoubleClicked.connect(
             self._explorer_table_body_activated
@@ -1929,8 +1946,19 @@ class MainWindow(QMainWindow):
         )
         setup_sort(self.explorer_value_table, self.state.settings)
 
+        value_page = QWidget()
+        value_layout = QVBoxLayout(value_page)
+        value_layout.setContentsMargins(0, 0, 0, 0)
+        self.explorer_value_fit_check = QCheckBox(tr("explorer.value_fit_width"))
+        self.explorer_value_fit_check.setToolTip(tr("explorer.value_fit_width_tip"))
+        value_layout.addWidget(self.explorer_value_fit_check, 0, Qt.AlignLeft)
+        value_layout.addWidget(self.explorer_value_table)
+        self._explorer_value_width_fit = ValueListWidthFit(
+            self.explorer_value_table, self.explorer_value_fit_check, self.state.settings)
+        self.explorer_tabs.currentChanged.connect(
+            lambda index: self._explorer_value_width_fit.request() if index == 1 else None)
         self.explorer_tabs.addTab(
-            self.explorer_value_table,
+            value_page,
             tr("explorer.value_list"),
         )
 
@@ -2360,93 +2388,108 @@ class MainWindow(QMainWindow):
         )
 
         if tab in (None, 1):
-            self.explorer_value_table.setRowCount(len(value_bodies))
+            # Auto-sizing during each setItem remeasures the existing rows.
+            # Keep the usual wrapping/height behavior, but restore it only after
+            # the complete table (including its sort order) is ready.
+            value_rows = self.explorer_value_table.verticalHeader()
+            value_rows.setSectionResizeMode(QHeaderView.Fixed)
+            try:
+                self.explorer_value_table.setRowCount(len(value_bodies))
 
-            for row, body in enumerate(value_bodies):
-                visited = self._explorer_body_visited(body)
-                exploration = exploration_status(body)
-                self_mapped = exploration["self_mapped"] is True
-                status, status_tip, status_color, status_rank = mapping_status_presentation(
-                    exploration, light=getattr(self, "ui_theme", "dark") == "light")
-                current_value = int(body.get("current_value") or 0)
+                for row, body in enumerate(value_bodies):
+                    visited = self._explorer_body_visited(body)
+                    exploration = exploration_status(body)
+                    self_mapped = exploration["self_mapped"] is True
+                    status, status_tip, status_color, status_rank = mapping_status_presentation(
+                        exploration, light=getattr(self, "ui_theme", "dark") == "light")
+                    footfall = body.get("first_footfall") is True
+                    if footfall:
+                        status = tr("explorer.first_footfall") + "\n" + status
+                        status_tip = tr("explorer.first_footfall_tip") + "\n\n" + status_tip
+                    current_value = int(body.get("current_value") or 0)
 
-                was_mapped = journal_flag(body, "was_mapped")
+                    was_mapped = journal_flag(body, "was_mapped")
 
-                # Frontier liefert WasMapped beim Scan als Zustand VOR unserer
-                # eigenen DSS-Kartierung. self_mapped zeigt dagegen, dass wir
-                # später selbst SurfaceScanComplete erhalten haben.
-                if self_mapped:
-                    mapping_text = "✓ " + tr("explorer.self_mapped")
-                elif was_mapped is True:
-                    mapping_text = tr("explorer.already_mapped")
-                elif was_mapped is False:
-                    mapping_text = "○ " + tr("explorer.first_mapping_possible")
-                else:
-                    mapping_text = tr("common.unknown")
+                    # Frontier liefert WasMapped beim Scan als Zustand VOR unserer
+                    # eigenen DSS-Kartierung. self_mapped zeigt dagegen, dass wir
+                    # später selbst SurfaceScanComplete erhalten haben.
+                    if self_mapped:
+                        mapping_text = "✓ " + tr("explorer.self_mapped")
+                    elif was_mapped is True:
+                        mapping_text = tr("explorer.already_mapped")
+                    elif was_mapped is False:
+                        mapping_text = "○ " + tr("explorer.first_mapping_possible")
+                    else:
+                        mapping_text = tr("common.unknown")
 
-                possible_value = int(body.get("possible_value") or current_value or 0)
-                possible_value_without_eff = int(
-                    body.get("possible_value_without_efficiency") or possible_value or 0
-                )
-                possible_value_text = (
-                    f"{self._format_reward(possible_value)} / "
-                    f"{self._format_reward(possible_value_without_eff)}"
-                )
+                    possible_value = int(body.get("possible_value") or current_value or 0)
+                    possible_value_without_eff = int(
+                        body.get("possible_value_without_efficiency") or possible_value or 0
+                    )
+                    possible_value_text = (
+                        f"{self._format_reward(possible_value)} / "
+                        f"{self._format_reward(possible_value_without_eff)}"
+                    )
 
-                values = [
-                    self._explorer_body_name(body),
-                    SystemMapWidget._type_text(body),
-                    self._explorer_distance_text(body),
-                    self._format_reward(body.get("scan_value", 0)),
-                    self._format_reward(current_value),
-                    possible_value_text,
-                    mapping_text,
-                    status,
-                ]
+                    values = [
+                        self._explorer_body_name(body),
+                        SystemMapWidget._type_text(body),
+                        self._explorer_distance_text(body),
+                        self._format_reward(body.get("scan_value", 0)),
+                        self._format_reward(current_value),
+                        possible_value_text,
+                        mapping_text,
+                        status,
+                    ]
+                    keys = sort_keys(body, values, visited, self_mapped, was_mapped, possible_value)
+                    keys[7] = status_rank
+                    for col, value in enumerate(values):
+                        item = ValueItem(value, keys[col])
+                        item.setData(Qt.UserRole, body)
+                        item.setToolTip(status_tooltip(body))
 
-                keys = sort_keys(body, values, visited, self_mapped, was_mapped, possible_value)
-                keys[7] = status_rank
-                for col, value in enumerate(values):
-                    item = ValueItem(value, keys[col])
-                    item.setData(Qt.UserRole, body)
-                    item.setToolTip(status_tooltip(body))
+                        # Zahlenwerte auch intern numerisch hinterlegen.
+                        if col == 4:
+                            item.setData(Qt.UserRole + 1, current_value)
 
-                    # Zahlenwerte auch intern numerisch hinterlegen.
-                    if col == 4:
-                        item.setData(Qt.UserRole + 1, current_value)
-
-                    # Grün zeigt die Schätzung nach eigenem Scan-/Mappingstand.
-                    # Der Schwellenwert bewertet die Kartographieschätzung,
-                    # nicht einen bestätigten offenen Verkaufserlös.
-                    if col == 4:
-                        item.setForeground(QColor("#65d067"))
-                        item.setToolTip(status_tooltip(body) + "\n" + tr("exploration.value_estimate"))
-                    elif col == 5:
-                        yellow_threshold = self._explorer_value_yellow_threshold()
-
-                        if yellow_threshold > 0 and possible_value >= yellow_threshold:
-                            item.setForeground(QColor("#ffb000"))
-                        else:
-                            item.setForeground(QColor("#d9dde1"))
-
-                        item.setData(Qt.UserRole + 1, possible_value)
-                        item.setToolTip(
-                            status_tooltip(body) + "\n" + tr("exploration.value_estimate")
-                        )
-                    elif col == 6:
-                        if self_mapped:
+                        # Grün zeigt die Schätzung nach eigenem Scan-/Mappingstand.
+                        # Der Schwellenwert bewertet die Kartographieschätzung,
+                        # nicht einen bestätigten offenen Verkaufserlös.
+                        if col == 4:
                             item.setForeground(QColor("#65d067"))
-                        elif was_mapped is False:
-                            item.setForeground(QColor("#68c7ff"))
-                        elif was_mapped is True:
-                            item.setForeground(QColor("#9aa3ab"))
-                    elif col == 7:
-                        item.setForeground(QColor(status_color))
-                        item.setToolTip(status_tip)
+                            item.setToolTip(status_tooltip(body) + "\n" + tr("exploration.value_estimate"))
+                        elif col == 5:
+                            yellow_threshold = self._explorer_value_yellow_threshold()
 
-                    self.explorer_value_table.setItem(row, col, item)
+                            if yellow_threshold > 0 and possible_value >= yellow_threshold:
+                                item.setForeground(QColor("#ffb000"))
+                            else:
+                                item.setForeground(QColor("#d9dde1"))
 
-            apply_sort(self.explorer_value_table)
+                            item.setData(Qt.UserRole + 1, possible_value)
+                            item.setToolTip(
+                                status_tooltip(body) + "\n" + tr("exploration.value_estimate")
+                            )
+                        elif col == 6:
+                            if self_mapped:
+                                item.setForeground(QColor("#65d067"))
+                            elif was_mapped is False:
+                                item.setForeground(QColor("#68c7ff"))
+                            elif was_mapped is True:
+                                item.setForeground(QColor("#9aa3ab"))
+                        elif col == 7:
+                            item.setForeground(QColor(status_color))
+                            item.setToolTip(status_tip)
+                            if footfall:
+                                colors = (STATUS_COLORS_LIGHT if getattr(self, "ui_theme", "dark") == "light"
+                                          else STATUS_COLORS_DARK)
+                                item.setData(FOOTFALL_COLOR_ROLE, colors[2])
+
+                        self.explorer_value_table.setItem(row, col, item)
+
+                apply_sort(self.explorer_value_table)
+            finally:
+                value_rows.setSectionResizeMode(QHeaderView.ResizeToContents)
 
         # BIO/GEO/Abbau-Körper gemeinsam. Auch reine GEO-/Abbau-Körper werden hier
         # angezeigt; Körper mit beiden Signalarten erscheinen nur einmal.
@@ -5666,6 +5709,8 @@ class MainWindow(QMainWindow):
         if getattr(self, "_system_overview_window", None) is not None:
             self._system_overview_window.set_light_mode(theme == "light")
 
+        self._refresh_explorer_scan_header()
+
     def _explorer_live_window_enabled(self, window_kind):
         kind = str(window_kind) if str(window_kind) in ("bio", "geo") else "value"
         value = self.state.settings.value(f"explorer_live/{kind}_enabled", True)
@@ -6116,6 +6161,102 @@ class MainWindow(QMainWindow):
 
         self.mission_progress_text.setText("   ·   ".join(progress))
 
+    def _refresh_explorer_scan_header(self):
+        if not hasattr(self, "system_scan_header"):
+            return
+        scanned_count = sum(
+            1 for body in self.state.system_bodies if body.get("journal_scanned", True)
+        )
+
+        known_count = len(self.state.system_bodies)
+
+        total_count = max(
+            int(self.state.system_body_count or 0),
+            int(getattr(self.state, "edsm_body_count", 0) or 0),
+            known_count,
+        )
+
+        signal_count = self.state.system_signals_count
+
+        # Belt Cluster können in Scan-Events auftauchen, zählen aber nicht
+        # immer 1:1 zum FSS-BodyCount. Deshalb nicht irreführend >100% zeigen.
+        displayed_scanned = (
+            min(scanned_count, total_count) if total_count else scanned_count
+        )
+
+        bio_body_count = sum(
+            1
+            for body in self.state.system_bodies
+            if int(body.get("biological_signals") or 0) > 0
+        )
+
+        geo_body_count = sum(
+            1
+            for body in self.state.system_bodies
+            if int(body.get("geological_signals") or 0) > 0
+        )
+
+        scan_status = tr(
+            "explorer.scan_count", scanned=displayed_scanned, total=total_count
+        )
+
+        edsm_added = int(getattr(self.state, "edsm_added_count", 0) or 0)
+
+        edsm_known = int(getattr(self.state, "edsm_body_count", 0) or 0)
+
+        if self.state.edsm_enabled and edsm_known:
+            scan_status += tr("explorer.edsm_known", count=edsm_known)
+
+            if edsm_added:
+                scan_status += tr("explorer.edsm_added", count=edsm_added)
+
+        if self.state.system_all_bodies_found:
+            scan_status += tr("explorer.all_bodies_found")
+
+        if signal_count:
+            scan_status += tr("explorer.signals", count=signal_count)
+
+        if bio_body_count:
+            scan_status += tr("explorer.bio_on_bodies", count=bio_body_count)
+
+        if geo_body_count:
+            scan_status += tr("explorer.geo_on_bodies", count=geo_body_count)
+
+        # Consume the HUD's accepted result, never infer status from bodies/cache.
+        source = getattr(self, "_edsm_system_status", None)
+        status = None
+        if source is not None and source.name.casefold() == str(self.state.system or "").casefold():
+            address = getattr(self.state, "system_address", None)
+            if not (isinstance(address, int) and isinstance(source.address, int)
+                    and address != source.address):
+                status = source.status
+        prefix = escape(scan_status) + " · " + edsm_status_html(
+            status, light=self.ui_theme == "light")
+        scan_status = ""
+
+        current_value = int(getattr(self.state, "system_current_value", 0) or 0)
+
+        scan_status += tr(
+            "explorer.value_summary",
+            scan=self._format_reward(self.state.system_scan_value),
+            current=self._format_reward(current_value),
+            mapped=self._format_reward(self.state.system_mapped_value),
+        )
+
+        gold_threshold = self._explorer_value_yellow_threshold()
+        gold_count = sum(
+            1 for body in self.state.system_bodies if bool(body.get("high_value"))
+        )
+
+        if gold_count:
+            scan_status += tr(
+                "explorer.gold_body_count",
+                count=gold_count,
+                value=self._format_reward(gold_threshold),
+            )
+
+        self.system_scan_header.setText(prefix + escape(scan_status))
+
     def refresh_all(self):
         self.favorites_view.sync_commander()
         commander = self.state.commander or "–"
@@ -6285,86 +6426,7 @@ class MainWindow(QMainWindow):
 
         self._refresh_recent_systems()
 
-        scanned_count = sum(
-            1 for body in self.state.system_bodies if body.get("journal_scanned", True)
-        )
-
-        known_count = len(self.state.system_bodies)
-
-        total_count = max(
-            int(self.state.system_body_count or 0),
-            int(getattr(self.state, "edsm_body_count", 0) or 0),
-            known_count,
-        )
-
-        signal_count = self.state.system_signals_count
-
-        # Belt Cluster können in Scan-Events auftauchen, zählen aber nicht
-        # immer 1:1 zum FSS-BodyCount. Deshalb nicht irreführend >100% zeigen.
-        displayed_scanned = (
-            min(scanned_count, total_count) if total_count else scanned_count
-        )
-
-        bio_body_count = sum(
-            1
-            for body in self.state.system_bodies
-            if int(body.get("biological_signals") or 0) > 0
-        )
-
-        geo_body_count = sum(
-            1
-            for body in self.state.system_bodies
-            if int(body.get("geological_signals") or 0) > 0
-        )
-
-        scan_status = tr(
-            "explorer.scan_count", scanned=displayed_scanned, total=total_count
-        )
-
-        edsm_added = int(getattr(self.state, "edsm_added_count", 0) or 0)
-
-        edsm_known = int(getattr(self.state, "edsm_body_count", 0) or 0)
-
-        if self.state.edsm_enabled and edsm_known:
-            scan_status += tr("explorer.edsm_known", count=edsm_known)
-
-            if edsm_added:
-                scan_status += tr("explorer.edsm_added", count=edsm_added)
-
-        if self.state.system_all_bodies_found:
-            scan_status += tr("explorer.all_bodies_found")
-
-        if signal_count:
-            scan_status += tr("explorer.signals", count=signal_count)
-
-        if bio_body_count:
-            scan_status += tr("explorer.bio_on_bodies", count=bio_body_count)
-
-        if geo_body_count:
-            scan_status += tr("explorer.geo_on_bodies", count=geo_body_count)
-
-        current_value = int(getattr(self.state, "system_current_value", 0) or 0)
-
-        scan_status += tr(
-            "explorer.value_summary",
-            scan=self._format_reward(self.state.system_scan_value),
-            current=self._format_reward(current_value),
-            mapped=self._format_reward(self.state.system_mapped_value),
-        )
-
-        gold_threshold = self._explorer_value_yellow_threshold()
-        gold_count = sum(
-            1 for body in self.state.system_bodies if bool(body.get("high_value"))
-        )
-
-        if gold_count:
-            scan_status += tr(
-                "explorer.gold_body_count",
-                count=gold_count,
-                value=self._format_reward(gold_threshold),
-            )
-
-        self.system_scan_header.setText(scan_status)
+        self._refresh_explorer_scan_header()
 
         bio_count = int(getattr(self.state, "system_bio_completed_count", 0) or 0)
         bio_value = int(getattr(self.state, "system_bio_value", 0) or 0)

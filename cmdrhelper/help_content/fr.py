@@ -117,7 +117,7 @@ HELP_TOPICS = {
               "<p>Si le commandant, le navire ou l'emplacement ne correspond pas à l'état actuel "
               "du jeu, vérifiez d'abord l'affichage du journal en haut, puis vérifiez le dossier "
               'du journal défini sous « Paramètres ».</p>'
-              '<p>Le mode Ouvert apparaît en rouge, Solo en doré et Groupe privé en vert, avec le nom de groupe signalé. Le mode est reconstitué à partir des journaux disponibles et actualisé avec les nouvelles entrées LoadGame.</p>\n<p>Un simple clic sur une entrée des systèmes récents copie son nom dans le presse-papiers. « ✓ Copié : &lt;Système&gt; » apparaît brièvement.</p>\n'),
+              '<p>Le mode Ouvert apparaît en rouge, Solo en doré et Groupe privé en vert, avec le nom de groupe signalé. Le mode est reconstitué à partir des journaux disponibles et actualisé avec les nouvelles entrées LoadGame.</p>\n<p>Un simple clic sur une entrée des systèmes récents copie son nom dans le presse-papiers. « ✓ Copié : &lt;Système&gt; » apparaît brièvement. L’icône ⧉ à côté de chaque nom de système copie également uniquement ce nom dans le presse-papiers.</p>\n'),
  'missions': (
         'Missions et récompenses',
         """<h2>Missions et récompenses</h2>
@@ -170,7 +170,7 @@ HELP_TOPICS = {
 <p>L'affichage local des missions ne nécessite aucune connexion à Inara. Si une connexion adaptée au commandant actif est configurée et activée, les événements de mission pris en charge peuvent aussi être transmis.</p>""",
     ),
  'explorer': ('Explorateur',
-              '<h2>Explorateur</h2>\n<h3>CMDRHelper</h3>\n<p>Vue d’ensemble du système : la nouvelle présentation inspirée d’Elite remplace l’ancienne miniature dans Explorer et la Chronique. Étoiles et planètes forment la structure principale, les lunes se ramifient en dessous ; les systèmes multiples restent lisibles. Zoom, défilement, ajustement à la fenêtre et clic sur un corps donnent accès aux détails.</p>\n<p>Ceintures d’astéroïdes compactes : les amas sont regroupés en ceintures dans la vue d’ensemble et les cartes habituelles d’Explorer et de la Chronique. Toutes les données individuelles sont conservées.</p>\n<p>Cartographie corrigée : un scan après une cartographie DSS ne réinitialise plus les valeurs d’exploration invendues, l’heure de cartographie ni l’efficacité. Les créances incorrectes sont réparées au démarrage à partir des journaux disponibles et attribués sans ambiguïté. Sans ces sources, la réparation reste en attente ; inutile de supprimer la base.</p>\n'
+              '<h2>Explorateur</h2><p>L’en-tête affiche aussi le même statut EDSM que le HUD de statut EDSM : bleu = connu dans EDSM, jaune = aucune correspondance EDSM, gris = aucune réponse exploitable. « EDSM: — » signifie aucun résultat pour le moment, par exemple si le HUD est désactivé ou si une requête est en cours. Le réglage existant du HUD contrôle la requête. Cela ne confirme pas une première découverte dans Elite.</p>\n<h3>CMDRHelper</h3>\n<p>Vue d’ensemble du système : la nouvelle présentation inspirée d’Elite remplace l’ancienne miniature dans Explorer et la Chronique. Étoiles et planètes forment la structure principale, les lunes se ramifient en dessous ; les systèmes multiples restent lisibles. Zoom, défilement, ajustement à la fenêtre et clic sur un corps donnent accès aux détails.</p>\n<p>Ceintures d’astéroïdes compactes : les amas sont regroupés en ceintures dans la vue d’ensemble et les cartes habituelles d’Explorer et de la Chronique. Toutes les données individuelles sont conservées.</p>\n<p>Cartographie corrigée : un scan après une cartographie DSS ne réinitialise plus les valeurs d’exploration invendues, l’heure de cartographie ni l’efficacité. Les créances incorrectes sont réparées au démarrage à partir des journaux disponibles et attribués sans ambiguïté. Sans ces sources, la réparation reste en attente ; inutile de supprimer la base.</p>\n'
               "<p>L'Explorateur évalue les systèmes et corps célestes découverts et scannés par le "
               'commandant actif. Il combine vos propres données de journal Elite Dangerous avec '
               'des informations supplémentaires déjà disponibles et affiche ensemble les données '
@@ -1330,4 +1330,16 @@ HELP_TOPICS["trade"] = (
 <li>Utilisez « Copier le système » au besoin, puis rejoignez la destination ; la station reste visible dans le pense-bête.</li>
 <li>Vendez dans Elite. Ouvrez le marché sur place pour actualiser aussi vos propres données de ce nouveau marché.</li>
 </ol>""",
+)
+
+
+HELP_TOPICS["explorer"] = (
+    HELP_TOPICS["explorer"][0],
+    HELP_TOPICS["explorer"][1] + '<h3>PREMIER PAS</h3><p>PREMIER PAS apparaît en jaune dans la colonne Statut du corps, en complément de son état de cartographie. CMDRHelper le déduit des informations disponibles dans les journaux d’Elite, indépendamment des découvertes biologiques. Aucun dépôt auprès d’Universal Cartographics ou de Vista Genomics n’est nécessaire ; une vente ne fait pas passer le jaune au vert.</p>',
+)
+
+
+HELP_TOPICS["explorer"] = (
+    HELP_TOPICS["explorer"][0],
+    HELP_TOPICS["explorer"][1] + '<p>« Adapter à la largeur de la fenêtre » répartit automatiquement les colonnes de la liste des valeurs sur la largeur disponible. Cette option est activée par défaut et mémorisée. Une fenêtre très étroite ou une grande police peut encore nécessiter un défilement horizontal. Une fois désactivée, les largeurs restent réglables manuellement. Cette option est indépendante de l’ajustement automatique de la vue graphique générale.</p>',
 )

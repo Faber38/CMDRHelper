@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'explorer.value_fit_width': 'Aan vensterbreedte aanpassen',
+    'explorer.value_fit_width_tip': 'Past de kolommen van de waardelijst automatisch aan de beschikbare vensterbreedte aan.',
+    'explorer.first_footfall': 'EERSTE VOETSTAP',
+    'explorer.first_footfall_tip': 'Eerste voetstap afgeleid uit het logboek: het hemellichaam stond eerder geregistreerd als nog niet te voet bezocht en je bent daar uitgestapt. Dit wijst op een mogelijke eerste voetstap van jou, niet op een uitdrukkelijke bevestiging door Elite.',
     'release.3_7_0.0': 'Nieuw hoofdonderdeel Handel: verkopen en inkopen combineren eigen waargenomen markten met Spansh-aanbiedingen. Bij een mislukte communityzoekopdracht blijven passende lokale resultaten bruikbaar, met een melding dat ze onvolledig zijn.',
     'release.3_7_0.1': 'Het openen van een goederenmarkt in Elite legt de stationsmarkt automatisch vast. Eigen waarnemingen blijven na herstarts bewaard, zijn strikt minder dan 24 uur geldig en vervangen oudere aanbiedingen van dezelfde markt.',
     'release.3_7_0.2': 'Aanbevelingen gebruiken de huidige eigen inkoopmarkt, vrije scheepsvrachtruimte, aanbod en vraag. Minimummarge, mogelijke hoeveelheid en mogelijke winst helpen bij de keuze; optioneel alleen eigen doelmarkten.',

@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'explorer.value_fit_width': 'Fit to window width',
+    'explorer.value_fit_width_tip': 'Automatically fits the value-list columns to the available window width.',
+    'explorer.first_footfall': 'FIRST FOOTFALL',
+    'explorer.first_footfall_tip': 'First footfall inferred from journal data: the body was previously recorded as not yet visited on foot, and you disembarked there. This indicates a possible first footfall by you, not an explicit confirmation from Elite.',
     'release.3_7_0.0': 'New Trade section: selling and buying combine your observed markets with Spansh offers. Matching local results remain usable, marked incomplete, if the community search fails.',
     'release.3_7_0.1': 'Opening an Elite commodity market automatically records the station market. Your observations survive restarts, remain valid for strictly less than 24 hours and replace older offers from the same market.',
     'release.3_7_0.2': 'Recommendations use your current observed buying market, free ship cargo space, supply and demand. Minimum margin, possible quantity and potential profit help you choose; optionally use only your own destination markets.',

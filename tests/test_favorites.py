@@ -466,9 +466,13 @@ class FavoriteTests(unittest.TestCase):
         self.addCleanup(window._favorites_window.close)
 
         self.assertEqual(window.explorer_tabs.count(), 4)
-        self.assertEqual([window.explorer_tabs.widget(i) for i in range(3)],
-                         [window.system_scroll, window.explorer_value_table,
-                          window.explorer_bio_table])
+        self.assertIs(window.explorer_tabs.widget(0), window.system_scroll)
+        # Width-Fit and the existing value table share one tab, not two tabs.
+        value_layout = window.explorer_tabs.widget(1).layout()
+        self.assertEqual([value_layout.itemAt(i).widget()
+                          for i in range(value_layout.count())],
+                         [window.explorer_value_fit_check, window.explorer_value_table])
+        self.assertIs(window.explorer_tabs.widget(2), window.explorer_bio_table)
         layout = window.favorites_button.parentWidget().layout()
         row = next(layout.itemAt(i).layout() for i in range(layout.count())
                    if layout.itemAt(i).layout() is not None

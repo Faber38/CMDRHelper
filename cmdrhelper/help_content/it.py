@@ -116,7 +116,7 @@ HELP_TOPICS = {
               '<p>Se il comandante, la nave o la posizione non corrispondono allo stato attuale '
               'del gioco, controlla prima la visualizzazione del diario in alto e poi controlla la '
               'cartella del diario impostata in "Impostazioni".</p>'
-              '<p>Open appare in rosso, Solo in oro e Gruppo privato in verde, con il nome del gruppo comunicato. La modalità viene ricostruita dai journal disponibili e aggiornata con le nuove voci LoadGame.</p>\n<p>Un singolo clic su una voce dei sistemi recenti copia il nome del sistema negli appunti. Appare brevemente «✓ Copiato: &lt;Sistema&gt;».</p>\n'),
+              '<p>Open appare in rosso, Solo in oro e Gruppo privato in verde, con il nome del gruppo comunicato. La modalità viene ricostruita dai journal disponibili e aggiornata con le nuove voci LoadGame.</p>\n<p>Un singolo clic su una voce dei sistemi recenti copia il nome del sistema negli appunti. Appare brevemente «✓ Copiato: &lt;Sistema&gt;». Anche l’icona ⧉ accanto a ciascun nome di sistema copia solo quel nome negli appunti.</p>\n'),
  'missions': (
         'Missioni e ricompense',
         """<h2>Missioni e ricompense</h2>
@@ -169,7 +169,7 @@ HELP_TOPICS = {
 <p>La visualizzazione locale delle missioni non richiede una connessione a Inara. Con una connessione abilitata e configurata per il comandante attivo, gli eventi di missione supportati possono anche essere trasmessi.</p>""",
     ),
  'explorer': ('Esploratore',
-              '<h2>Esploratore</h2>\n<h3>CMDRHelper</h3>\n<p>Panoramica del sistema: la nuova vista in stile Elite sostituisce la vecchia miniatura in Explorer e Cronaca. Stelle e pianeti formano la struttura principale, con lune ramificate sotto; i sistemi multipli restano leggibili. Zoom, scorrimento, adattamento alla finestra e clic sui corpi consentono di consultare i dettagli.</p>\n<p>Fasce di asteroidi compatte: i gruppi vengono riuniti in fasce nella panoramica e nelle normali mappe di Explorer e Cronaca. Tutti i dati dei singoli gruppi vengono conservati.</p>\n<p>Cartografia corretta: una scansione successiva alla mappatura DSS non azzera più valori esplorativi invenduti, ora della mappatura o efficienza. Le registrazioni errate vengono riparate all’avvio dai journal disponibili e attribuiti con certezza. Senza le fonti, la riparazione resta in sospeso; non occorre cancellare il database.</p>\n'
+              '<h2>Esploratore</h2><p>L’intestazione mostra anche lo stesso stato EDSM dell’HUD di stato EDSM: blu = noto a EDSM, giallo = nessuna corrispondenza EDSM, grigio = nessuna risposta utilizzabile. «EDSM: —» indica che non c’è ancora un risultato, per esempio con HUD disattivato o richiesta in corso. L’impostazione esistente dell’HUD controlla la richiesta. Questo non conferma una prima scoperta in Elite.</p>\n<h3>CMDRHelper</h3>\n<p>Panoramica del sistema: la nuova vista in stile Elite sostituisce la vecchia miniatura in Explorer e Cronaca. Stelle e pianeti formano la struttura principale, con lune ramificate sotto; i sistemi multipli restano leggibili. Zoom, scorrimento, adattamento alla finestra e clic sui corpi consentono di consultare i dettagli.</p>\n<p>Fasce di asteroidi compatte: i gruppi vengono riuniti in fasce nella panoramica e nelle normali mappe di Explorer e Cronaca. Tutti i dati dei singoli gruppi vengono conservati.</p>\n<p>Cartografia corretta: una scansione successiva alla mappatura DSS non azzera più valori esplorativi invenduti, ora della mappatura o efficienza. Le registrazioni errate vengono riparate all’avvio dai journal disponibili e attribuiti con certezza. Senza le fonti, la riparazione resta in sospeso; non occorre cancellare il database.</p>\n'
               "<p>L'Explorer valuta i sistemi e i corpi celesti scoperti e scansionati dal "
               'comandante attivo. Combina i dati del tuo diario Elite Dangerous con informazioni '
               "aggiuntive già disponibili e visualizza insieme l'esplorazione, la cartografia, i "
@@ -1322,4 +1322,16 @@ HELP_TOPICS["trade"] = (
 <li>Usa «Copia sistema» se necessario e vola a destinazione; la stazione resta nel promemoria.</li>
 <li>Vendi in Elite. Apri il mercato sul posto per aggiornare anche i tuoi dati personali del nuovo mercato.</li>
 </ol>""",
+)
+
+
+HELP_TOPICS["explorer"] = (
+    HELP_TOPICS["explorer"][0],
+    HELP_TOPICS["explorer"][1] + '<h3>PRIMO PASSO</h3><p>PRIMO PASSO appare in giallo nella colonna Stato del corpo, accanto allo stato di mappatura. CMDRHelper lo deduce dalle informazioni disponibili nei diari di Elite, indipendentemente dai ritrovamenti biologici. Non occorre consegnare dati a Universal Cartographics o Vista Genomics; una vendita non cambia il giallo in verde.</p>',
+)
+
+
+HELP_TOPICS["explorer"] = (
+    HELP_TOPICS["explorer"][0],
+    HELP_TOPICS["explorer"][1] + '<p>«Adatta alla larghezza della finestra» distribuisce automaticamente le colonne dell’elenco valori nello spazio disponibile. L’opzione è attiva per impostazione predefinita e viene salvata. Finestre molto strette o caratteri grandi possono comunque richiedere lo scorrimento orizzontale. Quando è disattivata, le larghezze restano regolabili manualmente. È indipendente dall’adattamento automatico della panoramica grafica.</p>',
 )

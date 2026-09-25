@@ -317,7 +317,9 @@ class ContextHelpTests(unittest.TestCase):
             "SRV-Fracht wird niemals als Schiffsfracht übernommen",
         ):
             self.assertIn(passage, topic.text)
-        self.assertEqual(topic.text.count("<h3>"), 34)
+        self.assertIn("<h3>ERSTBETRETUNG</h3>", topic.text)
+        self.assertIn("keinen Wechsel von Gelb zu Grün", topic.text)
+        self.assertEqual(topic.text.count("<h3>"), 35)
         self.assertEqual(topic.text.count("<ul>"), 6)
         for text in ("★ Favoriten", "Schnell-Favorit ohne Maus", "Nicht belegt",
                      "kein automatischer Screenshot", "Der gespeicherte HUD-Schalter",

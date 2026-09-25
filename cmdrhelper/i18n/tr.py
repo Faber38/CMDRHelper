@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'explorer.value_fit_width': 'Pencere genişliğine sığdır',
+    'explorer.value_fit_width_tip': 'Değer listesinin sütunlarını kullanılabilir pencere genişliğine otomatik olarak sığdırır.',
+    'explorer.first_footfall': 'İLK AYAK BASIŞ',
+    'explorer.first_footfall_tip': 'Günlük verilerinden çıkarılan ilk ayak basış: gök cismi daha önce yürüyerek ziyaret edilmemiş olarak kaydedilmişti ve sen orada araçtan indin. Bu, ilk ayak basan kişinin sen olabileceğine işaret eder; Elite tarafından açık bir onay değildir.',
     'release.3_7_0.0': 'Yeni Ticaret ana bölümü: satış ve alış, gözlemlediğin pazarları Spansh teklifleriyle birleştirir. Topluluk araması başarısız olursa uygun yerel sonuçlar eksik sonuç uyarısıyla kullanılabilir kalır.',
     'release.3_7_0.1': 'Elite emtia pazarı açıldığında istasyon pazarı otomatik kaydedilir. Kendi gözlemlerin yeniden başlatmada korunur, 24 saatten kısa süre geçerlidir ve aynı pazarın eski tekliflerinin yerini alır.',
     'release.3_7_0.2': 'Öneriler mevcut gözlemlenmiş alış pazarını, geminin boş kargo alanını, arzı ve talebi kullanır. Asgari kâr marjı, olası miktar ve olası kâr seçime yardımcı olur; hedefler yalnızca kendi pazarlarınla sınırlandırılabilir.',

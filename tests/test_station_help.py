@@ -50,7 +50,7 @@ class StationHelpTests(unittest.TestCase):
             ui = import_module(f'cmdrhelper.i18n.{language}').TRANSLATIONS
             for context, keys, count in (
                 ('explorer', ('stations.search', 'stations.all_bodies', 'spansh.services',
-                              'spansh.refresh', 'explorer.overview_auto_fit', 'explorer.overview_fit'), 34),
+                              'spansh.refresh', 'explorer.overview_auto_fit', 'explorer.overview_fit'), 35),
                 ('settings', ('spansh.enabled', 'settings.online_services',
                               'spansh.refresh', 'spansh.refresh_already_today'), 35),
             ):

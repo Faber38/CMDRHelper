@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'explorer.value_fit_width': 'Adapter à la largeur de la fenêtre',
+    'explorer.value_fit_width_tip': 'Adapte automatiquement les colonnes de la liste des valeurs à la largeur disponible de la fenêtre.',
+    'explorer.first_footfall': 'PREMIER PAS',
+    'explorer.first_footfall_tip': 'Premier pas déduit du journal : le corps était auparavant indiqué comme jamais foulé et vous y avez débarqué. Cela suggère que vous avez pu être le premier à y marcher, sans confirmation explicite d’Elite.',
     'release.3_7_0.0': 'Nouvelle rubrique Commerce : vente et achat combinent vos marchés observés et les offres Spansh. Si la recherche communautaire échoue, les résultats locaux restent utilisables et sont signalés comme incomplets.',
     'release.3_7_0.1': 'Ouvrir le marché de marchandises dans Elite enregistre automatiquement le marché de la station. Vos observations survivent aux redémarrages, restent valides strictement moins de 24 heures et remplacent les offres plus anciennes du même marché.',
     'release.3_7_0.2': 'Les recommandations utilisent votre marché d’achat actuel observé, la soute libre, l’offre et la demande. Marge minimale, quantité possible et bénéfice potentiel facilitent le choix ; les destinations peuvent être limitées à vos marchés.',

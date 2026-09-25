@@ -37,6 +37,8 @@ class ExplorerTableUxTests(unittest.TestCase):
         self.addCleanup(self.tmp.cleanup)
         self.path = str(Path(self.tmp.name) / 'ui.ini')
         self.settings = QSettings(self.path, QSettings.IniFormat)
+        # These regressions exercise the optional manual-width mode.
+        self.settings.setValue('explorer/value_fit_width', False)
         self.addCleanup(set_language, get_language())
         self.addCleanup(self.app.setStyleSheet, self.app.styleSheet())
         set_language('de')

@@ -114,7 +114,7 @@ HELP_TOPICS = {
               '<p>Als de commandant, het schip of de locatie niet overeenkomt met de huidige '
               'status van het spel, controleer dan eerst de journaalweergave bovenaan en '
               'controleer vervolgens de journaalmap die is ingesteld onder “Instellingen”.</p>'
-              '<p>Open verschijnt in rood, Solo in goud en Privégroep in groen, met de gemelde groepsnaam. De modus wordt uit beschikbare journalen gereconstrueerd en bij nieuwe LoadGame-vermeldingen bijgewerkt.</p>\n<p>Een enkele klik op een vermelding bij recente systemen kopieert de systeemnaam naar het klembord. “✓ Gekopieerd: &lt;Systeem&gt;” verschijnt kort.</p>\n'),
+              '<p>Open verschijnt in rood, Solo in goud en Privégroep in groen, met de gemelde groepsnaam. De modus wordt uit beschikbare journalen gereconstrueerd en bij nieuwe LoadGame-vermeldingen bijgewerkt.</p>\n<p>Een enkele klik op een vermelding bij recente systemen kopieert de systeemnaam naar het klembord. “✓ Gekopieerd: &lt;Systeem&gt;” verschijnt kort. Het pictogram ⧉ direct naast elke systeemnaam kopieert ook alleen die naam naar het klembord.</p>\n'),
  'missions': (
         'Missies en beloningen',
         """<h2>Missies en beloningen</h2>
@@ -167,7 +167,7 @@ HELP_TOPICS = {
 <p>De lokale missieweergave heeft geen Inara-verbinding nodig. Met een ingeschakelde verbinding die voor de actieve commander is ingesteld, kunnen ondersteunde missiegebeurtenissen ook worden verzonden.</p>""",
     ),
  'explorer': ('Ontdekkingsreiziger',
-              '<h2>Ontdekkingsreiziger</h2>\n<h3>CMDRHelper</h3>\n<p>Systeemoverzicht: de nieuwe Elite-achtige weergave vervangt het miniatuuroverzicht in Explorer en Kroniek. Sterren en planeten vormen de hoofdstructuur met manen daaronder; meervoudige sterrenstelsels blijven leesbaar. Zoomen, scrollen, passend maken en klikken op hemellichamen geven toegang tot details.</p>\n<p>Compacte asteroïdengordels: clusters worden gegroepeerd tot gordels in het overzicht en de gewone systeemkaarten van Explorer en Kroniek. Alle afzonderlijke clustergegevens blijven bewaard.</p>\n<p>Cartografie hersteld: een scan na DSS-kartering zet onverkochte verkenningswaarden, karteringstijd en efficiëntie niet meer terug. Onjuiste registraties worden bij het starten hersteld uit beschikbare journals met eenduidige toewijzing. Zonder die bronnen blijft herstel openstaan; de database hoeft niet verwijderd te worden.</p>\n'
+              '<h2>Ontdekkingsreiziger</h2><p>De kop toont ook dezelfde EDSM-status als de EDSM-status-HUD: blauw = bekend bij EDSM, geel = geen EDSM-resultaat, grijs = geen bruikbaar antwoord. “EDSM: —” betekent nog geen resultaat, bijvoorbeeld als de HUD uitstaat of een aanvraag loopt. De bestaande HUD-instelling regelt de aanvraag. Dit bevestigt geen eerste ontdekking in Elite.</p>\n<h3>CMDRHelper</h3>\n<p>Systeemoverzicht: de nieuwe Elite-achtige weergave vervangt het miniatuuroverzicht in Explorer en Kroniek. Sterren en planeten vormen de hoofdstructuur met manen daaronder; meervoudige sterrenstelsels blijven leesbaar. Zoomen, scrollen, passend maken en klikken op hemellichamen geven toegang tot details.</p>\n<p>Compacte asteroïdengordels: clusters worden gegroepeerd tot gordels in het overzicht en de gewone systeemkaarten van Explorer en Kroniek. Alle afzonderlijke clustergegevens blijven bewaard.</p>\n<p>Cartografie hersteld: een scan na DSS-kartering zet onverkochte verkenningswaarden, karteringstijd en efficiëntie niet meer terug. Onjuiste registraties worden bij het starten hersteld uit beschikbare journals met eenduidige toewijzing. Zonder die bronnen blijft herstel openstaan; de database hoeft niet verwijderd te worden.</p>\n'
               '<p>De Explorer evalueert de systemen en hemellichamen die door de actieve '
               'commandant zijn ontdekt en gescand. Het combineert uw eigen Elite '
               'Dangerous-dagboekgegevens met reeds beschikbare aanvullende informatie en geeft '
@@ -1314,4 +1314,16 @@ HELP_TOPICS["trade"] = (
 <li>Gebruik zo nodig ‘Systeem kopiëren’ en vlieg naar het doel; het station blijft in de notitie zichtbaar.</li>
 <li>Verkoop in Elite. Open daar de markt om ook je eigen gegevens van de nieuwe markt bij te werken.</li>
 </ol>""",
+)
+
+
+HELP_TOPICS["explorer"] = (
+    HELP_TOPICS["explorer"][0],
+    HELP_TOPICS["explorer"][1] + '<h3>EERSTE VOETSTAP</h3><p>EERSTE VOETSTAP verschijnt geel in de statuskolom van het hemellichaam, naast de karteringsstatus. CMDRHelper leidt dit af uit beschikbare Elite-logboeken, onafhankelijk van biologische vondsten. Inleveren bij Universal Cartographics of Vista Genomics is niet nodig; een verkoop verandert geel niet in groen.</p>',
+)
+
+
+HELP_TOPICS["explorer"] = (
+    HELP_TOPICS["explorer"][0],
+    HELP_TOPICS["explorer"][1] + '<p>‘Aan vensterbreedte aanpassen’ verdeelt de kolommen van de waardelijst automatisch over de beschikbare breedte. De optie staat standaard aan en wordt opgeslagen. Bij een zeer smal venster of grote letters kan horizontaal scrollen nodig blijven. Uitgeschakeld blijven de breedtes handmatig instelbaar. Deze optie staat los van het automatisch aanpassen van het grafische overzicht.</p>',
 )

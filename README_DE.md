@@ -38,6 +38,13 @@ Der Journalordner von Elite Dangerous wird nach Möglichkeit automatisch erkannt
 
 CMDRHelper prüft beim Start auf Updates und besitzt einen integrierten Updater. Bestätige ein angebotenes Update im Programm; es aktualisiert Programm und Abhängigkeiten und startet CMDRHelper neu. Nach der Erstinstallation genügt normalerweise `start.bat` (Windows) beziehungsweise `bash start.sh` (Linux). Für normale Updates musst du `install.bat` oder `install.sh` nicht erneut manuell ausführen.
 
+## Interner Stand 3.7.5
+
+Interner Stand für Tests im Spielbetrieb; nicht veröffentlicht.
+
+- Explorer: EDSM-Status und Sternklassen-Normalisierung, erhaltene Ergänzung fehlender Körper, Erstbetretung über Sitzungsgrenzen mit korrigiertem Zusammenführen, automatische Wertlistenbreite und lineares Layout. Kopiersymbol bei den letzten Systemen; ergänzte Hilfe, Übersetzungen und Tests.
+- [Ausführliche Versionshinweise](docs/release-3.7.5.md)
+
 ## Neu in Version 3.7.0
 
 - Neuer Hauptbereich Handel: Verkaufen und Einkaufen kombinieren eigene Marktstände mit Spansh-Angeboten. Bei Community-Ausfall bleiben passende eigene Treffer als unvollständiges Ergebnis nutzbar.

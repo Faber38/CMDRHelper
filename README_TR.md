@@ -39,6 +39,13 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## Dahili sürüm 3.7.5
+
+Oyun sırasında test etmek için dahili sürüm; yayımlanmamıştır.
+
+- Explorer: EDSM durumu ve yıldız sınıflarının normalleştirilmesi, eksik gök cisimlerinin tamamlanması korunur; oturumlar arasında ilk ayak basma ve düzeltilmiş birleştirme, değer listesinde otomatik genişlik ve doğrusal yerleşim. Son sistemler için kopyalama simgesi; güncellenmiş yardım, çeviriler ve testler.
+- [Ayrıntılı sürüm notları (Almanca)](docs/release-3.7.5.md)
+
 ## 3.7.0 sürümündeki yenilikler
 
 - Yeni Ticaret ana bölümü: satış ve alış, gözlemlediğin pazarları Spansh teklifleriyle birleştirir. Topluluk araması başarısız olursa uygun yerel sonuçlar eksik sonuç uyarısıyla kullanılabilir kalır.

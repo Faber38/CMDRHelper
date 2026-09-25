@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'explorer.value_fit_width': 'Ajustar al ancho de la ventana',
+    'explorer.value_fit_width_tip': 'Ajusta automáticamente las columnas de la lista de valores al ancho disponible de la ventana.',
+    'explorer.first_footfall': 'PRIMERA PISADA',
+    'explorer.first_footfall_tip': 'Primera pisada deducida del diario: el cuerpo figuraba previamente como no visitado a pie y desembarcaste allí. Esto indica una posible primera pisada tuya, no una confirmación explícita de Elite.',
     'release.3_7_0.0': 'Nueva sección Comercio: vender y comprar combinan tus mercados observados con ofertas de Spansh. Si falla la búsqueda comunitaria, los resultados locales siguen disponibles, marcados como incompletos.',
     'release.3_7_0.1': 'Al abrir el mercado de mercancías de Elite se registra automáticamente el mercado de la estación. Tus observaciones se conservan tras reinicios, son válidas durante menos de 24 horas y sustituyen ofertas más antiguas del mismo mercado.',
     'release.3_7_0.2': 'Las recomendaciones usan tu mercado de compra actual observado, la bodega libre, oferta y demanda. El margen mínimo, la cantidad posible y el beneficio potencial ayudan a elegir; puedes limitar los destinos a tus propios mercados.',

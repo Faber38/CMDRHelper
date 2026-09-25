@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'explorer.value_fit_width': 'An Fensterbreite anpassen',
+    'explorer.value_fit_width_tip': 'Passt die Spalten der Wertliste automatisch an die verfügbare Fensterbreite an.',
+    'explorer.first_footfall': 'ERSTBETRETUNG',
+    'explorer.first_footfall_tip': 'Erstbetretung aus Journaldaten abgeleitet: Der Körper war zuvor als noch nicht zu Fuß betreten erfasst, und du bist dort ausgestiegen. Das ist ein Hinweis auf deine eigene Erstbetretung, keine ausdrückliche Bestätigung durch Elite.',
     'release.3_7_0.0': 'Neuer Hauptbereich Handel: Verkaufen und Einkaufen kombinieren eigene Marktstände mit Spansh-Angeboten. Bei Community-Ausfall bleiben passende eigene Treffer als unvollständiges Ergebnis nutzbar.',
     'release.3_7_0.1': 'Beim Öffnen des Elite-Warenmarkts werden eigene Stationsmärkte automatisch erfasst. Sie bleiben über Neustarts erhalten, gelten strikt unter 24 Stunden und ersetzen ältere Angebote desselben Markts.',
     'release.3_7_0.2': 'Empfehlungen nutzen den aktuellen eigenen Einkaufsmarkt, freien Schiffsfrachtraum, Angebot und Nachfrage. Mindestgewinn, mögliche Menge und möglicher Gewinn helfen bei der Auswahl; optional nur eigene Zielmärkte.',

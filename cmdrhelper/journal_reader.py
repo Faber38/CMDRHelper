@@ -1613,7 +1613,8 @@ def read_latest_state(
                     body_id = e.get("BodyID")
 
                     if (
-                        bool(e.get("OnPlanet"))
+                        e.get("OnPlanet") is True
+                        and e.get("OnStation") is not True
                         and address is not None
                         and body_id is not None
                     ):
@@ -1633,7 +1634,8 @@ def read_latest_state(
                             # Entscheidend ist Frontiers Zustand VOR unserer
                             # Landung: WasFootfalled=False + eigenes Aussteigen
                             # auf diesem Körper = eigene Erstbetretung.
-                            if body and body.get("was_footfalled") is False:
+                            if (body and body.get("was_footfalled") is False
+                                    and not body.get("first_footfall")):
                                 body["first_footfall"] = True
                                 body["first_footfall_at"] = ts
 
@@ -1867,8 +1869,8 @@ def read_latest_state(
                                 or previous.get("first_footfall")
                             )
                             body["first_footfall_at"] = (
-                                body.get("first_footfall_at")
-                                or previous.get("first_footfall_at")
+                                previous.get("first_footfall_at")
+                                or body.get("first_footfall_at")
                             )
                             if body.get("was_footfalled") is None:
                                 body["was_footfalled"] = previous.get("was_footfalled")

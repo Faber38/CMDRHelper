@@ -111,7 +111,7 @@ HELP_TOPICS = {
               '<p>Om befälhavaren, fartyget eller platsen inte stämmer överens med spelets '
               'nuvarande tillstånd, kontrollera först journalvisningen högst upp och kontrollera '
               'sedan journalmappen som är inställd under "Inställningar".</p>'
-              '<p>Öppet visas i rött, Solo i guld och Privat grupp i grönt, med det rapporterade gruppnamnet. Läget återskapas från tillgängliga journaler och uppdateras med nya LoadGame-poster.</p>\n<p>Ett klick på en post under senaste system kopierar systemnamnet till urklipp. ”✓ Kopierat: &lt;System&gt;” visas en kort stund.</p>\n'),
+              '<p>Öppet visas i rött, Solo i guld och Privat grupp i grönt, med det rapporterade gruppnamnet. Läget återskapas från tillgängliga journaler och uppdateras med nya LoadGame-poster.</p>\n<p>Ett klick på en post under senaste system kopierar systemnamnet till urklipp. ”✓ Kopierat: &lt;System&gt;” visas en kort stund. Ikonen ⧉ direkt bredvid varje systemnamn kopierar också endast det namnet till urklipp.</p>\n'),
  'missions': (
         'Uppdrag och belöningar',
         """<h2>Uppdrag och belöningar</h2>
@@ -164,7 +164,7 @@ HELP_TOPICS = {
 <p>Den lokala uppdragsvyn behöver ingen Inara-anslutning. Med en aktiverad anslutning som är konfigurerad för den aktiva befälhavaren kan uppdragshändelser som stöds även överföras.</p>""",
     ),
  'explorer': ('Utforskare',
-              '<h2>Utforskare</h2>\n<h3>CMDRHelper</h3>\n<p>Systemöversikt: den nya Elite-inspirerade vyn ersätter miniatyröversikten i Explorer och Krönika. Stjärnor och planeter bildar huvudstrukturen med månar som grenar nedanför; flerstjärnesystem förblir lättlästa. Zoom, rullning, anpassning till fönstret och klick på himlakroppar ger tillgång till detaljer.</p>\n<p>Kompakta asteroidbälten: kluster grupperas till bälten i översikten och de vanliga systemkartorna i Explorer och Krönika. Alla enskilda klusterdata bevaras.</p>\n<p>Korrigerad kartografi: en skanning efter DSS-kartläggning återställer inte längre osålda utforskningsvärden, kartläggningstid eller effektivitet. Felaktiga poster repareras vid start från tillgängliga journaler med entydig commander-koppling. Saknade källor lämnar reparationen öppen; databasen behöver inte raderas.</p>\n'
+              '<h2>Utforskare</h2><p>Rubriken visar även samma EDSM-status som EDSM-status-HUD: blå = känt i EDSM, gul = ingen EDSM-träff, grå = inget användbart svar. ”EDSM: —” betyder att resultat saknas än så länge, till exempel när HUD är avstängt eller en förfrågan pågår. Den befintliga HUD-inställningen styr förfrågan. Detta bekräftar inte en första upptäckt i Elite.</p>\n<h3>CMDRHelper</h3>\n<p>Systemöversikt: den nya Elite-inspirerade vyn ersätter miniatyröversikten i Explorer och Krönika. Stjärnor och planeter bildar huvudstrukturen med månar som grenar nedanför; flerstjärnesystem förblir lättlästa. Zoom, rullning, anpassning till fönstret och klick på himlakroppar ger tillgång till detaljer.</p>\n<p>Kompakta asteroidbälten: kluster grupperas till bälten i översikten och de vanliga systemkartorna i Explorer och Krönika. Alla enskilda klusterdata bevaras.</p>\n<p>Korrigerad kartografi: en skanning efter DSS-kartläggning återställer inte längre osålda utforskningsvärden, kartläggningstid eller effektivitet. Felaktiga poster repareras vid start från tillgängliga journaler med entydig commander-koppling. Saknade källor lämnar reparationen öppen; databasen behöver inte raderas.</p>\n'
               '<p>Utforskaren utvärderar de system och himlakroppar som upptäckts och skannades av '
               'den aktiva befälhavaren. Den kombinerar din egen Elite Dangerous-journaldata med '
               'redan tillgänglig ytterligare information och visar utforskning, kartografi, '
@@ -1273,4 +1273,16 @@ HELP_TOPICS["trade"] = (
 <li>Använd ”Kopiera system” vid behov och flyg till målet; stationen finns kvar i anteckningen.</li>
 <li>Sälj i Elite. Öppna marknaden där för att också uppdatera dina egna data om den nya marknaden.</li>
 </ol>""",
+)
+
+
+HELP_TOPICS["explorer"] = (
+    HELP_TOPICS["explorer"][0],
+    HELP_TOPICS["explorer"][1] + '<h3>FÖRSTA FOTAVTRYCK</h3><p>FÖRSTA FOTAVTRYCK visas i gult i himlakroppens statuskolumn, tillsammans med kartläggningsstatusen. CMDRHelper härleder det från tillgängliga Elite-journaler, oberoende av biologiska fynd. Ingen inlämning till Universal Cartographics eller Vista Genomics krävs; försäljning ändrar inte gult till grönt.</p>',
+)
+
+
+HELP_TOPICS["explorer"] = (
+    HELP_TOPICS["explorer"][0],
+    HELP_TOPICS["explorer"][1] + '<p>”Anpassa till fönsterbredden” fördelar värdelistans kolumner automatiskt över den tillgängliga bredden. Alternativet är på som standard och sparas. Mycket smala fönster eller stor text kan fortfarande kräva vågrät rullning. När alternativet är av kan bredderna justeras manuellt. Det är oberoende av den grafiska översiktens automatiska anpassning.</p>',
 )

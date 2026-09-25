@@ -113,7 +113,7 @@ HELP_TOPICS = {
               '<p>Jeśli dowódca, statek lub lokalizacja nie odpowiadają aktualnemu stanowi gry, '
               'najpierw sprawdź wyświetlacz dziennika u góry, a następnie sprawdź folder dziennika '
               'ustawiony w „Ustawieniach”.</p>'
-              '<p>Tryb Otwarty jest czerwony, Solo złoty, a Grupa prywatna zielona, z podaną nazwą grupy. Tryb jest odtwarzany z dostępnych dzienników i aktualizowany po nowych wpisach LoadGame.</p>\n<p>Pojedyncze kliknięcie wpisu ostatnich systemów kopiuje nazwę systemu do schowka. Na chwilę pojawia się „✓ Skopiowano: &lt;System&gt;”.</p>\n'),
+              '<p>Tryb Otwarty jest czerwony, Solo złoty, a Grupa prywatna zielona, z podaną nazwą grupy. Tryb jest odtwarzany z dostępnych dzienników i aktualizowany po nowych wpisach LoadGame.</p>\n<p>Pojedyncze kliknięcie wpisu ostatnich systemów kopiuje nazwę systemu do schowka. Na chwilę pojawia się „✓ Skopiowano: &lt;System&gt;”. Ikona ⧉ obok każdej nazwy systemu również kopiuje do schowka tylko tę nazwę.</p>\n'),
  'missions': (
         'Misje i nagrody',
         """<h2>Misje i nagrody</h2>
@@ -166,7 +166,7 @@ HELP_TOPICS = {
 <p>Lokalny widok misji nie wymaga połączenia z Inara. Przy włączonym połączeniu skonfigurowanym dla aktywnego dowódcy obsługiwane zdarzenia misji mogą być również przesyłane.</p>""",
     ),
  'explorer': ('Odkrywca',
-              '<h2>Odkrywca</h2>\n<h3>CMDRHelper</h3>\n<p>Widok całego systemu: nowy układ w stylu Elite zastępuje miniaturę w Explorerze i Kronice. Gwiazdy i planety tworzą główną strukturę, a księżyce odgałęziają się poniżej; układy wielogwiazdowe pozostają czytelne. Zoom, przewijanie, dopasowanie do okna i kliknięcie ciała umożliwiają dostęp do szczegółów.</p>\n<p>Zwarte pasy asteroid: skupiska są grupowane w pasy w widoku ogólnym oraz zwykłych mapach Explorera i Kroniki. Wszystkie dane poszczególnych skupisk są zachowane.</p>\n<p>Poprawiona kartografia: skan po mapowaniu DSS nie zeruje już niesprzedanych wartości eksploracji, czasu mapowania ani wydajności. Błędne wpisy są naprawiane przy starcie z dostępnych dzienników jednoznacznie przypisanych do dowódcy. Bez źródeł naprawa oczekuje; nie trzeba usuwać bazy danych.</p>\n'
+              '<h2>Odkrywca</h2><p>Nagłówek pokazuje również ten sam status EDSM co HUD statusu EDSM: niebieski = znany w EDSM, żółty = brak wyniku w EDSM, szary = brak użytecznej odpowiedzi. „EDSM: —” oznacza, że jeszcze nie ma wyniku, np. gdy HUD jest wyłączony lub trwa zapytanie. Istniejące ustawienie HUD steruje zapytaniem. Nie potwierdza to pierwszego odkrycia w Elite.</p>\n<h3>CMDRHelper</h3>\n<p>Widok całego systemu: nowy układ w stylu Elite zastępuje miniaturę w Explorerze i Kronice. Gwiazdy i planety tworzą główną strukturę, a księżyce odgałęziają się poniżej; układy wielogwiazdowe pozostają czytelne. Zoom, przewijanie, dopasowanie do okna i kliknięcie ciała umożliwiają dostęp do szczegółów.</p>\n<p>Zwarte pasy asteroid: skupiska są grupowane w pasy w widoku ogólnym oraz zwykłych mapach Explorera i Kroniki. Wszystkie dane poszczególnych skupisk są zachowane.</p>\n<p>Poprawiona kartografia: skan po mapowaniu DSS nie zeruje już niesprzedanych wartości eksploracji, czasu mapowania ani wydajności. Błędne wpisy są naprawiane przy starcie z dostępnych dzienników jednoznacznie przypisanych do dowódcy. Bez źródeł naprawa oczekuje; nie trzeba usuwać bazy danych.</p>\n'
               '<p>Eksplorator ocenia systemy i ciała niebieskie odkryte i zeskanowane przez '
               'aktywnego dowódcę. Łączy Twoje własne dane z dziennika Elite Dangerous z już '
               'dostępnymi dodatkowymi informacjami i wyświetla razem eksplorację, kartografię, '
@@ -1294,4 +1294,16 @@ HELP_TOPICS["trade"] = (
 <li>W razie potrzeby użyj „Kopiuj system” i poleć do celu; stacja pozostaje widoczna w notatce.</li>
 <li>Sprzedaj w Elite. Otwórz tam rynek, aby zaktualizować także własne dane nowego rynku.</li>
 </ol>""",
+)
+
+
+HELP_TOPICS["explorer"] = (
+    HELP_TOPICS["explorer"][0],
+    HELP_TOPICS["explorer"][1] + '<h3>PIERWSZY KROK</h3><p>PIERWSZY KROK pojawia się na żółto w kolumnie stanu ciała, obok stanu mapowania. CMDRHelper wnioskuje o nim na podstawie dostępnych dzienników Elite, niezależnie od znalezisk biologicznych. Nie trzeba przekazywać danych do Universal Cartographics ani Vista Genomics; sprzedaż nie zmienia żółtego na zielony.</p>',
+)
+
+
+HELP_TOPICS["explorer"] = (
+    HELP_TOPICS["explorer"][0],
+    HELP_TOPICS["explorer"][1] + '<p>„Dopasuj do szerokości okna” automatycznie rozdziela dostępną szerokość między kolumny listy wartości. Opcja jest domyślnie włączona i zapamiętywana. Przy bardzo wąskim oknie lub dużej czcionce nadal może być potrzebne przewijanie poziome. Po wyłączeniu szerokości można regulować ręcznie. Opcja jest niezależna od automatycznego dopasowania przeglądu graficznego.</p>',
 )

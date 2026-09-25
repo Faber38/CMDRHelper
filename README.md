@@ -38,6 +38,13 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## Internal version 3.7.5
+
+Internal build for testing during gameplay; not published.
+
+- Explorer: EDSM status and star-class normalization, retained completion of missing bodies, first footfall across sessions with corrected merging, automatic value-list width and linear layout. Copy icon for recent systems; updated help, translations and tests.
+- [Detailed notes (German)](docs/release-3.7.5.md)
+
 ## New in version 3.7.0
 
 - New Trade section: selling and buying combine your observed markets with Spansh offers. Matching local results remain usable, marked incomplete, if the community search fails.

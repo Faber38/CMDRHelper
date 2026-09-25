@@ -38,6 +38,13 @@ Journalmappen för Elite Dangerous hittas automatiskt när det är möjligt. Om 
 
 CMDRHelper söker efter uppdateringar vid start och har en inbyggd uppdateringsfunktion. Bekräfta en erbjuden uppdatering i programmet; den uppdaterar programmet och beroendena och startar om CMDRHelper. Efter den första installationen använder du normalt bara `start.bat` (Windows) eller `bash start.sh` (Linux). Du behöver inte köra `install.bat` eller `install.sh` manuellt igen för vanliga uppdateringar.
 
+## Intern version 3.7.5
+
+Intern version för tester i spelet; inte publicerad.
+
+- Explorer: EDSM-status och normalisering av stjärnklasser, fortsatt komplettering av saknade himlakroppar, första fotavtryck över sessionsgränser med korrigerad sammanslagning, automatisk bredd och linjär layout för värdelistan. Kopieringsikon vid senaste system; uppdaterad hjälp, översättningar och tester.
+- [Detaljerade versionsanteckningar (tyska)](docs/release-3.7.5.md)
+
 ## Nytt i version 3.7.0
 
 - Ny huvuddel Handel: försäljning och inköp kombinerar egna observerade marknader med Spansh-erbjudanden. Om gemenskapens sökning misslyckas förblir passande lokala träffar användbara och markeras som ofullständiga.

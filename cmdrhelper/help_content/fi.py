@@ -110,7 +110,7 @@ HELP_TOPICS = {
               '<p>Jos komentaja, laiva tai sijainti ei vastaa pelin nykyistä tilaa, tarkista ensin '
               'yläreunassa oleva päiväkirjanäyttö ja sitten "Asetukset" -kohdassa asetettu '
               'päiväkirjakansio.</p>'
-              '<p>Avoin näkyy punaisena, Solo kullanvärisenä ja Yksityinen ryhmä vihreänä yhdessä ilmoitetun ryhmänimen kanssa. Tila muodostetaan saatavilla olevista journaleista ja päivitetään uusista LoadGame-merkinnöistä.</p>\n<p>Yksi napsautus viimeisimpien järjestelmien rivillä kopioi järjestelmän nimen leikepöydälle. ”✓ Kopioitu: &lt;Järjestelmä&gt;” näkyy hetken.</p>\n'),
+              '<p>Avoin näkyy punaisena, Solo kullanvärisenä ja Yksityinen ryhmä vihreänä yhdessä ilmoitetun ryhmänimen kanssa. Tila muodostetaan saatavilla olevista journaleista ja päivitetään uusista LoadGame-merkinnöistä.</p>\n<p>Yksi napsautus viimeisimpien järjestelmien rivillä kopioi järjestelmän nimen leikepöydälle. ”✓ Kopioitu: &lt;Järjestelmä&gt;” näkyy hetken. Kunkin järjestelmän nimen vieressä oleva ⧉-kuvake kopioi myös vain kyseisen nimen leikepöydälle.</p>\n'),
  'missions': (
         'Tehtävät ja palkkiot',
         """<h2>Tehtävät ja palkkiot</h2>
@@ -163,7 +163,7 @@ HELP_TOPICS = {
 <p>Paikallinen tehtävänäkymä ei tarvitse Inara-yhteyttä. Jos aktiiviselle komentajalle määritetty yhteys on käytössä, myös tuetut tehtävätapahtumat voidaan lähettää.</p>""",
     ),
  'explorer': ('Tutkimusmatkailija',
-              '<h2>Tutkimusmatkailija</h2>\n<h3>CMDRHelper</h3>\n<p>Järjestelmän yleiskuva: uusi Elite-tyylinen näkymä korvaa pienoisyleiskuvan Explorerissa ja Kronikassa. Tähdet ja planeetat muodostavat päärakenteen, kuut haarautuvat alapuolelle; monitähtijärjestelmät pysyvät selkeinä. Zoomaus, vieritys, ikkunaan sovitus ja taivaankappaleen napsautus avaavat yksityiskohtia.</p>\n<p>Tiiviit asteroidivyöhykkeet: ryhmät yhdistetään vyöhykkeiksi yleiskuvassa sekä Explorerin ja Kronikan tavallisissa järjestelmäkartoissa. Kaikki yksittäisten ryhmien tiedot säilytetään.</p>\n<p>Kartografia korjattu: DSS-kartoituksen jälkeinen skannaus ei enää nollaa myymättömiä tutkimusarvoja, kartoitusaikaa tai tehokkuutta. Virheelliset kirjaukset korjataan käynnistyksessä saatavilla olevista yksiselitteisesti komentajaan liitetyistä lokeista. Ilman lähteitä korjaus jää odottamaan; tietokantaa ei tarvitse poistaa.</p>\n'
+              '<h2>Tutkimusmatkailija</h2><p>Otsake näyttää myös saman EDSM-tilan kuin EDSM-tila-HUD: sininen = tunnettu EDSM:ssä, keltainen = ei EDSM-osumaa, harmaa = ei käyttökelpoista vastausta. ”EDSM: —” tarkoittaa, ettei tulosta vielä ole, esimerkiksi HUDin ollessa pois käytöstä tai kyselyn ollessa kesken. Nykyinen HUD-asetus ohjaa kyselyä. Tämä ei vahvista ensilöytöä Elitessä.</p>\n<h3>CMDRHelper</h3>\n<p>Järjestelmän yleiskuva: uusi Elite-tyylinen näkymä korvaa pienoisyleiskuvan Explorerissa ja Kronikassa. Tähdet ja planeetat muodostavat päärakenteen, kuut haarautuvat alapuolelle; monitähtijärjestelmät pysyvät selkeinä. Zoomaus, vieritys, ikkunaan sovitus ja taivaankappaleen napsautus avaavat yksityiskohtia.</p>\n<p>Tiiviit asteroidivyöhykkeet: ryhmät yhdistetään vyöhykkeiksi yleiskuvassa sekä Explorerin ja Kronikan tavallisissa järjestelmäkartoissa. Kaikki yksittäisten ryhmien tiedot säilytetään.</p>\n<p>Kartografia korjattu: DSS-kartoituksen jälkeinen skannaus ei enää nollaa myymättömiä tutkimusarvoja, kartoitusaikaa tai tehokkuutta. Virheelliset kirjaukset korjataan käynnistyksessä saatavilla olevista yksiselitteisesti komentajaan liitetyistä lokeista. Ilman lähteitä korjaus jää odottamaan; tietokantaa ei tarvitse poistaa.</p>\n'
               '<p>Explorer arvioi aktiivisen komentajan löytämät ja skannaamat järjestelmät ja '
               'taivaankappaleet. Se yhdistää omat Elite Dangerous -päiväkirjatietosi jo saatavilla '
               'oleviin lisätietoihin ja näyttää yhdessä etsintä-, kartografia-, '
@@ -1279,4 +1279,16 @@ HELP_TOPICS["trade"] = (
 <li>Käytä tarvittaessa ”Kopioi järjestelmä” ja lennä kohteeseen; asema pysyy muistilapussa näkyvissä.</li>
 <li>Myy Elitessä. Avaa markkinat siellä päivittääksesi myös uuden markkinan omat tiedot.</li>
 </ol>""",
+)
+
+
+HELP_TOPICS["explorer"] = (
+    HELP_TOPICS["explorer"][0],
+    HELP_TOPICS["explorer"][1] + '<h3>ENSIMMÄINEN JALANJÄLKI</h3><p>ENSIMMÄINEN JALANJÄLKI näkyy keltaisena kohteen tilasarakkeessa kartoitustilan lisäksi. CMDRHelper päättelee sen saatavilla olevista Elite-lokitiedoista biologisista löydöistä riippumatta. Tietoja ei tarvitse luovuttaa Universal Cartographicsille tai Vista Genomicsille; myynti ei muuta keltaista vihreäksi.</p>',
+)
+
+
+HELP_TOPICS["explorer"] = (
+    HELP_TOPICS["explorer"][0],
+    HELP_TOPICS["explorer"][1] + '<p>”Sovita ikkunan leveyteen” jakaa arvolistan sarakkeet automaattisesti käytettävissä olevalle leveydelle. Asetus on oletuksena käytössä ja tallennetaan. Hyvin kapea ikkuna tai suuri fontti voi silti vaatia vaakavieritystä. Kun asetus on pois käytöstä, leveyksiä voi säätää käsin. Asetus on erillinen graafisen yleisnäkymän automaattisesta sovituksesta.</p>',
 )

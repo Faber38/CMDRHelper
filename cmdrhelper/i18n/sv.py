@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'explorer.value_fit_width': 'Anpassa till fönsterbredden',
+    'explorer.value_fit_width_tip': 'Anpassar värdelistans kolumner automatiskt till den tillgängliga fönsterbredden.',
+    'explorer.first_footfall': 'FÖRSTA FOTAVTRYCK',
+    'explorer.first_footfall_tip': 'Första fotavtryck härlett från journalen: himlakroppen var tidigare registrerad som obesökt till fots och du steg ur där. Detta tyder på att du kan ha varit först till fots, inte en uttrycklig bekräftelse från Elite.',
     'release.3_7_0.0': 'Ny huvuddel Handel: försäljning och inköp kombinerar egna observerade marknader med Spansh-erbjudanden. Om gemenskapens sökning misslyckas förblir passande lokala träffar användbara och markeras som ofullständiga.',
     'release.3_7_0.1': 'När varumarknaden i Elite öppnas registreras stationsmarknaden automatiskt. Egna observationer finns kvar efter omstart, gäller i strikt mindre än 24 timmar och ersätter äldre erbjudanden från samma marknad.',
     'release.3_7_0.2': 'Rekommendationer använder din aktuella observerade inköpsmarknad, ledigt lastutrymme, tillgång och efterfrågan. Minsta marginal, möjlig mängd och möjlig vinst hjälper vid valet; mål kan begränsas till egna marknader.',
