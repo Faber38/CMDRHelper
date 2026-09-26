@@ -84,28 +84,31 @@ class CacheTests(unittest.TestCase):
         self.now += timedelta(hours=24, seconds=-1)
         self.assertIsNotNone(self.cache.get(FID, 123))
 
-    def test_exact_24h_physically_removed_on_use(self):
+    def test_exact_24h_retained_and_included(self):
         self.cache.put(snapshot())
         self.now += timedelta(hours=24)
-        self.assertEqual(self.cache.all(FID), [])
-        self.assertEqual(json.loads(self.path.read_text())['markets'], [])
+        self.assertEqual(len(self.cache.all(FID)), 1)
+        self.assertEqual(len(json.loads(self.path.read_text())['markets']), 1)
 
-    def test_over_24h_removed_on_load(self):
+    def test_over_24h_retained_on_load(self):
         self.cache.put(snapshot())
+        before = self.path.read_bytes()
         fresh = ObservedMarketCache(self.path, clock=lambda: NOW + timedelta(days=2))
         self.assertEqual(fresh.all(FID), [])
-        self.assertEqual(json.loads(self.path.read_text())['markets'], [])
+        self.assertEqual(len(fresh.all(FID, max_age=None)), 1)
+        self.assertEqual(self.path.read_bytes(), before)
 
-    def test_cleanup_on_write(self):
+    def test_old_snapshots_retained_on_write(self):
         self.cache.put(snapshot())
-        self.now += timedelta(hours=24)
+        self.now += timedelta(days=2)
         self.cache.put(snapshot(self.now, mid=456))
-        self.assertEqual([x['market_id'] for x in json.loads(self.path.read_text())['markets']], [456])
+        self.assertEqual([x['market_id'] for x in json.loads(self.path.read_text())['markets']], [123, 456])
 
-    def test_expired_and_future_write_rejected(self):
-        for stamp in (NOW - timedelta(hours=24), NOW + timedelta(seconds=1)):
-            self.assertFalse(self.cache.put(snapshot(stamp)))
+    def test_old_write_retained_but_future_rejected(self):
+        self.assertFalse(self.cache.put(snapshot(NOW + timedelta(seconds=1))))
         self.assertFalse(self.path.exists())
+        self.assertTrue(self.cache.put(snapshot(NOW - timedelta(days=30))))
+        self.assertEqual(len(self.cache.all(FID, max_age=None)), 1)
 
     def test_atomic_same_directory_fsync_replace(self):
         replace = os.replace
@@ -132,14 +135,14 @@ class CacheTests(unittest.TestCase):
             self.assertFalse(self.cache.put(snapshot(mid=456)))
         self.assertEqual(self.path.read_bytes(), before)
 
-    def test_failed_cleanup_never_returns_expired_data_then_retries(self):
+    def test_age_filter_and_cleanup_do_not_write(self):
         self.cache.put(snapshot())
-        self.now += timedelta(hours=24)
-        with patch.object(module.os, 'replace', side_effect=OSError('synthetic failure')):
+        before = self.path.read_bytes()
+        self.now += timedelta(days=2)
+        with patch.object(module.os, 'replace', side_effect=AssertionError('No write')):
             self.assertEqual(self.cache.all(FID), [])
-            self.assertTrue(json.loads(self.path.read_text())['markets'])
-        self.assertTrue(self.cache.cleanup())
-        self.assertEqual(json.loads(self.path.read_text())['markets'], [])
+            self.assertTrue(self.cache.cleanup())
+        self.assertEqual(self.path.read_bytes(), before)
 
     def test_corrupt_json_duplicate_keys_version_types_recover(self):
         self.path.parent.mkdir()
@@ -206,7 +209,7 @@ class CacheTests(unittest.TestCase):
         self.assertEqual(self.cache.get(FID, 123), snapshot())
         self.assertEqual(self.cache.age(snapshot(), NOW + timedelta(minutes=5)), timedelta(minutes=5))
         self.assertTrue(self.cache.is_valid(snapshot(), NOW))
-        self.assertFalse(self.cache.is_valid(snapshot(), NOW + timedelta(hours=24)))
+        self.assertTrue(self.cache.is_valid(snapshot(), NOW + timedelta(hours=24)))
 
     def test_spansh_source_rejected_no_persistence(self):
         self.assertFalse(self.cache.put(dict(snapshot(), source='spansh')))

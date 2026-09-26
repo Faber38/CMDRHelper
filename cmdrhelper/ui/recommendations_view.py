@@ -1,14 +1,11 @@
 """Manual recommendations page; immutable inputs cross the worker boundary."""
 from copy import deepcopy
-from dataclasses import dataclass
 from datetime import timedelta
 
-from PySide6.QtCore import QObject, QRunnable, QLocale, Qt, Signal, Slot, QTimer, QSignalBlocker, QRectF
-from PySide6.QtGui import QBrush, QColor, QPainter, QPainterPath, QPen
+from PySide6.QtCore import QObject, QRunnable, QLocale, Qt, Signal, Slot, QTimer, QSignalBlocker
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, QLabel,
     QSpinBox, QComboBox, QCheckBox, QLineEdit, QPushButton, QScrollArea, QTableWidget,
-    QHeaderView, QApplication, QProgressBar, QFrame, QTableWidgetItem, QStyledItemDelegate, QStyle,
-    QStyleOptionViewItem)
+    QHeaderView, QApplication, QProgressBar, QStyle)
 
 from cmdrhelper.cargo import free_cargo_space
 from cmdrhelper.ship_identity import is_definite_non_ship
@@ -18,10 +15,15 @@ from cmdrhelper.i18n import tr, get_language
 from cmdrhelper.market_data import MarketSearch, PadSize
 from cmdrhelper.observed_market_cache import timestamp
 from .market_read_status import MarketReadStatus
+from .recent_system_copy import RecentSystemCopyDelegate
+from .remembered_targets import RememberedTargets, RememberedTargetDelegate as RememberedRecommendationDelegate
+from .system_clipboard import copy_system_name
 from cmdrhelper.trade_recommendations import search_recommendations, RecommendationResult
 from cmdrhelper.recommendation_diagnostic_text import format_recommendation_diagnostic
 from cmdrhelper.recommendation_diagnostics import (
     RecommendationDiagnostics, RecommendationCancellation, PartialReason)
+
+from .market_age import MarketAgeCombo
 
 
 def diagnostic_reason_text(reason):
@@ -51,12 +53,12 @@ def current_market_context(state):
     return context
 
 
-def current_market(state):
+def current_market(state, max_age=timedelta(hours=24)):
     context = current_market_context(state)
     if context is None:
         return None
     fid = getattr(state, 'commander_fid', '')
-    row = state.observed_markets.cache.get(fid, context['MarketID'])
+    row = state.observed_markets.cache.get(fid, context['MarketID'], max_age=max_age)
     if (row is None or row['source'] != 'local_elite' or row['fid'] != fid
             or row['station_name'] != context['StationName'] or row['system_name'] != context['StarSystem']):
         return None
@@ -151,76 +153,10 @@ class RecommendationWorker(QRunnable):
         self.signals.finished.emit(result)
 
 
-@dataclass(frozen=True)
-class RememberedFlight:
-    commodity_id: int | None
-    commodity_symbol: str
-    commodity_name: str
-    market_id: int | None
-    system_name: str
-    station_name: str
-    total_profit: int
-
-
 def recommendation_identity(row):
     target = row.destination
     return (target.commodity_id, target.commodity_symbol, target.market_id,
             target.system_name, target.station_name)
-
-
-class RememberedRecommendationDelegate(QStyledItemDelegate):
-    """Remembered rows remain visible independently of selection and focus."""
-    def initStyleOption(self, option, index):
-        super().initStyleOption(option, index)
-        if index.data(Qt.ItemDataRole.UserRole + 1):
-            base = option.palette.base().color()
-            accent = option.palette.highlight().color()
-            option.backgroundBrush = QBrush(QColor(
-                *[round(base.getRgb()[i] * .8 + accent.getRgb()[i] * .2) for i in range(3)]))
-            option.state &= ~QStyle.StateFlag.State_Selected
-
-    def paint(self, painter, option, index):
-        if index.column() != 0:
-            return super().paint(painter, option, index)
-        option = QStyleOptionViewItem(option)
-        self.initStyleOption(option, index)
-        if not option.features & QStyleOptionViewItem.ViewItemFeature.HasCheckIndicator:
-            return super().paint(painter, option, index)
-        style = option.widget.style() if option.widget else QApplication.style()
-        indicator = style.subElementRect(QStyle.SubElement.SE_ItemViewItemCheckIndicator,
-                                        option, option.widget)
-        # Keep the native indicator geometry, hit target and row sizing. Only
-        # replace its paint; selection/focus and the remembered row stay native.
-        option.features &= ~QStyleOptionViewItem.ViewItemFeature.HasCheckIndicator
-        style.drawControl(QStyle.ControlElement.CE_ItemViewItem, option, painter, option.widget)
-        light = option.palette.base().color().lightness() > 128
-        enabled = bool(option.state & QStyle.StateFlag.State_Enabled)
-        emphasized = enabled and bool(option.state & (
-            QStyle.StateFlag.State_MouseOver | QStyle.StateFlag.State_HasFocus))
-        checked = option.checkState == Qt.CheckState.Checked
-        accent = QColor('#b47613' if light else '#ffb000')
-        border = QColor('#995600' if light else '#ffc65c') if emphasized else accent
-        fill = QColor('#c57a00' if light else '#ffb000')
-        tick = QColor('#080d12')
-        if not enabled:
-            border = fill = QColor('#a0a8af' if light else '#58636d')
-            tick = QColor('#edf1f5' if light else '#b8c0c8')
-        painter.save()
-        painter.setClipRect(option.rect)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        box = QRectF(indicator).adjusted(.5, .5, -.5, -.5)
-        painter.setPen(QPen(border, 1.6 if emphasized else 1.0))
-        painter.setBrush(QBrush(fill) if checked else Qt.BrushStyle.NoBrush)
-        painter.drawRoundedRect(box, 1.5, 1.5)
-        if checked:
-            path = QPainterPath()
-            path.moveTo(box.left() + box.width() * .22, box.top() + box.height() * .50)
-            path.lineTo(box.left() + box.width() * .43, box.top() + box.height() * .72)
-            path.lineTo(box.left() + box.width() * .80, box.top() + box.height() * .27)
-            painter.setPen(QPen(tick, 1.8, Qt.PenStyle.SolidLine,
-                                Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin))
-            painter.drawPath(path)
-        painter.restore()
 
 
 class RecommendationsView(QWidget):
@@ -231,8 +167,6 @@ class RecommendationsView(QWidget):
         self.current_run = None
         self.last_run = None
         self.rows = ()
-        self.remembered_identity = None
-        self.remembered_flight = None
         self._remembered_fid = None
         self.origin = None
         self._expired_market_key = None
@@ -275,11 +209,8 @@ class RecommendationsView(QWidget):
             self.radius.addItem(str(value), value)
         self.radius.setCurrentIndex(2)
         form.addRow(tr('trade.radius'), self.radius)
-        self.max_age = QComboBox()
-        for hours in (1, 6, 12, 24, 72, 168):
-            self.max_age.addItem(tr('trade.age_option_' + str(hours)), hours)
-        self.max_age.setCurrentIndex(3)
-        form.addRow(tr('recommend.target_age'), self.max_age)
+        self.max_age = MarketAgeCombo(state)
+        form.addRow(tr('trade.max_age'), self.max_age)
         self.pad = QComboBox()
         for pad in PadSize:
             self.pad.addItem(tr('trade.pad_' + pad.value), pad)
@@ -316,9 +247,6 @@ class RecommendationsView(QWidget):
         self.copy_notice = QLabel()
         self.copy_notice.setWordWrap(True)
         diagnostic_actions.addWidget(self.copy_notice, 1)
-        self.copy_system_button = QPushButton(tr('recommend.copy_system'))
-        self.copy_system_button.setEnabled(False)
-        self.copy_system_button.clicked.connect(self.copy_system)
         self.copy_diagnostic_button = QPushButton(tr('recommend.copy_diagnostic'))
         self.copy_diagnostic_button.setEnabled(False)
         self.copy_diagnostic_button.clicked.connect(self.copy_diagnostic)
@@ -333,35 +261,11 @@ class RecommendationsView(QWidget):
         self.notice.setMargin(8)
         self.notice.setStyleSheet('QLabel#marketDataNotice { border-left: 2px solid #ad7927; }')
         body.addWidget(self.notice)
-        self.remembered_panel = QFrame(objectName='rememberedFlight')
-        self.remembered_panel.setStyleSheet(
-            'QFrame#rememberedFlight { border: 1px solid palette(mid); border-radius: 4px; }')
-        self.remembered_panel.setToolTip(tr('recommend.remembered_snapshot'))
-        remembered_layout = QHBoxLayout(self.remembered_panel)
-        remembered_layout.setContentsMargins(8, 6, 8, 6)
-        remembered_text = QVBoxLayout()
-        remembered_text.setSpacing(2)
-        self.remembered_label = QLabel(tr('recommend.remembered_flight'))
-        font = self.remembered_label.font()
-        font.setBold(True)
-        self.remembered_label.setFont(font)
-        self.remembered_details = QLabel()
-        self.remembered_profit = QLabel()
-        for label in (self.remembered_label, self.remembered_details, self.remembered_profit):
-            label.setTextFormat(Qt.TextFormat.PlainText)
-            label.setWordWrap(True)
-            remembered_text.addWidget(label)
-        remembered_layout.addLayout(remembered_text, 1)
-        remembered_actions = QVBoxLayout()
-        remembered_actions.addWidget(self.copy_system_button)
-        self.remove_remembered_button = QPushButton(tr('recommend.remove_remembered'))
-        self.remove_remembered_button.clicked.connect(self.remove_remembered)
-        remembered_actions.addWidget(self.remove_remembered_button)
-        remembered_actions.addStretch()
-        remembered_layout.addLayout(remembered_actions)
-        self.remembered_panel.hide()
+        self.remembered_panel = RememberedTargets(state=state)
+        self.remembered_flights = self.remembered_panel.targets
         body.addWidget(self.remembered_panel)
         self.table = QTableWidget(0, 15)
+        self.remembered_panel.bind_table(self.table, 0)
         self.table.setHorizontalHeaderLabels([''] + [tr(k) for k in (
             'trade.commodity', 'recommend.total_profit', 'recommend.profit_percent',
             'trade.quantity', 'recommend.buy_here', 'recommend.sell_there', 'recommend.profit_ton',
@@ -371,7 +275,14 @@ class RecommendationsView(QWidget):
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
         self.table.setItemDelegate(RememberedRecommendationDelegate(self.table))
-        self.table.horizontalHeaderItem(0).setToolTip(tr('recommend.remember'))
+        self.system_copy_delegate = RecentSystemCopyDelegate(
+            self.table, column=9, name_role=Qt.DisplayRole,
+            style_delegate=self.table.itemDelegate())
+        self.table.setItemDelegateForColumn(9, self.system_copy_delegate)
+        self.system_copy_delegate.copyRequested.connect(
+            lambda row, _column: copy_system_name(
+                self.table.item(row, 0).data(Qt.UserRole).destination.system_name))
+        self.table.horizontalHeaderItem(0).setToolTip(tr('trade.remembered_targets'))
         self.table.itemChanged.connect(self.remember_changed)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
         self.table.horizontalHeader().setMinimumSectionSize(30)
@@ -424,11 +335,11 @@ class RecommendationsView(QWidget):
         self._refreshing = True
         try:
             fid = getattr(self.state, 'commander_fid', '')
-            if self.remembered_flight is not None and fid and fid != self._remembered_fid:
+            if self.remembered_flights and fid and fid != self._remembered_fid:
                 self.clear_remembered()
                 self.render(self.rows)
             previous_origin = self.origin
-            self.origin = current_market(self.state)
+            self.origin = current_market(self.state, self.max_age.max_age())
             context = current_market_context(self.state)
             key = tuple(context.get(k) for k in ('FID', 'MarketID', 'StationName', 'StarSystem')) if context else None
             previous_key = (previous_origin['fid'], previous_origin['market_id'],
@@ -437,7 +348,7 @@ class RecommendationsView(QWidget):
                 self._expired_market_key = None
             if self.origin is None and context is not None and previous_key == key:
                 cache = self.state.observed_markets.cache
-                if not cache.is_valid(previous_origin, cache.clock()):
+                if not cache.is_valid(previous_origin, cache.clock(), self.max_age.max_age()):
                     self._expired_market_key = key
             self.market_read_status.setVisible(context is not None)
             if context is not None:
@@ -445,13 +356,19 @@ class RecommendationsView(QWidget):
                     'expired' if key == self._expired_market_key else 'open')
                 self.market_read_status.set_status(status)
             self.notice.setText(tr('recommend.local_notice' if self.local_only.isChecked() else 'recommend.notice'))
+            previous_free = self.free
             name, self.free = ship_space(self.state)
+            # Partial purchases do not change the recommendation context while
+            # confirmed cargo space remains. Full/unknown cargo still invalidates.
+            cargo_available = None if self.free is None else self.free > 0
             signature = (getattr(self.state, 'commander_fid', ''), getattr(self.state, 'system', ''),
-                         getattr(self.state, 'station', ''), self.origin, name, self.free,
+                         getattr(self.state, 'station', ''), self.origin, name, cargo_available,
                          getattr(getattr(self.state, 'ship_loadout', None), 'ship_id', None))
             if signature != self._context:
                 self.invalidate()
                 self._context = deepcopy(signature)
+            if self.remembered_flights and self.free != previous_free:
+                self.update_remembered()
             self.explanation.setText(tr('recommend.question', margin=self.margin.value()))
             if self.origin:
                 from .trade_view import format_age
@@ -485,13 +402,12 @@ class RecommendationsView(QWidget):
             return
         local_only = self.local_only.isChecked()
         cache = self.state.observed_markets.cache
-        local = cache.all(self.origin['fid'])
+        local = cache.all(self.origin['fid'], max_age=None)
         query = MarketSearch('', self.origin['system_name'], radius_ly=self.radius.currentData(),
-            max_age=timedelta(hours=self.max_age.currentData()), required_pad=PadSize(self.pad.currentData()),
+            max_age=self.max_age.max_age(), required_pad=PadSize(self.pad.currentData()),
             include_fleet_carriers=self.carriers.isChecked(),
             max_distance_to_arrival_ls=int(arrival) if arrival else None, limit=100)
         distances = local_distances(self.state, self.origin, local)
-        self.clear_remembered()
         self.invalidate()
         self._invalidated = False
         self.worker = RecommendationWorker(deepcopy(self.origin), local, distances, self.free,
@@ -637,11 +553,7 @@ class RecommendationsView(QWidget):
             font = profit.font()
             font.setBold(True)
             profit.setFont(font)
-            mark = QTableWidgetItem()
-            mark.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsUserCheckable)
-            mark.setData(Qt.ItemDataRole.UserRole, row)
-            mark.setToolTip(tr('recommend.remember'))
-            mark.setCheckState(Qt.CheckState.Unchecked)
+            mark = self.remembered_panel.mark(o, row)
             cells = [mark, TextItem(name), profit,
                 NumericItem(locale.toString(float(row.profit_percent), 'f', 2) + ' %', row.profit_percent),
                 number(row.quantity, ' t'), number(row.buy_price, ' Cr'),
@@ -658,6 +570,7 @@ class RecommendationsView(QWidget):
         self.table.setSortingEnabled(True)
         self.table.sortItems(2, Qt.SortOrder.DescendingOrder)
         self.table.resizeColumnsToContents()
+        self.table.resizeRowsToContents()
         self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
         self.table.setColumnWidth(0, max(30, self.table.style().pixelMetric(QStyle.PixelMetric.PM_IndicatorWidth) + 16))
         for column in (1, 8, 9):
@@ -670,56 +583,21 @@ class RecommendationsView(QWidget):
     def remember_changed(self, item):
         if item.column() != 0:
             return
-        row = item.data(Qt.ItemDataRole.UserRole)
-        if item.checkState() == Qt.CheckState.Checked:
-            target = row.destination
-            master = lookup_by_id(target.commodity_id) or lookup_by_symbol(target.commodity_symbol)
-            self.remembered_flight = RememberedFlight(
-                target.commodity_id, target.commodity_symbol,
-                commodity_name(master) if master else target.commodity_name,
-                target.market_id, target.system_name, target.station_name, row.total_profit)
-            self._remembered_fid = getattr(self.state, 'commander_fid', '')
-            self.remembered_identity = recommendation_identity(row)
-        else:
-            self.clear_remembered()
-        self.update_remembered()
-
-    @Slot()
-    def remove_remembered(self):
-        self.clear_remembered()
+        self.remembered_panel.changed(item, item.data(Qt.UserRole).destination)
+        self._remembered_fid = getattr(self.state, 'commander_fid', '')
         self.update_remembered()
 
     def clear_remembered(self):
-        self.remembered_flight = None
-        self.remembered_identity = None
+        self.remembered_panel.clear()
         self._remembered_fid = None
 
     def update_remembered(self):
         blocker = QSignalBlocker(self.table)
         for index in range(self.table.rowCount()):
-            item = self.table.item(index, 0)
-            remembered = recommendation_identity(item.data(Qt.ItemDataRole.UserRole)) == self.remembered_identity
-            item.setCheckState(Qt.CheckState.Checked if remembered else Qt.CheckState.Unchecked)
+            remembered = self.table.item(index, 0).checkState() == Qt.Checked
             for column in range(self.table.columnCount()):
-                self.table.item(index, column).setData(Qt.ItemDataRole.UserRole + 1, remembered)
-        flight = self.remembered_flight
-        self.remembered_details.setText(
-            ' · '.join((flight.commodity_name, flight.station_name, flight.system_name)) if flight else '')
-        self.remembered_profit.setText(
-            tr('recommend.total_profit') + ': ' + QLocale(get_language()).toString(flight.total_profit) + ' Cr'
-            if flight else '')
-        self.copy_system_button.setEnabled(self.remembered_flight is not None
-                                          and bool(self.remembered_flight.system_name))
-        self.remembered_panel.setVisible(flight is not None)
-
-    @Slot()
-    def copy_system(self):
-        row = self.remembered_flight
-        if row is None or not row.system_name:
-            return
-        QApplication.clipboard().setText(row.system_name)
-        self.copy_notice.setText(tr('recommend.system_copied'))
-        self.copy_notice_timer.start()
+                self.table.item(index, column).setData(Qt.UserRole + 1, remembered)
+        self.remembered_panel.refresh()
 
     def showEvent(self, event):
         super().showEvent(event)

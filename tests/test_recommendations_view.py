@@ -5,6 +5,7 @@ from pathlib import Path
 from threading import Event, get_ident
 from types import SimpleNamespace
 import tempfile
+import json
 import time
 import unittest
 from unittest.mock import patch
@@ -13,6 +14,7 @@ from PySide6.QtCore import QObject, Signal, QThreadPool, QEvent, Qt
 from PySide6.QtWidgets import QApplication, QLabel
 from PySide6.QtTest import QTest
 
+from cmdrhelper.commodity_master import lookup_by_symbol
 from cmdrhelper.i18n import set_language, get_language, tr, _TRANSLATIONS
 from cmdrhelper.help_content import help_topic
 from cmdrhelper.observed_market_cache import ObservedMarketCache
@@ -111,7 +113,7 @@ class RecommendationViewTests(unittest.TestCase):
     def test_expired_origin_no_fallback_and_unknown_market(self):
         self.now=NOW+timedelta(hours=24,seconds=-1)
         self.assertIsNotNone(current_market(self.state))
-        self.now+=timedelta(seconds=1)
+        self.now+=timedelta(seconds=2)
         self.view.refresh()
         self.assertIsNone(self.view.origin)
         self.assertIn('Öffne in Elite',self.view.origin_label.text())
@@ -158,7 +160,7 @@ class RecommendationViewTests(unittest.TestCase):
         actions=[lambda:setattr(self.state,'system','Other System'),
                  lambda:setattr(self.state,'station','Other Station'),
                  lambda:setattr(self.state,'commander_fid','F_OTHER'),
-                 lambda:self.state.cargo_snapshot.update(count=250)]
+                 lambda:self.state.cargo_snapshot.update(count=300)]
         for action in actions:
             self.state.system='Fixture System';self.state.station='Fixture Port';self.state.commander_fid=FID
             self.state.cargo_snapshot['count']=20;self.view.refresh()
@@ -180,11 +182,98 @@ class RecommendationViewTests(unittest.TestCase):
             self.assertFalse(self.view.rows)
             if running:self.provider.gate.set();self.wait();self.assertFalse(self.view.rows)
 
-    def test_cargo_signal_invalidates_and_updates_free(self):
-        self.search();self.state.cargo_snapshot['count']=200
+    def test_partial_cargo_signal_keeps_results_and_updates_free(self):
+        self.search()
+        rows = self.view.rows
+        self.state.cargo_snapshot['count'] = 200
         self.state.cargoSnapshotChanged.emit(self.state.cargo_snapshot)
-        self.assertEqual(self.view.free,100);self.assertFalse(self.view.rows)
-        self.assertEqual(len(self.provider.calls),1)
+        self.assertEqual(self.view.free, 100)
+        self.assertIs(self.view.rows, rows)
+        self.assertEqual(self.view.table.rowCount(), len(rows))
+        self.assertEqual(len(self.provider.calls), 1)
+
+    def test_sequential_partial_purchases_from_live_cargo_keep_results_until_full(self):
+        from cmdrhelper.state import AppState
+        self.state.ship_loadout.cargo_capacity = 120
+        self.state.cargo_snapshot['count'] = 0
+        self.state.journal_folder = Path(self.tmp.name)
+        # The station can supply only 80 t despite 120 t of actual free space.
+        self.now += timedelta(seconds=1)
+        self.cache.put(market(stamp=self.now, rows=[item(supply=80)]))
+        self.search()
+        rows = self.view.rows
+        self.assertTrue(rows)
+        self.assertEqual(rows[0].quantity, 80)
+        self.view.table.item(0, 0).setCheckState(Qt.Checked)
+        target = self.view.remembered_panel.text()
+        flight = tuple(self.view.remembered_flights)
+        self.view.table.selectRow(0)
+        selected = self.view.table.item(0, 0)
+        # Actual cumulative inventory: different commodities, partial purchases,
+        # then the final tonne. No planned purchase amount drives this state.
+        for minute, (beer, gold, expected_free) in enumerate(
+                ((80, 0, 40), (80, 20, 20), (80, 39, 1), (80, 40, 0), (0, 0, 120)), 1):
+            with self.subTest(free=expected_free):
+                event = dict(event='Cargo', Vessel='Ship', Count=beer+gold,
+                             timestamp=f'2026-09-01T12:{minute:02d}:00Z')
+                inventory = [dict(Name=name, Count=count, Stolen=0)
+                             for name, count in (('beer', beer), ('gold', gold)) if count]
+                Path(self.tmp.name, 'Cargo.json').write_text(
+                    json.dumps(dict(event, Inventory=inventory)), encoding='utf-8')
+                session = dict(attribution_status='identified', commander_id=1, fid_seen=FID)
+                AppState._apply_live_cargo_snapshot(self.state, dict(last_cargo_event=event), session)
+                self.state.changed.emit()
+                self.state.shipLoadoutChanged.emit(self.state.ship_loadout)
+                self.app.processEvents()
+                self.assertEqual(self.view.free, expected_free)
+                self.assertEqual(self.view.remembered_panel.text(), target)
+                self.assertEqual(tuple(self.view.remembered_flights), flight)
+                if expected_free in (40, 20, 1):
+                    self.assertIs(self.view.rows, rows)
+                    self.assertIs(self.view.table.item(0, 0), selected)
+                    self.assertEqual(self.view.table.currentRow(), 0)
+                    self.assertTrue(self.view.search_button.isEnabled())
+                elif expected_free == 0:
+                    self.assertFalse(self.view.rows)
+                    self.assertEqual(self.view.table.rowCount(), 0)
+                    self.assertFalse(self.view.search_button.isEnabled())
+                    self.assertIn(tr('recommend.cargo_full'), self.view.ship_label.text())
+                else:
+                    self.assertTrue(self.view.search_button.isEnabled())
+        self.assertEqual(len(self.provider.calls), 1)
+        self.search()  # Unloading makes a new recommendation search usable again.
+        self.assertTrue(self.view.rows)
+
+    def test_partial_cargo_during_search_does_not_cancel_queued_results(self):
+        self.provider.gate.clear()
+        self.view.start_search()
+        self.state.cargo_snapshot['count'] = 200
+        self.state.cargoSnapshotChanged.emit(self.state.cargo_snapshot)
+        self.assertFalse(self.view.worker.cancel.is_set())
+        self.provider.gate.set()
+        self.wait()
+        self.assertTrue(self.view.rows)
+        self.assertEqual(self.view.free, 100)
+
+    def test_unknown_cargo_and_other_real_context_changes_still_clear_results(self):
+        for change in ('unknown', 'ship', 'system', 'station', 'commander'):
+            with self.subTest(change=change):
+                self.state.commander_fid = FID
+                self.state.system = 'Fixture System'
+                self.state.station = 'Fixture Port'
+                self.state.ship_loadout.ship_id = 7
+                self.state.cargo_snapshot.update(count=20, ship_id=7)
+                self.search()
+                self.assertTrue(self.view.rows)
+                if change == 'unknown':
+                    self.state.cargo_snapshot['count'] = None
+                elif change == 'ship':
+                    self.state.ship_loadout.ship_id = 8
+                    self.state.cargo_snapshot['ship_id'] = 8
+                else:
+                    setattr(self.state, 'commander_fid' if change == 'commander' else change, 'Other')
+                self.state.changed.emit()
+                self.assertFalse(self.view.rows)
 
     def test_tab_switch_and_cancel_late_output(self):
         for switch in (False,True):
@@ -662,7 +751,7 @@ class RecommendationViewTests(unittest.TestCase):
         self.cache.put(market(mid=2))
         self.view.local_only.setChecked(True)
         self.assertEqual(self.view.local_only.text(),'Nur eigene Marktdaten')
-        self.assertIn('24 Stunden',self.view.local_only.toolTip())
+        self.assertIn('Marktdatenalter',self.view.local_only.toolTip())
         self.assertEqual(self.view.notice.text(),tr('recommend.local_notice'))
         with patch.object(self.provider,'search_sell',side_effect=AssertionError('No provider')) as provider:
             self.search();provider.assert_not_called()
@@ -709,8 +798,8 @@ class RecommendationViewTests(unittest.TestCase):
         badge=self.view.market_read_status
         self.now=NOW+timedelta(hours=24,seconds=-1)
         self.state.changed.emit();self.assertEqual(badge.status,'read')
-        self.now+=timedelta(seconds=1)
-        self.cache.all(FID)  # normal cache cleanup signal drives the view
+        self.now+=timedelta(seconds=2)
+        self.view.refresh()  # Age filtering no longer deletes or emits cache changes.
         self.assertEqual(badge.status,'expired')
         self.assertEqual(badge.text(),'Marktstand veraltet')
         self.assertIn('erneut',badge.toolTip())
@@ -852,29 +941,31 @@ class RecommendationViewTests(unittest.TestCase):
                     if recommendation_identity(self.view.table.item(i,0).data(Qt.ItemDataRole.UserRole))
                     == recommendation_identity(row))
 
-    def test_remember_single_toggle_and_identity_survives_sort_focus_scroll(self):
-        from cmdrhelper.ui.recommendations_view import recommendation_identity
-        silver,gold=self.mark_rows();self.view.render((silver,gold))
-        self.assertFalse(self.view.copy_system_button.isEnabled())
-        self.assertIsNone(self.view.remembered_identity)
-        self.mark_item(silver).setCheckState(Qt.CheckState.Checked)
+    def plan(self):
+        return tuple(self.view.remembered_flights.values())
+
+    def test_multiple_selection_survives_sort_focus_scroll_and_refresh(self):
+        rows = self.mark_rows()
+        self.view.render(rows)
+        for row in rows:
+            self.mark_item(row).setCheckState(Qt.Checked)
+        before = dict(self.view.remembered_flights)
         for column in (2,3,8,9):
-            for order in (Qt.SortOrder.AscendingOrder,Qt.SortOrder.DescendingOrder):
+            for order in (Qt.AscendingOrder, Qt.DescendingOrder):
                 self.view.table.sortItems(column,order)
-                self.view.table.clearSelection();self.view.search_button.setFocus()
+                self.view.table.clearSelection()
+                self.view.search_button.setFocus()
                 self.view.table.horizontalScrollBar().setValue(500)
                 self.app.processEvents()
-                item=self.mark_item(silver)
-                self.assertEqual(item.checkState(),Qt.CheckState.Checked)
-                self.assertEqual(self.view.remembered_identity,recommendation_identity(silver))
-                for c in range(15):
-                    self.assertTrue(self.view.table.item(item.row(),c).data(Qt.ItemDataRole.UserRole+1))
-        self.mark_item(gold).setCheckState(Qt.CheckState.Checked)
-        self.assertEqual(self.mark_item(silver).checkState(),Qt.CheckState.Unchecked)
-        self.assertEqual(self.mark_item(gold).checkState(),Qt.CheckState.Checked)
-        self.mark_item(gold).setCheckState(Qt.CheckState.Unchecked)
-        self.assertIsNone(self.view.remembered_identity)
-        self.assertFalse(self.view.copy_system_button.isEnabled())
+                self.assertEqual(self.view.remembered_flights,before)
+                for row in rows:
+                    item = self.mark_item(row)
+                    self.assertEqual(item.checkState(),Qt.Checked)
+                    for c in range(15):
+                        self.assertTrue(self.view.table.item(item.row(),c).data(Qt.UserRole+1))
+        # Results do not overwrite remembered prices or quantities.
+        self.view.render(tuple(replace(row,buy_price=9000) for row in reversed(rows)))
+        self.assertEqual(self.view.remembered_flights,before)
 
     def test_remember_keyboard_and_mouse_toggle(self):
         from PySide6.QtWidgets import QStyleOptionViewItem,QStyle
@@ -885,268 +976,47 @@ class RecommendationViewTests(unittest.TestCase):
         table.itemDelegate().initStyleOption(option,table.indexFromItem(item))
         option.rect=table.visualItemRect(item)
         rect=table.style().subElementRect(QStyle.SubElement.SE_ItemViewItemCheckIndicator,option,table)
-        QTest.mouseClick(table.viewport(),Qt.MouseButton.LeftButton,pos=rect.center())
-        self.assertEqual(item.checkState(),Qt.CheckState.Checked)
-        QTest.keyClick(table,Qt.Key.Key_Space)
-        self.assertEqual(item.checkState(),Qt.CheckState.Unchecked)
+        QTest.mouseClick(table.viewport(),Qt.LeftButton,pos=rect.center())
+        self.assertEqual(item.checkState(),Qt.Checked)
+        QTest.keyClick(table,Qt.Key_Space)
+        self.assertEqual(item.checkState(),Qt.Unchecked)
 
-    def test_remember_new_search_and_commander_clear(self):
-        for change in ('search','commander'):
-            with self.subTest(change=change):
-                self.state.station='Fixture Port';self.state.commander_fid=FID
-                self.view.refresh()
-                self.view.render(self.mark_rows());self.view.table.item(0,0).setCheckState(Qt.CheckState.Checked)
-                if change=='search':
-                    self.view.start_search();self.wait()
-                else:
-                    signal={'station':self.state.changed,'commander':self.state.commanderIdentityChanged,
-                            'cargo':self.state.cargoSnapshotChanged,'market':self.state.observedMarketsChanged}[change]
-                    if change=='station':self.state.station='Changed Port';signal.emit()
-                    elif change=='commander':self.state.commander_fid='F_OTHER';signal.emit(None,'','')
-                    elif change=='cargo':self.state.cargo_snapshot['count']+=1;signal.emit(None)
-                    else:signal.emit()
-                self.assertIsNone(self.view.remembered_identity)
-                self.assertFalse(self.view.copy_system_button.isEnabled())
-
-    def test_remember_copy_exact_system_both_modes_and_render_replacement(self):
-        for local in (False,True):
-            self.view.local_only.setChecked(local)
-            rows=tuple(replace(row,destination=replace(row.destination,provider='local_elite' if local else 'Spansh'))
-                       for row in self.mark_rows())
-            self.view.render(rows);self.mark_item(rows[0]).setCheckState(Qt.CheckState.Checked)
-            identity=self.view.remembered_identity
-            with patch.object(QApplication,'clipboard') as clipboard:
-                self.view.copy_system_button.click()
-                clipboard.return_value.setText.assert_called_once_with('Synthetic Silver System')
-            self.assertEqual(self.view.copy_notice.text(),tr('recommend.system_copied'))
-            self.assertEqual(self.view.remembered_identity,identity)
-            self.view.render(tuple(reversed(rows)))
-            self.assertEqual(self.view.remembered_identity,identity)
-            self.view.render((rows[1],))
-            self.assertEqual(self.view.remembered_identity,identity)
-            self.assertIsNotNone(self.view.remembered_flight)
-
-    def test_remember_highlight_themes_fonts_languages(self):
-        from PySide6.QtWidgets import QStyleOptionViewItem,QStyle
+    def test_plan_survives_travel_market_updates_and_unknown_identity_but_not_commander_switch(self):
         from cmdrhelper.ui.recommendations_view import RecommendationsView
-        style=self.app.styleSheet()
-        try:
-            for lang in ('de','en','el','es','fi','fr','it','nl','no','pl','sv','tr'):
-                set_language(lang)
-                for theme in (DARK_STYLESHEET,LIGHT_STYLESHEET):
-                    for size in (10,18):
-                        self.app.setStyleSheet(theme+f'\nQWidget {{ font-size: {size}pt; }}')
-                        view=RecommendationsView(self.state,self.provider,self.pool)
-                        view.resize(700,900);view.show()
-                        long_rows=tuple(replace(row,destination=replace(row.destination,
-                            station_name='Long Synthetic Station Name '*4,
-                            system_name='Long Synthetic System Name '*4)) for row in self.mark_rows())
-                        view.render(long_rows);self.app.processEvents()
-                        view.table.item(0,0).setCheckState(Qt.CheckState.Checked)
-                        option=QStyleOptionViewItem();option.initFrom(view.table)
-                        option.state|=QStyle.StateFlag.State_Selected
-                        view.table.itemDelegate().initStyleOption(option,view.table.model().index(0,1))
-                        self.assertFalse(option.state & QStyle.StateFlag.State_Selected)
-                        self.assertNotEqual(option.backgroundBrush.color(),option.palette.base().color())
-                        self.assertEqual(view.copy_system_button.text(),tr('recommend.copy_system'))
-                        self.assertEqual(view.table.horizontalHeaderItem(0).toolTip(),tr('recommend.remember'))
-                        self.assertLess(view.table.columnWidth(0),50)
-                        with patch.object(QApplication,'clipboard'):
-                            view.copy_system_button.click()
-                        self.assertEqual(view.copy_notice.text(),tr('recommend.system_copied'))
-                        view.invalidate()
-                        self.assertEqual(view.table.rowCount(),0)
-                        self.assertEqual(view.remembered_label.text(),tr('recommend.remembered_flight'))
-                        self.assertFalse(view.remembered_panel.isHidden())
-                        self.assertIn(str(view.remembered_flight.station_name),view.remembered_details.text())
-                        self.assertIn(tr('recommend.total_profit'),view.remembered_profit.text())
-                        self.app.processEvents()
-                        self.assertEqual(view.remove_remembered_button.text(),tr('recommend.remove_remembered'))
-                        self.assertIs(view.copy_system_button.parentWidget(),view.remembered_panel)
-                        self.assertLessEqual(view.remembered_panel.width(),view.width())
-                        for label in (view.remembered_details,view.remembered_profit):
-                            self.assertGreaterEqual(label.height(),label.heightForWidth(label.width()))
-                        self.assertLessEqual(view.copy_system_button.width(),view.width())
-                        view.close();view.deleteLater();self.app.sendPostedEvents(None,QEvent.Type.DeferredDelete)
-        finally:self.app.setStyleSheet(style)
-
-    def test_remembered_flight_survives_purchase_travel_docking_and_market(self):
-        silver,gold=self.mark_rows()
-        self.state.ship_loadout.cargo_capacity=1110
-        self.state.cargo_snapshot['count']=0
-        self.view.refresh();self.assertEqual(self.view.free,1110)
-        self.view.render((silver,gold));self.mark_item(silver).setCheckState(Qt.CheckState.Checked)
-        flight=self.view.remembered_flight
-        self.assertEqual((flight.commodity_symbol,flight.commodity_name,flight.station_name,
-                          flight.system_name,flight.total_profit),
-                         ('Silver','Silber','Silver Port','Synthetic Silver System',silver.total_profit))
-        self.state.cargo_snapshot['count']=1110
-        self.state.cargoSnapshotChanged.emit(None)
-        self.assertEqual(self.view.free,0)
-        self.assertEqual(self.view.rows,())
-        self.assertFalse(self.view.search_button.isEnabled())
-        self.assertEqual(self.view.table.rowCount(),0)
-        self.assertIn('Silber',self.view.remembered_details.text())
-        self.assertEqual(self.view.remembered_profit.text(),'Möglicher Gewinn: 15.000 Cr')
-        self.assertIn('Silver Port',self.view.remembered_details.text())
-        self.assertIn('Synthetic Silver System',self.view.remembered_details.text())
-        self.assertFalse(self.view.remembered_panel.isHidden())
-        self.view.start_search()  # Full cargo: must not discard the flight.
-        self.assertIs(self.view.remembered_flight,flight)
-        for system,station in (('Fixture System',''),('Transit System',''),
-                               ('Synthetic Silver System',''),('Synthetic Silver System','Silver Port')):
-            self.state.system=system;self.state.station=station
-            self.state.observed_markets.context={}
-            self.state.changed.emit()
-            self.assertIs(self.view.remembered_flight,flight)
-            self.assertEqual(self.view.table.rowCount(),0)
-            self.assertEqual(self.view.rows,())
-        self.cache.put(market(mid=2,station_name='Silver Port',system_name='Synthetic Silver System'))
-        self.state.observed_markets.context=dict(FID=FID,MarketID=2,StationName='Silver Port',StarSystem='Synthetic Silver System')
-        self.state.observedMarketsChanged.emit()
-        self.assertEqual(self.view.origin['market_id'],2)
-        self.assertIs(self.view.remembered_flight,flight)
-        with patch.object(QApplication,'clipboard') as clipboard:
-            self.view.copy_system_button.click()
-            clipboard.return_value.setText.assert_called_once_with('Synthetic Silver System')
-        self.assertIs(self.view.remembered_flight,flight)
-        self.view.remove_remembered_button.click()
-        self.assertIsNone(self.view.remembered_flight)
-        self.assertEqual(self.view.table.rowCount(),0)
-        self.assertFalse(self.view.copy_system_button.isEnabled())
-
-    def test_detached_flight_new_search_guard_commander_and_no_persistence(self):
-        from cmdrhelper.ui.recommendations_view import RecommendationsView
-        for local in (False,True):
-            self.view.local_only.setChecked(local)
-            self.view.render(self.mark_rows());self.view.table.item(0,0).setCheckState(Qt.CheckState.Checked)
-            flight=self.view.remembered_flight
-            self.view.arrival.setText('invalid')
-            self.view.start_search()
-            self.assertIs(self.view.remembered_flight,flight)
-            self.view.arrival.clear()
-            self.view.start_search();self.wait()
-            self.assertIsNone(self.view.remembered_flight)
-        self.view.render(self.mark_rows());self.view.table.item(0,0).setCheckState(Qt.CheckState.Checked)
-        self.view.invalidate()
-        self.state.commander_fid=''
+        self.view.render(self.mark_rows())
+        for row in self.mark_rows():
+            self.mark_item(row).setCheckState(Qt.Checked)
+        before=dict(self.view.remembered_flights)
+        self.state.system='Other System';self.state.station=''
         self.state.changed.emit()
-        self.assertIsNotNone(self.view.remembered_flight)  # Unknown is not a confirmed other commander.
+        self.state.observedMarketsChanged.emit()
+        self.view.invalidate();self.view.invalidate()
+        self.assertEqual(self.view.remembered_flights,before)
+        self.state.commander_fid='';self.state.changed.emit()
+        self.assertEqual(self.view.remembered_flights,before)
         other=RecommendationsView(self.state,self.provider,self.pool)
-        self.assertIsNone(other.remembered_flight)
+        self.assertFalse(other.remembered_flights)
         other.close();other.deleteLater()
-        self.state.commander_fid='F_DIFFERENT'
+        self.state.commander_fid='Other Commander'
         self.state.commanderIdentityChanged.emit(None,'','')
-        self.assertIsNone(self.view.remembered_flight)
-        self.assertEqual(self.view.table.rowCount(),0)
-        self.assertFalse(self.view.copy_system_button.isEnabled())
-
-    def test_remembered_flight_repeated_purchase_invalidations_and_queued_signals(self):
-        from PySide6.QtCore import QTimer
-        silver,gold=self.mark_rows()
-        self.state.ship_loadout.cargo_capacity=1110
-        self.state.cargo_snapshot['count']=0
-        self.view.refresh()
-        self.view.render((silver,gold))
-        self.mark_item(silver).setCheckState(Qt.CheckState.Checked)
-        flight=self.view.remembered_flight
-        self.state.cargo_snapshot['count']=1110
-        steps=(lambda:self.state.cargoSnapshotChanged.emit(self.state.cargo_snapshot),
-               self.state.changed.emit, self.view.invalidate, self.view.invalidate,
-               self.state.observedMarketsChanged.emit, self.view.refresh)
-        for queued in (False,True):
-            for step in steps:
-                if queued:
-                    QTimer.singleShot(0,step)
-                    self.app.processEvents()
-                else:step()
-                self.app.processEvents()
-                self.assertIs(self.view.remembered_flight,flight)
-                self.assertEqual(self.view.rows,())
-                self.assertEqual(self.view.table.rowCount(),0)
-                self.assertIn('Silber',self.view.remembered_details.text())
-                self.assertEqual(self.view.remembered_profit.text(),'Möglicher Gewinn: 15.000 Cr')
-                self.assertIn(flight.station_name,self.view.remembered_details.text())
-                self.assertIn(flight.system_name,self.view.remembered_details.text())
-                self.assertTrue(self.view.copy_system_button.isEnabled())
-                self.assertFalse(self.view.remembered_panel.isHidden())
-        with patch.object(QApplication,'clipboard') as clipboard:
-            self.view.copy_system_button.click()
-            clipboard.return_value.setText.assert_called_once_with(flight.system_name)
-        self.view.remove_remembered_button.click()
-        self.assertEqual(self.view.table.rowCount(),0)
-        self.assertIsNone(self.view.remembered_flight)
-        self.assertFalse(self.view.copy_system_button.isEnabled())
-
-    def test_remembered_flight_real_state_cargo_application_and_followup_refreshes(self):
-        from cmdrhelper.state import AppState
-        silver,gold=self.mark_rows()
-        self.view.render((silver,gold))
-        self.mark_item(silver).setCheckState(Qt.CheckState.Checked)
-        flight=self.view.remembered_flight
-        self.state.journal_folder=Path(self.tmp.name)
-        full=dict(self.state.cargo_snapshot,count=300,timestamp='2026-09-01T12:01:00Z')
-        trigger=dict(Vessel='Ship',Count=300,timestamp=full['timestamp'])
-        session=dict(attribution_status='identified',commander_id=1,fid_seen=FID)
-        with patch('cmdrhelper.state.read_cargo_snapshot',return_value=full):
-            AppState._apply_live_cargo_snapshot(self.state,dict(last_cargo_event=trigger),session)
-        self.state.changed.emit()
-        self.state.shipLoadoutChanged.emit(self.state.ship_loadout)
-        self.state.observedMarketsChanged.emit()
-        self.app.processEvents()
-        self.assertEqual(self.view.free,0)
-        self.assertEqual(self.view.rows,())
-        self.assertIs(self.view.remembered_flight,flight)
-        self.assertEqual(self.view.table.rowCount(),0)
-        self.assertIn('Silber',self.view.remembered_details.text())
-        self.assertTrue(self.view.copy_system_button.isEnabled())
-
-    def test_separate_flight_panel_selection_replacement_remove_and_frozen_profit(self):
-        for local in (False,True):
-            self.view.remove_remembered()
-            self.view.local_only.setChecked(local)
-            self.assertTrue(self.view.remembered_panel.isHidden())
-            silver,gold=(replace(row,destination=replace(row.destination,
-                        provider='local_elite' if local else 'spansh')) for row in self.mark_rows())
-            self.view.render((silver,gold))
-            self.mark_item(silver).setCheckState(Qt.CheckState.Checked)
-            self.assertFalse(self.view.remembered_panel.isHidden())
-            self.assertEqual(self.view.remembered_details.text(),
-                             'Silber · Silver Port · Synthetic Silver System')
-            self.assertEqual(self.view.remembered_profit.text(),'Möglicher Gewinn: 15.000 Cr')
-            self.mark_item(gold).setCheckState(Qt.CheckState.Checked)
-            self.assertEqual(self.mark_item(silver).checkState(),Qt.CheckState.Unchecked)
-            self.assertEqual(self.view.remembered_details.text(),
-                             'Gold · Gold Port · Synthetic Gold System')
-            profit=self.view.remembered_profit.text()
-            self.view.render((silver,replace(gold,buy_price=9000)))
-            self.assertEqual(self.view.remembered_profit.text(),profit)
-            self.view.remove_remembered_button.click()
-            self.assertTrue(self.view.remembered_panel.isHidden())
-            self.assertEqual(self.view.table.rowCount(),2)
-            self.assertFalse(self.view.copy_system_button.isEnabled())
-            for i in range(2):
-                self.assertEqual(self.view.table.item(i,0).checkState(),Qt.CheckState.Unchecked)
-                self.assertFalse(self.view.table.item(i,1).data(Qt.ItemDataRole.UserRole+1))
-            self.mark_item(silver).setCheckState(Qt.CheckState.Checked)
-            self.mark_item(silver).setCheckState(Qt.CheckState.Unchecked)
-            self.assertTrue(self.view.remembered_panel.isHidden())
+        self.assertFalse(self.plan())
+        self.assertTrue(self.view.remembered_panel.isHidden())
 
     def test_switch_mixed_to_local_only_clears_results_keeps_flight_and_skips_provider(self):
         self.cache.put(market(mid=3,rows=[item(sell=11000)]))
         self.search()
         self.assertTrue(any(r.destination.provider=='spansh' for r in self.view.rows))
         self.view.table.item(0,0).setCheckState(Qt.CheckState.Checked)
-        flight=self.view.remembered_flight
+        flight=dict(self.view.remembered_flights)
         self.view.local_only.setChecked(True)
         self.assertEqual(self.view.table.rowCount(),0)
         self.assertEqual(self.view.rows,())
-        self.assertIs(self.view.remembered_flight,flight)
+        self.assertEqual(self.view.remembered_flights,flight)
         self.assertFalse(self.view.remembered_panel.isHidden())
         self.assertIsNone(self.view.worker)
         with patch.object(self.provider,'search_sell',side_effect=AssertionError('No community')) as provider:
             self.view.start_search()
-            self.assertIsNone(self.view.remembered_flight)
+            self.assertEqual(self.view.remembered_flights, flight)
             self.assertTrue(self.view.worker.local_only)
             self.wait()
             provider.assert_not_called()

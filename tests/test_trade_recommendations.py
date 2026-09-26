@@ -103,10 +103,10 @@ class RecommendationTests(unittest.TestCase):
 
     def test_fid_source_and_local_ttl(self):
         for target in (market(mid=2,fid='F_OTHER'),market(mid=2,source='spansh'),
-                       market(mid=2,stamp=NOW-timedelta(hours=24))):
+                       market(mid=2,stamp=NOW-timedelta(hours=24,seconds=1))):
             self.assertFalse(self.search(locals=[target]).rows)
         self.assertTrue(self.search(locals=[market(mid=2,stamp=NOW-timedelta(hours=24,seconds=-1))]).rows)
-        self.assertFalse(self.search(origin=market(stamp=NOW-timedelta(hours=24)),locals=[market(mid=2)]).rows)
+        self.assertFalse(self.search(origin=market(stamp=NOW-timedelta(hours=24,seconds=1)),locals=[market(mid=2)]).rows)
 
     def test_local_missing_metadata_and_distance(self):
         target=market(mid=2)
@@ -149,7 +149,7 @@ class RecommendationTests(unittest.TestCase):
                         {'market_updated_at':NOW+timedelta(seconds=1)},
                         {'market_updated_at':NOW-timedelta(hours=25)}, {'provider':'other'}):
             self.assertFalse(merge_destinations([], [offer(**changes)],NOW,timedelta(hours=24)))
-        self.assertFalse(merge_destinations([offer(provider='local_elite',stamp=NOW-timedelta(hours=24))],
+        self.assertTrue(merge_destinations([offer(provider='local_elite',stamp=NOW-timedelta(hours=24,seconds=1))],
                                             [],NOW,timedelta(days=7)))
 
     def test_newer_zero_demand_or_missing_local_row_supersedes_old_spansh(self):
@@ -213,7 +213,7 @@ class RecommendationTests(unittest.TestCase):
         self.assertTrue(self.search(provider=provider).partial)
 
     def test_expired_quotes_during_search_not_returned(self):
-        times=iter([NOW]+[NOW+timedelta(days=1)]*10)
+        times=iter([NOW]+[NOW+timedelta(days=1,seconds=1)]*10)
         self.assertFalse(self.search(locals=[market(mid=2)],clock=lambda:next(times)).rows)
 
     def test_cancel_at_last_progress_and_nonlocal_origin(self):

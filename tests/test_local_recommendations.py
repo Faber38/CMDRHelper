@@ -67,7 +67,7 @@ class LocalRecommendationTests(unittest.TestCase):
                           query=MarketSearch('', 'Fixture System',max_age=timedelta(hours=6)))
             self.assertEqual(bool(r.rows),expected)
         self.assertTrue(self.search(local_markets=[market(mid=2,stamp=NOW-timedelta(hours=24,seconds=-1))]).rows)
-        self.assertFalse(self.search(local_markets=[market(mid=2,stamp=NOW-timedelta(hours=24))]).rows)
+        self.assertTrue(self.search(local_markets=[market(mid=2,stamp=NOW-timedelta(hours=24))]).rows)
 
     def test_radius_unknown_distance_pad_and_arrival_filter(self):
         for distance in (150,None):

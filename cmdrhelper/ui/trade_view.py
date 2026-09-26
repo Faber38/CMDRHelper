@@ -1,8 +1,8 @@
 """Manual, transient trade UI. Identity and network semantics belong to providers."""
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from threading import Event
 
-from PySide6.QtCore import QObject, QLocale, QRunnable, QThreadPool, Qt, Signal, Slot
+from PySide6.QtCore import QObject, QLocale, QRunnable, QThreadPool, Qt, Signal, Slot, QSignalBlocker
 from PySide6.QtWidgets import (
     QApplication, QCheckBox, QComboBox, QFormLayout, QHBoxLayout, QHeaderView,
     QLabel, QLineEdit, QPushButton, QScrollArea, QSpinBox, QTableWidget,
@@ -17,6 +17,11 @@ from cmdrhelper.spansh_market import SpanshMarketProvider
 from cmdrhelper.trade_search import search_trade
 from cmdrhelper.trade_result_text import community_failure_text, market_notice_text
 from cmdrhelper.ui.commodity_picker import CommodityField
+from cmdrhelper.ui.recent_system_copy import RecentSystemCopyDelegate
+from cmdrhelper.ui.remembered_targets import RememberedTargets, RememberedTargetDelegate
+from cmdrhelper.ui.system_clipboard import copy_system_name
+
+from .market_age import MarketAgeCombo
 
 
 def format_age(stamp, now=None):
@@ -161,10 +166,7 @@ class TradeView(QWidget):
             self.radius.addItem(str(value), value)
         self.radius.setCurrentIndex(2)
         form.addRow(tr('trade.radius'), self.radius)
-        self.max_age = QComboBox()
-        for hours in (1, 6, 12, 24, 72, 168):
-            self.max_age.addItem(tr('trade.age_option_' + str(hours)), hours)
-        self.max_age.setCurrentIndex(3)
+        self.max_age = MarketAgeCombo(state)
         form.addRow(tr('trade.max_age'), self.max_age)
         self.pad = QComboBox()
         for pad in PadSize:
@@ -195,15 +197,30 @@ class TradeView(QWidget):
         self.market_notice.setMargin(8)
         self.market_notice.setStyleSheet('QLabel#marketDataNotice { border-left: 2px solid #ad7927; }')
         body.addWidget(self.market_notice)
-        self.table = QTableWidget(0, 10)
+        self.remembered_lists = {side: RememberedTargets(state=state) for side in TradeSide}
+        for panel in self.remembered_lists.values():
+            body.addWidget(panel)
+        self.table = QTableWidget(0, 11)
+        for side, panel in self.remembered_lists.items():
+            panel.bind_table(self.table, 10, lambda side=side: self.side == side)
         self.table.setHorizontalHeaderLabels([tr('trade.' + key) for key in (
-            'system', 'station', 'distance', 'price', 'demand', 'revenue', 'arrival_column', 'pad', 'age', 'type')])
+            'system', 'station', 'distance', 'price', 'demand', 'revenue', 'arrival_column', 'pad', 'age', 'type')] + [''])
         for column in range(self.table.columnCount()):
             self.table.horizontalHeaderItem(column).setData(
                 Qt.ItemDataRole.InitialSortOrderRole,
                 Qt.SortOrder.DescendingOrder if column == 3 else Qt.SortOrder.AscendingOrder)
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.table.horizontalHeader().moveSection(10, 0)
+        self.table.horizontalHeaderItem(10).setToolTip(tr('trade.remembered_targets'))
+        self.table.setItemDelegate(RememberedTargetDelegate(self.table, column=10))
+        self.table.itemChanged.connect(self.remember_changed)
+        self.system_copy_delegate = RecentSystemCopyDelegate(
+            self.table, column=0, name_role=Qt.DisplayRole, style_delegate=self.table.itemDelegate())
+        self.table.setItemDelegateForColumn(0, self.system_copy_delegate)
+        self.system_copy_delegate.copyRequested.connect(
+            lambda row, _column: copy_system_name(
+                self.table.item(row, 0).data(Qt.UserRole).system_name))
         self.table.setMinimumHeight(240)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
         self.table.setSortingEnabled(True)
@@ -212,6 +229,7 @@ class TradeView(QWidget):
         self.commodity.commodityChanged.connect(self._invalidate_results)
         for field in (self.radius, self.max_age, self.pad):
             field.currentIndexChanged.connect(self._invalidate_results)
+        self.max_age.currentIndexChanged.connect(self.refresh_observed_markets)
         self.quantity.valueChanged.connect(self._invalidate_results)
         self.carriers.toggled.connect(self._invalidate_results)
         self.arrival.textChanged.connect(self._invalidate_results)
@@ -231,6 +249,8 @@ class TradeView(QWidget):
         from .recommendations_view import RecommendationsView
         self.recommendations = RecommendationsView(state, self.provider, self.pool)
         self.tabs.addTab(self.recommendations, tr('recommend.title'))
+        self.max_age.currentIndexChanged.connect(self.recommendations.max_age.setCurrentIndex)
+        self.recommendations.max_age.currentIndexChanged.connect(self.max_age.setCurrentIndex)
         self.tabs.currentChanged.connect(self._change_side)
 
     @Slot(int)
@@ -242,6 +262,7 @@ class TradeView(QWidget):
             self.recommendations.refresh()
             return
         self.side = TradeSide.BUY if index == 1 else TradeSide.SELL
+        self.update_remembered()
         # Move the same form instead of copying filter state or widget trees.
         self.tabs.widget(index).layout().addWidget(self._scroll)
         self._scroll.show()
@@ -287,20 +308,22 @@ class TradeView(QWidget):
     def refresh_observed_markets(self):
         fid = getattr(self.state, 'commander_fid', '')
         if fid != self._fid:
+            for panel in self.remembered_lists.values():
+                panel.clear()
             self._fid = fid
             self._generation += 1
             self.cancel_search()
             self.offers = ()
             self.table.setRowCount(0)
             self._invalidate_results()
-        # all() owns TTL and physical cleanup. Its notification may re-enter us.
+        # Only count currently fresh observations; keep older snapshots on disk.
         if self._refreshing_observed:
             return
         self._refreshing_observed = True
         try:
             observer = getattr(self.state, 'observed_markets', None)
             fid = getattr(self.state, 'commander_fid', '')
-            markets = observer.cache.all(fid) if observer is not None and fid else []
+            markets = observer.cache.all(fid, max_age=self.max_age.max_age()) if observer is not None and fid else []
             markets = {row['market_id']: row for row in markets
                        if row['fid'] == fid and row['source'] == 'local_elite'}
             count = len(markets)
@@ -348,7 +371,7 @@ class TradeView(QWidget):
         self.quantity.interpretText()
         self._query = MarketSearch(
             commodity, self._reference, radius_ly=self.radius.currentData(),
-            minimum_quantity=self.quantity.value(), max_age=timedelta(hours=self.max_age.currentData()),
+            minimum_quantity=self.quantity.value(), max_age=self.max_age.max_age(),
             required_pad=PadSize(self.pad.currentData()), include_fleet_carriers=self.carriers.isChecked(),
             max_distance_to_arrival_ls=distance, limit=100,
         )
@@ -362,7 +385,7 @@ class TradeView(QWidget):
         from .recommendations_view import local_distances
         observer = getattr(self.state, 'observed_markets', None)
         cache = observer.cache if observer is not None else None
-        local = cache.all(self._fid) if cache is not None and self._fid else []
+        local = cache.all(self._fid, max_age=None) if cache is not None and self._fid else []
         origin = dict(system_name=self._reference,
                       system_address=getattr(self.state, 'system_address', None))
         distances = local_distances(self.state, origin, local) if local else {}
@@ -407,6 +430,7 @@ class TradeView(QWidget):
 
     def show_result(self, result, query):
         """Retain offers by row identity for future actions; no route action yet."""
+        blocker = QSignalBlocker(self.table)
         now = datetime.now(timezone.utc)
         locale = QLocale(get_language())
         self.offers = result.offers[:100] if result.status == MarketStatus.OK else ()
@@ -435,6 +459,7 @@ class TradeView(QWidget):
                 PadItem(tr('trade.pad_' + offer.largest_pad.value) if offer.largest_pad else '–', offer.largest_pad),
                 NumericItem(format_age(offer.market_updated_at, now), age),
                 QTableWidgetItem(tr('trade.fleet_carrier') if offer.is_fleet_carrier else tr('trade.station')),
+                self.remembered_lists[self.side].mark(offer),
             ]
             items[0].setData(Qt.ItemDataRole.UserRole, offer)
             items[8].setToolTip(offer.market_updated_at.astimezone(timezone.utc).isoformat())
@@ -444,6 +469,7 @@ class TradeView(QWidget):
         self.table.sortItems(3, self._price_order())
         self.table.resizeColumnsToContents()
         # Keep long system/station names usable via tooltips and horizontal scrolling.
+        self.table.resizeRowsToContents()
         for row in range(self.table.rowCount()):
             for column in (0, 1):
                 item = self.table.item(row, column)
@@ -452,6 +478,7 @@ class TradeView(QWidget):
                 item.setToolTip(item.text() + '\n' + tr('recommend.source') + ': ' + label)
         for column in (0, 1):
             self.table.setColumnWidth(column, min(300, self.table.columnWidth(column)))
+        self.update_remembered()
         status_key = _STATUS_KEYS.get(result.status, 'trade.invalid_response')
         prefix = 'trade.buy_' if self.side == TradeSide.BUY else 'trade.sell_'
         if result.status in (MarketStatus.OK, MarketStatus.NO_RESULTS):
@@ -465,3 +492,18 @@ class TradeView(QWidget):
         if result.from_cache:
             message += '\n' + ('Spansh: ' if any(o.provider == 'local_elite' for o in self.offers) else '') + tr('trade.cached')
         self.status.setText(message)
+
+    def remember_changed(self, item):
+        if item.column() != 10:
+            return
+        self.remembered_lists[self.side].changed(item, item.data(Qt.UserRole))
+        self.update_remembered()
+
+    def update_remembered(self):
+        for side, panel in self.remembered_lists.items():
+            panel.setVisible(side == self.side and bool(panel.targets))
+        blocker = QSignalBlocker(self.table)
+        for row in range(self.table.rowCount()):
+            marked = self.table.item(row, 10).checkState() == Qt.Checked
+            for column in range(self.table.columnCount()):
+                self.table.item(row, column).setData(Qt.UserRole + 1, marked)

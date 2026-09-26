@@ -58,7 +58,7 @@ class CombinedTradeViewTests(unittest.TestCase):
             self.view.tabs.setCurrentIndex(tab)
             self.search()
             self.assertEqual(self.view.table.rowCount(), 1)
-            self.assertEqual(self.view.table.columnCount(), 10)
+            self.assertEqual(self.view.table.columnCount(), 11)
             self.assertEqual(self.view.table.item(0,0).data(Qt.ItemDataRole.UserRole).provider, 'local_elite')
             self.assertIn(community_failure_text('de'), self.view.status.text())
             self.assertEqual(self.view.market_notice.text(), market_notice_text('de'))

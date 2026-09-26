@@ -156,7 +156,7 @@ class RunDiagnosticsTests(unittest.TestCase):
 
     def test_invalid_local_targets_excluded_from_counts(self):
         targets=[market(),market(mid=2),market(mid=3,fid='F_SYNTHETIC_OTHER'),
-                 market(mid=4,stamp=NOW-timedelta(days=1)),market(mid=5,source='spansh')]
+                 market(mid=4,stamp=NOW-timedelta(days=1,seconds=1)),market(mid=5,source='spansh')]
         d=self.run_search(locals=targets).diagnostics
         self.assertEqual((d.local_target_markets,d.local_combinations_checked),(1,1))
         empty=self.run_search(origin=market(rows=[]),locals=targets).diagnostics
@@ -174,7 +174,7 @@ class RunDiagnosticsTests(unittest.TestCase):
             self.assertNotIn('Community',diagnostic_reason_text(reason))
 
     def test_origin_expiration_context_reason(self):
-        d=self.run_search(origin=market(stamp=NOW-timedelta(days=1))).diagnostics
+        d=self.run_search(origin=market(stamp=NOW-timedelta(days=1,seconds=1))).diagnostics
         self.assertEqual(d.partial_reason,PartialReason.CONTEXT_CHANGED)
         self.assertEqual(d.spansh_commodities_started,0)
 

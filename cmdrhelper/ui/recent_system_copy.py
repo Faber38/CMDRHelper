@@ -12,8 +12,11 @@ from cmdrhelper.i18n import tr
 class RecentSystemCopyDelegate(QStyledItemDelegate):
     copyRequested = Signal(int, int)
 
-    def __init__(self, table):
+    def __init__(self, table, *, column=1, name_role=Qt.UserRole, style_delegate=None):
         super().__init__(table)
+        self._column = column
+        self._name_role = name_role
+        self._style_delegate = style_delegate
         # Use the same native tool-button appearance as the chronicle heading.
         self._button = QToolButton(table)
         self._button.setText("⧉")
@@ -23,14 +26,23 @@ class RecentSystemCopyDelegate(QStyledItemDelegate):
         table.setMouseTracking(True)
         table.viewport().installEventFilter(self)
 
+    def initStyleOption(self, option, index):
+        if self._style_delegate is not None:
+            self._style_delegate.initStyleOption(option, index)
+        else:
+            super().initStyleOption(option, index)
+
     def sizeHint(self, option, index):
         size = super().sizeHint(option, index)
         self._button.setFont(option.font)
         size.setHeight(max(size.height(), self._button.sizeHint().height()))
+        name = index.data(self._name_role)
+        if isinstance(name, str) and name.strip() and name.strip() != "–":
+            size.setWidth(size.width() + self._button.sizeHint().width() + 4)
         return size
 
     def copy_rect(self, option, index):
-        name = index.data(Qt.UserRole)
+        name = index.data(self._name_role)
         if not isinstance(name, str) or not name.strip() or name.strip() == "–":
             return QRect(), ""
         self._button.setFont(option.font)
@@ -75,7 +87,7 @@ class RecentSystemCopyDelegate(QStyledItemDelegate):
     def _hit(self, point):
         table = self.parent()
         index = table.indexAt(point)
-        if not index.isValid() or index.column() != 1:
+        if not index.isValid() or index.column() != self._column:
             return index, False
         option = QStyleOptionViewItem()
         option.initFrom(table)

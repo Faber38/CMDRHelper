@@ -65,12 +65,12 @@ class TradeMatrix:
         self.assertFalse(self.search(local=[market(rows=[])], community=[self.quote(mid=1, stamp=NOW-timedelta(seconds=1))]).offers)
 
     def test_ttl(self):
-        for delta, expected in ((timedelta(hours=24), False), (timedelta(hours=24, seconds=-1), True), (timedelta(seconds=-1), False)):
+        for delta, expected in ((timedelta(hours=24), True), (timedelta(hours=24, seconds=-1), True), (timedelta(seconds=-1), False)):
             self.assertEqual(bool(self.search(local=[market(stamp=NOW-delta)]).offers), expected)
 
-    def test_local_ttl_even_with_long_user_age(self):
+    def test_local_uses_long_user_age(self):
         q = MarketSearch(BEER.frontier_id, 'Fixture', max_age=timedelta(hours=72))
-        self.assertFalse(self.search(local=[market(stamp=NOW-timedelta(hours=24))], query=q).offers)
+        self.assertTrue(self.search(local=[market(stamp=NOW-timedelta(hours=24))], query=q).offers)
 
     def test_merge_before_visible_limit(self):
         quotes = [replace(self.quote(mid=i), commander_sell_price=30000-i,

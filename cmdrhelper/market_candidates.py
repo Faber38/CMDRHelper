@@ -1,8 +1,7 @@
 """Shared local snapshots and timestamp-based MarketID selection."""
-from datetime import timedelta
 
-from .market_data import MarketOffer, PadSize
-from .observed_market_cache import timestamp, TTL
+from .market_data import MarketOffer, PadSize, within_market_age
+from .observed_market_cache import timestamp
 
 
 def commodity_key(row):
@@ -44,9 +43,7 @@ def merge_destinations(local, community, now, max_age, *, diagnostics=None):
         if stamp.tzinfo is None or offer.provider not in ('local_elite', 'spansh'):
             continue
         age = now - stamp
-        if not timedelta(0) <= age <= max_age:
-            continue
-        if offer.provider == 'local_elite' and age >= TTL:
+        if not within_market_age(age, max_age):
             continue
         previous = markets.get(offer.market_id)
         if diagnostics is not None and previous is not None and previous.provider != offer.provider:

@@ -75,19 +75,19 @@ class ObservedStatusTests(unittest.TestCase):
         self.state.changed.emit()
         self.assertIn('1 Station ·', self.text())
 
-    def test_ttl_cleanup_notifies_and_exact_boundary(self):
+    def test_age_filter_refresh_preserves_snapshots(self):
         self.cache.put(snapshot())
         self.cache.put(snapshot(NOW-timedelta(hours=1), mid=456))
         self.now += timedelta(hours=23, seconds=-1)
         self.view.refresh_observed_markets()
         self.assertIn('2 Stationen', self.text())
-        self.now += timedelta(seconds=1)
-        self.cache.all(FID)  # Normal access elsewhere must update the visible label.
+        self.now += timedelta(seconds=2)
+        self.view.refresh_observed_markets()
         self.assertEqual(self.text(), 'Eigene Marktdaten: 1 Station · zuletzt vor 23 Std.')
         self.now += timedelta(hours=1)
-        self.cache.all(FID)
+        self.view.refresh_observed_markets()
         self.assertEqual(self.text(), 'Eigene Marktdaten: 0 Stationen')
-        self.assertEqual(json.loads(self.cache.path.read_text())['markets'], [])
+        self.assertEqual(len(json.loads(self.cache.path.read_text())['markets']), 2)
 
     def test_observer_capture_and_replacement_without_polling(self):
         journal = self.root/'Journal.2026-01-02T110000.01.log'

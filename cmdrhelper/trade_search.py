@@ -27,7 +27,7 @@ def search_trade(provider, query, side, local_markets=(), distances=None, fid=''
     commodity = dict(commodity_id=master.frontier_id, symbol=master.symbol)
     local = [local_offer(s, commodity, (distances or {}).get(s['market_id']), now)
              for s in local_markets if fid and s['fid'] == fid and s['source'] == 'local_elite'
-             and ObservedMarketCache.is_valid(s, now)]
+             and ObservedMarketCache.is_valid(s, now, query.max_age)]
     failed = result.status not in (MarketStatus.OK, MarketStatus.NO_RESULTS)
     # As with recommendations, a newer observed empty/non-trading market must
     # supersede an old quote, before price/quantity/location eligibility is tested.

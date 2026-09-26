@@ -123,19 +123,19 @@ def search_recommendations(origin, local_markets, distances, free, margin, query
 
     def calculate():
         now = clock()
-        if not ObservedMarketCache.is_valid(origin, now):
+        if not ObservedMarketCache.is_valid(origin, now, query.max_age):
             return ()
         rows = []
         diagnostic.local_target_markets = len({s['market_id'] for s in local_markets
             if s['market_id'] != origin['market_id'] and s['fid'] == origin['fid']
-            and s['source'] == 'local_elite' and ObservedMarketCache.is_valid(s, now)})
+            and s['source'] == 'local_elite' and ObservedMarketCache.is_valid(s, now, query.max_age)})
         for item_index, (item, step) in enumerate(zip(items, diagnostic.steps), 1):
             if local_only and cancel.is_set():
                 return ()
             step.search_started = True
             local = [local_offer(s, item, distances.get(s['market_id']), now) for s in local_markets
                      if s['fid'] == origin['fid'] and s['source'] == 'local_elite'
-                     and ObservedMarketCache.is_valid(s, now)]
+                     and ObservedMarketCache.is_valid(s, now, query.max_age)]
             targets = [o for o in local if o.market_id != origin['market_id']]
             step.local_combinations_checked = len(targets)
             step.local_candidates = 0
@@ -165,14 +165,14 @@ def search_recommendations(origin, local_markets, distances, free, margin, query
     if local_only:
         if cancel.is_set():
             return output(cancelled=True)
-        if not ObservedMarketCache.is_valid(origin, clock()):
+        if not ObservedMarketCache.is_valid(origin, clock(), query.max_age):
             return output(partial=True, reason=PartialReason.CONTEXT_CHANGED)
         if progress:
             progress(output((), 0, len(items), final=False))
         rows = calculate()
         if cancel.is_set():
             return output(cancelled=True)
-        if not ObservedMarketCache.is_valid(origin, clock()):
+        if not ObservedMarketCache.is_valid(origin, clock(), query.max_age):
             return output(partial=True, reason=PartialReason.CONTEXT_CHANGED)
         return output(rows, len(items), len(items))
     if progress and not cancel.is_set():
@@ -180,7 +180,7 @@ def search_recommendations(origin, local_markets, distances, free, margin, query
     for item, step in zip(items, diagnostic.steps):
         if cancel.is_set():
             return output(cancelled=True)
-        if not ObservedMarketCache.is_valid(origin, clock()):
+        if not ObservedMarketCache.is_valid(origin, clock(), query.max_age):
             return output(partial=True, reason=PartialReason.CONTEXT_CHANGED)
         step.search_started = True
         diagnostic.current_commodity = step.commodity

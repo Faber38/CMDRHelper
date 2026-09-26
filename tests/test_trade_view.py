@@ -111,7 +111,7 @@ class TradeViewTests(unittest.TestCase):
         self.assertEqual(self.view.tabs.tabText(2), tr('recommend.title'))
         self.assertEqual(self.view.tabs.tabText(0), 'Verkaufen')
         self.assertEqual(self.view.table.rowCount(), 0)
-        self.assertEqual(self.view.table.columnCount(), 10)
+        self.assertEqual(self.view.table.columnCount(), 11)
         self.assertFalse(self.provider.queries)
 
     def test_sell_results_describe_market_buying_zero_one_many_in_twelve_languages(self):
@@ -238,10 +238,10 @@ class TradeViewTests(unittest.TestCase):
         self.assertFalse(self.view.radius.isEditable())
 
     def test_all_age_options(self):
-        for index, hours in enumerate((1, 6, 12, 24, 72, 168)):
+        for index, hours in enumerate((1, 6, 12, 24, 48, 72, 168, 336, 720, 0)):
             self.view.max_age.setCurrentIndex(index)
             self.search()
-            self.assertEqual(self.provider.queries[-1].max_age, timedelta(hours=hours))
+            self.assertEqual(self.provider.queries[-1].max_age, timedelta(hours=hours) if hours else None)
 
     def test_all_pad_options(self):
         for index, pad in enumerate(PadSize):

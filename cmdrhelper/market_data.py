@@ -40,7 +40,7 @@ class MarketSearch:
     reference_system: str
     radius_ly: float = 100
     minimum_quantity: int | None = None
-    max_age: timedelta = timedelta(hours=24)
+    max_age: timedelta | None = timedelta(hours=24)
     include_fleet_carriers: bool = False
     required_pad: PadSize = PadSize.ANY
     max_distance_to_arrival_ls: float | None = None
@@ -107,3 +107,8 @@ class MarketDataProvider(Protocol):
     def search_sell(self, query: MarketSearch, *, cancel: Event | None = None) -> MarketSearchResult: ...
 
     def search_buy(self, query: MarketSearch, *, cancel: Event | None = None) -> MarketSearchResult: ...
+
+
+def within_market_age(age, max_age):
+    """None removes the age limit; future timestamps remain invalid."""
+    return age >= timedelta(0) and (max_age is None or age <= max_age)

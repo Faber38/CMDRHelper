@@ -13,9 +13,8 @@ from urllib.request import Request
 
 from .commodity_master import lookup_by_id, lookup_by_symbol
 from .market_data import (MarketOffer, MarketSearch, MarketSearchResult, MarketStatus,
-                          PadSize, TradeSide, ProviderDiagnostics)
+                          PadSize, TradeSide, ProviderDiagnostics, within_market_age)
 from .spansh_transport import TransportError, request_json
-
 
 DEFAULT_CACHE_TTL = 300
 _MAX = 2147483647
@@ -70,7 +69,7 @@ def _valid_query(q):
             and bool(q.reference_system.strip()) and _number(q.radius_ly)
             and (q.minimum_quantity is None or
                  type(q.minimum_quantity) is int and 1 <= q.minimum_quantity <= _MAX)
-            and isinstance(q.max_age, timedelta) and q.max_age.total_seconds() > 0
+            and (q.max_age is None or isinstance(q.max_age, timedelta) and q.max_age.total_seconds() > 0)
             and type(q.include_fleet_carriers) is bool and isinstance(q.required_pad, PadSize)
             and (q.max_distance_to_arrival_ls is None or _number(q.max_distance_to_arrival_ls))
             and type(q.limit) is int and 1 <= q.limit <= 100)
@@ -198,14 +197,15 @@ class SpanshMarketProvider:
 
     def _filters(self, q, item, side, now, cancel):
         price, amount = ('sell_price', 'demand') if side == TradeSide.SELL else ('buy_price', 'supply')
-        try:
-            earliest = now - q.max_age
-        except OverflowError:
-            raise _Failure(MarketStatus.INVALID_QUERY)
         filters = {'distance': {'min': 0, 'max': q.radius_ly},
                    'market': [{'name': item.english_name, price: _range(1),
-                               amount: _range(q.minimum_quantity or 1)}],
-                   'market_updated_at': _range(earliest.isoformat(), now.isoformat())}
+                               amount: _range(q.minimum_quantity or 1)}]}
+        if q.max_age is not None:
+            try:
+                earliest = now - q.max_age
+            except OverflowError:
+                raise _Failure(MarketStatus.INVALID_QUERY)
+            filters['market_updated_at'] = _range(earliest.isoformat(), now.isoformat())
         if not q.include_fleet_carriers:
             filters['type'] = {'value': list(self._types(cancel))}
         if q.max_distance_to_arrival_ls is not None:
@@ -252,7 +252,7 @@ class SpanshMarketProvider:
                          else (offer.commander_buy_price, offer.supply))
         ranks = {None: 0, PadSize.ANY: 0, PadSize.SMALL: 1, PadSize.MEDIUM: 2, PadSize.LARGE: 3}
         return (price is not None and price > 0 and amount is not None and amount >= (q.minimum_quantity or 1)
-                and timedelta(0) <= now - offer.market_updated_at <= q.max_age
+                and within_market_age(now - offer.market_updated_at, q.max_age)
                 and offer.distance_ly <= q.radius_ly
                 and (q.include_fleet_carriers or not offer.is_fleet_carrier)
                 and ranks[offer.largest_pad] >= ranks[q.required_pad]

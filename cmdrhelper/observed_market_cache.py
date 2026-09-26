@@ -15,7 +15,10 @@ import tempfile
 from .commodity_master import lookup_by_id, lookup_by_symbol
 from .odyssey_sidecars import signature, _unique_object
 
+from .market_data import within_market_age
+
 logger = logging.getLogger(__name__)
+
 TTL = timedelta(hours=24)
 MAX_FILE_BYTES = 64 * 1024 * 1024
 MAX_SIDECAR_BYTES = 4 * 1024 * 1024
@@ -197,8 +200,8 @@ class ObservedMarketCache:
         return (now if now is not None else utcnow()) - timestamp(snapshot['observed_at'])
 
     @classmethod
-    def is_valid(cls, snapshot, now=None):
-        return timedelta(0) <= cls.age(snapshot, now) < TTL
+    def is_valid(cls, snapshot, now=None, max_age=TTL):
+        return within_market_age(cls.age(snapshot, now), max_age)
 
     def _load(self):
         try:
@@ -220,7 +223,6 @@ class ObservedMarketCache:
                     raise ValueError('Duplicate market identity')
                 loaded[key] = snapshot
             self._markets = loaded
-            self.cleanup()
         except FileNotFoundError:
             pass
         except (OSError, ValueError, TypeError, OverflowError, RecursionError) as exc:
@@ -263,20 +265,16 @@ class ObservedMarketCache:
             self.on_changed()
         return True
 
-    def _valid(self):
-        now = self.clock()
-        return {key: row for key, row in self._markets.items() if self.is_valid(row, now)}
-
     def cleanup(self):
-        valid = self._valid()
-        return self._write(valid) if len(valid) != len(self._markets) else True
+        # Age is a search criterion, not a retention policy.
+        return True
 
     def put(self, snapshot):
         try:
             snapshot = validate_snapshot(snapshot)
-            if not self.is_valid(snapshot, self.clock()):
-                raise ValueError('Observation expired/future')
-            markets = self._valid()
+            if not self.is_valid(snapshot, self.clock(), None):
+                raise ValueError('Observation from future')
+            markets = dict(self._markets)
             key = snapshot['fid'], snapshot['market_id']
             previous = markets.get(key)
             if previous and timestamp(previous['observed_at']) >= timestamp(snapshot['observed_at']):
@@ -289,14 +287,15 @@ class ObservedMarketCache:
             self._error(exc)
             return False
 
-    def all(self, fid):
+    def all(self, fid, max_age=TTL):
         if not valid_fid(fid):
             return []
-        self.cleanup()
-        return deepcopy([row for (owner, _), row in self._valid().items() if owner == fid])
+        now = self.clock()
+        return deepcopy([row for (owner, _), row in self._markets.items()
+                         if owner == fid and self.is_valid(row, now, max_age)])
 
-    def get(self, fid, market_id):
-        return next((row for row in self.all(fid) if row['market_id'] == market_id), None)
+    def get(self, fid, market_id, max_age=TTL):
+        return next((row for row in self.all(fid, max_age) if row['market_id'] == market_id), None)
 
     def find(self, fid, system_name, station_name):
         return [row for row in self.all(fid) if row['system_name'].casefold() == system_name.casefold()
