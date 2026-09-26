@@ -50,6 +50,12 @@ PLANET_ALIASES = {
     "Rocky world": "Rocky body",
     "Icy body": "Icy body",
     "Rocky Ice world": "Rocky ice body",
+    "Earth-like world": "Earthlike body",
+    "Gas giant with water-based life": "Gas giant with water based life",
+    "Gas giant with ammonia-based life": "Gas giant with ammonia based life",
+    "Helium-rich gas giant": "Helium rich gas giant",
+    **{f"Class {kind} gas giant": f"Sudarsky class {kind} gas giant"
+       for kind in ("I", "II", "III", "IV", "V")},
 }
 
 
