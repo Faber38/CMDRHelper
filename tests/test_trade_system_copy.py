@@ -41,7 +41,7 @@ class TradeSystemCopyTests(unittest.TestCase):
         # Scroll horizontally as a user would; Qt's style can choose pixel or item scrolling.
         position = (self.table.horizontalHeader().sectionPosition(self.column)
                     if self.table.horizontalScrollMode() == QAbstractItemView.ScrollPerPixel
-                    else self.column)
+                    else self.table.horizontalHeader().visualIndex(self.column))
         self.table.horizontalScrollBar().setValue(0)
         self.table.horizontalScrollBar().setValue(position)
         option = QStyleOptionViewItem()

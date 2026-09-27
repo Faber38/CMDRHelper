@@ -33,6 +33,14 @@ ist vom unten beschriebenen 5-Pixel-Balken im Elite-HUD zu unterscheiden.
   Fahrzeugs hat Vorrang. Der gemeinsame vollständige Dateilesevorgang wurde aus
   `read_status` extrahiert; die planetare Statusvalidierung bleibt unverändert.
 
+Wenn ein passender Ship-Snapshot fehlt, kann die reine Schiffsbelegung aus
+Status stammen. Die fachliche Prüfung ist mit dem Handel in
+`ship_cargo.status_ship_count()` zentralisiert: aktuelle identifizierte Sitzung,
+vollständiges nicht veraltetes Loadout, eindeutiger Schiffsmodus, plausible Menge,
+Status nach dem letzten relevanten Kontextwechsel und höchstens 120 Sekunden alt.
+Dabei entsteht kein Wareninventar. Die genaue Quellenpriorität des Handels ist in
+[trade-recommendations.md](trade-recommendations.md) beschrieben.
+
 Beim Wechsel Schiff → SRV oder zurück wird ein noch zum anderen Fahrzeug
 gehörender Snapshot vorübergehend ausgeblendet. Sobald Status und bestätigter
 Cargo-Snapshot zusammenpassen, erscheint die Anzeige automatisch wieder.

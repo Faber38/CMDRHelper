@@ -14,15 +14,45 @@ ist kein Ersatz für die aktuelle Station. Fehlt ein gültiger `local_elite`-Sta
 unter 24 Stunden, fordert die Oberfläche zum Öffnen des Elite-Warenmarkts auf.
 Spansh wird niemals als Einkaufsquelle verwendet.
 
-Schiffsname und -typ stammen aus dem vorhandenen ShipLoadout/AppState. Die Menge
-verwendet nur den bestätigten `cargo_snapshot` für dieselbe aktive FID und ShipID,
-Vessel `Ship`, zusammen mit einer vollständigen, nicht veralteten Loadout-Kapazität.
-Der Cargo-Gesamtzähler enthält alle Güter, einschließlich Missionsfracht, gestohlener
-Fracht und Limpets. Diese werden nicht nochmals addiert oder abgezogen. Die gemeinsam
-mit dem Cargo-Fenster verwendete Freiraumrechnung lautet `max(0, capacity-count)`.
-Der reine Status-HUD-Fallback wird nicht zur Handelsberechnung benutzt. Bei unbekannter
-Kapazität/Belegung oder vollem Frachtraum gibt es keine Empfehlungen und keine manuelle
-Ersatzmenge.
+Schiffsname, -typ und Kapazität stammen aus dem vorhandenen ShipLoadout/AppState.
+Die Belegung wird in `ship_cargo.py` unabhängig vom Wareninventar validiert:
+
+1. Aktueller Ship-Cargo-Snapshot mit passender FID, ShipID und Journalgeneration.
+2. Autoritativer Ship-Gesamtzähler eines Cargo-Ereignisses desselben Kontexts,
+   auch ohne vollständiges Inventory oder passende Cargo.json.
+3. Validiertes `Status.json.Cargo` für das aktuelle Schiff.
+4. Andernfalls unbekannt.
+
+Der Journalreader bindet Cargo beim chronologischen Einlesen an FID, Journal,
+Spielstart, Fahrzeug, ShipID und Ereignisgeneration. Wechsel und Mengenänderungen
+invalidieren frühere Ship-Zähler; alte Ereignisse erhalten niemals eine neue
+ShipID. SRV-Cargo ist keine Ship-Belegung, auch nicht bei Count=0.
+
+Der gemeinsame Status-Fallback für Handel und HUD verlangt eine identifizierte
+aktuelle Sitzung, ein vollständiges nicht veraltetes Loadout aus dieser Sitzung,
+Schiffsmodus (kein SRV/Fighter/OnFoot/Taxi/Multicrew), gültige ganzzahlige Belegung
+zwischen 0 und Kapazität und einen Status höchstens 120 Sekunden alt (maximal fünf
+Sekunden in der Zukunft). Status muss mindestens so neu wie das Loadout und strikt
+neuer als der letzte Fahrzeugwechsel oder mögliche Cargo-Eingriff sein. Gleiche
+Sekunden beweisen bei solchen Eingriffen keine Reihenfolge. Fehlendes `first_event_at`
+in der DB wird durch den tatsächlich eingelesenen Journal-/LoadGame-Kontext abgedeckt.
+
+Kauf/Verkauf, Sammeln, Auswerfen, Raffinieren, Transfers, Limpets und mögliche
+Missions-/Spezialfrachtänderungen werden konservativ invalidiert, nicht als Deltas
+addiert. Ein anschließender autoritativer Cargo-Zähler ersetzt den Zustand. So gibt
+es keine Doppelzählung. Neustarts rekonstruieren denselben Kontext aus dem Journal;
+Status wird weder als Inventar noch dauerhaft gespeichert.
+
+Der bestehende Watcher-Timer liest Status und verspätete Cargo-Sidecars erneut,
+prüft auch den Ablauf der Statusgültigkeit und meldet Änderungen über
+`cargoSnapshotChanged`. Solange Journalbytes nicht übernommen sind oder eine neue
+Journaldatei auf Übernahme wartet, wird kein alter Kontext mit Status kombiniert.
+
+Der Gesamtzähler enthält alle Güter einschließlich Missionsfracht, gestohlener
+Fracht und Limpets; diese werden nicht nochmals addiert. Die Freiraumrechnung ist
+`max(0, capacity-count)`. Unplausible Belegungen oberhalb der Kapazität werden zuvor
+verworfen. Bei unbekannter Kapazität/Belegung oder vollem Frachtraum gibt es keine
+Empfehlungen und keine manuelle Ersatzmenge.
 
 ## Ziele und Quellenvergleich
 

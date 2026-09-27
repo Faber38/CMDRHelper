@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, timezone
 import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -37,6 +38,9 @@ class CargoHudTests(unittest.TestCase):
 
     def setUp(self):
         set_language("de")
+        clock = patch("cmdrhelper.ship_cargo.utc_now", return_value=datetime(2026, 9, 4, 16, 1, tzinfo=timezone.utc))
+        clock.start()
+        self.addCleanup(clock.stop)
         folder = TemporaryDirectory()
         self.addCleanup(folder.cleanup)
         self.folder = Path(folder.name)
@@ -79,7 +83,11 @@ class CargoHudTests(unittest.TestCase):
         self.state.commander_id = 1
         self.state._journal_index_sessions = [dict(
             commander_id=1, fid_seen="F-A", attribution_status="identified",
-            first_event_at="2026-09-04T15:00:00Z")]
+            journal_file="fixture", first_event_at="2026-09-04T15:00:00Z")]
+        self.state.ship_cargo_context = dict(
+            fid="F-A", journal="fixture", ship_id=38, vessel="Ship", active=True,
+            loadout_seen=True, session_start="2026-09-04T15:00:01Z",
+            barrier="2026-09-04T16:00:29Z", generation=1, total=None)
         self.state.game_mode_timestamp = "2026-09-04T15:00:01Z"
         self.state.ship = "TEST-NOMADE"
         self.state.ship_loadout = ShipLoadoutData(

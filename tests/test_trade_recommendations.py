@@ -102,7 +102,8 @@ class RecommendationTests(unittest.TestCase):
         self.assertTrue(result.partial)
 
     def test_fid_source_and_local_ttl(self):
-        for target in (market(mid=2,fid='F_OTHER'),market(mid=2,source='spansh'),
+        self.assertTrue(self.search(locals=[market(mid=2,fid='F_OTHER')]).rows)
+        for target in (market(mid=2,source='spansh'),
                        market(mid=2,stamp=NOW-timedelta(hours=24,seconds=1))):
             self.assertFalse(self.search(locals=[target]).rows)
         self.assertTrue(self.search(locals=[market(mid=2,stamp=NOW-timedelta(hours=24,seconds=-1))]).rows)

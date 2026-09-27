@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'release.3_7_8.0': 'Bug fixes in the trade assistant.',
+    'release.3_7_8.1': 'Improved cargo space detection and updates.',
+    'release.3_7_8.2': 'Fixed material inventory issues at capacity limits.',
+    'release.3_7_8.3': 'General stability and reliability improvements.',
     'explorer.value_fit_width': 'Fit to window width',
     'explorer.value_fit_width_tip': 'Automatically fits the value-list columns to the available window width.',
     'explorer.first_footfall': 'FIRST FOOTFALL',
@@ -1707,11 +1711,11 @@ TRANSLATIONS = {
     'trade.buy_success_one': 'Found 1 offer to sell you goods.',
     'trade.buy_success': 'Found {count} offers to sell you goods.',
     'trade.buy_help': 'Choose a commodity and quantity, set filters and start the purchase search manually. Price / t is the price paid by the commander. Supply is the reported available quantity and must cover the requested amount. Total cost = price × requested quantity. The search combines valid observations of your own markets and community market data. Both are snapshots: check their age. Supply may be lower on arrival. Switching tabs cancels an active search and preserves the filters.',
-    'trade.observed_one': 'Own market data: {count} station',
-    'trade.observed_many': 'Own market data: {count} stations',
+    'trade.observed_one': 'Local market data: {count} station · {size}',
+    'trade.observed_many': 'Local market data: {count} stations · {size}',
     'trade.observed_now': 'last observed just now',
     'trade.observed_last': 'last observed {age} ago',
-    'trade.observed_tooltip': 'Station markets you observed in Elite. The selected maximum market data age applies to this search. Older data remains stored. A market is recorded automatically when you open the commodity market in Elite.',
+    'trade.observed_tooltip': 'Entire local market cache across commanders: each station counted once, regardless of maximum market data age. File size of markets.db + WAL + SHM. No Spansh/community data.',
     'recommend.title': 'Recommendations',
     'recommend.question': 'I am here with this ship – what can I buy here and sell within my constraints for at least {margin}% profit?',
     'recommend.margin': 'Minimum profit',
@@ -1733,6 +1737,8 @@ TRANSLATIONS = {
     'recommend.ready': 'Check your constraints and start the recommendation search manually.',
     'recommend.progress': 'Checking commodities: {checked} of {total} …',
     'recommend.results': 'Recommendations: {count}',
+    'recommend.no_results': 'No matching trade opportunities found.\nThe search using local market data and Spansh completed successfully. No matching trade opportunities were found for the current filters and available market data.',
+    'recommend.no_results_local': 'No matching trade opportunities found.\nThe local search completed successfully. No matching trade opportunities were found for the current filters and available market data.',
     'recommend.partial': 'Incomplete search: Some commodities or destinations could not be checked, or the search limit was reached. Results apply only to the data checked.',
     'recommend.notice': 'The current purchase market comes from your local Elite market data. Destinations may come from your own observations or community data. Prices, supply and demand can change. Please check the data age.',
     'recommend.help': 'Purchases use only the active commander’s current, personally observed Elite market. Open the market in Elite if the snapshot is missing. Destinations come from your observations and Spansh. For the same MarketID, the newer valid snapshot wins; equal timestamps prefer local data. Profit/t = destination selling price − local buying price. Profit % = profit/t ÷ buying price × 100. The minimum margin must be met. Quantity = minimum of confirmed free ship cargo space, local supply and destination demand. Potential profit = profit/t × possible quantity. Each commodity shows the best checked destination by potential profit, with source and data age. Unknown distance excludes local destinations; missing pad, carrier or arrival metadata cannot satisfy the corresponding restriction. Manual searches check only locally offered commodities sequentially, with progress and cancellation. Partial results and search limits are indicated. Prices, supply and demand can change. Potential profit is an estimate, not a guarantee. The selected maximum market data age applies to this search. Older data remains stored.',
@@ -1775,3 +1781,7 @@ TRANSLATIONS = {
     'trade.age_option_0': 'No limit',
     'trade.remove_remembered_target': 'Remove remembered destination',
 }
+
+TRANSLATIONS.update({'mining.own_sell_price': 'Own sale price / t', 'mining.own_price_none': 'No usable own market data within the age limit.', 'mining.own_price_error': 'Own market prices unavailable (read error).', 'mining.own_price_help': 'Best own sale price observed by this installation with positive demand. Additional to the fixed reference price; demand is not commander inventory.'})
+
+TRANSLATIONS['recommend.remember_tip'] = 'Tip: Remember your chosen destinations with ✓ before buying – they remain available even when your cargo hold is full.'

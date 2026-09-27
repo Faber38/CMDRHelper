@@ -10,7 +10,7 @@ import sqlite3
 import threading
 from datetime import datetime, timezone
 
-from PySide6.QtCore import QObject, QSettings, Signal, QTimer, Slot, Qt
+from PySide6.QtCore import QObject, QSettings, Signal, QTimer, Slot, Qt, QCoreApplication
 
 from cmdrhelper.journal_reader import (
     JournalReadError,
@@ -103,6 +103,12 @@ class AppState(QObject):
         self.ship_loadout = ShipLoadoutData()
         self._inventory_revisions = {"materials": 0, "mining": 0, "odyssey": 0}
         self.cargo_snapshot = None
+        self.ship_cargo_context = {}
+        self.ship_cargo_total = None
+        self._cargo_status = None
+        self._cargo_refresh_data = None
+        self._cargo_blocked = False
+        self._cargo_folder_stamp = None
         self.active_srv_type = ""
         self.last_timestamp = ""
 
@@ -178,12 +184,17 @@ class AppState(QObject):
         from cmdrhelper.combat_bond_manager import CombatBondManager
         self.combat_bonds = CombatBondManager(parent=self)
         from cmdrhelper.observed_market_observer import ObservedMarketObserver
-        self.observed_markets = ObservedMarketObserver(on_changed=self.observedMarketsChanged.emit)
+        self.observed_markets = ObservedMarketObserver(
+            on_changed=self.observedMarketsChanged.emit, use_market_store=True)
+        application = QCoreApplication.instance()
+        if application is not None:
+            application.aboutToQuit.connect(self.observed_markets.close)
         self.watcher.live_observers = [self.bounties, self.combat_bonds, self.observed_markets]
         from cmdrhelper.odyssey_tracking import OdysseyCarrierTracking
         self.odyssey_carrier_tracking = OdysseyCarrierTracking(self)
         self.watcher.odysseyTrackingUpdated.connect(self.odyssey_carrier_tracking.poll)
         self.watcher.odysseySidecarsChanged.connect(self.odysseySidecarsChanged.emit)
+        self.watcher.timer.timeout.connect(self._poll_ship_cargo)
         self.watcher.journalChanged.connect(
             self._refresh_from_watcher
         )
@@ -1523,6 +1534,12 @@ class AppState(QObject):
         self.ship_loadout = ShipLoadoutData()
         self.active_srv_type = ""
         self.cargo_snapshot = None
+        self.ship_cargo_context = {}
+        self.ship_cargo_total = None
+        self._cargo_status = None
+        self._cargo_refresh_data = None
+        self._cargo_blocked = False
+        self._cargo_folder_stamp = None
         cargo_signal = getattr(self, "cargoSnapshotChanged", None)
         if cargo_signal is not None:
             cargo_signal.emit(None)
@@ -1899,7 +1916,13 @@ class AppState(QObject):
         self.game_mode_timestamp = data.get("game_mode_timestamp") or ""
         self.journal_files = data["journal_files"]
 
+        self.ship_cargo_context = data.get("ship_cargo_context") or {}
+        self._cargo_refresh_data = ({key: data.get(key) for key in (
+            "last_cargo_event", "last_cargo_context", "ship_cargo_context",
+            "last_cargo_srv_type", "last_cargo_srv_capacity", "active_srv_type",
+        )}, current_session)
         self._apply_live_cargo_snapshot(data, current_session)
+        self._poll_ship_cargo()
 
         if (
             identity_changed
@@ -2142,48 +2165,99 @@ class AppState(QObject):
                 self.cargo_snapshot = None
                 self.cargoSnapshotChanged.emit(None)
             return
-        current_loadout = self.ship_loadout or ShipLoadoutData()
-        if (
-            isinstance(self.cargo_snapshot, dict)
-            and self.cargo_snapshot.get("vessel") == "Ship"
-            and self.cargo_snapshot.get("ship_id") is not None
-            and current_loadout.ship_id is not None
-            and self.cargo_snapshot.get("ship_id") != current_loadout.ship_id
-        ):
-            self.cargo_snapshot = None
-            self.cargoSnapshotChanged.emit(None)
-        trigger = data.get("last_cargo_event") if identified else None
-        if not isinstance(trigger, dict):
-            return
-
-        vessel = str(trigger.get("Vessel") or "").strip().casefold()
-        if vessel not in ("ship", "srv"):
-            return
+        loadout = self.ship_loadout or ShipLoadoutData()
+        trigger = data.get("last_cargo_event")
+        origin = data.get("last_cargo_context")
+        context = data.get("ship_cargo_context") or {}
         previous = self.cargo_snapshot
-        if (
-            isinstance(previous, dict)
-            and previous.get("fid") == self.commander_fid
-            and str(previous.get("vessel") or "").casefold() == vessel
-            and previous.get("timestamp") == str(trigger.get("timestamp") or "")
-            and previous.get("count") == trigger.get("Count")
-        ):
-            return
-
-        loadout = current_loadout
-        snapshot = read_cargo_snapshot(
-            Path(self.journal_folder) / "Cargo.json",
-            trigger,
-            fid=self.commander_fid,
-            ship_id=loadout.ship_id,
-            cargo_capacity=loadout.cargo_capacity,
-            srv_type=data.get("last_cargo_srv_type", data.get("active_srv_type")) or "",
-            srv_capacity=data.get("last_cargo_srv_capacity"),
-            attempts=5,
-            retry_delay=0.04,
-        )
+        snapshot = None
+        valid = (isinstance(trigger, dict) and isinstance(origin, dict)
+                 and origin.get("fid") == self.commander_fid
+                 and origin.get("journal") == current_session.get("journal_file")
+                 and origin.get("session_start") == context.get("session_start")
+                 and origin.get("session_generation") == context.get("session_generation"))
+        if valid and origin.get("vessel") == "Ship":
+            valid = (origin.get("ship_id") is not None
+                     and origin["ship_id"] == loadout.ship_id
+                     and origin.get("generation") == context.get("generation")
+                     and context.get("total") is not None)
+        if valid:
+            if (isinstance(previous, dict) and previous.get("context") == origin
+                    and previous.get("count") == trigger.get("Count")):
+                return
+            snapshot = read_cargo_snapshot(
+                Path(self.journal_folder) / "Cargo.json", trigger,
+                fid=origin["fid"], ship_id=origin.get("ship_id"),
+                cargo_capacity=loadout.cargo_capacity if origin.get("vessel") == "Ship" else None,
+                srv_type=data.get("last_cargo_srv_type", data.get("active_srv_type")) or "",
+                srv_capacity=data.get("last_cargo_srv_capacity"),
+                attempts=1,
+            )
+            if snapshot is not None:
+                snapshot["context"] = dict(origin)
         if snapshot != previous:
             self.cargo_snapshot = snapshot
             self.cargoSnapshotChanged.emit(snapshot)
+
+    def _poll_ship_cargo(self):
+        """Use the existing watcher timer for late sidecars and Status expiry.
+
+        No journal replay or DB writes. Never bind an unlabelled Status while
+        journal bytes are still waiting for application (imports/read failures).
+        """
+        from cmdrhelper.ship_cargo import current_ship_cargo
+        from cmdrhelper.status_reader import read_status_data
+        watcher = getattr(self, "watcher", None)
+        sessions = getattr(self, "_journal_index_sessions", None) or []
+        session = sessions[-1] if sessions else {}
+        caught_up = bool(session)
+        try:
+            path = Path(session["journal_file"])
+            before = path.stat()
+            caught_up = (before.st_size == session.get("last_complete_line_offset")
+                         == session.get("last_read_offset"))
+            # Directory changes can announce a new game before the watcher's
+            # periodic journal rotation scan. Never label its Status as the old
+            # game/commander, even during that short interval.
+            folder_stamp = Path(self.journal_folder).stat().st_mtime_ns
+            if folder_stamp != getattr(self, "_cargo_folder_stamp", None):
+                from cmdrhelper.journal_files import journal_files
+                files = journal_files(Path(self.journal_folder))
+                self._cargo_newest_journal = str(files[-1]) if files else None
+                self._cargo_folder_stamp = folder_stamp
+            caught_up = caught_up and self._cargo_newest_journal == str(path)
+            if watcher is not None and watcher._current is not None:
+                caught_up = caught_up and str(watcher._current) == str(path)
+            if (getattr(self, "_database_import_running", False)
+                    or getattr(self, "_journal_catchup_running", False)):
+                caught_up = False
+        except (KeyError, OSError, TypeError):
+            caught_up = False
+        self._cargo_blocked = not caught_up
+        if caught_up:
+            pending = getattr(self, "_cargo_refresh_data", None)
+            if pending:
+                self._apply_live_cargo_snapshot(*pending)
+            try:
+                self._cargo_status, _ = read_status_data(Path(self.journal_folder) / "Status.json")
+            except (OSError, ValueError):
+                self._cargo_status = None
+            try:
+                after = path.stat()
+                if (before.st_ino, before.st_size, before.st_mtime_ns) != (
+                        after.st_ino, after.st_size, after.st_mtime_ns):
+                    self._cargo_blocked = True
+            except OSError:
+                self._cargo_blocked = True
+            total = current_ship_cargo(self)
+        else:
+            self._cargo_status = None
+            total = None
+        if total != self.ship_cargo_total:
+            self.ship_cargo_total = total
+            # Consumers already listen to this signal; the inventory payload
+            # remains untouched when only the total/source changes.
+            self.cargoSnapshotChanged.emit(self.cargo_snapshot)
 
     @staticmethod
     def _ship_loadout_signature(loadout):

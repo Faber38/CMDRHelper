@@ -1292,3 +1292,5 @@ HELP_TOPICS["explorer"] = (
     HELP_TOPICS["explorer"][0],
     HELP_TOPICS["explorer"][1] + '<p>”Sovita ikkunan leveyteen” jakaa arvolistan sarakkeet automaattisesti käytettävissä olevalle leveydelle. Asetus on oletuksena käytössä ja tallennetaan. Hyvin kapea ikkuna tai suuri fontti voi silti vaatia vaakavieritystä. Kun asetus on pois käytöstä, leveyksiä voi säätää käsin. Asetus on erillinen graafisen yleisnäkymän automaattisesta sovituksesta.</p>',
 )
+
+HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>Vinkki: merkitse haluamasi kohteet muistiin valinnalla ✓ ennen ostamista – ne säilyvät, vaikka lastiruuma olisi täynnä.</p>')

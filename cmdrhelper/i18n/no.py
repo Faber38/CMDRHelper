@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'release.3_7_8.0': 'Feilrettinger i handelsassistenten.',
+    'release.3_7_8.1': 'Forbedret registrering og oppdatering av lasterommet.',
+    'release.3_7_8.2': 'Rettet feil i materialbeholdninger ved kapasitetsgrensen.',
+    'release.3_7_8.3': 'Generelle forbedringer av stabilitet og pålitelighet.',
     'explorer.value_fit_width': 'Tilpass til vindusbredden',
     'explorer.value_fit_width_tip': 'Tilpasser kolonnene i verdilisten automatisk til den tilgjengelige vindusbredden.',
     'explorer.first_footfall': 'FØRSTE FOTAVTRYKK',
@@ -1583,11 +1587,11 @@ TRANSLATIONS = {
     'trade.buy_success_one': 'Fant 1 tilbud om å selge varer til deg.',
     'trade.buy_success': 'Fant {count} tilbud om å selge varer til deg.',
     'trade.buy_help': 'Velg vare og mengde, angi filtre og start kjøpssøket manuelt. Pris / t er prisen kommandøren betaler. Tilbud er rapportert tilgjengelig mengde og må dekke ønsket mengde. Totalkostnad = pris × ønsket mengde. Søket kombinerer gyldige egne markedsobservasjoner og fellesskapets markedsdata. Begge er øyeblikksbilder: kontroller alderen. Tilbudet kan være mindre ved ankomst. Bytte av fane avbryter et aktivt søk og beholder filtrene.',
-    'trade.observed_one': 'Egne markedsdata: {count} stasjon',
-    'trade.observed_many': 'Egne markedsdata: {count} stasjoner',
+    'trade.observed_one': 'Lokale markedsdata: {count} stasjon · {size}',
+    'trade.observed_many': 'Lokale markedsdata: {count} stasjoner · {size}',
     'trade.observed_now': 'sist observert akkurat nå',
     'trade.observed_last': 'sist observert for {age} siden',
-    'trade.observed_tooltip': 'Stasjonsmarkeder du selv har observert i Elite. Valgt maksimal alder for markedsdata gjelder for dette søket. Eldre data beholdes. Markedet registreres automatisk når du åpner varemarkedet i Elite.',
+    'trade.observed_tooltip': 'Hele den lokale markedsbufferen for alle kommandører: hver stasjon telles én gang, uavhengig av maksimal alder på markedsdata. Filstørrelsen til markets.db + WAL + SHM. Ingen Spansh- eller fellesskapsdata.',
     'recommend.title': 'Anbefalinger',
     'recommend.question': 'Jeg er her med dette skipet – hvilken vare kan jeg kjøpe her og selge innenfor mine krav med minst {margin} % fortjeneste?',
     'recommend.margin': 'Minste fortjeneste',
@@ -1609,6 +1613,8 @@ TRANSLATIONS = {
     'recommend.ready': 'Kontroller kravene og start søket etter anbefalinger manuelt.',
     'recommend.progress': 'Kontrollerer varer: {checked} av {total} …',
     'recommend.results': 'Anbefalinger: {count}',
+    'recommend.no_results': 'Ingen passende handelsmuligheter funnet.\nSøket med lokale markedsdata og Spansh ble fullført. Ingen passende handelsmuligheter ble funnet med gjeldende filtre og tilgjengelige markedsdata.',
+    'recommend.no_results_local': 'Ingen passende handelsmuligheter funnet.\nDet lokale søket ble fullført. Ingen passende handelsmuligheter ble funnet med gjeldende filtre og tilgjengelige markedsdata.',
     'recommend.partial': 'Ufullstendig søk: Noen varer eller reisemål kunne ikke kontrolleres, eller søkegrensen ble nådd. Resultatene gjelder bare de kontrollerte dataene.',
     'recommend.notice': 'Det gjeldende kjøpsmarkedet kommer fra dine lokale Elite-markedsdata. Reisemål kan komme fra egne observasjoner eller fellesskapets data. Priser, tilbud og etterspørsel kan endres. Kontroller dataenes alder.',
     'recommend.help': 'Kjøp bruker bare den aktive kommandørens gjeldende, selv observerte Elite-marked. Åpne markedet i Elite hvis data mangler. Reisemål kommer fra egne observasjoner og Spansh. For samme MarketID vinner nyeste gyldige data; ved lik tid vinner lokale data. Fortjeneste/t = salgspris på reisemålet − lokal kjøpspris. Fortjeneste % = fortjeneste/t ÷ kjøpspris × 100. Minstekravet må oppfylles. Mengde = minimum av bekreftet ledig lasterom, lokalt tilbud og etterspørsel på reisemålet. Mulig fortjeneste = fortjeneste/t × mulig mengde. Hver vare viser beste kontrollerte reisemål etter mulig fortjeneste, med kilde og dataalder. Ukjent avstand utelukker lokale mål; manglende landingsplass-, carrier- eller ankomstdata oppfyller ikke tilsvarende begrensninger. Manuelt søk kontrollerer bare lokalt tilbudte varer etter tur, med fremdrift og avbrytelse. Delresultater og søkegrenser vises. Priser, tilbud og etterspørsel kan endres. Mulig fortjeneste er et anslag, ingen garanti. Valgt maksimal alder for markedsdata gjelder for dette søket. Eldre data beholdes.',
@@ -1651,3 +1657,7 @@ TRANSLATIONS = {
     'trade.age_option_0': 'Ingen grense',
     'trade.remove_remembered_target': 'Fjern lagret reisemål',
 }
+
+TRANSLATIONS.update({'mining.own_sell_price': 'Egen salgspris / t', 'mining.own_price_none': 'Ingen brukbare egne markedsdata innen aldersgrensen.', 'mining.own_price_error': 'Egne markedspriser utilgjengelige (lesefeil).', 'mining.own_price_help': 'Beste egen salgspris observert av denne installasjonen med positiv etterspørsel. Tillegg til fast referansepris; etterspørsel er ikke kommandørens beholdning.'})
+
+TRANSLATIONS['recommend.remember_tip'] = 'Tips: Merk ønskede mål med ✓ før du kjøper – de beholdes selv når lasterommet er fullt.'

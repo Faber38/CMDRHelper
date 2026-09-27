@@ -193,29 +193,31 @@ keine laufende Bestandsaktualisierung nach jedem Kauf/Verkauf.
 
 ## Status auf der Handel-Seite
 
-Direkt unter „Ausgangspunkt“ zeigt eine dezente, bei Bedarf umbrechende Zeile
-„Eigene Marktdaten: 2 Stationen · zuletzt vor 3 Min.“. Bei einem Markt steht
-„1 Station“, ohne gültige Märkte „0 Stationen“ ohne Altersangabe.
+Direkt unter „Ausgangspunkt“ zeigt die vorhandene kompakte, umbrechende Zeile
+„Lokale Marktdaten: 10 Stationen · 732 KiB“. Bei einer Station steht „1 Station“.
+Dieselbe Angabe steht bei „Empfehlung“ unter den Schiffsinformationen. Beide
+Ansichten verwenden dieselbe Auswertung und Größenformatierung.
 
-Gezählt werden ausschließlich die von `ObservedMarketCache.all(fid)` gelieferten
-lokalen Snapshots des aktuell aktiven Commanders: eine Station je MarketID,
-`source=local_elite`, Alter strikt unter 24 Stunden. Bei exakt 24 Stunden zählt
-ein Snapshot nicht mehr. Die UI liest die JSON-Datei nicht selbst und besitzt
-keine eigene TTL-Prüfung. Spansh-Suchergebnisse gehören nicht zu dieser Zahl.
-„Zuletzt“ verwendet das jüngste `observed_at`, niemals eine Dateizeit.
+Nach Aktivierung reicht `ObservedMarketCache.storage_stats()` die im MarketStore-Writer
+erfasste globale Zahl eindeutiger MarketIDs durch. Mehrere FIDs mit derselben
+MarketID zählen einmal; Alter und Spansh-Daten spielen keine Rolle. Die Größe
+summiert die tatsächlichen Dateilängen von `markets.db`, `-wal` und `-shm`.
+Im GUI laufen lediglich drei `stat()`-Aufrufe, keine SQL-Abfrage und kein Laden
+von Warenlisten. Commit und Cleanup lösen die vorhandenen Änderungssignale aus.
+Fehler zeigen eine diagnostizierbare `markets.db`-Meldung statt alter JSON-Zahlen.
 
-Die Aufnahme erfolgt automatisch, wenn bei laufendem Helper in Elite der
-Warenmarkt geöffnet wird. Erneutes Öffnen desselben Markts aktualisiert dessen
-Snapshot und Zeitstempel, erhöht aber nicht die Stationszahl. Der Tooltip erklärt
-die Aufnahme und die automatische Entfernung älterer Marktstände.
+Vor erfolgreicher DB-Aktivierung gilt der ursprüngliche JSON-Lesefallback samt
+JSON-Status. Die JSON-Datei wird bei Migration und DB-Betrieb nie verändert oder
+gelöscht. Nach Aktivierung verhindert ein persistenter Marker den Rückfall auch
+bei fehlender DB nach Neustart. Siehe [Übergangsabschluss](market-transition.md).
 
-Nach erfolgreichem atomischem Cache-Schreiben meldet ein optionaler Callback die
-Änderung über `AppState.observedMarketsChanged`. Damit aktualisieren sowohl neue
-Aufnahmen und Ersetzungen als auch physisches Cleanup durch normalen Cachezugriff
-die Anzeige. Commanderwechsel, State-Aktualisierung und Öffnen der Handel-Seite
-aktualisieren sie ebenfalls. Es gibt keinen zusätzlichen Timer: Bei vollständig
-inaktiver Anwendung verändern sich Altersangabe und Zahl erst beim nächsten
-solchen Ereignis. Die Cache-Semantik und die Verkauf-/Einkaufssuche bleiben gleich.
+Die Größe erscheint automatisch in B, KiB oder MiB; B/KiB ohne Nachkommastellen,
+MiB mit höchstens einer und ohne unnötige Null. Dezimalzeichen sind lokalisiert.
+Nach erfolgreichem atomischem Speichern aktualisiert das vorhandene Signal
+`AppState.observedMarketsChanged` Anzahl und Größe gemeinsam. Das Aktualisieren
+einer vorhandenen Station erhöht die Anzahl nicht. Commanderwechsel,
+State-Aktualisierung und Öffnen der Handel-Seite aktualisieren die Anzeige ebenfalls.
+Die Verkauf-/Einkaufssuche und ihre Altersfilter bleiben unverändert.
 
 ## Manuelle Live-Abnahme von Phase 6
 

@@ -1278,3 +1278,5 @@ HELP_TOPICS["explorer"] = (
     HELP_TOPICS["explorer"][0],
     HELP_TOPICS["explorer"][1] + '<p>«Tilpass til vindusbredden» fordeler verdilistens kolonner automatisk over den tilgjengelige bredden. Valget er på som standard og lagres. Svært smale vinduer eller stor skrift kan fortsatt kreve vannrett rulling. Når valget er av, kan breddene justeres manuelt. Dette er uavhengig av automatisk tilpasning av den grafiske oversikten.</p>',
 )
+
+HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>Tips: Merk ønskede mål med ✓ før du kjøper – de beholdes selv når lasterommet er fullt.</p>')

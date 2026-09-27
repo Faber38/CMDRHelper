@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'release.3_7_8.0': 'Kauppa-avustajan virhekorjauksia.',
+    'release.3_7_8.1': 'Parannettu rahtitilan tunnistusta ja päivitystä.',
+    'release.3_7_8.2': 'Korjattu materiaalivaraston virheitä kapasiteettirajalla.',
+    'release.3_7_8.3': 'Yleisiä vakauden ja luotettavuuden parannuksia.',
     'explorer.value_fit_width': 'Sovita ikkunan leveyteen',
     'explorer.value_fit_width_tip': 'Sovittaa arvolistan sarakkeet automaattisesti ikkunan käytettävissä olevaan leveyteen.',
     'explorer.first_footfall': 'ENSIMMÄINEN JALANJÄLKI',
@@ -1583,11 +1587,11 @@ TRANSLATIONS = {
     'trade.buy_success_one': 'Löytyi 1 myyntitarjous sinulle.',
     'trade.buy_success': 'Löytyi {count} myyntitarjousta sinulle.',
     'trade.buy_help': 'Valitse tavara ja määrä, aseta suodattimet ja käynnistä ostohaku käsin. Hinta / t on komentajan maksama hinta. Tarjonta on ilmoitettu saatavilla oleva määrä, jonka on katettava pyydetty määrä. Kokonaiskustannus = hinta × pyydetty määrä. Haku yhdistää voimassa olevat omat markkinahavainnot ja yhteisön markkinatiedot. Molemmat ovat tilannekuvia: tarkista tietojen ikä. Tarjonta voi olla pienempi saapuessasi. Välilehden vaihtaminen peruuttaa käynnissä olevan haun ja säilyttää suodattimet.',
-    'trade.observed_one': 'Omat markkinatiedot: {count} asema',
-    'trade.observed_many': 'Omat markkinatiedot: {count} asemaa',
+    'trade.observed_one': 'Paikalliset markkinatiedot: {count} asema · {size}',
+    'trade.observed_many': 'Paikalliset markkinatiedot: {count} asemaa · {size}',
     'trade.observed_now': 'viimeisin havainto juuri nyt',
     'trade.observed_last': 'viimeisin havainto {age} sitten',
-    'trade.observed_tooltip': 'Itse Elite-pelissä havaitsemasi asemien markkinat. Valittu markkinatietojen enimmäisikä koskee tätä hakua. Vanhemmat tiedot säilytetään. Markkinat tallennetaan automaattisesti, kun avaat hyödykemarkkinat Elite-pelissä.',
+    'trade.observed_tooltip': 'Kaikkien komentajien koko paikallinen markkinavälimuisti: kukin asema lasketaan kerran tietojen enimmäisiästä riippumatta. Tiedoston markets.db + WAL + SHM koko. Ei Spansh- tai yhteisötietoja.',
     'recommend.title': 'Suositukset',
     'recommend.question': 'Olen täällä tällä aluksella – mitä voin ostaa täältä ja myydä asettamissani rajoissa vähintään {margin} % voitolla?',
     'recommend.margin': 'Vähimmäisvoitto',
@@ -1609,6 +1613,8 @@ TRANSLATIONS = {
     'recommend.ready': 'Tarkista rajat ja käynnistä suositusten haku käsin.',
     'recommend.progress': 'Tarkistetaan hyödykkeitä: {checked}/{total} …',
     'recommend.results': 'Suosituksia: {count}',
+    'recommend.no_results': 'Sopivia kaupankäyntimahdollisuuksia ei löytynyt.\nHaku paikallisista markkinatiedoista ja Spanshista valmistui onnistuneesti. Nykyisillä suodattimilla ja käytettävissä olevilla markkinatiedoilla ei löytynyt sopivia kaupankäyntimahdollisuuksia.',
+    'recommend.no_results_local': 'Sopivia kaupankäyntimahdollisuuksia ei löytynyt.\nPaikallinen haku valmistui onnistuneesti. Nykyisillä suodattimilla ja käytettävissä olevilla markkinatiedoilla ei löytynyt sopivia kaupankäyntimahdollisuuksia.',
     'recommend.partial': 'Haku on puutteellinen: Joitakin hyödykkeitä tai kohteita ei voitu tarkistaa tai hakuraja saavutettiin. Tulokset koskevat vain tarkistettuja tietoja.',
     'recommend.notice': 'Nykyinen ostomarkkina perustuu paikallisiin Elite-markkinatietoihisi. Kohteet voivat perustua omiin havaintoihisi tai yhteisön tietoihin. Hinnat, tarjonta ja kysyntä voivat muuttua. Tarkista tietojen ikä.',
     'recommend.help': 'Ostot käyttävät vain aktiivisen komentajan nykyisen, itse havaitun Elite-markkinan tietoja. Jos tiedot puuttuvat, avaa markkinat Elitessä. Kohteet tulevat omista havainnoista ja Spanshista. Samalla MarketID:llä uudempi kelvollinen tieto voittaa, tasatilanteessa paikallinen. Voitto/t = kohteen myyntihinta − paikallinen ostohinta. Voitto % = voitto/t ÷ ostohinta × 100. Vähimmäisvoiton on täytyttävä. Määrä = pienin vahvistetusta vapaasta rahtitilasta, paikallisesta tarjonnasta ja kohteen kysynnästä. Mahdollinen voitto = voitto/t × mahdollinen määrä. Jokaiselle hyödykkeelle näytetään paras tarkistettu kohde mahdollisen voiton mukaan sekä lähde ja tietojen ikä. Tuntematon etäisyys sulkee paikallisen kohteen pois. Puuttuvat laskeutumispaikka-, carrier- tai saapumistiedot eivät täytä vastaavia rajoituksia. Käsin käynnistetty haku tarkistaa vain paikallisesti tarjotut hyödykkeet peräkkäin, näyttää edistymisen ja sallii perumisen. Osittaiset tulokset ja rajat ilmoitetaan. Hinnat, tarjonta ja kysyntä voivat muuttua. Mahdollinen voitto on arvio, ei takuu. Valittu markkinatietojen enimmäisikä koskee tätä hakua. Vanhemmat tiedot säilytetään.',
@@ -1651,3 +1657,7 @@ TRANSLATIONS = {
     'trade.age_option_0': 'Ei rajoitusta',
     'trade.remove_remembered_target': 'Poista muistettu kohde',
 }
+
+TRANSLATIONS.update({'mining.own_sell_price': 'Oma myyntihinta / t', 'mining.own_price_none': 'Ei käyttökelpoisia omia markkinatietoja ikärajan sisällä.', 'mining.own_price_error': 'Omat markkinahinnat eivät ole saatavilla (lukuvirhe).', 'mining.own_price_help': 'Tämän asennuksen paras havaittu myyntihinta, kun kysyntä on positiivinen. Kiinteän viitehinnan lisätieto; kysyntä ei ole komentajan varasto.'})
+
+TRANSLATIONS['recommend.remember_tip'] = 'Vinkki: merkitse haluamasi kohteet muistiin valinnalla ✓ ennen ostamista – ne säilyvät, vaikka lastiruuma olisi täynnä.'

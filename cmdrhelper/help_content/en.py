@@ -1289,3 +1289,5 @@ HELP_TOPICS["explorer"] = (
     HELP_TOPICS["explorer"][0],
     HELP_TOPICS["explorer"][1] + '<p>“Fit to window width” automatically distributes the value-list columns across the available width. It is on by default and the preference is saved. Very narrow windows or large fonts may still require horizontal scrolling. When off, column widths remain manually adjustable. This option is independent of automatic fitting in the graphical overview.</p>',
 )
+
+HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>Tip: Remember your chosen destinations with ✓ before buying – they remain available even when your cargo hold is full.</p>')

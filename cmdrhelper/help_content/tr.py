@@ -1297,3 +1297,5 @@ HELP_TOPICS["explorer"] = (
     HELP_TOPICS["explorer"][0],
     HELP_TOPICS["explorer"][1] + '<p>“Pencere genişliğine sığdır”, değer listesinin sütunlarını kullanılabilir genişliğe otomatik olarak dağıtır. Varsayılan olarak açıktır ve tercih kaydedilir. Çok dar pencerelerde veya büyük yazı tiplerinde yatay kaydırma yine de gerekebilir. Kapalıyken genişlikler elle ayarlanabilir. Bu seçenek, grafik genel görünümün otomatik sığdırma ayarından bağımsızdır.</p>',
 )
+
+HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>İpucu: Satın almadan önce istediğiniz hedefleri ✓ ile kaydedin – kargo bölmesi dolu olsa bile saklanırlar.</p>')

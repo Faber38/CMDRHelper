@@ -116,15 +116,18 @@ def persist_column_widths(table, settings, key, *, legacy_key=None, preserve_def
     header.sectionResized.connect(save)
 
 
-def persist_header_layout(header, settings, key, *, columns, default_widths):
+def persist_header_layout(header, settings, key, *, columns, default_widths=None, auto_widths=False):
     """Opt-in shared layout for a header, excluding hidden/sort/Qt resize state.
 
     Column identities and version make schema changes invalidate the entire layout.
     Existing width-only consumers retain their behavior. Widths are logical-indexed;
     order lists logical indexes in visual order. Never auto-stretch user widths.
+    auto_widths restores only order and uses Qt's styled header/delegate content
+    measurement (including sort indicators and padding), never saved widths.
     """
     count = header.count()
-    defaults = _validated_widths(default_widths, count)
+    defaults = ([header.sectionSize(i) for i in range(count)] if auto_widths
+                else _validated_widths(default_widths, count))
     if defaults is None or len(columns) != count or len(set(columns)) != count:
         raise ValueError("Invalid default table layout")
     widths, order = defaults, list(range(count))
@@ -139,19 +142,32 @@ def persist_header_layout(header, settings, key, *, columns, default_widths):
             widths, order = saved_widths, saved_order
 
     header.setStretchLastSection(False)
-    header.setSectionResizeMode(QHeaderView.Interactive)
-    header.setMinimumSectionSize(40)
-    header.setMaximumSectionSize(2000)
+    header.setSectionResizeMode(QHeaderView.ResizeToContents if auto_widths else QHeaderView.Interactive)
+    if auto_widths:
+        header.setMinimumSectionSize(0)
+        header.setResizeContentsPrecision(-1)  # All unfiltered rows, including below the viewport.
+    else:
+        header.setMinimumSectionSize(40)
+        header.setMaximumSectionSize(2000)
     header.setSectionsMovable(True)
     header.setFirstSectionMovable(True)  # QTreeWidget otherwise pins logical column 0.
     for visual, logical in enumerate(order):
         header.moveSection(header.visualIndex(logical), visual)
     for logical, width in enumerate(widths):
         header.showSection(logical)
-        header.resizeSection(logical, width)
+        if not auto_widths:
+            header.resizeSection(logical, width)
 
     def save(*_args):
         if header.count() != count:
+            return
+        if auto_widths:
+            # Retain the existing settings format/order, but never persist automatic
+            # geometry changes as manual widths or clamp the actual content widths.
+            settings.setValue(key, dict(version=1, columns=list(columns),
+                widths=[min(2000, max(40, header.sectionSize(i))) for i in range(count)],
+                order=[header.logicalIndex(i) for i in range(count)]))
+            settings.sync()
             return
         # Qt permits resizeSection(i, 0) despite minimumSectionSize. Never retain
         # a collapsed/hidden section, even after a programmatic header change.
@@ -169,5 +185,6 @@ def persist_header_layout(header, settings, key, *, columns, default_widths):
                                    order=[header.logicalIndex(i) for i in range(count)]))
         settings.sync()
 
-    header.sectionResized.connect(save)
+    if not auto_widths:
+        header.sectionResized.connect(save)
     header.sectionMoved.connect(save)

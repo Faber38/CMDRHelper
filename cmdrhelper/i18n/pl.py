@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'release.3_7_8.0': 'Poprawki błędów w asystencie handlowym.',
+    'release.3_7_8.1': 'Ulepszone wykrywanie i aktualizacja przestrzeni ładunkowej.',
+    'release.3_7_8.2': 'Naprawiono błędy stanu materiałów przy limicie pojemności.',
+    'release.3_7_8.3': 'Ogólne poprawki stabilności i niezawodności.',
     'explorer.value_fit_width': 'Dopasuj do szerokości okna',
     'explorer.value_fit_width_tip': 'Automatycznie dopasowuje kolumny listy wartości do dostępnej szerokości okna.',
     'explorer.first_footfall': 'PIERWSZY KROK',
@@ -1583,11 +1587,11 @@ TRANSLATIONS = {
     'trade.buy_success_one': 'Znaleziono 1 ofertę sprzedaży towaru dla ciebie.',
     'trade.buy_success': 'Znaleziono oferty sprzedaży towaru dla ciebie: {count}.',
     'trade.buy_help': 'Wybierz towar i ilość, ustaw filtry i ręcznie rozpocznij wyszukiwanie zakupu. Cena / t to cena płacona przez dowódcę. Podaż to zgłoszona dostępna ilość, która musi pokrywać żądaną ilość. Koszt całkowity = cena × żądana ilość. Wyszukiwanie łączy ważne własne obserwacje rynku i dane społeczności. Oba źródła pokazują stan z chwili obserwacji: sprawdź wiek danych. Podaż może być mniejsza po przybyciu. Zmiana zakładki anuluje aktywne wyszukiwanie i zachowuje filtry.',
-    'trade.observed_one': 'Własne dane rynkowe: {count} stacja',
-    'trade.observed_many': 'Własne dane rynkowe — liczba stacji: {count}',
+    'trade.observed_one': 'Lokalne dane rynkowe: {count} stacja · {size}',
+    'trade.observed_many': 'Lokalne dane rynkowe — liczba stacji: {count} · {size}',
     'trade.observed_now': 'ostatnia obserwacja przed chwilą',
     'trade.observed_last': 'ostatnia obserwacja {age} temu',
-    'trade.observed_tooltip': 'Rynki stacji zaobserwowane osobiście w Elite. Wybrany maksymalny wiek danych rynkowych dotyczy tego wyszukiwania. Starsze dane pozostają zapisane. Rynek jest rejestrowany automatycznie po otwarciu rynku towarów w Elite.',
+    'trade.observed_tooltip': 'Cała lokalna pamięć podręczna rynków wszystkich dowódców: każda stacja liczona raz, niezależnie od maksymalnego wieku danych. Rozmiar pliku markets.db + WAL + SHM. Bez danych Spansh i społeczności.',
     'recommend.title': 'Rekomendacje',
     'recommend.question': 'Jestem tutaj tym statkiem — jaki towar mogę tu kupić i sprzedać zgodnie z moimi kryteriami z zyskiem co najmniej {margin}%?',
     'recommend.margin': 'Minimalny zysk',
@@ -1609,6 +1613,8 @@ TRANSLATIONS = {
     'recommend.ready': 'Sprawdź kryteria i uruchom wyszukiwanie rekomendacji ręcznie.',
     'recommend.progress': 'Sprawdzanie towarów: {checked} z {total} …',
     'recommend.results': 'Rekomendacje: {count}',
+    'recommend.no_results': 'Nie znaleziono pasujących okazji handlowych.\nWyszukiwanie z użyciem lokalnych danych rynkowych i Spansh zakończyło się pomyślnie. Nie znaleziono pasujących okazji handlowych dla bieżących filtrów i dostępnych danych rynkowych.',
+    'recommend.no_results_local': 'Nie znaleziono pasujących okazji handlowych.\nWyszukiwanie lokalne zakończyło się pomyślnie. Nie znaleziono pasujących okazji handlowych dla bieżących filtrów i dostępnych danych rynkowych.',
     'recommend.partial': 'Wyszukiwanie niepełne: Nie można było sprawdzić części towarów lub celów albo osiągnięto limit wyszukiwania. Wyniki dotyczą tylko sprawdzonych danych.',
     'recommend.notice': 'Bieżący rynek zakupu pochodzi z lokalnych danych Elite. Cele mogą pochodzić z własnych obserwacji lub danych społeczności. Ceny, podaż i popyt mogą się zmienić. Sprawdź wiek danych.',
     'recommend.help': 'Zakup korzysta wyłącznie z aktualnego rynku Elite osobiście zaobserwowanego przez aktywnego dowódcę. Jeśli ich brak, otwórz rynek w Elite. Cele pochodzą z własnych obserwacji i Spansh. Dla tej samej MarketID wygrywają nowsze prawidłowe dane, a przy równej dacie lokalne. Zysk/t = cena sprzedaży u celu − lokalna cena zakupu. Zysk % = zysk/t ÷ cena zakupu × 100. Minimalny zysk musi być osiągnięty. Ilość = minimum z potwierdzonej wolnej ładowni, lokalnej podaży i popytu u celu. Potencjalny zysk = zysk/t × możliwa ilość. Dla każdego towaru pokazany jest najlepszy sprawdzony cel według potencjalnego zysku, ze źródłem i wiekiem danych. Nieznana odległość wyklucza lokalny cel; brak danych o lądowisku, carrierze lub przylocie nie spełnia odpowiednich ograniczeń. Ręczne wyszukiwanie sprawdza kolejno tylko lokalnie oferowane towary, z postępem i anulowaniem. Częściowe wyniki i limity są oznaczone. Ceny, podaż i popyt mogą się zmienić. Potencjalny zysk jest szacunkiem, nie gwarancją. Wybrany maksymalny wiek danych rynkowych dotyczy tego wyszukiwania. Starsze dane pozostają zapisane.',
@@ -1651,3 +1657,7 @@ TRANSLATIONS = {
     'trade.age_option_0': 'Bez ograniczeń',
     'trade.remove_remembered_target': 'Usuń zapamiętany cel',
 }
+
+TRANSLATIONS.update({'mining.own_sell_price': 'Własna cena sprzedaży / t', 'mining.own_price_none': 'Brak użytecznych własnych danych rynkowych w limicie wieku.', 'mining.own_price_error': 'Własne ceny rynkowe niedostępne (błąd odczytu).', 'mining.own_price_help': 'Najlepsza własna cena sprzedaży zaobserwowana przez tę instalację przy dodatnim popycie. Dodatek do stałej ceny referencyjnej; popyt nie oznacza zapasów dowódcy.'})
+
+TRANSLATIONS['recommend.remember_tip'] = 'Wskazówka: zapamiętaj wybrane cele za pomocą ✓ przed zakupem – pozostaną dostępne nawet przy pełnej ładowni.'

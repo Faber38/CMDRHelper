@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'release.3_7_8.0': 'Foutoplossingen in de handelsassistent.',
+    'release.3_7_8.1': 'Verbeterde detectie en actualisering van de vrachtruimte.',
+    'release.3_7_8.2': 'Fouten in materiaalvoorraden bij de capaciteitslimiet verholpen.',
+    'release.3_7_8.3': 'Algemene verbeteringen in stabiliteit en betrouwbaarheid.',
     'explorer.value_fit_width': 'Aan vensterbreedte aanpassen',
     'explorer.value_fit_width_tip': 'Past de kolommen van de waardelijst automatisch aan de beschikbare vensterbreedte aan.',
     'explorer.first_footfall': 'EERSTE VOETSTAP',
@@ -1583,11 +1587,11 @@ TRANSLATIONS = {
     'trade.buy_success_one': '1 verkoopaanbieding voor jou gevonden.',
     'trade.buy_success': '{count} verkoopaanbiedingen voor jou gevonden.',
     'trade.buy_help': 'Kies een handelswaar en hoeveelheid, stel filters in en start de inkoopzoekopdracht handmatig. Prijs / t is de prijs die de commandant betaalt. Aanbod is de gemelde beschikbare hoeveelheid en moet de gevraagde hoeveelheid dekken. Totale kosten = prijs × gevraagde hoeveelheid. De zoekopdracht combineert geldige eigen marktwaarnemingen en gemeenschapsgegevens. Beide zijn momentopnamen: let op hun ouderdom. Het aanbod kan bij aankomst kleiner zijn. Wisselen van tabblad annuleert een actieve zoekopdracht en behoudt de filters.',
-    'trade.observed_one': 'Eigen marktgegevens: {count} station',
-    'trade.observed_many': 'Eigen marktgegevens: {count} stations',
+    'trade.observed_one': 'Lokale marktgegevens: {count} station · {size}',
+    'trade.observed_many': 'Lokale marktgegevens: {count} stations · {size}',
     'trade.observed_now': 'laatst waargenomen zojuist',
     'trade.observed_last': 'laatst waargenomen {age} geleden',
-    'trade.observed_tooltip': 'Stationsmarkten die je zelf in Elite hebt waargenomen. De gekozen maximale ouderdom van marktgegevens geldt voor deze zoekopdracht. Oudere gegevens blijven bewaard. De markt wordt automatisch vastgelegd wanneer je in Elite de goederenmarkt opent.',
+    'trade.observed_tooltip': 'De volledige lokale marktcache van alle commandanten: elk station telt één keer, ongeacht de maximale ouderdom van marktgegevens. Bestandsgrootte van markets.db + WAL + SHM. Geen Spansh- of communitygegevens.',
     'recommend.title': 'Aanbevelingen',
     'recommend.question': 'Ik ben hier met dit schip – welke handelswaar kan ik hier kopen en binnen mijn voorwaarden verkopen met minstens {margin}% winst?',
     'recommend.margin': 'Minimale winst',
@@ -1609,6 +1613,8 @@ TRANSLATIONS = {
     'recommend.ready': 'Controleer je voorwaarden en start de zoekopdracht handmatig.',
     'recommend.progress': 'Handelswaren controleren: {checked} van {total} …',
     'recommend.results': 'Aanbevelingen: {count}',
+    'recommend.no_results': 'Geen passende handelsmogelijkheden gevonden.\nDe zoekopdracht met lokale marktgegevens en Spansh is succesvol afgerond. Er zijn geen passende handelsmogelijkheden gevonden voor de huidige filters en beschikbare marktgegevens.',
+    'recommend.no_results_local': 'Geen passende handelsmogelijkheden gevonden.\nDe lokale zoekopdracht is succesvol afgerond. Er zijn geen passende handelsmogelijkheden gevonden voor de huidige filters en beschikbare marktgegevens.',
     'recommend.partial': 'Onvolledige zoekopdracht: Sommige handelswaren of bestemmingen konden niet worden gecontroleerd of de zoeklimiet is bereikt. De resultaten gelden alleen voor de gecontroleerde gegevens.',
     'recommend.notice': 'De huidige inkoopmarkt komt uit je lokale Elite-marktgegevens. Bestemmingen kunnen uit eigen waarnemingen of gemeenschapsgegevens komen. Prijzen, aanbod en vraag kunnen veranderen. Controleer de ouderdom van de gegevens.',
     'recommend.help': 'Aankopen gebruiken uitsluitend de huidige, zelf waargenomen Elite-markt van de actieve commandant. Open de markt in Elite als gegevens ontbreken. Bestemmingen komen uit eigen waarnemingen en Spansh. Bij dezelfde MarketID wint de nieuwste geldige waarneming; bij gelijke tijd de lokale. Winst/t = verkoopprijs op bestemming − lokale koopprijs. Winst % = winst/t ÷ koopprijs × 100. De minimumwinst moet worden gehaald. Hoeveelheid = minimum van bevestigde vrije vrachtruimte, lokaal aanbod en vraag op bestemming. Mogelijke winst = winst/t × mogelijke hoeveelheid. Per handelswaar verschijnt de beste gecontroleerde bestemming op mogelijke winst, met bron en gegevensouderdom. Onbekende afstand sluit lokale doelen uit; ontbrekende platform-, carrier- of aankomstgegevens voldoen niet aan bijbehorende beperkingen. De handmatige zoekopdracht controleert alleen lokaal aangeboden goederen na elkaar, met voortgang en annuleren. Gedeeltelijke resultaten en limieten worden aangegeven. Prijzen, aanbod en vraag kunnen veranderen. De mogelijke winst is een schatting, geen garantie. De gekozen maximale ouderdom van marktgegevens geldt voor deze zoekopdracht. Oudere gegevens blijven bewaard.',
@@ -1651,3 +1657,7 @@ TRANSLATIONS = {
     'trade.age_option_0': 'Geen limiet',
     'trade.remove_remembered_target': 'Onthouden bestemming verwijderen',
 }
+
+TRANSLATIONS.update({'mining.own_sell_price': 'Eigen verkoopprijs / t', 'mining.own_price_none': 'Geen bruikbare eigen marktgegevens binnen de leeftijdslimiet.', 'mining.own_price_error': 'Eigen marktprijzen niet beschikbaar (leesfout).', 'mining.own_price_help': 'Beste eigen verkoopprijs waargenomen door deze installatie met positieve vraag. Aanvulling op de vaste referentieprijs; vraag is geen commandantvoorraad.'})
+
+TRANSLATIONS['recommend.remember_tip'] = 'Tip: onthoud de gewenste bestemmingen met ✓ voordat je koopt – ze blijven beschikbaar, ook met een vol vrachtruim.'

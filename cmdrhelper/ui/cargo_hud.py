@@ -2,10 +2,8 @@
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-import math
 
 from cmdrhelper.i18n import tr
-from cmdrhelper.ship_identity import is_definite_non_ship
 from cmdrhelper.status_reader import read_status_data, utc_timestamp
 
 
@@ -116,42 +114,11 @@ def _confirmed_cargo(state, snapshot, fid, status, timestamp, vessel):
 
 
 def _status_ship_cargo(state, status, timestamp, fid):
-    """Display-only total: no inventory, writes, or additional journal/DB reads.
-
-    Status carries no FID or ShipID. Require the current identified journal
-    session and a complete, non-stale Loadout from that session. Status must
-    postdate that Loadout. Foreground/running-game gating remains in the HUD.
-    """
-    sessions = getattr(state, "_journal_index_sessions", None) or []
-    session = sessions[-1] if sessions else None
-    commander_id = getattr(state, "commander_id", None)
-    loadout = getattr(state, "ship_loadout", None)
-    if (not isinstance(session, dict) or commander_id is None
-            or session.get("attribution_status") != "identified"
-            or session.get("commander_id") != commander_id
-            or session.get("fid_seen") != fid
-            or loadout is None or type(loadout.ship_id) is not int or loadout.ship_id < 0
-            or not loadout.loadout_complete or loadout.loadout_stale
-            or not loadout.ship_type or is_definite_non_ship(loadout.ship_type)
-            or not getattr(state, "ship", "") or getattr(state, "active_srv_type", "")):
+    """Share the validated total fallback with trading, never its inventory."""
+    from cmdrhelper.ship_cargo import status_ship_count
+    used = status_ship_count(state, status)
+    if used is None:
         return None
-    try:
-        session_start = utc_timestamp(session.get("first_event_at"))
-        loadout_time = utc_timestamp(loadout.loadout_timestamp)
-        # LoadGame can start a new game within the same journal file.
-        game_start = getattr(state, "game_mode_timestamp", "")
-        if game_start:
-            session_start = max(session_start, utc_timestamp(game_start))
-        if not session_start <= loadout_time <= timestamp:
-            return None
-    except (ValueError, TypeError, OverflowError):
-        return None
-    capacity = loadout.cargo_capacity
-    used = status.get("Cargo")
-    if (type(capacity) is not int or capacity < 0
-            or type(used) not in (int, float)
-            or (type(used) is float and (not math.isfinite(used) or not used.is_integer()))
-            or not 0 <= used <= capacity):
-        return None
+    loadout = state.ship_loadout
     name = str(loadout.ship_name or state.ship or loadout.ship_type).strip()
-    return CargoHudData(name, int(used), capacity)
+    return CargoHudData(name, used, loadout.cargo_capacity)

@@ -1,9 +1,9 @@
 """One offline mining table, with independent, identity-based settings."""
-from PySide6.QtCore import QCollator, QLocale, QSize, Qt, QTimer, QVariantAnimation, QDateTime, QEvent, QPersistentModelIndex
+from PySide6.QtCore import QCollator, QLocale, Qt, QTimer, QVariantAnimation, QDateTime, QEvent, QPersistentModelIndex
 from PySide6.QtGui import QBrush, QColor
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QComboBox,
-    QTreeWidget, QTreeWidgetItem, QPushButton, QCheckBox, QDialog, QMessageBox, QStyledItemDelegate, QStyle,
+    QTreeWidget, QTreeWidgetItem, QPushButton, QCheckBox, QDialog, QMessageBox, QStyledItemDelegate, QStyle, QHeaderView,
 )
 
 from cmdrhelper.i18n import get_language, tr, tr_for_language
@@ -18,9 +18,10 @@ def _migrate_columns(settings, columns):
     key = "materials/mining/columns"
     saved = settings.value(key)
     legacy = ["name", "average_price", "value_class"]
+    previous = ["name", "srv", "ship", "carrier", "total", "average_price", "value_class"]
     combined = ["name", "vehicle", "carrier", "total", "average_price", "value_class"]
     if (not isinstance(saved, dict) or type(saved.get("version")) is not int
-            or saved["version"] != 1 or saved.get("columns") not in (legacy, combined)):
+            or saved["version"] != 1 or saved.get("columns") not in (legacy, combined, previous)):
         return
     old = saved["columns"]
     widths = _validated_widths(saved.get("widths"), len(old))
@@ -38,7 +39,9 @@ def _migrate_columns(settings, columns):
             migrated_order.append(columns.index(name))
             if name == "name" and old == legacy:
                 migrated_order.extend([1, 2, 3, 4])
-    sizes["srv"] = sizes["ship"] = sizes.get("vehicle", 95)
+    if old != previous:
+        sizes["srv"] = sizes["ship"] = sizes.get("vehicle", 95)
+    migrated_order.extend(i for i in range(len(columns)) if i not in migrated_order)
     settings.setValue(key, dict(version=1, columns=list(columns),
         widths=[sizes.get(name, 95) for name in columns], order=migrated_order))
     settings.sync()
@@ -82,6 +85,11 @@ class _CarrierDelegate(QStyledItemDelegate):
             watched.update()
         return super().eventFilter(watched, event)
 
+    def sizeHint(self, option, index):
+        size = super().sizeHint(option, index)
+        size.setHeight(max(30, size.height(), option.fontMetrics.height() + 12))
+        return size
+
     @staticmethod
     def _blend(base, accent, amount):
         return QColor.fromRgbF(*(a * (1 - amount) + b * amount for a, b in
@@ -110,7 +118,7 @@ class _CarrierDelegate(QStyledItemDelegate):
 
 
 class MiningView(QWidget):
-    COLUMNS = ("name", "srv", "ship", "carrier", "total", "average_price", "value_class")
+    COLUMNS = ("name", "srv", "ship", "carrier", "total", "average_price", "value_class", "own_sell_price")
     SORT_KEY = "materials/mining/sort"
     STOCK_FILTER_KEY = "materials/mining/only_stock"
     ORIGIN_FILTER_KEY = "materials/mining/origin_filter"
@@ -199,7 +207,7 @@ class MiningView(QWidget):
         self.tree.setColumnCount(len(self.COLUMNS))
         self.tree.setHeaderLabels([tr("mining.name"), tr("mining.srv"), tr("mining.ship"), tr("mining.carrier_marked", value=tr("mining.carrier")),
                                    tr("mining.total"), tr("mining.average_price"),
-                                   tr("mining.value_class")])
+                                   tr("mining.value_class"), tr("mining.own_sell_price")])
         self.tree.headerItem().setTextAlignment(0, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         self.tree.headerItem().setToolTip(3, tr("mining.carrier_header_help"))
         for column in range(1, len(self.COLUMNS)):
@@ -219,7 +227,7 @@ class MiningView(QWidget):
             category = value_class(price)
             item = _MiningItem(self.tree, [tr(commodity.name_key), "—", "—", "—", "—",
                 locale.toString(price) if price is not None else "—",
-                "● " + tr("mining." + category) if category else "—"])
+                "● " + tr("mining." + category) if category else "—", "—"])
             if price is None:
                 item.setToolTip(5, tr("mining.reference_unknown"))
                 item.setToolTip(6, tr("mining.reference_unknown"))
@@ -235,14 +243,13 @@ class MiningView(QWidget):
             item.setTextAlignment(0, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
             for column in range(1, len(self.COLUMNS)):
                 item.setTextAlignment(column, Qt.AlignmentFlag.AlignCenter)
-            item.setSizeHint(0, QSize(0, max(30, self.fontMetrics().height() + 12)))
             price_font = item.font(5)
             price_font.setBold(True)
             item.setFont(5, price_font)
             item.setToolTip(0, tr(commodity.name_key))
         _migrate_columns(settings, self.COLUMNS)
         persist_header_layout(self.tree.header(), settings, "materials/mining/columns",
-                              columns=self.COLUMNS, default_widths=(320, 95, 95, 95, 95, 180, 160))
+                              columns=self.COLUMNS, auto_widths=True)
         saved = settings.value(self.SORT_KEY)
         if isinstance(saved, dict) and saved.get("column") == "vehicle":
             saved = {**saved, "column": "ship"}
@@ -274,6 +281,71 @@ class MiningView(QWidget):
             self.refresh_button.clicked.connect(self._begin_refresh)
             self.controller.refreshFinished.connect(self._refresh_finished)
         self.refresh_button.setEnabled(self.controller is not None)
+
+        self.market_controller = None
+        self.own_market_prices = {}
+        self._market_status = 'ok'
+        self._market_clock = None
+        self.market_age_timer = QTimer(self)
+        self.market_age_timer.setInterval(60_000)
+        self.market_age_timer.timeout.connect(self._render_market_prices)
+        if state is not None and hasattr(state, 'observed_markets'):
+            from cmdrhelper.mining_market_controller import MiningMarketController
+            self.market_controller = MiningMarketController(state, self, commodities=commodities)
+            self._market_clock = self.market_controller.clock
+            self.market_controller.ready.connect(self.set_market_prices)
+            self.refresh_button.clicked.connect(self.market_controller.request)
+        self._render_market_prices()
+
+    def set_market_prices(self, result):
+        self.own_market_prices = {q.commodity.symbol.casefold(): q for q in result.quotes}
+        self._market_status = result.status
+        self._render_market_prices()
+
+    def _render_market_prices(self):
+        from cmdrhelper.observed_market_cache import utcnow
+        from cmdrhelper.ui.market_age import saved_max_age, saved_hours
+        from cmdrhelper.ui.trade_view import format_age
+        now = (self._market_clock or utcnow)()
+        max_age = saved_max_age(self.settings)
+        age_limit = tr('trade.age_option_' + str(saved_hours(self.settings)))
+        help_text = tr('mining.own_price_help') + '\n' + tr('trade.max_age') + ': ' + age_limit
+        self.tree.headerItem().setToolTip(7, help_text)
+        self.notice.setText(tr('mining.reference_short') + (
+            ' · ' + tr('mining.own_price_error') if self._market_status == 'error' else ''))
+        self.tree.setSortingEnabled(False)
+        locale = QLocale(get_language())
+        for symbol, item in self.items.items():
+            quote = self.own_market_prices.get(symbol)
+            if quote is not None:
+                elapsed = now - quote.header.observed_at
+                if elapsed.total_seconds() < 0 or (max_age is not None and elapsed > max_age):
+                    quote = None
+            price = quote.commodity.commander_sell_price if quote is not None else None
+            item.setData(7, Qt.ItemDataRole.UserRole, price)
+            item.setText(7, locale.toString(price) if price is not None else '—')
+            if quote is None:
+                key = 'mining.own_price_error' if self._market_status == 'error' else 'mining.own_price_none'
+                tooltip = tr(key) + '\n' + help_text
+            else:
+                h, value = quote.header, quote.commodity
+                stamp = QDateTime.fromString(h.observed_at.isoformat(), Qt.DateFormat.ISODate)
+                observed = locale.toString(stamp.toLocalTime(), QLocale.FormatType.ShortFormat)
+                tooltip = '\n'.join((help_text,
+                    tr('trade.system') + ': ' + h.system_name,
+                    tr('trade.station') + ': ' + h.station_name,
+                    tr('trade.age') + ': ' + format_age(h.observed_at, now) + ' (' + observed + ')',
+                    tr('trade.demand') + ': ' + (locale.toString(value.demand) if value.demand is not None else '—')))
+            item.setToolTip(7, tooltip)
+        self.tree.setSortingEnabled(True)
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        if self.market_controller is not None:
+            self.market_controller.set_active(True)
+        self._render_market_prices()
+        self.market_age_timer.start()
+
 
     def set_inventory(self, inventory):
         self._inventory = inventory
@@ -369,6 +441,9 @@ class MiningView(QWidget):
         self.refresh_status.setStyleSheet(f"color: {red.name() if self._refresh_state == 'error' else green.name()};")
 
     def hideEvent(self, event):
+        self.market_age_timer.stop()
+        if self.market_controller is not None:
+            self.market_controller.set_active(False)
         self.refresh_animation.stop()
         self.refresh_status_timer.stop()
         if self._refresh_state == "busy" and self._refresh_result is not None:
@@ -396,7 +471,7 @@ class MiningView(QWidget):
         rank = self.class_filter.currentData()
         origin = self.origin_filter.currentData()
         visible = 0
-        # Preserve the items and header: filtering never rebuilds or resizes columns.
+        # Preserve items and sorting; measure only the remaining visible rows.
         for row in range(self.tree.topLevelItemCount()):
             item = self.tree.topLevelItem(row)
             matches = (query in self._search_text[item.data(0, Qt.ItemDataRole.UserRole)]
@@ -409,6 +484,7 @@ class MiningView(QWidget):
             item.setHidden(not matches)
             visible += matches
         self.empty_label.setVisible(visible == 0)
+        self.tree.header().resizeSections(QHeaderView.ResizeMode.ResizeToContents)
 
     def set_origin_filter(self, origin):
         index = self.origin_filter.findData(origin)

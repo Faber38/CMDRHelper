@@ -98,6 +98,97 @@ class MaterialInventoryTests(unittest.TestCase):
         self.assertEqual(result.last_change["changes"][0]["delta"], 3)
         self.assertNotIn("Changed display", result.stocks)
 
+    def test_collected_respects_catalog_capacity_and_effective_delta(self):
+        for initial, amount, expected in ((40, 12, 52), (99, 6, 100),
+                                          (90, 15, 100), (100, 12, 100)):
+            with self.subTest(initial=initial, amount=amount):
+                collected = event("MaterialCollected", 2, Category="Encoded",
+                                  Name="adaptiveencryptors", Count=amount)
+                result = self.read(event("Materials", 1, Raw=[], Manufactured=[],
+                    Encoded=[dict(Name="adaptiveencryptors", Count=initial)]), collected)
+                self.assertTrue(result.known, result.issues)
+                self.assertEqual(result.material("adaptiveencryptors").count, expected)
+                self.assertEqual(collected["Count"], amount)
+                if expected == initial:
+                    self.assertIsNone(result.last_change)
+                else:
+                    self.assertEqual(result.last_change["changes"][0]["delta"], expected - initial)
+
+    def test_collected_real_trade_sequence_replay_and_restart(self):
+        records = [event("Materials", 1, Raw=[], Manufactured=[],
+                         Encoded=[dict(Name="adaptiveencryptors", Count=100)])]
+        for second, (paid, received, name) in enumerate([
+                (6, 54, "symmetrickeys"), (4, 36, "symmetrickeys"),
+                (50, 75, "scandatabanks"), (40, 60, "shielddensityreports")], 2):
+            records.append(event("MaterialTrade", second,
+                Paid=dict(Material="adaptiveencryptors", Category="Encoded", Quantity=paid),
+                Received=dict(Material=name, Category="Encoded", Quantity=received)))
+        traded = self.read(*records)
+        self.assertEqual(traded.material("adaptiveencryptors").count, 0)
+        self.assertEqual(traded.material("symmetrickeys").count, 90)
+        self.assertEqual(traded.material("scandatabanks").count, 75)
+        self.assertEqual(traded.material("shielddensityreports").count, 60)
+        records.extend(event("MaterialCollected", second, Category="Encoded",
+                             Name="adaptiveencryptors", Count=amount)
+                       for second, amount in enumerate((12, 12, 18, 15, 18, 15, 12), 6))
+        session = self.session(events=records)
+        result = self.reader.reconstruct(1, "F1", [session])
+        self.assertTrue(result.known, result.issues)
+        self.assertEqual(result.material("adaptiveencryptors").count, 100)
+        self.assertEqual(result.last_change["changes"][0]["delta"], 10)
+        row = next(row for row in merge_inventory(result)
+                   if row.material.symbol == "adaptiveencryptors")
+        self.assertEqual((row.count, row.material.maximum, row.percent), (100, 100, 100.0))
+        self.assertEqual(result, self.reader.reconstruct(1, "F1", [session, session]))
+        self.assertEqual(result, MaterialInventoryReader().reconstruct(1, "F1", [session]))
+
+    def test_collected_uses_other_catalog_maxima(self):
+        result = self.read(snapshot(raw=299), event("MaterialCollected", 2,
+                           Category="Raw", Name="$SULPHUR_Name;", Count=6))
+        self.assertEqual(result.material("sulphur").count, 300)
+        self.assertEqual(result.last_change["changes"][0]["delta"], 1)
+
+    def test_collected_without_reliable_maximum_is_not_limited(self):
+        for name in ("unknown_material", "tg_shipsystemsdata"):
+            with self.subTest(name=name):
+                result = self.read(event("Materials", 1, Raw=[], Manufactured=[],
+                    Encoded=[dict(Name=name, Count=99)]),
+                    event("MaterialCollected", 2, Category="Encoded", Name=name, Count=6))
+                self.assertTrue(result.known, result.issues)
+                self.assertEqual(result.material(name).count, 105)
+                self.assertEqual(result.last_change["changes"][0]["delta"], 6)
+
+    def test_snapshot_remains_authoritative_after_limited_collection(self):
+        for replacement in (73, 100, 105):
+            with self.subTest(replacement=replacement):
+                result = self.read(event("Materials", 1, Raw=[], Manufactured=[],
+                    Encoded=[dict(Name="adaptiveencryptors", Count=99)]),
+                    event("MaterialCollected", 2, Category="Encoded", Name="adaptiveencryptors", Count=6),
+                    event("Materials", 3, Raw=[], Manufactured=[],
+                          Encoded=[dict(Name="adaptiveencryptors", Count=replacement)]))
+                self.assertEqual(result.material("adaptiveencryptors").count, replacement)
+                self.assertIsNone(result.last_change)
+
+    def test_collection_does_not_reduce_over_capacity_snapshot(self):
+        result = self.read(event("Materials", 1, Raw=[], Manufactured=[],
+            Encoded=[dict(Name="adaptiveencryptors", Count=105)]),
+            event("MaterialCollected", 2, Category="Encoded", Name="adaptiveencryptors", Count=6))
+        self.assertEqual(result.material("adaptiveencryptors").count, 105)
+        self.assertIsNone(result.last_change)
+
+    def test_other_positive_events_keep_exact_quantities(self):
+        initial = event("Materials", 1, Raw=[dict(Name="sulphur", Count=10)], Manufactured=[],
+                        Encoded=[dict(Name="adaptiveencryptors", Count=99)])
+        for change in (
+                event("MissionCompleted", 2, MaterialsReward=[
+                    dict(Name="adaptiveencryptors", Category="Encoded", Count=6)]),
+                event("MaterialTrade", 2,
+                    Paid=dict(Material="sulphur", Category="Raw", Quantity=1),
+                    Received=dict(Material="adaptiveencryptors", Category="Encoded", Quantity=6))):
+            with self.subTest(event=change["event"]):
+                result = self.read(initial, change)
+                self.assertEqual(result.material("adaptiveencryptors").count, 105)
+
     def test_discarded_to_zero(self):
         result = self.read(snapshot(), event("MaterialDiscarded", 2, Category="Raw", Name="sulphur", Count=10))
         self.assertEqual(result.material("sulphur").count, 0)

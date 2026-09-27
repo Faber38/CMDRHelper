@@ -1327,3 +1327,5 @@ HELP_TOPICS["explorer"] = (
     HELP_TOPICS["explorer"][0],
     HELP_TOPICS["explorer"][1] + '<p>‘Aan vensterbreedte aanpassen’ verdeelt de kolommen van de waardelijst automatisch over de beschikbare breedte. De optie staat standaard aan en wordt opgeslagen. Bij een zeer smal venster of grote letters kan horizontaal scrollen nodig blijven. Uitgeschakeld blijven de breedtes handmatig instelbaar. Deze optie staat los van het automatisch aanpassen van het grafische overzicht.</p>',
 )
+
+HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>Tip: onthoud de gewenste bestemmingen met ✓ voordat je koopt – ze blijven beschikbaar, ook met een vol vrachtruim.</p>')

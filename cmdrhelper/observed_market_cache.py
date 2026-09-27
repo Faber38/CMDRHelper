@@ -172,6 +172,20 @@ def normalize_observation(event, sidecar, *, fid, mtime, now, context=None):
     return validate_snapshot(result)
 
 
+def shared_current(rows, now=None):
+    """One complete latest observation per MarketID; deterministic ties by FID."""
+    winners = {}
+    for row in rows:
+        if row.get('source') != 'local_elite' or (now is not None and timestamp(row['observed_at']) > now):
+            continue
+        previous = winners.get(row['market_id'])
+        if (previous is None or timestamp(row['observed_at']) > timestamp(previous['observed_at'])
+                or (timestamp(row['observed_at']) == timestamp(previous['observed_at'])
+                    and row['fid'] < previous['fid'])):
+            winners[row['market_id']] = row
+    return tuple(winners.values())
+
+
 def cache_path():
     # Same cross-platform AppData convention as the existing snapshot managers.
     from PySide6.QtCore import QStandardPaths
@@ -187,12 +201,13 @@ class ObservedMarketCache:
     Invalid disk content is ignored in full and diagnosed, not partially trusted.
     A later valid observation can replace it. Failed writes never advance memory.
     """
-    def __init__(self, path, *, clock=utcnow, on_changed=None):
+    def __init__(self, path, *, clock=utcnow, on_changed=None, load=True):
         self.path, self.clock = Path(path), clock
         self.on_changed = None
         self._markets = {}
         self.last_error = None
-        self._load()
+        if load:
+            self._load()
         self.on_changed = on_changed
 
     @staticmethod
@@ -270,6 +285,9 @@ class ObservedMarketCache:
         return True
 
     def put(self, snapshot):
+        if getattr(self, 'sqlite_writer_enabled', False):
+            self._error('Use MarketWriteWorker; JSON migration source is read-only')
+            return False
         try:
             snapshot = validate_snapshot(snapshot)
             if not self.is_valid(snapshot, self.clock(), None):
@@ -287,12 +305,66 @@ class ObservedMarketCache:
             self._error(exc)
             return False
 
+    def storage_stats(self):
+        """Unique stored stations across commanders and actual bytes on disk.
+
+        Read metadata only; neither age filtering nor cache mutation is involved.
+        """
+        writer = getattr(self, 'store_writer', None)
+        if writer is not None and writer.authoritative:
+            from .market_store import market_storage_bytes
+            if writer.last_error:
+                raise RuntimeError(writer.last_error)
+            if not writer.activated:
+                raise RuntimeError('markets.db initialization pending')
+            return writer.station_count, market_storage_bytes(writer.destination)
+        try:
+            size = self.path.stat().st_size
+        except FileNotFoundError:
+            return 0, 0
+        return len({row['market_id'] for row in self._markets.values()}), size
+
     def all(self, fid, max_age=TTL):
+        if hasattr(self, '_store_headers'):
+            raise RuntimeError('Market prices require MarketStore; only headers are cached')
         if not valid_fid(fid):
             return []
         now = self.clock()
         return deepcopy([row for (owner, _), row in self._markets.items()
                          if owner == fid and self.is_valid(row, now, max_age)])
+
+    def shared(self, max_age=TTL):
+        if hasattr(self, '_store_headers'):
+            raise RuntimeError('Market prices require MarketStore')
+        return deepcopy([r for r in shared_current(self._markets.values(), self.clock())
+                         if self.is_valid(r, self.clock(), max_age)])
+
+    def get_header(self, market_id, max_age=TTL):
+        """O(1) metadata-only view; never copy a commodity list or query a DB."""
+        rows = getattr(self, '_store_headers', None)
+        row = (rows.get(market_id) if rows is not None else
+               next((r for r in shared_current(self._markets.values(), self.clock()) if r['market_id'] == market_id), None))
+        if row is None or not self.is_valid(row, self.clock(), max_age):
+            return None
+        return {k: v for k, v in row.items() if k != 'commodities'}
+
+    def install_headers(self, headers):
+        self.last_error = None
+        self._store_headers = headers
+        # All production price readers use SQLite now. Retain identity/status
+        # metadata, release the legacy JSON payload after successful activation.
+        self._markets = headers
+        if self.on_changed is not None:
+            self.on_changed()
+
+    def apply_committed_header(self, snapshot):
+        key = snapshot['market_id']
+        headers = dict(getattr(self, '_store_headers', {}))
+        previous = headers.get(key)
+        if (previous is None or timestamp(previous['observed_at']) < timestamp(snapshot['observed_at'])
+                or (previous['observed_at'] == snapshot['observed_at'] and snapshot['fid'] < previous['fid'])):
+            headers[key] = {k: v for k, v in snapshot.items() if k != 'commodities'}
+            self.install_headers(headers)
 
     def get(self, fid, market_id, max_age=TTL):
         return next((row for row in self.all(fid, max_age) if row['market_id'] == market_id), None)

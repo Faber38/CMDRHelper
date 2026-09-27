@@ -158,9 +158,9 @@ class RunDiagnosticsTests(unittest.TestCase):
         targets=[market(),market(mid=2),market(mid=3,fid='F_SYNTHETIC_OTHER'),
                  market(mid=4,stamp=NOW-timedelta(days=1,seconds=1)),market(mid=5,source='spansh')]
         d=self.run_search(locals=targets).diagnostics
-        self.assertEqual((d.local_target_markets,d.local_combinations_checked),(1,1))
+        self.assertEqual((d.local_target_markets,d.local_combinations_checked),(2,2))
         empty=self.run_search(origin=market(rows=[]),locals=targets).diagnostics
-        self.assertEqual((empty.local_target_markets,empty.planned_commodities),(1,0))
+        self.assertEqual((empty.local_target_markets,empty.planned_commodities),(2,0))
 
     def test_cancelled_and_context_changed_not_provider_failure(self):
         for reason in (PartialReason.CANCELLED,PartialReason.CONTEXT_CHANGED):

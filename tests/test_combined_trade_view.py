@@ -1,8 +1,10 @@
 """Actual trade worker/UI with temporary commander-partitioned observed cache."""
 from pathlib import Path
+from datetime import timedelta
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
-from threading import Event
+from threading import Event, get_ident
+from unittest.mock import patch
 import unittest
 
 from PySide6.QtCore import QThreadPool, Qt
@@ -33,6 +35,8 @@ class CombinedTradeViewTests(unittest.TestCase):
         self.cache = ObservedMarketCache(Path(self.tmp.name)/'observed.json', clock=lambda: NOW)
         self.cache.put(market())
         self.cache.put(market(mid=2, fid='OTHER', rows=[item(buy=1, sell=999999)]))
+        from cmdrhelper.market_migration import migrate_market_cache
+        migrate_market_cache(self.cache.path, self.cache.path.parent/'markets.db', clock=lambda: NOW)
         self.state.observed_markets = SimpleNamespace(cache=self.cache, context={})
         self.provider = AsyncProvider()
         original = self.provider.search_sell
@@ -57,7 +61,7 @@ class CombinedTradeViewTests(unittest.TestCase):
         for tab in (0,1):
             self.view.tabs.setCurrentIndex(tab)
             self.search()
-            self.assertEqual(self.view.table.rowCount(), 1)
+            self.assertEqual(self.view.table.rowCount(), 2)
             self.assertEqual(self.view.table.columnCount(), 11)
             self.assertEqual(self.view.table.item(0,0).data(Qt.ItemDataRole.UserRole).provider, 'local_elite')
             self.assertIn(community_failure_text('de'), self.view.status.text())
@@ -67,20 +71,20 @@ class CombinedTradeViewTests(unittest.TestCase):
             self.assertEqual(self.cache.path.read_bytes(), self.before)
 
     def test_no_local_is_real_error(self):
-        self.state.commander_fid = 'EMPTY'
+        self.cache.clock = lambda: NOW + timedelta(days=2)
         self.state.commanderIdentityChanged.emit(None, '', '')
         self.search()
         self.assertEqual(self.view.table.rowCount(), 0)
         self.assertEqual(self.view.status.text(), tr('trade.timeout'))
 
-    def test_commander_switch_uses_only_current_partition(self):
+    def test_commander_switch_keeps_shared_market_results(self):
         self.search()
-        self.assertEqual(self.view.offers[0].market_id, 1)
+        self.assertEqual(self.view.offers[0].market_id, 2)
         self.state.commander_fid = 'OTHER'
         self.state.commanderIdentityChanged.emit(None, '', '')
         self.assertFalse(self.view.offers)
         self.search()
-        self.assertEqual([o.market_id for o in self.view.offers], [2])
+        self.assertEqual([o.market_id for o in self.view.offers], [2, 1])
 
     def test_switch_during_search_discards_old_results(self):
         self.provider.gate.clear()
@@ -93,7 +97,24 @@ class CombinedTradeViewTests(unittest.TestCase):
         self.assertEqual(self.view.table.rowCount(), 0)
         self.provider.gate.set()
         self.search()
-        self.assertEqual([o.market_id for o in self.view.offers], [2])
+        self.assertEqual([o.market_id for o in self.view.offers], [2, 1])
+
+    def test_gui_preparation_never_copies_cache_or_opens_database(self):
+        from cmdrhelper.market_store import MarketStore
+        original = MarketStore.__init__
+        calls = []
+        main_thread = get_ident()
+        def opened(store, *args, **kwargs):
+            calls.append(get_ident())
+            return original(store, *args, **kwargs)
+        for tab in (0, 1):
+            self.view.tabs.setCurrentIndex(tab)
+            with patch.object(self.cache, 'all', side_effect=AssertionError('No GUI cache copy')), \
+                 patch.object(MarketStore, '__init__', opened):
+                self.search()
+            self.assertEqual(self.view.table.rowCount(), 2)
+        self.assertTrue(calls)
+        self.assertTrue(all(thread != main_thread for thread in calls))
 
     def test_notice_all_languages(self):
         for lang in _TRANSLATIONS:

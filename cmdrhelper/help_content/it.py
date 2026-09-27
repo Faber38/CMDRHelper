@@ -1335,3 +1335,5 @@ HELP_TOPICS["explorer"] = (
     HELP_TOPICS["explorer"][0],
     HELP_TOPICS["explorer"][1] + '<p>«Adatta alla larghezza della finestra» distribuisce automaticamente le colonne dell’elenco valori nello spazio disponibile. L’opzione è attiva per impostazione predefinita e viene salvata. Finestre molto strette o caratteri grandi possono comunque richiedere lo scorrimento orizzontale. Quando è disattivata, le larghezze restano regolabili manualmente. È indipendente dall’adattamento automatico della panoramica grafica.</p>',
 )
+
+HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>Suggerimento: salva le destinazioni desiderate con ✓ prima di acquistare – restano disponibili anche con la stiva piena.</p>')

@@ -1343,3 +1343,5 @@ HELP_TOPICS["explorer"] = (
     HELP_TOPICS["explorer"][0],
     HELP_TOPICS["explorer"][1] + '<p>« Adapter à la largeur de la fenêtre » répartit automatiquement les colonnes de la liste des valeurs sur la largeur disponible. Cette option est activée par défaut et mémorisée. Une fenêtre très étroite ou une grande police peut encore nécessiter un défilement horizontal. Une fois désactivée, les largeurs restent réglables manuellement. Cette option est indépendante de l’ajustement automatique de la vue graphique générale.</p>',
 )
+
+HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>Astuce : mémorisez les destinations souhaitées avec ✓ avant d’acheter – elles restent disponibles même lorsque la soute est pleine.</p>')

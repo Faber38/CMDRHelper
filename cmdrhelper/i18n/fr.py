@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'release.3_7_8.0': 'Corrections de bugs dans l’assistant commercial.',
+    'release.3_7_8.1': 'Amélioration de la détection et de la mise à jour de l’espace de soute.',
+    'release.3_7_8.2': 'Correction des stocks de matériaux à la limite de capacité.',
+    'release.3_7_8.3': 'Améliorations générales de la stabilité et de la fiabilité.',
     'explorer.value_fit_width': 'Adapter à la largeur de la fenêtre',
     'explorer.value_fit_width_tip': 'Adapte automatiquement les colonnes de la liste des valeurs à la largeur disponible de la fenêtre.',
     'explorer.first_footfall': 'PREMIER PAS',
@@ -1696,11 +1700,11 @@ TRANSLATIONS = {
     'trade.buy_success_one': '1 offre de vente pour vous trouvée.',
     'trade.buy_success': '{count} offres de vente pour vous trouvées.',
     'trade.buy_help': 'Choisissez une marchandise et une quantité, réglez les filtres et lancez manuellement la recherche d’achat. Prix / t est le prix payé par le commandant. Offre est la quantité disponible signalée et doit couvrir la quantité demandée. Coût total = prix × quantité demandée. La recherche combine vos relevés de marché valides et les données communautaires. Ce sont des instantanés dans les deux cas : vérifiez leur ancienneté. L’offre peut être plus faible à votre arrivée. Changer d’onglet annule la recherche active et conserve les filtres.',
-    'trade.observed_one': 'Données de marché personnelles : {count} station',
-    'trade.observed_many': 'Données de marché personnelles : {count} stations',
+    'trade.observed_one': 'Données de marché locales : {count} station · {size}',
+    'trade.observed_many': 'Données de marché locales : {count} stations · {size}',
     'trade.observed_now': 'dernière observation à l’instant',
     'trade.observed_last': 'dernière observation il y a {age}',
-    'trade.observed_tooltip': 'Marchés de stations que vous avez observés dans Elite. L’ancienneté maximale sélectionnée s’applique à cette recherche. Les données plus anciennes sont conservées. Le marché est enregistré automatiquement lorsque vous ouvrez le marché des marchandises dans Elite.',
+    'trade.observed_tooltip': 'Tout le cache local des marchés de tous les commandants : chaque station compte une fois, quelle que soit l’ancienneté maximale des données. Taille du fichier markets.db + WAL + SHM. Aucune donnée Spansh ou communautaire.',
     'recommend.title': 'Recommandations',
     'recommend.question': 'Je suis ici avec ce vaisseau : quelle marchandise puis-je acheter ici et revendre selon mes critères avec au moins {margin} % de bénéfice ?',
     'recommend.margin': 'Bénéfice minimum',
@@ -1722,6 +1726,8 @@ TRANSLATIONS = {
     'recommend.ready': 'Vérifiez vos critères et lancez manuellement la recherche de recommandations.',
     'recommend.progress': 'Vérification des marchandises : {checked} sur {total} …',
     'recommend.results': 'Recommandations : {count}',
+    'recommend.no_results': 'Aucune opportunité commerciale correspondante trouvée.\nLa recherche utilisant les données de marché locales et Spansh s’est terminée avec succès. Aucune opportunité commerciale ne correspond aux filtres actuels et aux données de marché disponibles.',
+    'recommend.no_results_local': 'Aucune opportunité commerciale correspondante trouvée.\nLa recherche locale s’est terminée avec succès. Aucune opportunité commerciale ne correspond aux filtres actuels et aux données de marché disponibles.',
     'recommend.partial': 'Recherche incomplète : Certaines marchandises ou destinations n’ont pas pu être vérifiées, ou la limite de recherche a été atteinte. Les résultats ne concernent que les données vérifiées.',
     'recommend.notice': 'Le marché d’achat actuel provient de vos données locales Elite. Les destinations peuvent provenir de vos observations ou des données communautaires. Les prix, l’offre et la demande peuvent changer. Vérifiez l’ancienneté des données.',
     'recommend.help': 'Les achats utilisent uniquement le marché Elite actuel observé personnellement par le commandant actif. S’il manque, ouvrez le marché dans Elite. Les destinations proviennent de vos observations et de Spansh. Pour une même MarketID, le relevé valide le plus récent gagne ; à égalité, le relevé local. Bénéfice/t = prix de vente à destination − prix d’achat local. Bénéfice % = bénéfice/t ÷ prix d’achat × 100. Le minimum doit être atteint. Quantité = minimum entre soute libre confirmée, offre locale et demande à destination. Bénéfice potentiel = bénéfice/t × quantité possible. Chaque marchandise affiche la meilleure destination vérifiée selon le bénéfice potentiel, sa source et l’ancienneté des données. Une distance inconnue exclut la destination locale ; des métadonnées absentes concernant les plateformes, carriers ou distances d’arrivée ne satisfont pas les restrictions correspondantes. La recherche manuelle vérifie successivement les seules marchandises proposées localement, avec progression et annulation. Résultats partiels et limites sont signalés. Prix, offre et demande peuvent changer. Le bénéfice potentiel est une estimation, pas une garantie. L’ancienneté maximale sélectionnée s’applique à cette recherche. Les données plus anciennes sont conservées.',
@@ -1764,3 +1770,7 @@ TRANSLATIONS = {
     'trade.age_option_0': 'Sans limite',
     'trade.remove_remembered_target': 'Supprimer la destination mémorisée',
 }
+
+TRANSLATIONS.update({'mining.own_sell_price': 'Prix de vente local / t', 'mining.own_price_none': 'Aucune donnée de marché personnelle utilisable dans la limite d’âge.', 'mining.own_price_error': 'Prix personnels indisponibles (erreur de lecture).', 'mining.own_price_help': 'Meilleur prix de vente personnel observé par cette installation avec une demande positive. Complète le prix de référence fixe ; la demande ne représente pas le stock du commandant.'})
+
+TRANSLATIONS['recommend.remember_tip'] = 'Astuce : mémorisez les destinations souhaitées avec ✓ avant d’acheter – elles restent disponibles même lorsque la soute est pleine.'

@@ -10,7 +10,7 @@ import time
 import unittest
 from unittest.mock import patch
 
-from PySide6.QtCore import QObject, Signal, QThreadPool, QEvent, Qt
+from PySide6.QtCore import QObject, Signal, QThreadPool, QEvent, QPoint, Qt
 from PySide6.QtWidgets import QApplication, QLabel
 from PySide6.QtTest import QTest
 
@@ -61,8 +61,23 @@ class RecommendationViewTests(unittest.TestCase):
                                       cargo_capacity=300,loadout_complete=True,loadout_stale=False)
         s.cargo_snapshot=dict(fid=FID,vessel='Ship',ship_id=7,count=20,capacity=300,timestamp=NOW.isoformat(),
                              inventory=[dict(count=15,is_drones=False),dict(count=5,is_drones=True)])
+        s.commander_id = 1
+        s._journal_index_sessions = [dict(attribution_status='identified', commander_id=1,
+                                          fid_seen=FID, journal_file='fixture')]
+        s.ship_cargo_context = dict(fid=FID, journal='fixture', ship_id=7, vessel='Ship',
+                                    active=True, loadout_seen=True, generation=1, total=None)
+        s.cargo_snapshot['context'] = dict(fid=FID, journal='fixture', ship_id=7,
+                                           vessel='Ship', generation=1, timestamp=NOW.isoformat())
         self.cache=ObservedMarketCache(Path(self.tmp.name)/'cache.json',clock=lambda:self.now,
                                        on_changed=s.observedMarketsChanged.emit)
+        from cmdrhelper.market_store import MarketStore
+        self.store = MarketStore(Path(self.tmp.name)/'markets.db', clock=lambda:self.now)
+        self.addCleanup(self.store.close)
+        def publish():
+            for row in self.cache._markets.values():
+                self.store.record_observation(row, allow_future=True)
+            s.observedMarketsChanged.emit()
+        self.cache.on_changed = publish
         self.cache.put(market())
         s.observed_markets=SimpleNamespace(cache=self.cache,context=dict(FID=FID,MarketID=1,
                             StationName=s.station,StarSystem=s.system))
@@ -76,6 +91,7 @@ class RecommendationViewTests(unittest.TestCase):
         self.view.cancel_search();self.provider.gate.set();self.pool.waitForDone(2000)
         self.app.processEvents();self.trade.close();self.trade.deleteLater()
         self.app.sendPostedEvents(None,QEvent.Type.DeferredDelete)
+        self.store.close()
         self.tmp.cleanup();set_language(self.language)
 
     def wait(self):
@@ -119,6 +135,34 @@ class RecommendationViewTests(unittest.TestCase):
         self.assertIn('Öffne in Elite',self.view.origin_label.text())
         self.view.start_search();self.assertFalse(self.provider.calls)
 
+    def test_status_total_signal_updates_visible_recommendations_and_expires(self):
+        from cmdrhelper.state import AppState
+        s = self.state
+        journal = Path(self.tmp.name) / 'Journal.2026-09-01T120000.01.log'
+        journal.write_text('{}\n')
+        s.journal_folder = Path(self.tmp.name)
+        s.ship_cargo_total = None
+        s.cargo_snapshot = None
+        s.ship_loadout.loadout_timestamp = (NOW - timedelta(seconds=30)).isoformat()
+        s.ship_cargo_context.update(journal=str(journal),
+            session_start=(NOW - timedelta(seconds=60)).isoformat(),
+            barrier=(NOW - timedelta(seconds=31)).isoformat())
+        s._journal_index_sessions[-1].update(journal_file=str(journal),
+            last_complete_line_offset=3, last_read_offset=3)
+        path = Path(self.tmp.name) / 'Status.json'
+        with patch('cmdrhelper.ship_cargo.utc_now', return_value=NOW):
+            for used, free in ((0, 300), (120, 180), (300, 0)):
+                path.write_text(json.dumps(dict(event='Status', timestamp=NOW.isoformat(),
+                                                Cargo=used, Flags=1 << 24)))
+                AppState._poll_ship_cargo(s)
+                self.assertEqual(self.view.free, free)
+                self.assertNotIn('unbekannt', self.view.ship_label.text())
+        with patch('cmdrhelper.ship_cargo.utc_now', return_value=NOW + timedelta(seconds=121)):
+            AppState._poll_ship_cargo(s)
+            self.assertIsNone(self.view.free)
+            self.assertIn('unbekannt', self.view.ship_label.text())
+            self.assertFalse(self.view.search_button.isEnabled())
+
     def test_ship_space_includes_all_cargo_and_requires_identity(self):
         self.assertEqual(ship_space(self.state),('Synthetic Ship',280))
         s=self.state.cargo_snapshot
@@ -155,6 +199,82 @@ class RecommendationViewTests(unittest.TestCase):
         self.assertIn('Prüfe Waren',self.view.status.text())
         self.assertTrue(self.view.cancel_button.isVisible())
         self.view.cancel_search();self.wait();self.assertFalse(self.view.rows)
+
+    def test_successful_local_empty_search_and_next_search_with_results(self):
+        self.view.local_only.setChecked(True)
+        self.search()
+        self.assertFalse(self.view.last_run.partial)
+        self.assertTrue(self.view.last_run.local_only)
+        self.assertFalse(self.provider.calls)
+        self.assertEqual(self.view.table.rowCount(), 0)
+        self.assertTrue(self.view.status.isVisible())
+        self.assertTrue(self.view.status.wordWrap())
+        self.assertTrue(self.view.status.text().startswith(tr('recommend.no_results_local')))
+        self.assertIn('Die lokale Suche wurde erfolgreich abgeschlossen.', self.view.status.text())
+        self.cache.put(market(mid=3))
+        self.search()
+        self.assertGreater(self.view.table.rowCount(), 0)
+        self.assertFalse(self.view.last_run.partial)
+        self.assertEqual(self.view.status.text(),
+            tr('recommend.results', count=len(self.view.rows)) + '\n' +
+            tr('recommend.complete', checked=self.view.last_run.checked_commodities,
+               total=self.view.last_run.planned_commodities))
+
+    def test_successful_mixed_empty_search(self):
+        self.view.margin.setValue(1000)
+        self.search()
+        self.assertTrue(self.provider.calls)
+        self.assertFalse(self.view.last_run.partial)
+        self.assertEqual(self.view.table.rowCount(), 0)
+        self.assertTrue(self.view.status.text().startswith(tr('recommend.no_results')))
+        self.assertNotIn(tr('recommend.no_results_local'), self.view.status.text())
+
+    def test_failed_search_keeps_existing_failure_message(self):
+        with patch.object(self.provider, 'search_sell',
+                          return_value=MarketSearchResult(MarketStatus.TIMEOUT)):
+            self.search()
+        self.assertTrue(self.view.last_run.partial)
+        self.assertEqual(self.view.table.rowCount(), 0)
+        self.assertEqual(self.view.status.text(), tr('recommend.results', count=0) + '\n' +
+            tr('recommend.partial_counts', checked=self.view.last_run.checked_commodities,
+               total=self.view.last_run.planned_commodities,
+               reason=tr('recommend.reason_timeout')))
+
+    def test_partial_local_empty_search_keeps_incomplete_message(self):
+        self.view.local_only.setChecked(True)
+        worker = self.start_controlled_progress()
+        diagnostic = RecommendationDiagnostics(local_only=True, planned_commodities=34,
+            checked_commodities=18, partial=True, partial_reason=PartialReason.OTHER)
+        worker.signals.finished.emit(RecommendationResult(checked=18, total=34,
+            partial=True, diagnostics=diagnostic))
+        self.assertEqual(self.view.status.text(), tr('recommend.results', count=0) + '\n' +
+            tr('recommend.partial_counts', checked=18, total=34,
+               reason=tr('recommend.reason_other')))
+
+    def test_empty_success_uses_finished_worker_mode_and_real_diagnostic_counts(self):
+        self.view.local_only.setChecked(True)
+        worker = self.start_controlled_progress()
+        # A changed widget must not determine the completed run's wording.
+        from PySide6.QtCore import QSignalBlocker
+        with QSignalBlocker(self.view.local_only):
+            self.view.local_only.setChecked(False)
+        diagnostic = RecommendationDiagnostics(local_only=True, planned_commodities=34,
+            checked_commodities=34, local_target_markets=10,
+            local_combinations_checked=340)
+        worker.signals.finished.emit(RecommendationResult(checked=34, total=34,
+            diagnostics=diagnostic))
+        self.assertEqual(self.view.status.text(), tr('recommend.no_results_local') + '\n' +
+            tr('recommend.complete', checked=34, total=34))
+
+    def test_empty_success_messages_available_in_all_languages(self):
+        for language, translations in _TRANSLATIONS.items():
+            with self.subTest(language=language):
+                set_language(language)
+                for key in ('recommend.no_results', 'recommend.no_results_local'):
+                    self.assertIn(key, translations)
+                    self.assertEqual(tr(key), translations[key])
+                    self.assertIn('\n', tr(key))
+                self.assertNotEqual(tr('recommend.no_results'), tr('recommend.no_results_local'))
 
     def test_queued_results_discarded_after_all_context_changes(self):
         actions=[lambda:setattr(self.state,'system','Other System'),
@@ -220,8 +340,15 @@ class RecommendationViewTests(unittest.TestCase):
                              for name, count in (('beer', beer), ('gold', gold)) if count]
                 Path(self.tmp.name, 'Cargo.json').write_text(
                     json.dumps(dict(event, Inventory=inventory)), encoding='utf-8')
-                session = dict(attribution_status='identified', commander_id=1, fid_seen=FID)
-                AppState._apply_live_cargo_snapshot(self.state, dict(last_cargo_event=event), session)
+                session = dict(attribution_status='identified', commander_id=1, fid_seen=FID,
+                               journal_file='fixture')
+                origin = dict(fid=FID, journal='fixture', ship_id=7, vessel='Ship',
+                              generation=minute, timestamp=event['timestamp'])
+                self.state.ship_cargo_context.update(generation=minute,
+                                                     total=dict(origin, count=beer+gold))
+                AppState._apply_live_cargo_snapshot(self.state, dict(
+                    last_cargo_event=event, last_cargo_context=origin,
+                    ship_cargo_context=self.state.ship_cargo_context), session)
                 self.state.changed.emit()
                 self.state.shipLoadoutChanged.emit(self.state.ship_loadout)
                 self.app.processEvents()
@@ -343,6 +470,39 @@ class RecommendationViewTests(unittest.TestCase):
         self.assertEqual(table.item(0,13).text(),'Elite lokal')
         table.sortItems(13,Qt.SortOrder.DescendingOrder)
         self.assertEqual(table.item(0,13).text(),'Spansh')
+        header=table.horizontalHeader()
+        expected_order=(0,1,2,3,4,9,8,12,5,6,7,10,11,13,14)
+        style=self.app.styleSheet()
+        try:
+            for theme in (DARK_STYLESHEET,LIGHT_STYLESHEET):
+                self.app.setStyleSheet(theme)
+                for width in (480,1400):
+                    with self.subTest(dark=theme==DARK_STYLESHEET,width=width):
+                        self.trade.resize(width,900);self.app.processEvents()
+                        self.assertEqual(tuple(header.logicalIndex(i) for i in range(15)),expected_order)
+                        for visual,attribute in ((8,lambda r:r.buy_price),
+                                                 (9,lambda r:r.destination.commander_sell_price),
+                                                 (10,lambda r:r.profit_per_ton)):
+                            column=header.logicalIndex(visual)
+                            table.scrollToItem(table.item(0,column));self.app.processEvents()
+                            x=header.sectionViewportPosition(column)+header.sectionSize(column)//2
+                            self.assertTrue(0<=x<header.viewport().width())
+                            for order in (Qt.SortOrder.AscendingOrder,Qt.SortOrder.DescendingOrder):
+                                header.setSortIndicator(column,Qt.SortOrder.DescendingOrder
+                                                        if order==Qt.SortOrder.AscendingOrder
+                                                        else Qt.SortOrder.AscendingOrder)
+                                QTest.mouseClick(header.viewport(),Qt.MouseButton.LeftButton,
+                                                 pos=QPoint(x,header.height()//2))
+                                self.assertEqual(header.sortIndicatorSection(),column)
+                                self.assertEqual(header.sortIndicatorOrder(),order)
+                                values=[table.item(i,column).value for i in range(2)]
+                                self.assertEqual(values,sorted((attribute(a),attribute(b)),
+                                    reverse=order==Qt.SortOrder.DescendingOrder))
+                                for i in range(2):
+                                    row=table.item(i,0).data(Qt.ItemDataRole.UserRole)
+                                    self.assertEqual(table.item(i,column).value,attribute(row))
+        finally:
+            self.app.setStyleSheet(style)
 
     def test_potential_profit_position_format_sort_and_unchanged_values(self):
         table=self.view.table
@@ -468,6 +628,18 @@ class RecommendationViewTests(unittest.TestCase):
             self.view.start_search()
             start.assert_called_once()
         return self.view.worker
+
+    def test_progress_never_queries_markets_or_refreshes_large_views(self):
+        from cmdrhelper.market_store import MarketStore
+        worker=self.start_controlled_progress()
+        diagnostic=RecommendationDiagnostics(planned_commodities=35,checked_commodities=20)
+        with patch.object(self.cache,'all',side_effect=AssertionError('No all')), \
+             patch.object(self.cache,'get',side_effect=AssertionError('No get')), \
+             patch.object(MarketStore,'__init__',side_effect=AssertionError('No DB')), \
+             patch.object(self.view,'refresh',side_effect=AssertionError('No refresh')):
+            worker.signals.progress.emit(RecommendationResult(diagnostics=diagnostic))
+            self.assertEqual(self.view.progress_bar.value(),20)
+        worker.signals.finished.emit(RecommendationResult(diagnostics=diagnostic))
 
     def test_progress_idle_start_unknown_then_real_counts(self):
         bar=self.view.progress_bar
@@ -666,7 +838,7 @@ class RecommendationViewTests(unittest.TestCase):
                 def search_sell(self,q,*,cancel):
                     queries.append(q)
                     return MarketSearchResult(MarketStatus.NO_RESULTS)
-            search_recommendations(*worker.args[:6],Capture(),clock=lambda:self.now)
+            search_recommendations(self.cache.get(FID, 1, None), *worker.args[1:6],Capture(),clock=lambda:self.now)
             q=queries[0]
             self.assertEqual(q.commodity,128049154)
             self.assertIs(type(q.required_pad),PadSize)
@@ -705,7 +877,7 @@ class RecommendationViewTests(unittest.TestCase):
         self.now+=timedelta(seconds=1)
         self.cache.put(market(stamp=self.now,rows=[item(c) for c in definitions]))
         worker=self.start_controlled_progress()
-        args=worker.args
+        args=(self.cache.get(FID,1,None), *worker.args[1:])
         seconds=[1000.0];requests=[];queries=[]
         class OfflineCancel(Event):
             def wait(self,timeout=None):
@@ -784,9 +956,9 @@ class RecommendationViewTests(unittest.TestCase):
         self.assertIn('Fixture Port',self.view.origin_label.text())
         self.assertEqual(badge.text(),'Warenmarkt öffnen')
         self.cache.put(market(mid=999,fid='F_OTHER'))
-        self.assertEqual(badge.status,'open')
+        self.assertEqual(badge.status,'read')
         self.state.observed_markets.context['MarketID']=1
-        with patch.object(self.cache,'get',return_value=market(source='spansh')):
+        with patch.object(self.cache,'get_header',return_value=market(source='spansh')):
             self.state.changed.emit();self.assertEqual(badge.status,'open')
         self.state.observed_markets.context={'FID':FID}  # observer clears docking identity on departure
         self.state.changed.emit()
@@ -821,7 +993,7 @@ class RecommendationViewTests(unittest.TestCase):
         self.state.commander_fid='F_OTHER'
         self.state.observed_markets.context['FID']='F_OTHER'
         self.state.commanderIdentityChanged.emit(2,'F_OTHER','Synthetic Commander')
-        self.assertEqual(self.view.market_read_status.status,'open')
+        self.assertEqual(self.view.market_read_status.status,'read')
         self.cache.put(market(fid='F_OTHER',stamp=self.now))
         self.assertEqual(self.view.market_read_status.status,'read')
         self.state.station='Synthetic New Port'
@@ -1058,3 +1230,48 @@ class RecommendationViewTests(unittest.TestCase):
             self.assertEqual(results[0].rows,())
             self.assertTrue(results[0].partial)
             self.assertEqual(results[0].diagnostics.partial_reason,PartialReason.OTHER)
+
+    def test_remember_tip_all_languages_themes_relative_font_and_wrapping(self):
+        from html import escape
+        from PySide6.QtGui import QTextDocument, QTextFormat
+        original_style=self.app.styleSheet()
+        tip=self.view.remember_tip
+        heights={}
+        try:
+            for language in _TRANSLATIONS:
+                set_language(language)
+                text=tr('recommend.remember_tip')
+                self.assertIn('✓',text)
+                self.assertIn('recommend.remember_tip',_TRANSLATIONS[language])
+                self.assertIn(text,help_topic('trade',language).text)
+                tip.setText('<small>'+escape(text)+'</small>')
+                for theme,color in ((DARK_STYLESHEET,'#f0ad4e'),(LIGHT_STYLESHEET,'#b36a00')):
+                    for size in (10,18,24):
+                        self.app.setStyleSheet(theme+f'\nQWidget {{ font-size: {size}pt; }}')
+                        for width in (480,1400):
+                            self.trade.resize(width,1000);self.app.processEvents()
+                            self.assertTrue(tip.wordWrap())
+                            self.assertEqual(tip.palette().color(tip.foregroundRole()).name(),color)
+                            self.assertGreaterEqual(tip.height(),tip.heightForWidth(tip.width()))
+                            self.assertLessEqual(tip.geometry().bottom(),self.view.filters.geometry().top())
+                            self.assertLessEqual(tip.geometry().right(),tip.parentWidget().width())
+                            document=QTextDocument();document.setDefaultFont(tip.font());document.setHtml(tip.text())
+                            self.assertEqual(document.toPlainText(),text)
+                            fragment=document.begin().begin().fragment()
+                            self.assertEqual(fragment.charFormat().property(QTextFormat.Property.FontSizeAdjustment),-1)
+                            self.assertFalse(fragment.charFormat().hasProperty(QTextFormat.Property.FontPointSize))
+                            if language=='de' and theme==DARK_STYLESHEET:
+                                heights[size,width]=tip.height()
+            self.assertGreater(heights[24,480],heights[10,480])
+            self.assertGreater(heights[18,480],heights[18,1400])
+            self.assertLess(heights[10,1400],50)
+            set_language('de')
+            self.assertEqual(tr('recommend.remember_tip'),
+                'Tipp: Gewünschte Ziele vor dem Einkauf mit ✓ merken – sie bleiben auch bei vollem Frachtraum erhalten.')
+            self.assertEqual(len(self.trade.findChildren(QLabel,'recommendationRememberTip')),1)
+            for tab in (0,1):
+                self.trade.tabs.setCurrentIndex(tab);self.app.processEvents()
+                self.assertFalse(tip.isVisible())
+            self.trade.tabs.setCurrentIndex(2);self.app.processEvents()
+            self.assertTrue(tip.isVisible())
+        finally:self.app.setStyleSheet(original_style)

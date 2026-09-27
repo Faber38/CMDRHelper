@@ -1125,3 +1125,5 @@ HELP_TOPICS["explorer"] = (
     HELP_TOPICS["explorer"][0],
     HELP_TOPICS["explorer"][1] + '<p>„An Fensterbreite anpassen“ verteilt die Spalten der Wertliste automatisch auf die verfügbare Breite. Die Option ist standardmäßig eingeschaltet und wird gespeichert. Bei sehr schmalem Fenster oder großer Schrift kann weiterhin horizontales Scrollen erforderlich sein. Ausgeschaltet bleiben die Spalten manuell einstellbar. Diese Option ist unabhängig von der automatischen Anpassung der grafischen Gesamtansicht.</p>',
 )
+
+HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>Tipp: Gewünschte Ziele vor dem Einkauf mit ✓ merken – sie bleiben auch bei vollem Frachtraum erhalten.</p>')

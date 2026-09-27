@@ -139,8 +139,8 @@ class TradeMatrix:
         self.assertEqual(self.search(raises=True).community_failure, MarketStatus.INVALID_RESPONSE)
 
     def test_fid_and_source(self):
-        self.assertFalse(self.search(local=[market(fid='OTHER')]).offers)
-        self.assertFalse(self.search(fid='').offers)
+        self.assertTrue(self.search(local=[market(fid='OTHER')]).offers)
+        self.assertTrue(self.search(fid='').offers)
         self.assertFalse(self.search(local=[market(source='spansh')]).offers)
 
     def test_cancel_discards_local(self):

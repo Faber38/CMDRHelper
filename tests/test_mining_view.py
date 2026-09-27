@@ -123,7 +123,7 @@ class MiningViewTests(unittest.TestCase):
         self.assertTrue(restarted.only_stock.isChecked())
         self.assertEqual(restarted.settings.value("materials/mining/columns"), layout)
         self.assertEqual(restarted.settings.value(mining.SORT_KEY), sort)
-        self.assertEqual(restarted.tree.header().sectionSize(3), 141)
+        self.assertEqual(restarted.tree.header().sectionResizeMode(3), QHeaderView.ResizeToContents)
         restarted.set_origin_filter("asteroid")
         self.assertEqual(self.make_view().mining.origin_filter.currentData(), "asteroid")
 
@@ -188,7 +188,7 @@ class MiningViewTests(unittest.TestCase):
                 self.assertEqual(self.view.state.settings.value("materials/mining/columns"), saved_layout)
         restarted = self.make_view()
         self.assertEqual(restarted.state.settings.value(mining.SORT_KEY), saved_sort)
-        self.assertEqual([restarted.mining.tree.header().sectionSize(i) for i in range(7)], [410, 95, 95, 95, 95, 190, 175])
+        self.assertTrue(all(restarted.mining.tree.header().sectionResizeMode(i) == QHeaderView.ResizeToContents for i in range(8)))
 
     def test_heading_count_is_derived_from_supplied_catalog(self):
         subset = MINING_COMMODITIES[:3]
@@ -199,7 +199,7 @@ class MiningViewTests(unittest.TestCase):
         self.assertEqual(mining.heading.text(), tr("mining.heading"))
         self.assertEqual(mining.notice.toolTip(), tr("mining.reference_notice"))
 
-    def test_saved_phase_one_widths_are_preserved_and_right_side_stays_free(self):
+    def test_saved_phase_one_order_is_preserved_with_automatic_widths(self):
         settings = self.view.state.settings
         settings.setValue("materials/mining/columns", {
             "version": 1, "columns": ["name", "average_price", "value_class"],
@@ -213,7 +213,7 @@ class MiningViewTests(unittest.TestCase):
         self.assertLessEqual(mining.content.width(), 1215)
         self.assertGreater(mining.width() - mining.content.width(), 200)
         self.assertFalse(mining.tree.horizontalScrollBar().isVisible())
-        self.assertEqual([mining.tree.header().sectionSize(i) for i in range(7)], [320, 95, 95, 95, 95, 180, 160])
+        self.assertTrue(all(mining.tree.header().sectionResizeMode(i) == QHeaderView.ResizeToContents for i in range(8)))
         self.assertFalse(mining.tree.header().stretchLastSection())
 
     def test_value_colors_and_price_format_in_both_themes(self):
@@ -234,7 +234,7 @@ class MiningViewTests(unittest.TestCase):
         self.assertEqual(self.view.tabs.count(), 5)
         self.assertEqual(self.view.tabs.tabText(4), tr("mining.title"))
         tree = self.view.mining.tree
-        self.assertEqual(tree.columnCount(), 7)
+        self.assertEqual(tree.columnCount(), 8)
         self.assertEqual(tree.topLevelItemCount(), len(MINING_COMMODITIES))
         self.assertEqual(set(self.values(0)), {c.symbol for c in MINING_COMMODITIES})
         self.assertFalse(self.view.tree.isVisible())
@@ -285,13 +285,13 @@ class MiningViewTests(unittest.TestCase):
         restarted = self.make_view()
         header = restarted.mining.tree.header()
         self.assertEqual([header.logicalIndex(i) for i in range(7)], [6, 0, 1, 2, 3, 4, 5])
-        self.assertEqual([header.sectionSize(i) for i in (0, 5, 6)], [420, 185, 165])
+        self.assertTrue(all(header.sectionResizeMode(i) == QHeaderView.ResizeToContents for i in (0, 5, 6)))
         self.assertEqual(restarted.mining.tree.sortColumn(), 6)
         header.moveSection(header.visualIndex(3), 0)
         header.resizeSection(3, 123)
         again = self.make_view()
         self.assertEqual(again.mining.tree.header().logicalIndex(0), 3)
-        self.assertEqual(again.mining.tree.header().sectionSize(3), 123)
+        self.assertEqual(again.mining.tree.header().sectionResizeMode(3), QHeaderView.ResizeToContents)
 
     def test_value_class_boundaries(self):
         # Thresholds are independent of the currently bundled price snapshot.
@@ -330,7 +330,7 @@ class MiningViewTests(unittest.TestCase):
         settings.setValue("materials/mining/sort", dict(column="vehicle", direction="ascending"))
         restarted = self.make_view().mining
         header = restarted.tree.header()
-        self.assertEqual([header.sectionSize(i) for i in range(7)], [400, 110, 110, 120, 130, 190, 170])
+        self.assertTrue(all(header.sectionResizeMode(i) == QHeaderView.ResizeToContents for i in range(8)))
         self.assertEqual([header.logicalIndex(i) for i in range(7)], [6, 3, 0, 1, 2, 5, 4])
         self.assertEqual(restarted.tree.sortColumn(), 2)
         self.assertEqual(settings.value("materials/mining/sort"), dict(column="ship", direction="ascending"))
@@ -380,25 +380,56 @@ class MiningViewTests(unittest.TestCase):
                 self.assertEqual(self.values(0, restarted), self.values(0))
                 restarted.close()
 
-    def test_mouse_widths_survive_hide_close_and_restart(self):
-        header = self.view.mining.tree.header()
-        self.assertFalse(header.stretchLastSection())
-        for column in range(7):
-            self.assertEqual(header.sectionResizeMode(column), QHeaderView.ResizeMode.Interactive)
-            before = header.sectionSize(column)
-            start = QPoint(header.sectionViewportPosition(column) + before - 1, header.height() // 2)
-            end = start + QPoint(15, 0)
-            QTest.mousePress(header.viewport(), Qt.MouseButton.LeftButton, pos=start)
-            QTest.mouseMove(header.viewport(), end, 20)
-            QTest.mouseRelease(header.viewport(), Qt.MouseButton.LeftButton, pos=end)
-            self.assertGreater(header.sectionSize(column), before)
-        expected = [header.sectionSize(i) for i in range(7)]
-        self.view.tabs.setCurrentIndex(0)
-        self.view.resize(1200, 700)
-        self.view.tabs.setCurrentIndex(4)
-        self.view.close()
-        restarted = self.make_view()
-        self.assertEqual([restarted.mining.tree.header().sectionSize(i) for i in range(7)], expected)
+    def test_content_widths_languages_fonts_themes_and_scroll(self):
+        for language in ('de', 'fr'):
+            set_language(language)
+            mining = MiningView(self.view.state.settings)
+            self.addCleanup(mining.deleteLater)
+            self.addCleanup(mining.close)
+            mining.show()
+            tree, header = mining.tree, mining.tree.header()
+            mining.items['gold'].setText(7, '123.456.789.012.345.678')
+            for theme in (DARK_STYLESHEET, LIGHT_STYLESHEET):
+                for points in (10, 18, 24):
+                    self.app.setStyleSheet(theme + f'\nQWidget {{ font-size: {points}pt; }}')
+                    for width in (480, 1800):
+                        with self.subTest(language=language, points=points, width=width,
+                                          light=theme == LIGHT_STYLESHEET):
+                            mining.resize(width, 700)
+                            mining.set_inventory(MiningInventory(1, 'F1', ship={'gold': 1234567890123}))
+                            for _ in range(3): self.app.processEvents()
+                            for column in range(8):
+                                self.assertEqual(header.sectionResizeMode(column), QHeaderView.ResizeToContents)
+                                self.assertGreaterEqual(header.sectionSize(column), header.sectionSizeHint(column))
+                                for item in mining.items.values():
+                                    index = tree.indexFromItem(item, column)
+                                    option = QStyleOptionViewItem()
+                                    option.initFrom(tree)
+                                    tree.itemDelegate().initStyleOption(option, index)
+                                    self.assertGreaterEqual(header.sectionSize(column),
+                                        option.fontMetrics.horizontalAdvance(item.text(column)) + 4)
+                            self.assertEqual(tree.horizontalScrollBar().maximum() > 0,
+                                             header.length() > tree.viewport().width())
+                            tree.sortItems(7, Qt.AscendingOrder)
+                            self.app.processEvents()
+                            self.assertGreaterEqual(header.sectionSize(7), header.sectionSizeHint(7))
+            # Tooltip content must not widen columns; hidden long rows must not either.
+            item = mining.items['gold']
+            item.setToolTip(0, 'Very long tooltip ' * 100)
+            item.setText(0, 'Long visible commodity ' * 12)
+            item.setText(7, '123.456.789.012.345')
+            for _ in range(3): self.app.processEvents()
+            expanded = header.sectionSize(0)
+            self.assertGreater(expanded, 2000)
+            mining.search.setText('copper')
+            self.app.processEvents()
+            self.assertLess(header.sectionSize(0), expanded)
+            mining.search.clear()
+            self.app.processEvents()
+            self.assertEqual(header.sectionSize(0), expanded)
+            item.setToolTip(0, 'Another tooltip ' * 200)
+            self.app.processEvents()
+            self.assertEqual(header.sectionSize(0), expanded)
 
     def test_invalid_sort_settings_restore_default(self):
         for saved in ("bad", {}, {"column": "unknown", "direction": "ascending"},
@@ -413,7 +444,6 @@ class MiningViewTests(unittest.TestCase):
     def test_five_row_tones_follow_live_theme_without_changing_layout(self):
         tree = self.view.mining.tree
         header = tree.header()
-        widths = [header.sectionSize(i) for i in range(7)]
         for light, style in ((False, DARK_STYLESHEET), (True, LIGHT_STYLESHEET)):
             self.app.setStyleSheet(style)
             self.view.set_light_mode(light)
@@ -425,7 +455,7 @@ class MiningViewTests(unittest.TestCase):
                 rect = tree.visualItemRect(tree.topLevelItem(row))
                 self.assertEqual(pixels.pixelColor(300, rect.center().y()).name(),
                                  THEMES[light]["rows"][row % 5])
-            self.assertEqual([header.sectionSize(i) for i in range(7)], widths)
+            self.assertTrue(all(header.sectionSize(i) >= header.sectionSizeHint(i) for i in range(8)))
             self.assertEqual(self.values(5), self.numeric_sorted(self.values(5), reverse=True))
 
     def test_subtle_selection_hover_and_semantic_text_in_both_themes(self):
@@ -440,12 +470,14 @@ class MiningViewTests(unittest.TestCase):
             mining.set_light_mode(light)
             self.app.processEvents()
             rect = tree.visualItemRect(item)
-            point = QPoint(300, rect.center().y())
+            # Sample cell padding, not a former fixed-width position that may
+            # now contain text or the carrier edit marker.
+            point = tree.visualRect(tree.indexFromItem(item, 0)).topLeft() + QPoint(2, 2)
             self.app.sendEvent(tree.viewport(), QEvent(QEvent.Type.Leave))
             tree.clearSelection()
             normal = tree.viewport().grab().toImage().pixelColor(point)
             self.assertEqual(normal.name(), THEMES[light]["rows"][0])
-            QTest.mouseMove(tree.viewport(), QPoint(300, rect.bottom() + 5))
+            QTest.mouseMove(tree.viewport(), QPoint(point.x(), rect.bottom() + 5))
             QTest.mouseMove(tree.viewport(), point)
             hover = tree.viewport().grab().toImage().pixelColor(point)
             item.setSelected(True)
@@ -551,7 +583,7 @@ class MiningViewTests(unittest.TestCase):
         self.assertEqual(sum(not item.isHidden() for item in restarted.items.values()), 3)
         self.assertEqual(restarted.settings.value(mining.SORT_KEY), saved_sort)
         self.assertEqual(restarted.settings.value("materials/mining/columns"), saved_layout)
-        self.assertEqual(restarted.tree.header().sectionSize(2), 123)
+        self.assertEqual(restarted.tree.header().sectionResizeMode(2), QHeaderView.ResizeToContents)
         restarted.only_stock.setChecked(False)
         self.assertFalse(self.make_view().mining.only_stock.isChecked())
 
@@ -635,6 +667,7 @@ class MiningViewTests(unittest.TestCase):
     def test_all_twelve_languages_have_same_mining_keys(self):
         # Commodity labels are translated alongside UI labels, without runtime I/O.
         expected = {"mining." + key for key in (
+            "own_sell_price", "own_price_help", "own_price_none", "own_price_error",
             "title", "name", "average_price", "value_class", "high", "medium", "low",
             "reference_notice", "open_tooltip", "heading", "count_summary",
             "reference_short", "search", "no_matches", "vehicle", "srv", "ship", "carrier", "total", "stock_unknown",

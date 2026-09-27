@@ -56,6 +56,15 @@ negative/nicht ganzzahlige Mengen, Kategorie-Konflikte und nicht zuordenbare Zut
 werden erkannt; es wird kein negativer Bestand und keine halbe Tauschtransaktion
 veröffentlicht. Journalmengen werden nicht multipliziert.
 
+Bei MaterialCollected wird der Zuwachs auf den verbleibenden Platz begrenzt,
+wenn der Katalog für die passende Materialkategorie ein bekanntes Maximum liefert.
+Elite kann die volle Sammelmenge protokollieren, obwohl nur ein Teil ins Inventar
+passt. `last_change` enthält deshalb den tatsächlich rekonstruierten Zuwachs.
+Ohne bekanntes Maximum bleibt die Addition unverändert. Snapshots bleiben
+maßgeblich, auch oberhalb des Katalogmaximums; Sammeln senkt solche Bestände nicht.
+Andere Ereignistypen, insbesondere MaterialTrade und Missionsbelohnungen, behalten
+ihre bisherige Mengenverarbeitung.
+
 Raw/Elements, Manufactured und Encoded werden auch in Frontier-Kategorietokens
 normalisiert. Bei Missionsbelohnungen darf Data nur dann Encoded bedeuten, wenn
 der interne Name im validierten Katalog als Encoded geführt wird oder (bei einem

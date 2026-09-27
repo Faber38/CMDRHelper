@@ -3,10 +3,11 @@ from dataclasses import dataclass, replace, field
 from datetime import datetime, timezone
 from fractions import Fraction
 from threading import Event
+from time import monotonic
 
 from .commodity_master import lookup_by_id, lookup_by_symbol
 from .market_data import MarketOffer, MarketSearchResult, MarketStatus, ProviderDiagnostics
-from .observed_market_cache import ObservedMarketCache
+from .observed_market_cache import ObservedMarketCache, shared_current
 from .market_candidates import commodity_key, local_offer, merge_destinations, matches_location
 from .recommendation_diagnostics import (RecommendationDiagnostics, CommodityStep,
     CommodityIdentity, PartialReason, STATUS_REASONS)
@@ -88,19 +89,31 @@ def best_trade(commodity, targets, origin_id, free, margin, query, *, diagnostic
 
 def search_recommendations(origin, local_markets, distances, free, margin, query, provider,
                            *, cancel=None, progress=None, clock=lambda: datetime.now(timezone.utc),
-                           diagnostics=None, diagnostic_progress=None, local_only=False):
+                           diagnostics=None, diagnostic_progress=None, local_only=False, local_evaluator=None,
+                           progress_interval=0):
     """Evaluate locals first, then ONE sequential sell query per known buyable item.
 
     Use the existing provider's lock, request spacing, page bounds and RAM cache.
     Unknown future commodities are evaluated locally without pointless HTTP calls.
     Results are best within this bounded search, never a claim of global optimum.
     """
+    local_markets = shared_current(local_markets, clock())
     cancel = cancel or Event()
     diagnostic = diagnostics if diagnostics is not None else RecommendationDiagnostics()
     diagnostic.local_only = local_only
 
+    last_progress = [float('-inf')]
+    def due():
+        tick = monotonic()
+        if tick - last_progress[0] < progress_interval:
+            return False
+        last_progress[0] = tick
+        return True
+
+    provider_announced = [False]
     def publish():
-        if diagnostic_progress:
+        if diagnostic_progress and (not provider_announced[0] or due()):
+            provider_announced[0] = True
             diagnostic_progress(diagnostic.snapshot())
 
     def output(rows=(), checked=0, total=0, partial=False, cancelled=False, cache_hits=0,
@@ -126,36 +139,40 @@ def search_recommendations(origin, local_markets, distances, free, margin, query
         if not ObservedMarketCache.is_valid(origin, now, query.max_age):
             return ()
         rows = []
-        diagnostic.local_target_markets = len({s['market_id'] for s in local_markets
-            if s['market_id'] != origin['market_id'] and s['fid'] == origin['fid']
-            and s['source'] == 'local_elite' and ObservedMarketCache.is_valid(s, now, query.max_age)})
+        diagnostic.local_target_markets = (local_evaluator.target_count(now) if local_evaluator is not None else len({s['market_id'] for s in local_markets
+            if s['market_id'] != origin['market_id']
+            and s['source'] == 'local_elite' and ObservedMarketCache.is_valid(s, now, query.max_age)}))
         for item_index, (item, step) in enumerate(zip(items, diagnostic.steps), 1):
             if local_only and cancel.is_set():
                 return ()
             step.search_started = True
-            local = [local_offer(s, item, distances.get(s['market_id']), now) for s in local_markets
-                     if s['fid'] == origin['fid'] and s['source'] == 'local_elite'
-                     and ObservedMarketCache.is_valid(s, now, query.max_age)]
-            targets = [o for o in local if o.market_id != origin['market_id']]
-            step.local_combinations_checked = len(targets)
-            step.local_candidates = 0
-            # Diagnostic-only count, using exactly the existing eligibility/formula.
-            best_trade(item, targets, origin['market_id'], free, margin, query, diagnostics=step)
-            step.local_completed = True
-            try:
-                merged = merge_destinations(local, quotes.get(commodity_key(item), ()), now,
-                                            query.max_age, diagnostics=step)
-            except Exception:
-                diagnostic.merge_errors += 1
-                diagnostic.reason(PartialReason.OTHER, step)
-                raise
-            row = best_trade(item, merged, origin['market_id'], free, margin, query)
+            if local_evaluator is not None:
+                row = local_evaluator.evaluate(item, quotes.get(commodity_key(item), ()), now,
+                                               step, free, margin, query)
+            else:
+                local = [local_offer(s, item, distances.get(s['market_id']), now) for s in local_markets
+                         if s['source'] == 'local_elite'
+                         and ObservedMarketCache.is_valid(s, now, query.max_age)]
+                targets = [o for o in local if o.market_id != origin['market_id']]
+                step.local_combinations_checked = len(targets)
+                step.local_candidates = 0
+                # Diagnostic-only count, using exactly the existing eligibility/formula.
+                best_trade(item, targets, origin['market_id'], free, margin, query, diagnostics=step)
+                step.local_completed = True
+                try:
+                    merged = merge_destinations(local, quotes.get(commodity_key(item), ()), now,
+                                                query.max_age, diagnostics=step)
+                except Exception:
+                    diagnostic.merge_errors += 1
+                    diagnostic.reason(PartialReason.OTHER, step)
+                    raise
+                row = best_trade(item, merged, origin['market_id'], free, margin, query)
             if row is not None:
                 rows.append(row)
             if local_only:
                 step.checked = step.successful = True
                 diagnostic.current_commodity = diagnostic.last_completed_commodity = step.commodity
-                if progress and not cancel.is_set():
+                if progress and not cancel.is_set() and due():
                     progress(output(tuple(sorted(rows, key=ranking)),
                                     item_index, len(items), final=False))
         return tuple(sorted(rows, key=ranking))
@@ -175,7 +192,7 @@ def search_recommendations(origin, local_markets, distances, free, margin, query
         if not ObservedMarketCache.is_valid(origin, clock(), query.max_age):
             return output(partial=True, reason=PartialReason.CONTEXT_CHANGED)
         return output(rows, len(items), len(items))
-    if progress and not cancel.is_set():
+    if progress and not cancel.is_set() and due():
         progress(output(calculate(), 0, len(items), final=False))
     for item, step in zip(items, diagnostic.steps):
         if cancel.is_set():
@@ -231,7 +248,7 @@ def search_recommendations(origin, local_markets, distances, free, margin, query
         step.checked = True
         diagnostic.last_completed_commodity = step.commodity
         diagnostic.partial = partial
-        if progress and not cancel.is_set():
+        if progress and not cancel.is_set() and due():
             progress(output(calculate(), checked, len(items), partial, cache_hits=cache_hits, final=False))
     if cancel.is_set():
         return output(cancelled=True)

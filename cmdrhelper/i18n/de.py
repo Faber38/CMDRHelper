@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'release.3_7_8.0': 'Fehlerkorrekturen im Handelsassistenten.',
+    'release.3_7_8.1': 'Verbesserte Erkennung und Aktualisierung des Frachtraums.',
+    'release.3_7_8.2': 'Fehler bei Materialbeständen an der Kapazitätsgrenze behoben.',
+    'release.3_7_8.3': 'Allgemeine Stabilitäts- und Zuverlässigkeitsverbesserungen.',
     'explorer.value_fit_width': 'An Fensterbreite anpassen',
     'explorer.value_fit_width_tip': 'Passt die Spalten der Wertliste automatisch an die verfügbare Fensterbreite an.',
     'explorer.first_footfall': 'ERSTBETRETUNG',
@@ -1707,11 +1711,11 @@ TRANSLATIONS = {
     'trade.buy_success_one': '1 Verkaufsangebot gefunden.',
     'trade.buy_success': '{count} Verkaufsangebote gefunden.',
     'trade.buy_help': 'Ware und gewünschte Menge wählen, Filter festlegen und die Einkaufssuche manuell starten. Preis / t ist der vom Commander zu zahlende Preis. Angebot ist die gemeldete verfügbare Menge; sie muss mindestens der gewünschten Menge entsprechen. Gesamtkosten = Preis × gewünschte Menge. Die Suche kombiniert gültige eigene Marktstände und Community-Marktdaten. Beide sind Momentaufnahmen: Datenalter beachten. Das Angebot kann bei Ankunft geringer sein. Beim Reiterwechsel wird eine laufende Suche abgebrochen; die Filter bleiben erhalten.',
-    'trade.observed_one': 'Eigene Marktdaten: {count} Station',
-    'trade.observed_many': 'Eigene Marktdaten: {count} Stationen',
+    'trade.observed_one': 'Lokale Marktdaten: {count} Station · {size}',
+    'trade.observed_many': 'Lokale Marktdaten: {count} Stationen · {size}',
     'trade.observed_now': 'zuletzt gerade eben',
     'trade.observed_last': 'zuletzt vor {age}',
-    'trade.observed_tooltip': 'Selbst beobachtete Stationsmärkte aus Elite. Das gewählte maximale Marktdatenalter gilt für diese Suche. Ältere Daten bleiben gespeichert. Der Markt wird automatisch erfasst, wenn du in Elite den Warenmarkt öffnest.',
+    'trade.observed_tooltip': 'Gesamter lokaler Markt-Cache aller Commander: jede Station einmal, unabhängig vom maximalen Marktdatenalter. Dateigröße von markets.db + WAL + SHM. Keine Spansh-/Community-Daten.',
     'recommend.title': 'Empfehlungen',
     'recommend.question': 'Ich stehe hier mit diesem Schiff – welche Ware kann ich hier kaufen und innerhalb meiner Vorgaben mit mindestens {margin} % Gewinn verkaufen?',
     'recommend.margin': 'Mindestgewinn',
@@ -1733,6 +1737,8 @@ TRANSLATIONS = {
     'recommend.ready': 'Vorgaben prüfen und Empfehlungen manuell suchen.',
     'recommend.progress': 'Prüfe Waren: {checked} von {total} …',
     'recommend.results': 'Empfehlungen: {count}',
+    'recommend.no_results': 'Keine passenden Handelsmöglichkeiten gefunden.\nDie Suche mit lokalen Marktdaten und Spansh wurde erfolgreich abgeschlossen. Für die aktuellen Filter und die vorhandenen Marktdaten wurden keine passenden Handelsmöglichkeiten gefunden.',
+    'recommend.no_results_local': 'Keine passenden Handelsmöglichkeiten gefunden.\nDie lokale Suche wurde erfolgreich abgeschlossen. Für die aktuellen Filter und die vorhandenen Marktdaten wurden keine passenden Handelsmöglichkeiten gefunden.',
     'recommend.partial': 'Unvollständige Suche: Ein Teil der Waren oder Ziele konnte nicht geprüft werden oder die Suchgrenze wurde erreicht. Gezeigte Ergebnisse gelten nur für die geprüften Daten.',
     'recommend.notice': 'Der aktuelle Einkaufsmarkt stammt aus deinen lokalen Elite-Marktdaten. Zielmärkte können aus eigenen Beobachtungen oder Community-Daten stammen. Preise, Angebot und Nachfrage können sich ändern. Bitte das Datenalter beachten.',
     'recommend.help': 'Der Einkauf erfolgt ausschließlich am aktuellen, selbst beobachteten Elite-Markt des aktiven Commanders. Öffne bei fehlendem Marktstand den Warenmarkt in Elite. Ziele stammen aus eigenen Beobachtungen und Spansh. Bei gleicher MarketID gewinnt der jüngere gültige Marktstand; bei Zeitgleichheit der lokale. Gewinn/t = Zielverkaufspreis − lokaler Einkaufspreis. Gewinn % = Gewinn/t ÷ Einkaufspreis × 100. Die eingestellte Mindestmarge muss erreicht werden. Menge = Minimum aus sicher bekanntem freiem Schiffsfrachtraum, lokalem Angebot und Zielnachfrage. Möglicher Gewinn = Gewinn/t × mögliche Menge. Pro Ware erscheint das beste geprüfte Ziel nach möglichem Gewinn. Quelle und Datenalter sind sichtbar. Unbekannte Entfernung schließt lokale Ziele aus; fehlende Landeplatz-, Carrier- oder Anflugdaten erlauben keine entsprechende Einschränkung. Die manuelle Suche prüft nur lokal angebotene Waren nacheinander, mit Fortschritt und Abbruch. Teilresultate und Suchgrenzen sind gekennzeichnet. Preise, Angebot und Nachfrage können sich ändern. Der mögliche Gewinn ist eine Schätzung, keine Garantie. Das gewählte maximale Marktdatenalter gilt für diese Suche. Ältere Daten bleiben gespeichert.',
@@ -1775,3 +1781,7 @@ TRANSLATIONS = {
     'trade.age_option_0': 'Keine Begrenzung',
     'trade.remove_remembered_target': 'Gemerktes Ziel entfernen',
 }
+
+TRANSLATIONS.update({'mining.own_sell_price': 'Eigener Verkaufspreis / t', 'mining.own_price_none': 'Keine eigenen nutzbaren Marktdaten innerhalb des Alterslimits.', 'mining.own_price_error': 'Eigene Marktpreise nicht verfügbar (Lesefehler).', 'mining.own_price_help': 'Bester eigener Verkaufspreis dieser Installation bei positiver Nachfrage. Zusatz zum festen Referenzpreis; Nachfrage ist kein Commanderbestand.'})
+
+TRANSLATIONS['recommend.remember_tip'] = 'Tipp: Gewünschte Ziele vor dem Einkauf mit ✓ merken – sie bleiben auch bei vollem Frachtraum erhalten.'

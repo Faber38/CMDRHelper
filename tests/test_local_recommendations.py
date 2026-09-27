@@ -57,8 +57,9 @@ class LocalRecommendationTests(unittest.TestCase):
         self.assertEqual([v.diagnostics.checked_commodities for v in updates],list(range(53)))
         self.assertTrue(all(row.destination.provider=='local_elite' for row in r.rows))
 
-    def test_current_market_other_fid_and_other_source_never_targets(self):
-        for target in (market(),market(mid=2,fid='F_OTHER'),market(mid=2,source='spansh')):
+    def test_current_market_and_other_source_excluded_but_observer_shared(self):
+        self.assertTrue(self.search(local_markets=[market(mid=2,fid='F_OTHER')]).rows)
+        for target in (market(),market(mid=2,source='spansh')):
             self.assertFalse(self.search(local_markets=[target]).rows)
 
     def test_ttl_exact_boundary_and_user_target_age(self):

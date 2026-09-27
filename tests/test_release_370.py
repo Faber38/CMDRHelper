@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class Release370Tests(unittest.TestCase):
     def test_active_version_and_single_source(self):
-        self.assertEqual(__version__, '3.7.5')
+        self.assertEqual(__version__, '3.7.8')
         self.assertEqual(cmdrhelper.__version__, __version__)
         self.assertEqual(version_at(ROOT), __version__)
         sources = []
@@ -35,10 +35,28 @@ class Release370Tests(unittest.TestCase):
             readme = (ROOT / name).read_text()
             headings = re.findall(r'^## .*$', readme, re.M)
             self.assertIn(__version__, headings[1])
-            self.assertIn('3.7.0', headings[2])
+            self.assertIn('3.7.5', headings[2])
+            self.assertIn('3.7.0', headings[3])
             self.assertTrue(any('3.6.2' in h for h in headings[3:]))
             for key in keys:
                 self.assertTrue(table[key].strip())
                 self.assertIn(table[key], readme)
                 self.assertIn(table[key], notes)
         self.assertTrue((ROOT / 'docs/release-3.7.0.md').is_file())
+
+    def test_maintenance_release_notes_are_short_and_localized(self):
+        keys = RELEASE_SUMMARIES['3.7.8']
+        self.assertEqual(len(keys), 4)
+        notes = release_notes(ROOT, '3.7.8')
+        document = (ROOT / 'docs/release-3.7.8.md').read_text()
+        self.assertEqual(document.splitlines()[0], '# CMDRHelper v3.7.8')
+        self.assertEqual(sum(line.startswith('- ') for line in document.splitlines()), 4)
+        for lang, table in _TRANSLATIONS.items():
+            name = 'README.md' if lang == 'en' else 'README_' + lang.upper() + '.md'
+            readme = (ROOT / name).read_text()
+            for key in keys:
+                self.assertTrue(table[key].strip())
+                self.assertIn(table[key], notes)
+                self.assertIn(table[key], readme)
+                if lang == 'de':
+                    self.assertIn('- ' + table[key], document)

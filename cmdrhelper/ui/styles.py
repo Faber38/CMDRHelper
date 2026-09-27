@@ -152,6 +152,14 @@ QLabel[gameMode="Solo"], QLabel#statusWarn {
     color: #f0ad4e;
 }
 
+QLabel#recommendationRememberTip {
+    color: #f0ad4e;
+    border: 1px solid #f0ad4e;
+    border-radius: 3px;
+    background: #282319;
+    padding: 4px 6px;
+}
+
 QPushButton {
     background: #111820;
     color: #d7dce1;
@@ -419,6 +427,14 @@ QLabel[gameMode="Group"], QLabel#statusOk {
 
 QLabel[gameMode="Solo"], QLabel#statusWarn {
     color: #b36a00;
+}
+
+QLabel#recommendationRememberTip {
+    color: #b36a00;
+    border: 1px solid #b36a00;
+    border-radius: 3px;
+    background: #fff8e5;
+    padding: 4px 6px;
 }
 
 QPushButton {

@@ -1307,3 +1307,5 @@ HELP_TOPICS["explorer"] = (
     HELP_TOPICS["explorer"][0],
     HELP_TOPICS["explorer"][1] + '<p>„Dopasuj do szerokości okna” automatycznie rozdziela dostępną szerokość między kolumny listy wartości. Opcja jest domyślnie włączona i zapamiętywana. Przy bardzo wąskim oknie lub dużej czcionce nadal może być potrzebne przewijanie poziome. Po wyłączeniu szerokości można regulować ręcznie. Opcja jest niezależna od automatycznego dopasowania przeglądu graficznego.</p>',
 )
+
+HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>Wskazówka: zapamiętaj wybrane cele za pomocą ✓ przed zakupem – pozostaną dostępne nawet przy pełnej ładowni.</p>')

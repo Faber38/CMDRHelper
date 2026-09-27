@@ -1,4 +1,5 @@
 """Manual, transient trade UI. Identity and network semantics belong to providers."""
+import logging
 from datetime import datetime, timezone
 from threading import Event
 
@@ -12,9 +13,9 @@ from PySide6.QtWidgets import (
 from cmdrhelper.commodity_master import lookup_by_id
 from cmdrhelper.i18n import get_language, tr
 from cmdrhelper.market_data import MarketSearch, MarketSearchResult, MarketStatus, PadSize, TradeSide
-from cmdrhelper.observed_market_cache import timestamp
 from cmdrhelper.spansh_market import SpanshMarketProvider
 from cmdrhelper.trade_search import search_trade
+from cmdrhelper.trade_market_source import prepare_trade_source
 from cmdrhelper.trade_result_text import community_failure_text, market_notice_text
 from cmdrhelper.ui.commodity_picker import CommodityField
 from cmdrhelper.ui.recent_system_copy import RecentSystemCopyDelegate
@@ -22,6 +23,7 @@ from cmdrhelper.ui.remembered_targets import RememberedTargets, RememberedTarget
 from cmdrhelper.ui.system_clipboard import copy_system_name
 
 from .market_age import MarketAgeCombo
+from .observed_market_status import observed_market_text
 
 
 def format_age(stamp, now=None):
@@ -39,11 +41,12 @@ class MarketSignals(QObject):
 
 class MarketWorker(QRunnable):
     def __init__(self, provider, query, side=TradeSide.SELL, generation=0, *, local_markets=(),
-                 distances=None, fid='', clock=None):
+                 distances=None, fid='', clock=None, local_source=None):
         super().__init__()
         self.provider, self.query = provider, query
         self.side, self.generation = side, generation
         self.local_markets, self.distances, self.fid = local_markets, distances, fid
+        self.local_source = local_source
         self.clock = clock or (lambda: datetime.now(timezone.utc))
         self.cancel = Event()
         self.signals = MarketSignals()
@@ -52,8 +55,10 @@ class MarketWorker(QRunnable):
     def run(self):
         try:
             result = search_trade(self.provider, self.query, self.side, self.local_markets,
-                                  self.distances, self.fid, cancel=self.cancel, clock=self.clock)
+                                  self.distances, self.fid, cancel=self.cancel, clock=self.clock,
+                                  local_source=self.local_source)
         except Exception:
+            logging.getLogger(__name__).exception('Local trade read failed')
             # No raw exception or HTTP response is exposed to the user.
             result = MarketSearchResult(MarketStatus.INVALID_RESPONSE, query=self.query)
         if self.cancel.is_set():
@@ -316,24 +321,12 @@ class TradeView(QWidget):
             self.offers = ()
             self.table.setRowCount(0)
             self._invalidate_results()
-        # Only count currently fresh observations; keep older snapshots on disk.
+        # Total local storage, independent of commander and search age filters.
         if self._refreshing_observed:
             return
         self._refreshing_observed = True
         try:
-            observer = getattr(self.state, 'observed_markets', None)
-            fid = getattr(self.state, 'commander_fid', '')
-            markets = observer.cache.all(fid, max_age=self.max_age.max_age()) if observer is not None and fid else []
-            markets = {row['market_id']: row for row in markets
-                       if row['fid'] == fid and row['source'] == 'local_elite'}
-            count = len(markets)
-            text = tr('trade.observed_one' if count == 1 else 'trade.observed_many', count=count)
-            if markets:
-                latest = max(timestamp(row['observed_at']) for row in markets.values())
-                now = observer.cache.clock()
-                text += ' · ' + (tr('trade.observed_now') if (now - latest).total_seconds() < 60
-                                else tr('trade.observed_last', age=format_age(latest, now)))
-            self.observed_status.setText(text)
+            self.observed_status.setText(observed_market_text(self.state))
             self.observed_status.setToolTip(tr('trade.observed_tooltip'))
         finally:
             self._refreshing_observed = False
@@ -382,15 +375,14 @@ class TradeView(QWidget):
         self.search_button.setEnabled(False)
         self.cancel_button.setEnabled(True)
         self.cancel_button.show()
-        from .recommendations_view import local_distances
         observer = getattr(self.state, 'observed_markets', None)
-        cache = observer.cache if observer is not None else None
-        local = cache.all(self._fid, max_age=None) if cache is not None and self._fid else []
-        origin = dict(system_name=self._reference,
-                      system_address=getattr(self.state, 'system_address', None))
-        distances = local_distances(self.state, origin, local) if local else {}
+        source = prepare_trade_source(observer, self._fid, self._reference,
+            getattr(self.state, 'system_address', None), getattr(self.state, 'database', None))
+        cache = getattr(observer, '_cache', None) if observer is not None else None
+        if cache is None and observer is not None:
+            cache = vars(observer).get('cache')
         self.worker = MarketWorker(self.provider, self._query, self.side, self._generation,
-                                   local_markets=local, distances=distances, fid=self._fid,
+                                   local_source=source, fid=self._fid,
                                    clock=cache.clock if cache is not None else None)
         self._cancel_event = self.worker.cancel
         self.destroyed.connect(self._cancel_event.set)

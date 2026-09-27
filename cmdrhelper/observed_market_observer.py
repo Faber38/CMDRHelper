@@ -20,8 +20,12 @@ RETRY_SECONDS = 15
 
 
 class ObservedMarketObserver:
-    def __init__(self, cache=None, *, clock=utcnow, monotonic=time.monotonic, on_changed=None):
+    def __init__(self, cache=None, *, clock=utcnow, monotonic=time.monotonic, on_changed=None, use_market_store=False):
         self._cache = cache
+        self.use_market_store = use_market_store
+        self.writer = None
+        self._writes = []
+        self._closing = False
         self.on_changed = on_changed
         if cache is not None and on_changed is not None:
             cache.on_changed = on_changed
@@ -35,8 +39,42 @@ class ObservedMarketObserver:
     @property
     def cache(self):
         if self._cache is None:
-            self._cache = ObservedMarketCache(cache_path(), clock=self.clock, on_changed=self.on_changed)
+            from .market_migration import database_authoritative
+            path = cache_path()
+            self._cache = ObservedMarketCache(path, clock=self.clock, on_changed=self.on_changed,
+                load=not (self.use_market_store and database_authoritative(path.parent / 'markets.db')))
+        if self.use_market_store and self.writer is None and not self._closing:
+            from .market_writer import MarketWriteWorker
+            self._cache.sqlite_writer_enabled = True
+            self.writer = MarketWriteWorker(
+                self._cache.path, self._cache.path.parent / 'markets.db', clock=self.clock,
+                on_loaded=self._cache.install_headers, on_committed=self._cache.apply_committed_header,
+                on_status=lambda _: self.on_changed() if self.on_changed is not None else None)
+            self._cache.store_writer = self.writer
         return self._cache
+
+    def close(self):
+        self._closing = True
+        if self.writer is not None:
+            return self.writer.close()
+        return True
+
+    def _poll_writes(self):
+        remaining = []
+        for snapshot, future in self._writes:
+            if not future.done():
+                remaining.append((snapshot, future))
+            else:
+                try:
+                    future.result()
+                except Exception as exc:
+                    self._diagnose('Market SQLite write failed: ' + str(exc))
+                    if not self._closing:
+                        remaining.append((snapshot, self.writer.record(snapshot)))
+        self._writes = remaining
+        if not remaining and self.writer is not None and self.writer.last_error is None:
+            self.last_error = None
+        return not remaining
 
     def set_folder(self, folder):
         self.folder = Path(folder) if folder else None
@@ -158,13 +196,16 @@ class ObservedMarketObserver:
         self._offset, self._sig = offset, before
 
     def consume(self, paths):
+        writes_done = self._poll_writes()
+        if self._closing:
+            return False
         if not self.armed:
-            return True
+            return writes_done
         candidates = [Path(p) for p in paths if self.boundary is None or journal_sort_key(Path(p)) >= self.boundary]
         if self.path is not None:
             candidates.append(self.path)
         if not candidates:
-            return True
+            return writes_done
         current = max(candidates, key=journal_sort_key)
         try:
             self._read_journal(current)
@@ -175,18 +216,23 @@ class ObservedMarketObserver:
             self._blocked, self.pending, self.context = True, None, {}
             self._diagnose(str(exc))
         if self.pending is None:
-            return True
+            return writes_done
         event, context, deadline = self.pending
         if self.monotonic() >= deadline:
             self.pending = None
             self._diagnose('Market capture retry deadline exceeded')
-            return True
+            return writes_done
         try:
             data, sidecar_sig = read_market(current.parent / 'Market.json')
             snapshot = normalize_observation(event, data, fid=context['FID'], context=context,
                                             mtime=sidecar_sig[3] / 1e9, now=self.clock())
             if signature(current) != self._sig or signature(current.parent / 'Market.json') != sidecar_sig:
                 raise OSError('Journal/sidecar changed before market commit')
+            if self.use_market_store:
+                self.cache  # Ensure writer exists before enqueueing.
+                self._writes.append((snapshot, self.writer.record(snapshot)))
+                self.pending = None
+                return False  # Watcher retries until the actual COMMIT completes.
             if not self.cache.put(snapshot):
                 self._diagnose('Market cache write rejected: ' + str(self.cache.last_error))
                 return False

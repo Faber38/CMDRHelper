@@ -1326,3 +1326,5 @@ HELP_TOPICS["explorer"] = (
     HELP_TOPICS["explorer"][0],
     HELP_TOPICS["explorer"][1] + '<p>«Ajustar al ancho de la ventana» distribuye automáticamente las columnas de la lista de valores en el ancho disponible. Está activado por defecto y se guarda la preferencia. Una ventana muy estrecha o una letra grande pueden requerir desplazamiento horizontal. Al desactivarlo, los anchos siguen siendo ajustables manualmente. Es independiente del ajuste automático de la vista gráfica general.</p>',
 )
+
+HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>Consejo: guarda los destinos deseados con ✓ antes de comprar; seguirán disponibles aunque la bodega esté llena.</p>')

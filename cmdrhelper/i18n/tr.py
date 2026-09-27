@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'release.3_7_8.0': 'Ticaret asistanındaki hatalar düzeltildi.',
+    'release.3_7_8.1': 'Kargo alanının algılanması ve güncellenmesi iyileştirildi.',
+    'release.3_7_8.2': 'Kapasite sınırındaki malzeme stoklarında oluşan hatalar düzeltildi.',
+    'release.3_7_8.3': 'Genel kararlılık ve güvenilirlik iyileştirmeleri yapıldı.',
     'explorer.value_fit_width': 'Pencere genişliğine sığdır',
     'explorer.value_fit_width_tip': 'Değer listesinin sütunlarını kullanılabilir pencere genişliğine otomatik olarak sığdırır.',
     'explorer.first_footfall': 'İLK AYAK BASIŞ',
@@ -1583,11 +1587,11 @@ TRANSLATIONS = {
     'trade.buy_success_one': 'Size mal satmak için 1 teklif bulundu.',
     'trade.buy_success': 'Size mal satmak için {count} teklif bulundu.',
     'trade.buy_help': 'Malı ve miktarı seçin, filtreleri ayarlayın ve satın alma aramasını elle başlatın. Fiyat / t, komutanın ödeyeceği fiyattır. Arz, bildirilen mevcut miktardır ve istenen miktarı karşılamalıdır. Toplam maliyet = fiyat × istenen miktar. Arama, geçerli kendi pazar gözlemlerinizi ve topluluk pazar verilerini birleştirir. Her ikisi de anlık kayıtlardır: verilerin yaşına dikkat edin. Varışta arz daha düşük olabilir. Sekme değiştirmek etkin aramayı iptal eder ve filtreleri korur.',
-    'trade.observed_one': 'Kendi pazar verilerin: {count} istasyon',
-    'trade.observed_many': 'Kendi pazar verilerin: {count} istasyon',
+    'trade.observed_one': 'Yerel pazar verileri: {count} istasyon · {size}',
+    'trade.observed_many': 'Yerel pazar verileri: {count} istasyon · {size}',
     'trade.observed_now': 'son gözlem az önce',
     'trade.observed_last': 'son gözlem {age} önce',
-    'trade.observed_tooltip': 'Elite içinde bizzat gözlemlediğin istasyon pazarları. Seçilen azami pazar verisi yaşı bu arama için geçerlidir. Eski veriler saklanır. Elite içinde emtia pazarını açtığında pazar otomatik olarak kaydedilir.',
+    'trade.observed_tooltip': 'Tüm komutanların yerel pazar önbelleğinin tamamı: azami veri yaşından bağımsız olarak her istasyon bir kez sayılır. markets.db + WAL + SHM dosyasının boyutu. Spansh/topluluk verileri dahil değildir.',
     'recommend.title': 'Öneriler',
     'recommend.question': 'Bu gemiyle buradayım — burada hangi malı alıp koşullarım dahilinde en az %{margin} kârla satabilirim?',
     'recommend.margin': 'Asgari kâr',
@@ -1609,6 +1613,8 @@ TRANSLATIONS = {
     'recommend.ready': 'Koşullarını kontrol et ve öneri aramasını elle başlat.',
     'recommend.progress': 'Mallar kontrol ediliyor: {checked} / {total} …',
     'recommend.results': 'Öneriler: {count}',
+    'recommend.no_results': 'Uygun ticaret fırsatı bulunamadı.\nYerel piyasa verileri ve Spansh ile arama başarıyla tamamlandı. Geçerli filtreler ve mevcut piyasa verileri için uygun ticaret fırsatı bulunamadı.',
+    'recommend.no_results_local': 'Uygun ticaret fırsatı bulunamadı.\nYerel arama başarıyla tamamlandı. Geçerli filtreler ve mevcut piyasa verileri için uygun ticaret fırsatı bulunamadı.',
     'recommend.partial': 'Eksik arama: Bazı mallar veya hedefler kontrol edilemedi ya da arama sınırına ulaşıldı. Sonuçlar yalnızca kontrol edilen veriler için geçerlidir.',
     'recommend.notice': 'Mevcut alış pazarı yerel Elite pazar verilerinden gelir. Hedefler kendi gözlemlerinden veya topluluk verilerinden gelebilir. Fiyatlar, arz ve talep değişebilir. Verilerin yaşını kontrol et.',
     'recommend.help': 'Alışlar yalnızca aktif komutanın bizzat gözlemlediği mevcut Elite pazarını kullanır. Veri yoksa Elite içinde pazarı aç. Hedefler kendi gözlemlerinden ve Spansh’tan gelir. Aynı MarketID için daha yeni geçerli kayıt kazanır; zamanlar eşitse yerel kayıt seçilir. Kâr/t = hedef satış fiyatı − yerel alış fiyatı. Kâr % = kâr/t ÷ alış fiyatı × 100. Asgari kâr karşılanmalıdır. Miktar = doğrulanmış boş kargo alanı, yerel arz ve hedef talebinin en küçüğü. Olası kâr = kâr/t × mümkün miktar. Her mal için olası kâra göre kontrol edilmiş en iyi hedef, kaynak ve veri yaşı gösterilir. Bilinmeyen mesafe yerel hedefi dışlar; eksik iniş alanı, carrier veya varış bilgisi ilgili kısıtlamayı karşılamaz. Elle başlatılan arama sadece yerel olarak sunulan malları sırayla kontrol eder, ilerlemeyi gösterir ve iptal edilebilir. Kısmi sonuçlar ve arama sınırları belirtilir. Fiyatlar, arz ve talep değişebilir. Olası kâr bir tahmindir, garanti değildir. Seçilen azami pazar verisi yaşı bu arama için geçerlidir. Eski veriler saklanır.',
@@ -1651,3 +1657,7 @@ TRANSLATIONS = {
     'trade.age_option_0': 'Sınırsız',
     'trade.remove_remembered_target': 'Kaydedilen hedefi kaldır',
 }
+
+TRANSLATIONS.update({'mining.own_sell_price': 'Kendi satış fiyatı / t', 'mining.own_price_none': 'Yaş sınırı içinde kullanılabilir kendi pazar verisi yok.', 'mining.own_price_error': 'Kendi pazar fiyatları kullanılamıyor (okuma hatası).', 'mining.own_price_help': 'Pozitif talep olan bu kurulumda gözlemlenen en iyi kendi satış fiyatı. Sabit referans fiyatına ek bilgidir; talep komutanın envanteri değildir.'})
+
+TRANSLATIONS['recommend.remember_tip'] = 'İpucu: Satın almadan önce istediğiniz hedefleri ✓ ile kaydedin – kargo bölmesi dolu olsa bile saklanırlar.'

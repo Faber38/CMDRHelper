@@ -5,11 +5,13 @@ from datetime import datetime, timezone
 from .commodity_master import lookup_by_id, lookup_by_symbol
 from .market_candidates import local_offer, merge_destinations, matches_location
 from .market_data import MarketSearchResult, MarketStatus, TradeSide
-from .observed_market_cache import ObservedMarketCache
+from .observed_market_cache import ObservedMarketCache, shared_current
 
 
 def search_trade(provider, query, side, local_markets=(), distances=None, fid='', *,
-                 cancel=None, clock=lambda: datetime.now(timezone.utc)):
+                 cancel=None, clock=lambda: datetime.now(timezone.utc), local_source=None):
+    if cancel is not None and cancel.is_set():
+        return MarketSearchResult(MarketStatus.CANCELLED, query=query)
     search = provider.search_buy if side == TradeSide.BUY else provider.search_sell
     try:
         result = search(query, cancel=cancel)
@@ -25,9 +27,19 @@ def search_trade(provider, query, side, local_markets=(), distances=None, fid=''
     if master is None:
         return result
     commodity = dict(commodity_id=master.frontier_id, symbol=master.symbol)
-    local = [local_offer(s, commodity, (distances or {}).get(s['market_id']), now)
-             for s in local_markets if fid and s['fid'] == fid and s['source'] == 'local_elite'
-             and ObservedMarketCache.is_valid(s, now, query.max_age)]
+    if local_source is not None:
+        from .trade_market_source import TradeReadCancelled
+        try:
+            local = [local_offer(s, commodity, distance, now)
+                     for s, distance in local_source.candidates(query, now, cancel)]
+        except TradeReadCancelled:
+            return MarketSearchResult(MarketStatus.CANCELLED, query=query)
+    else:
+        local = [local_offer(s, commodity, (distances or {}).get(s['market_id']), now)
+                 for s in shared_current(local_markets, now) if s['source'] == 'local_elite'
+                 and ObservedMarketCache.is_valid(s, now, query.max_age)]
+    if cancel is not None and cancel.is_set():
+        return MarketSearchResult(MarketStatus.CANCELLED, query=query)
     failed = result.status not in (MarketStatus.OK, MarketStatus.NO_RESULTS)
     # As with recommendations, a newer observed empty/non-trading market must
     # supersede an old quote, before price/quantity/location eligibility is tested.

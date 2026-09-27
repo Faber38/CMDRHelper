@@ -1286,3 +1286,5 @@ HELP_TOPICS["explorer"] = (
     HELP_TOPICS["explorer"][0],
     HELP_TOPICS["explorer"][1] + '<p>”Anpassa till fönsterbredden” fördelar värdelistans kolumner automatiskt över den tillgängliga bredden. Alternativet är på som standard och sparas. Mycket smala fönster eller stor text kan fortfarande kräva vågrät rullning. När alternativet är av kan bredderna justeras manuellt. Det är oberoende av den grafiska översiktens automatiska anpassning.</p>',
 )
+
+HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>Tips: spara önskade destinationer med ✓ före köp – de finns kvar även när lastutrymmet är fullt.</p>')

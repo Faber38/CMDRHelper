@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'release.3_7_8.0': 'Buggfixar i handelsassistenten.',
+    'release.3_7_8.1': 'Förbättrad avläsning och uppdatering av lastutrymmet.',
+    'release.3_7_8.2': 'Åtgärdade fel i materiallagret vid kapacitetsgränsen.',
+    'release.3_7_8.3': 'Allmänna förbättringar av stabilitet och tillförlitlighet.',
     'explorer.value_fit_width': 'Anpassa till fönsterbredden',
     'explorer.value_fit_width_tip': 'Anpassar värdelistans kolumner automatiskt till den tillgängliga fönsterbredden.',
     'explorer.first_footfall': 'FÖRSTA FOTAVTRYCK',
@@ -1583,11 +1587,11 @@ TRANSLATIONS = {
     'trade.buy_success_one': 'Hittade 1 erbjudande om att sälja varor till dig.',
     'trade.buy_success': 'Hittade {count} erbjudanden om att sälja varor till dig.',
     'trade.buy_help': 'Välj vara och mängd, ange filter och starta köpsökningen manuellt. Pris / t är priset befälhavaren betalar. Utbud är den rapporterade tillgängliga mängden och måste täcka önskad mängd. Totalkostnad = pris × önskad mängd. Sökningen kombinerar giltiga egna marknadsobservationer och gemenskapens marknadsdata. Båda är ögonblicksbilder: kontrollera uppgifternas ålder. Utbudet kan vara mindre vid ankomst. Byte av flik avbryter en aktiv sökning och behåller filtren.',
-    'trade.observed_one': 'Egna marknadsdata: {count} station',
-    'trade.observed_many': 'Egna marknadsdata: {count} stationer',
+    'trade.observed_one': 'Lokala marknadsdata: {count} station · {size}',
+    'trade.observed_many': 'Lokala marknadsdata: {count} stationer · {size}',
     'trade.observed_now': 'senast observerat just nu',
     'trade.observed_last': 'senast observerat för {age} sedan',
-    'trade.observed_tooltip': 'Stationsmarknader som du själv har observerat i Elite. Vald högsta ålder för marknadsdata gäller för denna sökning. Äldre data sparas. Marknaden registreras automatiskt när du öppnar råvarumarknaden i Elite.',
+    'trade.observed_tooltip': 'Hela den lokala marknadscachen för alla befälhavare: varje station räknas en gång, oavsett högsta ålder för marknadsdata. Filstorleken för markets.db + WAL + SHM. Inga Spansh- eller gemenskapsdata.',
     'recommend.title': 'Rekommendationer',
     'recommend.question': 'Jag är här med detta skepp – vilken vara kan jag köpa här och sälja inom mina villkor med minst {margin} % vinst?',
     'recommend.margin': 'Minsta vinst',
@@ -1609,6 +1613,8 @@ TRANSLATIONS = {
     'recommend.ready': 'Kontrollera villkoren och starta sökningen manuellt.',
     'recommend.progress': 'Kontrollerar varor: {checked} av {total} …',
     'recommend.results': 'Rekommendationer: {count}',
+    'recommend.no_results': 'Inga matchande handelsmöjligheter hittades.\nSökningen med lokala marknadsdata och Spansh slutfördes utan fel. Inga matchande handelsmöjligheter hittades med aktuella filter och tillgängliga marknadsdata.',
+    'recommend.no_results_local': 'Inga matchande handelsmöjligheter hittades.\nDen lokala sökningen slutfördes utan fel. Inga matchande handelsmöjligheter hittades med aktuella filter och tillgängliga marknadsdata.',
     'recommend.partial': 'Ofullständig sökning: Vissa varor eller mål kunde inte kontrolleras eller sökgränsen nåddes. Resultaten gäller endast kontrollerade data.',
     'recommend.notice': 'Den aktuella inköpsmarknaden kommer från dina lokala Elite-marknadsdata. Mål kan komma från egna observationer eller gemenskapens data. Priser, utbud och efterfrågan kan ändras. Kontrollera dataåldern.',
     'recommend.help': 'Köp använder endast den aktiva befälhavarens aktuella, själv observerade Elite-marknad. Öppna marknaden i Elite om data saknas. Mål kommer från egna observationer och Spansh. För samma MarketID vinner nyaste giltiga data, vid lika tid lokala data. Vinst/t = försäljningspris vid målet − lokalt inköpspris. Vinst % = vinst/t ÷ inköpspris × 100. Minsta vinsten måste uppnås. Mängd = minimum av bekräftat ledigt lastutrymme, lokalt utbud och målets efterfrågan. Möjlig vinst = vinst/t × möjlig mängd. Varje vara visar bästa kontrollerade mål efter möjlig vinst, med källa och dataålder. Okänt avstånd utesluter lokala mål; saknade landningsplats-, carrier- eller ankomstdata uppfyller inte motsvarande begränsningar. Manuell sökning kontrollerar endast lokalt erbjudna varor i följd, med förlopp och avbrytning. Delresultat och sökgränser anges. Priser, utbud och efterfrågan kan ändras. Möjlig vinst är en uppskattning, ingen garanti. Vald högsta ålder för marknadsdata gäller för denna sökning. Äldre data sparas.',
@@ -1651,3 +1657,7 @@ TRANSLATIONS = {
     'trade.age_option_0': 'Ingen gräns',
     'trade.remove_remembered_target': 'Ta bort sparad destination',
 }
+
+TRANSLATIONS.update({'mining.own_sell_price': 'Eget försäljningspris / t', 'mining.own_price_none': 'Inga användbara egna marknadsdata inom åldersgränsen.', 'mining.own_price_error': 'Egna marknadspriser saknas (läsfel).', 'mining.own_price_help': 'Bästa egna försäljningspris observerat av denna installation med positiv efterfrågan. Tillägg till fast referenspris; efterfrågan är inte befälhavarens lager.'})
+
+TRANSLATIONS['recommend.remember_tip'] = 'Tips: spara önskade destinationer med ✓ före köp – de finns kvar även när lastutrymmet är fullt.'

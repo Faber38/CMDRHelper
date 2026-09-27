@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'release.3_7_8.0': 'Correzioni di errori nell’assistente commerciale.',
+    'release.3_7_8.1': 'Migliorati il rilevamento e l’aggiornamento dello spazio di carico.',
+    'release.3_7_8.2': 'Corretti gli errori delle scorte di materiali al limite di capacità.',
+    'release.3_7_8.3': 'Miglioramenti generali alla stabilità e all’affidabilità.',
     'explorer.value_fit_width': 'Adatta alla larghezza della finestra',
     'explorer.value_fit_width_tip': 'Adatta automaticamente le colonne dell’elenco valori alla larghezza disponibile della finestra.',
     'explorer.first_footfall': 'PRIMO PASSO',
@@ -1706,11 +1710,11 @@ TRANSLATIONS = {
     'trade.buy_success_one': 'Trovata 1 offerta di vendita per te.',
     'trade.buy_success': 'Trovate {count} offerte di vendita per te.',
     'trade.buy_help': 'Scegli merce e quantità, imposta i filtri e avvia manualmente la ricerca di acquisto. Prezzo / t è il prezzo pagato dal comandante. Offerta è la quantità disponibile segnalata e deve coprire quella richiesta. Costo totale = prezzo × quantità richiesta. La ricerca combina le tue osservazioni di mercato valide e i dati della comunità. Entrambi sono istantanee: controlla quanto sono recenti. L’offerta potrebbe essere inferiore all’arrivo. Cambiare scheda annulla la ricerca attiva e mantiene i filtri.',
-    'trade.observed_one': 'Dati di mercato personali: {count} stazione',
-    'trade.observed_many': 'Dati di mercato personali: {count} stazioni',
+    'trade.observed_one': 'Dati di mercato locali: {count} stazione · {size}',
+    'trade.observed_many': 'Dati di mercato locali: {count} stazioni · {size}',
     'trade.observed_now': 'ultima osservazione ora',
     'trade.observed_last': 'ultima osservazione {age} fa',
-    'trade.observed_tooltip': 'Mercati delle stazioni osservati personalmente in Elite. L’età massima selezionata dei dati di mercato si applica a questa ricerca. I dati più vecchi restano salvati. Il mercato viene registrato automaticamente quando apri il mercato delle merci in Elite.',
+    'trade.observed_tooltip': 'Intera cache locale dei mercati di tutti i comandanti: ogni stazione conta una volta, indipendentemente dall’età massima dei dati. Dimensione del file markets.db + WAL + SHM. Nessun dato Spansh o della comunità.',
     'recommend.title': 'Consigli',
     'recommend.question': 'Sono qui con questa nave: quale merce posso comprare qui e rivendere rispettando i miei limiti con almeno il {margin}% di profitto?',
     'recommend.margin': 'Profitto minimo',
@@ -1732,6 +1736,8 @@ TRANSLATIONS = {
     'recommend.ready': 'Controlla i limiti e avvia manualmente la ricerca dei consigli.',
     'recommend.progress': 'Verifica merci: {checked} di {total} …',
     'recommend.results': 'Consigli: {count}',
+    'recommend.no_results': 'Nessuna opportunità commerciale corrispondente trovata.\nLa ricerca con i dati di mercato locali e Spansh è stata completata correttamente. Non sono state trovate opportunità commerciali per i filtri attuali e i dati di mercato disponibili.',
+    'recommend.no_results_local': 'Nessuna opportunità commerciale corrispondente trovata.\nLa ricerca locale è stata completata correttamente. Non sono state trovate opportunità commerciali per i filtri attuali e i dati di mercato disponibili.',
     'recommend.partial': 'Ricerca incompleta: Non è stato possibile verificare alcune merci o destinazioni, oppure è stato raggiunto il limite di ricerca. I risultati riguardano solo i dati verificati.',
     'recommend.notice': 'Il mercato di acquisto attuale proviene dai tuoi dati locali di Elite. Le destinazioni possono provenire dalle tue osservazioni o dai dati della comunità. Prezzi, offerta e domanda possono cambiare. Controlla l’età dei dati.',
     'recommend.help': 'Gli acquisti usano solo il mercato Elite attuale osservato personalmente dal comandante attivo. Se mancano, apri il mercato in Elite. Le destinazioni provengono dalle tue osservazioni e da Spansh. Per la stessa MarketID vince il dato valido più recente; a parità vince quello locale. Profitto/t = prezzo di vendita a destinazione − prezzo di acquisto locale. Profitto % = profitto/t ÷ prezzo di acquisto × 100. Il margine minimo deve essere raggiunto. Quantità = minimo tra spazio libero confermato, offerta locale e domanda a destinazione. Profitto potenziale = profitto/t × quantità possibile. Ogni merce mostra la migliore destinazione verificata per profitto potenziale, con fonte ed età dei dati. La distanza sconosciuta esclude destinazioni locali; metadati mancanti su piattaforme, carrier o distanza di arrivo non soddisfano i relativi limiti. La ricerca manuale controlla in sequenza solo le merci offerte localmente, con avanzamento e annullamento. Risultati parziali e limiti sono indicati. Prezzi, offerta e domanda possono cambiare. Il profitto potenziale è una stima, non una garanzia. L’età massima selezionata dei dati di mercato si applica a questa ricerca. I dati più vecchi restano salvati.',
@@ -1774,3 +1780,7 @@ TRANSLATIONS = {
     'trade.age_option_0': 'Nessun limite',
     'trade.remove_remembered_target': 'Rimuovi destinazione salvata',
 }
+
+TRANSLATIONS.update({'mining.own_sell_price': 'Prezzo di vendita locale / t', 'mining.own_price_none': 'Nessun dato di mercato proprio utilizzabile entro il limite di età.', 'mining.own_price_error': 'Prezzi propri non disponibili (errore di lettura).', 'mining.own_price_help': 'Miglior prezzo di vendita proprio osservato da questa installazione con domanda positiva. Si aggiunge al prezzo di riferimento fisso; la domanda non è l’inventario del comandante.'})
+
+TRANSLATIONS['recommend.remember_tip'] = 'Suggerimento: salva le destinazioni desiderate con ✓ prima di acquistare – restano disponibili anche con la stiva piena.'

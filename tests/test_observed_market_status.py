@@ -14,6 +14,7 @@ from cmdrhelper.i18n import set_language, get_language, tr, _TRANSLATIONS
 from cmdrhelper.observed_market_cache import ObservedMarketCache
 from cmdrhelper.observed_market_observer import ObservedMarketObserver
 from cmdrhelper.ui.trade_view import TradeView
+from cmdrhelper.ui.observed_market_status import format_cache_size
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 from test_observed_market_cache import NOW, FID, snapshot, event, sidecar
 
@@ -54,40 +55,86 @@ class ObservedStatusTests(unittest.TestCase):
     def text(self):
         return self.view.observed_status.text()
 
+    def assert_status(self, count):
+        unit = 'Station' if count == 1 else 'Stationen'
+        size = self.cache.path.stat().st_size if self.cache.path.exists() else 0
+        self.assertEqual(self.text(), f'Lokale Marktdaten: {count} {unit} · {format_cache_size(size)}')
+        self.assertEqual(self.cache.storage_stats(), (count, size))
+        self.assertEqual(self.view.recommendations.observed_status.text(), self.text())
+
     def test_zero_one_two_and_same_market_replacement(self):
-        self.assertEqual(self.text(), 'Eigene Marktdaten: 0 Stationen')
-        self.cache.put(snapshot(NOW-timedelta(minutes=3)))
-        self.assertEqual(self.text(), 'Eigene Marktdaten: 1 Station · zuletzt vor 3 Min.')
-        self.cache.put(snapshot(NOW-timedelta(hours=2), mid=456))
-        self.assertEqual(self.text(), 'Eigene Marktdaten: 2 Stationen · zuletzt vor 3 Min.')
-        self.cache.put(snapshot(mid=456))
-        self.assertEqual(self.text(), 'Eigene Marktdaten: 2 Stationen · zuletzt gerade eben')
+        self.assert_status(0)
+        self.assertFalse(self.cache.path.exists())
+        self.assertTrue(self.cache.put(snapshot(NOW-timedelta(minutes=3))))
+        self.assert_status(1)
+        size = self.cache.storage_stats()[1]
+        self.assertTrue(self.cache.put(snapshot(NOW-timedelta(hours=2), mid=456)))
+        self.assert_status(2)
+        self.assertGreater(self.cache.storage_stats()[1], size)
+        size = self.cache.storage_stats()[1]
+        self.assertTrue(self.cache.put(dict(snapshot(mid=456), station_name='Updated station with a longer name')))
+        self.assert_status(2)
+        self.assertGreater(self.cache.storage_stats()[1], size)
 
     def test_other_fid_source_and_commander_change(self):
         self.cache.put(snapshot())
         self.cache.put(snapshot(fid='F_OTHER', mid=456))
+        self.cache.put(snapshot(fid='F_OTHER'))
         self.assertFalse(self.cache.put(dict(snapshot(mid=789), source='spansh')))
-        self.assertIn('1 Station ·', self.text())
-        self.state.commander_fid = 'F_EMPTY'
-        self.state.commanderIdentityChanged.emit(2, 'F_EMPTY', 'Synthetic')
-        self.assertEqual(self.text(), 'Eigene Marktdaten: 0 Stationen')
-        self.state.commander_fid = 'F_OTHER'
-        self.state.changed.emit()
-        self.assertIn('1 Station ·', self.text())
+        self.assert_status(2)
+        for fid in ('F_EMPTY', 'F_OTHER', ''):
+            self.state.commander_fid = fid
+            self.state.commanderIdentityChanged.emit(2, fid, 'Synthetic')
+            self.assert_status(2)
 
     def test_age_filter_refresh_preserves_snapshots(self):
         self.cache.put(snapshot())
-        self.cache.put(snapshot(NOW-timedelta(hours=1), mid=456))
-        self.now += timedelta(hours=23, seconds=-1)
+        self.cache.put(snapshot(NOW-timedelta(days=400), mid=456))
+        before = self.cache.path.read_bytes()
+        self.now += timedelta(days=500)
+        for index in range(self.view.max_age.count()):
+            self.view.max_age.setCurrentIndex(index)
+            self.view.refresh_observed_markets()
+            self.view.recommendations.refresh()
+            self.assert_status(2)
+        self.assertEqual(self.cache.path.read_bytes(), before)
+
+    def test_missing_empty_and_metadata_only(self):
+        self.assert_status(0)
+        self.cache.path.touch()
         self.view.refresh_observed_markets()
-        self.assertIn('2 Stationen', self.text())
-        self.now += timedelta(seconds=2)
+        self.view.recommendations.refresh()
+        self.assert_status(0)
+        self.cache.path.write_text('{"version":1,"markets":[]}')
         self.view.refresh_observed_markets()
-        self.assertEqual(self.text(), 'Eigene Marktdaten: 1 Station · zuletzt vor 23 Std.')
-        self.now += timedelta(hours=1)
+        self.view.recommendations.refresh()
+        self.assert_status(0)
+        self.cache.put(snapshot())
+        before = self.cache.path.read_bytes()
+        with patch.object(Path, 'open', side_effect=AssertionError('No extra file read')), \
+                patch.object(self.cache, 'all', side_effect=AssertionError('No filtered snapshots')), \
+                patch.object(self.cache, '_write', side_effect=AssertionError('No writes')):
+            self.view.refresh_observed_markets()
+            self.view.recommendations.refresh()
+            self.assert_status(1)
+        self.assertEqual(self.cache.path.read_bytes(), before)
+        self.cache.path.unlink()
         self.view.refresh_observed_markets()
-        self.assertEqual(self.text(), 'Eigene Marktdaten: 0 Stationen')
-        self.assertEqual(len(json.loads(self.cache.path.read_text())['markets']), 2)
+        self.view.recommendations.refresh()
+        self.assert_status(0)
+
+    def test_file_size_units_and_actual_metadata(self):
+        for size, expected in ((0, '0 B'), (1, '1 B'), (1023, '1.023 B'),
+                               (1024, '1 KiB'), (732*1024, '732 KiB'),
+                               (1024**2, '1 MiB'), (int(1.5*1024**2), '1,5 MiB'),
+                               (2*1024**2, '2 MiB')):
+            with self.subTest(size=size):
+                self.assertEqual(format_cache_size(size), expected)
+                with self.cache.path.open('wb') as stream:
+                    stream.truncate(size)
+                self.view.refresh_observed_markets()
+                self.view.recommendations.refresh()
+                self.assertEqual(self.text(), 'Lokale Marktdaten: 0 Stationen · '+expected)
 
     def test_observer_capture_and_replacement_without_polling(self):
         journal = self.root/'Journal.2026-01-02T110000.01.log'
@@ -101,11 +148,11 @@ class ObservedStatusTests(unittest.TestCase):
             market.write_text(json.dumps(sidecar(self.now)))
             os.utime(market, (self.now.timestamp(), self.now.timestamp()))
             self.assertTrue(self.observer.consume([journal]))
-            self.assertEqual(self.text(), 'Eigene Marktdaten: 1 Station · zuletzt gerade eben')
+            self.assert_status(1)
             self.assertEqual(self.cache.get(FID, 123)['observed_at'], self.now.isoformat())
             self.now += timedelta(minutes=2)
             self.view.refresh_reference()
-            self.assertIn('zuletzt vor 2 Min.', self.text())
+            self.assert_status(1)
 
     def test_show_refreshes_and_does_not_change_observation(self):
         self.cache.put(snapshot())
@@ -113,14 +160,8 @@ class ObservedStatusTests(unittest.TestCase):
         before = self.cache.path.read_bytes()
         self.view.show()
         self.app.processEvents()
-        self.assertIn('zuletzt vor 3 Min.', self.text())
+        self.assert_status(1)
         self.assertEqual(before, self.cache.path.read_bytes())
-
-    def test_defensive_source_and_duplicate_filter(self):
-        rows = [snapshot(), snapshot(), dict(snapshot(mid=456), source='spansh'), snapshot(fid='F_OTHER')]
-        with patch.object(self.cache, 'all', return_value=rows):
-            self.view.refresh_observed_markets()
-        self.assertIn('1 Station ·', self.text())
 
     def test_twelve_languages_themes_fonts_widths(self):
         self.cache.put(snapshot(NOW-timedelta(minutes=3)))
@@ -129,7 +170,7 @@ class ObservedStatusTests(unittest.TestCase):
         try:
             for lang in ('de','en','el','es','fi','fr','it','nl','no','pl','sv','tr'):
                 set_language(lang)
-                for key in ('observed_one','observed_many','observed_now','observed_last','observed_tooltip'):
+                for key in ('observed_one','observed_many','observed_tooltip'):
                     self.assertIn('trade.'+key, _TRANSLATIONS[lang])
                 for theme in (DARK_STYLESHEET, LIGHT_STYLESHEET):
                     self.app.setStyleSheet(theme)
@@ -139,6 +180,7 @@ class ObservedStatusTests(unittest.TestCase):
                         for width in (480, 1200):
                             self.view.resize(width, 900)
                             self.view.refresh_observed_markets()
+                            self.view.recommendations.refresh()
                             self.view.show()
                             self.app.processEvents()
                             label = self.view.observed_status

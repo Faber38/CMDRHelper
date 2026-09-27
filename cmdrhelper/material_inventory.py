@@ -179,6 +179,13 @@ class _Reducer:
                     updated[name] = MaterialStock(cat, name, None, False, display)
                     continue
                 previous = old.count if old and old.count is not None else 0
+                if et == "MaterialCollected":
+                    definition = get_material(name)
+                    if (definition and definition.category == cat
+                            and definition.maximum is not None):
+                        # Elite can log the full pickup even when only part fits.
+                        # Limit the gain; never reduce an authoritative snapshot.
+                        amount = min(amount, max(0, definition.maximum - previous))
                 count = previous + sign * amount
                 if count < 0:
                     raise ValueError(f"material underflow: {name} ({previous} {sign * amount:+})")

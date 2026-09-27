@@ -829,6 +829,8 @@ def read_latest_state(
     oder vom gerade gesetzten current_system abhängig.
     """
     ship_loadout = ShipLoadoutData()
+    from cmdrhelper.ship_cargo import ShipCargoTracker
+    cargo_tracker = ShipCargoTracker()
 
     def merge_materials(previous, current):
         """Merge body-wide Scan.Materials without losing older entries."""
@@ -1326,6 +1328,7 @@ def read_latest_state(
                     result["last_timestamp"] = ts
 
                 et = e.get("event")
+                cargo_tracker.apply(e, session["fid_seen"], journal)
                 result["last_event"] = str(et or "")
                 sale = ship_sale(e)
                 if sale is not None:
@@ -2347,6 +2350,8 @@ def read_latest_state(
     result["missions_snapshot_seen"] = missions_snapshot_seen
     result["owned_carrier"] = owned_carrier
     result["ship_loadout"] = ship_loadout
+    result["ship_cargo_context"] = cargo_tracker.context
+    result["last_cargo_context"] = cargo_tracker.last_cargo_context
     result["fleet_ships"] = list(fleet_ships.values())
 
     # -------------------------------------------------------------

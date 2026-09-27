@@ -51,6 +51,16 @@ def _cargo(vessel="Ship", count=0, inventory=None, timestamp="2026-09-04T16:31:2
     return event
 
 
+def _bound_cargo(event, ship_id=51, **fields):
+    from cmdrhelper.ship_cargo import ShipCargoTracker
+    tracker = ShipCargoTracker()
+    tracker.apply(dict(event="Loadout", Ship="python", ShipID=ship_id,
+                       timestamp=event["timestamp"]), "F-A", "fixture")
+    tracker.apply(event, "F-A", "fixture")
+    return dict(last_cargo_event=event, last_cargo_context=tracker.last_cargo_context,
+                ship_cargo_context=tracker.context, **fields)
+
+
 class CargoSnapshotTests(unittest.TestCase):
     def test_sidecar_strict_counts_names_empty_and_signature(self):
         from unittest.mock import patch
@@ -151,7 +161,7 @@ class CargoSnapshotTests(unittest.TestCase):
                     )
                     AppState._apply_live_cargo_snapshot(state, data, {
                         "attribution_status": "identified", "commander_id": 1,
-                        "fid_seen": "F-A",
+                        "fid_seen": "F-A", "journal_file": str(path),
                     })
                     self.assertEqual(state.cargo_snapshot["capacity"], expected)
 
@@ -294,17 +304,16 @@ class CargoSnapshotTests(unittest.TestCase):
                 viewed_commander_id=999,
             )
             session = {"attribution_status": "identified", "commander_id": 1,
-                       "fid_seen": "F-A"}
+                       "fid_seen": "F-A", "journal_file": "fixture"}
             AppState._apply_live_cargo_snapshot(
-                state, {"last_cargo_event": srv_event,
-                        "active_srv_type": "SRV Rhino"}, session
+                state, _bound_cargo(srv_event, active_srv_type="SRV Rhino"), session
             )
             self.assertEqual(state.cargo_snapshot["vessel"], "SRV")
 
             # DockSRV alone leaves the last authoritative SRV snapshot intact.
             state.viewed_commander_id = 2
             AppState._apply_live_cargo_snapshot(
-                state, {"last_cargo_event": srv_event, "active_srv_type": ""}, session
+                state, _bound_cargo(srv_event, active_srv_type=""), session
             )
             self.assertEqual(state.cargo_snapshot["vessel"], "SRV")
 
@@ -314,7 +323,7 @@ class CargoSnapshotTests(unittest.TestCase):
                  "Stolen": 0}
             ]}), encoding="utf-8")
             AppState._apply_live_cargo_snapshot(
-                state, {"last_cargo_event": ship_event, "active_srv_type": ""}, session
+                state, _bound_cargo(ship_event, active_srv_type=""), session
             )
             self.assertEqual(state.cargo_snapshot["vessel"], "Ship")
             self.assertEqual(state.cargo_snapshot["capacity"], 256)
@@ -338,6 +347,22 @@ class CargoSnapshotTests(unittest.TestCase):
             state, {}, {"attribution_status": "identified", "commander_id": 1,
                         "fid_seen": "F-A"}
         )
+        self.assertIsNone(state.cargo_snapshot)
+
+    def test_old_trigger_after_ship_change_cannot_be_relabelled(self):
+        data = _bound_cargo(_cargo("Ship", 5, [{"Name": "gold", "Count": 5}]), ship_id=51)
+        state = SimpleNamespace(
+            cargo_snapshot={"fid": "F-A", "vessel": "Ship", "ship_id": 51, "count": 5},
+            cargoSnapshotChanged=_Signal(), commander_fid="F-A", journal_folder=Path("."),
+            ship_loadout=ShipLoadoutData(ship_id=52, cargo_capacity=100),
+        )
+        session = dict(attribution_status="identified", commander_id=1,
+                       fid_seen="F-A", journal_file="fixture")
+        # The former regression test passed data={}; retain the OLD trigger!
+        AppState._apply_live_cargo_snapshot(state, data, session)
+        self.assertIsNone(state.cargo_snapshot)
+        self.assertEqual(data["last_cargo_context"]["ship_id"], 51)
+        AppState._apply_live_cargo_snapshot(state, data, session)
         self.assertIsNone(state.cargo_snapshot)
 
 
