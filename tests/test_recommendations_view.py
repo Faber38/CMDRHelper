@@ -135,7 +135,7 @@ class RecommendationViewTests(unittest.TestCase):
         self.assertIn('Öffne in Elite',self.view.origin_label.text())
         self.view.start_search();self.assertFalse(self.provider.calls)
 
-    def test_status_total_signal_updates_visible_recommendations_and_expires(self):
+    def test_status_total_updates_visible_recommendations_and_survives_age_until_invalidated(self):
         from cmdrhelper.state import AppState
         s = self.state
         journal = Path(self.tmp.name) / 'Journal.2026-09-01T120000.01.log'
@@ -145,13 +145,13 @@ class RecommendationViewTests(unittest.TestCase):
         s.cargo_snapshot = None
         s.ship_loadout.loadout_timestamp = (NOW - timedelta(seconds=30)).isoformat()
         s.ship_cargo_context.update(journal=str(journal),
-            session_start=(NOW - timedelta(seconds=60)).isoformat(),
+            session_start=(NOW - timedelta(seconds=60)).isoformat(), session_generation=1,
             barrier=(NOW - timedelta(seconds=31)).isoformat())
         s._journal_index_sessions[-1].update(journal_file=str(journal),
             last_complete_line_offset=3, last_read_offset=3)
         path = Path(self.tmp.name) / 'Status.json'
         with patch('cmdrhelper.ship_cargo.utc_now', return_value=NOW):
-            for used, free in ((0, 300), (120, 180), (300, 0)):
+            for used, free in ((0, 300), (120, 180), (300, 0), (20, 280)):
                 path.write_text(json.dumps(dict(event='Status', timestamp=NOW.isoformat(),
                                                 Cargo=used, Flags=1 << 24)))
                 AppState._poll_ship_cargo(s)
@@ -159,9 +159,28 @@ class RecommendationViewTests(unittest.TestCase):
                 self.assertNotIn('unbekannt', self.view.ship_label.text())
         with patch('cmdrhelper.ship_cargo.utc_now', return_value=NOW + timedelta(seconds=121)):
             AppState._poll_ship_cargo(s)
+            # The same already-confirmed evidence does not expire in this context.
+            self.assertEqual(self.view.free, 280)
+            self.assertEqual(s.ship_cargo_total['count'], 20)
+            self.assertEqual(s.ship_cargo_total['source'], 'status')
+            self.assertNotIn('unbekannt', self.view.ship_label.text())
+            self.assertTrue(self.view.search_button.isEnabled())
+
+            # A processed cargo mutation invalidates even retained evidence.
+            s.ship_cargo_context.update(generation=2, barrier=NOW.isoformat())
+            AppState._poll_ship_cargo(s)
             self.assertIsNone(self.view.free)
+            self.assertIsNone(s._confirmed_status_cargo)
             self.assertIn('unbekannt', self.view.ship_label.text())
             self.assertFalse(self.view.search_button.isEnabled())
+
+        fresh = NOW + timedelta(seconds=122)
+        path.write_text(json.dumps(dict(event='Status', timestamp=fresh.isoformat(),
+                                        Cargo=25, Flags=1 << 24)))
+        with patch('cmdrhelper.ship_cargo.utc_now', return_value=fresh):
+            AppState._poll_ship_cargo(s)
+            self.assertEqual(self.view.free, 275)
+            self.assertTrue(self.view.search_button.isEnabled())
 
     def test_ship_space_includes_all_cargo_and_requires_identity(self):
         self.assertEqual(ship_space(self.state),('Synthetic Ship',280))

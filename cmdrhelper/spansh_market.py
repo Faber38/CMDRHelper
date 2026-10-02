@@ -13,7 +13,7 @@ from urllib.request import Request
 
 from .commodity_master import lookup_by_id, lookup_by_symbol
 from .market_data import (MarketOffer, MarketSearch, MarketSearchResult, MarketStatus,
-                          PadSize, TradeSide, ProviderDiagnostics, within_market_age)
+                          PadSize, TradeSide, ProviderDiagnostics, within_market_age, MarketTarget)
 from .spansh_transport import TransportError, request_json
 
 DEFAULT_CACHE_TTL = 300
@@ -72,7 +72,8 @@ def _valid_query(q):
             and (q.max_age is None or isinstance(q.max_age, timedelta) and q.max_age.total_seconds() > 0)
             and type(q.include_fleet_carriers) is bool and isinstance(q.required_pad, PadSize)
             and (q.max_distance_to_arrival_ls is None or _number(q.max_distance_to_arrival_ls))
-            and type(q.limit) is int and 1 <= q.limit <= 100)
+            and type(q.limit) is int and 1 <= q.limit <= 100
+            and (q.target is None or isinstance(q.target, MarketTarget)))
 
 
 class SpanshMarketProvider:
@@ -200,6 +201,12 @@ class SpanshMarketProvider:
         filters = {'distance': {'min': 0, 'max': q.radius_ly},
                    'market': [{'name': item.english_name, price: _range(1),
                                amount: _range(q.minimum_quantity or 1)}]}
+        if q.target is not None:
+            # Spansh keyword filters: verified against searchable_fields and
+            # live exact-ID / conflicting-system searches (see provider docs).
+            filters['market_id'] = {'value': str(q.target.market_id)}
+            if q.target.system_id64 is not None:
+                filters['system_id64'] = {'value': str(q.target.system_id64)}
         if q.max_age is not None:
             try:
                 earliest = now - q.max_age
@@ -251,7 +258,8 @@ class SpanshMarketProvider:
         price, amount = ((offer.commander_sell_price, offer.demand) if side == TradeSide.SELL
                          else (offer.commander_buy_price, offer.supply))
         ranks = {None: 0, PadSize.ANY: 0, PadSize.SMALL: 1, PadSize.MEDIUM: 2, PadSize.LARGE: 3}
-        return (price is not None and price > 0 and amount is not None and amount >= (q.minimum_quantity or 1)
+        return ((q.target is None or q.target.matches(offer))
+                and price is not None and price > 0 and amount is not None and amount >= (q.minimum_quantity or 1)
                 and within_market_age(now - offer.market_updated_at, q.max_age)
                 and offer.distance_ly <= q.radius_ly
                 and (q.include_fleet_carriers or not offer.is_fleet_carrier)

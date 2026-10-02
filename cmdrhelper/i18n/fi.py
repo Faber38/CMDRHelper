@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_8_0.0': 'Uusi kaupankäyntivälilehti ”Myy täällä”: löydä edullisia hankintapaikkoja tavaroille, joita voit myydä voitolla nykyisellä markkinalla.',
+    'release.3_8_0.1': 'Hyödynnä meno- ja paluumatka: etsi tallennetun hankinta-aseman kautta menomatkalle sopivia tavaroita ja osta sieltä sitten suunniteltu paluumatkan tavara.',
+    'release.3_8_0.2': 'Lisätietoja hankintapaikoista: tarjonta ja kysyntä näkyvät erikseen, samoin pinta-asemien tunnetut taivaankappaleet.',
+    'release.3_8_0.3': 'Vain paikallisia tietoja käyttävä kauppahaku kattaa myös ostamisen ja myymisen ja hyödyntää tunnettuja laskeutumisalustojen kokoja paremmin.',
+    'release.3_8_0.4': 'Luotettavampi rahtitilan tunnistus: vahvistetut määrät säilyvät, kun tilan asiayhteys pysyy kelvollisena ja muuttumattomana; alus, SRV ja jalankulkutila erotetaan paremmin.',
+    'release.3_8_0.5': 'Aseman markkina tunnistetaan myös alukseen paluun jälkeen ilman uutta telakoitumista.',
     'release.3_7_8.0': 'Kauppa-avustajan virhekorjauksia.',
     'release.3_7_8.1': 'Parannettu rahtitilan tunnistusta ja päivitystä.',
     'release.3_7_8.2': 'Korjattu materiaalivaraston virheitä kapasiteettirajalla.',
@@ -1661,3 +1667,33 @@ TRANSLATIONS = {
 TRANSLATIONS.update({'mining.own_sell_price': 'Oma myyntihinta / t', 'mining.own_price_none': 'Ei käyttökelpoisia omia markkinatietoja ikärajan sisällä.', 'mining.own_price_error': 'Omat markkinahinnat eivät ole saatavilla (lukuvirhe).', 'mining.own_price_help': 'Tämän asennuksen paras havaittu myyntihinta, kun kysyntä on positiivinen. Kiinteän viitehinnan lisätieto; kysyntä ei ole komentajan varasto.'})
 
 TRANSLATIONS['recommend.remember_tip'] = 'Vinkki: merkitse haluamasi kohteet muistiin valinnalla ✓ ennen ostamista – ne säilyvät, vaikka lastiruuma olisi täynnä.'
+
+# Fixed-target supply recommendations.
+TRANSLATIONS.update({
+    'supply.title': 'Myy täällä',
+    'supply.search': 'Etsi toimittajia',
+    'supply.question': 'Mitä voin ostaa muualta ja myydä näillä markkinoilla positiivisella voitolla ja vähintään {margin}% katteella? Jokainen rivi on vaihtoehto, ei yhteinen lastisuunnitelma.',
+    'supply.origin': 'Kiinteä myyntikohde: {station}\nJärjestelmä: {system}\nLähde: {source}\nMarkkinatiedot: {age} sitten',
+    'supply.buy_here': 'Osto lähteestä / t',
+    'supply.sell_there': 'Myynti täällä / t',
+    'supply.target_age': 'Lähdetietojen ikä',
+    'supply.ready': 'Tarkista suodattimet ja etsi toimittajia.',
+    'supply.results': 'Toimittajat: {count}',
+    'supply.supply': 'Lähteen tarjonta',
+    'supply.demand': 'Kohteen kysyntä',
+    'supply.station': 'Lähdeasema',
+    'supply.system': 'Lähdejärjestelmä',
+    'supply.quantity_help': 'Enimmäismäärä. Todellista määrää rajoittavat vapaa lastitila, lähteen tarjonta ja kohteen kysyntä.',
+    'supply.notice': 'Kohteena pysyy nykyinen vahvistettu paikallinen markkina. Toimittajat haetaan paikallisista havainnoista ja Spanshista. Etäisyys-, laskeutumisalusta-, tukialus- ja lähestymissuodattimet koskevat toimittajia. Hinnat ja määrät voivat muuttua; tulokset koskevat rajattua hakua.',
+})
+TRANSLATIONS['supply.help'] = ' '.join(TRANSLATIONS['supply.' + key] for key in ('quantity_help', 'notice'))
+
+# Optional outbound trade to a bookmarked supply station.
+TRANSLATIONS.update({
+    'outbound.search': 'Etsi menomatkan kauppaa',
+    'outbound.search_tooltip': 'Etsii sopivia tavaroita vietäväksi nykyiseltä markkinalta tälle hankinta-asemalle ja myytäväksi siellä. Sen jälkeen voit ostaa sieltä tallennetun kauppatavaran paluumatkaa varten.',
+    'outbound.only_target': 'Käytä vain tätä kohdetta',
+    'outbound.target': 'Kiinteä tallennettu kohde: {station} — {system}',
+    'outbound.filters': 'Kiinteän kohteen on myös täytettävä kaikki valitut suodattimet.',
+    'outbound.return_route': 'Tallennettu paluukauppa: {commodity} → {station} — {system}',
+})

@@ -105,6 +105,7 @@ class AppState(QObject):
         self.cargo_snapshot = None
         self.ship_cargo_context = {}
         self.ship_cargo_total = None
+        self._confirmed_status_cargo = None
         self._cargo_status = None
         self._cargo_refresh_data = None
         self._cargo_blocked = False
@@ -1536,6 +1537,7 @@ class AppState(QObject):
         self.cargo_snapshot = None
         self.ship_cargo_context = {}
         self.ship_cargo_total = None
+        self._confirmed_status_cargo = None
         self._cargo_status = None
         self._cargo_refresh_data = None
         self._cargo_blocked = False
@@ -2200,7 +2202,7 @@ class AppState(QObject):
             self.cargoSnapshotChanged.emit(snapshot)
 
     def _poll_ship_cargo(self):
-        """Use the existing watcher timer for late sidecars and Status expiry.
+        """Use the existing watcher timer for late sidecars and cargo validation.
 
         No journal replay or DB writes. Never bind an unlabelled Status while
         journal bytes are still waiting for application (imports/read failures).

@@ -38,6 +38,15 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.8.0
+
+- Uusi kaupankäyntivälilehti ”Myy täällä”: löydä edullisia hankintapaikkoja tavaroille, joita voit myydä voitolla nykyisellä markkinalla.
+- Hyödynnä meno- ja paluumatka: etsi tallennetun hankinta-aseman kautta menomatkalle sopivia tavaroita ja osta sieltä sitten suunniteltu paluumatkan tavara.
+- Lisätietoja hankintapaikoista: tarjonta ja kysyntä näkyvät erikseen, samoin pinta-asemien tunnetut taivaankappaleet.
+- Vain paikallisia tietoja käyttävä kauppahaku kattaa myös ostamisen ja myymisen ja hyödyntää tunnettuja laskeutumisalustojen kokoja paremmin.
+- Luotettavampi rahtitilan tunnistus: vahvistetut määrät säilyvät, kun tilan asiayhteys pysyy kelvollisena ja muuttumattomana; alus, SRV ja jalankulkutila erotetaan paremmin.
+- Aseman markkina tunnistetaan myös alukseen paluun jälkeen ilman uutta telakoitumista.
+
 ## CMDRHelper v3.7.8
 
 - Kauppa-avustajan virhekorjauksia.

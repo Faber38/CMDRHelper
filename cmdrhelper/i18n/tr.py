@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_8_0.0': 'Yeni “Burada sat” ticaret sekmesi: mevcut pazarda kârla satabileceğin mallar için ucuz tedarik kaynakları bul.',
+    'release.3_8_0.1': 'Gidiş ve dönüşü daha iyi değerlendir: kayıtlı bir tedarik istasyonundan gidiş yolculuğu için uygun malları ara, ardından planlanan dönüş malını oradan satın al.',
+    'release.3_8_0.2': 'Tedarik kaynakları hakkında daha fazla bilgi: arz ve talebi ayrı gör, yüzey istasyonlarının bulunduğu bilinen gök cisimlerini görüntüle.',
+    'release.3_8_0.3': 'Yalnızca yerel verilerle ticaret araması artık alış ve satışı da kapsıyor; bilinen iniş pisti boyutları daha iyi kullanılıyor.',
+    'release.3_8_0.4': 'Daha güvenilir kargo tespiti: bağlam geçerli ve değişmeden kaldıkça doğrulanmış miktarlar korunur; gemi, SRV ve yaya modları daha iyi ayrılır.',
+    'release.3_8_0.5': 'Kendi gemine döndüğünde istasyon pazarı yeniden kenetlenmeye gerek kalmadan tanınmaya devam eder.',
     'release.3_7_8.0': 'Ticaret asistanındaki hatalar düzeltildi.',
     'release.3_7_8.1': 'Kargo alanının algılanması ve güncellenmesi iyileştirildi.',
     'release.3_7_8.2': 'Kapasite sınırındaki malzeme stoklarında oluşan hatalar düzeltildi.',
@@ -1661,3 +1667,33 @@ TRANSLATIONS = {
 TRANSLATIONS.update({'mining.own_sell_price': 'Kendi satış fiyatı / t', 'mining.own_price_none': 'Yaş sınırı içinde kullanılabilir kendi pazar verisi yok.', 'mining.own_price_error': 'Kendi pazar fiyatları kullanılamıyor (okuma hatası).', 'mining.own_price_help': 'Pozitif talep olan bu kurulumda gözlemlenen en iyi kendi satış fiyatı. Sabit referans fiyatına ek bilgidir; talep komutanın envanteri değildir.'})
 
 TRANSLATIONS['recommend.remember_tip'] = 'İpucu: Satın almadan önce istediğiniz hedefleri ✓ ile kaydedin – kargo bölmesi dolu olsa bile saklanırlar.'
+
+# Fixed-target supply recommendations.
+TRANSLATIONS.update({
+    'supply.title': 'Burada sat',
+    'supply.search': 'Tedarikçi ara',
+    'supply.question': 'Başka bir yerden ne alıp bu pazarda pozitif kâr ve en az %{margin} marjla satabilirim? Her satır bir alternatiftir, ortak bir kargo planı değildir.',
+    'supply.origin': 'Sabit satış hedefi: {station}\nSistem: {system}\nKaynak: {source}\nPazar verisi: {age} önce',
+    'supply.buy_here': 'Kaynaktan alış / t',
+    'supply.sell_there': 'Burada satış / t',
+    'supply.target_age': 'Kaynak verisinin yaşı',
+    'supply.ready': 'Filtreleri kontrol edin ve tedarikçi arayın.',
+    'supply.results': 'Tedarikçiler: {count}',
+    'supply.supply': 'Kaynak arzı',
+    'supply.demand': 'Hedef talebi',
+    'supply.station': 'Kaynak istasyonu',
+    'supply.system': 'Kaynak sistemi',
+    'supply.quantity_help': 'Azami miktar. Gerçek miktar boş kargo alanı, kaynak arzı ve hedef talebiyle sınırlıdır.',
+    'supply.notice': 'Satış hedefi mevcut doğrulanmış yerel pazar olarak kalır. Tedarikçiler yerel gözlemlerden ve Spansh verilerinden gelir. Mesafe, iniş pisti, filo taşıyıcısı ve yaklaşma filtreleri tedarikçilere uygulanır. Fiyatlar ve miktarlar değişebilir; sonuçlar sınırlı arama kapsamında geçerlidir.',
+})
+TRANSLATIONS['supply.help'] = ' '.join(TRANSLATIONS['supply.' + key] for key in ('quantity_help', 'notice'))
+
+# Optional outbound trade to a bookmarked supply station.
+TRANSLATIONS.update({
+    'outbound.search': 'Gidiş ticareti ara',
+    'outbound.search_tooltip': 'Mevcut pazardan bu tedarik istasyonuna götürüp orada satabileceğin uygun malları arar. Ardından dönüş yolculuğu için kayıtlı malı oradan satın alabilirsin.',
+    'outbound.only_target': 'Yalnızca bu hedefi kullan',
+    'outbound.target': 'Sabit kayıtlı hedef: {station} — {system}',
+    'outbound.filters': 'Sabit hedef de seçili tüm filtreleri karşılamalıdır.',
+    'outbound.return_route': 'Kayıtlı dönüş ticareti: {commodity} → {station} — {system}',
+})

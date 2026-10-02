@@ -37,6 +37,56 @@ class TradeMatrix:
     def test_both(self):
         self.assertEqual({o.market_id for o in self.search(community=[self.quote()]).offers}, {1,2})
 
+    def test_local_only_off_keeps_both_sources(self):
+        result = self.search(community=[self.quote()], local_only=False)
+        self.assertEqual({o.provider for o in result.offers}, {'local_elite', 'spansh'})
+        method = self.provider.search_buy if self.side == TradeSide.BUY else self.provider.search_sell
+        method.assert_called_once()
+
+    def test_local_only_excludes_community_without_querying_provider(self):
+        # A newer community quote for the same market must not displace local data.
+        result = self.search(local=[market(stamp=NOW-timedelta(seconds=1))],
+                             community=[self.quote(mid=1), self.quote()], local_only=True)
+        self.assertEqual([(o.market_id, o.provider) for o in result.offers], [(1, 'local_elite')])
+        self.assertEqual(result.status, MarketStatus.OK)
+        self.assertIsNone(result.community_failure)
+        self.assertFalse(result.from_cache)
+        self.provider.search_sell.assert_not_called()
+        self.provider.search_buy.assert_not_called()
+
+    def test_local_only_no_local_has_no_results(self):
+        for local in ([], [market(source='spansh')]):
+            result = self.search(local=local, community=[self.quote()], local_only=True)
+            self.assertEqual(result.status, MarketStatus.NO_RESULTS)
+            self.assertFalse(result.offers)
+            self.assertIsNone(result.community_failure)
+
+    def test_local_only_source_rejects_nonlocal_candidates(self):
+        source = Mock()
+        source.candidates.return_value = [(market(), 0), (market(mid=2, source='spansh'), 0)]
+        result = self.search(local_source=source, local_only=True)
+        self.assertEqual([(o.market_id, o.provider) for o in result.offers], [(1, 'local_elite')])
+
+    def test_local_only_preserves_filters(self):
+        q = MarketSearch(BEER.frontier_id, 'Fixture', minimum_quantity=10)
+        cases = [
+            dict(distances={1: 101}),
+            dict(query=replace(q, minimum_quantity=1201)),
+            dict(query=replace(q, required_pad=PadSize.LARGE)),
+            dict(query=replace(q, max_distance_to_arrival_ls=1000)),
+            dict(local=[market(station_type='FleetCarrier')]),
+            dict(local=[market(stamp=NOW-timedelta(hours=2))],
+                 query=replace(q, max_age=timedelta(hours=1))),
+            dict(local=[market(rows=[item(**({'sell': 0} if self.side == TradeSide.SELL else {'buy': 0}))])]),
+        ]
+        for case in cases:
+            with self.subTest(case=case):
+                result = self.search(local_only=True, **case)
+                self.assertEqual(result.status, MarketStatus.NO_RESULTS)
+                self.assertFalse(result.offers)
+        self.assertTrue(self.search(local_only=True, local=[market(station_type='FleetCarrier')],
+                                   query=replace(q, include_fleet_carriers=True)).offers)
+
     def test_local_newer(self):
         r = self.search(community=[self.quote(mid=1, stamp=NOW-timedelta(seconds=1), retrieved_at=NOW+timedelta(days=1))])
         self.assertEqual([o.provider for o in r.offers], ['local_elite'])

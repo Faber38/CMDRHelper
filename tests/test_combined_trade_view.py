@@ -77,6 +77,34 @@ class CombinedTradeViewTests(unittest.TestCase):
         self.assertEqual(self.view.table.rowCount(), 0)
         self.assertEqual(self.view.status.text(), tr('trade.timeout'))
 
+    def test_local_only_both_tabs_and_toggle_back(self):
+        self.assertFalse(self.view.local_only.isChecked())
+        self.assertEqual(self.view.local_only.text(), self.view.recommendations.local_only.text())
+        self.assertEqual(self.view.local_only.toolTip(), self.view.recommendations.local_only.toolTip())
+        for tab in (0, 1):
+            self.view.tabs.setCurrentIndex(tab)
+            self.provider.calls.clear()
+            self.view.local_only.setChecked(True)
+            self.search()
+            self.assertEqual(self.view.table.rowCount(), 2)
+            self.assertTrue(all(o.provider == 'local_elite' for o in self.view.offers))
+            self.assertFalse(self.provider.calls)
+            self.assertNotIn(community_failure_text('de'), self.view.status.text())
+            self.view.local_only.setChecked(False)
+            self.assertFalse(self.view.offers)
+            self.assertEqual(self.view.table.rowCount(), 0)
+            self.search()
+            self.assertEqual(len(self.provider.calls), 1)
+            self.assertIn(community_failure_text('de'), self.view.status.text())
+        self.assertEqual(self.cache.path.read_bytes(), self.before)
+
+    def test_local_only_translations_all_twelve_languages(self):
+        self.assertEqual(len(_TRANSLATIONS), 12)
+        for lang, translations in _TRANSLATIONS.items():
+            for key in ('recommend.local_only', 'recommend.local_only_tooltip'):
+                with self.subTest(language=lang, key=key):
+                    self.assertTrue(translations.get(key))
+
     def test_commander_switch_keeps_shared_market_results(self):
         self.search()
         self.assertEqual(self.view.offers[0].market_id, 2)

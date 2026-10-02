@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_8_0.0': 'Nuova scheda commerciale « Vendi qui »: trova fonti economiche per merci da vendere con profitto al mercato attuale.',
+    'release.3_8_0.1': 'Sfrutta meglio andata e ritorno: da una fonte memorizzata cerca merci per il viaggio di andata, poi acquista lì la merce prevista per il ritorno.',
+    'release.3_8_0.2': 'Più dettagli sulle fonti: offerta e domanda separate e corpi planetari noti indicati per le stazioni di superficie.',
+    'release.3_8_0.3': 'Ricerca commerciale solo locale anche per acquisti e vendite, con un migliore utilizzo delle dimensioni note delle piazzole.',
+    'release.3_8_0.4': 'Rilevamento della stiva più affidabile: le quantità confermate restano valide se il contesto rimane valido e invariato; nave, SRV e modalità a piedi sono distinti meglio.',
+    'release.3_8_0.5': 'Il mercato della stazione resta riconosciuto dopo l’imbarco: tornando sulla propria nave non occorre attraccare di nuovo.',
     'release.3_7_8.0': 'Correzioni di errori nell’assistente commerciale.',
     'release.3_7_8.1': 'Migliorati il rilevamento e l’aggiornamento dello spazio di carico.',
     'release.3_7_8.2': 'Corretti gli errori delle scorte di materiali al limite di capacità.',
@@ -1784,3 +1790,33 @@ TRANSLATIONS = {
 TRANSLATIONS.update({'mining.own_sell_price': 'Prezzo di vendita locale / t', 'mining.own_price_none': 'Nessun dato di mercato proprio utilizzabile entro il limite di età.', 'mining.own_price_error': 'Prezzi propri non disponibili (errore di lettura).', 'mining.own_price_help': 'Miglior prezzo di vendita proprio osservato da questa installazione con domanda positiva. Si aggiunge al prezzo di riferimento fisso; la domanda non è l’inventario del comandante.'})
 
 TRANSLATIONS['recommend.remember_tip'] = 'Suggerimento: salva le destinazioni desiderate con ✓ prima di acquistare – restano disponibili anche con la stiva piena.'
+
+# Fixed-target supply recommendations.
+TRANSLATIONS.update({
+    'supply.title': 'Vendi qui',
+    'supply.search': 'Cerca fornitori',
+    'supply.question': 'Cosa posso acquistare altrove e vendere in questo mercato con profitto positivo e un margine di almeno {margin}%? Ogni riga è un’alternativa, non un piano di carico comune.',
+    'supply.origin': 'Destinazione di vendita fissa: {station}\nSistema: {system}\nFonte: {source}\nDati di mercato: {age} fa',
+    'supply.buy_here': 'Acquisto alla fonte / t',
+    'supply.sell_there': 'Vendita qui / t',
+    'supply.target_age': 'Età dati della fonte',
+    'supply.ready': 'Controlla i filtri e cerca fornitori.',
+    'supply.results': 'Fornitori: {count}',
+    'supply.supply': 'Offerta alla fonte',
+    'supply.demand': 'Domanda a destinazione',
+    'supply.station': 'Stazione di origine',
+    'supply.system': 'Sistema di origine',
+    'supply.quantity_help': 'Quantità massima. La quantità effettiva è limitata dalla stiva libera, dall’offerta alla fonte e dalla domanda a destinazione.',
+    'supply.notice': 'La destinazione resta il mercato locale attuale confermato. Le fonti provengono da osservazioni locali e Spansh. I filtri di distanza, piattaforma, portaerei e avvicinamento si applicano alle fonti. Prezzi e quantità possono cambiare; i risultati valgono entro i limiti della ricerca.',
+})
+TRANSLATIONS['supply.help'] = ' '.join(TRANSLATIONS['supply.' + key] for key in ('quantity_help', 'notice'))
+
+# Optional outbound trade to a bookmarked supply station.
+TRANSLATIONS.update({
+    'outbound.search': 'Cerca commercio di andata',
+    'outbound.search_tooltip': 'Cerca merci adatte da portare dal mercato attuale a questa stazione di approvvigionamento e vendere lì. Potrai poi acquistare lì la merce memorizzata per il viaggio di ritorno.',
+    'outbound.only_target': 'Usa solo questa destinazione',
+    'outbound.target': 'Destinazione fissa memorizzata: {station} — {system}',
+    'outbound.filters': 'Anche la destinazione fissa deve soddisfare tutti i filtri selezionati.',
+    'outbound.return_route': 'Ritorno memorizzato: {commodity} → {station} — {system}',
+})

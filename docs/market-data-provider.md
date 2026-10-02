@@ -164,3 +164,39 @@ Historical live result counts are not permanent test assertions.
 A later phase can consume this protocol from a manually triggered sell/buy
 search UI, showing report age and incomplete-result state explicitly. Profit,
 route generation and inventory integration remain separate future work.
+
+## Optional exact destination (outbound bookmarked trade)
+
+`MarketSearch.target` defaults to `None`. A `MarketTarget` contains a positive
+64-bit MarketID and, optionally, its known SystemAddress. Normal queries retain
+their existing filters and ranking. Fixed-target queries add these conjunctive
+server filters **before pagination and the result limit**:
+
+```json
+{
+  "market_id": {"value": "128666762"},
+  "system_id64": {"value": "3932277478106"}
+}
+```
+
+Contract verification on 2026-10-02:
+
+* `GET https://spansh.co.uk/api/stations/searchable_fields` declares both
+  `market_id` and `system_id64` as `keyword` search fields.
+* A read-only `POST /api/stations/search` with reference `Sol`,
+  `filters={"market_id":{"value":"128666762"}}`, `size=1`, `page=0`
+  returned `count=1`: Jameson Memorial, MarketID 128666762,
+  SystemAddress 3932277478106.
+* Adding `system_id64={"value":"10477373803"}` (Sol, deliberately conflicting)
+  returned `count=0`. The identity restrictions are therefore applied by the
+  server, not merely by the client after a broad top-price search.
+
+The provider also validates the returned IDs locally. The immutable target is
+part of the existing query/cache key. Existing transport, cancellation,
+freshness, filters, pagination and partial-result diagnostics remain in use.
+There is no broad-search fallback or new persistence. Unknown target system
+addresses omit only the system-address filter; MarketID remains mandatory.
+A moved carrier with a different system address does not silently substitute
+its new location. Network failures and unexpected pagination limits retain the
+existing partial-result reporting. This public interface is not version-pinned;
+offline request/response tests protect the recorded contract.

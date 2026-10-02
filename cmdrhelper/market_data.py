@@ -34,6 +34,23 @@ class MarketStatus(str, Enum):
 
 
 @dataclass(frozen=True)
+class MarketTarget:
+    """Stable station identity for an optional single-destination search."""
+    market_id: int
+    system_id64: int | None = None
+
+    def __post_init__(self):
+        for value in ((self.market_id,) if self.system_id64 is None else
+                      (self.market_id, self.system_id64)):
+            if type(value) is not int or not 0 < value < 2**64:
+                raise ValueError('Invalid fixed market identity')
+
+    def matches(self, offer):
+        return (offer.market_id == self.market_id and
+                (self.system_id64 is None or offer.system_id64 == self.system_id64))
+
+
+@dataclass(frozen=True)
 class MarketSearch:
     # Exact master ID or symbol/journal token, never a localized display name.
     commodity: int | str
@@ -45,6 +62,7 @@ class MarketSearch:
     required_pad: PadSize = PadSize.ANY
     max_distance_to_arrival_ls: float | None = None
     limit: int = 20
+    target: MarketTarget | None = None
 
 
 @dataclass(frozen=True)

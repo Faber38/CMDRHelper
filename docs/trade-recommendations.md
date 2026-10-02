@@ -1,17 +1,21 @@
-# Handel: Empfehlungen (Phase 7)
+# Handel: Empfehlungen und „Hier verkaufen“
 
 Der Reiter **Empfehlungen** beantwortet sichtbar und mit dynamischem Prozentsatz:
 „Ich stehe hier mit diesem Schiff – welche Ware kann ich hier kaufen und innerhalb
 meiner Vorgaben mit mindestens X % Gewinn verkaufen?“ Die Suche startet nur über
-**Empfehlungen suchen**, niemals durch Öffnen des Reiters oder Zustandsänderungen.
+**Empfehlungen suchen** oder die ausdrückliche Merkzettelaktion **Hinweg suchen**.
+Das bloße Öffnen des Reiters oder eine Zustandsänderung startet keine Suche.
 
 ## Einkauf und Schiff
 
-Der Einkauf verwendet ausschließlich `ObservedMarketCache.get(fid, market_id)`.
+Der Einkauf verwendet ausschließlich den bestätigten lokalen Markt. Die GUI prüft
+dessen Header über `current_market()` / `ObservedMarketCache.get_header()`; der
+Worker liest den vollständigen Markt über den bestehenden Store-/Cachepfad.
 FID, MarketID, Stationsname und System müssen zum aktuellen Journal-Kontext des
 bestehenden Observers und zum aktiven AppState passen. Ein zuletzt besuchter Markt
 ist kein Ersatz für die aktuelle Station. Fehlt ein gültiger `local_elite`-Stand
-unter 24 Stunden, fordert die Oberfläche zum Öffnen des Elite-Warenmarkts auf.
+innerhalb des eingestellten maximalen Marktdatenalters (Standard: 24 Stunden),
+fordert die Oberfläche zum Öffnen des Elite-Warenmarkts auf.
 Spansh wird niemals als Einkaufsquelle verwendet.
 
 Schiffsname, -typ und Kapazität stammen aus dem vorhandenen ShipLoadout/AppState.
@@ -31,11 +35,21 @@ ShipID. SRV-Cargo ist keine Ship-Belegung, auch nicht bei Count=0.
 Der gemeinsame Status-Fallback für Handel und HUD verlangt eine identifizierte
 aktuelle Sitzung, ein vollständiges nicht veraltetes Loadout aus dieser Sitzung,
 Schiffsmodus (kein SRV/Fighter/OnFoot/Taxi/Multicrew), gültige ganzzahlige Belegung
-zwischen 0 und Kapazität und einen Status höchstens 120 Sekunden alt (maximal fünf
-Sekunden in der Zukunft). Status muss mindestens so neu wie das Loadout und strikt
+zwischen 0 und Kapazität. Für **neu zu bestätigende Status-Evidenz** gilt ein Alter
+von höchstens 120 Sekunden (maximal fünf Sekunden in der Zukunft). Status muss
+mindestens so neu wie das Loadout und strikt
 neuer als der letzte Fahrzeugwechsel oder mögliche Cargo-Eingriff sein. Gleiche
 Sekunden beweisen bei solchen Eingriffen keine Reihenfolge. Fehlendes `first_event_at`
 in der DB wird durch den tatsächlich eingelesenen Journal-/LoadGame-Kontext abgedeckt.
+
+Bereits bestätigte, identische Status-Evidenz bleibt auch nach 120 Sekunden gültig,
+solange ihre vollständige Kontextbindung und alle Validierungen unverändert gelten.
+Dazu gehören Commander/FID, Journal und Sitzung, Schiff/Fahrzeug, Ereignisgeneration,
+Invalidierungsgrenze, Loadout und Kapazität sowie Statuszeitpunkt, Flags und Menge.
+Ein geänderter Status ist neue Evidenz und muss wieder die Altersgrenze erfüllen.
+Ungültige oder fehlende Statusdaten dürfen keine frühere Bestätigung ersetzen.
+Die Bestätigung existiert nur im Arbeitsspeicher; nach einem Helper-Neustart kann
+ein alter Status nicht allein deshalb verwendet werden, weil er zuvor bestätigt war.
 
 Kauf/Verkauf, Sammeln, Auswerfen, Raffinieren, Transfers, Limpets und mögliche
 Missions-/Spezialfrachtänderungen werden konservativ invalidiert, nicht als Deltas
@@ -44,9 +58,11 @@ es keine Doppelzählung. Neustarts rekonstruieren denselben Kontext aus dem Jour
 Status wird weder als Inventar noch dauerhaft gespeichert.
 
 Der bestehende Watcher-Timer liest Status und verspätete Cargo-Sidecars erneut,
-prüft auch den Ablauf der Statusgültigkeit und meldet Änderungen über
+prüft Kontext und Statusgültigkeit und meldet Änderungen über
 `cargoSnapshotChanged`. Solange Journalbytes nicht übernommen sind oder eine neue
 Journaldatei auf Übernahme wartet, wird kein alter Kontext mit Status kombiniert.
+Ausstehende Journalbytes sperren die Nutzung vorübergehend; nach dem Einlesen
+entscheidet der daraus entstandene Kontext, ob die Bestätigung weiter gilt.
 
 Der Gesamtzähler enthält alle Güter einschließlich Missionsfracht, gestohlener
 Fracht und Limpets; diese werden nicht nochmals addiert. Die Freiraumrechnung ist
@@ -56,10 +72,11 @@ Empfehlungen und keine manuelle Ersatzmenge.
 
 ## Ziele und Quellenvergleich
 
-Ziele stammen aus gültigen eigenen Märkten derselben FID und dem bestehenden
-`SpanshMarketProvider.search_sell()`. Lokale Märkte bleiben strikt unter 24 Stunden
-alt; zusätzlich gilt die eingestellte maximale Zieldatenalter-Grenze. Für Spansh
-bleibt die bestehende Provider-Altersgrenze erhalten. Die aktuelle Einkaufs-MarketID
+Ziele stammen aus gültigen lokal beobachteten Märkten und dem bestehenden
+`SpanshMarketProvider.search_sell()`. Lokale Marktbeobachtungen werden nach den
+vorhandenen Regeln auch über Commander hinweg geteilt; pro MarketID zählt der
+aktuelle Stand. Das eingestellte maximale Marktdatenalter gilt für beide Quellen;
+zukünftige Zeitstempel bleiben ungültig. Die aktuelle Einkaufs-MarketID
 wird als Ziel ausgeschlossen.
 
 Der Vergleich benutzt `observed_at` beziehungsweise `market_updated_at`, jeweils
@@ -79,13 +96,15 @@ Lokale Entfernungen verwenden denselben gespeicherten Koordinatenresolver und
 bedeutet 0 ly. Unbekannte oder mehrdeutige Koordinaten werden nicht geschätzt:
 solche lokalen Ziele entfallen. Es gibt dafür keine zusätzlichen Onlineabfragen.
 
-Phase-6-Snapshots enthalten keine Landeplatzgröße und keinen Anflugabstand. Diese
-werden nicht aus dem Stationstyp geraten: lokale Ziele erfüllen nur Landeplatz
-„Alle“ und keinen gesetzten maximalen Anflug. Ohne bekannten Stationstyp können
-sie den Filter „Fleet Carrier aus“ nicht sicher erfüllen und werden ausgeschlossen.
-Bei fehlenden Angaben und uneingeschränktem Filter werden unbekannte Werte als
-„–“ gezeigt. Die Daten eines älteren Spansh-Standes werden nicht stillschweigend in
-einen neueren lokalen Marktstand hineinkopiert.
+Lokale Marktstände enthalten selbst keine Landeplatzgröße und keinen Anflugabstand.
+Bekannte Landeplatzgrößen werden über die vorhandene Pad-Metadatenzuordnung aus
+Journalen und dem lokalen Spansh-Stationscache ergänzt. Die Zuordnung prüft
+MarketID, Stationsname, System und bekannte SystemAddress; sie errät keine Größe
+aus dem Stationstyp. Pad-Metadaten werden unabhängig von der Preisquelle behandelt,
+ohne Preise oder Marktzeitpunkte eines älteren Angebots zu übernehmen.
+Ohne bekannte Padgröße ist nur „Alle“ erfüllbar. Fehlender Anflug erfüllt keine
+gesetzte Anfluggrenze. Ohne bekannten Stationstyp lässt sich „Fleet Carrier aus“
+nicht sicher erfüllen. Unbekannte Werte erscheinen als „–“.
 
 ## Berechnung und Auswahl
 
@@ -107,8 +126,8 @@ Mindestmarge 0 ist ein Geschäft ohne Gewinn zulässig, ein Verlust nicht.
 Pro Ware zeigt die Haupttabelle höchstens ein Ziel: größter Gesamtgewinn, bei
 Gleichstand jüngerer Marktstand, geringere Entfernung, geringerer Anflug (unbekannt
 zuletzt), dann Stationsname, Systemname und MarketID als deterministische Reihenfolge.
-Die Zielstation und das Zielsystem bleiben im Ergebnisobjekt erhalten. Es gibt noch
-keine Routenübergabe und keine Rare-Goods-Sonderbehandlung.
+Die Zielstation und das Zielsystem bleiben im Ergebnisobjekt erhalten. Es gibt
+keine automatische Rundreiseplanung und keine Rare-Goods-Sonderbehandlung.
 
 Die Tabelle zeigt Ware, Einkauf/t, Zielsystem/-station, Verkauf/t, Gewinn/t,
 Gewinn %, Menge, Gesamtgewinn, Entfernung, Anflug, Landeplatz, Quelle und Zielalter.
@@ -125,7 +144,7 @@ bewertet; eine fehlende Spansh-Unterstützung wird als unvollständige Suche ang
 Lokale Treffer allein überspringen keine Community-Suche, damit neuere oder bessere
 Ziele nicht systematisch fehlen.
 
-Verkaufen, Einkaufen und Empfehlungen teilen dieselbe Provider-Instanz. Damit gelten
+Verkaufen, Einkaufen, Empfehlungen und „Hier verkaufen“ teilen dieselbe Provider-Instanz. Damit gelten
 weiter deren Lock, mindestens eine Sekunde Requestabstand, begrenzte Seitenanzahl,
 Abbruchmechanismus und fünfminütiger RAM-Cache. Es gibt keine neue HTTP-Schicht und
 keine parallelen Commodity-Requests. Die Suchmenge beim Provider ist 1, damit kleine
@@ -142,8 +161,10 @@ die weitere Requestfolge; andere Commodity-Fehler verhindern nicht die restliche
 Abfragen. Bestehende Provider-Retries bleiben begrenzt. Abbrechen verwirft Ergebnisse
 und kann auf eine laufende Netzwerkantwort warten.
 
-System-, Stations-, Commander-, Frachtraum- und Marktänderungen verwerfen bisherige
-Empfehlungen und laufende Ergebnisse. Reiterwechsel bricht ab. Es startet keine
+System-, Stations-, Commander-, Schiffs- und Marktwechsel invalidieren Ergebnisse.
+Normale Empfehlungen bleiben bei Teilkäufen mit weiter verfügbarem Frachtraum
+bestehen; voller oder unbekannter Frachtraum invalidiert sie. „Hier verkaufen“
+invalidiert bereits bei geänderter freier Kapazität oder gewählter Menge. Reiterwechsel bricht ab. Es startet keine
 automatische neue Suche. Vor Annahme eines Worker-Ergebnisses wird der aktuelle
 Kontext erneut geprüft. Es gibt keinen neuen Timer. Bei vollständig inaktiver UI
 wird das Alter erst mit dem nächsten normalen Aktualisierungsereignis neu angezeigt.
@@ -181,7 +202,8 @@ Zählerdefinitionen:
   zählt vollständige Schritte mit OK/NO_RESULTS ohne Truncation; `failed_commodities`
   Fehler; `skipped_commodities` noch nicht abgeschlossene Schritte. Eine begrenzte
   erfolgreiche Antwort ist geprüft, aber nicht vollständig erfolgreich.
-- `local_target_markets`: gültige lokale Ziele derselben FID, ohne Einkaufsmarkt.
+- `local_target_markets`: gültige lokale Zielmärkte ohne Einkaufsmarkt; eine aktive
+  feste Zielbeschränkung wird berücksichtigt.
   `local_combinations_checked`: geprüfte Commodity/Ziel-Paare. `local_candidates`:
   daraus nach Filtern/Marge/Menge mögliche Geschäfte vor dem Quellen-Merge.
   `local_recommendations`: zuletzt ausgegebene Empfehlungen mit lokalem Ziel.
@@ -244,7 +266,8 @@ Netz. Der technische Text kann anschließend bewusst für Support eingefügt wer
 
 Die Checkbox „Nur eigene Marktdaten“ steht vor dem Carrierfilter und ist zunächst
 ausgeschaltet. Ausgeschaltet bleibt die kombinierte Suche unverändert. Eingeschaltet
-wertet der Worker ausschließlich gültige `local_elite`-Ziele derselben FID aus.
+wertet der Worker ausschließlich gültige `local_elite`-Ziele gemäß der bestehenden
+Commander-übergreifenden Marktfreigabe aus.
 Er ruft keinen Community-Provider auf, auch nicht für unbekannte zukünftige Waren.
 Die Einstellung lebt nur in der bestehenden View-Instanz, ohne QSettings.
 
@@ -252,8 +275,8 @@ Der Einkaufsmarkt bleibt in beiden Modi ausschließlich der gültige eigene Mark
 am aktuellen Standort. Andere eigene MarketIDs können Ziele sein. Radius,
 Zieldatenalter, Mindestgewinn und die bisherigen Metadatenfilter gelten weiter;
 unbekannte Entfernungen oder für einen aktiven Filter fehlende Stationsangaben
-werden nicht geraten. Eigene Ziele müssen sowohl jünger als 24 Stunden sein als
-auch den engeren Benutzerfilter für das Zielalter erfüllen. Gewinn und Menge
+werden nicht geraten. Für eigene Ziele gilt das eingestellte maximale
+Marktdatenalter. Gewinn und Menge
 werden mit denselben Funktionen wie im kombinierten Modus berechnet.
 
 Im lokalen Modus bedeutet ein abgeschlossener Warenschritt vollständig lokal
@@ -266,7 +289,8 @@ Community-Erklärung.
 
 Neben der aktuellen Marktangabe zeigt ein von Qt gezeichneter grüner Kreis mit
 weißem Haken „Eingelesen“, wenn der normale Cachezugriff einen gültigen eigenen
-Snapshot genau der bestätigten aktuellen FID/MarketID/Station liefert. Der Text
+Marktstand genau der bestätigten aktuellen MarketID/Station liefert; der
+Live-Kontext muss zur aktiven FID passen. Der Text
 und Tooltip ergänzen die Farbe; das bisherige Marktalter bleibt sichtbar.
 Fehlt ein solcher Stand, zeigt die Ansicht „Warenmarkt öffnen“. Im Flug ohne
 bestätigten Dock-Kontext wird kein positiver Status für die letzte Station gezeigt.
@@ -284,21 +308,61 @@ ohne neuen Poller. Die erneute Aufnahme derselben MarketID aktualisiert wie bish
 Inhalt und Alter, ohne zusätzliche Station oder Historienzeile. Der Status betrifft
 den Einkaufsmarkt; die Checkbox betrifft ausschließlich die Auswahl der Zielquellen.
 
-## Gemerkter Handelsflug
+## Gemerkte Handelsziele
 
-Maximal eine Empfehlung lässt sich als separater Merkzettel übernehmen. Der
-Merkbereich zeigt Ware, Zielstation, Zielsystem und den möglichen Gewinn zum
-Merkzeitpunkt. Er ist unabhängig von der aktuellen Ergebnistabelle: Kauf und
-Frachtraumänderungen, Flug, Systemwechsel, Docking und Marktöffnung verwerfen
-gegebenenfalls die Ergebnisse, erhalten aber den Merkzettel und seinen damaligen
-Gewinn. Eine andere Markierung ersetzt den bisher gemerkten Flug.
+Mehrere Treffer lassen sich mit den Checkboxen unabhängig voneinander merken.
+Kaufen, Verkaufen und Empfehlungen verwenden den gemeinsamen sitzungslokalen
+Merkzettel und identifizieren ihre Stationseinträge über System- und Stationsnamen.
+Die Einträge zeigen System, Station, bekannte Körperinformation und Landeplatz.
+Sie sind unabhängig von der aktuellen Ergebnistabelle: Neusuche, Kauf,
+Frachtraumänderung, Reise oder Marktaktualisierung löschen sie nicht generell.
+Beim Wiederanzeigen passender Treffer wird die Markierung wiederhergestellt.
 
-„System kopieren“ kopiert ausschließlich das gemerkte Zielsystem, ohne Station.
-Der Merkzettel ist manuell entfernbar. Erst eine tatsächlich gestartete neue
-Empfehlungssuche oder ein bestätigter Commanderwechsel löscht ihn automatisch;
-ein wegen ungültiger Eingaben oder fehlenden Frachtraums abgelehnter Suchstart
-erhält ihn. Er bleibt ausschließlich im RAM der Ansicht und überlebt keinen
-Helper-Neustart.
+Einträge lassen sich über die Markierung oder den Entfernen-Knopf löschen.
+Ein bestätigter Commanderwechsel leert den Merkzettel; eine vorübergehend unbekannte
+FID tut dies nicht. Die Einträge bleiben ausschließlich im RAM der Ansicht und
+überleben keinen Helper-Neustart. „System kopieren“ kopiert das System der
+gemerkten Station, bei Empfehlungen also das Verkaufsziel.
+
+## Hier verkaufen: Bezugsquellen für den aktuellen Markt
+
+Der Reiter **Hier verkaufen** verwendet den aktuellen bestätigten lokalen Markt
+als festes Verkaufsziel. **Bezugsquellen suchen** betrachtet automatisch alle dort
+nachgefragten Waren mit `commander_sell_price > 0` und `demand > 0`; eine einzelne
+Warenauswahl ist nicht nötig. Geeignete Bezugsquellen benötigen
+`commander_buy_price > 0` und `supply > 0`. Der Zielmarkt selbst ist ausgeschlossen.
+
+- Gewinn/t = Verkaufspreis am festen Ziel − Einkaufspreis an der Quelle.
+- Handelsmenge = Minimum aus gewählter Menge, freiem Frachtraum,
+  Angebot an der Quelle und Nachfrage am Ziel.
+- Gesamtgewinn = Handelsmenge × Gewinn/t.
+
+Nur positiver Gewinn und die eingestellte Mindestmarge sind zulässig.
+Pro Ware wird eine beste Quelle nach Gesamtgewinn und den bestehenden Tie-Breakern
+gewählt. Die Treffer sind Alternativen, kein addierbarer gemeinsamer Frachtraumplan.
+
+Mindestmarge, Menge/Frachtraum, Radius, maximales Datenalter, Landeplatz,
+Fleet Carrier, maximaler Anflug und „Nur eigene Marktdaten“ verwenden die vorhandene
+Such-, Filter- und Freshness-Logik. Lokale Null-/Leerstände können ältere
+Communityangebote verdrängen. Fehlender oder veralteter Zielmarkt verhindert eine
+gültige Suche; Kontextwechsel invalidieren laufende Ergebnisse. Abbruch,
+Fortschritt und die Kennzeichnung von Teilfehlern bleiben verfügbar.
+
+Die Tabelle enthält Ware, tatsächliche Menge, Quellsystem/-station, Entfernung,
+Einkaufs- und Zielverkaufspreis, Gewinn/t, Gesamtgewinn, Quellangebot, Zielnachfrage,
+Anflug, Landeplatz, Datenalter, Datenquelle und den bekannten Körper der Bezugsstation.
+Die Körperanzeige verwendet `known_station_body()`; unbekannte Werte bleiben „–“.
+
+Beim Merken bleibt die vollständige Route **Bezugsquelle → festes Verkaufsziel**
+mit Ware, Preisen, möglicher Menge und den zugehörigen Marktdaten erhalten.
+Die Routenidentität berücksichtigt auch MarketIDs und bekannte Systemadressen.
+Neue Ergebnisse überschreiben den gespeicherten Preis-/Mengenstand nicht.
+Der bekannte Körpername wird beim Merken festgehalten; die Ergebnistabelle
+ermittelt ihn beim erneuten Anzeigen aus den vorhandenen Stationsdaten.
+„System kopieren“ kopiert hier stets das **Quellsystem**.
+Die Aktion „Hinweg suchen“ am jeweiligen Merkeintrag ist im Abschnitt
+„Hinweg zu einer gemerkten Bezugsquelle“ beschrieben; ihr Qt-Tooltip erklärt
+den Hin- und Rückweg.
 
 ## Vom Benutzer bestätigte Live-Abnahmen
 
@@ -326,3 +390,34 @@ sie sind keine Behauptung einer erneut durchgeführten Onlineprüfung:
 Diese Dokumentation enthält keine persönlichen Laufzeitdaten, Commanderangaben
 oder Markt-Snapshots. Die Regressionstests verwenden synthetische Marktdaten;
 reale Handelsdaten und Diagnosedumps werden nicht als Fixtures übernommen.
+
+## Hinweg zu einer gemerkten Bezugsquelle
+
+„Hier verkaufen“ bietet im bestehenden Merkzettel pro Route „Hinweg suchen“.
+Die Aktion übernimmt die gespeicherte **Bezugsquelle** als festes Verkaufsziel
+in „Empfehlungen“, wechselt den Reiter und startet die Suche. Der aktuelle
+bestätigte lokale Markt bleibt Einkaufsquelle. Alle dort kaufbaren Waren werden
+bewertet; die Ware des gemerkten Rückwegs beschränkt die Hinwegsuche nicht.
+
+Die Zielanzeige enthält die ausgewählte Station, das System, bekannte Körper-
+und Padinformationen sowie den zugehörigen gemerkten Rückweg. „Nur dieses Ziel
+verwenden“ lässt sich ausschalten, ohne Filterwerte zu verändern. Danach läuft
+die nächste Suche wieder wie die normale Empfehlungen-Suche. Auch ein festes
+Ziel muss Radius-, Alters-, Pad-, Carrier-, Anflug-, local_only- und
+Wirtschaftlichkeitsfilter erfüllen. Unbekannte Metadaten werden nicht erfunden.
+
+Die bestehende RecommendationStoreSession schränkt Kandidaten bereits über
+`market_ids` und gegebenenfalls `system_address` ein. Communityabfragen verwenden
+den belegten exakten Spansh-Filter (siehe market-data-provider.md). Lokale
+Null-/Leerstände bleiben Freshness-Evidenz vor der wirtschaftlichen Bewertung.
+Im Mischbetrieb können neuere Communitydaten weiterhin gewinnen; local_only
+verhindert Communityabfragen vollständig.
+
+Der Rückweg bleibt unverändert im gemeinsamen, sitzungslokalen Merkzettel.
+Routenidentitäten enthalten zusätzlich zu Namen/Ware auch die vorhandenen
+MarketIDs/Systemadressen, damit gleichnamige Stationen nicht zusammenfallen.
+Entfernen des ausgewählten Merkeintrags löscht dessen abgeleitete Zielauswahl.
+Zielwechsel, Ausschalten und Kontextwechsel invalidieren laufende Ergebnisse;
+ein bestätigter Commanderwechsel löscht die Auswahl. Reisebewegungen behalten
+die Auswahl, benötigen für eine neue Suche aber einen bestätigten aktuellen
+Markt. Fehlende Zielmarktdaten führen niemals zu einer Ersatzstation.

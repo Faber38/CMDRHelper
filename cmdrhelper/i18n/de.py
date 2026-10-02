@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_8_0.0': 'Neuer Handelsreiter „Hier verkaufen“: Günstige Bezugsquellen für Waren finden, die am aktuellen Markt Gewinn bringen.',
+    'release.3_8_0.1': 'Hin- und Rückweg besser nutzen: Bei einer gemerkten Bezugsquelle passende Waren für den Hinflug suchen und dort die geplante Ware für den Rückweg kaufen.',
+    'release.3_8_0.2': 'Mehr Informationen zu Bezugsquellen: Angebot und Nachfrage getrennt sehen sowie bekannte Planetenkörper bei planetaren Stationen anzeigen.',
+    'release.3_8_0.3': 'Lokale Handelssuche auch beim Kaufen und Verkaufen; bekannte Landeplatzgrößen werden besser berücksichtigt.',
+    'release.3_8_0.4': 'Zuverlässigere Frachtraumerkennung: Bestätigte Mengen bleiben bei unverändert gültigem Kontext erhalten; Schiff, SRV und Fußmodus werden sauberer getrennt.',
+    'release.3_8_0.5': 'Stationsmarkt nach dem Einsteigen weiter erkennen: Nach der Rückkehr ins eigene Schiff ist kein erneutes Andocken nötig.',
     'release.3_7_8.0': 'Fehlerkorrekturen im Handelsassistenten.',
     'release.3_7_8.1': 'Verbesserte Erkennung und Aktualisierung des Frachtraums.',
     'release.3_7_8.2': 'Fehler bei Materialbeständen an der Kapazitätsgrenze behoben.',
@@ -1785,3 +1791,33 @@ TRANSLATIONS = {
 TRANSLATIONS.update({'mining.own_sell_price': 'Eigener Verkaufspreis / t', 'mining.own_price_none': 'Keine eigenen nutzbaren Marktdaten innerhalb des Alterslimits.', 'mining.own_price_error': 'Eigene Marktpreise nicht verfügbar (Lesefehler).', 'mining.own_price_help': 'Bester eigener Verkaufspreis dieser Installation bei positiver Nachfrage. Zusatz zum festen Referenzpreis; Nachfrage ist kein Commanderbestand.'})
 
 TRANSLATIONS['recommend.remember_tip'] = 'Tipp: Gewünschte Ziele vor dem Einkauf mit ✓ merken – sie bleiben auch bei vollem Frachtraum erhalten.'
+
+# Fixed-target supply recommendations.
+TRANSLATIONS.update({
+    'supply.title': 'Hier verkaufen',
+    'supply.search': 'Bezugsquellen suchen',
+    'supply.question': 'Was kann ich anderswo einkaufen und an diesem Markt mit positivem Gewinn und mindestens {margin} % Marge verkaufen? Jede Zeile ist eine Alternative, kein gemeinsamer Frachtraumplan.',
+    'supply.origin': 'Festes Verkaufsziel: {station}\nSystem: {system}\nQuelle: {source}\nMarktdaten: vor {age}',
+    'supply.buy_here': 'Einkauf Quelle / t',
+    'supply.sell_there': 'Verkauf hier / t',
+    'supply.target_age': 'Datenalter Quelle',
+    'supply.ready': 'Filter prüfen und Bezugsquellen suchen.',
+    'supply.results': 'Bezugsquellen: {count}',
+    'supply.supply': 'Angebot Quelle',
+    'supply.demand': 'Nachfrage Ziel',
+    'supply.station': 'Quellstation',
+    'supply.system': 'Quellsystem',
+    'supply.quantity_help': 'Maximale Handelsmenge. Die tatsächliche Menge wird durch freien Frachtraum, Angebot der Quelle und Nachfrage am Ziel begrenzt.',
+    'supply.notice': 'Das Verkaufsziel bleibt der aktuelle bestätigte lokale Markt. Bezugsquellen stammen aus lokalen Beobachtungen und Spansh. Filter für Entfernung, Landeplatz, Carrier und Anflug gelten für die Bezugsquellen. Preise und Mengen können sich ändern; Ergebnisse gelten nur innerhalb der begrenzten Suche.',
+})
+TRANSLATIONS['supply.help'] = ' '.join(TRANSLATIONS['supply.' + key] for key in ('quantity_help', 'notice'))
+
+# Optional outbound trade to a bookmarked supply station.
+TRANSLATIONS.update({
+    'outbound.search': 'Hinweg suchen',
+    'outbound.search_tooltip': 'Sucht passende Waren, die du vom aktuellen Markt zu dieser Bezugsstation mitnehmen und dort verkaufen kannst. Anschließend kannst du dort die gemerkte Ware für den Rückweg kaufen.',
+    'outbound.only_target': 'Nur dieses Ziel verwenden',
+    'outbound.target': 'Festes Ziel aus Gemerkt: {station} — {system}',
+    'outbound.filters': 'Auch das feste Ziel muss alle eingestellten Filter erfüllen.',
+    'outbound.return_route': 'Gemerkter Rückweg: {commodity} → {station} — {system}',
+})

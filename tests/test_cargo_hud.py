@@ -87,7 +87,7 @@ class CargoHudTests(unittest.TestCase):
         self.state.ship_cargo_context = dict(
             fid="F-A", journal="fixture", ship_id=38, vessel="Ship", active=True,
             loadout_seen=True, session_start="2026-09-04T15:00:01Z",
-            barrier="2026-09-04T16:00:29Z", generation=1, total=None)
+            barrier="2026-09-04T16:00:29Z", generation=1, session_generation=1, total=None)
         self.state.game_mode_timestamp = "2026-09-04T15:00:01Z"
         self.state.ship = "TEST-NOMADE"
         self.state.ship_loadout = ShipLoadoutData(

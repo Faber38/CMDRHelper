@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_8_0.0': 'Nueva pestaña comercial «Vender aquí»: encuentra fuentes baratas para mercancías que puedes vender con beneficio en el mercado actual.',
+    'release.3_8_0.1': 'Aprovecha mejor la ida y la vuelta: desde una estación de abastecimiento guardada, busca mercancías para la ida y compra allí la mercancía prevista para el regreso.',
+    'release.3_8_0.2': 'Más información sobre las fuentes: oferta y demanda por separado y cuerpos planetarios conocidos para las estaciones de superficie.',
+    'release.3_8_0.3': 'La búsqueda comercial solo con datos locales también cubre compras y ventas y aprovecha mejor los tamaños de plataforma conocidos.',
+    'release.3_8_0.4': 'Detección de bodega más fiable: las cantidades confirmadas se mantienen mientras el contexto siga siendo válido y no cambie; nave, SRV y modo a pie se distinguen mejor.',
+    'release.3_8_0.5': 'El mercado de la estación sigue reconocido al volver a tu propia nave, sin necesidad de acoplar de nuevo.',
     'release.3_7_8.0': 'Correcciones de errores en el asistente comercial.',
     'release.3_7_8.1': 'Mejoras en la detección y actualización del espacio de carga.',
     'release.3_7_8.2': 'Corregidos los errores de existencias de materiales en el límite de capacidad.',
@@ -1773,3 +1779,33 @@ TRANSLATIONS = {
 TRANSLATIONS.update({'mining.own_sell_price': 'Precio de venta propio / t', 'mining.own_price_none': 'Sin datos de mercado propios utilizables dentro del límite de antigüedad.', 'mining.own_price_error': 'Precios propios no disponibles (error de lectura).', 'mining.own_price_help': 'Mejor precio de venta propio observado por esta instalación con demanda positiva. Complementa el precio de referencia fijo; la demanda no es el inventario del comandante.'})
 
 TRANSLATIONS['recommend.remember_tip'] = 'Consejo: guarda los destinos deseados con ✓ antes de comprar; seguirán disponibles aunque la bodega esté llena.'
+
+# Fixed-target supply recommendations.
+TRANSLATIONS.update({
+    'supply.title': 'Vender aquí',
+    'supply.search': 'Buscar proveedores',
+    'supply.question': '¿Qué puedo comprar en otro lugar y vender en este mercado con beneficio positivo y un margen mínimo del {margin}%? Cada fila es una alternativa, no un plan de carga conjunto.',
+    'supply.origin': 'Destino de venta fijo: {station}\nSistema: {system}\nFuente: {source}\nDatos del mercado: hace {age}',
+    'supply.buy_here': 'Compra en origen / t',
+    'supply.sell_there': 'Venta aquí / t',
+    'supply.target_age': 'Antigüedad del origen',
+    'supply.ready': 'Comprueba los filtros y busca proveedores.',
+    'supply.results': 'Proveedores: {count}',
+    'supply.supply': 'Oferta en origen',
+    'supply.demand': 'Demanda en destino',
+    'supply.station': 'Estación de origen',
+    'supply.system': 'Sistema de origen',
+    'supply.quantity_help': 'Cantidad máxima. La cantidad real está limitada por la bodega libre, la oferta en origen y la demanda en destino.',
+    'supply.notice': 'El destino sigue siendo el mercado local actual confirmado. Los proveedores proceden de observaciones locales y Spansh. Los filtros de distancia, plataforma, portanaves y aproximación se aplican al origen. Precios y cantidades pueden cambiar; los resultados se limitan a la búsqueda realizada.',
+})
+TRANSLATIONS['supply.help'] = ' '.join(TRANSLATIONS['supply.' + key] for key in ('quantity_help', 'notice'))
+
+# Optional outbound trade to a bookmarked supply station.
+TRANSLATIONS.update({
+    'outbound.search': 'Buscar comercio de ida',
+    'outbound.search_tooltip': 'Busca mercancías adecuadas para llevar desde el mercado actual a esta estación de abastecimiento y venderlas allí. Después podrás comprar allí la mercancía guardada para el viaje de regreso.',
+    'outbound.only_target': 'Usar solo este destino',
+    'outbound.target': 'Destino fijo guardado: {station} — {system}',
+    'outbound.filters': 'El destino fijo también debe cumplir todos los filtros seleccionados.',
+    'outbound.return_route': 'Regreso guardado: {commodity} → {station} — {system}',
+})

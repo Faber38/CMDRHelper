@@ -83,6 +83,96 @@ class ShipCargoTests(unittest.TestCase):
                 event('DockSRV', 5), loadout(38, 43, 6),
                 event('ShipyardSwap', 7, ShipID=44, ShipType='panthermkii'), loadout(second=8)]
 
+    def test_kraehe_after_on_foot_start_uses_only_fresh_ship_status(self):
+        # Yesterday's cargo predates the ship switch and today's on-foot start.
+        old_cargo = cargo(5, second=6, inline=False)
+        (self.folder / 'Cargo.json').write_text(json.dumps(cargo(5, second=6)))
+        kraehe = dict(loadout(12, 16, 30), Ship='cobramkv',
+                      ShipName='[EOT] = Erft-Krähe =')
+        rows = [loadout(), old_cargo, event('ShipyardSwap', 7, ShipID=12),
+                dict(kraehe, timestamp=event('', 8)['timestamp']),
+                event('Disembark', 9, SRV=False, Taxi=False, Multicrew=False),
+                event('Shutdown', 10),
+                event('LoadGame', 20, FID='F-A', Ship='UtilitySuit_Class5',
+                      Ship_Localised='$UtilitySuit_Class1_Name;', ShipID=4293000001),
+                event('Embark', 30, ID=12, SRV=False, Taxi=False, Multicrew=False),
+                kraehe]
+        s, d = self.replay(rows)
+        self.assertEqual(d['active_srv_type'], '')
+        self.assertIsNone(d['active_srv_capacity'])
+        self.assertEqual(s.ship_cargo_context['vessel'], 'Ship')
+        self.assertEqual(s.ship_cargo_context['ship_id'], 12)
+        self.assertIsNone(s.cargo_snapshot)
+        self.assertIsNone(current_ship_cargo(s))
+        s._cargo_status = status(0)
+        for age, expected in ((0, 16), (120, 16), (121, 16)):
+            with self.subTest(age=age), patch(
+                    'cmdrhelper.ship_cargo.utc_now',
+                    return_value=BASE + timedelta(seconds=80 + age)):
+                self.assertEqual(ship_space(s), ('[EOT] = Erft-Krähe =', expected))
+                if expected is not None:
+                    self.assertEqual(current_ship_cargo(s)['count'], 0)
+                    self.assertEqual(current_ship_cargo(s)['source'], 'status')
+                self.assertIsNone(s.cargo_snapshot)
+
+    def test_suit_start_clears_previous_srv_without_enabling_ship_cargo(self):
+        for suit in ('UtilitySuit_Class5', 'ExplorationSuit_Class3', 'TacticalSuit_Class1'):
+            with self.subTest(suit=suit):
+                s, d = self.replay([
+                    loadout(), event('LaunchSRV', 6, SRVType='mev_rhino'),
+                    event('LoadGame', 10, FID='F-A', Ship=suit,
+                          Ship_Localised=f'${suit}_Name;')], status())
+                self.assertEqual(d['active_srv_type'], '')
+                self.assertIsNone(d['active_srv_capacity'])
+                self.assertIsNone(current_ship_cargo(s))
+
+    def test_real_srv_start_and_confirmed_ship_transitions(self):
+        for vehicle, capacity in (('testbuggy', 4), ('mev_rhino', 72),
+                                  ('combat_multicrew_srv_01', 2), ('lander01', None)):
+            rows = [loadout(), event('LoadGame', 10, FID='F-A', Ship=vehicle)]
+            with self.subTest(vehicle=vehicle):
+                s, d = self.replay(rows, status())
+                self.assertEqual(d['active_srv_type'], vehicle)
+                self.assertEqual(d['active_srv_capacity'], capacity)
+                self.assertEqual(s.ship_cargo_context['vessel'], 'SRV')
+                self.assertIsNone(current_ship_cargo(s))
+            for transition in ([event('Embark', 20, SRV=False, Taxi=False, Multicrew=False)],
+                               [loadout(second=20)], [event('DockSRV', 20)]):
+                with self.subTest(vehicle=vehicle, transition=transition):
+                    s, d = self.replay(rows + transition, status())
+                    self.assertEqual(d['active_srv_type'], '')
+                    self.assertIsNone(d['active_srv_capacity'])
+                    s, _ = self.replay(rows + transition + [loadout(second=21)], status())
+                    self.assertEqual(ship_space(s)[1], 576)
+
+    def test_embark_srv_taxi_or_multicrew_does_not_clear_srv_or_enable_ship(self):
+        for field in ('SRV', 'Taxi', 'Multicrew'):
+            with self.subTest(field=field):
+                fields = dict(SRV=False, Taxi=False, Multicrew=False)
+                fields[field] = True
+                s, d = self.replay([loadout(), event('LaunchSRV', 6, SRVType='mev_rhino'),
+                                    event('Embark', 10, **fields)], status())
+                self.assertEqual(d['active_srv_type'], 'mev_rhino')
+                self.assertEqual(d['active_srv_capacity'], 72)
+                self.assertIsNone(current_ship_cargo(s))
+
+    def test_fighter_blocks_ship_cargo_until_return_and_new_evidence(self):
+        rows = [loadout(), cargo(5), event('LaunchFighter', 10, PlayerControlled=True)]
+        s, _ = self.replay(rows, status())
+        self.assertIsNone(current_ship_cargo(s))
+        for transition in (event('DockFighter', 20),
+                           event('Embark', 20, SRV=False, Taxi=False, Multicrew=False)):
+            with self.subTest(transition=transition):
+                s, d = self.replay(rows + [transition])
+                self.assertEqual(d['active_srv_type'], '')
+                self.assertIsNone(d['active_srv_capacity'])
+                self.assertEqual(s.ship_cargo_context['vessel'], 'Ship')
+                self.assertIsNone(current_ship_cargo(s))
+                s._cargo_status = status(5)
+                self.assertEqual(ship_space(s)[1], 571)
+                s._cargo_status = status(5, Flags=1 << 25)
+                self.assertIsNone(current_ship_cargo(s))
+
     def test_real_sequence_zero_and_loaded_status_without_relabelling_srv(self):
         for used, free in ((0, 576), (120, 456)):
             with self.subTest(used=used):
@@ -224,7 +314,7 @@ class ShipCargoTests(unittest.TestCase):
         empty, _ = self.replay(self.mammut_events(), status(), state=empty)
         self.assertEqual(ship_space(empty)[1], 576)
 
-    def test_poll_updates_signal_for_status_changes_expiry_and_pending_journal(self):
+    def test_poll_retains_confirmed_status_but_blocks_pending_journal(self):
         s, _ = self.replay(self.mammut_events())
         path = self.folder / 'Status.json'
         path.write_text(json.dumps(status()))
@@ -237,7 +327,8 @@ class ShipCargoTests(unittest.TestCase):
         self.assertGreater(len(s.cargoSnapshotChanged.values), before)
         with patch('cmdrhelper.ship_cargo.utc_now', return_value=BASE + timedelta(seconds=201)):
             AppState._poll_ship_cargo(s)
-            self.assertIsNone(s.ship_cargo_total)
+            self.assertEqual(s.ship_cargo_total['count'], 120)
+            self.assertEqual(ship_space(s)[1], 456)
         with self.path.open('a') as f: f.write(json.dumps(event('ShipyardSwap', 85, ShipID=45)) + '\n')
         AppState._poll_ship_cargo(s)
         self.assertIsNone(ship_space(s)[1])
@@ -252,6 +343,116 @@ class ShipCargoTests(unittest.TestCase):
             path.write_text(payload)
             AppState._poll_ship_cargo(s)
             self.assertIsNone(ship_space(s)[1])
+
+    def test_confirmed_1110_t_survives_time_poll_and_journal_replay_not_restart(self):
+        rows = [loadout(45, 1110)]
+        s, _ = self.replay(rows, status())
+        (self.folder / 'Status.json').write_text(json.dumps(status()))
+        for age in (0, 120, 121, 86400):
+            with self.subTest(age=age), patch(
+                    'cmdrhelper.ship_cargo.utc_now',
+                    return_value=BASE + timedelta(seconds=80 + age)):
+                AppState._poll_ship_cargo(s)
+                self.assertEqual(ship_space(s)[1], 1110)
+                self.assertEqual(s.ship_cargo_total['source'], 'status')
+                self.assertEqual(s.ship_cargo_total['ship_id'], 45)
+        with patch('cmdrhelper.ship_cargo.utc_now', return_value=BASE + timedelta(days=1)):
+            binding = dict(s._confirmed_status_cargo['binding'])
+            s, _ = self.replay(rows + [event('Music', 85)], status(), state=s)
+            AppState._poll_ship_cargo(s)
+            self.assertEqual(ship_space(s)[1], 1110)
+            self.assertEqual(s._confirmed_status_cargo['binding'], binding)
+            restarted, _ = self.replay(rows, status())
+            self.assertIsNone(ship_space(restarted)[1])
+            self.assertIsNone(restarted._confirmed_status_cargo)
+
+    def test_every_mutation_invalidates_status_and_requires_new_evidence(self):
+        for kind in sorted(CARGO_MUTATIONS):
+            with self.subTest(kind=kind):
+                rows = [loadout(45, 1110)]
+                s, _ = self.replay(rows, status())
+                self.assertEqual(ship_space(s)[1], 1110)
+                rows += [event(kind, 85, Count=2, Type='gold')]
+                s, _ = self.replay(rows, status(), state=s)
+                # Even still-fresh pre-mutation evidence must be rejected.
+                self.assertIsNone(ship_space(s)[1])
+                self.assertIsNone(s._confirmed_status_cargo)
+                with patch('cmdrhelper.ship_cargo.utc_now', return_value=BASE + timedelta(seconds=300)):
+                    self.assertIsNone(ship_space(s)[1])
+                    s._cargo_status = status(2, second=299)
+                    self.assertEqual(ship_space(s)[1], 1108)
+                    self.assertEqual(current_ship_cargo(s)['source'], 'status')
+
+    def test_confirmed_status_cannot_cross_ship_session_or_vehicle_transitions(self):
+        transitions = [
+            [event('ShipyardSwap', 85, ShipID=46), loadout(46, 1110, 86)],
+            [event('ShipyardSwap', 85, ShipID=46), loadout(46, 1110, 85),
+             event('ShipyardSwap', 85, ShipID=45), loadout(45, 1110, 85)],
+            [event('LoadGame', 85, FID='F-A', Ship='panthermkii', ShipID=45),
+             loadout(45, 1110, 86)],
+            [event('LaunchSRV', 85, SRVType='testbuggy')],
+            [event('LaunchSRV', 85, SRVType='testbuggy'), event('DockSRV', 86)],
+            [event('Disembark', 85)],
+            [event('Disembark', 85), event('Embark', 86, SRV=False)],
+            [event('LaunchFighter', 85, PlayerControlled=True)],
+            [event('Died', 85)], [event('Resurrect', 85)], [event('Shutdown', 85)],
+        ]
+        for tail in transitions:
+            with self.subTest(tail=tail):
+                rows = [loadout(45, 1110)]
+                s, _ = self.replay(rows, status())
+                self.assertEqual(ship_space(s)[1], 1110)
+                s, _ = self.replay(rows + tail, status(), state=s)
+                self.assertIsNone(ship_space(s)[1])
+                self.assertIsNone(s._confirmed_status_cargo)
+
+    def test_confirmed_status_commander_and_loadout_guards_remain_active(self):
+        for mutation in ('fid', 'commander', 'journal', 'stale', 'incomplete',
+                         'capacity', 'loadout_timestamp', 'flags', 'quantity'):
+            with self.subTest(mutation=mutation):
+                s, _ = self.replay([loadout(45, 1110)], status())
+                self.assertEqual(ship_space(s)[1], 1110)
+                if mutation == 'fid': s.commander_fid = 'F-B'
+                if mutation == 'commander': s.commander_id = 2
+                if mutation == 'journal': s._journal_index_sessions[-1]['journal_file'] = 'other'
+                if mutation == 'stale': s.ship_loadout.loadout_stale = True
+                if mutation == 'incomplete': s.ship_loadout.loadout_complete = False
+                if mutation == 'capacity': s.ship_loadout.cargo_capacity = 1000
+                if mutation == 'loadout_timestamp': s.ship_loadout.loadout_timestamp = event('', 81)['timestamp']
+                if mutation == 'flags': s._cargo_status['Flags2'] = 1
+                if mutation == 'quantity': s._cargo_status['Cargo'] = 1
+                with patch('cmdrhelper.ship_cargo.utc_now', return_value=BASE + timedelta(seconds=201)):
+                    self.assertIsNone(ship_space(s)[1])
+                    self.assertIsNone(s._confirmed_status_cargo)
+        s, _ = self.replay([loadout(45, 1110)], status())
+        self.assertEqual(ship_space(s)[1], 1110)
+        AppState.reset_commander_runtime_state(s)
+        self.assertIsNone(s._confirmed_status_cargo)
+
+    def test_authoritative_cargo_replaces_confirmed_status_without_ttl(self):
+        for inline, source in ((True, 'snapshot'), (False, 'journal')):
+            with self.subTest(source=source):
+                rows = [loadout(45, 1110)]
+                s, _ = self.replay(rows, status())
+                self.assertEqual(ship_space(s)[1], 1110)
+                s, _ = self.replay(rows + [cargo(7, 85, inline=inline)], status(), state=s)
+                with patch('cmdrhelper.ship_cargo.utc_now', return_value=BASE + timedelta(days=1)):
+                    self.assertEqual(ship_space(s)[1], 1103)
+                    self.assertEqual(current_ship_cargo(s)['source'], source)
+                    self.assertIsNone(s._confirmed_status_cargo)
+
+    def test_pending_journal_temporarily_blocks_but_does_not_expire_confirmation(self):
+        s, _ = self.replay([loadout(45, 1110)], status())
+        (self.folder / 'Status.json').write_text(json.dumps(status()))
+        AppState._poll_ship_cargo(s)
+        self.assertEqual(ship_space(s)[1], 1110)
+        s._journal_index_sessions[-1]['last_read_offset'] = 0
+        with patch('cmdrhelper.ship_cargo.utc_now', return_value=BASE + timedelta(days=1)):
+            AppState._poll_ship_cargo(s)
+            self.assertIsNone(ship_space(s)[1])
+            s._journal_index_sessions[-1]['last_read_offset'] = self.path.stat().st_size
+            AppState._poll_ship_cargo(s)
+            self.assertEqual(ship_space(s)[1], 1110)
 
     def test_uncommitted_journal_and_new_file_block_unlabelled_status(self):
         s, _ = self.replay(self.mammut_events())

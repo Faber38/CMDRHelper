@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_8_0.0': 'Nieuw handelstabblad ‘Hier verkopen’: vind goedkope inkooplocaties voor goederen die op de huidige markt winst opleveren.',
+    'release.3_8_0.1': 'Benut heen- en terugreis beter: zoek vanuit een onthouden inkoopstation naar goederen voor de heenreis en koop daar vervolgens de geplande handelswaar voor de terugreis.',
+    'release.3_8_0.2': 'Meer informatie over inkooplocaties: aanbod en vraag apart weergegeven, met bekende hemellichamen bij oppervlaktestations.',
+    'release.3_8_0.3': 'Handel zoeken met uitsluitend lokale gegevens kan nu ook bij kopen en verkopen, met beter gebruik van bekende landingsplatformgroottes.',
+    'release.3_8_0.4': 'Betrouwbaardere vrachtruimdetectie: bevestigde hoeveelheden blijven geldig bij een ongewijzigde, geldige context; schip, SRV en te voet worden beter onderscheiden.',
+    'release.3_8_0.5': 'De stationsmarkt blijft herkend na terugkeer aan boord van je eigen schip, zonder opnieuw aan te meren.',
     'release.3_7_8.0': 'Foutoplossingen in de handelsassistent.',
     'release.3_7_8.1': 'Verbeterde detectie en actualisering van de vrachtruimte.',
     'release.3_7_8.2': 'Fouten in materiaalvoorraden bij de capaciteitslimiet verholpen.',
@@ -1661,3 +1667,33 @@ TRANSLATIONS = {
 TRANSLATIONS.update({'mining.own_sell_price': 'Eigen verkoopprijs / t', 'mining.own_price_none': 'Geen bruikbare eigen marktgegevens binnen de leeftijdslimiet.', 'mining.own_price_error': 'Eigen marktprijzen niet beschikbaar (leesfout).', 'mining.own_price_help': 'Beste eigen verkoopprijs waargenomen door deze installatie met positieve vraag. Aanvulling op de vaste referentieprijs; vraag is geen commandantvoorraad.'})
 
 TRANSLATIONS['recommend.remember_tip'] = 'Tip: onthoud de gewenste bestemmingen met ✓ voordat je koopt – ze blijven beschikbaar, ook met een vol vrachtruim.'
+
+# Fixed-target supply recommendations.
+TRANSLATIONS.update({
+    'supply.title': 'Hier verkopen',
+    'supply.search': 'Leveranciers zoeken',
+    'supply.question': 'Wat kan ik elders kopen en op deze markt verkopen met positieve winst en minstens {margin}% marge? Elke rij is een alternatief, geen gezamenlijk vrachtplan.',
+    'supply.origin': 'Vaste verkoopbestemming: {station}\nSysteem: {system}\nBron: {source}\nMarktgegevens: {age} geleden',
+    'supply.buy_here': 'Inkoop bij bron / t',
+    'supply.sell_there': 'Verkoop hier / t',
+    'supply.target_age': 'Ouderdom brongegevens',
+    'supply.ready': 'Controleer de filters en zoek leveranciers.',
+    'supply.results': 'Leveranciers: {count}',
+    'supply.supply': 'Aanbod bij bron',
+    'supply.demand': 'Vraag op bestemming',
+    'supply.station': 'Bronstation',
+    'supply.system': 'Bronsysteem',
+    'supply.quantity_help': 'Maximale hoeveelheid. De werkelijke hoeveelheid wordt beperkt door vrije laadruimte, aanbod bij de bron en vraag op de bestemming.',
+    'supply.notice': 'De bestemming blijft de huidige bevestigde lokale markt. Leveranciers komen uit lokale waarnemingen en Spansh. Filters voor afstand, landingsplatform, carrier en aanvliegafstand gelden voor leveranciers. Prijzen en hoeveelheden kunnen veranderen; resultaten gelden binnen de begrensde zoekopdracht.',
+})
+TRANSLATIONS['supply.help'] = ' '.join(TRANSLATIONS['supply.' + key] for key in ('quantity_help', 'notice'))
+
+# Optional outbound trade to a bookmarked supply station.
+TRANSLATIONS.update({
+    'outbound.search': 'Heenhandel zoeken',
+    'outbound.search_tooltip': 'Zoekt geschikte goederen om van de huidige markt naar dit inkoopstation mee te nemen en daar te verkopen. Daarna kun je daar de onthouden handelswaar voor de terugreis kopen.',
+    'outbound.only_target': 'Alleen deze bestemming gebruiken',
+    'outbound.target': 'Vaste onthouden bestemming: {station} — {system}',
+    'outbound.filters': 'Ook de vaste bestemming moet aan alle ingestelde filters voldoen.',
+    'outbound.return_route': 'Onthouden terugreis: {commodity} → {station} — {system}',
+})

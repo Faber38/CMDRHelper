@@ -1,9 +1,11 @@
 """Compact, session-local destination bookmarks shared by all trade tabs."""
-from PySide6.QtCore import Qt, QRectF, QEvent, QSignalBlocker
+from PySide6.QtCore import Qt, QRectF, QEvent, QSignalBlocker, QLocale, Signal
 from PySide6.QtGui import QBrush, QColor, QPainter, QPainterPath, QPen
 from PySide6.QtWidgets import (QApplication, QFrame, QLabel, QVBoxLayout, QHBoxLayout, QWidget, QToolButton,
     QStyledItemDelegate, QStyle, QStyleOptionViewItem, QTableWidgetItem, QSizePolicy)
-from cmdrhelper.i18n import tr
+from cmdrhelper.i18n import tr, get_language
+from cmdrhelper.commodity_master import lookup_by_id, lookup_by_symbol
+from cmdrhelper.commodity_localization import commodity_name
 from cmdrhelper.market_data import PadSize
 from cmdrhelper.trade_station_body import known_station_body
 from .system_clipboard import copy_system_name
@@ -14,9 +16,13 @@ def target_identity(offer):
 
 
 class RememberedTargets(QFrame):
-    def __init__(self, parent=None, *, state=None):
+    outboundRequested = Signal(object)
+    bookmarksChanged = Signal()
+
+    def __init__(self, parent=None, *, state=None, route_bookmarks=False):
         super().__init__(parent)
         self.state = state
+        self.route_bookmarks = route_bookmarks
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
         self.targets = {}
         self.body_labels = {}
@@ -29,6 +35,7 @@ class RememberedTargets(QFrame):
         self.heading.setFont(font)
         layout.addWidget(self.heading)
         self.entries = {}
+        self.route_buttons = {}
         self.table = None
         self.column = None
         self.is_active = lambda: True
@@ -42,12 +49,15 @@ class RememberedTargets(QFrame):
             margins = layout.contentsMargins()
             width = max(1, self.width() - margins.left() - margins.right())
             height = self.heading.sizeHint().height() + margins.top() + margins.bottom()
-            for entry, label, button, copy_button in self.entries.values():
-                text_width = max(1, width - button.sizeHint().width() - copy_button.sizeHint().width()
+            for key, (entry, label, button, copy_button) in self.entries.items():
+                action = self.route_buttons.get(key)
+                extra_width = action.sizeHint().width() + entry.layout().spacing() if action else 0
+                text_width = max(1, width - extra_width - button.sizeHint().width() - copy_button.sizeHint().width()
                                      - 2 * entry.layout().spacing())
                 text_height = max(0, label.heightForWidth(text_width))
                 label.setMinimumHeight(text_height)
-                row_height = max(text_height, button.sizeHint().height(), copy_button.sizeHint().height())
+                row_height = max(text_height, button.sizeHint().height(), copy_button.sizeHint().height(),
+                                 action.sizeHint().height() if action else 0)
                 entry.setFixedHeight(row_height)
                 height += layout.spacing() + row_height
             self.setFixedHeight(height)
@@ -69,23 +79,34 @@ class RememberedTargets(QFrame):
                     for column in range(self.table.columnCount()):
                         self.table.item(row, column).setData(Qt.UserRole + 1, False)
         self.refresh()
+        self.bookmarksChanged.emit()
 
     def text(self):
         return '\n'.join(label.text() for _, label, _, _ in self.entries.values())
+
+    def identity(self, offer, payload=None):
+        if self.route_bookmarks:
+            # Keep commodities and fixed targets distinct; prices and amounts
+            # belong to the saved snapshot, not its identity.
+            return (target_identity(payload.source), target_identity(payload.target),
+                    offer.commodity_id, offer.commodity_symbol.casefold(),
+                    payload.source.market_id, payload.source.system_id64,
+                    payload.target.market_id, payload.target.system_id64)
+        return target_identity(offer)
 
     def mark(self, offer, payload=None):
         item = QTableWidgetItem()
         item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable)
         item.setData(Qt.UserRole, offer if payload is None else payload)
-        item.setData(Qt.UserRole + 2, target_identity(offer))
+        item.setData(Qt.UserRole + 2, self.identity(offer, payload))
         item.setToolTip(tr('trade.remembered_targets'))
-        item.setCheckState(Qt.Checked if target_identity(offer) in self.targets else Qt.Unchecked)
+        item.setCheckState(Qt.Checked if self.identity(offer, payload) in self.targets else Qt.Unchecked)
         return item
 
     def changed(self, item, offer):
-        key = target_identity(offer)
+        key = item.data(Qt.UserRole + 2)
         if item.checkState() == Qt.Checked:
-            self.targets[key] = offer
+            self.targets[key] = item.data(Qt.UserRole) if self.route_bookmarks else offer
             self.body_labels[key] = known_station_body(self.state, offer)
         else:
             table = item.tableWidget()
@@ -96,27 +117,40 @@ class RememberedTargets(QFrame):
                 self.targets.pop(key, None)
                 self.body_labels.pop(key, None)
         self.refresh()
+        self.bookmarksChanged.emit()
 
     def clear(self):
         self.targets.clear()
         self.body_labels.clear()
         self.refresh()
+        self.bookmarksChanged.emit()
 
     def refresh(self):
         for key in tuple(self.entries):
             if key not in self.targets:
                 entry, _, _, _ = self.entries.pop(key)
+                self.route_buttons.pop(key, None)
                 self.layout().removeWidget(entry)
                 entry.hide()
                 entry.deleteLater()
-        for key, offer in self.targets.items():
+        for key, value in self.targets.items():
+            offer = value.remote if self.route_bookmarks else value
             pad = (tr('trade.pad_' + offer.largest_pad.value)
                    if offer.largest_pad in (PadSize.SMALL, PadSize.MEDIUM, PadSize.LARGE) else '–')
             parts = [offer.system_name]
-            body = self.body_labels.get(target_identity(offer))
+            body = self.body_labels.get(key)
             if body:
                 parts.append(body)
             parts.extend((offer.station_name, pad))
+            if self.route_bookmarks:
+                master = lookup_by_id(offer.commodity_id) or lookup_by_symbol(offer.commodity_symbol)
+                name = commodity_name(master) if master else offer.commodity_name
+                locale = QLocale(get_language())
+                parts = [name, ' · '.join(parts) + ' → ' +
+                         ' · '.join(target_identity(value.target)),
+                         tr('trade.quantity') + ': ' + locale.toString(value.quantity),
+                         tr('trade.buy') + ': ' + locale.toString(value.buy_price) + ' Cr/t',
+                         tr('trade.sell') + ': ' + locale.toString(value.sell_price) + ' Cr/t']
             if key not in self.entries:
                 entry = QWidget(self)
                 row = QHBoxLayout(entry)
@@ -131,7 +165,7 @@ class RememberedTargets(QFrame):
                 copy_button.setCursor(Qt.PointingHandCursor)
                 copy_button.setToolTip(tr('recommend.copy_system'))
                 copy_button.setAccessibleName(tr('recommend.copy_system'))
-                copy_button.clicked.connect(lambda checked=False, system=key[0]: copy_system_name(system))
+                copy_button.clicked.connect(lambda checked=False, system=offer.system_name: copy_system_name(system))
                 button = QToolButton()
                 button.setText('✕')
                 button.setAutoRaise(True)
@@ -140,6 +174,13 @@ class RememberedTargets(QFrame):
                 button.setAccessibleName(tr('trade.remove_remembered_target'))
                 button.clicked.connect(lambda checked=False, target=key: self.remove(target))
                 row.addWidget(label, 1)
+                if self.route_bookmarks:
+                    action = QToolButton()
+                    action.setText(tr('outbound.search'))
+                    action.setToolTip(tr('outbound.search_tooltip'))
+                    action.clicked.connect(lambda checked=False, target=key: self.outboundRequested.emit(target))
+                    row.addWidget(action, 0, Qt.AlignTop)
+                    self.route_buttons[key] = action
                 row.addWidget(copy_button, 0, Qt.AlignTop)
                 row.addWidget(button, 0, Qt.AlignTop)
                 self.layout().addWidget(entry)

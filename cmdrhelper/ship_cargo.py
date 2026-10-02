@@ -128,9 +128,16 @@ def status_ship_count(state, status, *, now=None):
 
     Require an identified current game, its complete Loadout, ship flags, and a
     Status strictly AFTER the last ambiguous transition/mutation. Equal-second
-    timestamps cannot establish event order. A two-minute TTL expires even when
-    no more journal/sidecar writes occur.
+    timestamps cannot establish event order. The two-minute TTL gates NEW
+    evidence only. Identical evidence already confirmed in this exact context
+    remains valid until a context change or invalidation, without persistence.
     """
+    # Pending journal bytes temporarily block use, but are not themselves a
+    # cargo mutation. Check the resulting generation once processing catches up.
+    if getattr(state, '_cargo_blocked', False):
+        return None
+    confirmed = getattr(state, '_confirmed_status_cargo', None)
+    state._confirmed_status_cargo = None
     if not ship_context_valid(state) or not isinstance(status, dict) or status.get('event') != 'Status':
         return None
     flags, flags2 = status.get('Flags'), status.get('Flags2', 0)
@@ -139,11 +146,11 @@ def status_ship_count(state, status, *, now=None):
             or flags2 & 0b111 or getattr(state, 'active_srv_type', '')):
         return None
     c, loadout = state.ship_cargo_context, state.ship_loadout
+    if any(type(c.get(key)) is not int for key in ('generation', 'session_generation')):
+        return None
     try:
         stamp = utc_timestamp(status.get('timestamp'))
         age = ((now or utc_now()) - stamp).total_seconds()
-        if not -5 <= age <= STATUS_MAX_AGE_SECONDS:
-            return None
         if not utc_timestamp(c['session_start']) <= utc_timestamp(loadout.loadout_timestamp) <= stamp:
             return None
         if stamp <= utc_timestamp(c['barrier']):
@@ -161,12 +168,32 @@ def status_ship_count(state, status, *, now=None):
             or (type(used) is float and (not math.isfinite(used) or not used.is_integer()))
             or not 0 <= used <= loadout.cargo_capacity):
         return None
+    binding = dict(
+        fid=c['fid'], journal=c['journal'], ship_id=c['ship_id'], vessel=c['vessel'],
+        session_start=c['session_start'], session_generation=c['session_generation'],
+        generation=c['generation'], barrier=c['barrier'],
+        commander_id=state.commander_id,
+        first_event_at=session.get('first_event_at'),
+        game_mode_timestamp=getattr(state, 'game_mode_timestamp', ''),
+        loadout_timestamp=loadout.loadout_timestamp, ship_type=loadout.ship_type,
+        capacity=loadout.cargo_capacity,
+    )
+    evidence = dict(timestamp=status['timestamp'], flags=flags, flags2=flags2,
+                    count=int(used), source='status')
+    retained = (isinstance(confirmed, dict)
+                and confirmed.get('binding') == binding
+                and confirmed.get('evidence') == evidence)
+    if age < -5 or (age > STATUS_MAX_AGE_SECONDS and not retained):
+        return None
+    state._confirmed_status_cargo = dict(binding=binding, evidence=evidence)
     return int(used)
 
 
 def current_ship_cargo(state, *, now=None):
     """Return a total with provenance, without manufacturing an inventory."""
     if not ship_context_valid(state):
+        if not getattr(state, '_cargo_blocked', False):
+            state._confirmed_status_cargo = None
         return None
     c, loadout = state.ship_cargo_context, state.ship_loadout
     snapshot = getattr(state, 'cargo_snapshot', None)
@@ -182,6 +209,7 @@ def current_ship_cargo(state, *, now=None):
                 and snapshot.get('ship_id') == loadout.ship_id
                 and type(snapshot.get('count')) is int
                 and 0 <= snapshot['count'] <= loadout.cargo_capacity):
+            state._confirmed_status_cargo = None
             return dict(origin, count=snapshot['count'], source='snapshot')
     total = c.get('total')
     if (isinstance(total, dict) and total.get('fid') == c['fid']
@@ -191,10 +219,11 @@ def current_ship_cargo(state, *, now=None):
             and total.get('ship_id') == loadout.ship_id
             and total.get('generation') == c['generation'] and total.get('vessel') == 'Ship'
             and type(total.get('count')) is int and 0 <= total['count'] <= loadout.cargo_capacity):
+        state._confirmed_status_cargo = None
         return dict(total)
     status = getattr(state, '_cargo_status', None)
     count = status_ship_count(state, status, now=now)
     if count is None:
         return None
-    return dict(fid=c['fid'], ship_id=loadout.ship_id, vessel='Ship', count=count,
+    return dict(state._confirmed_status_cargo['binding'], count=count,
                 timestamp=status['timestamp'], source='status')

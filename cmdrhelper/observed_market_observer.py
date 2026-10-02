@@ -7,6 +7,7 @@ import time
 
 from .journal_files import journal_files, journal_sort_key
 from .live_journal import open_journal
+from .station_context import embark_station_context
 from .odyssey_sidecars import signature
 from .observed_market_cache import (
     ObservedMarketCache, cache_path, normalize_observation, read_market,
@@ -130,6 +131,11 @@ class ObservedMarketObserver:
                     if name in event:
                         self.context[name] = event[name]
             self.pending = None
+        elif kind == 'Embark':
+            station = embark_station_context(event, self.context)
+            self.pending = None
+            if station is not None:
+                self.context.update(station)
         elif kind in ('Undocked', 'StartJump', 'SupercruiseEntry'):
             self.pending = None
             self.context = {key: value for key, value in self.context.items() if key == 'FID'}

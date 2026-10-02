@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_8_0.0': 'Ny handelsfane « Selg her »: Finn rimelige innkjøpssteder for varer som kan selges med fortjeneste på det nåværende markedet.',
+    'release.3_8_0.1': 'Utnytt både ut- og returreisen: Søk etter varer til utreisen fra en lagret innkjøpsstasjon, og kjøp deretter den planlagte returvaren der.',
+    'release.3_8_0.2': 'Flere opplysninger om innkjøpssteder: Se tilbud og etterspørsel hver for seg, samt kjente himmellegemer for overflatestasjoner.',
+    'release.3_8_0.3': 'Handelssøk med bare lokale data støtter nå også kjøp og salg, med bedre bruk av kjente landingsplattformstørrelser.',
+    'release.3_8_0.4': 'Mer pålitelig registrering av lasterom: Bekreftede mengder beholdes så lenge konteksten er gyldig og uendret; skip, SRV og ferdsel til fots skilles tydeligere.',
+    'release.3_8_0.5': 'Stasjonsmarkedet gjenkjennes fortsatt etter ombordstigning: Retur til eget skip krever ikke ny dokking.',
     'release.3_7_8.0': 'Feilrettinger i handelsassistenten.',
     'release.3_7_8.1': 'Forbedret registrering og oppdatering av lasterommet.',
     'release.3_7_8.2': 'Rettet feil i materialbeholdninger ved kapasitetsgrensen.',
@@ -1661,3 +1667,33 @@ TRANSLATIONS = {
 TRANSLATIONS.update({'mining.own_sell_price': 'Egen salgspris / t', 'mining.own_price_none': 'Ingen brukbare egne markedsdata innen aldersgrensen.', 'mining.own_price_error': 'Egne markedspriser utilgjengelige (lesefeil).', 'mining.own_price_help': 'Beste egen salgspris observert av denne installasjonen med positiv etterspørsel. Tillegg til fast referansepris; etterspørsel er ikke kommandørens beholdning.'})
 
 TRANSLATIONS['recommend.remember_tip'] = 'Tips: Merk ønskede mål med ✓ før du kjøper – de beholdes selv når lasterommet er fullt.'
+
+# Fixed-target supply recommendations.
+TRANSLATIONS.update({
+    'supply.title': 'Selg her',
+    'supply.search': 'Finn leverandører',
+    'supply.question': 'Hva kan jeg kjøpe andre steder og selge på dette markedet med positiv fortjeneste og minst {margin}% margin? Hver rad er et alternativ, ikke en samlet lasteplan.',
+    'supply.origin': 'Fast salgssted: {station}\nSystem: {system}\nKilde: {source}\nMarkedsdata: {age} siden',
+    'supply.buy_here': 'Innkjøp ved kilden / t',
+    'supply.sell_there': 'Salg her / t',
+    'supply.target_age': 'Alder på kildedata',
+    'supply.ready': 'Kontroller filtrene og finn leverandører.',
+    'supply.results': 'Leverandører: {count}',
+    'supply.supply': 'Tilbud ved kilden',
+    'supply.demand': 'Etterspørsel ved målet',
+    'supply.station': 'Kildestasjon',
+    'supply.system': 'Kildesystem',
+    'supply.quantity_help': 'Maksimal mengde. Faktisk mengde begrenses av ledig lasterom, tilbud ved kilden og etterspørsel ved målet.',
+    'supply.notice': 'Salgsstedet forblir det nåværende bekreftede lokale markedet. Leverandører hentes fra lokale observasjoner og Spansh. Filtre for avstand, landingsplass, hangarskip og innflyging gjelder leverandørene. Priser og mengder kan endres; resultatene gjelder innenfor det begrensede søket.',
+})
+TRANSLATIONS['supply.help'] = ' '.join(TRANSLATIONS['supply.' + key] for key in ('quantity_help', 'notice'))
+
+# Optional outbound trade to a bookmarked supply station.
+TRANSLATIONS.update({
+    'outbound.search': 'Finn handel på utreisen',
+    'outbound.search_tooltip': 'Finner passende varer som du kan ta med fra det nåværende markedet til denne innkjøpsstasjonen og selge der. Deretter kan du kjøpe den lagrede varen der for returreisen.',
+    'outbound.only_target': 'Bruk bare dette målet',
+    'outbound.target': 'Fast lagret mål: {station} — {system}',
+    'outbound.filters': 'Det faste målet må også oppfylle alle valgte filtre.',
+    'outbound.return_route': 'Lagret returhandel: {commodity} → {station} — {system}',
+})

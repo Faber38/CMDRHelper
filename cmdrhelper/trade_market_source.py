@@ -23,6 +23,12 @@ class TradeMarketSource:
     ready: object = None
     legacy_cache: object = None
     writer: object = None
+    journal_folder: Path | None = None
+    station_cache_folder: Path | None = None
+
+    def pad_metadata(self, cancel=None):
+        from .pad_metadata import read_pad_metadata
+        return read_pad_metadata(self.journal_folder, self.station_cache_folder, cancel)
 
     def fallback_cache(self, cancel=None):
         """Wait off-GUI; JSON is eligible only before database publication."""
@@ -55,6 +61,10 @@ class TradeMarketSource:
 
     def legacy_rows(self, cache, max_age):
         rows = cache.shared(max_age)
+        from .pad_metadata import matching_pad
+        metadata = self.pad_metadata()
+        rows = [dict(row, largest_pad=matching_pad(metadata, row['market_id'],
+            row['station_name'], row['system_name'], row.get('system_address'))) for row in rows]
         distances = {}
         coordinates = (closing(sqlite3.connect(Path(self.coordinates_path).resolve().as_uri()+'?mode=ro',
                         uri=True, timeout=.25)) if self.coordinates_path is not None else nullcontext(None))
@@ -90,6 +100,8 @@ class TradeMarketSource:
         if master is None:
             return
         ref = CommodityRef(master.frontier_id, master.symbol)
+        from .pad_metadata import matching_pad
+        metadata = self.pad_metadata(cancel)
         # Open both connections in their owning worker. Coordinate access is
         # read-only and retains the existing resolver's identity/ambiguity rules.
         coordinates = (closing(sqlite3.connect(Path(self.coordinates_path).resolve().as_uri()+'?mode=ro', uri=True, timeout=.25))
@@ -124,7 +136,9 @@ class TradeMarketSource:
                         yield dict(fid=h.fid, source=h.source, market_id=h.market_id,
                             station_name=h.station_name, system_name=h.system_name,
                             system_address=h.system_address, station_type=h.station_type or '',
-                            observed_at=h.observed_at.isoformat(), commodities=rows), distance
+                            observed_at=h.observed_at.isoformat(), commodities=rows,
+                            largest_pad=matching_pad(metadata, h.market_id, h.station_name,
+                                                     h.system_name, h.system_address)), distance
                     cursor = page.next_cursor
                     if cursor is None:
                         break
@@ -147,4 +161,6 @@ def prepare_trade_source(observer, fid, origin_name, origin_address=None, databa
     path = writer.destination if writer is not None else cache.path.parent/'markets.db' if cache is not None else None
     return TradeMarketSource(Path(path) if path is not None else None, fid, origin_name, origin_address,
         Path(database.path) if database is not None else None,
-        writer.ready if writer is not None and not writer.activated else None, cache, writer)
+        writer.ready if writer is not None and not writer.activated else None, cache, writer,
+        getattr(observer, 'folder', None),
+        cache.path.parent.parent/'external'/'spansh' if cache is not None else None)

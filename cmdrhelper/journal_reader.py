@@ -28,7 +28,8 @@ from cmdrhelper.models import (
 )
 from cmdrhelper.valuation import apply_values, journal_valuation_context
 from cmdrhelper.route_planner.models import GuardianFsdBooster, ShipLoadoutData
-from cmdrhelper.ship_identity import is_definite_non_ship
+from cmdrhelper.ship_identity import is_definite_non_ship, is_suit
+from cmdrhelper.station_context import embark_station_context
 from cmdrhelper.ship_ownership import journal_time, ship_sale, stored_ship_observations
 
 
@@ -1364,12 +1365,16 @@ def read_latest_state(
 
                     if is_definite_non_ship(e.get("Ship"), e.get("Ship_Localised")):
                         away_from_own_ship = True
-                        result["active_srv_type"] = str(
-                            e.get("Ship_Localised") or e.get("Ship") or ""
-                        ).strip()
-                        result["active_srv_capacity"] = srv_cargo_capacity(
-                            e.get("Ship"), e.get("CargoCapacity")
-                        )
+                        if is_suit(e.get("Ship"), e.get("Ship_Localised")):
+                            result["active_srv_type"] = ""
+                            result["active_srv_capacity"] = None
+                        else:
+                            result["active_srv_type"] = str(
+                                e.get("Ship_Localised") or e.get("Ship") or ""
+                            ).strip()
+                            result["active_srv_capacity"] = srv_cargo_capacity(
+                                e.get("Ship"), e.get("CargoCapacity")
+                            )
                     else:
                         away_from_own_ship = False
                         result["active_srv_type"] = ""
@@ -1410,6 +1415,9 @@ def read_latest_state(
                     )
                     ship_loadout = _loadout_from_event(e, ship_loadout)
                     away_from_own_ship = False
+                    if e.get("Ship") and not is_definite_non_ship(e.get("Ship"), e.get("Ship_Localised")):
+                        result["active_srv_type"] = ""
+                        result["active_srv_capacity"] = None
                     _remember_ship(ts, _known_ship_location(ts))
 
                 elif et in ("ShipyardSwap", "ShipyardBuy", "ShipyardNew"):
@@ -1520,6 +1528,8 @@ def read_latest_state(
                     result["body"] = current_body
                     result["station"] = current_station
 
+                    result["market_id"] = e.get("MarketID") if current_station else None
+
                     _set_last_position(
                         e,
                         et,
@@ -1556,6 +1566,7 @@ def read_latest_state(
                     )
 
                 elif et == "Docked":
+                    result["market_id"] = e.get("MarketID")
                     current_station = e.get("StationName") or ""
                     current_system = (
                         e.get("StarSystem")
@@ -1583,6 +1594,7 @@ def read_latest_state(
                     )
 
                 elif et == "Undocked":
+                    result["market_id"] = None
                     current_station = ""
                     result["station"] = ""
 
@@ -1651,9 +1663,25 @@ def read_latest_state(
                     )
 
                 elif et == "Embark":
+                    station = embark_station_context(e, {
+                        "FID": session["fid_seen"], "StarSystem": current_system,
+                        "SystemAddress": current_system_address,
+                        "StationName": current_station, "MarketID": result.get("market_id"),
+                    })
+                    if station is not None:
+                        current_system = station["StarSystem"]
+                        current_station = station["StationName"]
+                        current_system_address = station.get("SystemAddress", current_system_address)
+                        result.update(system=current_system, station=current_station,
+                                      system_address=current_system_address, market_id=station["MarketID"])
+                        _set_last_position(e, et, current_station, "")
+                        _update_location_status(missions, current_system, current_station, current_body, ts)
                     away_from_own_ship = bool(
                         e.get("SRV") or e.get("Taxi") or e.get("Multicrew")
                     )
+                    if not away_from_own_ship:
+                        result["active_srv_type"] = ""
+                        result["active_srv_capacity"] = None
 
                 elif et == "LaunchSRV":
                     if e.get("PlayerControlled") is not False:

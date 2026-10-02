@@ -41,12 +41,13 @@ class MarketSignals(QObject):
 
 class MarketWorker(QRunnable):
     def __init__(self, provider, query, side=TradeSide.SELL, generation=0, *, local_markets=(),
-                 distances=None, fid='', clock=None, local_source=None):
+                 distances=None, fid='', clock=None, local_source=None, local_only=False):
         super().__init__()
         self.provider, self.query = provider, query
         self.side, self.generation = side, generation
         self.local_markets, self.distances, self.fid = local_markets, distances, fid
         self.local_source = local_source
+        self.local_only = local_only
         self.clock = clock or (lambda: datetime.now(timezone.utc))
         self.cancel = Event()
         self.signals = MarketSignals()
@@ -56,7 +57,7 @@ class MarketWorker(QRunnable):
         try:
             result = search_trade(self.provider, self.query, self.side, self.local_markets,
                                   self.distances, self.fid, cancel=self.cancel, clock=self.clock,
-                                  local_source=self.local_source)
+                                  local_source=self.local_source, local_only=self.local_only)
         except Exception:
             logging.getLogger(__name__).exception('Local trade read failed')
             # No raw exception or HTTP response is exposed to the user.
@@ -177,6 +178,9 @@ class TradeView(QWidget):
         for pad in PadSize:
             self.pad.addItem(tr('trade.pad_' + pad.value), pad)
         form.addRow(tr('trade.pad'), self.pad)
+        self.local_only = QCheckBox(tr('recommend.local_only'))
+        self.local_only.setToolTip(tr('recommend.local_only_tooltip'))
+        form.addRow(self.local_only)
         self.carriers = QCheckBox(tr('trade.carriers'))
         form.addRow(self.carriers)
         self.arrival = QLineEdit()
@@ -237,6 +241,7 @@ class TradeView(QWidget):
         self.max_age.currentIndexChanged.connect(self.refresh_observed_markets)
         self.quantity.valueChanged.connect(self._invalidate_results)
         self.carriers.toggled.connect(self._invalidate_results)
+        self.local_only.toggled.connect(self._invalidate_results)
         self.arrival.textChanged.connect(self._invalidate_results)
         self.search_button.clicked.connect(self.start_search)
         self.cancel_button.clicked.connect(self.cancel_search)
@@ -251,20 +256,43 @@ class TradeView(QWidget):
         # A removed page must also stop background work without waiting on the GUI thread.
         self._cancel_event = None
         self.refresh_reference()
-        from .recommendations_view import RecommendationsView
+        from .recommendations_view import RecommendationsView, SupplyRecommendationsView
         self.recommendations = RecommendationsView(state, self.provider, self.pool)
         self.tabs.addTab(self.recommendations, tr('recommend.title'))
+        self.supply_recommendations = SupplyRecommendationsView(state, self.provider, self.pool)
+        self.tabs.addTab(self.supply_recommendations, tr('supply.title'))
+        self.supply_recommendations.remembered_panel.outboundRequested.connect(self.search_outbound)
+        self.supply_recommendations.remembered_panel.bookmarksChanged.connect(self.outbound_bookmarks_changed)
+        self.max_age.currentIndexChanged.connect(self.supply_recommendations.max_age.setCurrentIndex)
+        self.supply_recommendations.max_age.currentIndexChanged.connect(self.max_age.setCurrentIndex)
         self.max_age.currentIndexChanged.connect(self.recommendations.max_age.setCurrentIndex)
         self.recommendations.max_age.currentIndexChanged.connect(self.max_age.setCurrentIndex)
         self.tabs.currentChanged.connect(self._change_side)
+
+    @Slot(object)
+    def search_outbound(self, key):
+        panel = self.supply_recommendations.remembered_panel
+        row = panel.targets.get(key)
+        if row is None:
+            return
+        self.tabs.setCurrentWidget(self.recommendations)
+        self.recommendations.set_fixed_target(row, key, panel.body_labels.get(key, ''))
+
+    @Slot()
+    def outbound_bookmarks_changed(self):
+        key = self.recommendations.fixed_target_key
+        if key is not None and key not in self.supply_recommendations.remembered_panel.targets:
+            self.recommendations.clear_fixed_target()
 
     @Slot(int)
     def _change_side(self, index):
         self._generation += 1
         self.cancel_search()
         self.recommendations.cancel_for_context()
-        if index == 2:
-            self.recommendations.refresh()
+        self.supply_recommendations.cancel_for_context()
+        page = self.tabs.widget(index)
+        if page in (self.recommendations, self.supply_recommendations):
+            page.refresh()
             return
         self.side = TradeSide.BUY if index == 1 else TradeSide.SELL
         self.update_remembered()
@@ -382,7 +410,7 @@ class TradeView(QWidget):
         if cache is None and observer is not None:
             cache = vars(observer).get('cache')
         self.worker = MarketWorker(self.provider, self._query, self.side, self._generation,
-                                   local_source=source, fid=self._fid,
+                                   local_source=source, fid=self._fid, local_only=self.local_only.isChecked(),
                                    clock=cache.clock if cache is not None else None)
         self._cancel_event = self.worker.cancel
         self.destroyed.connect(self._cancel_event.set)
@@ -400,6 +428,7 @@ class TradeView(QWidget):
     def closeEvent(self, event):
         self.cancel_search()
         self.recommendations.cancel_search()
+        self.supply_recommendations.cancel_search()
         super().closeEvent(event)
 
     @Slot(object)

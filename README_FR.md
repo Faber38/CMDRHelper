@@ -38,6 +38,15 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.8.0
+
+- Nouvel onglet commercial « Vendre ici » : trouvez des sources bon marché pour les marchandises rentables sur le marché actuel.
+- Mieux exploiter l’aller et le retour : depuis une station d’approvisionnement mémorisée, cherchez des marchandises pour l’aller, puis achetez-y celle prévue pour le retour.
+- Plus de détails sur les sources : offre et demande séparées, avec les corps planétaires connus pour les stations de surface.
+- La recherche limitée aux données locales couvre aussi les achats et les ventes et tient mieux compte des tailles de plateformes connues.
+- Détection de soute plus fiable : les quantités confirmées restent valides tant que leur contexte reste valide et inchangé ; les modes vaisseau, SRV et à pied sont mieux distingués.
+- Le marché de la station reste reconnu après l’embarquement : revenir dans son propre vaisseau ne nécessite plus de nouvel amarrage.
+
 ## CMDRHelper v3.7.8
 
 - Corrections de bugs dans l’assistant commercial.

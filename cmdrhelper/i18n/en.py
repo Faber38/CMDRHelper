@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_8_0.0': 'New “Sell here” trade tab: Find low-cost sources for goods you can sell profitably at the current market.',
+    'release.3_8_0.1': 'Make better use of both legs: From a bookmarked supply station entry, find goods for the outbound trip, then buy the planned commodity there for the return trip.',
+    'release.3_8_0.2': 'More source details: View supply and demand separately, with known planetary bodies shown for surface stations.',
+    'release.3_8_0.3': 'Local-only trade searches now also cover buying and selling, with better use of known landing pad sizes.',
+    'release.3_8_0.4': 'More reliable cargo detection: Confirmed quantities remain valid while their context stays valid and unchanged; ship, SRV and on-foot modes are better distinguished.',
+    'release.3_8_0.5': 'Keep the station market recognized after boarding: Returning to your own ship no longer requires docking again.',
     'release.3_7_8.0': 'Bug fixes in the trade assistant.',
     'release.3_7_8.1': 'Improved cargo space detection and updates.',
     'release.3_7_8.2': 'Fixed material inventory issues at capacity limits.',
@@ -1785,3 +1791,33 @@ TRANSLATIONS = {
 TRANSLATIONS.update({'mining.own_sell_price': 'Own sale price / t', 'mining.own_price_none': 'No usable own market data within the age limit.', 'mining.own_price_error': 'Own market prices unavailable (read error).', 'mining.own_price_help': 'Best own sale price observed by this installation with positive demand. Additional to the fixed reference price; demand is not commander inventory.'})
 
 TRANSLATIONS['recommend.remember_tip'] = 'Tip: Remember your chosen destinations with ✓ before buying – they remain available even when your cargo hold is full.'
+
+# Fixed-target supply recommendations.
+TRANSLATIONS.update({
+    'supply.title': 'Sell here',
+    'supply.search': 'Find supply sources',
+    'supply.question': 'What can I buy elsewhere and sell at this market for a positive profit and at least {margin}% margin? Each row is an alternative, not a combined cargo plan.',
+    'supply.origin': 'Fixed selling destination: {station}\nSystem: {system}\nSource: {source}\nMarket data: {age} ago',
+    'supply.buy_here': 'Source purchase / t',
+    'supply.sell_there': 'Sell here / t',
+    'supply.target_age': 'Source data age',
+    'supply.ready': 'Check the filters and find supply sources.',
+    'supply.results': 'Supply sources: {count}',
+    'supply.supply': 'Source supply',
+    'supply.demand': 'Target demand',
+    'supply.station': 'Source station',
+    'supply.system': 'Source system',
+    'supply.quantity_help': 'Maximum trade quantity. Actual quantity is limited by free cargo space, source supply and target demand.',
+    'supply.notice': 'The selling destination remains the current confirmed local market. Sources come from local observations and Spansh. Distance, pad, carrier and arrival filters apply to sources. Prices and quantities can change; results apply only within the bounded search.',
+})
+TRANSLATIONS['supply.help'] = ' '.join(TRANSLATIONS['supply.' + key] for key in ('quantity_help', 'notice'))
+
+# Optional outbound trade to a bookmarked supply station.
+TRANSLATIONS.update({
+    'outbound.search': 'Find outbound trade',
+    'outbound.search_tooltip': 'Finds suitable goods to take from the current market to this supply station and sell there. You can then buy the bookmarked commodity there for the return trip.',
+    'outbound.only_target': 'Use only this destination',
+    'outbound.target': 'Fixed bookmarked destination: {station} — {system}',
+    'outbound.filters': 'The fixed destination must also meet all selected filters.',
+    'outbound.return_route': 'Bookmarked return trade: {commodity} → {station} — {system}',
+})

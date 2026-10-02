@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_8_0.0': 'Nouvel onglet commercial « Vendre ici » : trouvez des sources bon marché pour les marchandises rentables sur le marché actuel.',
+    'release.3_8_0.1': 'Mieux exploiter l’aller et le retour : depuis une station d’approvisionnement mémorisée, cherchez des marchandises pour l’aller, puis achetez-y celle prévue pour le retour.',
+    'release.3_8_0.2': 'Plus de détails sur les sources : offre et demande séparées, avec les corps planétaires connus pour les stations de surface.',
+    'release.3_8_0.3': 'La recherche limitée aux données locales couvre aussi les achats et les ventes et tient mieux compte des tailles de plateformes connues.',
+    'release.3_8_0.4': 'Détection de soute plus fiable : les quantités confirmées restent valides tant que leur contexte reste valide et inchangé ; les modes vaisseau, SRV et à pied sont mieux distingués.',
+    'release.3_8_0.5': 'Le marché de la station reste reconnu après l’embarquement : revenir dans son propre vaisseau ne nécessite plus de nouvel amarrage.',
     'release.3_7_8.0': 'Corrections de bugs dans l’assistant commercial.',
     'release.3_7_8.1': 'Amélioration de la détection et de la mise à jour de l’espace de soute.',
     'release.3_7_8.2': 'Correction des stocks de matériaux à la limite de capacité.',
@@ -1774,3 +1780,33 @@ TRANSLATIONS = {
 TRANSLATIONS.update({'mining.own_sell_price': 'Prix de vente local / t', 'mining.own_price_none': 'Aucune donnée de marché personnelle utilisable dans la limite d’âge.', 'mining.own_price_error': 'Prix personnels indisponibles (erreur de lecture).', 'mining.own_price_help': 'Meilleur prix de vente personnel observé par cette installation avec une demande positive. Complète le prix de référence fixe ; la demande ne représente pas le stock du commandant.'})
 
 TRANSLATIONS['recommend.remember_tip'] = 'Astuce : mémorisez les destinations souhaitées avec ✓ avant d’acheter – elles restent disponibles même lorsque la soute est pleine.'
+
+# Fixed-target supply recommendations.
+TRANSLATIONS.update({
+    'supply.title': 'Vendre ici',
+    'supply.search': 'Chercher des fournisseurs',
+    'supply.question': 'Que puis-je acheter ailleurs et vendre sur ce marché avec un bénéfice positif et une marge d’au moins {margin} % ? Chaque ligne est une alternative, pas un plan de chargement commun.',
+    'supply.origin': 'Destination de vente fixe : {station}\nSystème : {system}\nSource : {source}\nDonnées du marché : il y a {age}',
+    'supply.buy_here': 'Achat fournisseur / t',
+    'supply.sell_there': 'Vente ici / t',
+    'supply.target_age': 'Âge des données fournisseur',
+    'supply.ready': 'Vérifiez les filtres et cherchez des fournisseurs.',
+    'supply.results': 'Fournisseurs : {count}',
+    'supply.supply': 'Offre fournisseur',
+    'supply.demand': 'Demande destination',
+    'supply.station': 'Station fournisseur',
+    'supply.system': 'Système fournisseur',
+    'supply.quantity_help': 'Quantité maximale. La quantité réelle est limitée par la soute libre, l’offre du fournisseur et la demande à destination.',
+    'supply.notice': 'La destination reste le marché local actuel confirmé. Les fournisseurs proviennent des observations locales et de Spansh. Les filtres de distance, plateforme, porte-vaisseaux et approche concernent les fournisseurs. Prix et quantités peuvent changer ; les résultats sont limités à la recherche effectuée.',
+})
+TRANSLATIONS['supply.help'] = ' '.join(TRANSLATIONS['supply.' + key] for key in ('quantity_help', 'notice'))
+
+# Optional outbound trade to a bookmarked supply station.
+TRANSLATIONS.update({
+    'outbound.search': 'Chercher le trajet aller',
+    'outbound.search_tooltip': 'Recherche des marchandises à emporter depuis le marché actuel vers cette station d’approvisionnement pour les y vendre. Vous pourrez ensuite y acheter la marchandise mémorisée pour le retour.',
+    'outbound.only_target': 'Utiliser uniquement cette destination',
+    'outbound.target': 'Destination fixe mémorisée : {station} — {system}',
+    'outbound.filters': 'La destination fixe doit aussi respecter tous les filtres sélectionnés.',
+    'outbound.return_route': 'Retour mémorisé : {commodity} → {station} — {system}',
+})

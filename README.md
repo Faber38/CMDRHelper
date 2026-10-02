@@ -38,6 +38,15 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.8.0
+
+- New “Sell here” trade tab: Find low-cost sources for goods you can sell profitably at the current market.
+- Make better use of both legs: From a bookmarked supply station entry, find goods for the outbound trip, then buy the planned commodity there for the return trip.
+- More source details: View supply and demand separately, with known planetary bodies shown for surface stations.
+- Local-only trade searches now also cover buying and selling, with better use of known landing pad sizes.
+- More reliable cargo detection: Confirmed quantities remain valid while their context stays valid and unchanged; ship, SRV and on-foot modes are better distinguished.
+- Keep the station market recognized after boarding: Returning to your own ship no longer requires docking again.
+
 ## CMDRHelper v3.7.8
 
 - Bug fixes in the trade assistant.

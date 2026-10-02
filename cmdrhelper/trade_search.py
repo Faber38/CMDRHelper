@@ -9,14 +9,19 @@ from .observed_market_cache import ObservedMarketCache, shared_current
 
 
 def search_trade(provider, query, side, local_markets=(), distances=None, fid='', *,
-                 cancel=None, clock=lambda: datetime.now(timezone.utc), local_source=None):
+                 cancel=None, clock=lambda: datetime.now(timezone.utc), local_source=None,
+                 local_only=False):
     if cancel is not None and cancel.is_set():
         return MarketSearchResult(MarketStatus.CANCELLED, query=query)
-    search = provider.search_buy if side == TradeSide.BUY else provider.search_sell
-    try:
-        result = search(query, cancel=cancel)
-    except Exception:
-        result = MarketSearchResult(MarketStatus.INVALID_RESPONSE, query=query)
+    # Like recommendations, local-only searches never query the community provider.
+    if local_only:
+        result = MarketSearchResult(MarketStatus.NO_RESULTS, query=query)
+    else:
+        search = provider.search_buy if side == TradeSide.BUY else provider.search_sell
+        try:
+            result = search(query, cancel=cancel)
+        except Exception:
+            result = MarketSearchResult(MarketStatus.INVALID_RESPONSE, query=query)
     if (cancel is not None and cancel.is_set()) or result.status == MarketStatus.CANCELLED:
         return MarketSearchResult(MarketStatus.CANCELLED, query=query)
     if result.status == MarketStatus.INVALID_QUERY:
@@ -31,7 +36,8 @@ def search_trade(provider, query, side, local_markets=(), distances=None, fid=''
         from .trade_market_source import TradeReadCancelled
         try:
             local = [local_offer(s, commodity, distance, now)
-                     for s, distance in local_source.candidates(query, now, cancel)]
+                     for s, distance in local_source.candidates(query, now, cancel)
+                     if not local_only or s['source'] == 'local_elite']
         except TradeReadCancelled:
             return MarketSearchResult(MarketStatus.CANCELLED, query=query)
     else:

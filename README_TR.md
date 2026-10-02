@@ -39,6 +39,15 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.8.0
+
+- Yeni “Burada sat” ticaret sekmesi: mevcut pazarda kârla satabileceğin mallar için ucuz tedarik kaynakları bul.
+- Gidiş ve dönüşü daha iyi değerlendir: kayıtlı bir tedarik istasyonundan gidiş yolculuğu için uygun malları ara, ardından planlanan dönüş malını oradan satın al.
+- Tedarik kaynakları hakkında daha fazla bilgi: arz ve talebi ayrı gör, yüzey istasyonlarının bulunduğu bilinen gök cisimlerini görüntüle.
+- Yalnızca yerel verilerle ticaret araması artık alış ve satışı da kapsıyor; bilinen iniş pisti boyutları daha iyi kullanılıyor.
+- Daha güvenilir kargo tespiti: bağlam geçerli ve değişmeden kaldıkça doğrulanmış miktarlar korunur; gemi, SRV ve yaya modları daha iyi ayrılır.
+- Kendi gemine döndüğünde istasyon pazarı yeniden kenetlenmeye gerek kalmadan tanınmaya devam eder.
+
 ## CMDRHelper v3.7.8
 
 - Ticaret asistanındaki hatalar düzeltildi.

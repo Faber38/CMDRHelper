@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_8_0.0': 'Nowa karta handlu „Sprzedaj tutaj”: znajdź tanie źródła towarów, które można sprzedać z zyskiem na bieżącym rynku.',
+    'release.3_8_0.1': 'Lepiej wykorzystaj obie strony podróży: z wpisu zapamiętanej stacji zaopatrzenia wyszukaj towary na drogę tam, a następnie kup na miejscu zaplanowany towar na powrót.',
+    'release.3_8_0.2': 'Więcej informacji o źródłach: oddzielna podaż i popyt oraz znane ciała niebieskie dla stacji powierzchniowych.',
+    'release.3_8_0.3': 'Wyszukiwanie wyłącznie w danych lokalnych obejmuje też kupno i sprzedaż oraz lepiej uwzględnia znane rozmiary lądowisk.',
+    'release.3_8_0.4': 'Pewniejsze wykrywanie ładowni: potwierdzone ilości pozostają ważne przy niezmienionym, prawidłowym kontekście; statek, SRV i tryb pieszy są lepiej rozróżniane.',
+    'release.3_8_0.5': 'Rynek stacji pozostaje rozpoznany po wejściu na pokład własnego statku, bez ponownego dokowania.',
     'release.3_7_8.0': 'Poprawki błędów w asystencie handlowym.',
     'release.3_7_8.1': 'Ulepszone wykrywanie i aktualizacja przestrzeni ładunkowej.',
     'release.3_7_8.2': 'Naprawiono błędy stanu materiałów przy limicie pojemności.',
@@ -1661,3 +1667,33 @@ TRANSLATIONS = {
 TRANSLATIONS.update({'mining.own_sell_price': 'Własna cena sprzedaży / t', 'mining.own_price_none': 'Brak użytecznych własnych danych rynkowych w limicie wieku.', 'mining.own_price_error': 'Własne ceny rynkowe niedostępne (błąd odczytu).', 'mining.own_price_help': 'Najlepsza własna cena sprzedaży zaobserwowana przez tę instalację przy dodatnim popycie. Dodatek do stałej ceny referencyjnej; popyt nie oznacza zapasów dowódcy.'})
 
 TRANSLATIONS['recommend.remember_tip'] = 'Wskazówka: zapamiętaj wybrane cele za pomocą ✓ przed zakupem – pozostaną dostępne nawet przy pełnej ładowni.'
+
+# Fixed-target supply recommendations.
+TRANSLATIONS.update({
+    'supply.title': 'Sprzedaj tutaj',
+    'supply.search': 'Szukaj dostawców',
+    'supply.question': 'Co mogę kupić gdzie indziej i sprzedać na tym rynku z dodatnim zyskiem i marżą co najmniej {margin}%? Każdy wiersz to alternatywa, a nie wspólny plan ładunku.',
+    'supply.origin': 'Stały cel sprzedaży: {station}\nUkład: {system}\nŹródło: {source}\nDane rynkowe: {age} temu',
+    'supply.buy_here': 'Zakup u źródła / t',
+    'supply.sell_there': 'Sprzedaż tutaj / t',
+    'supply.target_age': 'Wiek danych źródła',
+    'supply.ready': 'Sprawdź filtry i wyszukaj dostawców.',
+    'supply.results': 'Dostawcy: {count}',
+    'supply.supply': 'Podaż u źródła',
+    'supply.demand': 'Popyt u celu',
+    'supply.station': 'Stacja źródłowa',
+    'supply.system': 'Układ źródłowy',
+    'supply.quantity_help': 'Maksymalna ilość. Rzeczywistą ilość ograniczają wolna ładownia, podaż u źródła i popyt u celu.',
+    'supply.notice': 'Celem pozostaje bieżący potwierdzony rynek lokalny. Dostawcy pochodzą z obserwacji lokalnych i Spansh. Filtry odległości, lądowiska, lotniskowców i dolotu dotyczą dostawców. Ceny i ilości mogą się zmieniać; wyniki dotyczą ograniczonego wyszukiwania.',
+})
+TRANSLATIONS['supply.help'] = ' '.join(TRANSLATIONS['supply.' + key] for key in ('quantity_help', 'notice'))
+
+# Optional outbound trade to a bookmarked supply station.
+TRANSLATIONS.update({
+    'outbound.search': 'Szukaj handlu w drodze tam',
+    'outbound.search_tooltip': 'Wyszukuje odpowiednie towary, które możesz zabrać z bieżącego rynku do tej stacji zaopatrzenia i tam sprzedać. Następnie możesz tam kupić zapamiętany towar na drogę powrotną.',
+    'outbound.only_target': 'Używaj tylko tego celu',
+    'outbound.target': 'Stały zapamiętany cel: {station} — {system}',
+    'outbound.filters': 'Stały cel również musi spełniać wszystkie wybrane filtry.',
+    'outbound.return_route': 'Zapamiętany handel powrotny: {commodity} → {station} — {system}',
+})

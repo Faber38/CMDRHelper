@@ -38,6 +38,15 @@ Folder dzienników Elite Dangerous jest wykrywany automatycznie, jeśli to możl
 
 CMDRHelper sprawdza aktualizacje przy uruchomieniu i ma wbudowany mechanizm aktualizacji. Potwierdź proponowaną aktualizację w aplikacji; zaktualizuje ona program i zależności oraz uruchomi CMDRHelper ponownie. Po pierwszej instalacji zwykle wystarczy używać `start.bat` (Windows) lub `bash start.sh` (Linux). Przy zwykłych aktualizacjach nie trzeba ponownie ręcznie uruchamiać `install.bat` ani `install.sh`.
 
+## CMDRHelper v3.8.0
+
+- Nowa karta handlu „Sprzedaj tutaj”: znajdź tanie źródła towarów, które można sprzedać z zyskiem na bieżącym rynku.
+- Lepiej wykorzystaj obie strony podróży: z wpisu zapamiętanej stacji zaopatrzenia wyszukaj towary na drogę tam, a następnie kup na miejscu zaplanowany towar na powrót.
+- Więcej informacji o źródłach: oddzielna podaż i popyt oraz znane ciała niebieskie dla stacji powierzchniowych.
+- Wyszukiwanie wyłącznie w danych lokalnych obejmuje też kupno i sprzedaż oraz lepiej uwzględnia znane rozmiary lądowisk.
+- Pewniejsze wykrywanie ładowni: potwierdzone ilości pozostają ważne przy niezmienionym, prawidłowym kontekście; statek, SRV i tryb pieszy są lepiej rozróżniane.
+- Rynek stacji pozostaje rozpoznany po wejściu na pokład własnego statku, bez ponownego dokowania.
+
 ## CMDRHelper v3.7.8
 
 - Poprawki błędów w asystencie handlowym.

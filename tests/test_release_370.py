@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class Release370Tests(unittest.TestCase):
     def test_active_version_and_single_source(self):
-        self.assertEqual(__version__, '3.7.8')
+        self.assertEqual(__version__, '3.8.0')
         self.assertEqual(cmdrhelper.__version__, __version__)
         self.assertEqual(version_at(ROOT), __version__)
         sources = []
@@ -35,8 +35,9 @@ class Release370Tests(unittest.TestCase):
             readme = (ROOT / name).read_text()
             headings = re.findall(r'^## .*$', readme, re.M)
             self.assertIn(__version__, headings[1])
-            self.assertIn('3.7.5', headings[2])
-            self.assertIn('3.7.0', headings[3])
+            self.assertIn('3.7.8', headings[2])
+            self.assertIn('3.7.5', headings[3])
+            self.assertIn('3.7.0', headings[4])
             self.assertTrue(any('3.6.2' in h for h in headings[3:]))
             for key in keys:
                 self.assertTrue(table[key].strip())

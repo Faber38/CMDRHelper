@@ -48,7 +48,7 @@ backup/
 texture_test.py
 
 # Local release products
-/release/
+/release/*
 
 # Runtime data must never become bundled artwork or fixtures.
 external/spansh/

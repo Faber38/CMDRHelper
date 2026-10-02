@@ -9,17 +9,18 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, Q
     QSpinBox, QComboBox, QCheckBox, QLineEdit, QPushButton, QScrollArea, QTableWidget,
     QHeaderView, QApplication, QProgressBar, QStyle, QSizePolicy)
 
+from cmdrhelper.trade_station_body import known_station_body
 from cmdrhelper.cargo import free_cargo_space
 from cmdrhelper.commodity_master import lookup_by_id, lookup_by_symbol
 from cmdrhelper.commodity_localization import commodity_name
 from cmdrhelper.i18n import tr, get_language
-from cmdrhelper.market_data import MarketSearch, PadSize
+from cmdrhelper.market_data import MarketSearch, MarketTarget, PadSize
 from cmdrhelper.observed_market_cache import timestamp
 from .market_read_status import MarketReadStatus
 from .recent_system_copy import RecentSystemCopyDelegate
 from .remembered_targets import RememberedTargets, RememberedTargetDelegate as RememberedRecommendationDelegate
 from .system_clipboard import copy_system_name
-from cmdrhelper.trade_recommendations import search_recommendations, RecommendationResult
+from cmdrhelper.trade_recommendations import search_recommendations, search_supply_recommendations, RecommendationResult
 from cmdrhelper.trade_market_source import prepare_trade_source
 from cmdrhelper.recommendation_market_source import RecommendationStoreSession
 from cmdrhelper.recommendation_diagnostic_text import format_recommendation_diagnostic
@@ -106,18 +107,19 @@ class RecommendationSignals(QObject):
 
 
 class RecommendationWorker(QRunnable):
-    def __init__(self, origin, local, distances, free, margin, query, provider, clock, *, local_only=False, market_source=None):
+    def __init__(self, origin, local, distances, free, margin, query, provider, clock, *, local_only=False, market_source=None, supply=False, quantity=None):
         super().__init__()
         self.args = (origin, local, distances, free, margin, query, provider)
         self.clock = clock
         self.local_only = local_only
+        self.supply, self.quantity = supply, quantity
         self.market_source = market_source
         self.cancel = RecommendationCancellation()
         self.diagnostics = RecommendationDiagnostics(local_only=local_only)
         self.signals = RecommendationSignals()
 
     def _validate_sources(self, result):
-        if self.local_only and any(row.destination.provider != 'local_elite' for row in result.rows):
+        if self.local_only and any(row.remote.provider != 'local_elite' for row in result.rows):
             raise ValueError('Non-local destination in local-only recommendations')
 
     def _publish_progress(self, result):
@@ -126,6 +128,8 @@ class RecommendationWorker(QRunnable):
 
     @Slot()
     def run(self):
+        search = search_supply_recommendations if self.supply else search_recommendations
+        options = dict(quantity=self.quantity) if self.supply else {}
         try:
             fallback = (self.market_source.fallback_cache(self.cancel)
                         if self.market_source is not None else None)
@@ -134,19 +138,22 @@ class RecommendationWorker(QRunnable):
                 if fallback is not None:
                     rows, distances = self.market_source.legacy_rows(fallback, self.args[5].max_age)
                     origin = next((row for row in rows if row['market_id'] == self.args[0]['market_id']), None)
+                    if self.supply and (origin is None or any(origin.get(k) != self.args[0].get(k)
+                            for k in ('fid', 'market_id', 'station_name', 'system_name', 'observed_at'))):
+                        origin = None
                     args = (origin, rows, distances, *self.args[3:])
-                result = search_recommendations(*args, cancel=self.cancel, clock=self.clock,
+                result = search(*args, **options, cancel=self.cancel, clock=self.clock,
                     progress=self._publish_progress, diagnostics=self.diagnostics,
                     diagnostic_progress=self.signals.diagnostic.emit, local_only=self.local_only)
             else:
                 with RecommendationStoreSession(self.market_source, self.args[0], self.args[5],
-                                                clock=self.clock, cancel=self.cancel) as session:
+                                                clock=self.clock, cancel=self.cancel, supply=self.supply) as session:
                     if session.origin is None:
                         result = RecommendationResult(partial=True, diagnostics=self.diagnostics.finish(
                             partial=True, reason=PartialReason.CONTEXT_CHANGED))
                     else:
                         args = (session.origin, (), {}, *self.args[3:])
-                        result = search_recommendations(*args, cancel=self.cancel, clock=self.clock,
+                        result = search(*args, **options, cancel=self.cancel, clock=self.clock,
                             progress=self._publish_progress, diagnostics=self.diagnostics,
                             diagnostic_progress=self.signals.diagnostic.emit, local_only=self.local_only,
                             local_evaluator=session, progress_interval=.1)
@@ -178,10 +185,28 @@ def recommendation_identity(row):
 
 
 class RecommendationsView(QWidget):
+    supply = False
+
+    def text(self, key, **kwargs):
+        # Only direction-dependent labels differ; all filters/status machinery is shared.
+        overrides = {'question', 'origin', 'search', 'help', 'notice', 'buy_here',
+                     'sell_there', 'target_age', 'ready', 'results'}
+        if self.supply and key.startswith('recommend.') and key.split('.', 1)[1] in overrides:
+            key = key.replace('recommend.', 'supply.', 1)
+        return tr(key, **kwargs)
+
+    def cargo_context(self, free):
+        # Outward recommendations intentionally survive partial purchases.
+        return free if self.supply else (None if free is None else free > 0)
+
     def __init__(self, state, provider, pool, parent=None):
         super().__init__(parent)
         self.state, self.provider, self.pool = state, provider, pool
         self.worker = None
+        self.fixed_target_offer = None
+        self.fixed_target_key = None
+        self.fixed_target_fid = None
+        self._pending_fixed_search = False
         self.current_run = None
         self.last_run = None
         self.rows = ()
@@ -205,6 +230,20 @@ class RecommendationsView(QWidget):
         content = QWidget()
         scroll.setWidget(content)
         body = QVBoxLayout(content)
+        self.fixed_target_box = QWidget()
+        target_layout = QVBoxLayout(self.fixed_target_box)
+        target_layout.setContentsMargins(0, 0, 0, 0)
+        self.fixed_target_label = QLabel()
+        self.fixed_target_label.setTextFormat(Qt.PlainText)
+        self.fixed_target_label.setWordWrap(True)
+        self.fixed_target_enabled = QCheckBox(tr('outbound.only_target'))
+        self.fixed_target_enabled.toggled.connect(self.fixed_target_toggled)
+        self.fixed_target_hint = QLabel(tr('outbound.filters'))
+        self.fixed_target_hint.setWordWrap(True)
+        for widget in (self.fixed_target_label, self.fixed_target_enabled, self.fixed_target_hint):
+            target_layout.addWidget(widget)
+        body.addWidget(self.fixed_target_box)
+        self.fixed_target_box.hide()
         self.explanation = QLabel()
         self.origin_label = QLabel()
         self.ship_label = QLabel()
@@ -220,22 +259,30 @@ class RecommendationsView(QWidget):
         body.addLayout(market_line)
         body.addWidget(self.ship_label)
         body.addWidget(self.observed_status)
-        self.remember_tip = QLabel('<small>' + escape(tr('recommend.remember_tip')) + '</small>',
-                                  objectName='recommendationRememberTip')
+        self.remember_tip = QLabel('<small>' + escape(self.text('recommend.remember_tip')) + '</small>',
+                                  objectName='supplyRememberTip' if self.supply else 'recommendationRememberTip')
         self.remember_tip.setTextFormat(Qt.TextFormat.RichText)
         self.remember_tip.setWordWrap(True)
         self.remember_tip.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
-        self.remember_tip.setAccessibleName(tr('recommend.remember_tip'))
+        self.remember_tip.setAccessibleName(self.text('recommend.remember_tip'))
         body.addWidget(self.remember_tip)
         self.filters = QWidget()
         form = QFormLayout(self.filters)
         form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapLongRows)
         form.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
+        if self.supply:
+            self._quantity_automatic = True
+            self.quantity = QSpinBox()
+            self.quantity.setRange(1, 2147483647)
+            self.quantity.setValue(max(1, ship_space(state)[1] or 1))
+            self.quantity.setToolTip(tr('supply.quantity_help'))
+            form.addRow(tr('trade.quantity'), self.quantity)
+            self.quantity.valueChanged.connect(self.quantity_changed)
         self.margin = QSpinBox()
         self.margin.setRange(0, 1000)
         self.margin.setValue(10)
         self.margin.setSuffix(' %')
-        form.addRow(tr('recommend.margin'), self.margin)
+        form.addRow(self.text('recommend.margin'), self.margin)
         self.radius = QComboBox()
         for value in (25, 50, 100, 250, 500):
             self.radius.addItem(str(value), value)
@@ -247,8 +294,8 @@ class RecommendationsView(QWidget):
         for pad in PadSize:
             self.pad.addItem(tr('trade.pad_' + pad.value), pad)
         form.addRow(tr('trade.pad'), self.pad)
-        self.local_only = QCheckBox(tr('recommend.local_only'))
-        self.local_only.setToolTip(tr('recommend.local_only_tooltip'))
+        self.local_only = QCheckBox(self.text('recommend.local_only'))
+        self.local_only.setToolTip(self.text('recommend.local_only_tooltip'))
         form.addRow(self.local_only)
         self.carriers = QCheckBox(tr('trade.carriers'))
         form.addRow(self.carriers)
@@ -257,8 +304,8 @@ class RecommendationsView(QWidget):
         form.addRow(tr('trade.arrival'), self.arrival)
         body.addWidget(self.filters)
         buttons = QHBoxLayout()
-        self.search_button = QPushButton(tr('recommend.search'), objectName='recommendationSearch')
-        self.search_button.setToolTip(tr('recommend.help'))
+        self.search_button = QPushButton(self.text('recommend.search'), objectName='recommendationSearch')
+        self.search_button.setToolTip(self.text('recommend.help'))
         self.cancel_button = QPushButton(tr('trade.cancel'))
         self.cancel_button.hide()
         buttons.addWidget(self.search_button)
@@ -279,7 +326,7 @@ class RecommendationsView(QWidget):
         self.copy_notice = QLabel()
         self.copy_notice.setWordWrap(True)
         diagnostic_actions.addWidget(self.copy_notice, 1)
-        self.copy_diagnostic_button = QPushButton(tr('recommend.copy_diagnostic'))
+        self.copy_diagnostic_button = QPushButton(self.text('recommend.copy_diagnostic'))
         self.copy_diagnostic_button.setEnabled(False)
         self.copy_diagnostic_button.clicked.connect(self.copy_diagnostic)
         diagnostic_actions.addWidget(self.copy_diagnostic_button)
@@ -288,21 +335,25 @@ class RecommendationsView(QWidget):
         self.copy_notice_timer.setSingleShot(True)
         self.copy_notice_timer.setInterval(3000)
         self.copy_notice_timer.timeout.connect(self.copy_notice.clear)
-        self.notice = QLabel(tr('recommend.notice'), objectName='marketDataNotice')
+        self.notice = QLabel(self.text('recommend.notice'), objectName='marketDataNotice')
         self.notice.setWordWrap(True)
         self.notice.setMargin(8)
         self.notice.setStyleSheet('QLabel#marketDataNotice { border-left: 2px solid #ad7927; }')
         body.addWidget(self.notice)
-        self.remembered_panel = RememberedTargets(state=state)
+        self.remembered_panel = RememberedTargets(state=state, route_bookmarks=self.supply)
         self.remembered_flights = self.remembered_panel.targets
         body.addWidget(self.remembered_panel)
-        self.table = QTableWidget(0, 15)
+        self.table = QTableWidget(0, 18 if self.supply else 15)
         self.remembered_panel.bind_table(self.table, 0)
-        self.table.setHorizontalHeaderLabels([''] + [tr(k) for k in (
+        self.table.setHorizontalHeaderLabels([''] + [self.text(k) for k in (
             'trade.commodity', 'recommend.total_profit', 'recommend.profit_percent',
             'trade.quantity', 'recommend.buy_here', 'recommend.sell_there', 'recommend.profit_ton',
             'trade.station', 'trade.system', 'trade.distance', 'trade.arrival_column',
-            'trade.pad', 'recommend.source', 'recommend.target_age')])
+            'trade.pad', 'recommend.source', 'recommend.target_age')] +
+            ([tr('supply.supply'), tr('supply.demand'), tr('explorer.col_body')] if self.supply else []))
+        if self.supply:
+            self.table.horizontalHeaderItem(8).setText(tr('supply.station'))
+            self.table.horizontalHeaderItem(9).setText(tr('supply.system'))
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
@@ -313,7 +364,7 @@ class RecommendationsView(QWidget):
         self.table.setItemDelegateForColumn(9, self.system_copy_delegate)
         self.system_copy_delegate.copyRequested.connect(
             lambda row, _column: copy_system_name(
-                self.table.item(row, 0).data(Qt.UserRole).destination.system_name))
+                self.table.item(row, 0).data(Qt.UserRole).remote.system_name))
         self.table.horizontalHeaderItem(0).setToolTip(tr('trade.remembered_targets'))
         self.table.itemChanged.connect(self.remember_changed)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
@@ -344,6 +395,60 @@ class RecommendationsView(QWidget):
         QApplication.instance().aboutToQuit.connect(self.cancel_search)
         self.refresh()
 
+    def active_target(self):
+        offer = self.fixed_target_offer
+        return (MarketTarget(offer.market_id, offer.system_id64)
+                if offer is not None and self.fixed_target_enabled.isChecked() else None)
+
+    def set_fixed_target(self, row, key, body):
+        if self.supply:
+            return
+        offer = row.source
+        MarketTarget(offer.market_id, offer.system_id64)  # Validate before accepting the action.
+        self.invalidate()
+        self.fixed_target_offer, self.fixed_target_key = offer, key
+        self.fixed_target_fid = getattr(self.state, 'commander_fid', '')
+        parts = [tr('outbound.target', station=offer.station_name, system=offer.system_name)]
+        if body:
+            parts.append(tr('explorer.col_body') + ': ' + body)
+        if offer.largest_pad in (PadSize.SMALL, PadSize.MEDIUM, PadSize.LARGE):
+            parts.append(tr('trade.pad') + ': ' + tr('trade.pad_' + offer.largest_pad.value))
+        master = lookup_by_id(offer.commodity_id) or lookup_by_symbol(offer.commodity_symbol)
+        name = commodity_name(master) if master else offer.commodity_name
+        parts.append(tr('outbound.return_route', commodity=name,
+                        station=row.target.station_name, system=row.target.system_name))
+        self.fixed_target_label.setText('\n'.join(parts))
+        with QSignalBlocker(self.fixed_target_enabled):
+            self.fixed_target_enabled.setChecked(True)
+        self.fixed_target_box.show()
+        self.refresh()
+        self._pending_fixed_search = True
+        self._start_fixed_search()
+
+    def _start_fixed_search(self):
+        if self._pending_fixed_search and self.worker is None:
+            self._pending_fixed_search = False
+            if self.active_target() is not None:
+                self.start_search()
+
+    def clear_fixed_target(self):
+        self._pending_fixed_search = False
+        self.fixed_target_offer = self.fixed_target_key = self.fixed_target_fid = None
+        with QSignalBlocker(self.fixed_target_enabled):
+            self.fixed_target_enabled.setChecked(False)
+        self.fixed_target_box.hide()
+        self.invalidate()
+        self.refresh()
+
+    def fixed_target_toggled(self):
+        self._pending_fixed_search = False
+        self.filters_changed()
+
+    @Slot()
+    def quantity_changed(self):
+        self._quantity_automatic = False
+        self.filters_changed()
+
     @Slot()
     def filters_changed(self):
         self.invalidate()
@@ -355,6 +460,7 @@ class RecommendationsView(QWidget):
         self.refresh()
 
     def invalidate(self, reason=PartialReason.CONTEXT_CHANGED):
+        self._pending_fixed_search = False
         self._invalidated = True
         self._progress_render_timer.stop()
         self._pending_rows = None
@@ -365,7 +471,7 @@ class RecommendationsView(QWidget):
             self.worker.cancel.request(reason)
         self.rows = ()
         self.render(())
-        self.status.setText(tr('recommend.ready'))
+        self.status.setText(self.text('recommend.ready'))
 
     @Slot()
     def refresh(self):
@@ -376,6 +482,8 @@ class RecommendationsView(QWidget):
             self.observed_status.setText(observed_market_text(self.state))
             self.observed_status.setToolTip(tr('trade.observed_tooltip'))
             fid = getattr(self.state, 'commander_fid', '')
+            if self.fixed_target_offer is not None and fid and fid != self.fixed_target_fid:
+                self.clear_fixed_target()
             if self.remembered_flights and fid and fid != self._remembered_fid:
                 self.clear_remembered()
                 self.render(self.rows)
@@ -396,34 +504,37 @@ class RecommendationsView(QWidget):
                 status = 'read' if self.origin is not None else (
                     'expired' if key == self._expired_market_key else 'open')
                 self.market_read_status.set_status(status)
-            self.notice.setText(tr('recommend.local_notice' if self.local_only.isChecked() else 'recommend.notice'))
+            self.notice.setText(self.text('recommend.local_notice' if self.local_only.isChecked() else 'recommend.notice'))
             previous_free = self.free
             name, self.free = ship_space(self.state)
+            if self.supply and self._quantity_automatic:
+                with QSignalBlocker(self.quantity):
+                    self.quantity.setValue(max(1, self.free or 1))
             # Partial purchases do not change the recommendation context while
             # confirmed cargo space remains. Full/unknown cargo still invalidates.
-            cargo_available = None if self.free is None else self.free > 0
+            cargo_available = self.cargo_context(self.free)
             signature = (getattr(self.state, 'commander_fid', ''), getattr(self.state, 'system', ''),
                          getattr(self.state, 'station', ''), self.origin, name, cargo_available,
-                         getattr(getattr(self.state, 'ship_loadout', None), 'ship_id', None))
+                         getattr(getattr(self.state, 'ship_loadout', None), 'ship_id', None), self.active_target())
             if signature != self._context:
                 self.invalidate()
                 self._context = deepcopy(signature)
             if self.remembered_flights and self.free != previous_free:
                 self.update_remembered()
-            self.explanation.setText(tr('recommend.question', margin=self.margin.value()))
+            self.explanation.setText(self.text('recommend.question', margin=self.margin.value()))
             if self.origin:
                 from .trade_view import format_age
                 age = format_age(timestamp(self.origin['observed_at']), self.state.observed_markets.cache.clock())
-                self.origin_label.setText(tr('recommend.origin', station=self.origin['station_name'],
-                    system=self.origin['system_name'], age=age, source=tr('recommend.local')))
+                self.origin_label.setText(self.text('recommend.origin', station=self.origin['station_name'],
+                    system=self.origin['system_name'], age=age, source=self.text('recommend.local')))
             else:
-                text = tr('recommend.no_market')
+                text = self.text('recommend.no_market')
                 if context is not None:
-                    text = tr('recommend.current_market', station=context['StationName']) + '\n' + text
+                    text = self.text('recommend.current_market', station=context['StationName']) + '\n' + text
                 self.origin_label.setText(text)
-            cargo = tr('recommend.cargo_unknown') if self.free is None else (
-                tr('recommend.cargo_full') if self.free == 0 else tr('recommend.cargo', count=self.free))
-            self.ship_label.setText(tr('recommend.ship', name=name) + '\n' + cargo)
+            cargo = self.text('recommend.cargo_unknown') if self.free is None else (
+                self.text('recommend.cargo_full') if self.free == 0 else self.text('recommend.cargo', count=self.free))
+            self.ship_label.setText(self.text('recommend.ship', name=name) + '\n' + cargo)
             self.search_button.setEnabled(self.worker is None and self.origin is not None
                                           and self.free is not None and self.free > 0)
         finally:
@@ -446,13 +557,15 @@ class RecommendationsView(QWidget):
         query = MarketSearch('', self.origin['system_name'], radius_ly=self.radius.currentData(),
             max_age=self.max_age.max_age(), required_pad=PadSize(self.pad.currentData()),
             include_fleet_carriers=self.carriers.isChecked(),
-            max_distance_to_arrival_ls=int(arrival) if arrival else None, limit=100)
+            max_distance_to_arrival_ls=int(arrival) if arrival else None, limit=100,
+            target=self.active_target())
         source = prepare_trade_source(self.state.observed_markets, self.origin['fid'],
             self.origin['system_name'], self.origin.get('system_address'), getattr(self.state, 'database', None))
         self.invalidate()
         self._invalidated = False
         self.worker = RecommendationWorker(dict(self.origin), (), {}, self.free,
-            self.margin.value(), query, self.provider, cache.clock, local_only=local_only, market_source=source)
+            self.margin.value(), query, self.provider, cache.clock, local_only=local_only, market_source=source,
+            supply=self.supply, quantity=self.quantity.value() if self.supply else None)
         self.current_run = self.worker.diagnostics.snapshot()
         self.worker.signals.diagnostic.connect(self.diagnostic_progress)
         self.worker.signals.progress.connect(self.progress)
@@ -465,7 +578,7 @@ class RecommendationsView(QWidget):
         self.cancel_button.show()
         self.progress_bar.setRange(0, 0)  # The worker has not published its plan yet.
         self.progress_bar.show()
-        self.status.setText(tr('recommend.progress', checked=self.current_run.checked_commodities, total='…'))
+        self.status.setText(self.text('recommend.progress', checked=self.current_run.checked_commodities, total='…'))
         self.progress_bar.setAccessibleName(self.status.text())
         self.pool.start(self.worker)
 
@@ -477,6 +590,7 @@ class RecommendationsView(QWidget):
         self._cancel_search(PartialReason.CONTEXT_CHANGED)
 
     def _cancel_search(self, reason):
+        self._pending_fixed_search = False
         self.invalidate(reason)
         if self.worker is not None:
             self.cancel_button.setEnabled(False)
@@ -493,7 +607,7 @@ class RecommendationsView(QWidget):
         # Qt treats 0..0 as busy; an empty known plan must not keep animating.
         self.progress_bar.setRange(0, max(1, planned))
         self.progress_bar.setValue(checked)
-        text = tr('recommend.progress', checked=checked, total=planned)
+        text = self.text('recommend.progress', checked=checked, total=planned)
         self.progress_bar.setAccessibleName(text)
         self.status.setText(text)
 
@@ -511,7 +625,7 @@ class RecommendationsView(QWidget):
 
     def update_diagnostic_tooltip(self, diagnostic):
         if diagnostic is not None:
-            self.status.setToolTip(tr('recommend.diagnostic_details',
+            self.status.setToolTip(self.text('recommend.diagnostic_details',
                 local=diagnostic.local_commodities_completed,
                 total=diagnostic.planned_commodities,
                 started=diagnostic.spansh_commodities_started,
@@ -539,8 +653,8 @@ class RecommendationsView(QWidget):
         name, free = ship_space(self.state)
         signature = (getattr(self.state, 'commander_fid', ''), getattr(self.state, 'system', ''),
                      getattr(self.state, 'station', ''), header, name,
-                     None if free is None else free > 0,
-                     getattr(getattr(self.state, 'ship_loadout', None), 'ship_id', None))
+                     self.cargo_context(free),
+                     getattr(getattr(self.state, 'ship_loadout', None), 'ship_id', None), self.active_target())
         if signature != self._context or free is None or free <= 0:
             self.invalidate()
             return False
@@ -583,26 +697,29 @@ class RecommendationsView(QWidget):
         if accepted and not result.cancelled:
             if result.rows != self.rows:
                 self.render(result.rows)
-            message = tr('recommend.results', count=len(result.rows))
+            message = self.text('recommend.results', count=len(result.rows))
             if result.partial:
                 reason = self.last_run.partial_reason if self.last_run else PartialReason.OTHER
-                message += '\n' + tr('recommend.partial_counts', checked=result.checked, total=result.total,
+                message += '\n' + self.text('recommend.partial_counts', checked=result.checked, total=result.total,
                                      reason=diagnostic_reason_text(reason))
             else:
                 if not result.rows:
-                    message = tr('recommend.no_results_local' if local_only
+                    message = self.text('recommend.no_results_local' if local_only
                                  else 'recommend.no_results')
-                message += '\n' + tr('recommend.complete', checked=result.checked, total=result.total)
+                message += '\n' + self.text('recommend.complete', checked=result.checked, total=result.total)
             self.status.setText(message)
         else:
-            self.status.setText(tr('recommend.ready'))
+            self.status.setText(self.text('recommend.ready'))
+
+        if self._pending_fixed_search:
+            QTimer.singleShot(0, self._start_fixed_search)
 
     @Slot()
     def copy_diagnostic(self):
         if self.last_run is None or self.last_run.finished_at is None:
             return
         QApplication.clipboard().setText(format_recommendation_diagnostic(self.last_run))
-        self.copy_notice.setText(tr('recommend.diagnostic_copied'))
+        self.copy_notice.setText(self.text('recommend.diagnostic_copied'))
         self.copy_notice_timer.start()
 
     def render(self, rows):
@@ -614,7 +731,7 @@ class RecommendationsView(QWidget):
         self.table.setSortingEnabled(False)
         self.table.setRowCount(len(rows))
         for index, row in enumerate(rows):
-            o = row.destination
+            o = row.remote
             master = lookup_by_id(o.commodity_id) or lookup_by_symbol(o.commodity_symbol)
             name = commodity_name(master) if master else o.commodity_name
             def number(value, unit=''):
@@ -627,12 +744,15 @@ class RecommendationsView(QWidget):
             cells = [mark, TextItem(name), profit,
                 NumericItem(locale.toString(float(row.profit_percent), 'f', 2) + ' %', row.profit_percent),
                 number(row.quantity, ' t'), number(row.buy_price, ' Cr'),
-                number(o.commander_sell_price, ' Cr'), number(row.profit_per_ton, ' Cr'),
+                number(row.sell_price, ' Cr'), number(row.profit_per_ton, ' Cr'),
                 TextItem(o.station_name), TextItem(o.system_name),
                 number(o.distance_ly, ' ly'), number(o.distance_to_arrival_ls),
                 PadItem(tr('trade.pad_' + o.largest_pad.value) if o.largest_pad else '–', o.largest_pad),
-                TextItem(tr('recommend.local') if o.provider == 'local_elite' else 'Spansh'),
+                TextItem(self.text('recommend.local') if o.provider == 'local_elite' else 'Spansh'),
                 NumericItem(format_age(o.market_updated_at, now), (now-o.market_updated_at).total_seconds())]
+            if self.supply:
+                cells.extend((number(row.source.supply, ' t'), number(row.target.demand, ' t'),
+                              TextItem(known_station_body(self.state, o) or '–')))
             cells[1].setData(Qt.ItemDataRole.UserRole, row)
             cells[14].setToolTip(o.market_updated_at.isoformat())
             for column, cell in enumerate(cells):
@@ -653,7 +773,7 @@ class RecommendationsView(QWidget):
     def remember_changed(self, item):
         if item.column() != 0:
             return
-        self.remembered_panel.changed(item, item.data(Qt.UserRole).destination)
+        self.remembered_panel.changed(item, item.data(Qt.UserRole).remote)
         self._remembered_fid = getattr(self.state, 'commander_fid', '')
         self.update_remembered()
 
@@ -676,3 +796,8 @@ class RecommendationsView(QWidget):
     def closeEvent(self, event):
         self.cancel_search()
         super().closeEvent(event)
+
+
+class SupplyRecommendationsView(RecommendationsView):
+    """Fixed current selling target, with the shared recommendation lifecycle."""
+    supply = True

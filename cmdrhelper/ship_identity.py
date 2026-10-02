@@ -15,17 +15,21 @@ _CONFIRMED_SRV_TYPES = {
 }
 
 
+def is_suit(ship_type, localized_name="") -> bool:
+    internal = str(ship_type or "").strip().casefold()
+    localized = str(localized_name or "").strip().casefold()
+    return bool(_SUIT_TYPE.fullmatch(internal) or "suit_class" in localized)
+
+
 def is_definite_non_ship(ship_type, localized_name="") -> bool:
     """Konservative Erkennung eindeutig nicht persistenter Raumfahrzeuge."""
     internal = str(ship_type or "").strip().casefold()
     localized = str(localized_name or "").strip().casefold()
     if not internal:
         return False
-    if _SUIT_TYPE.fullmatch(internal):
+    if is_suit(ship_type, localized_name):
         return True
     if internal in _CONFIRMED_SRV_TYPES:
-        return True
-    if "suit_class" in localized:
         return True
     if localized.startswith("srv ") or "(srv)" in localized:
         return True
