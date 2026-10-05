@@ -9,6 +9,8 @@ TRANSLATIONS = {
     'about.support': 'Supporto allo sviluppo:\nStrumenti di sviluppo assistiti dall’IA',
     'about.independent': 'CMDRHelper è un progetto indipendente della comunità e non è affiliato a Frontier Developments.',
     'about.trademark': 'Elite Dangerous è un marchio di Frontier Developments plc.',
+    'release.3_8_3.0': 'Risolto un problema che impediva l’aggiornamento dei nuovi dati dei mercati locali dopo aver accettato determinate missioni.',
+    'release.3_8_3.1': 'Migliorata la stabilità del monitoraggio dei mercati locali.',
     'release.3_8_2.0': 'Correzioni e miglioramenti all’assistente commerciale.',
     'release.3_8_2.1': 'Rilevamento più affidabile della stiva, delle stazioni e dei mercati locali.',
     'release.3_8_2.2': 'Informazioni migliorate sulle piazzole di atterraggio e sulla visualizzazione delle stazioni.',

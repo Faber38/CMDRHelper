@@ -9,6 +9,8 @@ TRANSLATIONS = {
     'about.support': 'Geliştirme desteği:\nYapay zekâ destekli geliştirme araçları',
     'about.independent': 'CMDRHelper bağımsız bir topluluk projesidir ve Frontier Developments ile bağlantısı yoktur.',
     'about.trademark': 'Elite Dangerous, Frontier Developments plc şirketinin ticari markasıdır.',
+    'release.3_8_3.0': 'Belirli görevler kabul edildikten sonra yeni yerel pazar verilerinin güncellenmesini engelleyen bir hata düzeltildi.',
+    'release.3_8_3.1': 'Yerel pazar takibinin kararlılığı iyileştirildi.',
     'release.3_8_2.0': 'Ticaret asistanında hata düzeltmeleri ve iyileştirmeler.',
     'release.3_8_2.1': 'Kargo bölmelerinin, istasyonların ve yerel pazarların daha güvenilir algılanması.',
     'release.3_8_2.2': 'İniş platformu bilgilerinde ve istasyon görünümünde iyileştirmeler.',

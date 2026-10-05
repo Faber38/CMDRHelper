@@ -358,6 +358,144 @@ class ObserverTests(unittest.TestCase):
     def consume(self):
         return self.observer.consume([self.path])
 
+    def append_raw(self, raw):
+        with self.path.open('a') as stream:
+            stream.write(raw + '\n')
+
+    def test_valid_irrelevant_mission_preserves_context(self):
+        self.append(dict(event(), event='Docked'))
+        self.consume()
+        context = deepcopy(self.observer.context)
+        self.append(dict(event='MissionAccepted', Target='synthetic target'))
+        self.consume()
+        self.assertEqual(self.observer.context, context)
+        self.assertFalse(self.observer._blocked)
+        self.append(event())
+        self.assertTrue(self.consume())
+        self.assertEqual(self.cache.get(FID, 123), snapshot())
+
+    def test_duplicate_irrelevant_target_preserves_context_and_pending(self):
+        self.append(dict(event(), event='Docked'))
+        self.append(event())
+        self.write_sidecar(dict(sidecar(), MarketID=999))
+        self.assertFalse(self.consume())
+        context, pending = deepcopy(self.observer.context), deepcopy(self.observer.pending)
+        self.append_raw('{"event":"MissionAccepted","Target":"PRIVATE_ONE","Target":"PRIVATE_TWO"}')
+        with self.assertLogs('cmdrhelper.observed_market_observer', level='WARNING') as logs:
+            self.assertFalse(self.consume())
+        self.assertIn('irrelevant journal event skipped', '\n'.join(logs.output))
+        self.assertNotIn('PRIVATE', '\n'.join(logs.output))
+        self.assertEqual(self.observer.context, context)
+        self.assertEqual(self.observer.pending, pending)
+        self.assertFalse(self.observer._blocked)
+        self.write_sidecar()
+        self.assertTrue(self.consume())
+        self.assertEqual(self.cache.get(FID, 123), snapshot())
+
+    def test_bad_context_events_rejected_and_fresh_identity_recovers(self):
+        bad_events = [
+            '{"event":"%s","%s":1,"%s":2}' % (kind, key, key)
+            for kind, key in (
+                ('Market', 'MarketID'), ('Docked', 'StationName'),
+                ('Location', 'StarSystem'), ('Embark', 'MarketID'),
+                ('Commander', 'FID'), ('LoadGame', 'FID'),
+                ('FSDJump', 'StarSystem'), ('CarrierJump', 'SystemAddress'),
+                ('Undocked', 'timestamp'), ('StartJump', 'timestamp'),
+                ('SupercruiseEntry', 'timestamp'), ('Shutdown', 'timestamp'),
+                ('Fileheader', 'timestamp'))
+        ] + [
+            '{"event":"Docked","event":"MissionAccepted"}',
+            '{"event":"MissionAccepted","event":"Docked"}',
+            '{"event":"MissionAccepted","event":"MissionAccepted"}',
+            '{"event":"MissionAccepted",',
+            '{"event":"Market","timestamp":"invalid"}',
+            '{"event":"Market","timestamp":null}',
+            '[{"event":"MissionAccepted","Target":1,"Target":2}]',
+            '{"Target":1,"Target":2}',
+        ]
+        for raw in bad_events:
+            with self.subTest(raw=raw):
+                self.append(dict(event='LoadGame', FID=FID))
+                self.append(dict(event(self.now), event='Docked'))
+                self.consume()
+                self.append_raw(raw)
+                self.append(event(self.now))
+                with self.assertLogs('cmdrhelper.observed_market_observer', level='WARNING'):
+                    self.consume()
+                self.assertFalse(self.observer._blocked)
+                self.assertEqual(self.observer.context, {})
+                self.assertIsNone(self.observer.pending)
+                previous = self.cache.get(FID, 123)
+                self.assertTrue(previous is None or previous['observed_at'] != self.now.isoformat())
+                # Docked alone must not restore a potentially changed commander.
+                self.append(dict(event(self.now), event='Docked'))
+                self.consume()
+                self.assertNotIn('FID', self.observer.context)
+                self.now += timedelta(seconds=1)
+                self.append(dict(event='Commander', FID=FID))
+                self.append(dict(event(self.now), event='Location', Docked=True))
+                self.append(event(self.now))
+                self.write_sidecar()
+                self.assertTrue(self.consume())
+                self.assertEqual(self.cache.get(FID, 123)['observed_at'], self.now.isoformat())
+                self.now += timedelta(seconds=1)
+
+    def test_choi_mission_butcher_marvin_with_full_or_zero_capacity_reaches_sqlite(self):
+        from cmdrhelper.market_store import MarketStore
+
+        self.observer.use_market_store = True
+        self.addCleanup(self.observer.close)
+        stops = (
+            (4385482755, 'Choi Leisure Resort', 'Col 285 Sector FZ-I b25-1', 'Docked'),
+            (4386365187, "Butcher's Pride", 'Col 285 Sector FZ-I b25-0', 'Location'),
+            (4379151363, 'Marvin Vision', 'Col 285 Sector FZ-I b25-0', 'Docked'),
+        )
+        for capacity, count in ((576, 576), (0, 0)):
+            for index, (mid, station, system, kind) in enumerate(stops):
+                with self.subTest(capacity=capacity, station=station):
+                    self.now += timedelta(seconds=1)
+                    self.append(dict(event='Loadout', CargoCapacity=capacity))
+                    self.append(dict(event='Cargo', Vessel='Ship', Count=count))
+                    if index == 1:
+                        self.append_raw('{"event":"MissionAccepted","Target":"terminal","Target":"person"}')
+                    trigger = event(self.now, mid=mid, station=station, system=system)
+                    self.append(dict(trigger, event=kind, Docked=True))
+                    if index == 2:
+                        self.append(dict(trigger, event='Embark', OnStation=True, OnPlanet=False))
+                    self.append(trigger)
+                    data = dict(trigger, Items=[
+                        dict(id=900000000 + i, Name=f'$fixture_commodity_{i}_name;',
+                             BuyPrice=100 + i, SellPrice=90 + i, Stock=1000, Demand=2000)
+                        for i in range(388)])
+                    self.write_sidecar(data)
+                    self.assertFalse(self.consume())
+                    self.assertEqual(len(self.observer._writes), 1)
+                    self.observer._writes[0][1].result(timeout=10)
+                    self.assertTrue(self.consume())
+                    self.assertFalse(self.observer._blocked)
+                    with MarketStore(self.cache.path.parent / 'markets.db', read_only=True,
+                                     clock=lambda: self.now) as store:
+                        row = store.get_current(mid)
+                    self.assertEqual(row['observed_at'], self.now.isoformat())
+                    self.assertEqual(row['station_name'], station)
+                    self.assertEqual(len(row['commodities']), 388)
+
+    def test_duplicate_sidecar_fields_remain_strict(self):
+        self.append(event())
+        raw = json.dumps(sidecar())
+        (self.root / 'Market.json').write_text(raw[:-1] + ',"MarketID":123}')
+        self.assertFalse(self.consume())
+        self.assertFalse(self.cache.path.exists())
+        self.assertIn('duplicate JSON key', self.observer.last_error)
+
+    def test_safety_limits_still_block_file(self):
+        for constant in ('MAX_JOURNAL_BYTES', 'MAX_LINE_BYTES'):
+            with self.subTest(constant=constant):
+                self.observer.set_folder(self.root)
+                with patch('cmdrhelper.observed_market_observer.' + constant, 1):
+                    self.consume()
+                self.assertTrue(self.observer._blocked)
+
     def test_valid_live_event_saved(self):
         self.append(event())
         self.assertTrue(self.consume())

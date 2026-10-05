@@ -38,6 +38,11 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.8.3
+
+- Korjattu virhe, joka esti uusien paikallisten markkinatietojen päivittymisen tiettyjen tehtävien hyväksymisen jälkeen.
+- Paikallisten markkinoiden seurannan vakautta parannettu.
+
 ## CMDRHelper v3.8.2
 
 - Virhekorjauksia ja parannuksia kauppa-avustajaan.

@@ -38,6 +38,11 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.8.3
+
+- Fixed an issue that stopped new local market data from updating after accepting certain missions.
+- Improved the stability of local market monitoring.
+
 ## CMDRHelper v3.8.2
 
 - Bug fixes and improvements to the trade assistant.

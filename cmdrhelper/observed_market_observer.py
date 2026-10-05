@@ -1,6 +1,7 @@
 """From-now-only Market observer on JournalWatcher's existing live notifications."""
 from copy import deepcopy
 from datetime import timedelta
+import json
 import logging
 from pathlib import Path
 import time
@@ -18,6 +19,35 @@ logger = logging.getLogger(__name__)
 MAX_JOURNAL_BYTES = 64 * 1024 * 1024
 MAX_LINE_BYTES = 4 * 1024 * 1024
 RETRY_SECONDS = 15
+
+# Every event handled by _event(), including context resets and departures.
+MARKET_CONTEXT_EVENTS = frozenset((
+    'Commander', 'LoadGame', 'Shutdown', 'Fileheader', 'Location', 'FSDJump',
+    'CarrierJump', 'Docked', 'Embark', 'Undocked', 'StartJump',
+    'SupercruiseEntry', 'Market',
+))
+
+
+def _irrelevant_journal_event(raw):
+    """Classify only; never pass tolerantly decoded fields to the observer.
+
+    Keep all top-level event values so duplicate event keys cannot disguise a
+    context change. Tuples distinguish JSON objects from arrays. Broken syntax
+    or a missing/ambiguous event identity must invalidate trusted context.
+    """
+    def event_names(pairs):
+        return tuple(value for key, value in pairs if key == 'event')
+
+    def reject_constant(value):
+        raise ValueError('Non-JSON numeric constant')
+
+    try:
+        names = json.loads(raw, object_pairs_hook=event_names, parse_constant=reject_constant)
+        return (isinstance(names, tuple) and len(names) == 1
+                and isinstance(names[0], str) and bool(names[0])
+                and names[0] not in MARKET_CONTEXT_EVENTS)
+    except (ValueError, TypeError, OverflowError, RecursionError):
+        return False
 
 
 class ObservedMarketObserver:
@@ -169,6 +199,8 @@ class ObservedMarketObserver:
             self._blocked, self.pending = False, None
             self._market_stamps.clear()
         if self._blocked:
+            # File integrity/size failures require a new file or explicit rearm;
+            # isolated bad events only invalidate context and advance the cursor.
             return
         if self._sig is not None and (before[:2] != self._sig[:2] or before[2] < self._offset
                 or before[2] < self._sig[2] or before != self._sig and before[2] == self._sig[2]):
@@ -190,15 +222,33 @@ class ObservedMarketObserver:
                     raise ValueError('Journal line exceeds safety limit')
                 if not line or not line.endswith(b'\n'):
                     break
-                event = _json(line)
-                if not isinstance(event, dict):
-                    raise ValueError('Invalid journal object')
-                events.append((event, start >= self._baseline))
+                diagnosis = None
+                try:
+                    event = _json(line)
+                    if not isinstance(event, dict):
+                        raise ValueError('Invalid journal object')
+                except (ValueError, TypeError, OverflowError, RecursionError):
+                    if _irrelevant_journal_event(line):
+                        event = {}  # No-op; retain context and pending capture.
+                        diagnosis = 'Invalid irrelevant journal event skipped for market observation'
+                    else:
+                        event = None
+                        diagnosis = 'Invalid market/context journal event; market context invalidated'
+                events.append((event, start >= self._baseline, diagnosis))
                 offset = stream.tell()
         if signature(path) != before:
             raise OSError('Journal changed during market capture')
-        for event, live in events:
-            self._event(event, live)
+        for event, live, diagnosis in events:
+            if diagnosis is not None:
+                self._diagnose(diagnosis)
+            if event is None:
+                self.pending, self.context = None, {}
+                continue
+            try:
+                self._event(event, live)
+            except (ValueError, TypeError, OverflowError, RecursionError):
+                self.pending, self.context = None, {}
+                self._diagnose('Invalid market/context journal event; market context invalidated')
         self._offset, self._sig = offset, before
 
     def consume(self, paths):

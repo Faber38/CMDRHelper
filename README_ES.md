@@ -38,6 +38,11 @@ La carpeta de diarios de Elite Dangerous se detecta automáticamente cuando es p
 
 CMDRHelper busca actualizaciones al iniciarse y dispone de un actualizador integrado. Confirma una actualización ofrecida en la aplicación; actualizará el programa y las dependencias y reiniciará CMDRHelper. Tras la primera instalación, normalmente basta con usar `start.bat` (Windows) o `bash start.sh` (Linux). No es necesario volver a ejecutar manualmente `install.bat` o `install.sh` para las actualizaciones normales.
 
+## CMDRHelper v3.8.3
+
+- Corregido un error que impedía actualizar nuevos datos de los mercados locales tras aceptar determinadas misiones.
+- Mejorada la estabilidad del seguimiento de los mercados locales.
+
 ## CMDRHelper v3.8.2
 
 - Correcciones de errores y mejoras en el asistente comercial.
