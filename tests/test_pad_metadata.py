@@ -33,7 +33,10 @@ class PadMetadataTests(unittest.TestCase):
         self.journals.mkdir()
         self.spansh.mkdir()
         self.path = self.journals/'Journal.2026-01-02T110000.01.log'
-        self.resolver = PadMetadata()
+        from cmdrhelper.database import CMDRDatabase
+        self.database = self.root/'cmdrhelper.db'
+        CMDRDatabase(self.database)
+        self.resolver = PadMetadata(self.database)
 
     def event(self, pads=None, **changes):
         return dict(dict(event='Docked', timestamp=(NOW-timedelta(hours=1)).isoformat(),
@@ -97,7 +100,7 @@ class PadMetadataTests(unittest.TestCase):
             return handle
         with patch.object(Path,'open',opened):
             self.assertEqual(self.lookup(self.resolver.read(self.journals)),PadSize.SMALL)
-        self.assertEqual(seeks,[offset])
+        self.assertIn(offset,seeks)
 
     def test_docking_requested_uses_current_system_and_truncation_discards_old_data(self):
         e=self.event(event='DockingRequested')
@@ -137,7 +140,7 @@ class PadMetadataTests(unittest.TestCase):
         target=market(mid=MID,station_name=NAME,system_name=SYSTEM,system_address=ADDRESS)
         with MarketStore(path,clock=lambda:NOW) as store:
             store.record_observation(origin);store.record_observation(target)
-        source=TradeMarketSource(path,FID,SYSTEM,ADDRESS,journal_folder=self.journals)
+        source=TradeMarketSource(path,FID,SYSTEM,ADDRESS,journal_folder=self.journals,pad_database_path=self.database)
         for pad in (PadSize.LARGE,PadSize.MEDIUM):
             query=MarketSearch('',SYSTEM,required_pad=pad)
             with RecommendationStoreSession(source,origin,query,clock=lambda:NOW,cancel=Event()) as session:

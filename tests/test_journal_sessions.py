@@ -309,6 +309,8 @@ class JournalSessionDatabaseTests(unittest.TestCase):
                     "INSERT INTO commanders (fid, current_name) VALUES ('F-KEPT', 'Kept')"
                 )
                 con.execute("DROP TABLE journal_sessions")
+                con.execute("DROP TABLE IF EXISTS station_pad_evidence")
+                con.execute("DROP TABLE IF EXISTS station_pad_journals")
                 con.execute("PRAGMA user_version = 1")
 
             CMDRDatabase(path)

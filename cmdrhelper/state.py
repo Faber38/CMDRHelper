@@ -268,6 +268,13 @@ class AppState(QObject):
                     progress_callback=progress if visible else None,
                 )
                 self.initializationProgress.emit(0, 0, "startup.phase.history", "")
+                # Independent pad checkpoints never advance commander/import cursors.
+                try:
+                    from cmdrhelper.station_pad_store import read_local
+                    read_local(self.database.path, folder)
+                except Exception as exc:
+                    self._initialization_error = str(exc)
+                    logger.exception("Persistent pad initialization failed; searches will retry")
                 # Historical repair revisions run before normal live writes/import.
                 # Missing or damaged old journals must not prevent normal startup.
                 repair_history()

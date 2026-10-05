@@ -45,6 +45,8 @@ def make_v3(path: Path) -> None:
         con.execute("DROP TABLE bodies")
         con.execute("DROP TABLE systems")
         con.executescript(LEGACY_EXPLORATION_SCHEMA)
+        con.execute("DROP TABLE IF EXISTS station_pad_evidence")
+        con.execute("DROP TABLE IF EXISTS station_pad_journals")
         con.execute("PRAGMA user_version=3")
         con.commit()
     finally:

@@ -16,6 +16,7 @@ from .commodity_master import lookup_by_id, lookup_by_symbol
 from .odyssey_sidecars import signature, _unique_object
 
 from .market_data import within_market_age
+from .station_types import normalize_station_type
 
 logger = logging.getLogger(__name__)
 
@@ -153,7 +154,9 @@ def normalize_observation(event, sidecar, *, fid, mtime, now, context=None):
     for name, dest in (('SystemAddress', 'system_address'), ('StationType', 'station_type')):
         values = [obj[name] for obj in (event, sidecar, context) if name in obj]
         if values:
-            if any(value != values[0] for value in values):
+            comparable = ([normalize_station_type(value) for value in values]
+                          if name == 'StationType' else values)
+            if any(value != comparable[0] for value in comparable):
                 raise ValueError('Market context mismatch: ' + name)
             result[dest] = values[0]
     rows = sidecar.get('Items')

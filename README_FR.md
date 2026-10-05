@@ -38,6 +38,14 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.8.2
+
+- Corrections et améliorations de l’assistant commercial.
+- Détection plus fiable de la soute, des stations et des marchés locaux.
+- Informations améliorées sur les plateformes d’atterrissage et l’affichage des stations.
+- Traitement plus rapide des données des stations et des plateformes d’atterrissage.
+- Petites améliorations de l’utilisation et des indicateurs d’état.
+
 ## CMDRHelper v3.8.0
 
 - Nouvel onglet commercial « Vendre ici » : trouvez des sources bon marché pour les marchandises rentables sur le marché actuel.

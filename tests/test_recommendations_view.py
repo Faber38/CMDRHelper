@@ -981,9 +981,70 @@ class RecommendationViewTests(unittest.TestCase):
             self.state.changed.emit();self.assertEqual(badge.status,'open')
         self.state.observed_markets.context={'FID':FID}  # observer clears docking identity on departure
         self.state.changed.emit()
-        self.assertTrue(badge.isHidden())
+        self.assertTrue(badge.isVisible())
+        self.assertEqual(badge.status, 'open')
         self.assertIsNone(self.view.origin)
         self.assertFalse(self.view.search_button.isEnabled())
+
+    def test_market_header_visible_on_every_trade_tab_without_extra_io(self):
+        badge = self.trade.market_read_status
+        self.assertIs(badge, self.view.market_read_status)
+        self.assertIs(badge.parentWidget(), self.trade)
+        title = self.trade.findChild(QLabel, 'sectionTitle')
+        with patch.object(Path, 'open', side_effect=AssertionError('No extra file reads')):
+            for index in range(self.trade.tabs.count()):
+                self.trade.tabs.setCurrentIndex(index)
+                self.app.processEvents()
+                self.assertTrue(badge.isVisible())
+                self.assertEqual(badge.status, 'read')
+                self.assertEqual(badge.toolTip(), tr('trade.current_market_read_tooltip', station='Fixture Port'))
+                self.assertGreater(badge.geometry().left(), title.geometry().right())
+                self.assertLess(badge.geometry().top(), title.geometry().bottom())
+                self.assertLess(badge.geometry().bottom(), self.trade.tabs.geometry().top())
+        self.assertFalse(self.provider.calls)
+
+    def test_market_header_invalidates_on_station_system_and_commander_change(self):
+        badge = self.trade.market_read_status
+        self.trade.tabs.setCurrentIndex(0)
+        for field, wrong in (('station', 'Other Port'), ('system', 'Other System'),
+                             ('commander_fid', 'F_OTHER')):
+            original = getattr(self.state, field)
+            setattr(self.state, field, wrong)
+            if field == 'commander_fid':
+                self.state.commanderIdentityChanged.emit(2, wrong, 'Other')
+            else:
+                self.state.changed.emit()
+            self.assertTrue(badge.isVisible())
+            self.assertEqual(badge.status, 'open')
+            self.assertEqual(badge.toolTip(), tr('trade.current_market_open_tooltip'))
+            setattr(self.state, field, original)
+            self.state.changed.emit()
+            self.assertEqual(badge.status, 'read')
+
+    def test_market_header_tooltips_twelve_languages_and_both_themes(self):
+        style = self.trade.styleSheet()
+        badge = self.trade.market_read_status
+        try:
+            for lang in ('de', 'en', 'el', 'es', 'fi', 'fr', 'it', 'nl', 'no', 'pl', 'sv', 'tr'):
+                set_language(lang)
+                for key in ('trade.current_market_read_tooltip', 'trade.current_market_open_tooltip'):
+                    self.assertIn(key, _TRANSLATIONS[lang])
+                for theme, color in ((DARK_STYLESHEET, '#79bd8a'), (LIGHT_STYLESHEET, '#247a41')):
+                    self.trade.setStyleSheet(theme)
+                    self.state.station = 'Fixture Port'
+                    self.state.changed.emit()
+                    self.app.processEvents()
+                    self.assertEqual(badge.text(), tr('recommend.market_read'))
+                    self.assertEqual(badge.toolTip(), tr('trade.current_market_read_tooltip', station='Fixture Port'))
+                    self.assertEqual(badge.palette().color(badge.foregroundRole()).name(), color)
+                    self.assertFalse(badge.grab().isNull())
+                    self.state.station = ''
+                    self.state.changed.emit()
+                    self.assertTrue(badge.isVisible())
+                    self.assertFalse(badge.property('observed'))
+                    self.assertEqual(badge.toolTip(), tr('trade.current_market_open_tooltip'))
+        finally:
+            self.trade.setStyleSheet(style)
 
     def test_current_market_status_ttl_exact_boundary_no_polling_and_refresh(self):
         badge=self.view.market_read_status
@@ -1022,6 +1083,7 @@ class RecommendationViewTests(unittest.TestCase):
         self.assertEqual(self.view.market_read_status.status,'read')
 
     def test_synthetic_market_event_observer_signal_updates_status(self):
+        self.trade.tabs.setCurrentIndex(0)  # Header also updates while recommendations are hidden.
         import json,os
         from cmdrhelper.observed_market_observer import ObservedMarketObserver
         from test_observed_market_cache import event,sidecar
@@ -1045,13 +1107,14 @@ class RecommendationViewTests(unittest.TestCase):
         self.assertEqual(self.view.origin['market_id'],123)
         append(dict(event='Undocked',timestamp=self.now.isoformat()))
         self.state.changed.emit()
-        self.assertTrue(self.view.market_read_status.isHidden())
+        self.assertTrue(self.view.market_read_status.isVisible())
+        self.assertEqual(self.view.market_read_status.status, 'open')
 
     def test_painted_market_badge_dark_light_and_no_emoji(self):
         from PySide6.QtGui import QColor
         badge=self.view.market_read_status
         for theme,color in ((DARK_STYLESHEET,'#79bd8a'),(LIGHT_STYLESHEET,'#247a41')):
-            self.view.setStyleSheet(theme);badge.set_status('read');self.app.processEvents()
+            self.trade.setStyleSheet(theme);badge.set_status('read');self.app.processEvents()
             image=badge.grab().toImage()
             top=max(2,int((badge.fontMetrics().height()-12)/2))
             pixels={image.pixelColor(x,y).name() for x in range(3,14) for y in range(top+1,top+12)}

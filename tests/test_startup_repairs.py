@@ -99,6 +99,8 @@ class StartupRepairTests(unittest.TestCase):
                 con.execute('alter table commander_state_repairs drop column '+name)
             con.execute('alter table journal_sessions drop column repair_read_offset')
             con.execute('alter table journal_sessions drop column repair_commander_id')
+            con.execute("DROP TABLE station_pad_evidence")
+            con.execute("DROP TABLE station_pad_journals")
             con.execute('pragma user_version=15')
         self.db=CMDRDatabase(self.db.path)
         with self.db._connect() as con:self.assertEqual(con.execute('pragma user_version').fetchone()[0],SCHEMA_VERSION)
@@ -272,6 +274,8 @@ repairs.run_startup_repairs(sys.argv[1])
                 con.execute('alter table commander_state_repairs drop column '+name)
             con.execute('alter table journal_sessions drop column repair_read_offset')
             con.execute('alter table journal_sessions drop column repair_commander_id')
+            con.execute("DROP TABLE station_pad_evidence")
+            con.execute("DROP TABLE station_pad_journals")
             con.execute('pragma user_version=15')
         class BrokenConnection(sqlite3.Connection):
             def execute(self, statement, *args):

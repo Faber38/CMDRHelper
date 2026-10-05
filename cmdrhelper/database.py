@@ -21,7 +21,7 @@ from cmdrhelper.ship_ownership import journal_time, ship_sale, stored_ship_obser
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 20
+SCHEMA_VERSION = 22
 
 COMMANDER_STATE_REPAIR_REVISIONS = {
     "stations": 1,
@@ -174,8 +174,10 @@ class CMDRDatabase:
             if not db_was_new:
                 with sqlite3.connect(self.path) as con:
                     previous_version = con.execute("PRAGMA user_version").fetchone()[0]
-                if 17 <= previous_version < 20:
-                    self._create_migration_backup(20)
+                if previous_version > SCHEMA_VERSION:
+                    raise RuntimeError("Unsupported future CMDRHelper database schema")
+                if 17 <= previous_version < 22:
+                    self._create_migration_backup(22)
             self._create_schema()
             if db_was_new:
                 # Only a newly created, fully initialized database is exempt
@@ -491,7 +493,21 @@ class CMDRDatabase:
         self._maybe_migrate_v18()
         self._maybe_migrate_v19()
         self._maybe_migrate_v20()
+        self._maybe_migrate_v22()
         self.cleanup_non_ship_fleet_rows()
+
+    def _maybe_migrate_v22(self):
+        """20 and the retired Codex schema 21 both advance additively to 22."""
+        from cmdrhelper.station_pad_store import create_schema
+        with self._connect() as con:
+            con.execute("BEGIN IMMEDIATE")
+            version = con.execute("PRAGMA user_version").fetchone()[0]
+            if version == 22:
+                return
+            if version not in (20, 21):
+                raise RuntimeError("Unsupported source schema for pad persistence")
+            create_schema(con)
+            con.execute("PRAGMA user_version=22")
 
     def _maybe_migrate_v20(self):
         """Add independent facility observations; leave celestial bodies unchanged."""

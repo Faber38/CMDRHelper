@@ -1461,7 +1461,9 @@ class MainWindow(QMainWindow):
         self.sidebar_body.setWordWrap(True)
         side.addWidget(self.sidebar_body)
 
-        side.addWidget(QLabel(f"CMDRHelper {__version__}", objectName="appSubTitle"))
+        from cmdrhelper.ui.about_dialog import VersionLabel
+        self.version_label = VersionLabel()
+        side.addWidget(self.version_label)
 
         main.addWidget(side_frame)
 
@@ -3142,9 +3144,13 @@ class MainWindow(QMainWindow):
     def _refresh_stations_tab(self):
         if not hasattr(self, 'stations_view'):
             return
+        from cmdrhelper.pad_metadata import resolve_station_pad_counts
+        stations = resolve_station_pad_counts(
+            getattr(self.state, 'system_stations', []), self.state.system, self.state.system_address,
+            getattr(self.state.database, 'path', None), getattr(self.state, 'journal_folder', None))
         self.stations_view.set_system(
             self.state.system_address, self.state.system,
-            getattr(self.state, 'system_stations', []))
+            stations)
         self.explorer_tabs.setTabText(
             self.explorer_tabs.indexOf(self.stations_view), self.stations_view.tab_title)
 

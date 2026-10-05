@@ -38,6 +38,14 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## CMDRHelper v3.8.2
+
+- Correzioni e miglioramenti all’assistente commerciale.
+- Rilevamento più affidabile della stiva, delle stazioni e dei mercati locali.
+- Informazioni migliorate sulle piazzole di atterraggio e sulla visualizzazione delle stazioni.
+- Elaborazione più rapida dei dati delle stazioni e delle piazzole di atterraggio.
+- Piccoli miglioramenti all’usabilità e agli indicatori di stato.
+
 ## CMDRHelper v3.8.0
 
 - Nuova scheda commerciale « Vendi qui »: trova fonti economiche per merci da vendere con profitto al mercato attuale.

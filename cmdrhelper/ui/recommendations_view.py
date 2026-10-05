@@ -199,7 +199,7 @@ class RecommendationsView(QWidget):
         # Outward recommendations intentionally survive partial purchases.
         return free if self.supply else (None if free is None else free > 0)
 
-    def __init__(self, state, provider, pool, parent=None):
+    def __init__(self, state, provider, pool, parent=None, *, market_read_status=None):
         super().__init__(parent)
         self.state, self.provider, self.pool = state, provider, pool
         self.worker = None
@@ -254,8 +254,10 @@ class RecommendationsView(QWidget):
         body.addWidget(self.explanation)
         market_line = QHBoxLayout()
         market_line.addWidget(self.origin_label, 3)
-        self.market_read_status = MarketReadStatus()
-        market_line.addWidget(self.market_read_status, 1, Qt.AlignmentFlag.AlignTop)
+        self._shared_market_status = market_read_status is not None
+        self.market_read_status = market_read_status if self._shared_market_status else MarketReadStatus()
+        if not self._shared_market_status:
+            market_line.addWidget(self.market_read_status, 1, Qt.AlignmentFlag.AlignTop)
         body.addLayout(market_line)
         body.addWidget(self.ship_label)
         body.addWidget(self.observed_status)
@@ -499,11 +501,11 @@ class RecommendationsView(QWidget):
                 cache = self.state.observed_markets.cache
                 if not cache.is_valid(previous_origin, cache.clock(), self.max_age.max_age()):
                     self._expired_market_key = key
-            self.market_read_status.setVisible(context is not None)
-            if context is not None:
-                status = 'read' if self.origin is not None else (
-                    'expired' if key == self._expired_market_key else 'open')
-                self.market_read_status.set_status(status)
+            self.market_read_status.setVisible(self._shared_market_status or context is not None)
+            status = 'read' if self.origin is not None else (
+                'expired' if context is not None and key == self._expired_market_key else 'open')
+            self.market_read_status.set_status(status, station=(
+                context['StationName'] if context else '') if self._shared_market_status else None)
             self.notice.setText(self.text('recommend.local_notice' if self.local_only.isChecked() else 'recommend.notice'))
             previous_free = self.free
             name, self.free = ship_space(self.state)

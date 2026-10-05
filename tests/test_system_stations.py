@@ -133,7 +133,7 @@ class StationDatabaseTests(unittest.TestCase):
         self.db._maybe_migrate_v20()
         self.db._maybe_migrate_v20()
         with self.db._connect() as con:
-            self.assertEqual(con.execute('PRAGMA user_version').fetchone()[0], SCHEMA_VERSION)
+            self.assertEqual(con.execute('PRAGMA user_version').fetchone()[0], 20)
             self.assertEqual(con.execute('SELECT * FROM bodies').fetchall(), before)
             self.assertEqual(load_stations(con, 1, BODIES), [])
 

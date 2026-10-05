@@ -25,10 +25,12 @@ class TradeMarketSource:
     writer: object = None
     journal_folder: Path | None = None
     station_cache_folder: Path | None = None
+    pad_database_path: Path | None = None
 
     def pad_metadata(self, cancel=None):
         from .pad_metadata import read_pad_metadata
-        return read_pad_metadata(self.journal_folder, self.station_cache_folder, cancel)
+        return read_pad_metadata(self.journal_folder, self.station_cache_folder, cancel,
+                                 self.pad_database_path or self.coordinates_path)
 
     def fallback_cache(self, cancel=None):
         """Wait off-GUI; JSON is eligible only before database publication."""
@@ -163,4 +165,5 @@ def prepare_trade_source(observer, fid, origin_name, origin_address=None, databa
         Path(database.path) if database is not None else None,
         writer.ready if writer is not None and not writer.activated else None, cache, writer,
         getattr(observer, 'folder', None),
-        cache.path.parent.parent/'external'/'spansh' if cache is not None else None)
+        cache.path.parent.parent/'external'/'spansh' if cache is not None else None,
+        Path(database.path) if database is not None else None)

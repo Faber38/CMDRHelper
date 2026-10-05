@@ -163,6 +163,34 @@ class ObservedStatusTests(unittest.TestCase):
         self.assert_status(1)
         self.assertEqual(before, self.cache.path.read_bytes())
 
+    def test_header_updates_after_sqlite_commit_on_sell_tab(self):
+        self.state.station = 'Fixture Port'
+        self.observer.use_market_store = True
+        self.addCleanup(self.observer.close)
+        journal = self.root/'Journal.2026-01-02T110000.01.log'
+        journal.write_text(json.dumps(dict(event='LoadGame', FID=FID))+'\n')
+        self.observer.set_folder(self.root)
+        self.observer.writer.ready.result(timeout=10)
+        self.view.show()
+        self.view.tabs.setCurrentIndex(0)
+        self.app.processEvents()
+        badge = self.view.market_read_status
+        self.assertEqual(badge.status, 'open')
+        with journal.open('a') as stream:
+            stream.write(json.dumps(dict(event(), event='Docked'))+'\n')
+            stream.write(json.dumps(event())+'\n')
+        market = self.root/'Market.json'
+        market.write_text(json.dumps(sidecar()))
+        os.utime(market, (NOW.timestamp(), NOW.timestamp()))
+        self.assertFalse(self.observer.consume([journal]))
+        self.observer._writes[0][1].result(timeout=10)
+        self.app.processEvents()  # Deliver the worker's existing Qt signal, no manual refresh.
+        self.assertEqual(self.view.tabs.currentIndex(), 0)
+        self.assertTrue(badge.isVisible())
+        self.assertEqual(badge.status, 'read')
+        self.assertEqual(badge.toolTip(), tr('trade.current_market_read_tooltip', station='Fixture Port'))
+        self.observer.close()
+
     def test_twelve_languages_themes_fonts_widths(self):
         self.cache.put(snapshot(NOW-timedelta(minutes=3)))
         self.cache.put(snapshot(mid=456))

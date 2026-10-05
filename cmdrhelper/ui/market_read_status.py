@@ -15,11 +15,13 @@ class MarketReadStatus(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
         self.status = 'open'
 
-    def set_status(self, status):
+    def set_status(self, status, *, station=None):
         self.status = status
         self.setProperty('observed', status == 'read')
         self.setText(tr('recommend.market_' + status))
         self.setToolTip(tr('recommend.market_' + status + '_tooltip'))
+        if station is not None and status in ('read', 'open'):
+            self.setToolTip(tr('trade.current_market_' + status + '_tooltip', station=station))
         self.setAccessibleName(self.text())
         self.style().unpolish(self)
         self.style().polish(self)

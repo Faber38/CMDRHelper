@@ -211,6 +211,8 @@ class UnsoldMappingRegressionTests(unittest.TestCase):
         with self.db._connect() as con:
             for field in ('efficient_mapping','probes_used','efficiency_target'):
                 con.execute('ALTER TABLE commander_unsold_cartography DROP COLUMN '+field)
+            con.execute("DROP TABLE IF EXISTS station_pad_evidence")
+            con.execute("DROP TABLE IF EXISTS station_pad_journals")
             con.execute('PRAGMA user_version=16')
         class Interrupted(sqlite3.Connection):
             def execute(self, sql, *args):

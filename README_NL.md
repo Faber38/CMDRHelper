@@ -38,6 +38,14 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## CMDRHelper v3.8.2
+
+- Foutoplossingen en verbeteringen in de handelsassistent.
+- Betrouwbaardere herkenning van laadruim, stations en lokale markten.
+- Verbeterde informatie over landingsplatforms en stationsweergave.
+- Snellere verwerking van stations- en landingsplatformgegevens.
+- Kleine verbeteringen in bediening en statusweergave.
+
 ## CMDRHelper v3.8.0
 
 - Nieuw handelstabblad ‘Hier verkopen’: vind goedkope inkooplocaties voor goederen die op de huidige markt winst opleveren.

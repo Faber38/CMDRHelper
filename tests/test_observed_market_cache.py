@@ -234,6 +234,47 @@ class NormalizationTests(unittest.TestCase):
     def test_wrong_market_id(self):
         with self.assertRaises(ValueError): self.normalize(dict(sidecar(), MarketID=456))
 
+    def test_ocellus_bernal_compatible_in_all_three_sources(self):
+        for dock_type in ('Ocellus', 'Bernal'):
+            for market_type in ('Ocellus', 'Bernal'):
+                for sidecar_type in ('Ocellus', 'Bernal'):
+                    with self.subTest(dock=dock_type, market=market_type, sidecar=sidecar_type):
+                        row = self.normalize(
+                            dict(sidecar(), StationType=sidecar_type),
+                            dict(event(), StationType=market_type),
+                            context={'StationType': dock_type})
+                        self.assertEqual(row['station_type'], market_type)
+
+    def test_incompatible_station_types_still_rejected(self):
+        for other in ('Coriolis', 'Outpost', 'FleetCarrier', 'ocellus', 'Bernal ', 'FutureType'):
+            for source in ('context', 'event', 'sidecar'):
+                with self.subTest(other=other, source=source):
+                    context = {'StationType': 'Ocellus'}
+                    trigger = dict(event(), StationType='Bernal')
+                    data = dict(sidecar(), StationType='Bernal')
+                    {'context': context, 'event': trigger, 'sidecar': data}[source]['StationType'] = other
+                    with self.assertRaisesRegex(ValueError, 'Market context mismatch: StationType'):
+                        self.normalize(data, trigger, context=context)
+
+    def test_alias_does_not_relax_identity_or_time_checks(self):
+        for field, wrong in (('FID', 'F_OTHER'), ('MarketID', 456),
+                             ('StationName', 'Other Port'), ('StarSystem', 'Other System'),
+                             ('SystemAddress', 556)):
+            for source in ('context', 'event', 'sidecar'):
+                with self.subTest(field=field, source=source):
+                    trigger = dict(event(), StationType='Bernal', FID=FID, SystemAddress=555)
+                    data = dict(sidecar(), StationType='Bernal', FID=FID, SystemAddress=555)
+                    context = dict(trigger, StationType='Ocellus')
+                    {'context': context, 'event': trigger, 'sidecar': data}[source][field] = wrong
+                    with self.assertRaises(ValueError):
+                        self.normalize(data, trigger, context=context)
+        for change in ({'timestamp': (NOW - timedelta(seconds=1)).isoformat()},
+                       {'event': 'Docked'}):
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                self.normalize(dict(sidecar(), StationType='Bernal', **change),
+                               dict(event(), StationType='Bernal'),
+                               context={'StationType': 'Ocellus'})
+
     def test_wrong_station(self):
         with self.assertRaises(ValueError): self.normalize(dict(sidecar(), StationName='Other Port'))
 
@@ -321,6 +362,42 @@ class ObserverTests(unittest.TestCase):
         self.append(event())
         self.assertTrue(self.consume())
         self.assertEqual(self.cache.get(FID,123), snapshot())
+
+    def test_lantern_light_alias_388_items_reaches_sqlite_and_current_market(self):
+        from types import SimpleNamespace
+        from cmdrhelper.market_store import MarketStore
+        from cmdrhelper.ui.recommendations_view import current_market, current_market_context
+
+        # Reproduce the real station identity with synthetic commander/price data.
+        trigger = dict(event(mid=4212379651, station='Lantern Light', system='Lalande 25224'),
+                       StationType='Bernal')
+        dock = dict(trigger, event='Docked', StationType='Ocellus', SystemAddress=151634584764)
+        data = dict(trigger, Items=[
+            dict(id=900000000 + i, Name=f'$fixture_commodity_{i}_name;',
+                 BuyPrice=100 + i, SellPrice=90 + i, Stock=1000, Demand=2000)
+            for i in range(388)])
+        self.observer.use_market_store = True
+        self.addCleanup(self.observer.close)
+        self.append(dock)
+        self.append(trigger)
+        self.write_sidecar(data)
+        self.assertFalse(self.consume())
+        self.assertEqual(len(self.observer._writes), 1)
+        self.observer._writes[0][1].result(timeout=10)
+        self.assertTrue(self.consume())
+        self.assertIsNone(self.observer.last_error)
+        with MarketStore(self.cache.path.parent / 'markets.db', read_only=True, clock=lambda: NOW) as store:
+            row = store.get_current(trigger['MarketID'])
+        self.assertEqual(len(row['commodities']), 388)
+        self.assertEqual(row['system_address'], dock['SystemAddress'])
+        self.assertEqual(row['station_type'], 'Bernal')
+        state = SimpleNamespace(observed_markets=self.observer, commander_fid=FID,
+                                station=trigger['StationName'], system=trigger['StarSystem'])
+        self.assertEqual(current_market_context(state)['MarketID'], trigger['MarketID'])
+        header = current_market(state)
+        self.assertIsNotNone(header)
+        self.assertEqual(header['market_id'], trigger['MarketID'])
+        self.assertEqual(header['source'], 'local_elite')
 
     def test_startup_and_restart_never_backfill_existing_market(self):
         self.append(event())

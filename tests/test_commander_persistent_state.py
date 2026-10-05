@@ -221,6 +221,8 @@ class SchemaV5Tests(unittest.TestCase):
                 for table in ("commander_missions", "commander_locations",
                               "commander_ships", "commander_carriers"):
                     con.execute(f"DROP TABLE {table}")
+                con.execute("DROP TABLE IF EXISTS station_pad_evidence")
+                con.execute("DROP TABLE IF EXISTS station_pad_journals")
                 con.execute("PRAGMA user_version=4")
             CMDRDatabase(path)
             with sqlite3.connect(path) as con:

@@ -133,7 +133,13 @@ class TradeView(QWidget):
         self._generation = 0
         self._fid = getattr(state, 'commander_fid', '')
         layout = QVBoxLayout(self)
-        layout.addWidget(QLabel(tr('nav.trade'), objectName='sectionTitle'))
+        header = QHBoxLayout()
+        header.addWidget(QLabel(tr('nav.trade'), objectName='sectionTitle'))
+        header.addStretch()
+        from .market_read_status import MarketReadStatus
+        self.market_read_status = MarketReadStatus()
+        header.addWidget(self.market_read_status, 0, Qt.AlignmentFlag.AlignVCenter)
+        layout.addLayout(header)
         self.tabs = QTabWidget()
         layout.addWidget(self.tabs)
         scroll = QScrollArea()
@@ -257,7 +263,8 @@ class TradeView(QWidget):
         self._cancel_event = None
         self.refresh_reference()
         from .recommendations_view import RecommendationsView, SupplyRecommendationsView
-        self.recommendations = RecommendationsView(state, self.provider, self.pool)
+        self.recommendations = RecommendationsView(
+            state, self.provider, self.pool, market_read_status=self.market_read_status)
         self.tabs.addTab(self.recommendations, tr('recommend.title'))
         self.supply_recommendations = SupplyRecommendationsView(state, self.provider, self.pool)
         self.tabs.addTab(self.supply_recommendations, tr('supply.title'))

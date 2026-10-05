@@ -38,6 +38,14 @@ Journalmappen för Elite Dangerous hittas automatiskt när det är möjligt. Om 
 
 CMDRHelper söker efter uppdateringar vid start och har en inbyggd uppdateringsfunktion. Bekräfta en erbjuden uppdatering i programmet; den uppdaterar programmet och beroendena och startar om CMDRHelper. Efter den första installationen använder du normalt bara `start.bat` (Windows) eller `bash start.sh` (Linux). Du behöver inte köra `install.bat` eller `install.sh` manuellt igen för vanliga uppdateringar.
 
+## CMDRHelper v3.8.2
+
+- Felkorrigeringar och förbättringar i handelsassistenten.
+- Tillförlitligare identifiering av lastrum, stationer och lokala marknader.
+- Förbättrad information om landningsplattor och visning av stationer.
+- Snabbare bearbetning av stations- och landningsplattedata.
+- Små förbättringar av användbarhet och statusvisning.
+
 ## CMDRHelper v3.8.0
 
 - Ny handelsflik ”Sälj här”: Hitta billiga inköpsställen för varor som kan säljas med vinst på den aktuella marknaden.

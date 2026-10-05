@@ -54,8 +54,14 @@ class StationCard(QFrame):
         self.title = ElidedShipLabel(name)
         font = self.title.font(); font.setBold(True); self.title.setFont(font)
         text.addWidget(self.title)
-        text.addWidget(ElidedShipLabel(
-            tr('facilities.' + type_key(station)) + ' · ' + parent_label(station, system_name)))
+        from cmdrhelper.pad_metadata import station_pad_counts
+        subtitle = tr('facilities.' + type_key(station)) + ' · ' + parent_label(station, system_name)
+        pads = station_pad_counts(station)
+        if pads is not None:
+            subtitle += ' | ' + tr('spansh.pads') + ': ' + ' · '.join(
+                f'{short}: {pads[key]}' for key, short in [('large', 'L'), ('medium', 'M'), ('small', 'S')])
+        self.subtitle = ElidedShipLabel(subtitle)
+        text.addWidget(self.subtitle)
         external = station.get('spansh') or {}
         summary = []
         if distance(station) is not None:

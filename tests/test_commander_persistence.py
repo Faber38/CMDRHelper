@@ -58,6 +58,8 @@ def make_v2(path: Path) -> None:
         for table in PERSONAL_TABLES:
             con.execute(f"DROP TABLE {table}")
         con.executescript(LEGACY_PERSONAL_SCHEMA)
+        con.execute("DROP TABLE IF EXISTS station_pad_evidence")
+        con.execute("DROP TABLE IF EXISTS station_pad_journals")
         con.execute("PRAGMA user_version=2")
         con.commit()
     finally:

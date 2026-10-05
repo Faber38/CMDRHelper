@@ -90,9 +90,10 @@ class StationDetailsWidget(QWidget):
             # Spansh values can exceed 100; do not mislabel them as percentages.
             extra_fields.append(tr('spansh.economies') + ': ' + ', '.join(
                 f'{name}: {amount:g}' for name, amount in economies.items()))
-        pads = external.get('landing_pads') or {}
+        from cmdrhelper.pad_metadata import station_pad_counts
+        pads = station_pad_counts(station)
         if pads:
-            extra_fields.append(tr('spansh.pads') + ': ' + '   '.join(
+            extra_fields.append(tr('spansh.pads') + ': ' + ' · '.join(
                 f'{short}: {pads[key]}' for key,short in [('large','L'),('medium','M'),('small','S')] if key in pads))
         self.external_info = QLabel('\n'.join(extra_fields))
         self.external_info.setTextFormat(Qt.PlainText)
