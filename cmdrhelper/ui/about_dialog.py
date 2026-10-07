@@ -1,9 +1,21 @@
 """Application information, opened from the existing sidebar version label."""
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QDialog, QDialogButtonBox, QLabel, QScrollArea, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QDialog, QDialogButtonBox, QFrame, QLabel, QScrollArea, QVBoxLayout, QWidget
 
 from cmdrhelper.i18n import tr
 from cmdrhelper import version
+
+
+# Display names only; the UI supplies the shared CMDR prefix. Never translate.
+ACKNOWLEDGED_COMMANDERS = (
+    'Mr.Homn',
+    'Nanjan',
+    'Homunk',
+    'Pit',
+    'Mikee & Michael',
+    'PanzerPet',
+    'janjalan',
+)
 
 
 class AboutDialog(QDialog):
@@ -21,6 +33,7 @@ class AboutDialog(QDialog):
         self.version_label = QLabel(tr('about.version', version=version.__version__))
         layout.addWidget(self.version_label)
         scroll = QScrollArea()
+        self.scroll_area = scroll
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QScrollArea.NoFrame)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -34,6 +47,29 @@ class AboutDialog(QDialog):
         self.description.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.description.setAlignment(Qt.AlignTop)
         content_layout.addWidget(self.description)
+        content_layout.addSpacing(8)
+        separator = QFrame()
+        separator.setFrameShape(QFrame.HLine)
+        separator.setFrameShadow(QFrame.Sunken)
+        content_layout.addWidget(separator)
+        self.acknowledgements_heading = QLabel(tr('about.acknowledgements'))
+        font = self.acknowledgements_heading.font()
+        font.setBold(True)
+        self.acknowledgements_heading.setFont(font)
+        self.acknowledgements_intro = QLabel(tr('about.acknowledgements_intro'))
+        names = [f'CMDR {name}' for name in ACKNOWLEDGED_COMMANDERS]
+        self.acknowledged_commanders = QLabel('\n'.join(
+            ' · '.join(names[index:index + 2]) for index in range(0, len(names), 2)))
+        self.acknowledged_group = QLabel(tr('about.acknowledgements_group'))
+        for label in (self.acknowledgements_heading, self.acknowledgements_intro,
+                      self.acknowledged_commanders, self.acknowledged_group):
+            label.setTextFormat(Qt.PlainText)
+            label.setWordWrap(True)
+            label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+            if label is self.acknowledged_group:
+                content_layout.addSpacing(4)
+            content_layout.addWidget(label)
+        content_layout.addStretch()
         scroll.setWidget(content)
         layout.addWidget(scroll, 1)
         self.buttons = QDialogButtonBox(QDialogButtonBox.Close)

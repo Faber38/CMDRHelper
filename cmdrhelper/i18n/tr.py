@@ -16,6 +16,9 @@ TRANSLATIONS = {
 
     'trade.current_market_read_tooltip': "Güncel pazar okundu: {station}",
     'trade.current_market_open_tooltip': "Mevcut istasyonun pazarı henüz okunmadı.",
+    'about.acknowledgements': 'Teşekkürler',
+    'about.acknowledgements_intro': 'CMDRHelper’a önerileri, fikirleri, testleri ve geri bildirimleriyle destek olan komutanlara ve EOT oyuncu grubuna özel teşekkürler:',
+    'about.acknowledgements_group': 'ayrıca tüm EOT oyuncu grubuna',
     'about.version': 'Sürüm {version}',
     'about.intro': 'CMDRHelper, Elite Dangerous için bağımsız bir yardımcı uygulamadır.',
     'about.purpose': 'Elite Dangerous bilgilerini anlaşılır biçimde sunup analiz etmek ve komutanları keşif, ticaret ve diğer etkinliklerde desteklemek amacıyla CMDR Faber38 tarafından geliştirilmiştir.',
@@ -24,6 +27,10 @@ TRANSLATIONS = {
     'about.support': 'Geliştirme desteği:\nYapay zekâ destekli geliştirme araçları',
     'about.independent': 'CMDRHelper bağımsız bir topluluk projesidir ve Frontier Developments ile bağlantısı yoktur.',
     'about.trademark': 'Elite Dangerous, Frontier Developments plc şirketinin ticari markasıdır.',
+    'release.3_9_1.0': 'Powerplay etkinlikleri artık Elite tarafından işaretlenen Ethos etkinliklerini gösteriyor.',
+    'release.3_9_1.1': 'Powerplay yardımı buna uygun olarak güncellendi.',
+    'release.3_9_1.2': 'Destek veren komutanlara ve EOT oyuncu grubuna teşekkürler eklendi.',
+    'release.3_9_1.3': 'Küçük iyileştirmeler ve düzeltmeler.',
     'release.3_9_0.0': 'Nadir mallar ticaret asistanına eklendi.',
     'release.3_9_0.1': 'Nadir malların kaynak istasyonları tanınır ve gerektiğinde otomatik olarak bulunur.',
     'release.3_9_0.2': 'Yük algılama iyileştirildi; taşınan mallar satış araması için doğrudan seçilebilir.',
@@ -1739,4 +1746,12 @@ TRANSLATIONS.update({
 # Purchase commodity picker: catalogue-based Rare Goods filter.
 TRANSLATIONS.update({
     'trade.goods_rare': 'Nadir mallar',
+})
+
+# Explicit Ethos evidence from the local power cache.
+TRANSLATIONS.update({
+    'pp2.ethos': '★ Ethos',
+    'pp2.ethos_tooltip': 'Elite tarafından yerel güç önbelleğinde Ethos bonusu olarak işaretlenmiş.',
+    'pp2.ethos_unknown_tooltip': 'Önbellekteki bilinmeyen ek görünür kalır; Ethos durumu belirsizdir.',
+    'pp2.cache_source': 'Yerel oyun önbelleğinden gücünün etkinlikleri; açıkça işaretlenmiş Ethos etkinlikleri de dahildir. Etkinliklerin ek koşulları olabilir.',
 })

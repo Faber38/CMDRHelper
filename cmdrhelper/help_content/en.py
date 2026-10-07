@@ -1294,7 +1294,7 @@ HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>T
 
 HELP_TOPICS["pp2"] = ("PP2", """
 <h2>PP2 / Powerplay 2.0</h2>
-<p>PP2 shows your power, rank and total merits, plus the last known Powerplay state of your current system. It lists relevant general activities, Powerplay cargo aboard and reported merit credits. Open this help with the question mark while PP2 is selected.</p>
+<p>PP2 shows your power, rank and total merits, plus the last known Powerplay state of your current system. It lists relevant activities, Powerplay cargo aboard and reported merit credits. Open this help with the question mark while PP2 is selected.</p>
 <h3>Powers, merits and control points</h3>
 <p>A power is a Powerplay group you can pledge to. Your own power is the one you pledged to; it need not control your current system. Merits are your personal Powerplay points. Control points concern a power’s position in a system instead. The Helper displays control progress, reinforcement and undermining values supplied by Elite when available. These are not extra personal merits; control progress is not converted to a percentage.</p>
 <h3>Powerplay system state</h3>
@@ -1302,7 +1302,8 @@ HELP_TOPICS["pp2"] = ("PP2", """
 <h3>Acquisition, reinforcement, undermining and conflict</h3>
 <p><b>ACQUISITION</b>: acquire an unoccupied system for your power; the Helper only shows this with an unambiguous link to your power. <b>REINFORCEMENT</b>: strengthen your own power’s system. <b>UNDERMINING</b>: weaken another power’s control. Conflict means contested acquisition: for unoccupied systems, the Helper can display reported conflict progress for participating powers. Multiple powers alone do not establish an activity recommendation. Missing or conflicting information leaves the activity category unknown.</p>
 <h3>What can I do here for my power?</h3>
-<p>CMDRHelper combines Elite’s system state with your power’s general activities for the relevant category. Depending on power and category, examples include: Transport Powerplay commodities, Hack holoscreens, Hand in salvage, Bounty hunting, Transfer research data, Sell for large profits or Sell rare goods.</p>
+<p>CMDRHelper combines Elite’s system state with your power’s activities for the relevant category. Depending on power and category, examples include: Transport Powerplay commodities, Hack holoscreens, Hand in salvage, Bounty hunting, Transfer research data, Sell for large profits or Sell rare goods.</p>
+<p>The activity list can contain general activities and activities explicitly marked by Elite as having an Ethos bonus. ★ Ethos shows exactly that Elite marking; the assignment depends on the power and activity category. CMDRHelper does not determine a specific bonus amount from it. Additional requirements may still apply; an actual merit credit remains the more reliable confirmation that an activity counted. Recognition is verified for the German cache suffix. Unknown suffixes, for example in other cache languages, remain visible and are not treated as “no Ethos”.</p>
 <p><b>The list offers guidance, not guaranteed merits.</b> These activities come from Elite but may apply generally to the power and category. Individual activities can have additional requirements. A tick in this list does not confirm completion or a reward. Check Elite’s instructions and then the actual merit credit.</p>
 <h3>Example: selling rare goods</h3>
 <p>Elite may list “Sell rare goods” as an activity. A successful sale still does not automatically earn Powerplay merits: <b>successful sale ≠ guaranteed merit credit.</b> CMDRHelper only displays a merit credit once Elite reports it. A sale without a credit does not establish a general rule about the goods’ origin, such as a carrier.</p>

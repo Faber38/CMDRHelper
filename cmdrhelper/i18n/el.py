@@ -16,6 +16,9 @@ TRANSLATIONS = {
 
     'trade.current_market_read_tooltip': "Η τρέχουσα αγορά διαβάστηκε: {station}",
     'trade.current_market_open_tooltip': "Η αγορά του τρέχοντος σταθμού δεν έχει διαβαστεί ακόμη.",
+    'about.acknowledgements': 'Ευχαριστίες',
+    'about.acknowledgements_intro': 'Ιδιαίτερες ευχαριστίες στους κυβερνήτες και στην ομάδα παικτών EOT που υποστηρίζουν το CMDRHelper με υποδείξεις, ιδέες, δοκιμές και σχόλια:',
+    'about.acknowledgements_group': 'καθώς και σε ολόκληρη την ομάδα παικτών EOT',
     'about.version': 'Έκδοση {version}',
     'about.intro': 'Το CMDRHelper είναι μια ανεξάρτητη βοηθητική εφαρμογή για το Elite Dangerous.',
     'about.purpose': 'Αναπτύχθηκε από τον CMDR Faber38 για τη σαφή παρουσίαση και ανάλυση πληροφοριών από το Elite Dangerous και την υποστήριξη των κυβερνητών στην εξερεύνηση, το εμπόριο και άλλες δραστηριότητες.',
@@ -24,6 +27,10 @@ TRANSLATIONS = {
     'about.support': 'Υποστήριξη ανάπτυξης:\nΕργαλεία ανάπτυξης με υποστήριξη τεχνητής νοημοσύνης',
     'about.independent': 'Το CMDRHelper είναι ένα ανεξάρτητο κοινοτικό έργο και δεν συνδέεται με τη Frontier Developments.',
     'about.trademark': 'Το Elite Dangerous είναι εμπορικό σήμα της Frontier Developments plc.',
+    'release.3_9_1.0': 'Οι δραστηριότητες Powerplay εμφανίζουν πλέον τις δραστηριότητες Ethos που επισημαίνονται από το Elite.',
+    'release.3_9_1.1': 'Η βοήθεια Powerplay συμπληρώθηκε ανάλογα.',
+    'release.3_9_1.2': 'Προστέθηκαν ευχαριστίες στους κυβερνήτες και στην ομάδα παικτών EOT για την υποστήριξή τους.',
+    'release.3_9_1.3': 'Μικρές βελτιώσεις και διορθώσεις.',
     'release.3_9_0.0': 'Τα σπάνια αγαθά ενσωματώθηκαν στον εμπορικό βοηθό.',
     'release.3_9_0.1': 'Οι σταθμοί προέλευσης σπάνιων αγαθών αναγνωρίζονται και αναζητούνται αυτόματα όταν χρειάζεται.',
     'release.3_9_0.2': 'Βελτιωμένη αναγνώριση φορτίου με άμεση επιλογή των μεταφερόμενων αγαθών για αναζήτηση πώλησης.',
@@ -1739,4 +1746,12 @@ TRANSLATIONS.update({
 # Purchase commodity picker: catalogue-based Rare Goods filter.
 TRANSLATIONS.update({
     'trade.goods_rare': 'Σπάνια εμπορεύματα',
+})
+
+# Explicit Ethos evidence from the local power cache.
+TRANSLATIONS.update({
+    'pp2.ethos': '★ Ethos',
+    'pp2.ethos_tooltip': 'Το Elite το επισημαίνει ως μπόνους Ethos στην τοπική προσωρινή μνήμη δυνάμεων.',
+    'pp2.ethos_unknown_tooltip': 'Ένα άγνωστο επίθημα της προσωρινής μνήμης παραμένει ορατό· η κατάστασή του ως Ethos είναι απροσδιόριστη.',
+    'pp2.cache_source': 'Δραστηριότητες της δύναμής σου από την τοπική προσωρινή μνήμη του παιχνιδιού, μαζί με όσες επισημαίνονται ρητά ως Ethos. Μπορεί να ισχύουν πρόσθετες προϋποθέσεις.',
 })

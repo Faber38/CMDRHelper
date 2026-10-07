@@ -16,6 +16,9 @@ TRANSLATIONS = {
 
     'trade.current_market_read_tooltip': "Nykyiset markkinat luettu: {station}",
     'trade.current_market_open_tooltip': "Nykyisen aseman markkinoita ei ole vielä luettu.",
+    'about.acknowledgements': 'Kiitokset',
+    'about.acknowledgements_intro': 'Erityiskiitokset komentajille ja EOT-pelaajaryhmälle, jotka tukevat CMDRHelperiä vinkeillä, ideoilla, testeillä ja palautteella:',
+    'about.acknowledgements_group': 'sekä koko EOT-pelaajaryhmälle',
     'about.version': 'Versio {version}',
     'about.intro': 'CMDRHelper on riippumaton apuohjelma Elite Dangerousille.',
     'about.purpose': 'CMDR Faber38 kehitti ohjelman esittämään ja analysoimaan Elite Dangerousin tietoja selkeästi sekä tukemaan komentajia tutkimusmatkoilla, kaupankäynnissä ja muissa tehtävissä.',
@@ -24,6 +27,10 @@ TRANSLATIONS = {
     'about.support': 'Kehitystuki:\nTekoälyavusteiset kehitystyökalut',
     'about.independent': 'CMDRHelper on riippumaton yhteisöprojekti, jolla ei ole yhteyttä Frontier Developmentsiin.',
     'about.trademark': 'Elite Dangerous on Frontier Developments plc:n tavaramerkki.',
+    'release.3_9_1.0': 'Powerplay-toiminnot näyttävät nyt Eliten merkitsemät Ethos-toiminnot.',
+    'release.3_9_1.1': 'Powerplay-ohjetta on täydennetty vastaavasti.',
+    'release.3_9_1.2': 'Lisätty kiitokset tukensa antaneille komentajille ja EOT-pelaajaryhmälle.',
+    'release.3_9_1.3': 'Pieniä parannuksia ja korjauksia.',
     'release.3_9_0.0': 'Harvinaiset tavarat on integroitu kauppa-avustajaan.',
     'release.3_9_0.1': 'Harvinaisten tavaroiden alkuperäasemat tunnistetaan ja selvitetään tarvittaessa automaattisesti.',
     'release.3_9_0.2': 'Rahdin tunnistusta parannettu: mukana olevat tavarat voi valita suoraan myyntihakuun.',
@@ -1739,4 +1746,12 @@ TRANSLATIONS.update({
 # Purchase commodity picker: catalogue-based Rare Goods filter.
 TRANSLATIONS.update({
     'trade.goods_rare': 'Harvinaiset hyödykkeet',
+})
+
+# Explicit Ethos evidence from the local power cache.
+TRANSLATIONS.update({
+    'pp2.ethos': '★ Ethos',
+    'pp2.ethos_tooltip': 'Elite on merkinnyt tämän Ethos-bonuksella paikallisessa valtavälimuistissa.',
+    'pp2.ethos_unknown_tooltip': 'Tuntematon välimuistin lisämerkintä jää näkyviin; sen Ethos-tila on määrittämätön.',
+    'pp2.cache_source': 'Valtasi toiminnot pelin paikallisesta välimuistista, mukaan lukien erikseen merkityt Ethos-toiminnot. Yksittäisillä toiminnoilla voi olla lisäehtoja.',
 })

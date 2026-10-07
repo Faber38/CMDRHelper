@@ -16,6 +16,9 @@ TRANSLATIONS = {
 
     'trade.current_market_read_tooltip': "Aktueller Markt eingelesen: {station}",
     'trade.current_market_open_tooltip': "Aktueller Stationsmarkt noch nicht eingelesen.",
+    'about.acknowledgements': 'Danksagung',
+    'about.acknowledgements_intro': 'Ein besonderer Dank geht an die Commander und die EOT-Spielergruppe, die CMDRHelper mit Hinweisen, Ideen, Tests und Rückmeldungen unterstützen:',
+    'about.acknowledgements_group': 'sowie der gesamten EOT-Spielergruppe',
     'about.version': 'Version {version}',
     'about.intro': 'CMDRHelper ist ein unabhängiges Begleitprogramm für Elite Dangerous.',
     'about.purpose': 'Entwickelt von CMDR Faber38, um Informationen aus Elite Dangerous übersichtlich auszuwerten und den Commander bei Exploration, Handel und weiteren Aktivitäten zu unterstützen.',
@@ -24,6 +27,10 @@ TRANSLATIONS = {
     'about.support': 'Entwicklungsunterstützung:\nKI-gestützte Entwicklungswerkzeuge',
     'about.independent': 'CMDRHelper ist ein unabhängiges Community-Projekt und steht in keiner Verbindung zu Frontier Developments.',
     'about.trademark': 'Elite Dangerous ist eine Marke von Frontier Developments plc.',
+    'release.3_9_1.0': 'Powerplay-Aktivitäten zeigen jetzt die von Elite gekennzeichneten Ethos-Aktivitäten.',
+    'release.3_9_1.1': 'Powerplay-Hilfe entsprechend ergänzt.',
+    'release.3_9_1.2': 'Danksagung für unterstützende Commander und die EOT-Spielergruppe ergänzt.',
+    'release.3_9_1.3': 'Kleine Verbesserungen und Korrekturen.',
     'release.3_9_0.0': 'Seltene Waren in den Handelsassistenten integriert.',
     'release.3_9_0.1': 'Herkunftsstationen seltener Waren werden erkannt und bei Bedarf automatisch aufgelöst.',
     'release.3_9_0.2': 'Verbesserte Frachterkennung mit direkter Warenübernahme für die Verkaufssuche.',
@@ -1903,7 +1910,7 @@ TRANSLATIONS.update({
     'pp2.context_unknown': 'Die Journalfelder erlauben hier keine eindeutige Empfehlung für deine Macht.',
     'pp2.power_missing': 'Keine Aktivitätsdaten für {power} im lokalen PP2-Cache.',
     'pp2.cache_unavailable': 'PP2-Daten nicht verfügbar. Der lokale Macht-Cache fehlt, ist nicht lesbar oder hat ein unbekanntes Format.',
-    'pp2.cache_source': 'Allgemeine Aktivitäten deiner Macht aus dem lokalen Spielcache. Einzelne Aktivitäten können weitere Voraussetzungen haben.',
+    'pp2.cache_source': 'Aktivitäten deiner Macht aus dem lokalen Spielcache, einschließlich ausdrücklich markierter Ethos-Aktivitäten. Einzelne Aktivitäten können weitere Voraussetzungen haben.',
     'pp2.action_unknown': '• Unbekannte Aktivität: {token}',
     'pp2.recent': 'LETZTE MERIT-GUTSCHRIFTEN',
     'pp2.merit_gain': '+{amount} Merits',
@@ -2013,4 +2020,11 @@ TRANSLATIONS.update({
     'pp2.system.undermining_help': 'Undermining – Aktivitäten, die die Stellung der kontrollierenden Macht in diesem System schwächen.',
     'pp2.system.control_help': 'Unveränderter Kontrollfortschritt aus dem Journal. Eine Normierung auf 0–1 ist lokal nicht belegt; deshalb keine Prozentumrechnung.',
     'pp2.system.stage_help': 'Gemeldete Systemstufe: {status}. Die Leiste dient der Orientierung und beschreibt keine zwingende Abfolge.',
+})
+
+# Explicit Ethos evidence from the local power cache.
+TRANSLATIONS.update({
+    'pp2.ethos': '★ Ethos',
+    'pp2.ethos_tooltip': 'Von Elite im lokalen Macht-Cache als Ethos-Bonus gekennzeichnet.',
+    'pp2.ethos_unknown_tooltip': 'Ein unbekannter Cache-Zusatz bleibt sichtbar; die Ethos-Zuordnung ist dafür unbestimmt.',
 })

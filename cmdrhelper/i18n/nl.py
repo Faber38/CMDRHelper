@@ -16,6 +16,9 @@ TRANSLATIONS = {
 
     'trade.current_market_read_tooltip': "Huidige markt ingelezen: {station}",
     'trade.current_market_open_tooltip': "De markt van het huidige station is nog niet ingelezen.",
+    'about.acknowledgements': 'Dankwoord',
+    'about.acknowledgements_intro': 'Speciale dank aan de commanders en de EOT-spelersgroep die CMDRHelper ondersteunen met tips, ideeën, tests en feedback:',
+    'about.acknowledgements_group': 'en aan de hele EOT-spelersgroep',
     'about.version': 'Versie {version}',
     'about.intro': 'CMDRHelper is een onafhankelijke hulpapplicatie voor Elite Dangerous.',
     'about.purpose': 'Ontwikkeld door CMDR Faber38 om informatie uit Elite Dangerous overzichtelijk weer te geven en te analyseren en commanders te ondersteunen bij verkenning, handel en andere activiteiten.',
@@ -24,6 +27,10 @@ TRANSLATIONS = {
     'about.support': 'Ondersteuning bij ontwikkeling:\nAI-ondersteunde ontwikkeltools',
     'about.independent': 'CMDRHelper is een onafhankelijk communityproject en is niet verbonden aan Frontier Developments.',
     'about.trademark': 'Elite Dangerous is een handelsmerk van Frontier Developments plc.',
+    'release.3_9_1.0': 'Powerplay-activiteiten tonen nu de door Elite gemarkeerde Ethos-activiteiten.',
+    'release.3_9_1.1': 'De Powerplay-help is hierop aangevuld.',
+    'release.3_9_1.2': 'Dankwoord toegevoegd voor ondersteunende commanders en de EOT-spelersgroep.',
+    'release.3_9_1.3': 'Kleine verbeteringen en correcties.',
     'release.3_9_0.0': 'Zeldzame goederen geïntegreerd in de handelsassistent.',
     'release.3_9_0.1': 'Herkomststations van zeldzame goederen worden herkend en indien nodig automatisch opgezocht.',
     'release.3_9_0.2': 'Verbeterde vrachtherkenning met directe selectie van meegenomen goederen voor het zoeken naar verkoopstations.',
@@ -1739,4 +1746,12 @@ TRANSLATIONS.update({
 # Purchase commodity picker: catalogue-based Rare Goods filter.
 TRANSLATIONS.update({
     'trade.goods_rare': 'Zeldzame goederen',
+})
+
+# Explicit Ethos evidence from the local power cache.
+TRANSLATIONS.update({
+    'pp2.ethos': '★ Ethos',
+    'pp2.ethos_tooltip': 'Door Elite als Ethos-bonus gemarkeerd in de lokale cache voor machten.',
+    'pp2.ethos_unknown_tooltip': 'Een onbekend achtervoegsel uit de cache blijft zichtbaar; de Ethos-status ervan is onbepaald.',
+    'pp2.cache_source': 'Activiteiten van je macht uit de lokale spelcache, inclusief expliciet gemarkeerde Ethos-activiteiten. Afzonderlijke activiteiten kunnen extra voorwaarden hebben.',
 })

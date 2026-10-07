@@ -14,7 +14,7 @@ from cmdrhelper.ui.powerplay_system import SystemPresentation
 from cmdrhelper.powerplay_rank import rank_progress
 from cmdrhelper.powerplay_chronicle import local_today, today_groups
 from cmdrhelper.powerplay import (
-    PowerplayState, PowersCache, action_token, context, number,
+    PowerplayState, PowersCache, ACTION_TOKENS, powerplay_actions, context, number,
     powers_cache_path, timestamp, onboard_articles,
 )
 
@@ -341,6 +341,7 @@ class PowerplayView(QScrollArea):
         self._render_rank(data, powers, locale, fmt)
         self.notice.setText(tr("pp2.cache_unavailable") if powers is None else tr("pp2.cache_source"))
         self.mode.setText(tr("pp2.mode." + mode) if mode else tr("pp2.mode.unknown"))
+        self.actions.setToolTip("")
         if not data.power:
             message = tr("pp2.need_power")
         elif powers is None:
@@ -351,10 +352,25 @@ class PowerplayView(QScrollArea):
             message = tr("pp2.context_unknown")
         else:
             rows = []
-            for raw in powers[data.power]["ethos"].get(mode, []):
-                token = action_token(raw)
-                rows.append("✓ " + tr("pp2.action." + token) if token else tr("pp2.action_unknown", token=raw))
-            message = "\n".join(dict.fromkeys(rows)) or tr("pp2.no_data")
+            activities = powerplay_actions(powers[data.power], mode)
+            for activity in activities:
+                if activity.token in ACTION_TOKENS:
+                    row = "✓ " + tr("pp2.action." + activity.token)
+                else:
+                    raw_token = "$PP2_Action_" + activity.token + ";" if activity.token else activity.raw
+                    row = tr("pp2.action_unknown", token=raw_token)
+                if activity.annotations:
+                    row += " " + " ".join(activity.annotations)
+                if activity.ethos is True:
+                    row += " · " + tr("pp2.ethos")
+                rows.append(row)
+            tips = []
+            if any(a.ethos is True for a in activities):
+                tips.append(tr("pp2.ethos_tooltip"))
+            if any(a.ethos is None or a.annotations for a in activities):
+                tips.append(tr("pp2.ethos_unknown_tooltip"))
+            self.actions.setToolTip("\n\n".join(tips))
+            message = "\n".join(rows) or tr("pp2.no_data")
         self.actions.setText(message)
         inventory = getattr(self.state, "ship_inventory", None)
         total = getattr(self.state, "ship_cargo_total", None)

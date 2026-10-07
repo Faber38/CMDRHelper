@@ -16,6 +16,9 @@ TRANSLATIONS = {
 
     'trade.current_market_read_tooltip': "Current market read: {station}",
     'trade.current_market_open_tooltip': "The current station market has not been read yet.",
+    'about.acknowledgements': 'Acknowledgements',
+    'about.acknowledgements_intro': 'Special thanks to the commanders and the EOT player group who support CMDRHelper with suggestions, ideas, testing and feedback:',
+    'about.acknowledgements_group': 'as well as the entire EOT player group',
     'about.version': 'Version {version}',
     'about.intro': 'CMDRHelper is an independent companion application for Elite Dangerous.',
     'about.purpose': 'Developed by CMDR Faber38 to present and analyse information from Elite Dangerous clearly and support commanders in exploration, trading and other activities.',
@@ -24,6 +27,10 @@ TRANSLATIONS = {
     'about.support': 'Development support:\nAI-assisted development tools',
     'about.independent': 'CMDRHelper is an independent community project and is not affiliated with Frontier Developments.',
     'about.trademark': 'Elite Dangerous is a trademark of Frontier Developments plc.',
+    'release.3_9_1.0': 'Powerplay activities now show the Ethos activities marked by Elite.',
+    'release.3_9_1.1': 'Powerplay help updated accordingly.',
+    'release.3_9_1.2': 'Added acknowledgements for supporting commanders and the EOT player group.',
+    'release.3_9_1.3': 'Minor improvements and fixes.',
     'release.3_9_0.0': 'Rare goods integrated into the trade assistant.',
     'release.3_9_0.1': 'Origin stations for rare goods are recognized and automatically looked up when needed.',
     'release.3_9_0.2': 'Improved cargo detection with direct selection of carried goods for selling searches.',
@@ -1903,7 +1910,7 @@ TRANSLATIONS.update({
     'pp2.context_unknown': 'The journal fields do not establish a recommendation for your power here.',
     'pp2.power_missing': 'No activity data for {power} in the local PP2 cache.',
     'pp2.cache_unavailable': 'PP2 data unavailable. The local powers cache is missing, unreadable or has an unsupported format.',
-    'pp2.cache_source': 'General activities for your power from the local game cache. Individual activities may have additional requirements.',
+    'pp2.cache_source': 'Activities for your power from the local game cache, including explicitly marked Ethos activities. Individual activities may have additional requirements.',
     'pp2.action_unknown': '• Unknown activity: {token}',
     'pp2.recent': 'RECENT MERIT GAINS',
     'pp2.merit_gain': '+{amount} merits',
@@ -2013,4 +2020,11 @@ TRANSLATIONS.update({
     'pp2.system.undermining_help': 'Undermining – activities weakening the controlling power’s position in this system.',
     'pp2.system.control_help': 'Unchanged control progress from the journal. A normalized 0–1 meaning is not established locally, so no percentage conversion is applied.',
     'pp2.system.stage_help': 'Reported system state: {status}. The strip provides orientation, not a mandatory sequence.',
+})
+
+# Explicit Ethos evidence from the local power cache.
+TRANSLATIONS.update({
+    'pp2.ethos': '★ Ethos',
+    'pp2.ethos_tooltip': 'Marked by Elite as an Ethos bonus in the local power cache.',
+    'pp2.ethos_unknown_tooltip': 'An unknown cache suffix remains visible; its Ethos status is undetermined.',
 })

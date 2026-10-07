@@ -16,6 +16,9 @@ TRANSLATIONS = {
 
     'trade.current_market_read_tooltip': "Gjeldende marked lest inn: {station}",
     'trade.current_market_open_tooltip': "Markedet på gjeldende stasjon er ikke lest inn ennå.",
+    'about.acknowledgements': 'Takk',
+    'about.acknowledgements_intro': 'En spesiell takk til kommandørene og EOT-spillergruppen som støtter CMDRHelper med tips, ideer, testing og tilbakemeldinger:',
+    'about.acknowledgements_group': 'samt hele EOT-spillergruppen',
     'about.version': 'Versjon {version}',
     'about.intro': 'CMDRHelper er et uavhengig hjelpeprogram for Elite Dangerous.',
     'about.purpose': 'Utviklet av CMDR Faber38 for å presentere og analysere informasjon fra Elite Dangerous på en oversiktlig måte og støtte kommandører i utforskning, handel og andre aktiviteter.',
@@ -24,6 +27,10 @@ TRANSLATIONS = {
     'about.support': 'Utviklingsstøtte:\nKI-støttede utviklingsverktøy',
     'about.independent': 'CMDRHelper er et uavhengig fellesskapsprosjekt uten tilknytning til Frontier Developments.',
     'about.trademark': 'Elite Dangerous er et varemerke som tilhører Frontier Developments plc.',
+    'release.3_9_1.0': 'Powerplay-aktivitetene viser nå Ethos-aktivitetene som Elite har merket.',
+    'release.3_9_1.1': 'Powerplay-hjelpen er oppdatert tilsvarende.',
+    'release.3_9_1.2': 'Lagt til takk til kommandørene og EOT-spillergruppen for støtten.',
+    'release.3_9_1.3': 'Små forbedringer og rettelser.',
     'release.3_9_0.0': 'Sjeldne varer er integrert i handelsassistenten.',
     'release.3_9_0.1': 'Opprinnelsesstasjoner for sjeldne varer gjenkjennes og slås opp automatisk ved behov.',
     'release.3_9_0.2': 'Forbedret lastgjenkjenning med direkte valg av varer om bord for salgssøk.',
@@ -1739,4 +1746,12 @@ TRANSLATIONS.update({
 # Purchase commodity picker: catalogue-based Rare Goods filter.
 TRANSLATIONS.update({
     'trade.goods_rare': 'Sjeldne varer',
+})
+
+# Explicit Ethos evidence from the local power cache.
+TRANSLATIONS.update({
+    'pp2.ethos': '★ Ethos',
+    'pp2.ethos_tooltip': 'Merket av Elite med Ethos-bonus i den lokale hurtigbufferen for makter.',
+    'pp2.ethos_unknown_tooltip': 'Et ukjent tillegg fra hurtigbufferen forblir synlig; Ethos-statusen er uavklart.',
+    'pp2.cache_source': 'Aktiviteter for makten din fra spillets lokale hurtigbuffer, inkludert uttrykkelig merkede Ethos-aktiviteter. Enkelte aktiviteter kan ha tilleggskrav.',
 })

@@ -16,6 +16,9 @@ TRANSLATIONS = {
 
     'trade.current_market_read_tooltip': "Wczytano bieżący rynek: {station}",
     'trade.current_market_open_tooltip': "Rynek bieżącej stacji nie został jeszcze wczytany.",
+    'about.acknowledgements': 'Podziękowania',
+    'about.acknowledgements_intro': 'Szczególne podziękowania dla dowódców i grupy graczy EOT, którzy wspierają CMDRHelper wskazówkami, pomysłami, testami i opiniami:',
+    'about.acknowledgements_group': 'a także dla całej grupy graczy EOT',
     'about.version': 'Wersja {version}',
     'about.intro': 'CMDRHelper to niezależna aplikacja pomocnicza do Elite Dangerous.',
     'about.purpose': 'Opracowana przez CMDR Faber38, aby przejrzyście prezentować i analizować informacje z Elite Dangerous oraz wspierać dowódców w eksploracji, handlu i innych aktywnościach.',
@@ -24,6 +27,10 @@ TRANSLATIONS = {
     'about.support': 'Wsparcie programistyczne:\nNarzędzia programistyczne wspomagane przez AI',
     'about.independent': 'CMDRHelper jest niezależnym projektem społecznościowym i nie jest powiązany z Frontier Developments.',
     'about.trademark': 'Elite Dangerous jest znakiem towarowym Frontier Developments plc.',
+    'release.3_9_1.0': 'Lista aktywności Powerplay pokazuje teraz aktywności Ethos oznaczone przez Elite.',
+    'release.3_9_1.1': 'Odpowiednio uzupełniono pomoc Powerplay.',
+    'release.3_9_1.2': 'Dodano podziękowania dla wspierających dowódców i grupy graczy EOT.',
+    'release.3_9_1.3': 'Drobne ulepszenia i poprawki.',
     'release.3_9_0.0': 'Rzadkie towary zintegrowano z asystentem handlowym.',
     'release.3_9_0.1': 'Stacje pochodzenia rzadkich towarów są rozpoznawane i w razie potrzeby automatycznie wyszukiwane.',
     'release.3_9_0.2': 'Ulepszone rozpoznawanie ładunku z bezpośrednim wyborem przewożonych towarów do wyszukiwania miejsc sprzedaży.',
@@ -1739,4 +1746,12 @@ TRANSLATIONS.update({
 # Purchase commodity picker: catalogue-based Rare Goods filter.
 TRANSLATIONS.update({
     'trade.goods_rare': 'Rzadkie towary',
+})
+
+# Explicit Ethos evidence from the local power cache.
+TRANSLATIONS.update({
+    'pp2.ethos': '★ Ethos',
+    'pp2.ethos_tooltip': 'Oznaczone przez Elite jako bonus Ethos w lokalnej pamięci podręcznej potęg.',
+    'pp2.ethos_unknown_tooltip': 'Nieznany dopisek z pamięci podręcznej pozostaje widoczny; jego status Ethos jest nieokreślony.',
+    'pp2.cache_source': 'Aktywności twojej potęgi z lokalnej pamięci podręcznej gry, w tym aktywności wyraźnie oznaczone jako Ethos. Poszczególne aktywności mogą mieć dodatkowe wymagania.',
 })

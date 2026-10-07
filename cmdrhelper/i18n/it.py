@@ -16,6 +16,9 @@ TRANSLATIONS = {
 
     'trade.current_market_read_tooltip': "Mercato attuale letto: {station}",
     'trade.current_market_open_tooltip': "Il mercato della stazione attuale non è ancora stato letto.",
+    'about.acknowledgements': 'Ringraziamenti',
+    'about.acknowledgements_intro': 'Un ringraziamento speciale ai comandanti e al gruppo di giocatori EOT che sostengono CMDRHelper con suggerimenti, idee, test e commenti:',
+    'about.acknowledgements_group': 'e a tutto il gruppo di giocatori EOT',
     'about.version': 'Versione {version}',
     'about.intro': 'CMDRHelper è un’applicazione di supporto indipendente per Elite Dangerous.',
     'about.purpose': 'Sviluppata da CMDR Faber38 per presentare e analizzare chiaramente le informazioni di Elite Dangerous e supportare i comandanti nell’esplorazione, nel commercio e in altre attività.',
@@ -24,6 +27,10 @@ TRANSLATIONS = {
     'about.support': 'Supporto allo sviluppo:\nStrumenti di sviluppo assistiti dall’IA',
     'about.independent': 'CMDRHelper è un progetto indipendente della comunità e non è affiliato a Frontier Developments.',
     'about.trademark': 'Elite Dangerous è un marchio di Frontier Developments plc.',
+    'release.3_9_1.0': 'Le attività Powerplay ora mostrano le attività Ethos contrassegnate da Elite.',
+    'release.3_9_1.1': 'Guida Powerplay aggiornata di conseguenza.',
+    'release.3_9_1.2': 'Aggiunti ringraziamenti ai comandanti e al gruppo di giocatori EOT per il loro sostegno.',
+    'release.3_9_1.3': 'Piccoli miglioramenti e correzioni.',
     'release.3_9_0.0': 'Merci rare integrate nell’assistente commerciale.',
     'release.3_9_0.1': 'Le stazioni di origine delle merci rare vengono riconosciute e cercate automaticamente quando necessario.',
     'release.3_9_0.2': 'Rilevamento del carico migliorato con selezione diretta delle merci trasportate per la ricerca di punti vendita.',
@@ -1862,4 +1869,12 @@ TRANSLATIONS.update({
 # Purchase commodity picker: catalogue-based Rare Goods filter.
 TRANSLATIONS.update({
     'trade.goods_rare': 'Merci rare',
+})
+
+# Explicit Ethos evidence from the local power cache.
+TRANSLATIONS.update({
+    'pp2.ethos': '★ Ethos',
+    'pp2.ethos_tooltip': 'Contrassegnata da Elite con un bonus Ethos nella cache locale delle potenze.',
+    'pp2.ethos_unknown_tooltip': 'Un suffisso sconosciuto della cache rimane visibile; il suo stato Ethos è indeterminato.',
+    'pp2.cache_source': 'Attività della tua potenza dalla cache locale del gioco, incluse quelle esplicitamente contrassegnate come Ethos. Le singole attività possono avere requisiti aggiuntivi.',
 })

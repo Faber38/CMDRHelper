@@ -249,9 +249,10 @@ class PowerplayCacheError(ValueError):
 
 class DecodedPowers(dict):
     """Power lookup plus the root-level rank configuration from the same cache."""
-    def __init__(self, rank_thresholds=None):
+    def __init__(self, rank_thresholds=None, language=""):
         super().__init__()
         self.rank_thresholds = rank_thresholds
+        self.language = language
 
 
 def decode_powers_cache(raw):
@@ -273,7 +274,8 @@ def decode_powers_cache(raw):
     try:
         if struct.unpack_from("<I", data)[0] != 3 or data[4] != 1:
             raise PowerplayCacheError("Unsupported powers header")
-        if not string() or string() != "api.orerve.net":
+        language = string()
+        if not language or string() != "api.orerve.net":
             raise PowerplayCacheError("Invalid cache origin/language")
         string()  # Optional server modification date.
         marker, size = struct.unpack_from("<HI", data, offset)
@@ -284,7 +286,7 @@ def decode_powers_cache(raw):
         powers = document.get("powers") if isinstance(document, dict) else None
         if not isinstance(powers, list) or not 1 <= len(powers) <= 100:
             raise PowerplayCacheError("Missing powers")
-        result = DecodedPowers(document.get("rankThresholds"))
+        result = DecodedPowers(document.get("rankThresholds"), language=language)
         for power in powers:
             if (not isinstance(power, dict) or not isinstance(power.get("name"), str)
                     or not power["name"].strip() or amount(power.get("id")) is None
@@ -354,3 +356,38 @@ ACTION_TOKENS = (
 def action_token(value):
     match = re.match(r"^\$PP2_Action_([A-Za-z]+);", value)
     return match[1] if match and match[1] in ACTION_TOKENS else None
+
+
+@dataclass(frozen=True)
+class PowerplayAction:
+    """Cache evidence, not a reward calculation: None means an unknown suffix."""
+    token: str | None
+    raw: str
+    ethos: bool | None
+    annotations: tuple[str, ...] = ()
+
+
+def powerplay_actions(power, category):
+    """Preserve explicit Ethos evidence within exactly one power/category.
+
+    Only the literal German-cache marker has been verified. Do not translate
+    or guess other suffixes: retain them and use None rather than False.
+    False means unmarked in this cache, not proof of ineligibility in-game.
+    Duplicate evidence merges as True > None > False, in first-seen order.
+    """
+    result = {}
+    for raw in power.get("ethos", {}).get(category, []):
+        match = re.match(r"^\$PP2_Action_([A-Za-z]+);", raw)
+        token = match[1] if match else None
+        suffix = raw[match.end():].strip() if match else raw
+        ethos = (None if not match else True if suffix == "(Ethos-Bonus)"
+                 else None if suffix else False)
+        annotations = (suffix,) if match and ethos is None else ()
+        key = (token, "" if token else raw)
+        previous = result.get(key)
+        if previous:
+            ethos = (True if True in (previous.ethos, ethos)
+                     else None if None in (previous.ethos, ethos) else False)
+            annotations = tuple(dict.fromkeys(previous.annotations + annotations))
+        result[key] = PowerplayAction(token, previous.raw if previous else raw, ethos, annotations)
+    return list(result.values())
