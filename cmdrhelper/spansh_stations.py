@@ -1,4 +1,4 @@
-"""Opt-in live visits only. No journal/archive enumeration or startup fetch."""
+"""Opt-in live visits and one current-system check after startup; no archives."""
 from collections import OrderedDict
 import logging
 from datetime import timedelta
@@ -76,6 +76,14 @@ class SpanshStations(QObject):
         self.generation = 0
         self.workers = {}
         self.documents = OrderedDict()
+        from .spansh_origins import OriginLookup
+        self.origins = OriginLookup(self.cache, self)
+        self.origins.updated.connect(self._origin_updated)
+
+    @Slot(object)
+    def _origin_updated(self, address):
+        self.documents.pop(address, None)
+        self.updated.emit(address)
 
     def set_enabled(self, value):
         self.active = bool(value)
@@ -97,9 +105,15 @@ class SpanshStations(QObject):
         if commander != self.gate.commander: self.generation += 1
         entered = self.gate.observe(events, commander, address, live=live)
         if entered is None or not self.active: return
-        cached = self.cached(entered)
+        self.ensure_current(entered)
+
+    def ensure_current(self, address):
+        """Share automatic cache/worker rules with the startup handoff."""
+        if not self.active or not valid_id(address) or address != self.gate.address:
+            return
+        cached = self.cached(address)
         if cached and self.cache.fresh(cached): return
-        self._start(entered, manual=False)
+        self._start(address, manual=False)
 
     def busy(self, address):
         return any(key[1] == address for key in self.workers)

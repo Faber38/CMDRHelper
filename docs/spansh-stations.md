@@ -11,7 +11,7 @@ Die folgenden Abschnitte dokumentieren den früheren Entwicklungs- und Prüfstan
 In den bestehenden Einstellungen unter Online Services kann „Spansh-Stationsinformationen ergänzen“ eingeschaltet werden. Standard ist entsprechend der vorhandenen optionalen Online-Ergänzungen **aus** (`spansh_stations/enabled`). Einschalten lädt vorhandenes Cachewissen, löst aber selbst keine Netzwerkabfrage aus.
 
 Endpoint: `GET https://spansh.co.uk/api/dump/<SystemAddress>`.
-Nur bestätigte neue Watcher-Ereignisse FSDJump, CarrierJump oder Location mit geändertem System, passender Commander-Sitzung und Zeitstempel ab Prozessstart dürfen einen Besuch auslösen. Startzustand, Commanderwechsel, historische Importe und Catchup setzen lediglich den Ausgangszustand. Insbesondere gibt es keine Iteration über historische Systeme oder alte Journale für Netzwerkabfragen. Während Catchup verarbeitete Ereignisse lösen bewusst keine Nachladeabfragen aus.
+Bestätigte neue Watcher-Ereignisse FSDJump, CarrierJump oder Location mit geändertem System, passender Commander-Sitzung und Zeitstempel ab Prozessstart lösen einen Livebesuch aus. Zusätzlich prüft CMDRHelper nach `initializationFinished` einmal das aktuelle System, sofern der Dienst aktiviert ist und der aktuelle Standort zur übernommenen Journal-Baseline passt. Laufender oder fehlgeschlagener Catchup verschiebt diese Prüfung bis zur nächsten erfolgreichen Aktualisierung. Frischer Cache wird verwendet; andernfalls gelten derselbe automatische Workerpfad, Tageslimits und die Sperre für laufende Abrufe. Fehler beeinträchtigen den Programmstart nicht. Commanderwechsel und historische Importe lösen keinen eigenen Startabruf aus. Insbesondere gibt es keine Iteration über historische Systeme oder alte Journale für Netzwerkabfragen.
 
 Ein QThreadPool-Worker lädt das einzelne System. Die lokale Karte erscheint sofort; anschließend aktualisiert ein eigenes Signal nur die betroffene Stationsansicht. Kein globales `state.refresh()`, keine Netzwerkabfragen beim Zeichnen. Mehrfachanforderungen während laufender Arbeit werden zusammengefasst; überholte wartende Aufträge werden verworfen.
 
@@ -76,3 +76,15 @@ Manuelle Aktionen dürfen mehrfach am Tag erfolgen, aber nicht parallel für die
 Bei ausgeschaltetem Service sind automatische und manuelle Abfragen deaktiviert. Vorhandenes Spansh-Wissen wird wie bisher ausgeblendet, die Dateien bleiben erhalten. Abrufdatum und Spansh-Datenstand bleiben getrennt. Keine DB-/Schema-, Merge-, Parent-, Carrier- oder Pfadänderung.
 
 Gezielte Prüfung dieser Ergänzung: **90 Tests erfolgreich**, davon elf neue Refresh-/Tagesschutztests, einschließlich offen gebliebener Systemübersicht nach einem Sprung. Keine vollständige Testsuite. Drei neue i18n-Schlüssel in allen zwölf Sprachen, insgesamt 1538. Geändert für diese Ergänzung: `spansh_cache.py`, `spansh_stations.py`, `state.py`, `ui/main_window.py`, `ui/system_overview.py`, zwölf Sprachdateien, `tests/test_spansh_stations.py`, `tests/test_system_overview.py` und diese Dokumentation. Keine reale Spansh-Abfrage für diese Tests.
+
+### Rare-Goods-Herkunft (bedarfsgesteuert)
+
+Unabhängig von automatischen Systembesuchen kann die Auswahl einer Rare Good
+fehlende Stationsidentität anhand ihrer Katalog-MarketID anfordern. Der gemeinsame
+Systemcache nimmt diese externen Daten als `coverage: partial` auf, optional mit
+Systemkoordinaten. Alte Dokumente ohne `coverage` bleiben vollständige Dumps.
+Partielle Daten ergänzen die Stationsprojektion, erfüllen aber weder die
+7-Tage-Frischeprüfung noch den erfolgreichen Tagesabruf für vollständige Dumps.
+Ein vorhandener vollständiger Cache behält seinen Status und seine Dump-Zeitstempel.
+Lokales Journalwissen behält in `merge_stations()` Vorrang. Kein Marktangebot wird
+aus dieser Identitätsauflösung erzeugt. Details: `docs/commodity-master.md`.

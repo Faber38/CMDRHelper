@@ -188,3 +188,76 @@ def persist_header_layout(header, settings, key, *, columns, default_widths=None
     if not auto_widths:
         header.sectionResized.connect(save)
     header.sectionMoved.connect(save)
+
+
+class ResponsiveColumnWidths:
+    """Interactive widths with a window-fit projection of the saved preference.
+
+    Only a header mouse gesture writes settings. Temporary fitting to a smaller
+    viewport never replaces the user's original widths.
+    """
+    def __init__(self, table, settings, key, *, minimums, defaults):
+        self.table, self.settings, self.key = table, settings, key
+        self.minimums, self.defaults = list(minimums), defaults
+        self.preferred = None
+        self.drag_start = None
+        self.applying = False
+        self.header = table.horizontalHeader()
+        self.header.setSectionResizeMode(QHeaderView.Interactive)
+        self.header.setStretchLastSection(False)
+        self.header.setMinimumSectionSize(min(self.minimums))
+        self.header.setMaximumSectionSize(2000)
+        saved = _validated_widths(settings.value(key), table.columnCount()) if settings is not None else None
+        if saved and all(w >= m for w, m in zip(saved, self.minimums)):
+            self.preferred = saved
+        self.gesture = _HeaderGesture(self.header, self.begin_drag, self.end_drag)
+        self.header.sectionResized.connect(self.enforce_minimum)
+        self.fit()
+
+    def widths(self):
+        return [self.header.sectionSize(i) for i in range(self.table.columnCount())]
+
+    def begin_drag(self, x):
+        self.drag_start = self.widths() if any(
+            abs(x - self.header.sectionViewportPosition(i) - self.header.sectionSize(i)) <= 5
+            for i in range(self.table.columnCount())) else None
+
+    def end_drag(self):
+        if self.drag_start is not None and self.widths() != self.drag_start:
+            self.preferred = self.widths()
+            if self.settings is not None:
+                self.settings.setValue(self.key, self.preferred)
+                self.settings.sync()
+        self.drag_start = None
+        self.fit()
+
+    def enforce_minimum(self, column, old, new):
+        if not self.applying and new < self.minimums[column]:
+            self.header.resizeSection(column, self.minimums[column])
+
+    def fit(self):
+        if self.applying or (hasattr(self, 'gesture') and self.gesture.pressed):
+            return
+        available = max(self.table.viewport().width(), sum(self.minimums))
+        values = self.preferred or self.defaults(available)
+        values = [min(2000, max(m, w)) for m, w in zip(self.minimums, values)]
+        if sum(values) > available:
+            room = available - sum(self.minimums)
+            excess = sum(w-m for w, m in zip(values, self.minimums))
+            values = [m + int(room * (w-m) / excess) if excess else m
+                      for w, m in zip(values, self.minimums)]
+        self.applying = True
+        try:
+            with QSignalBlocker(self.header):
+                for i, width in enumerate(values):
+                    self.header.resizeSection(i, width)
+            self.table.resizeRowsToContents()
+        finally:
+            self.applying = False
+
+    def reset(self):
+        self.preferred = None
+        if self.settings is not None:
+            self.settings.remove(self.key)
+            self.settings.sync()
+        self.fit()

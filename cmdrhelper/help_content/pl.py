@@ -1309,3 +1309,42 @@ HELP_TOPICS["explorer"] = (
 )
 
 HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>Wskazówka: zapamiętaj wybrane cele za pomocą ✓ przed zakupem – pozostaną dostępne nawet przy pełnej ładowni.</p>')
+
+HELP_TOPICS["pp2"] = ("PP2", """
+<h2>PP2 / Powerplay 2.0</h2>
+<p>PP2 pokazuje twoją potęgę, rangę i łączne zasługi oraz ostatni znany stan Powerplay bieżącego systemu. Znajdziesz tu pasujące ogólne aktywności, ładunek Powerplay na pokładzie i zgłoszone przyznania zasług. Otwórz pomoc znakiem zapytania przy wybranej sekcji PP2.</p>
+<h3>Potęgi, zasługi i punkty kontroli</h3>
+<p>Potęga to grupa Powerplay, której możesz przysiąc wierność. Twoja potęga to ta, do której należysz; nie musi kontrolować bieżącego systemu. Zasługi to twoje osobiste punkty Powerplay. Punkty kontroli dotyczą natomiast pozycji potęgi w systemie. Helper pokazuje dostarczone przez Elite wartości postępu kontroli, wzmacniania i osłabiania, jeśli są znane. Nie są to dodatkowe zasługi osobiste; postęp kontroli nie jest przeliczany na procenty.</p>
+<h3>Stan Powerplay systemu</h3>
+<p><b>Unoccupied</b>: brak kontrolującej potęgi. <b>Exploited</b>: system eksploatowany przez potęgę. <b>Fortified</b>: wzmocniony poziom kontroli. <b>Stronghold</b>: twierdza kontrolującej potęgi. Wskaźnik zaznacza zgłoszony stan, bez przewidywania nadchodzącej zmiany.</p>
+<h3>Pozyskiwanie, wzmacnianie, osłabianie i konflikt</h3>
+<p><b>ACQUISITION</b>: pozyskanie niezajętego systemu dla twojej potęgi; Helper wskazuje to tylko przy jednoznacznym powiązaniu z nią. <b>REINFORCEMENT</b>: wzmacnianie systemu własnej potęgi. <b>UNDERMINING</b>: osłabianie kontroli innej potęgi. Konflikt oznacza sporne pozyskanie: w niezajętych systemach Helper może wyświetlać zgłoszone postępy konfliktu potęg. Sam udział kilku potęg nie wystarcza do jednoznacznego zalecenia aktywności. Brakujące lub sprzeczne dane pozostawiają kategorię nieznaną.</p>
+<h3>Co mogę tutaj zrobić dla mojej potęgi?</h3>
+<p>CMDRHelper łączy stan systemu z Elite z ogólnymi aktywnościami twojej potęgi dla odpowiedniej kategorii. Zależnie od potęgi i kategorii: Transport towarów Powerplay (Transport Powerplay commodities), Hakowanie holoekranów (Hack holoscreens), Oddawanie odzyskanych towarów (Hand in salvage), Polowanie na nagrody (Bounty hunting), Przesyłanie danych badawczych (Transfer research data), Sprzedaż z dużym zyskiem (Sell for large profits) lub Sprzedaż rzadkich towarów (Sell rare goods).</p>
+<p><b>Lista jest wskazówką, nie gwarancją zasług.</b> Aktywności pochodzą z Elite, ale mogą dotyczyć ogólnie danej potęgi i kategorii. Niektóre mają dodatkowe warunki. Znacznik na liście nie potwierdza wykonania ani nagrody. Sprawdź wskazówki w Elite, a następnie faktyczne przyznanie zasług.</p>
+<h3>Przykład: sprzedaż rzadkich towarów</h3>
+<p>Elite może wskazać „Sprzedaż rzadkich towarów (Sell rare goods)”. Udana sprzedaż nie oznacza automatycznie zasług Powerplay: <b>udana sprzedaż ≠ gwarantowane zasługi.</b> CMDRHelper pokazuje przyznanie zasług dopiero po zgłoszeniu przez Elite. Sprzedaż bez zasług nie dowodzi ogólnej reguły dotyczącej pochodzenia towaru, na przykład z lotniskowca.</p>
+<h3>Jak czytać zadania transportowe Powerplay</h3>
+<p>„Transportuj towary Powerplay do systemów przeznaczonych do osłabienia” określa typ celu: systemy innej potęgi, której kontrolę masz osłabić. Przykład: 10 × dezinformacja Kaine. Kieruj się konkretnymi wymaganiami zadania w Elite.</p>
+<ol>
+<li>Przeczytaj zadanie Powerplay w Elite.</li>
+<li>Sprawdź wymagane źródło i rodzaj systemu.</li>
+<li>Odbierz odpowiedni ładunek Powerplay.</li>
+<li>Poleć do wymaganego typu celu.</li>
+<li>Oddaj ładunek wskazanemu kontaktowi potęgi.</li>
+<li>Następnie sprawdź przyznane zasługi w Helperze.</li>
+</ol>
+<p>Widok towarów na pokładzie pokazuje potwierdzony ładunek i znane zastosowanie. Stan lub zastosowanie mogą nadal być nieznane. Osobiste zadania tygodniowe i ich postęp nie są tutaj wyświetlane.</p>
+<h3>Misje i transfery danych</h3>
+<p>Elite może oferować zadania Powerplay, na przykład transfery danych strategicznych. Szukaj wyraźnego odniesienia do Powerplay lub zasług w Elite. Nie każda zwykła misja kurierska daje zasługi. Helper potwierdza ich przyznanie dopiero po komunikacie Elite.</p>
+<h3>Ostatnio przyznane zasługi w kronice dziennej</h3>
+<p>Obecnie znajdziesz je w „PP2 DAILY CHRONICLE”. Kolumna zasług zawiera przyznania rzeczywiście zgłoszone przez Elite, a nie szacowane nagrody. To pewniejsze potwierdzenie niż ogólna lista aktywności lub komunikat sprzedaży. Łączne zasługi pokazują ostatni zgłoszony stan osobisty.</p>
+<p>Dokładna przyczyna nie zawsze jest znana: ✓ potwierdza odbiór lub dostawę Powerplay, ≈ jedynie bliskość czasową, a ? nieznaną przyczynę. Nawet ✓ nie dowodzi, że sąsiednie przyznanie zasług dotyczy właśnie tego zadania. — oznacza brak wyświetlanego przyznania w tym wierszu. Podpowiedzi pokazują poszczególne przyznania i godziny; nie wyciąga się z nich wniosku o ukończeniu osobistego zadania.</p>
+<p>Strzałki zmieniają lokalny dzień kalendarzowy; „Dzisiaj” wraca do bieżącego dnia. Historia należy do danego dowódcy. Zarządzanie historią pozwala po potwierdzeniu usunąć starsze wpisy lub całość; znana suma zasług pozostaje. Pierwsze wczytanie uzupełnia wyłącznie bieżący dzień, a potem dodawane są nowe zdarzenia.</p>
+<h3>Korzystanie z mapy galaktyki</h3>
+<p>Mapa galaktyki w Elite pomaga sprawdzić terytoria potęg, własną potęgę, stany systemów, twierdze i lokalne aktywności. Jeśli pozornie brakuje systemów twojej potęgi, sprawdź filtry Powerplay, zwłaszcza widoczność „Mojej potęgi”. Są to filtry mapy w Elite.</p>
+<h3>Aktualność danych</h3>
+<p>CMDRHelper korzysta z lokalnych danych Elite i pokazuje ostatni znany stan systemu i Powerplay. Informacje mogą być opóźnione lub starsze. Sprawdź wyświetlony czas danych systemu; mapa również może wskazywać czas aktualizacji. Przy sprzecznościach porównaj system i daty. Ani Helper, ani mapa nie są zawsze bardziej aktualne.</p>
+<h3>Ranga i postęp</h3>
+<p>Ranga jest rangą zgłoszoną przez Elite. Jeśli z obliczeń wynika już wyższa ranga, Helper wskazuje oczekiwanie na jej aktualizację. Brakujące lub sprzeczne dane mogą uniemożliwić pokazanie postępu. Dalsze obliczone progi zasług po randze 100 są pokazywane jako 100+.</p>
+""")

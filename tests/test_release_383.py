@@ -18,7 +18,7 @@ LANGUAGES = {'de', 'en', 'fr', 'it', 'no', 'sv', 'fi', 'pl', 'nl', 'es', 'tr', '
 
 class Release383Tests(unittest.TestCase):
     def test_single_version_and_exact_two_summary_keys(self):
-        self.assertEqual(__version__, '3.8.3')
+        self.assertEqual(__version__, '3.9.0')
         self.assertEqual(cmdrhelper.__version__, __version__)
         self.assertEqual(version_at(ROOT), __version__)
         self.assertEqual(RELEASE_SUMMARIES['3.8.3'],

@@ -15,7 +15,7 @@ from cmdrhelper.mining_catalog import MINING_COMMODITIES
 
 class CommodityMasterTests(unittest.TestCase):
     def test_exact_snapshot_content(self):
-        raw = json.dumps(COMMODITIES, ensure_ascii=False, separators=(',', ':')).encode()
+        raw = json.dumps(tuple(row[:6] for row in COMMODITIES), ensure_ascii=False, separators=(',', ':')).encode()
         self.assertEqual(hashlib.sha256(raw).hexdigest(),
                          'faf08355c9808bd30016d5032c2cac76336b52292a7e311bd925513b067ac7ca')
         self.assertEqual(UPSTREAM_REVISION, 'c35612952dd6a547d1a7ac4cffab9c7051e86579')

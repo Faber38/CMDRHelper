@@ -52,7 +52,7 @@ class CommanderUnsoldDataTests(unittest.TestCase):
         )
 
     def test_schema_wealth_and_missing_value_are_commander_specific(self):
-        self.assertEqual(SCHEMA_VERSION, 22)
+        self.assertEqual(SCHEMA_VERSION, 23)
         self.db.store_commander_wealth(self.a, {"credits": 1234567,
             "event_timestamp": "2026-01-01T00:00:00Z", "source_event": "LoadGame"})
         self.assertEqual(self.db.commander_summary(self.a)["wealth"]["credits"], 1234567)
@@ -168,6 +168,8 @@ class CommanderUnsoldDataTests(unittest.TestCase):
         with sqlite3.connect(self.path) as con:
             con.execute("DROP TABLE station_pad_evidence")
             con.execute("DROP TABLE station_pad_journals")
+            for table in ("pp2_events", "pp2_import_checkpoints", "pp2_merit_state", "pp2_history_policy", "pp2_sources"):
+                con.execute("DROP TABLE "+table)
             con.execute("PRAGMA user_version=5")
             con.execute("DROP TABLE commander_wealth")
             con.execute("DROP TABLE commander_unsold_biology")

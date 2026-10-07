@@ -1329,3 +1329,42 @@ HELP_TOPICS["explorer"] = (
 )
 
 HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>Tip: onthoud de gewenste bestemmingen met ✓ voordat je koopt – ze blijven beschikbaar, ook met een vol vrachtruim.</p>')
+
+HELP_TOPICS["pp2"] = ("PP2", """
+<h2>PP2 / Powerplay 2.0</h2>
+<p>PP2 toont je macht, rang en totale merits, plus de laatst bekende Powerplay-status van je huidige systeem. Je vindt er passende algemene activiteiten, Powerplay-vracht aan boord en gemelde merit-bijschrijvingen. Open deze hulp met het vraagteken terwijl PP2 is geselecteerd.</p>
+<h3>Machten, merits en controlepunten</h3>
+<p>Een macht is een Powerplay-groep waaraan je trouw kunt zweren. Je eigen macht is de macht waarbij je bent aangesloten; die hoeft het huidige systeem niet te beheersen. Merits zijn je persoonlijke Powerplay-punten. Controlepunten betreffen de positie van een macht in een systeem. De Helper toont de door Elite geleverde waarden voor controlevoortgang, versterking en ondermijning, indien bekend. Dit zijn geen extra persoonlijke merits; controlevoortgang wordt niet naar een percentage omgerekend.</p>
+<h3>Powerplay-status van het systeem</h3>
+<p><b>Unoccupied</b>: geen heersende macht. <b>Exploited</b>: systeem geëxploiteerd door een macht. <b>Fortified</b>: een sterker controleniveau. <b>Stronghold</b>: bolwerk van de heersende macht. De indicator markeert de gemelde status en voorspelt geen komende verandering.</p>
+<h3>Verwerven, versterken, ondermijnen en conflict</h3>
+<p><b>ACQUISITION</b>: een onbezet systeem voor je macht verwerven; de Helper toont dit alleen bij een eenduidige koppeling aan je macht. <b>REINFORCEMENT</b>: een systeem van je eigen macht versterken. <b>UNDERMINING</b>: de controle van een andere macht verzwakken. Conflict betekent betwiste verwerving: bij onbezette systemen kan de Helper gemelde conflictvoortgang van de machten tonen. Meerdere betrokken machten alleen leveren geen eenduidig activiteitenadvies op. Bij ontbrekende of tegenstrijdige gegevens blijft de categorie onbekend.</p>
+<h3>Wat kan ik hier voor mijn macht doen?</h3>
+<p>CMDRHelper combineert de systeemstatus uit Elite met de algemene activiteiten van je macht voor de passende categorie. Afhankelijk van macht en categorie bijvoorbeeld: Powerplay-artikelen vervoeren (Transport Powerplay commodities), Holoschermen hacken (Hack holoscreens), Bergingsgoederen inleveren (Hand in salvage), Premiejagen (Bounty hunting), Onderzoeksgegevens overdragen (Transfer research data), Met hoge winst verkopen (Sell for large profits) of Zeldzame goederen verkopen (Sell rare goods).</p>
+<p><b>De lijst geeft richting, geen garantie op merits.</b> De activiteiten komen uit Elite, maar kunnen algemeen gelden voor de macht en categorie. Sommige activiteiten hebben extra voorwaarden. Een vinkje in deze lijst bevestigt geen uitvoering of beloning. Controleer de aanwijzingen in Elite en daarna de daadwerkelijke merit-bijschrijving.</p>
+<h3>Voorbeeld: zeldzame goederen verkopen</h3>
+<p>Elite kan “Zeldzame goederen verkopen (Sell rare goods)” als activiteit tonen. Een geslaagde verkoop levert niet automatisch Powerplay-merits op: <b>geslaagde verkoop ≠ gegarandeerde merit-bijschrijving.</b> CMDRHelper toont de bijschrijving pas wanneer Elite die meldt. Uit een verkoop zonder bijschrijving volgt geen algemene regel over de herkomst van goederen, bijvoorbeeld een carrier.</p>
+<h3>Powerplay-transporttaken begrijpen</h3>
+<p>“Powerplay-artikelen naar ondermijningssystemen vervoeren” beschrijft het vereiste doeltype: systemen van een andere macht waarvan je de controle moet verzwakken. Voorbeeld: 10 × Kaine-desinformatie. Volg de concrete voorwaarden van de taak in Elite.</p>
+<ol>
+<li>Bekijk de Powerplay-taak in Elite.</li>
+<li>Let op de vereiste bron en het systeemtype.</li>
+<li>Neem de passende Powerplay-vracht aan boord.</li>
+<li>Vlieg naar het vereiste doeltype.</li>
+<li>Lever af bij het aangewezen machtscontact.</li>
+<li>Controleer daarna de merit-bijschrijving in de Helper.</li>
+</ol>
+<p>Artikelen aan boord toont bevestigde vracht en bekend gebruik. Voorraad of gebruik kan nog onbekend zijn. Persoonlijke weekopdrachten en hun voortgang worden hier niet getoond.</p>
+<h3>Missies en gegevensoverdracht</h3>
+<p>Elite kan Powerplay-taken aanbieden, zoals strategische gegevensoverdracht. Let op een expliciete verwijzing naar Powerplay of merits in Elite. Niet iedere gewone koeriersmissie geeft merits. De Helper bevestigt de bijschrijving pas zodra Elite deze meldt.</p>
+<h3>Laatste merit-bijschrijvingen in de dagkroniek</h3>
+<p>Je vindt ze momenteel onder “PP2 DAILY CHRONICLE”. De merit-kolom bevat echt door Elite gemelde bijschrijvingen, geen geschatte beloningen. Dat is een betrouwbaardere bevestiging dan de algemene activiteitenlijst of een verkoopmelding. Totale merits toont je laatst gemelde persoonlijke saldo.</p>
+<p>De precieze oorzaak is niet altijd bekend: ✓ bevestigt een Powerplay-ophaling of -aflevering, ≈ alleen nabijheid in tijd en ? een onbekende oorzaak. Ook ✓ bewijst niet dat een bijschrijving daarnaast bij die taak hoort. — betekent dat voor die rij geen bijschrijving wordt getoond. Tooltips geven afzonderlijke bijschrijvingen en tijdstippen; voltooiing van een persoonlijke opdracht wordt niet afgeleid.</p>
+<p>Met de pijlen wissel je de lokale kalenderdag; “Vandaag” keert terug naar de huidige dag. Geschiedenis hoort bij de betreffende commander. Via het beheer kun je na bevestiging oudere regels of alle geschiedenis wissen; het bekende merit-totaal blijft behouden. De eerste inlezing vult alleen de huidige dag aan, daarna worden nieuwe gebeurtenissen toegevoegd.</p>
+<h3>De melkwegkaart gebruiken</h3>
+<p>De melkwegkaart van Elite helpt bij het bekijken van machtsgebieden, je eigen macht, systeemstatussen, bolwerken en lokale activiteiten. Lijken systemen van je macht te ontbreken, controleer dan de Powerplay-kaartfilters, vooral of “Mijn macht” zichtbaar is. Deze filters horen bij de kaart van Elite.</p>
+<h3>Actualiteit van gegevens</h3>
+<p>CMDRHelper gebruikt lokale Elite-gegevens en toont de laatst bekende systeem- en Powerplay-status. Gegevens kunnen vertraagd of ouder zijn. Bekijk het getoonde systeemtijdstip; de kaart kan ook een bijwerktijd tonen. Vergelijk bij tegenstrijdigheden systeem en tijdstippen. Noch de Helper noch de kaart is altijd actueler.</p>
+<h3>Rang en voortgang</h3>
+<p>De rang is de door Elite gemelde rang. Als je merits berekend al voor een hogere rang volstaan, geeft de Helper aan dat een rangupdate wordt afgewacht. Ontbrekende of tegenstrijdige gegevens kunnen de voortgangsweergave verhinderen. Verdere berekende merit-stappen na rang 100 verschijnen als 100+.</p>
+""")

@@ -4,7 +4,7 @@ import math
 from PySide6.QtCore import QAbstractListModel, QModelIndex, QPointF, QSize, Qt, Signal
 from PySide6.QtGui import QColor, QPainter, QPen, QTextLayout, QTextOption
 from PySide6.QtWidgets import (
-    QAbstractItemView, QDialog, QDialogButtonBox, QLabel, QLineEdit, QListView,
+    QAbstractItemView, QButtonGroup, QDialog, QDialogButtonBox, QHBoxLayout, QLabel, QLineEdit, QListView,
     QPushButton, QStyle, QStyledItemDelegate, QVBoxLayout,
 )
 
@@ -15,12 +15,14 @@ from cmdrhelper.i18n import tr
 
 COMMODITY_ID_ROLE = Qt.ItemDataRole.UserRole
 CHOSEN_ROLE = Qt.ItemDataRole.UserRole + 1
+RARE_ROLE = Qt.ItemDataRole.UserRole + 2
 
 
 class CommodityModel(QAbstractListModel):
-    def __init__(self, selected_id=None, parent=None):
+    def __init__(self, selected_id=None, parent=None, *, mark_rare=False):
         super().__init__(parent)
         self.selected_id = selected_id
+        self.mark_rare = mark_rare
         # Derived display/search data only; the master remains the sole catalogue.
         self.entries = sorted(
             ((item, commodity_name(item)) for item in all_commodities()),
@@ -45,12 +47,15 @@ class CommodityModel(QAbstractListModel):
             return item.frontier_id
         if role == CHOSEN_ROLE:
             return item.frontier_id == self.selected_id
+        if role == RARE_ROLE:
+            return self.mark_rare and item.rare
         return None
 
-    def filter(self, text):
+    def filter(self, text, rare_only=None):
         needle = text.strip().casefold()
         self.beginResetModel()
-        self.rows = [i for i, terms in enumerate(self.search_terms) if needle in terms]
+        self.rows = [i for i, terms in enumerate(self.search_terms)
+                     if needle in terms and (rare_only is None or self.entries[i][0].rare == rare_only)]
         self.endResetModel()
 
     def index_for_id(self, commodity_id):
@@ -81,6 +86,8 @@ def text_layout(text, font, width):
 class CommodityTileDelegate(QStyledItemDelegate):
     MARGIN = 4
     PADDING = 9
+    # Same palette-based light/dark detection as the existing tile colors.
+    BORDER_COLORS = {False: ('#e69a32', '#c395ef'), True: ('#ad6100', '#8537b5')}
 
     def paint(self, painter, option, index):
         painter.save()
@@ -97,13 +104,16 @@ class CommodityTileDelegate(QStyledItemDelegate):
         elif hovered or option.state & QStyle.StateFlag.State_Selected:
             background = QColor('#fff3db' if light else '#23271e')
         painter.setBrush(background)
-        painter.setPen(QPen(QColor('#b47613' if light else '#ad7927'), 1))
+        rare = bool(index.data(RARE_ROLE))
+        border = QColor(self.BORDER_COLORS[light][int(rare)])
+        painter.setPen(QPen(border, 2 if rare else 1))
         painter.drawRoundedRect(tile, 4, 4)
         if chosen:
             painter.fillRect(tile.left() + 1, tile.top() + 5, 3, max(0, tile.height() - 10), QColor('#c57a00'))
         if focused:
             painter.setBrush(Qt.BrushStyle.NoBrush)
-            painter.setPen(QPen(QColor('#995600' if light else '#ffc65c'), 1, Qt.PenStyle.DashLine))
+            painter.setPen(QPen(border if rare else QColor('#995600' if light else '#ffc65c'),
+                                1, Qt.PenStyle.DashLine))
             painter.drawRoundedRect(tile.adjusted(3, 3, -3, -3), 3, 3)
         painter.setPen(palette.windowText().color())
         inner = tile.adjusted(self.PADDING, self.PADDING, -self.PADDING, -self.PADDING)
@@ -183,17 +193,32 @@ class CommodityGrid(QListView):
 
 
 class CommodityPicker(QDialog):
-    def __init__(self, selected_id=None, parent=None):
+    def __init__(self, selected_id=None, parent=None, *, rare_filter=False, exclude_rare=False):
         super().__init__(parent)
         self.setWindowTitle(tr('trade.commodity'))
+        self.exclude_rare = exclude_rare
         self.commodity_id = selected_id
         layout = QVBoxLayout(self)
+        self.goods_filter = None
+        if rare_filter:
+            self.goods_filter = QButtonGroup(self)
+            self.goods_filter.setExclusive(True)
+            filter_row = QHBoxLayout()
+            for mode, key in enumerate(('odyssey.items', 'trade.goods_rare')):
+                button = QPushButton(tr(key), objectName='commodityFilter')
+                button.setCheckable(True)
+                button.setAutoDefault(False)
+                self.goods_filter.addButton(button, mode)
+                filter_row.addWidget(button)
+            self.goods_filter.button(0).setChecked(True)
+            filter_row.addStretch()
+            layout.addLayout(filter_row)
         self.search = QLineEdit()
         self.search.setPlaceholderText(tr('trade.commodity_search'))
         self.search.setAccessibleName(tr('trade.commodity_search'))
         self.search.setClearButtonEnabled(True)
         layout.addWidget(self.search)
-        self.model = CommodityModel(selected_id, self)
+        self.model = CommodityModel(selected_id, self, mark_rare=rare_filter)
         self.grid = CommodityGrid()
         self.grid.setAccessibleName(tr('trade.commodity'))
         self.grid.setModel(self.model)
@@ -210,6 +235,11 @@ class CommodityPicker(QDialog):
         self.buttons.rejected.connect(self.reject)
         layout.addWidget(self.buttons)
         self.search.textChanged.connect(self._filter)
+        if self.goods_filter is not None:
+            self.goods_filter.idToggled.connect(
+                lambda _mode, checked: self._filter(self.search.text()) if checked else None)
+            self.setTabOrder(self.goods_filter.button(0), self.goods_filter.button(1))
+            self.setTabOrder(self.goods_filter.button(1), self.search)
         self.grid.chooseRequested.connect(self._choose)
         self.setTabOrder(self.search, self.grid)
         self.setTabOrder(self.grid, cancel)
@@ -218,6 +248,8 @@ class CommodityPicker(QDialog):
         self.resize(min(1100, available.width() - 32), min(720, available.height() - 64))
         self.move(available.center() - self.rect().center())
         self.grid.setCurrentIndex(self.model.index_for_id(selected_id))
+        if self.goods_filter is not None or self.exclude_rare:
+            self._filter('')
 
     def showEvent(self, event):
         super().showEvent(event)
@@ -226,7 +258,7 @@ class CommodityPicker(QDialog):
         self.search.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def _filter(self, text):
-        self.model.filter(text)
+        self.model.filter(text, False if self.exclude_rare else (self.goods_filter.checkedId() == 1 if self.goods_filter else None))
         empty = self.model.rowCount() == 0
         self.empty.setVisible(empty)
         self.grid.setVisible(not empty)
@@ -249,6 +281,8 @@ class CommodityField(QPushButton):
         super().__init__(parent)
         self._commodity_id = None
         self._picker = None
+        self.rare_filter = False
+        self.exclude_rare = False
         self.setStyleSheet('text-align: left;')
         self._update_text()
         self.clicked.connect(self.open_picker)
@@ -261,7 +295,8 @@ class CommodityField(QPushButton):
         return commodity_name(item) if item else tr('trade.choose_commodity')
 
     def set_commodity(self, commodity_id):
-        if commodity_id is not None and lookup_by_id(commodity_id) is None:
+        item = lookup_by_id(commodity_id)
+        if commodity_id is not None and (item is None or (self.exclude_rare and item.rare)):
             return False
         if self._commodity_id != commodity_id:
             self._commodity_id = commodity_id
@@ -278,7 +313,8 @@ class CommodityField(QPushButton):
         if self._picker is not None:
             self._picker.raise_()
             return
-        self._picker = CommodityPicker(self._commodity_id, self)
+        self._picker = CommodityPicker(self._commodity_id, self, rare_filter=self.rare_filter,
+                                       exclude_rare=self.exclude_rare)
         self._picker.finished.connect(self._picker_finished)
         self._picker.open()
 

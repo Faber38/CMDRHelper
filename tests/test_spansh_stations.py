@@ -1,4 +1,4 @@
-"""Small live-only external station cache: no real network or user DB writes."""
+"""External station cache: no real network or user DB writes."""
 import os
 os.environ.setdefault('QT_QPA_PLATFORM','offscreen')
 import ast
@@ -12,7 +12,7 @@ import time
 from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
-from PySide6.QtCore import QSettings, QStandardPaths, QThreadPool
+from PySide6.QtCore import QObject, Qt, QSettings, QStandardPaths, QThreadPool
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QMainWindow
 from cmdrhelper.spansh_cache import (SystemCache, normalize, validate, merge_stations, fetch_system,
@@ -292,6 +292,152 @@ class LiveTests(unittest.TestCase):
         self.assertEqual(network_calls,['refresh'])
         self.assertIn("live=bool(identified and getattr(self, '_watcher_live_refresh', False))",source)
         self.assertNotIn('spansh',Path('cmdrhelper/database.py').read_text().lower())
+
+
+class StartupTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.settings = QSettings(str(Path(self.temp.name) / 'settings.ini'), QSettings.IniFormat)
+        self.settings.setValue('spansh_stations/enabled', True)
+        self.fetch = Mock(side_effect=lambda address: raw(address))
+        self.cache = SystemCache(Path(self.temp.name) / 'cache', self.fetch, lambda: NOW)
+        self.pool = Mock()
+        self.controller = SpanshStations(self.settings, cache=self.cache, pool=self.pool, now=lambda: NOW)
+        self.controller.observe([], 'FID', 1)
+        self.state = SimpleNamespace(spansh_stations=self.controller, system='Test', system_address=1,
+                                     commander_fid='FID', connected=True)
+
+    def finish(self):
+        AppState._spansh_initialization_finished(self.state, '')
+
+    def run_worker(self):
+        self.pool.start.call_args.args[0].run()
+
+    def test_start_missing_cache_once_after_initialization(self):
+        AppState._request_startup_stations(self.state)
+        self.pool.start.assert_not_called()
+        self.finish()
+        self.finish()
+        AppState._request_startup_stations(self.state)
+        self.pool.start.assert_called_once()
+        self.fetch.assert_not_called()  # Scheduling never blocks the GUI.
+        self.run_worker()
+        self.fetch.assert_called_once_with(1)
+
+    def test_fresh_cache_needs_no_worker(self):
+        self.cache.write(normalize(raw(), 1, NOW))
+        self.finish()
+        self.pool.start.assert_not_called()
+        self.fetch.assert_not_called()
+
+    def test_initialization_signal_queues_check_on_gui_thread(self):
+        state = AppState.__new__(AppState)
+        QObject.__init__(state)
+        for key, value in self.state.__dict__.items():
+            setattr(state, key, value)
+        state.initializationFinished.connect(state._spansh_initialization_finished, Qt.QueuedConnection)
+        state.initializationFinished.emit('')
+        self.pool.start.assert_not_called()
+        self.app.processEvents()
+        self.pool.start.assert_called_once()
+
+    def test_expired_cache_uses_existing_automatic_refresh(self):
+        self.cache.write(normalize(raw(), 1, NOW - timedelta(days=8)))
+        self.finish()
+        self.run_worker()
+        self.fetch.assert_called_once_with(1)
+
+    def test_disabled_never_fetches(self):
+        self.controller.set_enabled(False)
+        self.finish()
+        self.controller.set_enabled(True)
+        AppState._request_startup_stations(self.state)
+        self.pool.start.assert_not_called()
+
+    def test_unknown_system_or_untrusted_baseline_never_fetches(self):
+        for updates in ({'system': ''}, {'commander_fid': ''}, {'connected': False},
+                        {'system_address': None}, {'system_address': 0}, {'system_address': True},
+                        {'system_address': '1'}, {'system_address': 2}):
+            with self.subTest(updates=updates):
+                self.state = SimpleNamespace(spansh_stations=self.controller, system='Test', system_address=1,
+                                             commander_fid='FID', connected=True)
+                self.state.__dict__.update(updates)
+                self.finish()
+                self.pool.start.assert_not_called()
+
+    def test_catchup_defers_until_final_current_system_only(self):
+        self.state._journal_catchup = {}
+        self.state._journal_catchup_running = True
+        self.finish()
+        for address in (2, 3, 4):
+            self.controller.observe([event(address)], 'FID', address, live=False)
+            self.state.system_address = address
+            AppState._request_startup_stations(self.state)
+        self.pool.start.assert_not_called()
+        self.state._journal_catchup_running = False
+        # Failed catchup still retains its context and cannot fetch.
+        AppState._request_startup_stations(self.state)
+        self.pool.start.assert_not_called()
+        self.state._journal_catchup = None
+        AppState._request_startup_stations(self.state)
+        self.run_worker()
+        self.fetch.assert_called_once_with(4)
+
+    def test_immediate_live_jump_same_system_does_not_duplicate_start(self):
+        self.finish()
+        self.controller.observe([event(1)], 'FID', 1, live=True)
+        self.pool.start.assert_called_once()
+        self.run_worker()
+        self.fetch.assert_called_once_with(1)
+
+    def test_live_jump_before_start_handoff_uses_same_inflight_worker(self):
+        self.controller.observe([event(2)], 'FID', 2, live=True)
+        self.state.system_address = 2
+        self.finish()
+        self.pool.start.assert_called_once()
+        self.run_worker()
+        self.fetch.assert_called_once_with(2)
+
+    def test_departure_cancels_queued_start_request(self):
+        self.finish()
+        old_worker = self.pool.start.call_args.args[0]
+        self.controller.observe([event(2)], 'FID', 2, live=True)
+        old_worker.run()
+        self.run_worker()
+        self.fetch.assert_called_once_with(2)
+
+    def test_live_fetch_completed_before_start_check_reuses_cache(self):
+        self.controller.observe([event(2)], 'FID', 2, live=True)
+        self.run_worker()
+        self.state.system_address = 2
+        self.finish()
+        self.pool.start.assert_called_once()
+        self.fetch.assert_called_once_with(2)
+
+    def test_timeout_is_contained_and_existing_daily_limit_applies(self):
+        self.fetch.side_effect = TimeoutError('offline')
+        self.finish()
+        with self.assertLogs('cmdrhelper.spansh_cache', level='WARNING'):
+            self.run_worker()
+        self.assertTrue(self.state._spansh_startup_done)
+        self.assertFalse(self.controller.busy(1))
+        self.assertIsNone(self.controller.cached(1))
+        # Another startup on the same day uses the persisted automatic limit.
+        self.state._spansh_startup_done = False
+        self.finish()
+        self.run_worker()
+        self.fetch.assert_called_once_with(1)
+
+    def test_worker_scheduling_error_does_not_escape_startup(self):
+        self.pool.start.side_effect = RuntimeError('pool unavailable')
+        with self.assertLogs('cmdrhelper.state', level='ERROR'):
+            self.finish()
+        self.assertTrue(self.state._spansh_startup_done)
 
 
 class DetailsTests(unittest.TestCase):

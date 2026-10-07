@@ -1,23 +1,26 @@
-"""Manual, transient trade UI. Identity and network semantics belong to providers."""
+"""Cargo-aware, transient trade UI. Identity and network semantics belong to providers."""
 import logging
+from dataclasses import replace
 from datetime import datetime, timezone
 from threading import Event
 
 from PySide6.QtCore import QObject, QLocale, QRunnable, QThreadPool, Qt, Signal, Slot, QSignalBlocker
+from PySide6.QtGui import QColor, QPen
 from PySide6.QtWidgets import (
     QApplication, QCheckBox, QComboBox, QFormLayout, QHBoxLayout, QHeaderView,
-    QLabel, QLineEdit, QPushButton, QScrollArea, QSpinBox, QTableWidget,
-    QTableWidgetItem, QTabWidget, QVBoxLayout, QWidget,
+    QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QScrollArea, QSpinBox, QTableWidget,
+    QStyledItemDelegate, QTableWidgetItem, QTabWidget, QVBoxLayout, QWidget,
 )
 
-from cmdrhelper.commodity_master import lookup_by_id
+from cmdrhelper.commodity_master import lookup_by_id, lookup_by_symbol
+from cmdrhelper.commodity_localization import commodity_name
 from cmdrhelper.i18n import get_language, tr
 from cmdrhelper.market_data import MarketSearch, MarketSearchResult, MarketStatus, PadSize, TradeSide
 from cmdrhelper.spansh_market import SpanshMarketProvider
 from cmdrhelper.trade_search import search_trade
 from cmdrhelper.trade_market_source import prepare_trade_source
 from cmdrhelper.trade_result_text import community_failure_text, market_notice_text
-from cmdrhelper.ui.commodity_picker import CommodityField
+from cmdrhelper.ui.commodity_picker import CommodityField, CommodityTileDelegate, RARE_ROLE
 from cmdrhelper.ui.recent_system_copy import RecentSystemCopyDelegate
 from cmdrhelper.ui.remembered_targets import RememberedTargets, RememberedTargetDelegate
 from cmdrhelper.ui.system_clipboard import copy_system_name
@@ -54,17 +57,63 @@ class MarketWorker(QRunnable):
 
     @Slot()
     def run(self):
+        self.signals.finished.emit(self.search(self.query))
+
+    def search(self, query):
         try:
-            result = search_trade(self.provider, self.query, self.side, self.local_markets,
+            result = search_trade(self.provider, query, self.side, self.local_markets,
                                   self.distances, self.fid, cancel=self.cancel, clock=self.clock,
                                   local_source=self.local_source, local_only=self.local_only)
         except Exception:
             logging.getLogger(__name__).exception('Local trade read failed')
             # No raw exception or HTTP response is exposed to the user.
-            result = MarketSearchResult(MarketStatus.INVALID_RESPONSE, query=self.query)
+            result = MarketSearchResult(MarketStatus.INVALID_RESPONSE, query=query)
         if self.cancel.is_set():
-            result = MarketSearchResult(MarketStatus.CANCELLED, query=self.query)
-        self.signals.finished.emit(result)
+            result = MarketSearchResult(MarketStatus.CANCELLED, query=query)
+        return result
+
+
+class OriginWorker(QRunnable):
+    def __init__(self, resolver, key):
+        super().__init__()
+        self.resolver, self.key = resolver, key
+        self.signals = MarketSignals()
+
+    @Slot()
+    def run(self):
+        from cmdrhelper.commodity_origin import CommodityOrigin
+        _, market_id, reference, address = self.key
+        try:
+            origin = self.resolver.resolve(market_id, reference, address)
+        except Exception:
+            logging.getLogger(__name__).exception('Local commodity origin read failed')
+            origin = CommodityOrigin(market_id)
+        self.signals.finished.emit((self.key, origin))
+
+
+class CargoMarketWorker(MarketWorker):
+    """Sequential existing searches; no shared-station optimization or new pricing."""
+    @Slot()
+    def run(self):
+        results = []
+        for query in self.queries:
+            if self.cancel.is_set():
+                break
+            results.append((query, self.search(query)))
+        self.signals.finished.emit(results)
+
+
+class CargoItemDelegate(QStyledItemDelegate):
+    """Reuse the picker’s rare border without changing cargo identity or text."""
+    def paint(self, painter, option, index):
+        super().paint(painter, option, index)
+        if index.data(RARE_ROLE):
+            painter.save()
+            light = option.palette.window().color().lightness() > 128
+            painter.setPen(QPen(QColor(CommodityTileDelegate.BORDER_COLORS[light][1]), 2))
+            painter.setBrush(Qt.NoBrush)
+            painter.drawRoundedRect(option.rect.adjusted(2, 1, -2, -1), 3, 3)
+            painter.restore()
 
 
 class NumericItem(QTableWidgetItem):
@@ -127,6 +176,11 @@ class TradeView(QWidget):
         self.pool = pool if pool is not None else QThreadPool.globalInstance()
         self.worker = None
         self._query = None
+        self._origin_key = None
+        self._origin_worker = None
+        self._origin = None
+        self._origin_no_offer = False
+        self._origin_resolver = None
         self.offers = ()
         self._reference = None
         self.side = TradeSide.SELL
@@ -165,14 +219,39 @@ class TradeView(QWidget):
         body.addWidget(self.observed_status)
         self.filters = QWidget()
         form = QFormLayout(self.filters)
+        self._filter_form = form
         form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapLongRows)
         form.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self.commodity = CommodityField()
+        self.commodity.exclude_rare = True
         form.addRow(tr('trade.commodity'), self.commodity)
         self.quantity = QSpinBox()
         self.quantity.setRange(1, 2147483647)
         self.quantity.setValue(1)
         form.addRow(tr('trade.quantity'), self.quantity)
+        self.cargo_panel = QWidget()
+        cargo_layout = QVBoxLayout(self.cargo_panel)
+        cargo_layout.setContentsMargins(0, 0, 0, 0)
+        self.cargo_heading = QLabel(tr('trade.ship_inventory'))
+        self.cargo_heading.setWordWrap(True)
+        self.cargo_heading.setTextFormat(Qt.PlainText)
+        cargo_layout.addWidget(self.cargo_heading)
+        self.cargo_rare_notice = QLabel(tr("trade.rare_sell_excluded"), objectName="muted")
+        self.cargo_rare_notice.setWordWrap(True)
+        cargo_layout.addWidget(self.cargo_rare_notice)
+        self.cargo_list = QListWidget(objectName="shipCargoList")
+        self.cargo_list.setItemDelegate(CargoItemDelegate(self.cargo_list))
+        self.cargo_list.setAccessibleName(tr('trade.ship_inventory'))
+        self.cargo_list.setMaximumHeight(160)
+        cargo_layout.addWidget(self.cargo_list)
+        self.cargo_select_all = QPushButton(tr('trade.cargo_select_all'))
+        cargo_layout.addWidget(self.cargo_select_all, 0, Qt.AlignLeft)
+        form.insertRow(0, self.cargo_panel)
+        self._cargo_key = None
+        self._cargo_known = False
+        self._cargo_results = []
+        self.cargo_list.itemChanged.connect(self._cargo_selection_changed)
+        self.cargo_select_all.clicked.connect(self._select_all_cargo)
         self.radius = QComboBox()
         for value in (25, 50, 100, 250, 500):
             self.radius.addItem(str(value), value)
@@ -192,6 +271,17 @@ class TradeView(QWidget):
         self.arrival = QLineEdit()
         self.arrival.setPlaceholderText(tr('trade.unlimited'))
         form.addRow(tr('trade.arrival'), self.arrival)
+        self.origin_notice = QLabel(tr('trade.origin_no_offers'))
+        self.origin_notice.setWordWrap(True)
+        self.origin_notice.setTextFormat(Qt.PlainText)
+        self.origin_notice.hide()
+        body.addWidget(self.origin_notice)
+        self.origin_info = QLabel()
+        self.origin_info.setObjectName('statusWarn')
+        self.origin_info.setWordWrap(True)
+        self.origin_info.setTextFormat(Qt.PlainText)
+        self.origin_info.hide()
+        body.addWidget(self.origin_info)
         body.addWidget(self.filters)
         buttons = QHBoxLayout()
         self.search_button = QPushButton(tr('trade.search'))
@@ -206,6 +296,11 @@ class TradeView(QWidget):
         self.status = QLabel(tr('trade.ready'))
         self.status.setWordWrap(True)
         body.addWidget(self.status)
+        self.cargo_results = QComboBox()
+        self.cargo_results.setAccessibleName(tr('trade.cargo_results'))
+        self.cargo_results.hide()
+        self.cargo_results.currentIndexChanged.connect(self._show_cargo_result)
+        body.addWidget(self.cargo_results)
         self.market_notice = QLabel(tr('trade.market_notice'), objectName='marketDataNotice')
         self.market_notice.setTextFormat(Qt.TextFormat.PlainText)
         self.market_notice.setWordWrap(True)
@@ -242,6 +337,7 @@ class TradeView(QWidget):
         self.table.resizeColumnsToContents()
         body.addWidget(self.table, 1)
         self.commodity.commodityChanged.connect(self._invalidate_results)
+        self.commodity.commodityChanged.connect(self.refresh_origin)
         for field in (self.radius, self.max_age, self.pad):
             field.currentIndexChanged.connect(self._invalidate_results)
         self.max_age.currentIndexChanged.connect(self.refresh_observed_markets)
@@ -254,14 +350,23 @@ class TradeView(QWidget):
         changed = getattr(state, 'changed', None)
         if changed is not None:
             changed.connect(self.refresh_reference)
+            changed.connect(self.refresh_cargo)
+        cargo_signal = getattr(state, 'cargoSnapshotChanged', None)
+        if cargo_signal is not None:
+            cargo_signal.connect(self.refresh_cargo)
         for name in ('observedMarketsChanged', 'commanderIdentityChanged'):
             signal = getattr(state, name, None)
             if signal is not None:
                 signal.connect(self.refresh_observed_markets)
+                signal.connect(self.invalidate_origin)
+        spansh = getattr(state, "spansh_stations", None)
+        if spansh is not None:
+            spansh.updated.connect(self.invalidate_origin)
         QApplication.instance().aboutToQuit.connect(self.cancel_search)
         # A removed page must also stop background work without waiting on the GUI thread.
         self._cancel_event = None
         self.refresh_reference()
+        self.refresh_cargo()
         from .recommendations_view import RecommendationsView, SupplyRecommendationsView
         self.recommendations = RecommendationsView(
             state, self.provider, self.pool, market_read_status=self.market_read_status)
@@ -302,6 +407,11 @@ class TradeView(QWidget):
             page.refresh()
             return
         self.side = TradeSide.BUY if index == 1 else TradeSide.SELL
+        self.commodity.rare_filter = self.side == TradeSide.BUY
+        self.commodity.exclude_rare = self.side == TradeSide.SELL
+        selected = lookup_by_id(self.commodity.currentData())
+        if self.commodity.exclude_rare and selected and selected.rare:
+            self.commodity.set_commodity(None)
         self.update_remembered()
         # Move the same form instead of copying filter state or widget trees.
         self.tabs.widget(index).layout().addWidget(self._scroll)
@@ -318,6 +428,156 @@ class TradeView(QWidget):
         self.table.resizeColumnsToContents()
         self.status.setText(tr('trade.cancelling') if self.worker is not None else
                             tr('trade.ready') if self._reference else tr('trade.no_system'))
+        self._cargo_results = []
+        self.cargo_results.hide()
+        self.refresh_cargo()
+        self.refresh_origin()
+
+    @Slot()
+    def invalidate_origin(self, *_):
+        self._origin_key = None
+        self.refresh_origin()
+
+    @Slot()
+    def refresh_origin(self):
+        from cmdrhelper.commodity_origin import CommodityOrigin, OriginResolver
+        master = lookup_by_id(self.commodity.currentData())
+        mid = master.origin_market_id if master and master.rare and self.side == TradeSide.BUY else None
+        key = (self.side, mid, self._reference, getattr(self.state, 'system_address', None))
+        if key == self._origin_key:
+            return
+        self._origin_key = key
+        self._origin = CommodityOrigin(mid) if mid else None
+        self._origin_no_offer = False
+        self.render_origin()
+        if not mid or self._origin_worker is not None:
+            return
+        if self._origin_resolver is None:
+            observer = getattr(self.state, 'observed_markets', None)
+            source = prepare_trade_source(observer, self._fid, self._reference,
+                getattr(self.state, 'system_address', None), getattr(self.state, 'database', None))
+            database = getattr(getattr(self.state, 'database', None), 'path', None)
+            spansh = getattr(self.state, 'spansh_stations', None)
+            folder = spansh.cache.root if spansh is not None else None
+            self._origin_resolver = OriginResolver(database, source.path if source else None, folder)
+        resolver = self._origin_resolver
+        if not any((resolver.database_path, resolver.market_path, resolver.spansh_folder)):
+            return
+        self._origin_worker = OriginWorker(resolver, key)
+        self._origin_worker.signals.finished.connect(self._origin_ready)
+        self.pool.start(self._origin_worker)
+
+    @Slot(object)
+    def _origin_ready(self, result):
+        self._origin_worker = None
+        key, origin = result
+        if key == self._origin_key:
+            self._origin = origin
+            self.render_origin()
+            spansh = getattr(self.state, 'spansh_stations', None)
+            if spansh is not None and not origin.station_name and not origin.conflict:
+                spansh.origins.request(origin.market_id)
+        else:
+            self._origin_key = None
+            self.refresh_origin()
+
+    def render_origin(self):
+        origin = self._origin
+        visible = origin is not None and self.side == TradeSide.BUY
+        self.origin_info.setVisible(visible)
+        self.origin_notice.setVisible(visible and self._origin_no_offer)
+        if not visible:
+            return
+        lines = []
+        if origin.station_name and origin.system_name:
+            lines.append(tr('trade.origin_station') + ': ' + origin.station_name + ' · ' + origin.system_name)
+        else:
+            lines.append(tr('trade.origin_market_id', market_id=origin.market_id))
+        if origin.distance_ly is not None:
+            distance = QLocale(get_language()).toString(float(origin.distance_ly), 'f', 1)
+            lines.append(tr('trade.origin_distance', distance=distance))
+        if not any(o.market_id == origin.market_id for o in self.offers):
+            lines.append(tr('trade.origin_unconfirmed'))
+        self.origin_info.setText('\n'.join(lines))
+
+    def _selected_cargo(self):
+        return [self.cargo_list.item(i).data(Qt.UserRole) for i in range(self.cargo_list.count())
+                if self.cargo_list.item(i).checkState() == Qt.Checked
+                and self.cargo_list.item(i).data(Qt.UserRole) is not None
+                and (master := lookup_by_id(self.cargo_list.item(i).data(Qt.UserRole)[0]))
+                and not master.rare]
+
+    def _cargo_selection_changed(self, *_):
+        if self.side == TradeSide.SELL and self._cargo_known:
+            self.search_button.setEnabled(self.worker is None and bool(self._selected_cargo()))
+            self._invalidate_results()
+            self._cargo_results = []
+            self.cargo_results.hide()
+
+    def _select_all_cargo(self):
+        for i in range(self.cargo_list.count()):
+            item = self.cargo_list.item(i)
+            if item.flags() & Qt.ItemIsUserCheckable:
+                item.setCheckState(Qt.Checked)
+
+    def refresh_cargo(self, *_):
+        snapshot = getattr(self.state, 'ship_inventory', None)
+        total = getattr(self.state, 'ship_cargo_total', None)
+        empty = ((snapshot is not None and snapshot.get('count') == 0)
+                 or (isinstance(total, dict) and total.get('count') == 0))
+        key = repr((snapshot, empty))
+        if key != self._cargo_key:
+            self._cargo_key = key
+            if self.side == TradeSide.SELL:
+                self._generation += 1
+                self.cancel_search()
+                self.offers = ()
+                self.table.setRowCount(0)
+                self._cargo_results = []
+                self.cargo_results.hide()
+            selected = {cid for cid, _ in self._selected_cargo()}
+            blocker = QSignalBlocker(self.cargo_list)
+            self.cargo_list.clear()
+            self._cargo_known = snapshot is not None and not empty
+            for row in (snapshot or {}).get('inventory', []):
+                if row['count'] <= 0:
+                    continue
+                master = lookup_by_symbol(row['frontier_name'])
+                label = commodity_name(master) if master else row['display_name']
+                item = QListWidgetItem(tr('trade.cargo_item', name=label,
+                                           count=QLocale(get_language()).toString(row['count'])))
+                item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable)
+                item.setData(RARE_ROLE, bool(master and master.rare))
+                if master and not master.rare:
+                    item.setData(Qt.UserRole, (master.frontier_id, row['count']))
+                    item.setCheckState(Qt.Checked if master.frontier_id in selected else Qt.Unchecked)
+                else:
+                    item.setFlags(Qt.NoItemFlags)
+                    item.setToolTip(tr('trade.rare_sell_excluded' if master and master.rare
+                                       else 'trade.unknown_commodity'))
+                self.cargo_list.addItem(item)
+            del blocker
+            row_height = max(self.cargo_list.sizeHintForRow(0), self.cargo_list.fontMetrics().height() + 4)
+            self.cargo_list.setFixedHeight(min(160, row_height * max(1, self.cargo_list.count()) + 6))
+        self.cargo_rare_notice.setVisible(any(
+            self.cargo_list.item(i).data(RARE_ROLE) for i in range(self.cargo_list.count())))
+        selling = self.side == TradeSide.SELL
+        self.cargo_panel.setVisible(selling and not empty)
+        self.cargo_heading.setText(tr('trade.ship_inventory' if self._cargo_known else 'trade.cargo_unknown'))
+        self.cargo_list.setVisible(self._cargo_known)
+        self.cargo_select_all.setVisible(self._cargo_known)
+        self._filter_form.setRowVisible(self.commodity, not selling or not self._cargo_known)
+        self._filter_form.setRowVisible(self.quantity, not selling or not self._cargo_known)
+        self.cargo_panel.setEnabled(self.worker is None)
+        if selling:
+            self.search_button.setText(tr('trade.cargo_search' if self._cargo_known else 'trade.search'))
+        self.search_button.setEnabled(self.worker is None and
+            (not selling or not self._cargo_known or bool(self._selected_cargo())))
+
+    def _show_cargo_result(self, index):
+        if 0 <= index < len(self._cargo_results):
+            query, result = self._cargo_results[index]
+            self.show_result(result, query)
 
     def _price_order(self):
         return Qt.SortOrder.AscendingOrder if self.side == TradeSide.BUY else Qt.SortOrder.DescendingOrder
@@ -327,6 +587,10 @@ class TradeView(QWidget):
         if self.worker is None:
             self.offers = ()
             self.table.setRowCount(0)
+            self._cargo_results = []
+            self.cargo_results.hide()
+            self._origin_no_offer = False
+            self.render_origin()
             self.status.setText(tr('trade.ready') if self._reference else tr('trade.no_system'))
 
     @Slot()
@@ -339,10 +603,13 @@ class TradeView(QWidget):
             self.cancel_search()
             self.table.setRowCount(0)
             self.offers = ()
+            self._cargo_results = []
+            self.cargo_results.hide()
             if self.worker is None:
                 self.status.setText(tr('trade.ready') if reference else tr('trade.no_system'))
         self.reference.setText(tr('trade.reference', system=reference or '–'))
         self.refresh_observed_markets()
+        self.refresh_origin()
 
     @Slot()
     def refresh_observed_markets(self):
@@ -375,12 +642,20 @@ class TradeView(QWidget):
         if self.worker is not None:
             return
         self.refresh_reference()
-        commodity = self.commodity.currentData()
+        self.refresh_cargo()
+        selected = self._selected_cargo() if self.side == TradeSide.SELL and self._cargo_known else None
+        if selected == []:
+            self.status.setText(tr('trade.cargo_choose'))
+            return
+        commodity = selected[0][0] if selected else self.commodity.currentData()
         if commodity is None:
             self.status.setText(tr('trade.choose_commodity'))
             return
         if lookup_by_id(commodity) is None:
             self.status.setText(tr('trade.unknown_commodity'))
+            return
+        if self.side == TradeSide.SELL and lookup_by_id(commodity).rare:
+            self.status.setText(tr('trade.rare_sell_excluded'))
             return
         if not self._reference:
             self.status.setText(tr('trade.no_system'))
@@ -399,12 +674,14 @@ class TradeView(QWidget):
         self.quantity.interpretText()
         self._query = MarketSearch(
             commodity, self._reference, radius_ly=self.radius.currentData(),
-            minimum_quantity=self.quantity.value(), max_age=self.max_age.max_age(),
+            minimum_quantity=selected[0][1] if selected else self.quantity.value(), max_age=self.max_age.max_age(),
             required_pad=PadSize(self.pad.currentData()), include_fleet_carriers=self.carriers.isChecked(),
             max_distance_to_arrival_ls=distance, limit=100,
         )
         self.table.setRowCount(0)
         self.offers = ()
+        self._cargo_results = []
+        self.cargo_results.hide()
         self.status.setText(tr('trade.buy_searching' if self.side == TradeSide.BUY else 'trade.sell_searching'))
         self.filters.setEnabled(False)
         self.search_button.setEnabled(False)
@@ -416,9 +693,13 @@ class TradeView(QWidget):
         cache = getattr(observer, '_cache', None) if observer is not None else None
         if cache is None and observer is not None:
             cache = vars(observer).get('cache')
-        self.worker = MarketWorker(self.provider, self._query, self.side, self._generation,
+        worker_type = CargoMarketWorker if selected else MarketWorker
+        self.worker = worker_type(self.provider, self._query, self.side, self._generation,
                                    local_source=source, fid=self._fid, local_only=self.local_only.isChecked(),
                                    clock=cache.clock if cache is not None else None)
+        if selected:
+            self.worker.queries = [replace(self._query, commodity=cid, minimum_quantity=count)
+                                   for cid, count in selected]
         self._cancel_event = self.worker.cancel
         self.destroyed.connect(self._cancel_event.set)
         self.worker.signals.finished.connect(self._finished)
@@ -440,7 +721,7 @@ class TradeView(QWidget):
 
     @Slot(object)
     def _finished(self, result):
-        stale_direction = self.worker is not None and self.worker.generation != self._generation
+        generation = self.worker.generation if self.worker is not None else self._generation
         cancelled = self.worker is not None and self.worker.cancel.is_set()
         self.destroyed.disconnect(self._cancel_event.set)
         self.worker = None
@@ -449,12 +730,24 @@ class TradeView(QWidget):
         self.search_button.setEnabled(True)
         self.cancel_button.setEnabled(False)
         self.cancel_button.hide()
-        if stale_direction:
+        self.refresh_cargo()
+        if generation != self._generation:
             self._invalidate_results()
             return
         if cancelled or self._query.reference_system != self._reference:
             result = MarketSearchResult(MarketStatus.CANCELLED, query=self._query)
-        self.show_result(result, self._query)
+        if isinstance(result, list):
+            self._cargo_results = result
+            blocker = QSignalBlocker(self.cargo_results)
+            self.cargo_results.clear()
+            for query, _ in result:
+                self.cargo_results.addItem(tr('trade.cargo_item',
+                    name=commodity_name(lookup_by_id(query.commodity)), count=query.minimum_quantity))
+            del blocker
+            self.cargo_results.setVisible(bool(result))
+            self._show_cargo_result(0)
+        else:
+            self.show_result(result, self._query)
 
     def show_result(self, result, query):
         """Retain offers by row identity for future actions; no route action yet."""
@@ -506,6 +799,9 @@ class TradeView(QWidget):
                 item.setToolTip(item.text() + '\n' + tr('recommend.source') + ': ' + label)
         for column in (0, 1):
             self.table.setColumnWidth(column, min(300, self.table.columnWidth(column)))
+        self._origin_no_offer = (self.side == TradeSide.BUY and not self.offers
+                                 and result.status in (MarketStatus.OK, MarketStatus.NO_RESULTS))
+        self.render_origin()
         self.update_remembered()
         status_key = _STATUS_KEYS.get(result.status, 'trade.invalid_response')
         prefix = 'trade.buy_' if self.side == TradeSide.BUY else 'trade.sell_'

@@ -18,21 +18,23 @@ class Release36MigrationTests(unittest.TestCase):
                 con.execute('DROP TABLE ' + table)
             con.execute("DROP TABLE IF EXISTS station_pad_evidence")
             con.execute("DROP TABLE IF EXISTS station_pad_journals")
+            for table in ('pp2_events', 'pp2_import_checkpoints', 'pp2_merit_state', 'pp2_history_policy', 'pp2_sources'):
+                con.execute('DROP TABLE IF EXISTS '+table)
             con.execute('PRAGMA user_version=17')
 
     def test_upgrade_preserves_verified_schema17_backup_and_is_idempotent(self):
         db = CMDRDatabase(self.path)
-        backups = list(self.path.parent.glob('*.pre-v22-*.bak'))
+        backups = list(self.path.parent.glob('*.pre-v23-*.bak'))
         self.assertEqual(len(backups), 1)
         with sqlite3.connect(backups[0]) as con:
             self.assertEqual(con.execute('PRAGMA user_version').fetchone()[0], 17)
             self.assertEqual(con.execute('PRAGMA integrity_check').fetchone()[0], 'ok')
         with db._connect() as con:
-            self.assertEqual(con.execute('PRAGMA user_version').fetchone()[0], 22)
+            self.assertEqual(con.execute('PRAGMA user_version').fetchone()[0], 23)
             self.assertEqual(con.execute('PRAGMA foreign_keys').fetchone()[0], 1)
             self.assertEqual(con.execute('PRAGMA foreign_key_check').fetchall(), [])
         CMDRDatabase(self.path)
-        self.assertEqual(list(self.path.parent.glob('*.pre-v22-*.bak')), backups)
+        self.assertEqual(list(self.path.parent.glob('*.pre-v23-*.bak')), backups)
 
     def test_backup_failure_aborts_before_schema_changes(self):
         with patch.object(CMDRDatabase, '_create_migration_backup', side_effect=CommanderMigrationError('test')):
@@ -47,8 +49,10 @@ class Release36MigrationTests(unittest.TestCase):
             with sqlite3.connect(self.path) as con:
                 con.execute("DROP TABLE IF EXISTS station_pad_evidence")
                 con.execute("DROP TABLE IF EXISTS station_pad_journals")
+                for table in ('pp2_events', 'pp2_import_checkpoints', 'pp2_merit_state', 'pp2_history_policy', 'pp2_sources'):
+                    con.execute('DROP TABLE IF EXISTS '+table)
                 con.execute(f'PRAGMA user_version={version}')
             CMDRDatabase(self.path)
-            backup = sorted(self.path.parent.glob('*.pre-v22-*.bak'))[-1]
+            backup = sorted(self.path.parent.glob('*.pre-v23-*.bak'))[-1]
             with sqlite3.connect(backup) as con:
                 self.assertEqual(con.execute('PRAGMA user_version').fetchone()[0], version)

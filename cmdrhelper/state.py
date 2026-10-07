@@ -35,6 +35,7 @@ from cmdrhelper.bio_valuation import biology_totals
 from cmdrhelper.route_planner.models import GuardianFsdBooster, ShipLoadoutData
 from cmdrhelper.cargo import read_cargo_snapshot
 from cmdrhelper.body_classes import canonical_body_classes
+from cmdrhelper.powerplay import PowerplayState
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +73,9 @@ class AppState(QObject):
         from cmdrhelper.spansh_stations import SpanshStations
         self.spansh_stations = SpanshStations(self.settings, self)
         self.spansh_stations.updated.connect(self._spansh_stations_updated)
+        self._spansh_startup_ready = False
+        self._spansh_startup_done = False
+        self.initializationFinished.connect(self._spansh_initialization_finished, Qt.QueuedConnection)
         self._watcher_live_refresh = False
 
         self.journal_folder = None
@@ -103,6 +107,8 @@ class AppState(QObject):
         self.ship_loadout = ShipLoadoutData()
         self._inventory_revisions = {"materials": 0, "mining": 0, "odyssey": 0}
         self.cargo_snapshot = None
+        self.ship_inventory = None
+        self._inventory_conflict = None
         self.ship_cargo_context = {}
         self.ship_cargo_total = None
         self._confirmed_status_cargo = None
@@ -114,6 +120,7 @@ class AppState(QObject):
         self.last_timestamp = ""
 
         self.missions = []
+        self.powerplay = PowerplayState()
 
         # Online-Dienste
         self.edsm_commander = ""
@@ -267,6 +274,7 @@ class AppState(QObject):
                     self.database, folder,
                     progress_callback=progress if visible else None,
                 )
+                self.database.sync_powerplay(sessions)
                 self.initializationProgress.emit(0, 0, "startup.phase.history", "")
                 # Independent pad checkpoints never advance commander/import cursors.
                 try:
@@ -1530,6 +1538,9 @@ class AppState(QObject):
 
     def reset_commander_runtime_state(self):
         """Leert ausschließlich persönliche, flüchtige Commander-Zustände."""
+        self.powerplay = PowerplayState()
+        self.ship_inventory = None
+        self._inventory_conflict = None
         self.commander = ""
         self.game_mode = ""
         self.group_name = ""
@@ -1789,6 +1800,7 @@ class AppState(QObject):
             data = read_latest_state(
                 self.journal_folder,
                 indexed_sessions=self._journal_index_sessions,
+                powerplay_history=False,
             )
         except JournalReadError as exc:
             logger.warning("Temporärer Journal-Lesefehler: %s", exc)
@@ -1833,6 +1845,12 @@ class AppState(QObject):
             == self.commander_fid
         ):
             current_session["commander_id"] = self.commander_id
+        try:
+            self.database.sync_powerplay(self._journal_index_sessions)
+        except (OSError, ValueError, sqlite3.Error) as exc:
+            logger.exception("PP2-Journaldelta konnte nicht gespeichert werden")
+            self._last_refresh_error = f"PP2: {type(exc).__name__}: {exc}"
+            return False
         if current_session and current_session.get("commander_id") is not None:
             from cmdrhelper.journal_reader import read_journal_delta
             committed_offset = int(current_session.get("last_read_offset") or 0)
@@ -1913,6 +1931,8 @@ class AppState(QObject):
         self._store_latest_journal_session(data)
         self._emit_journal_positions(data, current_session, delta_events)
         self.system = data["system"]
+        self.powerplay = data.get("powerplay") or PowerplayState()
+        self.powerplay.merits = self.database.powerplay_merits(self.commander_id, power=self.powerplay.power)
         self.system_address = data.get("system_address")
         self.body = data["body"]
         self.station = data["station"]
@@ -2097,7 +2117,39 @@ class AppState(QObject):
         self._upload_journal_to_edsm()
         self._upload_pending_to_inara()
         self._request_edsm_for_current_system()
+        AppState._request_startup_stations(self)
         return True
+
+    @Slot(str)
+    def _spansh_initialization_finished(self, error):
+        self._spansh_startup_ready = True
+        AppState._request_startup_stations(self)
+
+    def _request_startup_stations(self):
+        """Once, after initialization and a successful current-state handoff.
+
+        Failed/pending catchup defers to the next successful refresh. Archive
+        systems never enter this path; the existing live gate owns the baseline.
+        """
+        if (not getattr(self, '_spansh_startup_ready', False)
+                or getattr(self, '_spansh_startup_done', False)
+                or getattr(self, '_initial_journal_index_running', False)
+                or getattr(self, '_database_import_running', False)
+                or getattr(self, '_journal_catchup_running', False)
+                or getattr(self, '_journal_catchup', None) is not None
+                or getattr(self, '_last_refresh_error', '')):
+            return
+        self._spansh_startup_done = True
+        spansh = getattr(self, 'spansh_stations', None)
+        if (not spansh or not spansh.active or not self.system
+                or not self.commander_fid or not self.connected
+                or spansh.gate.commander != self.commander_fid
+                or spansh.gate.address != self.system_address):
+            return
+        try:
+            spansh.ensure_current(self.system_address)
+        except Exception:
+            logger.exception('Startup station check failed; continuing with local knowledge')
 
     def _refresh_explorer_values(self, current_body_ids):
         """Revalue live scans and recover invalid saved estimates for display."""
@@ -2214,7 +2266,7 @@ class AppState(QObject):
         No journal replay or DB writes. Never bind an unlabelled Status while
         journal bytes are still waiting for application (imports/read failures).
         """
-        from cmdrhelper.ship_cargo import current_ship_cargo
+        from cmdrhelper.ship_cargo import current_ship_cargo, current_ship_inventory
         from cmdrhelper.status_reader import read_status_data
         watcher = getattr(self, "watcher", None)
         sessions = getattr(self, "_journal_index_sessions", None) or []
@@ -2262,8 +2314,10 @@ class AppState(QObject):
         else:
             self._cargo_status = None
             total = None
-        if total != self.ship_cargo_total:
+        inventory = current_ship_inventory(self) if caught_up else None
+        if total != self.ship_cargo_total or inventory != getattr(self, 'ship_inventory', None):
             self.ship_cargo_total = total
+            self.ship_inventory = inventory
             # Consumers already listen to this signal; the inventory payload
             # remains untouched when only the total/source changes.
             self.cargoSnapshotChanged.emit(self.cargo_snapshot)

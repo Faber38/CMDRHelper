@@ -1127,3 +1127,42 @@ HELP_TOPICS["explorer"] = (
 )
 
 HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>Tipp: Gewünschte Ziele vor dem Einkauf mit ✓ merken – sie bleiben auch bei vollem Frachtraum erhalten.</p>')
+
+HELP_TOPICS["pp2"] = ("PP2", """
+<h2>PP2 / Powerplay 2.0</h2>
+<p>PP2 zeigt deine Macht, Rang und Gesamt-Merits sowie den letzten bekannten Powerplay-Zustand des aktuellen Systems. Du findest passende allgemeine Aktivitäten, Machtspiel-Fracht an Bord und gemeldete Merit-Gutschriften. Öffne diese Hilfe über das Fragezeichen bei ausgewähltem PP2-Bereich.</p>
+<h3>Macht, Merits und Kontrollpunkte</h3>
+<p>Eine Macht (Power) ist eine Powerplay-Gruppierung, der du dich anschließen kannst. Deine eigene Macht ist diejenige, der du die Treue geschworen hast; sie muss nicht das aktuelle System kontrollieren. Merits (Verdienste) sind deine persönlichen Powerplay-Punkte. Kontrollpunkte betreffen dagegen die Machtstellung im System. Der Helper zeigt dazu die von Elite gelieferten Werte für Kontrollfortschritt, Verstärkung und Schwächung, soweit bekannt. Das sind keine zusätzlichen persönlichen Merits; der Kontrollfortschritt wird nicht in Prozent umgerechnet.</p>
+<h3>Powerplay-Systemstatus</h3>
+<p><b>Nicht besetzt</b> (unbesetzt): keine kontrollierende Macht. <b>Erschlossen</b>: ein von einer Macht erschlossenes System. <b>Verstärkt</b>: eine stärkere Kontrollstufe. <b>Hochburg</b>: eine Hochburg der kontrollierenden Macht. Die Stufenanzeige markiert den gemeldeten Status; sie sagt keinen bevorstehenden Wechsel voraus.</p>
+<h3>Erwerben, Stärken, Schwächen und Konflikt</h3>
+<p><b>ERWERBEN / ACQUISITION</b>: ein unbesetztes System für die eigene Macht gewinnen; der Helper zeigt dies nur bei eindeutigem Bezug zu deiner Macht. <b>STÄRKEN / REINFORCEMENT</b>: ein System der eigenen Macht stärken. <b>SCHWÄCHEN / UNDERMINING</b>: die Kontrolle einer anderen Macht schwächen. Konflikt bedeutet umkämpften Erwerb: Bei unbesetzten Systemen kann der Helper den gemeldeten Konfliktfortschritt der Mächte anzeigen. Mehrere beteiligte Mächte allein ergeben jedoch keine eindeutige Aktivitätsempfehlung. Bei fehlenden oder widersprüchlichen Angaben bleibt die Aktionsart unbekannt.</p>
+<h3>Was kann ich hier für meine Macht tun?</h3>
+<p>CMDRHelper kombiniert den Systemzustand aus Elite mit den allgemeinen Aktivitäten deiner Macht für den passenden Aktivitätsbereich. Je nach Macht und Bereich erscheinen beispielsweise: Machtspiel-Artikel transportieren, Holoscreens hacken, Bergungsgut einreichen, Kopfgeldjagd, Forschungsdaten übertragen, Mit hohem Gewinn verkaufen oder Seltene Waren verkaufen.</p>
+<p><b>Die Liste ist eine Orientierung, keine Merit-Garantie.</b> Die Aktivitäten stammen aus Elite, gelten aber teilweise allgemein für die Macht und die jeweilige Kategorie. Einzelne Tätigkeiten haben zusätzliche Voraussetzungen. Auch ein Häkchen in dieser Liste bestätigt keine Ausführung oder Belohnung. Prüfe die Hinweise in Elite und anschließend die tatsächliche Merit-Gutschrift.</p>
+<h3>Beispiel: Seltene Waren verkaufen</h3>
+<p>Elite kann „Seltene Waren verkaufen“ als Aktivität nennen. Ein erfolgreicher Warenverkauf bedeutet trotzdem nicht automatisch Powerplay-Merits: <b>Verkauf erfolgreich ≠ Merit-Gutschrift garantiert.</b> Erst wenn Elite eine entsprechende Merit-Gutschrift meldet, zeigt CMDRHelper sie als solche an. Aus einem Verkauf ohne Gutschrift lässt sich keine allgemeine Regel über die Herkunft der Ware, etwa von einem Carrier, ableiten.</p>
+<h3>Powerplay-Transportaufgaben lesen</h3>
+<p>„Machtspiel-Artikel in Undermining-Systeme transportieren“ bezeichnet den geforderten Zieltyp: Systeme einer anderen Macht, deren Kontrolle du schwächen sollst. Beispiel: 10 × Kaine-Fehlinformationen. Entscheidend sind die konkreten Vorgaben der Aufgabe in Elite.</p>
+<ol>
+<li>Machtspiel-Aufgabe in Elite ansehen.</li>
+<li>Geforderte Quelle und Systemart beachten.</li>
+<li>Passende Powerplay-Fracht aufnehmen.</li>
+<li>Zum geforderten Zieltyp fliegen.</li>
+<li>Beim vorgesehenen Machtkontakt abgeben.</li>
+<li>Danach die Merit-Gutschrift im Helper kontrollieren.</li>
+</ol>
+<p>Die Anzeige der Artikel an Bord hilft beim Überblick über bestätigte Fracht und bekannte Verwendung. Bestand oder Verwendung können noch unbekannt sein. Persönliche Wochenaufträge und deren Fortschritt werden hier nicht angezeigt.</p>
+<h3>Missionen und Datentransfers</h3>
+<p>Elite kann Powerplay-relevante Aufgaben anbieten, etwa strategische Datentransfers. Achte darauf, ob Elite einen Powerplay- oder Merit-Bezug ausdrücklich ausweist. Nicht jeder normale Kurierauftrag bringt Merits. Der Helper bestätigt die tatsächliche Gutschrift erst mit der entsprechenden Meldung von Elite.</p>
+<h3>Letzte Merit-Gutschriften in der Tageschronik</h3>
+<p>Du findest sie aktuell unter „PP2-TAGESCHRONIK“. Die Merit-Spalte enthält tatsächlich von Elite gemeldete Gutschriften, keine geschätzten Belohnungen. Das ist die verlässlichere Bestätigung einer Wertung als die allgemeine Aktivitätenliste oder eine Verkaufsmeldung. Der Gesamt-Meritstand zeigt den zuletzt gemeldeten persönlichen Stand.</p>
+<p>Die genaue Ursache einer Gutschrift ist nicht immer bekannt: ✓ bestätigt eine Powerplay-Aufnahme oder -Abgabe, ≈ nur zeitliche Nähe zu einer Aktivität, ? eine unbekannte Ursache. Auch ✓ beweist nicht, dass eine danebenstehende Gutschrift genau zu dieser Aufgabe gehört. — bedeutet, dass zu dieser Zeile keine Gutschrift angezeigt wird. Tooltips zeigen einzelne Gutschriften und Zeitpunkte; ein persönlicher Auftragsabschluss wird daraus nicht abgeleitet.</p>
+<p>Mit den Pfeilen wechselst du den lokalen Kalendertag; „Heute“ kehrt zum aktuellen Tag zurück. Die Historie gehört zum jeweiligen Commander. Über die Historienverwaltung kannst du nach Bestätigung ältere Einträge oder die gesamte Historie löschen; der bekannte Gesamt-Meritstand bleibt erhalten. Beim ersten Einlesen wird nur der aktuelle Tag rückwirkend aufgenommen, danach werden neue Ereignisse ergänzt.</p>
+<h3>Die Galaxiekarte nutzen</h3>
+<p>Die Elite-Galaxiekarte hilft dir, Machtgebiete, die eigene Macht, Systemstatus, Hochburgen und lokale Aktivitäten zu prüfen. Fehlen scheinbar Systeme deiner Macht, prüfe die Powerplay-Kartenfilter, insbesondere ob „Meine Macht“ eingeblendet ist. Diese Filter gehören zur Karte in Elite.</p>
+<h3>Datenaktualität</h3>
+<p>CMDRHelper verwendet lokale Elite-Daten und zeigt den letzten bekannten System- und Powerplay-Zustand. Angaben können verzögert oder älter sein. Beachte den angezeigten Systemzeitpunkt; auch die Galaxiekarte kann einen Aktualisierungszeitpunkt zeigen. Vergleiche bei Widersprüchen System und Zeitstand. Weder Helper noch Galaxiekarte sind grundsätzlich immer aktueller.</p>
+<h3>Rang und Fortschritt</h3>
+<p>Der Rang ist der von Elite gemeldete Rang. Wenn deine Merits rechnerisch bereits für einen höheren Rang reichen, weist der Helper auf die ausstehende Rangaktualisierung hin. Fehlende oder widersprüchliche Daten können die Fortschrittsanzeige verhindern. Weitere rechnerische Merit-Stufen nach Rang 100 erscheinen als 100+.</p>
+""")

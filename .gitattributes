@@ -1,0 +1,2 @@
+# Preserve original hash-pinned CSV bytes, including upstream CRLF endings.
+tools/data/fdevids/*.csv -text whitespace=cr-at-eol

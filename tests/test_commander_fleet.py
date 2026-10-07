@@ -134,9 +134,11 @@ class CommanderFleetTests(unittest.TestCase):
             con.execute("DROP TABLE commander_ships_v7_test")
             con.execute("DROP TABLE station_pad_evidence")
             con.execute("DROP TABLE station_pad_journals")
+            for table in ("pp2_events", "pp2_import_checkpoints", "pp2_merit_state", "pp2_history_policy", "pp2_sources"):
+                con.execute("DROP TABLE "+table)
             con.execute("PRAGMA user_version=6")
         migrated = CMDRDatabase(self.path)
-        self.assertEqual(SCHEMA_VERSION, 22)
+        self.assertEqual(SCHEMA_VERSION, 23)
         legacy = migrated.commander_last_ship(self.a)
         self.assertEqual(legacy["ship_name"], "Legacy")
         self.assertEqual(legacy["modules"], [])
@@ -337,6 +339,8 @@ class CommanderFleetTests(unittest.TestCase):
             con.execute("DROP TABLE commander_deleted_ships")
             con.execute("DROP TABLE station_pad_evidence")
             con.execute("DROP TABLE station_pad_journals")
+            for table in ("pp2_events", "pp2_import_checkpoints", "pp2_merit_state", "pp2_history_policy", "pp2_sources"):
+                con.execute("DROP TABLE "+table)
             con.execute("PRAGMA user_version=17")
         self.db = CMDRDatabase(self.path)
         self.assertEqual(self.db.commander_ships(self.a), before)

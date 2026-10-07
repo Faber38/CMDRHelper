@@ -108,7 +108,7 @@ class PickerIdentityTests(unittest.TestCase):
                 picker.search.setText('Grandi')
                 picker.search.setText(text)
                 self.app.processEvents()
-                self.assertEqual(picker.model.rowCount(), 1 if text else 412)
+                self.assertEqual(picker.model.rowCount(), 1 if text else 270)
                 self.choose(picker, item)
 
     def test_immediate_click_on_initial_visible_tile(self):
@@ -142,7 +142,7 @@ class PickerIdentityTests(unittest.TestCase):
             self.view.commodity.set_commodity(lookup_by_symbol('Gold').frontier_id)
             self.choose(self.open(), item, method)
 
-    def test_all_412_display_roles_and_hit_targets_match_master_after_filtering(self):
+    def test_sell_display_roles_and_hit_targets_match_normal_master_after_filtering(self):
         picker = self.open()
         for text in ('', 'a', 'Grandi', ''):
             picker.search.setText(text)
@@ -161,4 +161,4 @@ class PickerIdentityTests(unittest.TestCase):
                 hit = picker.grid.indexAt(picker.grid.visualRect(index).center())
                 self.assertEqual(hit.data(COMMODITY_ID_ROLE), identifier)
             if not text:
-                self.assertEqual(seen, {c.frontier_id for c in all_commodities()})
+                self.assertEqual(seen, {c.frontier_id for c in all_commodities() if not c.rare})

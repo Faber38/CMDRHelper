@@ -33,7 +33,7 @@ All 16 upstream categories, including `NonMarketable`, are retained.
 ## Identity and API
 
 Each `CommodityDefinition` has `frontier_id`, `symbol`, `english_name`, `category`,
-`rare` and `mining_origins`. Exact upstream symbol spelling is preserved,
+`rare`, `mining_origins` and optional `origin_market_id`. Exact upstream symbol spelling is preserved,
 including case, underscores and apparent typos such as `UnocuppiedEscapePod`.
 English/localized labels are not primary keys or implicit aliases.
 
@@ -62,8 +62,36 @@ cannot be purchased through their dedicated service. There is deliberately no
 ## Rare and Mining
 
 All 142 rare-file entries have `rare=True`; the other 270 have `rare=False`.
-Rare origin `market_id` is intentionally omitted: it is separate location
-metadata and would not prove current stock or availability.
+`origin_market_id` copies the source CSV's `market_id` only for Rare Goods.
+All 142 entries in this pinned snapshot have a positive origin ID (139 distinct
+stations: three stations each supply two goods). Normal commodities use `None`;
+a missing origin in a reviewed future snapshot remains `None`. The Frontier ID
+remains commodity identity. `GalacticTravelGuide` retains its catalog Rare flag;
+conflicting live Elite classifications are not resolved by this metadata.
+
+The original CSV bytes were not previously checked into the project and there
+was no executable generator. On 2026-10-06 both files were recovered from the
+**same pinned revision** and matched the above original lengths and SHA-256s.
+They now live in `tools/data/fdevids/`. Run
+`python tools/generate_commodity_master.py` to regenerate offline. The generator
+verifies both hashes, rejects duplicate IDs/symbols and invalid MarketIDs, and
+preserves the existing mining classification. No independent origin list is
+maintained. Application version and database schema are unchanged.
+
+Origin is **not** a current offer. `commodity_origin.OriginResolver` reads only
+persisted station observations/pad evidence, current market identities and
+validated Spansh system-cache files. It does not scan journals, fetch network
+data or write a database. Reads run in a UI worker; unchanged files are reused
+in memory. Conflicting station names/systems/addresses leave only the MarketID
+visible. Coordinates come from the existing unambiguous local system resolver.
+The purchase UI shows static provenance separately from actual search results,
+including when local-only searches have no offers. No price or stock is inferred.
+
+Local audit on 2026-10-06: five goods resolve to station/system (Lavian Brandy,
+Soontill Relics, Jaques Quinentian Still, Crystalline Spheres, Waters of Shintara).
+Azure Milk is confirmed as origin MarketID 128639992 by the CSV, but has no local
+station-name evidence in the examined installation. No name was imported from
+an external comparison or a previous unpersisted API response.
 
 Mining origins copy the existing 57 definitions in `mining_catalog.py`, with
 provenance described in [mining-catalog-sources.md](mining-catalog-sources.md).
@@ -156,3 +184,32 @@ Updates require identity validation, per-entry source/license review, conflict
 review and offline regression tests. Missing languages are a separate phase;
 there is no startup download, mass translation, database migration, price storage
 or persistent collection of observed names.
+
+## On-demand origin identity lookup
+
+The local resolver stays read-only. If a selected Rare Good still has no
+unambiguous station identity, the UI queues its MarketID in the state-owned
+`SpanshStations.origins` coordinator. No catalog-wide prefetch occurs.
+A single-shot 150 ms timer coalesces demand into batches of at most five unique
+IDs, the live-verified size. The existing Spansh transport sends
+`POST /api/stations/search` with only `market_id.value`, `size=5`, `page=0`.
+There are no commodity, price, quantity, radius or station-type query filters.
+The transport retains its bounded retry/rate-limit policy. IDs are marked as
+attempted before dispatch; missing/conflicting results and failures cannot
+trigger repeated requests from UI refreshes in the same session.
+
+Only explicitly requested IDs, valid system identity and whitelisted station
+metadata are accepted. Coordinates, pads, services and source timestamps are
+validated; trade rows, prices and stock are discarded. Successful results merge
+into the existing Spansh cache under their SystemAddress. Its existing `updated`
+signal invalidates the UI's local origin result, without restarting the dialog.
+Local-only **market** searches still permit static external origin information.
+
+Old cache documents implicitly mean complete system knowledge. Optional
+`coverage: partial` identifies search-derived station subsets; `coordinates`
+holds finite x/y/z. Partial documents never satisfy full-dump freshness or the
+successful-full-fetch-today check. Merging a lookup preserves complete documents,
+other stations, body/parent fields and the original full-dump timestamps.
+Writes/lookup merges use a per-system process lock plus the existing atomic file
+replacement. Journal observations and markets.db are never written by this path.
+A subsequent app start reads successful identities from these same cache files.

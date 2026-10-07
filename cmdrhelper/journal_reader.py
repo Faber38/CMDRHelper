@@ -31,6 +31,7 @@ from cmdrhelper.route_planner.models import GuardianFsdBooster, ShipLoadoutData
 from cmdrhelper.ship_identity import is_definite_non_ship, is_suit
 from cmdrhelper.station_context import embark_station_context
 from cmdrhelper.ship_ownership import journal_time, ship_sale, stored_ship_observations
+from cmdrhelper.powerplay import PowerplayState
 
 
 class JournalReadError(OSError):
@@ -45,6 +46,59 @@ class JournalReadError(OSError):
 # Nur die aktive Sitzung wird gehalten. Der Byteoffset zeigt stets hinter die
 # letzte newline-terminierte Zeile; ein unvollständiger Rest wird erneut gelesen.
 _LIVE_LINE_CACHE: dict[str, tuple] = {}
+
+# Only daily PP2 display summaries are retained for historical files. This does
+# not expand the active journal cache or replay other runtime data from history.
+_PP2_DAY_CACHE: dict[str, tuple] = {}
+
+
+def read_today_powerplay_chronicle(sessions, fid, *, day=None, zone=None):
+    from cmdrhelper.powerplay_chronicle import (
+        PowerplayChronicle, chronicle_for_day, local_event_day, local_today,
+    )
+    import os
+    import time
+    day = day or local_today()
+    chronicle = PowerplayChronicle()
+    kept = set()
+    for session in sessions:
+        if (not fid or session.get("attribution_status") != "identified"
+                or session.get("fid_seen") != fid):
+            continue
+        path = Path(session["journal_file"])
+        key = str(path)
+        try:
+            stat = path.stat()
+            signature = (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns,
+                         day, str(zone), os.environ.get("TZ"), time.tzname, fid)
+            # Trust indexed time bounds only while they describe these bytes.
+            # Never filter by the date in the filename (sessions can span days).
+            if (session.get("file_size") == stat.st_size
+                    and session.get("modified_ns") == stat.st_mtime_ns):
+                first = local_event_day(session.get("first_event_at"), zone)
+                last = local_event_day(session.get("last_event_at"), zone)
+                if first and last and not first <= day <= last:
+                    continue
+            kept.add(key)
+            cached = _PP2_DAY_CACHE.get(key)
+            if cached is None or cached[0] != signature:
+                events, _ = read_journal_delta(path, 0)
+                after = path.stat()
+                if (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns) != signature[:5]:
+                    raise OSError("PP2 journal changed while reading")
+                identities = {str(e.get("FID") or "").strip() for e in events
+                              if e.get("event") in ("Commander", "LoadGame") and e.get("FID")}
+                groups = chronicle_for_day(events, day, zone).groups if identities == {fid} else []
+                cached = (signature, groups)
+                _PP2_DAY_CACHE[key] = cached
+            chronicle.groups.extend(copy.deepcopy(cached[1]))
+        except OSError:
+            # Do not substitute yesterday's/stale groups for unreadable bytes.
+            _PP2_DAY_CACHE.pop(key, None)
+    for key in list(_PP2_DAY_CACHE):
+        if key not in kept:
+            del _PP2_DAY_CACHE[key]
+    return chronicle
 
 
 def _live_complete_events(path: Path) -> tuple[list[dict], int]:
@@ -821,6 +875,7 @@ def read_latest_state(
     mission_reset_at: str = "",
     indexed_sessions: list[dict] | None = None,
     force_full_history: bool = False,
+    powerplay_history: bool = True,
 ) -> dict:
     """
     Liest Journale chronologisch ein.
@@ -859,6 +914,7 @@ def read_latest_state(
 
     result = {
         "commander": "",
+        "powerplay": PowerplayState(),
         "commander_fid": "",
         "commander_identity_name": "",
         "commander_identity_timestamp": "",
@@ -1329,6 +1385,7 @@ def read_latest_state(
                     result["last_timestamp"] = ts
 
                 et = e.get("event")
+                result["powerplay"].apply(e)
                 cargo_tracker.apply(e, session["fid_seen"], journal)
                 result["last_event"] = str(et or "")
                 sale = ship_sale(e)
@@ -2470,6 +2527,9 @@ def read_latest_state(
     ))
 
     session = result.get("latest_journal_session")
+    if powerplay_history:
+        result["powerplay"].chronicle = read_today_powerplay_chronicle(
+            classified_sessions.values(), result["commander_fid"])
     result = copy.deepcopy({key: value for key, value in result.items()
                             if key != "latest_journal_session"})
     result["latest_journal_session"] = session

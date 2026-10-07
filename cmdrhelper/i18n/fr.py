@@ -1,4 +1,19 @@
 TRANSLATIONS = {
+    'trade.origin_station': 'Station d’origine',
+    'trade.origin_market_id': 'MarketID d’origine : {market_id}',
+    'trade.origin_unconfirmed': 'Stock/prix actuels : non confirmés.',
+    'trade.origin_no_offers': 'Aucune offre actuelle trouvée dans les données de marché disponibles.',
+    'trade.origin_distance': 'Distance : {distance} ly',
+
+    'trade.rare_sell_excluded': 'Les marchandises rares sont exclues de la recherche de vente normale.',
+    'trade.ship_inventory': 'Cargaison du vaisseau actuel',
+    'trade.cargo_select_all': 'Tout sélectionner',
+    'trade.cargo_results': 'Résultats de vente par marchandise',
+    'trade.cargo_unknown': 'Le contenu actuel de la soute n’est pas connu avec certitude.',
+    'trade.cargo_item': '{name} · {count} t',
+    'trade.cargo_search': 'Rechercher les meilleurs prix de vente',
+    'trade.cargo_choose': 'Sélectionnez au moins une marchandise.',
+
     'trade.current_market_read_tooltip': "Marché actuel lu : {station}",
     'trade.current_market_open_tooltip': "Le marché de la station actuelle n’a pas encore été lu.",
     'about.version': 'Version {version}',
@@ -9,6 +24,12 @@ TRANSLATIONS = {
     'about.support': 'Aide au développement :\nOutils de développement assistés par IA',
     'about.independent': 'CMDRHelper est un projet communautaire indépendant sans affiliation avec Frontier Developments.',
     'about.trademark': 'Elite Dangerous est une marque de Frontier Developments plc.',
+    'release.3_9_0.0': 'Marchandises rares intégrées à l’assistant commercial.',
+    'release.3_9_0.1': 'Les stations d’origine des marchandises rares sont reconnues et recherchées automatiquement si nécessaire.',
+    'release.3_9_0.2': 'Détection de la cargaison améliorée avec sélection directe des marchandises pour la recherche de points de vente.',
+    'release.3_9_0.3': 'Recherchez des stations de vente adaptées à plusieurs marchandises transportées en une seule recherche.',
+    'release.3_9_0.4': 'Aide Powerplay 2.0 largement enrichie.',
+    'release.3_9_0.5': 'Autres améliorations de stabilité et de fiabilité.',
     'release.3_8_3.0': 'Correction d’un problème empêchant la mise à jour des nouvelles données de marché locales après l’acceptation de certaines missions.',
     'release.3_8_3.1': 'Amélioration de la stabilité du suivi des marchés locaux.',
     'release.3_8_2.0': 'Corrections et améliorations de l’assistant commercial.',
@@ -1826,4 +1847,9 @@ TRANSLATIONS.update({
     'outbound.target': 'Destination fixe mémorisée : {station} — {system}',
     'outbound.filters': 'La destination fixe doit aussi respecter tous les filtres sélectionnés.',
     'outbound.return_route': 'Retour mémorisé : {commodity} → {station} — {system}',
+})
+
+# Purchase commodity picker: catalogue-based Rare Goods filter.
+TRANSLATIONS.update({
+    'trade.goods_rare': 'Marchandises rares',
 })

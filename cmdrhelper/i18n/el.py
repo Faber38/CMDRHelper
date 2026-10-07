@@ -1,4 +1,19 @@
 TRANSLATIONS = {
+    'trade.origin_station': 'Σταθμός προέλευσης',
+    'trade.origin_market_id': 'MarketID προέλευσης: {market_id}',
+    'trade.origin_unconfirmed': 'Τρέχον απόθεμα/τιμή: μη επιβεβαιωμένα.',
+    'trade.origin_no_offers': 'Δεν βρέθηκαν τρέχουσες προσφορές στα διαθέσιμα δεδομένα αγοράς.',
+    'trade.origin_distance': 'Απόσταση: {distance} ly',
+
+    'trade.rare_sell_excluded': 'Τα σπάνια εμπορεύματα δεν περιλαμβάνονται στην κανονική αναζήτηση πώλησης.',
+    'trade.ship_inventory': 'Φορτίο τρέχοντος σκάφους',
+    'trade.cargo_select_all': 'Επιλογή όλων',
+    'trade.cargo_results': 'Αποτελέσματα πώλησης ανά εμπόρευμα',
+    'trade.cargo_unknown': 'Το τρέχον περιεχόμενο του φορτίου δεν είναι γνωστό με βεβαιότητα.',
+    'trade.cargo_item': '{name} · {count} t',
+    'trade.cargo_search': 'Αναζήτηση καλύτερων τιμών πώλησης',
+    'trade.cargo_choose': 'Επιλέξτε τουλάχιστον ένα εμπόρευμα.',
+
     'trade.current_market_read_tooltip': "Η τρέχουσα αγορά διαβάστηκε: {station}",
     'trade.current_market_open_tooltip': "Η αγορά του τρέχοντος σταθμού δεν έχει διαβαστεί ακόμη.",
     'about.version': 'Έκδοση {version}',
@@ -9,6 +24,12 @@ TRANSLATIONS = {
     'about.support': 'Υποστήριξη ανάπτυξης:\nΕργαλεία ανάπτυξης με υποστήριξη τεχνητής νοημοσύνης',
     'about.independent': 'Το CMDRHelper είναι ένα ανεξάρτητο κοινοτικό έργο και δεν συνδέεται με τη Frontier Developments.',
     'about.trademark': 'Το Elite Dangerous είναι εμπορικό σήμα της Frontier Developments plc.',
+    'release.3_9_0.0': 'Τα σπάνια αγαθά ενσωματώθηκαν στον εμπορικό βοηθό.',
+    'release.3_9_0.1': 'Οι σταθμοί προέλευσης σπάνιων αγαθών αναγνωρίζονται και αναζητούνται αυτόματα όταν χρειάζεται.',
+    'release.3_9_0.2': 'Βελτιωμένη αναγνώριση φορτίου με άμεση επιλογή των μεταφερόμενων αγαθών για αναζήτηση πώλησης.',
+    'release.3_9_0.3': 'Αναζήτηση κατάλληλων σταθμών πώλησης για πολλά μεταφερόμενα αγαθά ταυτόχρονα.',
+    'release.3_9_0.4': 'Σημαντικά διευρυμένη βοήθεια για το Powerplay 2.0.',
+    'release.3_9_0.5': 'Περαιτέρω βελτιώσεις σταθερότητας και αξιοπιστίας.',
     'release.3_8_3.0': 'Διορθώθηκε ένα σφάλμα που εμπόδιζε την ενημέρωση νέων δεδομένων τοπικών αγορών μετά την αποδοχή ορισμένων αποστολών.',
     'release.3_8_3.1': 'Βελτιώθηκε η σταθερότητα της παρακολούθησης των τοπικών αγορών.',
     'release.3_8_2.0': 'Διορθώσεις σφαλμάτων και βελτιώσεις στον βοηθό εμπορίου.',
@@ -1713,4 +1734,9 @@ TRANSLATIONS.update({
     'outbound.target': 'Σταθερός αποθηκευμένος προορισμός: {station} — {system}',
     'outbound.filters': 'Ο σταθερός προορισμός πρέπει επίσης να πληροί όλα τα επιλεγμένα φίλτρα.',
     'outbound.return_route': 'Αποθηκευμένο εμπόριο επιστροφής: {commodity} → {station} — {system}',
+})
+
+# Purchase commodity picker: catalogue-based Rare Goods filter.
+TRANSLATIONS.update({
+    'trade.goods_rare': 'Σπάνια εμπορεύματα',
 })

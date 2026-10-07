@@ -1,4 +1,19 @@
 TRANSLATIONS = {
+    'trade.origin_station': 'Opprinnelsesstasjon',
+    'trade.origin_market_id': 'Opprinnelig MarketID: {market_id}',
+    'trade.origin_unconfirmed': 'Gjeldende lager/pris: ikke bekreftet.',
+    'trade.origin_no_offers': 'Ingen aktuelle tilbud funnet i tilgjengelige markedsdata.',
+    'trade.origin_distance': 'Avstand: {distance} ly',
+
+    'trade.rare_sell_excluded': 'Sjeldne varer tas ikke med i det vanlige salgssøket.',
+    'trade.ship_inventory': 'Last i gjeldende skip',
+    'trade.cargo_select_all': 'Velg alle',
+    'trade.cargo_results': 'Salgsresultater per vare',
+    'trade.cargo_unknown': 'Gjeldende lastinnhold er ikke sikkert kjent.',
+    'trade.cargo_item': '{name} · {count} t',
+    'trade.cargo_search': 'Finn beste salgspriser',
+    'trade.cargo_choose': 'Velg minst én vare.',
+
     'trade.current_market_read_tooltip': "Gjeldende marked lest inn: {station}",
     'trade.current_market_open_tooltip': "Markedet på gjeldende stasjon er ikke lest inn ennå.",
     'about.version': 'Versjon {version}',
@@ -9,6 +24,12 @@ TRANSLATIONS = {
     'about.support': 'Utviklingsstøtte:\nKI-støttede utviklingsverktøy',
     'about.independent': 'CMDRHelper er et uavhengig fellesskapsprosjekt uten tilknytning til Frontier Developments.',
     'about.trademark': 'Elite Dangerous er et varemerke som tilhører Frontier Developments plc.',
+    'release.3_9_0.0': 'Sjeldne varer er integrert i handelsassistenten.',
+    'release.3_9_0.1': 'Opprinnelsesstasjoner for sjeldne varer gjenkjennes og slås opp automatisk ved behov.',
+    'release.3_9_0.2': 'Forbedret lastgjenkjenning med direkte valg av varer om bord for salgssøk.',
+    'release.3_9_0.3': 'Søk etter egnede salgsstasjoner for flere varer om bord samtidig.',
+    'release.3_9_0.4': 'Vesentlig utvidet hjelp for Powerplay 2.0.',
+    'release.3_9_0.5': 'Flere forbedringer av stabilitet og pålitelighet.',
     'release.3_8_3.0': 'Rettet en feil som hindret oppdatering av nye lokale markedsdata etter at visse oppdrag ble akseptert.',
     'release.3_8_3.1': 'Forbedret stabiliteten til overvåkingen av lokale markeder.',
     'release.3_8_2.0': 'Feilrettinger og forbedringer i handelsassistenten.',
@@ -1713,4 +1734,9 @@ TRANSLATIONS.update({
     'outbound.target': 'Fast lagret mål: {station} — {system}',
     'outbound.filters': 'Det faste målet må også oppfylle alle valgte filtre.',
     'outbound.return_route': 'Lagret returhandel: {commodity} → {station} — {system}',
+})
+
+# Purchase commodity picker: catalogue-based Rare Goods filter.
+TRANSLATIONS.update({
+    'trade.goods_rare': 'Sjeldne varer',
 })

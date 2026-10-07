@@ -311,6 +311,8 @@ class JournalSessionDatabaseTests(unittest.TestCase):
                 con.execute("DROP TABLE journal_sessions")
                 con.execute("DROP TABLE IF EXISTS station_pad_evidence")
                 con.execute("DROP TABLE IF EXISTS station_pad_journals")
+                for table in ("pp2_events", "pp2_import_checkpoints", "pp2_merit_state", "pp2_history_policy", "pp2_sources"):
+                    con.execute("DROP TABLE "+table)
                 con.execute("PRAGMA user_version = 1")
 
             CMDRDatabase(path)

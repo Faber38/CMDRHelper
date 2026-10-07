@@ -1345,3 +1345,42 @@ HELP_TOPICS["explorer"] = (
 )
 
 HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>Astuce : mémorisez les destinations souhaitées avec ✓ avant d’acheter – elles restent disponibles même lorsque la soute est pleine.</p>')
+
+HELP_TOPICS["pp2"] = ("PP2", """
+<h2>PP2 / Powerplay 2.0</h2>
+<p>PP2 affiche votre puissance, rang et total de mérites, ainsi que le dernier état Powerplay connu du système actuel. Vous y trouvez les activités générales pertinentes, la cargaison Powerplay à bord et les mérites crédités. Ouvrez cette aide avec le point d’interrogation lorsque PP2 est sélectionné.</p>
+<h3>Puissances, mérites et points de contrôle</h3>
+<p>Une puissance est un groupe Powerplay auquel vous pouvez prêter allégeance. Votre puissance est celle que vous avez rejointe ; elle ne contrôle pas forcément le système actuel. Les mérites sont vos points Powerplay personnels. Les points de contrôle concernent la position d’une puissance dans un système. Le Helper affiche les valeurs de contrôle, renforcement et déstabilisation fournies par Elite, si disponibles. Ce ne sont pas des mérites personnels supplémentaires ; la progression du contrôle n’est pas convertie en pourcentage.</p>
+<h3>État Powerplay du système</h3>
+<p><b>Unoccupied</b> : aucune puissance ne contrôle le système. <b>Exploited</b> : système exploité par une puissance. <b>Fortified</b> : niveau de contrôle renforcé. <b>Stronghold</b> : bastion de la puissance dominante. L’indicateur marque l’état signalé, sans prédire un changement imminent.</p>
+<h3>Acquisition, renforcement, déstabilisation et conflit</h3>
+<p><b>ACQUISITION</b> : acquérir un système inoccupé pour votre puissance ; le Helper ne le propose que si le lien avec elle est sans ambiguïté. <b>REINFORCEMENT</b> : renforcer un système de votre puissance. <b>UNDERMINING</b> : affaiblir le contrôle d’une autre puissance. Le conflit est une acquisition disputée : dans les systèmes inoccupés, le Helper peut afficher la progression signalée des puissances en conflit. Plusieurs puissances présentes ne suffisent pas à déterminer une activité. Si les informations manquent ou se contredisent, la catégorie reste inconnue.</p>
+<h3>Que faire ici pour ma puissance ?</h3>
+<p>CMDRHelper combine l’état du système fourni par Elite avec les activités générales de votre puissance pour la catégorie pertinente. Selon la puissance et la catégorie : Transporter des marchandises Powerplay (Transport Powerplay commodities), Pirater des holo-écrans (Hack holoscreens), Remettre des biens récupérés (Hand in salvage), Chasser les primes (Bounty hunting), Transférer des données de recherche (Transfer research data), Vendre avec un bénéfice élevé (Sell for large profits) ou Vendre des marchandises rares (Sell rare goods).</p>
+<p><b>Cette liste vous oriente, sans garantir des mérites.</b> Les activités viennent d’Elite, mais peuvent être générales pour la puissance et la catégorie. Certaines ont des conditions supplémentaires. Une coche dans cette liste ne confirme ni réalisation ni récompense. Consultez les indications d’Elite, puis vérifiez les mérites réellement crédités.</p>
+<h3>Exemple : vendre des marchandises rares</h3>
+<p>Elite peut proposer « Vendre des marchandises rares (Sell rare goods) ». Une vente réussie ne rapporte pas automatiquement des mérites Powerplay : <b>vente réussie ≠ mérites garantis.</b> CMDRHelper n’affiche le crédit que lorsqu’Elite le signale. Une vente sans mérites ne permet pas de déduire une règle générale sur la provenance des marchandises, par exemple un porte-vaisseaux.</p>
+<h3>Comprendre les tâches de transport Powerplay</h3>
+<p>« Transporter des marchandises Powerplay vers des systèmes à déstabiliser » désigne le type de destination : les systèmes d’une autre puissance dont vous devez affaiblir le contrôle. Exemple : 10 × désinformation de Kaine. Suivez les exigences précises de la tâche dans Elite.</p>
+<ol>
+<li>Consultez la tâche Powerplay dans Elite.</li>
+<li>Vérifiez la source et le type de système demandés.</li>
+<li>Récupérez la cargaison Powerplay appropriée.</li>
+<li>Rejoignez le type de destination demandé.</li>
+<li>Livrez au contact de puissance prévu.</li>
+<li>Vérifiez ensuite les mérites crédités dans le Helper.</li>
+</ol>
+<p>L’affichage des articles à bord récapitule la cargaison confirmée et son usage connu. Le stock ou l’usage peuvent encore être inconnus. Les tâches hebdomadaires personnelles et leur progression ne sont pas affichées ici.</p>
+<h3>Missions et transferts de données</h3>
+<p>Elite peut proposer des tâches liées au Powerplay, comme des transferts de données stratégiques. Cherchez une mention explicite de Powerplay ou de mérites dans Elite. Toute mission de courrier ordinaire ne rapporte pas forcément des mérites. Le Helper confirme le crédit seulement lorsqu’Elite le signale.</p>
+<h3>Derniers mérites crédités dans la chronique quotidienne</h3>
+<p>Ils figurent actuellement dans « PP2 DAILY CHRONICLE ». La colonne des mérites contient les crédits réellement signalés par Elite, pas des récompenses estimées. C’est une confirmation plus fiable que la liste générale des activités ou une notification de vente. Le total des mérites est votre dernier solde personnel signalé.</p>
+<p>La cause exacte n’est pas toujours connue : ✓ confirme une collecte ou livraison Powerplay, ≈ seulement une proximité temporelle, ? une cause inconnue. Même ✓ ne prouve pas qu’un crédit voisin correspond à cette tâche. — indique qu’aucun crédit n’est affiché pour la ligne. Les infobulles détaillent les crédits et horaires ; aucune tâche personnelle n’est déclarée terminée sur cette base.</p>
+<p>Les flèches changent le jour civil local ; « Aujourd’hui » revient au jour actuel. L’historique appartient au commandant concerné. Sa gestion permet de supprimer, après confirmation, les anciennes entrées ou tout l’historique ; le total des mérites connu reste conservé. Le premier chargement reprend uniquement la journée actuelle, puis les nouveaux événements s’ajoutent.</p>
+<h3>Utiliser la carte galactique</h3>
+<p>La carte galactique d’Elite permet de vérifier territoires des puissances, votre puissance, états des systèmes, bastions et activités locales. Si des systèmes de votre puissance semblent manquer, vérifiez les filtres Powerplay, surtout l’affichage de « Ma puissance ». Ces filtres appartiennent à la carte d’Elite.</p>
+<h3>Actualité des données</h3>
+<p>CMDRHelper utilise les données locales d’Elite et affiche le dernier état connu du système et du Powerplay. Les informations peuvent être anciennes ou retardées. Vérifiez l’heure affichée pour le système ; la carte peut aussi indiquer une date de mise à jour. En cas de contradiction, comparez système et dates. Ni le Helper ni la carte ne sont systématiquement plus à jour.</p>
+<h3>Rang et progression</h3>
+<p>Le rang est celui signalé par Elite. Si vos mérites correspondent déjà par calcul à un rang supérieur, le Helper indique qu’une mise à jour du rang est attendue. Des données absentes ou contradictoires peuvent empêcher l’affichage de la progression. Les paliers calculés après le rang 100 apparaissent comme 100+.</p>
+""")

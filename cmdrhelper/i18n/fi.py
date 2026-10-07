@@ -1,4 +1,19 @@
 TRANSLATIONS = {
+    'trade.origin_station': 'Alkuperäasema',
+    'trade.origin_market_id': 'Alkuperän MarketID: {market_id}',
+    'trade.origin_unconfirmed': 'Nykyinen varasto/hinta: vahvistamaton.',
+    'trade.origin_no_offers': 'Saatavilla olevista markkinatiedoista ei löytynyt nykyisiä tarjouksia.',
+    'trade.origin_distance': 'Etäisyys: {distance} ly',
+
+    'trade.rare_sell_excluded': 'Harvinaiset tavarat eivät sisälly tavalliseen myyntihakuun.',
+    'trade.ship_inventory': 'Nykyisen aluksen lasti',
+    'trade.cargo_select_all': 'Valitse kaikki',
+    'trade.cargo_results': 'Myyntitulokset tuotteittain',
+    'trade.cargo_unknown': 'Nykyisen lastin sisältöä ei tunneta varmasti.',
+    'trade.cargo_item': '{name} · {count} t',
+    'trade.cargo_search': 'Etsi parhaat myyntihinnat',
+    'trade.cargo_choose': 'Valitse vähintään yksi tuote.',
+
     'trade.current_market_read_tooltip': "Nykyiset markkinat luettu: {station}",
     'trade.current_market_open_tooltip': "Nykyisen aseman markkinoita ei ole vielä luettu.",
     'about.version': 'Versio {version}',
@@ -9,6 +24,12 @@ TRANSLATIONS = {
     'about.support': 'Kehitystuki:\nTekoälyavusteiset kehitystyökalut',
     'about.independent': 'CMDRHelper on riippumaton yhteisöprojekti, jolla ei ole yhteyttä Frontier Developmentsiin.',
     'about.trademark': 'Elite Dangerous on Frontier Developments plc:n tavaramerkki.',
+    'release.3_9_0.0': 'Harvinaiset tavarat on integroitu kauppa-avustajaan.',
+    'release.3_9_0.1': 'Harvinaisten tavaroiden alkuperäasemat tunnistetaan ja selvitetään tarvittaessa automaattisesti.',
+    'release.3_9_0.2': 'Rahdin tunnistusta parannettu: mukana olevat tavarat voi valita suoraan myyntihakuun.',
+    'release.3_9_0.3': 'Etsi sopivia myyntiasemia useille mukana oleville kauppatavaroille samalla haulla.',
+    'release.3_9_0.4': 'Powerplay 2.0 -ohjetta laajennettu huomattavasti.',
+    'release.3_9_0.5': 'Muita vakauden ja luotettavuuden parannuksia.',
     'release.3_8_3.0': 'Korjattu virhe, joka esti uusien paikallisten markkinatietojen päivittymisen tiettyjen tehtävien hyväksymisen jälkeen.',
     'release.3_8_3.1': 'Paikallisten markkinoiden seurannan vakautta parannettu.',
     'release.3_8_2.0': 'Virhekorjauksia ja parannuksia kauppa-avustajaan.',
@@ -1713,4 +1734,9 @@ TRANSLATIONS.update({
     'outbound.target': 'Kiinteä tallennettu kohde: {station} — {system}',
     'outbound.filters': 'Kiinteän kohteen on myös täytettävä kaikki valitut suodattimet.',
     'outbound.return_route': 'Tallennettu paluukauppa: {commodity} → {station} — {system}',
+})
+
+# Purchase commodity picker: catalogue-based Rare Goods filter.
+TRANSLATIONS.update({
+    'trade.goods_rare': 'Harvinaiset hyödykkeet',
 })

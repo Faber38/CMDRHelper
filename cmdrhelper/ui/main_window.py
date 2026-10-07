@@ -1115,6 +1115,7 @@ class MainWindow(QMainWindow):
     PAGE_SETTINGS = 8
     PAGE_MATERIALS = 9
     PAGE_TRADE = 10
+    PAGE_PP2 = 11
     HELP_CONTEXTS = {
         PAGE_OVERVIEW: "overview",
         PAGE_MISSIONS: "missions",
@@ -1127,6 +1128,7 @@ class MainWindow(QMainWindow):
         PAGE_SETTINGS: "settings",
         PAGE_MATERIALS: "materials",
         PAGE_TRADE: "trade",
+        PAGE_PP2: "pp2",
     }
 
     def __init__(self, state):
@@ -1334,6 +1336,8 @@ class MainWindow(QMainWindow):
 
         materials_button = self._nav("▤  " + tr("materials.title"), self.PAGE_MATERIALS)
         trade_button = self._nav("⇄  " + tr("nav.trade"), self.PAGE_TRADE)
+        pp2_button = self._nav("⚑  " + tr("nav.pp2"), self.PAGE_PP2)
+        side.insertWidget(side.indexOf(self.nav_buttons[self.PAGE_ROUTE_PLANNER]), pp2_button)
         # Visual order is independent of the stable page/nav_buttons indices.
         explorer_position = side.indexOf(self.nav_buttons[self.PAGE_EXPLORER])
         side.insertWidget(explorer_position + 1, materials_button)
@@ -1549,6 +1553,10 @@ class MainWindow(QMainWindow):
         from cmdrhelper.ui.trade_view import TradeView
         self.trade_view = TradeView(self.state, self)
         self.pages.addWidget(self.trade_view)
+
+        from cmdrhelper.ui.powerplay_view import PowerplayView
+        self.powerplay_view = PowerplayView(self.state, self)
+        self.pages.addWidget(self.powerplay_view)
 
         right_layout.addWidget(self.pages, 1)
 

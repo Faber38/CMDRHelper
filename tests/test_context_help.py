@@ -81,14 +81,27 @@ class ContextHelpTests(unittest.TestCase):
         self.assertEqual(self.window.PAGE_COMMANDER_VIEW, 7)
         self.assertEqual(self.window.PAGE_SETTINGS, 8)
         self.assertEqual(self.window.PAGE_MATERIALS, 9)
-        self.assertEqual(self.window.pages.count(), 11)
-        self.assertEqual(len(self.window.nav_buttons), 11)
+        self.assertEqual(self.window.pages.count(), 12)
+        self.assertEqual(len(self.window.nav_buttons), 12)
         self.assertIn("Materialien", self.window.nav_buttons[9].text())
         self.window.nav_buttons[9].click()
         self.assertIs(self.window.pages.currentWidget(), self.window.material_view)
         self.assertEqual(self.window.nav_buttons[9].objectName(), "navActive")
         self.window.help_button.click()
         self.assertIn("Materialien", self.window._help_dialog.windowTitle())
+        self.window._help_dialog.close()
+
+    def test_pp2_navigation_between_analysis_and_routes(self):
+        button = self.window.nav_buttons[self.window.PAGE_PP2]
+        layout = button.parentWidget().layout()
+        analysis = layout.indexOf(self.window.nav_buttons[self.window.PAGE_JUMP_TIP])
+        self.assertEqual(layout.indexOf(button), analysis + 1)
+        self.assertEqual(layout.indexOf(self.window.nav_buttons[self.window.PAGE_ROUTE_PLANNER]), analysis + 2)
+        button.click()
+        self.assertIs(self.window.pages.currentWidget(), self.window.powerplay_view)
+        self.assertEqual(button.objectName(), "navActive")
+        self.window.help_button.click()
+        self.assertEqual(self.window._help_dialog.context, "pp2")
         self.window._help_dialog.close()
 
     def test_trade_navigation_after_materials_and_explorer(self):
@@ -568,7 +581,7 @@ class ContextHelpTests(unittest.TestCase):
     def test_no_help_topics_remain_short(self):
         self.assertEqual(set(de.HELP_TOPICS),
                          set(self.window.HELP_CONTEXTS.values()) | {PlanetNavigationWindow.HELP_CONTEXT})
-        self.assertEqual(len(de.HELP_TOPICS), 12)
+        self.assertEqual(len(de.HELP_TOPICS), 13)
         for context in de.HELP_TOPICS:
             with self.subTest(context=context):
                 topic = help_topic(context)

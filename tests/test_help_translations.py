@@ -38,7 +38,7 @@ class HelpTranslationTests(unittest.TestCase):
 
     def test_all_languages_and_topics_are_registered(self):
         self.assertEqual(HELP_LANGUAGES, EXPECTED_LANGUAGES)
-        self.assertEqual(len(de.HELP_TOPICS), 12)
+        self.assertEqual(len(de.HELP_TOPICS), 13)
         expected_topics = tuple(de.HELP_TOPICS)
         for language in HELP_LANGUAGES:
             with self.subTest(language=language):
@@ -46,7 +46,32 @@ class HelpTranslationTests(unittest.TestCase):
                     f"cmdrhelper.help_content.{language}", fromlist=["HELP_TOPICS"]
                 )
                 self.assertEqual(tuple(catalog.HELP_TOPICS), expected_topics)
-                self.assertEqual(len(catalog.HELP_TOPICS), 12)
+                self.assertEqual(len(catalog.HELP_TOPICS), 13)
+
+    def test_pp2_help_is_complete_without_fallback_or_internal_details(self):
+        from html import escape
+        from cmdrhelper.i18n import tr_for_language
+
+        master = help_topic('pp2', 'de').text
+        for language in HELP_LANGUAGES:
+            with self.subTest(language=language):
+                catalog = import_module('cmdrhelper.help_content.' + language)
+                text = help_topic('pp2', language).text
+                self.assertEqual(text, catalog.HELP_TOPICS['pp2'][1])
+                self.assertEqual(_tag_structure(text), _tag_structure(master))
+                self.assertEqual(text.count('<li>'), 6)
+                self.assertEqual(re.findall(r'\d+', text), re.findall(r'\d+', master))
+                for key in ('status.unoccupied', 'status.exploited', 'status.fortified',
+                            'status.stronghold', 'mode.acquisition', 'mode.reinforcement',
+                            'mode.undermining', 'action.SellExoticGoods', 'chronicle.title'):
+                    label = tr_for_language(language, 'pp2.' + key)
+                    self.assertNotEqual(label, 'pp2.' + key)
+                    self.assertIn(escape(label), text)
+                for symbol in ('✓', '≈', '?', '—', '≠'):
+                    self.assertIn(symbol, text)
+                self.assertNotRegex(text, r'\[\[|\]\]|\{[^}]+\}|pp2\.|PowerplayState|'
+                                          r'TimePledged|TotalMerits|rankThresholds|'
+                                          r'Cargo.snapshot|SQLite|JSON')
 
     def test_navigation_translations_preserve_numbers_and_have_no_german_passages(self):
         master = de.HELP_TOPICS["planet_navigation"][1]
@@ -358,14 +383,14 @@ class HelpTranslationTests(unittest.TestCase):
                 self.assertNotRegex(bio.casefold(), r'degrad|dégrad|degr[aá]d|nedbryt|'
                                     r'hajoamis|υποβάθμ|bozulma|decompos|decay')
 
-    def test_updated_explorer_and_mining_help_render_in_both_themes(self):
+    def test_updated_explorer_mining_and_pp2_help_render_in_both_themes(self):
         from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
         previous = self.app.styleSheet()
         self.addCleanup(self.app.setStyleSheet, previous)
         for style in (DARK_STYLESHEET, LIGHT_STYLESHEET):
             self.app.setStyleSheet(style)
             for language in HELP_LANGUAGES:
-                for context in ('explorer', 'materials'):
+                for context in ('explorer', 'materials', 'pp2'):
                     with self.subTest(language=language, context=context):
                         dialog = HelpDialog(context, language=language)
                         try:

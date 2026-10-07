@@ -1,0 +1,230 @@
+[
+  {
+    "timestamp": "2026-10-06T17:37:59Z",
+    "event": "PowerplayCollect",
+    "Power": "Nakato Kaine",
+    "Type": "kainemisinformation",
+    "Type_Localised": "Kaine-Fehlinformationen",
+    "Count": 10
+  },
+  {
+    "timestamp": "2026-10-06T17:38:02Z",
+    "event": "Cargo",
+    "Vessel": "Ship",
+    "Count": 10
+  },
+  {
+    "timestamp": "2026-10-06T17:48:21Z",
+    "event": "FSDJump",
+    "Taxi": false,
+    "Multicrew": false,
+    "StarSystem": "HIP 70049",
+    "SystemAddress": 2008065086178,
+    "StarPos": [
+      41.1875,
+      103.375,
+      92.28125
+    ],
+    "SystemAllegiance": "Independent",
+    "SystemEconomy": "$economy_Industrial;",
+    "SystemEconomy_Localised": "Industrie",
+    "SystemSecondEconomy": "$economy_Extraction;",
+    "SystemSecondEconomy_Localised": "Förderung",
+    "SystemGovernment": "$government_Corporate;",
+    "SystemGovernment_Localised": "Konzernpolitik",
+    "SystemSecurity": "$SYSTEM_SECURITY_medium;",
+    "SystemSecurity_Localised": "Mittlere Sicherheit",
+    "Population": 5076514,
+    "Body": "HIP 70049 A",
+    "BodyID": 1,
+    "BodyType": "Star",
+    "ControllingPower": "Edmund Mahon",
+    "Powers": [
+      "Edmund Mahon"
+    ],
+    "PowerplayState": "Exploited",
+    "PowerplayStateControlProgress": 0.254975,
+    "PowerplayStateReinforcement": 0,
+    "PowerplayStateUndermining": 158,
+    "JumpDist": 13.389,
+    "FuelUsed": 0.328949,
+    "FuelLevel": 45.307144,
+    "Factions": [
+      {
+        "Name": "New Ross 842 Free",
+        "FactionState": "None",
+        "Government": "Democracy",
+        "Influence": 0.097,
+        "Allegiance": "Federation",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Happiness_Localised": "Glücklich",
+        "MyReputation": 0.0
+      },
+      {
+        "Name": "HIP 70049 Jet Central PLC",
+        "FactionState": "None",
+        "Government": "Corporate",
+        "Influence": 0.068,
+        "Allegiance": "Independent",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Happiness_Localised": "Glücklich",
+        "MyReputation": 0.0
+      },
+      {
+        "Name": "HIP 70049 Gold Cartel",
+        "FactionState": "None",
+        "Government": "Anarchy",
+        "Influence": 0.011,
+        "Allegiance": "Independent",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Happiness_Localised": "Glücklich",
+        "MyReputation": 0.0
+      },
+      {
+        "Name": "HIP 70049 League",
+        "FactionState": "None",
+        "Government": "Dictatorship",
+        "Influence": 0.032,
+        "Allegiance": "Independent",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Happiness_Localised": "Glücklich",
+        "MyReputation": 0.0
+      },
+      {
+        "Name": "HIP 70049 Labour",
+        "FactionState": "None",
+        "Government": "Democracy",
+        "Influence": 0.057,
+        "Allegiance": "Federation",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Happiness_Localised": "Glücklich",
+        "MyReputation": 0.0
+      },
+      {
+        "Name": "HIP 70049 Silver Natural Systems",
+        "FactionState": "None",
+        "Government": "Corporate",
+        "Influence": 0.035,
+        "Allegiance": "Independent",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Happiness_Localised": "Glücklich",
+        "MyReputation": 0.0
+      },
+      {
+        "Name": "Delta Squadron",
+        "FactionState": "Expansion",
+        "Government": "Corporate",
+        "Influence": 0.7,
+        "Allegiance": "Independent",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Happiness_Localised": "Glücklich",
+        "MyReputation": 0.0,
+        "ActiveStates": [
+          {
+            "State": "Expansion"
+          }
+        ]
+      }
+    ],
+    "SystemFaction": {
+      "Name": "Delta Squadron",
+      "FactionState": "Expansion"
+    }
+  },
+  {
+    "timestamp": "2026-10-06T17:52:30Z",
+    "event": "Docked",
+    "StationName": "Mille Enterprise",
+    "StationType": "Coriolis",
+    "Taxi": false,
+    "Multicrew": false,
+    "StarSystem": "HIP 70049",
+    "SystemAddress": 2008065086178,
+    "MarketID": 3231292416,
+    "StationFaction": {
+      "Name": "Delta Squadron",
+      "FactionState": "Expansion"
+    },
+    "StationGovernment": "$government_Corporate;",
+    "StationGovernment_Localised": "Konzernpolitik",
+    "StationServices": [
+      "dock",
+      "autodock",
+      "commodities",
+      "contacts",
+      "exploration",
+      "missions",
+      "outfitting",
+      "crewlounge",
+      "rearm",
+      "refuel",
+      "repair",
+      "shipyard",
+      "tuning",
+      "engineer",
+      "missionsgenerated",
+      "flightcontroller",
+      "stationoperations",
+      "powerplay",
+      "searchrescue",
+      "stationMenu",
+      "shop",
+      "livery",
+      "socialspace",
+      "bartender",
+      "vistagenomics",
+      "pioneersupplies",
+      "apexinterstellar",
+      "frontlinesolutions",
+      "registeringcolonisation"
+    ],
+    "StationEconomy": "$economy_Industrial;",
+    "StationEconomy_Localised": "Industrie",
+    "StationEconomies": [
+      {
+        "Name": "$economy_Industrial;",
+        "Name_Localised": "Industrie",
+        "Proportion": 0.77
+      },
+      {
+        "Name": "$economy_Extraction;",
+        "Name_Localised": "Förderung",
+        "Proportion": 0.23
+      }
+    ],
+    "DistFromStarLS": 965.360822,
+    "LandingPads": {
+      "Small": 17,
+      "Medium": 18,
+      "Large": 9
+    }
+  },
+  {
+    "timestamp": "2026-10-06T17:53:24Z",
+    "event": "PowerplayDeliver",
+    "Power": "Nakato Kaine",
+    "Type": "kainemisinformation",
+    "Type_Localised": "Kaine-Fehlinformationen",
+    "Count": 10
+  },
+  {
+    "timestamp": "2026-10-06T17:53:24Z",
+    "event": "PowerplayMerits",
+    "Power": "Nakato Kaine",
+    "MeritsGained": 3600,
+    "TotalMerits": 12783
+  },
+  {
+    "timestamp": "2026-10-06T17:53:24Z",
+    "event": "PowerplayMerits",
+    "Power": "Nakato Kaine",
+    "MeritsGained": 48,
+    "TotalMerits": 12831
+  },
+  {
+    "timestamp": "2026-10-06T17:53:27Z",
+    "event": "Cargo",
+    "Vessel": "Ship",
+    "Count": 0
+  }
+]

@@ -1291,3 +1291,42 @@ HELP_TOPICS["explorer"] = (
 )
 
 HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>Tip: Remember your chosen destinations with ✓ before buying – they remain available even when your cargo hold is full.</p>')
+
+HELP_TOPICS["pp2"] = ("PP2", """
+<h2>PP2 / Powerplay 2.0</h2>
+<p>PP2 shows your power, rank and total merits, plus the last known Powerplay state of your current system. It lists relevant general activities, Powerplay cargo aboard and reported merit credits. Open this help with the question mark while PP2 is selected.</p>
+<h3>Powers, merits and control points</h3>
+<p>A power is a Powerplay group you can pledge to. Your own power is the one you pledged to; it need not control your current system. Merits are your personal Powerplay points. Control points concern a power’s position in a system instead. The Helper displays control progress, reinforcement and undermining values supplied by Elite when available. These are not extra personal merits; control progress is not converted to a percentage.</p>
+<h3>Powerplay system state</h3>
+<p><b>Unoccupied</b>: no controlling power. <b>Exploited</b>: a system established under a power. <b>Fortified</b>: a stronger control level. <b>Stronghold</b>: a stronghold of the controlling power. The stage indicator marks the reported state; it does not predict an upcoming change.</p>
+<h3>Acquisition, reinforcement, undermining and conflict</h3>
+<p><b>ACQUISITION</b>: acquire an unoccupied system for your power; the Helper only shows this with an unambiguous link to your power. <b>REINFORCEMENT</b>: strengthen your own power’s system. <b>UNDERMINING</b>: weaken another power’s control. Conflict means contested acquisition: for unoccupied systems, the Helper can display reported conflict progress for participating powers. Multiple powers alone do not establish an activity recommendation. Missing or conflicting information leaves the activity category unknown.</p>
+<h3>What can I do here for my power?</h3>
+<p>CMDRHelper combines Elite’s system state with your power’s general activities for the relevant category. Depending on power and category, examples include: Transport Powerplay commodities, Hack holoscreens, Hand in salvage, Bounty hunting, Transfer research data, Sell for large profits or Sell rare goods.</p>
+<p><b>The list offers guidance, not guaranteed merits.</b> These activities come from Elite but may apply generally to the power and category. Individual activities can have additional requirements. A tick in this list does not confirm completion or a reward. Check Elite’s instructions and then the actual merit credit.</p>
+<h3>Example: selling rare goods</h3>
+<p>Elite may list “Sell rare goods” as an activity. A successful sale still does not automatically earn Powerplay merits: <b>successful sale ≠ guaranteed merit credit.</b> CMDRHelper only displays a merit credit once Elite reports it. A sale without a credit does not establish a general rule about the goods’ origin, such as a carrier.</p>
+<h3>Reading Powerplay transport tasks</h3>
+<p>“Transport Powerplay commodities to undermining systems” describes the required destination type: systems of another power whose control you are to weaken. Example: 10 × Kaine misinformation. Follow the specific requirements of the task in Elite.</p>
+<ol>
+<li>Read the Powerplay task in Elite.</li>
+<li>Check the required source and system type.</li>
+<li>Collect the appropriate Powerplay cargo.</li>
+<li>Fly to the required destination type.</li>
+<li>Deliver to the designated power contact.</li>
+<li>Check the merit credit in the Helper afterwards.</li>
+</ol>
+<p>The articles aboard display helps you track confirmed cargo and its known use. Stock or use may still be unknown. Personal weekly assignments and their progress are not shown here.</p>
+<h3>Missions and data transfers</h3>
+<p>Elite can offer Powerplay-related tasks, such as strategic data transfers. Look for an explicit Powerplay or merit reference in Elite. Not every ordinary courier mission earns merits. The Helper confirms the actual credit only when Elite reports it.</p>
+<h3>Recent merit credits in the daily chronicle</h3>
+<p>You currently find these under “PP2 DAILY CHRONICLE”. The merits column contains credits actually reported by Elite, not estimated rewards. This is more reliable confirmation of an award than the general activity list or a sale notification. Total merits shows your last reported personal balance.</p>
+<p>The exact cause of a credit is not always known: ✓ confirms a Powerplay collection or delivery, ≈ only proximity in time to an activity, and ? an unknown cause. Even ✓ does not prove that a nearby credit belongs to that task. — means no credit is displayed for that row. Tooltips show individual credits and times; no personal assignment completion is inferred.</p>
+<p>Use the arrows to change the local calendar day; “Today” returns to the current day. History belongs to the individual commander. History management lets you delete older entries or all history after confirmation; your known merit total is retained. Initial loading only backfills the current day, then new events are added.</p>
+<h3>Using the galaxy map</h3>
+<p>Elite’s galaxy map helps you check power territories, your own power, system states, strongholds and local activities. If your power’s systems seem to be missing, check the Powerplay map filters, especially whether “My Power” is enabled. These filters belong to Elite’s map.</p>
+<h3>Data freshness</h3>
+<p>CMDRHelper uses local Elite data and shows the last known system and Powerplay state. Information may be delayed or older. Check the displayed system timestamp; the galaxy map may also show an update time. When information conflicts, compare the system and timestamps. Neither the Helper nor the galaxy map is always more up to date.</p>
+<h3>Rank and progress</h3>
+<p>Your rank is the rank reported by Elite. If your merits calculate to a higher rank already, the Helper indicates that a rank update is pending. Missing or conflicting data can prevent the progress display. Further calculated merit bands after rank 100 appear as 100+.</p>
+""")

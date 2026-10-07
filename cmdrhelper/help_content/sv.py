@@ -1288,3 +1288,42 @@ HELP_TOPICS["explorer"] = (
 )
 
 HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>Tips: spara önskade destinationer med ✓ före köp – de finns kvar även när lastutrymmet är fullt.</p>')
+
+HELP_TOPICS["pp2"] = ("PP2", """
+<h2>PP2 / Powerplay 2.0</h2>
+<p>PP2 visar din makt, rang och totala meriter samt senast kända Powerplay-status för det aktuella systemet. Här finns relevanta allmänna aktiviteter, Powerplay-last ombord och rapporterade merittilldelningar. Öppna hjälpen med frågetecknet när PP2 är valt.</p>
+<h3>Makter, meriter och kontrollpoäng</h3>
+<p>En makt är en Powerplay-grupp som du kan svära trohet till. Din egen makt är den du har anslutit dig till; den behöver inte kontrollera det aktuella systemet. Meriter är dina personliga Powerplay-poäng. Kontrollpoäng gäller däremot en makts ställning i systemet. Helper visar Elites värden för kontrollframsteg, förstärkning och underminering när de är kända. Det är inga extra personliga meriter; kontrollframsteg räknas inte om till procent.</p>
+<h3>Systemets Powerplay-status</h3>
+<p><b>Unoccupied</b>: ingen kontrollerande makt. <b>Exploited</b>: ett system exploaterat av en makt. <b>Fortified</b>: en starkare kontrollnivå. <b>Stronghold</b>: den kontrollerande maktens högborg. Indikatorn markerar rapporterad status utan att förutsäga kommande förändringar.</p>
+<h3>Förvärv, förstärkning, underminering och konflikt</h3>
+<p><b>ACQUISITION</b>: förvärva ett obesatt system åt din makt; Helper visar detta endast vid en entydig koppling till din makt. <b>REINFORCEMENT</b>: stärka ett system som tillhör din makt. <b>UNDERMINING</b>: försvaga en annan makts kontroll. Konflikt innebär omstritt förvärv: i obesatta system kan Helper visa rapporterade konfliktframsteg för makterna. Flera deltagande makter räcker inte för en entydig aktivitetsrekommendation. Saknade eller motsägande uppgifter ger okänd kategori.</p>
+<h3>Vad kan jag göra här för min makt?</h3>
+<p>CMDRHelper kombinerar systemstatus från Elite med din makts allmänna aktiviteter för rätt kategori. Beroende på makt och kategori: Transportera Powerplay-artiklar (Transport Powerplay commodities), Hacka holoskärmar (Hack holoscreens), Lämna in bärgningsgods (Hand in salvage), Prisjakt (Bounty hunting), Överföra forskningsdata (Transfer research data), Sälja med hög vinst (Sell for large profits) eller Sälja sällsynta varor (Sell rare goods).</p>
+<p><b>Listan ger vägledning, inga garanterade meriter.</b> Aktiviteterna kommer från Elite men kan gälla allmänt för makten och kategorin. Enskilda aktiviteter kan ha ytterligare villkor. En bock i listan bekräftar varken genomförande eller belöning. Läs anvisningarna i Elite och kontrollera sedan den faktiska merittilldelningen.</p>
+<h3>Exempel: sälja sällsynta varor</h3>
+<p>Elite kan ange ”Sälja sällsynta varor (Sell rare goods)” som aktivitet. En lyckad försäljning ger ändå inte automatiskt Powerplay-meriter: <b>lyckad försäljning ≠ garanterad merittilldelning.</b> CMDRHelper visar tilldelningen först när Elite rapporterar den. En försäljning utan tilldelning bevisar ingen allmän regel om varornas ursprung, exempelvis från en carrier.</p>
+<h3>Förstå Powerplay-transportuppgifter</h3>
+<p>”Transportera Powerplay-artiklar till system för underminering” anger måltypen: system som tillhör en annan makt vars kontroll du ska försvaga. Exempel: 10 × Kaine-desinformation. Följ de konkreta kraven i uppgiften i Elite.</p>
+<ol>
+<li>Läs Powerplay-uppgiften i Elite.</li>
+<li>Kontrollera angiven källa och systemtyp.</li>
+<li>Hämta rätt Powerplay-last.</li>
+<li>Flyg till den efterfrågade måltypen.</li>
+<li>Lämna lasten hos den angivna maktkontakten.</li>
+<li>Kontrollera sedan merittilldelningen i Helper.</li>
+</ol>
+<p>Artiklar ombord visar bekräftad last och känd användning. Bestånd eller användning kan fortfarande vara okända. Personliga veckouppdrag och deras framsteg visas inte här.</p>
+<h3>Uppdrag och dataöverföring</h3>
+<p>Elite kan erbjuda Powerplay-uppgifter, exempelvis strategiska dataöverföringar. Leta efter en uttrycklig hänvisning till Powerplay eller meriter i Elite. Inte varje vanligt kuriruppdrag ger meriter. Helper bekräftar tilldelningen först när Elite rapporterar den.</p>
+<h3>Senaste merittilldelningar i dagskrönikan</h3>
+<p>De finns för närvarande under ”PP2 DAILY CHRONICLE”. Meritkolumnen innehåller tilldelningar som Elite faktiskt har rapporterat, inte uppskattade belöningar. Det är en säkrare bekräftelse än den allmänna aktivitetslistan eller ett försäljningsmeddelande. Totala meriter visar ditt senast rapporterade personliga saldo.</p>
+<p>Den exakta orsaken är inte alltid känd: ✓ bekräftar en Powerplay-hämtning eller -leverans, ≈ endast närhet i tid och ? okänd orsak. Även ✓ bevisar inte att en närliggande tilldelning hör till just den uppgiften. — betyder att ingen tilldelning visas för raden. Verktygstips visar enskilda tilldelningar och tider; inget slutfört personligt uppdrag härleds.</p>
+<p>Pilarna byter lokal kalenderdag; ”Idag” återgår till aktuell dag. Historiken tillhör respektive commander. Via historikhanteringen kan äldre poster eller hela historiken raderas efter bekräftelse; den kända meritsumman behålls. Första inläsningen hämtar bara den aktuella dagen, därefter läggs nya händelser till.</p>
+<h3>Använd galaxkartan</h3>
+<p>Elites galaxkarta hjälper dig kontrollera maktområden, din egen makt, systemstatus, högborgar och lokala aktiviteter. Om din makts system verkar saknas, kontrollera Powerplay-filtren, särskilt om ”Min makt” visas. Dessa filter hör till kartan i Elite.</p>
+<h3>Hur aktuella är uppgifterna?</h3>
+<p>CMDRHelper använder lokala Elite-data och visar senast kända system- och Powerplay-status. Uppgifterna kan vara fördröjda eller äldre. Kontrollera systemets visade tidpunkt; kartan kan också visa en uppdateringstid. Vid motstridiga uppgifter jämför du system och tidpunkter. Varken Helper eller kartan är alltid mest aktuell.</p>
+<h3>Rang och framsteg</h3>
+<p>Rangen är den Elite har rapporterat. Om dina meriter redan beräknas räcka till en högre rang visar Helper att en ranguppdatering väntas. Saknade eller motsägande data kan hindra framstegsvisningen. Ytterligare beräknade meritnivåer efter rang 100 visas som 100+.</p>
+""")

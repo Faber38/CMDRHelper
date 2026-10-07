@@ -218,8 +218,8 @@ def read_local(database_path, journal_folder, cancel=None, stats=None):
         with closing(sqlite3.connect(db.as_uri() + '?mode=rw', uri=True, timeout=.25)) as con:
             con.row_factory = sqlite3.Row
             con.execute('PRAGMA foreign_keys=ON')
-            if con.execute('PRAGMA user_version').fetchone()[0] != 22:
-                raise RuntimeError('Persistent pad metadata requires database schema 22')
+            if con.execute('PRAGMA user_version').fetchone()[0] not in (22, 23):
+                raise RuntimeError('Persistent pad metadata requires database schema 22 or 23')
             for path in paths:
                 _process(con, path, str(folder), cancel, stats)
             check_cancel(cancel)

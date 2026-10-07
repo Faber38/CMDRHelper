@@ -1,0 +1,512 @@
+{
+  "rankThresholds": {
+    "rankTwo": 2000,
+    "rankThree": 3000,
+    "rankFour": 4000,
+    "rankFive": 6000,
+    "aboveRankFive": 8000
+  },
+  "powers": [
+    {
+      "id": 200130,
+      "name": "Nakato Kaine",
+      "ethos": {},
+      "perks": [
+        {
+          "name": "controlled_rebuy",
+          "value": -100,
+          "unlockRank": 36,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "controlled_rebuy",
+          "value": -80,
+          "unlockRank": 27,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "controlled_rebuy",
+          "value": -60,
+          "unlockRank": 17,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "controlled_rebuy",
+          "value": -40,
+          "unlockRank": 8,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "controlled_rebuy",
+          "value": -20,
+          "unlockRank": 2,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "controlled_rebuy",
+          "value": 0,
+          "unlockRank": 0,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "uncontrolled_rebuy",
+          "value": -100,
+          "unlockRank": 60,
+          "availability": "uncontrolled",
+          "type": "perk"
+        },
+        {
+          "name": "uncontrolled_rebuy",
+          "value": -66,
+          "unlockRank": 29,
+          "availability": "uncontrolled",
+          "type": "perk"
+        },
+        {
+          "name": "uncontrolled_rebuy",
+          "value": -33,
+          "unlockRank": 11,
+          "availability": "uncontrolled",
+          "type": "perk"
+        },
+        {
+          "name": "uncontrolled_rebuy",
+          "value": 0,
+          "unlockRank": 0,
+          "availability": "uncontrolled",
+          "type": "perk"
+        },
+        {
+          "name": "dynamicDecal",
+          "unlockRank": 1,
+          "type": "cosmetic"
+        },
+        {
+          "name": "minorFactionReputation",
+          "value": 150,
+          "unlockRank": 55,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "minorFactionReputation",
+          "value": 135,
+          "unlockRank": 48,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "minorFactionReputation",
+          "value": 120,
+          "unlockRank": 32,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "minorFactionReputation",
+          "value": 105,
+          "unlockRank": 22,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "minorFactionReputation",
+          "value": 90,
+          "unlockRank": 14,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "minorFactionReputation",
+          "value": 75,
+          "unlockRank": 5,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "miningProfitBond",
+          "value": 50,
+          "unlockRank": 100,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "miningProfitBond",
+          "value": 40,
+          "unlockRank": 86,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "miningProfitBond",
+          "value": 30,
+          "unlockRank": 73,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "miningProfitBond",
+          "value": 20,
+          "unlockRank": 67,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "miningProfitBond",
+          "value": 10,
+          "unlockRank": 55,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "searchAndRescue",
+          "value": 120,
+          "unlockRank": 94,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "searchAndRescue",
+          "value": 100,
+          "unlockRank": 78,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "searchAndRescue",
+          "value": 80,
+          "unlockRank": 52,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "searchAndRescue",
+          "value": 60,
+          "unlockRank": 42,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "searchAndRescue",
+          "value": 40,
+          "unlockRank": 24,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "$Hpt_Cannon_Gimbal_Medium_Burst_LongName;",
+          "unlockRank": 34,
+          "type": "module"
+        },
+        {
+          "name": "$Hpt_BeamLaser_Fixed_Small_Heat_LongName;",
+          "unlockRank": 39,
+          "type": "module"
+        },
+        {
+          "name": "$Hpt_DrunkMissileRack_Fixed_Medium_LongName;",
+          "unlockRank": 44,
+          "type": "module"
+        },
+        {
+          "name": "$Hpt_PulseLaser_Fixed_Medium_Disruptor_LongName;",
+          "unlockRank": 50,
+          "type": "module"
+        },
+        {
+          "name": "$Hpt_MultiCannon_Fixed_Small_Strong_LongName;",
+          "unlockRank": 57,
+          "type": "module"
+        },
+        {
+          "name": "$Hpt_DumbfireMissileRack_Fixed_Medium_Lasso_LongName;",
+          "unlockRank": 63,
+          "type": "module"
+        },
+        {
+          "name": "$Int_ShieldGenerator_Size1_Class5_Strong_LongName;",
+          "unlockRank": 70,
+          "type": "module"
+        },
+        {
+          "name": "$Hpt_Railgun_Fixed_Medium_Burst_LongName;",
+          "unlockRank": 76,
+          "type": "module"
+        },
+        {
+          "name": "$Hpt_PlasmaAccelerator_Fixed_Large_Advanced_LongName;",
+          "unlockRank": 83,
+          "type": "module"
+        },
+        {
+          "name": "$Hpt_Slugshot_Fixed_Large_Range_LongName;",
+          "unlockRank": 88,
+          "type": "module"
+        },
+        {
+          "name": "$Hpt_PulseLaserBurst_Fixed_Small_Scatter_LongName;",
+          "unlockRank": 91,
+          "type": "module"
+        },
+        {
+          "name": "$Hpt_MiningLaser_Fixed_Small_Advanced_LongName;",
+          "unlockRank": 97,
+          "type": "module"
+        }
+      ]
+    },
+    {
+      "id": 200060,
+      "name": "Edmund Mahon",
+      "ethos": {},
+      "perks": [
+        {
+          "name": "controlled_rebuy",
+          "value": -100,
+          "unlockRank": 36,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "controlled_rebuy",
+          "value": -80,
+          "unlockRank": 27,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "controlled_rebuy",
+          "value": -60,
+          "unlockRank": 17,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "controlled_rebuy",
+          "value": -40,
+          "unlockRank": 8,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "controlled_rebuy",
+          "value": -20,
+          "unlockRank": 2,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "controlled_rebuy",
+          "value": 0,
+          "unlockRank": 0,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "uncontrolled_rebuy",
+          "value": -100,
+          "unlockRank": 60,
+          "availability": "uncontrolled",
+          "type": "perk"
+        },
+        {
+          "name": "uncontrolled_rebuy",
+          "value": -66,
+          "unlockRank": 29,
+          "availability": "uncontrolled",
+          "type": "perk"
+        },
+        {
+          "name": "uncontrolled_rebuy",
+          "value": -33,
+          "unlockRank": 11,
+          "availability": "uncontrolled",
+          "type": "perk"
+        },
+        {
+          "name": "uncontrolled_rebuy",
+          "value": 0,
+          "unlockRank": 0,
+          "availability": "uncontrolled",
+          "type": "perk"
+        },
+        {
+          "name": "dynamicDecal",
+          "unlockRank": 1,
+          "type": "cosmetic"
+        },
+        {
+          "name": "tradeBond",
+          "value": 25,
+          "unlockRank": 48,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "tradeBond",
+          "value": 20,
+          "unlockRank": 32,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "tradeBond",
+          "value": 15,
+          "unlockRank": 22,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "tradeBond",
+          "value": 10,
+          "unlockRank": 14,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "tradeBond",
+          "value": 5,
+          "unlockRank": 5,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "rareGoodsProfitBond",
+          "value": 50,
+          "unlockRank": 100,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "rareGoodsProfitBond",
+          "value": 40,
+          "unlockRank": 86,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "rareGoodsProfitBond",
+          "value": 30,
+          "unlockRank": 73,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "rareGoodsProfitBond",
+          "value": 20,
+          "unlockRank": 67,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "rareGoodsProfitBond",
+          "value": 10,
+          "unlockRank": 55,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "minorFactionReputation",
+          "value": 100,
+          "unlockRank": 94,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "minorFactionReputation",
+          "value": 80,
+          "unlockRank": 78,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "minorFactionReputation",
+          "value": 60,
+          "unlockRank": 52,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "minorFactionReputation",
+          "value": 40,
+          "unlockRank": 42,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "minorFactionReputation",
+          "value": 20,
+          "unlockRank": 24,
+          "availability": "occupied",
+          "type": "perk"
+        },
+        {
+          "name": "$Hpt_BeamLaser_Fixed_Small_Heat_LongName;",
+          "unlockRank": 34,
+          "type": "module"
+        },
+        {
+          "name": "$Hpt_Cannon_Gimbal_Medium_Burst_LongName;",
+          "unlockRank": 39,
+          "type": "module"
+        },
+        {
+          "name": "$Hpt_DrunkMissileRack_Fixed_Medium_LongName;",
+          "unlockRank": 44,
+          "type": "module"
+        },
+        {
+          "name": "$Hpt_MultiCannon_Fixed_Small_Strong_LongName;",
+          "unlockRank": 50,
+          "type": "module"
+        },
+        {
+          "name": "$Int_ShieldGenerator_Size1_Class5_Strong_LongName;",
+          "unlockRank": 57,
+          "type": "module"
+        },
+        {
+          "name": "$Hpt_DumbfireMissileRack_Fixed_Medium_Lasso_LongName;",
+          "unlockRank": 63,
+          "type": "module"
+        },
+        {
+          "name": "$Hpt_PulseLaser_Fixed_Medium_Disruptor_LongName;",
+          "unlockRank": 70,
+          "type": "module"
+        },
+        {
+          "name": "$Hpt_PlasmaAccelerator_Fixed_Large_Advanced_LongName;",
+          "unlockRank": 76,
+          "type": "module"
+        },
+        {
+          "name": "$Hpt_MiningLaser_Fixed_Small_Advanced_LongName;",
+          "unlockRank": 83,
+          "type": "module"
+        },
+        {
+          "name": "$Hpt_Railgun_Fixed_Medium_Burst_LongName;",
+          "unlockRank": 88,
+          "type": "module"
+        },
+        {
+          "name": "$Hpt_Slugshot_Fixed_Large_Range_LongName;",
+          "unlockRank": 91,
+          "type": "module"
+        },
+        {
+          "name": "$Hpt_PulseLaserBurst_Fixed_Small_Scatter_LongName;",
+          "unlockRank": 97,
+          "type": "module"
+        }
+      ]
+    }
+  ]
+}

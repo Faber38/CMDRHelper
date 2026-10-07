@@ -33,8 +33,10 @@ class ShipCargoTracker:
         self.context = {}
         self.last_cargo_context = None
         self.sequence = 0
+        self._return_cargo = None
 
     def _invalidate(self, timestamp):
+        self._return_cargo = None
         self.context.update(total=None, barrier=timestamp, generation=self.sequence)
 
     def apply(self, event, fid, journal):
@@ -60,9 +62,18 @@ class ShipCargoTracker:
             c.update(ship_id=event.get('NewShipID') if et == 'ShipyardNew' else event.get('ShipID'),
                      vessel='Ship', loadout_seen=False)
         elif et == 'Loadout' and not is_definite_non_ship(event.get('Ship')):
+            returning = self._return_cargo
             if c.get('ship_id') != event.get('ShipID') or c.get('vessel') != 'Ship':
                 self._invalidate(ts)
             c.update(ship_id=event.get('ShipID'), vessel='Ship', loadout_seen=True)
+            if (returning and returning['phase'] == 'loadout'
+                    and event.get('ShipID') == returning['ship_id']):
+                # Keep the original Cargo timestamp and its exact sidecar match,
+                # but bind it to the now-confirmed return context.
+                origin = dict(returning['origin'], generation=c['generation'], revalidated_at=ts)
+                self.last_cargo_context = origin
+                c['total'] = dict(returning['total'], **origin)
+            self._return_cargo = None
         elif et in ('Died', 'Resurrect', 'ClearSavedGame', 'Shutdown'):
             self._invalidate(ts)
             c.update(ship_id=None, vessel=None, loadout_seen=False,
@@ -74,11 +85,23 @@ class ShipCargoTracker:
             self._invalidate(ts)
             c['vessel'] = 'Ship'
         elif et == 'Disembark':
+            returning = None
+            if (c.get('vessel') == 'Ship' and c.get('total') is not None
+                    and type(event.get('ID')) is int and event['ID'] == c.get('ship_id')
+                    and not any(event.get(k) for k in ('SRV', 'Taxi', 'Multicrew'))):
+                returning = dict(phase='away', ship_id=c['ship_id'],
+                                 origin=dict(self.last_cargo_context), total=dict(c['total']))
             self._invalidate(ts)
             c['vessel'] = None
+            self._return_cargo = returning
         elif et == 'Embark':
+            returning = self._return_cargo
             self._invalidate(ts)
             c['vessel'] = None if any(event.get(k) for k in ('SRV', 'Taxi', 'Multicrew')) else 'Ship'
+            if (returning and returning['phase'] == 'away' and c['vessel'] == 'Ship'
+                    and type(event.get('ID')) is int and event['ID'] == returning['ship_id']):
+                returning['phase'] = 'loadout'
+                self._return_cargo = returning
         elif et in CARGO_MUTATIONS:
             self._invalidate(ts)
         elif et == 'Cargo':
@@ -227,3 +250,33 @@ def current_ship_cargo(state, *, now=None):
         return None
     return dict(state._confirmed_status_cargo['binding'], count=count,
                 timestamp=status['timestamp'], source='status')
+
+
+def current_ship_inventory(state, *, now=None):
+    """Known ship inventory with journal provenance, or None (never from Status).
+
+    Reuse the tracker/sidecar binding. A valid newer Status may contradict the
+    composition's total, but can never create or repair a composition.
+    """
+    from copy import deepcopy
+    total = current_ship_cargo(state, now=now)
+    snapshot = getattr(state, 'cargo_snapshot', None)
+    if not total or total.get('source') != 'snapshot' or not isinstance(snapshot, dict):
+        return None
+    inventory = snapshot.get('inventory')
+    if (not isinstance(inventory, list)
+            or any(not isinstance(row, dict) or type(row.get('count')) is not int
+                   or row['count'] < 0 or not row.get('frontier_name') for row in inventory)
+            or sum(row['count'] for row in inventory) != total['count']):
+        return None
+    origin = snapshot.get('context') or {}
+    identity = tuple(origin.get(k) for k in
+                     ('fid', 'journal', 'session_start', 'session_generation', 'ship_id', 'timestamp'))
+    status_count = status_ship_count(state, getattr(state, '_cargo_status', None), now=now)
+    if status_count is not None and status_count != total['count']:
+        # A detected contradiction must not disappear when Status ages out or
+        # the same snapshot is revalidated after an on-foot round trip.
+        state._inventory_conflict = identity
+    if getattr(state, '_inventory_conflict', None) == identity:
+        return None
+    return deepcopy(snapshot)

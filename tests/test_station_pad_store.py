@@ -24,6 +24,9 @@ def event(**changes):
 
 
 class LegacyDatabase(CMDRDatabase):
+    def _maybe_migrate_v23(self):
+        pass
+
     def _maybe_migrate_v22(self):
         pass
 
@@ -57,14 +60,14 @@ class MigrationTests(unittest.TestCase):
                 CMDRDatabase(p)
                 CMDRDatabase(p)
                 with sqlite3.connect(p) as con:
-                    self.assertEqual(con.execute('PRAGMA user_version').fetchone()[0],22)
+                    self.assertEqual(con.execute('PRAGMA user_version').fetchone()[0],23)
                     after = con.execute('SELECT type,name,tbl_name,sql FROM sqlite_master ORDER BY name').fetchall()
                     self.assertTrue(set(before) <= set(after))
                     for t, rows in data.items():
                         self.assertEqual(con.execute('SELECT * FROM '+t).fetchall(), rows)
                     if version == 20:
                         self.assertFalse(con.execute("SELECT name FROM sqlite_master WHERE name LIKE 'codex_events%' OR name LIKE 'codex_backfills%'").fetchall())
-                backups=list(Path(tmp).glob('*.pre-v22-*.bak'))
+                backups=list(Path(tmp).glob('*.pre-v23-*.bak'))
                 self.assertEqual(len(backups),1)
                 with sqlite3.connect(backups[0]) as con:
                     self.assertEqual(con.execute('PRAGMA user_version').fetchone()[0],version)

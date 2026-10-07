@@ -7,11 +7,19 @@ import math
 import os
 from pathlib import Path
 import tempfile
+from threading import RLock, Lock
 from urllib.request import Request, urlopen
 from cmdrhelper.belt_projection import is_belt_cluster
 from cmdrhelper.version import __version__
 
 logger = logging.getLogger(__name__)
+_write_locks = {}
+_write_guard = Lock()
+
+def _cache_lock(root, address):
+    with _write_guard:
+        return _write_locks.setdefault((str(Path(root).resolve()), address), RLock())
+
 TTL = timedelta(days=7)
 MAX_RESPONSE = 16 * 1024 * 1024
 MAX_CACHE = 2 * 1024 * 1024
@@ -143,6 +151,9 @@ def normalize(response, address, now=None):
               'system_name': system['name'], 'fetched_at': (now or utcnow()).isoformat(),
               'stations': [row for mid,row in sorted(unique.items()) if mid not in ambiguous]}
     if timestamp(system.get('date')): result['source_updated_at'] = system['date']
+    coords = system.get('coords')
+    if isinstance(coords, dict) and all(number(coords.get(k)) for k in ('x','y','z')):
+        result['coordinates'] = {k: coords[k] for k in ('x','y','z')}
     validate(result, address)
     return result
 
@@ -150,12 +161,17 @@ def normalize(response, address, now=None):
 def validate(data, address):
     if not valid_id(address) or not isinstance(data, dict): raise ValueError('Invalid cache')
     required = {'schema_version','source','system_address','system_name','fetched_at','stations'}
-    if not required <= data.keys() or data.keys() - (required | {'source_updated_at'}): raise ValueError('Invalid cache fields')
+    if not required <= data.keys() or data.keys() - (required | {'source_updated_at', 'coverage', 'coordinates'}): raise ValueError('Invalid cache fields')
     if type(data['schema_version']) is not int or data['schema_version'] != 1 or data['source'] != 'spansh': raise ValueError('Invalid cache version/source')
     if type(data['system_address']) is not int or data['system_address'] != address: raise ValueError('Cache system mismatch')
     if not isinstance(data['system_name'], str) or not data['system_name'] or not timestamp(data['fetched_at']): raise ValueError('Invalid cache metadata')
     if 'source_updated_at' in data and not timestamp(data['source_updated_at']): raise ValueError('Invalid source date')
     if not isinstance(data['stations'], list) or len(data['stations']) > 5000: raise ValueError('Invalid stations')
+    if data.get('coverage', 'full') not in ('full', 'partial'): raise ValueError('Invalid cache coverage')
+    if 'coordinates' in data:
+        coords = data['coordinates']
+        if (not isinstance(coords, dict) or set(coords) != {'x','y','z'}
+                or not all(number(v) for v in coords.values())): raise ValueError('Invalid coordinates')
     seen = set()
     for row in data['stations']:
         if not isinstance(row, dict) or row.keys() - STATION_FIELDS: raise ValueError('Invalid station fields')
@@ -214,15 +230,55 @@ class SystemCache:
             return None
 
     def fresh(self, data):
+        if data.get('coverage', 'full') != 'full': return False
         age = self.now() - timestamp(data['fetched_at'])
         return timedelta(0) <= age < TTL
 
     def fetched_today(self, data):
         """Successful persisted fetch on the current local calendar day."""
-        return bool(data and timestamp(data['fetched_at']).astimezone().date()
+        return bool(data and data.get('coverage', 'full') == 'full' and timestamp(data['fetched_at']).astimezone().date()
                     == self.now().astimezone().date())
 
+    def merge_lookup(self, data):
+        """Merge selected stations without renewing a full dump's freshness."""
+        validate(data, data.get('system_address'))
+        if data.get('coverage') != 'partial': raise ValueError('Expected partial lookup')
+        address = data['system_address']
+        with _cache_lock(self.root, address):
+            old = self.read(address)
+            if old is None:
+                self.write(data)
+                return
+            if old['system_name'].casefold() != data['system_name'].casefold():
+                raise ValueError('Conflicting system identity')
+            if old.get('coordinates') and data.get('coordinates') and old['coordinates'] != data['coordinates']:
+                raise ValueError('Conflicting system coordinates')
+            merged = deepcopy(old)
+            by_id = {r['market_id']: r for r in merged['stations']}
+            for row in data['stations']:
+                previous = by_id.get(row['market_id'])
+                if previous and previous['station_name'].casefold() != row['station_name'].casefold():
+                    raise ValueError('Conflicting station identity')
+                if previous:
+                    # Keep dump-only parent/body information. Older lookup metadata
+                    # cannot replace a newer station record.
+                    before = timestamp(previous.get('station_updated_at'))
+                    after = timestamp(row.get('station_updated_at'))
+                    if before and (not after or after < before): continue
+                    previous.update(row)
+                else:
+                    by_id[row['market_id']] = deepcopy(row)
+            merged['stations'] = [by_id[mid] for mid in sorted(by_id)]
+            if 'coordinates' in data: merged['coordinates'] = deepcopy(data['coordinates'])
+            # In particular, never replace fetched_at / source_updated_at of a
+            # full dump with the time a single station was looked up.
+            self.write(merged)
+
     def write(self, data):
+        with _cache_lock(self.root, data.get('system_address')):
+            self._write(data)
+
+    def _write(self, data):
         validate(data, data.get('system_address'))
         payload = json.dumps(data, ensure_ascii=False, allow_nan=False, separators=(',',':')).encode('utf-8')
         if len(payload) > MAX_CACHE: raise ValueError('Cache too large')

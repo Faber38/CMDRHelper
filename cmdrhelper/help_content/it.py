@@ -1337,3 +1337,42 @@ HELP_TOPICS["explorer"] = (
 )
 
 HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>Suggerimento: salva le destinazioni desiderate con ✓ prima di acquistare – restano disponibili anche con la stiva piena.</p>')
+
+HELP_TOPICS["pp2"] = ("PP2", """
+<h2>PP2 / Powerplay 2.0</h2>
+<p>PP2 mostra potenza, rango e meriti totali, oltre all’ultimo stato Powerplay noto del sistema attuale. Trovi attività generali pertinenti, carico Powerplay a bordo e accrediti di meriti segnalati. Apri questa guida con il punto interrogativo mentre PP2 è selezionato.</p>
+<h3>Potenze, meriti e punti di controllo</h3>
+<p>Una potenza è un gruppo Powerplay a cui puoi giurare fedeltà. La tua potenza è quella che hai scelto; non deve necessariamente controllare il sistema attuale. I meriti sono i tuoi punti Powerplay personali. I punti di controllo riguardano invece la posizione della potenza nel sistema. Il Helper mostra i valori di controllo, rafforzamento e indebolimento forniti da Elite, se disponibili. Non sono meriti personali aggiuntivi; il progresso del controllo non viene convertito in percentuale.</p>
+<h3>Stato Powerplay del sistema</h3>
+<p><b>Unoccupied</b>: nessuna potenza dominante. <b>Exploited</b>: sistema sfruttato da una potenza. <b>Fortified</b>: livello di controllo rafforzato. <b>Stronghold</b>: roccaforte della potenza dominante. L’indicatore evidenzia lo stato segnalato, senza prevedere cambiamenti imminenti.</p>
+<h3>Acquisizione, rafforzamento, indebolimento e conflitto</h3>
+<p><b>ACQUISITION</b>: acquisire un sistema non occupato per la tua potenza; il Helper lo indica solo con un legame inequivocabile alla tua potenza. <b>REINFORCEMENT</b>: rafforzare un sistema della tua potenza. <b>UNDERMINING</b>: indebolire il controllo di un’altra potenza. Il conflitto è un’acquisizione contesa: nei sistemi non occupati il Helper può mostrare il progresso segnalato delle potenze in conflitto. La sola presenza di più potenze non determina un’attività. Con dati mancanti o contraddittori, la categoria resta sconosciuta.</p>
+<h3>Cosa posso fare qui per la mia potenza?</h3>
+<p>CMDRHelper combina lo stato del sistema fornito da Elite con le attività generali della tua potenza per la categoria pertinente. A seconda della potenza e della categoria: Trasportare merci Powerplay (Transport Powerplay commodities), Violare gli oloschermi (Hack holoscreens), Consegnare materiali recuperati (Hand in salvage), Caccia alle taglie (Bounty hunting), Trasferire dati di ricerca (Transfer research data), Vendere con un profitto elevato (Sell for large profits) o Vendere merci rare (Sell rare goods).</p>
+<p><b>La lista orienta, ma non garantisce meriti.</b> Le attività provengono da Elite, ma possono valere in generale per la potenza e la categoria. Alcune richiedono condizioni aggiuntive. Una spunta nella lista non conferma né esecuzione né ricompensa. Controlla le indicazioni di Elite e poi l’accredito effettivo.</p>
+<h3>Esempio: vendere merci rare</h3>
+<p>Elite può indicare “Vendere merci rare (Sell rare goods)”. Una vendita riuscita non assegna automaticamente meriti Powerplay: <b>vendita riuscita ≠ accredito garantito.</b> CMDRHelper mostra l’accredito solo quando Elite lo segnala. Una vendita senza accredito non dimostra una regola generale sulla provenienza della merce, per esempio da una portaerei.</p>
+<h3>Leggere gli incarichi di trasporto Powerplay</h3>
+<p>“Trasportare merci Powerplay in sistemi da indebolire” indica il tipo di destinazione: sistemi di un’altra potenza di cui devi indebolire il controllo. Esempio: 10 × disinformazione di Kaine. Segui le condizioni specifiche dell’incarico in Elite.</p>
+<ol>
+<li>Leggi l’incarico Powerplay in Elite.</li>
+<li>Controlla la fonte e il tipo di sistema richiesti.</li>
+<li>Ritira il carico Powerplay adatto.</li>
+<li>Vola verso il tipo di destinazione richiesto.</li>
+<li>Consegna al contatto della potenza indicato.</li>
+<li>Controlla poi l’accredito dei meriti nel Helper.</li>
+</ol>
+<p>Gli articoli a bordo mostrano il carico confermato e l’utilizzo noto. Quantità o utilizzo possono essere ancora sconosciuti. Gli incarichi settimanali personali e il loro avanzamento non sono mostrati qui.</p>
+<h3>Missioni e trasferimenti di dati</h3>
+<p>Elite può offrire attività Powerplay, come trasferimenti di dati strategici. Cerca un riferimento esplicito a Powerplay o ai meriti in Elite. Non ogni normale missione di corriere assegna meriti. Il Helper conferma l’accredito solo dopo la segnalazione di Elite.</p>
+<h3>Ultimi accrediti nella cronaca giornaliera</h3>
+<p>Attualmente si trovano in “PP2 DAILY CHRONICLE”. La colonna dei meriti contiene gli accrediti realmente segnalati da Elite, non ricompense stimate. È una conferma più affidabile della lista generale delle attività o di una notifica di vendita. Il totale mostra l’ultimo saldo personale segnalato.</p>
+<p>La causa precisa non è sempre nota: ✓ conferma un ritiro o una consegna Powerplay, ≈ soltanto vicinanza temporale, ? una causa sconosciuta. Anche ✓ non prova che un accredito vicino appartenga a quell’incarico. — significa che non è mostrato un accredito per la riga. I suggerimenti mostrano singoli accrediti e orari; non viene dedotto il completamento di incarichi personali.</p>
+<p>Le frecce cambiano il giorno del calendario locale; “Oggi” torna al giorno corrente. La cronologia appartiene al singolo comandante. Puoi cancellare voci vecchie o tutta la cronologia dopo conferma; il totale dei meriti noto viene mantenuto. Al primo caricamento viene recuperato solo il giorno attuale, poi vengono aggiunti i nuovi eventi.</p>
+<h3>Usare la mappa galattica</h3>
+<p>La mappa galattica di Elite permette di controllare territori, la tua potenza, stati dei sistemi, roccaforti e attività locali. Se sembrano mancare sistemi della tua potenza, controlla i filtri Powerplay, soprattutto che “La mia potenza” sia visibile. Sono filtri della mappa di Elite.</p>
+<h3>Aggiornamento dei dati</h3>
+<p>CMDRHelper usa dati locali di Elite e mostra l’ultimo stato noto del sistema e di Powerplay. I dati possono essere ritardati o vecchi. Controlla l’orario del sistema mostrato; anche la mappa può indicare un aggiornamento. In caso di contrasto, confronta sistema e orari. Né il Helper né la mappa sono sempre più aggiornati.</p>
+<h3>Rango e avanzamento</h3>
+<p>Il rango è quello segnalato da Elite. Se i meriti corrispondono già a un rango calcolato superiore, il Helper indica che attende l’aggiornamento del rango. Dati mancanti o contraddittori possono impedire la visualizzazione dell’avanzamento. Le ulteriori soglie calcolate dopo il rango 100 appaiono come 100+.</p>
+""")

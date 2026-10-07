@@ -1,0 +1,2334 @@
+[
+  {
+    "source": "Journal.2026-10-06T121000.01.log",
+    "events": [
+      {
+        "timestamp": "2026-10-06T10:09:55Z",
+        "event": "Fileheader",
+        "part": 1,
+        "Odyssey": true,
+        "gameversion": "4.4.1.1",
+        "build": "r332841/r0 "
+      },
+      {
+        "timestamp": "2026-10-06T10:10:25Z",
+        "event": "Commander",
+        "FID": "F12520967",
+        "Name": "FABER38"
+      },
+      {
+        "timestamp": "2026-10-06T10:10:35Z",
+        "event": "LoadGame",
+        "FID": "F12520967",
+        "Odyssey": true,
+        "Ship": "CobraMkV",
+        "Ship_Localised": "Cobra Mk V",
+        "gameversion": "4.4.1.1",
+        "build": "r332841/r0 "
+      },
+      {
+        "timestamp": "2026-10-06T10:10:47Z",
+        "event": "Location",
+        "Docked": true,
+        "StationName": "B5Y-8XN",
+        "MarketID": 3705965312,
+        "StarSystem": "Col 285 Sector VU-O d6-68",
+        "SystemAddress": 2346956392827
+      },
+      {
+        "timestamp": "2026-10-06T10:40:33Z",
+        "event": "Undocked",
+        "StationName": "B5Y-8XN",
+        "MarketID": 3705965312
+      },
+      {
+        "timestamp": "2026-10-06T10:41:38Z",
+        "event": "FSDJump",
+        "StarSystem": "Col 285 Sector VU-O d6-66",
+        "SystemAddress": 2278236916091
+      },
+      {
+        "timestamp": "2026-10-06T10:41:38Z",
+        "event": "Powerplay",
+        "Power": "Nakato Kaine",
+        "Rank": 0,
+        "Merits": 0,
+        "TimePledged": 1635
+      },
+      {
+        "timestamp": "2026-10-06T10:42:24Z",
+        "event": "FSDJump",
+        "StarSystem": "HIP 67169",
+        "SystemAddress": 628986251643
+      },
+      {
+        "timestamp": "2026-10-06T10:43:18Z",
+        "event": "FSDJump",
+        "StarSystem": "Col 285 Sector WB-O b22-0",
+        "SystemAddress": 672297264601,
+        "PowerplayState": "Unoccupied"
+      },
+      {
+        "timestamp": "2026-10-06T10:44:14Z",
+        "event": "FSDJump",
+        "StarSystem": "Col 285 Sector MY-G c11-10",
+        "SystemAddress": 2832833057514,
+        "PowerplayState": "Unoccupied"
+      },
+      {
+        "timestamp": "2026-10-06T10:45:00Z",
+        "event": "FSDJump",
+        "StarSystem": "Col 285 Sector SF-R b20-3",
+        "SystemAddress": 7269366900169
+      },
+      {
+        "timestamp": "2026-10-06T10:48:17Z",
+        "event": "SupercruiseExit",
+        "StarSystem": "Col 285 Sector SF-R b20-3",
+        "SystemAddress": 7269366900169
+      },
+      {
+        "timestamp": "2026-10-06T10:48:56Z",
+        "event": "Docked",
+        "StationName": "Sylvester Town",
+        "StarSystem": "Col 285 Sector SF-R b20-3",
+        "SystemAddress": 7269366900169,
+        "MarketID": 4219142403
+      },
+      {
+        "timestamp": "2026-10-06T10:49:48Z",
+        "event": "Undocked",
+        "StationName": "Sylvester Town",
+        "MarketID": 4219142403
+      },
+      {
+        "timestamp": "2026-10-06T10:50:37Z",
+        "event": "FSDJump",
+        "StarSystem": "HR 4827",
+        "SystemAddress": 39969629372,
+        "ControllingPower": "Nakato Kaine",
+        "PowerplayState": "Exploited"
+      },
+      {
+        "timestamp": "2026-10-06T10:57:39Z",
+        "event": "SupercruiseExit",
+        "StarSystem": "HR 4827",
+        "SystemAddress": 39969629372
+      },
+      {
+        "timestamp": "2026-10-06T10:58:41Z",
+        "event": "Docked",
+        "StationName": "Sigmund Jähn",
+        "StarSystem": "HR 4827",
+        "SystemAddress": 39969629372,
+        "MarketID": 4213486339
+      },
+      {
+        "timestamp": "2026-10-06T11:04:45Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T11:05:32Z",
+        "event": "Undocked",
+        "StationName": "Sigmund Jähn",
+        "MarketID": 4213486339
+      },
+      {
+        "timestamp": "2026-10-06T11:05:32Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T11:06:05Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T11:06:28Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T11:06:38Z",
+        "event": "StartJump"
+      },
+      {
+        "timestamp": "2026-10-06T11:06:43Z",
+        "event": "SupercruiseEntry",
+        "StarSystem": "HR 4827",
+        "SystemAddress": 39969629372
+      },
+      {
+        "timestamp": "2026-10-06T11:06:43Z",
+        "event": "ShipLocker"
+      },
+      {
+        "timestamp": "2026-10-06T11:06:43Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T11:08:49Z",
+        "event": "SupercruiseDestinationDrop",
+        "Type": "$MULTIPLAYER_SCENARIO79_TITLE;",
+        "Type_Localised": "Rohstoffabbau-Standort [Gefährlich]"
+      },
+      {
+        "timestamp": "2026-10-06T11:08:50Z",
+        "event": "SupercruiseExit",
+        "StarSystem": "HR 4827",
+        "SystemAddress": 39969629372
+      },
+      {
+        "timestamp": "2026-10-06T11:08:50Z",
+        "event": "ShipLocker"
+      },
+      {
+        "timestamp": "2026-10-06T11:08:50Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T11:10:03Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "type9",
+        "Ship_Localised": "Type-9 Heavy",
+        "ScanStage": 0
+      },
+      {
+        "timestamp": "2026-10-06T11:10:04Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "type9",
+        "Ship_Localised": "Type-9 Heavy",
+        "ScanStage": 1,
+        "PilotName": "$npc_name_decorate:#name=Ravells;",
+        "PilotName_Localised": "Ravells"
+      },
+      {
+        "timestamp": "2026-10-06T11:10:06Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "type9",
+        "Ship_Localised": "Type-9 Heavy",
+        "ScanStage": 2,
+        "PilotName": "$npc_name_decorate:#name=Ravells;",
+        "PilotName_Localised": "Ravells"
+      },
+      {
+        "timestamp": "2026-10-06T11:10:08Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "type9",
+        "Ship_Localised": "Type-9 Heavy",
+        "ScanStage": 3,
+        "PilotName": "$npc_name_decorate:#name=Ravells;",
+        "PilotName_Localised": "Ravells"
+      },
+      {
+        "timestamp": "2026-10-06T11:10:11Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 10,
+        "TotalMerits": 10
+      },
+      {
+        "timestamp": "2026-10-06T11:10:29Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T11:10:31Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "vulture",
+        "ScanStage": 0
+      },
+      {
+        "timestamp": "2026-10-06T11:10:31Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "sidewinder",
+        "ScanStage": 0
+      },
+      {
+        "timestamp": "2026-10-06T11:10:32Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "sidewinder",
+        "ScanStage": 1,
+        "PilotName": "$npc_name_decorate:#name=Redford;",
+        "PilotName_Localised": "Redford"
+      },
+      {
+        "timestamp": "2026-10-06T11:10:39Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "sidewinder",
+        "ScanStage": 2,
+        "PilotName": "$npc_name_decorate:#name=Redford;",
+        "PilotName_Localised": "Redford"
+      },
+      {
+        "timestamp": "2026-10-06T11:10:42Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "diamondbackxl",
+        "Ship_Localised": "Diamondback Explorer",
+        "ScanStage": 0
+      },
+      {
+        "timestamp": "2026-10-06T11:10:50Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "python",
+        "ScanStage": 0
+      },
+      {
+        "timestamp": "2026-10-06T11:10:51Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "python",
+        "ScanStage": 1,
+        "PilotName": "$npc_name_decorate:#name=Jock Ripper;",
+        "PilotName_Localised": "Jock Ripper"
+      },
+      {
+        "timestamp": "2026-10-06T11:10:53Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "python",
+        "ScanStage": 2,
+        "PilotName": "$npc_name_decorate:#name=Jock Ripper;",
+        "PilotName_Localised": "Jock Ripper"
+      },
+      {
+        "timestamp": "2026-10-06T11:10:55Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "python",
+        "ScanStage": 3,
+        "PilotName": "$npc_name_decorate:#name=Jock Ripper;",
+        "PilotName_Localised": "Jock Ripper"
+      },
+      {
+        "timestamp": "2026-10-06T11:10:55Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 10,
+        "TotalMerits": 20
+      },
+      {
+        "timestamp": "2026-10-06T11:11:04Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "federation_dropship",
+        "Ship_Localised": "Federal Dropship",
+        "ScanStage": 0
+      },
+      {
+        "timestamp": "2026-10-06T11:11:05Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "empire_courier",
+        "Ship_Localised": "Imperial Courier",
+        "ScanStage": 0
+      },
+      {
+        "timestamp": "2026-10-06T11:11:06Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "python",
+        "ScanStage": 3,
+        "PilotName": "$npc_name_decorate:#name=Jock Ripper;",
+        "PilotName_Localised": "Jock Ripper"
+      },
+      {
+        "timestamp": "2026-10-06T11:11:06Z",
+        "event": "ShipTargeted",
+        "TargetLocked": false
+      },
+      {
+        "timestamp": "2026-10-06T11:11:16Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "python",
+        "ScanStage": 3,
+        "PilotName": "$npc_name_decorate:#name=Jock Ripper;",
+        "PilotName_Localised": "Jock Ripper"
+      },
+      {
+        "timestamp": "2026-10-06T11:11:17Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T11:11:26Z",
+        "event": "UnderAttack",
+        "Target": "You"
+      },
+      {
+        "timestamp": "2026-10-06T11:12:09Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T11:12:13Z",
+        "event": "ShipTargeted",
+        "TargetLocked": false
+      },
+      {
+        "timestamp": "2026-10-06T11:12:23Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T11:12:30Z",
+        "event": "UnderAttack",
+        "Target": "You"
+      },
+      {
+        "timestamp": "2026-10-06T11:12:35Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "federation_dropship",
+        "Ship_Localised": "Federal Dropship",
+        "ScanStage": 0
+      },
+      {
+        "timestamp": "2026-10-06T11:12:35Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "federation_dropship",
+        "Ship_Localised": "Federal Dropship",
+        "ScanStage": 1,
+        "PilotName": "$npc_name_decorate:#name=Jim Bell;",
+        "PilotName_Localised": "Jim Bell"
+      },
+      {
+        "timestamp": "2026-10-06T11:12:51Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "federation_dropship",
+        "Ship_Localised": "Federal Dropship",
+        "ScanStage": 2,
+        "PilotName": "$npc_name_decorate:#name=Jim Bell;",
+        "PilotName_Localised": "Jim Bell"
+      },
+      {
+        "timestamp": "2026-10-06T11:12:53Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "federation_dropship",
+        "Ship_Localised": "Federal Dropship",
+        "ScanStage": 3,
+        "PilotName": "$npc_name_decorate:#name=Jim Bell;",
+        "PilotName_Localised": "Jim Bell"
+      },
+      {
+        "timestamp": "2026-10-06T11:12:53Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 10,
+        "TotalMerits": 30
+      },
+      {
+        "timestamp": "2026-10-06T11:13:23Z",
+        "event": "ReservoirReplenished"
+      },
+      {
+        "timestamp": "2026-10-06T11:13:27Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 10,
+        "TotalMerits": 40
+      },
+      {
+        "timestamp": "2026-10-06T11:13:30Z",
+        "event": "UnderAttack",
+        "Target": "You"
+      },
+      {
+        "timestamp": "2026-10-06T11:13:36Z",
+        "event": "Bounty",
+        "PilotName": "$npc_name_decorate:#name=Jim Bell;",
+        "PilotName_Localised": "Jim Bell",
+        "Target": "federation_dropship",
+        "Target_Localised": "Federal Dropship",
+        "TotalReward": 453097,
+        "VictimFaction": "Dragons of HIP 42408"
+      },
+      {
+        "timestamp": "2026-10-06T11:13:36Z",
+        "event": "ShipTargeted",
+        "TargetLocked": false
+      },
+      {
+        "timestamp": "2026-10-06T11:13:37Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 60,
+        "TotalMerits": 100
+      },
+      {
+        "timestamp": "2026-10-06T11:13:37Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 3200,
+        "TotalMerits": 3300
+      },
+      {
+        "timestamp": "2026-10-06T11:13:42Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "empire_courier",
+        "Ship_Localised": "Imperial Courier",
+        "ScanStage": 3,
+        "PilotName": "$npc_name_decorate:#name=Andreas Martin Clemenz;",
+        "PilotName_Localised": "Andreas Martin Clemenz"
+      },
+      {
+        "timestamp": "2026-10-06T11:14:19Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T11:14:29Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T11:14:30Z",
+        "event": "Bounty",
+        "PilotName": "$npc_name_decorate:#name=Andreas Martin Clemenz;",
+        "PilotName_Localised": "Andreas Martin Clemenz",
+        "Target": "empire_courier",
+        "Target_Localised": "Imperial Courier",
+        "TotalReward": 163361,
+        "VictimFaction": "Dragons of HIP 42408"
+      },
+      {
+        "timestamp": "2026-10-06T11:14:30Z",
+        "event": "ShipTargeted",
+        "TargetLocked": false
+      },
+      {
+        "timestamp": "2026-10-06T11:14:31Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 21,
+        "TotalMerits": 3321
+      },
+      {
+        "timestamp": "2026-10-06T11:14:33Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "adder",
+        "ScanStage": 0
+      },
+      {
+        "timestamp": "2026-10-06T11:14:37Z",
+        "event": "ShipTargeted",
+        "TargetLocked": false
+      },
+      {
+        "timestamp": "2026-10-06T11:14:37Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "python",
+        "ScanStage": 3,
+        "PilotName": "$npc_name_decorate:#name=Jock Ripper;",
+        "PilotName_Localised": "Jock Ripper"
+      },
+      {
+        "timestamp": "2026-10-06T11:15:32Z",
+        "event": "Bounty",
+        "PilotName": "$npc_name_decorate:#name=Jock Ripper;",
+        "PilotName_Localised": "Jock Ripper",
+        "Target": "python",
+        "TotalReward": 360818,
+        "VictimFaction": "Ewenet Worker's Party"
+      },
+      {
+        "timestamp": "2026-10-06T11:15:32Z",
+        "event": "ShipTargeted",
+        "TargetLocked": false
+      },
+      {
+        "timestamp": "2026-10-06T11:15:33Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 48,
+        "TotalMerits": 3369
+      },
+      {
+        "timestamp": "2026-10-06T11:15:40Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "cobramkiii",
+        "Ship_Localised": "Cobra Mk III",
+        "ScanStage": 0
+      },
+      {
+        "timestamp": "2026-10-06T11:15:44Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "cobramkiii",
+        "Ship_Localised": "Cobra Mk III",
+        "ScanStage": 1,
+        "PilotName": "$npc_name_decorate:#name=Flavio Antonietti;",
+        "PilotName_Localised": "Flavio Antonietti"
+      },
+      {
+        "timestamp": "2026-10-06T11:15:45Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T11:15:46Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "cobramkiii",
+        "Ship_Localised": "Cobra Mk III",
+        "ScanStage": 2,
+        "PilotName": "$npc_name_decorate:#name=Flavio Antonietti;",
+        "PilotName_Localised": "Flavio Antonietti"
+      },
+      {
+        "timestamp": "2026-10-06T11:15:47Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T11:15:48Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "cobramkiii",
+        "Ship_Localised": "Cobra Mk III",
+        "ScanStage": 3,
+        "PilotName": "$npc_name_decorate:#name=Flavio Antonietti;",
+        "PilotName_Localised": "Flavio Antonietti"
+      },
+      {
+        "timestamp": "2026-10-06T11:15:51Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 10,
+        "TotalMerits": 3379
+      },
+      {
+        "timestamp": "2026-10-06T11:16:18Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "cobramkiii",
+        "Ship_Localised": "Cobra Mk III",
+        "ScanStage": 3,
+        "PilotName": "$npc_name_decorate:#name=Flavio Antonietti;",
+        "PilotName_Localised": "Flavio Antonietti"
+      },
+      {
+        "timestamp": "2026-10-06T11:16:22Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T11:16:29Z",
+        "event": "UnderAttack",
+        "Target": "You"
+      },
+      {
+        "timestamp": "2026-10-06T11:16:43Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T11:16:51Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T11:17:30Z",
+        "event": "UnderAttack",
+        "Target": "You"
+      },
+      {
+        "timestamp": "2026-10-06T11:18:30Z",
+        "event": "UnderAttack",
+        "Target": "You"
+      },
+      {
+        "timestamp": "2026-10-06T11:18:42Z",
+        "event": "Bounty",
+        "PilotName": "$npc_name_decorate:#name=Flavio Antonietti;",
+        "PilotName_Localised": "Flavio Antonietti",
+        "Target": "cobramkiii",
+        "Target_Localised": "Cobra Mk III",
+        "TotalReward": 134247,
+        "VictimFaction": "EDC Commonwealth"
+      },
+      {
+        "timestamp": "2026-10-06T11:18:42Z",
+        "event": "ShipTargeted",
+        "TargetLocked": false
+      },
+      {
+        "timestamp": "2026-10-06T11:18:43Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 17,
+        "TotalMerits": 3396
+      },
+      {
+        "timestamp": "2026-10-06T11:18:50Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "federation_dropship",
+        "Ship_Localised": "Federal Dropship",
+        "ScanStage": 0
+      },
+      {
+        "timestamp": "2026-10-06T11:18:57Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T11:18:59Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "federation_dropship",
+        "Ship_Localised": "Federal Dropship",
+        "ScanStage": 1,
+        "PilotName": "$npc_name_decorate:#name=Tiddlywinks;",
+        "PilotName_Localised": "Tiddlywinks"
+      },
+      {
+        "timestamp": "2026-10-06T11:18:59Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "sidewinder",
+        "ScanStage": 2,
+        "PilotName": "$npc_name_decorate:#name=Redford;",
+        "PilotName_Localised": "Redford"
+      },
+      {
+        "timestamp": "2026-10-06T11:19:00Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "sidewinder",
+        "ScanStage": 3,
+        "PilotName": "$npc_name_decorate:#name=Redford;",
+        "PilotName_Localised": "Redford"
+      },
+      {
+        "timestamp": "2026-10-06T11:19:01Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 10,
+        "TotalMerits": 3406
+      },
+      {
+        "timestamp": "2026-10-06T11:19:03Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "vulture",
+        "ScanStage": 0
+      },
+      {
+        "timestamp": "2026-10-06T11:19:04Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "vulture",
+        "ScanStage": 1,
+        "PilotName": "$npc_name_decorate:#name=Theia Claw;",
+        "PilotName_Localised": "Theia Claw"
+      },
+      {
+        "timestamp": "2026-10-06T11:19:06Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "vulture",
+        "ScanStage": 2,
+        "PilotName": "$npc_name_decorate:#name=Theia Claw;",
+        "PilotName_Localised": "Theia Claw"
+      },
+      {
+        "timestamp": "2026-10-06T11:19:08Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "vulture",
+        "ScanStage": 3,
+        "PilotName": "$npc_name_decorate:#name=Theia Claw;",
+        "PilotName_Localised": "Theia Claw"
+      },
+      {
+        "timestamp": "2026-10-06T11:19:08Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 10,
+        "TotalMerits": 3416
+      },
+      {
+        "timestamp": "2026-10-06T11:19:17Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T11:19:17Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T11:19:22Z",
+        "event": "UnderAttack",
+        "Target": "You"
+      },
+      {
+        "timestamp": "2026-10-06T11:20:25Z",
+        "event": "UnderAttack",
+        "Target": "You"
+      },
+      {
+        "timestamp": "2026-10-06T11:21:03Z",
+        "event": "Bounty",
+        "PilotName": "$npc_name_decorate:#name=Theia Claw;",
+        "PilotName_Localised": "Theia Claw",
+        "Target": "vulture",
+        "TotalReward": 279561,
+        "VictimFaction": "Dragons of HIP 42408"
+      },
+      {
+        "timestamp": "2026-10-06T11:21:03Z",
+        "event": "ShipTargeted",
+        "TargetLocked": false
+      },
+      {
+        "timestamp": "2026-10-06T11:21:03Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 37,
+        "TotalMerits": 3453
+      },
+      {
+        "timestamp": "2026-10-06T11:21:09Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "federation_dropship",
+        "Ship_Localised": "Federal Dropship",
+        "ScanStage": 1,
+        "PilotName": "$npc_name_decorate:#name=Tiddlywinks;",
+        "PilotName_Localised": "Tiddlywinks"
+      },
+      {
+        "timestamp": "2026-10-06T11:21:13Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "federation_dropship",
+        "Ship_Localised": "Federal Dropship",
+        "ScanStage": 2,
+        "PilotName": "$npc_name_decorate:#name=Tiddlywinks;",
+        "PilotName_Localised": "Tiddlywinks"
+      },
+      {
+        "timestamp": "2026-10-06T11:21:15Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "federation_dropship",
+        "Ship_Localised": "Federal Dropship",
+        "ScanStage": 3,
+        "PilotName": "$npc_name_decorate:#name=Tiddlywinks;",
+        "PilotName_Localised": "Tiddlywinks"
+      },
+      {
+        "timestamp": "2026-10-06T11:21:15Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 10,
+        "TotalMerits": 3463
+      },
+      {
+        "timestamp": "2026-10-06T11:21:18Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T11:21:32Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T11:21:37Z",
+        "event": "UnderAttack",
+        "Target": "You"
+      },
+      {
+        "timestamp": "2026-10-06T11:21:37Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 10,
+        "TotalMerits": 3473
+      },
+      {
+        "timestamp": "2026-10-06T11:21:38Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 10,
+        "TotalMerits": 3483
+      },
+      {
+        "timestamp": "2026-10-06T11:21:38Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 2000,
+        "TotalMerits": 5483
+      },
+      {
+        "timestamp": "2026-10-06T11:22:05Z",
+        "event": "Bounty",
+        "PilotName": "$npc_name_decorate:#name=Tiddlywinks;",
+        "PilotName_Localised": "Tiddlywinks",
+        "Target": "federation_dropship",
+        "Target_Localised": "Federal Dropship",
+        "TotalReward": 603200,
+        "VictimFaction": "Dragons of HIP 42408"
+      },
+      {
+        "timestamp": "2026-10-06T11:22:05Z",
+        "event": "ShipTargeted",
+        "TargetLocked": false
+      },
+      {
+        "timestamp": "2026-10-06T11:22:05Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T11:22:06Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 80,
+        "TotalMerits": 5563
+      },
+      {
+        "timestamp": "2026-10-06T11:22:08Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "cobramkv",
+        "Ship_Localised": "Cobra Mk V",
+        "ScanStage": 3,
+        "PilotName": "$npc_name_decorate:#name=Tangle Iso;",
+        "PilotName_Localised": "Tangle Iso"
+      },
+      {
+        "timestamp": "2026-10-06T11:22:09Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T11:22:37Z",
+        "event": "UnderAttack",
+        "Target": "You"
+      },
+      {
+        "timestamp": "2026-10-06T11:22:52Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T11:23:03Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T11:23:16Z",
+        "event": "ShieldState"
+      },
+      {
+        "timestamp": "2026-10-06T11:23:19Z",
+        "event": "ReservoirReplenished"
+      },
+      {
+        "timestamp": "2026-10-06T11:23:37Z",
+        "event": "UnderAttack",
+        "Target": "You"
+      },
+      {
+        "timestamp": "2026-10-06T11:28:27Z",
+        "event": "SupercruiseEntry",
+        "StarSystem": "HR 4827",
+        "SystemAddress": 39969629372
+      },
+      {
+        "timestamp": "2026-10-06T11:30:58Z",
+        "event": "SupercruiseExit",
+        "StarSystem": "HR 4827",
+        "SystemAddress": 39969629372
+      },
+      {
+        "timestamp": "2026-10-06T11:31:57Z",
+        "event": "SupercruiseEntry",
+        "StarSystem": "HR 4827",
+        "SystemAddress": 39969629372
+      },
+      {
+        "timestamp": "2026-10-06T11:33:42Z",
+        "event": "SupercruiseExit",
+        "StarSystem": "HR 4827",
+        "SystemAddress": 39969629372
+      },
+      {
+        "timestamp": "2026-10-06T11:34:26Z",
+        "event": "Docked",
+        "StationName": "Forrester Hub",
+        "StarSystem": "HR 4827",
+        "SystemAddress": 39969629372,
+        "MarketID": 4366404867
+      }
+    ]
+  },
+  {
+    "source": "Journal.2026-10-06T151935.01.log",
+    "events": [
+      {
+        "timestamp": "2026-10-06T13:19:30Z",
+        "event": "Fileheader",
+        "part": 1,
+        "Odyssey": true,
+        "gameversion": "4.4.1.1",
+        "build": "r332841/r0 "
+      },
+      {
+        "timestamp": "2026-10-06T13:19:58Z",
+        "event": "Commander",
+        "FID": "F12520967",
+        "Name": "FABER38"
+      },
+      {
+        "timestamp": "2026-10-06T13:19:59Z",
+        "event": "LoadGame",
+        "FID": "F12520967",
+        "Odyssey": true,
+        "Ship": "SmallCombat01_NX",
+        "Ship_Localised": "Kestrel Mk II",
+        "gameversion": "4.4.1.1",
+        "build": "r332841/r0 "
+      },
+      {
+        "timestamp": "2026-10-06T13:20:20Z",
+        "event": "Location",
+        "Docked": true,
+        "StationName": "Forrester Hub",
+        "MarketID": 4366404867,
+        "StarSystem": "HR 4827",
+        "SystemAddress": 39969629372,
+        "ControllingPower": "Nakato Kaine",
+        "PowerplayState": "Exploited"
+      },
+      {
+        "timestamp": "2026-10-06T13:20:20Z",
+        "event": "Powerplay",
+        "Power": "Nakato Kaine",
+        "Rank": 0,
+        "Merits": 5563,
+        "TimePledged": 11157
+      },
+      {
+        "timestamp": "2026-10-06T13:22:24Z",
+        "event": "Undocked",
+        "StationName": "Forrester Hub",
+        "MarketID": 4366404867
+      },
+      {
+        "timestamp": "2026-10-06T13:23:15Z",
+        "event": "FSDJump",
+        "StarSystem": "Col 285 Sector SF-R b20-3",
+        "SystemAddress": 7269366900169
+      },
+      {
+        "timestamp": "2026-10-06T13:24:01Z",
+        "event": "FSDJump",
+        "StarSystem": "Col 285 Sector MY-G c11-10",
+        "SystemAddress": 2832833057514,
+        "PowerplayState": "Unoccupied"
+      },
+      {
+        "timestamp": "2026-10-06T13:24:49Z",
+        "event": "FSDJump",
+        "StarSystem": "Col 285 Sector YW-N b22-3",
+        "SystemAddress": 7269366965721
+      },
+      {
+        "timestamp": "2026-10-06T13:25:36Z",
+        "event": "FSDJump",
+        "StarSystem": "Col 285 Sector OJ-F c12-9",
+        "SystemAddress": 2557955183346
+      },
+      {
+        "timestamp": "2026-10-06T13:26:33Z",
+        "event": "FSDJump",
+        "StarSystem": "Col 285 Sector BT-K b24-0",
+        "SystemAddress": 672028894697
+      },
+      {
+        "timestamp": "2026-10-06T13:29:07Z",
+        "event": "SupercruiseExit",
+        "StarSystem": "Col 285 Sector BT-K b24-0",
+        "SystemAddress": 672028894697
+      },
+      {
+        "timestamp": "2026-10-06T13:29:47Z",
+        "event": "Docked",
+        "StationName": "Beeman Point",
+        "StarSystem": "Col 285 Sector BT-K b24-0",
+        "SystemAddress": 672028894697,
+        "MarketID": 4357909763
+      },
+      {
+        "timestamp": "2026-10-06T13:35:51Z",
+        "event": "Undocked",
+        "StationName": "Beeman Point",
+        "MarketID": 4357909763
+      },
+      {
+        "timestamp": "2026-10-06T13:36:39Z",
+        "event": "FSDJump",
+        "StarSystem": "Col 285 Sector VU-O d6-68",
+        "SystemAddress": 2346956392827
+      },
+      {
+        "timestamp": "2026-10-06T13:38:58Z",
+        "event": "SupercruiseExit",
+        "StarSystem": "Col 285 Sector VU-O d6-68",
+        "SystemAddress": 2346956392827
+      },
+      {
+        "timestamp": "2026-10-06T13:40:06Z",
+        "event": "Docked",
+        "StationName": "B5Y-8XN",
+        "StarSystem": "Col 285 Sector VU-O d6-68",
+        "SystemAddress": 2346956392827,
+        "MarketID": 3705965312
+      },
+      {
+        "timestamp": "2026-10-06T16:19:49Z",
+        "event": "Undocked",
+        "StationName": "B5Y-8XN",
+        "MarketID": 3705965312
+      },
+      {
+        "timestamp": "2026-10-06T16:21:45Z",
+        "event": "Docked",
+        "StationName": "B5Y-8XN",
+        "StarSystem": "Col 285 Sector VU-O d6-68",
+        "SystemAddress": 2346956392827,
+        "MarketID": 3705965312
+      },
+      {
+        "timestamp": "2026-10-06T16:26:00Z",
+        "event": "Undocked",
+        "StationName": "B5Y-8XN",
+        "MarketID": 3705965312
+      },
+      {
+        "timestamp": "2026-10-06T16:26:52Z",
+        "event": "FSDJump",
+        "StarSystem": "Col 285 Sector NJ-F c12-9",
+        "SystemAddress": 2557888074482
+      },
+      {
+        "timestamp": "2026-10-06T16:27:50Z",
+        "event": "FSDJump",
+        "StarSystem": "Col 285 Sector LY-G c11-13",
+        "SystemAddress": 3657399669482
+      },
+      {
+        "timestamp": "2026-10-06T16:28:50Z",
+        "event": "FSDJump",
+        "StarSystem": "Col 285 Sector VL-P b21-3",
+        "SystemAddress": 7269098464721,
+        "PowerplayState": "Unoccupied"
+      },
+      {
+        "timestamp": "2026-10-06T16:29:48Z",
+        "event": "FSDJump",
+        "StarSystem": "Ramito",
+        "SystemAddress": 3107643822818,
+        "ControllingPower": "Nakato Kaine",
+        "PowerplayState": "Exploited"
+      },
+      {
+        "timestamp": "2026-10-06T16:31:02Z",
+        "event": "FSDJump",
+        "StarSystem": "Hydrae Sector KS-T b3-3",
+        "SystemAddress": 7268829898185,
+        "PowerplayState": "Unoccupied"
+      },
+      {
+        "timestamp": "2026-10-06T16:33:40Z",
+        "event": "SupercruiseExit",
+        "StarSystem": "Hydrae Sector KS-T b3-3",
+        "SystemAddress": 7268829898185
+      },
+      {
+        "timestamp": "2026-10-06T16:34:33Z",
+        "event": "Docked",
+        "StationName": "Jackon Bastion",
+        "StarSystem": "Hydrae Sector KS-T b3-3",
+        "SystemAddress": 7268829898185,
+        "MarketID": 4228559107
+      },
+      {
+        "timestamp": "2026-10-06T16:41:44Z",
+        "event": "Undocked",
+        "StationName": "Jackon Bastion",
+        "MarketID": 4228559107
+      },
+      {
+        "timestamp": "2026-10-06T16:42:36Z",
+        "event": "FSDJump",
+        "StarSystem": "Hydrae Sector KC-V b2-5",
+        "SystemAddress": 11666876278209,
+        "PowerplayState": "Unoccupied"
+      },
+      {
+        "timestamp": "2026-10-06T16:43:22Z",
+        "event": "FSDJump",
+        "StarSystem": "Diso",
+        "SystemAddress": 3382521664226,
+        "ControllingPower": "Edmund Mahon",
+        "PowerplayState": "Fortified"
+      },
+      {
+        "timestamp": "2026-10-06T16:45:32Z",
+        "event": "SupercruiseExit",
+        "StarSystem": "Diso",
+        "SystemAddress": 3382521664226
+      },
+      {
+        "timestamp": "2026-10-06T16:46:22Z",
+        "event": "Docked",
+        "StationName": "Shifnalport",
+        "StarSystem": "Diso",
+        "SystemAddress": 3382521664226,
+        "MarketID": 128161016
+      },
+      {
+        "timestamp": "2026-10-06T16:49:25Z",
+        "event": "Undocked",
+        "StationName": "Shifnalport",
+        "MarketID": 128161016
+      },
+      {
+        "timestamp": "2026-10-06T16:51:01Z",
+        "event": "FSDJump",
+        "StarSystem": "Hydrae Sector KC-V b2-5",
+        "SystemAddress": 11666876278209,
+        "PowerplayState": "Unoccupied"
+      },
+      {
+        "timestamp": "2026-10-06T16:52:08Z",
+        "event": "FSDJump",
+        "StarSystem": "Hydrae Sector KS-T b3-3",
+        "SystemAddress": 7268829898185,
+        "PowerplayState": "Unoccupied"
+      },
+      {
+        "timestamp": "2026-10-06T16:52:46Z",
+        "event": "ReservoirReplenished"
+      },
+      {
+        "timestamp": "2026-10-06T16:53:17Z",
+        "event": "ScanBaryCentre",
+        "StarSystem": "Hydrae Sector KS-T b3-3",
+        "SystemAddress": 7268829898185
+      },
+      {
+        "timestamp": "2026-10-06T16:53:17Z",
+        "event": "Scan",
+        "StarSystem": "Hydrae Sector KS-T b3-3",
+        "SystemAddress": 7268829898185
+      },
+      {
+        "timestamp": "2026-10-06T16:53:20Z",
+        "event": "Scan",
+        "StarSystem": "Hydrae Sector KS-T b3-3",
+        "SystemAddress": 7268829898185
+      },
+      {
+        "timestamp": "2026-10-06T16:55:05Z",
+        "event": "SupercruiseDestinationDrop",
+        "Type": "Porter Beacon",
+        "MarketID": 4364788995
+      },
+      {
+        "timestamp": "2026-10-06T16:55:07Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 7268829898185
+      },
+      {
+        "timestamp": "2026-10-06T16:55:07Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 7268829898185
+      },
+      {
+        "timestamp": "2026-10-06T16:55:07Z",
+        "event": "SupercruiseExit",
+        "StarSystem": "Hydrae Sector KS-T b3-3",
+        "SystemAddress": 7268829898185
+      },
+      {
+        "timestamp": "2026-10-06T16:55:07Z",
+        "event": "ShipLocker"
+      },
+      {
+        "timestamp": "2026-10-06T16:55:07Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T16:55:12Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T16:55:14Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T16:55:15Z",
+        "event": "DockingRequested",
+        "MarketID": 4364788995,
+        "StationName": "Porter Beacon"
+      },
+      {
+        "timestamp": "2026-10-06T16:55:15Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T16:55:15Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T16:55:15Z",
+        "event": "DockingGranted",
+        "MarketID": 4364788995,
+        "StationName": "Porter Beacon"
+      },
+      {
+        "timestamp": "2026-10-06T16:55:17Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T16:56:04Z",
+        "event": "Docked",
+        "StationName": "Porter Beacon",
+        "StarSystem": "Hydrae Sector KS-T b3-3",
+        "SystemAddress": 7268829898185,
+        "MarketID": 4364788995
+      },
+      {
+        "timestamp": "2026-10-06T16:56:04Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T16:56:04Z",
+        "event": "NpcCrewPaidWage"
+      },
+      {
+        "timestamp": "2026-10-06T16:56:05Z",
+        "event": "RefuelAll"
+      },
+      {
+        "timestamp": "2026-10-06T16:56:14Z",
+        "event": "Market",
+        "MarketID": 4364788995,
+        "StationName": "Porter Beacon",
+        "StarSystem": "Hydrae Sector KS-T b3-3"
+      },
+      {
+        "timestamp": "2026-10-06T16:56:23Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T16:56:23Z",
+        "event": "NpcCrewPaidWage"
+      },
+      {
+        "timestamp": "2026-10-06T16:56:23Z",
+        "event": "MarketSell",
+        "MarketID": 4364788995,
+        "Type": "disomacorn",
+        "Type_Localised": "Diso-Ma-Mais",
+        "Count": 8
+      },
+      {
+        "timestamp": "2026-10-06T16:56:24Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 3600,
+        "TotalMerits": 9163
+      },
+      {
+        "timestamp": "2026-10-06T16:56:24Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 10,
+        "TotalMerits": 9173
+      },
+      {
+        "timestamp": "2026-10-06T16:56:26Z",
+        "event": "Cargo",
+        "Count": 0
+      },
+      {
+        "timestamp": "2026-10-06T17:00:38Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T17:00:43Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T17:01:21Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T17:12:33Z",
+        "event": "Undocked",
+        "StationName": "Porter Beacon",
+        "MarketID": 4364788995
+      },
+      {
+        "timestamp": "2026-10-06T17:14:04Z",
+        "event": "FSDJump",
+        "StarSystem": "HIP 68348",
+        "SystemAddress": 491530504563,
+        "ControllingPower": "Nakato Kaine",
+        "PowerplayState": "Exploited"
+      },
+      {
+        "timestamp": "2026-10-06T17:14:58Z",
+        "event": "FSDJump",
+        "StarSystem": "Toluku",
+        "SystemAddress": 9467584849353,
+        "ControllingPower": "Nakato Kaine",
+        "PowerplayState": "Stronghold"
+      },
+      {
+        "timestamp": "2026-10-06T17:15:06Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 9467584849353
+      },
+      {
+        "timestamp": "2026-10-06T17:15:06Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 9467584849353
+      },
+      {
+        "timestamp": "2026-10-06T17:15:06Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 9467584849353
+      },
+      {
+        "timestamp": "2026-10-06T17:15:06Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 9467584849353
+      },
+      {
+        "timestamp": "2026-10-06T17:15:06Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 9467584849353
+      },
+      {
+        "timestamp": "2026-10-06T17:15:06Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 9467584849353
+      },
+      {
+        "timestamp": "2026-10-06T17:15:06Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 9467584849353
+      },
+      {
+        "timestamp": "2026-10-06T17:15:06Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 9467584849353
+      },
+      {
+        "timestamp": "2026-10-06T17:15:06Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 9467584849353
+      },
+      {
+        "timestamp": "2026-10-06T17:15:06Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 9467584849353
+      },
+      {
+        "timestamp": "2026-10-06T17:15:06Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 9467584849353
+      },
+      {
+        "timestamp": "2026-10-06T17:15:06Z",
+        "event": "FSSDiscoveryScan",
+        "SystemAddress": 9467584849353
+      },
+      {
+        "timestamp": "2026-10-06T17:15:32Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T17:16:02Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "adder",
+        "ScanStage": 0
+      },
+      {
+        "timestamp": "2026-10-06T17:16:04Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "type7",
+        "Ship_Localised": "Type-7 Transporter",
+        "ScanStage": 0
+      },
+      {
+        "timestamp": "2026-10-06T17:16:06Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T17:16:22Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "type7",
+        "Ship_Localised": "Type-7 Transporter",
+        "ScanStage": 1,
+        "PilotName": "$npc_name_decorate:#name=Morgan Stattin;",
+        "PilotName_Localised": "Morgan Stattin"
+      },
+      {
+        "timestamp": "2026-10-06T17:16:24Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "type7",
+        "Ship_Localised": "Type-7 Transporter",
+        "ScanStage": 2,
+        "PilotName": "$npc_name_decorate:#name=Morgan Stattin;",
+        "PilotName_Localised": "Morgan Stattin"
+      },
+      {
+        "timestamp": "2026-10-06T17:16:26Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "type7",
+        "Ship_Localised": "Type-7 Transporter",
+        "ScanStage": 3,
+        "PilotName": "$npc_name_decorate:#name=Morgan Stattin;",
+        "PilotName_Localised": "Morgan Stattin"
+      },
+      {
+        "timestamp": "2026-10-06T17:16:27Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 10,
+        "TotalMerits": 9183
+      },
+      {
+        "timestamp": "2026-10-06T17:16:36Z",
+        "event": "ShipTargeted",
+        "TargetLocked": true,
+        "Ship": "asp_scout",
+        "Ship_Localised": "Asp Scout",
+        "ScanStage": 0
+      },
+      {
+        "timestamp": "2026-10-06T17:16:41Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T17:16:52Z",
+        "event": "SupercruiseDestinationDrop",
+        "Type": "Foden Orbital",
+        "MarketID": 3231487744
+      },
+      {
+        "timestamp": "2026-10-06T17:16:53Z",
+        "event": "SupercruiseExit",
+        "StarSystem": "Toluku",
+        "SystemAddress": 9467584849353
+      },
+      {
+        "timestamp": "2026-10-06T17:16:53Z",
+        "event": "ShipLocker"
+      },
+      {
+        "timestamp": "2026-10-06T17:16:53Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T17:17:56Z",
+        "event": "Docked",
+        "StationName": "Foden Orbital",
+        "StarSystem": "Toluku",
+        "SystemAddress": 9467584849353,
+        "MarketID": 3231487744
+      },
+      {
+        "timestamp": "2026-10-06T17:19:14Z",
+        "event": "Market",
+        "MarketID": 3231487744,
+        "StationName": "Foden Orbital",
+        "StarSystem": "Toluku"
+      },
+      {
+        "timestamp": "2026-10-06T17:19:30Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T17:20:14Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T17:21:56Z",
+        "event": "Friends",
+        "Name": "Janjalan"
+      },
+      {
+        "timestamp": "2026-10-06T17:23:16Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T17:27:23Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T17:29:23Z",
+        "event": "Friends",
+        "Name": "Oberstaber"
+      },
+      {
+        "timestamp": "2026-10-06T17:37:59Z",
+        "event": "PowerplayCollect",
+        "Power": "Nakato Kaine",
+        "Type": "kainemisinformation",
+        "Type_Localised": "Kaine-Fehlinformationen",
+        "Count": 10
+      },
+      {
+        "timestamp": "2026-10-06T17:38:02Z",
+        "event": "Cargo",
+        "Count": 10
+      },
+      {
+        "timestamp": "2026-10-06T17:41:47Z",
+        "event": "Friends",
+        "Name": "Janjalan"
+      },
+      {
+        "timestamp": "2026-10-06T17:43:05Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T17:45:54Z",
+        "event": "Undocked",
+        "StationName": "Foden Orbital",
+        "MarketID": 3231487744
+      },
+      {
+        "timestamp": "2026-10-06T17:47:32Z",
+        "event": "FSDJump",
+        "StarSystem": "Kuwair",
+        "SystemAddress": 5069269771721,
+        "ControllingPower": "Edmund Mahon",
+        "PowerplayState": "Exploited"
+      },
+      {
+        "timestamp": "2026-10-06T17:48:21Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:48:21Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:48:21Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:48:21Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:48:21Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:48:21Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:48:21Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:48:21Z",
+        "event": "FSDJump",
+        "StarSystem": "HIP 70049",
+        "SystemAddress": 2008065086178,
+        "ControllingPower": "Edmund Mahon",
+        "PowerplayState": "Exploited"
+      },
+      {
+        "timestamp": "2026-10-06T17:48:21Z",
+        "event": "ShipLocker"
+      },
+      {
+        "timestamp": "2026-10-06T17:48:21Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T17:48:26Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T17:48:30Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:48:30Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:48:30Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:48:30Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:48:30Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:48:30Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:48:30Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:48:30Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:48:30Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:48:30Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:48:30Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:48:30Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:48:30Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:48:30Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:48:30Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:48:30Z",
+        "event": "FSSSignalDiscovered",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:48:30Z",
+        "event": "FSSDiscoveryScan",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:51:05Z",
+        "event": "SupercruiseDestinationDrop",
+        "Type": "Mille Enterprise",
+        "MarketID": 3231292416
+      },
+      {
+        "timestamp": "2026-10-06T17:51:06Z",
+        "event": "SupercruiseExit",
+        "StarSystem": "HIP 70049",
+        "SystemAddress": 2008065086178
+      },
+      {
+        "timestamp": "2026-10-06T17:51:06Z",
+        "event": "ShipLocker"
+      },
+      {
+        "timestamp": "2026-10-06T17:51:06Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T17:51:11Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T17:51:11Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T17:51:14Z",
+        "event": "DockingRequested",
+        "MarketID": 3231292416,
+        "StationName": "Mille Enterprise"
+      },
+      {
+        "timestamp": "2026-10-06T17:51:14Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T17:51:14Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T17:51:14Z",
+        "event": "DockingGranted",
+        "MarketID": 3231292416,
+        "StationName": "Mille Enterprise"
+      },
+      {
+        "timestamp": "2026-10-06T17:51:16Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T17:51:28Z",
+        "event": "Friends",
+        "Name": "Two of Seven"
+      },
+      {
+        "timestamp": "2026-10-06T17:52:30Z",
+        "event": "Docked",
+        "StationName": "Mille Enterprise",
+        "StarSystem": "HIP 70049",
+        "SystemAddress": 2008065086178,
+        "MarketID": 3231292416
+      },
+      {
+        "timestamp": "2026-10-06T17:52:30Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T17:52:31Z",
+        "event": "NpcCrewPaidWage"
+      },
+      {
+        "timestamp": "2026-10-06T17:52:52Z",
+        "event": "RefuelAll"
+      },
+      {
+        "timestamp": "2026-10-06T17:53:10Z",
+        "event": "Market",
+        "MarketID": 3231292416,
+        "StationName": "Mille Enterprise",
+        "StarSystem": "HIP 70049"
+      },
+      {
+        "timestamp": "2026-10-06T17:53:24Z",
+        "event": "PowerplayDeliver",
+        "Power": "Nakato Kaine",
+        "Type": "kainemisinformation",
+        "Type_Localised": "Kaine-Fehlinformationen",
+        "Count": 10
+      },
+      {
+        "timestamp": "2026-10-06T17:53:24Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 3600,
+        "TotalMerits": 12783
+      },
+      {
+        "timestamp": "2026-10-06T17:53:24Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 48,
+        "TotalMerits": 12831
+      },
+      {
+        "timestamp": "2026-10-06T17:53:27Z",
+        "event": "Cargo",
+        "Count": 0
+      },
+      {
+        "timestamp": "2026-10-06T17:53:46Z",
+        "event": "Friends",
+        "Name": "Janjalan"
+      },
+      {
+        "timestamp": "2026-10-06T17:59:20Z",
+        "event": "Friends",
+        "Name": "Janjalan"
+      },
+      {
+        "timestamp": "2026-10-06T18:04:02Z",
+        "event": "Undocked",
+        "StationName": "Mille Enterprise",
+        "MarketID": 3231292416
+      },
+      {
+        "timestamp": "2026-10-06T18:06:46Z",
+        "event": "FSDJump",
+        "StarSystem": "Col 285 Sector NT-G c11-12",
+        "SystemAddress": 3382521729770
+      },
+      {
+        "timestamp": "2026-10-06T18:07:30Z",
+        "event": "FSDJump",
+        "StarSystem": "Col 285 Sector LY-G c11-16",
+        "SystemAddress": 4482033390314
+      },
+      {
+        "timestamp": "2026-10-06T18:08:14Z",
+        "event": "FSDJump",
+        "StarSystem": "Col 285 Sector ZH-M b23-3",
+        "SystemAddress": 7269098595809
+      },
+      {
+        "timestamp": "2026-10-06T18:09:14Z",
+        "event": "FSDJump",
+        "StarSystem": "Col 285 Sector AT-K b24-2",
+        "SystemAddress": 5069806970345
+      },
+      {
+        "timestamp": "2026-10-06T18:10:01Z",
+        "event": "FSDJump",
+        "StarSystem": "Col 285 Sector VU-O d6-68",
+        "SystemAddress": 2346956392827
+      },
+      {
+        "timestamp": "2026-10-06T18:12:20Z",
+        "event": "SupercruiseExit",
+        "StarSystem": "Col 285 Sector VU-O d6-68",
+        "SystemAddress": 2346956392827
+      },
+      {
+        "timestamp": "2026-10-06T18:13:11Z",
+        "event": "Docked",
+        "StationName": "B5Y-8XN",
+        "StarSystem": "Col 285 Sector VU-O d6-68",
+        "SystemAddress": 2346956392827,
+        "MarketID": 3705965312
+      },
+      {
+        "timestamp": "2026-10-06T18:19:54Z",
+        "event": "Undocked",
+        "StationName": "B5Y-8XN",
+        "MarketID": 3705965312
+      },
+      {
+        "timestamp": "2026-10-06T18:28:53Z",
+        "event": "FSDJump",
+        "StarSystem": "76 h Virginis",
+        "SystemAddress": 422811044211,
+        "PowerplayState": "Unoccupied"
+      },
+      {
+        "timestamp": "2026-10-06T18:29:38Z",
+        "event": "FSDJump",
+        "StarSystem": "Col 285 Sector JD-H c11-7",
+        "SystemAddress": 2008132260586,
+        "ControllingPower": "Nakato Kaine",
+        "PowerplayState": "Stronghold"
+      },
+      {
+        "timestamp": "2026-10-06T18:30:58Z",
+        "event": "SupercruiseExit",
+        "StarSystem": "Col 285 Sector JD-H c11-7",
+        "SystemAddress": 2008132260586
+      },
+      {
+        "timestamp": "2026-10-06T18:31:38Z",
+        "event": "SupercruiseEntry",
+        "StarSystem": "Col 285 Sector JD-H c11-7",
+        "SystemAddress": 2008132260586
+      },
+      {
+        "timestamp": "2026-10-06T18:34:32Z",
+        "event": "SupercruiseExit",
+        "StarSystem": "Col 285 Sector JD-H c11-7",
+        "SystemAddress": 2008132260586
+      },
+      {
+        "timestamp": "2026-10-06T18:37:54Z",
+        "event": "SupercruiseEntry",
+        "StarSystem": "Col 285 Sector JD-H c11-7",
+        "SystemAddress": 2008132260586
+      },
+      {
+        "timestamp": "2026-10-06T18:38:53Z",
+        "event": "SupercruiseExit",
+        "StarSystem": "Col 285 Sector JD-H c11-7",
+        "SystemAddress": 2008132260586
+      },
+      {
+        "timestamp": "2026-10-06T18:39:56Z",
+        "event": "SupercruiseEntry",
+        "StarSystem": "Col 285 Sector JD-H c11-7",
+        "SystemAddress": 2008132260586
+      },
+      {
+        "timestamp": "2026-10-06T18:40:58Z",
+        "event": "FSDJump",
+        "StarSystem": "Col 285 Sector TQ-P b21-3",
+        "SystemAddress": 7269098530257,
+        "ControllingPower": "Nakato Kaine",
+        "PowerplayState": "Fortified"
+      },
+      {
+        "timestamp": "2026-10-06T18:42:09Z",
+        "event": "FSDJump",
+        "StarSystem": "Toluku",
+        "SystemAddress": 9467584849353,
+        "ControllingPower": "Nakato Kaine",
+        "PowerplayState": "Stronghold"
+      },
+      {
+        "timestamp": "2026-10-06T18:43:21Z",
+        "event": "SupercruiseExit",
+        "StarSystem": "Toluku",
+        "SystemAddress": 9467584849353
+      },
+      {
+        "timestamp": "2026-10-06T18:43:52Z",
+        "event": "SupercruiseEntry",
+        "StarSystem": "Toluku",
+        "SystemAddress": 9467584849353
+      },
+      {
+        "timestamp": "2026-10-06T18:46:53Z",
+        "event": "SupercruiseExit",
+        "StarSystem": "Toluku",
+        "SystemAddress": 9467584849353
+      },
+      {
+        "timestamp": "2026-10-06T18:48:40Z",
+        "event": "SupercruiseEntry",
+        "StarSystem": "Toluku",
+        "SystemAddress": 9467584849353
+      },
+      {
+        "timestamp": "2026-10-06T18:52:59Z",
+        "event": "SupercruiseExit",
+        "StarSystem": "Toluku",
+        "SystemAddress": 9467584849353
+      },
+      {
+        "timestamp": "2026-10-06T18:52:59Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T18:53:04Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T18:53:09Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T18:53:15Z",
+        "event": "DockingRequested",
+        "MarketID": 3231487744,
+        "StationName": "Foden Orbital"
+      },
+      {
+        "timestamp": "2026-10-06T18:53:15Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T18:53:15Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T18:53:15Z",
+        "event": "DockingGranted",
+        "MarketID": 3231487744,
+        "StationName": "Foden Orbital"
+      },
+      {
+        "timestamp": "2026-10-06T18:53:17Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T18:53:40Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T18:54:08Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T18:54:14Z",
+        "event": "Docked",
+        "StationName": "Foden Orbital",
+        "StarSystem": "Toluku",
+        "SystemAddress": 9467584849353,
+        "MarketID": 3231487744
+      },
+      {
+        "timestamp": "2026-10-06T18:54:14Z",
+        "event": "Music"
+      },
+      {
+        "timestamp": "2026-10-06T18:54:28Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T18:54:34Z",
+        "event": "PayFines"
+      },
+      {
+        "timestamp": "2026-10-06T18:54:55Z",
+        "event": "NpcCrewPaidWage"
+      },
+      {
+        "timestamp": "2026-10-06T18:54:55Z",
+        "event": "SearchAndRescue",
+        "MarketID": 3231487744,
+        "Name": "usscargoblackbox",
+        "Name_Localised": "Black Box",
+        "Count": 2,
+        "Reward": 60143
+      },
+      {
+        "timestamp": "2026-10-06T18:54:55Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 194,
+        "TotalMerits": 13025
+      },
+      {
+        "timestamp": "2026-10-06T18:54:57Z",
+        "event": "Cargo",
+        "Count": 18
+      },
+      {
+        "timestamp": "2026-10-06T18:55:02Z",
+        "event": "NpcCrewPaidWage"
+      },
+      {
+        "timestamp": "2026-10-06T18:55:02Z",
+        "event": "SearchAndRescue",
+        "MarketID": 3231487744,
+        "Name": "wreckagecomponents",
+        "Name_Localised": "Wrackteilkomponenten",
+        "Count": 6,
+        "Reward": 53132
+      },
+      {
+        "timestamp": "2026-10-06T18:55:03Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 171,
+        "TotalMerits": 13196
+      },
+      {
+        "timestamp": "2026-10-06T18:55:04Z",
+        "event": "Cargo",
+        "Count": 12
+      },
+      {
+        "timestamp": "2026-10-06T18:55:11Z",
+        "event": "NpcCrewPaidWage"
+      },
+      {
+        "timestamp": "2026-10-06T18:55:11Z",
+        "event": "SearchAndRescue",
+        "MarketID": 3231487744,
+        "Name": "occupiedcryopod",
+        "Name_Localised": "Besetzte Rettungskapsel",
+        "Count": 5,
+        "Reward": 147133
+      },
+      {
+        "timestamp": "2026-10-06T18:55:13Z",
+        "event": "Cargo",
+        "Count": 7
+      },
+      {
+        "timestamp": "2026-10-06T18:55:17Z",
+        "event": "NpcCrewPaidWage"
+      },
+      {
+        "timestamp": "2026-10-06T18:55:17Z",
+        "event": "SearchAndRescue",
+        "MarketID": 3231487744,
+        "Name": "damagedescapepod",
+        "Name_Localised": "Beschädigte Rettungskapsel",
+        "Count": 2,
+        "Reward": 33319
+      },
+      {
+        "timestamp": "2026-10-06T18:55:19Z",
+        "event": "Cargo",
+        "Count": 5
+      },
+      {
+        "timestamp": "2026-10-06T18:55:59Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 3,
+        "TotalMerits": 13199
+      },
+      {
+        "timestamp": "2026-10-06T18:55:59Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 4,
+        "TotalMerits": 13203
+      },
+      {
+        "timestamp": "2026-10-06T18:55:59Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 4,
+        "TotalMerits": 13207
+      },
+      {
+        "timestamp": "2026-10-06T18:55:59Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 4,
+        "TotalMerits": 13211
+      },
+      {
+        "timestamp": "2026-10-06T18:56:00Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 3,
+        "TotalMerits": 13213
+      },
+      {
+        "timestamp": "2026-10-06T18:56:00Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 4,
+        "TotalMerits": 13217
+      },
+      {
+        "timestamp": "2026-10-06T18:56:00Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 3,
+        "TotalMerits": 13220
+      },
+      {
+        "timestamp": "2026-10-06T18:56:00Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 9,
+        "TotalMerits": 13229
+      },
+      {
+        "timestamp": "2026-10-06T18:56:00Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 2,
+        "TotalMerits": 13231
+      },
+      {
+        "timestamp": "2026-10-06T18:56:00Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 10,
+        "TotalMerits": 13241
+      },
+      {
+        "timestamp": "2026-10-06T18:56:02Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 4,
+        "TotalMerits": 13233
+      },
+      {
+        "timestamp": "2026-10-06T18:56:02Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 13,
+        "TotalMerits": 13246
+      },
+      {
+        "timestamp": "2026-10-06T18:56:05Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 10,
+        "TotalMerits": 13256
+      },
+      {
+        "timestamp": "2026-10-06T18:57:32Z",
+        "event": "Friends",
+        "Name": "Janjalan"
+      },
+      {
+        "timestamp": "2026-10-06T19:02:39Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T19:03:00Z",
+        "event": "Friends",
+        "Name": "Janjalan"
+      },
+      {
+        "timestamp": "2026-10-06T19:06:25Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T19:07:08Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T19:12:34Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T19:19:32Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T19:26:24Z",
+        "event": "ReceiveText"
+      },
+      {
+        "timestamp": "2026-10-06T19:48:06Z",
+        "event": "Undocked",
+        "StationName": "Foden Orbital",
+        "MarketID": 3231487744
+      },
+      {
+        "timestamp": "2026-10-06T19:49:40Z",
+        "event": "SupercruiseEntry",
+        "StarSystem": "Toluku",
+        "SystemAddress": 9467584849353
+      },
+      {
+        "timestamp": "2026-10-06T19:51:08Z",
+        "event": "SupercruiseExit",
+        "StarSystem": "Toluku",
+        "SystemAddress": 9467584849353
+      },
+      {
+        "timestamp": "2026-10-06T19:51:38Z",
+        "event": "SupercruiseEntry",
+        "StarSystem": "Toluku",
+        "SystemAddress": 9467584849353
+      }
+    ]
+  }
+]

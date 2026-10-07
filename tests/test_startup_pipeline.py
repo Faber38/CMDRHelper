@@ -30,6 +30,9 @@ class StartupPipelineTests(unittest.TestCase):
 
     def state(self):
         # These tests isolate startup orchestration from real journal/DB IO.
+        pads = patch('cmdrhelper.station_pad_store.read_local', return_value={})
+        pads.start()
+        self.addCleanup(pads.stop)
         for target, result in (("capture", {}), ("catch_up", None)):
             mocked = patch(f'cmdrhelper.journal_catchup.{target}', return_value=result)
             mocked.start()

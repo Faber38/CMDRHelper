@@ -1,4 +1,19 @@
 TRANSLATIONS = {
+    'trade.origin_station': 'Menşe istasyonu',
+    'trade.origin_market_id': 'Menşe MarketID: {market_id}',
+    'trade.origin_unconfirmed': 'Güncel stok/fiyat: doğrulanmadı.',
+    'trade.origin_no_offers': 'Mevcut piyasa verilerinde güncel teklif bulunamadı.',
+    'trade.origin_distance': 'Mesafe: {distance} ly',
+
+    'trade.rare_sell_excluded': 'Nadir mallar normal satış aramasına dahil edilmez.',
+    'trade.ship_inventory': 'Mevcut gemideki yük',
+    'trade.cargo_select_all': 'Tümünü seç',
+    'trade.cargo_results': 'Mal başına satış sonuçları',
+    'trade.cargo_unknown': 'Mevcut yük içeriği kesin olarak bilinmiyor.',
+    'trade.cargo_item': '{name} · {count} t',
+    'trade.cargo_search': 'En iyi satış fiyatlarını ara',
+    'trade.cargo_choose': 'En az bir mal seçin.',
+
     'trade.current_market_read_tooltip': "Güncel pazar okundu: {station}",
     'trade.current_market_open_tooltip': "Mevcut istasyonun pazarı henüz okunmadı.",
     'about.version': 'Sürüm {version}',
@@ -9,6 +24,12 @@ TRANSLATIONS = {
     'about.support': 'Geliştirme desteği:\nYapay zekâ destekli geliştirme araçları',
     'about.independent': 'CMDRHelper bağımsız bir topluluk projesidir ve Frontier Developments ile bağlantısı yoktur.',
     'about.trademark': 'Elite Dangerous, Frontier Developments plc şirketinin ticari markasıdır.',
+    'release.3_9_0.0': 'Nadir mallar ticaret asistanına eklendi.',
+    'release.3_9_0.1': 'Nadir malların kaynak istasyonları tanınır ve gerektiğinde otomatik olarak bulunur.',
+    'release.3_9_0.2': 'Yük algılama iyileştirildi; taşınan mallar satış araması için doğrudan seçilebilir.',
+    'release.3_9_0.3': 'Taşınan birden fazla mal için uygun satış istasyonlarını aynı anda arayın.',
+    'release.3_9_0.4': 'Powerplay 2.0 yardımı önemli ölçüde genişletildi.',
+    'release.3_9_0.5': 'Ek kararlılık ve güvenilirlik iyileştirmeleri.',
     'release.3_8_3.0': 'Belirli görevler kabul edildikten sonra yeni yerel pazar verilerinin güncellenmesini engelleyen bir hata düzeltildi.',
     'release.3_8_3.1': 'Yerel pazar takibinin kararlılığı iyileştirildi.',
     'release.3_8_2.0': 'Ticaret asistanında hata düzeltmeleri ve iyileştirmeler.',
@@ -1713,4 +1734,9 @@ TRANSLATIONS.update({
     'outbound.target': 'Sabit kayıtlı hedef: {station} — {system}',
     'outbound.filters': 'Sabit hedef de seçili tüm filtreleri karşılamalıdır.',
     'outbound.return_route': 'Kayıtlı dönüş ticareti: {commodity} → {station} — {system}',
+})
+
+# Purchase commodity picker: catalogue-based Rare Goods filter.
+TRANSLATIONS.update({
+    'trade.goods_rare': 'Nadir mallar',
 })

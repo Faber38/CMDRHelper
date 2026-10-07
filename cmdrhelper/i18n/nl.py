@@ -1,4 +1,19 @@
 TRANSLATIONS = {
+    'trade.origin_station': 'Station van oorsprong',
+    'trade.origin_market_id': 'MarketID van oorsprong: {market_id}',
+    'trade.origin_unconfirmed': 'Huidige voorraad/prijs: niet bevestigd.',
+    'trade.origin_no_offers': 'Geen actuele aanbiedingen gevonden in de beschikbare marktgegevens.',
+    'trade.origin_distance': 'Afstand: {distance} ly',
+
+    'trade.rare_sell_excluded': 'Zeldzame goederen worden niet meegenomen in de normale verkoopzoekopdracht.',
+    'trade.ship_inventory': 'Vracht in huidig schip',
+    'trade.cargo_select_all': 'Alles selecteren',
+    'trade.cargo_results': 'Verkoopresultaten per goed',
+    'trade.cargo_unknown': 'De huidige vrachtinhoud is niet met zekerheid bekend.',
+    'trade.cargo_item': '{name} · {count} t',
+    'trade.cargo_search': 'Beste verkoopprijzen zoeken',
+    'trade.cargo_choose': 'Selecteer minstens één goed.',
+
     'trade.current_market_read_tooltip': "Huidige markt ingelezen: {station}",
     'trade.current_market_open_tooltip': "De markt van het huidige station is nog niet ingelezen.",
     'about.version': 'Versie {version}',
@@ -9,6 +24,12 @@ TRANSLATIONS = {
     'about.support': 'Ondersteuning bij ontwikkeling:\nAI-ondersteunde ontwikkeltools',
     'about.independent': 'CMDRHelper is een onafhankelijk communityproject en is niet verbonden aan Frontier Developments.',
     'about.trademark': 'Elite Dangerous is een handelsmerk van Frontier Developments plc.',
+    'release.3_9_0.0': 'Zeldzame goederen geïntegreerd in de handelsassistent.',
+    'release.3_9_0.1': 'Herkomststations van zeldzame goederen worden herkend en indien nodig automatisch opgezocht.',
+    'release.3_9_0.2': 'Verbeterde vrachtherkenning met directe selectie van meegenomen goederen voor het zoeken naar verkoopstations.',
+    'release.3_9_0.3': 'Zoek voor meerdere meegenomen goederen tegelijk naar geschikte verkoopstations.',
+    'release.3_9_0.4': 'De hulp voor Powerplay 2.0 is aanzienlijk uitgebreid.',
+    'release.3_9_0.5': 'Verdere verbeteringen in stabiliteit en betrouwbaarheid.',
     'release.3_8_3.0': 'Een fout verholpen waardoor nieuwe lokale marktgegevens niet meer werden bijgewerkt na het accepteren van bepaalde missies.',
     'release.3_8_3.1': 'De stabiliteit van de bewaking van lokale markten verbeterd.',
     'release.3_8_2.0': 'Foutoplossingen en verbeteringen in de handelsassistent.',
@@ -1713,4 +1734,9 @@ TRANSLATIONS.update({
     'outbound.target': 'Vaste onthouden bestemming: {station} — {system}',
     'outbound.filters': 'Ook de vaste bestemming moet aan alle ingestelde filters voldoen.',
     'outbound.return_route': 'Onthouden terugreis: {commodity} → {station} — {system}',
+})
+
+# Purchase commodity picker: catalogue-based Rare Goods filter.
+TRANSLATIONS.update({
+    'trade.goods_rare': 'Zeldzame goederen',
 })

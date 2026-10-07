@@ -38,6 +38,15 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.0
+
+- Harvinaiset tavarat on integroitu kauppa-avustajaan.
+- Harvinaisten tavaroiden alkuperäasemat tunnistetaan ja selvitetään tarvittaessa automaattisesti.
+- Rahdin tunnistusta parannettu: mukana olevat tavarat voi valita suoraan myyntihakuun.
+- Etsi sopivia myyntiasemia useille mukana oleville kauppatavaroille samalla haulla.
+- Powerplay 2.0 -ohjetta laajennettu huomattavasti.
+- Muita vakauden ja luotettavuuden parannuksia.
+
 ## CMDRHelper v3.8.3
 
 - Korjattu virhe, joka esti uusien paikallisten markkinatietojen päivittymisen tiettyjen tehtävien hyväksymisen jälkeen.

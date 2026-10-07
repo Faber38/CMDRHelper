@@ -1280,3 +1280,42 @@ HELP_TOPICS["explorer"] = (
 )
 
 HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>Tips: Merk ønskede mål med ✓ før du kjøper – de beholdes selv når lasterommet er fullt.</p>')
+
+HELP_TOPICS["pp2"] = ("PP2", """
+<h2>PP2 / Powerplay 2.0</h2>
+<p>PP2 viser makten din, rang og totale meritter samt sist kjente Powerplay-status for gjeldende system. Du finner aktuelle generelle aktiviteter, Powerplay-last om bord og rapporterte merittildelinger. Åpne hjelpen med spørsmålstegnet når PP2 er valgt.</p>
+<h3>Makter, meritter og kontrollpoeng</h3>
+<p>En makt er en Powerplay-gruppe du kan sverge troskap til. Din egen makt er den du har sluttet deg til; den trenger ikke kontrollere gjeldende system. Meritter er dine personlige Powerplay-poeng. Kontrollpoeng gjelder derimot maktens stilling i systemet. Helper viser verdiene Elite oppgir for kontrollfremdrift, forsterkning og undergraving når de er kjent. Dette er ikke ekstra personlige meritter; kontrollfremdrift regnes ikke om til prosent.</p>
+<h3>Systemets Powerplay-status</h3>
+<p><b>Unoccupied</b>: ingen kontrollerende makt. <b>Exploited</b>: et system utnyttet av en makt. <b>Fortified</b>: et sterkere kontrollnivå. <b>Stronghold</b>: en høyborg for den kontrollerende makten. Indikatoren markerer rapportert status, uten å forutsi neste endring.</p>
+<h3>Erverving, forsterkning, undergraving og konflikt</h3>
+<p><b>ACQUISITION</b>: erverve et ubesatt system for makten din; Helper viser dette bare ved en entydig tilknytning til din makt. <b>REINFORCEMENT</b>: styrke et system som tilhører din makt. <b>UNDERMINING</b>: svekke en annen makts kontroll. Konflikt betyr omstridt erverving: i ubesatte systemer kan Helper vise rapportert konfliktfremdrift for maktene. Flere deltakende makter alene gir ingen entydig aktivitetsanbefaling. Manglende eller motstridende opplysninger gir ukjent kategori.</p>
+<h3>Hva kan jeg gjøre her for makten min?</h3>
+<p>CMDRHelper kombinerer systemstatus fra Elite med maktens generelle aktiviteter for riktig kategori. Avhengig av makt og kategori: Transportere Powerplay-artikler (Transport Powerplay commodities), Hacke holoskjermer (Hack holoscreens), Levere bergingsgods (Hand in salvage), Dusørjakt (Bounty hunting), Overføre forskningsdata (Transfer research data), Selge med høy fortjeneste (Sell for large profits) eller Selge sjeldne varer (Sell rare goods).</p>
+<p><b>Listen gir veiledning, ikke garanterte meritter.</b> Aktivitetene kommer fra Elite, men kan gjelde generelt for makten og kategorien. Enkelte har tilleggskrav. Et hakemerke i listen bekrefter ikke utførelse eller belønning. Sjekk anvisningene i Elite og deretter den faktiske merittildelingen.</p>
+<h3>Eksempel: selge sjeldne varer</h3>
+<p>Elite kan vise «Selge sjeldne varer (Sell rare goods)» som aktivitet. Et vellykket salg gir likevel ikke automatisk Powerplay-meritter: <b>vellykket salg ≠ garantert merittildeling.</b> CMDRHelper viser tildelingen først når Elite rapporterer den. Et salg uten tildeling beviser ingen generell regel om varenes opphav, for eksempel en carrier.</p>
+<h3>Forstå Powerplay-transportoppgaver</h3>
+<p>«Transporter Powerplay-artikler til systemer for undergraving» beskriver måltypen: systemer som tilhører en annen makt, der du skal svekke kontrollen. Eksempel: 10 × Kaine-desinformasjon. Følg de konkrete kravene i oppgaven i Elite.</p>
+<ol>
+<li>Les Powerplay-oppgaven i Elite.</li>
+<li>Merk deg påkrevd kilde og systemtype.</li>
+<li>Hent riktig Powerplay-last.</li>
+<li>Fly til påkrevd måltype.</li>
+<li>Lever til den angitte maktkontakten.</li>
+<li>Sjekk deretter merittildelingen i Helper.</li>
+</ol>
+<p>Artikler om bord viser bekreftet last og kjent bruk. Beholdning eller bruk kan fortsatt være ukjent. Personlige ukesoppdrag og fremdriften deres vises ikke her.</p>
+<h3>Oppdrag og dataoverføring</h3>
+<p>Elite kan tilby Powerplay-oppgaver, som strategiske dataoverføringer. Se etter en uttrykkelig henvisning til Powerplay eller meritter i Elite. Ikke alle vanlige kureroppdrag gir meritter. Helper bekrefter tildelingen først når Elite rapporterer den.</p>
+<h3>Siste merittildelinger i dagskrøniken</h3>
+<p>De finnes nå under «PP2 DAILY CHRONICLE». Merittkolonnen inneholder faktisk rapporterte tildelinger fra Elite, ikke anslåtte belønninger. Dette er en sikrere bekreftelse enn den generelle aktivitetslisten eller en salgsmelding. Totale meritter viser din sist rapporterte personlige saldo.</p>
+<p>Den nøyaktige årsaken er ikke alltid kjent: ✓ bekrefter henting eller levering i Powerplay, ≈ bare nærhet i tid og ? ukjent årsak. Selv ✓ beviser ikke at en tildeling ved siden av tilhører akkurat den oppgaven. — betyr at ingen tildeling vises for raden. Verktøytips viser enkelte tildelinger og tidspunkter; fullføring av et personlig oppdrag utledes ikke.</p>
+<p>Pilene bytter lokal kalenderdag; «I dag» går tilbake til gjeldende dag. Historikken tilhører den enkelte commander. Historikkadministrasjonen lar deg slette eldre oppføringer eller hele historikken etter bekreftelse; kjent merittotal beholdes. Første innlesing henter bare inn gjeldende dag, deretter legges nye hendelser til.</p>
+<h3>Bruk galaksekartet</h3>
+<p>Elites galaksekart hjelper deg å sjekke maktområder, egen makt, systemstatus, høyborger og lokale aktiviteter. Hvis systemer fra din makt ser ut til å mangle, sjekk Powerplay-filtrene, særlig om «Min makt» vises. Disse filtrene tilhører kartet i Elite.</p>
+<h3>Hvor ferske er dataene?</h3>
+<p>CMDRHelper bruker lokale Elite-data og viser sist kjente system- og Powerplay-status. Opplysninger kan være forsinket eller eldre. Sjekk det viste systemtidspunktet; kartet kan også vise oppdateringstid. Ved motstridende opplysninger sammenligner du system og tidspunkter. Verken Helper eller kartet er alltid mest oppdatert.</p>
+<h3>Rang og fremdrift</h3>
+<p>Rangen er den Elite har rapportert. Hvis merittene dine beregnes til en høyere rang allerede, viser Helper at rangoppdatering avventes. Manglende eller motstridende data kan hindre fremdriftsvisningen. Videre beregnede merittnivåer etter rang 100 vises som 100+.</p>
+""")

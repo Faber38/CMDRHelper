@@ -26,6 +26,8 @@ class CommodityDefinition:
     rare: bool
     # Empty means no acquisition evidence in this snapshot, not unmineable.
     mining_origins: tuple[str, ...] = ()
+    # Source location only: never evidence of current supply or price.
+    origin_market_id: int | None = None
 
 
 def _symbol_key(value: str) -> str:
@@ -42,6 +44,9 @@ def _build_indexes(definitions):
                 or not re.fullmatch(r'[A-Za-z0-9_]+', item.symbol)
                 or not item.english_name.strip() or item.category not in CATEGORIES
                 or type(item.rare) is not bool
+                or (item.origin_market_id is not None and (not item.rare
+                    or type(item.origin_market_id) is not int
+                    or not 0 < item.origin_market_id < 2**64))
                 or item.mining_origins not in ((), ('surface',), ('asteroid',), ('surface', 'asteroid'))):
             raise ValueError('Invalid Commodity definition')
         key = _symbol_key(item.symbol)

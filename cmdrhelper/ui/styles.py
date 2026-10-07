@@ -1,4 +1,12 @@
 DARK_STYLESHEET = r"""
+QProgressBar#pp2RankProgress {
+    border: 1px solid #ffd54f;
+    text-align: center;
+}
+QProgressBar#pp2RankProgress::chunk {
+    background: #1e5278;
+}
+
 QLabel#observedMarketStatus { padding-left: 20px; }
 QLabel#observedMarketStatus[observed="true"] { color: #79bd8a; }
 
@@ -227,6 +235,12 @@ QPushButton#navActive {
     border-radius: 0;
 }
 
+QPushButton#commodityFilter:checked:focus,
+QPushButton#commodityFilter:focus {
+    border-style: dashed;
+}
+
+QPushButton#commodityFilter:checked,
 QPushButton#primary {
     background: #3a2609;
     color: #ffae28;
@@ -240,7 +254,7 @@ QLineEdit {
     padding: 8px;
 }
 
-QCheckBox::indicator:unchecked {
+QCheckBox::indicator:unchecked, QListWidget#shipCargoList::indicator:unchecked {
     border: 1px solid #65717c;
     border-radius: 2px;
 }
@@ -276,6 +290,14 @@ QStatusBar {
 
 
 LIGHT_STYLESHEET = r"""
+QProgressBar#pp2RankProgress {
+    border: 1px solid #ffd54f;
+    text-align: center;
+}
+QProgressBar#pp2RankProgress::chunk {
+    background: #1e5278;
+}
+
 QLabel#observedMarketStatus { padding-left: 20px; }
 QLabel#observedMarketStatus[observed="true"] { color: #247a41; }
 
@@ -504,6 +526,12 @@ QPushButton#navActive {
     border-radius: 0;
 }
 
+QPushButton#commodityFilter:checked:focus,
+QPushButton#commodityFilter:focus {
+    border-style: dashed;
+}
+
+QPushButton#commodityFilter:checked,
 QPushButton#primary {
     background: #fff0d6;
     color: #a85d00;
@@ -523,7 +551,7 @@ QCheckBox {
     color: #20262c;
 }
 
-QCheckBox::indicator:unchecked {
+QCheckBox::indicator:unchecked, QListWidget#shipCargoList::indicator:unchecked {
     border: 1px solid #8a949d;
     border-radius: 2px;
 }

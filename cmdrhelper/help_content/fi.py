@@ -1294,3 +1294,42 @@ HELP_TOPICS["explorer"] = (
 )
 
 HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>Vinkki: merkitse haluamasi kohteet muistiin valinnalla ✓ ennen ostamista – ne säilyvät, vaikka lastiruuma olisi täynnä.</p>')
+
+HELP_TOPICS["pp2"] = ("PP2", """
+<h2>PP2 / Powerplay 2.0</h2>
+<p>PP2 näyttää valtasi, arvosi ja merit-pisteidesi kokonaismäärän sekä nykyisen järjestelmän viimeksi tunnetun Powerplay-tilan. Näet sopivia yleisiä toimintoja, aluksen Powerplay-rahdin ja ilmoitetut merit-hyvitykset. Avaa tämä ohje kysymysmerkistä, kun PP2 on valittuna.</p>
+<h3>Vallat, merit-pisteet ja hallintapisteet</h3>
+<p>Valta on Powerplay-ryhmä, jolle voit vannoa uskollisuutta. Oma valtasi on se, johon olet liittynyt; se ei välttämättä hallitse nykyistä järjestelmää. Merit-pisteet ovat henkilökohtaisia Powerplay-pisteitäsi. Hallintapisteet koskevat sen sijaan vallan asemaa järjestelmässä. Helper näyttää Eliten toimittamat hallinnan edistymisen, vahvistamisen ja heikentämisen arvot, jos ne tunnetaan. Ne eivät ole ylimääräisiä henkilökohtaisia merit-pisteitä; hallinnan edistymistä ei muuteta prosenttiluvuksi.</p>
+<h3>Järjestelmän Powerplay-tila</h3>
+<p><b>Unoccupied</b>: ei hallitsevaa valtaa. <b>Exploited</b>: vallan hyödyntämä järjestelmä. <b>Fortified</b>: vahvistettu hallintataso. <b>Stronghold</b>: hallitsevan vallan linnake. Ilmaisin merkitsee ilmoitetun tilan eikä ennusta seuraavaa muutosta.</p>
+<h3>Hankinta, vahvistaminen, heikentäminen ja konflikti</h3>
+<p><b>ACQUISITION</b>: miehittämättömän järjestelmän hankkiminen omalle vallalle; Helper näyttää tämän vain, jos yhteys omaan valtaan on yksiselitteinen. <b>REINFORCEMENT</b>: oman vallan järjestelmän vahvistaminen. <b>UNDERMINING</b>: toisen vallan hallinnan heikentäminen. Konflikti tarkoittaa kiisteltyä hankintaa: miehittämättömissä järjestelmissä Helper voi näyttää valtojen ilmoitetun konfliktin edistymisen. Usean vallan mukanaolo ei yksin riitä toimintasuositukseen. Puuttuvat tai ristiriitaiset tiedot jättävät luokan tuntemattomaksi.</p>
+<h3>Mitä voin tehdä täällä valtani hyväksi?</h3>
+<p>CMDRHelper yhdistää Eliten järjestelmätilan valtasi yleisiin toimintoihin sopivassa luokassa. Vallasta ja luokasta riippuen esimerkiksi: Kuljeta Powerplay-tavaroita (Transport Powerplay commodities), Hakkeroi holonäyttöjä (Hack holoscreens), Luovuta pelastettua tavaraa (Hand in salvage), Metsästä palkkioita (Bounty hunting), Siirrä tutkimustietoja (Transfer research data), Myy suurella voitolla (Sell for large profits) tai Myy harvinaisia tavaroita (Sell rare goods).</p>
+<p><b>Luettelo opastaa, mutta ei takaa merit-pisteitä.</b> Toiminnot tulevat Elitestä, mutta voivat koskea valtaa ja luokkaa yleisesti. Yksittäisillä toiminnoilla voi olla lisäehtoja. Luettelon valintamerkki ei vahvista suoritusta tai palkkiota. Tarkista Eliten ohjeet ja sen jälkeen todellinen merit-hyvitys.</p>
+<h3>Esimerkki: harvinaisten tavaroiden myynti</h3>
+<p>Elite voi näyttää toiminnon ”Myy harvinaisia tavaroita (Sell rare goods)”. Onnistunut myynti ei silti automaattisesti tuota Powerplay-merit-pisteitä: <b>onnistunut myynti ≠ taattu merit-hyvitys.</b> CMDRHelper näyttää hyvityksen vasta Eliten ilmoitettua sen. Myynti ilman hyvitystä ei osoita yleistä sääntöä tavaran alkuperästä, esimerkiksi carrierilta.</p>
+<h3>Powerplay-kuljetustehtävien tulkinta</h3>
+<p>”Kuljeta Powerplay-tavaroita heikennettäviin järjestelmiin” määrittää kohteen tyypin: toisen vallan järjestelmät, joiden hallintaa sinun tulee heikentää. Esimerkki: 10 × Kainen disinformaatio. Noudata Eliten tehtävän tarkkoja vaatimuksia.</p>
+<ol>
+<li>Lue Powerplay-tehtävä Elitessä.</li>
+<li>Tarkista vaadittu lähtöpaikka ja järjestelmätyyppi.</li>
+<li>Nouda sopiva Powerplay-rahti.</li>
+<li>Lennä vaaditun tyyppiseen kohteeseen.</li>
+<li>Luovuta rahti määrätylle vallan yhteyshenkilölle.</li>
+<li>Tarkista sen jälkeen merit-hyvitys Helperistä.</li>
+</ol>
+<p>Aluksen tavaranäkymä näyttää vahvistetun rahdin ja tunnetun käyttötarkoituksen. Määrä tai käyttö voi vielä olla tuntematon. Henkilökohtaisia viikkotehtäviä ja niiden edistymistä ei näytetä täällä.</p>
+<h3>Tehtävät ja tiedonsiirrot</h3>
+<p>Elite voi tarjota Powerplay-tehtäviä, kuten strategisia tiedonsiirtoja. Etsi Elitestä nimenomainen maininta Powerplaysta tai merit-pisteistä. Kaikki tavalliset kuriiritehtävät eivät tuota merit-pisteitä. Helper vahvistaa hyvityksen vasta Eliten ilmoituksen jälkeen.</p>
+<h3>Viimeisimmät merit-hyvitykset päiväkirjassa</h3>
+<p>Ne löytyvät tällä hetkellä kohdasta ”PP2 DAILY CHRONICLE”. Merit-sarake sisältää Eliten todella ilmoittamat hyvitykset, ei arvioituja palkkioita. Se vahvistaa palkitsemisen luotettavammin kuin yleinen toimintoluettelo tai myynti-ilmoitus. Kokonaismeritit näyttävät viimeksi ilmoitetun henkilökohtaisen saldosi.</p>
+<p>Tarkkaa syytä ei aina tunneta: ✓ vahvistaa Powerplay-noudon tai -toimituksen, ≈ vain ajallisen läheisyyden ja ? tuntemattoman syyn. Myöskään ✓ ei todista, että viereinen hyvitys kuuluu juuri kyseiseen tehtävään. — tarkoittaa, ettei riville näytetä hyvitystä. Työkaluvihjeet näyttävät yksittäiset hyvitykset ja ajat; henkilökohtaisen tehtävän valmistumista ei päätellä niistä.</p>
+<p>Nuolilla vaihdat paikallista kalenteripäivää; ”Tänään” palaa nykyiseen päivään. Historia kuuluu kyseiselle komentajalle. Hallinnassa voit poistaa vanhoja merkintöjä tai koko historian vahvistuksen jälkeen; tunnettu merit-kokonaismäärä säilyy. Ensimmäinen lataus täydentää vain nykyisen päivän, minkä jälkeen uudet tapahtumat lisätään.</p>
+<h3>Galaksikartan käyttö</h3>
+<p>Eliten galaksikartasta voit tarkistaa valtojen alueet, oman valtasi, järjestelmien tilat, linnakkeet ja paikalliset toiminnot. Jos oman valtasi järjestelmiä näyttää puuttuvan, tarkista Powerplay-karttasuodattimet, erityisesti näkyykö ”Oma valta”. Nämä suodattimet kuuluvat Eliten karttaan.</p>
+<h3>Tietojen ajantasaisuus</h3>
+<p>CMDRHelper käyttää paikallisia Elite-tietoja ja näyttää viimeksi tunnetun järjestelmä- ja Powerplay-tilan. Tiedot voivat viivästyä tai olla vanhoja. Tarkista näytetty järjestelmän ajankohta; karttakin voi näyttää päivitysajan. Ristiriitatilanteessa vertaa järjestelmää ja ajankohtia. Helper tai kartta ei ole aina toista ajantasaisempi.</p>
+<h3>Arvo ja edistyminen</h3>
+<p>Arvo on Eliten ilmoittama arvo. Jos merit-pisteesi riittävät laskennallisesti jo korkeampaan arvoon, Helper ilmoittaa odottavansa arvopäivitystä. Puuttuvat tai ristiriitaiset tiedot voivat estää edistymisen näytön. Arvon 100 jälkeiset laskennalliset merit-portaat näkyvät muodossa 100+.</p>
+""")

@@ -1299,3 +1299,42 @@ HELP_TOPICS["explorer"] = (
 )
 
 HELP_TOPICS["trade"] = (HELP_TOPICS["trade"][0], HELP_TOPICS["trade"][1] + '<p>İpucu: Satın almadan önce istediğiniz hedefleri ✓ ile kaydedin – kargo bölmesi dolu olsa bile saklanırlar.</p>')
+
+HELP_TOPICS["pp2"] = ("PP2", """
+<h2>PP2 / Powerplay 2.0</h2>
+<p>PP2; gücünü, rütbeni, toplam liyakat puanını ve mevcut sistemin bilinen son Powerplay durumunu gösterir. Uygun genel etkinlikleri, gemideki Powerplay yükünü ve bildirilen liyakat kazanımlarını bulabilirsin. PP2 seçiliyken soru işaretiyle bu yardımı aç.</p>
+<h3>Güçler, liyakat ve kontrol puanları</h3>
+<p>Güç, bağlılık yemini edebileceğin bir Powerplay grubudur. Kendi gücün, katıldığın güçtür; mevcut sistemi kontrol etmek zorunda değildir. Liyakat puanları kişisel Powerplay puanlarındır. Kontrol puanları ise bir gücün sistemdeki konumuyla ilgilidir. Helper, biliniyorsa Elite’in sağladığı kontrol ilerlemesi, güçlendirme ve zayıflatma değerlerini gösterir. Bunlar ek kişisel liyakat puanları değildir; kontrol ilerlemesi yüzdeye çevrilmez.</p>
+<h3>Sistemin Powerplay durumu</h3>
+<p><b>Unoccupied</b>: kontrol eden güç yok. <b>Exploited</b>: bir gücün işlettiği sistem. <b>Fortified</b>: daha güçlü kontrol seviyesi. <b>Stronghold</b>: kontrol eden gücün kalesi. Gösterge bildirilen durumu işaretler; yaklaşan bir değişimi öngörmez.</p>
+<h3>Edinme, güçlendirme, zayıflatma ve çatışma</h3>
+<p><b>ACQUISITION</b>: sahipsiz bir sistemi kendi gücüne kazandırmak; Helper bunu yalnızca gücünle açık bir bağlantı varsa gösterir. <b>REINFORCEMENT</b>: kendi gücünün sistemini güçlendirmek. <b>UNDERMINING</b>: başka bir gücün kontrolünü zayıflatmak. Çatışma, çekişmeli edinme demektir: sahipsiz sistemlerde güçlerin bildirilen çatışma ilerlemesi gösterilebilir. Birden çok gücün bulunması tek başına kesin bir etkinlik önerisi oluşturmaz. Eksik veya çelişkili bilgilerde kategori bilinmiyor olarak kalır.</p>
+<h3>Burada gücüm için ne yapabilirim?</h3>
+<p>CMDRHelper, Elite’ten gelen sistem durumunu gücünün ilgili kategorideki genel etkinlikleriyle birleştirir. Güce ve kategoriye göre örnekler: Powerplay malları taşıma (Transport Powerplay commodities), Holoekranları hackleme (Hack holoscreens), Kurtarılan malları teslim etme (Hand in salvage), Ödül avcılığı (Bounty hunting), Araştırma verilerini aktarma (Transfer research data), Yüksek kârla satma (Sell for large profits) veya Nadir mallar satma (Sell rare goods).</p>
+<p><b>Liste yol gösterir, liyakat garantisi vermez.</b> Etkinlikler Elite’ten gelir ancak güç ve kategori için genel olabilir. Bazı etkinliklerin ek koşulları vardır. Listedeki onay işareti, tamamlanmayı veya ödülü doğrulamaz. Elite’in açıklamalarını ve ardından gerçek liyakat kazanımını kontrol et.</p>
+<h3>Örnek: nadir mallar satmak</h3>
+<p>Elite, “Nadir mallar satma (Sell rare goods)” etkinliğini gösterebilir. Başarılı satış yine de otomatik olarak Powerplay liyakati kazandırmaz: <b>başarılı satış ≠ garantili liyakat kazanımı.</b> CMDRHelper kazanımı ancak Elite bildirdiğinde gösterir. Liyakat getirmeyen bir satış, malın kaynağı hakkında, örneğin bir taşıyıcıdan gelmesiyle ilgili genel bir kural kanıtlamaz.</p>
+<h3>Powerplay taşıma görevlerini anlamak</h3>
+<p>“Powerplay mallarını zayıflatılacak sistemlere taşı” ifadesi hedef türünü belirtir: kontrolünü zayıflatman gereken başka bir gücün sistemleri. Örnek: 10 × Kaine dezenformasyonu. Elite’teki görevin somut koşullarını izle.</p>
+<ol>
+<li>Elite’te Powerplay görevini oku.</li>
+<li>İstenen kaynağı ve sistem türünü kontrol et.</li>
+<li>Uygun Powerplay yükünü al.</li>
+<li>İstenen hedef türüne uç.</li>
+<li>Belirtilen güç yetkilisine teslim et.</li>
+<li>Ardından Helper’da liyakat kazanımını kontrol et.</li>
+</ol>
+<p>Gemideki mallar görünümü, doğrulanmış yükü ve bilinen kullanımını gösterir. Miktar veya kullanım hâlâ bilinmiyor olabilir. Kişisel haftalık görevler ve ilerlemeleri burada gösterilmez.</p>
+<h3>Görevler ve veri aktarımları</h3>
+<p>Elite, stratejik veri aktarımları gibi Powerplay görevleri sunabilir. Elite’te açıkça belirtilen Powerplay veya liyakat bağlantısını ara. Her sıradan kurye görevi liyakat kazandırmaz. Helper, kazanımı yalnızca Elite bildirdikten sonra doğrular.</p>
+<h3>Günlük geçmişte son liyakat kazanımları</h3>
+<p>Bunları şu anda “PP2 DAILY CHRONICLE” altında bulabilirsin. Liyakat sütunu tahmini ödülleri değil, Elite’in gerçekten bildirdiği kazanımları içerir. Bu, genel etkinlik listesinden veya satış bildiriminden daha güvenilir bir ödüllendirme doğrulamasıdır. Toplam liyakat, bildirilen son kişisel toplamını gösterir.</p>
+<p>Kesin neden her zaman bilinmez: ✓ Powerplay malı alımını veya teslimini, ≈ yalnızca zamansal yakınlığı, ? bilinmeyen nedeni belirtir. ✓ bile yanındaki kazanımın tam olarak o göreve ait olduğunu kanıtlamaz. — o satır için kazanım gösterilmediği anlamına gelir. Araç ipuçları tek tek kazanımları ve zamanları gösterir; kişisel görevin tamamlandığı sonucu çıkarılmaz.</p>
+<p>Oklarla yerel takvim gününü değiştirirsin; “Bugün” mevcut güne döner. Geçmiş ilgili komutana aittir. Geçmiş yönetimiyle onay verdikten sonra eski kayıtları veya tüm geçmişi silebilirsin; bilinen toplam liyakat korunur. İlk yükleme yalnızca mevcut günü geriye dönük alır, ardından yeni olaylar eklenir.</p>
+<h3>Galaksi haritasını kullanmak</h3>
+<p>Elite’in galaksi haritası güç bölgelerini, kendi gücünü, sistem durumlarını, kaleleri ve yerel etkinlikleri kontrol etmene yardımcı olur. Gücünün sistemleri eksik görünüyorsa Powerplay harita filtrelerini, özellikle “Benim gücüm” görünürlüğünü kontrol et. Bu filtreler Elite’in haritasına aittir.</p>
+<h3>Verilerin güncelliği</h3>
+<p>CMDRHelper yerel Elite verilerini kullanır ve bilinen son sistem ve Powerplay durumunu gösterir. Bilgiler gecikmiş veya eski olabilir. Gösterilen sistem zamanını kontrol et; harita da güncelleme zamanı gösterebilir. Çelişkilerde sistemi ve zamanları karşılaştır. Ne Helper ne de harita her zaman daha günceldir.</p>
+<h3>Rütbe ve ilerleme</h3>
+<p>Rütbe, Elite’in bildirdiği rütbedir. Liyakat puanların hesaplamaya göre daha yüksek rütbeye yetiyorsa Helper rütbe güncellemesinin beklendiğini belirtir. Eksik veya çelişkili veriler ilerleme gösterimini engelleyebilir. Rütbe 100 sonrasındaki hesaplanan liyakat kademeleri 100+ olarak görünür.</p>
+""")
