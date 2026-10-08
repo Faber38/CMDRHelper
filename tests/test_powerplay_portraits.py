@@ -3,8 +3,9 @@ from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import patch
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QElapsedTimer
 from PySide6.QtGui import QImage
+from PySide6.QtTest import QTest
 from cmdrhelper.ui.powerplay_portraits import PowerPortrait, portrait_key
 from tests import test_powerplay_ranks as ranks
 
@@ -51,6 +52,14 @@ class PortraitViewTests(unittest.TestCase):
         self.ready_rank()
         for width in (480,360,1200):
             self.view.resize(width,900);self.app.processEvents()
+            # Reparented grid items trigger further queued layout requests.
+            # Wait for the stacked geometry, without changing the assertions.
+            deadline = QElapsedTimer()
+            deadline.start()
+            while (self.view._portrait_stacked
+                   and self.view.personal_info.y() < self.view.portrait.y() + self.view.portrait.height()
+                   and deadline.elapsed() < 1000):
+                QTest.qWait(1)
             self.assertLessEqual(self.view.rank_bar.width(),420)
             self.assertLessEqual(self.view.rank_bar.width(),self.view.personal_info.width())
             self.assertEqual(self.view.horizontalScrollBar().maximum(),0)

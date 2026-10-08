@@ -98,7 +98,7 @@ class HelpAuditCorrectionsTests(unittest.TestCase):
 
     def test_catalog_structure_and_duplicates(self):
         self.assertEqual(len(HELP_LANGUAGES), 12)
-        self.assertEqual(len(HELP_TOPICS), 12)
+        self.assertEqual(len(HELP_TOPICS), 13)
         for language in HELP_LANGUAGES:
             module = import_module('cmdrhelper.help_content.' + language)
             self.assertEqual(set(module.HELP_TOPICS), set(HELP_TOPICS))
@@ -115,7 +115,7 @@ class HelpAuditCorrectionsTests(unittest.TestCase):
                         if len(paragraph.split()) > 8:
                             self.assertNotIn(paragraph, text)
 
-    def test_full_864_layout_matrix(self):
+    def test_full_layout_matrix_including_pp2(self):
         app = QApplication.instance() or QApplication([])
         self.addCleanup(app.setStyleSheet, app.styleSheet())
         count = 0
@@ -147,4 +147,4 @@ class HelpAuditCorrectionsTests(unittest.TestCase):
                                     dialog.close()
                                     dialog.deleteLater()
                                     app.sendPostedEvents(None, QEvent.DeferredDelete)
-        self.assertEqual(count, 864)
+        self.assertEqual(count, len(HELP_LANGUAGES) * 2 * 3 * len(HELP_TOPICS))

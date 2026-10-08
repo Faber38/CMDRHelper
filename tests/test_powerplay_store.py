@@ -208,8 +208,11 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(counts['Bounty'],6)
         self.assertEqual(counts['ShipTargeted'],8)
         self.assertEqual(counts['SearchAndRescue'],2)
-        self.assertEqual(len(groups),22)
-        self.assertEqual(Counter(g.certainty for g in groups),dict(temporal=16,explicit=2,unknown=4))
+        self.assertEqual(counts['MarketSell'],1)
+        sale = next(g for g in groups if g.action['event']=='MarketSell')
+        self.assertEqual((sale.action['Type'],sale.action['Count'],sale.credits),('disomacorn',8,[]))
+        self.assertEqual(len(groups),23)
+        self.assertEqual(Counter(g.certainty for g in groups),dict(temporal=16,explicit=3,unknown=4))
         self.assertEqual([g.action['timestamp'] for g in groups],sorted([g.action['timestamp'] for g in groups],reverse=True))
         bounties = {g.action['PilotName_Localised']:(g.action['TotalReward'],g.credits[0]['MeritsGained'],g.system) for g in groups if g.action['event']=='Bounty'}
         for pilot,reward,gain in [('Jim Bell',453097,60),('Andreas Martin Clemenz',163361,21),('Jock Ripper',360818,48),('Flavio Antonietti',134247,17),('Theia Claw',279561,37),('Tiddlywinks',603200,80)]:

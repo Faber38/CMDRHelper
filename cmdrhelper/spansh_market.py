@@ -102,6 +102,13 @@ class SpanshMarketProvider:
         self._lock = Lock()
         self._diagnostics = local()
 
+    def cached_offers(self):
+        """Read existing transient quotes without starting commodity searches."""
+        with self._lock:
+            now = self.clock()
+            return tuple(offer for stamp, offers, _ in self._cache.values()
+                         if 0 <= now - stamp < self.cache_ttl for offer in offers)
+
     def search_sell(self, query, *, cancel=None):
         return self._search(query, TradeSide.SELL, cancel)
 

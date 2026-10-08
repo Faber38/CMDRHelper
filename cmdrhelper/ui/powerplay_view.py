@@ -19,6 +19,23 @@ from cmdrhelper.powerplay import (
 )
 
 
+class RecommendationLabel(QLabel):
+    """Let the outer scroll area grow instead of clipping wrapped advice."""
+    def setText(self, text):
+        super().setText(text)
+        self._fit_text()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._fit_text()
+
+    def _fit_text(self):
+        # QLabel includes its minimum in heightForWidth; clear the previous
+        # width's constraint so widening/shorter text can shrink again.
+        self.setMinimumHeight(0)
+        self.setMinimumHeight(max(0, self.heightForWidth(self.width())))
+
+
 class ChronicleTable(QTableWidget):
     """Keep all sections draggable, fitting preferences without overwriting them."""
     WIDTHS_KEY = 'pp2/chronicle_column_widths'
@@ -98,7 +115,6 @@ class PowerplayView(QScrollArea):
         grid.addWidget(self.personal_info, 0, 1)
         grid.setColumnStretch(1, 1)
         self._portrait_stacked = None
-        layout.addWidget(card)
         self.personal_card = card
         self.columns = QGridLayout()
         self.columns.setContentsMargins(0, 0, 0, 0)
@@ -113,6 +129,7 @@ class PowerplayView(QScrollArea):
             column.setSpacing(12)
             column.setAlignment(Qt.AlignTop)
         self._two_columns = None
+        left.addWidget(self.personal_card)
         card, grid = self.card("pp2.system")
         self.system_card = card
         self.system_presentation = SystemPresentation()
@@ -126,13 +143,13 @@ class PowerplayView(QScrollArea):
         action_section_layout = QVBoxLayout(self.action_section)
         action_section_layout.setContentsMargins(0, 0, 0, 0)
         action_section_layout.setSpacing(12)
-        self.action_heading = self.label("", "sectionTitle")
+        self.action_heading = self.label("", "sectionTitle", recommendation=True)
         action_section_layout.addWidget(self.action_heading)
         card = QFrame(objectName="card")
         actions_layout = QVBoxLayout(card)
-        self.mode = self.label("", "sectionTitle")
-        self.actions = self.label("")
-        self.notice = self.label("", "muted")
+        self.mode = self.label("", "sectionTitle", recommendation=True)
+        self.actions = self.label("", recommendation=True)
+        self.notice = self.label("", "muted", recommendation=True)
         for label in (self.mode, self.actions, self.notice):
             actions_layout.addWidget(label)
         action_section_layout.addWidget(card)
@@ -140,7 +157,7 @@ class PowerplayView(QScrollArea):
         self.cargo_card, grid = self.card("pp2.onboard")
         self.cargo = self.label("")
         grid.addWidget(self.cargo, 0, 0)
-        left.addWidget(self.cargo_card)
+        right.addWidget(self.cargo_card)
         self.recent_section = QWidget()
         recent_layout = QVBoxLayout(self.recent_section)
         recent_layout.setContentsMargins(0, 0, 0, 0)
@@ -203,8 +220,8 @@ class PowerplayView(QScrollArea):
         self.render()
 
     @staticmethod
-    def label(text, name=""):
-        label = QLabel(text, objectName=name)
+    def label(text, name="", *, recommendation=False):
+        label = (RecommendationLabel if recommendation else QLabel)(text, objectName=name)
         label.setWordWrap(True)
         label.setTextFormat(Qt.PlainText)
         label.setTextInteractionFlags(Qt.TextSelectableByMouse)
@@ -232,7 +249,11 @@ class PowerplayView(QScrollArea):
         # A font-relative breakpoint respects font scaling without fixing any
         # card width. Independent column layouts keep short cargo cards compact.
         wide = self.viewport().width() >= self.fontMetrics().horizontalAdvance("0") * 110
-        stacked = self.viewport().width() < self.fontMetrics().horizontalAdvance("0") * 65
+        # The portrait now shares the left column with its details. Base its
+        # wrapping on that column's available width, not the whole viewport.
+        available = self.viewport().width() - 20
+        personal_width = (available - self.columns.spacing()) * .4 if wide else available
+        stacked = personal_width < self.fontMetrics().horizontalAdvance("0") * 65
         if stacked != self._portrait_stacked:
             self._portrait_stacked = stacked
             self.personal_grid.removeWidget(self.personal_info)
@@ -436,11 +457,12 @@ class PowerplayView(QScrollArea):
             if group.certainty == "unknown":
                 action = tr("pp2.unknown")
                 details = tr("pp2.chronicle.unassigned")
-            elif kind in ("PowerplayCollect", "PowerplayDeliver", "SearchAndRescue"):
+            elif kind in ("PowerplayCollect", "PowerplayDeliver", "SearchAndRescue", "MarketSell"):
                 action = tr("pp2.chronicle." + kind)
                 field = "Name" if kind == "SearchAndRescue" else "Type"
                 name = event.get(field + "_Localised") or event.get(field) or unknown
-                details = tr("pp2.chronicle.item", count=fmt(event.get("Count")), name=name)
+                details = tr("pp2.chronicle.tonnes" if kind == "MarketSell" else "pp2.chronicle.item",
+                             count=fmt(event.get("Count")), name=name)
             else:
                 action = tr("pp2.chronicle." + kind)
                 pilot = event.get("PilotName_Localised") or event.get("PilotName")
@@ -461,7 +483,9 @@ class PowerplayView(QScrollArea):
                 exact.append(str(credit.get("timestamp") or unknown) + "  "
                              + tr("pp2.merit_gain", amount=fmt(credit["MeritsGained"]))
                              + " · " + tr("pp2.merits") + ": " + fmt(credit.get("TotalMerits")))
-            if group.certainty == "temporal":
+            if kind == "MarketSell":
+                safety = tr("pp2.chronicle.sale_evidence")
+            elif group.certainty == "temporal":
                 gaps = [fmt(data.chronicle._gap(event, credit)) for credit in group.credits]
                 safety = "\n".join(tr("pp2.chronicle.temporal", seconds=gap) for gap in dict.fromkeys(gaps))
             else:

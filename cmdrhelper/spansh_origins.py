@@ -30,6 +30,8 @@ def lookup_documents(response, requested, now):
             if is_carrier(raw['type']): raise ValueError('Carrier is not a static origin')
             row = dict(market_id=mid, station_name=raw['name'], source_type=raw['type'],
                        station_type=TYPES.get(raw['type'], raw['type']))
+            if number(raw.get('distance_to_arrival')) and raw['distance_to_arrival'] >= 0:
+                row['distance_ls'] = raw['distance_to_arrival']
             if 'updated_at' in raw:
                 if not timestamp(raw['updated_at']): raise ValueError('Invalid timestamp')
                 row['station_updated_at'] = raw['updated_at']
@@ -105,6 +107,7 @@ class LookupWorker(QRunnable):
 
 class OriginLookup(QObject):
     updated = Signal(object)
+    settled = Signal()
 
     def __init__(self, cache, parent=None, *, provider=None, pool=None):
         super().__init__(parent)
@@ -139,3 +142,4 @@ class OriginLookup(QObject):
         self.worker = None
         for address in addresses: self.updated.emit(address)
         if self.pending: self.timer.start()
+        else: self.settled.emit()

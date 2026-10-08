@@ -72,14 +72,20 @@ class MaterialInventory:
     _stocks: dict[str, MaterialStock] = field(default_factory=dict, repr=False)
     issues: list[str] = field(default_factory=list)
     last_change: dict | None = None
+    material_issues: dict[str, list[str]] = field(default_factory=dict)
 
     @property
-    def known(self):
+    def snapshot_valid(self):
+        """A usable baseline, even if individual materials became uncertain."""
         return self.snapshot_timestamp is not None and not self.issues
 
     @property
+    def known(self):
+        return self.snapshot_valid and not self.material_issues
+
+    @property
     def stocks(self):
-        """Public counts are unknown while any unresolved inconsistency exists."""
+        """Expose reliable stocks; global errors still invalidate all counts."""
         return {name: self.material(name) for name in self._stocks}
 
     def material(self, name):
@@ -87,7 +93,7 @@ class MaterialInventory:
         stock = self._stocks.get(name)
         if stock is None:
             return MaterialStock(None, name, None, False)
-        if not self.known:
+        if not self.snapshot_valid:
             return MaterialStock(stock.category, name, None, False, stock.display_name)
         return stock
 
@@ -128,6 +134,7 @@ class _Reducer:
                 result._stocks = fresh
                 result.snapshot_timestamp = event["timestamp"]
                 result.issues.clear()
+                result.material_issues.clear()
                 result.last_change = None
                 return
 
@@ -178,6 +185,11 @@ class _Reducer:
                 if result.snapshot_timestamp is None:
                     updated[name] = MaterialStock(cat, name, None, False, display)
                     continue
+                if old and not old.known:
+                    message = f"{source}: {et}: material remains unknown: {name} (delta {sign * amount:+})"
+                    result.material_issues.setdefault(name, []).append(message)
+                    logger.warning("Material inventory inconsistency: %s", message)
+                    continue
                 previous = old.count if old and old.count is not None else 0
                 if et == "MaterialCollected":
                     definition = get_material(name)
@@ -188,7 +200,11 @@ class _Reducer:
                         amount = min(amount, max(0, definition.maximum - previous))
                 count = previous + sign * amount
                 if count < 0:
-                    raise ValueError(f"material underflow: {name} ({previous} {sign * amount:+})")
+                    message = f"{source}: {et}: material underflow: {name} ({previous} {sign * amount:+})"
+                    result.material_issues.setdefault(name, []).append(message)
+                    logger.warning("Material inventory inconsistency: %s", message)
+                    updated[name] = MaterialStock(cat, name, None, False, display)
+                    continue
                 updated[name] = MaterialStock(cat, name, count, True, display)
                 if amount:
                     applied.append({"name": name, "category": cat, "delta": sign * amount})

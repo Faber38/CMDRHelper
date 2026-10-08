@@ -39,6 +39,14 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.2
+
+- Nadir mallar için yeni yakın çevre araması ve hedefleri ticaret listesine kaydetme.
+- Oyun verileri çeliştiğinde malzeme envanterinin daha iyi gösterimi.
+- Genişletilmiş ve açıklığa kavuşturulmuş Powerplay 2.0 yardımı.
+- Çevirilerde kapsamlı iyileştirmeler.
+- Ek kararlılık iyileştirmeleri.
+
 ## CMDRHelper v3.9.1
 
 - Powerplay etkinlikleri artık Elite tarafından işaretlenen Ethos etkinliklerini gösteriyor.

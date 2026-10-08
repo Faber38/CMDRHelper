@@ -1,0 +1,131 @@
+{
+  "source": "Journal.2026-10-08T124309.01.log",
+  "source_lines": [
+    5,
+    30,
+    776,
+    783,
+    784,
+    785,
+    786,
+    787,
+    788
+  ],
+  "events": [
+    {
+      "timestamp": "2026-10-08T10:43:53Z",
+      "event": "Commander",
+      "FID": "F_TEST_PP2_RARE_SALE",
+      "Name": "Test Commander"
+    },
+    {
+      "timestamp": "2026-10-08T10:44:07Z",
+      "event": "Powerplay",
+      "Power": "Nakato Kaine",
+      "Rank": 13,
+      "Merits": 85255,
+      "TimePledged": 174584
+    },
+    {
+      "timestamp": "2026-10-08T12:26:01Z",
+      "event": "Docked",
+      "StationName": "Peebles Holdings",
+      "StationType": "Outpost",
+      "Taxi": false,
+      "Multicrew": false,
+      "StarSystem": "Crucis Sector HC-U b3-5",
+      "SystemAddress": 11667144713665,
+      "MarketID": 4207838723,
+      "StationFaction": {
+        "Name": "Tionisla Historical Society"
+      },
+      "StationGovernment": "$government_Corporate;",
+      "StationGovernment_Localised": "Konzernpolitik",
+      "StationServices": [
+        "dock",
+        "autodock",
+        "commodities",
+        "contacts",
+        "missions",
+        "rearm",
+        "refuel",
+        "repair",
+        "engineer",
+        "missionsgenerated",
+        "facilitator",
+        "flightcontroller",
+        "stationoperations",
+        "powerplay",
+        "searchrescue",
+        "stationMenu",
+        "socialspace",
+        "registeringcolonisation"
+      ],
+      "StationEconomy": "$economy_Industrial;",
+      "StationEconomy_Localised": "Industrie",
+      "StationEconomies": [
+        {
+          "Name": "$economy_Industrial;",
+          "Name_Localised": "Industrie",
+          "Proportion": 1.4
+        },
+        {
+          "Name": "$economy_HighTech;",
+          "Name_Localised": "Hightech",
+          "Proportion": 0.4
+        }
+      ],
+      "DistFromStarLS": 7.846812,
+      "LandingPads": {
+        "Small": 2,
+        "Medium": 1,
+        "Large": 0
+      }
+    },
+    {
+      "timestamp": "2026-10-08T12:27:26Z",
+      "event": "Market",
+      "MarketID": 4207838723,
+      "StationName": "Peebles Holdings",
+      "StationType": "Outpost",
+      "StarSystem": "Crucis Sector HC-U b3-5"
+    },
+    {
+      "timestamp": "2026-10-08T12:27:32Z",
+      "event": "MarketSell",
+      "MarketID": 4207838723,
+      "Type": "leestianeviljuice",
+      "Type_Localised": "Leesti-Teufelssaft",
+      "Count": 12,
+      "SellPrice": 508,
+      "TotalSale": 6096,
+      "AvgPricePaid": 1042
+    },
+    {
+      "timestamp": "2026-10-08T12:27:33Z",
+      "event": "PowerplayMerits",
+      "Power": "Nakato Kaine",
+      "MeritsGained": 6,
+      "TotalMerits": 85261
+    },
+    {
+      "timestamp": "2026-10-08T12:27:33Z",
+      "event": "PowerplayMerits",
+      "Power": "Nakato Kaine",
+      "MeritsGained": 3600,
+      "TotalMerits": 88861
+    },
+    {
+      "timestamp": "2026-10-08T12:27:33Z",
+      "event": "PowerplayRank",
+      "Power": "Nakato Kaine",
+      "Rank": 14
+    },
+    {
+      "timestamp": "2026-10-08T12:27:35Z",
+      "event": "Cargo",
+      "Vessel": "Ship",
+      "Count": 0
+    }
+  ]
+}

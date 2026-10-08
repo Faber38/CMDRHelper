@@ -38,6 +38,14 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.2
+
+- Uusi lähialuehaku harvinaisille tavaroille ja kohteiden tallennus kauppalistalle.
+- Parannettu materiaalivaraston näyttö ristiriitaisten pelitietojen yhteydessä.
+- Laajennettu ja selkeytetty Powerplay 2.0 -ohje.
+- Laajoja parannuksia käännöksiin.
+- Muita vakausparannuksia.
+
 ## CMDRHelper v3.9.1
 
 - Powerplay-toiminnot näyttävät nyt Eliten merkitsemät Ethos-toiminnot.

@@ -132,9 +132,11 @@ def merge_inventory(inventory: MaterialInventory) -> tuple[CatalogStock, ...]:
     A category conflict is unknown rather than reinterpreting a journal quantity.
     """
     rows = []
+    stocks = inventory.stocks
     for material in _MATERIALS:
         stock = inventory.material(material.symbol)
-        known = inventory.known and stock.category in (None, material.category)
+        known = (inventory.snapshot_valid and stock.category in (None, material.category)
+                 and (stock.known or material.symbol not in stocks))
         count = (stock.count if stock.known else 0) if known else None
         rows.append(CatalogStock(material, inventory.commander_id, inventory.fid,
                                  inventory.snapshot_timestamp, count, known))

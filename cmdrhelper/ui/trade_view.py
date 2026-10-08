@@ -91,6 +91,24 @@ class OriginWorker(QRunnable):
         self.signals.finished.emit((self.key, origin))
 
 
+class RareMarketWorker(MarketWorker):
+    def search(self, query):
+        from cmdrhelper.rare_search import search_rare_origins, RareSearchResult
+        from cmdrhelper.trade_market_source import TradeReadCancelled
+        try:
+            return search_rare_origins(self.resolver, query, self.reference_address,
+                source=self.local_source,
+                community=(self.provider.cached_offers() if not self.local_only
+                           and hasattr(self.provider, 'cached_offers') else ()),
+                local_only=self.local_only, cancel=self.cancel, now=self.clock())
+        except TradeReadCancelled:
+            return RareSearchResult(status=MarketStatus.CANCELLED)
+        except Exception:
+            logging.getLogger(__name__).exception('Rare origin search failed')
+            return RareSearchResult(status=MarketStatus.CANCELLED if self.cancel.is_set()
+                                    else MarketStatus.INVALID_RESPONSE)
+
+
 class CargoMarketWorker(MarketWorker):
     """Sequential existing searches; no shared-station optimization or new pricing."""
     @Slot()
@@ -181,6 +199,9 @@ class TradeView(QWidget):
         self._origin = None
         self._origin_no_offer = False
         self._origin_resolver = None
+        self._rare_active = False
+        self._rare_resolver = None
+        self._rare_refresh_pending = False
         self.offers = ()
         self._reference = None
         self.side = TradeSide.SELL
@@ -286,10 +307,14 @@ class TradeView(QWidget):
         buttons = QHBoxLayout()
         self.search_button = QPushButton(tr('trade.search'))
         self.search_button.setToolTip(tr('trade.help'))
+        self.rare_search_button = QPushButton(tr('trade.rare_search_all'))
+        self.rare_search_button.hide()
+        self.rare_search_button.clicked.connect(lambda: self.start_search(all_rare=True))
         self.cancel_button = QPushButton(tr('trade.cancel'))
         self.cancel_button.setEnabled(False)
         self.cancel_button.hide()
         buttons.addWidget(self.search_button)
+        buttons.addWidget(self.rare_search_button)
         buttons.addWidget(self.cancel_button)
         buttons.addStretch()
         body.addLayout(buttons)
@@ -311,6 +336,7 @@ class TradeView(QWidget):
         for panel in self.remembered_lists.values():
             body.addWidget(panel)
         self.table = QTableWidget(0, 11)
+        self.rare_delegate = CargoItemDelegate(self.table)
         for side, panel in self.remembered_lists.items():
             panel.bind_table(self.table, 10, lambda side=side: self.side == side)
         self.table.setHorizontalHeaderLabels([tr('trade.' + key) for key in (
@@ -338,6 +364,7 @@ class TradeView(QWidget):
         body.addWidget(self.table, 1)
         self.commodity.commodityChanged.connect(self._invalidate_results)
         self.commodity.commodityChanged.connect(self.refresh_origin)
+        self.commodity.rareSearchRequested.connect(lambda: self.start_search(all_rare=True))
         for field in (self.radius, self.max_age, self.pad):
             field.currentIndexChanged.connect(self._invalidate_results)
         self.max_age.currentIndexChanged.connect(self.refresh_observed_markets)
@@ -362,6 +389,7 @@ class TradeView(QWidget):
         spansh = getattr(state, "spansh_stations", None)
         if spansh is not None:
             spansh.updated.connect(self.invalidate_origin)
+            spansh.origins.settled.connect(self._rare_origins_ready)
         QApplication.instance().aboutToQuit.connect(self.cancel_search)
         # A removed page must also stop background work without waiting on the GUI thread.
         self._cancel_event = None
@@ -399,6 +427,7 @@ class TradeView(QWidget):
     @Slot(int)
     def _change_side(self, index):
         self._generation += 1
+        self._rare_active = False
         self.cancel_search()
         self.recommendations.cancel_for_context()
         self.supply_recommendations.cancel_for_context()
@@ -442,6 +471,7 @@ class TradeView(QWidget):
     def refresh_origin(self):
         from cmdrhelper.commodity_origin import CommodityOrigin, OriginResolver
         master = lookup_by_id(self.commodity.currentData())
+        self.rare_search_button.setVisible(self.side == TradeSide.BUY and bool(master and master.rare))
         mid = master.origin_market_id if master and master.rare and self.side == TradeSide.BUY else None
         key = (self.side, mid, self._reference, getattr(self.state, 'system_address', None))
         if key == self._origin_key:
@@ -483,7 +513,7 @@ class TradeView(QWidget):
 
     def render_origin(self):
         origin = self._origin
-        visible = origin is not None and self.side == TradeSide.BUY
+        visible = origin is not None and self.side == TradeSide.BUY and not self._rare_active
         self.origin_info.setVisible(visible)
         self.origin_notice.setVisible(visible and self._origin_no_offer)
         if not visible:
@@ -584,6 +614,7 @@ class TradeView(QWidget):
 
     @Slot()
     def _invalidate_results(self):
+        self._rare_active = False
         if self.worker is None:
             self.offers = ()
             self.table.setRowCount(0)
@@ -599,6 +630,7 @@ class TradeView(QWidget):
         if reference in ('–', '-'):
             reference = ''
         if reference != self._reference:
+            self._rare_active = False
             self._reference = reference
             self.cancel_search()
             self.table.setRowCount(0)
@@ -638,8 +670,10 @@ class TradeView(QWidget):
         self.refresh_observed_markets()
 
     @Slot()
-    def start_search(self):
+    def start_search(self, *, all_rare=False):
         if self.worker is not None:
+            return
+        if all_rare and self.side != TradeSide.BUY:
             return
         self.refresh_reference()
         self.refresh_cargo()
@@ -648,6 +682,9 @@ class TradeView(QWidget):
             self.status.setText(tr('trade.cargo_choose'))
             return
         commodity = selected[0][0] if selected else self.commodity.currentData()
+        if all_rare:
+            from cmdrhelper.commodity_master import all_commodities
+            commodity = next(c.frontier_id for c in all_commodities() if c.rare)
         if commodity is None:
             self.status.setText(tr('trade.choose_commodity'))
             return
@@ -678,6 +715,8 @@ class TradeView(QWidget):
             required_pad=PadSize(self.pad.currentData()), include_fleet_carriers=self.carriers.isChecked(),
             max_distance_to_arrival_ls=distance, limit=100,
         )
+        self._rare_active = all_rare
+        self._rare_refresh_pending = False
         self.table.setRowCount(0)
         self.offers = ()
         self._cargo_results = []
@@ -685,6 +724,7 @@ class TradeView(QWidget):
         self.status.setText(tr('trade.buy_searching' if self.side == TradeSide.BUY else 'trade.sell_searching'))
         self.filters.setEnabled(False)
         self.search_button.setEnabled(False)
+        self.rare_search_button.setEnabled(False)
         self.cancel_button.setEnabled(True)
         self.cancel_button.show()
         observer = getattr(self.state, 'observed_markets', None)
@@ -693,10 +733,19 @@ class TradeView(QWidget):
         cache = getattr(observer, '_cache', None) if observer is not None else None
         if cache is None and observer is not None:
             cache = vars(observer).get('cache')
-        worker_type = CargoMarketWorker if selected else MarketWorker
+        worker_type = RareMarketWorker if all_rare else CargoMarketWorker if selected else MarketWorker
         self.worker = worker_type(self.provider, self._query, self.side, self._generation,
                                    local_source=source, fid=self._fid, local_only=self.local_only.isChecked(),
                                    clock=cache.clock if cache is not None else None)
+        if all_rare:
+            from cmdrhelper.commodity_origin import OriginResolver
+            spansh = getattr(self.state, 'spansh_stations', None)
+            if self._rare_resolver is None:
+                self._rare_resolver = OriginResolver(
+                    getattr(getattr(self.state, 'database', None), 'path', None),
+                    source.path if source else None, spansh.cache.root if spansh is not None else None)
+            self.worker.resolver = self._rare_resolver
+            self.worker.reference_address = getattr(self.state, 'system_address', None)
         if selected:
             self.worker.queries = [replace(self._query, commodity=cid, minimum_quantity=count)
                                    for cid, count in selected]
@@ -707,6 +756,7 @@ class TradeView(QWidget):
 
     @Slot()
     def cancel_search(self):
+        self._rare_active = False
         if self.worker is not None:
             self.worker.cancel.set()
             self.cancel_button.setEnabled(False)
@@ -728,6 +778,7 @@ class TradeView(QWidget):
         self._cancel_event = None
         self.filters.setEnabled(True)
         self.search_button.setEnabled(True)
+        self.rare_search_button.setEnabled(True)
         self.cancel_button.setEnabled(False)
         self.cancel_button.hide()
         self.refresh_cargo()
@@ -736,6 +787,16 @@ class TradeView(QWidget):
             return
         if cancelled or self._query.reference_system != self._reference:
             result = MarketSearchResult(MarketStatus.CANCELLED, query=self._query)
+        from cmdrhelper.rare_search import RareSearchResult
+        if isinstance(result, RareSearchResult):
+            self.show_rare_result(result)
+            spansh = getattr(self.state, 'spansh_stations', None)
+            if spansh is not None and self._rare_active:
+                for mid in result.lookup_ids:
+                    spansh.origins.request(mid)
+            if self._rare_active and self._rare_refresh_pending:
+                self.start_search(all_rare=True)
+            return
         if isinstance(result, list):
             self._cargo_results = result
             blocker = QSignalBlocker(self.cargo_results)
@@ -752,6 +813,9 @@ class TradeView(QWidget):
     def show_result(self, result, query):
         """Retain offers by row identity for future actions; no route action yet."""
         blocker = QSignalBlocker(self.table)
+        self.table.setColumnCount(11)
+        for column in (5, 8, 9):
+            self.table.setColumnHidden(column, False)
         now = datetime.now(timezone.utc)
         locale = QLocale(get_language())
         self.offers = result.offers[:100] if result.status == MarketStatus.OK else ()
@@ -816,6 +880,56 @@ class TradeView(QWidget):
         if result.from_cache:
             message += '\n' + ('Spansh: ' if any(o.provider == 'local_elite' for o in self.offers) else '') + tr('trade.cached')
         self.status.setText(message)
+
+    def _rare_origins_ready(self):
+        if self._rare_active and self.side == TradeSide.BUY:
+            if self.worker is None:
+                self.start_search(all_rare=True)
+            else:
+                self._rare_refresh_pending = True
+
+    def show_rare_result(self, result):
+        blocker = QSignalBlocker(self.table)
+        self.offers = ()  # Static origins never enter the purchase-offer collection.
+        self.table.setSortingEnabled(False)
+        self.table.setColumnCount(12)
+        self.table.setHorizontalHeaderItem(11, QTableWidgetItem(tr('trade.commodity')))
+        self.table.setItemDelegateForColumn(11, self.rare_delegate)
+        self.table.horizontalHeader().moveSection(self.table.horizontalHeader().visualIndex(11), 1)
+        self.table.setRowCount(len(result.rows))
+        self.table.setColumnHidden(11, False)
+        for column in (5, 8, 9):
+            self.table.setColumnHidden(column, True)
+        locale = QLocale(get_language())
+        for index, row in enumerate(result.rows):
+            items = [QTableWidgetItem() for _ in range(12)]
+            items[0] = TextItem(row.system_name)
+            items[0].setData(Qt.UserRole, row)
+            items[1] = TextItem(row.station_name)
+            items[2] = NumericItem(locale.toString(float(row.distance_ly), 'f', 1) + ' ly', row.distance_ly)
+            for column, value in ((3, row.confirmed.commander_buy_price if row.confirmed else None),
+                                  (4, row.confirmed.supply if row.confirmed else None),
+                                  (6, row.distance_to_arrival_ls)):
+                text = locale.toString(float(value), 'f', 0) if value is not None else '–'
+                if column == 3:
+                    text = text + ' Cr' if value is not None else tr('trade.rare_unconfirmed')
+                items[column] = NumericItem(text, value)
+            items[7] = PadItem(tr('trade.pad_' + row.largest_pad.value) if row.largest_pad else '–', row.largest_pad)
+            items[10] = self.remembered_lists[TradeSide.BUY].mark(row)
+            items[11] = TextItem(commodity_name(lookup_by_id(row.commodity_id)))
+            items[11].setData(RARE_ROLE, True)
+            for column, item in enumerate(items):
+                self.table.setItem(index, column, item)
+        self.table.setSortingEnabled(True)
+        self.table.sortItems(2, Qt.AscendingOrder)
+        self.table.resizeColumnsToContents()
+        self.table.resizeRowsToContents()
+        self.update_remembered()
+        self.status.setText(tr('trade.rare_results', count=len(result.rows), unknown=len(result.unresolved))
+                            if result.status == MarketStatus.OK else tr(_STATUS_KEYS[result.status]))
+        self.market_notice.setText(tr('trade.rare_origin_notice'))
+        self.origin_info.hide()
+        self.origin_notice.hide()
 
     def remember_changed(self, item):
         if item.column() != 10:

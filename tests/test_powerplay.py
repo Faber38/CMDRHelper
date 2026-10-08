@@ -233,7 +233,10 @@ class PowerplayViewTests(unittest.TestCase):
         self.assertNotIn('abgeschlossen', table_text(self.view).lower())
         self.assertEqual(self.view.personal['rank'].text(), '0')
 
-    def test_responsive_columns_and_full_width_personal_card(self):
+    def test_responsive_columns_and_left_personal_card(self):
+        preserved = (self.view.personal_card, self.view.portrait, self.view.rank_bar,
+                     self.view.system_presentation, self.view.cargo_card,
+                     self.view.action_section, self.view.actions, self.view.recent)
         self.view.resize(1200, 900)
         self.app.processEvents()
         self.assertTrue(self.view._two_columns)
@@ -242,11 +245,18 @@ class PowerplayViewTests(unittest.TestCase):
         self.assertGreater(right.x(), left.x() + left.width())
         self.assertGreater(right.width(), left.width())
         self.assertAlmostEqual(left.width() / (left.width() + right.width()), .4, delta=.04)
-        self.assertGreater(self.view.personal_card.width(), right.width())
-        self.assertGreater(self.view.cargo_card.y(), self.view.system_card.y())
+        self.assertEqual(self.view.personal_card.parentWidget(), left)
+        self.assertEqual(self.view.personal_card.width(), left.width())
+        self.assertEqual(self.view.personal_card.y(), 0)
+        self.assertEqual(self.view.action_section.y(), 0)
+        self.assertGreater(self.view.system_card.y(), self.view.personal_card.y())
+        self.assertEqual(self.view.cargo_card.parentWidget(), right)
+        self.assertEqual(self.view.cargo_card.width(), right.width())
+        self.assertEqual(self.view.cargo_card.y(),
+                         self.view.action_section.height()+right.layout().spacing())
         self.assertGreaterEqual(self.view.recent_section.y(), max(left.y()+left.height(), right.y()+right.height()))
-        self.assertEqual(self.view.recent_section.width(), self.view.personal_card.width())
-        self.assertEqual(self.view.recent_section.x(), self.view.personal_card.x())
+        self.assertEqual(self.view.recent_section.width(), left.width()+right.width()+self.view.columns.spacing())
+        self.assertEqual(self.view.recent_section.x(), left.x())
         self.assertLess(self.view.cargo_card.height(), left.height() / 3)
         self.assertEqual(self.view.horizontalScrollBar().maximum(), 0)
         self.view.resize(480, 900)
@@ -260,6 +270,9 @@ class PowerplayViewTests(unittest.TestCase):
         self.app.processEvents()
         self.assertTrue(self.view._two_columns)
         self.assertEqual(self.view.columns.count(), 2)
+        self.assertEqual(preserved, (self.view.personal_card, self.view.portrait, self.view.rank_bar,
+                                    self.view.system_presentation, self.view.cargo_card,
+                                    self.view.action_section, self.view.actions, self.view.recent))
 
     def test_chronicle_header_and_remaining_height(self):
         self.view.resize(1200,900)
@@ -280,6 +293,56 @@ class PowerplayViewTests(unittest.TestCase):
         self.app.processEvents()
         self.assertGreater(top(self.view.navigation),top(self.view.chronicle_title))
         self.assertGreater(top(self.view.manage_history),top(self.view.navigation))
+
+    def test_dark_layout_preserves_full_recommendations_across_breakpoints(self):
+        from cmdrhelper.ui.styles import DARK_STYLESHEET
+        fixture = json.loads((Path(__file__).parent/'fixtures/powerplay_ethos_20261007.json').read_text())
+        powers = {p['name']:p for p in fixture['powers']}
+        self.loader.return_value = powers
+        self.state.powerplay.power = 'Nakato Kaine'
+        self.state.powerplay.system.update(ControllingPower='Nakato Kaine',
+                                          PowerplayStateReinforcement=12000,
+                                          PowerplayStateUndermining=4000)
+        self.view.setStyleSheet(DARK_STYLESHEET)
+        self.view.render()
+        recommendations = self.view.actions.text()
+        self.assertGreater(len(recommendations.splitlines()), 10)
+        widgets = (self.view.personal_card, self.view.system_card, self.view.cargo_card,
+                   self.view.actions, self.view.recent, self.view.navigation)
+        for width in (1400, 1000, 480, 360, 1400):
+            self.view.resize(width, 1000)
+            for _ in range(3):
+                self.app.processEvents()
+            self.view.render()
+            self.app.processEvents()
+            with self.subTest(width=width):
+                self.assertEqual(self.view.actions.text(), recommendations)
+                self.assertEqual(self.view.horizontalScrollBar().maximum(), 0)
+                self.assertEqual(self.view._two_columns, width >= 1000)
+                self.assertEqual(self.view.cargo_card.parentWidget(), self.view.right_column)
+                self.assertEqual(self.view.cargo_card.y(), self.view.action_section.height()
+                                 + self.view.right_column.layout().spacing())
+                for label in (self.view.actions, self.view.action_heading, self.view.notice):
+                    self.assertGreaterEqual(label.height(), label.heightForWidth(label.width()))
+                self.assertEqual(widgets, (self.view.personal_card, self.view.system_card,
+                                          self.view.cargo_card, self.view.actions,
+                                          self.view.recent, self.view.navigation))
+        # Cargo follows long advice immediately, without overlapping or gaps.
+        self.view.actions.setText('\n'.join([recommendations] * 4))
+        for _ in range(3):
+            self.app.processEvents()
+        self.assertGreater(self.view.action_section.height(),
+                           self.view.system_card.y()+self.view.system_card.height())
+        self.assertEqual(self.view.cargo_card.y(), self.view.action_section.height()
+                         + self.view.right_column.layout().spacing())
+        self.assertGreaterEqual(self.view.actions.height(),
+                                self.view.actions.heightForWidth(self.view.actions.width()))
+        expanded = self.view.action_section.height()
+        self.view.render()
+        for _ in range(3):
+            self.app.processEvents()
+        self.assertLess(self.view.action_section.height(), expanded)
+        self.assertEqual(self.view.actions.text(), recommendations)
 
     def test_table_details_priority_and_narrow_width(self):
         self.state.powerplay.apply(event('PowerplayDeliver',Power='Test Power',Type='item',Count=10))

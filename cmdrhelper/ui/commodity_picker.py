@@ -193,12 +193,15 @@ class CommodityGrid(QListView):
 
 
 class CommodityPicker(QDialog):
+    rareSearchRequested = Signal()
+
     def __init__(self, selected_id=None, parent=None, *, rare_filter=False, exclude_rare=False):
         super().__init__(parent)
         self.setWindowTitle(tr('trade.commodity'))
         self.exclude_rare = exclude_rare
         self.commodity_id = selected_id
         layout = QVBoxLayout(self)
+        self.rare_search_button = None
         self.goods_filter = None
         if rare_filter:
             self.goods_filter = QButtonGroup(self)
@@ -213,6 +216,10 @@ class CommodityPicker(QDialog):
             self.goods_filter.button(0).setChecked(True)
             filter_row.addStretch()
             layout.addLayout(filter_row)
+            self.rare_search_button = QPushButton(tr('trade.rare_search_all'))
+            self.rare_search_button.setAutoDefault(False)
+            self.rare_search_button.clicked.connect(self._search_all_rare)
+            layout.addWidget(self.rare_search_button)
         self.search = QLineEdit()
         self.search.setPlaceholderText(tr('trade.commodity_search'))
         self.search.setAccessibleName(tr('trade.commodity_search'))
@@ -257,7 +264,13 @@ class CommodityPicker(QDialog):
         self.grid.scrollTo(self.grid.currentIndex())
         self.search.setFocus(Qt.FocusReason.OtherFocusReason)
 
+    def _search_all_rare(self):
+        self.reject()
+        self.rareSearchRequested.emit()
+
     def _filter(self, text):
+        if self.rare_search_button is not None:
+            self.rare_search_button.setVisible(self.goods_filter.checkedId() == 1)
         self.model.filter(text, False if self.exclude_rare else (self.goods_filter.checkedId() == 1 if self.goods_filter else None))
         empty = self.model.rowCount() == 0
         self.empty.setVisible(empty)
@@ -276,6 +289,7 @@ class CommodityPicker(QDialog):
 class CommodityField(QPushButton):
     """One field in the trade form; commit selection only on dialog acceptance."""
     commodityChanged = Signal()
+    rareSearchRequested = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -315,6 +329,7 @@ class CommodityField(QPushButton):
             return
         self._picker = CommodityPicker(self._commodity_id, self, rare_filter=self.rare_filter,
                                        exclude_rare=self.exclude_rare)
+        self._picker.rareSearchRequested.connect(self.rareSearchRequested)
         self._picker.finished.connect(self._picker_finished)
         self._picker.open()
 

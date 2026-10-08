@@ -16,14 +16,15 @@ ROOT = Path(__file__).resolve().parents[1]
 LANGUAGES = {'de', 'en', 'fr', 'it', 'no', 'sv', 'fi', 'pl', 'nl', 'es', 'tr', 'el'}
 
 
-class Release391Tests(unittest.TestCase):
-    def test_single_version_and_exact_four_summary_keys(self):
+class Release392Tests(unittest.TestCase):
+    def test_single_version_and_exact_five_summary_keys(self):
+        self.assertEqual(__version__, '3.9.2')
         from cmdrhelper.database import SCHEMA_VERSION
         self.assertEqual(SCHEMA_VERSION, 23)
         self.assertEqual(cmdrhelper.__version__, __version__)
         self.assertEqual(version_at(ROOT), __version__)
-        self.assertEqual(RELEASE_SUMMARIES['3.9.1'],
-                         tuple(f'release.3_9_1.{i}' for i in range(4)))
+        self.assertEqual(RELEASE_SUMMARIES['3.9.2'],
+                         tuple(f'release.3_9_2.{i}' for i in range(5)))
         tree = ast.parse((ROOT / 'cmdrhelper/release_summaries.py').read_text())
         assignment = next(n for n in tree.body if isinstance(n, ast.Assign)
                           and any(isinstance(t, ast.Name) and t.id == 'RELEASE_SUMMARIES' for t in n.targets))
@@ -33,21 +34,20 @@ class Release391Tests(unittest.TestCase):
     def test_twelve_literal_catalogs_and_runtime_summaries(self):
         self.addCleanup(set_language, get_language())
         self.assertEqual(set(_TRANSLATIONS), LANGUAGES)
-        keys = RELEASE_SUMMARIES['3.9.1']
+        keys = RELEASE_SUMMARIES['3.9.2']
         reference, _ = load_translation_file(ROOT / 'cmdrhelper/i18n/en.py')
         for language in sorted(LANGUAGES):
             with self.subTest(language=language):
                 path = ROOT / f'cmdrhelper/i18n/{language}.py'
                 table, duplicates = load_translation_file(path)
                 self.assertFalse(duplicates)
-                self.assertEqual({k for k in table if k.startswith('release.3_9_1.')}, set(keys))
+                self.assertEqual({k for k in table if k.startswith('release.3_9_2.')}, set(keys))
                 # Exercise the exact AST reader used by publication, without running it.
                 published = literal(path, 'TRANSLATIONS')
                 expected = [table[key] for key in keys]
                 self.assertEqual([published[key] for key in keys], expected)
                 self.assertNotRegex(' '.join(expected), r'\d\s*[%％]')
-                self.assertIn('Ethos', expected[0])
-                self.assertIn('EOT', expected[2])
+                self.assertIn('Powerplay', expected[2])
                 for key in keys:
                     self.assertTrue(table[key].strip())
                     self.assertEqual(placeholders(table[key]), placeholders(reference[key]))
@@ -55,28 +55,28 @@ class Release391Tests(unittest.TestCase):
                     if language != 'en':
                         self.assertNotEqual(table[key], reference[key])
                 set_language(language)
-                self.assertEqual(release_summary('3.9.1'), expected)
-                self.assertEqual(release_summary('v3.9.1'), expected)
+                self.assertEqual(release_summary('3.9.2'), expected)
+                self.assertEqual(release_summary('v3.9.2'), expected)
 
     def test_release_notes_update_metadata_and_readmes(self):
         self.addCleanup(set_language, get_language())
-        notes = release_notes(ROOT, '3.9.1')
+        notes = release_notes(ROOT, '3.9.2')
         block = re.search(r'<!--\s*cmdrhelper-update-summary\s+(.*?)-->', notes, re.S)
         self.assertIsNotNone(block)
         payload = json.loads(block.group(1))
         self.assertEqual(set(payload), LANGUAGES)
-        keys = RELEASE_SUMMARIES['3.9.1']
+        keys = RELEASE_SUMMARIES['3.9.2']
         for language in sorted(LANGUAGES):
             expected = [_TRANSLATIONS[language][key] for key in keys]
             self.assertEqual(payload[language], expected)
             set_language(language)
-            self.assertEqual(release_summary('3.9.1', notes), expected)
+            self.assertEqual(release_summary('3.9.2', notes), expected)
             name = 'README.md' if language == 'en' else f'README_{language.upper()}.md'
             text = (ROOT / name).read_text()
-            section = text.split('## CMDRHelper v3.9.1\n', 1)[1].split('\n## ', 1)[0]
+            section = text.split('## CMDRHelper v3.9.2\n', 1)[1].split('\n## ', 1)[0]
             self.assertEqual([s[2:] for s in section.splitlines() if s.startswith('- ')], expected)
-            self.assertLess(text.index('## CMDRHelper v3.9.1'), text.index('## CMDRHelper v3.9.0'))
-        document = (ROOT / 'docs/release-3.9.1.md').read_text()
-        self.assertEqual(document.splitlines()[0], '# CMDRHelper v3.9.1')
+            self.assertLess(text.index('## CMDRHelper v3.9.2'), text.index('## CMDRHelper v3.9.1'))
+        document = (ROOT / 'docs/release-3.9.2.md').read_text()
+        self.assertEqual(document.splitlines()[0], '# CMDRHelper v3.9.2')
         self.assertEqual([s[2:] for s in document.splitlines() if s.startswith('- ')],
                          [_TRANSLATIONS['de'][key] for key in keys])

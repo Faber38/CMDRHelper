@@ -189,7 +189,7 @@ or persistent collection of observed names.
 
 The local resolver stays read-only. If a selected Rare Good still has no
 unambiguous station identity, the UI queues its MarketID in the state-owned
-`SpanshStations.origins` coordinator. No catalog-wide prefetch occurs.
+`SpanshStations.origins` coordinator. No startup catalogue prefetch occurs.
 A single-shot 150 ms timer coalesces demand into batches of at most five unique
 IDs, the live-verified size. The existing Spansh transport sends
 `POST /api/stations/search` with only `market_id.value`, `size=5`, `page=0`.
@@ -213,3 +213,37 @@ other stations, body/parent fields and the original full-dump timestamps.
 Writes/lookup merges use a per-system process lock plus the existing atomic file
 replacement. Journal observations and markets.db are never written by this path.
 A subsequent app start reads successful identities from these same cache files.
+
+
+## Catalogue-wide rare origin radius search
+
+Buying → Rare goods offers “Search all rare goods”, including before selecting
+an individual commodity. The existing individual purchase search remains available.
+`rare_search.py` groups the 142 catalogue commodities by `origin_market_id` and uses
+`OriginResolver.resolve_many()` for one local location pass. Known coordinates
+are required for radius membership. Results default to distance order; each row
+keeps its commodity identity even when multiple commodities share a station.
+
+Pad size, approach distance and carrier filters apply to station eligibility.
+Unknown pad/approach metadata does not satisfy a restrictive filter. Market age
+and “own market data only” apply exclusively to confirming price/stock, never to
+static origins. The worker reads each eligible local market snapshot once and
+can reuse existing RAM-cached Spansh quotes; it does not initiate commodity market
+searches. A newer empty local observation suppresses an older community quote.
+Missing, stale or unavailable market evidence leaves an explicitly unconfirmed
+origin row, not a purchase offer.
+
+Only clicking the all-goods action queues unresolved MarketIDs through the existing
+five-ID coordinator. Successful partial caches are reused across searches/restarts;
+failed/missing identities are attempted at most once per session, with the existing
+bounded transport retry policy. Missing target coordinates and required station
+metadata may also trigger this lookup. After the queue settles, an active result
+refreshes off the GUI thread. Unknown distances are counted separately, never
+assigned an invented radius distance. No journal scan, INARA request or schema
+change is involved.
+
+Each row uses the existing buying-side `RememberedTargets` action and storage.
+Repeated destinations remain one bookmark; rare commodity identities are merged
+there, retaining SystemAddress, MarketID and available XYZ coordinates. No new
+route-planner transfer is introduced. Labels cover all twelve UI languages and
+rare commodity rows reuse the purple delegate in both themes.

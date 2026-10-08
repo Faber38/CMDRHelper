@@ -17,6 +17,8 @@ class CommodityOrigin:
     coordinates: tuple | None = None
     distance_ly: float | None = None
     conflict: bool = False
+    station_type: str = ""
+    distance_to_arrival_ls: float | None = None
 
 
 def _signature(path):
@@ -41,6 +43,7 @@ class OriginResolver:
         self._db_rows = {}
         self._files = {}
         self._coordinates = {}
+        self._stations = {}
 
     def _database_rows(self, path, market=False):
         if path is None:
@@ -93,15 +96,19 @@ class OriginResolver:
                     rows.extend(old[1])
                     continue
                 entries = []
+                station_metadata = {}
                 coordinates = None
                 try:
                     data = cache.read(int(path.stem))
                     if data:
+                        station_metadata = {r['market_id']: r for r in data['stations']
+                                            if r['market_id'] in self.ids}
                         coordinates = data.get('coordinates')
                         entries = [(r['market_id'], r['station_name'], data['system_name'], data['system_address'])
                                    for r in data['stations'] if r['market_id'] in self.ids]
                     if signature != _signature(path):
                         continue
+                    self._stations[path] = station_metadata
                     self._files[path] = (signature, entries)
                     self._coordinates[path] = coordinates
                     rows.extend(entries)
@@ -109,6 +116,7 @@ class OriginResolver:
                     continue
             self._files = {p: row for p, row in self._files.items() if p in paths}
             self._coordinates = {p: row for p, row in self._coordinates.items() if p in paths}
+            self._stations = {p: row for p, row in self._stations.items() if p in paths}
         grouped = {mid: [] for mid in self.ids}
         for mid, station, system, address in rows:
             if mid in grouped and isinstance(station, str) and station.strip() and isinstance(system, str) and system.strip():
@@ -120,10 +128,51 @@ class OriginResolver:
             conflict = len(names) > 1 or len(addresses) > 1
             if evidence and not conflict:
                 station, system, _ = evidence[0]
-                result[mid] = CommodityOrigin(mid, station, system, next(iter(addresses), None))
+                address = next(iter(addresses), None)
+                metadata = next((v.get(mid, {}) for p, v in self._stations.items()
+                                 if p in self._files and p.stem == str(address)), {})
+                result[mid] = CommodityOrigin(mid, station, system, address,
+                    station_type=metadata.get('station_type', ''),
+                    distance_to_arrival_ls=metadata.get('distance_ls'))
             else:
                 result[mid] = CommodityOrigin(mid, conflict=conflict)
         return result
+
+    def resolve_many(self, reference_name='', reference_address=None):
+        """One location pass and one coordinate connection for the entire catalogue."""
+        from dataclasses import replace
+        from .material_traders import Coordinates
+        from .ui.favorites_view import stored_coordinates
+        origins = self.locations()
+        con = None
+        try:
+            if self.database_path is not None:
+                try:
+                    con = _connect(self.database_path)
+                except (OSError, sqlite3.Error, ValueError):
+                    pass
+            def stored(address, name):
+                try:
+                    return stored_coordinates(con, address, name) if con else None
+                except (sqlite3.Error, ValueError):
+                    return None
+            reference = stored(reference_address, reference_name)
+            def cached(address):
+                coords = next((v for p, v in self._coordinates.items()
+                               if p.stem == str(address) and v), None)
+                return Coordinates(**coords) if coords else None
+            reference = reference or cached(reference_address)
+            for mid, origin in origins.items():
+                if not origin.system_name:
+                    continue
+                target = stored(origin.system_address, origin.system_name) or cached(origin.system_address)
+                distance = reference.distance_to(target) if reference and target else None
+                origins[mid] = replace(origin, coordinates=(target.x, target.y, target.z) if target else None,
+                                       distance_ly=distance)
+        finally:
+            if con is not None:
+                con.close()
+        return origins
 
     def resolve(self, market_id, reference_name='', reference_address=None):
         from dataclasses import replace

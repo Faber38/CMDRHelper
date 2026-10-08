@@ -38,6 +38,14 @@ Journalmappen för Elite Dangerous hittas automatiskt när det är möjligt. Om 
 
 CMDRHelper söker efter uppdateringar vid start och har en inbyggd uppdateringsfunktion. Bekräfta en erbjuden uppdatering i programmet; den uppdaterar programmet och beroendena och startar om CMDRHelper. Efter den första installationen använder du normalt bara `start.bat` (Windows) eller `bash start.sh` (Linux). Du behöver inte köra `install.bat` eller `install.sh` manuellt igen för vanliga uppdateringar.
 
+## CMDRHelper v3.9.2
+
+- Ny sökning efter sällsynta varor i närheten, med sparande av destinationer i handelslistan.
+- Förbättrad visning av materialförråd när speldata är motstridiga.
+- Utökad och förtydligad hjälp för Powerplay 2.0.
+- Omfattande förbättringar av översättningarna.
+- Ytterligare stabilitetsförbättringar.
+
 ## CMDRHelper v3.9.1
 
 - Powerplay-aktiviteterna visar nu de Ethos-aktiviteter som Elite har markerat.

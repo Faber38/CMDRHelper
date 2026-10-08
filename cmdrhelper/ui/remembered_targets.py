@@ -106,6 +106,12 @@ class RememberedTargets(QFrame):
     def changed(self, item, offer):
         key = item.data(Qt.UserRole + 2)
         if item.checkState() == Qt.Checked:
+            from dataclasses import replace
+            from cmdrhelper.rare_search import RareDestination
+            previous = self.targets.get(key)
+            if isinstance(offer, RareDestination) and isinstance(previous, RareDestination):
+                offer = replace(offer, remembered_commodities=tuple(dict.fromkeys(
+                    previous.remembered_commodities + offer.remembered_commodities)))
             self.targets[key] = item.data(Qt.UserRole) if self.route_bookmarks else offer
             self.body_labels[key] = known_station_body(self.state, offer)
         else:
@@ -142,6 +148,9 @@ class RememberedTargets(QFrame):
             if body:
                 parts.append(body)
             parts.extend((offer.station_name, pad))
+            if getattr(offer, 'remembered_commodities', ()):
+                parts.append(', '.join(commodity_name(lookup_by_id(cid))
+                                       for cid in offer.remembered_commodities))
             if self.route_bookmarks:
                 master = lookup_by_id(offer.commodity_id) or lookup_by_symbol(offer.commodity_symbol)
                 name = commodity_name(master) if master else offer.commodity_name

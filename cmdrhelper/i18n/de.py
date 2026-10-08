@@ -27,6 +27,11 @@ TRANSLATIONS = {
     'about.support': 'Entwicklungsunterstützung:\nKI-gestützte Entwicklungswerkzeuge',
     'about.independent': 'CMDRHelper ist ein unabhängiges Community-Projekt und steht in keiner Verbindung zu Frontier Developments.',
     'about.trademark': 'Elite Dangerous ist eine Marke von Frontier Developments plc.',
+    'release.3_9_2.0': 'Neue Umkreissuche für seltene Waren mit Übernahme der Ziele in den Handels-Zwischenspeicher.',
+    'release.3_9_2.1': 'Verbesserte Materialbestandsanzeige bei widersprüchlichen Spieldaten.',
+    'release.3_9_2.2': 'Erweiterte und präzisierte Powerplay-2.0-Hilfe.',
+    'release.3_9_2.3': 'Umfangreiche Verbesserungen der Übersetzungen.',
+    'release.3_9_2.4': 'Weitere Stabilitätsverbesserungen.',
     'release.3_9_1.0': 'Powerplay-Aktivitäten zeigen jetzt die von Elite gekennzeichneten Ethos-Aktivitäten.',
     'release.3_9_1.1': 'Powerplay-Hilfe entsprechend ergänzt.',
     'release.3_9_1.2': 'Danksagung für unterstützende Commander und die EOT-Spielergruppe ergänzt.',
@@ -1867,7 +1872,7 @@ TRANSLATIONS.update({
     'outbound.return_route': 'Gemerkter Rückweg: {commodity} → {station} — {system}',
 })
 
-# Local Powerplay 2.0 prototype. Other languages use the standard fallback.
+# Local Powerplay 2.0 UI.
 TRANSLATIONS.update({
     'nav.pp2': 'PP2',
     'pp2.title': 'POWERPLAY 2.0',
@@ -1958,7 +1963,7 @@ TRANSLATIONS.update({
 # Grouped PP2 chronicle.
 TRANSLATIONS.update({
     'pp2.chronicle.title': 'PP2-TAGESCHRONIK',
-    'pp2.chronicle.help': 'PP2-Ereignisse des heutigen Tages (00:00–24:00 lokale Zeit). ✓ belegt · ≈ zeitliche Nähe · ? Ursache unbekannt',
+    'pp2.chronicle.help': 'PP2-Ereignisse des heutigen Tages (00:00–24:00 lokale Zeit). ✓ belegt · ≈ zeitliche Nähe · ? Ursache unbekannt. Bei seltenen Waren bestätigt ✓ ausschließlich den Verkauf, keine Merit-Ursache und keinen Wochenauftragsabschluss.',
     'pp2.chronicle.time': 'Zeit',
     'pp2.chronicle.action': 'Aktion',
     'pp2.chronicle.details': 'Details',
@@ -1970,6 +1975,9 @@ TRANSLATIONS.update({
     'pp2.chronicle.ShipTargeted': 'Schiffscan',
     'pp2.chronicle.SearchAndRescue': 'Bergung',
     'pp2.chronicle.unassigned': 'Nicht zuordenbare Merit-Gutschriften',
+    'pp2.chronicle.MarketSell': 'Seltene Waren verkauft',
+    'pp2.chronicle.tonnes': '{count} t {name}',
+    'pp2.chronicle.sale_evidence': 'Der Verkauf ist direkt im Elite-Journal belegt; die Seltenheit stammt aus dem lokalen Warenkatalog. ✓ bestätigt ausschließlich den Verkauf, keine Merit-Ursache und keinen Wochenauftragsabschluss.',
     'pp2.chronicle.item': '{count} × {name}',
     'pp2.chronicle.reward': '{amount} Cr',
     'pp2.chronicle.explicit': 'Aktivität ist direkt im Elite-Journal als Powerplay-Ereignis belegt.',
@@ -1987,7 +1995,7 @@ TRANSLATIONS.update({
     'pp2.history.delete30': 'Älter als 30 Tage löschen',
     'pp2.history.delete_all': 'Gesamte PP2-Historie löschen',
     'pp2.history.legend': '✓ belegt · ≈ zeitliche Nähe · ? Ursache unbekannt',
-    'pp2.history.help': 'PP2-Ereignisse des ausgewählten lokalen Tages (00:00–24:00). ✓ belegt · ≈ zeitliche Nähe · ? Ursache unbekannt',
+    'pp2.history.help': 'PP2-Ereignisse des ausgewählten lokalen Tages (00:00–24:00). ✓ belegt · ≈ zeitliche Nähe · ? Ursache unbekannt. Bei seltenen Waren bestätigt ✓ ausschließlich den Verkauf, keine Merit-Ursache und keinen Wochenauftragsabschluss.',
     'pp2.history.empty': 'Keine fachlichen PP2-Ereignisse in diesem Zeitraum vorhanden.',
     'pp2.history.confirm': 'Commander: {commander}\nZeitraum: {first} bis {last}\n{events} fachliche Ereignisse an {days} Tagen löschen?\n\nDie Journale selbst werden nicht gelöscht. Der aktuelle belegte Meritstand bleibt erhalten.\nGelöschte Zeiträume bleiben auch bei erneutem Archivimport gesperrt. Neue Ereignisse werden weiterhin gespeichert.',
     'pp2.history.error': 'PP2-Historie konnte nicht geändert werden: {error}',
@@ -2028,3 +2036,6 @@ TRANSLATIONS.update({
     'pp2.ethos_tooltip': 'Von Elite im lokalen Macht-Cache als Ethos-Bonus gekennzeichnet.',
     'pp2.ethos_unknown_tooltip': 'Ein unbekannter Cache-Zusatz bleibt sichtbar; die Ethos-Zuordnung ist dafür unbestimmt.',
 })
+
+# Catalogue-wide rare origin search.
+TRANSLATIONS.update({'trade.rare_search_all': 'Alle seltenen Waren suchen', 'trade.rare_unconfirmed': 'Bestand/Preis nicht bestätigt', 'trade.rare_results': '{count} Herkunftstreffer · {unknown} Ursprungsstationen nicht aufgelöst', 'trade.rare_origin_notice': 'Bekannte Herkunft ist kein aktuelles Kaufangebot. Preise und Bestände stammen ausschließlich aus vorhandenen Marktbelegen.'})

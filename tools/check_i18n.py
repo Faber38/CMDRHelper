@@ -38,56 +38,87 @@ REFERENCE_LANGUAGE = "en"
 
 
 def load_translation_file(path: Path) -> tuple[dict[str, str], list[str]]:
-    """Liest TRANSLATIONS sicher per AST und erkennt doppelte Dictionary-Keys."""
-    source = path.read_text(encoding="utf-8")
-    tree = ast.parse(source, filename=str(path))
+    """Evaluate the catalog's small declarative AST, never execute Python code."""
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    translations = {}
+    seen = set()
+    duplicates = []
+    initialized = False
 
-    translations: dict[str, str] | None = None
-    duplicate_keys: list[str] = []
+    def value(node, local=None):
+        local = local or {}
+        if isinstance(node, ast.Constant):
+            return node.value
+        if isinstance(node, (ast.Tuple, ast.List)):
+            return tuple(value(item, local) for item in node.elts)
+        if isinstance(node, ast.Name):
+            if node.id == "TRANSLATIONS":
+                return translations
+            if node.id in local:
+                return local[node.id]
+        if isinstance(node, ast.Subscript):
+            return value(node.value, local)[value(node.slice, local)]
+        if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
+            return value(node.left, local) + value(node.right, local)
+        if isinstance(node, ast.GeneratorExp) and len(node.generators) == 1:
+            generator = node.generators[0]
+            if isinstance(generator.target, ast.Name) and not generator.ifs and not generator.is_async:
+                return tuple(value(node.elt, dict(local, **{generator.target.id: item}))
+                             for item in value(generator.iter, local))
+        if (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+                and node.func.attr == "join" and len(node.args) == 1 and not node.keywords):
+            separator = value(node.func.value, local)
+            if isinstance(separator, str):
+                return separator.join(value(node.args[0], local))
+        raise ValueError(f"{path}:{node.lineno}: unsupported catalog expression")
+
+    def define(key, text):
+        if not isinstance(key, str) or not isinstance(text, str):
+            raise ValueError(f"{path}: catalog keys and values must be strings")
+        if key in seen:
+            duplicates.append(key)
+        seen.add(key)
+        translations[key] = text
+
+    def entries(node):
+        if not isinstance(node, ast.Dict):
+            raise ValueError(f"{path}:{node.lineno}: expected a literal dictionary")
+        # Keep entries separate: literal_eval(dict) would lose duplicate keys.
+        result = []
+        for key, text in zip(node.keys, node.values):
+            if key is None:
+                raise ValueError(f"{path}:{node.lineno}: dictionary unpacking is unsupported")
+            result.append((value(key), value(text)))
+        return result
 
     for node in tree.body:
-        if not isinstance(node, ast.Assign):
-            continue
-
-        if not any(isinstance(target, ast.Name) and target.id == "TRANSLATIONS" for target in node.targets):
-            continue
-
-        if not isinstance(node.value, ast.Dict):
-            raise ValueError(f"{path}: TRANSLATIONS ist kein Dictionary.")
-
-        seen: set[str] = set()
-
-        for key_node in node.value.keys:
-            if key_node is None:
+        if isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant) and isinstance(node.value.value, str):
+            continue  # Module docstring.
+        if isinstance(node, ast.Assign) and len(node.targets) == 1:
+            target = node.targets[0]
+            if isinstance(target, ast.Name) and target.id == "TRANSLATIONS":
+                items = entries(node.value)
+                translations.clear()
+                for key, text in items:
+                    define(key, text)
+                initialized = True
                 continue
-            try:
-                key = ast.literal_eval(key_node)
-            except Exception:
+            if (initialized and isinstance(target, ast.Subscript)
+                    and isinstance(target.value, ast.Name) and target.value.id == "TRANSLATIONS"):
+                define(value(target.slice), value(node.value))
                 continue
-            if isinstance(key, str):
-                if key in seen:
-                    duplicate_keys.append(key)
-                seen.add(key)
-
-        value = ast.literal_eval(node.value)
-        if not isinstance(value, dict):
-            raise ValueError(f"{path}: TRANSLATIONS ist kein Dictionary.")
-        translations = value
-        break
-
-    if translations is None:
+        if initialized and isinstance(node, ast.Expr) and isinstance(node.value, ast.Call):
+            call = node.value
+            if (isinstance(call.func, ast.Attribute) and call.func.attr == "update"
+                    and isinstance(call.func.value, ast.Name) and call.func.value.id == "TRANSLATIONS"
+                    and len(call.args) == 1 and not call.keywords):
+                for key, text in entries(call.args[0]):
+                    define(key, text)
+                continue
+        raise ValueError(f"{path}:{node.lineno}: unsupported catalog statement")
+    if not initialized:
         raise ValueError(f"{path}: Kein TRANSLATIONS-Dictionary gefunden.")
-
-    bad_entries = [
-        key for key, value in translations.items()
-        if not isinstance(key, str) or not isinstance(value, str)
-    ]
-    if bad_entries:
-        raise ValueError(
-            f"{path}: Nicht unterstützte Einträge in TRANSLATIONS: {bad_entries[:5]}"
-        )
-
-    return translations, duplicate_keys
+    return translations, duplicates
 
 
 def discover_languages() -> dict[str, tuple[Path, dict[str, str], list[str]]]:
@@ -152,16 +183,17 @@ def find_used_translation_keys() -> tuple[set[str], list[tuple[str, int]]]:
                 continue
 
             func = node.func
-            is_tr = isinstance(func, ast.Name) and func.id == "tr"
+            is_tr = isinstance(func, ast.Name) and func.id in ("tr", "tr_for_language")
 
             if not is_tr:
                 continue
 
-            if not node.args:
+            position = 1 if func.id == "tr_for_language" else 0
+            if len(node.args) <= position:
                 dynamic_calls.append((str(path.relative_to(PROJECT_ROOT)), node.lineno))
                 continue
 
-            first = node.args[0]
+            first = node.args[position]
             if isinstance(first, ast.Constant) and isinstance(first.value, str):
                 keys.add(first.value)
             else:
@@ -170,23 +202,47 @@ def find_used_translation_keys() -> tuple[set[str], list[tuple[str, int]]]:
     return keys, dynamic_calls
 
 
+def format_fields(text: str) -> tuple[tuple[str, str, str], ...]:
+    """Validate keyword-format syntax and retain specs, conversions and repeats."""
+    import _string
+    fields = []
+
+    def parse(template, depth=0):
+        if depth > 1:
+            raise ValueError("Format specification nesting is too deep")
+        for _, field, spec, conversion in string.Formatter().parse(template):
+            if field is None:
+                continue
+            root, access = _string.formatter_field_name_split(field)
+            list(access)  # Validate attribute/index syntax, including lazy errors.
+            if not isinstance(root, str) or not root.isidentifier():
+                raise ValueError("Only named keyword fields are supported")
+            if conversion not in (None, "s", "r", "a"):
+                raise ValueError("Invalid format conversion")
+            fields.append((field, spec, conversion or ""))
+            if "{" in spec or "}" in spec:
+                parse(spec, depth + 1)
+            # Validate the format grammar with representative builtin values.
+            # Argument types are checked at their call sites, not guessed here.
+            probe = "".join(literal + ("1" if name is not None else "")
+                            for literal, name, _, _ in string.Formatter().parse(spec))
+            # !s/!r/!a convert to strings before the specification is applied.
+            for sample in (("text",) if conversion else (0, 0.0, "text")):
+                try:
+                    format(sample, probe)
+                    break
+                except (ValueError, TypeError):
+                    pass
+            else:
+                raise ValueError("Invalid format specification: " + spec)
+    parse(text)
+    return tuple(sorted(fields))
+
+
 def placeholders(text: str) -> set[str]:
-    result: set[str] = set()
-
-    try:
-        parsed = string.Formatter().parse(text)
-    except ValueError:
-        return {"<UNGÜLTIGES FORMAT>"}
-
-    for _, field_name, _, _ in parsed:
-        if not field_name:
-            continue
-
-        # Beispiel: {value:.1f}, {obj.name}, {items[0]}
-        clean = re.split(r"[.\[]", field_name, maxsplit=1)[0]
-        result.add(clean)
-
-    return result
+    """Compatibility API for callers interested only in argument names."""
+    return {re.split(r"[.\[]", field, maxsplit=1)[0]
+            for field, _, _ in format_fields(text)}
 
 
 def main() -> int:
@@ -241,6 +297,17 @@ def main() -> int:
 
     if duplicate_found:
         print()
+
+    for code, (path, translations, _) in languages.items():
+        for key, text in translations.items():
+            if not text.strip():
+                print(f"✗ {path.name}: leerer Text: {key}")
+                problems += 1
+            try:
+                format_fields(text)
+            except ValueError as exc:
+                print(f"✗ {path.name}: ungültiges Format: {key}: {exc}")
+                problems += 1
 
     # 2. Fehlende/zusätzliche Keys gegenüber Englisch
     mismatch_found = False
@@ -304,8 +371,11 @@ def main() -> int:
         common_keys = ref_keys & set(translations)
 
         for key in sorted(common_keys):
-            expected = placeholders(reference[key])
-            actual = placeholders(translations[key])
+            try:
+                expected = format_fields(reference[key])
+                actual = format_fields(translations[key])
+            except ValueError:
+                continue  # Already reported during the per-catalog validation.
 
             if expected == actual:
                 continue

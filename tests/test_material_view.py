@@ -126,6 +126,24 @@ class MaterialViewTests(unittest.TestCase):
         self.assertEqual(item.text(2), "0 / 250")
         self.assertEqual(self.view.tree.itemWidget(item, 3).value(), 0)
 
+    def test_real_underflow_only_hides_affected_material(self):
+        records = json.loads((Path(__file__).parent /
+                              "fixtures/materials_underflow_20261007.json").read_text())
+        with self.assertLogs("cmdrhelper.material_inventory", level="WARNING"):
+            for offset, record in enumerate(records):
+                self.reducer.apply(record, ("underflow", offset))
+        self.view.set_inventory(self.reducer.result)
+        unknown = []
+        for index in range(3):
+            self.view.tabs.setCurrentIndex(index)
+            for name, item in self.view.items.items():
+                if item.text(2).startswith("? /"):
+                    unknown.append(name)
+                elif name in self.reducer.result.stocks:
+                    self.assertEqual(item.text(2).split(" / ")[0],
+                                     str(self.reducer.result.material(name).count))
+        self.assertEqual(unknown, ["configurablecomponents"])
+
     def test_unknown_stock_has_no_bar_or_specific_filter(self):
         self.controller.loading.emit()
         self.assertIn("geladen", self.view.status.text())

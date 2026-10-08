@@ -231,15 +231,16 @@ class MaterialInventoryTests(unittest.TestCase):
         self.assertEqual(result.material("gridresistors").count, 5)
         self.assertNotIn("osmium", result.stocks)
 
-    def test_underflow_is_detected_and_trade_atomic(self):
+    def test_underflow_is_isolated_and_trade_receipt_processed(self):
         with self.assertLogs("cmdrhelper.material_inventory", level="WARNING"):
             result = self.read(snapshot(), event("MaterialTrade", 2,
                 Paid=dict(Material="sulphur", Category="Raw", Quantity=11),
                 Received=dict(Material="tin", Category="Raw", Quantity=6)))
         self.assertFalse(result.known)
-        self.assertIn("underflow", result.issues[0])
+        self.assertIn("underflow", result.material_issues["sulphur"][0])
         self.assertIsNone(result.material("sulphur").count)
-        self.assertNotIn("tin", result.stocks)
+        self.assertEqual(result.material("tin").count, 6)
+        self.assertEqual(result.material("gridresistors").count, 8)
         self.assertTrue(all(stock.count is None or stock.count >= 0 for stock in result.stocks.values()))
 
     def test_invalid_snapshot_does_not_replace_and_later_valid_recovers(self):
@@ -252,6 +253,82 @@ class MaterialInventoryTests(unittest.TestCase):
             result = self.read(snapshot(), bad, snapshot(3, raw=2))
         self.assertTrue(result.known)
         self.assertEqual(result.material("sulphur").count, 2)
+
+    def test_real_20261007_craft_underflow_and_restart(self):
+        # Material fields copied from the real snapshot and craft sequence;
+        # no commander identity, location or other personal journal fields.
+        records = json.loads((Path(__file__).parent / "fixtures" /
+                              "materials_underflow_20261007.json").read_text())
+        initial = {item["Name"]: item["Count"] for cat in
+                   ("Raw", "Manufactured", "Encoded") for item in records[0][cat]}
+        session = self.session(events=records)
+        with self.assertLogs("cmdrhelper.material_inventory", level="WARNING") as logs:
+            result = self.reader.reconstruct(1, "F1", [session])
+        self.assertEqual(len(logs.output), 2)
+        self.assertEqual(set(result.material_issues), {"configurablecomponents"})
+        self.assertEqual(len(result.material_issues["configurablecomponents"]), 2)
+        self.assertIn("underflow", logs.output[0])
+        self.assertIn("remains unknown", logs.output[1])
+        self.assertEqual(result.issues, [])
+        self.assertFalse(result.material("configurablecomponents").known)
+        self.assertIsNone(result.material("configurablecomponents").count)
+        expected = dict(initial)
+        for craft in records[1:]:
+            for item in craft["Ingredients"]:
+                if item["Name"] != "configurablecomponents":
+                    expected[item["Name"]] -= item["Count"]
+        for name, count in expected.items():
+            if name != "configurablecomponents":
+                self.assertTrue(result.material(name).known, name)
+                self.assertEqual(result.material(name).count, count, name)
+        rows = merge_inventory(result)
+        self.assertEqual([r.material.symbol for r in rows if not r.known],
+                         ["configurablecomponents"])
+        self.assertEqual(sum(r.known for r in rows), 145)
+        self.assertTrue(all(r.count is None or r.count >= 0 for r in rows))
+        self.assertEqual(result.last_change["timestamp"], records[-1]["timestamp"])
+        with self.assertLogs("cmdrhelper.material_inventory", level="WARNING"):
+            self.assertEqual(result, MaterialInventoryReader().reconstruct(1, "F1", [session]))
+
+    def test_unknown_material_stays_unknown_through_all_delta_types(self):
+        deltas = [
+            event("MaterialCollected", 3, Name="sulphur", Category="Raw", Count=20),
+            event("MaterialDiscarded", 4, Name="sulphur", Category="Raw", Count=1),
+            event("MaterialTrade", 5,
+                  Paid=dict(Material="gridresistors", Category="Manufactured", Quantity=1),
+                  Received=dict(Material="sulphur", Category="Raw", Quantity=10)),
+            event("MissionCompleted", 6, MaterialsReward=[dict(Name="sulphur", Category="Raw", Count=10)]),
+            event("Synthesis", 7, Materials=[dict(Name="sulphur", Count=1)]),
+            event("EngineerContribution", 8, Type="Materials", Material="sulphur", Quantity=1),
+            event("EngineerCraft", 9, Ingredients=[dict(Name="sulphur", Count=1),
+                                                    dict(Name="consumerfirmware", Count=1)]),
+        ]
+        records = [snapshot(), event("MaterialDiscarded", 2, Name="sulphur", Category="Raw", Count=11)]
+        for delta in deltas:
+            records.append(delta)
+            with self.assertLogs("cmdrhelper.material_inventory", level="WARNING"):
+                result = self.read(*records)
+            self.assertIsNone(result.material("sulphur").count)
+            self.assertFalse(result.material("sulphur").known)
+        self.assertEqual(result.material("gridresistors").count, 7)
+        self.assertEqual(result.material("consumerfirmware").count, 5)
+        for replacement in (snapshot(10, raw=4), event("Materials", 10, Raw=[], Manufactured=[], Encoded=[])):
+            with self.assertLogs("cmdrhelper.material_inventory", level="WARNING"):
+                restored = self.read(*records, replacement)
+            self.assertTrue(restored.known)
+            self.assertEqual(restored.material_issues, {})
+            self.assertTrue(restored.material("sulphur").known)
+            self.assertEqual(restored.material("sulphur").count, 4 if replacement["Raw"] else 0)
+
+    def test_underflow_in_each_category_leaves_other_ingredients_known(self):
+        for name in ("sulphur", "gridresistors", "consumerfirmware"):
+            with self.subTest(name=name), self.assertLogs("cmdrhelper.material_inventory", level="WARNING"):
+                result = self.read(snapshot(), event("EngineerCraft", 2, Ingredients=[
+                    dict(Name=name, Count=100),
+                    *[dict(Name=n, Count=1) for n in ("sulphur", "gridresistors", "consumerfirmware") if n != name]]))
+            for other, count in (("sulphur", 9), ("gridresistors", 7), ("consumerfirmware", 5)):
+                self.assertEqual(result.material(other).count, None if other == name else count)
+            self.assertEqual(sum(r.known for r in merge_inventory(result)), 145)
 
     def test_invalid_quantity_and_unknown_ingredient(self):
         for change in [event("MaterialCollected", 2, Name="tin", Category="Raw", Count=-1),

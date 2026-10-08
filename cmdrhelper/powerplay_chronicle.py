@@ -3,6 +3,18 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 
+def is_rare_sale(event):
+    """Recognize a journal sale using offline commodity identity, not its label."""
+    from .commodity_master import lookup_by_symbol
+    from .powerplay import amount, timestamp
+    if event.get("event") != "MarketSell":
+        return False
+    count = amount(event.get("Count"))
+    commodity = lookup_by_symbol(event.get("Type"))
+    return (count is not None and count > 0 and commodity is not None
+            and commodity.rare and timestamp(event.get("timestamp")) is not None)
+
+
 def local_today():
     return datetime.now().astimezone().date()
 
@@ -74,6 +86,14 @@ class PowerplayChronicle:
     def apply(self, event, *, system="", station="", power=""):
         from .powerplay import amount
         kind = event.get("event")
+        if kind == "MarketSell":
+            # Every sale remains a barrier, including ordinary/invalid sales.
+            # A proven rare sale is visible but never a merit candidate.
+            self.pending = self.active = None
+            self.ambiguous = False
+            if is_rare_sale(event):
+                self.groups.append(ChronicleGroup(dict(event), "explicit", system, station, power))
+            return
         if kind in ("Music", "Friends", "ReceiveText"):
             return
         # Target loss is part of the observed Bounty sequence, not another scan.

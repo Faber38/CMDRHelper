@@ -27,6 +27,11 @@ TRANSLATIONS = {
     'about.support': 'Development support:\nAI-assisted development tools',
     'about.independent': 'CMDRHelper is an independent community project and is not affiliated with Frontier Developments.',
     'about.trademark': 'Elite Dangerous is a trademark of Frontier Developments plc.',
+    'release.3_9_2.0': 'New nearby search for rare goods, with destinations saved to the trade shortlist.',
+    'release.3_9_2.1': 'Improved material inventory display when game data conflicts.',
+    'release.3_9_2.2': 'Expanded and clarified Powerplay 2.0 help.',
+    'release.3_9_2.3': 'Extensive translation improvements.',
+    'release.3_9_2.4': 'Further stability improvements.',
     'release.3_9_1.0': 'Powerplay activities now show the Ethos activities marked by Elite.',
     'release.3_9_1.1': 'Powerplay help updated accordingly.',
     'release.3_9_1.2': 'Added acknowledgements for supporting commanders and the EOT player group.',
@@ -1867,7 +1872,7 @@ TRANSLATIONS.update({
     'outbound.return_route': 'Bookmarked return trade: {commodity} → {station} — {system}',
 })
 
-# Local Powerplay 2.0 prototype. Other languages use the standard fallback.
+# Local Powerplay 2.0 UI.
 TRANSLATIONS.update({
     'nav.pp2': 'PP2',
     'pp2.title': 'POWERPLAY 2.0',
@@ -1958,7 +1963,7 @@ TRANSLATIONS.update({
 # Grouped PP2 chronicle.
 TRANSLATIONS.update({
     'pp2.chronicle.title': 'PP2 DAILY CHRONICLE',
-    'pp2.chronicle.help': 'Today’s PP2 events (00:00–24:00 local time). ✓ confirmed · ≈ temporal proximity · ? unknown cause',
+    'pp2.chronicle.help': 'Today’s PP2 events (00:00–24:00 local time). ✓ confirmed · ≈ temporal proximity · ? unknown cause. For rare goods, ✓ confirms only the sale, not a merit cause or weekly assignment completion.',
     'pp2.chronicle.time': 'Time',
     'pp2.chronicle.action': 'Action',
     'pp2.chronicle.details': 'Details',
@@ -1970,6 +1975,9 @@ TRANSLATIONS.update({
     'pp2.chronicle.ShipTargeted': 'Ship scan',
     'pp2.chronicle.SearchAndRescue': 'Salvage',
     'pp2.chronicle.unassigned': 'Unattributed merit credits',
+    'pp2.chronicle.MarketSell': 'Rare goods sold',
+    'pp2.chronicle.tonnes': '{count} t {name}',
+    'pp2.chronicle.sale_evidence': 'The sale is directly recorded in the Elite journal; rarity comes from the local commodity catalog. ✓ confirms only the sale, not a merit cause or weekly assignment completion.',
     'pp2.chronicle.item': '{count} × {name}',
     'pp2.chronicle.reward': '{amount} Cr',
     'pp2.chronicle.explicit': 'The activity is explicitly recorded as a Powerplay event in the Elite journal.',
@@ -1987,7 +1995,7 @@ TRANSLATIONS.update({
     'pp2.history.delete30': 'Delete older than 30 days',
     'pp2.history.delete_all': 'Delete all PP2 history',
     'pp2.history.legend': '✓ confirmed · ≈ temporal proximity · ? unknown cause',
-    'pp2.history.help': 'PP2 events for the selected local day (00:00–24:00). ✓ confirmed · ≈ temporal proximity · ? unknown cause',
+    'pp2.history.help': 'PP2 events for the selected local day (00:00–24:00). ✓ confirmed · ≈ temporal proximity · ? unknown cause. For rare goods, ✓ confirms only the sale, not a merit cause or weekly assignment completion.',
     'pp2.history.empty': 'No PP2 activity events in this period.',
     'pp2.history.confirm': 'Commander: {commander}\nPeriod: {first} to {last}\nDelete {events} activity events across {days} days?\n\nJournal files are not deleted. The current recorded merit total is preserved.\nDeleted periods remain blocked during archive reimports. New events will still be stored.',
     'pp2.history.error': 'Could not change PP2 history: {error}',
@@ -2028,3 +2036,6 @@ TRANSLATIONS.update({
     'pp2.ethos_tooltip': 'Marked by Elite as an Ethos bonus in the local power cache.',
     'pp2.ethos_unknown_tooltip': 'An unknown cache suffix remains visible; its Ethos status is undetermined.',
 })
+
+# Catalogue-wide rare origin search.
+TRANSLATIONS.update({'trade.rare_search_all': 'Search all rare goods', 'trade.rare_unconfirmed': 'Stock/price not confirmed', 'trade.rare_results': '{count} origin results · {unknown} origin stations unresolved', 'trade.rare_origin_notice': 'A known origin is not a current purchase offer. Prices and stock come only from existing market records.'})

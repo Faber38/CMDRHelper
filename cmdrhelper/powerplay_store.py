@@ -6,7 +6,7 @@ from pathlib import Path
 import sqlite3
 
 from .powerplay import PowerplayState, amount, timestamp
-from .powerplay_chronicle import PowerplayChronicle, local_today
+from .powerplay_chronicle import PowerplayChronicle, is_rare_sale, local_today
 
 PARSER_VERSION = 1
 NOISE = {'Music', 'Friends', 'ReceiveText'}
@@ -264,7 +264,12 @@ def delete_preview(db, cid, days=None, *, day=None, zone=None, now=None):
             if latest and latest >= cutoff:
                 cutoff = utc(timestamp(latest) + timedelta(microseconds=1))
         revision = con.execute('SELECT revision FROM pp2_history_policy WHERE commander_id=?', (cid,)).fetchone()
-        stamps = [row[0] for row in con.execute('SELECT timestamp_utc FROM pp2_events WHERE commander_id=? AND timestamp_utc<? AND is_fact=1', (cid, cutoff))]
+        # Older and current imports retain MarketSell as is_fact=0. Derive the
+        # display fact without rewriting history or advancing import cursors.
+        stamps = [stamp for stamp, fact, facts in con.execute(
+            '''SELECT timestamp_utc,is_fact,facts_json FROM pp2_events
+               WHERE commander_id=? AND timestamp_utc<? AND (is_fact=1 OR event_type='MarketSell')''',
+            (cid, cutoff)) if fact or is_rare_sale(json.loads(facts))]
         first, last = con.execute('SELECT MIN(timestamp_utc),MAX(timestamp_utc) FROM pp2_events WHERE commander_id=? AND timestamp_utc<?', (cid,cutoff)).fetchone()
     dates = {timestamp(s).astimezone(zone).date() for s in stamps}
     return dict(commander_id=cid, cutoff=cutoff, revision=revision[0] if revision else None,
