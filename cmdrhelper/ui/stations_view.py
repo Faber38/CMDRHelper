@@ -4,7 +4,7 @@ from copy import deepcopy
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QWidget, QFrame, QVBoxLayout, QHBoxLayout, QLineEdit, QComboBox,
-    QScrollArea, QLabel, QSizePolicy,
+    QScrollArea, QLabel, QSizePolicy, QBoxLayout,
 )
 
 from cmdrhelper.i18n import tr, get_language
@@ -32,6 +32,23 @@ def station_key(station):
     return station.get('identity') or station.get('market_id')
 
 
+class _FactorsHeader(FleetHeader):
+    """Wrap the confirmed service below the name when the first row is full."""
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        title_row = self.title_row
+        margins = self.layout().contentsMargins()
+        available = self.width() - margins.left() - margins.right()
+        available -= self.layout().itemAt(0).widget().width() + self.layout().spacing()
+        name_width = self.station_title.fontMetrics().horizontalAdvance(self.station_title.text())
+        factors_width = self.factors.fontMetrics().horizontalAdvance(self.factors.text())
+        inline = available >= name_width + factors_width + title_row.spacing()
+        self.station_title.setWordWrap(not inline)
+        self.factors.setWordWrap(not inline)
+        title_row.setDirection(QBoxLayout.LeftToRight if inline else QBoxLayout.TopToBottom)
+        self.setMinimumHeight(max(96, self.layout().totalHeightForWidth(self.width())))
+
+
 class StationCard(QFrame):
     def __init__(self, station, system_name, *, light=False, expanded=False):
         super().__init__(objectName='stationCard')
@@ -40,7 +57,10 @@ class StationCard(QFrame):
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
         self.card_layout = QVBoxLayout(self)
         self.card_layout.setContentsMargins(8, 4, 8, 4)
-        self.header = FleetHeader()
+        # Services in the merged display model have already been normalized by Spansh.
+        services = (station.get('spansh') or {}).get('services')
+        has_factors = isinstance(services, list) and 'factors' in services
+        self.header = _FactorsHeader() if has_factors else FleetHeader()
         self.header.setMinimumHeight(96)
         row = QHBoxLayout(self.header)
         row.setContentsMargins(4, 4, 28, 4)
@@ -51,9 +71,30 @@ class StationCard(QFrame):
         text = QVBoxLayout()
         text.setSpacing(2)
         row.addLayout(text, 1)
-        self.title = ElidedShipLabel(name)
+        self.title = QLabel(name) if has_factors else ElidedShipLabel(name)
         font = self.title.font(); font.setBold(True); self.title.setFont(font)
-        text.addWidget(self.title)
+        self.factors = None
+        if has_factors:
+            self.title.setTextFormat(Qt.PlainText)
+            self.title.setWordWrap(True)
+            self.title.setMinimumWidth(0)
+            self.title.setStyleSheet('background: transparent;')
+            title_row = QBoxLayout(QBoxLayout.LeftToRight)
+            title_row.setSpacing(12)
+            title_row.addWidget(self.title)
+            self.factors = QLabel('[' + tr('spansh.service.factors') + ']')
+            self.factors.setTextFormat(Qt.PlainText)
+            self.factors.setWordWrap(True)
+            self.factors.setMinimumWidth(0)
+            self.factors.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            title_row.addWidget(self.factors)
+            title_row.addStretch(1)
+            text.addLayout(title_row)
+            self.header.title_row = title_row
+            self.header.station_title = self.title
+            self.header.factors = self.factors
+        else:
+            text.addWidget(self.title)
         from cmdrhelper.pad_metadata import station_pad_counts
         subtitle = tr('facilities.' + type_key(station)) + ' · ' + parent_label(station, system_name)
         pads = station_pad_counts(station)
@@ -84,6 +125,7 @@ class StationCard(QFrame):
         self.card_layout.addWidget(self.header)
         self.header.toggled.connect(self._toggle)
         self.header.setChecked(expanded)
+        self.set_light_mode(light)
 
     def _toggle(self, expanded):
         if expanded and self.details is None:
@@ -95,6 +137,9 @@ class StationCard(QFrame):
 
     def set_light_mode(self, light):
         self.light = light
+        if self.factors is not None:
+            color = '#38D9D0'
+            self.factors.setStyleSheet(f'color: {color}; background: transparent;')
         if self.details is not None:
             self.details.set_light_mode(light)
 

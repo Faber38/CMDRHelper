@@ -38,6 +38,15 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.9.3
+
+- Trois nouvelles images de stations, une meilleure attribution des types et une correction des indicateurs de stations planétaires.
+- Les Interstellar Factors confirmés sont affichés en turquoise à côté du nom de la station.
+- La galerie charge en arrière-plan avec un scanner holographique de chargement et une protection contre les clics répétés.
+- La progression de rang Powerplay est affichée en vert ou en orange ; la priorité et la persistance des mérites ont été corrigées.
+- Les crédits de mérites peuvent être associés temporellement aux ventes de marchandises rares dans un délai de deux secondes si le contexte est sans ambiguïté.
+- Portrait de Nakato Kaine actualisé et textes révisés dans les douze langues.
+
 ## CMDRHelper v3.9.2
 
 - Nouvelle recherche de marchandises rares à proximité, avec ajout des destinations à la liste de commerce.

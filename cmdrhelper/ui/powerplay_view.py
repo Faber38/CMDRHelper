@@ -413,6 +413,15 @@ class PowerplayView(QScrollArea):
         progress = rank_progress(data.power, data.rank, data.merits, powers)
         self.personal['rank'].setToolTip(tr('pp2.rank.journal', rank=fmt(data.rank)))
         self.rank_bar.hide()
+        self.rank_bar.reset()
+        self.rank_bar.setFormat('')
+        self.rank_bar.setToolTip('')
+        status = progress.status if progress is not None else 'unavailable'
+        if self.rank_bar.property('rankStatus') != status:
+            self.rank_bar.setProperty('rankStatus', status)
+            self.rank_bar.style().unpolish(self.rank_bar)
+            self.rank_bar.style().polish(self.rank_bar)
+            self.rank_bar.update()
         if progress is None:
             self.rank_summary.setText(tr('pp2.rank.unavailable'))
             self.rank_summary.setToolTip(tr('pp2.rank.unavailable'))
@@ -423,19 +432,18 @@ class PowerplayView(QScrollArea):
         next_text = tr('pp2.rank.'+next_key, rank=next_rank, threshold=fmt(progress.upper), remaining=fmt(progress.needed))
         if progress.calculated > 100:
             next_text = tr('pp2.rank.next_band', threshold=fmt(progress.upper), remaining=fmt(progress.needed))
-        if progress.status == 'confirmed':
-            self.rank_summary.setText(next_text)
+        status_text = tr('pp2.rank.'+progress.status, rank=calculated)
+        self.rank_summary.setText(status_text+'\n'+next_text)
+        if progress.status in ('confirmed', 'pending'):
             percent = 100*progress.earned/progress.span
             self.rank_bar.setValue(progress.earned*1000//progress.span)
             self.rank_bar.setFormat(tr('pp2.rank.bar', current=fmt(progress.lower),
                 percent=locale.toString(percent, 'f', 1), next=fmt(progress.upper)))
             self.rank_bar.show()
-        else:
-            self.rank_summary.setText(tr('pp2.rank.'+progress.status, rank=calculated)+'\n'+next_text)
         diagnostic = tr('pp2.rank.diagnostic', confirmed=fmt(data.rank), calculated=calculated,
                         earned=fmt(progress.earned), span=fmt(progress.span))
-        self.rank_summary.setToolTip(diagnostic)
-        self.rank_bar.setToolTip(diagnostic)
+        self.rank_summary.setToolTip(status_text+'\n'+diagnostic)
+        self.rank_bar.setToolTip(status_text+'\n'+diagnostic)
 
     def _render_chronicle(self, data, locale, fmt, unknown):
         today = local_today()
@@ -485,10 +493,11 @@ class PowerplayView(QScrollArea):
                              + " · " + tr("pp2.merits") + ": " + fmt(credit.get("TotalMerits")))
             if kind == "MarketSell":
                 safety = tr("pp2.chronicle.sale_evidence")
-            elif group.certainty == "temporal":
+            if group.certainty == "temporal":
                 gaps = [fmt(data.chronicle._gap(event, credit)) for credit in group.credits]
-                safety = "\n".join(tr("pp2.chronicle.temporal", seconds=gap) for gap in dict.fromkeys(gaps))
-            else:
+                temporal = "\n".join(tr("pp2.chronicle.temporal", seconds=gap) for gap in dict.fromkeys(gaps))
+                safety = safety + "\n" + temporal if kind == "MarketSell" else temporal
+            elif kind != "MarketSell":
                 safety = tr("pp2.chronicle." + group.certainty)
             if group.certainty == "explicit" and gains:
                 safety += "\n" + tr("pp2.chronicle.credit_caution")

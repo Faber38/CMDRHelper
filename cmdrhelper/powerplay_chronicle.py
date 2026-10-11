@@ -60,6 +60,8 @@ class ChronicleGroup:
     station: str = ""
     power: str = ""
     credits: list[dict] = field(default_factory=list)
+    # Ephemeral alternatives, consulted only for sequences involving a rare sale.
+    competitors: list["ChronicleGroup"] = field(default_factory=list, repr=False)
 
 
 @dataclass
@@ -81,18 +83,42 @@ class PowerplayChronicle:
 
     @staticmethod
     def _window(group):
-        return 3 if group.action.get("event") == "ShipTargeted" else 1
+        return {"ShipTargeted": 3, "MarketSell": 2}.get(group.action.get("event"), 1)
+
+    def _rare_competitors(self, previous, event, *, keep_candidates=False):
+        """Carry alternatives through credits, never through a reset/barrier.
+
+        Unknown credits may retain an earlier action for a subsequent rare
+        sale; this does not change matching between other activity types.
+        """
+        if previous is None:
+            return []
+        recent = []
+        for group in [previous, *previous.competitors]:
+            gap = self._gap(group.action, event)
+            if (group.certainty != "unknown" and gap is not None
+                    and 0 <= gap <= self._window(group)
+                    and all(group is not other for other in recent)):
+                recent.append(group)
+        if keep_candidates or is_rare_sale(event) or any(g.action.get("event") == "MarketSell" for g in recent):
+            return recent
+        return []
 
     def apply(self, event, *, system="", station="", power=""):
         from .powerplay import amount
         kind = event.get("event")
         if kind == "MarketSell":
-            # Every sale remains a barrier, including ordinary/invalid sales.
-            # A proven rare sale is visible but never a merit candidate.
+            competitors = self._rare_competitors(self.pending or self.active, event)
+            # Ordinary/invalid sales remain barriers. A rare sale is always
+            # visible, but only becomes temporal evidence after a valid credit.
             self.pending = self.active = None
             self.ambiguous = False
             if is_rare_sale(event):
-                self.groups.append(ChronicleGroup(dict(event), "explicit", system, station, power))
+                group = ChronicleGroup(dict(event), "explicit", system, station, power,
+                                       competitors=competitors)
+                self.groups.append(group)
+                if all(isinstance(v, str) and v.strip() for v in (power, system, station)):
+                    self.active = group
             return
         if kind in ("Music", "Friends", "ReceiveText"):
             return
@@ -105,6 +131,7 @@ class PowerplayChronicle:
             kind == "ShipTargeted" and event.get("TargetLocked") is True
             and type(event.get("ScanStage")) is int and event["ScanStage"] == 3)
         if explicit or candidate:
+            competitors = self._rare_competitors(self.pending or self.active, event)
             previous = self.pending or (self.active if self.active and not self.active.credits else None)
             gap = self._gap(previous.action, event) if previous else None
             self.ambiguous = bool(previous and gap is not None
@@ -115,7 +142,7 @@ class PowerplayChronicle:
                              or amount(event.get("Count")) is None):
                 return
             group = ChronicleGroup(dict(event), "explicit" if explicit else "temporal",
-                                   system, station, event.get("Power", power))
+                                   system, station, event.get("Power", power), competitors=competitors)
             if explicit:
                 self.ambiguous = False
                 self._append(group)
@@ -140,6 +167,11 @@ class PowerplayChronicle:
             if gap is not None:
                 if action == "PowerplayDeliver":
                     matched = gap == 0
+                elif action == "MarketSell":
+                    matched = (0 <= gap <= 2 and group.power == power == event["Power"]
+                               and group.system == system and group.station == station
+                               and all(isinstance(v, str) and v.strip()
+                                       for v in (power, system, station)))
                 elif action in ("Bounty", "SearchAndRescue", "ShipTargeted"):
                     matched = 0 <= gap <= self._window(group)
                     if action == "ShipTargeted":
@@ -147,13 +179,19 @@ class PowerplayChronicle:
                 elif group.certainty == "unknown" and group.credits:
                     last_gap = self._gap(group.credits[-1], event)
                     matched = 0 <= gap <= 10 and last_gap is not None and 0 <= last_gap <= 3
+        if group and group.certainty != "unknown" and group.competitors:
+            matched = False
         if matched:
             if self.pending is not None:
                 self._append(group)
             group.power = event["Power"]
             group.credits.append(dict(event))
+            if group.action.get("event") == "MarketSell":
+                group.certainty = "temporal"
         else:
-            group = ChronicleGroup(dict(event), "unknown", system, station, event["Power"], [dict(event)])
+            competitors = self._rare_competitors(group, event, keep_candidates=True)
+            group = ChronicleGroup(dict(event), "unknown", system, station, event["Power"],
+                                   [dict(event)], competitors=competitors)
             self._append(group)
         self.pending = None
         self.ambiguous = False

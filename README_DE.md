@@ -38,6 +38,15 @@ Der Journalordner von Elite Dangerous wird nach Möglichkeit automatisch erkannt
 
 CMDRHelper prüft beim Start auf Updates und besitzt einen integrierten Updater. Bestätige ein angebotenes Update im Programm; es aktualisiert Programm und Abhängigkeiten und startet CMDRHelper neu. Nach der Erstinstallation genügt normalerweise `start.bat` (Windows) beziehungsweise `bash start.sh` (Linux). Für normale Updates musst du `install.bat` oder `install.sh` nicht erneut manuell ausführen.
 
+## CMDRHelper v3.9.3
+
+- Drei neue Stationsbilder, verbesserte Typzuordnung und korrigierte planetare Stationskennzeichnung.
+- Bestätigte Interstellar Factors werden türkis neben dem Stationsnamen angezeigt.
+- Bildergalerie lädt im Hintergrund mit holografischem Lade-Scanner und Schutz gegen Mehrfachklicks.
+- Powerplay-Rangfortschritt wird grün oder orange angezeigt; Merit-Priorität und Speicherung wurden korrigiert.
+- Merit-Gutschriften können seltenen Warenverkäufen bei eindeutigem Kontext innerhalb von zwei Sekunden zeitlich zugeordnet werden.
+- Aktualisiertes Nakato-Kaine-Porträt und angepasste Texte in allen zwölf Sprachen.
+
 ## CMDRHelper v3.9.2
 
 - Neue Umkreissuche für seltene Waren mit Übernahme der Ziele in den Handels-Zwischenspeicher.

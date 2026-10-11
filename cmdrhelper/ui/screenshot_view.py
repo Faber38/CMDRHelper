@@ -8,13 +8,16 @@ from pathlib import Path
 from PIL import Image, ImageEnhance
 from cmdrhelper.i18n import tr
 from cmdrhelper.screenshot_paths import safe_filename_component, commander_screenshot_folder
-from PySide6.QtCore import Qt, QTimer, QSize, QObject, Signal, QRunnable, QThreadPool, QUrl
-from PySide6.QtGui import QIcon, QPixmap, QDesktopServices, QImageReader
+from PySide6.QtCore import Qt, QTimer, QEvent, QSize, QObject, Signal, QRunnable, QThreadPool, QUrl
+from PySide6.QtGui import QIcon, QPixmap, QDesktopServices
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, QLabel, QLineEdit,
-    QPushButton, QFileDialog, QComboBox, QCheckBox, QListWidget,
+    QPushButton, QFileDialog, QComboBox, QCheckBox, QListWidget, QStackedLayout, QApplication,
     QListWidgetItem, QSplitter, QFrame, QMessageBox, QSlider, QSpinBox,
 )
+
+from cmdrhelper.ui.loading_scanner import LoadingScanner
+from cmdrhelper.ui.screenshot_loader import GalleryWorker, PreviewWorker
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +77,17 @@ class ScreenshotView(QWidget):
         self._gallery_selection = None
         self._loading_settings = False
 
+        self._gallery_worker = None
+        self._preview_worker = None
+        self._preview_request = None
+        self._closed = False
+        self._ready = False
+        self._rows = []
         self._build_ui()
+        self._populate_timer = QTimer(self)
+        self._populate_timer.setInterval(0)
+        self._populate_timer.timeout.connect(self._populate_gallery)
+        QApplication.instance().aboutToQuit.connect(self._shutdown)
 
         # Der Timer muss bereits existieren, wenn gespeicherte Checkbox-
         # Zustände geladen werden. setChecked(True) kann sofort toggled
@@ -98,7 +111,23 @@ class ScreenshotView(QWidget):
             )
 
     def _build_ui(self):
-        root = QVBoxLayout(self)
+        self._stack = QStackedLayout(self)
+        self._content = QWidget()
+        self._stack.addWidget(self._content)
+        self.scanner = LoadingScanner()
+        self._stack.addWidget(self.scanner)
+        self._error_page = QWidget()
+        error_layout = QVBoxLayout(self._error_page)
+        self._load_error = QLabel()
+        self._load_error.setWordWrap(True)
+        error_layout.addStretch()
+        error_layout.addWidget(self._load_error)
+        retry = QPushButton(tr("loading.retry"))
+        retry.clicked.connect(self._request_gallery_refresh)
+        error_layout.addWidget(retry)
+        error_layout.addStretch()
+        self._stack.addWidget(self._error_page)
+        root = QVBoxLayout(self._content)
         root.setContentsMargins(12, 10, 12, 10)
         root.setSpacing(8)
         root.addWidget(QLabel(tr("images.title"), objectName="sectionTitle"))
@@ -443,6 +472,7 @@ class ScreenshotView(QWidget):
         )
 
     def closeEvent(self, event):
+        self._shutdown()
         self._save_settings()
         super().closeEvent(event)
 
@@ -683,105 +713,112 @@ class ScreenshotView(QWidget):
         if queued == 0:
             self.last_action.setText(tr("images.no_new_bmps"))
 
-    def _gallery_snapshot(self):
-        target = self._target()
-
-        if not target or not target.is_dir():
-            return ()
-
-        entries = []
-
-        try:
-            for directory in self._gallery_directories():
-                for path in directory.iterdir():
-                    if (
-                        path.is_file() and not path.is_symlink()
-                        and path.suffix.lower() in (".png", ".jpg", ".jpeg")
-                    ):
-                        stat = path.stat()
-                        entries.append((
-                            str(path.relative_to(target)),
-                            int(stat.st_mtime_ns), int(stat.st_size),
-                        ))
-        except OSError:
-            return ()
-
-        entries.sort()
-        return tuple(entries)
-
     def _check_gallery_changes(self):
-        if not self.isVisible():
-            return
-        snapshot = self._gallery_snapshot()
-
-        if self._gallery_dirty or snapshot != self._gallery_state:
-            self._refresh_gallery(self._gallery_selection)
+        if self.isVisible() and not self._closed:
+            self._refresh_gallery()
 
     def _request_gallery_refresh(self, select_path=None):
         self._gallery_dirty = True
         if isinstance(select_path, (str, Path)):
             self._gallery_selection = select_path
         if self.isVisible():
-            self._refresh_gallery(self._gallery_selection)
+            self._refresh_gallery()
 
-    def _refresh_gallery(self, select_path: Path | None = None):
+    def _refresh_gallery(self, select_path=None):
+        if self._closed:
+            return
+        if isinstance(select_path, (str, Path)):
+            self._gallery_selection = select_path
+            self._gallery_dirty = True
+        if self._gallery_worker is not None or self._populate_timer.isActive():
+            return
+        if not self._ready:
+            self._stack.setCurrentWidget(self.scanner)
+        commanders = self._known_commanders()
+        current = next((c for c in commanders if c.get('id') ==
+                        getattr(self.state, 'viewed_commander_id', None)), None)
+        worker = GalleryWorker(self._target(), self.gallery_filter.currentData(),
+                               commanders, current,
+                               None if self._gallery_dirty else self._gallery_state)
         self._gallery_dirty = False
-        self._gallery_selection = None
-        explicit = isinstance(select_path, (str, Path))
+        self._gallery_worker = worker
+        worker.signals.finished.connect(self._gallery_loaded)
+        self.pool.start(worker)
+
+    def _gallery_loaded(self, result):
+        self._gallery_worker = None
+        if self._closed:
+            return
+        if self._gallery_dirty:
+            self._refresh_gallery()
+            return
+        snapshot, rows, broken, error = result
+        if error:
+            self.gallery_timer.stop()
+            self._load_error.setText(tr('loading.error', error=error))
+            self._stack.setCurrentWidget(self._error_page)
+            self._ready = False
+            return
+        if snapshot == self._gallery_state and self._ready and not rows:
+            return
         previous = self.gallery.currentItem()
-        wanted = Path(select_path) if explicit else (
-            Path(previous.data(Qt.UserRole)) if previous is not None else None)
-        previous_selection = {item.data(Qt.UserRole) for item in self.gallery.selectedItems()}
+        self._wanted = str(self._gallery_selection or
+                           (previous.data(Qt.UserRole) if previous else ''))
+        self._explicit_selection = self._gallery_selection is not None
+        self._selected_paths = {i.data(Qt.UserRole) for i in self.gallery.selectedItems()}
+        self._gallery_selection = None
+        self._gallery_state = snapshot
         self.gallery.clear()
         self.preview.clear()
         self.preview_name.clear()
-        self._gallery_state = self._gallery_snapshot()
+        self._rows = iter(rows)
+        self._broken = broken
+        self._populate_timer.start()
 
-        target = self._target()
-        if not target or not target.is_dir():
-            self.preview.clear()
-            self.preview.setText(tr("images.click_to_preview"))
-            self.preview_name.clear()
-            return
-        files = []
-        try:
-            for directory in self._gallery_directories():
-                for path in directory.iterdir():
-                    try:
-                        if (path.is_file() and not path.is_symlink()
-                                and path.suffix.lower() in (".png", ".jpg", ".jpeg")):
-                            files.append((path.stat().st_mtime_ns, path))
-                    except OSError:
-                        continue
-        except OSError:
-            pass
-        files.sort(key=lambda entry: (entry[0], str(entry[1])), reverse=True)
-        selected = None
-        for _, p in files:
-            pix = self._read_gallery_pixmap(p)
-            if pix.isNull():
-                continue
-            thumb = pix.scaled(150, 95, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            item = QListWidgetItem(QIcon(thumb), p.name)
-            item.setData(Qt.UserRole, str(p)); item.setToolTip(str(p)); self.gallery.addItem(item)
-            if p == wanted:
-                selected = item
-        if selected is None and self.gallery.count():
-            selected = self.gallery.item(0)
-        if selected is not None:
-            self.gallery.setCurrentItem(selected); self._show_preview(selected)
-            if not explicit:
-                for index in range(self.gallery.count()):
-                    item = self.gallery.item(index)
-                    if item.data(Qt.UserRole) in previous_selection:
-                        item.setSelected(True)
-        else:
-            self.preview.clear()
-            self.preview.setText(tr("images.no_images_target"))
-            self.preview_name.clear()
+    def _populate_gallery(self):
+        # Bounded GUI batches: QPixmap and item creation stay on the GUI thread.
+        for _ in range(24):
+            row = next(self._rows, None)
+            if row is None:
+                self._populate_timer.stop()
+                self._ready = True
+                self._stack.setCurrentWidget(self._content)
+                selected = next((self.gallery.item(i) for i in range(self.gallery.count())
+                                 if self.gallery.item(i).data(Qt.UserRole) == self._wanted),
+                                self.gallery.item(0))
+                if selected:
+                    self.gallery.setCurrentItem(selected)
+                    if not self._explicit_selection:
+                        for i in range(self.gallery.count()):
+                            item = self.gallery.item(i)
+                            item.setSelected(item.data(Qt.UserRole) in self._selected_paths or item is selected)
+                else:
+                    self.preview.setText(tr('images.no_images_target'))
+                if self._broken:
+                    self.last_action.setText(tr('loading.skipped', count=len(self._broken)))
+                if self.isVisible():
+                    self.gallery_timer.start()
+                if self._gallery_dirty:
+                    self._refresh_gallery()
+                return
+            path, image = row
+            item = QListWidgetItem(QIcon(QPixmap.fromImage(image)), Path(path).name)
+            item.setData(Qt.UserRole, path)
+            item.setToolTip(path)
+            self.gallery.addItem(item)
+
+    def _shutdown(self):
+        self._closed = True
+        self.timer.stop()
+        self.gallery_timer.stop()
+        self._populate_timer.stop()
+        self.scanner.timer.stop()
+        if self._gallery_worker is not None:
+            self._gallery_worker.cancelled.set()
 
     def showEvent(self, event):
         super().showEvent(event)
+        self.window().installEventFilter(self)
         self._check_gallery_changes()
         self.gallery_timer.start()
 
@@ -790,6 +827,8 @@ class ScreenshotView(QWidget):
         super().hideEvent(event)
 
     def eventFilter(self, watched, event):
+        if watched is self.window() and event.type() == QEvent.Close:
+            self._shutdown()
         if watched is self.gallery and event.type() == event.Type.KeyPress:
             if event.key() == Qt.Key_Delete:
                 self._delete_selected_images()
@@ -872,13 +911,6 @@ class ScreenshotView(QWidget):
                 tr("images.delete_errors") + "\n\n" + "\n".join(errors),
             )
 
-    @staticmethod
-    def _read_gallery_pixmap(path):
-        # Read file contents anew even when an existing filename was overwritten.
-        reader = QImageReader(str(path))
-        reader.setAutoTransform(True)
-        return QPixmap.fromImage(reader.read())
-
     def _preview_selection_changed(self, current, _previous):
         if current is None:
             self.preview.clear()
@@ -887,15 +919,29 @@ class ScreenshotView(QWidget):
             self._show_preview(current)
 
     def _show_preview(self, item):
-        path = Path(item.data(Qt.UserRole))
-        pix = self._read_gallery_pixmap(path)
-        if pix.isNull():
-            self.preview.clear()
-            self.preview.setText(tr("images.click_to_preview"))
-            self.preview_name.clear()
+        self._preview_request = (str(item.data(Qt.UserRole)), self.preview.size())
+        self._start_preview()
+
+    def _start_preview(self):
+        if self._closed or self._preview_worker is not None or self._preview_request is None:
             return
-        self.preview.setPixmap(pix.scaled(self.preview.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
-        self.preview_name.setText(path.name)
+        path, size = self._preview_request
+        self._preview_request = None
+        worker = PreviewWorker(path, size)
+        self._preview_worker = worker
+        worker.signals.finished.connect(self._preview_loaded)
+        self.pool.start(worker)
+
+    def _preview_loaded(self, result):
+        self._preview_worker = None
+        if self._closed:
+            return
+        path, image = result
+        current = self.gallery.currentItem()
+        if current and current.data(Qt.UserRole) == path and self._preview_request is None:
+            self.preview.setPixmap(QPixmap.fromImage(image))
+            self.preview_name.setText('' if image.isNull() else Path(path).name)
+        self._start_preview()
 
     def resizeEvent(self, event):
         super().resizeEvent(event)

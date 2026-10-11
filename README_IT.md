@@ -38,6 +38,15 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## CMDRHelper v3.9.3
+
+- Tre nuove immagini delle stazioni, migliore associazione dei tipi e indicatori delle stazioni planetarie corretti.
+- Gli Interstellar Factors confermati sono mostrati in turchese accanto al nome della stazione.
+- La galleria carica in background con uno scanner olografico di caricamento e protezione dai clic ripetuti.
+- Il progresso di rango Powerplay è mostrato in verde o arancione; corretti la priorità e il salvataggio dei meriti.
+- Gli accrediti di meriti possono essere associati temporalmente alle vendite di merci rare entro due secondi quando il contesto è univoco.
+- Ritratto di Nakato Kaine aggiornato e testi rivisti in tutte le dodici lingue.
+
 ## CMDRHelper v3.9.2
 
 - Nuova ricerca di merci rare nelle vicinanze, con salvataggio delle destinazioni nella lista commerciale.

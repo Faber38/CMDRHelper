@@ -17,6 +17,7 @@ from cmdrhelper.ui.body_detail_window import BodyDetailWindow
 from cmdrhelper.ui.planet_3d_widget import Planet3DWidget
 from cmdrhelper.ui.belt_cluster_widget import BeltClusterWidget
 from tests.test_screenshot_multi_commander import StateStub
+from tests.test_loading_scanner import wait_for
 from tests.test_explorer_table_ux import ExplorerWindow
 
 
@@ -52,9 +53,10 @@ class VisibilityTests(unittest.TestCase):
         self.assertFalse(view.timer.isActive())
         view.gallery_filter.setCurrentIndex(view.gallery_filter.findData('unassigned'))
         Image.new('RGB', (10, 10)).save(target/'manual.png')
-        with patch.object(view, '_gallery_snapshot', wraps=view._gallery_snapshot) as scan:
+        with patch.object(view, '_refresh_gallery', wraps=view._refresh_gallery) as scan:
             view.show()
             self.assertGreater(scan.call_count, 0)
+            wait_for(lambda: view._ready and not view._populate_timer.isActive())
             self.assertEqual(view.gallery.count(), 1)
             self.assertTrue(view.gallery_timer.isActive())
             self.assertFalse(view.timer.isActive())
@@ -64,6 +66,7 @@ class VisibilityTests(unittest.TestCase):
             self.assertFalse(view.gallery_timer.isActive())
             Image.new('RGB', (10, 10)).save(target/'second.png')
             view.show()
+            wait_for(lambda: view.gallery.count() == 2)
             self.assertEqual(view.gallery.count(), 2)
 
     def test_hidden_auto_conversion_continues_and_defers_gallery_build(self):
@@ -79,6 +82,7 @@ class VisibilityTests(unittest.TestCase):
             build.assert_not_called()
             self.assertFalse(view.gallery_timer.isActive())
             view.show()
+            wait_for(lambda: view._ready and not view._populate_timer.isActive())
             self.assertEqual(view.gallery.count(), 1)
             build.assert_called_once()
             view.hide()

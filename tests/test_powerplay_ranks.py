@@ -128,7 +128,8 @@ class RankViewTests(unittest.TestCase):
         self.assertEqual(self.view.personal['rank'].text(),'0')
         self.assertIn('Rang 4',self.view.rank_summary.text())
         self.assertIn('ausstehend',self.view.rank_summary.text())
-        self.assertTrue(self.view.rank_bar.isHidden())
+        self.assertTrue(self.view.rank_bar.isVisible())
+        self.assertEqual(self.view.rank_bar.property('rankStatus'),'pending')
         self.state.powerplay.apply(dict(event='PowerplayMerits',Power='Nakato Kaine',TotalMerits=16726,MeritsGained=99999))
         self.state.changed.emit()
         self.assertEqual(self.view.personal['rank'].text(),'0')
@@ -139,6 +140,7 @@ class RankViewTests(unittest.TestCase):
         self.assertIn('6 bei 23.000',self.view.rank_summary.text())
         self.assertIn('6.274',self.view.rank_summary.text())
         self.assertNotIn('ausstehend',self.view.rank_summary.text())
+        self.assertIn('Rang von Elite bestätigt',self.view.rank_summary.text())
         self.assertFalse(self.view.rank_bar.isHidden())
         self.assertIn('21,6 %',self.view.rank_bar.format())
         self.assertIn('1.726 / 8.000',self.view.rank_bar.toolTip())
@@ -169,14 +171,123 @@ class RankViewTests(unittest.TestCase):
         self.assertIn('791.000',self.view.rank_summary.text())
         self.assertNotIn('101',self.view.rank_summary.text())
         self.assertNotIn('Maximalrang',self.view.rank_summary.text())
+        # Rank 100 awaiting confirmation is pending, not beyond100.
+        self.assertTrue(self.view.rank_bar.isVisible())
+        self.assertEqual(self.view.rank_bar.value(),0)
+        self.assertEqual(self.view.rank_bar.property('rankStatus'),'pending')
+        self.state.powerplay.rank=101;self.view.render()
         self.assertTrue(self.view.rank_bar.isHidden())
 
+    def test_live_pending_rank_and_merit_band(self):
+        self.state.powerplay.rank=14;self.state.powerplay.merits=97707
+        self.view.render();self.app.processEvents()
+        self.assertTrue(self.view.rank_bar.isVisible())
+        self.assertEqual(self.state.powerplay.rank,14)
+        self.assertEqual(self.view.personal['rank'].text(),'14')
+        self.assertEqual(self.view.personal['merits'].text(),'97.707')
+        self.assertEqual(self.view.rank_bar.value(),338)
+        self.assertEqual(self.view.rank_bar.format(),'95.000   —   33,8 %   —   103.000')
+        for text in ('Rang 15','Rang 16 bei 103.000','5.293','ausstehend'):
+            self.assertIn(text,self.view.rank_summary.text())
+        for text in ('2.707 / 8.000','Journalrang: 14','ausstehend'):
+            self.assertIn(text,self.view.rank_bar.toolTip())
+
+    def test_status_transitions_repaint_colors_and_refresh_values_in_both_themes(self):
+        from PySide6.QtGui import QColor
+        from PySide6.QtTest import QTest
+        from cmdrhelper.ui.styles import DARK_STYLESHEET,LIGHT_STYLESHEET
+        for theme,green,orange in ((DARK_STYLESHEET,'#247a41','#9a620e'),
+                                   (LIGHT_STYLESHEET,'#79bd8a','#f0ad4e')):
+            self.view.setStyleSheet(theme)
+            # Includes an exact threshold and several skipped thresholds.
+            for rank,merits,status,value,lower,upper in (
+                    (14,90000,'confirmed',375,'87.000','95.000'),
+                    (14,95000,'pending',0,'95.000','103.000'),
+                    (14,97707,'pending',338,'95.000','103.000'),
+                    (14,114000,'pending',375,'111.000','119.000'),
+                    (17,114000,'confirmed',375,'111.000','119.000')):
+                with self.subTest(theme=green,rank=rank,merits=merits):
+                    self.state.powerplay.rank=rank;self.state.powerplay.merits=merits
+                    self.state.changed.emit();QTest.qWait(10)
+                    bar=self.view.rank_bar
+                    self.assertTrue(bar.isVisible())
+                    self.assertEqual(bar.value(),value)
+                    self.assertEqual(bar.property('rankStatus'),status)
+                    self.assertIn(lower,bar.format());self.assertIn(upper,bar.format())
+                    self.assertEqual(self.view.personal['rank'].text(),str(rank))
+                    # Verify actual painted pixels, including the colored border at 0%.
+                    image=bar.grab().toImage()
+                    color=QColor(green if status=='confirmed' else orange).rgb()
+                    count=sum(image.pixel(x,y)==color for y in range(image.height())
+                              for x in range(image.width()))
+                    self.assertGreater(count,image.width())
+
+    def test_unsafe_states_clear_previous_progress_and_recover(self):
+        for rank,merits,cache in ((None,97707,self.powers),(16,97707,self.powers),
+                                  (101,783000,self.powers),(14,None,self.powers),
+                                  (14,97707,None)):
+            with self.subTest(rank=rank,merits=merits,missing_cache=cache is None):
+                self.loader.return_value=self.powers
+                self.state.powerplay.rank=14;self.state.powerplay.merits=97707
+                self.view.render()
+                self.assertTrue(self.view.rank_bar.isVisible())
+                self.state.powerplay.rank=rank;self.state.powerplay.merits=merits
+                self.loader.return_value=cache;self.view.render()
+                self.assertTrue(self.view.rank_bar.isHidden())
+                self.assertEqual(self.view.rank_bar.value(),-1)
+                self.assertEqual(self.view.rank_bar.format(),'')
+                self.assertNotIn('Rangaktualisierung durch Elite ausstehend',
+                                 self.view.rank_bar.toolTip())
+                if cache is None or merits is None:
+                    self.assertEqual(self.view.rank_bar.toolTip(),'')
+
+    def test_rank_status_texts_in_all_twelve_languages(self):
+        from cmdrhelper import i18n
+        self.addCleanup(i18n.set_language,'de')
+        self.assertEqual(len(i18n._TRANSLATIONS),12)
+        for language,catalog in i18n._TRANSLATIONS.items():
+            i18n.set_language(language)
+            for rank,status in ((14,'pending'),(15,'confirmed')):
+                with self.subTest(language=language,status=status):
+                    self.state.powerplay.rank=rank;self.state.powerplay.merits=97707
+                    self.view.render()
+                    text=catalog['pp2.rank.'+status].format(rank='15')
+                    self.assertIn(text,self.view.rank_summary.text())
+                    self.assertIn(text,self.view.rank_bar.toolTip())
+                    self.assertTrue(self.view.rank_bar.isVisible())
+
+    def test_live_bar_geometry_with_portrait_in_both_themes(self):
+        from PySide6.QtCore import QRect
+        from PySide6.QtTest import QTest
+        from cmdrhelper.ui.styles import DARK_STYLESHEET,LIGHT_STYLESHEET
+        self.state.powerplay.merits=97707
+        for theme in (DARK_STYLESHEET,LIGHT_STYLESHEET):
+            self.view.setStyleSheet(theme)
+            for width,height in ((1680,1050),(1200,900),(1000,900),(480,900)):
+                self.view.resize(width,height)
+                for rank in (14,15):
+                    self.state.powerplay.rank=rank;self.view.render();QTest.qWait(30)
+                    bar=self.view.rank_bar;portrait=self.view.portrait
+                    viewport=self.view.viewport()
+                    rect=QRect(bar.mapTo(viewport,bar.rect().topLeft()),bar.size())
+                    portrait_rect=QRect(portrait.mapTo(viewport,portrait.rect().topLeft()),portrait.size())
+                    self.assertTrue(bar.isVisible())
+                    self.assertFalse(bar.visibleRegion().isEmpty())
+                    self.assertGreater(bar.width(),0);self.assertGreater(bar.height(),0)
+                    self.assertTrue(viewport.rect().contains(rect))
+                    self.assertFalse(rect.intersects(portrait_rect))
+                    self.assertIs(viewport.childAt(rect.center()),bar)
+                    self.assertEqual(self.view.horizontalScrollBar().maximum(),0)
+
     def test_progress_remains_compact_in_both_themes(self):
+        from PySide6.QtTest import QTest
         from cmdrhelper.ui.styles import DARK_STYLESHEET,LIGHT_STYLESHEET
         self.state.powerplay.rank=5;self.state.powerplay.merits=16726;self.view.render()
         for theme in (DARK_STYLESHEET,LIGHT_STYLESHEET):
             self.view.setStyleSheet(theme)
             for width in (1200,480,360):
-                self.view.resize(width,900);self.app.processEvents()
+                self.view.resize(width,900);QTest.qWait(30)
                 self.assertEqual(self.view.horizontalScrollBar().maximum(),0)
-                self.assertLess(self.view.personal_card.height(),self.view.height()/3)
+                # The explicit confirmation adds one status line above the bar.
+                self.assertLess(self.view.personal_card.height(),
+                                self.view.height()/3+self.view.rank_summary.fontMetrics().lineSpacing())

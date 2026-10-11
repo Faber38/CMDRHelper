@@ -179,6 +179,8 @@ class CMDRDatabase:
                 if 17 <= previous_version < SCHEMA_VERSION:
                     self._create_migration_backup(SCHEMA_VERSION)
             self._create_schema()
+            from cmdrhelper.powerplay_store import reconcile_merit_totals
+            reconcile_merit_totals(self)
             if db_was_new:
                 # Only a newly created, fully initialized database is exempt
                 # from the historical repair. Existing databases keep their marker.

@@ -9,6 +9,7 @@ from .powerplay import PowerplayState, amount, timestamp
 from .powerplay_chronicle import PowerplayChronicle, is_rare_sale, local_today
 
 PARSER_VERSION = 1
+MERIT_RECONCILIATION_KEY = 'pp2_merit_totals_v2'
 NOISE = {'Music', 'Friends', 'ReceiveText'}
 FACTS = {'PowerplayCollect', 'PowerplayDeliver', 'PowerplayMerits', 'Bounty', 'SearchAndRescue'}
 FIELDS = {
@@ -89,6 +90,59 @@ def _checkpoint(con, cid, path):
     row = con.execute('SELECT * FROM pp2_import_checkpoints WHERE commander_id=? AND journal_path=?',
                       (cid, str(path))).fetchone()
     return dict(row) if row else None
+
+
+def _merit_record(cid, sid, seq, source_start, source_key, event):
+    """Both journal snapshots are absolute totals; gains are never accumulated."""
+    field = {'Powerplay': 'Merits', 'PowerplayMerits': 'TotalMerits'}.get(event.get('event'))
+    total = amount(event.get(field)) if field else None
+    stamp = utc(event.get('timestamp'))
+    power = event.get('Power')
+    if total is None or stamp is None or not isinstance(power, str) or not power.strip():
+        return None
+    order = source_start + '|' + source_key + '|' + str(seq).zfill(20)
+    return (cid, power.strip(), total, stamp, sid, seq, order)
+
+
+def _store_merit_record(con, record):
+    return con.execute('''INSERT INTO pp2_merit_state VALUES(?,?,?,?,?,?,?)
+        ON CONFLICT(commander_id) DO UPDATE SET power=excluded.power,total_merits=excluded.total_merits,
+        timestamp_utc=excluded.timestamp_utc,source_id=excluded.source_id,source_line=excluded.source_line,
+        source_order=excluded.source_order
+        WHERE excluded.timestamp_utc>pp2_merit_state.timestamp_utc
+           OR (excluded.timestamp_utc=pp2_merit_state.timestamp_utc
+               AND excluded.source_order>pp2_merit_state.source_order)''', record).rowcount
+
+
+def reconcile_merit_totals(db):
+    """One-time, backed-up projection repair; never reimport or rewrite history."""
+    with db._connect() as con:
+        con.execute('BEGIN IMMEDIATE')
+        if con.execute('PRAGMA user_version').fetchone()[0] != 23:
+            return 0
+        if con.execute('SELECT 1 FROM app_meta WHERE key=?', (MERIT_RECONCILIATION_KEY,)).fetchone():
+            return 0
+        current = {r[0]: tuple(r) for r in con.execute('SELECT * FROM pp2_merit_state')}
+        latest = dict(current)
+        for cid, sid, seq, start, key, facts in con.execute('''
+                SELECT e.commander_id,e.source_id,e.source_line,s.started_at,s.source_key,e.facts_json
+                FROM pp2_events e JOIN pp2_sources s
+                  ON s.commander_id=e.commander_id AND s.id=e.source_id
+                WHERE e.event_type IN ('Powerplay','PowerplayMerits')'''):
+            event = json.loads(facts)
+            record = _merit_record(cid, sid, seq, start, key, event)
+            old = latest.get(cid)
+            if record and (old is None or (record[3], record[6]) > (old[3], old[6])):
+                latest[cid] = record
+        changes = [record for cid, record in latest.items() if record != current.get(cid)]
+        if changes:
+            # Use the existing SQLite backup + integrity-check strategy before
+            # changing derived data. A failure rolls back the marker as well.
+            db._create_migration_backup(23)
+            for record in changes:
+                _store_merit_record(con, record)
+        con.execute('INSERT INTO app_meta(key,value) VALUES(?,?)', (MERIT_RECONCILIATION_KEY, 'complete'))
+        return len(changes)
 
 
 def sync(db, sessions, *, day=None, zone=None):
@@ -210,15 +264,9 @@ def sync(db, sessions, *, day=None, zone=None):
                     changed += con.execute('INSERT OR IGNORE INTO pp2_events VALUES(?,?,?,?,?,?,?,?,?,?)',
                                            (cid, sid, *record)).rowcount
                 e = json.loads(facts)
-                if (kind == 'PowerplayMerits' and utc(e.get('timestamp'))
-                        and amount(e.get('TotalMerits')) is not None
-                        and isinstance(e.get('Power'), str) and e['Power'].strip()):
-                    order = source_start + '|' + source_key + '|' + str(seq).zfill(20)
-                    con.execute('''INSERT INTO pp2_merit_state VALUES(?,?,?,?,?,?,?)
-                        ON CONFLICT(commander_id) DO UPDATE SET power=excluded.power,total_merits=excluded.total_merits,
-                        timestamp_utc=excluded.timestamp_utc,source_id=excluded.source_id,source_line=excluded.source_line,
-                        source_order=excluded.source_order WHERE excluded.source_order>pp2_merit_state.source_order''',
-                        (cid, e['Power'], e['TotalMerits'], stamp, sid, seq, order))
+                merit_record = _merit_record(cid, sid, seq, source_start, source_key, e)
+                if merit_record is not None:
+                    _store_merit_record(con, merit_record)
             con.execute('''INSERT INTO pp2_import_checkpoints VALUES(?,?,?,?,?,?,?,?,?)
                 ON CONFLICT(commander_id,journal_path) DO UPDATE SET source_id=excluded.source_id,signature=excluded.signature,
                 processed_offset=excluded.processed_offset,source_line=excluded.source_line,prefix_hash=excluded.prefix_hash,

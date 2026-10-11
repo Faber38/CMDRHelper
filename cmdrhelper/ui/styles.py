@@ -3,9 +3,11 @@ QProgressBar#pp2RankProgress {
     border: 1px solid #ffd54f;
     text-align: center;
 }
-QProgressBar#pp2RankProgress::chunk {
-    background: #1e5278;
-}
+QProgressBar#pp2RankProgress { color: #f6f7f8; }
+QProgressBar#pp2RankProgress[rankStatus="confirmed"] { border-color: #247a41; }
+QProgressBar#pp2RankProgress[rankStatus="pending"] { border-color: #9a620e; }
+QProgressBar#pp2RankProgress[rankStatus="confirmed"]::chunk { background: #247a41; }
+QProgressBar#pp2RankProgress[rankStatus="pending"]::chunk { background: #9a620e; }
 
 QLabel#observedMarketStatus { padding-left: 20px; }
 QLabel#observedMarketStatus[observed="true"] { color: #79bd8a; }
@@ -294,9 +296,11 @@ QProgressBar#pp2RankProgress {
     border: 1px solid #ffd54f;
     text-align: center;
 }
-QProgressBar#pp2RankProgress::chunk {
-    background: #1e5278;
-}
+QProgressBar#pp2RankProgress { color: #20262c; }
+QProgressBar#pp2RankProgress[rankStatus="confirmed"] { border-color: #79bd8a; }
+QProgressBar#pp2RankProgress[rankStatus="pending"] { border-color: #f0ad4e; }
+QProgressBar#pp2RankProgress[rankStatus="confirmed"]::chunk { background: #79bd8a; }
+QProgressBar#pp2RankProgress[rankStatus="pending"]::chunk { background: #f0ad4e; }
 
 QLabel#observedMarketStatus { padding-left: 20px; }
 QLabel#observedMarketStatus[observed="true"] { color: #247a41; }

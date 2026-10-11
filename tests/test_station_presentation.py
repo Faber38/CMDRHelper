@@ -7,13 +7,14 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
-from PySide6.QtCore import Qt, QPointF
+from PySide6.QtCore import Qt, QPointF, QSize
 from PySide6.QtGui import QImage, QPainterPath, QPainterPathStroker, QColor
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 from cmdrhelper.ui import station_items, station_assets
 from cmdrhelper.ui.station_details import StationDetailDialog, StationSelectionDialog
 from cmdrhelper.ui.ship_widgets import ShipImageViewer
+from cmdrhelper.ui.stations_view import StationCard
 from cmdrhelper.ui.system_overview import SystemOverviewView, THEMES
 from cmdrhelper.ui.system_view import SystemMapWidget
 from tests.test_system_stations import BODIES, station
@@ -117,21 +118,23 @@ class StationPresentationTests(unittest.TestCase):
         for kind, expected in station_assets.IMAGE_CLASSES.items():
             self.assertEqual(station_assets.station_image_class({'station_type':kind}), expected)
         for kind in (None, 'Unknown', '../../ships/mandalay'):
-            self.assertEqual(station_assets.station_image_class({'station_type':kind}), 'standard')
+            self.assertEqual(station_assets.station_image_class({'station_type':kind}), 'neutral_station')
         self.assertIsNone(station_assets.bundled_image('../ships/mandalay'))
 
-    def test_resolver_type_standard_placeholder_and_corrupt_file(self):
+    def test_resolver_type_neutral_placeholder_and_corrupt_file(self):
         source = Path('cmdrhelper/assets/bodies/belt_cluster.png')
         with tempfile.TemporaryDirectory() as directory, patch.object(station_assets, 'STATION_ASSET_DIR', Path(directory)):
             root = Path(directory)
             self.assertEqual(station_assets.station_preview({'station_type':'Dodec'}, 100, 100), (None, None))
             shutil.copyfile(source, root/'standard.png')
-            self.assertEqual(station_assets.station_preview({'station_type':'Dodec'},100,100)[1], root/'standard.png')
+            self.assertEqual(station_assets.station_preview({'station_type':'Dodec'}, 100, 100), (None, None))
+            shutil.copyfile(source, root/'neutral_station.png')
+            self.assertEqual(station_assets.station_preview({'station_type':'Dodec'},100,100)[1], root/'neutral_station.png')
             shutil.copyfile(source, root/'dodec.png')
             self.assertEqual(station_assets.station_preview({'station_type':'Dodec'},100,100)[1], root/'dodec.png')
             (root/'dodec.png').write_bytes(b'not an image')
-            self.assertEqual(station_assets.station_preview({'station_type':'Dodec'},100,100)[1], root/'standard.png')
-            self.assertEqual(station_assets.station_preview({'station_type':'Unknown'},100,100)[1], root/'standard.png')
+            self.assertEqual(station_assets.station_preview({'station_type':'Dodec'},100,100)[1], root/'neutral_station.png')
+            self.assertEqual(station_assets.station_preview({'station_type':'Unknown'},100,100)[1], root/'neutral_station.png')
 
     def test_double_click_reuses_existing_full_resolution_viewer(self):
         source = Path('cmdrhelper/assets/bodies/belt_cluster.png')
@@ -152,8 +155,11 @@ class StationPresentationTests(unittest.TestCase):
                                ('OnFootSettlement', 'settlement'), ('Coriolis', 'coriolis'),
                                ('Dodec', 'dodec'), ('Outpost', 'outpost'),
                                ('FleetCarrier', 'fleet_carrier'), ('MegaShip', 'megaship'),
-                               ('Space Construction Depot', 'standard'), ('Bernal', 'standard'),
-                               ('AsteroidBase', 'standard')]:
+                               ('Space Construction Depot', 'space_construction_depot'),
+                               ('SpaceConstructionDepot', 'space_construction_depot'),
+                               ('Bernal', 'ocellus'), ('AsteroidBase', 'asteroid_base'),
+                               ('Asteroid base', 'asteroid_base'), ('Mega ship', 'megaship'),
+                               ('PlanetaryConstructionDepot', 'surface_station')]:
             with self.subTest(kind=kind):
                 self.assertEqual(station_assets.station_image_class(
                     {'station_type': kind, 'is_planetary': True}), expected)
@@ -162,33 +168,97 @@ class StationPresentationTests(unittest.TestCase):
                 {'station_type': kind, 'is_planetary': True}), 'surface_station')
             for flag in (False, None, 'true', 1):
                 self.assertEqual(station_assets.station_image_class(
-                    {'station_type': kind, 'is_planetary': flag}), 'standard')
+                    {'station_type': kind, 'is_planetary': flag}), 'neutral_station')
 
-    def test_settlement_surface_standard_and_placeholder_chain(self):
+    def test_settlement_surface_neutral_and_placeholder_chain(self):
         source = Path('cmdrhelper/assets/bodies/belt_cluster.png')
         with tempfile.TemporaryDirectory() as directory, patch.object(station_assets, 'STATION_ASSET_DIR', Path(directory)):
             root = Path(directory)
             facility = {'station_type': 'OnFootSettlement'}
             self.assertEqual(station_assets.station_preview(facility, 100, 100), (None, None))
-            for name in ('standard', 'surface_station', 'settlement'):
+            for name in ('neutral_station', 'surface_station', 'settlement'):
                 shutil.copyfile(source, root / (name + '.png'))
                 self.assertEqual(station_assets.station_preview(facility, 100, 100)[1], root / (name + '.png'))
             (root / 'settlement.png').write_bytes(b'broken')
             self.assertEqual(station_assets.station_preview(facility, 100, 100)[1], root / 'surface_station.png')
             (root / 'surface_station.png').write_bytes(b'broken')
-            self.assertEqual(station_assets.station_preview(facility, 100, 100)[1], root / 'standard.png')
-            (root / 'standard.png').write_bytes(b'broken')
+            self.assertEqual(station_assets.station_preview(facility, 100, 100)[1], root / 'neutral_station.png')
+            (root / 'neutral_station.png').write_bytes(b'broken')
             self.assertEqual(station_assets.station_preview(facility, 100, 100), (None, None))
 
     def test_missing_orbital_image_ignores_planetary_flag(self):
         source = Path('cmdrhelper/assets/bodies/belt_cluster.png')
         with tempfile.TemporaryDirectory() as directory, patch.object(station_assets, 'STATION_ASSET_DIR', Path(directory)):
             root = Path(directory)
-            for name in ('surface_station', 'standard'):
+            for name in ('surface_station', 'neutral_station'):
                 shutil.copyfile(source, root / (name + '.png'))
-            for kind in ('Coriolis', 'Dodec', 'Space Construction Depot', 'FleetCarrier'):
+            for kind in ('Coriolis', 'Orbis', 'Ocellus', 'Dodec', 'Outpost', 'MegaShip',
+                         'Bernal', 'AsteroidBase', 'Asteroid base',
+                         'Space Construction Depot', 'SpaceConstructionDepot', 'FleetCarrier'):
                 self.assertEqual(station_assets.station_preview(
-                    {'station_type': kind, 'is_planetary': True}, 100, 100)[1], root / 'standard.png')
+                    {'station_type': kind, 'is_planetary': True}, 100, 100)[1], root / 'neutral_station.png')
+
+    def test_new_bundled_images_are_readable_and_uniform(self):
+        for name in ('asteroid_base', 'neutral_station', 'space_construction_depot'):
+            with self.subTest(image=name):
+                path = station_assets.bundled_image(name)
+                self.assertIsNotNone(path)
+                image = QImage(str(path))
+                self.assertFalse(image.isNull())
+                self.assertEqual(image.size(), QSize(1280, 720))
+                self.assertFalse(image.hasAlphaChannel())
+
+    def test_named_examples_cards_and_details_both_themes_keep_aspect(self):
+        # Types and flags reflect the locally verified Journal/Spansh evidence.
+        cases = [
+            ('Ockels Camp', None, True, 'surface_station.png'),
+            ('Thompson Pharmacology', 'OnFootSettlement', True, 'settlement.png'),
+            ("Phillifent's Progress", 'CraterOutpost', True, 'surface_station.png'),
+            ('Teklehaimanot Genetics Exploration', 'OnFootSettlement', True, 'settlement.png'),
+            ('Asteroid example', 'AsteroidBase', False, 'asteroid_base.png'),
+            ('Depot example', 'Space Construction Depot', False, 'space_construction_depot.png'),
+            ('Unknown example', 'UnlistedType', None, 'neutral_station.png'),
+            ('Carrier example', 'FleetCarrier', False, 'fleet_carrier.png'),
+        ]
+        for light in (False, True):
+            for name, kind, flag, filename in cases:
+                with self.subTest(name=name, light=light):
+                    facility = dict(station(name=name), station_type=kind, is_planetary=flag)
+                    original = copy.deepcopy(facility)
+                    card = StationCard(facility, "T'ieni", light=light, expanded=True)
+                    detail = StationDetailDialog(facility, "T'ieni", light=light)
+                    for widget in (card, detail):
+                        widget.show()
+                        self.app.processEvents()
+                        self.assertFalse(widget.grab().isNull())
+                        self.assertEqual(widget.image._source_path.name, filename)
+                        source = QImage(str(widget.image._source_path))
+                        for dpr in (1.0, 2.0):
+                            pixmap, path = station_assets.station_preview(
+                                facility, widget.image.width(), widget.image.height(), dpr)
+                            expected = source.size().scaled(
+                                QSize(round(widget.image.width() * dpr),
+                                      round(widget.image.height() * dpr)), Qt.KeepAspectRatio)
+                            self.assertEqual(pixmap.size(), expected)
+                            self.assertEqual(pixmap.devicePixelRatioF(), dpr)
+                            self.assertEqual(path.name, filename)
+                        widget.close()
+                    self.assertEqual(facility, original)
+
+    def test_cards_and_details_missing_images_use_placeholder_in_both_themes(self):
+        with tempfile.TemporaryDirectory() as directory, patch.object(station_assets, 'STATION_ASSET_DIR', Path(directory)):
+            for light in (False, True):
+                facility = dict(station(), station_type='AsteroidBase')
+                for widget in (StationCard(facility, 'Test', light=light),
+                               StationDetailDialog(facility, 'Test', light=light)):
+                    widget.show()
+                    self.app.processEvents()
+                    self.assertFalse(widget.image.property('hasShipImage'))
+                    self.assertIsNone(widget.image._source_path)
+                    self.assertFalse(widget.grab().isNull())
+                    QTest.mouseDClick(widget.image, Qt.LeftButton)
+                    self.assertIsNone(widget.findChild(ShipImageViewer))
+                    widget.close()
 
     def test_fit_reset_hover_and_tooltip(self):
         name = 'Long facility name ' * 15

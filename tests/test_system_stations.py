@@ -116,6 +116,12 @@ class StationFactsTests(unittest.TestCase):
     def test_carrier_jump_request_is_not_arrival(self):
         self.assertIsNone(observation(dict(event='CarrierJumpRequest', SystemAddress=1, CarrierID=100)))
 
+    def test_construction_depot_variants_have_known_location(self):
+        for kind in ('PlanetaryConstructionDepot', 'Planetary Construction Depot'):
+            self.assertIs(fact(StationType=kind)['is_planetary'], True)
+        for kind in ('SpaceConstructionDepot', 'Space Construction Depot'):
+            self.assertIs(fact(StationType=kind)['is_planetary'], False)
+
 
 class StationDatabaseTests(unittest.TestCase):
     def setUp(self):
@@ -163,6 +169,46 @@ class StationDatabaseTests(unittest.TestCase):
             for row in [newer, newer, fact(second=1)]: store_observation(con, row)
             self.assertEqual(con.execute('SELECT COUNT(*) FROM station_observations').fetchone()[0], 1)
             self.assertEqual(load_stations(con, 1, BODIES)[0]['station_type'], 'Dodec')
+
+    def test_sqlite_planetary_flags_normalized_without_writing(self):
+        from cmdrhelper.ui.station_assets import station_image_class
+        cases = [
+            (fact('ApproachSettlement', Name='Ockels Camp'), 1, True, 'surface_station'),
+            (fact(StationType='Coriolis'), 0, False, 'coriolis'),
+            (fact(), None, None, 'neutral_station'),
+        ]
+        with self.db._connect() as con:
+            for index, (row, stored, expected, image) in enumerate(cases, 100):
+                row.update(identity=f'market:{index}', market_id=index)
+                store_observation(con, row)
+                value = con.execute('SELECT is_planetary FROM station_observations WHERE market_id=?',
+                                    (index,)).fetchone()[0]
+                self.assertEqual(value, stored)
+                if stored is not None:
+                    self.assertIs(type(value), int)
+            before = con.total_changes
+            result = {s['market_id']: s for s in load_stations(con, 1, BODIES)}
+            self.assertEqual(con.total_changes, before)
+            for index, (_, _, expected, image) in enumerate(cases, 100):
+                self.assertIs(result[index].get('is_planetary'), expected)
+                self.assertEqual(station_image_class(result[index]), image)
+
+    def test_thompson_approach_then_docking_selects_settlement(self):
+        from cmdrhelper.ui.station_assets import station_image_class
+        with self.db._connect() as con:
+            store_observation(con, fact('ApproachSettlement', Name='Thompson Pharmacology',
+                                       BodyID=1, BodyName='Test 1'))
+            self.assertEqual(station_image_class(load_stations(con, 1, BODIES)[0]), 'surface_station')
+            dock = fact(second=2, StationType='OnFootSettlement')
+            dock['station_name'] = 'Thompson Pharmacology'
+            store_observation(con, dock)
+            # A later approach without a subtype must retain the docking evidence.
+            store_observation(con, fact('ApproachSettlement', second=3,
+                                       Name='Thompson Pharmacology', BodyID=1, BodyName='Test 1'))
+            result = load_stations(con, 1, BODIES)[0]
+            self.assertIs(result['is_planetary'], True)
+            self.assertEqual(result['station_type'], 'OnFootSettlement')
+            self.assertEqual(station_image_class(result), 'settlement')
 
     def test_archive_import_and_backfill_are_idempotent(self):
         from cmdrhelper.stations import plan_backfill

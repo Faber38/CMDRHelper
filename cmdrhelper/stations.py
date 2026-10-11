@@ -9,8 +9,10 @@ EVENTS = {'Docked', 'Location', 'CarrierJump', 'CarrierLocation', 'ApproachSettl
 FIELDS = ('identity', 'event_type', 'system_address', 'station_name', 'station_type',
           'market_id', 'body_id', 'body_name', 'parent_body_id', 'is_planetary',
           'latitude', 'longitude', 'last_seen', 'source')
-SURFACE_TYPES = {'SurfaceStation', 'CraterOutpost', 'CraterPort', 'OnFootSettlement'}
-ORBITAL_TYPES = {'Coriolis', 'Orbis', 'Ocellus', 'Dodec', 'Bernal', 'AsteroidBase'}
+SURFACE_TYPES = {'SurfaceStation', 'CraterOutpost', 'CraterPort', 'OnFootSettlement',
+                 'PlanetaryConstructionDepot', 'Planetary Construction Depot'}
+ORBITAL_TYPES = {'Coriolis', 'Orbis', 'Ocellus', 'Dodec', 'Bernal', 'AsteroidBase',
+                 'Asteroid base', 'SpaceConstructionDepot', 'Space Construction Depot'}
 
 
 def observation(event):
@@ -107,6 +109,10 @@ def load_stations(con, address, bodies, commander_id=None):
     cursor = con.execute('''SELECT * FROM station_observations WHERE identity IN
         (SELECT identity FROM station_observations WHERE system_address=?)''', (address,))
     rows = [dict(zip((d[0] for d in cursor.description), r)) for r in cursor.fetchall()]
+    # SQLite returns INTEGER flags; the display model uses bool or unknown.
+    for row in rows:
+        value = row['is_planetary']
+        row['is_planetary'] = None if value is None else bool(value)
     carrier_row = con.execute('''SELECT carrier_id,carrier_name,system_address,last_updated
         FROM commander_carriers WHERE commander_id=?''', (commander_id,)).fetchone()
     carrier = dict(zip(('carrier_id', 'carrier_name', 'system_address', 'last_updated'), carrier_row)) if carrier_row else None

@@ -15,7 +15,7 @@ class PP2CatalogTests(unittest.TestCase):
         catalogs = discover_languages()
         self.assertEqual(set(catalogs), set(HELP_LANGUAGES))
         expected = {key for key in i18n.DE if key.startswith('pp2.') or key == 'nav.pp2'}
-        self.assertEqual(len(expected), 132)
+        self.assertEqual(len(expected), 133)
         for language, (_, catalog, duplicates) in catalogs.items():
             with self.subTest(language=language):
                 self.assertEqual(catalog, i18n._TRANSLATIONS[language])
@@ -58,7 +58,7 @@ class PP2CatalogTests(unittest.TestCase):
                           'PowerplayDeliver', 'Bounty', 'ShipTargeted', 'SearchAndRescue',
                           'MarketSell', 'explicit', 'temporal', 'unknown'),
             'history': ('delete7', 'delete30', 'delete_all', 'reset_columns'),
-            'rank': ('next', 'next_calculated', 'next_band', 'pending', 'unconfirmed',
+            'rank': ('next', 'next_calculated', 'next_band', 'confirmed', 'pending', 'unconfirmed',
                      'conflict', 'beyond100'),
         }
         for language in HELP_LANGUAGES:
@@ -131,7 +131,7 @@ class PP2LocalizedViewTests(unittest.TestCase):
             self.state.changed.emit()
             self.assertEqual(self.view.action_heading.text(), i18n._TRANSLATIONS[language]['pp2.actions'])
 
-    def test_real_sale_and_unknown_merits_render_in_all_languages(self):
+    def test_real_sale_and_temporal_merits_render_in_all_languages(self):
         self.addCleanup(i18n.set_language, 'de')
         self.state.powerplay = replay(*REAL)
         for language in HELP_LANGUAGES:
@@ -141,12 +141,12 @@ class PP2LocalizedViewTests(unittest.TestCase):
                     self.view.render()
                 table = self.view.recent
                 catalog = i18n._TRANSLATIONS[language]
-                self.assertEqual(table.rowCount(), 2)
-                self.assertEqual(table.item(0, 4).text(), '?')
-                self.assertEqual(table.item(0, 1).text(), catalog['pp2.unknown'])
-                self.assertEqual(table.item(1, 1).text(), catalog['pp2.chronicle.MarketSell'])
-                self.assertEqual(table.item(1, 2).text(),
+                self.assertEqual(table.rowCount(), 1)
+                self.assertEqual(table.item(0, 1).text(), catalog['pp2.chronicle.MarketSell'])
+                self.assertEqual(table.item(0, 2).text(),
                                  '12 t Leesti-Teufelssaft\nPeebles Holdings · Crucis Sector HC-U b3-5')
-                self.assertEqual(table.item(1, 3).text(), '—')
-                self.assertEqual(table.item(1, 4).text(), '✓')
-                self.assertIn(catalog['pp2.chronicle.sale_evidence'], table.item(1, 4).toolTip())
+                self.assertEqual(table.item(0, 3).text(), '+6 / +' + base.QLocale(language).toString(3600))
+                self.assertEqual(table.item(0, 4).text(), '≈')
+                self.assertIn(catalog['pp2.chronicle.sale_evidence'], table.item(0, 4).toolTip())
+                self.assertIn(catalog['pp2.chronicle.temporal'].format(seconds='1'),
+                              table.item(0, 4).toolTip())

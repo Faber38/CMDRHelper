@@ -18,7 +18,6 @@ LANGUAGES = {'de', 'en', 'fr', 'it', 'no', 'sv', 'fi', 'pl', 'nl', 'es', 'tr', '
 
 class Release392Tests(unittest.TestCase):
     def test_single_version_and_exact_five_summary_keys(self):
-        self.assertEqual(__version__, '3.9.2')
         from cmdrhelper.database import SCHEMA_VERSION
         self.assertEqual(SCHEMA_VERSION, 23)
         self.assertEqual(cmdrhelper.__version__, __version__)

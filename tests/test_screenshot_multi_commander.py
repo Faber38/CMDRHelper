@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import tempfile
+import time
 import unittest
 from datetime import datetime
 from pathlib import Path
@@ -10,6 +11,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PIL import Image
 from PySide6.QtCore import QObject, QSettings, Signal, Qt
+from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 
 from cmdrhelper.ui.screenshot_view import ScreenshotView, safe_filename_component
@@ -70,6 +72,16 @@ class ScreenshotMultiCommanderTests(unittest.TestCase):
         self.view.close()
         self.view.deleteLater()
         self.temp.cleanup()
+
+    def _wait_gallery(self):
+        deadline = time.monotonic() + 5
+        while time.monotonic() < deadline:
+            QTest.qWait(10)
+            if (self.view._gallery_worker is None
+                    and not self.view._populate_timer.isActive()
+                    and self.view._preview_worker is None):
+                return
+        self.fail("Gallery did not finish loading")
 
     def _source(self, name="Screenshot.bmp", stamp=None):
         source = Path(self.temp.name) / name
@@ -156,14 +168,17 @@ class ScreenshotMultiCommanderTests(unittest.TestCase):
 
     def test_gallery_current_follows_viewed_commander(self):
         self.view.show()
+        self._wait_gallery()
         a = self._image(self.root / "Same_F-A" / "a.png")
         b = self._image(self.root / "Same_F-B" / "b.png")
         self._set_filter("current")
         self.view._refresh_gallery()
+        self._wait_gallery()
         self.assertEqual(self.view.gallery.count(), 1)
         self.assertEqual(Path(self.view.gallery.item(0).data(Qt.UserRole)), a)
         self.state.viewed_commander_id = 2
         self.state.viewedCommanderChanged.emit(2)
+        self._wait_gallery()
         self.assertEqual(self.view.gallery.count(), 1)
         self.assertEqual(Path(self.view.gallery.item(0).data(Qt.UserRole)), b)
 
@@ -173,9 +188,11 @@ class ScreenshotMultiCommanderTests(unittest.TestCase):
         self._image(self.root / "Same_F-B" / "b.png")
         self._set_filter("all")
         self.view._refresh_gallery()
+        self._wait_gallery()
         self.assertEqual(self.view.gallery.count(), 2)
         self._set_filter("unassigned")
         self.view._refresh_gallery()
+        self._wait_gallery()
         self.assertEqual(self.view.gallery.count(), 1)
         self.assertEqual(Path(self.view.gallery.item(0).data(Qt.UserRole)), legacy)
         self.assertTrue(legacy.exists())
@@ -183,9 +200,11 @@ class ScreenshotMultiCommanderTests(unittest.TestCase):
     def test_refresh_preserves_current_selection_and_rereads_its_preview(self):
         a = self._image(self.root / 'Same_F-A' / 'a.png')
         self.view._refresh_gallery(a)
+        self._wait_gallery()
         Image.new('RGB', (4, 4), 'red').save(a)
         self._image(self.root / 'Same_F-A' / 'b.png')
         self.view._refresh_gallery()
+        self._wait_gallery()
         self.assertEqual(self.view.preview_name.text(), a.name)
         self.assertEqual(self.view.gallery.currentItem().data(Qt.UserRole), str(a))
         self.assertEqual(self.view.preview.pixmap().toImage().pixelColor(0, 0).name(), '#ff0000')
@@ -194,21 +213,26 @@ class ScreenshotMultiCommanderTests(unittest.TestCase):
         a = self._image(self.root / 'Same_F-A' / 'a.png')
         b = self._image(self.root / 'Same_F-A' / 'b.png')
         self.view._refresh_gallery(a)
+        self._wait_gallery()
         a.unlink()
         self.view._refresh_gallery()
+        self._wait_gallery()
         self.assertEqual(self.view.preview_name.text(), b.name)
         self.assertEqual(self.view.gallery.currentItem().data(Qt.UserRole), str(b))
         b.unlink()
         self.view._refresh_gallery()
+        self._wait_gallery()
         self.assertEqual(self.view.preview_name.text(), '')
         self.assertTrue(self.view.preview.pixmap().isNull())
 
     def test_show_refreshes_gallery_without_waiting_for_timer(self):
         self.view.show()
+        self._wait_gallery()
         self.assertEqual(self.view.gallery.count(), 0)
         self.view.hide()
         path = self._image(self.root / 'Same_F-A' / 'new.png')
         self.view.show()
+        self._wait_gallery()
         self.assertEqual(self.view.gallery.count(), 1)
         self.assertEqual(self.view.preview_name.text(), path.name)
 
@@ -216,12 +240,15 @@ class ScreenshotMultiCommanderTests(unittest.TestCase):
         a = self._image(self.root / 'Same_F-A' / 'a.png')
         b = self._image(self.root / 'Same_F-A' / 'b.png')
         self.view._refresh_gallery(a)
+        self._wait_gallery()
         item = next(self.view.gallery.item(i) for i in range(self.view.gallery.count())
                     if self.view.gallery.item(i).data(Qt.UserRole) == str(b))
         self.view.gallery.setCurrentItem(item)
+        self._wait_gallery()
         self.assertEqual(self.view.preview_name.text(), b.name)
         b.unlink()
         self.view._show_preview(item)
+        self._wait_gallery()
         self.assertEqual(self.view.preview_name.text(), '')
         self.assertTrue(self.view.preview.pixmap().isNull())
 

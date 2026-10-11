@@ -39,6 +39,15 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.3
+
+- Üç yeni istasyon görseli, iyileştirilmiş tür eşleştirmesi ve düzeltilmiş gezegen istasyonu işaretleri.
+- Doğrulanmış Interstellar Factors hizmetleri istasyon adının yanında turkuaz renkte gösterilir.
+- Görsel galerisi holografik yükleme tarayıcısı ve tekrarlanan tıklamalara karşı koruma ile arka planda yüklenir.
+- Powerplay rütbe ilerlemesi yeşil veya turuncu gösterilir; merit önceliği ve kalıcı kaydı düzeltildi.
+- Bağlam açık olduğunda kazanılan meritler iki saniye içinde yapılan nadir mal satışlarıyla zamansal olarak ilişkilendirilebilir.
+- Nakato Kaine portresi güncellendi ve on iki dilin tamamındaki metinler gözden geçirildi.
+
 ## CMDRHelper v3.9.2
 
 - Nadir mallar için yeni yakın çevre araması ve hedefleri ticaret listesine kaydetme.

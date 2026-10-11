@@ -38,6 +38,15 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.3
+
+- Kolme uutta asemakuvaa, parannettu tyyppien vastaavuus ja korjatut planeetta-asemien merkinnät.
+- Vahvistetut Interstellar Factors -palvelut näytetään turkoosina aseman nimen vieressä.
+- Kuvagalleria latautuu taustalla holografisen latausskannerin kanssa ja estää toistuvien napsautusten aiheuttamat päällekkäiset toiminnot.
+- Powerplay-arvon edistyminen näytetään vihreänä tai oranssina; meriittien prioriteetti ja tallennus on korjattu.
+- Meriittihyvitykset voidaan yhdistää ajallisesti harvinaisten tavaroiden myyntiin kahden sekunnin sisällä, kun asiayhteys on yksiselitteinen.
+- Päivitetty Nakato Kainen muotokuva ja tarkistetut tekstit kaikilla kahdellatoista kielellä.
+
 ## CMDRHelper v3.9.2
 
 - Uusi lähialuehaku harvinaisille tavaroille ja kohteiden tallennus kauppalistalle.

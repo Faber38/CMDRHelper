@@ -101,6 +101,11 @@ class StartupRepairTests(unittest.TestCase):
             con.execute('alter table journal_sessions drop column repair_commander_id')
             con.execute("DROP TABLE station_pad_evidence")
             con.execute("DROP TABLE station_pad_journals")
+            # A schema-15 fixture must not retain tables introduced in v23.
+            for table in ('pp2_import_checkpoints', 'pp2_events', 'pp2_merit_state',
+                          'pp2_history_policy', 'pp2_sources'):
+                con.execute('DROP TABLE ' + table)
+            con.execute("DELETE FROM app_meta WHERE key='pp2_merit_totals_v2'")
             con.execute('pragma user_version=15')
         self.db=CMDRDatabase(self.db.path)
         with self.db._connect() as con:self.assertEqual(con.execute('pragma user_version').fetchone()[0],SCHEMA_VERSION)
@@ -276,6 +281,11 @@ repairs.run_startup_repairs(sys.argv[1])
             con.execute('alter table journal_sessions drop column repair_commander_id')
             con.execute("DROP TABLE station_pad_evidence")
             con.execute("DROP TABLE station_pad_journals")
+            # A schema-15 fixture must not retain tables introduced in v23.
+            for table in ('pp2_import_checkpoints', 'pp2_events', 'pp2_merit_state',
+                          'pp2_history_policy', 'pp2_sources'):
+                con.execute('DROP TABLE ' + table)
+            con.execute("DELETE FROM app_meta WHERE key='pp2_merit_totals_v2'")
             con.execute('pragma user_version=15')
         class BrokenConnection(sqlite3.Connection):
             def execute(self, statement, *args):
