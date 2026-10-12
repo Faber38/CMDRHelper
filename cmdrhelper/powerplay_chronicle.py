@@ -62,6 +62,12 @@ class ChronicleGroup:
     credits: list[dict] = field(default_factory=list)
     # Ephemeral alternatives, consulted only for sequences involving a rare sale.
     competitors: list["ChronicleGroup"] = field(default_factory=list, repr=False)
+    # Delivery-only evidence travels with the active group, so existing source,
+    # sequence and day resets also discard it. Credits do not consume causes.
+    delivery_competitors: list["ChronicleGroup"] = field(default_factory=list, repr=False)
+    last_delivery_event: dict | None = field(default=None, repr=False)
+    locker_seen: bool = False
+    delivery_blocked: bool = False
 
 
 @dataclass
@@ -104,7 +110,60 @@ class PowerplayChronicle:
             return recent
         return []
 
+    def _delivery_causes(self, previous, event):
+        if previous is None:
+            return []
+        result = []
+        for group in [previous, *previous.delivery_competitors, *previous.competitors]:
+            kind = group.action.get("event")
+            if kind not in ("PowerplayDeliver", "Bounty", "SearchAndRescue", "ShipTargeted", "MarketSell"):
+                continue
+            gap = self._gap(group.action, event)
+            window = 3 if kind == "PowerplayDeliver" else self._window(group)
+            if (gap is not None and 0 <= gap <= window
+                    and all(group is not other for other in result)):
+                result.append(group)
+        return result
+
+    def _delivery_context(self, group, event, system, station, power):
+        gap = self._gap(group.last_delivery_event or group.action, event)
+        return (not group.delivery_blocked and gap is not None and gap >= 0
+                and local_event_day(group.action.get("timestamp")) == local_event_day(event.get("timestamp"))
+                and group.power == power and group.system == system and group.station == station
+                and all(isinstance(v, str) and v.strip() for v in (power, system, station)))
+
     def apply(self, event, *, system="", station="", power=""):
+        previous = self.pending or self.active
+        kind = event.get("event")
+        causes = self._delivery_causes(previous, event)
+        if previous and previous.action.get("event") == "PowerplayDeliver":
+            valid_context = self._delivery_context(previous, event, system, station, power)
+            if not valid_context:
+                previous.delivery_blocked = True
+            if (kind == "ShipLocker" and valid_context and not previous.locker_seen
+                    and not previous.credits and any(previous is g for g in causes)):
+                previous.locker_seen = True
+                previous.last_delivery_event = dict(event)
+                return
+        self._apply(event, system=system, station=station, power=power)
+        current = self.pending or self.active
+        if kind == "DeliverPowerMicroResources" and causes:
+            # Still a barrier to matching. Retain ONLY ambiguity evidence for
+            # the next Deliver, including earlier deliveries already credited.
+            current = ChronicleGroup(dict(event), "unknown", system, station, power)
+            self.active = current
+        if current is not None:
+            current.delivery_competitors = [g for g in causes if g is not current]
+            if kind == "PowerplayDeliver":
+                current.delivery_blocked = (not event.get("Count")
+                                            or not self._delivery_context(current, event, system, station, power))
+                if previous is not None:
+                    gap = self._gap(previous.last_delivery_event or previous.action, event)
+                    if gap is None or gap < 0:
+                        current.delivery_blocked = True
+            current.last_delivery_event = dict(event)
+
+    def _apply(self, event, *, system="", station="", power=""):
         from .powerplay import amount
         kind = event.get("event")
         if kind == "MarketSell":
@@ -166,7 +225,9 @@ class PowerplayChronicle:
             action = group.action.get("event")
             if gap is not None:
                 if action == "PowerplayDeliver":
-                    matched = gap == 0
+                    matched = (0 <= gap <= 3
+                               and self._delivery_context(group, event, system, station, power)
+                               and len(self._delivery_causes(group, event)) == 1)
                 elif action == "MarketSell":
                     matched = (0 <= gap <= 2 and group.power == power == event["Power"]
                                and group.system == system and group.station == station
@@ -186,7 +247,7 @@ class PowerplayChronicle:
                 self._append(group)
             group.power = event["Power"]
             group.credits.append(dict(event))
-            if group.action.get("event") == "MarketSell":
+            if group.action.get("event") in ("MarketSell", "PowerplayDeliver"):
                 group.certainty = "temporal"
         else:
             competitors = self._rare_competitors(group, event, keep_candidates=True)

@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_4.0': 'Verbeterde scheepsrouteplanner met ondersteuning voor de 7A SCO FSD en correcte verwerking van engineering, Guardian-boosters, vracht en reservebrandstof.',
+    'release.3_9_4.1': 'Nieuwe scheepsgegevensassistent verklaart, vult aan en bewaart ontbrekende waarden per schip; bevestigde automatische gegevens hebben voorrang.',
+    'release.3_9_4.2': 'Nauwkeurigere tijdkoppeling van Powerplay-leveringen aan meritmeldingen binnen drie seconden bij een eenduidige context.',
+    'release.3_9_4.3': 'Mijnbouw-, Odyssey-, materiaal- en vlootweergaven vermijden onnodige heropbouw en hergebruiken bestaande weergave-elementen.',
+    'release.3_9_4.4': 'Nieuwe Odyssey-opruimhulp met 81 standaardkandidaten, persoonlijke selectie uit 223 voorwerpen, kleurmarkering en opgeslagen sortering.',
+    'release.3_9_4.5': 'Verbeterde invoercontrole, foutmeldingen en laadindicatoren, met bijgewerkte teksten in alle twaalf talen.',
+
     'release.3_9_3.0': 'Drie nieuwe stationsafbeeldingen, verbeterde typetoewijzing en gecorrigeerde aanduidingen van planetaire stations.',
     'release.3_9_3.1': 'Bevestigde Interstellar Factors worden in turkoois naast de stationsnaam weergegeven.',
     'release.3_9_3.2': 'De afbeeldingengalerij laadt op de achtergrond met een holografische laadscanner en bescherming tegen herhaald klikken.',
@@ -697,6 +704,8 @@ TRANSLATIONS = {
     'route_planner.ship_loadout_incomplete': "Scheepsgegevens onvolledig",
     'route_planner.ship_loadout_stale': "Scheepsgegevens verouderd",
     'route_planner.ship_loadout_unknown_fsd': "Onbekende FSD",
+    'route_planner.ship_loadout_missing_fsd_specs': 'Technische FSD-gegevens ontbreken',
+    'route_planner.ship_loadout_missing_live_data': 'Actuele brandstof- of vrachtgegevens ontbreken',
     'route_planner.ship_error_missing_fields': "Ontbrekende technische waarden: {fields}",
     'route_planner.ship_algorithm': "Route-algoritme",
     'route_planner.ship_use_supercharge': "Supercharge/neutronensterren gebruiken",
@@ -1905,4 +1914,72 @@ TRANSLATIONS.update({
     'pp2.system.undermining_help': 'Ondermijning – activiteiten die de positie van de heersende macht in dit systeem verzwakken.',
     'pp2.system.control_help': 'Ongewijzigde controlevoortgang uit het journaal. Een genormaliseerde betekenis van 0–1 is lokaal niet vastgesteld; er wordt daarom geen percentage berekend.',
     'pp2.system.stage_help': 'Gemelde systeemstatus: {status}. De balk dient ter oriëntatie, niet als verplichte volgorde.',
+})
+
+# Ship data assistant
+TRANSLATIONS.update({
+    'route_planner.assistant_open': 'Ontbrekende waarden aanvullen',
+    'route_planner.assistant_title': 'Scheepsgegevens aanvullen',
+    'route_planner.assistant_identity': 'Commandant: {commander} ({fid})\nSchip: {ship} · {name}\nShipID: {sid}',
+    'route_planner.assistant_fsd_source': 'Kopieer de exacte FSD-modulecode en controleer EDSY (https://edsy.org). Gebruik geen vergelijkbare variant.',
+    'route_planner.assistant_policy': 'Automatische waarden hebben voorrang. Opgeslagen waarden blijven beschikbaar ter vergelijking. Lege velden verwijderen de handmatige waarde. Vracht en reservebrandstof gelden maximaal 2 minuten in deze scheepssessie en worden niet permanent opgeslagen.',
+    'route_planner.assistant_automatic': 'Automatisch herkend',
+    'route_planner.assistant_manual': 'Handmatig opgeslagen',
+    'route_planner.assistant_unknown': 'Onbekend',
+    'route_planner.assistant_help': 'Uitleg',
+    'route_planner.assistant_stored': 'Opgeslagen vergelijkingswaarde: {value}',
+    'route_planner.assistant_confirm_scope': 'Bevestigen voor huidige configuratie',
+    'route_planner.assistant_scope': 'De opgeslagen configuratie wijkt af. Controleer en bevestig vóór hergebruik.',
+    'route_planner.assistant_save': 'Voor dit schip opslaan',
+    'route_planner.assistant_delete': 'Handmatige scheepswaarden wissen',
+    'route_planner.assistant_identity_error': 'Opslaan vereist bevestigde FID, ShipID en lokale instellingen.',
+    'route_planner.assistant_number': 'Voer een eindig getal in met decimale punt of komma, zonder scheidingstekens voor duizendtallen.',
+    'route_planner.assistant_range': 'Toegestaan bereik: {minimum}, maximaal {maximum}.',
+    'route_planner.assistant_reserve': 'Reservebrandstof mag de reservetankcapaciteit niet overschrijden.',
+    'route_planner.assistant_cargo': 'Vracht mag de bekende vrachtcapaciteit niet overschrijden.',
+    'route_planner.assistant_context': 'Actuele waarden vereisen een bevestigde scheepscontext.',
+    'route_planner.assistant_fsd_error': 'FSD-waarden vereisen de exacte modulecode.',
+    'route_planner.assistant_changed': 'Schip of sessie is gewijzigd. Sluit en heropen het venster.',
+    'route_planner.assistant_invalid': 'Corrigeer de gemarkeerde velden.',
+    'route_planner.assistant_save_error': 'Opslaan mislukt. Uw invoer blijft in het venster staan.',
+    'route_planner.assistant_delete_confirm': 'Alle handmatige waarden uitsluitend voor dit schip wissen?',
+    'route_planner.assistant_ready': 'Gereed – bevat handmatige waarden',
+    'route_planner.assistant_incomplete': 'Onvolledig – bevat handmatige waarden',
+    'route_planner.assistant_form': 'Handmatige formulierinvoer',
+})
+
+TRANSLATIONS.update({
+    'route_planner.assistant_help_tank_size': 'Hoofdtankcapaciteit in t, niet de actuele inhoud. Bron: Loadout.FuelCapacity.Main. Bepaalt de brandstofruimte voor Spansh.',
+    'route_planner.assistant_help_cargo': 'Actuele scheepsvracht in t, niet vrachtcapaciteit. Bron: bevestigde Cargo/Status-gegevens. Spansh telt deze extra massa mee; onbekend is geen nul.',
+    'route_planner.assistant_help_base_mass': 'Basismassa in t: Loadout.UnladenMass plus reservetankcapaciteit volgens de bestaande Spansh-conventie. Tel vracht of hoofdbrandstof niet nogmaals op.',
+    'route_planner.assistant_help_internal_tank_size': 'Reservetankcapaciteit in t uit Loadout.FuelCapacity.Reserve. Spansh heeft de tankgrootte nodig, niet de actuele inhoud.',
+    'route_planner.assistant_help_reserve_size': 'Actuele reservebrandstof in t uit Status.Fuel.FuelReservoir. Bepaalt de brandstoftoestand voor Spansh; niet automatisch gelijk aan de capaciteit.',
+    'route_planner.assistant_help_optimal_mass': 'Optimale FSD-massa in t voor de bereikformule. Gebruik de eindwaarde FSDOptimalMass.Value, anders de exacte EDSY-variant. Pas modificaties niet dubbel toe.',
+    'route_planner.assistant_help_max_fuel_per_jump': 'Maximaal FSD-verbruik per sprong in t: MaxFuelPerJump.Value of exacte EDSY-variant. Voer geen sprongafstand in ly in.',
+    'route_planner.assistant_help_fuel_power': 'Eenheidsloze exponent van de FSD-brandstofformule. Gebruik fuelpower van de exacte EDSY-variant, niet elektrisch vermogen of brandstofhoeveelheid.',
+    'route_planner.assistant_help_fuel_multiplier': 'Coëfficiënt van de FSD-formule op de decimale EDSY-schaal fuelmul. Rechtstreeks gebruiken, zonder procent- of duizendvoudige omrekening.',
+    'route_planner.assistant_help_range_boost': 'Extra sprongbonus in ly, bijvoorbeeld door een actieve Guardian-booster. Bron: boostercatalogus. Niet het totale bereik; nul alleen bij bevestigde afwezigheid van een bonus.',
+})
+
+TRANSLATIONS.update({
+    'odyssey.cleanup.manage': 'Opruimlijst beheren',
+    'odyssey.cleanup.marked': 'Gemarkeerd',
+    'odyssey.cleanup.unmarked': 'Niet gemarkeerd',
+    'odyssey.cleanup.count': '{count} van {total} voorwerpen gemarkeerd',
+    'odyssey.cleanup.reset': 'Standaard herstellen',
+    'odyssey.cleanup.confirm': 'De volledige selectie vervangen door de Helper-standaard? Wijzigingen worden pas toegepast na opslaan.',
+    'odyssey.cleanup.personal': 'Gemarkeerd in je persoonlijke opruimlijst.',
+    'odyssey.cleanup.no_use': 'Geen bekend gebruik voor pak- of wapenverbeteringen.',
+    'odyssey.cleanup.save_error': 'De opruimlijst kon niet worden opgeslagen.',
+    'odyssey.cleanup.chemicals': 'Chemicaliën',
+    'odyssey.cleanup.circuits': 'Schakelingen',
+    'odyssey.cleanup.tech': 'Technologie',
+})
+
+TRANSLATIONS.update({
+    'odyssey.cleanup.legend': 'Opruimkandidaat',
+    'odyssey.cleanup.legend_tip': 'Deze voorwerpen hebben geen bekend gebruik voor pak- of wapenverbeteringen en kunnen doorgaans aan de barman aan de bar worden verkocht.\n\nVoorwerpen die je zelf markeert, kunnen andere toepassingen hebben.',
+    'odyssey.sort.label': 'Sortering',
+    'odyssey.sort.cleanup': 'Opruimlijst',
+    'odyssey.sort.alphabetical': 'Alfabetisch',
 })

@@ -1,4 +1,6 @@
 """One offline mining table, with independent, identity-based settings."""
+from contextlib import contextmanager
+
 from PySide6.QtCore import QCollator, QLocale, Qt, QTimer, QVariantAnimation, QDateTime, QEvent, QPersistentModelIndex
 from PySide6.QtGui import QBrush, QColor
 from PySide6.QtWidgets import (
@@ -73,6 +75,23 @@ class _CarrierDelegate(QStyledItemDelegate):
         self.color = QColor("#79d45a")
         tree.setMouseTracking(True)
         tree.viewport().installEventFilter(self)
+        self._visible_rows = None
+        tree.model().layoutChanged.connect(self.invalidate_rows)
+        tree.model().modelReset.connect(self.invalidate_rows)
+        tree.model().rowsInserted.connect(self.invalidate_rows)
+        tree.model().rowsRemoved.connect(self.invalidate_rows)
+
+    def invalidate_rows(self, *_):
+        self._visible_rows = None
+
+    def visible_row(self, row):
+        if self._visible_rows is None:
+            self._visible_rows = {}
+            visible = 0
+            for i in range(self.tree.topLevelItemCount()):
+                self._visible_rows[i] = visible
+                visible += not self.tree.topLevelItem(i).isHidden()
+        return self._visible_rows.get(row, 0)
 
     def eventFilter(self, watched, event):
         if event.type() == QEvent.Type.MouseMove:
@@ -99,7 +118,7 @@ class _CarrierDelegate(QStyledItemDelegate):
         super().initStyleOption(option, index)
         # Count visible rows in their current sorted order, without modifying
         # item data, filters or persisted settings.
-        row = sum(not self.tree.topLevelItem(i).isHidden() for i in range(index.row()))
+        row = self.visible_row(index.row())
         theme = THEMES[self.light]
         background = QColor(theme["rows"][row % 5])
         hovered = self.hovered
@@ -271,16 +290,20 @@ class MiningView(QWidget):
         self.set_light_mode(str(settings.value("ui_theme", "dark")) == "light")
         self._apply_filters()
         self.set_inventory(MiningInventory(0, ""))
+        from .loading_state import LoadingState
+        self.loading_state = LoadingState(self.tree)
         self.controller = controller
         if self.controller is None and state is not None:
             from cmdrhelper.mining_controller import MiningInventoryController
             self.controller = MiningInventoryController(state, self)
         if self.controller is not None:
-            self.controller.loading.connect(lambda: self.set_inventory(MiningInventory(0, "")))
+            self.controller.loading.connect(self._begin_inventory_loading)
             self.controller.ready.connect(self.set_inventory)
             self.refresh_button.clicked.connect(self._begin_refresh)
             self.controller.refreshFinished.connect(self._refresh_finished)
         self.refresh_button.setEnabled(self.controller is not None)
+        if self.controller is not None:
+            self._begin_inventory_loading()
 
         self.market_controller = None
         self.own_market_prices = {}
@@ -297,47 +320,63 @@ class MiningView(QWidget):
             self.refresh_button.clicked.connect(self.market_controller.request)
         self._render_market_prices()
 
+    @contextmanager
+    def _table_update(self):
+        header = self.tree.header()
+        modes = [header.sectionResizeMode(i) for i in range(header.count())]
+        self.tree.setUpdatesEnabled(False)
+        try:
+            header.setSectionResizeMode(QHeaderView.Fixed)
+            yield
+        finally:
+            self.carrier_delegate.invalidate_rows()
+            for i, mode in enumerate(modes):
+                header.setSectionResizeMode(i, mode)
+            header.resizeSections()
+            self.tree.setUpdatesEnabled(True)
+
     def set_market_prices(self, result):
         self.own_market_prices = {q.commodity.symbol.casefold(): q for q in result.quotes}
         self._market_status = result.status
         self._render_market_prices()
 
     def _render_market_prices(self):
-        from cmdrhelper.observed_market_cache import utcnow
-        from cmdrhelper.ui.market_age import saved_max_age, saved_hours
-        from cmdrhelper.ui.trade_view import format_age
-        now = (self._market_clock or utcnow)()
-        max_age = saved_max_age(self.settings)
-        age_limit = tr('trade.age_option_' + str(saved_hours(self.settings)))
-        help_text = tr('mining.own_price_help') + '\n' + tr('trade.max_age') + ': ' + age_limit
-        self.tree.headerItem().setToolTip(7, help_text)
-        self.notice.setText(tr('mining.reference_short') + (
-            ' · ' + tr('mining.own_price_error') if self._market_status == 'error' else ''))
-        self.tree.setSortingEnabled(False)
-        locale = QLocale(get_language())
-        for symbol, item in self.items.items():
-            quote = self.own_market_prices.get(symbol)
-            if quote is not None:
-                elapsed = now - quote.header.observed_at
-                if elapsed.total_seconds() < 0 or (max_age is not None and elapsed > max_age):
-                    quote = None
-            price = quote.commodity.commander_sell_price if quote is not None else None
-            item.setData(7, Qt.ItemDataRole.UserRole, price)
-            item.setText(7, locale.toString(price) if price is not None else '—')
-            if quote is None:
-                key = 'mining.own_price_error' if self._market_status == 'error' else 'mining.own_price_none'
-                tooltip = tr(key) + '\n' + help_text
-            else:
-                h, value = quote.header, quote.commodity
-                stamp = QDateTime.fromString(h.observed_at.isoformat(), Qt.DateFormat.ISODate)
-                observed = locale.toString(stamp.toLocalTime(), QLocale.FormatType.ShortFormat)
-                tooltip = '\n'.join((help_text,
-                    tr('trade.system') + ': ' + h.system_name,
-                    tr('trade.station') + ': ' + h.station_name,
-                    tr('trade.age') + ': ' + format_age(h.observed_at, now) + ' (' + observed + ')',
-                    tr('trade.demand') + ': ' + (locale.toString(value.demand) if value.demand is not None else '—')))
-            item.setToolTip(7, tooltip)
-        self.tree.setSortingEnabled(True)
+        with self._table_update():
+            from cmdrhelper.observed_market_cache import utcnow
+            from cmdrhelper.ui.market_age import saved_max_age, saved_hours
+            from cmdrhelper.ui.trade_view import format_age
+            now = (self._market_clock or utcnow)()
+            max_age = saved_max_age(self.settings)
+            age_limit = tr('trade.age_option_' + str(saved_hours(self.settings)))
+            help_text = tr('mining.own_price_help') + '\n' + tr('trade.max_age') + ': ' + age_limit
+            self.tree.headerItem().setToolTip(7, help_text)
+            self.notice.setText(tr('mining.reference_short') + (
+                ' · ' + tr('mining.own_price_error') if self._market_status == 'error' else ''))
+            self.tree.setSortingEnabled(False)
+            locale = QLocale(get_language())
+            for symbol, item in self.items.items():
+                quote = self.own_market_prices.get(symbol)
+                if quote is not None:
+                    elapsed = now - quote.header.observed_at
+                    if elapsed.total_seconds() < 0 or (max_age is not None and elapsed > max_age):
+                        quote = None
+                price = quote.commodity.commander_sell_price if quote is not None else None
+                item.setData(7, Qt.ItemDataRole.UserRole, price)
+                item.setText(7, locale.toString(price) if price is not None else '—')
+                if quote is None:
+                    key = 'mining.own_price_error' if self._market_status == 'error' else 'mining.own_price_none'
+                    tooltip = tr(key) + '\n' + help_text
+                else:
+                    h, value = quote.header, quote.commodity
+                    stamp = QDateTime.fromString(h.observed_at.isoformat(), Qt.DateFormat.ISODate)
+                    observed = locale.toString(stamp.toLocalTime(), QLocale.FormatType.ShortFormat)
+                    tooltip = '\n'.join((help_text,
+                        tr('trade.system') + ': ' + h.system_name,
+                        tr('trade.station') + ': ' + h.station_name,
+                        tr('trade.age') + ': ' + format_age(h.observed_at, now) + ' (' + observed + ')',
+                        tr('trade.demand') + ': ' + (locale.toString(value.demand) if value.demand is not None else '—')))
+                item.setToolTip(7, tooltip)
+            self.tree.setSortingEnabled(True)
 
     def showEvent(self, event):
         super().showEvent(event)
@@ -347,32 +386,39 @@ class MiningView(QWidget):
         self.market_age_timer.start()
 
 
+    def _begin_inventory_loading(self):
+        self.set_inventory(MiningInventory(0, ""))
+        self.loading_state.begin()
+
     def set_inventory(self, inventory):
-        self._inventory = inventory
-        self.tree.setSortingEnabled(False)
-        locale = QLocale(get_language())
-        for symbol, item in self.items.items():
-            for column, count in enumerate(inventory.stock(symbol), 1):
-                item.setData(column, Qt.ItemDataRole.UserRole, count)
-                text = locale.toString(count) if count is not None else "—"
-                item.setText(column, tr("mining.carrier_marked", value=text) if column == 3 else text)
-                item.setToolTip(column, tr("mining.stock_unknown") if count is None else "")
-            record = inventory.carrier_records.get(symbol)
-            tooltip = ""
-            if record:
-                stamp = QDateTime.fromString(record.get("confirmed_at", ""), Qt.DateFormat.ISODateWithMs)
-                time_text = locale.toString(stamp.toLocalTime(), QLocale.FormatType.ShortFormat) if stamp.isValid() else record.get("confirmed_at", "")
-                tooltip = tr("mining.carrier_confirmed", time=time_text)
-                if record.get("status") == "tracked":
-                    tooltip += "\n" + tr("mining.carrier_tracked")
-                elif record.get("status") == "inconsistent":
-                    tooltip += "\n" + tr("mining.carrier_inconsistent")
-            elif inventory.carrier is None or inventory.carrier.get(symbol) is None:
-                tooltip = tr("mining.carrier_unknown_help")
-            item.setToolTip(3, tr("mining.carrier_edit_hint") + ("\n" + tooltip if tooltip else ""))
-            self._style_stock(item)
-        self.tree.setSortingEnabled(True)
-        self._apply_filters()
+        with self._table_update():
+            self._inventory = inventory
+            self.tree.setSortingEnabled(False)
+            locale = QLocale(get_language())
+            for symbol, item in self.items.items():
+                for column, count in enumerate(inventory.stock(symbol), 1):
+                    item.setData(column, Qt.ItemDataRole.UserRole, count)
+                    text = locale.toString(count) if count is not None else "—"
+                    item.setText(column, tr("mining.carrier_marked", value=text) if column == 3 else text)
+                    item.setToolTip(column, tr("mining.stock_unknown") if count is None else "")
+                record = inventory.carrier_records.get(symbol)
+                tooltip = ""
+                if record:
+                    stamp = QDateTime.fromString(record.get("confirmed_at", ""), Qt.DateFormat.ISODateWithMs)
+                    time_text = locale.toString(stamp.toLocalTime(), QLocale.FormatType.ShortFormat) if stamp.isValid() else record.get("confirmed_at", "")
+                    tooltip = tr("mining.carrier_confirmed", time=time_text)
+                    if record.get("status") == "tracked":
+                        tooltip += "\n" + tr("mining.carrier_tracked")
+                    elif record.get("status") == "inconsistent":
+                        tooltip += "\n" + tr("mining.carrier_inconsistent")
+                elif inventory.carrier is None or inventory.carrier.get(symbol) is None:
+                    tooltip = tr("mining.carrier_unknown_help")
+                item.setToolTip(3, tr("mining.carrier_edit_hint") + ("\n" + tooltip if tooltip else ""))
+                self._style_stock(item)
+            self.tree.setSortingEnabled(True)
+            self._apply_filters()
+        if hasattr(self, "loading_state"):
+            self.loading_state.finish()
 
     def _edit_carrier(self, item, column):
         if column != 3:
@@ -483,6 +529,7 @@ class MiningView(QWidget):
                            for column in (1, 2, 3))))
             item.setHidden(not matches)
             visible += matches
+        self.carrier_delegate.invalidate_rows()
         self.empty_label.setVisible(visible == 0)
         self.tree.header().resizeSections(QHeaderView.ResizeMode.ResizeToContents)
 

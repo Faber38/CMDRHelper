@@ -38,6 +38,15 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## CMDRHelper v3.9.4
+
+- Pianificatore di rotte migliorato con supporto FSD SCO 7A e corretta gestione di ingegneria, booster Guardian, carico e carburante di riserva.
+- Nuovo assistente per spiegare, integrare e salvare i dati mancanti per nave; i dati automatici confermati hanno la precedenza.
+- Associazione temporale più precisa tra consegne Powerplay e messaggi di meriti entro tre secondi con contesto univoco.
+- Le viste estrazione, Odyssey, materiali e flotta evitano ricostruzioni inutili e riutilizzano gli elementi esistenti.
+- Nuovo aiuto per riordinare Odyssey con 81 candidati predefiniti, selezione personale tra 223 oggetti, colori e ordinamento salvato.
+- Migliorati convalida degli input, messaggi di errore e indicatori di caricamento; testi aggiornati in tutte le dodici lingue.
+
 ## CMDRHelper v3.9.3
 
 - Tre nuove immagini delle stazioni, migliore associazione dei tipi e indicatori delle stazioni planetarie corretti.

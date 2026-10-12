@@ -1,0 +1,71 @@
+{
+  "timestamp": "2026-10-11T14:53:47Z",
+  "event": "Loadout",
+  "Ship": "panthermkii",
+  "ShipID": 44,
+  "ShipName": "Test Panther",
+  "ShipIdent": "TEST-1",
+  "HullValue": 279733043,
+  "ModulesValue": 473695436,
+  "HullHealth": 1.0,
+  "UnladenMass": 1856.099976,
+  "CargoCapacity": 576,
+  "MaxJumpRange": 41.255051,
+  "FuelCapacity": {
+    "Main": 128.0,
+    "Reserve": 1.11
+  },
+  "Rebuy": 37671425,
+  "Modules": [
+    {
+      "Slot": "FrameShiftDrive",
+      "Item": "int_hyperdrive_overcharge_size7_class5",
+      "On": true,
+      "Priority": 0,
+      "Health": 1.0,
+      "Value": 60008262,
+      "Engineering": {
+        "Engineer": "Felicity Farseer",
+        "EngineerID": 300100,
+        "BlueprintID": 128673694,
+        "BlueprintName": "FSD_LongRange",
+        "Level": 5,
+        "Quality": 1.0,
+        "Modifiers": [
+          {
+            "Label": "Mass",
+            "Value": 104.0,
+            "OriginalValue": 80.0,
+            "LessIsGood": 1
+          },
+          {
+            "Label": "Integrity",
+            "Value": 139.400009,
+            "OriginalValue": 164.0,
+            "LessIsGood": 0
+          },
+          {
+            "Label": "PowerDraw",
+            "Value": 1.035,
+            "OriginalValue": 0.9,
+            "LessIsGood": 1
+          },
+          {
+            "Label": "FSDOptimalMass",
+            "Value": 4650.0,
+            "OriginalValue": 3000.0,
+            "LessIsGood": 0
+          }
+        ]
+      }
+    },
+    {
+      "Slot": "Slot06_Size5",
+      "Item": "int_guardianfsdbooster_size5",
+      "On": true,
+      "Priority": 0,
+      "Health": 1.0,
+      "Value": 5510635
+    }
+  ]
+}

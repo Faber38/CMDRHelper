@@ -70,9 +70,11 @@ class MiningMarketController(QObject):
                 signal.connect(self.request)
 
     def set_active(self, active):
+        if active == self._active:
+            return
         self._active = active
         if active:
-            self.request()
+            self.request(preserve=True)
         else:
             self._generation += 1
             self._cancel.set()
@@ -80,12 +82,16 @@ class MiningMarketController(QObject):
             self.timer.stop()
             self.expiry.stop()
 
-    def request(self, *_):
+    def request(self, *_, preserve=False):
         self._generation += 1
         self._cancel.set()
         self.expiry.stop()
-        self._result = MiningPrices(status='loading')
-        self.ready.emit(self._result)  # Clear old commander/age/commit results immediately.
+        # Only reopening an unchanged view may keep usable quotes. Identity,
+        # age and source notifications still invalidate immediately, even hidden.
+        if not preserve:
+            self._result = MiningPrices(status='loading')
+            self.ready.emit(self._result)
+
         self._dirty = True
         if self._active:
             self.timer.start()

@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_4.0': 'Parannettu alusten reittisuunnittelija tukee 7A SCO FSD:tä ja huomioi oikein muokkaukset, Guardian-tehostimet, rahdin ja varapolttoaineen.',
+    'release.3_9_4.1': 'Uusi alustietoavustaja selittää, täydentää ja tallentaa puuttuvat arvot aluskohtaisesti; vahvistetut automaattiset tiedot ovat etusijalla.',
+    'release.3_9_4.2': 'Powerplay-toimitusten ja ansioviestien tarkempi ajallinen yhdistäminen kolmen sekunnin sisällä, kun asiayhteys on yksiselitteinen.',
+    'release.3_9_4.3': 'Louhinta-, Odyssey-, materiaali- ja laivastonäkymät välttävät tarpeettomia uudelleenrakennuksia ja käyttävät olemassa olevia näkymäelementtejä uudelleen.',
+    'release.3_9_4.4': 'Uusi Odyssey-siivousapu sisältää 81 oletusehdokasta, oman valinnan 223 esineestä, värikorostuksen ja tallennetun lajittelun.',
+    'release.3_9_4.5': 'Parannettu syötteiden tarkistus, virheilmoitukset ja latausilmaisimet sekä päivitetyt tekstit kaikilla kahdellatoista kielellä.',
+
     'release.3_9_3.0': 'Kolme uutta asemakuvaa, parannettu tyyppien vastaavuus ja korjatut planeetta-asemien merkinnät.',
     'release.3_9_3.1': 'Vahvistetut Interstellar Factors -palvelut näytetään turkoosina aseman nimen vieressä.',
     'release.3_9_3.2': 'Kuvagalleria latautuu taustalla holografisen latausskannerin kanssa ja estää toistuvien napsautusten aiheuttamat päällekkäiset toiminnot.',
@@ -697,6 +704,8 @@ TRANSLATIONS = {
     'route_planner.ship_loadout_incomplete': "Aluksen tiedot ovat puutteelliset",
     'route_planner.ship_loadout_stale': "Aluksen tiedot ovat vanhentuneet",
     'route_planner.ship_loadout_unknown_fsd': "Tuntematon FSD",
+    'route_planner.ship_loadout_missing_fsd_specs': 'FSD:n tekniset tiedot puuttuvat',
+    'route_planner.ship_loadout_missing_live_data': 'Nykyiset polttoaine- tai lastitiedot puuttuvat',
     'route_planner.ship_error_missing_fields': "Puuttuvat tekniset arvot: {fields}",
     'route_planner.ship_algorithm': "Reititysalgoritmi",
     'route_planner.ship_use_supercharge': "Käytä superchargea/neutronitähtiä",
@@ -1905,4 +1914,72 @@ TRANSLATIONS.update({
     'pp2.system.undermining_help': 'Heikentäminen – toiminta, joka heikentää hallitsevan vallan asemaa tässä järjestelmässä.',
     'pp2.system.control_help': 'Hallinnan edistyminen muuttamattomana lokista. Normalisoitua merkitystä välillä 0–1 ei ole vahvistettu paikallisesti, joten prosenttimuunnosta ei tehdä.',
     'pp2.system.stage_help': 'Ilmoitettu järjestelmän tila: {status}. Palkki antaa suuntaa, ei pakollista etenemisjärjestystä.',
+})
+
+# Ship data assistant
+TRANSLATIONS.update({
+    'route_planner.assistant_open': 'Täydennä puuttuvat arvot',
+    'route_planner.assistant_title': 'Täydennä aluksen tiedot',
+    'route_planner.assistant_identity': 'Komentaja: {commander} ({fid})\nAlus: {ship} · {name}\nShipID: {sid}',
+    'route_planner.assistant_fsd_source': 'Kopioi tarkka FSD-moduulin tunnus ja tarkista EDSY (https://edsy.org). Älä käytä samankaltaista versiota.',
+    'route_planner.assistant_policy': 'Automaattiset arvot ovat etusijalla. Tallennetut arvot säilyvät vertailua varten. Tyhjä kenttä poistaa käsin syötetyn arvon. Lasti ja varapolttoaine ovat voimassa enintään 2 minuuttia tässä alusistunnossa eikä niitä tallenneta pysyvästi.',
+    'route_planner.assistant_automatic': 'Automaattisesti tunnistettu',
+    'route_planner.assistant_manual': 'Käsin tallennettu',
+    'route_planner.assistant_unknown': 'Tuntematon',
+    'route_planner.assistant_help': 'Selitys',
+    'route_planner.assistant_stored': 'Tallennettu vertailuarvo: {value}',
+    'route_planner.assistant_confirm_scope': 'Vahvista nykyiselle kokoonpanolle',
+    'route_planner.assistant_scope': 'Tallennettu kokoonpano poikkeaa nykyisestä. Tarkista ja vahvista ennen käyttöä.',
+    'route_planner.assistant_save': 'Tallenna tälle alukselle',
+    'route_planner.assistant_delete': 'Poista aluksen käsin syötetyt arvot',
+    'route_planner.assistant_identity_error': 'Tallennus vaatii vahvistetut FID- ja ShipID-tunnukset sekä paikalliset asetukset.',
+    'route_planner.assistant_number': 'Anna äärellinen luku desimaalipisteellä tai -pilkulla ilman tuhaterottimia.',
+    'route_planner.assistant_range': 'Sallittu alue: {minimum}, enintään {maximum}.',
+    'route_planner.assistant_reserve': 'Varapolttoaine ei saa ylittää varasäiliön tilavuutta.',
+    'route_planner.assistant_cargo': 'Lasti ei saa ylittää tunnettua lastikapasiteettia.',
+    'route_planner.assistant_context': 'Nykyarvot vaativat vahvistetun aluskontekstin.',
+    'route_planner.assistant_fsd_error': 'FSD-arvot vaativat tarkan moduulitunnuksen.',
+    'route_planner.assistant_changed': 'Alus tai istunto vaihtui. Sulje ja avaa ikkuna uudelleen.',
+    'route_planner.assistant_invalid': 'Korjaa merkityt kentät.',
+    'route_planner.assistant_save_error': 'Tallennus epäonnistui. Syötteet säilyvät ikkunassa.',
+    'route_planner.assistant_delete_confirm': 'Poistetaanko kaikki käsin syötetyt arvot vain tältä alukselta?',
+    'route_planner.assistant_ready': 'Valmis – sisältää käsin tallennettuja arvoja',
+    'route_planner.assistant_incomplete': 'Puutteellinen – sisältää käsin tallennettuja arvoja',
+    'route_planner.assistant_form': 'Lomakkeen käsinsyöttö',
+})
+
+TRANSLATIONS.update({
+    'route_planner.assistant_help_tank_size': 'Pääsäiliön tilavuus tonneina, ei nykyinen täyttömäärä. Lähde: Loadout.FuelCapacity.Main. Määrittää polttoainetilan Spanshille.',
+    'route_planner.assistant_help_cargo': 'Nykyinen aluksen lasti tonneina, ei lastikapasiteetti. Lähde: vahvistettu Cargo/Status. Spansh huomioi lisämassan; tuntematon ei ole nolla.',
+    'route_planner.assistant_help_base_mass': 'Perusmassa tonneina: Loadout.UnladenMass sekä varasäiliön tilavuus nykyisen Spansh-käytännön mukaan. Älä lisää lastia tai pääpolttoainetta uudelleen.',
+    'route_planner.assistant_help_internal_tank_size': 'Varasäiliön tilavuus tonneina kentästä Loadout.FuelCapacity.Reserve. Spansh tarvitsee säiliön koon, ei nykyistä täyttömäärää.',
+    'route_planner.assistant_help_reserve_size': 'Nykyinen varapolttoaine tonneina kentästä Status.Fuel.FuelReservoir. Määrittää Spanshin polttoainetilan; ei automaattisesti sama kuin tilavuus.',
+    'route_planner.assistant_help_optimal_mass': 'FSD:n optimimassa tonneina hyppykaavaa varten. Käytä lopullista FSDOptimalMass.Value-arvoa tai tarkkaa EDSY-versiota. Älä lisää muokkausbonusta kahdesti.',
+    'route_planner.assistant_help_max_fuel_per_jump': 'FSD:n enimmäiskulutus per hyppy tonneina: MaxFuelPerJump.Value tai tarkka EDSY-versio. Älä syötä hyppykantamaa valovuosina.',
+    'route_planner.assistant_help_fuel_power': 'FSD-polttoainekaavan yksikötön eksponentti. Käytä tarkan EDSY-version fuelpower-arvoa, ei sähkötehoa tai polttoainemäärää.',
+    'route_planner.assistant_help_fuel_multiplier': 'FSD-kaavan kerroin EDSY:n fuelmul-desimaaliasteikolla. Käytä suoraan ilman prosentti- tai tuhatkertaista muunnosta.',
+    'route_planner.assistant_help_range_boost': 'Ylimääräinen hyppybonus valovuosina, esimerkiksi aktiivisesta Guardian-tehostimesta. Lähde: tehostinluettelo. Ei kokonaiskantama; nolla vain vahvistetulle bonuksettomuudelle.',
+})
+
+TRANSLATIONS.update({
+    'odyssey.cleanup.manage': 'Hallitse siivouslistaa',
+    'odyssey.cleanup.marked': 'Merkityt',
+    'odyssey.cleanup.unmarked': 'Merkitsemättömät',
+    'odyssey.cleanup.count': '{count}/{total} esinettä merkitty',
+    'odyssey.cleanup.reset': 'Palauta oletukset',
+    'odyssey.cleanup.confirm': 'Korvataanko koko valinta Helperin oletusvalinnalla? Muutokset tulevat voimaan vasta tallennettaessa.',
+    'odyssey.cleanup.personal': 'Merkitty henkilökohtaiselle siivouslistallesi.',
+    'odyssey.cleanup.no_use': 'Ei tunnettua käyttöä pukujen tai aseiden parannuksiin.',
+    'odyssey.cleanup.save_error': 'Siivouslistaa ei voitu tallentaa.',
+    'odyssey.cleanup.chemicals': 'Kemikaalit',
+    'odyssey.cleanup.circuits': 'Virtapiirit',
+    'odyssey.cleanup.tech': 'Teknologia',
+})
+
+TRANSLATIONS.update({
+    'odyssey.cleanup.legend': 'Siivousehdokas',
+    'odyssey.cleanup.legend_tip': 'Näillä esineillä ei ole tunnettua käyttöä pukujen tai aseiden parannuksiin, ja ne voi yleensä myydä baarimikolle baarissa.\n\nItse merkitsemilläsi esineillä voi olla muita käyttötarkoituksia.',
+    'odyssey.sort.label': 'Lajittelu',
+    'odyssey.sort.cleanup': 'Siivouslista',
+    'odyssey.sort.alphabetical': 'Aakkosjärjestys',
 })

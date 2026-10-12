@@ -4,7 +4,7 @@ from unittest.mock import patch
 from PySide6.QtWidgets import QMessageBox
 import unittest
 from tests import test_powerplay_store as store
-from tests.test_powerplay_store import DAY, delivery, credit
+from tests.test_powerplay_store import DAY, delivery, credit, event
 from tests import test_powerplay as base
 
 
@@ -19,7 +19,9 @@ class HistoryViewTests(unittest.TestCase):
         self.today=clock.start();self.addCleanup(clock.stop)
         self.state=base.ViewState()
         self.state.database=self.db
-        self.session=self.journal([delivery(),credit(0,48,12831)])
+        self.session=self.journal([event('Powerplay', Power='Nakato Kaine', Merits=12783),
+                                   event('Docked', StarSystem='HIP 70049', StationName='Mille Enterprise'),
+                                   delivery(),credit(0,48,12831)])
         self.sync(self.session)
         self.state.commander_id=self.session['commander_id']
         self.state.commander='Test A'

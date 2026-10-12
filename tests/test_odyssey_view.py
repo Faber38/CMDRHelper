@@ -73,6 +73,25 @@ class OdysseyViewTests(unittest.TestCase):
     def select_filter(self, key):
         self.view.filter.setCurrentIndex(self.view.filter.findData(key))
 
+    def test_loading_overlay_tracks_completion_error_and_navigation(self):
+        self.controller.loading.emit()
+        self.controller.loading.emit()
+        QTest.qWait(180)
+        self.assertTrue(self.view.loading_state.isVisible())
+        self.page.tabs.setCurrentIndex(0)
+        self.assertFalse(self.view.loading_state.scanner.timer.isActive())
+        self.set_inventory(inventory(pair(), cid=2))
+        self.page.tabs.setCurrentIndex(3)
+        self.assertFalse(self.view.loading_state.isVisible())
+        self.assertEqual(self.view.inventory.commander_id, 2)
+        self.controller.loading.emit()
+        failed = OdysseyInventory(3, 'F3')
+        failed.issues.append('unreadable journal')
+        self.controller.ready.emit(failed, 'C')
+        self.assertFalse(self.view.loading_state.pending)
+        self.assertIn('unreadable journal', self.view.loading_state.message.text())
+        self.assertFalse(self.view.loading_state.scanner.timer.isActive())
+
     def test_four_main_tabs_gold_and_four_flat_categories(self):
         self.assertEqual(self.page.tabs.count(), 5)
         self.assertEqual(self.page.tabs.tabText(3), 'Odyssey')
@@ -208,6 +227,9 @@ class OdysseyViewTests(unittest.TestCase):
                     self.assertEqual(selected.palette.color(QPalette.ColorRole.Text).name(), THEMES[light]['selected_text'])
 
     def test_zero_and_unknown_stock_keep_normal_text_and_tooltips(self):
+        # Exercise the original unmarked presentation explicitly.
+        from cmdrhelper.ui.odyssey_cleanup import save_selection
+        save_selection(self.state.settings, self.view._cleanup_key, set())
         for inv, expected in ((inventory([snapshot('ShipLocker'), snapshot('Backpack')]), '0'),
                               (OdysseyInventory(1, 'F1'), '—')):
             self.set_inventory(inv)
@@ -341,6 +363,9 @@ class OdysseyViewTests(unittest.TestCase):
         self.assertEqual(self.state.settings.value('materials/odyssey/columns')['order'],[0,2,3,1,4,5])
 
     def test_five_colors_selection_live_hover_dark_light(self):
+        from cmdrhelper.ui.odyssey_cleanup import save_selection
+        save_selection(self.state.settings, self.view._cleanup_key, set())
+        self.set_inventory(self.view.inventory)
         for light in (False, True):
             self.app.setStyleSheet(LIGHT_STYLESHEET if light else DARK_STYLESHEET)
             self.page.set_light_mode(light)
@@ -367,7 +392,7 @@ class OdysseyViewTests(unittest.TestCase):
 
     def test_english_fallback_and_all_ui_languages(self):
         keys = {k for k in _TRANSLATIONS['en'] if k.startswith('odyssey.')}
-        self.assertEqual(len(keys), 60)
+        self.assertEqual(len(keys), 77)
         for lang, translations in _TRANSLATIONS.items():
             self.assertTrue(all(translations.get(k) for k in keys), lang)
         set_language('fi')

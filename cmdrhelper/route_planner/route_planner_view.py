@@ -4,11 +4,12 @@ import csv
 import re
 from pathlib import Path
 
-from PySide6.QtCore import QSignalBlocker, QThreadPool
+from PySide6.QtCore import QSignalBlocker, QThreadPool, QTimer
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
     QDoubleSpinBox,
+    QDialog,
     QFileDialog,
     QApplication,
     QFormLayout,
@@ -31,6 +32,7 @@ from cmdrhelper.i18n import tr
 from .ctsvision_csv import export_ctsvision_csv
 from .fsd_specs import derive_ship_route_technical_data
 from .models import CarrierRouteRequest, ShipRouteRequest
+from .manual_ship_data import ManualShipData, LIVE, identity, configuration, live_binding
 from .ship_route_controller import ShipRouteController
 from .spansh_galaxy_client import ALGORITHMS
 from .workers import CarrierRouteWorker, ShipRouteWorker
@@ -42,6 +44,14 @@ class RoutePlannerView(QWidget):
     def __init__(self, state=None, parent=None):
         super().__init__(parent)
         self.state = state
+        self._manual_ship_data = getattr(state, '_ship_route_manual_data', None)
+        if not isinstance(self._manual_ship_data, ManualShipData):
+            self._manual_ship_data = ManualShipData(getattr(state, 'settings', None))
+            if state is not None:
+                state._ship_route_manual_data = self._manual_ship_data
+        self._manual_ship_identity = None
+        self._manual_live_binding = None
+        self._manual_live_active = False
         self._thread_pool = QThreadPool.globalInstance()
         self._carrier_worker = None
         self._carrier_route = None
@@ -79,6 +89,10 @@ class RoutePlannerView(QWidget):
         if self.state is not None and hasattr(self.state, "shipRouteInputsChanged"):
             self.state.shipRouteInputsChanged.connect(self._ship_route_inputs_changed)
         self._apply_ship_loadout_inputs()
+        self._manual_input_timer = QTimer(self)
+        self._manual_input_timer.setInterval(1000)
+        self._manual_input_timer.timeout.connect(self._refresh_manual_live_inputs)
+        self._manual_input_timer.start()
         self._ship_controller.handle_position(
             getattr(self.state, "system", "") if self.state else "",
             getattr(self.state, "system_address", None) if self.state else None,
@@ -197,6 +211,7 @@ class RoutePlannerView(QWidget):
             "range_boost": "route_planner.ship_range_boost",
         }
         self._ship_manual_overrides = set()
+        self._ship_auto_values = {}
         self._ship_field_has_value = {
             name: False for name in self._ship_auto_fields
         }
@@ -258,6 +273,9 @@ class RoutePlannerView(QWidget):
         )
         self.ship_loadout_status = QLabel("", objectName="muted")
         loadout_row.addWidget(self.ship_apply_loadout_button)
+        self.ship_complete_data_button = QPushButton(tr('route_planner.assistant_open'))
+        self.ship_complete_data_button.clicked.connect(self._complete_ship_data)
+        loadout_row.addWidget(self.ship_complete_data_button)
         loadout_row.addWidget(self.ship_loadout_status)
         loadout_row.addStretch()
         input_layout.addLayout(loadout_row)
@@ -318,6 +336,7 @@ class RoutePlannerView(QWidget):
 
     def _ship_field_edited(self, field_name):
         field = self._ship_auto_fields[field_name]
+        field.setToolTip(tr('route_planner.assistant_form'))
         self._ship_manual_overrides.add(field_name)
         self._ship_field_has_value[field_name] = field.value() != field.minimum()
 
@@ -331,32 +350,76 @@ class RoutePlannerView(QWidget):
         self._ship_manual_overrides.clear()
         self._apply_ship_loadout_inputs()
 
+    def _complete_ship_data(self):
+        if getattr(self.state, 'ship_loadout', None) is None:
+            return
+        from .ship_data_dialog import ShipDataDialog
+        dialog = ShipDataDialog(self.state, self._manual_ship_data, self)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            self._reset_ship_input_overrides()
+
+    def _refresh_manual_live_inputs(self):
+        if self._manual_ship_data.live or self._manual_live_active:
+            self._apply_ship_loadout_inputs(LIVE)
+
     def _apply_ship_loadout_inputs(self, field_names=None):
         loadout = getattr(self.state, "ship_loadout", None) if self.state else None
         if loadout is None or not hasattr(self, "_ship_auto_fields"):
             return
 
         technical = derive_ship_route_technical_data(loadout)
+        current_identity = (identity(self.state), configuration(self.state))
+        binding = live_binding(self.state)
+        if current_identity != self._manual_ship_identity:
+            self._ship_manual_overrides.clear()
+            self._manual_ship_identity = current_identity
+            field_names = None
+        elif binding != self._manual_live_binding:
+            self._ship_manual_overrides.difference_update(LIVE)
+        self._manual_live_binding = binding
+        values, sources, records = self._manual_ship_data.resolve(self.state)
+        self._manual_live_active = any(sources[name] == 'manual' for name in LIVE)
         selected = set(field_names or self._ship_auto_fields)
         for name, field in self._ship_auto_fields.items():
             if name not in selected or name in self._ship_manual_overrides:
                 continue
-            value = getattr(technical, name)
+            value = values[name]
+            tooltip = tr('route_planner.assistant_' + sources[name])
+            if name in records:
+                tooltip += '\n' + tr('route_planner.assistant_stored', value=records[name]['value'])
+            field.setToolTip(tooltip)
+            self._ship_auto_values[name] = value
             with QSignalBlocker(field):
                 field.setValue(field.minimum() if value is None else value)
             self._ship_field_has_value[name] = value is not None
         self._update_ship_loadout_status(technical)
+        if any(source == 'manual' for source in sources.values()):
+            key = 'ready' if all(value is not None for value in values.values()) else 'incomplete'
+            self.ship_loadout_status.setText(tr('route_planner.assistant_' + key))
 
     def _update_ship_loadout_status(self, technical):
+        item = getattr(getattr(self.state, 'ship_loadout', None), 'fsd_item', None)
+        self.ship_loadout_status.setToolTip(item or '')
+        self.ship_loadout_status.setWordWrap(True)
         if technical.stale:
             key = "route_planner.ship_loadout_stale"
         elif technical.unknown_fsd:
-            key = "route_planner.ship_loadout_unknown_fsd"
+            key = ("route_planner.ship_loadout_missing_fsd_specs" if item
+                   else "route_planner.ship_loadout_unknown_fsd")
         elif technical.complete:
             key = "route_planner.ship_loadout_complete"
+        elif technical.missing_fields and set(technical.missing_fields) <= {"cargo", "reserve_size"}:
+            key = "route_planner.ship_loadout_missing_live_data"
         else:
             key = "route_planner.ship_loadout_incomplete"
         self.ship_loadout_status.setText(tr(key))
+
+    def _ship_input_value(self, name):
+        # Keep full Journal precision for automatic values; the spinbox only
+        # displays four decimals. Explicit manual values come from the widget.
+        if name in self._ship_manual_overrides:
+            return self._ship_auto_fields[name].value()
+        return self._ship_auto_values.get(name)
 
     def _missing_ship_input_fields(self):
         return [
@@ -365,6 +428,7 @@ class RoutePlannerView(QWidget):
         ]
 
     def _calculate_ship_route(self):
+        self._refresh_manual_live_inputs()
         source = self.ship_start_system.text().strip()
         destination = self.ship_destination_system.text().strip()
         if not source:
@@ -412,16 +476,7 @@ class RoutePlannerView(QWidget):
             exclude_secondary=self.ship_exclude_secondary.isChecked(),
             refuel_every_scoopable=self.ship_refuel_scoopable.isChecked(),
             algorithm=self.ship_algorithm.currentData(),
-            tank_size=self.ship_tank_size.value(),
-            cargo=self.ship_cargo.value(),
-            optimal_mass=self.ship_optimal_mass.value(),
-            base_mass=self.ship_base_mass.value(),
-            internal_tank_size=self.ship_internal_tank.value(),
-            max_fuel_per_jump=self.ship_max_fuel.value(),
-            range_boost=self.ship_range_boost.value(),
-            fuel_power=self.ship_fuel_power.value(),
-            fuel_multiplier=self.ship_fuel_multiplier.value(),
-            reserve_size=self.ship_reserve_size.value(),
+            **{name: self._ship_input_value(name) for name in self._ship_auto_fields},
         )
         self._ship_generation += 1
         generation = self._ship_generation

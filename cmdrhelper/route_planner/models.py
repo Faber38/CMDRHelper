@@ -93,7 +93,7 @@ class ShipRouteRequest:
             self.fuel_power, self.fuel_multiplier, self.reserve_size,
             self.supercharge_multiplier, self.injection_multiplier,
         )
-        if any(not math.isfinite(value) for value in values):
+        if any(type(value) not in (int, float) or not math.isfinite(value) for value in values):
             return "technical_values"
         positive = (
             self.tank_size, self.optimal_mass, self.base_mass,
@@ -104,7 +104,7 @@ class ShipRouteRequest:
             return "positive_values"
         if any(value < 0 for value in (
             self.cargo, self.internal_tank_size, self.range_boost, self.reserve_size
-        )) or self.max_time <= 0:
+        )) or type(self.max_time) is not int or self.max_time <= 0:
             return "technical_values"
         if self.reserve_size > self.internal_tank_size:
             return "reserve"

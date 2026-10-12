@@ -186,7 +186,7 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(groups[0].certainty,'unknown')
         self.assertEqual(groups[1].certainty,'temporal')
         delivered=next(g for g in groups if g.action['event']=='PowerplayDeliver')
-        self.assertEqual(delivered.certainty,'explicit')
+        self.assertEqual(delivered.certainty,'temporal')
         self.assertEqual([e['MeritsGained'] for e in delivered.credits],[3600,48])
         self.assertEqual(self.db.powerplay_merits(s['commander_id']),13233)
 
@@ -214,7 +214,7 @@ class StoreTests(unittest.TestCase):
         self.assertEqual([c['MeritsGained'] for c in sale.credits],[3600,10])
         self.assertEqual([c['TotalMerits'] for c in sale.credits],[9163,9173])
         self.assertEqual(len(groups),22)
-        self.assertEqual(Counter(g.certainty for g in groups),dict(temporal=17,explicit=2,unknown=3))
+        self.assertEqual(Counter(g.certainty for g in groups),dict(temporal=18,explicit=1,unknown=3))
         self.assertEqual([g.action['timestamp'] for g in groups],sorted([g.action['timestamp'] for g in groups],reverse=True))
         bounties = {g.action['PilotName_Localised']:(g.action['TotalReward'],g.credits[0]['MeritsGained'],g.system) for g in groups if g.action['event']=='Bounty'}
         for pilot,reward,gain in [('Jim Bell',453097,60),('Andreas Martin Clemenz',163361,21),('Jock Ripper',360818,48),('Flavio Antonietti',134247,17),('Theia Claw',279561,37),('Tiddlywinks',603200,80)]:

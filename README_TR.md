@@ -39,6 +39,15 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.4
+
+- 7A SCO FSD desteği ve mühendislik, Guardian güçlendiricileri, kargo ve yedek yakıtın doğru kullanımıyla geliştirilmiş gemi rota planlayıcısı.
+- Yeni gemi verisi asistanı eksik değerleri açıklar, tamamlar ve gemiye özel kaydeder; doğrulanmış otomatik veriler önceliklidir.
+- Bağlam açık olduğunda Powerplay teslimatlarıyla üç saniye içindeki liyakat mesajları arasında daha hassas zamansal eşleştirme.
+- Madencilik, Odyssey, malzeme ve filo görünümleri gereksiz yeniden oluşturmalardan kaçınır ve mevcut görüntüleme öğelerini yeniden kullanır.
+- 81 varsayılan aday, 223 öğeden kişisel seçim, renkli işaretleme ve kaydedilen sıralamayla yeni Odyssey temizleme yardımcısı.
+- Geliştirilmiş girdi doğrulama, hata mesajları ve yükleme göstergeleri; on iki dilin tamamında güncellenmiş metinler.
+
 ## CMDRHelper v3.9.3
 
 - Üç yeni istasyon görseli, iyileştirilmiş tür eşleştirmesi ve düzeltilmiş gezegen istasyonu işaretleri.

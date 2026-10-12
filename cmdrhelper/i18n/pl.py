@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_4.0': 'Ulepszony planer tras z obsługą FSD SCO 7A oraz poprawnym uwzględnianiem modyfikacji, wzmacniaczy Guardian, ładunku i paliwa rezerwowego.',
+    'release.3_9_4.1': 'Nowy asystent danych statku wyjaśnia, uzupełnia i zapisuje brakujące wartości dla każdego statku; potwierdzone dane automatyczne mają pierwszeństwo.',
+    'release.3_9_4.2': 'Dokładniejsze powiązanie czasowe dostaw Powerplay z komunikatami o zasługach w ciągu trzech sekund przy jednoznacznym kontekście.',
+    'release.3_9_4.3': 'Widoki górnictwa, Odyssey, materiałów i floty unikają zbędnego przebudowywania i ponownie wykorzystują istniejące elementy.',
+    'release.3_9_4.4': 'Nowa pomoc w porządkowaniu Odyssey: 81 domyślnych kandydatów, własny wybór spośród 223 przedmiotów, oznaczenia kolorami i zapamiętane sortowanie.',
+    'release.3_9_4.5': 'Ulepszona walidacja danych, komunikaty błędów i wskaźniki ładowania oraz zaktualizowane teksty we wszystkich dwunastu językach.',
+
     'release.3_9_3.0': 'Trzy nowe obrazy stacji, lepsze przypisywanie typów i poprawione oznaczenia stacji planetarnych.',
     'release.3_9_3.1': 'Potwierdzone usługi Interstellar Factors są wyświetlane na turkusowo obok nazwy stacji.',
     'release.3_9_3.2': 'Galeria obrazów ładuje się w tle z holograficznym skanerem ładowania i ochroną przed wielokrotnym klikaniem.',
@@ -697,6 +704,8 @@ TRANSLATIONS = {
     'route_planner.ship_loadout_incomplete': "Dane statku są niekompletne",
     'route_planner.ship_loadout_stale': "Dane statku są nieaktualne",
     'route_planner.ship_loadout_unknown_fsd': "Nieznany FSD",
+    'route_planner.ship_loadout_missing_fsd_specs': 'Brak danych technicznych FSD',
+    'route_planner.ship_loadout_missing_live_data': 'Brak aktualnych danych o paliwie lub ładunku',
     'route_planner.ship_error_missing_fields': "Brakujące wartości techniczne: {fields}",
     'route_planner.ship_algorithm': "Algorytm trasy",
     'route_planner.ship_use_supercharge': "Używaj doładowania/gwiazd neutronowych",
@@ -1905,4 +1914,72 @@ TRANSLATIONS.update({
     'pp2.system.undermining_help': 'Osłabianie – działania osłabiające pozycję potęgi kontrolującej ten system.',
     'pp2.system.control_help': 'Niezmieniony postęp kontroli z dziennika. Nie ustalono lokalnie znormalizowanego znaczenia od 0 do 1; nie stosuje się przeliczenia na procenty.',
     'pp2.system.stage_help': 'Zgłoszony stan systemu: {status}. Pasek służy orientacji, nie określa obowiązkowej kolejności.',
+})
+
+# Ship data assistant
+TRANSLATIONS.update({
+    'route_planner.assistant_open': 'Uzupełnij brakujące wartości',
+    'route_planner.assistant_title': 'Uzupełnij dane statku',
+    'route_planner.assistant_identity': 'Dowódca: {commander} ({fid})\nStatek: {ship} · {name}\nShipID: {sid}',
+    'route_planner.assistant_fsd_source': 'Skopiuj dokładny identyfikator modułu FSD i sprawdź EDSY (https://edsy.org). Nie używaj podobnego wariantu.',
+    'route_planner.assistant_policy': 'Dane automatyczne mają pierwszeństwo. Zapisane wartości pozostają do porównania. Puste pole usuwa wartość ręczną. Ładunek i paliwo rezerwowe obowiązują najwyżej 2 minuty w tej sesji statku i nie są zapisywane trwale.',
+    'route_planner.assistant_automatic': 'Wykryto automatycznie',
+    'route_planner.assistant_manual': 'Zapisano ręcznie',
+    'route_planner.assistant_unknown': 'Nieznane',
+    'route_planner.assistant_help': 'Wyjaśnienie',
+    'route_planner.assistant_stored': 'Zapisana wartość porównawcza: {value}',
+    'route_planner.assistant_confirm_scope': 'Potwierdź dla bieżącej konfiguracji',
+    'route_planner.assistant_scope': 'Zapisana konfiguracja jest inna. Sprawdź i potwierdź przed ponownym użyciem.',
+    'route_planner.assistant_save': 'Zapisz dla tego statku',
+    'route_planner.assistant_delete': 'Usuń ręczne wartości statku',
+    'route_planner.assistant_identity_error': 'Zapis wymaga potwierdzonych FID, ShipID i ustawień lokalnych.',
+    'route_planner.assistant_number': 'Podaj skończoną liczbę z kropką lub przecinkiem dziesiętnym, bez separatorów tysięcy.',
+    'route_planner.assistant_range': 'Dozwolony zakres: {minimum}, najwyżej {maximum}.',
+    'route_planner.assistant_reserve': 'Paliwo rezerwowe nie może przekraczać pojemności zbiornika rezerwowego.',
+    'route_planner.assistant_cargo': 'Ładunek nie może przekraczać znanej ładowności.',
+    'route_planner.assistant_context': 'Bieżące wartości wymagają potwierdzonego kontekstu statku.',
+    'route_planner.assistant_fsd_error': 'Wartości FSD wymagają dokładnego identyfikatora modułu.',
+    'route_planner.assistant_changed': 'Statek lub sesja się zmieniły. Zamknij i otwórz okno ponownie.',
+    'route_planner.assistant_invalid': 'Popraw zaznaczone pola.',
+    'route_planner.assistant_save_error': 'Zapis nie powiódł się. Wprowadzone dane pozostają w oknie.',
+    'route_planner.assistant_delete_confirm': 'Usunąć wszystkie ręczne wartości tylko dla tego statku?',
+    'route_planner.assistant_ready': 'Gotowe – zawiera wartości ręczne',
+    'route_planner.assistant_incomplete': 'Niekompletne – zawiera wartości ręczne',
+    'route_planner.assistant_form': 'Ręczny wpis formularza',
+})
+
+TRANSLATIONS.update({
+    'route_planner.assistant_help_tank_size': 'Pojemność głównego zbiornika w t, nie aktualny poziom. Źródło: Loadout.FuelCapacity.Main. Określa przestrzeń paliwową dla Spansh.',
+    'route_planner.assistant_help_cargo': 'Aktualny ładunek w t, nie ładowność. Źródło: potwierdzone dane Cargo/Status. Spansh uwzględnia tę masę; nieznane nie oznacza zera.',
+    'route_planner.assistant_help_base_mass': 'Masa bazowa w t: Loadout.UnladenMass plus pojemność rezerwy zgodnie z istniejącą konwencją Spansh. Nie dodawaj ponownie ładunku ani paliwa głównego.',
+    'route_planner.assistant_help_internal_tank_size': 'Pojemność zbiornika rezerwowego w t z Loadout.FuelCapacity.Reserve. Spansh potrzebuje wielkości zbiornika, nie aktualnego poziomu.',
+    'route_planner.assistant_help_reserve_size': 'Aktualne paliwo rezerwowe w t z Status.Fuel.FuelReservoir. Określa stan paliwa dla Spansh; nie jest automatycznie równe pojemności.',
+    'route_planner.assistant_help_optimal_mass': 'Optymalna masa FSD w t do wzoru zasięgu. Preferuj końcowe FSDOptimalMass.Value, inaczej dokładny wariant EDSY. Nie stosuj ulepszeń dwukrotnie.',
+    'route_planner.assistant_help_max_fuel_per_jump': 'Maksymalne zużycie FSD na skok w t: MaxFuelPerJump.Value lub dokładny wariant EDSY. Nie wpisuj zasięgu skoku w ly.',
+    'route_planner.assistant_help_fuel_power': 'Bezwymiarowy wykładnik wzoru paliwowego FSD. Użyj fuelpower dokładnego wariantu EDSY, nie poboru prądu ani ilości paliwa.',
+    'route_planner.assistant_help_fuel_multiplier': 'Współczynnik wzoru FSD w skali dziesiętnej EDSY fuelmul. Użyj bezpośrednio, bez przeliczania procentów ani mnożenia przez tysiąc.',
+    'route_planner.assistant_help_range_boost': 'Dodatkowy zasięg skoku w ly, np. z aktywnego wzmacniacza Guardian. Źródło: katalog wzmacniaczy. Nie całkowity zasięg; zero tylko przy potwierdzonym braku bonusu.',
+})
+
+TRANSLATIONS.update({
+    'odyssey.cleanup.manage': 'Zarządzaj listą porządkową',
+    'odyssey.cleanup.marked': 'Zaznaczone',
+    'odyssey.cleanup.unmarked': 'Niezaznaczone',
+    'odyssey.cleanup.count': 'Zaznaczono {count} z {total} przedmiotów',
+    'odyssey.cleanup.reset': 'Przywróć domyślne',
+    'odyssey.cleanup.confirm': 'Zastąpić cały wybór domyślnym wyborem Helpera? Zmiany zostaną zastosowane dopiero po zapisaniu.',
+    'odyssey.cleanup.personal': 'Zaznaczono na Twojej osobistej liście porządkowej.',
+    'odyssey.cleanup.no_use': 'Brak znanego zastosowania do ulepszania kombinezonów lub broni.',
+    'odyssey.cleanup.save_error': 'Nie udało się zapisać listy porządkowej.',
+    'odyssey.cleanup.chemicals': 'Chemikalia',
+    'odyssey.cleanup.circuits': 'Obwody',
+    'odyssey.cleanup.tech': 'Technologia',
+})
+
+TRANSLATIONS.update({
+    'odyssey.cleanup.legend': 'Kandydat do porządkowania',
+    'odyssey.cleanup.legend_tip': 'Te przedmioty nie mają znanego zastosowania do ulepszania kombinezonów lub broni i zazwyczaj można je sprzedać barmanowi w barze.\n\nPrzedmioty zaznaczone samodzielnie mogą mieć inne zastosowania.',
+    'odyssey.sort.label': 'Sortowanie',
+    'odyssey.sort.cleanup': 'Lista porządkowa',
+    'odyssey.sort.alphabetical': 'Alfabetycznie',
 })

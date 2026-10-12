@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_4.0': '7A SCO FSD desteği ve mühendislik, Guardian güçlendiricileri, kargo ve yedek yakıtın doğru kullanımıyla geliştirilmiş gemi rota planlayıcısı.',
+    'release.3_9_4.1': 'Yeni gemi verisi asistanı eksik değerleri açıklar, tamamlar ve gemiye özel kaydeder; doğrulanmış otomatik veriler önceliklidir.',
+    'release.3_9_4.2': 'Bağlam açık olduğunda Powerplay teslimatlarıyla üç saniye içindeki liyakat mesajları arasında daha hassas zamansal eşleştirme.',
+    'release.3_9_4.3': 'Madencilik, Odyssey, malzeme ve filo görünümleri gereksiz yeniden oluşturmalardan kaçınır ve mevcut görüntüleme öğelerini yeniden kullanır.',
+    'release.3_9_4.4': '81 varsayılan aday, 223 öğeden kişisel seçim, renkli işaretleme ve kaydedilen sıralamayla yeni Odyssey temizleme yardımcısı.',
+    'release.3_9_4.5': 'Geliştirilmiş girdi doğrulama, hata mesajları ve yükleme göstergeleri; on iki dilin tamamında güncellenmiş metinler.',
+
     'release.3_9_3.0': 'Üç yeni istasyon görseli, iyileştirilmiş tür eşleştirmesi ve düzeltilmiş gezegen istasyonu işaretleri.',
     'release.3_9_3.1': 'Doğrulanmış Interstellar Factors hizmetleri istasyon adının yanında turkuaz renkte gösterilir.',
     'release.3_9_3.2': 'Görsel galerisi holografik yükleme tarayıcısı ve tekrarlanan tıklamalara karşı koruma ile arka planda yüklenir.',
@@ -697,6 +704,8 @@ TRANSLATIONS = {
     'route_planner.ship_loadout_incomplete': "Gemi verileri eksik",
     'route_planner.ship_loadout_stale': "Gemi verileri güncel değil",
     'route_planner.ship_loadout_unknown_fsd': "Bilinmeyen FSD",
+    'route_planner.ship_loadout_missing_fsd_specs': 'FSD teknik verileri eksik',
+    'route_planner.ship_loadout_missing_live_data': 'Güncel yakıt veya kargo verileri eksik',
     'route_planner.ship_error_missing_fields': "Eksik teknik değerler: {fields}",
     'route_planner.ship_algorithm': "Rota algoritması",
     'route_planner.ship_use_supercharge': "Süperşarj/nötron yıldızlarını kullan",
@@ -1905,4 +1914,72 @@ TRANSLATIONS.update({
     'pp2.system.undermining_help': 'Zayıflatma – bu sistemde kontrol eden gücün konumunu zayıflatan etkinlikler.',
     'pp2.system.control_help': 'Günlükten değiştirilmeden alınan kontrol ilerlemesi. Yerel olarak 0–1 aralığına normalize edilmiş bir anlam doğrulanmamıştır; yüzdeye dönüştürülmez.',
     'pp2.system.stage_help': 'Bildirilen sistem durumu: {status}. Şerit yol gösterir, zorunlu bir sıra belirtmez.',
+})
+
+# Ship data assistant
+TRANSLATIONS.update({
+    'route_planner.assistant_open': 'Eksik değerleri tamamla',
+    'route_planner.assistant_title': 'Gemi verilerini tamamla',
+    'route_planner.assistant_identity': 'Komutan: {commander} ({fid})\nGemi: {ship} · {name}\nShipID: {sid}',
+    'route_planner.assistant_fsd_source': 'Tam FSD modül kimliğini kopyalayıp EDSY (https://edsy.org) ile doğrulayın. Benzer bir varyant kullanmayın.',
+    'route_planner.assistant_policy': 'Otomatik değerler önceliklidir. Kaydedilen değerler karşılaştırma için korunur. Boş alan ilgili elle girilen değeri siler. Kargo ve yedek yakıt bu gemi oturumunda en fazla 2 dakika geçerlidir ve kalıcı kaydedilmez.',
+    'route_planner.assistant_automatic': 'Otomatik algılandı',
+    'route_planner.assistant_manual': 'Elle kaydedildi',
+    'route_planner.assistant_unknown': 'Bilinmiyor',
+    'route_planner.assistant_help': 'Açıklama',
+    'route_planner.assistant_stored': 'Kaydedilmiş karşılaştırma değeri: {value}',
+    'route_planner.assistant_confirm_scope': 'Geçerli yapılandırma için onayla',
+    'route_planner.assistant_scope': 'Kaydedilmiş yapılandırma farklı. Yeniden kullanmadan önce kontrol edip onaylayın.',
+    'route_planner.assistant_save': 'Bu gemi için kaydet',
+    'route_planner.assistant_delete': 'Elle girilen gemi değerlerini sil',
+    'route_planner.assistant_identity_error': 'Kayıt için doğrulanmış FID, ShipID ve yerel ayarlar gerekir.',
+    'route_planner.assistant_number': 'Ondalık nokta veya virgül içeren sonlu bir sayı girin; binlik ayırıcı kullanmayın.',
+    'route_planner.assistant_range': 'İzin verilen aralık: {minimum}, en fazla {maximum}.',
+    'route_planner.assistant_reserve': 'Yedek yakıt, yedek depo kapasitesini aşamaz.',
+    'route_planner.assistant_cargo': 'Kargo, bilinen kargo kapasitesini aşamaz.',
+    'route_planner.assistant_context': 'Güncel değerler için doğrulanmış gemi bağlamı gerekir.',
+    'route_planner.assistant_fsd_error': 'FSD değerleri için tam modül kimliği gerekir.',
+    'route_planner.assistant_changed': 'Gemi veya oturum değişti. Pencereyi kapatıp yeniden açın.',
+    'route_planner.assistant_invalid': 'İşaretli alanları düzeltin.',
+    'route_planner.assistant_save_error': 'Kayıt başarısız. Girdileriniz pencerede korunuyor.',
+    'route_planner.assistant_delete_confirm': 'Yalnızca bu geminin elle girilen tüm değerleri silinsin mi?',
+    'route_planner.assistant_ready': 'Hazır – elle girilen değerler içerir',
+    'route_planner.assistant_incomplete': 'Eksik – elle girilen değerler içerir',
+    'route_planner.assistant_form': 'Formda elle girilen değer',
+})
+
+TRANSLATIONS.update({
+    'route_planner.assistant_help_tank_size': 'Ana depo kapasitesi, t cinsinden; güncel doluluk değildir. Kaynak: Loadout.FuelCapacity.Main. Spansh için yakıt alanını belirler.',
+    'route_planner.assistant_help_cargo': 'Güncel gemi kargosu, t cinsinden; kapasite değildir. Kaynak: doğrulanmış Cargo/Status. Spansh bu ek kütleyi kullanır; bilinmeyen sıfır değildir.',
+    'route_planner.assistant_help_base_mass': 'Temel kütle, t cinsinden: mevcut Spansh kuralına göre Loadout.UnladenMass artı yedek depo kapasitesi. Kargoyu veya ana yakıtı tekrar eklemeyin.',
+    'route_planner.assistant_help_internal_tank_size': 'Loadout.FuelCapacity.Reserve alanından yedek depo kapasitesi, t cinsinden. Spansh güncel doluluk değil depo boyutunu ister.',
+    'route_planner.assistant_help_reserve_size': 'Status.Fuel.FuelReservoir alanından güncel yedek yakıt, t cinsinden. Spansh yakıt durumunu belirler; otomatik olarak kapasiteye eşit değildir.',
+    'route_planner.assistant_help_optimal_mass': 'Menzil formülü için FSD optimum kütlesi, t cinsinden. Son FSDOptimalMass.Value değerini, yoksa tam EDSY varyantını kullanın. Mühendisliği iki kez uygulamayın.',
+    'route_planner.assistant_help_max_fuel_per_jump': 'Sıçrama başına azami FSD yakıtı, t cinsinden: MaxFuelPerJump.Value veya tam EDSY varyantı. ly cinsinden sıçrama menzili girmeyin.',
+    'route_planner.assistant_help_fuel_power': 'FSD yakıt formülünün birimsiz üssü. Tam EDSY varyantının fuelpower alanını kullanın; elektrik tüketimi veya yakıt miktarı değildir.',
+    'route_planner.assistant_help_fuel_multiplier': 'FSD formülünün EDSY fuelmul ondalık ölçeğindeki katsayısı. Yüzde veya binlik dönüşüm yapmadan doğrudan kullanın.',
+    'route_planner.assistant_help_range_boost': 'Ek sıçrama bonusu, ly cinsinden; örneğin etkin Guardian güçlendiricisinden. Kaynak: güçlendirici kataloğu. Toplam menzil değildir; sıfır yalnızca bonus olmadığı doğrulanırsa.',
+})
+
+TRANSLATIONS.update({
+    'odyssey.cleanup.manage': 'Temizlik listesini yönet',
+    'odyssey.cleanup.marked': 'İşaretli',
+    'odyssey.cleanup.unmarked': 'İşaretsiz',
+    'odyssey.cleanup.count': '{total} öğeden {count} tanesi işaretli',
+    'odyssey.cleanup.reset': 'Varsayılanları geri yükle',
+    'odyssey.cleanup.confirm': 'Tüm seçim Helper varsayılanlarıyla değiştirilsin mi? Değişiklikler yalnızca kaydedildiğinde uygulanır.',
+    'odyssey.cleanup.personal': 'Kişisel temizlik listenizde işaretli.',
+    'odyssey.cleanup.no_use': 'Giysi veya silah geliştirmeleri için bilinen bir kullanımı yok.',
+    'odyssey.cleanup.save_error': 'Temizlik listesi kaydedilemedi.',
+    'odyssey.cleanup.chemicals': 'Kimyasallar',
+    'odyssey.cleanup.circuits': 'Devreler',
+    'odyssey.cleanup.tech': 'Teknoloji',
+})
+
+TRANSLATIONS.update({
+    'odyssey.cleanup.legend': 'Temizlik adayı',
+    'odyssey.cleanup.legend_tip': 'Bu öğelerin giysi veya silah geliştirmeleri için bilinen bir kullanımı yoktur ve genellikle bardaki barmene satılabilirler.\n\nKendiniz işaretlediğiniz öğelerin farklı kullanım amaçları olabilir.',
+    'odyssey.sort.label': 'Sıralama',
+    'odyssey.sort.cleanup': 'Temizlik listesi',
+    'odyssey.sort.alphabetical': 'Alfabetik',
 })

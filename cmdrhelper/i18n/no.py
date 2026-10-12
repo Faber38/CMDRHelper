@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_4.0': 'Forbedret ruteplanlegger med støtte for 7A SCO FSD og korrekt bruk av modifikasjoner, Guardian-boostere, last og reservedrivstoff.',
+    'release.3_9_4.1': 'Ny skipsdataassistent forklarer, supplerer og lagrer manglende verdier per skip; bekreftede automatiske data har prioritet.',
+    'release.3_9_4.2': 'Mer presis tidsbasert kobling mellom Powerplay-leveranser og meritmeldinger innen tre sekunder når konteksten er entydig.',
+    'release.3_9_4.3': 'Gruvedrift-, Odyssey-, material- og flåtevisninger unngår unødvendig gjenoppbygging og gjenbruker eksisterende visningselementer.',
+    'release.3_9_4.4': 'Ny ryddehjelp for Odyssey med 81 standardkandidater, personlig utvalg blant 223 gjenstander, fargemerking og lagret sortering.',
+    'release.3_9_4.5': 'Forbedret inndatavalidering, feilmeldinger og lasteindikatorer samt oppdaterte tekster på alle tolv språk.',
+
     'release.3_9_3.0': 'Tre nye stasjonsbilder, forbedret typetilknytning og korrigerte markeringer av planetstasjoner.',
     'release.3_9_3.1': 'Bekreftede Interstellar Factors vises i turkis ved siden av stasjonsnavnet.',
     'release.3_9_3.2': 'Bildegalleriet lastes i bakgrunnen med en holografisk lasteskanner og beskyttelse mot gjentatte klikk.',
@@ -697,6 +704,8 @@ TRANSLATIONS = {
     'route_planner.ship_loadout_incomplete': "Skipsdata ufullstendige",
     'route_planner.ship_loadout_stale': "Skipsdata utdaterte",
     'route_planner.ship_loadout_unknown_fsd': "Ukjent FSD",
+    'route_planner.ship_loadout_missing_fsd_specs': 'Tekniske FSD-data mangler',
+    'route_planner.ship_loadout_missing_live_data': 'Gjeldende drivstoff- eller lastedata mangler',
     'route_planner.ship_error_missing_fields': "Manglende tekniske verdier: {fields}",
     'route_planner.ship_algorithm': "Rutealgoritme",
     'route_planner.ship_use_supercharge': "Bruk supercharge/nøytronstjerner",
@@ -1905,4 +1914,72 @@ TRANSLATIONS.update({
     'pp2.system.undermining_help': 'Undergraving – aktiviteter som svekker den kontrollerende maktens posisjon i dette systemet.',
     'pp2.system.control_help': 'Uendret kontrollframdrift fra journalen. En normalisert betydning fra 0 til 1 er ikke fastslått lokalt; ingen prosentomregning brukes.',
     'pp2.system.stage_help': 'Rapportert systemstatus: {status}. Linjen gir orientering, ikke en obligatorisk rekkefølge.',
+})
+
+# Ship data assistant
+TRANSLATIONS.update({
+    'route_planner.assistant_open': 'Fyll inn manglende verdier',
+    'route_planner.assistant_title': 'Fullfør skipsdata',
+    'route_planner.assistant_identity': 'Kommandør: {commander} ({fid})\nSkip: {ship} · {name}\nShipID: {sid}',
+    'route_planner.assistant_fsd_source': 'Kopier nøyaktig FSD-modulidentifikator og sjekk EDSY (https://edsy.org). Ikke bruk en lignende variant.',
+    'route_planner.assistant_policy': 'Automatiske verdier har prioritet. Lagrede verdier beholdes for sammenligning. Tomme felt fjerner manuelle verdier. Last og reservedrivstoff gjelder høyst 2 minutter i denne skipsøkten og lagres ikke permanent.',
+    'route_planner.assistant_automatic': 'Automatisk registrert',
+    'route_planner.assistant_manual': 'Manuelt lagret',
+    'route_planner.assistant_unknown': 'Ukjent',
+    'route_planner.assistant_help': 'Forklaring',
+    'route_planner.assistant_stored': 'Lagret sammenligningsverdi: {value}',
+    'route_planner.assistant_confirm_scope': 'Bekreft for gjeldende konfigurasjon',
+    'route_planner.assistant_scope': 'Lagret konfigurasjon er forskjellig. Kontroller og bekreft før gjenbruk.',
+    'route_planner.assistant_save': 'Lagre for dette skipet',
+    'route_planner.assistant_delete': 'Slett manuelle skipsverdier',
+    'route_planner.assistant_identity_error': 'Lagring krever bekreftet FID, ShipID og lokale innstillinger.',
+    'route_planner.assistant_number': 'Skriv et endelig tall med desimalpunkt eller komma, uten tusenskilletegn.',
+    'route_planner.assistant_range': 'Tillatt område: {minimum}, høyst {maximum}.',
+    'route_planner.assistant_reserve': 'Reservedrivstoff kan ikke overstige reservetankens kapasitet.',
+    'route_planner.assistant_cargo': 'Last kan ikke overstige kjent lastekapasitet.',
+    'route_planner.assistant_context': 'Nåverdier krever bekreftet gjeldende skipskontekst.',
+    'route_planner.assistant_fsd_error': 'FSD-verdier krever nøyaktig modulidentifikator.',
+    'route_planner.assistant_changed': 'Skip eller økt er endret. Lukk og åpne dialogen igjen.',
+    'route_planner.assistant_invalid': 'Rett de markerte feltene.',
+    'route_planner.assistant_save_error': 'Lagring mislyktes. Inndata beholdes i dialogen.',
+    'route_planner.assistant_delete_confirm': 'Slette alle manuelle verdier bare for dette skipet?',
+    'route_planner.assistant_ready': 'Klar – inkluderer manuelle verdier',
+    'route_planner.assistant_incomplete': 'Ufullstendig – inkluderer manuelle verdier',
+    'route_planner.assistant_form': 'Manuell skjemaverdi',
+})
+
+TRANSLATIONS.update({
+    'route_planner.assistant_help_tank_size': 'Hovedtankkapasitet i t, ikke gjeldende innhold. Kilde: Loadout.FuelCapacity.Main. Bestemmer drivstoffplassen for Spansh.',
+    'route_planner.assistant_help_cargo': 'Gjeldende skipslast i t, ikke lastekapasitet. Kilde: bekreftet Cargo/Status. Spansh bruker denne tilleggsmassen; ukjent er ikke null.',
+    'route_planner.assistant_help_base_mass': 'Grunnmasse i t: Loadout.UnladenMass pluss reservetankkapasitet etter eksisterende Spansh-konvensjon. Ikke legg til last eller hoveddrivstoff på nytt.',
+    'route_planner.assistant_help_internal_tank_size': 'Reservetankkapasitet i t fra Loadout.FuelCapacity.Reserve. Spansh trenger tankstørrelsen, ikke gjeldende innhold.',
+    'route_planner.assistant_help_reserve_size': 'Gjeldende reservedrivstoff i t fra Status.Fuel.FuelReservoir. Angir drivstofftilstanden for Spansh; ikke automatisk lik kapasiteten.',
+    'route_planner.assistant_help_optimal_mass': 'Optimal FSD-masse i t for rekkeviddeformelen. Bruk sluttverdien FSDOptimalMass.Value, ellers nøyaktig EDSY-variant. Ikke bruk ingeniørbonusen to ganger.',
+    'route_planner.assistant_help_max_fuel_per_jump': 'Maksimalt FSD-drivstoff per hopp i t: MaxFuelPerJump.Value eller nøyaktig EDSY-variant. Ikke oppgi hopprekkevidde i ly.',
+    'route_planner.assistant_help_fuel_power': 'Enhetsløs eksponent i FSD-drivstoffformelen. Bruk fuelpower for nøyaktig EDSY-variant, ikke elektrisk effekt eller drivstoffmengde.',
+    'route_planner.assistant_help_fuel_multiplier': 'Koeffisient i FSD-formelen på EDSYs desimalskala fuelmul. Bruk direkte uten prosent- eller tusengangers omregning.',
+    'route_planner.assistant_help_range_boost': 'Ekstra hoppbonus i ly, for eksempel aktiv Guardian-booster. Kilde: boosterkatalogen. Ikke total rekkevidde; null bare ved bekreftet fravær av bonus.',
+})
+
+TRANSLATIONS.update({
+    'odyssey.cleanup.manage': 'Administrer ryddeliste',
+    'odyssey.cleanup.marked': 'Merket',
+    'odyssey.cleanup.unmarked': 'Ikke merket',
+    'odyssey.cleanup.count': '{count} av {total} gjenstander merket',
+    'odyssey.cleanup.reset': 'Gjenopprett standardvalg',
+    'odyssey.cleanup.confirm': 'Erstatte hele utvalget med Helpers standardvalg? Endringene gjelder først når du lagrer.',
+    'odyssey.cleanup.personal': 'Merket i din personlige ryddeliste.',
+    'odyssey.cleanup.no_use': 'Ingen kjent bruk til drakt- eller våpenforbedringer.',
+    'odyssey.cleanup.save_error': 'Ryddelisten kunne ikke lagres.',
+    'odyssey.cleanup.chemicals': 'Kjemikalier',
+    'odyssey.cleanup.circuits': 'Kretser',
+    'odyssey.cleanup.tech': 'Teknologi',
+})
+
+TRANSLATIONS.update({
+    'odyssey.cleanup.legend': 'Ryddekandidat',
+    'odyssey.cleanup.legend_tip': 'Disse gjenstandene har ingen kjent bruk til drakt- eller våpenforbedringer og kan vanligvis selges til bartenderen i baren.\n\nGjenstander du merker selv, kan ha andre bruksområder.',
+    'odyssey.sort.label': 'Sortering',
+    'odyssey.sort.cleanup': 'Ryddeliste',
+    'odyssey.sort.alphabetical': 'Alfabetisk',
 })

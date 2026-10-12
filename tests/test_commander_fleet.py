@@ -145,6 +145,34 @@ class CommanderFleetTests(unittest.TestCase):
         self.assertEqual(CMDRDatabase(self.path).commander_last_ship(self.a)["ship_name"],
                          "Legacy")
 
+    def test_overview_defers_fleet_and_unchanged_cards_are_reused(self):
+        from unittest.mock import patch
+        self.db.store_commander_ship(self.a, self.ship(1, 'Alpha Ship'), 'T1')
+        self.db.store_commander_ship(self.b, self.ship(2, 'Bravo Ship'), 'T2')
+        initial = self._view()
+        state = initial.state
+        view = CommanderView(state)
+        self.addCleanup(view.close)
+        self.addCleanup(view.deleteLater)
+        with patch.object(self.db, 'commander_ships', wraps=self.db.commander_ships) as read:
+            view.show()
+            self.assertFalse(any(view.fleet_layout.itemAt(i).widget()
+                                 for i in range(view.fleet_layout.count())))
+            read.assert_not_called()
+            view.tabs.setCurrentIndex(4)
+            self.assertEqual(read.call_count, 1)
+            view.tabs.setCurrentIndex(0)
+            view.tabs.setCurrentIndex(4)
+            self.assertEqual(read.call_count, 1)
+        cards = list(view._fleet_cards.values())
+        view.refresh()
+        self.assertEqual(list(view._fleet_cards.values()), cards)
+        view.tabs.setCurrentIndex(0)
+        state.select_viewed_commander(self.b)
+        self.assertTrue(view._fleet_dirty)
+        view.tabs.setCurrentIndex(4)
+        self.assertEqual(view._fleet_commander_id, self.b)
+
     def _view(self, live_id=None, viewed_id=None, settings=None):
         state = AppState.__new__(AppState)
         QObject.__init__(state)
@@ -163,6 +191,7 @@ class CommanderFleetTests(unittest.TestCase):
         state.settings = settings or Settings()
         view = CommanderView(state)
         view.show()
+        view.tabs.setCurrentIndex(4)
         def dispose_view():
             from PySide6.QtCore import QCoreApplication, QEvent
             view.close()

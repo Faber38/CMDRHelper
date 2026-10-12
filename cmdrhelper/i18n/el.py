@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_4.0': 'Βελτιωμένος σχεδιαστής διαδρομών με υποστήριξη 7A SCO FSD και σωστή χρήση τροποποιήσεων, ενισχυτών Guardian, φορτίου και εφεδρικού καυσίμου.',
+    'release.3_9_4.1': 'Νέος βοηθός δεδομένων σκάφους εξηγεί, συμπληρώνει και αποθηκεύει τιμές ανά σκάφος· τα επιβεβαιωμένα αυτόματα δεδομένα έχουν προτεραιότητα.',
+    'release.3_9_4.2': 'Ακριβέστερη χρονική συσχέτιση παραδόσεων Powerplay με μηνύματα αξιομισθίας εντός τριών δευτερολέπτων όταν το πλαίσιο είναι σαφές.',
+    'release.3_9_4.3': 'Οι προβολές εξόρυξης, Odyssey, υλικών και στόλου αποφεύγουν περιττές ανακατασκευές και επαναχρησιμοποιούν υπάρχοντα στοιχεία.',
+    'release.3_9_4.4': 'Νέος βοηθός εκκαθάρισης Odyssey με 81 προεπιλεγμένα αντικείμενα, προσωπική επιλογή από 223, χρωματική επισήμανση και αποθηκευμένη ταξινόμηση.',
+    'release.3_9_4.5': 'Βελτιωμένος έλεγχος εισαγωγής, μηνύματα σφαλμάτων και ενδείξεις φόρτωσης, με ενημερωμένα κείμενα και στις δώδεκα γλώσσες.',
+
     'release.3_9_3.0': 'Τρεις νέες εικόνες σταθμών, βελτιωμένη αντιστοίχιση τύπων και διορθωμένες ενδείξεις πλανητικών σταθμών.',
     'release.3_9_3.1': 'Οι επιβεβαιωμένες υπηρεσίες Interstellar Factors εμφανίζονται με τιρκουάζ δίπλα στο όνομα του σταθμού.',
     'release.3_9_3.2': 'Η συλλογή εικόνων φορτώνει στο παρασκήνιο με ολογραφικό σαρωτή φόρτωσης και προστασία από επαναλαμβανόμενα κλικ.',
@@ -697,6 +704,8 @@ TRANSLATIONS = {
     'route_planner.ship_loadout_incomplete': "Τα δεδομένα σκάφους είναι ελλιπή",
     'route_planner.ship_loadout_stale': "Τα δεδομένα σκάφους είναι παρωχημένα",
     'route_planner.ship_loadout_unknown_fsd': "Άγνωστο FSD",
+    'route_planner.ship_loadout_missing_fsd_specs': 'Λείπουν τεχνικά δεδομένα FSD',
+    'route_planner.ship_loadout_missing_live_data': 'Λείπουν τρέχοντα δεδομένα καυσίμου ή φορτίου',
     'route_planner.ship_error_missing_fields': "Λείπουν τεχνικές τιμές: {fields}",
     'route_planner.ship_algorithm': "Αλγόριθμος δρομολόγησης",
     'route_planner.ship_use_supercharge': "Χρήση υπερφόρτισης/αστέρων νετρονίων",
@@ -1905,4 +1914,72 @@ TRANSLATIONS.update({
     'pp2.system.undermining_help': 'Υπονόμευση – δραστηριότητες που αποδυναμώνουν τη θέση της κυρίαρχης δύναμης σε αυτό το σύστημα.',
     'pp2.system.control_help': 'Αμετάβλητη πρόοδος ελέγχου από το ημερολόγιο. Δεν έχει τεκμηριωθεί τοπικά κανονικοποιημένη σημασία 0–1, επομένως δεν εφαρμόζεται μετατροπή σε ποσοστό.',
     'pp2.system.stage_help': 'Αναφερόμενη κατάσταση συστήματος: {status}. Η γραμμή προσφέρει προσανατολισμό, όχι υποχρεωτική ακολουθία.',
+})
+
+# Ship data assistant
+TRANSLATIONS.update({
+    'route_planner.assistant_open': 'Συμπλήρωση τιμών που λείπουν',
+    'route_planner.assistant_title': 'Συμπλήρωση δεδομένων σκάφους',
+    'route_planner.assistant_identity': 'Κυβερνήτης: {commander} ({fid})\nΣκάφος: {ship} · {name}\nShipID: {sid}',
+    'route_planner.assistant_fsd_source': 'Αντιγράψτε το ακριβές αναγνωριστικό FSD και ελέγξτε το EDSY (https://edsy.org). Μη χρησιμοποιείτε παρόμοια παραλλαγή.',
+    'route_planner.assistant_policy': 'Οι αυτόματες τιμές έχουν προτεραιότητα. Οι αποθηκευμένες παραμένουν για σύγκριση. Κενά πεδία διαγράφουν τη χειροκίνητη τιμή. Φορτίο και εφεδρικό καύσιμο ισχύουν έως 2 λεπτά στην τρέχουσα συνεδρία σκάφους και δεν αποθηκεύονται μόνιμα.',
+    'route_planner.assistant_automatic': 'Αυτόματη αναγνώριση',
+    'route_planner.assistant_manual': 'Χειροκίνητη αποθήκευση',
+    'route_planner.assistant_unknown': 'Άγνωστο',
+    'route_planner.assistant_help': 'Επεξήγηση',
+    'route_planner.assistant_stored': 'Αποθηκευμένη τιμή σύγκρισης: {value}',
+    'route_planner.assistant_confirm_scope': 'Επιβεβαίωση για την τρέχουσα διαμόρφωση',
+    'route_planner.assistant_scope': 'Η αποθηκευμένη διαμόρφωση διαφέρει. Ελέγξτε και επιβεβαιώστε πριν τη χρήση.',
+    'route_planner.assistant_save': 'Αποθήκευση για αυτό το σκάφος',
+    'route_planner.assistant_delete': 'Διαγραφή χειροκίνητων τιμών',
+    'route_planner.assistant_identity_error': 'Η αποθήκευση απαιτεί επιβεβαιωμένα FID, ShipID και τοπικές ρυθμίσεις.',
+    'route_planner.assistant_number': 'Εισαγάγετε πεπερασμένο αριθμό με τελεία ή κόμμα δεκαδικών, χωρίς διαχωριστικά χιλιάδων.',
+    'route_planner.assistant_range': 'Επιτρεπτό εύρος: {minimum}, έως {maximum}.',
+    'route_planner.assistant_reserve': 'Το εφεδρικό καύσιμο δεν πρέπει να υπερβαίνει τη χωρητικότητα εφεδρείας.',
+    'route_planner.assistant_cargo': 'Το φορτίο δεν πρέπει να υπερβαίνει τη γνωστή χωρητικότητα.',
+    'route_planner.assistant_context': 'Οι τρέχουσες τιμές απαιτούν επιβεβαιωμένο πλαίσιο σκάφους.',
+    'route_planner.assistant_fsd_error': 'Οι τιμές FSD απαιτούν το ακριβές αναγνωριστικό μονάδας.',
+    'route_planner.assistant_changed': 'Το σκάφος ή η συνεδρία άλλαξε. Κλείστε και ανοίξτε ξανά το παράθυρο.',
+    'route_planner.assistant_invalid': 'Διορθώστε τα σημειωμένα πεδία.',
+    'route_planner.assistant_save_error': 'Η αποθήκευση απέτυχε. Οι καταχωρίσεις παραμένουν στο παράθυρο.',
+    'route_planner.assistant_delete_confirm': 'Διαγραφή όλων των χειροκίνητων τιμών μόνο αυτού του σκάφους;',
+    'route_planner.assistant_ready': 'Έτοιμο – περιλαμβάνει χειροκίνητες τιμές',
+    'route_planner.assistant_incomplete': 'Ελλιπές – περιλαμβάνει χειροκίνητες τιμές',
+    'route_planner.assistant_form': 'Χειροκίνητη εισαγωγή φόρμας',
+})
+
+TRANSLATIONS.update({
+    'route_planner.assistant_help_tank_size': 'Χωρητικότητα κύριας δεξαμενής σε t, όχι τρέχον περιεχόμενο. Πηγή: Loadout.FuelCapacity.Main. Ορίζει τον χώρο καυσίμου για το Spansh.',
+    'route_planner.assistant_help_cargo': 'Τρέχον φορτίο σκάφους σε t, όχι χωρητικότητα. Πηγή: επιβεβαιωμένα Cargo/Status. Το Spansh υπολογίζει αυτή την πρόσθετη μάζα· άγνωστο δεν σημαίνει μηδέν.',
+    'route_planner.assistant_help_base_mass': 'Βασική μάζα σε t: Loadout.UnladenMass συν χωρητικότητα εφεδρείας κατά τη σύμβαση Spansh. Μην προσθέτετε ξανά φορτίο ή κύριο καύσιμο.',
+    'route_planner.assistant_help_internal_tank_size': 'Χωρητικότητα εφεδρικής δεξαμενής σε t από Loadout.FuelCapacity.Reserve. Το Spansh χρειάζεται το μέγεθος, όχι το τρέχον περιεχόμενο.',
+    'route_planner.assistant_help_reserve_size': 'Τρέχον εφεδρικό καύσιμο σε t από Status.Fuel.FuelReservoir. Ορίζει την κατάσταση καυσίμου για το Spansh· δεν ισούται αυτόματα με τη χωρητικότητα.',
+    'route_planner.assistant_help_optimal_mass': 'Βέλτιστη μάζα FSD σε t για τον τύπο εμβέλειας. Προτιμήστε την τελική FSDOptimalMass.Value ή την ακριβή παραλλαγή EDSY. Μην εφαρμόζετε διπλή αναβάθμιση.',
+    'route_planner.assistant_help_max_fuel_per_jump': 'Μέγιστο καύσιμο FSD ανά άλμα σε t: MaxFuelPerJump.Value ή ακριβής παραλλαγή EDSY. Μην εισάγετε εμβέλεια άλματος σε ly.',
+    'route_planner.assistant_help_fuel_power': 'Εκθέτης χωρίς μονάδα στον τύπο καυσίμου FSD. Χρησιμοποιήστε fuelpower της ακριβούς παραλλαγής EDSY, όχι ηλεκτρική ισχύ ή ποσότητα καυσίμου.',
+    'route_planner.assistant_help_fuel_multiplier': 'Συντελεστής τύπου FSD στη δεκαδική κλίμακα EDSY fuelmul. Χρησιμοποιήστε απευθείας, χωρίς μετατροπή ποσοστού ή πολλαπλασιασμό επί χίλια.',
+    'route_planner.assistant_help_range_boost': 'Πρόσθετο μπόνους άλματος σε ly, π.χ. ενεργού ενισχυτή Guardian. Πηγή: κατάλογος ενισχυτών. Όχι συνολική εμβέλεια· μηδέν μόνο με επιβεβαιωμένη απουσία μπόνους.',
+})
+
+TRANSLATIONS.update({
+    'odyssey.cleanup.manage': 'Διαχείριση λίστας εκκαθάρισης',
+    'odyssey.cleanup.marked': 'Επισημασμένα',
+    'odyssey.cleanup.unmarked': 'Μη επισημασμένα',
+    'odyssey.cleanup.count': '{count} από {total} αντικείμενα επισημασμένα',
+    'odyssey.cleanup.reset': 'Επαναφορά προεπιλογών',
+    'odyssey.cleanup.confirm': 'Αντικατάσταση όλης της επιλογής με τις προεπιλογές του Helper; Οι αλλαγές εφαρμόζονται μόνο μετά την αποθήκευση.',
+    'odyssey.cleanup.personal': 'Επισημασμένο στην προσωπική σας λίστα εκκαθάρισης.',
+    'odyssey.cleanup.no_use': 'Καμία γνωστή χρήση για βελτιώσεις στολών ή όπλων.',
+    'odyssey.cleanup.save_error': 'Δεν ήταν δυνατή η αποθήκευση της λίστας εκκαθάρισης.',
+    'odyssey.cleanup.chemicals': 'Χημικά',
+    'odyssey.cleanup.circuits': 'Κυκλώματα',
+    'odyssey.cleanup.tech': 'Τεχνολογία',
+})
+
+TRANSLATIONS.update({
+    'odyssey.cleanup.legend': 'Υποψήφιο για εκκαθάριση',
+    'odyssey.cleanup.legend_tip': 'Αυτά τα αντικείμενα δεν έχουν γνωστή χρήση για βελτιώσεις στολών ή όπλων και συνήθως μπορούν να πωληθούν στον μπάρμαν του μπαρ.\n\nΤα αντικείμενα που επισημαίνετε εσείς μπορεί να έχουν διαφορετικές χρήσεις.',
+    'odyssey.sort.label': 'Ταξινόμηση',
+    'odyssey.sort.cleanup': 'Λίστα εκκαθάρισης',
+    'odyssey.sort.alphabetical': 'Αλφαβητικά',
 })

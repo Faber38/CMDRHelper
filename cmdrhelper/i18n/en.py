@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_4.0': 'Improved ship route planner with 7A SCO FSD support and correct use of engineering, Guardian boosters, cargo and reserve fuel.',
+    'release.3_9_4.1': 'New ship data assistant explains, supplements and saves missing values per ship; confirmed automatic data takes priority.',
+    'release.3_9_4.2': 'More precise temporal matching of Powerplay deliveries to merit messages within three seconds when the context is unambiguous.',
+    'release.3_9_4.3': 'Mining, Odyssey, material and fleet views avoid unnecessary rebuilding and reuse existing display elements.',
+    'release.3_9_4.4': 'New Odyssey cleanup helper with 81 default candidates, a personal selection from 223 items, color highlighting and saved sorting.',
+    'release.3_9_4.5': 'Improved input validation, error messages and loading feedback, with updated text in all twelve languages.',
+
     'release.3_9_3.0': 'Three new station images, improved type mapping and corrected planetary station flags.',
     'release.3_9_3.1': 'Confirmed Interstellar Factors are shown in turquoise beside the station name.',
     'release.3_9_3.2': 'The image gallery loads in the background with a holographic loading scanner and protection against repeated clicks.',
@@ -698,6 +705,8 @@ TRANSLATIONS = {
     'route_planner.ship_loadout_incomplete': "Ship data incomplete",
     'route_planner.ship_loadout_stale': "Ship data outdated",
     'route_planner.ship_loadout_unknown_fsd': "Unknown FSD",
+    'route_planner.ship_loadout_missing_fsd_specs': 'Technical FSD data missing',
+    'route_planner.ship_loadout_missing_live_data': 'Current fuel or cargo data missing',
     'route_planner.ship_error_missing_fields': "Missing technical values: {fields}",
     'route_planner.ship_algorithm': "Routing algorithm",
     'route_planner.ship_use_supercharge': "Use supercharge/neutron stars",
@@ -2050,3 +2059,71 @@ TRANSLATIONS.update({
 
 # Catalogue-wide rare origin search.
 TRANSLATIONS.update({'trade.rare_search_all': 'Search all rare goods', 'trade.rare_unconfirmed': 'Stock/price not confirmed', 'trade.rare_results': '{count} origin results · {unknown} origin stations unresolved', 'trade.rare_origin_notice': 'A known origin is not a current purchase offer. Prices and stock come only from existing market records.'})
+
+# Ship data assistant
+TRANSLATIONS.update({
+    'route_planner.assistant_open': 'Fill missing values',
+    'route_planner.assistant_title': 'Complete ship data',
+    'route_planner.assistant_identity': 'Commander: {commander} ({fid})\nShip: {ship} · {name}\nShipID: {sid}',
+    'route_planner.assistant_fsd_source': 'Copy the exact FSD module identifier and check EDSY (https://edsy.org). Do not use a similar variant.',
+    'route_planner.assistant_policy': 'Automatic values take priority. Saved values remain available for comparison. Empty inputs remove the corresponding manual value. Cargo and reserve fuel are valid for at most 2 minutes in this ship session and are not saved permanently.',
+    'route_planner.assistant_automatic': 'Automatically detected',
+    'route_planner.assistant_manual': 'Manually saved',
+    'route_planner.assistant_unknown': 'Unknown',
+    'route_planner.assistant_help': 'Explanation',
+    'route_planner.assistant_stored': 'Saved comparison value: {value}',
+    'route_planner.assistant_confirm_scope': 'Confirm for the current configuration',
+    'route_planner.assistant_scope': 'The saved configuration differs. Check and explicitly confirm before reuse.',
+    'route_planner.assistant_save': 'Save for this ship',
+    'route_planner.assistant_delete': 'Delete manual ship values',
+    'route_planner.assistant_identity_error': 'Saving requires a confirmed FID, ShipID and local settings.',
+    'route_planner.assistant_number': 'Enter a finite number with a decimal point or comma; no thousands separators.',
+    'route_planner.assistant_range': 'Allowed range: {minimum}, at most {maximum}.',
+    'route_planner.assistant_reserve': 'Reserve fuel must not exceed reservoir capacity.',
+    'route_planner.assistant_cargo': 'Cargo must not exceed the known cargo capacity.',
+    'route_planner.assistant_context': 'Live values require a confirmed current ship context.',
+    'route_planner.assistant_fsd_error': 'FSD values require the exact module identifier.',
+    'route_planner.assistant_changed': 'The ship or session changed. Close and reopen the dialog.',
+    'route_planner.assistant_invalid': 'Please correct the marked inputs.',
+    'route_planner.assistant_save_error': 'Saving failed. Your inputs remain in the dialog.',
+    'route_planner.assistant_delete_confirm': 'Delete all manual values for this ship entry only?',
+    'route_planner.assistant_ready': 'Ready – includes manually saved values',
+    'route_planner.assistant_incomplete': 'Incomplete – includes manually saved values',
+    'route_planner.assistant_form': 'Manual form input',
+})
+
+TRANSLATIONS.update({
+    'route_planner.assistant_help_tank_size': 'Main tank capacity in t, not its current contents. Source: Loadout.FuelCapacity.Main. Defines fuel storage for Spansh.',
+    'route_planner.assistant_help_cargo': 'Current ship cargo in t, not cargo capacity. Source: confirmed Cargo/Status data. Spansh includes this extra mass; unknown is not zero.',
+    'route_planner.assistant_help_base_mass': 'Base mass in t: Loadout.UnladenMass plus reservoir capacity under the existing Spansh convention. Do not add cargo or main fuel again.',
+    'route_planner.assistant_help_internal_tank_size': 'Reservoir capacity in t from Loadout.FuelCapacity.Reserve. Spansh needs the tank size, not its current contents.',
+    'route_planner.assistant_help_reserve_size': 'Current reserve fuel in t from Status.Fuel.FuelReservoir. Defines the reserve fuel state for Spansh; not automatically equal to capacity.',
+    'route_planner.assistant_help_optimal_mass': 'FSD optimal mass in t for the range formula. Prefer final engineering FSDOptimalMass.Value, otherwise the exact EDSY variant. Do not apply engineering twice.',
+    'route_planner.assistant_help_max_fuel_per_jump': 'Maximum FSD fuel per jump in t. Source: MaxFuelPerJump.Value or the exact EDSY variant. Do not enter jump range in ly.',
+    'route_planner.assistant_help_fuel_power': 'Unitless exponent of the FSD fuel formula. Use the exact EDSY fuelpower field. Not electrical power draw or fuel quantity.',
+    'route_planner.assistant_help_fuel_multiplier': 'Coefficient of the FSD fuel formula in the EDSY fuelmul decimal scale. Use directly, without percentage or thousandfold conversion.',
+    'route_planner.assistant_help_range_boost': 'Additional jump bonus in ly, such as an active Guardian booster. Source: existing booster catalog. Not total jump range; zero only for a confirmed absent bonus.',
+})
+
+TRANSLATIONS.update({
+    'odyssey.cleanup.manage': 'Manage cleanup list',
+    'odyssey.cleanup.marked': 'Marked',
+    'odyssey.cleanup.unmarked': 'Not marked',
+    'odyssey.cleanup.count': '{count} of {total} items marked',
+    'odyssey.cleanup.reset': 'Restore defaults',
+    'odyssey.cleanup.confirm': 'Replace the entire selection with the Helper defaults? Changes take effect only when saved.',
+    'odyssey.cleanup.personal': 'Marked in your personal cleanup list.',
+    'odyssey.cleanup.no_use': 'No known use for suit or weapon upgrades.',
+    'odyssey.cleanup.save_error': 'The cleanup list could not be saved.',
+    'odyssey.cleanup.chemicals': 'Chemicals',
+    'odyssey.cleanup.circuits': 'Circuits',
+    'odyssey.cleanup.tech': 'Technology',
+})
+
+TRANSLATIONS.update({
+    'odyssey.cleanup.legend': 'Cleanup candidate',
+    'odyssey.cleanup.legend_tip': 'These items have no known use for suit or weapon upgrades and can usually be sold to the bartender at the bar.\n\nItems you mark yourself may have other uses.',
+    'odyssey.sort.label': 'Sort order',
+    'odyssey.sort.cleanup': 'Cleanup list',
+    'odyssey.sort.alphabetical': 'Alphabetical',
+})

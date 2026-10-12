@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_4.0': 'Planificador de rutas mejorado con soporte para FSD SCO 7A y uso correcto de ingeniería, potenciadores Guardian, carga y combustible de reserva.',
+    'release.3_9_4.1': 'Nuevo asistente de datos de nave para explicar, completar y guardar valores faltantes por nave; los datos automáticos confirmados tienen prioridad.',
+    'release.3_9_4.2': 'Asociación temporal más precisa de entregas Powerplay con mensajes de méritos en un máximo de tres segundos cuando el contexto es inequívoco.',
+    'release.3_9_4.3': 'Las vistas de minería, Odyssey, materiales y flota evitan reconstrucciones innecesarias y reutilizan elementos existentes.',
+    'release.3_9_4.4': 'Nueva ayuda de limpieza Odyssey con 81 candidatos predeterminados, selección personal entre 223 objetos, colores y ordenación guardada.',
+    'release.3_9_4.5': 'Mejoras en validación, mensajes de error e indicadores de carga, con textos actualizados en los doce idiomas.',
+
     'release.3_9_3.0': 'Tres nuevas imágenes de estaciones, mejor asignación de tipos e indicadores de estaciones planetarias corregidos.',
     'release.3_9_3.1': 'Los Interstellar Factors confirmados se muestran en turquesa junto al nombre de la estación.',
     'release.3_9_3.2': 'La galería de imágenes carga en segundo plano con un escáner holográfico de carga y protección contra clics repetidos.',
@@ -697,6 +704,8 @@ TRANSLATIONS = {
     'route_planner.ship_loadout_incomplete': "Datos de la nave incompletos",
     'route_planner.ship_loadout_stale': "Datos de la nave desactualizados",
     'route_planner.ship_loadout_unknown_fsd': "FSD desconocido",
+    'route_planner.ship_loadout_missing_fsd_specs': 'Faltan datos técnicos del FSD',
+    'route_planner.ship_loadout_missing_live_data': 'Faltan datos actuales de combustible o carga',
     'route_planner.ship_error_missing_fields': "Faltan valores técnicos: {fields}",
     'route_planner.ship_algorithm': "Algoritmo de ruta",
     'route_planner.ship_use_supercharge': "Usar supercarga/estrellas de neutrones",
@@ -2017,4 +2026,72 @@ TRANSLATIONS.update({
     'pp2.system.undermining_help': 'Debilitamiento – actividades que debilitan la posición de la potencia dominante en este sistema.',
     'pp2.system.control_help': 'Progreso del control sin cambios respecto al diario. No se ha establecido localmente un significado normalizado entre 0 y 1; no se convierte a porcentaje.',
     'pp2.system.stage_help': 'Estado del sistema notificado: {status}. La barra sirve de orientación, no de secuencia obligatoria.',
+})
+
+# Ship data assistant
+TRANSLATIONS.update({
+    'route_planner.assistant_open': 'Completar valores pendientes',
+    'route_planner.assistant_title': 'Completar datos de la nave',
+    'route_planner.assistant_identity': 'Comandante: {commander} ({fid})\nNave: {ship} · {name}\nShipID: {sid}',
+    'route_planner.assistant_fsd_source': 'Copia el identificador exacto del módulo FSD y consulta EDSY (https://edsy.org). No uses una variante similar.',
+    'route_planner.assistant_policy': 'Los valores automáticos tienen prioridad. Los guardados se conservan para compararlos. Un campo vacío elimina el valor manual. La carga y el combustible de reserva solo valen hasta 2 minutos en esta sesión de la nave y no se guardan permanentemente.',
+    'route_planner.assistant_automatic': 'Detectado automáticamente',
+    'route_planner.assistant_manual': 'Guardado manualmente',
+    'route_planner.assistant_unknown': 'Desconocido',
+    'route_planner.assistant_help': 'Explicación',
+    'route_planner.assistant_stored': 'Valor guardado para comparar: {value}',
+    'route_planner.assistant_confirm_scope': 'Confirmar para la configuración actual',
+    'route_planner.assistant_scope': 'La configuración guardada es distinta. Revisa y confirma antes de reutilizarla.',
+    'route_planner.assistant_save': 'Guardar para esta nave',
+    'route_planner.assistant_delete': 'Eliminar valores manuales',
+    'route_planner.assistant_identity_error': 'Guardar requiere FID, ShipID confirmados y ajustes locales.',
+    'route_planner.assistant_number': 'Introduce un número finito con punto o coma decimal, sin separadores de miles.',
+    'route_planner.assistant_range': 'Rango permitido: {minimum}, como máximo {maximum}.',
+    'route_planner.assistant_reserve': 'El combustible de reserva no puede superar su capacidad.',
+    'route_planner.assistant_cargo': 'La carga no puede superar la capacidad conocida.',
+    'route_planner.assistant_context': 'Los valores actuales requieren un contexto de nave confirmado.',
+    'route_planner.assistant_fsd_error': 'Los valores FSD requieren el identificador exacto del módulo.',
+    'route_planner.assistant_changed': 'La nave o sesión ha cambiado. Cierra y vuelve a abrir el diálogo.',
+    'route_planner.assistant_invalid': 'Corrige los campos señalados.',
+    'route_planner.assistant_save_error': 'No se pudo guardar. Los datos introducidos permanecen en el diálogo.',
+    'route_planner.assistant_delete_confirm': '¿Eliminar todos los valores manuales solo para esta nave?',
+    'route_planner.assistant_ready': 'Listo – incluye valores manuales',
+    'route_planner.assistant_incomplete': 'Incompleto – incluye valores manuales',
+    'route_planner.assistant_form': 'Entrada manual del formulario',
+})
+
+TRANSLATIONS.update({
+    'route_planner.assistant_help_tank_size': 'Capacidad del tanque principal en t, no su contenido actual. Fuente: Loadout.FuelCapacity.Main. Define el espacio de combustible para Spansh.',
+    'route_planner.assistant_help_cargo': 'Carga actual de la nave en t, no capacidad. Fuente: datos Cargo/Status confirmados. Spansh considera esta masa adicional; desconocido no equivale a cero.',
+    'route_planner.assistant_help_base_mass': 'Masa base en t: Loadout.UnladenMass más capacidad de reserva según la convención Spansh existente. No sumar de nuevo carga ni combustible principal.',
+    'route_planner.assistant_help_internal_tank_size': 'Capacidad del depósito de reserva en t de Loadout.FuelCapacity.Reserve. Spansh necesita el tamaño del depósito, no su contenido actual.',
+    'route_planner.assistant_help_reserve_size': 'Combustible de reserva actual en t de Status.Fuel.FuelReservoir. Define el estado de combustible para Spansh; no equivale automáticamente a la capacidad.',
+    'route_planner.assistant_help_optimal_mass': 'Masa óptima FSD en t para la fórmula de alcance. Preferir FSDOptimalMass.Value final, o la variante EDSY exacta. No aplicar dos veces la ingeniería.',
+    'route_planner.assistant_help_max_fuel_per_jump': 'Consumo máximo FSD por salto en t: MaxFuelPerJump.Value o variante EDSY exacta. No introducir alcance de salto en ly.',
+    'route_planner.assistant_help_fuel_power': 'Exponente sin unidad de la fórmula de combustible FSD. Usar fuelpower de la variante EDSY exacta, no potencia eléctrica ni cantidad de combustible.',
+    'route_planner.assistant_help_fuel_multiplier': 'Coeficiente de la fórmula FSD en la escala decimal EDSY fuelmul. Usar directamente, sin conversión porcentual ni por mil.',
+    'route_planner.assistant_help_range_boost': 'Bonificación adicional de salto en ly, por ejemplo del potenciador Guardian activo. Fuente: catálogo de potenciadores. No alcance total; cero solo si se confirma que no hay bonificación.',
+})
+
+TRANSLATIONS.update({
+    'odyssey.cleanup.manage': 'Gestionar lista de limpieza',
+    'odyssey.cleanup.marked': 'Marcados',
+    'odyssey.cleanup.unmarked': 'No marcados',
+    'odyssey.cleanup.count': '{count} de {total} objetos marcados',
+    'odyssey.cleanup.reset': 'Restaurar valores predeterminados',
+    'odyssey.cleanup.confirm': '¿Sustituir toda la selección por la predeterminada de Helper? Los cambios solo se aplicarán al guardar.',
+    'odyssey.cleanup.personal': 'Marcado en tu lista personal de limpieza.',
+    'odyssey.cleanup.no_use': 'Sin uso conocido para mejoras de trajes o armas.',
+    'odyssey.cleanup.save_error': 'No se pudo guardar la lista de limpieza.',
+    'odyssey.cleanup.chemicals': 'Productos químicos',
+    'odyssey.cleanup.circuits': 'Circuitos',
+    'odyssey.cleanup.tech': 'Tecnología',
+})
+
+TRANSLATIONS.update({
+    'odyssey.cleanup.legend': 'Candidato a limpieza',
+    'odyssey.cleanup.legend_tip': 'Estos objetos no tienen ningún uso conocido para mejoras de trajes o armas y normalmente pueden venderse al camarero del bar.\n\nLos objetos que marques personalmente pueden tener otros usos.',
+    'odyssey.sort.label': 'Orden',
+    'odyssey.sort.cleanup': 'Lista de limpieza',
+    'odyssey.sort.alphabetical': 'Alfabético',
 })

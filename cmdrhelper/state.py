@@ -112,6 +112,7 @@ class AppState(QObject):
         self.ship_cargo_context = {}
         self.ship_cargo_total = None
         self._confirmed_status_cargo = None
+        self._confirmed_route_reserve = None
         self._cargo_status = None
         self._cargo_refresh_data = None
         self._cargo_blocked = False
@@ -1556,6 +1557,7 @@ class AppState(QObject):
         self.ship_cargo_context = {}
         self.ship_cargo_total = None
         self._confirmed_status_cargo = None
+        self._confirmed_route_reserve = None
         self._cargo_status = None
         self._cargo_refresh_data = None
         self._cargo_blocked = False
@@ -1609,7 +1611,9 @@ class AppState(QObject):
 
     @staticmethod
     def _stored_ship_loadout(stored_ship):
-        return ShipLoadoutData(
+        from .journal_reader import loadout_module_fields
+
+        loadout = ShipLoadoutData(
             ship_id=stored_ship.get("ship_id"),
             ship_type=stored_ship.get("ship_type"),
             ship_name=stored_ship.get("ship_name"),
@@ -1630,6 +1634,10 @@ class AppState(QObject):
             loadout_complete=bool(stored_ship.get("loadout_complete")),
             loadout_stale=bool(stored_ship.get("loadout_stale", True)),
         )
+        if loadout.modules:
+            for field, value in loadout_module_fields(list(loadout.modules)).items():
+                setattr(loadout, field, value)
+        return loadout
 
     def _restore_persistent_commander_state(self, summary):
         """Restores the fast-start fields that do not require journal replay."""
@@ -1907,27 +1915,7 @@ class AppState(QObject):
             stored_ship = persistent_summary.get("ship") or {}
             if stored_ship:
                 data["ship"] = stored_ship.get("ship_name") or stored_ship.get("ship_type") or ""
-                data["ship_loadout"] = ShipLoadoutData(
-                    ship_id=stored_ship.get("ship_id"),
-                    ship_type=stored_ship.get("ship_type"),
-                    ship_name=stored_ship.get("ship_name"),
-                    ship_ident=stored_ship.get("ship_ident"),
-                    max_jump_range=stored_ship.get("max_jump_range"),
-                    unladen_mass=stored_ship.get("unladen_mass"),
-                    cargo_capacity=stored_ship.get("cargo_capacity"),
-                    main_tank_capacity=stored_ship.get("main_tank_capacity"),
-                    reserve_tank_capacity=stored_ship.get("reserve_tank_capacity"),
-                    fsd_item=stored_ship.get("fsd_item"),
-                    guardian_fsd_boosters=tuple(
-                        GuardianFsdBooster(item.get("item") or "", item.get("on"))
-                        for item in (stored_ship.get("guardian_fsd_boosters") or [])
-                        if isinstance(item, dict)
-                    ),
-                    modules=tuple(stored_ship.get("modules") or ()),
-                    loadout_timestamp=stored_ship.get("loadout_timestamp"),
-                    loadout_complete=bool(stored_ship.get("loadout_complete")),
-                    loadout_stale=bool(stored_ship.get("loadout_stale", True)),
-                )
+                data["ship_loadout"] = self._stored_ship_loadout(stored_ship)
         self._store_latest_journal_session(data)
         self._emit_journal_positions(data, current_session, delta_events)
         self.system = data["system"]
@@ -2315,6 +2303,17 @@ class AppState(QObject):
             self._cargo_status = None
             total = None
         inventory = current_ship_inventory(self) if caught_up else None
+        # Reuse the resolved cargo total and the already-read Status sidecar.
+        # These ephemeral route inputs are never written to the fleet database.
+        from .route_planner.ship_inputs import status_reserve_fuel
+        loadout = self.ship_loadout
+        previous_inputs = (loadout.cargo, loadout.reserve_fuel)
+        loadout.cargo = total['count'] if total is not None else None
+        loadout.reserve_fuel = status_reserve_fuel(self, self._cargo_status)
+        if previous_inputs != (loadout.cargo, loadout.reserve_fuel):
+            signal = getattr(self, 'shipRouteInputsChanged', None)
+            if signal is not None:
+                signal.emit(loadout)
         if total != self.ship_cargo_total or inventory != getattr(self, 'ship_inventory', None):
             self.ship_cargo_total = total
             self.ship_inventory = inventory

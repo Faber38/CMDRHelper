@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from contextlib import contextmanager
+from copy import deepcopy
+
 import hashlib
 import sqlite3
 from pathlib import Path
@@ -7,6 +10,7 @@ from pathlib import Path
 from PySide6.QtCore import Qt, QThreadPool
 from PySide6.QtGui import QColor, QPalette
 from PySide6.QtWidgets import (
+    QLayout,
     QComboBox,
     QFileDialog,
     QMessageBox,
@@ -27,7 +31,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from cmdrhelper.i18n import tr
+from cmdrhelper.i18n import tr, get_language
 from cmdrhelper.mission_manager import translate_mission_text
 from cmdrhelper.ship_equipment import analyze_ship_modules
 from cmdrhelper.ui.ship_assets import ship_display_name, carrier_preview
@@ -59,6 +63,10 @@ class CommanderView(QWidget):
     def __init__(self, state, parent=None):
         super().__init__(parent)
         self.state = state
+        self._fleet_summary = None
+        self._fleet_dirty = True
+        self._fleet_signature = None
+        self._fleet_cards = {}
         self._fleet_rebuild_id = None
         self._protected_ship_id = None
         self._ship_image_fid = ""
@@ -96,6 +104,7 @@ class CommanderView(QWidget):
         self.tabs.addTab(self._exploration_tab(), tr("commander_view.tab.exploration"))
         self.tabs.addTab(self._placeholder(), tr("commander_view.tab.chronicle"))
         self.tabs.addTab(self._ships_tab(), tr("commander_view.tab.ships"))
+        self.tabs.currentChanged.connect(self._fleet_tab_changed)
         root.addWidget(self.tabs, 1)
 
     def _overview_tab(self):
@@ -207,6 +216,7 @@ class CommanderView(QWidget):
         content = QWidget()
         self.fleet_scroll.setWidget(content)
         layout = QVBoxLayout(content)
+        layout.setSizeConstraint(QLayout.SetMinAndMaxSize)
         tab_layout.addWidget(self.fleet_scroll)
         layout.addWidget(QLabel(tr("commander_view.fleet.current"), objectName="sectionTitle"))
         self.current_ship_card = QFrame(objectName="card")
@@ -359,25 +369,38 @@ class CommanderView(QWidget):
         self.state.settings.setValue(
             self.FLEET_SORT_DIRECTION_SETTINGS_KEY, direction
         )
-        self._refresh_ship_for_current_commander()
+        self._refresh_ship_for_current_commander(invalidate_cards=False)
 
     def _fleet_sort_direction_changed(self, _index):
         self.state.settings.setValue(
             self.FLEET_SORT_DIRECTION_SETTINGS_KEY,
             self.fleet_sort_direction_combo.currentData(),
         )
-        self._refresh_ship_for_current_commander()
+        self._refresh_ship_for_current_commander(invalidate_cards=False)
 
     def _fleet_filter_changed(self, _index):
-        self._refresh_ship_for_current_commander()
+        self._refresh_ship_for_current_commander(invalidate_cards=False)
 
-    def _refresh_ship_for_current_commander(self):
+    def _defer_fleet(self, summary):
+        self._fleet_summary = deepcopy(summary)
+        self._fleet_dirty = True
+        self._fleet_tab_changed()
+
+    def _fleet_tab_changed(self, *_):
+        if self.tabs.currentIndex() == 4 and self.isVisible() and self._fleet_dirty:
+            self._refresh_ship(self._fleet_summary)
+            self._fleet_dirty = False
+
+    def _refresh_ship_for_current_commander(self, *, invalidate_cards=True):
         if not hasattr(self, "fleet_layout"):
             return
         viewed_id = self.state.resolve_viewed_commander(
             self.state.database.list_commanders()
         )
-        self._refresh_ship(self.state.database.commander_summary(viewed_id))
+        self._fleet_signature = None
+        if invalidate_cards:
+            self._fleet_cards.clear()
+        self._defer_fleet(self.state.database.commander_summary(viewed_id))
 
     @staticmethod
     def _placeholder():
@@ -449,7 +472,7 @@ class CommanderView(QWidget):
             for value in self.mercenary_values.values():
                 value.setText("–")
             self._refresh_missions(None)
-            self._refresh_ship(None)
+            self._defer_fleet(None)
             for value in self.exploration_values.values():
                 value.setText("–")
             return
@@ -507,7 +530,7 @@ class CommanderView(QWidget):
         for field, value in exploration_values.items():
             self.exploration_values[field].setText(value)
         self._refresh_missions(viewed_id)
-        self._refresh_ship(summary)
+        self._defer_fleet(summary)
 
     @staticmethod
     def _credits(value):
@@ -573,6 +596,14 @@ class CommanderView(QWidget):
     def _refresh_ship(self, summary):
         commander_id = summary.get("id") if summary else None
         ships = self.state.database.commander_ships(commander_id)
+        live_ship_id = getattr(getattr(self.state, "ship_loadout", None), "ship_id", None)
+        signature = (deepcopy(summary), deepcopy(ships), self.state.commander_id, live_ship_id,
+                     self.fleet_sort_combo.currentData() if hasattr(self, 'fleet_sort_combo') else None,
+                     self.fleet_filter_combo.currentData(), self.palette().cacheKey(), get_language(),
+                     self._fleet_rebuild_id)
+        if signature == self._fleet_signature:
+            return
+        self._fleet_signature = signature
         current = next((ship for ship in ships if ship["is_current"]), ships[0] if ships else None)
         self._protected_ship_id = current.get("ship_id") if current else None
         self.fleet_rebuild_button.setEnabled(bool(summary) and self._fleet_rebuild_id is None)
@@ -599,10 +630,11 @@ class CommanderView(QWidget):
         else:
             self._expanded_ship_ids.clear()
             self._fleet_commander_id = commander_id
+        old_cards = []
         while self.fleet_layout.count():
             item = self.fleet_layout.takeAt(0)
             if item.widget():
-                item.widget().deleteLater()
+                old_cards.append(item.widget())
         viewed_is_live = bool(
             summary and int(summary["id"]) == self.state.commander_id
         )
@@ -623,13 +655,25 @@ class CommanderView(QWidget):
                 total=len(ships),
             )
         self.fleet_title.setText(title)
-        for ship in self._sorted_fleet_ships(visible_ships):
-            self.fleet_layout.addWidget(self._fleet_ship_widget(
-                ship,
-                is_live=bool(viewed_is_live and ship["is_current"]),
-                expanded=ship.get("ship_id") in self._expanded_ship_ids,
-            ))
-        self.fleet_layout.addStretch()
+        with self._fleet_layout_update():
+            retained = {}
+            for ship in self._sorted_fleet_ships(visible_ships):
+                key = (commander_id, ship.get("ship_id"))
+                card_signature = (deepcopy(ship), self.state.commander_id, live_ship_id, self._protected_ship_id,
+                                  self._fleet_rebuild_id, self.palette().cacheKey(), get_language())
+                previous = self._fleet_cards.get(key)
+                card = previous[1] if previous and previous[0] == card_signature else self._fleet_ship_widget(
+                    ship, is_live=bool(viewed_is_live and ship["is_current"]),
+                    expanded=ship.get("ship_id") in self._expanded_ship_ids)
+                retained[key] = (card_signature, card)
+                self.fleet_layout.addWidget(card)
+                card.show()
+                if card in old_cards:
+                    old_cards.remove(card)
+            for card in old_cards:
+                card.deleteLater()
+            self._fleet_cards = retained
+            self.fleet_layout.addStretch()
 
         carrier = summary.get("carrier") if summary else None
         carrier_data = {
@@ -652,6 +696,22 @@ class CommanderView(QWidget):
         self.carrier_image.set_ship(None, personal, carrier_data["name"] or "–")
         self.carrier_select_image.setEnabled(self._carrier_image_identity is not None)
         self.carrier_remove_image.setEnabled(personal is not None)
+
+    @contextmanager
+    def _fleet_layout_update(self):
+        # Build/reorder cards before asking the scroll area to measure them.
+        content_layout = self.fleet_scroll.widget().layout()
+        self.fleet_container.setUpdatesEnabled(False)
+        self.fleet_layout.setEnabled(False)
+        content_layout.setEnabled(False)
+        try:
+            yield
+        finally:
+            self.fleet_layout.setEnabled(True)
+            content_layout.setEnabled(True)
+            self.fleet_layout.activate()
+            content_layout.activate()
+            self.fleet_container.setUpdatesEnabled(True)
 
     @staticmethod
     def _ship_display_title(ship):
@@ -967,7 +1027,7 @@ class CommanderView(QWidget):
             QMessageBox.warning(self, tr("commander_view.ship.image.select"),
                                 tr("commander_view.ship.image.error"))
             return
-        self._refresh_ship_for_current_commander()
+        self._refresh_ship_for_current_commander(invalidate_cards=True)
 
     def _remove_ship_image(self, fid, ship_id):
         try:
@@ -976,7 +1036,7 @@ class CommanderView(QWidget):
             QMessageBox.warning(self, tr("commander_view.ship.image.remove"),
                                 tr("commander_view.ship.image.error"))
             return
-        self._refresh_ship_for_current_commander()
+        self._refresh_ship_for_current_commander(invalidate_cards=True)
 
     def _is_live_ship(self, commander_id, ship_id):
         return (commander_id == self.state.commander_id

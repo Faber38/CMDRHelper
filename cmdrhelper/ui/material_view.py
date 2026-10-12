@@ -14,6 +14,13 @@ from cmdrhelper.ui.table_widths import persist_header_layout
 from cmdrhelper.ui.material_row_style import MaterialRowDelegate, STRIPE_ROLE, COLLECTED_ROLE
 
 
+class _MaterialItem(QTreeWidgetItem):
+    sort_key = 0
+
+    def __lt__(self, other):
+        return self.sort_key < other.sort_key
+
+
 class MaterialCategoryTabs(QTabBar):
     """Paint an inset active border without changing native tab metrics or input."""
     def __init__(self, light=False):
@@ -49,6 +56,11 @@ class MaterialView(QWidget):
         self.inventory = MaterialInventory(0, "")
         self.rows = ()
         self.items = {}
+        self._row_items = {}
+        self._groups = {}
+        self._bars = {}
+        self._row_signatures = {}
+        self._render_signature = None
         self.highlight = {}
         self._baseline = False
         self._last_source = None
@@ -119,6 +131,8 @@ class MaterialView(QWidget):
         self.tabs.currentChanged.connect(self._selection_changed)
         self.filter.currentIndexChanged.connect(self._selection_changed)
         self.search.textChanged.connect(self.render)
+        from .loading_state import LoadingState
+        self.loading_state = LoadingState(self.tree)
         self.controller = controller if controller is not None else MaterialController(state, self)
         self.controller.loading.connect(self.begin_loading)
         self.controller.ready.connect(self.set_inventory)
@@ -131,6 +145,7 @@ class MaterialView(QWidget):
         self.render()
 
     def begin_loading(self):
+        self.loading_state.begin()
         self.inventory = MaterialInventory(0, "")
         self.rows = merge_inventory(self.inventory)
         self._baseline = False
@@ -169,6 +184,7 @@ class MaterialView(QWidget):
         self.status.setText("" if inventory.known else tr("materials.unknown_stock"))
         self.status.setVisible(not inventory.known)
         self.render()
+        self.loading_state.finish(inventory.issues[0] if inventory.issues and inventory.snapshot_timestamp is None else "")
 
     def clear_highlight(self):
         self.highlight = {}
@@ -219,7 +235,17 @@ class MaterialView(QWidget):
         scroll = self.tree.verticalScrollBar().value()
         selected_items = self.tree.selectedItems()
         selected_symbol = selected_items[0].data(0, Qt.ItemDataRole.UserRole) if selected_items else None
-        self.tree.clear()
+        signature = (self.CATEGORIES[self.tabs.currentIndex()], self.search.text(),
+                     self.filter.currentData(), get_language(), self._light, self.font().toString(),
+                     tuple(repr(row) for row in self.rows), tuple(sorted(self.highlight.items())))
+        if signature == self._render_signature:
+            return
+        self._render_signature = signature
+        self.tree.setUpdatesEnabled(False)
+        for item in self._row_items.values():
+            item.setHidden(True)
+        for group in self._groups.values():
+            group.setHidden(True)
         self.items = {}
         category = self.CATEGORIES[self.tabs.currentIndex()]
         query = self.search.text().strip().casefold()
@@ -236,13 +262,21 @@ class MaterialView(QWidget):
             named.append((row, name))
         named.sort(key=lambda pair: (pair[0].material.grade or 6, collator.sortKey(pair[1])))
         groups = {}
+        stripes = {}
         colors = ({"empty": "#d89991", "low": "#e3b963", "near_full": "#a1cca9", "full": "#82bd94"}
                   if self._light else {"empty": "#934e47", "low": "#936516", "near_full": "#326845", "full": "#28643e"})
         for row, name in named:
             m = row.material
             grade = tr("materials.grade_number", grade=m.grade) if m.grade else tr("materials.unknown_grade")
             if m.grade not in groups:
-                group = QTreeWidgetItem(self.tree, [grade])
+                group_key = (category, m.grade)
+                group = self._groups.get(group_key)
+                if group is None:
+                    group = _MaterialItem(self.tree, [grade])
+                    group.sort_key = m.grade or 6
+                    self._groups[group_key] = group
+                group.setText(0, grade)
+                group.setHidden(False)
                 group.setFlags(group.flags() & ~Qt.ItemFlag.ItemIsSelectable)
                 group.setFirstColumnSpanned(True)
                 group.setExpanded(True)
@@ -254,19 +288,41 @@ class MaterialView(QWidget):
             label = f"{name} +{delta}" if delta else name
             count = str(row.count) if row.known else "?"
             maximum = str(m.maximum) if m.maximum is not None else "?"
-            item = QTreeWidgetItem(groups[m.grade], [label, str(m.grade) if m.grade else "?", f"{count} / {maximum}", ""])
+            stripe = stripes.get(m.grade, 0)
+            stripes[m.grade] = stripe + 1
+            item = self._row_items.get(m.symbol)
+            texts = [label, str(m.grade) if m.grade else "?", f"{count} / {maximum}", ""]
+            row_signature = (repr(row), label, stripe, self._light, get_language(), self.font().toString())
+            if item is None:
+                item = _MaterialItem(groups[m.grade], texts)
+                self._row_items[m.symbol] = item
+            item.sort_key = collator.sortKey(name)
+            item.setHidden(False)
+            self.items[m.symbol] = item
+            if self._row_signatures.get(m.symbol) == row_signature:
+                continue
+            self._row_signatures[m.symbol] = row_signature
+            for column, text in enumerate(texts):
+                if item.text(column) != text:
+                    item.setText(column, text)
             item.setSizeHint(0, QSize(0, max(26, self.fontMetrics().height() + 10)))
             item.setData(0, Qt.ItemDataRole.UserRole, m.symbol)
             # Start at A in each visible grade block; headings consume no color.
-            item.setData(0, STRIPE_ROLE, (groups[m.grade].childCount() - 1) % 5)
+            item.setData(0, STRIPE_ROLE, stripe % 5)
             item.setData(0, COLLECTED_ROLE, bool(delta))
             item.setToolTip(0, name)
+            item.setToolTip(2, "")
             item.setTextAlignment(2, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
             self.items[m.symbol] = item
             if m.symbol == selected_symbol:
                 item.setSelected(True)
             if row.percent is not None:
-                bar = QProgressBar()
+                bar = self._bars.get(m.symbol)
+                if bar is None:
+                    bar = QProgressBar()
+                    self._bars[m.symbol] = bar
+                    self.tree.setItemWidget(item, 3, bar)
+                bar.show()
                 bar.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
                 bar.setRange(0, 1000)
                 bar.setValue(min(1000, round(row.percent * 10)))
@@ -278,9 +334,13 @@ class MaterialView(QWidget):
                 background = "#edf0f2" if self._light else "#19232c"
                 foreground = "#17212a" if self._light else "#f2f4f5"
                 bar.setStyleSheet(f"QProgressBar {{background:{background}; color:{foreground}; border:1px solid {color}; border-radius:3px; text-align:center;}} QProgressBar::chunk {{background:{color};}}")
-                self.tree.setItemWidget(item, 3, bar)
             else:
+                if m.symbol in self._bars:
+                    self.tree.removeItemWidget(item, 3)
+                    self._bars.pop(m.symbol)
                 item.setToolTip(2, tr("materials.unknown_stock") if not row.known else tr("materials.unknown_maximum"))
+        self.tree.sortItems(0, Qt.AscendingOrder)
+        self.tree.setUpdatesEnabled(True)
         self.tree.doItemsLayout()
         self.tree.verticalScrollBar().setValue(scroll)
         self.row_delegate.refresh_hover()

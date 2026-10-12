@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_4.0': 'Förbättrad ruttplanerare med stöd för 7A SCO FSD och korrekt hantering av modifieringar, Guardian-boosters, last och reservbränsle.',
+    'release.3_9_4.1': 'Ny skeppsdatasassistent förklarar, kompletterar och sparar saknade värden per skepp; bekräftade automatiska data har företräde.',
+    'release.3_9_4.2': 'Precisare tidskoppling mellan Powerplay-leveranser och meritmeddelanden inom tre sekunder när sammanhanget är entydigt.',
+    'release.3_9_4.3': 'Gruvdrifts-, Odyssey-, material- och flottvyer undviker onödig ombyggnad och återanvänder befintliga visningselement.',
+    'release.3_9_4.4': 'Ny städhjälp för Odyssey med 81 standardkandidater, personligt urval bland 223 föremål, färgmarkering och sparad sortering.',
+    'release.3_9_4.5': 'Förbättrad indatavalidering, felmeddelanden och laddningsindikatorer samt uppdaterade texter på alla tolv språk.',
+
     'release.3_9_3.0': 'Tre nya stationsbilder, förbättrad typkoppling och korrigerade markeringar av planetstationer.',
     'release.3_9_3.1': 'Bekräftade Interstellar Factors visas i turkos bredvid stationsnamnet.',
     'release.3_9_3.2': 'Bildgalleriet laddas i bakgrunden med en holografisk laddningsskanner och skydd mot upprepade klick.',
@@ -697,6 +704,8 @@ TRANSLATIONS = {
     'route_planner.ship_loadout_incomplete': "Fartygsdata ofullständiga",
     'route_planner.ship_loadout_stale': "Fartygsdata inaktuella",
     'route_planner.ship_loadout_unknown_fsd': "Okänd FSD",
+    'route_planner.ship_loadout_missing_fsd_specs': 'Tekniska FSD-data saknas',
+    'route_planner.ship_loadout_missing_live_data': 'Aktuella bränsle- eller lastdata saknas',
     'route_planner.ship_error_missing_fields': "Tekniska värden saknas: {fields}",
     'route_planner.ship_algorithm': "Ruttalgoritm",
     'route_planner.ship_use_supercharge': "Använd supercharge/neutronstjärnor",
@@ -1905,4 +1914,72 @@ TRANSLATIONS.update({
     'pp2.system.undermining_help': 'Underminering – aktiviteter som försvagar den kontrollerande maktens position i detta system.',
     'pp2.system.control_help': 'Oförändrade kontrollframsteg från journalen. En normaliserad betydelse från 0 till 1 är inte fastställd lokalt; ingen procentomräkning används.',
     'pp2.system.stage_help': 'Rapporterad systemstatus: {status}. Raden ger orientering, inte en obligatorisk ordningsföljd.',
+})
+
+# Ship data assistant
+TRANSLATIONS.update({
+    'route_planner.assistant_open': 'Fyll i saknade värden',
+    'route_planner.assistant_title': 'Komplettera skeppsdata',
+    'route_planner.assistant_identity': 'Befälhavare: {commander} ({fid})\nSkepp: {ship} · {name}\nShipID: {sid}',
+    'route_planner.assistant_fsd_source': 'Kopiera exakt FSD-modulidentifierare och kontrollera EDSY (https://edsy.org). Använd inte en liknande variant.',
+    'route_planner.assistant_policy': 'Automatiska värden har företräde. Sparade värden finns kvar för jämförelse. Tomma fält tar bort manuella värden. Last och reservbränsle gäller högst 2 minuter i denna skeppssession och sparas inte permanent.',
+    'route_planner.assistant_automatic': 'Automatiskt identifierat',
+    'route_planner.assistant_manual': 'Manuellt sparat',
+    'route_planner.assistant_unknown': 'Okänt',
+    'route_planner.assistant_help': 'Förklaring',
+    'route_planner.assistant_stored': 'Sparat jämförelsevärde: {value}',
+    'route_planner.assistant_confirm_scope': 'Bekräfta för aktuell konfiguration',
+    'route_planner.assistant_scope': 'Den sparade konfigurationen skiljer sig. Kontrollera och bekräfta före återanvändning.',
+    'route_planner.assistant_save': 'Spara för detta skepp',
+    'route_planner.assistant_delete': 'Radera manuella skeppsvärden',
+    'route_planner.assistant_identity_error': 'Sparande kräver bekräftat FID, ShipID och lokala inställningar.',
+    'route_planner.assistant_number': 'Ange ett ändligt tal med decimalpunkt eller komma, utan tusentalsavgränsare.',
+    'route_planner.assistant_range': 'Tillåtet intervall: {minimum}, högst {maximum}.',
+    'route_planner.assistant_reserve': 'Reservbränslet får inte överstiga reservtankens kapacitet.',
+    'route_planner.assistant_cargo': 'Lasten får inte överstiga känd lastkapacitet.',
+    'route_planner.assistant_context': 'Aktuella värden kräver bekräftad skeppskontext.',
+    'route_planner.assistant_fsd_error': 'FSD-värden kräver exakt modulidentifierare.',
+    'route_planner.assistant_changed': 'Skeppet eller sessionen har ändrats. Stäng och öppna dialogen igen.',
+    'route_planner.assistant_invalid': 'Rätta de markerade fälten.',
+    'route_planner.assistant_save_error': 'Det gick inte att spara. Inmatningarna finns kvar i dialogen.',
+    'route_planner.assistant_delete_confirm': 'Radera alla manuella värden endast för detta skepp?',
+    'route_planner.assistant_ready': 'Klar – innehåller manuella värden',
+    'route_planner.assistant_incomplete': 'Ofullständig – innehåller manuella värden',
+    'route_planner.assistant_form': 'Manuell formulärinmatning',
+})
+
+TRANSLATIONS.update({
+    'route_planner.assistant_help_tank_size': 'Huvudtankens kapacitet i t, inte aktuellt innehåll. Källa: Loadout.FuelCapacity.Main. Anger bränsleutrymme för Spansh.',
+    'route_planner.assistant_help_cargo': 'Aktuell skeppslast i t, inte lastkapacitet. Källa: bekräftade Cargo/Status-data. Spansh räknar med denna extra massa; okänt är inte noll.',
+    'route_planner.assistant_help_base_mass': 'Basmassa i t: Loadout.UnladenMass plus reservtankkapacitet enligt befintlig Spansh-konvention. Lägg inte till last eller huvudbränsle igen.',
+    'route_planner.assistant_help_internal_tank_size': 'Reservtankkapacitet i t från Loadout.FuelCapacity.Reserve. Spansh behöver tankstorleken, inte aktuellt innehåll.',
+    'route_planner.assistant_help_reserve_size': 'Aktuellt reservbränsle i t från Status.Fuel.FuelReservoir. Anger bränsletillstånd för Spansh; inte automatiskt lika med kapaciteten.',
+    'route_planner.assistant_help_optimal_mass': 'Optimal FSD-massa i t för räckviddsformeln. Använd slutvärdet FSDOptimalMass.Value, annars exakt EDSY-variant. Tillämpa inte modifieringen två gånger.',
+    'route_planner.assistant_help_max_fuel_per_jump': 'Maximalt FSD-bränsle per hopp i t: MaxFuelPerJump.Value eller exakt EDSY-variant. Ange inte hoppräcka i ly.',
+    'route_planner.assistant_help_fuel_power': 'Enhetslös exponent i FSD-bränsleformeln. Använd fuelpower för exakt EDSY-variant, inte elektrisk effekt eller bränslemängd.',
+    'route_planner.assistant_help_fuel_multiplier': 'Koefficient i FSD-formeln på EDSY:s decimalskala fuelmul. Använd direkt utan procent- eller tusenfaldig omräkning.',
+    'route_planner.assistant_help_range_boost': 'Extra hoppbonus i ly, exempelvis aktiv Guardian-booster. Källa: boosterkatalogen. Inte total räckvidd; noll endast vid bekräftad avsaknad av bonus.',
+})
+
+TRANSLATIONS.update({
+    'odyssey.cleanup.manage': 'Hantera rensningslista',
+    'odyssey.cleanup.marked': 'Markerade',
+    'odyssey.cleanup.unmarked': 'Inte markerade',
+    'odyssey.cleanup.count': '{count} av {total} föremål markerade',
+    'odyssey.cleanup.reset': 'Återställ standardval',
+    'odyssey.cleanup.confirm': 'Ersätta hela urvalet med Helpers standardval? Ändringarna gäller först när du sparar.',
+    'odyssey.cleanup.personal': 'Markerat i din personliga rensningslista.',
+    'odyssey.cleanup.no_use': 'Ingen känd användning för dräkt- eller vapenförbättringar.',
+    'odyssey.cleanup.save_error': 'Rensningslistan kunde inte sparas.',
+    'odyssey.cleanup.chemicals': 'Kemikalier',
+    'odyssey.cleanup.circuits': 'Kretsar',
+    'odyssey.cleanup.tech': 'Teknik',
+})
+
+TRANSLATIONS.update({
+    'odyssey.cleanup.legend': 'Rensningskandidat',
+    'odyssey.cleanup.legend_tip': 'Dessa föremål har ingen känd användning för dräkt- eller vapenförbättringar och kan vanligtvis säljas till bartendern i baren.\n\nFöremål som du markerar själv kan ha andra användningsområden.',
+    'odyssey.sort.label': 'Sortering',
+    'odyssey.sort.cleanup': 'Rensningslista',
+    'odyssey.sort.alphabetical': 'Alfabetiskt',
 })

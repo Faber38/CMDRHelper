@@ -38,6 +38,15 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## CMDRHelper v3.9.4
+
+- Verbeterde scheepsrouteplanner met ondersteuning voor de 7A SCO FSD en correcte verwerking van engineering, Guardian-boosters, vracht en reservebrandstof.
+- Nieuwe scheepsgegevensassistent verklaart, vult aan en bewaart ontbrekende waarden per schip; bevestigde automatische gegevens hebben voorrang.
+- Nauwkeurigere tijdkoppeling van Powerplay-leveringen aan meritmeldingen binnen drie seconden bij een eenduidige context.
+- Mijnbouw-, Odyssey-, materiaal- en vlootweergaven vermijden onnodige heropbouw en hergebruiken bestaande weergave-elementen.
+- Nieuwe Odyssey-opruimhulp met 81 standaardkandidaten, persoonlijke selectie uit 223 voorwerpen, kleurmarkering en opgeslagen sortering.
+- Verbeterde invoercontrole, foutmeldingen en laadindicatoren, met bijgewerkte teksten in alle twaalf talen.
+
 ## CMDRHelper v3.9.3
 
 - Drie nieuwe stationsafbeeldingen, verbeterde typetoewijzing en gecorrigeerde aanduidingen van planetaire stations.

@@ -69,6 +69,47 @@ class MiningMarketTests(unittest.TestCase):
         self.addCleanup(view.market_controller.pool.waitForDone)
         return state,view
 
+    def test_reopening_keeps_prices_but_identity_invalidates_them(self):
+        self.put()
+        state, view = self.view()
+        view.show()
+        self.wait(lambda: bool(view.own_market_prices))
+        quote = view.own_market_prices['gold']
+        generation = view.market_controller._generation
+        view.market_controller.set_active(True)
+        self.assertEqual(view.market_controller._generation, generation)
+        view.hide()
+        view.show()
+        self.assertEqual(view.own_market_prices['gold'], quote)
+        state.viewedCommanderChanged.emit(3)
+        self.assertEqual(view.own_market_prices, {})
+        self.wait(lambda: not view.market_controller._running and not view.market_controller.timer.isActive())
+
+    def test_price_batch_bounds_size_measurement(self):
+        import sys
+        from cmdrhelper.ui.mining_view import _CarrierDelegate
+        self.put(sell=123456789)
+        _, view = self.view()
+        view.show()
+        result = self.read()
+        calls = []
+        code = _CarrierDelegate.sizeHint.__code__
+        def measured(frame, event, arg):
+            if event == 'call' and frame.f_code is code:
+                calls.append(1)
+        previous = sys.getprofile()
+        try:
+            sys.setprofile(measured)
+            view.set_market_prices(result)
+            self.app.processEvents()
+        finally:
+            sys.setprofile(previous)
+        self.assertGreater(len(calls), 0)
+        self.assertLess(len(calls), 5000)
+        self.assertEqual(view.items['gold'].data(7, Qt.UserRole), 123456789)
+        header = view.tree.header()
+        self.assertGreaterEqual(header.sectionSize(7), header.sectionSizeHint(7))
+
     def test_no_price_missing_db_and_reference_catalog_unchanged(self):
         before=tuple(MINING_COMMODITIES)
         self.assertEqual(self.read().quotes,())

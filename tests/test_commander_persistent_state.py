@@ -138,6 +138,8 @@ class CommanderPersistentStateTests(unittest.TestCase):
         state.select_viewed_commander(self.b)
         self.assertEqual(state.commander_id, self.a)
         self.assertEqual(view.values["last_ship"].text(), "B Ship")
+        # Ship details are populated only when the user opens the Ships tab.
+        view.tabs.setCurrentIndex(4)
         self.assertEqual(view.ship_values["ship_id"].text(), "7")
 
     def test_carriers_are_separate_and_name_location_update(self):
@@ -215,20 +217,20 @@ class SchemaV5Tests(unittest.TestCase):
     def test_v4_to_v5_is_additive(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "v4.db"
-            database = CMDRDatabase(path)
-            commander_id = database.upsert_commander("FID-A", "Alpha")
-            with database._connect() as con:
-                for table in ("commander_missions", "commander_locations",
-                              "commander_ships", "commander_carriers"):
-                    con.execute(f"DROP TABLE {table}")
-                con.execute("DROP TABLE IF EXISTS station_pad_evidence")
-                con.execute("DROP TABLE IF EXISTS station_pad_journals")
-                con.execute("PRAGMA user_version=4")
+            with sqlite3.connect(path) as con:
+                con.executescript((Path(__file__).parent / "fixtures/schema_v4.sql").read_text())
+                commander_id = con.execute(
+                    "INSERT INTO commanders(fid, current_name) VALUES ('FID-A', 'Alpha')"
+                ).lastrowid
+                self.assertEqual(con.execute("PRAGMA user_version").fetchone()[0], 4)
+                self.assertFalse(con.execute("PRAGMA foreign_key_check").fetchall())
             CMDRDatabase(path)
             with sqlite3.connect(path) as con:
                 self.assertEqual(con.execute("PRAGMA user_version").fetchone()[0], SCHEMA_VERSION)
                 self.assertEqual(con.execute("SELECT fid FROM commanders WHERE id=?",
                                              (commander_id,)).fetchone(), ("FID-A",))
+                self.assertFalse(con.execute("PRAGMA foreign_key_check").fetchall())
+                self.assertEqual(con.execute("PRAGMA integrity_check").fetchone()[0], "ok")
                 tables = {row[0] for row in con.execute(
                     "SELECT name FROM sqlite_master WHERE type='table'")}
             self.assertTrue({"commander_missions", "commander_locations",

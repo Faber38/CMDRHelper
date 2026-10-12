@@ -76,12 +76,13 @@ class ChronicleTests(unittest.TestCase):
         state = replay(action, event('Cargo', Count=5), credit(0, 194))
         self.assertEqual(state.chronicle.groups[0].certainty, 'unknown')
 
-    def test_explicit_transport_groups_only_same_second_delivery_credits(self):
-        state = replay(delivery(kind='PowerplayCollect'), delivery(10), credit(10, 3600, 12783), credit(10, 48, 12831))
+    def test_transport_groups_temporal_credits_with_known_context(self):
+        state = replay(event('Docked', StarSystem='HIP 70049', StationName='Mille Enterprise'),
+                       delivery(kind='PowerplayCollect'), delivery(10), credit(10, 3600, 12783), credit(10, 48, 12831))
         self.assertEqual(len(state.chronicle.groups), 2)
-        self.assertTrue(all(g.certainty == 'explicit' for g in state.chronicle.groups))
+        self.assertEqual([g.certainty for g in state.chronicle.groups], ['explicit', 'temporal'])
         self.assertEqual([c['MeritsGained'] for c in state.chronicle.groups[1].credits], [3600, 48])
-        state.apply(credit(11, 10))
+        state.apply(credit(14, 10))
         self.assertEqual(state.chronicle.groups[-1].certainty, 'unknown')
         state = replay(delivery(kind='PowerplayCollect'), credit(0, 10))
         self.assertEqual([g.certainty for g in state.chronicle.groups], ['explicit', 'unknown'])
@@ -117,7 +118,7 @@ class ChronicleTests(unittest.TestCase):
         self.assertEqual(len(state.chronicle.groups), 2)
 
     def test_no_group_limit_independent_of_old_raw_event_limit(self):
-        state = replay()
+        state = replay(event('Docked', StarSystem='HIP 70049', StationName='Mille Enterprise'))
         for second in range(20):
             state.apply(delivery(second * 10))
             state.apply(credit(second * 10, 3600))
@@ -152,16 +153,17 @@ class ChronicleViewTests(unittest.TestCase):
     setUp = base.PowerplayViewTests.setUp
 
     def test_table_details_symbols_and_tooltips(self):
-        self.state.powerplay = replay(bounty(), credit(), event('Cargo', 2),
+        self.state.powerplay = replay(event('Docked', StarSystem='HIP 70049', StationName='Mille Enterprise'),
+                                     bounty(), credit(), event('Cargo', 2),
                                      delivery(3), credit(3, 3600, 12783), credit(3, 48, 12831),
                                      event('Cargo', 4), credit(10, 3, 12834))
         self.state.changed.emit()
         table = self.view.recent
         self.assertEqual(table.rowCount(), 3)
-        self.assertEqual([table.item(r, 4).text() for r in range(3)], ['?', '✓', '≈'])
+        self.assertEqual([table.item(r, 4).text() for r in range(3)], ['?', '≈', '≈'])
         self.assertIn('keinen Vergütungsgrund', table.item(0, 4).toolTip())
-        self.assertIn('direkt im Elite-Journal', table.item(1, 4).toolTip())
-        self.assertIn('Vergütungsgründe sind nicht belegt', table.item(1, 4).toolTip())
+        self.assertIn('0 s nach', table.item(1, 4).toolTip())
+        self.assertIn('keine direkte Zuordnung', table.item(1, 4).toolTip())
         self.assertIn('1 s nach', table.item(2, 4).toolTip())
         self.assertIn('keine direkte Zuordnung', table.item(2, 4).toolTip())
         self.assertEqual(table.item(1, 3).text(), '+3.600 / +48')

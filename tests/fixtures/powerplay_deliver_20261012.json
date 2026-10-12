@@ -1,0 +1,387 @@
+{
+  "source": "Journal.test-delivery.log",
+  "rows": [
+    {
+      "line": 37,
+      "event": {
+        "timestamp": "2026-10-12T06:23:12Z",
+        "event": "Powerplay",
+        "Power": "Nakato Kaine",
+        "Merits": 279601
+      }
+    },
+    {
+      "line": 336,
+      "event": {
+        "timestamp": "2026-10-12T07:38:43Z",
+        "event": "FSDJump",
+        "StarSystem": "Hydrae Sector LN-T b3-1",
+        "SystemAddress": 2870514886089
+      }
+    },
+    {
+      "line": 356,
+      "event": {
+        "timestamp": "2026-10-12T07:43:10Z",
+        "event": "Docked",
+        "StationName": "Dingle Depot",
+        "StarSystem": "Hydrae Sector LN-T b3-1",
+        "MarketID": 4224178947
+      }
+    },
+    {
+      "line": 360,
+      "event": {
+        "timestamp": "2026-10-12T07:43:36Z",
+        "event": "DeliverPowerMicroResources",
+        "TotalCount": 2,
+        "MicroResources": [
+          {
+            "Name": "powerfinancialrecords",
+            "Name_Localised": "Industriedaten der Macht",
+            "Category": "Data",
+            "Count": 2
+          }
+        ],
+        "MarketID": 4224178947
+      }
+    },
+    {
+      "line": 361,
+      "event": {
+        "timestamp": "2026-10-12T07:43:36Z",
+        "event": "PowerplayDeliver",
+        "Power": "Nakato Kaine",
+        "Type": "powerfinancialrecords",
+        "Type_Localised": "Industriedaten der Macht",
+        "Count": 2
+      }
+    },
+    {
+      "line": 362,
+      "event": {
+        "timestamp": "2026-10-12T07:43:36Z",
+        "event": "ShipLocker"
+      }
+    },
+    {
+      "line": 363,
+      "event": {
+        "timestamp": "2026-10-12T07:43:39Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 493,
+        "TotalMerits": 280094
+      }
+    },
+    {
+      "line": 364,
+      "event": {
+        "timestamp": "2026-10-12T07:43:39Z",
+        "event": "DeliverPowerMicroResources",
+        "TotalCount": 2,
+        "MicroResources": [
+          {
+            "Name": "powerexperiment",
+            "Name_Localised": "Experimenteller Prototyp",
+            "Category": "Item",
+            "Count": 2
+          }
+        ],
+        "MarketID": 4224178947
+      }
+    },
+    {
+      "line": 365,
+      "event": {
+        "timestamp": "2026-10-12T07:43:39Z",
+        "event": "PowerplayDeliver",
+        "Power": "Nakato Kaine",
+        "Type": "powerexperiment",
+        "Type_Localised": "Experimenteller Prototyp",
+        "Count": 2
+      }
+    },
+    {
+      "line": 366,
+      "event": {
+        "timestamp": "2026-10-12T07:43:39Z",
+        "event": "ShipLocker"
+      }
+    },
+    {
+      "line": 367,
+      "event": {
+        "timestamp": "2026-10-12T07:43:40Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 169,
+        "TotalMerits": 280263
+      }
+    },
+    {
+      "line": 368,
+      "event": {
+        "timestamp": "2026-10-12T07:43:48Z",
+        "event": "DeliverPowerMicroResources",
+        "TotalCount": 2,
+        "MicroResources": [
+          {
+            "Name": "powerequipment",
+            "Name_Localised": "Persönliche Schutzausrüstung",
+            "Category": "Item",
+            "Count": 2
+          }
+        ],
+        "MarketID": 4224178947
+      }
+    },
+    {
+      "line": 369,
+      "event": {
+        "timestamp": "2026-10-12T07:43:48Z",
+        "event": "PowerplayDeliver",
+        "Power": "Nakato Kaine",
+        "Type": "powerequipment",
+        "Type_Localised": "Persönliche Schutzausrüstung",
+        "Count": 2
+      }
+    },
+    {
+      "line": 370,
+      "event": {
+        "timestamp": "2026-10-12T07:43:48Z",
+        "event": "ShipLocker"
+      }
+    },
+    {
+      "line": 371,
+      "event": {
+        "timestamp": "2026-10-12T07:43:48Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 169,
+        "TotalMerits": 280432
+      }
+    },
+    {
+      "line": 372,
+      "event": {
+        "timestamp": "2026-10-12T07:43:53Z",
+        "event": "DeliverPowerMicroResources",
+        "TotalCount": 1,
+        "MicroResources": [
+          {
+            "Name": "powerresearchdata",
+            "Name_Localised": "Forschungsdaten der Macht",
+            "Category": "Data",
+            "Count": 1
+          }
+        ],
+        "MarketID": 4224178947
+      }
+    },
+    {
+      "line": 373,
+      "event": {
+        "timestamp": "2026-10-12T07:43:53Z",
+        "event": "PowerplayDeliver",
+        "Power": "Nakato Kaine",
+        "Type": "powerresearchdata",
+        "Type_Localised": "Forschungsdaten der Macht",
+        "Count": 1
+      }
+    },
+    {
+      "line": 374,
+      "event": {
+        "timestamp": "2026-10-12T07:43:53Z",
+        "event": "ShipLocker"
+      }
+    },
+    {
+      "line": 375,
+      "event": {
+        "timestamp": "2026-10-12T07:43:54Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 246,
+        "TotalMerits": 280678
+      }
+    },
+    {
+      "line": 376,
+      "event": {
+        "timestamp": "2026-10-12T07:43:57Z",
+        "event": "DeliverPowerMicroResources",
+        "TotalCount": 1,
+        "MicroResources": [
+          {
+            "Name": "powerpropagandadata",
+            "Name_Localised": "Politische Daten der Macht",
+            "Category": "Data",
+            "Count": 1
+          }
+        ],
+        "MarketID": 4224178947
+      }
+    },
+    {
+      "line": 377,
+      "event": {
+        "timestamp": "2026-10-12T07:43:57Z",
+        "event": "PowerplayDeliver",
+        "Power": "Nakato Kaine",
+        "Type": "powerpropagandadata",
+        "Type_Localised": "Politische Daten der Macht",
+        "Count": 1
+      }
+    },
+    {
+      "line": 378,
+      "event": {
+        "timestamp": "2026-10-12T07:43:57Z",
+        "event": "ShipLocker"
+      }
+    },
+    {
+      "line": 379,
+      "event": {
+        "timestamp": "2026-10-12T07:43:57Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 246,
+        "TotalMerits": 280924
+      }
+    },
+    {
+      "line": 380,
+      "event": {
+        "timestamp": "2026-10-12T07:43:59Z",
+        "event": "DeliverPowerMicroResources",
+        "TotalCount": 1,
+        "MicroResources": [
+          {
+            "Name": "poweremployeedata",
+            "Name_Localised": "Zugehörigkeitsdaten der Macht",
+            "Category": "Data",
+            "Count": 1
+          }
+        ],
+        "MarketID": 4224178947
+      }
+    },
+    {
+      "line": 381,
+      "event": {
+        "timestamp": "2026-10-12T07:43:59Z",
+        "event": "PowerplayDeliver",
+        "Power": "Nakato Kaine",
+        "Type": "poweremployeedata",
+        "Type_Localised": "Zugehörigkeitsdaten der Macht",
+        "Count": 1
+      }
+    },
+    {
+      "line": 382,
+      "event": {
+        "timestamp": "2026-10-12T07:44:00Z",
+        "event": "ShipLocker"
+      }
+    },
+    {
+      "line": 383,
+      "event": {
+        "timestamp": "2026-10-12T07:44:00Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 246,
+        "TotalMerits": 281170
+      }
+    },
+    {
+      "line": 391,
+      "event": {
+        "timestamp": "2026-10-12T07:45:42Z",
+        "event": "Undocked",
+        "StationName": "Dingle Depot",
+        "MarketID": 4224178947
+      }
+    },
+    {
+      "line": 662,
+      "event": {
+        "timestamp": "2026-10-12T08:09:24Z",
+        "event": "FSDJump",
+        "StarSystem": "Hydrae Sector LN-T b3-1",
+        "SystemAddress": 2870514886089
+      }
+    },
+    {
+      "line": 685,
+      "event": {
+        "timestamp": "2026-10-12T08:12:58Z",
+        "event": "Docked",
+        "StationName": "Dingle Depot",
+        "StarSystem": "Hydrae Sector LN-T b3-1",
+        "MarketID": 4224178947
+      }
+    },
+    {
+      "line": 688,
+      "event": {
+        "timestamp": "2026-10-12T08:13:13Z",
+        "event": "DeliverPowerMicroResources",
+        "TotalCount": 1,
+        "MicroResources": [
+          {
+            "Name": "powermisccomputer",
+            "Name_Localised": "Datenspeichergerät",
+            "Category": "Item",
+            "Count": 1
+          }
+        ],
+        "MarketID": 4224178947
+      }
+    },
+    {
+      "line": 689,
+      "event": {
+        "timestamp": "2026-10-12T08:13:13Z",
+        "event": "PowerplayDeliver",
+        "Power": "Nakato Kaine",
+        "Type": "powermisccomputer",
+        "Type_Localised": "Datenspeichergerät",
+        "Count": 1
+      }
+    },
+    {
+      "line": 690,
+      "event": {
+        "timestamp": "2026-10-12T08:13:14Z",
+        "event": "ShipLocker"
+      }
+    },
+    {
+      "line": 691,
+      "event": {
+        "timestamp": "2026-10-12T08:13:14Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 4800,
+        "TotalMerits": 285970
+      }
+    },
+    {
+      "line": 692,
+      "event": {
+        "timestamp": "2026-10-12T08:13:14Z",
+        "event": "PowerplayMerits",
+        "Power": "Nakato Kaine",
+        "MeritsGained": 84,
+        "TotalMerits": 286054
+      }
+    }
+  ],
+  "description": "Anonymized minimal regression sequence; no commander identity or inventory snapshots. Delivery times and merit values preserve the reported Dingle Depot case."
+}

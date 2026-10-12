@@ -146,21 +146,12 @@ def ship_context_valid(state):
     )
 
 
-def status_ship_count(state, status, *, now=None):
-    """Shared HUD/trade validation. Status has neither FID nor ShipID.
+def ship_status_context(state, status, *, now=None):
+    """Shared identity, vehicle and timestamp gates for ship Status telemetry.
 
-    Require an identified current game, its complete Loadout, ship flags, and a
-    Status strictly AFTER the last ambiguous transition/mutation. Equal-second
-    timestamps cannot establish event order. The two-minute TTL gates NEW
-    evidence only. Identical evidence already confirmed in this exact context
-    remains valid until a context change or invalidation, without persistence.
+    Returns a binding and evidence age; each consumer validates its own values
+    and retains only identical evidence in this exact context.
     """
-    # Pending journal bytes temporarily block use, but are not themselves a
-    # cargo mutation. Check the resulting generation once processing catches up.
-    if getattr(state, '_cargo_blocked', False):
-        return None
-    confirmed = getattr(state, '_confirmed_status_cargo', None)
-    state._confirmed_status_cargo = None
     if not ship_context_valid(state) or not isinstance(status, dict) or status.get('event') != 'Status':
         return None
     flags, flags2 = status.get('Flags'), status.get('Flags2', 0)
@@ -186,11 +177,6 @@ def status_ship_count(state, status, *, now=None):
                 return None
     except (ValueError, TypeError, KeyError, OverflowError):
         return None
-    used = status.get('Cargo')
-    if (type(used) not in (int, float)
-            or (type(used) is float and (not math.isfinite(used) or not used.is_integer()))
-            or not 0 <= used <= loadout.cargo_capacity):
-        return None
     binding = dict(
         fid=c['fid'], journal=c['journal'], ship_id=c['ship_id'], vessel=c['vessel'],
         session_start=c['session_start'], session_generation=c['session_generation'],
@@ -201,6 +187,35 @@ def status_ship_count(state, status, *, now=None):
         loadout_timestamp=loadout.loadout_timestamp, ship_type=loadout.ship_type,
         capacity=loadout.cargo_capacity,
     )
+    return binding, age
+
+
+def status_ship_count(state, status, *, now=None):
+    """Shared HUD/trade validation. Status has neither FID nor ShipID.
+
+    Require an identified current game, its complete Loadout, ship flags, and a
+    Status strictly AFTER the last ambiguous transition/mutation. Equal-second
+    timestamps cannot establish event order. The two-minute TTL gates NEW
+    evidence only. Identical evidence already confirmed in this exact context
+    remains valid until a context change or invalidation, without persistence.
+    """
+    # Pending journal bytes temporarily block use, but are not themselves a
+    # cargo mutation. Check the resulting generation once processing catches up.
+    if getattr(state, '_cargo_blocked', False):
+        return None
+    confirmed = getattr(state, '_confirmed_status_cargo', None)
+    state._confirmed_status_cargo = None
+    context = ship_status_context(state, status, now=now)
+    if context is None:
+        return None
+    binding, age = context
+    loadout = state.ship_loadout
+    flags, flags2 = status['Flags'], status.get('Flags2', 0)
+    used = status.get('Cargo')
+    if (type(used) not in (int, float)
+            or (type(used) is float and (not math.isfinite(used) or not used.is_integer()))
+            or not 0 <= used <= loadout.cargo_capacity):
+        return None
     evidence = dict(timestamp=status['timestamp'], flags=flags, flags2=flags2,
                     count=int(used), source='status')
     retained = (isinstance(confirmed, dict)

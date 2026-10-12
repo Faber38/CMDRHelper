@@ -257,21 +257,8 @@ def _matching_ship(loadout: ShipLoadoutData, event: dict) -> bool:
     )
 
 
-def _loadout_from_event(event: dict, previous: ShipLoadoutData) -> ShipLoadoutData:
-    ship_id = _optional_int(event.get("ShipID"))
-    same_ship = (
-        ship_id is not None
-        and previous.ship_id is not None
-        and ship_id == previous.ship_id
-    )
-    fuel_capacity = event.get("FuelCapacity")
-    main_capacity = None
-    reserve_capacity = None
-    if isinstance(fuel_capacity, dict):
-        main_capacity = _optional_float(fuel_capacity.get("Main"))
-        reserve_capacity = _optional_float(fuel_capacity.get("Reserve"))
-
-    modules = event.get("Modules")
+def loadout_module_fields(modules) -> dict:
+    """Decode installed modules once for live Loadout and stored module JSON."""
     modules = modules if isinstance(modules, list) else []
     fsd = None
     fallback_fsd = None
@@ -310,19 +297,7 @@ def _loadout_from_event(event: dict, previous: ShipLoadoutData) -> ShipLoadoutDa
         elif label == "MaxFuelPerJump":
             max_fuel = _optional_float(modifier.get("Value"))
 
-    return ShipLoadoutData(
-        ship_id=ship_id,
-        ship_type=str(event.get("Ship") or "").strip() or None,
-        ship_name=str(event.get("ShipName") or "").strip() or None,
-        ship_ident=str(event.get("ShipIdent") or "").strip() or None,
-        unladen_mass=_optional_float(event.get("UnladenMass")),
-        cargo_capacity=_optional_int(event.get("CargoCapacity")),
-        cargo=previous.cargo if same_ship else None,
-        max_jump_range=_optional_float(event.get("MaxJumpRange")),
-        main_tank_capacity=main_capacity,
-        reserve_tank_capacity=reserve_capacity,
-        main_fuel=previous.main_fuel if same_ship else None,
-        reserve_fuel=previous.reserve_fuel if same_ship else None,
+    return dict(
         fsd_item=(str(fsd.get("Item") or "").strip() or None) if fsd else None,
         fsd_on=_optional_bool(fsd.get("On")) if fsd else None,
         fsd_blueprint=str(engineering.get("BlueprintName") or "").strip() or None,
@@ -336,6 +311,37 @@ def _loadout_from_event(event: dict, previous: ShipLoadoutData) -> ShipLoadoutDa
         fsd_max_fuel_per_jump=max_fuel,
         guardian_fsd_boosters=tuple(boosters),
         modules=tuple(dict(module) for module in modules if isinstance(module, dict)),
+    )
+
+
+def _loadout_from_event(event: dict, previous: ShipLoadoutData) -> ShipLoadoutData:
+    ship_id = _optional_int(event.get("ShipID"))
+    same_ship = (
+        ship_id is not None
+        and previous.ship_id is not None
+        and ship_id == previous.ship_id
+    )
+    fuel_capacity = event.get("FuelCapacity")
+    main_capacity = None
+    reserve_capacity = None
+    if isinstance(fuel_capacity, dict):
+        main_capacity = _optional_float(fuel_capacity.get("Main"))
+        reserve_capacity = _optional_float(fuel_capacity.get("Reserve"))
+
+    return ShipLoadoutData(
+        ship_id=ship_id,
+        ship_type=str(event.get("Ship") or "").strip() or None,
+        ship_name=str(event.get("ShipName") or "").strip() or None,
+        ship_ident=str(event.get("ShipIdent") or "").strip() or None,
+        unladen_mass=_optional_float(event.get("UnladenMass")),
+        cargo_capacity=_optional_int(event.get("CargoCapacity")),
+        cargo=previous.cargo if same_ship else None,
+        max_jump_range=_optional_float(event.get("MaxJumpRange")),
+        main_tank_capacity=main_capacity,
+        reserve_tank_capacity=reserve_capacity,
+        main_fuel=previous.main_fuel if same_ship else None,
+        reserve_fuel=previous.reserve_fuel if same_ship else None,
+        **loadout_module_fields(event.get("Modules")),
         loadout_timestamp=str(event.get("timestamp") or "").strip() or None,
         loadout_complete=True,
         loadout_stale=False,

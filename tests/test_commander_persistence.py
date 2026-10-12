@@ -15,55 +15,12 @@ from cmdrhelper.database import (
 )
 
 
-LEGACY_PERSONAL_SCHEMA = """
-CREATE TABLE system_visits (id INTEGER PRIMARY KEY AUTOINCREMENT, system_address INTEGER NOT NULL,
- system_name TEXT NOT NULL DEFAULT '', visited_at TEXT NOT NULL DEFAULT '', x REAL, y REAL, z REAL,
- UNIQUE(system_address, visited_at));
-CREATE TABLE biology (system_address INTEGER NOT NULL, body_id INTEGER NOT NULL,
- genus TEXT NOT NULL DEFAULT '', species TEXT NOT NULL DEFAULT '', variant TEXT NOT NULL DEFAULT '',
- scan_type TEXT NOT NULL DEFAULT '', first_seen TEXT NOT NULL DEFAULT '', last_seen TEXT NOT NULL DEFAULT '',
- PRIMARY KEY(system_address, body_id, genus, species, variant));
-CREATE TABLE geology (system_address INTEGER NOT NULL, body_id INTEGER NOT NULL,
- name TEXT NOT NULL DEFAULT '', raw_name TEXT NOT NULL DEFAULT '', source TEXT NOT NULL DEFAULT '',
- first_seen TEXT NOT NULL DEFAULT '', last_seen TEXT NOT NULL DEFAULT '',
- PRIMARY KEY(system_address, body_id, name, source));
-CREATE TABLE codex_entries (id INTEGER PRIMARY KEY AUTOINCREMENT, system_address INTEGER,
- system_name TEXT NOT NULL DEFAULT '', category TEXT NOT NULL DEFAULT '', subcategory TEXT NOT NULL DEFAULT '',
- name TEXT NOT NULL DEFAULT '', raw_name TEXT NOT NULL DEFAULT '', nearest_destination TEXT NOT NULL DEFAULT '',
- region TEXT NOT NULL DEFAULT '', event_type TEXT NOT NULL DEFAULT '', first_seen TEXT NOT NULL DEFAULT '',
- last_seen TEXT NOT NULL DEFAULT '', UNIQUE(system_address, category, subcategory, name, nearest_destination, event_type));
-CREATE TABLE cartography_sales (id INTEGER PRIMARY KEY AUTOINCREMENT, journal_file TEXT NOT NULL DEFAULT '',
- event_timestamp TEXT NOT NULL DEFAULT '', event_type TEXT NOT NULL DEFAULT '', base_value INTEGER NOT NULL DEFAULT 0,
- bonus INTEGER NOT NULL DEFAULT 0, total_earnings INTEGER NOT NULL DEFAULT 0, estimated_total INTEGER NOT NULL DEFAULT 0,
- correction_factor REAL, body_count INTEGER NOT NULL DEFAULT 0, first_seen TEXT NOT NULL DEFAULT '',
- UNIQUE(journal_file, event_timestamp, event_type));
-CREATE TABLE journal_imports (journal_file TEXT PRIMARY KEY, file_size INTEGER NOT NULL DEFAULT 0,
- modified_ns INTEGER NOT NULL DEFAULT 0, last_import TEXT NOT NULL DEFAULT '');
-CREATE TABLE bio_value_journal_scans (journal_file TEXT PRIMARY KEY, file_size INTEGER NOT NULL DEFAULT 0,
- modified_ns INTEGER NOT NULL DEFAULT 0, last_scan TEXT NOT NULL DEFAULT '');
-CREATE TABLE cartography_value_journal_scans (journal_file TEXT PRIMARY KEY, file_size INTEGER NOT NULL DEFAULT 0,
- modified_ns INTEGER NOT NULL DEFAULT 0, last_scan TEXT NOT NULL DEFAULT '');
-CREATE INDEX idx_system_visits_time ON system_visits(visited_at);
-CREATE INDEX idx_geology_body ON geology(system_address, body_id);
-CREATE INDEX idx_codex_system ON codex_entries(system_address);
-CREATE INDEX idx_codex_name ON codex_entries(name);
-"""
-
-
 def make_v2(path: Path) -> None:
-    CMDRDatabase(path)
-    con = sqlite3.connect(path)
-    try:
-        con.execute("PRAGMA foreign_keys=OFF")
-        for table in PERSONAL_TABLES:
-            con.execute(f"DROP TABLE {table}")
-        con.executescript(LEGACY_PERSONAL_SCHEMA)
-        con.execute("DROP TABLE IF EXISTS station_pad_evidence")
-        con.execute("DROP TABLE IF EXISTS station_pad_journals")
-        con.execute("PRAGMA user_version=2")
-        con.commit()
-    finally:
-        con.close()
+    # Load the real historical schema, never relabel a current database as v2.
+    with sqlite3.connect(path) as con:
+        con.executescript((Path(__file__).parent / "fixtures/schema_v2.sql").read_text())
+        assert con.execute("PRAGMA user_version").fetchone()[0] == 2
+        assert not con.execute("PRAGMA foreign_key_check").fetchall()
 
 
 def write_journal(path: Path, events: list[dict]) -> None:

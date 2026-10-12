@@ -13,6 +13,7 @@ similar-looking drive: their specification remains unknown.
 from __future__ import annotations
 
 from dataclasses import dataclass
+import math
 
 from cmdrhelper.route_planner.models import ShipLoadoutData
 
@@ -87,6 +88,9 @@ _FSD_SPECS = (
     _spec("int_hyperdrive_overcharge_size6_class5", 2000.0, 8.30, 2.60, 0.013, 6, "A", "SCO"),
     _spec("int_hyperdrive_overcharge_size7_class1", 1800.0, 8.50, 2.75, 0.008, 7, "E", "SCO"),
     _spec("int_hyperdrive_overcharge_size7_class3", 2700.0, 12.80, 2.75, 0.012, 7, "C", "SCO"),
+    # EDSY 43711 / Frontier 129030600; base module mass 80 t.
+    # fuelmul is already in the decimal scale used by Spansh (no conversion).
+    _spec("int_hyperdrive_overcharge_size7_class5", 3000.0, 13.10, 2.75, 0.013, 7, "A", "SCO"),
     _spec("int_hyperdrive_overcharge_size8_class1", 2800.0, 13.60, 2.90, 0.008, 8, "E", "SCO"),
     _spec(
         "int_hyperdrive_overcharge_size8_class5_overchargebooster_mkii",
@@ -177,6 +181,15 @@ def derive_ship_route_technical_data(
         "fuel_multiplier": spec.fuel_multiplier if spec is not None else None,
         "range_boost": _active_guardian_boost(loadout),
     }
+    positive = {"tank_size", "base_mass", "optimal_mass", "max_fuel_per_jump",
+                "fuel_power", "fuel_multiplier"}
+    for name, value in values.items():
+        if (type(value) not in (int, float) or not math.isfinite(value)
+                or value < 0 or (name in positive and value == 0)):
+            values[name] = None
+    if (values["reserve_size"] is not None and values["internal_tank_size"] is not None
+            and values["reserve_size"] > values["internal_tank_size"]):
+        values["reserve_size"] = None
     missing_fields = tuple(name for name, value in values.items() if value is None)
     stale = loadout.loadout_stale
     complete = loadout.loadout_complete and not stale and not missing_fields

@@ -89,3 +89,6 @@ backups/
 /.codex/
 /.agents/
 /.local-audit/
+
+# Temporary authoring input; defaults are embedded in odyssey_cleanup.py.
+/odyssey_aufraeumliste.txt.txt
