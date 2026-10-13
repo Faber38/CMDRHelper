@@ -1,4 +1,5 @@
 TRANSLATIONS = {
+    'release.3_9_6_6.0': 'Verbeterde koppeling van Powerplay-verdiensten aan opeenvolgende goederenverkopen.',
     'release.3_9_6_5.0': 'Robuustere Windows-start: Niet-kritieke achtergrondfouten worden als gedeeltelijke fouten gemeld; het hoofdvenster blijft bruikbaar.',
     'release.3_9_6_5.1': 'Beperkte nieuwe pogingen voor landingsplaatsgegevens en het bijwerken van journals, verbeterd cartografieherstel en veiligere indexering en afsluiting.',
     'release.3_9_6_5.2': 'Duidelijkere technische foutcategorieën in de diagnostiek, terwijl persoonlijke gegevens geanonimiseerd blijven.',

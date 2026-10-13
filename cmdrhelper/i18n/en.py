@@ -1,4 +1,5 @@
 TRANSLATIONS = {
+    'release.3_9_6_6.0': 'Improved Powerplay merit matching for consecutive commodity sales.',
     'release.3_9_6_5.0': 'More robust Windows startup: Noncritical background failures are reported as partial failures while the main window remains usable.',
     'release.3_9_6_5.1': 'Bounded retries for landing pad data and journal catch-up, improved cartography repair, and safer journal indexing and shutdown.',
     'release.3_9_6_5.2': 'More informative technical error categories in diagnostics while personal data remains anonymized.',

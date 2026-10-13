@@ -1,4 +1,5 @@
 TRANSLATIONS = {
+    'release.3_9_6_6.0': 'Powerplay-ansioiden yhdistämistä peräkkäisiin tavaramyynteihin on parannettu.',
     'release.3_9_6_5.0': 'Vakaampi Windows-käynnistys: Ei-kriittiset taustavirheet näytetään osittaisina virheinä, ja pääikkuna pysyy käytettävissä.',
     'release.3_9_6_5.1': 'Rajatut uusintayritykset laskeutumispaikkatiedoille ja lokien ajantasaistukselle, parannettu kartografian korjaus sekä turvallisempi loki-indeksointi ja sulkeminen.',
     'release.3_9_6_5.2': 'Tarkemmat tekniset virheluokat diagnostiikassa; henkilötiedot pysyvät anonymisoituina.',

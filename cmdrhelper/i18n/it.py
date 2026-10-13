@@ -1,4 +1,5 @@
 TRANSLATIONS = {
+    'release.3_9_6_6.0': 'Migliorata l’associazione dei meriti Powerplay alle vendite consecutive di merci.',
     'release.3_9_6_5.0': 'Avvio Windows più robusto: gli errori non critici in background sono segnalati come parziali e la finestra principale resta utilizzabile.',
     'release.3_9_6_5.1': 'Tentativi limitati per i dati delle piazzole e il recupero dei giornali, riparazione cartografica migliorata e indicizzazione e chiusura più sicure.',
     'release.3_9_6_5.2': 'Categorie tecniche degli errori più informative nella diagnostica, mantenendo anonimi i dati personali.',

@@ -1,4 +1,5 @@
 TRANSLATIONS = {
+    'release.3_9_6_6.0': 'Forbedret kobling av Powerplay-meritter til påfølgende varesalg.',
     'release.3_9_6_5.0': 'Mer robust oppstart i Windows: Ikke-kritiske bakgrunnsfeil vises som delfeil, og hovedvinduet kan fortsatt brukes.',
     'release.3_9_6_5.1': 'Begrensede nye forsøk for landingsplassdata og journaloppdatering, forbedret kartografireparasjon og sikrere journalindeksering og avslutning.',
     'release.3_9_6_5.2': 'Mer informative tekniske feilkategorier i diagnostikken, mens personlige data fortsatt anonymiseres.',

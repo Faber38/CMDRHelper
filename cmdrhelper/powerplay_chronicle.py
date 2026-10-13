@@ -108,6 +108,17 @@ class PowerplayChronicle:
         # discard that alternative merely because their own window is shorter.
         return 3 if group.action.get("event") == "PowerplayDeliver" else cls._window(group)
 
+    def _earlier_credited_ordinary_sale(self, other, sale):
+        # Ordinary sales accept only one credit. Once that temporal link lies
+        # strictly before a new sale, it need not block the new sale's link.
+        # Same-second credits remain ambiguous at journal timestamp precision;
+        # rare sales and PP2 deliveries may legitimately receive more credits.
+        if (other.action.get("event") != "MarketSell" or is_rare_sale(other.action)
+                or other.certainty != "temporal" or len(other.credits) != 1):
+            return False
+        gap = self._gap(other.credits[0], sale.action)
+        return gap is not None and gap > 0
+
     def _sale_competitors(self, previous, event, *, keep_candidates=False):
         """Carry alternatives through credits, never through a reset/barrier.
 
@@ -287,11 +298,13 @@ class PowerplayChronicle:
         if group and group.certainty != "unknown" and group.competitors:
             if group.action.get("event") == "MarketSell" and not is_rare_sale(group.action):
                 # Evaluate alternatives at the credit's time, not the later
-                # sale's time. An already credited action can still compete;
-                # a credit is not proof that a cause has been consumed.
+                # sale's time. Only an ordinary sale with an earlier completed
+                # temporal link is excluded; this never proves journal cause.
                 matched = matched and not any(
                     (gap := self._gap(other.action, event)) is not None
-                    and 0 <= gap <= self._cause_window(other) for other in group.competitors)
+                    and 0 <= gap <= self._cause_window(other)
+                    and not self._earlier_credited_ordinary_sale(other, group)
+                    for other in group.competitors)
             else:
                 matched = False
         if matched:

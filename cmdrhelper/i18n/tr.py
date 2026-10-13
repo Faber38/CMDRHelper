@@ -1,4 +1,5 @@
 TRANSLATIONS = {
+    'release.3_9_6_6.0': 'Ardışık mal satışlarında Powerplay liyakat eşleştirmesi iyileştirildi.',
     'release.3_9_6_5.0': 'Daha sağlam Windows başlangıcı: Kritik olmayan arka plan hataları kısmi hata olarak gösterilir; ana pencere kullanılabilir kalır.',
     'release.3_9_6_5.1': 'İniş alanı verileri ve günlük yakalama için sınırlı yeniden deneme, iyileştirilmiş kartografi onarımı ve daha güvenli günlük indeksleme ve kapanış.',
     'release.3_9_6_5.2': 'Kişisel veriler anonim kalırken tanılamada daha açıklayıcı teknik hata kategorileri.',

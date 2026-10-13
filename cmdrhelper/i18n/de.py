@@ -1,4 +1,5 @@
 TRANSLATIONS = {
+    'release.3_9_6_6.0': 'Verbesserte Powerplay-Merit-Zuordnung bei aufeinanderfolgenden Warenverkäufen.',
     'release.3_9_6_5.0': 'Robusterer Windows-Start: Nichtkritische Hintergrundfehler werden als Teilfehler angezeigt; das Hauptfenster bleibt nutzbar.',
     'release.3_9_6_5.1': 'Begrenzte Wiederholungen bei Landeplatzdaten und Journal-Catch-up, verbesserte Kartografiereparatur sowie abgesicherte Journalindex- und Shutdown-Abläufe.',
     'release.3_9_6_5.2': 'Aussagekräftigere technische Fehlerkategorien in der Diagnose bei weiterhin anonymisierten persönlichen Daten.',

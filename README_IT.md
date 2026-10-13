@@ -38,6 +38,10 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## CMDRHelper v3.9.6.6
+
+- Migliorata l’associazione dei meriti Powerplay alle vendite consecutive di merci.
+
 ## CMDRHelper v3.9.6.5
 
 - Avvio Windows più robusto: gli errori non critici in background sono segnalati come parziali e la finestra principale resta utilizzabile.

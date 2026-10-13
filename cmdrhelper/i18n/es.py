@@ -1,4 +1,5 @@
 TRANSLATIONS = {
+    'release.3_9_6_6.0': 'Mejorada la asociación de méritos de Powerplay con ventas consecutivas de mercancías.',
     'release.3_9_6_5.0': 'Inicio de Windows más robusto: los errores no críticos en segundo plano se indican como parciales y la ventana principal sigue disponible.',
     'release.3_9_6_5.1': 'Reintentos limitados para los datos de plataformas y la puesta al día de diarios, mejor reparación cartográfica e indexación y cierre más seguros.',
     'release.3_9_6_5.2': 'Categorías técnicas de error más informativas en el diagnóstico, manteniendo anonimizados los datos personales.',

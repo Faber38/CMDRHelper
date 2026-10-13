@@ -1,4 +1,4 @@
-"""Reported quantities/gains, synthetic context and credit times (no source journal supplied)."""
+"""Synthetic regressions, including the verified order/timing of six reported sales."""
 from copy import deepcopy
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -12,8 +12,8 @@ from tests.test_powerplay_chronicle import event, credit, bounty, delivery, scan
 from tests import test_powerplay as view_base
 from tests import test_powerplay_store as store
 
-# Only these UTC sale times, commodities, quantities and gains were supplied.
-# Date, contexts, initial totals, rank and +1 s merit timestamps below are synthetic.
+# Reported UTC sale times, commodities, quantities and gains.
+# Contexts, initial totals, rank and the +1 s credits in reported_sequence are synthetic.
 CASES = [('07:03:17', 'gold', 20, 1158), ('07:03:27', 'osmium', 48, 2788),
          ('07:04:04', 'praseodymium', 8, 79), ('07:04:06', 'samarium', 42, 1243),
          ('07:04:11', 'silver', 40, 1856), ('07:04:13', 'painite', 5, 296)]
@@ -48,7 +48,72 @@ def reported_sequence():
     return rows
 
 
+def verified_sequence():
+    """Reconstruct only sale/credit timing and barriers, without personal journal data.
+
+    Order verified read-only against the supplied 2026-10-13 journal. Context,
+    totals, rank and Cargo contents remain synthetic.
+    """
+    rows = reported_sequence()[:2]
+    total = 10000
+    for index, (clock, commodity, count, gain) in enumerate(CASES):
+        stamp = '2026-10-13T' + clock + 'Z'
+        rows.append(dict(event='MarketSell', timestamp=stamp, Type=commodity, Count=count,
+                         MarketID=123456))
+        if commodity == 'painite':
+            rows.append(dict(event='Cargo', timestamp=stamp, Vessel='Ship', Count=0))
+        total += gain
+        rows.append(dict(event='PowerplayMerits', timestamp=stamp, Power=PLACE['power'],
+                         MeritsGained=gain, TotalMerits=total))
+        if commodity == 'osmium':
+            rows.append(dict(event='PowerplayRank', timestamp=stamp, Power=PLACE['power'], Rank=13))
+        cargo_clock = ('07:03:19', '07:03:29', '07:04:06', '07:04:09', None, '07:04:15')[index]
+        if cargo_clock:
+            rows.append(dict(event='Cargo', timestamp='2026-10-13T'+cargo_clock+'Z',
+                             Vessel='Ship', Count=0))
+        if commodity == 'osmium':
+            rows.append(dict(event='Market', timestamp='2026-10-13T07:03:58Z', MarketID=123456))
+    return rows
+
+
 class MarketSaleTests(unittest.TestCase):
+    def test_verified_six_sale_order_and_same_second_credits(self):
+        state, without = PowerplayState(), PowerplayState()
+        for e in verified_sequence():
+            state.apply(e)
+            without._apply(e)
+            self.assertEqual((state.merits, state.rank), (without.merits, without.rank))
+        self.assertEqual([(g.action.get('Type'), g.action.get('Count'), g.credits[0]['MeritsGained'])
+                          for g in state.chronicle.groups], [(t, c, m) for _, t, c, m in CASES])
+        self.assertTrue(all(g.certainty == 'temporal' for g in state.chronicle.groups))
+        self.assertEqual((state.merits, state.rank), (17420, 13))
+
+    def test_prior_credited_sale_with_cargo_before_or_after_next_sale(self):
+        for commodity, count, gain in (('samarium', 42, 1243), ('painite', 5, 296)):
+            for delay in (1, 2):
+                for cargo_first in (True, False):
+                    with self.subTest(commodity=commodity, delay=delay, cargo_first=cargo_first):
+                        next_sale = sale(delay, Type=commodity, Count=count)
+                        cargo = event('Cargo', delay)
+                        middle = (cargo, next_sale) if cargo_first else (next_sale, cargo)
+                        result = groups(sale(Type='silver'), credit(0, 1856), *middle, credit(delay, gain))
+                        self.assertEqual([g.certainty for g in result], ['temporal', 'temporal'])
+                        self.assertEqual(result[-1].action, next_sale)
+
+    def test_only_earlier_credited_ordinary_sales_stop_competing(self):
+        # Uncredited sales, rare sales and PP2 deliveries remain alternatives.
+        for earlier in (sale(), sale(Type='leestianeviljuice'), delivery()):
+            sequences = [(earlier, sale(1), credit(1))]
+            if earlier['event'] != 'MarketSell' or earlier.get('Type') == 'leestianeviljuice':
+                sequences.append((earlier, credit(0), sale(1), credit(1)))
+            for sequence in sequences:
+                self.assertEqual(groups(*sequence)[-1].certainty, 'unknown')
+        # A prior credit in the new sale's second cannot resolve that second's ambiguity.
+        self.assertEqual(groups(sale(), credit(1), sale(1), credit(1))[-1].certainty, 'unknown')
+        # Neither an unknown credit nor Cargo consumes the open alternatives.
+        self.assertEqual(groups(sale(), sale(), credit(0), event('Cargo', 1),
+                                sale(1), credit(1))[-1].certainty, 'unknown')
+
     def test_six_reported_sales_with_synthetic_one_second_credits(self):
         state = PowerplayState()
         for e in reported_sequence():
@@ -141,6 +206,20 @@ class MarketSaleStoreTests(unittest.TestCase):
     journal = store.StoreTests.journal
     sync = store.StoreTests.sync
 
+    def test_verified_order_replays_from_store_without_writes(self):
+        session = self.journal(verified_sequence())
+        self.sync(session)
+        with self.db._connect() as con:
+            before = {t: con.execute('SELECT * FROM '+t).fetchall() for t in store.PP_TABLES}
+        result = self.db.powerplay_day(session['commander_id'], DAY, zone=timezone.utc)
+        self.assertEqual([(g.action.get('Type'), g.credits[0]['MeritsGained']) for g in result.groups],
+                         [(t, m) for _, t, _, m in CASES])
+        self.assertTrue(all(g.certainty == 'temporal' for g in result.groups))
+        self.assertEqual(self.db.powerplay_merits(session['commander_id']), 17420)
+        with self.db._connect() as con:
+            self.assertEqual(before, {t: con.execute('SELECT * FROM '+t).fetchall() for t in store.PP_TABLES})
+            self.assertEqual(con.execute('PRAGMA user_version').fetchone()[0], 23)
+
     def test_old_stored_sales_replay_read_only_without_reimport(self):
         session=self.journal(reported_sequence())
         self.sync(session)
@@ -177,6 +256,22 @@ class MarketSaleStoreTests(unittest.TestCase):
 class MarketSaleViewTests(unittest.TestCase):
     setUpClass = classmethod(view_base.PowerplayViewTests.setUpClass.__func__)
     setUp = view_base.PowerplayViewTests.setUp
+
+    def test_verified_order_shows_samarium_and_painite_as_approximate(self):
+        self.addCleanup(set_language, 'de')
+        set_language('de')
+        self.state.powerplay = PowerplayState()
+        for e in verified_sequence():
+            self.state.powerplay.apply(e)
+        with patch('cmdrhelper.ui.powerplay_view.local_today', return_value=DAY):
+            self.view.render()
+        table = self.view.recent
+        self.assertEqual(table.rowCount(), 6)
+        for row, commodity, gain in ((0, '5 t Painit', '+296'), (2, '42 t Samarium', '+1.243')):
+            self.assertTrue(table.item(row, 2).text().startswith(commodity))
+            self.assertEqual(table.item(row, 3).text(), gain)
+            self.assertEqual(table.item(row, 4).text(), '≈')
+            self.assertIn('keine direkte Zuordnung', table.item(row, 4).toolTip())
 
     def test_all_languages_use_existing_names_and_approximate_evidence(self):
         self.addCleanup(set_language,'de')

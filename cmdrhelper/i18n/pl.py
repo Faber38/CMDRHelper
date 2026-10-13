@@ -1,4 +1,5 @@
 TRANSLATIONS = {
+    'release.3_9_6_6.0': 'Ulepszone przypisywanie zasług Powerplay do kolejnych transakcji sprzedaży towarów.',
     'release.3_9_6_5.0': 'Stabilniejszy start w Windows: Niekrytyczne błędy w tle są zgłaszane jako częściowe, a główne okno pozostaje dostępne.',
     'release.3_9_6_5.1': 'Ograniczone ponowienia odczytu danych lądowisk i uzupełniania dziennika, ulepszona naprawa kartografii oraz bezpieczniejsze indeksowanie i zamykanie.',
     'release.3_9_6_5.2': 'Dokładniejsze techniczne kategorie błędów w diagnostyce przy zachowaniu anonimizacji danych osobowych.',
