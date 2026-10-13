@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from contextlib import closing
 import hashlib
 import os
 from datetime import datetime, timezone
@@ -19,7 +20,7 @@ def journal_index_plan(database, folder: Path) -> tuple[int, int]:
     """Metadaten-Preflight ohne Dateiinhalt zu öffnen oder zu hashen."""
     folder = Path(folder)
     database.ensure_schema_v10()
-    with database._connect() as con:
+    with closing(database._connect()) as con:
         rows = con.execute(
             """SELECT journal_file, file_size, modified_ns, sha256,
                       fully_imported FROM journal_sessions"""
@@ -65,11 +66,11 @@ def _complete_line_offset(path: Path, start: int = 0) -> int:
     return complete
 
 
-def scan_journal_folder(database, folder: Path, progress_callback=None, validate_input=None):
+def scan_journal_folder(database, folder: Path, progress_callback=None, validate_input=None, cancel=None):
     """Ein scandir-Pass; unveränderte Dateien werden weder geöffnet noch gehasht."""
     folder = Path(folder)
     database.ensure_schema_v10()
-    with database._connect() as con:
+    with closing(database._connect()) as con:
         rows = con.execute(
             """SELECT journal_file, file_size, modified_ns, sha256,
                       commander_id, fid_seen, commander_name_seen,
@@ -93,6 +94,9 @@ def scan_journal_folder(database, folder: Path, progress_callback=None, validate
     now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     total = len(entries)
     for number, (path, size, modified_ns) in enumerate(entries, 1):
+        if cancel is not None and cancel.is_set():
+            from .startup_runtime import StartupCancelled
+            raise StartupCancelled()
         old = cached.get(str(path))
         if (old is not None and old[3]
                 and int(old[1] or 0) == size

@@ -14,6 +14,7 @@ from pathlib import Path
 import re
 
 from .material_catalog import get_material
+from .startup_runtime import diagnostic
 
 logger = logging.getLogger(__name__)
 CATEGORIES = ("Raw", "Manufactured", "Encoded")
@@ -189,6 +190,7 @@ class _Reducer:
                     message = f"{source}: {et}: material remains unknown: {name} (delta {sign * amount:+})"
                     result.material_issues.setdefault(name, []).append(message)
                     logger.warning("Material inventory inconsistency: %s", message)
+                    diagnostic('materials', 'history', reason='material_unknown', status='partial')
                     continue
                 previous = old.count if old and old.count is not None else 0
                 if et == "MaterialCollected":
@@ -203,6 +205,7 @@ class _Reducer:
                     message = f"{source}: {et}: material underflow: {name} ({previous} {sign * amount:+})"
                     result.material_issues.setdefault(name, []).append(message)
                     logger.warning("Material inventory inconsistency: %s", message)
+                    diagnostic('materials', 'history', reason='material_underflow', status='partial')
                     updated[name] = MaterialStock(cat, name, None, False, display)
                     continue
                 updated[name] = MaterialStock(cat, name, count, True, display)
@@ -216,6 +219,7 @@ class _Reducer:
             message = f"{source}: {et}: {exc}"
             result.issues.append(message)
             logger.warning("Material inventory inconsistency: %s", message)
+            diagnostic('materials', 'history', reason='material_invalid_event', status='partial')
 
 
 class MaterialInventoryReader:

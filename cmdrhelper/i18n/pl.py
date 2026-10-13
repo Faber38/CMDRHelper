@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_6_5.0': 'Stabilniejszy start w Windows: Niekrytyczne błędy w tle są zgłaszane jako częściowe, a główne okno pozostaje dostępne.',
+    'release.3_9_6_5.1': 'Ograniczone ponowienia odczytu danych lądowisk i uzupełniania dziennika, ulepszona naprawa kartografii oraz bezpieczniejsze indeksowanie i zamykanie.',
+    'release.3_9_6_5.2': 'Dokładniejsze techniczne kategorie błędów w diagnostyce przy zachowaniu anonimizacji danych osobowych.',
+    'release.3_9_6_5.3': 'Spokojniejsze wyświetlanie ładowni podczas wydobycia dzięki ponownemu użyciu okien i wierszy; automatyczne ukrycie dopiero 15 sekund po ostatniej zmianie zapasów.',
+    'release.3_9_6_5.4': 'Spójne przetłumaczone nazwy towarów bez zmian obliczeń zapasów ani osobnego wyświetlania dronów.',
+    'release.3_9_6_5.5': 'Dzienna kronika PP2: Zwykłą sprzedaż towarów również można ostrożnie powiązać z zasługami (≈); niejednoznaczne przypadki zachowują ?, a suma i obliczanie rangi pozostają bez zmian.',
     'release.3_9_5.0': 'Nowa ocena Odyssey: 192 z 223 przedmiotów mają rangę A–D; 31 pozostaje oznaczonych ? do czasu weryfikacji.',
     'release.3_9_5.1': 'Kolorowa kolumna rang z podpowiedziami i zapamiętanym sortowaniem A–D lub D–A; osobiste oznaczenia porządkowania pozostają niezależne.',
     'release.3_9_5.2': 'Poprawione trasy lotniskowców: cała potwierdzona zajęta pojemność trafia do Spansh, a tryt w zbiorniku i magazynie jest przekazywany oddzielnie.',
@@ -2015,3 +2021,18 @@ TRANSLATIONS.update({
     'odyssey.sort.cleanup': 'Lista porządkowa',
     'odyssey.sort.alphabetical': 'Alfabetycznie',
 })
+
+# Startup completion with independently retryable background data.
+TRANSLATIONS.update({
+    'startup.partial': 'CMDRHelper uruchomiony z częściowymi błędami',
+    'startup.partial_detail': 'Nie udało się zaktualizować niektórych danych w tle: {components}. Można nadal korzystać z głównego okna.',
+    'startup.component.station_pads': 'Lądowiska stacji',
+    'startup.component.history': 'Dane historyczne',
+    'startup.component.unsold_cartography': 'Kartografia',
+    'startup.component.commander_state': 'Stan dowódcy',
+    'startup.component.journal_index': 'Indeks dziennika',
+    'startup.component.catchup': 'Uzupełnianie dziennika',
+    'startup.shutdown_timeout': 'Aktualizacja nie została uruchomiona: zadania w tle nie zatrzymały się na czas. Przetwarzanie dziennika zostanie wznowione po ich zakończeniu.',
+})
+
+TRANSLATIONS.update({"pp2.chronicle.commodity_sale": 'Sprzedaż towarów'})

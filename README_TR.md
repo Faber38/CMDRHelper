@@ -39,6 +39,15 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.6.5
+
+- Daha sağlam Windows başlangıcı: Kritik olmayan arka plan hataları kısmi hata olarak gösterilir; ana pencere kullanılabilir kalır.
+- İniş alanı verileri ve günlük yakalama için sınırlı yeniden deneme, iyileştirilmiş kartografi onarımı ve daha güvenli günlük indeksleme ve kapanış.
+- Kişisel veriler anonim kalırken tanılamada daha açıklayıcı teknik hata kategorileri.
+- Pencere ve tablo satırlarının yeniden kullanılmasıyla madencilik sırasında daha sakin kargo görünümü; son envanter değişikliğinden ancak 15 saniye sonra otomatik gizleme.
+- Envanter hesaplaması veya ayrı dron göstergesi değişmeden tutarlı, yerelleştirilmiş emtia adları.
+- PP2 günlük kaydı: Normal emtia satışları da ihtiyatlı biçimde liyakat kazanımlarıyla ilişkilendirilebilir (≈); belirsiz durumlar ? olarak kalır, toplam ve rütbe hesaplaması değişmez.
+
 ## CMDRHelper v3.9.5
 
 - Yeni Odyssey derecelendirmesi: 223 öğeden 192’si A–D olarak değerlendirildi; 31 öğe doğrulama beklediği için ? ile işaretli.

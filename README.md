@@ -38,6 +38,15 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.9.6.5
+
+- More robust Windows startup: Noncritical background failures are reported as partial failures while the main window remains usable.
+- Bounded retries for landing pad data and journal catch-up, improved cartography repair, and safer journal indexing and shutdown.
+- More informative technical error categories in diagnostics while personal data remains anonymized.
+- Calmer cargo displays during mining by reusing windows and table rows; automatic hiding only 15 seconds after the last inventory change.
+- Consistent localized commodity names without changing inventory calculations or the separate limpet display.
+- PP2 daily chronicle: Ordinary commodity sales can also be conservatively linked to merit credits (≈); ambiguous cases remain ?, with total merits and rank calculations unchanged.
+
 ## CMDRHelper v3.9.5
 
 - New Odyssey ratings: 192 of 223 items are rated A–D; 31 remain marked ? pending verification.

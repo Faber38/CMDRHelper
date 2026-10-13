@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_6_5.0': 'Vakaampi Windows-käynnistys: Ei-kriittiset taustavirheet näytetään osittaisina virheinä, ja pääikkuna pysyy käytettävissä.',
+    'release.3_9_6_5.1': 'Rajatut uusintayritykset laskeutumispaikkatiedoille ja lokien ajantasaistukselle, parannettu kartografian korjaus sekä turvallisempi loki-indeksointi ja sulkeminen.',
+    'release.3_9_6_5.2': 'Tarkemmat tekniset virheluokat diagnostiikassa; henkilötiedot pysyvät anonymisoituina.',
+    'release.3_9_6_5.3': 'Rauhallisemmat lastitilanäkymät louhinnassa ikkunoita ja taulukkorivejä käyttämällä uudelleen; automaattinen piilotus vasta 15 sekuntia viimeisen varastomuutoksen jälkeen.',
+    'release.3_9_6_5.4': 'Yhtenäiset käännetyt hyödykenimet muuttamatta varastolaskentaa tai erillistä drooninäyttöä.',
+    'release.3_9_6_5.5': 'PP2-päiväkronikka: Myös tavalliset hyödykemyynnit voidaan yhdistää varovaisesti ansiopisteisiin (≈); epäselvät tapaukset säilyttävät merkin ?, kokonaismäärä ja arvolaskenta eivät muutu.',
     'release.3_9_5.0': 'Uusi Odyssey-arviointi: 192 esineellä 223:sta on arvo A–D; 31 on edelleen merkitty ?-merkillä tarkistusta odottaen.',
     'release.3_9_5.1': 'Värillinen arvosarake, työkaluvihjeet ja tallennettu A–D- tai D–A-lajittelu; henkilökohtaiset siivousmerkinnät pysyvät erillisinä.',
     'release.3_9_5.2': 'Korjatut tukialusreitit: koko vahvistettu käytetty kapasiteetti lähetetään Spanshiin, säiliön ja varaston tritium erikseen.',
@@ -2015,3 +2021,18 @@ TRANSLATIONS.update({
     'odyssey.sort.cleanup': 'Siivouslista',
     'odyssey.sort.alphabetical': 'Aakkosjärjestys',
 })
+
+# Startup completion with independently retryable background data.
+TRANSLATIONS.update({
+    'startup.partial': 'CMDRHelper käynnistyi osittaisista virheistä huolimatta',
+    'startup.partial_detail': 'Joitakin taustatietoja ei voitu päivittää: {components}. Pääikkunan käyttöä voi jatkaa.',
+    'startup.component.station_pads': 'Laskeutumisalustat',
+    'startup.component.history': 'Historiatiedot',
+    'startup.component.unsold_cartography': 'Kartografia',
+    'startup.component.commander_state': 'Komentajan tila',
+    'startup.component.journal_index': 'Lokihakemisto',
+    'startup.component.catchup': 'Lokin päivitys',
+    'startup.shutdown_timeout': 'Päivitystä ei käynnistetty: taustatehtävät eivät pysähtyneet ajoissa. Lokin käsittely jatkuu niiden päätyttyä.',
+})
+
+TRANSLATIONS.update({"pp2.chronicle.commodity_sale": 'Tavaroiden myynti'})

@@ -38,6 +38,15 @@ La carpeta de diarios de Elite Dangerous se detecta automáticamente cuando es p
 
 CMDRHelper busca actualizaciones al iniciarse y dispone de un actualizador integrado. Confirma una actualización ofrecida en la aplicación; actualizará el programa y las dependencias y reiniciará CMDRHelper. Tras la primera instalación, normalmente basta con usar `start.bat` (Windows) o `bash start.sh` (Linux). No es necesario volver a ejecutar manualmente `install.bat` o `install.sh` para las actualizaciones normales.
 
+## CMDRHelper v3.9.6.5
+
+- Inicio de Windows más robusto: los errores no críticos en segundo plano se indican como parciales y la ventana principal sigue disponible.
+- Reintentos limitados para los datos de plataformas y la puesta al día de diarios, mejor reparación cartográfica e indexación y cierre más seguros.
+- Categorías técnicas de error más informativas en el diagnóstico, manteniendo anonimizados los datos personales.
+- Vistas de carga más estables durante la minería al reutilizar ventanas y filas; ocultación automática solo 15 segundos después del último cambio de existencias.
+- Nombres de mercancías traducidos y uniformes sin cambiar el cálculo de existencias ni la vista separada de drones.
+- Crónica diaria PP2: también las ventas normales pueden vincularse con prudencia a méritos (≈); los casos ambiguos conservan ?, sin cambios en el total ni en el cálculo del rango.
+
 ## CMDRHelper v3.9.5
 
 - Nueva valoración Odyssey: 192 de 223 objetos tienen rango A–D; 31 permanecen marcados con ? pendientes de verificación.

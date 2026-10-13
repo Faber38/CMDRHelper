@@ -3,6 +3,7 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from io import BytesIO
 from pathlib import Path
+from .startup_runtime import JournalPending, diagnostic
 
 _batch = ContextVar('live_journal_batch', default=None)
 
@@ -24,7 +25,20 @@ def _signature(path):
     return stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns
 
 
+def _change_reason(before, after):
+    return ('journal_replaced_or_truncated' if before[:2] != after[:2] or after[2] < before[2]
+            else 'journal_changed_during_read')
+
+
 def _tail(path, offset):
+    try:
+        return _read_tail(path, offset)
+    except OSError as exc:
+        diagnostic('live_journal', 'catchup', exc)
+        raise
+
+
+def _read_tail(path, offset):
     cache = _batch.get()
     key = str(Path(path).resolve())
     cached = cache.get(key) if cache is not None else None
@@ -36,16 +50,17 @@ def _tail(path, offset):
         cached = offset, raw, before
     else:
         if cached[2] != before:
-            raise OSError('Journal changed during live batch')
+            raise JournalPending(_change_reason(cached[2], before))
         if offset < cached[0]:
             with Path(path).open('rb') as stream:
                 stream.seek(offset)
                 prefix = stream.read(cached[0] - offset)
             if len(prefix) != cached[0] - offset:
-                raise OSError('Journal truncated during live batch')
+                raise JournalPending('journal_replaced_or_truncated')
             cached = offset, prefix + cached[1], before
-    if _signature(path) != before:
-        raise OSError('Journal changed during live read')
+    after = _signature(path)
+    if after != before:
+        raise JournalPending(_change_reason(before, after))
     if cache is not None:
         cache[key] = cached
     return cached[1][offset - cached[0]:]

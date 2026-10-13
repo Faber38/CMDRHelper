@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_6_5.0': 'Inicio de Windows más robusto: los errores no críticos en segundo plano se indican como parciales y la ventana principal sigue disponible.',
+    'release.3_9_6_5.1': 'Reintentos limitados para los datos de plataformas y la puesta al día de diarios, mejor reparación cartográfica e indexación y cierre más seguros.',
+    'release.3_9_6_5.2': 'Categorías técnicas de error más informativas en el diagnóstico, manteniendo anonimizados los datos personales.',
+    'release.3_9_6_5.3': 'Vistas de carga más estables durante la minería al reutilizar ventanas y filas; ocultación automática solo 15 segundos después del último cambio de existencias.',
+    'release.3_9_6_5.4': 'Nombres de mercancías traducidos y uniformes sin cambiar el cálculo de existencias ni la vista separada de drones.',
+    'release.3_9_6_5.5': 'Crónica diaria PP2: también las ventas normales pueden vincularse con prudencia a méritos (≈); los casos ambiguos conservan ?, sin cambios en el total ni en el cálculo del rango.',
     'release.3_9_5.0': 'Nueva valoración Odyssey: 192 de 223 objetos tienen rango A–D; 31 permanecen marcados con ? pendientes de verificación.',
     'release.3_9_5.1': 'Columna de rangos de colores con ayudas y ordenación A–D o D–A guardada; las marcas personales de limpieza siguen siendo independientes.',
     'release.3_9_5.2': 'Rutas de portanaves corregidas: se envía a Spansh toda la capacidad ocupada confirmada, separando el tritio del depósito y del almacén.',
@@ -2127,3 +2133,18 @@ TRANSLATIONS.update({
     'odyssey.sort.cleanup': 'Lista de limpieza',
     'odyssey.sort.alphabetical': 'Alfabético',
 })
+
+# Startup completion with independently retryable background data.
+TRANSLATIONS.update({
+    'startup.partial': 'CMDRHelper iniciado con errores parciales',
+    'startup.partial_detail': 'No se pudieron actualizar algunos datos en segundo plano: {components}. Puede seguir usando la ventana principal.',
+    'startup.component.station_pads': 'Plataformas de aterrizaje',
+    'startup.component.history': 'Datos históricos',
+    'startup.component.unsold_cartography': 'Cartografía',
+    'startup.component.commander_state': 'Estado del comandante',
+    'startup.component.journal_index': 'Índice del diario',
+    'startup.component.catchup': 'Actualización del diario',
+    'startup.shutdown_timeout': 'No se inició la actualización: las tareas en segundo plano no se detuvieron a tiempo. El procesamiento del diario se reanudará cuando terminen.',
+})
+
+TRANSLATIONS.update({"pp2.chronicle.commodity_sale": 'Venta de mercancías'})

@@ -38,6 +38,15 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## CMDRHelper v3.9.6.5
+
+- Robuustere Windows-start: Niet-kritieke achtergrondfouten worden als gedeeltelijke fouten gemeld; het hoofdvenster blijft bruikbaar.
+- Beperkte nieuwe pogingen voor landingsplaatsgegevens en het bijwerken van journals, verbeterd cartografieherstel en veiligere indexering en afsluiting.
+- Duidelijkere technische foutcategorieën in de diagnostiek, terwijl persoonlijke gegevens geanonimiseerd blijven.
+- Rustigere laadruimteschermen tijdens mijnbouw door vensters en tabelrijen te hergebruiken; automatisch verbergen pas 15 seconden na de laatste voorraadwijziging.
+- Consistente vertaalde grondstofnamen zonder wijzigingen in voorraadberekeningen of de afzonderlijke droneweergave.
+- PP2-dagkroniek: Ook gewone goederenverkopen kunnen voorzichtig aan verdiensten worden gekoppeld (≈); onduidelijke gevallen behouden ?, met ongewijzigde totalen en rangberekening.
+
 ## CMDRHelper v3.9.5
 
 - Nieuwe Odyssey-beoordeling: 192 van 223 voorwerpen hebben rang A–D; 31 blijven gemarkeerd met ? in afwachting van controle.

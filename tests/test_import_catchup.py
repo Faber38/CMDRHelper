@@ -51,6 +51,52 @@ class ImportCatchupTests(unittest.TestCase):
         return next(row['last_read_offset'] for row in load_sessions(self.db)
                     if row['journal_file'] == str(path or self.path))
 
+    def test_continuously_growing_directory_has_bounded_passes(self):
+        from cmdrhelper.startup_runtime import JournalPending
+        context = capture(self.db, self.folder)
+        before = self.offset()
+        def growing(*args, **kwargs):
+            append(self.path, event('Location', StarSystem='Later', SystemAddress=93))
+            return load_sessions(self.db)
+        with patch('cmdrhelper.journal_catchup._catch_up_pass', side_effect=growing) as passes:
+            with self.assertRaises(JournalPending) as caught:
+                catch_up(self.db, context, max_passes=3)
+        self.assertEqual(caught.exception.reason, 'catchup_budget')
+        self.assertEqual(passes.call_count, 3)
+        self.assertEqual(self.offset(), before)
+        catch_up(self.db, context)
+        self.assertEqual(self.offset(), self.path.stat().st_size)
+
+    def test_budget_keeps_pending_events_and_resumes_without_loss(self):
+        from cmdrhelper.startup_runtime import JournalPending
+        context = capture(self.db, self.folder)
+        before = self.offset()
+        append(self.path, event('Location', StarSystem='Later', SystemAddress=91))
+        with self.assertRaises(JournalPending) as caught:
+            catch_up(self.db, context, time_budget=0)
+        self.assertEqual(caught.exception.reason, 'catchup_budget')
+        self.assertEqual(self.offset(), before)
+        catch_up(self.db, context)
+        self.assertEqual(self.offset(), self.path.stat().st_size)
+        catch_up(self.db, context)
+        self.assertEqual(self.offset(), self.path.stat().st_size)
+
+    def test_partial_tail_reason_and_retry(self):
+        from cmdrhelper.startup_runtime import JournalPending
+        context = capture(self.db, self.folder)
+        before = self.offset()
+        raw = json.dumps(event('Location', StarSystem='Later', SystemAddress=92)).encode()
+        with self.path.open('ab') as handle:
+            handle.write(raw)
+        with self.assertRaises(JournalPending) as caught:
+            catch_up(self.db, context)
+        self.assertEqual(caught.exception.reason, 'partial_final_line')
+        self.assertEqual(self.offset(), before)
+        with self.path.open('ab') as handle:
+            handle.write(b'\n')
+        catch_up(self.db, context)
+        self.assertEqual(self.offset(), self.path.stat().st_size)
+
     def test_growth_multiple_rotations_commander_switch_and_retry_once(self):
         context = capture(self.db, self.folder)
         append(self.path, event('Location', StarSystem='A', SystemAddress=10))

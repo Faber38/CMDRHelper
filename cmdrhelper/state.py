@@ -37,6 +37,8 @@ from cmdrhelper.cargo import read_cargo_snapshot
 from cmdrhelper.body_classes import canonical_body_classes
 from cmdrhelper.powerplay import PowerplayState
 
+from cmdrhelper import startup_runtime as startup
+
 logger = logging.getLogger(__name__)
 
 
@@ -78,6 +80,9 @@ class AppState(QObject):
         self.initializationFinished.connect(self._spansh_initialization_finished, Qt.QueuedConnection)
         self._watcher_live_refresh = False
 
+        startup.prepare(self)
+        self.startup_status = "running"
+        self.startup_issues = []
         self.journal_folder = None
         self.database = CMDRDatabase()
         self._database_import_running = False
@@ -200,6 +205,7 @@ class AppState(QObject):
             on_changed=self.observedMarketsChanged.emit, use_market_store=True)
         application = QCoreApplication.instance()
         if application is not None:
+            application.aboutToQuit.connect(lambda: startup.shutdown(self))
             application.aboutToQuit.connect(self.observed_markets.close)
         self.watcher.live_observers = [self.bounties, self.combat_bonds, self.observed_markets]
         from cmdrhelper.odyssey_tracking import OdysseyCarrierTracking
@@ -235,19 +241,29 @@ class AppState(QObject):
 
     def _start_initial_journal_index(self):
         """Startet den potenziell teuren Erstindex außerhalb des GUI-Threads."""
-        if getattr(self, "_initial_journal_index_running", False):
+        startup.prepare(self)
+        if self._startup_cancel.is_set() or getattr(self, "_initial_journal_index_running", False):
             return
         folder = Path(self.journal_folder) if self.journal_folder else None
         self._initialization_error = ""
+        self._startup_completed = False
+        self.startup_status = "running"
+        self.startup_issues = []
         self._initial_journal_index_running = True
         self._startup_position_read = None
 
         def repair_history():
             try:
                 from cmdrhelper.startup_repairs import run_startup_repairs
-                run_startup_repairs(self.database.path)
+                results = run_startup_repairs(self.database.path,
+                    progress=lambda *_: startup.check(self))
+                for result in results or []:
+                    if result['status'] != 'complete':
+                        startup.issue(self, 'unsold_cartography' if result['feature'] == 'unsold_cartography' else 'history')
+            except startup.StartupCancelled:
+                raise
             except Exception as exc:
-                self._initialization_error = str(exc)
+                startup.issue(self, 'history', exc)
                 logger.exception("Historische Start-Reparatur fehlgeschlagen; Start wird fortgesetzt")
 
         def worker():
@@ -256,7 +272,7 @@ class AppState(QObject):
                 if folder is None:
                     repair_history()
                     self._initial_journal_index_running = False
-                    self.initializationFinished.emit(self._initialization_error)
+                    startup.complete(self)
                     return
                 from cmdrhelper.journal_index import (
                     journal_index_plan, scan_journal_folder,
@@ -267,28 +283,32 @@ class AppState(QObject):
                 # Altindex oder mindestens 25 Inhaltsprüfungen ist sichtbar.
                 visible = should_show_index_progress(total, changed)
                 self._initialization_visible = visible
-                self.initializationStarted.emit(visible, total)
+                startup.emit(self, 'initializationStarted', visible, total)
 
                 def progress(current, count, name):
-                    self.initializationProgress.emit(
+                    startup.check(self)
+                    startup.emit(self, 'initializationProgress',
                         int(current), int(count), "startup.phase.index", str(name)
                     )
 
                 sessions = scan_journal_folder(
                     self.database, folder,
-                    progress_callback=progress if visible else None,
+                    progress_callback=progress if visible else None, cancel=self._startup_cancel,
                 )
+                startup.check(self)
                 self.database.sync_powerplay(sessions)
-                self.initializationProgress.emit(0, 0, "startup.phase.history", "")
+                startup.emit(self, 'initializationProgress', 0, 0, "startup.phase.history", "")
                 # Independent pad checkpoints never advance commander/import cursors.
                 try:
                     from cmdrhelper.station_pad_store import read_local
-                    read_local(self.database.path, folder)
+                    read_local(self.database.path, folder, cancel=self._startup_cancel)
                 except Exception as exc:
-                    self._initialization_error = str(exc)
+                    startup.check(self)
+                    startup.issue(self, "station_pads", exc)
                     logger.exception("Persistent pad initialization failed; searches will retry")
                 # Historical repair revisions run before normal live writes/import.
                 # Missing or damaged old journals must not prevent normal startup.
+                startup.check(self)
                 repair_history()
                 repaired = True
                 commander_ids = sorted({
@@ -313,9 +333,10 @@ class AppState(QObject):
                     if mining_total:
                         visible = True
                         self._initialization_visible = True
-                        self.initializationStarted.emit(True, mining_total)
+                        startup.emit(self, 'initializationStarted', True, mining_total)
                     completed = 0
                     for commander_id in pending_mining:
+                        startup.check(self)
                         commander_total = sum(
                             1 for item in sessions
                             if item.get("attribution_status") == "identified"
@@ -324,7 +345,8 @@ class AppState(QObject):
                         )
 
                         def mining_progress(current, _count, name, base=completed):
-                            self.initializationProgress.emit(
+                            startup.check(self)
+                            startup.emit(self, 'initializationProgress',
                                 base + int(current), mining_total,
                                 "startup.phase.history", str(name),
                             )
@@ -334,8 +356,9 @@ class AppState(QObject):
                             progress_callback=mining_progress if mining_total else None,
                         )
                         completed += commander_total
-                self.initializationProgress.emit(0, 0, "startup.phase.history", "")
+                startup.emit(self, 'initializationProgress', 0, 0, "startup.phase.history", "")
                 for commander_id in commander_ids:
+                    startup.check(self)
                     if self.database.commander_state_repair_needed(
                         commander_id, "body_scan_attributes"
                     ):
@@ -349,9 +372,11 @@ class AppState(QObject):
                             commander_id, sessions
                         )
                 self._repair_indexed_commander_state(sessions, folder)
-                self.journalIndexReady.emit(sessions)
+            except startup.StartupCancelled:
+                raise
             except Exception as exc:
-                self._initialization_error = str(exc)
+                startup.issue(self, 'journal_index', exc)
+                startup.diagnostic('journal_index', 'index', exc)
                 logger.exception("Initialer Journalindex fehlgeschlagen")
                 if not repaired:
                     repair_history()
@@ -359,24 +384,34 @@ class AppState(QObject):
                 # Retained identities allow the normal refresh/error path to start
                 # the watcher and continue showing consistent persisted state.
                 try:
-                    with self.database._connect() as con:
+                    from contextlib import closing
+                    with closing(self.database._connect()) as con:
                         cursor = con.execute("SELECT * FROM journal_sessions ORDER BY first_event_at,journal_file")
                         names = [column[0] for column in cursor.description]
                         retained = [dict(zip(names, row)) for row in cursor.fetchall()]
                     self._repair_indexed_commander_state(retained, folder)
-                    self.journalIndexReady.emit(retained)
-                except Exception:
+                    sessions = retained
+                except startup.StartupCancelled:
+                    raise
+                except Exception as fallback_error:
+                    startup.diagnostic('journal_index', 'fallback', fallback_error, status='critical')
                     logger.exception("Gespeicherter Journalindex konnte nicht geladen werden")
                     self._initial_journal_index_running = False
-                    self.initializationFinished.emit(str(exc))
+                    startup.complete(self, str(fallback_error) or 'Journal index unavailable')
+                    return
+            # Delivery failure is not evidence of unreadable index data.
+            startup.check(self)
+            if not startup.emit(self, 'journalIndexReady', sessions):
+                self._initial_journal_index_running = False
 
-        threading.Thread(
-            target=worker, daemon=True, name="CMDRHelper-JournalIndex"
-        ).start()
+        startup.start(self, worker, "CMDRHelper-JournalIndex",
+                      lambda exc: startup.complete(self, str(exc) or 'Journal index unavailable'),
+                      ('_initial_journal_index_running',))
 
     def _repair_indexed_commander_state(self, sessions, folder):
         """Historical reconstruction stays in the serial index worker."""
-        self.initializationProgress.emit(0, 0, "startup.phase.preparing", "")
+        startup.emit(self, 'initializationProgress', 0, 0, "startup.phase.preparing", "")
+        startup.check(self)
         session = self._latest_identified_index_session(sessions)
         try:
             if session is not None:
@@ -395,13 +430,15 @@ class AppState(QObject):
                         folder, sessions, commander_id, features=features,
                     )
         except Exception as exc:
-            self._initialization_error = str(exc)
+            startup.issue(self, "commander_state", exc)
             logger.exception("Commander-Zustandsreparatur fehlgeschlagen")
 
     @Slot(object)
     def _finish_initial_journal_index(self, sessions):
         """Übernimmt das Worker-Ergebnis und setzt im GUI-Thread fort."""
         self._initial_journal_index_running = False
+        if getattr(self, "_startup_cancel", None) is not None and self._startup_cancel.is_set():
+            return
         try:
             self._journal_index_sessions = list(sessions or [])
             self._journal_index_current = (
@@ -419,11 +456,11 @@ class AppState(QObject):
                     self._last_refresh_error or "Journal konnte nicht gelesen werden."
                 )
             self.watcher.start()
-            self.initializationProgress.emit(0, 0, "startup.phase.history", "")
+            startup.emit(self, 'initializationProgress', 0, 0, "startup.phase.history", "")
             self.import_journal_archive(automatic=True)
         except Exception as exc:
             logger.exception("Übernahme des initialen Journalindex fehlgeschlagen")
-            self.initializationFinished.emit(str(exc))
+            startup.complete(self, str(exc))
             self.watcher.start()
 
     def _repair_latest_position_gap(self, session, prepared=None):
@@ -514,18 +551,21 @@ class AppState(QObject):
             self.viewedCommanderChanged.emit(commander_id)
 
     def import_journal_archive(self, automatic=False):
+        startup.prepare(self)
+        if self._startup_cancel.is_set():
+            return
         if getattr(self, "_initial_journal_index_running", False):
             if not automatic:
                 self._startup_manual_import_waiting = True
             return
         if not self.journal_folder:
             if not automatic:
-                self.databaseImportFinished.emit(
+                startup.emit(self, 'databaseImportFinished',
                     None,
                     "Kein Journalordner eingestellt."
                 )
             else:
-                self.initializationFinished.emit(getattr(self, "_initialization_error", ""))
+                startup.complete(self, getattr(self, "_initialization_error", ""))
             return
 
         # Verhindert, dass automatischer Startimport und manueller
@@ -541,7 +581,7 @@ class AppState(QObject):
                 and (getattr(self, "_journal_catchup", None) is not None
                      or getattr(self, "_journal_catchup_running", False))):
             if not automatic:
-                self.databaseImportFinished.emit(None, "Journal catch-up is still pending.")
+                startup.emit(self, 'databaseImportFinished', None, "Journal catch-up is still pending.")
             return
         if self._database_import_running:
             if not automatic:
@@ -551,13 +591,13 @@ class AppState(QObject):
                     current, total, name = (
                         self._database_import_last_progress
                     )
-                    self.databaseImportProgress.emit(
+                    startup.emit(self, 'databaseImportProgress',
                         int(current),
                         int(total),
                         str(name),
                     )
                 else:
-                    self.databaseImportProgress.emit(
+                    startup.emit(self, 'databaseImportProgress',
                         0,
                         0,
                         "Automatischer Archivabgleich läuft bereits …",
@@ -582,6 +622,7 @@ class AppState(QObject):
                        and self._inara_identity_matches(self.commander_id) else None)
 
         def progress(current, total, name):
+            startup.check(self)
             current = int(current)
             total = int(total)
             name = str(name)
@@ -600,7 +641,7 @@ class AppState(QObject):
                 or self._database_import_manual_waiting
                 or self._initialization_visible
             ):
-                self.databaseImportProgress.emit(
+                startup.emit(self, 'databaseImportProgress',
                     current,
                     total,
                     name,
@@ -611,7 +652,7 @@ class AppState(QObject):
                         display_name = display_name.split(":", 1)[1].strip()
                     if not display_name.lower().endswith(".log"):
                         display_name = ""
-                    self.initializationProgress.emit(
+                    startup.emit(self, 'initializationProgress',
                         current if total > 0 and current < total else 0,
                         total if total > 0 and current < total else 0,
                         "startup.phase.history", display_name
@@ -625,7 +666,7 @@ class AppState(QObject):
             stats, import_error = None, ""
             try:
                 from cmdrhelper.journal_catchup import capture, validate_input
-                self._journal_catchup = capture(self.database, folder)
+                self._journal_catchup = capture(self.database, folder, cancel=self._startup_cancel)
                 stats = self.database.import_journal_archive(
                     folder,
                     progress_callback=progress,
@@ -637,7 +678,8 @@ class AppState(QObject):
                 # Live-Event aktiv, damit historische Verkaufsdaten erhalten
                 # beziehungsweise neu übernommen werden.
                 if automatic:
-                    self.initializationProgress.emit(0, 0, "startup.phase.history", "")
+                    startup.emit(self, 'initializationProgress', 0, 0, "startup.phase.history", "")
+                startup.check(self)
                 self._run_journal_learning("", force=True, folder=folder,
                                            _request=learning_request)
 
@@ -647,38 +689,45 @@ class AppState(QObject):
                     stats.get("skipped_journals", 0),
                 )
 
+            except startup.StartupCancelled:
+                raise
             except Exception as exc:
-                import_error = str(exc)
+                import_error = str(exc) or type(exc).__name__
                 logger.exception("Journal archive import failed")
             finally:
                 try:
+                    if self._startup_cancel.is_set():
+                        raise startup.StartupCancelled()
                     if self._journal_catchup is not None:
                         from cmdrhelper.journal_catchup import catch_up
                         catchup_sessions = catch_up(self.database, self._journal_catchup,
-                                                    enqueue_fid=enqueue_fid)
-                except Exception:
+                                                    enqueue_fid=enqueue_fid, cancel=self._startup_cancel)
+                except startup.StartupCancelled:
+                    raise
+                except Exception as exc:
+                    startup.issue(self, "catchup", exc)
+                    startup.diagnostic("catchup", "catchup", exc)
                     catchup_error = "Journal catch-up failed; input remains pending"
                     logger.warning(catchup_error)
                 notify_manual = not automatic or self._database_import_manual_waiting
                 self._database_import_running = False
                 self._database_import_manual_waiting = False
                 self._database_import_last_progress = None
-                self.journalCatchupReady.emit(catchup_sessions, catchup_error)
-                if notify_manual or import_error or catchup_error:
-                    self.databaseImportFinished.emit(stats, import_error or catchup_error)
+                startup.emit(self, 'journalCatchupReady', catchup_sessions, catchup_error)
+                self._archive_import_error = import_error
+                if notify_manual or import_error:
+                    startup.emit(self, 'databaseImportFinished', stats, import_error or catchup_error)
                 if automatic:
-                    self.initializationFinished.emit(import_error or catchup_error
-                        or getattr(self, "_initialization_error", ""))
+                    startup.complete(self, import_error)
 
-        threading.Thread(
-            target=worker,
-            daemon=True,
-            name=(
-                "CMDRHelper-Database-AutoImport"
-                if automatic
-                else "CMDRHelper-Database-Import"
-            ),
-        ).start()
+        def failed(exc):
+            self._database_import_running = False
+            self._journal_catchup_running = False
+            startup.emit(self, 'databaseImportFinished', None, str(exc))
+            if automatic:
+                startup.complete(self, str(exc) or 'Archive import unavailable')
+        startup.start(self, worker, 'CMDRHelper-Database-Import', failed,
+                      ('_database_import_running', '_journal_catchup_running'))
 
     def set_journal_folder(self, folder):
         if (getattr(self, "_database_import_running", False)
@@ -1452,6 +1501,9 @@ class AppState(QObject):
 
     def _start_journal_catchup(self):
         """Retry pending import input off the GUI thread, using watcher backoff."""
+        startup.prepare(self)
+        if self._startup_cancel.is_set():
+            return
         self._journal_catchup_running = True
         context = self._journal_catchup
         enqueue_fid = (getattr(self, "commander_fid", "")
@@ -1461,17 +1513,26 @@ class AppState(QObject):
         def worker():
             try:
                 from cmdrhelper.journal_catchup import catch_up
-                sessions = catch_up(self.database, context, enqueue_fid=enqueue_fid)
-                self.journalCatchupReady.emit(sessions, "")
-            except Exception:
+                sessions = catch_up(self.database, context, enqueue_fid=enqueue_fid, cancel=self._startup_cancel)
+                startup.emit(self, 'journalCatchupReady', sessions, "")
+            except startup.StartupCancelled:
+                raise
+            except Exception as exc:
+                startup.diagnostic("catchup", "catchup", exc)
                 logger.warning("Journal catch-up failed; input remains pending")
-                self.journalCatchupReady.emit(None, "Journal catch-up failed; input remains pending")
+                startup.emit(self, 'journalCatchupReady', None, "Journal catch-up failed; input remains pending")
 
-        threading.Thread(target=worker, daemon=True, name="CMDRHelper-JournalCatchup").start()
+        def failed(exc):
+            self._journal_catchup_running = False
+            startup.emit(self, 'journalCatchupReady', None, 'Journal catch-up remains pending')
+        startup.start(self, worker, 'CMDRHelper-JournalCatchup', failed,
+                      ('_journal_catchup_running',))
 
     @Slot(object, str)
     def _finish_journal_catchup(self, sessions, error):
         self._journal_catchup_running = False
+        if getattr(self, "_startup_cancel", None) is not None and self._startup_cancel.is_set():
+            return
         pending_folder = getattr(self, "_pending_journal_folder", None)
         if pending_folder is not None:
             self._pending_journal_folder = None
@@ -1495,6 +1556,11 @@ class AppState(QObject):
             }
             self.watcher._catchup_requested = False
         self._journal_catchup = None
+        if getattr(self, '_restart_startup_after_catchup', False):
+            self._restart_startup_after_catchup = False
+            self.watcher.refresh_deferred()
+            self._start_initial_journal_index()
+            return
         # Rescan at handoff: a newer file may have appeared after the pending
         # poll, or after the worker's scan. Never acknowledge that older poll
         # as if it described the newly adopted session.

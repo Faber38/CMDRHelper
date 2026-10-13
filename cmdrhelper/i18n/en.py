@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_6_5.0': 'More robust Windows startup: Noncritical background failures are reported as partial failures while the main window remains usable.',
+    'release.3_9_6_5.1': 'Bounded retries for landing pad data and journal catch-up, improved cartography repair, and safer journal indexing and shutdown.',
+    'release.3_9_6_5.2': 'More informative technical error categories in diagnostics while personal data remains anonymized.',
+    'release.3_9_6_5.3': 'Calmer cargo displays during mining by reusing windows and table rows; automatic hiding only 15 seconds after the last inventory change.',
+    'release.3_9_6_5.4': 'Consistent localized commodity names without changing inventory calculations or the separate limpet display.',
+    'release.3_9_6_5.5': 'PP2 daily chronicle: Ordinary commodity sales can also be conservatively linked to merit credits (≈); ambiguous cases remain ?, with total merits and rank calculations unchanged.',
     'release.3_9_5.0': 'New Odyssey ratings: 192 of 223 items are rated A–D; 31 remain marked ? pending verification.',
     'release.3_9_5.1': 'Colored rating column with tooltips and saved A–D or D–A sorting; personal cleanup markings remain independent.',
     'release.3_9_5.2': 'Corrected Fleet Carrier routes: total confirmed capacity usage is sent to Spansh, with tank and stored tritium kept separate.',
@@ -2159,3 +2165,18 @@ TRANSLATIONS.update({
     'odyssey.sort.cleanup': 'Cleanup list',
     'odyssey.sort.alphabetical': 'Alphabetical',
 })
+
+# Startup completion with independently retryable background data.
+TRANSLATIONS.update({
+    'startup.partial': 'CMDRHelper started with partial errors',
+    'startup.partial_detail': 'Some background data could not be updated: {components}. You can continue using the main window.',
+    'startup.component.station_pads': 'Station landing pads',
+    'startup.component.history': 'Historical data',
+    'startup.component.unsold_cartography': 'Cartography',
+    'startup.component.commander_state': 'Commander state',
+    'startup.component.journal_index': 'Journal index',
+    'startup.component.catchup': 'Journal catch-up',
+    'startup.shutdown_timeout': 'Update not started: background tasks did not stop in time. Journal processing will resume when they finish.',
+})
+
+TRANSLATIONS.update({"pp2.chronicle.commodity_sale": 'Commodity sale'})

@@ -266,6 +266,74 @@ print(json.dumps([len(rows),stats['journal_bytes'],stats['processed_files']]))
         self.assertEqual(self.checkpoint(),offset)
         self.assertEqual(set(self.read()),{2,4})
 
+    def test_transient_growth_retries_with_fresh_snapshot(self):
+        self.write([event()])
+        from cmdrhelper.station_pad_store import _fingerprints
+        calls = []
+        def grow_once(*args):
+            result = _fingerprints(*args)
+            if not calls:
+                self.write([event(MarketID=4)], mode='a')
+            calls.append(1)
+            return result
+        with patch('cmdrhelper.station_pad_store._fingerprints', side_effect=grow_once):
+            self.assertEqual(set(self.read()), {2, 4})
+        self.assertEqual(self.checkpoint(), self.path.stat().st_size)
+
+    def test_path_and_handle_metadata_need_not_be_identical(self):
+        self.write([event()])
+        import os
+        from types import SimpleNamespace
+        original = os.fstat
+        def crt_stat(fd):
+            st = original(fd)
+            return SimpleNamespace(st_dev=st.st_dev, st_ino=st.st_ino + 7,
+                st_size=st.st_size, st_mtime_ns=st.st_mtime_ns // 1000 * 1000,
+                st_ctime_ns=st.st_ctime_ns // 1000 * 1000)
+        with patch('cmdrhelper.station_pad_store.os.fstat', side_effect=crt_stat):
+            self.assertEqual(set(self.read()), {2})
+
+    def test_busy_store_lock_has_deadline(self):
+        from unittest.mock import Mock
+        from cmdrhelper.startup_runtime import JournalPending
+        busy = Mock()
+        busy.acquire.return_value = False
+        with patch('cmdrhelper.station_pad_store._locks', {str(self.db.resolve()): busy}), \
+             patch('cmdrhelper.station_pad_store.perf_counter', side_effect=[0, 6]):
+            with self.assertRaises(JournalPending) as caught:
+                self.read()
+        self.assertEqual(caught.exception.reason, 'pad_lock_timeout')
+        busy.release.assert_not_called()
+
+    def test_repeated_change_is_bounded_and_old_rows_survive(self):
+        self.write([event()]); self.read(); offset = self.checkpoint()
+        self.write([event(MarketID=4)], mode='a')
+        from cmdrhelper.startup_runtime import JournalPending
+        with patch('cmdrhelper.station_pad_store._process', side_effect=JournalPending('pad_signature_mismatch')) as process:
+            with self.assertRaises(OSError):
+                self.read()
+        self.assertEqual(process.call_count, 3)
+        self.assertEqual(self.checkpoint(), offset)
+        with sqlite3.connect(self.db) as con:
+            self.assertEqual(con.execute('SELECT count(*) FROM station_pad_evidence').fetchone()[0], 1)
+        self.assertEqual(set(self.read()), {2, 4})
+
+    def test_replacement_during_open_is_retried_without_mixed_evidence(self):
+        self.write([event()])
+        original = Path.open
+        replaced = []
+        def opening(path, *args, **kw):
+            stream = original(path, *args, **kw)
+            if path == self.path and args == ('rb',) and not replaced:
+                replacement = self.folder/'replacement.tmp'
+                self.write([event(MarketID=8)], replacement)
+                replacement.replace(self.path)
+                replaced.append(True)
+            return stream
+        with patch.object(Path, 'open', opening):
+            self.assertEqual(set(self.read()), {8})
+        self.assertTrue(replaced)
+
     def test_unavailable_folder_does_not_delete_evidence(self):
         self.write([event()]);self.read()
         with patch('cmdrhelper.station_pad_store.os.scandir',side_effect=PermissionError('unavailable')):

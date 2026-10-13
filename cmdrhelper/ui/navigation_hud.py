@@ -14,6 +14,7 @@ from PySide6.QtGui import QColor, QFontMetricsF, QGuiApplication, QPainter, QPen
 from PySide6.QtWidgets import QWidget
 
 from cmdrhelper.i18n import tr, get_language
+from cmdrhelper.ui.cargo_hud import CargoVisibility
 from cmdrhelper.ui.planet_navigation_window import angle_text, direction_text
 
 
@@ -241,6 +242,8 @@ class NavigationHud(QWidget):
         self.enabled = False
         self.cargo_enabled = False
         self.cargo_provider = None
+        self.cargo_activity_provider = None
+        self.cargo_visibility = CargoVisibility(self, self.follow_target)
         self.cargo_data = None
         self.cargo_geometry = QRectF()
         self.message_lines = ()
@@ -320,13 +323,16 @@ class NavigationHud(QWidget):
             self.message_timer.start(duration_ms)
         self._sync_visibility()
 
-    def set_cargo_enabled(self, enabled):
-        """A second persistent group, independent of navigation and messages."""
+    def set_cargo_enabled(self, enabled, *, manual=False):
+        """Cargo activity is independent of navigation and transient messages."""
         if enabled and not self._prepare_input():
             return
         self.cargo_enabled = bool(enabled)
+        if enabled and manual:
+            self.cargo_visibility.observe(self.cargo_visibility.key, manual=True)
         if not enabled:
             self.cargo_data = None
+            self.cargo_visibility.reset()
         self._sync_visibility()
 
     def clear_message(self, *, channel="default"):
@@ -351,6 +357,7 @@ class NavigationHud(QWidget):
         self._windows_failed = True
         self.enabled = self.safe_input = False
         self.cargo_enabled = False
+        self.cargo_visibility.reset()
         self.controller.consumer_release("navigation_hud")
         self.timer.stop()
         self.hide()
@@ -360,10 +367,16 @@ class NavigationHud(QWidget):
     def follow_target(self):
         if self._windows_failed:
             return  # Retry only after explicitly switching the HUD on again.
-        self.cargo_data = self.cargo_provider() if self.cargo_enabled and self.cargo_provider else None
+        data = self.cargo_provider() if self.cargo_enabled and self.cargo_provider else None
+        if data is not None:
+            activity = self.cargo_activity_provider() if self.cargo_activity_provider else None
+            self.cargo_visibility.observe(
+                ("snapshot", activity) if activity is not None else ("status", data))
+        self.cargo_data = data if self.cargo_visibility.active else None
         if (not self.cargo_data and not self.message_lines and not self.edsm_message_lines
                 and (not self.enabled or not hud_lines(self.controller.state))):
-            self.hide()
+            if self.isVisible():
+                self.hide()
             self._status("waiting_navigation" if self.enabled else
                          "waiting_cargo" if self.cargo_enabled else "off")
             return
@@ -428,7 +441,14 @@ class NavigationHud(QWidget):
     def refresh_navigation(self, _state):
         self.follow_target()
 
+    def notify_cargo_activity(self, key):
+        if self.cargo_enabled:
+            if key is not None:
+                self.cargo_visibility.observe(("snapshot", key))
+            self.follow_target()
+
     def closeEvent(self, event):
+        self.cargo_visibility.reset()
         self.edsm_message_timer.stop()
         self.edsm_message_lines = ()
         self.message_timer.stop()

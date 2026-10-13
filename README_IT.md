@@ -38,6 +38,15 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## CMDRHelper v3.9.6.5
+
+- Avvio Windows più robusto: gli errori non critici in background sono segnalati come parziali e la finestra principale resta utilizzabile.
+- Tentativi limitati per i dati delle piazzole e il recupero dei giornali, riparazione cartografica migliorata e indicizzazione e chiusura più sicure.
+- Categorie tecniche degli errori più informative nella diagnostica, mantenendo anonimi i dati personali.
+- Visualizzazioni della stiva più stabili durante l’estrazione grazie al riutilizzo di finestre e righe; scomparsa automatica 15 secondi dopo l’ultima variazione delle scorte.
+- Nomi localizzati delle merci uniformi, senza modificare i calcoli delle scorte o la visualizzazione separata dei droni.
+- Cronaca giornaliera PP2: anche le vendite ordinarie possono essere associate prudentemente ai meriti (≈); i casi ambigui restano ?, con totale e calcolo del rango invariati.
+
 ## CMDRHelper v3.9.5
 
 - Nuova valutazione Odyssey: 192 oggetti su 223 hanno un rango A–D; 31 restano contrassegnati con ? in attesa di verifica.

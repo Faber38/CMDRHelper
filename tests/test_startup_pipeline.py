@@ -77,7 +77,7 @@ class StartupPipelineTests(unittest.TestCase):
         finally:
             host.close()
 
-    def run_pipeline(self, repair_error=False, adoption_error=False):
+    def run_pipeline(self, repair_error=False, adoption_error=False, pad_error=False, catchup_error=False):
         state = self.state()
         entered, release = threading.Event(), threading.Event()
         repair_threads, adopt_threads, finished, progress = [], [], [], []
@@ -123,7 +123,11 @@ class StartupPipelineTests(unittest.TestCase):
         timer.timeout.connect(lambda: timer_ticks.append(True))
         with patch('cmdrhelper.journal_index.journal_index_plan', return_value=(3881, 3881)), \
              patch('cmdrhelper.journal_index.scan_journal_folder', side_effect=scan), \
-             patch('cmdrhelper.startup_repairs.run_startup_repairs'):
+             patch('cmdrhelper.startup_repairs.run_startup_repairs'), \
+             patch('cmdrhelper.station_pad_store.read_local', return_value={},
+                   side_effect=OSError('transient') if pad_error else None), \
+             patch('cmdrhelper.journal_catchup.catch_up', return_value=None,
+                   side_effect=OSError('pending') if catchup_error else None):
             timer.start()
             try:
                 state._start_initial_journal_index()
@@ -151,7 +155,15 @@ class StartupPipelineTests(unittest.TestCase):
             self.assertIn('Übernahme defekt', finished[0])
             state.database.import_journal_archive.assert_not_called()
         else:
-            self.assertEqual(finished, ['Historie defekt' if repair_error else ''])
+            self.assertEqual(finished, [''])
+            self.assertEqual(state.startup_status, 'partial' if repair_error or pad_error or catchup_error else 'success')
+            if pad_error:
+                self.assertIn('station_pads', state.startup_issues)
+            if catchup_error:
+                self.assertIn('catchup', state.startup_issues)
+                self.assertIsNotNone(state._journal_catchup)
+            if repair_error:
+                self.assertIn('commander_state', state.startup_issues)
             state._repair_latest_position_gap.assert_called_once_with(
                 None, prepared=(True, {'event': 'Location', 'StarSystem': 'Test'}))
             state.database.import_journal_archive.assert_called_once()
@@ -169,6 +181,12 @@ class StartupPipelineTests(unittest.TestCase):
 
     def test_adoption_error_finishes_and_starts_watcher(self):
         self.run_pipeline(adoption_error=True)
+
+    def test_pad_error_is_partial_after_successful_import(self):
+        self.run_pipeline(pad_error=True)
+
+    def test_pending_catchup_is_partial_after_successful_import(self):
+        self.run_pipeline(catchup_error=True)
 
     def test_archive_failure_unlocks_dialog(self):
         state = self.state()

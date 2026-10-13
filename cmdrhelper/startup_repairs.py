@@ -2,9 +2,11 @@
 from contextlib import closing
 from datetime import datetime, timezone
 import logging
+import hashlib
 from pathlib import Path
 import sqlite3
 
+from cmdrhelper.startup_runtime import diagnostic, StartupCancelled
 from cmdrhelper.backfill_support import IncompleteRepair, create_repair_backup
 from cmdrhelper.biology_backfill import plan_biology_backfill
 from cmdrhelper.database import COMMANDER_STATE_REPAIR_REVISIONS, _store_biology_rows
@@ -97,6 +99,46 @@ def _apply(con, commander_id, feature, plan):
     return apply_mapping_plan(con, plan['updates'])
 
 
+def _source_token(con, commander_id, check=None):
+    """Retry fingerprint; no contents/paths are exported. Unknown I/O never caches.
+
+    Index metadata, coverage, identities and contents participate. Hashing avoids
+    a full reconstruction but also detects same-size edits with restored times.
+    A planner version also invalidates old failures after an algorithm change.
+    """
+    sessions = con.execute('SELECT * FROM journal_sessions WHERE commander_id=? OR repair_commander_id=?',
+                           (commander_id, commander_id)).fetchall()
+    imports = con.execute('SELECT * FROM journal_imports WHERE commander_id=?', (commander_id,)).fetchall()
+    paths = {r[0] for r in con.execute('SELECT journal_file FROM journal_sessions WHERE commander_id=? OR repair_commander_id=?',
+                                     (commander_id, commander_id))}
+    paths.update(r[0] for r in con.execute('SELECT journal_file FROM journal_imports WHERE commander_id=?', (commander_id,)))
+    stats = []
+    try:
+        for name in sorted(paths):
+            source = Path(name)
+            st = source.stat()
+            signature = (st.st_dev, st.st_ino, st.st_size, st.st_mtime_ns, st.st_ctime_ns)
+            digest = hashlib.sha256()
+            with source.open('rb') as stream:
+                while True:
+                    if check:
+                        check()
+                    block = stream.read(1024 * 1024)
+                    if not block:
+                        break
+                    digest.update(block)
+            after = source.stat()
+            if signature != (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns):
+                return None
+            stats.append((name, signature, digest.hexdigest()))
+    except OSError:
+        return None
+    identity = con.execute('SELECT fid FROM commanders WHERE id=?', (commander_id,)).fetchone()
+    raw = repr((2, COMMANDER_STATE_REPAIR_REVISIONS['unsold_cartography'], identity,
+                sorted(sessions, key=repr), sorted(imports, key=repr), stats))
+    return hashlib.sha256(raw.encode()).hexdigest()
+
+
 def run_startup_repairs(database, progress=None):
     """Never mark a failed/partial attempt successful; normal startup may continue.
 
@@ -115,6 +157,16 @@ def run_startup_repairs(database, progress=None):
                     continue
                 if progress:
                     progress(commander_id, feature)
+                check = (lambda: progress(commander_id, feature)) if progress else None
+                token = _source_token(con, commander_id, check) if feature == 'unsold_cartography' else None
+                cache_key = f'startup_retry:unsold_cartography:{commander_id}'
+                if token and repair_status(con, commander_id, feature) == 'incomplete':
+                    cached = con.execute('SELECT value FROM app_meta WHERE key=?', (cache_key,)).fetchone()
+                    if cached and cached[0] == token:
+                        diagnostic('unsold_cartography', 'history', reason='retry_unchanged', status='incomplete')
+                        results.append(dict(commander_id=commander_id, feature=feature, status='incomplete',
+                                            changed=0, detail='mapping_without_scan', backup=None, retry_deferred=True))
+                        continue
                 try:
                     con.execute('BEGIN IMMEDIATE')
                     # Another process may have finished while we waited for its lock.
@@ -131,6 +183,8 @@ def run_startup_repairs(database, progress=None):
                         con.rollback()
                         continue
                     plan = _plan(con, commander_id, feature)
+                    if progress:
+                        progress(commander_id, feature)
                     if _has_changes(feature, plan) and backup is None:
                         backup = create_repair_backup(path)
                     changed = _apply(con, commander_id, feature, plan)
@@ -138,16 +192,28 @@ def run_startup_repairs(database, progress=None):
                     status = 'incomplete' if unresolved else 'complete'
                     detail = f'Mapping metadata absent from available journals: {unresolved}' if unresolved else ''
                     _record(con, commander_id, feature, status, detail)
+                    if feature == 'unsold_cartography':
+                        con.execute('DELETE FROM app_meta WHERE key=?', (cache_key,))
                     con.commit()
                 except BaseException as exc:
                     con.rollback()
+                    if isinstance(exc, StartupCancelled):
+                        raise
                     status = 'incomplete' if isinstance(exc, IncompleteRepair) else 'failed'
+                    diagnostic('unsold_cartography' if feature == 'unsold_cartography' else 'history',
+                               'history', exc, status=status)
                     logger.exception('Startup repair failed')
                     detail = f'{type(exc).__name__}: {exc}'
                     changed = 0
                     try:
                         with con:
                             _record(con, commander_id, feature, status, detail)
+                            if (feature == 'unsold_cartography' and token
+                                    and getattr(exc, 'reason', '') == 'mapping_without_scan'
+                                    and _source_token(con, commander_id, check) == token):
+                                con.execute('INSERT OR REPLACE INTO app_meta(key,value) VALUES(?,?)', (cache_key, token))
+                            elif feature == 'unsold_cartography':
+                                con.execute('DELETE FROM app_meta WHERE key=?', (cache_key,))
                     except Exception:
                         logger.exception('Could not persist repair failure; revision remains pending')
                     if not isinstance(exc, Exception):

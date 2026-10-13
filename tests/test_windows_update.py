@@ -193,12 +193,15 @@ class DownloadHandoffTests(unittest.TestCase):
         from cmdrhelper.ui import main_window as ui
         events = []
         window = SimpleNamespace(
+            state=SimpleNamespace(watcher=Mock(), _start_initial_journal_index=Mock()),
             _update_download_result={"version": "3.2.1"},
             _release_requires_database_update=lambda result: False,
             _finish_update_download_ui=lambda: None,
             _set_update_status=lambda text: None,
             _update_download_failed=lambda error: events.append("failed"),
         )
+        window._resume_after_update_failure = lambda: ui.MainWindow._resume_after_update_failure(window)
+        window._launch_prepared_update = lambda path, version: ui.MainWindow._launch_prepared_update(window, path, version)
         def launch(**kwargs):
             events.append("helper")
             if fail:
@@ -206,6 +209,7 @@ class DownloadHandoffTests(unittest.TestCase):
         fake_os = Mock(wraps=os)
         fake_os.name = platform
         with patch.object(ui, "os", fake_os), \
+                patch.object(ui.QTimer, "singleShot"), \
                 patch.object(ui, "launch_installer", side_effect=launch), \
                 patch.object(ui.QMessageBox, "information", side_effect=lambda *a: events.append("dialog")), \
                 patch.object(ui.QApplication, "quit", side_effect=lambda: events.append("quit")):

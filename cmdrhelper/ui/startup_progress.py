@@ -70,6 +70,7 @@ class ShipLane(QWidget):
 class StartupProgressDialog(QDialog):
     def __init__(self, light=False, parent=None):
         super().__init__(parent)
+        self.status = "running"
         self.setWindowTitle(tr("startup.title"))
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
         self.setWindowFlag(Qt.WindowCloseButtonHint, False)
@@ -82,8 +83,10 @@ class StartupProgressDialog(QDialog):
         self.ships = ShipLane(light=light)
         layout.addWidget(self.ships)
         self.title_label = QLabel(tr("startup.title"), objectName="appTitle")
+        self.title_label.setWordWrap(True)
         layout.addWidget(self.title_label)
         self.phase_label = QLabel(tr("startup.phase.preparing"), objectName="sectionTitle")
+        self.phase_label.setWordWrap(True)
         layout.addWidget(self.phase_label)
         self.count_label = QLabel(tr("startup.busy"), objectName="cardValue")
         layout.addWidget(self.count_label)
@@ -100,6 +103,9 @@ class StartupProgressDialog(QDialog):
         layout.addWidget(self.close_button)
 
     def begin(self, total=0):
+        self.status = "running"
+        self.title_label.setText(tr("startup.title"))
+        self.setWindowTitle(tr("startup.title"))
         self.close_button.hide()
         self.set_progress(0, total, "startup.phase.preparing")
         self.ships.start()
@@ -107,6 +113,8 @@ class StartupProgressDialog(QDialog):
         self.raise_()
 
     def set_progress(self, current, total, phase_key, filename=""):
+        if self.status != "running":
+            return
         current, total = int(current), int(total)
         self.phase_label.setText(tr(phase_key))
         self.file_label.setText(str(filename or ""))
@@ -122,8 +130,13 @@ class StartupProgressDialog(QDialog):
             self.progress.setRange(0, 0)
             self.count_label.setText(tr("startup.busy"))
 
-    def finish(self, error=""):
+    def finish(self, error="", components=()):
         self.ships.stop()
+        self.file_label.clear()
+        self.status = "critical" if error else ("partial" if components else "success")
+        title = tr("startup.error" if error else "startup.partial" if components else "startup.ready")
+        self.setWindowTitle(title)
+        self.title_label.setText(title)
         if error:
             self.phase_label.setText(tr("startup.error"))
             self.count_label.setText(tr("startup.error_detail", error=error))
@@ -132,8 +145,21 @@ class StartupProgressDialog(QDialog):
             self.progress.setFormat(tr("startup.failed"))
             self.close_button.setVisible(True)
             return
+        if components:
+            self.phase_label.setText(tr("startup.partial"))
+            self.count_label.setText(tr("startup.partial_detail", components=", ".join(components)))
+            self.count_label.setWordWrap(True)
+            self.progress.setRange(0, 100)
+            self.progress.setValue(100)
+            self.progress.setFormat("100 %")
+            self.close_button.setVisible(True)
+            return
         self.phase_label.setText(tr("startup.ready"))
         self.progress.setRange(0, 100)
         self.progress.setValue(100)
         self.progress.setFormat("100 %")
         self.accept()
+
+    def hideEvent(self, event):
+        self.ships.stop()
+        super().hideEvent(event)

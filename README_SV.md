@@ -38,6 +38,15 @@ Journalmappen för Elite Dangerous hittas automatiskt när det är möjligt. Om 
 
 CMDRHelper söker efter uppdateringar vid start och har en inbyggd uppdateringsfunktion. Bekräfta en erbjuden uppdatering i programmet; den uppdaterar programmet och beroendena och startar om CMDRHelper. Efter den första installationen använder du normalt bara `start.bat` (Windows) eller `bash start.sh` (Linux). Du behöver inte köra `install.bat` eller `install.sh` manuellt igen för vanliga uppdateringar.
 
+## CMDRHelper v3.9.6.5
+
+- Robustare Windows-start: Icke-kritiska bakgrundsfel visas som delfel och huvudfönstret kan fortfarande användas.
+- Begränsade återförsök för landningsplatsdata och journaluppdatering, förbättrad kartografireparation samt säkrare journalindexering och avslutning.
+- Mer informativa tekniska felkategorier i diagnostiken, samtidigt som personliga uppgifter förblir anonymiserade.
+- Lugnare lastutrymmesvisning vid gruvdrift genom återanvändning av fönster och tabellrader; automatisk döljning först 15 sekunder efter senaste lagerändringen.
+- Enhetliga lokaliserade varunamn utan ändringar av lagerberäkningen eller den separata drönarvisningen.
+- PP2-dagskrönika: Även vanliga varuförsäljningar kan försiktigt kopplas till meritpoäng (≈); tvetydiga fall behåller ?, och totalsumma och rangberäkning är oförändrade.
+
 ## CMDRHelper v3.9.5
 
 - Ny Odyssey-bedömning: 192 av 223 föremål har rang A–D; 31 är fortfarande markerade med ? i väntan på kontroll.

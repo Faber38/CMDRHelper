@@ -15,7 +15,7 @@ class PP2CatalogTests(unittest.TestCase):
         catalogs = discover_languages()
         self.assertEqual(set(catalogs), set(HELP_LANGUAGES))
         expected = {key for key in i18n.DE if key.startswith('pp2.') or key == 'nav.pp2'}
-        self.assertEqual(len(expected), 133)
+        self.assertEqual(len(expected), 134)
         for language, (_, catalog, duplicates) in catalogs.items():
             with self.subTest(language=language):
                 self.assertEqual(catalog, i18n._TRANSLATIONS[language])
@@ -56,7 +56,7 @@ class PP2CatalogTests(unittest.TestCase):
             'metric': ('control', 'reinforcement', 'undermining', 'conflict'),
             'chronicle': ('time', 'action', 'details', 'merits', 'certainty', 'PowerplayCollect',
                           'PowerplayDeliver', 'Bounty', 'ShipTargeted', 'SearchAndRescue',
-                          'MarketSell', 'explicit', 'temporal', 'unknown'),
+                          'MarketSell', 'commodity_sale', 'explicit', 'temporal', 'unknown'),
             'history': ('delete7', 'delete30', 'delete_all', 'reset_columns'),
             'rank': ('next', 'next_calculated', 'next_band', 'confirmed', 'pending', 'unconfirmed',
                      'conflict', 'beyond100'),

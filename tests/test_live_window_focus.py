@@ -108,6 +108,8 @@ class LiveWindowFocusTests(unittest.TestCase):
 
             for window in self.windows():
                 window.close()
+            # Explicitly closed cargo reopens on new activity, not a duplicate.
+            self.snapshot["count"] = 2
             self.refresh()
             self.assertEqual(shown[3:], list(self.windows()))
 

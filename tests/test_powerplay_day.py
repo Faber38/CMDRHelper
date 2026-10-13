@@ -96,7 +96,9 @@ class DayTests(unittest.TestCase):
         for n, (pilot, reward, gain) in enumerate(observed):
             rows.extend([dict(bounty(n*10), PilotName_Localised=pilot, TotalReward=reward), credit(n*10+1, gain)])
         first = self.write('Journal.2026-10-06T121000.01.log', rows)
-        second = self.write('Journal.2026-10-06T151935.01.log', [scan(100), credit(101, 10),
+        # Delivery links already require an observed station/system context.
+        second = self.write('Journal.2026-10-06T151935.01.log', [
+                            event('Docked', 99, StarSystem='Fixture', StationName='Station'), scan(100), credit(101, 10),
                             delivery(110), credit(110, 3600, 12783), credit(110, 48, 12831),
                             event('Cargo', 120), credit(121, 3, 13213)])
         data = read_latest_state(self.folder, indexed_sessions=[first, second])['powerplay']
@@ -105,7 +107,7 @@ class DayTests(unittest.TestCase):
         self.assertEqual(len(groups), 9)
         self.assertEqual([(g.action['PilotName_Localised'], g.action['TotalReward'], g.credits[0]['MeritsGained'])
                           for g in groups[:6]], observed)
-        self.assertEqual([g.certainty for g in groups], ['temporal']*7+['explicit', 'unknown'])
+        self.assertEqual([g.certainty for g in groups], ['temporal']*8+['unknown'])
         self.assertEqual([g.credits[0]['MeritsGained'] for g in today_groups(data.chronicle, DAY, BERLIN)],
                          [3, 3600, 10, 80, 37, 17, 48, 21, 60])
         self.assertEqual(data.chronicle, read_latest_state(self.folder, indexed_sessions=[first, second])['powerplay'].chronicle)
@@ -114,7 +116,9 @@ class DayTests(unittest.TestCase):
         first = self.write('Journal.2026-10-06T100000.01.log', [delivery()])
         groups = read_today_powerplay_chronicle([first], 'A', day=DAY, zone=BERLIN).groups
         self.assertEqual(len(groups), 1)
-        second = self.write('Journal.2026-10-06T100000.02.log', [delivery(10)])
+        second = self.write('Journal.2026-10-06T100000.02.log', [
+            event('Powerplay', 8, Power='Nakato Kaine', Merits=0),
+            event('Docked', 9, StarSystem='Fixture', StationName='Station'), delivery(10)])
         other = self.write('Journal.2026-10-06T120000.01.log', [delivery(20)], 'B')
         self.assertEqual(len(read_today_powerplay_chronicle([first, second, other], 'A', day=DAY, zone=BERLIN).groups), 2)
         with Path(second['journal_file']).open('a') as handle:

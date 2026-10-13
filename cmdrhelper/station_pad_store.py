@@ -10,7 +10,8 @@ import os
 from pathlib import Path
 import sqlite3
 from threading import Lock
-from time import perf_counter
+from time import perf_counter, sleep
+from .startup_runtime import JournalPending, diagnostic
 
 from .observed_market_cache import timestamp
 
@@ -123,8 +124,14 @@ def _process(con, path, folder, cancel, stats):
                   and json.loads(old['signature'])[:2] == before[:2]
                   and json.loads(old['signature'])[2] < before[2])
     with path.open('rb') as stream:
-        if signature(os.fstat(stream.fileno())) != before:
-            raise OSError('Pad journal changed before reading')
+        # Windows path stat and CRT fstat may expose different metadata.
+        # Compare each API with itself, and bind the path to the opened file
+        # using two handles (never compare path/handle timestamps or IDs).
+        opened = signature(os.fstat(stream.fileno()))
+        with path.open('rb') as probe:
+            same_handle = signature(os.fstat(probe.fileno())) == opened
+        if not same_handle or opened[2] != before[2] or signature(path.stat()) != before:
+            raise JournalPending('pad_signature_mismatch')
         if append:
             hashes = _fingerprints(stream, old['processed_offset'], stats)
             append = hashes == [old['prefix_hash'], old['boundary_hash']]
@@ -160,17 +167,17 @@ def _process(con, path, folder, cancel, stats):
                     if previous is None or row[-2:] >= previous[-2:]:
                         rows[row[0]] = row
         hashes = _fingerprints(stream, offset, stats)
-        if signature(os.fstat(stream.fileno())) != before or signature(path.stat()) != before:
-            raise OSError('Pad journal changed during reading')
+        if signature(os.fstat(stream.fileno())) != opened or signature(path.stat()) != before:
+            raise JournalPending('pad_signature_mismatch')
     check_cancel(cancel)
     # Parsing never holds a write lock. Recheck the checkpoint after acquiring it.
     with con:
         con.execute('BEGIN IMMEDIATE')
         current = con.execute('SELECT * FROM station_pad_journals WHERE journal_path=?', (str(path),)).fetchone()
         if (dict(current) if current else None) != (dict(old) if old else None):
-            raise OSError('Concurrent pad import changed checkpoint; retry')
+            raise JournalPending('pad_checkpoint_changed')
         if signature(path.stat()) != before:
-            raise OSError('Pad journal changed before commit')
+            raise JournalPending('pad_signature_mismatch')
         con.execute('''INSERT INTO station_pad_journals
             (journal_path,folder,signature,processed_offset,parser_version,context_json,prefix_hash,boundary_hash)
             VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(journal_path) DO UPDATE SET
@@ -207,8 +214,13 @@ def read_local(database_path, journal_folder, cancel=None, stats=None):
     folder = Path(journal_folder).resolve()
     with _registry_lock:
         lock = _locks.setdefault(str(db), Lock())
+    lock_deadline = perf_counter() + 5.0
     while not lock.acquire(timeout=.05):
         check_cancel(cancel)
+        if perf_counter() >= lock_deadline:
+            error = JournalPending('pad_lock_timeout')
+            diagnostic('station_pads', 'history', error)
+            raise error
     try:
         check_cancel(cancel)
         # scandir must succeed before missing files can be retired.
@@ -221,7 +233,20 @@ def read_local(database_path, journal_folder, cancel=None, stats=None):
             if con.execute('PRAGMA user_version').fetchone()[0] not in (22, 23):
                 raise RuntimeError('Persistent pad metadata requires database schema 22 or 23')
             for path in paths:
-                _process(con, path, str(folder), cancel, stats)
+                for attempt in range(3):
+                    try:
+                        _process(con, path, str(folder), cancel, stats)
+                        break
+                    except OSError as exc:
+                        diagnostic('station_pads', 'history', exc)
+                        if attempt == 2:
+                            raise
+                        check_cancel(cancel)
+                        if cancel is not None:
+                            cancel.wait(.025 * (attempt + 1))
+                        else:
+                            sleep(.025 * (attempt + 1))
+                        check_cancel(cancel)
             check_cancel(cancel)
             active = {str(p) for p in paths}
             retired = [r[0] for r in con.execute('SELECT journal_path FROM station_pad_journals WHERE folder=?', (str(folder),)) if r[0] not in active]

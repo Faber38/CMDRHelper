@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_6_5.0': 'Mer robust oppstart i Windows: Ikke-kritiske bakgrunnsfeil vises som delfeil, og hovedvinduet kan fortsatt brukes.',
+    'release.3_9_6_5.1': 'Begrensede nye forsøk for landingsplassdata og journaloppdatering, forbedret kartografireparasjon og sikrere journalindeksering og avslutning.',
+    'release.3_9_6_5.2': 'Mer informative tekniske feilkategorier i diagnostikken, mens personlige data fortsatt anonymiseres.',
+    'release.3_9_6_5.3': 'Roligere lasteromsvisning under gruvedrift ved gjenbruk av vinduer og tabellrader; automatisk skjuling først 15 sekunder etter siste beholdningsendring.',
+    'release.3_9_6_5.4': 'Ensartede lokaliserte varenavn uten endringer i beholdningsberegningen eller den separate dronevisningen.',
+    'release.3_9_6_5.5': 'PP2-dagskrønike: Vanlige varesalg kan også knyttes forsiktig til merittildelinger (≈); tvetydige tilfeller beholder ?, og totalsum og rangberegning er uendret.',
     'release.3_9_5.0': 'Ny Odyssey-vurdering: 192 av 223 gjenstander har rang A–D; 31 er fortsatt merket ? i påvente av kontroll.',
     'release.3_9_5.1': 'Farget rangkolonne med verktøytips og lagret sortering A–D eller D–A; personlige ryddemerker forblir uavhengige.',
     'release.3_9_5.2': 'Korrigerte hangarskipruter: hele den bekreftede brukte kapasiteten sendes til Spansh, med tanktritium og lagret tritium atskilt.',
@@ -2015,3 +2021,18 @@ TRANSLATIONS.update({
     'odyssey.sort.cleanup': 'Ryddeliste',
     'odyssey.sort.alphabetical': 'Alfabetisk',
 })
+
+# Startup completion with independently retryable background data.
+TRANSLATIONS.update({
+    'startup.partial': 'CMDRHelper startet med delvise feil',
+    'startup.partial_detail': 'Noen bakgrunnsdata kunne ikke oppdateres: {components}. Hovedvinduet kan fortsatt brukes.',
+    'startup.component.station_pads': 'Landingsplasser',
+    'startup.component.history': 'Historiske data',
+    'startup.component.unsold_cartography': 'Kartografi',
+    'startup.component.commander_state': 'Kommandørstatus',
+    'startup.component.journal_index': 'Journalindeks',
+    'startup.component.catchup': 'Journaloppdatering',
+    'startup.shutdown_timeout': 'Oppdateringen ble ikke startet: bakgrunnsoppgavene stoppet ikke i tide. Journalbehandlingen fortsetter når de er ferdige.',
+})
+
+TRANSLATIONS.update({"pp2.chronicle.commodity_sale": 'Varesalg'})

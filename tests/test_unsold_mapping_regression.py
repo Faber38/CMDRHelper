@@ -213,6 +213,11 @@ class UnsoldMappingRegressionTests(unittest.TestCase):
                 con.execute('ALTER TABLE commander_unsold_cartography DROP COLUMN '+field)
             con.execute("DROP TABLE IF EXISTS station_pad_evidence")
             con.execute("DROP TABLE IF EXISTS station_pad_journals")
+            # A synthetic schema-16 database cannot retain v23-only tables.
+            for table in ('pp2_import_checkpoints', 'pp2_events', 'pp2_merit_state',
+                          'pp2_history_policy', 'pp2_sources'):
+                con.execute('DROP TABLE ' + table)
+            con.execute("DELETE FROM app_meta WHERE key='pp2_merit_totals_v2'")
             con.execute('PRAGMA user_version=16')
         class Interrupted(sqlite3.Connection):
             def execute(self, sql, *args):

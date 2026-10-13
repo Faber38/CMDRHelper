@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_6_5.0': 'Robusterer Windows-Start: Nichtkritische Hintergrundfehler werden als Teilfehler angezeigt; das Hauptfenster bleibt nutzbar.',
+    'release.3_9_6_5.1': 'Begrenzte Wiederholungen bei Landeplatzdaten und Journal-Catch-up, verbesserte Kartografiereparatur sowie abgesicherte Journalindex- und Shutdown-Abläufe.',
+    'release.3_9_6_5.2': 'Aussagekräftigere technische Fehlerkategorien in der Diagnose bei weiterhin anonymisierten persönlichen Daten.',
+    'release.3_9_6_5.3': 'Ruhigere Frachtraumanzeigen beim Mining durch wiederverwendete Fenster und Tabellenzeilen; automatisches Ausblenden erst 15 Sekunden nach der letzten Bestandsänderung.',
+    'release.3_9_6_5.4': 'Einheitliche lokalisierte Rohstoffnamen ohne Änderung der Bestandsberechnung oder der separaten Drohnenanzeige.',
+    'release.3_9_6_5.5': 'PP2-Tageschronik: Auch normale Warenverkäufe können konservativ Merit-Gutschriften zugeordnet werden (≈); mehrdeutige Fälle bleiben ?, Gesamtstand und Rangberechnung unverändert.',
     'release.3_9_5.0': 'Neue Odyssey-Rangbewertung: 192 von 223 Gegenständen sind mit A–D bewertet; 31 bleiben als ungeprüft mit ? gekennzeichnet.',
     'release.3_9_5.1': 'Farbige Rangspalte mit Tooltips und gespeicherter Sortierung A–D oder D–A; persönliche Aufräummarkierungen bleiben unabhängig.',
     'release.3_9_5.2': 'Korrigierte Fleet-Carrier-Routen: Die gesamte bestätigte Belegung wird an Spansh übergeben, Tank- und Lagertritium bleiben getrennt.',
@@ -2159,3 +2165,18 @@ TRANSLATIONS.update({
     'odyssey.sort.cleanup': 'Aufräumliste',
     'odyssey.sort.alphabetical': 'Alphabetisch',
 })
+
+# Startup completion with independently retryable background data.
+TRANSLATIONS.update({
+    'startup.partial': 'CMDRHelper gestartet – mit Teilfehlern',
+    'startup.partial_detail': 'Einzelne Hintergrunddaten konnten nicht aktualisiert werden: {components}. Das Hauptfenster kann weiter verwendet werden.',
+    'startup.component.station_pads': 'Stations-Landeplätze',
+    'startup.component.history': 'Historische Daten',
+    'startup.component.unsold_cartography': 'Kartografie',
+    'startup.component.commander_state': 'Commander-Zustand',
+    'startup.component.journal_index': 'Journalindex',
+    'startup.component.catchup': 'Journalabgleich',
+    'startup.shutdown_timeout': 'Update nicht gestartet: Hintergrundarbeiten wurden nicht rechtzeitig beendet. Der Journalabgleich wird nach ihrem Ende wieder aufgenommen.',
+})
+
+TRANSLATIONS.update({"pp2.chronicle.commodity_sale": 'Warenverkauf'})

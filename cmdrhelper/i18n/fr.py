@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_6_5.0': 'Démarrage Windows plus robuste : les erreurs non critiques en arrière-plan sont signalées comme partielles et la fenêtre principale reste utilisable.',
+    'release.3_9_6_5.1': 'Tentatives limitées pour les données des aires d’atterrissage et le rattrapage des journaux, réparation cartographique améliorée, indexation et arrêt mieux sécurisés.',
+    'release.3_9_6_5.2': 'Catégories techniques d’erreurs plus précises dans le diagnostic, tout en conservant l’anonymisation des données personnelles.',
+    'release.3_9_6_5.3': 'Affichages de soute plus stables pendant le minage grâce à la réutilisation des fenêtres et des lignes ; masquage automatique 15 secondes après la dernière modification du stock.',
+    'release.3_9_6_5.4': 'Noms localisés des marchandises harmonisés, sans modifier le calcul des stocks ni l’affichage séparé des drones.',
+    'release.3_9_6_5.5': 'Chronique quotidienne PP2 : les ventes ordinaires peuvent aussi être associées prudemment aux gains de mérites (≈) ; les cas ambigus restent ?, sans modifier le total ni le calcul du rang.',
     'release.3_9_5.0': 'Nouvelle évaluation Odyssey : 192 objets sur 223 sont classés de A à D ; 31 restent marqués ? en attente de vérification.',
     'release.3_9_5.1': 'Colonne de rang colorée avec infobulles et tri A–D ou D–A mémorisé ; les marques personnelles de rangement restent indépendantes.',
     'release.3_9_5.2': 'Itinéraires de porte-vaisseaux corrigés : toute la capacité occupée confirmée est transmise à Spansh, avec le tritium du réservoir et du stockage séparés.',
@@ -2128,3 +2134,18 @@ TRANSLATIONS.update({
     'odyssey.sort.cleanup': 'Liste de tri',
     'odyssey.sort.alphabetical': 'Alphabétique',
 })
+
+# Startup completion with independently retryable background data.
+TRANSLATIONS.update({
+    'startup.partial': 'CMDRHelper démarré avec des erreurs partielles',
+    'startup.partial_detail': 'Certaines données en arrière-plan n’ont pas pu être actualisées : {components}. La fenêtre principale reste utilisable.',
+    'startup.component.station_pads': 'Aires d’atterrissage',
+    'startup.component.history': 'Données historiques',
+    'startup.component.unsold_cartography': 'Cartographie',
+    'startup.component.commander_state': 'État du commandant',
+    'startup.component.journal_index': 'Index du journal',
+    'startup.component.catchup': 'Rattrapage du journal',
+    'startup.shutdown_timeout': 'Mise à jour non lancée : les tâches en arrière-plan ne se sont pas arrêtées à temps. Le traitement du journal reprendra à leur fin.',
+})
+
+TRANSLATIONS.update({"pp2.chronicle.commodity_sale": 'Vente de marchandises'})

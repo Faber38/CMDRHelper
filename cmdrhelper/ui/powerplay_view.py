@@ -12,7 +12,7 @@ from cmdrhelper.ui.table_widths import ResponsiveColumnWidths
 from cmdrhelper.ui.powerplay_portraits import PowerPortrait
 from cmdrhelper.ui.powerplay_system import SystemPresentation
 from cmdrhelper.powerplay_rank import rank_progress
-from cmdrhelper.powerplay_chronicle import local_today, today_groups
+from cmdrhelper.powerplay_chronicle import local_today, today_groups, is_rare_sale
 from cmdrhelper.powerplay import (
     PowerplayState, PowersCache, ACTION_TOKENS, powerplay_actions, context, number,
     powers_cache_path, timestamp, onboard_articles,
@@ -466,9 +466,16 @@ class PowerplayView(QScrollArea):
                 action = tr("pp2.unknown")
                 details = tr("pp2.chronicle.unassigned")
             elif kind in ("PowerplayCollect", "PowerplayDeliver", "SearchAndRescue", "MarketSell"):
-                action = tr("pp2.chronicle." + kind)
+                action = tr("pp2.chronicle.commodity_sale" if kind == "MarketSell" and not is_rare_sale(event)
+                            else "pp2.chronicle." + kind)
                 field = "Name" if kind == "SearchAndRescue" else "Type"
                 name = event.get(field + "_Localised") or event.get(field) or unknown
+                if kind == "MarketSell" and not event.get("Type_Localised"):
+                    from cmdrhelper.commodity_master import lookup_by_symbol
+                    from cmdrhelper.commodity_localization import commodity_name
+                    commodity = lookup_by_symbol(event.get("Type"))
+                    if commodity is not None:
+                        name = commodity_name(commodity)
                 details = tr("pp2.chronicle.tonnes" if kind == "MarketSell" else "pp2.chronicle.item",
                              count=fmt(event.get("Count")), name=name)
             else:
@@ -491,13 +498,14 @@ class PowerplayView(QScrollArea):
                 exact.append(str(credit.get("timestamp") or unknown) + "  "
                              + tr("pp2.merit_gain", amount=fmt(credit["MeritsGained"]))
                              + " · " + tr("pp2.merits") + ": " + fmt(credit.get("TotalMerits")))
-            if kind == "MarketSell":
+            rare_sale = kind == "MarketSell" and is_rare_sale(event)
+            if rare_sale:
                 safety = tr("pp2.chronicle.sale_evidence")
             if group.certainty == "temporal":
                 gaps = [fmt(data.chronicle._gap(event, credit)) for credit in group.credits]
                 temporal = "\n".join(tr("pp2.chronicle.temporal", seconds=gap) for gap in dict.fromkeys(gaps))
-                safety = safety + "\n" + temporal if kind == "MarketSell" else temporal
-            elif kind != "MarketSell":
+                safety = safety + "\n" + temporal if rare_sale else temporal
+            elif not rare_sale:
                 safety = tr("pp2.chronicle." + group.certainty)
             if group.certainty == "explicit" and gains:
                 safety += "\n" + tr("pp2.chronicle.credit_caution")

@@ -25,7 +25,9 @@ from cmdrhelper.ui.screenshot_view import ScreenshotView
 from cmdrhelper.ui.commander_view import CommanderView
 from cmdrhelper.ui.material_view import MaterialView
 from cmdrhelper.ui.startup_progress import StartupProgressDialog
-from cmdrhelper.ui.cargo_hud import cargo_hud_enabled, cargo_hud_data
+from cmdrhelper.ui.cargo_hud import (cargo_hud_enabled, CargoHudPresentation,
+                                     CargoVisibility, cargo_activity_key, cargo_item_name,
+                                     same_cargo_context)
 from cmdrhelper.cargo import free_cargo_space
 from cmdrhelper.ui.table_widths import persist_column_widths
 from cmdrhelper.ui.recent_system_copy import RecentSystemCopyDelegate
@@ -923,6 +925,14 @@ class CargoLiveWindow(QDialog):
         super().__init__(parent)
         self.settings = settings
         self.geometry_key = "cargo_live/geometry"
+        self.cargo_visibility = CargoVisibility(self, self.hide)
+        self._last_snapshot = None
+        self._pending_snapshot_timer = QTimer(self)
+        self._pending_snapshot_timer.setSingleShot(True)
+        self._pending_snapshot_timer.setInterval(15000)
+        self._pending_snapshot_timer.timeout.connect(self.invalidate_snapshot)
+        self._row_keys = []
+        self._has_snapshot = False
         self.setWindowFlags(self.windowFlags() | Qt.Window)
         self.setAttribute(Qt.WA_ShowWithoutActivating, True)
         self.resize(360, 300)
@@ -1001,10 +1011,56 @@ class CargoLiveWindow(QDialog):
         self._save_geometry()
 
     def closeEvent(self, event):
+        self._pending_snapshot_timer.stop()
+        self.cargo_visibility.close()
         self._save_geometry()
         super().closeEvent(event)
 
+    def reject(self):
+        self._pending_snapshot_timer.stop()
+        self.cargo_visibility.close()
+        super().reject()
+
+    def show(self):
+        # Explicit/manual opening owns visibility until explicitly closed.
+        if not getattr(self, "_automatic_show", False):
+            self.cargo_visibility.observe(self.cargo_visibility.key, manual=True)
+        super().show()
+
+    def present_snapshot(self, snapshot):
+        self.set_snapshot(snapshot)
+        self.cargo_visibility.observe(cargo_activity_key(snapshot))
+        if self.cargo_visibility.active and not self.isVisible():
+            self._automatic_show = True
+            try:
+                self.show()  # WA_ShowWithoutActivating; never raise/activate.
+            finally:
+                self._automatic_show = False
+
+    def invalidate_snapshot(self, *, force_hide=False):
+        manual = self.cargo_visibility.manual and not force_hide
+        self._pending_snapshot_timer.stop()
+        self.cargo_visibility.reset()
+        self._last_snapshot = None
+        if manual:
+            # Unknown data is not an empty hold. Keep the manually opened
+            # window, but stop presenting an expired inventory as current.
+            self.cargo_visibility.observe(None, manual=True)
+            self.table.setRowCount(0)
+            self._row_keys.clear()
+            self.summary_label.setText("–")
+            self.fill_bar.hide()
+        elif self.isVisible():
+            self.hide()
+
+    def hold_pending_snapshot(self):
+        # Repeated missing snapshots do not prolong this bounded grace period.
+        if self.isVisible() and not self._pending_snapshot_timer.isActive():
+            self._pending_snapshot_timer.start()
+
     def set_snapshot(self, snapshot):
+        self._pending_snapshot_timer.stop()
+        self._last_snapshot = snapshot
         snapshot = snapshot if isinstance(snapshot, dict) else {}
         vessel = str(snapshot.get("vessel") or "")
         vehicle = str(snapshot.get("vehicle_name") or "").casefold()
@@ -1038,50 +1094,67 @@ class CargoLiveWindow(QDialog):
         self.fill_bar.setValue(max(0, min(100, percent)))
         self.fill_bar.setVisible(show_fill)
 
-        self.table.clearSpans()
-        self.table.setRowCount(0)
         inventory = list(snapshot.get("inventory") or [])
-        commodities = [item for item in inventory if not item.get("is_drones")]
-        drones = [item for item in inventory if item.get("is_drones")]
-        if not inventory:
-            self.table.setRowCount(1)
-            empty_item = QTableWidgetItem(tr("cargo.live.empty"))
-            empty_item.setFlags(empty_item.flags() & ~Qt.ItemFlag.ItemIsSelectable)
-            self.table.setItem(0, 0, empty_item)
-            self.table.setSpan(0, 0, 1, 2)
-            self._fit_content_height()
-            return
-        rows = commodities + drones
-        self.table.setRowCount(len(rows))
-        for row, item in enumerate(rows):
-            name = (
-                tr("cargo.live.drones") if item.get("is_drones")
-                else str(item.get("display_name") or item.get("frontier_name") or "–")
-            )
-            unit = "" if item.get("is_drones") else " t"
-            stolen = int(item.get("stolen") or 0)
-            if stolen > 0:
-                name += " · " + tr("cargo.live.stolen", count=stolen)
-            name_item = QTableWidgetItem(name)
-            count_item = QTableWidgetItem(
-                f"{int(item.get('count') or 0)}{unit}"
-            )
-            count_item.setTextAlignment(
-                Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
-            )
-            if item.get("is_drones"):
-                font = name_item.font()
-                font.setBold(True)
-                name_item.setFont(font)
-                count_item.setFont(font)
-                background = QColor("#2b2024")
-                name_item.setBackground(background)
-                count_item.setBackground(background)
-                if commodities:
-                    self.table.setRowHeight(row, self.table.rowHeight(row) + 5)
-            self.table.setItem(row, 0, name_item)
-            self.table.setItem(row, 1, count_item)
-        self._fit_content_height()
+        rows = {str(item.get("frontier_name") or "").casefold(): item
+                for item in inventory}
+        if not rows:
+            rows = {"": {}}
+        # Retain surviving rows (and their QTableWidgetItems) in their old order.
+        structure_changed = set(self._row_keys) != set(rows)
+        if structure_changed:
+            self.table.setUpdatesEnabled(False)
+        try:
+            if structure_changed:
+                self.table.clearSpans()
+            for row in range(len(self._row_keys) - 1, -1, -1):
+                if self._row_keys[row] not in rows:
+                    self.table.removeRow(row)
+                    self._row_keys.pop(row)
+            for key, item in rows.items():
+                if key in self._row_keys:
+                    continue
+                row = len(self._row_keys)
+                if not item.get("is_drones"):
+                    row = next((i for i, k in enumerate(self._row_keys)
+                                if rows[k].get("is_drones")), row)
+                self._row_keys.insert(row, key)
+                self.table.insertRow(row)
+                name_item, count_item = QTableWidgetItem(), QTableWidgetItem()
+                count_item.setTextAlignment(
+                    Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+                if item.get("is_drones"):
+                    font = name_item.font()
+                    font.setBold(True)
+                    for cell in (name_item, count_item):
+                        cell.setFont(font)
+                        cell.setBackground(QColor("#2b2024"))
+                self.table.setItem(row, 0, name_item)
+                self.table.setItem(row, 1, count_item)
+            for row, key in enumerate(self._row_keys):
+                item = rows[key]
+                name = cargo_item_name(item) if key else tr("cargo.live.empty")
+                stolen = int(item.get("stolen") or 0)
+                if stolen > 0:
+                    name += " · " + tr("cargo.live.stolen", count=stolen)
+                unit = "" if item.get("is_drones") else " t"
+                count = f"{int(item.get('count') or 0)}{unit}" if key else ""
+                for column, text in enumerate((name, count)):
+                    cell = self.table.item(row, column)
+                    if cell.text() != text:
+                        cell.setText(text)
+                if item.get("is_drones"):
+                    height = self.table.verticalHeader().defaultSectionSize()
+                    self.table.setRowHeight(row, height + (5 if len(rows) > 1 else 0))
+            if not inventory and structure_changed:
+                self.table.setSpan(0, 0, 1, 2)
+        finally:
+            if structure_changed:
+                self.table.setUpdatesEnabled(True)
+        # Fit once; subsequent inventory events must not undo a user's resize.
+        if not self._has_snapshot:
+            if self.settings.value(self.geometry_key) is None:
+                self._fit_content_height()
+            self._has_snapshot = True
 
     def _fit_content_height(self):
         self.ensurePolished()
@@ -1230,8 +1303,14 @@ class MainWindow(QMainWindow):
 
     @Slot(str)
     def _initialization_finished(self, error):
-        self._parent_backup_startup_succeeded = not bool(error)
+        issues = getattr(getattr(self, 'state', None), 'startup_issues', [])
+        components = [tr('startup.component.' + component) for component in issues]
+        self._parent_backup_startup_succeeded = not bool(error or issues)
         self._cleanup_parent_backup()
+        if self._startup_progress_dialog is None and components and not error:
+            self._startup_progress_dialog = StartupProgressDialog(
+                light=self.ui_theme == 'light', parent=self)
+            self._startup_progress_dialog.begin()
         if self._startup_progress_dialog is None:
             if error:
                 QMessageBox.warning(
@@ -1239,7 +1318,7 @@ class MainWindow(QMainWindow):
                     tr("startup.error_detail", error=error),
                 )
             return
-        self._startup_progress_dialog.finish(str(error or ""))
+        self._startup_progress_dialog.finish(str(error or ""), components)
 
     def _cleanup_parent_backup(self):
         from cmdrhelper.parent_migration import cleanup_backup
@@ -3032,7 +3111,8 @@ class MainWindow(QMainWindow):
         if self._navigation_hud is None:
             from cmdrhelper.ui.navigation_hud import NavigationHud
             self._navigation_hud = NavigationHud(self._ensure_planet_navigation_controller())
-            self._navigation_hud.cargo_provider = lambda: cargo_hud_data(self.state)
+            self._navigation_hud.cargo_provider = CargoHudPresentation(self.state)
+            self._navigation_hud.cargo_activity_provider = self._navigation_hud.cargo_provider.activity_key
             QApplication.instance().aboutToQuit.connect(self._navigation_hud.close)
         return self._navigation_hud
 
@@ -5193,6 +5273,15 @@ class MainWindow(QMainWindow):
         self._explorer_live_render_key = None
         self._explorer_dirty = True
 
+        if (error and getattr(self.state, '_journal_catchup', None) is not None
+                and not getattr(self.state, '_archive_import_error', '')):
+            self.database_progress_bar.setRange(0, 100)
+            self.database_progress_bar.setValue(100)
+            self.database_progress_bar.setFormat(tr('startup.partial'))
+            self.database_progress_file.hide()
+            self.database_status_label.setText(tr('startup.partial_detail',
+                components=tr('startup.component.catchup')))
+            return
         if error:
             self.database_progress_bar.setRange(0, 100)
             self.database_progress_bar.setValue(0)
@@ -5335,6 +5424,19 @@ class MainWindow(QMainWindow):
             self._finish_update_download_ui()
             QMessageBox.information(self, tr("settings.update_title"), install_message)
         self._set_update_status(tr("settings.update_starting_updater"))
+        self._update_shutdown_polls = 0
+        self._launch_prepared_update(zip_path, latest)
+
+    def _launch_prepared_update(self, zip_path, latest):
+        from cmdrhelper.startup_runtime import shutdown
+        if not shutdown(self.state, timeout=0):
+            self._update_shutdown_polls = getattr(self, '_update_shutdown_polls', 0) + 1
+            if self._update_shutdown_polls >= 300:
+                self._update_download_failed(tr('startup.shutdown_timeout'))
+                QTimer.singleShot(1000, self._resume_after_update_failure)
+                return
+            QTimer.singleShot(100, lambda: self._launch_prepared_update(zip_path, latest))
+            return
         try:
             install_dir = Path(__file__).resolve().parents[2]
             launch_installer(
@@ -5343,12 +5445,31 @@ class MainWindow(QMainWindow):
                 parent_pid=os.getpid(),
             )
         except Exception as exc:
+            self._resume_after_update_failure()
             self._update_download_failed(str(exc))
             return
         if os.name != "nt":
             self._finish_update_download_ui()
-            QMessageBox.information(self, tr("settings.update_title"), install_message)
+            QMessageBox.information(self, tr("settings.update_title"),
+                                    tr("settings.update_downloaded_message", version=latest))
         QApplication.quit()
+
+    def _resume_after_update_failure(self):
+        from cmdrhelper.startup_runtime import shutdown
+        if not shutdown(self.state, timeout=0):
+            QTimer.singleShot(1000, self._resume_after_update_failure)
+            return
+        self.state._startup_cancel.clear()
+        self.state._startup_threads = []
+        if getattr(self.state, '_journal_catchup', None) is not None:
+            from cmdrhelper import startup_runtime as startup
+            self.state._restart_startup_after_catchup = True
+            startup.issue(self.state, 'catchup')
+            startup.complete(self.state)
+            self.state.watcher.start()
+            QTimer.singleShot(0, self.state._start_journal_catchup)
+        else:
+            QTimer.singleShot(0, self.state._start_initial_journal_index)
 
     def _set_update_status(
         self,
@@ -5742,7 +5863,7 @@ class MainWindow(QMainWindow):
     def _set_cargo_hud_enabled(self, enabled):
         self.state.settings.setValue("cargo_hud/enabled", bool(enabled))
         self.state.settings.sync()
-        self._apply_cargo_hud_enabled()
+        self._apply_cargo_hud_enabled(bool(enabled))
 
     def _cargo_live_window_enabled(self):
         value = self.state.settings.value("cargo_live/enabled", False)
@@ -5754,7 +5875,8 @@ class MainWindow(QMainWindow):
         enabled = cargo_hud_enabled(self.state.settings)
         try:
             if enabled:
-                self._ensure_navigation_hud().set_cargo_enabled(True)
+                self._ensure_navigation_hud().set_cargo_enabled(
+                    True, manual=_enabled is True)
             elif self._navigation_hud is not None:
                 self._navigation_hud.set_cargo_enabled(False)
         except (RuntimeError, OSError, ValueError) as exc:
@@ -5765,24 +5887,33 @@ class MainWindow(QMainWindow):
         self.state.settings.setValue("cargo_live/enabled", enabled)
         self.state.settings.sync()
         if not enabled and self._cargo_live_window is not None:
-            self._cargo_live_window.hide()
+            self._cargo_live_window.invalidate_snapshot(force_hide=True)
         elif enabled:
             self._refresh_cargo_live_window(
                 getattr(self.state, "cargo_snapshot", None)
             )
+            if (self._cargo_live_window is not None
+                    and isinstance(getattr(self.state, "cargo_snapshot", None), dict)):
+                self._cargo_live_window.show()
 
     def _refresh_cargo_live_window(self, snapshot):
+        hud = getattr(self, "_navigation_hud", None)
+        if hud is not None:
+            hud.notify_cargo_activity(cargo_activity_key(snapshot))
         if not self._cargo_live_window_enabled() or not isinstance(snapshot, dict):
             if self._cargo_live_window is not None:
-                self._cargo_live_window.hide()
+                window = self._cargo_live_window
+                if (self._cargo_live_window_enabled()
+                        and same_cargo_context(self.state, window._last_snapshot)):
+                    window.hold_pending_snapshot()
+                else:
+                    window.invalidate_snapshot(force_hide=not self._cargo_live_window_enabled())
             return
         if self._cargo_live_window is None:
             self._cargo_live_window = CargoLiveWindow(
                 self.state.settings, parent=self
             )
-        self._cargo_live_window.set_snapshot(snapshot)
-        if not self._cargo_live_window.isVisible():
-            self._cargo_live_window.show()
+        self._cargo_live_window.present_snapshot(snapshot)
 
     def _set_explorer_value_threshold(self, value):
         value = max(0, int(value or 0))

@@ -38,6 +38,15 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.6.5
+
+- Vakaampi Windows-käynnistys: Ei-kriittiset taustavirheet näytetään osittaisina virheinä, ja pääikkuna pysyy käytettävissä.
+- Rajatut uusintayritykset laskeutumispaikkatiedoille ja lokien ajantasaistukselle, parannettu kartografian korjaus sekä turvallisempi loki-indeksointi ja sulkeminen.
+- Tarkemmat tekniset virheluokat diagnostiikassa; henkilötiedot pysyvät anonymisoituina.
+- Rauhallisemmat lastitilanäkymät louhinnassa ikkunoita ja taulukkorivejä käyttämällä uudelleen; automaattinen piilotus vasta 15 sekuntia viimeisen varastomuutoksen jälkeen.
+- Yhtenäiset käännetyt hyödykenimet muuttamatta varastolaskentaa tai erillistä drooninäyttöä.
+- PP2-päiväkronikka: Myös tavalliset hyödykemyynnit voidaan yhdistää varovaisesti ansiopisteisiin (≈); epäselvät tapaukset säilyttävät merkin ?, kokonaismäärä ja arvolaskenta eivät muutu.
+
 ## CMDRHelper v3.9.5
 
 - Uusi Odyssey-arviointi: 192 esineellä 223:sta on arvo A–D; 31 on edelleen merkitty ?-merkillä tarkistusta odottaen.

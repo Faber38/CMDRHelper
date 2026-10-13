@@ -33,7 +33,7 @@ def mapping_claim(body, previous, event):
 def plan_cartography_repair(con, commander_id):
     """Reconstruct committed, identity-validated journals without changing the DB."""
     from cmdrhelper.backfill_support import committed_journals, IncompleteRepair
-    bodies, claims, unresolved = {}, {}, set()
+    bodies, claims, unresolved = {}, {}, {}
     address, system = None, ''
     checked = 0
     for filename, events in committed_journals(con, commander_id, relevant_events={
@@ -64,6 +64,7 @@ def plan_cartography_repair(con, commander_id):
             if addr is None or bid is None:
                 continue
             key = (int(addr), int(bid))
+            claim_system = system
             if kind == 'Scan':
                 if event.get('StarType') or 'belt cluster' in event.get('BodyName', '').lower():
                     continue
@@ -72,24 +73,34 @@ def plan_cartography_repair(con, commander_id):
                             was_discovered=event.get('WasDiscovered'), was_mapped=event.get('WasMapped'))
                 body.update(valuation_context)
                 bodies[key] = body
+                pending = unresolved.pop(key, None)
                 if event.get('ScanType') == 'NavBeaconDetail':
-                    continue
-                claim = scan_claim(body, claims.get(key), ts)
+                    if pending is None:
+                        continue
+                    claim = claims.get(key)
+                else:
+                    claim = scan_claim(body, claims.get(key), ts)
+                if pending is not None:
+                    mapping, mapping_context, claim_system = pending
+                    mapped_body = dict(body, **mapping_context)
+                    claim = mapping_claim(mapped_body, claim, mapping)
             elif kind == 'SAAScanComplete':
                 if key not in bodies:
-                    unresolved.add(key)
+                    unresolved[key] = (dict(event), dict(valuation_context), system)
                     continue
                 body = bodies[key]
                 body.update(valuation_context)
                 claim = mapping_claim(body, claims.get(key), event)
             else:
                 continue
-            claim.update(system_address=key[0], body_id=key[1], system_name=system,
+            claim.update(system_address=key[0], body_id=key[1], system_name=claim_system,
                          body_name=body['name'], planet_class=body['planet_class'],
                          terraformable=body['terraformable'])
             claims[key] = claim
     if unresolved:
-        raise IncompleteRepair(f'Mapping without retained scan facts: {sorted(unresolved)}')
+        error = IncompleteRepair('Mapping without retained scan facts')
+        error.reason = 'mapping_without_scan'
+        raise error
     row = con.execute("""SELECT SUM(CASE WHEN base_value>0 THEN base_value ELSE total_earnings END),
         SUM(estimated_total) FROM cartography_sales WHERE commander_id=? AND estimated_total>0
         AND (base_value>0 OR total_earnings>0)""", (commander_id,)).fetchone()

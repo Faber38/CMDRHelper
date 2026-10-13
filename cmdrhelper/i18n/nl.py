@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_6_5.0': 'Robuustere Windows-start: Niet-kritieke achtergrondfouten worden als gedeeltelijke fouten gemeld; het hoofdvenster blijft bruikbaar.',
+    'release.3_9_6_5.1': 'Beperkte nieuwe pogingen voor landingsplaatsgegevens en het bijwerken van journals, verbeterd cartografieherstel en veiligere indexering en afsluiting.',
+    'release.3_9_6_5.2': 'Duidelijkere technische foutcategorieën in de diagnostiek, terwijl persoonlijke gegevens geanonimiseerd blijven.',
+    'release.3_9_6_5.3': 'Rustigere laadruimteschermen tijdens mijnbouw door vensters en tabelrijen te hergebruiken; automatisch verbergen pas 15 seconden na de laatste voorraadwijziging.',
+    'release.3_9_6_5.4': 'Consistente vertaalde grondstofnamen zonder wijzigingen in voorraadberekeningen of de afzonderlijke droneweergave.',
+    'release.3_9_6_5.5': 'PP2-dagkroniek: Ook gewone goederenverkopen kunnen voorzichtig aan verdiensten worden gekoppeld (≈); onduidelijke gevallen behouden ?, met ongewijzigde totalen en rangberekening.',
     'release.3_9_5.0': 'Nieuwe Odyssey-beoordeling: 192 van 223 voorwerpen hebben rang A–D; 31 blijven gemarkeerd met ? in afwachting van controle.',
     'release.3_9_5.1': 'Gekleurde rangkolom met toelichtingen en opgeslagen sortering A–D of D–A; persoonlijke opruimmarkeringen blijven onafhankelijk.',
     'release.3_9_5.2': 'Gecorrigeerde carrierroutes: de volledige bevestigde bezetting gaat naar Spansh, met tanktritium en opgeslagen tritium apart.',
@@ -2015,3 +2021,18 @@ TRANSLATIONS.update({
     'odyssey.sort.cleanup': 'Opruimlijst',
     'odyssey.sort.alphabetical': 'Alfabetisch',
 })
+
+# Startup completion with independently retryable background data.
+TRANSLATIONS.update({
+    'startup.partial': 'CMDRHelper gestart met gedeeltelijke fouten',
+    'startup.partial_detail': 'Sommige achtergrondgegevens konden niet worden bijgewerkt: {components}. Het hoofdvenster blijft bruikbaar.',
+    'startup.component.station_pads': 'Landingsplatforms',
+    'startup.component.history': 'Historische gegevens',
+    'startup.component.unsold_cartography': 'Cartografie',
+    'startup.component.commander_state': 'Commandantstatus',
+    'startup.component.journal_index': 'Logboekindex',
+    'startup.component.catchup': 'Logboek bijwerken',
+    'startup.shutdown_timeout': 'Update niet gestart: achtergrondtaken stopten niet op tijd. De logboekverwerking wordt hervat zodra ze klaar zijn.',
+})
+
+TRANSLATIONS.update({"pp2.chronicle.commodity_sale": 'Goederenverkoop'})

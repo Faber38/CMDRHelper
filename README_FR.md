@@ -38,6 +38,15 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.9.6.5
+
+- Démarrage Windows plus robuste : les erreurs non critiques en arrière-plan sont signalées comme partielles et la fenêtre principale reste utilisable.
+- Tentatives limitées pour les données des aires d’atterrissage et le rattrapage des journaux, réparation cartographique améliorée, indexation et arrêt mieux sécurisés.
+- Catégories techniques d’erreurs plus précises dans le diagnostic, tout en conservant l’anonymisation des données personnelles.
+- Affichages de soute plus stables pendant le minage grâce à la réutilisation des fenêtres et des lignes ; masquage automatique 15 secondes après la dernière modification du stock.
+- Noms localisés des marchandises harmonisés, sans modifier le calcul des stocks ni l’affichage séparé des drones.
+- Chronique quotidienne PP2 : les ventes ordinaires peuvent aussi être associées prudemment aux gains de mérites (≈) ; les cas ambigus restent ?, sans modifier le total ni le calcul du rang.
+
 ## CMDRHelper v3.9.5
 
 - Nouvelle évaluation Odyssey : 192 objets sur 223 sont classés de A à D ; 31 restent marqués ? en attente de vérification.

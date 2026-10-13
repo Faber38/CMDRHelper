@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_6_5.0': 'Daha sağlam Windows başlangıcı: Kritik olmayan arka plan hataları kısmi hata olarak gösterilir; ana pencere kullanılabilir kalır.',
+    'release.3_9_6_5.1': 'İniş alanı verileri ve günlük yakalama için sınırlı yeniden deneme, iyileştirilmiş kartografi onarımı ve daha güvenli günlük indeksleme ve kapanış.',
+    'release.3_9_6_5.2': 'Kişisel veriler anonim kalırken tanılamada daha açıklayıcı teknik hata kategorileri.',
+    'release.3_9_6_5.3': 'Pencere ve tablo satırlarının yeniden kullanılmasıyla madencilik sırasında daha sakin kargo görünümü; son envanter değişikliğinden ancak 15 saniye sonra otomatik gizleme.',
+    'release.3_9_6_5.4': 'Envanter hesaplaması veya ayrı dron göstergesi değişmeden tutarlı, yerelleştirilmiş emtia adları.',
+    'release.3_9_6_5.5': 'PP2 günlük kaydı: Normal emtia satışları da ihtiyatlı biçimde liyakat kazanımlarıyla ilişkilendirilebilir (≈); belirsiz durumlar ? olarak kalır, toplam ve rütbe hesaplaması değişmez.',
     'release.3_9_5.0': 'Yeni Odyssey derecelendirmesi: 223 öğeden 192’si A–D olarak değerlendirildi; 31 öğe doğrulama beklediği için ? ile işaretli.',
     'release.3_9_5.1': 'Renkli derece sütunu, açıklamalar ve kaydedilen A–D veya D–A sıralaması; kişisel temizlik işaretleri bağımsız kalır.',
     'release.3_9_5.2': 'Filo gemisi rotaları düzeltildi: onaylanan toplam doluluk Spansh’a gönderilir, tanktaki ve depodaki trityum ayrı tutulur.',
@@ -2015,3 +2021,18 @@ TRANSLATIONS.update({
     'odyssey.sort.cleanup': 'Temizlik listesi',
     'odyssey.sort.alphabetical': 'Alfabetik',
 })
+
+# Startup completion with independently retryable background data.
+TRANSLATIONS.update({
+    'startup.partial': 'CMDRHelper bazı hatalarla başlatıldı',
+    'startup.partial_detail': 'Bazı arka plan verileri güncellenemedi: {components}. Ana pencereyi kullanmaya devam edebilirsiniz.',
+    'startup.component.station_pads': 'İniş platformları',
+    'startup.component.history': 'Geçmiş veriler',
+    'startup.component.unsold_cartography': 'Kartografi',
+    'startup.component.commander_state': 'Komutan durumu',
+    'startup.component.journal_index': 'Günlük dizini',
+    'startup.component.catchup': 'Günlük eşitleme',
+    'startup.shutdown_timeout': 'Güncelleme başlatılmadı: arka plan görevleri zamanında durmadı. Görevler bitince günlük işleme devam edecek.',
+})
+
+TRANSLATIONS.update({"pp2.chronicle.commodity_sale": 'Emtia satışı'})

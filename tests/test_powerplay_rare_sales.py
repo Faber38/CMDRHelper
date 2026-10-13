@@ -87,7 +87,7 @@ class RareSaleTests(unittest.TestCase):
         self.assertEqual(groups[-1].certainty, 'unknown')
 
     def test_invalid_sales_never_link_even_with_context(self):
-        for fields in ({'Type': 'gold'}, {'Type': 'unknown'}, {'Type': None},
+        for fields in ({'Type': 'unknown'}, {'Type': None},
                        {'Count': 0}, {'Count': -1}, {'Count': True}, {'Count': '400'},
                        {'timestamp': 'invalid'}, {'timestamp': '2026-10-11T09:03:08'}):
             with self.subTest(fields=fields):
@@ -95,13 +95,13 @@ class RareSaleTests(unittest.TestCase):
                 self.assertEqual([g.certainty for g in groups], ['unknown'])
 
     def test_barriers_and_journal_boundaries(self):
-        for kind in ('Cargo', 'PowerplayRank', 'Docked', 'Undocked', 'FSDJump',
+        for kind in ('PowerplayRank', 'Docked', 'Undocked', 'FSDJump',
                      'Fileheader', 'LoadGame', 'Shutdown', 'PowerplayJoin', 'PowerplayDefect',
                      'PowerplayLeave', 'Market', 'UnknownFutureEvent'):
             with self.subTest(kind=kind):
                 groups = at_station(sale(), event(kind), credit())
                 self.assertEqual([g.certainty for g in groups], ['explicit', 'unknown'])
-        group, = at_station(sale(), event('Music'), event('Friends'), event('ReceiveText'), credit())
+        group, = at_station(sale(), event('Cargo'), event('Music'), event('Friends'), event('ReceiveText'), credit())
         self.assertEqual(group.certainty, 'temporal')
 
     def test_competing_actions_in_both_directions_and_after_credits(self):

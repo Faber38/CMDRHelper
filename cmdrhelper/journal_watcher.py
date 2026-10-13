@@ -18,6 +18,7 @@ class JournalWatcher(QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        self._stopping = False
         self.folder = None
         self._sig = None
         self._pending_sig = None
@@ -64,7 +65,13 @@ class JournalWatcher(QObject):
             observers.insert(0, self.live_observer)
         return observers
 
+    def stop(self):
+        self._stopping = True
+        self.timer.stop()
+        self.refresh_deferred()
+
     def start(self):
+        self._stopping = False
         if not self.timer.isActive():
             self.timer.start()
 
@@ -127,7 +134,7 @@ class JournalWatcher(QObject):
         )
 
     def _poll(self):
-        if not self.folder or self._refresh_in_progress:
+        if self._stopping or not self.folder or self._refresh_in_progress:
             return
         # Keep the acknowledged signature unchanged. Even if the file grows,
         # retry the uncommitted input only after the delay (timer stays at 1 s).

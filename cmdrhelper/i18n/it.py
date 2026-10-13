@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_6_5.0': 'Avvio Windows più robusto: gli errori non critici in background sono segnalati come parziali e la finestra principale resta utilizzabile.',
+    'release.3_9_6_5.1': 'Tentativi limitati per i dati delle piazzole e il recupero dei giornali, riparazione cartografica migliorata e indicizzazione e chiusura più sicure.',
+    'release.3_9_6_5.2': 'Categorie tecniche degli errori più informative nella diagnostica, mantenendo anonimi i dati personali.',
+    'release.3_9_6_5.3': 'Visualizzazioni della stiva più stabili durante l’estrazione grazie al riutilizzo di finestre e righe; scomparsa automatica 15 secondi dopo l’ultima variazione delle scorte.',
+    'release.3_9_6_5.4': 'Nomi localizzati delle merci uniformi, senza modificare i calcoli delle scorte o la visualizzazione separata dei droni.',
+    'release.3_9_6_5.5': 'Cronaca giornaliera PP2: anche le vendite ordinarie possono essere associate prudentemente ai meriti (≈); i casi ambigui restano ?, con totale e calcolo del rango invariati.',
     'release.3_9_5.0': 'Nuova valutazione Odyssey: 192 oggetti su 223 hanno un rango A–D; 31 restano contrassegnati con ? in attesa di verifica.',
     'release.3_9_5.1': 'Colonna dei ranghi colorata con suggerimenti e ordinamento A–D o D–A salvato; le selezioni personali di riordino restano indipendenti.',
     'release.3_9_5.2': 'Rotte delle portaerei corrette: l’intera capacità occupata confermata viene inviata a Spansh, separando il trizio nel serbatoio da quello immagazzinato.',
@@ -2138,3 +2144,18 @@ TRANSLATIONS.update({
     'odyssey.sort.cleanup': 'Elenco di pulizia',
     'odyssey.sort.alphabetical': 'Alfabetico',
 })
+
+# Startup completion with independently retryable background data.
+TRANSLATIONS.update({
+    'startup.partial': 'CMDRHelper avviato con errori parziali',
+    'startup.partial_detail': 'Alcuni dati in background non sono stati aggiornati: {components}. La finestra principale resta utilizzabile.',
+    'startup.component.station_pads': 'Piattaforme di atterraggio',
+    'startup.component.history': 'Dati storici',
+    'startup.component.unsold_cartography': 'Cartografia',
+    'startup.component.commander_state': 'Stato del comandante',
+    'startup.component.journal_index': 'Indice del diario',
+    'startup.component.catchup': 'Allineamento del diario',
+    'startup.shutdown_timeout': 'Aggiornamento non avviato: le attività in background non si sono fermate in tempo. Il diario verrà elaborato di nuovo al loro termine.',
+})
+
+TRANSLATIONS.update({"pp2.chronicle.commodity_sale": 'Vendita di merci'})

@@ -55,20 +55,30 @@ def sanitize(value):
 _FIELDS = {'version', 'os', 'python', 'qt', 'pyside', 'architecture', 'pid',
            'count', 'files', 'events', 'images', 'missing', 'fields', 'remaining',
            'success', 'restored', 'phase', 'mode', 'field', 'python_type',
-           'value_class', 'outside_sqlite_int64', 'retry_seconds'}
+           'value_class', 'outside_sqlite_int64', 'retry_seconds',
+           'component', 'reason', 'status', 'errno', 'winerror', 'sqlite_code'}
 
 
 def _technical_fields(fields):
     safe = {}
     versions = {'version', 'python', 'qt', 'pyside'}
     enums = {
+        'component': {'startup', 'journal_index', 'station_pads', 'history', 'unsold_cartography',
+                      'commander_state', 'archive', 'catchup', 'live_journal', 'materials'},
+        'status': {'running', 'success', 'partial', 'critical', 'pending', 'cancelled', 'incomplete', 'failed'},
+        'reason': {'pad_signature_mismatch', 'pad_checkpoint_changed', 'pad_lock_timeout', 'mapping_without_scan',
+                   'qt_signal_unavailable', 'thread_start_failed', 'journal_changed_during_read',
+                   'journal_replaced_or_truncated', 'partial_final_line', 'catchup_budget',
+                   'os_error', 'sqlite_error', 'unexpected_error', 'retry_unchanged',
+                   'material_unknown', 'material_underflow', 'material_invalid_event'},
         'field': {'mission_id'},
         'python_type': {'int'},
         'value_class': {'unsigned_64', 'above_unsigned_64', 'below_signed_64'},
         'os': {'Linux', 'Windows', 'Darwin'},
         'architecture': {'x86_64', 'AMD64', 'arm64', 'aarch64', 'i386', 'i686', 'x86', 'armv7l'},
         'phase': {'rollback', 'failure', 'aborted', 'restart', 'backup', 'installation',
-                  'extract', 'verification', 'started', 'cleanup', 'progress'},
+                  'extract', 'verification', 'started', 'cleanup', 'progress',
+                  'index', 'fallback', 'delivery', 'history', 'archive', 'catchup', 'shutdown', 'complete'},
         'mode': {'venv', 'python'},
     }
     for key, value in fields.items():
@@ -142,6 +152,8 @@ class PrivacyFormatter(logging.Formatter):
                         codes.append(code)
                 if isinstance(error, OSError) and type(error.errno) is int:
                     codes.append(f'errno={error.errno}')
+                if isinstance(error, OSError) and type(getattr(error, 'winerror', None)) is int:
+                    codes.append(f'winerror={error.winerror}')
                 from urllib.error import HTTPError
                 if isinstance(error, HTTPError) and type(error.code) is int:
                     codes.append(f'HTTP={error.code}')
