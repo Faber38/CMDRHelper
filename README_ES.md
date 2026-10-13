@@ -38,6 +38,13 @@ La carpeta de diarios de Elite Dangerous se detecta automáticamente cuando es p
 
 CMDRHelper busca actualizaciones al iniciarse y dispone de un actualizador integrado. Confirma una actualización ofrecida en la aplicación; actualizará el programa y las dependencias y reiniciará CMDRHelper. Tras la primera instalación, normalmente basta con usar `start.bat` (Windows) o `bash start.sh` (Linux). No es necesario volver a ejecutar manualmente `install.bat` o `install.sh` para las actualizaciones normales.
 
+## CMDRHelper v3.9.8
+
+- Favoritos y navegación planetaria se integran directamente en la interfaz principal como dos pestañas.
+- Navegación abre una página principal común sin ventanas adicionales de favoritos o del navegador.
+- Si no hay un atajo de teclado configurado, el aviso de favorito rápido aparece en amarillo Elite, parpadea suavemente tres veces y explica la configuración en Ajustes.
+- La ayuda integrada describe las nuevas pestañas y rutas de uso en los doce idiomas.
+
 ## CMDRHelper v3.9.6.7
 
 - Mejorada la asociación de méritos de Powerplay con escaneos de naves y ventas de mercancías.
@@ -345,7 +352,7 @@ El Explorer también muestra valores BIO estimados, progreso de análisis propio
 
 Los detalles del cuerpo incluyen propiedades físicas disponibles, atmósfera, anillos, materiales e información de descubrimiento. Las representaciones usan texturas adecuadas y animaciones para ciertos objetos astronómicos especiales. El área Cargo muestra la carga y capacidad conocidas de la nave o SRV en uso; en el Rhino, carga y hallazgos mineros personales siguen siendo datos diferentes.
 
-En la parte superior del Explorer están **★ Favoritos | Navegación planetaria | Mostrar todo**. Favoritos y navegación planetaria abren sus propias ventanas; las tres vistas del Explorer siguen disponibles.
+Selecciona «Navegación» a la izquierda. A la derecha aparecen las pestañas «★ Favoritos» y «Navegación planetaria», con «★ Favoritos» activa por defecto. «Navegación → ★ Favoritos» gestiona sistemas, planetas/lunas y lugares de superficie del comandante activo; «Navegación → Navegación planetaria» muestra la navegación planetaria en la misma zona principal.
 
 ## Navegación planetaria
 
@@ -364,7 +371,7 @@ En cuanto Elite proporciona datos válidos de posición planetaria para el cuerp
 | **Más de 380 km** | Globo planetario con tu posición como círculo blanco y el destino como un pequeño punto. El destino es naranja en la cara visible y rojo en la cara oculta. La posición del jugador permanece fija en la representación; planeta y destino se muestran respecto a ella. |
 | **Hasta 380 km inclusive** | Cambio automático a una cuadrícula en perspectiva inclinada con **intervalos de distancia de 50 km** y la posición del destino dibujada dentro para continuar la aproximación. |
 
-La ventana del navegador se puede redimensionar libremente. Globo o cuadrícula se adaptan proporcionalmente al espacio disponible; los valores detallados siguen siendo legibles.
+El globo y la cuadrícula en perspectiva se adaptan proporcionalmente al espacio disponible. Si la ventana principal es estrecha o baja, desplaza el contenido. Cambiar de página o pestaña conserva los filtros y el destino.
 
 ### Comprender los valores de navegación
 
@@ -394,7 +401,7 @@ El HUD se ha probado en el juego bajo **Linux/X11** y **Windows 11 con Elite**. 
 
 ## Favoritos
 
-**Explorer → ★ Favoritos** abre una ventana independiente y reutilizable. Los favoritos pertenecen al **comandante activo**. Cambiar de comandante actualiza la vista; la selección de comandantes en la crónica no amplía la lista de favoritos.
+Selecciona «Navegación» a la izquierda. A la derecha aparecen las pestañas «★ Favoritos» y «Navegación planetaria», con «★ Favoritos» activa por defecto. «Navegación → ★ Favoritos» gestiona sistemas, planetas/lunas y lugares de superficie del comandante activo; «Navegación → Navegación planetaria» muestra la navegación planetaria en la misma zona principal. Los favoritos pertenecen al **comandante activo**. Cambiar de comandante actualiza la vista; la selección de comandantes en la crónica no amplía la lista de favoritos.
 
 ### Guardar tres tipos
 

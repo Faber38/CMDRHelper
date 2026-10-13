@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_9_8.0': 'Favoriter och planetnavigering är integrerade direkt i huvudgränssnittet som två flikar.',
+    'release.3_9_8.1': 'Navigering öppnar en gemensam huvudsida utan extra favorit- eller navigeringsfönster.',
+    'release.3_9_8.2': 'När ingen snabbtangent är inställd visas snabbfavorittipset i Elite-gult, blinkar mjukt tre gånger och förklarar inställningen under Inställningar.',
+    'release.3_9_8.3': 'Den inbyggda hjälpen beskriver de nya flikarna och menyvägarna på alla tolv språk.',
+
     'release.3_9_6_7.2': 'Lastvisningarna förblir synliga när de är aktiverade, utan att döljas vid inaktivitet; last- och drönarvärden uppdateras utan att visningarna öppnas på nytt.',
     'release.3_9_6_7.3': 'Ny utfällbar huvudmeny Navigering med Favoriter och Planetnavigering ersätter de tidigare knapparna i Explorer.',
     'release.3_9_6_7.4': 'Den inbyggda hjälpen beskriver de nya menysökvägarna på alla tolv språk som stöds.',
@@ -528,7 +533,7 @@ TRANSLATIONS = {
     'odyssey.loading': 'Läser in Odyssey-bestånd …',
     'odyssey.owner': 'Ägare',
     'odyssey.stolen': 'Stulet',
-    'quick_favorite.hint': 'Du kan direkt spara din aktuella position som favorit medan du spelar med en valfri snabbtangent – även till fots eller i SRV:n.',
+    'quick_favorite.hint': 'Du kan direkt spara din aktuella position som favorit medan du spelar med en valfri snabbtangent – även till fots eller i SRV:n. Du kan ställa in snabbtangenten under Inställningar.',
     'quick_favorite.title': 'Snabbfavorit',
     'quick_favorite.hotkey': 'Snabbtangent',
     'quick_favorite.unassigned': 'Inte tilldelad',

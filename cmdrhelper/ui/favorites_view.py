@@ -4,11 +4,13 @@ from pathlib import Path
 import sqlite3
 import math
 
-from PySide6.QtCore import Qt, QSize, QRect, QTimer, QLocale, QSaveFile, QIODevice
+from PySide6.QtCore import (Qt, QSize, QRect, QTimer, QLocale, QSaveFile, QIODevice,
+                           QParallelAnimationGroup, QPropertyAnimation, QEasingCurve)
 from PySide6.QtGui import QIcon, QPixmap, QImageReader
 from PySide6.QtWidgets import (QWidget, QDialog, QVBoxLayout, QHBoxLayout, QFormLayout,
     QLabel, QLineEdit, QTextEdit, QPushButton, QComboBox, QListWidget, QListWidgetItem,
-    QDialogButtonBox, QFileDialog, QMessageBox, QLayout, QCheckBox, QDoubleSpinBox)
+    QDialogButtonBox, QFileDialog, QMessageBox, QLayout, QCheckBox, QDoubleSpinBox,
+    QGraphicsOpacityEffect)
 
 from cmdrhelper.favorites import (FavoriteStore, TYPES, CATEGORIES, latest_screenshot,
                                  freeze_surface_location, navigate_to_favorite,
@@ -253,6 +255,40 @@ class _SaveActionsLayout(QLayout):
                                    rect.y() + row * (height + self.spacing()), width, height))
 
 
+class _QuickFavoriteHint(QWidget):
+    """Animate text on actual show/hide events; visibility stays caller-owned."""
+
+    def __init__(self):
+        super().__init__()
+        self._text_effects = []
+        self._blink = QParallelAnimationGroup(self)
+        self._blink.setLoopCount(3)
+
+    def style_text(self, label):
+        label.setStyleSheet("color: #FFCC33;")
+        effect = QGraphicsOpacityEffect(label)
+        effect.setOpacity(1.0)
+        label.setGraphicsEffect(effect)
+        self._text_effects.append(effect)
+        animation = QPropertyAnimation(effect, b"opacity")
+        animation.setDuration(700)
+        animation.setStartValue(1.0)
+        animation.setKeyValueAt(0.5, 0.45)
+        animation.setEndValue(1.0)
+        animation.setEasingCurve(QEasingCurve.InOutSine)
+        self._blink.addAnimation(animation)
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self._blink.start()
+
+    def hideEvent(self, event):
+        self._blink.stop()
+        for effect in self._text_effects:
+            effect.setOpacity(1.0)
+        super().hideEvent(event)
+
+
 class FavoritesView(QWidget):
     def __init__(self, state, navigator_callback, explorer_callback, parent=None,
                  *, location_controller_callback=None, quick_favorite_hotkey=None,
@@ -330,7 +366,7 @@ class FavoritesView(QWidget):
         transfer_actions.addWidget(self.import_button)
         root.addLayout(transfer_actions)
         self.route_button, self.coordinates_button = self.action_buttons[-2:]
-        self.quick_favorite_hint = QWidget()
+        self.quick_favorite_hint = _QuickFavoriteHint()
         hint_layout = QHBoxLayout(self.quick_favorite_hint)
         hint_layout.setContentsMargins(0, 8, 0, 0)
         hint_text = QVBoxLayout()
@@ -338,6 +374,8 @@ class FavoritesView(QWidget):
         title = QLabel(tr('quick_favorite.title'), objectName='muted')
         description = text_label(tr('quick_favorite.hint'))
         description.setObjectName('muted')
+        self.quick_favorite_hint.style_text(title)
+        self.quick_favorite_hint.style_text(description)
         hint_text.addWidget(title)
         hint_text.addWidget(description)
         hint_layout.addLayout(hint_text, 1)

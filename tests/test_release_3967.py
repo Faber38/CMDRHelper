@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class Release3967Tests(unittest.TestCase):
     def test_publisher_metadata_and_readmes_in_all_languages(self):
-        self.assertEqual(version_at(ROOT), '3.9.6.7')
+        self.assertEqual(version_at(ROOT), __version__)
         self.assertEqual(SCHEMA_VERSION, 23)
         notes = release_notes(ROOT, '3.9.6.7')
         metadata = json.loads(re.search(

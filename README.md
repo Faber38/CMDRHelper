@@ -38,6 +38,13 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.9.8
+
+- Favorites and planet navigation are integrated directly into the main interface as two tabs.
+- Navigation opens a shared main page without additional favorites or navigator windows.
+- When no hotkey is configured, the quick-favorite hint appears in Elite yellow, gently blinks three times and explains setup under Settings.
+- The integrated help describes the new tabs and navigation paths in all twelve languages.
+
 ## CMDRHelper v3.9.6.7
 
 - Improved Powerplay merit matching for ship scans and commodity sales.
@@ -345,7 +352,7 @@ The Explorer also shows estimated BIO values, progress of personal analyses and 
 
 Body details include available physical properties, atmosphere, rings, materials and discovery information. Body displays use suitable textures and animations for certain special astronomical objects. The Cargo area shows the known load and capacity of the currently used ship or SRV; for the Rhino, cargo and personal mining finds remain different figures.
 
-At the top of the Explorer are **★ Favorites | Planet navigation | Show all**. Favorites and planetary navigation open their own windows; the three Explorer views remain available alongside them.
+Select “Navigation” on the left. The “★ Favorites” and “Planet navigation” tabs appear on the right, with “★ Favorites” selected by default. “Navigation → ★ Favorites” manages systems, planets/moons and surface locations for the active commander; “Navigation → Planet navigation” displays planetary navigation in the same main area.
 
 ## Planetary navigation
 
@@ -364,7 +371,7 @@ As soon as Elite provides valid planetary position data for the matching body, t
 | **More than 380 km** | Planetary globe with your position as a white circle and the target as a small dot. The target is orange on the visible side and red on the hidden far side. The player's position stays fixed in the display; planet and target are shown relative to it. |
 | **Up to and including 380 km** | Automatic switch to a tilted perspective grid with **50-km distance spacing** and the target position plotted within it for the continued approach. |
 
-The navigator window can be freely resized. The globe or perspective grid adapts proportionally to the available space; detailed values remain readable.
+The globe and perspective grid scale proportionally to the available space. In a narrow or short main window, scroll to reach the contents. Switching pages or tabs preserves filters and the navigation target.
 
 ### Understanding navigation values
 
@@ -394,7 +401,7 @@ The HUD has been tested in-game under **Linux/X11** and **Windows 11 with Elite*
 
 ## Favorites
 
-**Explorer → ★ Favorites** opens a separate, reusable window. Favorites belong to the **active commander**. Switching commanders updates the view; the commander selection in the chronicle does not extend the favorites list.
+Select “Navigation” on the left. The “★ Favorites” and “Planet navigation” tabs appear on the right, with “★ Favorites” selected by default. “Navigation → ★ Favorites” manages systems, planets/moons and surface locations for the active commander; “Navigation → Planet navigation” displays planetary navigation in the same main area. Favorites belong to the **active commander**. Switching commanders updates the view; the commander selection in the chronicle does not extend the favorites list.
 
 ### Save three types
 

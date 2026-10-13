@@ -3,7 +3,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from PySide6.QtCore import Qt, QTimer, QEvent, Signal
-from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QFormLayout,
+from PySide6.QtGui import QPalette
+from PySide6.QtWidgets import (QWidget, QDialog, QVBoxLayout, QHBoxLayout, QFormLayout,
                               QLabel, QPushButton, QDoubleSpinBox, QDialogButtonBox,
                               QMessageBox, QComboBox, QLineEdit)
 
@@ -32,7 +33,9 @@ def direction_text(solution):
     return tr("planet_nav.right" if value > 0 else "planet_nav.left", degrees=abs(value))
 
 
-class PlanetNavigationWindow(QDialog):
+class PlanetNavigationView(QWidget):
+    """Reusable navigator contents; geometry persistence belongs to the window shell."""
+
     HELP_CONTEXT = "planet_navigation"
     save_location_requested = Signal()
 
@@ -40,12 +43,6 @@ class PlanetNavigationWindow(QDialog):
         super().__init__(parent)
         self.controller = controller
         self.settings = settings
-        self.geometry_key = "planet_navigation/geometry"
-        self.setWindowTitle(tr("planet_nav.title"))
-        self.setWindowFlags(self.windowFlags() | Qt.Window)
-        self.setAttribute(Qt.WA_ShowWithoutActivating, True)
-        self.resize(450, 620)
-        self.setMinimumWidth(360)
         root = QVBoxLayout(self)
         self.body_label = QLabel()
         self.body_label.setTextFormat(Qt.PlainText)
@@ -72,17 +69,17 @@ class PlanetNavigationWindow(QDialog):
         root.addWidget(self.save_location_button)
         self.pause_label = QLabel()
         self.pause_label.setWordWrap(True)
-        self.pause_label.setStyleSheet("font-weight: bold; color: #e6a94b;")
         root.addWidget(self.pause_label)
         self.globe = Planet3DWidget(None, self, diameter=260, navigation=True)
         root.addWidget(self.globe, stretch=1)
         schematic = QLabel(tr("planet_nav.schematic"))
         schematic.setWordWrap(True)
         root.addWidget(schematic)
-        legend = QLabel(tr("planet_nav.legend"))
-        legend.setTextFormat(Qt.RichText)
-        legend.setWordWrap(True)
-        root.addWidget(legend)
+        self.legend = QLabel()
+        self.legend.setTextFormat(Qt.RichText)
+        self.legend.setWordWrap(True)
+        root.addWidget(self.legend)
+        self._update_palette()
         self.target_distance_label = QLabel()
         self.target_distance_label.setTextFormat(Qt.PlainText)
         self.target_distance_label.setStyleSheet("font-size: 21px; font-weight: bold;")
@@ -103,17 +100,23 @@ class PlanetNavigationWindow(QDialog):
         root.addLayout(form)
         self.age_label = QLabel()
         root.addWidget(self.age_label)
-        geometry = self.settings.value(self.geometry_key)
-        if geometry is not None:
-            try:
-                self.restoreGeometry(geometry)
-            except (TypeError, ValueError):
-                pass
         controller.changed.connect(self.refresh_navigation)
         self._age_timer = QTimer(self)
         self._age_timer.setInterval(1000)
         self._age_timer.timeout.connect(self._refresh_age)
         self.refresh_navigation(controller.state)
+
+    def _update_palette(self):
+        color = self.palette().color(QPalette.Text).name()
+        self.legend.setText(tr("planet_nav.legend").replace("color:#ffffff", "color:" + color))
+        light = self.palette().color(QPalette.Window).lightness() > 128
+        status_color = "#8a5700" if light else "#e6a94b"
+        self.pause_label.setStyleSheet(f"font-weight: bold; color: {status_color};")
+
+    def changeEvent(self, event):
+        super().changeEvent(event)
+        if event.type() == QEvent.PaletteChange and hasattr(self, "legend"):
+            self._update_palette()
 
     def showEvent(self, event):
         super().showEvent(event)
@@ -132,18 +135,9 @@ class PlanetNavigationWindow(QDialog):
         self._help_dialog = HelpDialog(self.HELP_CONTEXT, self, language=get_language())
         self._help_dialog.show()
 
-    def _save_geometry(self):
-        self.settings.setValue(self.geometry_key, self.saveGeometry())
-        self.settings.sync()
-
-    def moveEvent(self, event):
-        super().moveEvent(event)
-        self._save_geometry()
-
     def resizeEvent(self, event):
         super().resizeEvent(event)
         self._update_minimum_height()
-        self._save_geometry()
 
     def event(self, event):
         result = super().event(event)
@@ -165,10 +159,6 @@ class PlanetNavigationWindow(QDialog):
             if isinstance(label, QLabel) and label.wordWrap():
                 minimum += max(0, label.heightForWidth(width) - label.minimumSizeHint().height())
         self.setMinimumHeight(minimum)
-
-    def closeEvent(self, event):
-        self._save_geometry()
-        super().closeEvent(event)
 
     def _refresh_age(self):
         timestamp = self.controller.state.last_confirmed_at
@@ -276,3 +266,38 @@ class PlanetNavigationWindow(QDialog):
         buttons.rejected.connect(dialog.reject)
         layout.addWidget(buttons)
         dialog.exec()
+
+
+class PlanetNavigationWindow(PlanetNavigationView):
+    """Legacy standalone shell; main navigation embeds PlanetNavigationView."""
+
+    def __init__(self, controller, settings, parent=None):
+        self.geometry_key = "planet_navigation/geometry"
+        super().__init__(controller, settings, parent)
+        self.setWindowTitle(tr("planet_nav.title"))
+        self.setWindowFlags(self.windowFlags() | Qt.Window)
+        self.setAttribute(Qt.WA_ShowWithoutActivating, True)
+        self.resize(450, 620)
+        self.setMinimumWidth(360)
+        geometry = self.settings.value(self.geometry_key)
+        if geometry is not None:
+            try:
+                self.restoreGeometry(geometry)
+            except (TypeError, ValueError):
+                pass
+
+    def _save_geometry(self):
+        self.settings.setValue(self.geometry_key, self.saveGeometry())
+        self.settings.sync()
+
+    def moveEvent(self, event):
+        super().moveEvent(event)
+        self._save_geometry()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._save_geometry()
+
+    def closeEvent(self, event):
+        self._save_geometry()
+        super().closeEvent(event)

@@ -364,7 +364,7 @@ HELP_TOPICS = {
               """
 
 <h3>★ Favorites</h3>
-<p>“Navigation → ★ Favorites” in the left main menu opens a separate, reusable favorites window. Here you save systems, planets/moons and surface locations for the active commander.</p>
+<p>Select “Navigation” on the left. The “★ Favorites” and “Planet navigation” tabs appear on the right, with “★ Favorites” selected by default. “Navigation → ★ Favorites” manages systems, planets/moons and surface locations for the active commander; “Navigation → Planet navigation” displays planetary navigation in the same main area.</p>
 <p>The scrollable list, sorted alphabetically by name, shows the name, type, system, body and latitude/longitude where applicable, category and a small image preview. Free-text search, type and category filters can be used together. The search covers the name, system, body and note.</p>
 <p>“Open / View” shows the saved information, note and a larger image preview. “Show in Explorer” opens the existing system overview or body detail view if the favorite belongs to the current Explorer system and matching data is available. For other systems, the saved favorite data remains visible; no system route is calculated.</p>
 
@@ -385,7 +385,7 @@ HELP_TOPICS = {
 <ul>
 <li>“★ Save current system” saves the current system without surface coordinates.</li>
 <li>“★ Save planet / moon” lets you select a known planet or moon in the current system. This favorite also receives no surface coordinates.</li>
-<li>“★ Save current location” is at the top of the favorites window beside the other two save options and is also available in the planetary navigator. In the favorites window, the button always remains visible and is disabled without valid current planetary position data and an active commander. Clicking it freezes the commander, system, body, latitude and longitude. Subsequent movement in the game does not change these values in the open dialog.</li>
+<li>“★ Save current location” is at the top of the favorites tab beside the other two save options and is also available in the planetary navigator. In the favorites tab, the button always remains visible and is disabled without valid current planetary position data and an active commander. Clicking it freezes the commander, system, body, latitude and longitude. Subsequent movement in the game does not change these values in the open dialog.</li>
 </ul>
 <p>Enter a name of your choice and select exactly one category: Bio, Geo, Mining, View, Landing site, Interesting or Other. A note and an image are optional. Known technical IDs are carried over internally; you do not need to enter them. Latitude or longitude 0.0 are also valid coordinates.</p>
 <p>“Edit” changes the name, category, note and image. The system, body and saved coordinates are preserved. To save a different surface location, create a new favorite at that position.</p>
@@ -393,7 +393,7 @@ HELP_TOPICS = {
 <h3>Quick favorite without the mouse</h3>
 <p>Under “Settings → Quick favorite”, you can freely set, change or remove a global hotkey. After installation, it is “Not assigned” by default: CMDRHelper does not register any key without being asked. The binding is saved. If a combination is already in use or unavailable on your system, an error message appears; any previously working binding is retained.</p>
 <p>On Linux/X11 and Windows, the hotkey also works while Elite has focus – on foot, in the SRV and in the ship. Pressing it immediately saves the current surface location for the active commander, without a dialog or mouse interaction. The commander, system, body and current Latitude/Longitude values are frozen at that moment. Nothing is saved without valid current planetary coordinates; earlier coordinates are not reused.</p>
-<p>The favorite receives a unique provisional name such as “Marker 07.09.2026 06:32:15” and the “Other” category. In the normal favorites window, you can later rename it, assign it to another category, add a note or add an image. No screenshot is automatically taken or imported.</p>
+<p>The favorite receives a unique provisional name such as “Marker 07.09.2026 06:32:15” and the “Other” category. In the normal favorites tab, you can later rename it, assign it to another category, add a note or add an image. No screenshot is automatically taken or imported.</p>
 <p>For approximately two seconds, “★ FAVORITE SAVED” appears directly over the active Elite window with the body and coordinates; if the location is unavailable, “⚠ NO PLANETARY COORDINATES” appears briefly. The display does not take focus or intercept input. It also works with the navigation HUD switched off and then disappears completely. With the HUD switched on, the normal navigation display remains afterwards. The saved HUD switch setting is not changed. The display uses the same overlay infrastructure and platform requirements as the navigation HUD.</p>
 
 <h3>Favorite images</h3>
@@ -1106,7 +1106,8 @@ HELP_TOPICS = {
 <p>It is not an interstellar route planner and does not handle system or jump navigation. You fly your ship yourself.</p>
 
 <h3>Opening the navigator and entering a target</h3>
-<p>Open “Navigation → Planet navigation” in the left main menu and select “Manual input…”. You can open the navigator and enter a target before a current surface position is available.</p>
+<p>Select “Navigation” on the left. The “★ Favorites” and “Planet navigation” tabs appear on the right, with “★ Favorites” selected by default. “Navigation → ★ Favorites” manages systems, planets/moons and surface locations for the active commander; “Navigation → Planet navigation” displays planetary navigation in the same main area.</p>
+<p>Open “Navigation → Planet navigation” in the main area and select “Manual input…”. You can enter a target before a current surface position is available.</p>
 <ul>
 <li><b>Body:</b> Select the target planet or moon from the list or use the body already detected. You can also enter the body name yourself if it is not yet listed. If in doubt, use the full name including the system name.</li>
 <li><b>Latitude:</b> Enter the target latitude between −90° and +90°.</li>
@@ -1126,7 +1127,7 @@ HELP_TOPICS = {
 <p>System, body and coordinates are captured when invoked. In the favourites dialog, edit the name, category and note and optionally attach an image. Only “Save” stores the record locally for that commander; cancelling saves nothing. Later movement does not change the captured position.</p>
 
 <h3>Use saved positions</h3>
-<p>Open “Navigation → ★ Favorites” in the left main menu. Select a saved surface location and “◎ To coordinates” to adopt its body, coordinates and name as the navigation target. This replaces any previous target; on another body the navigator waits for matching position data.</p>
+<p>Switch to the “Navigation → ★ Favorites” tab in the main area. Select a saved surface location and “◎ To coordinates” to adopt its body, coordinates and name as the navigation target. This replaces any previous target; on another body the navigator waits for matching position data.</p>
 <p>“Edit” changes the name, category and note. “Delete” removes the favourite only after confirmation, without removing Elite data. Favourites survive Helper restarts and are separated by commander; the current navigation target itself lasts only for the session.</p>
 
 <h3>Planet globe: more than 380 km</h3>
@@ -1157,8 +1158,8 @@ HELP_TOPICS = {
 <p>Example: With heading 051° and target course 074°, turn 23° to the right until your Elite compass shows approximately 074°. As you continue flying, the bearing and target course may change; follow the updated values.</p>
 <p>At the same position as the target, at a pole or at the exact opposite point on the planet, the direction may be undefined. The navigator then shows the corresponding message instead of an invented course.</p>
 
-<h3>Window size</h3>
-<p>The navigator window can be freely resized. The globe or perspective grid adjusts proportionally to the available space. The minimum size keeps the detailed values readable; the globe stays round. The window position and size are saved.</p>
+<h3>Layout in the main area</h3>
+<p>The globe and perspective grid scale proportionally to the available space. In a narrow or short main window, scroll to reach the contents. Switching pages or tabs preserves filters and the navigation target.</p>
 
 <h3>Enabling the navigation HUD</h3>
 <p>On the left of the main window, tick the box under <b>auto show → Navigation HUD</b>. With valid planetary navigation, the HUD appears directly over the visible Elite window in the foreground.</p>
@@ -1176,13 +1177,13 @@ HELP_TOPICS = {
 <p>On the same body, you can reopen “Manual input…” at any time and set different coordinates. The new target replaces the previous navigation target. With matching position data, the compass updates immediately.</p>
 <p>“Stop navigation” removes the current target. Simply set a new target for another approach.</p>
 
-<p>Closing the navigator window does not end the target. An enabled navigation HUD can continue; “Stop navigation” removes the target. Leaving the matching body or losing position data pauses navigation and hides the navigation HUD.</p>
+<p>Switching pages or tabs does not end the target. An enabled navigation HUD can continue; “Stop navigation” removes the target. Leaving the matching body or losing position data pauses navigation and hides the navigation HUD.</p>
 
 <h3>Data freshness and limitations</h3>
 <p>Navigation is based on the status data provided by Elite. Updates may arrive with a delay depending on the game state. The age display in the navigator shows how much time has passed since the last confirmed status message.</p>
 <p>The surface distance describes the shortest arc on an idealised sphere. It is not a terrain or road route. The navigator does not know about obstacles or terrain heights along the route; flight altitude, safe speed and obstacle avoidance remain your responsibility.</p>
 
-<p>The current position comes from Status.json; the journal supplements body and system associations. The window and enabled navigation HUD keep updates active as needed. The display depends on available Elite data and does not guarantee accuracy in metres.</p>
+<p>The current position comes from Status.json; the journal supplements body and system associations. The visible navigation tab and enabled navigation HUD keep updates active as needed. The display depends on available Elite data and does not guarantee accuracy in metres.</p>
 
 <h3>Tip</h3>
 <p>Before approaching, check the body name and the signs of the target coordinates. Then align with the target course on the Elite compass and watch the relative direction and distance. If the navigator is waiting, check whether Elite is already providing planetary coordinates for the target body.</p>""",

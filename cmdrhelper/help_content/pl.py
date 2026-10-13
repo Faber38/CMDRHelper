@@ -365,7 +365,7 @@ HELP_TOPICS = {
               """
 
 <h3>★ Ulubione</h3>
-<p>„Nawigacja → ★ Ulubione” w menu głównym po lewej otwiera osobne okno ulubionych, które jest używane ponownie. Zapisujesz w nim systemy, planety/księżyce i miejsca na powierzchni dla aktywnego dowódcy.</p>
+<p>Wybierz „Nawigacja” po lewej. Po prawej pojawią się karty „★ Ulubione” i „Nawigacja planetarna”, z domyślnie aktywną kartą „★ Ulubione”. „Nawigacja → ★ Ulubione” zarządza systemami, planetami/księżycami i miejscami na powierzchni aktywnego dowódcy; „Nawigacja → Nawigacja planetarna” wyświetla nawigację planetarną w tym samym obszarze głównym.</p>
 <p>Przewijana lista, posortowana alfabetycznie według nazw, pokazuje nazwę, typ, system, w odpowiednich przypadkach ciało niebieskie i szerokość/długość geograficzną, kategorię oraz mały podgląd obrazu. Wyszukiwanie tekstowe oraz filtry typu i kategorii można stosować wspólnie. Wyszukiwanie obejmuje nazwę, system, ciało niebieskie i notatkę.</p>
 <p>„Otwórz / Pokaż” pokazuje zapisane dane, notatkę i większy podgląd obrazu. „Pokaż w Explorerze” otwiera istniejący przegląd systemu lub szczegóły ciała niebieskiego, jeśli ulubiony należy do bieżącego systemu Explorera i dostępne są odpowiednie dane. W przypadku innych systemów zapisane dane ulubionego pozostają widoczne; trasa między systemami nie jest obliczana.</p>
 
@@ -386,7 +386,7 @@ HELP_TOPICS = {
 <ul>
 <li>„★ Zapisz bieżący system” zapisuje bieżący system bez współrzędnych powierzchniowych.</li>
 <li>„★ Zapisz planetę / księżyc” pozwala wybrać znaną planetę lub księżyc w bieżącym systemie. Ten ulubiony również nie otrzymuje współrzędnych powierzchniowych.</li>
-<li>„★ Zapisz bieżącą pozycję” znajduje się u góry okna ulubionych, obok dwóch pozostałych opcji zapisu, i jest też dostępny w nawigatorze planetarnym. W oknie ulubionych przycisk jest zawsze widoczny i pozostaje nieaktywny bez prawidłowych bieżących danych pozycji planetarnej i aktywnego dowódcy. Kliknięcie utrwala dowódcę, system, ciało niebieskie, szerokość i długość geograficzną. Późniejszy ruch w grze nie zmienia tych wartości w otwartym oknie dialogowym.</li>
+<li>„★ Zapisz bieżącą pozycję” znajduje się u góry karty ulubionych, obok dwóch pozostałych opcji zapisu, i jest też dostępny w nawigatorze planetarnym. Na karcie ulubionych przycisk jest zawsze widoczny i pozostaje nieaktywny bez prawidłowych bieżących danych pozycji planetarnej i aktywnego dowódcy. Kliknięcie utrwala dowódcę, system, ciało niebieskie, szerokość i długość geograficzną. Późniejszy ruch w grze nie zmienia tych wartości w otwartym oknie dialogowym.</li>
 </ul>
 <p>Wpisz dowolną nazwę i wybierz dokładnie jedną kategorię: Bio, Geo, Wydobycie, Widok, Lądowisko, Ciekawe lub Inne. Notatka i obraz są opcjonalne. Znane identyfikatory techniczne są przejmowane wewnętrznie; nie musisz ich wpisywać. Szerokość lub długość geograficzna 0,0 to również prawidłowe współrzędne.</p>
 <p>„Edytuj” zmienia nazwę, kategorię, notatkę i obraz. System, ciało niebieskie i zapisane współrzędne zostają zachowane. Aby zapisać inne miejsce na powierzchni, utwórz nowy ulubiony w tej pozycji.</p>
@@ -394,7 +394,7 @@ HELP_TOPICS = {
 <h3>Szybki ulubiony bez myszy</h3>
 <p>W sekcji „Ustawienia → Szybki ulubiony” możesz dowolnie ustawić, zmienić lub usunąć globalny skrót klawiszowy. Po instalacji domyślny stan to „Nie przypisano”: CMDRHelper nie rejestruje żadnego klawisza bez polecenia użytkownika. Przypisanie jest zapisywane. Jeśli kombinacja jest już zajęta lub niedostępna w twoim systemie, pojawia się komunikat o błędzie; poprzednie działające przypisanie zostaje zachowane.</p>
 <p>W systemach Linux/X11 i Windows skrót działa również wtedy, gdy Elite ma fokus – pieszo, w SRV i w statku. Naciśnięcie klawisza natychmiast zapisuje aktualną pozycję na powierzchni dla aktywnego dowódcy, bez okna dialogowego i bez użycia myszy. Dowódca, system, ciało niebieskie i aktualne wartości Latitude/Longitude zostają utrwalone w tej chwili. Bez prawidłowych aktualnych współrzędnych planetarnych nic nie jest zapisywane; wcześniejsze współrzędne nie są ponownie używane.</p>
-<p>Ulubiony otrzymuje unikalną tymczasową nazwę, na przykład „Znacznik 07.09.2026 06:32:15”, oraz kategorię „Inne”. W zwykłym oknie ulubionych możesz później zmienić jego nazwę, przypisać inną kategorię, dodać notatkę lub obraz. Żaden zrzut ekranu nie jest automatycznie wykonywany ani importowany.</p>
+<p>Ulubiony otrzymuje unikalną tymczasową nazwę, na przykład „Znacznik 07.09.2026 06:32:15”, oraz kategorię „Inne”. Na karcie ulubionych możesz później zmienić jego nazwę, przypisać inną kategorię, dodać notatkę lub obraz. Żaden zrzut ekranu nie jest automatycznie wykonywany ani importowany.</p>
 <p>Przez około dwie sekundy bezpośrednio nad aktywnym oknem Elite wyświetla się „★ ULUBIONY ZAPISANY” wraz z ciałem niebieskim i współrzędnymi; jeśli pozycja jest niedostępna, na krótko pojawia się „⚠ BRAK WSPÓŁRZĘDNYCH PLANETARNYCH”. Komunikat nie przejmuje fokusu i nie przechwytuje danych wejściowych. Działa również przy wyłączonym HUD-zie nawigacji, po czym znika całkowicie. Przy włączonym HUD-zie pozostaje potem zwykły widok nawigacji. Zapisane ustawienie przełącznika HUD-u nie jest zmieniane. Komunikat korzysta z tej samej infrastruktury nakładki i wymagań platformy co HUD nawigacji.</p>
 
 <h3>Obrazy ulubionych</h3>
@@ -1124,7 +1124,8 @@ HELP_TOPICS = {
 <p>Nie jest to planer tras międzygwiezdnych i nie obsługuje nawigacji między systemami ani skoków. Samodzielnie pilotujesz statek.</p>
 
 <h3>Otwieranie nawigatora i wprowadzanie celu</h3>
-<p>Otwórz „Nawigacja → Nawigacja planetarna” w menu głównym po lewej i wybierz „Wprowadzanie ręczne …”. Okno można otworzyć i wpisać cel przed uzyskaniem bieżącej pozycji na powierzchni.</p>
+<p>Wybierz „Nawigacja” po lewej. Po prawej pojawią się karty „★ Ulubione” i „Nawigacja planetarna”, z domyślnie aktywną kartą „★ Ulubione”. „Nawigacja → ★ Ulubione” zarządza systemami, planetami/księżycami i miejscami na powierzchni aktywnego dowódcy; „Nawigacja → Nawigacja planetarna” wyświetla nawigację planetarną w tym samym obszarze głównym.</p>
+<p>Otwórz „Nawigacja → Nawigacja planetarna” w obszarze głównym i wybierz „Wprowadzanie ręczne …”. Cel można wpisać przed uzyskaniem bieżącej pozycji na powierzchni.</p>
 <ul>
 <li><b>Ciało niebieskie:</b> Wybierz docelową planetę lub księżyc z listy albo użyj już rozpoznanego ciała. Możesz też samodzielnie wpisać jego nazwę, jeśli jeszcze nie ma go na liście. W razie wątpliwości użyj pełnej nazwy wraz z nazwą systemu.</li>
 <li><b>Szerokość geograficzna:</b> Podaj szerokość celu między −90° a +90°.</li>
@@ -1144,7 +1145,7 @@ HELP_TOPICS = {
 <p>Przy otwarciu utrwalane są system, ciało i współrzędne. W oknie ulubionych możesz zmienić nazwę, kategorię i notatkę oraz dodać obraz. Dopiero „Zapisz” zapisuje lokalnie dla danego dowódcy; anulowanie niczego nie zapisuje. Późniejszy ruch nie zmienia utrwalonej pozycji.</p>
 
 <h3>Korzystanie z zapisanych pozycji</h3>
-<p>Otwórz „Nawigacja → ★ Ulubione” w menu głównym po lewej. Wybierz zapisane miejsce na powierzchni i „◎ Do współrzędnych”, aby przyjąć ciało, współrzędne i nazwę jako cel. Zastępuje to poprzedni cel; na innym ciele nawigator czeka na zgodne dane pozycji.</p>
+<p>Przejdź do karty „Nawigacja → ★ Ulubione” w obszarze głównym. Wybierz zapisane miejsce na powierzchni i „◎ Do współrzędnych”, aby przyjąć ciało, współrzędne i nazwę jako cel. Zastępuje to poprzedni cel; na innym ciele nawigator czeka na zgodne dane pozycji.</p>
 <p>„Edytuj” zmienia nazwę, kategorię i notatkę. „Usuń” usuwa ulubiony wpis po potwierdzeniu, bez usuwania danych Elite. Ulubione pozostają po restarcie i są rozdzielone według dowódców; bieżący cel nawigacji trwa tylko przez sesję.</p>
 
 <h3>Globus planety: ponad 380 km</h3>
@@ -1175,8 +1176,8 @@ HELP_TOPICS = {
 <p>Przykład: przy kierunku dziobu 051° i kursie do celu 074° obróć się o 23° w prawo, aż kompas Elite pokaże około 074°. Podczas dalszego lotu namiar i kurs do celu mogą się zmieniać; kieruj się aktualizowanymi wartościami.</p>
 <p>W tej samej pozycji co cel, na biegunie lub w punkcie dokładnie po przeciwnej stronie planety kierunek może być nieokreślony. Nawigator wyświetla wtedy odpowiedni komunikat zamiast wymyślonego kursu.</p>
 
-<h3>Rozmiar okna</h3>
-<p>Rozmiar okna nawigatora można swobodnie zmieniać. Globus lub siatka perspektywiczna dopasowują się proporcjonalnie do dostępnego miejsca. Minimalny rozmiar zapewnia czytelność wartości szczegółowych; globus pozostaje okrągły. Pozycja i rozmiar okna są zapisywane.</p>
+<h3>Widok w obszarze głównym</h3>
+<p>Kula i siatka perspektywiczna dopasowują się proporcjonalnie do dostępnego miejsca. Przy wąskim lub niskim oknie głównym przewijaj zawartość. Zmiana strony lub karty zachowuje filtry i cel nawigacji.</p>
 
 <h3>Włączanie HUD-u nawigacyjnego</h3>
 <p>Po lewej stronie głównego okna zaznacz pole pod <b>pokazuj automatycznie → HUD nawigacyjny</b>. Przy prawidłowej nawigacji planetarnej HUD pojawia się bezpośrednio nad widocznym oknem Elite na pierwszym planie.</p>
@@ -1194,13 +1195,13 @@ HELP_TOPICS = {
 <p>Na tym samym ciele możesz w dowolnym momencie ponownie otworzyć „Wprowadzanie ręczne …” i ustawić inne współrzędne. Nowy cel zastępuje poprzedni cel nawigacyjny. Przy odpowiednich danych pozycji kompas aktualizuje się natychmiast.</p>
 <p>„Zakończ nawigację” usuwa aktualny cel. Aby wykonać kolejny dolot, wystarczy ustawić nowy cel.</p>
 
-<p>Zamknięcie okna nie usuwa celu. Włączony HUD nawigacji może działać dalej; „Zakończ nawigację” usuwa cel. Opuszczenie właściwego ciała lub brak danych pozycji powoduje oczekiwanie nawigacji i ukrycie jej HUD-u.</p>
+<p>Zmiana strony lub karty nie usuwa celu. Włączony HUD nawigacji może działać dalej; „Zakończ nawigację” usuwa cel. Opuszczenie właściwego ciała lub brak danych pozycji powoduje oczekiwanie nawigacji i ukrycie jej HUD-u.</p>
 
 <h3>Aktualność danych i ograniczenia</h3>
 <p>Nawigacja opiera się na danych stanu dostarczanych przez Elite. Aktualizacje mogą docierać z opóźnieniem zależnym od stanu gry. Wskaźnik wieku danych w nawigatorze pokazuje czas, jaki upłynął od ostatniego potwierdzonego komunikatu stanu.</p>
 <p>Odległość po powierzchni opisuje najkrótszy łuk na umownej kuli. Nie jest trasą terenową ani drogową. Nawigator nie zna przeszkód ani wysokości terenu wzdłuż trasy; wysokość lotu, bezpieczna prędkość i omijanie przeszkód pozostają twoim zadaniem.</p>
 
-<p>Pozycja pochodzi z Status.json; dziennik uzupełnia powiązania ciała i systemu. Okno i włączony HUD nawigacji utrzymują aktualizacje w razie potrzeby. Wskazania zależą od dostępnych danych Elite, bez gwarancji dokładności w metrach.</p>
+<p>Pozycja pochodzi z Status.json; dziennik uzupełnia powiązania ciała i systemu. Widoczna karta nawigacji i włączony HUD nawigacji utrzymują aktualizacje w razie potrzeby. Wskazania zależą od dostępnych danych Elite, bez gwarancji dokładności w metrach.</p>
 
 <h3>Wskazówka</h3>
 <p>Przed dolotem sprawdź nazwę ciała oraz znaki współrzędnych celu. Następnie ustaw się według kursu do celu na kompasie Elite i obserwuj kierunek względny oraz odległość. Jeśli nawigator czeka, sprawdź, czy Elite dostarcza już współrzędne planetarne dla docelowego ciała.</p>""",

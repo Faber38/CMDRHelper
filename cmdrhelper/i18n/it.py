@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_9_8.0': 'Preferiti e navigazione planetaria sono integrati direttamente nell’interfaccia principale in due schede.',
+    'release.3_9_8.1': 'Navigazione apre una pagina principale comune senza finestre aggiuntive per preferiti o navigatore.',
+    'release.3_9_8.2': 'Senza una scorciatoia configurata, il suggerimento per il preferito rapido appare in giallo Elite, lampeggia delicatamente tre volte e spiega la configurazione nelle Impostazioni.',
+    'release.3_9_8.3': 'La guida integrata descrive le nuove schede e i percorsi di navigazione in tutte le dodici lingue.',
+
     'release.3_9_6_7.2': 'Le visualizzazioni della stiva restano visibili quando sono abilitate, senza nascondersi per inattività; i valori di carico e droni si aggiornano senza riaprire le visualizzazioni.',
     'release.3_9_6_7.3': 'Nuovo menu principale espandibile Navigazione con Preferiti e Navigazione planetaria, al posto dei precedenti pulsanti nell’Explorer.',
     'release.3_9_6_7.4': 'La guida integrata descrive i nuovi percorsi dei menu in tutte le dodici lingue supportate.',
@@ -528,7 +533,7 @@ TRANSLATIONS = {
     'odyssey.loading': 'Caricamento inventario Odyssey …',
     'odyssey.owner': 'Proprietario',
     'odyssey.stolen': 'Rubato',
-    'quick_favorite.hint': 'Puoi salvare subito la posizione attuale come preferito durante il gioco con una scorciatoia da tastiera a tua scelta – anche a piedi o nell’SRV.',
+    'quick_favorite.hint': 'Puoi salvare subito la posizione attuale come preferito durante il gioco con una scorciatoia da tastiera a tua scelta – anche a piedi o nell’SRV. Puoi impostare la scorciatoia da tastiera nelle Impostazioni.',
     'quick_favorite.title': 'Preferito rapido',
     'quick_favorite.hotkey': 'Scorciatoia da tastiera',
     'quick_favorite.unassigned': 'Non assegnata',

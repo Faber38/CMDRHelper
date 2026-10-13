@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_9_8.0': 'Favoriler ve gezegen navigasyonu iki sekme olarak doğrudan ana arayüze entegre edildi.',
+    'release.3_9_8.1': 'Navigasyon, ek favori veya gezgin pencereleri olmadan ortak bir ana sayfa açar.',
+    'release.3_9_8.2': 'Kısayol tuşu tanımlı değilse hızlı favori ipucu Elite sarısıyla görünür, üç kez hafifçe yanıp söner ve Ayarlar bölümündeki kurulumu açıklar.',
+    'release.3_9_8.3': 'Entegre yardım, yeni sekmeleri ve kullanım yollarını on iki dilin tamamında açıklar.',
+
     'release.3_9_6_7.2': 'Kargo göstergeleri etkinken görünür kalır ve hareketsizlik nedeniyle gizlenmez; kargo ve limpet değerleri göstergeler yeniden açılmadan güncellenir.',
     'release.3_9_6_7.3': 'Yeni açılır Navigasyon ana menüsü, Explorer’daki eski düğmelerin yerine Favoriler ve Gezegen navigasyonunu bir araya getirir.',
     'release.3_9_6_7.4': 'Dahili yardım, yeni menü yollarını desteklenen on iki dilin tamamında açıklar.',
@@ -528,7 +533,7 @@ TRANSLATIONS = {
     'odyssey.loading': 'Odyssey envanteri yükleniyor …',
     'odyssey.owner': 'Sahip',
     'odyssey.stolen': 'Çalıntı',
-    'quick_favorite.hint': 'Oyun sırasında seçtiğin bir kısayol tuşuyla mevcut konumunu anında favori olarak kaydedebilirsin – yaya olarak veya SRV’deyken de.',
+    'quick_favorite.hint': 'Oyun sırasında seçtiğin bir kısayol tuşuyla mevcut konumunu anında favori olarak kaydedebilirsin – yaya olarak veya SRV’deyken de. Kısayol tuşunu Ayarlar bölümünde belirleyebilirsin.',
     'quick_favorite.title': 'Hızlı favori',
     'quick_favorite.hotkey': 'Kısayol tuşu',
     'quick_favorite.unassigned': 'Atanmamış',

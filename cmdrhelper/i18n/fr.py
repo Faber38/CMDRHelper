@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_9_8.0': 'Les favoris et la navigation planétaire sont intégrés directement dans l’interface principale sous forme de deux onglets.',
+    'release.3_9_8.1': 'Navigation ouvre une page principale commune sans fenêtres supplémentaires de favoris ou de navigation.',
+    'release.3_9_8.2': 'Lorsqu’aucun raccourci clavier n’est configuré, l’indication de favori rapide apparaît en jaune Elite, clignote doucement trois fois et explique la configuration dans les Paramètres.',
+    'release.3_9_8.3': 'L’aide intégrée décrit les nouveaux onglets et parcours dans les douze langues.',
+
     'release.3_9_6_7.2': 'Les affichages de soute restent visibles tant qu’ils sont activés, sans masquage pour inactivité ; les valeurs de cargaison et de drones se mettent à jour sans rouvrir les affichages.',
     'release.3_9_6_7.3': 'Nouveau menu principal dépliable Navigation avec Favoris et Navigation planétaire, remplaçant les anciens boutons de l’Explorer.',
     'release.3_9_6_7.4': 'L’aide intégrée décrit les nouveaux chemins de menu dans les douze langues prises en charge.',
@@ -528,7 +533,7 @@ TRANSLATIONS = {
     'odyssey.loading': 'Chargement de l’inventaire Odyssey …',
     'odyssey.owner': 'Propriétaire',
     'odyssey.stolen': 'Volé',
-    'quick_favorite.hint': 'Tu peux enregistrer instantanément ta position actuelle comme favori pendant le jeu avec un raccourci clavier de ton choix – aussi à pied ou en SRV.',
+    'quick_favorite.hint': 'Tu peux enregistrer instantanément ta position actuelle comme favori pendant le jeu avec un raccourci clavier de ton choix – aussi à pied ou en SRV. Tu peux définir le raccourci clavier dans les Paramètres.',
     'quick_favorite.title': 'Favori rapide',
     'quick_favorite.hotkey': 'Raccourci clavier',
     'quick_favorite.unassigned': 'Non attribué',

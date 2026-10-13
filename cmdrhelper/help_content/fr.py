@@ -380,7 +380,7 @@ HELP_TOPICS = {
               """
 
 <h3>★ Favoris</h3>
-<p>« Navigation → ★ Favoris » dans le menu principal à gauche ouvre une fenêtre de favoris distincte et réutilisable. Tu y enregistres des systèmes, des planètes/lunes et des lieux en surface pour le commandant actif.</p>
+<p>Sélectionne « Navigation » à gauche. Les onglets « ★ Favoris » et « Navigation planétaire » apparaissent à droite, avec « ★ Favoris » actif par défaut. « Navigation → ★ Favoris » gère les systèmes, planètes/lunes et lieux de surface du commandant actif ; « Navigation → Navigation planétaire » affiche la navigation planétaire dans la même zone principale.</p>
 <p>La liste défilante, triée par ordre alphabétique des noms, affiche le nom, le type, le système, le corps et la latitude/longitude le cas échéant, la catégorie et un petit aperçu d’image. La recherche en texte libre et les filtres de type et de catégorie sont combinables. La recherche porte sur le nom, le système, le corps et la note.</p>
 <p>« Ouvrir / Afficher » affiche les informations enregistrées, la note et un aperçu d’image plus grand. « Afficher dans l’Explorer » ouvre la vue d’ensemble du système ou la fiche du corps existante si le favori appartient au système actuel de l’Explorer et si les données correspondantes sont disponibles. Pour les autres systèmes, les données enregistrées du favori restent visibles ; aucun itinéraire entre systèmes n’est calculé.</p>
 
@@ -401,7 +401,7 @@ HELP_TOPICS = {
 <ul>
 <li>« ★ Enregistrer le système actuel » enregistre le système actuel sans coordonnées de surface.</li>
 <li>« ★ Enregistrer une planète / lune » permet de sélectionner une planète ou une lune connue du système actuel. Ce favori ne reçoit pas non plus de coordonnées de surface.</li>
-<li>« ★ Enregistrer la position actuelle » se trouve en haut de la fenêtre des favoris, à côté des deux autres options d’enregistrement, et est également disponible dans le navigateur planétaire. Dans la fenêtre des favoris, le bouton reste toujours visible et est désactivé en l’absence de données de position planétaire actuelles valides et d’un commandant actif. Le clic fige le commandant, le système, le corps, la latitude et la longitude. Les déplacements ultérieurs dans le jeu ne modifient pas ces valeurs dans la boîte de dialogue ouverte.</li>
+<li>« ★ Enregistrer la position actuelle » se trouve en haut de l’onglet des favoris, à côté des deux autres options d’enregistrement, et est également disponible dans le navigateur planétaire. Dans l’onglet des favoris, le bouton reste toujours visible et est désactivé en l’absence de données de position planétaire actuelles valides et d’un commandant actif. Le clic fige le commandant, le système, le corps, la latitude et la longitude. Les déplacements ultérieurs dans le jeu ne modifient pas ces valeurs dans la boîte de dialogue ouverte.</li>
 </ul>
 <p>Saisis un nom de ton choix et sélectionne exactement une catégorie : Bio, Géo, Extraction, Panorama, Site d’atterrissage, Intéressant ou Autre. Une note et une image sont facultatives. Les identifiants techniques connus sont repris en interne ; tu n’as pas à les saisir. Une latitude ou une longitude de 0,0 est également valide.</p>
 <p>« Modifier » modifie le nom, la catégorie, la note et l’image. Le système, le corps et les coordonnées enregistrées sont conservés. Pour enregistrer un autre lieu en surface, crée un nouveau favori à cette position.</p>
@@ -409,7 +409,7 @@ HELP_TOPICS = {
 <h3>Favori rapide sans souris</h3>
 <p>Dans « Paramètres → Favori rapide », tu peux librement définir, modifier ou supprimer un raccourci clavier global. Après l’installation, il est « Non attribué » par défaut : CMDRHelper n’enregistre aucune touche sans demande explicite. L’attribution est sauvegardée. Si une combinaison est déjà utilisée ou indisponible sur ton système, un message d’erreur s’affiche ; toute attribution qui fonctionnait auparavant est conservée.</p>
 <p>Sous Linux/X11 et Windows, le raccourci fonctionne aussi lorsque Elite a le focus – à pied, en SRV et à bord du vaisseau. Une pression enregistre immédiatement la position actuelle à la surface pour le commandant actif, sans boîte de dialogue ni utilisation de la souris. Le commandant, le système, le corps et les valeurs actuelles de Latitude/Longitude sont figés à cet instant. Sans coordonnées planétaires actuelles valides, rien n’est enregistré ; les anciennes coordonnées ne sont pas réutilisées.</p>
-<p>Le favori reçoit un nom provisoire unique, par exemple « Repère 07.09.2026 06:32:15 », et la catégorie « Autre ». Dans la fenêtre habituelle des favoris, tu peux ensuite le renommer, lui attribuer une autre catégorie, ajouter une note ou une image. Aucune capture d’écran n’est automatiquement prise ni importée.</p>
+<p>Le favori reçoit un nom provisoire unique, par exemple « Repère 07.09.2026 06:32:15 », et la catégorie « Autre ». Dans l’onglet des favoris, tu peux ensuite le renommer, lui attribuer une autre catégorie, ajouter une note ou une image. Aucune capture d’écran n’est automatiquement prise ni importée.</p>
 <p>Pendant environ deux secondes, « ★ FAVORI ENREGISTRÉ » s’affiche directement au-dessus de la fenêtre active d’Elite avec le corps et les coordonnées ; si la position est indisponible, « ⚠ AUCUNE COORDONNÉE PLANÉTAIRE » s’affiche brièvement. Cet affichage ne prend pas le focus et n’intercepte aucune entrée. Il fonctionne aussi lorsque le HUD de navigation est désactivé, puis disparaît complètement. Lorsque le HUD est activé, l’affichage normal de navigation reste ensuite visible. Le réglage enregistré du commutateur du HUD n’est pas modifié. L’affichage utilise la même infrastructure de superposition et les mêmes prérequis de plateforme que le HUD de navigation.</p>
 
 <h3>Images des favoris</h3>
@@ -1160,7 +1160,8 @@ HELP_TOPICS = {
 <p>Ce n’est pas un planificateur d’itinéraire interstellaire et il ne prend en charge ni la navigation entre systèmes ni les sauts. Tu pilotes toi-même ton vaisseau.</p>
 
 <h3>Ouvrir le navigateur et saisir une cible</h3>
-<p>Ouvre « Navigation → Navigation planétaire » dans le menu principal à gauche puis « Saisie manuelle … ». La fenêtre et la saisie d’une cible sont disponibles même avant de recevoir une position de surface.</p>
+<p>Sélectionne « Navigation » à gauche. Les onglets « ★ Favoris » et « Navigation planétaire » apparaissent à droite, avec « ★ Favoris » actif par défaut. « Navigation → ★ Favoris » gère les systèmes, planètes/lunes et lieux de surface du commandant actif ; « Navigation → Navigation planétaire » affiche la navigation planétaire dans la même zone principale.</p>
+<p>Ouvre « Navigation → Navigation planétaire » dans la zone principale et choisis « Saisie manuelle … ». Tu peux saisir une cible avant de recevoir une position de surface.</p>
 <ul>
 <li><b>Corps céleste :</b> Sélectionne la planète ou la lune cible dans la liste, ou utilise le corps déjà détecté. Tu peux aussi saisir toi-même son nom s’il ne figure pas encore dans la liste. En cas de doute, utilise le nom complet, y compris celui du système.</li>
 <li><b>Latitude :</b> Saisis la latitude cible entre −90° et +90°.</li>
@@ -1180,7 +1181,7 @@ HELP_TOPICS = {
 <p>Le système, le corps et les coordonnées sont figés à l’ouverture. Le dialogue des favoris permet de modifier nom, catégorie et note et d’ajouter une image. Seul « Enregistrer » enregistre localement pour ce commandant ; annuler ne sauvegarde rien. Les déplacements ultérieurs ne modifient pas la position figée.</p>
 
 <h3>Utiliser les positions enregistrées</h3>
-<p>Ouvre « Navigation → ★ Favoris » dans le menu principal à gauche. Choisis un lieu de surface enregistré puis « ◎ Vers les coordonnées » pour reprendre son corps, ses coordonnées et son nom comme cible. Cela remplace la cible précédente ; sur un autre corps, le navigateur attend les bonnes données de position.</p>
+<p>Passe à l’onglet « Navigation → ★ Favoris » dans la zone principale. Choisis un lieu de surface enregistré puis « ◎ Vers les coordonnées » pour reprendre son corps, ses coordonnées et son nom comme cible. Cela remplace la cible précédente ; sur un autre corps, le navigateur attend les bonnes données de position.</p>
 <p>« Modifier » permet de changer nom, catégorie et note. « Supprimer » supprime le favori après confirmation, sans supprimer de données Elite. Les favoris survivent aux redémarrages et sont séparés par commandant ; la cible de navigation actuelle ne dure que pendant la session.</p>
 
 <h3>Globe planétaire : au-delà de 380 km</h3>
@@ -1211,8 +1212,8 @@ HELP_TOPICS = {
 <p>Exemple : avec un cap de 051° et un cap cible de 074°, tourne de 23° à droite jusqu’à ce que ta boussole Elite indique environ 074°. En poursuivant le vol, le relèvement et le cap cible peuvent changer ; fie-toi aux valeurs actualisées.</p>
 <p>À la même position que la cible, à un pôle ou au point exactement opposé sur la planète, la direction peut être indéterminée. Le navigateur affiche alors le message correspondant plutôt qu’un cap inventé.</p>
 
-<h3>Taille de la fenêtre</h3>
-<p>La fenêtre du navigateur est librement redimensionnable. Le globe ou la grille en perspective s’adapte proportionnellement à l’espace disponible. La taille minimale préserve la lisibilité des valeurs détaillées ; le globe reste rond. La position et la taille de la fenêtre sont enregistrées.</p>
+<h3>Affichage dans la zone principale</h3>
+<p>Le globe et la grille en perspective s’adaptent proportionnellement à l’espace disponible. Si la fenêtre principale est étroite ou basse, fais défiler le contenu. Changer de page ou d’onglet conserve les filtres et la cible.</p>
 
 <h3>Activer le HUD de navigation</h3>
 <p>À gauche dans la fenêtre principale, coche la case sous <b>affichage automatique → HUD de navigation</b>. Lorsque la navigation planétaire est valide, le HUD apparaît directement au-dessus de la fenêtre Elite visible au premier plan.</p>
@@ -1230,13 +1231,13 @@ HELP_TOPICS = {
 <p>Sur le même corps, tu peux rouvrir « Saisie manuelle … » à tout moment et définir d’autres coordonnées. La nouvelle cible remplace la cible de navigation précédente. Avec des données de position correspondantes, la boussole s’actualise immédiatement.</p>
 <p>« Arrêter la navigation » supprime la cible actuelle. Pour une nouvelle approche, définis simplement une nouvelle cible.</p>
 
-<p>Fermer la fenêtre ne supprime pas la cible. Le HUD de navigation activé peut continuer ; « Arrêter la navigation » retire la cible. Quitter le corps correspondant ou perdre les données de position met la navigation en attente et masque le HUD de navigation.</p>
+<p>Changer de page ou d’onglet ne supprime pas la cible. Le HUD de navigation activé peut continuer ; « Arrêter la navigation » retire la cible. Quitter le corps correspondant ou perdre les données de position met la navigation en attente et masque le HUD de navigation.</p>
 
 <h3>Actualité des données et limites</h3>
 <p>La navigation repose sur les données d’état fournies par Elite. Selon l’état du jeu, les mises à jour peuvent arriver avec du retard. L’indication d’âge dans le navigateur montre le temps écoulé depuis le dernier message d’état confirmé.</p>
 <p>La distance en surface décrit l’arc le plus court sur une sphère théorique. Ce n’est pas un itinéraire de terrain ou routier. Le navigateur ne connaît ni les obstacles ni les altitudes du terrain le long du trajet ; l’altitude de vol, une vitesse sûre et l’évitement des obstacles restent de ta responsabilité.</p>
 
-<p>La position actuelle vient de Status.json ; le journal complète les associations de corps et de système. La fenêtre et le HUD activé maintiennent les mises à jour selon les besoins. L’affichage dépend des données Elite disponibles, sans précision métrique garantie.</p>
+<p>La position actuelle vient de Status.json ; le journal complète les associations de corps et de système. L’onglet de navigation visible et le HUD activé maintiennent les mises à jour selon les besoins. L’affichage dépend des données Elite disponibles, sans précision métrique garantie.</p>
 
 <h3>Conseil</h3>
 <p>Avant l’approche, vérifie le nom du corps et les signes des coordonnées de la cible. Aligne-toi ensuite sur le cap cible dans la boussole Elite et observe la direction relative et la distance. Si le navigateur attend, vérifie si Elite fournit déjà des coordonnées planétaires pour le corps cible.</p>""",

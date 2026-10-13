@@ -1,6 +1,6 @@
 # Planetarer Lat/Lon-Kompass
 
-**Explorer → Planeten-Navigation → Manuelle Eingabe …** öffnet die Zieleingabe jederzeit.
+**Navigation → Planeten-Navigation → Manuelle Eingabe …** öffnet die Zieleingabe jederzeit.
 Der aktuelle Body wird aus Status bzw. Journal übernommen. Alternativ lässt sich
 sein Name auswählen oder eingeben. Latitude und Longitude akzeptieren sechs
 Nachkommastellen, Null und negative Werte. Der Zielname ist optional.
@@ -8,7 +8,7 @@ BodyID und SystemAddress werden, soweit eindeutig bekannt, intern ergänzt.
 Sie sind weder Eingabefelder noch Voraussetzungen für die Navigation.
 
 Ein Ziel bleibt bis „Navigation beenden“ im Arbeitsspeicher. Es kann jederzeit
-ersetzt werden. Favoriten stehen unter **Explorer → ★ Favoriten** zur Verfügung.
+ersetzt werden. Favoriten stehen unter **Navigation → ★ Favoriten** zur Verfügung.
 Oberflächenfavoriten übergeben über **▶ Zum Ziel** den gespeicherten Body und
 Latitude/Longitude an den bestehenden Planeten-Navigator. Sie besitzen keine
 eigene Navigationslogik. Eine Routen- oder Systemwechselverwaltung gibt es nicht.
@@ -39,7 +39,7 @@ und rot auf der verdeckten Halbkugel. Heading dreht die schematische Oberfläche
 Zielentfernung über die Oberfläche, aktuelle und Zielkoordinaten, Peilung,
 Heading, relative Richtung links/rechts und Zielkurs stehen zusätzlich als Zahlen
 bereit. An Polen, Gegenpunkten und identischen Positionen werden nicht eindeutige
-Richtungen ausdrücklich gekennzeichnet. Ein Anflugprofil gibt es nicht. Das Fenster öffnet und aktualisiert sich ohne aktive Fokusanforderung.
+Richtungen ausdrücklich gekennzeichnet. Ein Anflugprofil gibt es nicht. Der integrierte Reiter aktualisiert sich ohne aktive Fokusanforderung.
 
 Tests prüfen Snapshot-Wechsel, Neustart, wiederholte Zieleingabe, fehlende IDs,
 unabhängige Journalmetadaten, Geometrie, Markerfarben, Kugelgröße und Fensterfokus.

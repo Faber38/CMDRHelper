@@ -38,6 +38,13 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## CMDRHelper v3.9.8
+
+- Favorieten en planeetnavigatie zijn als twee tabbladen rechtstreeks in de hoofdinterface geïntegreerd.
+- Navigatie opent een gezamenlijke hoofdpagina zonder extra favorieten- of navigatievensters.
+- Als er geen sneltoets is ingesteld, verschijnt de hint voor snelle favorieten in Elite-geel, knippert drie keer subtiel en legt de configuratie onder Instellingen uit.
+- De geïntegreerde hulp beschrijft de nieuwe tabbladen en menupaden in alle twaalf talen.
+
 ## CMDRHelper v3.9.6.7
 
 - Verbeterde koppeling van Powerplay-verdiensten aan scheepsscans en goederenverkopen.
@@ -345,7 +352,7 @@ De Explorer toont ook geschatte BIO-waarden, de voortgang van eigen analyses en 
 
 Hemellichaamdetails bevatten beschikbare fysieke eigenschappen, atmosfeer, ringen, materialen en ontdekkingsinformatie. Afbeeldingen gebruiken passende texturen en animaties voor bepaalde bijzondere astronomische objecten. Het Cargo-gedeelte toont de bekende lading en capaciteit van het momenteel gebruikte schip of de SRV; bij de Rhino blijven lading en persoonlijke mijnbouwvondsten verschillende gegevens.
 
-Bovenaan de Explorer staan **★ Favorieten | Planeetnavigatie | Alles tonen**. Favorieten en planeetnavigatie openen eigen vensters; de drie Explorer-weergaven blijven daarnaast beschikbaar.
+Kies links ‘Navigatie’. Rechts verschijnen de tabbladen ‘★ Favorieten’ en ‘Planeetnavigatie’, met standaard ‘★ Favorieten’ actief. ‘Navigatie → ★ Favorieten’ beheert systemen, planeten/manen en oppervlaktelocaties voor de actieve commander; ‘Navigatie → Planeetnavigatie’ toont planeetnavigatie in hetzelfde hoofdgebied.
 
 ## Planeetnavigatie
 
@@ -364,7 +371,7 @@ Zodra Elite geldige planetaire positiegegevens voor het bijpassende hemellichaam
 | **Meer dan 380 km** | Planeetbol met je positie als witte cirkel en het doel als klein punt. Het doel is oranje op de zichtbare kant en rood op de verborgen achterkant. De spelerpositie blijft in de weergave vast; planeet en doel worden relatief daaraan getoond. |
 | **Tot en met 380 km** | Automatische omschakeling naar een gekanteld perspectiefraster met **50-km-afstandsintervallen** en de daarin getekende doelpositie voor de verdere nadering. |
 
-Het navigatorvenster is vrij schaalbaar. Bol of perspectiefraster past zich proportioneel aan de beschikbare ruimte aan; detailwaarden blijven leesbaar.
+De bol en het perspectiefraster passen zich proportioneel aan de beschikbare ruimte aan. Bij een smal of laag hoofdvenster kun je de inhoud scrollen. Wisselen van pagina of tabblad behoudt filters en navigatiedoel.
 
 ### Navigatiewaarden begrijpen
 
@@ -394,7 +401,7 @@ De HUD is in het spel getest onder **Linux/X11** en **Windows 11 met Elite**. On
 
 ## Favorieten
 
-**Explorer → ★ Favorieten** opent een eigen, herbruikbaar venster. Favorieten horen bij de **actieve commander**. Een commanderwissel werkt de weergave bij; de commanderselectie van de kroniek breidt de favorietenlijst niet uit.
+Kies links ‘Navigatie’. Rechts verschijnen de tabbladen ‘★ Favorieten’ en ‘Planeetnavigatie’, met standaard ‘★ Favorieten’ actief. ‘Navigatie → ★ Favorieten’ beheert systemen, planeten/manen en oppervlaktelocaties voor de actieve commander; ‘Navigatie → Planeetnavigatie’ toont planeetnavigatie in hetzelfde hoofdgebied. Favorieten horen bij de **actieve commander**. Een commanderwissel werkt de weergave bij; de commanderselectie van de kroniek breidt de favorietenlijst niet uit.
 
 ### Drie typen opslaan
 

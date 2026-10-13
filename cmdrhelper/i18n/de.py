@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_9_8.0': 'Favoriten und Planeten-Navigation sind als zwei Reiter direkt in die Hauptoberfläche integriert.',
+    'release.3_9_8.1': 'Navigation öffnet eine gemeinsame Hauptseite ohne zusätzliche Favoriten- oder Navigatorfenster.',
+    'release.3_9_8.2': 'Der Schnell-Favorit-Hinweis erscheint ohne eingerichteten Hotkey in Elite-Gelb, blinkt dreimal dezent und erklärt die Einrichtung unter Einstellungen.',
+    'release.3_9_8.3': 'Die integrierte Hilfe beschreibt die neuen Reiter und Bedienwege in allen zwölf Sprachen.',
+
     'release.3_9_6_7.2': 'Frachtraumanzeigen bleiben bei aktiviertem Anzeige-Haken ohne Inaktivitäts-Ausblendung sichtbar; Fracht- und Drohnenwerte werden ohne erneute Anzeigezyklen aktualisiert.',
     'release.3_9_6_7.3': 'Neues aufklappbares Hauptmenü Navigation mit Favoriten und Planeten-Navigation; die bisherigen Explorer-Buttons entfallen.',
     'release.3_9_6_7.4': 'Die integrierte Hilfe beschreibt die neuen Menüpfade in allen zwölf unterstützten Sprachen.',
@@ -528,7 +533,7 @@ TRANSLATIONS = {
     'odyssey.loading': 'Odyssey-Bestand wird geladen …',
     'odyssey.owner': 'Besitzer',
     'odyssey.stolen': 'Gestohlen',
-    'quick_favorite.hint': 'Du kannst deine aktuelle Position während des Spiels mit einem frei wählbaren Hotkey sofort als Favorit speichern – auch zu Fuß oder im SRV.',
+    'quick_favorite.hint': 'Du kannst deine aktuelle Position während des Spiels mit einem frei wählbaren Hotkey sofort als Favorit speichern – auch zu Fuß oder im SRV. Den Hotkey kannst du unter Einstellungen festlegen.',
     'quick_favorite.title': 'Schnell-Favorit',
     'quick_favorite.hotkey': 'Hotkey',
     'quick_favorite.unassigned': 'Nicht belegt',

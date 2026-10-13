@@ -38,6 +38,13 @@ Journalmappen för Elite Dangerous hittas automatiskt när det är möjligt. Om 
 
 CMDRHelper söker efter uppdateringar vid start och har en inbyggd uppdateringsfunktion. Bekräfta en erbjuden uppdatering i programmet; den uppdaterar programmet och beroendena och startar om CMDRHelper. Efter den första installationen använder du normalt bara `start.bat` (Windows) eller `bash start.sh` (Linux). Du behöver inte köra `install.bat` eller `install.sh` manuellt igen för vanliga uppdateringar.
 
+## CMDRHelper v3.9.8
+
+- Favoriter och planetnavigering är integrerade direkt i huvudgränssnittet som två flikar.
+- Navigering öppnar en gemensam huvudsida utan extra favorit- eller navigeringsfönster.
+- När ingen snabbtangent är inställd visas snabbfavorittipset i Elite-gult, blinkar mjukt tre gånger och förklarar inställningen under Inställningar.
+- Den inbyggda hjälpen beskriver de nya flikarna och menyvägarna på alla tolv språk.
+
 ## CMDRHelper v3.9.6.7
 
 - Förbättrad koppling av Powerplay-meriter till skeppsskanningar och varuförsäljning.
@@ -345,7 +352,7 @@ Explorer visar också uppskattade BIO-värden, framsteg i egna analyser och oså
 
 Himlakroppsdetaljerna innehåller tillgängliga fysikaliska egenskaper, atmosfär, ringar, material och upptäcktsinformation. Avbildningarna använder lämpliga texturer och animationer för vissa särskilda astronomiska objekt. Cargo-området visar känd last och kapacitet för det skepp eller den SRV som används nu; för Rhino är last och personliga gruvfynd fortsatt olika uppgifter.
 
-Högst upp i Explorer finns **★ Favoriter | Planetnavigering | Visa allt**. Favoriter och planetnavigation öppnar egna fönster; de tre Explorer-vyerna finns kvar tillgängliga.
+Välj ”Navigering” till vänster. Flikarna ”★ Favoriter” och ”Planetnavigering” visas till höger, med ”★ Favoriter” vald som standard. ”Navigering → ★ Favoriter” hanterar system, planeter/månar och ytpositioner för aktiv befälhavare; ”Navigering → Planetnavigering” visar planetnavigering i samma huvudområde.
 
 ## Planetnavigation
 
@@ -364,7 +371,7 @@ Så snart Elite levererar giltiga planetära positionsdata för rätt himlakropp
 | **Mer än 380 km** | Planetglob med den egna positionen som en vit cirkel och målet som en liten punkt. Målet är orange på den synliga sidan och rött på den dolda baksidan. Spelarpositionen ligger fast i visningen; planet och mål visas relativt den. |
 | **Till och med 380 km** | Automatisk växling till ett lutande perspektivrutnät med **50-km-avståndsintervall** och målets inritade position för den fortsatta inflygningen. |
 
-Navigatorfönstret kan storleksändras fritt. Globen eller perspektivrutnätet anpassas proportionellt till det tillgängliga utrymmet; detaljvärdena förblir läsbara.
+Globen och perspektivrutnätet anpassas proportionellt till tillgängligt utrymme. Rulla innehållet när huvudfönstret är smalt eller lågt. Byte av sida eller flik behåller filter och navigeringsmål.
 
 ### Förstå navigationsvärdena
 
@@ -394,7 +401,7 @@ HUD:en har testats i spelet under **Linux/X11** och **Windows 11 med Elite**. I 
 
 ## Favoriter
 
-**Explorer → ★ Favoriter** öppnar ett eget, återanvändbart fönster. Favoriter tillhör den **aktiva befälhavaren**. Byte av befälhavare uppdaterar vyn; befälhavarvalet i krönikan utökar inte favoritlistan.
+Välj ”Navigering” till vänster. Flikarna ”★ Favoriter” och ”Planetnavigering” visas till höger, med ”★ Favoriter” vald som standard. ”Navigering → ★ Favoriter” hanterar system, planeter/månar och ytpositioner för aktiv befälhavare; ”Navigering → Planetnavigering” visar planetnavigering i samma huvudområde. Favoriter tillhör den **aktiva befälhavaren**. Byte av befälhavare uppdaterar vyn; befälhavarvalet i krönikan utökar inte favoritlistan.
 
 ### Spara tre typer
 

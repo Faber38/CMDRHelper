@@ -194,7 +194,6 @@ class NormalMapBeltTests(unittest.TestCase):
         self.assertIs(type(window.system_map), type(chronicle.system_map))
         self.assertEqual(window.system_map._display_bodies, chronicle.system_map._display_bodies)
         self.assertEqual(len(chronicle.system_map.bodies), 24)
-        window._favorites_window.close()
         window.deleteLater()
 
     def test_explicit_ring_parent_uses_shared_grouping(self):

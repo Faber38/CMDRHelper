@@ -1176,6 +1176,7 @@ class MainWindow(QMainWindow):
     PAGE_MATERIALS = 9
     PAGE_TRADE = 10
     PAGE_PP2 = 11
+    PAGE_NAVIGATION = 12
     HELP_CONTEXTS = {
         PAGE_OVERVIEW: "overview",
         PAGE_MISSIONS: "missions",
@@ -1189,6 +1190,7 @@ class MainWindow(QMainWindow):
         PAGE_MATERIALS: "materials",
         PAGE_TRADE: "trade",
         PAGE_PP2: "pp2",
+        PAGE_NAVIGATION: "planet_navigation",
     }
 
     def __init__(self, state):
@@ -1209,7 +1211,6 @@ class MainWindow(QMainWindow):
         self._explorer_value_live_window = None
         self._explorer_bio_live_window = None
         self._cargo_live_window = None
-        self._planet_navigation_window = None
         self._planet_navigation_controller = None
         self._navigation_hud = None
         from cmdrhelper.edsm_system_status import EdsmSystemStatus
@@ -1324,30 +1325,6 @@ class MainWindow(QMainWindow):
 
         return button
 
-    def _navigation_menu(self):
-        menu = QWidget()
-        layout = QVBoxLayout(menu)
-        layout.setContentsMargins(0, 0, 0, 0)
-        self.navigation_menu_button = QPushButton("▸  " + tr("nav.navigation"))
-        self.navigation_menu_button.setCheckable(True)
-        layout.addWidget(self.navigation_menu_button)
-        children = QWidget()
-        child_layout = QVBoxLayout(children)
-        child_layout.setContentsMargins(14, 0, 0, 0)
-        self.favorites_button = QPushButton(tr("favorites.title"))
-        self.favorites_button.clicked.connect(self._show_favorites)
-        child_layout.addWidget(self.favorites_button)
-        self.planet_navigation_button = QPushButton(tr("planet_nav.title"))
-        self.planet_navigation_button.clicked.connect(self._show_planet_navigation)
-        child_layout.addWidget(self.planet_navigation_button)
-        layout.addWidget(children)
-        children.hide()
-        self.navigation_menu_button.toggled.connect(children.setVisible)
-        self.navigation_menu_button.toggled.connect(
-            lambda expanded: self.navigation_menu_button.setText(
-                ("▾  " if expanded else "▸  ") + tr("nav.navigation")))
-        return menu
-
     def _show_page(self, idx):
         self.pages.setCurrentIndex(idx)
         if hasattr(self, "missions_table"):
@@ -1418,8 +1395,6 @@ class MainWindow(QMainWindow):
 
         side.addWidget(self._nav("⌖  " + tr("nav.route_planner"), self.PAGE_ROUTE_PLANNER))
 
-        side.addWidget(self._navigation_menu())
-
         side.addWidget(self._nav("▣  " + tr("nav.images"), self.PAGE_IMAGES))
 
         side.addWidget(self._nav("♟  " + tr("nav.commander_view"), self.PAGE_COMMANDER_VIEW))
@@ -1429,6 +1404,9 @@ class MainWindow(QMainWindow):
         materials_button = self._nav("▤  " + tr("materials.title"), self.PAGE_MATERIALS)
         trade_button = self._nav("⇄  " + tr("nav.trade"), self.PAGE_TRADE)
         pp2_button = self._nav("⚑  " + tr("nav.pp2"), self.PAGE_PP2)
+        self.navigation_menu_button = self._nav(tr("nav.navigation"), self.PAGE_NAVIGATION)
+        side.insertWidget(side.indexOf(self.nav_buttons[self.PAGE_ROUTE_PLANNER]) + 1,
+                          self.navigation_menu_button)
         side.insertWidget(side.indexOf(self.nav_buttons[self.PAGE_ROUTE_PLANNER]), pp2_button)
         # Visual order is independent of the stable page/nav_buttons indices.
         explorer_position = side.indexOf(self.nav_buttons[self.PAGE_EXPLORER])
@@ -1649,6 +1627,8 @@ class MainWindow(QMainWindow):
         from cmdrhelper.ui.powerplay_view import PowerplayView
         self.powerplay_view = PowerplayView(self.state, self)
         self.pages.addWidget(self.powerplay_view)
+
+        self.pages.addWidget(self._navigation_page())
 
         right_layout.addWidget(self.pages, 1)
 
@@ -2112,19 +2092,6 @@ class MainWindow(QMainWindow):
             light=self.ui_theme == "light", spansh=getattr(self.state, 'spansh_stations', None))
         self.explorer_tabs.addTab(self.stations_view, self.stations_view.tab_title)
 
-        from cmdrhelper.ui.favorites_view import FavoritesView
-        self._favorites_window = QDialog(self)
-        self._favorites_window.setWindowTitle(tr("favorites.title"))
-        self._favorites_window.resize(1000, 650)
-        favorites_layout = QVBoxLayout(self._favorites_window)
-        self.favorites_view = FavoritesView(
-            self.state, self._favorite_navigator, self._show_favorite_in_explorer,
-            self._favorites_window,
-            route_callback=self._open_material_trader_route,
-            location_controller_callback=self._ensure_planet_navigation_controller,
-            quick_favorite_hotkey=self._quick_favorite_hotkey,
-            configure_hotkey_callback=self._configure_quick_favorite_hotkey)
-        favorites_layout.addWidget(self.favorites_view)
         self._explorer_dirty_tabs = {0, 1, 2, 3}
         self.explorer_tabs.currentChanged.connect(self._refresh_visible_details)
         system_layout.addWidget(self.explorer_tabs, 1)
@@ -3167,25 +3134,46 @@ class MainWindow(QMainWindow):
         elif self._navigation_hud is not None:
             self._navigation_hud.set_enabled(False)
 
-    def _show_planet_navigation(self):
-        from cmdrhelper.ui.planet_navigation_window import PlanetNavigationWindow
+    def _navigation_page(self):
+        from cmdrhelper.ui.favorites_view import FavoritesView
+        from cmdrhelper.ui.planet_navigation_window import PlanetNavigationView
 
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        layout.addWidget(QLabel(tr("nav.navigation"), objectName="sectionTitle"))
+        self.navigation_tabs = QTabWidget(page)
+        layout.addWidget(self.navigation_tabs)
+        self.favorites_view = FavoritesView(
+            self.state, self._favorite_navigator, self._show_favorite_in_explorer,
+            self.navigation_tabs,
+            route_callback=self._open_material_trader_route,
+            location_controller_callback=self._ensure_planet_navigation_controller,
+            quick_favorite_hotkey=self._quick_favorite_hotkey,
+            configure_hotkey_callback=self._configure_quick_favorite_hotkey)
         controller = self._ensure_planet_navigation_controller()
-        if self._planet_navigation_window is None:
-            self._planet_navigation_window = PlanetNavigationWindow(
-                controller, self.state.settings, self)
-            self._planet_navigation_window.save_location_requested.connect(
-                lambda: self.favorites_view.save_surface(controller))
-        if not self._planet_navigation_window.isVisible():
-            self._planet_navigation_window.show()
+        self.planet_navigation_view = PlanetNavigationView(
+            controller, self.state.settings, self.navigation_tabs)
+        self.planet_navigation_view.save_location_requested.connect(
+            lambda: self.favorites_view.save_surface(controller))
+        for view, title in ((self.favorites_view, tr("favorites.title")),
+                            (self.planet_navigation_view, tr("planet_nav.title"))):
+            scroll = QScrollArea(self.navigation_tabs)
+            scroll.setWidgetResizable(True)
+            scroll.setFrameShape(QFrame.NoFrame)
+            scroll.setWidget(view)
+            self.navigation_tabs.addTab(scroll, title)
+        return page
+
+    def _show_planet_navigation(self):
+        self.navigation_tabs.setCurrentIndex(1)
+        self._show_page(self.PAGE_NAVIGATION)
 
     def _configure_quick_favorite_hotkey(self):
         self.quick_favorite_settings.choose()
 
     def _show_favorites(self):
-        self._favorites_window.show()
-        self._favorites_window.raise_()
-        self._favorites_window.activateWindow()
+        self.navigation_tabs.setCurrentIndex(0)
+        self._show_page(self.PAGE_NAVIGATION)
 
     def _favorite_navigator(self):
         self._show_planet_navigation()

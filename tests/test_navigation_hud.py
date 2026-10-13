@@ -335,13 +335,24 @@ class SidebarHudTests(unittest.TestCase):
             self.main._set_navigation_hud_enabled(True)
         self.assertTrue(self.main._navigation_hud_enabled())
         self.assertFalse(self.main._planet_navigation_controller.timer.isActive())
+        from PySide6.QtWidgets import QStackedWidget, QWidget
+        self.main.pages = QStackedWidget()
+        self.main.nav_buttons = []
+        self.main._quick_favorite_hotkey = None
+        with patch("cmdrhelper.ui.favorites_view.FavoritesView", side_effect=lambda *a, **k: QWidget()):
+            for _ in range(self.main.PAGE_NAVIGATION):
+                self.main.pages.addWidget(QWidget())
+            self.main.pages.addWidget(self.main._navigation_page())
+        self.main.setCentralWidget(self.main.pages)
+        self.main.show()
+        self.addCleanup(self.main.close)
         self.main._show_planet_navigation()
-        window = self.main._planet_navigation_window
-        self.addCleanup(window.deleteLater)
-        self.assertTrue(window.isVisible())
-        window.close()
+        view = self.main.planet_navigation_view
+        self.assertTrue(view.isVisible())
+        self.assertFalse(view.isWindow())
+        self.main._show_page(self.main.PAGE_OVERVIEW)
         self.assertFalse(self.main._planet_navigation_controller.timer.isActive())
-        self.main._planet_navigation_controller.timer.stop()
+
 
 
 class TrackerTests(unittest.TestCase):

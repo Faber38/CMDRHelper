@@ -38,6 +38,13 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.9.8
+
+- Les favoris et la navigation planétaire sont intégrés directement dans l’interface principale sous forme de deux onglets.
+- Navigation ouvre une page principale commune sans fenêtres supplémentaires de favoris ou de navigation.
+- Lorsqu’aucun raccourci clavier n’est configuré, l’indication de favori rapide apparaît en jaune Elite, clignote doucement trois fois et explique la configuration dans les Paramètres.
+- L’aide intégrée décrit les nouveaux onglets et parcours dans les douze langues.
+
 ## CMDRHelper v3.9.6.7
 
 - Amélioration de l’association des mérites Powerplay aux scans de vaisseaux et aux ventes de marchandises.
@@ -345,7 +352,7 @@ L’Explorer affiche aussi les valeurs BIO estimées, la progression des analyse
 
 Les détails des corps comprennent les propriétés physiques disponibles, l’atmosphère, les anneaux, les matériaux et les informations de découverte. Les représentations utilisent des textures adaptées et des animations pour certains objets astronomiques particuliers. La rubrique Cargo affiche la cargaison et la capacité connues du vaisseau ou SRV actuellement utilisé ; pour le Rhino, cargaison et découvertes minières personnelles restent des données distinctes.
 
-En haut de l’Explorer se trouvent **★ Favoris | Navigation planétaire | Tout afficher**. Les favoris et la navigation planétaire ouvrent leurs propres fenêtres ; les trois vues de l’Explorer restent disponibles.
+Sélectionne « Navigation » à gauche. Les onglets « ★ Favoris » et « Navigation planétaire » apparaissent à droite, avec « ★ Favoris » actif par défaut. « Navigation → ★ Favoris » gère les systèmes, planètes/lunes et lieux de surface du commandant actif ; « Navigation → Navigation planétaire » affiche la navigation planétaire dans la même zone principale.
 
 ## Navigation planétaire
 
@@ -364,7 +371,7 @@ Dès qu’Elite fournit des données de position planétaire valides pour le cor
 | **Plus de 380 km** | Globe planétaire avec ta position représentée par un cercle blanc et la cible par un petit point. La cible est orange sur la face visible et rouge sur la face cachée. La position du joueur reste fixe dans l’affichage ; la planète et la cible sont représentées par rapport à elle. |
 | **Jusqu’à 380 km inclus** | Passage automatique à une grille en perspective inclinée avec un **maillage de distance de 50 km** et la position de la cible tracée à l’intérieur pour poursuivre l’approche. |
 
-La fenêtre du navigateur est librement redimensionnable. Le globe ou la grille en perspective s’adaptent proportionnellement à l’espace disponible ; les valeurs détaillées restent lisibles.
+Le globe et la grille en perspective s’adaptent proportionnellement à l’espace disponible. Si la fenêtre principale est étroite ou basse, fais défiler le contenu. Changer de page ou d’onglet conserve les filtres et la cible.
 
 ### Comprendre les valeurs de navigation
 
@@ -394,7 +401,7 @@ Le HUD a été testé en jeu sous **Linux/X11** et **Windows 11 avec Elite**. So
 
 ## Favoris
 
-**Explorer → ★ Favoris** ouvre une fenêtre distincte et réutilisable. Les favoris appartiennent au **commandant actif**. Un changement de commandant actualise la vue ; la sélection des commandants dans la chronique n’étend pas la liste des favoris.
+Sélectionne « Navigation » à gauche. Les onglets « ★ Favoris » et « Navigation planétaire » apparaissent à droite, avec « ★ Favoris » actif par défaut. « Navigation → ★ Favoris » gère les systèmes, planètes/lunes et lieux de surface du commandant actif ; « Navigation → Navigation planétaire » affiche la navigation planétaire dans la même zone principale. Les favoris appartiennent au **commandant actif**. Un changement de commandant actualise la vue ; la sélection des commandants dans la chronique n’étend pas la liste des favoris.
 
 ### Enregistrer trois types
 

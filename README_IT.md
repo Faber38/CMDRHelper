@@ -38,6 +38,13 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## CMDRHelper v3.9.8
+
+- Preferiti e navigazione planetaria sono integrati direttamente nell’interfaccia principale in due schede.
+- Navigazione apre una pagina principale comune senza finestre aggiuntive per preferiti o navigatore.
+- Senza una scorciatoia configurata, il suggerimento per il preferito rapido appare in giallo Elite, lampeggia delicatamente tre volte e spiega la configurazione nelle Impostazioni.
+- La guida integrata descrive le nuove schede e i percorsi di navigazione in tutte le dodici lingue.
+
 ## CMDRHelper v3.9.6.7
 
 - Migliorata l’associazione dei meriti Powerplay alle scansioni delle navi e alle vendite di merci.
@@ -345,7 +352,7 @@ L’Explorer mostra anche stime dei valori BIO, progresso delle analisi personal
 
 I dettagli dei corpi includono proprietà fisiche disponibili, atmosfera, anelli, materiali e informazioni sulle scoperte. Le rappresentazioni utilizzano texture adeguate e animazioni per alcuni oggetti astronomici particolari. L’area Cargo mostra carico e capacità conosciuti della nave o dell’SRV attualmente utilizzati; per il Rhino, carico e ritrovamenti minerari personali restano dati diversi.
 
-In alto nell’Explorer si trovano **★ Preferiti | Navigazione planetaria | Mostra tutto**. Preferiti e navigazione planetaria aprono finestre proprie; le tre viste dell’Explorer restano disponibili.
+Seleziona «Navigazione» a sinistra. A destra appaiono le schede «★ Preferiti» e «Navigazione planetaria», con «★ Preferiti» attiva per impostazione predefinita. «Navigazione → ★ Preferiti» gestisce sistemi, pianeti/lune e luoghi di superficie del comandante attivo; «Navigazione → Navigazione planetaria» mostra la navigazione planetaria nella stessa area principale.
 
 ## Navigazione planetaria
 
@@ -364,7 +371,7 @@ Non appena Elite fornisce dati di posizione planetaria validi per il corpo corri
 | **Oltre 380 km** | Globo planetario con la propria posizione come cerchio bianco e la destinazione come piccolo punto. La destinazione è arancione sul lato visibile e rossa sul lato nascosto. La posizione del giocatore resta fissa nella rappresentazione; pianeta e destinazione sono mostrati rispetto a essa. |
 | **Fino a 380 km inclusi** | Passaggio automatico a una griglia prospettica inclinata con **intervalli di distanza di 50 km** e la destinazione tracciata al suo interno per proseguire l’avvicinamento. |
 
-La finestra del navigatore è liberamente ridimensionabile. Globo o griglia prospettica si adattano proporzionalmente allo spazio disponibile; i valori dettagliati restano leggibili.
+Il globo e la griglia prospettica si adattano proporzionalmente allo spazio disponibile. Se la finestra principale è stretta o bassa, scorri il contenuto. Cambiare pagina o scheda conserva filtri e destinazione.
 
 ### Comprendere i valori di navigazione
 
@@ -394,7 +401,7 @@ L’HUD è stato provato in gioco su **Linux/X11** e su **Windows 11 con Elite**
 
 ## Preferiti
 
-**Explorer → ★ Preferiti** apre una finestra separata e riutilizzabile. I preferiti appartengono al **comandante attivo**. Cambiare comandante aggiorna la vista; la selezione dei comandanti nella cronaca non estende l’elenco dei preferiti.
+Seleziona «Navigazione» a sinistra. A destra appaiono le schede «★ Preferiti» e «Navigazione planetaria», con «★ Preferiti» attiva per impostazione predefinita. «Navigazione → ★ Preferiti» gestisce sistemi, pianeti/lune e luoghi di superficie del comandante attivo; «Navigazione → Navigazione planetaria» mostra la navigazione planetaria nella stessa area principale. I preferiti appartengono al **comandante attivo**. Cambiare comandante aggiorna la vista; la selezione dei comandanti nella cronaca non estende l’elenco dei preferiti.
 
 ### Salvare tre tipi
 

@@ -38,6 +38,13 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.8
+
+- Suosikit ja planeettanavigointi on integroitu suoraan pääkäyttöliittymään kahdeksi välilehdeksi.
+- Navigointi avaa yhteisen pääsivun ilman erillisiä suosikki- tai navigointi-ikkunoita.
+- Kun pikanäppäintä ei ole määritetty, pikasuosikin ohje näkyy Elite-keltaisena, vilkkuu hillitysti kolme kertaa ja neuvoo määrityksen kohdassa Asetukset.
+- Sisäänrakennettu ohje kuvaa uudet välilehdet ja valikkopolut kaikilla kahdellatoista kielellä.
+
 ## CMDRHelper v3.9.6.7
 
 - Powerplay-ansioiden yhdistämistä alusskannauksiin ja tavaramyynteihin on parannettu.
@@ -345,7 +352,7 @@ Explorer näyttää myös arvioidut BIO-arvot, omien analyysien edistymisen ja m
 
 Taivaankappaleen tiedot sisältävät saatavilla olevat fysikaaliset ominaisuudet, ilmakehän, renkaat, materiaalit ja löytötiedot. Esitykset käyttävät sopivia tekstuureja ja tiettyjen erityisten tähtitieteellisten kohteiden animaatioita. Cargo-alue näyttää käytössä olevan aluksen tai SRV:n tunnetun lastin ja kapasiteetin; Rhinon lasti ja henkilökohtaiset louhintalöydöt ovat edelleen eri tietoja.
 
-Explorerin yläosassa ovat **★ Suosikit | Planeettanavigointi | Näytä kaikki**. Suosikit ja planeettanavigointi avaavat omat ikkunansa; Explorerin kolme näkymää pysyvät käytettävissä.
+Valitse vasemmalta «Navigointi». Oikealla näkyvät välilehdet «★ Suosikit» ja «Planeettanavigointi», joista «★ Suosikit» on oletuksena valittu. «Navigointi → ★ Suosikit» hallitsee aktiivisen komentajan järjestelmiä, planeettoja/kuita ja pintasijainteja; «Navigointi → Planeettanavigointi» näyttää planeettanavigoinnin samalla pääalueella.
 
 ## Planeettanavigointi
 
@@ -364,7 +371,7 @@ Kun Elite antaa kelvolliset planetaariset sijaintitiedot vastaavalle taivaankapp
 | **Yli 380 km** | Planeettapallo, jossa oma sijainti on valkoinen ympyrä ja kohde pieni piste. Kohde on oranssi näkyvällä puolella ja punainen piilossa olevalla takapuolella. Pelaajan sijainti pysyy näytössä paikallaan; planeetta ja kohde esitetään siihen nähden. |
 | **Enintään 380 km** | Automaattinen vaihto kallistettuun perspektiiviruudukkoon, jossa on **50 km:n etäisyysvälit** ja kohteen merkitty sijainti lähestymisen jatkamiseksi. |
 
-Navigaattori-ikkunan kokoa voi muuttaa vapaasti. Pallo tai perspektiiviruudukko mukautuu suhteellisesti käytettävissä olevaan tilaan; yksityiskohtaiset arvot pysyvät luettavina.
+Pallo ja perspektiiviruudukko mukautuvat suhteellisesti käytettävissä olevaan tilaan. Vieritä sisältöä, jos pääikkuna on kapea tai matala. Sivun tai välilehden vaihtaminen säilyttää suodattimet ja navigointikohteen.
 
 ### Navigointiarvojen ymmärtäminen
 
@@ -394,7 +401,7 @@ HUD on testattu pelissä **Linux/X11:llä** sekä **Windows 11:llä Eliten kanss
 
 ## Suosikit
 
-**Explorer → ★ Suosikit** avaa erillisen, uudelleenkäytettävän ikkunan. Suosikit kuuluvat **aktiiviselle komentajalle**. Komentajan vaihtaminen päivittää näkymän; kronikan komentajavalinta ei laajenna suosikkiluetteloa.
+Valitse vasemmalta «Navigointi». Oikealla näkyvät välilehdet «★ Suosikit» ja «Planeettanavigointi», joista «★ Suosikit» on oletuksena valittu. «Navigointi → ★ Suosikit» hallitsee aktiivisen komentajan järjestelmiä, planeettoja/kuita ja pintasijainteja; «Navigointi → Planeettanavigointi» näyttää planeettanavigoinnin samalla pääalueella. Suosikit kuuluvat **aktiiviselle komentajalle**. Komentajan vaihtaminen päivittää näkymän; kronikan komentajavalinta ei laajenna suosikkiluetteloa.
 
 ### Kolmen tyypin tallentaminen
 

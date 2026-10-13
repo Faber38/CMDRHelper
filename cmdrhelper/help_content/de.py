@@ -315,7 +315,7 @@ HELP_TOPICS = {
 <p>Bei einem interessanten Körper lohnt sich ein Klick auf die Detailansicht. Dort lässt sich am besten unterscheiden zwischen allgemeinen Körperdaten, möglichen Explorationsergebnissen und tatsächlich vom eigenen Commander belegten Funden.</p>
 
 <h3>★ Favoriten</h3>
-<p>Über „Navigation → ★ Favoriten“ im linken Hauptmenü öffnest du ein eigenes, wiederverwendbares Favoritenfenster. Dort speicherst du Systeme, Planeten/Monde und Oberflächenorte für den aktiven Commander.</p>
+<p>Öffne links „Navigation“. Rechts erscheinen die Reiter „★ Favoriten“ und „Planeten-Navigation“. Standardmäßig ist „★ Favoriten“ aktiv. „Navigation → ★ Favoriten“ verwaltet Systeme, Planeten/Monde und Oberflächenorte des aktiven Commanders; „Navigation → Planeten-Navigation“ zeigt die Planeten-Navigation im selben Hauptbereich.</p>
 <p>Die alphabetisch nach Namen sortierte, scrollbare Liste zeigt Name, Typ, System, gegebenenfalls Body und Latitude/Longitude, Kategorie und eine kleine Bildvorschau. Freitextsuche, Typfilter und Kategoriefilter lassen sich gemeinsam verwenden. Die Suche berücksichtigt Name, System, Body und Notiz.</p>
 <p>Mit „Öffnen / Anzeigen“ siehst du die gespeicherten Angaben, die Notiz und eine größere Bildvorschau. „Im Explorer anzeigen“ öffnet die vorhandene Systemübersicht beziehungsweise Body-Detailansicht, sofern der Favorit zum aktuellen Explorer-System gehört und passende Daten vorhanden sind. Für andere Systeme bleiben die gespeicherten Favoritendaten sichtbar; es wird keine Systemroute berechnet.</p>
 
@@ -336,7 +336,7 @@ HELP_TOPICS = {
 <ul>
 <li>„★ Aktuelles System speichern“ übernimmt das aktuelle System ohne Oberflächenkoordinaten.</li>
 <li>„★ Planet / Mond speichern“ lässt dich einen bekannten Planeten oder Mond des aktuellen Systems auswählen. Auch dieser Favorit erhält keine Oberflächenkoordinaten.</li>
-<li>„★ Aktuellen Standort speichern“ steht oben im Favoritenfenster neben den beiden anderen Speichermöglichkeiten und ist auch im Planeten-Navigator verfügbar. Im Favoritenfenster bleibt der Button immer sichtbar und ist ohne gültige aktuelle planetare Positionsdaten und aktiven Commander deaktiviert. Beim Klick werden Commander, System, Body, Latitude und Longitude festgehalten. Spätere Bewegungen im Spiel verändern diese Werte im geöffneten Dialog nicht.</li>
+<li>„★ Aktuellen Standort speichern“ steht oben im Favoritenreiter neben den beiden anderen Speichermöglichkeiten und ist auch im Planeten-Navigator verfügbar. Im Favoritenreiter bleibt der Button immer sichtbar und ist ohne gültige aktuelle planetare Positionsdaten und aktiven Commander deaktiviert. Beim Klick werden Commander, System, Body, Latitude und Longitude festgehalten. Spätere Bewegungen im Spiel verändern diese Werte im geöffneten Dialog nicht.</li>
 </ul>
 <p>Gib einen frei wählbaren Namen ein und wähle genau eine Kategorie: Bio, Geo, Abbau, Aussicht, Landestelle, Interessant oder Sonstiges. Eine Notiz und ein Bild sind optional. Bekannte technische IDs werden intern übernommen; du musst sie nicht eingeben. Auch Latitude oder Longitude 0,0 sind gültige Koordinaten.</p>
 <p>„Bearbeiten“ ändert Name, Kategorie, Notiz und Bild. System, Body und die gespeicherten Koordinaten bleiben dabei erhalten. Soll ein anderer Oberflächenort gespeichert werden, lege an dieser Position einen neuen Favoriten an.</p>
@@ -344,7 +344,7 @@ HELP_TOPICS = {
 <h3>Schnell-Favorit ohne Maus</h3>
 <p>Unter „Einstellungen → Schnell-Favorit“ kannst du einen globalen Hotkey frei festlegen, ändern oder entfernen. Nach der Installation ist er standardmäßig „Nicht belegt“: CMDRHelper registriert keine Taste ungefragt. Die Belegung wird gespeichert. Ist eine Kombination bereits belegt oder auf deinem System nicht verfügbar, erscheint eine Fehlermeldung; eine bisher funktionierende Belegung bleibt erhalten.</p>
 <p>Unter Linux/X11 und Windows funktioniert der Hotkey auch, während Elite den Fokus besitzt – zu Fuß, im SRV und im Schiff. Ein Tastendruck speichert den aktuellen Oberflächenstandort sofort für den aktiven Commander, ohne Dialog und ohne Mausbedienung. Commander, System, Body und die aktuellen Latitude-/Longitude-Werte werden dabei eingefroren. Ohne gültige aktuelle planetare Koordinaten wird nichts gespeichert; frühere Koordinaten werden nicht wiederverwendet.</p>
-<p>Der Favorit erhält einen eindeutigen vorläufigen Namen wie „Marker 07.09.2026 06:32:15“ und die Kategorie „Sonstiges“. Im normalen Favoritenfenster kannst du ihn später umbenennen, einer anderen Kategorie zuordnen, eine Notiz ergänzen oder ein Bild hinzufügen. Es wird kein automatischer Screenshot erstellt oder übernommen.</p>
+<p>Der Favorit erhält einen eindeutigen vorläufigen Namen wie „Marker 07.09.2026 06:32:15“ und die Kategorie „Sonstiges“. Im normalen Favoritenreiter kannst du ihn später umbenennen, einer anderen Kategorie zuordnen, eine Notiz ergänzen oder ein Bild hinzufügen. Es wird kein automatischer Screenshot erstellt oder übernommen.</p>
 <p>Für ungefähr zwei Sekunden erscheint direkt über dem aktiven Elite-Fenster „★ FAVORIT GESPEICHERT“ mit Body und Koordinaten; bei fehlendem Standort erscheint kurz „⚠ KEINE PLANETAREN KOORDINATEN“. Die Anzeige nimmt keinen Fokus und fängt keine Eingaben ab. Sie funktioniert auch bei ausgeschaltetem Navigations-HUD und verschwindet danach vollständig. Bei eingeschaltetem HUD bleibt anschließend die normale Navigationsanzeige bestehen. Der gespeicherte HUD-Schalter wird dabei nicht verändert. Die Anzeige nutzt denselben Overlay-Unterbau und dessen Plattformvoraussetzungen wie das Navigations-HUD.</p>
 
 <h3>Favoritenbilder</h3>
@@ -942,7 +942,8 @@ HELP_TOPICS = {
 <p>Er ist kein interstellarer Routenplaner und übernimmt keine System- oder Sprungnavigation. Du steuerst dein Schiff selbst.</p>
 
 <h3>Navigator öffnen und Ziel eingeben</h3>
-<p>Öffne im linken Hauptmenü „Navigation → Planeten-Navigation“ und wähle „Manuelle Eingabe …“. Das Navigatorfenster kann auch ohne aktuelle Oberflächenposition geöffnet und ein Ziel vorab eingegeben werden.</p>
+<p>Öffne links „Navigation“. Rechts erscheinen die Reiter „★ Favoriten“ und „Planeten-Navigation“. Standardmäßig ist „★ Favoriten“ aktiv. „Navigation → ★ Favoriten“ verwaltet Systeme, Planeten/Monde und Oberflächenorte des aktiven Commanders; „Navigation → Planeten-Navigation“ zeigt die Planeten-Navigation im selben Hauptbereich.</p>
+<p>Öffne „Navigation → Planeten-Navigation“ im Hauptbereich und wähle „Manuelle Eingabe …“. Ein Ziel kann auch ohne aktuelle Oberflächenposition vorab eingegeben werden.</p>
 <ul>
 <li><b>Body:</b> Wähle den Zielplaneten oder Zielmond aus der Liste oder verwende den bereits erkannten Body. Du kannst den Bodynamen auch selbst eingeben, wenn er noch nicht in der Liste steht. Verwende im Zweifel den vollständigen Namen einschließlich Systemname.</li>
 <li><b>Breitengrad (Latitude):</b> Gib die Zielbreite zwischen −90° und +90° ein.</li>
@@ -962,7 +963,7 @@ HELP_TOPICS = {
 <p>Beim Aufruf werden System, Körper und Koordinaten festgehalten. Im Favoriten-Dialog kannst du Name, Kategorie und Notiz bearbeiten und optional ein Bild zuordnen. Erst „Speichern“ legt den Eintrag lokal und commanderbezogen ab; Abbrechen speichert nichts. Spätere Bewegungen ändern die festgehaltene Position nicht.</p>
 
 <h3>Gespeicherte Positionen verwenden</h3>
-<p>Öffne im linken Hauptmenü „Navigation → ★ Favoriten“. Wähle einen gespeicherten Oberflächenort und „◎ Zu den Koordinaten“, um Körper, Koordinaten und Namen als Navigationsziel zu übernehmen. Das ersetzt ein bisheriges Ziel; auf einem anderen Körper wartet der Navigator auf passende Positionsdaten.</p>
+<p>Wechsle im Hauptbereich zum Reiter „Navigation → ★ Favoriten“. Wähle einen gespeicherten Oberflächenort und „◎ Zu den Koordinaten“, um Körper, Koordinaten und Namen als Navigationsziel zu übernehmen. Das ersetzt ein bisheriges Ziel; auf einem anderen Körper wartet der Navigator auf passende Positionsdaten.</p>
 <p>Über „Bearbeiten“ kannst du Name, Kategorie und Notiz ändern. „Löschen“ entfernt den Favoriten erst nach Bestätigung, keine Elite-Daten. Favoriten bleiben über Helper-Neustarts erhalten und sind nach Commander getrennt; das aktuelle Navigationsziel selbst ist nur für die laufende Sitzung gesetzt.</p>
 
 <h3>Planetenkugel: mehr als 380 km</h3>
@@ -993,8 +994,8 @@ HELP_TOPICS = {
 <p>Beispiel: Bei Heading 051° und Zielkurs 074° drehst du 23° nach rechts, bis dein Elite-Kompass ungefähr 074° zeigt. Beim Weiterflug können sich Peilung und Zielkurs ändern; orientiere dich an den aktualisierten Werten.</p>
 <p>An derselben Position wie das Ziel, an einem Pol oder beim genau gegenüberliegenden Punkt auf dem Planeten kann die Richtung unbestimmt sein. Dann zeigt der Navigator den entsprechenden Hinweis statt eines erfundenen Kurses.</p>
 
-<h3>Fenstergröße</h3>
-<p>Das Navigatorfenster ist frei skalierbar. Kugel beziehungsweise Perspektivraster passen sich dem verfügbaren Platz proportional an. Die Mindestgröße schützt die Lesbarkeit der Detailwerte; die Kugel bleibt rund. Position und Größe des Fensters werden gespeichert.</p>
+<h3>Darstellung im Hauptbereich</h3>
+<p>Kugel und Perspektivraster passen sich dem verfügbaren Platz proportional an. Bei schmalem oder niedrigem Hauptfenster kannst du die Inhalte scrollen. Beim Menü- oder Reiterwechsel bleiben Filter und Navigationsziel erhalten.</p>
 
 <h3>Navigations-HUD einschalten</h3>
 <p>Aktiviere links im Hauptfenster unter <b>auto einblenden → Navigations-HUD</b> den Haken. Bei gültiger Planetennavigation erscheint das HUD direkt über dem sichtbaren Elite-Fenster im Vordergrund.</p>
@@ -1012,13 +1013,13 @@ HELP_TOPICS = {
 <p>Auf demselben Body kannst du jederzeit erneut „Manuelle Eingabe …“ öffnen und andere Koordinaten setzen. Das neue Ziel ersetzt das bisherige Navigationsziel. Bei passenden Positionsdaten aktualisiert sich der Kompass unmittelbar.</p>
 <p>Mit „Navigation beenden“ entfernst du das aktuelle Ziel. Für einen weiteren Anflug setzt du einfach ein neues Ziel.</p>
 
-<p>Das Schließen des Navigatorfensters beendet das Ziel nicht. Ein eingeschaltetes Navigations-HUD kann weiterarbeiten; „Navigation beenden“ entfernt das Ziel. Beim Verlassen des passenden Körpers oder bei fehlenden Positionsdaten wartet die Navigation und das Navigations-HUD verschwindet.</p>
+<p>Ein Menü- oder Reiterwechsel beendet das Ziel nicht. Ein eingeschaltetes Navigations-HUD kann weiterarbeiten; „Navigation beenden“ entfernt das Ziel. Beim Verlassen des passenden Körpers oder bei fehlenden Positionsdaten wartet die Navigation und das Navigations-HUD verschwindet.</p>
 
 <h3>Datenstand und Grenzen</h3>
 <p>Die Navigation basiert auf den von Elite gelieferten Statusdaten. Aktualisierungen können abhängig vom Spielzustand verzögert eintreffen. Die Altersanzeige im Navigator zeigt, wie lange die letzte bestätigte Statusmeldung zurückliegt.</p>
 <p>Der Oberflächenabstand beschreibt den kürzesten Bogen auf einer gedachten Kugel. Er ist keine Gelände- oder Straßenroute. Der Navigator kennt keine Hindernisse und keine Geländehöhen entlang der Strecke; Flughöhe, sichere Geschwindigkeit und Hindernisvermeidung bleiben deine Aufgabe.</p>
 
-<p>Die aktuelle Position kommt aus Status.json; das Journal ergänzt Körper- und Systemzuordnungen. Das Fenster und das aktivierte Navigations-HUD halten die Aktualisierung bei Bedarf aktiv. Die Anzeige hängt von den verfügbaren Elite-Daten ab und verspricht keine garantierte Genauigkeit in Metern.</p>
+<p>Die aktuelle Position kommt aus Status.json; das Journal ergänzt Körper- und Systemzuordnungen. Der sichtbare Navigationsreiter und das aktivierte Navigations-HUD halten die Aktualisierung bei Bedarf aktiv. Die Anzeige hängt von den verfügbaren Elite-Daten ab und verspricht keine garantierte Genauigkeit in Metern.</p>
 
 <h3>Tipp</h3>
 <p>Prüfe vor dem Anflug Bodyname und Vorzeichen der Zielkoordinaten. Richte dich anschließend nach dem Zielkurs im Elite-Kompass aus und beobachte relative Richtung und Entfernung. Wenn der Navigator wartet, kontrolliere, ob Elite bereits planetare Koordinaten für den Zielbody liefert.</p>""",

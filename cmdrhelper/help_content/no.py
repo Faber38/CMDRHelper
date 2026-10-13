@@ -359,7 +359,7 @@ HELP_TOPICS = {
               """
 
 <h3>★ Favoritter</h3>
-<p>«Navigasjon → ★ Favoritter» i hovedmenyen til venstre åpner et eget favorittvindu som kan brukes på nytt. Her lagrer du systemer, planeter/måner og steder på overflaten for den aktive kommandøren.</p>
+<p>Velg «Navigasjon» til venstre. Fanene «★ Favoritter» og «Planetnavigasjon» vises til høyre, med «★ Favoritter» valgt som standard. «Navigasjon → ★ Favoritter» administrerer systemer, planeter/måner og overflatesteder for aktiv kommandør; «Navigasjon → Planetnavigasjon» viser planetnavigasjon i samme hovedområde.</p>
 <p>Den rullbare listen, alfabetisk sortert etter navn, viser navn, type, system, himmellegeme og breddegrad/lengdegrad der det er relevant, kategori og en liten bildeforhåndsvisning. Fritekstsøk, typefilter og kategorifilter kan brukes sammen. Søket omfatter navn, system, himmellegeme og notat.</p>
 <p>«Åpne / Vis» viser de lagrede opplysningene, notatet og en større bildeforhåndsvisning. «Vis i Explorer» åpner den eksisterende systemoversikten eller detaljvisningen for himmellegemet hvis favoritten tilhører det gjeldende Explorer-systemet og passende data er tilgjengelige. For andre systemer forblir de lagrede favorittdataene synlige; ingen systemrute beregnes.</p>
 
@@ -380,7 +380,7 @@ HELP_TOPICS = {
 <ul>
 <li>«★ Lagre nåværende system» lagrer det gjeldende systemet uten overflatekoordinater.</li>
 <li>«★ Lagre planet / måne» lar deg velge en kjent planet eller måne i det gjeldende systemet. Denne favoritten får heller ikke overflatekoordinater.</li>
-<li>«★ Lagre nåværende posisjon» står øverst i favorittvinduet ved siden av de to andre lagringsvalgene og er også tilgjengelig i planetnavigatoren. I favorittvinduet er knappen alltid synlig og er deaktivert uten gyldige, aktuelle planetære posisjonsdata og en aktiv kommandør. Ved klikk fryses kommandør, system, himmellegeme, breddegrad og lengdegrad. Senere bevegelser i spillet endrer ikke disse verdiene i den åpne dialogen.</li>
+<li>«★ Lagre nåværende posisjon» står øverst i favorittfanen ved siden av de to andre lagringsvalgene og er også tilgjengelig i planetnavigatoren. I favorittfanen er knappen alltid synlig og er deaktivert uten gyldige, aktuelle planetære posisjonsdata og en aktiv kommandør. Ved klikk fryses kommandør, system, himmellegeme, breddegrad og lengdegrad. Senere bevegelser i spillet endrer ikke disse verdiene i den åpne dialogen.</li>
 </ul>
 <p>Skriv inn et valgfritt navn og velg nøyaktig én kategori: Bio, Geo, Gruvedrift, Utsikt, Landingssted, Interessant eller Annet. Notat og bilde er valgfrie. Kjente tekniske ID-er overføres internt; du trenger ikke skrive dem inn. Breddegrad eller lengdegrad 0,0 er også gyldige koordinater.</p>
 <p>«Rediger» endrer navn, kategori, notat og bilde. System, himmellegeme og lagrede koordinater beholdes. Hvis du vil lagre et annet sted på overflaten, oppretter du en ny favoritt på den posisjonen.</p>
@@ -388,7 +388,7 @@ HELP_TOPICS = {
 <h3>Hurtigfavoritt uten mus</h3>
 <p>Under «Innstillinger → Hurtigfavoritt» kan du fritt angi, endre eller fjerne en global hurtigtast. Etter installasjonen er den som standard «Ikke tilordnet»: CMDRHelper registrerer ingen tast uten at du ber om det. Tilordningen lagres. Hvis en kombinasjon allerede er i bruk eller ikke er tilgjengelig på systemet ditt, vises en feilmelding; en tidligere fungerende tilordning beholdes.</p>
 <p>På Linux/X11 og Windows fungerer hurtigtasten også mens Elite har fokus – til fots, i SRV-en og i skipet. Ett tastetrykk lagrer den aktuelle posisjonen på overflaten umiddelbart for den aktive kommandanten, uten dialog og uten bruk av mus. Kommandant, system, himmellegeme og gjeldende Latitude-/Longitude-verdier fryses i det øyeblikket. Uten gyldige aktuelle planetkoordinater lagres ingenting; tidligere koordinater brukes ikke på nytt.</p>
-<p>Favoritten får et unikt foreløpig navn, for eksempel «Markør 07.09.2026 06:32:15», og kategorien «Annet». I det vanlige favorittvinduet kan du senere gi den nytt navn, tilordne en annen kategori, legge til et notat eller et bilde. Ingen skjermbilder tas eller importeres automatisk.</p>
+<p>Favoritten får et unikt foreløpig navn, for eksempel «Markør 07.09.2026 06:32:15», og kategorien «Annet». I favorittfanen kan du senere gi den nytt navn, tilordne en annen kategori, legge til et notat eller et bilde. Ingen skjermbilder tas eller importeres automatisk.</p>
 <p>I omtrent to sekunder vises «★ FAVORITT LAGRET» direkte over det aktive Elite-vinduet med himmellegeme og koordinater; hvis posisjonen mangler, vises «⚠ INGEN PLANETKOORDINATER» kort. Visningen tar ikke fokus og fanger ikke opp inndata. Den fungerer også når navigasjons-HUD-et er slått av, og forsvinner deretter helt. Når HUD-et er slått på, blir den vanlige navigasjonsvisningen stående etterpå. Den lagrede innstillingen for HUD-bryteren endres ikke. Visningen bruker samme overleggsløsning og plattformkrav som navigasjons-HUD-et.</p>
 
 <h3>Favorittbilder</h3>
@@ -1095,7 +1095,8 @@ HELP_TOPICS = {
 <p>Den er ikke en interstellar ruteplanlegger og håndterer verken system- eller hoppnavigasjon. Du styrer skipet selv.</p>
 
 <h3>Åpne navigatoren og angi et mål</h3>
-<p>Åpne «Navigasjon → Planetnavigasjon» i hovedmenyen til venstre og velg «Manuell inntasting …». Vinduet kan åpnes og et mål angis før en aktuell overflateposisjon er tilgjengelig.</p>
+<p>Velg «Navigasjon» til venstre. Fanene «★ Favoritter» og «Planetnavigasjon» vises til høyre, med «★ Favoritter» valgt som standard. «Navigasjon → ★ Favoritter» administrerer systemer, planeter/måner og overflatesteder for aktiv kommandør; «Navigasjon → Planetnavigasjon» viser planetnavigasjon i samme hovedområde.</p>
+<p>Åpne «Navigasjon → Planetnavigasjon» i hovedområdet og velg «Manuell inntasting …». Et mål kan angis før en aktuell overflateposisjon er tilgjengelig.</p>
 <ul>
 <li><b>Himmellegeme:</b> Velg målplaneten eller målmånen fra listen, eller bruk himmellegemet som allerede er registrert. Du kan også skrive inn navnet selv hvis det ikke finnes i listen ennå. Er du i tvil, bruk hele navnet, inkludert systemnavnet.</li>
 <li><b>Breddegrad:</b> Angi målets breddegrad mellom −90° og +90°.</li>
@@ -1115,7 +1116,7 @@ HELP_TOPICS = {
 <p>System, legeme og koordinater fryses når handlingen åpnes. I favorittdialogen kan du endre navn, kategori og notat og legge til et bilde. Først «Lagre» lagrer lokalt for kommandøren; avbryt lagrer ingenting. Senere bevegelser endrer ikke den fryste posisjonen.</p>
 
 <h3>Bruke lagrede posisjoner</h3>
-<p>Åpne «Navigasjon → ★ Favoritter» i hovedmenyen til venstre. Velg et lagret overflatested og «◎ Til koordinatene» for å bruke legeme, koordinater og navn som mål. Det erstatter forrige mål; på et annet legeme venter navigatøren på passende posisjonsdata.</p>
+<p>Bytt til fanen «Navigasjon → ★ Favoritter» i hovedområdet. Velg et lagret overflatested og «◎ Til koordinatene» for å bruke legeme, koordinater og navn som mål. Det erstatter forrige mål; på et annet legeme venter navigatøren på passende posisjonsdata.</p>
 <p>«Rediger» endrer navn, kategori og notat. «Slett» fjerner favoritten etter bekreftelse, ikke Elite-data. Favoritter bevares ved omstart og er skilt etter kommandør; selve navigasjonsmålet gjelder bare denne økten.</p>
 
 <h3>Planetkule: mer enn 380 km</h3>
@@ -1146,8 +1147,8 @@ HELP_TOPICS = {
 <p>Eksempel: Med styrekurs 051° og målkurs 074° dreier du 23° til høyre til Elite-kompasset viser omtrent 074°. Mens du flyr videre, kan peiling og målkurs endre seg; følg de oppdaterte verdiene.</p>
 <p>På samme posisjon som målet, ved en pol eller på det nøyaktig motsatte punktet på planeten kan retningen være ubestemt. Da viser navigatoren den tilsvarende meldingen i stedet for en oppdiktet kurs.</p>
 
-<h3>Vindusstørrelse</h3>
-<p>Navigatorvinduet kan fritt endres i størrelse. Kulen eller perspektivrutenettet tilpasser seg proporsjonalt til den tilgjengelige plassen. Minimumsstørrelsen holder detaljverdiene lesbare; kulen forblir rund. Vinduets posisjon og størrelse lagres.</p>
+<h3>Visning i hovedområdet</h3>
+<p>Kloden og perspektivrutenettet tilpasses proporsjonalt til tilgjengelig plass. Rull innholdet når hovedvinduet er smalt eller lavt. Bytte av side eller fane beholder filtre og navigasjonsmål.</p>
 
 <h3>Slå på navigasjons-HUD</h3>
 <p>Til venstre i hovedvinduet krysser du av under <b>vis automatisk → Navigasjons-HUD</b>. Ved gyldig planetnavigasjon vises HUD-en direkte over det synlige Elite-vinduet i forgrunnen.</p>
@@ -1165,13 +1166,13 @@ HELP_TOPICS = {
 <p>På samme himmellegeme kan du når som helst åpne «Manuell inntasting …» på nytt og sette andre koordinater. Det nye målet erstatter det forrige navigasjonsmålet. Med tilsvarende posisjonsdata oppdateres kompasset umiddelbart.</p>
 <p>Med «Avslutt navigasjon» fjerner du det nåværende målet. For en ny innflyging setter du ganske enkelt et nytt mål.</p>
 
-<p>Å lukke vinduet fjerner ikke målet. En aktivert navigasjons-HUD kan fortsette; «Avslutt navigasjon» fjerner målet. Når du forlater riktig legeme eller mangler posisjonsdata, venter navigasjonen og navigasjons-HUD-en skjules.</p>
+<p>Å bytte side eller fane fjerner ikke målet. En aktivert navigasjons-HUD kan fortsette; «Avslutt navigasjon» fjerner målet. Når du forlater riktig legeme eller mangler posisjonsdata, venter navigasjonen og navigasjons-HUD-en skjules.</p>
 
 <h3>Dataenes alder og begrensninger</h3>
 <p>Navigasjonen bygger på statusdataene fra Elite. Oppdateringer kan komme forsinket avhengig av spilltilstanden. Aldersvisningen i navigatoren viser hvor lenge det er siden den siste bekreftede statusmeldingen.</p>
 <p>Overflateavstanden beskriver den korteste buen på en tenkt kule. Den er ikke en terreng- eller veirute. Navigatoren kjenner verken hindringer eller terrenghøyder langs strekningen; flyhøyde, trygg hastighet og å unngå hindringer er fortsatt ditt ansvar.</p>
 
-<p>Posisjonen kommer fra Status.json; journalen supplerer koblinger til legeme og system. Vinduet og aktivert navigasjons-HUD holder oppdateringer aktive ved behov. Visningen avhenger av tilgjengelige Elite-data, uten garantert nøyaktighet i meter.</p>
+<p>Posisjonen kommer fra Status.json; journalen supplerer koblinger til legeme og system. Den synlige navigasjonsfanen og aktivert navigasjons-HUD holder oppdateringer aktive ved behov. Visningen avhenger av tilgjengelige Elite-data, uten garantert nøyaktighet i meter.</p>
 
 <h3>Tips</h3>
 <p>Før innflygingen kontrollerer du navnet på himmellegemet og fortegnene til målkoordinatene. Still deg deretter inn på målkursen i Elite-kompasset og følg med på relativ retning og avstand. Hvis navigatoren venter, sjekk om Elite allerede leverer planetkoordinater for himmellegemet du skal til.</p>""",

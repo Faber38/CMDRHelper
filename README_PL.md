@@ -38,6 +38,13 @@ Folder dzienników Elite Dangerous jest wykrywany automatycznie, jeśli to możl
 
 CMDRHelper sprawdza aktualizacje przy uruchomieniu i ma wbudowany mechanizm aktualizacji. Potwierdź proponowaną aktualizację w aplikacji; zaktualizuje ona program i zależności oraz uruchomi CMDRHelper ponownie. Po pierwszej instalacji zwykle wystarczy używać `start.bat` (Windows) lub `bash start.sh` (Linux). Przy zwykłych aktualizacjach nie trzeba ponownie ręcznie uruchamiać `install.bat` ani `install.sh`.
 
+## CMDRHelper v3.9.8
+
+- Ulubione i nawigacja planetarna są zintegrowane bezpośrednio z głównym interfejsem jako dwie karty.
+- Nawigacja otwiera wspólną stronę główną bez dodatkowych okien ulubionych lub nawigatora.
+- Gdy skrót klawiszowy nie jest ustawiony, wskazówka szybkiego ulubionego pojawia się w żółtym kolorze Elite, delikatnie miga trzy razy i objaśnia konfigurację w sekcji Ustawienia.
+- Zintegrowana pomoc opisuje nowe karty i ścieżki obsługi we wszystkich dwunastu językach.
+
 ## CMDRHelper v3.9.6.7
 
 - Ulepszone przypisywanie zasług Powerplay do skanów statków i sprzedaży towarów.
@@ -345,7 +352,7 @@ Explorer pokazuje także szacunkowe wartości BIO, postęp osobistych analiz ora
 
 Szczegóły ciał obejmują dostępne właściwości fizyczne, atmosferę, pierścienie, materiały i informacje o odkryciach. Wizualizacje używają odpowiednich tekstur, a dla wybranych szczególnych obiektów astronomicznych także animacji. Sekcja Cargo pokazuje znany ładunek i pojemność obecnie używanego statku lub SRV; w przypadku Rhino ładunek i osobiste znaleziska wydobywcze pozostają odrębnymi danymi.
 
-U góry Explorera znajdują się **★ Ulubione | Nawigacja planetarna | Pokaż wszystko**. Ulubione i nawigacja planetarna otwierają własne okna; trzy widoki Explorera pozostają dostępne.
+Wybierz „Nawigacja” po lewej. Po prawej pojawią się karty „★ Ulubione” i „Nawigacja planetarna”, z domyślnie aktywną kartą „★ Ulubione”. „Nawigacja → ★ Ulubione” zarządza systemami, planetami/księżycami i miejscami na powierzchni aktywnego dowódcy; „Nawigacja → Nawigacja planetarna” wyświetla nawigację planetarną w tym samym obszarze głównym.
 
 ## Nawigacja planetarna
 
@@ -364,7 +371,7 @@ Gdy Elite dostarczy prawidłowe planetarne dane pozycji dla odpowiedniego ciała
 | **Więcej niż 380 km** | Kula planety z własną pozycją jako białym okręgiem i celem jako małą kropką. Cel jest pomarańczowy po widocznej stronie, a czerwony po niewidocznej stronie tylnej. Pozycja gracza pozostaje stała na ekranie; planeta i cel są przedstawiane względem niej. |
 | **Do 380 km włącznie** | Automatyczne przejście na nachyloną siatkę perspektywiczną z **odstępami odległości 50 km** i zaznaczoną pozycją celu do dalszego dolotu. |
 
-Rozmiar okna nawigatora można swobodnie zmieniać. Kula lub siatka perspektywiczna dostosowuje się proporcjonalnie do miejsca; szczegółowe wartości pozostają czytelne.
+Kula i siatka perspektywiczna dopasowują się proporcjonalnie do dostępnego miejsca. Przy wąskim lub niskim oknie głównym przewijaj zawartość. Zmiana strony lub karty zachowuje filtry i cel nawigacji.
 
 ### Znaczenie wartości nawigacyjnych
 
@@ -394,7 +401,7 @@ HUD został przetestowany w grze pod **Linux/X11** oraz **Windows 11 z Elite**. 
 
 ## Ulubione
 
-**Explorer → ★ Ulubione** otwiera osobne okno używane ponownie. Ulubione należą do **aktywnego dowódcy**. Zmiana dowódcy odświeża widok; wybór dowódców w kronice nie rozszerza listy ulubionych.
+Wybierz „Nawigacja” po lewej. Po prawej pojawią się karty „★ Ulubione” i „Nawigacja planetarna”, z domyślnie aktywną kartą „★ Ulubione”. „Nawigacja → ★ Ulubione” zarządza systemami, planetami/księżycami i miejscami na powierzchni aktywnego dowódcy; „Nawigacja → Nawigacja planetarna” wyświetla nawigację planetarną w tym samym obszarze głównym. Ulubione należą do **aktywnego dowódcy**. Zmiana dowódcy odświeża widok; wybór dowódców w kronice nie rozszerza listy ulubionych.
 
 ### Zapisywanie trzech typów
 

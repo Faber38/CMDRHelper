@@ -358,7 +358,7 @@ HELP_TOPICS = {
               """
 
 <h3>★ Suosikit</h3>
-<p>Vasemman päävalikon ”Navigointi → ★ Suosikit” avaa erillisen, uudelleen käytettävän suosikki-ikkunan. Siellä voit tallentaa järjestelmiä, planeettoja/kuita ja pinnalla sijaitsevia paikkoja aktiiviselle komentajalle.</p>
+<p>Valitse vasemmalta «Navigointi». Oikealla näkyvät välilehdet «★ Suosikit» ja «Planeettanavigointi», joista «★ Suosikit» on oletuksena valittu. «Navigointi → ★ Suosikit» hallitsee aktiivisen komentajan järjestelmiä, planeettoja/kuita ja pintasijainteja; «Navigointi → Planeettanavigointi» näyttää planeettanavigoinnin samalla pääalueella.</p>
 <p>Nimen mukaan aakkostettu, vieritettävä luettelo näyttää nimen, tyypin, järjestelmän, tarvittaessa taivaankappaleen ja leveys-/pituusasteen, luokan sekä pienen kuvan esikatselun. Vapaatekstihakua sekä tyyppi- ja luokkasuodattimia voi käyttää yhdessä. Haku kattaa nimen, järjestelmän, taivaankappaleen ja muistiinpanon.</p>
 <p>”Avaa / Näytä” näyttää tallennetut tiedot, muistiinpanon ja suuremman kuvan esikatselun. ”Näytä Explorerissa” avaa olemassa olevan järjestelmän yleiskuvan tai taivaankappaleen tietonäkymän, jos suosikki kuuluu Explorerin nykyiseen järjestelmään ja vastaavat tiedot ovat saatavilla. Muiden järjestelmien suosikkien tallennetut tiedot pysyvät näkyvissä; järjestelmien välistä reittiä ei lasketa.</p>
 
@@ -379,7 +379,7 @@ HELP_TOPICS = {
 <ul>
 <li>”★ Tallenna nykyinen järjestelmä” tallentaa nykyisen järjestelmän ilman pintakoordinaatteja.</li>
 <li>”★ Tallenna planeetta / kuu” antaa valita nykyisen järjestelmän tunnetun planeetan tai kuun. Tämäkään suosikki ei saa pintakoordinaatteja.</li>
-<li>”★ Tallenna nykyinen sijainti” on suosikki-ikkunan yläosassa kahden muun tallennusvaihtoehdon vieressä, ja se on käytettävissä myös planeettanavigaattorissa. Suosikki-ikkunassa painike pysyy aina näkyvissä ja on poissa käytöstä, jos kelvolliset ajantasaiset planetaariset sijaintitiedot ja aktiivinen komentaja puuttuvat. Napsautus lukitsee komentajan, järjestelmän, taivaankappaleen, leveysasteen ja pituusasteen. Myöhemmät liikkeet pelissä eivät muuta näitä arvoja avoimessa valintaikkunassa.</li>
+<li>”★ Tallenna nykyinen sijainti” on suosikkivälilehden yläosassa kahden muun tallennusvaihtoehdon vieressä, ja se on käytettävissä myös planeettanavigaattorissa. Suosikkivälilehdellä painike pysyy aina näkyvissä ja on poissa käytöstä, jos kelvolliset ajantasaiset planetaariset sijaintitiedot ja aktiivinen komentaja puuttuvat. Napsautus lukitsee komentajan, järjestelmän, taivaankappaleen, leveysasteen ja pituusasteen. Myöhemmät liikkeet pelissä eivät muuta näitä arvoja avoimessa valintaikkunassa.</li>
 </ul>
 <p>Anna haluamasi nimi ja valitse täsmälleen yksi luokka: Bio, Geo, Louhinta, Maisema, Laskeutumispaikka, Kiinnostava tai Muu. Muistiinpano ja kuva ovat valinnaisia. Tunnetut tekniset tunnisteet siirretään sisäisesti; sinun ei tarvitse syöttää niitä. Myös leveysaste tai pituusaste 0,0 on kelvollinen koordinaatti.</p>
 <p>”Muokkaa” muuttaa nimeä, luokkaa, muistiinpanoa ja kuvaa. Järjestelmä, taivaankappale ja tallennetut koordinaatit säilyvät. Jos haluat tallentaa toisen paikan pinnalla, luo uusi suosikki kyseisessä sijainnissa.</p>
@@ -387,7 +387,7 @@ HELP_TOPICS = {
 <h3>Pikasuosikki ilman hiirtä</h3>
 <p>Kohdassa ”Asetukset → Pikasuosikki” voit vapaasti määrittää, vaihtaa tai poistaa yleisen pikanäppäimen. Asennuksen jälkeen sen oletus on ”Ei määritetty”: CMDRHelper ei rekisteröi mitään näppäintä pyytämättä. Määritys tallennetaan. Jos yhdistelmä on jo käytössä tai ei ole käytettävissä järjestelmässäsi, näyttöön tulee virheilmoitus; aiempi toimiva määritys säilytetään.</p>
 <p>Linux/X11:ssä ja Windowsissa pikanäppäin toimii myös Eliten ollessa aktiivinen – jalan, SRV:ssä ja aluksessa. Näppäimen painallus tallentaa nykyisen sijainnin pinnalla heti aktiiviselle komentajalle ilman valintaikkunaa ja hiiren käyttöä. Komentaja, järjestelmä, taivaankappale ja nykyiset Latitude-/Longitude-arvot lukitaan sillä hetkellä. Ilman kelvollisia ajantasaisia planeettakoordinaatteja mitään ei tallenneta; aiempia koordinaatteja ei käytetä uudelleen.</p>
-<p>Suosikki saa yksilöllisen väliaikaisen nimen, esimerkiksi ”Merkki 07.09.2026 06:32:15”, ja luokan ”Muu”. Tavallisessa suosikki-ikkunassa voit myöhemmin nimetä sen uudelleen, määrittää toisen luokan, lisätä muistiinpanon tai kuvan. Kuvakaappausta ei oteta eikä tuoda automaattisesti.</p>
+<p>Suosikki saa yksilöllisen väliaikaisen nimen, esimerkiksi ”Merkki 07.09.2026 06:32:15”, ja luokan ”Muu”. Suosikkivälilehdellä voit myöhemmin nimetä sen uudelleen, määrittää toisen luokan, lisätä muistiinpanon tai kuvan. Kuvakaappausta ei oteta eikä tuoda automaattisesti.</p>
 <p>Noin kahden sekunnin ajan ”★ SUOSIKKI TALLENNETTU” näkyy suoraan aktiivisen Elite-ikkunan päällä yhdessä taivaankappaleen ja koordinaattien kanssa; jos sijainti puuttuu, ”⚠ EI PLANEETTAKOORDINAATTEJA” näkyy lyhyesti. Näyttö ei vie kohdistusta eikä kaappaa syötteitä. Se toimii myös navigointi-HUD:n ollessa pois päältä ja katoaa sitten kokonaan. Kun HUD on päällä, tavallinen navigointinäyttö jää näkyviin tämän jälkeen. HUD-kytkimen tallennettua asetusta ei muuteta. Näyttö käyttää samaa peittokuvan toteutusta ja samoja alustavaatimuksia kuin navigointi-HUD.</p>
 
 <h3>Suosikkien kuvat</h3>
@@ -1109,7 +1109,8 @@ HELP_TOPICS = {
 <p>Se ei ole tähtienvälinen reittisuunnittelija eikä hoida järjestelmien välistä navigointia tai hyppyjä. Ohjaat alustasi itse.</p>
 
 <h3>Navigaattorin avaaminen ja kohteen syöttäminen</h3>
-<p>Avaa vasemmasta päävalikosta «Navigointi → Planeettanavigointi» ja valitse «Manuaalinen syöttö …». Voit avata ikkunan ja syöttää kohteen ennen kuin nykyinen pintasijainti on saatavilla.</p>
+<p>Valitse vasemmalta «Navigointi». Oikealla näkyvät välilehdet «★ Suosikit» ja «Planeettanavigointi», joista «★ Suosikit» on oletuksena valittu. «Navigointi → ★ Suosikit» hallitsee aktiivisen komentajan järjestelmiä, planeettoja/kuita ja pintasijainteja; «Navigointi → Planeettanavigointi» näyttää planeettanavigoinnin samalla pääalueella.</p>
+<p>Avaa «Navigointi → Planeettanavigointi» pääalueella ja valitse «Manuaalinen syöttö …». Kohteen voi syöttää ennen kuin nykyinen pintasijainti on saatavilla.</p>
 <ul>
 <li><b>Taivaankappale:</b> Valitse kohdeplaneetta tai -kuu luettelosta tai käytä jo tunnistettua taivaankappaletta. Voit myös kirjoittaa taivaankappaleen nimen itse, jos sitä ei vielä ole luettelossa. Käytä epäselvässä tapauksessa koko nimeä, myös järjestelmän nimeä.</li>
 <li><b>Leveysaste:</b> Syötä kohteen leveysaste väliltä −90° ja +90°.</li>
@@ -1126,10 +1127,10 @@ HELP_TOPICS = {
 
 <h3>Tallenna nykyinen sijainti</h3>
 <p>«★ Tallenna nykyinen sijainti» tallentaa vahvistetun nykyisen sijaintisi, ei syötettyä navigointikohdetta. Kelvollinen Elite-sijainti, tunnistettu komentaja ja tunnettu järjestelmä tarvitaan. Muuten toiminto ei ole käytettävissä tai saat ilmoituksen.</p>
-<p>Järjestelmä, kappale ja koordinaatit lukitaan avattaessa. Suosikki-ikkunassa voit muokata nimeä, luokkaa ja muistiinpanoa sekä lisätä kuvan. Vasta «Tallenna» tallentaa paikallisesti komentajalle; peruutus ei tallenna mitään. Myöhempi liikkuminen ei muuta talteen otettua sijaintia.</p>
+<p>Järjestelmä, kappale ja koordinaatit lukitaan avattaessa. Suosikkien muokkausikkunassa voit muokata nimeä, luokkaa ja muistiinpanoa sekä lisätä kuvan. Vasta «Tallenna» tallentaa paikallisesti komentajalle; peruutus ei tallenna mitään. Myöhempi liikkuminen ei muuta talteen otettua sijaintia.</p>
 
 <h3>Tallennettujen sijaintien käyttö</h3>
-<p>Avaa vasemmasta päävalikosta «Navigointi → ★ Suosikit». Valitse tallennettu pintapaikka ja «◎ Koordinaatteihin» ottaaksesi kappaleen, koordinaatit ja nimen kohteeksi. Tämä korvaa aiemman kohteen; toisella kappaleella navigaattori odottaa sopivia sijaintitietoja.</p>
+<p>Vaihda pääalueella välilehdelle «Navigointi → ★ Suosikit». Valitse tallennettu pintapaikka ja «◎ Koordinaatteihin» ottaaksesi kappaleen, koordinaatit ja nimen kohteeksi. Tämä korvaa aiemman kohteen; toisella kappaleella navigaattori odottaa sopivia sijaintitietoja.</p>
 <p>«Muokkaa» muuttaa nimeä, luokkaa ja muistiinpanoa. «Poista» poistaa suosikin vahvistuksen jälkeen, ei Elite-tietoja. Suosikit säilyvät uudelleenkäynnistyksissä ja erotellaan komentajittain; nykyinen navigointikohde kestää vain istunnon ajan.</p>
 
 <h3>Planeettapallo: yli 380 km</h3>
@@ -1160,8 +1161,8 @@ HELP_TOPICS = {
 <p>Esimerkki: Kun keulasuunta on 051° ja kohdesuunta 074°, käänny 23° oikealle, kunnes Elite-kompassisi näyttää noin 074°. Lennon jatkuessa suuntima ja kohdesuunta voivat muuttua; seuraa päivitettyjä arvoja.</p>
 <p>Samassa sijainnissa kohteen kanssa, navalla tai täsmälleen vastakkaisessa pisteessä planeetalla suunta voi olla määrittelemätön. Navigaattori näyttää silloin vastaavan ilmoituksen keksityn suunnan sijaan.</p>
 
-<h3>Ikkunan koko</h3>
-<p>Navigaattori-ikkunan kokoa voi muuttaa vapaasti. Pallo tai perspektiiviruudukko mukautuu käytettävissä olevaan tilaan mittasuhteet säilyttäen. Vähimmäiskoko pitää yksityiskohtaiset arvot luettavina; pallo pysyy pyöreänä. Ikkunan sijainti ja koko tallennetaan.</p>
+<h3>Näkymä pääalueella</h3>
+<p>Pallo ja perspektiiviruudukko mukautuvat suhteellisesti käytettävissä olevaan tilaan. Vieritä sisältöä, jos pääikkuna on kapea tai matala. Sivun tai välilehden vaihtaminen säilyttää suodattimet ja navigointikohteen.</p>
 
 <h3>Navigointi-HUD:n käyttöönotto</h3>
 <p>Valitse pääikkunan vasemmalla puolella ruutu kohdasta <b>näytä automaattisesti → Navigointi-HUD</b>. Kun planeettanavigointi on kelvollista, HUD näkyy suoraan etualalla olevan näkyvän Elite-ikkunan päällä.</p>
@@ -1179,13 +1180,13 @@ HELP_TOPICS = {
 <p>Samalla taivaankappaleella voit milloin tahansa avata ”Manuaalinen syöttö …” uudelleen ja asettaa toiset koordinaatit. Uusi kohde korvaa aiemman navigointikohteen. Vastaavilla sijaintitiedoilla kompassi päivittyy heti.</p>
 <p>”Lopeta navigointi” poistaa nykyisen kohteen. Aseta vain uusi kohde seuraavaa lähestymistä varten.</p>
 
-<p>Ikkunan sulkeminen ei poista kohdetta. Käytössä oleva navigointi-HUD voi jatkaa; «Lopeta navigointi» poistaa kohteen. Oikealta kappaleelta poistuminen tai puuttuvat sijaintitiedot jättävät navigoinnin odottamaan ja piilottavat navigointi-HUDin.</p>
+<p>Sivun tai välilehden vaihtaminen ei poista kohdetta. Käytössä oleva navigointi-HUD voi jatkaa; «Lopeta navigointi» poistaa kohteen. Oikealta kappaleelta poistuminen tai puuttuvat sijaintitiedot jättävät navigoinnin odottamaan ja piilottavat navigointi-HUDin.</p>
 
 <h3>Tietojen ajantasaisuus ja rajoitukset</h3>
 <p>Navigointi perustuu Eliten toimittamiin tilatietoihin. Päivitykset voivat saapua viiveellä pelitilanteen mukaan. Navigaattorin ikänäyttö kertoo, kuinka kauan viimeisestä vahvistetusta tilaviestistä on kulunut.</p>
 <p>Pintaetäisyys kuvaa lyhintä kaarta ajatellulla pallolla. Se ei ole maasto- tai tiereitti. Navigaattori ei tunne reitin esteitä eikä maaston korkeuksia; lentokorkeus, turvallinen nopeus ja esteiden välttäminen jäävät sinun vastuullesi.</p>
 
-<p>Sijainti tulee Status.json-tiedosta; päiväkirja täydentää kappale- ja järjestelmäyhteyksiä. Ikkuna ja käytössä oleva navigointi-HUD ylläpitävät päivityksiä tarpeen mukaan. Näyttö riippuu saatavilla olevista Elite-tiedoista eikä takaa metrien tarkkuutta.</p>
+<p>Sijainti tulee Status.json-tiedosta; päiväkirja täydentää kappale- ja järjestelmäyhteyksiä. Näkyvä navigointivälilehti ja käytössä oleva navigointi-HUD ylläpitävät päivityksiä tarpeen mukaan. Näyttö riippuu saatavilla olevista Elite-tiedoista eikä takaa metrien tarkkuutta.</p>
 
 <h3>Vinkki</h3>
 <p>Tarkista ennen lähestymistä taivaankappaleen nimi ja kohdekoordinaattien etumerkit. Käänny sitten kohdesuuntaan Elite-kompassissa ja tarkkaile suhteellista suuntaa ja etäisyyttä. Jos navigaattori odottaa, tarkista, toimittaako Elite jo planetaarisia koordinaatteja kohdetaivaankappaleelle.</p>""",

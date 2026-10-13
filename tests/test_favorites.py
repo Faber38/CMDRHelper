@@ -14,7 +14,7 @@ from PySide6.QtCore import QObject, Signal, Qt
 from PySide6.QtGui import QImage, QPainter
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import (QApplication, QDialog, QMessageBox, QMainWindow,
-                              QStyle, QStyleOptionButton)
+                              QStyle, QStyleOptionButton, QStackedWidget, QWidget)
 from cmdrhelper.global_hotkey import GlobalHotkey
 from cmdrhelper.ui.quick_favorite_settings import QuickFavoriteSettings
 from cmdrhelper.database import CMDRDatabase
@@ -451,7 +451,7 @@ class FavoriteTests(unittest.TestCase):
         c.state.snapshot=None; window.refresh_navigation(c.state)
         self.assertFalse(window.save_location_button.isEnabled()); window.close()
 
-    def test_navigation_favorites_action_reuses_view_without_extra_tab(self):
+    def test_navigation_favorites_action_reuses_view_without_extra_explorer_tab(self):
         # Build the real Explorer without starting unrelated main-window services.
         window = MainWindow.__new__(MainWindow)
         QMainWindow.__init__(window)
@@ -461,11 +461,16 @@ class FavoriteTests(unittest.TestCase):
         window._quick_favorite_hotkey = GlobalHotkey(self.state.settings, backend_factory=Mock())
         self.addCleanup(window._quick_favorite_hotkey.close)
         window.quick_favorite_settings = QuickFavoriteSettings(window._quick_favorite_hotkey, window)
-        window.setCentralWidget(window._explorer())
-        menu = window._navigation_menu()
-        self.addCleanup(menu.deleteLater)
+        explorer = window._explorer()
+        window.pages = QStackedWidget()
+        window.nav_buttons = []
+        for index in range(window.PAGE_NAVIGATION):
+            window.pages.addWidget(explorer if index == window.PAGE_EXPLORER else QWidget())
+        window.pages.addWidget(window._navigation_page())
+        window.setCentralWidget(window.pages)
+        window.show()
         self.addCleanup(window.deleteLater)
-        self.addCleanup(window._favorites_window.close)
+        self.addCleanup(window.close)
 
         self.assertEqual(window.explorer_tabs.count(), 4)
         self.assertIs(window.explorer_tabs.widget(0), window.system_scroll)
@@ -482,20 +487,19 @@ class FavoriteTests(unittest.TestCase):
         self.assertEqual([row.itemAt(i).widget() for i in range(row.count())
                           if row.itemAt(i).widget() is not None],
                          [window.system_overview_button])
-        self.assertTrue(menu.isAncestorOf(window.favorites_button))
-        self.assertTrue(menu.isAncestorOf(window.planet_navigation_button))
+        self.assertEqual(window.navigation_tabs.count(), 2)
 
         view = window.favorites_view
         view.search.setText('retained search')
-        self.assertFalse(window._favorites_window.isVisible())
-        window.favorites_button.click()
-        self.assertTrue(window._favorites_window.isVisible())
+        self.assertFalse(window.favorites_view.isVisible())
+        window._show_favorites()
+        self.assertTrue(window.favorites_view.isVisible())
         with patch.object(window.quick_favorite_settings, 'choose') as choose:
             view.quick_favorite_setup_button.click()
             choose.assert_called_once_with()
-        self.assertIs(window._favorites_window.layout().itemAt(0).widget(), view)
-        window._favorites_window.close()
-        window.favorites_button.click()
+        self.assertIs(window.navigation_tabs.widget(0).widget(), view)
+        window._show_page(window.PAGE_EXPLORER)
+        window._show_favorites()
         self.assertIs(window.favorites_view, view)
         self.assertEqual(view.search.text(), 'retained search')
 

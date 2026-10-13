@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_9_8.0': 'Favorieten en planeetnavigatie zijn als twee tabbladen rechtstreeks in de hoofdinterface geïntegreerd.',
+    'release.3_9_8.1': 'Navigatie opent een gezamenlijke hoofdpagina zonder extra favorieten- of navigatievensters.',
+    'release.3_9_8.2': 'Als er geen sneltoets is ingesteld, verschijnt de hint voor snelle favorieten in Elite-geel, knippert drie keer subtiel en legt de configuratie onder Instellingen uit.',
+    'release.3_9_8.3': 'De geïntegreerde hulp beschrijft de nieuwe tabbladen en menupaden in alle twaalf talen.',
+
     'release.3_9_6_7.2': 'Ingeschakelde vrachtruimweergaven blijven zichtbaar zonder verbergen bij inactiviteit; vracht- en dronewaarden worden bijgewerkt zonder de weergaven opnieuw te openen.',
     'release.3_9_6_7.3': 'Nieuw uitklapbaar hoofdmenu Navigatie met Favorieten en Planeetnavigatie vervangt de eerdere knoppen in Explorer.',
     'release.3_9_6_7.4': 'De geïntegreerde help beschrijft de nieuwe menupaden in alle twaalf ondersteunde talen.',
@@ -528,7 +533,7 @@ TRANSLATIONS = {
     'odyssey.loading': 'Odyssey-voorraad laden …',
     'odyssey.owner': 'Eigenaar',
     'odyssey.stolen': 'Gestolen',
-    'quick_favorite.hint': 'Je kunt tijdens het spelen je huidige positie direct als favoriet opslaan met een zelfgekozen sneltoets – ook te voet of in de SRV.',
+    'quick_favorite.hint': 'Je kunt tijdens het spelen je huidige positie direct als favoriet opslaan met een zelfgekozen sneltoets – ook te voet of in de SRV. Je kunt de sneltoets instellen onder Instellingen.',
     'quick_favorite.title': 'Snelle favoriet',
     'quick_favorite.hotkey': 'Sneltoets',
     'quick_favorite.unassigned': 'Niet toegewezen',

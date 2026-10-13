@@ -375,7 +375,7 @@ HELP_TOPICS = {
               """
 
 <h3>★ Favoritos</h3>
-<p>«Navegación → ★ Favoritos» en el menú principal de la izquierda abre una ventana de favoritos independiente y reutilizable. En ella guardas sistemas, planetas/lunas y lugares en la superficie para el comandante activo.</p>
+<p>Selecciona «Navegación» a la izquierda. A la derecha aparecen las pestañas «★ Favoritos» y «Navegación planetaria», con «★ Favoritos» activa por defecto. «Navegación → ★ Favoritos» gestiona sistemas, planetas/lunas y lugares de superficie del comandante activo; «Navegación → Navegación planetaria» muestra la navegación planetaria en la misma zona principal.</p>
 <p>La lista desplazable, ordenada alfabéticamente por nombre, muestra el nombre, tipo, sistema, cuerpo y latitud/longitud cuando corresponda, categoría y una pequeña vista previa de imagen. La búsqueda de texto libre y los filtros de tipo y categoría se pueden combinar. La búsqueda abarca nombre, sistema, cuerpo y nota.</p>
 <p>«Abrir / Mostrar» muestra los datos guardados, la nota y una vista previa de imagen más grande. «Mostrar en Explorer» abre la vista general del sistema o los detalles del cuerpo existentes si el favorito pertenece al sistema actual del Explorer y hay datos correspondientes disponibles. Para otros sistemas siguen visibles los datos guardados del favorito; no se calcula ninguna ruta entre sistemas.</p>
 
@@ -396,7 +396,7 @@ HELP_TOPICS = {
 <ul>
 <li>«★ Guardar sistema actual» guarda el sistema actual sin coordenadas de superficie.</li>
 <li>«★ Guardar planeta / luna» permite seleccionar un planeta o una luna conocidos del sistema actual. Este favorito tampoco recibe coordenadas de superficie.</li>
-<li>«★ Guardar ubicación actual» está en la parte superior de la ventana de favoritos, junto a las otras dos opciones de guardado, y también está disponible en el navegador planetario. En la ventana de favoritos, el botón permanece siempre visible y se desactiva si no hay datos actuales válidos de posición planetaria y un comandante activo. Al pulsarlo se fijan comandante, sistema, cuerpo, latitud y longitud. Los movimientos posteriores en el juego no cambian estos valores en el diálogo abierto.</li>
+<li>«★ Guardar ubicación actual» está en la parte superior de la pestaña de favoritos, junto a las otras dos opciones de guardado, y también está disponible en el navegador planetario. En la pestaña de favoritos, el botón permanece siempre visible y se desactiva si no hay datos actuales válidos de posición planetaria y un comandante activo. Al pulsarlo se fijan comandante, sistema, cuerpo, latitud y longitud. Los movimientos posteriores en el juego no cambian estos valores en el diálogo abierto.</li>
 </ul>
 <p>Introduce un nombre de tu elección y selecciona exactamente una categoría: Bio, Geo, Minería, Vista, Lugar de aterrizaje, Interesante u Otros. La nota y la imagen son opcionales. Los identificadores técnicos conocidos se incorporan internamente; no tienes que introducirlos. La latitud o longitud 0,0 también son coordenadas válidas.</p>
 <p>«Editar» cambia nombre, categoría, nota e imagen. Se conservan sistema, cuerpo y coordenadas guardadas. Para guardar otro lugar en la superficie, crea un nuevo favorito en esa posición.</p>
@@ -404,7 +404,7 @@ HELP_TOPICS = {
 <h3>Favorito rápido sin ratón</h3>
 <p>En «Ajustes → Favorito rápido» puedes asignar libremente, cambiar o eliminar un atajo de teclado global. Tras la instalación, su estado predeterminado es «Sin asignar»: CMDRHelper no registra ninguna tecla sin que se lo pidas. La asignación se guarda. Si una combinación ya está en uso o no está disponible en tu sistema, aparece un mensaje de error; se conserva cualquier asignación anterior que funcionara.</p>
 <p>En Linux/X11 y Windows, el atajo también funciona mientras Elite tiene el foco – a pie, en el SRV y en la nave. Una pulsación guarda inmediatamente la ubicación actual en la superficie para el comandante activo, sin diálogo y sin usar el ratón. El comandante, el sistema, el cuerpo y los valores actuales de Latitude/Longitude quedan fijados en ese momento. Sin coordenadas planetarias actuales válidas no se guarda nada; no se reutilizan coordenadas anteriores.</p>
-<p>El favorito recibe un nombre provisional único, como «Marcador 07.09.2026 06:32:15», y la categoría «Otros». En la ventana habitual de favoritos puedes cambiarle el nombre más tarde, asignarle otra categoría, añadir una nota o una imagen. No se toma ni se importa ninguna captura de pantalla automáticamente.</p>
+<p>El favorito recibe un nombre provisional único, como «Marcador 07.09.2026 06:32:15», y la categoría «Otros». En la pestaña de favoritos puedes cambiarle el nombre más tarde, asignarle otra categoría, añadir una nota o una imagen. No se toma ni se importa ninguna captura de pantalla automáticamente.</p>
 <p>Durante unos dos segundos aparece «★ FAVORITO GUARDADO» directamente sobre la ventana activa de Elite con el cuerpo y las coordenadas; si la ubicación no está disponible, aparece brevemente «⚠ SIN COORDENADAS PLANETARIAS». La visualización no toma el foco ni intercepta entradas. También funciona con el HUD de navegación desactivado y después desaparece por completo. Con el HUD activado, la visualización normal de navegación permanece después. El ajuste guardado del interruptor del HUD no se modifica. La visualización utiliza la misma infraestructura de superposición y los mismos requisitos de plataforma que el HUD de navegación.</p>
 
 <h3>Imágenes de favoritos</h3>
@@ -1143,7 +1143,8 @@ HELP_TOPICS = {
 <p>No es un planificador de rutas interestelares y no se encarga de la navegación entre sistemas ni de los saltos. Tú pilotas tu nave.</p>
 
 <h3>Abrir el navegador e introducir un objetivo</h3>
-<p>Abre «Navegación → Navegación planetaria» en el menú principal de la izquierda y selecciona «Entrada manual …». Puedes abrir la ventana e introducir un destino antes de disponer de una posición de superficie actual.</p>
+<p>Selecciona «Navegación» a la izquierda. A la derecha aparecen las pestañas «★ Favoritos» y «Navegación planetaria», con «★ Favoritos» activa por defecto. «Navegación → ★ Favoritos» gestiona sistemas, planetas/lunas y lugares de superficie del comandante activo; «Navegación → Navegación planetaria» muestra la navegación planetaria en la misma zona principal.</p>
+<p>Abre «Navegación → Navegación planetaria» en la zona principal y selecciona «Entrada manual …». Puedes introducir un destino antes de disponer de una posición de superficie actual.</p>
 <ul>
 <li><b>Cuerpo celeste:</b> Selecciona el planeta o la luna de destino en la lista o utiliza el cuerpo ya detectado. También puedes escribir su nombre si aún no figura en la lista. En caso de duda, utiliza el nombre completo, incluido el del sistema.</li>
 <li><b>Latitud:</b> Introduce la latitud del objetivo entre −90° y +90°.</li>
@@ -1163,7 +1164,7 @@ HELP_TOPICS = {
 <p>Al abrir se fijan sistema, cuerpo y coordenadas. En el diálogo de favoritos puedes editar nombre, categoría y nota y añadir una imagen. Solo «Guardar» guarda localmente para ese comandante; cancelar no guarda nada. Moverte después no cambia la posición capturada.</p>
 
 <h3>Usar posiciones guardadas</h3>
-<p>Abre «Navegación → ★ Favoritos» en el menú principal de la izquierda. Selecciona un lugar de superficie y «◎ A las coordenadas» para usar su cuerpo, coordenadas y nombre como destino. Sustituye al destino anterior; en otro cuerpo, el navegador espera datos de posición coincidentes.</p>
+<p>Cambia a la pestaña «Navegación → ★ Favoritos» en la zona principal. Selecciona un lugar de superficie y «◎ A las coordenadas» para usar su cuerpo, coordenadas y nombre como destino. Sustituye al destino anterior; en otro cuerpo, el navegador espera datos de posición coincidentes.</p>
 <p>«Editar» cambia nombre, categoría y nota. «Eliminar» elimina el favorito tras confirmación, sin borrar datos Elite. Los favoritos sobreviven a reinicios y se separan por comandante; el destino de navegación actual solo dura durante la sesión.</p>
 
 <h3>Globo planetario: más de 380 km</h3>
@@ -1194,8 +1195,8 @@ HELP_TOPICS = {
 <p>Ejemplo: con un rumbo de 051° y un rumbo al objetivo de 074°, gira 23° a la derecha hasta que tu brújula de Elite indique aproximadamente 074°. Durante el vuelo, la marcación y el rumbo al objetivo pueden cambiar; guíate por los valores actualizados.</p>
 <p>En la misma posición que el objetivo, en un polo o en el punto exactamente opuesto del planeta, la dirección puede ser indeterminada. En ese caso, el navegador muestra el aviso correspondiente en vez de un rumbo inventado.</p>
 
-<h3>Tamaño de la ventana</h3>
-<p>La ventana del navegador se puede redimensionar libremente. El globo o la cuadrícula en perspectiva se adaptan proporcionalmente al espacio disponible. El tamaño mínimo mantiene legibles los valores detallados; el globo sigue siendo redondo. La posición y el tamaño de la ventana se guardan.</p>
+<h3>Vista en la zona principal</h3>
+<p>El globo y la cuadrícula en perspectiva se adaptan proporcionalmente al espacio disponible. Si la ventana principal es estrecha o baja, desplaza el contenido. Cambiar de página o pestaña conserva los filtros y el destino.</p>
 
 <h3>Activar el HUD de navegación</h3>
 <p>A la izquierda de la ventana principal, marca la casilla bajo <b>mostrar automáticamente → HUD de navegación</b>. Con una navegación planetaria válida, el HUD aparece directamente sobre la ventana visible de Elite en primer plano.</p>
@@ -1213,13 +1214,13 @@ HELP_TOPICS = {
 <p>En el mismo cuerpo puedes volver a abrir «Entrada manual …» en cualquier momento y establecer otras coordenadas. El nuevo objetivo sustituye al objetivo de navegación anterior. Con datos de posición correspondientes, la brújula se actualiza inmediatamente.</p>
 <p>«Finalizar navegación» elimina el objetivo actual. Para otra aproximación, simplemente establece un nuevo objetivo.</p>
 
-<p>Cerrar la ventana no elimina el destino. El HUD de navegación activado puede continuar; «Finalizar navegación» quita el destino. Abandonar el cuerpo correspondiente o perder datos de posición deja la navegación en espera y oculta su HUD.</p>
+<p>Cambiar de página o pestaña no elimina el destino. El HUD de navegación activado puede continuar; «Finalizar navegación» quita el destino. Abandonar el cuerpo correspondiente o perder datos de posición deja la navegación en espera y oculta su HUD.</p>
 
 <h3>Actualidad de los datos y límites</h3>
 <p>La navegación se basa en los datos de estado proporcionados por Elite. Las actualizaciones pueden llegar con retraso según el estado del juego. El indicador de antigüedad del navegador muestra cuánto tiempo ha pasado desde el último mensaje de estado confirmado.</p>
 <p>La distancia sobre la superficie describe el arco más corto sobre una esfera idealizada. No es una ruta por el terreno ni por carretera. El navegador no conoce los obstáculos ni las alturas del terreno a lo largo del trayecto; la altitud de vuelo, una velocidad segura y evitar los obstáculos siguen siendo tu responsabilidad.</p>
 
-<p>La posición actual procede de Status.json; el diario complementa la asociación con cuerpo y sistema. La ventana y el HUD activado mantienen las actualizaciones cuando se necesitan. La visualización depende de los datos Elite disponibles, sin precisión garantizada en metros.</p>
+<p>La posición actual procede de Status.json; el diario complementa la asociación con cuerpo y sistema. La pestaña de navegación visible y el HUD activado mantienen las actualizaciones cuando se necesitan. La visualización depende de los datos Elite disponibles, sin precisión garantizada en metros.</p>
 
 <h3>Consejo</h3>
 <p>Antes de la aproximación, comprueba el nombre del cuerpo y los signos de las coordenadas del objetivo. Después, alinéate con el rumbo al objetivo en la brújula de Elite y observa la dirección relativa y la distancia. Si el navegador está esperando, comprueba si Elite ya proporciona coordenadas planetarias para el cuerpo de destino.</p>""",

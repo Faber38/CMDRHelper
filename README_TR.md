@@ -39,6 +39,13 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.8
+
+- Favoriler ve gezegen navigasyonu iki sekme olarak doğrudan ana arayüze entegre edildi.
+- Navigasyon, ek favori veya gezgin pencereleri olmadan ortak bir ana sayfa açar.
+- Kısayol tuşu tanımlı değilse hızlı favori ipucu Elite sarısıyla görünür, üç kez hafifçe yanıp söner ve Ayarlar bölümündeki kurulumu açıklar.
+- Entegre yardım, yeni sekmeleri ve kullanım yollarını on iki dilin tamamında açıklar.
+
 ## CMDRHelper v3.9.6.7
 
 - Gemi taramaları ve mal satışları için Powerplay liyakat eşleştirmesi iyileştirildi.
@@ -346,7 +353,7 @@ Explorer ayrıca tahmini BIO değerlerini, kişisel analizlerin ilerlemesini ve 
 
 Gökcismi ayrıntıları mevcut fiziksel özellikleri, atmosferi, halkaları, malzemeleri ve keşif bilgilerini içerir. Gösterimlerde uygun dokular ve bazı özel astronomik nesneler için animasyonlar kullanılır. Cargo bölümü o anda kullanılan geminin veya SRV’nin bilinen yükünü ve kapasitesini gösterir; Rhino’da yük ile kişisel madencilik bulguları ayrı bilgilerdir.
 
-Explorer’ın üst kısmında **★ Favoriler | Gezegen navigasyonu | Tümünü göster** bulunur. Favoriler ve gezegen gezinmesi kendi pencerelerini açar; Explorer’ın üç görünümü kullanılabilir kalır.
+Solda “Navigasyon” seçin. Sağda “★ Favoriler” ve “Gezegen navigasyonu” sekmeleri görünür; varsayılan sekme “★ Favoriler” olur. “Navigasyon → ★ Favoriler” etkin komutanın sistemlerini, gezegenlerini/uydularını ve yüzey konumlarını yönetir; “Navigasyon → Gezegen navigasyonu” aynı ana alanda gezegen navigasyonunu gösterir.
 
 ## Gezegen gezinmesi
 
@@ -365,7 +372,7 @@ Elite, ilgili gökcismi için geçerli gezegen konum verileri sağladığında p
 | **380 km’den fazla** | Kendi konumun beyaz bir daire, hedef küçük bir nokta olarak gezegen küresinde gösterilir. Hedef görünür tarafta turuncu, gizli arka tarafta kırmızıdır. Oyuncunun konumu gösterimde sabit kalır; gezegen ve hedef buna göre gösterilir. |
 | **380 km ve altı** | Yaklaşmayı sürdürmek için **50 km mesafe aralıkları** ve içine çizilmiş hedef konumuyla eğik perspektif ızgarasına otomatik geçiş. |
 
-Gezgin penceresi serbestçe yeniden boyutlandırılabilir. Küre veya perspektif ızgarası mevcut alana orantılı olarak uyarlanır; ayrıntılı değerler okunabilir kalır.
+Küre ve perspektif ızgarası kullanılabilir alana orantılı olarak uyum sağlar. Ana pencere dar veya kısa olduğunda içeriği kaydırabilirsiniz. Sayfa veya sekme değiştirmek filtreleri ve navigasyon hedefini korur.
 
 ### Gezinme değerlerini anlama
 
@@ -395,7 +402,7 @@ HUD, oyun içinde **Linux/X11** ve **Elite ile Windows 11** üzerinde test edilm
 
 ## Favoriler
 
-**Explorer → ★ Favoriler**, ayrı ve yeniden kullanılabilen bir pencere açar. Favoriler **etkin komutana** aittir. Komutan değişimi görünümü günceller; günlükteki komutan seçimi favori listesini genişletmez.
+Solda “Navigasyon” seçin. Sağda “★ Favoriler” ve “Gezegen navigasyonu” sekmeleri görünür; varsayılan sekme “★ Favoriler” olur. “Navigasyon → ★ Favoriler” etkin komutanın sistemlerini, gezegenlerini/uydularını ve yüzey konumlarını yönetir; “Navigasyon → Gezegen navigasyonu” aynı ana alanda gezegen navigasyonunu gösterir. Favoriler **etkin komutana** aittir. Komutan değişimi görünümü günceller; günlükteki komutan seçimi favori listesini genişletmez.
 
 ### Üç tür kaydetme
 

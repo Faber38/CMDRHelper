@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_9_8.0': 'Favoritter og planetnavigasjon er integrert direkte i hovedgrensesnittet som to faner.',
+    'release.3_9_8.1': 'Navigasjon åpner en felles hovedside uten ekstra favoritt- eller navigasjonsvinduer.',
+    'release.3_9_8.2': 'Når ingen hurtigtast er konfigurert, vises hurtigfavoritt-tipset i Elite-gult, blinker forsiktig tre ganger og forklarer oppsettet under Innstillinger.',
+    'release.3_9_8.3': 'Den innebygde hjelpen beskriver de nye fanene og menybanene på alle tolv språk.',
+
     'release.3_9_6_7.2': 'Lastvisningene forblir synlige når de er aktivert, uten å skjules ved inaktivitet; last- og droneverdier oppdateres uten at visningene åpnes på nytt.',
     'release.3_9_6_7.3': 'Ny utvidbar hovedmeny Navigasjon med Favoritter og Planetnavigasjon erstatter de tidligere knappene i Explorer.',
     'release.3_9_6_7.4': 'Den innebygde hjelpen beskriver de nye menystiene på alle tolv støttede språk.',
@@ -528,7 +533,7 @@ TRANSLATIONS = {
     'odyssey.loading': 'Laster Odyssey-beholdning …',
     'odyssey.owner': 'Eier',
     'odyssey.stolen': 'Stjålet',
-    'quick_favorite.hint': 'Du kan lagre den aktuelle posisjonen som favoritt med én gang mens du spiller, med en hurtigtast du velger selv – også til fots eller i SRV-en.',
+    'quick_favorite.hint': 'Du kan lagre den aktuelle posisjonen som favoritt med én gang mens du spiller, med en hurtigtast du velger selv – også til fots eller i SRV-en. Du kan angi hurtigtasten under Innstillinger.',
     'quick_favorite.title': 'Hurtigfavoritt',
     'quick_favorite.hotkey': 'Hurtigtast',
     'quick_favorite.unassigned': 'Ikke tilordnet',

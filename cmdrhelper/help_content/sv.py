@@ -362,7 +362,7 @@ HELP_TOPICS = {
               """
 
 <h3>★ Favoriter</h3>
-<p>”Navigering → ★ Favoriter” i huvudmenyn till vänster öppnar ett eget, återanvändbart favoritfönster. Där sparar du system, planeter/månar och platser på ytan för den aktiva befälhavaren.</p>
+<p>Välj ”Navigering” till vänster. Flikarna ”★ Favoriter” och ”Planetnavigering” visas till höger, med ”★ Favoriter” vald som standard. ”Navigering → ★ Favoriter” hanterar system, planeter/månar och ytpositioner för aktiv befälhavare; ”Navigering → Planetnavigering” visar planetnavigering i samma huvudområde.</p>
 <p>Den rullningsbara listan, alfabetiskt sorterad efter namn, visar namn, typ, system, himlakropp och latitud/longitud där det är relevant, kategori och en liten bildförhandsvisning. Fritextsökning, typfilter och kategorifilter kan användas tillsammans. Sökningen omfattar namn, system, himlakropp och anteckning.</p>
 <p>”Öppna / Visa” visar de sparade uppgifterna, anteckningen och en större bildförhandsvisning. ”Visa i Explorer” öppnar den befintliga systemöversikten eller himlakroppens detaljvy om favoriten tillhör det aktuella Explorer-systemet och motsvarande data finns. För andra system förblir favoritens sparade data synliga; ingen systemrutt beräknas.</p>
 
@@ -383,7 +383,7 @@ HELP_TOPICS = {
 <ul>
 <li>”★ Spara aktuellt system” sparar det aktuella systemet utan ytkoordinater.</li>
 <li>”★ Spara planet / måne” låter dig välja en känd planet eller måne i det aktuella systemet. Den här favoriten får inte heller några ytkoordinater.</li>
-<li>”★ Spara aktuell position” finns högst upp i favoritfönstret bredvid de två andra sparalternativen och är även tillgänglig i planetnavigatorn. I favoritfönstret är knappen alltid synlig och är inaktiverad utan giltiga aktuella planetära positionsdata och en aktiv befälhavare. Vid klick låses befälhavare, system, himlakropp, latitud och longitud. Senare rörelser i spelet ändrar inte dessa värden i den öppna dialogrutan.</li>
+<li>”★ Spara aktuell position” finns högst upp i favoritfliken bredvid de två andra sparalternativen och är även tillgänglig i planetnavigatorn. I favoritfliken är knappen alltid synlig och är inaktiverad utan giltiga aktuella planetära positionsdata och en aktiv befälhavare. Vid klick låses befälhavare, system, himlakropp, latitud och longitud. Senare rörelser i spelet ändrar inte dessa värden i den öppna dialogrutan.</li>
 </ul>
 <p>Ange ett valfritt namn och välj exakt en kategori: Bio, Geo, Gruvdrift, Utsikt, Landningsplats, Intressant eller Övrigt. Anteckning och bild är valfria. Kända tekniska ID:n överförs internt; du behöver inte ange dem. Även latitud eller longitud 0,0 är giltiga koordinater.</p>
 <p>”Redigera” ändrar namn, kategori, anteckning och bild. System, himlakropp och sparade koordinater behålls. Om du vill spara en annan plats på ytan skapar du en ny favorit på den positionen.</p>
@@ -391,7 +391,7 @@ HELP_TOPICS = {
 <h3>Snabbfavorit utan mus</h3>
 <p>Under ”Inställningar → Snabbfavorit” kan du fritt ange, ändra eller ta bort en global snabbtangent. Efter installationen är den som standard ”Inte tilldelad”: CMDRHelper registrerar ingen tangent utan att du ber om det. Tilldelningen sparas. Om en kombination redan används eller inte är tillgänglig på ditt system visas ett felmeddelande; en tidigare fungerande tilldelning behålls.</p>
 <p>På Linux/X11 och Windows fungerar snabbtangenten även när Elite har fokus – till fots, i SRV:n och i skeppet. En tangenttryckning sparar omedelbart den aktuella positionen på ytan för den aktiva befälhavaren, utan dialogruta och utan att använda musen. Befälhavare, system, himlakropp och aktuella Latitude-/Longitude-värden fryses i det ögonblicket. Utan giltiga aktuella planetkoordinater sparas ingenting; tidigare koordinater återanvänds inte.</p>
-<p>Favoriten får ett unikt tillfälligt namn, till exempel ”Markör 07.09.2026 06:32:15”, och kategorin ”Övrigt”. I det vanliga favoritfönstret kan du senare byta namn på den, tilldela en annan kategori, lägga till en anteckning eller en bild. Ingen skärmbild tas eller importeras automatiskt.</p>
+<p>Favoriten får ett unikt tillfälligt namn, till exempel ”Markör 07.09.2026 06:32:15”, och kategorin ”Övrigt”. I favoritfliken kan du senare byta namn på den, tilldela en annan kategori, lägga till en anteckning eller en bild. Ingen skärmbild tas eller importeras automatiskt.</p>
 <p>I ungefär två sekunder visas ”★ FAVORIT SPARAD” direkt över det aktiva Elite-fönstret med himlakropp och koordinater; om positionen saknas visas ”⚠ INGA PLANETKOORDINATER” en kort stund. Visningen tar inte fokus och fångar inte upp inmatning. Den fungerar även när navigations-HUD:en är avstängd och försvinner sedan helt. När HUD:en är påslagen finns den vanliga navigationsvisningen kvar efteråt. Den sparade inställningen för HUD-reglaget ändras inte. Visningen använder samma överläggslösning och plattformskrav som navigations-HUD:en.</p>
 
 <h3>Favoritbilder</h3>
@@ -1103,7 +1103,8 @@ HELP_TOPICS = {
 <p>Den är inte en interstellär ruttplanerare och hanterar varken system- eller hoppnavigering. Du styr ditt skepp själv.</p>
 
 <h3>Öppna navigatorn och ange ett mål</h3>
-<p>Öppna ”Navigering → Planetnavigering” i huvudmenyn till vänster och välj ”Manuell inmatning …”. Fönstret kan öppnas och ett mål anges innan en aktuell ytposition finns.</p>
+<p>Välj ”Navigering” till vänster. Flikarna ”★ Favoriter” och ”Planetnavigering” visas till höger, med ”★ Favoriter” vald som standard. ”Navigering → ★ Favoriter” hanterar system, planeter/månar och ytpositioner för aktiv befälhavare; ”Navigering → Planetnavigering” visar planetnavigering i samma huvudområde.</p>
+<p>Öppna ”Navigering → Planetnavigering” i huvudområdet och välj ”Manuell inmatning …”. Ett mål kan anges innan en aktuell ytposition finns.</p>
 <ul>
 <li><b>Himlakropp:</b> Välj målplaneten eller målmånen i listan eller använd den himlakropp som redan identifierats. Du kan också skriva in namnet själv om det ännu inte finns i listan. Om du är osäker, använd hela namnet inklusive systemnamnet.</li>
 <li><b>Latitud:</b> Ange målets latitud mellan −90° och +90°.</li>
@@ -1123,7 +1124,7 @@ HELP_TOPICS = {
 <p>System, kropp och koordinater låses när åtgärden öppnas. I favoritdialogen kan du ändra namn, kategori och anteckning och lägga till en bild. Först ”Spara” sparar lokalt för befälhavaren; avbryt sparar inget. Senare rörelser ändrar inte den fångade positionen.</p>
 
 <h3>Använda sparade positioner</h3>
-<p>Öppna ”Navigering → ★ Favoriter” i huvudmenyn till vänster. Välj en sparad ytplats och ”◎ Till koordinaterna” för att använda kropp, koordinater och namn som mål. Det ersätter tidigare mål; på en annan kropp väntar navigatorn på passande positionsdata.</p>
+<p>Byt till fliken ”Navigering → ★ Favoriter” i huvudområdet. Välj en sparad ytplats och ”◎ Till koordinaterna” för att använda kropp, koordinater och namn som mål. Det ersätter tidigare mål; på en annan kropp väntar navigatorn på passande positionsdata.</p>
 <p>”Redigera” ändrar namn, kategori och anteckning. ”Ta bort” tar bort favoriten efter bekräftelse, inga Elite-data. Favoriter bevaras vid omstart och hålls åtskilda per befälhavare; själva navigeringsmålet gäller bara under sessionen.</p>
 
 <h3>Planetglob: mer än 380 km</h3>
@@ -1154,8 +1155,8 @@ HELP_TOPICS = {
 <p>Exempel: Med styrkurs 051° och målkurs 074° vrider du 23° åt höger tills Elite-kompassen visar ungefär 074°. Under den fortsatta flygningen kan bäring och målkurs ändras; följ de uppdaterade värdena.</p>
 <p>På samma position som målet, vid en pol eller på den exakt motsatta punkten på planeten kan riktningen vara obestämd. Då visar navigatorn motsvarande meddelande i stället för en påhittad kurs.</p>
 
-<h3>Fönsterstorlek</h3>
-<p>Navigatorfönstrets storlek kan ändras fritt. Globen eller perspektivrutnätet anpassas proportionellt till det tillgängliga utrymmet. Minimistorleken håller detaljvärdena läsbara; globen förblir rund. Fönstrets position och storlek sparas.</p>
+<h3>Visning i huvudområdet</h3>
+<p>Globen och perspektivrutnätet anpassas proportionellt till tillgängligt utrymme. Rulla innehållet när huvudfönstret är smalt eller lågt. Byte av sida eller flik behåller filter och navigeringsmål.</p>
 
 <h3>Aktivera navigerings-HUD</h3>
 <p>Till vänster i huvudfönstret markerar du kryssrutan under <b>visa automatiskt → Navigerings-HUD</b>. Vid giltig planetnavigering visas HUD:en direkt över det synliga Elite-fönstret i förgrunden.</p>
@@ -1173,13 +1174,13 @@ HELP_TOPICS = {
 <p>På samma himlakropp kan du när som helst öppna ”Manuell inmatning …” igen och ange andra koordinater. Det nya målet ersätter det tidigare navigeringsmålet. Med motsvarande positionsdata uppdateras kompassen omedelbart.</p>
 <p>Med ”Avsluta navigering” tar du bort det aktuella målet. För en ny inflygning anger du helt enkelt ett nytt mål.</p>
 
-<p>Att stänga fönstret tar inte bort målet. En aktiverad navigerings-HUD kan fortsätta; ”Avsluta navigering” tar bort målet. När du lämnar rätt kropp eller saknar positionsdata väntar navigeringen och navigerings-HUD:en döljs.</p>
+<p>Att byta sida eller flik tar inte bort målet. En aktiverad navigerings-HUD kan fortsätta; ”Avsluta navigering” tar bort målet. När du lämnar rätt kropp eller saknar positionsdata väntar navigeringen och navigerings-HUD:en döljs.</p>
 
 <h3>Dataålder och begränsningar</h3>
 <p>Navigeringen bygger på statusdata från Elite. Uppdateringar kan komma med fördröjning beroende på spelets tillstånd. Åldersvisningen i navigatorn visar hur lång tid som gått sedan det senaste bekräftade statusmeddelandet.</p>
 <p>Ytavståndet beskriver den kortaste bågen på ett tänkt klot. Det är inte en terräng- eller vägrutt. Navigatorn känner inte till hinder eller terränghöjder längs sträckan; flyghöjd, säker hastighet och att undvika hinder är fortfarande ditt ansvar.</p>
 
-<p>Positionen kommer från Status.json; journalen kompletterar kropps- och systemkopplingar. Fönstret och aktiverad navigerings-HUD håller uppdateringar aktiva vid behov. Visningen beror på tillgängliga Elite-data, utan garanterad noggrannhet i meter.</p>
+<p>Positionen kommer från Status.json; journalen kompletterar kropps- och systemkopplingar. Den synliga navigeringsfliken och aktiverad navigerings-HUD håller uppdateringar aktiva vid behov. Visningen beror på tillgängliga Elite-data, utan garanterad noggrannhet i meter.</p>
 
 <h3>Tips</h3>
 <p>Kontrollera himlakroppens namn och målkoordinaternas tecken före inflygningen. Rikta sedan in dig efter målkursen i Elite-kompassen och följ relativ riktning och avstånd. Om navigatorn väntar, kontrollera om Elite redan levererar planetkoordinater för målhimlakroppen.</p>""",

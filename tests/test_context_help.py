@@ -59,6 +59,7 @@ class ContextHelpTests(unittest.TestCase):
             "_score_page", "_settings",
         )
         patches = [
+            patch("cmdrhelper.ui.favorites_view.FavoritesView", side_effect=lambda *a, **k: QWidget()),
             patch.object(MainWindow, "_apply_saved_ui_font"),
             patch.object(MainWindow, "refresh_all"),
             patch("cmdrhelper.ui.main_window.QTimer.singleShot"),
@@ -81,8 +82,8 @@ class ContextHelpTests(unittest.TestCase):
         self.assertEqual(self.window.PAGE_COMMANDER_VIEW, 7)
         self.assertEqual(self.window.PAGE_SETTINGS, 8)
         self.assertEqual(self.window.PAGE_MATERIALS, 9)
-        self.assertEqual(self.window.pages.count(), 12)
-        self.assertEqual(len(self.window.nav_buttons), 12)
+        self.assertEqual(self.window.pages.count(), 13)
+        self.assertEqual(len(self.window.nav_buttons), 13)
         self.assertIn("Materialien", self.window.nav_buttons[9].text())
         self.window.nav_buttons[9].click()
         self.assertIs(self.window.pages.currentWidget(), self.window.material_view)

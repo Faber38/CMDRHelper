@@ -46,7 +46,7 @@ class RouteNavigationHelpTests(unittest.TestCase):
 
     def test_german_navigation_entry_saving_and_lifecycle(self):
         text = help_topic('planet_navigation', 'de').text
-        for phrase in ('Öffne im Explorer', 'Eine Landung ist nicht erforderlich',
+        for phrase in ('Navigation → Planeten-Navigation', 'Eine Landung ist nicht erforderlich',
                        '★ Aktuellen Standort speichern', 'nicht das eingegebene Navigationsziel',
                        'System, Körper und Koordinaten', 'Name, Kategorie und Notiz',
                        'lokal und commanderbezogen', 'Abbrechen speichert nichts',

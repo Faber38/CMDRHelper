@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_9_8.0': 'Ulubione i nawigacja planetarna są zintegrowane bezpośrednio z głównym interfejsem jako dwie karty.',
+    'release.3_9_8.1': 'Nawigacja otwiera wspólną stronę główną bez dodatkowych okien ulubionych lub nawigatora.',
+    'release.3_9_8.2': 'Gdy skrót klawiszowy nie jest ustawiony, wskazówka szybkiego ulubionego pojawia się w żółtym kolorze Elite, delikatnie miga trzy razy i objaśnia konfigurację w sekcji Ustawienia.',
+    'release.3_9_8.3': 'Zintegrowana pomoc opisuje nowe karty i ścieżki obsługi we wszystkich dwunastu językach.',
+
     'release.3_9_6_7.2': 'Włączone widoki ładowni pozostają widoczne bez ukrywania przy braku aktywności; wartości ładunku i dronów aktualizują się bez ponownego otwierania widoków.',
     'release.3_9_6_7.3': 'Nowe rozwijane menu główne Nawigacja zawiera Ulubione i Nawigację planetarną zamiast dotychczasowych przycisków w Explorerze.',
     'release.3_9_6_7.4': 'Wbudowana pomoc opisuje nowe ścieżki menu we wszystkich dwunastu obsługiwanych językach.',
@@ -528,7 +533,7 @@ TRANSLATIONS = {
     'odyssey.loading': 'Wczytywanie ekwipunku Odyssey …',
     'odyssey.owner': 'Właściciel',
     'odyssey.stolen': 'Skradzione',
-    'quick_favorite.hint': 'Możesz natychmiast zapisać aktualną pozycję jako ulubioną podczas gry, używając dowolnie wybranego skrótu klawiszowego – także pieszo lub w SRV.',
+    'quick_favorite.hint': 'Możesz natychmiast zapisać aktualną pozycję jako ulubioną podczas gry, używając dowolnie wybranego skrótu klawiszowego – także pieszo lub w SRV. Skrót klawiszowy możesz ustawić w sekcji Ustawienia.',
     'quick_favorite.title': 'Szybki ulubiony',
     'quick_favorite.hotkey': 'Skrót klawiszowy',
     'quick_favorite.unassigned': 'Nie przypisano',

@@ -375,7 +375,7 @@ HELP_TOPICS = {
               """
 
 <h3>★ Favorieten</h3>
-<p>‘Navigatie → ★ Favorieten’ in het hoofdmenu links opent een eigen, herbruikbaar favorietenvenster. Hier sla je systemen, planeten/manen en oppervlaktelocaties op voor de actieve commander.</p>
+<p>Kies links ‘Navigatie’. Rechts verschijnen de tabbladen ‘★ Favorieten’ en ‘Planeetnavigatie’, met standaard ‘★ Favorieten’ actief. ‘Navigatie → ★ Favorieten’ beheert systemen, planeten/manen en oppervlaktelocaties voor de actieve commander; ‘Navigatie → Planeetnavigatie’ toont planeetnavigatie in hetzelfde hoofdgebied.</p>
 <p>De schuifbare lijst, alfabetisch gesorteerd op naam, toont naam, type, systeem, waar van toepassing hemellichaam en breedte-/lengtegraad, categorie en een kleine afbeeldingsvoorvertoning. Vrij zoeken, het typefilter en het categoriefilter kunnen samen worden gebruikt. De zoekopdracht doorzoekt naam, systeem, hemellichaam en notitie.</p>
 <p>‘Openen / Tonen’ toont de opgeslagen gegevens, de notitie en een grotere afbeeldingsvoorvertoning. ‘In Explorer tonen’ opent het bestaande systeemoverzicht of de detailweergave van het hemellichaam als de favoriet bij het huidige Explorer-systeem hoort en bijpassende gegevens beschikbaar zijn. Voor andere systemen blijven de opgeslagen favorietgegevens zichtbaar; er wordt geen systeemroute berekend.</p>
 
@@ -396,7 +396,7 @@ HELP_TOPICS = {
 <ul>
 <li>‘★ Huidig systeem opslaan’ slaat het huidige systeem op zonder oppervlaktecoördinaten.</li>
 <li>‘★ Planeet / maan opslaan’ laat je een bekende planeet of maan in het huidige systeem kiezen. Ook deze favoriet krijgt geen oppervlaktecoördinaten.</li>
-<li>‘★ Huidige locatie opslaan’ staat bovenaan het favorietenvenster naast de twee andere opslagopties en is ook beschikbaar in de planeetnavigator. In het favorietenvenster blijft de knop altijd zichtbaar en is deze uitgeschakeld zonder geldige actuele planetaire positiegegevens en een actieve commander. Bij het klikken worden commander, systeem, hemellichaam, breedtegraad en lengtegraad vastgelegd. Latere bewegingen in het spel veranderen deze waarden in het geopende dialoogvenster niet.</li>
+<li>‘★ Huidige locatie opslaan’ staat bovenaan het favorietentabblad naast de twee andere opslagopties en is ook beschikbaar in de planeetnavigator. In het favorietentabblad blijft de knop altijd zichtbaar en is deze uitgeschakeld zonder geldige actuele planetaire positiegegevens en een actieve commander. Bij het klikken worden commander, systeem, hemellichaam, breedtegraad en lengtegraad vastgelegd. Latere bewegingen in het spel veranderen deze waarden in het geopende dialoogvenster niet.</li>
 </ul>
 <p>Voer een zelfgekozen naam in en kies precies één categorie: Bio, Geo, Mijnbouw, Uitzicht, Landingsplaats, Interessant of Overig. Een notitie en een afbeelding zijn optioneel. Bekende technische ID’s worden intern overgenomen; je hoeft ze niet in te voeren. Ook breedtegraad of lengtegraad 0,0 zijn geldige coördinaten.</p>
 <p>‘Bewerken’ wijzigt naam, categorie, notitie en afbeelding. Systeem, hemellichaam en opgeslagen coördinaten blijven behouden. Wil je een andere oppervlaktelocatie opslaan, maak dan op die positie een nieuwe favoriet aan.</p>
@@ -404,7 +404,7 @@ HELP_TOPICS = {
 <h3>Snelle favoriet zonder muis</h3>
 <p>Onder ‘Instellingen → Snelle favoriet’ kun je vrij een globale sneltoets instellen, wijzigen of verwijderen. Na installatie is deze standaard ‘Niet toegewezen’: CMDRHelper registreert geen toets zonder dat je daarom vraagt. De toewijzing wordt opgeslagen. Als een combinatie al in gebruik is of op je systeem niet beschikbaar is, verschijnt er een foutmelding; een eerder werkende toewijzing blijft behouden.</p>
 <p>Op Linux/X11 en Windows werkt de sneltoets ook terwijl Elite de focus heeft – te voet, in de SRV en in het schip. Een toetsaanslag slaat de huidige locatie op het oppervlak onmiddellijk op voor de actieve commandant, zonder dialoogvenster en zonder muisbediening. Commandant, systeem, hemellichaam en de huidige Latitude-/Longitude-waarden worden op dat moment vastgelegd. Zonder geldige actuele planetaire coördinaten wordt niets opgeslagen; eerdere coördinaten worden niet opnieuw gebruikt.</p>
-<p>De favoriet krijgt een unieke voorlopige naam, zoals ‘Markering 07.09.2026 06:32:15’, en de categorie ‘Overig’. In het normale favorietenvenster kun je deze later een andere naam geven, aan een andere categorie toewijzen, een notitie toevoegen of een afbeelding toevoegen. Er wordt geen screenshot automatisch gemaakt of geïmporteerd.</p>
+<p>De favoriet krijgt een unieke voorlopige naam, zoals ‘Markering 07.09.2026 06:32:15’, en de categorie ‘Overig’. In het favorietentabblad kun je deze later een andere naam geven, aan een andere categorie toewijzen, een notitie toevoegen of een afbeelding toevoegen. Er wordt geen screenshot automatisch gemaakt of geïmporteerd.</p>
 <p>Gedurende ongeveer twee seconden verschijnt ‘★ FAVORIET OPGESLAGEN’ direct boven het actieve Elite-venster met het hemellichaam en de coördinaten; als de locatie ontbreekt, verschijnt kort ‘⚠ GEEN PLANETAIRE COÖRDINATEN’. De weergave neemt geen focus over en onderschept geen invoer. Deze werkt ook als de navigatie-HUD is uitgeschakeld en verdwijnt daarna volledig. Als de HUD is ingeschakeld, blijft daarna de normale navigatieweergave over. De opgeslagen instelling van de HUD-schakelaar wordt niet gewijzigd. De weergave gebruikt dezelfde overlay-infrastructuur en platformvereisten als de navigatie-HUD.</p>
 
 <h3>Favorietafbeeldingen</h3>
@@ -1144,7 +1144,8 @@ HELP_TOPICS = {
 <p>Het is geen interstellaire routeplanner en hij verzorgt geen systeem- of sprongnavigatie. Je bestuurt je schip zelf.</p>
 
 <h3>De navigator openen en een doel invoeren</h3>
-<p>Open ‘Navigatie → Planeetnavigatie’ in het hoofdmenu links en kies ‘Handmatige invoer …’. Je kunt het venster openen en een doel invoeren voordat een actuele oppervlaktepositie beschikbaar is.</p>
+<p>Kies links ‘Navigatie’. Rechts verschijnen de tabbladen ‘★ Favorieten’ en ‘Planeetnavigatie’, met standaard ‘★ Favorieten’ actief. ‘Navigatie → ★ Favorieten’ beheert systemen, planeten/manen en oppervlaktelocaties voor de actieve commander; ‘Navigatie → Planeetnavigatie’ toont planeetnavigatie in hetzelfde hoofdgebied.</p>
+<p>Open ‘Navigatie → Planeetnavigatie’ in het hoofdgebied en kies ‘Handmatige invoer …’. Je kunt een doel invoeren voordat een actuele oppervlaktepositie beschikbaar is.</p>
 <ul>
 <li><b>Hemellichaam:</b> Kies de doelplaneet of doelmaan uit de lijst of gebruik het al herkende hemellichaam. Je kunt de naam ook zelf invoeren als die nog niet in de lijst staat. Gebruik bij twijfel de volledige naam, inclusief de systeemnaam.</li>
 <li><b>Breedtegraad:</b> Voer de breedtegraad van het doel in tussen −90° en +90°.</li>
@@ -1164,7 +1165,7 @@ HELP_TOPICS = {
 <p>Bij het openen worden systeem, lichaam en coördinaten vastgelegd. In de favorietendialoog kun je naam, categorie en notitie wijzigen en een afbeelding toevoegen. Pas ‘Opslaan’ bewaart lokaal voor die commander; annuleren slaat niets op. Latere bewegingen wijzigen de vastgelegde positie niet.</p>
 
 <h3>Opgeslagen posities gebruiken</h3>
-<p>Open ‘Navigatie → ★ Favorieten’ in het hoofdmenu links. Kies een opgeslagen oppervlaktelocatie en ‘◎ Naar coördinaten’ om lichaam, coördinaten en naam als doel over te nemen. Dit vervangt een vorig doel; op een ander lichaam wacht de navigator op passende positiegegevens.</p>
+<p>Ga naar het tabblad ‘Navigatie → ★ Favorieten’ in het hoofdgebied. Kies een opgeslagen oppervlaktelocatie en ‘◎ Naar coördinaten’ om lichaam, coördinaten en naam als doel over te nemen. Dit vervangt een vorig doel; op een ander lichaam wacht de navigator op passende positiegegevens.</p>
 <p>‘Bewerken’ wijzigt naam, categorie en notitie. ‘Verwijderen’ verwijdert de favoriet na bevestiging, geen Elite-gegevens. Favorieten blijven na herstarts bewaard en zijn per commander gescheiden; het huidige navigatiedoel geldt alleen voor de sessie.</p>
 
 <h3>Planeetbol: meer dan 380 km</h3>
@@ -1195,8 +1196,8 @@ HELP_TOPICS = {
 <p>Voorbeeld: bij een voorliggende koers van 051° en een doelkoers van 074° draai je 23° naar rechts totdat je Elite-kompas ongeveer 074° aangeeft. Tijdens de verdere vlucht kunnen peiling en doelkoers veranderen; volg de bijgewerkte waarden.</p>
 <p>Op dezelfde positie als het doel, op een pool of op het exact tegenoverliggende punt op de planeet kan de richting onbepaald zijn. De navigator toont dan de bijbehorende melding in plaats van een verzonnen koers.</p>
 
-<h3>Venstergrootte</h3>
-<p>Het navigatorvenster is vrij schaalbaar. De bol of het perspectiefraster past zich proportioneel aan de beschikbare ruimte aan. De minimumgrootte houdt de detailwaarden leesbaar; de bol blijft rond. De positie en grootte van het venster worden opgeslagen.</p>
+<h3>Weergave in het hoofdgebied</h3>
+<p>De bol en het perspectiefraster passen zich proportioneel aan de beschikbare ruimte aan. Bij een smal of laag hoofdvenster kun je de inhoud scrollen. Wisselen van pagina of tabblad behoudt filters en navigatiedoel.</p>
 
 <h3>De navigatie-HUD inschakelen</h3>
 <p>Vink links in het hoofdvenster het vakje aan onder <b>automatisch tonen → Navigatie-HUD</b>. Bij geldige planeetnavigatie verschijnt de HUD direct boven het zichtbare Elite-venster op de voorgrond.</p>
@@ -1214,13 +1215,13 @@ HELP_TOPICS = {
 <p>Op hetzelfde hemellichaam kun je op elk moment opnieuw ‘Handmatige invoer …’ openen en andere coördinaten instellen. Het nieuwe doel vervangt het vorige navigatiedoel. Met bijbehorende positiegegevens wordt het kompas onmiddellijk bijgewerkt.</p>
 <p>Met ‘Navigatie beëindigen’ verwijder je het huidige doel. Voor een volgende nadering stel je gewoon een nieuw doel in.</p>
 
-<p>Het venster sluiten verwijdert het doel niet. Een ingeschakelde navigatie-HUD kan doorgaan; ‘Navigatie beëindigen’ verwijdert het doel. Bij het verlaten van het juiste lichaam of ontbrekende positiegegevens wacht de navigatie en verdwijnt de navigatie-HUD.</p>
+<p>Wisselen van pagina of tabblad verwijdert het doel niet. Een ingeschakelde navigatie-HUD kan doorgaan; ‘Navigatie beëindigen’ verwijdert het doel. Bij het verlaten van het juiste lichaam of ontbrekende positiegegevens wacht de navigatie en verdwijnt de navigatie-HUD.</p>
 
 <h3>Actualiteit van gegevens en beperkingen</h3>
 <p>De navigatie is gebaseerd op de statusgegevens van Elite. Updates kunnen afhankelijk van de speltoestand vertraagd binnenkomen. De ouderdomsweergave in de navigator toont hoe lang geleden de laatste bevestigde statusmelding was.</p>
 <p>De oppervlakteafstand beschrijft de kortste boog op een denkbeeldige bol. Het is geen terrein- of wegroute. De navigator kent geen obstakels of terreinhoogten langs de route; vlieghoogte, veilige snelheid en het vermijden van obstakels blijven jouw verantwoordelijkheid.</p>
 
-<p>De actuele positie komt uit Status.json; het journaal vult lichaam- en systeemkoppelingen aan. Het venster en de ingeschakelde navigatie-HUD houden updates naar behoefte actief. De weergave hangt af van beschikbare Elite-gegevens, zonder gegarandeerde nauwkeurigheid in meters.</p>
+<p>De actuele positie komt uit Status.json; het journaal vult lichaam- en systeemkoppelingen aan. Het zichtbare navigatietabblad en de ingeschakelde navigatie-HUD houden updates naar behoefte actief. De weergave hangt af van beschikbare Elite-gegevens, zonder gegarandeerde nauwkeurigheid in meters.</p>
 
 <h3>Tip</h3>
 <p>Controleer vóór de nadering de naam van het hemellichaam en de tekens van de doelcoördinaten. Richt je vervolgens op de doelkoers in het Elite-kompas en houd relatieve richting en afstand in de gaten. Als de navigator wacht, controleer dan of Elite al planetaire coördinaten voor het doelhemellichaam levert.</p>""",

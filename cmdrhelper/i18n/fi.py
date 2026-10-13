@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_9_8.0': 'Suosikit ja planeettanavigointi on integroitu suoraan pääkäyttöliittymään kahdeksi välilehdeksi.',
+    'release.3_9_8.1': 'Navigointi avaa yhteisen pääsivun ilman erillisiä suosikki- tai navigointi-ikkunoita.',
+    'release.3_9_8.2': 'Kun pikanäppäintä ei ole määritetty, pikasuosikin ohje näkyy Elite-keltaisena, vilkkuu hillitysti kolme kertaa ja neuvoo määrityksen kohdassa Asetukset.',
+    'release.3_9_8.3': 'Sisäänrakennettu ohje kuvaa uudet välilehdet ja valikkopolut kaikilla kahdellatoista kielellä.',
+
     'release.3_9_6_7.2': 'Rahtinäytöt pysyvät näkyvissä, kun ne on otettu käyttöön, eivätkä piiloudu toimettomuuden vuoksi; rahti- ja drooniarvot päivittyvät avaamatta näyttöjä uudelleen.',
     'release.3_9_6_7.3': 'Uusi avattava Navigointi-päävalikko sisältää Suosikit ja Planeettanavigoinnin ja korvaa aiemmat Explorerin painikkeet.',
     'release.3_9_6_7.4': 'Sisäänrakennettu ohje kuvaa uudet valikkopolut kaikilla kahdellatoista tuetulla kielellä.',
@@ -528,7 +533,7 @@ TRANSLATIONS = {
     'odyssey.loading': 'Ladataan Odyssey-varastoa …',
     'odyssey.owner': 'Omistaja',
     'odyssey.stolen': 'Varastettu',
-    'quick_favorite.hint': 'Voit tallentaa nykyisen sijaintisi heti suosikiksi pelatessasi valitsemallasi pikanäppäimellä – myös jalan tai SRV:ssä.',
+    'quick_favorite.hint': 'Voit tallentaa nykyisen sijaintisi heti suosikiksi pelatessasi valitsemallasi pikanäppäimellä – myös jalan tai SRV:ssä. Voit määrittää pikanäppäimen kohdassa Asetukset.',
     'quick_favorite.title': 'Pikasuosikki',
     'quick_favorite.hotkey': 'Pikanäppäin',
     'quick_favorite.unassigned': 'Ei määritetty',

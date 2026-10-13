@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_9_8.0': 'Favoritos y navegación planetaria se integran directamente en la interfaz principal como dos pestañas.',
+    'release.3_9_8.1': 'Navegación abre una página principal común sin ventanas adicionales de favoritos o del navegador.',
+    'release.3_9_8.2': 'Si no hay un atajo de teclado configurado, el aviso de favorito rápido aparece en amarillo Elite, parpadea suavemente tres veces y explica la configuración en Ajustes.',
+    'release.3_9_8.3': 'La ayuda integrada describe las nuevas pestañas y rutas de uso en los doce idiomas.',
+
     'release.3_9_6_7.2': 'Las vistas de carga permanecen visibles mientras están activadas, sin ocultarse por inactividad; los valores de carga y drones se actualizan sin volver a abrir las vistas.',
     'release.3_9_6_7.3': 'Nuevo menú principal desplegable Navegación con Favoritos y Navegación planetaria, que sustituye a los antiguos botones del Explorer.',
     'release.3_9_6_7.4': 'La ayuda integrada describe las nuevas rutas de menú en los doce idiomas compatibles.',
@@ -528,7 +533,7 @@ TRANSLATIONS = {
     'odyssey.loading': 'Cargando inventario de Odyssey …',
     'odyssey.owner': 'Propietario',
     'odyssey.stolen': 'Robado',
-    'quick_favorite.hint': 'Puedes guardar al instante tu posición actual como favorito mientras juegas con un atajo de teclado de tu elección – también a pie o en el SRV.',
+    'quick_favorite.hint': 'Puedes guardar al instante tu posición actual como favorito mientras juegas con un atajo de teclado de tu elección – también a pie o en el SRV. Puedes configurar el atajo de teclado en Ajustes.',
     'quick_favorite.title': 'Favorito rápido',
     'quick_favorite.hotkey': 'Atajo de teclado',
     'quick_favorite.unassigned': 'Sin asignar',

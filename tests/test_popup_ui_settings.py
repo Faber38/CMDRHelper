@@ -49,7 +49,7 @@ class PopupUiSettingsTests(unittest.TestCase):
         with ExitStack() as stack:
             for name in ("_apply_saved_ui_font", "refresh_all", "_apply_cargo_hud_enabled"):
                 stack.enter_context(patch.object(MainWindow, name))
-            for name in ("_overview", "_missions", "_explorer", "_chronicle", "_score_page", "_settings"):
+            for name in ("_overview", "_missions", "_explorer", "_chronicle", "_score_page", "_settings", "_navigation_page"):
                 stack.enter_context(patch.object(MainWindow, name, side_effect=lambda: QWidget()))
             stack.enter_context(patch("cmdrhelper.ui.main_window.QTimer.singleShot"))
             for name in ("RoutePlannerView", "ScreenshotView", "CommanderView"):

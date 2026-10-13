@@ -363,7 +363,7 @@ HELP_TOPICS = {
               """
 
 <h3>★ Favoriler</h3>
-<p>Soldaki ana menüde “Navigasyon → ★ Favoriler” ayrı, yeniden kullanılabilen bir favoriler penceresi açar. Burada etkin komutan için sistemleri, gezegenleri/uyduları ve yüzey konumlarını kaydedersin.</p>
+<p>Solda “Navigasyon” seçin. Sağda “★ Favoriler” ve “Gezegen navigasyonu” sekmeleri görünür; varsayılan sekme “★ Favoriler” olur. “Navigasyon → ★ Favoriler” etkin komutanın sistemlerini, gezegenlerini/uydularını ve yüzey konumlarını yönetir; “Navigasyon → Gezegen navigasyonu” aynı ana alanda gezegen navigasyonunu gösterir.</p>
 <p>Ada göre alfabetik sıralanan, kaydırılabilir liste; ad, tür, sistem, uygun olduğunda gökcismi ve enlem/boylam, kategori ve küçük bir resim önizlemesi gösterir. Serbest metin araması, tür filtresi ve kategori filtresi birlikte kullanılabilir. Arama; ad, sistem, gökcismi ve notu kapsar.</p>
 <p>“Aç / Göster” kaydedilen bilgileri, notu ve daha büyük bir resim önizlemesini gösterir. “Explorer’da göster”, favori mevcut Explorer sistemine aitse ve ilgili veriler varsa mevcut sistem genel görünümünü veya gökcismi ayrıntı görünümünü açar. Diğer sistemler için kaydedilmiş favori verileri görünür kalır; sistemler arası rota hesaplanmaz.</p>
 
@@ -384,7 +384,7 @@ HELP_TOPICS = {
 <ul>
 <li>“★ Mevcut sistemi kaydet” mevcut sistemi yüzey koordinatları olmadan kaydeder.</li>
 <li>“★ Gezegen / ay kaydet” mevcut sistemdeki bilinen bir gezegeni veya uyduyu seçmeni sağlar. Bu favoriye de yüzey koordinatları eklenmez.</li>
-<li>“★ Mevcut konumu kaydet”, favoriler penceresinin üst kısmında diğer iki kaydetme seçeneğinin yanında bulunur ve gezegen gezgininde de kullanılabilir. Favoriler penceresinde düğme her zaman görünür kalır; geçerli güncel gezegen konum verileri ve etkin bir komutan olmadan devre dışıdır. Tıklandığında komutan, sistem, gökcismi, enlem ve boylam sabitlenir. Oyundaki sonraki hareketler, açık iletişim kutusundaki bu değerleri değiştirmez.</li>
+<li>“★ Mevcut konumu kaydet”, favoriler sekmesinin üst kısmında diğer iki kaydetme seçeneğinin yanında bulunur ve gezegen gezgininde de kullanılabilir. Favoriler sekmesinde düğme her zaman görünür kalır; geçerli güncel gezegen konum verileri ve etkin bir komutan olmadan devre dışıdır. Tıklandığında komutan, sistem, gökcismi, enlem ve boylam sabitlenir. Oyundaki sonraki hareketler, açık iletişim kutusundaki bu değerleri değiştirmez.</li>
 </ul>
 <p>İstediğin bir ad gir ve tam olarak bir kategori seç: Biyo, Jeo, Madencilik, Manzara, İniş yeri, İlginç veya Diğer. Not ve resim isteğe bağlıdır. Bilinen teknik kimlikler dahili olarak aktarılır; bunları girmen gerekmez. Enlem veya boylam 0,0 da geçerli koordinatlardır.</p>
 <p>“Düzenle”; ad, kategori, not ve resmi değiştirir. Sistem, gökcismi ve kaydedilmiş koordinatlar korunur. Farklı bir yüzey konumu kaydetmek için o konumda yeni bir favori oluştur.</p>
@@ -392,7 +392,7 @@ HELP_TOPICS = {
 <h3>Fare kullanmadan hızlı favori</h3>
 <p>“Ayarlar → Hızlı favori” altında genel bir kısayol tuşunu serbestçe atayabilir, değiştirebilir veya kaldırabilirsin. Kurulumdan sonra varsayılan durum “Atanmamış” olur: CMDRHelper istenmeden hiçbir tuşu kaydetmez. Atama saklanır. Bir tuş birleşimi zaten kullanımdaysa veya sisteminde kullanılamıyorsa bir hata mesajı gösterilir; daha önce çalışan bir atama korunur.</p>
 <p>Linux/X11 ve Windows üzerinde kısayol, Elite odaktayken de çalışır – yaya olarak, SRV’de ve gemide. Tuşa basıldığında yüzeydeki mevcut konum, etkin komutan için hemen kaydedilir; iletişim kutusu açılmaz ve fare kullanımı gerekmez. Komutan, sistem, gök cismi ve mevcut Latitude/Longitude değerleri o anda sabitlenir. Geçerli güncel gezegen koordinatları yoksa hiçbir şey kaydedilmez; eski koordinatlar yeniden kullanılmaz.</p>
-<p>Favoriye “İşaretçi 07.09.2026 06:32:15” gibi benzersiz bir geçici ad ve “Diğer” kategorisi verilir. Normal favoriler penceresinde daha sonra adını değiştirebilir, başka bir kategori atayabilir, not veya resim ekleyebilirsin. Otomatik olarak ekran görüntüsü alınmaz veya içe aktarılmaz.</p>
+<p>Favoriye “İşaretçi 07.09.2026 06:32:15” gibi benzersiz bir geçici ad ve “Diğer” kategorisi verilir. Favoriler sekmesinde daha sonra adını değiştirebilir, başka bir kategori atayabilir, not veya resim ekleyebilirsin. Otomatik olarak ekran görüntüsü alınmaz veya içe aktarılmaz.</p>
 <p>Yaklaşık iki saniye boyunca etkin Elite penceresinin doğrudan üzerinde gök cismi ve koordinatlarla birlikte “★ FAVORI KAYDEDILDI” görünür; konum mevcut değilse kısa süreliğine “⚠ GEZEGEN KOORDINATLARI YOK” gösterilir. Gösterim odağı almaz ve girdileri yakalamaz. Navigasyon HUD’u kapalıyken de çalışır ve ardından tamamen kaybolur. HUD açıkken sonrasında normal navigasyon gösterimi kalır. HUD anahtarının kayıtlı ayarı değiştirilmez. Gösterim, navigasyon HUD’u ile aynı üst katman altyapısını ve platform gereksinimlerini kullanır.</p>
 
 <h3>Favori resimleri</h3>
@@ -1114,7 +1114,8 @@ HELP_TOPICS = {
 <p>Bu, yıldızlararası bir rota planlayıcısı değildir ve sistemler arası ya da sıçrama navigasyonunu üstlenmez. Gemini kendin kullanırsın.</p>
 
 <h3>Navigatörü açma ve hedef girme</h3>
-<p>Soldaki ana menüde “Navigasyon → Gezegen navigasyonu” açıp “Manuel giriş …” seçin. Mevcut yüzey konumu olmadan da pencere açılabilir ve hedef önceden girilebilir.</p>
+<p>Solda “Navigasyon” seçin. Sağda “★ Favoriler” ve “Gezegen navigasyonu” sekmeleri görünür; varsayılan sekme “★ Favoriler” olur. “Navigasyon → ★ Favoriler” etkin komutanın sistemlerini, gezegenlerini/uydularını ve yüzey konumlarını yönetir; “Navigasyon → Gezegen navigasyonu” aynı ana alanda gezegen navigasyonunu gösterir.</p>
+<p>Ana alanda “Navigasyon → Gezegen navigasyonu” açıp “Manuel giriş …” seçin. Mevcut yüzey konumu olmadan da hedef önceden girilebilir.</p>
 <ul>
 <li><b>Gök cismi:</b> Listeden hedef gezegeni veya ayı seç ya da önceden algılanmış gök cismini kullan. Adı henüz listede yoksa gök cisminin adını kendin de girebilirsin. Emin değilsen sistem adı dâhil tam adı kullan.</li>
 <li><b>Enlem:</b> Hedef enlemini −90° ile +90° arasında gir.</li>
@@ -1134,7 +1135,7 @@ HELP_TOPICS = {
 <p>Açılışta sistem, cisim ve koordinatlar sabitlenir. Favori penceresinde ad, kategori ve not düzenlenebilir, resim eklenebilir. Yalnızca “Kaydet” bu komutan için yerel kayıt oluşturur; iptal etmek hiçbir şey kaydetmez. Sonraki hareketler sabitlenen konumu değiştirmez.</p>
 
 <h3>Kayıtlı konumları kullanma</h3>
-<p>Soldaki ana menüde “Navigasyon → ★ Favoriler” açın. Kayıtlı bir yüzey yeri ve “◎ Koordinatlara git” seçerek cismi, koordinatları ve adı hedef olarak alın. Önceki hedefin yerini alır; başka cisimde gezgin uygun konum verilerini bekler.</p>
+<p>Ana alanda “Navigasyon → ★ Favoriler” sekmesine geçin. Kayıtlı bir yüzey yeri ve “◎ Koordinatlara git” seçerek cismi, koordinatları ve adı hedef olarak alın. Önceki hedefin yerini alır; başka cisimde gezgin uygun konum verilerini bekler.</p>
 <p>“Düzenle” ad, kategori ve notu değiştirir. “Sil” onaydan sonra favoriyi kaldırır, Elite verilerini silmez. Favoriler yeniden başlatmada korunur ve komutana göre ayrılır; mevcut navigasyon hedefi yalnızca oturum boyunca geçerlidir.</p>
 
 <h3>Gezegen küresi: 380 km’den fazla</h3>
@@ -1165,8 +1166,8 @@ HELP_TOPICS = {
 <p>Örnek: Baş yönün 051° ve hedef rotan 074° ise 23° sağa dönerek Elite pusulanın yaklaşık 074° göstermesini sağla. Uçuşa devam ederken kerteriz ve hedef rotası değişebilir; güncellenen değerleri izle.</p>
 <p>Hedefle aynı konumda, bir kutupta veya gezegenin tam karşı noktasında yön tanımsız olabilir. Bu durumda navigatör uydurma bir rota yerine ilgili uyarıyı gösterir.</p>
 
-<h3>Pencere boyutu</h3>
-<p>Navigatör penceresinin boyutu serbestçe değiştirilebilir. Küre veya perspektif ızgarası, kullanılabilir alana orantılı olarak uyum sağlar. Minimum boyut, ayrıntılı değerlerin okunabilirliğini korur; küre yuvarlak kalır. Pencerenin konumu ve boyutu kaydedilir.</p>
+<h3>Ana alandaki görünüm</h3>
+<p>Küre ve perspektif ızgarası kullanılabilir alana orantılı olarak uyum sağlar. Ana pencere dar veya kısa olduğunda içeriği kaydırabilirsiniz. Sayfa veya sekme değiştirmek filtreleri ve navigasyon hedefini korur.</p>
 
 <h3>Navigasyon HUD’ını açma</h3>
 <p>Ana pencerenin solunda <b>otomatik göster → Navigasyon HUD</b> altındaki kutuyu işaretle. Geçerli gezegen navigasyonu olduğunda HUD, ön plandaki görünür Elite penceresinin doğrudan üzerinde belirir.</p>
@@ -1184,13 +1185,13 @@ HELP_TOPICS = {
 <p>Aynı gök cisminde istediğin zaman “Manuel giriş …” seçeneğini yeniden açıp farklı koordinatlar belirleyebilirsin. Yeni hedef, önceki navigasyon hedefinin yerini alır. Uygun konum verileriyle pusula hemen güncellenir.</p>
 <p>“Navigasyonu sonlandır” ile güncel hedefi kaldırırsın. Başka bir yaklaşma için yeni bir hedef belirlemen yeterlidir.</p>
 
-<p>Pencereyi kapatmak hedefi kaldırmaz. Açık navigasyon HUD’ı devam edebilir; “Navigasyonu sonlandır” hedefi kaldırır. Doğru cisimden ayrılmak veya konum verilerini kaybetmek navigasyonu bekletir ve navigasyon HUD’ını gizler.</p>
+<p>Sayfa veya sekme değiştirmek hedefi kaldırmaz. Açık navigasyon HUD’ı devam edebilir; “Navigasyonu sonlandır” hedefi kaldırır. Doğru cisimden ayrılmak veya konum verilerini kaybetmek navigasyonu bekletir ve navigasyon HUD’ını gizler.</p>
 
 <h3>Verilerin güncelliği ve sınırlar</h3>
 <p>Navigasyon, Elite’in sağladığı durum verilerine dayanır. Güncellemeler oyun durumuna bağlı olarak gecikmeli gelebilir. Navigatördeki yaş göstergesi, son doğrulanan durum mesajından bu yana ne kadar zaman geçtiğini gösterir.</p>
 <p>Yüzey mesafesi, varsayımsal bir küre üzerindeki en kısa yayı ifade eder. Bir arazi veya yol güzergâhı değildir. Navigatör, güzergâh üzerindeki engelleri veya arazi yüksekliklerini bilmez; uçuş yüksekliği, güvenli hız ve engellerden kaçınma senin sorumluluğunda kalır.</p>
 
-<p>Mevcut konum Status.json’dan gelir; günlük, cisim ve sistem ilişkilerini tamamlar. Pencere ve etkin navigasyon HUD’ı gerektiğinde güncellemeleri sürdürür. Görünüm mevcut Elite verilerine bağlıdır; metre cinsinden kesinlik garantisi vermez.</p>
+<p>Mevcut konum Status.json’dan gelir; günlük, cisim ve sistem ilişkilerini tamamlar. Görünür navigasyon sekmesi ve etkin navigasyon HUD’ı gerektiğinde güncellemeleri sürdürür. Görünüm mevcut Elite verilerine bağlıdır; metre cinsinden kesinlik garantisi vermez.</p>
 
 <h3>İpucu</h3>
 <p>Yaklaşmadan önce gök cisminin adını ve hedef koordinatlarının işaretlerini kontrol et. Ardından Elite pusulasında hedef rotasına yönel ve göreli yönü ve mesafeyi izle. Navigatör bekliyorsa Elite’in hedef gök cismi için gezegen koordinatları sağlamaya başlayıp başlamadığını kontrol et.</p>""",

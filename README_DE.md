@@ -38,6 +38,13 @@ Der Journalordner von Elite Dangerous wird nach Möglichkeit automatisch erkannt
 
 CMDRHelper prüft beim Start auf Updates und besitzt einen integrierten Updater. Bestätige ein angebotenes Update im Programm; es aktualisiert Programm und Abhängigkeiten und startet CMDRHelper neu. Nach der Erstinstallation genügt normalerweise `start.bat` (Windows) beziehungsweise `bash start.sh` (Linux). Für normale Updates musst du `install.bat` oder `install.sh` nicht erneut manuell ausführen.
 
+## CMDRHelper v3.9.8
+
+- Favoriten und Planeten-Navigation sind als zwei Reiter direkt in die Hauptoberfläche integriert.
+- Navigation öffnet eine gemeinsame Hauptseite ohne zusätzliche Favoriten- oder Navigatorfenster.
+- Der Schnell-Favorit-Hinweis erscheint ohne eingerichteten Hotkey in Elite-Gelb, blinkt dreimal dezent und erklärt die Einrichtung unter Einstellungen.
+- Die integrierte Hilfe beschreibt die neuen Reiter und Bedienwege in allen zwölf Sprachen.
+
 ## CMDRHelper v3.9.6.7
 
 - Verbesserte Powerplay-Merit-Zuordnung bei Schiffsscans und Warenverkäufen.
@@ -345,7 +352,7 @@ Der Explorer zeigt außerdem BIO-Schätzwerte, den Fortschritt eigener Analysen 
 
 Die Körperdetails enthalten die verfügbaren physikalischen Angaben, Atmosphäre, Ringe, Materialien und Entdeckungsinformationen. Körperdarstellungen verwenden passende Texturen und für bestimmte astronomische Sonderobjekte Animationen. Der Cargo-Bereich zeigt die bekannte Ladung und Kapazität des aktuell verwendeten Schiffs beziehungsweise SRV; beim Rhino bleiben Ladung und persönliche Abbau-Funde unterschiedliche Angaben.
 
-Oben im Explorer stehen **★ Favoriten | Planeten-Navigation | Alles anzeigen**. Favoriten und Planeten-Navigation öffnen eigene Fenster; die drei Explorer-Ansichten bleiben daneben verfügbar.
+Öffne links „Navigation“. Rechts erscheinen die Reiter „★ Favoriten“ und „Planeten-Navigation“. Standardmäßig ist „★ Favoriten“ aktiv. „Navigation → ★ Favoriten“ verwaltet Systeme, Planeten/Monde und Oberflächenorte des aktiven Commanders; „Navigation → Planeten-Navigation“ zeigt die Planeten-Navigation im selben Hauptbereich.
 
 ## Planeten-Navigation
 
@@ -364,7 +371,7 @@ Sobald Elite gültige planetare Positionsdaten für den passenden Body liefert, 
 | **Mehr als 380 km** | Planetenkugel mit eigener Position als weißem Kreis und Ziel als kleinem Punkt. Auf der sichtbaren Planetenseite ist das Ziel orange, auf der verdeckten Rückseite rot. Die Spielerposition bleibt in der Darstellung fest; Planet und Ziel werden relativ dazu dargestellt. |
 | **Bis einschließlich 380 km** | Automatischer Wechsel auf ein gekipptes Perspektivraster mit **50-km-Entfernungsraster** und der darin eingezeichneten Zielposition für den weiteren Anflug. |
 
-Das Navigatorfenster ist frei skalierbar. Kugel beziehungsweise Perspektivraster passen sich proportional dem verfügbaren Platz an; die Detailwerte bleiben lesbar.
+Kugel und Perspektivraster passen sich dem verfügbaren Platz proportional an. Bei schmalem oder niedrigem Hauptfenster kannst du die Inhalte scrollen. Beim Menü- oder Reiterwechsel bleiben Filter und Navigationsziel erhalten.
 
 ### Navigationswerte verstehen
 
@@ -394,7 +401,7 @@ Das HUD wurde unter **Linux/X11** sowie unter **Windows 11 mit Elite** im Spiel 
 
 ## Favoriten
 
-**Explorer → ★ Favoriten** öffnet ein eigenes, wiederverwendbares Fenster. Favoriten gehören zum **aktiven Commander**. Beim Commanderwechsel wird die Ansicht aktualisiert; die Commander-Auswahl der Chronik erweitert die Favoritenliste nicht.
+Öffne links „Navigation“. Rechts erscheinen die Reiter „★ Favoriten“ und „Planeten-Navigation“. Standardmäßig ist „★ Favoriten“ aktiv. „Navigation → ★ Favoriten“ verwaltet Systeme, Planeten/Monde und Oberflächenorte des aktiven Commanders; „Navigation → Planeten-Navigation“ zeigt die Planeten-Navigation im selben Hauptbereich. Favoriten gehören zum **aktiven Commander**. Beim Commanderwechsel wird die Ansicht aktualisiert; die Commander-Auswahl der Chronik erweitert die Favoritenliste nicht.
 
 ### Drei Arten speichern
 

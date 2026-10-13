@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_9_8.0': 'Favorites and planet navigation are integrated directly into the main interface as two tabs.',
+    'release.3_9_8.1': 'Navigation opens a shared main page without additional favorites or navigator windows.',
+    'release.3_9_8.2': 'When no hotkey is configured, the quick-favorite hint appears in Elite yellow, gently blinks three times and explains setup under Settings.',
+    'release.3_9_8.3': 'The integrated help describes the new tabs and navigation paths in all twelve languages.',
+
     'release.3_9_6_7.2': 'Cargo displays remain visible while enabled, without inactivity hiding; cargo and limpet values update without reopening the displays.',
     'release.3_9_6_7.3': 'New expandable Navigation main menu with Favorites and Planet navigation, replacing the former Explorer buttons.',
     'release.3_9_6_7.4': 'Integrated help documents the new menu paths in all twelve supported languages.',
@@ -528,7 +533,7 @@ TRANSLATIONS = {
     'odyssey.loading': 'Loading Odyssey inventory …',
     'odyssey.owner': 'Owner',
     'odyssey.stolen': 'Stolen',
-    'quick_favorite.hint': 'You can instantly save your current position as a favorite while playing with a hotkey of your choice – including on foot or in the SRV.',
+    'quick_favorite.hint': 'You can instantly save your current position as a favorite while playing with a hotkey of your choice – including on foot or in the SRV. You can set the hotkey under Settings.',
     'quick_favorite.title': 'Quick favorite',
     'quick_favorite.hotkey': 'Hotkey',
     'quick_favorite.unassigned': 'Not assigned',
