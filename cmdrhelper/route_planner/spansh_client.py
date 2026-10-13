@@ -26,28 +26,27 @@ class SpanshFleetCarrierClient:
         self.max_polls = max_polls
 
     def calculate(self, request: CarrierRouteRequest) -> CarrierRoute:
+        if request.validation_error():
+            raise SpanshError("carrier_inputs")
         source_id = resolve_system(self._request_json, request.source, request.source_id64, "source_unknown")
         destination_id = resolve_system(
             self._request_json, request.destination, request.destination_id64, "destination_unknown"
         )
-
-        # Spansh behandelt den 1.000-t-Tank separat von der belegten
-        # Carrier-Kapazität. Ohne weitere Fracht entspricht capacity_used
-        # deshalb dem Tritium im Carrier-Lager, nicht Tank + Lager.
-        capacity_used = request.tritium_in_storage
 
         # Spansh kennt für diesen Router kein Feld für eine abweichende
         # maximale Sprungreichweite. Der Carrier-Standard von 500 ly gilt dort.
         payload = {
             "source": source_id,
             "destinations": destination_id,
-            "capacity": 25000,
-            "mass": 25000,
-            "capacity_used": capacity_used,
+            "capacity": request.capacity,
+            "mass": request.mass,
+            "capacity_used": request.capacity_used,
             "calculate_starting_fuel": 0,
             "fuel_loaded": request.tritium_in_tank,
             "tritium_stored": request.tritium_in_storage,
         }
+        if request.validation_error():
+            raise SpanshError("carrier_inputs")
         submitted = self._request_json(ROUTE_URL, data=payload)
         if self._has_route(submitted):
             completed = submitted

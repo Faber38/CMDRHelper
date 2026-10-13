@@ -38,6 +38,15 @@ Journalmappen för Elite Dangerous hittas automatiskt när det är möjligt. Om 
 
 CMDRHelper söker efter uppdateringar vid start och har en inbyggd uppdateringsfunktion. Bekräfta en erbjuden uppdatering i programmet; den uppdaterar programmet och beroendena och startar om CMDRHelper. Efter den första installationen använder du normalt bara `start.bat` (Windows) eller `bash start.sh` (Linux). Du behöver inte köra `install.bat` eller `install.sh` manuellt igen för vanliga uppdateringar.
 
+## CMDRHelper v3.9.5
+
+- Ny Odyssey-bedömning: 192 av 223 föremål har rang A–D; 31 är fortfarande markerade med ? i väntan på kontroll.
+- Färgad rangkolumn med verktygstips och sparad sortering A–D eller D–A; personliga rensningsmarkeringar förblir oberoende.
+- Korrigerade hangarfartygsrutter: hela den bekräftade använda kapaciteten skickas till Spansh, med tanktritium och lagrat tritium åtskilda.
+- CarrierStats hämtar kapacitet och tankuppgifter med kontroll av identitet, session och aktualitet; lagrat tritium anges fortfarande manuellt.
+- Tydligare inmatningshjälp, markerade ogiltiga fält och tre orange blinkningar vid saknad bekräftelse, i båda teman och tolv språk.
+- Extra skydd mot inaktuella bekräftelser och sena ruttresultat efter kontextbyten; CTSVision-export förblir kompatibel.
+
 ## CMDRHelper v3.9.4
 
 - Förbättrad ruttplanerare med stöd för 7A SCO FSD och korrekt hantering av modifieringar, Guardian-boosters, last och reservbränsle.

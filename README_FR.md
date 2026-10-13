@@ -38,6 +38,15 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.9.5
+
+- Nouvelle évaluation Odyssey : 192 objets sur 223 sont classés de A à D ; 31 restent marqués ? en attente de vérification.
+- Colonne de rang colorée avec infobulles et tri A–D ou D–A mémorisé ; les marques personnelles de rangement restent indépendantes.
+- Itinéraires de porte-vaisseaux corrigés : toute la capacité occupée confirmée est transmise à Spansh, avec le tritium du réservoir et du stockage séparés.
+- CarrierStats importe la capacité et le réservoir avec vérification de l’identité, de la session et de l’actualité ; le tritium stocké reste à saisir manuellement.
+- Indications plus claires, champs invalides signalés et trois clignotements orange si la confirmation manque, dans les deux thèmes et douze langues.
+- Protection renforcée contre les confirmations périmées et les résultats tardifs après un changement de contexte ; export CTSVision compatible.
+
 ## CMDRHelper v3.9.4
 
 - Planificateur de routes amélioré avec le FSD SCO 7A et prise en compte correcte des modifications, boosters Guardian, cargaison et carburant de réserve.

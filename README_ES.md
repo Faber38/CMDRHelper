@@ -38,6 +38,15 @@ La carpeta de diarios de Elite Dangerous se detecta automáticamente cuando es p
 
 CMDRHelper busca actualizaciones al iniciarse y dispone de un actualizador integrado. Confirma una actualización ofrecida en la aplicación; actualizará el programa y las dependencias y reiniciará CMDRHelper. Tras la primera instalación, normalmente basta con usar `start.bat` (Windows) o `bash start.sh` (Linux). No es necesario volver a ejecutar manualmente `install.bat` o `install.sh` para las actualizaciones normales.
 
+## CMDRHelper v3.9.5
+
+- Nueva valoración Odyssey: 192 de 223 objetos tienen rango A–D; 31 permanecen marcados con ? pendientes de verificación.
+- Columna de rangos de colores con ayudas y ordenación A–D o D–A guardada; las marcas personales de limpieza siguen siendo independientes.
+- Rutas de portanaves corregidas: se envía a Spansh toda la capacidad ocupada confirmada, separando el tritio del depósito y del almacén.
+- CarrierStats importa capacidad y depósito comprobando identidad, sesión y vigencia; el tritio almacenado sigue introduciéndose manualmente.
+- Indicaciones más claras, campos inválidos resaltados y tres destellos naranjas si falta la confirmación, en ambos temas y doce idiomas.
+- Protección adicional frente a confirmaciones caducadas y resultados tardíos tras cambios de contexto; exportación CTSVision compatible.
+
 ## CMDRHelper v3.9.4
 
 - Planificador de rutas mejorado con soporte para FSD SCO 7A y uso correcto de ingeniería, potenciadores Guardian, carga y combustible de reserva.

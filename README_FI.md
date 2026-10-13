@@ -38,6 +38,15 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.5
+
+- Uusi Odyssey-arviointi: 192 esineellä 223:sta on arvo A–D; 31 on edelleen merkitty ?-merkillä tarkistusta odottaen.
+- Värillinen arvosarake, työkaluvihjeet ja tallennettu A–D- tai D–A-lajittelu; henkilökohtaiset siivousmerkinnät pysyvät erillisinä.
+- Korjatut tukialusreitit: koko vahvistettu käytetty kapasiteetti lähetetään Spanshiin, säiliön ja varaston tritium erikseen.
+- CarrierStats tuo kapasiteetti- ja säiliötiedot tarkistaen tunnisteen, istunnon ja ajantasaisuuden; varastoitu tritium syötetään edelleen käsin.
+- Selkeämmät syöttöohjeet, virheellisten kenttien korostus ja kolme oranssia välähdystä vahvistuksen puuttuessa, molemmissa teemoissa ja kahdellatoista kielellä.
+- Lisäsuoja vanhentuneita vahvistuksia ja myöhäisiä reittituloksia vastaan tilanteen vaihtuessa; CTSVision-vienti säilyy yhteensopivana.
+
 ## CMDRHelper v3.9.4
 
 - Parannettu alusten reittisuunnittelija tukee 7A SCO FSD:tä ja huomioi oikein muokkaukset, Guardian-tehostimet, rahdin ja varapolttoaineen.

@@ -38,6 +38,15 @@ Folder dzienników Elite Dangerous jest wykrywany automatycznie, jeśli to możl
 
 CMDRHelper sprawdza aktualizacje przy uruchomieniu i ma wbudowany mechanizm aktualizacji. Potwierdź proponowaną aktualizację w aplikacji; zaktualizuje ona program i zależności oraz uruchomi CMDRHelper ponownie. Po pierwszej instalacji zwykle wystarczy używać `start.bat` (Windows) lub `bash start.sh` (Linux). Przy zwykłych aktualizacjach nie trzeba ponownie ręcznie uruchamiać `install.bat` ani `install.sh`.
 
+## CMDRHelper v3.9.5
+
+- Nowa ocena Odyssey: 192 z 223 przedmiotów mają rangę A–D; 31 pozostaje oznaczonych ? do czasu weryfikacji.
+- Kolorowa kolumna rang z podpowiedziami i zapamiętanym sortowaniem A–D lub D–A; osobiste oznaczenia porządkowania pozostają niezależne.
+- Poprawione trasy lotniskowców: cała potwierdzona zajęta pojemność trafia do Spansh, a tryt w zbiorniku i magazynie jest przekazywany oddzielnie.
+- CarrierStats pobiera pojemność i dane zbiornika z kontrolą tożsamości, sesji i aktualności; zmagazynowany tryt nadal wpisuje się ręcznie.
+- Czytelniejsze wskazówki, wyróżnione nieprawidłowe pola i trzy pomarańczowe mignięcia przy braku potwierdzenia, w obu motywach i dwunastu językach.
+- Dodatkowa ochrona przed nieaktualnymi potwierdzeniami i spóźnionymi wynikami tras po zmianie kontekstu; eksport CTSVision pozostaje zgodny.
+
 ## CMDRHelper v3.9.4
 
 - Ulepszony planer tras z obsługą FSD SCO 7A oraz poprawnym uwzględnianiem modyfikacji, wzmacniaczy Guardian, ładunku i paliwa rezerwowego.

@@ -7,6 +7,7 @@ import sqlite3
 import tempfile
 import unittest
 from dataclasses import asdict, replace
+from datetime import datetime, timezone
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
@@ -28,10 +29,16 @@ def ship_request(**changes):
         'optimistic', 144., 0., 4670., 1660.14, 1.14, 6.8, 10.5, 2.5025, .011, 0.), **changes)
 
 
+def carrier_request(**changes):
+    return replace(CarrierRouteRequest('Sol', 'Alpha Centauri', 1000, 5000, 500,
+        capacity_used=5000, commander_fid='F-A', carrier_callsign='ABC-123',
+        confirmed_at=datetime.now(timezone.utc).isoformat()), **changes)
+
+
 class ResolutionTests(unittest.TestCase):
     def variants(self):
         return [(SpanshGalaxyClient(), ship_request(), 'destination'),
-                (SpanshFleetCarrierClient(), CarrierRouteRequest('Sol','Alpha Centauri',1000,5000,500), 'destinations')]
+                (SpanshFleetCarrierClient(), carrier_request(), 'destinations')]
 
     def response(self, url, data=None):
         if '/search/systems?' in url:
@@ -131,7 +138,7 @@ class ResolutionTests(unittest.TestCase):
     def test_carrier_csv_preserved(self):
         client=SpanshFleetCarrierClient()
         with patch.object(client,'_request_json',side_effect=self.response):
-            route=client.calculate(CarrierRouteRequest('Sol','Alpha Centauri',1000,5000,500,1,2))
+            route=client.calculate(carrier_request(source_id64=1, destination_id64=2))
         with tempfile.TemporaryDirectory() as tmp:
             path=export_ctsvision_csv(route,Path(tmp)/'route.csv')
             with path.open(newline='') as f:rows=list(csv.reader(f))

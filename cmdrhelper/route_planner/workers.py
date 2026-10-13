@@ -31,6 +31,8 @@ class CarrierRouteWorker(QRunnable):
     @Slot()
     def run(self):
         try:
+            if self.request.validation_error():
+                raise SpanshError("carrier_inputs")
             route = self.client.calculate(with_known_system_ids(self.request, self.database_path))
         except SpanshError as exc:
             logger.warning("Spansh carrier route failed (%s): %s", exc.code, exc.detail)

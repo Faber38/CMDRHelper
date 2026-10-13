@@ -596,3 +596,47 @@ QToolTip {
     border: 1px solid #aeb7bf;
 }
 """
+
+
+DARK_STYLESHEET += r"""
+QLabel[carrierInputInvalid="true"], QCheckBox[carrierConfirmPulse="true"] {
+    color: #ffb74d;
+}
+QLineEdit[carrierInputInvalid="true"], QSpinBox[carrierInputInvalid="true"] {
+    border: 2px solid #ffb74d;
+}
+QCheckBox[carrierConfirmPulse="true"]::indicator {
+    border: 2px solid #ffb74d;
+    background: #ffb74d;
+}
+"""
+
+
+LIGHT_STYLESHEET += r"""
+QLabel[carrierInputInvalid="true"], QCheckBox[carrierConfirmPulse="true"] {
+    color: #9a4d00;
+}
+QLineEdit[carrierInputInvalid="true"], QSpinBox[carrierInputInvalid="true"] {
+    border: 2px solid #9a4d00;
+}
+QCheckBox[carrierConfirmPulse="true"]::indicator {
+    border: 2px solid #9a4d00;
+    background: #9a4d00;
+}
+"""
+
+# Keep Elite yellow readable in both themes with a stable dark background.
+# Dimming only the text avoids layout movement and full on/off flashing.
+_CARRIER_SNAPSHOT_HINT = r"""
+QLabel#carrierSnapshotHint {
+    color: #FFCC33;
+    background-color: #2d3036;
+    border-radius: 4px;
+    padding: 6px;
+}
+QLabel#carrierSnapshotHint[carrierSnapshotDim="true"] {
+    color: rgba(255, 204, 51, 190);
+}
+"""
+DARK_STYLESHEET += _CARRIER_SNAPSHOT_HINT
+LIGHT_STYLESHEET += _CARRIER_SNAPSHOT_HINT

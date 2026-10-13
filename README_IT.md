@@ -38,6 +38,15 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## CMDRHelper v3.9.5
+
+- Nuova valutazione Odyssey: 192 oggetti su 223 hanno un rango A–D; 31 restano contrassegnati con ? in attesa di verifica.
+- Colonna dei ranghi colorata con suggerimenti e ordinamento A–D o D–A salvato; le selezioni personali di riordino restano indipendenti.
+- Rotte delle portaerei corrette: l’intera capacità occupata confermata viene inviata a Spansh, separando il trizio nel serbatoio da quello immagazzinato.
+- CarrierStats acquisisce capacità e serbatoio verificando identità, sessione e aggiornamento; il trizio immagazzinato va ancora inserito manualmente.
+- Indicazioni più chiare, campi non validi evidenziati e tre lampeggi arancioni se manca la conferma, in entrambi i temi e dodici lingue.
+- Ulteriori protezioni contro conferme scadute e risultati tardivi dopo cambiamenti di contesto; esportazione CTSVision compatibile.
+
 ## CMDRHelper v3.9.4
 
 - Pianificatore di rotte migliorato con supporto FSD SCO 7A e corretta gestione di ingegneria, booster Guardian, carico e carburante di riserva.

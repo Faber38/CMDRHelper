@@ -235,7 +235,7 @@ class OdysseyCarrierTests(unittest.TestCase):
         view=OdysseyView(self.state,QLineEdit(),controller=self.controller)
         self.addCleanup(view.close)
         header=view.tree.header()
-        self.assertEqual([COLUMNS[header.logicalIndex(i)] for i in range(6)],['usage','name','backpack','carrier','locker','total'])
+        self.assertEqual([COLUMNS[header.logicalIndex(i)] for i in range(7)],['usage','rank','name','backpack','carrier','locker','total'])
         for name,width in zip(old,widths): self.assertEqual(header.sectionSize(COLUMNS.index(name)),width)
         self.assertEqual(self.settings.value('materials/odyssey/columns')['columns'],list(COLUMNS))
 

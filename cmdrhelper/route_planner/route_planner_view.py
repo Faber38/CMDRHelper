@@ -31,7 +31,8 @@ from PySide6.QtWidgets import (
 from cmdrhelper.i18n import tr
 from .ctsvision_csv import export_ctsvision_csv
 from .fsd_specs import derive_ship_route_technical_data
-from .models import CarrierRouteRequest, ShipRouteRequest
+from .models import ShipRouteRequest
+from .carrier_input_widget import CarrierInputWidget
 from .manual_ship_data import ManualShipData, LIVE, identity, configuration, live_binding
 from .ship_route_controller import ShipRouteController
 from .spansh_galaxy_client import ALGORITHMS
@@ -81,6 +82,8 @@ class RoutePlannerView(QWidget):
             )
         if self.state is not None and hasattr(self.state, "changed"):
             self.state.changed.connect(self._sync_current_system)
+            self.state.changed.connect(self._sync_carrier_identity)
+        self._carrier_identity = self._current_carrier_identity()
         self._sync_current_system()
         if self.state is not None and hasattr(self.state, "positionChanged"):
             self.state.positionChanged.connect(self._ship_position_changed)
@@ -121,9 +124,25 @@ class RoutePlannerView(QWidget):
                 self._manual_starts.discard(field)
                 field.setText(current)
 
+    def _current_carrier_identity(self):
+        fid, session, _, snapshot = self.carrier_inputs.context()
+        return (fid, session, snapshot.carrier_id if snapshot else None,
+                snapshot.callsign if snapshot else "")
+
+    def _sync_carrier_identity(self):
+        identity = self._current_carrier_identity()
+        if identity != self._carrier_identity:
+            self._carrier_identity = identity
+            self._reset_carrier_results()
+            self.carrier_status.setText("")
+
     def showEvent(self, event):
         self._sync_current_system()
         super().showEvent(event)
+
+    def closeEvent(self, event):
+        self.carrier_inputs.stop_animations()
+        super().closeEvent(event)
 
     def _build_ship_tab(self):
         tab = QWidget()
@@ -608,33 +627,19 @@ class RoutePlannerView(QWidget):
         self.carrier_destination_system = QLineEdit()
         self.carrier_destination_system.setMinimumWidth(320)
         self.carrier_destination_system.setMaximumWidth(420)
+        for field in (self.carrier_start_system, self.carrier_destination_system):
+            field.textChanged.connect(
+                lambda _, field=field: CarrierInputWidget._mark(field, "carrierInputInvalid", False)
+            )
         form.addRow(
             tr("route_planner.destination_system"),
             self.carrier_destination_system,
         )
 
-        self.carrier_tritium_tank = self._tonnage_input(0, 1000)
-        self.carrier_tritium_tank.valueChanged.connect(
-            self._update_calculated_carrier_mass
-        )
-        form.addRow(
-            tr("route_planner.tritium_in_tank"), self.carrier_tritium_tank
-        )
-
-        self.carrier_tritium_storage = self._tonnage_input(0, 25000)
-        self.carrier_tritium_storage.valueChanged.connect(
-            self._update_calculated_carrier_mass
-        )
-        form.addRow(
-            tr("route_planner.tritium_in_storage"), self.carrier_tritium_storage
-        )
-
-        self.carrier_calculated_mass = QLabel()
-        form.addRow(
-            tr("route_planner.calculated_carrier_mass"),
-            self.carrier_calculated_mass,
-        )
-        self._update_calculated_carrier_mass()
+        self.carrier_inputs = CarrierInputWidget(self.state)
+        self.carrier_tritium_tank = self.carrier_inputs.tank
+        self.carrier_tritium_storage = self.carrier_inputs.storage
+        form.addRow(self.carrier_inputs)
 
         self.carrier_jump_range = QSpinBox()
         self.carrier_jump_range.setRange(1, 500)
@@ -705,33 +710,37 @@ class RoutePlannerView(QWidget):
         if self._carrier_worker is not None:
             return
 
+        self.carrier_inputs.refresh()
+        self.carrier_inputs.blink_snapshot_hint()
+
         source = self.carrier_start_system.text().strip()
         destination = self.carrier_destination_system.text().strip()
         if not source:
             self.carrier_status.setText(tr("route_planner.error_start_required"))
+            self.carrier_inputs._mark(self.carrier_start_system, "carrierInputInvalid", True)
+            self.carrier_inputs._reveal(self.carrier_start_system)
             return
         if not destination:
             self.carrier_status.setText(tr("route_planner.error_destination_required"))
+            self.carrier_inputs._mark(self.carrier_destination_system, "carrierInputInvalid", True)
+            self.carrier_inputs._reveal(self.carrier_destination_system)
             return
 
-        tritium_in_tank = self.carrier_tritium_tank.value()
-        tritium_in_storage = self.carrier_tritium_storage.value()
-        if tritium_in_tank + tritium_in_storage > 25000:
-            self.carrier_status.setText(tr("route_planner.error_tritium_capacity"))
-            return
-
-        request = CarrierRouteRequest(
-            source=source,
-            destination=destination,
+        request = self.carrier_inputs.request(
+            source, destination, self.carrier_jump_range.value(),
             source_id64=(getattr(self.state, 'system_address', None)
                          if source.casefold() == str(getattr(self.state, 'system', '') or '').strip().casefold()
                          else None),
-            tritium_in_tank=tritium_in_tank,
-            tritium_in_storage=tritium_in_storage,
-            max_jump_range=self.carrier_jump_range.value(),
         )
+        if request.validation_error():
+            self.carrier_status.setText("")
+            self.carrier_inputs.show_validation_feedback(request)
+            return
+        self.carrier_inputs.clear_feedback()
+        self._carrier_request_context = self.carrier_inputs.context()
         self._reset_carrier_results()
         self.carrier_calculate_button.setEnabled(False)
+        self.carrier_inputs.setEnabled(False)
         self.carrier_status.setText(tr("route_planner.calculating"))
 
         worker = CarrierRouteWorker(request,
@@ -743,6 +752,11 @@ class RoutePlannerView(QWidget):
 
     def _carrier_route_finished(self, route):
         self._carrier_worker = None
+        self.carrier_inputs.setEnabled(True)
+        if getattr(self, "_carrier_request_context", None) != self.carrier_inputs.context():
+            self.carrier_calculate_button.setEnabled(True)
+            self.carrier_status.setText(tr("route_planner.carrier_input_error"))
+            return
         self._carrier_route = route
         self.carrier_calculate_button.setEnabled(True)
         self.carrier_export_button.setEnabled(True)
@@ -771,10 +785,12 @@ class RoutePlannerView(QWidget):
 
     def _carrier_route_failed(self, code, detail):
         self._carrier_worker = None
+        self.carrier_inputs.setEnabled(True)
         self._carrier_route = None
         self.carrier_calculate_button.setEnabled(True)
         self.carrier_export_button.setEnabled(False)
         messages = {
+            "carrier_inputs": tr("route_planner.carrier_input_error"),
             "source_unknown": tr("route_planner.system_source_unresolved"),
             "destination_unknown": tr("route_planner.system_destination_unresolved"),
             "no_route": tr("route_planner.error_no_route"),
@@ -814,14 +830,6 @@ class RoutePlannerView(QWidget):
         if value is None:
             return "–"
         return tr("common.yes") if value else tr("common.no")
-
-    def _update_calculated_carrier_mass(self, *args):
-        total = (
-            25000
-            + self.carrier_tritium_tank.value()
-            + self.carrier_tritium_storage.value()
-        )
-        self.carrier_calculated_mass.setText(f"{total} t")
 
     def _export_carrier_route(self):
         if self._carrier_route is None:

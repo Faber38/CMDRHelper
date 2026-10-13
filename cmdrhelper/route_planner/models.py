@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import math
+from datetime import datetime, timezone
+
+from .carrier_inputs import BASE_MASS, PERSONAL_CAPACITY, TANK_CAPACITY, MAX_AGE_SECONDS, CarrierSnapshot, timestamp
 
 
 @dataclass(frozen=True)
@@ -13,6 +16,46 @@ class CarrierRouteRequest:
     max_jump_range: int
     source_id64: int | None = None
     destination_id64: int | None = None
+    capacity_used: int | None = None
+    capacity: int = PERSONAL_CAPACITY
+    commander_fid: str = ""
+    carrier_callsign: str = ""
+    carrier_id: int | None = None
+    session: str = ""
+    input_source: str = "manual"
+    confirmed_at: str = ""
+    snapshot: CarrierSnapshot | None = None
+
+    @property
+    def mass(self) -> int:
+        return BASE_MASS
+
+    def validation_error(self, now=None) -> str | None:
+        now = now or datetime.now(timezone.utc)
+        confirmed = timestamp(self.confirmed_at)
+        if (not self.commander_fid or not self.carrier_callsign.strip()
+                or not confirmed or not 0 <= (now - confirmed).total_seconds() <= MAX_AGE_SECONDS):
+            return "carrier_inputs"
+        values = (self.capacity, self.capacity_used, self.tritium_in_tank, self.tritium_in_storage)
+        if any(type(value) is not int for value in values):
+            return "carrier_inputs"
+        if (self.capacity != PERSONAL_CAPACITY
+                or not 0 <= self.capacity_used <= self.capacity
+                or not 0 <= self.tritium_in_storage <= self.capacity_used
+                or not 0 <= self.tritium_in_tank <= TANK_CAPACITY):
+            return "carrier_inputs"
+        if self.input_source == "journal":
+            observed = self.snapshot
+            if (observed is None or not observed.usable(self.commander_fid, self.session, now)
+                    or (self.carrier_id, self.carrier_callsign, self.capacity,
+                        self.capacity_used, self.tritium_in_tank)
+                    != (observed.carrier_id, observed.callsign, observed.capacity,
+                        observed.used, observed.fuel)
+                    or observed.cargo is not None and self.tritium_in_storage > observed.cargo):
+                return "carrier_inputs"
+        elif self.input_source != "manual":
+            return "carrier_inputs"
+        return None
 
 
 @dataclass(frozen=True)

@@ -38,6 +38,15 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.9.5
+
+- New Odyssey ratings: 192 of 223 items are rated A–D; 31 remain marked ? pending verification.
+- Colored rating column with tooltips and saved A–D or D–A sorting; personal cleanup markings remain independent.
+- Corrected Fleet Carrier routes: total confirmed capacity usage is sent to Spansh, with tank and stored tritium kept separate.
+- CarrierStats imports capacity and tank data with identity, session and freshness checks; stored tritium still requires manual input.
+- Clearer carrier input guidance, highlighted invalid fields and three orange flashes for missing confirmation, in both themes and twelve languages.
+- Additional safeguards against stale carrier confirmations and delayed route results after context changes; CTSVision export remains compatible.
+
 ## CMDRHelper v3.9.4
 
 - Improved ship route planner with 7A SCO FSD support and correct use of engineering, Guardian boosters, cargo and reserve fuel.

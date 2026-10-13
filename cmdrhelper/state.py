@@ -105,6 +105,9 @@ class AppState(QObject):
         self.station = ""
         self.ship = ""
         self.ship_loadout = ShipLoadoutData()
+        self.carrier_snapshot = None
+        self.carrier_input_session = ""
+        self.carrier_input_revision = ""
         self._inventory_revisions = {"materials": 0, "mining": 0, "odyssey": 0}
         self.cargo_snapshot = None
         self.ship_inventory = None
@@ -1540,6 +1543,9 @@ class AppState(QObject):
     def reset_commander_runtime_state(self):
         """Leert ausschließlich persönliche, flüchtige Commander-Zustände."""
         self.powerplay = PowerplayState()
+        self.carrier_snapshot = None
+        self.carrier_input_session = ""
+        self.carrier_input_revision = ""
         self.ship_inventory = None
         self._inventory_conflict = None
         self.commander = ""
@@ -1926,6 +1932,9 @@ class AppState(QObject):
         self.station = data["station"]
         self.ship = data["ship"]
         self.ship_loadout = data.get("ship_loadout") or ShipLoadoutData()
+        self.carrier_snapshot = data.get("carrier_snapshot")
+        self.carrier_input_session = data.get("carrier_input_session") or ""
+        self.carrier_input_revision = data.get("carrier_input_revision") or ""
         self.active_srv_type = data.get("active_srv_type") or ""
         self.last_timestamp = data["last_timestamp"]
         self.game_mode = data.get("game_mode") or ""

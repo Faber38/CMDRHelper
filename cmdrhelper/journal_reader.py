@@ -893,6 +893,8 @@ def read_latest_state(
     ship_loadout = ShipLoadoutData()
     from cmdrhelper.ship_cargo import ShipCargoTracker
     cargo_tracker = ShipCargoTracker()
+    from cmdrhelper.route_planner.carrier_inputs import CarrierInputTracker
+    carrier_inputs = CarrierInputTracker()
 
     def merge_materials(previous, current):
         """Merge body-wide Scan.Materials without losing older entries."""
@@ -1393,6 +1395,7 @@ def read_latest_state(
                 et = e.get("event")
                 result["powerplay"].apply(e)
                 cargo_tracker.apply(e, session["fid_seen"], journal)
+                carrier_inputs.apply(e, session["fid_seen"], journal)
                 result["last_event"] = str(et or "")
                 sale = ship_sale(e)
                 if sale is not None:
@@ -2440,6 +2443,11 @@ def read_latest_state(
     result["mission_terminal_updates"] = list(mission_terminal_updates.values())
     result["missions_snapshot_seen"] = missions_snapshot_seen
     result["owned_carrier"] = owned_carrier
+    # Only the latest identified file can supply current planning observations.
+    current_carrier = carrier_inputs.file == str(files[-1])
+    result["carrier_snapshot"] = carrier_inputs.snapshot if current_carrier else None
+    result["carrier_input_session"] = carrier_inputs.session if current_carrier else ""
+    result["carrier_input_revision"] = carrier_inputs.revision if current_carrier else ""
     result["ship_loadout"] = ship_loadout
     result["ship_cargo_context"] = cargo_tracker.context
     result["last_cargo_context"] = cargo_tracker.last_cargo_context

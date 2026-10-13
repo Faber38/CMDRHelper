@@ -314,12 +314,12 @@ class OdysseyViewTests(unittest.TestCase):
         self.select_filter('locker')
         header = self.view.tree.header()
         header.resizeSection(0, 421)
-        header.moveSection(4,1)
+        header.moveSection(header.visualIndex(4),0)
         self.assertIsNone(self.state.settings.value('materials/columns'))
         self.page.tabs.setCurrentIndex(0)
         self.page.tabs.setCurrentIndex(3)
         self.assertEqual(header.sectionSize(0), 421)
-        self.assertEqual(header.logicalIndex(1), 4)
+        self.assertEqual(header.logicalIndex(0), 4)
         settings = QSettings(self.state.settings.fileName(), QSettings.Format.IniFormat)
         restarted = MaterialView(SimpleNamespace(settings=settings), controller=StubController(), odyssey_controller=StubController())
         self.addCleanup(restarted.close)
@@ -327,7 +327,7 @@ class OdysseyViewTests(unittest.TestCase):
         self.assertEqual(restarted.odyssey.tabs.currentIndex(), 2)
         self.assertEqual(restarted.odyssey.filter.currentData(), 'locker')
         self.assertEqual(restarted.odyssey.tree.columnWidth(0), 421)
-        self.assertEqual(restarted.odyssey.tree.header().logicalIndex(1), 4)
+        self.assertEqual(restarted.odyssey.tree.header().logicalIndex(0), 4)
         self.assertFalse(restarted.odyssey.inventory.known)
         restarted.resize(600,500)
         self.app.processEvents()
@@ -341,13 +341,13 @@ class OdysseyViewTests(unittest.TestCase):
             restarted = MaterialView(self.state, controller=StubController(), odyssey_controller=StubController())
             self.addCleanup(restarted.close)
             header = restarted.odyssey.tree.header()
-            self.assertEqual([header.sectionSize(i) for i in range(6)], [340,105,105,110,95,220])
-            self.assertEqual([header.logicalIndex(i) for i in range(6)], list(range(6)))
-            self.assertTrue(all(not header.isSectionHidden(i) for i in range(6)))
+            self.assertEqual([header.sectionSize(i) for i in range(7)], [340,105,105,110,95,220,65])
+            self.assertEqual([header.logicalIndex(i) for i in range(7)], [6,0,1,2,3,4,5])
+            self.assertTrue(all(not header.isSectionHidden(i) for i in range(7)))
 
     def test_mouse_header_resize_and_reorder_saved(self):
         header = self.view.tree.header()
-        start = QPoint(header.sectionSize(0)-1, header.height()//2)
+        start = QPoint(header.sectionViewportPosition(0)+header.sectionSize(0)-1, header.height()//2)
         QTest.mousePress(header.viewport(), Qt.MouseButton.LeftButton, pos=start)
         QTest.mouseMove(header.viewport(), start+QPoint(55,0), 20)
         QTest.mouseRelease(header.viewport(), Qt.MouseButton.LeftButton, pos=start+QPoint(55,0))
@@ -359,8 +359,8 @@ class OdysseyViewTests(unittest.TestCase):
         QTest.mouseMove(header.viewport(),start+QPoint(25,0),30)
         QTest.mouseMove(header.viewport(),target,30)
         QTest.mouseRelease(header.viewport(),Qt.MouseButton.LeftButton,pos=target)
-        self.assertEqual([header.logicalIndex(i) for i in range(6)],[0,2,3,1,4,5])
-        self.assertEqual(self.state.settings.value('materials/odyssey/columns')['order'],[0,2,3,1,4,5])
+        self.assertEqual([header.logicalIndex(i) for i in range(7)],[6,0,2,3,1,4,5])
+        self.assertEqual(self.state.settings.value('materials/odyssey/columns')['order'],[6,0,2,3,1,4,5])
 
     def test_five_colors_selection_live_hover_dark_light(self):
         from cmdrhelper.ui.odyssey_cleanup import save_selection
@@ -392,7 +392,7 @@ class OdysseyViewTests(unittest.TestCase):
 
     def test_english_fallback_and_all_ui_languages(self):
         keys = {k for k in _TRANSLATIONS['en'] if k.startswith('odyssey.')}
-        self.assertEqual(len(keys), 77)
+        self.assertEqual(len(keys), 89)
         for lang, translations in _TRANSLATIONS.items():
             self.assertTrue(all(translations.get(k) for k in keys), lang)
         set_language('fi')

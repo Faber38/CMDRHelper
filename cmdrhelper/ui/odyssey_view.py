@@ -6,6 +6,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboB
 from cmdrhelper.i18n import tr, get_language
 from cmdrhelper.odyssey_inventory import CATEGORIES, OdysseyInventory
 from cmdrhelper.odyssey_catalog import FILTERS, capacity, merge_inventory
+from cmdrhelper.odyssey_ranks import rating, sort_priority
 from cmdrhelper.odyssey_controller import OdysseyController
 from cmdrhelper.odyssey_carrier import CARRIER_CATEGORIES, material_amounts, inventory_carrier_capacity
 from cmdrhelper.odyssey_market_capacity import read_reservation, usable_with_inventory
@@ -21,7 +22,14 @@ STOCK_TEXT_COLORS = {False: "#c2a45e", True: "#806015"}
 CARRIER_KEY_ROLE = Qt.ItemDataRole.UserRole + 4
 CLEANUP_ROLE = Qt.ItemDataRole.UserRole + 5
 CLEANUP_COLORS = {False: ("#482027", "#ffffff"), True: ("#f4d9dd", "#482027")}
-COLUMNS = ("name", "locker", "backpack", "carrier", "total", "usage")
+# Keep stock column identities stable; rank is visually placed before name.
+COLUMNS = ("name", "locker", "backpack", "carrier", "total", "usage", "rank")
+RANK_COLUMN = COLUMNS.index("rank")
+SORT_MODES = ("cleanup", "alphabetical", "rank_asc", "rank_desc")
+RANK_COLORS = {
+    False: dict(A="#77e39b", B="#76d9ee", C="#ffd078", D="#ff929c", **{"?": "#c0c7cf"}),
+    True: dict(A="#12652f", B="#075b79", C="#805000", D="#a0192b", **{"?": "#505761"}),
+}
 
 
 def migrate_carrier_columns(settings):
@@ -39,8 +47,26 @@ def migrate_carrier_columns(settings):
     names = [old[i] for i in order]
     names.insert(names.index("backpack") + 1, "carrier")
     sizes = dict(zip(old, widths), carrier=110)
-    settings.setValue(key, dict(version=1, columns=list(COLUMNS),
-        widths=[sizes[c] for c in COLUMNS], order=[COLUMNS.index(c) for c in names]))
+    columns = COLUMNS[:-1]
+    settings.setValue(key, dict(version=1, columns=list(columns),
+        widths=[sizes[c] for c in columns], order=[columns.index(c) for c in names]))
+
+
+def migrate_rank_column(settings):
+    key = "materials/odyssey/columns"
+    saved = settings.value(key)
+    old = COLUMNS[:-1]
+    if not isinstance(saved, dict) or saved.get("version") != 1 or saved.get("columns") != list(old):
+        return
+    widths, order = saved.get("widths"), saved.get("order")
+    if (not isinstance(widths, list) or len(widths) != len(old)
+            or any(type(w) is not int or not 40 <= w <= 2000 for w in widths)
+            or not isinstance(order, list) or len(order) != len(old)
+            or any(type(i) is not int for i in order) or sorted(order) != list(range(len(old)))):
+        return
+    order = list(order)
+    order.insert(order.index(0), RANK_COLUMN)
+    settings.setValue(key, dict(version=1, columns=list(COLUMNS), widths=[*widths, 65], order=order))
 
 
 class OdysseyRowDelegate(MaterialRowDelegate):
@@ -51,10 +77,13 @@ class OdysseyRowDelegate(MaterialRowDelegate):
             background, foreground = CLEANUP_COLORS[self.light]
             option.backgroundBrush = QBrush(QColor(background))
             option.palette.setColor(QPalette.ColorRole.Text, QColor(foreground))
-            return
         # Preserve the existing selection contrast and all row backgrounds.
-        if not selected and index.data(POSITIVE_STOCK_ROLE):
+        elif not selected and index.data(POSITIVE_STOCK_ROLE):
             option.palette.setColor(QPalette.ColorRole.Text, QColor(STOCK_TEXT_COLORS[self.light]))
+        if not selected and index.column() == RANK_COLUMN:
+            option.palette.setColor(QPalette.ColorRole.Text,
+                                    QColor(RANK_COLORS[self.light].get(index.data(), RANK_COLORS[self.light]["?"])))
+            option.font.setBold(True)
 
 
 class OdysseyView(QWidget):
@@ -121,18 +150,18 @@ class OdysseyView(QWidget):
         legend.addWidget(self.cleanup_swatch)
         legend.addWidget(self.cleanup_legend)
         self.sort_order = QComboBox()
-        for mode in ("cleanup", "alphabetical"):
+        for mode in SORT_MODES:
             self.sort_order.addItem(tr("odyssey.sort." + mode), mode)
         saved_sort = str(state.settings.value("materials/odyssey/sort", "alphabetical"))
-        self.sort_order.setCurrentIndex(0 if saved_sort == "cleanup" else 1)
+        self.sort_order.setCurrentIndex(SORT_MODES.index(saved_sort) if saved_sort in SORT_MODES else 1)
         legend.addWidget(self.sort_order)
         legend.addStretch()
         layout.addLayout(legend)
         self._style_cleanup_legend(light)
         self.tree = QTreeWidget()
-        self.tree.setColumnCount(6)
+        self.tree.setColumnCount(len(COLUMNS))
         self.tree.setHeaderLabels([tr("odyssey." + key) + (" ✎" if key == "carrier" else "") for key in COLUMNS])
-        for column in range(6):
+        for column in range(len(COLUMNS)):
             self.tree.headerItem().setTextAlignment(column, Qt.AlignmentFlag.AlignVCenter |
                 (Qt.AlignmentFlag.AlignLeft if column in (0, 5) else Qt.AlignmentFlag.AlignHCenter))
         self.tree.headerItem().setToolTip(3, tr("odyssey.carrier_hint"))
@@ -148,8 +177,15 @@ class OdysseyView(QWidget):
         self.row_delegate = OdysseyRowDelegate(self.tree, light)
         self.tree.setItemDelegate(self.row_delegate)
         migrate_carrier_columns(state.settings)
+        migrate_rank_column(state.settings)
         persist_header_layout(self.tree.header(), state.settings, "materials/odyssey/columns",
-                              columns=COLUMNS, default_widths=(340, 105, 105, 110, 95, 220))
+                              columns=COLUMNS, default_widths=(340, 105, 105, 110, 95, 220, 65))
+        header = self.tree.header()
+        # Rank belongs directly before the name, including restored layouts.
+        order = [header.logicalIndex(i) for i in range(len(COLUMNS)) if header.logicalIndex(i) != RANK_COLUMN]
+        order.insert(order.index(0), RANK_COLUMN)
+        for visual, logical in enumerate(order):
+            header.moveSection(header.visualIndex(logical), visual)
         layout.addWidget(self.tree, 1)
         self.highlight_timer = QTimer(self)
         self.highlight_timer.setSingleShot(True)
@@ -308,8 +344,10 @@ class OdysseyView(QWidget):
         for widget in (self.cleanup_swatch, self.cleanup_legend):
             widget.setToolTip(tr("odyssey.cleanup.legend_tip"))
         self.sort_order.setAccessibleName(tr("odyssey.sort.label"))
-        for index, mode in enumerate(("cleanup", "alphabetical")):
+        for index, mode in enumerate(SORT_MODES):
             self.sort_order.setItemText(index, tr("odyssey.sort." + mode))
+        self.tree.headerItem().setText(RANK_COLUMN, tr("odyssey.rank"))
+        self.tree.headerItem().setToolTip(RANK_COLUMN, tr("odyssey.rank.own"))
         self.rows = merge_inventory(self.inventory)
         locker = self.inventory.containers["ShipLocker"]
         for index, tab_category in enumerate(CATEGORIES):
@@ -366,7 +404,10 @@ class OdysseyView(QWidget):
                    and (not query or query in r.name.casefold()
                         or r.definition is not None and query in r.definition.name_en.casefold())]
         cleanup_first = self.sort_order.currentData() == "cleanup"
-        visible.sort(key=lambda r: (not self._is_cleanup(r) if cleanup_first else False,
+        rank_sort = self.sort_order.currentData() in ("rank_asc", "rank_desc")
+        visible.sort(key=lambda r: (sort_priority(rating(r.key.name, r.key.category).rank,
+                                                self.sort_order.currentData() == "rank_desc") if rank_sort
+                                    else not self._is_cleanup(r) if cleanup_first else False,
                                     collator.sortKey(r.name), r.key.name, repr(r.key)))
         scroll = self.tree.verticalScrollBar().value()
         selected = next((k for k, item in self.items.items() if item.isSelected()), None)
@@ -421,6 +462,7 @@ class OdysseyView(QWidget):
                     summary.setData(0, STRIPE_ROLE, index % 5)
                     summary.setExpanded(expanded.get(identity, True))
                     self._mark_cleanup(summary, row)
+                    self._rank_cell(summary, row)
                     self.summaries[identity] = summary
                 parent = self.summaries[identity]
             values = (stock.locker, stock.backpack, None, None) if multiple else amounts
@@ -446,6 +488,7 @@ class OdysseyView(QWidget):
             item.setToolTip(0, "\n".join([row.name, *tips]))
             item.setToolTip(5, "\n".join(tips))
             self._mark_cleanup(item, row)
+            self._rank_cell(item, row)
             self.items[row.key] = item
             if row.key == selected:
                 item.setSelected(True)
@@ -467,6 +510,19 @@ class OdysseyView(QWidget):
         self.tree.doItemsLayout()
         self.tree.verticalScrollBar().setValue(scroll)
         self.row_delegate.refresh_hover()
+
+    def _rank_cell(self, item, row):
+        assessment = rating(row.key.name, row.key.category)
+        item.setText(RANK_COLUMN, assessment.rank)
+        item.setTextAlignment(RANK_COLUMN, Qt.AlignmentFlag.AlignCenter)
+        tips = [tr("odyssey.rank." + assessment.rank), tr("odyssey.rank.own")]
+        if assessment.rank != "?":
+            tips.append(tr("odyssey.rank.keep" if assessment.rank in "AB" else
+                           "odyssey.rank.reduce" if assessment.rank == "C" else "odyssey.rank.sell"))
+        # Counts describe source recipe references, not a fabricated scarcity score.
+        for flag in sorted({flag for flag, _ in assessment.recipes}):
+            tips.append(tr("odyssey.use." + flag) + ": " + str(sum(f == flag for f, _ in assessment.recipes)))
+        item.setToolTip(RANK_COLUMN, "\n".join(tips))
 
     def _stock_cells(self, item, values, identity):
         for column in (0, 5):
