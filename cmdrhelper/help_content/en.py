@@ -364,7 +364,7 @@ HELP_TOPICS = {
               """
 
 <h3>★ Favorites</h3>
-<p>The “★ Favorites” button at the top of the Explorer opens a separate, reusable favorites window. Here you save systems, planets/moons and surface locations for the active commander.</p>
+<p>“Navigation → ★ Favorites” in the left main menu opens a separate, reusable favorites window. Here you save systems, planets/moons and surface locations for the active commander.</p>
 <p>The scrollable list, sorted alphabetically by name, shows the name, type, system, body and latitude/longitude where applicable, category and a small image preview. Free-text search, type and category filters can be used together. The search covers the name, system, body and note.</p>
 <p>“Open / View” shows the saved information, note and a larger image preview. “Show in Explorer” opens the existing system overview or body detail view if the favorite belongs to the current Explorer system and matching data is available. For other systems, the saved favorite data remains visible; no system route is calculated.</p>
 
@@ -1106,7 +1106,7 @@ HELP_TOPICS = {
 <p>It is not an interstellar route planner and does not handle system or jump navigation. You fly your ship yourself.</p>
 
 <h3>Opening the navigator and entering a target</h3>
-<p>Open “Planet navigation” in Explorer and select “Manual input…”. You can open the navigator and enter a target before a current surface position is available.</p>
+<p>Open “Navigation → Planet navigation” in the left main menu and select “Manual input…”. You can open the navigator and enter a target before a current surface position is available.</p>
 <ul>
 <li><b>Body:</b> Select the target planet or moon from the list or use the body already detected. You can also enter the body name yourself if it is not yet listed. If in doubt, use the full name including the system name.</li>
 <li><b>Latitude:</b> Enter the target latitude between −90° and +90°.</li>
@@ -1126,7 +1126,7 @@ HELP_TOPICS = {
 <p>System, body and coordinates are captured when invoked. In the favourites dialog, edit the name, category and note and optionally attach an image. Only “Save” stores the record locally for that commander; cancelling saves nothing. Later movement does not change the captured position.</p>
 
 <h3>Use saved positions</h3>
-<p>Open “★ Favorites” in Explorer. Select a saved surface location and “◎ To coordinates” to adopt its body, coordinates and name as the navigation target. This replaces any previous target; on another body the navigator waits for matching position data.</p>
+<p>Open “Navigation → ★ Favorites” in the left main menu. Select a saved surface location and “◎ To coordinates” to adopt its body, coordinates and name as the navigation target. This replaces any previous target; on another body the navigator waits for matching position data.</p>
 <p>“Edit” changes the name, category and note. “Delete” removes the favourite only after confirmation, without removing Elite data. Favourites survive Helper restarts and are separated by commander; the current navigation target itself lasts only for the session.</p>
 
 <h3>Planet globe: more than 380 km</h3>

@@ -3,24 +3,17 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 import time
-from PySide6.QtCore import QObject, Qt, QTimer, Signal
+from PySide6.QtCore import QObject
 
 from cmdrhelper.i18n import tr
 from cmdrhelper.status_reader import read_status_data, utc_timestamp
 
 
 class CargoVisibility(QObject):
-    """Shared inactivity policy; polling/duplicate snapshots are not activity."""
-    expired = Signal()
+    """Visibility has no inactivity deadline; explicit controls own closing."""
 
-    def __init__(self, parent, expired):
+    def __init__(self, parent):
         super().__init__(parent)
-        self.timer = QTimer(self)
-        self.timer.setSingleShot(True)
-        self.timer.setInterval(15000)
-        self.timer.setTimerType(Qt.TimerType.PreciseTimer)
-        self.timer.timeout.connect(self._expire)
-        self.expired.connect(expired)
         self.key = None
         self.active = False
         self.manual = False
@@ -30,25 +23,15 @@ class CargoVisibility(QObject):
         self.key = key
         if manual:
             self.manual = self.active = True
-            self.timer.stop()
         elif changed:
             self.active = True
-            if not self.manual:
-                self.timer.start()
 
     def close(self):
-        self.timer.stop()
         self.manual = self.active = False
 
     def reset(self):
         self.close()
         self.key = None
-
-    def _expire(self):
-        if not self.manual:
-            self.timer.stop()
-            self.active = False
-            self.expired.emit()
 
 
 def _session_key(context):
@@ -127,7 +110,7 @@ def cargo_fill_fraction(used, capacity):
 @dataclass(frozen=True)
 class CargoHudData:
     vehicle_name: str
-    used: int
+    used: int | None
     capacity: int | None
 
     @property
@@ -136,8 +119,12 @@ class CargoHudData:
 
     @property
     def text(self):
-        amount = (f"{self.used} / {self.capacity} t" if self.capacity is not None
-                  else tr("cargo.live.loaded", count=self.used))
+        if self.used is None:
+            amount = "–"
+        elif self.capacity is not None:
+            amount = f"{self.used} / {self.capacity} t"
+        else:
+            amount = tr("cargo.live.loaded", count=self.used)
         return tr("cargo.hud.summary", vehicle=self.vehicle_name,
                   cargo=tr("cargo.hud.label").upper(), amount=amount)
 

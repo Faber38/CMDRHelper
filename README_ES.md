@@ -38,6 +38,14 @@ La carpeta de diarios de Elite Dangerous se detecta automáticamente cuando es p
 
 CMDRHelper busca actualizaciones al iniciarse y dispone de un actualizador integrado. Confirma una actualización ofrecida en la aplicación; actualizará el programa y las dependencias y reiniciará CMDRHelper. Tras la primera instalación, normalmente basta con usar `start.bat` (Windows) o `bash start.sh` (Linux). No es necesario volver a ejecutar manualmente `install.bat` o `install.sh` para las actualizaciones normales.
 
+## CMDRHelper v3.9.6.7
+
+- Mejorada la asociación de méritos de Powerplay con escaneos de naves y ventas de mercancías.
+- Los escaneos de naves admiten +5 y +10 méritos; las ventas ordinarias pueden recibir varias acreditaciones en cuatro segundos (≈). Los eventos con causas alternativas o ambiguas quedan sin asignar (?).
+- Las vistas de carga permanecen visibles mientras están activadas, sin ocultarse por inactividad; los valores de carga y drones se actualizan sin volver a abrir las vistas.
+- Nuevo menú principal desplegable Navegación con Favoritos y Navegación planetaria, que sustituye a los antiguos botones del Explorer.
+- La ayuda integrada describe las nuevas rutas de menú en los doce idiomas compatibles.
+
 ## CMDRHelper v3.9.6.6
 
 - Mejorada la asociación de méritos de Powerplay con ventas consecutivas de mercancías.

@@ -52,8 +52,7 @@ def chronicle_for_day(events, day, zone=None):
                             station=state.station, power=state.power)
         else:
             # A day boundary cannot leave a stale candidate/block open.
-            chronicle.pending = chronicle.active = None
-            chronicle.ambiguous = False
+            chronicle.reset_candidates()
     return chronicle
 
 
@@ -74,6 +73,7 @@ class ChronicleGroup:
     locker_seen: bool = False
     delivery_blocked: bool = False
     last_sale_event: dict | None = field(default=None, repr=False)
+    repeated_scan: bool = False
 
 
 @dataclass
@@ -82,6 +82,19 @@ class PowerplayChronicle:
     pending: ChronicleGroup | None = None
     active: ChronicleGroup | None = None
     ambiguous: bool = False
+    # Evidence is independent of visible groups and survives credits, Cargo,
+    # partial scans and unmatched amounts. It is never persisted as new facts.
+    causes: list[ChronicleGroup] = field(default_factory=list, repr=False)
+    last_event: dict | None = field(default=None, repr=False)
+    last_context: tuple | None = field(default=None, repr=False)
+    seen_scan_targets: set = field(default_factory=set, repr=False)
+
+    def reset_candidates(self):
+        self.pending = self.active = None
+        self.ambiguous = False
+        self.causes.clear()
+        self.seen_scan_targets.clear()
+        self.last_event = self.last_context = None
 
     def _append(self, group):
         self.groups.append(group)
@@ -95,6 +108,8 @@ class PowerplayChronicle:
 
     @staticmethod
     def _window(group):
+        if group.action.get("event") == "MarketSell" and not is_rare_sale(group.action):
+            return 4
         return {"ShipTargeted": 3, "MarketSell": 2}.get(group.action.get("event"), 1)
 
     @staticmethod
@@ -107,17 +122,6 @@ class PowerplayChronicle:
         # Delivery already has a three-second matching window. Sales must not
         # discard that alternative merely because their own window is shorter.
         return 3 if group.action.get("event") == "PowerplayDeliver" else cls._window(group)
-
-    def _earlier_credited_ordinary_sale(self, other, sale):
-        # Ordinary sales accept only one credit. Once that temporal link lies
-        # strictly before a new sale, it need not block the new sale's link.
-        # Same-second credits remain ambiguous at journal timestamp precision;
-        # rare sales and PP2 deliveries may legitimately receive more credits.
-        if (other.action.get("event") != "MarketSell" or is_rare_sale(other.action)
-                or other.certainty != "temporal" or len(other.credits) != 1):
-            return False
-        gap = self._gap(other.credits[0], sale.action)
-        return gap is not None and gap > 0
 
     def _sale_competitors(self, previous, event, *, keep_candidates=False):
         """Carry alternatives through credits, never through a reset/barrier.
@@ -161,6 +165,29 @@ class PowerplayChronicle:
                 and all(isinstance(v, str) and v.strip() for v in (power, system, station)))
 
     def apply(self, event, *, system="", station="", power=""):
+        context = (system, station, power)
+        gap = self._gap(self.last_event, event) if self.last_event else 0
+        boundary = event.get('event') in (
+            'Fileheader', 'Commander', 'LoadGame', 'Shutdown', 'Location',
+            'FSDJump', 'CarrierJump', 'Docked', 'Undocked', 'SupercruiseEntry',
+            'SupercruiseExit', 'StartJump', 'PowerplayJoin', 'PowerplayLeave', 'PowerplayDefect')
+        # A first merit event may establish the previously unknown pledge.
+        # Preserve the existing empty-power matching of scans/bounties/salvage;
+        # sales still require an explicit, nonempty power at both ends.
+        changed_context = self.last_context is not None and (
+            context[:2] != self.last_context[:2] or
+            (bool(self.last_context[2]) and context[2] != self.last_context[2]))
+        if boundary or changed_context:
+            self.reset_candidates()
+        if gap is None or gap < 0 or self._gap(event, event) is None:
+            self.reset_candidates()
+            if event.get('event') == 'ShipTargeted' or (
+                    event.get('event') == 'MarketSell' and not is_rare_sale(event)):
+                return
+        self.last_event, self.last_context = dict(event), context
+        self.causes = [g for g in self.causes
+                       if (age := self._gap(g.action, event)) is not None
+                       and 0 <= age <= self._cause_window(g)]
         previous = self.pending or self.active
         kind = event.get("event")
         causes = self._delivery_causes(previous, event)
@@ -210,20 +237,27 @@ class PowerplayChronicle:
                 self.pending = self.active = None
                 self.ambiguous = False
                 previous = None
-        # A cargo snapshot reports inventory, not another PP2 action. Retain a
-        # sale candidate only; other activity types keep their existing rules.
-        if kind == "Cargo" and self._sale_related(previous):
+        # Inventory snapshots do not consume sale/scan evidence. Other action
+        # types retain their existing Cargo barrier.
+        if kind == "Cargo" and (self._sale_related(previous) or
+                                (previous and previous.action.get('event') == 'ShipTargeted')):
+            return
+        if (kind == 'PowerplayRank' and previous is not None
+                and previous.action.get('event') == 'MarketSell' and not is_rare_sale(previous.action)
+                and event.get('Power') == power == previous.power
+                and amount(event.get('Rank')) is not None):
             return
         if kind == "MarketSell":
             competitors = self._sale_competitors(self.pending or self.active, event)
             # Rare sales remain visible on their own. Ordinary sales enter the
-            # PP2 display only when a single credit can be plausibly linked.
+            # PP2 display only when a credit can be plausibly linked.
             self.pending = self.active = None
             self.ambiguous = False
             if is_market_sale(event):
                 rare = is_rare_sale(event)
                 group = ChronicleGroup(dict(event), "explicit" if rare else "temporal", system, station, power,
                                        competitors=competitors)
+                self.causes.append(group)
                 if rare:
                     self.groups.append(group)
                 if all(isinstance(v, str) and v.strip() for v in (power, system, station)):
@@ -255,6 +289,15 @@ class PowerplayChronicle:
                 return
             group = ChronicleGroup(dict(event), "explicit" if explicit else "temporal",
                                    system, station, event.get("Power", power), competitors=competitors)
+            if kind == 'ShipTargeted':
+                pilot = event.get('PilotName') or event.get('PilotName_Localised')
+                if pilot and event.get('Ship'):
+                    # No unique target ID exists here. Repeated type/name pairs
+                    # are conservative evidence, never proof of a fresh reward.
+                    target = (event['Ship'], pilot)
+                    group.repeated_scan = target in self.seen_scan_targets
+                    self.seen_scan_targets.add(target)
+            self.causes.append(group)
             if explicit:
                 self.ambiguous = False
                 self._append(group)
@@ -282,28 +325,31 @@ class PowerplayChronicle:
                                and self._delivery_context(group, event, system, station, power)
                                and len(self._delivery_causes(group, event)) == 1)
                 elif action == "MarketSell":
-                    matched = (0 <= gap <= 2 and group.power == power == event["Power"]
+                    matched = (0 <= gap <= self._window(group) and group.power == power == event["Power"]
                                and (is_rare_sale(group.action) or
-                                    (not group.credits and event["MeritsGained"] > 0))
+                                    event["MeritsGained"] > 0)
                                and group.system == system and group.station == station
                                and all(isinstance(v, str) and v.strip()
                                        for v in (power, system, station)))
                 elif action in ("Bounty", "SearchAndRescue", "ShipTargeted"):
                     matched = 0 <= gap <= self._window(group)
                     if action == "ShipTargeted":
-                        matched = matched and event["MeritsGained"] == 10 and not group.credits
+                        matched = (matched and event["MeritsGained"] in (5, 10)
+                                   and not group.credits and not group.repeated_scan)
                 elif group.certainty == "unknown" and group.credits:
                     last_gap = self._gap(group.credits[-1], event)
                     matched = 0 <= gap <= 10 and last_gap is not None and 0 <= last_gap <= 3
+        if group and (group.action.get('event') == 'ShipTargeted' or
+                      (group.action.get('event') == 'MarketSell' and not is_rare_sale(group.action))):
+            # Even already credited or invisible causes can receive a delayed
+            # reward. A successful match must not consume competing evidence.
+            matched = matched and not any(other is not group for other in self.causes)
         if group and group.certainty != "unknown" and group.competitors:
             if group.action.get("event") == "MarketSell" and not is_rare_sale(group.action):
-                # Evaluate alternatives at the credit's time, not the later
-                # sale's time. Only an ordinary sale with an earlier completed
-                # temporal link is excluded; this never proves journal cause.
+                # Earlier credits do not consume a possible multi-credit cause.
                 matched = matched and not any(
                     (gap := self._gap(other.action, event)) is not None
                     and 0 <= gap <= self._cause_window(other)
-                    and not self._earlier_credited_ordinary_sale(other, group)
                     for other in group.competitors)
             else:
                 matched = False

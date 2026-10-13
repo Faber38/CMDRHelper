@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_6_7.2': 'Rahtinäytöt pysyvät näkyvissä, kun ne on otettu käyttöön, eivätkä piiloudu toimettomuuden vuoksi; rahti- ja drooniarvot päivittyvät avaamatta näyttöjä uudelleen.',
+    'release.3_9_6_7.3': 'Uusi avattava Navigointi-päävalikko sisältää Suosikit ja Planeettanavigoinnin ja korvaa aiemmat Explorerin painikkeet.',
+    'release.3_9_6_7.4': 'Sisäänrakennettu ohje kuvaa uudet valikkopolut kaikilla kahdellatoista tuetulla kielellä.',
+    'nav.navigation': 'Navigointi',
+    'release.3_9_6_7.0': 'Powerplay-ansioiden yhdistämistä alusskannauksiin ja tavaramyynteihin on parannettu.',
+    'release.3_9_6_7.1': 'Alusskannauksissa huomioidaan +5 ja +10 ansiota; tavalliseen tavaramyyntiin voidaan yhdistää useita hyvityksiä neljän sekunnin sisällä (≈). Kilpailevat tai epäselvät tapahtumat jätetään selvittämättömiksi (?).',
     'release.3_9_6_6.0': 'Powerplay-ansioiden yhdistämistä peräkkäisiin tavaramyynteihin on parannettu.',
     'release.3_9_6_5.0': 'Vakaampi Windows-käynnistys: Ei-kriittiset taustavirheet näytetään osittaisina virheinä, ja pääikkuna pysyy käytettävissä.',
     'release.3_9_6_5.1': 'Rajatut uusintayritykset laskeutumispaikkatiedoille ja lokien ajantasaistukselle, parannettu kartografian korjaus sekä turvallisempi loki-indeksointi ja sulkeminen.',

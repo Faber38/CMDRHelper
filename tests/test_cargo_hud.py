@@ -261,7 +261,7 @@ class CargoHudTests(unittest.TestCase):
             with self.subTest(used=used, capacity=capacity):
                 self.assertEqual(cargo_fill_fraction(used, capacity), fraction)
 
-    def test_vehicle_changes_hide_stale_snapshot_then_resume(self):
+    def test_vehicle_changes_clear_stale_values_without_hiding(self):
         self.cargo()
         self.hud.set_cargo_enabled(True)
         self.assertTrue(self.hud.isVisible())
@@ -269,14 +269,16 @@ class CargoHudTests(unittest.TestCase):
         # Status detects entry before the matching Cargo event has arrived.
         self.status("SRV")
         self.hud.follow_target()
-        self.assertFalse(self.hud.isVisible())
+        self.assertTrue(self.hud.isVisible())
+        self.assertIsNone(self.hud.cargo_data.used)
         self.cargo("SRV", 67, "mev_rhino")
         self.hud.follow_target()
         self.assertEqual(self.hud.cargo_data.capacity, 72)
         self.assertTrue(self.hud.isVisible())
         self.status("Ship")
         self.hud.follow_target()
-        self.assertFalse(self.hud.isVisible())
+        self.assertTrue(self.hud.isVisible())
+        self.assertIsNone(self.hud.cargo_data.used)
         self.cargo("Ship", 128)
         self.hud.follow_target()
         self.assertEqual(self.hud.cargo_data.capacity, 256)
@@ -314,8 +316,9 @@ class CargoHudTests(unittest.TestCase):
             self.hud.set_cargo_enabled(True)
             mutation()
             self.hud.follow_target()
-            self.assertIsNone(self.hud.cargo_data)
-            self.assertFalse(self.hud.isVisible())
+            self.assertIsNone(self.hud.cargo_data.used)
+            self.assertIn("–", self.hud.cargo_data.text)
+            self.assertTrue(self.hud.isVisible())
             self.assertTrue(self.hud.cargo_enabled)
         self.cargo("SRV", 2, "mev_rhino")
         self.state.active_srv_type = "testbuggy"

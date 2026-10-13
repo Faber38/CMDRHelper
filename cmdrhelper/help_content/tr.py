@@ -363,7 +363,7 @@ HELP_TOPICS = {
               """
 
 <h3>★ Favoriler</h3>
-<p>Explorer’ın üst kısmındaki “★ Favoriler” düğmesi ayrı, yeniden kullanılabilen bir favoriler penceresi açar. Burada etkin komutan için sistemleri, gezegenleri/uyduları ve yüzey konumlarını kaydedersin.</p>
+<p>Soldaki ana menüde “Navigasyon → ★ Favoriler” ayrı, yeniden kullanılabilen bir favoriler penceresi açar. Burada etkin komutan için sistemleri, gezegenleri/uyduları ve yüzey konumlarını kaydedersin.</p>
 <p>Ada göre alfabetik sıralanan, kaydırılabilir liste; ad, tür, sistem, uygun olduğunda gökcismi ve enlem/boylam, kategori ve küçük bir resim önizlemesi gösterir. Serbest metin araması, tür filtresi ve kategori filtresi birlikte kullanılabilir. Arama; ad, sistem, gökcismi ve notu kapsar.</p>
 <p>“Aç / Göster” kaydedilen bilgileri, notu ve daha büyük bir resim önizlemesini gösterir. “Explorer’da göster”, favori mevcut Explorer sistemine aitse ve ilgili veriler varsa mevcut sistem genel görünümünü veya gökcismi ayrıntı görünümünü açar. Diğer sistemler için kaydedilmiş favori verileri görünür kalır; sistemler arası rota hesaplanmaz.</p>
 
@@ -1114,7 +1114,7 @@ HELP_TOPICS = {
 <p>Bu, yıldızlararası bir rota planlayıcısı değildir ve sistemler arası ya da sıçrama navigasyonunu üstlenmez. Gemini kendin kullanırsın.</p>
 
 <h3>Navigatörü açma ve hedef girme</h3>
-<p>Explorer’da “Gezegen navigasyonu” açıp “Manuel giriş …” seçin. Mevcut yüzey konumu olmadan da pencere açılabilir ve hedef önceden girilebilir.</p>
+<p>Soldaki ana menüde “Navigasyon → Gezegen navigasyonu” açıp “Manuel giriş …” seçin. Mevcut yüzey konumu olmadan da pencere açılabilir ve hedef önceden girilebilir.</p>
 <ul>
 <li><b>Gök cismi:</b> Listeden hedef gezegeni veya ayı seç ya da önceden algılanmış gök cismini kullan. Adı henüz listede yoksa gök cisminin adını kendin de girebilirsin. Emin değilsen sistem adı dâhil tam adı kullan.</li>
 <li><b>Enlem:</b> Hedef enlemini −90° ile +90° arasında gir.</li>
@@ -1134,7 +1134,7 @@ HELP_TOPICS = {
 <p>Açılışta sistem, cisim ve koordinatlar sabitlenir. Favori penceresinde ad, kategori ve not düzenlenebilir, resim eklenebilir. Yalnızca “Kaydet” bu komutan için yerel kayıt oluşturur; iptal etmek hiçbir şey kaydetmez. Sonraki hareketler sabitlenen konumu değiştirmez.</p>
 
 <h3>Kayıtlı konumları kullanma</h3>
-<p>Explorer’da “★ Favoriler” açın. Kayıtlı bir yüzey yeri ve “◎ Koordinatlara git” seçerek cismi, koordinatları ve adı hedef olarak alın. Önceki hedefin yerini alır; başka cisimde gezgin uygun konum verilerini bekler.</p>
+<p>Soldaki ana menüde “Navigasyon → ★ Favoriler” açın. Kayıtlı bir yüzey yeri ve “◎ Koordinatlara git” seçerek cismi, koordinatları ve adı hedef olarak alın. Önceki hedefin yerini alır; başka cisimde gezgin uygun konum verilerini bekler.</p>
 <p>“Düzenle” ad, kategori ve notu değiştirir. “Sil” onaydan sonra favoriyi kaldırır, Elite verilerini silmez. Favoriler yeniden başlatmada korunur ve komutana göre ayrılır; mevcut navigasyon hedefi yalnızca oturum boyunca geçerlidir.</p>
 
 <h3>Gezegen küresi: 380 km’den fazla</h3>

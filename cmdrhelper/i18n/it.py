@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_6_7.2': 'Le visualizzazioni della stiva restano visibili quando sono abilitate, senza nascondersi per inattività; i valori di carico e droni si aggiornano senza riaprire le visualizzazioni.',
+    'release.3_9_6_7.3': 'Nuovo menu principale espandibile Navigazione con Preferiti e Navigazione planetaria, al posto dei precedenti pulsanti nell’Explorer.',
+    'release.3_9_6_7.4': 'La guida integrata descrive i nuovi percorsi dei menu in tutte le dodici lingue supportate.',
+    'nav.navigation': 'Navigazione',
+    'release.3_9_6_7.0': 'Migliorata l’associazione dei meriti Powerplay alle scansioni delle navi e alle vendite di merci.',
+    'release.3_9_6_7.1': 'Le scansioni delle navi considerano +5 e +10 meriti; le normali vendite possono ricevere più accrediti entro quattro secondi (≈). Gli eventi concorrenti o ambigui restano non attribuiti (?).',
     'release.3_9_6_6.0': 'Migliorata l’associazione dei meriti Powerplay alle vendite consecutive di merci.',
     'release.3_9_6_5.0': 'Avvio Windows più robusto: gli errori non critici in background sono segnalati come parziali e la finestra principale resta utilizzabile.',
     'release.3_9_6_5.1': 'Tentativi limitati per i dati delle piazzole e il recupero dei giornali, riparazione cartografica migliorata e indicizzazione e chiusura più sicure.',

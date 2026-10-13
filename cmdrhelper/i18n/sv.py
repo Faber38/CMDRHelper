@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_6_7.2': 'Lastvisningarna förblir synliga när de är aktiverade, utan att döljas vid inaktivitet; last- och drönarvärden uppdateras utan att visningarna öppnas på nytt.',
+    'release.3_9_6_7.3': 'Ny utfällbar huvudmeny Navigering med Favoriter och Planetnavigering ersätter de tidigare knapparna i Explorer.',
+    'release.3_9_6_7.4': 'Den inbyggda hjälpen beskriver de nya menysökvägarna på alla tolv språk som stöds.',
+    'nav.navigation': 'Navigering',
+    'release.3_9_6_7.0': 'Förbättrad koppling av Powerplay-meriter till skeppsskanningar och varuförsäljning.',
+    'release.3_9_6_7.1': 'Skeppsskanningar stöder +5 och +10 meriter; vanlig varuförsäljning kan få flera tilldelningar inom fyra sekunder (≈). Konkurrerande eller tvetydiga händelser förblir oklara (?).',
     'release.3_9_6_6.0': 'Förbättrad koppling av Powerplay-meriter till varuförsäljningar i följd.',
     'release.3_9_6_5.0': 'Robustare Windows-start: Icke-kritiska bakgrundsfel visas som delfel och huvudfönstret kan fortfarande användas.',
     'release.3_9_6_5.1': 'Begränsade återförsök för landningsplatsdata och journaluppdatering, förbättrad kartografireparation samt säkrare journalindexering och avslutning.',

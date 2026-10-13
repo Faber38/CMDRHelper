@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_6_7.2': 'Ingeschakelde vrachtruimweergaven blijven zichtbaar zonder verbergen bij inactiviteit; vracht- en dronewaarden worden bijgewerkt zonder de weergaven opnieuw te openen.',
+    'release.3_9_6_7.3': 'Nieuw uitklapbaar hoofdmenu Navigatie met Favorieten en Planeetnavigatie vervangt de eerdere knoppen in Explorer.',
+    'release.3_9_6_7.4': 'De geïntegreerde help beschrijft de nieuwe menupaden in alle twaalf ondersteunde talen.',
+    'nav.navigation': 'Navigatie',
+    'release.3_9_6_7.0': 'Verbeterde koppeling van Powerplay-verdiensten aan scheepsscans en goederenverkopen.',
+    'release.3_9_6_7.1': 'Scheepsscans ondersteunen +5 en +10 verdiensten; gewone goederenverkopen kunnen binnen vier seconden meerdere toekenningen krijgen (≈). Concurrerende of dubbelzinnige gebeurtenissen blijven onopgelost (?).',
     'release.3_9_6_6.0': 'Verbeterde koppeling van Powerplay-verdiensten aan opeenvolgende goederenverkopen.',
     'release.3_9_6_5.0': 'Robuustere Windows-start: Niet-kritieke achtergrondfouten worden als gedeeltelijke fouten gemeld; het hoofdvenster blijft bruikbaar.',
     'release.3_9_6_5.1': 'Beperkte nieuwe pogingen voor landingsplaatsgegevens en het bijwerken van journals, verbeterd cartografieherstel en veiligere indexering en afsluiting.',

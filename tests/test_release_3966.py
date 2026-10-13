@@ -6,6 +6,7 @@ import re
 import unittest
 from unittest.mock import patch
 
+from cmdrhelper import __version__
 from cmdrhelper.database import SCHEMA_VERSION
 from cmdrhelper.i18n import _TRANSLATIONS
 from cmdrhelper.release_summaries import RELEASE_SUMMARIES
@@ -17,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class Release3966Tests(unittest.TestCase):
     def test_publisher_metadata_and_readmes_in_all_languages(self):
-        self.assertEqual(version_at(ROOT), '3.9.6.6')
+        self.assertEqual(version_at(ROOT), __version__)
         self.assertEqual(SCHEMA_VERSION, 23)
         notes = release_notes(ROOT, '3.9.6.6')
         metadata = json.loads(re.search(

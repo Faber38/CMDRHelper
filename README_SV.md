@@ -38,6 +38,14 @@ Journalmappen för Elite Dangerous hittas automatiskt när det är möjligt. Om 
 
 CMDRHelper söker efter uppdateringar vid start och har en inbyggd uppdateringsfunktion. Bekräfta en erbjuden uppdatering i programmet; den uppdaterar programmet och beroendena och startar om CMDRHelper. Efter den första installationen använder du normalt bara `start.bat` (Windows) eller `bash start.sh` (Linux). Du behöver inte köra `install.bat` eller `install.sh` manuellt igen för vanliga uppdateringar.
 
+## CMDRHelper v3.9.6.7
+
+- Förbättrad koppling av Powerplay-meriter till skeppsskanningar och varuförsäljning.
+- Skeppsskanningar stöder +5 och +10 meriter; vanlig varuförsäljning kan få flera tilldelningar inom fyra sekunder (≈). Konkurrerande eller tvetydiga händelser förblir oklara (?).
+- Lastvisningarna förblir synliga när de är aktiverade, utan att döljas vid inaktivitet; last- och drönarvärden uppdateras utan att visningarna öppnas på nytt.
+- Ny utfällbar huvudmeny Navigering med Favoriter och Planetnavigering ersätter de tidigare knapparna i Explorer.
+- Den inbyggda hjälpen beskriver de nya menysökvägarna på alla tolv språk som stöds.
+
 ## CMDRHelper v3.9.6.6
 
 - Förbättrad koppling av Powerplay-meriter till varuförsäljningar i följd.

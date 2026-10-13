@@ -38,6 +38,14 @@ Der Journalordner von Elite Dangerous wird nach Möglichkeit automatisch erkannt
 
 CMDRHelper prüft beim Start auf Updates und besitzt einen integrierten Updater. Bestätige ein angebotenes Update im Programm; es aktualisiert Programm und Abhängigkeiten und startet CMDRHelper neu. Nach der Erstinstallation genügt normalerweise `start.bat` (Windows) beziehungsweise `bash start.sh` (Linux). Für normale Updates musst du `install.bat` oder `install.sh` nicht erneut manuell ausführen.
 
+## CMDRHelper v3.9.6.7
+
+- Verbesserte Powerplay-Merit-Zuordnung bei Schiffsscans und Warenverkäufen.
+- Schiffsscans berücksichtigen +5 und +10 Merits; gewöhnliche Warenverkäufe können mehrere Gutschriften innerhalb von vier Sekunden erhalten (≈). Konkurrierende oder mehrdeutige Ereignisse bleiben ungeklärt (?).
+- Frachtraumanzeigen bleiben bei aktiviertem Anzeige-Haken ohne Inaktivitäts-Ausblendung sichtbar; Fracht- und Drohnenwerte werden ohne erneute Anzeigezyklen aktualisiert.
+- Neues aufklappbares Hauptmenü Navigation mit Favoriten und Planeten-Navigation; die bisherigen Explorer-Buttons entfallen.
+- Die integrierte Hilfe beschreibt die neuen Menüpfade in allen zwölf unterstützten Sprachen.
+
 ## CMDRHelper v3.9.6.6
 
 - Verbesserte Powerplay-Merit-Zuordnung bei aufeinanderfolgenden Warenverkäufen.

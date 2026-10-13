@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_6_7.2': 'Kargo göstergeleri etkinken görünür kalır ve hareketsizlik nedeniyle gizlenmez; kargo ve limpet değerleri göstergeler yeniden açılmadan güncellenir.',
+    'release.3_9_6_7.3': 'Yeni açılır Navigasyon ana menüsü, Explorer’daki eski düğmelerin yerine Favoriler ve Gezegen navigasyonunu bir araya getirir.',
+    'release.3_9_6_7.4': 'Dahili yardım, yeni menü yollarını desteklenen on iki dilin tamamında açıklar.',
+    'nav.navigation': 'Navigasyon',
+    'release.3_9_6_7.0': 'Gemi taramaları ve mal satışları için Powerplay liyakat eşleştirmesi iyileştirildi.',
+    'release.3_9_6_7.1': 'Gemi taramaları +5 ve +10 liyakati destekler; normal mal satışları dört saniye içinde birden fazla liyakat kazanımıyla eşleştirilebilir (≈). Birden fazla olası nedeni bulunan veya belirsiz olaylar çözümlenmemiş kalır (?).',
     'release.3_9_6_6.0': 'Ardışık mal satışlarında Powerplay liyakat eşleştirmesi iyileştirildi.',
     'release.3_9_6_5.0': 'Daha sağlam Windows başlangıcı: Kritik olmayan arka plan hataları kısmi hata olarak gösterilir; ana pencere kullanılabilir kalır.',
     'release.3_9_6_5.1': 'İniş alanı verileri ve günlük yakalama için sınırlı yeniden deneme, iyileştirilmiş kartografi onarımı ve daha güvenli günlük indeksleme ve kapanış.',

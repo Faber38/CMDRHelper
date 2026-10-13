@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_6_7.2': 'Les affichages de soute restent visibles tant qu’ils sont activés, sans masquage pour inactivité ; les valeurs de cargaison et de drones se mettent à jour sans rouvrir les affichages.',
+    'release.3_9_6_7.3': 'Nouveau menu principal dépliable Navigation avec Favoris et Navigation planétaire, remplaçant les anciens boutons de l’Explorer.',
+    'release.3_9_6_7.4': 'L’aide intégrée décrit les nouveaux chemins de menu dans les douze langues prises en charge.',
+    'nav.navigation': 'Navigation',
+    'release.3_9_6_7.0': 'Amélioration de l’association des mérites Powerplay aux scans de vaisseaux et aux ventes de marchandises.',
+    'release.3_9_6_7.1': 'Les scans de vaisseaux prennent en compte +5 et +10 mérites ; les ventes ordinaires peuvent recevoir plusieurs crédits en quatre secondes (≈). Les événements concurrents ou ambigus restent non attribués (?).',
     'release.3_9_6_6.0': 'Amélioration de l’association des mérites Powerplay aux ventes successives de marchandises.',
     'release.3_9_6_5.0': 'Démarrage Windows plus robuste : les erreurs non critiques en arrière-plan sont signalées comme partielles et la fenêtre principale reste utilisable.',
     'release.3_9_6_5.1': 'Tentatives limitées pour les données des aires d’atterrissage et le rattrapage des journaux, réparation cartographique améliorée, indexation et arrêt mieux sécurisés.',

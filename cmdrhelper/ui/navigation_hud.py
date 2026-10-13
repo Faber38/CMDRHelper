@@ -14,7 +14,7 @@ from PySide6.QtGui import QColor, QFontMetricsF, QGuiApplication, QPainter, QPen
 from PySide6.QtWidgets import QWidget
 
 from cmdrhelper.i18n import tr, get_language
-from cmdrhelper.ui.cargo_hud import CargoVisibility
+from cmdrhelper.ui.cargo_hud import CargoHudData, CargoVisibility
 from cmdrhelper.ui.planet_navigation_window import angle_text, direction_text
 
 
@@ -243,7 +243,7 @@ class NavigationHud(QWidget):
         self.cargo_enabled = False
         self.cargo_provider = None
         self.cargo_activity_provider = None
-        self.cargo_visibility = CargoVisibility(self, self.follow_target)
+        self.cargo_visibility = CargoVisibility(self)
         self.cargo_data = None
         self.cargo_geometry = QRectF()
         self.message_lines = ()
@@ -328,7 +328,7 @@ class NavigationHud(QWidget):
         if enabled and not self._prepare_input():
             return
         self.cargo_enabled = bool(enabled)
-        if enabled and manual:
+        if enabled:
             self.cargo_visibility.observe(self.cargo_visibility.key, manual=True)
         if not enabled:
             self.cargo_data = None
@@ -372,7 +372,9 @@ class NavigationHud(QWidget):
             activity = self.cargo_activity_provider() if self.cargo_activity_provider else None
             self.cargo_visibility.observe(
                 ("snapshot", activity) if activity is not None else ("status", data))
-        self.cargo_data = data if self.cargo_visibility.active else None
+        self.cargo_data = (
+            data if data is not None else CargoHudData("", None, None)
+        ) if self.cargo_enabled else None
         if (not self.cargo_data and not self.message_lines and not self.edsm_message_lines
                 and (not self.enabled or not hud_lines(self.controller.state))):
             if self.isVisible():

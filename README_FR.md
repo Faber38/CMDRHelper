@@ -38,6 +38,14 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.9.6.7
+
+- Amélioration de l’association des mérites Powerplay aux scans de vaisseaux et aux ventes de marchandises.
+- Les scans de vaisseaux prennent en compte +5 et +10 mérites ; les ventes ordinaires peuvent recevoir plusieurs crédits en quatre secondes (≈). Les événements concurrents ou ambigus restent non attribués (?).
+- Les affichages de soute restent visibles tant qu’ils sont activés, sans masquage pour inactivité ; les valeurs de cargaison et de drones se mettent à jour sans rouvrir les affichages.
+- Nouveau menu principal dépliable Navigation avec Favoris et Navigation planétaire, remplaçant les anciens boutons de l’Explorer.
+- L’aide intégrée décrit les nouveaux chemins de menu dans les douze langues prises en charge.
+
 ## CMDRHelper v3.9.6.6
 
 - Amélioration de l’association des mérites Powerplay aux ventes successives de marchandises.

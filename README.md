@@ -38,6 +38,14 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.9.6.7
+
+- Improved Powerplay merit matching for ship scans and commodity sales.
+- Ship scans support +5 and +10 merits; ordinary commodity sales can receive multiple credits within four seconds (≈). Competing or ambiguous events remain unresolved (?).
+- Cargo displays remain visible while enabled, without inactivity hiding; cargo and limpet values update without reopening the displays.
+- New expandable Navigation main menu with Favorites and Planet navigation, replacing the former Explorer buttons.
+- Integrated help documents the new menu paths in all twelve supported languages.
+
 ## CMDRHelper v3.9.6.6
 
 - Improved Powerplay merit matching for consecutive commodity sales.

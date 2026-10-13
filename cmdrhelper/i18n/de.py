@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_6_7.2': 'Frachtraumanzeigen bleiben bei aktiviertem Anzeige-Haken ohne Inaktivitäts-Ausblendung sichtbar; Fracht- und Drohnenwerte werden ohne erneute Anzeigezyklen aktualisiert.',
+    'release.3_9_6_7.3': 'Neues aufklappbares Hauptmenü Navigation mit Favoriten und Planeten-Navigation; die bisherigen Explorer-Buttons entfallen.',
+    'release.3_9_6_7.4': 'Die integrierte Hilfe beschreibt die neuen Menüpfade in allen zwölf unterstützten Sprachen.',
+    'nav.navigation': 'Navigation',
+    'release.3_9_6_7.0': 'Verbesserte Powerplay-Merit-Zuordnung bei Schiffsscans und Warenverkäufen.',
+    'release.3_9_6_7.1': 'Schiffsscans berücksichtigen +5 und +10 Merits; gewöhnliche Warenverkäufe können mehrere Gutschriften innerhalb von vier Sekunden erhalten (≈). Konkurrierende oder mehrdeutige Ereignisse bleiben ungeklärt (?).',
     'release.3_9_6_6.0': 'Verbesserte Powerplay-Merit-Zuordnung bei aufeinanderfolgenden Warenverkäufen.',
     'release.3_9_6_5.0': 'Robusterer Windows-Start: Nichtkritische Hintergrundfehler werden als Teilfehler angezeigt; das Hauptfenster bleibt nutzbar.',
     'release.3_9_6_5.1': 'Begrenzte Wiederholungen bei Landeplatzdaten und Journal-Catch-up, verbesserte Kartografiereparatur sowie abgesicherte Journalindex- und Shutdown-Abläufe.',

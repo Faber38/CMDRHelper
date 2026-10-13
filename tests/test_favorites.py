@@ -451,7 +451,7 @@ class FavoriteTests(unittest.TestCase):
         c.state.snapshot=None; window.refresh_navigation(c.state)
         self.assertFalse(window.save_location_button.isEnabled()); window.close()
 
-    def test_explorer_favorites_action_reuses_view_without_extra_tab(self):
+    def test_navigation_favorites_action_reuses_view_without_extra_tab(self):
         # Build the real Explorer without starting unrelated main-window services.
         window = MainWindow.__new__(MainWindow)
         QMainWindow.__init__(window)
@@ -462,6 +462,8 @@ class FavoriteTests(unittest.TestCase):
         self.addCleanup(window._quick_favorite_hotkey.close)
         window.quick_favorite_settings = QuickFavoriteSettings(window._quick_favorite_hotkey, window)
         window.setCentralWidget(window._explorer())
+        menu = window._navigation_menu()
+        self.addCleanup(menu.deleteLater)
         self.addCleanup(window.deleteLater)
         self.addCleanup(window._favorites_window.close)
 
@@ -473,14 +475,15 @@ class FavoriteTests(unittest.TestCase):
                           for i in range(value_layout.count())],
                          [window.explorer_value_fit_check, window.explorer_value_table])
         self.assertIs(window.explorer_tabs.widget(2), window.explorer_bio_table)
-        layout = window.favorites_button.parentWidget().layout()
+        layout = window.system_overview_button.parentWidget().layout()
         row = next(layout.itemAt(i).layout() for i in range(layout.count())
                    if layout.itemAt(i).layout() is not None
-                   and layout.itemAt(i).layout().indexOf(window.favorites_button) >= 0)
+                   and layout.itemAt(i).layout().indexOf(window.system_overview_button) >= 0)
         self.assertEqual([row.itemAt(i).widget() for i in range(row.count())
                           if row.itemAt(i).widget() is not None],
-                         [window.favorites_button, window.planet_navigation_button,
-                          window.system_overview_button])
+                         [window.system_overview_button])
+        self.assertTrue(menu.isAncestorOf(window.favorites_button))
+        self.assertTrue(menu.isAncestorOf(window.planet_navigation_button))
 
         view = window.favorites_view
         view.search.setText('retained search')

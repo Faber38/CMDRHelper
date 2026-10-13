@@ -266,8 +266,9 @@ class PopupUiSettingsTests(unittest.TestCase):
             heights = []
             for count in (0, 1, 5, 100, 1, 0):
                 cargo.set_snapshot(dict(vessel="SRV", count=67, capacity=72,
-                    inventory=[dict(display_name=f"Cargo {i}", count=1) for i in range(count)]))
-                self.app.processEvents()
+                    inventory=[dict(frontier_name=f"fixture_{i}", display_name=f"Cargo {i}", count=1)
+                               for i in range(count)]))
+                QTest.qWait(10)  # Let Qt settle deferred scrollbar layout.
                 heights.append(cargo.height())
                 self.assertEqual(cargo.table.palette().color(QPalette.Text).name(), "#f1f3f5")
                 self.assertEqual(cargo.width(), 431)
@@ -277,11 +278,8 @@ class PopupUiSettingsTests(unittest.TestCase):
                 self.assertTrue(cargo.fill_bar.isVisible())
                 self.assertEqual(cargo.table.verticalScrollBar().isVisible(), count == 100)
                 self.assertFalse(cargo.grab().isNull())
-            self.assertEqual(heights[0], heights[-1])
-            self.assertLess(heights[0], heights[2])
-            self.assertLess(heights[2], heights[3])
-            self.assertLessEqual(heights[3], 560)
-            self.assertLess(heights[1], 220)
+            # Inventory updates must preserve the user's chosen geometry.
+            self.assertEqual(heights, [300] * 6)
 
     def test_cargo_hud_checkbox_exists_only_in_auto_show_and_reuses_key(self):
         main = self.main()

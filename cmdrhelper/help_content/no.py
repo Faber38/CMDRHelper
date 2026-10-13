@@ -359,7 +359,7 @@ HELP_TOPICS = {
               """
 
 <h3>★ Favoritter</h3>
-<p>Knappen «★ Favoritter» øverst i Explorer åpner et eget favorittvindu som kan brukes på nytt. Her lagrer du systemer, planeter/måner og steder på overflaten for den aktive kommandøren.</p>
+<p>«Navigasjon → ★ Favoritter» i hovedmenyen til venstre åpner et eget favorittvindu som kan brukes på nytt. Her lagrer du systemer, planeter/måner og steder på overflaten for den aktive kommandøren.</p>
 <p>Den rullbare listen, alfabetisk sortert etter navn, viser navn, type, system, himmellegeme og breddegrad/lengdegrad der det er relevant, kategori og en liten bildeforhåndsvisning. Fritekstsøk, typefilter og kategorifilter kan brukes sammen. Søket omfatter navn, system, himmellegeme og notat.</p>
 <p>«Åpne / Vis» viser de lagrede opplysningene, notatet og en større bildeforhåndsvisning. «Vis i Explorer» åpner den eksisterende systemoversikten eller detaljvisningen for himmellegemet hvis favoritten tilhører det gjeldende Explorer-systemet og passende data er tilgjengelige. For andre systemer forblir de lagrede favorittdataene synlige; ingen systemrute beregnes.</p>
 
@@ -1095,7 +1095,7 @@ HELP_TOPICS = {
 <p>Den er ikke en interstellar ruteplanlegger og håndterer verken system- eller hoppnavigasjon. Du styrer skipet selv.</p>
 
 <h3>Åpne navigatoren og angi et mål</h3>
-<p>Åpne «Planetnavigasjon» i Explorer og velg «Manuell inntasting …». Vinduet kan åpnes og et mål angis før en aktuell overflateposisjon er tilgjengelig.</p>
+<p>Åpne «Navigasjon → Planetnavigasjon» i hovedmenyen til venstre og velg «Manuell inntasting …». Vinduet kan åpnes og et mål angis før en aktuell overflateposisjon er tilgjengelig.</p>
 <ul>
 <li><b>Himmellegeme:</b> Velg målplaneten eller målmånen fra listen, eller bruk himmellegemet som allerede er registrert. Du kan også skrive inn navnet selv hvis det ikke finnes i listen ennå. Er du i tvil, bruk hele navnet, inkludert systemnavnet.</li>
 <li><b>Breddegrad:</b> Angi målets breddegrad mellom −90° og +90°.</li>
@@ -1115,7 +1115,7 @@ HELP_TOPICS = {
 <p>System, legeme og koordinater fryses når handlingen åpnes. I favorittdialogen kan du endre navn, kategori og notat og legge til et bilde. Først «Lagre» lagrer lokalt for kommandøren; avbryt lagrer ingenting. Senere bevegelser endrer ikke den fryste posisjonen.</p>
 
 <h3>Bruke lagrede posisjoner</h3>
-<p>Åpne «★ Favoritter» i Explorer. Velg et lagret overflatested og «◎ Til koordinatene» for å bruke legeme, koordinater og navn som mål. Det erstatter forrige mål; på et annet legeme venter navigatøren på passende posisjonsdata.</p>
+<p>Åpne «Navigasjon → ★ Favoritter» i hovedmenyen til venstre. Velg et lagret overflatested og «◎ Til koordinatene» for å bruke legeme, koordinater og navn som mål. Det erstatter forrige mål; på et annet legeme venter navigatøren på passende posisjonsdata.</p>
 <p>«Rediger» endrer navn, kategori og notat. «Slett» fjerner favoritten etter bekreftelse, ikke Elite-data. Favoritter bevares ved omstart og er skilt etter kommandør; selve navigasjonsmålet gjelder bare denne økten.</p>
 
 <h3>Planetkule: mer enn 380 km</h3>

@@ -84,8 +84,10 @@ class MarketSaleTests(unittest.TestCase):
             without._apply(e)
             self.assertEqual((state.merits, state.rank), (without.merits, without.rank))
         self.assertEqual([(g.action.get('Type'), g.action.get('Count'), g.credits[0]['MeritsGained'])
-                          for g in state.chronicle.groups], [(t, c, m) for _, t, c, m in CASES])
-        self.assertTrue(all(g.certainty == 'temporal' for g in state.chronicle.groups))
+                          for g in state.chronicle.groups], [(t, c, m) if i not in (3, 5) else (None, None, m)
+                                                        for i, (_, t, c, m) in enumerate(CASES)])
+        self.assertEqual([g.certainty for g in state.chronicle.groups],
+                         ['temporal', 'temporal', 'temporal', 'unknown', 'temporal', 'unknown'])
         self.assertEqual((state.merits, state.rank), (17420, 13))
 
     def test_prior_credited_sale_with_cargo_before_or_after_next_sale(self):
@@ -97,10 +99,9 @@ class MarketSaleTests(unittest.TestCase):
                         cargo = event('Cargo', delay)
                         middle = (cargo, next_sale) if cargo_first else (next_sale, cargo)
                         result = groups(sale(Type='silver'), credit(0, 1856), *middle, credit(delay, gain))
-                        self.assertEqual([g.certainty for g in result], ['temporal', 'temporal'])
-                        self.assertEqual(result[-1].action, next_sale)
+                        self.assertEqual([g.certainty for g in result], ['temporal', 'unknown'])
 
-    def test_only_earlier_credited_ordinary_sales_stop_competing(self):
+    def test_earlier_sales_remain_competing_after_a_credit(self):
         # Uncredited sales, rare sales and PP2 deliveries remain alternatives.
         for earlier in (sale(), sale(Type='leestianeviljuice'), delivery()):
             sequences = [(earlier, sale(1), credit(1))]
@@ -118,17 +119,19 @@ class MarketSaleTests(unittest.TestCase):
         state = PowerplayState()
         for e in reported_sequence():
             state.apply(e)
-        self.assertEqual([(g.action['Type'], g.action['Count'], g.credits[0]['MeritsGained'])
-                          for g in state.chronicle.groups], [(t, c, m) for _, t, c, m in CASES])
-        self.assertTrue(all(g.certainty == 'temporal' for g in state.chronicle.groups))
+        self.assertEqual([(g.action.get('Type'), g.action.get('Count'), g.credits[0]['MeritsGained'])
+                          for g in state.chronicle.groups], [(t, c, m) if i not in (3, 5) else (None, None, m)
+                                                        for i, (_, t, c, m) in enumerate(CASES)])
+        self.assertEqual([g.certainty for g in state.chronicle.groups],
+                         ['temporal', 'temporal', 'temporal', 'unknown', 'temporal', 'unknown'])
         self.assertEqual((state.merits, state.rank), (17420, 12))
 
     def test_each_reported_case_at_zero_one_two_seconds_and_outside(self):
         for _, commodity, count, gain in CASES:
-            for delay in (-1, 0, 1, 2, 3):
+            for delay in (-1, 0, 1, 2, 3, 4, 5):
                 with self.subTest(commodity=commodity, delay=delay):
                     result = groups(sale(Type=commodity, Count=count), credit(delay, gain))
-                    self.assertEqual(result[-1].certainty, 'temporal' if 0 <= delay <= 2 else 'unknown')
+                    self.assertEqual(result[-1].certainty, 'temporal' if 0 <= delay <= 4 else 'unknown')
                     self.assertEqual(sum(len(g.credits) for g in result), 1)
 
     def test_multiple_sales_in_same_second_remain_ambiguous_even_after_credit(self):
@@ -156,7 +159,7 @@ class MarketSaleTests(unittest.TestCase):
         for commodity in ('samarium', 'leestianeviljuice'):
             result = groups(sale(Type=commodity), event('Cargo', 1), credit(2))
             self.assertEqual(result[-1].certainty, 'temporal')
-            self.assertEqual(groups(sale(Type=commodity), event('Cargo', 2), credit(3))[-1].certainty, 'unknown')
+            self.assertEqual(groups(sale(Type=commodity), event('Cargo', 2), credit(5))[-1].certainty, 'unknown')
         self.assertEqual(groups(bounty(), event('Cargo'), credit())[-1].certainty, 'unknown')
         self.assertEqual(groups(delivery(), event('Cargo'), credit())[-1].certainty, 'unknown')
 
@@ -186,9 +189,9 @@ class MarketSaleTests(unittest.TestCase):
         self.assertEqual(groups(sale(), credit(gain=0))[-1].certainty, 'unknown')
         self.assertEqual(groups(credit(), sale()), [groups(credit())[0]])
 
-    def test_ordinary_sale_does_not_claim_additional_credits(self):
+    def test_ordinary_sale_accepts_multiple_credits_within_fixed_window(self):
         result=groups(sale(), credit(), credit(2))
-        self.assertEqual([g.certainty for g in result], ['temporal', 'unknown'])
+        self.assertEqual([g.certainty for g in result], ['temporal'])
         self.assertEqual(sum(len(g.credits) for g in result), 2)
         rare=groups(sale(Type='leestianeviljuice'), credit(), credit(2))
         self.assertEqual(len(rare), 1)
@@ -213,8 +216,9 @@ class MarketSaleStoreTests(unittest.TestCase):
             before = {t: con.execute('SELECT * FROM '+t).fetchall() for t in store.PP_TABLES}
         result = self.db.powerplay_day(session['commander_id'], DAY, zone=timezone.utc)
         self.assertEqual([(g.action.get('Type'), g.credits[0]['MeritsGained']) for g in result.groups],
-                         [(t, m) for _, t, _, m in CASES])
-        self.assertTrue(all(g.certainty == 'temporal' for g in result.groups))
+                         [(t if i not in (3, 5) else None, m) for i, (_, t, _, m) in enumerate(CASES)])
+        self.assertEqual([g.certainty for g in result.groups],
+                         ['temporal', 'temporal', 'temporal', 'unknown', 'temporal', 'unknown'])
         self.assertEqual(self.db.powerplay_merits(session['commander_id']), 17420)
         with self.db._connect() as con:
             self.assertEqual(before, {t: con.execute('SELECT * FROM '+t).fetchall() for t in store.PP_TABLES})
@@ -229,7 +233,7 @@ class MarketSaleStoreTests(unittest.TestCase):
         Path(session['journal_file']).unlink()  # Synthetic fixture only.
         result=self.db.powerplay_day(session['commander_id'],DAY,zone=timezone.utc)
         self.assertEqual(len(result.groups),6)
-        self.assertTrue(all(g.certainty=='temporal' for g in result.groups))
+        self.assertEqual(sum(g.certainty=='unknown' for g in result.groups),2)
         self.assertEqual(self.db.powerplay_merits(session['commander_id']),17420)
         with self.db._connect() as con:
             self.assertEqual(before,{t:con.execute('SELECT * FROM '+t).fetchall() for t in store.PP_TABLES})
@@ -257,7 +261,7 @@ class MarketSaleViewTests(unittest.TestCase):
     setUpClass = classmethod(view_base.PowerplayViewTests.setUpClass.__func__)
     setUp = view_base.PowerplayViewTests.setUp
 
-    def test_verified_order_shows_samarium_and_painite_as_approximate(self):
+    def test_overlapping_sales_are_unknown_in_chronological_view(self):
         self.addCleanup(set_language, 'de')
         set_language('de')
         self.state.powerplay = PowerplayState()
@@ -267,11 +271,10 @@ class MarketSaleViewTests(unittest.TestCase):
             self.view.render()
         table = self.view.recent
         self.assertEqual(table.rowCount(), 6)
-        for row, commodity, gain in ((0, '5 t Painit', '+296'), (2, '42 t Samarium', '+1.243')):
-            self.assertTrue(table.item(row, 2).text().startswith(commodity))
+        for row, gain in ((0, '+296'), (2, '+1.243')):
+            self.assertEqual(table.item(row, 1).text(), tr_for_language('de','pp2.unknown'))
             self.assertEqual(table.item(row, 3).text(), gain)
-            self.assertEqual(table.item(row, 4).text(), '≈')
-            self.assertIn('keine direkte Zuordnung', table.item(row, 4).toolTip())
+            self.assertEqual(table.item(row, 4).text(), '?')
 
     def test_all_languages_use_existing_names_and_approximate_evidence(self):
         self.addCleanup(set_language,'de')
@@ -283,9 +286,10 @@ class MarketSaleViewTests(unittest.TestCase):
             table=self.view.recent
             self.assertEqual(table.rowCount(),6)
             for row in range(6):
-                self.assertEqual(table.item(row,1).text(),tr_for_language(language,'pp2.chronicle.commodity_sale'))
-                self.assertEqual(table.item(row,4).text(),'≈')
+                self.assertEqual(table.item(row,1).text(),tr_for_language(language,
+                    'pp2.unknown' if row in (0,2) else 'pp2.chronicle.commodity_sale'))
+                self.assertEqual(table.item(row,4).text(),'?' if row in (0,2) else '≈')
             if language=='de':
-                self.assertTrue(table.item(2,2).text().startswith('42 t Samarium'))
+                self.assertEqual(table.item(2,1).text(),'Unbekannt')
                 self.assertEqual(table.item(2,3).text(),'+1.243')
-                self.assertIn('keine direkte Zuordnung',table.item(2,4).toolTip())
+                self.assertEqual(table.item(2,4).text(),'?')

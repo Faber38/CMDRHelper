@@ -39,6 +39,14 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.6.7
+
+- Gemi taramaları ve mal satışları için Powerplay liyakat eşleştirmesi iyileştirildi.
+- Gemi taramaları +5 ve +10 liyakati destekler; normal mal satışları dört saniye içinde birden fazla liyakat kazanımıyla eşleştirilebilir (≈). Birden fazla olası nedeni bulunan veya belirsiz olaylar çözümlenmemiş kalır (?).
+- Kargo göstergeleri etkinken görünür kalır ve hareketsizlik nedeniyle gizlenmez; kargo ve limpet değerleri göstergeler yeniden açılmadan güncellenir.
+- Yeni açılır Navigasyon ana menüsü, Explorer’daki eski düğmelerin yerine Favoriler ve Gezegen navigasyonunu bir araya getirir.
+- Dahili yardım, yeni menü yollarını desteklenen on iki dilin tamamında açıklar.
+
 ## CMDRHelper v3.9.6.6
 
 - Ardışık mal satışlarında Powerplay liyakat eşleştirmesi iyileştirildi.

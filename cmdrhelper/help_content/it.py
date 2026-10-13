@@ -377,7 +377,7 @@ HELP_TOPICS = {
               """
 
 <h3>★ Preferiti</h3>
-<p>Il pulsante «★ Preferiti» in alto nell’Explorer apre una finestra dei preferiti separata e riutilizzabile. Qui puoi salvare sistemi, pianeti/lune e luoghi in superficie per il comandante attivo.</p>
+<p>«Navigazione → ★ Preferiti» nel menu principale a sinistra apre una finestra dei preferiti separata e riutilizzabile. Qui puoi salvare sistemi, pianeti/lune e luoghi in superficie per il comandante attivo.</p>
 <p>L’elenco scorrevole, ordinato alfabeticamente per nome, mostra nome, tipo, sistema, corpo e latitudine/longitudine se pertinenti, categoria e una piccola anteprima dell’immagine. Ricerca a testo libero, filtro per tipo e filtro per categoria possono essere combinati. La ricerca considera nome, sistema, corpo e nota.</p>
 <p>«Apri / Mostra» mostra i dati salvati, la nota e un’anteprima più grande. «Mostra nell’Explorer» apre la panoramica del sistema o la vista dettagliata del corpo già esistenti, se il preferito appartiene al sistema attuale dell’Explorer e sono disponibili dati corrispondenti. Per gli altri sistemi restano visibili i dati salvati del preferito; non viene calcolata alcuna rotta tra sistemi.</p>
 
@@ -1152,7 +1152,7 @@ HELP_TOPICS = {
 <p>Non è un pianificatore di rotte interstellari e non gestisce la navigazione tra sistemi o i salti. Sei tu a pilotare la nave.</p>
 
 <h3>Aprire il navigatore e inserire un obiettivo</h3>
-<p>Apri «Navigazione planetaria» nell’Explorer e scegli «Inserimento manuale …». Puoi aprire la finestra e inserire una destinazione prima che sia disponibile una posizione attuale sulla superficie.</p>
+<p>Apri «Navigazione → Navigazione planetaria» nel menu principale a sinistra e scegli «Inserimento manuale …». Puoi aprire la finestra e inserire una destinazione prima che sia disponibile una posizione attuale sulla superficie.</p>
 <ul>
 <li><b>Corpo celeste:</b> Seleziona il pianeta o la luna di destinazione dall’elenco oppure usa il corpo già rilevato. Puoi anche inserire il nome del corpo manualmente se non è ancora nell’elenco. In caso di dubbio, usa il nome completo, incluso il nome del sistema.</li>
 <li><b>Latitudine:</b> Inserisci la latitudine dell’obiettivo tra −90° e +90°.</li>
@@ -1172,7 +1172,7 @@ HELP_TOPICS = {
 <p>All’apertura vengono fissati sistema, corpo e coordinate. Nel dialogo dei preferiti puoi modificare nome, categoria e nota e associare un’immagine. Solo «Salva» salva localmente per quel comandante; annullare non salva nulla. Gli spostamenti successivi non cambiano la posizione fissata.</p>
 
 <h3>Usare le posizioni salvate</h3>
-<p>Apri «★ Preferiti» nell’Explorer. Seleziona un luogo di superficie e «◎ Alle coordinate» per usare corpo, coordinate e nome come destinazione. Sostituisce la destinazione precedente; su un altro corpo il navigatore attende dati di posizione corrispondenti.</p>
+<p>Apri «Navigazione → ★ Preferiti» nel menu principale a sinistra. Seleziona un luogo di superficie e «◎ Alle coordinate» per usare corpo, coordinate e nome come destinazione. Sostituisce la destinazione precedente; su un altro corpo il navigatore attende dati di posizione corrispondenti.</p>
 <p>«Modifica» modifica nome, categoria e nota. «Elimina» elimina il preferito dopo conferma, senza cancellare dati Elite. I preferiti sopravvivono ai riavvii e sono separati per comandante; la destinazione di navigazione attuale dura solo per la sessione.</p>
 
 <h3>Globo planetario: oltre 380 km</h3>

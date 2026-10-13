@@ -1,3 +1,3 @@
 """Zentrale Versionsinformation für CMDRHelper."""
 
-__version__ = "3.9.6.6"
+__version__ = "3.9.6.7"

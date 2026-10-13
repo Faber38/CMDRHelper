@@ -38,6 +38,14 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.6.7
+
+- Powerplay-ansioiden yhdistämistä alusskannauksiin ja tavaramyynteihin on parannettu.
+- Alusskannauksissa huomioidaan +5 ja +10 ansiota; tavalliseen tavaramyyntiin voidaan yhdistää useita hyvityksiä neljän sekunnin sisällä (≈). Kilpailevat tai epäselvät tapahtumat jätetään selvittämättömiksi (?).
+- Rahtinäytöt pysyvät näkyvissä, kun ne on otettu käyttöön, eivätkä piiloudu toimettomuuden vuoksi; rahti- ja drooniarvot päivittyvät avaamatta näyttöjä uudelleen.
+- Uusi avattava Navigointi-päävalikko sisältää Suosikit ja Planeettanavigoinnin ja korvaa aiemmat Explorerin painikkeet.
+- Sisäänrakennettu ohje kuvaa uudet valikkopolut kaikilla kahdellatoista tuetulla kielellä.
+
 ## CMDRHelper v3.9.6.6
 
 - Powerplay-ansioiden yhdistämistä peräkkäisiin tavaramyynteihin on parannettu.

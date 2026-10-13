@@ -492,6 +492,8 @@ class PowerplayView(QScrollArea):
                 details += "\n" + place
             gains = ["+" + fmt(credit["MeritsGained"]) for credit in group.credits]
             merits = " / ".join(gains[:5]) + (" / …" if len(gains) > 5 else "") if gains else "—"
+            if kind == 'MarketSell' and not is_rare_sale(event) and gains:
+                merits = '+' + fmt(sum(credit['MeritsGained'] for credit in group.credits))
             symbol = {"explicit": "✓", "temporal": "≈", "unknown": "?"}[group.certainty]
             exact = [str(event.get("timestamp") or unknown) + "  " + action, details]
             for credit in group.credits:

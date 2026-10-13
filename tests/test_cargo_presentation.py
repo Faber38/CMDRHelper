@@ -103,29 +103,18 @@ class CargoPresentationTests(unittest.TestCase):
         self.state.cargo_snapshot = value
         self.main._refresh_cargo_live_window(value)
 
-    def test_ten_one_second_changes_then_real_fifteen_second_expiry(self):
+    def test_checked_windows_remain_visible_after_15_30_and_60_seconds(self):
         window = self.start()
-        for index in range(10):
-            QTest.qWait(1000)
-            self.update(snapshot(index + 2, 10 - index))
+        from contextlib import ExitStack
+        with ExitStack() as stack:
             for view in (window, self.hud):
-                self.assertTrue(view.isVisible())
-                self.assertEqual(view.cargo_visibility.timer.interval(), 15000)
-                self.assertGreater(view.cargo_visibility.timer.remainingTime(), 14000)
-        QTest.qWait(14000)
-        self.assertTrue(window.isVisible())
-        self.assertTrue(self.hud.isVisible())
-        QTest.qWait(1200)
-        self.assertFalse(window.isVisible())
-        self.assertFalse(self.hud.isVisible())
-        # Polling the same data must not reopen an expired display.
-        self.update(deepcopy(self.state.cargo_snapshot))
-        self.hud.follow_target()
-        self.assertFalse(window.isVisible())
-        self.assertFalse(self.hud.isVisible())
-        self.update(snapshot(20))
-        self.assertTrue(window.isVisible())
-        self.assertTrue(self.hud.isVisible())
+                self.assertFalse(hasattr(view.cargo_visibility, 'timer'))
+                for method in ('show', 'hide', 'activateWindow', 'raise_', 'setFocus'):
+                    stack.enter_context(patch.object(view, method, side_effect=AssertionError(method)))
+            for milliseconds in (15000, 15000, 30000):
+                QTest.qWait(milliseconds)
+                self.assertTrue(window.isVisible())
+                self.assertTrue(self.hud.isVisible())
 
     def test_visible_updates_reuse_windows_without_show_hide_or_focus(self):
         window = self.start()
@@ -143,27 +132,20 @@ class CargoPresentationTests(unittest.TestCase):
         self.assertTrue(self.hud.testAttribute(Qt.WA_ShowWithoutActivating))
         self.assertTrue(self.hud.windowFlags() & Qt.WindowDoesNotAcceptFocus)
 
-    def test_duplicate_timestamp_and_order_do_not_restart_timer(self):
+    def test_duplicate_and_limpet_changes_keep_windows_and_items(self):
         window = self.start()
-        with patch.object(window.cargo_visibility.timer, "start") as live_start, \
-                patch.object(self.hud.cargo_visibility.timer, "start") as hud_start:
-            value = deepcopy(self.state.cargo_snapshot)
-            value["timestamp"] = "2020-01-01T00:01:00Z"
-            value["inventory"].reverse()
-            self.update(value)
-            for _ in range(5):
-                self.hud.follow_target()
-            live_start.assert_not_called()
-            hud_start.assert_not_called()
-
-    def test_limpet_changes_reset_both_timers_even_when_total_is_unchanged(self):
-        window = self.start()
-        with patch.object(window.cargo_visibility.timer, "start") as live_start, \
-                patch.object(self.hud.cargo_visibility.timer, "start") as hud_start:
-            for index in range(4):
-                self.update(snapshot(index + 2, 3 - index))
-            self.assertEqual(live_start.call_count, 4)
-            self.assertEqual(hud_start.call_count, 4)
+        drone = window.table.item(1, 1)
+        value = deepcopy(self.state.cargo_snapshot)
+        value['timestamp'] = '2020-01-01T00:01:00Z'
+        value['inventory'].reverse()
+        self.update(value)
+        for index in range(30):
+            self.update(snapshot(index + 2, 40 - index))
+            self.hud.follow_target()
+            self.assertIs(window.table.item(1, 1), drone)
+            self.assertEqual(drone.text(), str(40 - index))
+            self.assertTrue(window.isVisible())
+            self.assertTrue(self.hud.isVisible())
 
     def test_manual_open_stays_visible_and_manual_close_suppresses_duplicate(self):
         window = self.start()
@@ -171,11 +153,9 @@ class CargoPresentationTests(unittest.TestCase):
         self.hud.set_cargo_enabled(True, manual=True)
         self.update(snapshot(4))
         for view in (window, self.hud):
-            self.assertFalse(view.cargo_visibility.timer.isActive())
-            view.cargo_visibility.timer.timeout.emit()
+            self.assertFalse(hasattr(view.cargo_visibility, "timer"))
             self.assertTrue(view.isVisible())
         window.close()
-        self.assertFalse(window.cargo_visibility.timer.isActive())
         self.update(snapshot(4))
         self.assertFalse(window.isVisible())
         self.update(snapshot(5))
@@ -185,7 +165,6 @@ class CargoPresentationTests(unittest.TestCase):
         self.update(snapshot(5))
         self.assertFalse(window.isVisible())
         self.hud.close()
-        self.assertFalse(self.hud.cargo_visibility.timer.isActive())
         self.update(snapshot(6))
         self.assertFalse(self.hud.isVisible())
 
@@ -194,13 +173,63 @@ class CargoPresentationTests(unittest.TestCase):
         self.main._set_cargo_live_window_enabled(True)
         self.main._set_cargo_hud_enabled(True)
         for view in (self.main._cargo_live_window, self.hud):
-            self.assertTrue(view.cargo_visibility.manual)
-            self.assertFalse(view.cargo_visibility.timer.isActive())
+            self.assertTrue(view.cargo_visibility.active)
+            self.assertFalse(hasattr(view.cargo_visibility, "timer"))
         self.main._set_cargo_live_window_enabled(False)
         self.main._set_cargo_hud_enabled(False)
         self.update(snapshot(9))
         self.assertFalse(self.main._cargo_live_window.isVisible())
         self.assertFalse(self.hud.isVisible())
+
+    def test_saved_checkboxes_restore_without_activity_after_restart(self):
+        import tempfile
+        from PySide6.QtCore import QSettings
+        with tempfile.TemporaryDirectory() as folder:
+            path = str(Path(folder) / 'settings.ini')
+            for enabled in (True, False):
+                settings = QSettings(path, QSettings.IniFormat)
+                self.state.settings = settings
+                self.main._set_cargo_live_window_enabled(enabled)
+                self.main._set_cargo_hud_enabled(enabled)
+                window = self.main._cargo_live_window
+                if window is not None:
+                    window.resize(480, 320)
+                    window.move(90, 100)
+                    window.close()
+                self.hud.set_cargo_enabled(False)
+                self.main._cargo_live_window = None
+                self.state.settings = QSettings(path, QSettings.IniFormat)
+                self.main._apply_cargo_hud_enabled()
+                self.update(snapshot())
+                restored = self.main._cargo_live_window
+                self.assertEqual(self.hud.isVisible(), enabled)
+                self.assertEqual(restored is not None and restored.isVisible(), enabled)
+                if enabled:
+                    self.assertEqual(restored.size(), window.size())
+                    self.assertEqual(restored.pos(), window.pos())
+                for index in range(5):
+                    self.update(snapshot(index + 2, index + 1))
+                    self.assertEqual(self.hud.isVisible(), enabled)
+                    self.assertEqual(self.main._cargo_live_window is not None and
+                                     self.main._cargo_live_window.isVisible(), enabled)
+
+    def test_enabled_without_data_keeps_unknown_display_visible(self):
+        window = self.start()
+        self.hud.cargo_provider = lambda: None
+        with patch.object(window, 'hide', side_effect=AssertionError('hide')), \
+                patch.object(self.hud, 'hide', side_effect=AssertionError('hide')):
+            self.update(None)
+            self.hud.follow_target()
+            self.assertTrue(window.isVisible())
+            self.assertEqual(window.summary_label.text(), '–')
+            self.assertTrue(self.hud.isVisible())
+            self.assertIsNone(self.hud.cargo_data.used)
+        self.main._set_cargo_live_window_enabled(False)
+        self.main._set_cargo_hud_enabled(False)
+        for index in range(10):
+            self.update(snapshot(index, index))
+            self.assertFalse(window.isVisible())
+            self.assertFalse(self.hud.isVisible())
 
     def test_rows_quantities_stolen_and_order_reuse(self):
         window = self.start()
@@ -286,7 +315,7 @@ class CargoPresentationTests(unittest.TestCase):
         self.assertEqual(cargo_item_name(dict(frontier_name="lowtemperaturediamond")), "Low Temperature Diamonds")
         self.assertEqual(cargo_item_name(dict(frontier_name="silver", display_name="Silber")), "Silber")
 
-    def test_missing_sidecar_retains_window_only_in_same_session_then_expires(self):
+    def test_missing_sidecar_retains_window_and_context_change_clears_values(self):
         value = snapshot()
         bind_context(self.state, value)
         # This test isolates the supplemental window; HUD retention is below.
@@ -300,18 +329,10 @@ class CargoPresentationTests(unittest.TestCase):
             self.assertTrue(window.isVisible())
             self.assertIs(window.table.item(0, 0), silver)
             hidden.assert_not_called()
-        with patch.object(window._pending_snapshot_timer, 'start') as start:
-            self.update(None)
-            start.assert_not_called()
-        self.update(value)
-        self.assertFalse(window._pending_snapshot_timer.isActive())
-        self.assertIs(window.table.item(0, 0), silver)
         self.update(None)
-        window._pending_snapshot_timer.timeout.emit()
-        self.assertTrue(window.isVisible())
-        self.assertEqual(window.summary_label.text(), '–')
-        self.assertEqual(window.table.rowCount(), 0)
+        self.assertFalse(hasattr(window, '_pending_snapshot_timer'))
         self.update(value)
+        self.assertIs(window.table.item(0, 0), silver)
         self.state.ship_cargo_context['session_generation'] = 2
         self.update(None)
         self.assertTrue(window.isVisible())

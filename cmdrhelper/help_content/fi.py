@@ -358,7 +358,7 @@ HELP_TOPICS = {
               """
 
 <h3>★ Suosikit</h3>
-<p>Explorerin yläosan ”★ Suosikit”-painike avaa erillisen, uudelleen käytettävän suosikki-ikkunan. Siellä voit tallentaa järjestelmiä, planeettoja/kuita ja pinnalla sijaitsevia paikkoja aktiiviselle komentajalle.</p>
+<p>Vasemman päävalikon ”Navigointi → ★ Suosikit” avaa erillisen, uudelleen käytettävän suosikki-ikkunan. Siellä voit tallentaa järjestelmiä, planeettoja/kuita ja pinnalla sijaitsevia paikkoja aktiiviselle komentajalle.</p>
 <p>Nimen mukaan aakkostettu, vieritettävä luettelo näyttää nimen, tyypin, järjestelmän, tarvittaessa taivaankappaleen ja leveys-/pituusasteen, luokan sekä pienen kuvan esikatselun. Vapaatekstihakua sekä tyyppi- ja luokkasuodattimia voi käyttää yhdessä. Haku kattaa nimen, järjestelmän, taivaankappaleen ja muistiinpanon.</p>
 <p>”Avaa / Näytä” näyttää tallennetut tiedot, muistiinpanon ja suuremman kuvan esikatselun. ”Näytä Explorerissa” avaa olemassa olevan järjestelmän yleiskuvan tai taivaankappaleen tietonäkymän, jos suosikki kuuluu Explorerin nykyiseen järjestelmään ja vastaavat tiedot ovat saatavilla. Muiden järjestelmien suosikkien tallennetut tiedot pysyvät näkyvissä; järjestelmien välistä reittiä ei lasketa.</p>
 
@@ -1109,7 +1109,7 @@ HELP_TOPICS = {
 <p>Se ei ole tähtienvälinen reittisuunnittelija eikä hoida järjestelmien välistä navigointia tai hyppyjä. Ohjaat alustasi itse.</p>
 
 <h3>Navigaattorin avaaminen ja kohteen syöttäminen</h3>
-<p>Avaa Explorerissa «Planeettanavigointi» ja valitse «Manuaalinen syöttö …». Voit avata ikkunan ja syöttää kohteen ennen kuin nykyinen pintasijainti on saatavilla.</p>
+<p>Avaa vasemmasta päävalikosta «Navigointi → Planeettanavigointi» ja valitse «Manuaalinen syöttö …». Voit avata ikkunan ja syöttää kohteen ennen kuin nykyinen pintasijainti on saatavilla.</p>
 <ul>
 <li><b>Taivaankappale:</b> Valitse kohdeplaneetta tai -kuu luettelosta tai käytä jo tunnistettua taivaankappaletta. Voit myös kirjoittaa taivaankappaleen nimen itse, jos sitä ei vielä ole luettelossa. Käytä epäselvässä tapauksessa koko nimeä, myös järjestelmän nimeä.</li>
 <li><b>Leveysaste:</b> Syötä kohteen leveysaste väliltä −90° ja +90°.</li>
@@ -1129,7 +1129,7 @@ HELP_TOPICS = {
 <p>Järjestelmä, kappale ja koordinaatit lukitaan avattaessa. Suosikki-ikkunassa voit muokata nimeä, luokkaa ja muistiinpanoa sekä lisätä kuvan. Vasta «Tallenna» tallentaa paikallisesti komentajalle; peruutus ei tallenna mitään. Myöhempi liikkuminen ei muuta talteen otettua sijaintia.</p>
 
 <h3>Tallennettujen sijaintien käyttö</h3>
-<p>Avaa Explorerissa «★ Suosikit». Valitse tallennettu pintapaikka ja «◎ Koordinaatteihin» ottaaksesi kappaleen, koordinaatit ja nimen kohteeksi. Tämä korvaa aiemman kohteen; toisella kappaleella navigaattori odottaa sopivia sijaintitietoja.</p>
+<p>Avaa vasemmasta päävalikosta «Navigointi → ★ Suosikit». Valitse tallennettu pintapaikka ja «◎ Koordinaatteihin» ottaaksesi kappaleen, koordinaatit ja nimen kohteeksi. Tämä korvaa aiemman kohteen; toisella kappaleella navigaattori odottaa sopivia sijaintitietoja.</p>
 <p>«Muokkaa» muuttaa nimeä, luokkaa ja muistiinpanoa. «Poista» poistaa suosikin vahvistuksen jälkeen, ei Elite-tietoja. Suosikit säilyvät uudelleenkäynnistyksissä ja erotellaan komentajittain; nykyinen navigointikohde kestää vain istunnon ajan.</p>
 
 <h3>Planeettapallo: yli 380 km</h3>

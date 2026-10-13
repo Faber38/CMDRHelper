@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_6_7.2': 'Włączone widoki ładowni pozostają widoczne bez ukrywania przy braku aktywności; wartości ładunku i dronów aktualizują się bez ponownego otwierania widoków.',
+    'release.3_9_6_7.3': 'Nowe rozwijane menu główne Nawigacja zawiera Ulubione i Nawigację planetarną zamiast dotychczasowych przycisków w Explorerze.',
+    'release.3_9_6_7.4': 'Wbudowana pomoc opisuje nowe ścieżki menu we wszystkich dwunastu obsługiwanych językach.',
+    'nav.navigation': 'Nawigacja',
+    'release.3_9_6_7.0': 'Ulepszone przypisywanie zasług Powerplay do skanów statków i sprzedaży towarów.',
+    'release.3_9_6_7.1': 'Skany statków uwzględniają +5 i +10 zasług; zwykła sprzedaż może otrzymać kilka przyznań zasług w ciągu czterech sekund (≈). Konkurencyjne lub niejednoznaczne zdarzenia pozostają nierozstrzygnięte (?).',
     'release.3_9_6_6.0': 'Ulepszone przypisywanie zasług Powerplay do kolejnych transakcji sprzedaży towarów.',
     'release.3_9_6_5.0': 'Stabilniejszy start w Windows: Niekrytyczne błędy w tle są zgłaszane jako częściowe, a główne okno pozostaje dostępne.',
     'release.3_9_6_5.1': 'Ograniczone ponowienia odczytu danych lądowisk i uzupełniania dziennika, ulepszona naprawa kartografii oraz bezpieczniejsze indeksowanie i zamykanie.',

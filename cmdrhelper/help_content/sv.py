@@ -362,7 +362,7 @@ HELP_TOPICS = {
               """
 
 <h3>★ Favoriter</h3>
-<p>Knappen ”★ Favoriter” högst upp i Explorer öppnar ett eget, återanvändbart favoritfönster. Där sparar du system, planeter/månar och platser på ytan för den aktiva befälhavaren.</p>
+<p>”Navigering → ★ Favoriter” i huvudmenyn till vänster öppnar ett eget, återanvändbart favoritfönster. Där sparar du system, planeter/månar och platser på ytan för den aktiva befälhavaren.</p>
 <p>Den rullningsbara listan, alfabetiskt sorterad efter namn, visar namn, typ, system, himlakropp och latitud/longitud där det är relevant, kategori och en liten bildförhandsvisning. Fritextsökning, typfilter och kategorifilter kan användas tillsammans. Sökningen omfattar namn, system, himlakropp och anteckning.</p>
 <p>”Öppna / Visa” visar de sparade uppgifterna, anteckningen och en större bildförhandsvisning. ”Visa i Explorer” öppnar den befintliga systemöversikten eller himlakroppens detaljvy om favoriten tillhör det aktuella Explorer-systemet och motsvarande data finns. För andra system förblir favoritens sparade data synliga; ingen systemrutt beräknas.</p>
 
@@ -1103,7 +1103,7 @@ HELP_TOPICS = {
 <p>Den är inte en interstellär ruttplanerare och hanterar varken system- eller hoppnavigering. Du styr ditt skepp själv.</p>
 
 <h3>Öppna navigatorn och ange ett mål</h3>
-<p>Öppna ”Planetnavigering” i Explorer och välj ”Manuell inmatning …”. Fönstret kan öppnas och ett mål anges innan en aktuell ytposition finns.</p>
+<p>Öppna ”Navigering → Planetnavigering” i huvudmenyn till vänster och välj ”Manuell inmatning …”. Fönstret kan öppnas och ett mål anges innan en aktuell ytposition finns.</p>
 <ul>
 <li><b>Himlakropp:</b> Välj målplaneten eller målmånen i listan eller använd den himlakropp som redan identifierats. Du kan också skriva in namnet själv om det ännu inte finns i listan. Om du är osäker, använd hela namnet inklusive systemnamnet.</li>
 <li><b>Latitud:</b> Ange målets latitud mellan −90° och +90°.</li>
@@ -1123,7 +1123,7 @@ HELP_TOPICS = {
 <p>System, kropp och koordinater låses när åtgärden öppnas. I favoritdialogen kan du ändra namn, kategori och anteckning och lägga till en bild. Först ”Spara” sparar lokalt för befälhavaren; avbryt sparar inget. Senare rörelser ändrar inte den fångade positionen.</p>
 
 <h3>Använda sparade positioner</h3>
-<p>Öppna ”★ Favoriter” i Explorer. Välj en sparad ytplats och ”◎ Till koordinaterna” för att använda kropp, koordinater och namn som mål. Det ersätter tidigare mål; på en annan kropp väntar navigatorn på passande positionsdata.</p>
+<p>Öppna ”Navigering → ★ Favoriter” i huvudmenyn till vänster. Välj en sparad ytplats och ”◎ Till koordinaterna” för att använda kropp, koordinater och namn som mål. Det ersätter tidigare mål; på en annan kropp väntar navigatorn på passande positionsdata.</p>
 <p>”Redigera” ändrar namn, kategori och anteckning. ”Ta bort” tar bort favoriten efter bekräftelse, inga Elite-data. Favoriter bevaras vid omstart och hålls åtskilda per befälhavare; själva navigeringsmålet gäller bara under sessionen.</p>
 
 <h3>Planetglob: mer än 380 km</h3>

@@ -38,6 +38,14 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## CMDRHelper v3.9.6.7
+
+- Verbeterde koppeling van Powerplay-verdiensten aan scheepsscans en goederenverkopen.
+- Scheepsscans ondersteunen +5 en +10 verdiensten; gewone goederenverkopen kunnen binnen vier seconden meerdere toekenningen krijgen (≈). Concurrerende of dubbelzinnige gebeurtenissen blijven onopgelost (?).
+- Ingeschakelde vrachtruimweergaven blijven zichtbaar zonder verbergen bij inactiviteit; vracht- en dronewaarden worden bijgewerkt zonder de weergaven opnieuw te openen.
+- Nieuw uitklapbaar hoofdmenu Navigatie met Favorieten en Planeetnavigatie vervangt de eerdere knoppen in Explorer.
+- De geïntegreerde help beschrijft de nieuwe menupaden in alle twaalf ondersteunde talen.
+
 ## CMDRHelper v3.9.6.6
 
 - Verbeterde koppeling van Powerplay-verdiensten aan opeenvolgende goederenverkopen.

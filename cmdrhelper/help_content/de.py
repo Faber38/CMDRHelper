@@ -315,7 +315,7 @@ HELP_TOPICS = {
 <p>Bei einem interessanten Körper lohnt sich ein Klick auf die Detailansicht. Dort lässt sich am besten unterscheiden zwischen allgemeinen Körperdaten, möglichen Explorationsergebnissen und tatsächlich vom eigenen Commander belegten Funden.</p>
 
 <h3>★ Favoriten</h3>
-<p>Über den Button „★ Favoriten“ oben im Explorer öffnest du ein eigenes, wiederverwendbares Favoritenfenster. Dort speicherst du Systeme, Planeten/Monde und Oberflächenorte für den aktiven Commander.</p>
+<p>Über „Navigation → ★ Favoriten“ im linken Hauptmenü öffnest du ein eigenes, wiederverwendbares Favoritenfenster. Dort speicherst du Systeme, Planeten/Monde und Oberflächenorte für den aktiven Commander.</p>
 <p>Die alphabetisch nach Namen sortierte, scrollbare Liste zeigt Name, Typ, System, gegebenenfalls Body und Latitude/Longitude, Kategorie und eine kleine Bildvorschau. Freitextsuche, Typfilter und Kategoriefilter lassen sich gemeinsam verwenden. Die Suche berücksichtigt Name, System, Body und Notiz.</p>
 <p>Mit „Öffnen / Anzeigen“ siehst du die gespeicherten Angaben, die Notiz und eine größere Bildvorschau. „Im Explorer anzeigen“ öffnet die vorhandene Systemübersicht beziehungsweise Body-Detailansicht, sofern der Favorit zum aktuellen Explorer-System gehört und passende Daten vorhanden sind. Für andere Systeme bleiben die gespeicherten Favoritendaten sichtbar; es wird keine Systemroute berechnet.</p>
 
@@ -942,7 +942,7 @@ HELP_TOPICS = {
 <p>Er ist kein interstellarer Routenplaner und übernimmt keine System- oder Sprungnavigation. Du steuerst dein Schiff selbst.</p>
 
 <h3>Navigator öffnen und Ziel eingeben</h3>
-<p>Öffne im Explorer „Planeten-Navigation“ und wähle „Manuelle Eingabe …“. Das Navigatorfenster kann auch ohne aktuelle Oberflächenposition geöffnet und ein Ziel vorab eingegeben werden.</p>
+<p>Öffne im linken Hauptmenü „Navigation → Planeten-Navigation“ und wähle „Manuelle Eingabe …“. Das Navigatorfenster kann auch ohne aktuelle Oberflächenposition geöffnet und ein Ziel vorab eingegeben werden.</p>
 <ul>
 <li><b>Body:</b> Wähle den Zielplaneten oder Zielmond aus der Liste oder verwende den bereits erkannten Body. Du kannst den Bodynamen auch selbst eingeben, wenn er noch nicht in der Liste steht. Verwende im Zweifel den vollständigen Namen einschließlich Systemname.</li>
 <li><b>Breitengrad (Latitude):</b> Gib die Zielbreite zwischen −90° und +90° ein.</li>
@@ -962,7 +962,7 @@ HELP_TOPICS = {
 <p>Beim Aufruf werden System, Körper und Koordinaten festgehalten. Im Favoriten-Dialog kannst du Name, Kategorie und Notiz bearbeiten und optional ein Bild zuordnen. Erst „Speichern“ legt den Eintrag lokal und commanderbezogen ab; Abbrechen speichert nichts. Spätere Bewegungen ändern die festgehaltene Position nicht.</p>
 
 <h3>Gespeicherte Positionen verwenden</h3>
-<p>Öffne „★ Favoriten“ im Explorer. Wähle einen gespeicherten Oberflächenort und „◎ Zu den Koordinaten“, um Körper, Koordinaten und Namen als Navigationsziel zu übernehmen. Das ersetzt ein bisheriges Ziel; auf einem anderen Körper wartet der Navigator auf passende Positionsdaten.</p>
+<p>Öffne im linken Hauptmenü „Navigation → ★ Favoriten“. Wähle einen gespeicherten Oberflächenort und „◎ Zu den Koordinaten“, um Körper, Koordinaten und Namen als Navigationsziel zu übernehmen. Das ersetzt ein bisheriges Ziel; auf einem anderen Körper wartet der Navigator auf passende Positionsdaten.</p>
 <p>Über „Bearbeiten“ kannst du Name, Kategorie und Notiz ändern. „Löschen“ entfernt den Favoriten erst nach Bestätigung, keine Elite-Daten. Favoriten bleiben über Helper-Neustarts erhalten und sind nach Commander getrennt; das aktuelle Navigationsziel selbst ist nur für die laufende Sitzung gesetzt.</p>
 
 <h3>Planetenkugel: mehr als 380 km</h3>

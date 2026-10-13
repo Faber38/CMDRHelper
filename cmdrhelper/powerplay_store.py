@@ -289,14 +289,12 @@ def read_day(db, cid, day, *, zone=None):
     previous = last_sequence = None
     for sid, facts, context in rows:
         if sid != previous:
-            result.pending = result.active = None
-            result.ambiguous = False
+            result.reset_candidates()
             previous = sid
         e, c = json.loads(facts), json.loads(context)
         sequence = c.get('sequence')
         if last_sequence is not None and sequence != last_sequence + 1:
-            result.pending = result.active = None
-            result.ambiguous = False
+            result.reset_candidates()
         result.apply(e, system=c.get('system', {}).get('StarSystem', ''), station=c.get('station', ''), power=c.get('power', ''))
         last_sequence = sequence
     return result

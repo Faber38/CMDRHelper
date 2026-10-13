@@ -365,7 +365,7 @@ HELP_TOPICS = {
               """
 
 <h3>★ Ulubione</h3>
-<p>Przycisk „★ Ulubione” u góry Explorera otwiera osobne okno ulubionych, które jest używane ponownie. Zapisujesz w nim systemy, planety/księżyce i miejsca na powierzchni dla aktywnego dowódcy.</p>
+<p>„Nawigacja → ★ Ulubione” w menu głównym po lewej otwiera osobne okno ulubionych, które jest używane ponownie. Zapisujesz w nim systemy, planety/księżyce i miejsca na powierzchni dla aktywnego dowódcy.</p>
 <p>Przewijana lista, posortowana alfabetycznie według nazw, pokazuje nazwę, typ, system, w odpowiednich przypadkach ciało niebieskie i szerokość/długość geograficzną, kategorię oraz mały podgląd obrazu. Wyszukiwanie tekstowe oraz filtry typu i kategorii można stosować wspólnie. Wyszukiwanie obejmuje nazwę, system, ciało niebieskie i notatkę.</p>
 <p>„Otwórz / Pokaż” pokazuje zapisane dane, notatkę i większy podgląd obrazu. „Pokaż w Explorerze” otwiera istniejący przegląd systemu lub szczegóły ciała niebieskiego, jeśli ulubiony należy do bieżącego systemu Explorera i dostępne są odpowiednie dane. W przypadku innych systemów zapisane dane ulubionego pozostają widoczne; trasa między systemami nie jest obliczana.</p>
 
@@ -1124,7 +1124,7 @@ HELP_TOPICS = {
 <p>Nie jest to planer tras międzygwiezdnych i nie obsługuje nawigacji między systemami ani skoków. Samodzielnie pilotujesz statek.</p>
 
 <h3>Otwieranie nawigatora i wprowadzanie celu</h3>
-<p>Otwórz „Nawigacja planetarna” w Explorerze i wybierz „Wprowadzanie ręczne …”. Okno można otworzyć i wpisać cel przed uzyskaniem bieżącej pozycji na powierzchni.</p>
+<p>Otwórz „Nawigacja → Nawigacja planetarna” w menu głównym po lewej i wybierz „Wprowadzanie ręczne …”. Okno można otworzyć i wpisać cel przed uzyskaniem bieżącej pozycji na powierzchni.</p>
 <ul>
 <li><b>Ciało niebieskie:</b> Wybierz docelową planetę lub księżyc z listy albo użyj już rozpoznanego ciała. Możesz też samodzielnie wpisać jego nazwę, jeśli jeszcze nie ma go na liście. W razie wątpliwości użyj pełnej nazwy wraz z nazwą systemu.</li>
 <li><b>Szerokość geograficzna:</b> Podaj szerokość celu między −90° a +90°.</li>
@@ -1144,7 +1144,7 @@ HELP_TOPICS = {
 <p>Przy otwarciu utrwalane są system, ciało i współrzędne. W oknie ulubionych możesz zmienić nazwę, kategorię i notatkę oraz dodać obraz. Dopiero „Zapisz” zapisuje lokalnie dla danego dowódcy; anulowanie niczego nie zapisuje. Późniejszy ruch nie zmienia utrwalonej pozycji.</p>
 
 <h3>Korzystanie z zapisanych pozycji</h3>
-<p>Otwórz „★ Ulubione” w Explorerze. Wybierz zapisane miejsce na powierzchni i „◎ Do współrzędnych”, aby przyjąć ciało, współrzędne i nazwę jako cel. Zastępuje to poprzedni cel; na innym ciele nawigator czeka na zgodne dane pozycji.</p>
+<p>Otwórz „Nawigacja → ★ Ulubione” w menu głównym po lewej. Wybierz zapisane miejsce na powierzchni i „◎ Do współrzędnych”, aby przyjąć ciało, współrzędne i nazwę jako cel. Zastępuje to poprzedni cel; na innym ciele nawigator czeka na zgodne dane pozycji.</p>
 <p>„Edytuj” zmienia nazwę, kategorię i notatkę. „Usuń” usuwa ulubiony wpis po potwierdzeniu, bez usuwania danych Elite. Ulubione pozostają po restarcie i są rozdzielone według dowódców; bieżący cel nawigacji trwa tylko przez sesję.</p>
 
 <h3>Globus planety: ponad 380 km</h3>

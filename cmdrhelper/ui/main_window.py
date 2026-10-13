@@ -925,12 +925,8 @@ class CargoLiveWindow(QDialog):
         super().__init__(parent)
         self.settings = settings
         self.geometry_key = "cargo_live/geometry"
-        self.cargo_visibility = CargoVisibility(self, self.hide)
+        self.cargo_visibility = CargoVisibility(self)
         self._last_snapshot = None
-        self._pending_snapshot_timer = QTimer(self)
-        self._pending_snapshot_timer.setSingleShot(True)
-        self._pending_snapshot_timer.setInterval(15000)
-        self._pending_snapshot_timer.timeout.connect(self.invalidate_snapshot)
         self._row_keys = []
         self._has_snapshot = False
         self.setWindowFlags(self.windowFlags() | Qt.Window)
@@ -1011,13 +1007,11 @@ class CargoLiveWindow(QDialog):
         self._save_geometry()
 
     def closeEvent(self, event):
-        self._pending_snapshot_timer.stop()
         self.cargo_visibility.close()
         self._save_geometry()
         super().closeEvent(event)
 
     def reject(self):
-        self._pending_snapshot_timer.stop()
         self.cargo_visibility.close()
         super().reject()
 
@@ -1038,13 +1032,12 @@ class CargoLiveWindow(QDialog):
                 self._automatic_show = False
 
     def invalidate_snapshot(self, *, force_hide=False):
-        manual = self.cargo_visibility.manual and not force_hide
-        self._pending_snapshot_timer.stop()
+        keep_visible = not force_hide
         self.cargo_visibility.reset()
         self._last_snapshot = None
-        if manual:
-            # Unknown data is not an empty hold. Keep the manually opened
-            # window, but stop presenting an expired inventory as current.
+        if keep_visible:
+            # Unknown data is not an empty hold. Keep the enabled window,
+            # but do not present another session's inventory as current.
             self.cargo_visibility.observe(None, manual=True)
             self.table.setRowCount(0)
             self._row_keys.clear()
@@ -1053,13 +1046,7 @@ class CargoLiveWindow(QDialog):
         elif self.isVisible():
             self.hide()
 
-    def hold_pending_snapshot(self):
-        # Repeated missing snapshots do not prolong this bounded grace period.
-        if self.isVisible() and not self._pending_snapshot_timer.isActive():
-            self._pending_snapshot_timer.start()
-
     def set_snapshot(self, snapshot):
-        self._pending_snapshot_timer.stop()
         self._last_snapshot = snapshot
         snapshot = snapshot if isinstance(snapshot, dict) else {}
         vessel = str(snapshot.get("vessel") or "")
@@ -1337,6 +1324,30 @@ class MainWindow(QMainWindow):
 
         return button
 
+    def _navigation_menu(self):
+        menu = QWidget()
+        layout = QVBoxLayout(menu)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.navigation_menu_button = QPushButton("▸  " + tr("nav.navigation"))
+        self.navigation_menu_button.setCheckable(True)
+        layout.addWidget(self.navigation_menu_button)
+        children = QWidget()
+        child_layout = QVBoxLayout(children)
+        child_layout.setContentsMargins(14, 0, 0, 0)
+        self.favorites_button = QPushButton(tr("favorites.title"))
+        self.favorites_button.clicked.connect(self._show_favorites)
+        child_layout.addWidget(self.favorites_button)
+        self.planet_navigation_button = QPushButton(tr("planet_nav.title"))
+        self.planet_navigation_button.clicked.connect(self._show_planet_navigation)
+        child_layout.addWidget(self.planet_navigation_button)
+        layout.addWidget(children)
+        children.hide()
+        self.navigation_menu_button.toggled.connect(children.setVisible)
+        self.navigation_menu_button.toggled.connect(
+            lambda expanded: self.navigation_menu_button.setText(
+                ("▾  " if expanded else "▸  ") + tr("nav.navigation")))
+        return menu
+
     def _show_page(self, idx):
         self.pages.setCurrentIndex(idx)
         if hasattr(self, "missions_table"):
@@ -1406,6 +1417,8 @@ class MainWindow(QMainWindow):
         side.addWidget(self._nav("★  " + tr("nav.jump_tip"), self.PAGE_JUMP_TIP))
 
         side.addWidget(self._nav("⌖  " + tr("nav.route_planner"), self.PAGE_ROUTE_PLANNER))
+
+        side.addWidget(self._navigation_menu())
 
         side.addWidget(self._nav("▣  " + tr("nav.images"), self.PAGE_IMAGES))
 
@@ -1911,13 +1924,7 @@ class MainWindow(QMainWindow):
         overview_row = QHBoxLayout()
         overview_row.addStretch()
 
-        self.favorites_button = QPushButton(tr("favorites.title"))
-        self.favorites_button.clicked.connect(self._show_favorites)
-        overview_row.addWidget(self.favorites_button)
         self.system_overview_button = QPushButton(tr("explorer.show_all"))
-        self.planet_navigation_button = QPushButton(tr("planet_nav.title"))
-        self.planet_navigation_button.clicked.connect(self._show_planet_navigation)
-        overview_row.addWidget(self.planet_navigation_button)
         self.system_overview_button.setToolTip(tr("explorer.show_all_tooltip"))
         self.system_overview_button.clicked.connect(self._show_system_overview)
         overview_row.addWidget(self.system_overview_button)
@@ -5892,28 +5899,29 @@ class MainWindow(QMainWindow):
             self._refresh_cargo_live_window(
                 getattr(self.state, "cargo_snapshot", None)
             )
-            if (self._cargo_live_window is not None
-                    and isinstance(getattr(self.state, "cargo_snapshot", None), dict)):
+            if self._cargo_live_window is not None and not self._cargo_live_window.isVisible():
                 self._cargo_live_window.show()
 
     def _refresh_cargo_live_window(self, snapshot):
         hud = getattr(self, "_navigation_hud", None)
         if hud is not None:
             hud.notify_cargo_activity(cargo_activity_key(snapshot))
-        if not self._cargo_live_window_enabled() or not isinstance(snapshot, dict):
+        if not self._cargo_live_window_enabled():
             if self._cargo_live_window is not None:
-                window = self._cargo_live_window
-                if (self._cargo_live_window_enabled()
-                        and same_cargo_context(self.state, window._last_snapshot)):
-                    window.hold_pending_snapshot()
-                else:
-                    window.invalidate_snapshot(force_hide=not self._cargo_live_window_enabled())
+                self._cargo_live_window.invalidate_snapshot(force_hide=True)
             return
         if self._cargo_live_window is None:
             self._cargo_live_window = CargoLiveWindow(
                 self.state.settings, parent=self
             )
-        self._cargo_live_window.present_snapshot(snapshot)
+        window = self._cargo_live_window
+        if isinstance(snapshot, dict):
+            window.present_snapshot(snapshot)
+        else:
+            if not same_cargo_context(self.state, window._last_snapshot):
+                window.invalidate_snapshot()
+            if not window.isVisible():
+                window.show()
 
     def _set_explorer_value_threshold(self, value):
         value = max(0, int(value or 0))

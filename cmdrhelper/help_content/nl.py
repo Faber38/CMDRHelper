@@ -375,7 +375,7 @@ HELP_TOPICS = {
               """
 
 <h3>★ Favorieten</h3>
-<p>De knop ‘★ Favorieten’ bovenaan de Explorer opent een eigen, herbruikbaar favorietenvenster. Hier sla je systemen, planeten/manen en oppervlaktelocaties op voor de actieve commander.</p>
+<p>‘Navigatie → ★ Favorieten’ in het hoofdmenu links opent een eigen, herbruikbaar favorietenvenster. Hier sla je systemen, planeten/manen en oppervlaktelocaties op voor de actieve commander.</p>
 <p>De schuifbare lijst, alfabetisch gesorteerd op naam, toont naam, type, systeem, waar van toepassing hemellichaam en breedte-/lengtegraad, categorie en een kleine afbeeldingsvoorvertoning. Vrij zoeken, het typefilter en het categoriefilter kunnen samen worden gebruikt. De zoekopdracht doorzoekt naam, systeem, hemellichaam en notitie.</p>
 <p>‘Openen / Tonen’ toont de opgeslagen gegevens, de notitie en een grotere afbeeldingsvoorvertoning. ‘In Explorer tonen’ opent het bestaande systeemoverzicht of de detailweergave van het hemellichaam als de favoriet bij het huidige Explorer-systeem hoort en bijpassende gegevens beschikbaar zijn. Voor andere systemen blijven de opgeslagen favorietgegevens zichtbaar; er wordt geen systeemroute berekend.</p>
 
@@ -1144,7 +1144,7 @@ HELP_TOPICS = {
 <p>Het is geen interstellaire routeplanner en hij verzorgt geen systeem- of sprongnavigatie. Je bestuurt je schip zelf.</p>
 
 <h3>De navigator openen en een doel invoeren</h3>
-<p>Open ‘Planeetnavigatie’ in Explorer en kies ‘Handmatige invoer …’. Je kunt het venster openen en een doel invoeren voordat een actuele oppervlaktepositie beschikbaar is.</p>
+<p>Open ‘Navigatie → Planeetnavigatie’ in het hoofdmenu links en kies ‘Handmatige invoer …’. Je kunt het venster openen en een doel invoeren voordat een actuele oppervlaktepositie beschikbaar is.</p>
 <ul>
 <li><b>Hemellichaam:</b> Kies de doelplaneet of doelmaan uit de lijst of gebruik het al herkende hemellichaam. Je kunt de naam ook zelf invoeren als die nog niet in de lijst staat. Gebruik bij twijfel de volledige naam, inclusief de systeemnaam.</li>
 <li><b>Breedtegraad:</b> Voer de breedtegraad van het doel in tussen −90° en +90°.</li>
@@ -1164,7 +1164,7 @@ HELP_TOPICS = {
 <p>Bij het openen worden systeem, lichaam en coördinaten vastgelegd. In de favorietendialoog kun je naam, categorie en notitie wijzigen en een afbeelding toevoegen. Pas ‘Opslaan’ bewaart lokaal voor die commander; annuleren slaat niets op. Latere bewegingen wijzigen de vastgelegde positie niet.</p>
 
 <h3>Opgeslagen posities gebruiken</h3>
-<p>Open ‘★ Favorieten’ in Explorer. Kies een opgeslagen oppervlaktelocatie en ‘◎ Naar coördinaten’ om lichaam, coördinaten en naam als doel over te nemen. Dit vervangt een vorig doel; op een ander lichaam wacht de navigator op passende positiegegevens.</p>
+<p>Open ‘Navigatie → ★ Favorieten’ in het hoofdmenu links. Kies een opgeslagen oppervlaktelocatie en ‘◎ Naar coördinaten’ om lichaam, coördinaten en naam als doel over te nemen. Dit vervangt een vorig doel; op een ander lichaam wacht de navigator op passende positiegegevens.</p>
 <p>‘Bewerken’ wijzigt naam, categorie en notitie. ‘Verwijderen’ verwijdert de favoriet na bevestiging, geen Elite-gegevens. Favorieten blijven na herstarts bewaard en zijn per commander gescheiden; het huidige navigatiedoel geldt alleen voor de sessie.</p>
 
 <h3>Planeetbol: meer dan 380 km</h3>

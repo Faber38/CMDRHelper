@@ -380,7 +380,7 @@ HELP_TOPICS = {
               """
 
 <h3>★ Favoris</h3>
-<p>Le bouton « ★ Favoris » en haut de l’Explorer ouvre une fenêtre de favoris distincte et réutilisable. Tu y enregistres des systèmes, des planètes/lunes et des lieux en surface pour le commandant actif.</p>
+<p>« Navigation → ★ Favoris » dans le menu principal à gauche ouvre une fenêtre de favoris distincte et réutilisable. Tu y enregistres des systèmes, des planètes/lunes et des lieux en surface pour le commandant actif.</p>
 <p>La liste défilante, triée par ordre alphabétique des noms, affiche le nom, le type, le système, le corps et la latitude/longitude le cas échéant, la catégorie et un petit aperçu d’image. La recherche en texte libre et les filtres de type et de catégorie sont combinables. La recherche porte sur le nom, le système, le corps et la note.</p>
 <p>« Ouvrir / Afficher » affiche les informations enregistrées, la note et un aperçu d’image plus grand. « Afficher dans l’Explorer » ouvre la vue d’ensemble du système ou la fiche du corps existante si le favori appartient au système actuel de l’Explorer et si les données correspondantes sont disponibles. Pour les autres systèmes, les données enregistrées du favori restent visibles ; aucun itinéraire entre systèmes n’est calculé.</p>
 
@@ -1160,7 +1160,7 @@ HELP_TOPICS = {
 <p>Ce n’est pas un planificateur d’itinéraire interstellaire et il ne prend en charge ni la navigation entre systèmes ni les sauts. Tu pilotes toi-même ton vaisseau.</p>
 
 <h3>Ouvrir le navigateur et saisir une cible</h3>
-<p>Ouvre « Navigation planétaire » dans l’Explorer puis « Saisie manuelle … ». La fenêtre et la saisie d’une cible sont disponibles même avant de recevoir une position de surface.</p>
+<p>Ouvre « Navigation → Navigation planétaire » dans le menu principal à gauche puis « Saisie manuelle … ». La fenêtre et la saisie d’une cible sont disponibles même avant de recevoir une position de surface.</p>
 <ul>
 <li><b>Corps céleste :</b> Sélectionne la planète ou la lune cible dans la liste, ou utilise le corps déjà détecté. Tu peux aussi saisir toi-même son nom s’il ne figure pas encore dans la liste. En cas de doute, utilise le nom complet, y compris celui du système.</li>
 <li><b>Latitude :</b> Saisis la latitude cible entre −90° et +90°.</li>
@@ -1180,7 +1180,7 @@ HELP_TOPICS = {
 <p>Le système, le corps et les coordonnées sont figés à l’ouverture. Le dialogue des favoris permet de modifier nom, catégorie et note et d’ajouter une image. Seul « Enregistrer » enregistre localement pour ce commandant ; annuler ne sauvegarde rien. Les déplacements ultérieurs ne modifient pas la position figée.</p>
 
 <h3>Utiliser les positions enregistrées</h3>
-<p>Ouvre « ★ Favoris » dans l’Explorer. Choisis un lieu de surface enregistré puis « ◎ Vers les coordonnées » pour reprendre son corps, ses coordonnées et son nom comme cible. Cela remplace la cible précédente ; sur un autre corps, le navigateur attend les bonnes données de position.</p>
+<p>Ouvre « Navigation → ★ Favoris » dans le menu principal à gauche. Choisis un lieu de surface enregistré puis « ◎ Vers les coordonnées » pour reprendre son corps, ses coordonnées et son nom comme cible. Cela remplace la cible précédente ; sur un autre corps, le navigateur attend les bonnes données de position.</p>
 <p>« Modifier » permet de changer nom, catégorie et note. « Supprimer » supprime le favori après confirmation, sans supprimer de données Elite. Les favoris survivent aux redémarrages et sont séparés par commandant ; la cible de navigation actuelle ne dure que pendant la session.</p>
 
 <h3>Globe planétaire : au-delà de 380 km</h3>

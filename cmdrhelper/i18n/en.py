@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_6_7.2': 'Cargo displays remain visible while enabled, without inactivity hiding; cargo and limpet values update without reopening the displays.',
+    'release.3_9_6_7.3': 'New expandable Navigation main menu with Favorites and Planet navigation, replacing the former Explorer buttons.',
+    'release.3_9_6_7.4': 'Integrated help documents the new menu paths in all twelve supported languages.',
+    'nav.navigation': 'Navigation',
+    'release.3_9_6_7.0': 'Improved Powerplay merit matching for ship scans and commodity sales.',
+    'release.3_9_6_7.1': 'Ship scans support +5 and +10 merits; ordinary commodity sales can receive multiple credits within four seconds (≈). Competing or ambiguous events remain unresolved (?).',
     'release.3_9_6_6.0': 'Improved Powerplay merit matching for consecutive commodity sales.',
     'release.3_9_6_5.0': 'More robust Windows startup: Noncritical background failures are reported as partial failures while the main window remains usable.',
     'release.3_9_6_5.1': 'Bounded retries for landing pad data and journal catch-up, improved cartography repair, and safer journal indexing and shutdown.',

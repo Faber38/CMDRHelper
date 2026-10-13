@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_6_7.2': 'Las vistas de carga permanecen visibles mientras están activadas, sin ocultarse por inactividad; los valores de carga y drones se actualizan sin volver a abrir las vistas.',
+    'release.3_9_6_7.3': 'Nuevo menú principal desplegable Navegación con Favoritos y Navegación planetaria, que sustituye a los antiguos botones del Explorer.',
+    'release.3_9_6_7.4': 'La ayuda integrada describe las nuevas rutas de menú en los doce idiomas compatibles.',
+    'nav.navigation': 'Navegación',
+    'release.3_9_6_7.0': 'Mejorada la asociación de méritos de Powerplay con escaneos de naves y ventas de mercancías.',
+    'release.3_9_6_7.1': 'Los escaneos de naves admiten +5 y +10 méritos; las ventas ordinarias pueden recibir varias acreditaciones en cuatro segundos (≈). Los eventos con causas alternativas o ambiguas quedan sin asignar (?).',
     'release.3_9_6_6.0': 'Mejorada la asociación de méritos de Powerplay con ventas consecutivas de mercancías.',
     'release.3_9_6_5.0': 'Inicio de Windows más robusto: los errores no críticos en segundo plano se indican como parciales y la ventana principal sigue disponible.',
     'release.3_9_6_5.1': 'Reintentos limitados para los datos de plataformas y la puesta al día de diarios, mejor reparación cartográfica e indexación y cierre más seguros.',
