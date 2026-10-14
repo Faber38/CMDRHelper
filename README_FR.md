@@ -38,6 +38,14 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.9.9
+
+- Détachez la navigation planétaire dans une fenêtre séparée et réintégrez-la en conservant la cible et les données en direct.
+- Ouvrez les images des favoris en résolution originale, zoomez avec la molette et déplacez-les avec la souris.
+- Les titres des favoris apparaissent en jaune Elite (#FFCC33), en conservant la sélection et les autres lignes de texte.
+- Exportez tous les favoris ou une sélection avec images et coordonnées au format ZIP/JSON compatible existant.
+- Navigation plus claire avec un symbole de boussole et « Vers la navigation planétaire ».
+
 ## CMDRHelper v3.9.8
 
 - Les favoris et la navigation planétaire sont intégrés directement dans l’interface principale sous forme de deux onglets.

@@ -39,6 +39,14 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.9
+
+- Gezegen navigasyonunu ayrı bir pencereye taşıyın ve hedef ile canlı verileri koruyarak geri yerleştirin.
+- Favori görsellerini özgün çözünürlükte açın, fare tekerleğiyle yakınlaştırın ve sürükleyerek kaydırın.
+- Favori başlıkları Elite sarısı (#FFCC33) ile gösterilir; seçim vurgusu ve diğer metin satırları korunur.
+- Tüm veya seçili favorileri görseller ve koordinatlarla mevcut uyumlu ZIP/JSON biçiminde dışa aktarın.
+- Pusula simgesi ve “Gezegen navigasyonuna git” ile daha anlaşılır menü.
+
 ## CMDRHelper v3.9.8
 
 - Favoriler ve gezegen navigasyonu iki sekme olarak doğrudan ana arayüze entegre edildi.

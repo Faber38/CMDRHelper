@@ -367,8 +367,10 @@ HELP_TOPICS = {
 <p>«Avstandsfilter» er avslått som standard. «Maks. avstand:» er først satt til 500 ly og kan justeres fra 1 til 100 000 ly. Avstanden regnes fra det nåværende kjente systemet med lokalt tilgjengelige systemkoordinater. Det gjøres ingen nettforespørsel bare for dette filteret.</p>
 <p>Favoritter med kjent avstand utenfor grensen skjules. Favoritter med ukjent avstand forblir synlige. Mangler koordinatene til det nåværende systemet, skjuler avstandsfilteret ingen oppføringer. Søk, type og kategori gjelder fortsatt. Filtreringen oppdateres automatisk etter et systembytte. Bryteren og maksimal avstand lagres.</p>
 
+<p>Dobbeltklikk på bildeforhåndsvisningen i favorittdetaljene for en større visning i original oppløsning. Musehjulet zoomer; når bildet er forstørret, hold venstre museknapp og dra for å flytte det. Dobbeltklikk tilbakestiller visningen, Escape lukker den. Originalbildene forblir uendret.</p>
+
 <h3>Eksportere favoritter</h3>
-<p>«Eksporter» lager en portabel ZIP med alle favorittene til den aktive kommandøren, ikke bare oppføringene som vises gjennom søk eller type-, kategori- og avstandsfiltre. favorites.json inneholder de strukturerte favorittdataene; tilgjengelige favorittbilder ligger under images/. Pakken kan overføres mellom Linux og Windows.</p>
+<p>«Eksporter» tilbyr alle favoritter som standard eller bare valgte favoritter. Den rullbare listen med avkrysningsbokser viser navn, system og planet/måne der dette finnes for alle favoritter til den aktive kommandøren, uavhengig av søk, avstand, kategori og type. Velg flere oppføringer eller bruk «Velg alle» og «Fjern alle valg»; antallet vises. Selektiv eksport er deaktivert uten valg. Avbryt endrer ingen data. Deretter åpnes den vanlige fildialogen. ZIP, favorites.json og images/ forblir kompatible; alle felt, koordinater og tilgjengelige bilder for valgte oppføringer beholdes. Eksisterende import leser komplette og selektive pakker uendret.</p>
 <p>Eksisterende favoritter og originalbilder endres ikke. Bilder med identisk innhold lagres bare én gang i pakken. Manglende eller skadede bilder hindrer ikke eksport av favorittdata. Import og eksport tillater maksimalt 32 MiB per fil og 256 MiB totalt for ukomprimert pakkeinnhold.</p>
 
 <h3>Importere favoritter</h3>
@@ -399,8 +401,8 @@ HELP_TOPICS = {
 <p>Favorittbilder kan eksporteres og kopieres lokalt ved import. Delte interne bildekopier beholdes så lenge en annen favoritt trenger dem. Når en import erstatter favoritter, beholdes gamle bildefiler foreløpig som en forholdsregel.</p>
 
 <h3>Favorittmål og kommandør</h3>
-<p>«▶ Til ruten» setter favorittens kjente system som mål i ruteplanleggeren. Starten følger eksisterende oppførsel med gjeldende AppState; en manuelt angitt start beholdes. Ingen rute beregnes automatisk. «◎ Til koordinatene» starter eksisterende planetnavigasjon til overflatestedet med eksisterende HUD når system, himmellegeme og gyldige koordinater er lagret. Reisen til systemet og overflatenavigasjonen er to separate trinn, uten automatisk reiseforløp. Uten overflatekoordinater er bare ruten tilgjengelig; handlinger som mangler nødvendige data skjules.</p>
-<p>For steder på overflaten sender «◎ Til koordinatene» det lagrede himmellegemet, breddegrad, lengdegrad og favorittnavnet til den eksisterende planetnavigatoren. Det nye målet erstatter det forrige. Favoritter har ingen egen navigasjonslogikk. Navigatoren avgjør fortsatt selv: samsvarende, gyldige planetære data aktiverer navigasjonen; ellers venter den på disse dataene.</p>
+<p>«▶ Til ruten» setter favorittens kjente system som mål i ruteplanleggeren. Starten følger eksisterende oppførsel med gjeldende AppState; en manuelt angitt start beholdes. Ingen rute beregnes automatisk. «◎ Til planetnavigasjon» starter eksisterende planetnavigasjon til overflatestedet med eksisterende HUD når system, himmellegeme og gyldige koordinater er lagret. Reisen til systemet og overflatenavigasjonen er to separate trinn, uten automatisk reiseforløp. Uten overflatekoordinater er bare ruten tilgjengelig; handlinger som mangler nødvendige data skjules.</p>
+<p>For steder på overflaten sender «◎ Til planetnavigasjon» det lagrede himmellegemet, breddegrad, lengdegrad og favorittnavnet til den eksisterende planetnavigatoren. Det nye målet erstatter det forrige. Favoritter har ingen egen navigasjonslogikk. Navigatoren avgjør fortsatt selv: samsvarende, gyldige planetære data aktiverer navigasjonen; ellers venter den på disse dataene.</p>
 <p>Favoritter tilhører bare den aktive kommandøren. Ved kommandørbytte oppdateres listen, og en åpen redigeringsdialog forkastes. Et mål som fortsatt håndteres som den forrige kommandørens favorittmål, avsluttes. Kommandørvalget i kronikken utvider ikke denne favorittlisten.</p>
 <p>«Slett» krever bekreftelse og fjerner bare favorittoppføringen og dens interne bildekopi. Det opprinnelige skjermbildet eller det valgte originalbildet og alle Explorer-, journal- og himmellegemedata beholdes.</p>"""),
  'chronicle': (
@@ -1091,6 +1093,7 @@ HELP_TOPICS = {
     "planet_navigation": (
         'Planetnavigasjon',
         """<h2>Planetnavigasjon</h2>
+<p>Planetnavigasjon er som standard integrert i hovedvinduet. «Eget vindu» flytter den samme visningen til et vindu som kan flyttes og endre størrelse fritt, også på en ekstra skjerm. «Tilbake til hovedvinduet» eller lukking av vinduet flytter visningen tilbake til den eksisterende fanen. Målkoordinater og navigasjonstilstand beholdes, og sanntidsoppdateringer fortsetter. Vinduets posisjon og størrelse lagres. Når CMDRHelper avsluttes, lukkes også dette vinduet; ved neste start er visningen integrert igjen. Navigasjons-HUD er uendret.</p>
 <p>Planetnavigatoren hjelper deg utelukkende med å fly til en bestemt breddegrad/lengdegrad på en planet eller måne. Du angir et koordinatmål og får avstand og retning dit.</p>
 <p>Den er ikke en interstellar ruteplanlegger og håndterer verken system- eller hoppnavigasjon. Du styrer skipet selv.</p>
 
@@ -1116,7 +1119,7 @@ HELP_TOPICS = {
 <p>System, legeme og koordinater fryses når handlingen åpnes. I favorittdialogen kan du endre navn, kategori og notat og legge til et bilde. Først «Lagre» lagrer lokalt for kommandøren; avbryt lagrer ingenting. Senere bevegelser endrer ikke den fryste posisjonen.</p>
 
 <h3>Bruke lagrede posisjoner</h3>
-<p>Bytt til fanen «Navigasjon → ★ Favoritter» i hovedområdet. Velg et lagret overflatested og «◎ Til koordinatene» for å bruke legeme, koordinater og navn som mål. Det erstatter forrige mål; på et annet legeme venter navigatøren på passende posisjonsdata.</p>
+<p>Bytt til fanen «Navigasjon → ★ Favoritter» i hovedområdet. Velg et lagret overflatested og «◎ Til planetnavigasjon» for å bruke legeme, koordinater og navn som mål. Det erstatter forrige mål; på et annet legeme venter navigatøren på passende posisjonsdata.</p>
 <p>«Rediger» endrer navn, kategori og notat. «Slett» fjerner favoritten etter bekreftelse, ikke Elite-data. Favoritter bevares ved omstart og er skilt etter kommandør; selve navigasjonsmålet gjelder bare denne økten.</p>
 
 <h3>Planetkule: mer enn 380 km</h3>

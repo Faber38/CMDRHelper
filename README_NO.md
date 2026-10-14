@@ -38,6 +38,14 @@ Journalmappen til Elite Dangerous oppdages automatisk når det er mulig. Hvis de
 
 CMDRHelper søker etter oppdateringer ved oppstart og har en innebygd oppdateringsfunksjon. Bekreft en tilbudt oppdatering i programmet; den oppdaterer programmet og avhengighetene og starter CMDRHelper på nytt. Etter førstegangsinstallasjonen bruker du normalt bare `start.bat` (Windows) eller `bash start.sh` (Linux). Du trenger ikke å kjøre `install.bat` eller `install.sh` manuelt på nytt for vanlige oppdateringer.
 
+## CMDRHelper v3.9.9
+
+- Flytt planetnavigasjonen til et separat vindu og tilbake med samme mål og sanntidsdata.
+- Åpne favorittbilder i original oppløsning, zoom med musehjulet og dra for å flytte bildet.
+- Favorittitler vises i Elite-gult (#FFCC33), mens markering og øvrige tekstlinjer beholdes.
+- Eksporter alle eller valgte favoritter med bilder og koordinater i det eksisterende kompatible ZIP/JSON-formatet.
+- Tydeligere navigering med kompassymbol og «Til planetnavigasjon».
+
 ## CMDRHelper v3.9.8
 
 - Favoritter og planetnavigasjon er integrert direkte i hovedgrensesnittet som to faner.

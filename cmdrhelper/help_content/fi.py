@@ -366,8 +366,10 @@ HELP_TOPICS = {
 <p>”Etäisyyssuodatin” on oletuksena pois käytöstä. ”Enimmäisetäisyys:” on aluksi 500 ly, ja sen voi asettaa välille 1–100 000 ly. Etäisyys lasketaan nykyisestä tunnetusta järjestelmästä paikallisesti saatavilla olevien järjestelmäkoordinaattien avulla. Pelkästään tätä suodatinta varten ei tehdä verkkokyselyä.</p>
 <p>Suosikit, joiden tunnettu etäisyys ylittää rajan, piilotetaan. Tuntemattoman etäisyyden suosikit pysyvät näkyvissä. Jos nykyisen järjestelmän koordinaatit puuttuvat, etäisyyssuodatin ei piilota merkintöjä. Haku sekä tyyppi- ja luokkasuodattimet ovat edelleen voimassa. Suodatus päivittyy automaattisesti järjestelmän vaihduttua. Kytkimen tila ja enimmäisetäisyys tallennetaan.</p>
 
+<p>Kaksoisnapsauta kuvan esikatselua suosikin tiedoissa avataksesi suurennetun näkymän alkuperäisessä tarkkuudessa. Hiiren rulla zoomaa; suurennettua kuvaa voi siirtää vetämällä vasen painike painettuna. Kaksoisnapsautus palauttaa näkymän ja Escape sulkee sen. Alkuperäiset kuvat säilyvät muuttumattomina.</p>
+
 <h3>Suosikkien vienti</h3>
-<p>”Vie” luo siirrettävän ZIP-paketin kaikista aktiivisen komentajan suosikeista, ei vain haun tai tyyppi-, luokka- ja etäisyyssuodattimien näyttämistä merkinnöistä. favorites.json sisältää suosikkien rakenteiset tiedot; saatavilla olevat kuvat ovat images/-kansiossa. Paketin voi siirtää Linuxin ja Windowsin välillä.</p>
+<p>”Vie” tarjoaa oletuksena kaikki suosikit tai vain valitut suosikit. Vieritettävä valintaruutuluettelo näyttää aktiivisen komentajan kaikkien suosikkien nimen, järjestelmän ja mahdollisen planeetan/kuun hausta, etäisyydestä, luokasta ja tyypistä riippumatta. Valitse useita tai käytä ”Valitse kaikki” ja ”Poista kaikki valinnat”; valittujen määrä näkyy. Valikoiva vienti on estetty ilman valintaa. Peruuttaminen ei muuta tietoja. Seuraavaksi avautuu tavallinen tiedostoikkuna. ZIP, favorites.json ja images/ säilyvät yhteensopivina; valittujen kohteiden kentät, koordinaatit ja saatavilla olevat kuvat säilyvät. Nykyinen tuonti lukee täydet ja valikoivat paketit ennallaan.</p>
 <p>Olemassa olevia suosikkeja ja alkuperäisiä kuvia ei muuteta. Samansisältöiset kuvat tallennetaan pakettiin vain kerran. Puuttuvat tai vioittuneet kuvat eivät estä suosikkitietojen vientiä. Tuonnissa ja viennissä enimmäiskoko on 32 MiB tiedostoa kohti ja yhteensä 256 MiB pakkaamatonta sisältöä.</p>
 
 <h3>Suosikkien tuonti</h3>
@@ -398,8 +400,8 @@ HELP_TOPICS = {
 <p>Suosikkikuvat voidaan viedä paketissa, ja tuonnissa ne kopioidaan paikallisesti. Jaetut sisäiset kuvakopiot säilytetään niin kauan kuin toinen suosikki tarvitsee niitä. Kun tuonti korvaa suosikkeja, vanhat kuvatiedostot säilytetään toistaiseksi varmuuden vuoksi.</p>
 
 <h3>Suosikkikohde ja komentaja</h3>
-<p>”▶ Reitille” asettaa suosikin tunnetun järjestelmän reittisuunnittelijan kohteeksi. Lähtö noudattaa nykyistä toimintaa käyttäen ajantasaista AppState-tilaa; käsin asetettu lähtö säilytetään. Reittiä ei lasketa automaattisesti. ”◎ Koordinaatteihin” käynnistää olemassa olevan planeettanavigoinnin pintakohteeseen nykyisellä HUD-näytöllä, kun järjestelmä, taivaankappale ja kelvolliset koordinaatit on tallennettu. Matka järjestelmään ja pintanavigointi ovat kaksi erillistä vaihetta ilman automaattista matkaketjua. Ilman pintakoordinaatteja vain reittitoiminto on käytettävissä; tarvittavien tietojen puuttuessa toiminto piilotetaan.</p>
-<p>Pinnalla sijaitsevien paikkojen ”◎ Koordinaatteihin” välittää tallennetun taivaankappaleen, leveysasteen, pituusasteen ja suosikin nimen olemassa olevalle planeettanavigaattorille. Uusi kohde korvaa aiemman. Suosikeilla ei ole omaa navigointilogiikkaa. Navigaattori päättää edelleen itse: vastaavat kelvolliset planetaariset tiedot aktivoivat navigoinnin; muuten se odottaa näitä tietoja.</p>
+<p>”▶ Reitille” asettaa suosikin tunnetun järjestelmän reittisuunnittelijan kohteeksi. Lähtö noudattaa nykyistä toimintaa käyttäen ajantasaista AppState-tilaa; käsin asetettu lähtö säilytetään. Reittiä ei lasketa automaattisesti. ”◎ Planeettanavigointiin” käynnistää olemassa olevan planeettanavigoinnin pintakohteeseen nykyisellä HUD-näytöllä, kun järjestelmä, taivaankappale ja kelvolliset koordinaatit on tallennettu. Matka järjestelmään ja pintanavigointi ovat kaksi erillistä vaihetta ilman automaattista matkaketjua. Ilman pintakoordinaatteja vain reittitoiminto on käytettävissä; tarvittavien tietojen puuttuessa toiminto piilotetaan.</p>
+<p>Pinnalla sijaitsevien paikkojen ”◎ Planeettanavigointiin” välittää tallennetun taivaankappaleen, leveysasteen, pituusasteen ja suosikin nimen olemassa olevalle planeettanavigaattorille. Uusi kohde korvaa aiemman. Suosikeilla ei ole omaa navigointilogiikkaa. Navigaattori päättää edelleen itse: vastaavat kelvolliset planetaariset tiedot aktivoivat navigoinnin; muuten se odottaa näitä tietoja.</p>
 <p>Suosikit kuuluvat yksinomaan aktiiviselle komentajalle. Komentajan vaihtaminen päivittää luettelon ja hylkää avoimen muokkausikkunan. Kohde, jota käsitellään edelleen edellisen komentajan suosikkikohteena, lopetetaan. Kronikan komentajavalinta ei laajenna tätä suosikkiluetteloa.</p>
 <p>”Poista” edellyttää vahvistusta ja poistaa vain suosikkitietueen ja sen sisäisen kuvakopion. Alkuperäinen kuvakaappaus tai valittu alkuperäinen kuva sekä kaikki Explorerin, lokin ja taivaankappaleiden tiedot säilyvät.</p>"""),
  'chronicle': (
@@ -1105,6 +1107,7 @@ HELP_TOPICS = {
     "planet_navigation": (
         'Planeettanavigointi',
         """<h2>Planeettanavigointi</h2>
+<p>Planeettanavigointi on oletuksena pääikkunassa. ”Erillinen ikkuna” siirtää saman näkymän vapaasti siirrettävään ikkunaan, jonka kokoa voi muuttaa ja jota voi käyttää myös toisella näytöllä. ”Takaisin pääikkunaan” tai ikkunan sulkeminen palauttaa näkymän nykyiseen välilehteen. Kohdekoordinaatit ja navigoinnin tila säilyvät, ja reaaliaikaiset päivitykset jatkuvat. Ikkunan sijainti ja koko tallennetaan. CMDRHelperin sulkeminen sulkee myös erillisen ikkunan; seuraavalla käynnistyksellä näkymä on jälleen pääikkunassa. Navigoinnin HUD ei muutu.</p>
 <p>Planeettanavigaattori auttaa sinua ainoastaan lentämään tiettyyn leveys-/pituusasteeseen planeetalla tai kuussa. Määrität kohteen koordinaateilla ja saat etäisyyden ja suunnan sinne.</p>
 <p>Se ei ole tähtienvälinen reittisuunnittelija eikä hoida järjestelmien välistä navigointia tai hyppyjä. Ohjaat alustasi itse.</p>
 
@@ -1130,7 +1133,7 @@ HELP_TOPICS = {
 <p>Järjestelmä, kappale ja koordinaatit lukitaan avattaessa. Suosikkien muokkausikkunassa voit muokata nimeä, luokkaa ja muistiinpanoa sekä lisätä kuvan. Vasta «Tallenna» tallentaa paikallisesti komentajalle; peruutus ei tallenna mitään. Myöhempi liikkuminen ei muuta talteen otettua sijaintia.</p>
 
 <h3>Tallennettujen sijaintien käyttö</h3>
-<p>Vaihda pääalueella välilehdelle «Navigointi → ★ Suosikit». Valitse tallennettu pintapaikka ja «◎ Koordinaatteihin» ottaaksesi kappaleen, koordinaatit ja nimen kohteeksi. Tämä korvaa aiemman kohteen; toisella kappaleella navigaattori odottaa sopivia sijaintitietoja.</p>
+<p>Vaihda pääalueella välilehdelle «Navigointi → ★ Suosikit». Valitse tallennettu pintapaikka ja «◎ Planeettanavigointiin» ottaaksesi kappaleen, koordinaatit ja nimen kohteeksi. Tämä korvaa aiemman kohteen; toisella kappaleella navigaattori odottaa sopivia sijaintitietoja.</p>
 <p>«Muokkaa» muuttaa nimeä, luokkaa ja muistiinpanoa. «Poista» poistaa suosikin vahvistuksen jälkeen, ei Elite-tietoja. Suosikit säilyvät uudelleenkäynnistyksissä ja erotellaan komentajittain; nykyinen navigointikohde kestää vain istunnon ajan.</p>
 
 <h3>Planeettapallo: yli 380 km</h3>

@@ -126,8 +126,13 @@ def image_extension(data):
 
 
 @logged_operation('Favorites export')
-def export_package(store, commander_id):
+def export_package(store, commander_id, selected_ids=None):
     records = store.list(commander_id)
+    if selected_ids is not None:
+        selected_ids = set(selected_ids)
+        records = [record for record in records if record['id'] in selected_ids]
+        if not records:
+            raise TransferError('empty_selection')
     images = {}
     missing = 0
     for record in records:

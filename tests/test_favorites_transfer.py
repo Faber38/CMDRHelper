@@ -11,14 +11,16 @@ from unittest.mock import patch, Mock
 from zipfile import ZipFile, ZipInfo
 
 os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
+from PySide6.QtCore import Qt
 from PIL import Image
-from PySide6.QtWidgets import QApplication, QFileDialog, QMessageBox, QDialog, QComboBox
+from PySide6.QtWidgets import QApplication, QFileDialog, QMessageBox, QDialog, QComboBox, QDialogButtonBox
 from cmdrhelper.database import CMDRDatabase
 from cmdrhelper.favorites import FavoriteStore
 from cmdrhelper.favorites_transfer import (
     FIELDS, serialize_favorites, deserialize_favorites, favorite_identity,
     export_package, read_package, prepare_import, apply_import, TransferError)
 from cmdrhelper.ui.favorites_view import FavoritesView
+from cmdrhelper.ui.favorites_export_dialog import FavoritesExportDialog
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 from cmdrhelper.i18n import _TRANSLATIONS, set_language
 
@@ -314,7 +316,8 @@ class FavoritesTransferTests(unittest.TestCase):
         view.kind.setCurrentIndex(1)
         view.distance_filter.setChecked(True)
         destination = self.root / 'result.zip'
-        with patch.object(QFileDialog, 'getSaveFileName', return_value=(str(destination), '')) as dialog, \
+        with patch.object(FavoritesExportDialog, 'exec', return_value=QDialog.Accepted), \
+                patch.object(QFileDialog, 'getSaveFileName', return_value=(str(destination), '')) as dialog, \
                 patch.object(QMessageBox, 'information') as message:
             view.export_favorites()
         self.assertTrue(dialog.call_args.args[2].startswith('CMDRHelper_Favoriten_'))
@@ -328,7 +331,8 @@ class FavoritesTransferTests(unittest.TestCase):
     def test_ui_cancel_and_commander_switch(self):
         self.save(); path, _ = self.exported(); view = self.view()
         before = self.store.list(1)
-        with patch.object(QFileDialog, 'getSaveFileName', return_value=('', '')), \
+        with patch.object(FavoritesExportDialog, 'exec', return_value=QDialog.Accepted), \
+                patch.object(QFileDialog, 'getSaveFileName', return_value=('', '')), \
                 patch('cmdrhelper.ui.favorites_view.export_package') as export:
             view.export_favorites(); export.assert_not_called()
         with patch.object(QFileDialog, 'getOpenFileName', return_value=('', '')), \
@@ -364,13 +368,148 @@ class FavoritesTransferTests(unittest.TestCase):
         confirm.assert_not_called(); message.assert_called_once()
         self.assertEqual(len(self.store.list(2)), 1)
 
+    def test_selective_packages_roundtrip_and_unchanged_images(self):
+        source = self.image()
+        first = self.save(image=source)
+        second = self.save(system_name='Other', system_address=42)
+        excluded = self.save('body', image=source, name='Excluded')
+        foreign = self.store.save(2, dict(second, name='Foreign'))
+        before = self.store.list(1)
+        image_bytes = {p: p.read_bytes() for p in self.store.images.iterdir()}
+        for chosen in ([first], [second], [first, second]):
+            with self.subTest(ids=[r['id'] for r in chosen]):
+                data, counts = export_package(self.store, 1, [r['id'] for r in chosen] + [foreign['id']])
+                path = self.root / 'selected.zip'
+                path.write_bytes(data)
+                records, images, missing = read_package(path)
+                self.assertEqual(counts['count'], len(chosen))
+                self.assertEqual(counts['images'], int(first in chosen))
+                self.assertEqual(missing, 0)
+                self.assertEqual({favorite_identity(r) for r in records},
+                                 {favorite_identity(r) for r in chosen})
+                self.assertNotIn(favorite_identity(excluded), {favorite_identity(r) for r in records})
+                for original in chosen:
+                    record = next(r for r in records if favorite_identity(r) == favorite_identity(original))
+                    self.assertEqual({k: record[k] for k in FIELDS if k != 'image_path'},
+                                     {k: original[k] for k in FIELDS if k != 'image_path'})
+                    if original['image_path']:
+                        self.assertEqual(images[record['image_path']], source.read_bytes())
+                plan = prepare_import(self.store, 2, records, images, missing)
+                apply_import(self.store, plan)
+                self.assertEqual(prepare_import(self.store, 2, records).duplicate_count, len(chosen))
+        self.assertEqual(self.store.list(1), before)
+        self.assertEqual({p: p.read_bytes() for p in self.store.images.iterdir() if p in image_bytes}, image_bytes)
+        for ids in ([], ['missing'], [foreign['id']]):
+            with self.assertRaisesRegex(TransferError, 'empty_selection'):
+                export_package(self.store, 1, ids)
+
+    def test_selection_dialog_themes_languages_and_controls(self):
+        self.save(); self.save(system_name='Other', system_address=42)
+        rows = self.store.list(1)
+        self.addCleanup(set_language, 'de')
+        self.assertEqual(len(_TRANSLATIONS), 12)
+        for language, table in _TRANSLATIONS.items():
+            set_language(language)
+            for theme in (DARK_STYLESHEET, LIGHT_STYLESHEET):
+                with self.subTest(language=language, theme=theme[:30]):
+                    dialog = FavoritesExportDialog(rows)
+                    dialog.setStyleSheet(theme)
+                    dialog.show(); self.app.processEvents()
+                    self.assertTrue(dialog.all_favorites.isChecked())
+                    self.assertIsNone(dialog.selected_ids())
+                    self.assertFalse(dialog.selection.isVisible())
+                    for suffix in ('all', 'selected', 'select_all', 'select_none', 'count'):
+                        self.assertTrue(table['favorites.export_selection.' + suffix])
+                    self.assertEqual(dialog.all_favorites.text(), table['favorites.export_selection.all'])
+                    dialog.selected_favorites.click()
+                    self.assertTrue(dialog.selection.isVisible())
+                    self.assertFalse(dialog.buttons.button(QDialogButtonBox.Ok).isEnabled())
+                    dialog.accept()
+                    self.assertTrue(dialog.isVisible())
+                    dialog.list.item(0).setCheckState(Qt.Checked)
+                    self.assertEqual(dialog.selected_ids(), {rows[0]['id']})
+                    self.assertEqual(dialog.count.text(), table['favorites.export_selection.count'].format(count=1))
+                    self.assertTrue(dialog.buttons.button(QDialogButtonBox.Ok).isEnabled())
+                    dialog.select_all.click()
+                    self.assertEqual(dialog.selected_ids(), {r['id'] for r in rows})
+                    dialog.select_none.click()
+                    self.assertEqual(dialog.selected_ids(), set())
+                    for i, row in enumerate(rows):
+                        self.assertIn(row['name'], dialog.list.item(i).text())
+                        self.assertIn(row['system_name'], dialog.list.item(i).text())
+                        self.assertIn(row['body_name'], dialog.list.item(i).text())
+                    self.assertFalse(dialog.grab().isNull())
+                    dialog.buttons.button(QDialogButtonBox.Cancel).click()
+                    self.assertEqual(dialog.result(), QDialog.Rejected)
+                    dialog.close()
+        self.assertEqual(self.store.list(1), rows)
+
+    def test_selective_ui_ignores_filters_and_cancel_is_read_only(self):
+        first = self.save(); self.save('body')
+        view = self.view()
+        view.search.setText('no matches')
+        view.kind.setCurrentIndex(1)
+        view.category.setCurrentIndex(1)
+        view.distance_filter.setChecked(True)
+        self.state.settings.setValue.reset_mock()
+        before = self.store.list(1)
+        path = self.root / 'selected.zip'
+        def choose(dialog):
+            self.assertEqual(dialog.list.count(), 2)
+            dialog.selected_favorites.click()
+            for i in range(dialog.list.count()):
+                if dialog.list.item(i).data(Qt.UserRole) == first['id']:
+                    dialog.list.item(i).setCheckState(Qt.Checked)
+            return QDialog.Accepted
+        with patch.object(FavoritesExportDialog, 'exec', choose), \
+                patch.object(QFileDialog, 'getSaveFileName', return_value=(str(path), '')), \
+                patch.object(QMessageBox, 'information'):
+            view.export_favorites()
+        self.assertEqual(len(read_package(path)[0]), 1)
+        self.assertEqual(favorite_identity(read_package(path)[0][0]), favorite_identity(first))
+        for result in (QDialog.Rejected, QDialog.Accepted):
+            def dismiss(dialog):
+                dialog.selected_favorites.click()
+                return result
+            with patch.object(FavoritesExportDialog, 'exec', dismiss), \
+                    patch.object(QFileDialog, 'getSaveFileName') as save, \
+                    patch('cmdrhelper.ui.favorites_view.export_package') as export:
+                view.export_favorites()
+                save.assert_not_called(); export.assert_not_called()
+        self.assertEqual(self.store.list(1), before)
+        self.assertEqual(view.search.text(), 'no matches')
+        self.state.settings.setValue.assert_not_called()
+
+    def test_export_errors_and_commander_switch(self):
+        self.save()
+        view = self.view()
+        with patch.object(view.store, 'list', side_effect=sqlite3.OperationalError('synthetic')), \
+                patch.object(QMessageBox, 'warning') as warning:
+            view.export_favorites()
+            warning.assert_called_once()
+        def switch(dialog):
+            self.state.commander_id = 2
+            return QDialog.Accepted
+        with patch.object(FavoritesExportDialog, 'exec', switch), \
+                patch.object(QFileDialog, 'getSaveFileName') as save:
+            view.export_favorites()
+            save.assert_not_called()
+        self.state.commander_id = 1
+        with patch.object(FavoritesExportDialog, 'exec', return_value=QDialog.Accepted), \
+                patch.object(QFileDialog, 'getSaveFileName', return_value=(str(self.root / 'out.zip'), '')), \
+                patch('cmdrhelper.ui.favorites_view.export_package', side_effect=OSError('synthetic')), \
+                patch.object(QMessageBox, 'warning') as warning:
+            view.export_favorites()
+            warning.assert_called_once()
+        self.assertFalse((self.root / 'out.zip').exists())
+
     def test_dialog_options_themes_and_twelve_languages(self):
         row = self.save(); plan = prepare_import(self.store, 1, [row])
         view = self.view()
         self.addCleanup(set_language, 'de')
         for language, table in _TRANSLATIONS.items():
             set_language(language)
-            self.assertEqual(len([k for k in table if k.startswith('favorites.transfer.')]), 18)
+            self.assertEqual(len([k for k in table if k.startswith('favorites.transfer.')]), 19)
             for theme in (DARK_STYLESHEET, LIGHT_STYLESHEET):
                 view.setStyleSheet(theme)
                 view.resize(1100, 800); view.show(); self.app.processEvents()

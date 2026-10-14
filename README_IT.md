@@ -38,6 +38,14 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## CMDRHelper v3.9.9
+
+- Sposta la navigazione planetaria in una finestra separata e reintegrala mantenendo destinazione e dati in tempo reale.
+- Apri le immagini dei preferiti alla risoluzione originale, ingrandisci con la rotella e trascina per spostarle.
+- I titoli dei preferiti appaiono in giallo Elite (#FFCC33), mantenendo la selezione e le altre righe di testo.
+- Esporta tutti i preferiti o solo quelli selezionati con immagini e coordinate nel formato ZIP/JSON compatibile esistente.
+- Navigazione più chiara con il simbolo della bussola e « Vai alla navigazione planetaria ».
+
 ## CMDRHelper v3.9.8
 
 - Preferiti e navigazione planetaria sono integrati direttamente nell’interfaccia principale in due schede.

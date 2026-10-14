@@ -383,8 +383,10 @@ HELP_TOPICS = {
 <p>‘Afstandsfilter’ staat standaard uit. ‘Max. afstand:’ staat aanvankelijk op 500 ly, instelbaar van 1 tot 100.000 ly. De afstand wordt gemeten vanaf het momenteel bekende systeem met lokaal beschikbare systeemcoördinaten. Alleen voor dit filter wordt geen live-aanvraag gedaan.</p>
 <p>Favorieten met een bekende afstand buiten de grens worden verborgen. Favorieten met onbekende afstand blijven zichtbaar. Ontbreken de coördinaten van het huidige systeem, dan verbergt het afstandsfilter geen vermeldingen. Zoeken en de type- en categoriefilters blijven gelden. Na een systeemwissel wordt automatisch opnieuw gefilterd. De schakelaar en maximale afstand worden opgeslagen.</p>
 
+<p>Dubbelklik op de afbeeldingsvoorvertoning in de favorietdetails om de vergrote weergave op oorspronkelijke resolutie te openen. Het muiswiel zoomt; sleep na vergroten met de linkermuisknop ingedrukt om te verschuiven. Dubbelklikken herstelt de weergave en Escape sluit deze. Originele afbeeldingen blijven ongewijzigd.</p>
+
 <h3>Favorieten exporteren</h3>
-<p>‘Exporteren’ maakt een draagbaar ZIP-bestand met alle favorieten van de actieve commander, niet alleen de vermeldingen die zichtbaar zijn door zoeken of type-, categorie- en afstandsfilters. favorites.json bevat de gestructureerde favorietgegevens; beschikbare afbeeldingen staan onder images/. Het pakket kan tussen Linux en Windows worden overgebracht.</p>
+<p>‘Exporteren’ biedt standaard alle favorieten of alleen geselecteerde favorieten. De schuifbare lijst met selectievakjes toont naam, systeem en eventuele planeet/maan van alle favorieten van de actieve commander, onafhankelijk van zoeken, afstand, categorie en type. Selecteer meerdere vermeldingen of gebruik ‘Alles selecteren’ en ‘Niets selecteren’; het aantal wordt getoond. Selectieve export is zonder selectie uitgeschakeld. Annuleren wijzigt geen gegevens. Daarna volgt het bestaande bestandsvenster. ZIP, favorites.json en images/ blijven compatibel; alle velden, coördinaten en beschikbare afbeeldingen van gekozen vermeldingen blijven behouden. De bestaande import leest volledige en selectieve pakketten ongewijzigd.</p>
 <p>Bestaande favorieten en originele afbeeldingen blijven ongewijzigd. Afbeeldingen met dezelfde inhoud worden slechts eenmaal opgeslagen. Ontbrekende of beschadigde afbeeldingen verhinderen de export van favorietgegevens niet. Import en export staan maximaal 32 MiB per bestand en 256 MiB in totaal aan ongecomprimeerde pakketinhoud toe.</p>
 
 <h3>Favorieten importeren</h3>
@@ -415,8 +417,8 @@ HELP_TOPICS = {
 <p>Favorietafbeeldingen kunnen worden geëxporteerd en worden bij import lokaal gekopieerd. Gedeelde interne afbeeldingskopieën blijven bewaard zolang een andere favoriet ze nodig heeft. Als een import favorieten vervangt, blijven oude afbeeldingsbestanden momenteel uit voorzorg bewaard.</p>
 
 <h3>Favorietdoel en commander</h3>
-<p>‘▶ Naar route’ stelt het bekende systeem van de favoriet in als bestemming in de routeplanner. Het vertrek volgt het bestaande gedrag met de huidige AppState; een handmatig ingevoerd vertrek blijft behouden. Er wordt geen route automatisch berekend. ‘◎ Naar coördinaten’ start de bestaande planeetnavigatie naar de oppervlaktelocatie met de bestaande HUD als systeem, hemellichaam en geldige coördinaten zijn opgeslagen. De reis naar het systeem en oppervlaktenavigatie zijn twee afzonderlijke stappen, zonder automatische reisvolgorde. Zonder oppervlaktecoördinaten is alleen de route beschikbaar; acties waarvoor vereiste gegevens ontbreken worden verborgen.</p>
-<p>Voor oppervlaktelocaties geeft ‘◎ Naar coördinaten’ het opgeslagen hemellichaam, de breedtegraad, lengtegraad en favorietnaam door aan de bestaande planeetnavigator. Het nieuwe doel vervangt het vorige. Favorieten hebben geen eigen navigatielogica. De navigator blijft zelf beslissen: bijpassende geldige planetaire gegevens activeren de navigatie; anders wacht hij op die gegevens.</p>
+<p>‘▶ Naar route’ stelt het bekende systeem van de favoriet in als bestemming in de routeplanner. Het vertrek volgt het bestaande gedrag met de huidige AppState; een handmatig ingevoerd vertrek blijft behouden. Er wordt geen route automatisch berekend. ‘◎ Naar planeetnavigatie’ start de bestaande planeetnavigatie naar de oppervlaktelocatie met de bestaande HUD als systeem, hemellichaam en geldige coördinaten zijn opgeslagen. De reis naar het systeem en oppervlaktenavigatie zijn twee afzonderlijke stappen, zonder automatische reisvolgorde. Zonder oppervlaktecoördinaten is alleen de route beschikbaar; acties waarvoor vereiste gegevens ontbreken worden verborgen.</p>
+<p>Voor oppervlaktelocaties geeft ‘◎ Naar planeetnavigatie’ het opgeslagen hemellichaam, de breedtegraad, lengtegraad en favorietnaam door aan de bestaande planeetnavigator. Het nieuwe doel vervangt het vorige. Favorieten hebben geen eigen navigatielogica. De navigator blijft zelf beslissen: bijpassende geldige planetaire gegevens activeren de navigatie; anders wacht hij op die gegevens.</p>
 <p>Favorieten behoren uitsluitend tot de actieve commander. Bij een commanderwissel wordt de lijst bijgewerkt en een geopend bewerkingsvenster verworpen. Een doel dat nog als favorietdoel van de vorige commander wordt beheerd, wordt beëindigd. De commanderselectie in de kroniek breidt deze favorietenlijst niet uit.</p>
 <p>‘Verwijderen’ vraagt om bevestiging en verwijdert alleen de favorietregistratie en de bijbehorende interne afbeeldingskopie. Het oorspronkelijke screenshot of de gekozen originele afbeelding en alle Explorer-, journal- en hemellichaamgegevens blijven behouden.</p>"""),
  'chronicle': (
@@ -1140,6 +1142,7 @@ HELP_TOPICS = {
     "planet_navigation": (
         'Planeetnavigatie',
         """<h2>Planeetnavigatie</h2>
+<p>Planeetnavigatie blijft standaard in het hoofdvenster. Met “Apart venster” verplaats je dezelfde weergave naar een vrij verplaatsbaar venster waarvan je de grootte kunt aanpassen, ook op een tweede monitor. “Terug naar het hoofdvenster” of het sluiten van dat venster plaatst de weergave terug in het bestaande tabblad. Doelcoördinaten en navigatiestatus blijven behouden; live-updates gaan door. Vensterpositie en grootte worden opgeslagen. Bij het afsluiten van CMDRHelper sluit ook dit venster; bij de volgende start is de weergave weer geïntegreerd. De navigatie-HUD blijft ongewijzigd.</p>
 <p>De planeetnavigator helpt je uitsluitend om naar een bepaalde breedtegraad/lengtegraad op een planeet of maan te vliegen. Je geeft een coördinatendoel op en krijgt de afstand en richting ernaartoe.</p>
 <p>Het is geen interstellaire routeplanner en hij verzorgt geen systeem- of sprongnavigatie. Je bestuurt je schip zelf.</p>
 
@@ -1165,7 +1168,7 @@ HELP_TOPICS = {
 <p>Bij het openen worden systeem, lichaam en coördinaten vastgelegd. In de favorietendialoog kun je naam, categorie en notitie wijzigen en een afbeelding toevoegen. Pas ‘Opslaan’ bewaart lokaal voor die commander; annuleren slaat niets op. Latere bewegingen wijzigen de vastgelegde positie niet.</p>
 
 <h3>Opgeslagen posities gebruiken</h3>
-<p>Ga naar het tabblad ‘Navigatie → ★ Favorieten’ in het hoofdgebied. Kies een opgeslagen oppervlaktelocatie en ‘◎ Naar coördinaten’ om lichaam, coördinaten en naam als doel over te nemen. Dit vervangt een vorig doel; op een ander lichaam wacht de navigator op passende positiegegevens.</p>
+<p>Ga naar het tabblad ‘Navigatie → ★ Favorieten’ in het hoofdgebied. Kies een opgeslagen oppervlaktelocatie en ‘◎ Naar planeetnavigatie’ om lichaam, coördinaten en naam als doel over te nemen. Dit vervangt een vorig doel; op een ander lichaam wacht de navigator op passende positiegegevens.</p>
 <p>‘Bewerken’ wijzigt naam, categorie en notitie. ‘Verwijderen’ verwijdert de favoriet na bevestiging, geen Elite-gegevens. Favorieten blijven na herstarts bewaard en zijn per commander gescheiden; het huidige navigatiedoel geldt alleen voor de sessie.</p>
 
 <h3>Planeetbol: meer dan 380 km</h3>

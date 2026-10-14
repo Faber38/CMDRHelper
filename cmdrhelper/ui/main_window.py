@@ -1404,7 +1404,7 @@ class MainWindow(QMainWindow):
         materials_button = self._nav("▤  " + tr("materials.title"), self.PAGE_MATERIALS)
         trade_button = self._nav("⇄  " + tr("nav.trade"), self.PAGE_TRADE)
         pp2_button = self._nav("⚑  " + tr("nav.pp2"), self.PAGE_PP2)
-        self.navigation_menu_button = self._nav(tr("nav.navigation"), self.PAGE_NAVIGATION)
+        self.navigation_menu_button = self._nav("⎈  " + tr("nav.navigation"), self.PAGE_NAVIGATION)
         side.insertWidget(side.indexOf(self.nav_buttons[self.PAGE_ROUTE_PLANNER]) + 1,
                           self.navigation_menu_button)
         side.insertWidget(side.indexOf(self.nav_buttons[self.PAGE_ROUTE_PLANNER]), pp2_button)
@@ -3135,6 +3135,7 @@ class MainWindow(QMainWindow):
             self._navigation_hud.set_enabled(False)
 
     def _navigation_page(self):
+        from cmdrhelper.ui.detachable_navigation import DetachableNavigation
         from cmdrhelper.ui.favorites_view import FavoritesView
         from cmdrhelper.ui.planet_navigation_window import PlanetNavigationView
 
@@ -3162,11 +3163,20 @@ class MainWindow(QMainWindow):
             scroll.setFrameShape(QFrame.NoFrame)
             scroll.setWidget(view)
             self.navigation_tabs.addTab(scroll, title)
+        self.navigation_dock = DetachableNavigation(
+            self.planet_navigation_view, scroll, self)
         return page
 
     def _show_planet_navigation(self):
         self.navigation_tabs.setCurrentIndex(1)
         self._show_page(self.PAGE_NAVIGATION)
+        if self.navigation_dock.detached:
+            self.navigation_dock.detach()
+
+    def closeEvent(self, event):
+        super().closeEvent(event)
+        if event.isAccepted() and hasattr(self, "navigation_dock"):
+            self.navigation_dock.shutdown()
 
     def _configure_quick_favorite_hotkey(self):
         self.quick_favorite_settings.choose()

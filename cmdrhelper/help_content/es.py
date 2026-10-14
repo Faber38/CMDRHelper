@@ -383,8 +383,10 @@ HELP_TOPICS = {
 <p>«Filtro de distancia» está desactivado de forma predeterminada. «Distancia máx.:» tiene un valor inicial de 500 al, ajustable de 1 a 100.000 al. La distancia se refiere al sistema conocido actualmente y usa coordenadas de sistemas disponibles localmente. No se realizan consultas en directo solo para este filtro.</p>
 <p>Se ocultan los favoritos con distancia conocida superior al límite. Los de distancia desconocida siguen visibles. Si faltan las coordenadas del sistema actual, el filtro de distancia no oculta ninguna entrada. La búsqueda y los filtros de tipo y categoría siguen aplicándose. El filtrado se actualiza automáticamente al cambiar de sistema. Se guardan la activación y la distancia máxima.</p>
 
+<p>Haz doble clic en la vista previa de la imagen en los detalles del favorito para abrir la vista ampliada en resolución original. La rueda ajusta el zoom; una vez ampliada, arrastra con el botón izquierdo pulsado para desplazarla. El doble clic restablece la vista y Escape la cierra. Los originales no cambian.</p>
+
 <h3>Exportar favoritos</h3>
-<p>«Exportar» crea un ZIP portátil con todos los favoritos del comandante activo, no solo las entradas visibles mediante búsqueda o filtros de tipo, categoría y distancia. favorites.json contiene los datos estructurados de los favoritos; las imágenes disponibles se incluyen en images/. El paquete se puede transferir entre Linux y Windows.</p>
+<p>«Exportar» permite elegir todos los favoritos por defecto o solo los seleccionados. La lista desplazable con casillas muestra nombre, sistema y planeta/luna si existe de todos los favoritos del comandante activo, independientemente de búsqueda, distancia, categoría y tipo. Marca varias entradas o usa «Seleccionar todos» y «Deseleccionar todos»; se muestra la cantidad. Sin selección, la exportación selectiva queda desactivada. Cancelar no cambia datos. Después aparece el diálogo de archivo habitual. ZIP, favorites.json e images/ siguen siendo compatibles; se conservan campos, coordenadas e imágenes disponibles de las entradas elegidas. La importación existente lee paquetes completos y selectivos sin cambios.</p>
 <p>Los favoritos existentes y las imágenes originales no se modifican. Las imágenes con contenido idéntico se guardan una sola vez en el paquete. Las imágenes ausentes o dañadas no impiden exportar los datos. La importación y exportación admiten hasta 32 MiB por archivo y 256 MiB en total de contenido sin comprimir.</p>
 
 <h3>Importar favoritos</h3>
@@ -415,8 +417,8 @@ HELP_TOPICS = {
 <p>Las imágenes de favoritos pueden incluirse en las exportaciones y se copian localmente al importar. Las copias internas compartidas se conservan mientras otro favorito las necesite. Al reemplazar favoritos mediante una importación, los archivos de imagen antiguos se conservan actualmente por precaución.</p>
 
 <h3>Destino del favorito y comandante</h3>
-<p>«▶ A la ruta» establece el sistema conocido del favorito como destino en el planificador. El inicio sigue el comportamiento existente usando el AppState actual; se conserva un inicio introducido manualmente. No se calcula ninguna ruta automáticamente. «◎ A las coordenadas» inicia la navegación planetaria existente al lugar en la superficie con el HUD existente si hay sistema, cuerpo y coordenadas válidas guardados. El viaje al sistema y la navegación en superficie son dos pasos separados, sin secuencia automática. Sin coordenadas de superficie solo está disponible la ruta; las acciones sin los datos necesarios se ocultan.</p>
-<p>Para los lugares en la superficie, «◎ A las coordenadas» pasa el cuerpo, latitud, longitud y nombre del favorito guardados al navegador planetario existente. El nuevo destino sustituye al anterior. Los favoritos no tienen lógica de navegación propia. El navegador sigue decidiendo por sí mismo: los datos planetarios válidos y correspondientes activan la navegación; de lo contrario, espera esos datos.</p>
+<p>«▶ A la ruta» establece el sistema conocido del favorito como destino en el planificador. El inicio sigue el comportamiento existente usando el AppState actual; se conserva un inicio introducido manualmente. No se calcula ninguna ruta automáticamente. «◎ Ir a la navegación planetaria» inicia la navegación planetaria existente al lugar en la superficie con el HUD existente si hay sistema, cuerpo y coordenadas válidas guardados. El viaje al sistema y la navegación en superficie son dos pasos separados, sin secuencia automática. Sin coordenadas de superficie solo está disponible la ruta; las acciones sin los datos necesarios se ocultan.</p>
+<p>Para los lugares en la superficie, «◎ Ir a la navegación planetaria» pasa el cuerpo, latitud, longitud y nombre del favorito guardados al navegador planetario existente. El nuevo destino sustituye al anterior. Los favoritos no tienen lógica de navegación propia. El navegador sigue decidiendo por sí mismo: los datos planetarios válidos y correspondientes activan la navegación; de lo contrario, espera esos datos.</p>
 <p>Los favoritos pertenecen exclusivamente al comandante activo. Al cambiar de comandante se actualiza la lista y se descarta cualquier diálogo de edición abierto. Un destino que aún se gestione como destino favorito del comandante anterior se termina. La selección de comandantes de la crónica no amplía esta lista de favoritos.</p>
 <p>«Eliminar» exige confirmación y elimina únicamente el registro del favorito y su copia interna de imagen. Se conservan la captura original o la imagen original seleccionada y todos los datos del Explorer, del diario y de los cuerpos.</p>"""),
  'chronicle': (
@@ -1139,6 +1141,7 @@ HELP_TOPICS = {
     "planet_navigation": (
         'Navegación planetaria',
         """<h2>Navegación planetaria</h2>
+<p>La navegación planetaria permanece integrada por defecto. «Ventana separada» traslada la misma vista a una ventana que puedes mover y redimensionar libremente, también en un segundo monitor. «Volver a la ventana principal» o cerrar esa ventana devuelve la vista a la pestaña existente. Se conservan las coordenadas del objetivo y el estado de navegación; las actualizaciones en vivo continúan. Se guardan la posición y el tamaño de la ventana. Al salir de CMDRHelper también se cierra esta ventana; al iniciar de nuevo, la vista está integrada. El HUD de navegación no cambia.</p>
 <p>El navegador planetario sirve exclusivamente para volar hasta una latitud/longitud concreta en un planeta o una luna. Defines un objetivo mediante coordenadas y obtienes la distancia y la dirección para llegar a él.</p>
 <p>No es un planificador de rutas interestelares y no se encarga de la navegación entre sistemas ni de los saltos. Tú pilotas tu nave.</p>
 
@@ -1164,7 +1167,7 @@ HELP_TOPICS = {
 <p>Al abrir se fijan sistema, cuerpo y coordenadas. En el diálogo de favoritos puedes editar nombre, categoría y nota y añadir una imagen. Solo «Guardar» guarda localmente para ese comandante; cancelar no guarda nada. Moverte después no cambia la posición capturada.</p>
 
 <h3>Usar posiciones guardadas</h3>
-<p>Cambia a la pestaña «Navegación → ★ Favoritos» en la zona principal. Selecciona un lugar de superficie y «◎ A las coordenadas» para usar su cuerpo, coordenadas y nombre como destino. Sustituye al destino anterior; en otro cuerpo, el navegador espera datos de posición coincidentes.</p>
+<p>Cambia a la pestaña «Navegación → ★ Favoritos» en la zona principal. Selecciona un lugar de superficie y «◎ Ir a la navegación planetaria» para usar su cuerpo, coordenadas y nombre como destino. Sustituye al destino anterior; en otro cuerpo, el navegador espera datos de posición coincidentes.</p>
 <p>«Editar» cambia nombre, categoría y nota. «Eliminar» elimina el favorito tras confirmación, sin borrar datos Elite. Los favoritos sobreviven a reinicios y se separan por comandante; el destino de navegación actual solo dura durante la sesión.</p>
 
 <h3>Globo planetario: más de 380 km</h3>

@@ -50,7 +50,7 @@ class RouteNavigationHelpTests(unittest.TestCase):
                        '★ Aktuellen Standort speichern', 'nicht das eingegebene Navigationsziel',
                        'System, Körper und Koordinaten', 'Name, Kategorie und Notiz',
                        'lokal und commanderbezogen', 'Abbrechen speichert nichts',
-                       '◎ Zu den Koordinaten', 'erst nach Bestätigung',
+                       '◎ Zur Planeten-Navigation', 'erst nach Bestätigung',
                        'über Helper-Neustarts', 'laufende Sitzung', 'beendet das Ziel nicht',
                        'Navigation beenden', 'Status.json', 'Journal ergänzt',
                        'keine garantierte Genauigkeit', 'Navigations-HUD', 'Peilung'):

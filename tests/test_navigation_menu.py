@@ -2,8 +2,14 @@
 import os
 os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 import unittest
+import json
+import subprocess
+import sys
+import textwrap
+from datetime import datetime, timezone
 from unittest.mock import patch
-from PySide6.QtCore import QCoreApplication, QEvent, SIGNAL
+from PySide6.QtCore import QCoreApplication, QEvent, QTimer, SIGNAL
+from PySide6.QtTest import QTest
 from shiboken6 import isValid
 from PySide6.QtGui import QPalette
 from PySide6.QtWidgets import QApplication, QMainWindow, QStackedWidget, QWidget
@@ -164,6 +170,203 @@ class NavigationMenuTests(unittest.TestCase):
         self.state.commanderIdentityChanged.emit(2, 'F2', 'Second')
         self.assertIsNone(controller.target)
         self.assertEqual(view.list.count(), 0)
+
+    def test_detach_return_close_and_live_updates_keep_single_navigation(self):
+        self.state.journal_folder = self.root
+        status = dict(event='Status', timestamp=datetime.now(timezone.utc).isoformat(),
+                      Flags=1 << 21, Flags2=0, Latitude=10, Longitude=20,
+                      Heading=51, PlanetRadius=1000000, BodyName='Sol 1')
+        status_path = self.root / 'Status.json'
+        status_path.write_text(json.dumps(status))
+        window = self.build_window()
+        window._show_planet_navigation()
+        controller = window._planet_navigation_controller
+        controller.set_target(11, 21, 'Sol 1', 'Destination')
+        view, dock = window.planet_navigation_view, window.navigation_dock
+        target = controller.target
+        timers = window.findChildren(QTimer)
+        tail = controller.tail
+        receivers = controller.receivers(SIGNAL('changed(PyObject)'))
+        timer_receivers = controller.timer.receivers(SIGNAL('timeout()'))
+        age_receivers = view._age_timer.receivers(SIGNAL('timeout()'))
+        self.assertIsNone(dock.window)
+        for cycle in range(3):
+            before = {key: label.text() for key, label in view.values.items()}
+            dock.button.click()
+            self.app.processEvents()
+            shell = dock.window
+            self.assertTrue(shell.isWindow())
+            self.assertFalse(shell.isModal())
+            self.assertTrue(shell.isVisible())
+            self.assertIs(shell.scroll.widget(), view)
+            self.assertIs(window.navigation_tabs.widget(1).widget(), dock.placeholder)
+            self.assertEqual(before, {key: label.text() for key, label in view.values.items()})
+            self.assertEqual(controller.target, target)
+            shell.resize(620 + cycle * 10, 710)
+            self.app.processEvents()
+            self.assertEqual(shell.width(), 620 + cycle * 10)
+            window._show_favorites()
+            window._show_page(window.PAGE_EXPLORER)
+            self.assertTrue(view.isVisible())
+            self.assertTrue(controller.timer.isActive())
+            self.assertTrue(view._age_timer.isActive())
+            status.update(Latitude=10 + (cycle + 1) / 10, Heading=60 + cycle)
+            status_path.write_text(json.dumps(status))
+            QTest.qWait(320)
+            self.assertEqual(controller.state.snapshot.heading, 60 + cycle)
+            self.assertNotEqual(before['distance'], view.values['distance'].text())
+            self.assertEqual(controller.target, target)
+            updated = {key: label.text() for key, label in view.values.items()}
+            if cycle == 1:
+                shell.close()
+            else:
+                dock.button.click()
+            self.app.processEvents()
+            self.assertFalse(dock.detached)
+            self.assertFalse(shell.isVisible())
+            self.assertIs(window.navigation_tabs.widget(1).widget(), view)
+            self.assertEqual(window.pages.currentIndex(), window.PAGE_NAVIGATION)
+            self.assertEqual(window.navigation_tabs.currentIndex(), 1)
+            self.assertEqual(updated, {key: label.text() for key, label in view.values.items()})
+            self.assertEqual(window.findChildren(QTimer), timers)
+            self.assertIs(controller.tail, tail)
+            self.assertEqual(controller.receivers(SIGNAL('changed(PyObject)')), receivers)
+            self.assertEqual(controller.timer.receivers(SIGNAL('timeout()')), timer_receivers)
+            self.assertEqual(view._age_timer.receivers(SIGNAL('timeout()')), age_receivers)
+            self.assertEqual(controller._consumers, {'navigation_window'})
+        self.assertIn(dock.geometry_key, self.state.values)
+        dock.detach()
+        self.assertIs(dock.window, shell)
+        self.assertEqual(shell.width(), 640)
+        with patch.object(window.favorites_view, 'save_surface') as save:
+            view.save_location_button.click()
+            save.assert_called_once_with(controller)
+
+    def test_detached_favorite_action_and_shutdown(self):
+        self.store.save(1, favorite_tests.FavoriteTests.record(self))
+        window = self.build_window()
+        dock = window.navigation_dock
+        dock.detach()
+        window._show_favorites()
+        window.favorites_view.list.setCurrentRow(0)
+        window.favorites_view.coordinates_button.click()
+        controller = window._planet_navigation_controller
+        self.assertTrue(dock.detached)
+        self.assertTrue(dock.view.isVisible())
+        self.assertEqual((controller.target.latitude, controller.target.longitude), (0, 0))
+        window.close()
+        self.assertFalse(dock.window.isVisible())
+        self.assertFalse(controller.timer.isActive())
+        self.assertFalse(dock.view._age_timer.isActive())
+        self.assertFalse(controller._consumers)
+        self.assertIsNotNone(controller.target)
+        self.assertIn(dock.geometry_key, self.state.values)
+        dock.shutdown()  # aboutToQuit after the main window's close is harmless.
+        dock.detach()
+        self.assertFalse(dock.window.isVisible())
+
+    def test_quit_cleanup_preserves_other_controller_consumers(self):
+        window = self.build_window()
+        dock = window.navigation_dock
+        controller = window._planet_navigation_controller
+        controller.consumer_acquire('navigation_hud')
+        dock.detach()
+        dock.shutdown()  # The same slot is connected to QApplication.aboutToQuit.
+        self.assertFalse(dock.window.isVisible())
+        self.assertFalse(dock.view.isVisible())
+        self.assertEqual(controller._consumers, {'navigation_hud'})
+        controller.consumer_release('navigation_hud')
+
+    def test_detached_themes_languages_geometry_and_help(self):
+        for language in _TRANSLATIONS:
+            set_language(language)
+            for theme in (DARK_STYLESHEET, LIGHT_STYLESHEET):
+                with self.subTest(language=language, theme=theme[:30]):
+                    self.app.setStyleSheet(theme)
+                    window = self.build_window()
+                    dock = window.navigation_dock
+                    self.assertFalse(dock.detached)
+                    self.assertEqual(dock.button.text(), tr('planet_nav.detach'))
+                    dock.detach()
+                    shell = dock.window
+                    shell.resize(380, 420)
+                    self.app.processEvents()
+                    self.assertEqual(shell.size().width(), 380)
+                    self.assertEqual(dock.button.text(), tr('planet_nav.attach'))
+                    self.assertGreaterEqual(dock.button.width(), dock.button.sizeHint().width())
+                    self.assertTrue(dock.button.isVisible())
+                    self.assertFalse(shell.grab().isNull())
+                    color = dock.view.palette().color(QPalette.Text).name()
+                    self.assertIn('color:' + color, dock.view.legend.text())
+                    for key in ('detach', 'attach'):
+                        self.assertIn(tr('planet_nav.' + key), help_topic('planet_navigation', language).text)
+                    dock.attach()
+                    window.close()
+                    window.deleteLater()
+                    QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+
+    def test_detached_window_can_move_to_second_screen(self):
+        screens = self.app.screens()
+        if len(screens) < 2:
+            self.skipTest('A second monitor is not available in this Qt environment')
+        window = self.build_window()
+        dock = window.navigation_dock
+        dock.detach()
+        shell = dock.window
+        shell.windowHandle().setScreen(screens[1])
+        shell.move(screens[1].availableGeometry().topLeft())
+        self.app.processEvents()
+        self.assertEqual(shell.screen(), screens[1])
+        dock.attach()
+        dock.detach()
+        self.assertEqual(shell.screen(), screens[1])
+
+    def test_geometry_restored_but_new_session_starts_integrated(self):
+        window = self.build_window()
+        dock = window.navigation_dock
+        self.state.settings.setValue(dock.geometry_key, 'invalid legacy geometry')
+        dock.detach()
+        dock.window.resize(610, 680)
+        dock.window.move(30, 40)
+        self.app.processEvents()
+        dock.attach()
+        geometry = dock.window.geometry()
+        window.close()
+        next_window = self.build_window()
+        next_dock = next_window.navigation_dock
+        self.assertIsNone(next_dock.window)
+        self.assertIs(next_dock.home.widget(), next_dock.view)
+        next_dock.detach()
+        self.app.processEvents()
+        self.assertEqual(next_dock.window.geometry(), geometry)
+
+    def test_application_quit_closes_detached_window(self):
+        # A separate event loop verifies actual aboutToQuit delivery without
+        # terminating the QApplication shared by the rest of this test suite.
+        script = textwrap.dedent('''
+            from PySide6.QtCore import QTimer
+            from tests.test_navigation_menu import NavigationMenuTests
+            case = NavigationMenuTests()
+            case.setUpClass()
+            case.setUp()
+            window = case.build_window()
+            dock = window.navigation_dock
+            dock.detach()
+            controller = window._planet_navigation_controller
+            controller.set_target(12, 34, 'Sol 1', 'Destination')
+            QTimer.singleShot(0, case.app.quit)
+            case.app.exec()
+            assert dock.stopping
+            assert not dock.window.isVisible()
+            assert not dock.view._age_timer.isActive()
+            assert not controller.timer.isActive()
+            assert (controller.target.latitude, controller.target.longitude) == (12, 34)
+            assert dock.geometry_key in case.state.values
+            case.doCleanups()
+        ''')
+        result = subprocess.run([sys.executable, '-c', script], capture_output=True,
+                                text=True, timeout=20)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_help_paths_and_existing_contexts_in_all_languages(self):
         for language, strings in _TRANSLATIONS.items():

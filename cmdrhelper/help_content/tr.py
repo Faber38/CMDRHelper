@@ -371,8 +371,10 @@ HELP_TOPICS = {
 <p>“Mesafe filtresi” varsayılan olarak kapalıdır. “Azami mesafe:” başlangıçta 500 ly değerindedir; 1 ile 100.000 ly arasında ayarlanabilir. Mesafe, yerel olarak mevcut sistem koordinatları kullanılarak bilinen güncel sistemden hesaplanır. Yalnızca bu filtre için canlı ağ sorgusu yapılmaz.</p>
 <p>Bilinen mesafesi sınırı aşan favoriler gizlenir. Mesafesi bilinmeyen favoriler görünür kalır. Güncel sistemin koordinatları eksikse mesafe filtresi hiçbir kaydı gizlemez. Arama, tür ve kategori filtreleri geçerliliğini korur. Sistem değişiminden sonra filtreleme otomatik yenilenir. Anahtarın durumu ve azami mesafe kaydedilir.</p>
 
+<p>Favori ayrıntılarındaki görsel önizlemesine çift tıklayarak özgün çözünürlükte büyük görünümü açın. Fare tekerleği yakınlaştırır; yakınlaştırdıktan sonra sol düğmeyi basılı tutup sürükleyerek kaydırın. Çift tıklama görünümü sıfırlar, Escape kapatır. Özgün görseller değişmez.</p>
+
 <h3>Favorileri dışa aktarma</h3>
-<p>“Dışa aktar”, etkin komutanın tüm favorilerini içeren taşınabilir bir ZIP oluşturur; yalnızca arama, tür, kategori veya mesafe filtreleriyle görünen kayıtları değil. favorites.json yapılandırılmış favori verilerini içerir; mevcut favori görselleri images/ altında bulunur. Paket Linux ve Windows arasında aktarılabilir.</p>
+<p>“Dışa aktar”, varsayılan olarak tüm favorileri veya yalnızca seçili favorileri sunar. Kaydırılabilir onay kutusu listesi, arama, mesafe, kategori ve tür filtrelerinden bağımsız olarak etkin komutanın tüm favorilerinin adını, sistemini ve varsa gezegenini/uydusunu gösterir. Birden çok kaydı işaretleyin veya “Tümünü seç” ve “Seçimi temizle” kullanın; seçili sayı gösterilir. Seçim yoksa seçili dışa aktarma devre dışıdır. İptal verileri değiştirmez. Ardından mevcut dosya iletişim kutusu açılır. ZIP, favorites.json ve images/ uyumlu kalır; seçilen kayıtların alanları, koordinatları ve mevcut görselleri korunur. Mevcut içe aktarma, tam ve seçili paketleri değişmeden okur.</p>
 <p>Mevcut favoriler ve orijinal görseller değiştirilmez. Aynı içeriğe sahip görseller pakette yalnızca bir kez saklanır. Eksik veya bozuk görseller favori verilerinin dışa aktarılmasını engellemez. İçe ve dışa aktarmada dosya başına en fazla 32 MiB, sıkıştırılmamış paket içeriği için toplam 256 MiB sınırı vardır.</p>
 
 <h3>Favorileri içe aktarma</h3>
@@ -403,8 +405,8 @@ HELP_TOPICS = {
 <p>Favori görselleri dışa aktarıma dahil edilebilir ve içe aktarımda yerel olarak kopyalanır. Paylaşılan dahili görsel kopyaları başka bir favori ihtiyaç duyduğu sürece korunur. İçe aktarma favorileri değiştirdiğinde eski görsel dosyaları şu anda önlem olarak saklanır.</p>
 
 <h3>Favori hedefi ve komutan</h3>
-<p>“▶ Rotaya git”, favorinin bilinen sistemini rota planlayıcıda hedef olarak ayarlar. Başlangıç mevcut davranışa göre güncel AppState üzerinden belirlenir; elle girilmiş başlangıç korunur. Otomatik rota hesaplanmaz. “◎ Koordinatlara git”, sistem, gökcismi ve geçerli koordinatlar kayıtlıysa mevcut HUD ile yüzey konumuna mevcut gezegen gezinmesini başlatır. Sisteme yolculuk ve yüzey gezinmesi, otomatik seyahat dizisi olmadan iki ayrı adımdır. Yüzey koordinatları olmadan yalnızca rota kullanılabilir; gerekli verileri eksik olan eylemler gizlenir.</p>
-<p>Yüzey konumlarında “◎ Koordinatlara git”, kaydedilmiş gökcismini, enlemi, boylamı ve favori adını mevcut gezegen gezginine aktarır. Yeni hedef önceki hedefin yerini alır. Favorilerin kendi gezinme mantığı yoktur. Gezgin karar vermeye aynı şekilde devam eder: eşleşen geçerli gezegen verileri gezinmeyi etkinleştirir; aksi hâlde bu verileri bekler.</p>
+<p>“▶ Rotaya git”, favorinin bilinen sistemini rota planlayıcıda hedef olarak ayarlar. Başlangıç mevcut davranışa göre güncel AppState üzerinden belirlenir; elle girilmiş başlangıç korunur. Otomatik rota hesaplanmaz. “◎ Gezegen navigasyonuna git”, sistem, gökcismi ve geçerli koordinatlar kayıtlıysa mevcut HUD ile yüzey konumuna mevcut gezegen gezinmesini başlatır. Sisteme yolculuk ve yüzey gezinmesi, otomatik seyahat dizisi olmadan iki ayrı adımdır. Yüzey koordinatları olmadan yalnızca rota kullanılabilir; gerekli verileri eksik olan eylemler gizlenir.</p>
+<p>Yüzey konumlarında “◎ Gezegen navigasyonuna git”, kaydedilmiş gökcismini, enlemi, boylamı ve favori adını mevcut gezegen gezginine aktarır. Yeni hedef önceki hedefin yerini alır. Favorilerin kendi gezinme mantığı yoktur. Gezgin karar vermeye aynı şekilde devam eder: eşleşen geçerli gezegen verileri gezinmeyi etkinleştirir; aksi hâlde bu verileri bekler.</p>
 <p>Favoriler yalnızca etkin komutana aittir. Komutan değiştirildiğinde liste güncellenir ve açık düzenleme iletişim kutusu iptal edilir. Hâlâ önceki komutanın favori hedefi olarak yönetilen bir hedef sonlandırılır. Günlükteki komutan seçimi bu favori listesini genişletmez.</p>
 <p>“Sil” onay gerektirir ve yalnızca favori kaydını ve onun dahili resim kopyasını kaldırır. Orijinal ekran görüntüsü veya seçilen orijinal resim ile tüm Explorer, günlük ve gökcismi verileri korunur.</p>"""),
  'chronicle': (
@@ -1110,6 +1112,7 @@ HELP_TOPICS = {
     "planet_navigation": (
         'Gezegen navigasyonu',
         """<h2>Gezegen navigasyonu</h2>
+<p>Gezegen navigasyonu varsayılan olarak ana pencerede kalır. “Ayrı pencere”, aynı görünümü serbestçe taşınabilen ve boyutlandırılabilen, ikinci monitörde de kullanılabilen bir pencereye taşır. “Ana pencereye dön” veya bu pencereyi kapatmak, görünümü mevcut sekmeye geri getirir. Hedef koordinatları ve navigasyon durumu korunur; canlı güncellemeler devam eder. Pencere konumu ve boyutu kaydedilir. CMDRHelper kapatıldığında bu pencere de kapanır; sonraki açılışta görünüm yeniden ana pencereye entegredir. Navigasyon HUD’ı değişmez.</p>
 <p>Gezegen navigatörü yalnızca bir gezegen veya ay üzerindeki belirli bir enlem/boylama uçmana yardımcı olur. Koordinatlarla bir hedef belirlersin ve oraya olan mesafeyi ve yönü görürsün.</p>
 <p>Bu, yıldızlararası bir rota planlayıcısı değildir ve sistemler arası ya da sıçrama navigasyonunu üstlenmez. Gemini kendin kullanırsın.</p>
 
@@ -1135,7 +1138,7 @@ HELP_TOPICS = {
 <p>Açılışta sistem, cisim ve koordinatlar sabitlenir. Favori penceresinde ad, kategori ve not düzenlenebilir, resim eklenebilir. Yalnızca “Kaydet” bu komutan için yerel kayıt oluşturur; iptal etmek hiçbir şey kaydetmez. Sonraki hareketler sabitlenen konumu değiştirmez.</p>
 
 <h3>Kayıtlı konumları kullanma</h3>
-<p>Ana alanda “Navigasyon → ★ Favoriler” sekmesine geçin. Kayıtlı bir yüzey yeri ve “◎ Koordinatlara git” seçerek cismi, koordinatları ve adı hedef olarak alın. Önceki hedefin yerini alır; başka cisimde gezgin uygun konum verilerini bekler.</p>
+<p>Ana alanda “Navigasyon → ★ Favoriler” sekmesine geçin. Kayıtlı bir yüzey yeri ve “◎ Gezegen navigasyonuna git” seçerek cismi, koordinatları ve adı hedef olarak alın. Önceki hedefin yerini alır; başka cisimde gezgin uygun konum verilerini bekler.</p>
 <p>“Düzenle” ad, kategori ve notu değiştirir. “Sil” onaydan sonra favoriyi kaldırır, Elite verilerini silmez. Favoriler yeniden başlatmada korunur ve komutana göre ayrılır; mevcut navigasyon hedefi yalnızca oturum boyunca geçerlidir.</p>
 
 <h3>Gezegen küresi: 380 km’den fazla</h3>

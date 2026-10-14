@@ -38,6 +38,14 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.9.9
+
+- Detach planet navigation into a separate window and reattach it with the same target and live data.
+- Open favorite images at original resolution, zoom with the mouse wheel and drag to pan.
+- Favorite titles appear in Elite yellow (#FFCC33), preserving selection highlighting and other text lines.
+- Export all or selected favorites with images and coordinates in the existing compatible ZIP/JSON format.
+- Clearer navigation with a compass symbol and “To planet navigation”.
+
 ## CMDRHelper v3.9.8
 
 - Favorites and planet navigation are integrated directly into the main interface as two tabs.

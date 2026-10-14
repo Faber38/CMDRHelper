@@ -38,6 +38,14 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## CMDRHelper v3.9.9
+
+- Verplaats planeetnavigatie naar een apart venster en terug met behoud van doel en livegegevens.
+- Open favorietafbeeldingen op oorspronkelijke resolutie, zoom met het muiswiel en sleep om te verschuiven.
+- Favoriettitels verschijnen in Elite-geel (#FFCC33), met behoud van selectiemarkering en overige tekstregels.
+- Exporteer alle of geselecteerde favorieten met afbeeldingen en coördinaten in het bestaande compatibele ZIP/JSON-formaat.
+- Duidelijkere navigatie met een kompassymbool en ‘Naar planeetnavigatie’.
+
 ## CMDRHelper v3.9.8
 
 - Favorieten en planeetnavigatie zijn als twee tabbladen rechtstreeks in de hoofdinterface geïntegreerd.

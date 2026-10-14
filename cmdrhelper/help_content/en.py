@@ -372,8 +372,10 @@ HELP_TOPICS = {
 <p>“Distance filter” is off by default. “Max. distance:” defaults to 500 ly, with a range of 1 to 100,000 ly. Distance is measured from the currently known system using locally available system coordinates. No live query is made just for this filter.</p>
 <p>Favorites with known distances beyond the limit are hidden. Favorites with unknown distances remain visible. If the current system’s coordinates are missing, the distance filter hides no entries. Search, type and category filters still apply. Filtering updates automatically after a system change. The switch and maximum distance are saved.</p>
 
+<p>Double-click the image preview in favorite details to open the enlarged view at original resolution. The mouse wheel zooms; when zoomed in, hold the left mouse button and drag to pan. Double-click resets the view and Escape closes it. Original images remain unchanged.</p>
+
 <h3>Exporting favorites</h3>
-<p>“Export” creates a portable ZIP containing all favorites of the active commander, not just entries visible through search, type, category or distance filters. favorites.json contains the structured favorite data; available favorite images are included under images/. The package can be transferred between Linux and Windows.</p>
+<p>“Export” opens a choice: all favorites by default, or selected favorites only. The scrollable checkbox list includes the name, system and planet/moon where available for every favorite of the active commander, independent of search, distance, category and type filters. Tick multiple entries or use “Select all” and “Select none”; the selected count is shown. Selective export is disabled without a selection. Cancelling changes no data. The existing file dialog follows. ZIP, favorites.json and images/ remain compatible; all existing fields, including coordinates and available images, are retained for the chosen entries. The existing importer reads complete and selective packages unchanged.</p>
 <p>Existing favorites and original images are not changed. Identical image contents are stored only once in the package. Missing or damaged images do not prevent exporting favorite data. Import and export allow up to 32 MiB per file and 256 MiB in total for the uncompressed package contents.</p>
 
 <h3>Importing favorites</h3>
@@ -404,8 +406,8 @@ HELP_TOPICS = {
 <p>Favorite images can be included in exports and are copied locally on import. Shared internal image copies are retained while another favorite still needs them. When an import replaces favorites, old image files are currently retained as a precaution.</p>
 
 <h3>Favorite target and commander</h3>
-<p>“▶ To route” sets the favorite’s known system as the destination in the route planner. The start follows the existing behavior using the current AppState; a manually entered start is preserved. No route is calculated automatically. “◎ To coordinates” starts the existing planetary navigation to the surface location with the existing navigation HUD when a system, body and valid coordinates are saved. Traveling to the system and surface navigation are two separate steps, with no automatic travel sequence. Without surface coordinates, only the route action is available; actions with missing required data are hidden.</p>
-<p>For surface locations, “◎ To coordinates” passes the saved body, latitude, longitude and favorite name to the existing planetary navigator. The new target replaces the previous target. Favorites have no navigation logic of their own. The navigator continues to decide for itself: matching valid planetary data activates navigation; otherwise it waits for that data.</p>
+<p>“▶ To route” sets the favorite’s known system as the destination in the route planner. The start follows the existing behavior using the current AppState; a manually entered start is preserved. No route is calculated automatically. “◎ To planet navigation” starts the existing planetary navigation to the surface location with the existing navigation HUD when a system, body and valid coordinates are saved. Traveling to the system and surface navigation are two separate steps, with no automatic travel sequence. Without surface coordinates, only the route action is available; actions with missing required data are hidden.</p>
+<p>For surface locations, “◎ To planet navigation” passes the saved body, latitude, longitude and favorite name to the existing planetary navigator. The new target replaces the previous target. Favorites have no navigation logic of their own. The navigator continues to decide for itself: matching valid planetary data activates navigation; otherwise it waits for that data.</p>
 <p>Favorites belong exclusively to the active commander. Switching commanders updates the list and discards an open edit dialog. A target still managed as the previous commander's favorite target is stopped. The commander selection in the chronicle does not extend this favorites list.</p>
 <p>“Delete” requires confirmation and removes only the favorite record and its internal image copy. The original screenshot or selected original image and all Explorer, journal and body data are preserved.</p>"""),
  'chronicle': (
@@ -1102,6 +1104,7 @@ HELP_TOPICS = {
     "planet_navigation": (
         'Planet navigation',
         """<h2>Planet navigation</h2>
+<p>Planet navigation stays in the main window by default. “Separate window” moves the same view into a freely movable, resizable window, also usable on a second monitor. “Back to main window” or closing that window embeds it in the existing tab again. Target coordinates and navigation state are preserved; live updates continue in the separate window. Window position and size are saved. Exiting CMDRHelper also closes the separate window; the next launch starts with the integrated view. The navigation HUD is unchanged.</p>
 <p>The planet navigator helps you exclusively to fly to a specific latitude/longitude on a planet or moon. You specify a coordinate target and receive the distance and direction to it.</p>
 <p>It is not an interstellar route planner and does not handle system or jump navigation. You fly your ship yourself.</p>
 
@@ -1127,7 +1130,7 @@ HELP_TOPICS = {
 <p>System, body and coordinates are captured when invoked. In the favourites dialog, edit the name, category and note and optionally attach an image. Only “Save” stores the record locally for that commander; cancelling saves nothing. Later movement does not change the captured position.</p>
 
 <h3>Use saved positions</h3>
-<p>Switch to the “Navigation → ★ Favorites” tab in the main area. Select a saved surface location and “◎ To coordinates” to adopt its body, coordinates and name as the navigation target. This replaces any previous target; on another body the navigator waits for matching position data.</p>
+<p>Switch to the “Navigation → ★ Favorites” tab in the main area. Select a saved surface location and “◎ To planet navigation” to adopt its body, coordinates and name as the navigation target. This replaces any previous target; on another body the navigator waits for matching position data.</p>
 <p>“Edit” changes the name, category and note. “Delete” removes the favourite only after confirmation, without removing Elite data. Favourites survive Helper restarts and are separated by commander; the current navigation target itself lasts only for the session.</p>
 
 <h3>Planet globe: more than 380 km</h3>

@@ -373,8 +373,10 @@ HELP_TOPICS = {
 <p>„Filtr odległości” jest domyślnie wyłączony. „Maks. odległość:” ma początkowo wartość 500 ly, z zakresem od 1 do 100 000 ly. Odległość jest liczona od aktualnie znanego systemu na podstawie dostępnych lokalnie współrzędnych systemów. Tylko dla tego filtra nie są wykonywane zapytania sieciowe.</p>
 <p>Ulubione ze znaną odległością poza limitem są ukrywane. Ulubione o nieznanej odległości pozostają widoczne. Jeśli brakuje współrzędnych bieżącego systemu, filtr odległości nie ukrywa wpisów. Wyszukiwanie oraz filtry typu i kategorii nadal obowiązują. Po zmianie systemu filtrowanie aktualizuje się automatycznie. Stan przełącznika i maksymalna odległość są zapisywane.</p>
 
+<p>Kliknij dwukrotnie podgląd obrazu w szczegółach ulubionego, aby otworzyć powiększony widok w oryginalnej rozdzielczości. Kółko myszy powiększa; po powiększeniu przeciągaj z wciśniętym lewym przyciskiem, aby przesuwać obraz. Dwuklik resetuje widok, Escape go zamyka. Oryginalne obrazy pozostają niezmienione.</p>
+
 <h3>Eksport ulubionych</h3>
-<p>„Eksportuj” tworzy przenośny ZIP ze wszystkimi ulubionymi aktywnego dowódcy, nie tylko wpisami widocznymi przez wyszukiwanie lub filtry typu, kategorii i odległości. favorites.json zawiera ustrukturyzowane dane ulubionych; dostępne obrazy znajdują się w images/. Pakiet można przenosić między Linuksem i Windows.</p>
+<p>„Eksportuj” pozwala wybrać domyślnie wszystkie ulubione lub tylko zaznaczone. Przewijana lista z polami wyboru zawiera nazwę, system i planetę/księżyc, jeśli istnieje, dla wszystkich ulubionych aktywnego dowódcy, niezależnie od wyszukiwania, odległości, kategorii i typu. Zaznacz wiele wpisów lub użyj „Zaznacz wszystkie” i „Odznacz wszystkie”; liczba wybranych jest widoczna. Bez wyboru eksport selektywny jest zablokowany. Anulowanie nie zmienia danych. Następnie otwiera się dotychczasowe okno pliku. ZIP, favorites.json i images/ pozostają zgodne; pola, współrzędne i dostępne obrazy wybranych wpisów są zachowane. Dotychczasowy import odczytuje pełne i selektywne pakiety bez zmian.</p>
 <p>Istniejące ulubione i oryginalne obrazy nie są zmieniane. Obrazy o identycznej zawartości są zapisywane w pakiecie tylko raz. Brakujące lub uszkodzone obrazy nie blokują eksportu danych. Import i eksport dopuszczają maksymalnie 32 MiB na plik oraz łącznie 256 MiB nieskompresowanej zawartości pakietu.</p>
 
 <h3>Import ulubionych</h3>
@@ -405,8 +407,8 @@ HELP_TOPICS = {
 <p>Obrazy ulubionych mogą być eksportowane i są kopiowane lokalnie przy imporcie. Współdzielone kopie wewnętrzne pozostają, dopóki potrzebuje ich inny ulubiony. Gdy import zastępuje ulubione, stare pliki obrazów są obecnie zachowywane dla ostrożności.</p>
 
 <h3>Cel ulubionego i dowódca</h3>
-<p>„▶ Do trasy” ustawia znany system ulubionego jako cel w planerze tras. Punkt początkowy korzysta z aktualnego AppState zgodnie z dotychczasowym zachowaniem; ręcznie wpisany początek zostaje zachowany. Trasa nie jest obliczana automatycznie. „◎ Do współrzędnych” uruchamia istniejącą nawigację planetarną do miejsca na powierzchni z istniejącym HUD, jeśli zapisano system, ciało niebieskie i prawidłowe współrzędne. Podróż do systemu i nawigacja po powierzchni to dwa oddzielne kroki bez automatycznej sekwencji podróży. Bez współrzędnych powierzchniowych dostępna jest tylko trasa; działania bez wymaganych danych są ukrywane.</p>
-<p>Dla miejsc na powierzchni „◎ Do współrzędnych” przekazuje zapisane ciało niebieskie, szerokość, długość geograficzną i nazwę ulubionego do istniejącego nawigatora planetarnego. Nowy cel zastępuje poprzedni. Ulubione nie mają własnej logiki nawigacji. Nawigator nadal decyduje sam: pasujące prawidłowe dane planetarne uruchamiają nawigację; w przeciwnym razie czeka na te dane.</p>
+<p>„▶ Do trasy” ustawia znany system ulubionego jako cel w planerze tras. Punkt początkowy korzysta z aktualnego AppState zgodnie z dotychczasowym zachowaniem; ręcznie wpisany początek zostaje zachowany. Trasa nie jest obliczana automatycznie. „◎ Do nawigacji planetarnej” uruchamia istniejącą nawigację planetarną do miejsca na powierzchni z istniejącym HUD, jeśli zapisano system, ciało niebieskie i prawidłowe współrzędne. Podróż do systemu i nawigacja po powierzchni to dwa oddzielne kroki bez automatycznej sekwencji podróży. Bez współrzędnych powierzchniowych dostępna jest tylko trasa; działania bez wymaganych danych są ukrywane.</p>
+<p>Dla miejsc na powierzchni „◎ Do nawigacji planetarnej” przekazuje zapisane ciało niebieskie, szerokość, długość geograficzną i nazwę ulubionego do istniejącego nawigatora planetarnego. Nowy cel zastępuje poprzedni. Ulubione nie mają własnej logiki nawigacji. Nawigator nadal decyduje sam: pasujące prawidłowe dane planetarne uruchamiają nawigację; w przeciwnym razie czeka na te dane.</p>
 <p>Ulubione należą wyłącznie do aktywnego dowódcy. Zmiana dowódcy odświeża listę i odrzuca otwarte okno edycji. Cel nadal obsługiwany jako ulubiony cel poprzedniego dowódcy zostaje zakończony. Wybór dowódców w kronice nie rozszerza tej listy ulubionych.</p>
 <p>„Usuń” wymaga potwierdzenia i usuwa tylko rekord ulubionego oraz jego wewnętrzną kopię obrazu. Oryginalny zrzut ekranu lub wybrany oryginalny obraz oraz wszystkie dane Explorera, dziennika i ciał niebieskich zostają zachowane.</p>"""),
  'chronicle': (
@@ -1120,6 +1122,7 @@ HELP_TOPICS = {
     "planet_navigation": (
         'Nawigacja planetarna',
         """<h2>Nawigacja planetarna</h2>
+<p>Nawigacja planetarna jest domyślnie zintegrowana z głównym oknem. „Osobne okno” przenosi ten sam widok do okna, które można swobodnie przesuwać i skalować, również na drugim monitorze. „Powrót do głównego okna” lub zamknięcie tego okna przywraca widok do istniejącej karty. Współrzędne celu i stan nawigacji zostają zachowane, a aktualizacje na żywo trwają nadal. Pozycja i rozmiar okna są zapisywane. Zakończenie CMDRHelper zamyka również to okno; przy następnym uruchomieniu widok jest ponownie zintegrowany. HUD nawigacji pozostaje bez zmian.</p>
 <p>Nawigator planetarny służy wyłącznie do dolotu do określonej szerokości/długości geograficznej na planecie lub księżycu. Podajesz cel za pomocą współrzędnych i otrzymujesz odległość oraz kierunek do niego.</p>
 <p>Nie jest to planer tras międzygwiezdnych i nie obsługuje nawigacji między systemami ani skoków. Samodzielnie pilotujesz statek.</p>
 
@@ -1145,7 +1148,7 @@ HELP_TOPICS = {
 <p>Przy otwarciu utrwalane są system, ciało i współrzędne. W oknie ulubionych możesz zmienić nazwę, kategorię i notatkę oraz dodać obraz. Dopiero „Zapisz” zapisuje lokalnie dla danego dowódcy; anulowanie niczego nie zapisuje. Późniejszy ruch nie zmienia utrwalonej pozycji.</p>
 
 <h3>Korzystanie z zapisanych pozycji</h3>
-<p>Przejdź do karty „Nawigacja → ★ Ulubione” w obszarze głównym. Wybierz zapisane miejsce na powierzchni i „◎ Do współrzędnych”, aby przyjąć ciało, współrzędne i nazwę jako cel. Zastępuje to poprzedni cel; na innym ciele nawigator czeka na zgodne dane pozycji.</p>
+<p>Przejdź do karty „Nawigacja → ★ Ulubione” w obszarze głównym. Wybierz zapisane miejsce na powierzchni i „◎ Do nawigacji planetarnej”, aby przyjąć ciało, współrzędne i nazwę jako cel. Zastępuje to poprzedni cel; na innym ciele nawigator czeka na zgodne dane pozycji.</p>
 <p>„Edytuj” zmienia nazwę, kategorię i notatkę. „Usuń” usuwa ulubiony wpis po potwierdzeniu, bez usuwania danych Elite. Ulubione pozostają po restarcie i są rozdzielone według dowódców; bieżący cel nawigacji trwa tylko przez sesję.</p>
 
 <h3>Globus planety: ponad 380 km</h3>

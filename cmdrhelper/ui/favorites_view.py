@@ -17,6 +17,9 @@ from cmdrhelper.favorites import (FavoriteStore, TYPES, CATEGORIES, latest_scree
                                  screenshot_capture_time)
 from cmdrhelper.i18n import tr, get_language
 from cmdrhelper.material_traders import Coordinates
+from cmdrhelper.ui.favorite_image_view import FavoriteImageLabel
+from cmdrhelper.ui.favorite_title_delegate import FavoriteTitleDelegate
+from cmdrhelper.ui.favorites_export_dialog import FavoritesExportDialog
 from cmdrhelper.favorites_transfer import (export_package, read_package,
     prepare_import, apply_import, TransferError)
 
@@ -347,6 +350,7 @@ class FavoritesView(QWidget):
         self.distance_status.setObjectName('muted')
         root.addWidget(self.distance_status)
         self.list = QListWidget(); self.list.setIconSize(QSize(80,60)); self.list.setUniformItemSizes(True)
+        self.list.setItemDelegate(FavoriteTitleDelegate(self.list))
         root.addWidget(self.list,1)
         self.empty = text_label(tr('favorites.empty')); root.addWidget(self.empty)
         actions = QHBoxLayout(); self.action_buttons = []
@@ -531,6 +535,16 @@ class FavoritesView(QWidget):
         commander = getattr(self.state, 'commander_id', None)
         if not commander:
             return
+        try:
+            dialog = FavoritesExportDialog(self.store.list(commander), self)
+        except (OSError, ValueError, sqlite3.Error) as exc:
+            self._transfer_error(exc)
+            return
+        if dialog.exec() != QDialog.Accepted or commander != self.state.commander_id:
+            return
+        selected_ids = dialog.selected_ids()
+        if selected_ids == set():
+            return
         filename, _ = QFileDialog.getSaveFileName(
             self, tr('favorites.transfer.export'),
             'CMDRHelper_Favoriten_' + datetime.now().strftime('%Y-%m-%d') + '.zip',
@@ -538,7 +552,10 @@ class FavoritesView(QWidget):
         if not filename or commander != self.state.commander_id:
             return
         try:
-            data, result = export_package(self.store, commander)
+            if selected_ids is None:
+                data, result = export_package(self.store, commander)
+            else:
+                data, result = export_package(self.store, commander, selected_ids)
             target = QSaveFile(filename)
             if not target.open(QIODevice.WriteOnly):
                 raise OSError(target.errorString())
@@ -684,7 +701,8 @@ class FavoritesView(QWidget):
         layout.addWidget(text_label(location_text(record)))
         layout.addWidget(text_label(tr('favorites.category.'+record['category'])))
         note=QTextEdit(); note.setReadOnly(True); note.setPlainText(record['note']); layout.addWidget(note)
-        image=QLabel(); pixmap=preview(self.store.image_file(record['image_path']))
+        image_path = self.store.image_file(record['image_path'])
+        image=FavoriteImageLabel(image_path); pixmap=preview(image_path)
         if pixmap.isNull():image.setText(tr('favorites.no_image'))
         else:image.setPixmap(pixmap)
         layout.addWidget(image)

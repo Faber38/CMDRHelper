@@ -38,6 +38,14 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.9
+
+- Siirrä planeettanavigointi erilliseen ikkunaan ja takaisin säilyttäen kohde ja reaaliaikaiset tiedot.
+- Avaa suosikkikuvat alkuperäisessä tarkkuudessa, zoomaa hiiren rullalla ja siirrä kuvaa vetämällä.
+- Suosikkien otsikot näkyvät Elite-keltaisina (#FFCC33); valintakorostus ja muut tekstirivit säilyvät.
+- Vie kaikki tai valitut suosikit kuvineen ja koordinaatteineen nykyisessä yhteensopivassa ZIP/JSON-muodossa.
+- Selkeämpi navigointi kompassikuvakkeella ja ”Planeettanavigointiin”-painikkeella.
+
 ## CMDRHelper v3.9.8
 
 - Suosikit ja planeettanavigointi on integroitu suoraan pääkäyttöliittymään kahdeksi välilehdeksi.
