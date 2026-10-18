@@ -38,6 +38,15 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.9.10
+
+- Dossiers de journaux : plusieurs sources avec détection Steam/Heroic, modification, cases de surveillance et statistiques séparées.
+- Commandants : attribution vérifiée par FID, sélection mémorisée et suivi automatique facultatif d’une instance de jeu identifiée sans ambiguïté sous Linux.
+- Powerplay 2.0 : filtre horaire facultatif, lignes de transport compactes et meilleure association des scans de vaisseaux pour +1 à +100 mérites et les nouveaux scans complets de cibles déjà vues.
+- Les fenêtres annexes restent ouvertes indépendamment lorsque la fenêtre principale est réduite et se ferment à la fermeture de l’assistant.
+- EDSM et Inara : commandes EDSM d’envoi et de réception séparées, positions d’envoi par source, confirmations fiables et gestion améliorée des nouvelles tentatives.
+- Traitement des journaux plus fiable avec positions de lecture transactionnelles et vérifications d’identité ; diagnostic d’affichage Odyssey respectueux de la vie privée dans le paquet de diagnostic.
+
 ## CMDRHelper v3.9.9
 
 - Détachez la navigation planétaire dans une fenêtre séparée et réintégrez-la en conservant la cible et les données en direct.

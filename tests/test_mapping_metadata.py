@@ -56,6 +56,9 @@ class MappingMetadataTests(unittest.TestCase):
     def assert_metadata(self, body, expected=METADATA):
         self.assertEqual({key: body.get(key) for key in expected}, expected)
 
+    def register_session(self):
+        self.db.store_journal_session(classify_journal_file(self.journal))
+
     def seed_missing(self):
         data, body = self.live()
         for key in METADATA:
@@ -123,6 +126,7 @@ class MappingMetadataTests(unittest.TestCase):
 
     def test_delta_persists_metadata_even_without_a_scan_in_the_batch(self):
         self.seed_missing()
+        self.register_session()
         self.db.apply_commander_journal_delta(self.commander, self.journal, [self.saa], 10)
         self.assert_metadata(self.saved())
         self.db.apply_commander_journal_delta(self.commander, self.journal, [self.saa], 11)
@@ -153,6 +157,7 @@ class MappingMetadataTests(unittest.TestCase):
         data, _ = self.live()
         self.db.store_snapshot(data, self.commander)
         before = self.saved()
+        self.register_session()
         with self.db._connect() as con:
             physical_before = con.execute('SELECT * FROM bodies').fetchall()
         self.db.apply_commander_journal_delta(self.commander, self.journal, [self.saa], 10)

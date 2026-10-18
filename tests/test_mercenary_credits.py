@@ -114,8 +114,8 @@ class MercenaryCreditsTests(unittest.TestCase):
         path.write_text("", encoding="utf-8")
         with self.db._connect() as con:
             con.execute("""INSERT INTO journal_sessions(
-                journal_file,commander_id,attribution_status,last_read_offset)
-                VALUES(?,?,'identified',0)""", (str(path), self.a))
+                journal_file,commander_id,attribution_status,fid_seen,last_read_offset)
+                VALUES(?,?,'identified','FID-A',0)""", (str(path), self.a))
         event = {"timestamp": "2026-09-04T11:25:39Z", "event": "Statistics",
                  "Bank_Account": {"MercCoins_Current": 1275}}
         self.db.apply_commander_journal_delta(self.a, str(path), [event], 10)
@@ -133,7 +133,12 @@ class MercenaryCreditsTests(unittest.TestCase):
                 con.execute("""INSERT INTO journal_sessions(
                     journal_file,commander_id,attribution_status,last_read_offset)
                     VALUES(?,?,?,0)""", (str(path), self.a, status))
-            self.db.apply_commander_journal_delta(self.a, str(path), [event], 10)
+            with self.assertRaisesRegex(ValueError, "journal_identity_unverified"):
+                self.db.apply_commander_journal_delta(self.a, str(path), [event], 10)
+            with self.db._connect() as con:
+                self.assertEqual(con.execute(
+                    "SELECT last_read_offset FROM journal_sessions WHERE journal_file=?",
+                    (str(path),)).fetchone()[0], 0)
         self.assertIsNone(self.db.commander_summary(self.a)["mercenary_credits"])
 
 

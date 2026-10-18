@@ -12,6 +12,7 @@ from PySide6.QtGui import QColor, QPalette
 from PySide6.QtWidgets import (
     QLayout,
     QComboBox,
+    QCheckBox,
     QFileDialog,
     QMessageBox,
     QPushButton,
@@ -97,6 +98,9 @@ class CommanderView(QWidget):
         selector_layout.addWidget(self.status_label)
         selector_layout.addStretch()
         root.addWidget(selector)
+        self.follow_live_checkbox = QCheckBox(tr("commander_view.follow_live"))
+        self.follow_live_checkbox.toggled.connect(self.state.set_follow_live_commander)
+        root.addWidget(self.follow_live_checkbox)
 
         self.tabs = QTabWidget()
         self.tabs.addTab(self._overview_tab(), tr("commander_view.tab.overview"))
@@ -450,6 +454,9 @@ class CommanderView(QWidget):
         commanders = self.state.database.list_commanders()
         viewed_id = self.state.resolve_viewed_commander(commanders)
 
+        self.follow_live_checkbox.blockSignals(True)
+        self.follow_live_checkbox.setChecked(self.state.follow_live_commander)
+        self.follow_live_checkbox.blockSignals(False)
         self.commander_combo.blockSignals(True)
         self.commander_combo.clear()
         selected_index = -1

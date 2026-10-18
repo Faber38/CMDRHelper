@@ -25,7 +25,7 @@ class ExplorerRevisitTests(unittest.TestCase):
         self.a = self.db.upsert_commander('F-A', 'Alpha')
         self.b = self.db.upsert_commander('F-B', 'Bravo')
         self.state = SimpleNamespace(database=self.db, commander_id=self.a,
-            viewed_commander_id=self.b, system_address=7432700939515, edsm_enabled=True)
+            viewed_commander_id=self.b, system_address=7432700939515, edsm_enabled=True, edsm_receive_enabled=True)
         self.saved = [
             dict(body_id=1, name='Example A', body_type='Star', star_type='A', stellar_mass=1.7),
             dict(body_id=2, name='Example B', body_type='Star', star_type='K', stellar_mass=0.68),

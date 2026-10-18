@@ -136,9 +136,48 @@ class CurrentMissionsTests(unittest.TestCase):
 
     def test_unidentified_snapshot_is_not_authoritative(self):
         self.apply(event('MissionAccepted', 1, MissionID=7))
-        self.db.apply_commander_journal_delta(self.a, 'unidentified.log',
-                                             [event('Missions', 2, Active=[])], 100)
+        with self.db._connect() as con:
+            before = tuple(con.iterdump())
+        # The low-level API rejects an unproven source explicitly. It must not
+        # silently accept its empty snapshot as an authoritative mission list.
+        with self.assertRaisesRegex(ValueError, '^journal_identity_unverified$'):
+            self.db.apply_commander_journal_delta(self.a, self.folder / 'unidentified.log',
+                [event('Missions', 2, Active=[])], 100, enqueue_inara=True)
+        with self.db._connect() as con:
+            self.assertEqual(tuple(con.iterdump()), before)
         self.assertTrue(self.rows()[0]['is_open'])
+        # Rejecting this source does not disable an independently verified one.
+        self.apply(event('MissionCompleted', 3, MissionID=7))
+        self.assertEqual(self.rows(), [])
+
+    def test_live_refresh_handles_database_identity_refusal(self):
+        from cmdrhelper.state import AppState
+        self.apply(event('MissionAccepted', 1, MissionID=7))
+        sessions = scan_journal_folder(self.db, self.folder)
+        offset = sessions[-1]['last_read_offset']
+        with self.path.open('a') as stream:
+            stream.write(json.dumps(event('Missions', 2, Active=[])) + '\n')
+        state = SimpleNamespace(journal_folder=self.folder,
+            watcher=SimpleNamespace(_current=self.path),
+            _journal_index_sessions=sessions, _journal_index_current=str(self.path),
+            system='', system_address=None, ship_loadout=None, commander='Same',
+            commander_fid='A', commander_id=self.a, changed=Mock(),
+            _prepare_indexed_live_state=Mock(), _apply_commander_identity=Mock(return_value=False),
+            _inara_identity_matches=Mock(return_value=True), database=self.db)
+        state._store_latest_journal_session = AppState._store_latest_journal_session.__get__(state)
+        # Exercise the real caller's exception boundary, including a refusal
+        # after the source passed its initial live classification.
+        for reason in ('journal_identity_unverified', 'journal_identity_conflict'):
+            with self.subTest(reason=reason), patch.object(self.db,
+                    'apply_commander_journal_delta', side_effect=ValueError(reason)) as apply:
+                self.assertFalse(AppState.refresh(state))
+                apply.assert_called_once()
+                self.assertIn(reason, state._last_refresh_error)
+            self.assertTrue(self.rows()[0]['is_open'])
+            with self.db._connect() as con:
+                self.assertEqual(con.execute('SELECT last_read_offset FROM journal_sessions WHERE journal_file=?',
+                                            (str(self.path),)).fetchone()[0], offset)
+            self.assertEqual(self.db.inara_pending(self.a), [])
 
     def test_commander_switch_and_restart_load_independent_current_states(self):
         self.apply(event('MissionAccepted', 1, MissionID=7, Name='Alpha'))

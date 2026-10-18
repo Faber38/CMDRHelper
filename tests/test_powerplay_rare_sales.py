@@ -281,7 +281,7 @@ class RareSaleViewTests(unittest.TestCase):
         self.assertEqual(table.rowCount(), 1)
         self.assertEqual(table.item(0, 1).text(), 'Seltene Waren verkauft')
         self.assertEqual(table.item(0, 2).text(),
-                         '400 t Soontill-Relikte\nMorrison Hub · Col 285 Sector GJ-T b19-1')
+                         '400 t Soontill-Relikte | Morrison Hub · Col 285 Sector GJ-T b19-1')
         self.assertEqual(table.item(0, 3).text(), '+15.906')
         self.assertEqual(table.item(0, 4).text(), '≈')
         tooltip = table.item(0, 4).toolTip()
@@ -302,7 +302,7 @@ class RareSaleViewTests(unittest.TestCase):
             self.assertEqual(table.rowCount(), 1)
             self.assertEqual(table.item(0, 1).text(), title)
             self.assertEqual(table.item(0, 2).text(),
-                             '12 t Leesti-Teufelssaft\nPeebles Holdings · Crucis Sector HC-U b3-5')
+                             '12 t Leesti-Teufelssaft | Peebles Holdings · Crucis Sector HC-U b3-5')
             self.assertEqual(table.item(0, 3).text(), '+6 / +' + base.QLocale(language).toString(3600))
             self.assertEqual(table.item(0, 4).text(), '≈')
             self.assertIn(caution, table.item(0, 4).toolTip())

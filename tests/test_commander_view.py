@@ -109,6 +109,9 @@ class CommanderSelectionTests(unittest.TestCase):
         self.a = self.database.upsert_commander("FID-A", "Alpha")
         self.b = self.database.upsert_commander("FID-B", "Bravo")
         self.state = make_state(self.database)
+        self.state.commander_fid = "FID-A"
+        self.state._journal_index_sessions = [dict(
+            attribution_status="identified", fid_seen="FID-A", commander_id=self.a)]
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -148,6 +151,8 @@ class CommanderSelectionTests(unittest.TestCase):
         view.show()
         self.addCleanup(view.close)
         self.state.commander_fid = "FID-A"
+        self.state._journal_index_sessions = [dict(
+            attribution_status="identified", fid_seen="FID-B", commander_id=self.b)]
         self.state._apply_commander_identity({
             "commander_fid": "FID-B", "commander_identity_name": "Bravo"
         })

@@ -364,8 +364,10 @@ class ObserverWriterTests(unittest.TestCase):
         provider.search_buy.return_value = MarketSearchResult(MarketStatus.OK, ())
         query = MarketSearch(lookup_by_symbol('Beer').frontier_id, 'Fixture System')
         from cmdrhelper.trade_market_source import prepare_trade_source
+        from cmdrhelper.database import CMDRDatabase
+        database = CMDRDatabase(self.root/'trade.db')
         result = search_trade(provider, query, TradeSide.BUY, fid=self.fid, clock=lambda:self.now,
-            local_source=prepare_trade_source(self.observer,self.fid,'Fixture System',None))
+            local_source=prepare_trade_source(self.observer,self.fid,'Fixture System',None, database=database))
         self.assertEqual(result.status, MarketStatus.NO_RESULTS)
         self.assertFalse(self.cache.put(observation()))
 

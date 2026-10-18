@@ -74,7 +74,7 @@ class Release392Tests(unittest.TestCase):
             text = (ROOT / name).read_text()
             section = text.split('## CMDRHelper v3.9.2\n', 1)[1].split('\n## ', 1)[0]
             self.assertEqual([s[2:] for s in section.splitlines() if s.startswith('- ')], expected)
-            self.assertLess(text.index('## CMDRHelper v3.9.2'), text.index('## CMDRHelper v3.9.1'))
+            self.assertLess(text.index('## CMDRHelper v3.9.2'), text.index('## CMDRHelper v3.9.1\n'))
         document = (ROOT / 'docs/release-3.9.2.md').read_text()
         self.assertEqual(document.splitlines()[0], '# CMDRHelper v3.9.2')
         self.assertEqual([s[2:] for s in document.splitlines() if s.startswith('- ')],

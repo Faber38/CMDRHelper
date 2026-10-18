@@ -89,7 +89,7 @@ class SurfaceMiningHistoryTests(unittest.TestCase):
             "attribution_status": "identified", "fid_seen": "F999"})
         self.apply(self.context(body_id=8) + [event(
             "MiningRefined", 6, Type="$copper_name;", Type_Localised="Kupfer")],
-            30, journal=other_journal)
+            30)
         self.apply(self.context() + [event(
             "MiningRefined", 7, Type="$copper_name;", Type_Localised="Kupfer")],
             40, commander=self.other, journal=other_journal)

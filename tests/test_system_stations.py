@@ -232,6 +232,8 @@ class StationDatabaseTests(unittest.TestCase):
 
     def test_live_delta_persists_station(self):
         cid = self.db.upsert_commander('TestFID', 'Test')
+        self.db.store_journal_session(dict(journal_file='test.log',
+            attribution_status='identified', fid_seen='TestFID'))
         self.db.apply_commander_journal_delta(cid, 'test.log', [dict(event='Docked',
             timestamp='2026-09-16T10:00:00Z', SystemAddress=1, StarSystem='Test',
             StationName='Station', StationType='Orbis', MarketID=100)], 100)

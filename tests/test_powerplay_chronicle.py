@@ -64,7 +64,7 @@ class ChronicleTests(unittest.TestCase):
         for source in [scan(ScanStage=2), scan(TargetLocked=False), scan(ScanStage=True),
                        event('Scan', ScanType='Detailed'), event('DataScanned')]:
             self.assertEqual(replay(source, credit(gain=10)).chronicle.groups[0].certainty, 'unknown')
-        self.assertEqual(replay(scan(), credit(gain=9)).chronicle.groups[0].certainty, 'unknown')
+        self.assertEqual(replay(scan(), credit(gain=101)).chronicle.groups[0].certainty, 'unknown')
         state = replay(scan(), credit(gain=10), credit(gain=10))
         self.assertEqual([g.certainty for g in state.chronicle.groups], ['temporal', 'unknown'])
 

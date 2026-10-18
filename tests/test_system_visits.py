@@ -56,6 +56,9 @@ class SystemVisitsTests(unittest.TestCase):
         self.assertEqual(len(self.visits()), 3)
 
     def test_stays_across_batches_and_true_return(self):
+        self.journal([])  # Register the real synthetic FID before applying deltas.
+        self.db.store_journal_session(dict(journal_file=str(self.folder / "other.log"),
+            attribution_status="identified", fid_seen="FID-B"))
         for i, address in enumerate([1, 1, 1, 2, 1, 1], 1):
             self.db.apply_commander_journal_delta(
                 self.a, self.path, [position("Location", i, address)], i)

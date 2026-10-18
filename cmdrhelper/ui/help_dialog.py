@@ -1,3 +1,4 @@
+from cmdrhelper.ui.auxiliary_window import AuxiliaryWindow
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QDialog,
@@ -11,7 +12,7 @@ from PySide6.QtWidgets import (
 from cmdrhelper.help_content import help_topic
 
 
-class HelpDialog(QDialog):
+class HelpDialog(AuxiliaryWindow, QDialog):
     """Gemeinsames, kontextbezogenes Hilfefenster."""
 
     def __init__(self, context: str, parent=None, language: str = "de"):

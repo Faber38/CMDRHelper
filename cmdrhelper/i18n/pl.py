@@ -1,4 +1,17 @@
 TRANSLATIONS = {
+    "release.3_9_10.0": "Katalogi dzienników: wiele źródeł z wykrywaniem Steam/Heroic, edycją, polami wyboru monitorowania i osobnymi statystykami.",
+    "release.3_9_10.1": "Dowódcy: przypisanie zweryfikowane przez FID, zapamiętany wybór i opcjonalne automatyczne śledzenie jednoznacznie rozpoznanej instancji gry w systemie Linux.",
+    "release.3_9_10.2": "Powerplay 2.0: opcjonalny filtr godziny, zwarte wiersze transportu i lepsze przypisywanie skanów statków dla +1 do +100 zasług oraz nowych pełnych skanów wcześniej widzianych celów.",
+    "release.3_9_10.3": "Dodatkowe okna pozostają niezależnie otwarte po zminimalizowaniu głównego okna i zamykają się przy wyjściu z programu.",
+    "release.3_9_10.4": "EDSM i Inara: osobne przełączniki wysyłania i odbierania EDSM, pozycje wysyłania dla każdego źródła, wiarygodne potwierdzenia i lepsza obsługa ponownych prób.",
+    "release.3_9_10.5": "Bardziej niezawodne przetwarzanie dzienników z transakcyjnymi pozycjami odczytu i kontrolą tożsamości; diagnostyka widoku Odyssey chroniąca prywatność w pakiecie diagnostycznym.",
+
+    'topbar.edsm_active': '● EDSM aktywne',
+    'topbar.edsm_receiving': '● Odbiór EDSM',
+    'topbar.edsm_connection_ok': 'Ostatni test połączenia powiódł się; nie potwierdza to wysłania dziennika.',
+    'topbar.edsm_connection_error': 'Ostatni test połączenia nie powiódł się.',
+    'settings.edsm_other_uploader_hint': 'Uwaga: Jeśli inny program wysyła już zdarzenia dziennika do EDSM, wyłącz wysyłanie w CMDRHelper. Najlepiej używać tylko jednego programu do wysyłania danych do EDSM, aby uniknąć duplikatów. Odbiór danych EDSM w CMDRHelper może pozostać włączony.',
+
     "release.3_9_9.0": "Przenieś nawigację planetarną do osobnego okna i z powrotem, zachowując cel i dane na żywo.",
     "release.3_9_9.1": "Otwieraj obrazy ulubionych w oryginalnej rozdzielczości, powiększaj kółkiem myszy i przesuwaj przeciąganiem.",
     "release.3_9_9.2": "Tytuły ulubionych są żółte w kolorze Elite (#FFCC33); zaznaczenie i pozostałe wiersze tekstu pozostają bez zmian.",
@@ -644,6 +657,7 @@ TRANSLATIONS = {
     'nav.chronicle': 'Kronika',
     'nav.commander_view': 'Widok CMDR',
     'commander_view.title': 'Widok CMDR',
+    'commander_view.follow_live': 'Śledź aktywnego dowódcę',
     'commander_view.commander': 'Dowódca:',
     'commander_view.identity': 'CMDR {name}',
     'commander_view.status.live': '● Aktywny na żywo',
@@ -881,6 +895,8 @@ TRANSLATIONS = {
     'settings.inara_not_configured': 'Dla {commander} nie skonfigurowano jeszcze dostępu Inara.',
     'settings.inara_configured_short': 'skonfigurowano',
     'settings.inara_not_configured_short': 'nieskonfigurowano',
+    "settings.edsm_send": 'Wysyłaj dane EDSM',
+    "settings.edsm_receive": 'Odbieraj dane EDSM',
     'settings.use_edsm': 'Używaj EDSM',
     'settings.use_inara': 'Używaj Inara',
     'settings.test_edsm': 'Testuj połączenie EDSM',
@@ -2061,3 +2077,41 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS.update({"pp2.chronicle.commodity_sale": 'Sprzedaż towarów'})
+
+# Journal source management
+TRANSLATIONS.update({
+    'sources.title': 'Katalogi dzienników',
+    'sources.add': 'Dodaj',
+    'sources.edit': 'Edytuj',
+    'sources.toggle': 'Włącz / Wyłącz',
+    'sources.remove': 'Usuń',
+    'sources.search': 'Szukaj ponownie',
+    'sources.enabled': 'Włączone',
+    'sources.name': 'Nazwa',
+    'sources.remove_note': 'Usunięcie zatrzymuje monitorowanie. Pliki i historia pozostają.',
+    'sources.identity_unknown': 'Tożsamość dowódcy nieznana',
+    'sources.duplicate': 'Ten folder jest już źródłem.',
+    'sources.status.unknown': 'Nieznana tożsamość',
+    'sources.status.disabled': 'Wyłączone',
+    'sources.status.duplicate': 'Powielona ścieżka',
+    'sources.status.reading': 'Odczyt',
+    'sources.status.ready': 'Gotowe',
+    'sources.status.unreachable': 'Niedostępne',
+    'sources.status.error': 'Przetwarzanie oczekuje / błąd',
+})
+TRANSLATIONS['sources.upload_pending'] = 'Wysyłanie oczekuje: sprawdź tożsamość, stare pozycje lub błędy usługi.'
+
+TRANSLATIONS.update({
+    'sources.reachability': 'Dostępność',
+    'sources.reachable': 'Dostępny',
+    'sources.monitoring': 'Monitorowanie',
+    'sources.monitoring_active': 'Monitorowanie aktywne',
+    'sources.monitoring_inactive': 'Monitorowanie nieaktywne',
+})
+
+TRANSLATIONS.update({
+    'sources.invalid_path': 'Katalog nie istnieje lub nie można go odczytać. Wybierz istniejący, czytelny katalog dzienników.',
+    'sources.edit_busy': 'Nie można zmienić ścieżki podczas przetwarzania. Poczekaj i spróbuj ponownie.',
+})
+
+TRANSLATIONS['pp2.history.from_time'] = 'Od godziny (czas lokalny)'

@@ -86,7 +86,7 @@ class ExplorationStatusTests(unittest.TestCase):
 
     def test_old_edsm_cache_cannot_fill_missing_own_flags(self):
         for own in ([],[self.body()]):
-            state=SimpleNamespace(edsm_enabled=True,system_bodies=copy.deepcopy(own),
+            state=SimpleNamespace(edsm_enabled=True, edsm_receive_enabled=True,system_bodies=copy.deepcopy(own),
                 database=SimpleNamespace(learned_cartography_factor=lambda *a,**k:1),commander_id=1)
             external=self.body(was_discovered=True,was_mapped=False,self_mapped=True,
                                current_value=999999999,edsm_was_discovered=True)

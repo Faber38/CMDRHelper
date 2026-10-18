@@ -78,7 +78,7 @@ class InaraOutboxTests(unittest.TestCase):
             con.execute("INSERT INTO commanders(id,fid,current_name) VALUES(1,'F-A','Alpha')")
             con.execute("INSERT INTO commanders(id,fid,current_name) VALUES(2,'F-B','Beta')")
             con.execute("""INSERT INTO journal_sessions(journal_file,commander_id,
-                attribution_status,last_read_offset) VALUES('a.log',1,'identified',0)""")
+                fid_seen,attribution_status,last_read_offset) VALUES('a.log',1,'F-A','identified',0)""")
     def tearDown(self):
         self.temp.cleanup()
 
@@ -109,13 +109,18 @@ class InaraOutboxTests(unittest.TestCase):
         self.db.apply_commander_journal_delta(1, "a.log", [self.event()], 100,
                                                enqueue_inara=True)
         row = self.db.inara_pending(1)[0]
-        self.db.update_inara_outbox(errors={row["id"]: "timeout"})
+        self.db.update_inara_outbox(errors={row["id"]: "timeout"},
+            commander_id=1, fid="F-A", expected_rows=[row])
         with self.db._connect() as con:
             offset = con.execute("SELECT last_read_offset FROM journal_sessions").fetchone()[0]
             status = con.execute("SELECT status,retry_count FROM inara_outbox").fetchone()
         self.assertEqual(offset, 100)
         self.assertEqual(status, ("error", 1))
-        self.db.update_inara_outbox(sent_ids=[row["id"]])
+        with self.db._connect() as con:
+            con.execute("UPDATE inara_outbox SET last_attempt_at='2000-01-01T00:00:00+00:00'")
+        retry_rows = self.db.inara_pending(1)
+        self.db.update_inara_outbox(sent_ids=[row["id"]],
+            commander_id=1, fid="F-A", expected_rows=retry_rows)
         with self.db._connect() as con:
             self.assertEqual(con.execute("SELECT status FROM inara_outbox").fetchone()[0], "sent")
 
@@ -187,6 +192,8 @@ class InaraCommanderSettingsTests(unittest.TestCase):
         self.assertFalse(self.state._inara_identity_matches(2))
 
     def test_legacy_settings_migrate_once_to_live_fid(self):
+        self.settings.setValue("inara/commander_fid", "F-A")
+        self.state._journal_index_sessions = [{"attribution_status": "identified", "fid_seen": "F-A"}]
         self.settings.setValue("inara/commander", "Alpha")
         self.settings.setValue("inara/api_key", "LEGACY-KEY")
         self.settings.setValue("inara/enabled", True)
@@ -224,7 +231,12 @@ class InaraCommanderSettingsTests(unittest.TestCase):
             def inara_pending(self, commander_id, _limit):
                 return list(self.rows[int(commander_id)])
 
-            def update_inara_outbox(self, sent_ids=(), errors=None):
+            def validate_inara_request(self, commander_id, fid, rows):
+                assert fid == ("F-A" if commander_id == 1 else "F-B")
+                assert rows == self.rows[commander_id]
+
+            def update_inara_outbox(self, sent_ids=(), errors=None, **binding):
+                self.validate_inara_request(binding["commander_id"], binding["fid"], binding["expected_rows"])
                 self.updates.append((list(sent_ids), dict(errors or {})))
 
         queued_workers = []

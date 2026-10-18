@@ -38,6 +38,15 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.10
+
+- Lokikansiot: useita lähteitä, Steam-/Heroic-tunnistus, muokkaus, seurannan valintaruudut ja lähdekohtaiset tilastot.
+- Komentajat: FID-varmennettu kohdistus, tallennettu valinta ja yksiselitteisesti tunnistetun peli-instanssin valinnainen automaattinen seuranta Linuxissa.
+- Powerplay 2.0: valinnainen kellonaikasuodatin, tiiviit kuljetusrivit ja parempi alusskannausten kohdistus +1–+100 meritille sekä aiemmin nähtyjen kohteiden uusille täydellisille skannauksille.
+- Lisäikkunat pysyvät itsenäisesti avoinna pääikkunaa pienennettäessä ja sulkeutuvat apuohjelman sulkeutuessa.
+- EDSM ja Inara: erilliset EDSM-lähetys- ja vastaanottokytkimet, lähdekohtaiset lähetyskohdat, luotettavat kuittaukset ja parannettu uudelleenyritysten käsittely.
+- Luotettavampi lokien käsittely transaktionaalisilla lukukohdilla ja henkilöllisyyden tarkistuksilla; yksityisyyttä suojaava Odyssey-näkymän diagnostiikka diagnostiikkapaketissa.
+
 ## CMDRHelper v3.9.9
 
 - Siirrä planeettanavigointi erilliseen ikkunaan ja takaisin säilyttäen kohde ja reaaliaikaiset tiedot.

@@ -1,4 +1,5 @@
 from __future__ import annotations
+from cmdrhelper.ui.auxiliary_window import AuxiliaryWindow, close_auxiliary_windows
 
 from cmdrhelper.ui.explorer_status import (
     mapping_status_presentation, edsm_status_html, FootfallStatusDelegate,
@@ -59,7 +60,7 @@ from cmdrhelper.update import (
     launch_installer,
 )
 
-from PySide6.QtCore import Qt, QTimer, QThreadPool, QUrl, QDate, Slot, Signal
+from PySide6.QtCore import QEvent, Qt, QTimer, QThreadPool, QUrl, QDate, Slot, Signal
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 from PySide6.QtGui import (
     QDesktopServices,
@@ -103,6 +104,27 @@ from PySide6.QtWidgets import (
     QComboBox,
     QSizePolicy,
 )
+
+
+class _EdsmTransferRow(QWidget):
+    """Keep complete checkbox captions as the form's wrapping threshold."""
+
+    def event(self, event):
+        result = super().event(event)
+        if event.type() in (QEvent.LayoutRequest, QEvent.Polish, QEvent.Resize,
+                            QEvent.FontChange, QEvent.StyleChange):
+            for check in self.findChildren(QCheckBox):
+                width = check.sizeHint().width()
+                if check.minimumWidth() != width:
+                    check.setMinimumWidth(width)
+            layout = self.layout()
+            checks = self.findChildren(QCheckBox)
+            if layout is not None and len(checks) == 2:
+                required = sum(check.minimumWidth() for check in checks) + layout.horizontalSpacing()
+                policy = QFormLayout.WrapAllRows if self.width() < required else QFormLayout.WrapLongRows
+                if layout.rowWrapPolicy() != policy:
+                    layout.setRowWrapPolicy(policy)
+        return result
 
 
 class _MiningLegendLabel(QLabel):
@@ -187,7 +209,7 @@ class _ChronicleSystemNameLabel(QLabel):
         super().mouseReleaseEvent(event)
 
 
-class ChronicleSystemWindow(QDialog):
+class ChronicleSystemWindow(AuxiliaryWindow, QDialog):
     def __init__(self, system_name, bodies, header_text, body_callback, parent=None, *,
                  system_address=None, commander_id=None, settings=None, stations=None):
         super().__init__(parent)
@@ -276,15 +298,8 @@ class ChronicleSystemWindow(QDialog):
         self._system_overview_window.raise_()
         self._system_overview_window.activateWindow()
 
-    def closeEvent(self, event):
-        if self._system_overview_window is not None:
-            self._system_overview_window.close()
-            self._system_overview_window.deleteLater()
-            self._system_overview_window = None
-        super().closeEvent(event)
 
-
-class ChronicleSearchHelpDialog(QDialog):
+class ChronicleSearchHelpDialog(AuxiliaryWindow, QDialog):
     """
     Kompakte Suchhilfe für die Chronik.
 
@@ -412,7 +427,7 @@ class ChronicleSearchHelpDialog(QDialog):
             self._on_term_clicked(str(term))
 
 
-class ExplorerLiveListWindow(QDialog):
+class ExplorerLiveListWindow(AuxiliaryWindow, QDialog):
     """Kleines frei positionierbares Live-Fenster für Explorer-Hinweise."""
 
     def __init__(
@@ -918,7 +933,7 @@ class ExplorerLiveListWindow(QDialog):
                 self.table.setItem(row_index, col, item)
 
 
-class CargoLiveWindow(QDialog):
+class CargoLiveWindow(AuxiliaryWindow, QDialog):
     """Compact movable view of the last authoritative live Cargo snapshot."""
 
     def __init__(self, settings, parent=None):
@@ -1214,7 +1229,8 @@ class MainWindow(QMainWindow):
         self._planet_navigation_controller = None
         self._navigation_hud = None
         from cmdrhelper.edsm_system_status import EdsmSystemStatus
-        self._edsm_system_status = EdsmSystemStatus(self.state.settings, self)
+        self._edsm_system_status = EdsmSystemStatus(self.state.settings, self,
+            receive_allowed=lambda: self.state.edsm_receive_enabled)
         self._edsm_system_status.notice.connect(self._show_edsm_status)
         self._edsm_system_status.cleared.connect(self._clear_edsm_status)
         self._edsm_system_status.changed.connect(self._refresh_explorer_scan_header)
@@ -1325,7 +1341,15 @@ class MainWindow(QMainWindow):
 
         return button
 
+    def _odyssey_diagnostics_snapshot(self):
+        view = getattr(getattr(self, "material_view", None), "odyssey", None)
+        return view.display_diagnostics.snapshot if view is not None else None
+
     def _show_page(self, idx):
+        if idx != self.pages.currentIndex():
+            view = getattr(getattr(self, "material_view", None), "odyssey", None)
+            if view is not None and view.isVisible():
+                view.display_diagnostics.capture()
         self.pages.setCurrentIndex(idx)
         if hasattr(self, "missions_table"):
             if idx == self.PAGE_SETTINGS:
@@ -1564,6 +1588,7 @@ class MainWindow(QMainWindow):
         )
 
         self.edsm_upload_label = QLabel(tr("topbar.edsm_waiting"), objectName="muted")
+        self.edsm_upload_label.setWordWrap(True)
         self.edsm_upload_label.setToolTip(tr("topbar.edsm_tooltip"))
 
         self.inara_upload_label = QLabel(tr("topbar.inara_waiting"), objectName="muted")
@@ -3175,8 +3200,13 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event):
         super().closeEvent(event)
-        if event.isAccepted() and hasattr(self, "navigation_dock"):
-            self.navigation_dock.shutdown()
+        if event.isAccepted():
+            if hasattr(self, "navigation_dock"):
+                self.navigation_dock.shutdown()
+            close_auxiliary_windows(self)
+            hud = getattr(self, "_navigation_hud", None)
+            if hud is not None:
+                hud.close()
 
     def _configure_quick_favorite_hotkey(self):
         self.quick_favorite_settings.choose()
@@ -4713,67 +4743,16 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout(content)
         layout.setContentsMargins(12, 10, 12, 10)
         from cmdrhelper.ui.diagnostics_panel import DiagnosticsPanel
-        layout.addWidget(DiagnosticsPanel(self.state, content))
+        layout.addWidget(DiagnosticsPanel(self.state, content, odyssey_snapshot=self._odyssey_diagnostics_snapshot))
         layout.setSpacing(8)
 
         layout.addWidget(QLabel(tr("settings.title"), objectName="sectionTitle"))
+        if getattr(self.state, 'sources', None) is not None:
+            from cmdrhelper.ui.journal_sources import JournalSourcesPanel
+            layout.addWidget(JournalSourcesPanel(self.state.sources, content))
         from cmdrhelper.ui.quick_favorite_settings import QuickFavoriteSettings
         self.quick_favorite_settings = QuickFavoriteSettings(self._quick_favorite_hotkey)
         layout.addWidget(self.quick_favorite_settings)
-
-        card, card_layout = self._card(tr("settings.journal"))
-
-        form = QFormLayout()
-
-        self.journal_path_edit = QLineEdit()
-        self.journal_path_edit.setReadOnly(True)
-
-        self.journal_file_count = QLabel("0")
-
-        self.journal_oldest_file = QLabel("–")
-        self.journal_oldest_file.setWordWrap(True)
-
-        self.journal_newest_file = QLabel("–")
-        self.journal_newest_file.setWordWrap(True)
-
-        self.journal_newest_name = QLabel("–")
-        self.journal_newest_name.setWordWrap(True)
-
-        self.journal_last_read = QLabel("–")
-        self.journal_last_read.setWordWrap(True)
-
-        form.addRow(tr("settings.journal_folder") + ":", self.journal_path_edit)
-
-        form.addRow(tr("settings.journal_files_found") + ":", self.journal_file_count)
-
-        form.addRow(tr("settings.oldest_journal") + ":", self.journal_oldest_file)
-
-        form.addRow(tr("settings.newest_journal") + ":", self.journal_newest_file)
-
-        form.addRow(tr("settings.newest_file") + ":", self.journal_newest_name)
-
-        form.addRow(tr("settings.last_read_entry") + ":", self.journal_last_read)
-
-        card_layout.addLayout(form)
-
-        buttons = QHBoxLayout()
-
-        choose = QPushButton(tr("settings.choose_journal_folder"))
-
-        choose.clicked.connect(self.choose_journal_folder)
-
-        buttons.addWidget(choose)
-
-        refresh = QPushButton(tr("settings.read_now"), objectName="primary")
-
-        refresh.clicked.connect(self.state.refresh)
-
-        buttons.addWidget(refresh)
-        buttons.addStretch()
-
-        card_layout.addLayout(buttons)
-
-        layout.addWidget(card)
 
         online_card, online_layout = self._card(tr("settings.online_services"))
 
@@ -4841,12 +4820,9 @@ class MainWindow(QMainWindow):
         self.edsm_api_key_edit.setEchoMode(QLineEdit.Password)
         self.edsm_api_key_edit.setPlaceholderText(tr("settings.edsm_api_key"))
 
-        self.edsm_enabled_check = QCheckBox(tr("settings.use_edsm"))
-        self.edsm_enabled_check.setChecked(self.state.edsm_enabled)
-
         edsm_form.addRow(tr("settings.commander_name") + ":", self.edsm_commander_edit)
         edsm_form.addRow(tr("settings.api_key") + ":", self.edsm_api_key_edit)
-        edsm_form.addRow("", self.edsm_enabled_check)
+        self._add_edsm_transfer_controls(edsm_form)
 
         online_layout.addLayout(edsm_form)
 
@@ -4857,6 +4833,7 @@ class MainWindow(QMainWindow):
         edsm_test_row = QHBoxLayout()
 
         self.edsm_test_button = QPushButton(tr("settings.test_edsm"))
+        self.edsm_receive_check.toggled.connect(self.edsm_test_button.setEnabled)
         self.edsm_test_button.clicked.connect(self._test_edsm_connection)
         edsm_test_row.addWidget(self.edsm_test_button)
 
@@ -4866,6 +4843,14 @@ class MainWindow(QMainWindow):
         self._load_selected_edsm_settings()
 
         online_layout.addLayout(edsm_test_row)
+
+        separator_spacing = max(0, 12 - online_layout.spacing())
+        online_layout.addSpacing(separator_spacing)
+        service_separator = QFrame(objectName="onlineServiceSeparator")
+        service_separator.setFixedHeight(2)
+        service_separator.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        online_layout.addWidget(service_separator)
+        online_layout.addSpacing(separator_spacing)
 
         # -----------------------------
         # Inara
@@ -6002,7 +5987,54 @@ class MainWindow(QMainWindow):
         label.style().unpolish(label)
         label.style().polish(label)
 
+    def _add_edsm_transfer_controls(self, form):
+        self.edsm_enabled_check = QCheckBox(tr("settings.edsm_send"))
+        self.edsm_enabled_check.setChecked(self.state.edsm_enabled)
+        self.edsm_receive_check = QCheckBox(tr("settings.edsm_receive"))
+        self.edsm_transfer_row = _EdsmTransferRow()
+        controls = QFormLayout(self.edsm_transfer_row)
+        controls.setContentsMargins(0, 0, 0, 0)
+        controls.setHorizontalSpacing(20)
+        controls.setRowWrapPolicy(QFormLayout.WrapLongRows)
+        controls.setFormAlignment(Qt.AlignLeft | Qt.AlignTop)
+        controls.setLabelAlignment(Qt.AlignLeft)
+        controls.addRow(self.edsm_enabled_check, self.edsm_receive_check)
+        form.addRow(self.edsm_transfer_row)
+        self.edsm_upload_hint = QLabel(tr("settings.edsm_other_uploader_hint"), objectName="statusWarn")
+        self.edsm_upload_hint.setWordWrap(True)
+        self.edsm_upload_hint.setTextFormat(Qt.PlainText)
+        form.addRow(self.edsm_upload_hint)
+
+    def _refresh_edsm_status(self):
+        send = bool(getattr(self.state, "edsm_enabled", False))
+        receive = bool(getattr(self.state, "edsm_receive_enabled", False))
+        status = getattr(self.state, "edsm_upload_status", "disabled")
+        test = ""
+        if receive and getattr(self.state, "commander_fid", ""):
+            config = self.state.edsm_settings_for_fid(self.state.commander_fid)
+            test = config.get("last_test_status", "").partition("|")[0]
+        key, style = "topbar.edsm_off", "muted"
+        if send or receive:
+            key = "topbar.edsm_waiting" if send else "topbar.edsm_receiving"
+            receive_error = receive and getattr(self.state, "edsm_source_status", "") not in ("", "Cache", "EDSM")
+            if (send and status == "error") or receive_error or test == "error":
+                key, style = "topbar.edsm_error", "statusWarn"
+            elif (send and status == "ok") or test == "ok":
+                key, style = "topbar.edsm_active", "statusOk"
+        label = self.edsm_upload_label
+        label.setText(tr(key))
+        label.setObjectName(style)
+        lines = [tr("settings.edsm_send") + (": ✓" if send else ": –"),
+                 tr("settings.edsm_receive") + (": ✓" if receive else ": –")]
+        if test in ("ok", "error"):
+            lines.append(tr("topbar.edsm_connection_" + test))
+        label.setToolTip("\n".join(lines))
+        label.style().unpolish(label)
+        label.style().polish(label)
+
     def _test_edsm_connection(self):
+        if not self.edsm_receive_check.isChecked():
+            return
         self.edsm_test_button.setEnabled(False)
         self.edsm_test_status.setText(tr("settings.connection_testing"))
 
@@ -6019,6 +6051,7 @@ class MainWindow(QMainWindow):
             self.state.set_edsm_test_status(
                 self.edsm_commander_combo.currentData(), ok, text
             )
+            self._refresh_edsm_status()
         finally:
             self.edsm_test_button.setEnabled(True)
 
@@ -6031,6 +6064,8 @@ class MainWindow(QMainWindow):
         self.edsm_commander_edit.setText(config["commander"])
         self.edsm_api_key_edit.setText(config["api_key"])
         self.edsm_enabled_check.setChecked(config["enabled"])
+        self.edsm_receive_check.setChecked(config["receive_enabled"])
+        self.edsm_test_button.setEnabled(config["receive_enabled"])
         index = self.edsm_commander_combo.currentIndex()
         commander_name = self.edsm_commander_combo.itemData(
             index, Qt.UserRole + 1
@@ -6131,6 +6166,7 @@ class MainWindow(QMainWindow):
             commander=self.edsm_commander_edit.text(),
             api_key=self.edsm_api_key_edit.text(),
             enabled=self.edsm_enabled_check.isChecked(),
+            receive_enabled=self.edsm_receive_check.isChecked(),
             fid=self.edsm_commander_combo.currentData(),
         )
 
@@ -6140,6 +6176,7 @@ class MainWindow(QMainWindow):
             enabled=self.inara_enabled_check.isChecked(),
             fid=self.inara_commander_combo.currentData(),
         )
+        self._edsm_system_status._invalidate()
         self._load_selected_inara_settings()
         self._load_selected_edsm_settings()
 
@@ -6150,65 +6187,6 @@ class MainWindow(QMainWindow):
             tr("settings.online_services"),
             tr("settings.online_saved_message"),
         )
-
-    def _journal_file_diagnostics(self):
-        """
-        Diagnose direkt aus dem gewählten Journalordner.
-        Zeigt, ob neuere Dateien vorhanden sind als der letzte
-        von CMDRHelper gelesene Journal-Eintrag.
-        """
-        pages = getattr(self, "pages", None)
-        if pages is not None and pages.currentIndex() != self.PAGE_SETTINGS:
-            return getattr(self, "_journal_diagnostics_cache", None)
-        folder = self.state.journal_folder
-
-        if not folder:
-            return None
-
-        try:
-            folder = Path(folder)
-
-            if not folder.is_dir():
-                return None
-
-            files = [path for path in folder.glob("Journal*.log") if path.is_file()]
-
-            if not files:
-                return None
-
-            files.sort(key=lambda path: path.stat().st_mtime)
-
-            oldest = files[0]
-            newest = files[-1]
-
-            oldest_dt = datetime.fromtimestamp(oldest.stat().st_mtime)
-            newest_dt = datetime.fromtimestamp(newest.stat().st_mtime)
-
-            self._journal_diagnostics_cache = {
-                "oldest_time": oldest_dt.strftime("%d.%m.%Y %H:%M:%S"),
-                "newest_time": newest_dt.strftime("%d.%m.%Y %H:%M:%S"),
-                "newest_name": newest.name,
-            }
-            return self._journal_diagnostics_cache
-
-        except Exception as exc:
-            return {
-                "oldest_time": tr("common.error"),
-                "newest_time": tr("common.error"),
-                "newest_name": str(exc),
-            }
-
-    def choose_journal_folder(self):
-        start = str(self.state.journal_folder or Path.home())
-
-        folder = QFileDialog.getExistingDirectory(
-            self,
-            tr("settings.choose_journal_folder_title"),
-            start,
-        )
-
-        if folder:
-            self.state.set_journal_folder(Path(folder))
 
     @staticmethod
     def _format_timestamp(value):
@@ -6355,7 +6333,7 @@ class MainWindow(QMainWindow):
 
         edsm_known = int(getattr(self.state, "edsm_body_count", 0) or 0)
 
-        if self.state.edsm_enabled and edsm_known:
+        if self.state.edsm_receive_enabled and edsm_known:
             scan_status += tr("explorer.edsm_known", count=edsm_known)
 
             if edsm_added:
@@ -6439,33 +6417,7 @@ class MainWindow(QMainWindow):
 
         self.connection_label.style().polish(self.connection_label)
 
-        edsm_status = getattr(
-            self.state,
-            "edsm_upload_status",
-            "disabled",
-        )
-        edsm_message = getattr(
-            self.state,
-            "edsm_upload_message",
-            "",
-        )
-
-        if edsm_status == "ok":
-            self.edsm_upload_label.setText(tr("topbar.edsm_transmitting"))
-            self.edsm_upload_label.setObjectName("statusOk")
-        elif edsm_status == "error":
-            self.edsm_upload_label.setText(tr("topbar.edsm_error"))
-            self.edsm_upload_label.setObjectName("statusWarn")
-        elif edsm_status == "waiting":
-            self.edsm_upload_label.setText(tr("topbar.edsm_waiting"))
-            self.edsm_upload_label.setObjectName("muted")
-        else:
-            self.edsm_upload_label.setText(tr("topbar.edsm_off"))
-            self.edsm_upload_label.setObjectName("muted")
-
-        self.edsm_upload_label.setToolTip(edsm_message or tr("topbar.edsm_tooltip"))
-        self.edsm_upload_label.style().unpolish(self.edsm_upload_label)
-        self.edsm_upload_label.style().polish(self.edsm_upload_label)
+        self._refresh_edsm_status()
 
         inara_status = getattr(self.state, "inara_upload_status", "disabled")
         inara_message = getattr(self.state, "inara_upload_message", "")
@@ -6653,25 +6605,6 @@ class MainWindow(QMainWindow):
 
         if hasattr(self, "explorer_value_table"):
             self._refresh_explorer_live_windows()
-
-        self.journal_path_edit.setText(str(self.state.journal_folder or ""))
-
-        self.journal_file_count.setText(str(self.state.journal_files))
-
-        diagnostics = self._journal_file_diagnostics()
-
-        if diagnostics:
-            self.journal_oldest_file.setText(diagnostics.get("oldest_time", "–"))
-            self.journal_newest_file.setText(diagnostics.get("newest_time", "–"))
-            self.journal_newest_name.setText(diagnostics.get("newest_name", "–"))
-        else:
-            self.journal_oldest_file.setText("–")
-            self.journal_newest_file.setText("–")
-            self.journal_newest_name.setText("–")
-
-        self.journal_last_read.setText(
-            self._format_timestamp(self.state.last_timestamp)
-        )
 
         mission_key = (self.state.commander_id, self.state.missions, get_language())
         if mission_key != getattr(self, "_missions_render_key", None):

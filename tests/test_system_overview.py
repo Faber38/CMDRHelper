@@ -384,7 +384,8 @@ class OverviewViewTests(unittest.TestCase):
         callback.assert_called_once()
         self.assertEqual(window.system_map.bodies, before)
         window.close()
-        self.assertFalse(dialog.isVisible())
+        self.assertTrue(dialog.isVisible())
+        dialog.close()
 
     def test_chronicle_entry_loads_requested_commander_not_current_system(self):
         window = MainWindow.__new__(MainWindow)

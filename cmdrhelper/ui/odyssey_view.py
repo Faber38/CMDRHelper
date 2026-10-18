@@ -200,6 +200,8 @@ class OdysseyView(QWidget):
         self.controller = controller if controller is not None else OdysseyController(state, self)
         self.controller.loading.connect(self.begin_loading)
         self.controller.ready.connect(self.set_inventory)
+        from .odyssey_diagnostics import OdysseyDisplayDiagnostics
+        self.display_diagnostics = OdysseyDisplayDiagnostics(self)
         self.begin_loading()
 
     def _selection_changed(self, *_):
@@ -214,6 +216,7 @@ class OdysseyView(QWidget):
         self.render()
 
     def begin_loading(self):
+        self.display_diagnostics.invalidate()
         if self._cleanup_dialog is not None:
             self._cleanup_dialog.reject()
         self._cleanup_key = None

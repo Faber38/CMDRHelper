@@ -1,4 +1,17 @@
 TRANSLATIONS = {
+    "release.3_9_10.0": "Dossiers de journaux : plusieurs sources avec détection Steam/Heroic, modification, cases de surveillance et statistiques séparées.",
+    "release.3_9_10.1": "Commandants : attribution vérifiée par FID, sélection mémorisée et suivi automatique facultatif d’une instance de jeu identifiée sans ambiguïté sous Linux.",
+    "release.3_9_10.2": "Powerplay 2.0 : filtre horaire facultatif, lignes de transport compactes et meilleure association des scans de vaisseaux pour +1 à +100 mérites et les nouveaux scans complets de cibles déjà vues.",
+    "release.3_9_10.3": "Les fenêtres annexes restent ouvertes indépendamment lorsque la fenêtre principale est réduite et se ferment à la fermeture de l’assistant.",
+    "release.3_9_10.4": "EDSM et Inara : commandes EDSM d’envoi et de réception séparées, positions d’envoi par source, confirmations fiables et gestion améliorée des nouvelles tentatives.",
+    "release.3_9_10.5": "Traitement des journaux plus fiable avec positions de lecture transactionnelles et vérifications d’identité ; diagnostic d’affichage Odyssey respectueux de la vie privée dans le paquet de diagnostic.",
+
+    'topbar.edsm_active': '● EDSM actif',
+    'topbar.edsm_receiving': '● Réception EDSM',
+    'topbar.edsm_connection_ok': 'Dernier test de connexion réussi ; cela ne confirme pas un envoi du journal.',
+    'topbar.edsm_connection_error': 'Le dernier test de connexion a échoué.',
+    'settings.edsm_other_uploader_hint': 'Remarque : Si un autre programme envoie déjà les événements du journal à EDSM, désactivez l’envoi dans CMDRHelper. Utilisez de préférence un seul programme pour les envois à EDSM afin d’éviter les doublons. La réception EDSM dans CMDRHelper peut rester activée.',
+
     "release.3_9_9.0": "Détachez la navigation planétaire dans une fenêtre séparée et réintégrez-la en conservant la cible et les données en direct.",
     "release.3_9_9.1": "Ouvrez les images des favoris en résolution originale, zoomez avec la molette et déplacez-les avec la souris.",
     "release.3_9_9.2": "Les titres des favoris apparaissent en jaune Elite (#FFCC33), en conservant la sélection et les autres lignes de texte.",
@@ -644,6 +657,7 @@ TRANSLATIONS = {
     'nav.chronicle': 'Chronique',
     'nav.commander_view': 'Vue CMDR',
     'commander_view.title': 'Vue CMDR',
+    'commander_view.follow_live': 'Suivre le commandant actif',
     'commander_view.commander': 'Commandant :',
     'commander_view.identity': 'CMDR {name}',
     'commander_view.status.live': '● Actif en direct',
@@ -881,6 +895,8 @@ TRANSLATIONS = {
     'settings.inara_not_configured': 'Aucun accès Inara n’est encore configuré pour {commander}.',
     'settings.inara_configured_short': 'configuré',
     'settings.inara_not_configured_short': 'non configuré',
+    "settings.edsm_send": 'Envoyer des données EDSM',
+    "settings.edsm_receive": 'Recevoir des données EDSM',
     'settings.use_edsm': 'Utiliser EDSM',
     'settings.use_inara': 'Utiliser Inara',
     'settings.test_edsm': 'Tester la connexion EDSM',
@@ -2174,3 +2190,41 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS.update({"pp2.chronicle.commodity_sale": 'Vente de marchandises'})
+
+# Journal source management
+TRANSLATIONS.update({
+    'sources.title': 'Dossiers des journaux',
+    'sources.add': 'Ajouter',
+    'sources.edit': 'Modifier',
+    'sources.toggle': 'Activer / Désactiver',
+    'sources.remove': 'Retirer',
+    'sources.search': 'Rechercher',
+    'sources.enabled': 'Activée',
+    'sources.name': 'Nom',
+    'sources.remove_note': 'Retirer une source arrête la surveillance. Les fichiers et l’historique sont conservés.',
+    'sources.identity_unknown': 'Identité du commandant inconnue',
+    'sources.duplicate': 'Ce dossier est déjà une source.',
+    'sources.status.unknown': 'Identité inconnue',
+    'sources.status.disabled': 'Désactivée',
+    'sources.status.duplicate': 'Chemin en double',
+    'sources.status.reading': 'Lecture',
+    'sources.status.ready': 'Prête',
+    'sources.status.unreachable': 'Inaccessible',
+    'sources.status.error': 'Traitement en attente / erreur',
+})
+TRANSLATIONS['sources.upload_pending'] = 'Envoi en attente : vérifier l’identité, les anciennes positions ou les erreurs du service.'
+
+TRANSLATIONS.update({
+    'sources.reachability': 'Accessibilité',
+    'sources.reachable': 'Accessible',
+    'sources.monitoring': 'Surveillance',
+    'sources.monitoring_active': 'Surveillance active',
+    'sources.monitoring_inactive': 'Surveillance inactive',
+})
+
+TRANSLATIONS.update({
+    'sources.invalid_path': 'Le dossier n’existe pas ou est illisible. Choisissez un dossier de journaux existant et lisible.',
+    'sources.edit_busy': 'Le chemin ne peut pas être modifié pendant le traitement. Patientez et réessayez.',
+})
+
+TRANSLATIONS['pp2.history.from_time'] = 'À partir de (heure locale)'

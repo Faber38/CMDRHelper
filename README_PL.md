@@ -38,6 +38,15 @@ Folder dzienników Elite Dangerous jest wykrywany automatycznie, jeśli to możl
 
 CMDRHelper sprawdza aktualizacje przy uruchomieniu i ma wbudowany mechanizm aktualizacji. Potwierdź proponowaną aktualizację w aplikacji; zaktualizuje ona program i zależności oraz uruchomi CMDRHelper ponownie. Po pierwszej instalacji zwykle wystarczy używać `start.bat` (Windows) lub `bash start.sh` (Linux). Przy zwykłych aktualizacjach nie trzeba ponownie ręcznie uruchamiać `install.bat` ani `install.sh`.
 
+## CMDRHelper v3.9.10
+
+- Katalogi dzienników: wiele źródeł z wykrywaniem Steam/Heroic, edycją, polami wyboru monitorowania i osobnymi statystykami.
+- Dowódcy: przypisanie zweryfikowane przez FID, zapamiętany wybór i opcjonalne automatyczne śledzenie jednoznacznie rozpoznanej instancji gry w systemie Linux.
+- Powerplay 2.0: opcjonalny filtr godziny, zwarte wiersze transportu i lepsze przypisywanie skanów statków dla +1 do +100 zasług oraz nowych pełnych skanów wcześniej widzianych celów.
+- Dodatkowe okna pozostają niezależnie otwarte po zminimalizowaniu głównego okna i zamykają się przy wyjściu z programu.
+- EDSM i Inara: osobne przełączniki wysyłania i odbierania EDSM, pozycje wysyłania dla każdego źródła, wiarygodne potwierdzenia i lepsza obsługa ponownych prób.
+- Bardziej niezawodne przetwarzanie dzienników z transakcyjnymi pozycjami odczytu i kontrolą tożsamości; diagnostyka widoku Odyssey chroniąca prywatność w pakiecie diagnostycznym.
+
 ## CMDRHelper v3.9.9
 
 - Przenieś nawigację planetarną do osobnego okna i z powrotem, zachowując cel i dane na żywo.

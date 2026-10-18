@@ -66,7 +66,7 @@ class EdsmStarClassesTests(unittest.TestCase):
                     self.assertEqual(api['body_type'], 'Star')
                     self.assertEqual(api['star_type'], canonical)
                     for body in (api, {**api, 'star_type': external}):
-                        state = SimpleNamespace(edsm_enabled=True, system_bodies=[])
+                        state = SimpleNamespace(edsm_enabled=True, edsm_receive_enabled=True, system_bodies=[])
                         AppState._merge_edsm_into_system(state, {'bodies': [body]})
                         merged = state.system_bodies[0]
                         self.assertEqual(merged['star_type'], canonical)
@@ -90,7 +90,7 @@ class EdsmStarClassesTests(unittest.TestCase):
             for i, name, kind in ((1, 'A', 'M (Red dwarf) Star'),
                                   (2, 'B', 'M (Red dwarf) Star'),
                                   (3, 'C', 'T (Brown dwarf) Star'))]
-        state = SimpleNamespace(edsm_enabled=True, system_bodies=own)
+        state = SimpleNamespace(edsm_enabled=True, edsm_receive_enabled=True, system_bodies=own)
         AppState._merge_edsm_into_system(state, {'bodies': external, 'body_count': 3})
         self.assertEqual(state.edsm_body_count, 3)
         self.assertEqual(state.edsm_added_count, 1)

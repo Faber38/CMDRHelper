@@ -1,5 +1,6 @@
 """Offline system overview with shared orbital layout and CMDRHelper assets."""
 from __future__ import annotations
+from cmdrhelper.ui.auxiliary_window import AuxiliaryWindow
 
 from copy import deepcopy
 from dataclasses import dataclass
@@ -288,7 +289,7 @@ class SystemOverviewView(QGraphicsView):
             super().wheelEvent(event)
 
 
-class SystemOverviewDialog(QDialog):
+class SystemOverviewDialog(AuxiliaryWindow, QDialog):
     def __init__(self, system_name, bodies, on_body_clicked=None, parent=None, *,
                  light=False, settings=None, system_address=None, commander_id=None, stations=None, spansh=None):
         super().__init__(parent)

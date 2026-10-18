@@ -3,6 +3,9 @@ from __future__ import annotations
 import json
 import logging
 import threading
+import time
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
@@ -11,7 +14,9 @@ from urllib.request import Request, urlopen
 from PySide6.QtCore import QSettings
 
 from cmdrhelper.journal_files import journal_files
+from cmdrhelper.journal_reader import classify_journal_file
 from cmdrhelper.version import __version__
+from cmdrhelper.logging_config import log_event
 
 
 logger = logging.getLogger(__name__)
@@ -74,7 +79,7 @@ def _journal_header(journal: Path) -> tuple[str, str]:
                 except json.JSONDecodeError:
                     continue
 
-                if event.get("event") == "Fileheader":
+                if isinstance(event, dict) and event.get("event") == "Fileheader":
                     return (
                         str(event.get("gameversion") or ""),
                         str(event.get("build") or ""),
@@ -106,6 +111,31 @@ def _encode_post_data(
         ),
     }
     return urlencode(payload).encode("utf-8")
+
+
+def _log_upload_response(http_status, prepared, ok, reply, *, transport_error=False):
+    """Diagnostics only: never infer individual acknowledgements from HTTP success.
+
+    Missing, malformed or differently sized event replies cannot establish a count.
+    Count all explicit acknowledgements, not just the resumable consecutive prefix.
+    """
+    code = reply.get("msgnum") if isinstance(reply, dict) else None
+    replies = reply.get("events") if isinstance(reply, dict) else None
+    confirmed = "unknown"
+    if (type(code) is int and code // 100 in SUCCESS_CLASSES
+            and isinstance(replies, list) and len(replies) == prepared
+            and all(isinstance(item, dict) and type(item.get("msgnum")) is int
+                    and 100 <= item["msgnum"] <= 599 for item in replies)):
+        confirmed = sum(item["msgnum"] // 100 in SUCCESS_CLASSES for item in replies)
+    check = "transport_error" if transport_error else "accepted" if ok else "rejected"
+    if not transport_error and not ok:
+        if type(confirmed) is int and confirmed > 0:
+            check = "partial"
+        elif type(code) is not int or not 100 <= code <= 599:
+            check = "unknown"
+    log_event(logger, "EDSM upload response checked", http_status=http_status,
+              edsm_code=code if type(code) is int and 100 <= code <= 599 else "unknown",
+              prepared_events=prepared, confirmed_events=confirmed, response_check=check)
 
 
 def upload_events(
@@ -149,21 +179,40 @@ def upload_events(
         method="POST",
     )
 
+    http_status = "unknown"
+
+    def finish(ok, reply, error, *, transport_error=False):
+        _log_upload_response(http_status, len(events), ok, reply, transport_error=transport_error)
+        return ok, reply, error
+
     try:
         with urlopen(request, timeout=timeout) as response:
+            status = getattr(response, "status", None)
+            if type(status) is int and 100 <= status <= 599:
+                http_status = status
             reply = _read_json_response(response)
     except HTTPError as exc:
-        return False, None, f"EDSM HTTP-Fehler {exc.code}."
+        http_status = exc.code
+        delay = 120.0
+        value = (exc.headers or {}).get("Retry-After", "")
+        try:
+            delay = max(delay, float(value))
+        except (TypeError, ValueError):
+            try:
+                delay = max(delay, (parsedate_to_datetime(value)
+                                   - datetime.now(timezone.utc)).total_seconds())
+            except (TypeError, ValueError, OverflowError):
+                pass
+        return finish(False, {"retry_after_seconds": delay}, f"EDSM HTTP-Fehler {exc.code}.", transport_error=True)
     except URLError as exc:
-        reason = getattr(exc, "reason", exc)
-        return False, None, f"EDSM nicht erreichbar: {reason}"
+        return finish(False, None, "EDSM nicht erreichbar.", transport_error=True)
     except TimeoutError:
-        return False, None, "Zeitüberschreitung beim EDSM-Upload."
+        return finish(False, None, "Zeitüberschreitung beim EDSM-Upload.", transport_error=True)
     except Exception as exc:
-        return False, None, f"EDSM-Upload fehlgeschlagen: {exc}"
+        return finish(False, None, "EDSM-Upload fehlgeschlagen.")
 
     if not isinstance(reply, dict):
-        return False, None, "EDSM lieferte eine unerwartete Antwort."
+        return finish(False, None, "EDSM lieferte eine unerwartete Antwort.")
 
     try:
         msgnum = int(reply.get("msgnum"))
@@ -171,12 +220,22 @@ def upload_events(
         msgnum = 0
 
     if msgnum and (msgnum // 100) in SUCCESS_CLASSES:
-        return True, reply, ""
+        replies = reply.get("events")
+        if replies is not None:
+            try:
+                accepted = (isinstance(replies, list) and len(replies) == len(events)
+                            and all(int(item.get("msgnum", 0)) // 100 in SUCCESS_CLASSES
+                                    for item in replies))
+            except (TypeError, ValueError, AttributeError):
+                accepted = False
+            if not accepted:
+                return finish(False, reply, "EDSM hat nicht alle Ereignisse bestätigt.")
+        return finish(True, reply, "")
 
-    return (
+    return finish(
         False,
         reply,
-        f"EDSM: {reply.get('msg') or 'Upload abgelehnt'} (Code {msgnum})",
+        f"EDSM: Upload abgelehnt (Code {msgnum})",
     )
 
 
@@ -192,6 +251,10 @@ class EDSMJournalUploader:
       damit nicht versehentlich das gesamte Archiv erneut hochgeladen wird
     """
 
+    _locks = {}
+    _retry_after = {}
+    _discard_cache = {}
+
     def __init__(
         self,
         commander: str,
@@ -199,19 +262,30 @@ class EDSMJournalUploader:
         settings: QSettings | None = None,
         fid: str = "",
         is_current=None,
+        source_id: str = "",
+        legacy_folder=None,
+        source_folders=(),
     ):
         self.commander = (commander or "").strip()
         self.api_key = (api_key or "").strip()
         self.settings = settings or QSettings("CMDRHelper", "CMDRHelper")
         self.fid = str(fid or "").strip()
         self.is_current = is_current
+        self.source_id = source_id
+        self.legacy_folder = Path(legacy_folder) if legacy_folder else None
+        self.source_folders = tuple(Path(p) for p in source_folders)
 
-        self._lock = threading.Lock()
-        self._discarded: set[str] | None = None
+        self._identity = (self.settings.fileName(), self.fid)
+        self._retry_delay = 120.0
+        self._lock = self._locks.setdefault(self._identity, threading.Lock())
+        self._discarded: set[str] | None = self._discard_cache.get(self._identity)
         upload_prefix = (
             f"edsm_upload/commanders/{self.fid}"
             if self.fid else "edsm_upload"
         )
+        self._legacy_upload_prefix = upload_prefix
+        if source_id:
+            upload_prefix += f"/sources/{source_id}"
         self._upload_prefix = upload_prefix
         self._initialized_key = f"{upload_prefix}/initialized"
 
@@ -225,6 +299,11 @@ class EDSMJournalUploader:
         return path.name.replace("/", "_").replace("\\", "_")
 
     def _position_key(self, journal: Path) -> str:
+        if self.source_id:
+            import hashlib
+            # Canonical full path distinguishes file aliases as well as names.
+            key = hashlib.sha256(str(journal.resolve()).encode()).hexdigest()
+            return f"{self._upload_prefix}/positions/{key}"
         return f"{self._upload_prefix}/positions/{self._safe_key(journal)}"
 
     def _still_current(self) -> bool:
@@ -247,16 +326,57 @@ class EDSMJournalUploader:
             self.settings.value(self._initialized_key, "false")
         ).lower() in ("1", "true", "yes", "on")
 
+    def _belongs_to_commander(self, journal):
+        if not self.fid:
+            return False
+        try:
+            identity = classify_journal_file(journal)
+        except (OSError, AttributeError, TypeError):
+            return False
+        return (identity["attribution_status"] == "identified"
+                and identity["fid_seen"] == self.fid)
+
     def _baseline_existing_files(self, folder: Path) -> int:
         count = 0
 
         for journal in journal_files(folder):
+            if not self._belongs_to_commander(journal):
+                continue
+            if self.settings.contains(self._position_key(journal)):
+                continue
             try:
                 size = int(journal.stat().st_size)
             except OSError:
                 continue
 
-            self._set_position(journal, size)
+            if self.source_id:
+                suffix = '/positions/' + self._position_key(journal).rsplit('/', 1)[1]
+                previous = {int(self.settings.value(key, 0)) for key in self.settings.allKeys()
+                    if key.startswith(self._legacy_upload_prefix + '/sources/') and key.endswith(suffix)}
+                if previous:
+                    # Re-adding a removed source must retain its pending tail.
+                    # Full canonical path keys provide unambiguous provenance.
+                    if len(previous) != 1 or not 0 <= next(iter(previous)) <= size:
+                        raise ValueError('edsm_source_position_conflict')
+                    self._set_position(journal, next(iter(previous)))
+                    count += 1
+                    continue
+                legacy_key = f"{self._legacy_upload_prefix}/positions/{self._safe_key(journal)}"
+                if self.settings.contains(legacy_key):
+                    matches = {str((p / journal.name).resolve()) for p in self.source_folders
+                               if (p / journal.name).is_file() and self._belongs_to_commander(p / journal.name)}
+                    if ((self.legacy_folder is not None and folder.resolve() != self.legacy_folder.resolve())
+                            or matches != {str(journal.resolve())}):
+                        raise ValueError('edsm_legacy_position_ambiguous')
+                    position = int(self.settings.value(legacy_key, 0))
+                    if position < 0 or position > size:
+                        raise ValueError('edsm_legacy_position_invalid')
+                    self._set_position(journal, position)
+                else:
+                    from .journal_index import _complete_line_offset
+                    self._set_position(journal, _complete_line_offset(journal))
+            else:
+                self._set_position(journal, size)
             count += 1
 
         self.settings.setValue(self._initialized_key, True)
@@ -279,10 +399,15 @@ class EDSMJournalUploader:
             return False, error
 
         self._discarded = discarded
+        self._discard_cache[self._identity] = discarded
         return True, ""
 
     def process_folder(self, folder: Path) -> dict:
         folder = Path(folder)
+        if self.source_id:
+            import hashlib
+            folder_key = hashlib.sha256(str(folder.resolve()).encode()).hexdigest()
+            self._initialized_key = f"{self._upload_prefix}/initialized/{folder_key}"
 
         result = {
             "initialized": False,
@@ -292,7 +417,7 @@ class EDSMJournalUploader:
             "error": "",
         }
 
-        if not self.commander or not self.api_key:
+        if not self.fid or not self.commander or not self.api_key:
             result["error"] = "EDSM-Zugangsdaten fehlen."
             return result
 
@@ -309,6 +434,10 @@ class EDSMJournalUploader:
             return result
 
         try:
+            if time.monotonic() < self._retry_after.get(self._identity, 0):
+                result["retry_paused"] = True
+                result["error"] = "EDSM-Wiederholung pausiert (Netzwerk/Rate-Limit)."
+                return result
             if not self._is_initialized():
                 self._baseline_existing_files(folder)
                 result["initialized"] = True
@@ -324,6 +453,8 @@ class EDSMJournalUploader:
                 if not self._still_current():
                     result["cancelled"] = True
                     break
+                if not self._belongs_to_commander(journal):
+                    continue
                 try:
                     file_size = int(journal.stat().st_size)
                 except OSError:
@@ -331,13 +462,10 @@ class EDSMJournalUploader:
 
                 position = self._stored_position(journal)
 
-                # Datei wurde ersetzt/gekürzt.
+                # Never reset confirmed progress for a replaced/truncated file.
                 if position > file_size:
-                    logger.warning(
-                        "EDSM Journalposition größer als Datei; setze zurück: %s",
-                        journal.name,
-                    )
-                    position = 0
+                    result["error"] = f"Journaldatei gekürzt: {journal.name}"
+                    break
 
                 if position == file_size:
                     continue
@@ -346,6 +474,11 @@ class EDSMJournalUploader:
                     journal,
                     position,
                 )
+
+                log_event(logger, "EDSM journal processing finished",
+                          skipped_events=skipped,
+                          position_advanced=self._stored_position(journal) > position,
+                          success=not bool(error))
 
                 result["files"] += 1
                 result["events_sent"] += sent
@@ -370,7 +503,30 @@ class EDSMJournalUploader:
             return result
 
         finally:
+            if result["error"] and not result.get("retry_paused"):
+                self._retry_after[self._identity] = time.monotonic() + self._retry_delay
+            self.settings.sync()
             self._lock.release()
+
+    def _confirm_prefix(self, journal, positions, reply):
+        """Retain consecutive individual confirmations in a partially rejected batch."""
+        if isinstance(reply, dict):
+            self._retry_delay = max(120.0, float(reply.get("retry_after_seconds", 120)))
+        if not isinstance(reply, dict) or not isinstance(reply.get("events"), list):
+            return 0
+        if len(reply["events"]) != len(positions):
+            return 0
+        count = 0
+        for position, event_reply in zip(positions, reply["events"]):
+            try:
+                accepted = int(event_reply.get("msgnum", 0)) // 100 in SUCCESS_CLASSES
+            except (AttributeError, TypeError, ValueError):
+                break
+            if not accepted:
+                break
+            self._set_position(journal, position)
+            count += 1
+        return count
 
     def _process_journal(
         self,
@@ -389,6 +545,7 @@ class EDSMJournalUploader:
         sent_count = 0
         skipped_count = 0
         batch_events: list[dict] = []
+        batch_positions: list[int] = []
         batch_end_position = start_position
 
         try:
@@ -416,10 +573,14 @@ class EDSMJournalUploader:
                 try:
                     text = raw.decode("utf-8", errors="replace").strip()
                     event = json.loads(text)
-                except json.JSONDecodeError:
+                    if not isinstance(event, dict):
+                        raise ValueError("Journal event is not an object")
+                except (json.JSONDecodeError, ValueError):
                     # Defekte vollständige Zeile überspringen, damit der Upload
                     # nicht dauerhaft an derselben Stelle hängen bleibt.
-                    self._set_position(journal, line_end)
+                    batch_end_position = line_end
+                    if not batch_events:
+                        self._set_position(journal, line_end)
                     skipped_count += 1
                     logger.warning(
                         "EDSM: ungültige JSON-Zeile übersprungen in %s bei Byte %s",
@@ -431,11 +592,14 @@ class EDSMJournalUploader:
                 event_name = str(event.get("event") or "")
 
                 if not event_name or event_name in (self._discarded or set()):
-                    self._set_position(journal, line_end)
+                    batch_end_position = line_end
+                    if not batch_events:
+                        self._set_position(journal, line_end)
                     skipped_count += 1
                     continue
 
                 batch_events.append(event)
+                batch_positions.append(line_end)
                 batch_end_position = line_end
 
                 if len(batch_events) >= BATCH_SIZE:
@@ -450,6 +614,7 @@ class EDSMJournalUploader:
                     )
 
                     if not ok:
+                        sent_count += self._confirm_prefix(journal, batch_positions, _reply)
                         logger.warning(
                             "EDSM Batch fehlgeschlagen in %s: %s",
                             journal.name,
@@ -465,6 +630,7 @@ class EDSMJournalUploader:
                         journal.name,
                     )
                     batch_events = []
+                    batch_positions = []
 
             if batch_events:
                 if not self._still_current():
@@ -478,6 +644,7 @@ class EDSMJournalUploader:
                 )
 
                 if not ok:
+                    sent_count += self._confirm_prefix(journal, batch_positions, _reply)
                     logger.warning(
                         "EDSM Rest-Batch fehlgeschlagen in %s: %s",
                         journal.name,

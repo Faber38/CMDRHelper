@@ -148,8 +148,14 @@ class FastStartCommanderTests(unittest.TestCase):
 
     def test_delta_failure_preserves_index_identity_and_journal_count(self):
         current = self.folder / "Journal.2026-01-01T000100.01.log"
-        current.write_text("{}\n", encoding="utf-8")
+        current.write_text(
+            '{"event":"Commander","FID":"FID-B","Name":"Bravo"}\n',
+            encoding="utf-8",
+        )
         sessions = self.sessions(current)
+        from cmdrhelper.journal_reader import classify_journal_file
+        sessions[-1].update(classify_journal_file(current))
+        sessions[-1]['commander_id'] = self.bravo
         state = self.state(sessions)
         state.journal_folder = self.folder
         state.watcher = _WatcherStub(current)
@@ -159,18 +165,8 @@ class FastStartCommanderTests(unittest.TestCase):
             self.assertEqual(state.commander_fid, "FID-B")
             raise RuntimeError("delta persistence failed")
 
-        with patch(
-            "cmdrhelper.state.read_latest_state",
-            return_value={
-                "commander_fid": "FID-B",
-                "commander_identity_name": "Bravo",
-                "commander_identity_timestamp": "2026-01-01T00:00:00Z",
-                "latest_journal_session": sessions[-1],
-            },
-        ), patch(
-            "cmdrhelper.journal_reader.read_journal_delta",
-            return_value=([{"event": "Test"}], 3),
-        ), patch.object(
+        # Use the real reader so identity and metadata describe the same bytes.
+        with patch.object(
             self.db, "apply_commander_journal_delta", side_effect=fail_after_identity
         ), self.assertLogs("cmdrhelper.state", level="ERROR"):
             self.assertFalse(state.refresh())

@@ -1,4 +1,5 @@
 """Non-modal facility details using the existing CMDRHelper image viewer."""
+from cmdrhelper.ui.auxiliary_window import AuxiliaryWindow
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QFrame, QLabel, QListWidget, QScrollArea, QWidget, QGridLayout
 from cmdrhelper.i18n import tr
@@ -21,7 +22,7 @@ def apply_theme(dialog, light):
     """)
 
 
-class StationDetailDialog(QDialog):
+class StationDetailDialog(AuxiliaryWindow, QDialog):
     def __init__(self, station, system_name, parent=None, *, light=False):
         super().__init__(parent)
         from cmdrhelper.ui.station_items import type_key
@@ -127,7 +128,7 @@ class StationDetailsWidget(QWidget):
         self.external_dates.setStyleSheet(f"color: {THEMES[bool(light)]['muted']};")
 
 
-class StationSelectionDialog(QDialog):
+class StationSelectionDialog(AuxiliaryWindow, QDialog):
     def __init__(self, stations, system_name, parent=None, *, light=False):
         super().__init__(parent)
         self.setAttribute(Qt.WA_DeleteOnClose)

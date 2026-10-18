@@ -22,6 +22,8 @@ class OverviewVisitsTests(unittest.TestCase):
             db = CMDRDatabase(Path(folder) / "test.db")
             commander = db.upsert_commander("FID-A", "Alpha")
             db.active_commander_id = commander
+            db.store_journal_session(dict(journal_file="journal",
+                attribution_status="identified", fid_seen="FID-A"))
             for minute, address in enumerate([1, 1, 2, 1]):
                 db.apply_commander_journal_delta(commander, "journal", [{
                     "event": "Location", "SystemAddress": address,

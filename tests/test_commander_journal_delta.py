@@ -264,13 +264,14 @@ class CommanderJournalDeltaTests(unittest.TestCase):
                 "current_value": 500,
             }],
         }, self.commander)
-        self.db.apply_commander_journal_delta(self.commander, self.path, [{
+        self.write([event("Commander", 0, FID="FID-A", Name="Alpha"), {
             "timestamp": "2026-01-01T00:00:01Z",
             "event": "SAAScanComplete",
             "SystemAddress": 42,
             "BodyID": 1,
             "BodyName": "Test 1",
-        }], 0)
+        }])
+        self.apply(self.indexed())
         with self.db._connect() as con:
             columns = {row[1] for row in con.execute("PRAGMA table_info(bodies)")}
             cached = con.execute(

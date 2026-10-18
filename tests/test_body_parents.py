@@ -72,7 +72,7 @@ class ParentTests(unittest.TestCase):
         self.assertEqual(by_id[17]['parent_star_id'], 15)
         self.assertEqual(len(project_belts(loaded)), 29)
         incoming = _normalize_edsm_body(dict(bodyId=17, name=NAME+' 4 a', parents=[{'Star':0}]), NAME)
-        state = SimpleNamespace(edsm_enabled=True, system_bodies=loaded)
+        state = SimpleNamespace(edsm_enabled=True, edsm_receive_enabled=True, system_bodies=loaded)
         AppState._merge_edsm_into_system(state, dict(bodies=[incoming]))
         self.assertEqual(by_id[17]['parent_id'], 15)
         self.store([incoming])
@@ -95,7 +95,7 @@ class ParentTests(unittest.TestCase):
                 self.assertEqual(b['parent_id'], EXPECTED[b['body_id']])
 
     def test_edsm_can_correct_unverified_but_legacy_cache_cannot(self):
-        state = SimpleNamespace(edsm_enabled=True, system_bodies=[dict(body_id=17,parent_id=0)])
+        state = SimpleNamespace(edsm_enabled=True, edsm_receive_enabled=True, system_bodies=[dict(body_id=17,parent_id=0)])
         incoming = _normalize_edsm_body(dict(bodyId=17,name=NAME+' 4 a',parents=[{'Star':15},{'Star':0}]), NAME)
         AppState._merge_edsm_into_system(state, dict(bodies=[incoming]))
         self.assertEqual(state.system_bodies[0]['parent_id'], 15)
@@ -137,7 +137,7 @@ class ParentTests(unittest.TestCase):
             self.assertEqual(by_id[body_id]['parent_id'],parent)
 
     def test_legacy_cache_new_body_has_unknown_parent(self):
-        state = SimpleNamespace(edsm_enabled=True, system_bodies=[])
+        state = SimpleNamespace(edsm_enabled=True, edsm_receive_enabled=True, system_bodies=[])
         AppState._merge_edsm_into_system(state, dict(bodies=[dict(body_id=17,parent_id=0)]))
         self.assertIsNone(state.system_bodies[0].get('parent_id'))
 

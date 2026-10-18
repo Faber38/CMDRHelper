@@ -45,6 +45,7 @@ class EDSMCommanderSettingsTests(unittest.TestCase):
         self.assertEqual(self.state.edsm_api_key, "KEY-A")
 
     def test_legacy_migration_requires_matching_unambiguous_live_identity(self):
+        self.settings.setValue("edsm/commander_fid", "F-A")
         for key, value in (("edsm/commander", "Alpha"),
                            ("edsm/api_key", "OLD-A"), ("edsm/enabled", True)):
             self.settings.setValue(key, value)
@@ -71,6 +72,8 @@ class EDSMCommanderSettingsTests(unittest.TestCase):
         self.assertTrue(self.settings.contains("edsm/api_key"))
 
     def test_legacy_upload_progress_moves_to_the_matched_fid(self):
+        self.settings.setValue("edsm/commander_fid", "F-A")
+        self.state._journal_index_sessions = [{"attribution_status": "identified", "fid_seen": "F-A"}]
         self.settings.setValue("edsm/commander", "Alpha")
         self.settings.setValue("edsm/api_key", "OLD-A")
         self.settings.setValue("edsm/enabled", True)

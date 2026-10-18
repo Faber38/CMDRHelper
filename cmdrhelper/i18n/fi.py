@@ -1,4 +1,17 @@
 TRANSLATIONS = {
+    "release.3_9_10.0": "Lokikansiot: useita lähteitä, Steam-/Heroic-tunnistus, muokkaus, seurannan valintaruudut ja lähdekohtaiset tilastot.",
+    "release.3_9_10.1": "Komentajat: FID-varmennettu kohdistus, tallennettu valinta ja yksiselitteisesti tunnistetun peli-instanssin valinnainen automaattinen seuranta Linuxissa.",
+    "release.3_9_10.2": "Powerplay 2.0: valinnainen kellonaikasuodatin, tiiviit kuljetusrivit ja parempi alusskannausten kohdistus +1–+100 meritille sekä aiemmin nähtyjen kohteiden uusille täydellisille skannauksille.",
+    "release.3_9_10.3": "Lisäikkunat pysyvät itsenäisesti avoinna pääikkunaa pienennettäessä ja sulkeutuvat apuohjelman sulkeutuessa.",
+    "release.3_9_10.4": "EDSM ja Inara: erilliset EDSM-lähetys- ja vastaanottokytkimet, lähdekohtaiset lähetyskohdat, luotettavat kuittaukset ja parannettu uudelleenyritysten käsittely.",
+    "release.3_9_10.5": "Luotettavampi lokien käsittely transaktionaalisilla lukukohdilla ja henkilöllisyyden tarkistuksilla; yksityisyyttä suojaava Odyssey-näkymän diagnostiikka diagnostiikkapaketissa.",
+
+    'topbar.edsm_active': '● EDSM käytössä',
+    'topbar.edsm_receiving': '● EDSM-vastaanotto',
+    'topbar.edsm_connection_ok': 'Viimeisin yhteystesti onnistui; se ei vahvista lokitietojen lähetystä.',
+    'topbar.edsm_connection_error': 'Viimeisin yhteystesti epäonnistui.',
+    'settings.edsm_other_uploader_hint': 'Huomautus: Jos toinen ohjelma lähettää jo lokitapahtumia EDSM:ään, poista lähetys käytöstä CMDRHelperissä. Käytä mieluiten vain yhtä ohjelmaa EDSM-lähetyksiin päällekkäisten lähetysten välttämiseksi. EDSM-vastaanotto voi pysyä käytössä CMDRHelperissä.',
+
     "release.3_9_9.0": "Siirrä planeettanavigointi erilliseen ikkunaan ja takaisin säilyttäen kohde ja reaaliaikaiset tiedot.",
     "release.3_9_9.1": "Avaa suosikkikuvat alkuperäisessä tarkkuudessa, zoomaa hiiren rullalla ja siirrä kuvaa vetämällä.",
     "release.3_9_9.2": "Suosikkien otsikot näkyvät Elite-keltaisina (#FFCC33); valintakorostus ja muut tekstirivit säilyvät.",
@@ -644,6 +657,7 @@ TRANSLATIONS = {
     'nav.chronicle': 'Kronikka',
     'nav.commander_view': 'CMDR-näkymä',
     'commander_view.title': 'CMDR-näkymä',
+    'commander_view.follow_live': 'Seuraa aktiivista komentajaa',
     'commander_view.commander': 'Komentaja:',
     'commander_view.identity': 'CMDR {name}',
     'commander_view.status.live': '● Live aktiivinen',
@@ -881,6 +895,8 @@ TRANSLATIONS = {
     'settings.inara_not_configured': 'Komentajalle {commander} ei ole vielä määritetty Inara-yhteyttä.',
     'settings.inara_configured_short': 'määritetty',
     'settings.inara_not_configured_short': 'ei määritetty',
+    "settings.edsm_send": 'Lähetä EDSM-tietoja',
+    "settings.edsm_receive": 'Vastaanota EDSM-tietoja',
     'settings.use_edsm': 'Käytä EDSM:ää',
     'settings.use_inara': 'Käytä Inaraa',
     'settings.test_edsm': 'Testaa EDSM-yhteys',
@@ -2061,3 +2077,41 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS.update({"pp2.chronicle.commodity_sale": 'Tavaroiden myynti'})
+
+# Journal source management
+TRANSLATIONS.update({
+    'sources.title': 'Lokikansiot',
+    'sources.add': 'Lisää',
+    'sources.edit': 'Muokkaa',
+    'sources.toggle': 'Ota käyttöön / Poista käytöstä',
+    'sources.remove': 'Poista',
+    'sources.search': 'Etsi uudelleen',
+    'sources.enabled': 'Käytössä',
+    'sources.name': 'Nimi',
+    'sources.remove_note': 'Poistaminen lopettaa seurannan. Tiedostot ja historia säilyvät.',
+    'sources.identity_unknown': 'Komentajan henkilöllisyys on tuntematon',
+    'sources.duplicate': 'Tämä kansio on jo lähde.',
+    'sources.status.unknown': 'Tuntematon henkilöllisyys',
+    'sources.status.disabled': 'Pois käytöstä',
+    'sources.status.duplicate': 'Päällekkäinen polku',
+    'sources.status.reading': 'Luetaan',
+    'sources.status.ready': 'Valmis',
+    'sources.status.unreachable': 'Ei käytettävissä',
+    'sources.status.error': 'Käsittely odottaa / virhe',
+})
+TRANSLATIONS['sources.upload_pending'] = 'Lähetys odottaa: tarkista henkilöllisyys, vanhat lähetyskohdat tai palveluvirheet.'
+
+TRANSLATIONS.update({
+    'sources.reachability': 'Saatavuus',
+    'sources.reachable': 'Käytettävissä',
+    'sources.monitoring': 'Seuranta',
+    'sources.monitoring_active': 'Seuranta käytössä',
+    'sources.monitoring_inactive': 'Seuranta pois käytöstä',
+})
+
+TRANSLATIONS.update({
+    'sources.invalid_path': 'Kansiota ei ole tai sitä ei voi lukea. Valitse olemassa oleva lokikansio, jota voi lukea.',
+    'sources.edit_busy': 'Polkua ei voi muuttaa käsittelyn aikana. Odota ja yritä uudelleen.',
+})
+
+TRANSLATIONS['pp2.history.from_time'] = 'Alkaen klo (paikallista aikaa)'

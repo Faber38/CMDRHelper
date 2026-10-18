@@ -124,6 +124,8 @@ class BiologyPersistenceTests(unittest.TestCase):
         events, offset = self.prepare([organic(), organic(BodyID=52),
                                       organic(SystemAddress=99), organic(Body="51")])
         self.db.apply_commander_journal_delta(self.commander, self.journal, events, offset)
+        self.db.store_journal_session(dict(journal_file=str(self.folder / "other.log"),
+            attribution_status="identified", fid_seen="OTHER"))
         self.db.apply_commander_journal_delta(self.other, self.folder / "other.log",
                                              [organic()], offset)
         self.assertEqual(len(self.findings()), 1)

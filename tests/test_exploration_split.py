@@ -47,6 +47,10 @@ def make_v3(path: Path) -> None:
         con.executescript(LEGACY_EXPLORATION_SCHEMA)
         con.execute("DROP TABLE IF EXISTS station_pad_evidence")
         con.execute("DROP TABLE IF EXISTS station_pad_journals")
+        # Schema 3 predates PP2. Do not leave schema-23 tables in this fixture.
+        for table in ("pp2_events", "pp2_import_checkpoints", "pp2_history_policy",
+                      "pp2_merit_state", "pp2_sources"):
+            con.execute(f"DROP TABLE {table}")
         con.execute("PRAGMA user_version=3")
         con.commit()
     finally:

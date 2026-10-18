@@ -274,6 +274,8 @@ class PerformanceRound2Tests(unittest.TestCase):
         cid = db.upsert_commander('A', 'First')
         state = make_state(db)
         state.commander_id = cid
+        state.commander_fid = 'A'
+        state._journal_index_sessions = [dict(attribution_status='identified', fid_seen='A', commander_id=cid)]
         with patch.object(db, 'commander_summary', wraps=db.commander_summary) as summary:
             view = CommanderView(state)
             self.addCleanup(view.close)
@@ -312,7 +314,17 @@ class PerformanceRound2Tests(unittest.TestCase):
             stack.enter_context(patch('cmdrhelper.state.QSettings', return_value=settings))
             stack.enter_context(patch('cmdrhelper.state.CMDRDatabase', return_value=db))
             stack.enter_context(patch('cmdrhelper.state.QTimer.singleShot'))
+            stack.enter_context(patch('cmdrhelper.source_manager.discover', return_value=[]))
             state = AppState()
+            state.bounties._root = self.root / 'bounties'
+            state.combat_bonds._root = self.root / 'combat-bonds'
+            state.sources.reconcile()
+            self.addCleanup(state.sources.stop)
+            runtime = next(iter(state.sources.runtimes.values()))
+            runtime.watcher.stop()
+            runtime.processor.process()
+            runtime.source.status = 'ready'
+            state.sources.choose()
             for name in ('_request_edsm_for_current_system', '_upload_journal_to_edsm',
                          '_upload_pending_to_inara', '_load_edsm_cache_for_current_system'):
                 stack.enter_context(patch.object(state, name))
@@ -321,7 +333,8 @@ class PerformanceRound2Tests(unittest.TestCase):
                  patch.object(db, 'commander_missions', wraps=db.commander_missions) as missions:
                 self.assertTrue(state.refresh())
                 self.assertEqual(summary.call_count, 1)
-                missions.assert_called_once_with(state.commander_id, only_open=True)
+                # An unchanged projection does not reread the missions list.
+                missions.assert_not_called()
 
     def test_hidden_explorer_and_missions_render_only_on_open(self):
         from cmdrhelper.ui.main_window import MainWindow

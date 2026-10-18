@@ -42,6 +42,28 @@ class CommanderFleetTests(unittest.TestCase):
     def tearDown(self):
         self.tmp.cleanup()
 
+    def _apply_verified_delta(self, cid, name, events, **kwargs):
+        """Fleet facts need a real, FID-verified synthetic journal source."""
+        from cmdrhelper.journal_reader import classify_journal_file, read_journal_delta
+        path = Path(name)
+        if not path.is_absolute():
+            path = Path(self.tmp.name) / path
+        if not path.exists():
+            with self.db._connect() as con:
+                fid = con.execute('SELECT fid FROM commanders WHERE id=?', (cid,)).fetchone()[0]
+            records = [event('Commander', 0, FID=fid), *events]
+            path.write_text(''.join(json.dumps(record) + '\n' for record in records))
+        session = classify_journal_file(path)
+        self.assertEqual(session['attribution_status'], 'identified')
+        with self.db._connect() as con:
+            self.assertEqual(session['fid_seen'],
+                con.execute('SELECT fid FROM commanders WHERE id=?', (cid,)).fetchone()[0])
+        delta, end = read_journal_delta(path, 0, include_positions=True)
+        session.update(commander_id=cid, sha256=None,
+            source_keys=[f'line:{i+1}' for i in range(len(delta))],
+            event_offsets=[row['_journal_offset'] for row in delta])
+        self.db.apply_commander_journal_delta(cid, path, delta, end, session=session, **kwargs)
+
     @staticmethod
     def ship(ship_id, name, ship_type="CobraMkIII", stale=False, *,
              jump_range=20.5, cargo_capacity=None, unladen_mass=None, modules=()):
@@ -288,22 +310,22 @@ class CommanderFleetTests(unittest.TestCase):
         self.assertNotIn(23, {s["ship_id"] for s in self.db.commander_ships(self.a)})
         self.db = CMDRDatabase(self.path)
         old = [chain[2], event("StoredShips", 1, ShipsHere=[{"ShipID": 23, "ShipType": "type9"}])]
-        self.db.apply_commander_journal_delta(self.a, "old-sales-replay.log", old, 100)
-        self.db.apply_commander_journal_delta(self.a, "module-after-sale.log", [dict(chain[2]),
-            {"event": "ModuleBuy", "ShipID": 23, "timestamp": "2026-07-27T00:00:00Z"}], 100)
+        self._apply_verified_delta(self.a, "old-sales-replay.log", old)
+        self._apply_verified_delta(self.a, "module-after-sale.log", [dict(chain[2]),
+            {"event": "ModuleBuy", "ShipID": 23, "timestamp": "2026-07-27T00:00:00Z"}])
         self.assertNotIn(23, {s["ship_id"] for s in self.db.commander_ships(self.a)})
         self.assertEqual(self._deleted_ids(self.a), [])
         self.assertTrue(first.exists() and second.exists())
 
     def test_later_confirmed_ownership_is_allowed_but_older_sale_cannot_remove_it(self):
         chain = self._sale_chain()
-        self.db.apply_commander_journal_delta(self.a, "initial-sale.log", chain, 100)
+        self._apply_verified_delta(self.a, "initial-sale.log", chain)
         later = dict(chain[2], timestamp="2026-07-27T00:00:00Z")
-        self.db.apply_commander_journal_delta(self.a, "later-ownership.log", [later], 100)
+        self._apply_verified_delta(self.a, "later-ownership.log", [later])
         self.assertIn(23, {s["ship_id"] for s in self.db.commander_ships(self.a)})
-        self.db.apply_commander_journal_delta(self.a, "old-sale-again.log", [chain[4]], 100)
+        self._apply_verified_delta(self.a, "old-sale-again.log", [chain[4]])
         self.assertIn(23, {s["ship_id"] for s in self.db.commander_ships(self.a)})
-        self.db.apply_commander_journal_delta(self.a, "second-sale.log", [dict(chain[4], timestamp="2026-07-28T00:00:00Z")], 100)
+        self._apply_verified_delta(self.a, "second-sale.log", [dict(chain[4], timestamp="2026-07-28T00:00:00Z")])
         self.assertNotIn(23, {s["ship_id"] for s in self.db.commander_ships(self.a)})
 
     def test_buy_swap_and_rebuy_sales_and_shipyard_new_are_applied(self):
@@ -314,7 +336,7 @@ class CommanderFleetTests(unittest.TestCase):
             if kind == "ShipyardSwap": sale["ShipID"] = 4
             events = [sale]
             if kind == "ShipyardBuy": events.append(event("ShipyardNew", 2, NewShipID=4, ShipType="asp"))
-            self.db.apply_commander_journal_delta(cid, kind + ".log", events, 100)
+            self._apply_verified_delta(cid, kind + ".log", events)
             ids = {s["ship_id"] for s in self.db.commander_ships(cid)}
             self.assertNotIn(23, ids)
             if kind != "SellShipOnRebuy": self.assertIn(4, ids)
@@ -327,7 +349,7 @@ class CommanderFleetTests(unittest.TestCase):
         self.db.delete_commander_ship(self.b, 23)
         chain = self._sale_chain()
         path = self._write_sale_journal([chain[0], chain[4]])
-        self.db.apply_commander_journal_delta(self.a, str(path), [chain[4]], 100)
+        self._apply_verified_delta(self.a, str(path), [chain[4]])
         self.assertEqual(self._deleted_ids(self.a), [23])
         fleet = reconstruct_fleet([path], "FID-A")
         self.assertEqual(len(fleet), 0)
@@ -335,7 +357,7 @@ class CommanderFleetTests(unittest.TestCase):
         self.assertEqual(self._deleted_ids(self.a), [])
         self.assertEqual(self._deleted_ids(self.b), [23])
         self.assertNotIn(23, {s["ship_id"] for s in self.db.commander_ships(self.a)})
-        self.db.apply_commander_journal_delta(self.a, "after-rebuild-old.log", [chain[2]], 100)
+        self._apply_verified_delta(self.a, "after-rebuild-old.log", [chain[2]])
         self.assertNotIn(23, {s["ship_id"] for s in self.db.commander_ships(self.a)})
 
     def test_sale_and_journal_cursor_rollback_together_on_error(self):
@@ -343,10 +365,11 @@ class CommanderFleetTests(unittest.TestCase):
         with self.db._connect() as con:
             con.execute("CREATE TRIGGER block_sale BEFORE DELETE ON commander_ships BEGIN SELECT RAISE(ABORT,'test'); END")
         with self.assertRaises(sqlite3.Error):
-            self.db.apply_commander_journal_delta(self.a, "sale-fails.log", [self._sale_chain()[4]], 100)
+            self._apply_verified_delta(self.a, "sale-fails.log", [self._sale_chain()[4]])
         with self.db._connect() as con:
             self.assertEqual(con.execute("SELECT * FROM commander_ship_sales").fetchall(), [])
-            self.assertEqual(con.execute("SELECT * FROM journal_sessions WHERE journal_file='sale-fails.log'").fetchall(), [])
+            self.assertEqual(con.execute("SELECT * FROM journal_sessions WHERE journal_file=?",
+                                         (str(Path(self.tmp.name) / "sale-fails.log"),)).fetchall(), [])
         self.assertIn(23, {s["ship_id"] for s in self.db.commander_ships(self.a)})
 
     def test_runtime_reader_and_shuffled_archive_observe_sale_order(self):
@@ -634,15 +657,15 @@ class CommanderFleetTests(unittest.TestCase):
         self._deletion_fleet()
         self.db.delete_commander_ship(self.a, 23)
         old = event("Loadout", 1, ShipID=23, Ship="type9", Modules=[])
-        self.db.apply_commander_journal_delta(self.a, "old.log", [old], 10, live_current=True)
+        self._apply_verified_delta(self.a, "old.log", [old], live_current=True)
         self.assertEqual(self._deleted_ids(self.a), [23])
         now = datetime.now(timezone.utc)
         with self.db._connect() as con:
             con.execute("UPDATE commander_deleted_ships SET deleted_at=?", ((now-timedelta(seconds=10)).isoformat(),))
         new = dict(old, timestamp=now.isoformat())
-        self.db.apply_commander_journal_delta(self.a, "history.log", [new], 10)
+        self._apply_verified_delta(self.a, "history.log", [new])
         self.assertEqual(self._deleted_ids(self.a), [23])
-        self.db.apply_commander_journal_delta(self.a, "live.log", [new], 10, live_current=True)
+        self._apply_verified_delta(self.a, "live.log", [new], live_current=True)
         self.assertEqual(self._deleted_ids(self.a), [])
         self.assertEqual(self.db.commander_last_ship(self.a)["ship_id"], 23)
         with self.assertRaisesRegex(ValueError, "active_ship"):

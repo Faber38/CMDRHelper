@@ -162,6 +162,11 @@ QLabel[gameMode="Solo"], QLabel#statusWarn {
     color: #f0ad4e;
 }
 
+QFrame#onlineServiceSeparator {
+    background-color: #f0ad4e;
+    border: none;
+}
+
 QLabel#recommendationRememberTip {
     color: #f0ad4e;
     border: 1px solid #f0ad4e;
@@ -453,6 +458,11 @@ QLabel[gameMode="Group"], QLabel#statusOk {
 
 QLabel[gameMode="Solo"], QLabel#statusWarn {
     color: #b36a00;
+}
+
+QFrame#onlineServiceSeparator {
+    background-color: #b36a00;
+    border: none;
 }
 
 QLabel#recommendationRememberTip {

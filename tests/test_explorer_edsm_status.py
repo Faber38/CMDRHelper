@@ -35,6 +35,7 @@ class ExplorerEdsmStatusTests(unittest.TestCase):
         state.system_body_count = 3
         state.system_signals_count = 0
         state.edsm_enabled = True
+        state.edsm_receive_enabled = True
         state.edsm_body_count = 3
         state.system_all_bodies_found = True
         state.system_scan_value = 3706

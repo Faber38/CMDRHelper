@@ -1,4 +1,17 @@
 TRANSLATIONS = {
+    "release.3_9_10.0": "Günlük klasörleri: Steam/Heroic algılama, düzenleme, izleme onay kutuları ve ayrı istatistiklerle birden fazla kaynak yönetin.",
+    "release.3_9_10.1": "Komutanlar: FID ile doğrulanan eşleştirme, kaydedilen seçim ve Linux üzerinde açıkça tanımlanan bir oyun örneğini isteğe bağlı otomatik takip.",
+    "release.3_9_10.2": "Powerplay 2.0: isteğe bağlı saat filtresi, kompakt taşıma satırları ve +1 ile +100 merit ile daha önce görülen hedeflerin yeni tam taramaları için iyileştirilmiş gemi taraması eşleştirmesi.",
+    "release.3_9_10.3": "Ana pencere küçültüldüğünde ek pencereler bağımsız olarak açık kalır ve yardımcı programdan çıkıldığında kapanır.",
+    "release.3_9_10.4": "EDSM ve Inara: ayrı EDSM gönderme ve alma anahtarları, kaynağa özel yükleme konumları, güvenilir onaylar ve iyileştirilmiş yeniden deneme yönetimi.",
+    "release.3_9_10.5": "İşlemsel okuma konumları ve kimlik kontrolleriyle daha güvenilir günlük işleme; tanılama paketinde gizliliği koruyan Odyssey görüntüleme tanılaması.",
+
+    'topbar.edsm_active': '● EDSM etkin',
+    'topbar.edsm_receiving': '● EDSM alımı',
+    'topbar.edsm_connection_ok': 'Son bağlantı testi başarılı; bu, günlük yüklemesini doğrulamaz.',
+    'topbar.edsm_connection_error': 'Son bağlantı testi başarısız.',
+    'settings.edsm_other_uploader_hint': 'Not: Başka bir program zaten günlük olaylarını EDSM’ye gönderiyorsa CMDRHelper’da göndermeyi devre dışı bırakmalısın. Yinelenen gönderimleri önlemek için EDSM yüklemelerinde mümkünse yalnızca bir program kullan. CMDRHelper’da EDSM alımı etkin kalabilir.',
+
     "release.3_9_9.0": "Gezegen navigasyonunu ayrı bir pencereye taşıyın ve hedef ile canlı verileri koruyarak geri yerleştirin.",
     "release.3_9_9.1": "Favori görsellerini özgün çözünürlükte açın, fare tekerleğiyle yakınlaştırın ve sürükleyerek kaydırın.",
     "release.3_9_9.2": "Favori başlıkları Elite sarısı (#FFCC33) ile gösterilir; seçim vurgusu ve diğer metin satırları korunur.",
@@ -644,6 +657,7 @@ TRANSLATIONS = {
     'nav.chronicle': 'Kronik',
     'nav.commander_view': 'CMDR Görünümü',
     'commander_view.title': 'CMDR Görünümü',
+    'commander_view.follow_live': 'Etkin komutanı takip et',
     'commander_view.commander': 'Komutan:',
     'commander_view.identity': 'CMDR {name}',
     'commander_view.status.live': '● Canlı aktif',
@@ -881,6 +895,8 @@ TRANSLATIONS = {
     'settings.inara_not_configured': '{commander} için henüz Inara erişimi yapılandırılmadı.',
     'settings.inara_configured_short': 'yapılandırıldı',
     'settings.inara_not_configured_short': 'yapılandırılmadı',
+    "settings.edsm_send": 'EDSM verilerini gönder',
+    "settings.edsm_receive": 'EDSM verilerini al',
     'settings.use_edsm': 'EDSM kullan',
     'settings.use_inara': 'Inara kullan',
     'settings.test_edsm': 'EDSM bağlantısını test et',
@@ -2061,3 +2077,41 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS.update({"pp2.chronicle.commodity_sale": 'Emtia satışı'})
+
+# Journal source management
+TRANSLATIONS.update({
+    'sources.title': 'Günlük dizinleri',
+    'sources.add': 'Ekle',
+    'sources.edit': 'Düzenle',
+    'sources.toggle': 'Etkinleştir / Devre dışı bırak',
+    'sources.remove': 'Kaldır',
+    'sources.search': 'Yeniden ara',
+    'sources.enabled': 'Etkin',
+    'sources.name': 'Ad',
+    'sources.remove_note': 'Kaldırma yalnızca izlemeyi durdurur. Dosyalar ve geçmiş korunur.',
+    'sources.identity_unknown': 'Komutan kimliği henüz bilinmiyor',
+    'sources.duplicate': 'Bu klasör zaten bir kaynak.',
+    'sources.status.unknown': 'Kimlik bilinmiyor',
+    'sources.status.disabled': 'Devre dışı',
+    'sources.status.duplicate': 'Yinelenen yol',
+    'sources.status.reading': 'Okunuyor',
+    'sources.status.ready': 'Hazır',
+    'sources.status.unreachable': 'Erişilemiyor',
+    'sources.status.error': 'İşlem bekliyor / hata',
+})
+TRANSLATIONS['sources.upload_pending'] = 'Yükleme bekliyor: kimliği, eski yükleme konumlarını veya hizmet hatalarını kontrol edin.'
+
+TRANSLATIONS.update({
+    'sources.reachability': 'Erişilebilirlik',
+    'sources.reachable': 'Erişilebilir',
+    'sources.monitoring': 'İzleme',
+    'sources.monitoring_active': 'İzleme etkin',
+    'sources.monitoring_inactive': 'İzleme devre dışı',
+})
+
+TRANSLATIONS.update({
+    'sources.invalid_path': 'Dizin mevcut değil veya okunamıyor. Mevcut ve okunabilir bir günlük dizini seçin.',
+    'sources.edit_busy': 'İşleme sırasında günlük yolu değiştirilemez. Bekleyip tekrar deneyin.',
+})
+
+TRANSLATIONS['pp2.history.from_time'] = 'Başlangıç saati (yerel)'

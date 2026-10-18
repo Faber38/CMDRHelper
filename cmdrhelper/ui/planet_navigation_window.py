@@ -1,4 +1,5 @@
 """Focus-neutral, one-target navigation. Input is an explicit user action."""
+from cmdrhelper.ui.auxiliary_window import AuxiliaryWindow
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -268,7 +269,7 @@ class PlanetNavigationView(QWidget):
         dialog.exec()
 
 
-class PlanetNavigationWindow(PlanetNavigationView):
+class PlanetNavigationWindow(AuxiliaryWindow, PlanetNavigationView):
     """Legacy standalone shell; main navigation embeds PlanetNavigationView."""
 
     def __init__(self, controller, settings, parent=None):

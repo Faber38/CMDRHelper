@@ -233,7 +233,13 @@ class GameModeUITests(unittest.TestCase):
             stack.enter_context(patch('cmdrhelper.state.QSettings', return_value=settings))
             stack.enter_context(patch('cmdrhelper.state.CMDRDatabase', return_value=db))
             stack.enter_context(patch('cmdrhelper.state.QTimer.singleShot'))
+            stack.enter_context(patch('cmdrhelper.source_manager.discover', return_value=[]))
             state = AppState()
+            state.bounties._root = folder / 'bounties'
+            state.combat_bonds._root = folder / 'combat-bonds'
+            state.sources.reconcile()
+            runtime = next(iter(state.sources.runtimes.values()))
+            runtime.watcher.stop()
             for method in ('_run_journal_learning', '_upload_journal_to_edsm', '_upload_pending_to_inara', '_request_edsm_for_current_system'):
                 stack.enter_context(patch.object(state, method))
             view = MagicMock()
@@ -259,19 +265,28 @@ class GameModeUITests(unittest.TestCase):
                 if event:
                     with path.open('a') as out:
                         out.write(json.dumps(event) + '\n')
+                runtime.processor.process()
+                runtime.source.status = 'ready'
+                state.sources.choose()
                 self.assertTrue(state.refresh())
                 self.assertEqual(errors, [])
                 self.assertEqual(view.overview_game_mode.value.text(), expected)
             self.assertEqual(state.group_name, '')
             other = folder / 'Journal.2026-09-10T050100.01.log'
             other.write_text(json.dumps(identity('TEST-B')) + '\n')
-            state._journal_index_sessions = None
+            runtime.processor.process()
+            # No process evidence: a new journal must not switch the view.
+            self.assertTrue(state.refresh())
+            self.assertNotEqual(state.commander_fid, 'TEST-B')
+            target = next(c['id'] for c in db.list_commanders() if c['fid'] == 'TEST-B')
+            state.select_viewed_commander(target)
             self.assertTrue(state.refresh())
             self.assertEqual(state.commander_fid, 'TEST-B')
             self.assertEqual(view.overview_game_mode.value.text(), '–')
             state.reset_commander_runtime_state()
             self.assertEqual((state.game_mode, state.group_name, state.game_mode_timestamp), ('', '', ''))
             state.watcher.timer.stop()
+            state.sources.stop()
             view.overview_game_mode.close()
 
 

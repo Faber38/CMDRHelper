@@ -1,4 +1,17 @@
 TRANSLATIONS = {
+    "release.3_9_10.0": "Φάκελοι ημερολογίων: πολλαπλές πηγές με εντοπισμό Steam/Heroic, επεξεργασία, πλαίσια ελέγχου παρακολούθησης και ξεχωριστά στατιστικά.",
+    "release.3_9_10.1": "Διοικητές: αντιστοίχιση με επαλήθευση FID, αποθηκευμένη επιλογή και προαιρετική αυτόματη παρακολούθηση μιας σαφώς αναγνωρισμένης εκτέλεσης του παιχνιδιού στο Linux.",
+    "release.3_9_10.2": "Powerplay 2.0: προαιρετικό φίλτρο ώρας, συμπαγείς γραμμές μεταφορών και βελτιωμένη αντιστοίχιση σαρώσεων σκαφών για +1 έως +100 merits και νέες πλήρεις σαρώσεις στόχων που είχαν εντοπιστεί προηγουμένως.",
+    "release.3_9_10.3": "Τα πρόσθετα παράθυρα παραμένουν ανεξάρτητα ανοιχτά όταν ελαχιστοποιείται το κύριο παράθυρο και κλείνουν κατά την έξοδο από το πρόγραμμα.",
+    "release.3_9_10.4": "EDSM και Inara: ξεχωριστοί διακόπτες αποστολής και λήψης EDSM, θέσεις αποστολής ανά πηγή, αξιόπιστες επιβεβαιώσεις και βελτιωμένος χειρισμός επαναλήψεων.",
+    "release.3_9_10.5": "Πιο αξιόπιστη επεξεργασία ημερολογίων με συναλλακτικές θέσεις ανάγνωσης και ελέγχους ταυτότητας· διαγνωστικά προβολής Odyssey με προστασία ιδιωτικότητας στο πακέτο διαγνωστικών.",
+
+    'topbar.edsm_active': '● EDSM ενεργό',
+    'topbar.edsm_receiving': '● Λήψη EDSM',
+    'topbar.edsm_connection_ok': 'Η τελευταία δοκιμή σύνδεσης πέτυχε· δεν επιβεβαιώνει μεταφόρτωση ημερολογίου.',
+    'topbar.edsm_connection_error': 'Η τελευταία δοκιμή σύνδεσης απέτυχε.',
+    'settings.edsm_other_uploader_hint': 'Σημείωση: Αν άλλο πρόγραμμα στέλνει ήδη συμβάντα ημερολογίου στο EDSM, απενεργοποίησε την αποστολή στο CMDRHelper. Προτίμησε μόνο ένα πρόγραμμα για μεταφορτώσεις στο EDSM, ώστε να αποφεύγονται διπλές αποστολές. Η λήψη δεδομένων EDSM στο CMDRHelper μπορεί να παραμείνει ενεργή.',
+
     "release.3_9_9.0": "Μεταφέρετε την πλανητική πλοήγηση σε ξεχωριστό παράθυρο και επανενσωματώστε τη διατηρώντας στόχο και ζωντανά δεδομένα.",
     "release.3_9_9.1": "Ανοίξτε εικόνες αγαπημένων στην αρχική ανάλυση, μεγεθύνετε με τη ροδέλα και μετακινήστε τις σύροντας.",
     "release.3_9_9.2": "Οι τίτλοι αγαπημένων εμφανίζονται σε κίτρινο Elite (#FFCC33), διατηρώντας την επισήμανση επιλογής και τις άλλες γραμμές.",
@@ -644,6 +657,7 @@ TRANSLATIONS = {
     'nav.chronicle': 'Χρονικό',
     'nav.commander_view': 'Προβολή CMDR',
     'commander_view.title': 'Προβολή CMDR',
+    'commander_view.follow_live': 'Ακολουθία ενεργού Commander',
     'commander_view.commander': 'Κυβερνήτης:',
     'commander_view.identity': 'CMDR {name}',
     'commander_view.status.live': '● Ζωντανός ενεργός',
@@ -881,6 +895,8 @@ TRANSLATIONS = {
     'settings.inara_not_configured': 'Δεν έχει ρυθμιστεί ακόμη πρόσβαση Inara για τον {commander}.',
     'settings.inara_configured_short': 'ρυθμίστηκε',
     'settings.inara_not_configured_short': 'δεν ρυθμίστηκε',
+    "settings.edsm_send": 'Αποστολή δεδομένων EDSM',
+    "settings.edsm_receive": 'Λήψη δεδομένων EDSM',
     'settings.use_edsm': 'Χρήση EDSM',
     'settings.use_inara': 'Χρήση Inara',
     'settings.test_edsm': 'Δοκιμή σύνδεσης EDSM',
@@ -2061,3 +2077,41 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS.update({"pp2.chronicle.commodity_sale": 'Πώληση εμπορευμάτων'})
+
+# Journal source management
+TRANSLATIONS.update({
+    'sources.title': 'Φάκελοι ημερολογίων',
+    'sources.add': 'Προσθήκη',
+    'sources.edit': 'Επεξεργασία',
+    'sources.toggle': 'Ενεργοποίηση / Απενεργοποίηση',
+    'sources.remove': 'Αφαίρεση',
+    'sources.search': 'Νέα αναζήτηση',
+    'sources.enabled': 'Ενεργή',
+    'sources.name': 'Όνομα',
+    'sources.remove_note': 'Η αφαίρεση σταματά την παρακολούθηση. Τα αρχεία και το ιστορικό διατηρούνται.',
+    'sources.identity_unknown': 'Άγνωστη ταυτότητα κυβερνήτη',
+    'sources.duplicate': 'Αυτός ο φάκελος είναι ήδη πηγή.',
+    'sources.status.unknown': 'Άγνωστη ταυτότητα',
+    'sources.status.disabled': 'Ανενεργή',
+    'sources.status.duplicate': 'Διπλή διαδρομή',
+    'sources.status.reading': 'Ανάγνωση',
+    'sources.status.ready': 'Έτοιμη',
+    'sources.status.unreachable': 'Μη προσβάσιμη',
+    'sources.status.error': 'Εκκρεμεί επεξεργασία / σφάλμα',
+})
+TRANSLATIONS['sources.upload_pending'] = 'Εκκρεμεί αποστολή: ελέγξτε ταυτότητα, παλιές θέσεις ή σφάλματα υπηρεσίας.'
+
+TRANSLATIONS.update({
+    'sources.reachability': 'Προσβασιμότητα',
+    'sources.reachable': 'Προσβάσιμος',
+    'sources.monitoring': 'Παρακολούθηση',
+    'sources.monitoring_active': 'Παρακολούθηση ενεργή',
+    'sources.monitoring_inactive': 'Παρακολούθηση ανενεργή',
+})
+
+TRANSLATIONS.update({
+    'sources.invalid_path': 'Ο φάκελος δεν υπάρχει ή δεν μπορεί να διαβαστεί. Επιλέξτε έναν υπάρχοντα, αναγνώσιμο φάκελο ημερολογίων.',
+    'sources.edit_busy': 'Η διαδρομή δεν μπορεί να αλλάξει κατά την επεξεργασία. Περιμένετε και δοκιμάστε ξανά.',
+})
+
+TRANSLATIONS['pp2.history.from_time'] = 'Από ώρα (τοπική)'

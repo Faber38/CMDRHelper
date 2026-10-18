@@ -38,6 +38,15 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## CMDRHelper v3.9.10
+
+- Cartelle dei journal: più fonti con rilevamento Steam/Heroic, modifica, caselle di monitoraggio e statistiche separate.
+- Comandanti: attribuzione verificata tramite FID, selezione salvata e inseguimento automatico facoltativo di un’istanza di gioco identificata senza ambiguità su Linux.
+- Powerplay 2.0: filtro orario facoltativo, righe di trasporto compatte e migliore associazione delle scansioni navali per meriti da +1 a +100 e nuove scansioni complete di bersagli già visti.
+- Le finestre aggiuntive restano aperte indipendentemente quando la finestra principale viene ridotta a icona e si chiudono all’uscita dal programma.
+- EDSM e Inara: controlli EDSM separati per invio e ricezione, posizioni di invio per fonte, conferme affidabili e migliore gestione dei tentativi successivi.
+- Elaborazione dei journal più affidabile con posizioni di lettura transazionali e controlli d’identità; diagnostica dell’interfaccia Odyssey rispettosa della privacy nel pacchetto diagnostico.
+
 ## CMDRHelper v3.9.9
 
 - Sposta la navigazione planetaria in una finestra separata e reintegrala mantenendo destinazione e dati in tempo reale.

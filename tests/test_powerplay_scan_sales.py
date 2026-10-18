@@ -49,13 +49,13 @@ class ScanSaleTests(unittest.TestCase):
         self.assertEqual([len(g.credits) for g in rare], [1, 1])
 
     def test_scan_amounts_window_cargo_and_locker(self):
-        for gain in (5, 10):
+        for gain in range(1, 101):
             for delay in (0, 1, 3):
                 for middle in ([], [event('Cargo')]):
                     self.assertEqual(groups(scan(), *middle, credit(delay, gain))[0].certainty, 'temporal')
             self.assertEqual(groups(scan(), credit(4, gain))[0].certainty, 'unknown')
             self.assertEqual(groups(scan(), event('ShipLocker'), credit(1, gain))[0].certainty, 'unknown')
-        for gain in (0, 1, 9, 11, 100):
+        for gain in (0, 101, 2000):
             self.assertEqual(groups(scan(), credit(1, gain))[0].certainty, 'unknown')
         for source in (scan(ScanStage=0), scan(ScanStage=1), scan(ScanStage=2),
                        scan(TargetLocked=False), scan(ScanStage=True)):
@@ -83,9 +83,9 @@ class ScanSaleTests(unittest.TestCase):
         self.assertTrue(all(g.certainty=='unknown' for g in result))
         self.assertEqual(sum(len(g.credits) for g in result), 2)
 
-    def test_retargeting_is_not_a_new_scan_reward(self):
+    def test_new_complete_scan_with_same_target_can_receive_own_reward(self):
         result = groups(scan(), credit(0, 10), scan(10), credit(11, 10))
-        self.assertEqual([g.certainty for g in result], ['temporal', 'unknown'])
+        self.assertEqual([g.certainty for g in result], ['temporal', 'temporal'])
         self.assertEqual(groups(scan(), scan(10)), [])
 
     def test_rank_and_cargo_cannot_clear_competing_sales_or_actions(self):

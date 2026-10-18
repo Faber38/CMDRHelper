@@ -15,7 +15,7 @@ class PP2CatalogTests(unittest.TestCase):
         catalogs = discover_languages()
         self.assertEqual(set(catalogs), set(HELP_LANGUAGES))
         expected = {key for key in i18n.DE if key.startswith('pp2.') or key == 'nav.pp2'}
-        self.assertEqual(len(expected), 134)
+        self.assertEqual(len(expected), 135)
         for language, (_, catalog, duplicates) in catalogs.items():
             with self.subTest(language=language):
                 self.assertEqual(catalog, i18n._TRANSLATIONS[language])
@@ -144,7 +144,7 @@ class PP2LocalizedViewTests(unittest.TestCase):
                 self.assertEqual(table.rowCount(), 1)
                 self.assertEqual(table.item(0, 1).text(), catalog['pp2.chronicle.MarketSell'])
                 self.assertEqual(table.item(0, 2).text(),
-                                 '12 t Leesti-Teufelssaft\nPeebles Holdings · Crucis Sector HC-U b3-5')
+                                 '12 t Leesti-Teufelssaft | Peebles Holdings · Crucis Sector HC-U b3-5')
                 self.assertEqual(table.item(0, 3).text(), '+6 / +' + base.QLocale(language).toString(3600))
                 self.assertEqual(table.item(0, 4).text(), '≈')
                 self.assertIn(catalog['pp2.chronicle.sale_evidence'], table.item(0, 4).toolTip())

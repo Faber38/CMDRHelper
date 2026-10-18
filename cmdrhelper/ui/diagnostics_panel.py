@@ -11,9 +11,10 @@ from cmdrhelper.diagnostics import create_package, suggested_name
 
 
 class DiagnosticsPanel(QWidget):
-    def __init__(self, state, parent=None):
+    def __init__(self, state, parent=None, *, odyssey_snapshot=None):
         super().__init__(parent)
         self.state = state
+        self.odyssey_snapshot = odyssey_snapshot
         layout = QVBoxLayout(self)
         title = QLabel(tr('diagnostics.title'))
         title.setObjectName('sectionTitle')
@@ -50,7 +51,8 @@ class DiagnosticsPanel(QWidget):
         self.create_button.setEnabled(False)
         try:
             create_package(target, database=self.state.database.path,
-                           journals=self.state.journal_folder, overwrite=True)
+                           journals=self.state.journal_folder, overwrite=True,
+                           odyssey_snapshot=self.odyssey_snapshot() if self.odyssey_snapshot else None)
         except Exception:
             QMessageBox.warning(self, tr('diagnostics.title'), tr('diagnostics.failed'))
         else:

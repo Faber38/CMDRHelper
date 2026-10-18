@@ -1,4 +1,5 @@
 """Compact, theme-aware presentation widgets for the commander fleet."""
+from cmdrhelper.ui.auxiliary_window import AuxiliaryWindow
 from PySide6.QtCore import Qt, QSize, QRect
 from PySide6.QtGui import QPainter, QPalette, QImageReader, QColor
 from PySide6.QtWidgets import QLabel, QSizePolicy, QToolButton, QStyle, QStyleOptionToolButton, QDialog, QWidget, QVBoxLayout
@@ -110,7 +111,7 @@ class ShipImageCanvas(QWidget):
         painter.drawImage(self.image_rect(), self.image)
 
 
-class ShipImageViewer(QDialog):
+class ShipImageViewer(AuxiliaryWindow, QDialog):
     """Non-modal native window; QDialog provides Escape-to-close on both OSes."""
     def __init__(self, image, ship_name, parent):
         super().__init__(parent)

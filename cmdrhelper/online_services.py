@@ -74,25 +74,24 @@ def test_edsm_connection(
             data = _read_json_response(response)
 
     except HTTPError as exc:
-        logging.getLogger(__name__).exception("Online service connection check failed")
+        logging.getLogger(__name__).warning("EDSM connection check failed")
         return False, f"EDSM HTTP-Fehler {exc.code}."
 
     except URLError as exc:
-        logging.getLogger(__name__).exception("Online service connection check failed")
-        reason = getattr(exc, "reason", exc)
-        return False, f"EDSM nicht erreichbar: {reason}"
+        logging.getLogger(__name__).warning("EDSM connection check failed")
+        return False, "EDSM nicht erreichbar."
 
     except TimeoutError:
-        logging.getLogger(__name__).exception("Online service connection check failed")
+        logging.getLogger(__name__).warning("EDSM connection check failed")
         return False, "Zeitüberschreitung bei der EDSM-Anfrage."
 
     except json.JSONDecodeError:
-        logging.getLogger(__name__).exception("Online service connection check failed")
+        logging.getLogger(__name__).warning("EDSM connection check failed")
         return False, "EDSM hat keine gültige JSON-Antwort geliefert."
 
     except Exception as exc:
-        logging.getLogger(__name__).exception("Online service connection check failed")
-        return False, f"EDSM-Test fehlgeschlagen: {exc}"
+        logging.getLogger(__name__).warning("EDSM connection check failed")
+        return False, "EDSM-Test fehlgeschlagen."
 
     msgnum = data.get("msgnum")
     message = data.get("msg") or ""
@@ -115,7 +114,7 @@ def test_edsm_connection(
         )
 
     if message:
-        return False, f"EDSM: {message} (Code {msgnum})"
+        return False, f"EDSM: Anfrage abgelehnt (Code {msgnum})"
 
     return False, f"EDSM: unbekannte Antwort (Code {msgnum})."
 

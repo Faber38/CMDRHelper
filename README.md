@@ -38,6 +38,15 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.9.10
+
+- Journal directories: manage multiple sources with Steam/Heroic discovery, editing, monitoring checkboxes and separate statistics.
+- Commanders: FID-verified attribution, saved selection and optional automatic following of an unambiguously identified game instance on Linux.
+- Powerplay 2.0: optional time filter, compact transport rows and improved ship-scan matching for +1 to +100 merits and new complete scans of previously seen targets.
+- Auxiliary windows stay independently open when the main window is minimized and close when the helper exits.
+- EDSM and Inara: separate EDSM send/receive switches, source-specific upload positions, reliable acknowledgements and improved retry handling.
+- More reliable journal processing with transactional read positions and identity checks; privacy-conscious Odyssey display diagnostics in the diagnostic package.
+
 ## CMDRHelper v3.9.9
 
 - Detach planet navigation into a separate window and reattach it with the same target and live data.

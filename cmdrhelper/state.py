@@ -55,7 +55,7 @@ class AppState(QObject):
     cargoSnapshotChanged = Signal(object)
     journalPositionsReady = Signal(object, str)
     stationModelChanged = Signal(object)
-    edsmBodiesReady = Signal(str, object, str)
+    edsmBodiesReady = Signal(object, object, str)
     databaseImportProgress = Signal(int, int, str)
     databaseImportFinished = Signal(object, str)
     initializationStarted = Signal(bool, int)
@@ -103,7 +103,7 @@ class AppState(QObject):
         self.group_name = ""
         self.game_mode_timestamp = ""
         self.viewed_commander_id = self._saved_viewed_commander_id()
-        self._viewed_commander_user_selected = False
+        self._viewed_commander_user_selected = not self._saved_follow_live_commander()
         self.system = ""
         self.system_address = None
         self.body = ""
@@ -135,6 +135,8 @@ class AppState(QObject):
         self.edsm_commander = ""
         self.edsm_api_key = ""
         self.edsm_enabled = False
+        self.edsm_receive_enabled = False
+        self._edsm_receive_generation = 0
         self.edsm_uploader = None
         self._edsm_upload_running = False
         self._edsm_upload_token = None
@@ -220,24 +222,13 @@ class AppState(QObject):
             self._finish_initial_journal_index, Qt.QueuedConnection
         )
 
-        saved = self.settings.value(
-            "journal_folder",
-            ""
-        )
-
-        if saved and Path(saved).exists():
-            self.journal_folder = Path(saved)
-        else:
-            paths = default_journal_paths()
-            if paths:
-                self.journal_folder = paths[0]
-
-        if self.journal_folder:
-            logger.info("Journalordner: %s", self.journal_folder)
-            self.watcher.set_folder(
-                self.journal_folder
-            )
-        QTimer.singleShot(0, self._start_initial_journal_index)
+        # Source ingestion owns its watchers. The old watcher remains an inert
+        # compatibility handle until a verified commander projection is selected.
+        from cmdrhelper.source_manager import SourceManager
+        self.sources = SourceManager(self)
+        if application is not None:
+            application.aboutToQuit.connect(self.sources.stop)
+        QTimer.singleShot(0, self.sources.start)
 
     def _start_initial_journal_index(self):
         """Startet den potenziell teuren Erstindex außerhalb des GUI-Threads."""
@@ -519,21 +510,58 @@ class AppState(QObject):
         except (TypeError, ValueError):
             return None
 
-    def resolve_viewed_commander(self, commanders=None):
-        """Bestimmt die Ansicht, ohne die Live-Identität zu verändern."""
-        commanders = commanders if commanders is not None else self.database.list_commanders()
-        known_ids = {int(item["id"]) for item in commanders}
+    def _saved_follow_live_commander(self):
+        # Legacy preferences: an explicit saved selection is fixed; otherwise
+        # retain live-following. Never infer identity from a display name.
+        value = self.settings.value("commander_view/follow_live", None)
+        if value is None:
+            return self._saved_viewed_commander_id() is None
+        return value is True or str(value).lower() in ("true", "1")
+
+    @property
+    def follow_live_commander(self):
+        return not self._viewed_commander_user_selected
+
+    def _can_follow_live_commander(self, session=None):
+        if getattr(self, "sources", None) is not None:
+            # Only the process/source resolver may change a multi-source view.
+            return False
+        if getattr(self, "_viewed_commander_user_selected", False):
+            return False
+        fid = getattr(self, "commander_fid", "")
+        if not fid or getattr(self, "commander_id", None) is None:
+            return False
+        if session is None:
+            sessions = getattr(self, "_journal_index_sessions", None) or []
+            session = sessions[-1] if sessions else None
+        return bool(session and session.get("attribution_status") == "identified"
+                    and session.get("fid_seen") == fid
+                    and session.get("commander_id") in (None, self.commander_id))
+
+    def set_follow_live_commander(self, enabled):
+        previous_mode = self.follow_live_commander
+        self._viewed_commander_user_selected = not bool(enabled)
+        self.settings.setValue("commander_view/follow_live", bool(enabled))
+        if not enabled and self.viewed_commander_id is not None:
+            self.settings.setValue("commander_view/viewed_commander_id", self.viewed_commander_id)
         previous = self.viewed_commander_id
+        self.resolve_viewed_commander()
+        if previous == self.viewed_commander_id and previous_mode != bool(enabled):
+            self.viewedCommanderChanged.emit(self.viewed_commander_id)
 
-        if not self._viewed_commander_user_selected and self.commander_id in known_ids:
+    def resolve_viewed_commander(self, commanders=None):
+        if getattr(self, "sources", None) is not None:
+            return self.viewed_commander_id
+        """Resolve the displayed identity only; never change live write targets."""
+        commanders = commanders if commanders is not None else self.database.list_commanders()
+        known = {int(item["id"]): item for item in commanders}
+        previous = self.viewed_commander_id
+        if (self._can_follow_live_commander() and self.commander_id in known
+                and known[self.commander_id].get("fid") == self.commander_fid):
             self.viewed_commander_id = int(self.commander_id)
-        elif self.viewed_commander_id not in known_ids:
+        elif self.viewed_commander_id not in known:
             saved = self._saved_viewed_commander_id()
-            self.viewed_commander_id = (
-                saved if saved in known_ids
-                else (int(commanders[0]["id"]) if commanders else None)
-            )
-
+            self.viewed_commander_id = saved if saved in known else None
         if self.viewed_commander_id != previous:
             self.viewedCommanderChanged.emit(self.viewed_commander_id)
         return self.viewed_commander_id
@@ -545,12 +573,23 @@ class AppState(QObject):
             raise ValueError("Commander existiert nicht")
         previous = self.viewed_commander_id
         self.viewed_commander_id = commander_id
+        mode_changed = self.follow_live_commander
         self._viewed_commander_user_selected = True
+        self.settings.setValue("commander_view/follow_live", False)
         self.settings.setValue("commander_view/viewed_commander_id", commander_id)
-        if previous != commander_id:
+        if getattr(self, "sources", None) is not None:
+            selected = next(c for c in self.database.list_commanders() if c['id'] == commander_id)
+            self.settings.setValue('commander_view/fid', selected['fid'])
+            self.settings.sync()
+            self.sources.preferred_source = ""
+            self.sources.refresh_selected()
+        if previous != commander_id or mode_changed:
             self.viewedCommanderChanged.emit(commander_id)
 
     def import_journal_archive(self, automatic=False):
+        if getattr(self, "sources", None) is not None:
+            self.sources.reimport()
+            return
         startup.prepare(self)
         if self._startup_cancel.is_set():
             return
@@ -730,6 +769,10 @@ class AppState(QObject):
                       ('_database_import_running', '_journal_catchup_running'))
 
     def set_journal_folder(self, folder):
+        if getattr(self, "sources", None) is not None:
+            self.sources.registry.add(folder)
+            self.sources.reconcile()
+            return
         if (getattr(self, "_database_import_running", False)
                 or getattr(self, "_journal_catchup_running", False)):
             self._pending_journal_folder = Path(folder)
@@ -757,6 +800,7 @@ class AppState(QObject):
         api_key=None,
         enabled=None,
         fid=None,
+        receive_enabled=None,
     ):
         fid = str(fid or self.commander_fid or "").strip()
         if not fid:
@@ -768,6 +812,10 @@ class AppState(QObject):
         if api_key is not None:
             self.settings.setValue(f"{prefix}/api_key", api_key.strip())
 
+        # Freeze the previous receive preference before changing the legacy send key.
+        previous_receive = self.edsm_settings_for_fid(fid)["receive_enabled"]
+        self.settings.setValue(f"{prefix}/receive_enabled",
+                               previous_receive if receive_enabled is None else bool(receive_enabled))
         if enabled is not None:
             self.settings.setValue(f"{prefix}/enabled", bool(enabled))
 
@@ -791,6 +839,9 @@ class AppState(QObject):
             "api_key": str(self.settings.value(f"{prefix}/api_key", "") or ""),
             "enabled": str(self.settings.value(f"{prefix}/enabled", "false")).lower()
                        in ("1", "true", "yes", "on"),
+            "receive_enabled": str(self.settings.value(
+                f"{prefix}/receive_enabled", self.settings.value(f"{prefix}/enabled", "false")
+            )).lower() in ("1", "true", "yes", "on"),
             "last_test_status": str(
                 self.settings.value(f"{prefix}/last_test_status", "") or ""
             ),
@@ -809,6 +860,9 @@ class AppState(QObject):
         self.edsm_commander = config["commander"]
         self.edsm_api_key = config["api_key"]
         self.edsm_enabled = config["enabled"]
+        self.edsm_receive_enabled = config["receive_enabled"]
+        self._edsm_receive_generation = getattr(self, "_edsm_receive_generation", 0) + 1
+        self._edsm_request_system = ""
         runtime = getattr(self, "_edsm_runtime_by_fid", {}).get(self.commander_fid)
         if runtime:
             self.edsm_upload_status, self.edsm_upload_message = runtime
@@ -818,23 +872,45 @@ class AppState(QObject):
                 "Warte auf Übertragung" if self.edsm_enabled else "EDSM deaktiviert"
             )
 
-    def _migrate_legacy_edsm_settings(self):
-        if not self.commander_fid or not self.commander:
-            return False
+    def _legacy_service_identity_matches(self, service):
+        """Legacy credentials need explicit FID evidence, never a matching name."""
+        fid = str(getattr(self, "commander_fid", "") or "").strip()
+        legacy = self.settings.value(f"{service}/commander_fid", "")
         sessions = getattr(self, "_journal_index_sessions", None)
-        if sessions:
-            live_session = sessions[-1]
-            if (
-                live_session.get("attribution_status") != "identified"
-                or str(live_session.get("fid_seen") or "").strip()
-                != self.commander_fid
-            ):
-                return False
+        live = sessions[-1] if sessions else {}
+        reason = ""
+        if not fid or not isinstance(legacy, str) or not legacy.strip():
+            reason = "missing_fid_proof"
+        elif legacy.strip() != fid:
+            reason = "legacy_fid_mismatch"
+        elif (live.get("attribution_status") != "identified" or live.get("fid_seen") != fid
+              or live.get("commander_id") not in (None, getattr(self, "commander_id", None))):
+            reason = "unverified_live_identity"
+        elif service == "edsm" and self.settings.value("edsm_upload/commander_fid", fid) != fid:
+            reason = "upload_identity_mismatch"
+        elif any(key.startswith(f"{service}/commanders/{fid}/")
+                 or service == "edsm" and key.startswith(f"edsm_upload/commanders/{fid}/")
+                 for key in self.settings.allKeys()):
+            reason = "destination_exists"
+        elif (service == "edsm" and not self.settings.contains("edsm_upload/initialized")
+              and any(key.startswith("edsm_upload/positions/") for key in self.settings.allKeys())):
+            reason = "incomplete_upload_state"
+        rejected = getattr(self, "_legacy_migration_rejections", None)
+        if rejected is None:
+            rejected = self._legacy_migration_rejections = {}
+        if reason and rejected.get(service) != reason:
+            logger.info("Legacy service migration refused", extra={"diagnostic_fields": {
+                "component": service, "reason": reason}})
+        rejected[service] = reason
+        return not reason
+
+    def _migrate_legacy_edsm_settings(self):
+        if not all(hasattr(self.settings, method) for method in ("contains", "remove", "allKeys")):
+            return False
         old_keys = ("edsm/commander", "edsm/api_key", "edsm/enabled")
         if not any(self.settings.contains(key) for key in old_keys):
             return False
-        legacy_name = str(self.settings.value("edsm/commander", "") or "").strip()
-        if not legacy_name or legacy_name.casefold() != self.commander.strip().casefold():
+        if not AppState._legacy_service_identity_matches(self, "edsm"):
             return False
         prefix = f"edsm/commanders/{self.commander_fid}"
         if not self.settings.contains(f"{prefix}/enabled"):
@@ -855,14 +931,15 @@ class AppState(QObject):
             for key in self.settings.allKeys():
                 if key.startswith("edsm_upload/positions/"):
                     suffix = key.removeprefix("edsm_upload/positions/")
-                    self.settings.setValue(
-                        f"{upload_prefix}/positions/{suffix}",
-                        self.settings.value(key),
-                    )
+                    target = f"{upload_prefix}/positions/{suffix}"
+                    if not self.settings.contains(target):
+                        self.settings.setValue(target, self.settings.value(key))
         for key in old_keys:
             self.settings.remove(key)
         self.settings.remove("edsm_upload/initialized")
         self.settings.remove("edsm_upload/positions")
+        self.settings.remove("edsm/commander_fid")
+        self.settings.remove("edsm_upload/commander_fid")
         self._load_live_edsm_settings()
         return True
 
@@ -939,14 +1016,16 @@ class AppState(QObject):
             self.inara_upload_message = "Warte auf Inara-Übertragung"
 
     def _migrate_legacy_inara_settings(self):
-        if not hasattr(self.settings, "contains") or not hasattr(
-            self.settings, "remove"
-        ):
+        if not all(hasattr(self.settings, method) for method in ("contains", "remove", "allKeys")):
             return
         migrated = str(
             self.settings.value("inara/commander_settings_migrated", "false") or "false"
         ).lower() in ("1", "true", "yes", "on")
-        if not self.commander_fid or migrated:
+        if migrated:
+            return
+        if not any(self.settings.contains(f"inara/{key}") for key in ("commander", "api_key", "enabled")):
+            return
+        if not AppState._legacy_service_identity_matches(self, "inara"):
             return
         prefix = f"inara/commanders/{self.commander_fid}"
         if not self.settings.contains(f"{prefix}/enabled"):
@@ -983,23 +1062,31 @@ class AppState(QObject):
         self._inara_upload_running = False
 
     def _upload_pending_to_inara(self):
+        if getattr(self, "sources", None) is not None:
+            for identity in self.sources.runtimes:
+                self.sources.request(identity)
+            return
         if not self._inara_identity_matches():
             return
+        from copy import deepcopy
+        from cmdrhelper.inara_uploader import InaraUploadError
         commander_id = int(self.commander_id)
         commander_name = str(self.commander or "")
         commander_fid = str(self.commander_fid or "")
         api_key = str(self.inara_api_key or "")
-        active_token = getattr(self, "_inara_upload_token", None)
-        if (
-            self._inara_upload_running
-            and active_token is not None
-            and active_token[:3] == (commander_id, commander_fid, api_key)
-        ):
+        jobs = getattr(self, "_inara_jobs", None)
+        if jobs is None:
+            jobs = self._inara_jobs = {}
+        # Keep the original in-flight owner reserved across A -> B -> A.
+        if commander_fid in jobs:
             return
-        rows = self.database.inara_pending(commander_id, INARA_BATCH_SIZE)
+        database = self.database
+        rows = database.inara_pending(commander_id, INARA_BATCH_SIZE)
         if not rows:
             return
+        expected_rows = deepcopy(rows)
         token = (commander_id, commander_fid, api_key, object())
+        jobs[commander_fid] = token
         self._inara_upload_token = token
         self._inara_upload_running = True
         self.inara_upload_status = "uploading"
@@ -1008,50 +1095,67 @@ class AppState(QObject):
 
         def worker():
             try:
-                if (
-                    self._inara_upload_token is not token
-                    or not self._inara_identity_matches(commander_id)
-                    or self.commander_fid != commander_fid
-                    or self.inara_api_key != api_key
-                ):
+                if (jobs.get(commander_fid) is not token
+                        or self._inara_upload_token is not token
+                        or not self._inara_identity_matches(commander_id)
+                        or self.commander_fid != commander_fid or self.inara_api_key != api_key):
+                    return  # Queued but not yet sent: cancel on identity changes.
+                database.validate_inara_request(commander_id, commander_fid, expected_rows)
+                retry_seconds = 0
+                try:
+                    sent, failed = upload_batch(api_key, commander_name, commander_fid, rows)
+                except InaraUploadError as exc:
+                    sent, failed = [], {row["id"]: str(exc) for row in expected_rows}
+                    retry_seconds = exc.retry_seconds
+                    if exc.http_status == 429:
+                        backoff = max(min(3600, 30 * (2 ** (row["retry_count"] + 1)))
+                                      for row in expected_rows)
+                        retry_seconds = max(retry_seconds, backoff)
+                    logger.warning("Inara upload rejected", extra={"diagnostic_fields": {
+                        "http_status": exc.http_status, "inara_retry_seconds": retry_seconds,
+                        "inara_error": exc.code}})
+                except Exception:
+                    sent, failed = [], {row["id"]: "Inara: transport_error" for row in expected_rows}
+                if jobs.get(commander_fid) is not token:
                     return
-                sent, failed = upload_batch(api_key, commander_name, commander_fid, rows)
-                if self._inara_upload_token is not token:
-                    return
-                self.database.update_inara_outbox(sent, failed)
-                if failed:
+                database.update_inara_outbox(sent, failed, commander_id=commander_id,
+                    fid=commander_fid, expected_rows=expected_rows, retry_seconds=retry_seconds)
+                status = "error" if failed else "ok"
+                message = (next(iter(failed.values())) if failed else
+                           f"Letzte Inara-Übertragung erfolgreich: {len(sent)} Event(s)")
+                self._inara_runtime_by_fid[commander_fid] = (status, message)
+                if self._inara_upload_token is token:
+                    self.inara_upload_status, self.inara_upload_message = status, message
+                logger.info("Inara outbox response applied", extra={"diagnostic_fields": {
+                    "confirmed_events": len(sent), "remaining": len(failed)}})
+            except Exception:
+                # Identity/snapshot/DB failures must never publish acknowledgements.
+                logger.warning("Inara outbox response not applied")
+                if self._inara_upload_token is token:
                     self.inara_upload_status = "error"
-                    self.inara_upload_message = next(iter(failed.values()))
-                else:
-                    self.inara_upload_status = "ok"
-                    self.inara_upload_message = f"Letzte Inara-Übertragung erfolgreich: {len(sent)} Event(s)"
-                self._inara_runtime_by_fid[commander_fid] = (
-                    self.inara_upload_status, self.inara_upload_message
-                )
-            except Exception as exc:
-                if self._inara_upload_token is not token:
-                    return
-                message = str(exc)
-                self.database.update_inara_outbox(
-                    errors={row["id"]: message for row in rows}
-                )
-                if commander_fid == self.commander_fid:
-                    self.inara_upload_status = "error"
-                    self.inara_upload_message = message
-                    self._inara_runtime_by_fid[commander_fid] = (
-                        self.inara_upload_status, self.inara_upload_message
-                    )
-                logger.warning("Inara-Upload pausiert: %s", message)
+                    self.inara_upload_message = "Inara: request_not_applied"
             finally:
+                if jobs.get(commander_fid) is token:
+                    jobs.pop(commander_fid, None)
                 if self._inara_upload_token is token:
                     self._inara_upload_token = None
                     self._inara_upload_running = False
                     self.changed.emit()
 
-        threading.Thread(target=worker, daemon=True,
-                         name="CMDRHelper-Inara-Upload").start()
+        try:
+            threading.Thread(target=worker, daemon=True,
+                             name="CMDRHelper-Inara-Upload").start()
+        except Exception:
+            jobs.pop(commander_fid, None)
+            self._inara_upload_token = None
+            self._inara_upload_running = False
+            raise
 
     def _upload_journal_to_edsm(self):
+        if getattr(self, "sources", None) is not None:
+            for identity in self.sources.runtimes:
+                self.sources.request(identity)
+            return
         if (
             not self.edsm_enabled
             or not self.commander_fid
@@ -1209,7 +1313,7 @@ class AppState(QObject):
         edsm_data,
     ):
         if (
-            not self.edsm_enabled
+            not self.edsm_receive_enabled
             or not isinstance(edsm_data, dict)
         ):
             self.edsm_body_count = 0
@@ -1357,7 +1461,7 @@ class AppState(QObject):
         self.edsm_source_status = ""
 
         if (
-            not self.edsm_enabled
+            not self.edsm_receive_enabled
             or not self.system
         ):
             return False
@@ -1379,7 +1483,7 @@ class AppState(QObject):
         self,
     ):
         if (
-            not self.edsm_enabled
+            not self.edsm_receive_enabled
             or not self.system
         ):
             return
@@ -1403,7 +1507,12 @@ class AppState(QObject):
             system_name
         )
 
+        request = (system_name, self.commander_fid, self._edsm_receive_generation)
+
         def worker():
+            if (not self.edsm_receive_enabled or request[1:] !=
+                    (self.commander_fid, self._edsm_receive_generation)):
+                return
             ok, data, source = (
                 fetch_edsm_bodies(
                     system_name
@@ -1412,13 +1521,13 @@ class AppState(QObject):
 
             if ok and data is not None:
                 self.edsmBodiesReady.emit(
-                    system_name,
+                    request,
                     data,
                     source,
                 )
             else:
                 self.edsmBodiesReady.emit(
-                    system_name,
+                    request,
                     None,
                     source,
                 )
@@ -1434,10 +1543,14 @@ class AppState(QObject):
 
     def _on_edsm_bodies_ready(
         self,
-        system_name,
+        request,
         data,
         source,
     ):
+        system_name, fid, generation = request
+        if (not self.edsm_receive_enabled or fid != self.commander_fid
+                or generation != self._edsm_receive_generation):
+            return
         if (
             self._edsm_request_system
             == system_name
@@ -1776,7 +1889,7 @@ class AppState(QObject):
                 AppState._migrate_legacy_edsm_settings(self)
             AppState._load_live_inara_settings(self)
             AppState._load_live_edsm_settings(self)
-        if not getattr(self, "_viewed_commander_user_selected", False):
+        if AppState._can_follow_live_commander(self):
             previous_viewed = getattr(self, "viewed_commander_id", None)
             self.viewed_commander_id = commander_id
             if previous_viewed != commander_id:
@@ -1831,7 +1944,7 @@ class AppState(QObject):
             AppState._migrate_legacy_edsm_settings(self)
             AppState._load_live_edsm_settings(self)
 
-        if not getattr(self, "_viewed_commander_user_selected", False):
+        if AppState._can_follow_live_commander(self, data.get("latest_journal_session")):
             previous_viewed = getattr(self, "viewed_commander_id", None)
             self.viewed_commander_id = commander_id
             if previous_viewed != commander_id and hasattr(self, "viewedCommanderChanged"):
@@ -1847,9 +1960,13 @@ class AppState(QObject):
         session = data.get("latest_journal_session")
         if not isinstance(session, dict):
             return
-        self.database.store_journal_session(session)
+        self.database.store_journal_session(session, identity_only=True)
 
     def refresh(self):
+        sources = getattr(self, "sources", None)
+        if sources is not None and not sources.projecting:
+            return sources.refresh_selected()
+        projection = getattr(self, "_source_projection_data", None)
         if (getattr(self, "_database_import_running", False)
                 or getattr(self, "_initial_journal_index_running", False)
                 or getattr(self, "_journal_catchup", None) is not None
@@ -1864,9 +1981,9 @@ class AppState(QObject):
         try:
             watcher_current = getattr(self.watcher, "_current", None)
             if (
-                self._journal_index_sessions is None
+                projection is None and (self._journal_index_sessions is None
                 or (watcher_current is not None
-                    and str(watcher_current) != self._journal_index_current)
+                    and str(watcher_current) != self._journal_index_current))
             ):
                 from cmdrhelper.journal_index import scan_journal_folder
                 self._journal_index_sessions = scan_journal_folder(
@@ -1876,8 +1993,9 @@ class AppState(QObject):
                     str(Path(self._journal_index_sessions[-1]["journal_file"]))
                     if self._journal_index_sessions else None
                 )
-            self._prepare_indexed_live_state(emit_identity=False, restore=False)
-            data = read_latest_state(
+            if projection is None:
+                self._prepare_indexed_live_state(emit_identity=False, restore=False)
+            data = projection if projection is not None else read_latest_state(
                 self.journal_folder,
                 indexed_sessions=self._journal_index_sessions,
                 powerplay_history=False,
@@ -1916,46 +2034,71 @@ class AppState(QObject):
             data,
             emit_signal=False,
         )
-        delta_events = []
+        delta_events = list(getattr(self, '_source_projection_events', [])) if projection is not None else []
         current_session = ((self._journal_index_sessions or [None])[-1])
         if (
             current_session
+            and current_session.get("attribution_status") == "identified"
             and data.get("latest_journal_session") is current_session
             and str(current_session.get("fid_seen") or "").strip()
             == self.commander_fid
         ):
             current_session["commander_id"] = self.commander_id
-        try:
-            self.database.sync_powerplay(self._journal_index_sessions)
-        except (OSError, ValueError, sqlite3.Error) as exc:
-            logger.exception("PP2-Journaldelta konnte nicht gespeichert werden")
-            self._last_refresh_error = f"PP2: {type(exc).__name__}: {exc}"
-            return False
-        if current_session and current_session.get("commander_id") is not None:
-            from cmdrhelper.journal_reader import read_journal_delta
-            committed_offset = int(current_session.get("last_read_offset") or 0)
-            delta_events, safe_offset = read_journal_delta(
-                Path(current_session["journal_file"]), committed_offset, include_positions=True,
-            )
-            if safe_offset > committed_offset:
+        if projection is None:
+            # Publish the fresh classification before any consumer can use a stale
+            # stored ID. This changes source metadata only, never committed facts/cursors.
+            self._store_latest_journal_session(data)
+            if current_session and current_session.get("attribution_status") != "identified":
+                self._last_refresh_error = "journal_identity_" + (
+                    "conflict" if current_session.get("attribution_status") == "ambiguous" else "missing")
+                logger.debug("Journal source rejected", extra={"diagnostic_fields": {
+                    "reason": self._last_refresh_error}})
+            try:
+                self.database.sync_powerplay(self._journal_index_sessions)
+            except (OSError, ValueError, sqlite3.Error) as exc:
+                logger.exception("PP2-Journaldelta konnte nicht gespeichert werden")
+                self._last_refresh_error = f"PP2: {type(exc).__name__}: {exc}"
+                return False
+            if (current_session and current_session.get("attribution_status") == "identified"
+                    and current_session.get("fid_seen")
+                    and current_session.get("commander_id") is not None):
+                from cmdrhelper.journal_reader import read_journal_delta, verified_live_metadata
+                committed_offset = int(current_session.get("last_read_offset") or 0)
+                delta_events, safe_offset = read_journal_delta(
+                    Path(current_session["journal_file"]), committed_offset, include_positions=True,
+                )
                 try:
-                    self.database.apply_commander_journal_delta(
-                        int(current_session["commander_id"]),
-                        current_session["journal_file"], delta_events, safe_offset,
-                        live_current=True,
-                        enqueue_inara=self._inara_identity_matches(
-                            current_session["commander_id"]
-                        ),
-                    )
-                except (sqlite3.Error, RuntimeError, ValueError) as exc:
-                    logger.exception("Commander-Journaldelta konnte nicht gespeichert werden")
-                    self._last_refresh_error = (
-                        "Journaldelta konnte nicht gespeichert werden: "
-                        f"{type(exc).__name__}: {exc}"
-                    )
-                    self.changed.emit()
+                    metadata = verified_live_metadata(
+                        Path(current_session["journal_file"]), current_session, safe_offset)
+                except OSError:
+                    self._last_refresh_error = "journal_metadata_changed"
                     return False
-                current_session["last_read_offset"] = safe_offset
+                if safe_offset >= committed_offset:
+                    try:
+                        self.database.apply_commander_journal_delta(
+                            int(current_session["commander_id"]),
+                            current_session["journal_file"], delta_events, safe_offset,
+                            live_current=True, metadata=metadata,
+                            enqueue_inara=self._inara_identity_matches(
+                                current_session["commander_id"]
+                            ),
+                        )
+                    except (sqlite3.Error, RuntimeError, ValueError) as exc:
+                        logger.exception("Commander-Journaldelta konnte nicht gespeichert werden")
+                        self._last_refresh_error = (
+                            "Journaldelta konnte nicht gespeichert werden: "
+                            f"{type(exc).__name__}: {exc}"
+                        )
+                        self.changed.emit()
+                        return False
+                    if (current_session.get("file_size") != metadata["file_size"]
+                            or current_session.get("modified_ns") != metadata["modified_ns"]):
+                        current_session["sha256"] = None
+                        current_session["fully_imported"] = False
+                    if metadata.get("invalidate_hash"):
+                        current_session["sha256"] = None
+                    current_session.update(metadata)
+                    current_session["last_read_offset"] = safe_offset
         from cmdrhelper.material_inventory import EVENTS as material_events
         from cmdrhelper.mining_inventory import EVENTS as mining_events
         from cmdrhelper.odyssey_inventory import EVENTS as odyssey_events
@@ -1988,7 +2131,6 @@ class AppState(QObject):
             if stored_ship:
                 data["ship"] = stored_ship.get("ship_name") or stored_ship.get("ship_type") or ""
                 data["ship_loadout"] = self._stored_ship_loadout(stored_ship)
-        self._store_latest_journal_session(data)
         self._emit_journal_positions(data, current_session, delta_events)
         self.system = data["system"]
         self.powerplay = data.get("powerplay") or PowerplayState()
@@ -2013,8 +2155,13 @@ class AppState(QObject):
             "last_cargo_event", "last_cargo_context", "ship_cargo_context",
             "last_cargo_srv_type", "last_cargo_srv_capacity", "active_srv_type",
         )}, current_session)
-        self._apply_live_cargo_snapshot(data, current_session)
-        self._poll_ship_cargo()
+        if projection is None or getattr(self, '_source_live_context', False):
+            self._apply_live_cargo_snapshot(data, current_session)
+            self._poll_ship_cargo()
+        else:
+            self._cargo_refresh_data = None
+            self.cargo_snapshot = None
+
 
         if (
             identity_changed
@@ -2070,13 +2217,15 @@ class AppState(QObject):
             # Live-Snapshot speichern, aber die Journaldatei hier NICHT
             # als vollständig archiv-importiert markieren. Das erledigt
             # ausschließlich der Archivimport selbst.
-            self.database.store_snapshot(data, commander_id=self.commander_id)
+            if projection is None:
+                self.database.store_snapshot(data, commander_id=self.commander_id)
         except Exception:
             logger.exception("Commander-Livezustand konnte nicht gespeichert werden")
 
         latest_event = str(data.get("last_event") or "")
 
-        self._run_journal_learning(latest_event)
+        if projection is None:
+            self._run_journal_learning(latest_event)
 
         self._refresh_explorer_values(current_body_ids)
 
@@ -2177,10 +2326,13 @@ class AppState(QObject):
         finally:
             self._refresh_summary = None
 
-        self._upload_journal_to_edsm()
-        self._upload_pending_to_inara()
-        self._request_edsm_for_current_system()
-        AppState._request_startup_stations(self)
+        if projection is None:
+            self._upload_journal_to_edsm()
+            self._upload_pending_to_inara()
+            self._request_edsm_for_current_system()
+            AppState._request_startup_stations(self)
+        elif self._watcher_live_refresh:
+            self._request_edsm_for_current_system()
         return True
 
     @Slot(str)
@@ -2324,6 +2476,8 @@ class AppState(QObject):
             self.cargoSnapshotChanged.emit(snapshot)
 
     def _poll_ship_cargo(self):
+        if getattr(self, 'sources', None) is not None and not getattr(self, '_source_live_context', False):
+            return
         """Use the existing watcher timer for late sidecars and cargo validation.
 
         No journal replay or DB writes. Never bind an unlabelled Status while

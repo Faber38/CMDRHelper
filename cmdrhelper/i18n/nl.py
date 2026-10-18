@@ -1,4 +1,17 @@
 TRANSLATIONS = {
+    "release.3_9_10.0": "Journaalmappen: meerdere bronnen met Steam-/Heroic-detectie, bewerken, selectievakjes voor bewaking en afzonderlijke statistieken.",
+    "release.3_9_10.1": "Commanders: toewijzing op basis van gecontroleerde FID, opgeslagen selectie en optioneel automatisch volgen van een eenduidig herkende spelinstantie onder Linux.",
+    "release.3_9_10.2": "Powerplay 2.0: optioneel tijdfilter, compacte transportregels en betere koppeling van scheepsscans voor +1 tot +100 merits en nieuwe volledige scans van eerder geziene doelen.",
+    "release.3_9_10.3": "Extra vensters blijven onafhankelijk open bij het minimaliseren van het hoofdvenster en sluiten bij het afsluiten van de helper.",
+    "release.3_9_10.4": "EDSM en Inara: afzonderlijke EDSM-schakelaars voor verzenden en ontvangen, uploadposities per bron, betrouwbare bevestigingen en verbeterde afhandeling van nieuwe pogingen.",
+    "release.3_9_10.5": "Betrouwbaardere journaalverwerking met transactionele leesposities en identiteitscontroles; privacybewuste Odyssey-weergavediagnostiek in het diagnosepakket.",
+
+    'topbar.edsm_active': '● EDSM actief',
+    'topbar.edsm_receiving': '● EDSM-ontvangst',
+    'topbar.edsm_connection_ok': 'Laatste verbindingstest geslaagd; dit bevestigt geen journaalupload.',
+    'topbar.edsm_connection_error': 'Laatste verbindingstest mislukt.',
+    'settings.edsm_other_uploader_hint': 'Let op: Als een ander programma al journaalgebeurtenissen naar EDSM verstuurt, schakel dan het verzenden in CMDRHelper uit. Gebruik bij voorkeur slechts één programma voor EDSM-uploads om dubbele verzendingen te voorkomen. EDSM-ontvangst in CMDRHelper kan ingeschakeld blijven.',
+
     "release.3_9_9.0": "Verplaats planeetnavigatie naar een apart venster en terug met behoud van doel en livegegevens.",
     "release.3_9_9.1": "Open favorietafbeeldingen op oorspronkelijke resolutie, zoom met het muiswiel en sleep om te verschuiven.",
     "release.3_9_9.2": "Favoriettitels verschijnen in Elite-geel (#FFCC33), met behoud van selectiemarkering en overige tekstregels.",
@@ -644,6 +657,7 @@ TRANSLATIONS = {
     'nav.chronicle': 'Kroniek',
     'nav.commander_view': 'CMDR-weergave',
     'commander_view.title': 'CMDR-weergave',
+    'commander_view.follow_live': 'Actieve commander volgen',
     'commander_view.commander': 'Commandant:',
     'commander_view.identity': 'CMDR {name}',
     'commander_view.status.live': '● Live actief',
@@ -881,6 +895,8 @@ TRANSLATIONS = {
     'settings.inara_not_configured': 'Voor {commander} is nog geen Inara-toegang ingesteld.',
     'settings.inara_configured_short': 'ingesteld',
     'settings.inara_not_configured_short': 'niet ingesteld',
+    "settings.edsm_send": 'EDSM-gegevens verzenden',
+    "settings.edsm_receive": 'EDSM-gegevens ontvangen',
     'settings.use_edsm': 'EDSM gebruiken',
     'settings.use_inara': 'Inara gebruiken',
     'settings.test_edsm': 'EDSM-verbinding testen',
@@ -2061,3 +2077,41 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS.update({"pp2.chronicle.commodity_sale": 'Goederenverkoop'})
+
+# Journal source management
+TRANSLATIONS.update({
+    'sources.title': 'Journaalmappen',
+    'sources.add': 'Toevoegen',
+    'sources.edit': 'Bewerken',
+    'sources.toggle': 'Inschakelen / Uitschakelen',
+    'sources.remove': 'Verwijderen',
+    'sources.search': 'Opnieuw zoeken',
+    'sources.enabled': 'Ingeschakeld',
+    'sources.name': 'Naam',
+    'sources.remove_note': 'Verwijderen stopt alleen het volgen. Bestanden en geschiedenis blijven behouden.',
+    'sources.identity_unknown': 'Commander-identiteit nog onbekend',
+    'sources.duplicate': 'Deze map is al een bron.',
+    'sources.status.unknown': 'Identiteit onbekend',
+    'sources.status.disabled': 'Uitgeschakeld',
+    'sources.status.duplicate': 'Dubbel pad',
+    'sources.status.reading': 'Lezen',
+    'sources.status.ready': 'Gereed',
+    'sources.status.unreachable': 'Onbereikbaar',
+    'sources.status.error': 'Verwerking wacht / fout',
+})
+TRANSLATIONS['sources.upload_pending'] = 'Upload wacht: controleer identiteit, oude uploadposities of dienstfouten.'
+
+TRANSLATIONS.update({
+    'sources.reachability': 'Bereikbaarheid',
+    'sources.reachable': 'Bereikbaar',
+    'sources.monitoring': 'Bewaking',
+    'sources.monitoring_active': 'Bewaking actief',
+    'sources.monitoring_inactive': 'Bewaking inactief',
+})
+
+TRANSLATIONS.update({
+    'sources.invalid_path': 'De map bestaat niet of is niet leesbaar. Kies een bestaande, leesbare journaalmap.',
+    'sources.edit_busy': 'Het pad kan tijdens de verwerking niet worden gewijzigd. Wacht even en probeer opnieuw.',
+})
+
+TRANSLATIONS['pp2.history.from_time'] = 'Vanaf tijd (lokaal)'

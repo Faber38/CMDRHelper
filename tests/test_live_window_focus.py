@@ -116,9 +116,12 @@ class LiveWindowFocusTests(unittest.TestCase):
             self.main._refresh_cargo_live_window(None)
             self.main.state.system = "Next System"
             self.main._refresh_explorer_live_windows()
-            self.assertTrue(all(not window.isVisible() for window in self.windows()))
+            cargo, *explorers = self.windows()
+            self.assertTrue(cargo.isVisible())
+            self.assertEqual(cargo.table.rowCount(), 0)
+            self.assertTrue(all(not window.isVisible() for window in explorers))
             self.refresh()
-            self.assertEqual(shown[6:], list(self.windows()))
+            self.assertEqual(shown[6:], explorers)
 
 
 if __name__ == "__main__":

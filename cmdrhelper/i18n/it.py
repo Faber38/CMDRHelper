@@ -1,4 +1,17 @@
 TRANSLATIONS = {
+    "release.3_9_10.0": "Cartelle dei journal: più fonti con rilevamento Steam/Heroic, modifica, caselle di monitoraggio e statistiche separate.",
+    "release.3_9_10.1": "Comandanti: attribuzione verificata tramite FID, selezione salvata e inseguimento automatico facoltativo di un’istanza di gioco identificata senza ambiguità su Linux.",
+    "release.3_9_10.2": "Powerplay 2.0: filtro orario facoltativo, righe di trasporto compatte e migliore associazione delle scansioni navali per meriti da +1 a +100 e nuove scansioni complete di bersagli già visti.",
+    "release.3_9_10.3": "Le finestre aggiuntive restano aperte indipendentemente quando la finestra principale viene ridotta a icona e si chiudono all’uscita dal programma.",
+    "release.3_9_10.4": "EDSM e Inara: controlli EDSM separati per invio e ricezione, posizioni di invio per fonte, conferme affidabili e migliore gestione dei tentativi successivi.",
+    "release.3_9_10.5": "Elaborazione dei journal più affidabile con posizioni di lettura transazionali e controlli d’identità; diagnostica dell’interfaccia Odyssey rispettosa della privacy nel pacchetto diagnostico.",
+
+    'topbar.edsm_active': '● EDSM attivo',
+    'topbar.edsm_receiving': '● Ricezione EDSM',
+    'topbar.edsm_connection_ok': 'Ultimo test di connessione riuscito; non conferma un invio del diario.',
+    'topbar.edsm_connection_error': 'Ultimo test di connessione non riuscito.',
+    'settings.edsm_other_uploader_hint': 'Nota: Se un altro programma invia già gli eventi del diario a EDSM, disattiva l’invio in CMDRHelper. È preferibile usare un solo programma per gli invii a EDSM, per evitare duplicati. La ricezione EDSM in CMDRHelper può rimanere attiva.',
+
     "release.3_9_9.0": "Sposta la navigazione planetaria in una finestra separata e reintegrala mantenendo destinazione e dati in tempo reale.",
     "release.3_9_9.1": "Apri le immagini dei preferiti alla risoluzione originale, ingrandisci con la rotella e trascina per spostarle.",
     "release.3_9_9.2": "I titoli dei preferiti appaiono in giallo Elite (#FFCC33), mantenendo la selezione e le altre righe di testo.",
@@ -644,6 +657,7 @@ TRANSLATIONS = {
     'nav.chronicle': 'Cronaca',
     'nav.commander_view': 'Vista CMDR',
     'commander_view.title': 'Vista CMDR',
+    'commander_view.follow_live': 'Segui il comandante attivo',
     'commander_view.commander': 'Comandante:',
     'commander_view.identity': 'CMDR {name}',
     'commander_view.status.live': '● Live attivo',
@@ -881,6 +895,8 @@ TRANSLATIONS = {
     'settings.inara_not_configured': 'Per {commander} non è ancora configurato alcun accesso Inara.',
     'settings.inara_configured_short': 'configurato',
     'settings.inara_not_configured_short': 'non configurato',
+    "settings.edsm_send": 'Invia dati EDSM',
+    "settings.edsm_receive": 'Ricevi dati EDSM',
     'settings.use_edsm': 'Usa EDSM',
     'settings.use_inara': 'Usa Inara',
     'settings.test_edsm': 'Testa connessione EDSM',
@@ -2184,3 +2200,41 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS.update({"pp2.chronicle.commodity_sale": 'Vendita di merci'})
+
+# Journal source management
+TRANSLATIONS.update({
+    'sources.title': 'Cartelle dei diari',
+    'sources.add': 'Aggiungi',
+    'sources.edit': 'Modifica',
+    'sources.toggle': 'Attiva / Disattiva',
+    'sources.remove': 'Rimuovi',
+    'sources.search': 'Cerca ancora',
+    'sources.enabled': 'Attiva',
+    'sources.name': 'Nome',
+    'sources.remove_note': 'La rimozione interrompe il monitoraggio. File e cronologia restano intatti.',
+    'sources.identity_unknown': 'Identità del comandante sconosciuta',
+    'sources.duplicate': 'Questa cartella è già una fonte.',
+    'sources.status.unknown': 'Identità sconosciuta',
+    'sources.status.disabled': 'Disattivata',
+    'sources.status.duplicate': 'Percorso duplicato',
+    'sources.status.reading': 'Lettura',
+    'sources.status.ready': 'Pronta',
+    'sources.status.unreachable': 'Non raggiungibile',
+    'sources.status.error': 'Elaborazione in attesa / errore',
+})
+TRANSLATIONS['sources.upload_pending'] = 'Invio in attesa: controllare identità, posizioni precedenti o errori del servizio.'
+
+TRANSLATIONS.update({
+    'sources.reachability': 'Accessibilità',
+    'sources.reachable': 'Accessibile',
+    'sources.monitoring': 'Monitoraggio',
+    'sources.monitoring_active': 'Monitoraggio attivo',
+    'sources.monitoring_inactive': 'Monitoraggio inattivo',
+})
+
+TRANSLATIONS.update({
+    'sources.invalid_path': 'La cartella non esiste o non è leggibile. Scegli una cartella dei diari esistente e leggibile.',
+    'sources.edit_busy': 'Il percorso non può essere modificato durante l’elaborazione. Attendi e riprova.',
+})
+
+TRANSLATIONS['pp2.history.from_time'] = 'Dalle ore (ora locale)'

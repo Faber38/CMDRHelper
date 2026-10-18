@@ -1,4 +1,17 @@
 TRANSLATIONS = {
+    "release.3_9_10.0": "Journalverzeichnisse: mehrere Quellen mit Steam-/Heroic-Erkennung, Bearbeitung, Überwachungs-Checkboxen und getrennten Statistiken verwalten.",
+    "release.3_9_10.1": "Commander: FID-geprüfte Zuordnung, gespeicherte Auswahl und optionales automatisches Folgen einer eindeutig erkannten Spielinstanz unter Linux.",
+    "release.3_9_10.2": "Powerplay 2.0: optionaler Uhrzeitfilter, kompakte Transportzeilen und verbesserte Schiffsscan-Zuordnung für +1 bis +100 Merits und erneute vollständige Scans.",
+    "release.3_9_10.3": "Zusatzfenster bleiben beim Minimieren des Hauptfensters unabhängig geöffnet und werden beim Beenden des Helpers geschlossen.",
+    "release.3_9_10.4": "EDSM und Inara: getrennte EDSM-Sende-/Empfangsschalter, quellenbezogene Uploadpositionen, sichere Bestätigungen und verbesserte Wiederholungsbehandlung.",
+    "release.3_9_10.5": "Zuverlässigere Journalverarbeitung mit transaktionalen Lesepositionen und Identitätsprüfungen; datensparsame Odyssey-Darstellungsdiagnose im Diagnosepaket.",
+
+    'topbar.edsm_active': '● EDSM aktiv',
+    'topbar.edsm_receiving': '● EDSM-Empfang',
+    'topbar.edsm_connection_ok': 'Letzter Verbindungstest erfolgreich; kein Nachweis eines Journaluploads.',
+    'topbar.edsm_connection_error': 'Letzter Verbindungstest fehlgeschlagen.',
+    'settings.edsm_other_uploader_hint': 'Hinweis: Wenn bereits ein anderes Programm Journalereignisse an EDSM sendet, solltest du das Senden in CMDRHelper deaktivieren. Verwende möglichst nur ein Programm für den EDSM-Upload, um doppelte Übertragungen zu vermeiden. Der EDSM-Empfang in CMDRHelper kann weiterhin aktiviert bleiben.',
+
     "release.3_9_9.0": "Planeten-Navigation in ein separates Fenster auslagern und mit unverändertem Ziel und Live-Daten wieder einbetten.",
     "release.3_9_9.1": "Favoritenbilder in Originalauflösung öffnen, per Mausrad zoomen und mit der Maus verschieben.",
     "release.3_9_9.2": "Favoritentitel erscheinen in Elite-Gelb (#FFCC33); Auswahlmarkierung und weitere Textzeilen bleiben erhalten.",
@@ -645,6 +658,7 @@ TRANSLATIONS = {
     'nav.chronicle': 'Chronik',
     'nav.commander_view': 'CMDR Ansicht',
     'commander_view.title': 'CMDR Ansicht',
+    'commander_view.follow_live': 'Live-Commander folgen',
     'commander_view.commander': 'Commander:',
     'commander_view.identity': 'CMDR {name}',
     'commander_view.status.live': '● Live aktiv',
@@ -882,6 +896,8 @@ TRANSLATIONS = {
     'settings.inara_not_configured': 'Für {commander} ist noch kein Inara-Zugang eingerichtet.',
     'settings.inara_configured_short': 'eingerichtet',
     'settings.inara_not_configured_short': 'nicht eingerichtet',
+    "settings.edsm_send": 'EDSM-Daten senden',
+    "settings.edsm_receive": 'EDSM-Daten empfangen',
     'settings.use_edsm': 'EDSM verwenden',
     'settings.use_inara': 'Inara verwenden',
     'settings.test_edsm': 'EDSM-Verbindung testen',
@@ -2205,3 +2221,41 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS.update({"pp2.chronicle.commodity_sale": 'Warenverkauf'})
+
+# Journal source management
+TRANSLATIONS.update({
+    'sources.title': 'Journalverzeichnisse',
+    'sources.add': 'Hinzufügen',
+    'sources.edit': 'Bearbeiten',
+    'sources.toggle': 'Aktivieren / Deaktivieren',
+    'sources.remove': 'Entfernen',
+    'sources.search': 'Erneut suchen',
+    'sources.enabled': 'Aktiviert',
+    'sources.name': 'Bezeichnung',
+    'sources.remove_note': 'Entfernen beendet nur die Überwachung. Dateien und Historie bleiben erhalten.',
+    'sources.identity_unknown': 'Commander-Identität noch unbekannt',
+    'sources.duplicate': 'Dieses Verzeichnis ist bereits als Quelle vorhanden.',
+    'sources.status.unknown': 'Identität unbekannt',
+    'sources.status.disabled': 'Deaktiviert',
+    'sources.status.duplicate': 'Doppelter Pfad',
+    'sources.status.reading': 'Wird gelesen',
+    'sources.status.ready': 'Bereit',
+    'sources.status.unreachable': 'Nicht erreichbar',
+    'sources.status.error': 'Verarbeitung ausstehend / Fehler',
+})
+TRANSLATIONS['sources.upload_pending'] = 'Upload ausstehend: Identität, alte Uploadpositionen oder Dienstfehler prüfen.'
+
+TRANSLATIONS.update({
+    'sources.reachability': 'Erreichbarkeit',
+    'sources.reachable': 'Erreichbar',
+    'sources.monitoring': 'Überwachung',
+    'sources.monitoring_active': 'Überwachung aktiv',
+    'sources.monitoring_inactive': 'Überwachung inaktiv',
+})
+
+TRANSLATIONS.update({
+    'sources.invalid_path': 'Das Verzeichnis existiert nicht oder ist nicht lesbar. Bitte einen vorhandenen, lesbaren Journalordner wählen.',
+    'sources.edit_busy': 'Der Journalpfad kann während der Verarbeitung nicht geändert werden. Bitte warten und erneut versuchen.',
+})
+
+TRANSLATIONS['pp2.history.from_time'] = 'Ab Uhrzeit (lokal)'

@@ -14,6 +14,7 @@ from .startup_runtime import JournalPending, StartupCancelled
 from pathlib import Path
 
 from .journal_files import journal_files
+from .journal_reader import _valid_journal_event
 
 logger = logging.getLogger(__name__)
 
@@ -96,7 +97,8 @@ def validate_input(context, path):
         raise RuntimeError('Journal catch-up requires repair: observed prefix changed')
 
 
-def catch_up(database, context, *, enqueue_fid=None, cancel=None, max_passes=3, time_budget=5.0):
+def catch_up(database, context, *, enqueue_fid=None, cancel=None, max_passes=3, time_budget=5.0,
+             independent_sources=False, enqueue_fids=()):
     """Reconcile until the observed directory is stable; never overtake a tail."""
     logger.info('Journal catch-up started')
     deadline = time.monotonic() + time_budget
@@ -104,7 +106,8 @@ def catch_up(database, context, *, enqueue_fid=None, cancel=None, max_passes=3, 
         if cancel is not None and cancel.is_set():
             raise StartupCancelled()
         before = {str(path): _signature(path.stat()) for path in journal_files(context['folder'])}
-        sessions = _catch_up_pass(database, context, enqueue_fid=enqueue_fid, cancel=cancel, deadline=deadline)
+        sessions = _catch_up_pass(database, context, enqueue_fid=enqueue_fid, cancel=cancel, deadline=deadline,
+                                  independent_sources=independent_sources, enqueue_fids=enqueue_fids)
         after = {str(path): _signature(path.stat()) for path in journal_files(context['folder'])}
         if before == after:
             logger.info('Journal catch-up finished')
@@ -112,7 +115,8 @@ def catch_up(database, context, *, enqueue_fid=None, cancel=None, max_passes=3, 
     raise JournalPending('catchup_budget')
 
 
-def _catch_up_pass(database, context, *, enqueue_fid=None, cancel=None, deadline=None):
+def _catch_up_pass(database, context, *, enqueue_fid=None, cancel=None, deadline=None,
+                   independent_sources=False, enqueue_fids=()):
     baseline = context['baseline']
     indexed = {row['journal_file']: row for row in load_sessions(database)}
     paths = journal_files(context['folder'])
@@ -150,13 +154,21 @@ def _catch_up_pass(database, context, *, enqueue_fid=None, cancel=None, deadline
             if offset < old['offset']:
                 raise RuntimeError('Journal catch-up requires repair: committed cursor changed')
         complete = raw.rfind(b'\n') + 1
+        if independent_sources:
+            # Reject identity locally without preventing unrelated confirmed
+            # files from being processed. Never advance the rejected cursor.
+            from .journal_reader import classify_journal_file
+            identity = classify_journal_file(path)
+            if _signature(before) != _signature(path.stat()):
+                raise JournalPending('journal_changed_during_read')
+            if identity['attribution_status'] != 'identified':
+                database.store_journal_session(identity, identity_only=True)
+                context.setdefault('rejected', {})[name] = identity['attribution_status']
+                continue
+            context.setdefault('rejected', {}).pop(name, None)
         if offset > complete:
             raise RuntimeError('Journal catch-up requires repair: cursor outside complete input')
-        if complete == offset == len(raw):
-            baseline[name] = dict(signature=_signature(before),
-                                  digest=hashlib.sha256(raw).hexdigest(), offset=offset,
-                                  fid=row.get('fid_seen'))
-            continue
+        invalid_committed = False
         identities, parsed, source_keys, event_offsets, position = {}, [], [], [], 0
         first = last = ''
         for line_number, line in enumerate(raw[:complete].splitlines(keepends=True), 1):
@@ -164,12 +176,13 @@ def _catch_up_pass(database, context, *, enqueue_fid=None, cancel=None, deadline
                 raise RuntimeError('Journal catch-up requires repair: cursor inside a line')
             try:
                 event = json.loads(line)
-                if not isinstance(event, dict):
+                if not _valid_journal_event(event):
                     raise ValueError('Invalid journal event')
             except (ValueError, UnicodeError) as exc:
                 if position < offset:
                     # Legacy readers may already have skipped a malformed
                     # historical line. Do not reinterpret committed input.
+                    invalid_committed = True
                     position += len(line)
                     continue
                 raise ValueError('Journal catch-up contains invalid complete event') from exc
@@ -183,24 +196,55 @@ def _catch_up_pass(database, context, *, enqueue_fid=None, cancel=None, deadline
                 source_keys.append(f'line:{line_number}')
                 event_offsets.append(position)
             position += len(line)
+        if complete == offset:
+            if _signature(before) != _signature(path.stat()):
+                raise JournalPending('journal_changed_during_read')
+            digest = hashlib.sha256(raw).hexdigest()
+            # Revalidate identity even though no business events need replaying.
+            # Unknown/legacy sources stay untouched; never bless invalid input.
+            if (not invalid_committed and len(identities) == 1
+                    and row.get('attribution_status') == 'identified'
+                    and row.get('fid_seen') in identities and row.get('commander_id') is not None):
+                database.update_journal_metadata(row['commander_id'], path,
+                    dict(file_size=len(raw), modified_ns=before.st_mtime_ns,
+                         last_complete_line_offset=complete,
+                         **({'committed_prefix_sha256': hashlib.sha256(raw[:complete]).hexdigest()}
+                            if independent_sources else {}),
+                         invalidate_hash=row.get('sha256') != digest), offset)
+            if complete < len(raw):
+                raise JournalPending('partial_final_line')
+            baseline[name] = dict(signature=_signature(before),
+                                  digest=digest, offset=offset,
+                                  fid=row.get('fid_seen'))
+            continue
         if complete > offset:
-            if len(identities) != 1:
+            if invalid_committed or len(identities) != 1:
                 raise ValueError('Journal catch-up identity is not unambiguous')
             fid, commander_name = next(iter(identities.items()))
             if old and old['offset'] and old['fid'] and old['fid'] != fid:
                 raise ValueError('Journal catch-up identity changed')
             cid = database.upsert_commander(fid, commander_name, last)
             session = dict(journal_file=name, commander_id=cid, fid_seen=fid,
+                           attribution_status="identified",
                            commander_name_seen=commander_name, first_event_at=first,
-                           last_event_at=last, file_size=complete,
+                           last_event_at=last, file_size=len(raw),
                            modified_ns=before.st_mtime_ns,
-                           sha256=hashlib.sha256(raw[:complete]).hexdigest(), source_keys=source_keys,
+                           sha256=hashlib.sha256(raw).hexdigest() if complete == len(raw) else None, source_keys=source_keys,
                            event_offsets=event_offsets)
             if cancel is not None and cancel.is_set():
                 raise StartupCancelled()
+            if independent_sources:
+                session['committed_prefix_sha256'] = hashlib.sha256(raw[:complete]).hexdigest()
+                session['inara_from_offset'] = context.get('inara_baselines', {}).get(name, 0)
+            if _signature(before) != _signature(path.stat()):
+                raise JournalPending('journal_changed_during_read')
             database.apply_commander_journal_delta(
-                cid, path, parsed, complete, enqueue_inara=fid == enqueue_fid,
+                cid, path, parsed, complete, enqueue_inara=fid == enqueue_fid or fid in enqueue_fids,
                 session=session, live_current=(path == paths[-1]))
+            if independent_sources:
+                context.setdefault('applied_events', []).extend(
+                    (name, fid, dict(event, _journal_offset=position))
+                    for event, position in zip(parsed, event_offsets))
             files += 1
             events_count += len(parsed)
         # Do not overtake an unfinished event in an older file or acknowledge

@@ -1,4 +1,17 @@
 TRANSLATIONS = {
+    "release.3_9_10.0": "Journalmappar: flera källor med Steam-/Heroic-identifiering, redigering, kryssrutor för övervakning och separat statistik.",
+    "release.3_9_10.1": "Commanders: FID-verifierad tilldelning, sparat val och valfri automatisk följning av en entydigt identifierad spelinstans på Linux.",
+    "release.3_9_10.2": "Powerplay 2.0: valfritt klockslagsfilter, kompakta transportrader och förbättrad koppling av skeppsskanningar för +1 till +100 merits och nya fullständiga skanningar av tidigare sedda mål.",
+    "release.3_9_10.3": "Extrafönster förblir öppna oberoende när huvudfönstret minimeras och stängs när hjälpprogrammet avslutas.",
+    "release.3_9_10.4": "EDSM och Inara: separata EDSM-reglage för sändning och mottagning, uppladdningspositioner per källa, tillförlitliga bekräftelser och förbättrad hantering av nya försök.",
+    "release.3_9_10.5": "Tillförlitligare journalbehandling med transaktionella läspositioner och identitetskontroller; integritetsvänlig Odyssey-visningsdiagnostik i diagnospaketet.",
+
+    'topbar.edsm_active': '● EDSM aktivt',
+    'topbar.edsm_receiving': '● EDSM-mottagning',
+    'topbar.edsm_connection_ok': 'Senaste anslutningstestet lyckades; det bekräftar inte en journaluppladdning.',
+    'topbar.edsm_connection_error': 'Senaste anslutningstestet misslyckades.',
+    'settings.edsm_other_uploader_hint': 'Obs: Om ett annat program redan skickar journalhändelser till EDSM bör du inaktivera sändning i CMDRHelper. Använd helst bara ett program för EDSM-uppladdning för att undvika dubbla överföringar. EDSM-mottagning i CMDRHelper kan förbli aktiverad.',
+
     "release.3_9_9.0": "Flytta planetnavigeringen till ett separat fönster och tillbaka med samma mål och realtidsdata.",
     "release.3_9_9.1": "Öppna favoritbilder i originalupplösning, zooma med mushjulet och dra för att flytta bilden.",
     "release.3_9_9.2": "Favorittitlar visas i Elite-gult (#FFCC33), medan markering och övriga textrader behålls.",
@@ -644,6 +657,7 @@ TRANSLATIONS = {
     'nav.chronicle': 'Krönika',
     'nav.commander_view': 'CMDR-vy',
     'commander_view.title': 'CMDR-vy',
+    'commander_view.follow_live': 'Följ aktiv befälhavare',
     'commander_view.commander': 'Kommendör:',
     'commander_view.identity': 'CMDR {name}',
     'commander_view.status.live': '● Live aktiv',
@@ -881,6 +895,8 @@ TRANSLATIONS = {
     'settings.inara_not_configured': 'Ingen Inara-åtkomst har ännu konfigurerats för {commander}.',
     'settings.inara_configured_short': 'konfigurerad',
     'settings.inara_not_configured_short': 'inte konfigurerad',
+    "settings.edsm_send": 'Skicka EDSM-data',
+    "settings.edsm_receive": 'Ta emot EDSM-data',
     'settings.use_edsm': 'Använd EDSM',
     'settings.use_inara': 'Använd Inara',
     'settings.test_edsm': 'Testa EDSM-anslutning',
@@ -2061,3 +2077,41 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS.update({"pp2.chronicle.commodity_sale": 'Varuförsäljning'})
+
+# Journal source management
+TRANSLATIONS.update({
+    'sources.title': 'Journalmappar',
+    'sources.add': 'Lägg till',
+    'sources.edit': 'Redigera',
+    'sources.toggle': 'Aktivera / Inaktivera',
+    'sources.remove': 'Ta bort',
+    'sources.search': 'Sök igen',
+    'sources.enabled': 'Aktiverad',
+    'sources.name': 'Namn',
+    'sources.remove_note': 'Borttagning stoppar övervakningen. Filer och historik behålls.',
+    'sources.identity_unknown': 'Befälhavarens identitet är okänd',
+    'sources.duplicate': 'Denna mapp är redan en källa.',
+    'sources.status.unknown': 'Okänd identitet',
+    'sources.status.disabled': 'Inaktiverad',
+    'sources.status.duplicate': 'Dubblettsökväg',
+    'sources.status.reading': 'Läser',
+    'sources.status.ready': 'Klar',
+    'sources.status.unreachable': 'Otillgänglig',
+    'sources.status.error': 'Bearbetning väntar / fel',
+})
+TRANSLATIONS['sources.upload_pending'] = 'Uppladdning väntar: kontrollera identitet, tidigare positioner eller tjänstefel.'
+
+TRANSLATIONS.update({
+    'sources.reachability': 'Tillgänglighet',
+    'sources.reachable': 'Tillgänglig',
+    'sources.monitoring': 'Övervakning',
+    'sources.monitoring_active': 'Övervakning aktiv',
+    'sources.monitoring_inactive': 'Övervakning inaktiv',
+})
+
+TRANSLATIONS.update({
+    'sources.invalid_path': 'Mappen finns inte eller kan inte läsas. Välj en befintlig, läsbar journalmapp.',
+    'sources.edit_busy': 'Sökvägen kan inte ändras under bearbetning. Vänta och försök igen.',
+})
+
+TRANSLATIONS['pp2.history.from_time'] = 'Från klockslag (lokal tid)'

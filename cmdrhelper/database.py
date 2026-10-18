@@ -1983,7 +1983,7 @@ class CMDRDatabase:
                     (timestamp, commander_id, address, body_id))
 
     def apply_commander_journal_delta(self, commander_id, journal_file, events,
-                                      safe_offset: int, enqueue_inara=False, session=None, live_current=False) -> None:
+                                      safe_offset: int, enqueue_inara=False, session=None, live_current=False, metadata=None) -> None:
         """Atomically applies explicit journal facts and commits their byte offset."""
         from cmdrhelper.bio_valuation import base_value
         from cmdrhelper.stations import observation, store_observation
@@ -2038,6 +2038,19 @@ class CMDRDatabase:
         visit_rows = []
         with self._connect() as con:
             con.execute("BEGIN IMMEDIATE")
+            owner = con.execute("SELECT fid FROM commanders WHERE id=?", (commander_id,)).fetchone()
+            if session is None:
+                source = con.execute("""SELECT commander_id,fid_seen,attribution_status
+                    FROM journal_sessions WHERE journal_file=?""", (str(journal_file),)).fetchone()
+            else:
+                source = (session.get("commander_id"), session.get("fid_seen"), session.get("attribution_status"))
+            if (not owner or not owner[0] or not source or source[0] != commander_id
+                    or source[1] != owner[0] or source[2] != "identified"):
+                raise ValueError("journal_identity_unverified")
+            for event in events:
+                if event.get("event") in ("Commander", "LoadGame") and event.get("FID"):
+                    if not isinstance(event["FID"], str) or event["FID"].strip() != owner[0]:
+                        raise ValueError("journal_identity_conflict")
             if session is not None:
                 # Import catch-up owns this verified input snapshot. Publish
                 # its index metadata only with the facts and committed cursor.
@@ -2071,6 +2084,8 @@ class CMDRDatabase:
                 and old_offset_row[2] == "identified"
                 and old_offset_row[1] == commander_id
             )
+            if metadata is not None:
+                self._update_journal_metadata(con, commander_id, journal_file, metadata, safe_offset)
             if old_offset_row is not None and int(safe_offset) <= int(old_offset_row[0] or 0):
                 return
             mission_by_id = {
@@ -2140,7 +2155,9 @@ class CMDRDatabase:
                         (commander_id, sale["ship_id"]),
                     ).fetchone():
                         loadout = ShipLoadoutData()
-                if enqueue_inara and ts:
+                inara_after_baseline = (session is None or 'inara_from_offset' not in session
+                    or session['event_offsets'][event_index] >= session['inara_from_offset'])
+                if enqueue_inara and ts and inara_after_baseline:
                     try:
                         from cmdrhelper.inara_uploader import map_journal_event
                         mapped = map_journal_event(event, inara_context)
@@ -2542,13 +2559,66 @@ class CMDRDatabase:
             con.execute("""UPDATE journal_sessions
                 SET last_read_offset=MAX(last_read_offset,?) WHERE journal_file=?""",
                 (int(safe_offset), str(journal_file)))
+            if session is not None and 'committed_prefix_sha256' in session:
+                from .journal_prefix import store
+                store(con, journal_file, source[1], int(safe_offset), session['committed_prefix_sha256'])
 
-    def inara_pending(self, commander_id, limit=25):
+    def _update_journal_metadata(self, con, commander_id, journal_file, metadata, safe_offset):
+        """Update a verified snapshot, without advancing any consumer cursor."""
+        size = metadata["file_size"]
+        complete = metadata["last_complete_line_offset"]
+        modified = metadata["modified_ns"]
+        row = con.execute("""SELECT s.last_read_offset,s.fid_seen,c.fid,s.attribution_status
+            FROM journal_sessions s JOIN commanders c ON c.id=s.commander_id
+            WHERE s.journal_file=? AND s.commander_id=?""",
+            (str(journal_file), commander_id)).fetchone()
+        if (any(type(value) is not int for value in (size, complete, modified, safe_offset))
+                or not 0 <= safe_offset <= complete <= size or not row
+                or row[0] > safe_offset or not row[1] or row[1] != row[2]
+                or row[3] != "identified"):
+            raise ValueError("journal_metadata_unverified")
+        con.execute("""UPDATE journal_sessions SET
+            sha256=CASE WHEN ?=0 AND file_size=? AND modified_ns=? THEN sha256 ELSE NULL END,
+            fully_imported=CASE WHEN file_size=? AND modified_ns=? THEN fully_imported ELSE 0 END,
+            file_size=?,modified_ns=?,last_complete_line_offset=?
+            WHERE journal_file=? AND commander_id=?""",
+            (int(bool(metadata.get("invalidate_hash"))), size, modified, size, modified,
+             size, modified, complete, str(journal_file), commander_id))
+        if 'committed_prefix_sha256' in metadata:
+            from .journal_prefix import store
+            store(con, journal_file, row[1], safe_offset, metadata['committed_prefix_sha256'])
+
+    def update_journal_metadata(self, commander_id, journal_file, metadata, safe_offset):
+        """Metadata-only catch-up: no facts, outbox entries or checkpoints."""
         with self._connect() as con:
+            con.execute("BEGIN IMMEDIATE")
+            self._update_journal_metadata(con, commander_id, journal_file, metadata, safe_offset)
+
+    def inara_pending(self, commander_id, limit=25, *, journal_folder=None):
+        now = datetime.now(timezone.utc)
+        with self._connect() as con:
+            # A 429 pause belongs to the original commander, including newly
+            # queued events, and survives restart without changing the schema.
+            pauses = con.execute("""SELECT DISTINCT last_error FROM inara_outbox
+                WHERE commander_id=? AND status='error'""", (int(commander_id),)).fetchall()
+            for (error,) in pauses:
+                try:
+                    metadata = json.loads(error) if error else {}
+                    deadline = metadata.get("inara_retry_not_before") if isinstance(metadata, dict) else None
+                    if deadline and now < datetime.fromisoformat(deadline):
+                        return []
+                except (ValueError, TypeError):
+                    pass
+            source_sql, source_args = '', ()
+            if journal_folder is not None:
+                import os
+                prefix = str(Path(journal_folder)) + os.sep
+                source_sql = ' AND substr(journal_file,1,?)=?'
+                source_args = (len(prefix), prefix)
             rows = con.execute("""SELECT id,event_name,event_timestamp,event_data_json,
-                retry_count,last_attempt_at FROM inara_outbox
+                retry_count,last_attempt_at,last_error,journal_file,source_key,status FROM inara_outbox
                 WHERE commander_id=? AND status IN ('pending','error') AND retry_count<8
-                ORDER BY id LIMIT 100""", (int(commander_id),)).fetchall()
+                """ + source_sql + " ORDER BY id LIMIT 100", (int(commander_id), *source_args)).fetchall()
         now = datetime.now(timezone.utc)
         result = []
         for row in rows:
@@ -2563,21 +2633,64 @@ class CMDRDatabase:
                 continue
             result.append({"id": row[0], "event_name": row[1],
                            "event_timestamp": row[2], "event_data": json.loads(row[3]),
-                           "retry_count": row[4]})
+                           "retry_count": row[4], "last_attempt_at": row[5],
+                           "journal_file": row[7], "source_key": row[8], "status": row[9]})
             if len(result) >= int(limit):
                 break
         return result
 
-    def update_inara_outbox(self, sent_ids=(), errors=None):
-        errors = errors or {}
-        now = datetime.now(timezone.utc).isoformat()
+    @staticmethod
+    def _validate_inara_request(con, commander_id, fid, expected_rows):
+        owner = con.execute("SELECT fid FROM commanders WHERE id=?", (commander_id,)).fetchone()
+        if not fid or owner is None or owner[0] != fid or not expected_rows:
+            raise ValueError("inara_identity_unverified")
+        ids = [row["id"] for row in expected_rows]
+        if len(set(ids)) != len(ids):
+            raise ValueError("inara_request_changed")
+        for expected in expected_rows:
+            row = con.execute("""SELECT commander_id,journal_file,source_key,event_name,
+                event_timestamp,event_data_json,status,retry_count,last_attempt_at
+                FROM inara_outbox WHERE id=?""", (expected["id"],)).fetchone()
+            if (row is None or row[0] != commander_id or row[6] not in ("pending", "error")
+                    or tuple(row[1:5]) != tuple(expected[k] for k in
+                        ("journal_file", "source_key", "event_name", "event_timestamp"))
+                    or json.loads(row[5]) != expected["event_data"]
+                    or tuple(row[6:]) != tuple(expected[k] for k in
+                        ("status", "retry_count", "last_attempt_at"))):
+                raise ValueError("inara_request_changed")
+
+    def validate_inara_request(self, commander_id, fid, expected_rows):
         with self._connect() as con:
+            self._validate_inara_request(con, commander_id, fid, expected_rows)
+
+    def update_inara_outbox(self, sent_ids=(), errors=None, *, commander_id,
+                           fid, expected_rows, retry_seconds=0):
+        errors = errors or {}
+        instant = datetime.now(timezone.utc)
+        now = instant.isoformat()
+        deadline = None
+        if type(retry_seconds) is int and retry_seconds > 0:
+            from datetime import timedelta
+            try:
+                deadline = (instant + timedelta(seconds=retry_seconds)).isoformat()
+            except OverflowError:
+                deadline = datetime.max.replace(tzinfo=timezone.utc).isoformat()
+        with self._connect() as con:
+            con.execute("BEGIN IMMEDIATE")
+            self._validate_inara_request(con, commander_id, fid, expected_rows)
+            sent = set(sent_ids)
+            if (any(type(identity) is not int for identity in [*sent_ids, *errors])
+                    or len(sent) != len(sent_ids) or sent & set(errors)
+                    or sent | set(errors) != {r["id"] for r in expected_rows}):
+                raise ValueError("inara_response_mismatch")
             for row_id in sent_ids:
                 con.execute("""UPDATE inara_outbox SET status='sent',sent_at=?,
                     last_attempt_at=?,last_error='' WHERE id=?""", (now, now, int(row_id)))
             for row_id, error in errors.items():
+                stored = (json.dumps({"inara_retry_not_before": deadline, "reason": str(error)})
+                          if deadline else str(error))
                 con.execute("""UPDATE inara_outbox SET status='error',retry_count=retry_count+1,
-                    last_attempt_at=?,last_error=? WHERE id=?""", (now, str(error), int(row_id)))
+                    last_attempt_at=?,last_error=? WHERE id=?""", (now, stored, int(row_id)))
 
     def repair_commander_position_gap(self, commander_id, journal_file, event,
                                       enqueue_inara=False):
@@ -3655,7 +3768,7 @@ class CMDRDatabase:
 
         return int(row[0]) if row is not None else None
 
-    def store_journal_session(self, session: dict) -> int:
+    def store_journal_session(self, session: dict, *, identity_only=False) -> int:
         """Speichert eine bereits dateilokal ermittelte Journalzuordnung."""
         status = str(session.get("attribution_status") or "unknown").strip()
         if status not in ("identified", "unknown", "ambiguous"):
@@ -3680,6 +3793,15 @@ class CMDRDatabase:
             # Identitätswerten niemals automatisch zugeordnet werden.
             fid = ""
             name = ""
+
+        if identity_only:
+            with self._connect() as con:
+                con.execute("""UPDATE journal_sessions SET commander_id=?,fid_seen=?,
+                    commander_name_seen=?,attribution_status=? WHERE journal_file=?""",
+                    (commander_id, fid or None, name or None, status, journal_file))
+                row = con.execute("SELECT id FROM journal_sessions WHERE journal_file=?",
+                                  (journal_file,)).fetchone()
+                return int(row[0]) if row else 0
 
         with self._connect() as con:
             con.execute(

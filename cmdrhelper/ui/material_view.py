@@ -204,6 +204,8 @@ class MaterialView(QWidget):
     def render(self, *_):
         self.trader_panel.set_category(self.CATEGORIES[self.tabs.currentIndex()])
         is_odyssey = self.CATEGORIES[self.tabs.currentIndex()] == "Odyssey"
+        if not is_odyssey and self.odyssey is not None and self.odyssey.isVisible():
+            self.odyssey.display_diagnostics.capture()
         if is_odyssey and self.odyssey is None:
             from cmdrhelper.ui.odyssey_view import OdysseyView
             self.odyssey = OdysseyView(self.state, self.search, self,

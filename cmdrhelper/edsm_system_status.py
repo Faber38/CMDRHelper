@@ -42,9 +42,10 @@ class EdsmSystemStatus(QObject):
     cleared = Signal()
     changed = Signal()
 
-    def __init__(self, settings, parent=None, *, fetch=fetch_edsm_system_status, pool=None):
+    def __init__(self, settings, parent=None, *, fetch=fetch_edsm_system_status, pool=None, receive_allowed=lambda: True):
         super().__init__(parent)
         self.settings, self.fetch = settings, fetch
+        self.receive_allowed = receive_allowed
         self.pool = pool or QThreadPool(self)
         if pool is None:
             self.pool.setMaxThreadCount(2)
@@ -88,11 +89,11 @@ class EdsmSystemStatus(QObject):
             if same:
                 continue
             self._invalidate()
-            if not self.active:
+            if not self.active or not self.receive_allowed():
                 continue
             generation = self.generation
             worker = StatusWorker(generation, name, address,
-                lambda g=generation: self.active and g == self.generation, self.fetch)
+                lambda g=generation: self.active and self.receive_allowed() and g == self.generation, self.fetch)
             worker.signals.finished.connect(self._finished)
             self.workers[generation] = worker
             self.pool.start(worker)
@@ -100,7 +101,7 @@ class EdsmSystemStatus(QObject):
     @Slot(int, str)
     def _finished(self, generation, status):
         self.workers.pop(generation, None)
-        if generation != self.generation or not self.active:
+        if generation != self.generation or not self.active or not self.receive_allowed():
             return
         if status not in ("known", "unknown", "no_response"):
             status = "no_response"

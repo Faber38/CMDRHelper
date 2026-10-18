@@ -39,6 +39,15 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.10
+
+- Günlük klasörleri: Steam/Heroic algılama, düzenleme, izleme onay kutuları ve ayrı istatistiklerle birden fazla kaynak yönetin.
+- Komutanlar: FID ile doğrulanan eşleştirme, kaydedilen seçim ve Linux üzerinde açıkça tanımlanan bir oyun örneğini isteğe bağlı otomatik takip.
+- Powerplay 2.0: isteğe bağlı saat filtresi, kompakt taşıma satırları ve +1 ile +100 merit ile daha önce görülen hedeflerin yeni tam taramaları için iyileştirilmiş gemi taraması eşleştirmesi.
+- Ana pencere küçültüldüğünde ek pencereler bağımsız olarak açık kalır ve yardımcı programdan çıkıldığında kapanır.
+- EDSM ve Inara: ayrı EDSM gönderme ve alma anahtarları, kaynağa özel yükleme konumları, güvenilir onaylar ve iyileştirilmiş yeniden deneme yönetimi.
+- İşlemsel okuma konumları ve kimlik kontrolleriyle daha güvenilir günlük işleme; tanılama paketinde gizliliği koruyan Odyssey görüntüleme tanılaması.
+
 ## CMDRHelper v3.9.9
 
 - Gezegen navigasyonunu ayrı bir pencereye taşıyın ve hedef ile canlı verileri koruyarak geri yerleştirin.

@@ -38,6 +38,15 @@ Journalmappen til Elite Dangerous oppdages automatisk når det er mulig. Hvis de
 
 CMDRHelper søker etter oppdateringer ved oppstart og har en innebygd oppdateringsfunksjon. Bekreft en tilbudt oppdatering i programmet; den oppdaterer programmet og avhengighetene og starter CMDRHelper på nytt. Etter førstegangsinstallasjonen bruker du normalt bare `start.bat` (Windows) eller `bash start.sh` (Linux). Du trenger ikke å kjøre `install.bat` eller `install.sh` manuelt på nytt for vanlige oppdateringer.
 
+## CMDRHelper v3.9.10
+
+- Journalmapper: flere kilder med Steam-/Heroic-gjenkjenning, redigering, avkryssingsbokser for overvåking og separat statistikk.
+- Commandere: FID-verifisert tilordning, lagret valg og valgfri automatisk følging av en entydig identifisert spillinstans på Linux.
+- Powerplay 2.0: valgfritt klokkeslettfilter, kompakte transportrader og bedre kobling av skipsskanninger for +1 til +100 merits og nye fullstendige skanninger av tidligere observerte mål.
+- Tilleggsvinduer forblir åpne uavhengig når hovedvinduet minimeres, og lukkes når hjelpeprogrammet avsluttes.
+- EDSM og Inara: separate EDSM-brytere for sending og mottak, opplastingsposisjoner per kilde, pålitelige bekreftelser og forbedret håndtering av nye forsøk.
+- Mer pålitelig journalbehandling med transaksjonelle leseposisjoner og identitetskontroller; personvernvennlig Odyssey-visningsdiagnostikk i diagnosepakken.
+
 ## CMDRHelper v3.9.9
 
 - Flytt planetnavigasjonen til et separat vindu og tilbake med samme mål og sanntidsdata.

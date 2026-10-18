@@ -38,6 +38,15 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## CMDRHelper v3.9.10
+
+- Journaalmappen: meerdere bronnen met Steam-/Heroic-detectie, bewerken, selectievakjes voor bewaking en afzonderlijke statistieken.
+- Commanders: toewijzing op basis van gecontroleerde FID, opgeslagen selectie en optioneel automatisch volgen van een eenduidig herkende spelinstantie onder Linux.
+- Powerplay 2.0: optioneel tijdfilter, compacte transportregels en betere koppeling van scheepsscans voor +1 tot +100 merits en nieuwe volledige scans van eerder geziene doelen.
+- Extra vensters blijven onafhankelijk open bij het minimaliseren van het hoofdvenster en sluiten bij het afsluiten van de helper.
+- EDSM en Inara: afzonderlijke EDSM-schakelaars voor verzenden en ontvangen, uploadposities per bron, betrouwbare bevestigingen en verbeterde afhandeling van nieuwe pogingen.
+- Betrouwbaardere journaalverwerking met transactionele leesposities en identiteitscontroles; privacybewuste Odyssey-weergavediagnostiek in het diagnosepakket.
+
 ## CMDRHelper v3.9.9
 
 - Verplaats planeetnavigatie naar een apart venster en terug met behoud van doel en livegegevens.

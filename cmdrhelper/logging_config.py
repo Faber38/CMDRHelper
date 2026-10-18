@@ -44,6 +44,9 @@ def sanitize(value):
         except ValueError:
             return REDACTED
     value = re.sub(r'https?://[^\s<>]+', url, value)
+    # Command-line authentication arguments: omit the entire remaining tail,
+    # including multi-part session tokens. Never print raw process arguments.
+    value = re.sub(r'(?i)\b(?:authorization|password|passwd|secret|[\w-]*token|api[_-]?key|fid)\s+[^\r\n]+', REDACTED, value)
     value = re.sub(r'(?i)\b(?:Bearer|Basic)\s+[^\s,;]+', REDACTED, value)
     value = re.sub(r'(?i)\b(?:authorization|password|passwd|secret|[\w-]*token|api[_-]?key|fid|commander(?:name)?|latitude|longitude|note)\s*[=:]\s*[^\r\n]+', REDACTED, value)
     value = re.sub(r'\bF\d{4,}\b', REDACTED, value)
@@ -56,7 +59,10 @@ _FIELDS = {'version', 'os', 'python', 'qt', 'pyside', 'architecture', 'pid',
            'count', 'files', 'events', 'images', 'missing', 'fields', 'remaining',
            'success', 'restored', 'phase', 'mode', 'field', 'python_type',
            'value_class', 'outside_sqlite_int64', 'retry_seconds',
-           'component', 'reason', 'status', 'errno', 'winerror', 'sqlite_code'}
+           'component', 'reason', 'status', 'errno', 'winerror', 'sqlite_code',
+           'http_status', 'edsm_code', 'inara_error', 'inara_retry_seconds',
+           'prepared_events', 'confirmed_events',
+           'skipped_events', 'response_check', 'position_advanced'}
 
 
 def _technical_fields(fields):
@@ -84,8 +90,29 @@ def _technical_fields(fields):
     for key, value in fields.items():
         if key not in _FIELDS:
             continue
-        if key == 'outside_sqlite_int64':
+        if key in {'http_status', 'edsm_code', 'prepared_events', 'confirmed_events', 'skipped_events'}:
+            maximum = 599 if key == 'http_status' else 999 if key == 'edsm_code' else 2**31 - 1
+            minimum = 100 if key in {'http_status', 'edsm_code'} else 0
+            if (type(value) is int and minimum <= value <= maximum) or (type(value) is str and value == 'unknown'):
+                safe[key] = value
+            continue
+        if key == 'response_check':
+            if type(value) is str and value in {'accepted', 'rejected', 'partial', 'unknown', 'transport_error'}:
+                safe[key] = value
+            continue
+        if key in {'outside_sqlite_int64', 'position_advanced'}:
             if type(value) is bool:
+                safe[key] = value
+            continue
+        if key == 'inara_error':
+            if type(value) is str and value in {
+                    'invalid_identity', 'invalid_batch', 'http_error', 'transport_error',
+                    'invalid_json', 'invalid_response', 'api_rejected',
+                    'incomplete_response', 'invalid_event_id'}:
+                safe[key] = value
+            continue
+        if key == 'inara_retry_seconds':
+            if type(value) is int and 0 <= value <= 315537897599:
                 safe[key] = value
             continue
         if key == 'retry_seconds':

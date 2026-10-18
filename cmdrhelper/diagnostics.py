@@ -15,6 +15,7 @@ from PySide6.QtCore import qVersion
 
 from cmdrhelper.logging_config import LOG_BACKUP_COUNT, LOG_MAX_BYTES, PRIVACY_MARKER, log_folder, sanitize, logged_operation
 from cmdrhelper.version import __version__
+from cmdrhelper.odyssey_display_diagnostics import export_snapshot
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +79,7 @@ def _log_text(path):
 
 
 @logged_operation("Diagnostic package")
-def create_package(target, *, database=None, journals=None, folder=None, overwrite=False):
+def create_package(target, *, database=None, journals=None, folder=None, overwrite=False, odyssey_snapshot=None):
     import json
     target = Path(target)
     if target.suffix.lower() != '.zip':
@@ -112,6 +113,8 @@ def create_package(target, *, database=None, journals=None, folder=None, overwri
                     archive.writestr(name, content.encode('utf-8'))
                 archive.writestr('system_info.json', json.dumps(info, indent=2).encode('utf-8'))
                 archive.writestr('diagnose_summary.txt', summary.encode('utf-8'))
+                archive.writestr('odyssey_display_diagnostics.json',
+                                 json.dumps(export_snapshot(odyssey_snapshot), ensure_ascii=False, indent=2).encode('utf-8'))
             stream.flush()
             os.fsync(stream.fileno())
         if overwrite:

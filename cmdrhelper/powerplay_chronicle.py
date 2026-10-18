@@ -73,7 +73,6 @@ class ChronicleGroup:
     locker_seen: bool = False
     delivery_blocked: bool = False
     last_sale_event: dict | None = field(default=None, repr=False)
-    repeated_scan: bool = False
 
 
 @dataclass
@@ -87,13 +86,11 @@ class PowerplayChronicle:
     causes: list[ChronicleGroup] = field(default_factory=list, repr=False)
     last_event: dict | None = field(default=None, repr=False)
     last_context: tuple | None = field(default=None, repr=False)
-    seen_scan_targets: set = field(default_factory=set, repr=False)
 
     def reset_candidates(self):
         self.pending = self.active = None
         self.ambiguous = False
         self.causes.clear()
-        self.seen_scan_targets.clear()
         self.last_event = self.last_context = None
 
     def _append(self, group):
@@ -289,14 +286,6 @@ class PowerplayChronicle:
                 return
             group = ChronicleGroup(dict(event), "explicit" if explicit else "temporal",
                                    system, station, event.get("Power", power), competitors=competitors)
-            if kind == 'ShipTargeted':
-                pilot = event.get('PilotName') or event.get('PilotName_Localised')
-                if pilot and event.get('Ship'):
-                    # No unique target ID exists here. Repeated type/name pairs
-                    # are conservative evidence, never proof of a fresh reward.
-                    target = (event['Ship'], pilot)
-                    group.repeated_scan = target in self.seen_scan_targets
-                    self.seen_scan_targets.add(target)
             self.causes.append(group)
             if explicit:
                 self.ambiguous = False
@@ -334,8 +323,8 @@ class PowerplayChronicle:
                 elif action in ("Bounty", "SearchAndRescue", "ShipTargeted"):
                     matched = 0 <= gap <= self._window(group)
                     if action == "ShipTargeted":
-                        matched = (matched and event["MeritsGained"] in (5, 10)
-                                   and not group.credits and not group.repeated_scan)
+                        matched = (matched and 1 <= event["MeritsGained"] <= 100
+                                   and not group.credits)
                 elif group.certainty == "unknown" and group.credits:
                     last_gap = self._gap(group.credits[-1], event)
                     matched = 0 <= gap <= 10 and last_gap is not None and 0 <= last_gap <= 3

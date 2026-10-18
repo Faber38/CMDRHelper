@@ -1,10 +1,10 @@
 """Compact local Powerplay overview, following the shared card/theme styles."""
 from datetime import timedelta
-from PySide6.QtCore import QLocale, QTimer, Qt
+from PySide6.QtCore import QLocale, QTimer, Qt, QTime
 from PySide6.QtWidgets import (
     QAbstractItemView, QFrame, QGridLayout, QHeaderView, QLabel, QScrollArea,
     QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget, QHBoxLayout,
-    QPushButton, QMenu, QMessageBox, QProgressBar,
+    QPushButton, QMenu, QMessageBox, QProgressBar, QCheckBox, QTimeEdit,
 )
 
 from cmdrhelper.i18n import get_language, tr
@@ -190,6 +190,20 @@ class PowerplayView(QScrollArea):
         self.day_label.setWordWrap(False)
         self.today_button = QPushButton(tr("pp2.history.today"))
         self.manage_history = QPushButton(tr("pp2.history.manage"))
+        self.time_filter = QWidget()
+        time_layout = QHBoxLayout(self.time_filter)
+        time_layout.setContentsMargins(0, 0, 0, 0)
+        self.time_filter_enabled = QCheckBox(tr('pp2.history.from_time'))
+        self.from_time = QTimeEdit(QTime(0, 0))
+        self.from_time.setDisplayFormat('HH:mm')
+        self.from_time.setAccessibleName(tr('pp2.history.from_time'))
+        self.from_time.setEnabled(False)
+        self.time_filter_enabled.toggled.connect(self.from_time.setEnabled)
+        self.time_filter_enabled.toggled.connect(lambda *_: self.render())
+        self.from_time.timeChanged.connect(lambda *_: self.render())
+        time_layout.addWidget(self.time_filter_enabled)
+        time_layout.addWidget(self.from_time)
+        time_layout.addStretch()
         self.previous_day.clicked.connect(lambda: self._move_day(-1))
         self.next_day.clicked.connect(lambda: self._move_day(1))
         self.today_button.clicked.connect(self._today)
@@ -277,6 +291,7 @@ class PowerplayView(QScrollArea):
                                        alignment=Qt.AlignLeft)
         self.chronicle_header.addWidget(self.manage_history, 0 if wide else 2, 2 if wide else 0,
                                        1, 1 if wide else 2, alignment=Qt.AlignRight if wide else Qt.AlignLeft)
+        self.chronicle_header.addWidget(self.time_filter, 1 if wide else 3, 0, 1, 3 if wide else 2)
         self.chronicle_header.setColumnStretch(0, 1 if wide else 0)
         self.chronicle_header.setColumnStretch(1, 0 if wide else 1)
         self.recent.fit_columns()
@@ -456,6 +471,13 @@ class PowerplayView(QScrollArea):
             action.setEnabled(db is not None and cid is not None)
         chronicle = db.powerplay_day(cid, selected) if db is not None and cid is not None else data.chronicle
         groups = today_groups(chronicle, selected)
+        if self.time_filter_enabled.isChecked():
+            # Match the existing day filter and displayed action timestamp.
+            # Convert each instant locally (including its historical DST offset).
+            # Keep groups/credits intact; this is only a presentation filter.
+            cutoff = self.from_time.time().toPython()
+            groups = [group for group in groups
+                      if timestamp(group.action['timestamp']).astimezone().time() >= cutoff]
         self.recent.setRowCount(len(groups))
         for row, group in enumerate(groups):
             event = group.action
@@ -489,7 +511,9 @@ class PowerplayView(QScrollArea):
                 details = " · ".join(parts) or unknown
             place = " · ".join(value for value in (group.station, group.system) if value)
             if place:
-                details += "\n" + place
+                separator = " | " if kind in (
+                    'MarketSell', 'PowerplayCollect', 'PowerplayDeliver', 'SearchAndRescue') else "\n"
+                details += separator + place
             gains = ["+" + fmt(credit["MeritsGained"]) for credit in group.credits]
             merits = " / ".join(gains[:5]) + (" / …" if len(gains) > 5 else "") if gains else "—"
             if kind == 'MarketSell' and not is_rare_sale(event) and gains:

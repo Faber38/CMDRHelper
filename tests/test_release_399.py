@@ -18,8 +18,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class Release399Tests(unittest.TestCase):
     def test_publisher_metadata_and_readmes_in_all_languages(self):
-        self.assertEqual(version_at(ROOT), '3.9.9')
-        self.assertEqual(__version__, '3.9.9')
+        self.assertEqual(version_at(ROOT), __version__)
+        self.assertFalse(update.is_newer_version('3.9.9', __version__))
         self.assertEqual(SCHEMA_VERSION, 23)
         notes = release_notes(ROOT, '3.9.9')
         from cmdrhelper.ui.main_window import MainWindow

@@ -6,6 +6,7 @@ from cmdrhelper.mapping_metadata import apply_mapping_metadata
 
 import copy
 import json
+import logging
 import platform
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -101,6 +102,19 @@ def read_today_powerplay_chronicle(sessions, fid, *, day=None, zone=None):
     return chronicle
 
 
+def _valid_journal_event(event):
+    """Validate structure before any event field access; do not coerce FIDs."""
+    return (isinstance(event, dict)
+            and isinstance(event.get("event"), str) and bool(event["event"].strip())
+            and (event["event"] not in ("Commander", "LoadGame")
+                 or event.get("FID") is None or isinstance(event["FID"], str)))
+
+
+def _log_invalid_journal_structure():
+    # One bounded technical message per scan/cache update, no source contents.
+    logging.getLogger(__name__).warning("Journal source rejected: invalid_journal_structure")
+
+
 def _live_complete_events(path: Path) -> tuple[list[dict], int]:
     """Keep only parsed, complete events of the active file; never cache a tail."""
     key = str(path)
@@ -111,8 +125,10 @@ def _live_complete_events(path: Path) -> tuple[list[dict], int]:
             or signature[2] < old[0][2]
             or (signature[2] == old[0][2] and signature != old[0])):
         offset, events, positions = 0, [], []
+        invalid = False
     else:
         offset, events, positions = old[1], old[2], old[3]
+        invalid = old[5]
     if old is not None and signature == old[0]:
         return events, offset
     with path.open("rb") as handle:
@@ -125,6 +141,7 @@ def _live_complete_events(path: Path) -> tuple[list[dict], int]:
             boundary = handle.read(min(offset, 4096))
             if (prefix, boundary) != old[4]:
                 offset, events, positions = 0, [], []
+                invalid = False
         handle.seek(offset)
         added = handle.read()
         newline = added.rfind(b"\n")
@@ -147,7 +164,10 @@ def _live_complete_events(path: Path) -> tuple[list[dict], int]:
             try:
                 event = json.loads(raw.decode("utf-8", errors="replace"))
             except json.JSONDecodeError:
+                invalid = True
                 continue
+            if not _valid_journal_event(event):
+                invalid = True
             if isinstance(event, dict):
                 parsed.append(event)
                 new_positions.append(start)
@@ -156,8 +176,30 @@ def _live_complete_events(path: Path) -> tuple[list[dict], int]:
         positions = positions + new_positions
         offset += newline + 1
     _LIVE_LINE_CACHE.clear()
-    _LIVE_LINE_CACHE[key] = (signature, offset, events, positions, (prefix, boundary))
+    _LIVE_LINE_CACHE[key] = (signature, offset, events, positions, (prefix, boundary), invalid)
+    if invalid and (old is None or not old[5]):
+        _log_invalid_journal_structure()
     return events, offset
+
+
+def verified_live_metadata(path: Path, session: dict, safe_offset: int) -> dict:
+    """Bind metadata to the stable bytes used for live identity and delta parsing.
+
+    No full-file hashing on the live path. A changed snapshot invalidates the
+    index digest until the normal index scan computes a full-file SHA-256.
+    """
+    cached = _LIVE_LINE_CACHE.get(str(path))
+    stat = path.stat()
+    signature = (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns)
+    if (cached is None or cached[0] != signature
+            or session.get("_live_signature") != signature
+            or cached[5] or cached[1] != safe_offset
+            or session.get("attribution_status") != "identified"
+            or not session.get("fid_seen")
+            or int(session.get("last_read_offset") or 0) > safe_offset):
+        raise OSError("journal metadata snapshot no longer valid")
+    return dict(file_size=stat.st_size, modified_ns=stat.st_mtime_ns,
+                last_complete_line_offset=safe_offset, invalidate_hash=True)
 
 
 def read_journal_delta(path: Path, start_offset: int, *, include_positions=False) -> tuple[list[dict], int]:
@@ -442,11 +484,18 @@ def classify_journal_file(journal: Path) -> dict:
         pass
 
     identities: dict[str, str] = {}
+    invalid = False
     with journal.open("r", encoding="utf-8", errors="replace") as handle:
         for line in handle:
+            if not line.endswith("\n"):
+                break  # An append in progress is not a committed event.
             try:
                 event = json.loads(line)
             except json.JSONDecodeError:
+                invalid = True
+                continue
+            if not _valid_journal_event(event):
+                invalid = True
                 continue
 
             timestamp = str(event.get("timestamp") or "").strip()
@@ -469,13 +518,17 @@ def classify_journal_file(journal: Path) -> dict:
                 identities[fid] = name
 
     result["fids_seen"] = sorted(identities)
-    if len(identities) == 1:
+    if invalid:
+        result["identity_reason"] = "invalid_journal_structure"
+        _log_invalid_journal_structure()
+    if len(identities) == 1 and not invalid:
         fid = next(iter(identities))
         result["attribution_status"] = "identified"
         result["fid_seen"] = fid
         result["commander_name_seen"] = identities[fid] or None
     elif len(identities) > 1:
         result["attribution_status"] = "ambiguous"
+        result["identity_reason"] = "conflicting_fids"
 
     return result
 
@@ -1335,8 +1388,12 @@ def read_latest_state(
             except OSError as exc:
                 raise JournalReadError(journal, exc) from exc
             session["last_complete_line_offset"] = safe_offset
+            session["_live_signature"] = _LIVE_LINE_CACHE[str(journal)][0]
+            invalid = _LIVE_LINE_CACHE[str(journal)][5]
             identities = {}
             for identity_event in input_lines:
+                if not _valid_journal_event(identity_event):
+                    continue
                 event_type = identity_event.get("event")
                 if event_type not in ("Commander", "LoadGame"):
                     continue
@@ -1345,16 +1402,21 @@ def read_latest_state(
                     continue
                 field = "Name" if event_type == "Commander" else "Commander"
                 identities[fid] = str(identity_event.get(field) or "").strip()
-            if len(identities) == 1:
+            if len(identities) == 1 and not invalid:
                 fid = next(iter(identities))
+                if session.get("fid_seen") != fid or session.get("attribution_status") != "identified":
+                    session["commander_id"] = None  # Resolve again through the FID, never inherit an ID.
                 session.update(attribution_status="identified", fid_seen=fid,
                                commander_name_seen=identities[fid] or None)
+                session.pop("identity_reason", None)
                 active_identity = session
                 result["commander_fid"] = fid
                 result["commander_identity_name"] = identities[fid]
-            elif len(identities) > 1:
-                session.update(attribution_status="ambiguous", fid_seen=None,
-                               commander_name_seen=None)
+            else:
+                session.update(attribution_status="ambiguous" if len(identities) > 1 else "unknown",
+                               fid_seen=None, commander_id=None, commander_name_seen=None)
+                session["identity_reason"] = ("conflicting_fids" if len(identities) > 1
+                                              else "invalid_journal_structure" if invalid else "missing_fid")
         if (
             active_identity is None
             or session is None
@@ -1383,11 +1445,15 @@ def read_latest_state(
         from contextlib import nullcontext
         with (nullcontext(handle) if isinstance(handle, list) else handle):
             for line in handle:
+                if indexed_sessions is None and not line.endswith("\n"):
+                    break
                 try:
                     e = line if indexed_sessions is not None else json.loads(line)
                 except json.JSONDecodeError:
                     continue
 
+                if not _valid_journal_event(e):
+                    continue
                 ts = e.get("timestamp") or ""
                 if ts:
                     result["last_timestamp"] = ts

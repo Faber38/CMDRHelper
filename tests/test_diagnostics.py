@@ -151,7 +151,7 @@ class DiagnosticsTests(unittest.TestCase):
         before = self.db.read_bytes()
         path = d.create_package(self.root/'report.zip', database=self.db, journals=self.journals, folder=self.logs)
         with ZipFile(path) as archive:
-            self.assertEqual(set(archive.namelist()), {'cmdrhelper.log','cmdrhelper.log.2','system_info.json','diagnose_summary.txt'})
+            self.assertEqual(set(archive.namelist()), {'cmdrhelper.log','cmdrhelper.log.2','system_info.json','diagnose_summary.txt','odyssey_display_diagnostics.json'})
             info = json.loads(archive.read('system_info.json'))
             self.assertTrue(info['database_reachable'])
             self.assertTrue(info['journal_folder_reachable'])
@@ -167,7 +167,7 @@ class DiagnosticsTests(unittest.TestCase):
     def test_missing_logs_and_unreachable_sources(self):
         path = d.create_package(self.root/'empty.zip', database=self.root/'absent.db', journals=self.root/'absent', folder=self.logs)
         with ZipFile(path) as archive:
-            self.assertEqual(len(archive.namelist()),2)
+            self.assertEqual(len(archive.namelist()),3)
             info = json.loads(archive.read('system_info.json'))
             self.assertFalse(info['database_reachable'])
             self.assertFalse(info['journal_folder_reachable'])

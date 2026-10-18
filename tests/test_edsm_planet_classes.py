@@ -57,7 +57,7 @@ class EdsmPlanetClassesTests(unittest.TestCase):
                     self.assertEqual(api['planet_class'], canonical)
                     for body in (api, {**api, 'planet_class': external}):
                         before_body = copy.deepcopy(body)
-                        state = SimpleNamespace(edsm_enabled=True, system_bodies=[])
+                        state = SimpleNamespace(edsm_enabled=True, edsm_receive_enabled=True, system_bodies=[])
                         AppState._merge_edsm_into_system(state, {'bodies': [body]})
                         merged = state.system_bodies[0]
                         self.assertEqual(body, before_body)
@@ -81,7 +81,7 @@ class EdsmPlanetClassesTests(unittest.TestCase):
         for unknown in ('Unknown future planet', 'Class VI gas giant', ''):
             with self.subTest(unknown=unknown):
                 api = _normalize_edsm_body(dict(type='Planet', subType=unknown), 'Example')
-                state = SimpleNamespace(edsm_enabled=True, system_bodies=[])
+                state = SimpleNamespace(edsm_enabled=True, edsm_receive_enabled=True, system_bodies=[])
                 AppState._merge_edsm_into_system(state, {'bodies': [api]})
                 body = state.system_bodies[0]
                 self.assertEqual(body['planet_class'], unknown)
@@ -108,7 +108,7 @@ class EdsmPlanetClassesTests(unittest.TestCase):
             dict(body_id=101, body_type='Planet', planet_class=CASES[0][0]),
             dict(body_id=102, body_type='Planet', planet_class=CASES[1][0]),
         ])
-        state = SimpleNamespace(edsm_enabled=True, system_bodies=own)
+        state = SimpleNamespace(edsm_enabled=True, edsm_receive_enabled=True, system_bodies=own)
         AppState._merge_edsm_into_system(state, {'bodies': external})
         self.assertEqual(state.edsm_added_count, 2)
         for original, merged in zip(before, state.system_bodies):

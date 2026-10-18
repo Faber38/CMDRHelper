@@ -1,4 +1,17 @@
 TRANSLATIONS = {
+    "release.3_9_10.0": "Carpetas de diarios: varias fuentes con detección de Steam/Heroic, edición, casillas de supervisión y estadísticas separadas.",
+    "release.3_9_10.1": "Comandantes: asignación verificada mediante FID, selección guardada y seguimiento automático opcional de una instancia de juego identificada inequívocamente en Linux.",
+    "release.3_9_10.2": "Powerplay 2.0: filtro horario opcional, filas de transporte compactas y mejor asociación de escaneos de naves para +1 a +100 méritos y nuevos escaneos completos de objetivos ya vistos.",
+    "release.3_9_10.3": "Las ventanas auxiliares permanecen abiertas de forma independiente al minimizar la ventana principal y se cierran al salir del programa.",
+    "release.3_9_10.4": "EDSM e Inara: controles EDSM separados de envío y recepción, posiciones de envío por fuente, confirmaciones fiables y mejor gestión de reintentos.",
+    "release.3_9_10.5": "Procesamiento de diarios más fiable con posiciones de lectura transaccionales y comprobaciones de identidad; diagnóstico visual de Odyssey respetuoso con la privacidad en el paquete de diagnóstico.",
+
+    'topbar.edsm_active': '● EDSM activo',
+    'topbar.edsm_receiving': '● Recepción EDSM',
+    'topbar.edsm_connection_ok': 'Última prueba de conexión correcta; no confirma una carga del diario.',
+    'topbar.edsm_connection_error': 'La última prueba de conexión falló.',
+    'settings.edsm_other_uploader_hint': 'Nota: Si otro programa ya envía eventos del diario a EDSM, deberías desactivar el envío en CMDRHelper. Utiliza preferiblemente un solo programa para las cargas a EDSM y evitar envíos duplicados. La recepción de EDSM en CMDRHelper puede seguir activada.',
+
     "release.3_9_9.0": "Separa la navegación planetaria en otra ventana y vuelve a integrarla conservando el destino y los datos en directo.",
     "release.3_9_9.1": "Abre las imágenes de favoritos en su resolución original, amplía con la rueda y arrastra para desplazarlas.",
     "release.3_9_9.2": "Los títulos de favoritos aparecen en amarillo Elite (#FFCC33), conservando el resaltado de selección y las demás líneas.",
@@ -644,6 +657,7 @@ TRANSLATIONS = {
     'nav.chronicle': 'Crónica',
     'nav.commander_view': 'Vista CMDR',
     'commander_view.title': 'Vista CMDR',
+    'commander_view.follow_live': 'Seguir al comandante activo',
     'commander_view.commander': 'Comandante:',
     'commander_view.identity': 'CMDR {name}',
     'commander_view.status.live': '● En vivo activo',
@@ -881,6 +895,8 @@ TRANSLATIONS = {
     'settings.inara_not_configured': 'Aún no se ha configurado ningún acceso a Inara para {commander}.',
     'settings.inara_configured_short': 'configurado',
     'settings.inara_not_configured_short': 'no configurado',
+    "settings.edsm_send": 'Enviar datos a EDSM',
+    "settings.edsm_receive": 'Recibir datos de EDSM',
     'settings.use_edsm': 'Usar EDSM',
     'settings.use_inara': 'Usar Inara',
     'settings.test_edsm': 'Probar conexión con EDSM',
@@ -2173,3 +2189,41 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS.update({"pp2.chronicle.commodity_sale": 'Venta de mercancías'})
+
+# Journal source management
+TRANSLATIONS.update({
+    'sources.title': 'Directorios de diarios',
+    'sources.add': 'Añadir',
+    'sources.edit': 'Editar',
+    'sources.toggle': 'Activar / Desactivar',
+    'sources.remove': 'Quitar',
+    'sources.search': 'Buscar de nuevo',
+    'sources.enabled': 'Activada',
+    'sources.name': 'Nombre',
+    'sources.remove_note': 'Quitar una fuente detiene la supervisión. Se conservan archivos e historial.',
+    'sources.identity_unknown': 'Identidad del comandante desconocida',
+    'sources.duplicate': 'Esta carpeta ya es una fuente.',
+    'sources.status.unknown': 'Identidad desconocida',
+    'sources.status.disabled': 'Desactivada',
+    'sources.status.duplicate': 'Ruta duplicada',
+    'sources.status.reading': 'Leyendo',
+    'sources.status.ready': 'Lista',
+    'sources.status.unreachable': 'Inaccesible',
+    'sources.status.error': 'Procesamiento pendiente / error',
+})
+TRANSLATIONS['sources.upload_pending'] = 'Envío pendiente: revise identidad, posiciones anteriores o errores del servicio.'
+
+TRANSLATIONS.update({
+    'sources.reachability': 'Accesibilidad',
+    'sources.reachable': 'Accesible',
+    'sources.monitoring': 'Supervisión',
+    'sources.monitoring_active': 'Supervisión activa',
+    'sources.monitoring_inactive': 'Supervisión inactiva',
+})
+
+TRANSLATIONS.update({
+    'sources.invalid_path': 'El directorio no existe o no se puede leer. Elige un directorio de diarios existente y legible.',
+    'sources.edit_busy': 'No se puede cambiar la ruta durante el procesamiento. Espera y vuelve a intentarlo.',
+})
+
+TRANSLATIONS['pp2.history.from_time'] = 'Desde la hora (local)'

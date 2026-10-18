@@ -1,11 +1,12 @@
 """Move the existing navigator between its tab and a reusable window."""
+from cmdrhelper.ui.auxiliary_window import AuxiliaryWindow
 from PySide6.QtCore import QObject, Qt
 from PySide6.QtWidgets import QApplication, QFrame, QPushButton, QScrollArea, QVBoxLayout, QWidget
 
 from cmdrhelper.i18n import tr
 
 
-class _NavigationWindow(QWidget):
+class _NavigationWindow(AuxiliaryWindow, QWidget):
     def __init__(self, dock, parent):
         super().__init__(parent, Qt.Window)
         self.dock = dock
