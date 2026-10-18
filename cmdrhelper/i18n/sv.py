@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    "release.3_9_11.0": "Windows: automatisk följning vid bekräftad koppling mellan Elite-process, aktuell journal och befälhavarens FID; stöd för äldre följningsinställningar.",
+    "release.3_9_11.1": "Handelsassistent: rekommendationer använder marknadsobservatören för vald journalkälla, utan stationskontext från andra källor.",
+    "release.3_9_11.2": "PP2-krönika: detaljer på en rad med ” | ”, uteslutningstecken vid platsbrist och fullständiga verktygstips.",
+    "release.3_9_11.3": "Icke-modala extrafönster ligger alltid överst; huvudfönster och modala dialoger är oförändrade.",
+
     "release.3_9_10.0": "Journalmappar: flera källor med Steam-/Heroic-identifiering, redigering, kryssrutor för övervakning och separat statistik.",
     "release.3_9_10.1": "Commanders: FID-verifierad tilldelning, sparat val och valfri automatisk följning av en entydigt identifierad spelinstans på Linux.",
     "release.3_9_10.2": "Powerplay 2.0: valfritt klockslagsfilter, kompakta transportrader och förbättrad koppling av skeppsskanningar för +1 till +100 merits och nya fullständiga skanningar av tidigare sedda mål.",

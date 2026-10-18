@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    "release.3_9_11.0": "Windows: Elite işlemi, güncel günlük ve komutan FID’si doğrulandığında otomatik takip; eski takip ayarlarıyla uyumluluk.",
+    "release.3_9_11.1": "Ticaret asistanı: öneriler seçili günlük kaynağının pazar gözlemcisini kullanır; başka kaynakların istasyon bilgileri taşınmaz.",
+    "release.3_9_11.2": "PP2 günlüğü: ayrıntılar « | » ile tek satırda; yer yetmediğinde üç nokta ve tam içerikli araç ipuçları.",
+    "release.3_9_11.3": "Kipsiz ek pencereler her zaman üstte kalır; ana pencere ve kipli iletişim kutuları değişmez.",
+
     "release.3_9_10.0": "Günlük klasörleri: Steam/Heroic algılama, düzenleme, izleme onay kutuları ve ayrı istatistiklerle birden fazla kaynak yönetin.",
     "release.3_9_10.1": "Komutanlar: FID ile doğrulanan eşleştirme, kaydedilen seçim ve Linux üzerinde açıkça tanımlanan bir oyun örneğini isteğe bağlı otomatik takip.",
     "release.3_9_10.2": "Powerplay 2.0: isteğe bağlı saat filtresi, kompakt taşıma satırları ve +1 ile +100 merit ile daha önce görülen hedeflerin yeni tam taramaları için iyileştirilmiş gemi taraması eşleştirmesi.",

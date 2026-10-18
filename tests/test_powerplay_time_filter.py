@@ -104,12 +104,13 @@ class TimeFilterTests(unittest.TestCase):
                 self.assertTrue(self.view.previous_day.isEnabled())
                 self.view.grab()
 
-    def test_other_event_details_keep_existing_line_break(self):
+    def test_other_event_details_use_compact_separator(self):
         self.state.powerplay.chronicle.groups=[ChronicleGroup(
             dict(timestamp='2026-10-06T10:00:00Z',event='Bounty',Target='Ship',TotalReward=100),
             'explicit',system='System',station='Station')]
         self.view.render()
-        self.assertIn('\nStation · System',self.view.recent.item(0,2).text())
+        self.assertIn(' | Station · System',self.view.recent.item(0,2).text())
+        self.assertNotIn('\n',self.view.recent.item(0,2).text())
 
 
 class StoredTimeFilterTests(unittest.TestCase):

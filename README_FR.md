@@ -38,6 +38,13 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.9.11
+
+- Windows : suivi automatique après confirmation du processus Elite, du journal actuel et du FID du commandant ; compatibilité avec les anciens paramètres de suivi.
+- Assistant commercial : les recommandations utilisent l’observateur de marché de la source sélectionnée, sans reprendre la station d’une autre source.
+- Chronique PP2 : détails sur une ligne séparés par « | », points de suspension si nécessaire et infobulles complètes.
+- Les fenêtres auxiliaires non modales restent au premier plan ; la fenêtre principale et les dialogues modaux restent inchangés.
+
 ## CMDRHelper v3.9.10
 
 - Dossiers de journaux : plusieurs sources avec détection Steam/Heroic, modification, cases de surveillance et statistiques séparées.

@@ -38,6 +38,13 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.9.11
+
+- Windows: automatically follow a confirmed match between the Elite process, current journal and commander FID; preserve automatic following for legacy settings.
+- Trade assistant: recommendations use the selected journal source’s market observer, without carrying station context across sources.
+- PP2 chronicle: single-line details separated by “ | ”, with ellipsis when space is limited and complete tooltips.
+- Modeless auxiliary windows stay on top; the main window and modal dialogs remain unchanged.
+
 ## CMDRHelper v3.9.10
 
 - Journal directories: manage multiple sources with Steam/Heroic discovery, editing, monitoring checkboxes and separate statistics.

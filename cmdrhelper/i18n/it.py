@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    "release.3_9_11.0": "Windows: seguito automatico con corrispondenza confermata tra processo Elite, diario corrente e FID del comandante; compatibilità con le precedenti impostazioni.",
+    "release.3_9_11.1": "Assistente commerciale: i consigli usano l’osservatore del mercato della fonte selezionata, senza mantenere stazioni di altre fonti.",
+    "release.3_9_11.2": "Cronaca PP2: dettagli su una riga separati da « | », puntini di sospensione quando serve e suggerimenti completi.",
+    "release.3_9_11.3": "Le finestre aggiuntive non modali restano in primo piano; finestra principale e finestre modali invariate.",
+
     "release.3_9_10.0": "Cartelle dei journal: più fonti con rilevamento Steam/Heroic, modifica, caselle di monitoraggio e statistiche separate.",
     "release.3_9_10.1": "Comandanti: attribuzione verificata tramite FID, selezione salvata e inseguimento automatico facoltativo di un’istanza di gioco identificata senza ambiguità su Linux.",
     "release.3_9_10.2": "Powerplay 2.0: filtro orario facoltativo, righe di trasporto compatte e migliore associazione delle scansioni navali per meriti da +1 a +100 e nuove scansioni complete di bersagli già visti.",

@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    "release.3_9_11.0": "Windows: automatisches Folgen bei bestätigter Zuordnung von Elite-Prozess, aktueller Journaldatei und Commander-FID; ältere Folgeeinstellungen kompatibel übernehmen.",
+    "release.3_9_11.1": "Handelsassistent: Empfehlungen verwenden den Marktbeobachter der ausgewählten Journalquelle; kein fremder Stationskontext beim Quellenwechsel.",
+    "release.3_9_11.2": "PP2-Chronik: alle Details einzeilig mit „ | “, Auslassungszeichen bei Platzmangel und vollständigem Tooltip.",
+    "release.3_9_11.3": "Modelose Zusatzfenster bleiben dauerhaft im Vordergrund; Hauptfenster und modale Dialoge bleiben unverändert.",
+
     "release.3_9_10.0": "Journalverzeichnisse: mehrere Quellen mit Steam-/Heroic-Erkennung, Bearbeitung, Überwachungs-Checkboxen und getrennten Statistiken verwalten.",
     "release.3_9_10.1": "Commander: FID-geprüfte Zuordnung, gespeicherte Auswahl und optionales automatisches Folgen einer eindeutig erkannten Spielinstanz unter Linux.",
     "release.3_9_10.2": "Powerplay 2.0: optionaler Uhrzeitfilter, kompakte Transportzeilen und verbesserte Schiffsscan-Zuordnung für +1 bis +100 Merits und erneute vollständige Scans.",

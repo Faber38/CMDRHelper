@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    "release.3_9_11.0": "Windows: automatyczne śledzenie po potwierdzeniu procesu Elite, bieżącego dziennika i FID dowódcy; zgodność ze starszymi ustawieniami śledzenia.",
+    "release.3_9_11.1": "Asystent handlu: rekomendacje korzystają z obserwatora rynku wybranego źródła dziennika, bez danych stacji z innych źródeł.",
+    "release.3_9_11.2": "Kronika PP2: szczegóły w jednym wierszu z separatorem „ | ”, wielokropkiem przy braku miejsca i pełnymi podpowiedziami.",
+    "release.3_9_11.3": "Niemodalne okna dodatkowe pozostają zawsze na wierzchu; okno główne i modalne okna dialogowe bez zmian.",
+
     "release.3_9_10.0": "Katalogi dzienników: wiele źródeł z wykrywaniem Steam/Heroic, edycją, polami wyboru monitorowania i osobnymi statystykami.",
     "release.3_9_10.1": "Dowódcy: przypisanie zweryfikowane przez FID, zapamiętany wybór i opcjonalne automatyczne śledzenie jednoznacznie rozpoznanej instancji gry w systemie Linux.",
     "release.3_9_10.2": "Powerplay 2.0: opcjonalny filtr godziny, zwarte wiersze transportu i lepsze przypisywanie skanów statków dla +1 do +100 zasług oraz nowych pełnych skanów wcześniej widzianych celów.",

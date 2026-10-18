@@ -39,6 +39,13 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.11
+
+- Windows: Elite işlemi, güncel günlük ve komutan FID’si doğrulandığında otomatik takip; eski takip ayarlarıyla uyumluluk.
+- Ticaret asistanı: öneriler seçili günlük kaynağının pazar gözlemcisini kullanır; başka kaynakların istasyon bilgileri taşınmaz.
+- PP2 günlüğü: ayrıntılar « | » ile tek satırda; yer yetmediğinde üç nokta ve tam içerikli araç ipuçları.
+- Kipsiz ek pencereler her zaman üstte kalır; ana pencere ve kipli iletişim kutuları değişmez.
+
 ## CMDRHelper v3.9.10
 
 - Günlük klasörleri: Steam/Heroic algılama, düzenleme, izleme onay kutuları ve ayrı istatistiklerle birden fazla kaynak yönetin.

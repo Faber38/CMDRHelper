@@ -8,7 +8,7 @@ import sys
 import textwrap
 from datetime import datetime, timezone
 from unittest.mock import patch
-from PySide6.QtCore import QCoreApplication, QEvent, QTimer, SIGNAL
+from PySide6.QtCore import QCoreApplication, QEvent, QTimer, SIGNAL, Qt
 from PySide6.QtTest import QTest
 from shiboken6 import isValid
 from PySide6.QtGui import QPalette
@@ -196,6 +196,7 @@ class NavigationMenuTests(unittest.TestCase):
             self.app.processEvents()
             shell = dock.window
             self.assertTrue(shell.isWindow())
+            self.assertTrue(shell.windowFlags() & Qt.WindowStaysOnTopHint)
             self.assertFalse(shell.isModal())
             self.assertTrue(shell.isVisible())
             self.assertIs(shell.scroll.widget(), view)

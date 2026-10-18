@@ -23,6 +23,7 @@ class SourceRuntime:
     live_events: list = field(default_factory=list)
     last_transfer_at: float = 0
     transfer_results: dict = field(default_factory=dict)
+    observed_markets: object = None
 
 
 class SourceManager(QObject):
@@ -32,6 +33,8 @@ class SourceManager(QObject):
     def __init__(self, state):
         super().__init__(state)
         self.state = state
+        # Retain the unarmed compatibility observer for views without a source.
+        self._unselected_markets = state.observed_markets
         self.registry = SourceRegistry(state.settings, discover())
         from .journal_catchup import load_sessions
         retained = load_sessions(state.database)
@@ -88,6 +91,8 @@ class SourceManager(QObject):
                     if hasattr(observer, 'close'):
                         observer.close()
                 del self.runtimes[identity]
+                if self.projected_source == identity:
+                    self._clear_market_observer()
         for identity, source in enabled.items():
             if identity in self.runtimes:
                 self.runtimes[identity].source = source
@@ -107,11 +112,13 @@ class SourceManager(QObject):
                     setattr(observer, attribute, getattr(viewed, attribute))
                 observer.changed.connect(viewed.changed.emit)
                 observers.append(observer)
-            observers.append(ObservedMarketObserver(on_changed=self.state.observedMarketsChanged.emit,
-                                                    use_market_store=True))
+            markets = ObservedMarketObserver(on_changed=self.state.observedMarketsChanged.emit,
+                                             use_market_store=True)
+            observers.append(markets)
             watcher.live_observers = observers
             watcher.set_folder(source.path)
-            runtime = SourceRuntime(source, watcher, SourceProcessor(copy(self.state.database), source.path), self.generation)
+            runtime = SourceRuntime(source, watcher, SourceProcessor(copy(self.state.database), source.path),
+                                    self.generation, observed_markets=markets)
             from .odyssey_tracking import OdysseyCarrierTracking
             proxy = SimpleNamespace(settings=self.state.settings, database=runtime.processor.database,
                 watcher=watcher, commander_id=None, commander_fid='', _journal_index_sessions=[],
@@ -304,6 +311,12 @@ class SourceManager(QObject):
         if changed:
             state.viewedCommanderChanged.emit(cid)
 
+    def _clear_market_observer(self):
+        if self.state.observed_markets is not self._unselected_markets:
+            self.state.observed_markets = self._unselected_markets
+            self.projection_key = None
+            self.state.observedMarketsChanged.emit()
+
     def refresh_selected(self):
         state = self.state
         if self.running or self.projecting or state._startup_cancel.is_set():
@@ -311,6 +324,7 @@ class SourceManager(QObject):
         cid = state.viewed_commander_id
         summary = state.database.commander_summary(cid) if cid is not None else None
         if not summary:
+            self._clear_market_observer()
             return False
         fid = summary['fid']
         candidates = []
@@ -322,6 +336,7 @@ class SourceManager(QObject):
         preferred = [pair for pair in candidates if pair[0].source.id == self.preferred_source]
         pair = preferred[0] if preferred else candidates[0] if len(candidates) == 1 else None
         if pair is None:
+            self._clear_market_observer()
             if state.commander_id != cid or self.projected_source is not None:
                 state._invalidate_inara_worker()
                 state._invalidate_edsm_worker()
@@ -368,6 +383,7 @@ class SourceManager(QObject):
         self.preferred_source = runtime.source.id
         state.settings.setValue('commander_view/source_id', self.preferred_source)
         state.watcher = runtime.watcher
+        state.observed_markets = runtime.observed_markets
         state.odyssey_carrier_tracking = runtime.tracking
         state.journal_folder = Path(runtime.source.path)
         state._journal_index_sessions = rows

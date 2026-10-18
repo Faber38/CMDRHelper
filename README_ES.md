@@ -38,6 +38,13 @@ La carpeta de diarios de Elite Dangerous se detecta automáticamente cuando es p
 
 CMDRHelper busca actualizaciones al iniciarse y dispone de un actualizador integrado. Confirma una actualización ofrecida en la aplicación; actualizará el programa y las dependencias y reiniciará CMDRHelper. Tras la primera instalación, normalmente basta con usar `start.bat` (Windows) o `bash start.sh` (Linux). No es necesario volver a ejecutar manualmente `install.bat` o `install.sh` para las actualizaciones normales.
 
+## CMDRHelper v3.9.11
+
+- Windows: seguimiento automático con correspondencia confirmada entre el proceso Elite, el diario actual y el FID del comandante; compatibilidad con ajustes anteriores.
+- Asistente comercial: las recomendaciones usan el observador de mercado de la fuente seleccionada, sin conservar estaciones de otras fuentes.
+- Crónica PP2: detalles en una línea separados por « | », puntos suspensivos si falta espacio y descripciones emergentes completas.
+- Las ventanas auxiliares no modales permanecen siempre encima; la ventana principal y los diálogos modales no cambian.
+
 ## CMDRHelper v3.9.10
 
 - Carpetas de diarios: varias fuentes con detección de Steam/Heroic, edición, casillas de supervisión y estadísticas separadas.

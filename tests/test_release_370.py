@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class Release370Tests(unittest.TestCase):
     def test_active_version_and_single_source(self):
-        self.assertEqual(__version__, '3.9.10')
+        self.assertEqual(__version__, '3.9.11')
         self.assertEqual(cmdrhelper.__version__, __version__)
         self.assertEqual(version_at(ROOT), __version__)
         sources = []

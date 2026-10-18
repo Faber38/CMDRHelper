@@ -14,7 +14,7 @@ class AuxiliaryWindow:
         # Keep lifetime ownership, but not a nested auxiliary's lifetime.
         # OR-ing Qt.Window into Qt.Dialog does not change the window type.
         flags = ((self.windowFlags() & ~Qt.WindowType_Mask)
-                 | Qt.Window | Qt.WindowMinMaxButtonsHint)
+                 | Qt.Window | Qt.WindowMinMaxButtonsHint | Qt.WindowStaysOnTopHint)
         self.setParent(owner, flags)
         QApplication.instance().aboutToQuit.connect(self.close)
 

@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    "release.3_9_11.0": "Windows: automaattinen seuranta vahvistetun Elite-prosessin, nykyisen lokin ja komentajan FID:n perusteella; vanhojen seuranta-asetusten yhteensopivuus.",
+    "release.3_9_11.1": "Kauppa-avustaja: suositukset käyttävät valitun lokilähteen markkinaseurantaa ilman muiden lähteiden asematietoja.",
+    "release.3_9_11.2": "PP2-kronikka: tiedot yhdellä rivillä erottimella ” | ”, tarvittaessa kolme pistettä ja täydet työkaluvihjeet.",
+    "release.3_9_11.3": "Ei-modaaliset lisäikkunat pysyvät päällimmäisinä; pääikkuna ja modaaliset valintaikkunat eivät muutu.",
+
     "release.3_9_10.0": "Lokikansiot: useita lähteitä, Steam-/Heroic-tunnistus, muokkaus, seurannan valintaruudut ja lähdekohtaiset tilastot.",
     "release.3_9_10.1": "Komentajat: FID-varmennettu kohdistus, tallennettu valinta ja yksiselitteisesti tunnistetun peli-instanssin valinnainen automaattinen seuranta Linuxissa.",
     "release.3_9_10.2": "Powerplay 2.0: valinnainen kellonaikasuodatin, tiiviit kuljetusrivit ja parempi alusskannausten kohdistus +1–+100 meritille sekä aiemmin nähtyjen kohteiden uusille täydellisille skannauksille.",

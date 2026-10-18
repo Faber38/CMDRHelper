@@ -15,6 +15,7 @@ from cmdrhelper.ui.main_window import ChronicleSystemWindow, ChronicleSearchHelp
 from cmdrhelper.ui.system_overview import SystemOverviewDialog
 from cmdrhelper.ui.station_details import StationDetailDialog, StationSelectionDialog
 from cmdrhelper.ui.ship_widgets import ShipImageViewer
+from cmdrhelper.ui.auxiliary_window import AuxiliaryWindow
 from tests import test_live_window_focus as live_tests
 
 
@@ -31,11 +32,13 @@ class AuxiliaryWindowTests(unittest.TestCase):
         windows = self.windows()
         for window in windows:
             self.assertEqual(window.windowType(), Qt.Window)
+            self.assertTrue(window.windowFlags() & Qt.WindowStaysOnTopHint)
             self.assertIsNone(window.windowHandle().transientParent())
             self.assertIs(window.parentWidget(), self.main)
         self.main.showMinimized()
         self.app.processEvents()
         for window in windows:
+            self.assertTrue(window.windowFlags() & Qt.WindowStaysOnTopHint)
             self.assertTrue(window.isVisible())
             self.assertFalse(window.isMinimized())
             self.assertTrue(window.isEnabled())
@@ -58,6 +61,7 @@ class AuxiliaryWindowTests(unittest.TestCase):
         self.assertTrue(self.main.isVisible())
         windows[0].show()
         self.assertTrue(windows[0].isVisible())
+        self.assertTrue(windows[0].windowFlags() & Qt.WindowStaysOnTopHint)
         self.assertIsNone(windows[0].windowHandle().transientParent())
         self.main.close()
         self.assertTrue(all(not w.isVisible() for w in windows))
@@ -85,6 +89,7 @@ class AuxiliaryWindowTests(unittest.TestCase):
         self.main.showMinimized()
         self.app.processEvents()
         for window in windows[:-1] + [nested]:
+            self.assertTrue(window.windowFlags() & Qt.WindowStaysOnTopHint)
             self.assertTrue(window.isVisible())
             self.assertFalse(window.isMinimized())
             self.assertIsNone(window.windowHandle().transientParent())
@@ -107,9 +112,39 @@ class AuxiliaryWindowTests(unittest.TestCase):
         dialog.show()
         self.assertTrue(dialog.isModal())
         self.assertEqual(dialog.windowType(), Qt.Dialog)
+        self.assertFalse(dialog.windowFlags() & Qt.WindowStaysOnTopHint)
+        self.assertFalse(self.main.windowFlags() & Qt.WindowStaysOnTopHint)
         self.assertIs(dialog.windowHandle().transientParent(), self.main.windowHandle())
         dialog.close()
         self.main.close()
+
+    def test_existing_flags_and_owner_survive_other_window_activation(self):
+        class ExtraWindow(AuxiliaryWindow, QDialog):
+            pass
+
+        flags = Qt.Dialog | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowCloseButtonHint
+        window = ExtraWindow(self.main, flags)
+        other = QDialog()
+        self.addCleanup(window.close)
+        self.addCleanup(other.close)
+        self.main.show()
+        window.show()
+        other.show()
+        other.activateWindow()
+        self.app.processEvents()
+        self.assertIs(window.parentWidget(), self.main)
+        self.assertIsNone(window.windowHandle().transientParent())
+        for flag in (Qt.CustomizeWindowHint, Qt.WindowTitleHint, Qt.WindowCloseButtonHint,
+                     Qt.WindowMinMaxButtonsHint, Qt.WindowStaysOnTopHint):
+            self.assertTrue(window.windowFlags() & flag)
+        self.assertTrue(window.isVisible())
+        self.main.showMinimized()
+        self.main.showNormal()
+        self.app.processEvents()
+        self.assertTrue(window.isVisible())
+        self.assertTrue(window.windowFlags() & Qt.WindowStaysOnTopHint)
+        self.assertFalse(other.windowFlags() & Qt.WindowStaysOnTopHint)
+        self.assertFalse(self.main.windowFlags() & Qt.WindowStaysOnTopHint)
 
     def test_main_close_exits_real_event_loop_with_auxiliary_open(self):
         code = '''

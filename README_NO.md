@@ -38,6 +38,13 @@ Journalmappen til Elite Dangerous oppdages automatisk når det er mulig. Hvis de
 
 CMDRHelper søker etter oppdateringer ved oppstart og har en innebygd oppdateringsfunksjon. Bekreft en tilbudt oppdatering i programmet; den oppdaterer programmet og avhengighetene og starter CMDRHelper på nytt. Etter førstegangsinstallasjonen bruker du normalt bare `start.bat` (Windows) eller `bash start.sh` (Linux). Du trenger ikke å kjøre `install.bat` eller `install.sh` manuelt på nytt for vanlige oppdateringer.
 
+## CMDRHelper v3.9.11
+
+- Windows: automatisk følging ved bekreftet kobling mellom Elite-prosess, gjeldende journal og kommandørens FID; kompatibilitet med eldre følgeinnstillinger.
+- Handelsassistent: anbefalinger bruker markedsobservatøren til valgt journalkilde, uten stasjonskontekst fra andre kilder.
+- PP2-krønike: detaljer på én linje med « | », utelatelsestegn ved liten plass og fullstendige verktøytips.
+- Ikke-modale tilleggsvinduer blir liggende øverst; hovedvindu og modale dialoger er uendret.
+
 ## CMDRHelper v3.9.10
 
 - Journalmapper: flere kilder med Steam-/Heroic-gjenkjenning, redigering, avkryssingsbokser for overvåking og separat statistikk.

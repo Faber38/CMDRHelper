@@ -511,11 +511,11 @@ class AppState(QObject):
             return None
 
     def _saved_follow_live_commander(self):
-        # Legacy preferences: an explicit saved selection is fixed; otherwise
-        # retain live-following. Never infer identity from a display name.
+        # Older versions saved the viewed ID without persisting a manual mode.
+        # Only an explicit follow_live value records that user decision.
         value = self.settings.value("commander_view/follow_live", None)
         if value is None:
-            return self._saved_viewed_commander_id() is None
+            return True
         return value is True or str(value).lower() in ("true", "1")
 
     @property

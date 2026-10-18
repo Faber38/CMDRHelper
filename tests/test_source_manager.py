@@ -1,5 +1,7 @@
 """Actual AppState integration using only synthetic files, DB and settings."""
 import tempfile
+import json
+from datetime import datetime, timezone
 import threading
 import time
 import unittest
@@ -102,6 +104,90 @@ class ManagerTests(unittest.TestCase):
         manager.registry.remove(source.id); manager.reconcile()
         self.assertTrue(Path(source.path).is_dir())
         self.assertEqual(len(self.db.list_commanders()), 2)
+
+    def prepare_source_market(self):
+        """Import through the real source watcher into the temporary market DB."""
+        from test_observed_market_cache import sidecar
+        manager = self.state.sources
+        steam = next(r for r in manager.runtimes.values() if r.source.name == 'Steam')
+        heroic = next(r for r in manager.runtimes.values() if r.source.name == 'Heroic')
+        data = sidecar(datetime.now(timezone.utc))
+        data.update(StationName='Steam Port', StarSystem='Steam')
+        Path(steam.source.path, 'Market.json').write_text(json.dumps(data))
+        append(Path(steam.processor.sessions[-1]['journal_file']),
+               event('Docked', MarketID=123, StationName='Steam Port',
+                     StarSystem='Steam', SystemAddress=10, StationType='Coriolis'),
+               {k: v for k, v in data.items() if k != 'Items'})
+        append(Path(heroic.processor.sessions[-1]['journal_file']),
+               event('Docked', MarketID=456, StationName='Heroic Port',
+                     StarSystem='Heroic', SystemAddress=11, StationType='Coriolis'))
+        for runtime in (steam, heroic):
+            runtime.watcher.check_now()
+        self.drain()
+        deadline = time.monotonic() + 5
+        while time.monotonic() < deadline:
+            steam.watcher.check_now()
+            self.app.processEvents()
+            if steam.observed_markets.cache.get_header(123) is not None:
+                break
+            time.sleep(.01)
+        self.assertIsNotNone(steam.observed_markets.cache.get_header(123))
+        self.assertIn(steam.observed_markets, steam.watcher.live_observers)
+        self.assertIn(heroic.observed_markets, heroic.watcher.live_observers)
+        return steam, heroic
+
+    def test_market_projection_steam_heroic_steam(self):
+        from cmdrhelper.ui.recommendations_view import current_market, current_market_context
+        steam, heroic = self.prepare_source_market()
+        for runtime in (steam, heroic, steam):
+            self.state.select_viewed_commander(runtime.processor.sessions[-1]['commander_id'])
+            self.assertIs(self.state.observed_markets, runtime.observed_markets)
+            context = current_market_context(self.state)
+            self.assertEqual(context['FID'], 'TEST-' + runtime.source.name)
+            self.assertEqual(context['StationName'], runtime.source.name + ' Port')
+            market = current_market(self.state)
+            if runtime is steam:
+                self.assertEqual(market['market_id'], 123)
+                self.assertEqual(market['station_name'], 'Steam Port')
+                self.assertEqual(market['fid'], 'TEST-Steam')
+            else:
+                self.assertIsNone(market)
+
+    def test_disable_selected_source_clears_market_immediately(self):
+        from cmdrhelper.ui.recommendations_view import current_market, current_market_context
+        steam, _ = self.prepare_source_market()
+        state, manager = self.state, self.state.sources
+        state.select_viewed_commander(steam.processor.sessions[-1]['commander_id'])
+        self.assertIsNotNone(current_market(state))
+        notifications = []
+        state.observedMarketsChanged.connect(lambda: notifications.append(current_market_context(state)))
+        manager.registry.update(steam.source.id, enabled=False)
+        manager.reconcile()
+        self.assertIsNone(current_market(state))
+        self.assertIsNone(current_market_context(state))
+        self.assertEqual(notifications[-1], None)
+        manager.refresh_selected()
+        self.assertIsNone(current_market(state))
+        self.assertIsNot(state.observed_markets, steam.observed_markets)
+
+    def test_no_selection_clears_market_and_reselection_restores_it(self):
+        from cmdrhelper.ui.recommendations_view import current_market, current_market_context
+        self.state.viewed_commander_id = None
+        self.state.sources.refresh_selected()
+        self.assertIsNone(current_market_context(self.state))
+        steam, _ = self.prepare_source_market()
+        state, manager = self.state, self.state.sources
+        cid = steam.processor.sessions[-1]['commander_id']
+        state.select_viewed_commander(cid)
+        self.assertIsNotNone(current_market(state))
+        state.viewed_commander_id = None
+        manager.refresh_selected()
+        self.assertIsNone(current_market_context(state))
+        self.assertIsNone(current_market(state))
+        self.assertFalse(state.observed_markets.armed)
+        state.select_viewed_commander(cid)
+        self.assertIs(state.observed_markets, steam.observed_markets)
+        self.assertIsNotNone(current_market(state))
 
     def test_manual_reimport_completes_existing_ui_protocol(self):
         completed = []

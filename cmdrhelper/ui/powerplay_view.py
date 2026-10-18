@@ -173,7 +173,8 @@ class PowerplayView(QScrollArea):
             item.setToolTip(item.text())
         self.recent.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.recent.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.recent.setWordWrap(True)
+        self.recent.setWordWrap(False)
+        self.recent.setTextElideMode(Qt.ElideRight)
         self.recent.verticalHeader().hide()
         header = self.recent.horizontalHeader()
         self.recent.configure_widths(getattr(state, 'settings', None))
@@ -511,9 +512,8 @@ class PowerplayView(QScrollArea):
                 details = " · ".join(parts) or unknown
             place = " · ".join(value for value in (group.station, group.system) if value)
             if place:
-                separator = " | " if kind in (
-                    'MarketSell', 'PowerplayCollect', 'PowerplayDeliver', 'SearchAndRescue') else "\n"
-                details += separator + place
+                details += " | " + place
+            details = " | ".join(line for line in details.splitlines() if line.strip())
             gains = ["+" + fmt(credit["MeritsGained"]) for credit in group.credits]
             merits = " / ".join(gains[:5]) + (" / …" if len(gains) > 5 else "") if gains else "—"
             if kind == 'MarketSell' and not is_rare_sale(event) and gains:

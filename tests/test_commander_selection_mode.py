@@ -40,6 +40,7 @@ class SelectionModeTests(unittest.TestCase):
 
     def test_saved_selection_survives_restart(self):
         self.settings.setValue('commander_view/viewed_commander_id', self.a)
+        self.settings.setValue('commander_view/follow_live', False)
         state = self.restart()
         self.assertEqual(state.resolve_viewed_commander(), self.a)
         self.assertEqual(state.commander_id, self.b)
@@ -57,9 +58,18 @@ class SelectionModeTests(unittest.TestCase):
 
     def test_missing_saved_commander_not_replaced(self):
         self.settings.setValue('commander_view/viewed_commander_id', 98765)
+        self.settings.setValue('commander_view/follow_live', False)
         state = self.restart()
         self.assertIsNone(state.resolve_viewed_commander())
         self.assertEqual(self.settings.value('commander_view/viewed_commander_id'), 98765)
+
+    def test_legacy_saved_id_keeps_automatic_mode_without_overwriting_explicit_choice(self):
+        self.settings.setValue('commander_view/viewed_commander_id', self.a)
+        self.assertTrue(self.restart().follow_live_commander)
+        self.assertEqual(self.restart().resolve_viewed_commander(), self.b)
+        for value, expected in ((False, False), ('false', False), (True, True), ('true', True)):
+            self.settings.setValue('commander_view/follow_live', value)
+            self.assertEqual(self.restart().follow_live_commander, expected)
 
     def test_fid_not_name_and_manual_selection_turns_follow_off(self):
         state = self.restart()
@@ -124,6 +134,7 @@ class SelectionModeTests(unittest.TestCase):
 
     def test_fixed_selection_survives_both_live_identity_entry_points(self):
         self.settings.setValue('commander_view/viewed_commander_id', self.a)
+        self.settings.setValue('commander_view/follow_live', False)
         state = self.restart()
         state._journal_index_sessions[-1]['journal_file'] = str(Path(self.tmp.name) / 'synthetic.log')
         state._prepare_indexed_live_state(emit_identity=False, restore=False)

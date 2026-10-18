@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    "release.3_9_11.0": "Windows: automatisch volgen bij bevestigde koppeling tussen Elite-proces, huidig journaal en commander-FID; compatibel met oudere volginstellingen.",
+    "release.3_9_11.1": "Handelsassistent: aanbevelingen gebruiken de marktwaarnemer van de gekozen journaalbron, zonder stationsgegevens van andere bronnen.",
+    "release.3_9_11.2": "PP2-kroniek: details op één regel met “ | ”, weglatingstekens bij ruimtegebrek en volledige tooltips.",
+    "release.3_9_11.3": "Niet-modale hulpvensters blijven altijd bovenaan; hoofdvenster en modale dialoogvensters blijven ongewijzigd.",
+
     "release.3_9_10.0": "Journaalmappen: meerdere bronnen met Steam-/Heroic-detectie, bewerken, selectievakjes voor bewaking en afzonderlijke statistieken.",
     "release.3_9_10.1": "Commanders: toewijzing op basis van gecontroleerde FID, opgeslagen selectie en optioneel automatisch volgen van een eenduidig herkende spelinstantie onder Linux.",
     "release.3_9_10.2": "Powerplay 2.0: optioneel tijdfilter, compacte transportregels en betere koppeling van scheepsscans voor +1 tot +100 merits en nieuwe volledige scans van eerder geziene doelen.",

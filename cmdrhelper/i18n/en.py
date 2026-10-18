@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    "release.3_9_11.0": "Windows: automatically follow a confirmed match between the Elite process, current journal and commander FID; preserve automatic following for legacy settings.",
+    "release.3_9_11.1": "Trade assistant: recommendations use the selected journal source’s market observer, without carrying station context across sources.",
+    "release.3_9_11.2": "PP2 chronicle: single-line details separated by “ | ”, with ellipsis when space is limited and complete tooltips.",
+    "release.3_9_11.3": "Modeless auxiliary windows stay on top; the main window and modal dialogs remain unchanged.",
+
     "release.3_9_10.0": "Journal directories: manage multiple sources with Steam/Heroic discovery, editing, monitoring checkboxes and separate statistics.",
     "release.3_9_10.1": "Commanders: FID-verified attribution, saved selection and optional automatic following of an unambiguously identified game instance on Linux.",
     "release.3_9_10.2": "Powerplay 2.0: optional time filter, compact transport rows and improved ship-scan matching for +1 to +100 merits and new complete scans of previously seen targets.",
