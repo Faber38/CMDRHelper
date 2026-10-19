@@ -1,4 +1,14 @@
 TRANSLATIONS = {
+    "pp2.history.filtered_merits": "Merits in filter: {amount}",
+    "favorites.copy_system": "Copy system name",
+    "release.3_9_12.0": "Explorer auxiliary windows: reliable refresh and value sorting in all twelve languages.",
+    "release.3_9_12.1": "Detach and reattach the PP2 event chronicle: freely resizable window with saved size and position; filters are retained. Single-line merit total for the displayed daily events and selected time filter, including unassigned credits.",
+    "release.3_9_12.2": "Control live commander following directly in the overview; synchronized with the CMDR view and saved across restarts. A yellow hint explains disabled automatic selection in manual commander mode; it blinks for ten seconds, then remains visible.",
+    "release.3_9_12.3": "Favorites: copy system names using the copy icon without selecting or navigating; a green check mark confirms copying for two seconds.",
+    "release.3_9_12.4": "Long active journals: reuse verified processing results, avoid duplicate state reconstruction and reduce UI pauses.",
+    "release.3_9_12.5": "Startup progress window restored: one display for enabled journal sources and correct error reporting when initial import fails.",
+    'overview.follow_live': "Automatically select the active commander",
+    'overview.manual_commander_hint': "Manual commander selection is active.\nAnother commander currently in play will not be selected automatically.",
     "release.3_9_11.0": "Windows: automatically follow a confirmed match between the Elite process, current journal and commander FID; preserve automatic following for legacy settings.",
     "release.3_9_11.1": "Trade assistant: recommendations use the selected journal source’s market observer, without carrying station context across sources.",
     "release.3_9_11.2": "PP2 chronicle: single-line details separated by “ | ”, with ellipsis when space is limited and complete tooltips.",
@@ -2066,6 +2076,8 @@ TRANSLATIONS.update({
 # Grouped PP2 chronicle.
 TRANSLATIONS.update({
     'pp2.chronicle.title': 'PP2 DAILY CHRONICLE',
+    'pp2.chronicle.detach': 'Undock',
+    'pp2.chronicle.attach': 'Dock',
     'pp2.chronicle.help': 'Today’s PP2 events (00:00–24:00 local time). ✓ confirmed · ≈ temporal proximity · ? unknown cause. For rare goods, ✓ confirms only the sale, not a merit cause or weekly assignment completion.',
     'pp2.chronicle.time': 'Time',
     'pp2.chronicle.action': 'Action',

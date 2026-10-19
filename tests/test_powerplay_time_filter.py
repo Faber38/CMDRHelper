@@ -41,16 +41,66 @@ class TimeFilterTests(unittest.TestCase):
         self.view.render()
         totals=(self.view.personal['merits'].text(),self.view.personal['rank'].text(),self.view.rank_summary.text())
         self.assertEqual(self.view.recent.rowCount(),3)
+        self.assertEqual(self.view.filtered_merits.text(), 'Merits im Filter: +6')
         self.assertEqual([self.view.recent.item(r,3).text() for r in range(3)],['+3','+2','+1'])
         self.view.from_time.setTime(QTime(12,0))
         self.assertEqual(self.view.recent.rowCount(),3)
         self.view.time_filter_enabled.setChecked(True)
         self.assertEqual(self.view.recent.rowCount(),2)
+        self.assertEqual(self.view.filtered_merits.text(), 'Merits im Filter: +5')
         self.assertEqual([self.view.recent.item(r,3).text() for r in range(2)],['+3','+2'])
+        self.view.from_time.setTime(QTime(12, 1))
+        self.assertEqual(self.view.filtered_merits.text(), 'Merits im Filter: +3')
+        self.view.from_time.setTime(QTime(12, 2))
+        self.assertEqual(self.view.filtered_merits.text(), 'Merits im Filter: +0')
+        self.view.from_time.setTime(QTime(12, 0))
         self.assertEqual(groups,before)
         self.assertEqual(totals,(self.view.personal['merits'].text(),self.view.personal['rank'].text(),self.view.rank_summary.text()))
         self.view.time_filter_enabled.setChecked(False)
         self.assertEqual(self.view.recent.rowCount(),3)
+        self.assertEqual(self.view.filtered_merits.text(), 'Merits im Filter: +6')
+
+    def test_sum_unknown_multiple_credits_empty_day_and_live_updates(self):
+        group = self.group('2026-10-06T10:00:00Z', 2400)
+        credit = dict(timestamp='2026-10-06T11:00:00Z', event='PowerplayMerits',
+                      MeritsGained=50, TotalMerits=99999)
+        unknown = ChronicleGroup(credit, 'unknown', credits=[credit])
+        groups = [group, unknown]
+        self.state.powerplay.chronicle.groups = groups
+        before = copy.deepcopy(self.state.powerplay)
+        for _ in range(3):
+            self.view.render()
+            self.assertEqual(self.view.filtered_merits.text(), 'Merits im Filter: +2.450')
+        self.assertEqual(self.state.powerplay, before)
+        self.view._move_day(-1)
+        self.assertEqual(self.view.filtered_merits.text(), 'Merits im Filter: +0')
+        self.view._today()
+        # All credits count, including those abbreviated in the table cell.
+        unknown.credits.extend(dict(credit, MeritsGained=1) for _ in range(6))
+        self.state.changed.emit()
+        self.assertEqual(self.view.filtered_merits.text(), 'Merits im Filter: +2.456')
+        self.assertEqual(self.state.powerplay.merits, before.merits)
+        self.assertEqual(self.state.powerplay.rank, before.rank)
+
+    def test_sum_is_single_line_next_to_clock_in_all_languages_and_themes(self):
+        from cmdrhelper.i18n import set_language, get_language, tr, _TRANSLATIONS
+        from PySide6.QtCore import QLocale
+        original = get_language()
+        self.addCleanup(set_language, original)
+        self.state.powerplay.chronicle.groups = [self.group('2026-10-06T10:00:00Z', 2450)]
+        for language in _TRANSLATIONS:
+            set_language(language)
+            for theme in (DARK_STYLESHEET, LIGHT_STYLESHEET):
+                self.view.setStyleSheet(theme)
+                self.view.render(); self.app.processEvents()
+                label = self.view.filtered_merits
+                self.assertEqual(label.text(), tr('pp2.history.filtered_merits',
+                    amount='+' + QLocale(language).toString(2450)))
+                self.assertFalse(label.wordWrap())
+                self.assertNotIn('\n', label.text())
+                self.assertIs(label.parentWidget(), self.view.time_filter)
+                self.assertEqual(self.view.time_filter.layout().indexOf(label),
+                                 self.view.time_filter.layout().indexOf(self.view.from_time) + 1)
 
     def test_day_change_and_utc_local_midnight(self):
         self.state.powerplay.chronicle.groups=[self.group('2026-10-05T21:59:00Z'),

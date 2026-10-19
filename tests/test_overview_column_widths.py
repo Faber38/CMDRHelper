@@ -7,6 +7,7 @@ from PySide6.QtCore import QSettings, Qt, QPoint, QByteArray
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QMainWindow, QHeaderView, QTableWidget
 from cmdrhelper.ui.main_window import MainWindow
+from tests.test_commander_view import make_state
 
 
 KEY = 'overview/recent_systems_column_widths'
@@ -15,8 +16,9 @@ KEY = 'overview/recent_systems_column_widths'
 class OverviewWindow(MainWindow):
     def __init__(self, settings):
         QMainWindow.__init__(self)
-        self.state = SimpleNamespace(settings=settings, database=SimpleNamespace(
+        self.state = make_state(SimpleNamespace(
             recent_system_visits=lambda limit: [dict(visited_at='2026-09-08T10:00:00Z', system_name='Sol')]))
+        self.state.settings = settings
         self.setCentralWidget(self._overview())
 
 

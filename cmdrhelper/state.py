@@ -545,6 +545,9 @@ class AppState(QObject):
         if not enabled and self.viewed_commander_id is not None:
             self.settings.setValue("commander_view/viewed_commander_id", self.viewed_commander_id)
         previous = self.viewed_commander_id
+        if enabled and not previous_mode and getattr(self, "sources", None) is not None:
+            self.sources.choose()
+            self.sources.refresh_selected()
         self.resolve_viewed_commander()
         if previous == self.viewed_commander_id and previous_mode != bool(enabled):
             self.viewedCommanderChanged.emit(self.viewed_commander_id)

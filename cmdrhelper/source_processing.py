@@ -14,8 +14,36 @@ class SourceProcessor:
         self.context = None
         self.sessions = []
         self.initialized = False
+        self._projection = None
 
-    def process(self, *, cancel=None, enqueue_fids=()):
+    @staticmethod
+    def _projection_key(rows):
+        """Bind a completed projection to its identity, cursors and input files."""
+        key = []
+        try:
+            for row in rows:
+                stat = Path(row['journal_file']).stat()
+                key.append((row['journal_file'], row.get('commander_id'), row.get('fid_seen'),
+                    row.get('attribution_status'), row.get('last_read_offset'),
+                    stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns))
+        except OSError:
+            return None
+        return tuple(key)
+
+    def projection_for(self, rows):
+        """Copy the worker result only while all its commander inputs still match."""
+        if self._projection is None or self._projection_key(rows) != self._projection[0]:
+            return None
+        data = deepcopy(self._projection[1])
+        data['journal_files'] = len(rows)
+        return data
+
+    def process(self, *, cancel=None, enqueue_fids=(), progress=None):
+        # Never publish a previous result after a partial read or failed commit.
+        self._projection = None
+        projection = None
+        if progress:
+            progress('startup.phase.preparing')
         if not self.path.is_dir():
             raise FileNotFoundError(self.path)
         if self.context is None:
@@ -45,8 +73,14 @@ class SourceProcessor:
         if not self.initialized:
             # Capture BEFORE the index/import can modify metadata. Existing
             # replacement guards and the archive/catch-up handoff stay intact.
+            if progress:
+                progress('startup.phase.index')
             sessions = scan_journal_folder(self.database, self.path,
-                validate_input=lambda path: validate_input(self.context, path), cancel=cancel)
+                validate_input=lambda path: validate_input(self.context, path), cancel=cancel,
+                progress_callback=(lambda _current, _total, name: progress('startup.phase.index', str(name)))
+                    if progress else None)
+            if progress:
+                progress('startup.phase.history')
             from .startup_repairs import run_startup_repairs
             run_startup_repairs(self.database.path)
             from .station_pad_store import read_local
@@ -68,8 +102,12 @@ class SourceProcessor:
                         if readable:
                             self.database.repair_commander_position_gap(cid, Path(latest['journal_file']), position or {})
             self.database.import_journal_archive(self.path,
-                validate_input=lambda path: validate_input(self.context, path))
+                validate_input=lambda path: validate_input(self.context, path),
+                progress_callback=(lambda _current, _total, name: progress('startup.phase.history', str(name)))
+                    if progress else None)
             self.initialized = True
+        if progress:
+            progress('startup.phase.history')
         self.sessions = catch_up(self.database, self.context, cancel=cancel,
             enqueue_fids=enqueue_fids, independent_sources=True)
         self.database.sync_powerplay(self.sessions)
@@ -77,6 +115,12 @@ class SourceProcessor:
             from .journal_reader import read_latest_state, verified_live_metadata
             from .startup_runtime import JournalPending
             view_rows = deepcopy(self.sessions)
+            latest = self.sessions[-1]
+            owned_rows = [row for row in self.sessions
+                if row.get('commander_id') == latest['commander_id']
+                and row.get('fid_seen') == latest['fid_seen']
+                and row.get('attribution_status') == 'identified']
+            projection_key = self._projection_key(owned_rows)
             data = read_latest_state(self.path, indexed_sessions=view_rows, powerplay_history=False)
             current = view_rows[-1]
             if (current.get('attribution_status') != 'identified'
@@ -90,6 +134,8 @@ class SourceProcessor:
             # body facts) is retryable independently of the committed delta.
             # It must run for background sources too, not only the viewed one.
             self.database.store_snapshot(data, commander_id=current['commander_id'])
+            if projection_key is not None and projection_key == self._projection_key(owned_rows):
+                projection = (projection_key, data)
         # Historical calibration and new sales remain explicitly commander
         # scoped, never inferred from the selected GUI commander.
         from .journal_learning import learn
@@ -104,4 +150,5 @@ class SourceProcessor:
             if kinds:
                 learn(self.database, self.path, cid, kinds, self.sessions)
         self.context['current'] = self.sessions[-1]['journal_file'] if self.sessions else None
+        self._projection = projection
         return self.sessions

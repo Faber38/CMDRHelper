@@ -38,6 +38,15 @@ La carpeta de diarios de Elite Dangerous se detecta automáticamente cuando es p
 
 CMDRHelper busca actualizaciones al iniciarse y dispone de un actualizador integrado. Confirma una actualización ofrecida en la aplicación; actualizará el programa y las dependencias y reiniciará CMDRHelper. Tras la primera instalación, normalmente basta con usar `start.bat` (Windows) o `bash start.sh` (Linux). No es necesario volver a ejecutar manualmente `install.bat` o `install.sh` para las actualizaciones normales.
 
+## CMDRHelper v3.9.12
+
+- Ventanas auxiliares de Explorer: actualización y ordenación por valor fiables en los doce idiomas.
+- Desacopla y acopla la crónica de eventos PP2: ventana de tamaño ajustable con tamaño y posición guardados; se conservan los filtros. Suma de méritos en una sola línea para los eventos diarios mostrados y el filtro horario elegido, incluidos los créditos sin asignar.
+- Controla el seguimiento del comandante activo desde la vista general; sincronizado con la vista CMDR y guardado entre reinicios. En la selección manual de comandante, un aviso amarillo explica que la selección automática está desactivada; parpadea diez segundos y después permanece visible.
+- Favoritos: copia nombres de sistemas con el icono de copia sin seleccionar ni navegar; una marca verde confirma la copia durante dos segundos.
+- Journals activos largos: reutilización de resultados verificados, eliminación de la doble reconstrucción del estado y reducción de las pausas de la interfaz.
+- Restaurada la ventana de progreso al iniciar: vista común para las fuentes de journals habilitadas y notificación correcta de errores en la importación inicial.
+
 ## CMDRHelper v3.9.11
 
 - Windows: seguimiento automático con correspondencia confirmada entre el proceso Elite, el diario actual y el FID del comandante; compatibilidad con ajustes anteriores.

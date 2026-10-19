@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
 )
 
 from cmdrhelper.i18n import get_language, tr
+from cmdrhelper.ui.auxiliary_window import AuxiliaryWindow
 from cmdrhelper.ui.table_widths import ResponsiveColumnWidths
 from cmdrhelper.ui.powerplay_portraits import PowerPortrait
 from cmdrhelper.ui.powerplay_system import SystemPresentation
@@ -63,14 +64,39 @@ class ChronicleTable(QTableWidget):
     def fit_columns(self):
         if hasattr(self, 'column_widths'):
             self.column_widths.fit()
+            # Width fitting blocks header signals; refresh scrollbar ranges too.
+            self.updateGeometries()
+
+
+class _ChronicleWindow(AuxiliaryWindow, QWidget):
+    """Host the existing PP2 section; closing returns it to its original view."""
+
+    def __init__(self, view):
+        super().__init__(view, Qt.Window)
+        self.view = view
+        self.setWindowTitle(tr('pp2.chronicle.title'))
+        self.resize(1000, 600)
+        QVBoxLayout(self)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.view._arrange_chronicle()
+
+    def closeEvent(self, event):
+        self.view.attach_chronicle()
+        event.accept()
 
 
 class PowerplayView(QScrollArea):
+    chronicle_geometry_key = 'pp2/chronicle_geometry'
+
     def __init__(self, state, parent=None):
         super().__init__(parent)
         self.state = state
         self.cache = PowersCache()
         self.selected_day = None
+        self.chronicle_window = None
+        self.chronicle_detached = False
         self.setWidgetResizable(True)
         self.setFrameShape(QFrame.NoFrame)
         content = QWidget()
@@ -162,6 +188,9 @@ class PowerplayView(QScrollArea):
         recent_layout = QVBoxLayout(self.recent_section)
         recent_layout.setContentsMargins(0, 0, 0, 0)
         recent_layout.setSpacing(6)
+        self.detach_chronicle_button = QPushButton(tr('pp2.chronicle.detach'))
+        self.detach_chronicle_button.clicked.connect(self.toggle_chronicle)
+        recent_layout.addWidget(self.detach_chronicle_button, alignment=Qt.AlignRight)
         self.recent = ChronicleTable(0, 5)
         # Reserve the scrollbar gutter so live rows/day changes cannot shrink
         # the viewport and refit a user's columns when a scrollbar appears.
@@ -204,6 +233,9 @@ class PowerplayView(QScrollArea):
         self.from_time.timeChanged.connect(lambda *_: self.render())
         time_layout.addWidget(self.time_filter_enabled)
         time_layout.addWidget(self.from_time)
+        self.filtered_merits = QLabel()
+        self.filtered_merits.setWordWrap(False)
+        time_layout.addWidget(self.filtered_merits)
         time_layout.addStretch()
         self.previous_day.clicked.connect(lambda: self._move_day(-1))
         self.next_day.clicked.connect(lambda: self._move_day(1))
@@ -224,6 +256,11 @@ class PowerplayView(QScrollArea):
         recent_layout.addWidget(self.chronicle_help)
         recent_layout.addWidget(self.recent, 1)
         layout.addWidget(self.recent_section, 1)
+        self.chronicle_home = layout
+        self.open_chronicle_button = QPushButton(tr('pp2.chronicle.detach'))
+        self.open_chronicle_button.clicked.connect(self.detach_chronicle)
+        layout.addWidget(self.open_chronicle_button, alignment=Qt.AlignRight)
+        self.open_chronicle_button.hide()
         self._arrange_columns()
         state.changed.connect(self._changed)
         cargo_signal = getattr(state, "cargoSnapshotChanged", None)
@@ -233,6 +270,59 @@ class PowerplayView(QScrollArea):
         self.timer.setInterval(5000)
         self.timer.timeout.connect(self._changed)
         self.render()
+
+    def toggle_chronicle(self):
+        if self.chronicle_detached:
+            self.attach_chronicle()
+        else:
+            self.detach_chronicle()
+
+    def detach_chronicle(self):
+        if self.chronicle_window is None:
+            self.chronicle_window = _ChronicleWindow(self)
+        window = self.chronicle_window
+        if not self.chronicle_detached:
+            settings = getattr(self.state, 'settings', None)
+            geometry = settings.value(self.chronicle_geometry_key) if settings is not None else None
+            if geometry is not None:
+                try:
+                    window.restoreGeometry(geometry)
+                except (TypeError, ValueError):
+                    pass
+            self.chronicle_home.removeWidget(self.recent_section)
+            window.layout().addWidget(self.recent_section)
+            self.chronicle_detached = True
+            self.detach_chronicle_button.setText(tr('pp2.chronicle.attach'))
+            self.open_chronicle_button.show()
+            self.recent_section.show()
+            self.timer.start()
+            self.render()
+        if window.isMinimized():
+            window.showNormal()
+        else:
+            window.show()
+        self._arrange_chronicle()
+        window.raise_()
+        window.activateWindow()
+
+    def attach_chronicle(self):
+        if not self.chronicle_detached:
+            return
+        settings = getattr(self.state, 'settings', None)
+        if settings is not None:
+            settings.setValue(self.chronicle_geometry_key, self.chronicle_window.saveGeometry())
+            settings.sync()
+        self.chronicle_window.layout().removeWidget(self.recent_section)
+        self.chronicle_home.insertWidget(
+            self.chronicle_home.indexOf(self.open_chronicle_button), self.recent_section, 1)
+        self.chronicle_detached = False
+        self.detach_chronicle_button.setText(tr('pp2.chronicle.detach'))
+        self.open_chronicle_button.hide()
+        self.recent_section.show()
+        self.chronicle_window.hide()
+        self._arrange_chronicle()
+        if not self.isVisible():
+            self.timer.stop()
 
     @staticmethod
     def label(text, name="", *, recommendation=False):
@@ -261,6 +351,7 @@ class PowerplayView(QScrollArea):
             self._arrange_columns()
 
     def _arrange_columns(self):
+        self._arrange_chronicle()
         # A font-relative breakpoint respects font scaling without fixing any
         # card width. Independent column layouts keep short cargo cards compact.
         wide = self.viewport().width() >= self.fontMetrics().horizontalAdvance("0") * 110
@@ -285,7 +376,12 @@ class PowerplayView(QScrollArea):
         self.columns.setColumnStretch(1, 3 if wide else 0)
         self.columns.setRowStretch(0, 0)
         self.columns.setRowStretch(1, 0)
-        for widget in (self.chronicle_title, self.navigation, self.manage_history):
+
+    def _arrange_chronicle(self):
+        width = (self.chronicle_window.width() if self.chronicle_detached
+                 else self.viewport().width())
+        wide = width >= self.fontMetrics().horizontalAdvance("0") * 110
+        for widget in (self.chronicle_title, self.navigation, self.manage_history, self.time_filter):
             self.chronicle_header.removeWidget(widget)
         self.chronicle_header.addWidget(self.chronicle_title, 0, 0, 1, 1 if wide else 2)
         self.chronicle_header.addWidget(self.navigation, 0 if wide else 1, 1 if wide else 0,
@@ -304,11 +400,12 @@ class PowerplayView(QScrollArea):
         return clock if local.date() == today else locale.toString(local.date(), QLocale.ShortFormat) + " " + clock
 
     def hideEvent(self, event):
-        self.timer.stop()
+        if not self.chronicle_detached:
+            self.timer.stop()
         super().hideEvent(event)
 
     def _changed(self, *_):
-        if self.isVisible():
+        if self.isVisible() or self.chronicle_detached:
             self.render()
 
     def _move_day(self, delta):
@@ -480,6 +577,10 @@ class PowerplayView(QScrollArea):
             groups = [group for group in groups
                       if timestamp(group.action['timestamp']).astimezone().time() >= cutoff]
         self.recent.setRowCount(len(groups))
+        # These are the same filtered groups rendered below. Credits also cover
+        # unassigned events; never add the action or cumulative TotalMerits.
+        filtered_merits = sum(credit['MeritsGained'] for group in groups for credit in group.credits)
+        self.filtered_merits.setText(tr('pp2.history.filtered_merits', amount='+' + fmt(filtered_merits)))
         for row, group in enumerate(groups):
             event = group.action
             kind = event.get("event")

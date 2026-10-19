@@ -438,6 +438,9 @@ class CommanderView(QWidget):
             self.refresh()
 
     def refresh(self, *args):
+        blocked = self.follow_live_checkbox.blockSignals(True)
+        self.follow_live_checkbox.setChecked(self.state.follow_live_commander)
+        self.follow_live_checkbox.blockSignals(blocked)
         if not self.isVisible():
             self._refresh_dirty = True
             return
@@ -454,9 +457,6 @@ class CommanderView(QWidget):
         commanders = self.state.database.list_commanders()
         viewed_id = self.state.resolve_viewed_commander(commanders)
 
-        self.follow_live_checkbox.blockSignals(True)
-        self.follow_live_checkbox.setChecked(self.state.follow_live_commander)
-        self.follow_live_checkbox.blockSignals(False)
         self.commander_combo.blockSignals(True)
         self.commander_combo.clear()
         selected_index = -1

@@ -47,6 +47,7 @@ class SourceManager(QObject):
         self.runtimes = {}
         self.queue = []
         self.running = False
+        self._startup_started = False
         self.manual_requested = False
         self.manual_pending = None
         self.manual_errors = []
@@ -165,6 +166,10 @@ class SourceManager(QObject):
                 continue
             self.running = True
             runtime.source.status = 'reading'
+            initial = not getattr(self.state, '_startup_completed', False)
+            if initial and not self._startup_started:
+                self._startup_started = True
+                startup.emit(self.state, 'initializationStarted', True, 0)
             # Snapshot per-FID upload authorization on the GUI thread. The
             # ingestion worker never consults a mutable displayed commander.
             settings = self.state.settings
@@ -182,11 +187,18 @@ class SourceManager(QObject):
             folders = [s.path for s in self.registry.sources]
 
             source_snapshot = copy(runtime.source)
-            def worker(rt=runtime, allowed=fids, service_configs=configs, bound_source=source_snapshot):
+            def worker(rt=runtime, allowed=fids, service_configs=configs, bound_source=source_snapshot,
+                       report_startup=initial):
                 rows, error = None, ''
                 try:
+                    def progress(phase, filename=''):
+                        # Phases/files across sources have no common work unit.
+                        # Keep one busy dialog until the entire startup queue ends.
+                        label = bound_source.name + (': ' + filename if filename else '')
+                        startup.emit(self.state, 'initializationProgress', 0, 0, phase, label)
                     was_initialized = rt.processor.initialized
-                    rows = rt.processor.process(cancel=self.state._startup_cancel, enqueue_fids=allowed)
+                    rows = rt.processor.process(cancel=self.state._startup_cancel, enqueue_fids=allowed,
+                                                progress=progress if report_startup else None)
                     rt.live_events = list(rt.processor.context.get('applied_events', [])) if was_initialized else []
                     from .source_transfers import transfer
                     current = lambda: (not self.state._startup_cancel.is_set()
@@ -214,7 +226,7 @@ class SourceManager(QObject):
                           lambda exc: self.finished.emit(identity, runtime.generation, None, type(exc).__name__), ())
             self.changed.emit()
             return
-        startup.complete(self.state)
+        startup.complete(self.state, getattr(self.state, '_initialization_error', ''))
 
     def _finished(self, identity, generation, rows, error):
         self.running = False
@@ -229,6 +241,10 @@ class SourceManager(QObject):
                 self.manual_total, runtime.source.name if runtime else '')
         if runtime is not None and runtime.generation == generation:
             source = runtime.source
+            if (error and not getattr(self.state, '_startup_completed', False)
+                    and not getattr(self.state, '_initialization_error', '')):
+                # Retain the first initial failure even if a watcher retry succeeds.
+                self.state._initialization_error = source.name + ': ' + str(error)
             for (fid, service), result in runtime.transfer_results.items():
                 failed = result.get('error') if isinstance(result, dict) else bool(result[1])
                 message = str(failed or '')
@@ -365,7 +381,15 @@ class SourceManager(QObject):
             return True
         from .journal_reader import read_latest_state
         try:
-            data = read_latest_state(Path(runtime.source.path), indexed_sessions=rows, powerplay_history=False)
+            if rows[-1]['journal_file'] == runtime.processor.sessions[-1]['journal_file']:
+                data = runtime.processor.projection_for(rows)
+                if data is None:
+                    # Changed bytes belong to the existing ingestion worker;
+                    # do not replay the active journal on the GUI thread.
+                    return False
+                rows[-1] = data['latest_journal_session']
+            else:
+                data = read_latest_state(Path(runtime.source.path), indexed_sessions=rows, powerplay_history=False)
         except OSError:
             return False
         current = data.get('latest_journal_session') or {}

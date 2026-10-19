@@ -38,6 +38,15 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.12
+
+- Explorer-lisäikkunat: luotettava päivitys ja arvojen lajittelu kaikilla kahdellatoista kielellä.
+- Irrota ja kiinnitä PP2-tapahtumahistoria: ikkunan kokoa voi muuttaa vapaasti, ja koko sekä sijainti tallennetaan; suodattimet säilyvät. Yksirivinen ansiosumma näytetyille päivän tapahtumille ja valitulle aikasuodattimelle, myös kohdistamattomat ansiot mukaan lukien.
+- Ohjaa aktiivisen komentajan seurantaa suoraan yleisnäkymästä; asetus on yhteinen CMDR-näkymän kanssa ja säilyy uudelleenkäynnistyksessä. Kun komentaja valitaan käsin, keltainen ilmoitus kertoo automaattisen valinnan olevan pois käytöstä; se vilkkuu kymmenen sekuntia ja jää sitten näkyviin.
+- Suosikit: kopioi järjestelmien nimet kopiointikuvakkeella ilman valintaa tai navigointia; vihreä valintamerkki vahvistaa kopioinnin kahden sekunnin ajan.
+- Pitkät aktiiviset lokit: tarkistettujen tulosten uudelleenkäyttö välttää tilan kaksinkertaisen muodostamisen ja vähentää käyttöliittymän taukoja.
+- Käynnistyksen edistymisikkuna palautettu: yhteinen näkymä käytössä oleville lokilähteille ja oikea virheilmoitus ensimmäisen tuonnin epäonnistuessa.
+
 ## CMDRHelper v3.9.11
 
 - Windows: automaattinen seuranta vahvistetun Elite-prosessin, nykyisen lokin ja komentajan FID:n perusteella; vanhojen seuranta-asetusten yhteensopivuus.

@@ -136,3 +136,37 @@ class WindowsSelectionTests(unittest.TestCase):
         self.journal('NANJAN', 'Nanjan OHare'); self.start()
         self.journal('MEDORA', 'MEDORA SKYWARD', live=False)
         self.refresh(); self.assert_view('NANJAN')
+
+    def test_overview_faber38_erftpilot_switch_is_immediate_and_single(self):
+        from PySide6.QtTest import QSignalSpy
+        from cmdrhelper.ui.commander_view import CommanderView
+        from test_overview_follow_live import overview
+
+        self.journal('TEST-ERFTPILOT', 'ERFTPILOT'); self.start()
+        erftpilot = self.state.viewed_commander_id
+        self.state.select_viewed_commander(erftpilot)
+        self.journal('TEST-FABER38', 'FABER38'); self.refresh()
+        self.assert_view('TEST-ERFTPILOT')
+        window = overview(self.state)
+        commander = CommanderView(self.state)
+        self.addCleanup(window.deleteLater)
+        self.addCleanup(window.close)
+        self.addCleanup(commander.deleteLater)
+        self.addCleanup(commander.close)
+        spy = QSignalSpy(self.state.viewedCommanderChanged)
+        window.overview_follow_live_checkbox.click()
+        self.assert_view('TEST-FABER38')
+        self.assertTrue(commander.follow_live_checkbox.isChecked())
+        self.assertEqual(spy.count(), 1)
+        self.state.sources._tick()
+        self.assertEqual(spy.count(), 1)
+        window.overview_follow_live_checkbox.click()
+        self.journal('TEST-ERFTPILOT', 'ERFTPILOT'); self.refresh()
+        self.assert_view('TEST-FABER38')
+        commander.follow_live_checkbox.click()
+        self.assert_view('TEST-ERFTPILOT')
+        self.assertTrue(window.overview_follow_live_checkbox.isChecked())
+        window.overview_follow_live_checkbox.click()
+        self.stop(); self.start()
+        self.assertFalse(self.state.follow_live_commander)
+        self.assert_view('TEST-ERFTPILOT')

@@ -1,4 +1,14 @@
 TRANSLATIONS = {
+    "pp2.history.filtered_merits": "Merits im Filter: {amount}",
+    "favorites.copy_system": "Systemnamen kopieren",
+    "release.3_9_12.0": "Explorer-Zusatzfenster: zuverlässige Aktualisierung und Wertsortierung in allen zwölf Sprachen.",
+    "release.3_9_12.1": "PP2-Ereignischronik ab- und andocken: frei skalierbares Zusatzfenster mit gespeicherter Größe und Position; Filter bleiben erhalten. Einzeilige Meritsumme für die angezeigten Tagesereignisse und den gewählten Uhrzeitfilter, einschließlich unbekannter Gutschriften.",
+    "release.3_9_12.2": "Live-Commander-Folgen direkt in der Übersicht steuern; mit der CMDR-Ansicht synchronisiert und dauerhaft gespeichert. Bei manueller Commander-Auswahl erklärt ein gelber Hinweis die deaktivierte Automatik; er blinkt zehn Sekunden und bleibt danach sichtbar.",
+    "release.3_9_12.3": "Favoriten: Systemnamen per Kopiersymbol ohne Auswahl oder Navigation kopieren; grünes Häkchen bestätigt den Kopiervorgang für zwei Sekunden.",
+    "release.3_9_12.4": "Lange aktive Journale: geprüfte Verarbeitungsergebnisse wiederverwenden, doppelte Zustandsrekonstruktion vermeiden und UI-Pausen reduzieren.",
+    "release.3_9_12.5": "Start-Fortschrittsfenster wiederhergestellt: gemeinsame Anzeige für aktivierte Journalquellen und korrekte Fehlermeldung bei fehlgeschlagenem Erstimport.",
+    'overview.follow_live': "Aktiven Commander automatisch übernehmen",
+    'overview.manual_commander_hint': "Manuelle Commander-Auswahl aktiv.\nEin anderer laufender Commander wird nicht automatisch übernommen.",
     "release.3_9_11.0": "Windows: automatisches Folgen bei bestätigter Zuordnung von Elite-Prozess, aktueller Journaldatei und Commander-FID; ältere Folgeeinstellungen kompatibel übernehmen.",
     "release.3_9_11.1": "Handelsassistent: Empfehlungen verwenden den Marktbeobachter der ausgewählten Journalquelle; kein fremder Stationskontext beim Quellenwechsel.",
     "release.3_9_11.2": "PP2-Chronik: alle Details einzeilig mit „ | “, Auslassungszeichen bei Platzmangel und vollständigem Tooltip.",
@@ -2066,6 +2076,8 @@ TRANSLATIONS.update({
 # Grouped PP2 chronicle.
 TRANSLATIONS.update({
     'pp2.chronicle.title': 'PP2-TAGESCHRONIK',
+    'pp2.chronicle.detach': 'Abdocken',
+    'pp2.chronicle.attach': 'Andocken',
     'pp2.chronicle.help': 'PP2-Ereignisse des heutigen Tages (00:00–24:00 lokale Zeit). ✓ belegt · ≈ zeitliche Nähe · ? Ursache unbekannt. Bei seltenen Waren bestätigt ✓ ausschließlich den Verkauf, keine Merit-Ursache und keinen Wochenauftragsabschluss.',
     'pp2.chronicle.time': 'Zeit',
     'pp2.chronicle.action': 'Aktion',

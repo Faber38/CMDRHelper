@@ -38,6 +38,15 @@ Journalmappen för Elite Dangerous hittas automatiskt när det är möjligt. Om 
 
 CMDRHelper söker efter uppdateringar vid start och har en inbyggd uppdateringsfunktion. Bekräfta en erbjuden uppdatering i programmet; den uppdaterar programmet och beroendena och startar om CMDRHelper. Efter den första installationen använder du normalt bara `start.bat` (Windows) eller `bash start.sh` (Linux). Du behöver inte köra `install.bat` eller `install.sh` manuellt igen för vanliga uppdateringar.
 
+## CMDRHelper v3.9.12
+
+- Explorer-fönster: tillförlitlig uppdatering och värdesortering på alla tolv språk.
+- Koppla loss och docka PP2-händelseloggen: fritt ändringsbar fönsterstorlek med sparad storlek och position; filtren behålls. Meritsumma på en rad för dagens visade händelser och valt tidsfilter, inklusive ej tilldelade meriter.
+- Styr följning av aktiv befälhavare direkt i översikten; inställningen synkroniseras med CMDR-vyn och sparas mellan omstarter. Vid manuellt befälhavarval förklarar en gul text att automatiskt val är avstängt; den blinkar i tio sekunder och förblir sedan synlig.
+- Favoriter: kopiera systemnamn med kopieringsikonen utan att välja eller navigera; en grön bock bekräftar kopieringen i två sekunder.
+- Långa aktiva journaler: återanvänd verifierade resultat, undvik dubbel rekonstruktion av tillståndet och minska pauser i gränssnittet.
+- Förloppsfönstret vid start är återställt: gemensam visning för aktiverade journalkällor och korrekt felrapportering när den första importen misslyckas.
+
 ## CMDRHelper v3.9.11
 
 - Windows: automatisk följning vid bekräftad koppling mellan Elite-process, aktuell journal och befälhavarens FID; stöd för äldre följningsinställningar.

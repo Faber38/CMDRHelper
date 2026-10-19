@@ -8,7 +8,7 @@ from PySide6.QtCore import (Qt, QSize, QRect, QTimer, QLocale, QSaveFile, QIODev
                            QParallelAnimationGroup, QPropertyAnimation, QEasingCurve)
 from PySide6.QtGui import QIcon, QPixmap, QImageReader
 from PySide6.QtWidgets import (QWidget, QDialog, QVBoxLayout, QHBoxLayout, QFormLayout,
-    QLabel, QLineEdit, QTextEdit, QPushButton, QComboBox, QListWidget, QListWidgetItem,
+    QLabel, QLineEdit, QTextEdit, QPushButton, QComboBox, QListWidgetItem,
     QDialogButtonBox, QFileDialog, QMessageBox, QLayout, QCheckBox, QDoubleSpinBox,
     QGraphicsOpacityEffect)
 
@@ -18,7 +18,7 @@ from cmdrhelper.favorites import (FavoriteStore, TYPES, CATEGORIES, latest_scree
 from cmdrhelper.i18n import tr, get_language
 from cmdrhelper.material_traders import Coordinates
 from cmdrhelper.ui.favorite_image_view import FavoriteImageLabel
-from cmdrhelper.ui.favorite_title_delegate import FavoriteTitleDelegate
+from cmdrhelper.ui.favorite_title_delegate import FavoriteTitleDelegate, FavoritesListWidget, SYSTEM_NAME_ROLE
 from cmdrhelper.ui.favorites_export_dialog import FavoritesExportDialog
 from cmdrhelper.favorites_transfer import (export_package, read_package,
     prepare_import, apply_import, TransferError)
@@ -349,7 +349,7 @@ class FavoritesView(QWidget):
         self.distance_status = text_label('')
         self.distance_status.setObjectName('muted')
         root.addWidget(self.distance_status)
-        self.list = QListWidget(); self.list.setIconSize(QSize(80,60)); self.list.setUniformItemSizes(True)
+        self.list = FavoritesListWidget(); self.list.setIconSize(QSize(80,60)); self.list.setUniformItemSizes(True)
         self.list.setItemDelegate(FavoriteTitleDelegate(self.list))
         root.addWidget(self.list,1)
         self.empty = text_label(tr('favorites.empty')); root.addWidget(self.empty)
@@ -514,6 +514,7 @@ class FavoritesView(QWidget):
             item = QListWidgetItem(record['name']+'\n'+location_text(record)+'\n'+
                                    tr('favorites.category.'+record['category'])+' · '+distance_text)
             item.setData(Qt.UserRole,record['id'])
+            item.setData(SYSTEM_NAME_ROLE, route_system(record))
             pixmap = preview(self.store.image_file(record['image_path']),80,60)
             if not pixmap.isNull():item.setIcon(QIcon(pixmap))
             self.list.addItem(item)

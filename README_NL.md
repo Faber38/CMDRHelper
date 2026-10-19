@@ -38,6 +38,15 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## CMDRHelper v3.9.12
+
+- Explorer-hulpvensters: betrouwbaar vernieuwen en sorteren op waarde in alle twaalf talen.
+- De PP2-gebeurteniskroniek losmaken en terugplaatsen: vrij schaalbaar venster met opgeslagen grootte en positie; filters blijven behouden. Verdienstentotaal op één regel voor de weergegeven daggebeurtenissen en het gekozen tijdfilter, inclusief niet-toegewezen verdiensten.
+- Het volgen van de actieve commander direct vanuit het overzicht bedienen; gesynchroniseerd met de CMDR-weergave en bewaard na herstart. Bij handmatige commanderselectie legt een gele melding uit dat automatische selectie uitstaat; deze knippert tien seconden en blijft daarna zichtbaar.
+- Favorieten: kopieer systeemnamen met het kopieericoon zonder selectie of navigatie; een groen vinkje bevestigt het kopiëren gedurende twee seconden.
+- Lange actieve journals: gecontroleerde resultaten hergebruiken, dubbele reconstructie van de toestand vermijden en interfacepauzes verkorten.
+- Voortgangsvenster bij het starten hersteld: één weergave voor ingeschakelde journalbronnen en correcte foutmelding bij een mislukte eerste import.
+
 ## CMDRHelper v3.9.11
 
 - Windows: automatisch volgen bij bevestigde koppeling tussen Elite-proces, huidig journaal en commander-FID; compatibel met oudere volginstellingen.

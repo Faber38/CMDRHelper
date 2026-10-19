@@ -81,6 +81,44 @@ class ManagerTests(unittest.TestCase):
             self.assertTrue(MaterialInventoryReader().reconstruct(commander['id'], commander['fid'], rows).known)
         self.assertEqual(int(self.settings.value('commander_view/viewed_commander_id')), state.viewed_commander_id)
 
+    def test_active_projection_reuses_worker_result_across_sources(self):
+        from cmdrhelper.journal_reader import read_latest_state
+        manager = self.state.sources
+        with patch('cmdrhelper.journal_reader.read_latest_state', wraps=read_latest_state) as read:
+            for runtime in manager.runtimes.values():
+                self.state.select_viewed_commander(runtime.processor.sessions[-1]['commander_id'])
+                self.assertEqual(self.state.commander_fid, runtime.processor.sessions[-1]['fid_seen'])
+            self.assertEqual(read.call_count, 0)
+            path = Path(runtime.processor.sessions[-1]['journal_file'])
+            append(path, event('Location', StarSystem='new', SystemAddress=42))
+            manager.projection_key = None
+            self.assertFalse(manager.refresh_selected())
+            self.assertNotEqual(self.state.system, 'new')
+            self.assertEqual(read.call_count, 0)
+            runtime.watcher.check_now()
+            self.drain()
+            self.assertEqual(self.state.system, 'new')
+            self.assertEqual(read.call_count, 1)
+            manager.projection_key = None
+            self.assertTrue(manager.refresh_selected())
+            self.assertEqual(read.call_count, 1)
+
+    def test_historical_commander_keeps_existing_projection_path(self):
+        manager = self.state.sources
+        runtime = next(iter(manager.runtimes.values()))
+        old_id = runtime.processor.sessions[-1]['commander_id']
+        newer = Path(runtime.source.path)/'Journal.2026-09-14T130000.01.log'
+        append(newer, event('Commander', FID='NEW-FID', Name='New'),
+               event('Location', StarSystem='New system', SystemAddress=99))
+        runtime.watcher.check_now()
+        self.drain()
+        self.state.select_viewed_commander(old_id)
+        self.assertEqual(self.state.commander_id, old_id)
+        self.assertNotEqual(self.state.system, 'New system')
+        self.state.select_viewed_commander(runtime.processor.sessions[-1]['commander_id'])
+        self.assertEqual(self.state.commander_fid, 'NEW-FID')
+        self.assertEqual(self.state.system, 'New system')
+
     def test_one_process_selects_multiple_keep_selection(self):
         state = self.state
         state.set_follow_live_commander(True)

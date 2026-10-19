@@ -1323,6 +1323,13 @@ class MainWindow(QMainWindow):
                 )
             return
         self._startup_progress_dialog.finish(str(error or ""), components)
+        if getattr(getattr(self, 'state', None), 'sources', None) is not None and (error or components):
+            # Source startup is modeless: leave the failure visible in the main
+            # window, but finish the progress window even on a failed import.
+            message = (tr('startup.error_detail', error=error) if error else
+                       tr('startup.partial_detail', components=", ".join(components)))
+            self.statusBar().showMessage(message)
+            self._startup_progress_dialog.accept()
 
     def _cleanup_parent_backup(self):
         from cmdrhelper.parent_migration import cleanup_backup
@@ -1678,6 +1685,29 @@ class MainWindow(QMainWindow):
         self.overview_commander = QLabel("CMDR –", objectName="cardValue")
         identity_layout.addWidget(self.overview_commander)
 
+        self.overview_follow_live_checkbox = QCheckBox(tr("overview.follow_live"))
+        self.overview_follow_live_checkbox.toggled.connect(self.state.set_follow_live_commander)
+        identity_layout.addWidget(self.overview_follow_live_checkbox)
+        self.overview_manual_commander_hint = QLabel(
+            tr("overview.manual_commander_hint"), objectName="manualCommanderHint"
+        )
+        self.overview_manual_commander_hint.setWordWrap(True)
+        from PySide6.QtWidgets import QGraphicsOpacityEffect
+        self._overview_follow_hint_effect = QGraphicsOpacityEffect(self.overview_manual_commander_hint)
+        self._overview_follow_hint_effect.setOpacity(1)
+        self.overview_manual_commander_hint.setGraphicsEffect(self._overview_follow_hint_effect)
+        self._overview_follow_blink_timer = QTimer(self.overview_manual_commander_hint)
+        self._overview_follow_blink_timer.setInterval(500)
+        self._overview_follow_blink_timer.timeout.connect(self._blink_overview_follow_hint)
+        self._overview_follow_blink_end = QTimer(self.overview_manual_commander_hint)
+        self._overview_follow_blink_end.setSingleShot(True)
+        self._overview_follow_blink_end.setInterval(10_000)
+        self._overview_follow_blink_end.timeout.connect(self._stop_overview_follow_blink)
+        self._overview_follow_enabled = None
+        identity_layout.addWidget(self.overview_manual_commander_hint)
+        self.state.viewedCommanderChanged.connect(self._refresh_overview_follow_live)
+        self._refresh_overview_follow_live()
+
         self.overview_ship = QLabel(tr("overview.ship", ship="–"))
         self.overview_ship.setWordWrap(True)
         identity_layout.addWidget(self.overview_ship)
@@ -1828,6 +1858,29 @@ class MainWindow(QMainWindow):
         page_layout.addWidget(recent_card, 1)
 
         return page
+
+    def _refresh_overview_follow_live(self, _commander_id=None):
+        enabled = self.state.follow_live_commander
+        checkbox = self.overview_follow_live_checkbox
+        blocked = checkbox.blockSignals(True)
+        checkbox.setChecked(enabled)
+        checkbox.blockSignals(blocked)
+        self.overview_manual_commander_hint.setVisible(not enabled)
+        if enabled:
+            self._stop_overview_follow_blink()
+        elif self._overview_follow_enabled is not False:
+            self._overview_follow_blink_timer.start()
+            self._overview_follow_blink_end.start()
+        self._overview_follow_enabled = enabled
+
+    def _blink_overview_follow_hint(self):
+        effect = self._overview_follow_hint_effect
+        effect.setOpacity(0 if effect.opacity() else 1)
+
+    def _stop_overview_follow_blink(self):
+        self._overview_follow_blink_timer.stop()
+        self._overview_follow_blink_end.stop()
+        self._overview_follow_hint_effect.setOpacity(1)
 
     def _copy_recent_system(self, row, _column):
         item = self.recent_systems_table.item(row, 1)
@@ -2797,7 +2850,6 @@ class MainWindow(QMainWindow):
                 if present and window is not None and not window.isVisible():
                     window.show()
             return
-        self._explorer_live_render_key = deepcopy(render_key)
 
         threshold = self._explorer_value_yellow_threshold()
         valuable_rows = []
@@ -2826,17 +2878,17 @@ class MainWindow(QMainWindow):
                 mapping = tr("common.unknown")
 
             valuable_rows.append(
-                (
+                (value, (
                     self._explorer_body_name(body),
                     SystemMapWidget._type_text(body),
                     self._format_reward(value),
                     mapping,
-                )
+                ))
             )
 
-        valuable_rows.sort(
-            key=lambda row: -int(str(row[2]).replace(" Cr", "").replace(".", "") or 0)
-        )
+        # Sort the original amount, never parse localized presentation text.
+        valuable_rows.sort(key=lambda entry: -entry[0])
+        valuable_rows = [row for value, row in valuable_rows]
 
         try:
             learned_bio_values = self.state.database.learned_bio_values()
@@ -3099,6 +3151,9 @@ class MainWindow(QMainWindow):
                 self._explorer_bio_live_window.show()
         elif self._explorer_bio_live_window.isVisible():
             self._explorer_bio_live_window.hide()
+
+        # Failed row construction/presentation must remain retryable.
+        self._explorer_live_render_key = deepcopy(render_key)
 
     def _ensure_planet_navigation_controller(self):
         from cmdrhelper.planet_navigation import PlanetNavigationController

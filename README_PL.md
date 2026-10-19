@@ -38,6 +38,15 @@ Folder dzienników Elite Dangerous jest wykrywany automatycznie, jeśli to możl
 
 CMDRHelper sprawdza aktualizacje przy uruchomieniu i ma wbudowany mechanizm aktualizacji. Potwierdź proponowaną aktualizację w aplikacji; zaktualizuje ona program i zależności oraz uruchomi CMDRHelper ponownie. Po pierwszej instalacji zwykle wystarczy używać `start.bat` (Windows) lub `bash start.sh` (Linux). Przy zwykłych aktualizacjach nie trzeba ponownie ręcznie uruchamiać `install.bat` ani `install.sh`.
 
+## CMDRHelper v3.9.12
+
+- Dodatkowe okna Explorer: niezawodne odświeżanie i sortowanie według wartości we wszystkich dwunastu językach.
+- Odłączanie i dokowanie kroniki zdarzeń PP2: dowolna zmiana rozmiaru okna, zapamiętywanie rozmiaru i położenia oraz zachowanie filtrów. Suma zasług w jednym wierszu dla wyświetlanych wydarzeń dnia i wybranego filtra czasu, z uwzględnieniem nieprzypisanych zasług.
+- Sterowanie śledzeniem aktywnego dowódcy bezpośrednio w przeglądzie; ustawienie zsynchronizowane z widokiem CMDR i zachowywane po ponownym uruchomieniu. Przy ręcznym wyborze dowódcy żółta wskazówka wyjaśnia, że automatyczny wybór jest wyłączony; miga przez dziesięć sekund, a potem pozostaje widoczna.
+- Ulubione: kopiowanie nazw systemów ikoną kopiowania bez zaznaczania i nawigacji; zielony znacznik potwierdza skopiowanie przez dwie sekundy.
+- Długie aktywne dzienniki: ponowne użycie zweryfikowanych wyników, uniknięcie podwójnej rekonstrukcji stanu i krótsze przerwy w działaniu interfejsu.
+- Przywrócone okno postępu uruchamiania: wspólny widok dla włączonych źródeł dzienników i poprawne zgłaszanie błędów pierwszego importu.
+
 ## CMDRHelper v3.9.11
 
 - Windows: automatyczne śledzenie po potwierdzeniu procesu Elite, bieżącego dziennika i FID dowódcy; zgodność ze starszymi ustawieniami śledzenia.

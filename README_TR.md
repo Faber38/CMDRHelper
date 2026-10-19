@@ -39,6 +39,15 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.12
+
+- Explorer ek pencereleri: on iki dilin tamamında güvenilir yenileme ve değere göre sıralama.
+- PP2 olay geçmişini ayırıp yeniden yerleştirin: boyutu serbestçe değiştirilebilen pencerenin boyutu ve konumu kaydedilir; filtreler korunur. Görüntülenen günlük olaylar ve seçilen saat filtresi için, ilişkilendirilemeyen kazanımlar dahil, tek satırlık liyakat toplamı.
+- Aktif komutanı takip etmeyi doğrudan genel görünümden yönetin; ayar CMDR görünümüyle eşzamanlıdır ve yeniden başlatmalarda korunur. Elle komutan seçiminde sarı bir açıklama otomatik seçimin kapalı olduğunu belirtir; on saniye yanıp söner, ardından görünür kalır.
+- Favoriler: seçim veya gezinme başlatmadan kopyalama simgesiyle sistem adlarını kopyalayın; yeşil onay işareti kopyalamayı iki saniye boyunca doğrular.
+- Uzun etkin günlükler: doğrulanmış sonuçlar yeniden kullanılır, durumun iki kez oluşturulması önlenir ve arayüz duraklamaları azaltılır.
+- Başlangıç ilerleme penceresi geri getirildi: etkin günlük kaynakları için ortak gösterim ve başarısız ilk içe aktarmada doğru hata bildirimi.
+
 ## CMDRHelper v3.9.11
 
 - Windows: Elite işlemi, güncel günlük ve komutan FID’si doğrulandığında otomatik takip; eski takip ayarlarıyla uyumluluk.

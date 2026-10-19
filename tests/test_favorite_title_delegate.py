@@ -47,10 +47,11 @@ class FavoriteTitleTests(unittest.TestCase):
                         self.assertEqual(item.text(), text)
                         self.assertEqual(item.data(Qt.UserRole), 42)
                         self.assertEqual(item.isSelected(), selected)
-                        # The lower two lines and the entire icon remain pixel-identical.
+                        # Outside the new copy area, lower lines and thumbnail
+                        # retain their native appearance.
                         lower = original_rect.top() + original_rect.height() // 3 + 1
-                        self.assertEqual(baseline.copy(0, lower, baseline.width(), baseline.height()-lower),
-                                         rendered.copy(0, lower, rendered.width(), rendered.height()-lower))
+                        self.assertEqual(baseline.copy(0, lower, baseline.width()-30, baseline.height()-lower),
+                                         rendered.copy(0, lower, rendered.width()-30, rendered.height()-lower))
                         self.assertEqual(baseline.copy(0, 0, 85, baseline.height()),
                                          rendered.copy(0, 0, 85, rendered.height()))
                         self.assertNotEqual(baseline, rendered)

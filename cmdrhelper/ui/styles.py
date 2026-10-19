@@ -162,6 +162,10 @@ QLabel[gameMode="Solo"], QLabel#statusWarn {
     color: #f0ad4e;
 }
 
+QLabel#manualCommanderHint {
+    color: #f1d54a;
+}
+
 QFrame#onlineServiceSeparator {
     background-color: #f0ad4e;
     border: none;
@@ -458,6 +462,10 @@ QLabel[gameMode="Group"], QLabel#statusOk {
 
 QLabel[gameMode="Solo"], QLabel#statusWarn {
     color: #b36a00;
+}
+
+QLabel#manualCommanderHint {
+    color: #806600;
 }
 
 QFrame#onlineServiceSeparator {

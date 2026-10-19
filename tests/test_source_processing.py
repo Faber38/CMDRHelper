@@ -1,5 +1,7 @@
 import tempfile
 import unittest
+from copy import deepcopy
+from unittest.mock import patch
 from pathlib import Path
 from cmdrhelper.database import CMDRDatabase
 from cmdrhelper.source_processing import SourceProcessor
@@ -21,6 +23,105 @@ class ProcessingTests(unittest.TestCase):
                    event('Location', StarSystem=name, SystemAddress=1 if name == 'a' else 2))
             self.paths.append(path)
             self.processors.append(SourceProcessor(self.db, folder))
+
+    def test_projection_matches_full_read_and_is_not_mutated_by_view(self):
+        from cmdrhelper.journal_reader import read_latest_state
+        processor = self.processors[0]
+        append(self.paths[0],
+            event('Powerplay', Power='Aisling Duval', Rank=2, Merits=100),
+            event('PowerplayMerits', Power='Aisling Duval', MeritsGained=50, TotalMerits=150),
+            event('Scan', BodyName='a 1', BodyID=1, SystemAddress=1,
+                  PlanetClass='Earthlike body', ScanType='Detailed'))
+        processor.process()
+        expected = read_latest_state(processor.path,
+            indexed_sessions=deepcopy(processor.sessions), powerplay_history=False)
+        data = processor.projection_for(processor.sessions)
+        self.assertEqual(data, expected)
+        data['powerplay'].merits = -1
+        data['latest_journal_session']['fid_seen'] = 'wrong'
+        self.assertEqual(processor.projection_for(processor.sessions), expected)
+        for field, value in [('fid_seen', 'other'), ('commander_id', -1),
+                             ('last_read_offset', 0), ('attribution_status', 'unknown')]:
+            rows = deepcopy(processor.sessions); rows[-1][field] = value
+            self.assertIsNone(processor.projection_for(rows), field)
+
+    def test_projection_rejects_changed_files_even_with_restored_mtime(self):
+        import os
+        processor = self.processors[0]
+        path = self.paths[0]
+        original = path.read_bytes()
+        for change in ('append', 'partial', 'truncate', 'replace', 'rewrite', 'missing'):
+            with self.subTest(change=change):
+                path.write_bytes(original)
+                processor.process()
+                before = path.stat()
+                self.assertIsNotNone(processor.projection_for(processor.sessions))
+                if change == 'append':
+                    append(path, event('Location', StarSystem='new', SystemAddress=3))
+                elif change == 'partial':
+                    with path.open('ab') as stream: stream.write(b'{"event":')
+                elif change == 'truncate':
+                    path.write_bytes(original[:20])
+                elif change == 'replace':
+                    replacement = path.with_suffix('.replacement')
+                    replacement.write_bytes(original); replacement.replace(path)
+                elif change == 'rewrite':
+                    path.write_bytes(original.replace(b'Same', b'Else'))
+                else:
+                    path.unlink()
+                if path.exists():
+                    os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
+                self.assertIsNone(processor.projection_for(processor.sessions))
+                # Each case starts a new ingestion lifetime, with the original
+                # input restored, so replacement guards are not bypassed.
+                path.write_bytes(original)
+                processor = SourceProcessor(CMDRDatabase(self.root/(change+'.db')), path.parent)
+
+    def test_projection_checks_history_and_publishes_only_after_success(self):
+        processor = self.processors[0]
+        processor.process()
+        newer = self.paths[0].with_name('Journal.2026-09-14T130000.01.log')
+        append(newer, event('Commander', FID='F-a', Name='Same'),
+               event('Location', StarSystem='new', SystemAddress=3))
+        processor.process()
+        self.assertIsNotNone(processor.projection_for(processor.sessions))
+        append(self.paths[0], event('Music'))
+        self.assertIsNone(processor.projection_for(processor.sessions))
+        processor.process()
+        with patch.object(self.db, 'store_snapshot', side_effect=RuntimeError('test')):
+            with self.assertRaises(RuntimeError): processor.process()
+        self.assertIsNone(processor.projection_for(processor.sessions))
+        processor.process()
+        self.assertIsNotNone(processor.projection_for(processor.sessions))
+
+    def test_append_during_snapshot_waits_for_next_committed_result(self):
+        processor = self.processors[0]
+        original = self.db.store_snapshot
+        def append_during_store(*args, **kwargs):
+            original(*args, **kwargs)
+            append(self.paths[0], event('Location', StarSystem='late', SystemAddress=42))
+        with patch.object(self.db, 'store_snapshot', side_effect=append_during_store):
+            processor.process()
+        self.assertIsNone(processor.projection_for(processor.sessions))
+        self.assertLess(processor.sessions[-1]['last_read_offset'], self.paths[0].stat().st_size)
+        processor.process()
+        self.assertEqual(processor.sessions[-1]['last_read_offset'], self.paths[0].stat().st_size)
+        self.assertEqual(processor.projection_for(processor.sessions)['system'], 'late')
+
+    def test_long_journal_projection_does_not_repeat_full_reconstruction(self):
+        import json
+        from cmdrhelper.journal_reader import read_latest_state
+        processor = self.processors[0]
+        with self.paths[0].open('a') as stream:
+            stream.write((json.dumps(event('Music', MusicTrack='Exploration'))+'\n')*100000)
+        processor.process()
+        append(self.paths[0], event('Location', StarSystem='next', SystemAddress=42))
+        with patch('cmdrhelper.journal_reader.read_latest_state', wraps=read_latest_state) as read:
+            processor.process()
+            for _ in range(3):
+                data = processor.projection_for(processor.sessions)
+                self.assertEqual(data['system'], 'next')
+            self.assertEqual(read.call_count, 1)
 
     def test_same_names_distinct_commanders_and_offsets(self):
         for processor in self.processors:
@@ -67,6 +168,7 @@ class ProcessingTests(unittest.TestCase):
             con.execute("CREATE TRIGGER fail_cursor BEFORE UPDATE OF last_read_offset ON journal_sessions BEGIN SELECT RAISE(ABORT,'test'); END")
         with self.assertRaises(sqlite3.IntegrityError):
             processor.process()
+        self.assertIsNone(processor.projection_for(processor.sessions))
         after = next(r for r in load_sessions(self.db) if r['journal_file'] == str(self.paths[0]))
         for key in ('last_read_offset', 'last_complete_line_offset', 'modified_ns', 'file_size', 'sha256'):
             self.assertEqual(after[key], before[key], key)
@@ -75,12 +177,14 @@ class ProcessingTests(unittest.TestCase):
         complete = self.paths[0].stat().st_size
         with self.paths[0].open('ab') as stream: stream.write(b'{"event":"Music"')
         with self.assertRaises(JournalPending): processor.process()
+        self.assertIsNone(processor.projection_for(processor.sessions))
         row = next(r for r in load_sessions(self.db) if r['journal_file'] == str(self.paths[0]))
         self.assertEqual(row['last_read_offset'], complete)
         self.processors[1].process()
         with self.paths[0].open('ab') as stream: stream.write(b'}\n')
         processor.process()
         self.assertEqual(processor.sessions[0]['last_read_offset'], self.paths[0].stat().st_size)
+        self.assertIsNotNone(processor.projection_for(processor.sessions))
 
     def test_personal_modules_with_same_local_ids_remain_isolated(self):
         from cmdrhelper.material_inventory import MaterialInventoryReader
