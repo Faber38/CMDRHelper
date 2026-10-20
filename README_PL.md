@@ -38,6 +38,15 @@ Folder dzienników Elite Dangerous jest wykrywany automatycznie, jeśli to możl
 
 CMDRHelper sprawdza aktualizacje przy uruchomieniu i ma wbudowany mechanizm aktualizacji. Potwierdź proponowaną aktualizację w aplikacji; zaktualizuje ona program i zależności oraz uruchomi CMDRHelper ponownie. Po pierwszej instalacji zwykle wystarczy używać `start.bat` (Windows) lub `bash start.sh` (Linux). Przy zwykłych aktualizacjach nie trzeba ponownie ręcznie uruchamiać `install.bat` ani `install.sh`.
 
+## CMDRHelper v3.9.14
+
+- Przebudowany widok konfliktów PP2 dla nieokupowanych systemów: większe istniejące portrety potęg, nazwa i punkty kontroli w elastycznym układzie; zachowano sortowanie według postępu i dotychczasowe kolory.
+- Punkty kontroli konfliktu jako przybliżenie poparte obserwacjami: CP ≈ ConflictProgress × 120000. Pasek używa zakładanej skali od 0 do 180000 CP, ograniczonej do 100%; brakujące wartości pozostają nieznane.
+- Przerywane znaczniki przy 36000 CP (20%) i 120000 CP (66,67%), z symbolami i przetłumaczonymi podpowiedziami. Granice i skala nie są potwierdzonymi oficjalnymi stałymi gry; przekroczenie znacznika nie zmienia statusu systemu.
+- Własna potęga bez obecności jest wyświetlana osobno z opisem „Brak obecności”, bez powielania uczestników. Warianty nazwy tej samej potęgi są łączone.
+- Misje Odyssey: generowane szczegóły uwzględniają późniejsze zmiany celu. Jawne pierwotne cele z MissionRedirected są zapisywane osobno dla każdego dowódcy; nowy cel pozostaje celem nawigacji. Brakujące miejsca i planety nie są zgadywane.
+- Główne okno zapisuje rozmiar, pozycję i stan maksymalizacji oraz przywraca je po ponownym uruchomieniu. Nieprawidłowa zapisana geometria jest zastępowana domyślną; niewidoczne pozycje są korygowane.
+
 ## CMDRHelper v3.9.13
 
 - Kontrola systemów PP2: cztery kolorowe obszary dla stanów Niezajęty, Eksploatowany, Ufortyfikowany i Twierdza; biały trójkąt oznacza stan systemu, a żółty postęp bieżącego cyklu.

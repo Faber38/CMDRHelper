@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_14.0': "Omstrukturert PP2-konfliktvisning for ubesatte systemer: større eksisterende maktportretter, maktnavn og kontrollpoeng i et tilpasningsdyktig oppsett; sortering etter fremdrift og eksisterende maktfarger beholdes.",
+    'release.3_9_14.1': "Kontrollpoeng i konflikter som en empirisk støttet tilnærming: CP ≈ ConflictProgress × 120000. Stolpen bruker en antatt skala fra 0 til 180000 CP, begrenset til 100 %; manglende verdier forblir ukjente.",
+    'release.3_9_14.2': "Stiplede konfliktmarkører ved 36000 CP (20 %) og 120000 CP (66,67 %), med symboler og oversatte verktøytips. Grensene og skalaen er ikke bekreftede offisielle spillkonstanter; passering av en markør endrer ikke systemstatus.",
+    'release.3_9_14.3': "Din egen makt vises separat med «Ingen tilstedeværelse» når den er fraværende, uten doble deltakere. Navnevarianter av samme makt slås sammen.",
+    'release.3_9_14.4': "Odyssey-oppdrag: genererte detaljtekster følger senere målendringer. Eksplisitte opprinnelige mål i MissionRedirected lagres separat per kommandør; det nye målet forblir navigasjonsmålet. Manglende steder eller planeter blir ikke gjettet.",
+    'release.3_9_14.5': "Hovedvinduet lagrer størrelse, posisjon og maksimert tilstand og gjenoppretter dem ved omstart. Ugyldig lagret geometri får standardverdier; posisjoner som ikke lenger er synlige korrigeres.",
     "release.3_9_13.0": "PP2-systemkontroll: fire fargede områder for Ikke okkupert, Utnyttet, Befestet og Høyborg; hvit trekant for systemstatus og gul trekant for fremdriften i gjeldende syklus.",
     "release.3_9_13.1": "Markørposisjonene er uttrykkelig omtrentlige, ikke en bekreftet Frontier-beregning. Området mellom markørene er rødt når hvit står til høyre for gul, og blått når hvit står til venstre. Forsterkning og svekkelse vises som uendrede journalverdier i CP.",
     "release.3_9_13.2": "Egen PP2-konfliktvisning for ubesatte systemer: makter sortert etter konfliktfremdrift, med relative stolper og eksisterende portretter. Bekreftede farger for Aisling Duval og Nakato Kaine, ellers nøytral visning; manglende verdier forblir ukjente, og absolutte konflikt-CP er utilgjengelige.",
@@ -2147,4 +2153,27 @@ TRANSLATIONS.update({
     'pp2.system.status_marker': 'Systemstatus',
     'pp2.system.cycle_marker': 'Fremdrift i gjeldende syklus',
     'pp2.system.approximation': 'Markørposisjonene er omtrentlige, ikke en bekreftet spillskala. CP-verdiene hentes uendret fra journalen.',
+})
+
+# Unoccupied conflict presentation; empirical CP and approximate visual markers.
+TRANSLATIONS.update({
+    "pp2.conflict.own_power": "EGEN MAKT",
+    "pp2.conflict.no_presence": "Ingen tilstedeværelse",
+    "pp2.conflict.boundary": "Konfliktgrense",
+    "pp2.conflict.minimum": "Minste kontrollpoeng",
+    'pp2.conflict.threshold_help': "Konfliktgrense (tilnærming)\n\nMarkøren står for øyeblikket ved 36 000 CP på en antatt stolpeskala opp til 180 000 CP.\n\nDenne grensen er ennå ikke bekreftet som en offisiell terskel i spillet.\n\nMinste antall kontrollpoeng (tilnærming)\n\nMarkøren står for øyeblikket ved 120 000 CP på en antatt stolpeskala opp til 180 000 CP.\n\nDenne grensen er ennå ikke bekreftet som en offisiell terskel i spillet.",
+    "pp2.conflict.cp_help": "Tilnærming for ubesatte systemer: CP ≈ ConflictProgress × 120000. Empirisk støttet, ikke generelt bekreftet. Rå journalverdi: {raw}.\n\nStolpefyllingen bruker for øyeblikket en tilnærmet skala fra 0 til 180 000 CP.\n\nDen nøyaktige skaleringen i Elite Dangerous er ennå ikke bekreftet.\n\nKontrollpoengene beregnes uavhengig av dette fra de tilgjengelige journaldataene.",
+})
+
+# Explicit mission destinations, separate from the active navigation target.
+TRANSLATIONS.update({
+    "missions.current_destination": "Nåværende mål",
+    "missions.original_system": "Opprinnelig målsystem",
+    "missions.original_place": "Opprinnelig målsted",
+})
+
+# Provisional CP markers, not confirmed official game thresholds.
+TRANSLATIONS.update({
+    'pp2.conflict.boundary_help': "Konfliktgrense (tilnærming)\n\nMarkøren står for øyeblikket ved 36 000 CP på en antatt stolpeskala opp til 180 000 CP.\n\nDenne grensen er ennå ikke bekreftet som en offisiell terskel i spillet.",
+    'pp2.conflict.minimum_help': "Minste antall kontrollpoeng (tilnærming)\n\nMarkøren står for øyeblikket ved 120 000 CP på en antatt stolpeskala opp til 180 000 CP.\n\nDenne grensen er ennå ikke bekreftet som en offisiell terskel i spillet.",
 })

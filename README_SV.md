@@ -38,6 +38,15 @@ Journalmappen för Elite Dangerous hittas automatiskt när det är möjligt. Om 
 
 CMDRHelper söker efter uppdateringar vid start och har en inbyggd uppdateringsfunktion. Bekräfta en erbjuden uppdatering i programmet; den uppdaterar programmet och beroendena och startar om CMDRHelper. Efter den första installationen använder du normalt bara `start.bat` (Windows) eller `bash start.sh` (Linux). Du behöver inte köra `install.bat` eller `install.sh` manuellt igen för vanliga uppdateringar.
 
+## CMDRHelper v3.9.14
+
+- Omarbetad PP2-konfliktvy för obesatta system: större befintliga maktporträtt, maktnamn och kontrollpoäng i en anpassningsbar layout; sortering efter framsteg och befintliga maktfärger behålls.
+- Kontrollpoäng i konflikter som en empiriskt stödd uppskattning: CP ≈ ConflictProgress × 120000. Stapeln använder en antagen skala från 0 till 180000 CP, begränsad till 100 %; saknade värden förblir okända.
+- Streckade konfliktmarkeringar vid 36000 CP (20 %) och 120000 CP (66,67 %), med symboler och översatta verktygstips. Gränserna och skalan är inte bekräftade officiella spelkonstanter; en passerad markering ändrar inte systemstatus.
+- Din egen makt visas separat med ”Ingen närvaro” när den saknas, utan dubbla deltagare. Namnvarianter för samma makt slås samman.
+- Odyssey-uppdrag: genererade detaljtexter följer senare måländringar. Uttryckliga ursprungliga mål i MissionRedirected sparas separat per befälhavare; det nya målet förblir navigationsmålet. Saknade platser eller planeter gissas inte.
+- Huvudfönstret sparar storlek, position och maximerat tillstånd och återställer dem vid omstart. Ogiltig sparad geometri använder standardvärden; positioner som inte längre syns korrigeras.
+
 ## CMDRHelper v3.9.13
 
 - PP2-systemkontroll: fyra färgade områden för Ej ockuperat, Exploaterat, Befäst och Fäste; vit triangel för systemstatus och gul triangel för den aktuella cykelns framsteg.

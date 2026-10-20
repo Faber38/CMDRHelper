@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_14.0': "Uudistettu PP2-konfliktinäkymä miehittämättömille järjestelmille: suuremmat nykyiset valtakuvat, vallan nimi ja hallintapisteet mukautuvassa asettelussa; edistymisjärjestys ja nykyiset värit säilyvät.",
+    'release.3_9_14.1': "Konfliktin hallintapisteet empiirisesti tuettuna arviona: CP ≈ ConflictProgress × 120000. Palkki käyttää oletettua asteikkoa 0–180000 CP, enintään 100 %; puuttuvat arvot pysyvät tuntemattomina.",
+    'release.3_9_14.2': "Katkoviivamerkit kohdissa 36000 CP (20 %) ja 120000 CP (66,67 %), symbolit ja käännetyt työkaluvihjeet. Rajat ja asteikko eivät ole vahvistettuja virallisia pelivakioita; merkin ylittäminen ei muuta järjestelmän tilaa.",
+    'release.3_9_14.3': "Oma valta näytetään puuttuessaan erikseen merkinnällä ”Ei läsnäoloa”, ilman päällekkäisiä osallistujia. Saman vallan nimimuunnelmat yhdistetään.",
+    'release.3_9_14.4': "Odyssey-tehtävät: luodut yksityiskohtatekstit seuraavat myöhempiä kohdemuutoksia. MissionRedirected-tapahtuman nimenomaiset alkuperäiset kohteet tallennetaan erikseen komentajakohtaisesti; uusi kohde säilyy navigointikohteena. Puuttuvia paikkoja tai planeettoja ei arvata.",
+    'release.3_9_14.5': "Pääikkuna tallentaa koon, sijainnin ja suurennetun tilan ja palauttaa ne uudelleenkäynnistyksessä. Virheellinen tallennettu geometria korvataan oletusarvoilla; näkymättömiin jäävät sijainnit korjataan.",
     "release.3_9_13.0": "PP2-järjestelmähallinta: neljä värialuetta tiloille Miehittämätön, Hyödynnetty, Linnoitettu ja Tukikohta; valkoinen kolmio näyttää järjestelmän tilan ja keltainen nykyisen syklin edistymisen.",
     "release.3_9_13.1": "Merkkien sijainnit ovat nimenomaisesti likimääräisiä, eivät vahvistettu Frontier-laskelma. Väli on punainen, kun valkoinen on keltaisen oikealla puolella, ja sininen, kun se on vasemmalla. Vahvistaminen ja heikentäminen näyttävät lokin muuttamattomat arvot CP-yksiköissä.",
     "release.3_9_13.2": "Oma PP2-konfliktinäkymä miehittämättömille järjestelmille: valtaryhmät konfliktin edistymisjärjestyksessä, suhteelliset palkit ja olemassa olevat muotokuvat. Vahvistetut värit Aisling Duvalille ja Nakato Kainelle, muille neutraali esitys; puuttuvat arvot pysyvät tuntemattomina eikä absoluuttisia konfliktin CP-arvoja ole saatavilla.",
@@ -2147,4 +2153,27 @@ TRANSLATIONS.update({
     'pp2.system.status_marker': 'Järjestelmän tila',
     'pp2.system.cycle_marker': 'Nykyisen jakson edistyminen',
     'pp2.system.approximation': 'Merkkien sijainnit ovat likimääräisiä, eivät vahvistettu peliasteikko. CP-arvot ovat lokin muuttamattomia arvoja.',
+})
+
+# Unoccupied conflict presentation; empirical CP and approximate visual markers.
+TRANSLATIONS.update({
+    "pp2.conflict.own_power": "OMA VALTARYHMÄ",
+    "pp2.conflict.no_presence": "Ei läsnäoloa",
+    "pp2.conflict.boundary": "Konfliktiraja",
+    "pp2.conflict.minimum": "Vähimmäishallintapisteet",
+    'pp2.conflict.threshold_help': "Konfliktiraja (arvio)\n\nMerkki on tällä hetkellä kohdassa 36 000 CP palkin oletetulla asteikolla, joka ulottuu 180 000 CP:hen.\n\nTätä rajaa ei ole vielä vahvistettu pelin viralliseksi kynnysarvoksi.\n\nHallintapisteiden vähimmäismäärä (arvio)\n\nMerkki on tällä hetkellä kohdassa 120 000 CP palkin oletetulla asteikolla, joka ulottuu 180 000 CP:hen.\n\nTätä rajaa ei ole vielä vahvistettu pelin viralliseksi kynnysarvoksi.",
+    "pp2.conflict.cp_help": "Arvio miehittämättömille järjestelmille: CP ≈ ConflictProgress × 120000. Empiirisesti tuettu, ei yleisesti vahvistettu. Lokin raaka-arvo: {raw}.\n\nPalkin täyttö käyttää tällä hetkellä likimääräistä asteikkoa 0–180 000 CP.\n\nElite Dangerousin tarkkaa skaalausta ei ole vielä vahvistettu.\n\nHallintapisteet lasketaan tästä riippumatta saatavilla olevista lokitiedoista.",
+})
+
+# Explicit mission destinations, separate from the active navigation target.
+TRANSLATIONS.update({
+    "missions.current_destination": "Nykyinen kohde",
+    "missions.original_system": "Alkuperäinen kohdejärjestelmä",
+    "missions.original_place": "Alkuperäinen kohdepaikka",
+})
+
+# Provisional CP markers, not confirmed official game thresholds.
+TRANSLATIONS.update({
+    'pp2.conflict.boundary_help': "Konfliktiraja (arvio)\n\nMerkki on tällä hetkellä kohdassa 36 000 CP palkin oletetulla asteikolla, joka ulottuu 180 000 CP:hen.\n\nTätä rajaa ei ole vielä vahvistettu pelin viralliseksi kynnysarvoksi.",
+    'pp2.conflict.minimum_help': "Hallintapisteiden vähimmäismäärä (arvio)\n\nMerkki on tällä hetkellä kohdassa 120 000 CP palkin oletetulla asteikolla, joka ulottuu 180 000 CP:hen.\n\nTätä rajaa ei ole vielä vahvistettu pelin viralliseksi kynnysarvoksi.",
 })

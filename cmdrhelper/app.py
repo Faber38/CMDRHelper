@@ -131,7 +131,8 @@ def run():
 
     state = AppState()
     window = MainWindow(state)
-    _resize_initial_window(window, app.primaryScreen())
+    if not window.restore_main_geometry():
+        _resize_initial_window(window, app.primaryScreen())
     window.show()
     try:
         raise SystemExit(app.exec())

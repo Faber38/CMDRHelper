@@ -38,6 +38,15 @@ La carpeta de diarios de Elite Dangerous se detecta automáticamente cuando es p
 
 CMDRHelper busca actualizaciones al iniciarse y dispone de un actualizador integrado. Confirma una actualización ofrecida en la aplicación; actualizará el programa y las dependencias y reiniciará CMDRHelper. Tras la primera instalación, normalmente basta con usar `start.bat` (Windows) o `bash start.sh` (Linux). No es necesario volver a ejecutar manualmente `install.bat` o `install.sh` para las actualizaciones normales.
 
+## CMDRHelper v3.9.14
+
+- Vista de conflictos PP2 renovada para sistemas no ocupados: retratos existentes de las potencias más grandes, nombre y puntos de control en un diseño adaptable; se mantienen el orden por progreso y los colores existentes.
+- Puntos de control del conflicto como aproximación respaldada empíricamente: CP ≈ ConflictProgress × 120000. La barra usa una escala supuesta de 0 a 180000 CP, limitada al 100 %; los valores ausentes siguen siendo desconocidos.
+- Marcadores discontinuos en 36000 CP (20 %) y 120000 CP (66,67 %), con símbolos y ayudas traducidas. Los límites y la escala no son constantes oficiales confirmadas del juego; superar un marcador no cambia el estado del sistema.
+- La potencia propia aparece por separado como «Sin presencia» cuando está ausente, sin duplicar participantes. Se unifican las variantes del nombre de una misma potencia.
+- Misiones Odyssey: los detalles generados siguen los cambios posteriores de destino. Los destinos originales explícitos de MissionRedirected se guardan por separado para cada comandante; el nuevo destino sigue siendo el objetivo de navegación. No se estiman lugares ni planetas ausentes.
+- La ventana principal guarda tamaño, posición y estado maximizado y los restaura al reiniciar. Una geometría guardada no válida usa los valores predeterminados; se corrigen las posiciones que ya no son visibles.
+
 ## CMDRHelper v3.9.13
 
 - Control de sistemas PP2: cuatro áreas de color para Sin ocupar, Explotado, Fortificado y Bastión; triángulo blanco para el estado del sistema y amarillo para el progreso del ciclo actual.

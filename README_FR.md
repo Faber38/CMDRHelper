@@ -38,6 +38,15 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.9.14
+
+- Vue des conflits PP2 remaniée pour les systèmes inoccupés : portraits existants agrandis, nom de la puissance et points de contrôle dans une disposition adaptative ; tri par progression et couleurs existantes conservés.
+- Points de contrôle de conflit estimés sur une base empirique : CP ≈ ConflictProgress × 120000. La barre utilise une échelle supposée de 0 à 180000 CP, plafonnée à 100 % ; les valeurs manquantes restent inconnues.
+- Repères de conflit en pointillés à 36000 CP (20 %) et 120000 CP (66,67 %), avec symboles et infobulles traduites. Les limites et l’échelle ne sont pas des constantes officielles confirmées du jeu ; franchir un repère ne change pas le statut du système.
+- Votre puissance apparaît séparément avec « Aucune présence » lorsqu’elle est absente, sans doublon parmi les participants. Les variantes du nom d’une même puissance sont regroupées.
+- Missions Odyssey : les détails générés suivent les changements de destination ultérieurs. Les destinations initiales explicites de MissionRedirected sont enregistrées séparément par commandant ; la nouvelle destination reste la cible de navigation. Aucun lieu ou astre manquant n’est deviné.
+- La fenêtre principale enregistre sa taille, sa position et son état maximisé et les restaure au redémarrage. Une géométrie enregistrée invalide utilise les valeurs par défaut ; les positions devenues invisibles sont corrigées.
+
 ## CMDRHelper v3.9.13
 
 - Contrôle des systèmes PP2 : quatre zones colorées pour les états Non occupé, Exploité, Fortifié et Bastion ; triangle blanc pour l’état du système et jaune pour la progression du cycle actuel.

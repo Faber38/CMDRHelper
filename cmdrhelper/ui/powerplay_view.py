@@ -467,7 +467,8 @@ class PowerplayView(QScrollArea):
             relationship, mode = "unknown", None
         else:
             relationship, mode = context(data)
-        self.system_presentation.render(system, getattr(self.state, "system", ""), relationship, fmt)
+        self.system_presentation.render(system, getattr(self.state, "system", ""), relationship, fmt,
+                                        own_power=data.power)
         at = timestamp(system.get("timestamp"))
         self.observed.setText(tr("pp2.observed", time=date(at)) if at else tr("pp2.no_data"))
         self.action_heading.setText(tr("pp2.actions_for", power=data.power) if data.power else tr("pp2.actions"))

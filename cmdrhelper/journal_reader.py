@@ -851,6 +851,8 @@ def _update_mission_event(mission: dict, e: dict):
     ts = e.get("timestamp") or mission.get("last_update", "")
 
     if et == "MissionRedirected":
+        from cmdrhelper.mission_persistence import ORIGIN_FIELDS, update_destination_summary
+        previous = dict(mission)
         redirected_name = (
             e.get("LocalisedName")
             or e.get("Name_Localised")
@@ -865,6 +867,15 @@ def _update_mission_event(mission: dict, e: dict):
             mission["destination_station"] = e["NewDestinationStation"]
 
         extra = dict(mission.get("extra") or {})
+        # The first explicitly reported old destination is the origin.
+        # Later redirects must not relabel an intermediate destination as it.
+        origin = {
+            key: e[source].strip()
+            for key, source in zip(ORIGIN_FIELDS, ('OldDestinationSystem', 'OldDestinationStation'))
+            if isinstance(e.get(source), str) and e[source].strip()
+        }
+        if origin and not any(key in extra for key in ORIGIN_FIELDS):
+            extra.update(origin)
         extra["source"] = extra.get("source") or "Missions+MissionRedirected"
         if e.get("OldDestinationSystem"):
             extra["old_destination_system"] = e["OldDestinationSystem"]
@@ -872,7 +883,7 @@ def _update_mission_event(mission: dict, e: dict):
 
         mission["status"] = STATUS_REDIRECTED
         mission["next_step"] = default_next_step(mission)
-        mission["summary"] = build_summary(mission)
+        update_destination_summary(previous, mission)
 
     elif et == "CargoDepot":
         update_type = (e.get("UpdateType") or "").lower()

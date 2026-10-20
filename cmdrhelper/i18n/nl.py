@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_14.0': "Vernieuwde PP2-conflictweergave voor onbezette systemen: grotere bestaande machtportretten, machtnaam en controlepunten in een aanpasbare indeling; sortering op voortgang en bestaande machtkleuren blijven behouden.",
+    'release.3_9_14.1': "Controlepunten voor conflicten als empirisch ondersteunde benadering: CP ≈ ConflictProgress × 120000. De balk gebruikt een aangenomen schaal van 0 tot 180000 CP, begrensd op 100%; ontbrekende waarden blijven onbekend.",
+    'release.3_9_14.2': "Gestippelde conflictmarkeringen bij 36000 CP (20%) en 120000 CP (66,67%), met symbolen en vertaalde tooltips. Grenzen en balkschaal zijn geen bevestigde officiële spelconstanten; het passeren van een markering verandert de systeemstatus niet.",
+    'release.3_9_14.3': "Je eigen macht verschijnt bij afwezigheid afzonderlijk met “Geen aanwezigheid”, zonder dubbele deelnemers. Naamvarianten van dezelfde macht worden samengevoegd.",
+    'release.3_9_14.4': "Odyssey-missies: gegenereerde detailteksten volgen latere bestemmingswijzigingen. Expliciete oorspronkelijke bestemmingen uit MissionRedirected worden afzonderlijk per commander opgeslagen; de nieuwe bestemming blijft het navigatiedoel. Ontbrekende locaties of planeten worden niet geraden.",
+    'release.3_9_14.5': "Het hoofdvenster bewaart grootte, positie en gemaximaliseerde toestand en herstelt deze bij opnieuw starten. Ongeldige opgeslagen geometrie krijgt standaardwaarden; posities die niet meer zichtbaar zijn worden gecorrigeerd.",
     "release.3_9_13.0": "PP2-systeemcontrole: vier gekleurde gebieden voor Onbezet, Geëxploiteerd, Versterkt en Bolwerk; een witte driehoek voor de systeemstatus en een gele voor de voortgang van de huidige cyclus.",
     "release.3_9_13.1": "Markeerposities zijn uitdrukkelijk benaderingen, geen bevestigde Frontier-berekening. Het interval is rood als wit rechts van geel staat en blauw als wit links staat. Versterking en verzwakking tonen ongewijzigde journalwaarden in CP.",
     "release.3_9_13.2": "Eigen PP2-conflictweergave voor onbezette systemen: machten gesorteerd op conflictvoortgang, met relatieve balken en bestaande portretten. Bevestigde kleuren voor Aisling Duval en Nakato Kaine, anders neutrale weergave; ontbrekende waarden blijven onbekend en absolute conflict-CP zijn niet beschikbaar.",
@@ -2147,4 +2153,27 @@ TRANSLATIONS.update({
     'pp2.system.status_marker': 'Systeemstatus',
     'pp2.system.cycle_marker': 'Voortgang huidige cyclus',
     'pp2.system.approximation': 'De markerposities zijn benaderingen, geen bevestigde spelschaal. CP-waarden komen ongewijzigd uit het logboek.',
+})
+
+# Unoccupied conflict presentation; empirical CP and approximate visual markers.
+TRANSLATIONS.update({
+    "pp2.conflict.own_power": "EIGEN MACHT",
+    "pp2.conflict.no_presence": "Geen aanwezigheid",
+    "pp2.conflict.boundary": "Conflictgrens",
+    "pp2.conflict.minimum": "Minimale controlepunten",
+    'pp2.conflict.threshold_help': "Conflictgrens (benadering)\n\nDe markering staat momenteel op 36.000 CP op een aangenomen balkschaal tot 180.000 CP.\n\nDeze grens is nog niet bevestigd als officiële speldrempel.\n\nMinimaal aantal controlepunten (benadering)\n\nDe markering staat momenteel op 120.000 CP op een aangenomen balkschaal tot 180.000 CP.\n\nDeze grens is nog niet bevestigd als officiële speldrempel.",
+    "pp2.conflict.cp_help": "Benadering voor onbezette systemen: CP ≈ ConflictProgress × 120000. Empirisch ondersteund, niet algemeen bevestigd. Ruwe journalwaarde: {raw}.\n\nDe balkvulling gebruikt momenteel een benaderde schaal van 0 tot 180.000 CP.\n\nDe exacte schaal van Elite Dangerous is nog niet bevestigd.\n\nDe controlepunten worden onafhankelijk daarvan berekend uit de beschikbare journalgegevens.",
+})
+
+# Explicit mission destinations, separate from the active navigation target.
+TRANSLATIONS.update({
+    "missions.current_destination": "Huidige bestemming",
+    "missions.original_system": "Oorspronkelijk doelsysteem",
+    "missions.original_place": "Oorspronkelijke doellocatie",
+})
+
+# Provisional CP markers, not confirmed official game thresholds.
+TRANSLATIONS.update({
+    'pp2.conflict.boundary_help': "Conflictgrens (benadering)\n\nDe markering staat momenteel op 36.000 CP op een aangenomen balkschaal tot 180.000 CP.\n\nDeze grens is nog niet bevestigd als officiële speldrempel.",
+    'pp2.conflict.minimum_help': "Minimaal aantal controlepunten (benadering)\n\nDe markering staat momenteel op 120.000 CP op een aangenomen balkschaal tot 180.000 CP.\n\nDeze grens is nog niet bevestigd als officiële speldrempel.",
 })

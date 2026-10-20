@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_14.0': "Reworked PP2 conflict view for unoccupied systems: larger existing power portraits, power name and control points in a responsive layout; progress sorting and existing power colors are retained.",
+    'release.3_9_14.1': "Conflict control points as an empirically supported approximation: CP ≈ ConflictProgress × 120000. The bar uses an assumed scale from 0 to 180000 CP, capped at 100%; missing values remain unknown.",
+    'release.3_9_14.2': "Dashed conflict markers at 36000 CP (20%) and 120000 CP (66.67%), with symbols and translated tooltips. The boundaries and bar scale are not confirmed official game constants; crossing a marker does not change system status.",
+    'release.3_9_14.3': "Your power appears separately as “No presence” when absent, without duplicate participants. Name variants of the same power are merged.",
+    'release.3_9_14.4': "Odyssey missions: generated detail text follows later destination changes. Explicit original destinations in MissionRedirected are stored separately for each commander; the new destination remains the navigation target. Missing locations or planets are not guessed.",
+    'release.3_9_14.5': "The main window saves its size, position and maximized state and restores them on restart. Invalid saved geometry falls back to a default; positions that are no longer visible are corrected.",
     "release.3_9_13.0": "PP2 system control: four colored areas for Unoccupied, Exploited, Fortified and Stronghold; a white triangle for system status and a yellow triangle for current cycle progress.",
     "release.3_9_13.1": "Marker positions are explicitly approximate, not a confirmed Frontier calculation. The interval between markers is tinted red when white is right of yellow and blue when white is left. Reinforcement and undermining are shown as unchanged journal values in CP.",
     "release.3_9_13.2": "Dedicated PP2 conflict view for unoccupied systems: powers sorted by conflict progress, with relative bars and existing portraits. Confirmed colors for Aisling Duval and Nakato Kaine, otherwise neutral styling; missing values remain unknown and absolute conflict CP are unavailable.",
@@ -2291,4 +2297,27 @@ TRANSLATIONS.update({
     'pp2.system.status_marker': 'System status',
     'pp2.system.cycle_marker': 'Current cycle progress',
     'pp2.system.approximation': 'Marker positions are approximate, not a confirmed game scale. CP values are unchanged journal values.',
+})
+
+# Unoccupied conflict presentation; empirical CP and approximate visual markers.
+TRANSLATIONS.update({
+    "pp2.conflict.own_power": "OWN POWER",
+    "pp2.conflict.no_presence": "No presence",
+    "pp2.conflict.boundary": "Conflict boundary",
+    "pp2.conflict.minimum": "Minimum control points",
+    'pp2.conflict.threshold_help': "Conflict boundary (approximation)\n\nThe marker is currently at 36,000 CP on an assumed bar scale up to 180,000 CP.\n\nThis boundary has not yet been confirmed as an official game threshold.\n\nMinimum control points (approximate)\n\nThe marker is currently at 120,000 CP on an assumed bar scale up to 180,000 CP.\n\nThis boundary has not yet been confirmed as an official game threshold.",
+    "pp2.conflict.cp_help": "Approximation for unoccupied systems: CP ≈ ConflictProgress × 120000. Empirically supported, not generally confirmed. Raw journal value: {raw}.\n\nThe bar fill currently uses an approximate scale from 0 to 180,000 CP.\n\nThe exact scaling used by Elite Dangerous has not yet been confirmed.\n\nControl points are calculated independently from the available journal data.",
+})
+
+# Explicit mission destinations, separate from the active navigation target.
+TRANSLATIONS.update({
+    "missions.current_destination": "Current destination",
+    "missions.original_system": "Original destination system",
+    "missions.original_place": "Original destination location",
+})
+
+# Provisional CP markers, not confirmed official game thresholds.
+TRANSLATIONS.update({
+    'pp2.conflict.boundary_help': "Conflict boundary (approximation)\n\nThe marker is currently at 36,000 CP on an assumed bar scale up to 180,000 CP.\n\nThis boundary has not yet been confirmed as an official game threshold.",
+    'pp2.conflict.minimum_help': "Minimum control points (approximate)\n\nThe marker is currently at 120,000 CP on an assumed bar scale up to 180,000 CP.\n\nThis boundary has not yet been confirmed as an official game threshold.",
 })

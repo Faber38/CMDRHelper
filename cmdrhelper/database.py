@@ -3179,15 +3179,23 @@ class CMDRDatabase:
         Journal callers must pass the ordering guard in apply_commander_journal_delta.
         This low-level storage method does not replay or reconstruct history.
         """
+        from cmdrhelper.mission_persistence import ORIGIN_FIELDS, mission_origin_prefix
         commander_id = int(commander_id)
         active_ids = set()
         rows = []
+        origin_rows = []
+        terminal_missions = list(terminal_missions or [])
         id_classes = set()
         for mission in active_missions or []:
             is_open = True
             mission_id = self._mission_value(mission, "mission_id", None)
             if mission_id is None:
                 continue
+            extra = self._mission_value(mission, "extra", {}) or {}
+            origin = {key: extra[key] for key in ORIGIN_FIELDS
+                      if isinstance(extra.get(key), str) and extra[key]}
+            if origin:
+                origin_rows.append((str(mission_id), json.dumps(origin, ensure_ascii=False)))
             mission_id = self._mission_id_to_sql(mission_id)
             if isinstance(mission_id, str):
                 value = self._mission_id_from_sql(mission_id)
@@ -3243,10 +3251,22 @@ class CMDRDatabase:
                     last_updated=excluded.last_updated,terminal_state=excluded.terminal_state,
                     is_open=excluded.is_open
             """, rows)
+            # Existing structured metadata storage; committed/rolled back with
+            # the mission row and journal cursor. First explicit origin wins.
+            prefix = mission_origin_prefix(con, commander_id)
+            con.executemany(
+                "INSERT INTO app_meta(key,value) VALUES(?,?) ON CONFLICT(key) DO NOTHING",
+                [(prefix + mid, value) for mid, value in origin_rows],
+            )
             con.executemany(
                 "DELETE FROM commander_missions WHERE commander_id=? AND mission_id=?",
                 [(commander_id, self._mission_id_to_sql(self._mission_value(m, "mission_id", None)))
                  for m in terminal_missions or [] if self._mission_value(m, "mission_id", None) is not None],
+            )
+            con.executemany(
+                "DELETE FROM app_meta WHERE key=?",
+                [(prefix + str(self._mission_value(m, "mission_id")),)
+                 for m in terminal_missions if self._mission_value(m, "mission_id", None) is not None],
             )
             if authoritative:
                 open_rows = con.execute(
@@ -3262,6 +3282,7 @@ class CMDRDatabase:
                 )
 
     def commander_missions(self, commander_id, *, only_open=False) -> list[dict]:
+        from cmdrhelper.mission_persistence import load_mission_origins
         commander_id = int(commander_id)
         with self._connect() as con:
             rows = con.execute("""
@@ -3273,6 +3294,7 @@ class CMDRDatabase:
             """ + (" AND is_open=1" if only_open else "") + """
                 ORDER BY is_open DESC,last_updated DESC,mission_id DESC
             """, (commander_id,)).fetchall()
+            origins = load_mission_origins(con, commander_id) if rows else {}
         keys = ("mission_id","name","internal_name","mission_type","faction","status",
                 "destination_system","destination_station","destination_body","expiry",
                 "reward","summary","next_step","progress_text","accepted_at","last_update",
@@ -3280,6 +3302,9 @@ class CMDRDatabase:
         result = [dict(zip(keys, row)) for row in rows]
         for item in result:
             item["mission_id"] = self._mission_id_from_sql(item["mission_id"])
+            origin = origins.get(str(item["mission_id"]))
+            if origin:
+                item["extra"] = dict(origin)
         # Preserve the numeric tie-breaker across INTEGER and encoded TEXT keys.
         result.sort(key=lambda item: (item["is_open"], item["last_update"],
                                       item["mission_id"]), reverse=True)

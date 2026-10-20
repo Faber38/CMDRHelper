@@ -1,10 +1,11 @@
 """Journal CP values with an explicitly approximate system-control diagram."""
-from PySide6.QtCore import Qt, QPointF, QRectF, QRect, QSize
+import math
+from PySide6.QtCore import QEvent, Qt, QPointF, QRectF, QRect, QSize
 from PySide6.QtGui import QPainter, QPen, QPalette, QColor, QPolygonF
-from PySide6.QtWidgets import QWidget, QLabel, QFrame, QGridLayout, QHBoxLayout, QVBoxLayout, QProgressBar, QSizePolicy
+from PySide6.QtWidgets import QWidget, QLabel, QFrame, QGridLayout, QHBoxLayout, QVBoxLayout, QProgressBar, QSizePolicy, QToolTip
 from cmdrhelper.i18n import tr
 from cmdrhelper.powerplay import number, system_status
-from cmdrhelper.ui.powerplay_portraits import PowerPortrait
+from cmdrhelper.ui.powerplay_portraits import PowerPortrait, portrait_key
 
 STAGES = ('unoccupied', 'exploited', 'fortified', 'stronghold')
 
@@ -154,10 +155,15 @@ class SystemControlBar(QWidget):
 def conflict_participants(system):
     """Union of journal participants; contradictory duplicate values stay unknown."""
     participants = {}
+    names = {}
+    def participant(power):
+        key = portrait_key(power)
+        names.setdefault(key, power.strip())
+        return participants.setdefault(key, set())
     powers = system.get('Powers')
     for power in powers if isinstance(powers, list) else []:
         if isinstance(power, str) and power.strip():
-            participants.setdefault(power.strip(), set())
+            participant(power)
     conflicts = system.get('PowerplayConflictProgress')
     for entry in conflicts if isinstance(conflicts, list) else []:
         if not isinstance(entry, dict):
@@ -165,67 +171,202 @@ def conflict_participants(system):
         power = entry.get('Power')
         if not isinstance(power, str) or not power.strip():
             continue
-        values = participants.setdefault(power.strip(), set())
+        values = participant(power)
         value = entry.get('ConflictProgress')
         if nonnegative(value):
             values.add(value)
-    rows = [(power, next(iter(values)) if len(values) == 1 else None)
+    rows = [(names[power], next(iter(values)) if len(values) == 1 else None)
             for power, values in participants.items()]
     return sorted(rows, key=lambda row: (row[1] is None, -(row[1] or 0), row[0].casefold(), row[0]))
 
 
-class ConflictRow(QWidget):
-    def __init__(self, power, progress, scale, fmt):
+# Empirical Unoccupied conversion, not an authoritative game threshold.
+CONFLICT_CP_FACTOR = 120000
+# Provisional display scale and CP boundaries, not confirmed official game thresholds.
+CONFLICT_BAR_MAX_CP = 180000
+CONFLICT_BOUNDARY_CP = 36000
+CONFLICT_MINIMUM_CP = 120000
+CONFLICT_COLORS = {'aisling_duval': '#00b9ef', 'nakato_kaine': '#a6ff00'}
+
+# Both markers use the same provisional CP scale as the bar.
+CONFLICT_MARKERS = (('boundary', CONFLICT_BOUNDARY_CP / CONFLICT_BAR_MAX_CP, '⚔'),
+                    ('minimum', CONFLICT_MINIMUM_CP / CONFLICT_BAR_MAX_CP, '☆'))
+
+
+def conflict_marker_x(width, fraction):
+    return max(0., min(max(0, width - 1), fraction * max(0, width - 1)))
+
+
+class ConflictProgressBar(QProgressBar):
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        painter = QPainter(self)
+        # The existing bar background is dark in both application themes.
+        painter.setPen(QPen(QColor('white'), 1.5, Qt.DashLine))
+        for _, fraction, _ in CONFLICT_MARKERS:
+            x = conflict_marker_x(self.width(), fraction)
+            painter.drawLine(QPointF(x, 1), QPointF(x, self.height() - 2))
+
+    def event(self, event):
+        if event.type() == QEvent.ToolTip:
+            for key, fraction, _ in CONFLICT_MARKERS:
+                if abs(event.pos().x() - conflict_marker_x(self.width(), fraction)) <= 7:
+                    QToolTip.showText(event.globalPos(), tr('pp2.conflict.' + key + '_help'), self)
+                    return True
+        return super().event(event)
+
+
+class ConflictMarkers(QWidget):
+    """One caption row below the bar; narrow rows retain symbols and tooltips."""
+    def __init__(self):
         super().__init__()
-        self.power, self.progress = power, progress
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(8)
-        self.portrait = PowerPortrait()
-        self.portrait.setFixedSize(42, 56)
-        self.portrait.set_power(power)
-        layout.addWidget(self.portrait, 0, Qt.AlignTop)
-        details = QGridLayout()
-        details.setContentsMargins(0, 0, 0, 0)
-        details.setHorizontalSpacing(8)
-        details.setVerticalSpacing(2)
-        self.name = label(power)
-        self.cp = label(tr('pp2.conflict.cp_unavailable'), 'muted')
-        self.cp.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        self.value = label(tr('pp2.conflict.progress') + ': ' +
-                           (fmt(progress) if progress is not None else tr('pp2.unknown')))
-        for text in (self.name, self.cp, self.value):
-            # Let wrapped labels shrink below the longest translated word.
-            policy = text.sizePolicy()
-            policy.setHorizontalPolicy(QSizePolicy.Ignored)
-            text.setSizePolicy(policy)
-        self.bar = QProgressBar()
-        self.bar.setRange(0, 10000)
-        self.bar.setValue(round(progress / scale * 10000) if progress is not None and scale else 0)
-        # Only these two colors are evidenced by the supplied game screenshot.
-        # Other powers use the approved neutral theme color.
-        self.power_color = {'Aisling Duval': '#00b9ef', 'Nakato Kaine': '#a6ff00'}.get(power)
-        self.bar.setStyleSheet('QProgressBar::chunk { background-color: ' +
-                              (self.power_color or 'palette(mid)') + '; }')
-        self.bar.setTextVisible(False)
-        self.bar.setFixedHeight(8)
-        self.bar.setToolTip(tr('pp2.conflict.relative_help'))
-        self.bar.setAccessibleName(tr('pp2.metric.conflict', power=power))
-        self.bar.setAccessibleDescription(self.value.text() + '. ' + self.bar.toolTip())
-        details.addWidget(self.name, 0, 0)
-        details.addWidget(self.cp, 0, 1)
-        details.addWidget(self.value, 1, 0, 1, 2)
-        details.addWidget(self.bar, 2, 0, 1, 2)
-        details.setColumnStretch(0, 1)
-        details.setColumnStretch(1, 1)
-        layout.addLayout(details, 1)
+        self.symbols, self.captions = [], []
+        self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
+        self.setToolTip(tr('pp2.conflict.threshold_help'))
+        self.setAccessibleDescription(self.toolTip())
+        for key, _, symbol in CONFLICT_MARKERS:
+            caption = tr('pp2.conflict.' + key)
+            tooltip = tr('pp2.conflict.' + key + '_help')
+            icon = QLabel(symbol, self)
+            text = QLabel(caption, self)
+            for widget in (icon, text):
+                widget.setAlignment(Qt.AlignCenter)
+                widget.setToolTip(tooltip)
+                widget.setAccessibleName(caption)
+                widget.setAccessibleDescription(tooltip)
+            self.symbols.append(icon)
+            self.captions.append(text)
+        self._place()
+
+    def _place(self):
+        width = self.width()
+        xs = [conflict_marker_x(width, fraction) for _, fraction, _ in CONFLICT_MARKERS]
+        # Separate text slots, so long translations never collide.
+        split = round(sum(xs) / 2)
+        slots = ((0, split), (split, width - split))
+        height = max(20, self.fontMetrics().height() + 2)
+        self.compact = any(text.sizeHint().width() + 8 > span
+                           for text, (_, span) in zip(self.captions, slots))
+        self.setFixedHeight(height if self.compact else height * 2)
+        for icon, text, x, (left, span) in zip(self.symbols, self.captions, xs, slots):
+            icon_width = min(20, max(0, width))
+            icon.setGeometry(max(0, min(width - icon_width, round(x - icon_width / 2))),
+                             0, icon_width, height)
+            text_width = min(span, text.sizeHint().width() + 8)
+            text_left = max(left, min(left + span - text_width, round(x - text_width / 2)))
+            text.setGeometry(text_left, height, text_width, height)
+            text.setVisible(not self.compact)
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
+        self._place()
+
+    def changeEvent(self, event):
+        super().changeEvent(event)
+        if event.type() in (QEvent.FontChange, QEvent.StyleChange) and hasattr(self, 'captions'):
+            self._place()
+
+
+def approximate_conflict_cp(progress):
+    if not nonnegative(progress):
+        return None
+    value = progress * CONFLICT_CP_FACTOR
+    # Keep Qt's localized integer formatting within its supported range.
+    if not math.isfinite(value) or value > 2**63 - 1:
+        return None
+    return round(value)
+
+
+class ConflictRow(QFrame):
+    def __init__(self, power, progress, fmt, *, present=True):
+        super().__init__()
+        self.setObjectName('pp2ConflictRow')
+        self.power = power
+        self.progress = progress if nonnegative(progress) else None
+        self.present = present
+        self.power_color = CONFLICT_COLORS.get(portrait_key(power))
+        self.setStyleSheet('QFrame#pp2ConflictRow { border: 1px solid palette(mid); border-radius: 6px; }')
+        layout = QGridLayout(self)
+        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setHorizontalSpacing(12)
+        layout.setVerticalSpacing(8)
+        self.portrait = PowerPortrait()
+        self.portrait.setFixedSize(60, 80)
+        self.portrait.set_power(power)
+        layout.addWidget(self.portrait, 0, 0, 2, 1, Qt.AlignTop)
+        self.header = QWidget()
+        self.header_layout = QGridLayout(self.header)
+        self.header_layout.setContentsMargins(0, 0, 0, 0)
+        self.header_layout.setHorizontalSpacing(8)
+        self.header_layout.setVerticalSpacing(4)
+        self.name = label(power)
+        self.name.setStyleSheet('font-weight: 600;' +
+                               (' color: ' + self.power_color +
+                                '; background-color: #101820; padding: 3px; border-radius: 3px;'
+                                if self.power_color else ''))
+        self.cp_value = approximate_conflict_cp(self.progress) if present else None
+        self.cp = label('≈ ' + fmt(self.cp_value) + ' CP' if self.cp_value is not None
+                        else tr('pp2.conflict.cp_unavailable'))
+        self.cp.setStyleSheet('font-weight: 600;')
+        self.cp.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.value = label((tr('pp2.conflict.progress') + ': ' +
+                            (fmt(self.progress) if self.progress is not None else tr('pp2.unknown')))
+                           if present else tr('pp2.conflict.no_presence'), 'muted')
+        self.thresholds = ConflictMarkers()
+        for text in (self.name, self.cp, self.value):
+            policy = text.sizePolicy()
+            policy.setHorizontalPolicy(QSizePolicy.Ignored)
+            text.setSizePolicy(policy)
+        raw = repr(self.progress) if self.progress is not None else tr('pp2.unknown')
+        help_text = tr('pp2.conflict.cp_help', raw=raw)
+        self.cp.setToolTip(help_text)
+        self.value.setToolTip(help_text if present else tr('pp2.conflict.no_presence'))
+        self.bar = ConflictProgressBar()
+        self.bar.setRange(0, 10000)
+        # Provisional 0–180,000 CP scale; the CP conversion remains unchanged.
+        self.bar.setValue(
+            round(min(1., self.progress / (CONFLICT_BAR_MAX_CP / CONFLICT_CP_FACTOR)) * 10000)
+            if self.progress is not None else 0)
+        self.bar.setStyleSheet(
+            'QProgressBar { background-color: #101820; border: 1px solid #687581; border-radius: 3px; }'
+            'QProgressBar::chunk { background-color: ' +
+            (self.power_color or 'palette(mid)') + '; }')
+        self.bar.setTextVisible(False)
+        self.bar.setFixedHeight(24)
+        self.bar.setToolTip(help_text)
+        self.bar.setAccessibleName(tr('pp2.metric.conflict', power=power))
+        self.bar.setAccessibleDescription(self.value.text() + '. ' + self.bar.toolTip())
+        self.header_layout.addWidget(self.name, 0, 0)
+        self.header_layout.addWidget(self.cp, 1, 0)
+        self.header_layout.setColumnStretch(0, 1)
+        self._wide_header = False
+        layout.addWidget(self.header, 0, 1)
+        if present:
+            layout.addWidget(self.bar, 1, 1)
+            layout.addWidget(self.thresholds, 2, 1)
+            layout.addWidget(self.value, 3, 0, 1, 2)
+        else:
+            self.cp.hide()
+            self.bar.hide()
+            self.thresholds.hide()
+            layout.addWidget(self.value, 1, 1)
+        layout.setColumnStretch(1, 1)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        wide = self.width() >= 460
+        if wide != self._wide_header:
+            self._wide_header = wide
+            self.header_layout.removeWidget(self.cp)
+            self.header_layout.addWidget(self.cp, 0 if wide else 1, 1 if wide else 0)
+            self.header_layout.setColumnStretch(1, 1 if wide else 0)
         # Keep all wrapped lines visible in the surrounding scroll area.
         self.layout().activate()
+        self.header_layout.activate()
         for text in (self.name, self.cp, self.value):
-            text.setMinimumHeight(text.heightForWidth(text.width()))
+            text.setMinimumHeight(0)
+            text.setMinimumHeight(max(0, text.heightForWidth(text.width())))
+        self.updateGeometry()
 
 
 class SystemPresentation(QWidget):
@@ -273,6 +414,7 @@ class SystemPresentation(QWidget):
         self.conflict_layout.setContentsMargins(0, 0, 0, 0)
         self.conflict_layout.setSpacing(8)
         self.conflict_rows = []
+        self.own_power_row = None
         layout.addWidget(self.conflicts)
 
     @staticmethod
@@ -281,7 +423,7 @@ class SystemPresentation(QWidget):
             widget.setObjectName(name)
             widget.style().unpolish(widget);widget.style().polish(widget)
 
-    def render(self,system,name,relationship,fmt):
+    def render(self,system,name,relationship,fmt,own_power=''):
         unknown=tr('pp2.unknown')
         status=system_status(system.get('PowerplayState'))
         self.labels['system_name'].setText(name or unknown)
@@ -309,15 +451,20 @@ class SystemPresentation(QWidget):
             item.widget().hide()
             item.widget().deleteLater()
         self.conflict_rows = []
+        self.own_power_row = None
         if status == 'unoccupied':
             participants = conflict_participants(system)
-            scale = max((value for _, value in participants if value is not None), default=0)
             for power, value in participants:
-                row = ConflictRow(power, value, scale, fmt)
+                row = ConflictRow(power, value, fmt)
                 self.conflict_layout.addWidget(row)
                 self.conflict_rows.append(row)
             if not participants:
                 self.conflict_layout.addWidget(label(tr('pp2.no_data'), 'muted'))
+            if (isinstance(own_power, str) and own_power.strip()
+                    and portrait_key(own_power) not in {portrait_key(p) for p, _ in participants}):
+                self.conflict_layout.addWidget(label(tr('pp2.conflict.own_power'), 'sectionTitle'))
+                self.own_power_row = ConflictRow(own_power.strip(), None, fmt, present=False)
+                self.conflict_layout.addWidget(self.own_power_row)
         self.metrics.setText(' · '.join(metrics));self.metrics.setVisible(bool(metrics))
         self.metrics.setToolTip(self.metrics.text() if status=='unoccupied' else
             tr('pp2.system.control_help')+'\nPowerplayStateControlProgress: '+str(system.get('PowerplayStateControlProgress',unknown)))

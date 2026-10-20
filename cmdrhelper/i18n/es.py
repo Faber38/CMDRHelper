@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_14.0': "Vista de conflictos PP2 renovada para sistemas no ocupados: retratos existentes de las potencias más grandes, nombre y puntos de control en un diseño adaptable; se mantienen el orden por progreso y los colores existentes.",
+    'release.3_9_14.1': "Puntos de control del conflicto como aproximación respaldada empíricamente: CP ≈ ConflictProgress × 120000. La barra usa una escala supuesta de 0 a 180000 CP, limitada al 100 %; los valores ausentes siguen siendo desconocidos.",
+    'release.3_9_14.2': "Marcadores discontinuos en 36000 CP (20 %) y 120000 CP (66,67 %), con símbolos y ayudas traducidas. Los límites y la escala no son constantes oficiales confirmadas del juego; superar un marcador no cambia el estado del sistema.",
+    'release.3_9_14.3': "La potencia propia aparece por separado como «Sin presencia» cuando está ausente, sin duplicar participantes. Se unifican las variantes del nombre de una misma potencia.",
+    'release.3_9_14.4': "Misiones Odyssey: los detalles generados siguen los cambios posteriores de destino. Los destinos originales explícitos de MissionRedirected se guardan por separado para cada comandante; el nuevo destino sigue siendo el objetivo de navegación. No se estiman lugares ni planetas ausentes.",
+    'release.3_9_14.5': "La ventana principal guarda tamaño, posición y estado maximizado y los restaura al reiniciar. Una geometría guardada no válida usa los valores predeterminados; se corrigen las posiciones que ya no son visibles.",
     "release.3_9_13.0": "Control de sistemas PP2: cuatro áreas de color para Sin ocupar, Explotado, Fortificado y Bastión; triángulo blanco para el estado del sistema y amarillo para el progreso del ciclo actual.",
     "release.3_9_13.1": "Las posiciones de los marcadores son explícitamente aproximadas, sin un cálculo confirmado de Frontier. El intervalo es rojo cuando el blanco está a la derecha del amarillo y azul cuando está a la izquierda. Refuerzo y debilitamiento muestran los valores originales del journal en CP.",
     "release.3_9_13.2": "Vista de conflicto PP2 propia para sistemas no ocupados: potencias ordenadas por progreso, con barras relativas y retratos existentes. Colores confirmados para Aisling Duval y Nakato Kaine, y neutros para las demás; los valores ausentes siguen siendo desconocidos y los CP absolutos de conflicto no están disponibles.",
@@ -2259,4 +2265,27 @@ TRANSLATIONS.update({
     'pp2.system.status_marker': 'Estado del sistema',
     'pp2.system.cycle_marker': 'Progreso del ciclo actual',
     'pp2.system.approximation': 'Las posiciones de los marcadores son aproximadas, no una escala del juego confirmada. Los valores CP del diario no se modifican.',
+})
+
+# Unoccupied conflict presentation; empirical CP and approximate visual markers.
+TRANSLATIONS.update({
+    "pp2.conflict.own_power": "TU POTENCIA",
+    "pp2.conflict.no_presence": "Sin presencia",
+    "pp2.conflict.boundary": "Límite del conflicto",
+    "pp2.conflict.minimum": "Puntos de control mínimos",
+    'pp2.conflict.threshold_help': "Límite del conflicto (aproximación)\n\nEl marcador se sitúa actualmente en 36.000 CP sobre una escala supuesta de la barra de hasta 180.000 CP.\n\nEste límite aún no se ha confirmado como umbral oficial del juego.\n\nPuntos de control mínimos (aproximación)\n\nEl marcador se sitúa actualmente en 120.000 CP sobre una escala supuesta de la barra de hasta 180.000 CP.\n\nEste límite aún no se ha confirmado como umbral oficial del juego.",
+    "pp2.conflict.cp_help": "Aproximación para sistemas no ocupados: CP ≈ ConflictProgress × 120000. Respaldada empíricamente, sin confirmación general. Valor original del journal: {raw}.\n\nEl relleno de la barra utiliza actualmente una escala aproximada de 0 a 180.000 CP.\n\nLa escala exacta de Elite Dangerous aún no se ha confirmado.\n\nLos puntos de control se calculan de forma independiente a partir de los datos disponibles del journal.",
+})
+
+# Explicit mission destinations, separate from the active navigation target.
+TRANSLATIONS.update({
+    "missions.current_destination": "Destino actual",
+    "missions.original_system": "Sistema de destino original",
+    "missions.original_place": "Lugar de destino original",
+})
+
+# Provisional CP markers, not confirmed official game thresholds.
+TRANSLATIONS.update({
+    'pp2.conflict.boundary_help': "Límite del conflicto (aproximación)\n\nEl marcador se sitúa actualmente en 36.000 CP sobre una escala supuesta de la barra de hasta 180.000 CP.\n\nEste límite aún no se ha confirmado como umbral oficial del juego.",
+    'pp2.conflict.minimum_help': "Puntos de control mínimos (aproximación)\n\nEl marcador se sitúa actualmente en 120.000 CP sobre una escala supuesta de la barra de hasta 180.000 CP.\n\nEste límite aún no se ha confirmado como umbral oficial del juego.",
 })

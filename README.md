@@ -38,6 +38,15 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.9.14
+
+- Reworked PP2 conflict view for unoccupied systems: larger existing power portraits, power name and control points in a responsive layout; progress sorting and existing power colors are retained.
+- Conflict control points as an empirically supported approximation: CP ≈ ConflictProgress × 120000. The bar uses an assumed scale from 0 to 180000 CP, capped at 100%; missing values remain unknown.
+- Dashed conflict markers at 36000 CP (20%) and 120000 CP (66.67%), with symbols and translated tooltips. The boundaries and bar scale are not confirmed official game constants; crossing a marker does not change system status.
+- Your power appears separately as “No presence” when absent, without duplicate participants. Name variants of the same power are merged.
+- Odyssey missions: generated detail text follows later destination changes. Explicit original destinations in MissionRedirected are stored separately for each commander; the new destination remains the navigation target. Missing locations or planets are not guessed.
+- The main window saves its size, position and maximized state and restores them on restart. Invalid saved geometry falls back to a default; positions that are no longer visible are corrected.
+
 ## CMDRHelper v3.9.13
 
 - PP2 system control: four colored areas for Unoccupied, Exploited, Fortified and Stronghold; a white triangle for system status and a yellow triangle for current cycle progress.

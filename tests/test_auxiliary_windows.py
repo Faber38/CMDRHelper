@@ -152,9 +152,11 @@ from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtCore import QTimer
 from cmdrhelper.ui.main_window import MainWindow, CargoLiveWindow
 from tests.test_cargo_live import _Settings
+from types import SimpleNamespace
 app = QApplication([])
 main = MainWindow.__new__(MainWindow)
 QMainWindow.__init__(main)
+main.state = SimpleNamespace(settings=_Settings())
 main.show()
 cargo = CargoLiveWindow(_Settings(), main)
 cargo.show()
@@ -162,6 +164,7 @@ QTimer.singleShot(50, main.close)
 QTimer.singleShot(3000, lambda: app.exit(99))
 result = app.exec()
 assert not cargo.isVisible()
+assert main.state.settings.value("main_window/geometry") is not None
 raise SystemExit(result)
 '''
         result = subprocess.run([sys.executable, '-c', code], capture_output=True, text=True, timeout=10)

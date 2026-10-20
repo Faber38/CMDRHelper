@@ -11,11 +11,48 @@ from tests.test_powerplay_rare_sales import REAL, DAY, replay
 
 
 class PP2CatalogTests(unittest.TestCase):
+    def test_provisional_conflict_scale_tooltips_in_twelve_languages(self):
+        self.assertEqual(len(HELP_LANGUAGES), 12)
+        for language in HELP_LANGUAGES:
+            with self.subTest(language=language):
+                text = i18n._TRANSLATIONS[language]['pp2.conflict.cp_help']
+                self.assertIn('180000', re.sub(r'[., ]', '', text))
+                self.assertIn('Elite Dangerous', text)
+                self.assertIn('ConflictProgress × 120000', text)
+                self.assertIn('{raw}', text)
+                self.assertNotRegex(text, r'0–1(?![0-9])')
+                self.assertEqual(len(text.split('\n\n')), 4)
+        self.assertTrue(i18n.DE['pp2.conflict.cp_help'].endswith(
+            'Die Balkenfüllung verwendet derzeit eine angenäherte Skala von 0 bis 180.000 CP.\n\n'
+            'Die genaue Skalierung von Elite Dangerous ist noch nicht bestätigt.\n\n'
+            'Die Kontrollpunkte werden unabhängig davon aus den vorhandenen Journaldaten berechnet.'))
+
+    def test_german_marker_tooltips_match_requested_text(self):
+        for key, title, cp in (
+            ('boundary', 'Konfliktgrenze', '36.000'),
+            ('minimum', 'Mindestkontrollpunktzahl', '120.000'),
+        ):
+            self.assertEqual(i18n.DE['pp2.conflict.' + key + '_help'],
+                title + ' (Näherung)\n\nDie Markierung steht derzeit bei ' + cp +
+                ' CP auf einer angenommenen Balkenskala bis 180.000 CP.\n\n'
+                'Diese Grenze ist noch nicht als offizielle Spielschwelle bestätigt.')
+
+    def test_marker_tooltips_use_provisional_cp_scale(self):
+        for language in HELP_LANGUAGES:
+            for key, cp in (('boundary', '36000'), ('minimum', '120000')):
+                with self.subTest(language=language, marker=key):
+                    text = i18n._TRANSLATIONS[language]['pp2.conflict.' + key + '_help']
+                    normalized = re.sub(r'[., ]', '', text)
+                    self.assertIn(cp, normalized)
+                    self.assertIn('180000', normalized)
+                    self.assertEqual(len(text.split('\n\n')), 3)
+                    self.assertIn(text, i18n._TRANSLATIONS[language]['pp2.conflict.threshold_help'])
+
     def test_full_catalog_reader_matches_runtime_and_pp2_never_falls_back(self):
         catalogs = discover_languages()
         self.assertEqual(set(catalogs), set(HELP_LANGUAGES))
         expected = {key for key in i18n.DE if key.startswith('pp2.') or key == 'nav.pp2'}
-        self.assertEqual(len(expected), 144)
+        self.assertEqual(len(expected), 152)
         for language, (_, catalog, duplicates) in catalogs.items():
             with self.subTest(language=language):
                 self.assertEqual(catalog, i18n._TRANSLATIONS[language])
@@ -75,7 +112,7 @@ class PP2CatalogTests(unittest.TestCase):
                       current=90, upper=100, lower=0, confirmed=1, calculated=2, merits=90,
                       commander='FABER38', events=3, days=1, error='Example', total=100,
                       use='Acquisition', first='2026-10-08', last='2026-10-08',
-                      percent=90, next=100, span=100, earned=90, status='Exploited')
+                      percent=90, next=100, span=100, earned=90, status='Exploited', raw='0.082367')
         for language in HELP_LANGUAGES:
             for key, template in i18n._TRANSLATIONS[language].items():
                 if key.startswith('pp2.'):

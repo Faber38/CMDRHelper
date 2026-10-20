@@ -51,7 +51,7 @@ from cmdrhelper.inara_uploader import (
 )
 from cmdrhelper.version import __version__
 from cmdrhelper.i18n import tr, get_language, set_language
-from cmdrhelper.mission_manager import translate_mission_text
+from cmdrhelper.mission_manager import translate_mission_text, mission_detail_text
 from cmdrhelper.score_analyzer import ScoreAnalyzer
 from cmdrhelper.update import (
     UpdateCheckWorker,
@@ -60,7 +60,7 @@ from cmdrhelper.update import (
     launch_installer,
 )
 
-from PySide6.QtCore import QEvent, Qt, QTimer, QThreadPool, QUrl, QDate, Slot, Signal
+from PySide6.QtCore import QByteArray, QRect, QEvent, Qt, QTimer, QThreadPool, QUrl, QDate, Slot, Signal
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 from PySide6.QtGui import (
     QDesktopServices,
@@ -3253,9 +3253,62 @@ class MainWindow(QMainWindow):
         if self.navigation_dock.detached:
             self.navigation_dock.detach()
 
+    @staticmethod
+    def _visible_main_geometry(rect, available_screens):
+        """Keep the normal window reachable after desktop topology changes."""
+        areas = []
+        for available in available_screens:
+            # Do not restore negative desktop positions. Reserve room for the
+            # native title bar and borders before the window is first shown.
+            area = available.adjusted(0, 30, -10, -10)
+            area.setLeft(max(0, area.left()))
+            area.setTop(max(30, area.top()))
+            if area.isValid():
+                areas.append(area)
+        if not areas:
+            return rect
+        def overlap(area):
+            intersection = rect.intersected(area)
+            return max(0, intersection.width()) * max(0, intersection.height())
+        area = max(areas, key=overlap)
+        width, height = min(rect.width(), area.width()), min(rect.height(), area.height())
+        return QRect(max(area.left(), min(rect.x(), area.right() - width + 1)),
+                     max(area.top(), min(rect.y(), area.bottom() - height + 1)),
+                     width, height)
+
+    def restore_main_geometry(self):
+        geometry = self.state.settings.value("main_window/geometry")
+        if not isinstance(geometry, (QByteArray, bytes, bytearray)):
+            return False
+        if not self.restoreGeometry(QByteArray(geometry)):
+            return False
+        maximized = self.isMaximized()
+        normal = self.normalGeometry()
+        app = QApplication.instance()
+        primary = app.primaryScreen()
+        screens = ([primary] if primary else []) + [
+            screen for screen in app.screens() if screen != primary]
+        bounded = self._visible_main_geometry(
+            normal, [screen.availableGeometry() for screen in screens])
+        # Changing the maximized rectangle would lose the normal restore size.
+        # Only leave that state when its saved normal rectangle needs repair.
+        if bounded != normal:
+            self.setWindowState(Qt.WindowNoState)
+            self.setGeometry(bounded)
+            # restoreGeometry may already have created a native window. Keep
+            # its normal rectangle in sync before maximizing again.
+            handle = self.windowHandle()
+            if handle is not None:
+                handle.setGeometry(bounded)
+            if maximized:
+                self.setWindowState(Qt.WindowMaximized)
+        return True
+
     def closeEvent(self, event):
         super().closeEvent(event)
         if event.isAccepted():
+            self.state.settings.setValue("main_window/geometry", self.saveGeometry())
+            self.state.settings.sync()
             if hasattr(self, "navigation_dock"):
                 self.navigation_dock.shutdown()
             close_auxiliary_windows(self)
@@ -6325,7 +6378,7 @@ class MainWindow(QMainWindow):
             self._translate_mission_text(mission.name) or tr("missions.col_mission")
         )
 
-        self.mission_detail_text.setText(self._translate_mission_text(mission.summary))
+        self.mission_detail_text.setText(mission_detail_text(mission))
 
         progress = []
 

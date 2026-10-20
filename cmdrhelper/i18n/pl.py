@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_14.0': "Przebudowany widok konfliktów PP2 dla nieokupowanych systemów: większe istniejące portrety potęg, nazwa i punkty kontroli w elastycznym układzie; zachowano sortowanie według postępu i dotychczasowe kolory.",
+    'release.3_9_14.1': "Punkty kontroli konfliktu jako przybliżenie poparte obserwacjami: CP ≈ ConflictProgress × 120000. Pasek używa zakładanej skali od 0 do 180000 CP, ograniczonej do 100%; brakujące wartości pozostają nieznane.",
+    'release.3_9_14.2': "Przerywane znaczniki przy 36000 CP (20%) i 120000 CP (66,67%), z symbolami i przetłumaczonymi podpowiedziami. Granice i skala nie są potwierdzonymi oficjalnymi stałymi gry; przekroczenie znacznika nie zmienia statusu systemu.",
+    'release.3_9_14.3': "Własna potęga bez obecności jest wyświetlana osobno z opisem „Brak obecności”, bez powielania uczestników. Warianty nazwy tej samej potęgi są łączone.",
+    'release.3_9_14.4': "Misje Odyssey: generowane szczegóły uwzględniają późniejsze zmiany celu. Jawne pierwotne cele z MissionRedirected są zapisywane osobno dla każdego dowódcy; nowy cel pozostaje celem nawigacji. Brakujące miejsca i planety nie są zgadywane.",
+    'release.3_9_14.5': "Główne okno zapisuje rozmiar, pozycję i stan maksymalizacji oraz przywraca je po ponownym uruchomieniu. Nieprawidłowa zapisana geometria jest zastępowana domyślną; niewidoczne pozycje są korygowane.",
     "release.3_9_13.0": "Kontrola systemów PP2: cztery kolorowe obszary dla stanów Niezajęty, Eksploatowany, Ufortyfikowany i Twierdza; biały trójkąt oznacza stan systemu, a żółty postęp bieżącego cyklu.",
     "release.3_9_13.1": "Pozycje znaczników są wyraźnie oznaczone jako przybliżone, bez potwierdzonego obliczenia Frontier. Przedział jest czerwony, gdy biały znacznik znajduje się na prawo od żółtego, i niebieski, gdy jest na lewo. Wzmocnienie i osłabienie pokazują niezmienione wartości z dziennika w CP.",
     "release.3_9_13.2": "Osobny widok konfliktu PP2 dla nieokupowanych systemów: potęgi posortowane według postępu konfliktu, ze względnymi paskami i istniejącymi portretami. Potwierdzone kolory dla Aisling Duval i Nakato Kaine, pozostałe neutralne; brakujące wartości pozostają nieznane, a bezwzględne CP konfliktu są niedostępne.",
@@ -2147,4 +2153,27 @@ TRANSLATIONS.update({
     'pp2.system.status_marker': 'Stan systemu',
     'pp2.system.cycle_marker': 'Postęp bieżącego cyklu',
     'pp2.system.approximation': 'Pozycje znaczników są przybliżone i nie stanowią potwierdzonej skali gry. Wartości CP pochodzą bez zmian z dziennika.',
+})
+
+# Unoccupied conflict presentation; empirical CP and approximate visual markers.
+TRANSLATIONS.update({
+    "pp2.conflict.own_power": "WŁASNA POTĘGA",
+    "pp2.conflict.no_presence": "Brak obecności",
+    "pp2.conflict.boundary": "Granica konfliktu",
+    "pp2.conflict.minimum": "Minimalne punkty kontroli",
+    'pp2.conflict.threshold_help': "Granica konfliktu (przybliżenie)\n\nZnacznik znajduje się obecnie przy 36 000 CP na zakładanej skali paska do 180 000 CP.\n\nTa granica nie została jeszcze potwierdzona jako oficjalny próg gry.\n\nMinimalna liczba punktów kontroli (przybliżenie)\n\nZnacznik znajduje się obecnie przy 120 000 CP na zakładanej skali paska do 180 000 CP.\n\nTa granica nie została jeszcze potwierdzona jako oficjalny próg gry.",
+    "pp2.conflict.cp_help": "Przybliżenie dla nieokupowanych systemów: CP ≈ ConflictProgress × 120000. Poparte obserwacjami, bez ogólnego potwierdzenia. Surowa wartość dziennika: {raw}.\n\nWypełnienie paska używa obecnie przybliżonej skali od 0 do 180 000 CP.\n\nDokładna skala w Elite Dangerous nie została jeszcze potwierdzona.\n\nPunkty kontroli są obliczane niezależnie na podstawie dostępnych danych dziennika.",
+})
+
+# Explicit mission destinations, separate from the active navigation target.
+TRANSLATIONS.update({
+    "missions.current_destination": "Aktualny cel",
+    "missions.original_system": "Pierwotny system docelowy",
+    "missions.original_place": "Pierwotne miejsce docelowe",
+})
+
+# Provisional CP markers, not confirmed official game thresholds.
+TRANSLATIONS.update({
+    'pp2.conflict.boundary_help': "Granica konfliktu (przybliżenie)\n\nZnacznik znajduje się obecnie przy 36 000 CP na zakładanej skali paska do 180 000 CP.\n\nTa granica nie została jeszcze potwierdzona jako oficjalny próg gry.",
+    'pp2.conflict.minimum_help': "Minimalna liczba punktów kontroli (przybliżenie)\n\nZnacznik znajduje się obecnie przy 120 000 CP na zakładanej skali paska do 180 000 CP.\n\nTa granica nie została jeszcze potwierdzona jako oficjalny próg gry.",
 })

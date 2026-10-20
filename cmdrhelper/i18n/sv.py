@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_14.0': "Omarbetad PP2-konfliktvy för obesatta system: större befintliga maktporträtt, maktnamn och kontrollpoäng i en anpassningsbar layout; sortering efter framsteg och befintliga maktfärger behålls.",
+    'release.3_9_14.1': "Kontrollpoäng i konflikter som en empiriskt stödd uppskattning: CP ≈ ConflictProgress × 120000. Stapeln använder en antagen skala från 0 till 180000 CP, begränsad till 100 %; saknade värden förblir okända.",
+    'release.3_9_14.2': "Streckade konfliktmarkeringar vid 36000 CP (20 %) och 120000 CP (66,67 %), med symboler och översatta verktygstips. Gränserna och skalan är inte bekräftade officiella spelkonstanter; en passerad markering ändrar inte systemstatus.",
+    'release.3_9_14.3': "Din egen makt visas separat med ”Ingen närvaro” när den saknas, utan dubbla deltagare. Namnvarianter för samma makt slås samman.",
+    'release.3_9_14.4': "Odyssey-uppdrag: genererade detaljtexter följer senare måländringar. Uttryckliga ursprungliga mål i MissionRedirected sparas separat per befälhavare; det nya målet förblir navigationsmålet. Saknade platser eller planeter gissas inte.",
+    'release.3_9_14.5': "Huvudfönstret sparar storlek, position och maximerat tillstånd och återställer dem vid omstart. Ogiltig sparad geometri använder standardvärden; positioner som inte längre syns korrigeras.",
     "release.3_9_13.0": "PP2-systemkontroll: fyra färgade områden för Ej ockuperat, Exploaterat, Befäst och Fäste; vit triangel för systemstatus och gul triangel för den aktuella cykelns framsteg.",
     "release.3_9_13.1": "Markörernas positioner är uttryckligen ungefärliga, ingen bekräftad Frontier-beräkning. Intervallet färgas rött när vitt står till höger om gult och blått när vitt står till vänster. Förstärkning och försvagning visas som oförändrade journalvärden i CP.",
     "release.3_9_13.2": "Egen PP2-konfliktvy för obesatta system: makter sorterade efter konfliktframsteg, med relativa staplar och befintliga porträtt. Bekräftade färger för Aisling Duval och Nakato Kaine, annars neutral visning; saknade värden förblir okända och absoluta konflikt-CP är inte tillgängliga.",
@@ -2147,4 +2153,27 @@ TRANSLATIONS.update({
     'pp2.system.status_marker': 'Systemstatus',
     'pp2.system.cycle_marker': 'Aktuell cykelframgång',
     'pp2.system.approximation': 'Markörernas positioner är ungefärliga, inte en bekräftad spelskala. CP-värdena hämtas oförändrade från journalen.',
+})
+
+# Unoccupied conflict presentation; empirical CP and approximate visual markers.
+TRANSLATIONS.update({
+    "pp2.conflict.own_power": "EGEN MAKT",
+    "pp2.conflict.no_presence": "Ingen närvaro",
+    "pp2.conflict.boundary": "Konfliktgräns",
+    "pp2.conflict.minimum": "Minsta kontrollpoäng",
+    'pp2.conflict.threshold_help': "Konfliktgräns (uppskattning)\n\nMarkeringen står för närvarande vid 36 000 CP på en antagen stapelskala upp till 180 000 CP.\n\nDenna gräns har ännu inte bekräftats som en officiell tröskel i spelet.\n\nMinsta antal kontrollpoäng (uppskattning)\n\nMarkeringen står för närvarande vid 120 000 CP på en antagen stapelskala upp till 180 000 CP.\n\nDenna gräns har ännu inte bekräftats som en officiell tröskel i spelet.",
+    "pp2.conflict.cp_help": "Uppskattning för obesatta system: CP ≈ ConflictProgress × 120000. Empiriskt stödd, inte allmänt bekräftad. Rått journalvärde: {raw}.\n\nStapelfyllningen använder för närvarande en ungefärlig skala från 0 till 180 000 CP.\n\nDen exakta skalningen i Elite Dangerous har ännu inte bekräftats.\n\nKontrollpoängen beräknas oberoende av detta från tillgängliga journaldata.",
+})
+
+# Explicit mission destinations, separate from the active navigation target.
+TRANSLATIONS.update({
+    "missions.current_destination": "Aktuellt mål",
+    "missions.original_system": "Ursprungligt målsystem",
+    "missions.original_place": "Ursprunglig målplats",
+})
+
+# Provisional CP markers, not confirmed official game thresholds.
+TRANSLATIONS.update({
+    'pp2.conflict.boundary_help': "Konfliktgräns (uppskattning)\n\nMarkeringen står för närvarande vid 36 000 CP på en antagen stapelskala upp till 180 000 CP.\n\nDenna gräns har ännu inte bekräftats som en officiell tröskel i spelet.",
+    'pp2.conflict.minimum_help': "Minsta antal kontrollpoäng (uppskattning)\n\nMarkeringen står för närvarande vid 120 000 CP på en antagen stapelskala upp till 180 000 CP.\n\nDenna gräns har ännu inte bekräftats som en officiell tröskel i spelet.",
 })

@@ -108,6 +108,33 @@ def normalize_missions(rows: list[dict]) -> list[Mission]:
     return result
 
 
+def mission_detail_text(mission: Mission) -> str:
+    """Present the explicit origin separately; navigation fields stay current."""
+    origin_system = mission.extra.get('original_destination_system')
+    origin_station = mission.extra.get('original_destination_station')
+    if not (origin_system or origin_station):
+        return translate_mission_text(mission.summary)
+    targets = {key: getattr(mission, key) for key in
+               ('destination_system', 'destination_body', 'destination_station')
+               if getattr(mission, key)}
+    lines = [tr('missions.current_destination') + ': ' +
+             (' – '.join(targets.values()) if targets else '–')]
+    if origin_system:
+        lines.append(tr('missions.original_system') + ': ' + origin_system)
+    if origin_station:
+        lines.append(tr('missions.original_place') + ': ' + origin_station)
+    summary = mission.summary
+    if targets:
+        prefix = build_summary(targets)
+        if summary == prefix:
+            summary = ''
+        elif summary.startswith(prefix + ' · '):
+            summary = summary[len(prefix + ' · '):]
+    if summary:
+        lines.append(translate_mission_text(summary))
+    return '\n'.join(lines)
+
+
 def translate_mission_text(value: str) -> str:
     """
     Übersetzt ausschließlich von CMDRHelper erzeugte Missionstexte.

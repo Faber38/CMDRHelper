@@ -38,6 +38,15 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## CMDRHelper v3.9.14
+
+- Vista dei conflitti PP2 rinnovata per i sistemi non occupati: ritratti esistenti delle potenze più grandi, nome e punti di controllo in una disposizione adattabile; ordinamento per progresso e colori esistenti conservati.
+- Punti di controllo del conflitto come approssimazione supportata empiricamente: CP ≈ ConflictProgress × 120000. La barra usa una scala ipotizzata da 0 a 180000 CP, limitata al 100%; i valori mancanti restano sconosciuti.
+- Indicatori tratteggiati a 36000 CP (20%) e 120000 CP (66,67%), con simboli e suggerimenti tradotti. Limiti e scala non sono costanti ufficiali confermate del gioco; superare un indicatore non cambia lo stato del sistema.
+- La propria potenza viene mostrata separatamente con «Nessuna presenza» quando assente, senza duplicare i partecipanti. Le varianti del nome della stessa potenza vengono unificate.
+- Missioni Odyssey: i dettagli generati seguono le successive modifiche della destinazione. Le destinazioni originali esplicite di MissionRedirected vengono salvate separatamente per comandante; la nuova destinazione resta la meta di navigazione. Luoghi o pianeti mancanti non vengono ipotizzati.
+- La finestra principale salva dimensioni, posizione e stato massimizzato e li ripristina al riavvio. Una geometria salvata non valida usa i valori predefiniti; le posizioni non più visibili vengono corrette.
+
 ## CMDRHelper v3.9.13
 
 - Controllo dei sistemi PP2: quattro aree colorate per Non occupato, Sfruttato, Fortificato e Roccaforte; triangolo bianco per lo stato del sistema e giallo per il progresso del ciclo attuale.

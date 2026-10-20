@@ -38,6 +38,15 @@ Der Journalordner von Elite Dangerous wird nach Möglichkeit automatisch erkannt
 
 CMDRHelper prüft beim Start auf Updates und besitzt einen integrierten Updater. Bestätige ein angebotenes Update im Programm; es aktualisiert Programm und Abhängigkeiten und startet CMDRHelper neu. Nach der Erstinstallation genügt normalerweise `start.bat` (Windows) beziehungsweise `bash start.sh` (Linux). Für normale Updates musst du `install.bat` oder `install.sh` nicht erneut manuell ausführen.
 
+## CMDRHelper v3.9.14
+
+- PP2-Konfliktansicht für nicht besetzte Systeme überarbeitet: größere vorhandene Machtporträts, Machtname und Kontrollpunkte in einem responsiven Layout; Fortschrittssortierung und vorhandene Machtfarben bleiben erhalten.
+- Konflikt-Kontrollpunkte als empirisch gestützte Näherung: CP ≈ ConflictProgress × 120000. Die Balkenfüllung verwendet eine angenommene Skala von 0 bis 180000 CP, begrenzt auf 100 %; fehlende Werte bleiben unbekannt.
+- Gestrichelte Konfliktmarkierungen bei 36000 CP (20 %) und 120000 CP (66,67 %), mit Symbolen und übersetzten Tooltips. Grenzen und Balkenskala sind keine bestätigten offiziellen Spielkonstanten; ein Überschreiten ändert keinen Systemstatus.
+- Die eigene Macht erscheint bei fehlender Präsenz separat mit „Keine Präsenz“, ohne doppelte Teilnehmeranzeige. Namensvarianten derselben Macht werden zusammengeführt.
+- Odyssey-Missionen: generierte Detailtexte folgen späteren Zieländerungen. Explizite ursprüngliche Ziele bei MissionRedirected werden getrennt und commanderbezogen gespeichert; das neue Ziel bleibt Navigationsziel. Fehlende Orte oder Planeten werden nicht geschätzt.
+- Das Hauptfenster speichert Größe, Position und Maximierungszustand und stellt sie beim Neustart wieder her. Ungültige gespeicherte Geometrie erhält einen Standardwert; nicht mehr sichtbare Positionen werden korrigiert.
+
 ## CMDRHelper v3.9.13
 
 - PP2-Systemkontrolle: vier farbige Bereiche für Nicht besetzt, Erschlossen, Verstärkt und Hochburg; weißes Dreieck für den Systemstatus, gelbes Dreieck für den aktuellen Zyklusfortschritt.

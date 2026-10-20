@@ -38,6 +38,15 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## CMDRHelper v3.9.14
+
+- Vernieuwde PP2-conflictweergave voor onbezette systemen: grotere bestaande machtportretten, machtnaam en controlepunten in een aanpasbare indeling; sortering op voortgang en bestaande machtkleuren blijven behouden.
+- Controlepunten voor conflicten als empirisch ondersteunde benadering: CP ≈ ConflictProgress × 120000. De balk gebruikt een aangenomen schaal van 0 tot 180000 CP, begrensd op 100%; ontbrekende waarden blijven onbekend.
+- Gestippelde conflictmarkeringen bij 36000 CP (20%) en 120000 CP (66,67%), met symbolen en vertaalde tooltips. Grenzen en balkschaal zijn geen bevestigde officiële spelconstanten; het passeren van een markering verandert de systeemstatus niet.
+- Je eigen macht verschijnt bij afwezigheid afzonderlijk met “Geen aanwezigheid”, zonder dubbele deelnemers. Naamvarianten van dezelfde macht worden samengevoegd.
+- Odyssey-missies: gegenereerde detailteksten volgen latere bestemmingswijzigingen. Expliciete oorspronkelijke bestemmingen uit MissionRedirected worden afzonderlijk per commander opgeslagen; de nieuwe bestemming blijft het navigatiedoel. Ontbrekende locaties of planeten worden niet geraden.
+- Het hoofdvenster bewaart grootte, positie en gemaximaliseerde toestand en herstelt deze bij opnieuw starten. Ongeldige opgeslagen geometrie krijgt standaardwaarden; posities die niet meer zichtbaar zijn worden gecorrigeerd.
+
 ## CMDRHelper v3.9.13
 
 - PP2-systeemcontrole: vier gekleurde gebieden voor Onbezet, Geëxploiteerd, Versterkt en Bolwerk; een witte driehoek voor de systeemstatus en een gele voor de voortgang van de huidige cyclus.

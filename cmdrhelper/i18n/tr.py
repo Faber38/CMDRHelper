@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_14.0': "İşgal edilmemiş sistemler için PP2 çatışma görünümü yenilendi: daha büyük mevcut güç portreleri, uyarlanabilir düzende güç adı ve kontrol puanları; ilerleme sıralaması ve mevcut güç renkleri korunur.",
+    'release.3_9_14.1': "Çatışma kontrol puanları deneysel olarak desteklenen bir yaklaşım olarak hesaplanır: CP ≈ ConflictProgress × 120000. Çubuk, 0 ile 180000 CP arasında varsayımsal bir ölçek kullanır ve %100 ile sınırlıdır; eksik değerler bilinmiyor olarak kalır.",
+    'release.3_9_14.2': "36000 CP (%20) ve 120000 CP (%66,67) konumlarında kesikli işaretler, simgeler ve çevrilmiş araç ipuçları. Sınırlar ve ölçek doğrulanmış resmî oyun sabitleri değildir; bir işaretin aşılması sistem durumunu değiştirmez.",
+    'release.3_9_14.3': "Kendi gücünüz bulunmadığında “Varlık yok” ile ayrı gösterilir; katılımcılar yinelenmez. Aynı gücün ad varyantları birleştirilir.",
+    'release.3_9_14.4': "Odyssey görevleri: oluşturulan ayrıntı metinleri sonraki hedef değişikliklerini izler. MissionRedirected içindeki açıkça belirtilmiş ilk hedefler komutan bazında ayrı saklanır; yeni hedef navigasyon hedefi olarak kalır. Eksik yerler veya gezegenler tahmin edilmez.",
+    'release.3_9_14.5': "Ana pencere boyutunu, konumunu ve büyütülmüş durumunu kaydeder ve yeniden başlatıldığında geri yükler. Geçersiz kayıtlı geometri için varsayılanlar kullanılır; artık görünmeyen konumlar düzeltilir.",
     "release.3_9_13.0": "PP2 sistem kontrolü: İşgal edilmemiş, İşletilen, Tahkim edilmiş ve Kale için dört renkli alan; sistem durumu için beyaz, mevcut döngü ilerlemesi için sarı üçgen.",
     "release.3_9_13.1": "İşaretçi konumları açıkça yaklaşık değerlerdir; doğrulanmış bir Frontier hesabı değildir. Beyaz sarının sağındaysa aralık kırmızı, solundaysa mavidir. Güçlendirme ve zayıflatma, günlükteki değiştirilmemiş değerlerle CP biriminde gösterilir.",
     "release.3_9_13.2": "İşgal edilmemiş sistemler için ayrı PP2 çatışma görünümü: güçler çatışma ilerlemesine göre sıralanır, göreli çubuklar ve mevcut portreler gösterilir. Aisling Duval ve Nakato Kaine için doğrulanmış renkler, diğerleri için nötr görünüm kullanılır; eksik değerler bilinmiyor olarak kalır ve mutlak çatışma CP değerleri mevcut değildir.",
@@ -2147,4 +2153,27 @@ TRANSLATIONS.update({
     'pp2.system.status_marker': 'Sistem durumu',
     'pp2.system.cycle_marker': 'Mevcut döngü ilerlemesi',
     'pp2.system.approximation': 'İşaretçi konumları yaklaşık değerlerdir, doğrulanmış oyun ölçeği değildir. CP değerleri günlükten değiştirilmeden alınır.',
+})
+
+# Unoccupied conflict presentation; empirical CP and approximate visual markers.
+TRANSLATIONS.update({
+    "pp2.conflict.own_power": "KENDİ GÜCÜN",
+    "pp2.conflict.no_presence": "Varlık yok",
+    "pp2.conflict.boundary": "Çatışma sınırı",
+    "pp2.conflict.minimum": "Asgari kontrol puanı",
+    'pp2.conflict.threshold_help': "Çatışma sınırı (yaklaşık)\n\nİşaret şu anda 180.000 CP’ye kadar uzanan varsayımsal çubuk ölçeğinde 36.000 CP konumundadır.\n\nBu sınır henüz oyunun resmî eşiği olarak doğrulanmamıştır.\n\nAsgari kontrol puanı (yaklaşık)\n\nİşaret şu anda 180.000 CP’ye kadar uzanan varsayımsal çubuk ölçeğinde 120.000 CP konumundadır.\n\nBu sınır henüz oyunun resmî eşiği olarak doğrulanmamıştır.",
+    "pp2.conflict.cp_help": "İşgal edilmemiş sistemler için yaklaşık değer: CP ≈ ConflictProgress × 120000. Deneysel olarak desteklenmiş, genel olarak doğrulanmamıştır. Ham günlük değeri: {raw}.\n\nÇubuğun doluluğu şu anda 0 ile 180.000 CP arasında yaklaşık bir ölçek kullanır.\n\nElite Dangerous’ın tam ölçeklendirmesi henüz doğrulanmamıştır.\n\nKontrol puanları bundan bağımsız olarak mevcut günlük verilerinden hesaplanır.",
+})
+
+# Explicit mission destinations, separate from the active navigation target.
+TRANSLATIONS.update({
+    "missions.current_destination": "Güncel hedef",
+    "missions.original_system": "İlk hedef sistemi",
+    "missions.original_place": "İlk hedef konumu",
+})
+
+# Provisional CP markers, not confirmed official game thresholds.
+TRANSLATIONS.update({
+    'pp2.conflict.boundary_help': "Çatışma sınırı (yaklaşık)\n\nİşaret şu anda 180.000 CP’ye kadar uzanan varsayımsal çubuk ölçeğinde 36.000 CP konumundadır.\n\nBu sınır henüz oyunun resmî eşiği olarak doğrulanmamıştır.",
+    'pp2.conflict.minimum_help': "Asgari kontrol puanı (yaklaşık)\n\nİşaret şu anda 180.000 CP’ye kadar uzanan varsayımsal çubuk ölçeğinde 120.000 CP konumundadır.\n\nBu sınır henüz oyunun resmî eşiği olarak doğrulanmamıştır.",
 })

@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_14.0': "PP2-Konfliktansicht für nicht besetzte Systeme überarbeitet: größere vorhandene Machtporträts, Machtname und Kontrollpunkte in einem responsiven Layout; Fortschrittssortierung und vorhandene Machtfarben bleiben erhalten.",
+    'release.3_9_14.1': "Konflikt-Kontrollpunkte als empirisch gestützte Näherung: CP ≈ ConflictProgress × 120000. Die Balkenfüllung verwendet eine angenommene Skala von 0 bis 180000 CP, begrenzt auf 100 %; fehlende Werte bleiben unbekannt.",
+    'release.3_9_14.2': "Gestrichelte Konfliktmarkierungen bei 36000 CP (20 %) und 120000 CP (66,67 %), mit Symbolen und übersetzten Tooltips. Grenzen und Balkenskala sind keine bestätigten offiziellen Spielkonstanten; ein Überschreiten ändert keinen Systemstatus.",
+    'release.3_9_14.3': "Die eigene Macht erscheint bei fehlender Präsenz separat mit „Keine Präsenz“, ohne doppelte Teilnehmeranzeige. Namensvarianten derselben Macht werden zusammengeführt.",
+    'release.3_9_14.4': "Odyssey-Missionen: generierte Detailtexte folgen späteren Zieländerungen. Explizite ursprüngliche Ziele bei MissionRedirected werden getrennt und commanderbezogen gespeichert; das neue Ziel bleibt Navigationsziel. Fehlende Orte oder Planeten werden nicht geschätzt.",
+    'release.3_9_14.5': "Das Hauptfenster speichert Größe, Position und Maximierungszustand und stellt sie beim Neustart wieder her. Ungültige gespeicherte Geometrie erhält einen Standardwert; nicht mehr sichtbare Positionen werden korrigiert.",
     "release.3_9_13.0": "PP2-Systemkontrolle: vier farbige Bereiche für Nicht besetzt, Erschlossen, Verstärkt und Hochburg; weißes Dreieck für den Systemstatus, gelbes Dreieck für den aktuellen Zyklusfortschritt.",
     "release.3_9_13.1": "Die Markerpositionen sind ausdrücklich Näherungen, keine bestätigte Frontier-Berechnung. Der Bereich zwischen den Markern wird rot eingefärbt, wenn Weiß rechts von Gelb steht, und blau, wenn Weiß links steht. Stärkung und Schwächung werden unverändert aus dem Journal in CP angezeigt.",
     "release.3_9_13.2": "Eigene PP2-Konfliktansicht für nicht besetzte Systeme: Mächte nach Konfliktfortschritt sortiert, mit relativen Balken und vorhandenen Porträts. Bestätigte Farben für Aisling Duval und Nakato Kaine, sonst neutrale Darstellung; fehlende Werte bleiben unbekannt, absolute Konflikt-CP sind nicht verfügbar.",
@@ -2291,4 +2297,27 @@ TRANSLATIONS.update({
     'pp2.system.status_marker': 'Systemstatus',
     'pp2.system.cycle_marker': 'Aktueller Zyklusfortschritt',
     'pp2.system.approximation': 'Markerpositionen sind Näherungen, keine bestätigte Spielskala. CP-Werte stammen unverändert aus dem Journal.',
+})
+
+# Unoccupied conflict presentation; empirical CP and approximate visual markers.
+TRANSLATIONS.update({
+    "pp2.conflict.own_power": "EIGENE MACHT",
+    "pp2.conflict.no_presence": "Keine Präsenz",
+    "pp2.conflict.boundary": "Konfliktgrenze",
+    "pp2.conflict.minimum": "Mindestkontrollpunktzahl",
+    'pp2.conflict.threshold_help': "Konfliktgrenze (Näherung)\n\nDie Markierung steht derzeit bei 36.000 CP auf einer angenommenen Balkenskala bis 180.000 CP.\n\nDiese Grenze ist noch nicht als offizielle Spielschwelle bestätigt.\n\nMindestkontrollpunktzahl (Näherung)\n\nDie Markierung steht derzeit bei 120.000 CP auf einer angenommenen Balkenskala bis 180.000 CP.\n\nDiese Grenze ist noch nicht als offizielle Spielschwelle bestätigt.",
+    "pp2.conflict.cp_help": "Näherung für nicht besetzte Systeme: CP ≈ ConflictProgress × 120000. Empirisch gestützt, nicht allgemein bestätigt. Journalrohwert: {raw}.\n\nDie Balkenfüllung verwendet derzeit eine angenäherte Skala von 0 bis 180.000 CP.\n\nDie genaue Skalierung von Elite Dangerous ist noch nicht bestätigt.\n\nDie Kontrollpunkte werden unabhängig davon aus den vorhandenen Journaldaten berechnet.",
+})
+
+# Explicit mission destinations, separate from the active navigation target.
+TRANSLATIONS.update({
+    "missions.current_destination": "Aktuelles Ziel",
+    "missions.original_system": "Ursprüngliches Zielsystem",
+    "missions.original_place": "Ursprünglicher Zielort",
+})
+
+# Provisional CP markers, not confirmed official game thresholds.
+TRANSLATIONS.update({
+    'pp2.conflict.boundary_help': "Konfliktgrenze (Näherung)\n\nDie Markierung steht derzeit bei 36.000 CP auf einer angenommenen Balkenskala bis 180.000 CP.\n\nDiese Grenze ist noch nicht als offizielle Spielschwelle bestätigt.",
+    'pp2.conflict.minimum_help': "Mindestkontrollpunktzahl (Näherung)\n\nDie Markierung steht derzeit bei 120.000 CP auf einer angenommenen Balkenskala bis 180.000 CP.\n\nDiese Grenze ist noch nicht als offizielle Spielschwelle bestätigt.",
 })

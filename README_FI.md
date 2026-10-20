@@ -38,6 +38,15 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.14
+
+- Uudistettu PP2-konfliktinäkymä miehittämättömille järjestelmille: suuremmat nykyiset valtakuvat, vallan nimi ja hallintapisteet mukautuvassa asettelussa; edistymisjärjestys ja nykyiset värit säilyvät.
+- Konfliktin hallintapisteet empiirisesti tuettuna arviona: CP ≈ ConflictProgress × 120000. Palkki käyttää oletettua asteikkoa 0–180000 CP, enintään 100 %; puuttuvat arvot pysyvät tuntemattomina.
+- Katkoviivamerkit kohdissa 36000 CP (20 %) ja 120000 CP (66,67 %), symbolit ja käännetyt työkaluvihjeet. Rajat ja asteikko eivät ole vahvistettuja virallisia pelivakioita; merkin ylittäminen ei muuta järjestelmän tilaa.
+- Oma valta näytetään puuttuessaan erikseen merkinnällä ”Ei läsnäoloa”, ilman päällekkäisiä osallistujia. Saman vallan nimimuunnelmat yhdistetään.
+- Odyssey-tehtävät: luodut yksityiskohtatekstit seuraavat myöhempiä kohdemuutoksia. MissionRedirected-tapahtuman nimenomaiset alkuperäiset kohteet tallennetaan erikseen komentajakohtaisesti; uusi kohde säilyy navigointikohteena. Puuttuvia paikkoja tai planeettoja ei arvata.
+- Pääikkuna tallentaa koon, sijainnin ja suurennetun tilan ja palauttaa ne uudelleenkäynnistyksessä. Virheellinen tallennettu geometria korvataan oletusarvoilla; näkymättömiin jäävät sijainnit korjataan.
+
 ## CMDRHelper v3.9.13
 
 - PP2-järjestelmähallinta: neljä värialuetta tiloille Miehittämätön, Hyödynnetty, Linnoitettu ja Tukikohta; valkoinen kolmio näyttää järjestelmän tilan ja keltainen nykyisen syklin edistymisen.

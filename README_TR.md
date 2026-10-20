@@ -39,6 +39,15 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.14
+
+- İşgal edilmemiş sistemler için PP2 çatışma görünümü yenilendi: daha büyük mevcut güç portreleri, uyarlanabilir düzende güç adı ve kontrol puanları; ilerleme sıralaması ve mevcut güç renkleri korunur.
+- Çatışma kontrol puanları deneysel olarak desteklenen bir yaklaşım olarak hesaplanır: CP ≈ ConflictProgress × 120000. Çubuk, 0 ile 180000 CP arasında varsayımsal bir ölçek kullanır ve %100 ile sınırlıdır; eksik değerler bilinmiyor olarak kalır.
+- 36000 CP (%20) ve 120000 CP (%66,67) konumlarında kesikli işaretler, simgeler ve çevrilmiş araç ipuçları. Sınırlar ve ölçek doğrulanmış resmî oyun sabitleri değildir; bir işaretin aşılması sistem durumunu değiştirmez.
+- Kendi gücünüz bulunmadığında “Varlık yok” ile ayrı gösterilir; katılımcılar yinelenmez. Aynı gücün ad varyantları birleştirilir.
+- Odyssey görevleri: oluşturulan ayrıntı metinleri sonraki hedef değişikliklerini izler. MissionRedirected içindeki açıkça belirtilmiş ilk hedefler komutan bazında ayrı saklanır; yeni hedef navigasyon hedefi olarak kalır. Eksik yerler veya gezegenler tahmin edilmez.
+- Ana pencere boyutunu, konumunu ve büyütülmüş durumunu kaydeder ve yeniden başlatıldığında geri yükler. Geçersiz kayıtlı geometri için varsayılanlar kullanılır; artık görünmeyen konumlar düzeltilir.
+
 ## CMDRHelper v3.9.13
 
 - PP2 sistem kontrolü: İşgal edilmemiş, İşletilen, Tahkim edilmiş ve Kale için dört renkli alan; sistem durumu için beyaz, mevcut döngü ilerlemesi için sarı üçgen.

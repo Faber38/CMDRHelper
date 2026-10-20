@@ -38,6 +38,7 @@ class DetachedChronicleTests(unittest.TestCase):
         self.addCleanup(clock.stop)
         self.main = MainWindow.__new__(MainWindow)
         QMainWindow.__init__(self.main)
+        self.main.state = self.state
         self.view = PowerplayView(self.state, self.main)
         self.main.setCentralWidget(self.view)
         self.main.resize(1200, 900)
@@ -184,10 +185,13 @@ from PySide6.QtCore import QTimer
 from cmdrhelper.ui.main_window import MainWindow
 from cmdrhelper.ui.powerplay_view import PowerplayView
 from tests.test_powerplay import ViewState
+from tests.test_cargo_live import _Settings
 app = QApplication([])
 main = MainWindow.__new__(MainWindow)
 QMainWindow.__init__(main)
-view = PowerplayView(ViewState(), main)
+main.state = ViewState()
+main.state.settings = _Settings()
+view = PowerplayView(main.state, main)
 main.setCentralWidget(view)
 main.show()
 view.detach_chronicle()
