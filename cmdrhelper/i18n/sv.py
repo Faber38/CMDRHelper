@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_13.0": "PP2-systemkontroll: fyra färgade områden för Ej ockuperat, Exploaterat, Befäst och Fäste; vit triangel för systemstatus och gul triangel för den aktuella cykelns framsteg.",
+    "release.3_9_13.1": "Markörernas positioner är uttryckligen ungefärliga, ingen bekräftad Frontier-beräkning. Intervallet färgas rött när vitt står till höger om gult och blått när vitt står till vänster. Förstärkning och försvagning visas som oförändrade journalvärden i CP.",
+    "release.3_9_13.2": "Egen PP2-konfliktvy för obesatta system: makter sorterade efter konfliktframsteg, med relativa staplar och befintliga porträtt. Bekräftade färger för Aisling Duval och Nakato Kaine, annars neutral visning; saknade värden förblir okända och absoluta konflikt-CP är inte tillgängliga.",
+    "release.3_9_13.3": "Alla tolv befintliga maktporträtt används; A. Lavigny-Duval pekar på Arissa Lavigny-Duval. Befintliga reservvisningar behålls.",
+    "release.3_9_13.4": "Uppdrag: sortera alla sju kolumner stigande och fallande, belöningar numeriskt och tidsfrister kronologiskt; sorteringen sparas via QSettings.",
+    "release.3_9_13.5": "Uppdragsdetaljer förblir kopplade till rätt uppdrag efter sortering och uppdatering; byte av befälhavare rensar föregående val. Nya PP2-texter finns på alla tolv språk.",
     "pp2.history.filtered_merits": "Meriter i filtret: {amount}",
     "favorites.copy_system": "Kopiera systemnamn",
     "release.3_9_12.0": "Explorer-fönster: tillförlitlig uppdatering och värdesortering på alla tolv språk.",
@@ -1908,6 +1914,9 @@ TRANSLATIONS.update({
     'pp2.metric.control': 'Kontrollframsteg',
     'pp2.metric.reinforcement': 'Förstärkning',
     'pp2.metric.undermining': 'Underminering',
+    'pp2.conflict.cp_unavailable': 'CP saknas',
+    'pp2.conflict.progress': 'Konfliktförlopp',
+    'pp2.conflict.relative_help': 'Relativ jämförelse av råa journalvärden: det högsta tillgängliga värdet fyller stapeln. Ingen kontrolltröskel eller CP-omräkning.',
     'pp2.metric.conflict': 'Konfliktframsteg — {power}',
     'pp2.actions_for': 'VAD KAN JAG GÖRA HÄR FÖR {power}?',
     'pp2.actions': 'VAD KAN JAG GÖRA HÄR?',
@@ -2132,3 +2141,10 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS['pp2.history.from_time'] = 'Från klockslag (lokal tid)'
+
+# Approximate PP2 system-control diagram.
+TRANSLATIONS.update({
+    'pp2.system.status_marker': 'Systemstatus',
+    'pp2.system.cycle_marker': 'Aktuell cykelframgång',
+    'pp2.system.approximation': 'Markörernas positioner är ungefärliga, inte en bekräftad spelskala. CP-värdena hämtas oförändrade från journalen.',
+})

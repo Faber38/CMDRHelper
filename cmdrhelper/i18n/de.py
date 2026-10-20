@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_13.0": "PP2-Systemkontrolle: vier farbige Bereiche für Nicht besetzt, Erschlossen, Verstärkt und Hochburg; weißes Dreieck für den Systemstatus, gelbes Dreieck für den aktuellen Zyklusfortschritt.",
+    "release.3_9_13.1": "Die Markerpositionen sind ausdrücklich Näherungen, keine bestätigte Frontier-Berechnung. Der Bereich zwischen den Markern wird rot eingefärbt, wenn Weiß rechts von Gelb steht, und blau, wenn Weiß links steht. Stärkung und Schwächung werden unverändert aus dem Journal in CP angezeigt.",
+    "release.3_9_13.2": "Eigene PP2-Konfliktansicht für nicht besetzte Systeme: Mächte nach Konfliktfortschritt sortiert, mit relativen Balken und vorhandenen Porträts. Bestätigte Farben für Aisling Duval und Nakato Kaine, sonst neutrale Darstellung; fehlende Werte bleiben unbekannt, absolute Konflikt-CP sind nicht verfügbar.",
+    "release.3_9_13.3": "Alle zwölf vorhandenen Machtporträts werden verwendet; A. Lavigny-Duval verweist auf Arissa Lavigny-Duval. Bestehende Ersatzanzeigen bleiben erhalten.",
+    "release.3_9_13.4": "Missionen: alle sieben Spalten auf- und absteigend sortieren, Belohnungen numerisch und Fristen chronologisch; die Sortierung wird über QSettings gespeichert.",
+    "release.3_9_13.5": "Missionsdetails bleiben nach Sortierung und Aktualisierung der richtigen Mission zugeordnet; beim Commanderwechsel wird die bisherige Auswahl zurückgesetzt. Neue PP2-Texte sind in allen zwölf Sprachen verfügbar.",
     "pp2.history.filtered_merits": "Merits im Filter: {amount}",
     "favorites.copy_system": "Systemnamen kopieren",
     "release.3_9_12.0": "Explorer-Zusatzfenster: zuverlässige Aktualisierung und Wertsortierung in allen zwölf Sprachen.",
@@ -2016,6 +2022,9 @@ TRANSLATIONS.update({
     'pp2.metric.control': 'Kontrollfortschritt',
     'pp2.metric.reinforcement': 'Verstärkung',
     'pp2.metric.undermining': 'Schwächung',
+    'pp2.conflict.cp_unavailable': 'CP nicht verfügbar',
+    'pp2.conflict.progress': 'Konfliktfortschritt',
+    'pp2.conflict.relative_help': 'Relativer Vergleich der Journalrohwerte: Der höchste vorhandene Wert füllt den Balken. Keine Kontrollschwelle oder CP-Umrechnung.',
     'pp2.metric.conflict': 'Konfliktfortschritt — {power}',
     'pp2.actions_for': 'WAS KANN ICH HIER FÜR {power} TUN?',
     'pp2.actions': 'WAS KANN ICH HIER TUN?',
@@ -2138,7 +2147,7 @@ TRANSLATIONS.update({
     'pp2.system.contest': 'Kräftemessen',
     'pp2.system.contest_help': 'Vergleich der gemeldeten Stärken- und Schwächungswerte; die Zahlen bleiben unverändert. 0 / 0 wird neutral dargestellt.',
     'pp2.system.missing': 'Für den Vergleich fehlen gültige Werte.',
-    'pp2.system.reinforcement': 'Stärken',
+    'pp2.system.reinforcement': 'Stärkung',
     'pp2.system.undermining': 'Schwächung',
     'pp2.system.reinforcement_help': 'Reinforcement – Aktivitäten, die die Stellung der kontrollierenden Macht in diesem System stärken.',
     'pp2.system.undermining_help': 'Undermining – Aktivitäten, die die Stellung der kontrollierenden Macht in diesem System schwächen.',
@@ -2276,3 +2285,10 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS['pp2.history.from_time'] = 'Ab Uhrzeit (lokal)'
+
+# Approximate PP2 system-control diagram.
+TRANSLATIONS.update({
+    'pp2.system.status_marker': 'Systemstatus',
+    'pp2.system.cycle_marker': 'Aktueller Zyklusfortschritt',
+    'pp2.system.approximation': 'Markerpositionen sind Näherungen, keine bestätigte Spielskala. CP-Werte stammen unverändert aus dem Journal.',
+})

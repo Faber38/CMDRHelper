@@ -106,3 +106,37 @@ class PortraitViewTests(unittest.TestCase):
             portrait.set_power('',membership_known=True)
             self.assertEqual(portrait.key,'noMacht')
             self.assertTrue(portrait.text())
+
+
+class InstalledPortraitTests(unittest.TestCase):
+    setUpClass = classmethod(ranks.RankViewTests.setUpClass.__func__)
+
+    def test_alias_and_all_installed_portraits(self):
+        from cmdrhelper.ui.powerplay_portraits import PowerPortrait, POWERPLAY_ASSET_DIR
+        portrait = PowerPortrait()
+        self.addCleanup(portrait.close)
+        images = []
+        for name in ('A. Lavigny-Duval', 'Arissa Lavigny-Duval'):
+            portrait.set_power(name)
+            self.assertEqual(portrait.key, 'arissa_lavigny_duval')
+            self.assertFalse(portrait.pixmap().isNull())
+            images.append(portrait.pixmap().toImage())
+        self.assertEqual(images[0], images[1])
+        self.assertEqual(portrait_key('A. LAVIGNY-DUVAL'), 'arissa_lavigny_duval')
+        for name in ('Aisling Duval', 'Archon Delaine', 'Denton Patreus',
+                     'Edmund Mahon', 'Felicia Winters', 'Li Yong-Rui',
+                     'Pranav Antal', 'Yuri Grom', 'Zemina Torval',
+                     'Nakato Kaine', 'Jerome Archer'):
+            with self.subTest(name=name):
+                portrait.set_power(name)
+                self.assertFalse(portrait.pixmap().isNull())
+                self.assertIn(portrait.key + '.png', [p.name for p in POWERPLAY_ASSET_DIR.iterdir()])
+        portrait.set_power('Unknown Power')
+        self.assertTrue(portrait.pixmap().isNull())
+        self.assertTrue(portrait.text())
+        portrait.set_power('', membership_known=True)
+        self.assertEqual(portrait.key, 'noMacht')
+        self.assertFalse(portrait.pixmap().isNull())
+        portrait.set_power('', membership_known=False)
+        self.assertTrue(portrait.pixmap().isNull())
+        self.assertTrue(portrait.text())

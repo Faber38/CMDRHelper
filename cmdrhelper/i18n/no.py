@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_13.0": "PP2-systemkontroll: fire fargede områder for Ikke okkupert, Utnyttet, Befestet og Høyborg; hvit trekant for systemstatus og gul trekant for fremdriften i gjeldende syklus.",
+    "release.3_9_13.1": "Markørposisjonene er uttrykkelig omtrentlige, ikke en bekreftet Frontier-beregning. Området mellom markørene er rødt når hvit står til høyre for gul, og blått når hvit står til venstre. Forsterkning og svekkelse vises som uendrede journalverdier i CP.",
+    "release.3_9_13.2": "Egen PP2-konfliktvisning for ubesatte systemer: makter sortert etter konfliktfremdrift, med relative stolper og eksisterende portretter. Bekreftede farger for Aisling Duval og Nakato Kaine, ellers nøytral visning; manglende verdier forblir ukjente, og absolutte konflikt-CP er utilgjengelige.",
+    "release.3_9_13.3": "Alle tolv eksisterende maktportretter brukes; A. Lavigny-Duval viser til Arissa Lavigny-Duval. Eksisterende reservevisninger beholdes.",
+    "release.3_9_13.4": "Oppdrag: sorter alle sju kolonner stigende og synkende, belønninger numerisk og frister kronologisk; sorteringen lagres via QSettings.",
+    "release.3_9_13.5": "Oppdragsdetaljer forblir knyttet til riktig oppdrag etter sortering og oppdatering; bytte av kommandør nullstiller forrige valg. Nye PP2-tekster er tilgjengelige på alle tolv språk.",
     "pp2.history.filtered_merits": "Meritter i filteret: {amount}",
     "favorites.copy_system": "Kopier systemnavn",
     "release.3_9_12.0": "Explorer-vinduer: pålitelig oppdatering og sortering etter verdi på alle tolv språk.",
@@ -1908,6 +1914,9 @@ TRANSLATIONS.update({
     'pp2.metric.control': 'Kontrollframdrift',
     'pp2.metric.reinforcement': 'Forsterkning',
     'pp2.metric.undermining': 'Undergraving',
+    'pp2.conflict.cp_unavailable': 'CP utilgjengelig',
+    'pp2.conflict.progress': 'Konfliktframdrift',
+    'pp2.conflict.relative_help': 'Relativ sammenligning av rå journalverdier: den høyeste tilgjengelige verdien fyller stolpen. Ingen kontrollterskel eller CP-omregning.',
     'pp2.metric.conflict': 'Konfliktframdrift — {power}',
     'pp2.actions_for': 'HVA KAN JEG GJØRE HER FOR {power}?',
     'pp2.actions': 'HVA KAN JEG GJØRE HER?',
@@ -2132,3 +2141,10 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS['pp2.history.from_time'] = 'Fra klokkeslett (lokal tid)'
+
+# Approximate PP2 system-control diagram.
+TRANSLATIONS.update({
+    'pp2.system.status_marker': 'Systemstatus',
+    'pp2.system.cycle_marker': 'Fremdrift i gjeldende syklus',
+    'pp2.system.approximation': 'Markørposisjonene er omtrentlige, ikke en bekreftet spillskala. CP-verdiene hentes uendret fra journalen.',
+})

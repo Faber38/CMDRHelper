@@ -38,6 +38,15 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## CMDRHelper v3.9.13
+
+- PP2-systeemcontrole: vier gekleurde gebieden voor Onbezet, Geëxploiteerd, Versterkt en Bolwerk; een witte driehoek voor de systeemstatus en een gele voor de voortgang van de huidige cyclus.
+- Markeerposities zijn uitdrukkelijk benaderingen, geen bevestigde Frontier-berekening. Het interval is rood als wit rechts van geel staat en blauw als wit links staat. Versterking en verzwakking tonen ongewijzigde journalwaarden in CP.
+- Eigen PP2-conflictweergave voor onbezette systemen: machten gesorteerd op conflictvoortgang, met relatieve balken en bestaande portretten. Bevestigde kleuren voor Aisling Duval en Nakato Kaine, anders neutrale weergave; ontbrekende waarden blijven onbekend en absolute conflict-CP zijn niet beschikbaar.
+- Alle twaalf bestaande machtsportretten worden gebruikt; A. Lavigny-Duval verwijst naar Arissa Lavigny-Duval. Bestaande vervangende weergaven blijven behouden.
+- Missies: alle zeven kolommen oplopend en aflopend sorteren, beloningen numeriek en deadlines chronologisch; de sortering wordt via QSettings opgeslagen.
+- Missiedetails blijven na sorteren en vernieuwen aan de juiste missie gekoppeld; wisselen van commander wist de vorige selectie. Nieuwe PP2-teksten zijn beschikbaar in alle twaalf talen.
+
 ## CMDRHelper v3.9.12
 
 - Explorer-hulpvensters: betrouwbaar vernieuwen en sorteren op waarde in alle twaalf talen.

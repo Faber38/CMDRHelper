@@ -38,6 +38,15 @@ Der Journalordner von Elite Dangerous wird nach Möglichkeit automatisch erkannt
 
 CMDRHelper prüft beim Start auf Updates und besitzt einen integrierten Updater. Bestätige ein angebotenes Update im Programm; es aktualisiert Programm und Abhängigkeiten und startet CMDRHelper neu. Nach der Erstinstallation genügt normalerweise `start.bat` (Windows) beziehungsweise `bash start.sh` (Linux). Für normale Updates musst du `install.bat` oder `install.sh` nicht erneut manuell ausführen.
 
+## CMDRHelper v3.9.13
+
+- PP2-Systemkontrolle: vier farbige Bereiche für Nicht besetzt, Erschlossen, Verstärkt und Hochburg; weißes Dreieck für den Systemstatus, gelbes Dreieck für den aktuellen Zyklusfortschritt.
+- Die Markerpositionen sind ausdrücklich Näherungen, keine bestätigte Frontier-Berechnung. Der Bereich zwischen den Markern wird rot eingefärbt, wenn Weiß rechts von Gelb steht, und blau, wenn Weiß links steht. Stärkung und Schwächung werden unverändert aus dem Journal in CP angezeigt.
+- Eigene PP2-Konfliktansicht für nicht besetzte Systeme: Mächte nach Konfliktfortschritt sortiert, mit relativen Balken und vorhandenen Porträts. Bestätigte Farben für Aisling Duval und Nakato Kaine, sonst neutrale Darstellung; fehlende Werte bleiben unbekannt, absolute Konflikt-CP sind nicht verfügbar.
+- Alle zwölf vorhandenen Machtporträts werden verwendet; A. Lavigny-Duval verweist auf Arissa Lavigny-Duval. Bestehende Ersatzanzeigen bleiben erhalten.
+- Missionen: alle sieben Spalten auf- und absteigend sortieren, Belohnungen numerisch und Fristen chronologisch; die Sortierung wird über QSettings gespeichert.
+- Missionsdetails bleiben nach Sortierung und Aktualisierung der richtigen Mission zugeordnet; beim Commanderwechsel wird die bisherige Auswahl zurückgesetzt. Neue PP2-Texte sind in allen zwölf Sprachen verfügbar.
+
 ## CMDRHelper v3.9.12
 
 - Explorer-Zusatzfenster: zuverlässige Aktualisierung und Wertsortierung in allen zwölf Sprachen.

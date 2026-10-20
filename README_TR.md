@@ -39,6 +39,15 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.13
+
+- PP2 sistem kontrolü: İşgal edilmemiş, İşletilen, Tahkim edilmiş ve Kale için dört renkli alan; sistem durumu için beyaz, mevcut döngü ilerlemesi için sarı üçgen.
+- İşaretçi konumları açıkça yaklaşık değerlerdir; doğrulanmış bir Frontier hesabı değildir. Beyaz sarının sağındaysa aralık kırmızı, solundaysa mavidir. Güçlendirme ve zayıflatma, günlükteki değiştirilmemiş değerlerle CP biriminde gösterilir.
+- İşgal edilmemiş sistemler için ayrı PP2 çatışma görünümü: güçler çatışma ilerlemesine göre sıralanır, göreli çubuklar ve mevcut portreler gösterilir. Aisling Duval ve Nakato Kaine için doğrulanmış renkler, diğerleri için nötr görünüm kullanılır; eksik değerler bilinmiyor olarak kalır ve mutlak çatışma CP değerleri mevcut değildir.
+- Mevcut on iki güç portresinin tamamı kullanılır; A. Lavigny-Duval, Arissa Lavigny-Duval ile eşleştirilir. Mevcut alternatif gösterimler korunur.
+- Görevler: yedi sütunun tamamında artan ve azalan sıralama, ödüllerde sayısal ve son tarihlerde kronolojik sıralama; sıralama QSettings ile kaydedilir.
+- Görev ayrıntıları sıralama ve yenileme sonrasında doğru görevle ilişkili kalır; komutan değiştirildiğinde önceki seçim temizlenir. Yeni PP2 metinleri on iki dilin tamamında mevcuttur.
+
 ## CMDRHelper v3.9.12
 
 - Explorer ek pencereleri: on iki dilin tamamında güvenilir yenileme ve değere göre sıralama.

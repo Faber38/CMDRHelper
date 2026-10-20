@@ -38,6 +38,15 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.9.13
+
+- Contrôle des systèmes PP2 : quatre zones colorées pour les états Non occupé, Exploité, Fortifié et Bastion ; triangle blanc pour l’état du système et jaune pour la progression du cycle actuel.
+- Les positions des marqueurs sont explicitement approximatives, sans calcul Frontier confirmé. L’intervalle est teinté de rouge si le blanc est à droite du jaune, de bleu s’il est à gauche. Renforcement et affaiblissement affichent les valeurs du journal inchangées en CP.
+- Vue des conflits PP2 dédiée aux systèmes inoccupés : puissances triées par progression, avec barres relatives et portraits existants. Couleurs confirmées pour Aisling Duval et Nakato Kaine, sinon affichage neutre ; les valeurs manquantes restent inconnues et les CP absolus de conflit sont indisponibles.
+- Utilisation des douze portraits de puissances existants ; A. Lavigny-Duval correspond à Arissa Lavigny-Duval. Les affichages de remplacement sont conservés.
+- Missions : tri croissant et décroissant des sept colonnes, récompenses par valeur numérique et échéances par ordre chronologique ; tri mémorisé via QSettings.
+- Les détails restent associés à la bonne mission après tri et actualisation ; changer de commandant efface la sélection précédente. Les nouveaux textes PP2 sont disponibles dans les douze langues.
+
 ## CMDRHelper v3.9.12
 
 - Fenêtres auxiliaires Explorer : actualisation et tri par valeur fiables dans les douze langues.

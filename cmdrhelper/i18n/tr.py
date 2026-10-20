@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_13.0": "PP2 sistem kontrolü: İşgal edilmemiş, İşletilen, Tahkim edilmiş ve Kale için dört renkli alan; sistem durumu için beyaz, mevcut döngü ilerlemesi için sarı üçgen.",
+    "release.3_9_13.1": "İşaretçi konumları açıkça yaklaşık değerlerdir; doğrulanmış bir Frontier hesabı değildir. Beyaz sarının sağındaysa aralık kırmızı, solundaysa mavidir. Güçlendirme ve zayıflatma, günlükteki değiştirilmemiş değerlerle CP biriminde gösterilir.",
+    "release.3_9_13.2": "İşgal edilmemiş sistemler için ayrı PP2 çatışma görünümü: güçler çatışma ilerlemesine göre sıralanır, göreli çubuklar ve mevcut portreler gösterilir. Aisling Duval ve Nakato Kaine için doğrulanmış renkler, diğerleri için nötr görünüm kullanılır; eksik değerler bilinmiyor olarak kalır ve mutlak çatışma CP değerleri mevcut değildir.",
+    "release.3_9_13.3": "Mevcut on iki güç portresinin tamamı kullanılır; A. Lavigny-Duval, Arissa Lavigny-Duval ile eşleştirilir. Mevcut alternatif gösterimler korunur.",
+    "release.3_9_13.4": "Görevler: yedi sütunun tamamında artan ve azalan sıralama, ödüllerde sayısal ve son tarihlerde kronolojik sıralama; sıralama QSettings ile kaydedilir.",
+    "release.3_9_13.5": "Görev ayrıntıları sıralama ve yenileme sonrasında doğru görevle ilişkili kalır; komutan değiştirildiğinde önceki seçim temizlenir. Yeni PP2 metinleri on iki dilin tamamında mevcuttur.",
     "pp2.history.filtered_merits": "Filtredeki liyakat: {amount}",
     "favorites.copy_system": "Sistem adını kopyala",
     "release.3_9_12.0": "Explorer ek pencereleri: on iki dilin tamamında güvenilir yenileme ve değere göre sıralama.",
@@ -1908,6 +1914,9 @@ TRANSLATIONS.update({
     'pp2.metric.control': 'Kontrol ilerlemesi',
     'pp2.metric.reinforcement': 'Güçlendirme',
     'pp2.metric.undermining': 'Zayıflatma',
+    'pp2.conflict.cp_unavailable': 'CP mevcut değil',
+    'pp2.conflict.progress': 'Çatışma ilerlemesi',
+    'pp2.conflict.relative_help': 'Ham günlük değerlerinin göreli karşılaştırması: mevcut en yüksek değer çubuğu doldurur. Kontrol eşiği veya CP dönüşümü yoktur.',
     'pp2.metric.conflict': 'Çatışma ilerlemesi — {power}',
     'pp2.actions_for': 'BURADA {power} İÇİN NE YAPABİLİRİM?',
     'pp2.actions': 'BURADA NE YAPABİLİRİM?',
@@ -2132,3 +2141,10 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS['pp2.history.from_time'] = 'Başlangıç saati (yerel)'
+
+# Approximate PP2 system-control diagram.
+TRANSLATIONS.update({
+    'pp2.system.status_marker': 'Sistem durumu',
+    'pp2.system.cycle_marker': 'Mevcut döngü ilerlemesi',
+    'pp2.system.approximation': 'İşaretçi konumları yaklaşık değerlerdir, doğrulanmış oyun ölçeği değildir. CP değerleri günlükten değiştirilmeden alınır.',
+})

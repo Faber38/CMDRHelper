@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_13.0": "PP2 system control: four colored areas for Unoccupied, Exploited, Fortified and Stronghold; a white triangle for system status and a yellow triangle for current cycle progress.",
+    "release.3_9_13.1": "Marker positions are explicitly approximate, not a confirmed Frontier calculation. The interval between markers is tinted red when white is right of yellow and blue when white is left. Reinforcement and undermining are shown as unchanged journal values in CP.",
+    "release.3_9_13.2": "Dedicated PP2 conflict view for unoccupied systems: powers sorted by conflict progress, with relative bars and existing portraits. Confirmed colors for Aisling Duval and Nakato Kaine, otherwise neutral styling; missing values remain unknown and absolute conflict CP are unavailable.",
+    "release.3_9_13.3": "All twelve existing power portraits are used; A. Lavigny-Duval maps to Arissa Lavigny-Duval. Existing fallback displays are preserved.",
+    "release.3_9_13.4": "Missions: sort all seven columns in ascending or descending order, rewards numerically and deadlines chronologically; sorting is saved through QSettings.",
+    "release.3_9_13.5": "Mission details stay linked to the correct mission after sorting and refreshing; switching commanders clears the previous selection. New PP2 text is available in all twelve languages.",
     "pp2.history.filtered_merits": "Merits in filter: {amount}",
     "favorites.copy_system": "Copy system name",
     "release.3_9_12.0": "Explorer auxiliary windows: reliable refresh and value sorting in all twelve languages.",
@@ -2016,6 +2022,9 @@ TRANSLATIONS.update({
     'pp2.metric.control': 'Control progress',
     'pp2.metric.reinforcement': 'Reinforcement',
     'pp2.metric.undermining': 'Undermining',
+    'pp2.conflict.cp_unavailable': 'CP unavailable',
+    'pp2.conflict.progress': 'Conflict progress',
+    'pp2.conflict.relative_help': 'Relative comparison of raw journal values: the highest available value fills the bar. No control threshold or CP conversion.',
     'pp2.metric.conflict': 'Conflict progress — {power}',
     'pp2.actions_for': 'WHAT CAN I DO HERE FOR {power}?',
     'pp2.actions': 'WHAT CAN I DO HERE?',
@@ -2276,3 +2285,10 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS['pp2.history.from_time'] = 'From time (local)'
+
+# Approximate PP2 system-control diagram.
+TRANSLATIONS.update({
+    'pp2.system.status_marker': 'System status',
+    'pp2.system.cycle_marker': 'Current cycle progress',
+    'pp2.system.approximation': 'Marker positions are approximate, not a confirmed game scale. CP values are unchanged journal values.',
+})

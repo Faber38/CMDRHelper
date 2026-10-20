@@ -12,7 +12,8 @@ POWERPLAY_ASSET_DIR = Path(__file__).resolve().parents[1] / 'assets' / 'powerpla
 
 def portrait_key(power):
     text = unicodedata.normalize('NFKD', str(power or '')).encode('ascii', 'ignore').decode()
-    return re.sub(r'[^a-z0-9]+', '_', text.casefold()).strip('_')
+    key = re.sub(r'[^a-z0-9]+', '_', text.casefold()).strip('_')
+    return 'arissa_lavigny_duval' if key == 'a_lavigny_duval' else key
 
 
 def portrait_asset_key(power, membership_known=False):

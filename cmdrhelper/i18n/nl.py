@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_13.0": "PP2-systeemcontrole: vier gekleurde gebieden voor Onbezet, Geëxploiteerd, Versterkt en Bolwerk; een witte driehoek voor de systeemstatus en een gele voor de voortgang van de huidige cyclus.",
+    "release.3_9_13.1": "Markeerposities zijn uitdrukkelijk benaderingen, geen bevestigde Frontier-berekening. Het interval is rood als wit rechts van geel staat en blauw als wit links staat. Versterking en verzwakking tonen ongewijzigde journalwaarden in CP.",
+    "release.3_9_13.2": "Eigen PP2-conflictweergave voor onbezette systemen: machten gesorteerd op conflictvoortgang, met relatieve balken en bestaande portretten. Bevestigde kleuren voor Aisling Duval en Nakato Kaine, anders neutrale weergave; ontbrekende waarden blijven onbekend en absolute conflict-CP zijn niet beschikbaar.",
+    "release.3_9_13.3": "Alle twaalf bestaande machtsportretten worden gebruikt; A. Lavigny-Duval verwijst naar Arissa Lavigny-Duval. Bestaande vervangende weergaven blijven behouden.",
+    "release.3_9_13.4": "Missies: alle zeven kolommen oplopend en aflopend sorteren, beloningen numeriek en deadlines chronologisch; de sortering wordt via QSettings opgeslagen.",
+    "release.3_9_13.5": "Missiedetails blijven na sorteren en vernieuwen aan de juiste missie gekoppeld; wisselen van commander wist de vorige selectie. Nieuwe PP2-teksten zijn beschikbaar in alle twaalf talen.",
     "pp2.history.filtered_merits": "Verdiensten in filter: {amount}",
     "favorites.copy_system": "Systeemnaam kopiëren",
     "release.3_9_12.0": "Explorer-hulpvensters: betrouwbaar vernieuwen en sorteren op waarde in alle twaalf talen.",
@@ -1908,6 +1914,9 @@ TRANSLATIONS.update({
     'pp2.metric.control': 'Voortgang van de controle',
     'pp2.metric.reinforcement': 'Versterking',
     'pp2.metric.undermining': 'Ondermijning',
+    'pp2.conflict.cp_unavailable': 'CP niet beschikbaar',
+    'pp2.conflict.progress': 'Conflictvoortgang',
+    'pp2.conflict.relative_help': 'Relatieve vergelijking van ruwe journaalwaarden: de hoogste beschikbare waarde vult de balk. Geen controledrempel of CP-omrekening.',
     'pp2.metric.conflict': 'Conflictvoortgang — {power}',
     'pp2.actions_for': 'WAT KAN IK HIER VOOR {power} DOEN?',
     'pp2.actions': 'WAT KAN IK HIER DOEN?',
@@ -2132,3 +2141,10 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS['pp2.history.from_time'] = 'Vanaf tijd (lokaal)'
+
+# Approximate PP2 system-control diagram.
+TRANSLATIONS.update({
+    'pp2.system.status_marker': 'Systeemstatus',
+    'pp2.system.cycle_marker': 'Voortgang huidige cyclus',
+    'pp2.system.approximation': 'De markerposities zijn benaderingen, geen bevestigde spelschaal. CP-waarden komen ongewijzigd uit het logboek.',
+})

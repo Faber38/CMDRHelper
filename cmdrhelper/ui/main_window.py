@@ -9,7 +9,7 @@ from html import escape
 from cmdrhelper.exploration_status import exploration_status, journal_flag, status_tooltip
 
 from copy import deepcopy
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 import os
 import logging
@@ -4725,6 +4725,8 @@ class MainWindow(QMainWindow):
             except Exception:
                 pass
 
+        setup_sort(self.missions_table, self.state.settings, prefix="missions/table")
+
         # Jede Änderung durch Ziehen einer Spaltengrenze sofort speichern.
         header_view.sectionResized.connect(self._save_missions_header_state)
 
@@ -6314,7 +6316,10 @@ class MainWindow(QMainWindow):
         if row < 0 or row >= len(self.state.missions):
             return
 
-        mission = self.state.missions[row]
+        item = self.missions_table.item(row, 0)
+        mission = getattr(item, "mission", None)
+        if mission is None:
+            return
 
         self.mission_detail_title.setText(
             self._translate_mission_text(mission.name) or tr("missions.col_mission")
@@ -6708,39 +6713,70 @@ class MainWindow(QMainWindow):
             self._missions_dirty = False
 
     def _refresh_missions_table(self):
-        current_row = self.missions_table.currentRow()
+        selected = self.missions_table.item(self.missions_table.currentRow(), 0)
+        selected_mission = getattr(selected, "mission", None)
+        commander = getattr(self.state, "commander_id", None)
+        same_commander = getattr(self, "_missions_table_commander", commander) == commander
+        self._missions_table_commander = commander
+        selected_id = selected_mission.mission_id if selected_mission is not None and same_commander else None
+        blocked = self.missions_table.blockSignals(True)
+        try:
+            self.missions_table.clearSelection()
+            self.missions_table.setCurrentItem(None)
 
-        self.missions_table.setRowCount(len(self.state.missions))
+            self.missions_table.setRowCount(len(self.state.missions))
 
-        for row, mission in enumerate(self.state.missions):
-            values = [
-                self._translate_mission_text(mission.name),
-                mission.destination_system or "–",
-                self._place_text(mission),
-                self._translate_mission_text(mission.status),
-                self._translate_mission_text(mission.next_step),
-                (tr("missions.reward_offer", value=self._format_reward(mission.reward))
-                 if mission.extra.get("pending_offer") else self._format_reward(mission.reward)),
-                (tr("common.unknown") if mission.extra.get("pending_offer")
-                 else self._format_expiry(mission.expiry)),
-            ]
+            for row, mission in enumerate(self.state.missions):
+                values = [
+                    self._translate_mission_text(mission.name),
+                    mission.destination_system or "–",
+                    self._place_text(mission),
+                    self._translate_mission_text(mission.status),
+                    self._translate_mission_text(mission.next_step),
+                    (tr("missions.reward_offer", value=self._format_reward(mission.reward))
+                     if mission.extra.get("pending_offer") else self._format_reward(mission.reward)),
+                    (tr("common.unknown") if mission.extra.get("pending_offer")
+                     else self._format_expiry(mission.expiry)),
+                ]
 
-            for col, value in enumerate(values):
-                item = QTableWidgetItem(str(value or ""))
-                if mission.extra.get("pending_offer"):
-                    item.setToolTip(tr("missions.encounter_hint"))
+                # Missing values sort first ascending, last descending. Never parse
+                # formatted credit/date labels back into their underlying values.
+                keys = [(bool(value), str(value or "").casefold()) for value in values[:5]]
+                keys[1] = (bool(mission.destination_system), str(mission.destination_system or "").casefold())
+                if not (mission.destination_body or mission.destination_station or mission.target):
+                    keys[2] = (False, "")
+                keys.append((mission.reward is not None, mission.reward or 0))
+                expiry = None
+                if mission.expiry and not mission.extra.get("pending_offer"):
+                    try:
+                        dt = datetime.fromisoformat(mission.expiry.replace("Z", "+00:00"))
+                        expiry = (dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)).timestamp()
+                    except (ValueError, TypeError, OverflowError):
+                        pass
+                keys.append((expiry is not None, expiry or 0))
+                for col, value in enumerate(values):
+                    item = ValueItem(str(value or ""), keys[col])
+                    item.mission = mission
+                    if mission.extra.get("pending_offer"):
+                        item.setToolTip(tr("missions.encounter_hint"))
 
-                if col == 3:
-                    if mission.status in (
-                        "Aufgabe erledigt",
-                        "Daten erhalten",
-                        "Am Missionsziel",
-                    ):
-                        item.setForeground(Qt.green)
+                    if col == 3:
+                        if mission.status in (
+                            "Aufgabe erledigt",
+                            "Daten erhalten",
+                            "Am Missionsziel",
+                        ):
+                            item.setForeground(Qt.green)
 
-                self.missions_table.setItem(row, col, item)
+                    self.missions_table.setItem(row, col, item)
 
-        if 0 <= current_row < self.missions_table.rowCount():
-            self.missions_table.selectRow(current_row)
-        else:
-            self._mission_selection_changed()
+            apply_sort(self.missions_table)
+            for row in range(self.missions_table.rowCount()):
+                mission = self.missions_table.item(row, 0).mission
+                if same_commander and ((selected_id is not None and mission.mission_id == selected_id)
+                                       or (selected_mission is not None and mission is selected_mission)):
+                    self.missions_table.selectRow(row)
+                    break
+        finally:
+            self.missions_table.blockSignals(blocked)
+        self._mission_selection_changed()

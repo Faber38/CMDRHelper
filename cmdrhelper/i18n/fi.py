@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_13.0": "PP2-järjestelmähallinta: neljä värialuetta tiloille Miehittämätön, Hyödynnetty, Linnoitettu ja Tukikohta; valkoinen kolmio näyttää järjestelmän tilan ja keltainen nykyisen syklin edistymisen.",
+    "release.3_9_13.1": "Merkkien sijainnit ovat nimenomaisesti likimääräisiä, eivät vahvistettu Frontier-laskelma. Väli on punainen, kun valkoinen on keltaisen oikealla puolella, ja sininen, kun se on vasemmalla. Vahvistaminen ja heikentäminen näyttävät lokin muuttamattomat arvot CP-yksiköissä.",
+    "release.3_9_13.2": "Oma PP2-konfliktinäkymä miehittämättömille järjestelmille: valtaryhmät konfliktin edistymisjärjestyksessä, suhteelliset palkit ja olemassa olevat muotokuvat. Vahvistetut värit Aisling Duvalille ja Nakato Kainelle, muille neutraali esitys; puuttuvat arvot pysyvät tuntemattomina eikä absoluuttisia konfliktin CP-arvoja ole saatavilla.",
+    "release.3_9_13.3": "Kaikki kaksitoista olemassa olevaa valtaryhmän muotokuvaa ovat käytössä; A. Lavigny-Duval viittaa Arissa Lavigny-Duvaliin. Nykyiset korvaavat esitykset säilyvät.",
+    "release.3_9_13.4": "Tehtävät: kaikkien seitsemän sarakkeen nouseva ja laskeva lajittelu, palkkiot numeroarvon ja määräajat aikajärjestyksen mukaan; lajittelu tallennetaan QSettingsillä.",
+    "release.3_9_13.5": "Tehtävän tiedot pysyvät oikean tehtävän yhteydessä lajittelun ja päivityksen jälkeen; komentajan vaihto tyhjentää edellisen valinnan. Uudet PP2-tekstit ovat saatavilla kaikilla kahdellatoista kielellä.",
     "pp2.history.filtered_merits": "Ansiot suodattimessa: {amount}",
     "favorites.copy_system": "Kopioi järjestelmän nimi",
     "release.3_9_12.0": "Explorer-lisäikkunat: luotettava päivitys ja arvojen lajittelu kaikilla kahdellatoista kielellä.",
@@ -1908,6 +1914,9 @@ TRANSLATIONS.update({
     'pp2.metric.control': 'Hallinnan edistyminen',
     'pp2.metric.reinforcement': 'Vahvistaminen',
     'pp2.metric.undermining': 'Heikentäminen',
+    'pp2.conflict.cp_unavailable': 'CP ei saatavilla',
+    'pp2.conflict.progress': 'Konfliktin edistyminen',
+    'pp2.conflict.relative_help': 'Lokin raaka-arvojen suhteellinen vertailu: suurin saatavilla oleva arvo täyttää palkin. Ei hallintakynnystä eikä CP-muunnosta.',
     'pp2.metric.conflict': 'Konfliktin edistyminen — {power}',
     'pp2.actions_for': 'MITÄ VOIN TEHDÄ TÄÄLLÄ VALLAN {power} HYVÄKSI?',
     'pp2.actions': 'MITÄ VOIN TEHDÄ TÄÄLLÄ?',
@@ -2132,3 +2141,10 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS['pp2.history.from_time'] = 'Alkaen klo (paikallista aikaa)'
+
+# Approximate PP2 system-control diagram.
+TRANSLATIONS.update({
+    'pp2.system.status_marker': 'Järjestelmän tila',
+    'pp2.system.cycle_marker': 'Nykyisen jakson edistyminen',
+    'pp2.system.approximation': 'Merkkien sijainnit ovat likimääräisiä, eivät vahvistettu peliasteikko. CP-arvot ovat lokin muuttamattomia arvoja.',
+})

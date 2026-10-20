@@ -365,8 +365,8 @@ class PowerplayViewTests(unittest.TestCase):
         self.view.render()
         self.assertNotIn('\n',self.view.metrics.text())
         self.assertIn('0,25',self.view.metrics.text())
-        self.assertEqual(self.view.system_presentation.strengths['reinforcement'].text(),'12.345')
-        self.assertEqual(self.view.system_presentation.strengths['undermining'].text(),'6.789')
+        self.assertEqual(self.view.system_presentation.strengths['reinforcement'].text(),'12.345 CP')
+        self.assertEqual(self.view.system_presentation.strengths['undermining'].text(),'6.789 CP')
 
     def test_shared_themes_do_not_force_horizontal_page_scrolling(self):
         from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
@@ -407,7 +407,7 @@ class PowerplayViewTests(unittest.TestCase):
             self.assertEqual(self.view.system_labels['status'].text(), text)
         self.state.powerplay.system['PowerplayState'] = 'Exploited'
         self.view.render()
-        self.assertEqual(self.view.system_presentation.strengths['reinforcement'].text(),'0')
+        self.assertEqual(self.view.system_presentation.strengths['reinforcement'].text(),'0 CP')
 
     def test_activities_are_selected_from_actual_power(self):
         self.assertIn('Kopfgeldjagd', self.view.actions.text())

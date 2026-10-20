@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_13.0": "Controllo dei sistemi PP2: quattro aree colorate per Non occupato, Sfruttato, Fortificato e Roccaforte; triangolo bianco per lo stato del sistema e giallo per il progresso del ciclo attuale.",
+    "release.3_9_13.1": "Le posizioni dei marcatori sono esplicitamente approssimative, senza un calcolo Frontier confermato. L’intervallo è rosso quando il bianco è a destra del giallo e blu quando è a sinistra. Rafforzamento e indebolimento mostrano i valori invariati del journal in CP.",
+    "release.3_9_13.2": "Vista dei conflitti PP2 dedicata ai sistemi non occupati: potenze ordinate per progresso, con barre relative e ritratti esistenti. Colori confermati per Aisling Duval e Nakato Kaine, altrimenti stile neutro; i valori mancanti restano sconosciuti e i CP assoluti del conflitto non sono disponibili.",
+    "release.3_9_13.3": "Sono utilizzati tutti i dodici ritratti delle potenze esistenti; A. Lavigny-Duval corrisponde ad Arissa Lavigny-Duval. Restano disponibili le visualizzazioni sostitutive.",
+    "release.3_9_13.4": "Missioni: tutte le sette colonne ordinabili in senso crescente e decrescente, ricompense numericamente e scadenze cronologicamente; ordinamento salvato tramite QSettings.",
+    "release.3_9_13.5": "I dettagli restano associati alla missione corretta dopo ordinamento e aggiornamento; cambiare comandante cancella la selezione precedente. I nuovi testi PP2 sono disponibili in tutte le dodici lingue.",
     "pp2.history.filtered_merits": "Meriti nel filtro: {amount}",
     "favorites.copy_system": "Copia il nome del sistema",
     "release.3_9_12.0": "Finestre aggiuntive Explorer: aggiornamento e ordinamento per valore affidabili in tutte le dodici lingue.",
@@ -2031,6 +2037,9 @@ TRANSLATIONS.update({
     'pp2.metric.control': 'Avanzamento del controllo',
     'pp2.metric.reinforcement': 'Rafforzamento',
     'pp2.metric.undermining': 'Indebolimento',
+    'pp2.conflict.cp_unavailable': 'CP non disponibili',
+    'pp2.conflict.progress': 'Progresso del conflitto',
+    'pp2.conflict.relative_help': 'Confronto relativo dei valori grezzi del diario: il valore disponibile più alto riempie la barra. Nessuna soglia di controllo o conversione in CP.',
     'pp2.metric.conflict': 'Avanzamento del conflitto — {power}',
     'pp2.actions_for': 'COSA POSSO FARE QUI PER {power}?',
     'pp2.actions': 'COSA POSSO FARE QUI?',
@@ -2255,3 +2264,10 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS['pp2.history.from_time'] = 'Dalle ore (ora locale)'
+
+# Approximate PP2 system-control diagram.
+TRANSLATIONS.update({
+    'pp2.system.status_marker': 'Stato del sistema',
+    'pp2.system.cycle_marker': 'Progresso del ciclo attuale',
+    'pp2.system.approximation': 'Le posizioni degli indicatori sono approssimative, non una scala di gioco confermata. I valori CP del diario restano invariati.',
+})

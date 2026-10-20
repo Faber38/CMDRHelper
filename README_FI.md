@@ -38,6 +38,15 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.13
+
+- PP2-järjestelmähallinta: neljä värialuetta tiloille Miehittämätön, Hyödynnetty, Linnoitettu ja Tukikohta; valkoinen kolmio näyttää järjestelmän tilan ja keltainen nykyisen syklin edistymisen.
+- Merkkien sijainnit ovat nimenomaisesti likimääräisiä, eivät vahvistettu Frontier-laskelma. Väli on punainen, kun valkoinen on keltaisen oikealla puolella, ja sininen, kun se on vasemmalla. Vahvistaminen ja heikentäminen näyttävät lokin muuttamattomat arvot CP-yksiköissä.
+- Oma PP2-konfliktinäkymä miehittämättömille järjestelmille: valtaryhmät konfliktin edistymisjärjestyksessä, suhteelliset palkit ja olemassa olevat muotokuvat. Vahvistetut värit Aisling Duvalille ja Nakato Kainelle, muille neutraali esitys; puuttuvat arvot pysyvät tuntemattomina eikä absoluuttisia konfliktin CP-arvoja ole saatavilla.
+- Kaikki kaksitoista olemassa olevaa valtaryhmän muotokuvaa ovat käytössä; A. Lavigny-Duval viittaa Arissa Lavigny-Duvaliin. Nykyiset korvaavat esitykset säilyvät.
+- Tehtävät: kaikkien seitsemän sarakkeen nouseva ja laskeva lajittelu, palkkiot numeroarvon ja määräajat aikajärjestyksen mukaan; lajittelu tallennetaan QSettingsillä.
+- Tehtävän tiedot pysyvät oikean tehtävän yhteydessä lajittelun ja päivityksen jälkeen; komentajan vaihto tyhjentää edellisen valinnan. Uudet PP2-tekstit ovat saatavilla kaikilla kahdellatoista kielellä.
+
 ## CMDRHelper v3.9.12
 
 - Explorer-lisäikkunat: luotettava päivitys ja arvojen lajittelu kaikilla kahdellatoista kielellä.
