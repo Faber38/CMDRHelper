@@ -365,6 +365,19 @@ class PowerplayView(QScrollArea):
             self.personal_grid.removeWidget(self.personal_info)
             self.personal_grid.addWidget(self.personal_info, 1 if stacked else 0,
                                          0 if stacked else 1, 1, 2 if stacked else 1)
+        conflict_wide = wide and len(self.system_presentation.conflict_rows) >= 3
+        self.system_presentation.arrange_conflicts(conflict_wide)
+        # Give this existing card the free width BELOW advice and cargo. The
+        # layout reserves their full height, including long translated content.
+        spanning = self.columns.indexOf(self.system_card) >= 0
+        if spanning != conflict_wide:
+            if conflict_wide:
+                self.left_column.layout().removeWidget(self.system_card)
+                self.columns.addWidget(self.system_card, 1, 0, 1, 2)
+            else:
+                self.columns.removeWidget(self.system_card)
+                self.left_column.layout().addWidget(self.system_card)
+            self.system_card.show()
         if wide == self._two_columns:
             return
         self._two_columns = wide
@@ -522,6 +535,7 @@ class PowerplayView(QScrollArea):
         self.cargo.setText("\n\n".join(cargo_rows) or tr(
             "pp2.cargo_unknown" if inventory is None else "pp2.cargo_empty"))
         self._render_chronicle(data, locale, fmt, unknown)
+        self._arrange_columns()
 
     def _render_rank(self, data, powers, locale, fmt):
         progress = rank_progress(data.power, data.rank, data.merits, powers)

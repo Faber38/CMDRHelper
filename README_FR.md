@@ -38,6 +38,12 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.9.15
+
+- Cartes de conflit PP2 plus compactes pour les systèmes inoccupés : portraits, barres et espacements réduits d’environ 25 % ; texte réduit de 12 à 10 pixels pour préserver la lisibilité.
+- À partir de trois puissances participantes et avec une fenêtre assez large, les deux premières apparaissent à gauche et toutes les autres à droite. Une fenêtre étroite ou deux puissances au maximum conservent une seule colonne.
+- La carte système existante utilise la largeur sous les conseils d’action et les articles à bord sans les masquer. Les deux colonnes de conflit commencent à la même hauteur et occupent moins d’espace vertical ; tous les participants restent visibles.
+
 ## CMDRHelper v3.9.14
 
 - Vue des conflits PP2 remaniée pour les systèmes inoccupés : portraits existants agrandis, nom de la puissance et points de contrôle dans une disposition adaptative ; tri par progression et couleurs existantes conservés.

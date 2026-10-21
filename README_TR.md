@@ -39,6 +39,12 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.15
+
+- İşgal edilmemiş sistemler için daha kompakt PP2 çatışma kartları: portreler, çubuklar ve aralıklar yaklaşık %25 daha küçük; okunabilirliği korumak için metin 12 pikselden 10 piksele küçültüldü.
+- En az üç katılımcı güç ve yeterli pencere genişliği olduğunda öndeki iki güç solda, diğer tüm güçler sağda görünür. Dar pencerelerde veya en fazla iki güç olduğunda tek sütun korunur.
+- Mevcut sistem kartı, eylem önerileri ve gemideki malzemelerin altındaki genişliği bunları örtmeden kullanır. İki çatışma sütunu aynı yükseklikte başlar ve daha az dikey alan kaplar; tüm katılımcılar görünür kalır.
+
 ## CMDRHelper v3.9.14
 
 - İşgal edilmemiş sistemler için PP2 çatışma görünümü yenilendi: daha büyük mevcut güç portreleri, uyarlanabilir düzende güç adı ve kontrol puanları; ilerleme sıralaması ve mevcut güç renkleri korunur.

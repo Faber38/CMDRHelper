@@ -1,4 +1,7 @@
 TRANSLATIONS = {
+    'release.3_9_15.0': "More compact PP2 conflict cards for unoccupied systems: portraits, bars and spacing are about 25% smaller; text is reduced from 12 to 10 pixels to retain readability.",
+    'release.3_9_15.1': "With at least three participating powers and sufficient window width, the two leading powers appear on the left and all others on the right. Narrow windows and up to two powers retain a single column.",
+    'release.3_9_15.2': "The existing system card uses the width below action advice and onboard articles without covering them. Both conflict columns start at the same height and use less vertical space; all participants remain visible.",
     'release.3_9_14.0': "Reworked PP2 conflict view for unoccupied systems: larger existing power portraits, power name and control points in a responsive layout; progress sorting and existing power colors are retained.",
     'release.3_9_14.1': "Conflict control points as an empirically supported approximation: CP ≈ ConflictProgress × 120000. The bar uses an assumed scale from 0 to 180000 CP, capped at 100%; missing values remain unknown.",
     'release.3_9_14.2': "Dashed conflict markers at 36000 CP (20%) and 120000 CP (66.67%), with symbols and translated tooltips. The boundaries and bar scale are not confirmed official game constants; crossing a marker does not change system status.",

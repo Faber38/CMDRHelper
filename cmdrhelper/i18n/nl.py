@@ -1,4 +1,7 @@
 TRANSLATIONS = {
+    'release.3_9_15.0': "Compactere PP2-conflictkaarten voor onbezette systemen: portretten, balken en afstanden zijn ongeveer 25% kleiner; tekst is verkleind van 12 naar 10 pixels om de leesbaarheid te behouden.",
+    'release.3_9_15.1': "Bij minstens drie deelnemende machten en voldoende vensterbreedte staan de twee leidende machten links en alle overige rechts. Smalle vensters en maximaal twee machten behouden één kolom.",
+    'release.3_9_15.2': "De bestaande systeemkaart gebruikt de breedte onder actieadvies en artikelen aan boord zonder deze te bedekken. Beide conflictkolommen beginnen op dezelfde hoogte en nemen minder verticale ruimte in; alle deelnemers blijven zichtbaar.",
     'release.3_9_14.0': "Vernieuwde PP2-conflictweergave voor onbezette systemen: grotere bestaande machtportretten, machtnaam en controlepunten in een aanpasbare indeling; sortering op voortgang en bestaande machtkleuren blijven behouden.",
     'release.3_9_14.1': "Controlepunten voor conflicten als empirisch ondersteunde benadering: CP ≈ ConflictProgress × 120000. De balk gebruikt een aangenomen schaal van 0 tot 180000 CP, begrensd op 100%; ontbrekende waarden blijven onbekend.",
     'release.3_9_14.2': "Gestippelde conflictmarkeringen bij 36000 CP (20%) en 120000 CP (66,67%), met symbolen en vertaalde tooltips. Grenzen en balkschaal zijn geen bevestigde officiële spelconstanten; het passeren van een markering verandert de systeemstatus niet.",

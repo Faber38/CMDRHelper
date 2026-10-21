@@ -38,6 +38,12 @@ Der Journalordner von Elite Dangerous wird nach Möglichkeit automatisch erkannt
 
 CMDRHelper prüft beim Start auf Updates und besitzt einen integrierten Updater. Bestätige ein angebotenes Update im Programm; es aktualisiert Programm und Abhängigkeiten und startet CMDRHelper neu. Nach der Erstinstallation genügt normalerweise `start.bat` (Windows) beziehungsweise `bash start.sh` (Linux). Für normale Updates musst du `install.bat` oder `install.sh` nicht erneut manuell ausführen.
 
+## CMDRHelper v3.9.15
+
+- Kompaktere PP2-Konfliktkarten für nicht besetzte Systeme: Porträts, Balken und Abstände ungefähr 25 % kleiner; Schrift für bessere Lesbarkeit von 12 auf 10 Pixel reduziert.
+- Ab drei beteiligten Mächten und ausreichender Fensterbreite stehen die zwei führenden Mächte links, alle weiteren rechts. Bei schmalen Fenstern oder höchstens zwei Mächten bleibt die Darstellung einspaltig.
+- Die bestehende Systemkarte nutzt die Breite unter Aktionshinweisen und Bordartikeln, ohne diese zu verdecken. Beide Konfliktspalten beginnen bündig und benötigen weniger Höhe; alle Teilnehmer bleiben sichtbar.
+
 ## CMDRHelper v3.9.14
 
 - PP2-Konfliktansicht für nicht besetzte Systeme überarbeitet: größere vorhandene Machtporträts, Machtname und Kontrollpunkte in einem responsiven Layout; Fortschrittssortierung und vorhandene Machtfarben bleiben erhalten.

@@ -1,4 +1,7 @@
 TRANSLATIONS = {
+    'release.3_9_15.0': "Bardziej kompaktowe karty konfliktów PP2 dla nieokupowanych systemów: portrety, paski i odstępy są mniejsze o około 25%; tekst zmniejszono z 12 do 10 pikseli, aby zachować czytelność.",
+    'release.3_9_15.1': "Przy co najmniej trzech uczestniczących potęgach i odpowiedniej szerokości okna dwie prowadzące potęgi są po lewej, a wszystkie pozostałe po prawej. Wąskie okna i najwyżej dwie potęgi zachowują jedną kolumnę.",
+    'release.3_9_15.2': "Istniejąca karta systemu wykorzystuje szerokość pod wskazówkami działań i artykułami na pokładzie, nie zasłaniając ich. Obie kolumny konfliktu zaczynają się na tej samej wysokości i zajmują mniej miejsca w pionie; wszyscy uczestnicy pozostają widoczni.",
     'release.3_9_14.0': "Przebudowany widok konfliktów PP2 dla nieokupowanych systemów: większe istniejące portrety potęg, nazwa i punkty kontroli w elastycznym układzie; zachowano sortowanie według postępu i dotychczasowe kolory.",
     'release.3_9_14.1': "Punkty kontroli konfliktu jako przybliżenie poparte obserwacjami: CP ≈ ConflictProgress × 120000. Pasek używa zakładanej skali od 0 do 180000 CP, ograniczonej do 100%; brakujące wartości pozostają nieznane.",
     'release.3_9_14.2': "Przerywane znaczniki przy 36000 CP (20%) i 120000 CP (66,67%), z symbolami i przetłumaczonymi podpowiedziami. Granice i skala nie są potwierdzonymi oficjalnymi stałymi gry; przekroczenie znacznika nie zmienia statusu systemu.",

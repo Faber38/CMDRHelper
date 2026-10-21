@@ -1,4 +1,7 @@
 TRANSLATIONS = {
+    'release.3_9_15.0': "Cartes de conflit PP2 plus compactes pour les systèmes inoccupés : portraits, barres et espacements réduits d’environ 25 % ; texte réduit de 12 à 10 pixels pour préserver la lisibilité.",
+    'release.3_9_15.1': "À partir de trois puissances participantes et avec une fenêtre assez large, les deux premières apparaissent à gauche et toutes les autres à droite. Une fenêtre étroite ou deux puissances au maximum conservent une seule colonne.",
+    'release.3_9_15.2': "La carte système existante utilise la largeur sous les conseils d’action et les articles à bord sans les masquer. Les deux colonnes de conflit commencent à la même hauteur et occupent moins d’espace vertical ; tous les participants restent visibles.",
     'release.3_9_14.0': "Vue des conflits PP2 remaniée pour les systèmes inoccupés : portraits existants agrandis, nom de la puissance et points de contrôle dans une disposition adaptative ; tri par progression et couleurs existantes conservés.",
     'release.3_9_14.1': "Points de contrôle de conflit estimés sur une base empirique : CP ≈ ConflictProgress × 120000. La barre utilise une échelle supposée de 0 à 180000 CP, plafonnée à 100 % ; les valeurs manquantes restent inconnues.",
     'release.3_9_14.2': "Repères de conflit en pointillés à 36000 CP (20 %) et 120000 CP (66,67 %), avec symboles et infobulles traduites. Les limites et l’échelle ne sont pas des constantes officielles confirmées du jeu ; franchir un repère ne change pas le statut du système.",

@@ -38,6 +38,12 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## CMDRHelper v3.9.15
+
+- Schede dei conflitti PP2 più compatte per i sistemi non occupati: ritratti, barre e spaziature ridotti di circa il 25%; testo ridotto da 12 a 10 pixel per mantenere la leggibilità.
+- Con almeno tre potenze partecipanti e una finestra abbastanza larga, le due potenze in testa compaiono a sinistra e tutte le altre a destra. Le finestre strette e un massimo di due potenze mantengono una sola colonna.
+- La scheda del sistema esistente utilizza la larghezza sotto i consigli sulle azioni e gli articoli a bordo senza coprirli. Le due colonne del conflitto iniziano alla stessa altezza e occupano meno spazio verticale; tutti i partecipanti restano visibili.
+
 ## CMDRHelper v3.9.14
 
 - Vista dei conflitti PP2 rinnovata per i sistemi non occupati: ritratti esistenti delle potenze più grandi, nome e punti di controllo in una disposizione adattabile; ordinamento per progresso e colori esistenti conservati.

@@ -38,6 +38,12 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.15
+
+- Tiivistetyt PP2-konfliktikortit miehittämättömille järjestelmille: muotokuvat, palkit ja välit ovat noin 25 % pienempiä; teksti pienennetään 12 pikselistä 10 pikseliin luettavuuden säilyttämiseksi.
+- Kun mukana on vähintään kolme valtaa ja ikkuna on riittävän leveä, kaksi johtavaa valtaa näkyvät vasemmalla ja kaikki muut oikealla. Kapeissa ikkunoissa tai enintään kahdella vallalla säilyy yksi sarake.
+- Nykyinen järjestelmäkortti käyttää toimintavinkkien ja aluksella olevien tavaroiden alapuolista leveyttä peittämättä niitä. Molemmat konfliktisarakkeet alkavat samalta korkeudelta ja vievät vähemmän pystysuuntaista tilaa; kaikki osallistujat pysyvät näkyvissä.
+
 ## CMDRHelper v3.9.14
 
 - Uudistettu PP2-konfliktinäkymä miehittämättömille järjestelmille: suuremmat nykyiset valtakuvat, vallan nimi ja hallintapisteet mukautuvassa asettelussa; edistymisjärjestys ja nykyiset värit säilyvät.

@@ -119,3 +119,13 @@ Die neue Zuordnung in `RELEASE_SUMMARIES` erhält alle älteren Releaseeinträge
 Das Updatefenster zeigt die sechs kurzen, benutzerorientierten Hinweise ohne
 technische Interna. Die integrierte Hilfe bleibt unverändert; Catch-up-Mechanik,
 stille Chronik-Kopierfunktion und Tab-Darstellungsfix benötigen keinen Hilfetext.
+
+## 3.9.15
+
+Drei neue Hinweise in allen zwölf Sprachen (`release.3_9_15.0` bis `.2`):
+kompaktere PP2-Konfliktkarten, zwei Spalten ab drei Mächten bei ausreichender
+Breite und Nutzung der Systemkartenbreite unter Aktionshinweisen/Bordartikeln.
+`RELEASE_SUMMARIES["3.9.15"]` liefert dieselben Texte für README, GitHub-Release
+und Updater. Historische Einträge bleiben erhalten. CP-Berechnung und andere
+v3.9.14-Funktionen werden nicht erneut als Neuerungen aufgeführt.
+Details: [Release 3.9.15](release-3.9.15.md).

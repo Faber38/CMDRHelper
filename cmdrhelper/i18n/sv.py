@@ -1,4 +1,7 @@
 TRANSLATIONS = {
+    'release.3_9_15.0': "Mer kompakta PP2-konfliktkort för obesatta system: porträtt, staplar och avstånd är ungefär 25 % mindre; texten minskas från 12 till 10 pixlar för att behålla läsbarheten.",
+    'release.3_9_15.1': "Med minst tre deltagande makter och tillräcklig fönsterbredd visas de två ledande makterna till vänster och alla övriga till höger. Smala fönster och högst två makter behåller en enda kolumn.",
+    'release.3_9_15.2': "Det befintliga systemkortet använder bredden under handlingsråd och artiklar ombord utan att täcka dem. Båda konfliktkolumnerna börjar på samma höjd och tar mindre vertikalt utrymme; alla deltagare förblir synliga.",
     'release.3_9_14.0': "Omarbetad PP2-konfliktvy för obesatta system: större befintliga maktporträtt, maktnamn och kontrollpoäng i en anpassningsbar layout; sortering efter framsteg och befintliga maktfärger behålls.",
     'release.3_9_14.1': "Kontrollpoäng i konflikter som en empiriskt stödd uppskattning: CP ≈ ConflictProgress × 120000. Stapeln använder en antagen skala från 0 till 180000 CP, begränsad till 100 %; saknade värden förblir okända.",
     'release.3_9_14.2': "Streckade konfliktmarkeringar vid 36000 CP (20 %) och 120000 CP (66,67 %), med symboler och översatta verktygstips. Gränserna och skalan är inte bekräftade officiella spelkonstanter; en passerad markering ändrar inte systemstatus.",

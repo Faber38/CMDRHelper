@@ -38,6 +38,12 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.9.15
+
+- More compact PP2 conflict cards for unoccupied systems: portraits, bars and spacing are about 25% smaller; text is reduced from 12 to 10 pixels to retain readability.
+- With at least three participating powers and sufficient window width, the two leading powers appear on the left and all others on the right. Narrow windows and up to two powers retain a single column.
+- The existing system card uses the width below action advice and onboard articles without covering them. Both conflict columns start at the same height and use less vertical space; all participants remain visible.
+
 ## CMDRHelper v3.9.14
 
 - Reworked PP2 conflict view for unoccupied systems: larger existing power portraits, power name and control points in a responsive layout; progress sorting and existing power colors are retained.

@@ -62,6 +62,65 @@ class ConflictViewTests(unittest.TestCase):
         self.view.render()
         return self.view.system_presentation
 
+    def settle(self):
+        for _ in range(6):
+            self.app.processEvents()
+
+    def test_participant_counts_and_repeated_width_transitions(self):
+        self.state.powerplay.power = 'Absent Power'
+        for count in (1, 2, 3, 5, 8, 2, 5):
+            names = ['Power ' + str(i) for i in range(count)]
+            display = self.render_event(dict(REAL, Powers=names,
+                PowerplayConflictProgress=[dict(Power=p, ConflictProgress=i / 10)
+                                           for i, p in enumerate(names)]))
+            for width in (1200, 480, 360, 1200):
+                self.view.resize(width, 1000)
+                self.settle()
+                wide = count >= 3 and width == 1200
+                with self.subTest(count=count, width=width):
+                    self.assertEqual(display.conflict_two_columns, wide)
+                    self.assertEqual([r.power for r in display.conflict_rows], names[::-1])
+                    self.assertEqual(display.secondary_layout.count(), count - 2 if wide else 0)
+                    self.assertEqual(self.view.horizontalScrollBar().maximum(), 0)
+                    self.assertTrue(display.own_power_row.isVisible())
+                    self.assertTrue(self.view.recent_section.isVisible())
+                    for index, row in enumerate(display.conflict_rows):
+                        self.assertTrue(row.isVisible())
+                        self.assertIs(row.parentWidget(), display.conflict_right
+                                      if wide and index >= 2 else display.conflict_left)
+                        for text in (row.name, row.cp, row.value):
+                            self.assertGreaterEqual(text.height(), text.heightForWidth(text.width()))
+                            self.assertTrue(text.parentWidget().rect().contains(text.geometry()))
+                        self.assertEqual(row.bar.height(), 18)
+                        self.assertEqual(row.portrait.height(), 48 if wide and index >= 2 else 60)
+                    if wide:
+                        self.assertEqual(display.conflict_left.y(), display.conflict_right.y())
+                        self.assertEqual(display.conflict_rows[0].y(), display.conflict_rows[2].y())
+                    else:
+                        self.assertIs(self.view.system_card.parentWidget(), self.view.left_column)
+
+    def test_right_content_reserved_and_chronicle_moves_up(self):
+        display = self.render_event(REAL)
+        self.view.resize(1200, 1000)
+        self.view.actions.setText('Useful advice ' * 150)
+        self.view.cargo.setText('Onboard articles ' * 100)
+        self.settle()
+        origin = self.view.widget()
+        def bounds(widget):
+            return widget.rect().translated(widget.mapTo(origin, QPoint(0, 0)))
+        for widget in (self.view.action_section, self.view.cargo_card, self.view.personal_card):
+            self.assertTrue(widget.isVisible())
+            self.assertFalse(bounds(widget).intersects(bounds(self.view.system_card)))
+            self.assertLess(bounds(widget).bottom(), bounds(self.view.system_card).top())
+        self.assertLess(bounds(self.view.system_card).bottom(), bounds(self.view.recent_section).top())
+        two_column_height = display.conflicts.height()
+        display.arrange_conflicts(False)
+        self.settle()
+        self.assertGreater(display.conflicts.height(), two_column_height)
+        display.arrange_conflicts(True)
+        self.settle()
+        self.assertEqual(display.conflicts.height(), two_column_height)
+
     def test_original_portraits_values_cp_and_snapshot_unchanged(self):
         before = deepcopy(REAL)
         display = self.render_event(REAL)
@@ -127,7 +186,9 @@ class ConflictViewTests(unittest.TestCase):
                 display = self.render_event(REAL)
                 for width in (480, 1200):
                     self.view.resize(width, 1000)
-                    self.app.processEvents()
+                    # Reparenting the existing card queues another layout pass.
+                    for _ in range(5):
+                        self.app.processEvents()
                     with self.subTest(language=language, width=width):
                         self.assertEqual(self.view.horizontalScrollBar().maximum(), 0)
                         self.assertEqual(display.own_power_row.value.text(), i18n.tr('pp2.conflict.no_presence'))
@@ -136,6 +197,9 @@ class ConflictViewTests(unittest.TestCase):
                         for row in display.conflict_rows:
                             self.assertGreater(row.bar.width(), 0)
                             self.assertLessEqual(row.geometry().right(), display.conflicts.width())
+                            for text in (row.name, row.cp, row.value):
+                                self.assertGreaterEqual(text.height(), text.heightForWidth(text.width()))
+                                self.assertTrue(text.parentWidget().rect().contains(text.geometry()))
                             self.assertTrue(row.cp.text().startswith('≈ '))
                             self.assertIn(repr(row.progress), row.bar.toolTip())
                         self.assertFalse(display.grab().isNull())  # In memory only.
@@ -178,7 +242,9 @@ class ConflictViewTests(unittest.TestCase):
                                lambda v: locale.toString(v) if type(v) is int else locale.toString(v, 'g', 7))
                 for width in (240, 300, 360):
                     display.resize(width, max(display.sizeHint().height(), display.heightForWidth(width)))
-                    self.app.processEvents()
+                    # Reparenting the existing card queues another layout pass.
+                    for _ in range(5):
+                        self.app.processEvents()
                     with self.subTest(language=language, width=width):
                         self.assertEqual(display.width(), width)
                         for row in display.conflict_rows:
@@ -359,7 +425,7 @@ class ConflictViewTests(unittest.TestCase):
                 self.assertAlmostEqual(x / (width - 1), fraction)
                 # Verify actual white painted dashes rather than just the formula.
                 colors = [image.pixelColor(px, y) for px in range(round(x)-1, round(x)+2)
-                          for y in range(2, 22)]
+                          for y in range(2, image.height() - 2)]
                 self.assertTrue(any(min(c.red(), c.green(), c.blue()) > 200 for c in colors))
                 point = QPoint(round(x), 10)
                 event = QHelpEvent(QEvent.ToolTip, point, row.bar.mapToGlobal(point))
@@ -379,7 +445,7 @@ class ConflictViewTests(unittest.TestCase):
             for _, fraction, _ in CONFLICT_MARKERS:
                 x = round(conflict_marker_x(image.width(), fraction))
                 colors = [image.pixelColor(px, y) for px in range(x - 1, x + 2)
-                          for y in range(2, 22)]
+                          for y in range(2, image.height() - 2)]
                 self.assertTrue(any(min(c.red(), c.green(), c.blue()) > 200 for c in colors))
             self.assertTrue(row.thresholds.isVisible())
             self.assertTrue(all(icon.isVisible() for icon in row.thresholds.symbols))

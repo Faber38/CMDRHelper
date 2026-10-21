@@ -1,4 +1,7 @@
 TRANSLATIONS = {
+    'release.3_9_15.0': "İşgal edilmemiş sistemler için daha kompakt PP2 çatışma kartları: portreler, çubuklar ve aralıklar yaklaşık %25 daha küçük; okunabilirliği korumak için metin 12 pikselden 10 piksele küçültüldü.",
+    'release.3_9_15.1': "En az üç katılımcı güç ve yeterli pencere genişliği olduğunda öndeki iki güç solda, diğer tüm güçler sağda görünür. Dar pencerelerde veya en fazla iki güç olduğunda tek sütun korunur.",
+    'release.3_9_15.2': "Mevcut sistem kartı, eylem önerileri ve gemideki malzemelerin altındaki genişliği bunları örtmeden kullanır. İki çatışma sütunu aynı yükseklikte başlar ve daha az dikey alan kaplar; tüm katılımcılar görünür kalır.",
     'release.3_9_14.0': "İşgal edilmemiş sistemler için PP2 çatışma görünümü yenilendi: daha büyük mevcut güç portreleri, uyarlanabilir düzende güç adı ve kontrol puanları; ilerleme sıralaması ve mevcut güç renkleri korunur.",
     'release.3_9_14.1': "Çatışma kontrol puanları deneysel olarak desteklenen bir yaklaşım olarak hesaplanır: CP ≈ ConflictProgress × 120000. Çubuk, 0 ile 180000 CP arasında varsayımsal bir ölçek kullanır ve %100 ile sınırlıdır; eksik değerler bilinmiyor olarak kalır.",
     'release.3_9_14.2': "36000 CP (%20) ve 120000 CP (%66,67) konumlarında kesikli işaretler, simgeler ve çevrilmiş araç ipuçları. Sınırlar ve ölçek doğrulanmış resmî oyun sabitleri değildir; bir işaretin aşılması sistem durumunu değiştirmez.",

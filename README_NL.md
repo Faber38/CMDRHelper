@@ -38,6 +38,12 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## CMDRHelper v3.9.15
+
+- Compactere PP2-conflictkaarten voor onbezette systemen: portretten, balken en afstanden zijn ongeveer 25% kleiner; tekst is verkleind van 12 naar 10 pixels om de leesbaarheid te behouden.
+- Bij minstens drie deelnemende machten en voldoende vensterbreedte staan de twee leidende machten links en alle overige rechts. Smalle vensters en maximaal twee machten behouden één kolom.
+- De bestaande systeemkaart gebruikt de breedte onder actieadvies en artikelen aan boord zonder deze te bedekken. Beide conflictkolommen beginnen op dezelfde hoogte en nemen minder verticale ruimte in; alle deelnemers blijven zichtbaar.
+
 ## CMDRHelper v3.9.14
 
 - Vernieuwde PP2-conflictweergave voor onbezette systemen: grotere bestaande machtportretten, machtnaam en controlepunten in een aanpasbare indeling; sortering op voortgang en bestaande machtkleuren blijven behouden.

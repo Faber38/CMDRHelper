@@ -244,12 +244,12 @@ class ConflictMarkers(QWidget):
         # Separate text slots, so long translations never collide.
         split = round(sum(xs) / 2)
         slots = ((0, split), (split, width - split))
-        height = max(20, self.fontMetrics().height() + 2)
+        height = max(15, self.fontMetrics().height() + 2)
         self.compact = any(text.sizeHint().width() + 8 > span
                            for text, (_, span) in zip(self.captions, slots))
         self.setFixedHeight(height if self.compact else height * 2)
         for icon, text, x, (left, span) in zip(self.symbols, self.captions, xs, slots):
-            icon_width = min(20, max(0, width))
+            icon_width = min(15, max(0, width))
             icon.setGeometry(max(0, min(width - icon_width, round(x - icon_width / 2))),
                              0, icon_width, height)
             text_width = min(span, text.sizeHint().width() + 8)
@@ -285,24 +285,25 @@ class ConflictRow(QFrame):
         self.progress = progress if nonnegative(progress) else None
         self.present = present
         self.power_color = CONFLICT_COLORS.get(portrait_key(power))
-        self.setStyleSheet('QFrame#pp2ConflictRow { border: 1px solid palette(mid); border-radius: 6px; }')
+        self.setStyleSheet('QFrame#pp2ConflictRow { border: 1px solid palette(mid); border-radius: 4px; }'
+                           'QFrame#pp2ConflictRow QLabel { font-size: 10px; }')
         layout = QGridLayout(self)
-        layout.setContentsMargins(10, 10, 10, 10)
-        layout.setHorizontalSpacing(12)
-        layout.setVerticalSpacing(8)
+        layout.setContentsMargins(7, 7, 7, 7)
+        layout.setHorizontalSpacing(9)
+        layout.setVerticalSpacing(6)
         self.portrait = PowerPortrait()
-        self.portrait.setFixedSize(60, 80)
+        self.portrait.setFixedSize(45, 60)
         self.portrait.set_power(power)
         layout.addWidget(self.portrait, 0, 0, 2, 1, Qt.AlignTop)
         self.header = QWidget()
         self.header_layout = QGridLayout(self.header)
         self.header_layout.setContentsMargins(0, 0, 0, 0)
-        self.header_layout.setHorizontalSpacing(8)
-        self.header_layout.setVerticalSpacing(4)
+        self.header_layout.setHorizontalSpacing(6)
+        self.header_layout.setVerticalSpacing(3)
         self.name = label(power)
         self.name.setStyleSheet('font-weight: 600;' +
                                (' color: ' + self.power_color +
-                                '; background-color: #101820; padding: 3px; border-radius: 3px;'
+                                '; background-color: #101820; padding: 2px; border-radius: 3px;'
                                 if self.power_color else ''))
         self.cp_value = approximate_conflict_cp(self.progress) if present else None
         self.cp = label('≈ ' + fmt(self.cp_value) + ' CP' if self.cp_value is not None
@@ -332,7 +333,7 @@ class ConflictRow(QFrame):
             'QProgressBar::chunk { background-color: ' +
             (self.power_color or 'palette(mid)') + '; }')
         self.bar.setTextVisible(False)
-        self.bar.setFixedHeight(24)
+        self.bar.setFixedHeight(18)
         self.bar.setToolTip(help_text)
         self.bar.setAccessibleName(tr('pp2.metric.conflict', power=power))
         self.bar.setAccessibleDescription(self.value.text() + '. ' + self.bar.toolTip())
@@ -352,9 +353,16 @@ class ConflictRow(QFrame):
             layout.addWidget(self.value, 1, 1)
         layout.setColumnStretch(1, 1)
 
+    def set_secondary(self, secondary):
+        # Preserve readable text while making the trailing participants smaller.
+        self.portrait.setFixedSize(36 if secondary else 45, 48 if secondary else 60)
+        margin = 5 if secondary else 7
+        self.layout().setContentsMargins(margin, margin, margin, margin)
+        self.layout().setVerticalSpacing(4 if secondary else 6)
+
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        wide = self.width() >= 460
+        wide = self.header.width() >= self.name.sizeHint().width() + self.cp.sizeHint().width() + 12
         if wide != self._wide_header:
             self._wide_header = wide
             self.header_layout.removeWidget(self.cp)
@@ -410,9 +418,21 @@ class SystemPresentation(QWidget):
         self.metrics=label()
         layout.addWidget(self.metrics)
         self.conflicts = QWidget()
-        self.conflict_layout = QVBoxLayout(self.conflicts)
-        self.conflict_layout.setContentsMargins(0, 0, 0, 0)
-        self.conflict_layout.setSpacing(8)
+        self.conflict_columns = QHBoxLayout(self.conflicts)
+        self.conflict_columns.setContentsMargins(0, 0, 0, 0)
+        self.conflict_columns.setSpacing(9)
+        self.conflict_left = QWidget()
+        self.conflict_right = QWidget()
+        self.conflict_layout = QVBoxLayout(self.conflict_left)
+        self.secondary_layout = QVBoxLayout(self.conflict_right)
+        for column in (self.conflict_layout, self.secondary_layout):
+            column.setContentsMargins(0, 0, 0, 0)
+            column.setSpacing(6)
+            column.setAlignment(Qt.AlignTop)
+        self.conflict_columns.addWidget(self.conflict_left, 1)
+        self.conflict_columns.addWidget(self.conflict_right, 1)
+        self.conflict_right.hide()
+        self.conflict_two_columns = False
         self.conflict_rows = []
         self.own_power_row = None
         layout.addWidget(self.conflicts)
@@ -446,10 +466,11 @@ class SystemPresentation(QWidget):
                 metrics.append(tr('pp2.metric.control')+': '+fmt(value))
         self.controlled.setVisible(status != 'unoccupied')
         self.conflicts.setVisible(status == 'unoccupied')
-        while self.conflict_layout.count():
-            item = self.conflict_layout.takeAt(0)
-            item.widget().hide()
-            item.widget().deleteLater()
+        for column in (self.conflict_layout, self.secondary_layout):
+            while column.count():
+                item = column.takeAt(0)
+                item.widget().hide()
+                item.widget().deleteLater()
         self.conflict_rows = []
         self.own_power_row = None
         if status == 'unoccupied':
@@ -468,3 +489,23 @@ class SystemPresentation(QWidget):
         self.metrics.setText(' · '.join(metrics));self.metrics.setVisible(bool(metrics))
         self.metrics.setToolTip(self.metrics.text() if status=='unoccupied' else
             tr('pp2.system.control_help')+'\nPowerplayStateControlProgress: '+str(system.get('PowerplayStateControlProgress',unknown)))
+
+    def arrange_conflicts(self, wide):
+        """Move the existing rows only; keep own-power information after the leaders."""
+        wide = wide and len(self.conflict_rows) >= 3
+        arrangement = (wide, tuple(self.conflict_rows))
+        if getattr(self, '_conflict_arrangement', None) == arrangement:
+            return
+        self._conflict_arrangement = arrangement
+        self.conflict_two_columns = wide
+        for index, row in enumerate(self.conflict_rows):
+            self.conflict_layout.removeWidget(row)
+            self.secondary_layout.removeWidget(row)
+            secondary = wide and index >= 2
+            row.set_secondary(secondary)
+            if secondary:
+                self.secondary_layout.addWidget(row)
+            else:
+                self.conflict_layout.insertWidget(index, row)
+            row.show()
+        self.conflict_right.setVisible(wide)

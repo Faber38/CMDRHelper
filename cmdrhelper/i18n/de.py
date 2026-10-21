@@ -1,4 +1,7 @@
 TRANSLATIONS = {
+    'release.3_9_15.0': "Kompaktere PP2-Konfliktkarten für nicht besetzte Systeme: Porträts, Balken und Abstände ungefähr 25 % kleiner; Schrift für bessere Lesbarkeit von 12 auf 10 Pixel reduziert.",
+    'release.3_9_15.1': "Ab drei beteiligten Mächten und ausreichender Fensterbreite stehen die zwei führenden Mächte links, alle weiteren rechts. Bei schmalen Fenstern oder höchstens zwei Mächten bleibt die Darstellung einspaltig.",
+    'release.3_9_15.2': "Die bestehende Systemkarte nutzt die Breite unter Aktionshinweisen und Bordartikeln, ohne diese zu verdecken. Beide Konfliktspalten beginnen bündig und benötigen weniger Höhe; alle Teilnehmer bleiben sichtbar.",
     'release.3_9_14.0': "PP2-Konfliktansicht für nicht besetzte Systeme überarbeitet: größere vorhandene Machtporträts, Machtname und Kontrollpunkte in einem responsiven Layout; Fortschrittssortierung und vorhandene Machtfarben bleiben erhalten.",
     'release.3_9_14.1': "Konflikt-Kontrollpunkte als empirisch gestützte Näherung: CP ≈ ConflictProgress × 120000. Die Balkenfüllung verwendet eine angenommene Skala von 0 bis 180000 CP, begrenzt auf 100 %; fehlende Werte bleiben unbekannt.",
     'release.3_9_14.2': "Gestrichelte Konfliktmarkierungen bei 36000 CP (20 %) und 120000 CP (66,67 %), mit Symbolen und übersetzten Tooltips. Grenzen und Balkenskala sind keine bestätigten offiziellen Spielkonstanten; ein Überschreiten ändert keinen Systemstatus.",

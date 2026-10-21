@@ -1,4 +1,7 @@
 TRANSLATIONS = {
+    'release.3_9_15.0': "Schede dei conflitti PP2 più compatte per i sistemi non occupati: ritratti, barre e spaziature ridotti di circa il 25%; testo ridotto da 12 a 10 pixel per mantenere la leggibilità.",
+    'release.3_9_15.1': "Con almeno tre potenze partecipanti e una finestra abbastanza larga, le due potenze in testa compaiono a sinistra e tutte le altre a destra. Le finestre strette e un massimo di due potenze mantengono una sola colonna.",
+    'release.3_9_15.2': "La scheda del sistema esistente utilizza la larghezza sotto i consigli sulle azioni e gli articoli a bordo senza coprirli. Le due colonne del conflitto iniziano alla stessa altezza e occupano meno spazio verticale; tutti i partecipanti restano visibili.",
     'release.3_9_14.0': "Vista dei conflitti PP2 rinnovata per i sistemi non occupati: ritratti esistenti delle potenze più grandi, nome e punti di controllo in una disposizione adattabile; ordinamento per progresso e colori esistenti conservati.",
     'release.3_9_14.1': "Punti di controllo del conflitto come approssimazione supportata empiricamente: CP ≈ ConflictProgress × 120000. La barra usa una scala ipotizzata da 0 a 180000 CP, limitata al 100%; i valori mancanti restano sconosciuti.",
     'release.3_9_14.2': "Indicatori tratteggiati a 36000 CP (20%) e 120000 CP (66,67%), con simboli e suggerimenti tradotti. Limiti e scala non sono costanti ufficiali confermate del gioco; superare un indicatore non cambia lo stato del sistema.",

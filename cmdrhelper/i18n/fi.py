@@ -1,4 +1,7 @@
 TRANSLATIONS = {
+    'release.3_9_15.0': "Tiivistetyt PP2-konfliktikortit miehittämättömille järjestelmille: muotokuvat, palkit ja välit ovat noin 25 % pienempiä; teksti pienennetään 12 pikselistä 10 pikseliin luettavuuden säilyttämiseksi.",
+    'release.3_9_15.1': "Kun mukana on vähintään kolme valtaa ja ikkuna on riittävän leveä, kaksi johtavaa valtaa näkyvät vasemmalla ja kaikki muut oikealla. Kapeissa ikkunoissa tai enintään kahdella vallalla säilyy yksi sarake.",
+    'release.3_9_15.2': "Nykyinen järjestelmäkortti käyttää toimintavinkkien ja aluksella olevien tavaroiden alapuolista leveyttä peittämättä niitä. Molemmat konfliktisarakkeet alkavat samalta korkeudelta ja vievät vähemmän pystysuuntaista tilaa; kaikki osallistujat pysyvät näkyvissä.",
     'release.3_9_14.0': "Uudistettu PP2-konfliktinäkymä miehittämättömille järjestelmille: suuremmat nykyiset valtakuvat, vallan nimi ja hallintapisteet mukautuvassa asettelussa; edistymisjärjestys ja nykyiset värit säilyvät.",
     'release.3_9_14.1': "Konfliktin hallintapisteet empiirisesti tuettuna arviona: CP ≈ ConflictProgress × 120000. Palkki käyttää oletettua asteikkoa 0–180000 CP, enintään 100 %; puuttuvat arvot pysyvät tuntemattomina.",
     'release.3_9_14.2': "Katkoviivamerkit kohdissa 36000 CP (20 %) ja 120000 CP (66,67 %), symbolit ja käännetyt työkaluvihjeet. Rajat ja asteikko eivät ole vahvistettuja virallisia pelivakioita; merkin ylittäminen ei muuta järjestelmän tilaa.",

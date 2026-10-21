@@ -1,4 +1,7 @@
 TRANSLATIONS = {
+    'release.3_9_15.0': "Tarjetas de conflicto PP2 más compactas para sistemas no ocupados: retratos, barras y espacios aproximadamente un 25 % más pequeños; texto reducido de 12 a 10 píxeles para mantener la legibilidad.",
+    'release.3_9_15.1': "Con al menos tres potencias participantes y suficiente anchura de ventana, las dos primeras aparecen a la izquierda y todas las demás a la derecha. Las ventanas estrechas y un máximo de dos potencias mantienen una sola columna.",
+    'release.3_9_15.2': "La tarjeta del sistema existente aprovecha la anchura bajo los consejos de acciones y los artículos a bordo sin ocultarlos. Ambas columnas del conflicto empiezan a la misma altura y ocupan menos espacio vertical; todos los participantes siguen visibles.",
     'release.3_9_14.0': "Vista de conflictos PP2 renovada para sistemas no ocupados: retratos existentes de las potencias más grandes, nombre y puntos de control en un diseño adaptable; se mantienen el orden por progreso y los colores existentes.",
     'release.3_9_14.1': "Puntos de control del conflicto como aproximación respaldada empíricamente: CP ≈ ConflictProgress × 120000. La barra usa una escala supuesta de 0 a 180000 CP, limitada al 100 %; los valores ausentes siguen siendo desconocidos.",
     'release.3_9_14.2': "Marcadores discontinuos en 36000 CP (20 %) y 120000 CP (66,67 %), con símbolos y ayudas traducidas. Los límites y la escala no son constantes oficiales confirmadas del juego; superar un marcador no cambia el estado del sistema.",
