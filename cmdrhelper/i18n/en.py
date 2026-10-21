@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'release.3_9_16.0': 'PP2 sections for the current system, activities and onboard articles can be collapsed individually: closed on first use, with their state saved thereafter. Your power and the daily chronicle remain visible.',
+    'release.3_9_16.1': 'An unclear activity type now shows a short general tip about intercepting other CMDRs, without claiming confirmed local availability. Unambiguous activities, Ethos markers and safeguards are retained.',
+    'release.3_9_16.2': 'Foreign controlling powers receive an existing 42 × 56 pixel portrait beside their name in the current system. Your own power receives no additional portrait.',
+    'release.3_9_16.3': 'The four-stage control graphic for controlled systems is about 25% shorter, including captions and legend. Marker positions, red/blue shading and CP calculations remain unchanged.',
     'release.3_9_15.0': "More compact PP2 conflict cards for unoccupied systems: portraits, bars and spacing are about 25% smaller; text is reduced from 12 to 10 pixels to retain readability.",
     'release.3_9_15.1': "With at least three participating powers and sufficient window width, the two leading powers appear on the left and all others on the right. Narrow windows and up to two powers retain a single column.",
     'release.3_9_15.2': "The existing system card uses the width below action advice and onboard articles without covering them. Both conflict columns start at the same height and use less vertical space; all participants remain visible.",
@@ -2323,4 +2327,10 @@ TRANSLATIONS.update({
 TRANSLATIONS.update({
     'pp2.conflict.boundary_help': "Conflict boundary (approximation)\n\nThe marker is currently at 36,000 CP on an assumed bar scale up to 180,000 CP.\n\nThis boundary has not yet been confirmed as an official game threshold.",
     'pp2.conflict.minimum_help': "Minimum control points (approximate)\n\nThe marker is currently at 120,000 CP on an assumed bar scale up to 180,000 CP.\n\nThis boundary has not yet been confirmed as an official game threshold.",
+})
+
+# General guidance, not evidence of local activity availability.
+TRANSLATIONS.update({
+    'pp2.general.label': 'General tip — not a confirmed local activity',
+    'pp2.general.hint': 'Intercept other CMDRs carrying out activities here to slow the progress of another power.',
 })

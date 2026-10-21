@@ -52,7 +52,7 @@ class PP2CatalogTests(unittest.TestCase):
         catalogs = discover_languages()
         self.assertEqual(set(catalogs), set(HELP_LANGUAGES))
         expected = {key for key in i18n.DE if key.startswith('pp2.') or key == 'nav.pp2'}
-        self.assertEqual(len(expected), 152)
+        self.assertEqual(len(expected), 154)
         for language, (_, catalog, duplicates) in catalogs.items():
             with self.subTest(language=language):
                 self.assertEqual(catalog, i18n._TRANSLATIONS[language])

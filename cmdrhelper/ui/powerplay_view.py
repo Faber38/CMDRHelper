@@ -1,10 +1,10 @@
 """Compact local Powerplay overview, following the shared card/theme styles."""
 from datetime import timedelta
-from PySide6.QtCore import QLocale, QTimer, Qt, QTime
+from PySide6.QtCore import QEvent, QLocale, QTimer, Qt, QTime
 from PySide6.QtWidgets import (
     QAbstractItemView, QFrame, QGridLayout, QHeaderView, QLabel, QScrollArea,
     QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget, QHBoxLayout,
-    QPushButton, QMenu, QMessageBox, QProgressBar, QCheckBox, QTimeEdit,
+    QPushButton, QMenu, QMessageBox, QProgressBar, QCheckBox, QTimeEdit, QToolButton,
 )
 
 from cmdrhelper.i18n import get_language, tr
@@ -35,6 +35,54 @@ class RecommendationLabel(QLabel):
         # width's constraint so widening/shorter text can shrink again.
         self.setMinimumHeight(0)
         self.setMinimumHeight(max(0, self.heightForWidth(self.width())))
+
+
+class _SectionHeading(QWidget):
+    """Collapse only presentation; keep the existing data widgets alive."""
+
+    def __init__(self, view, label, body, key):
+        super().__init__()
+        self.view, self.body, self.key = view, body, key
+        self.label = label
+        self.button = QToolButton()
+        self.button.setAutoRaise(True)
+        self.button.setCheckable(True)
+        self.button.setAccessibleName(label.text())
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(4)
+        layout.addWidget(self.button, alignment=Qt.AlignTop)
+        layout.addWidget(label, 1)
+        label.setTextInteractionFlags(Qt.NoTextInteraction)
+        for widget in (self, label):
+            widget.setCursor(Qt.PointingHandCursor)
+            widget.installEventFilter(self)
+        settings = getattr(view.state, 'settings', None)
+        saved = settings.value(key, False) if settings is not None else False
+        expanded = str(saved).lower() in ('true', '1')
+        self.button.setChecked(expanded)
+        self._display(expanded)
+        # Restore before connecting: construction must never overwrite settings.
+        self.button.toggled.connect(self._toggle)
+
+    def eventFilter(self, watched, event):
+        if event.type() == QEvent.MouseButtonRelease and event.button() == Qt.LeftButton:
+            self.button.click()
+            return True
+        return super().eventFilter(watched, event)
+
+    def _display(self, expanded):
+        self.button.setArrowType(Qt.DownArrow if expanded else Qt.RightArrow)
+        self.body.setVisible(expanded)
+
+    def _toggle(self, expanded):
+        self._display(expanded)
+        settings = getattr(self.view.state, 'settings', None)
+        if settings is not None:
+            settings.setValue(self.key, expanded)
+            settings.sync()
+        if expanded:
+            self.view.render()
 
 
 class ChronicleTable(QTableWidget):
@@ -94,6 +142,7 @@ class PowerplayView(QScrollArea):
         super().__init__(parent)
         self.state = state
         self.cache = PowersCache()
+        self.section_headings = {}
         self.selected_day = None
         self.chronicle_window = None
         self.chronicle_detached = False
@@ -156,7 +205,7 @@ class PowerplayView(QScrollArea):
             column.setAlignment(Qt.AlignTop)
         self._two_columns = None
         left.addWidget(self.personal_card)
-        card, grid = self.card("pp2.system")
+        card, grid = self.card("pp2.system", section="system")
         self.system_card = card
         self.system_presentation = SystemPresentation()
         self.system_labels = self.system_presentation.labels
@@ -170,7 +219,6 @@ class PowerplayView(QScrollArea):
         action_section_layout.setContentsMargins(0, 0, 0, 0)
         action_section_layout.setSpacing(12)
         self.action_heading = self.label("", "sectionTitle", recommendation=True)
-        action_section_layout.addWidget(self.action_heading)
         card = QFrame(objectName="card")
         actions_layout = QVBoxLayout(card)
         self.mode = self.label("", "sectionTitle", recommendation=True)
@@ -178,9 +226,10 @@ class PowerplayView(QScrollArea):
         self.notice = self.label("", "muted", recommendation=True)
         for label in (self.mode, self.actions, self.notice):
             actions_layout.addWidget(label)
+        action_section_layout.addWidget(self.section_heading("actions", self.action_heading, card))
         action_section_layout.addWidget(card)
         right.addWidget(self.action_section)
-        self.cargo_card, grid = self.card("pp2.onboard")
+        self.cargo_card, grid = self.card("pp2.onboard", section="cargo")
         self.cargo = self.label("")
         grid.addWidget(self.cargo, 0, 0)
         right.addWidget(self.cargo_card)
@@ -332,12 +381,25 @@ class PowerplayView(QScrollArea):
         label.setTextInteractionFlags(Qt.TextSelectableByMouse)
         return label
 
-    def card(self, key):
+    def section_heading(self, section, label, body):
+        heading = _SectionHeading(self, label, body, 'pp2/sections/' + section + '_expanded')
+        self.section_headings[section] = heading
+        return heading
+
+    def card(self, key, *, section=None):
         card = QFrame(objectName="card")
         layout = QVBoxLayout(card)
-        layout.addWidget(self.label(tr(key), "sectionTitle"))
-        grid = QGridLayout()
-        layout.addLayout(grid)
+        label = self.label(tr(key), "sectionTitle")
+        if section is None:
+            layout.addWidget(label)
+            grid = QGridLayout()
+            layout.addLayout(grid)
+        else:
+            body = QWidget()
+            grid = QGridLayout(body)
+            grid.setContentsMargins(0, 0, 0, 0)
+            layout.addWidget(self.section_heading(section, label, body))
+            layout.addWidget(body)
         return card, grid
 
     def showEvent(self, event):
@@ -475,7 +537,8 @@ class PowerplayView(QScrollArea):
         system = data.system
         # Never recommend actions for a stale system if another local source
         # has already moved the main application to a different system.
-        if getattr(self.state, "system", "") != system.get("StarSystem", ""):
+        current_snapshot = getattr(self.state, "system", "") == system.get("StarSystem", "")
+        if not current_snapshot:
             system = {}
             relationship, mode = "unknown", None
         else:
@@ -485,13 +548,20 @@ class PowerplayView(QScrollArea):
         at = timestamp(system.get("timestamp"))
         self.observed.setText(tr("pp2.observed", time=date(at)) if at else tr("pp2.no_data"))
         self.action_heading.setText(tr("pp2.actions_for", power=data.power) if data.power else tr("pp2.actions"))
+        self.section_headings['actions'].button.setAccessibleName(self.action_heading.text())
         powers = self.cache.load(powers_cache_path(getattr(self.state, "journal_folder", None)))
         self._render_rank(data, powers, locale, fmt)
         self.notice.setText(tr("pp2.cache_unavailable") if powers is None else tr("pp2.cache_source"))
         self.mode.setText(tr("pp2.mode." + mode) if mode else tr("pp2.mode.unknown"))
+        general = mode is None and bool(data.power) and current_snapshot
+        self.notice.setVisible(not general)
+        if general:
+            self.mode.setText(tr("pp2.general.label"))
         self.actions.setToolTip("")
         if not data.power:
             message = tr("pp2.need_power")
+        elif general:
+            message = tr("pp2.general.hint")
         elif powers is None:
             message = tr("pp2.no_data")
         elif data.power not in powers:

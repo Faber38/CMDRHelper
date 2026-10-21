@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'release.3_9_16.0': 'Las secciones PP2 del sistema actual, actividades y artículos a bordo se pueden plegar por separado: cerradas en el primer uso y con su estado guardado después. Tu potencia y la crónica diaria siguen visibles.',
+    'release.3_9_16.1': 'Un tipo de actividad incierto muestra un breve consejo general sobre interceptar a otros comandantes, sin afirmar una disponibilidad local confirmada. Se conservan las actividades inequívocas, las marcas Ethos y las comprobaciones de seguridad.',
+    'release.3_9_16.2': 'Las potencias extranjeras que controlan el sistema actual muestran un retrato existente de 42 × 56 píxeles junto a su nombre. Tu propia potencia no recibe un retrato adicional.',
+    'release.3_9_16.3': 'El gráfico de control de cuatro etapas para sistemas controlados es aproximadamente un 25 % más bajo, incluidos los rótulos y la leyenda. Las posiciones de los marcadores, los colores rojo/azul y los cálculos de CP no cambian.',
     'release.3_9_15.0': "Tarjetas de conflicto PP2 más compactas para sistemas no ocupados: retratos, barras y espacios aproximadamente un 25 % más pequeños; texto reducido de 12 a 10 píxeles para mantener la legibilidad.",
     'release.3_9_15.1': "Con al menos tres potencias participantes y suficiente anchura de ventana, las dos primeras aparecen a la izquierda y todas las demás a la derecha. Las ventanas estrechas y un máximo de dos potencias mantienen una sola columna.",
     'release.3_9_15.2': "La tarjeta del sistema existente aprovecha la anchura bajo los consejos de acciones y los artículos a bordo sin ocultarlos. Ambas columnas del conflicto empiezan a la misma altura y ocupan menos espacio vertical; todos los participantes siguen visibles.",
@@ -2291,4 +2295,10 @@ TRANSLATIONS.update({
 TRANSLATIONS.update({
     'pp2.conflict.boundary_help': "Límite del conflicto (aproximación)\n\nEl marcador se sitúa actualmente en 36.000 CP sobre una escala supuesta de la barra de hasta 180.000 CP.\n\nEste límite aún no se ha confirmado como umbral oficial del juego.",
     'pp2.conflict.minimum_help': "Puntos de control mínimos (aproximación)\n\nEl marcador se sitúa actualmente en 120.000 CP sobre una escala supuesta de la barra de hasta 180.000 CP.\n\nEste límite aún no se ha confirmado como umbral oficial del juego.",
+})
+
+# General guidance, not evidence of local activity availability.
+TRANSLATIONS.update({
+    'pp2.general.label': 'Consejo general — actividad local no confirmada',
+    'pp2.general.hint': 'Intercepta a otros comandantes que realizan actividades aquí para ralentizar el progreso de otra potencia.',
 })

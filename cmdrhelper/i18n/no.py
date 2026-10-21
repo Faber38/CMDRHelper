@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'release.3_9_16.0': 'PP2-delene for gjeldende system, aktiviteter og artikler om bord kan foldes sammen hver for seg: lukket ved første bruk, deretter med lagret tilstand. Makten din og dagskrøniken forblir synlige.',
+    'release.3_9_16.1': 'En uklar aktivitetstype viser et kort, generelt tips om å avskjære andre kommandører, uten å hevde bekreftet lokal tilgjengelighet. Entydige aktiviteter, Ethos-markører og sikkerhetskontroller beholdes.',
+    'release.3_9_16.2': 'Fremmede makter som kontrollerer gjeldende system, får et eksisterende portrett på 42 × 56 piksler ved siden av navnet. Din egen makt får ikke noe ekstra portrett.',
+    'release.3_9_16.3': 'Kontrollgrafikken med fire trinn for kontrollerte systemer er omtrent 25 % lavere, inkludert tekster og tegnforklaring. Markørposisjoner, rød/blå fargelegging og CP-beregninger er uendret.',
     'release.3_9_15.0': "Mer kompakte PP2-konfliktkort for ubesatte systemer: portretter, stolper og avstander er omtrent 25 % mindre; teksten reduseres fra 12 til 10 piksler for å bevare lesbarheten.",
     'release.3_9_15.1': "Med minst tre deltakende makter og tilstrekkelig vindusbredde vises de to ledende maktene til venstre og alle andre til høyre. Smale vinduer og opptil to makter beholder én kolonne.",
     'release.3_9_15.2': "Det eksisterende systemkortet bruker bredden under handlingsråd og artikler om bord uten å dekke dem. Begge konfliktkolonnene starter i samme høyde og tar mindre vertikal plass; alle deltakere forblir synlige.",
@@ -2179,4 +2183,10 @@ TRANSLATIONS.update({
 TRANSLATIONS.update({
     'pp2.conflict.boundary_help': "Konfliktgrense (tilnærming)\n\nMarkøren står for øyeblikket ved 36 000 CP på en antatt stolpeskala opp til 180 000 CP.\n\nDenne grensen er ennå ikke bekreftet som en offisiell terskel i spillet.",
     'pp2.conflict.minimum_help': "Minste antall kontrollpoeng (tilnærming)\n\nMarkøren står for øyeblikket ved 120 000 CP på en antatt stolpeskala opp til 180 000 CP.\n\nDenne grensen er ennå ikke bekreftet som en offisiell terskel i spillet.",
+})
+
+# General guidance, not evidence of local activity availability.
+TRANSLATIONS.update({
+    'pp2.general.label': 'Generelt tips — ikke en bekreftet lokal aktivitet',
+    'pp2.general.hint': 'Avskjær andre kommandører som utfører aktiviteter her, for å bremse fremgangen til en annen makt.',
 })

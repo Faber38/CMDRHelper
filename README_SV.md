@@ -38,6 +38,13 @@ Journalmappen för Elite Dangerous hittas automatiskt när det är möjligt. Om 
 
 CMDRHelper söker efter uppdateringar vid start och har en inbyggd uppdateringsfunktion. Bekräfta en erbjuden uppdatering i programmet; den uppdaterar programmet och beroendena och startar om CMDRHelper. Efter den första installationen använder du normalt bara `start.bat` (Windows) eller `bash start.sh` (Linux). Du behöver inte köra `install.bat` eller `install.sh` manuellt igen för vanliga uppdateringar.
 
+## CMDRHelper v3.9.16
+
+- PP2-avsnitten för aktuellt system, aktiviteter och artiklar ombord kan fällas ihop var för sig: stängda vid första användningen, därefter med sparat tillstånd. Din makt och dagskrönikan förblir synliga.
+- En oklar aktivitetstyp visar ett kort allmänt tips om att genskjuta andra befälhavare, utan att hävda bekräftad lokal tillgänglighet. Entydiga aktiviteter, Ethos-markörer och säkerhetskontroller behålls.
+- Främmande makter som kontrollerar det aktuella systemet får ett befintligt porträtt på 42 × 56 pixlar bredvid namnet. Din egen makt får inget extra porträtt.
+- Kontrollgrafiken med fyra steg för kontrollerade system är ungefär 25 % lägre, inklusive texter och teckenförklaring. Markörpositioner, röd/blå färgning och CP-beräkningar är oförändrade.
+
 ## CMDRHelper v3.9.15
 
 - Mer kompakta PP2-konfliktkort för obesatta system: porträtt, staplar och avstånd är ungefär 25 % mindre; texten minskas från 12 till 10 pixlar för att behålla läsbarheten.

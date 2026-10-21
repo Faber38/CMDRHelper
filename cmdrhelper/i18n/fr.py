@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'release.3_9_16.0': 'Les sections PP2 du système actuel, des activités et des articles à bord se replient séparément : fermées à la première utilisation, puis avec leur état mémorisé. Votre puissance et la chronique quotidienne restent visibles.',
+    'release.3_9_16.1': 'Un type d’activité indéterminé affiche un bref conseil général sur l’interception d’autres commandants, sans affirmer une disponibilité locale confirmée. Les activités certaines, les marqueurs Ethos et les vérifications de sécurité sont conservés.',
+    'release.3_9_16.2': 'Les puissances étrangères contrôlant le système actuel affichent un portrait existant de 42 × 56 pixels à côté de leur nom. Votre propre puissance ne reçoit aucun portrait supplémentaire.',
+    'release.3_9_16.3': 'Le graphique de contrôle à quatre étapes des systèmes contrôlés est environ 25 % moins haut, y compris les libellés et la légende. Les positions des marqueurs, les teintes rouge/bleu et les calculs de CP restent inchangés.',
     'release.3_9_15.0': "Cartes de conflit PP2 plus compactes pour les systèmes inoccupés : portraits, barres et espacements réduits d’environ 25 % ; texte réduit de 12 à 10 pixels pour préserver la lisibilité.",
     'release.3_9_15.1': "À partir de trois puissances participantes et avec une fenêtre assez large, les deux premières apparaissent à gauche et toutes les autres à droite. Une fenêtre étroite ou deux puissances au maximum conservent une seule colonne.",
     'release.3_9_15.2': "La carte système existante utilise la largeur sous les conseils d’action et les articles à bord sans les masquer. Les deux colonnes de conflit commencent à la même hauteur et occupent moins d’espace vertical ; tous les participants restent visibles.",
@@ -2292,4 +2296,10 @@ TRANSLATIONS.update({
 TRANSLATIONS.update({
     'pp2.conflict.boundary_help': "Limite du conflit (approximation)\n\nLe repère se situe actuellement à 36 000 CP sur une échelle supposée allant jusqu’à 180 000 CP.\n\nCette limite n’a pas encore été confirmée comme seuil officiel du jeu.",
     'pp2.conflict.minimum_help': "Points de contrôle minimum (approximation)\n\nLe repère se situe actuellement à 120 000 CP sur une échelle supposée allant jusqu’à 180 000 CP.\n\nCette limite n’a pas encore été confirmée comme seuil officiel du jeu.",
+})
+
+# General guidance, not evidence of local activity availability.
+TRANSLATIONS.update({
+    'pp2.general.label': 'Conseil général — activité locale non confirmée',
+    'pp2.general.hint': 'Intercepter les autres commandants qui effectuent des actions ici pour ralentir la progression d’une autre puissance.',
 })

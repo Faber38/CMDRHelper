@@ -216,6 +216,9 @@ class PowerplayViewTests(unittest.TestCase):
         set_language('de')
         self.state = ViewState()
         self.view = PowerplayView(self.state)
+        # Existing content/layout tests exercise the expanded presentation.
+        for heading in self.view.section_headings.values():
+            heading.button.setChecked(True)
         self.view.resize(1050, 900)
         self.view.show()
         self.addCleanup(self.view.close)

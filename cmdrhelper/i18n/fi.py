@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'release.3_9_16.0': 'Nykyisen järjestelmän, toimintojen ja aluksen artikkelien PP2-osiot voi sulkea erikseen: ensimmäisellä käyttökerralla suljettuina, sen jälkeen tila tallennetaan. Oma valtasi ja päiväkirja pysyvät näkyvissä.',
+    'release.3_9_16.1': 'Epäselvä toimintatyyppi näyttää lyhyen yleisen vinkin muiden komentajien pysäyttämisestä väittämättä paikallista saatavuutta vahvistetuksi. Yksiselitteiset toiminnot, Ethos-merkinnät ja suojaavat tarkistukset säilyvät.',
+    'release.3_9_16.2': 'Nykyistä järjestelmää hallitsevan vieraan vallan nimen vieressä näytetään olemassa oleva 42 × 56 pikselin muotokuva. Omalle vallalle ei lisätä muotokuvaa.',
+    'release.3_9_16.3': 'Hallittujen järjestelmien nelivaiheinen hallintakaavio on noin 25 % matalampi teksteineen ja selitteineen. Merkkien sijainnit, punainen/sininen väritys ja CP-laskenta säilyvät ennallaan.',
     'release.3_9_15.0': "Tiivistetyt PP2-konfliktikortit miehittämättömille järjestelmille: muotokuvat, palkit ja välit ovat noin 25 % pienempiä; teksti pienennetään 12 pikselistä 10 pikseliin luettavuuden säilyttämiseksi.",
     'release.3_9_15.1': "Kun mukana on vähintään kolme valtaa ja ikkuna on riittävän leveä, kaksi johtavaa valtaa näkyvät vasemmalla ja kaikki muut oikealla. Kapeissa ikkunoissa tai enintään kahdella vallalla säilyy yksi sarake.",
     'release.3_9_15.2': "Nykyinen järjestelmäkortti käyttää toimintavinkkien ja aluksella olevien tavaroiden alapuolista leveyttä peittämättä niitä. Molemmat konfliktisarakkeet alkavat samalta korkeudelta ja vievät vähemmän pystysuuntaista tilaa; kaikki osallistujat pysyvät näkyvissä.",
@@ -2179,4 +2183,10 @@ TRANSLATIONS.update({
 TRANSLATIONS.update({
     'pp2.conflict.boundary_help': "Konfliktiraja (arvio)\n\nMerkki on tällä hetkellä kohdassa 36 000 CP palkin oletetulla asteikolla, joka ulottuu 180 000 CP:hen.\n\nTätä rajaa ei ole vielä vahvistettu pelin viralliseksi kynnysarvoksi.",
     'pp2.conflict.minimum_help': "Hallintapisteiden vähimmäismäärä (arvio)\n\nMerkki on tällä hetkellä kohdassa 120 000 CP palkin oletetulla asteikolla, joka ulottuu 180 000 CP:hen.\n\nTätä rajaa ei ole vielä vahvistettu pelin viralliseksi kynnysarvoksi.",
+})
+
+# General guidance, not evidence of local activity availability.
+TRANSLATIONS.update({
+    'pp2.general.label': 'Yleinen vinkki — ei vahvistettu paikallinen toiminto',
+    'pp2.general.hint': 'Pysäytä muita täällä toimivia komentajia hidastaaksesi toisen vallan etenemistä.',
 })

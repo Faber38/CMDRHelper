@@ -176,7 +176,7 @@ class ControlBarTests(unittest.TestCase):
                         scale = image.devicePixelRatio()
                         for index, color in enumerate(STAGE_COLORS):
                             x = round((left+(index+.5)*segment)*scale)
-                            self.assertEqual(image.pixelColor(x, round(24*scale)).name(), QColor(color).name())
+                            self.assertEqual(image.pixelColor(x, round(18*scale)).name(), QColor(color).name())
 
     def test_edge_markers_stay_inside_widget(self):
         bar = SystemControlBar()
@@ -186,7 +186,7 @@ class ControlBarTests(unittest.TestCase):
             for status, p in (('exploited', -1e308), ('stronghold', 1e308)):
                 bar.set_values(status, p, 0, 0)
                 left, span, _ = bar.geometry_for_width(width)
-                radius = min(7., max(0., left-2))
+                radius = min(5.25, max(0., left-1.5))
                 for position in (bar.white_position, bar.yellow_position):
                     x = left+span*position
                     self.assertGreaterEqual(x-radius, 0)

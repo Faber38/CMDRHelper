@@ -129,3 +129,13 @@ Breite und Nutzung der Systemkartenbreite unter Aktionshinweisen/Bordartikeln.
 und Updater. Historische Einträge bleiben erhalten. CP-Berechnung und andere
 v3.9.14-Funktionen werden nicht erneut als Neuerungen aufgeführt.
 Details: [Release 3.9.15](release-3.9.15.md).
+
+## 3.9.16
+
+Vier neue Hinweise in allen zwölf Sprachen (`release.3_9_16.0` bis `.3`):
+aufklappbare PP2-Bereiche mit gespeichertem Zustand, kurzer allgemeiner Hinweis
+bei unklarer Aktionsart, kleine Porträts fremder kontrollierender Mächte und eine
+flachere Vier-Stufen-Kontrollgrafik. `RELEASE_SUMMARIES["3.9.16"]` liefert dieselben
+Texte für README, GitHub-Release und Updater. Historische Einträge bleiben erhalten;
+die bereits mit v3.9.15 veröffentlichten Konfliktkarten werden nicht erneut als
+Neuerungen aufgeführt. Details: [Release 3.9.16](release-3.9.16.md).

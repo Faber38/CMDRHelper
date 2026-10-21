@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'release.3_9_16.0': 'Sekcje PP2 bieżącego systemu, aktywności i artykułów na pokładzie można zwijać osobno: przy pierwszym użyciu są zamknięte, a później ich stan jest zapisywany. Twoja potęga i kronika dnia pozostają widoczne.',
+    'release.3_9_16.1': 'Przy niejasnym rodzaju aktywności pojawia się krótka ogólna wskazówka o przechwytywaniu innych dowódców, bez potwierdzania lokalnej dostępności. Jednoznaczne aktywności, oznaczenia Ethos i zabezpieczenia pozostają zachowane.',
+    'release.3_9_16.2': 'Obce potęgi kontrolujące bieżący system mają obok nazwy istniejący portret o rozmiarze 42 × 56 pikseli. Twoja potęga nie otrzymuje dodatkowego portretu.',
+    'release.3_9_16.3': 'Czterostopniowy wykres kontroli dla kontrolowanych systemów jest o około 25 % niższy, wraz z podpisami i legendą. Pozycje znaczników, czerwone/niebieskie zabarwienie i obliczenia CP pozostają bez zmian.',
     'release.3_9_15.0': "Bardziej kompaktowe karty konfliktów PP2 dla nieokupowanych systemów: portrety, paski i odstępy są mniejsze o około 25%; tekst zmniejszono z 12 do 10 pikseli, aby zachować czytelność.",
     'release.3_9_15.1': "Przy co najmniej trzech uczestniczących potęgach i odpowiedniej szerokości okna dwie prowadzące potęgi są po lewej, a wszystkie pozostałe po prawej. Wąskie okna i najwyżej dwie potęgi zachowują jedną kolumnę.",
     'release.3_9_15.2': "Istniejąca karta systemu wykorzystuje szerokość pod wskazówkami działań i artykułami na pokładzie, nie zasłaniając ich. Obie kolumny konfliktu zaczynają się na tej samej wysokości i zajmują mniej miejsca w pionie; wszyscy uczestnicy pozostają widoczni.",
@@ -2179,4 +2183,10 @@ TRANSLATIONS.update({
 TRANSLATIONS.update({
     'pp2.conflict.boundary_help': "Granica konfliktu (przybliżenie)\n\nZnacznik znajduje się obecnie przy 36 000 CP na zakładanej skali paska do 180 000 CP.\n\nTa granica nie została jeszcze potwierdzona jako oficjalny próg gry.",
     'pp2.conflict.minimum_help': "Minimalna liczba punktów kontroli (przybliżenie)\n\nZnacznik znajduje się obecnie przy 120 000 CP na zakładanej skali paska do 180 000 CP.\n\nTa granica nie została jeszcze potwierdzona jako oficjalny próg gry.",
+})
+
+# General guidance, not evidence of local activity availability.
+TRANSLATIONS.update({
+    'pp2.general.label': 'Ogólna wskazówka — niepotwierdzona lokalna aktywność',
+    'pp2.general.hint': 'Przechwytuj innych dowódców wykonujących tutaj działania, aby spowolnić postępy innej potęgi.',
 })

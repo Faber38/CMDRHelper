@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'release.3_9_16.0': 'PP2-avsnitten för aktuellt system, aktiviteter och artiklar ombord kan fällas ihop var för sig: stängda vid första användningen, därefter med sparat tillstånd. Din makt och dagskrönikan förblir synliga.',
+    'release.3_9_16.1': 'En oklar aktivitetstyp visar ett kort allmänt tips om att genskjuta andra befälhavare, utan att hävda bekräftad lokal tillgänglighet. Entydiga aktiviteter, Ethos-markörer och säkerhetskontroller behålls.',
+    'release.3_9_16.2': 'Främmande makter som kontrollerar det aktuella systemet får ett befintligt porträtt på 42 × 56 pixlar bredvid namnet. Din egen makt får inget extra porträtt.',
+    'release.3_9_16.3': 'Kontrollgrafiken med fyra steg för kontrollerade system är ungefär 25 % lägre, inklusive texter och teckenförklaring. Markörpositioner, röd/blå färgning och CP-beräkningar är oförändrade.',
     'release.3_9_15.0': "Mer kompakta PP2-konfliktkort för obesatta system: porträtt, staplar och avstånd är ungefär 25 % mindre; texten minskas från 12 till 10 pixlar för att behålla läsbarheten.",
     'release.3_9_15.1': "Med minst tre deltagande makter och tillräcklig fönsterbredd visas de två ledande makterna till vänster och alla övriga till höger. Smala fönster och högst två makter behåller en enda kolumn.",
     'release.3_9_15.2': "Det befintliga systemkortet använder bredden under handlingsråd och artiklar ombord utan att täcka dem. Båda konfliktkolumnerna börjar på samma höjd och tar mindre vertikalt utrymme; alla deltagare förblir synliga.",
@@ -2179,4 +2183,10 @@ TRANSLATIONS.update({
 TRANSLATIONS.update({
     'pp2.conflict.boundary_help': "Konfliktgräns (uppskattning)\n\nMarkeringen står för närvarande vid 36 000 CP på en antagen stapelskala upp till 180 000 CP.\n\nDenna gräns har ännu inte bekräftats som en officiell tröskel i spelet.",
     'pp2.conflict.minimum_help': "Minsta antal kontrollpoäng (uppskattning)\n\nMarkeringen står för närvarande vid 120 000 CP på en antagen stapelskala upp till 180 000 CP.\n\nDenna gräns har ännu inte bekräftats som en officiell tröskel i spelet.",
+})
+
+# General guidance, not evidence of local activity availability.
+TRANSLATIONS.update({
+    'pp2.general.label': 'Allmänt tips — ingen bekräftad lokal aktivitet',
+    'pp2.general.hint': 'Genskjut andra befälhavare som utför aktiviteter här för att bromsa en annan makts framsteg.',
 })

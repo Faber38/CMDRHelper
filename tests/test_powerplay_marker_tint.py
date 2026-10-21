@@ -28,7 +28,7 @@ class MarkerTintTests(unittest.TestCase):
                 left, span, segment = self.bar.geometry_for_width(width)
                 baseline = self.capture(None, None)
                 dpi = baseline.devicePixelRatio()
-                y = round(24 * dpi)
+                y = round(18 * dpi)
                 # Both directions, same stage, multiple stages and both edges.
                 for white, yellow in ((.45,.3), (.3,.45), (.1,.9), (.9,.1), (0,1), (1,0)):
                     with self.subTest(width=width, white=white, yellow=yellow):
@@ -50,8 +50,8 @@ class MarkerTintTests(unittest.TestCase):
                         # Stage separators are painted over the tint.
                         for i in range(4):
                             x = round((left+i*segment)*dpi)
-                            self.assertEqual(image.pixelColor(x,round(44*dpi)),
-                                             baseline.pixelColor(x,round(44*dpi)))
+                            self.assertEqual(image.pixelColor(x,round(33*dpi)),
+                                             baseline.pixelColor(x,round(33*dpi)))
                             if start+2 < x < end-3:
                                 self.assertTrue(any(image.pixelColor(px,y) != image.pixelColor(x+round(2*dpi),y)
                                                     for px in range(x-1,x+2)))
@@ -60,7 +60,7 @@ class MarkerTintTests(unittest.TestCase):
         self.bar.resize(480, self.bar.height())
         baseline = self.capture(None,None)
         dpi = baseline.devicePixelRatio()
-        y = round(24*dpi)
+        y = round(18*dpi)
         for white,yellow in ((.4,.4),(.4,None),(None,.4),(None,None)):
             image = self.capture(white,yellow)
             self.assertEqual([image.pixelColor(x,y) for x in range(image.width())],

@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'release.3_9_16.0': 'Geçerli sistem, etkinlikler ve gemideki eşyalar için PP2 bölümleri ayrı ayrı daraltılabilir: ilk kullanımda kapalıdır, sonraki kullanımlar için durumları kaydedilir. Gücünüz ve günlük kayıt görünür kalır.',
+    'release.3_9_16.1': 'Belirsiz etkinlik türünde, yerel kullanılabilirliğin doğrulandığını iddia etmeden diğer komutanların önünü kesmeye yönelik kısa bir genel ipucu gösterilir. Kesin etkinlikler, Ethos işaretleri ve güvenlik kontrolleri korunur.',
+    'release.3_9_16.2': 'Geçerli sistemi kontrol eden yabancı güçlerin adlarının yanında mevcut 42 × 56 piksellik portreleri gösterilir. Kendi gücünüz için ek portre gösterilmez.',
+    'release.3_9_16.3': 'Kontrol edilen sistemlerin dört aşamalı kontrol grafiği, etiketler ve açıklamalar dahil yaklaşık %25 daha alçaktır. İşaret konumları, kırmızı/mavi renklendirme ve CP hesaplamaları değişmez.',
     'release.3_9_15.0': "İşgal edilmemiş sistemler için daha kompakt PP2 çatışma kartları: portreler, çubuklar ve aralıklar yaklaşık %25 daha küçük; okunabilirliği korumak için metin 12 pikselden 10 piksele küçültüldü.",
     'release.3_9_15.1': "En az üç katılımcı güç ve yeterli pencere genişliği olduğunda öndeki iki güç solda, diğer tüm güçler sağda görünür. Dar pencerelerde veya en fazla iki güç olduğunda tek sütun korunur.",
     'release.3_9_15.2': "Mevcut sistem kartı, eylem önerileri ve gemideki malzemelerin altındaki genişliği bunları örtmeden kullanır. İki çatışma sütunu aynı yükseklikte başlar ve daha az dikey alan kaplar; tüm katılımcılar görünür kalır.",
@@ -2179,4 +2183,10 @@ TRANSLATIONS.update({
 TRANSLATIONS.update({
     'pp2.conflict.boundary_help': "Çatışma sınırı (yaklaşık)\n\nİşaret şu anda 180.000 CP’ye kadar uzanan varsayımsal çubuk ölçeğinde 36.000 CP konumundadır.\n\nBu sınır henüz oyunun resmî eşiği olarak doğrulanmamıştır.",
     'pp2.conflict.minimum_help': "Asgari kontrol puanı (yaklaşık)\n\nİşaret şu anda 180.000 CP’ye kadar uzanan varsayımsal çubuk ölçeğinde 120.000 CP konumundadır.\n\nBu sınır henüz oyunun resmî eşiği olarak doğrulanmamıştır.",
+})
+
+# General guidance, not evidence of local activity availability.
+TRANSLATIONS.update({
+    'pp2.general.label': 'Genel ipucu — doğrulanmış bir yerel etkinlik değildir',
+    'pp2.general.hint': 'Başka bir gücün ilerlemesini yavaşlatmak için burada etkinlik yürüten diğer komutanların önünü kesin.',
 })

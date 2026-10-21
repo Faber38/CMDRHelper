@@ -1,7 +1,7 @@
 """Journal CP values with an explicitly approximate system-control diagram."""
 import math
 from PySide6.QtCore import QEvent, Qt, QPointF, QRectF, QRect, QSize
-from PySide6.QtGui import QPainter, QPen, QPalette, QColor, QPolygonF
+from PySide6.QtGui import QPainter, QPen, QPalette, QColor, QPolygonF, QFont, QFontMetrics
 from PySide6.QtWidgets import QWidget, QLabel, QFrame, QGridLayout, QHBoxLayout, QVBoxLayout, QProgressBar, QSizePolicy, QToolTip
 from cmdrhelper.i18n import tr
 from cmdrhelper.powerplay import number, system_status
@@ -54,6 +54,7 @@ def marker_positions(status, progress, reinforcement, undermining):
 class SystemControlBar(QWidget):
     """Responsive painted bar, markers, wrapped captions and compact legend."""
     text_flags = Qt.AlignLeft | Qt.AlignTop | Qt.TextWrapAnywhere
+    drawing_scale = 0.75
 
     def __init__(self):
         super().__init__()
@@ -74,8 +75,16 @@ class SystemControlBar(QWidget):
         self.setFixedHeight(self.content_height(self.width()))
         self.update()
 
+    def drawing_font(self):
+        font = QFont(self.font())
+        if font.pixelSize() > 0:
+            font.setPixelSize(max(1, round(font.pixelSize() * self.drawing_scale)))
+        else:
+            font.setPointSizeF(font.pointSizeF() * self.drawing_scale)
+        return font
+
     def text_height(self, text, width):
-        return self.fontMetrics().boundingRect(
+        return QFontMetrics(self.drawing_font()).boundingRect(
             QRect(0, 0, max(1, int(width)), 10000), self.text_flags, text).height()
 
     def geometry_for_width(self, width):
@@ -85,9 +94,10 @@ class SystemControlBar(QWidget):
 
     def content_height(self, width):
         _, span, segment = self.geometry_for_width(width)
-        captions = max((self.text_height(t, segment - 4) for t in self.stage_names), default=0)
-        legends = sum(max(18, self.text_height(t, span - 24)) for t in self.legend_names)
-        return 48 + captions + 8 + legends + 8
+        scale = self.drawing_scale
+        captions = max((self.text_height(t, segment - 4 * scale) for t in self.stage_names), default=0)
+        legends = sum(max(18 * scale, self.text_height(t, span - 24 * scale)) for t in self.legend_names)
+        return math.ceil(64 * scale + captions + legends)
 
     def sizeHint(self):
         return QSize(420, self.content_height(420))
@@ -99,56 +109,59 @@ class SystemControlBar(QWidget):
         super().resizeEvent(event)
         self.setFixedHeight(self.content_height(event.size().width()))
 
-    @staticmethod
-    def triangle(painter, x, y, radius, yellow=False):
+    @classmethod
+    def triangle(cls, painter, x, y, radius, yellow=False):
         # White filled/down; yellow outlined/up, as in the game's legend.
-        points = ([(x, y), (x-radius, y+12), (x+radius, y+12)] if yellow else
-                  [(x-radius, y), (x+radius, y), (x, y+12)])
+        height = 12 * cls.drawing_scale
+        points = ([(x, y), (x-radius, y+height), (x+radius, y+height)] if yellow else
+                  [(x-radius, y), (x+radius, y), (x, y+height)])
         polygon = QPolygonF([QPointF(px, py) for px, py in points])
-        painter.setPen(QPen(QColor('#303030'), 3))
+        painter.setPen(QPen(QColor('#303030'), 3 * cls.drawing_scale))
         painter.setBrush(Qt.NoBrush if yellow else QColor('white'))
         painter.drawPolygon(polygon)
-        painter.setPen(QPen(QColor('#ffbf00') if yellow else QColor('white'), 1.5))
+        painter.setPen(QPen(QColor('#ffbf00') if yellow else QColor('white'), 1.5 * cls.drawing_scale))
         painter.drawPolygon(polygon)
 
     def paintEvent(self, event):
         painter = QPainter(self)
+        scale = self.drawing_scale
+        painter.setFont(self.drawing_font())
         painter.setRenderHint(QPainter.Antialiasing)
         painter.setClipRect(self.rect())
         left, span, segment = self.geometry_for_width(self.width())
         if span < 4:
             return
-        radius = min(7., max(0., left - 2))
-        caption_height = max(self.text_height(t, segment - 4) for t in self.stage_names)
+        radius = min(7 * scale, max(0., left - 2 * scale))
+        caption_height = max(self.text_height(t, segment - 4 * scale) for t in self.stage_names)
         for index, color in enumerate(STAGE_COLORS):
-            painter.fillRect(QRectF(left + index * segment, 19, segment, 18), QColor(color))
+            painter.fillRect(QRectF(left + index * segment, 19 * scale, segment, 18 * scale), QColor(color))
         white, yellow = self.white_position, self.yellow_position
         if white is not None and yellow is not None and white != yellow:
             start = left + span * min(white, yellow)
             end = left + span * max(white, yellow)
             tint = QColor(255, 0, 0, 128) if white > yellow else QColor(0, 128, 255, 128)
             painter.save()
-            painter.setClipRect(QRectF(left, 19, span, 18), Qt.IntersectClip)
-            painter.fillRect(QRectF(start, 19, end - start, 18), tint)
+            painter.setClipRect(QRectF(left, 19 * scale, span, 18 * scale), Qt.IntersectClip)
+            painter.fillRect(QRectF(start, 19 * scale, end - start, 18 * scale), tint)
             painter.restore()
         # Boundaries and markers remain above the translucent interval.
         for index, text in enumerate(self.stage_names):
             x = left + index * segment
             painter.setPen(QPen(self.palette().color(QPalette.Mid), 1))
-            painter.drawLine(QPointF(x, 19), QPointF(x, 43 + caption_height))
+            painter.drawLine(QPointF(x, 19 * scale), QPointF(x, 43 * scale + caption_height))
             painter.setPen(self.palette().color(QPalette.WindowText))
-            painter.drawText(QRectF(x+2, 46, max(1., segment-4), caption_height),
+            painter.drawText(QRectF(x+2 * scale, 46 * scale, max(1., segment-4 * scale), caption_height),
                              self.text_flags, text)
         if self.white_position is not None:
-            self.triangle(painter, left + span*self.white_position, 5, radius)
+            self.triangle(painter, left + span*self.white_position, 5 * scale, radius)
         if self.yellow_position is not None:
-            self.triangle(painter, left + span*self.yellow_position, 29, radius, True)
-        y = 54 + caption_height
+            self.triangle(painter, left + span*self.yellow_position, 29 * scale, radius, True)
+        y = 54 * scale + caption_height
         for index, text in enumerate(self.legend_names):
-            height = max(18, self.text_height(text, span-24))
-            self.triangle(painter, left+8, y+2, radius, bool(index))
+            height = max(18 * scale, self.text_height(text, span-24 * scale))
+            self.triangle(painter, left+8 * scale, y+2 * scale, radius, bool(index))
             painter.setPen(self.palette().color(QPalette.WindowText))
-            painter.drawText(QRectF(left+24, y, max(1., span-24), height), self.text_flags, text)
+            painter.drawText(QRectF(left+24 * scale, y, max(1., span-24 * scale), height), self.text_flags, text)
             y += height
 
 
@@ -389,12 +402,19 @@ class SystemPresentation(QWidget):
         self.labels['status'].setMargin(4)
         head.addWidget(self.labels['status'])
         layout.addLayout(head)
-        owner=QHBoxLayout()
-        owner.addWidget(self.labels['owner'])
-        owner.addWidget(label('·','muted'))
-        owner.addWidget(self.labels['relationship'])
-        owner.addStretch()
-        layout.addLayout(owner)
+        self.owner_layout = QGridLayout()
+        self.owner_layout.setVerticalSpacing(0)
+        self.owner_portrait = PowerPortrait()
+        self.owner_portrait.setFixedSize(42, 56)
+        self.owner_portrait.hide()
+        self.owner_separator = label('·', 'muted')
+        self.owner_layout.addWidget(self.owner_portrait, 0, 0, 2, 1, Qt.AlignTop)
+        self.owner_layout.addWidget(self.labels['owner'], 0, 1)
+        self.owner_layout.addWidget(self.owner_separator, 0, 2)
+        self.owner_layout.addWidget(self.labels['relationship'], 0, 3)
+        self.owner_layout.setColumnStretch(4, 1)
+        self._foreign_owner = False
+        layout.addLayout(self.owner_layout)
         self.controlled = QWidget()
         controlled_layout = QVBoxLayout(self.controlled)
         controlled_layout.setContentsMargins(0, 0, 0, 0)
@@ -449,6 +469,30 @@ class SystemPresentation(QWidget):
         self.labels['system_name'].setText(name or unknown)
         self.labels['owner'].setText(system.get('ControllingPower') or (tr('pp2.unoccupied') if status=='unoccupied' else unknown))
         self.labels['relationship'].setText(tr('pp2.relationship.'+relationship))
+        owner = system.get('ControllingPower')
+        foreign_owner = (
+            status in ('exploited', 'fortified', 'stronghold')
+            and bool(name) and system.get('StarSystem') == name
+            and isinstance(owner, str) and bool(owner.strip())
+            and isinstance(own_power, str) and bool(own_power.strip())
+            and portrait_key(owner) != portrait_key(own_power)
+        )
+        self.owner_portrait.set_power(owner if foreign_owner else '')
+        self.owner_portrait.setVisible(foreign_owner)
+        if foreign_owner != self._foreign_owner:
+            self._foreign_owner = foreign_owner
+            self.owner_separator.setVisible(not foreign_owner)
+            for key in ('owner', 'relationship'):
+                policy = self.labels[key].sizePolicy()
+                policy.setHorizontalPolicy(QSizePolicy.Ignored if foreign_owner else QSizePolicy.Preferred)
+                self.labels[key].setSizePolicy(policy)
+            self.owner_layout.removeWidget(self.labels['relationship'])
+            self.owner_layout.addWidget(self.labels['relationship'],
+                                        1 if foreign_owner else 0,
+                                        1 if foreign_owner else 3,
+                                        1, 3 if foreign_owner else 1)
+            self.owner_layout.setColumnStretch(1, 1 if foreign_owner else 0)
+            self.owner_layout.setColumnStretch(4, 0 if foreign_owner else 1)
         caption=tr('pp2.status.'+status) if status in STAGES else unknown
         self.labels['status'].setText(caption)
         self.labels['status'].setToolTip(tr('pp2.system.stage_help',status=caption)+'\n'+str(system.get('PowerplayState') or unknown))

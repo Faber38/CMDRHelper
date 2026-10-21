@@ -187,7 +187,7 @@ class EthosViewTests(unittest.TestCase):
         self.assertIn('✓ Seltene Waren verkaufen · ★ Ethos', self.view.actions.text())
         self.state.powerplay.system['Powers'] = ['Nakato Kaine', 'Edmund Mahon']
         self.view.render()
-        self.assertEqual(self.view.actions.text(), tr('pp2.context_unknown'))
+        self.assertEqual(self.view.actions.text(), tr('pp2.general.hint'))
         self.assertEqual(self.view.actions.toolTip(), '')
         self.powers['Edmund Mahon']['ethos']['acquisition'] = ['$PP2_Action_SellExoticGoods;']
         self.state.powerplay.system['Powers'] = ['Edmund Mahon']

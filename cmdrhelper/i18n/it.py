@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'release.3_9_16.0': 'Le sezioni PP2 del sistema attuale, delle attività e degli articoli a bordo si possono chiudere separatamente: chiuse al primo utilizzo, poi con stato salvato. La tua potenza e la cronaca giornaliera restano visibili.',
+    'release.3_9_16.1': 'Un tipo di attività incerto mostra un breve suggerimento generale su come intercettare altri comandanti, senza affermare una disponibilità locale confermata. Attività certe, indicatori Ethos e controlli di sicurezza restano invariati.',
+    'release.3_9_16.2': 'Le potenze straniere che controllano il sistema attuale mostrano un ritratto esistente di 42 × 56 pixel accanto al nome. La tua potenza non riceve un ritratto aggiuntivo.',
+    'release.3_9_16.3': 'Il grafico di controllo a quattro stadi per i sistemi controllati è circa il 25 % più basso, comprese etichette e legenda. Posizioni degli indicatori, colorazione rossa/blu e calcoli dei CP restano invariati.',
     'release.3_9_15.0': "Schede dei conflitti PP2 più compatte per i sistemi non occupati: ritratti, barre e spaziature ridotti di circa il 25%; testo ridotto da 12 a 10 pixel per mantenere la leggibilità.",
     'release.3_9_15.1': "Con almeno tre potenze partecipanti e una finestra abbastanza larga, le due potenze in testa compaiono a sinistra e tutte le altre a destra. Le finestre strette e un massimo di due potenze mantengono una sola colonna.",
     'release.3_9_15.2': "La scheda del sistema esistente utilizza la larghezza sotto i consigli sulle azioni e gli articoli a bordo senza coprirli. Le due colonne del conflitto iniziano alla stessa altezza e occupano meno spazio verticale; tutti i partecipanti restano visibili.",
@@ -2302,4 +2306,10 @@ TRANSLATIONS.update({
 TRANSLATIONS.update({
     'pp2.conflict.boundary_help': "Limite del conflitto (approssimazione)\n\nL’indicatore si trova attualmente a 36.000 CP su una scala ipotizzata della barra fino a 180.000 CP.\n\nQuesto limite non è ancora stato confermato come soglia ufficiale del gioco.",
     'pp2.conflict.minimum_help': "Punti di controllo minimi (approssimazione)\n\nL’indicatore si trova attualmente a 120.000 CP su una scala ipotizzata della barra fino a 180.000 CP.\n\nQuesto limite non è ancora stato confermato come soglia ufficiale del gioco.",
+})
+
+# General guidance, not evidence of local activity availability.
+TRANSLATIONS.update({
+    'pp2.general.label': 'Suggerimento generale — attività locale non confermata',
+    'pp2.general.hint': 'Intercetta altri comandanti che svolgono attività qui per rallentare i progressi di un’altra potenza.',
 })

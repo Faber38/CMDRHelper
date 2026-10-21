@@ -38,6 +38,13 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.9.16
+
+- PP2 sections for the current system, activities and onboard articles can be collapsed individually: closed on first use, with their state saved thereafter. Your power and the daily chronicle remain visible.
+- An unclear activity type now shows a short general tip about intercepting other CMDRs, without claiming confirmed local availability. Unambiguous activities, Ethos markers and safeguards are retained.
+- Foreign controlling powers receive an existing 42 × 56 pixel portrait beside their name in the current system. Your own power receives no additional portrait.
+- The four-stage control graphic for controlled systems is about 25% shorter, including captions and legend. Marker positions, red/blue shading and CP calculations remain unchanged.
+
 ## CMDRHelper v3.9.15
 
 - More compact PP2 conflict cards for unoccupied systems: portraits, bars and spacing are about 25% smaller; text is reduced from 12 to 10 pixels to retain readability.

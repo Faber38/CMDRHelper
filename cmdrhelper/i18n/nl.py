@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'release.3_9_16.0': 'De PP2-onderdelen voor het huidige systeem, activiteiten en artikelen aan boord zijn afzonderlijk inklapbaar: gesloten bij het eerste gebruik, daarna met opgeslagen toestand. Je macht en de dagkroniek blijven zichtbaar.',
+    'release.3_9_16.1': 'Bij een onduidelijk activiteitstype verschijnt een korte algemene tip over het onderscheppen van andere commandanten, zonder bevestigde lokale beschikbaarheid te claimen. Eenduidige activiteiten, Ethos-markeringen en controles blijven behouden.',
+    'release.3_9_16.2': 'Vreemde machten die het huidige systeem beheersen, krijgen een bestaand portret van 42 × 56 pixels naast hun naam. Je eigen macht krijgt geen extra portret.',
+    'release.3_9_16.3': 'De controlegrafiek met vier fasen voor beheerste systemen is ongeveer 25% lager, inclusief bijschriften en legenda. Markerposities, rode/blauwe kleuring en CP-berekeningen blijven ongewijzigd.',
     'release.3_9_15.0': "Compactere PP2-conflictkaarten voor onbezette systemen: portretten, balken en afstanden zijn ongeveer 25% kleiner; tekst is verkleind van 12 naar 10 pixels om de leesbaarheid te behouden.",
     'release.3_9_15.1': "Bij minstens drie deelnemende machten en voldoende vensterbreedte staan de twee leidende machten links en alle overige rechts. Smalle vensters en maximaal twee machten behouden één kolom.",
     'release.3_9_15.2': "De bestaande systeemkaart gebruikt de breedte onder actieadvies en artikelen aan boord zonder deze te bedekken. Beide conflictkolommen beginnen op dezelfde hoogte en nemen minder verticale ruimte in; alle deelnemers blijven zichtbaar.",
@@ -2179,4 +2183,10 @@ TRANSLATIONS.update({
 TRANSLATIONS.update({
     'pp2.conflict.boundary_help': "Conflictgrens (benadering)\n\nDe markering staat momenteel op 36.000 CP op een aangenomen balkschaal tot 180.000 CP.\n\nDeze grens is nog niet bevestigd als officiële speldrempel.",
     'pp2.conflict.minimum_help': "Minimaal aantal controlepunten (benadering)\n\nDe markering staat momenteel op 120.000 CP op een aangenomen balkschaal tot 180.000 CP.\n\nDeze grens is nog niet bevestigd als officiële speldrempel.",
+})
+
+# General guidance, not evidence of local activity availability.
+TRANSLATIONS.update({
+    'pp2.general.label': 'Algemene tip — geen bevestigde lokale activiteit',
+    'pp2.general.hint': 'Onderschep andere commandanten die hier activiteiten uitvoeren om de voortgang van een andere macht te vertragen.',
 })

@@ -1,4 +1,8 @@
 TRANSLATIONS = {
+    'release.3_9_16.0': 'PP2-Bereiche für aktuelles System, Aktivitäten und Bordartikel einzeln aufklappbar: beim ersten Start geschlossen, danach mit dauerhaft gespeichertem Zustand. Deine Macht und Tageschronik bleiben sichtbar.',
+    'release.3_9_16.1': 'Bei unklarer Aktionsart erscheint ein kurzer allgemeiner Hinweis zum Abfangen anderer KDTN, ohne bestätigte lokale Verfügbarkeit zu behaupten. Eindeutige Aktivitäten, Ethos-Kennzeichnungen und Schutzprüfungen bleiben erhalten.',
+    'release.3_9_16.2': 'Fremde kontrollierende Mächte erhalten im aktuellen System ein vorhandenes Porträt mit 42 × 56 Pixeln neben ihrem Namen. Bei eigener Macht erscheint kein zusätzliches Porträt.',
+    'release.3_9_16.3': 'Die Vier-Stufen-Kontrollgrafik für kontrollierte Systeme ist ungefähr 25 % flacher, einschließlich Beschriftungen und Legende. Markerpositionen, Rot-/Blaufärbung und CP-Berechnungen bleiben unverändert.',
     'release.3_9_15.0': "Kompaktere PP2-Konfliktkarten für nicht besetzte Systeme: Porträts, Balken und Abstände ungefähr 25 % kleiner; Schrift für bessere Lesbarkeit von 12 auf 10 Pixel reduziert.",
     'release.3_9_15.1': "Ab drei beteiligten Mächten und ausreichender Fensterbreite stehen die zwei führenden Mächte links, alle weiteren rechts. Bei schmalen Fenstern oder höchstens zwei Mächten bleibt die Darstellung einspaltig.",
     'release.3_9_15.2': "Die bestehende Systemkarte nutzt die Breite unter Aktionshinweisen und Bordartikeln, ohne diese zu verdecken. Beide Konfliktspalten beginnen bündig und benötigen weniger Höhe; alle Teilnehmer bleiben sichtbar.",
@@ -2323,4 +2327,10 @@ TRANSLATIONS.update({
 TRANSLATIONS.update({
     'pp2.conflict.boundary_help': "Konfliktgrenze (Näherung)\n\nDie Markierung steht derzeit bei 36.000 CP auf einer angenommenen Balkenskala bis 180.000 CP.\n\nDiese Grenze ist noch nicht als offizielle Spielschwelle bestätigt.",
     'pp2.conflict.minimum_help': "Mindestkontrollpunktzahl (Näherung)\n\nDie Markierung steht derzeit bei 120.000 CP auf einer angenommenen Balkenskala bis 180.000 CP.\n\nDiese Grenze ist noch nicht als offizielle Spielschwelle bestätigt.",
+})
+
+# General guidance, not evidence of local activity availability.
+TRANSLATIONS.update({
+    'pp2.general.label': 'Allgemeiner Hinweis – keine bestätigte lokale Aktivität',
+    'pp2.general.hint': 'Andere KDTN abfangen, die hier Aktionen ausführen, um den Fortschritt einer anderen Macht zu verlangsamen.',
 })

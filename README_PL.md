@@ -38,6 +38,13 @@ Folder dzienników Elite Dangerous jest wykrywany automatycznie, jeśli to możl
 
 CMDRHelper sprawdza aktualizacje przy uruchomieniu i ma wbudowany mechanizm aktualizacji. Potwierdź proponowaną aktualizację w aplikacji; zaktualizuje ona program i zależności oraz uruchomi CMDRHelper ponownie. Po pierwszej instalacji zwykle wystarczy używać `start.bat` (Windows) lub `bash start.sh` (Linux). Przy zwykłych aktualizacjach nie trzeba ponownie ręcznie uruchamiać `install.bat` ani `install.sh`.
 
+## CMDRHelper v3.9.16
+
+- Sekcje PP2 bieżącego systemu, aktywności i artykułów na pokładzie można zwijać osobno: przy pierwszym użyciu są zamknięte, a później ich stan jest zapisywany. Twoja potęga i kronika dnia pozostają widoczne.
+- Przy niejasnym rodzaju aktywności pojawia się krótka ogólna wskazówka o przechwytywaniu innych dowódców, bez potwierdzania lokalnej dostępności. Jednoznaczne aktywności, oznaczenia Ethos i zabezpieczenia pozostają zachowane.
+- Obce potęgi kontrolujące bieżący system mają obok nazwy istniejący portret o rozmiarze 42 × 56 pikseli. Twoja potęga nie otrzymuje dodatkowego portretu.
+- Czterostopniowy wykres kontroli dla kontrolowanych systemów jest o około 25 % niższy, wraz z podpisami i legendą. Pozycje znaczników, czerwone/niebieskie zabarwienie i obliczenia CP pozostają bez zmian.
+
 ## CMDRHelper v3.9.15
 
 - Bardziej kompaktowe karty konfliktów PP2 dla nieokupowanych systemów: portrety, paski i odstępy są mniejsze o około 25%; tekst zmniejszono z 12 do 10 pikseli, aby zachować czytelność.
