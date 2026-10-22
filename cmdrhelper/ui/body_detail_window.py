@@ -28,7 +28,7 @@ from cmdrhelper.i18n import tr, get_language
 
 
 class BodyDetailWindow(QDialog):
-    def __init__(self, body: dict, parent=None):
+    def __init__(self, body: dict, parent=None, *, planning=False):
         super().__init__(parent)
 
         self.body = dict(body or {})
@@ -104,7 +104,7 @@ class BodyDetailWindow(QDialog):
         content = QWidget()
         content_layout = QVBoxLayout(content)
 
-        explorer_card, explorer_form = self._card(tr("body_detail.explorer_status"))
+        explorer_card, explorer_form = self._card(tr("external.observations" if planning else "body_detail.explorer_status"))
         self._add_explorer_rows(explorer_form)
         content_layout.addWidget(explorer_card)
 
@@ -140,9 +140,10 @@ class BodyDetailWindow(QDialog):
                               "\n".join(material_lines))
             content_layout.addWidget(mining_card)
 
-        value_card, value_form = self._card(tr("body_detail.values"))
-        self._add_value_rows(value_form)
-        content_layout.addWidget(value_card)
+        if not planning:
+            value_card, value_form = self._card(tr("body_detail.values"))
+            self._add_value_rows(value_form)
+            content_layout.addWidget(value_card)
 
         content_layout.addStretch()
         scroll.setWidget(content)

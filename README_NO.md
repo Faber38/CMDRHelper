@@ -38,6 +38,15 @@ Journalmappen til Elite Dangerous oppdages automatisk når det er mulig. Hvis de
 
 CMDRHelper søker etter oppdateringer ved oppstart og har en innebygd oppdateringsfunksjon. Bekreft en tilbudt oppdatering i programmet; den oppdaterer programmet og avhengighetene og starter CMDRHelper på nytt. Etter førstegangsinstallasjonen bruker du normalt bare `start.bat` (Windows) eller `bash start.sh` (Linux). Du trenger ikke å kjøre `install.bat` eller `install.sh` manuelt på nytt for vanlige oppdateringer.
 
+## CMDRHelper v3.9.17
+
+- Eksternt systemsøk i Explorer over gjeldende system: Enter eller knappen starter asynkront navneoppslag via Spansh. Det eksisterende systemkartet viser stjerner, planeter, måner og anlegg i et separat vindu med justerbar størrelse uten tvungen forgrunn; klikk på et himmellegeme for detaljer.
+- Spansh-data, entydig identifiserte lokale EDSM-cacher og krønikedata fra alle kommandører kombineres med kilder og konflikter. Egne skanne- og kartleggingsbevis forblir tilordnet riktig kommandør; eksterne data regnes ikke som egne oppdagelser. Krøniken blir bare lest.
+- Planeter det kan landes på er tydelig merket. Detaljer viser type, tyngdekraft, atmosfære og kjente materialer; ubekreftede Spansh-andeler vises ikke som prosenter. Spansh/EDSM garanterer ikke bestemte Rhino-gruveområder eller ressursene deres.
+- Fullførte Explorer-søkearbeidere og signalobjektene deres frigjøres; foreldede resultater forkastes. Gjentatte søk samler ikke opp QRunnable-objekter.
+- PP2-dagskrøniken gjenbruker uendrede dagsdata og tabeller. Nye meritter og senere rettelser oppdaterer visningen; dags- og tidsfiltre, kommandørbytte og løsrevet krønike støttes fortsatt.
+- Eksterne vinduer viser øyeblikksbilder. EDSM-cacher uten entydig systemidentitet slås ikke sammen. Databaseskjemaet er fortsatt 23; merknader på tolv språk. Innebygd Windows-testing gjenstår.
+
 ## CMDRHelper v3.9.16
 
 - PP2-delene for gjeldende system, aktiviteter og artikler om bord kan foldes sammen hver for seg: lukket ved første bruk, deretter med lagret tilstand. Makten din og dagskrøniken forblir synlige.

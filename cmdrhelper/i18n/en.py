@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_17.0': 'External Explorer system search above “CURRENT SYSTEM”: Enter or the button starts asynchronous Spansh name resolution. The existing system map shows stars, planets, moons and facilities in a separate resizable window without forced always-on-top; click a body for details.',
+    'release.3_9_17.1': 'Spansh body data, uniquely identified local EDSM caches and chronicle data from all commanders are combined with sources and conflicts. Personal scan and mapping evidence stays attributed to its commander; external data is not treated as personal discoveries. The chronicle is read only.',
+    'release.3_9_17.2': 'Landable planets are clearly marked. Body details show planet type, gravity, atmosphere and known materials; unverified Spansh material shares are not displayed as percentages. Spansh/EDSM do not guarantee specific Rhino mining sites or their resources.',
+    'release.3_9_17.3': 'Completed Explorer search workers and their signal objects are released; obsolete search results are discarded. Repeated searches do not accumulate QRunnable objects.',
+    'release.3_9_17.4': 'The PP2 daily chronicle reuses unchanged daily data and tables. New merits and later corrections update the display; day and time filters, commander switching and the detached chronicle remain supported.',
+    'release.3_9_17.5': 'External windows show snapshots. EDSM caches without an unambiguous system identity are not merged. Database schema remains 23; notes in twelve languages. Native Windows testing is pending.',
     'release.3_9_16.0': 'PP2 sections for the current system, activities and onboard articles can be collapsed individually: closed on first use, with their state saved thereafter. Your power and the daily chronicle remain visible.',
     'release.3_9_16.1': 'An unclear activity type now shows a short general tip about intercepting other CMDRs, without claiming confirmed local availability. Unambiguous activities, Ethos markers and safeguards are retained.',
     'release.3_9_16.2': 'Foreign controlling powers receive an existing 42 × 56 pixel portrait beside their name in the current system. Your own power receives no additional portrait.',
@@ -2333,4 +2339,27 @@ TRANSLATIONS.update({
 TRANSLATIONS.update({
     'pp2.general.label': 'General tip — not a confirmed local activity',
     'pp2.general.hint': 'Intercept other CMDRs carrying out activities here to slow the progress of another power.',
+})
+
+# Independent external system planning view.
+TRANSLATIONS.update({
+    'external.title': 'EXTERNAL SYSTEM SEARCH',
+    'external.search': 'Search system',
+    'external.go': 'Search',
+    'external.loading': 'Loading system data …',
+    'external.error': 'Could not load system data. Please try again later.',
+    'external.unknown': 'System not found or name ambiguous. Enter the full system name.',
+    'external.source': 'Data source: {source}',
+    'external.local': 'Local chronicle',
+    'external.notice': 'Surface materials do not establish the resources of a specific Rhino mining site.',
+    'external.partial': 'Incomplete data or external request failed.',
+    'external.temperature': 'Surface temperature',
+    'external.volcanism': 'Volcanism',
+    'external.units': 'Material shares hidden: Spansh unit not confirmed.',
+    'external.observations': 'Evidence by commander',
+    'external.scanned': 'Scanned',
+    'external.mapped': 'Mapped',
+    'external.conflicts': 'Conflicting source values',
+    'external.hierarchy': 'Body hierarchy',
+    'external.edsm_skip': 'No unambiguously identified local EDSM data added.',
 })

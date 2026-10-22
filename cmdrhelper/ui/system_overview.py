@@ -40,6 +40,11 @@ def body_diameter(body):
     return min(70.0, max(30.0, size * 1.15))
 
 
+def external_landable(body):
+    return bool(body and body.get('external_view') and body.get('body_type') == 'Planet'
+                and body.get('landable') is True)
+
+
 @dataclass
 class OverviewNode(LayoutNode):
     x: float = 0
@@ -51,7 +56,9 @@ class OverviewNode(LayoutNode):
 
     @property
     def height(self):
-        return 82 + self.diameter / 2 + 66 if self.body is not None else 110.0
+        if self.body is None:
+            return 110.0
+        return 82 + self.diameter / 2 + 66 + (22 if external_landable(self.body) else 0)
 
     @property
     def center(self):
@@ -89,6 +96,7 @@ class BodyItem(QGraphicsObject):
         if self.name == system_name:
             self.name = str(body.get('body_id', '–'))
         self.type_text = SystemMapWidget._type_text(body)
+        self.landable_text = '✓ ' + tr('body_detail.landable') if external_landable(body) else ''
         if node.belt_members:
             self.type_text = ''
         self.pixmap = resolver._body_pixmap(body)
@@ -116,6 +124,9 @@ class BodyItem(QGraphicsObject):
 
     def boundingRect(self):
         return QRectF(0, 0, CELL_WIDTH, self.node.height)
+
+    def landability_rect(self):
+        return QRectF(10, 82 + self.node.diameter / 2 + 62, CELL_WIDTH - 20, 20)
 
     def paint(self, painter, option, widget=None):
         theme = THEMES[self.light]
@@ -145,7 +156,7 @@ class BodyItem(QGraphicsObject):
         painter.setFont(font)
         painter.setPen(QColor(theme['text']))
         label_y = image_rect.bottom() + 7
-        painter.fillRect(QRectF(10, label_y, CELL_WIDTH - 20, 53), QColor(theme['background']))
+        painter.fillRect(QRectF(10, label_y, CELL_WIDTH - 20, 75 if self.landable_text else 53), QColor(theme['background']))
         painter.drawText(QRectF(10, label_y, CELL_WIDTH - 20, 21), Qt.AlignmentFlag.AlignCenter,
                          painter.fontMetrics().elidedText(self.name, Qt.TextElideMode.ElideRight, int(CELL_WIDTH - 24)))
         font.setPointSize(9)
@@ -155,6 +166,12 @@ class BodyItem(QGraphicsObject):
         painter.drawText(QRectF(10, label_y + 22, CELL_WIDTH - 20, 31),
                          Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop | Qt.TextFlag.TextWordWrap,
                          self.type_text)
+        if self.landable_text:
+            font.setPointSize(10)
+            font.setBold(True)
+            painter.setFont(font)
+            painter.setPen(QColor('#247347' if self.light else '#7dcc9b'))
+            painter.drawText(self.landability_rect(), Qt.AlignmentFlag.AlignCenter, self.landable_text)
 
     def hoverEnterEvent(self, event):
         self.hovered = True

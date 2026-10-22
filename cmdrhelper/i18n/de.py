@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_17.0': 'Externe Explorer-Systemsuche oberhalb von „AKTUELLES SYSTEM“: Enter oder Schaltfläche starten die asynchrone Spansh-Namensauflösung. Die bestehende Systemkarte zeigt Sterne, Planeten, Monde und Einrichtungen in einem separaten, größenveränderbaren Fenster ohne erzwungenes Always-on-Top; Körperdetails öffnen sich per Klick.',
+    'release.3_9_17.1': 'Spansh-Körperdaten, eindeutig identifizierte lokale EDSM-Caches und Chronikdaten aller Commander werden mit Quellen und Konflikten zusammengeführt. Eigene Scan- und Kartierungsnachweise bleiben dem jeweiligen Commander zugeordnet; externe Daten gelten nicht als eigene Entdeckungen. Die Chronik wird nur gelesen.',
+    'release.3_9_17.2': 'Landbare Planeten sind deutlich markiert. Körperdetails zeigen Planetentyp, Schwerkraft, Atmosphäre und bekannte Materialien; unbestätigte Spansh-Materialanteile werden nicht als Prozentwerte ausgegeben. Spansh/EDSM garantieren keine konkreten Rhino-Abbaugebiete oder deren Rohstoffe.',
+    'release.3_9_17.3': 'Abgeschlossene Explorer-Suchworker und ihre Signalobjekte werden freigegeben; überholte Suchergebnisse werden verworfen. Wiederholte Suchen sammeln keine QRunnable-Objekte an.',
+    'release.3_9_17.4': 'Die PP2-Tageschronik verwendet unveränderte Tagesdaten und Tabellen weiter. Neue Merits und nachträgliche Korrekturen aktualisieren die Anzeige; Tages- und Zeitfilter, Commanderwechsel und abgedockte Chronik bleiben unterstützt.',
+    'release.3_9_17.5': 'Externe Fenster zeigen Snapshots. EDSM-Caches ohne eindeutige Systemidentität werden nicht zusammengeführt. Datenbankschema weiterhin 23; Hinweise in zwölf Sprachen. Die native Windows-Prüfung steht aus.',
     'release.3_9_16.0': 'PP2-Bereiche für aktuelles System, Aktivitäten und Bordartikel einzeln aufklappbar: beim ersten Start geschlossen, danach mit dauerhaft gespeichertem Zustand. Deine Macht und Tageschronik bleiben sichtbar.',
     'release.3_9_16.1': 'Bei unklarer Aktionsart erscheint ein kurzer allgemeiner Hinweis zum Abfangen anderer KDTN, ohne bestätigte lokale Verfügbarkeit zu behaupten. Eindeutige Aktivitäten, Ethos-Kennzeichnungen und Schutzprüfungen bleiben erhalten.',
     'release.3_9_16.2': 'Fremde kontrollierende Mächte erhalten im aktuellen System ein vorhandenes Porträt mit 42 × 56 Pixeln neben ihrem Namen. Bei eigener Macht erscheint kein zusätzliches Porträt.',
@@ -2333,4 +2339,27 @@ TRANSLATIONS.update({
 TRANSLATIONS.update({
     'pp2.general.label': 'Allgemeiner Hinweis – keine bestätigte lokale Aktivität',
     'pp2.general.hint': 'Andere KDTN abfangen, die hier Aktionen ausführen, um den Fortschritt einer anderen Macht zu verlangsamen.',
+})
+
+# Independent external system planning view.
+TRANSLATIONS.update({
+    'external.title': 'EXTERNE SYSTEMSUCHE',
+    'external.search': 'System suchen',
+    'external.go': 'Suchen',
+    'external.loading': 'Systemdaten werden geladen …',
+    'external.error': 'Systemdaten konnten nicht geladen werden. Bitte später erneut versuchen.',
+    'external.unknown': 'System nicht gefunden oder Name nicht eindeutig. Bitte den vollständigen Systemnamen eingeben.',
+    'external.source': 'Datenquelle: {source}',
+    'external.local': 'Lokaler Chronikbestand',
+    'external.notice': 'Oberflächenmaterialien belegen keine Rohstoffe eines konkreten Rhino-Abbaugebiets.',
+    'external.partial': 'Unvollständiger Datenbestand oder externer Abruf fehlgeschlagen.',
+    'external.temperature': 'Oberflächentemperatur',
+    'external.volcanism': 'Vulkanismus',
+    'external.units': 'Materialanteile nicht angezeigt: Spansh-Einheit nicht bestätigt.',
+    'external.observations': 'Nachweise nach Commander',
+    'external.scanned': 'Gescannt',
+    'external.mapped': 'Kartiert',
+    'external.conflicts': 'Abweichende Quellwerte',
+    'external.hierarchy': 'Körperhierarchie',
+    'external.edsm_skip': 'Kein eindeutig identifizierter lokaler EDSM-Bestand ergänzt.',
 })

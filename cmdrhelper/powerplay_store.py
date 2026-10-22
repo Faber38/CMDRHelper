@@ -280,12 +280,20 @@ def sync(db, sessions, *, day=None, zone=None):
 
 def read_day(db, cid, day, *, zone=None):
     lower, upper = day_bounds(day, zone)
-    result = PowerplayChronicle()
     with db._connect() as con:
-        rows = con.execute('''SELECT e.source_id,e.facts_json,e.context_json FROM pp2_events e
+        rows = _day_rows(con, cid, lower, upper)
+    return _decode_day(rows)
+
+
+def _day_rows(con, cid, lower, upper):
+    return con.execute('''SELECT e.source_id,e.facts_json,e.context_json FROM pp2_events e
             JOIN pp2_sources s ON s.id=e.source_id AND s.commander_id=e.commander_id
             WHERE e.commander_id=? AND e.timestamp_utc>=? AND e.timestamp_utc<?
             ORDER BY s.started_at,s.source_key,e.source_line''', (cid, lower, upper)).fetchall()
+
+
+def _decode_day(rows):
+    result = PowerplayChronicle()
     previous = last_sequence = None
     for sid, facts, context in rows:
         if sid != previous:
@@ -298,6 +306,59 @@ def read_day(db, cid, day, *, zone=None):
         result.apply(e, system=c.get('system', {}).get('StarSystem', ''), station=c.get('station', ''), power=c.get('power', ''))
         last_sequence = sequence
     return result
+
+
+class DayCache:
+    """One view's current day; no writes, persistent revisions or polling timer.
+
+    data_version is meaningful only on the same connection. Every commit on
+    another connection invalidates the probe, including in-place corrections.
+    Compare ordered raw rows before replaying: unrelated commits need no replay.
+    """
+
+    def __init__(self):
+        self.close()
+
+    def close(self):
+        con = getattr(self, '_con', None)
+        if con is not None:
+            con.close()
+        self._con = self._binding = self._request = None
+        self._content_key = self._rows = self._chronicle = self._token = None
+
+    def load(self, db, cid, day, fid=None):
+        path = getattr(db, 'path', None)
+        if not isinstance(path, (str, Path)):
+            self.close()
+            return db.powerplay_day(cid, day), None
+        try:
+            path = Path(path).resolve()
+            stat = path.stat()
+            # Inode identity detects replacement; size/mtime never prove validity.
+            binding = (db, path, stat.st_dev, stat.st_ino)
+            if binding != self._binding:
+                self.close()
+                self._con = sqlite3.connect(path.as_uri() + '?mode=ro', uri=True)
+                self._binding = binding
+            bounds = day_bounds(day)
+            revision = self._con.execute('PRAGMA data_version').fetchone()[0]
+            request = (cid, fid, bounds, revision)
+            if request != self._request:
+                identity = self._con.execute('SELECT fid FROM commanders WHERE id=?', (cid,)).fetchone()
+                key = (cid, fid, identity, bounds)
+                rows = _day_rows(self._con, cid, *bounds)
+                if key != self._content_key or rows != self._rows:
+                    chronicle = _decode_day(rows)
+                    self._content_key, self._rows, self._chronicle = key, rows, chronicle
+                    self._token = object()
+                # Bind to the revision BEFORE reading. A concurrent commit can
+                # cause one extra reload next time, never a falsely fresh cache.
+                self._request = request
+            return self._chronicle, self._token
+        except (OSError, sqlite3.Error):
+            # If the probe cannot establish validity, use the existing reader.
+            self.close()
+            return db.powerplay_day(cid, day), None
 
 
 def delete_preview(db, cid, days=None, *, day=None, zone=None, now=None):

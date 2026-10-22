@@ -38,6 +38,15 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.9.17
+
+- Recherche externe dans Explorer au-dessus du système actuel : Entrée ou le bouton lance la résolution asynchrone du nom via Spansh. La carte existante affiche étoiles, planètes, lunes et installations dans une fenêtre séparée redimensionnable, sans premier plan imposé ; un clic ouvre les détails du corps.
+- Les données des corps Spansh, les caches EDSM locaux identifiés sans ambiguïté et les chroniques de tous les commandants sont réunis avec leurs sources et conflits. Les preuves personnelles de scan et de cartographie restent attribuées à leur commandant ; les données externes ne sont pas des découvertes personnelles. La chronique est uniquement lue.
+- Les planètes accessibles sont clairement marquées. Les détails indiquent le type, la gravité, l’atmosphère et les matériaux connus ; les proportions Spansh non vérifiées ne sont pas affichées en pourcentage. Spansh/EDSM ne garantissent aucun site minier Rhino précis ni ses ressources.
+- Les tâches de recherche Explorer terminées et leurs objets de signal sont libérés ; les résultats obsolètes sont ignorés. Les recherches répétées n’accumulent pas d’objets QRunnable.
+- La chronique quotidienne PP2 réutilise les données et tableaux inchangés. Les nouveaux mérites et corrections ultérieures actualisent l’affichage ; les filtres de jour et d’heure, le changement de commandant et la chronique détachée restent pris en charge.
+- Les fenêtres externes affichent des instantanés. Les caches EDSM sans identité de système univoque ne sont pas fusionnés. Le schéma de base reste à 23 ; notes en douze langues. La validation native sous Windows reste à effectuer.
+
 ## CMDRHelper v3.9.16
 
 - Les sections PP2 du système actuel, des activités et des articles à bord se replient séparément : fermées à la première utilisation, puis avec leur état mémorisé. Votre puissance et la chronique quotidienne restent visibles.

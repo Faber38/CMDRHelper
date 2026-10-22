@@ -1953,6 +1953,10 @@ class MainWindow(QMainWindow):
 
         page_layout.addWidget(QLabel(tr("explorer.title"), objectName="sectionTitle"))
 
+        from cmdrhelper.ui.external_system_search import ExternalSystemSearch
+        self.external_system_search = ExternalSystemSearch(self, getattr(getattr(self.state, "database", None), "path", None))
+        page_layout.addWidget(self.external_system_search)
+
         system_card, system_layout = self._card(tr("explorer.current_system"))
 
         self.system_scan_header = QLabel(
@@ -5944,6 +5948,8 @@ class MainWindow(QMainWindow):
         if getattr(self, "_system_overview_window", None) is not None:
             self._system_overview_window.set_light_mode(theme == "light")
 
+        if hasattr(self, "external_system_search"):
+            self.external_system_search.set_light_mode(theme == "light")
         self._refresh_explorer_scan_header()
 
     def _explorer_live_window_enabled(self, window_kind):

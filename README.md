@@ -38,6 +38,15 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.9.17
+
+- External Explorer system search above “CURRENT SYSTEM”: Enter or the button starts asynchronous Spansh name resolution. The existing system map shows stars, planets, moons and facilities in a separate resizable window without forced always-on-top; click a body for details.
+- Spansh body data, uniquely identified local EDSM caches and chronicle data from all commanders are combined with sources and conflicts. Personal scan and mapping evidence stays attributed to its commander; external data is not treated as personal discoveries. The chronicle is read only.
+- Landable planets are clearly marked. Body details show planet type, gravity, atmosphere and known materials; unverified Spansh material shares are not displayed as percentages. Spansh/EDSM do not guarantee specific Rhino mining sites or their resources.
+- Completed Explorer search workers and their signal objects are released; obsolete search results are discarded. Repeated searches do not accumulate QRunnable objects.
+- The PP2 daily chronicle reuses unchanged daily data and tables. New merits and later corrections update the display; day and time filters, commander switching and the detached chronicle remain supported.
+- External windows show snapshots. EDSM caches without an unambiguous system identity are not merged. Database schema remains 23; notes in twelve languages. Native Windows testing is pending.
+
 ## CMDRHelper v3.9.16
 
 - PP2 sections for the current system, activities and onboard articles can be collapsed individually: closed on first use, with their state saved thereafter. Your power and the daily chronicle remain visible.

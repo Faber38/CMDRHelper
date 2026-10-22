@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_17.0': 'Recherche externe dans Explorer au-dessus du système actuel : Entrée ou le bouton lance la résolution asynchrone du nom via Spansh. La carte existante affiche étoiles, planètes, lunes et installations dans une fenêtre séparée redimensionnable, sans premier plan imposé ; un clic ouvre les détails du corps.',
+    'release.3_9_17.1': 'Les données des corps Spansh, les caches EDSM locaux identifiés sans ambiguïté et les chroniques de tous les commandants sont réunis avec leurs sources et conflits. Les preuves personnelles de scan et de cartographie restent attribuées à leur commandant ; les données externes ne sont pas des découvertes personnelles. La chronique est uniquement lue.',
+    'release.3_9_17.2': 'Les planètes accessibles sont clairement marquées. Les détails indiquent le type, la gravité, l’atmosphère et les matériaux connus ; les proportions Spansh non vérifiées ne sont pas affichées en pourcentage. Spansh/EDSM ne garantissent aucun site minier Rhino précis ni ses ressources.',
+    'release.3_9_17.3': 'Les tâches de recherche Explorer terminées et leurs objets de signal sont libérés ; les résultats obsolètes sont ignorés. Les recherches répétées n’accumulent pas d’objets QRunnable.',
+    'release.3_9_17.4': 'La chronique quotidienne PP2 réutilise les données et tableaux inchangés. Les nouveaux mérites et corrections ultérieures actualisent l’affichage ; les filtres de jour et d’heure, le changement de commandant et la chronique détachée restent pris en charge.',
+    'release.3_9_17.5': 'Les fenêtres externes affichent des instantanés. Les caches EDSM sans identité de système univoque ne sont pas fusionnés. Le schéma de base reste à 23 ; notes en douze langues. La validation native sous Windows reste à effectuer.',
     'release.3_9_16.0': 'Les sections PP2 du système actuel, des activités et des articles à bord se replient séparément : fermées à la première utilisation, puis avec leur état mémorisé. Votre puissance et la chronique quotidienne restent visibles.',
     'release.3_9_16.1': 'Un type d’activité indéterminé affiche un bref conseil général sur l’interception d’autres commandants, sans affirmer une disponibilité locale confirmée. Les activités certaines, les marqueurs Ethos et les vérifications de sécurité sont conservés.',
     'release.3_9_16.2': 'Les puissances étrangères contrôlant le système actuel affichent un portrait existant de 42 × 56 pixels à côté de leur nom. Votre propre puissance ne reçoit aucun portrait supplémentaire.',
@@ -2302,4 +2308,27 @@ TRANSLATIONS.update({
 TRANSLATIONS.update({
     'pp2.general.label': 'Conseil général — activité locale non confirmée',
     'pp2.general.hint': 'Intercepter les autres commandants qui effectuent des actions ici pour ralentir la progression d’une autre puissance.',
+})
+
+# Independent external system planning view.
+TRANSLATIONS.update({
+    'external.title': 'RECHERCHE DE SYSTÈME EXTERNE',
+    'external.search': 'Rechercher un système',
+    'external.go': 'Rechercher',
+    'external.loading': 'Chargement des données du système …',
+    'external.error': 'Impossible de charger les données. Réessayez plus tard.',
+    'external.unknown': 'Système introuvable ou nom ambigu. Saisissez le nom complet.',
+    'external.source': 'Source des données : {source}',
+    'external.local': 'Chronique locale',
+    'external.notice': 'Les matériaux de surface ne prouvent pas les ressources d’un site minier Rhino précis.',
+    'external.partial': 'Données incomplètes ou échec de la requête externe.',
+    'external.temperature': 'Température de surface',
+    'external.volcanism': 'Volcanisme',
+    'external.units': 'Proportions masquées : unité Spansh non confirmée.',
+    'external.observations': 'Observations par commandant',
+    'external.scanned': 'Scanné',
+    'external.mapped': 'Cartographié',
+    'external.conflicts': 'Valeurs contradictoires des sources',
+    'external.hierarchy': 'Hiérarchie des corps',
+    'external.edsm_skip': 'Aucune donnée EDSM locale identifiée sans ambiguïté ajoutée.',
 })

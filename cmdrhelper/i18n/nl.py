@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_17.0': 'Extern systemen zoeken in Explorer boven het huidige systeem: Enter of de knop start asynchrone naamomzetting via Spansh. De bestaande systeemkaart toont sterren, planeten, manen en faciliteiten in een apart verstelbaar venster zonder gedwongen voorgrond; klik op een hemellichaam voor details.',
+    'release.3_9_17.1': 'Spansh-gegevens, eenduidig geïdentificeerde lokale EDSM-caches en kronieken van alle commandanten worden gecombineerd met bronnen en conflicten. Persoonlijk scan- en kaartbewijs blijft aan de juiste commandant gekoppeld; externe gegevens gelden niet als eigen ontdekkingen. De kroniek wordt alleen gelezen.',
+    'release.3_9_17.2': 'Planeten waarop geland kan worden zijn duidelijk gemarkeerd. Details tonen type, zwaartekracht, atmosfeer en bekende materialen; onbevestigde Spansh-aandelen worden niet als percentages getoond. Spansh/EDSM garanderen geen specifieke Rhino-mijnlocaties of hun grondstoffen.',
+    'release.3_9_17.3': 'Voltooide Explorer-zoekworkers en hun signaalobjecten worden vrijgegeven; verouderde resultaten worden genegeerd. Herhaald zoeken stapelt geen QRunnable-objecten op.',
+    'release.3_9_17.4': 'De dagelijkse PP2-kroniek hergebruikt ongewijzigde daggegevens en tabellen. Nieuwe verdiensten en latere correcties werken de weergave bij; dag- en tijdfilters, wisselen van commandant en de losgekoppelde kroniek blijven ondersteund.',
+    'release.3_9_17.5': 'Externe vensters tonen momentopnamen. EDSM-caches zonder eenduidige systeemidentiteit worden niet samengevoegd. Databaseschema blijft 23; toelichting in twaalf talen. Native Windows-tests staan nog open.',
     'release.3_9_16.0': 'De PP2-onderdelen voor het huidige systeem, activiteiten en artikelen aan boord zijn afzonderlijk inklapbaar: gesloten bij het eerste gebruik, daarna met opgeslagen toestand. Je macht en de dagkroniek blijven zichtbaar.',
     'release.3_9_16.1': 'Bij een onduidelijk activiteitstype verschijnt een korte algemene tip over het onderscheppen van andere commandanten, zonder bevestigde lokale beschikbaarheid te claimen. Eenduidige activiteiten, Ethos-markeringen en controles blijven behouden.',
     'release.3_9_16.2': 'Vreemde machten die het huidige systeem beheersen, krijgen een bestaand portret van 42 × 56 pixels naast hun naam. Je eigen macht krijgt geen extra portret.',
@@ -2189,4 +2195,27 @@ TRANSLATIONS.update({
 TRANSLATIONS.update({
     'pp2.general.label': 'Algemene tip — geen bevestigde lokale activiteit',
     'pp2.general.hint': 'Onderschep andere commandanten die hier activiteiten uitvoeren om de voortgang van een andere macht te vertragen.',
+})
+
+# Independent external system planning view.
+TRANSLATIONS.update({
+    'external.title': 'EXTERN SYSTEEM ZOEKEN',
+    'external.search': 'Systeem zoeken',
+    'external.go': 'Zoeken',
+    'external.loading': 'Systeemgegevens laden …',
+    'external.error': 'Systeemgegevens konden niet worden geladen. Probeer het later opnieuw.',
+    'external.unknown': 'Systeem niet gevonden of naam niet eenduidig. Voer de volledige naam in.',
+    'external.source': 'Gegevensbron: {source}',
+    'external.local': 'Lokale kroniek',
+    'external.notice': 'Oppervlaktematerialen bewijzen niet de grondstoffen van een specifieke Rhino-mijnlocatie.',
+    'external.partial': 'Onvolledige gegevens of externe aanvraag mislukt.',
+    'external.temperature': 'Oppervlaktetemperatuur',
+    'external.volcanism': 'Vulkanisme',
+    'external.units': 'Materiaalaandelen verborgen: Spansh-eenheid niet bevestigd.',
+    'external.observations': 'Waarnemingen per commandant',
+    'external.scanned': 'Gescand',
+    'external.mapped': 'In kaart gebracht',
+    'external.conflicts': 'Tegenstrijdige bronwaarden',
+    'external.hierarchy': 'Hiërarchie van hemellichamen',
+    'external.edsm_skip': 'Geen eenduidig geïdentificeerde lokale EDSM-gegevens toegevoegd.',
 })

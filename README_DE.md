@@ -38,6 +38,15 @@ Der Journalordner von Elite Dangerous wird nach Möglichkeit automatisch erkannt
 
 CMDRHelper prüft beim Start auf Updates und besitzt einen integrierten Updater. Bestätige ein angebotenes Update im Programm; es aktualisiert Programm und Abhängigkeiten und startet CMDRHelper neu. Nach der Erstinstallation genügt normalerweise `start.bat` (Windows) beziehungsweise `bash start.sh` (Linux). Für normale Updates musst du `install.bat` oder `install.sh` nicht erneut manuell ausführen.
 
+## CMDRHelper v3.9.17
+
+- Externe Explorer-Systemsuche oberhalb von „AKTUELLES SYSTEM“: Enter oder Schaltfläche starten die asynchrone Spansh-Namensauflösung. Die bestehende Systemkarte zeigt Sterne, Planeten, Monde und Einrichtungen in einem separaten, größenveränderbaren Fenster ohne erzwungenes Always-on-Top; Körperdetails öffnen sich per Klick.
+- Spansh-Körperdaten, eindeutig identifizierte lokale EDSM-Caches und Chronikdaten aller Commander werden mit Quellen und Konflikten zusammengeführt. Eigene Scan- und Kartierungsnachweise bleiben dem jeweiligen Commander zugeordnet; externe Daten gelten nicht als eigene Entdeckungen. Die Chronik wird nur gelesen.
+- Landbare Planeten sind deutlich markiert. Körperdetails zeigen Planetentyp, Schwerkraft, Atmosphäre und bekannte Materialien; unbestätigte Spansh-Materialanteile werden nicht als Prozentwerte ausgegeben. Spansh/EDSM garantieren keine konkreten Rhino-Abbaugebiete oder deren Rohstoffe.
+- Abgeschlossene Explorer-Suchworker und ihre Signalobjekte werden freigegeben; überholte Suchergebnisse werden verworfen. Wiederholte Suchen sammeln keine QRunnable-Objekte an.
+- Die PP2-Tageschronik verwendet unveränderte Tagesdaten und Tabellen weiter. Neue Merits und nachträgliche Korrekturen aktualisieren die Anzeige; Tages- und Zeitfilter, Commanderwechsel und abgedockte Chronik bleiben unterstützt.
+- Externe Fenster zeigen Snapshots. EDSM-Caches ohne eindeutige Systemidentität werden nicht zusammengeführt. Datenbankschema weiterhin 23; Hinweise in zwölf Sprachen. Die native Windows-Prüfung steht aus.
+
 ## CMDRHelper v3.9.16
 
 - PP2-Bereiche für aktuelles System, Aktivitäten und Bordartikel einzeln aufklappbar: beim ersten Start geschlossen, danach mit dauerhaft gespeichertem Zustand. Deine Macht und Tageschronik bleiben sichtbar.

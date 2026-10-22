@@ -38,6 +38,15 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.17
+
+- Ulkoinen järjestelmähaku Explorerissa nykyisen järjestelmän yläpuolella: Enter tai painike käynnistää asynkronisen Spansh-nimihaun. Nykyinen järjestelmäkartta näyttää tähdet, planeetat, kuut ja laitokset erillisessä ikkunassa, jonka kokoa voi muuttaa ja jota ei pakoteta päällimmäiseksi; napsautus avaa taivaankappaleen tiedot.
+- Spansh-tiedot, yksiselitteisesti tunnistetut paikalliset EDSM-välimuistit ja kaikkien komentajien kronikat yhdistetään lähteineen ja ristiriitoineen. Omat skannaus- ja kartoitushavainnot pysyvät oikean komentajan nimissä; ulkoiset tiedot eivät ole omia löytöjä. Kronikkaa vain luetaan.
+- Laskeutumiskelpoiset planeetat merkitään selvästi. Tiedoissa näkyvät tyyppi, painovoima, ilmakehä ja tunnetut materiaalit; vahvistamattomia Spansh-osuuksia ei näytetä prosentteina. Spansh/EDSM eivät takaa tiettyjä Rhino-kaivosalueita tai niiden raaka-aineita.
+- Valmiit Explorer-hakutyöntekijät ja niiden signaalioliot vapautetaan; vanhentuneet tulokset hylätään. Toistuvat haut eivät kerrytä QRunnable-olioita.
+- PP2-päiväkronikka käyttää muuttumattomia päivätietoja ja taulukoita uudelleen. Uudet ansiot ja myöhemmät korjaukset päivittävät näkymän; päivä- ja aikasuodattimet, komentajan vaihto ja irrotettu kronikka toimivat edelleen.
+- Ulkoiset ikkunat näyttävät tilannekuvia. EDSM-välimuisteja ei yhdistetä ilman yksiselitteistä järjestelmätunnistusta. Tietokantakaavio pysyy versiossa 23; tiedotteet kahdellatoista kielellä. Natiivi Windows-testaus on vielä tekemättä.
+
 ## CMDRHelper v3.9.16
 
 - Nykyisen järjestelmän, toimintojen ja aluksen artikkelien PP2-osiot voi sulkea erikseen: ensimmäisellä käyttökerralla suljettuina, sen jälkeen tila tallennetaan. Oma valtasi ja päiväkirja pysyvät näkyvissä.

@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_17.0': 'Explorer içinde mevcut sistemin üzerinde harici sistem arama: Enter veya düğme, Spansh üzerinden asenkron ad çözümlemesini başlatır. Mevcut sistem haritası yıldızları, gezegenleri, uyduları ve tesisleri ayrı, yeniden boyutlandırılabilir bir pencerede gösterir; sürekli üstte kalma zorlanmaz. Gök cismine tıklayarak ayrıntıları açabilirsiniz.',
+    'release.3_9_17.1': 'Spansh gök cismi verileri, kimliği kesin belirlenmiş yerel EDSM önbellekleri ve tüm komutanların kronik verileri kaynakları ve çelişkileriyle birleştirilir. Kişisel tarama ve haritalama kanıtları ilgili komutana bağlı kalır; harici veriler kişisel keşif sayılmaz. Kronik yalnızca okunur.',
+    'release.3_9_17.2': 'İniş yapılabilir gezegenler açıkça işaretlenir. Ayrıntılar tür, yerçekimi, atmosfer ve bilinen malzemeleri gösterir; doğrulanmamış Spansh oranları yüzde olarak sunulmaz. Spansh/EDSM belirli Rhino maden sahalarını veya kaynaklarını garanti etmez.',
+    'release.3_9_17.3': 'Tamamlanan Explorer arama işçileri ve sinyal nesneleri serbest bırakılır; eski sonuçlar atılır. Tekrarlanan aramalar QRunnable nesnelerini biriktirmez.',
+    'release.3_9_17.4': 'PP2 günlük kroniği değişmeyen günlük verileri ve tabloları yeniden kullanır. Yeni liyakat puanları ve sonraki düzeltmeler görünümü günceller; gün ve saat filtreleri, komutan değiştirme ve ayrılmış kronik desteklenmeye devam eder.',
+    'release.3_9_17.5': 'Harici pencereler anlık görüntüler gösterir. Sistem kimliği kesin olmayan EDSM önbellekleri birleştirilmez. Veritabanı şeması 23 olarak kalır; notlar on iki dilde sunulur. Yerel Windows testi henüz yapılmadı.',
     'release.3_9_16.0': 'Geçerli sistem, etkinlikler ve gemideki eşyalar için PP2 bölümleri ayrı ayrı daraltılabilir: ilk kullanımda kapalıdır, sonraki kullanımlar için durumları kaydedilir. Gücünüz ve günlük kayıt görünür kalır.',
     'release.3_9_16.1': 'Belirsiz etkinlik türünde, yerel kullanılabilirliğin doğrulandığını iddia etmeden diğer komutanların önünü kesmeye yönelik kısa bir genel ipucu gösterilir. Kesin etkinlikler, Ethos işaretleri ve güvenlik kontrolleri korunur.',
     'release.3_9_16.2': 'Geçerli sistemi kontrol eden yabancı güçlerin adlarının yanında mevcut 42 × 56 piksellik portreleri gösterilir. Kendi gücünüz için ek portre gösterilmez.',
@@ -2189,4 +2195,27 @@ TRANSLATIONS.update({
 TRANSLATIONS.update({
     'pp2.general.label': 'Genel ipucu — doğrulanmış bir yerel etkinlik değildir',
     'pp2.general.hint': 'Başka bir gücün ilerlemesini yavaşlatmak için burada etkinlik yürüten diğer komutanların önünü kesin.',
+})
+
+# Independent external system planning view.
+TRANSLATIONS.update({
+    'external.title': 'HARİCİ SİSTEM ARAMA',
+    'external.search': 'Sistem ara',
+    'external.go': 'Ara',
+    'external.loading': 'Sistem verileri yükleniyor …',
+    'external.error': 'Sistem verileri yüklenemedi. Daha sonra tekrar deneyin.',
+    'external.unknown': 'Sistem bulunamadı veya ad belirsiz. Tam sistem adını girin.',
+    'external.source': 'Veri kaynağı: {source}',
+    'external.local': 'Yerel günlük',
+    'external.notice': 'Yüzey malzemeleri belirli bir Rhino madencilik alanının kaynaklarını kanıtlamaz.',
+    'external.partial': 'Eksik veri veya başarısız harici istek.',
+    'external.temperature': 'Yüzey sıcaklığı',
+    'external.volcanism': 'Volkanizma',
+    'external.units': 'Malzeme oranları gizlendi: Spansh birimi doğrulanmadı.',
+    'external.observations': 'Komutana göre gözlemler',
+    'external.scanned': 'Tarandı',
+    'external.mapped': 'Haritalandı',
+    'external.conflicts': 'Çelişen kaynak değerleri',
+    'external.hierarchy': 'Gök cismi hiyerarşisi',
+    'external.edsm_skip': 'Kesin olarak tanımlanmış yerel EDSM verisi eklenmedi.',
 })

@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_17.0': 'Ulkoinen järjestelmähaku Explorerissa nykyisen järjestelmän yläpuolella: Enter tai painike käynnistää asynkronisen Spansh-nimihaun. Nykyinen järjestelmäkartta näyttää tähdet, planeetat, kuut ja laitokset erillisessä ikkunassa, jonka kokoa voi muuttaa ja jota ei pakoteta päällimmäiseksi; napsautus avaa taivaankappaleen tiedot.',
+    'release.3_9_17.1': 'Spansh-tiedot, yksiselitteisesti tunnistetut paikalliset EDSM-välimuistit ja kaikkien komentajien kronikat yhdistetään lähteineen ja ristiriitoineen. Omat skannaus- ja kartoitushavainnot pysyvät oikean komentajan nimissä; ulkoiset tiedot eivät ole omia löytöjä. Kronikkaa vain luetaan.',
+    'release.3_9_17.2': 'Laskeutumiskelpoiset planeetat merkitään selvästi. Tiedoissa näkyvät tyyppi, painovoima, ilmakehä ja tunnetut materiaalit; vahvistamattomia Spansh-osuuksia ei näytetä prosentteina. Spansh/EDSM eivät takaa tiettyjä Rhino-kaivosalueita tai niiden raaka-aineita.',
+    'release.3_9_17.3': 'Valmiit Explorer-hakutyöntekijät ja niiden signaalioliot vapautetaan; vanhentuneet tulokset hylätään. Toistuvat haut eivät kerrytä QRunnable-olioita.',
+    'release.3_9_17.4': 'PP2-päiväkronikka käyttää muuttumattomia päivätietoja ja taulukoita uudelleen. Uudet ansiot ja myöhemmät korjaukset päivittävät näkymän; päivä- ja aikasuodattimet, komentajan vaihto ja irrotettu kronikka toimivat edelleen.',
+    'release.3_9_17.5': 'Ulkoiset ikkunat näyttävät tilannekuvia. EDSM-välimuisteja ei yhdistetä ilman yksiselitteistä järjestelmätunnistusta. Tietokantakaavio pysyy versiossa 23; tiedotteet kahdellatoista kielellä. Natiivi Windows-testaus on vielä tekemättä.',
     'release.3_9_16.0': 'Nykyisen järjestelmän, toimintojen ja aluksen artikkelien PP2-osiot voi sulkea erikseen: ensimmäisellä käyttökerralla suljettuina, sen jälkeen tila tallennetaan. Oma valtasi ja päiväkirja pysyvät näkyvissä.',
     'release.3_9_16.1': 'Epäselvä toimintatyyppi näyttää lyhyen yleisen vinkin muiden komentajien pysäyttämisestä väittämättä paikallista saatavuutta vahvistetuksi. Yksiselitteiset toiminnot, Ethos-merkinnät ja suojaavat tarkistukset säilyvät.',
     'release.3_9_16.2': 'Nykyistä järjestelmää hallitsevan vieraan vallan nimen vieressä näytetään olemassa oleva 42 × 56 pikselin muotokuva. Omalle vallalle ei lisätä muotokuvaa.',
@@ -2189,4 +2195,27 @@ TRANSLATIONS.update({
 TRANSLATIONS.update({
     'pp2.general.label': 'Yleinen vinkki — ei vahvistettu paikallinen toiminto',
     'pp2.general.hint': 'Pysäytä muita täällä toimivia komentajia hidastaaksesi toisen vallan etenemistä.',
+})
+
+# Independent external system planning view.
+TRANSLATIONS.update({
+    'external.title': 'ULKOINEN JÄRJESTELMÄHAKU',
+    'external.search': 'Hae järjestelmää',
+    'external.go': 'Hae',
+    'external.loading': 'Ladataan järjestelmän tietoja …',
+    'external.error': 'Tietoja ei voitu ladata. Yritä myöhemmin uudelleen.',
+    'external.unknown': 'Järjestelmää ei löytynyt tai nimi on moniselitteinen. Anna koko nimi.',
+    'external.source': 'Tietolähde: {source}',
+    'external.local': 'Paikallinen kronikka',
+    'external.notice': 'Pintamateriaalit eivät osoita tietyn Rhino-kaivosalueen raaka-aineita.',
+    'external.partial': 'Puutteelliset tiedot tai ulkoinen pyyntö epäonnistui.',
+    'external.temperature': 'Pintalämpötila',
+    'external.volcanism': 'Vulkanismi',
+    'external.units': 'Materiaaliosuudet piilotettu: Spansh-yksikköä ei ole vahvistettu.',
+    'external.observations': 'Havainnot komentajittain',
+    'external.scanned': 'Skannattu',
+    'external.mapped': 'Kartoitettu',
+    'external.conflicts': 'Ristiriitaiset lähdearvot',
+    'external.hierarchy': 'Taivaankappaleiden hierarkia',
+    'external.edsm_skip': 'Yksiselitteisesti tunnistettuja paikallisia EDSM-tietoja ei lisätty.',
 })

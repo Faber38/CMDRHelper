@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_17.0': 'Eksternt systemsøk i Explorer over gjeldende system: Enter eller knappen starter asynkront navneoppslag via Spansh. Det eksisterende systemkartet viser stjerner, planeter, måner og anlegg i et separat vindu med justerbar størrelse uten tvungen forgrunn; klikk på et himmellegeme for detaljer.',
+    'release.3_9_17.1': 'Spansh-data, entydig identifiserte lokale EDSM-cacher og krønikedata fra alle kommandører kombineres med kilder og konflikter. Egne skanne- og kartleggingsbevis forblir tilordnet riktig kommandør; eksterne data regnes ikke som egne oppdagelser. Krøniken blir bare lest.',
+    'release.3_9_17.2': 'Planeter det kan landes på er tydelig merket. Detaljer viser type, tyngdekraft, atmosfære og kjente materialer; ubekreftede Spansh-andeler vises ikke som prosenter. Spansh/EDSM garanterer ikke bestemte Rhino-gruveområder eller ressursene deres.',
+    'release.3_9_17.3': 'Fullførte Explorer-søkearbeidere og signalobjektene deres frigjøres; foreldede resultater forkastes. Gjentatte søk samler ikke opp QRunnable-objekter.',
+    'release.3_9_17.4': 'PP2-dagskrøniken gjenbruker uendrede dagsdata og tabeller. Nye meritter og senere rettelser oppdaterer visningen; dags- og tidsfiltre, kommandørbytte og løsrevet krønike støttes fortsatt.',
+    'release.3_9_17.5': 'Eksterne vinduer viser øyeblikksbilder. EDSM-cacher uten entydig systemidentitet slås ikke sammen. Databaseskjemaet er fortsatt 23; merknader på tolv språk. Innebygd Windows-testing gjenstår.',
     'release.3_9_16.0': 'PP2-delene for gjeldende system, aktiviteter og artikler om bord kan foldes sammen hver for seg: lukket ved første bruk, deretter med lagret tilstand. Makten din og dagskrøniken forblir synlige.',
     'release.3_9_16.1': 'En uklar aktivitetstype viser et kort, generelt tips om å avskjære andre kommandører, uten å hevde bekreftet lokal tilgjengelighet. Entydige aktiviteter, Ethos-markører og sikkerhetskontroller beholdes.',
     'release.3_9_16.2': 'Fremmede makter som kontrollerer gjeldende system, får et eksisterende portrett på 42 × 56 piksler ved siden av navnet. Din egen makt får ikke noe ekstra portrett.',
@@ -2189,4 +2195,27 @@ TRANSLATIONS.update({
 TRANSLATIONS.update({
     'pp2.general.label': 'Generelt tips — ikke en bekreftet lokal aktivitet',
     'pp2.general.hint': 'Avskjær andre kommandører som utfører aktiviteter her, for å bremse fremgangen til en annen makt.',
+})
+
+# Independent external system planning view.
+TRANSLATIONS.update({
+    'external.title': 'EKSTERNT SYSTEMSØK',
+    'external.search': 'Søk etter system',
+    'external.go': 'Søk',
+    'external.loading': 'Laster systemdata …',
+    'external.error': 'Kunne ikke laste systemdata. Prøv igjen senere.',
+    'external.unknown': 'Systemet finnes ikke eller navnet er tvetydig. Skriv hele systemnavnet.',
+    'external.source': 'Datakilde: {source}',
+    'external.local': 'Lokal krønike',
+    'external.notice': 'Overflatematerialer bekrefter ikke ressursene på et bestemt Rhino-gruveområde.',
+    'external.partial': 'Ufullstendige data eller ekstern forespørsel mislyktes.',
+    'external.temperature': 'Overflatetemperatur',
+    'external.volcanism': 'Vulkanisme',
+    'external.units': 'Materialandeler skjult: Spansh-enheten er ikke bekreftet.',
+    'external.observations': 'Observasjoner per kommandør',
+    'external.scanned': 'Skannet',
+    'external.mapped': 'Kartlagt',
+    'external.conflicts': 'Motstridende kildeverdier',
+    'external.hierarchy': 'Hierarki for himmellegemer',
+    'external.edsm_skip': 'Ingen entydig identifiserte lokale EDSM-data lagt til.',
 })

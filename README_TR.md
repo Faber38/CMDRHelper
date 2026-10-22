@@ -39,6 +39,15 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.17
+
+- Explorer içinde mevcut sistemin üzerinde harici sistem arama: Enter veya düğme, Spansh üzerinden asenkron ad çözümlemesini başlatır. Mevcut sistem haritası yıldızları, gezegenleri, uyduları ve tesisleri ayrı, yeniden boyutlandırılabilir bir pencerede gösterir; sürekli üstte kalma zorlanmaz. Gök cismine tıklayarak ayrıntıları açabilirsiniz.
+- Spansh gök cismi verileri, kimliği kesin belirlenmiş yerel EDSM önbellekleri ve tüm komutanların kronik verileri kaynakları ve çelişkileriyle birleştirilir. Kişisel tarama ve haritalama kanıtları ilgili komutana bağlı kalır; harici veriler kişisel keşif sayılmaz. Kronik yalnızca okunur.
+- İniş yapılabilir gezegenler açıkça işaretlenir. Ayrıntılar tür, yerçekimi, atmosfer ve bilinen malzemeleri gösterir; doğrulanmamış Spansh oranları yüzde olarak sunulmaz. Spansh/EDSM belirli Rhino maden sahalarını veya kaynaklarını garanti etmez.
+- Tamamlanan Explorer arama işçileri ve sinyal nesneleri serbest bırakılır; eski sonuçlar atılır. Tekrarlanan aramalar QRunnable nesnelerini biriktirmez.
+- PP2 günlük kroniği değişmeyen günlük verileri ve tabloları yeniden kullanır. Yeni liyakat puanları ve sonraki düzeltmeler görünümü günceller; gün ve saat filtreleri, komutan değiştirme ve ayrılmış kronik desteklenmeye devam eder.
+- Harici pencereler anlık görüntüler gösterir. Sistem kimliği kesin olmayan EDSM önbellekleri birleştirilmez. Veritabanı şeması 23 olarak kalır; notlar on iki dilde sunulur. Yerel Windows testi henüz yapılmadı.
+
 ## CMDRHelper v3.9.16
 
 - Geçerli sistem, etkinlikler ve gemideki eşyalar için PP2 bölümleri ayrı ayrı daraltılabilir: ilk kullanımda kapalıdır, sonraki kullanımlar için durumları kaydedilir. Gücünüz ve günlük kayıt görünür kalır.

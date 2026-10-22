@@ -38,6 +38,15 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## CMDRHelper v3.9.17
+
+- Ricerca esterna di sistemi in Explorer sopra il sistema attuale: Invio o il pulsante avvia la risoluzione asincrona del nome tramite Spansh. La mappa esistente mostra stelle, pianeti, lune e strutture in una finestra separata ridimensionabile, senza primo piano forzato; un clic apre i dettagli del corpo.
+- I dati dei corpi Spansh, le cache EDSM locali identificate univocamente e le cronologie di tutti i comandanti vengono uniti con fonti e conflitti. Le prove personali di scansione e mappatura restano attribuite al rispettivo comandante; i dati esterni non sono scoperte personali. La cronologia viene solo letta.
+- I pianeti su cui è possibile atterrare sono chiaramente indicati. I dettagli mostrano tipo, gravità, atmosfera e materiali noti; le proporzioni Spansh non verificate non vengono mostrate come percentuali. Spansh/EDSM non garantiscono siti minerari Rhino specifici né le loro risorse.
+- I worker di ricerca Explorer completati e i relativi oggetti segnale vengono liberati; i risultati obsoleti vengono scartati. Le ricerche ripetute non accumulano oggetti QRunnable.
+- La cronologia giornaliera PP2 riutilizza dati e tabelle invariati. Nuovi meriti e correzioni successive aggiornano la visualizzazione; restano supportati i filtri di giorno e ora, il cambio di comandante e la cronologia separata.
+- Le finestre esterne mostrano istantanee. Le cache EDSM senza identità univoca del sistema non vengono unite. Schema del database ancora 23; note in dodici lingue. La verifica nativa su Windows è ancora da eseguire.
+
 ## CMDRHelper v3.9.16
 
 - Le sezioni PP2 del sistema attuale, delle attività e degli articoli a bordo si possono chiudere separatamente: chiuse al primo utilizzo, poi con stato salvato. La tua potenza e la cronaca giornaliera restano visibili.

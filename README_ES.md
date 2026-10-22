@@ -38,6 +38,15 @@ La carpeta de diarios de Elite Dangerous se detecta automáticamente cuando es p
 
 CMDRHelper busca actualizaciones al iniciarse y dispone de un actualizador integrado. Confirma una actualización ofrecida en la aplicación; actualizará el programa y las dependencias y reiniciará CMDRHelper. Tras la primera instalación, normalmente basta con usar `start.bat` (Windows) o `bash start.sh` (Linux). No es necesario volver a ejecutar manualmente `install.bat` o `install.sh` para las actualizaciones normales.
 
+## CMDRHelper v3.9.17
+
+- Búsqueda externa de sistemas en Explorer sobre el sistema actual: Intro o el botón inicia la resolución asíncrona del nombre mediante Spansh. El mapa existente muestra estrellas, planetas, lunas e instalaciones en una ventana separada redimensionable, sin forzar el primer plano; un clic abre los detalles del cuerpo.
+- Los datos de cuerpos de Spansh, las cachés EDSM locales identificadas inequívocamente y las crónicas de todos los comandantes se combinan con fuentes y conflictos. Las pruebas personales de escaneo y cartografía siguen atribuidas a su comandante; los datos externos no son descubrimientos propios. La crónica solo se lee.
+- Los planetas donde se puede aterrizar están claramente marcados. Los detalles muestran tipo, gravedad, atmósfera y materiales conocidos; las proporciones Spansh no verificadas no se muestran como porcentajes. Spansh/EDSM no garantizan yacimientos Rhino concretos ni sus recursos.
+- Los trabajadores de búsqueda Explorer terminados y sus objetos de señal se liberan; los resultados obsoletos se descartan. Las búsquedas repetidas no acumulan objetos QRunnable.
+- La crónica diaria PP2 reutiliza datos y tablas sin cambios. Los nuevos méritos y las correcciones posteriores actualizan la vista; se mantienen los filtros de día y hora, el cambio de comandante y la crónica separada.
+- Las ventanas externas muestran instantáneas. Las cachés EDSM sin identidad inequívoca del sistema no se fusionan. El esquema de la base sigue en 23; notas en doce idiomas. La prueba nativa en Windows está pendiente.
+
 ## CMDRHelper v3.9.16
 
 - Las secciones PP2 del sistema actual, actividades y artículos a bordo se pueden plegar por separado: cerradas en el primer uso y con su estado guardado después. Tu potencia y la crónica diaria siguen visibles.

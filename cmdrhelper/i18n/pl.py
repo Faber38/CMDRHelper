@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_17.0': 'Zewnętrzne wyszukiwanie układów w Explorer nad bieżącym układem: Enter lub przycisk uruchamia asynchroniczne rozpoznawanie nazwy przez Spansh. Istniejąca mapa pokazuje gwiazdy, planety, księżyce i obiekty w osobnym oknie o zmiennym rozmiarze, bez wymuszania pierwszego planu; kliknięcie otwiera szczegóły ciała.',
+    'release.3_9_17.1': 'Dane ciał Spansh, jednoznacznie zidentyfikowane lokalne pamięci EDSM i kroniki wszystkich dowódców są łączone ze źródłami i konfliktami. Własne dowody skanowania i mapowania pozostają przypisane właściwemu dowódcy; dane zewnętrzne nie są własnymi odkryciami. Kronika jest tylko odczytywana.',
+    'release.3_9_17.2': 'Planety umożliwiające lądowanie są wyraźnie oznaczone. Szczegóły pokazują typ, grawitację, atmosferę i znane materiały; niepotwierdzone udziały Spansh nie są wyświetlane jako procenty. Spansh/EDSM nie gwarantują konkretnych obszarów wydobycia Rhino ani ich surowców.',
+    'release.3_9_17.3': 'Zakończone zadania wyszukiwania Explorer i ich obiekty sygnałów są zwalniane; nieaktualne wyniki są odrzucane. Powtarzane wyszukiwania nie gromadzą obiektów QRunnable.',
+    'release.3_9_17.4': 'Dzienna kronika PP2 ponownie wykorzystuje niezmienione dane i tabele. Nowe zasługi i późniejsze korekty aktualizują widok; filtry dnia i czasu, zmiana dowódcy i odłączona kronika nadal działają.',
+    'release.3_9_17.5': 'Okna zewnętrzne pokazują migawki. Pamięci EDSM bez jednoznacznej tożsamości układu nie są łączone. Schemat bazy pozostaje 23; informacje w dwunastu językach. Natywny test w Windows pozostaje do wykonania.',
     'release.3_9_16.0': 'Sekcje PP2 bieżącego systemu, aktywności i artykułów na pokładzie można zwijać osobno: przy pierwszym użyciu są zamknięte, a później ich stan jest zapisywany. Twoja potęga i kronika dnia pozostają widoczne.',
     'release.3_9_16.1': 'Przy niejasnym rodzaju aktywności pojawia się krótka ogólna wskazówka o przechwytywaniu innych dowódców, bez potwierdzania lokalnej dostępności. Jednoznaczne aktywności, oznaczenia Ethos i zabezpieczenia pozostają zachowane.',
     'release.3_9_16.2': 'Obce potęgi kontrolujące bieżący system mają obok nazwy istniejący portret o rozmiarze 42 × 56 pikseli. Twoja potęga nie otrzymuje dodatkowego portretu.',
@@ -2189,4 +2195,27 @@ TRANSLATIONS.update({
 TRANSLATIONS.update({
     'pp2.general.label': 'Ogólna wskazówka — niepotwierdzona lokalna aktywność',
     'pp2.general.hint': 'Przechwytuj innych dowódców wykonujących tutaj działania, aby spowolnić postępy innej potęgi.',
+})
+
+# Independent external system planning view.
+TRANSLATIONS.update({
+    'external.title': 'ZEWNĘTRZNE WYSZUKIWANIE UKŁADÓW',
+    'external.search': 'Szukaj układu',
+    'external.go': 'Szukaj',
+    'external.loading': 'Wczytywanie danych układu …',
+    'external.error': 'Nie udało się wczytać danych. Spróbuj ponownie później.',
+    'external.unknown': 'Nie znaleziono układu lub nazwa jest niejednoznaczna. Podaj pełną nazwę.',
+    'external.source': 'Źródło danych: {source}',
+    'external.local': 'Lokalna kronika',
+    'external.notice': 'Materiały powierzchniowe nie potwierdzają surowców konkretnego obszaru wydobycia Rhino.',
+    'external.partial': 'Niepełne dane lub nieudane żądanie zewnętrzne.',
+    'external.temperature': 'Temperatura powierzchni',
+    'external.volcanism': 'Wulkanizm',
+    'external.units': 'Udziały materiałów ukryte: jednostka Spansh niepotwierdzona.',
+    'external.observations': 'Obserwacje według dowódcy',
+    'external.scanned': 'Zeskanowano',
+    'external.mapped': 'Zmapowano',
+    'external.conflicts': 'Sprzeczne wartości źródeł',
+    'external.hierarchy': 'Hierarchia ciał',
+    'external.edsm_skip': 'Nie dodano jednoznacznie zidentyfikowanych lokalnych danych EDSM.',
 })

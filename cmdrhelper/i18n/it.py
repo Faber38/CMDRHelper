@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_17.0': 'Ricerca esterna di sistemi in Explorer sopra il sistema attuale: Invio o il pulsante avvia la risoluzione asincrona del nome tramite Spansh. La mappa esistente mostra stelle, pianeti, lune e strutture in una finestra separata ridimensionabile, senza primo piano forzato; un clic apre i dettagli del corpo.',
+    'release.3_9_17.1': 'I dati dei corpi Spansh, le cache EDSM locali identificate univocamente e le cronologie di tutti i comandanti vengono uniti con fonti e conflitti. Le prove personali di scansione e mappatura restano attribuite al rispettivo comandante; i dati esterni non sono scoperte personali. La cronologia viene solo letta.',
+    'release.3_9_17.2': 'I pianeti su cui è possibile atterrare sono chiaramente indicati. I dettagli mostrano tipo, gravità, atmosfera e materiali noti; le proporzioni Spansh non verificate non vengono mostrate come percentuali. Spansh/EDSM non garantiscono siti minerari Rhino specifici né le loro risorse.',
+    'release.3_9_17.3': 'I worker di ricerca Explorer completati e i relativi oggetti segnale vengono liberati; i risultati obsoleti vengono scartati. Le ricerche ripetute non accumulano oggetti QRunnable.',
+    'release.3_9_17.4': 'La cronologia giornaliera PP2 riutilizza dati e tabelle invariati. Nuovi meriti e correzioni successive aggiornano la visualizzazione; restano supportati i filtri di giorno e ora, il cambio di comandante e la cronologia separata.',
+    'release.3_9_17.5': 'Le finestre esterne mostrano istantanee. Le cache EDSM senza identità univoca del sistema non vengono unite. Schema del database ancora 23; note in dodici lingue. La verifica nativa su Windows è ancora da eseguire.',
     'release.3_9_16.0': 'Le sezioni PP2 del sistema attuale, delle attività e degli articoli a bordo si possono chiudere separatamente: chiuse al primo utilizzo, poi con stato salvato. La tua potenza e la cronaca giornaliera restano visibili.',
     'release.3_9_16.1': 'Un tipo di attività incerto mostra un breve suggerimento generale su come intercettare altri comandanti, senza affermare una disponibilità locale confermata. Attività certe, indicatori Ethos e controlli di sicurezza restano invariati.',
     'release.3_9_16.2': 'Le potenze straniere che controllano il sistema attuale mostrano un ritratto esistente di 42 × 56 pixel accanto al nome. La tua potenza non riceve un ritratto aggiuntivo.',
@@ -2312,4 +2318,27 @@ TRANSLATIONS.update({
 TRANSLATIONS.update({
     'pp2.general.label': 'Suggerimento generale — attività locale non confermata',
     'pp2.general.hint': 'Intercetta altri comandanti che svolgono attività qui per rallentare i progressi di un’altra potenza.',
+})
+
+# Independent external system planning view.
+TRANSLATIONS.update({
+    'external.title': 'RICERCA SISTEMA ESTERNO',
+    'external.search': 'Cerca sistema',
+    'external.go': 'Cerca',
+    'external.loading': 'Caricamento dei dati del sistema …',
+    'external.error': 'Impossibile caricare i dati. Riprova più tardi.',
+    'external.unknown': 'Sistema non trovato o nome ambiguo. Inserisci il nome completo.',
+    'external.source': 'Fonte dei dati: {source}',
+    'external.local': 'Cronologia locale',
+    'external.notice': 'I materiali di superficie non dimostrano le risorse di uno specifico sito minerario Rhino.',
+    'external.partial': 'Dati incompleti o richiesta esterna non riuscita.',
+    'external.temperature': 'Temperatura superficiale',
+    'external.volcanism': 'Vulcanismo',
+    'external.units': 'Percentuali nascoste: unità Spansh non confermata.',
+    'external.observations': 'Osservazioni per comandante',
+    'external.scanned': 'Scansionato',
+    'external.mapped': 'Mappato',
+    'external.conflicts': 'Valori discordanti delle fonti',
+    'external.hierarchy': 'Gerarchia dei corpi',
+    'external.edsm_skip': 'Nessun dato EDSM locale identificato univocamente aggiunto.',
 })

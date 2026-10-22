@@ -38,6 +38,15 @@ Folder dzienników Elite Dangerous jest wykrywany automatycznie, jeśli to możl
 
 CMDRHelper sprawdza aktualizacje przy uruchomieniu i ma wbudowany mechanizm aktualizacji. Potwierdź proponowaną aktualizację w aplikacji; zaktualizuje ona program i zależności oraz uruchomi CMDRHelper ponownie. Po pierwszej instalacji zwykle wystarczy używać `start.bat` (Windows) lub `bash start.sh` (Linux). Przy zwykłych aktualizacjach nie trzeba ponownie ręcznie uruchamiać `install.bat` ani `install.sh`.
 
+## CMDRHelper v3.9.17
+
+- Zewnętrzne wyszukiwanie układów w Explorer nad bieżącym układem: Enter lub przycisk uruchamia asynchroniczne rozpoznawanie nazwy przez Spansh. Istniejąca mapa pokazuje gwiazdy, planety, księżyce i obiekty w osobnym oknie o zmiennym rozmiarze, bez wymuszania pierwszego planu; kliknięcie otwiera szczegóły ciała.
+- Dane ciał Spansh, jednoznacznie zidentyfikowane lokalne pamięci EDSM i kroniki wszystkich dowódców są łączone ze źródłami i konfliktami. Własne dowody skanowania i mapowania pozostają przypisane właściwemu dowódcy; dane zewnętrzne nie są własnymi odkryciami. Kronika jest tylko odczytywana.
+- Planety umożliwiające lądowanie są wyraźnie oznaczone. Szczegóły pokazują typ, grawitację, atmosferę i znane materiały; niepotwierdzone udziały Spansh nie są wyświetlane jako procenty. Spansh/EDSM nie gwarantują konkretnych obszarów wydobycia Rhino ani ich surowców.
+- Zakończone zadania wyszukiwania Explorer i ich obiekty sygnałów są zwalniane; nieaktualne wyniki są odrzucane. Powtarzane wyszukiwania nie gromadzą obiektów QRunnable.
+- Dzienna kronika PP2 ponownie wykorzystuje niezmienione dane i tabele. Nowe zasługi i późniejsze korekty aktualizują widok; filtry dnia i czasu, zmiana dowódcy i odłączona kronika nadal działają.
+- Okna zewnętrzne pokazują migawki. Pamięci EDSM bez jednoznacznej tożsamości układu nie są łączone. Schemat bazy pozostaje 23; informacje w dwunastu językach. Natywny test w Windows pozostaje do wykonania.
+
 ## CMDRHelper v3.9.16
 
 - Sekcje PP2 bieżącego systemu, aktywności i artykułów na pokładzie można zwijać osobno: przy pierwszym użyciu są zamknięte, a później ich stan jest zapisywany. Twoja potęga i kronika dnia pozostają widoczne.

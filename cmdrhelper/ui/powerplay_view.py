@@ -14,6 +14,7 @@ from cmdrhelper.ui.powerplay_portraits import PowerPortrait
 from cmdrhelper.ui.powerplay_system import SystemPresentation
 from cmdrhelper.powerplay_rank import rank_progress
 from cmdrhelper.powerplay_chronicle import local_today, today_groups, is_rare_sale
+from cmdrhelper.powerplay_store import DayCache
 from cmdrhelper.powerplay import (
     PowerplayState, PowersCache, ACTION_TOKENS, powerplay_actions, context, number,
     powers_cache_path, timestamp, onboard_articles,
@@ -142,6 +143,9 @@ class PowerplayView(QScrollArea):
         super().__init__(parent)
         self.state = state
         self.cache = PowersCache()
+        self._day_cache = DayCache()
+        self.destroyed.connect(self._day_cache.close)
+        self._chronicle_render_key = None
         self.section_headings = {}
         self.selected_day = None
         self.chronicle_window = None
@@ -652,7 +656,18 @@ class PowerplayView(QScrollArea):
         cid = getattr(self.state, "commander_id", None)
         for action in self.manage_history.menu().actions()[:3]:
             action.setEnabled(db is not None and cid is not None)
-        chronicle = db.powerplay_day(cid, selected) if db is not None and cid is not None else data.chronicle
+        if db is not None and cid is not None:
+            chronicle, revision = self._day_cache.load(
+                db, cid, selected, getattr(self.state, 'commander_fid', None))
+        else:
+            self._day_cache.close()
+            chronicle, revision = data.chronicle, None
+        render_key = (revision, selected, today, get_language(), locale.name(),
+                      self.recent.font().toString(), self.time_filter_enabled.isChecked(),
+                      self.from_time.time().msecsSinceStartOfDay() if self.time_filter_enabled.isChecked() else None)
+        if revision is not None and render_key == self._chronicle_render_key:
+            return
+        self._chronicle_render_key = None  # A failed rebuild must be retried.
         groups = today_groups(chronicle, selected)
         if self.time_filter_enabled.isChecked():
             # Match the existing day filter and displayed action timestamp.
@@ -727,3 +742,4 @@ class PowerplayView(QScrollArea):
                 item.setToolTip(tooltip)
                 self.recent.setItem(row, col, item)
         self.recent.resizeRowsToContents()
+        self._chronicle_render_key = render_key if revision is not None else None

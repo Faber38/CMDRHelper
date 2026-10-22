@@ -38,6 +38,15 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## CMDRHelper v3.9.17
+
+- Extern systemen zoeken in Explorer boven het huidige systeem: Enter of de knop start asynchrone naamomzetting via Spansh. De bestaande systeemkaart toont sterren, planeten, manen en faciliteiten in een apart verstelbaar venster zonder gedwongen voorgrond; klik op een hemellichaam voor details.
+- Spansh-gegevens, eenduidig geïdentificeerde lokale EDSM-caches en kronieken van alle commandanten worden gecombineerd met bronnen en conflicten. Persoonlijk scan- en kaartbewijs blijft aan de juiste commandant gekoppeld; externe gegevens gelden niet als eigen ontdekkingen. De kroniek wordt alleen gelezen.
+- Planeten waarop geland kan worden zijn duidelijk gemarkeerd. Details tonen type, zwaartekracht, atmosfeer en bekende materialen; onbevestigde Spansh-aandelen worden niet als percentages getoond. Spansh/EDSM garanderen geen specifieke Rhino-mijnlocaties of hun grondstoffen.
+- Voltooide Explorer-zoekworkers en hun signaalobjecten worden vrijgegeven; verouderde resultaten worden genegeerd. Herhaald zoeken stapelt geen QRunnable-objecten op.
+- De dagelijkse PP2-kroniek hergebruikt ongewijzigde daggegevens en tabellen. Nieuwe verdiensten en latere correcties werken de weergave bij; dag- en tijdfilters, wisselen van commandant en de losgekoppelde kroniek blijven ondersteund.
+- Externe vensters tonen momentopnamen. EDSM-caches zonder eenduidige systeemidentiteit worden niet samengevoegd. Databaseschema blijft 23; toelichting in twaalf talen. Native Windows-tests staan nog open.
+
 ## CMDRHelper v3.9.16
 
 - De PP2-onderdelen voor het huidige systeem, activiteiten en artikelen aan boord zijn afzonderlijk inklapbaar: gesloten bij het eerste gebruik, daarna met opgeslagen toestand. Je macht en de dagkroniek blijven zichtbaar.

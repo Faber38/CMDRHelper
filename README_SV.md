@@ -38,6 +38,15 @@ Journalmappen för Elite Dangerous hittas automatiskt när det är möjligt. Om 
 
 CMDRHelper söker efter uppdateringar vid start och har en inbyggd uppdateringsfunktion. Bekräfta en erbjuden uppdatering i programmet; den uppdaterar programmet och beroendena och startar om CMDRHelper. Efter den första installationen använder du normalt bara `start.bat` (Windows) eller `bash start.sh` (Linux). Du behöver inte köra `install.bat` eller `install.sh` manuellt igen för vanliga uppdateringar.
 
+## CMDRHelper v3.9.17
+
+- Extern systemsökning i Explorer ovanför aktuellt system: Retur eller knappen startar asynkron namnuppslagning via Spansh. Den befintliga systemkartan visar stjärnor, planeter, månar och anläggningar i ett separat storleksändringsbart fönster utan tvingad förgrund; klicka på en himlakropp för detaljer.
+- Spansh-data, entydigt identifierade lokala EDSM-cachar och krönikedata från alla befälhavare kombineras med källor och konflikter. Egna skannings- och kartläggningsbevis förblir kopplade till rätt befälhavare; externa data räknas inte som egna upptäckter. Krönikan läses endast.
+- Planeter som går att landa på markeras tydligt. Detaljer visar typ, gravitation, atmosfär och kända material; obekräftade Spansh-andelar visas inte som procent. Spansh/EDSM garanterar inga specifika Rhino-gruvplatser eller deras resurser.
+- Avslutade Explorer-sökarbetare och deras signalobjekt frigörs; inaktuella resultat ignoreras. Upprepade sökningar samlar inte på sig QRunnable-objekt.
+- PP2-dagskrönikan återanvänder oförändrade dagsdata och tabeller. Nya meriter och senare rättelser uppdaterar visningen; dags- och tidsfilter, befälhavarbyte och frikopplad krönika stöds fortfarande.
+- Externa fönster visar ögonblicksbilder. EDSM-cachar utan entydig systemidentitet slås inte samman. Databasschemat är fortsatt 23; information på tolv språk. Testning direkt i Windows återstår.
+
 ## CMDRHelper v3.9.16
 
 - PP2-avsnitten för aktuellt system, aktiviteter och artiklar ombord kan fällas ihop var för sig: stängda vid första användningen, därefter med sparat tillstånd. Din makt och dagskrönikan förblir synliga.
