@@ -38,6 +38,15 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.9.18
+
+- Maintenance and reliability update for EDSM journal uploads; no new features.
+- The top EDSM indicator and tooltip assess uploads only: green OK, yellow Waiting, red Error, grey Unknown or Off. Downloads, cache hits and connection tests do not change the colour.
+- HTTP, overall and individual responses are checked together. Missing or unknown confirmations do not release a checkpoint; 500/501 do not count as confirmed storage.
+- 100–103 count as registration evidence; 104/304 can complete events but cannot make the indicator green on their own. Only an unambiguously completed prefix advances the checkpoint.
+- Endpoints, batch size, timeouts, retry intervals, upload order and commander/FID attribution remain unchanged. Original journals are unchanged; database schema remains 23.
+- Confirmed events after a gap may be sent again. Rejected events are not skipped automatically; the indicator starts without success evidence after restart. No native Windows validation.
+
 ## CMDRHelper v3.9.17
 
 - External Explorer system search above “CURRENT SYSTEM”: Enter or the button starts asynchronous Spansh name resolution. The existing system map shows stars, planets, moons and facilities in a separate resizable window without forced always-on-top; click a body for details.

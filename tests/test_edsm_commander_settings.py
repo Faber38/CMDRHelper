@@ -105,7 +105,8 @@ class EDSMCommanderSettingsTests(unittest.TestCase):
             if not uploader._still_current():
                 return {"cancelled": True}
             uploads.append((uploader.fid, uploader.commander, uploader.api_key))
-            return {"events_sent": 1}
+            return {"events_sent": 1, "events_confirmed": 1, "confirmation_complete": True,
+                    "upload_attempted": True}
 
         with patch("cmdrhelper.state.threading.Thread", ThreadStub), patch(
             "cmdrhelper.state.EDSMJournalUploader.process_folder", process
@@ -123,6 +124,15 @@ class EDSMCommanderSettingsTests(unittest.TestCase):
             workers[0]()
 
         self.assertEqual(uploads, [("F-B", "Bravo", "KEY-B")])
+        self.assertEqual(self.state.edsm_upload_status, 'ok')
+        self.assertEqual(self.state.edsm_upload_details['confirmed'], 1)
+        self.state.commander_fid = 'F-A'
+        self.state._load_live_edsm_settings()
+        self.assertEqual(self.state.edsm_upload_status, 'unknown')
+        self.assertEqual(self.state.edsm_upload_details['confirmed'], 0)
+        self.state.commander_fid = 'F-B'
+        self.state._load_live_edsm_settings()
+        self.assertEqual(self.state.edsm_upload_status, 'ok')
 
     def test_missing_b_key_does_not_start_uploader(self):
         self.state.commander_fid = "F-B"

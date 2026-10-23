@@ -38,6 +38,15 @@ Journalmappen til Elite Dangerous oppdages automatisk når det er mulig. Hvis de
 
 CMDRHelper søker etter oppdateringer ved oppstart og har en innebygd oppdateringsfunksjon. Bekreft en tilbudt oppdatering i programmet; den oppdaterer programmet og avhengighetene og starter CMDRHelper på nytt. Etter førstegangsinstallasjonen bruker du normalt bare `start.bat` (Windows) eller `bash start.sh` (Linux). Du trenger ikke å kjøre `install.bat` eller `install.sh` manuelt på nytt for vanlige oppdateringer.
 
+## CMDRHelper v3.9.18
+
+- Vedlikeholds- og pålitelighetsoppdatering for EDSM-journalopplasting; ingen nye funksjoner.
+- EDSM-indikatoren øverst og verktøytipset vurderer bare opplasting: grønt OK, gult Venter, rødt Feil, grått Ukjent eller Av. Nedlastinger, hurtigbuffertreff og tilkoblingstester endrer ikke fargen.
+- HTTP-svar, overordnede svar og enkeltsvar kontrolleres sammen. Manglende eller ukjente bekreftelser frigir ikke et kontrollpunkt; 500/501 regnes ikke som bekreftet lagring.
+- 100–103 regnes som registreringsbevis; 104/304 kan avslutte hendelser, men gir ikke alene grønn indikator. Bare et entydig fullført prefiks flytter kontrollpunktet fremover.
+- Endepunkter, gruppestørrelse, tidsavbrudd, intervaller for nye forsøk, opplastingsrekkefølge og kommandør-/FID-tilordning er uendret. Originaljournaler er uendret; databaseskjemaet er fortsatt 23.
+- Bekreftede hendelser etter et hull kan sendes igjen. Avviste hendelser hoppes ikke over automatisk; etter omstart begynner indikatoren uten bevis på suksess. Ingen lokal Windows-validering.
+
 ## CMDRHelper v3.9.17
 
 - Eksternt systemsøk i Explorer over gjeldende system: Enter eller knappen starter asynkront navneoppslag via Spansh. Det eksisterende systemkartet viser stjerner, planeter, måner og anlegg i et separat vindu med justerbar størrelse uten tvungen forgrunn; klikk på et himmellegeme for detaljer.

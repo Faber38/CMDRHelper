@@ -1594,7 +1594,7 @@ class MainWindow(QMainWindow):
             tr("topbar.journal_not_detected"), objectName="statusWarn"
         )
 
-        self.edsm_upload_label = QLabel(tr("topbar.edsm_waiting"), objectName="muted")
+        self.edsm_upload_label = QLabel(tr("topbar.edsm_unknown"), objectName="muted")
         self.edsm_upload_label.setWordWrap(True)
         self.edsm_upload_label.setToolTip(tr("topbar.edsm_tooltip"))
 
@@ -6122,29 +6122,13 @@ class MainWindow(QMainWindow):
         form.addRow(self.edsm_upload_hint)
 
     def _refresh_edsm_status(self):
-        send = bool(getattr(self.state, "edsm_enabled", False))
-        receive = bool(getattr(self.state, "edsm_receive_enabled", False))
-        status = getattr(self.state, "edsm_upload_status", "disabled")
-        test = ""
-        if receive and getattr(self.state, "commander_fid", ""):
-            config = self.state.edsm_settings_for_fid(self.state.commander_fid)
-            test = config.get("last_test_status", "").partition("|")[0]
-        key, style = "topbar.edsm_off", "muted"
-        if send or receive:
-            key = "topbar.edsm_waiting" if send else "topbar.edsm_receiving"
-            receive_error = receive and getattr(self.state, "edsm_source_status", "") not in ("", "Cache", "EDSM")
-            if (send and status == "error") or receive_error or test == "error":
-                key, style = "topbar.edsm_error", "statusWarn"
-            elif (send and status == "ok") or test == "ok":
-                key, style = "topbar.edsm_active", "statusOk"
+        from .edsm_status import presentation
+        key, style, tooltip = presentation(self.state)
         label = self.edsm_upload_label
+        label.setTextFormat(Qt.PlainText)
         label.setText(tr(key))
         label.setObjectName(style)
-        lines = [tr("settings.edsm_send") + (": ✓" if send else ": –"),
-                 tr("settings.edsm_receive") + (": ✓" if receive else ": –")]
-        if test in ("ok", "error"):
-            lines.append(tr("topbar.edsm_connection_" + test))
-        label.setToolTip("\n".join(lines))
+        label.setToolTip(tooltip)
         label.style().unpolish(label)
         label.style().polish(label)
 

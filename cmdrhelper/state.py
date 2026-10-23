@@ -141,8 +141,9 @@ class AppState(QObject):
         self._edsm_upload_running = False
         self._edsm_upload_token = None
         self._edsm_runtime_by_fid = {}
+        self.edsm_upload_details = {}
         self.edsm_upload_status = (
-            "disabled" if not self.edsm_enabled else "waiting"
+            "disabled" if not self.edsm_enabled else "unknown"
         )
         self.edsm_upload_message = (
             "EDSM deaktiviert"
@@ -826,12 +827,6 @@ class AppState(QObject):
             return
         self._invalidate_edsm_worker()
         self._load_live_edsm_settings()
-        if not self.edsm_enabled:
-            self.edsm_upload_status = "disabled"
-            self.edsm_upload_message = "EDSM deaktiviert"
-        elif self.edsm_upload_status == "disabled":
-            self.edsm_upload_status = "waiting"
-            self.edsm_upload_message = "Warte auf Übertragung"
 
     def edsm_settings_for_fid(self, fid):
         fid = str(fid or "").strip()
@@ -866,14 +861,8 @@ class AppState(QObject):
         self.edsm_receive_enabled = config["receive_enabled"]
         self._edsm_receive_generation = getattr(self, "_edsm_receive_generation", 0) + 1
         self._edsm_request_system = ""
-        runtime = getattr(self, "_edsm_runtime_by_fid", {}).get(self.commander_fid)
-        if runtime:
-            self.edsm_upload_status, self.edsm_upload_message = runtime
-        else:
-            self.edsm_upload_status = "waiting" if self.edsm_enabled else "disabled"
-            self.edsm_upload_message = (
-                "Warte auf Übertragung" if self.edsm_enabled else "EDSM deaktiviert"
-            )
+        from .edsm_upload_status import publish
+        publish(self)
 
     def _legacy_service_identity_matches(self, service):
         """Legacy credentials need explicit FID evidence, never a matching name."""
@@ -947,12 +936,10 @@ class AppState(QObject):
         return True
 
     def _invalidate_edsm_worker(self):
-        fid = str(getattr(self, "commander_fid", "") or "")
-        if fid and hasattr(self, "_edsm_runtime_by_fid"):
-            self._edsm_runtime_by_fid[fid] = (
-                getattr(self, "edsm_upload_status", "disabled"),
-                getattr(self, "edsm_upload_message", "EDSM deaktiviert"),
-            )
+        token = getattr(self, "_edsm_upload_token", None)
+        if token is not None:
+            from .edsm_upload_status import observe
+            observe(self, token[0], 'legacy', {'cancelled': True})
         self._edsm_upload_token = None
         self._edsm_upload_running = False
 
@@ -1176,9 +1163,16 @@ class AppState(QObject):
         api_key = str(self.edsm_api_key or "")
         token = (fid, commander, api_key, object())
         self._edsm_upload_token = token
+        from .edsm_upload_status import observe
+
+        def notify(result):
+            if self._edsm_upload_token is token:
+                observe(self, fid, 'legacy', result)
+
         uploader = EDSMJournalUploader(
             commander, api_key, settings=self.settings, fid=fid,
             is_current=lambda: self._edsm_upload_token is token,
+            on_upload_start=lambda: notify({"running": True}),
         )
         self.edsm_uploader = uploader
 
@@ -1186,49 +1180,13 @@ class AppState(QObject):
             try:
                 result = uploader.process_folder(folder)
 
-                if self._edsm_upload_token is not token or result.get("cancelled"):
-                    return
-
-                if result.get("initialized"):
-                    logger.info(
-                        "EDSM-Uploader initialisiert; vorhandene "
-                        "Journaldaten werden nicht erneut übertragen."
-                    )
-
-                error = result.get("error") or ""
-                if error == "__cancelled__":
-                    return
-                if error:
-                    self.edsm_upload_status = "error"
-                    self.edsm_upload_message = str(error)
-                    logger.warning(
-                        "EDSM-Upload pausiert: %s",
-                        error,
-                    )
-                else:
-                    sent = int(result.get("events_sent") or 0)
-                    discarded = int(result.get("events_skipped") or 0)
-
-                    self.edsm_upload_status = "ok"
-                    if sent:
-                        self.edsm_upload_message = (
-                            f"Letzte Übertragung erfolgreich: "
-                            f"{sent} Event(s)"
-                        )
-                    elif discarded:
-                        self.edsm_upload_message = (
-                            "EDSM aktiv · Journal verarbeitet"
-                        )
-                    else:
-                        self.edsm_upload_message = (
-                            "EDSM aktiv · keine neuen Daten"
-                        )
+                notify(result)
 
             except Exception as exc:
                 if self._edsm_upload_token is not token:
                     return
-                self.edsm_upload_status = "error"
-                self.edsm_upload_message = str(exc)
+                notify({'error': 'EDSM-Upload fehlgeschlagen.',
+                        'upload_attempted': uploader._upload_attempted})
                 logger.exception("EDSM-Upload fehlgeschlagen")
             finally:
                 if self._edsm_upload_token is token:

@@ -5,7 +5,14 @@ from .inara_uploader import BATCH_SIZE, upload_batch, InaraUploadError
 from .journal_reader import classify_journal_file
 
 
-def transfer(database, source, sessions, configs, settings, *, is_current, legacy_folder, source_folders):
+def transfer(database, source, sessions, configs, settings, *, is_current, legacy_folder, source_folders,
+             edsm_status=None):
+    def notify(fid, result):
+        if edsm_status is not None:
+            try:
+                edsm_status(fid, dict(result))
+            except Exception:
+                pass  # Optional UI observation cannot change service behavior.
     confirmed = {row['fid_seen'] for row in sessions
                  if row.get('attribution_status') == 'identified' and row.get('fid_seen')}
     results = {}
@@ -21,8 +28,15 @@ def transfer(database, source, sessions, configs, settings, *, is_current, legac
         if edsm.get('enabled') and edsm.get('api_key') and edsm.get('commander'):
             uploader = EDSMJournalUploader(edsm['commander'], edsm['api_key'],
                 settings=settings, fid=fid, source_id=source.id, is_current=lambda: authorized('edsm', edsm),
-                legacy_folder=legacy_folder, source_folders=source_folders)
-            results[(fid, 'edsm')] = uploader.process_folder(Path(source.path))
+                legacy_folder=legacy_folder, source_folders=source_folders,
+                on_upload_start=lambda fid=fid: notify(fid, {'running': True}))
+            try:
+                results[(fid, 'edsm')] = uploader.process_folder(Path(source.path))
+            except Exception:
+                notify(fid, {'error': 'EDSM-Upload fehlgeschlagen.',
+                             'upload_attempted': uploader._upload_attempted})
+                raise
+            notify(fid, results[(fid, 'edsm')])
         if not inara.get('api_key') or not authorized('inara', inara):
             continue
         owners = {r['commander_id'] for r in sessions if r.get('fid_seen') == fid

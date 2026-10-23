@@ -27,9 +27,47 @@ EDSM_DISCARD_URL = "https://www.edsm.net/api-journal-v1/discard"
 # Kleine Batches halten Requests überschaubar und erleichtern Wiederholungen.
 BATCH_SIZE = 50
 
-# EDSM: 1xx = erfolgreich / bereits vorhanden / Duplikat.
-# 5xx wird von der Journal-API ebenfalls als angenommen/gespeichert behandelt.
-SUCCESS_CLASSES = (1, 5)
+# Explicit journal API outcomes; unknown codes never imply durable acceptance.
+# Phase 1 policy (only under HTTP success + overall 100 + exact event list):
+# 100: newly stored; 101-103: already present/superseded/duplicate. Complete,
+#      no retry needed, registration evidence for the upload indicator.
+# 104/304: complete without registration (crew/discard). No retry needed,
+#          no stored/registered count and no green indicator on their own.
+# 402: pending, retry later. 500/501: technical error, pending, retry; manual
+#      investigation if persistent. No undocumented "saved for later" promise.
+# Rejected: pending, requires configuration/data review; never auto-skip.
+# 401/unknown: pending, manual review of semantics; never infer success.
+# All pending classes retain the existing retry schedule (yellow/error status).
+# No new persistence: confirmed events beyond a gap may be resent. Retry is
+# preferable to skipping the gap; per-event durable completion is phase 2.
+EVENT_OUTCOMES = {
+    100: "stored", 101: "already_stored", 102: "newer_stored", 103: "duplicate",
+    104: "crew_not_registered", 304: "discarded", 402: "retry_later",
+    500: "technical_error", 501: "technical_error",
+    **{code: "rejected" for code in (201, 202, 203, 204, 205, 206, 207, 208,
+                                     301, 302, 303, 451, 452, 453)},
+    401: "manual_review",
+}
+COMPLETED_CODES = frozenset((100, 101, 102, 103, 104, 304))
+REGISTERED_CODES = frozenset((100, 101, 102, 103))
+
+
+def _event_codes(reply, prepared):
+    """One positional mapping for acceptance, diagnostics and prefix checkpoints.
+
+    Only an explicitly successful envelope and an exact, well-typed list can
+    establish correspondence. Never salvage a prefix of a malformed response.
+    HTTP failures are removed by upload_events before reaching this helper.
+    """
+    if (not isinstance(reply, dict) or type(reply.get("msgnum")) is not int
+            or reply["msgnum"] != 100):
+        return None
+    replies = reply.get("events")
+    if (not isinstance(replies, list) or len(replies) != prepared
+            or any(not isinstance(item, dict) or type(item.get("msgnum")) is not int
+                   or not 100 <= item["msgnum"] <= 599 for item in replies)):
+        return None
+    return [item["msgnum"] for item in replies]
 
 
 def _read_json_response(response):
@@ -113,6 +151,12 @@ def _encode_post_data(
     return urlencode(payload).encode("utf-8")
 
 
+def _confirmed_count(reply, prepared):
+    """Registered/already present, not necessarily newly stored (100 only)."""
+    codes = _event_codes(reply, prepared)
+    return "unknown" if codes is None else sum(code in REGISTERED_CODES for code in codes)
+
+
 def _log_upload_response(http_status, prepared, ok, reply, *, transport_error=False):
     """Diagnostics only: never infer individual acknowledgements from HTTP success.
 
@@ -120,13 +164,7 @@ def _log_upload_response(http_status, prepared, ok, reply, *, transport_error=Fa
     Count all explicit acknowledgements, not just the resumable consecutive prefix.
     """
     code = reply.get("msgnum") if isinstance(reply, dict) else None
-    replies = reply.get("events") if isinstance(reply, dict) else None
-    confirmed = "unknown"
-    if (type(code) is int and code // 100 in SUCCESS_CLASSES
-            and isinstance(replies, list) and len(replies) == prepared
-            and all(isinstance(item, dict) and type(item.get("msgnum")) is int
-                    and 100 <= item["msgnum"] <= 599 for item in replies)):
-        confirmed = sum(item["msgnum"] // 100 in SUCCESS_CLASSES for item in replies)
+    confirmed = _confirmed_count(reply, prepared)
     check = "transport_error" if transport_error else "accepted" if ok else "rejected"
     if not transport_error and not ok:
         if type(confirmed) is int and confirmed > 0:
@@ -214,29 +252,26 @@ def upload_events(
     if not isinstance(reply, dict):
         return finish(False, None, "EDSM lieferte eine unerwartete Antwort.")
 
-    try:
-        msgnum = int(reply.get("msgnum"))
-    except (TypeError, ValueError):
-        msgnum = 0
-
-    if msgnum and (msgnum // 100) in SUCCESS_CLASSES:
-        replies = reply.get("events")
-        if replies is not None:
-            try:
-                accepted = (isinstance(replies, list) and len(replies) == len(events)
-                            and all(int(item.get("msgnum", 0)) // 100 in SUCCESS_CLASSES
-                                    for item in replies))
-            except (TypeError, ValueError, AttributeError):
-                accepted = False
-            if not accepted:
-                return finish(False, reply, "EDSM hat nicht alle Ereignisse bestätigt.")
-        return finish(True, reply, "")
-
-    return finish(
-        False,
-        reply,
-        f"EDSM: Upload abgelehnt (Code {msgnum})",
-    )
+    if type(http_status) is not int or not 200 <= http_status < 300:
+        # Do not pass apparent per-event successes from a failed/unknown HTTP
+        # response to the checkpoint or status consumers.
+        return finish(False, None, "EDSM lieferte eine unerwartete Antwort.")
+    msgnum = reply.get("msgnum")
+    if type(msgnum) is not int or not 100 <= msgnum <= 599:
+        return finish(False, reply, "EDSM lieferte eine unerwartete Antwort.")
+    if msgnum != 100:
+        logger.warning("EDSM-Gesamtantwort nicht erfolgreich; keine Checkpointfreigabe.")
+        return finish(False, reply, f"EDSM: Upload abgelehnt (Code {msgnum})")
+    codes = _event_codes(reply, len(events))
+    if codes is None:
+        logger.warning("EDSM-Einzelantworten fehlen oder sind nicht eindeutig zuordenbar; keine Checkpointfreigabe.")
+        return finish(False, reply, "EDSM lieferte eine unerwartete Antwort.")
+    for code in sorted(set(codes)):
+        # Only bounded codes and application-owned labels, never server text.
+        logger.info(f"EDSM-Einzelantwort Code {code}: {EVENT_OUTCOMES.get(code, 'unknown')}")
+    if not all(code in COMPLETED_CODES for code in codes):
+        return finish(False, reply, "EDSM hat nicht alle Ereignisse bestätigt.")
+    return finish(True, reply, "")
 
 
 class EDSMJournalUploader:
@@ -265,6 +300,7 @@ class EDSMJournalUploader:
         source_id: str = "",
         legacy_folder=None,
         source_folders=(),
+        on_upload_start=None,
     ):
         self.commander = (commander or "").strip()
         self.api_key = (api_key or "").strip()
@@ -274,6 +310,12 @@ class EDSMJournalUploader:
         self.source_id = source_id
         self.legacy_folder = Path(legacy_folder) if legacy_folder else None
         self.source_folders = tuple(Path(p) for p in source_folders)
+        self.on_upload_start = on_upload_start
+        self._upload_attempted = False
+        self._events_confirmed = 0
+        self._events_stored = 0
+        self._event_outcomes = {}
+        self._confirmation_complete = True
 
         self._identity = (self.settings.fileName(), self.fid)
         self._retry_delay = 120.0
@@ -403,6 +445,11 @@ class EDSMJournalUploader:
         return True, ""
 
     def process_folder(self, folder: Path) -> dict:
+        self._upload_attempted = False
+        self._events_confirmed = 0
+        self._events_stored = 0
+        self._event_outcomes = {}
+        self._confirmation_complete = True
         folder = Path(folder)
         if self.source_id:
             import hashlib
@@ -431,6 +478,7 @@ class EDSMJournalUploader:
 
         # Verhindert parallele Uploads bei schnellen JournalChanged-Signalen.
         if not self._lock.acquire(blocking=False):
+            result['skipped'] = True
             return result
 
         try:
@@ -503,26 +551,31 @@ class EDSMJournalUploader:
             return result
 
         finally:
+            result['upload_attempted'] = self._upload_attempted
+            result['events_confirmed'] = self._events_confirmed
+            result['events_stored'] = self._events_stored
+            result['event_outcomes'] = dict(self._event_outcomes)
+            result['confirmation_complete'] = self._confirmation_complete
             if result["error"] and not result.get("retry_paused"):
                 self._retry_after[self._identity] = time.monotonic() + self._retry_delay
+                result['retry_scheduled'] = True
             self.settings.sync()
             self._lock.release()
 
     def _confirm_prefix(self, journal, positions, reply):
-        """Retain consecutive individual confirmations in a partially rejected batch."""
+        """Retain only a consecutive, explicitly completed prefix.
+
+        E.g. [100, 100, 402, 100] advances two positions. The fourth entry
+        deliberately remains in the retry suffix; no persistent event list.
+        """
         if isinstance(reply, dict):
             self._retry_delay = max(120.0, float(reply.get("retry_after_seconds", 120)))
-        if not isinstance(reply, dict) or not isinstance(reply.get("events"), list):
-            return 0
-        if len(reply["events"]) != len(positions):
+        codes = _event_codes(reply, len(positions))
+        if codes is None:
             return 0
         count = 0
-        for position, event_reply in zip(positions, reply["events"]):
-            try:
-                accepted = int(event_reply.get("msgnum", 0)) // 100 in SUCCESS_CLASSES
-            except (AttributeError, TypeError, ValueError):
-                break
-            if not accepted:
+        for position, code in zip(positions, codes):
+            if code not in COMPLETED_CODES:
                 break
             self._set_position(journal, position)
             count += 1
@@ -605,7 +658,7 @@ class EDSMJournalUploader:
                 if len(batch_events) >= BATCH_SIZE:
                     if not self._still_current():
                         return sent_count, skipped_count, "__cancelled__"
-                    ok, _reply, error = upload_events(
+                    ok, _reply, error = self._send_events(
                         self.commander,
                         self.api_key,
                         game_version,
@@ -635,7 +688,7 @@ class EDSMJournalUploader:
             if batch_events:
                 if not self._still_current():
                     return sent_count, skipped_count, "__cancelled__"
-                ok, _reply, error = upload_events(
+                ok, _reply, error = self._send_events(
                     self.commander,
                     self.api_key,
                     game_version,
@@ -663,3 +716,29 @@ class EDSMJournalUploader:
 
         self.settings.sync()
         return sent_count, skipped_count, ""
+
+    def _send_events(self, *args):
+        # Mirror upload_events' preflight without treating rejection as transport.
+        eligible = all(str(value or '').strip() for value in args[:4]) and bool(args[4])
+        if eligible and not self._upload_attempted:
+            self._upload_attempted = True
+            if self.on_upload_start is not None:
+                try:
+                    self.on_upload_start()
+                except Exception:
+                    pass  # Presentation must never affect transmission.
+        result = upload_events(*args)
+        confirmed = _confirmed_count(result[1], len(args[4])) if eligible else 'unknown'
+        if type(confirmed) is int:
+            self._events_confirmed += confirmed
+        codes = _event_codes(result[1], len(args[4])) if eligible else None
+        if codes is not None:
+            # Unlike events_sent (completed prefix) and events_confirmed
+            # (100-103), this counts only explicit NEW storage replies.
+            self._events_stored += codes.count(100)
+            for code in codes:
+                outcome = EVENT_OUTCOMES.get(code, 'unknown')
+                self._event_outcomes[outcome] = self._event_outcomes.get(outcome, 0) + 1
+        if not result[0] or codes is None or not all(code in COMPLETED_CODES for code in codes):
+            self._confirmation_complete = False
+        return result

@@ -38,6 +38,15 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## CMDRHelper v3.9.18
+
+- Onderhouds- en betrouwbaarheidsupdate voor EDSM-journaaluploads; geen nieuwe functies.
+- De bovenste EDSM-indicator en tooltip beoordelen alleen uploads: groen OK, geel Wachten, rood Fout, grijs Onbekend of Uit. Downloads, cachetreffers en verbindingstests veranderen de kleur niet.
+- HTTP-antwoorden, algemene antwoorden en afzonderlijke antwoorden worden samen gecontroleerd. Ontbrekende of onbekende bevestigingen geven geen controlepunt vrij; 500/501 gelden niet als bevestigde opslag.
+- 100–103 gelden als registratiebewijs; 104/304 kunnen gebeurtenissen afronden maar maken de indicator op zichzelf niet groen. Alleen een ondubbelzinnig afgerond beginsegment verplaatst het controlepunt.
+- Eindpunten, batchgrootte, time-outs, herhaalintervallen, uploadvolgorde en commander-/FID-toewijzing blijven ongewijzigd. Originele journalen blijven ongewijzigd; databaseschema blijft 23.
+- Bevestigde gebeurtenissen na een gat kunnen opnieuw worden verzonden. Afgewezen gebeurtenissen worden niet automatisch overgeslagen; na herstart begint de indicator zonder bewijs van succes. Geen native Windows-validatie.
+
 ## CMDRHelper v3.9.17
 
 - Extern systemen zoeken in Explorer boven het huidige systeem: Enter of de knop start asynchrone naamomzetting via Spansh. De bestaande systeemkaart toont sterren, planeten, manen en faciliteiten in een apart verstelbaar venster zonder gedwongen voorgrond; klik op een hemellichaam voor details.

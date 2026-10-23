@@ -38,6 +38,15 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.9.18
+
+- Mise à jour de maintenance et de fiabilité des envois de journaux EDSM ; aucune nouvelle fonctionnalité.
+- Le voyant EDSM supérieur et son infobulle évaluent uniquement les envois : vert OK, jaune En attente, rouge Erreur, gris Inconnu ou Désactivé. Les téléchargements, le cache et les tests de connexion ne changent pas la couleur.
+- Les réponses HTTP, globales et individuelles sont vérifiées ensemble. Les confirmations absentes ou inconnues ne valident aucun point de reprise ; 500/501 ne confirment pas un stockage.
+- 100–103 attestent un enregistrement ; 104/304 peuvent terminer des événements sans rendre seuls le voyant vert. Seul un préfixe terminé sans ambiguïté avance le point de reprise.
+- Points de terminaison, taille des lots, délais, intervalles de réessai, ordre des envois et attribution commandant/FID restent inchangés. Journaux originaux inchangés ; schéma de base de données toujours 23.
+- Les événements confirmés après une lacune peuvent être renvoyés. Les événements rejetés ne sont pas ignorés automatiquement ; après redémarrage, le voyant repart sans preuve de réussite. Aucune validation native sous Windows.
+
 ## CMDRHelper v3.9.17
 
 - Recherche externe dans Explorer au-dessus du système actuel : Entrée ou le bouton lance la résolution asynchrone du nom via Spansh. La carte existante affiche étoiles, planètes, lunes et installations dans une fenêtre séparée redimensionnable, sans premier plan imposé ; un clic ouvre les détails du corps.

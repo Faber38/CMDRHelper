@@ -38,6 +38,15 @@ Der Journalordner von Elite Dangerous wird nach Möglichkeit automatisch erkannt
 
 CMDRHelper prüft beim Start auf Updates und besitzt einen integrierten Updater. Bestätige ein angebotenes Update im Programm; es aktualisiert Programm und Abhängigkeiten und startet CMDRHelper neu. Nach der Erstinstallation genügt normalerweise `start.bat` (Windows) beziehungsweise `bash start.sh` (Linux). Für normale Updates musst du `install.bat` oder `install.sh` nicht erneut manuell ausführen.
 
+## CMDRHelper v3.9.18
+
+- Wartungs- und Zuverlässigkeitsupdate für den EDSM-Journalupload; keine neuen Funktionen.
+- Die obere EDSM-Ampel und ihr Tooltip bewerten ausschließlich Uploads: Grün OK, Gelb Wartet, Rot Fehler, Grau Unbekannt oder Aus. Downloads, Cachetreffer und Verbindungstests ändern die Farbe nicht.
+- HTTP-, Gesamt- und Einzelantworten werden gemeinsam geprüft. Fehlende oder unbekannte Bestätigungen geben keinen Checkpoint frei; 500/501 gelten nicht als bestätigte Speicherung.
+- 100–103 zählen als Registrierungsnachweis; 104/304 können Ereignisse abschließen, erzeugen allein aber keine grüne Ampel. Nur ein eindeutig abgeschlossener Präfix bringt den Checkpoint voran.
+- Endpunkte, Batchgröße, Timeouts, Wiederholungsintervalle, Upload-Reihenfolge und Commander-/FID-Zuordnung bleiben unverändert. Originaljournale werden nicht verändert; Datenbankschema bleibt 23.
+- Bestätigte Ereignisse hinter einer Lücke können erneut gesendet werden. Abgelehnte Ereignisse werden nicht automatisch übersprungen; die Ampel beginnt nach Neustart ohne Erfolgsnachweis. Keine native Windows-Prüfung.
+
 ## CMDRHelper v3.9.17
 
 - Externe Explorer-Systemsuche oberhalb von „AKTUELLES SYSTEM“: Enter oder Schaltfläche starten die asynchrone Spansh-Namensauflösung. Die bestehende Systemkarte zeigt Sterne, Planeten, Monde und Einrichtungen in einem separaten, größenveränderbaren Fenster ohne erzwungenes Always-on-Top; Körperdetails öffnen sich per Klick.

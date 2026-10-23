@@ -38,6 +38,15 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.18
+
+- EDSM-lokilähetysten ylläpito- ja luotettavuuspäivitys; ei uusia toimintoja.
+- Yläreunan EDSM-ilmaisin ja työkaluvihje arvioivat vain lähetyksiä: vihreä OK, keltainen Odottaa, punainen Virhe, harmaa Tuntematon tai Pois. Lataukset, välimuistiosumat ja yhteystestit eivät muuta väriä.
+- HTTP-vastaukset sekä kokonais- ja tapahtumakohtaiset vastaukset tarkistetaan yhdessä. Puuttuvat tai tuntemattomat vahvistukset eivät vapauta tarkistuspistettä; 500/501 eivät vahvista tallennusta.
+- 100–103 osoittavat rekisteröinnin; 104/304 voivat päättää tapahtuman mutta eivät yksin muuta ilmaisinta vihreäksi. Vain yksiselitteisesti valmistunut alkujakso siirtää tarkistuspistettä.
+- Päätepisteet, eräkoko, aikakatkaisut, uusintavälit, lähetysjärjestys ja komentaja-/FID-kohdistus säilyvät ennallaan. Alkuperäiset lokit eivät muutu; tietokantaskeema on edelleen 23.
+- Aukon jälkeiset vahvistetut tapahtumat voidaan lähettää uudelleen. Hylättyjä tapahtumia ei ohiteta automaattisesti; uudelleenkäynnistyksen jälkeen ilmaisimella ei ole onnistumisnäyttöä. Ei natiivia Windows-tarkistusta.
+
 ## CMDRHelper v3.9.17
 
 - Ulkoinen järjestelmähaku Explorerissa nykyisen järjestelmän yläpuolella: Enter tai painike käynnistää asynkronisen Spansh-nimihaun. Nykyinen järjestelmäkartta näyttää tähdet, planeetat, kuut ja laitokset erillisessä ikkunassa, jonka kokoa voi muuttaa ja jota ei pakoteta päällimmäiseksi; napsautus avaa taivaankappaleen tiedot.

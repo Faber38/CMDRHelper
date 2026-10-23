@@ -39,32 +39,35 @@ class EdsmUiStatusTests(unittest.TestCase):
             guard = patch(target, side_effect=AssertionError('No requests allowed'))
             guard.start(); self.addCleanup(guard.stop)
 
-    def test_existing_label_and_four_combinations(self):
+    def test_upload_only_matrix(self):
         label = self.main.edsm_upload_label
-        self.assertIsNotNone(label.parentWidget())
-        for send in (False, True):
-            for receive in (False, True):
-                self.state.edsm_enabled = send
-                self.state.edsm_receive_enabled = receive
-                self.main._refresh_edsm_status()
-                key = 'topbar.edsm_waiting' if send else 'topbar.edsm_receiving' if receive else 'topbar.edsm_off'
-                self.assertEqual(label.text(), tr(key))
-                self.assertIn(tr('settings.edsm_send') + (': ✓' if send else ': –'), label.toolTip())
-                self.assertIn(tr('settings.edsm_receive') + (': ✓' if receive else ': –'), label.toolTip())
+        cases = [('ok', 3, 'success', 'statusOk'),
+                 ('ok', 0, 'unknown', 'muted'),
+                 ('unknown', 0, 'unknown', 'muted'),
+                 ('waiting', 0, 'waiting', 'statusWarn'),
+                 ('running', 3, 'waiting', 'statusWarn'),
+                 ('error', 3, 'error', 'statusError')]
+        self.state.edsm_settings_for_fid = Mock(side_effect=AssertionError('No connection test read'))
+        for enabled in (False, True):
+            for upload, count, key, style in cases:
+                for receive in ('EDSM', 'Cache', 'Zeitüberschreitung bei der EDSM-Anfrage.', ''):
+                    with self.subTest(enabled=enabled, upload=upload, count=count, receive=receive):
+                        self.state.edsm_enabled = enabled
+                        self.state.edsm_receive_enabled = True
+                        self.state.edsm_source_status = receive
+                        self.state.edsm_upload_status = upload
+                        self.state.edsm_upload_details = {'confirmed': count}
+                        self.main._refresh_edsm_status()
+                        self.assertEqual(label.text(), tr('topbar.edsm_' + (key if enabled else 'off')))
+                        self.assertEqual(label.objectName(), style if enabled else 'muted')
+                        for excluded in ('receive', 'test', 'cache'):
+                            self.assertNotIn(tr('edsm_service.' + excluded), label.toolTip())
 
-    def test_off_overrides_stale_success_and_error(self):
-        for status in ('ok', 'error'):
-            self.state.edsm_upload_status = status
-            self.configs['F-A']['last_test_status'] = status+'|Synthetic'
-            self.main._refresh_edsm_status()
-            self.assertEqual(self.main.edsm_upload_label.text(), tr('topbar.edsm_off'))
-            self.assertEqual(self.main.edsm_upload_label.objectName(), 'muted')
-
-    def test_connection_test_refreshes_only_active_commander_without_upload_claim(self):
-        self.state.edsm_receive_enabled = True
+    def test_connection_test_is_diagnostic_only(self):
         page = QWidget(); self.addCleanup(page.deleteLater)
         self.main._add_edsm_transfer_controls(QFormLayout(page))
         self.main.edsm_receive_check.setChecked(True)
+        self.main._refresh_edsm_status()
         self.main.edsm_test_button = QPushButton()
         self.main.edsm_test_status = QLabel()
         self.main.edsm_commander_edit = QLineEdit('Synthetic')
@@ -72,37 +75,94 @@ class EdsmUiStatusTests(unittest.TestCase):
         self.main.edsm_commander_combo = QComboBox()
         self.main.edsm_commander_combo.addItem('Alpha', 'F-A')
         self.main.edsm_commander_combo.addItem('Beta', 'F-B')
-        for ok in (True, False):
-            with patch('cmdrhelper.ui.main_window.test_edsm_connection', return_value=(ok, 'Synthetic')) as fetch:
-                self.main._test_edsm_connection()
-                fetch.assert_called_once()
-            self.assertEqual(self.state.edsm_upload_status, 'disabled')
-            self.assertEqual(self.main.edsm_upload_label.objectName(), 'statusOk' if ok else 'statusWarn')
-            self.assertIn(tr('topbar.edsm_connection_ok' if ok else 'topbar.edsm_connection_error'), self.main.edsm_upload_label.toolTip())
-            self.assertNotEqual(self.main.edsm_upload_label.text(), tr('topbar.edsm_transmitting'))
-        self.main.edsm_commander_combo.setCurrentIndex(1)
-        with patch('cmdrhelper.ui.main_window.test_edsm_connection', return_value=(True, 'Synthetic')):
-            self.main._test_edsm_connection()
-        self.assertEqual(self.main.edsm_upload_label.objectName(), 'statusWarn')
-        self.state.commander_fid = 'F-B'
-        self.main._refresh_edsm_status()
-        self.assertEqual(self.main.edsm_upload_label.objectName(), 'statusOk')
+        for index in (0, 1):
+            self.main.edsm_commander_combo.setCurrentIndex(index)
+            for ok in (False, True):
+                with patch('cmdrhelper.ui.main_window.test_edsm_connection', return_value=(ok, 'Synthetic')) as fetch:
+                    self.main._test_edsm_connection()
+                    fetch.assert_called_once()
+                self.assertEqual(self.main.edsm_upload_label.text(), tr('topbar.edsm_off'))
+                self.assertNotIn('Synthetic', self.main.edsm_upload_label.toolTip())
 
-    def test_upload_and_receive_errors_respect_switches(self):
+    def test_queued_upload_start_and_results_refresh_original_fid(self):
+        import threading
+        from PySide6.QtCore import QObject
+        from cmdrhelper.source_manager import SourceManager
+        from cmdrhelper.edsm_upload_status import publish
+        manager = SourceManager.__new__(SourceManager)
+        QObject.__init__(manager)
+        self.addCleanup(manager.deleteLater)
+        state = SimpleNamespace(commander_fid='A', edsm_enabled=True,
+            _edsm_runtime_by_fid={}, changed=Mock(), _startup_cancel=threading.Event())
+        manager.state = state
+        manager.runtimes = {'steam': SimpleNamespace(generation=1)}
+        manager.edsmUploadChanged.connect(manager._edsm_upload_changed, Qt.QueuedConnection)
+        publish(state)
+        manager.edsmUploadChanged.emit('steam', 1, 'A', {'running': True})
+        self.assertEqual(state.edsm_upload_status, 'unknown')
+        self.app.processEvents()
+        self.assertEqual(state.edsm_upload_status, 'running')
+        manager.edsmUploadChanged.emit('steam', 1, 'A',
+            {'events_confirmed': 2, 'confirmation_complete': True})
+        state.commander_fid = 'B'; publish(state)
+        self.app.processEvents()
+        self.assertEqual(state.edsm_upload_status, 'unknown')
+        state.commander_fid = 'A'; publish(state)
+        self.assertEqual(state.edsm_upload_status, 'ok')
+        self.assertEqual(state.edsm_upload_details['confirmed'], 2)
+
+    def test_only_allowlisted_error_details_reach_tooltip(self):
+        self.state.edsm_enabled = self.state.edsm_receive_enabled = True
+        self.state.edsm_upload_status = 'error'
+        messages = [
+            'EDSM nicht erreichbar: SECRET_TOKEN /home/private/journal.log',
+            'https://user:password@example.invalid/?apiKey=SECRET_TOKEN',
+            'Authorization: Bearer SECRET_TOKEN',
+            r'C:\Users\Private\SECRET_TOKEN.log',
+            '<img src="https://example.invalid/SECRET_TOKEN">',
+            'EDSM HTTP-Fehler 500. SECRET_TOKEN',
+            'SECRET_TOKEN',
+        ]
+        self.configs['F-A']['last_test_status'] = 'error|SECRET_TEST /private/path'
+        for message in messages:
+            with self.subTest(message=message):
+                self.state.edsm_upload_message = self.state.edsm_source_status = message
+                self.state.edsm_upload_details = {'errors': (message,)}
+                self.main._refresh_edsm_status()
+                tip = self.main.edsm_upload_label.toolTip()
+                for secret in ('SECRET', 'password', '/home', '/private', 'C:\\', 'https:', '<img', 'Bearer'):
+                    self.assertNotIn(secret, tip)
+                self.assertNotIn(tr('edsm_service.timeout'), tip)
+        from cmdrhelper.ui.edsm_status import error_detail
+        for message, key, kwargs in [
+            ('EDSM HTTP-Fehler 429.', 'http', {'code': 429}),
+            ('EDSM: Upload abgelehnt (Code 203)', 'api', {'code': 203}),
+            ('EDSM hat nicht alle Ereignisse bestätigt.', 'partial_reply', {}),
+            ('EDSM hat keine gültige JSON-Antwort geliefert.', 'invalid_reply', {}),
+            ('EDSM nicht erreichbar.', 'transport', {}),
+            ('anything else', 'unknown_error', {}),
+        ]:
+            self.assertEqual(error_detail(message), tr('edsm_service.' + key, **kwargs))
+
+    def test_status_translations_and_theme_colors(self):
         self.state.edsm_enabled = True
-        for status, style in [('error', 'statusWarn'), ('ok', 'statusOk'), ('waiting', 'muted')]:
-            self.state.edsm_upload_status = status
-            self.main._refresh_edsm_status()
-            self.assertEqual(self.main.edsm_upload_label.objectName(), style)
-            self.assertNotEqual(self.main.edsm_upload_label.text(), tr('topbar.edsm_transmitting'))
-        self.state.edsm_enabled = False
-        self.state.edsm_receive_enabled = True
-        self.state.edsm_source_status = 'Synthetic receive error'
-        self.main._refresh_edsm_status()
-        self.assertEqual(self.main.edsm_upload_label.objectName(), 'statusWarn')
-        self.state.edsm_source_status = 'EDSM'
-        self.main._refresh_edsm_status()
-        self.assertEqual(self.main.edsm_upload_label.objectName(), 'muted')
+        self.state.edsm_upload_details = {'confirmed': 4}
+        keys = [k for k in _TRANSLATIONS['en'] if k.startswith(('edsm_service.', 'topbar.edsm_'))]
+        for language in _TRANSLATIONS:
+            set_language(language)
+            for key in keys:
+                self.assertTrue(_TRANSLATIONS[language][key].strip(), (language, key))
+            for sheet, colors in [(DARK_STYLESHEET, ('#79d45a', '#f0ad4e', '#ff6b6b')),
+                                  (LIGHT_STYLESHEET, ('#37852d', '#b36a00', '#b83232'))]:
+                self.app.setStyleSheet(sheet)
+                for upload, color in zip(('ok', 'running', 'error'), colors):
+                    self.state.edsm_upload_status = upload
+                    self.main._refresh_edsm_status()
+                    label = self.main.edsm_upload_label
+                    label.ensurePolished()
+                    self.assertEqual(label.palette().color(QPalette.WindowText).name(), color)
+                    self.assertEqual(label.textFormat(), Qt.PlainText)
+                    self.assertIn(tr('edsm_service.confirmed', count=4), label.toolTip())
 
     def test_hint_all_languages_themes_narrow_layout_and_large_font(self):
         self.assertEqual(len(_TRANSLATIONS), 12)

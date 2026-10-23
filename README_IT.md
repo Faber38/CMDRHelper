@@ -38,6 +38,15 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## CMDRHelper v3.9.18
+
+- Aggiornamento di manutenzione e affidabilità per gli invii dei diari EDSM; nessuna nuova funzione.
+- L’indicatore EDSM superiore e il suggerimento valutano solo gli invii: verde OK, giallo In attesa, rosso Errore, grigio Sconosciuto o Disattivato. Download, cache e test di connessione non cambiano il colore.
+- Le risposte HTTP, complessive e individuali vengono verificate insieme. Conferme mancanti o sconosciute non sbloccano il checkpoint; 500/501 non confermano la memorizzazione.
+- 100–103 attestano la registrazione; 104/304 possono completare eventi ma da soli non rendono verde l’indicatore. Solo un prefisso completato senza ambiguità fa avanzare il checkpoint.
+- Endpoint, dimensione dei lotti, timeout, intervalli di ripetizione, ordine di invio e attribuzione comandante/FID restano invariati. Diari originali invariati; schema del database ancora 23.
+- Gli eventi confermati dopo una lacuna possono essere reinviati. Gli eventi rifiutati non vengono saltati automaticamente; dopo il riavvio l’indicatore parte senza prove di successo. Nessuna verifica nativa su Windows.
+
 ## CMDRHelper v3.9.17
 
 - Ricerca esterna di sistemi in Explorer sopra il sistema attuale: Invio o il pulsante avvia la risoluzione asincrona del nome tramite Spansh. La mappa esistente mostra stelle, pianeti, lune e strutture in una finestra separata ridimensionabile, senza primo piano forzato; un clic apre i dettagli del corpo.

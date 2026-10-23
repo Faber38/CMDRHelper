@@ -45,7 +45,7 @@ class UploadDiagnosticsTests(unittest.TestCase):
 
     def test_success_and_private_payloads(self):
         result = self.upload({'msgnum': 100, 'msg': 'SYNTHETIC-RESPONSE',
-                              'events': [{'msgnum': 100}, {'msgnum': 500}]})
+                              'events': [{'msgnum': 100}, {'msgnum': 101}]})
         self.assertTrue(result[0])
         text = self.stream.getvalue()
         for field in ('http_status=200', 'prepared_events=2', 'confirmed_events=2',
@@ -92,8 +92,8 @@ class UploadDiagnosticsTests(unittest.TestCase):
                 self.stream.seek(0); self.stream.truncate()
                 self.upload(reply)
                 self.assertIn('confirmed_events=unknown', self.stream.getvalue())
-        # Preserve the existing aggregate-success contract without inventing a count.
-        self.assertTrue(self.upload({'msgnum': 100})[0])
+        # An aggregate success never substitutes for individual acknowledgements.
+        self.assertFalse(self.upload({'msgnum': 100})[0])
 
     def process(self, reply, *, skip=False):
         p = self.root / 'Journal.synthetic.log'
@@ -105,7 +105,10 @@ class UploadDiagnosticsTests(unittest.TestCase):
             events.append({'event': 'Music'})
         p.write_bytes(prefix + ''.join(json.dumps(e)+'\n' for e in events).encode())
         settings = QSettings(str(self.root/'settings.ini'), QSettings.IniFormat)
-        u = uploader.EDSMJournalUploader('Synthetic', 'SYNTHETIC-KEY', settings, 'F-SYNTHETIC')
+        self.starts = []
+        u = uploader.EDSMJournalUploader('Synthetic', 'SYNTHETIC-KEY', settings, 'F-SYNTHETIC',
+                                         on_upload_start=lambda: self.starts.append(True))
+        self.uploader = u
         settings.setValue(u._initialized_key, True)
         u._set_position(p, len(prefix))
         u._discarded = {'Music'}
@@ -113,6 +116,58 @@ class UploadDiagnosticsTests(unittest.TestCase):
         self.transport.return_value = Response(json.dumps(reply).encode())
         result = u.process_folder(self.root)
         return result, u._stored_position(p), len(prefix), p
+
+    def test_status_evidence_counts_real_acknowledgements_without_changing_positions(self):
+        result, position, _, p = self.process({'msgnum': 100, 'events': [{'msgnum': 100}, {'msgnum': 101}]})
+        self.assertEqual(result['events_confirmed'], 2)
+        self.assertEqual(result['events_stored'], 1)
+        self.assertTrue(result['confirmation_complete'])
+        self.assertTrue(result['upload_attempted'])
+        self.assertEqual(self.starts, [True])
+        self.assertEqual(position, p.stat().st_size)
+        idle = self.uploader.process_folder(self.root)
+        self.assertFalse(idle['upload_attempted'])
+        self.assertEqual(idle['events_confirmed'], 0)
+        self.assertEqual(self.starts, [True])
+        self.assertEqual(self.transport.call_count, 1)
+
+    def test_ambiguous_reply_preserves_pending_position_and_is_not_green(self):
+        result, position, start, p = self.process({'msgnum': 100})
+        self.assertEqual(position, start)
+        self.assertEqual(result['events_sent'], 0)
+        self.assertEqual(result['events_confirmed'], 0)
+        self.assertFalse(result['confirmation_complete'])
+
+    def test_failure_retry_and_partial_evidence_preserve_existing_retry_lock(self):
+        result, position, _, p = self.process({'msgnum': 100, 'events': [{'msgnum': 100}, {'msgnum': 400}]})
+        self.assertEqual(result['events_confirmed'], 1)
+        self.assertFalse(result['confirmation_complete'])
+        self.assertTrue(result['retry_scheduled'])
+        deadline = self.uploader._retry_after[self.uploader._identity]
+        retry = self.uploader.process_folder(self.root)
+        self.assertTrue(retry['retry_paused'])
+        self.assertFalse(retry['upload_attempted'])
+        self.assertEqual(deadline, self.uploader._retry_after[self.uploader._identity])
+        self.assertEqual(position, self.uploader._stored_position(p))
+        self.assertEqual(self.transport.call_count, 1)
+
+    def test_partial_nonprefix_ack_is_counted_without_changing_retry_position(self):
+        result, position, start, _ = self.process({'msgnum': 100, 'events': [{'msgnum': 400}, {'msgnum': 100}]})
+        self.assertEqual(result['events_confirmed'], 1)
+        self.assertEqual(result['events_sent'], 0)
+        self.assertFalse(result['confirmation_complete'])
+        self.assertEqual(position, start)
+
+    def test_multiple_batches_emit_one_start_and_preserve_request_count(self):
+        reply = {'msgnum': 100, 'events': [{'msgnum': 100}]}
+        with patch.object(uploader, 'BATCH_SIZE', 1), patch.object(
+                uploader, 'upload_events', return_value=(True, reply, '')) as send:
+            result, position, _, p = self.process(reply)
+        self.assertEqual(send.call_count, 2)
+        self.assertEqual(self.starts, [True])
+        self.assertEqual(result['events_confirmed'], 2)
+        self.assertTrue(result['confirmation_complete'])
+        self.assertEqual(position, p.stat().st_size)
 
     def test_progress_and_skipped_events(self):
         result, position, start, p = self.process(

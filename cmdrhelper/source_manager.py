@@ -29,6 +29,7 @@ class SourceRuntime:
 class SourceManager(QObject):
     changed = Signal()
     finished = Signal(object, int, object, str)
+    edsmUploadChanged = Signal(object, int, str, object)
 
     def __init__(self, state):
         super().__init__(state)
@@ -63,6 +64,7 @@ class SourceManager(QObject):
             matching = [c for c in state.database.list_commanders() if c['fid'] == saved_fid]
             state.viewed_commander_id = matching[0]['id'] if len(matching) == 1 else None
         self.finished.connect(self._finished, Qt.QueuedConnection)
+        self.edsmUploadChanged.connect(self._edsm_upload_changed, Qt.QueuedConnection)
         self.timer = QTimer(self)
         self.timer.setInterval(3000)
         self.timer.timeout.connect(self._tick)
@@ -92,6 +94,8 @@ class SourceManager(QObject):
                     if hasattr(observer, 'close'):
                         observer.close()
                 del self.runtimes[identity]
+                from .edsm_upload_status import retire_source
+                retire_source(self.state, (identity, runtime.generation))
                 if self.projected_source == identity:
                     self._clear_market_observer()
         for identity, source in enabled.items():
@@ -206,7 +210,9 @@ class SourceManager(QObject):
                     try:
                         results = transfer(rt.processor.database, bound_source, rows, service_configs,
                             QSettings(settings_path, settings_format), is_current=current,
-                            legacy_folder=legacy, source_folders=folders)
+                            legacy_folder=legacy, source_folders=folders,
+                            edsm_status=lambda fid, result: self.edsmUploadChanged.emit(
+                                rt.source.id, rt.generation, fid, result))
                         rt.transfer_results = results
                         rt.transfer_error = 'service_pending' if any(
                             result.get('error') if isinstance(result, dict) else result[1]
@@ -228,6 +234,14 @@ class SourceManager(QObject):
             return
         startup.complete(self.state, getattr(self.state, '_initialization_error', ''))
 
+    def _edsm_upload_changed(self, identity, generation, fid, result):
+        runtime = self.runtimes.get(identity)
+        if (runtime is None or runtime.generation != generation
+                or self.state._startup_cancel.is_set()):
+            return
+        from .edsm_upload_status import observe
+        observe(self.state, fid, (identity, generation), result)
+
     def _finished(self, identity, generation, rows, error):
         self.running = False
         if self.state._startup_cancel.is_set():
@@ -246,6 +260,8 @@ class SourceManager(QObject):
                 # Retain the first initial failure even if a watcher retry succeeds.
                 self.state._initialization_error = source.name + ': ' + str(error)
             for (fid, service), result in runtime.transfer_results.items():
+                if service == 'edsm':
+                    continue  # Progress/results arrive through edsmUploadChanged.
                 failed = result.get('error') if isinstance(result, dict) else bool(result[1])
                 message = str(failed or '')
                 cache = getattr(self.state, '_'+service+'_runtime_by_fid')

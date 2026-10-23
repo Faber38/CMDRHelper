@@ -154,6 +154,10 @@ QLabel[gameMode="Open"] {
     color: #ff6b6b;
 }
 
+QLabel#statusError {
+    color: #ff6b6b;
+}
+
 QLabel[gameMode="Group"], QLabel#statusOk {
     color: #79d45a;
 }
@@ -453,6 +457,10 @@ QLabel#cardValue {
 }
 
 QLabel[gameMode="Open"] {
+    color: #b83232;
+}
+
+QLabel#statusError {
     color: #b83232;
 }
 

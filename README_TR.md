@@ -39,6 +39,15 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.18
+
+- EDSM günlük yüklemeleri için bakım ve güvenilirlik güncellemesi; yeni özellik yok.
+- Üst EDSM göstergesi ve araç ipucu yalnızca yüklemeleri değerlendirir: yeşil Tamam, sarı Bekliyor, kırmızı Hata, gri Bilinmiyor veya Kapalı. İndirmeler, önbellek isabetleri ve bağlantı testleri rengi değiştirmez.
+- HTTP, genel ve tekil yanıtlar birlikte denetlenir. Eksik veya bilinmeyen onaylar kontrol noktasını serbest bırakmaz; 500/501 onaylanmış kayıt sayılmaz.
+- 100–103 kayıt kanıtı sayılır; 104/304 olayları tamamlayabilir ancak tek başına göstergeyi yeşile çevirmez. Yalnızca açıkça tamamlanan başlangıç dizisi kontrol noktasını ilerletir.
+- Uç noktalar, paket boyutu, zaman aşımları, yeniden deneme aralıkları, yükleme sırası ve komutan/FID eşlemesi değişmez. Özgün günlükler değişmez; veritabanı şeması 23 olarak kalır.
+- Bir boşluktan sonraki onaylanmış olaylar yeniden gönderilebilir. Reddedilen olaylar otomatik atlanmaz; yeniden başlatmadan sonra gösterge başarı kanıtı olmadan başlar. Yerel Windows doğrulaması yapılmadı.
+
 ## CMDRHelper v3.9.17
 
 - Explorer içinde mevcut sistemin üzerinde harici sistem arama: Enter veya düğme, Spansh üzerinden asenkron ad çözümlemesini başlatır. Mevcut sistem haritası yıldızları, gezegenleri, uyduları ve tesisleri ayrı, yeniden boyutlandırılabilir bir pencerede gösterir; sürekli üstte kalma zorlanmaz. Gök cismine tıklayarak ayrıntıları açabilirsiniz.

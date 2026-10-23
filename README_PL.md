@@ -38,6 +38,15 @@ Folder dzienników Elite Dangerous jest wykrywany automatycznie, jeśli to możl
 
 CMDRHelper sprawdza aktualizacje przy uruchomieniu i ma wbudowany mechanizm aktualizacji. Potwierdź proponowaną aktualizację w aplikacji; zaktualizuje ona program i zależności oraz uruchomi CMDRHelper ponownie. Po pierwszej instalacji zwykle wystarczy używać `start.bat` (Windows) lub `bash start.sh` (Linux). Przy zwykłych aktualizacjach nie trzeba ponownie ręcznie uruchamiać `install.bat` ani `install.sh`.
 
+## CMDRHelper v3.9.18
+
+- Aktualizacja konserwacyjna i poprawiająca niezawodność wysyłania dzienników EDSM; bez nowych funkcji.
+- Górny wskaźnik EDSM i podpowiedź oceniają tylko wysyłanie: zielony OK, żółty Oczekiwanie, czerwony Błąd, szary Nieznany lub Wyłączony. Pobieranie, trafienia pamięci podręcznej i testy połączenia nie zmieniają koloru.
+- Odpowiedzi HTTP, zbiorcze i indywidualne są sprawdzane łącznie. Brakujące lub nieznane potwierdzenia nie zwalniają punktu kontrolnego; 500/501 nie potwierdzają zapisu.
+- 100–103 świadczą o rejestracji; 104/304 mogą zakończyć zdarzenia, ale same nie zmieniają wskaźnika na zielony. Tylko jednoznacznie zakończony początkowy ciąg przesuwa punkt kontrolny.
+- Punkty końcowe, rozmiar partii, limity czasu, odstępy ponowień, kolejność wysyłania i przypisanie dowódcy/FID pozostają bez zmian. Oryginalne dzienniki bez zmian; schemat bazy nadal 23.
+- Potwierdzone zdarzenia za luką mogą zostać wysłane ponownie. Odrzucone zdarzenia nie są automatycznie pomijane; po ponownym uruchomieniu wskaźnik zaczyna bez dowodu powodzenia. Brak natywnej weryfikacji Windows.
+
 ## CMDRHelper v3.9.17
 
 - Zewnętrzne wyszukiwanie układów w Explorer nad bieżącym układem: Enter lub przycisk uruchamia asynchroniczne rozpoznawanie nazwy przez Spansh. Istniejąca mapa pokazuje gwiazdy, planety, księżyce i obiekty w osobnym oknie o zmiennym rozmiarze, bez wymuszania pierwszego planu; kliknięcie otwiera szczegóły ciała.
