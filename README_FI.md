@@ -38,6 +38,15 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.19
+
+- Kaivosnäkymän ”Oma myyntihinta / t” näyttää valitun komentajan viimeisimmän kirjatun myynnin. Myös uudempi alempi hinta korvaa vanhemman hinnan.
+- Myynnin työkaluvihje näyttää päivämäärän ja ajan, aseman, järjestelmän, määrän ja tonnihinnan, jos tiedot tunnetaan. Markkinatarjouksia ja ostohintoja ei käsitellä omina myynteinä.
+- Pelkkä varastomäärän muutos louhinnassa ei käynnistä hintojen taustatyötä eikä kirjoita muuttumattomia hintasoluja uudelleen. MarketSell päivittää hinnat; komentajan vaihto poistaa edelliset henkilökohtaiset hinnat heti.
+- PP2-päiväkronikassa on kompakti järjestelmäsuodatin, jossa on monivalinta, ”Kaikki järjestelmät” ja ”Tuntematon järjestelmä”. Yhdessä aikasuodattimen kanssa se määrittää näkyvät tapahtumat ja suodatetut ansiot.
+- Järjestelmäsuodatin nollautuu päivän tai komentajan vaihtuessa ja säilyttää valinnan saman päivän uusien tapahtumien yhteydessä. Irrotus ja telakointi ovat tuettuja; valikko käyttää olemassa olevia päivätietoja ilman uutta päivän SQL-kyselyä.
+- Tietokannan skeema pysyy versiossa 23. Kohdennetut testit synteettisillä tiedoilla ja Qt offscreen -tilassa kattavat kaksitoista kieltä sekä tumman ja vaalean tilan. Ei täydellistä regressiotestausta eikä natiivia Windows-testausta.
+
 ## CMDRHelper v3.9.18
 
 - EDSM-lokilähetysten ylläpito- ja luotettavuuspäivitys; ei uusia toimintoja.

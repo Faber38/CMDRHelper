@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_19.0': 'Kolumna górnicza „Własna cena sprzedaży / t” pokazuje ostatnią zarejestrowaną sprzedaż wybranego dowódcy. Nowsza, niższa cena również zastępuje starszą.',
+    'release.3_9_19.1': 'Podpowiedź sprzedaży pokazuje datę i godzinę, stację, system, ilość i cenę za tonę, jeśli dane są znane. Oferty rynkowe i ceny zakupu nie są traktowane jako własna sprzedaż.',
+    'release.3_9_19.2': 'Same zmiany zapasów podczas wydobycia nie uruchamiają zadania cenowego ani nie zapisują ponownie niezmienionych komórek cen. MarketSell aktualizuje ceny; zmiana dowódcy natychmiast usuwa poprzednie ceny osobiste.',
+    'release.3_9_19.3': 'Dzienna kronika PP2 ma kompaktowy filtr systemów z wielokrotnym wyborem, „Wszystkie systemy” i „Nieznany system”. Wraz z filtrem czasu określa widoczne zdarzenia i zasługi w filtrze.',
+    'release.3_9_19.4': 'Filtr systemów resetuje się przy zmianie dnia lub dowódcy i zachowuje wybór po nadejściu nowych zdarzeń tego samego dnia. Obsługiwane jest odłączanie i dokowanie; menu korzysta z istniejących danych dnia bez nowego dziennego zapytania SQL.',
+    'release.3_9_19.5': 'Schemat bazy danych pozostaje 23. Ukierunkowane testy na danych syntetycznych z Qt offscreen obejmują dwanaście języków oraz tryb ciemny i jasny. Bez pełnej regresji i natywnych testów Windows.',
+
     'release.3_9_18.0': 'Aktualizacja konserwacyjna i poprawiająca niezawodność wysyłania dzienników EDSM; bez nowych funkcji.',
     'release.3_9_18.1': 'Górny wskaźnik EDSM i podpowiedź oceniają tylko wysyłanie: zielony OK, żółty Oczekiwanie, czerwony Błąd, szary Nieznany lub Wyłączony. Pobieranie, trafienia pamięci podręcznej i testy połączenia nie zmieniają koloru.',
     'release.3_9_18.2': 'Odpowiedzi HTTP, zbiorcze i indywidualne są sprawdzane łącznie. Brakujące lub nieznane potwierdzenia nie zwalniają punktu kontrolnego; 500/501 nie potwierdzają zapisu.',
@@ -1889,7 +1896,7 @@ TRANSLATIONS = {
     'trade.remove_remembered_target': 'Usuń zapamiętany cel',
 }
 
-TRANSLATIONS.update({'mining.own_sell_price': 'Własna cena sprzedaży / t', 'mining.own_price_none': 'Brak użytecznych własnych danych rynkowych w limicie wieku.', 'mining.own_price_error': 'Własne ceny rynkowe niedostępne (błąd odczytu).', 'mining.own_price_help': 'Najlepsza własna cena sprzedaży zaobserwowana przez tę instalację przy dodatnim popycie. Dodatek do stałej ceny referencyjnej; popyt nie oznacza zapasów dowódcy.'})
+TRANSLATIONS.update({'mining.own_sell_price': 'Własna cena sprzedaży / t', 'mining.own_price_none': 'Nie zarejestrowano jeszcze własnej sprzedaży.', 'mining.own_price_error': 'Własna sprzedaż niedostępna (błąd odczytu).', 'mining.own_price_help': 'Ostatnia zarejestrowana sprzedaż wybranego dowódcy.'})
 
 TRANSLATIONS['recommend.remember_tip'] = 'Wskazówka: zapamiętaj wybrane cele za pomocą ✓ przed zakupem – pozostaną dostępne nawet przy pełnej ładowni.'
 
@@ -2256,3 +2263,5 @@ TRANSLATIONS.update({
     'external.hierarchy': 'Hierarchia ciał',
     'external.edsm_skip': 'Nie dodano jednoznacznie zidentyfikowanych lokalnych danych EDSM.',
 })
+
+TRANSLATIONS.update({'pp2.history.system_filter': 'Filtruj systemy', 'pp2.history.all_systems': 'Wszystkie systemy', 'pp2.history.unknown_system': 'Nieznany system'})

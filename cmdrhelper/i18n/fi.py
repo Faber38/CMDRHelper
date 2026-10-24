@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_19.0': 'Kaivosnäkymän ”Oma myyntihinta / t” näyttää valitun komentajan viimeisimmän kirjatun myynnin. Myös uudempi alempi hinta korvaa vanhemman hinnan.',
+    'release.3_9_19.1': 'Myynnin työkaluvihje näyttää päivämäärän ja ajan, aseman, järjestelmän, määrän ja tonnihinnan, jos tiedot tunnetaan. Markkinatarjouksia ja ostohintoja ei käsitellä omina myynteinä.',
+    'release.3_9_19.2': 'Pelkkä varastomäärän muutos louhinnassa ei käynnistä hintojen taustatyötä eikä kirjoita muuttumattomia hintasoluja uudelleen. MarketSell päivittää hinnat; komentajan vaihto poistaa edelliset henkilökohtaiset hinnat heti.',
+    'release.3_9_19.3': 'PP2-päiväkronikassa on kompakti järjestelmäsuodatin, jossa on monivalinta, ”Kaikki järjestelmät” ja ”Tuntematon järjestelmä”. Yhdessä aikasuodattimen kanssa se määrittää näkyvät tapahtumat ja suodatetut ansiot.',
+    'release.3_9_19.4': 'Järjestelmäsuodatin nollautuu päivän tai komentajan vaihtuessa ja säilyttää valinnan saman päivän uusien tapahtumien yhteydessä. Irrotus ja telakointi ovat tuettuja; valikko käyttää olemassa olevia päivätietoja ilman uutta päivän SQL-kyselyä.',
+    'release.3_9_19.5': 'Tietokannan skeema pysyy versiossa 23. Kohdennetut testit synteettisillä tiedoilla ja Qt offscreen -tilassa kattavat kaksitoista kieltä sekä tumman ja vaalean tilan. Ei täydellistä regressiotestausta eikä natiivia Windows-testausta.',
+
     'release.3_9_18.0': 'EDSM-lokilähetysten ylläpito- ja luotettavuuspäivitys; ei uusia toimintoja.',
     'release.3_9_18.1': 'Yläreunan EDSM-ilmaisin ja työkaluvihje arvioivat vain lähetyksiä: vihreä OK, keltainen Odottaa, punainen Virhe, harmaa Tuntematon tai Pois. Lataukset, välimuistiosumat ja yhteystestit eivät muuta väriä.',
     'release.3_9_18.2': 'HTTP-vastaukset sekä kokonais- ja tapahtumakohtaiset vastaukset tarkistetaan yhdessä. Puuttuvat tai tuntemattomat vahvistukset eivät vapauta tarkistuspistettä; 500/501 eivät vahvista tallennusta.',
@@ -1889,7 +1896,7 @@ TRANSLATIONS = {
     'trade.remove_remembered_target': 'Poista muistettu kohde',
 }
 
-TRANSLATIONS.update({'mining.own_sell_price': 'Oma myyntihinta / t', 'mining.own_price_none': 'Ei käyttökelpoisia omia markkinatietoja ikärajan sisällä.', 'mining.own_price_error': 'Omat markkinahinnat eivät ole saatavilla (lukuvirhe).', 'mining.own_price_help': 'Tämän asennuksen paras havaittu myyntihinta, kun kysyntä on positiivinen. Kiinteän viitehinnan lisätieto; kysyntä ei ole komentajan varasto.'})
+TRANSLATIONS.update({'mining.own_sell_price': 'Oma myyntihinta / t', 'mining.own_price_none': 'Omia myyntejä ei ole vielä kirjattu.', 'mining.own_price_error': 'Omat myynnit eivät ole saatavilla (lukuvirhe).', 'mining.own_price_help': 'Valitun komentajan viimeisin kirjattu myynti.'})
 
 TRANSLATIONS['recommend.remember_tip'] = 'Vinkki: merkitse haluamasi kohteet muistiin valinnalla ✓ ennen ostamista – ne säilyvät, vaikka lastiruuma olisi täynnä.'
 
@@ -2256,3 +2263,5 @@ TRANSLATIONS.update({
     'external.hierarchy': 'Taivaankappaleiden hierarkia',
     'external.edsm_skip': 'Yksiselitteisesti tunnistettuja paikallisia EDSM-tietoja ei lisätty.',
 })
+
+TRANSLATIONS.update({'pp2.history.system_filter': 'Suodata järjestelmiä', 'pp2.history.all_systems': 'Kaikki järjestelmät', 'pp2.history.unknown_system': 'Tuntematon järjestelmä'})

@@ -297,6 +297,9 @@ class SourceManager(QObject):
                 for kind in self.state._inventory_revisions:
                     self.state._inventory_revisions[kind] += 1
                 self.state.inventoryChanged.emit()
+                self.state._notify_mining_sales(
+                    [event for _, _, event in runtime.live_events],
+                    sessions=rows or [], source_key=identity)
         self.choose()
         self.refresh_selected()
         self.state.changed.emit()

@@ -38,6 +38,15 @@ Folder dzienników Elite Dangerous jest wykrywany automatycznie, jeśli to możl
 
 CMDRHelper sprawdza aktualizacje przy uruchomieniu i ma wbudowany mechanizm aktualizacji. Potwierdź proponowaną aktualizację w aplikacji; zaktualizuje ona program i zależności oraz uruchomi CMDRHelper ponownie. Po pierwszej instalacji zwykle wystarczy używać `start.bat` (Windows) lub `bash start.sh` (Linux). Przy zwykłych aktualizacjach nie trzeba ponownie ręcznie uruchamiać `install.bat` ani `install.sh`.
 
+## CMDRHelper v3.9.19
+
+- Kolumna górnicza „Własna cena sprzedaży / t” pokazuje ostatnią zarejestrowaną sprzedaż wybranego dowódcy. Nowsza, niższa cena również zastępuje starszą.
+- Podpowiedź sprzedaży pokazuje datę i godzinę, stację, system, ilość i cenę za tonę, jeśli dane są znane. Oferty rynkowe i ceny zakupu nie są traktowane jako własna sprzedaż.
+- Same zmiany zapasów podczas wydobycia nie uruchamiają zadania cenowego ani nie zapisują ponownie niezmienionych komórek cen. MarketSell aktualizuje ceny; zmiana dowódcy natychmiast usuwa poprzednie ceny osobiste.
+- Dzienna kronika PP2 ma kompaktowy filtr systemów z wielokrotnym wyborem, „Wszystkie systemy” i „Nieznany system”. Wraz z filtrem czasu określa widoczne zdarzenia i zasługi w filtrze.
+- Filtr systemów resetuje się przy zmianie dnia lub dowódcy i zachowuje wybór po nadejściu nowych zdarzeń tego samego dnia. Obsługiwane jest odłączanie i dokowanie; menu korzysta z istniejących danych dnia bez nowego dziennego zapytania SQL.
+- Schemat bazy danych pozostaje 23. Ukierunkowane testy na danych syntetycznych z Qt offscreen obejmują dwanaście języków oraz tryb ciemny i jasny. Bez pełnej regresji i natywnych testów Windows.
+
 ## CMDRHelper v3.9.18
 
 - Aktualizacja konserwacyjna i poprawiająca niezawodność wysyłania dzienników EDSM; bez nowych funkcji.

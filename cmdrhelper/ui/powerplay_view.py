@@ -21,6 +21,26 @@ from cmdrhelper.powerplay import (
 )
 
 
+class _SystemFilterMenu(QMenu):
+    """Keep checkbox choices open for multiple selections, including keyboard use."""
+
+    def mouseReleaseEvent(self, event):
+        action = self.actionAt(event.position().toPoint())
+        if event.button() == Qt.LeftButton and action and action.isEnabled() and action.isCheckable():
+            action.trigger()
+            event.accept()
+            return
+        super().mouseReleaseEvent(event)
+
+    def keyPressEvent(self, event):
+        action = self.activeAction()
+        if event.key() in (Qt.Key_Space, Qt.Key_Return, Qt.Key_Enter) and action and action.isCheckable():
+            action.trigger()
+            event.accept()
+            return
+        super().keyPressEvent(event)
+
+
 class RecommendationLabel(QLabel):
     """Let the outer scroll area grow instead of clipping wrapped advice."""
     def setText(self, text):
@@ -148,6 +168,10 @@ class PowerplayView(QScrollArea):
         self._chronicle_render_key = None
         self.section_headings = {}
         self.selected_day = None
+        self._selected_systems = None  # None means all, including future systems.
+        self._system_context = None
+        self._system_names = {}
+        self._system_menu_key = None
         self.chronicle_window = None
         self.chronicle_detached = False
         self.setWidgetResizable(True)
@@ -273,6 +297,10 @@ class PowerplayView(QScrollArea):
         self.day_label.setWordWrap(False)
         self.today_button = QPushButton(tr("pp2.history.today"))
         self.manage_history = QPushButton(tr("pp2.history.manage"))
+        self.system_filter = QPushButton(tr('pp2.history.system_filter'))
+        self.system_menu = _SystemFilterMenu(self.system_filter)
+        self.system_filter.setMenu(self.system_menu)
+        self.system_menu.aboutToShow.connect(self._sync_system_menu)
         self.time_filter = QWidget()
         time_layout = QHBoxLayout(self.time_filter)
         time_layout.setContentsMargins(0, 0, 0, 0)
@@ -316,6 +344,10 @@ class PowerplayView(QScrollArea):
         self.open_chronicle_button.hide()
         self._arrange_columns()
         state.changed.connect(self._changed)
+        for name in ('commanderIdentityChanged', 'viewedCommanderChanged'):
+            signal = getattr(state, name, None)
+            if signal is not None:
+                signal.connect(self._reset_system_filter)
         cargo_signal = getattr(state, "cargoSnapshotChanged", None)
         if cargo_signal is not None:
             cargo_signal.connect(self._changed)
@@ -460,14 +492,16 @@ class PowerplayView(QScrollArea):
         width = (self.chronicle_window.width() if self.chronicle_detached
                  else self.viewport().width())
         wide = width >= self.fontMetrics().horizontalAdvance("0") * 110
-        for widget in (self.chronicle_title, self.navigation, self.manage_history, self.time_filter):
+        for widget in (self.chronicle_title, self.navigation, self.manage_history, self.time_filter, self.system_filter):
             self.chronicle_header.removeWidget(widget)
         self.chronicle_header.addWidget(self.chronicle_title, 0, 0, 1, 1 if wide else 2)
         self.chronicle_header.addWidget(self.navigation, 0 if wide else 1, 1 if wide else 0,
                                        alignment=Qt.AlignLeft)
         self.chronicle_header.addWidget(self.manage_history, 0 if wide else 2, 2 if wide else 0,
                                        1, 1 if wide else 2, alignment=Qt.AlignRight if wide else Qt.AlignLeft)
-        self.chronicle_header.addWidget(self.time_filter, 1 if wide else 3, 0, 1, 3 if wide else 2)
+        self.chronicle_header.addWidget(self.time_filter, 1 if wide else 3, 0, 1, 2)
+        self.chronicle_header.addWidget(self.system_filter, 1 if wide else 4, 2 if wide else 0,
+                                       1, 1 if wide else 2, alignment=Qt.AlignLeft)
         self.chronicle_header.setColumnStretch(0, 1 if wide else 0)
         self.chronicle_header.setColumnStretch(1, 0 if wide else 1)
         self.recent.fit_columns()
@@ -487,6 +521,56 @@ class PowerplayView(QScrollArea):
         if self.isVisible() or self.chronicle_detached:
             self.render()
 
+    @staticmethod
+    def _group_system(group):
+        # Use only the group's existing source context; never nearby events,
+        # station names, the current system or merit-correlation certainty.
+        return group.system.strip() if isinstance(group.system, str) else ''
+
+    def _reset_system_filter(self, *_):
+        self._selected_systems = None
+        self._system_context = None
+        self._chronicle_render_key = None
+        self._changed()
+
+    def _select_system(self, key, checked):
+        selected = set(self._selected_systems or ())
+        if checked:
+            selected.add(key)
+        else:
+            selected.discard(key)
+        self._selected_systems = frozenset(selected)
+        self.render()
+
+    def _all_systems(self, *_):
+        self._selected_systems = None
+        self.render()
+
+    def _sync_system_menu(self):
+        # Opening the menu uses only labels from the already loaded day.
+        signature = (tuple(self._system_names.items()), get_language())
+        if signature != self._system_menu_key:
+            self.system_menu.clear()
+            action = self.system_menu.addAction(tr('pp2.history.all_systems'))
+            action.setCheckable(True)
+            action.triggered.connect(self._all_systems)
+            self.system_menu.addSeparator()
+            for key, name in self._system_names.items():
+                action = self.system_menu.addAction((name or tr('pp2.history.unknown_system')).replace('&', '&&'))
+                action.setData(key)
+                action.setCheckable(True)
+                action.triggered.connect(lambda checked, key=key: self._select_system(key, checked))
+            self._system_menu_key = signature
+        actions = self.system_menu.actions()
+        actions[0].setChecked(self._selected_systems is None)
+        for action in actions[2:]:
+            action.setChecked(self._selected_systems is not None and action.data() in self._selected_systems)
+        label = tr('pp2.history.system_filter')
+        if self._selected_systems is not None:
+            label += ' (' + str(len(self._selected_systems)) + ')'
+        self.system_filter.setText(label)
+        self.system_filter.setAccessibleName(label)
+
     def _move_day(self, delta):
         today = local_today()
         target = min((self.selected_day or today) + timedelta(days=delta), today)
@@ -494,6 +578,7 @@ class PowerplayView(QScrollArea):
         self.render()
 
     def _today(self):
+        self._selected_systems = None
         self.selected_day = None
         self.render()
 
@@ -654,6 +739,10 @@ class PowerplayView(QScrollArea):
         self.next_day.setEnabled(selected < today)
         db = getattr(self.state, "database", None)
         cid = getattr(self.state, "commander_id", None)
+        system_context = (db, cid, getattr(self.state, 'commander_fid', None), selected)
+        if system_context != self._system_context:
+            self._selected_systems = None
+            self._system_context = system_context
         for action in self.manage_history.menu().actions()[:3]:
             action.setEnabled(db is not None and cid is not None)
         if db is not None and cid is not None:
@@ -664,11 +753,19 @@ class PowerplayView(QScrollArea):
             chronicle, revision = data.chronicle, None
         render_key = (revision, selected, today, get_language(), locale.name(),
                       self.recent.font().toString(), self.time_filter_enabled.isChecked(),
-                      self.from_time.time().msecsSinceStartOfDay() if self.time_filter_enabled.isChecked() else None)
+                      self.from_time.time().msecsSinceStartOfDay() if self.time_filter_enabled.isChecked() else None,
+                      self._selected_systems)
         if revision is not None and render_key == self._chronicle_render_key:
             return
         self._chronicle_render_key = None  # A failed rebuild must be retried.
         groups = today_groups(chronicle, selected)
+        names = sorted({self._group_system(group) for group in groups}, key=lambda name: (name.casefold(), name))
+        self._system_names = {}
+        for name in names:
+            self._system_names.setdefault(name.casefold(), name)
+        self._sync_system_menu()
+        if self._selected_systems is not None:
+            groups = [group for group in groups if self._group_system(group).casefold() in self._selected_systems]
         if self.time_filter_enabled.isChecked():
             # Match the existing day filter and displayed action timestamp.
             # Convert each instant locally (including its historical DST offset).

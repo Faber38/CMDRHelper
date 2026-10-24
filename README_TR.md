@@ -39,6 +39,15 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.19
+
+- Madencilikteki “Kendi satış fiyatı / t” sütunu, seçilen komutanın kaydedilmiş en son satışını gösterir. Daha yeni ve daha düşük bir fiyat da eski fiyatın yerini alır.
+- Satış araç ipucu, biliniyorsa tarih ve saati, istasyonu, sistemi, miktarı ve ton başına fiyatı gösterir. Piyasa teklifleri ve alış fiyatları kişisel satış olarak değerlendirilmez.
+- Madencilikte yalnızca stok değiştiğinde fiyat işçisi başlatılmaz ve değişmeyen fiyat hücreleri yeniden yazılmaz. MarketSell fiyatları günceller; komutan değişince önceki kişisel fiyatlar hemen temizlenir.
+- PP2 günlük kaydında çoklu seçim, “Tüm sistemler” ve “Bilinmeyen sistem” seçenekleriyle kompakt bir sistem filtresi bulunur. Zaman filtresiyle birlikte görünür olayları ve filtredeki liyakatleri belirler.
+- Sistem filtresi gün veya komutan değiştiğinde sıfırlanır; aynı gün yeni olaylar geldiğinde seçim korunur. Ayırma ve yeniden yerleştirme desteklenir; menü yeni bir günlük SQL sorgusu olmadan mevcut günlük verileri kullanır.
+- Veritabanı şeması 23 olarak kalır. Sentetik veriler ve Qt offscreen ile yapılan hedefli testler on iki dili ve koyu/açık modu kapsar. Tam regresyon ve yerel Windows doğrulaması yapılmamıştır.
+
 ## CMDRHelper v3.9.18
 
 - EDSM günlük yüklemeleri için bakım ve güvenilirlik güncellemesi; yeni özellik yok.

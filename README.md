@@ -38,6 +38,15 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.9.19
+
+- The mining column “Own selling price / t” shows the latest recorded sale by the selected commander. A newer lower price also replaces the older price.
+- The sale tooltip shows date and time, station, system, quantity and price per tonne where known. Market offers and purchase prices are not treated as personal sales.
+- Inventory-only mining changes do not start a price worker or rewrite unchanged price cells. MarketSell refreshes prices; switching commander immediately clears previous personal prices.
+- The PP2 daily chronicle has a compact system filter with multiple selection, “All systems” and “Unknown system”. Combined with the time filter, it determines visible events and “Merits in filter”.
+- The system filter resets on day or commander changes and keeps its selection when new events arrive on the same day. Detaching and docking are supported; the menu uses existing daily data without another daily SQL query.
+- Database schema remains 23. Targeted tests with synthetic data and Qt offscreen cover twelve languages and dark/light mode. No full regression or native Windows validation.
+
 ## CMDRHelper v3.9.18
 
 - Maintenance and reliability update for EDSM journal uploads; no new features.

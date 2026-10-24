@@ -45,6 +45,7 @@ logger = logging.getLogger(__name__)
 class AppState(QObject):
     changed = Signal()
     inventoryChanged = Signal()
+    miningSalesChanged = Signal()
     odysseySidecarsChanged = Signal()
     observedMarketsChanged = Signal()
     commanderIdentityChanged = Signal(object, str, str)
@@ -1923,6 +1924,20 @@ class AppState(QObject):
             return
         self.database.store_journal_session(session, identity_only=True)
 
+    def _notify_mining_sales(self, events, *, sessions=None, source_key=None):
+        """Forward sales or changed source attribution, not inventory revisions."""
+        rows = sessions if sessions is not None else (self._journal_index_sessions or [])
+        key = source_key if source_key is not None else str(getattr(self, 'journal_folder', ''))
+        signature = frozenset((row.get('journal_file'), row.get('commander_id'),
+                               row.get('fid_seen'), row.get('attribution_status')) for row in rows)
+        signatures = getattr(self, '_mining_sale_sources', None)
+        if signatures is None:
+            signatures = self._mining_sale_sources = {}
+        changed = signatures.get(key) != signature
+        signatures[key] = signature
+        if changed or any(event.get('event') == 'MarketSell' for event in events):
+            self.miningSalesChanged.emit()
+
     def refresh(self):
         sources = getattr(self, "sources", None)
         if sources is not None and not sources.projecting:
@@ -2281,6 +2296,7 @@ class AppState(QObject):
 
         if inventory_changed:
             self.inventoryChanged.emit()
+        self._notify_mining_sales(delta_events)
         self._refresh_summary = (self.commander_id, persistent)
         try:
             self.changed.emit()

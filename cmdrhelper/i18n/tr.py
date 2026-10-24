@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_19.0': 'Madencilikteki “Kendi satış fiyatı / t” sütunu, seçilen komutanın kaydedilmiş en son satışını gösterir. Daha yeni ve daha düşük bir fiyat da eski fiyatın yerini alır.',
+    'release.3_9_19.1': 'Satış araç ipucu, biliniyorsa tarih ve saati, istasyonu, sistemi, miktarı ve ton başına fiyatı gösterir. Piyasa teklifleri ve alış fiyatları kişisel satış olarak değerlendirilmez.',
+    'release.3_9_19.2': 'Madencilikte yalnızca stok değiştiğinde fiyat işçisi başlatılmaz ve değişmeyen fiyat hücreleri yeniden yazılmaz. MarketSell fiyatları günceller; komutan değişince önceki kişisel fiyatlar hemen temizlenir.',
+    'release.3_9_19.3': 'PP2 günlük kaydında çoklu seçim, “Tüm sistemler” ve “Bilinmeyen sistem” seçenekleriyle kompakt bir sistem filtresi bulunur. Zaman filtresiyle birlikte görünür olayları ve filtredeki liyakatleri belirler.',
+    'release.3_9_19.4': 'Sistem filtresi gün veya komutan değiştiğinde sıfırlanır; aynı gün yeni olaylar geldiğinde seçim korunur. Ayırma ve yeniden yerleştirme desteklenir; menü yeni bir günlük SQL sorgusu olmadan mevcut günlük verileri kullanır.',
+    'release.3_9_19.5': 'Veritabanı şeması 23 olarak kalır. Sentetik veriler ve Qt offscreen ile yapılan hedefli testler on iki dili ve koyu/açık modu kapsar. Tam regresyon ve yerel Windows doğrulaması yapılmamıştır.',
+
     'release.3_9_18.0': 'EDSM günlük yüklemeleri için bakım ve güvenilirlik güncellemesi; yeni özellik yok.',
     'release.3_9_18.1': 'Üst EDSM göstergesi ve araç ipucu yalnızca yüklemeleri değerlendirir: yeşil Tamam, sarı Bekliyor, kırmızı Hata, gri Bilinmiyor veya Kapalı. İndirmeler, önbellek isabetleri ve bağlantı testleri rengi değiştirmez.',
     'release.3_9_18.2': 'HTTP, genel ve tekil yanıtlar birlikte denetlenir. Eksik veya bilinmeyen onaylar kontrol noktasını serbest bırakmaz; 500/501 onaylanmış kayıt sayılmaz.',
@@ -1889,7 +1896,7 @@ TRANSLATIONS = {
     'trade.remove_remembered_target': 'Kaydedilen hedefi kaldır',
 }
 
-TRANSLATIONS.update({'mining.own_sell_price': 'Kendi satış fiyatı / t', 'mining.own_price_none': 'Yaş sınırı içinde kullanılabilir kendi pazar verisi yok.', 'mining.own_price_error': 'Kendi pazar fiyatları kullanılamıyor (okuma hatası).', 'mining.own_price_help': 'Pozitif talep olan bu kurulumda gözlemlenen en iyi kendi satış fiyatı. Sabit referans fiyatına ek bilgidir; talep komutanın envanteri değildir.'})
+TRANSLATIONS.update({'mining.own_sell_price': 'Kendi satış fiyatı / t', 'mining.own_price_none': 'Henüz kişisel satış kaydedilmedi.', 'mining.own_price_error': 'Kişisel satışlar kullanılamıyor (okuma hatası).', 'mining.own_price_help': 'Seçili komutanın kaydedilen son satışı.'})
 
 TRANSLATIONS['recommend.remember_tip'] = 'İpucu: Satın almadan önce istediğiniz hedefleri ✓ ile kaydedin – kargo bölmesi dolu olsa bile saklanırlar.'
 
@@ -2256,3 +2263,5 @@ TRANSLATIONS.update({
     'external.hierarchy': 'Gök cismi hiyerarşisi',
     'external.edsm_skip': 'Kesin olarak tanımlanmış yerel EDSM verisi eklenmedi.',
 })
+
+TRANSLATIONS.update({'pp2.history.system_filter': 'Sistemleri filtrele', 'pp2.history.all_systems': 'Tüm sistemler', 'pp2.history.unknown_system': 'Bilinmeyen sistem'})

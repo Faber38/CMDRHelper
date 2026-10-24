@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_19.0': 'De mijnbouwkolom ‘Eigen verkoopprijs / t’ toont de laatst geregistreerde verkoop van de geselecteerde commandant. Ook een nieuwere lagere prijs vervangt de oudere prijs.',
+    'release.3_9_19.1': 'De tooltip bij de verkoop toont datum en tijd, station, systeem, hoeveelheid en prijs per ton, voor zover bekend. Marktaanbiedingen en aankoopprijzen tellen niet als eigen verkopen.',
+    'release.3_9_19.2': 'Alleen voorraadwijzigingen tijdens mijnbouw starten geen prijsworker en schrijven ongewijzigde prijscellen niet opnieuw. MarketSell werkt prijzen bij; bij een commandantwissel verdwijnen eerdere persoonlijke prijzen onmiddellijk.',
+    'release.3_9_19.3': 'De dagelijkse PP2-kroniek heeft een compact systeemfilter met meervoudige selectie, ‘Alle systemen’ en ‘Onbekend systeem’. Samen met het tijdfilter bepaalt dit de zichtbare gebeurtenissen en verdiensten in het filter.',
+    'release.3_9_19.4': 'Het systeemfilter wordt bij een dag- of commandantwissel teruggezet en behoudt de selectie bij nieuwe gebeurtenissen op dezelfde dag. Losmaken en vastzetten worden ondersteund; het menu gebruikt bestaande daggegevens zonder nieuwe dagelijkse SQL-query.',
+    'release.3_9_19.5': 'Het databaseschema blijft 23. Gerichte tests met synthetische gegevens en Qt offscreen omvatten twaalf talen en donkere/lichte modus. Geen volledige regressie of native Windows-validatie.',
+
     'release.3_9_18.0': 'Onderhouds- en betrouwbaarheidsupdate voor EDSM-journaaluploads; geen nieuwe functies.',
     'release.3_9_18.1': 'De bovenste EDSM-indicator en tooltip beoordelen alleen uploads: groen OK, geel Wachten, rood Fout, grijs Onbekend of Uit. Downloads, cachetreffers en verbindingstests veranderen de kleur niet.',
     'release.3_9_18.2': 'HTTP-antwoorden, algemene antwoorden en afzonderlijke antwoorden worden samen gecontroleerd. Ontbrekende of onbekende bevestigingen geven geen controlepunt vrij; 500/501 gelden niet als bevestigde opslag.',
@@ -1889,7 +1896,7 @@ TRANSLATIONS = {
     'trade.remove_remembered_target': 'Onthouden bestemming verwijderen',
 }
 
-TRANSLATIONS.update({'mining.own_sell_price': 'Eigen verkoopprijs / t', 'mining.own_price_none': 'Geen bruikbare eigen marktgegevens binnen de leeftijdslimiet.', 'mining.own_price_error': 'Eigen marktprijzen niet beschikbaar (leesfout).', 'mining.own_price_help': 'Beste eigen verkoopprijs waargenomen door deze installatie met positieve vraag. Aanvulling op de vaste referentieprijs; vraag is geen commandantvoorraad.'})
+TRANSLATIONS.update({'mining.own_sell_price': 'Eigen verkoopprijs / t', 'mining.own_price_none': 'Nog geen eigen verkoop geregistreerd.', 'mining.own_price_error': 'Eigen verkopen niet beschikbaar (leesfout).', 'mining.own_price_help': 'Laatst geregistreerde verkoop van de geselecteerde commander.'})
 
 TRANSLATIONS['recommend.remember_tip'] = 'Tip: onthoud de gewenste bestemmingen met ✓ voordat je koopt – ze blijven beschikbaar, ook met een vol vrachtruim.'
 
@@ -2256,3 +2263,5 @@ TRANSLATIONS.update({
     'external.hierarchy': 'Hiërarchie van hemellichamen',
     'external.edsm_skip': 'Geen eenduidig geïdentificeerde lokale EDSM-gegevens toegevoegd.',
 })
+
+TRANSLATIONS.update({'pp2.history.system_filter': 'Systemen filteren', 'pp2.history.all_systems': 'Alle systemen', 'pp2.history.unknown_system': 'Onbekend systeem'})

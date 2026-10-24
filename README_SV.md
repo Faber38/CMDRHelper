@@ -38,6 +38,15 @@ Journalmappen för Elite Dangerous hittas automatiskt när det är möjligt. Om 
 
 CMDRHelper söker efter uppdateringar vid start och har en inbyggd uppdateringsfunktion. Bekräfta en erbjuden uppdatering i programmet; den uppdaterar programmet och beroendena och startar om CMDRHelper. Efter den första installationen använder du normalt bara `start.bat` (Windows) eller `bash start.sh` (Linux). Du behöver inte köra `install.bat` eller `install.sh` manuellt igen för vanliga uppdateringar.
 
+## CMDRHelper v3.9.19
+
+- Gruvkolumnen ”Eget försäljningspris / t” visar den valda befälhavarens senaste registrerade försäljning. Även ett nyare lägre pris ersätter det äldre priset.
+- Försäljningens verktygstips visar datum och tid, station, system, mängd och pris per ton när uppgifterna är kända. Marknadserbjudanden och inköpspriser räknas inte som egna försäljningar.
+- Rena lagerändringar under gruvdrift startar ingen prisarbetare och skriver inte om oförändrade prisceller. MarketSell uppdaterar priserna; byte av befälhavare tar omedelbart bort tidigare personliga priser.
+- PP2-dagskrönikan har ett kompakt systemfilter med flerval, ”Alla system” och ”Okänt system”. Tillsammans med tidsfiltret bestämmer det synliga händelser och meriter i filtret.
+- Systemfiltret återställs vid byte av dag eller befälhavare och behåller urvalet när nya händelser tillkommer samma dag. Losskoppling och dockning stöds; menyn använder befintliga dagsdata utan en ny SQL-fråga för dagen.
+- Databasschemat förblir 23. Riktade tester med syntetiska data och Qt offscreen omfattar tolv språk och mörkt/ljust läge. Ingen fullständig regression eller testning direkt i Windows.
+
 ## CMDRHelper v3.9.18
 
 - Underhålls- och tillförlitlighetsuppdatering för EDSM-journaluppladdning; inga nya funktioner.

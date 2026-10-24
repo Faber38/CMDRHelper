@@ -1,16 +1,11 @@
-"""Debounced mining price reads, independent of inventory and active game FID."""
+"""Debounced commander sale reads using the existing journal index."""
 import logging
-import math
-from pathlib import Path
 from threading import Event
 
 from PySide6.QtCore import QObject, QRunnable, QThreadPool, QTimer, Signal, Slot
 
-from .market_store import market_store_path
 from .mining_catalog import MINING_COMMODITIES
 from .mining_market import MiningPrices, read_mining_prices
-from .observed_market_cache import utcnow
-from .ui.market_age import age_events, saved_max_age
 
 logger = logging.getLogger(__name__)
 
@@ -20,19 +15,19 @@ class _Signals(QObject):
 
 
 class _Read(QRunnable):
-    def __init__(self, generation, args, commodities, clock, cancel, signals):
+    def __init__(self, generation, args, commodities, cache, cancel, signals):
         super().__init__()
         self.generation, self.args = generation, args
-        self.commodities, self.clock = commodities, clock
+        self.commodities, self.cache = commodities, cache
         self.cancel, self.signals = cancel, signals
 
     def run(self):
         try:
             result = read_mining_prices(*self.args, commodities=self.commodities,
-                                       clock=self.clock, cancel=self.cancel)
+                                       cache=self.cache, cancel=self.cancel)
         except Exception:
             if not self.cancel.is_set():
-                logger.exception('Mining own-market price read failed')
+                logger.exception('Mining own-sale read failed')
             result = MiningPrices(status='error')
         try:
             self.signals.finished.emit(self.generation, result)
@@ -44,9 +39,10 @@ class MiningMarketController(QObject):
     ready = Signal(object)
 
     def __init__(self, state, parent=None, *, commodities=MINING_COMMODITIES,
-                 clock=utcnow, pool=None):
+                 pool=None):
         super().__init__(parent)
-        self.state, self.commodities, self.clock = state, tuple(commodities), clock
+        self.state, self.commodities = state, tuple(commodities)
+        self._cache = {}
         self.pool = pool or QThreadPool.globalInstance()
         self.signals = _Signals(self)
         self.signals.finished.connect(self._finished)
@@ -57,41 +53,59 @@ class MiningMarketController(QObject):
         self.timer.setSingleShot(True)
         self.timer.setInterval(100)
         self.timer.timeout.connect(self._start)
-        self.expiry = QTimer(self)
-        self.expiry.setSingleShot(True)
-        self.expiry.timeout.connect(self.request)
         self._result = MiningPrices()
         self._args = None
-        age_events.changed.connect(self.request)
-        for name in ('observedMarketsChanged', 'viewedCommanderChanged',
-                     'commanderIdentityChanged', 'databaseImportFinished'):
+        self._identity = self._current_identity()
+        self._dirty = True  # Initial read, also when the tab is first opened later.
+        for name, slot in (('miningSalesChanged', self.request),
+                           ('journalIndexReady', self.request),
+                           ('journalCatchupReady', self.request),
+                           ('viewedCommanderChanged', self._identity_changed),
+                           ('commanderIdentityChanged', self._identity_changed),
+                           ('databaseImportFinished', self._import_finished)):
             signal = getattr(state, name, None)
             if signal is not None:
-                signal.connect(self.request)
+                signal.connect(slot)
+
+    def _current_identity(self):
+        return (getattr(self.state, 'viewed_commander_id', None)
+                or getattr(self.state, 'commander_id', None),
+                str(getattr(getattr(self.state, 'database', None), 'path', '')))
+
+    def _identity_changed(self, *_):
+        identity = self._current_identity()
+        if identity != self._identity:
+            self._identity = identity
+            self._result = MiningPrices()
+            self.ready.emit(self._result)  # Never show another commander's prices.
+            self.request()
+
+    def _import_finished(self, stats=None, error=''):
+        # Archive imports explicitly report zero processed files. Other import
+        # paths only provide DB totals: their sale relevance is unknown.
+        if not error and isinstance(stats, dict) and stats.get('imported_journals') == 0:
+            return
+        self.request()
 
     def set_active(self, active):
         if active == self._active:
             return
         self._active = active
         if active:
-            self.request(preserve=True)
+            self._identity_changed()
+            if self._dirty:
+                self.timer.start()
         else:
             self._generation += 1
             self._cancel.set()
-            self._dirty = False
+            self._dirty = self._dirty or self._running
             self.timer.stop()
-            self.expiry.stop()
 
-    def request(self, *_, preserve=False):
+    def request(self, *_):
         self._generation += 1
         self._cancel.set()
-        self.expiry.stop()
-        # Only reopening an unchanged view may keep usable quotes. Identity,
-        # age and source notifications still invalidate immediately, even hidden.
-        if not preserve:
-            self._result = MiningPrices(status='loading')
-            self.ready.emit(self._result)
-
+        # Keep accepted prices until a replacement is ready. Identity changes
+        # clear separately, including while the view is hidden.
         self._dirty = True
         if self._active:
             self.timer.start()
@@ -102,25 +116,19 @@ class MiningMarketController(QObject):
         self._dirty, self._running = False, True
         self._cancel.clear()
         cancel = self._cancel
-        observer = getattr(self.state, 'observed_markets', None)
-        writer = getattr(observer, 'writer', None)
-        cache = getattr(observer, '_cache', None)
-        path = (writer.destination if writer is not None else cache.path.parent/'markets.db'
-                if cache is not None else market_store_path())
-        self._args = (Path(path), saved_max_age(getattr(self.state, 'settings', None)))
-        self.pool.start(_Read(self._generation, self._args, self.commodities, self.clock,
+        cid = getattr(self.state, 'viewed_commander_id', None) or getattr(self.state, 'commander_id', None)
+        self._args = (getattr(getattr(self.state, 'database', None), 'path', None), cid)
+        self.pool.start(_Read(self._generation, self._args, self.commodities, self._cache,
                               cancel, self.signals))
 
     @Slot(int, object)
     def _finished(self, generation, result):
         self._running = False
         if generation == self._generation and self._active:
-            self._result = result
-            self.ready.emit(result)
-            max_age = self._args[1]
-            if max_age is not None and result.quotes:
-                deadline = min(q.header.observed_at+max_age for q in result.quotes)
-                delay = max(1, math.ceil((deadline-self.clock()).total_seconds()*1000)+1)
-                self.expiry.start(min(delay, 2_147_483_647))
+            if result.status != 'ok':
+                result = MiningPrices(self._result.quotes, result.status)
+            if result != self._result:
+                self._result = result
+                self.ready.emit(result)
         if self._dirty and self._active:
             self.timer.start()

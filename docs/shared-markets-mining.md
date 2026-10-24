@@ -1,5 +1,41 @@
 # Gemeinsame lokale Märkte und Mining
 
+## Korrektur vom 24.10.2026: tatsächlich erzielter eigener Verkaufspreis
+
+Die Mining-Spalte liest jetzt ausschließlich `MarketSell` mit `SellPrice` und
+positiver `Count` aus den über `journal_sessions` zugeordneten Originaljournalen.
+Ausgewählter Commander, Datenbank-FID und eindeutige Journal-FID müssen passen.
+Es gewinnt der neueste UTC-Ereigniszeitpunkt; bei Gleichstand entscheiden
+`journal_sort_key`, aufgelöster Dateipfad und Byteposition, jeweils aufsteigend.
+Ein neuer niedrigerer Verkauf ersetzt daher den älteren höheren Verkauf.
+
+Der bestehende Hintergrundcontroller liest die Hauptdatenbank nur lesend.
+Ein Dateicache wird anhand Inode, Größe, Änderungs- und Statuszeit geprüft;
+Nur MarketSell, geänderte Quellenzuordnung, Commanderwechsel, Journalindex und
+relevante beziehungsweise nicht sicher einzuordnende Importe aktualisieren Preise.
+Reine Bestandsereignisse, Docked und FSDJump lösen keine Preisabfrage aus.
+Ein ausdrücklich leerer Archivimport wird übersprungen. Während einer Abfrage
+bleiben die angenommenen Preise desselben Commanders sichtbar; Commanderwechsel
+löschen sie sofort. Unveränderte Ergebnisse werden nicht erneut gerendert,
+unveränderte Zellwerte und Tooltips nicht geschrieben. Überholte Worker-Ergebnisse werden
+verworfen. Nach Neustart wird aus den Journalen rekonstruiert. Handels-Alterslimit,
+Marktangebote und Nachfrage haben keinen Einfluss mehr auf diese Spalte.
+
+Tooltip: lokaler Verkaufszeitpunkt, Station, System, Menge und Cr/t. Unbekannte
+Ortsangaben erscheinen als „—“. Nicht lesbare zugeordnete Journale führen zu einem
+Lesefehler; bereits angenommene Preise desselben Commanders bleiben sichtbar. Es gibt keinen Marktpreis-Ersatz.
+Durchschnitt, Wertklasse, Bestände, Handel und PP2 bleiben unverändert.
+Hauptdatenbankschema 23 bleibt bestehen; keine Migration oder neuen Schreibpfade.
+
+Lesend bestätigt: FABER38 verkaufte am 24.10.2026 um 14:54:19 UTC in Mate City,
+Musca Dark Region HM-V c2-37, 115 t Grandidierit zu 49.595 Cr/t. Die frühere Anzeige
+551.650 Cr/t stammte aus einem Marktangebot in Chargaff Installation, Chakpa,
+beobachtet am 18.10.2026 um 19:17:29 UTC.
+
+Die folgenden Abschnitte dokumentieren den früheren Entwicklungsstand; ihre
+Mining-Preisregeln und Messwerte gelten nicht für den korrigierten Verkaufsleser.
+
+
 ## Fachliche Korrektur und Schema
 
 Marktstände sind gemeinsames lokales Wissen der Installation. MarketID identifiziert

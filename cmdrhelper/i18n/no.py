@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_19.0': 'Gruvekolonnen « Egen salgspris / t » viser det siste registrerte salget til den valgte kommandøren. En nyere, lavere pris erstatter også den eldre prisen.',
+    'release.3_9_19.1': 'Salgets verktøytips viser dato og klokkeslett, stasjon, system, mengde og pris per tonn når opplysningene er kjent. Markedstilbud og kjøpspriser regnes ikke som egne salg.',
+    'release.3_9_19.2': 'Rene beholdningsendringer under gruvedrift starter ingen prisarbeider og skriver ikke uendrede prisceller på nytt. MarketSell oppdaterer prisene; ved kommandørbytte fjernes tidligere personlige priser straks.',
+    'release.3_9_19.3': 'PP2-dagskrøniken har et kompakt systemfilter med flervalg, « Alle systemer » og « Ukjent system ». Sammen med tidsfilteret bestemmer det synlige hendelser og meritter i filteret.',
+    'release.3_9_19.4': 'Systemfilteret nullstilles ved bytte av dag eller kommandør og beholder valget når nye hendelser kommer samme dag. Frakobling og tilkobling støttes; menyen bruker eksisterende dagsdata uten en ny SQL-spørring for dagen.',
+    'release.3_9_19.5': 'Databaseskjemaet forblir 23. Målrettede tester med syntetiske data og Qt offscreen dekker tolv språk og mørk/lys modus. Ingen full regresjon eller testing direkte på Windows.',
+
     'release.3_9_18.0': 'Vedlikeholds- og pålitelighetsoppdatering for EDSM-journalopplasting; ingen nye funksjoner.',
     'release.3_9_18.1': 'EDSM-indikatoren øverst og verktøytipset vurderer bare opplasting: grønt OK, gult Venter, rødt Feil, grått Ukjent eller Av. Nedlastinger, hurtigbuffertreff og tilkoblingstester endrer ikke fargen.',
     'release.3_9_18.2': 'HTTP-svar, overordnede svar og enkeltsvar kontrolleres sammen. Manglende eller ukjente bekreftelser frigir ikke et kontrollpunkt; 500/501 regnes ikke som bekreftet lagring.',
@@ -1889,7 +1896,7 @@ TRANSLATIONS = {
     'trade.remove_remembered_target': 'Fjern lagret reisemål',
 }
 
-TRANSLATIONS.update({'mining.own_sell_price': 'Egen salgspris / t', 'mining.own_price_none': 'Ingen brukbare egne markedsdata innen aldersgrensen.', 'mining.own_price_error': 'Egne markedspriser utilgjengelige (lesefeil).', 'mining.own_price_help': 'Beste egen salgspris observert av denne installasjonen med positiv etterspørsel. Tillegg til fast referansepris; etterspørsel er ikke kommandørens beholdning.'})
+TRANSLATIONS.update({'mining.own_sell_price': 'Egen salgspris / t', 'mining.own_price_none': 'Ingen egne salg registrert ennå.', 'mining.own_price_error': 'Egne salg utilgjengelige (lesefeil).', 'mining.own_price_help': 'Siste registrerte salg fra valgt kommandør.'})
 
 TRANSLATIONS['recommend.remember_tip'] = 'Tips: Merk ønskede mål med ✓ før du kjøper – de beholdes selv når lasterommet er fullt.'
 
@@ -2256,3 +2263,5 @@ TRANSLATIONS.update({
     'external.hierarchy': 'Hierarki for himmellegemer',
     'external.edsm_skip': 'Ingen entydig identifiserte lokale EDSM-data lagt til.',
 })
+
+TRANSLATIONS.update({'pp2.history.system_filter': 'Filtrer systemer', 'pp2.history.all_systems': 'Alle systemer', 'pp2.history.unknown_system': 'Ukjent system'})

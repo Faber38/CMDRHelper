@@ -359,3 +359,22 @@ class ManagerTests(unittest.TestCase):
         self.assertEqual(rows[str(path)]['fid_seen'], 'TEST-REPLACEMENT')
         self.assertEqual(rows[str(path)]['last_read_offset'], path.stat().st_size)
         self.assertEqual(state.viewed_commander_id, cid)
+
+    def test_mining_sales_notification_excludes_inventory_but_includes_other_source_sale(self):
+        state = self.state
+        runtime = next(iter(state.sources.runtimes.values()))
+        state.select_viewed_commander(runtime.processor.sessions[-1]['commander_id'])
+        self.drain()
+        notices = []
+        state.miningSalesChanged.connect(lambda: notices.append(1))
+        path = Path(runtime.processor.sessions[-1]['journal_file'])
+        append(path, event('MiningRefined', Type='grandidierite'),
+               event('MaterialCollected', Category='Raw', Name='iron', Count=1))
+        runtime.watcher.check_now(); self.drain()
+        self.assertEqual(notices, [])
+        # A sale in an unselected source must also notify the price reader.
+        other = next(r for r in state.sources.runtimes.values() if r is not runtime)
+        append(Path(other.processor.sessions[-1]['journal_file']),
+               event('MarketSell', Type='grandidierite', Count=1, SellPrice=49595, TotalSale=49595))
+        other.watcher.check_now(); self.drain()
+        self.assertTrue(notices)

@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_19.0': 'La columna minera «Precio de venta propio / t» muestra la última venta registrada del comandante seleccionado. Un precio más reciente pero inferior también sustituye al anterior.',
+    'release.3_9_19.1': 'La información de la venta muestra fecha y hora, estación, sistema, cantidad y precio por tonelada cuando se conocen. Las ofertas del mercado y los precios de compra no se consideran ventas propias.',
+    'release.3_9_19.2': 'Los cambios únicamente de existencias durante la minería no inician tareas de precios ni reescriben celdas de precios sin cambios. MarketSell actualiza los precios; al cambiar de comandante se borran inmediatamente los precios personales anteriores.',
+    'release.3_9_19.3': 'La crónica diaria PP2 incorpora un filtro compacto de sistemas con selección múltiple, «Todos los sistemas» y «Sistema desconocido». Junto con el filtro horario determina los eventos visibles y los méritos filtrados.',
+    'release.3_9_19.4': 'El filtro de sistemas se restablece al cambiar de día o comandante y conserva la selección cuando llegan nuevos eventos del mismo día. Se admite desacoplar y acoplar; el menú usa los datos diarios existentes sin otra consulta SQL diaria.',
+    'release.3_9_19.5': 'El esquema de la base de datos sigue en 23. Las pruebas específicas con datos sintéticos y Qt offscreen abarcan doce idiomas y los modos oscuro y claro. Sin regresión completa ni validación nativa en Windows.',
+
     'release.3_9_18.0': 'Actualización de mantenimiento y fiabilidad de las cargas de diarios EDSM; sin funciones nuevas.',
     'release.3_9_18.1': 'El indicador EDSM superior y su descripción evalúan solo las cargas: verde OK, amarillo En espera, rojo Error, gris Desconocido o Desactivado. Las descargas, la caché y las pruebas de conexión no cambian el color.',
     'release.3_9_18.2': 'Las respuestas HTTP, globales e individuales se comprueban conjuntamente. Las confirmaciones ausentes o desconocidas no liberan un punto de control; 500/501 no confirman almacenamiento.',
@@ -2001,7 +2008,7 @@ TRANSLATIONS = {
     'trade.remove_remembered_target': 'Eliminar destino guardado',
 }
 
-TRANSLATIONS.update({'mining.own_sell_price': 'Precio de venta propio / t', 'mining.own_price_none': 'Sin datos de mercado propios utilizables dentro del límite de antigüedad.', 'mining.own_price_error': 'Precios propios no disponibles (error de lectura).', 'mining.own_price_help': 'Mejor precio de venta propio observado por esta instalación con demanda positiva. Complementa el precio de referencia fijo; la demanda no es el inventario del comandante.'})
+TRANSLATIONS.update({'mining.own_sell_price': 'Precio de venta propio / t', 'mining.own_price_none': 'Aún no hay ventas propias registradas.', 'mining.own_price_error': 'Ventas propias no disponibles (error de lectura).', 'mining.own_price_help': 'Última venta registrada del comandante seleccionado.'})
 
 TRANSLATIONS['recommend.remember_tip'] = 'Consejo: guarda los destinos deseados con ✓ antes de comprar; seguirán disponibles aunque la bodega esté llena.'
 
@@ -2368,3 +2375,5 @@ TRANSLATIONS.update({
     'external.hierarchy': 'Jerarquía de cuerpos',
     'external.edsm_skip': 'No se añadieron datos EDSM locales identificados inequívocamente.',
 })
+
+TRANSLATIONS.update({'pp2.history.system_filter': 'Filtrar sistemas', 'pp2.history.all_systems': 'Todos los sistemas', 'pp2.history.unknown_system': 'Sistema desconocido'})

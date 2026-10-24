@@ -7,6 +7,7 @@ import re
 from cmdrhelper.i18n import get_language, tr
 
 RELEASE_SUMMARIES = {
+    "3.9.19": ('release.3_9_19.0', 'release.3_9_19.1', 'release.3_9_19.2', 'release.3_9_19.3', 'release.3_9_19.4', 'release.3_9_19.5'),
     "3.9.18": ('release.3_9_18.0', 'release.3_9_18.1', 'release.3_9_18.2', 'release.3_9_18.3', 'release.3_9_18.4', 'release.3_9_18.5'),
     "3.9.17": ('release.3_9_17.0', 'release.3_9_17.1', 'release.3_9_17.2', 'release.3_9_17.3', 'release.3_9_17.4', 'release.3_9_17.5'),
     "3.9.16": ('release.3_9_16.0', 'release.3_9_16.1', 'release.3_9_16.2', 'release.3_9_16.3'),

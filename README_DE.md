@@ -38,6 +38,15 @@ Der Journalordner von Elite Dangerous wird nach Möglichkeit automatisch erkannt
 
 CMDRHelper prüft beim Start auf Updates und besitzt einen integrierten Updater. Bestätige ein angebotenes Update im Programm; es aktualisiert Programm und Abhängigkeiten und startet CMDRHelper neu. Nach der Erstinstallation genügt normalerweise `start.bat` (Windows) beziehungsweise `bash start.sh` (Linux). Für normale Updates musst du `install.bat` oder `install.sh` nicht erneut manuell ausführen.
 
+## CMDRHelper v3.9.19
+
+- Die Mining-Spalte „Eigener Verkaufspreis / t“ zeigt den zeitlich letzten protokollierten Verkauf des ausgewählten Commanders. Auch ein neuerer niedrigerer Preis ersetzt den älteren Preis.
+- Der Verkaufstooltip zeigt Datum und Uhrzeit, Station, System, Menge und Preis pro Tonne, soweit diese Angaben bekannt sind. Marktangebote und Einkaufspreise zählen nicht als eigene Verkäufe.
+- Reine Bestandsänderungen beim Bergbau starten keinen Preisworker und schreiben keine unveränderten Preiszellen. MarketSell aktualisiert die Preise; beim Commanderwechsel werden alte persönliche Preise sofort entfernt.
+- Die PP2-Tageschronik bietet einen kompakten Systemfilter mit Mehrfachauswahl, „Alle Systeme“ und „System unbekannt“. Zusammen mit dem Zeitfilter bestimmt er die sichtbaren Ereignisse und „Merits im Filter“.
+- Der Systemfilter wird bei Tages- und Commanderwechsel zurückgesetzt und bleibt bei neuen Ereignissen desselben Tages erhalten. Ab- und Andocken werden unterstützt; das Filtermenü nutzt den vorhandenen Tagesbestand ohne neue SQL-Tagesabfrage.
+- Datenbankschema bleibt 23. Gezielte Tests mit synthetischen Daten und Qt offscreen berücksichtigen zwölf Sprachen sowie Dark-/Light-Mode. Keine vollständige Regression und keine native Windows-Prüfung.
+
 ## CMDRHelper v3.9.18
 
 - Wartungs- und Zuverlässigkeitsupdate für den EDSM-Journalupload; keine neuen Funktionen.

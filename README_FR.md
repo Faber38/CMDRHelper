@@ -38,6 +38,15 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.9.19
+
+- La colonne minière « Prix de vente personnel / t » affiche la dernière vente enregistrée du commandant sélectionné. Un prix plus récent remplace aussi un ancien prix plus élevé.
+- L’infobulle de vente indique la date et l’heure, la station, le système, la quantité et le prix par tonne lorsque ces données sont connues. Les offres du marché et les prix d’achat ne sont pas des ventes personnelles.
+- Les changements de stock seuls ne lancent aucun traitement des prix et ne réécrivent pas les cellules de prix inchangées. MarketSell actualise les prix ; changer de commandant efface immédiatement les prix personnels précédents.
+- La chronique quotidienne PP2 propose un filtre compact des systèmes avec sélection multiple, « Tous les systèmes » et « Système inconnu ». Combiné au filtre horaire, il détermine les événements visibles et les mérites filtrés.
+- Le filtre des systèmes est réinitialisé lors d’un changement de jour ou de commandant et conserve sa sélection à l’arrivée d’événements du même jour. Le détachement et le réancrage sont pris en charge ; le menu utilise les données quotidiennes existantes sans nouvelle requête SQL journalière.
+- Le schéma de base de données reste à 23. Des tests ciblés avec données synthétiques et Qt offscreen couvrent douze langues et les modes sombre et clair. Pas de régression complète ni de validation Windows native.
+
 ## CMDRHelper v3.9.18
 
 - Mise à jour de maintenance et de fiabilité des envois de journaux EDSM ; aucune nouvelle fonctionnalité.

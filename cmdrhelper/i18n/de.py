@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_19.0': 'Die Mining-Spalte „Eigener Verkaufspreis / t“ zeigt den zeitlich letzten protokollierten Verkauf des ausgewählten Commanders. Auch ein neuerer niedrigerer Preis ersetzt den älteren Preis.',
+    'release.3_9_19.1': 'Der Verkaufstooltip zeigt Datum und Uhrzeit, Station, System, Menge und Preis pro Tonne, soweit diese Angaben bekannt sind. Marktangebote und Einkaufspreise zählen nicht als eigene Verkäufe.',
+    'release.3_9_19.2': 'Reine Bestandsänderungen beim Bergbau starten keinen Preisworker und schreiben keine unveränderten Preiszellen. MarketSell aktualisiert die Preise; beim Commanderwechsel werden alte persönliche Preise sofort entfernt.',
+    'release.3_9_19.3': 'Die PP2-Tageschronik bietet einen kompakten Systemfilter mit Mehrfachauswahl, „Alle Systeme“ und „System unbekannt“. Zusammen mit dem Zeitfilter bestimmt er die sichtbaren Ereignisse und „Merits im Filter“.',
+    'release.3_9_19.4': 'Der Systemfilter wird bei Tages- und Commanderwechsel zurückgesetzt und bleibt bei neuen Ereignissen desselben Tages erhalten. Ab- und Andocken werden unterstützt; das Filtermenü nutzt den vorhandenen Tagesbestand ohne neue SQL-Tagesabfrage.',
+    'release.3_9_19.5': 'Datenbankschema bleibt 23. Gezielte Tests mit synthetischen Daten und Qt offscreen berücksichtigen zwölf Sprachen sowie Dark-/Light-Mode. Keine vollständige Regression und keine native Windows-Prüfung.',
+
     'release.3_9_18.0': 'Wartungs- und Zuverlässigkeitsupdate für den EDSM-Journalupload; keine neuen Funktionen.',
     'release.3_9_18.1': 'Die obere EDSM-Ampel und ihr Tooltip bewerten ausschließlich Uploads: Grün OK, Gelb Wartet, Rot Fehler, Grau Unbekannt oder Aus. Downloads, Cachetreffer und Verbindungstests ändern die Farbe nicht.',
     'release.3_9_18.2': 'HTTP-, Gesamt- und Einzelantworten werden gemeinsam geprüft. Fehlende oder unbekannte Bestätigungen geben keinen Checkpoint frei; 500/501 gelten nicht als bestätigte Speicherung.',
@@ -2013,7 +2020,7 @@ TRANSLATIONS = {
     'trade.remove_remembered_target': 'Gemerktes Ziel entfernen',
 }
 
-TRANSLATIONS.update({'mining.own_sell_price': 'Eigener Verkaufspreis / t', 'mining.own_price_none': 'Keine eigenen nutzbaren Marktdaten innerhalb des Alterslimits.', 'mining.own_price_error': 'Eigene Marktpreise nicht verfügbar (Lesefehler).', 'mining.own_price_help': 'Bester eigener Verkaufspreis dieser Installation bei positiver Nachfrage. Zusatz zum festen Referenzpreis; Nachfrage ist kein Commanderbestand.'})
+TRANSLATIONS.update({'mining.own_sell_price': 'Eigener Verkaufspreis / t', 'mining.own_price_none': 'Noch kein eigener Verkauf protokolliert.', 'mining.own_price_error': 'Eigene Verkäufe nicht verfügbar (Lesefehler).', 'mining.own_price_help': 'Letzter protokollierter Verkauf des ausgewählten Commanders.'})
 
 TRANSLATIONS['recommend.remember_tip'] = 'Tipp: Gewünschte Ziele vor dem Einkauf mit ✓ merken – sie bleiben auch bei vollem Frachtraum erhalten.'
 
@@ -2400,3 +2407,5 @@ TRANSLATIONS.update({
     'external.hierarchy': 'Körperhierarchie',
     'external.edsm_skip': 'Kein eindeutig identifizierter lokaler EDSM-Bestand ergänzt.',
 })
+
+TRANSLATIONS.update({'pp2.history.system_filter': 'Systeme filtern', 'pp2.history.all_systems': 'Alle Systeme', 'pp2.history.unknown_system': 'System unbekannt'})

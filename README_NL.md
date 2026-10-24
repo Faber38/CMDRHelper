@@ -38,6 +38,15 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## CMDRHelper v3.9.19
+
+- De mijnbouwkolom ‘Eigen verkoopprijs / t’ toont de laatst geregistreerde verkoop van de geselecteerde commandant. Ook een nieuwere lagere prijs vervangt de oudere prijs.
+- De tooltip bij de verkoop toont datum en tijd, station, systeem, hoeveelheid en prijs per ton, voor zover bekend. Marktaanbiedingen en aankoopprijzen tellen niet als eigen verkopen.
+- Alleen voorraadwijzigingen tijdens mijnbouw starten geen prijsworker en schrijven ongewijzigde prijscellen niet opnieuw. MarketSell werkt prijzen bij; bij een commandantwissel verdwijnen eerdere persoonlijke prijzen onmiddellijk.
+- De dagelijkse PP2-kroniek heeft een compact systeemfilter met meervoudige selectie, ‘Alle systemen’ en ‘Onbekend systeem’. Samen met het tijdfilter bepaalt dit de zichtbare gebeurtenissen en verdiensten in het filter.
+- Het systeemfilter wordt bij een dag- of commandantwissel teruggezet en behoudt de selectie bij nieuwe gebeurtenissen op dezelfde dag. Losmaken en vastzetten worden ondersteund; het menu gebruikt bestaande daggegevens zonder nieuwe dagelijkse SQL-query.
+- Het databaseschema blijft 23. Gerichte tests met synthetische gegevens en Qt offscreen omvatten twaalf talen en donkere/lichte modus. Geen volledige regressie of native Windows-validatie.
+
 ## CMDRHelper v3.9.18
 
 - Onderhouds- en betrouwbaarheidsupdate voor EDSM-journaaluploads; geen nieuwe functies.

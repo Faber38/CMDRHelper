@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_19.0': 'The mining column “Own selling price / t” shows the latest recorded sale by the selected commander. A newer lower price also replaces the older price.',
+    'release.3_9_19.1': 'The sale tooltip shows date and time, station, system, quantity and price per tonne where known. Market offers and purchase prices are not treated as personal sales.',
+    'release.3_9_19.2': 'Inventory-only mining changes do not start a price worker or rewrite unchanged price cells. MarketSell refreshes prices; switching commander immediately clears previous personal prices.',
+    'release.3_9_19.3': 'The PP2 daily chronicle has a compact system filter with multiple selection, “All systems” and “Unknown system”. Combined with the time filter, it determines visible events and “Merits in filter”.',
+    'release.3_9_19.4': 'The system filter resets on day or commander changes and keeps its selection when new events arrive on the same day. Detaching and docking are supported; the menu uses existing daily data without another daily SQL query.',
+    'release.3_9_19.5': 'Database schema remains 23. Targeted tests with synthetic data and Qt offscreen cover twelve languages and dark/light mode. No full regression or native Windows validation.',
+
     'release.3_9_18.0': 'Maintenance and reliability update for EDSM journal uploads; no new features.',
     'release.3_9_18.1': 'The top EDSM indicator and tooltip assess uploads only: green OK, yellow Waiting, red Error, grey Unknown or Off. Downloads, cache hits and connection tests do not change the colour.',
     'release.3_9_18.2': 'HTTP, overall and individual responses are checked together. Missing or unknown confirmations do not release a checkpoint; 500/501 do not count as confirmed storage.',
@@ -2013,7 +2020,7 @@ TRANSLATIONS = {
     'trade.remove_remembered_target': 'Remove remembered destination',
 }
 
-TRANSLATIONS.update({'mining.own_sell_price': 'Own sale price / t', 'mining.own_price_none': 'No usable own market data within the age limit.', 'mining.own_price_error': 'Own market prices unavailable (read error).', 'mining.own_price_help': 'Best own sale price observed by this installation with positive demand. Additional to the fixed reference price; demand is not commander inventory.'})
+TRANSLATIONS.update({'mining.own_sell_price': 'Own sale price / t', 'mining.own_price_none': 'No own sale recorded yet.', 'mining.own_price_error': 'Own sales unavailable (read error).', 'mining.own_price_help': 'Last recorded sale by the selected commander.'})
 
 TRANSLATIONS['recommend.remember_tip'] = 'Tip: Remember your chosen destinations with ✓ before buying – they remain available even when your cargo hold is full.'
 
@@ -2400,3 +2407,5 @@ TRANSLATIONS.update({
     'external.hierarchy': 'Body hierarchy',
     'external.edsm_skip': 'No unambiguously identified local EDSM data added.',
 })
+
+TRANSLATIONS.update({'pp2.history.system_filter': 'Filter systems', 'pp2.history.all_systems': 'All systems', 'pp2.history.unknown_system': 'Unknown system'})

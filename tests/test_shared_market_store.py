@@ -9,14 +9,13 @@ from threading import Event
 import unittest
 from unittest.mock import Mock, patch
 
-from cmdrhelper.market_store import MarketStore, _SCHEMA, SCHEMA_VERSION, StoreFormatError
+from cmdrhelper.market_store import CommodityRef, MarketStore, _SCHEMA, SCHEMA_VERSION, StoreFormatError
 from cmdrhelper.market_migration import migrate_market_cache
 from cmdrhelper.market_data import MarketSearch, MarketSearchResult, MarketStatus, TradeSide
 from cmdrhelper.trade_market_source import TradeMarketSource
 from cmdrhelper.trade_search import search_trade
 from cmdrhelper.recommendation_market_source import RecommendationStoreSession
 from cmdrhelper.trade_recommendations import search_recommendations
-from cmdrhelper.mining_market import read_mining_prices
 from cmdrhelper.mining_catalog import MINING_COMMODITIES
 from test_market_store import observation, commodity, NOW, FID, GOLD
 
@@ -70,7 +69,7 @@ class SharedMarketTests(unittest.TestCase):
                                       fid=active, local_source=source, clock=lambda:NOW)
                 self.assertEqual(len(result.offers),1)
                 self.assertEqual(result.offers[0].commander_sell_price,300)
-        self.assertEqual(read_mining_prices(self.path,timedelta(days=1),clock=lambda:NOW).quotes[0].header.fid,'CMDR2')
+        self.assertEqual(self.store.best_sell_prices((CommodityRef(GOLD.frontier_id, GOLD.symbol),),max_age=timedelta(days=1))[0].header.fid,'CMDR2')
 
     def test_recommendations_origin_and_target_can_be_observed_by_other_commanders(self):
         origin=observation(fid='CMDR1',rows=[commodity(GOLD,buy=10,sell=12)])
@@ -96,7 +95,7 @@ class SharedMarketTests(unittest.TestCase):
         self.assertEqual(self.store.get_current(2)['fid'],'AA')
         self.store.record_observation(observation(mid=3,fid='CMDR1',stamp=NOW-timedelta(hours=1),rows=[commodity(GOLD,sell=999)]))
         self.store.record_observation(observation(mid=3,fid='CMDR2',rows=[]))
-        self.assertEqual(read_mining_prices(self.path,timedelta(days=1),clock=lambda:NOW).quotes[0].commodity.commander_sell_price,10)
+        self.assertEqual(self.store.best_sell_prices((CommodityRef(GOLD.frontier_id, GOLD.symbol),),max_age=timedelta(days=1))[0].commodity.commander_sell_price,10)
 
     def test_schema1_upgrade_preserves_all_observations_and_is_idempotent(self):
         rows=[observation(fid='CMDR1',stamp=NOW-timedelta(hours=2)),observation(fid='CMDR2')]

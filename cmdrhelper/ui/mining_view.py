@@ -308,14 +308,9 @@ class MiningView(QWidget):
         self.market_controller = None
         self.own_market_prices = {}
         self._market_status = 'ok'
-        self._market_clock = None
-        self.market_age_timer = QTimer(self)
-        self.market_age_timer.setInterval(60_000)
-        self.market_age_timer.timeout.connect(self._render_market_prices)
-        if state is not None and hasattr(state, 'observed_markets'):
+        if state is not None and hasattr(state, 'database'):
             from cmdrhelper.mining_market_controller import MiningMarketController
             self.market_controller = MiningMarketController(state, self, commodities=commodities)
-            self._market_clock = self.market_controller.clock
             self.market_controller.ready.connect(self.set_market_prices)
             self.refresh_button.clicked.connect(self.market_controller.request)
         self._render_market_prices()
@@ -336,19 +331,13 @@ class MiningView(QWidget):
             self.tree.setUpdatesEnabled(True)
 
     def set_market_prices(self, result):
-        self.own_market_prices = {q.commodity.symbol.casefold(): q for q in result.quotes}
+        self.own_market_prices = {q.symbol.casefold(): q for q in result.quotes}
         self._market_status = result.status
         self._render_market_prices()
 
     def _render_market_prices(self):
         with self._table_update():
-            from cmdrhelper.observed_market_cache import utcnow
-            from cmdrhelper.ui.market_age import saved_max_age, saved_hours
-            from cmdrhelper.ui.trade_view import format_age
-            now = (self._market_clock or utcnow)()
-            max_age = saved_max_age(self.settings)
-            age_limit = tr('trade.age_option_' + str(saved_hours(self.settings)))
-            help_text = tr('mining.own_price_help') + '\n' + tr('trade.max_age') + ': ' + age_limit
+            help_text = tr('mining.own_price_help')
             self.tree.headerItem().setToolTip(7, help_text)
             self.notice.setText(tr('mining.reference_short') + (
                 ' · ' + tr('mining.own_price_error') if self._market_status == 'error' else ''))
@@ -356,26 +345,25 @@ class MiningView(QWidget):
             locale = QLocale(get_language())
             for symbol, item in self.items.items():
                 quote = self.own_market_prices.get(symbol)
-                if quote is not None:
-                    elapsed = now - quote.header.observed_at
-                    if elapsed.total_seconds() < 0 or (max_age is not None and elapsed > max_age):
-                        quote = None
-                price = quote.commodity.commander_sell_price if quote is not None else None
-                item.setData(7, Qt.ItemDataRole.UserRole, price)
-                item.setText(7, locale.toString(price) if price is not None else '—')
+                price = quote.price if quote is not None else None
+                text = locale.toString(price) if price is not None else '—'
+                if item.data(7, Qt.ItemDataRole.UserRole) != price:
+                    item.setData(7, Qt.ItemDataRole.UserRole, price)
+                if item.text(7) != text:
+                    item.setText(7, text)
                 if quote is None:
                     key = 'mining.own_price_error' if self._market_status == 'error' else 'mining.own_price_none'
                     tooltip = tr(key) + '\n' + help_text
                 else:
-                    h, value = quote.header, quote.commodity
-                    stamp = QDateTime.fromString(h.observed_at.isoformat(), Qt.DateFormat.ISODate)
+                    stamp = QDateTime.fromString(quote.timestamp.isoformat(), Qt.DateFormat.ISODate)
                     observed = locale.toString(stamp.toLocalTime(), QLocale.FormatType.ShortFormat)
-                    tooltip = '\n'.join((help_text,
-                        tr('trade.system') + ': ' + h.system_name,
-                        tr('trade.station') + ': ' + h.station_name,
-                        tr('trade.age') + ': ' + format_age(h.observed_at, now) + ' (' + observed + ')',
-                        tr('trade.demand') + ': ' + (locale.toString(value.demand) if value.demand is not None else '—')))
-                item.setToolTip(7, tooltip)
+                    tooltip = '\n'.join((help_text, observed,
+                        tr('trade.station') + ': ' + (quote.station or '—'),
+                        tr('trade.system') + ': ' + (quote.system or '—'),
+                        tr('trade.quantity') + ': ' + locale.toString(quote.count),
+                        tr('trade.price') + ': ' + locale.toString(quote.price) + ' Cr/t'))
+                if item.toolTip(7) != tooltip:
+                    item.setToolTip(7, tooltip)
             self.tree.setSortingEnabled(True)
 
     def showEvent(self, event):
@@ -383,7 +371,6 @@ class MiningView(QWidget):
         if self.market_controller is not None:
             self.market_controller.set_active(True)
         self._render_market_prices()
-        self.market_age_timer.start()
 
 
     def _begin_inventory_loading(self):
@@ -487,7 +474,6 @@ class MiningView(QWidget):
         self.refresh_status.setStyleSheet(f"color: {red.name() if self._refresh_state == 'error' else green.name()};")
 
     def hideEvent(self, event):
-        self.market_age_timer.stop()
         if self.market_controller is not None:
             self.market_controller.set_active(False)
         self.refresh_animation.stop()

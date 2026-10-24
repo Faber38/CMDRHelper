@@ -38,6 +38,15 @@ La carpeta de diarios de Elite Dangerous se detecta automáticamente cuando es p
 
 CMDRHelper busca actualizaciones al iniciarse y dispone de un actualizador integrado. Confirma una actualización ofrecida en la aplicación; actualizará el programa y las dependencias y reiniciará CMDRHelper. Tras la primera instalación, normalmente basta con usar `start.bat` (Windows) o `bash start.sh` (Linux). No es necesario volver a ejecutar manualmente `install.bat` o `install.sh` para las actualizaciones normales.
 
+## CMDRHelper v3.9.19
+
+- La columna minera «Precio de venta propio / t» muestra la última venta registrada del comandante seleccionado. Un precio más reciente pero inferior también sustituye al anterior.
+- La información de la venta muestra fecha y hora, estación, sistema, cantidad y precio por tonelada cuando se conocen. Las ofertas del mercado y los precios de compra no se consideran ventas propias.
+- Los cambios únicamente de existencias durante la minería no inician tareas de precios ni reescriben celdas de precios sin cambios. MarketSell actualiza los precios; al cambiar de comandante se borran inmediatamente los precios personales anteriores.
+- La crónica diaria PP2 incorpora un filtro compacto de sistemas con selección múltiple, «Todos los sistemas» y «Sistema desconocido». Junto con el filtro horario determina los eventos visibles y los méritos filtrados.
+- El filtro de sistemas se restablece al cambiar de día o comandante y conserva la selección cuando llegan nuevos eventos del mismo día. Se admite desacoplar y acoplar; el menú usa los datos diarios existentes sin otra consulta SQL diaria.
+- El esquema de la base de datos sigue en 23. Las pruebas específicas con datos sintéticos y Qt offscreen abarcan doce idiomas y los modos oscuro y claro. Sin regresión completa ni validación nativa en Windows.
+
 ## CMDRHelper v3.9.18
 
 - Actualización de mantenimiento y fiabilidad de las cargas de diarios EDSM; sin funciones nuevas.
