@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_20.0': 'NIEUW: Bekijk opgeslagen markten onafhankelijk van je huidige locatie.',
+    'release.3_9_20.1': 'NIEUW: Volledige goederenlijsten met inkoop- en verkoopprijzen, aanbod en vraag in tonnen.',
+    'release.3_9_20.2': 'NIEUW: Filter markten op afstand, landingsplatformgrootte en ouderdom van de gegevens.',
+    'release.3_9_20.3': 'VERBETERD: Sorteer markten en goederen op naam, prijs en hoeveelheid.',
+    'release.3_9_20.4': 'VERBETERD: Overzichtelijkere bedieningsbalk in de PP2-dagkroniek.',
+    'release.3_9_20.5': 'OPGELOST: Markten van Stronghold Carriers worden correct herkend en opgeslagen.',
+
     'release.3_9_19.0': 'De mijnbouwkolom ‘Eigen verkoopprijs / t’ toont de laatst geregistreerde verkoop van de geselecteerde commandant. Ook een nieuwere lagere prijs vervangt de oudere prijs.',
     'release.3_9_19.1': 'De tooltip bij de verkoop toont datum en tijd, station, systeem, hoeveelheid en prijs per ton, voor zover bekend. Marktaanbiedingen en aankoopprijzen tellen niet als eigen verkopen.',
     'release.3_9_19.2': 'Alleen voorraadwijzigingen tijdens mijnbouw starten geen prijsworker en schrijven ongewijzigde prijscellen niet opnieuw. MarketSell werkt prijzen bij; bij een commandantwissel verdwijnen eerdere persoonlijke prijzen onmiddellijk.',
@@ -2265,3 +2272,39 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS.update({'pp2.history.system_filter': 'Systemen filteren', 'pp2.history.all_systems': 'Alle systemen', 'pp2.history.unknown_system': 'Onbekend systeem'})
+
+# Read-only saved market browser.
+TRANSLATIONS.update({
+    'browse.title': 'Markt bekijken',
+    'browse.notice': 'Opgeslagen markten. Prijzen en hoeveelheden kunnen sinds de waarneming zijn veranderd.',
+    'browse.search': 'Zoek station, systeem of MarketID',
+    'browse.reference': 'Referentiesysteem',
+    'browse.apply': 'Toepassen',
+    'browse.ly': 'lj',
+    'browse.radius': 'Maximale afstand',
+    'browse.pad_help': 'Filter op het grootste vastgelegde landingsplatform. — betekent onbekend.',
+    'browse.max_age': 'Maximale gegevensouderdom',
+    'browse.loading': 'Marktgegevens laden …',
+    'browse.refresh': 'Opnieuw laden',
+    'browse.market_id': 'MarketID',
+    'browse.distance': 'Afstand (lj)',
+    'browse.select': 'Selecteer een opgeslagen markt.',
+    'browse.goods_search': 'Zoek handelswaren',
+    'browse.mining': 'Alleen mijnbouwgrondstoffen',
+    'browse.commodity': 'Handelswaar',
+    'browse.buy': 'Inkoopprijs (Cr/t)',
+    'browse.sell': 'Verkoopprijs (Cr/t)',
+    'browse.supply': 'Aanbod (t)',
+    'browse.demand': 'Vraag (t)',
+    'browse.old': 'ouder dan 24 u',
+    'browse.reference_unknown': 'Geen eenduidige coördinaten voor het referentiesysteem. Afstanden onbekend.',
+    'browse.markets': '{shown} van {total} markten',
+    'browse.empty': 'Geen opgeslagen markten beschikbaar.',
+    'browse.metadata_missing': 'Sommige stationsgegevens zijn niet beschikbaar.',
+    'browse.error': 'Opgeslagen marktgegevens konden niet worden gelezen. Laad opnieuw.',
+    'browse.missing': 'Geen opgeslagen gegevens beschikbaar voor deze markt.',
+    'browse.updated': 'Laatste update',
+    'browse.source': 'Gegevensbron',
+    'browse.local': 'Lokaal waargenomen in Elite',
+    'browse.goods': '{shown} van {total} handelswaren',
+})

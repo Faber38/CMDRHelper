@@ -38,6 +38,15 @@ Journalmappen för Elite Dangerous hittas automatiskt när det är möjligt. Om 
 
 CMDRHelper söker efter uppdateringar vid start och har en inbyggd uppdateringsfunktion. Bekräfta en erbjuden uppdatering i programmet; den uppdaterar programmet och beroendena och startar om CMDRHelper. Efter den första installationen använder du normalt bara `start.bat` (Windows) eller `bash start.sh` (Linux). Du behöver inte köra `install.bat` eller `install.sh` manuellt igen för vanliga uppdateringar.
 
+## CMDRHelper v3.9.20
+
+- NYTT: Visa sparade marknader oberoende av din nuvarande position.
+- NYTT: Fullständiga varulistor med köp- och säljpriser samt utbud och efterfrågan i ton.
+- NYTT: Filtrera marknader efter avstånd, landningsplattformens storlek och uppgifternas ålder.
+- FÖRBÄTTRAT: Sortera marknader och varor efter namn, priser och mängder.
+- FÖRBÄTTRAT: Tydligare verktygsfält i PP2-dagskrönikan.
+- ÅTGÄRDAT: Marknader på Stronghold Carriers identifieras och sparas korrekt.
+
 ## CMDRHelper v3.9.19
 
 - Gruvkolumnen ”Eget försäljningspris / t” visar den valda befälhavarens senaste registrerade försäljning. Även ett nyare lägre pris ersätter det äldre priset.

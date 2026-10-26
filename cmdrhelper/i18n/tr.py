@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_20.0': 'YENİ: Kayıtlı pazarları mevcut konumunuzdan bağımsız olarak görüntüleyin.',
+    'release.3_9_20.1': 'YENİ: Alış ve satış fiyatları, ton cinsinden arz ve talep içeren eksiksiz mal listeleri.',
+    'release.3_9_20.2': 'YENİ: Pazarları mesafeye, iniş pisti boyutuna ve veri yaşına göre filtreleyin.',
+    'release.3_9_20.3': 'İYİLEŞTİRİLDİ: Pazarları ve malları ada, fiyata ve miktara göre sıralayın.',
+    'release.3_9_20.4': 'İYİLEŞTİRİLDİ: PP2 günlük kroniğinde daha anlaşılır kontrol çubuğu.',
+    'release.3_9_20.5': 'DÜZELTİLDİ: Stronghold Carrier pazarları doğru şekilde tanınıyor ve kaydediliyor.',
+
     'release.3_9_19.0': 'Madencilikteki “Kendi satış fiyatı / t” sütunu, seçilen komutanın kaydedilmiş en son satışını gösterir. Daha yeni ve daha düşük bir fiyat da eski fiyatın yerini alır.',
     'release.3_9_19.1': 'Satış araç ipucu, biliniyorsa tarih ve saati, istasyonu, sistemi, miktarı ve ton başına fiyatı gösterir. Piyasa teklifleri ve alış fiyatları kişisel satış olarak değerlendirilmez.',
     'release.3_9_19.2': 'Madencilikte yalnızca stok değiştiğinde fiyat işçisi başlatılmaz ve değişmeyen fiyat hücreleri yeniden yazılmaz. MarketSell fiyatları günceller; komutan değişince önceki kişisel fiyatlar hemen temizlenir.',
@@ -2265,3 +2272,39 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS.update({'pp2.history.system_filter': 'Sistemleri filtrele', 'pp2.history.all_systems': 'Tüm sistemler', 'pp2.history.unknown_system': 'Bilinmeyen sistem'})
+
+# Read-only saved market browser.
+TRANSLATIONS.update({
+    'browse.title': 'Pazarı görüntüle',
+    'browse.notice': 'Kaydedilmiş pazarlar. Fiyatlar ve miktarlar gözlemden bu yana değişmiş olabilir.',
+    'browse.search': 'İstasyon, sistem veya MarketID ara',
+    'browse.reference': 'Referans sistemi',
+    'browse.apply': 'Uygula',
+    'browse.ly': 'ıy',
+    'browse.radius': 'Azami mesafe',
+    'browse.pad_help': 'Kaydedilmiş en büyük iniş platformuna göre filtrele. — bilinmiyor demektir.',
+    'browse.max_age': 'Azami veri yaşı',
+    'browse.loading': 'Pazar verileri yükleniyor …',
+    'browse.refresh': 'Yeniden yükle',
+    'browse.market_id': 'MarketID',
+    'browse.distance': 'Mesafe (ıy)',
+    'browse.select': 'Kaydedilmiş bir pazar seçin.',
+    'browse.goods_search': 'Ticari mal ara',
+    'browse.mining': 'Yalnızca madencilik hammaddeleri',
+    'browse.commodity': 'Ticari mal',
+    'browse.buy': 'Alış fiyatı (Cr/t)',
+    'browse.sell': 'Satış fiyatı (Cr/t)',
+    'browse.supply': 'Arz (t)',
+    'browse.demand': 'Talep (t)',
+    'browse.old': '24 saatten eski',
+    'browse.reference_unknown': 'Referans sistemi için kesin koordinatlar yok. Mesafeler bilinmiyor.',
+    'browse.markets': '{total} pazardan {shown} tanesi',
+    'browse.empty': 'Kaydedilmiş pazar yok.',
+    'browse.metadata_missing': 'Bazı istasyon üst verileri kullanılamıyor.',
+    'browse.error': 'Kaydedilmiş pazar verileri okunamadı. Yeniden yükleyin.',
+    'browse.missing': 'Bu pazar için kaydedilmiş veri yok.',
+    'browse.updated': 'Son güncelleme',
+    'browse.source': 'Veri kaynağı',
+    'browse.local': 'Elite içinde yerel olarak gözlemlendi',
+    'browse.goods': '{total} maldan {shown} tanesi',
+})

@@ -401,6 +401,9 @@ class TradeView(QWidget):
         self.tabs.addTab(self.recommendations, tr('recommend.title'))
         self.supply_recommendations = SupplyRecommendationsView(state, self.provider, self.pool)
         self.tabs.addTab(self.supply_recommendations, tr('supply.title'))
+        from .saved_markets_view import SavedMarketsView
+        self.saved_markets = SavedMarketsView(state, pool=self.pool)
+        self.tabs.addTab(self.saved_markets, tr('browse.title'))
         self.supply_recommendations.remembered_panel.outboundRequested.connect(self.search_outbound)
         self.supply_recommendations.remembered_panel.bookmarksChanged.connect(self.outbound_bookmarks_changed)
         self.max_age.currentIndexChanged.connect(self.supply_recommendations.max_age.setCurrentIndex)
@@ -432,6 +435,8 @@ class TradeView(QWidget):
         self.recommendations.cancel_for_context()
         self.supply_recommendations.cancel_for_context()
         page = self.tabs.widget(index)
+        if page is self.saved_markets:
+            return
         if page in (self.recommendations, self.supply_recommendations):
             page.refresh()
             return

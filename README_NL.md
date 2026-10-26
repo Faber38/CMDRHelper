@@ -38,6 +38,15 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## CMDRHelper v3.9.20
+
+- NIEUW: Bekijk opgeslagen markten onafhankelijk van je huidige locatie.
+- NIEUW: Volledige goederenlijsten met inkoop- en verkoopprijzen, aanbod en vraag in tonnen.
+- NIEUW: Filter markten op afstand, landingsplatformgrootte en ouderdom van de gegevens.
+- VERBETERD: Sorteer markten en goederen op naam, prijs en hoeveelheid.
+- VERBETERD: Overzichtelijkere bedieningsbalk in de PP2-dagkroniek.
+- OPGELOST: Markten van Stronghold Carriers worden correct herkend en opgeslagen.
+
 ## CMDRHelper v3.9.19
 
 - De mijnbouwkolom ‘Eigen verkoopprijs / t’ toont de laatst geregistreerde verkoop van de geselecteerde commandant. Ook een nieuwere lagere prijs vervangt de oudere prijs.

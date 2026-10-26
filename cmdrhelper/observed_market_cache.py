@@ -153,6 +153,11 @@ def normalize_observation(event, sidecar, *, fid, mtime, now, context=None):
                   observed_at=stamp.isoformat(), commodities=[])
     for name, dest in (('SystemAddress', 'system_address'), ('StationType', 'station_type')):
         values = [obj[name] for obj in (event, sidecar, context) if name in obj]
+        if name == 'StationType':
+            # Stronghold carriers report SurfaceStation when docking but an
+            # empty type in Market/Market.json. Empty optional metadata is not
+            # a conflicting type; retain any type actually supplied by context.
+            values = [value for value in values if value != '']
         if values:
             comparable = ([normalize_station_type(value) for value in values]
                           if name == 'StationType' else values)

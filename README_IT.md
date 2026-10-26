@@ -38,6 +38,15 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## CMDRHelper v3.9.20
+
+- NOVITÀ: Consulta i mercati salvati indipendentemente dalla posizione attuale.
+- NOVITÀ: Elenchi completi delle merci con prezzi di acquisto e vendita, offerta e domanda in tonnellate.
+- NOVITÀ: Filtra i mercati per distanza, dimensione della piattaforma e anzianità dei dati.
+- MIGLIORATO: Ordina mercati e merci per nome, prezzo e quantità.
+- MIGLIORATO: Barra dei comandi più chiara nella cronaca giornaliera PP2.
+- CORRETTO: I mercati degli Stronghold Carrier vengono riconosciuti e salvati correttamente.
+
 ## CMDRHelper v3.9.19
 
 - La colonna mineraria « Prezzo di vendita personale / t » mostra l’ultima vendita registrata del comandante selezionato. Anche un prezzo più recente ma inferiore sostituisce quello precedente.

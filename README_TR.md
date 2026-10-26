@@ -39,6 +39,15 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.20
+
+- YENİ: Kayıtlı pazarları mevcut konumunuzdan bağımsız olarak görüntüleyin.
+- YENİ: Alış ve satış fiyatları, ton cinsinden arz ve talep içeren eksiksiz mal listeleri.
+- YENİ: Pazarları mesafeye, iniş pisti boyutuna ve veri yaşına göre filtreleyin.
+- İYİLEŞTİRİLDİ: Pazarları ve malları ada, fiyata ve miktara göre sıralayın.
+- İYİLEŞTİRİLDİ: PP2 günlük kroniğinde daha anlaşılır kontrol çubuğu.
+- DÜZELTİLDİ: Stronghold Carrier pazarları doğru şekilde tanınıyor ve kaydediliyor.
+
 ## CMDRHelper v3.9.19
 
 - Madencilikteki “Kendi satış fiyatı / t” sütunu, seçilen komutanın kaydedilmiş en son satışını gösterir. Daha yeni ve daha düşük bir fiyat da eski fiyatın yerini alır.

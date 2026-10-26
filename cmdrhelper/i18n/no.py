@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_20.0': 'NYTT: Se lagrede markeder uavhengig av hvor du befinner deg.',
+    'release.3_9_20.1': 'NYTT: Fullstendige varelister med kjøps- og salgspriser samt tilbud og etterspørsel i tonn.',
+    'release.3_9_20.2': 'NYTT: Filtrer markeder etter avstand, landingsplattformens størrelse og dataenes alder.',
+    'release.3_9_20.3': 'FORBEDRET: Sorter markeder og varer etter navn, priser og mengder.',
+    'release.3_9_20.4': 'FORBEDRET: Mer oversiktlig verktøylinje i PP2-dagskrøniken.',
+    'release.3_9_20.5': 'RETTET: Markeder på Stronghold Carriers gjenkjennes og lagres korrekt.',
+
     'release.3_9_19.0': 'Gruvekolonnen « Egen salgspris / t » viser det siste registrerte salget til den valgte kommandøren. En nyere, lavere pris erstatter også den eldre prisen.',
     'release.3_9_19.1': 'Salgets verktøytips viser dato og klokkeslett, stasjon, system, mengde og pris per tonn når opplysningene er kjent. Markedstilbud og kjøpspriser regnes ikke som egne salg.',
     'release.3_9_19.2': 'Rene beholdningsendringer under gruvedrift starter ingen prisarbeider og skriver ikke uendrede prisceller på nytt. MarketSell oppdaterer prisene; ved kommandørbytte fjernes tidligere personlige priser straks.',
@@ -2265,3 +2272,39 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS.update({'pp2.history.system_filter': 'Filtrer systemer', 'pp2.history.all_systems': 'Alle systemer', 'pp2.history.unknown_system': 'Ukjent system'})
+
+# Read-only saved market browser.
+TRANSLATIONS.update({
+    'browse.title': 'Vis marked',
+    'browse.notice': 'Lagrede markeder. Priser og mengder kan ha endret seg siden observasjonen.',
+    'browse.search': 'Søk etter stasjon, system eller MarketID',
+    'browse.reference': 'Referansesystem',
+    'browse.apply': 'Bruk',
+    'browse.ly': 'lysår',
+    'browse.radius': 'Maksimal avstand',
+    'browse.pad_help': 'Filtrer etter største registrerte landingsplattform. — betyr ukjent.',
+    'browse.max_age': 'Maksimal dataalder',
+    'browse.loading': 'Laster markedsdata …',
+    'browse.refresh': 'Last på nytt',
+    'browse.market_id': 'MarketID',
+    'browse.distance': 'Avstand (lysår)',
+    'browse.select': 'Velg et lagret marked.',
+    'browse.goods_search': 'Søk etter varer',
+    'browse.mining': 'Bare gruveråvarer',
+    'browse.commodity': 'Vare',
+    'browse.buy': 'Kjøpspris (Cr/t)',
+    'browse.sell': 'Salgspris (Cr/t)',
+    'browse.supply': 'Tilbud (t)',
+    'browse.demand': 'Etterspørsel (t)',
+    'browse.old': 'eldre enn 24 t',
+    'browse.reference_unknown': 'Ingen entydige koordinater for referansesystemet. Ukjente avstander.',
+    'browse.markets': '{shown} av {total} markeder',
+    'browse.empty': 'Ingen lagrede markeder tilgjengelig.',
+    'browse.metadata_missing': 'Noen stasjonsmetadata er utilgjengelige.',
+    'browse.error': 'Kunne ikke lese lagrede markedsdata. Last på nytt.',
+    'browse.missing': 'Ingen lagrede data tilgjengelig for dette markedet.',
+    'browse.updated': 'Sist oppdatert',
+    'browse.source': 'Datakilde',
+    'browse.local': 'Observert lokalt i Elite',
+    'browse.goods': '{shown} av {total} varer',
+})

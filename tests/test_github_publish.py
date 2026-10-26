@@ -334,7 +334,8 @@ class PublishTests(unittest.TestCase):
         notes=MODULE.release_notes(ROOT,'3.2')
         for key in RELEASE_SUMMARIES['3.2']:
             self.assertIn('- '+tr_for_language('de',key),notes)
-        self.assertIn('Weitere Verbesserungen',MODULE.release_notes(ROOT,'9.9'))
+        with self.assertRaisesRegex(MODULE.ReleaseError, 'Release 9.9.*RELEASE_SUMMARIES'):
+            MODULE.release_notes(ROOT, '9.9')
 
     def test_real_builder_on_committed_fixture_and_repeat(self):
         # Run the real builder only in the helper's temporary commit export.
@@ -374,3 +375,39 @@ class PublishTests(unittest.TestCase):
             ['python3', '-B', '-c', 'import cmdrhelper; print(cmdrhelper.__version__)'],
             cwd=self.root, env=self.env, text=True)
         self.assertEqual(result.strip(), '3.2')
+
+
+class SummaryGateTests(unittest.TestCase):
+    # Reuse the isolated repository/remote harness, not its inherited test cases.
+    setUp = PublishTests.setUp
+    git = PublishTests.git
+    write = PublishTests.write
+    state = PublishTests.state
+    publish = PublishTests.publish
+    mutations = PublishTests.mutations
+    def test_summary_errors_stop_clean_and_dirty_before_any_mutation(self):
+        cases = [
+            ({}, {'x': 'valid'}, 'RELEASE_SUMMARIES'),
+            ({'3.2': []}, {'x': 'valid'}, 'sechs'),
+            ({'3.2': ['x'] * 7}, {'x': 'valid'}, 'sechs'),
+            ({'3.2': ['x']}, {}, 'fehlt'),
+            ({'3.2': ['x']}, {'x': ''}, 'leer'),
+            ({'3.2': ['x']}, {'x': ' \t '}, 'leer'),
+            ({'3.2': ['x']}, {'x': '-->'}, 'Update-Block'),
+        ]
+        for clean in (False, True):
+            for mapping, table, error in cases:
+                with self.subTest(clean=clean, mapping=mapping, table=table):
+                    self.write('cmdrhelper/release_summaries.py', 'RELEASE_SUMMARIES = ' + repr(mapping))
+                    for lang in 'de en fr it no sv fi pl nl es tr el'.split():
+                        self.write(f'cmdrhelper/i18n/{lang}.py', 'TRANSLATIONS = ' + repr(table))
+                    if clean:
+                        self.git('add', '.')
+                        self.git('commit', '--allow-empty', '-m', 'invalid metadata fixture')
+                    before = self.git('rev-parse', 'HEAD')
+                    self.state(events=[])
+                    result = self.publish(success=False)
+                    self.assertIn(error, result.stderr)
+                    self.assertEqual(self.git('rev-parse', 'HEAD'), before)
+                    self.assertEqual(self.mutations(), [])
+                    self.assertEqual(self.state()['events'], [])

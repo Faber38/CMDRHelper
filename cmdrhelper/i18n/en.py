@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_20.0': 'NEW: View saved markets independently of your current location.',
+    'release.3_9_20.1': 'NEW: Complete commodity lists with buying and selling prices, supply and demand in tonnes.',
+    'release.3_9_20.2': 'NEW: Filter markets by distance, landing pad size and data age.',
+    'release.3_9_20.3': 'IMPROVED: Sort markets and commodities by names, prices and quantities.',
+    'release.3_9_20.4': 'IMPROVED: Clearer controls in the PP2 daily chronicle.',
+    'release.3_9_20.5': 'FIXED: Stronghold Carrier markets are correctly recognized and saved.',
+
     'release.3_9_19.0': 'The mining column “Own selling price / t” shows the latest recorded sale by the selected commander. A newer lower price also replaces the older price.',
     'release.3_9_19.1': 'The sale tooltip shows date and time, station, system, quantity and price per tonne where known. Market offers and purchase prices are not treated as personal sales.',
     'release.3_9_19.2': 'Inventory-only mining changes do not start a price worker or rewrite unchanged price cells. MarketSell refreshes prices; switching commander immediately clears previous personal prices.',
@@ -2409,3 +2416,39 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS.update({'pp2.history.system_filter': 'Filter systems', 'pp2.history.all_systems': 'All systems', 'pp2.history.unknown_system': 'Unknown system'})
+
+# Read-only saved market browser.
+TRANSLATIONS.update({
+    'browse.title': 'View market',
+    'browse.notice': 'Saved market snapshots. Prices and quantities may have changed since observation.',
+    'browse.search': 'Search station, system or MarketID',
+    'browse.reference': 'Reference system',
+    'browse.apply': 'Apply',
+    'browse.ly': 'ly',
+    'browse.radius': 'Maximum distance',
+    'browse.pad_help': 'Filter by largest recorded landing pad. — means unknown.',
+    'browse.max_age': 'Maximum data age',
+    'browse.loading': 'Loading market data …',
+    'browse.refresh': 'Reload',
+    'browse.market_id': 'MarketID',
+    'browse.distance': 'Distance (ly)',
+    'browse.select': 'Select a saved market.',
+    'browse.goods_search': 'Search commodities',
+    'browse.mining': 'Mining commodities only',
+    'browse.commodity': 'Commodity',
+    'browse.buy': 'Buy price (Cr/t)',
+    'browse.sell': 'Sell price (Cr/t)',
+    'browse.supply': 'Supply (t)',
+    'browse.demand': 'Demand (t)',
+    'browse.old': 'older than 24 h',
+    'browse.reference_unknown': 'No unambiguous coordinates for the reference system. Distances unknown.',
+    'browse.markets': '{shown} of {total} markets',
+    'browse.empty': 'No saved markets available.',
+    'browse.metadata_missing': 'Some station metadata is unavailable.',
+    'browse.error': 'Could not read saved market data. Please reload.',
+    'browse.missing': 'No saved data is available for this market.',
+    'browse.updated': 'Last update',
+    'browse.source': 'Data source',
+    'browse.local': 'Locally observed in Elite',
+    'browse.goods': '{shown} of {total} commodities',
+})

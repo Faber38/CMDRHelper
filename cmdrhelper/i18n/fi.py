@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_20.0': 'UUTTA: Tarkastele tallennettuja markkinoita nykyisestä sijainnistasi riippumatta.',
+    'release.3_9_20.1': 'UUTTA: Täydelliset tavaraluettelot osto- ja myyntihintoineen sekä tarjonta ja kysyntä tonneina.',
+    'release.3_9_20.2': 'UUTTA: Suodata markkinoita etäisyyden, laskeutumisalustan koon ja tietojen iän mukaan.',
+    'release.3_9_20.3': 'PARANNETTU: Lajittele markkinoita ja tavaroita nimen, hinnan ja määrän mukaan.',
+    'release.3_9_20.4': 'PARANNETTU: Selkeämpi työkalurivi PP2-päiväkronikassa.',
+    'release.3_9_20.5': 'KORJATTU: Stronghold Carrier -markkinat tunnistetaan ja tallennetaan oikein.',
+
     'release.3_9_19.0': 'Kaivosnäkymän ”Oma myyntihinta / t” näyttää valitun komentajan viimeisimmän kirjatun myynnin. Myös uudempi alempi hinta korvaa vanhemman hinnan.',
     'release.3_9_19.1': 'Myynnin työkaluvihje näyttää päivämäärän ja ajan, aseman, järjestelmän, määrän ja tonnihinnan, jos tiedot tunnetaan. Markkinatarjouksia ja ostohintoja ei käsitellä omina myynteinä.',
     'release.3_9_19.2': 'Pelkkä varastomäärän muutos louhinnassa ei käynnistä hintojen taustatyötä eikä kirjoita muuttumattomia hintasoluja uudelleen. MarketSell päivittää hinnat; komentajan vaihto poistaa edelliset henkilökohtaiset hinnat heti.',
@@ -2265,3 +2272,39 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS.update({'pp2.history.system_filter': 'Suodata järjestelmiä', 'pp2.history.all_systems': 'Kaikki järjestelmät', 'pp2.history.unknown_system': 'Tuntematon järjestelmä'})
+
+# Read-only saved market browser.
+TRANSLATIONS.update({
+    'browse.title': 'Näytä markkinat',
+    'browse.notice': 'Tallennetut markkinat. Hinnat ja määrät ovat voineet muuttua havainnon jälkeen.',
+    'browse.search': 'Hae asemaa, järjestelmää tai MarketID:tä',
+    'browse.reference': 'Vertailujärjestelmä',
+    'browse.apply': 'Käytä',
+    'browse.ly': 'vv',
+    'browse.radius': 'Enimmäisetäisyys',
+    'browse.pad_help': 'Suodata suurimman tallennetun laskeutumisalustan mukaan. — tarkoittaa tuntematonta.',
+    'browse.max_age': 'Tietojen enimmäisikä',
+    'browse.loading': 'Ladataan markkinatietoja …',
+    'browse.refresh': 'Lataa uudelleen',
+    'browse.market_id': 'MarketID',
+    'browse.distance': 'Etäisyys (vv)',
+    'browse.select': 'Valitse tallennetut markkinat.',
+    'browse.goods_search': 'Hae kauppatavaroita',
+    'browse.mining': 'Vain kaivosraaka-aineet',
+    'browse.commodity': 'Kauppatavara',
+    'browse.buy': 'Ostohinta (Cr/t)',
+    'browse.sell': 'Myyntihinta (Cr/t)',
+    'browse.supply': 'Tarjonta (t)',
+    'browse.demand': 'Kysyntä (t)',
+    'browse.old': 'yli 24 h vanha',
+    'browse.reference_unknown': 'Vertailujärjestelmän koordinaatit puuttuvat tai ovat ristiriitaiset. Etäisyydet tuntemattomia.',
+    'browse.markets': '{shown} / {total} markkinat',
+    'browse.empty': 'Tallennettuja markkinoita ei ole.',
+    'browse.metadata_missing': 'Osa asemien metatiedoista ei ole saatavilla.',
+    'browse.error': 'Tallennettuja markkinatietoja ei voitu lukea. Lataa uudelleen.',
+    'browse.missing': 'Näille markkinoille ei ole tallennettuja tietoja.',
+    'browse.updated': 'Viimeisin päivitys',
+    'browse.source': 'Tietolähde',
+    'browse.local': 'Paikallisesti havaittu Elitessä',
+    'browse.goods': '{shown} / {total} kauppatavaraa',
+})

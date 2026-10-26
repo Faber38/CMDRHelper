@@ -51,17 +51,33 @@ def version_at(root):
 
 
 def release_notes(root, version):
-    keys = literal(root / "cmdrhelper/release_summaries.py", "RELEASE_SUMMARIES").get(version, ())[:6]
+    summaries = literal(root / "cmdrhelper/release_summaries.py", "RELEASE_SUMMARIES")
+    require(version in summaries, f"Release {version}: Eintrag in RELEASE_SUMMARIES fehlt.")
+    keys = summaries[version]
+    require(isinstance(keys, (list, tuple)) and 1 <= len(keys) <= 6,
+            f"Release {version}: Eine bis sechs Neuerungen erforderlich.")
+    require(all(isinstance(key, str) and key.strip() for key in keys),
+            f"Release {version}: Ungültiger Übersetzungsschlüssel.")
     translations = {}
     for language in "de en fr it no sv fi pl nl es tr el".split():
         table = literal(root / f"cmdrhelper/i18n/{language}.py", "TRANSLATIONS")
+        for key in keys:
+            require(key in table, f"Release {version}: Übersetzung {language}/{key} fehlt.")
+            require(isinstance(table[key], str) and table[key].strip(),
+                    f"Release {version}: Übersetzung {language}/{key} ist leer oder ungültig.")
         translations[language] = [table[key] for key in keys]
     heading = f"## Neu in Version {version}\n\n"
-    if not keys:
-        return heading + "Weitere Verbesserungen und Fehlerkorrekturen.\n"
-    return (heading + "\n".join(f"- {item}" for item in translations["de"])
+    notes = (heading + "\n".join(f"- {item}" for item in translations["de"])
             + "\n\n<!-- cmdrhelper-update-summary\n"
             + json.dumps(translations, ensure_ascii=False) + "\n-->\n")
+    block = re.search(r"<!--\s*cmdrhelper-update-summary\s+(.*?)-->", notes, re.DOTALL)
+    try:
+        decoded = json.loads(block.group(1)) if block else None
+    except ValueError:
+        decoded = None
+    require(decoded == translations,
+            f"Release {version}: Mehrsprachiger Update-Block ist unvollständig oder ungültig.")
+    return notes
 
 
 def sha256(path):
@@ -173,6 +189,8 @@ class Publisher:
 
     def preflight(self):
         require(sys.version_info >= (3, 10), "Python 3.10 oder neuer erforderlich.")
+        self.version = version_at(self.root)
+        release_notes(self.root, self.version)
         for tool in ("git", "gh", "bash", "cp", "find", "rm", "mkdir", "mktemp", "mv", "zip", "unzip"):
             require(shutil.which(tool), f"Benötigtes Werkzeug fehlt: {tool}")
         require(self.git("rev-parse", "--show-toplevel") == str(self.root.resolve()), "Kein Projekt-Repository.")
@@ -186,7 +204,6 @@ class Publisher:
         require(repo.get("nameWithOwner") == REPO and not repo.get("isArchived")
                 and repo.get("viewerPermission") in ("ADMIN", "MAINTAIN", "WRITE"),
                 "Zielrepository oder Schreibberechtigung stimmt nicht.")
-        self.version = version_at(self.root)
         self.tag = "v" + self.version
         self.title = "CMDRHelper " + self.tag
         self.name = f"CMDRHelper_{self.tag}"

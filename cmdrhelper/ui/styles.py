@@ -274,7 +274,7 @@ QCheckBox::indicator:unchecked, QListWidget#shipCargoList::indicator:unchecked {
     border-radius: 2px;
 }
 
-QTableWidget {
+QTableWidget, QTableView#savedMarketTable {
     background: #0a1015;
     alternate-background-color: #0d141a;
     gridline-color: #232c34;
@@ -289,11 +289,11 @@ QHeaderView::section {
     border-bottom: 1px solid #27313a;
 }
 
-QTableWidget::item {
+QTableWidget::item, QTableView#savedMarketTable::item {
     padding: 6px;
 }
 
-QTableWidget::item:selected {
+QTableWidget::item:selected, QTableView#savedMarketTable::item:selected {
     background: #2b3640;
 }
 
@@ -586,7 +586,7 @@ QCheckBox::indicator:unchecked, QListWidget#shipCargoList::indicator:unchecked {
     border-radius: 2px;
 }
 
-QTableWidget {
+QTableWidget, QTableView#savedMarketTable {
     background: #ffffff;
     alternate-background-color: #f3f5f7;
     color: #20262c;
@@ -602,11 +602,11 @@ QHeaderView::section {
     border-bottom: 1px solid #c7ced5;
 }
 
-QTableWidget::item {
+QTableWidget::item, QTableView#savedMarketTable::item {
     padding: 6px;
 }
 
-QTableWidget::item:selected {
+QTableWidget::item:selected, QTableView#savedMarketTable::item:selected {
     background: #cfdce8;
     color: #15191d;
 }

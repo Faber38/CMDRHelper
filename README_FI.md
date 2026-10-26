@@ -38,6 +38,15 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.20
+
+- UUTTA: Tarkastele tallennettuja markkinoita nykyisestä sijainnistasi riippumatta.
+- UUTTA: Täydelliset tavaraluettelot osto- ja myyntihintoineen sekä tarjonta ja kysyntä tonneina.
+- UUTTA: Suodata markkinoita etäisyyden, laskeutumisalustan koon ja tietojen iän mukaan.
+- PARANNETTU: Lajittele markkinoita ja tavaroita nimen, hinnan ja määrän mukaan.
+- PARANNETTU: Selkeämpi työkalurivi PP2-päiväkronikassa.
+- KORJATTU: Stronghold Carrier -markkinat tunnistetaan ja tallennetaan oikein.
+
 ## CMDRHelper v3.9.19
 
 - Kaivosnäkymän ”Oma myyntihinta / t” näyttää valitun komentajan viimeisimmän kirjatun myynnin. Myös uudempi alempi hinta korvaa vanhemman hinnan.

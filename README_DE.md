@@ -38,6 +38,15 @@ Der Journalordner von Elite Dangerous wird nach Möglichkeit automatisch erkannt
 
 CMDRHelper prüft beim Start auf Updates und besitzt einen integrierten Updater. Bestätige ein angebotenes Update im Programm; es aktualisiert Programm und Abhängigkeiten und startet CMDRHelper neu. Nach der Erstinstallation genügt normalerweise `start.bat` (Windows) beziehungsweise `bash start.sh` (Linux). Für normale Updates musst du `install.bat` oder `install.sh` nicht erneut manuell ausführen.
 
+## CMDRHelper v3.9.20
+
+- NEU: Gespeicherte Märkte unabhängig vom aktuellen Standort ansehen.
+- NEU: Vollständige Warenlisten mit Einkaufs- und Verkaufspreisen sowie Angebot und Nachfrage in Tonnen.
+- NEU: Märkte nach Entfernung, Landeplatzgröße und Datenalter filtern.
+- VERBESSERT: Märkte und Waren nach Namen, Preisen und Mengen sortieren.
+- VERBESSERT: Übersichtlichere Bedienleiste in der PP2-Tageschronik.
+- BEHOBEN: Stronghold-Carrier-Märkte werden korrekt erkannt und gespeichert.
+
 ## CMDRHelper v3.9.19
 
 - Die Mining-Spalte „Eigener Verkaufspreis / t“ zeigt den zeitlich letzten protokollierten Verkauf des ausgewählten Commanders. Auch ein neuerer niedrigerer Preis ersetzt den älteren Preis.

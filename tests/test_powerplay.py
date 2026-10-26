@@ -282,9 +282,10 @@ class PowerplayViewTests(unittest.TestCase):
         self.app.processEvents()
         def top(widget):
             return widget.mapTo(self.view.widget(),QPoint(0,0)).y()
-        widgets=(self.view.chronicle_title,self.view.navigation,self.view.manage_history)
+        widgets=(self.view.navigation,self.view.manage_history,self.view.detach_chronicle_button)
         centers=[top(w)+w.height()/2 for w in widgets]
         self.assertLess(max(centers)-min(centers),3)
+        self.assertLess(top(self.view.chronicle_title), top(self.view.navigation))
         self.assertGreater(top(self.view.chronicle_help),max(top(w)+w.height() for w in widgets))
         height=self.view.recent.height()
         middle=self.view.left_column.height()

@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_20.0': 'NOWOŚĆ: Przeglądaj zapisane rynki niezależnie od bieżącej lokalizacji.',
+    'release.3_9_20.1': 'NOWOŚĆ: Pełne listy towarów z cenami kupna i sprzedaży oraz podażą i popytem w tonach.',
+    'release.3_9_20.2': 'NOWOŚĆ: Filtruj rynki według odległości, rozmiaru lądowiska i wieku danych.',
+    'release.3_9_20.3': 'ULEPSZENIE: Sortuj rynki i towary według nazw, cen i ilości.',
+    'release.3_9_20.4': 'ULEPSZENIE: Czytelniejszy pasek sterowania w dziennej kronice PP2.',
+    'release.3_9_20.5': 'NAPRAWIONO: Rynki Stronghold Carrier są prawidłowo rozpoznawane i zapisywane.',
+
     'release.3_9_19.0': 'Kolumna górnicza „Własna cena sprzedaży / t” pokazuje ostatnią zarejestrowaną sprzedaż wybranego dowódcy. Nowsza, niższa cena również zastępuje starszą.',
     'release.3_9_19.1': 'Podpowiedź sprzedaży pokazuje datę i godzinę, stację, system, ilość i cenę za tonę, jeśli dane są znane. Oferty rynkowe i ceny zakupu nie są traktowane jako własna sprzedaż.',
     'release.3_9_19.2': 'Same zmiany zapasów podczas wydobycia nie uruchamiają zadania cenowego ani nie zapisują ponownie niezmienionych komórek cen. MarketSell aktualizuje ceny; zmiana dowódcy natychmiast usuwa poprzednie ceny osobiste.',
@@ -2265,3 +2272,39 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS.update({'pp2.history.system_filter': 'Filtruj systemy', 'pp2.history.all_systems': 'Wszystkie systemy', 'pp2.history.unknown_system': 'Nieznany system'})
+
+# Read-only saved market browser.
+TRANSLATIONS.update({
+    'browse.title': 'Zobacz rynek',
+    'browse.notice': 'Zapisane rynki. Ceny i ilości mogły się zmienić od czasu obserwacji.',
+    'browse.search': 'Szukaj stacji, systemu lub MarketID',
+    'browse.reference': 'System odniesienia',
+    'browse.apply': 'Zastosuj',
+    'browse.ly': 'l.ś.',
+    'browse.radius': 'Maksymalna odległość',
+    'browse.pad_help': 'Filtruj według największego zapisanego lądowiska. — oznacza nieznane.',
+    'browse.max_age': 'Maksymalny wiek danych',
+    'browse.loading': 'Wczytywanie danych rynku …',
+    'browse.refresh': 'Wczytaj ponownie',
+    'browse.market_id': 'MarketID',
+    'browse.distance': 'Odległość (l.ś.)',
+    'browse.select': 'Wybierz zapisany rynek.',
+    'browse.goods_search': 'Szukaj towarów',
+    'browse.mining': 'Tylko surowce górnicze',
+    'browse.commodity': 'Towar',
+    'browse.buy': 'Cena zakupu (Cr/t)',
+    'browse.sell': 'Cena sprzedaży (Cr/t)',
+    'browse.supply': 'Podaż (t)',
+    'browse.demand': 'Popyt (t)',
+    'browse.old': 'starsze niż 24 h',
+    'browse.reference_unknown': 'Brak jednoznacznych współrzędnych systemu odniesienia. Odległości nieznane.',
+    'browse.markets': '{shown} z {total} rynków',
+    'browse.empty': 'Brak zapisanych rynków.',
+    'browse.metadata_missing': 'Część metadanych stacji jest niedostępna.',
+    'browse.error': 'Nie można odczytać zapisanych danych rynku. Wczytaj ponownie.',
+    'browse.missing': 'Brak zapisanych danych dla tego rynku.',
+    'browse.updated': 'Ostatnia aktualizacja',
+    'browse.source': 'Źródło danych',
+    'browse.local': 'Zaobserwowane lokalnie w Elite',
+    'browse.goods': '{shown} z {total} towarów',
+})

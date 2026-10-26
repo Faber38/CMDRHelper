@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_20.0': 'NUEVO: Consulta los mercados guardados independientemente de tu ubicación actual.',
+    'release.3_9_20.1': 'NUEVO: Listas completas de mercancías con precios de compra y venta, oferta y demanda en toneladas.',
+    'release.3_9_20.2': 'NUEVO: Filtra los mercados por distancia, tamaño de plataforma y antigüedad de los datos.',
+    'release.3_9_20.3': 'MEJORADO: Ordena mercados y mercancías por nombre, precio y cantidad.',
+    'release.3_9_20.4': 'MEJORADO: Barra de controles más clara en la crónica diaria de PP2.',
+    'release.3_9_20.5': 'CORREGIDO: Los mercados de Stronghold Carriers se reconocen y guardan correctamente.',
+
     'release.3_9_19.0': 'La columna minera «Precio de venta propio / t» muestra la última venta registrada del comandante seleccionado. Un precio más reciente pero inferior también sustituye al anterior.',
     'release.3_9_19.1': 'La información de la venta muestra fecha y hora, estación, sistema, cantidad y precio por tonelada cuando se conocen. Las ofertas del mercado y los precios de compra no se consideran ventas propias.',
     'release.3_9_19.2': 'Los cambios únicamente de existencias durante la minería no inician tareas de precios ni reescriben celdas de precios sin cambios. MarketSell actualiza los precios; al cambiar de comandante se borran inmediatamente los precios personales anteriores.',
@@ -2377,3 +2384,39 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS.update({'pp2.history.system_filter': 'Filtrar sistemas', 'pp2.history.all_systems': 'Todos los sistemas', 'pp2.history.unknown_system': 'Sistema desconocido'})
+
+# Read-only saved market browser.
+TRANSLATIONS.update({
+    'browse.title': 'Ver mercado',
+    'browse.notice': 'Mercados guardados. Los precios y las cantidades pueden haber cambiado desde la observación.',
+    'browse.search': 'Buscar estación, sistema o MarketID',
+    'browse.reference': 'Sistema de referencia',
+    'browse.apply': 'Aplicar',
+    'browse.ly': 'al',
+    'browse.radius': 'Distancia máxima',
+    'browse.pad_help': 'Filtrar por la mayor plataforma de aterrizaje registrada. — significa desconocida.',
+    'browse.max_age': 'Antigüedad máxima',
+    'browse.loading': 'Cargando datos del mercado …',
+    'browse.refresh': 'Recargar',
+    'browse.market_id': 'MarketID',
+    'browse.distance': 'Distancia (al)',
+    'browse.select': 'Selecciona un mercado guardado.',
+    'browse.goods_search': 'Buscar mercancías',
+    'browse.mining': 'Solo recursos mineros',
+    'browse.commodity': 'Mercancía',
+    'browse.buy': 'Precio de compra (Cr/t)',
+    'browse.sell': 'Precio de venta (Cr/t)',
+    'browse.supply': 'Oferta (t)',
+    'browse.demand': 'Demanda (t)',
+    'browse.old': 'más de 24 h',
+    'browse.reference_unknown': 'No hay coordenadas inequívocas para el sistema de referencia. Distancias desconocidas.',
+    'browse.markets': '{shown} de {total} mercados',
+    'browse.empty': 'No hay mercados guardados.',
+    'browse.metadata_missing': 'Algunos metadatos de las estaciones no están disponibles.',
+    'browse.error': 'No se pudieron leer los mercados guardados. Recarga los datos.',
+    'browse.missing': 'No hay datos guardados para este mercado.',
+    'browse.updated': 'Última actualización',
+    'browse.source': 'Fuente de datos',
+    'browse.local': 'Observado localmente en Elite',
+    'browse.goods': '{shown} de {total} mercancías',
+})

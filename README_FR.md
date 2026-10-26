@@ -38,6 +38,15 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.9.20
+
+- NOUVEAU : Consultez les marchés enregistrés indépendamment de votre position actuelle.
+- NOUVEAU : Listes complètes des marchandises avec prix d’achat et de vente, offre et demande en tonnes.
+- NOUVEAU : Filtrez les marchés par distance, taille de plateforme et ancienneté des données.
+- AMÉLIORATION : Triez les marchés et les marchandises par nom, prix et quantité.
+- AMÉLIORATION : Barre de commandes plus claire dans la chronique quotidienne PP2.
+- CORRECTION : Les marchés des Stronghold Carriers sont correctement reconnus et enregistrés.
+
 ## CMDRHelper v3.9.19
 
 - La colonne minière « Prix de vente personnel / t » affiche la dernière vente enregistrée du commandant sélectionné. Un prix plus récent remplace aussi un ancien prix plus élevé.

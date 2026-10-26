@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_20.0': 'NEU: Gespeicherte Märkte unabhängig vom aktuellen Standort ansehen.',
+    'release.3_9_20.1': 'NEU: Vollständige Warenlisten mit Einkaufs- und Verkaufspreisen sowie Angebot und Nachfrage in Tonnen.',
+    'release.3_9_20.2': 'NEU: Märkte nach Entfernung, Landeplatzgröße und Datenalter filtern.',
+    'release.3_9_20.3': 'VERBESSERT: Märkte und Waren nach Namen, Preisen und Mengen sortieren.',
+    'release.3_9_20.4': 'VERBESSERT: Übersichtlichere Bedienleiste in der PP2-Tageschronik.',
+    'release.3_9_20.5': 'BEHOBEN: Stronghold-Carrier-Märkte werden korrekt erkannt und gespeichert.',
+
     'release.3_9_19.0': 'Die Mining-Spalte „Eigener Verkaufspreis / t“ zeigt den zeitlich letzten protokollierten Verkauf des ausgewählten Commanders. Auch ein neuerer niedrigerer Preis ersetzt den älteren Preis.',
     'release.3_9_19.1': 'Der Verkaufstooltip zeigt Datum und Uhrzeit, Station, System, Menge und Preis pro Tonne, soweit diese Angaben bekannt sind. Marktangebote und Einkaufspreise zählen nicht als eigene Verkäufe.',
     'release.3_9_19.2': 'Reine Bestandsänderungen beim Bergbau starten keinen Preisworker und schreiben keine unveränderten Preiszellen. MarketSell aktualisiert die Preise; beim Commanderwechsel werden alte persönliche Preise sofort entfernt.',
@@ -2409,3 +2416,39 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS.update({'pp2.history.system_filter': 'Systeme filtern', 'pp2.history.all_systems': 'Alle Systeme', 'pp2.history.unknown_system': 'System unbekannt'})
+
+# Read-only saved market browser.
+TRANSLATIONS.update({
+    'browse.title': 'Markt ansehen',
+    'browse.notice': 'Gespeicherte Marktstände. Preise und Bestände können sich seit der Beobachtung geändert haben.',
+    'browse.search': 'Station, System oder MarketID suchen',
+    'browse.reference': 'Bezugssystem',
+    'browse.apply': 'Übernehmen',
+    'browse.ly': 'Lj',
+    'browse.radius': 'Maximale Entfernung',
+    'browse.pad_help': 'Filter nach größtem belegtem Landeplatz. — bedeutet unbekannt.',
+    'browse.max_age': 'Maximales Datenalter',
+    'browse.loading': 'Marktdaten werden geladen …',
+    'browse.refresh': 'Neu laden',
+    'browse.market_id': 'MarketID',
+    'browse.distance': 'Entfernung (Lj)',
+    'browse.select': 'Wähle einen gespeicherten Markt aus.',
+    'browse.goods_search': 'Ware suchen',
+    'browse.mining': 'Nur Bergbaurohstoffe',
+    'browse.commodity': 'Ware',
+    'browse.buy': 'Einkaufspreis (Cr/t)',
+    'browse.sell': 'Verkaufspreis (Cr/t)',
+    'browse.supply': 'Angebot (t)',
+    'browse.demand': 'Nachfrage (t)',
+    'browse.old': 'älter als 24 h',
+    'browse.reference_unknown': 'Keine eindeutigen Koordinaten für das Bezugssystem. Entfernungen unbekannt.',
+    'browse.markets': '{shown} von {total} Märkten',
+    'browse.empty': 'Keine gespeicherten Märkte vorhanden.',
+    'browse.metadata_missing': 'Stationsmetadaten teilweise nicht verfügbar.',
+    'browse.error': 'Gespeicherte Marktdaten konnten nicht gelesen werden. Bitte erneut laden.',
+    'browse.missing': 'Für diesen Markt sind keine gespeicherten Daten verfügbar.',
+    'browse.updated': 'Letzte Aktualisierung',
+    'browse.source': 'Datenquelle',
+    'browse.local': 'Lokal in Elite beobachtet',
+    'browse.goods': '{shown} von {total} Waren',
+})

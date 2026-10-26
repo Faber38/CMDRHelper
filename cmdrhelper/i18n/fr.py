@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_20.0': 'NOUVEAU : Consultez les marchés enregistrés indépendamment de votre position actuelle.',
+    'release.3_9_20.1': 'NOUVEAU : Listes complètes des marchandises avec prix d’achat et de vente, offre et demande en tonnes.',
+    'release.3_9_20.2': 'NOUVEAU : Filtrez les marchés par distance, taille de plateforme et ancienneté des données.',
+    'release.3_9_20.3': 'AMÉLIORATION : Triez les marchés et les marchandises par nom, prix et quantité.',
+    'release.3_9_20.4': 'AMÉLIORATION : Barre de commandes plus claire dans la chronique quotidienne PP2.',
+    'release.3_9_20.5': 'CORRECTION : Les marchés des Stronghold Carriers sont correctement reconnus et enregistrés.',
+
     'release.3_9_19.0': 'La colonne minière « Prix de vente personnel / t » affiche la dernière vente enregistrée du commandant sélectionné. Un prix plus récent remplace aussi un ancien prix plus élevé.',
     'release.3_9_19.1': 'L’infobulle de vente indique la date et l’heure, la station, le système, la quantité et le prix par tonne lorsque ces données sont connues. Les offres du marché et les prix d’achat ne sont pas des ventes personnelles.',
     'release.3_9_19.2': 'Les changements de stock seuls ne lancent aucun traitement des prix et ne réécrivent pas les cellules de prix inchangées. MarketSell actualise les prix ; changer de commandant efface immédiatement les prix personnels précédents.',
@@ -2378,3 +2385,39 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS.update({'pp2.history.system_filter': 'Filtrer les systèmes', 'pp2.history.all_systems': 'Tous les systèmes', 'pp2.history.unknown_system': 'Système inconnu'})
+
+# Read-only saved market browser.
+TRANSLATIONS.update({
+    'browse.title': 'Voir le marché',
+    'browse.notice': 'Marchés enregistrés. Les prix et les quantités peuvent avoir changé depuis l’observation.',
+    'browse.search': 'Rechercher une station, un système ou un MarketID',
+    'browse.reference': 'Système de référence',
+    'browse.apply': 'Appliquer',
+    'browse.ly': 'al',
+    'browse.radius': 'Distance maximale',
+    'browse.pad_help': 'Filtrer par la plus grande aire d’atterrissage connue. — signifie inconnu.',
+    'browse.max_age': 'Ancienneté maximale',
+    'browse.loading': 'Chargement des données du marché …',
+    'browse.refresh': 'Recharger',
+    'browse.market_id': 'MarketID',
+    'browse.distance': 'Distance (al)',
+    'browse.select': 'Sélectionnez un marché enregistré.',
+    'browse.goods_search': 'Rechercher une marchandise',
+    'browse.mining': 'Ressources minières uniquement',
+    'browse.commodity': 'Marchandise',
+    'browse.buy': 'Prix d’achat (Cr/t)',
+    'browse.sell': 'Prix de vente (Cr/t)',
+    'browse.supply': 'Offre (t)',
+    'browse.demand': 'Demande (t)',
+    'browse.old': 'plus de 24 h',
+    'browse.reference_unknown': 'Coordonnées du système de référence absentes ou ambiguës. Distances inconnues.',
+    'browse.markets': '{shown} marchés sur {total}',
+    'browse.empty': 'Aucun marché enregistré.',
+    'browse.metadata_missing': 'Certaines métadonnées des stations sont indisponibles.',
+    'browse.error': 'Impossible de lire les marchés enregistrés. Veuillez recharger.',
+    'browse.missing': 'Aucune donnée enregistrée pour ce marché.',
+    'browse.updated': 'Dernière mise à jour',
+    'browse.source': 'Source des données',
+    'browse.local': 'Observation locale dans Elite',
+    'browse.goods': '{shown} marchandises sur {total}',
+})

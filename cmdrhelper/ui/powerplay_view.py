@@ -1,10 +1,10 @@
 """Compact local Powerplay overview, following the shared card/theme styles."""
 from datetime import timedelta
-from PySide6.QtCore import QEvent, QLocale, QTimer, Qt, QTime
+from PySide6.QtCore import QEvent, QLocale, QRect, QSize, QTimer, Qt, QTime
 from PySide6.QtWidgets import (
     QAbstractItemView, QFrame, QGridLayout, QHeaderView, QLabel, QScrollArea,
     QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget, QHBoxLayout,
-    QPushButton, QMenu, QMessageBox, QProgressBar, QCheckBox, QTimeEdit, QToolButton,
+    QPushButton, QMenu, QMessageBox, QProgressBar, QCheckBox, QTimeEdit, QToolButton, QLayout,
 )
 
 from cmdrhelper.i18n import get_language, tr
@@ -19,6 +19,88 @@ from cmdrhelper.powerplay import (
     PowerplayState, PowersCache, ACTION_TOKENS, powerplay_actions, context, number,
     powers_cache_path, timestamp, onboard_articles,
 )
+
+
+class _ChronicleControlsLayout(QLayout):
+    """Wrap existing controls at their natural widths, without touching data."""
+
+    def __init__(self):
+        super().__init__()
+        self._items = []
+        self.setContentsMargins(0, 0, 0, 0)
+        self.setSpacing(6)
+
+    def addItem(self, item):
+        self._items.append(item)
+
+    def count(self):
+        return len(self._items)
+
+    def itemAt(self, index):
+        return self._items[index] if 0 <= index < self.count() else None
+
+    def takeAt(self, index):
+        return self._items.pop(index) if 0 <= index < self.count() else None
+
+    def expandingDirections(self):
+        return Qt.Horizontal
+
+    def hasHeightForWidth(self):
+        return True
+
+    def heightForWidth(self, width):
+        return self._arrange(QRect(0, 0, width, 0))
+
+    def minimumSize(self):
+        size = QSize()
+        for item in self._items:
+            size = size.expandedTo(item.minimumSize())
+        return size
+
+    def sizeHint(self):
+        return self.minimumSize()
+
+    def setGeometry(self, rect):
+        super().setGeometry(rect)
+        self._arrange(rect, apply=True)
+
+    def _arrange(self, rect, apply=False):
+        rows, row, used = [], [], 0
+        gap = self.spacing()
+        for index, item in enumerate(self._items):
+            size = item.sizeHint().expandedTo(item.minimumSize())
+            required = size.width()
+            if index == self.count() - 2:
+                last = self._items[-1]
+                pair = required + gap + last.sizeHint().expandedTo(last.minimumSize()).width()
+                # Keep management and docking together whenever a complete
+                # row can hold both; very narrow windows may split them.
+                if pair <= rect.width():
+                    required = pair
+            if row and used + gap + required > rect.width():
+                rows.append(row)
+                row, used = [], 0
+            used += (gap if row else 0) + size.width()
+            row.append((index, item, size))
+        if row:
+            rows.append(row)
+        y = rect.y()
+        for row in rows:
+            height = max(size.height() for _, _, size in row)
+            x = rect.x()
+            for position, (index, item, size) in enumerate(row):
+                # The final two controls form the right-aligned group. Free
+                # space belongs before them, including on a wrapped row.
+                if index >= self.count() - 2 and (position == 0 or row[position - 1][0] < self.count() - 2):
+                    remaining = sum(s.width() for _, _, s in row[position:])
+                    remaining += gap * (len(row) - position - 1)
+                    x = max(x, rect.x() + rect.width() - remaining)
+                if apply:
+                    item.setGeometry(QRect(x, y + (height - size.height()) // 2,
+                                           size.width(), size.height()))
+                x += size.width() + gap
+            y += height + gap
+        return y - rect.y() - (gap if rows else 0)
 
 
 class _SystemFilterMenu(QMenu):
@@ -267,7 +349,6 @@ class PowerplayView(QScrollArea):
         recent_layout.setSpacing(6)
         self.detach_chronicle_button = QPushButton(tr('pp2.chronicle.detach'))
         self.detach_chronicle_button.clicked.connect(self.toggle_chronicle)
-        recent_layout.addWidget(self.detach_chronicle_button, alignment=Qt.AlignRight)
         self.recent = ChronicleTable(0, 5)
         # Reserve the scrollbar gutter so live rows/day changes cannot shrink
         # the viewport and refit a user's columns when a scrollbar appears.
@@ -285,7 +366,7 @@ class PowerplayView(QScrollArea):
         header = self.recent.horizontalHeader()
         self.recent.configure_widths(getattr(state, 'settings', None))
         header.sectionResized.connect(lambda *_: self.recent.resizeRowsToContents())
-        self.chronicle_header = QGridLayout()
+        self.chronicle_header = _ChronicleControlsLayout()
         self.chronicle_title = self.label(tr("pp2.chronicle.title"), "sectionTitle")
         self.navigation = QWidget()
         navigation = QHBoxLayout()
@@ -316,8 +397,6 @@ class PowerplayView(QScrollArea):
         time_layout.addWidget(self.from_time)
         self.filtered_merits = QLabel()
         self.filtered_merits.setWordWrap(False)
-        time_layout.addWidget(self.filtered_merits)
-        time_layout.addStretch()
         self.previous_day.clicked.connect(lambda: self._move_day(-1))
         self.next_day.clicked.connect(lambda: self._move_day(1))
         self.today_button.clicked.connect(self._today)
@@ -329,8 +408,12 @@ class PowerplayView(QScrollArea):
         menu.addSeparator()
         self.reset_columns_action = menu.addAction(tr("pp2.history.reset_columns"))
         self.reset_columns_action.triggered.connect(self.recent.column_widths.reset)
-        for widget in (self.previous_day, self.day_label, self.next_day, self.today_button):
+        for widget in (self.previous_day, self.day_label, self.next_day):
             navigation.addWidget(widget)
+        recent_layout.addWidget(self.chronicle_title)
+        for widget in (self.navigation, self.today_button, self.time_filter, self.system_filter,
+                       self.filtered_merits, self.manage_history, self.detach_chronicle_button):
+            self.chronicle_header.addWidget(widget)
         recent_layout.addLayout(self.chronicle_header)
         self.chronicle_help = self.label(tr("pp2.history.legend"), "muted")
         self.chronicle_help.setToolTip(tr("pp2.history.help"))
@@ -489,21 +572,6 @@ class PowerplayView(QScrollArea):
         self.columns.setRowStretch(1, 0)
 
     def _arrange_chronicle(self):
-        width = (self.chronicle_window.width() if self.chronicle_detached
-                 else self.viewport().width())
-        wide = width >= self.fontMetrics().horizontalAdvance("0") * 110
-        for widget in (self.chronicle_title, self.navigation, self.manage_history, self.time_filter, self.system_filter):
-            self.chronicle_header.removeWidget(widget)
-        self.chronicle_header.addWidget(self.chronicle_title, 0, 0, 1, 1 if wide else 2)
-        self.chronicle_header.addWidget(self.navigation, 0 if wide else 1, 1 if wide else 0,
-                                       alignment=Qt.AlignLeft)
-        self.chronicle_header.addWidget(self.manage_history, 0 if wide else 2, 2 if wide else 0,
-                                       1, 1 if wide else 2, alignment=Qt.AlignRight if wide else Qt.AlignLeft)
-        self.chronicle_header.addWidget(self.time_filter, 1 if wide else 3, 0, 1, 2)
-        self.chronicle_header.addWidget(self.system_filter, 1 if wide else 4, 2 if wide else 0,
-                                       1, 1 if wide else 2, alignment=Qt.AlignLeft)
-        self.chronicle_header.setColumnStretch(0, 1 if wide else 0)
-        self.chronicle_header.setColumnStretch(1, 0 if wide else 1)
         self.recent.fit_columns()
 
     @staticmethod
