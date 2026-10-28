@@ -38,6 +38,15 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.9.21
+
+- Commander-specific screenshot management for Steam and Heroic, with reliable attribution and improved filenames.
+- Clearer mission status colours and automatic highlighting of reached mission destinations with a brief blink effect.
+- More reliable separation of SRV, ship and carrier cargo, with improved processing of Cargo and MiningRefined events.
+- Up to ten cargo snapshots per vehicle and source context, captured even when the Mining view is closed.
+- Last-known ship cargo remains visible as potentially outdated and is excluded from totals.
+- A golden-yellow carrier edit pencil and consistent hand cursors for clickable elements.
+
 ## CMDRHelper v3.9.20
 
 - NEW: View saved markets independently of your current location.

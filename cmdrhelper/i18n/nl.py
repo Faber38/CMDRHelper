@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_21.0': 'Screenshotbeheer per commandant voor Steam en Heroic, met betrouwbare toewijzing en verbeterde bestandsnamen.',
+    'release.3_9_21.1': 'Duidelijkere kleuren voor missiestatussen en automatische markering van bereikte missiedoelen met een kort knippereffect.',
+    'release.3_9_21.2': 'Betrouwbaardere scheiding van SRV-, scheeps- en carrierlading, met verbeterde verwerking van Cargo- en MiningRefined-gebeurtenissen.',
+    'release.3_9_21.3': 'Maximaal tien momentopnamen van de lading per voertuig- en broncontext, ook wanneer de mijnbouwweergave gesloten is.',
+    'release.3_9_21.4': 'De laatst bekende scheepslading blijft zichtbaar als mogelijk verouderd en telt niet mee in totalen.',
+    'release.3_9_21.5': 'Een goudgeel bewerkingspotlood voor de carrier en uniforme handcursors voor aanklikbare elementen.',
+
     'release.3_9_20.0': 'NIEUW: Bekijk opgeslagen markten onafhankelijk van je huidige locatie.',
     'release.3_9_20.1': 'NIEUW: Volledige goederenlijsten met inkoop- en verkoopprijzen, aanbod en vraag in tonnen.',
     'release.3_9_20.2': 'NIEUW: Filter markten op afstand, landingsplatformgrootte en ouderdom van de gegevens.',
@@ -534,6 +541,10 @@ TRANSLATIONS = {
     "mining.ship": "Schip",
     "mining.carrier": "Carrier",
     "mining.total": "Totaal",
+    "mining.stock_confirmed": "Momenteel bevestigd",
+    "mining.stock_tracked": "Betrouwbaar bijgewerkt vanuit bevestigde voorraad",
+    "mining.stock_stale": "Laatst bekend, mogelijk verouderd. Niet opgenomen in totalen.",
+    "mining.stock_stale_value": "{value} (verouderd)",
     "mining.stock_unknown": "Voorraad onbekend",
     "mining.heading": "MIJNBOUWGRONDSTOFFEN",
     "mining.count_summary": "{count} grondstoffen · Richtwaarden ter oriëntatie",
@@ -2308,3 +2319,5 @@ TRANSLATIONS.update({
     'browse.local': 'Lokaal waargenomen in Elite',
     'browse.goods': '{shown} van {total} handelswaren',
 })
+
+TRANSLATIONS["images.identity_wait"] = 'Conversie gepauzeerd: spelinstantie, commandant en screenshotbron kunnen niet eenduidig worden gekoppeld.'

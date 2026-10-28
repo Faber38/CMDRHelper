@@ -125,6 +125,21 @@ class MiningControllerTests(unittest.TestCase):
         self.assertEqual(restored[-1].stock("gold").ship_amount, 13)
         self.assertFalse(restarted.timer.isActive())  # No polling loop.
 
+    def test_shared_controller_captures_before_view_and_view_reuses_result(self):
+        controller, results = self.make_controller()
+        self.state.mining_inventory_controller = controller
+        self.wait_for(results, 1)
+        stored = self.state.settings.value("materials/mining/cargo_checkpoints/1")
+        self.assertTrue(stored["snapshots"])
+        self.assertEqual(results[-1].ship, {"gold": 12})
+        view = MiningView(self.state.settings, state=self.state)
+        self.addCleanup(view.deleteLater)
+        self.assertIs(view.controller, controller)
+        self.assertEqual(view.items["gold"].data(2, Qt.UserRole), 12)
+        controller.close()
+        controller.request(force=True)
+        self.assertFalse(controller.timer.isActive())
+
     def test_commander_switch_clears_immediately_and_rejects_old_results(self):
         controller, results = self.make_controller()
         loading = []
@@ -133,6 +148,7 @@ class MiningControllerTests(unittest.TestCase):
         old_generation = controller._generation
         self.state.viewed_commander_id = 2
         self.state.viewedCommanderChanged.emit(2)
+        self.assertIsNone(controller._last_inventory)
         self.assertEqual(len(loading), 2)
         controller._finished(old_generation, MiningInventory(1, "F1", srv={}, ship={"gold": 1000}))
         self.assertEqual(len(results), 1)

@@ -74,6 +74,7 @@ class MiningInventoryController(QObject):
         self.timer.timeout.connect(self._start)
         self._identity, self._generation = None, 0
         self._running, self._dirty = False, False
+        self._closed = False
         self._manual_pending = False
         self._active_manual = False
         self._last_inventory = None
@@ -95,6 +96,8 @@ class MiningInventoryController(QObject):
         QTimer.singleShot(0, self.request)
 
     def request(self, *_, force=False, cargo_retry=False):
+        if self._closed:
+            return
         if not cargo_retry:
             self._cargo_retries = 0
             self.cargo_retry.stop()
@@ -114,6 +117,7 @@ class MiningInventoryController(QObject):
         if identity != self._identity:
             self._identity = identity
             self._generation += 1
+            self._last_inventory = None
             self.loading.emit()
         self._dirty = True
         if not self.timer.isActive():
@@ -122,14 +126,14 @@ class MiningInventoryController(QObject):
     def refresh_now(self):
         """Manually reread verified snapshots without the event debounce delay."""
         logger.info("Manual mining/cargo refresh started")
-        self.request(force=True)  # Recheck commander and journal identity, just like live updates.
         self._manual_before = self._inventory_signature(self._last_inventory)
+        self.request(force=True)  # Recheck commander and journal identity, just like live updates.
         self.timer.stop()
         self._manual_pending = True
         self._start()
 
     def _start(self):
-        if self._running or not self._dirty:
+        if self._closed or self._running or not self._dirty:
             return
         self._active_manual = self._manual_pending
         self._manual_pending = False
@@ -160,6 +164,8 @@ class MiningInventoryController(QObject):
 
     def _finished(self, generation, inventory):
         self._running = False
+        if self._closed:
+            return
         if generation == self._generation:
             ledger = inventory.carrier_ledger
             writes = {}
@@ -208,11 +214,18 @@ class MiningInventoryController(QObject):
         def stock_signature(stock):
             return None if stock is None else tuple(sorted((name, count) for name, count in stock.items() if count))
         return (inventory.commander_id, inventory.fid, inventory.vessel,
+                inventory.source_folder, inventory.ship_id,
                 stock_signature(inventory.srv), stock_signature(inventory.ship),
                 stock_signature(inventory.carrier))
 
     def _remember_inventory(self, inventory):
         self._last_inventory = inventory
+
+    def close(self):
+        self._closed = True
+        self.timer.stop()
+        self.cargo_retry.stop()
+        self.pool.waitForDone()
 
     def _report_manual(self, inventory):
         if not self._active_manual:

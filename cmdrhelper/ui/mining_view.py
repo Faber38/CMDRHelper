@@ -2,10 +2,11 @@
 from contextlib import contextmanager
 
 from PySide6.QtCore import QCollator, QLocale, Qt, QTimer, QVariantAnimation, QDateTime, QEvent, QPersistentModelIndex
-from PySide6.QtGui import QBrush, QColor
+from PySide6.QtGui import QBrush, QColor, QPalette
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QComboBox,
     QTreeWidget, QTreeWidgetItem, QPushButton, QCheckBox, QDialog, QMessageBox, QStyledItemDelegate, QStyle, QHeaderView,
+    QStyleOptionViewItem, QToolTip,
 )
 
 from cmdrhelper.i18n import get_language, tr, tr_for_language
@@ -13,6 +14,7 @@ from cmdrhelper.mining_catalog import MINING_COMMODITIES, value_class
 from cmdrhelper.ui.table_widths import persist_header_layout, _validated_widths
 from cmdrhelper.mining_inventory import MiningInventory
 from cmdrhelper.ui.material_row_style import THEMES
+from cmdrhelper.ui.carrier_edit_marker import CarrierHeader, marker_color, marker_layout, paint_marker_text
 
 
 def _migrate_columns(settings, columns):
@@ -102,7 +104,42 @@ class _CarrierDelegate(QStyledItemDelegate):
             self.hover_position = None
             self.hovered = QPersistentModelIndex()
             watched.update()
+        elif event.type() == QEvent.Type.ToolTip and self.tree.isEnabled():
+            index = self.tree.indexAt(event.pos())
+            if (index.isValid() and index.flags() & Qt.ItemIsEnabled
+                    and index.column() == 3 and self.marker_rect(index).contains(event.pos())):
+                QToolTip.showText(event.globalPos(), tr("mining.carrier_edit"), watched, self.marker_rect(index))
+                return True
         return super().eventFilter(watched, event)
+
+    def marker_rect(self, index):
+        option = QStyleOptionViewItem()
+        option.initFrom(self.tree)
+        self.initStyleOption(option, index)
+        option.rect = self.tree.visualRect(index)
+        rect = self.tree.style().subElementRect(QStyle.SE_ItemViewItemText, option, self.tree)
+        return marker_layout(option.text, option.fontMetrics, rect, option.displayAlignment,
+                             self.tree.layoutDirection())[2]
+
+    def paint(self, painter, option, index):
+        if index.column() != 3:
+            return super().paint(painter, option, index)
+        option = QStyleOptionViewItem(option)
+        self.initStyleOption(option, index)
+        rect = self.tree.style().subElementRect(QStyle.SE_ItemViewItemText, option, self.tree)
+        layout = marker_layout(option.text, option.fontMetrics, rect, option.displayAlignment,
+                               self.tree.layoutDirection())
+        option.text = ""
+        painter.save()
+        painter.setClipRect(option.rect)
+        self.tree.style().drawControl(QStyle.CE_ItemViewItem, option, painter, self.tree)
+        painter.setFont(option.font)
+        enabled = bool(option.state & QStyle.State_Enabled) and bool(index.flags() & Qt.ItemIsEnabled)
+        hovered = self.hover_position is not None and layout[2].contains(self.hover_position)
+        group = QPalette.Active if enabled else QPalette.Disabled
+        color = marker_color(self.light, hovered) if enabled else option.palette.color(group, QPalette.Text)
+        paint_marker_text(painter, layout, option.palette.color(group, QPalette.Text), color)
+        painter.restore()
 
     def sizeHint(self, option, index):
         size = super().sizeHint(option, index)
@@ -222,6 +259,7 @@ class MiningView(QWidget):
         self.empty_label.hide()
         layout.addWidget(self.empty_label)
         self.tree = QTreeWidget()
+        self.tree.setHeader(CarrierHeader(self.tree))
         self.tree.collator = QCollator(QLocale(get_language()))
         self.tree.setColumnCount(len(self.COLUMNS))
         self.tree.setHeaderLabels([tr("mining.name"), tr("mining.srv"), tr("mining.ship"), tr("mining.carrier_marked", value=tr("mining.carrier")),
@@ -294,8 +332,10 @@ class MiningView(QWidget):
         self.loading_state = LoadingState(self.tree)
         self.controller = controller
         if self.controller is None and state is not None:
-            from cmdrhelper.mining_controller import MiningInventoryController
-            self.controller = MiningInventoryController(state, self)
+            self.controller = getattr(state, "mining_inventory_controller", None)
+            if self.controller is None:
+                from cmdrhelper.mining_controller import MiningInventoryController
+                self.controller = MiningInventoryController(state, self)
         if self.controller is not None:
             self.controller.loading.connect(self._begin_inventory_loading)
             self.controller.ready.connect(self.set_inventory)
@@ -304,6 +344,9 @@ class MiningView(QWidget):
         self.refresh_button.setEnabled(self.controller is not None)
         if self.controller is not None:
             self._begin_inventory_loading()
+            existing = getattr(self.controller, "_last_inventory", None)
+            if existing is not None:
+                self.set_inventory(existing)
 
         self.market_controller = None
         self.own_market_prices = {}
@@ -386,8 +429,25 @@ class MiningView(QWidget):
                 for column, count in enumerate(inventory.stock(symbol), 1):
                     item.setData(column, Qt.ItemDataRole.UserRole, count)
                     text = locale.toString(count) if count is not None else "—"
+                    quality = "unknown"
+                    display = count
+                    tooltip = tr("mining.stock_unknown") if count is None else ""
+                    if column in (1, 2):
+                        vessel = "SRV" if column == 1 else "Ship"
+                        display, quality = inventory.displayed_stock(vessel, symbol)
+                        text = locale.toString(display) if display is not None else "—"
+                        if quality == "stale":
+                            text = tr("mining.stock_stale_value", value=text)
+                        tooltip = tr("mining.stock_" + quality)
+                        record = inventory.vehicle_records.get(vessel, {})
+                        if record.get("confirmed_at"):
+                            tooltip += "\n" + record["confirmed_at"]
+                        if quality == "stale":
+                            tooltip += "\nShipID: " + str(record.get("ship_id", "—"))
+                    item.setData(column, Qt.ItemDataRole.UserRole + 1, quality)
+                    item.setData(column, Qt.ItemDataRole.UserRole + 2, display)
                     item.setText(column, tr("mining.carrier_marked", value=text) if column == 3 else text)
-                    item.setToolTip(column, tr("mining.stock_unknown") if count is None else "")
+                    item.setToolTip(column, tooltip)
                 record = inventory.carrier_records.get(symbol)
                 tooltip = ""
                 if record:
@@ -493,9 +553,11 @@ class MiningView(QWidget):
         for column in (1, 2, 3, 4):
             count = item.data(column, Qt.ItemDataRole.UserRole)
             positive = count is not None and count > 0
-            item.setForeground(column, QColor(self._stock_colors[1 if positive else 0]))
+            stale = item.data(column, Qt.ItemDataRole.UserRole + 1) == "stale"
+            item.setForeground(column, QColor(self._stock_colors[2 if stale else 1 if positive else 0]))
             font = item.font(column)
             font.setBold(positive)
+            font.setItalic(stale)
             item.setFont(column, font)
 
     def _apply_filters(self, *_):
@@ -510,8 +572,8 @@ class MiningView(QWidget):
                        and (origin == "all" or self._origins[item.data(0, Qt.ItemDataRole.UserRole)] in (origin, "both"))
                        and (rank is None or rank == item.data(6, Qt.ItemDataRole.UserRole))
                        and (not self.only_stock.isChecked() or any(
-                           item.data(column, Qt.ItemDataRole.UserRole) is not None
-                           and item.data(column, Qt.ItemDataRole.UserRole) > 0
+                           item.data(column, Qt.ItemDataRole.UserRole + 2) is not None
+                           and item.data(column, Qt.ItemDataRole.UserRole + 2) > 0
                            for column in (1, 2, 3))))
             item.setHidden(not matches)
             visible += matches
@@ -538,10 +600,12 @@ class MiningView(QWidget):
         self._light_mode = light
         self._paint_refresh(self.refresh_animation.currentValue() or 0.0)
         self.carrier_delegate.light = light
+        self.tree.header().light = light
+        self.tree.header().viewport().update()
         # Reuse styles.py's statusOk, statusWarn and muted foregrounds.
         colors = (("#65717c", "#b36a00", "#37852d") if light
                   else ("#8e969e", "#f0ad4e", "#79d45a"))
-        self._stock_colors = (colors[0], colors[2])
+        self._stock_colors = (colors[0], colors[2], colors[1])
         self.carrier_delegate.color = QColor(colors[2])
         self.tree.viewport().update()
         for row in range(self.tree.topLevelItemCount()):

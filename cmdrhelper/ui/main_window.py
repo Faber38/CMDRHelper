@@ -32,6 +32,8 @@ from cmdrhelper.ui.cargo_hud import (cargo_hud_enabled, CargoHudPresentation,
 from cmdrhelper.cargo import free_cargo_space
 from cmdrhelper.ui.table_widths import persist_column_widths
 from cmdrhelper.ui.recent_system_copy import RecentSystemCopyDelegate
+from cmdrhelper.ui.mission_status import MissionStatusDelegate, MISSION_STATUS_ROLE
+from cmdrhelper.ui.mission_arrival import MissionArrivalController, MissionRowDelegate
 from cmdrhelper.ui.explorer_width_fit import ValueListWidthFit
 from cmdrhelper.ui.explorer_value_sort import (
     ValueItem, sort_keys, bio_sort_keys, setup_sort, apply_sort,
@@ -4730,6 +4732,12 @@ class MainWindow(QMainWindow):
         card_layout.addLayout(mission_summary_row)
 
         self.missions_table = QTableWidget(0, 7)
+        self.mission_arrival = MissionArrivalController(
+            self.state, self.missions_table, light=getattr(self, "ui_theme", "dark") == "light")
+        self.missions_table.setItemDelegate(MissionRowDelegate(self.missions_table))
+        self.mission_status_delegate = MissionStatusDelegate(
+            self.missions_table, light=getattr(self, "ui_theme", "dark") == "light")
+        self.missions_table.setItemDelegateForColumn(3, self.mission_status_delegate)
 
         self.missions_table.setHorizontalHeaderLabels(
             [
@@ -5925,6 +5933,11 @@ class MainWindow(QMainWindow):
         if hasattr(self, "material_view"):
             self.material_view.set_light_mode(theme == "light")
 
+        if hasattr(self, "mission_status_delegate"):
+            self.mission_status_delegate.set_light_mode(theme == "light")
+        if hasattr(self, "mission_arrival"):
+            self.mission_arrival.set_light_mode(theme == "light")
+
         if hasattr(self, "system_analysis_view"):
             self.system_analysis_view.set_light_mode(theme == "light")
 
@@ -6759,6 +6772,7 @@ class MainWindow(QMainWindow):
         selected = self.missions_table.item(self.missions_table.currentRow(), 0)
         selected_mission = getattr(selected, "mission", None)
         commander = getattr(self.state, "commander_id", None)
+        self.missions_table.arrival_commander = commander
         same_commander = getattr(self, "_missions_table_commander", commander) == commander
         self._missions_table_commander = commander
         selected_id = selected_mission.mission_id if selected_mission is not None and same_commander else None
@@ -6804,12 +6818,7 @@ class MainWindow(QMainWindow):
                         item.setToolTip(tr("missions.encounter_hint"))
 
                     if col == 3:
-                        if mission.status in (
-                            "Aufgabe erledigt",
-                            "Daten erhalten",
-                            "Am Missionsziel",
-                        ):
-                            item.setForeground(Qt.green)
+                        item.setData(MISSION_STATUS_ROLE, mission.status)
 
                     self.missions_table.setItem(row, col, item)
 
@@ -6823,3 +6832,5 @@ class MainWindow(QMainWindow):
         finally:
             self.missions_table.blockSignals(blocked)
         self._mission_selection_changed()
+        if hasattr(self, "mission_arrival"):
+            self.mission_arrival.update()

@@ -38,6 +38,15 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.9.21
+
+- Gestion des captures par commandant pour Steam et Heroic, avec attribution fiable et noms de fichiers améliorés.
+- Couleurs des statuts de mission plus claires et mise en évidence automatique des destinations atteintes avec un bref clignotement.
+- Séparation plus fiable des cargaisons du SRV, du vaisseau et du carrier, avec un meilleur traitement des événements Cargo et MiningRefined.
+- Jusqu’à dix instantanés de cargaison par contexte de véhicule et de source, même lorsque la vue minage est fermée.
+- La dernière cargaison connue du vaisseau reste visible comme potentiellement périmée et n’entre pas dans les totaux.
+- Crayon de modification du carrier jaune doré et curseurs en forme de main uniformes pour les éléments cliquables.
+
 ## CMDRHelper v3.9.20
 
 - NOUVEAU : Consultez les marchés enregistrés indépendamment de votre position actuelle.

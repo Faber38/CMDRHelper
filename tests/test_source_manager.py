@@ -81,6 +81,25 @@ class ManagerTests(unittest.TestCase):
             self.assertTrue(MaterialInventoryReader().reconstruct(commander['id'], commander['fid'], rows).known)
         self.assertEqual(int(self.settings.value('commander_view/viewed_commander_id')), state.viewed_commander_id)
 
+    def test_screenshot_context_uses_playing_source_not_view_projection(self):
+        from cmdrhelper.screenshot_sources import live_context
+        runtimes = list(self.state.sources.runtimes.values())
+        for active, viewed in (runtimes, runtimes[::-1]):
+            self.state.select_viewed_commander(viewed.processor.sessions[-1]['commander_id'])
+            journal = active.processor.sessions[-1]['journal_file']
+            snapshot = ProcessSnapshot(True, [GameInstance(123, 0, journals=(journal,))])
+            with patch('cmdrhelper.screenshot_sources.inspect_instances', return_value=snapshot):
+                context = live_context(self.state)
+                self.assertIsNotNone(context)
+                self.assertEqual(context['fid'], active.processor.sessions[-1]['fid_seen'])
+                self.assertEqual(context['system'], active.source.name)
+                self.assertNotEqual(context['fid'], self.state.commander_fid)
+                # Changed bytes invalidate the cached identity/system projection.
+                append(Path(journal), event('Location', StarSystem='Changed', SystemAddress=99))
+                self.assertIsNone(live_context(self.state))
+            active.watcher.check_now()
+            self.drain()
+
     def test_active_projection_reuses_worker_result_across_sources(self):
         from cmdrhelper.journal_reader import read_latest_state
         manager = self.state.sources

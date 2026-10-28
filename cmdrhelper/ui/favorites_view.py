@@ -160,7 +160,8 @@ class FavoriteDialog(QDialog):
         path = latest_screenshot(
             self.state.settings,
             commander_fid=getattr(self.state, 'commander_fid', ''),
-            commander_name=getattr(self.state, 'commander', ''))
+            commander_name=getattr(self.state, 'commander', ''),
+            sources=getattr(self.state, 'sources', None))
         if path is None:
             QMessageBox.information(self, tr('favorites.title'), tr('favorites.no_screenshot'))
             return

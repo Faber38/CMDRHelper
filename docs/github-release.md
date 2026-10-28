@@ -43,13 +43,17 @@ Sichtbarkeit von Entwürfen für Konten mit Push-Recht:
 `cmdrhelper/version.py` ist die einzige Versionsquelle. `cmdrhelper/__init__.py`
 importiert diese Angabe. Die Umstellung dieses Ablaufs erhöht die Version nicht.
 
-Die ersten sechs v3.2-Punkte kommen aus den vorhandenen Versionsschlüsseln in
+Die ein bis sechs Neuerungstexte der jeweiligen Version kommen aus den Versionsschlüsseln in
 `cmdrhelper/release_summaries.py` und den zwölf Sprachkatalogen des gebauten
 Commits. Der sichtbare Text ist Deutsch; der zusätzliche unsichtbare
 `cmdrhelper-update-summary`-Block enthält alle zwölf Sprachen für den Updater.
 Keine duplizierte Textpflege und keine automatisch generierten technischen Notes.
-Weitere Versionen werden in derselben Struktur ergänzt. Ohne Eintrag erscheint
-„Weitere Verbesserungen und Fehlerkorrekturen.“.
+Weitere Versionen werden in derselben Struktur ergänzt. Die Veröffentlichung wird
+bereits in der Vorprüfung verweigert, wenn der Versionseintrag fehlt, nicht ein
+bis sechs gültige Schlüssel enthält oder ein Text in einer der zwölf Sprachen
+fehlt, leer oder ungültig ist. Auch der erzeugte JSON-Sprachblock wird geprüft.
+Diese Prüfung erfolgt nochmals am gebauten Commit. Der Publisher verwendet
+keinen Ersatztext für fehlende Neuerungen.
 
 ## Wiederaufnahme und Grenzen
 

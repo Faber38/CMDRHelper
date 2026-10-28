@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_21.0': 'Commanderbezogene Screenshot-Verwaltung für Steam und Heroic mit sicherer Zuordnung und verbesserten Dateinamen.',
+    'release.3_9_21.1': 'Klarere Missionsstatus-Farben und automatische Markierung erreichter Missionsziele mit kurzem Blinkeffekt.',
+    'release.3_9_21.2': 'Stabilere Trennung von SRV-, Schiffs- und Carrier-Fracht sowie verbesserte Verarbeitung von Cargo- und MiningRefined-Ereignissen.',
+    'release.3_9_21.3': 'Bis zu zehn Cargo-Snapshots je Fahrzeug- und Quellenkontext; Erfassung auch bei geschlossener Mining-Ansicht.',
+    'release.3_9_21.4': 'Zuletzt bekannte Schiffsbestände bleiben als möglicherweise veraltet sichtbar und werden nicht in Summen eingerechnet.',
+    'release.3_9_21.5': 'Goldgelber Carrier-Bearbeitungsstift und einheitliche Hand-Cursor für anklickbare Elemente.',
+
     'release.3_9_20.0': 'NEU: Gespeicherte Märkte unabhängig vom aktuellen Standort ansehen.',
     'release.3_9_20.1': 'NEU: Vollständige Warenlisten mit Einkaufs- und Verkaufspreisen sowie Angebot und Nachfrage in Tonnen.',
     'release.3_9_20.2': 'NEU: Märkte nach Entfernung, Landeplatzgröße und Datenalter filtern.',
@@ -513,7 +520,7 @@ TRANSLATIONS = {
     "mining.carrier_unknown_help": "Bestand unbekannt. Doppelklick zum einmaligen Bestätigen.",
     "mining.carrier_marked": "{value} ✎",
     "mining.carrier_edit_hint": "Doppelklick: Carrierbestand bearbeiten",
-    "mining.carrier_edit": "Carrierbestand bearbeiten",
+    "mining.carrier_edit": "Carrier-Bestand bearbeiten",
     "mining.carrier_amount": "Carrierbestand",
     "mining.carrier_unavailable": "Eigener Carrier oder aktueller Journalkontext nicht eindeutig verifiziert. Bitte aktualisieren und erneut versuchen.",
     "mining.carrier_reset": "Bestand zurücksetzen",
@@ -534,6 +541,10 @@ TRANSLATIONS = {
     "mining.ship": "Schiff",
     "mining.carrier": "Carrier",
     "mining.total": "Gesamt",
+    "mining.stock_confirmed": "Aktuell bestätigt",
+    "mining.stock_tracked": "Aus bestätigtem Bestand zuverlässig fortgeschrieben",
+    "mining.stock_stale": "Zuletzt bekannt, möglicherweise veraltet. Nicht in Summen enthalten.",
+    "mining.stock_stale_value": "{value} (veraltet)",
     "mining.stock_unknown": "Bestand unbekannt",
     "mining.heading": "ABBAUROHSTOFFE",
     "mining.count_summary": "{count} Rohstoffe · Richtwerte zur Orientierung",
@@ -2452,3 +2463,5 @@ TRANSLATIONS.update({
     'browse.local': 'Lokal in Elite beobachtet',
     'browse.goods': '{shown} von {total} Waren',
 })
+
+TRANSLATIONS["images.identity_wait"] = 'Konvertierung pausiert: keine eindeutige Zuordnung von Spielinstanz, Commander und Screenshot-Quelle.'

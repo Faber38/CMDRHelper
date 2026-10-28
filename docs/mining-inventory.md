@@ -70,11 +70,15 @@ also rejects ambiguous same-timestamp triggers and journals changed around the
 sidecar read. An unmatched current snapshot remains pending; the controller makes
 at most three delayed retries without a global State refresh.
 Verified sidecar payloads are saved via QSettings under
-`materials/mining/cargo_checkpoints/<commander_id>`, at most one per vessel.
+`materials/mining/cargo_checkpoints/<commander_id>`. The bounded snapshot history
+retains up to ten verified versions per source/FID/ShipID/vessel/SRV-ID context,
+with at most 32 retained contexts per commander. Ship and SRV rotate independently.
+The legacy Ship/SRV checkpoint fields remain readable and are upgraded with context
+metadata when verified again.
 Each is bound to its FID, resolved journal path, byte offset and event hash.
 On restart a checkpoint is used only when that exact trigger is replayed.
 It is never treated as a free-standing current balance. Full journal snapshots
-already persist in the journal archive and require no additional storage.
+are included in the same bounded history; the journal remains the durable source.
 
 MiningRefined and CollectCargo add one tonne, EjectCargo/MarketSell subtract the
 event Count, and MarketBuy adds Count. Deltas only apply to a known snapshot.
@@ -85,8 +89,11 @@ Other potentially cargo-changing event rules not implemented here invalidate the
 affected projection until the next complete Cargo snapshot.
 
 Ship and SRV are reconstructed and displayed separately;
-LaunchSRV waits for its own snapshot, DockSRV waits for a fresh ship snapshot
-because docking can automatically unload cargo. Ship changes or unproven LoadGame identities discard stale bases. A continuous
+LaunchSRV waits for its own snapshot and preserves Ship. DockSRV preserves Ship
+when its SRV is known empty; otherwise Ship is temporarily unknown. With both
+starting inventories known, a subsequent matching Ship count can corroborate
+automatic unloading (intervening cargo mutations or a changed Loadout discard
+that candidate). Ship changes or unproven LoadGame identities discard current bases. A continuous
 journal sequence with the same FID, ship type and ShipID preserves independent
 Ship/SRV bases; a new Ship snapshot does not overwrite SRV stock. No absent baseline is inferred as zero.
 
@@ -100,8 +107,10 @@ coalesces updates; one background worker performs file/SQL reads. A generation
 check rejects obsolete results after commander changes. There is no new polling
 loop and no database write or schema change.
 
-Missing snapshots are displayed as `—`, not zero. Missing commodities within a
-known full vehicle inventory are zero. Total is SRV + Ship + Carrier only when all three
+Missing current snapshots remain unknown, never zero. Where identity permits,
+a last-known ship value is displayed separately and explicitly marked outdated.
+Otherwise the cell shows `—`. Missing commodities within a known full vehicle
+inventory are zero. Total is SRV + Ship + Carrier only when all three
 are known; any unknown component makes Total unknown (`—`), never a partial
 number presented as a complete balance. `MiningStock` exposes `srv_amount`,
 `ship_amount`, `carrier_amount` and `total_amount`.
@@ -161,3 +170,56 @@ width to both and preserving the other identities and relative order. A saved
 vehicle sort migrates to ship; existing price/class/carrier/total sorts retain
 their meaning. The existing persist_header_layout helper stores all seven widths/order. Live
 inventory updates modify items in place, preserving search, filters and settings.
+
+
+## Vehicle evidence, capture lifecycle and presentation
+
+AppState owns a shared MiningInventoryController from startup, independently of
+whether Materials or Mining has been opened. MiningView subscribes to that
+controller and immediately uses its latest result. Closing the application stops
+its timers and drains its reader worker. This capture follows the selected journal
+source; it is not a second watcher and cannot recover sidecars overwritten before
+Helper observed them. Source switching retains source-specific checkpoint history.
+
+The vehicle reader restricts reconstruction to the selected live journal's
+canonical parent directory. Without a live selection, exactly one identified
+source is required. Unidentified files in that source remain continuity barriers;
+unrelated sources cannot invalidate or contribute vehicle balances. CarrierLedger
+continues to receive its existing session input and its implementation is unchanged.
+
+Each snapshot retains the original event fingerprint, resolved journal path,
+byte offset, timestamp and vehicle context. Replay requires that exact event and
+context; no saved inventory is simply relabelled for a new ship. Up to 32 source
+continuity records and 32 snapshot contexts are retained, with ten snapshots each.
+An unknown ShipID/SRV-ID is explicit and does not prove continuity to an identified
+vehicle. No journal files or loose sidecar copies are written.
+
+A game restart in an SRV can preserve current stocks only if the verified journal
+chain was already in the same SRV (matching ID and type), linked to a known
+mothership. Otherwise the prior ship may only be displayed as historical evidence
+for its existing identity. A conflicting ship identity prevents that display.
+Embark/Disembark preserve cargo; own-vehicle context is distinguished from taxis
+and multicrew. A helper restart replays snapshots and deltas instead of resetting
+stocks merely because the player is away from the ship.
+
+For the observed Cargo-before-MiningRefined ordering, a one-tonne discrepancy can
+be reconciled by the next relevant MiningRefined/CollectCargo event only in the
+same journal and at the same nonempty timestamp. A known starting inventory is
+required. An inline or sidecar inventory must agree on commodity composition too.
+The tonne is applied once. Larger discrepancies, conflicting composition, absent
+baselines and intervening cargo operations remain unknown. There is no general
+permission to ignore count mismatches.
+
+Vehicle records distinguish confirmed snapshots, reliably tracked balances,
+last-known (possibly outdated) balances, and unknown stock. Ship history is shown
+with an explicit translated outdated suffix, warning colour and italic text in
+both themes. Tooltips identify the evidence time and, for stale stock, ShipID.
+All twelve languages include the four state descriptions. The positive-stock
+filter also finds a positive last-known ship value, with its stale marking intact.
+
+`MiningInventory.stock()` and its numeric UI roles continue to expose only current
+confirmed/tracked stock. Historical ship values are obtained separately through
+`displayed_stock()`: they never enter Total or numeric current-stock sorting.
+Any unknown current component makes Total unknown. A new authoritative snapshot
+replaces stale presentation. Other vehicle events do not refresh a ship evidence
+timestamp merely because the ship inventory remained unchanged.

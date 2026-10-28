@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_21.0': 'Commander-specific screenshot management for Steam and Heroic, with reliable attribution and improved filenames.',
+    'release.3_9_21.1': 'Clearer mission status colours and automatic highlighting of reached mission destinations with a brief blink effect.',
+    'release.3_9_21.2': 'More reliable separation of SRV, ship and carrier cargo, with improved processing of Cargo and MiningRefined events.',
+    'release.3_9_21.3': 'Up to ten cargo snapshots per vehicle and source context, captured even when the Mining view is closed.',
+    'release.3_9_21.4': 'Last-known ship cargo remains visible as potentially outdated and is excluded from totals.',
+    'release.3_9_21.5': 'A golden-yellow carrier edit pencil and consistent hand cursors for clickable elements.',
+
     'release.3_9_20.0': 'NEW: View saved markets independently of your current location.',
     'release.3_9_20.1': 'NEW: Complete commodity lists with buying and selling prices, supply and demand in tonnes.',
     'release.3_9_20.2': 'NEW: Filter markets by distance, landing pad size and data age.',
@@ -534,6 +541,10 @@ TRANSLATIONS = {
     "mining.ship": "Ship",
     "mining.carrier": "Carrier",
     "mining.total": "Total",
+    "mining.stock_confirmed": "Currently confirmed",
+    "mining.stock_tracked": "Reliably tracked from confirmed stock",
+    "mining.stock_stale": "Last known, possibly outdated. Excluded from totals.",
+    "mining.stock_stale_value": "{value} (outdated)",
     "mining.stock_unknown": "Stock unknown",
     "mining.heading": "MINING COMMODITIES",
     "mining.count_summary": "{count} commodities · Reference values for guidance",
@@ -2452,3 +2463,5 @@ TRANSLATIONS.update({
     'browse.local': 'Locally observed in Elite',
     'browse.goods': '{shown} of {total} commodities',
 })
+
+TRANSLATIONS["images.identity_wait"] = 'Conversion paused: game instance, Commander and screenshot source cannot be uniquely matched.'

@@ -228,6 +228,9 @@ class AppState(QObject):
         # compatibility handle until a verified commander projection is selected.
         from cmdrhelper.source_manager import SourceManager
         self.sources = SourceManager(self)
+        # Cargo checkpoints must be captured even before Materials/Mining opens.
+        from cmdrhelper.mining_controller import MiningInventoryController
+        self.mining_inventory_controller = MiningInventoryController(self, self)
         if application is not None:
             application.aboutToQuit.connect(self.sources.stop)
         QTimer.singleShot(0, self.sources.start)

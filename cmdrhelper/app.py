@@ -72,6 +72,8 @@ def run():
     app = QApplication(sys.argv)
     app.setApplicationName("CMDRHelper")
     app.setOrganizationName("CMDRHelper")
+    from cmdrhelper.ui.cursors import install_cursor_policy
+    install_cursor_policy(app)
 
     settings = QSettings("CMDRHelper", "CMDRHelper")
     set_language(settings.value("ui_language", "de"))

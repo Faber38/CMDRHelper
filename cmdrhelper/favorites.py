@@ -8,7 +8,9 @@ import sqlite3
 from uuid import uuid4
 
 from PIL import Image
-from cmdrhelper.screenshot_paths import commander_screenshot_folder, safe_filename_component
+from cmdrhelper.screenshot_paths import (commander_screenshot_folder, safe_filename_component,
+                                         screenshot_capture_time, screenshot_component)
+from cmdrhelper.screenshot_sources import configured_source, suggested_source, source_conflicts
 
 TYPES = ('system', 'body', 'surface_location')
 CATEGORIES = ('bio', 'geo', 'mining', 'view', 'landing', 'interesting', 'other')
@@ -190,33 +192,14 @@ def navigate_to_favorite(store, commander_id, favorite_id, controller):
     controller.set_target(record['latitude'], record['longitude'], record['body_name'], record['name'])
 
 
-def screenshot_capture_time(path, *, converted=False):
-    """Converted filenames record local source time, not conversion completion time."""
-    stem = path.stem
-    if not converted:
-        stem = re.sub(r'(?i)^(?:Screenshot|HighResScreenshot)[ _-]?', '', stem)
-    match = re.match(r'^(\d{4}-\d{2}-\d{2})[_ ](\d{2})[-.](\d{2})[-.](\d{2})(?:_|$)', stem)
-    if match:
-        try:
-            stamp = datetime.strptime('-'.join(match.groups()), '%Y-%m-%d-%H-%M-%S')
-            return stamp.timestamp()
-        except ValueError:
-            pass
-    # A converted file without a valid generated timestamp has no reliable
-    # capture time or provenance. Do not mistake its conversion mtime for one.
-    if converted:
-        raise ValueError('invalid_screenshot_name')
-    return path.stat().st_mtime
-
-
-def latest_screenshot(settings, *, commander_fid='', commander_name=''):
+def latest_screenshot(settings, *, commander_fid='', commander_name='', sources=None):
     """Freshly scan original Elite images and the active commander's conversions."""
-    configured = str(settings.value('screenshots/source_dir', '') or '').strip()
-    home = Path.home()
-    folders = [Path(configured).expanduser()] if configured else [
-        home / 'Pictures/Frontier Developments/Elite Dangerous',
-        *[home / base / 'steamapps/compatdata/359320/pfx/drive_c/users/steamuser/Pictures/Frontier Developments/Elite Dangerous'
-          for base in ('.steam/steam', '.local/share/Steam')]]
+    configured = (configured_source(settings, commander_fid)
+                  or suggested_source(sources, commander_fid))
+    # Ambiguous originals are unsafe; FID-owned conversions remain independent.
+    if configured and source_conflicts(settings, sources, commander_fid, configured):
+        configured = ''
+    folders = [Path(configured).expanduser()] if configured else []
     candidates = []
     for folder in folders:
         try:
@@ -240,7 +223,12 @@ def latest_screenshot(settings, *, commander_fid='', commander_name=''):
                             or path.suffix.lower() not in ('.png', '.jpg', '.jpeg')):
                         continue
                     tail = path.stem[20:]  # YYYY-MM-DD_HH-MM-SS_ followed by commander/system.
-                    if not any(tail == name or tail.startswith(name + '_') for name in names):
+                    new_names = {screenshot_component(commander_name, 'UNKNOWN_COMMANDER'),
+                                 screenshot_component(folder_name, 'UNKNOWN_COMMANDER')}
+                    new_format = any(re.search('_' + re.escape(name) +
+                        r'_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}(?:_\d+)?$', path.stem)
+                        for name in new_names)
+                    if not new_format and not any(tail == name or tail.startswith(name + '_') for name in names):
                         continue
                     try:
                         candidates.append((screenshot_capture_time(path, converted=True), path))

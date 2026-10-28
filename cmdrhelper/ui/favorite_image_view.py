@@ -113,6 +113,16 @@ class FavoriteImageLabel(QLabel):
         self.path = path
         self.setAlignment(Qt.AlignCenter)
 
+    def setPixmap(self, pixmap):
+        super().setPixmap(pixmap)
+        self.setProperty("cursorClickable", bool(self.path and not pixmap.isNull()))
+        self.setCursor(Qt.PointingHandCursor if self.path and not pixmap.isNull() else Qt.ArrowCursor)
+
+    def clear(self):
+        super().clear()
+        self.setProperty("cursorClickable", False)
+        self.setCursor(Qt.ArrowCursor)
+
     def mouseDoubleClickEvent(self, event):
         if event.button() != Qt.LeftButton or not self.path or self.pixmap().isNull():
             super().mouseDoubleClickEvent(event)

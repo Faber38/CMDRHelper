@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_21.0': 'Skärmbildshantering per befälhavare för Steam och Heroic, med tillförlitlig koppling och förbättrade filnamn.',
+    'release.3_9_21.1': 'Tydligare färger för uppdragsstatus och automatisk markering av nådda uppdragsmål med en kort blinkeffekt.',
+    'release.3_9_21.2': 'Tillförlitligare åtskillnad mellan last i SRV, skepp och carrier, med förbättrad hantering av Cargo- och MiningRefined-händelser.',
+    'release.3_9_21.3': 'Upp till tio ögonblicksbilder av lasten per fordons- och källkontext, även när gruvvyn är stängd.',
+    'release.3_9_21.4': 'Skeppets senast kända last förblir synlig som möjligen inaktuell och räknas inte in i totalsummor.',
+    'release.3_9_21.5': 'Guldgul redigeringspenna för carrier och enhetliga handpekare för klickbara element.',
+
     'release.3_9_20.0': 'NYTT: Visa sparade marknader oberoende av din nuvarande position.',
     'release.3_9_20.1': 'NYTT: Fullständiga varulistor med köp- och säljpriser samt utbud och efterfrågan i ton.',
     'release.3_9_20.2': 'NYTT: Filtrera marknader efter avstånd, landningsplattformens storlek och uppgifternas ålder.',
@@ -534,6 +541,10 @@ TRANSLATIONS = {
     "mining.ship": "Skepp",
     "mining.carrier": "Carrier",
     "mining.total": "Totalt",
+    "mining.stock_confirmed": "Aktuellt bekräftat",
+    "mining.stock_tracked": "Tillförlitligt uppdaterat från bekräftat lager",
+    "mining.stock_stale": "Senast känt, möjligen inaktuellt. Ingår inte i totalsummor.",
+    "mining.stock_stale_value": "{value} (inaktuellt)",
     "mining.stock_unknown": "Okänt lager",
     "mining.heading": "GRUVRÅVAROR",
     "mining.count_summary": "{count} råvaror · Vägledande riktvärden",
@@ -2308,3 +2319,5 @@ TRANSLATIONS.update({
     'browse.local': 'Lokalt observerad i Elite',
     'browse.goods': '{shown} av {total} varor',
 })
+
+TRANSLATIONS["images.identity_wait"] = 'Konverteringen pausad: spelinstans, befälhavare och skärmbildskälla kan inte kopplas entydigt.'

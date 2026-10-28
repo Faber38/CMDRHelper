@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_21.0': 'Komentajakohtainen kuvakaappausten hallinta Steamille ja Heroicille, luotettava kohdistus ja parannetut tiedostonimet.',
+    'release.3_9_21.1': 'Selkeämmät tehtävien tilavärit ja saavutettujen tehtäväkohteiden automaattinen korostus lyhyellä vilkutuksella.',
+    'release.3_9_21.2': 'SRV:n, aluksen ja carrierin lastit pysyvät luotettavammin erillään, ja Cargo- sekä MiningRefined-tapahtumien käsittelyä on parannettu.',
+    'release.3_9_21.3': 'Enintään kymmenen lastitilannekuvaa ajoneuvo- ja lähdekontekstia kohti, myös kaivosnäkymän ollessa suljettuna.',
+    'release.3_9_21.4': 'Aluksen viimeksi tunnettu lasti näkyy mahdollisesti vanhentuneena, eikä sitä lasketa kokonaismääriin.',
+    'release.3_9_21.5': 'Kullankeltainen carrierin muokkauskynä ja yhtenäiset käsiosoittimet napsautettaville kohteille.',
+
     'release.3_9_20.0': 'UUTTA: Tarkastele tallennettuja markkinoita nykyisestä sijainnistasi riippumatta.',
     'release.3_9_20.1': 'UUTTA: Täydelliset tavaraluettelot osto- ja myyntihintoineen sekä tarjonta ja kysyntä tonneina.',
     'release.3_9_20.2': 'UUTTA: Suodata markkinoita etäisyyden, laskeutumisalustan koon ja tietojen iän mukaan.',
@@ -534,6 +541,10 @@ TRANSLATIONS = {
     "mining.ship": "Alus",
     "mining.carrier": "Tukialus",
     "mining.total": "Yhteensä",
+    "mining.stock_confirmed": "Tällä hetkellä vahvistettu",
+    "mining.stock_tracked": "Päivitetty luotettavasti vahvistetusta varastosta",
+    "mining.stock_stale": "Viimeksi tunnettu, mahdollisesti vanhentunut. Ei sisälly yhteismääriin.",
+    "mining.stock_stale_value": "{value} (vanhentunut)",
     "mining.stock_unknown": "Varasto tuntematon",
     "mining.heading": "KAIVOSRAAKA-AINEET",
     "mining.count_summary": "{count} raaka-ainetta · Suuntaa antavat ohjearvot",
@@ -2308,3 +2319,5 @@ TRANSLATIONS.update({
     'browse.local': 'Paikallisesti havaittu Elitessä',
     'browse.goods': '{shown} / {total} kauppatavaraa',
 })
+
+TRANSLATIONS["images.identity_wait"] = 'Muunnos keskeytetty: peli-istuntoa, komentajaa ja kuvakaappausten lähdettä ei voida yhdistää yksiselitteisesti.'

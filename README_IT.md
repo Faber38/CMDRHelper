@@ -38,6 +38,15 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## CMDRHelper v3.9.21
+
+- Gestione delle schermate per comandante su Steam e Heroic, con attribuzione affidabile e nomi dei file migliorati.
+- Colori più chiari per gli stati delle missioni ed evidenziazione automatica delle destinazioni raggiunte con un breve lampeggio.
+- Separazione più affidabile dei carichi di SRV, nave e carrier, con una migliore gestione degli eventi Cargo e MiningRefined.
+- Fino a dieci istantanee del carico per contesto di veicolo e origine, anche quando la vista estrazione è chiusa.
+- L’ultimo carico noto della nave resta visibile come potenzialmente obsoleto ed è escluso dai totali.
+- Matita di modifica del carrier giallo dorato e cursori a mano uniformi per gli elementi cliccabili.
+
 ## CMDRHelper v3.9.20
 
 - NOVITÀ: Consulta i mercati salvati indipendentemente dalla posizione attuale.

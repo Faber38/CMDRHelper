@@ -16,7 +16,7 @@ from cmdrhelper.ui.screenshot_view import ScreenshotView
 from cmdrhelper.ui.body_detail_window import BodyDetailWindow
 from cmdrhelper.ui.planet_3d_widget import Planet3DWidget
 from cmdrhelper.ui.belt_cluster_widget import BeltClusterWidget
-from tests.test_screenshot_multi_commander import StateStub
+from tests.test_screenshot_multi_commander import StateStub, fixture_context
 from tests.test_loading_scanner import wait_for
 from tests.test_explorer_table_ux import ExplorerWindow
 
@@ -38,10 +38,14 @@ class VisibilityTests(unittest.TestCase):
         return widget
 
     def gallery(self):
+        context = patch('cmdrhelper.ui.screenshot_view.live_context', fixture_context)
+        context.start()
+        self.addCleanup(context.stop)
         view = self.track(ScreenshotView(StateStub(self.settings)))
         source, target = self.root/'source', self.root/'target'
         source.mkdir(); target.mkdir()
         view.source_edit.setText(str(source)); view.target_edit.setText(str(target))
+        view._path_edited()
         view.format_combo.setCurrentText('PNG')
         view.delete_check.setChecked(False)
         view.auto_check.setChecked(False)

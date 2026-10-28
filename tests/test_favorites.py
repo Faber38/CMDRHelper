@@ -37,6 +37,7 @@ class State(QObject):
         self.journal_folder=None
         self.values={}
         self.settings=SimpleNamespace(value=lambda key,default=None:self.values.get(key,default),
+                                      allKeys=lambda:list(self.values),
                                       setValue=lambda key,value:self.values.update({key:value}),sync=lambda:None)
 
 
@@ -153,25 +154,38 @@ class FavoriteTests(unittest.TestCase):
         self.assertTrue(source.exists())
 
     def test_no_screenshot_does_not_choose_arbitrary_image(self):
-        self.state.values['screenshots/source_dir']=str(self.root)
+        self.state.values['screenshots/commanders/F1/source_dir']=str(self.root)
         self.image('holiday.png'); self.image('Screenshot_holiday.png')
-        self.assertIsNone(latest_screenshot(self.state.settings))
+        self.assertIsNone(latest_screenshot(self.state.settings, commander_fid='F1'))
         with patch.object(QMessageBox,'information') as message:
             dialog=FavoriteDialog(self.store,self.state,dict(self.record(),commander_id=1)); dialog._latest()
         message.assert_called_once(); self.assertIsNone(dialog.image_source); dialog.close()
 
     def test_latest_plausible_screenshot_and_bmp_copy(self):
-        self.state.values['screenshots/source_dir']=str(self.root)
+        self.state.values['screenshots/commanders/F1/source_dir']=str(self.root)
         first=self.image('Screenshot_0001.bmp'); second=self.image('Screenshot_0002.png')
         self.image('holiday.png'); bad=self.root/'Screenshot_0003.png'; bad.write_bytes(b'invalid')
         os.utime(first,(10,10)); os.utime(second,(20,20))
-        self.assertEqual(latest_screenshot(self.state.settings),second)
+        self.assertEqual(latest_screenshot(self.state.settings, commander_fid='F1'),second)
         before=first.read_bytes(); row=self.store.save(1,self.record(),image_source=first)
         self.assertTrue(row['image_path'].endswith('.png')); self.assertEqual(first.read_bytes(),before)
         with Image.open(self.store.image_file(row['image_path'])) as im:self.assertEqual(im.format,'PNG')
 
+    def test_latest_dialog_does_not_offer_a_conflicting_source_image(self):
+        self.state.values['screenshots/commanders/F1/source_dir'] = str(self.root)
+        self.state.values['screenshots/commanders/F2/source_dir'] = str(self.root)
+        self.state.sources = SimpleNamespace(runtimes={})
+        self.image('Screenshot_0001.png')
+        dialog = FavoriteDialog(self.store, self.state, dict(self.record(), commander_id=1))
+        self.addCleanup(dialog.close)
+        with patch.object(QMessageBox, 'information') as message, patch.object(QDialog, 'exec') as confirm:
+            dialog._latest()
+        message.assert_called_once()
+        confirm.assert_not_called()
+        self.assertIsNone(dialog.image_source)
+
     def test_screenshot_requires_confirmation_and_cancel_does_not_import(self):
-        self.state.values['screenshots/source_dir']=str(self.root); source=self.image('Screenshot_0001.png')
+        self.state.values['screenshots/commanders/F1/source_dir']=str(self.root); source=self.image('Screenshot_0001.png')
         dialog=FavoriteDialog(self.store,self.state,dict(self.record(),commander_id=1))
         with patch.object(QDialog,'exec',return_value=QDialog.Rejected):dialog._latest()
         self.assertIsNone(dialog.image_source)
@@ -192,13 +206,14 @@ class FavoriteTests(unittest.TestCase):
 
     def test_latest_source_then_actual_conversion_and_bmp_deletion(self):
         from cmdrhelper.ui.screenshot_view import _ConvertWorker
-        self.state.values['screenshots/source_dir'] = str(self.root)
+        self.state.values['screenshots/commanders/F1/source_dir'] = str(self.root)
         old = self.image('Screenshot_0001.bmp')
         new = self.image('Screenshot_0002.bmp')
         stamp = datetime(2026, 9, 6, 12, 0, 0).timestamp()
         os.utime(old, (stamp - 10, stamp - 10)); os.utime(new, (stamp, stamp))
         self.assertEqual(self.latest_for_active(), new)
         target = self.converted_image(stamp)
+        target.unlink()  # Worker must create a new file, never replace one.
         # Run the existing converter, including its existing delete_bmp behavior.
         _ConvertWorker(new, target, 'PNG', True).run()
         self.assertFalse(new.exists())
@@ -208,7 +223,7 @@ class FavoriteTests(unittest.TestCase):
         self.assertTrue(old.exists())
 
     def test_converted_capture_time_wins_over_late_conversion_mtime(self):
-        self.state.values['screenshots/source_dir'] = str(self.root)
+        self.state.values['screenshots/commanders/F1/source_dir'] = str(self.root)
         stamp = datetime(2026, 9, 6, 12, 0, 0).timestamp()
         older = self.converted_image(stamp - 60)
         newest = self.converted_image(stamp)
@@ -220,7 +235,7 @@ class FavoriteTests(unittest.TestCase):
         self.assertEqual(self.latest_for_active(), source)
 
     def test_converted_search_excludes_other_fid_and_unassigned_images(self):
-        self.state.values['screenshots/source_dir'] = str(self.root)
+        self.state.values['screenshots/commanders/F1/source_dir'] = str(self.root)
         stamp = datetime(2026, 9, 6, 12, 0, 0).timestamp()
         own = self.converted_image(stamp)
         self.converted_image(stamp + 60, fid='F2')  # Same commander name, different FID.
@@ -229,10 +244,10 @@ class FavoriteTests(unittest.TestCase):
         self.assertEqual(self.latest_for_active(), own)
         own.unlink()
         self.assertIsNone(self.latest_for_active())
-        self.assertIsNone(latest_screenshot(self.state.settings))
+        self.assertIsNone(latest_screenshot(self.state.settings, commander_fid='F1'))
 
     def test_timestamped_original_uses_filename_capture_time(self):
-        self.state.values['screenshots/source_dir'] = str(self.root)
+        self.state.values['screenshots/commanders/F1/source_dir'] = str(self.root)
         dated = self.image('Screenshot_2026-09-06_12-00-00.bmp')
         newer = self.image('Screenshot_0003.bmp')
         stamp = datetime(2026, 9, 6, 12, 0, 0).timestamp()
@@ -241,7 +256,7 @@ class FavoriteTests(unittest.TestCase):
         self.assertEqual(self.latest_for_active(), newer)
 
     def test_each_latest_click_rescans_and_reloads_preview(self):
-        self.state.values['screenshots/source_dir'] = str(self.root)
+        self.state.values['screenshots/commanders/F1/source_dir'] = str(self.root)
         self.state.commander = 'Same'
         first = self.image('Screenshot_0001.bmp', 'red')
         stamp = datetime(2026, 9, 6, 12, 0, 0).timestamp()

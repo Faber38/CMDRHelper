@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_21.0': 'Skjermbildehåndtering per kommandør for Steam og Heroic, med pålitelig tilordning og forbedrede filnavn.',
+    'release.3_9_21.1': 'Tydeligere farger for oppdragsstatus og automatisk markering av nådde oppdragsmål med en kort blinkeffekt.',
+    'release.3_9_21.2': 'Mer pålitelig skille mellom last i SRV, skip og carrier, med forbedret behandling av Cargo- og MiningRefined-hendelser.',
+    'release.3_9_21.3': 'Opptil ti øyeblikksbilder av lasten per kjøretøy- og kildekontekst, også når gruvevisningen er lukket.',
+    'release.3_9_21.4': 'Sist kjente skipslast forblir synlig som muligens utdatert og tas ikke med i totalsummer.',
+    'release.3_9_21.5': 'Gullgul redigeringsblyant for carrier og ensartede håndpekere for klikkbare elementer.',
+
     'release.3_9_20.0': 'NYTT: Se lagrede markeder uavhengig av hvor du befinner deg.',
     'release.3_9_20.1': 'NYTT: Fullstendige varelister med kjøps- og salgspriser samt tilbud og etterspørsel i tonn.',
     'release.3_9_20.2': 'NYTT: Filtrer markeder etter avstand, landingsplattformens størrelse og dataenes alder.',
@@ -534,6 +541,10 @@ TRANSLATIONS = {
     "mining.ship": "Skip",
     "mining.carrier": "Carrier",
     "mining.total": "Totalt",
+    "mining.stock_confirmed": "Bekreftet nå",
+    "mining.stock_tracked": "Pålitelig oppdatert fra bekreftet beholdning",
+    "mining.stock_stale": "Sist kjent, muligens utdatert. Ikke inkludert i totalsummer.",
+    "mining.stock_stale_value": "{value} (utdatert)",
     "mining.stock_unknown": "Ukjent beholdning",
     "mining.heading": "GRUVERÅVARER",
     "mining.count_summary": "{count} råvarer · Veiledende verdier",
@@ -2308,3 +2319,5 @@ TRANSLATIONS.update({
     'browse.local': 'Observert lokalt i Elite',
     'browse.goods': '{shown} av {total} varer',
 })
+
+TRANSLATIONS["images.identity_wait"] = 'Konvertering satt på pause: spillinstans, kommandør og skjermbildemappe kan ikke knyttes entydig sammen.'

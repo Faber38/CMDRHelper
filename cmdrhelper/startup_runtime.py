@@ -110,6 +110,9 @@ def start(state, target, name, failed, flags):
 def shutdown(state, timeout=5.0):
     prepare(state)
     state._startup_cancel.set()
+    mining = getattr(state, 'mining_inventory_controller', None)
+    if mining is not None:
+        mining.close()
     watcher = getattr(state, 'watcher', None)
     if watcher is not None:
         watcher.stop()

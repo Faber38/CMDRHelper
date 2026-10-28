@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_21.0': 'Zarządzanie zrzutami ekranu według dowódcy dla Steam i Heroic, z wiarygodnym przypisaniem i ulepszonymi nazwami plików.',
+    'release.3_9_21.1': 'Czytelniejsze kolory stanów misji i automatyczne wyróżnianie osiągniętych celów krótkim miganiem.',
+    'release.3_9_21.2': 'Pewniejsze rozdzielenie ładunku SRV, statku i lotniskowca oraz ulepszona obsługa zdarzeń Cargo i MiningRefined.',
+    'release.3_9_21.3': 'Do dziesięciu migawek ładunku dla każdego kontekstu pojazdu i źródła, również przy zamkniętym widoku górnictwa.',
+    'release.3_9_21.4': 'Ostatni znany ładunek statku pozostaje widoczny jako potencjalnie nieaktualny i nie jest uwzględniany w sumach.',
+    'release.3_9_21.5': 'Złocistożółty ołówek edycji lotniskowca i jednolite kursory dłoni dla elementów, które można kliknąć.',
+
     'release.3_9_20.0': 'NOWOŚĆ: Przeglądaj zapisane rynki niezależnie od bieżącej lokalizacji.',
     'release.3_9_20.1': 'NOWOŚĆ: Pełne listy towarów z cenami kupna i sprzedaży oraz podażą i popytem w tonach.',
     'release.3_9_20.2': 'NOWOŚĆ: Filtruj rynki według odległości, rozmiaru lądowiska i wieku danych.',
@@ -534,6 +541,10 @@ TRANSLATIONS = {
     "mining.ship": "Statek",
     "mining.carrier": "Lotniskowiec",
     "mining.total": "Łącznie",
+    "mining.stock_confirmed": "Aktualnie potwierdzony",
+    "mining.stock_tracked": "Wiarygodnie zaktualizowany na podstawie potwierdzonego stanu",
+    "mining.stock_stale": "Ostatni znany stan, może być nieaktualny. Nie jest uwzględniany w sumach.",
+    "mining.stock_stale_value": "{value} (nieaktualny)",
     "mining.stock_unknown": "Nieznany stan zapasów",
     "mining.heading": "SUROWCE GÓRNICZE",
     "mining.count_summary": "{count} surowców · Wartości orientacyjne",
@@ -2308,3 +2319,5 @@ TRANSLATIONS.update({
     'browse.local': 'Zaobserwowane lokalnie w Elite',
     'browse.goods': '{shown} z {total} towarów',
 })
+
+TRANSLATIONS["images.identity_wait"] = 'Konwersja wstrzymana: nie można jednoznacznie powiązać instancji gry, dowódcy i źródła zrzutów ekranu.'

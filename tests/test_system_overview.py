@@ -221,6 +221,15 @@ class OverviewViewTests(unittest.TestCase):
         self.assertTrue(item.isSelected())
 
     def test_existing_overview_actions_have_hand_cursor_in_both_themes(self):
+        from cmdrhelper.ui.cursors import install_cursor_policy
+        owns_policy = not hasattr(self.app, '_cmdrhelper_cursor_policy')
+        policy = install_cursor_policy(self.app)
+        if owns_policy:
+            def remove_policy():
+                self.app.removeEventFilter(policy)
+                del self.app._cmdrhelper_cursor_policy
+                policy.deleteLater()
+            self.addCleanup(remove_policy)
         for light, style in ((False, DARK_STYLESHEET), (True, LIGHT_STYLESHEET)):
             self.app.setStyleSheet(style)
             callback = Mock()
@@ -230,7 +239,8 @@ class OverviewViewTests(unittest.TestCase):
             for item in view.items_by_key.values():
                 self.assertEqual(item.cursor().shape(), Qt.PointingHandCursor)
             for button in dialog.findChildren(QPushButton):
-                self.assertEqual(button.cursor().shape(), Qt.PointingHandCursor)
+                self.assertEqual(button.cursor().shape(),
+                                 Qt.PointingHandCursor if button.isEnabled() else Qt.ArrowCursor)
             for label in dialog.findChildren(QLabel):
                 self.assertEqual(label.cursor().shape(), Qt.ArrowCursor)
             for line in view.connections:

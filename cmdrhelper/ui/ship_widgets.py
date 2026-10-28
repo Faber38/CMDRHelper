@@ -45,6 +45,8 @@ class ShipImage(QLabel):
             ship_type, self.width(), self.height(), self.devicePixelRatioF(), personal_path,
         )
         self.setProperty("hasShipImage", pixmap is not None)
+        self.setProperty("cursorClickable", pixmap is not None and self._source_path is not None)
+        self.setCursor(Qt.PointingHandCursor if pixmap is not None and self._source_path is not None else Qt.ArrowCursor)
         if pixmap is not None:
             self.setPixmap(pixmap)
         self.update()

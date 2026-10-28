@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_21.0': 'Gestión de capturas por comandante para Steam y Heroic, con asignación fiable y nombres de archivo mejorados.',
+    'release.3_9_21.1': 'Colores de estado de misión más claros y resaltado automático de los destinos alcanzados con un breve parpadeo.',
+    'release.3_9_21.2': 'Separación más fiable de la carga del SRV, la nave y el carrier, con un procesamiento mejorado de los eventos Cargo y MiningRefined.',
+    'release.3_9_21.3': 'Hasta diez instantáneas de carga por contexto de vehículo y origen, incluso con la vista de minería cerrada.',
+    'release.3_9_21.4': 'La última carga conocida de la nave sigue visible como posiblemente desactualizada y se excluye de los totales.',
+    'release.3_9_21.5': 'Lápiz de edición del carrier en amarillo dorado y cursores de mano uniformes para los elementos pulsables.',
+
     'release.3_9_20.0': 'NUEVO: Consulta los mercados guardados independientemente de tu ubicación actual.',
     'release.3_9_20.1': 'NUEVO: Listas completas de mercancías con precios de compra y venta, oferta y demanda en toneladas.',
     'release.3_9_20.2': 'NUEVO: Filtra los mercados por distancia, tamaño de plataforma y antigüedad de los datos.',
@@ -534,6 +541,10 @@ TRANSLATIONS = {
     "mining.ship": "Nave",
     "mining.carrier": "Portanaves",
     "mining.total": "Total",
+    "mining.stock_confirmed": "Confirmado actualmente",
+    "mining.stock_tracked": "Actualizado de forma fiable desde existencias confirmadas",
+    "mining.stock_stale": "Último valor conocido, posiblemente desactualizado. Excluido de los totales.",
+    "mining.stock_stale_value": "{value} (desactualizado)",
     "mining.stock_unknown": "Existencias desconocidas",
     "mining.heading": "RECURSOS MINEROS",
     "mining.count_summary": "{count} mercancías · Valores orientativos",
@@ -2420,3 +2431,5 @@ TRANSLATIONS.update({
     'browse.local': 'Observado localmente en Elite',
     'browse.goods': '{shown} de {total} mercancías',
 })
+
+TRANSLATIONS["images.identity_wait"] = 'Conversión pausada: no se pueden vincular de forma inequívoca la instancia del juego, el comandante y el origen de las capturas.'

@@ -4,6 +4,7 @@ import os
 import tempfile
 import time
 import unittest
+from unittest.mock import patch
 from datetime import datetime
 from pathlib import Path
 
@@ -15,6 +16,13 @@ from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 
 from cmdrhelper.ui.screenshot_view import ScreenshotView, safe_filename_component
+from cmdrhelper.screenshot_sources import source_key
+
+
+def fixture_context(state):
+    return dict(fid=state.commander_fid, commander=state.commander, system=state.system,
+                source_id="fixture", journal="fixture.log", last_timestamp="2020-01-01T00:00:00Z",
+                suggested=state.settings.value(source_key(state.commander_fid), ""))
 
 
 class DatabaseStub:
@@ -61,6 +69,13 @@ class ScreenshotMultiCommanderTests(unittest.TestCase):
         settings = QSettings(
             str(Path(self.temp.name) / "settings.ini"), QSettings.IniFormat
         )
+        for fid in ('F-A', 'F-B'):
+            source = Path(self.temp.name) / fid
+            source.mkdir()
+            settings.setValue(source_key(fid), str(source))
+        self.context_patch = patch('cmdrhelper.ui.screenshot_view.live_context', fixture_context)
+        self.context_patch.start()
+        self.addCleanup(self.context_patch.stop)
         self.state = StateStub(settings)
         self.view = ScreenshotView(self.state)
         self.view.timer.stop()
@@ -83,8 +98,10 @@ class ScreenshotMultiCommanderTests(unittest.TestCase):
                 return
         self.fail("Gallery did not finish loading")
 
-    def _source(self, name="Screenshot.bmp", stamp=None):
-        source = Path(self.temp.name) / name
+    def _source(self, name="Screenshot.bmp", stamp=None, *, fid=None):
+        folder = Path(self.temp.name) / (fid or self.state.commander_fid or 'unassigned')
+        folder.mkdir(exist_ok=True)
+        source = folder / name
         Image.new("RGB", (4, 4), "red").save(source, "BMP")
         if stamp is not None:
             os.utime(source, (stamp, stamp))
@@ -105,6 +122,7 @@ class ScreenshotMultiCommanderTests(unittest.TestCase):
         source = self._source()
         first = self.view._output_path(source)
         self.state.commander_fid = "F-B"
+        self.view._sync_source()
         second = self.view._output_path(source)
         self.assertEqual(first.parent.name, "Same_F-A")
         self.assertEqual(second.parent.name, "Same_F-B")
@@ -112,25 +130,27 @@ class ScreenshotMultiCommanderTests(unittest.TestCase):
 
     def test_filename_uses_bmp_time_commander_and_safe_system(self):
         stamp = datetime(2026, 9, 4, 13, 18, 22).timestamp()
-        source = self._source(stamp=stamp)
         self.state.commander = "TEST_CMDR"
         self.state.commander_fid = "F12345678"
         self.state.system = "Prua Hypai RB-D c29-71"
+        source = self._source(stamp=stamp)
+        self.state.settings.setValue(source_key("F12345678"), str(source.parent))
+        self.view._sync_source()
         path = self.view._output_path(source)
         self.assertEqual(path.parent.name, "TEST_CMDR_F12345678")
         self.assertEqual(
             path.name,
-            "2026-09-04_13-18-22_TEST_CMDR_Prua-Hypai-RB-D-c29-71.png",
+            "Prua_Hypai_RB-D_c29-71_TEST_CMDR_2026-09-04_13-18-22.png",
         )
 
     def test_unknown_identity_and_optional_system(self):
         self.state.commander = ""
         self.state.commander_fid = ""
         self.state.system = ""
+        self.view._sync_source()
         path = self.view._output_path(self._source())
         self.assertEqual(path.parent.name, "UNKNOWN_UNKNOWN")
-        self.assertTrue(path.name.endswith("_UNKNOWN.png"))
-        self.assertNotIn("SYSTEM", path.name)
+        self.assertTrue(path.name.startswith("UNKNOWN_SYSTEM_UNKNOWN_COMMANDER_"))
 
     def test_invalid_and_windows_reserved_components_are_safe(self):
         self.assertEqual(safe_filename_component("CON"), "_CON")
@@ -142,7 +162,7 @@ class ScreenshotMultiCommanderTests(unittest.TestCase):
     def test_queue_freezes_identity_and_reserves_same_second_collisions(self):
         self.view.pool = PoolStub()
         first_source = self._source("First.bmp")
-        second_source = self._source("Second.bmp")
+        second_source = self._source("Second.bmp", fid="F-B")
         stamp = datetime(2026, 9, 4, 13, 18, 22).timestamp()
         os.utime(first_source, (stamp, stamp))
         os.utime(second_source, (stamp, stamp))
@@ -151,10 +171,11 @@ class ScreenshotMultiCommanderTests(unittest.TestCase):
         self.state.commander_fid = "F-B"
         self.state.system = "Bravo System"
         first_worker = self.view.pool.workers[0]
+        self.view._sync_source()
         self.view._queue(second_source)
         second_worker = self.view.pool.workers[1]
         self.assertEqual(first_worker.target.parent.name, "Same_F-A")
-        self.assertIn("Same_Alpha-System", first_worker.target.name)
+        self.assertIn("Alpha_System_Same", first_worker.target.name)
         self.assertEqual(second_worker.target.parent.name, "Bravo_F-B")
 
         # A second A screenshot queued for the same second cannot reuse target 1.
@@ -163,6 +184,7 @@ class ScreenshotMultiCommanderTests(unittest.TestCase):
         self.state.system = "Alpha System"
         third_source = self._source("Third.bmp")
         os.utime(third_source, (stamp, stamp))
+        self.view._sync_source()
         self.view._queue(third_source)
         self.assertTrue(self.view.pool.workers[2].target.stem.endswith("_2"))
 

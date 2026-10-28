@@ -671,6 +671,7 @@ class MiningViewTests(unittest.TestCase):
             "title", "name", "average_price", "value_class", "high", "medium", "low",
             "reference_notice", "open_tooltip", "heading", "count_summary",
             "reference_short", "search", "no_matches", "vehicle", "srv", "ship", "carrier", "total", "stock_unknown",
+            "stock_confirmed", "stock_tracked", "stock_stale", "stock_stale_value",
             "refresh", "refresh_tooltip", "only_stock", "only_stock_tooltip",
             "refresh_updated", "refresh_unchanged", "refresh_error",
             "origin", "origin_surface", "origin_asteroid", "reference_unknown")}
@@ -682,6 +683,39 @@ class MiningViewTests(unittest.TestCase):
         for language, translations in _TRANSLATIONS.items():
             self.assertEqual({k for k in translations if k.startswith("mining.")}, expected, language)
             self.assertTrue(all(translations[k].strip() for k in expected), language)
+
+    def test_stale_ship_is_visible_but_excluded_from_totals_in_all_languages_and_themes(self):
+        inventory = MiningInventory(1, "F1", srv={"gold": 4}, ship_id=51,
+            source_folder="/source", carrier={"gold": 100}, vehicle_records={"Ship": dict(
+                last_confirmed={"gold": 28}, ship_id=51, source_folder="/source",
+                confirmed_at="2026-10-26T11:24:24Z", quality="stale")})
+        mining = self.view.mining
+        inventory.srv = {}
+        inventory.carrier = {}
+        mining.only_stock.setChecked(True)
+        mining.set_inventory(inventory)
+        self.assertFalse(mining.items["gold"].isHidden())
+        inventory.srv = {"gold": 4}
+        inventory.carrier = {"gold": 100}
+        for language in _TRANSLATIONS:
+            set_language(language)
+            for light in (False, True):
+                mining.set_light_mode(light)
+                mining.set_inventory(inventory)
+                item = mining.items["gold"]
+                self.assertEqual(item.text(2), tr("mining.stock_stale_value", value="28"))
+                self.assertIn(tr("mining.stock_stale"), item.toolTip(2))
+                self.assertTrue(item.font(2).italic())
+                self.assertIsNone(item.data(2, Qt.UserRole))
+                self.assertEqual(item.text(4), "—")
+                self.assertEqual(item.data(3, Qt.UserRole), 100)
+                self.assertEqual(item.foreground(2).color().name(), "#b36a00" if light else "#f0ad4e")
+        inventory.ship = {"gold": 30}
+        inventory.vehicle_records["Ship"]["quality"] = "tracked"
+        mining.set_inventory(inventory)
+        self.assertIn(tr("mining.stock_tracked"), mining.items["gold"].toolTip(2))
+        self.assertFalse(mining.items["gold"].font(2).italic())
+        self.assertEqual(mining.items["gold"].data(4, Qt.UserRole), 134)
 
     def test_carrier_dialog_validation_cancel_apply_and_reset(self):
         dialog = CarrierStockDialog("Gold", None, True)

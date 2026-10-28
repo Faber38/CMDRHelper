@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_21.0': 'Steam ve Heroic için komutana özel ekran görüntüsü yönetimi, güvenilir eşleştirme ve iyileştirilmiş dosya adları.',
+    'release.3_9_21.1': 'Daha belirgin görev durumu renkleri ve ulaşılan görev hedeflerinin kısa bir yanıp sönme efektiyle otomatik vurgulanması.',
+    'release.3_9_21.2': 'SRV, gemi ve filo taşıyıcısı yüklerinin daha güvenilir biçimde ayrı tutulması; Cargo ve MiningRefined olaylarının iyileştirilmiş işlenmesi.',
+    'release.3_9_21.3': 'Araç ve kaynak bağlamı başına en fazla on yük anlık görüntüsü; madencilik görünümü kapalıyken de kayıt.',
+    'release.3_9_21.4': 'Geminin son bilinen yükü, güncelliğini yitirmiş olabileceği belirtilerek görünür kalır ve toplamlara dahil edilmez.',
+    'release.3_9_21.5': 'Filo taşıyıcısı için altın sarısı düzenleme kalemi ve tıklanabilir öğeler için tutarlı el imleçleri.',
+
     'release.3_9_20.0': 'YENİ: Kayıtlı pazarları mevcut konumunuzdan bağımsız olarak görüntüleyin.',
     'release.3_9_20.1': 'YENİ: Alış ve satış fiyatları, ton cinsinden arz ve talep içeren eksiksiz mal listeleri.',
     'release.3_9_20.2': 'YENİ: Pazarları mesafeye, iniş pisti boyutuna ve veri yaşına göre filtreleyin.',
@@ -534,6 +541,10 @@ TRANSLATIONS = {
     "mining.ship": "Gemi",
     "mining.carrier": "Filo taşıyıcısı",
     "mining.total": "Toplam",
+    "mining.stock_confirmed": "Güncel olarak doğrulandı",
+    "mining.stock_tracked": "Doğrulanmış stoktan güvenilir şekilde güncellendi",
+    "mining.stock_stale": "Son bilinen, güncelliğini yitirmiş olabilir. Toplamlara dahil edilmez.",
+    "mining.stock_stale_value": "{value} (eski)",
     "mining.stock_unknown": "Stok bilinmiyor",
     "mining.heading": "MADENCİLİK HAM MADDELERİ",
     "mining.count_summary": "{count} ham madde · Yol gösteren referans değerler",
@@ -2308,3 +2319,5 @@ TRANSLATIONS.update({
     'browse.local': 'Elite içinde yerel olarak gözlemlendi',
     'browse.goods': '{total} maldan {shown} tanesi',
 })
+
+TRANSLATIONS["images.identity_wait"] = 'Dönüştürme duraklatıldı: oyun örneği, komutan ve ekran görüntüsü kaynağı kesin olarak eşleştirilemiyor.'

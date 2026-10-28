@@ -39,6 +39,15 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.21
+
+- Steam ve Heroic için komutana özel ekran görüntüsü yönetimi, güvenilir eşleştirme ve iyileştirilmiş dosya adları.
+- Daha belirgin görev durumu renkleri ve ulaşılan görev hedeflerinin kısa bir yanıp sönme efektiyle otomatik vurgulanması.
+- SRV, gemi ve filo taşıyıcısı yüklerinin daha güvenilir biçimde ayrı tutulması; Cargo ve MiningRefined olaylarının iyileştirilmiş işlenmesi.
+- Araç ve kaynak bağlamı başına en fazla on yük anlık görüntüsü; madencilik görünümü kapalıyken de kayıt.
+- Geminin son bilinen yükü, güncelliğini yitirmiş olabileceği belirtilerek görünür kalır ve toplamlara dahil edilmez.
+- Filo taşıyıcısı için altın sarısı düzenleme kalemi ve tıklanabilir öğeler için tutarlı el imleçleri.
+
 ## CMDRHelper v3.9.20
 
 - YENİ: Kayıtlı pazarları mevcut konumunuzdan bağımsız olarak görüntüleyin.

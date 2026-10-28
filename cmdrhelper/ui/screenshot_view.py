@@ -7,7 +7,10 @@ from pathlib import Path
 
 from PIL import Image, ImageEnhance
 from cmdrhelper.i18n import tr
-from cmdrhelper.screenshot_paths import safe_filename_component, commander_screenshot_folder
+from cmdrhelper.screenshot_paths import (safe_filename_component, commander_screenshot_folder,
+                                         screenshot_capture_time, screenshot_component)
+from cmdrhelper.screenshot_sources import (live_context, configured_source, source_key,
+                                          migrate_legacy, suggested_source, source_conflicts, capture_identity)
 from PySide6.QtCore import Qt, QTimer, QEvent, QSize, QObject, Signal, QRunnable, QThreadPool, QUrl
 from PySide6.QtGui import QIcon, QPixmap, QDesktopServices
 from PySide6.QtWidgets import (
@@ -27,7 +30,7 @@ class _Signals(QObject):
 
 
 class _ConvertWorker(QRunnable):
-    def __init__(self, source: Path, target: Path, fmt: str, delete_source: bool, brightness: int = 0):
+    def __init__(self, source: Path, target: Path, fmt: str, delete_source: bool, brightness: int = 0, expected_signature=None):
         super().__init__()
         self.source = Path(source)
         self.target = Path(target)
@@ -35,10 +38,16 @@ class _ConvertWorker(QRunnable):
         self.delete_source = delete_source
         self.brightness = max(0, min(50, int(brightness)))
         self.signals = _Signals()
+        self.source_signature = None
+        self.expected_signature = expected_signature
 
     def run(self):
         try:
             self.target.parent.mkdir(parents=True, exist_ok=True)
+            stat = self.source.stat()
+            self.source_signature = (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns)
+            if self.expected_signature is not None and self.source_signature != self.expected_signature:
+                raise OSError("Screenshot changed after queueing")
             with Image.open(self.source) as img:
                 # 0 % = Original. Beispiel: 15 % -> Faktor 1.15.
                 if self.brightness > 0:
@@ -49,11 +58,16 @@ class _ConvertWorker(QRunnable):
                 if self.fmt == "JPEG":
                     if img.mode not in ("RGB", "L"):
                         img = img.convert("RGB")
-                    img.save(self.target, "JPEG", quality=95, optimize=True)
+                    with self.target.open("xb") as output:
+                        img.save(output, "JPEG", quality=95, optimize=True)
                 else:
-                    img.save(self.target, "PNG", optimize=True)
+                    with self.target.open("xb") as output:
+                        img.save(output, "PNG", optimize=True)
             if self.delete_source:
-                self.source.unlink(missing_ok=True)
+                stat = self.source.stat()
+                current = (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns)
+                if current == self.source_signature:
+                    self.source.unlink(missing_ok=True)
             self.signals.finished.emit(str(self.source), str(self.target), True, "")
         except Exception as exc:
             self.signals.finished.emit(str(self.source), str(self.target), False, str(exc))
@@ -67,9 +81,14 @@ class ScreenshotView(QWidget):
         self.state = state
         self.settings = state.settings
         self.pool = QThreadPool.globalInstance()
+        self._source_fid = ''
+        self._binding = None
+        self._source_was_available = False
+        self._context = None
         self._known: set[str] = set()
         self._pending: dict[str, tuple[int, int]] = {}
         self._converting: set[str] = set()
+        self._completed = {}
         self._workers: set[_ConvertWorker] = set()
         self._reserved_targets: set[Path] = set()
         self._gallery_state = None
@@ -97,6 +116,11 @@ class ScreenshotView(QWidget):
         self.timer.timeout.connect(self._scan)
 
         self._load_settings()
+        manager = getattr(self.state, 'sources', None)
+        if manager is not None:
+            manager.changed.connect(self._sync_source)
+            manager.timer.timeout.connect(self._sync_source)
+        self._sync_source()
         self._request_gallery_refresh()
         self._update_watch_state()
 
@@ -153,6 +177,7 @@ class ScreenshotView(QWidget):
 
         source_row = QHBoxLayout(); source_row.addWidget(self.source_edit, 1)
         b = QPushButton(tr("images.choose")); b.clicked.connect(self._choose_source); source_row.addWidget(b)
+        self.choose_source_button = b
         target_row = QHBoxLayout(); target_row.addWidget(self.target_edit, 1)
         b = QPushButton(tr("images.choose")); b.clicked.connect(self._choose_target); target_row.addWidget(b)
 
@@ -368,17 +393,6 @@ class ScreenshotView(QWidget):
         self._loading_settings = True
 
         try:
-            saved_source = str(
-                self.settings.value(
-                    self._key("source_dir"),
-                    "",
-                )
-                or ""
-            ).strip()
-
-            if not saved_source:
-                saved_source = self._default_source_dir()
-
             saved_target = str(
                 self.settings.value(
                     self._key("target_dir"),
@@ -424,7 +438,7 @@ class ScreenshotView(QWidget):
                 False,
             )
 
-            self.source_edit.setText(saved_source)
+            self.source_edit.setText("")
             self.target_edit.setText(saved_target)
             self.format_combo.setCurrentText(
                 fmt if fmt in ("PNG", "JPG") else "PNG"
@@ -433,12 +447,6 @@ class ScreenshotView(QWidget):
             self.brightness_spin.setValue(brightness)
             self.auto_check.setChecked(auto)
             self.delete_check.setChecked(delete_bmp)
-
-            if saved_source:
-                self.settings.setValue(
-                    self._key("source_dir"),
-                    saved_source,
-                )
 
             self.settings.sync()
 
@@ -451,7 +459,8 @@ class ScreenshotView(QWidget):
         if self._loading_settings:
             return
 
-        self.settings.setValue(self._key("source_dir"), self.source_edit.text().strip())
+        if self._source_fid:
+            self.settings.setValue(source_key(self._source_fid), self.source_edit.text().strip())
         self.settings.setValue(self._key("target_dir"), self.target_edit.text().strip())
         self.settings.setValue(self._key("format"), self.format_combo.currentText())
         self.settings.setValue(self._key("brightness"), self.brightness_slider.value())
@@ -461,6 +470,7 @@ class ScreenshotView(QWidget):
 
     def _save_settings_clicked(self):
         self._save_settings()
+        self._sync_source()
         self._baseline()
         self._request_gallery_refresh()
         self._update_watch_state()
@@ -478,6 +488,7 @@ class ScreenshotView(QWidget):
 
     def _path_edited(self):
         self._save_settings()
+        self._sync_source()
         self._baseline()
         self._request_gallery_refresh()
         self._update_watch_state()
@@ -491,9 +502,15 @@ class ScreenshotView(QWidget):
         return Path(text).expanduser() if text else None
 
     def _choose_source(self):
+        # The modal dialog can process source-change signals while it is open.
+        fid = self._source_fid
+        if not fid:
+            return
         folder = QFileDialog.getExistingDirectory(self, tr("images.choose_source_title"), self.source_edit.text() or str(Path.home()))
         if folder:
-            self.source_edit.setText(folder); self._save_settings(); self._baseline(); self._update_watch_state()
+            self.settings.setValue(source_key(fid), folder)
+            self.settings.sync()
+            self._sync_source()
 
     def _choose_target(self):
         folder = QFileDialog.getExistingDirectory(self, tr("images.choose_target_title"), self.target_edit.text() or str(Path.home()))
@@ -516,20 +533,29 @@ class ScreenshotView(QWidget):
 
     def _update_watch_state(self):
         source, target = self._source(), self._target()
-        active = self.auto_check.isChecked() and source and source.is_dir() and target
+        valid = bool(self._context and self._context['fid'] == self._source_fid
+                     and self._binding and source
+                     and str(source.resolve()) == self._binding[1])
+        self.convert_button.setEnabled(bool(valid and source.is_dir() and target))
+        active = self.auto_check.isChecked() and valid and source.is_dir() and target
         if active:
-            target.mkdir(parents=True, exist_ok=True); self.timer.start()
-            self.status.setText(tr("images.watch_active")); self.status.setObjectName("statusOk")
+            target.mkdir(parents=True, exist_ok=True)
+            if not self.timer.isActive():
+                self.timer.start()
+            self.status.setText(tr("images.watch_active") + " · " + (self._context.get("commander") or self._source_fid)); self.status.setObjectName("statusOk")
         else:
             self.timer.stop()
-            if self.auto_check.isChecked():
+            if not valid:
+                self.status.setText(tr("images.identity_wait")); self.status.setObjectName("statusWarn")
+            elif self.auto_check.isChecked():
                 self.status.setText(tr("images.folders_missing")); self.status.setObjectName("statusWarn")
             else:
                 self.status.setText(tr("images.watch_off")); self.status.setObjectName("muted")
         self.status.style().unpolish(self.status); self.status.style().polish(self.status)
 
     def _scan(self):
-        if not self.auto_check.isChecked():
+        self._sync_source()
+        if not self._context or not self.auto_check.isChecked():
             return
         source = self._source()
         if not source or not source.is_dir():
@@ -553,12 +579,46 @@ class ScreenshotView(QWidget):
             if count >= 2:
                 self._known.add(key); self._pending.pop(key, None); self._queue(p)
 
+    def _sync_source(self, *_args, configure=False):
+        if self._closed:
+            return
+        manager = getattr(self.state, 'sources', None)
+        migrate_legacy(self.settings, manager)
+        context = live_context(self.state)
+        viewed = self._commander_for_id(getattr(self.state, 'viewed_commander_id', None)) or {}
+        # A temporarily stale journal projection is a pause, not a source switch.
+        # Preserve the baseline so BMPs arriving during ingestion are not lost.
+        if context is None and self._binding and self._binding[2] and not configure:
+            self._context = None
+            self._pending.clear()
+            self._update_watch_state()
+            return
+        fid = context['fid'] if context else str(viewed.get('fid') or '')
+        source = configured_source(self.settings, fid)
+        if not source:
+            source = context['suggested'] if context else suggested_source(manager, fid)
+        if source_conflicts(self.settings, manager, fid, source):
+            context = None
+        binding = (fid, str(Path(source).expanduser().resolve()) if source else '',
+                   context['source_id'] if context else '', context['journal'] if context else '')
+        available = bool(source and Path(source).expanduser().is_dir())
+        changed = binding != self._binding or (available and not self._source_was_available)
+        self._source_was_available = available
+        self._context = context
+        if changed:
+            self.timer.stop()
+            self._binding = binding
+            self._source_fid = fid
+            self.source_edit.setText(source)
+            self._baseline()
+        self.source_edit.setEnabled(bool(fid))
+        self.choose_source_button.setEnabled(bool(fid))
+        owner = context.get('commander') if context else viewed.get('current_name')
+        self.source_edit.setToolTip(f"{owner or 'UNKNOWN_COMMANDER'} ({fid})" if fid else '')
+        self._update_watch_state()
+
     def _identity_snapshot(self):
-        return {
-            "fid": str(getattr(self.state, "commander_fid", "") or "").strip(),
-            "commander": str(getattr(self.state, "commander", "") or "").strip(),
-            "system": str(getattr(self.state, "system", "") or "").strip(),
-        }
+        return dict(self._context or {})
 
     @staticmethod
     def _folder_name(commander, fid):
@@ -639,16 +699,14 @@ class ScreenshotView(QWidget):
         if folder is None:
             return None
         try:
-            timestamp = datetime.fromtimestamp(source.stat().st_mtime)
+            timestamp = datetime.fromtimestamp(screenshot_capture_time(source))
         except OSError:
             timestamp = datetime.now()
         parts = [
+            screenshot_component(identity.get("system"), "UNKNOWN_SYSTEM"),
+            screenshot_component(identity.get("commander"), "UNKNOWN_COMMANDER"),
             timestamp.strftime("%Y-%m-%d_%H-%M-%S"),
-            safe_filename_component(identity.get("commander")),
         ]
-        system = str(identity.get("system") or "").strip()
-        if system:
-            parts.append(safe_filename_component(system))
         suffix = ".jpg" if self.format_combo.currentText() == "JPG" else ".png"
         base = "_".join(parts)
         candidate = folder / f"{base}{suffix}"
@@ -658,13 +716,33 @@ class ScreenshotView(QWidget):
             number += 1
         return candidate
 
-    def _queue(self, source: Path):
-        identity = self._identity_snapshot()
+    def _queue(self, source: Path, *, historical=False):
+        previous = self._binding
+        self._sync_source()
+        if not self._context or previous != self._binding:
+            return
+        if source.is_symlink() or source.parent.resolve() != self._source().resolve():
+            return
+        try:
+            identity = capture_identity(self._identity_snapshot(), source)
+        except OSError:
+            return
+        if identity is None:
+            self.last_action.setText(tr("images.identity_wait"))
+            return
+        if historical:
+            identity['system'] = ''
+
         target = self._output_path(source, identity)
         if not target:
             return
         key = str(source.resolve())
-        if key in self._converting:
+        try:
+            stat = source.stat()
+        except OSError:
+            return
+        signature = (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns)
+        if key in self._converting or self._completed.get(key) == signature:
             return
         worker = _ConvertWorker(
             source,
@@ -672,12 +750,14 @@ class ScreenshotView(QWidget):
             "JPEG" if target.suffix.lower() == ".jpg" else "PNG",
             self.delete_check.isChecked(),
             self.brightness_slider.value(),
+            expected_signature=signature,
         )
         worker.signals.finished.connect(self._converted)
         self._reserved_targets.add(target)
         self._workers.add(worker); self._converting.add(key)
         self.last_action.setText(tr("images.converting", name=source.name))
         self.pool.start(worker)
+        return True
 
     def _converted(self, source_text, target_text, ok, error):
         source, target = Path(source_text), Path(target_text)
@@ -688,6 +768,8 @@ class ScreenshotView(QWidget):
             pass
         for worker in list(self._workers):
             if worker.source == source and worker.target == target:
+                if ok and worker.source_signature is not None:
+                    self._completed[str(source.resolve())] = worker.source_signature
                 self._workers.discard(worker)
         if ok:
             logger.info("Screenshot konvertiert: %s -> %s", source.name, target.name)
@@ -698,6 +780,9 @@ class ScreenshotView(QWidget):
             self.last_action.setText(tr("images.convert_error", name=source.name, error=error))
 
     def _convert_existing(self):
+        self._sync_source()
+        if not self._context:
+            return
         source, target = self._source(), self._target()
         if not source or not source.is_dir():
             QMessageBox.warning(self, tr("images.title"), tr("images.invalid_source")); return
@@ -709,7 +794,9 @@ class ScreenshotView(QWidget):
             if p.is_file() and p.suffix.lower() == ".bmp":
                 out = self._output_path(p)
                 if out and not out.exists():
-                    self._known.add(str(p.resolve())); self._queue(p); queued += 1
+                    self._known.add(str(p.resolve()))
+                    if self._queue(p, historical=True):
+                        queued += 1
         if queued == 0:
             self.last_action.setText(tr("images.no_new_bmps"))
 
@@ -963,6 +1050,7 @@ class ScreenshotView(QWidget):
             QDesktopServices.openUrl(QUrl.fromLocalFile(str(folder)))
 
     def _viewed_commander_changed(self, *_args):
+        self._sync_source(configure=True)
         if str(self.gallery_filter.currentData() or "current") == "current":
             self._request_gallery_refresh()
 

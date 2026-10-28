@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_21.0': 'Gestion des captures par commandant pour Steam et Heroic, avec attribution fiable et noms de fichiers améliorés.',
+    'release.3_9_21.1': 'Couleurs des statuts de mission plus claires et mise en évidence automatique des destinations atteintes avec un bref clignotement.',
+    'release.3_9_21.2': 'Séparation plus fiable des cargaisons du SRV, du vaisseau et du carrier, avec un meilleur traitement des événements Cargo et MiningRefined.',
+    'release.3_9_21.3': 'Jusqu’à dix instantanés de cargaison par contexte de véhicule et de source, même lorsque la vue minage est fermée.',
+    'release.3_9_21.4': 'La dernière cargaison connue du vaisseau reste visible comme potentiellement périmée et n’entre pas dans les totaux.',
+    'release.3_9_21.5': 'Crayon de modification du carrier jaune doré et curseurs en forme de main uniformes pour les éléments cliquables.',
+
     'release.3_9_20.0': 'NOUVEAU : Consultez les marchés enregistrés indépendamment de votre position actuelle.',
     'release.3_9_20.1': 'NOUVEAU : Listes complètes des marchandises avec prix d’achat et de vente, offre et demande en tonnes.',
     'release.3_9_20.2': 'NOUVEAU : Filtrez les marchés par distance, taille de plateforme et ancienneté des données.',
@@ -534,6 +541,10 @@ TRANSLATIONS = {
     "mining.ship": "Vaisseau",
     "mining.carrier": "Porte-vaisseaux",
     "mining.total": "Total",
+    "mining.stock_confirmed": "Actuellement confirmé",
+    "mining.stock_tracked": "Suivi fiable à partir du stock confirmé",
+    "mining.stock_stale": "Dernière valeur connue, peut-être périmée. Exclue des totaux.",
+    "mining.stock_stale_value": "{value} (périmé)",
     "mining.stock_unknown": "Stock inconnu",
     "mining.heading": "RESSOURCES MINIÈRES",
     "mining.count_summary": "{count} marchandises · Valeurs indicatives",
@@ -2421,3 +2432,5 @@ TRANSLATIONS.update({
     'browse.local': 'Observation locale dans Elite',
     'browse.goods': '{shown} marchandises sur {total}',
 })
+
+TRANSLATIONS["images.identity_wait"] = 'Conversion suspendue : impossible d’associer sans ambiguïté l’instance du jeu, le commandant et la source des captures.'

@@ -38,6 +38,15 @@ Journalmappen för Elite Dangerous hittas automatiskt när det är möjligt. Om 
 
 CMDRHelper söker efter uppdateringar vid start och har en inbyggd uppdateringsfunktion. Bekräfta en erbjuden uppdatering i programmet; den uppdaterar programmet och beroendena och startar om CMDRHelper. Efter den första installationen använder du normalt bara `start.bat` (Windows) eller `bash start.sh` (Linux). Du behöver inte köra `install.bat` eller `install.sh` manuellt igen för vanliga uppdateringar.
 
+## CMDRHelper v3.9.21
+
+- Skärmbildshantering per befälhavare för Steam och Heroic, med tillförlitlig koppling och förbättrade filnamn.
+- Tydligare färger för uppdragsstatus och automatisk markering av nådda uppdragsmål med en kort blinkeffekt.
+- Tillförlitligare åtskillnad mellan last i SRV, skepp och carrier, med förbättrad hantering av Cargo- och MiningRefined-händelser.
+- Upp till tio ögonblicksbilder av lasten per fordons- och källkontext, även när gruvvyn är stängd.
+- Skeppets senast kända last förblir synlig som möjligen inaktuell och räknas inte in i totalsummor.
+- Guldgul redigeringspenna för carrier och enhetliga handpekare för klickbara element.
+
 ## CMDRHelper v3.9.20
 
 - NYTT: Visa sparade marknader oberoende av din nuvarande position.

@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_21.0': 'Gestione delle schermate per comandante su Steam e Heroic, con attribuzione affidabile e nomi dei file migliorati.',
+    'release.3_9_21.1': 'Colori più chiari per gli stati delle missioni ed evidenziazione automatica delle destinazioni raggiunte con un breve lampeggio.',
+    'release.3_9_21.2': 'Separazione più affidabile dei carichi di SRV, nave e carrier, con una migliore gestione degli eventi Cargo e MiningRefined.',
+    'release.3_9_21.3': 'Fino a dieci istantanee del carico per contesto di veicolo e origine, anche quando la vista estrazione è chiusa.',
+    'release.3_9_21.4': 'L’ultimo carico noto della nave resta visibile come potenzialmente obsoleto ed è escluso dai totali.',
+    'release.3_9_21.5': 'Matita di modifica del carrier giallo dorato e cursori a mano uniformi per gli elementi cliccabili.',
+
     'release.3_9_20.0': 'NOVITÀ: Consulta i mercati salvati indipendentemente dalla posizione attuale.',
     'release.3_9_20.1': 'NOVITÀ: Elenchi completi delle merci con prezzi di acquisto e vendita, offerta e domanda in tonnellate.',
     'release.3_9_20.2': 'NOVITÀ: Filtra i mercati per distanza, dimensione della piattaforma e anzianità dei dati.',
@@ -534,6 +541,10 @@ TRANSLATIONS = {
     "mining.ship": "Nave",
     "mining.carrier": "Carrier",
     "mining.total": "Totale",
+    "mining.stock_confirmed": "Attualmente confermato",
+    "mining.stock_tracked": "Aggiornato in modo affidabile da scorte confermate",
+    "mining.stock_stale": "Ultimo valore noto, forse obsoleto. Escluso dai totali.",
+    "mining.stock_stale_value": "{value} (obsoleto)",
     "mining.stock_unknown": "Scorte sconosciute",
     "mining.heading": "RISORSE MINERARIE",
     "mining.count_summary": "{count} merci · Valori indicativi",
@@ -2431,3 +2442,5 @@ TRANSLATIONS.update({
     'browse.local': 'Osservato localmente in Elite',
     'browse.goods': '{shown} di {total} merci',
 })
+
+TRANSLATIONS["images.identity_wait"] = 'Conversione sospesa: impossibile associare in modo univoco istanza del gioco, comandante e origine degli screenshot.'
