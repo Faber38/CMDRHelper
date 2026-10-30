@@ -4,9 +4,9 @@ from pathlib import Path
 import sqlite3
 import math
 
-from PySide6.QtCore import (Qt, QSize, QRect, QTimer, QLocale, QSaveFile, QIODevice,
+from PySide6.QtCore import (Qt, QSize, QRect, QTimer, QLocale, QSaveFile, QIODevice, QEvent,
                            QParallelAnimationGroup, QPropertyAnimation, QEasingCurve)
-from PySide6.QtGui import QIcon, QPixmap, QImageReader
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (QWidget, QDialog, QVBoxLayout, QHBoxLayout, QFormLayout,
     QLabel, QLineEdit, QTextEdit, QPushButton, QComboBox, QListWidgetItem,
     QDialogButtonBox, QFileDialog, QMessageBox, QLayout, QCheckBox, QDoubleSpinBox,
@@ -18,7 +18,9 @@ from cmdrhelper.favorites import (FavoriteStore, TYPES, CATEGORIES, latest_scree
 from cmdrhelper.i18n import tr, get_language
 from cmdrhelper.material_traders import Coordinates
 from cmdrhelper.ui.favorite_image_view import FavoriteImageLabel
-from cmdrhelper.ui.favorite_title_delegate import FavoriteTitleDelegate, FavoritesListWidget, SYSTEM_NAME_ROLE
+from cmdrhelper.ui.favorite_preview_cache import FavoritePreviewCache, preview
+from cmdrhelper.ui.favorite_title_delegate import (FavoriteTitleDelegate, FavoritesListWidget,
+                                                SYSTEM_NAME_ROLE, COPY_CONFIRMED_ROLE)
 from cmdrhelper.ui.favorites_export_dialog import FavoritesExportDialog
 from cmdrhelper.favorites_transfer import (export_package, read_package,
     prepare_import, apply_import, TransferError)
@@ -44,15 +46,8 @@ def stored_coordinates(connection, address, name):
     return coordinates[0] if coordinates and all(c == coordinates[0] for c in coordinates) else None
 
 
-def preview(path, width=600, height=320):
-    if not path:
-        return QPixmap()
-    reader = QImageReader(str(path))
-    reader.setAutoTransform(True)
-    size = reader.size()
-    if size.isValid():
-        reader.setScaledSize(size.scaled(width, height, Qt.KeepAspectRatio))
-    return QPixmap.fromImage(reader.read())
+def image_owner(state):
+    return getattr(state, 'commander_id', None), str(getattr(state, 'commander_fid', '') or '')
 
 
 def location_text(record):
@@ -93,6 +88,8 @@ class FavoriteDialog(QDialog):
     def __init__(self, store, state, record, parent=None):
         super().__init__(parent)
         self.store, self.state = store, state
+        self._preview_cache = getattr(parent, '_preview_cache', None) or FavoritePreviewCache()
+        self._image_owner = image_owner(state)
         self.record = dict(record)  # Frozen values, never a reference to live state.
         self.image_source = None
         self.remove_image = False
@@ -134,14 +131,28 @@ class FavoriteDialog(QDialog):
             self.finished.connect(lambda _: signal.disconnect(self._commander_changed))
 
     def _commander_changed(self, *_):
-        if self.state.commander_id != self.record['commander_id']:
+        if (self.state.commander_id != self.record['commander_id']
+                or image_owner(self.state) != self._image_owner):
             self.reject()
 
+    def _preview(self, path, width=600, height=320):
+        if (self.state.commander_id != self.record['commander_id']
+                or image_owner(self.state) != self._image_owner):
+            return preview(None)
+        return self._preview_cache.get(path, width, height, dpr=self.devicePixelRatioF(),
+                                       owner=self._image_owner, decoder=preview)
+
     def _show_image(self, path):
-        pixmap = preview(path, 560, 200)
+        self._image_path = path
+        pixmap = self._preview(path, 560, 200)
         self.image.setPixmap(pixmap)
         if pixmap.isNull():
             self.image.setText(tr('favorites.no_image'))
+
+    def event(self, event):
+        if event.type() == QEvent.DevicePixelRatioChange and hasattr(self, '_image_path'):
+            QTimer.singleShot(0, lambda: self._show_image(self._image_path))
+        return super().event(event)
 
     def _choose(self):
         filename, _ = QFileDialog.getOpenFileName(self, tr('favorites.choose_image'), '',
@@ -150,7 +161,7 @@ class FavoriteDialog(QDialog):
             self.select_image(Path(filename))
 
     def select_image(self, path):
-        if preview(path).isNull():
+        if self._preview(path).isNull():
             QMessageBox.information(self, tr('favorites.title'), tr('favorites.image_error'))
             return
         self.image_source, self.remove_image = Path(path), False
@@ -175,7 +186,7 @@ class FavoriteDialog(QDialog):
         dialog.setWindowTitle(tr('favorites.confirm_image'))
         layout = QVBoxLayout(dialog)
         layout.addWidget(text_label(path.name + '\n' + date))
-        image = QLabel(); image.setPixmap(preview(path)); layout.addWidget(image)
+        image = QLabel(); image.setPixmap(self._preview(path)); layout.addWidget(image)
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         buttons.button(QDialogButtonBox.Ok).setText(tr('favorites.use_image'))
         buttons.button(QDialogButtonBox.Cancel).setText(tr('planet_nav.cancel'))
@@ -189,7 +200,8 @@ class FavoriteDialog(QDialog):
         self._show_image(None)
 
     def _save(self):
-        if self.state.commander_id != self.record['commander_id']:
+        if (self.state.commander_id != self.record['commander_id']
+                or image_owner(self.state) != self._image_owner):
             QMessageBox.information(self, tr('favorites.title'), tr('favorites.commander_changed'))
             self.reject()
             return
@@ -200,6 +212,9 @@ class FavoriteDialog(QDialog):
         except (OSError, ValueError, sqlite3.Error):
             QMessageBox.warning(self, tr('favorites.title'), tr('favorites.save_error'))
             return
+        old_image = self.record.get('image_path')
+        if old_image and old_image != self.saved['image_path']:
+            self._preview_cache.discard(self._image_owner, self.store.root / old_image)
         self.accept()
 
 
@@ -306,6 +321,9 @@ class FavoritesView(QWidget):
         self._quick_favorite_hotkey = quick_favorite_hotkey
         self._configure_hotkey_callback = configure_hotkey_callback
         self._commander = None
+        self._image_owner = None
+        self._preview_cache = FavoritePreviewCache()
+        self._row_signatures = {}
         self._details = None
         self._favorite_target = None
         root = QVBoxLayout(self)
@@ -417,11 +435,17 @@ class FavoritesView(QWidget):
         super().showEvent(event)
         self.refresh()
         self._refresh_quick_favorite_hint()
+
         if self._location_controller_callback is not None and self._location_controller is None:
             self._location_controller = self._location_controller_callback()
             self._location_controller.changed.connect(self._refresh_location_availability)
             self._location_controller.consumer_acquire("favorites")
         self._refresh_location_availability()
+
+    def event(self, event):
+        if event.type() == QEvent.DevicePixelRatioChange and hasattr(self, 'list'):
+            QTimer.singleShot(0, self.refresh)
+        return super().event(event)
 
     def hideEvent(self, event):
         if self._location_controller is not None:
@@ -455,7 +479,7 @@ class FavoritesView(QWidget):
     def sync_commander(self, *_):
         self._refresh_location_availability()
         current = getattr(self.state,'commander_id',None)
-        if current != self._commander:
+        if current != self._commander or image_owner(self.state) != self._image_owner:
             self.save_location_button.setEnabled(False)
             if self._favorite_target is not None:
                 controller, target = self._favorite_target
@@ -494,11 +518,17 @@ class FavoritesView(QWidget):
 
     def refresh(self, *_):
         self._refresh_quick_favorite_hint()
+        owner = image_owner(self.state)
+        if owner != self._image_owner:
+            if self._details is not None:
+                self._details.close()
+            self.list.clear()
+            self._row_signatures.clear()
+            self._image_owner = owner
         for button in (self.export_button, self.import_button):
             button.setEnabled(bool(getattr(self.state, 'commander_id', None)))
         selected = self.list.currentItem()
         favorite_id = selected.data(Qt.UserRole) if selected else None
-        self.list.clear()
         records = self.store.list(getattr(self.state,'commander_id',None), self.search.text(),
                                   self.kind.currentData(),self.category.currentData())
         reference, distances = self._distances(records)
@@ -506,20 +536,50 @@ class FavoritesView(QWidget):
         self.distance_status.setText(tr('favorites.distance_reference_unknown'))
         self.distance_status.setVisible(enabled and reference is None)
         locale = QLocale(get_language())
+        rows = []
         for record in records:
             distance = distances[record['id']]
             if enabled and distance is not None and distance > self.max_distance.value():
                 continue
             distance_text = ('—' if distance is None else
                              locale.toString(distance, 'f', 1) + ' ' + tr('favorites.distance_unit'))
-            item = QListWidgetItem(record['name']+'\n'+location_text(record)+'\n'+
-                                   tr('favorites.category.'+record['category'])+' · '+distance_text)
-            item.setData(Qt.UserRole,record['id'])
-            item.setData(SYSTEM_NAME_ROLE, route_system(record))
-            pixmap = preview(self.store.image_file(record['image_path']),80,60)
-            if not pixmap.isNull():item.setIcon(QIcon(pixmap))
-            self.list.addItem(item)
-            if record['id'] == favorite_id:self.list.setCurrentItem(item)
+            text = (record['name']+'\n'+location_text(record)+'\n'+
+                    tr('favorites.category.'+record['category'])+' · '+distance_text)
+            # Ownership is re-queried above; path validation precedes every hit.
+            path = self.store.image_file(record['image_path'])
+            dpr = self.devicePixelRatioF()
+            key = self._preview_cache.key(path, 80, 60, dpr=dpr, owner=owner)
+            rows.append((record, text, path, key, dpr))
+        same_order = [self.list.item(i).data(Qt.UserRole) for i in range(self.list.count())] == [r[0]['id'] for r in rows]
+        blocked = self.list.blockSignals(True)
+        try:
+            # Preserve refresh's existing copy-feedback reset without destroying rows.
+            if same_order and self.list._copy_timers:
+                self.list._clear_copy_confirmations()
+                for index in range(self.list.count()):
+                    self.list.item(index).setData(COPY_CONFIRMED_ROLE, False)
+            if not same_order:
+                self.list.clear()
+                self._row_signatures.clear()
+            for index, (record, text, path, key, dpr) in enumerate(rows):
+                item = self.list.item(index) if same_order else QListWidgetItem()
+                signature = text, route_system(record), key
+                if self._row_signatures.get(record['id']) != signature:
+                    item.setText(text)
+                    item.setData(Qt.UserRole, record['id'])
+                    item.setData(SYSTEM_NAME_ROLE, route_system(record))
+                    pixmap = self._preview_cache.get(path, 80, 60, dpr=dpr, owner=owner, decoder=preview)
+                    item.setIcon(QIcon(pixmap))  # Also clears deleted/invalid images.
+                    if key is None or not pixmap.isNull():
+                        self._row_signatures[record['id']] = signature
+                    else:
+                        self._row_signatures.pop(record['id'], None)
+                if not same_order:
+                    self.list.addItem(item)
+                    if record['id'] == favorite_id:
+                        self.list.setCurrentItem(item)
+        finally:
+            self.list.blockSignals(blocked)
         self.empty.setVisible(self.list.count()==0)
         self._selection_changed()
 
@@ -640,7 +700,13 @@ class FavoritesView(QWidget):
 
     def edit_record(self, record):
         dialog = FavoriteDialog(self.store,self.state,record,self)
-        if dialog.exec() == QDialog.Accepted:self.refresh()
+        try:
+            if dialog.exec() == QDialog.Accepted:self.refresh()
+        finally:
+            # Closed dialogs must not pin evicted cache pixels through labels.
+            for label in dialog.findChildren(QLabel):
+                if not label.pixmap().isNull():
+                    label.clear()
 
     def _base(self, kind):
         if not getattr(self.state,'commander_id',None) or not getattr(self.state,'system',None):
@@ -690,7 +756,9 @@ class FavoritesView(QWidget):
         cancel=box.addButton(tr('planet_nav.cancel'),QMessageBox.RejectRole); box.setDefaultButton(cancel)
         box.exec()
         if box.clickedButton()==yes and self.state.commander_id==record['commander_id']:
-            try:self.store.delete(record['commander_id'],record['id'])
+            try:
+                self.store.delete(record['commander_id'],record['id'])
+                self._preview_cache.discard(image_owner(self.state), self.store.root / record['image_path'])
             except (OSError,ValueError,sqlite3.Error):
                 QMessageBox.warning(self,tr('favorites.title'),tr('favorites.save_error'))
             self.refresh()
@@ -704,7 +772,9 @@ class FavoritesView(QWidget):
         layout.addWidget(text_label(tr('favorites.category.'+record['category'])))
         note=QTextEdit(); note.setReadOnly(True); note.setPlainText(record['note']); layout.addWidget(note)
         image_path = self.store.image_file(record['image_path'])
-        image=FavoriteImageLabel(image_path); pixmap=preview(image_path)
+        image=FavoriteImageLabel(image_path)
+        pixmap=self._preview_cache.get(image_path, dpr=self.devicePixelRatioF(),
+                                       owner=image_owner(self.state), decoder=preview)
         if pixmap.isNull():image.setText(tr('favorites.no_image'))
         else:image.setPixmap(pixmap)
         layout.addWidget(image)
@@ -716,7 +786,11 @@ class FavoritesView(QWidget):
             target=QPushButton(tr('favorites.navigate'), objectName='favoriteNavigate'); layout.addWidget(target)
             target.setToolTip(tr('favorites.coordinates_tooltip'))
             target.clicked.connect(lambda:self._navigate(record))
-        dialog.exec(); self._details=None
+        try:
+            dialog.exec()
+        finally:
+            self._details=None
+            image.clear()
 
     def _navigate(self, record):
         if self.state.commander_id!=record['commander_id']:return

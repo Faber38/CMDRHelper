@@ -38,6 +38,15 @@ Folder dzienników Elite Dangerous jest wykrywany automatycznie, jeśli to możl
 
 CMDRHelper sprawdza aktualizacje przy uruchomieniu i ma wbudowany mechanizm aktualizacji. Potwierdź proponowaną aktualizację w aplikacji; zaktualizuje ona program i zależności oraz uruchomi CMDRHelper ponownie. Po pierwszej instalacji zwykle wystarczy używać `start.bat` (Windows) lub `bash start.sh` (Linux). Przy zwykłych aktualizacjach nie trzeba ponownie ręcznie uruchamiać `install.bat` ani `install.sh`.
 
+## CMDRHelper v3.9.22
+
+- Szybsze widoki dzięki pamięci podręcznej źródeł dzienników, obrazów ulubionych i grafik planet.
+- Same skoki nie uruchamiają już zbędnego odtwarzania stanów magazynowych; powtarzające się historyczne ostrzeżenia o materiałach są grupowane.
+- Nowe pozycje w systemach i sprawdzanie statusu EDSM nie czekają już na powolne wysyłanie danych.
+- Stabilniejsza obsługa kursora podczas zamykania i ponownego tworzenia okien.
+- Odległości 20 i 30 Ly są dostępne w czterech widokach handlowych; wartość domyślna pozostaje 100 Ly.
+- Widok rynku może filtrować towary według potwierdzonego ładunku statku. Filtr jest wyraźnie wstrzymywany, gdy stan ładunku jest nieznany lub nieaktualny.
+
 ## CMDRHelper v3.9.21
 
 - Zarządzanie zrzutami ekranu według dowódcy dla Steam i Heroic, z wiarygodnym przypisaniem i ulepszonymi nazwami plików.

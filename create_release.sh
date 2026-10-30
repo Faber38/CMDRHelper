@@ -33,9 +33,61 @@ done
 [[ ! -L "$RELEASE_DIR" && ( ! -e "$RELEASE_DIR" || -d "$RELEASE_DIR" ) ]] || fail "Ungültiges Release-Ziel: $RELEASE_DIR"
 [[ ! -L "$ARCHIVE" && ( ! -e "$ARCHIVE" || -f "$ARCHIVE" ) ]] || fail "Ungültiges ZIP-Ziel: $ARCHIVE"
 
-# This authoring source is not an application asset.
+# Exact program-package exclusions only: originals stay in Git/source archives.
+# The 50 docs paths below are the reviewed v3.9.22 development-report exclusions.
+# Do not use globs: licenses, current docs and future release notes must survive.
 excluded=(
     cmdrhelper/assets/readme/cmdrhelper_readme_master.png
+    docs/cursor-lifetime-fix.md
+    docs/edsm-publication.md
+    docs/github-release.md
+    docs/icons/CMDRHelper.png
+    docs/inventory-invalidation.md
+    docs/market-migration.md
+    docs/market-store.md
+    docs/market-transition.md
+    docs/observed-market-cache.md
+    docs/recommendations-market-store.md
+    docs/release-3.4.1.md
+    docs/release-3.4.3.md
+    docs/release-3.4.4.md
+    docs/release-3.4.5.md
+    docs/release-3.4.6.md
+    docs/release-3.5.md
+    docs/release-3.6.1.md
+    docs/release-3.6.2.md
+    docs/release-3.6.md
+    docs/release-3.7.0.md
+    docs/release-3.7.8.md
+    docs/release-3.8.0.md
+    docs/release-3.8.2.md
+    docs/release-3.8.3.md
+    docs/release-3.9.0.md
+    docs/release-3.9.1.md
+    docs/release-3.9.10.md
+    docs/release-3.9.11.md
+    docs/release-3.9.12.md
+    docs/release-3.9.13.md
+    docs/release-3.9.14.md
+    docs/release-3.9.15.md
+    docs/release-3.9.16.md
+    docs/release-3.9.17.md
+    docs/release-3.9.18.md
+    docs/release-3.9.19.md
+    docs/release-3.9.2.md
+    docs/release-3.9.20.md
+    docs/release-3.9.21.md
+    docs/release-3.9.3.md
+    docs/release-3.9.4.md
+    docs/release-3.9.5.md
+    docs/release-3.9.6.5.md
+    docs/release-3.9.6.6.md
+    docs/release-3.9.6.7.md
+    docs/release-3.9.8.md
+    docs/release-3.9.9.md
+    docs/trade-local-integration.md
+    docs/trade-market-store.md
+    docs/update-summary.md
 )
 
 mkdir -p -- "$RELEASE_ROOT"

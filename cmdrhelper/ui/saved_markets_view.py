@@ -13,6 +13,7 @@ from cmdrhelper.commodity_localization import commodity_name
 from cmdrhelper.commodity_master import lookup_by_id, lookup_by_symbol
 from cmdrhelper.i18n import get_language, tr
 from cmdrhelper.mining_catalog import MINING_COMMODITIES
+from cmdrhelper.ship_cargo import current_ship_inventory
 from cmdrhelper.observed_market_cache import timestamp, utcnow
 from cmdrhelper.saved_markets import (ReadCancelled, read_market, read_markets,
                                      read_reference, source_from_state)
@@ -73,6 +74,7 @@ class BrowseProxy(QSortFilterProxyModel):
         super().__init__(parent)
         self.market = market
         self.search, self.radius, self.pad, self.age, self.mining = '', 0, '', None, False
+        self.cargo_ids = None  # None: inactive/paused; empty set: confirmed empty.
         self.now = utcnow()
         self.setDynamicSortFilter(True)
 
@@ -90,7 +92,8 @@ class BrowseProxy(QSortFilterProxyModel):
         if self.search and self.search not in item['search']:
             return False
         if not self.market:
-            return not self.mining or item['mining']
+            return ((not self.mining or item['mining'])
+                    and (self.cargo_ids is None or item.get('commodity_id') in self.cargo_ids))
         if self.radius and (item['distance'] is None or item['distance'] > self.radius):
             return False
         if self.pad and item['pad'] != self.pad:
@@ -215,7 +218,17 @@ class SavedMarketsView(QWidget):
         self.goods_search.setAccessibleName(tr('browse.goods_search'))
         right_layout.addWidget(self.goods_search)
         self.mining_only = QCheckBox(tr('browse.mining'))
-        right_layout.addWidget(self.mining_only)
+        self.cargo_only = QCheckBox(tr('browse.cargo_only'))
+        goods_filters = QHBoxLayout()
+        goods_filters.addWidget(self.mining_only)
+        goods_filters.addWidget(self.cargo_only)
+        goods_filters.addStretch()
+        right_layout.addLayout(goods_filters)
+        self.cargo_notice = QLabel()
+        self.cargo_notice.setTextFormat(Qt.PlainText)
+        self.cargo_notice.setWordWrap(True)
+        self.cargo_notice.hide()
+        right_layout.addWidget(self.cargo_notice)
         self.goods_model = BrowseModel(('browse.commodity', 'browse.buy', 'browse.sell',
                                        'browse.supply', 'browse.demand'), self)
         self.goods_proxy = BrowseProxy(parent=self)
@@ -234,6 +247,12 @@ class SavedMarketsView(QWidget):
         self.age.currentIndexChanged.connect(self.filter_markets)
         self.goods_search.textChanged.connect(self.filter_goods)
         self.mining_only.toggled.connect(self.filter_goods)
+        self.cargo_only.toggled.connect(self.filter_goods)
+        for name in ('cargoSnapshotChanged', 'changed', 'commanderIdentityChanged',
+                     'viewedCommanderChanged', 'shipLoadoutChanged'):
+            signal = getattr(state, name, None)
+            if signal is not None:
+                signal.connect(self._cargo_changed)
         self.apply_reference.clicked.connect(self.change_reference)
         self.reference.returnPressed.connect(self.change_reference)
         self.refresh_button.clicked.connect(self.reload)
@@ -271,6 +290,7 @@ class SavedMarketsView(QWidget):
 
     def showEvent(self, event):
         super().showEvent(event)
+        self.filter_goods()
         if not self._manual_reference:
             name = str(getattr(self.state, 'system', '') or '').strip('– ')
             self._reference_name = name
@@ -498,13 +518,47 @@ class SavedMarketsView(QWidget):
             display = (name, *(quantity_text(v, locale) for v in values[1:]))
             symbol = master.symbol if master else item['symbol']
             rows.append(dict(values=values, display=display,
+                commodity_id=master.frontier_id if master else item.get('commodity_id'),
                 search=f'{name} {symbol}'.casefold(), mining=symbol.casefold() in MINING))
         self.goods_model.replace(rows)
         self.filter_goods()
+
+    def _cargo_changed(self, *_):
+        if self.cargo_only.isChecked():
+            self.filter_goods()
+
+    def _cargo_filter(self):
+        if not self.cargo_only.isChecked():
+            return None, ''
+        state = self.state
+        viewed = getattr(state, 'viewed_commander_id', None)
+        if ((viewed is not None and viewed != getattr(state, 'commander_id', None))
+                or (getattr(state, 'sources', None) is not None
+                    and not getattr(state, '_source_live_context', False))):
+            return None, tr('browse.cargo_unavailable')
+        # Revalidate in memory, not the signal payload (which may be SRV cargo)
+        # or a cached ship_inventory still awaiting the end of a state refresh.
+        snapshot = current_ship_inventory(state)
+        if snapshot is None:
+            return None, tr('browse.cargo_unavailable')
+        ids = set()
+        for row in snapshot['inventory']:
+            if row['count'] <= 0:
+                continue
+            master = lookup_by_symbol(row['frontier_name'])
+            if master is None:
+                # Never guess from translated names or silently drop an unknown
+                # positive stock. Retain the user's choice, visibly paused.
+                return None, tr('browse.cargo_identity_unknown')
+            ids.add(master.frontier_id)
+        return ids, tr('browse.cargo_empty') if not ids else ''
 
     @Slot()
     def filter_goods(self):
         self.goods_proxy.search = self.goods_search.text().strip().casefold()
         self.goods_proxy.mining = self.mining_only.isChecked()
+        self.goods_proxy.cargo_ids, notice = self._cargo_filter()
+        self.cargo_notice.setText(notice)
+        self.cargo_notice.setVisible(bool(notice))
         self.goods_proxy.invalidateFilter()
         self.goods_status.setText(tr('browse.goods', shown=self.goods_proxy.rowCount(), total=len(self.goods_model.rows)))

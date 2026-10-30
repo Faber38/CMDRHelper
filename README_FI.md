@@ -38,6 +38,15 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.22
+
+- Nopeammat näkymät lokilähteiden, suosikkikuvien ja planeettagrafiikan välimuistin avulla.
+- Pelkkä hyppy ei enää käynnistä tarpeetonta varastojen uudelleenlaskentaa; toistuvat vanhoja materiaalitapahtumia koskevat varoitukset kootaan yhteen.
+- Uudet järjestelmäsijainnit ja EDSM-tilan tarkistukset eivät enää odota hitaita lähetyksiä.
+- Vakaampi osoittimen käsittely ikkunoita suljettaessa tai luotaessa uudelleen.
+- 20 ja 30 Ly ovat nyt valittavissa neljässä kaupankäyntinäkymässä; oletusarvo on edelleen 100 Ly.
+- Markkinanäkymän voi suodattaa vahvistetun aluslastin mukaan. Suodatin keskeytetään näkyvästi, jos lastitiedot ovat tuntemattomia tai vanhentuneita.
+
 ## CMDRHelper v3.9.21
 
 - Komentajakohtainen kuvakaappausten hallinta Steamille ja Heroicille, luotettava kohdistus ja parannetut tiedostonimet.

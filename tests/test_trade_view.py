@@ -233,7 +233,7 @@ class TradeViewTests(unittest.TestCase):
         self.assertEqual(self.provider.queries[0].minimum_quantity, 22)
 
     def test_all_radius_options(self):
-        for index, radius in enumerate((25, 50, 100, 250, 500)):
+        for index, radius in enumerate((20, 25, 30, 50, 100, 250, 500)):
             self.view.radius.setCurrentIndex(index)
             self.search()
             self.assertEqual(self.provider.queries[-1].radius_ly, radius)

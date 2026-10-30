@@ -11,7 +11,60 @@ ROOT = Path(__file__).resolve().parents[1]
 REQUIRED = ['main.py', 'requirements.txt', 'LICENSE', 'README.md'] + [
     f'README_{lang}.md' for lang in 'DE FR IT NO SV FI PL NL ES TR EL'.split()
 ] + ['install.sh', 'start.sh', 'install.bat', 'install-windows.ps1', 'start.bat']
-EXCLUDED = ['cmdrhelper/assets/readme/cmdrhelper_readme_master.png']
+# Frozen review set, independent of how create_release.sh implements exclusions.
+DOC_EXCLUSIONS = [
+    'docs/cursor-lifetime-fix.md',
+    'docs/edsm-publication.md',
+    'docs/github-release.md',
+    'docs/icons/CMDRHelper.png',
+    'docs/inventory-invalidation.md',
+    'docs/market-migration.md',
+    'docs/market-store.md',
+    'docs/market-transition.md',
+    'docs/observed-market-cache.md',
+    'docs/recommendations-market-store.md',
+    'docs/release-3.4.1.md',
+    'docs/release-3.4.3.md',
+    'docs/release-3.4.4.md',
+    'docs/release-3.4.5.md',
+    'docs/release-3.4.6.md',
+    'docs/release-3.5.md',
+    'docs/release-3.6.1.md',
+    'docs/release-3.6.2.md',
+    'docs/release-3.6.md',
+    'docs/release-3.7.0.md',
+    'docs/release-3.7.8.md',
+    'docs/release-3.8.0.md',
+    'docs/release-3.8.2.md',
+    'docs/release-3.8.3.md',
+    'docs/release-3.9.0.md',
+    'docs/release-3.9.1.md',
+    'docs/release-3.9.10.md',
+    'docs/release-3.9.11.md',
+    'docs/release-3.9.12.md',
+    'docs/release-3.9.13.md',
+    'docs/release-3.9.14.md',
+    'docs/release-3.9.15.md',
+    'docs/release-3.9.16.md',
+    'docs/release-3.9.17.md',
+    'docs/release-3.9.18.md',
+    'docs/release-3.9.19.md',
+    'docs/release-3.9.2.md',
+    'docs/release-3.9.20.md',
+    'docs/release-3.9.21.md',
+    'docs/release-3.9.3.md',
+    'docs/release-3.9.4.md',
+    'docs/release-3.9.5.md',
+    'docs/release-3.9.6.5.md',
+    'docs/release-3.9.6.6.md',
+    'docs/release-3.9.6.7.md',
+    'docs/release-3.9.8.md',
+    'docs/release-3.9.9.md',
+    'docs/trade-local-integration.md',
+    'docs/trade-market-store.md',
+    'docs/update-summary.md',
+]
+EXCLUDED = ['cmdrhelper/assets/readme/cmdrhelper_readme_master.png', *DOC_EXCLUSIONS]
 
 
 @unittest.skipUnless(all(shutil.which(t) for t in ('bash', 'zip', 'unzip')), 'requires bash/zip/unzip')
@@ -91,6 +144,37 @@ class ReleasePackagingTests(unittest.TestCase):
             self.assertTrue((self.root / name).exists())
         self.assertEqual((self.root / 'data/favorites/images/private.png').read_text(), 'personal source unchanged')
         self.assertEqual((target / 'data/.gitkeep').read_bytes(), b'')
+
+    def test_documentation_exclusions_are_exact_and_preserve_sources(self):
+        self.assertEqual(len(set(DOC_EXCLUSIONS)), 50)
+        keep = [
+            'docs/licenses/Apache-2.0.txt',
+            'docs/licenses/commodity-localization-NOTICE.txt',
+            'docs/odyssey-catalog-licenses.md',
+            'docs/commodity-localization-sources.csv',
+            'docs/release-3.7.5.md', 'docs/release-3.9.22.md',
+            'docs/release-3.9.23.md', 'docs/material-inventory.md',
+            'docs/icons/another.png', 'docs/icons/CMDRHelper-extra.png',
+            'docs/other/release-3.9.21.md',
+            'cmdrhelper/assets/readme/cmdrhelper_readme_de.png',
+            'cmdrhelper/assets/bodies/star.webm',
+        ]
+        originals = {}
+        for name in DOC_EXCLUSIONS + keep:
+            originals[name] = self.write(name, 'unique content: ' + name).read_bytes()
+        result = self.run_script()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        expected = set(REQUIRED + keep + [
+            'cmdrhelper/version.py', 'cmdrhelper/__init__.py', 'data/.gitkeep'])
+        with zipfile.ZipFile(self.root / 'release/CMDRHelper_v3.0.zip') as archive:
+            self.assertIsNone(archive.testzip())
+            files = {n.removeprefix('CMDRHelper_v3.0/')
+                     for n in archive.namelist() if not n.endswith('/')}
+            self.assertEqual(files, expected)
+            for name in keep:
+                self.assertEqual(archive.read('CMDRHelper_v3.0/' + name), originals[name])
+        for name, content in originals.items():
+            self.assertEqual((self.root / name).read_bytes(), content)
 
     def test_unexpected_data_reports_path_and_preserves_releases(self):
         for name in ['cmdrhelper/private.db', 'docs/private.sqlite', 'docs/private.sqlite3-wal',

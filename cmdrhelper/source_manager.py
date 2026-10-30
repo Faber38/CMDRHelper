@@ -29,6 +29,7 @@ class SourceRuntime:
 class SourceManager(QObject):
     changed = Signal()
     finished = Signal(object, int, object, str)
+    ingested = Signal(object, int, object)
     edsmUploadChanged = Signal(object, int, str, object)
 
     def __init__(self, state):
@@ -48,6 +49,8 @@ class SourceManager(QObject):
         self.runtimes = {}
         self.queue = []
         self.running = False
+        self._ingesting = False
+        self._local_published = False
         self._startup_started = False
         self.manual_requested = False
         self.manual_pending = None
@@ -63,6 +66,7 @@ class SourceManager(QObject):
         if saved_fid:
             matching = [c for c in state.database.list_commanders() if c['fid'] == saved_fid]
             state.viewed_commander_id = matching[0]['id'] if len(matching) == 1 else None
+        self.ingested.connect(self._ingested, Qt.QueuedConnection)
         self.finished.connect(self._finished, Qt.QueuedConnection)
         self.edsmUploadChanged.connect(self._edsm_upload_changed, Qt.QueuedConnection)
         self.timer = QTimer(self)
@@ -79,6 +83,7 @@ class SourceManager(QObject):
 
     def stop(self):
         self.timer.stop()
+        self.state.journalPositionsReady.emit([], "")
         for runtime in self.runtimes.values():
             runtime.watcher.stop()
             for observer in runtime.watcher.live_observers:
@@ -97,6 +102,7 @@ class SourceManager(QObject):
                 from .edsm_upload_status import retire_source
                 retire_source(self.state, (identity, runtime.generation))
                 if self.projected_source == identity:
+                    self.state.journalPositionsReady.emit([], "")
                     self._clear_market_observer()
         for identity, source in enabled.items():
             if identity in self.runtimes:
@@ -169,6 +175,8 @@ class SourceManager(QObject):
             if runtime is None:
                 continue
             self.running = True
+            self._ingesting = True
+            self._local_published = False
             runtime.source.status = 'reading'
             initial = not getattr(self.state, '_startup_completed', False)
             if initial and not self._startup_started:
@@ -204,6 +212,9 @@ class SourceManager(QObject):
                     rows = rt.processor.process(cancel=self.state._startup_cancel, enqueue_fids=allowed,
                                                 progress=progress if report_startup else None)
                     rt.live_events = list(rt.processor.context.get('applied_events', [])) if was_initialized else []
+                    # The processor has committed and completed its verified
+                    # projection. Upload completion is not a publication barrier.
+                    self.ingested.emit(rt.source.id, rt.generation, rows)
                     from .source_transfers import transfer
                     current = lambda: (not self.state._startup_cancel.is_set()
                         and self.runtimes.get(rt.source.id) is rt and rt.source.enabled)
@@ -242,33 +253,20 @@ class SourceManager(QObject):
         from .edsm_upload_status import observe
         observe(self.state, fid, (identity, generation), result)
 
-    def _finished(self, identity, generation, rows, error):
-        self.running = False
-        if self.state._startup_cancel.is_set():
-            return
+    def _ingested(self, identity, generation, rows):
         runtime = self.runtimes.get(identity)
-        if self.manual_pending is not None and identity in self.manual_pending:
-            self.manual_pending.discard(identity)
-            if error:
-                self.manual_errors.append(error)
-            self.state.databaseImportProgress.emit(self.manual_total - len(self.manual_pending),
-                self.manual_total, runtime.source.name if runtime else '')
+        if (self.state._startup_cancel.is_set() or runtime is None
+                or runtime.generation != generation):
+            return
+        self._ingesting = False
+        self._local_published = True
+        self._publish_local(identity, generation, rows, '')
+
+    def _publish_local(self, identity, generation, rows, error):
+        inventory_changed = False
+        runtime = self.runtimes.get(identity)
         if runtime is not None and runtime.generation == generation:
             source = runtime.source
-            if (error and not getattr(self.state, '_startup_completed', False)
-                    and not getattr(self.state, '_initialization_error', '')):
-                # Retain the first initial failure even if a watcher retry succeeds.
-                self.state._initialization_error = source.name + ': ' + str(error)
-            for (fid, service), result in runtime.transfer_results.items():
-                if service == 'edsm':
-                    continue  # Progress/results arrive through edsmUploadChanged.
-                failed = result.get('error') if isinstance(result, dict) else bool(result[1])
-                message = str(failed or '')
-                cache = getattr(self.state, '_'+service+'_runtime_by_fid')
-                cache[fid] = ('error' if failed else 'ok', message)
-                if self.state.commander_fid == fid:
-                    setattr(self.state, service+'_upload_status', cache[fid][0])
-                    setattr(self.state, service+'_upload_message', cache[fid][1])
             source.status = 'unreachable' if not Path(source.path).is_dir() else 'error' if error else 'ready'
             if rows is not None:
                 source.identities = sorted({(r['fid_seen'], r.get('commander_name_seen') or '')
@@ -291,18 +289,56 @@ class SourceManager(QObject):
                     for name in context['tracked'] if name in context['baseline']}
                 runtime.watcher._catchup_requested = False
             runtime.watcher.refresh_finished(not error)
+            from .inventory_invalidation import KINDS
+            kinds = runtime.processor.inventory_kinds
+            for kind in KINDS if kinds is None else kinds:
+                self.state._inventory_revisions[kind] += 1
+                inventory_changed = True
             if not error:
                 self.state.database._bio_predictor_cache = None
                 self.state.database._bio_predictor_revision = None
-                for kind in self.state._inventory_revisions:
-                    self.state._inventory_revisions[kind] += 1
-                self.state.inventoryChanged.emit()
                 self.state._notify_mining_sales(
                     [event for _, _, event in runtime.live_events],
                     sessions=rows or [], source_key=identity)
         self.choose()
         self.refresh_selected()
+        if inventory_changed:
+            self.state.inventoryChanged.emit()
         self.state.changed.emit()
+
+    def _finished(self, identity, generation, rows, error):
+        self.running = False
+        self._ingesting = False
+        if self.state._startup_cancel.is_set():
+            return
+        runtime = self.runtimes.get(identity)
+        if self.manual_pending is not None and identity in self.manual_pending:
+            self.manual_pending.discard(identity)
+            if error:
+                self.manual_errors.append(error)
+            self.state.databaseImportProgress.emit(self.manual_total - len(self.manual_pending),
+                self.manual_total, runtime.source.name if runtime else '')
+        if runtime is not None and runtime.generation == generation:
+            if (error and not getattr(self.state, '_startup_completed', False)
+                    and not getattr(self.state, '_initialization_error', '')):
+                # Retain the first initial failure even if a watcher retry succeeds.
+                self.state._initialization_error = runtime.source.name + ': ' + str(error)
+            for (fid, service), result in runtime.transfer_results.items():
+                if service == 'edsm':
+                    continue  # Progress/results arrive through edsmUploadChanged.
+                failed = result.get('error') if isinstance(result, dict) else bool(result[1])
+                message = str(failed or '')
+                cache = getattr(self.state, '_'+service+'_runtime_by_fid')
+                cache[fid] = ('error' if failed else 'ok', message)
+                if self.state.commander_fid == fid:
+                    setattr(self.state, service+'_upload_status', cache[fid][0])
+                    setattr(self.state, service+'_upload_message', cache[fid][1])
+        if not self._local_published:
+            self._publish_local(identity, generation, rows, error)
+        else:
+            # Transfer status is independent of the already published local batch.
+            # Do not replay its events or increment inventory revisions again.
+            self.state.changed.emit()
         self.changed.emit()
         self._next()
 
@@ -354,7 +390,11 @@ class SourceManager(QObject):
 
     def refresh_selected(self):
         state = self.state
-        if self.running or self.projecting or state._startup_cancel.is_set():
+        if self._ingesting or self.projecting or state._startup_cancel.is_set():
+            if self._ingesting and state.viewed_commander_id != state.commander_id:
+                # A user selection must retire the previous commander's status
+                # even while the new local projection is still unavailable.
+                state.journalPositionsReady.emit([], "")
             return False
         cid = state.viewed_commander_id
         summary = state.database.commander_summary(cid) if cid is not None else None
@@ -375,6 +415,7 @@ class SourceManager(QObject):
             if state.commander_id != cid or self.projected_source is not None:
                 state._invalidate_inara_worker()
                 state._invalidate_edsm_worker()
+                state.journalPositionsReady.emit([], "")
                 state.reset_commander_runtime_state()
                 self.projected_source = None
                 self.projection_key = None
@@ -421,6 +462,7 @@ class SourceManager(QObject):
         if self.projected_source != runtime.source.id:
             state._invalidate_inara_worker()
             state._invalidate_edsm_worker()
+            state.journalPositionsReady.emit([], "")
             state.reset_commander_runtime_state()
         self.projected_source = runtime.source.id
         self.preferred_source = runtime.source.id

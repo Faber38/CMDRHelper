@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_22.0': 'Nopeammat näkymät lokilähteiden, suosikkikuvien ja planeettagrafiikan välimuistin avulla.',
+    'release.3_9_22.1': 'Pelkkä hyppy ei enää käynnistä tarpeetonta varastojen uudelleenlaskentaa; toistuvat vanhoja materiaalitapahtumia koskevat varoitukset kootaan yhteen.',
+    'release.3_9_22.2': 'Uudet järjestelmäsijainnit ja EDSM-tilan tarkistukset eivät enää odota hitaita lähetyksiä.',
+    'release.3_9_22.3': 'Vakaampi osoittimen käsittely ikkunoita suljettaessa tai luotaessa uudelleen.',
+    'release.3_9_22.4': '20 ja 30 Ly ovat nyt valittavissa neljässä kaupankäyntinäkymässä; oletusarvo on edelleen 100 Ly.',
+    'release.3_9_22.5': 'Markkinanäkymän voi suodattaa vahvistetun aluslastin mukaan. Suodatin keskeytetään näkyvästi, jos lastitiedot ovat tuntemattomia tai vanhentuneita.',
     'release.3_9_21.0': 'Komentajakohtainen kuvakaappausten hallinta Steamille ja Heroicille, luotettava kohdistus ja parannetut tiedostonimet.',
     'release.3_9_21.1': 'Selkeämmät tehtävien tilavärit ja saavutettujen tehtäväkohteiden automaattinen korostus lyhyellä vilkutuksella.',
     'release.3_9_21.2': 'SRV:n, aluksen ja carrierin lastit pysyvät luotettavammin erillään, ja Cargo- sekä MiningRefined-tapahtumien käsittelyä on parannettu.',
@@ -2321,3 +2327,11 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS["images.identity_wait"] = 'Muunnos keskeytetty: peli-istuntoa, komentajaa ja kuvakaappausten lähdettä ei voida yhdistää yksiselitteisesti.'
+
+# Confirmed ship cargo filter in the saved market browser.
+TRANSLATIONS.update({
+    'browse.cargo_only': 'Vain lastiruumassa olevat tavarat',
+    'browse.cargo_unavailable': 'Lastisuodatin on tauolla: Aluksen nykyistä varastoa ei ole vahvistettu.',
+    'browse.cargo_empty': 'Aluksen lastiruuma on vahvistettu tyhjäksi.',
+    'browse.cargo_identity_unknown': 'Lastisuodatin on tauolla: Kaikkia tavaroita ei voida tunnistaa yksiselitteisesti.',
+})

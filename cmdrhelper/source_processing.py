@@ -15,6 +15,8 @@ class SourceProcessor:
         self.sessions = []
         self.initialized = False
         self._projection = None
+        self.inventory_kinds = None
+        self._inventory_retry = False
 
     @staticmethod
     def _projection_key(rows):
@@ -39,6 +41,13 @@ class SourceProcessor:
         return data
 
     def process(self, *, cancel=None, enqueue_fids=(), progress=None):
+        from .inventory_invalidation import KINDS, batch_kinds
+        previous_sessions = deepcopy(self.sessions)
+        full_inventory = not self.initialized or self._inventory_retry
+        # A failure can follow committed files. Keep recovery conservative even
+        # when the retry has no new applied_events for those committed bytes.
+        self._inventory_retry = True
+        self.inventory_kinds = set(KINDS)
         # Never publish a previous result after a partial read or failed commit.
         self._projection = None
         projection = None
@@ -151,4 +160,8 @@ class SourceProcessor:
                 learn(self.database, self.path, cid, kinds, self.sessions)
         self.context['current'] = self.sessions[-1]['journal_file'] if self.sessions else None
         self._projection = projection
+        self.inventory_kinds = batch_kinds(previous_sessions, self.sessions,
+            self.context.get('applied_events', []), full=full_inventory,
+            indexed=load_sessions(self.database) if not full_inventory else None)
+        self._inventory_retry = False
         return self.sessions

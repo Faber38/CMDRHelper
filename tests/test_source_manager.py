@@ -81,6 +81,41 @@ class ManagerTests(unittest.TestCase):
             self.assertTrue(MaterialInventoryReader().reconstruct(commander['id'], commander['fid'], rows).known)
         self.assertEqual(int(self.settings.value('commander_view/viewed_commander_id')), state.viewed_commander_id)
 
+    def test_source_panel_cache_follows_real_batches_and_commander_switch(self):
+        from cmdrhelper.ui.journal_sources import JournalSourcesPanel, source_statistics
+        panel = JournalSourcesPanel(self.state.sources)
+        self.addCleanup(panel.close)
+        panel.show()
+        self.app.processEvents()
+        manager = self.state.sources
+        source = manager.registry.sources[0]
+        runtime = manager.runtimes[source.id]
+        notifications = []
+        manager.changed.connect(lambda: notifications.append(source.status))
+        with patch('cmdrhelper.ui.journal_sources.source_statistics', wraps=source_statistics) as stats:
+            panel.hide()
+            newer = Path(source.path)/'Journal.2026-09-14T140000.01.log'
+            append(newer, event('Commander', FID='TEST-'+source.name, Name=source.name),
+                   event('Location', StarSystem='Panel update', SystemAddress=99))
+            runtime.watcher.check_now()
+            self.drain()
+            self.assertEqual(notifications, ['reading', 'ready'])
+            stats.assert_not_called()
+            self.assertEqual(len(runtime.processor.sessions), 2)
+            panel.show()
+            self.assertEqual(stats.call_count, 1)
+            self.assertEqual(panel.statistics['count'].text(), '2')
+            self.assertEqual(panel.statistics['newest_name'].text(), newer.name)
+            self.assertEqual(panel.statistics['last_read'].text(),
+                             runtime.processor.sessions[-1]['last_event_at'])
+            for commander in self.db.list_commanders():
+                self.state.select_viewed_commander(commander['id'])
+            panel.refresh_visible()
+            self.assertEqual(panel.selected_id(), source.id)
+            self.assertEqual(panel.statistics['count'].text(), '2')
+            # Commander projections do not change source-local diagnostics.
+            self.assertEqual(stats.call_count, 1)
+
     def test_screenshot_context_uses_playing_source_not_view_projection(self):
         from cmdrhelper.screenshot_sources import live_context
         runtimes = list(self.state.sources.runtimes.values())
@@ -304,6 +339,7 @@ class ManagerTests(unittest.TestCase):
         for lang in i18n._TRANSLATIONS:
             i18n.set_language(lang)
             panel = JournalSourcesPanel(self.state.sources)
+            panel.show()
             self.assertEqual(panel.items.count(), 2)
             self.assertFalse(i18n.tr('sources.title').startswith('sources.'))
             panel.deleteLater()
@@ -320,6 +356,7 @@ class ManagerTests(unittest.TestCase):
         before = [(r['journal_file'], r['last_read_offset']) for r in load_sessions(self.db)]
         panel = JournalSourcesPanel(manager)
         self.addCleanup(panel.close)
+        panel.show()
         for index in range(panel.items.count()):
             if panel.items.item(index).data(Qt.UserRole) == runtime.source.id:
                 panel.items.setCurrentRow(index)
@@ -363,6 +400,7 @@ class ManagerTests(unittest.TestCase):
                event('Location', StarSystem='Replacement', SystemAddress=12345))
         panel = JournalSourcesPanel(state.sources)
         self.addCleanup(panel.close)
+        panel.show()
         with patch('cmdrhelper.ui.journal_sources.SourceEditor') as editor:
             dialog = editor.return_value
             dialog.exec.return_value = QDialog.Accepted

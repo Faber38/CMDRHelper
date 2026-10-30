@@ -11,6 +11,7 @@ from PySide6.QtWidgets import QApplication, QStyle, QStyleOptionViewItem
 
 from cmdrhelper.material_inventory import _Reducer
 from cmdrhelper.ui.material_view import MaterialView
+from material_ui_cleanup import cleanup_material_view
 from cmdrhelper.ui.material_row_style import STRIPE_ROLE, THEMES
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 from test_material_view import StubController, snapshot, event
@@ -30,7 +31,7 @@ class MaterialRowStyleTests(unittest.TestCase):
         self.view = MaterialView(SimpleNamespace(settings=settings), controller=StubController())
         self.view.resize(1000, 850)
         self.view.show()
-        self.addCleanup(self.view.close)
+        self.addCleanup(cleanup_material_view, self.view)
         self.reducer = _Reducer(1, 'F1')
         self.reducer.apply(snapshot(), ('journal', 0))
         self.view.set_inventory(self.reducer.result)

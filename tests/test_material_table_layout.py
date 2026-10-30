@@ -8,6 +8,7 @@ from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QHeaderView
 
 from cmdrhelper.ui.material_view import MaterialView
+from material_ui_cleanup import cleanup_material_view
 
 
 class Controller(QObject):
@@ -32,7 +33,7 @@ class MaterialTableLayoutTests(unittest.TestCase):
         view.resize(1000, 600)
         view.show()
         self.app.processEvents()
-        self.addCleanup(view.close)
+        self.addCleanup(cleanup_material_view, view)
         return view
 
     def widths(self, view=None):

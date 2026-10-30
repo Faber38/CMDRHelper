@@ -64,6 +64,12 @@ class EdsmSystemStatus(QObject):
 
     def _invalidate(self):
         self.generation += 1
+        # Auto-delete is disabled for these runnables. Taking an obsolete queued
+        # job is safe; a job already running finishes normally and is discarded
+        # by its generation. Never cancel an in-flight network operation.
+        for generation, worker in list(self.workers.items()):
+            if self.pool.tryTake(worker) is True:
+                self.workers.pop(generation, None)
         self.status = None
         self.cleared.emit()
         self.changed.emit()

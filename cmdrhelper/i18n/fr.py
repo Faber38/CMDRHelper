@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_22.0': 'Affichage plus rapide grâce à la mise en cache des sources de journaux, des images des favoris et des planètes.',
+    'release.3_9_22.1': 'Les sauts seuls ne déclenchent plus de reconstruction inutile des inventaires ; les avertissements historiques répétés sur les matériaux sont regroupés.',
+    'release.3_9_22.2': 'Les nouvelles positions et les vérifications du statut EDSM n’attendent plus la fin des envois lents.',
+    'release.3_9_22.3': 'Gestion du curseur plus robuste lors de la fermeture ou de la recréation des fenêtres.',
+    'release.3_9_22.4': 'Les distances de 20 et 30 Ly sont disponibles dans quatre vues commerciales ; la valeur par défaut reste 100 Ly.',
+    'release.3_9_22.5': 'La consultation des marchés peut être filtrée selon la cargaison confirmée du vaisseau. Le filtre est visiblement suspendu si le stock est inconnu ou périmé.',
     'release.3_9_21.0': 'Gestion des captures par commandant pour Steam et Heroic, avec attribution fiable et noms de fichiers améliorés.',
     'release.3_9_21.1': 'Couleurs des statuts de mission plus claires et mise en évidence automatique des destinations atteintes avec un bref clignotement.',
     'release.3_9_21.2': 'Séparation plus fiable des cargaisons du SRV, du vaisseau et du carrier, avec un meilleur traitement des événements Cargo et MiningRefined.',
@@ -2434,3 +2440,11 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS["images.identity_wait"] = 'Conversion suspendue : impossible d’associer sans ambiguïté l’instance du jeu, le commandant et la source des captures.'
+
+# Confirmed ship cargo filter in the saved market browser.
+TRANSLATIONS.update({
+    'browse.cargo_only': 'Uniquement les marchandises en soute',
+    'browse.cargo_unavailable': 'Filtre de cargaison suspendu : le stock actuel du vaisseau n’est pas confirmé.',
+    'browse.cargo_empty': 'La soute du vaisseau est confirmée vide.',
+    'browse.cargo_identity_unknown': 'Filtre de cargaison suspendu : certaines marchandises ne peuvent pas être identifiées avec certitude.',
+})

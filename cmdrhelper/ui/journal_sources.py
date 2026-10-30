@@ -3,7 +3,7 @@ from pathlib import Path
 from datetime import datetime
 import json
 import os
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import Qt, QTimer, QFileSystemWatcher
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QListWidget,
     QListWidgetItem, QPushButton, QFileDialog, QDialog, QDialogButtonBox,
     QFormLayout, QLineEdit, QCheckBox, QLabel, QMessageBox, QGridLayout,
@@ -18,6 +18,31 @@ def directory_reachable(path):
             return True
     except OSError:
         return False
+
+
+def statistics_signature(database, folder):
+    """Cheap invalidation for commits (including WAL) and directory replacement.
+
+    File contents/mtimes are covered separately by QFileSystemWatcher. Unknown
+    database paths or inaccessible metadata must never validate cached results.
+    """
+    path = getattr(database, 'path', None)
+    if path is None:
+        return None
+    paths = [Path(path), Path(str(path) + '-wal'), Path(folder)]
+    signature = []
+    for index, item in enumerate(paths):
+        try:
+            stat = item.stat()
+            signature.append((str(item), stat.st_dev, stat.st_ino, stat.st_size,
+                              stat.st_mtime_ns, stat.st_ctime_ns, stat.st_mode))
+        except FileNotFoundError:
+            if index != 1:  # Only an absent WAL is a known, reusable state.
+                return None
+            signature.append(None)
+        except OSError:
+            return None
+    return tuple(signature)
 
 
 def source_statistics(source, sessions):
@@ -111,6 +136,12 @@ class JournalSourcesPanel(QWidget):
         super().__init__(parent)
         self.manager = manager
         self._changing_check = False
+        self._statistics_cache = {}
+        self._refresh_pending = True
+        # Coalesce filesystem notifications; never do I/O in a hidden panel.
+        self._file_refresh = QTimer(self)
+        self._file_refresh.setSingleShot(True)
+        self._file_refresh.timeout.connect(self.refresh_visible)
         layout = QVBoxLayout(self)
         title = QLabel(tr('sources.title'))
         title.setWordWrap(True)
@@ -189,8 +220,16 @@ class JournalSourcesPanel(QWidget):
                 self.actions.addWidget(button, index // columns, index % columns)
 
     def refresh(self):
+        self._refresh_pending = True
+        if not self.isVisible():
+            return
         if self._changing_check:
             return
+        sources = {source.id: source.path for source in self.manager.registry.sources}
+        for identity, cached in list(self._statistics_cache.items()):
+            if sources.get(identity) != cached['path']:
+                self._discard_statistics(identity)
+        self._refresh_pending = False
         selected = self.selected_id()
         self.items.blockSignals(True)
         self.items.clear()
@@ -222,9 +261,74 @@ class JournalSourcesPanel(QWidget):
 
     def showEvent(self, event):
         super().showEvent(event)
-        self.selection_changed()
+        if self._refresh_pending:
+            self.refresh()
+        else:
+            self.selection_changed()
+
+    def _discard_statistics(self, identity):
+        cached = self._statistics_cache.pop(identity, None)
+        if cached is not None:
+            watcher = cached['watcher']
+            paths = watcher.files() + watcher.directories()
+            if paths:
+                watcher.removePaths(paths)
+            watcher.deleteLater()
+
+    def _files_changed(self, identity, watcher):
+        cached = self._statistics_cache.get(identity)
+        if cached is None or cached['watcher'] is not watcher:
+            return  # A queued notification from an already replaced watch.
+        cached['dirty'] = True
+        self._refresh_pending = True
+        if self.isVisible():
+            self._file_refresh.start(0)
+
+    def _statistics_for(self, source):
+        database = self.manager.state.database
+        signature = statistics_signature(database, source.path)
+        cached = self._statistics_cache.get(source.id)
+        if (cached is not None and not cached['dirty'] and signature is not None
+                and cached['signature'] == signature):
+            return cached['data']
+
+        self._discard_statistics(source.id)
+        watcher = QFileSystemWatcher(self)
+        watcher.directoryChanged.connect(lambda _path: self._files_changed(source.id, watcher))
+        watcher.fileChanged.connect(lambda _path: self._files_changed(source.id, watcher))
+        # Register before reading. Watch every matching file, including old and
+        # disabled-source journals: a directory watch alone misses file appends.
+        watched = watcher.addPath(source.path)
+        try:
+            files = [str(p) for p in Path(source.path).iterdir() if p.match('Journal.*.log')]
+            if files and watcher.addPaths(files):
+                watched = False
+        except OSError:
+            watched = False
+        cached = dict(path=source.path, watcher=watcher, dirty=True,
+                      signature=signature, data=None)
+        self._statistics_cache[source.id] = cached
+        failed = False
+        try:
+            sessions = load_sessions(database)
+        except Exception:
+            sessions = []
+            failed = True
+        data = source_statistics(source, sessions)
+        if failed:
+            data['last_read'] = tr('common.error')
+        cached['data'] = data
+        # Failed watches/reads and concurrent commits are retried on the next
+        # visible refresh, rather than treating an uncertain snapshot as valid.
+        cached['dirty'] = (failed or not watched or not data['reachable']
+                           or signature is None
+                           or signature != statistics_signature(database, source.path))
+        return data
 
     def selection_changed(self, *_):
+        if not self.isVisible():
+            self._refresh_pending = True
+            return
         identity = self.selected_id()
         source = self.manager.registry.get(identity) if identity else None
         for key in ('edit', 'remove'):
@@ -239,15 +343,8 @@ class JournalSourcesPanel(QWidget):
             value.setToolTip('')
         if source is None:
             return
-        try:
-            sessions = load_sessions(self.manager.state.database)
-        except Exception:
-            sessions = []
-            self.statistics['last_read'].setText(tr('common.error'))
-        data = source_statistics(source, sessions)
+        data = self._statistics_for(source)
         for key in ('count', 'oldest', 'newest', 'newest_name', 'last_read'):
-            if key == 'last_read' and not sessions:
-                continue
             self.statistics[key].setText(data[key])
             self.statistics[key].setToolTip(data[key])
         self.statistics['newest_name'].setCursorPosition(0)
@@ -259,7 +356,9 @@ class JournalSourcesPanel(QWidget):
         identity = self.selected_id()
         source = self.manager.registry.get(identity) if identity else None
         if source and source.enabled and identity in self.manager.runtimes:
+            self._discard_statistics(identity)
             self.manager.request(identity)
+            self.refresh()
 
     def selected_id(self):
         item = self.items.currentItem()

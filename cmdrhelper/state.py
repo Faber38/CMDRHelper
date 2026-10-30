@@ -2078,19 +2078,16 @@ class AppState(QObject):
                         current_session["sha256"] = None
                     current_session.update(metadata)
                     current_session["last_read_offset"] = safe_offset
-        from cmdrhelper.material_inventory import EVENTS as material_events
-        from cmdrhelper.mining_inventory import EVENTS as mining_events
-        from cmdrhelper.odyssey_inventory import EVENTS as odyssey_events
+        from cmdrhelper.inventory_invalidation import event_kinds
         revisions = getattr(self, "_inventory_revisions", None)
         if revisions is None:
             revisions = self._inventory_revisions = dict(materials=0, mining=0, odyssey=0)
-        event_names = {event.get("event") for event in delta_events}
         inventory_changed = False
-        for kind, relevant in (("materials", material_events), ("mining", mining_events),
-                               ("odyssey", odyssey_events)):
-            if event_names & relevant or (kind == "odyssey" and "CarrierStats" in event_names):
-                revisions[kind] += 1
-                inventory_changed = True
+        # SourceManager accounts for the entire batch, including historical and
+        # non-selected files. A view projection must not count it a second time.
+        for kind in event_kinds(delta_events) if projection is None else ():
+            revisions[kind] += 1
+            inventory_changed = True
 
         persistent_summary = (
             self.database.commander_summary(self.commander_id)

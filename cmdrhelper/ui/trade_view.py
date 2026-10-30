@@ -274,9 +274,9 @@ class TradeView(QWidget):
         self.cargo_list.itemChanged.connect(self._cargo_selection_changed)
         self.cargo_select_all.clicked.connect(self._select_all_cargo)
         self.radius = QComboBox()
-        for value in (25, 50, 100, 250, 500):
+        for value in (20, 25, 30, 50, 100, 250, 500):
             self.radius.addItem(str(value), value)
-        self.radius.setCurrentIndex(2)
+        self.radius.setCurrentIndex(self.radius.findData(100))
         form.addRow(tr('trade.radius'), self.radius)
         self.max_age = MarketAgeCombo(state)
         form.addRow(tr('trade.max_age'), self.max_age)

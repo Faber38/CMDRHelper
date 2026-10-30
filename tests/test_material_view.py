@@ -18,6 +18,7 @@ from cmdrhelper.material_catalog import get_material, localized_name
 from cmdrhelper.material_controller import MaterialController
 from cmdrhelper.material_inventory import MaterialInventory, MaterialInventoryReader, _Reducer
 from cmdrhelper.ui.material_view import MaterialView
+from material_ui_cleanup import cleanup_material_view
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 
 
@@ -58,10 +59,59 @@ class MaterialViewTests(unittest.TestCase):
         self.view = MaterialView(self.state, controller=self.controller)
         self.view.resize(850, 720)
         self.view.show()
-        self.addCleanup(self.view.close)
+        self.addCleanup(cleanup_material_view, self.view)
         self.reducer = _Reducer(1, "F1")
         self.reducer.apply(snapshot(), ("file", 0))
         self.view.set_inventory(self.reducer.result, "Commander A")
+
+    def test_cleanup_destroys_windows_timers_and_filters_before_worker_gc(self):
+        import gc
+        from shiboken6 import isValid
+        from PySide6.QtCore import Qt
+        destroyed_threads = []
+        for _ in range(3):
+            view = MaterialView(self.state, controller=StubController())
+            self.addCleanup(cleanup_material_view, view)
+            view.show()
+            children = view.findChildren(QObject)
+            timers = view.findChildren(QTimer)
+            self.assertTrue(timers)
+            view.destroyed.connect(
+                lambda: destroyed_threads.append(threading.get_ident()),
+                Qt.ConnectionType.DirectConnection)
+            cleanup_material_view(view)
+            self.assertFalse(isValid(view))
+            self.assertTrue(all(not isValid(child) for child in children))
+            worker = threading.Thread(target=gc.collect, name='fixture-gc-check')
+            worker.start()
+            worker.join(5)
+            self.assertFalse(worker.is_alive())
+            self.app.processEvents()
+            gc.collect()  # Also exercise collection after the worker has ended.
+        self.assertEqual(destroyed_threads, [threading.get_ident()] * 3)
+
+    def test_cleanup_waits_for_worker_before_deleting_its_receivers(self):
+        import gc
+        from PySide6.QtCore import QRunnable, QThreadPool
+        from shiboken6 import isValid
+        completed = threading.Event()
+        threads = []
+
+        class Work(QRunnable):
+            def run(self):
+                threads.append(threading.get_ident())
+                gc.collect()
+                completed.set()
+
+        pool = QThreadPool(self.view)
+        self.view.trader_panel.pool = pool
+        pool.start(Work())
+        cleanup_material_view(self.view)
+        self.assertTrue(completed.is_set())
+        self.assertEqual(len(threads), 1)
+        self.assertNotEqual(threads[0], threading.get_ident())
+        self.assertFalse(isValid(pool))
+        self.assertFalse(isValid(self.view))
 
     def fixture(self):
         self.reducer = _Reducer(1, "FTEST0001")
@@ -258,7 +308,7 @@ class MaterialViewTests(unittest.TestCase):
         self.view.tabs.setCurrentIndex(2)
         self.view.filter.setCurrentIndex(4)
         restarted = MaterialView(self.state, controller=StubController())
-        self.addCleanup(restarted.close)
+        self.addCleanup(cleanup_material_view, restarted)
         self.assertEqual(restarted.tabs.currentIndex(), 2)
         self.assertEqual(restarted.filter.currentData(), "full")
         self.assertFalse(restarted.inventory.known)
@@ -317,13 +367,10 @@ class MaterialControllerTests(unittest.TestCase):
         self.addCleanup(self.cleanup_worker)
 
     def cleanup_worker(self):
-        self.controller.timer.stop()
-        self.controller.pool.waitForDone(10000)
-        self.app.processEvents()
-        self.controller.timer.stop()
-        self.view.close()
+        cleanup_material_view(self.view)
         self.controller.deleteLater()
-        self.app.processEvents()
+        from PySide6.QtCore import QCoreApplication, QEvent
+        QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
 
     def wait_until(self, predicate):
         deadline = time.monotonic() + 8

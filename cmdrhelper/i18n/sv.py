@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_22.0': 'Snabbare vyer genom cachelagring av journalkällor, favoritbilder och planetgrafik.',
+    'release.3_9_22.1': 'Enbart hopp utlöser inte längre onödig rekonstruktion av lager; upprepade historiska materialvarningar sammanställs.',
+    'release.3_9_22.2': 'Nya systempositioner och EDSM-statuskontroller väntar inte längre på långsamma uppladdningar.',
+    'release.3_9_22.3': 'Robustare markörhantering när fönster stängs eller skapas på nytt.',
+    'release.3_9_22.4': '20 och 30 Ly finns nu i fyra handelsvyer; standardvärdet är fortfarande 100 Ly.',
+    'release.3_9_22.5': 'Marknadsvyn kan filtrera efter bekräftad skeppslast. Filtret pausas med en synlig indikering om lagret är okänt eller inaktuellt.',
     'release.3_9_21.0': 'Skärmbildshantering per befälhavare för Steam och Heroic, med tillförlitlig koppling och förbättrade filnamn.',
     'release.3_9_21.1': 'Tydligare färger för uppdragsstatus och automatisk markering av nådda uppdragsmål med en kort blinkeffekt.',
     'release.3_9_21.2': 'Tillförlitligare åtskillnad mellan last i SRV, skepp och carrier, med förbättrad hantering av Cargo- och MiningRefined-händelser.',
@@ -2321,3 +2327,11 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS["images.identity_wait"] = 'Konverteringen pausad: spelinstans, befälhavare och skärmbildskälla kan inte kopplas entydigt.'
+
+# Confirmed ship cargo filter in the saved market browser.
+TRANSLATIONS.update({
+    'browse.cargo_only': 'Endast varor i lastutrymmet',
+    'browse.cargo_unavailable': 'Lastfiltret är pausat: Skeppets aktuella lager är inte bekräftat.',
+    'browse.cargo_empty': 'Skeppets lastutrymme är bekräftat tomt.',
+    'browse.cargo_identity_unknown': 'Lastfiltret är pausat: Alla varor kan inte identifieras entydigt.',
+})

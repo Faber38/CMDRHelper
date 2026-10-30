@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_22.0': 'Szybsze widoki dzięki pamięci podręcznej źródeł dzienników, obrazów ulubionych i grafik planet.',
+    'release.3_9_22.1': 'Same skoki nie uruchamiają już zbędnego odtwarzania stanów magazynowych; powtarzające się historyczne ostrzeżenia o materiałach są grupowane.',
+    'release.3_9_22.2': 'Nowe pozycje w systemach i sprawdzanie statusu EDSM nie czekają już na powolne wysyłanie danych.',
+    'release.3_9_22.3': 'Stabilniejsza obsługa kursora podczas zamykania i ponownego tworzenia okien.',
+    'release.3_9_22.4': 'Odległości 20 i 30 Ly są dostępne w czterech widokach handlowych; wartość domyślna pozostaje 100 Ly.',
+    'release.3_9_22.5': 'Widok rynku może filtrować towary według potwierdzonego ładunku statku. Filtr jest wyraźnie wstrzymywany, gdy stan ładunku jest nieznany lub nieaktualny.',
     'release.3_9_21.0': 'Zarządzanie zrzutami ekranu według dowódcy dla Steam i Heroic, z wiarygodnym przypisaniem i ulepszonymi nazwami plików.',
     'release.3_9_21.1': 'Czytelniejsze kolory stanów misji i automatyczne wyróżnianie osiągniętych celów krótkim miganiem.',
     'release.3_9_21.2': 'Pewniejsze rozdzielenie ładunku SRV, statku i lotniskowca oraz ulepszona obsługa zdarzeń Cargo i MiningRefined.',
@@ -2321,3 +2327,11 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS["images.identity_wait"] = 'Konwersja wstrzymana: nie można jednoznacznie powiązać instancji gry, dowódcy i źródła zrzutów ekranu.'
+
+# Confirmed ship cargo filter in the saved market browser.
+TRANSLATIONS.update({
+    'browse.cargo_only': 'Tylko towary w ładowni',
+    'browse.cargo_unavailable': 'Filtr ładunku wstrzymany: Aktualny stan ładowni statku nie został potwierdzony.',
+    'browse.cargo_empty': 'Potwierdzono, że ładownia statku jest pusta.',
+    'browse.cargo_identity_unknown': 'Filtr ładunku wstrzymany: Nie wszystkie towary można jednoznacznie zidentyfikować.',
+})

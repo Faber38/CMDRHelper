@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_22.0': 'Faster views with cached journal sources, favourite images and planet graphics.',
+    'release.3_9_22.1': 'Jumps no longer trigger unnecessary inventory reconstruction; repeated historical material warnings are grouped.',
+    'release.3_9_22.2': 'New system positions and EDSM status checks no longer wait for slow uploads.',
+    'release.3_9_22.3': 'More robust cursor handling when windows are closed or recreated.',
+    'release.3_9_22.4': '20 and 30 Ly are now available in four trading views; the default remains 100 Ly.',
+    'release.3_9_22.5': 'View market can filter by confirmed ship cargo. The filter visibly pauses when the inventory is unknown or outdated.',
     'release.3_9_21.0': 'Commander-specific screenshot management for Steam and Heroic, with reliable attribution and improved filenames.',
     'release.3_9_21.1': 'Clearer mission status colours and automatic highlighting of reached mission destinations with a brief blink effect.',
     'release.3_9_21.2': 'More reliable separation of SRV, ship and carrier cargo, with improved processing of Cargo and MiningRefined events.',
@@ -2465,3 +2471,11 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS["images.identity_wait"] = 'Conversion paused: game instance, Commander and screenshot source cannot be uniquely matched.'
+
+# Confirmed ship cargo filter in the saved market browser.
+TRANSLATIONS.update({
+    'browse.cargo_only': 'Only goods in the cargo hold',
+    'browse.cargo_unavailable': 'Cargo filter paused: The current ship inventory is not confirmed.',
+    'browse.cargo_empty': 'The confirmed ship cargo hold is empty.',
+    'browse.cargo_identity_unknown': 'Cargo filter paused: Not all goods can be identified unambiguously.',
+})

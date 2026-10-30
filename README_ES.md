@@ -38,6 +38,15 @@ La carpeta de diarios de Elite Dangerous se detecta automáticamente cuando es p
 
 CMDRHelper busca actualizaciones al iniciarse y dispone de un actualizador integrado. Confirma una actualización ofrecida en la aplicación; actualizará el programa y las dependencias y reiniciará CMDRHelper. Tras la primera instalación, normalmente basta con usar `start.bat` (Windows) o `bash start.sh` (Linux). No es necesario volver a ejecutar manualmente `install.bat` o `install.sh` para las actualizaciones normales.
 
+## CMDRHelper v3.9.22
+
+- Vistas más rápidas gracias a la caché de fuentes de diarios, imágenes de favoritos y gráficos planetarios.
+- Los saltos por sí solos ya no provocan reconstrucciones innecesarias del inventario; los avisos históricos repetidos sobre materiales se agrupan.
+- Las nuevas posiciones y las comprobaciones de estado de EDSM ya no esperan a las cargas lentas.
+- Gestión del cursor más robusta al cerrar o recrear ventanas.
+- Las distancias de 20 y 30 Ly están disponibles en cuatro vistas comerciales; el valor predeterminado sigue siendo 100 Ly.
+- La vista del mercado permite filtrar por la carga confirmada de la nave. El filtro se pausa de forma visible si el inventario es desconocido o está desactualizado.
+
 ## CMDRHelper v3.9.21
 
 - Gestión de capturas por comandante para Steam y Heroic, con asignación fiable y nombres de archivo mejorados.

@@ -61,7 +61,7 @@ class OutboundViewTests(unittest.TestCase):
 
     def test_toggle_off_cancels_and_restores_normal_query_without_filter_changes(self):
         _,key = self.bookmark()
-        self.view.radius.setCurrentIndex(3)
+        self.view.radius.setCurrentIndex(self.view.radius.findData(250))
         self.view.pad.setCurrentIndex(self.view.pad.findData(PadSize.LARGE))
         self.view.carriers.setChecked(True)
         self.view.arrival.setText('300')

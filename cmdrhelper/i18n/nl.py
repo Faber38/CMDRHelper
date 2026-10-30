@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_22.0': 'Snellere weergaven door caching van journaalbronnen, favorietafbeeldingen en planeetafbeeldingen.',
+    'release.3_9_22.1': 'Alleen springen leidt niet meer tot onnodige inventarisreconstructies; herhaalde historische materiaalwaarschuwingen worden samengevoegd.',
+    'release.3_9_22.2': 'Nieuwe systeemposities en EDSM-statuscontroles wachten niet meer op trage uploads.',
+    'release.3_9_22.3': 'Robuustere cursorafhandeling bij het sluiten en opnieuw aanmaken van vensters.',
+    'release.3_9_22.4': '20 en 30 Ly zijn nu beschikbaar in vier handelsweergaven; de standaard blijft 100 Ly.',
+    'release.3_9_22.5': 'De marktweergave kan filteren op bevestigde scheepslading. Het filter wordt zichtbaar gepauzeerd als de voorraad onbekend of verouderd is.',
     'release.3_9_21.0': 'Screenshotbeheer per commandant voor Steam en Heroic, met betrouwbare toewijzing en verbeterde bestandsnamen.',
     'release.3_9_21.1': 'Duidelijkere kleuren voor missiestatussen en automatische markering van bereikte missiedoelen met een kort knippereffect.',
     'release.3_9_21.2': 'Betrouwbaardere scheiding van SRV-, scheeps- en carrierlading, met verbeterde verwerking van Cargo- en MiningRefined-gebeurtenissen.',
@@ -2321,3 +2327,11 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS["images.identity_wait"] = 'Conversie gepauzeerd: spelinstantie, commandant en screenshotbron kunnen niet eenduidig worden gekoppeld.'
+
+# Confirmed ship cargo filter in the saved market browser.
+TRANSLATIONS.update({
+    'browse.cargo_only': 'Alleen goederen in het vrachtruim',
+    'browse.cargo_unavailable': 'Vrachtfilter gepauzeerd: De huidige scheepsvoorraad is niet bevestigd.',
+    'browse.cargo_empty': 'Het vrachtruim van het schip is bevestigd leeg.',
+    'browse.cargo_identity_unknown': 'Vrachtfilter gepauzeerd: Niet alle goederen kunnen eenduidig worden geïdentificeerd.',
+})

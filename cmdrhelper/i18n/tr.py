@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_22.0': 'Günlük kaynakları, favori resimleri ve gezegen grafikleri önbelleğe alınarak görünümler hızlandırıldı.',
+    'release.3_9_22.1': 'Yalnızca sıçrama yapılması artık gereksiz envanter yeniden oluşturma işlemlerini tetiklemez; tekrarlanan geçmiş malzeme uyarıları gruplandırılır.',
+    'release.3_9_22.2': 'Yeni sistem konumları ve EDSM durum kontrolleri artık yavaş yüklemelerin bitmesini beklemez.',
+    'release.3_9_22.3': 'Pencereler kapatılırken veya yeniden oluşturulurken daha sağlam imleç yönetimi.',
+    'release.3_9_22.4': 'Dört ticaret görünümüne 20 ve 30 Ly seçenekleri eklendi; varsayılan değer 100 Ly olarak kaldı.',
+    'release.3_9_22.5': 'Pazar görünümü, doğrulanmış gemi yüküne göre filtrelenebilir. Envanter bilinmiyorsa veya güncel değilse filtre görünür bir uyarıyla duraklatılır.',
     'release.3_9_21.0': 'Steam ve Heroic için komutana özel ekran görüntüsü yönetimi, güvenilir eşleştirme ve iyileştirilmiş dosya adları.',
     'release.3_9_21.1': 'Daha belirgin görev durumu renkleri ve ulaşılan görev hedeflerinin kısa bir yanıp sönme efektiyle otomatik vurgulanması.',
     'release.3_9_21.2': 'SRV, gemi ve filo taşıyıcısı yüklerinin daha güvenilir biçimde ayrı tutulması; Cargo ve MiningRefined olaylarının iyileştirilmiş işlenmesi.',
@@ -2321,3 +2327,11 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS["images.identity_wait"] = 'Dönüştürme duraklatıldı: oyun örneği, komutan ve ekran görüntüsü kaynağı kesin olarak eşleştirilemiyor.'
+
+# Confirmed ship cargo filter in the saved market browser.
+TRANSLATIONS.update({
+    'browse.cargo_only': 'Yalnızca kargo bölümündeki mallar',
+    'browse.cargo_unavailable': 'Kargo filtresi duraklatıldı: Geminin mevcut envanteri doğrulanmadı.',
+    'browse.cargo_empty': 'Geminin kargo bölümünün boş olduğu doğrulandı.',
+    'browse.cargo_identity_unknown': 'Kargo filtresi duraklatıldı: Tüm mallar kesin olarak tanımlanamıyor.',
+})

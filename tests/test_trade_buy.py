@@ -124,7 +124,7 @@ class BuyTradeTests(unittest.TestCase):
     def test_filters_preserved_and_forwarded_to_buy_request(self):
         self.view.commodity.set_commodity(PLATINUM.frontier_id)
         self.view.quantity.setValue(100)
-        self.view.radius.setCurrentIndex(3)
+        self.view.radius.setCurrentIndex(self.view.radius.findData(250))
         self.view.max_age.setCurrentIndex(1)
         self.view.pad.setCurrentIndex(2)
         self.view.carriers.setChecked(True)

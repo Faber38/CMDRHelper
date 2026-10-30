@@ -10,10 +10,12 @@ from unittest.mock import Mock, patch
 
 os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 from PySide6.QtCore import QObject, QSettings, QTimer, Signal, Qt
+from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QDialog, QScrollArea
 from cmdrhelper.i18n import get_language, set_language, _TRANSLATIONS
 from cmdrhelper.journal_sources import SourceRegistry
 from cmdrhelper.ui.journal_sources import JournalSourcesPanel, SourceEditor, source_statistics
+from cmdrhelper.journal_catchup import load_sessions
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 
 
@@ -26,7 +28,8 @@ class Manager(QObject):
         self.db_path = root/'synthetic.db'
         with sqlite3.connect(self.db_path) as con:
             con.execute('CREATE TABLE journal_sessions (journal_file TEXT, last_read_offset INTEGER, last_complete_line_offset INTEGER, last_event_at TEXT)')
-        self.state = SimpleNamespace(database=SimpleNamespace(_connect=lambda: sqlite3.connect(self.db_path)),
+        self.state = SimpleNamespace(database=SimpleNamespace(path=self.db_path,
+                                     _connect=lambda: sqlite3.connect(self.db_path)),
                                      commander_fid='UNCHANGED', viewed_commander_id=42)
         self.runtimes = {}
         self.request = Mock()
@@ -59,6 +62,182 @@ class JournalSourcesUITests(unittest.TestCase):
         language = get_language()
         self.addCleanup(set_language, language)
         set_language('en')
+        self.panel.show()
+        self.app.processEvents()
+
+    def settle(self):
+        # Deliver real filesystem notifications and their coalesced refresh.
+        QTest.qWait(50)
+        self.app.processEvents()
+
+    def test_hidden_construction_and_changes_do_not_read_statistics(self):
+        self.source('hidden')
+        self.panel.hide()
+        with patch('cmdrhelper.ui.journal_sources.load_sessions', wraps=load_sessions) as load, \
+                patch('cmdrhelper.ui.journal_sources.source_statistics', wraps=source_statistics) as stats:
+            panel = JournalSourcesPanel(self.manager)
+            self.addCleanup(panel.close)
+            self.manager.changed.emit()
+            panel.refresh_visible()
+            panel.selection_changed()
+            load.assert_not_called()
+            stats.assert_not_called()
+            panel.show()
+            self.assertEqual(stats.call_count, 1)
+            self.assertEqual(panel.statistics['count'].text(), '1')
+
+    def test_reopen_timer_and_status_changes_reuse_statistics(self):
+        source = self.source('stable')
+        self.settle()
+        with patch('cmdrhelper.ui.journal_sources.load_sessions', wraps=load_sessions) as load, \
+                patch('cmdrhelper.ui.journal_sources.source_statistics', wraps=source_statistics) as stats:
+            for _ in range(5):
+                self.panel.hide()
+                self.manager.changed.emit()
+                self.panel.show()
+                self.panel.timer.timeout.emit()
+            source.status = 'reading'
+            self.manager.changed.emit()
+            self.assertIn('reading', self.panel.items.currentItem().text().lower())
+            # Commander identity is not part of source-local statistics.
+            self.manager.state.commander_fid = 'OTHER'
+            self.manager.state.viewed_commander_id = 99
+            self.manager.changed.emit()
+            load.assert_not_called()
+            stats.assert_not_called()
+
+    def test_source_switch_reuses_each_source_and_removal_discards_watch(self):
+        first = self.source('first-cache')
+        second = self.source('second-cache', 2)
+        self.select(second)
+        self.select(first)
+        self.settle()
+        with patch('cmdrhelper.ui.journal_sources.source_statistics', wraps=source_statistics) as stats:
+            self.select(second)
+            self.assertEqual(self.panel.statistics['count'].text(), '2')
+            self.select(first)
+            self.assertEqual(self.panel.statistics['count'].text(), '1')
+            stats.assert_not_called()
+        self.panel.remove()
+        self.assertNotIn(first.id, self.panel._statistics_cache)
+        self.assertEqual(self.panel.statistics['count'].text(), '2')
+
+    def test_database_only_commit_invalidates_even_without_manager_signal(self):
+        source = self.source('db-only')
+        self.settle()
+        with sqlite3.connect(self.manager.db_path) as con:
+            con.execute("UPDATE journal_sessions SET last_event_at='2026-02-01T12:00:00Z'")
+        with patch('cmdrhelper.ui.journal_sources.load_sessions', wraps=load_sessions) as load:
+            self.panel.refresh_visible()
+            self.assertEqual(load.call_count, 1)
+            self.assertEqual(self.panel.statistics['last_read'].text(), '2026-02-01T12:00:00Z')
+            self.panel.refresh_visible()
+            self.assertEqual(load.call_count, 1)
+
+    def test_wal_batch_commit_and_hidden_coalescing(self):
+        self.source('wal')
+        con = sqlite3.connect(self.manager.db_path)
+        self.addCleanup(con.close)
+        con.execute('PRAGMA journal_mode=WAL')
+        self.panel.refresh_visible()
+        self.settle()
+        main_before = self.manager.db_path.read_bytes()
+        self.panel.hide()
+        with patch('cmdrhelper.ui.journal_sources.load_sessions', wraps=load_sessions) as load:
+            for day in (2, 3):
+                self.manager.changed.emit()  # Batch start.
+                con.execute('UPDATE journal_sessions SET last_event_at=?',
+                            (f'2026-02-0{day}T12:00:00Z',))
+                con.commit()
+                self.manager.changed.emit()  # Batch end.
+            self.assertEqual(main_before, self.manager.db_path.read_bytes())
+            self.panel.refresh_visible()
+            load.assert_not_called()
+            self.panel.show()
+            self.assertEqual(load.call_count, 1)
+            self.assertEqual(self.panel.statistics['last_read'].text(), '2026-02-03T12:00:00Z')
+            self.panel.refresh_visible()
+            self.assertEqual(load.call_count, 1)
+
+    def test_files_created_modified_removed_while_hidden_and_disabled(self):
+        source = self.source('file-changes', 2)
+        self.manager.registry.update(source.id, enabled=False)
+        self.manager.reconcile()
+        self.settle()
+        folder = Path(source.path)
+        with patch('cmdrhelper.ui.journal_sources.source_statistics', wraps=source_statistics) as stats:
+            self.panel.hide()
+            new = folder/'Journal.2026-03-01T120000.01.log'
+            new.write_text('{}\n')
+            self.settle()
+            stats.assert_not_called()
+            self.panel.show()
+            self.assertEqual(self.panel.statistics['count'].text(), '3')
+            old = folder/'Journal.2026-01-01T120000.01.log'
+            os.utime(old, (2000000000, 2000000000))
+            self.settle()
+            self.assertEqual(self.panel.statistics['newest_name'].text(), old.name)
+            new.unlink()
+            self.settle()
+            self.assertEqual(self.panel.statistics['count'].text(), '2')
+            self.assertGreaterEqual(stats.call_count, 3)
+
+    def test_manual_read_forces_statistics_and_preserves_request(self):
+        source = self.source('manual')
+        self.settle()
+        with patch('cmdrhelper.ui.journal_sources.source_statistics', wraps=source_statistics) as stats:
+            self.panel.read_now()
+            self.assertEqual(stats.call_count, 1)
+        self.manager.request.assert_called_once_with(source.id)
+
+    def test_failed_watch_or_database_read_is_not_cached(self):
+        source = self.source('retry')
+        self.settle()
+        self.panel._discard_statistics(source.id)
+        with patch('cmdrhelper.ui.journal_sources.QFileSystemWatcher.addPath', return_value=False), \
+                patch('cmdrhelper.ui.journal_sources.source_statistics', wraps=source_statistics) as stats:
+            self.panel.refresh_visible()
+            self.panel.refresh_visible()
+            self.assertEqual(stats.call_count, 2)
+        self.panel._discard_statistics(source.id)
+        with patch('cmdrhelper.ui.journal_sources.load_sessions', side_effect=sqlite3.OperationalError('busy')):
+            self.panel.refresh_visible()
+            self.assertEqual(self.panel.statistics['last_read'].text(), 'Error')
+        self.panel.refresh_visible()
+        self.assertEqual(self.panel.statistics['last_read'].text(), '2026-01-01T12:00:00Z')
+
+    def test_unknown_database_path_or_partial_file_watch_never_validates_cache(self):
+        source = self.source('uncertain')
+        self.settle()
+        del self.manager.state.database.path
+        with patch('cmdrhelper.ui.journal_sources.source_statistics', wraps=source_statistics) as stats:
+            self.panel.refresh_visible()
+            self.panel.refresh_visible()
+            self.assertEqual(stats.call_count, 2)
+        self.manager.state.database.path = self.manager.db_path
+        self.panel._discard_statistics(source.id)
+        file = str(next(Path(source.path).glob('Journal.*.log')))
+        with patch('cmdrhelper.ui.journal_sources.QFileSystemWatcher.addPaths', return_value=[file]), \
+                patch('cmdrhelper.ui.journal_sources.source_statistics', wraps=source_statistics) as stats:
+            self.panel.refresh_visible()
+            self.panel.refresh_visible()
+            self.assertEqual(stats.call_count, 2)
+
+    def test_commit_during_statistics_read_requires_another_refresh(self):
+        source = self.source('concurrent')
+        self.settle()
+        self.panel._discard_statistics(source.id)
+        def changed_during_read(source, sessions):
+            data = source_statistics(source, sessions)
+            with sqlite3.connect(self.manager.db_path) as con:
+                con.execute("UPDATE journal_sessions SET last_event_at='2026-04-01T12:00:00Z'")
+            return data
+        with patch('cmdrhelper.ui.journal_sources.source_statistics', side_effect=changed_during_read):
+            self.panel.refresh_visible()
+        with patch('cmdrhelper.ui.journal_sources.load_sessions', wraps=load_sessions) as load:
+            self.panel.refresh_visible()
+            self.assertEqual(load.call_count, 1)
+            self.assertEqual(self.panel.statistics['last_read'].text(), '2026-04-01T12:00:00Z')
 
     def source(self, name, events=1, identities=()):
         folder = self.root/name

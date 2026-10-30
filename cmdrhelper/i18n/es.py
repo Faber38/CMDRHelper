@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_22.0': 'Vistas más rápidas gracias a la caché de fuentes de diarios, imágenes de favoritos y gráficos planetarios.',
+    'release.3_9_22.1': 'Los saltos por sí solos ya no provocan reconstrucciones innecesarias del inventario; los avisos históricos repetidos sobre materiales se agrupan.',
+    'release.3_9_22.2': 'Las nuevas posiciones y las comprobaciones de estado de EDSM ya no esperan a las cargas lentas.',
+    'release.3_9_22.3': 'Gestión del cursor más robusta al cerrar o recrear ventanas.',
+    'release.3_9_22.4': 'Las distancias de 20 y 30 Ly están disponibles en cuatro vistas comerciales; el valor predeterminado sigue siendo 100 Ly.',
+    'release.3_9_22.5': 'La vista del mercado permite filtrar por la carga confirmada de la nave. El filtro se pausa de forma visible si el inventario es desconocido o está desactualizado.',
     'release.3_9_21.0': 'Gestión de capturas por comandante para Steam y Heroic, con asignación fiable y nombres de archivo mejorados.',
     'release.3_9_21.1': 'Colores de estado de misión más claros y resaltado automático de los destinos alcanzados con un breve parpadeo.',
     'release.3_9_21.2': 'Separación más fiable de la carga del SRV, la nave y el carrier, con un procesamiento mejorado de los eventos Cargo y MiningRefined.',
@@ -2433,3 +2439,11 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS["images.identity_wait"] = 'Conversión pausada: no se pueden vincular de forma inequívoca la instancia del juego, el comandante y el origen de las capturas.'
+
+# Confirmed ship cargo filter in the saved market browser.
+TRANSLATIONS.update({
+    'browse.cargo_only': 'Solo mercancías en la bodega',
+    'browse.cargo_unavailable': 'Filtro de carga en pausa: El inventario actual de la nave no está confirmado.',
+    'browse.cargo_empty': 'Se ha confirmado que la bodega de la nave está vacía.',
+    'browse.cargo_identity_unknown': 'Filtro de carga en pausa: No todas las mercancías pueden identificarse de forma inequívoca.',
+})

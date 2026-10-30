@@ -38,6 +38,15 @@ Journalmappen för Elite Dangerous hittas automatiskt när det är möjligt. Om 
 
 CMDRHelper söker efter uppdateringar vid start och har en inbyggd uppdateringsfunktion. Bekräfta en erbjuden uppdatering i programmet; den uppdaterar programmet och beroendena och startar om CMDRHelper. Efter den första installationen använder du normalt bara `start.bat` (Windows) eller `bash start.sh` (Linux). Du behöver inte köra `install.bat` eller `install.sh` manuellt igen för vanliga uppdateringar.
 
+## CMDRHelper v3.9.22
+
+- Snabbare vyer genom cachelagring av journalkällor, favoritbilder och planetgrafik.
+- Enbart hopp utlöser inte längre onödig rekonstruktion av lager; upprepade historiska materialvarningar sammanställs.
+- Nya systempositioner och EDSM-statuskontroller väntar inte längre på långsamma uppladdningar.
+- Robustare markörhantering när fönster stängs eller skapas på nytt.
+- 20 och 30 Ly finns nu i fyra handelsvyer; standardvärdet är fortfarande 100 Ly.
+- Marknadsvyn kan filtrera efter bekräftad skeppslast. Filtret pausas med en synlig indikering om lagret är okänt eller inaktuellt.
+
 ## CMDRHelper v3.9.21
 
 - Skärmbildshantering per befälhavare för Steam och Heroic, med tillförlitlig koppling och förbättrade filnamn.

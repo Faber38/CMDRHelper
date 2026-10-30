@@ -9,6 +9,7 @@ from PySide6.QtGui import QImage, QHoverEvent
 from PySide6.QtWidgets import QApplication, QTabBar
 
 from cmdrhelper.ui.material_view import MaterialView
+from material_ui_cleanup import cleanup_material_view
 from cmdrhelper.mining_catalog import MINING_COMMODITIES
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 from test_material_view import StubController
@@ -28,7 +29,7 @@ class MaterialCategoryTabTests(unittest.TestCase):
         self.view = MaterialView(SimpleNamespace(settings=self.settings), controller=StubController(), odyssey_controller=StubController())
         self.view.resize(1000, 650)
         self.view.show()
-        self.addCleanup(self.view.close)
+        self.addCleanup(cleanup_material_view, self.view)
 
     def theme(self, light):
         self.app.setStyleSheet(LIGHT_STYLESHEET if light else DARK_STYLESHEET)
@@ -114,7 +115,7 @@ class MaterialCategoryTabTests(unittest.TestCase):
     def test_saved_active_category_and_live_theme_switch(self):
         self.view.tabs.setCurrentIndex(2)
         restarted = MaterialView(SimpleNamespace(settings=self.settings), controller=StubController(), odyssey_controller=StubController())
-        self.addCleanup(restarted.close)
+        self.addCleanup(cleanup_material_view, restarted)
         self.assertEqual(restarted.tabs.currentIndex(), 2)
         for light in (True, False):
             self.theme(light)

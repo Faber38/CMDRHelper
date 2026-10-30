@@ -137,7 +137,13 @@ class CursorPolicy(QObject):
         self.update(widget)
 
     def eventFilter(self, watched, event):
-        if self._setting or not isinstance(watched, QWidget):
+        if not isinstance(watched, QWidget):
+            return False
+        # A surviving Python wrapper does not keep its C++ widget alive. Never
+        # forward an event to a destroyed receiver, including nested cursor events.
+        if not isValid(watched):
+            return True
+        if self._setting:
             return False
         kind = event.type()
         if kind in (QEvent.Polish, QEvent.Show):
@@ -158,14 +164,17 @@ class CursorPolicy(QObject):
         elif kind in (QEvent.MouseMove, QEvent.HoverMove):
             point = event.position().toPoint()
             self.update(watched, point)
+            # setCursor() can dispatch events and destroy the receiver reentrantly.
+            if not isValid(watched):
+                return True
             parent = watched.parentWidget()
             if isinstance(parent, QAbstractItemView) and watched is parent.viewport():
                 self._after_native_event(watched, point)
         elif kind == QEvent.Leave:
             self.update(watched, QPoint(-1, -1))
-            if watched in self._pending:
+            if isValid(watched) and watched in self._pending:
                 self._pending[watched] = QPoint(-1, -1)
-        return False
+        return not isValid(watched)
 
 
 def install_cursor_policy(app):

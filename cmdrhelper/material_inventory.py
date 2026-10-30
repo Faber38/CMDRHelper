@@ -6,8 +6,10 @@ facts make repeated queries cheap and prevent state leaking between commanders.
 """
 from __future__ import annotations
 
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from datetime import datetime
+import hashlib
 import json
 import logging
 from pathlib import Path
@@ -103,8 +105,44 @@ class MaterialInventory:
                 if stock.category == selected}
 
 
+# Only diagnostic fingerprints are retained; validation always runs in full.
+_WARNING_CACHE_LIMIT = 1024
+
+
+def _warn_material(reason, message):
+    logger.warning("Material inventory inconsistency: %s", message)
+    diagnostic('materials', 'history', reason=reason, status='partial')
+
+
+class _WarningReplay:
+    def __init__(self, previous):
+        self.previous = previous
+        self.current = OrderedDict()
+        self.repeated = {}
+
+    def warn(self, reason, message):
+        # Includes the physical source/offset and precise error detail. Never log
+        # this digest or its input; only the existing privacy-filtered first pair.
+        key = hashlib.sha256(repr((reason, message)).encode('utf-8')).digest()
+        if key in self.previous:
+            self.repeated[reason] = self.repeated.get(reason, 0) + 1
+        else:
+            _warn_material(reason, message)
+        self.current[key] = None
+        self.current.move_to_end(key)
+        if len(self.current) > _WARNING_CACHE_LIMIT:
+            self.current.popitem(last=False)
+
+    def finish(self):
+        for reason, count in sorted(self.repeated.items()):
+            logger.warning("Material inventory repeated findings", extra={
+                'diagnostic_fields': dict(component='materials', phase='history',
+                                          reason=reason, status='partial', count=count)})
+
+
 class _Reducer:
-    def __init__(self, commander_id, fid):
+    def __init__(self, commander_id, fid, warn=_warn_material):
+        self.warn = warn
         self.result = MaterialInventory(commander_id, fid)
         self.seen = set()
 
@@ -189,8 +227,7 @@ class _Reducer:
                 if old and not old.known:
                     message = f"{source}: {et}: material remains unknown: {name} (delta {sign * amount:+})"
                     result.material_issues.setdefault(name, []).append(message)
-                    logger.warning("Material inventory inconsistency: %s", message)
-                    diagnostic('materials', 'history', reason='material_unknown', status='partial')
+                    self.warn('material_unknown', message)
                     continue
                 previous = old.count if old and old.count is not None else 0
                 if et == "MaterialCollected":
@@ -204,8 +241,7 @@ class _Reducer:
                 if count < 0:
                     message = f"{source}: {et}: material underflow: {name} ({previous} {sign * amount:+})"
                     result.material_issues.setdefault(name, []).append(message)
-                    logger.warning("Material inventory inconsistency: %s", message)
-                    diagnostic('materials', 'history', reason='material_underflow', status='partial')
+                    self.warn('material_underflow', message)
                     updated[name] = MaterialStock(cat, name, None, False, display)
                     continue
                 updated[name] = MaterialStock(cat, name, count, True, display)
@@ -218,8 +254,7 @@ class _Reducer:
         except (KeyError, TypeError, ValueError, AttributeError) as exc:
             message = f"{source}: {et}: {exc}"
             result.issues.append(message)
-            logger.warning("Material inventory inconsistency: %s", message)
-            diagnostic('materials', 'history', reason='material_invalid_event', status='partial')
+            self.warn('material_invalid_event', message)
 
 
 class MaterialInventoryReader:
@@ -232,6 +267,8 @@ class MaterialInventoryReader:
     """
     def __init__(self):
         self._cache = {}
+        self._warning_basis = None
+        self._warning_keys = OrderedDict()
 
     @staticmethod
     def _signature(stat):
@@ -268,10 +305,13 @@ class MaterialInventoryReader:
         return facts
 
     def reconstruct(self, commander_id, fid, sessions):
+        previous_basis, previous_keys = self._warning_basis, self._warning_keys
+        # Even an interrupted read must not preserve suppression for a later retry.
+        self._warning_basis, self._warning_keys = None, OrderedDict()
         if type(commander_id) is not int or commander_id <= 0 or not isinstance(fid, str) or not fid.strip():
             raise ValueError("explicit commander ID and FID required")
         fid = str(fid).strip()
-        reducer = _Reducer(commander_id, fid)
+        basis = hashlib.sha256(repr((commander_id, fid)).encode('utf-8'))
         errors, events = [], []
         # Conflicting duplicate index rows are never silently merged.
         grouped = {}
@@ -280,6 +320,11 @@ class MaterialInventoryReader:
             path = Path(session["journal_file"]).resolve()
             grouped.setdefault(path, []).append(session)
         for path, rows in grouped.items():
+            # A conservative whole-input generation: any attribution, source or
+            # file-version change makes historical findings visible again.
+            basis.update(repr((str(path), [tuple(row.get(key) for key in (
+                'commander_id', 'fid_seen', 'attribution_status', 'first_event_at',
+                'source_id', 'sha256', 'committed_prefix_sha256')) for row in rows])).encode('utf-8'))
             if not any(row.get("commander_id") == commander_id for row in rows):
                 continue
             if any(row.get("attribution_status") != "identified"
@@ -288,6 +333,7 @@ class MaterialInventoryReader:
                 continue
             try:
                 facts, identities, file_errors = self._read(path)
+                basis.update(repr(self._cache[path][0]).encode('ascii'))
                 if identities != {fid}:
                     errors.append(f"{path}: journal identity disagrees with index")
                     continue
@@ -295,7 +341,14 @@ class MaterialInventoryReader:
                 events.extend((ts, str(path), offset, event) for ts, offset, event in facts)
             except OSError as exc:
                 errors.append(str(exc))
+        generation = basis.digest()
+        warnings = _WarningReplay(previous_keys if not errors
+                                  and generation == previous_basis else {})
+        reducer = _Reducer(commander_id, fid, warn=warnings.warn)
         for _, path, offset, event in sorted(events, key=lambda row: row[:3]):
             reducer.apply(event, (path, offset))
         reducer.result.issues.extend(errors)
+        warnings.finish()
+        if not errors:
+            self._warning_basis, self._warning_keys = generation, warnings.current
         return reducer.result

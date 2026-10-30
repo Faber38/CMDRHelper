@@ -58,7 +58,7 @@ class SupplyViewTests(unittest.TestCase):
         self.view.quantity.setValue(20)
         self.view.pad.setCurrentIndex(self.view.pad.findData(PadSize.LARGE))
         self.view.carriers.setChecked(True)
-        self.view.radius.setCurrentIndex(3)
+        self.view.radius.setCurrentIndex(self.view.radius.findData(250))
         self.view.arrival.setText('300')
         self.search()
         q = self.provider.calls[0]

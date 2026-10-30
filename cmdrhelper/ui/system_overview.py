@@ -3,11 +3,12 @@ from __future__ import annotations
 from cmdrhelper.ui.auxiliary_window import AuxiliaryWindow
 
 from copy import deepcopy
+from collections import OrderedDict
 from dataclasses import dataclass
 from cmdrhelper.ui.system_layout import LayoutNode, build_positions, connector_points
 
 from PySide6.QtCore import QPointF, QRectF, Qt, Signal, QTimer
-from PySide6.QtGui import QBitmap, QColor, QFont, QPainter, QPainterPath, QPen, QRegion
+from PySide6.QtGui import QBitmap, QColor, QFont, QPainter, QPainterPath, QPen, QRegion, QPixmapCache
 from PySide6.QtWidgets import (
     QDialog, QGraphicsObject, QGraphicsScene, QGraphicsView, QHBoxLayout,
     QCheckBox, QLabel, QPushButton, QVBoxLayout,
@@ -23,6 +24,27 @@ from cmdrhelper.ui.system_theme import THEMES
 
 CELL_WIDTH = 176.0
 GAP = 26.0
+
+# Only rectangles, never pixmaps: the existing Qt file cache owns shared pixels.
+# All accesses occur on the GUI thread. cacheKey changes with pixmap contents.
+_ALPHA_BOUNDS_LIMIT = 128
+_alpha_bounds_cache = OrderedDict()
+
+
+def _alpha_bounds(pixmap):
+    key = (pixmap.cacheKey(), pixmap.width(), pixmap.height(), pixmap.devicePixelRatio())
+    if key in _alpha_bounds_cache:
+        _alpha_bounds_cache.move_to_end(key)
+        return QRectF(_alpha_bounds_cache[key])
+    mask = pixmap.toImage().createAlphaMask(Qt.ImageConversionFlag.ThresholdDither)
+    visible = QRegion(QBitmap.fromImage(mask)).boundingRect()
+    if visible.isEmpty():
+        visible = pixmap.rect()
+    bounds = QRectF(visible.adjusted(-2, -2, 2, 2).intersected(pixmap.rect()))
+    _alpha_bounds_cache[key] = bounds
+    if len(_alpha_bounds_cache) > _ALPHA_BOUNDS_LIMIT:
+        _alpha_bounds_cache.popitem(last=False)
+    return QRectF(bounds)
 
 
 def _is_star(body):
@@ -104,11 +126,7 @@ class BodyItem(QGraphicsObject):
         if self.pixmap is not None:
             # Assets have different transparent margins. Fit the visible artwork,
             # retaining its aspect ratio and the shared resolver's original PNG.
-            mask = self.pixmap.toImage().createAlphaMask(Qt.ImageConversionFlag.ThresholdDither)
-            visible = QRegion(QBitmap.fromImage(mask)).boundingRect()
-            if visible.isEmpty():
-                visible = self.pixmap.rect()
-            self.image_source = QRectF(visible.adjusted(-2, -2, 2, 2).intersected(self.pixmap.rect()))
+            self.image_source = _alpha_bounds(self.pixmap)
         self.setToolTip(f"{body.get('name') or self.name}\n{self.type_text}")
         if node.belt_members:
             self.setToolTip(f"{body['name']}\n{len(node.belt_members)} × "
@@ -194,6 +212,9 @@ class SystemOverviewView(QGraphicsView):
 
     def __init__(self, system_name, bodies, *, stations=None, light=False, parent=None):
         super().__init__(parent)
+        # QPixmap(file) already shares decoded assets through Qt's process cache.
+        # Raise its default 10 MiB to 32 MiB; do not retain a second pixel store.
+        QPixmapCache.setCacheLimit(32 * 1024)
         self.system_name = system_name
         self.bodies = deepcopy(list(bodies or []))
         self.resolver = SystemMapWidget(self)

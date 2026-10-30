@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_22.0': 'Viste più rapide grazie alla cache delle fonti dei diari, delle immagini dei preferiti e delle immagini planetarie.',
+    'release.3_9_22.1': 'I soli salti non avviano più ricostruzioni inutili degli inventari; gli avvisi storici ripetuti sui materiali vengono raggruppati.',
+    'release.3_9_22.2': 'Le nuove posizioni e le verifiche dello stato EDSM non attendono più il completamento degli invii lenti.',
+    'release.3_9_22.3': 'Gestione del cursore più robusta quando le finestre vengono chiuse o ricreate.',
+    'release.3_9_22.4': 'Le distanze di 20 e 30 Ly sono disponibili in quattro viste commerciali; il valore predefinito resta 100 Ly.',
+    'release.3_9_22.5': 'La vista del mercato può filtrare le merci confermate nella stiva della nave. Il filtro viene sospeso con un avviso se le scorte sono sconosciute o obsolete.',
     'release.3_9_21.0': 'Gestione delle schermate per comandante su Steam e Heroic, con attribuzione affidabile e nomi dei file migliorati.',
     'release.3_9_21.1': 'Colori più chiari per gli stati delle missioni ed evidenziazione automatica delle destinazioni raggiunte con un breve lampeggio.',
     'release.3_9_21.2': 'Separazione più affidabile dei carichi di SRV, nave e carrier, con una migliore gestione degli eventi Cargo e MiningRefined.',
@@ -2444,3 +2450,11 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS["images.identity_wait"] = 'Conversione sospesa: impossibile associare in modo univoco istanza del gioco, comandante e origine degli screenshot.'
+
+# Confirmed ship cargo filter in the saved market browser.
+TRANSLATIONS.update({
+    'browse.cargo_only': 'Solo merci nella stiva',
+    'browse.cargo_unavailable': 'Filtro carico sospeso: l’inventario attuale della nave non è confermato.',
+    'browse.cargo_empty': 'La stiva della nave è confermata vuota.',
+    'browse.cargo_identity_unknown': 'Filtro carico sospeso: non tutte le merci sono identificabili con certezza.',
+})

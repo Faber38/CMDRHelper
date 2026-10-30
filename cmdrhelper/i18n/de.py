@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_22.0': 'Schnellere Ansichten durch Zwischenspeicherung von Journalquellen, Favoritenbildern und Planetengrafiken.',
+    'release.3_9_22.1': 'Reine Sprünge lösen keine unnötigen Inventarrekonstruktionen mehr aus; historische Materialwarnungen werden zusammengefasst.',
+    'release.3_9_22.2': 'Neue Systempositionen und EDSM-Statusprüfungen warten nicht mehr auf langsame Uploads.',
+    'release.3_9_22.3': 'Robustere Cursorsteuerung beim Schließen und Neuerstellen von Fenstern.',
+    'release.3_9_22.4': '20 und 30 Ly stehen zusätzlich in vier Handelsansichten zur Auswahl; der Standard bleibt 100 Ly.',
+    'release.3_9_22.5': '„Markt ansehen“ kann nach bestätigter Schiffsfracht filtern. Bei unbekanntem oder veraltetem Bestand pausiert der Filter sichtbar.',
     'release.3_9_21.0': 'Commanderbezogene Screenshot-Verwaltung für Steam und Heroic mit sicherer Zuordnung und verbesserten Dateinamen.',
     'release.3_9_21.1': 'Klarere Missionsstatus-Farben und automatische Markierung erreichter Missionsziele mit kurzem Blinkeffekt.',
     'release.3_9_21.2': 'Stabilere Trennung von SRV-, Schiffs- und Carrier-Fracht sowie verbesserte Verarbeitung von Cargo- und MiningRefined-Ereignissen.',
@@ -2465,3 +2471,11 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS["images.identity_wait"] = 'Konvertierung pausiert: keine eindeutige Zuordnung von Spielinstanz, Commander und Screenshot-Quelle.'
+
+# Confirmed ship cargo filter in the saved market browser.
+TRANSLATIONS.update({
+    'browse.cargo_only': 'Nur Waren im Frachtraum',
+    'browse.cargo_unavailable': 'Frachtfilter pausiert: Der aktuelle Schiffsbestand ist nicht bestätigt.',
+    'browse.cargo_empty': 'Der bestätigte Schiffsfrachtraum ist leer.',
+    'browse.cargo_identity_unknown': 'Frachtfilter pausiert: Nicht alle Waren sind eindeutig zugeordnet.',
+})

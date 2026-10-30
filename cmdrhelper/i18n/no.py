@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_22.0': 'Raskere visninger med mellomlagring av journalkilder, favorittbilder og planetgrafikk.',
+    'release.3_9_22.1': 'Hopp alene utløser ikke lenger unødvendig gjenoppbygging av beholdninger; gjentatte historiske materialadvarsler samles.',
+    'release.3_9_22.2': 'Nye systemposisjoner og EDSM-statuskontroller venter ikke lenger på trege opplastinger.',
+    'release.3_9_22.3': 'Mer robust markørhåndtering når vinduer lukkes eller opprettes på nytt.',
+    'release.3_9_22.4': '20 og 30 Ly kan nå velges i fire handelsvisninger; standardverdien er fortsatt 100 Ly.',
+    'release.3_9_22.5': 'Markedsvisningen kan filtrere etter bekreftet skipslast. Filteret settes synlig på pause når beholdningen er ukjent eller utdatert.',
     'release.3_9_21.0': 'Skjermbildehåndtering per kommandør for Steam og Heroic, med pålitelig tilordning og forbedrede filnavn.',
     'release.3_9_21.1': 'Tydeligere farger for oppdragsstatus og automatisk markering av nådde oppdragsmål med en kort blinkeffekt.',
     'release.3_9_21.2': 'Mer pålitelig skille mellom last i SRV, skip og carrier, med forbedret behandling av Cargo- og MiningRefined-hendelser.',
@@ -2321,3 +2327,11 @@ TRANSLATIONS.update({
 })
 
 TRANSLATIONS["images.identity_wait"] = 'Konvertering satt på pause: spillinstans, kommandør og skjermbildemappe kan ikke knyttes entydig sammen.'
+
+# Confirmed ship cargo filter in the saved market browser.
+TRANSLATIONS.update({
+    'browse.cargo_only': 'Bare varer i lasterommet',
+    'browse.cargo_unavailable': 'Lastfilteret er satt på pause: Skipets nåværende beholdning er ikke bekreftet.',
+    'browse.cargo_empty': 'Skipets lasterom er bekreftet tomt.',
+    'browse.cargo_identity_unknown': 'Lastfilteret er satt på pause: Ikke alle varer kan identifiseres entydig.',
+})

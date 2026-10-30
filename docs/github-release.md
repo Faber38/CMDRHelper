@@ -89,3 +89,26 @@ sowie die versionsbezogenen Kurztexte abgleichen und die Projekttests ausführen
 `/logs/`, `*.log` und numerisch rotierte Logs sind ignoriert. Persönliche
 Testreferenzen sind anonymisiert; optionale lokale Regressionen ermitteln die FID
 rein lesend anhand des Test-Commandernamens und betten keine reale Kennung ein.
+
+
+## Gezielte Dokumentationsausschlüsse ab 3.9.22
+
+`create_release.sh` enthält neben dem bisherigen README-Masterbild genau 50
+explizite Dokumentationspfade in `excluded`: 49 historische Entwicklungs- und
+Analyseberichte sowie das nicht verwendete `docs/icons/CMDRHelper.png`.
+Die Liste verwendet keine Platzhalter und entfernt nur die Kopien im temporären
+Programm-Staging. Quellen, Tests und GitHub-Quellcodearchive bleiben unverändert.
+Die konkrete Liste steht direkt im Skript und wird durch eine unabhängige feste
+Erwartung in `tests/test_release_packaging.py` geprüft.
+
+Lizenzen und Attribution, aktuelle Fachinformationen, die zwölf READMEs und ihre
+Bilder sowie die aktuelle Releasebeschreibung bleiben im Programm-ZIP. Die aus
+den READMEs verlinkte Beschreibung von 3.7.5 bleibt ebenfalls enthalten. Neue
+Releasebeschreibungen werden nicht automatisch ausgeschlossen.
+
+Der Publisher ruft dasselbe Skript im Commit-Snapshot auf; es gibt keine zweite
+Ausschlussliste im Publisher und keine neue `export-ignore`-Regel. Bestehende
+Installationen bleiben funktionsfähig. Der Updater entfernt jedoch alte Dateien
+nicht allein deshalb, weil sie in einem neuen Paket fehlen: bisher ausgelieferte
+Berichte können lokal erhalten bleiben. Dies ist keine nachträgliche Bereinigung
+der Benutzerinstallation.

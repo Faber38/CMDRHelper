@@ -19,6 +19,7 @@ from cmdrhelper.i18n import get_language, set_language, tr, _TRANSLATIONS
 from cmdrhelper.material_traders import (Coordinates, TraderStation, TraderType, TraderSearchResult,
                                        SearchStatus, MaterialTraderSearchService, CandidatePage)
 from cmdrhelper.ui.material_view import MaterialView
+from material_ui_cleanup import cleanup_material_view
 from cmdrhelper.ui.main_window import MainWindow
 from cmdrhelper.route_planner.route_planner_view import RoutePlannerView
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
@@ -66,7 +67,7 @@ class TraderUITests(unittest.TestCase):
         self.panel = self.view.trader_panel
         self.view.resize(1000, 780)
         self.view.show()
-        self.addCleanup(self.view.close)
+        self.addCleanup(cleanup_material_view, self.view)
 
     def wait(self):
         end = time.monotonic() + 4
