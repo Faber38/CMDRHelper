@@ -27,6 +27,9 @@ def diagnostic(component, phase, error=None, *, reason=None, status='pending'):
         value = getattr(error, attribute, None)
         if type(value) is int:
             fields[key] = value
+    for key in ('source_ref', 'line_number'):
+        if error is not None and hasattr(error, key):
+            fields[key] = getattr(error, key)
     logger.warning('Background operation status', extra={'diagnostic_fields': fields})
 
 

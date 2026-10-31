@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_9_23.0': 'De opstartvoorbereiding eindigt na de eerste lokale pogingen, ook bij journaalwerk in de wachtrij en trage uploads. Fouten blijven zichtbaar.',
+    'release.3_9_23.1': 'De waarderingslezer slaat ongeldige JSON-structuren over en kan daaropvolgende geldige metadata lezen.',
+    'release.3_9_23.2': 'Historische reparaties melden technische fouten nauwkeuriger, herkennen ongewijzigde fouten en proberen gecorrigeerde bestanden opnieuw.',
+    'release.3_9_23.3': 'Beschadigde journaalbestanden worden niet automatisch gerepareerd of als succesvol geïmporteerd gemarkeerd. Bestaande gegevens blijven beschermd.',
+
     'release.3_9_22.0': 'Snellere weergaven door caching van journaalbronnen, favorietafbeeldingen en planeetafbeeldingen.',
     'release.3_9_22.1': 'Alleen springen leidt niet meer tot onnodige inventarisreconstructies; herhaalde historische materiaalwaarschuwingen worden samengevoegd.',
     'release.3_9_22.2': 'Nieuwe systeemposities en EDSM-statuscontroles wachten niet meer op trage uploads.',

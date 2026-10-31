@@ -55,7 +55,7 @@ def sanitize(value):
 
 
 # Only explicitly named technical fields can bypass argument suppression.
-_FIELDS = {'version', 'os', 'python', 'qt', 'pyside', 'architecture', 'pid',
+_FIELDS = {'source_ref', 'line_number', 'version', 'os', 'python', 'qt', 'pyside', 'architecture', 'pid',
            'count', 'files', 'events', 'images', 'missing', 'fields', 'remaining',
            'success', 'restored', 'phase', 'mode', 'field', 'python_type',
            'value_class', 'outside_sqlite_int64', 'retry_seconds',
@@ -72,7 +72,7 @@ def _technical_fields(fields):
         'component': {'startup', 'journal_index', 'station_pads', 'history', 'unsold_cartography',
                       'commander_state', 'archive', 'catchup', 'live_journal', 'materials'},
         'status': {'running', 'success', 'partial', 'critical', 'pending', 'cancelled', 'incomplete', 'failed'},
-        'reason': {'pad_signature_mismatch', 'pad_checkpoint_changed', 'pad_lock_timeout', 'mapping_without_scan',
+        'reason': {'repair_prefix_incomplete', 'repair_json_syntax', 'repair_json_encoding', 'repair_json_type', 'pad_signature_mismatch', 'pad_checkpoint_changed', 'pad_lock_timeout', 'mapping_without_scan',
                    'qt_signal_unavailable', 'thread_start_failed', 'journal_changed_during_read',
                    'journal_replaced_or_truncated', 'partial_final_line', 'catchup_budget',
                    'os_error', 'sqlite_error', 'unexpected_error', 'retry_unchanged',
@@ -89,6 +89,14 @@ def _technical_fields(fields):
     }
     for key, value in fields.items():
         if key not in _FIELDS:
+            continue
+        if key == 'source_ref':
+            if isinstance(value, str) and re.fullmatch(r'[0-9a-f]{64}', value):
+                safe[key] = value
+            continue
+        if key == 'line_number':
+            if type(value) is int and 0 <= value < 2**63:
+                safe[key] = value
             continue
         if key in {'http_status', 'edsm_code', 'prepared_events', 'confirmed_events', 'skipped_events'}:
             maximum = 599 if key == 'http_status' else 999 if key == 'edsm_code' else 2**31 - 1

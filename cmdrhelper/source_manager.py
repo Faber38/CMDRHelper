@@ -20,6 +20,7 @@ class SourceRuntime:
     generation: int
     tracking: object = None
     transfer_error: str = ''
+    startup_transfer_deferred: bool = False
     live_events: list = field(default_factory=list)
     last_transfer_at: float = 0
     transfer_results: dict = field(default_factory=dict)
@@ -52,6 +53,7 @@ class SourceManager(QObject):
         self._ingesting = False
         self._local_published = False
         self._startup_started = False
+        self._startup_pending = None
         self.manual_requested = False
         self.manual_pending = None
         self.manual_errors = []
@@ -75,11 +77,34 @@ class SourceManager(QObject):
 
     def start(self):
         self.reconcile()
+        if self._startup_pending is None:
+            self._startup_pending = {(sid, rt.generation): rt.source.name
+                                     for sid, rt in self.runtimes.items()}
+        self._complete_startup_if_ready()
         self.timer.start()
         self._tick()
         # An empty (or entirely disabled) source registry has no request callback.
         # Let the existing queue completion path finish startup in that case too.
         self._next()
+
+    def _complete_startup_if_ready(self):
+        if self._startup_pending is not None and not self._startup_pending:
+            startup.complete(self.state, getattr(self.state, '_initialization_error', ''))
+
+    def _finish_startup_source(self, identity, generation, error=''):
+        key = (identity, generation)
+        if self._startup_pending is None or key not in self._startup_pending:
+            return
+        runtime = getattr(self, 'runtimes', {}).get(identity)
+        if runtime is not None and runtime.generation == generation:
+            for result in getattr(runtime.processor, 'repair_results', ()):
+                if result['status'] != 'complete':
+                    startup.issue(self.state, 'unsold_cartography'
+                                  if result['feature'] == 'unsold_cartography' else 'history')
+        name = self._startup_pending.pop(key)
+        if error and not getattr(self.state, '_initialization_error', ''):
+            self.state._initialization_error = name + ': ' + str(error)
+        self._complete_startup_if_ready()
 
     def stop(self):
         self.timer.stop()
@@ -99,6 +124,7 @@ class SourceManager(QObject):
                     if hasattr(observer, 'close'):
                         observer.close()
                 del self.runtimes[identity]
+                self._finish_startup_source(identity, runtime.generation, 'source_changed')
                 from .edsm_upload_status import retire_source
                 retire_source(self.state, (identity, runtime.generation))
                 if self.projected_source == identity:
@@ -169,6 +195,9 @@ class SourceManager(QObject):
             if not self.manual_pending:
                 self.manual_pending = None
                 self.state.databaseImportFinished.emit(self.state.database.stats(), ', '.join(self.manual_errors))
+        # Finish the captured local startup work before service/follow-up jobs.
+        if self._startup_pending:
+            self.queue.sort(key=lambda sid: not any(key[0] == sid for key in self._startup_pending))
         while self.queue:
             identity = self.queue.pop(0)
             runtime = self.runtimes.get(identity)
@@ -178,7 +207,9 @@ class SourceManager(QObject):
             self._ingesting = True
             self._local_published = False
             runtime.source.status = 'reading'
-            initial = not getattr(self.state, '_startup_completed', False)
+            initial = (identity, runtime.generation) in (self._startup_pending or {})
+            defer_transfer = bool(self._startup_pending and (not initial or len(self._startup_pending) > 1))
+            runtime.startup_transfer_deferred = defer_transfer
             if initial and not self._startup_started:
                 self._startup_started = True
                 startup.emit(self.state, 'initializationStarted', True, 0)
@@ -200,12 +231,12 @@ class SourceManager(QObject):
 
             source_snapshot = copy(runtime.source)
             def worker(rt=runtime, allowed=fids, service_configs=configs, bound_source=source_snapshot,
-                       report_startup=initial):
+                       report_startup=initial, defer_services=defer_transfer):
                 rows, error = None, ''
                 try:
                     def progress(phase, filename=''):
                         # Phases/files across sources have no common work unit.
-                        # Keep one busy dialog until the entire startup queue ends.
+                        # Report only the captured initial local attempts.
                         label = bound_source.name + (': ' + filename if filename else '')
                         startup.emit(self.state, 'initializationProgress', 0, 0, phase, label)
                     was_initialized = rt.processor.initialized
@@ -215,6 +246,9 @@ class SourceManager(QObject):
                     # The processor has committed and completed its verified
                     # projection. Upload completion is not a publication barrier.
                     self.ingested.emit(rt.source.id, rt.generation, rows)
+                    if defer_services:
+                        self.finished.emit(rt.source.id, rt.generation, rows, '')
+                        return
                     from .source_transfers import transfer
                     current = lambda: (not self.state._startup_cancel.is_set()
                         and self.runtimes.get(rt.source.id) is rt and rt.source.enabled)
@@ -243,7 +277,7 @@ class SourceManager(QObject):
                           lambda exc: self.finished.emit(identity, runtime.generation, None, type(exc).__name__), ())
             self.changed.emit()
             return
-        startup.complete(self.state, getattr(self.state, '_initialization_error', ''))
+        self._complete_startup_if_ready()
 
     def _edsm_upload_changed(self, identity, generation, fid, result):
         runtime = self.runtimes.get(identity)
@@ -261,6 +295,11 @@ class SourceManager(QObject):
         self._ingesting = False
         self._local_published = True
         self._publish_local(identity, generation, rows, '')
+        deferred = runtime.startup_transfer_deferred
+        runtime.startup_transfer_deferred = False
+        self._finish_startup_source(identity, generation)
+        if deferred:
+            self.request(identity)  # Run deferred transfers through the existing worker.
 
     def _publish_local(self, identity, generation, rows, error):
         inventory_changed = False
@@ -319,10 +358,6 @@ class SourceManager(QObject):
             self.state.databaseImportProgress.emit(self.manual_total - len(self.manual_pending),
                 self.manual_total, runtime.source.name if runtime else '')
         if runtime is not None and runtime.generation == generation:
-            if (error and not getattr(self.state, '_startup_completed', False)
-                    and not getattr(self.state, '_initialization_error', '')):
-                # Retain the first initial failure even if a watcher retry succeeds.
-                self.state._initialization_error = runtime.source.name + ': ' + str(error)
             for (fid, service), result in runtime.transfer_results.items():
                 if service == 'edsm':
                     continue  # Progress/results arrive through edsmUploadChanged.
@@ -339,6 +374,7 @@ class SourceManager(QObject):
             # Transfer status is independent of the already published local batch.
             # Do not replay its events or increment inventory revisions again.
             self.state.changed.emit()
+        self._finish_startup_source(identity, generation, error)
         self.changed.emit()
         self._next()
 

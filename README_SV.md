@@ -38,6 +38,13 @@ Journalmappen för Elite Dangerous hittas automatiskt när det är möjligt. Om 
 
 CMDRHelper söker efter uppdateringar vid start och har en inbyggd uppdateringsfunktion. Bekräfta en erbjuden uppdatering i programmet; den uppdaterar programmet och beroendena och startar om CMDRHelper. Efter den första installationen använder du normalt bara `start.bat` (Windows) eller `bash start.sh` (Linux). Du behöver inte köra `install.bat` eller `install.sh` manuellt igen för vanliga uppdateringar.
 
+## CMDRHelper v3.9.23
+
+- Startförberedelsen avslutas efter de första lokala försöken, även med journaljobb i kö och långsamma uppladdningar. Fel förblir synliga.
+- Värderingsläsaren hoppar över ogiltiga JSON-strukturer och kan läsa efterföljande giltiga metadata.
+- Historiska reparationer ger tydligare tekniska fel, känner igen oförändrade fel och försöker igen med korrigerade filer.
+- Skadade journaler repareras inte automatiskt och markeras inte som korrekt importerade. Befintliga data förblir skyddade.
+
 ## CMDRHelper v3.9.22
 
 - Snabbare vyer genom cachelagring av journalkällor, favoritbilder och planetgrafik.

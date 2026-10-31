@@ -7,7 +7,7 @@ from pathlib import Path
 import sqlite3
 
 from cmdrhelper.startup_runtime import diagnostic, StartupCancelled
-from cmdrhelper.backfill_support import IncompleteRepair, create_repair_backup
+from cmdrhelper.backfill_support import IncompleteRepair, JournalRepairError, create_repair_backup
 from cmdrhelper.biology_backfill import plan_biology_backfill
 from cmdrhelper.database import COMMANDER_STATE_REPAIR_REVISIONS, _store_biology_rows
 from cmdrhelper.mapping_metadata_backfill import plan_mapping_backfill, apply_mapping_plan
@@ -114,6 +114,8 @@ def _source_token(con, commander_id, check=None):
     paths.update(r[0] for r in con.execute('SELECT journal_file FROM journal_imports WHERE commander_id=?', (commander_id,)))
     stats = []
     try:
+        directory_entries = [(str(parent), sorted(p.name for p in parent.glob("Journal.*.log")))
+                             for parent in sorted({Path(name).parent for name in paths})]
         for name in sorted(paths):
             source = Path(name)
             st = source.stat()
@@ -134,8 +136,10 @@ def _source_token(con, commander_id, check=None):
     except OSError:
         return None
     identity = con.execute('SELECT fid FROM commanders WHERE id=?', (commander_id,)).fetchone()
-    raw = repr((2, COMMANDER_STATE_REPAIR_REVISIONS['unsold_cartography'], identity,
-                sorted(sessions, key=repr), sorted(imports, key=repr), stats))
+    if not identity or not isinstance(identity[0], str) or not identity[0].strip():
+        return None
+    raw = repr((3, sorted(COMMANDER_STATE_REPAIR_REVISIONS.items()), identity,
+                sorted(sessions, key=repr), sorted(imports, key=repr), directory_entries, stats))
     return hashlib.sha256(raw.encode()).hexdigest()
 
 
@@ -158,9 +162,22 @@ def run_startup_repairs(database, progress=None):
                 if progress:
                     progress(commander_id, feature)
                 check = (lambda: progress(commander_id, feature)) if progress else None
-                token = _source_token(con, commander_id, check) if feature == 'unsold_cartography' else None
+                failure_key = f'repair_failure/v1/{commander_id}/{feature}'
+                saved_failure = con.execute('SELECT value FROM app_meta WHERE key=?', (failure_key,)).fetchone()
+                token = _source_token(con, commander_id, check) if feature == 'unsold_cartography' or saved_failure else None
+                if (token and saved_failure and saved_failure[0] == token
+                        and repair_status(con, commander_id, feature) == 'failed'):
+                    detail = con.execute('SELECT last_error FROM commander_state_repairs WHERE commander_id=? AND feature=?',
+                                         (commander_id, feature)).fetchone()[0]
+                    diagnostic('history', 'history', reason='retry_unchanged', status='failed')
+                    results.append(dict(commander_id=commander_id, feature=feature, status='failed',
+                                        changed=0, detail=detail, backup=None, retry_deferred=True))
+                    continue
+                # Establish a before/after content proof only for uncached attempts.
+                if token is None:
+                    token = _source_token(con, commander_id, check)
                 cache_key = f'startup_retry:unsold_cartography:{commander_id}'
-                if token and repair_status(con, commander_id, feature) == 'incomplete':
+                if feature == 'unsold_cartography' and token and repair_status(con, commander_id, feature) == 'incomplete':
                     cached = con.execute('SELECT value FROM app_meta WHERE key=?', (cache_key,)).fetchone()
                     if cached and cached[0] == token:
                         diagnostic('unsold_cartography', 'history', reason='retry_unchanged', status='incomplete')
@@ -192,6 +209,7 @@ def run_startup_repairs(database, progress=None):
                     status = 'incomplete' if unresolved else 'complete'
                     detail = f'Mapping metadata absent from available journals: {unresolved}' if unresolved else ''
                     _record(con, commander_id, feature, status, detail)
+                    con.execute('DELETE FROM app_meta WHERE key=?', (failure_key,))
                     if feature == 'unsold_cartography':
                         con.execute('DELETE FROM app_meta WHERE key=?', (cache_key,))
                     con.commit()
@@ -208,6 +226,11 @@ def run_startup_repairs(database, progress=None):
                     try:
                         with con:
                             _record(con, commander_id, feature, status, detail)
+                            con.execute('DELETE FROM app_meta WHERE key=?', (failure_key,))
+                            if isinstance(exc, JournalRepairError) and token and _source_token(con, commander_id, check) == token:
+                                con.execute('INSERT OR REPLACE INTO app_meta(key,value) VALUES(?,?)', (failure_key, token))
+                                # Bounded persistent hints; eviction only causes a safe retry.
+                                con.execute("DELETE FROM app_meta WHERE key IN (SELECT key FROM app_meta WHERE key LIKE 'repair_failure/v1/%' ORDER BY key LIMIT MAX(0,(SELECT COUNT(*) FROM app_meta WHERE key LIKE 'repair_failure/v1/%')-128))")
                             if (feature == 'unsold_cartography' and token
                                     and getattr(exc, 'reason', '') == 'mapping_without_scan'
                                     and _source_token(con, commander_id, check) == token):

@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_9_23.0': 'Startup preparation finishes after the initial local attempts, even with queued journal work and slow uploads. Errors remain visible.',
+    'release.3_9_23.1': 'The valuation reader skips invalid JSON structures and can read subsequent valid metadata.',
+    'release.3_9_23.2': 'Historical repairs report technical errors more precisely, recognize unchanged failures and retry corrected files.',
+    'release.3_9_23.3': 'Damaged journals are not automatically repaired or marked as successfully imported. Existing data remains protected.',
+
     'release.3_9_22.0': 'Faster views with cached journal sources, favourite images and planet graphics.',
     'release.3_9_22.1': 'Jumps no longer trigger unnecessary inventory reconstruction; repeated historical material warnings are grouped.',
     'release.3_9_22.2': 'New system positions and EDSM status checks no longer wait for slow uploads.',

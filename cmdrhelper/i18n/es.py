@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_9_23.0': 'La preparación finaliza tras los primeros intentos locales, incluso con tareas de diarios pendientes y envíos lentos. Los errores siguen visibles.',
+    'release.3_9_23.1': 'El lector de valoración omite estructuras JSON no válidas y puede leer los metadatos válidos posteriores.',
+    'release.3_9_23.2': 'Las reparaciones históricas detallan mejor los errores técnicos, reconocen fallos sin cambios y vuelven a intentar los archivos corregidos.',
+    'release.3_9_23.3': 'Los diarios dañados no se reparan automáticamente ni se marcan como importados correctamente. Los datos existentes siguen protegidos.',
+
     'release.3_9_22.0': 'Vistas más rápidas gracias a la caché de fuentes de diarios, imágenes de favoritos y gráficos planetarios.',
     'release.3_9_22.1': 'Los saltos por sí solos ya no provocan reconstrucciones innecesarias del inventario; los avisos históricos repetidos sobre materiales se agrupan.',
     'release.3_9_22.2': 'Las nuevas posiciones y las comprobaciones de estado de EDSM ya no esperan a las cargas lentas.',

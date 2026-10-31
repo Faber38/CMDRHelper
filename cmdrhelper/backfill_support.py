@@ -2,6 +2,7 @@
 from contextlib import closing
 from datetime import datetime, timezone
 import json
+import hashlib
 from pathlib import Path
 import sqlite3
 
@@ -10,6 +11,15 @@ from cmdrhelper.journal_files import journal_sort_key
 
 class IncompleteRepair(ValueError):
     """Historical input is absent; retry when it becomes available."""
+
+
+class JournalRepairError(ValueError):
+    """Deterministic confirmed-prefix failure, with payload-free diagnostics."""
+    def __init__(self, filename, line, reason):
+        self.source_ref = hashlib.sha256(str(Path(filename).resolve()).encode()).hexdigest()
+        self.line_number = line
+        self.reason = reason
+        super().__init__(f'{reason} source_ref={self.source_ref} line={line}')
 
 
 def create_repair_backup(database, label='startup-repairs', backup_path=None):
@@ -65,10 +75,20 @@ def committed_journals(con, commander_id, journals=None, relevant_events=None):
         except FileNotFoundError as exc:
             raise IncompleteRepair(f'Missing historical journal: {filename}') from exc
         if len(raw) != limit or not raw.endswith(b'\n'):
-            raise ValueError(f'Journal prefix is incomplete: {filename}')
-        events = [json.loads(line) for line in raw.splitlines() if line.strip()]
-        if any(not isinstance(event, dict) for event in events):
-            raise ValueError(f'Invalid journal event: {filename}')
+            raise JournalRepairError(filename, raw.count(b'\n') + 1, 'repair_prefix_incomplete')
+        events = []
+        for number, line in enumerate(raw.splitlines(), 1):
+            if not line.strip():
+                continue
+            try:
+                event = json.loads(line)
+            except json.JSONDecodeError:
+                raise JournalRepairError(filename, number, 'repair_json_syntax') from None
+            except UnicodeDecodeError:
+                raise JournalRepairError(filename, number, 'repair_json_encoding') from None
+            if not isinstance(event, dict):
+                raise JournalRepairError(filename, number, 'repair_json_type')
+            events.append(event)
         relevant = relevant_events if relevant_events is not None else {
             'ScanOrganic', 'SAAScanComplete', 'Location', 'FSDJump', 'CarrierJump'}
         if not any(e.get('event') in relevant for e in events):

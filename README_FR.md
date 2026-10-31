@@ -38,6 +38,13 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.9.23
+
+- La préparation se termine après les premières tentatives locales, même avec des journaux en attente et des envois lents. Les erreurs restent visibles.
+- Le lecteur de valorisation ignore les structures JSON invalides et peut lire les métadonnées valides suivantes.
+- Les réparations historiques précisent les erreurs techniques, reconnaissent les échecs inchangés et réessaient les fichiers corrigés.
+- Les journaux endommagés ne sont ni réparés automatiquement ni déclarés importés avec succès. Les données existantes restent protégées.
+
 ## CMDRHelper v3.9.22
 
 - Affichage plus rapide grâce à la mise en cache des sources de journaux, des images des favoris et des planètes.

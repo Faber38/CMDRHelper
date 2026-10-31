@@ -22,7 +22,7 @@ class SourceStartupTests(unittest.TestCase):
         cls.app = QApplication.instance() or QApplication([])
 
     def start_case(self, count=0, *, disabled=False, missing=False, saved=False,
-                   disabled_ids=(), errors=(), slow=0, warm=False, window=False):
+                   disabled_ids=(), errors=(), slow=0, warm=False, window=False, transfer=None, on_state=None):
         temp = tempfile.TemporaryDirectory()
         self.addCleanup(temp.cleanup)
         root = Path(temp.name)
@@ -60,6 +60,9 @@ class SourceStartupTests(unittest.TestCase):
         if warm:
             for source in registry.enabled():
                 SourceProcessor(database, source.path).process()
+        if transfer is not None:
+            service_patch = patch('cmdrhelper.source_transfers.transfer', side_effect=transfer)
+            service_patch.start(); self.addCleanup(service_patch.stop)
         original_process = SourceProcessor.process
         def process(processor, **kwargs):
             if slow:
@@ -98,6 +101,8 @@ class SourceStartupTests(unittest.TestCase):
             pulse.timeout.connect(lambda: visible.append(bool(host._startup_progress_dialog
                 and host._startup_progress_dialog.isVisible())))
             pulse.start()
+        if on_state:
+            on_state(state)
         began = time.monotonic()
         deadline = time.monotonic()+10
         while not getattr(state, "_startup_completed", False) and time.monotonic() < deadline:
@@ -110,8 +115,14 @@ class SourceStartupTests(unittest.TestCase):
         self.assertEqual(bool(completed[0]), expected_failure)
         self.assertEqual(started, [(True, 0)] if registry.enabled() else [])
         self.assertTrue(all(current == total == 0 for current, total, _, _ in progress))
-        self.assertFalse(state.sources.running)
-        self.assertEqual(state.sources.queue, [])
+        # Startup completion no longer implies an idle background worker.
+        if transfer is None and on_state is None:
+            deadline = time.monotonic() + 10
+            while (state.sources.running or state.sources.queue) and time.monotonic() < deadline:
+                self.app.processEvents()
+                time.sleep(.01)
+            self.assertFalse(state.sources.running)
+            self.assertEqual(state.sources.queue, [])
         self.assertEqual(len(state.sources.runtimes), len(registry.enabled()))
         state.sources._next()
         self.assertEqual(len(completed), 1)  # Completion remains idempotent.
@@ -151,6 +162,77 @@ class SourceStartupTests(unittest.TestCase):
         expected = 1 if saved else (0 if missing else len(registry.enabled()))
         self.assertEqual(len(database.list_commanders()), expected)
         return state
+
+    def test_initial_sources_complete_while_upload_blocked(self):
+        import threading
+        entered, release = threading.Event(), threading.Event()
+        states, signals = [], []
+        began = time.monotonic()
+        timings = {}
+        def service(*args, **kwargs):
+            timings["upload_entered"] = time.monotonic() - began
+            entered.set()
+            release.wait(5)
+            return {}
+        def observe(state):
+            states.append(state)
+            state.initializationFinished.connect(signals.append)
+            state.initializationFinished.connect(lambda _: timings.update(finished=time.monotonic()-began))
+        try:
+            from cmdrhelper.source_processing import SourceProcessor
+            process = SourceProcessor.process
+            def measured(processor, **kwargs):
+                result = process(processor, **kwargs)
+                timings['local_finished'] = time.monotonic() - began
+                return result
+            with patch.object(SourceProcessor, 'process', measured):
+                state = self.start_case(2, window=True, transfer=service, on_state=observe)
+            timings['dialog_closed'] = time.monotonic() - began
+            self.assertTrue(entered.wait(1))
+            self.assertTrue(state.sources.running)
+            self.assertEqual(len(state.database.list_commanders()), 2)
+            self.assertEqual(signals, [''])
+            print('Startup with blocked upload:', timings, flush=True)
+        finally:
+            release.set()
+        deadline = time.monotonic() + 5
+        while (state.sources.running or state.sources.queue) and time.monotonic() < deadline:
+            self.app.processEvents(); time.sleep(.01)
+        self.assertFalse(state.sources.running)
+        self.assertEqual(signals, [''])
+
+    def test_repeated_requests_do_not_extend_startup(self):
+        from cmdrhelper.source_manager import SourceManager
+        original = SourceManager._ingested
+        calls = []
+        def wrapped(manager, identity, generation, rows):
+            calls.append(identity)
+            if len(calls) < 5:
+                manager.request(identity)
+                manager._tick()
+            original(manager, identity, generation, rows)
+        with patch.object(SourceManager, '_ingested', wrapped):
+            state = self.start_case(1, window=True, on_state=lambda state: None)
+            self.assertTrue(state._startup_completed)
+            self.assertLess(len(calls), 5)
+            deadline = time.monotonic() + 5
+            while len(calls) < 5 and time.monotonic() < deadline:
+                self.app.processEvents(); time.sleep(.01)
+            self.assertGreaterEqual(len(calls), 5)
+
+    def test_retired_initial_generation_cannot_report_success(self):
+        from cmdrhelper.source_manager import SourceManager
+        from types import SimpleNamespace
+        state = SimpleNamespace(_initialization_error='', _startup_completed=False,
+                                initializationFinished=Mock())
+        manager = SimpleNamespace(state=state, _startup_pending={('source', 1): 'Test'})
+        manager._complete_startup_if_ready = lambda: SourceManager._complete_startup_if_ready(manager)
+        SourceManager._finish_startup_source(manager, 'source', 2)
+        self.assertFalse(state._startup_completed)
+        SourceManager._finish_startup_source(manager, 'source', 1, 'source_changed')
+        self.assertEqual(state.startup_status, 'critical')
+        SourceManager._finish_startup_source(manager, 'source', 1)
+        state.initializationFinished.emit.assert_called_once_with('Test: source_changed')
 
     def test_no_sources(self):
         self.start_case()
@@ -214,13 +296,14 @@ class SourceStartupTests(unittest.TestCase):
         self.assertEqual(state.system, 'Later')
         self.assertEqual(signals, [])
 
-    def test_progress_does_not_add_snapshot_replays(self):
+    def test_deferred_service_uses_one_regular_catchup_without_history_replay(self):
         from cmdrhelper.journal_reader import read_latest_state
         with patch('cmdrhelper.journal_reader.read_latest_state', wraps=read_latest_state) as read:
             self.start_case(2, window=True)
             # A cold database also needs the existing full-history repair once
-            # per commander. The regular snapshot is built only by each worker.
+            # per commander. One deferred service pass uses the existing catch-up
+            # worker; it must not repeat the full historical reconstruction.
             self.assertEqual(sum(bool(call.kwargs.get('force_full_history'))
                                  for call in read.call_args_list), 2)
             self.assertEqual(sum(not call.kwargs.get('force_full_history')
-                                 for call in read.call_args_list), 2)
+                                 for call in read.call_args_list), 3)

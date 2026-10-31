@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_9_23.0': 'Käynnistyksen valmistelu päättyy ensimmäisten paikallisten yritysten jälkeen, vaikka jonossa olisi lokitöitä tai lähetykset olisivat hitaita. Virheet jäävät näkyviin.',
+    'release.3_9_23.1': 'Arvonmäärityksen lukija ohittaa virheelliset JSON-rakenteet ja voi lukea niitä seuraavat kelvolliset metatiedot.',
+    'release.3_9_23.2': 'Historiatietojen korjaukset ilmoittavat tekniset virheet tarkemmin, tunnistavat muuttumattomat virheet ja yrittävät korjattuja tiedostoja uudelleen.',
+    'release.3_9_23.3': 'Vioittuneita lokeja ei korjata automaattisesti eikä merkitä onnistuneesti tuoduiksi. Olemassa olevat tiedot säilyvät suojattuina.',
+
     'release.3_9_22.0': 'Nopeammat näkymät lokilähteiden, suosikkikuvien ja planeettagrafiikan välimuistin avulla.',
     'release.3_9_22.1': 'Pelkkä hyppy ei enää käynnistä tarpeetonta varastojen uudelleenlaskentaa; toistuvat vanhoja materiaalitapahtumia koskevat varoitukset kootaan yhteen.',
     'release.3_9_22.2': 'Uudet järjestelmäsijainnit ja EDSM-tilan tarkistukset eivät enää odota hitaita lähetyksiä.',

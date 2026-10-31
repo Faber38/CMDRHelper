@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_9_23.0': 'Oppstartsforberedelsen avsluttes etter de første lokale forsøkene, også med journaljobber i kø og treg opplasting. Feil forblir synlige.',
+    'release.3_9_23.1': 'Verdsettingsleseren hopper over ugyldige JSON-strukturer og kan lese etterfølgende gyldige metadata.',
+    'release.3_9_23.2': 'Historiske reparasjoner gir mer presise tekniske feil, gjenkjenner uendrede feil og prøver korrigerte filer på nytt.',
+    'release.3_9_23.3': 'Skadede journaler repareres ikke automatisk eller merkes som vellykket importert. Eksisterende data er fortsatt beskyttet.',
+
     'release.3_9_22.0': 'Raskere visninger med mellomlagring av journalkilder, favorittbilder og planetgrafikk.',
     'release.3_9_22.1': 'Hopp alene utløser ikke lenger unødvendig gjenoppbygging av beholdninger; gjentatte historiske materialadvarsler samles.',
     'release.3_9_22.2': 'Nye systemposisjoner og EDSM-statuskontroller venter ikke lenger på trege opplastinger.',

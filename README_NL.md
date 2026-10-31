@@ -38,6 +38,13 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## CMDRHelper v3.9.23
+
+- De opstartvoorbereiding eindigt na de eerste lokale pogingen, ook bij journaalwerk in de wachtrij en trage uploads. Fouten blijven zichtbaar.
+- De waarderingslezer slaat ongeldige JSON-structuren over en kan daaropvolgende geldige metadata lezen.
+- Historische reparaties melden technische fouten nauwkeuriger, herkennen ongewijzigde fouten en proberen gecorrigeerde bestanden opnieuw.
+- Beschadigde journaalbestanden worden niet automatisch gerepareerd of als succesvol geïmporteerd gemarkeerd. Bestaande gegevens blijven beschermd.
+
 ## CMDRHelper v3.9.22
 
 - Snellere weergaven door caching van journaalbronnen, favorietafbeeldingen en planeetafbeeldingen.

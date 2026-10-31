@@ -38,6 +38,13 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.23
+
+- Käynnistyksen valmistelu päättyy ensimmäisten paikallisten yritysten jälkeen, vaikka jonossa olisi lokitöitä tai lähetykset olisivat hitaita. Virheet jäävät näkyviin.
+- Arvonmäärityksen lukija ohittaa virheelliset JSON-rakenteet ja voi lukea niitä seuraavat kelvolliset metatiedot.
+- Historiatietojen korjaukset ilmoittavat tekniset virheet tarkemmin, tunnistavat muuttumattomat virheet ja yrittävät korjattuja tiedostoja uudelleen.
+- Vioittuneita lokeja ei korjata automaattisesti eikä merkitä onnistuneesti tuoduiksi. Olemassa olevat tiedot säilyvät suojattuina.
+
 ## CMDRHelper v3.9.22
 
 - Nopeammat näkymät lokilähteiden, suosikkikuvien ja planeettagrafiikan välimuistin avulla.

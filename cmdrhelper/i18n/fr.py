@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_9_23.0': 'La préparation se termine après les premières tentatives locales, même avec des journaux en attente et des envois lents. Les erreurs restent visibles.',
+    'release.3_9_23.1': 'Le lecteur de valorisation ignore les structures JSON invalides et peut lire les métadonnées valides suivantes.',
+    'release.3_9_23.2': 'Les réparations historiques précisent les erreurs techniques, reconnaissent les échecs inchangés et réessaient les fichiers corrigés.',
+    'release.3_9_23.3': 'Les journaux endommagés ne sont ni réparés automatiquement ni déclarés importés avec succès. Les données existantes restent protégées.',
+
     'release.3_9_22.0': 'Affichage plus rapide grâce à la mise en cache des sources de journaux, des images des favoris et des planètes.',
     'release.3_9_22.1': 'Les sauts seuls ne déclenchent plus de reconstruction inutile des inventaires ; les avertissements historiques répétés sur les matériaux sont regroupés.',
     'release.3_9_22.2': 'Les nouvelles positions et les vérifications du statut EDSM n’attendent plus la fin des envois lents.',

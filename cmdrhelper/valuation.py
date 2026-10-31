@@ -58,12 +58,20 @@ def is_live_valuation(body: dict) -> bool:
 
 @lru_cache(maxsize=256)
 def _journal_context(path: str, modified_ns: int) -> dict:
+    # Imported lazily: journal_reader also uses the valuation functions.
+    from cmdrhelper.journal_reader import _valid_journal_event, _log_invalid_journal_structure
+
     context = {}
+    invalid = False
     with Path(path).open(encoding="utf-8", errors="replace") as handle:
         for line in handle:
             try:
                 event = json.loads(line)
-            except ValueError:
+            except json.JSONDecodeError:
+                invalid = True
+                continue
+            if not _valid_journal_event(event):
+                invalid = True
                 continue
             if event.get("event") == "Fileheader":
                 context["game_version"] = event.get("gameversion") or ""
@@ -75,6 +83,8 @@ def _journal_context(path: str, modified_ns: int) -> dict:
                 break
             elif event.get("event") in ("Location", "FSDJump", "Scan"):
                 break
+    if invalid:
+        _log_invalid_journal_structure()
     return context
 
 

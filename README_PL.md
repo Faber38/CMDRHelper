@@ -38,6 +38,13 @@ Folder dzienników Elite Dangerous jest wykrywany automatycznie, jeśli to możl
 
 CMDRHelper sprawdza aktualizacje przy uruchomieniu i ma wbudowany mechanizm aktualizacji. Potwierdź proponowaną aktualizację w aplikacji; zaktualizuje ona program i zależności oraz uruchomi CMDRHelper ponownie. Po pierwszej instalacji zwykle wystarczy używać `start.bat` (Windows) lub `bash start.sh` (Linux). Przy zwykłych aktualizacjach nie trzeba ponownie ręcznie uruchamiać `install.bat` ani `install.sh`.
 
+## CMDRHelper v3.9.23
+
+- Przygotowanie kończy się po pierwszych próbach lokalnych, także przy kolejce dzienników i wolnym wysyłaniu. Błędy pozostają widoczne.
+- Czytnik wyceny pomija nieprawidłowe struktury JSON i może odczytać kolejne poprawne metadane.
+- Naprawy historii dokładniej opisują błędy techniczne, rozpoznają niezmienione błędy i ponawiają próby po poprawieniu plików.
+- Uszkodzone dzienniki nie są automatycznie naprawiane ani oznaczane jako pomyślnie zaimportowane. Istniejące dane pozostają chronione.
+
 ## CMDRHelper v3.9.22
 
 - Szybsze widoki dzięki pamięci podręcznej źródeł dzienników, obrazów ulubionych i grafik planet.

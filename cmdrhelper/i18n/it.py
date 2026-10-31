@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_9_23.0': 'La preparazione termina dopo i primi tentativi locali, anche con attività journal in coda e invii lenti. Gli errori restano visibili.',
+    'release.3_9_23.1': 'Il lettore di valutazione ignora le strutture JSON non valide e può leggere i metadati validi successivi.',
+    'release.3_9_23.2': 'Le riparazioni storiche segnalano meglio gli errori tecnici, riconoscono gli errori invariati e riprovano i file corretti.',
+    'release.3_9_23.3': 'I journal danneggiati non vengono riparati automaticamente né contrassegnati come importati con successo. I dati esistenti restano protetti.',
+
     'release.3_9_22.0': 'Viste più rapide grazie alla cache delle fonti dei diari, delle immagini dei preferiti e delle immagini planetarie.',
     'release.3_9_22.1': 'I soli salti non avviano più ricostruzioni inutili degli inventari; gli avvisi storici ripetuti sui materiali vengono raggruppati.',
     'release.3_9_22.2': 'Le nuove posizioni e le verifiche dello stato EDSM non attendono più il completamento degli invii lenti.',

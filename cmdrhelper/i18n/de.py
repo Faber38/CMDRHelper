@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_9_23.0': 'Die Startvorbereitung endet nach den lokalen Erstversuchen, auch bei weiteren Journalaufträgen und langsamen Uploads. Fehler bleiben sichtbar.',
+    'release.3_9_23.1': 'Der Bewertungsleser überspringt ungültige JSON-Strukturen und kann nachfolgende gültige Metadaten lesen.',
+    'release.3_9_23.2': 'Historische Reparaturen melden technische Fehler genauer; unveränderte Fehler werden wiedererkannt und korrigierte Dateien erneut geprüft.',
+    'release.3_9_23.3': 'Beschädigte Journale werden nicht automatisch repariert oder als erfolgreich importiert bestätigt. Bestehende Daten bleiben geschützt.',
+
     'release.3_9_22.0': 'Schnellere Ansichten durch Zwischenspeicherung von Journalquellen, Favoritenbildern und Planetengrafiken.',
     'release.3_9_22.1': 'Reine Sprünge lösen keine unnötigen Inventarrekonstruktionen mehr aus; historische Materialwarnungen werden zusammengefasst.',
     'release.3_9_22.2': 'Neue Systempositionen und EDSM-Statusprüfungen warten nicht mehr auf langsame Uploads.',

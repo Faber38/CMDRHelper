@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_9_23.0': 'Başlangıç hazırlığı, sırada günlük işleri ve yavaş yüklemeler olsa da ilk yerel denemelerden sonra tamamlanır. Hatalar görünür kalır.',
+    'release.3_9_23.1': 'Değerleme okuyucusu geçersiz JSON yapılarını atlar ve sonraki geçerli üst verileri okuyabilir.',
+    'release.3_9_23.2': 'Geçmiş veri onarımları teknik hataları daha açık bildirir, değişmeyen hataları tanır ve düzeltilen dosyaları yeniden dener.',
+    'release.3_9_23.3': 'Bozuk günlükler otomatik olarak onarılmaz veya başarıyla içe aktarılmış sayılmaz. Mevcut veriler korunur.',
+
     'release.3_9_22.0': 'Günlük kaynakları, favori resimleri ve gezegen grafikleri önbelleğe alınarak görünümler hızlandırıldı.',
     'release.3_9_22.1': 'Yalnızca sıçrama yapılması artık gereksiz envanter yeniden oluşturma işlemlerini tetiklemez; tekrarlanan geçmiş malzeme uyarıları gruplandırılır.',
     'release.3_9_22.2': 'Yeni sistem konumları ve EDSM durum kontrolleri artık yavaş yüklemelerin bitmesini beklemez.',

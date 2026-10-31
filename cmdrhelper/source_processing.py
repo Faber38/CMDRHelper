@@ -14,6 +14,7 @@ class SourceProcessor:
         self.context = None
         self.sessions = []
         self.initialized = False
+        self.repair_results = []
         self._projection = None
         self.inventory_kinds = None
         self._inventory_retry = False
@@ -91,7 +92,7 @@ class SourceProcessor:
             if progress:
                 progress('startup.phase.history')
             from .startup_repairs import run_startup_repairs
-            run_startup_repairs(self.database.path)
+            self.repair_results = run_startup_repairs(self.database.path)
             from .station_pad_store import read_local
             read_local(self.database.path, self.path, cancel=cancel)
             for cid in {row['commander_id'] for row in sessions if row.get('commander_id') is not None}:

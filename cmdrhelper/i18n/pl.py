@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    'release.3_9_23.0': 'Przygotowanie kończy się po pierwszych próbach lokalnych, także przy kolejce dzienników i wolnym wysyłaniu. Błędy pozostają widoczne.',
+    'release.3_9_23.1': 'Czytnik wyceny pomija nieprawidłowe struktury JSON i może odczytać kolejne poprawne metadane.',
+    'release.3_9_23.2': 'Naprawy historii dokładniej opisują błędy techniczne, rozpoznają niezmienione błędy i ponawiają próby po poprawieniu plików.',
+    'release.3_9_23.3': 'Uszkodzone dzienniki nie są automatycznie naprawiane ani oznaczane jako pomyślnie zaimportowane. Istniejące dane pozostają chronione.',
+
     'release.3_9_22.0': 'Szybsze widoki dzięki pamięci podręcznej źródeł dzienników, obrazów ulubionych i grafik planet.',
     'release.3_9_22.1': 'Same skoki nie uruchamiają już zbędnego odtwarzania stanów magazynowych; powtarzające się historyczne ostrzeżenia o materiałach są grupowane.',
     'release.3_9_22.2': 'Nowe pozycje w systemach i sprawdzanie statusu EDSM nie czekają już na powolne wysyłanie danych.',
