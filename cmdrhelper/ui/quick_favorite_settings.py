@@ -1,4 +1,5 @@
 """Explicit, single-combination global shortcut configuration."""
+from contextlib import nullcontext
 from PySide6.QtGui import QKeySequence
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
                                QDialog, QKeySequenceEdit, QDialogButtonBox, QLineEdit)
@@ -37,7 +38,8 @@ class QuickFavoriteSettings(QWidget):
         self.label.setText(tr('quick_favorite.hotkey') + ': ' + display)
         self.edit.setText(tr('quick_favorite.change') if active else tr('quick_favorite.set'))
         self.remove.setEnabled(bool(active or self.hotkey.settings.value('quick_favorite/hotkey', '')))
-        self.error.setText(tr('quick_favorite.registration_failed') if self.hotkey.error else '')
+        self.error.setText(self.hotkey.validation_error or (
+            tr('quick_favorite.registration_failed') if self.hotkey.error else ''))
 
     def failed(self, _error):
         self.refresh()
@@ -67,10 +69,12 @@ class QuickFavoriteSettings(QWidget):
         def accept():
             sequence = edit.keySequence().toString(QKeySequence.PortableText)
             if not sequence or not self.hotkey.set_hotkey(sequence):
-                error.setText(tr('quick_favorite.registration_failed'))
+                error.setText(self.hotkey.validation_error or tr('quick_favorite.registration_failed'))
                 return
             self.refresh()
             dialog.accept()
 
         buttons.accepted.connect(accept)
-        dialog.exec()
+        manager = getattr(self.hotkey, 'shortcut_manager', None)
+        with manager.recording() if manager is not None else nullcontext():
+            dialog.exec()

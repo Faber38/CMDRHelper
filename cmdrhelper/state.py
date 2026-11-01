@@ -1,4 +1,5 @@
 from __future__ import annotations
+from cmdrhelper.exit_tasks import start_thread
 
 from cmdrhelper.body_parents import choose_parents, verified_parents
 
@@ -1137,8 +1138,8 @@ class AppState(QObject):
                     self.changed.emit()
 
         try:
-            threading.Thread(target=worker, daemon=True,
-                             name="CMDRHelper-Inara-Upload").start()
+            start_thread(threading.Thread(target=worker, daemon=True,
+                             name="CMDRHelper-Inara-Upload"))
         except Exception:
             jobs.pop(commander_fid, None)
             self._inara_upload_token = None
@@ -1198,11 +1199,11 @@ class AppState(QObject):
                     self._edsm_upload_running = False
                     self.changed.emit()
 
-        threading.Thread(
+        start_thread(threading.Thread(
             target=worker,
             daemon=True,
             name="CMDRHelper-EDSM-Upload",
-        ).start()
+        ))
 
     def _own_explorer_bodies(self, current_bodies):
         """Live scans lead; only this live commander's saved scans fill gaps.
@@ -1497,14 +1498,14 @@ class AppState(QObject):
                     source,
                 )
 
-        threading.Thread(
+        start_thread(threading.Thread(
             target=worker,
             daemon=True,
             name=(
                 "CMDRHelper-EDSM-"
                 + system_name[:24]
             ),
-        ).start()
+        ))
 
     def _on_edsm_bodies_ready(
         self,

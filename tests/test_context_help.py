@@ -46,6 +46,8 @@ class ContextHelpTests(unittest.TestCase):
         cls.app = QApplication.instance() or QApplication([])
 
     def setUp(self):
+        from cmdrhelper.exit_tasks import task_gate
+        task_gate().resume()
         self.state = SimpleNamespace(
             settings=_SettingsStub(),
             initializationStarted=_SignalStub(),
@@ -76,6 +78,9 @@ class ContextHelpTests(unittest.TestCase):
             item.start()
             self.addCleanup(item.stop)
         self.window = MainWindow(self.state)
+        from PySide6.QtCore import QCoreApplication, QEvent
+        self.addCleanup(QCoreApplication.sendPostedEvents, None, QEvent.DeferredDelete)
+        self.addCleanup(self.window.deleteLater)
         self.addCleanup(self.window.close)
 
     def test_material_navigation_is_appended_without_moving_existing_pages(self):
@@ -575,7 +580,10 @@ class ContextHelpTests(unittest.TestCase):
             "aktive Journal-FID bestätigten Cargo-Snapshot",
         ):
             self.assertIn(passage, topic.text)
-        self.assertEqual(topic.text.count("<h3>"), 35)
+        self.assertEqual(topic.text.count("<h3>"), 36)
+        self.assertIn("<h3>Tastenkürzel</h3>", topic.text)
+        self.assertIn("VoiceAttack", topic.text)
+        self.assertIn("Beenden verwendet denselben sicheren Ablauf", topic.text)
         self.assertIn("diagnose_summary.txt", topic.text)
         self.assertEqual(topic.text.count("<ul>"), 4)
 

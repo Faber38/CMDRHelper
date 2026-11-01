@@ -109,6 +109,12 @@ def validated_cargo(event, fid):
         return None
 
 
+def _copy_stock(stock):
+    # Reducer stocks contain only validated str -> int entries. A separate dict
+    # preserves snapshot isolation without recursively copying immutable values.
+    return stock.copy() if stock is not None else None
+
+
 class MiningReducer:
     def __init__(self, commander_id, fid):
         self.result = MiningInventory(commander_id, fid)
@@ -139,7 +145,7 @@ class MiningReducer:
         self.seen.add(source)
         et = event.get("event")
         self.corroborated_count = False
-        before = deepcopy(self.stocks)
+        before = {vessel: _copy_stock(stock) for vessel, stock in self.stocks.items()}
         previous_count, self.pending_count = self.pending_count, None
         if source[0] != self._journal:
             self._journal = source[0]
@@ -214,7 +220,7 @@ class MiningReducer:
                 if event.get("ID") is not None and event["ID"] != self.srv_id:
                     srv = None
                 if ship is not None and srv is not None and type(self.ship_id) is int:
-                    self.docking_stock = deepcopy(ship)
+                    self.docking_stock = _copy_stock(ship)
                     for name, count in srv.items():
                         self.docking_stock[name] = self.docking_stock.get(name, 0) + count
                 if srv is None or sum(srv.values()):
@@ -240,7 +246,7 @@ class MiningReducer:
                 if vessel is None:
                     raise ValueError("unknown cargo vessel")
                 self.result.vessel = vessel
-                previous = deepcopy(self.stocks[vessel])
+                previous = _copy_stock(self.stocks[vessel])
                 snapshot = validated_cargo(event, self.result.fid)
                 if snapshot is not None:
                     self.stocks[vessel] = {item["frontier_name"]: item["count"]
@@ -262,7 +268,7 @@ class MiningReducer:
                 if (event.get("timestamp") and type(event.get("Count")) is int
                         and (snapshot is not None or "Inventory" not in event)
                         and (previous is None or sum(previous.values()) != event["Count"])):
-                    self.pending_count = dict(stock=previous, snapshot=deepcopy(self.stocks[vessel]),
+                    self.pending_count = dict(stock=previous, snapshot=_copy_stock(self.stocks[vessel]),
                         vessel=vessel, count=event["Count"], timestamp=event["timestamp"], journal=source[0])
             elif et in ("MiningRefined", "CollectCargo", "EjectCargo", "MarketBuy", "MarketSell"):
                 name = frontier_name(event.get("Type"))
@@ -328,8 +334,8 @@ class MiningReducer:
                 self.stocks[self.result.vessel] = None
         except (ValueError, TypeError, AttributeError):
             self.stocks = {"Ship": None, "SRV": None}
-        self.result.srv = deepcopy(self.stocks["SRV"])
-        self.result.ship = deepcopy(self.stocks["Ship"])
+        self.result.srv = _copy_stock(self.stocks["SRV"])
+        self.result.ship = _copy_stock(self.stocks["Ship"])
         self.result.ship_id = self.ship_id
         self.result.ship_type = self.ship_type
         for vessel, stock in self.stocks.items():
@@ -340,7 +346,7 @@ class MiningReducer:
             elif stock != before[vessel] or (et == "Cargo" and event.get("Vessel", "").casefold() == vessel.casefold()):
                 full = et == "Cargo" and validated_cargo(event, self.result.fid) is not None
                 record["quality"] = "confirmed" if full else "tracked"
-                record.update(last_confirmed=deepcopy(stock), source=list(source),
+                record.update(last_confirmed=_copy_stock(stock), source=list(source),
                               confirmed_at=event.get("timestamp", ""), ship_id=self.ship_id,
                               ship_type=self.ship_type, source_folder=folder)
 

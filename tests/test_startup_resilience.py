@@ -160,8 +160,7 @@ class RuntimeTests(unittest.TestCase):
         host._cleanup_parent_backup = Mock()
         try:
             MainWindow._initialization_finished(host, '')
-            self.assertEqual(host._startup_progress_dialog.status, 'partial')
-            self.assertFalse(host._startup_progress_dialog.ships.running)
+            self.assertIsNone(host._startup_progress_dialog)
             self.assertFalse(host._parent_backup_startup_succeeded)
         finally:
             host.close()

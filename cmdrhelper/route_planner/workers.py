@@ -28,6 +28,11 @@ class CarrierRouteWorker(QRunnable):
         self.signals = CarrierRouteSignals()
         self.setAutoDelete(False)
 
+    def cancel(self):
+        event = getattr(self.client, "cancelled", None)
+        if event is not None:
+            event.set()
+
     @Slot()
     def run(self):
         try:
@@ -58,6 +63,11 @@ class ShipRouteWorker(QRunnable):
         self.database_path = database_path
         self.signals = ShipRouteSignals()
         self.setAutoDelete(False)
+
+    def cancel(self):
+        event = getattr(self.client, "cancelled", None)
+        if event is not None:
+            event.set()
 
     @Slot()
     def run(self):

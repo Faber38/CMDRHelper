@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_24.0': 'Referans sistem değişmediğinde geçici olarak boşalmayan kararlı pazar listeleri; daha az filtre güncellemesi ve tüm mallar, madencilik kaynakları veya gemi yükü için birbirini dışlayan üç mod.',
+    'release.3_9_24.1': 'Küresel hızlı favori kısayoluyla çakışmaları denetleyen, merkezi ve kompakt kısayol yönetiminde altı özelleştirilebilir eylem.',
+    'release.3_9_24.2': 'Düğme, pencerenin kapatma simgesi ve kısayol üzerinden aynı güvenli çıkış: kaydedilmemiş ayarları korur, önemli arka plan işlerini tamamlar ve madencilik kontrol noktalarını kaydeder. İyileştirilen bekleme penceresi ilerlemeyi gösterir.',
+    'release.3_9_24.3': 'Teknik alt bilgi kaldırıldı. Gizliliği koruyan hata ayrıntıları tanılama ZIP dosyasında kalır ve kritik başlangıç hataları görünür olmaya devam eder. Odyssey’deki siyah girinti çubuğu düzeltildi.',
+    'release.3_9_24.4': 'Gereksiz tablo ve yerleşim güncellemeleri azaltılarak daha az tekrarlanan süreç taraması ve daha hızlı madencilik sayfası oluşturma.',
+    'release.3_9_24.5': 'Değişmeyen görüntüleme tercihleri artık yeniden yazılmaz; madencilik envanterleri daha az kopyalama ile yeniden oluşturulur. Stok kanıtları ve doğrulanmış kayıt tamamlama korunur.',
+
     'release.3_9_23.0': 'Başlangıç hazırlığı, sırada günlük işleri ve yavaş yüklemeler olsa da ilk yerel denemelerden sonra tamamlanır. Hatalar görünür kalır.',
     'release.3_9_23.1': 'Değerleme okuyucusu geçersiz JSON yapılarını atlar ve sonraki geçerli üst verileri okuyabilir.',
     'release.3_9_23.2': 'Geçmiş veri onarımları teknik hataları daha açık bildirir, değişmeyen hataları tanır ve düzeltilen dosyaları yeniden dener.',
@@ -2335,8 +2342,53 @@ TRANSLATIONS["images.identity_wait"] = 'Dönüştürme duraklatıldı: oyun örn
 
 # Confirmed ship cargo filter in the saved market browser.
 TRANSLATIONS.update({
-    'browse.cargo_only': 'Yalnızca kargo bölümündeki mallar',
+    'browse.all_goods': 'Tüm mallar',
+    'browse.reference_loading': 'Referans sisteminin koordinatları yükleniyor …',
+    'browse.cargo_only': 'Yalnızca geminin kargo bölümündeki mallar',
     'browse.cargo_unavailable': 'Kargo filtresi duraklatıldı: Geminin mevcut envanteri doğrulanmadı.',
     'browse.cargo_empty': 'Geminin kargo bölümünün boş olduğu doğrulandı.',
     'browse.cargo_identity_unknown': 'Kargo filtresi duraklatıldı: Tüm mallar kesin olarak tanımlanamıyor.',
+})
+
+# Startup errors are actionable here; technical details remain in diagnostics.
+TRANSLATIONS['startup.action_required'] = 'Ayarlarda günlük kaynaklarını ve erişim izinlerini kontrol edin. Sorun devam ederse hata analizi için orada bir tanılama ZIP dosyası oluşturun.'
+
+# Central local shortcuts; existing global favorite retains its backend.
+TRANSLATIONS.update({
+    'shortcuts.title': 'Klavye kısayolları',
+    'shortcuts.help': 'Yerel kısayollar yalnızca etkin CMDRHelper ana penceresinde çalışır. Metin girişi, iletişim kutuları ve açılır menüler sırasında engellenir. Hızlı favori genel kalır ve Helper dışında da çalışır.',
+    'shortcuts.voiceattack': 'VoiceAttack: CMDRHelper penceresini seçin, simge durumundaysa geri yükleyin ve etkinleştirin. Ardından ayarlanan tuş birleşimini gönderin. CMDRHelper etkinleştirilemiyorsa oyuna göndermeyin.',
+    'shortcuts.allowed': 'Tek birleşim kullanın: Ctrl ile harf/rakam veya uygun bir işlev tuşu; isteğe bağlı olarak Shift eklenebilir. Standart, sistem, AltGr ve metin giriş birleşimleri korunur. Diğer uygulamalar ek tuşlar ayırabilir.',
+    'shortcuts.reserved': 'Bu birleşim geçersiz veya standart, sistem ya da metin işlevleri için korunuyor.',
+    'shortcuts.conflict': 'Bu birleşim zaten yerel olarak veya genel hızlı favoriye atanmış.',
+    'shortcuts.quit_disabled': 'Çıkış henüz atanamaz: mevcut kapatma işlemi kaydedilmemiş girişleri ve süren arka plan işlerini tamamen korumuyor. Çıkış düğmesi değişmedi.',
+    'shortcuts.save_failed': 'Atama kaydedilemedi. Önceki etkin atama korunuyor.',
+    'shortcuts.set': 'Ata',
+    'shortcuts.change': 'Değiştir',
+    'shortcuts.remove': 'Kaldır',
+    'shortcuts.reset': 'Yerel atamaları sıfırla',
+    'shortcuts.reset_confirm': 'Tüm yerel kısayollar kaldırılsın mı? Genel hızlı favori kısayolu değişmeden kalacak.',
+})
+
+# Shared safe exit workflow.
+TRANSLATIONS.update({'exit.title': 'CMDRHelper’dan çık',
+ 'exit.unsaved': 'Kaydedilmemiş ayarlar var. Kaydetmek, değişiklikleri atmak veya çıkışı iptal etmek ister '
+                 'misiniz?',
+ 'exit.choose': 'Önce Kaydet, Vazgeç veya İptal seçin. Kısayol değişiklikleri kendiliğinden atmaz.',
+ 'exit.save': 'Kaydet',
+ 'exit.discard': 'Vazgeç',
+ 'exit.cancel': 'İptal',
+ 'exit.wait': 'Devam eden işler güvenle tamamlanıyor …',
+ 'exit.wait_count': 'Devam eden işler: {count}. Sonuçlar kaydediliyor …',
+ 'exit.wait_long': 'Devam eden işler: {count}. Bu işlem daha uzun sürüyor. Uygulama açık kalır; çıkışı iptal '
+                   'edebilirsiniz.',
+ 'exit.save_failed': 'Ayarlar kaydedilemedi. Girdileri ve yazma izinlerini kontrol edin. Uygulama açık '
+                     'kalır.',
+ 'exit.write_failed': 'Bir sonuç kaydedilemedi. Çıkışı iptal edip kaydetmeyi yeniden deneyin.',
+ 'exit.resuming': 'Normal kullanıma dönmeden önce yazma kuyruğu tamamlanıyor …',
+ 'exit.shortcut_help': 'Çıkış, düğmeyle aynı güvenli işlemi kullanır. Kısayol çıkış iletişim kutusunda da '
+                       'çalışır; değişiklikler için yine Kaydet veya Vazgeç seçilmelidir.'})
+
+TRANSLATIONS.update({
+    "shortcuts.summary": 'Etkin CMDRHelper penceresi için kısayolları belirleyin veya kaldırın. Hızlı Favori kısayolu genel olarak çalışmaya devam eder.',
 })

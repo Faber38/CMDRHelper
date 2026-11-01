@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_24.0': 'Stabile Marktlisten ohne vorübergehendes Leeren bei gleichem Bezugssystem; weniger Filteraktualisierungen und drei exklusive Modi für alle Waren, Bergbaurohstoffe oder Schiffsfracht.',
+    'release.3_9_24.1': 'Sechs frei belegbare Aktionen in einer zentralen, kompakten Tastenkürzelverwaltung mit Konfliktprüfung zum globalen Schnellfavoriten.',
+    'release.3_9_24.2': 'Einheitliches sicheres Beenden über Button, Fensterkreuz und Shortcut: ungespeicherte Einstellungen schützen, wichtige Hintergrundarbeiten abschließen und Mining-Checkpoints übernehmen. Ein verbesserter Wartedialog zeigt den Fortschritt.',
+    'release.3_9_24.3': 'Die technische Fußzeile entfällt. Datenschutzgerechte Fehlergründe bleiben im Diagnose-ZIP, kritische Startfehler sichtbar. Der schwarze Einrückungsbalken in Odyssey ist korrigiert.',
+    'release.3_9_24.4': 'Weniger wiederholte Prozessscans und ein schnellerer Mining-Seitenaufbau durch weniger unnötige Tabellen- und Layoutaktualisierungen.',
+    'release.3_9_24.5': 'Unveränderte Anzeigeeinstellungen werden nicht erneut geschrieben; Mining-Bestände werden mit weniger Kopieraufwand rekonstruiert. Bestandsnachweise und sichere Speicherabschlüsse bleiben erhalten.',
+
     'release.3_9_23.0': 'Die Startvorbereitung endet nach den lokalen Erstversuchen, auch bei weiteren Journalaufträgen und langsamen Uploads. Fehler bleiben sichtbar.',
     'release.3_9_23.1': 'Der Bewertungsleser überspringt ungültige JSON-Strukturen und kann nachfolgende gültige Metadaten lesen.',
     'release.3_9_23.2': 'Historische Reparaturen melden technische Fehler genauer; unveränderte Fehler werden wiedererkannt und korrigierte Dateien erneut geprüft.',
@@ -2479,8 +2486,56 @@ TRANSLATIONS["images.identity_wait"] = 'Konvertierung pausiert: keine eindeutige
 
 # Confirmed ship cargo filter in the saved market browser.
 TRANSLATIONS.update({
-    'browse.cargo_only': 'Nur Waren im Frachtraum',
+    'browse.all_goods': 'Alle Waren',
+    'browse.reference_loading': 'Koordinaten des Bezugssystems werden geladen …',
+    'browse.cargo_only': 'Nur Waren im Schiffs-Frachtraum',
     'browse.cargo_unavailable': 'Frachtfilter pausiert: Der aktuelle Schiffsbestand ist nicht bestätigt.',
     'browse.cargo_empty': 'Der bestätigte Schiffsfrachtraum ist leer.',
     'browse.cargo_identity_unknown': 'Frachtfilter pausiert: Nicht alle Waren sind eindeutig zugeordnet.',
+})
+
+# Startup errors are actionable here; technical details remain in diagnostics.
+TRANSLATIONS['startup.action_required'] = 'Bitte prüfe in den Einstellungen die Journalquellen und ihre Zugriffsrechte. Falls das Problem bestehen bleibt, erstelle dort ein Diagnose-ZIP für die Fehleranalyse.'
+
+# Central local shortcuts; existing global favorite retains its backend.
+TRANSLATIONS.update({
+    'shortcuts.title': 'Tastenkürzel',
+    'shortcuts.help': 'Lokale Tastenkürzel gelten nur im aktiven CMDRHelper-Hauptfenster. Bei Texteingaben, Dialogen und Popups sind sie gesperrt. Der Schnellfavoriten-Hotkey bleibt global und funktioniert auch außerhalb des Helpers.',
+    'shortcuts.voiceattack': 'VoiceAttack: CMDRHelper gezielt auswählen, ein minimiertes Fenster wiederherstellen und aktivieren. Danach die konfigurierte Tastenkombination senden. Nicht an das Spiel senden, wenn CMDRHelper nicht aktiviert werden kann.',
+    'shortcuts.allowed': 'Eine einzelne Kombination verwenden: Strg mit Buchstabe/Ziffer oder eine geeignete Funktionstaste, optional mit Umschalt. Standard-, System-, AltGr- und Texteingabekombinationen sind geschützt. Andere Programme können weitere Tasten reservieren.',
+    'shortcuts.reserved': 'Diese Kombination ist ungültig oder für Standard-, System- oder Texteingabefunktionen geschützt.',
+    'shortcuts.conflict': 'Diese Kombination ist bereits lokal oder für den globalen Schnellfavoriten belegt.',
+    'shortcuts.quit_disabled': 'Beenden ist vorerst nicht belegbar: Der bestehende Beenden-Ablauf schützt ungespeicherte Eingaben und noch laufende Hintergrundarbeiten nicht vollständig. Der Beenden-Button bleibt unverändert.',
+    'shortcuts.save_failed': 'Die Belegung konnte nicht gespeichert werden. Die bisherige aktive Belegung bleibt erhalten.',
+    'shortcuts.set': 'Festlegen',
+    'shortcuts.change': 'Ändern',
+    'shortcuts.remove': 'Entfernen',
+    'shortcuts.reset': 'Lokale Belegungen zurücksetzen',
+    'shortcuts.reset_confirm': 'Alle lokalen Tastenkürzel entfernen? Der globale Schnellfavoriten-Hotkey bleibt unverändert.',
+})
+
+# Shared safe exit workflow.
+TRANSLATIONS.update({'exit.title': 'CMDRHelper beenden',
+ 'exit.unsaved': 'Es gibt ungespeicherte Einstellungen. Speichern, verwerfen oder das Beenden abbrechen?',
+ 'exit.choose': 'Bitte zuerst Speichern, Verwerfen oder Abbrechen wählen. Das Tastenkürzel verwirft keine '
+                'Änderungen.',
+ 'exit.save': 'Speichern',
+ 'exit.discard': 'Verwerfen',
+ 'exit.cancel': 'Abbrechen',
+ 'exit.wait': 'Laufende Arbeiten werden sicher abgeschlossen …',
+ 'exit.wait_count': 'Noch laufende Arbeiten: {count}. Ergebnisse werden gespeichert …',
+ 'exit.wait_long': 'Noch laufende Arbeiten: {count}. Dies dauert länger. Die Anwendung bleibt geöffnet; Sie '
+                   'können das Beenden abbrechen.',
+ 'exit.save_failed': 'Die Einstellungen konnten nicht gespeichert werden. Bitte Eingaben und Schreibzugriff '
+                     'prüfen. Die Anwendung bleibt geöffnet.',
+ 'exit.write_failed': 'Ein Ergebnis konnte nicht gespeichert werden. Bitte das Beenden abbrechen und die '
+                      'Speicherung erneut versuchen.',
+ 'exit.resuming': 'Die Schreibwarteschlange wird abgeschlossen, danach wird die normale Bedienung '
+                  'fortgesetzt …',
+ 'exit.shortcut_help': 'Beenden verwendet denselben sicheren Ablauf wie der Button. Im Beenden-Dialog wird '
+                       'das Kürzel ebenfalls erkannt; ungespeicherte Änderungen erfordern weiterhin '
+                       'Speichern oder Verwerfen.'})
+
+TRANSLATIONS.update({
+    "shortcuts.summary": 'Tastenkürzel bei aktivem CMDRHelper-Fenster frei festlegen und entfernen. Der Schnellfavoriten-Hotkey gilt weiterhin global.',
 })

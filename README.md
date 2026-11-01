@@ -38,6 +38,15 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.9.24
+
+- Market lists stay stable without briefly clearing when the reference system is unchanged; fewer filter updates and three exclusive modes for all commodities, mining commodities or ship cargo.
+- Six configurable actions in a central, compact keyboard shortcut manager, with conflict checks against the global quick-favorite shortcut.
+- Consistent safe exit through the button, window close control or shortcut: protect unsaved settings, finish important background work and save mining checkpoints. An improved waiting dialog shows progress.
+- The technical footer has been removed. Privacy-conscious error details remain in the diagnostics ZIP and critical startup errors stay visible. The black indentation bar in Odyssey has been fixed.
+- Fewer repeated process scans and faster construction of the Mining page by avoiding unnecessary table and layout updates.
+- Unchanged display preferences are no longer written again; mining inventories are reconstructed with less copying. Inventory evidence and verified save completion are preserved.
+
 ## CMDRHelper v3.9.23
 
 - Startup preparation finishes after the initial local attempts, even with queued journal work and slow uploads. Errors remain visible.

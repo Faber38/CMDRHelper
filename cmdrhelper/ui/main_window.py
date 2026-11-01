@@ -1,4 +1,5 @@
 from __future__ import annotations
+from cmdrhelper.exit_tasks import submit
 from cmdrhelper.ui.auxiliary_window import AuxiliaryWindow, close_auxiliary_windows
 
 from cmdrhelper.ui.explorer_status import (
@@ -1248,6 +1249,15 @@ class MainWindow(QMainWindow):
         self._quick_favorite_hotkey = GlobalHotkey(self.state.settings, self)
         self._quick_favorite_hotkey.activated.connect(self._save_quick_favorite)
         QApplication.instance().aboutToQuit.connect(self._quick_favorite_hotkey.close)
+        from cmdrhelper.shortcuts import ShortcutManager
+        self.shortcut_manager = ShortcutManager(self, self.state.settings, self._quick_favorite_hotkey, {
+            'open_explorer': lambda: self._show_page(self.PAGE_EXPLORER),
+            'open_trade': lambda: self._show_page(self.PAGE_TRADE),
+            'open_materials': lambda: self._show_page(self.PAGE_MATERIALS),
+            'open_powerplay': lambda: self._show_page(self.PAGE_PP2),
+            'open_navigator': self._show_planet_navigation,
+            'quit': self.close,
+        })
         self._explorer_live_system = None
         self._startup_progress_dialog = None
         self._help_dialog = None
@@ -1282,9 +1292,8 @@ class MainWindow(QMainWindow):
 
         self._apply_navigation_hud_enabled()
         self._apply_cargo_hud_enabled()
-        if not self._quick_favorite_hotkey.load():
-            self.statusBar().showMessage(tr('quick_favorite.registration_failed'))
-            self._quick_favorite_hotkey.changed.connect(self.statusBar().clearMessage)
+        self._quick_favorite_hotkey.load()
+        self.shortcut_manager.load()
 
         # Updateprüfung bewusst leicht verzögert starten, damit das
         # Hauptfenster zuerst vollständig erscheinen kann.
@@ -1313,24 +1322,23 @@ class MainWindow(QMainWindow):
         components = [tr('startup.component.' + component) for component in issues]
         self._parent_backup_startup_succeeded = not bool(error or issues)
         self._cleanup_parent_backup()
-        if self._startup_progress_dialog is None and components and not error:
-            self._startup_progress_dialog = StartupProgressDialog(
-                light=self.ui_theme == 'light', parent=self)
-            self._startup_progress_dialog.begin()
+        sources = getattr(getattr(self, 'state', None), 'sources', None)
+        requires_action = bool(error) and (sources is None or
+                                          getattr(sources, 'startup_requires_action', True))
+        # The original status/error and backup protection stay intact. Only the
+        # presentation uses the source worker's actual retry classification.
+        message = tr('startup.action_required') if error else ''
         if self._startup_progress_dialog is None:
-            if error:
+            if requires_action:
                 QMessageBox.warning(
                     self, tr("startup.error"),
-                    tr("startup.error_detail", error=error),
+                    tr("startup.error_detail", error=message),
                 )
             return
-        self._startup_progress_dialog.finish(str(error or ""), components)
-        if getattr(getattr(self, 'state', None), 'sources', None) is not None and (error or components):
-            # Source startup is modeless: leave the failure visible in the main
-            # window, but finish the progress window even on a failed import.
-            message = (tr('startup.error_detail', error=error) if error else
-                       tr('startup.partial_detail', components=", ".join(components)))
-            self.statusBar().showMessage(message)
+        self._startup_progress_dialog.finish(message, components)
+        if requires_action:
+            self._startup_progress_dialog.show()
+        else:
             self._startup_progress_dialog.accept()
 
     def _cleanup_parent_backup(self):
@@ -3311,6 +3319,12 @@ class MainWindow(QMainWindow):
         return True
 
     def closeEvent(self, event):
+        from .exit_controller import ExitController
+        if not hasattr(self, "_exit_controller"):
+            self._exit_controller = ExitController(self)
+        if not self._exit_controller.request():
+            event.ignore()
+            return
         super().closeEvent(event)
         if event.isAccepted():
             self.state.settings.setValue("main_window/geometry", self.saveGeometry())
@@ -4872,9 +4886,10 @@ class MainWindow(QMainWindow):
         if getattr(self.state, 'sources', None) is not None:
             from cmdrhelper.ui.journal_sources import JournalSourcesPanel
             layout.addWidget(JournalSourcesPanel(self.state.sources, content))
-        from cmdrhelper.ui.quick_favorite_settings import QuickFavoriteSettings
-        self.quick_favorite_settings = QuickFavoriteSettings(self._quick_favorite_hotkey)
-        layout.addWidget(self.quick_favorite_settings)
+        from cmdrhelper.ui.shortcut_settings import ShortcutSettings
+        self.shortcut_settings = ShortcutSettings(self.shortcut_manager, content)
+        self.quick_favorite_settings = self.shortcut_settings.global_settings
+        layout.addWidget(self.shortcut_settings)
 
         online_card, online_layout = self._card(tr("settings.online_services"))
 
@@ -5305,6 +5320,8 @@ class MainWindow(QMainWindow):
 
         scroll.setWidget(content)
         page_layout.addWidget(scroll, 1)
+        from .exit_controller import remember
+        remember(self)
 
         return page
 
@@ -5380,6 +5397,11 @@ class MainWindow(QMainWindow):
         stats,
         error,
     ):
+        from cmdrhelper.exit_tasks import task_gate
+        gate = task_gate()
+        if gate is not None and gate.draining:
+            gate.deferred.append(lambda: self._database_import_finished(stats, error))
+            return
         self.database_import_button.setEnabled(True)
         self._explorer_render_key = None
         self._explorer_live_render_key = None
@@ -5515,6 +5537,9 @@ class MainWindow(QMainWindow):
         self._set_update_status(
             tr("settings.update_failed_status", error=error), False
         )
+        from cmdrhelper.exit_tasks import task_gate
+        if task_gate() is not None and task_gate().draining:
+            return
         QMessageBox.critical(
             self, tr("settings.update_failed_title"),
             tr("settings.update_failed_message", error=error),
@@ -5526,6 +5551,13 @@ class MainWindow(QMainWindow):
         self._set_update_status(tr("settings.update_cancelled"), False)
 
     def _update_download_finished(self, zip_path):
+        from cmdrhelper.exit_tasks import task_gate
+        gate = task_gate()
+        if gate is not None and gate.draining:
+            # Cancelling exit must not subsequently launch the installer and
+            # close the application through the updater's separate workflow.
+            self._update_download_cancelled()
+            return
         result = self._update_download_result or {}
         latest = str(result.get("version") or "").strip()
         install_message = tr("settings.update_downloaded_message", version=latest)
@@ -5668,13 +5700,18 @@ class MainWindow(QMainWindow):
             lambda result: self._update_check_finished(result, automatic)
         )
 
-        self.update_thread_pool.start(self._update_worker)
+        submit(self.update_thread_pool, self._update_worker)
 
     def _update_check_finished(
         self,
         result,
         automatic=False,
     ):
+        from cmdrhelper.exit_tasks import task_gate
+        gate = task_gate()
+        if gate is not None and gate.draining:
+            gate.deferred.append(lambda: self._update_check_finished(result, automatic))
+            return
         self._update_check_running = False
 
         # Erst nach Rückkehr in die Qt-Ereignisschleife freigeben.
@@ -5797,7 +5834,7 @@ class MainWindow(QMainWindow):
         worker.signals.finished.connect(self._update_download_finished)
         worker.signals.failed.connect(self._update_download_failed)
         worker.signals.cancelled.connect(self._update_download_cancelled)
-        self.update_thread_pool.start(worker)
+        submit(self.update_thread_pool, worker)
 
     def _saved_ui_font_size(self, fallback=10):
         try:
@@ -5907,6 +5944,8 @@ class MainWindow(QMainWindow):
         # Nicht sofort anwenden: Einige QSS-Regeln übersteuern die Qt-
         # Standardschrift. Ein sauberer kompletter Neuaufbau beim Neustart
         # vermeidet Mischzustände in bereits existierenden Widgets.
+        from .exit_controller import confirm_saved
+        confirm_saved(self, "font")
         self.ui_font_status.setText(tr("settings.restart_required"))
         self.ui_font_status.setStyleSheet("color: #ffb000; font-weight: 600;")
 
@@ -5914,6 +5953,8 @@ class MainWindow(QMainWindow):
         language = str(self.ui_language_combo.currentData() or "de")
         set_language(language, self.state.settings)
 
+        from .exit_controller import confirm_saved
+        confirm_saved(self, "language")
         self.ui_language_status.setText(tr("settings.restart_required"))
         self.ui_language_status.setStyleSheet("color: #ffb000; font-weight: 600;")
 
@@ -6178,6 +6219,8 @@ class MainWindow(QMainWindow):
         self.edsm_api_key_edit.setText(config["api_key"])
         self.edsm_enabled_check.setChecked(config["enabled"])
         self.edsm_receive_check.setChecked(config["receive_enabled"])
+        from .exit_controller import remember
+        remember(self, "edsm")
         self.edsm_test_button.setEnabled(config["receive_enabled"])
         index = self.edsm_commander_combo.currentIndex()
         commander_name = self.edsm_commander_combo.itemData(
@@ -6224,6 +6267,8 @@ class MainWindow(QMainWindow):
         self.inara_commander_edit.setText(config["commander"])
         self.inara_api_key_edit.setText(config["api_key"])
         self.inara_enabled_check.setChecked(config["enabled"])
+        from .exit_controller import remember
+        remember(self, "inara")
         selected_index = self.inara_commander_combo.currentIndex()
         commander_name = self.inara_commander_combo.itemData(
             selected_index, Qt.UserRole + 1
@@ -6274,7 +6319,10 @@ class MainWindow(QMainWindow):
         finally:
             self.inara_test_button.setEnabled(True)
 
-    def _save_online_settings(self):
+    def _save_online_settings(self, checked=False, *, notify=True):
+        # Validate both identities before either service writes settings.
+        if not (self.edsm_commander_combo.currentData() or self.state.commander_fid) or not (self.inara_commander_combo.currentData() or self.state.commander_fid):
+            raise ValueError("Online settings require verified commander identities")
         self.state.set_edsm_settings(
             commander=self.edsm_commander_edit.text(),
             api_key=self.edsm_api_key_edit.text(),
@@ -6289,12 +6337,16 @@ class MainWindow(QMainWindow):
             enabled=self.inara_enabled_check.isChecked(),
             fid=self.inara_commander_combo.currentData(),
         )
+        from .exit_controller import confirm_saved
+        confirm_saved(self, "edsm", "inara")
         self._edsm_system_status._invalidate()
         self._load_selected_inara_settings()
         self._load_selected_edsm_settings()
 
         self.state.refresh()
 
+        if not notify:
+            return
         QMessageBox.information(
             self,
             tr("settings.online_services"),

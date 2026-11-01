@@ -1,4 +1,5 @@
 from __future__ import annotations
+from cmdrhelper.exit_tasks import submit
 
 import csv
 import re
@@ -506,7 +507,7 @@ class RoutePlannerView(QWidget):
         worker.signals.finished.connect(self._ship_route_finished)
         worker.signals.failed.connect(self._ship_route_failed)
         self._ship_workers[generation] = worker
-        self._thread_pool.start(worker)
+        submit(self._thread_pool, worker)
 
     def _ship_route_finished(self, generation, route):
         self._ship_workers.pop(generation, None)
@@ -748,7 +749,7 @@ class RoutePlannerView(QWidget):
         worker.signals.finished.connect(self._carrier_route_finished)
         worker.signals.failed.connect(self._carrier_route_failed)
         self._carrier_worker = worker
-        self._thread_pool.start(worker)
+        submit(self._thread_pool, worker)
 
     def _carrier_route_finished(self, route):
         self._carrier_worker = None

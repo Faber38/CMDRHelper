@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import time
+import threading
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
@@ -21,6 +22,7 @@ class SpanshFleetCarrierClient:
     """Synchroner Spansh-Client; Aufrufe gehören immer in einen Worker."""
 
     def __init__(self, timeout=15, poll_interval=2, max_polls=60):
+        self.cancelled = threading.Event()
         self.timeout = timeout
         self.poll_interval = poll_interval
         self.max_polls = max_polls
@@ -60,6 +62,8 @@ class SpanshFleetCarrierClient:
 
     def _poll(self, job: str) -> dict:
         for attempt in range(self.max_polls):
+            if self.cancelled.is_set():
+                raise SpanshError("cancelled")
             data = self._request_json(RESULT_URL.format(job=job))
             if not isinstance(data, dict):
                 raise SpanshError("invalid_response")
@@ -70,10 +74,13 @@ class SpanshFleetCarrierClient:
             if data.get("state") in {"failed", "error"}:
                 raise SpanshError("spansh_error")
             if attempt < self.max_polls - 1:
-                time.sleep(self.poll_interval)
+                if self.cancelled.wait(self.poll_interval):
+                    raise SpanshError("cancelled")
         raise SpanshError("timeout")
 
     def _request_json(self, url: str, data=None):
+        if self.cancelled.is_set():
+            raise SpanshError("cancelled")
         body = urlencode(data).encode("utf-8") if data is not None else None
         request = Request(
             url,

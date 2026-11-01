@@ -1,4 +1,5 @@
 """Serial historical learning; immutable requests and queued GUI completion."""
+from cmdrhelper.exit_tasks import submit
 from copy import copy, deepcopy
 import logging
 
@@ -95,7 +96,7 @@ class JournalLearningController(QObject):
             return
         self.running = True
         self.active = (token, kinds)
-        self.pool.start(_Learn(database, token[1], token[2], kinds, sessions, token, self.signals))
+        submit(self.pool, _Learn(database, token[1], token[2], kinds, sessions, token, self.signals))
 
     def _finished(self, token, kinds, result):
         self.running = False

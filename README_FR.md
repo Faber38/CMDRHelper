@@ -38,6 +38,15 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.9.24
+
+- Les listes de marchés restent stables sans se vider brièvement si le système de référence ne change pas ; moins d’actualisations des filtres et trois modes exclusifs : toutes les marchandises, ressources minières ou cargaison du vaisseau.
+- Six actions configurables dans une gestion centralisée et compacte des raccourcis, avec détection des conflits avec le raccourci global de favori rapide.
+- Fermeture sécurisée identique par bouton, croix de fenêtre ou raccourci : protection des réglages non enregistrés, fin des tâches importantes en arrière-plan et sauvegarde des points de contrôle miniers. Le dialogue d’attente amélioré indique la progression.
+- Le pied de fenêtre technique a été supprimé. Les détails d’erreur respectueux de la vie privée restent dans le ZIP de diagnostic et les erreurs critiques de démarrage restent visibles. La bande noire d’indentation dans Odyssey a été corrigée.
+- Moins d’analyses répétées des processus et construction plus rapide de la page Extraction grâce à la réduction des mises à jour inutiles des tableaux et de la disposition.
+- Les préférences d’affichage inchangées ne sont plus réécrites ; les stocks miniers sont reconstruits avec moins de copies. Les preuves de stock et la vérification de l’enregistrement sont préservées.
+
 ## CMDRHelper v3.9.23
 
 - La préparation se termine après les premières tentatives locales, même avec des journaux en attente et des envois lents. Les erreurs restent visibles.

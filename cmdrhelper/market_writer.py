@@ -5,12 +5,19 @@ import logging
 from pathlib import Path
 from queue import Queue
 from threading import Lock, Thread
+from weakref import WeakSet
 
 from .market_migration import migrate_market_cache, database_authoritative
 from .market_store import MarketStore, decode_u64, _datetime
 from .observed_market_cache import utcnow
 
 logger = logging.getLogger(__name__)
+_writers = WeakSet()
+
+
+def active_writers():
+    # A source can retire its observer while its accepted writes still drain.
+    return [writer for writer in list(_writers) if not writer.is_stopped()]
 
 
 class MarketWriteWorker:
@@ -28,9 +35,11 @@ class MarketWriteWorker:
         self._closed = False
         self._store = None
         self.ready = Future()
+        self._accepted = [self.ready]
         self._queue.put(('initialize', None, self.ready))
         self._thread = Thread(target=self._run, name='MarketStoreWriter', daemon=False)
         self._thread.start()
+        _writers.add(self)
 
     def _submit(self, kind, value=None):
         future = Future()
@@ -38,6 +47,8 @@ class MarketWriteWorker:
             if self._closed:
                 raise RuntimeError('Market writer is closing')
             self._queue.put((kind, value, future))
+            self._accepted = [f for f in self._accepted if not f.done()]
+            self._accepted.append(future)
         return future
 
     def record(self, observation):
@@ -54,17 +65,30 @@ class MarketWriteWorker:
     def retry_initialization(self):
         return self._submit('initialize')
 
-    def close(self):
+    def pending_count(self):
+        with self._lock:
+            return sum(not f.done() for f in self._accepted)
+
+    def request_close(self):
+        """Seal admission; the writer itself drains and closes its connection."""
+        with self._lock:
+            if not self._closed:
+                self._closed = True
+                self._queue.put(None)
+
+    def is_stopped(self):
+        return not self._thread.is_alive()
+
+    def close(self, *, wait=True):
         """Stop admission, drain accepted work, join; do not discard queued writes.
 
         Call outside callbacks. The application shutdown may wait for disk I/O.
         Failures remain on their futures and last_error; no false success.
         """
-        with self._lock:
-            if not self._closed:
-                self._closed = True
-                self._queue.put(None)
-        self._thread.join()
+        self.request_close()
+        self._thread.join(None if wait else 0)
+        if not self.is_stopped():
+            return False
         if self.last_error is not None:
             logger.error('Market writer stopped with unconfirmed work: %s', self.last_error)
         return self.last_error is None

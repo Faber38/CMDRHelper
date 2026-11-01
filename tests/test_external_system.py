@@ -254,6 +254,8 @@ class WindowTests(unittest.TestCase):
     def tearDown(self):
         for w in list(self.search.windows):w.close()
         self.owner.close();self.owner.deleteLater();self.app.processEvents()
+        from PySide6.QtCore import QCoreApplication, QEvent
+        QCoreApplication.sendPostedEvents(None,QEvent.DeferredDelete)
 
     def test_button_enter_latest_only_and_old_job_skips_network(self):
         self.search.edit.setText('Earlier');self.search.button.click()

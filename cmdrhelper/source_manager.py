@@ -3,13 +3,22 @@ from copy import copy
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import SimpleNamespace
+import hashlib
 import time
 from PySide6.QtCore import QObject, QTimer, Signal, Qt, QSettings
 from .journal_sources import SourceRegistry, discover
 from .journal_watcher import JournalWatcher
 from .source_processing import SourceProcessor
 from .game_instances import inspect_instances, confirmed_selection, ProcessSnapshot
+from .game_instances import ProcessObservation, process_observation_batch
 from . import startup_runtime as startup
+
+# These failures leave the input unacknowledged and are retried by the existing
+# watcher/source timers. Prefix/replacement conflicts are deliberately excluded.
+RETRYABLE_START_FAILURES = frozenset({
+    'journal_changed_during_read', 'partial_final_line', 'catchup_budget',
+    'journal_identity_changed',
+})
 
 
 @dataclass
@@ -25,6 +34,8 @@ class SourceRuntime:
     last_transfer_at: float = 0
     transfer_results: dict = field(default_factory=dict)
     observed_markets: object = None
+    failure_retryable: bool = False
+    last_failure_diagnostic: tuple | None = None
 
 
 class SourceManager(QObject):
@@ -36,6 +47,7 @@ class SourceManager(QObject):
     def __init__(self, state):
         super().__init__(state)
         self.state = state
+        self._process_observation = ProcessObservation()
         # Retain the unarmed compatibility observer for views without a source.
         self._unselected_markets = state.observed_markets
         self.registry = SourceRegistry(state.settings, discover())
@@ -54,6 +66,7 @@ class SourceManager(QObject):
         self._local_published = False
         self._startup_started = False
         self._startup_pending = None
+        self.startup_requires_action = False
         self.manual_requested = False
         self.manual_pending = None
         self.manual_errors = []
@@ -102,9 +115,26 @@ class SourceManager(QObject):
                     startup.issue(self.state, 'unsold_cartography'
                                   if result['feature'] == 'unsold_cartography' else 'history')
         name = self._startup_pending.pop(key)
+        if error and not getattr(runtime, 'failure_retryable', False):
+            # Aggregate ALL initial sources, not just the first error string.
+            self.startup_requires_action = True
+        if error == 'source_changed':
+            startup.diagnostic('source', 'failure', reason='source_changed', status='failed')
         if error and not getattr(self.state, '_initialization_error', ''):
             self.state._initialization_error = name + ': ' + str(error)
         self._complete_startup_if_ready()
+
+    def _record_failure(self, runtime, error):
+        reason = getattr(error, 'reason', None)
+        runtime.failure_retryable = (isinstance(error, startup.JournalPending)
+                                     and reason in RETRYABLE_START_FAILURES)
+        key = (type(error).__name__, reason, getattr(error, 'errno', None),
+               getattr(error, 'winerror', None), getattr(error, 'sqlite_errorcode', None))
+        if key != runtime.last_failure_diagnostic:
+            runtime.last_failure_diagnostic = key
+            startup.diagnostic('source', 'failure', error,
+                status='pending' if runtime.failure_retryable else 'failed', traceback=True,
+                source_ref=hashlib.sha256(str(runtime.source.path).encode('utf-8')).hexdigest())
 
     def stop(self):
         self.timer.stop()
@@ -116,6 +146,7 @@ class SourceManager(QObject):
                     observer.close()
 
     def reconcile(self):
+        self._process_observation.clear()
         enabled = {s.id: s for s in self.registry.enabled()}
         for identity, runtime in list(self.runtimes.items()):
             if identity not in enabled or runtime.processor.path != Path(enabled[identity].path):
@@ -178,8 +209,9 @@ class SourceManager(QObject):
         self.manual_requested = True
         QTimer.singleShot(0, self._next)
 
+    @process_observation_batch
     def _next(self):
-        if self.running or self.state._startup_cancel.is_set():
+        if getattr(self, "_exit_paused", False) or self.running or self.state._startup_cancel.is_set():
             return
         if self.manual_requested:
             self.manual_requested = False
@@ -242,6 +274,8 @@ class SourceManager(QObject):
                     was_initialized = rt.processor.initialized
                     rows = rt.processor.process(cancel=self.state._startup_cancel, enqueue_fids=allowed,
                                                 progress=progress if report_startup else None)
+                    rt.failure_retryable = False
+                    rt.last_failure_diagnostic = None
                     rt.live_events = list(rt.processor.context.get('applied_events', [])) if was_initialized else []
                     # The processor has committed and completed its verified
                     # projection. Upload completion is not a publication barrier.
@@ -270,6 +304,7 @@ class SourceManager(QObject):
                 except startup.StartupCancelled:
                     return
                 except Exception as exc:
+                    self._record_failure(rt, exc)
                     error = getattr(exc, 'reason', None) or type(exc).__name__
                 self.finished.emit(rt.source.id, rt.generation, rows, error)
 
@@ -301,6 +336,7 @@ class SourceManager(QObject):
         if deferred:
             self.request(identity)  # Run deferred transfers through the existing worker.
 
+    @process_observation_batch
     def _publish_local(self, identity, generation, rows, error):
         inventory_changed = False
         runtime = self.runtimes.get(identity)
@@ -345,6 +381,7 @@ class SourceManager(QObject):
             self.state.inventoryChanged.emit()
         self.state.changed.emit()
 
+    @process_observation_batch
     def _finished(self, identity, generation, rows, error):
         self.running = False
         self._ingesting = False
@@ -378,6 +415,7 @@ class SourceManager(QObject):
         self.changed.emit()
         self._next()
 
+    @process_observation_batch
     def _tick(self):
         self.snapshot = inspect_instances()
         self.choose()
@@ -406,6 +444,7 @@ class SourceManager(QObject):
                 self._select(known[0]['id'])
 
     def _select(self, cid):
+        self._process_observation.clear()
         state = self.state
         changed = state.viewed_commander_id != cid
         state.viewed_commander_id = cid

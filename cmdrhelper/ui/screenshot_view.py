@@ -1,4 +1,5 @@
 from __future__ import annotations
+from cmdrhelper.exit_tasks import submit
 
 import logging
 import platform
@@ -70,6 +71,7 @@ class _ConvertWorker(QRunnable):
                     self.source.unlink(missing_ok=True)
             self.signals.finished.emit(str(self.source), str(self.target), True, "")
         except Exception as exc:
+            self._exit_failed = True
             self.signals.finished.emit(str(self.source), str(self.target), False, str(exc))
 
 
@@ -756,7 +758,7 @@ class ScreenshotView(QWidget):
         self._reserved_targets.add(target)
         self._workers.add(worker); self._converting.add(key)
         self.last_action.setText(tr("images.converting", name=source.name))
-        self.pool.start(worker)
+        submit(self.pool, worker)
         return True
 
     def _converted(self, source_text, target_text, ok, error):
@@ -830,7 +832,7 @@ class ScreenshotView(QWidget):
         self._gallery_dirty = False
         self._gallery_worker = worker
         worker.signals.finished.connect(self._gallery_loaded)
-        self.pool.start(worker)
+        submit(self.pool, worker)
 
     def _gallery_loaded(self, result):
         self._gallery_worker = None
@@ -914,8 +916,6 @@ class ScreenshotView(QWidget):
         super().hideEvent(event)
 
     def eventFilter(self, watched, event):
-        if watched is self.window() and event.type() == QEvent.Close:
-            self._shutdown()
         if watched is self.gallery and event.type() == event.Type.KeyPress:
             if event.key() == Qt.Key_Delete:
                 self._delete_selected_images()
@@ -1017,7 +1017,7 @@ class ScreenshotView(QWidget):
         worker = PreviewWorker(path, size)
         self._preview_worker = worker
         worker.signals.finished.connect(self._preview_loaded)
-        self.pool.start(worker)
+        submit(self.pool, worker)
 
     def _preview_loaded(self, result):
         self._preview_worker = None

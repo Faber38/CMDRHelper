@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_24.0': 'Les listes de marchés restent stables sans se vider brièvement si le système de référence ne change pas ; moins d’actualisations des filtres et trois modes exclusifs : toutes les marchandises, ressources minières ou cargaison du vaisseau.',
+    'release.3_9_24.1': 'Six actions configurables dans une gestion centralisée et compacte des raccourcis, avec détection des conflits avec le raccourci global de favori rapide.',
+    'release.3_9_24.2': 'Fermeture sécurisée identique par bouton, croix de fenêtre ou raccourci : protection des réglages non enregistrés, fin des tâches importantes en arrière-plan et sauvegarde des points de contrôle miniers. Le dialogue d’attente amélioré indique la progression.',
+    'release.3_9_24.3': 'Le pied de fenêtre technique a été supprimé. Les détails d’erreur respectueux de la vie privée restent dans le ZIP de diagnostic et les erreurs critiques de démarrage restent visibles. La bande noire d’indentation dans Odyssey a été corrigée.',
+    'release.3_9_24.4': 'Moins d’analyses répétées des processus et construction plus rapide de la page Extraction grâce à la réduction des mises à jour inutiles des tableaux et de la disposition.',
+    'release.3_9_24.5': 'Les préférences d’affichage inchangées ne sont plus réécrites ; les stocks miniers sont reconstruits avec moins de copies. Les preuves de stock et la vérification de l’enregistrement sont préservées.',
+
     'release.3_9_23.0': 'La préparation se termine après les premières tentatives locales, même avec des journaux en attente et des envois lents. Les erreurs restent visibles.',
     'release.3_9_23.1': 'Le lecteur de valorisation ignore les structures JSON invalides et peut lire les métadonnées valides suivantes.',
     'release.3_9_23.2': 'Les réparations historiques précisent les erreurs techniques, reconnaissent les échecs inchangés et réessaient les fichiers corrigés.',
@@ -2448,8 +2455,53 @@ TRANSLATIONS["images.identity_wait"] = 'Conversion suspendue : impossible d’as
 
 # Confirmed ship cargo filter in the saved market browser.
 TRANSLATIONS.update({
-    'browse.cargo_only': 'Uniquement les marchandises en soute',
+    'browse.all_goods': 'Toutes les marchandises',
+    'browse.reference_loading': 'Chargement des coordonnées du système de référence…',
+    'browse.cargo_only': 'Uniquement les marchandises en soute du vaisseau',
     'browse.cargo_unavailable': 'Filtre de cargaison suspendu : le stock actuel du vaisseau n’est pas confirmé.',
     'browse.cargo_empty': 'La soute du vaisseau est confirmée vide.',
     'browse.cargo_identity_unknown': 'Filtre de cargaison suspendu : certaines marchandises ne peuvent pas être identifiées avec certitude.',
+})
+
+# Startup errors are actionable here; technical details remain in diagnostics.
+TRANSLATIONS['startup.action_required'] = 'Vérifiez les sources de journaux et leurs autorisations dans les paramètres. Si le problème persiste, créez-y une archive ZIP de diagnostic pour analyser l’erreur.'
+
+# Central local shortcuts; existing global favorite retains its backend.
+TRANSLATIONS.update({
+    'shortcuts.title': 'Raccourcis clavier',
+    'shortcuts.help': 'Les raccourcis locaux fonctionnent uniquement dans la fenêtre principale active de CMDRHelper. Ils sont bloqués pendant la saisie, les dialogues et les menus contextuels. Le favori rapide reste global, même hors du Helper.',
+    'shortcuts.voiceattack': 'VoiceAttack : cibler CMDRHelper, restaurer la fenêtre réduite et l’activer. Envoyer ensuite la combinaison configurée. Ne pas l’envoyer au jeu si CMDRHelper ne peut pas être activé.',
+    'shortcuts.allowed': 'Utiliser une seule combinaison : Ctrl avec une lettre ou un chiffre, ou une touche de fonction adaptée, éventuellement avec Maj. Les combinaisons standard, système, AltGr et de saisie sont protégées. D’autres applications peuvent réserver des touches.',
+    'shortcuts.reserved': 'Combinaison invalide ou protégée pour une fonction standard, système ou de saisie.',
+    'shortcuts.conflict': 'Cette combinaison est déjà affectée localement ou au favori rapide global.',
+    'shortcuts.quit_disabled': 'Quitter ne peut pas encore être affecté : l’arrêt actuel ne protège pas entièrement les saisies non enregistrées et les tâches en cours. Le bouton Quitter reste inchangé.',
+    'shortcuts.save_failed': 'Impossible d’enregistrer le raccourci. L’affectation active précédente est conservée.',
+    'shortcuts.set': 'Définir',
+    'shortcuts.change': 'Modifier',
+    'shortcuts.remove': 'Supprimer',
+    'shortcuts.reset': 'Réinitialiser les raccourcis locaux',
+    'shortcuts.reset_confirm': 'Supprimer tous les raccourcis locaux ? Le raccourci global du favori rapide restera inchangé.',
+})
+
+# Shared safe exit workflow.
+TRANSLATIONS.update({'exit.title': 'Quitter CMDRHelper',
+ 'exit.unsaved': 'Des paramètres ne sont pas enregistrés. Enregistrer, ignorer ou annuler la fermeture ?',
+ 'exit.choose': 'Choisissez Enregistrer, Ignorer ou Annuler. Le raccourci ne supprime aucune modification.',
+ 'exit.save': 'Enregistrer',
+ 'exit.discard': 'Ignorer',
+ 'exit.cancel': 'Annuler',
+ 'exit.wait': 'Fin des tâches en cours en toute sécurité …',
+ 'exit.wait_count': 'Tâches en cours : {count}. Enregistrement des résultats …',
+ 'exit.wait_long': 'Tâches en cours : {count}. Cela prend plus de temps. L’application reste ouverte ; vous '
+                   'pouvez annuler la fermeture.',
+ 'exit.save_failed': 'Impossible d’enregistrer les paramètres. Vérifiez les saisies et les droits '
+                     'd’écriture. L’application reste ouverte.',
+ 'exit.write_failed': 'Impossible d’enregistrer un résultat. Annulez la fermeture et réessayez.',
+ 'exit.resuming': 'Fin de la file d’écriture avant la reprise du fonctionnement normal …',
+ 'exit.shortcut_help': 'Quitter suit la même procédure sûre que le bouton. Le raccourci fonctionne aussi '
+                       'dans le dialogue de fermeture ; les modifications exigent toujours Enregistrer ou '
+                       'Ignorer.'})
+
+TRANSLATIONS.update({
+    "shortcuts.summary": 'Définissez ou supprimez les raccourcis pour la fenêtre CMDRHelper active. Le raccourci de favori rapide reste global.',
 })

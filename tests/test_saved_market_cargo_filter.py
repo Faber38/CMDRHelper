@@ -67,16 +67,16 @@ class CargoFilterTests(Fixture, unittest.TestCase):
         self.state.cargo_snapshot['context'] = dict(self.tracker.last_cargo_context)
         self.state.cargoSnapshotChanged.emit(self.state.cargo_snapshot)
 
-    def test_confirmed_intersection_and_no_io_or_selection_change(self):
+    def test_exclusive_modes_and_no_io_or_selection_change(self):
         v=self.view
         self.assertEqual(v.goods_proxy.rowCount(),2)
         with patch.object(MarketStore,'get_current',side_effect=AssertionError('no DB read')), \
              patch.object(ui,'read_markets',side_effect=AssertionError('no reload')):
             v.mining_only.setChecked(True)
-            self.assertEqual(v.goods_proxy.rowCount(),1)
+            self.assertEqual(v.goods_proxy.rowCount(),2)
             v.goods_search.setText('Bier')
             self.assertEqual(v.goods_proxy.rowCount(),0)
-            v.mining_only.setChecked(False)
+            v.cargo_only.setChecked(True)
             self.assertEqual(v.goods_proxy.rowCount(),1)
             v.goods_search.clear()
             self.cargo(Gold=1)
@@ -94,17 +94,17 @@ class CargoFilterTests(Fixture, unittest.TestCase):
         self.assertEqual(self.view.cargo_notice.text(),tr('browse.cargo_unavailable'))
         self.assertTrue(self.view.cargo_only.isChecked())
 
-    def test_mutations_pause_until_confirmed_and_keep_mining_filter(self):
-        self.view.mining_only.setChecked(True)
+    def test_mutations_pause_until_confirmed_and_keep_cargo_mode(self):
         for kind in ('CargoTransfer','CollectCargo','MiningRefined'):
             with self.subTest(kind=kind):
                 self.feed(kind)
                 self.state.changed.emit()
                 self.assertIsNone(self.view.goods_proxy.cargo_ids)
-                self.assertTrue(self.view.goods_proxy.mining)
+                self.assertFalse(self.view.goods_proxy.mining)
+                self.assertTrue(self.view.cargo_only.isChecked())
                 self.assertTrue(self.view.cargo_notice.isVisible())
                 self.cargo(Beer=1)
-                self.assertEqual(self.view.goods_proxy.rowCount(),0)
+                self.assertEqual(self.view.goods_proxy.rowCount(),1)
                 self.assertFalse(self.view.cargo_notice.isVisible())
 
     def test_context_switches_pause_and_recover(self):
@@ -144,7 +144,7 @@ class CargoFilterTests(Fixture, unittest.TestCase):
         self.cargo(Beer=1)
         self.assertEqual(self.view.goods_proxy.rowCount(),1)
         self.view.mining_only.setChecked(True)
-        self.assertEqual(self.view.goods_proxy.rowCount(),0)
+        self.assertEqual(self.view.goods_proxy.rowCount(),2)
 
     def test_conflicting_status_stays_unknown_after_status_disappears(self):
         with patch('cmdrhelper.ship_cargo.status_ship_count',return_value=99):
@@ -166,19 +166,19 @@ class CargoFilterTests(Fixture, unittest.TestCase):
         self.cargo(Gold=1)
         self.assertEqual(self.view.goods_proxy.rowCount(),1)
 
-    def test_market_reload_sort_and_checkbox_off_preserve_other_filters(self):
+    def test_market_reload_sort_and_all_goods_preserve_other_filters(self):
         self.view.goods_table.sortByColumn(2,Qt.DescendingOrder)
         self.view._render_goods()
         self.assertEqual(self.view.goods_proxy.rowCount(),2)
         self.assertEqual(self.view.goods_table.horizontalHeader().sortIndicatorSection(),2)
-        self.view.cargo_only.setChecked(False)
+        self.view.all_goods.setChecked(True)
         self.assertEqual(self.view.goods_proxy.rowCount(),3)
         self.assertFalse(self.view.cargo_notice.isVisible())
         self.view.mining_only.setChecked(True)
-        mining=self.view.goods_proxy.rowCount()
+        self.assertEqual(self.view.goods_proxy.rowCount(),2)
         self.state.cargo_snapshot=None
         self.view.cargo_only.setChecked(True)
-        self.assertEqual(self.view.goods_proxy.rowCount(),mining)
+        self.assertEqual(self.view.goods_proxy.rowCount(),3)
         self.assertTrue(self.view.cargo_only.isChecked())
 
     def test_twelve_languages_both_themes_and_keyboard(self):
@@ -186,6 +186,8 @@ class CargoFilterTests(Fixture, unittest.TestCase):
             for key in ('only','unavailable','empty','identity_unknown'):
                 self.assertTrue(table.get('browse.cargo_'+key),lang)
             set_language(lang)
+            self.assertTrue(table.get('browse.all_goods'),lang)
+            self.view.all_goods.setText(tr('browse.all_goods'))
             self.view.cargo_only.setText(tr('browse.cargo_only'))
             self.view.mining_only.setText(tr('browse.mining'))
             for width in (900,1400):
@@ -197,9 +199,13 @@ class CargoFilterTests(Fixture, unittest.TestCase):
                                         self.view.cargo_only.sizeHint().width(),lang)
         for theme in (DARK_STYLESHEET,LIGHT_STYLESHEET):
             self.view.setStyleSheet(theme)
+            self.view.all_goods.setFocus()
+            QTest.keyClick(self.view.all_goods,Qt.Key_Space)
+            self.assertTrue(self.view.all_goods.isChecked())
+            self.assertFalse(self.view.cargo_only.isChecked())
             self.view.cargo_only.setFocus()
             QTest.keyClick(self.view.cargo_only,Qt.Key_Space)
-            self.assertFalse(self.view.cargo_only.isChecked())
+            self.assertTrue(self.view.cargo_only.isChecked())
             QTest.keyClick(self.view.cargo_only,Qt.Key_Space)
             self.assertTrue(self.view.cargo_only.isChecked())
             self.assertEqual(self.view.goods_proxy.rowCount(),2)
@@ -222,6 +228,92 @@ class CargoFilterTests(Fixture, unittest.TestCase):
         self.assertIsNone(self.view.goods_proxy.cargo_ids)
         self.assertEqual(self.view.goods_proxy.rowCount(),3)
         self.assertEqual(self.view.cargo_notice.text(),tr('browse.cargo_unavailable'))
+
+    def test_quantity_and_identical_signals_validate_without_refiltering(self):
+        v = self.view
+        with patch.object(ui, 'current_ship_inventory', wraps=ui.current_ship_inventory) as validate, \
+             patch.object(v.goods_proxy, 'invalidateFilter', wraps=v.goods_proxy.invalidateFilter) as invalidate, \
+             patch.object(v.markets_model, 'replace', side_effect=AssertionError('no market reset')), \
+             patch.object(ui, 'read_markets', side_effect=AssertionError('no market read')):
+            self.cargo(Gold=8, Beer=3)
+            for _ in range(5):
+                self.state.changed.emit()
+            self.assertEqual(validate.call_count, 6)
+            invalidate.assert_not_called()
+            self.assertEqual(v.goods_proxy.rowCount(), 2)
+            self.cargo(Gold=8, Beer=3, Platinum=1)
+            self.assertEqual(invalidate.call_count, 1)
+            self.assertEqual(v.goods_proxy.rowCount(), 3)
+            self.cargo(Platinum=1)
+            self.assertEqual(invalidate.call_count, 2)
+            self.assertEqual(v.goods_proxy.rowCount(), 1)
+            self.cargo()
+            self.assertEqual(invalidate.call_count, 3)
+            self.assertEqual(v.goods_proxy.rowCount(), 0)
+
+    def test_srv_repeats_and_status_transitions(self):
+        v = self.view
+        with patch.object(v.goods_proxy, 'invalidateFilter', wraps=v.goods_proxy.invalidateFilter) as invalidate:
+            self.cargo(vessel='SRV', Gold=1)
+            self.assertEqual(invalidate.call_count, 1)
+            self.assertIsNone(v.goods_proxy.cargo_ids)
+            for count in (2, 3, 4):
+                self.cargo(vessel='SRV', Gold=count)
+                self.state.changed.emit()
+            self.assertEqual(invalidate.call_count, 1)
+            self.assertEqual(v.goods_proxy.rowCount(), 3)
+            self.cargo(Gold=1, Beer=1)
+            self.assertEqual(invalidate.call_count, 2)
+            self.state.ship_loadout.loadout_stale = True
+            self.state.shipLoadoutChanged.emit(self.state.ship_loadout)
+            self.assertEqual(invalidate.call_count, 3)
+            self.state.shipLoadoutChanged.emit(self.state.ship_loadout)
+            self.assertEqual(invalidate.call_count, 3)
+            self.state.ship_loadout.loadout_stale = False
+            self.state.shipLoadoutChanged.emit(self.state.ship_loadout)
+            self.assertEqual(invalidate.call_count, 4)
+            self.assertEqual(v.goods_proxy.rowCount(), 2)
+
+    def test_each_exclusive_mode_filters_once_search_is_independent(self):
+        v = self.view
+        v.all_goods.setChecked(True)
+        with patch.object(v.goods_proxy, 'invalidateFilter', wraps=v.goods_proxy.invalidateFilter) as invalidate:
+            for number, (button, rows) in enumerate(
+                    ((v.mining_only, 2), (v.cargo_only, 2), (v.all_goods, 3)), 1):
+                button.click()
+                self.assertEqual(invalidate.call_count, number)
+                self.assertEqual(v.goods_proxy.rowCount(), rows)
+                self.assertEqual(sum(b.isChecked() for b in v.goods_mode.buttons()), 1)
+                button.click()
+                self.assertEqual(invalidate.call_count, number)
+            v.goods_search.setText('Bier')
+            self.assertEqual(v.goods_proxy.rowCount(), 1)
+            v.mining_only.click()
+            self.assertEqual(v.goods_proxy.rowCount(), 0)
+            v.cargo_only.click()
+            self.assertEqual(v.goods_proxy.rowCount(), 1)
+            self.assertEqual(v.goods_search.text(), 'Bier')
+        for button in (v.all_goods, v.mining_only):
+            button.click()
+            with patch.object(ui, 'current_ship_inventory', side_effect=AssertionError('inactive cargo')), \
+                 patch.object(v.goods_proxy, 'invalidateFilter', side_effect=AssertionError('no filter work')):
+                self.cargo(vessel='SRV', Gold=2)
+                self.state.changed.emit()
+
+    def test_default_mode_and_new_detail_status_without_filter_change(self):
+        v = ui.SavedMarketsView(self.state, pool=self.pool)
+        try:
+            self.assertTrue(v.all_goods.isChecked())
+            self.assertEqual(v.goods_mode.checkedId(), 0)
+        finally:
+            v.deleteLater()
+        v = self.view
+        v.all_goods.click()
+        with patch.object(v.goods_proxy, 'invalidateFilter', wraps=v.goods_proxy.invalidateFilter) as invalidate:
+            self.select(2)
+            invalidate.assert_not_called()
+            self.assertEqual(v.goods_proxy.rowCount(), 1)
+            self.assertEqual(v.goods_status.text(), tr('browse.goods', shown=1, total=1))
 
     def test_radius_values_defaults_all_four_views_no_settings_writes(self):
         settings=QSettings(str(self.root/'trade.ini'), QSettings.IniFormat)

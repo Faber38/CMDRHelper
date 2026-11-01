@@ -38,6 +38,15 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## CMDRHelper v3.9.24
+
+- Elenchi dei mercati stabili, senza svuotamenti temporanei se il sistema di riferimento non cambia; meno aggiornamenti dei filtri e tre modalità esclusive: tutte le merci, risorse minerarie o carico della nave.
+- Sei azioni configurabili in una gestione centralizzata e compatta delle scorciatoie, con controllo dei conflitti con la scorciatoia globale per il preferito rapido.
+- Chiusura sicura uniforme tramite pulsante, croce della finestra o scorciatoia: protezione delle impostazioni non salvate, completamento delle attività importanti in background e salvataggio dei checkpoint minerari. Una finestra di attesa migliorata mostra l’avanzamento.
+- Il piè di finestra tecnico è stato rimosso. I dettagli degli errori rispettosi della privacy restano nello ZIP diagnostico e gli errori critici di avvio rimangono visibili. Corretta la barra nera di rientro in Odyssey.
+- Meno scansioni ripetute dei processi e costruzione più rapida della pagina Estrazione grazie alla riduzione degli aggiornamenti inutili di tabelle e impaginazione.
+- Le preferenze di visualizzazione invariate non vengono più riscritte; gli inventari minerari vengono ricostruiti con meno copie. Restano preservate le prove delle scorte e la verifica del completamento dei salvataggi.
+
 ## CMDRHelper v3.9.23
 
 - La preparazione termina dopo i primi tentativi locali, anche con attività journal in coda e invii lenti. Gli errori restano visibili.

@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 from importlib import import_module
+from html import escape
 
 from cmdrhelper.help_content import de
 
@@ -37,6 +38,12 @@ def help_topic(context: str, language: str = "de") -> HelpTopic:
     except (AttributeError, KeyError, TypeError, ValueError):
         catalog = de
         area, text = de.HELP_TOPICS[context]
+    if context == 'settings':
+        from cmdrhelper.i18n import tr_for_language
+        text += '<h3>' + escape(tr_for_language(language, 'shortcuts.title')) + '</h3>'
+        for key in ('help', 'allowed', 'voiceattack'):
+            text += '<p>' + escape(tr_for_language(language, 'shortcuts.' + key)) + '</p>'
+        text += '<p>' + escape(tr_for_language(language, 'exit.shortcut_help')) + '</p>'
     return HelpTopic(
         area=area,
         text=text,

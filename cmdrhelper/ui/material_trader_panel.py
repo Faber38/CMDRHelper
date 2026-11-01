@@ -1,4 +1,5 @@
 """On-demand trader UI; background I/O, no inventory or navigation logic."""
+from cmdrhelper.exit_tasks import submit
 from datetime import datetime, timezone
 import logging
 from pathlib import Path
@@ -133,7 +134,7 @@ class MaterialTraderPanel(QFrame):
         self._worker = worker
         worker.signals.finished.connect(self._finished)
         self.render()
-        self.pool.start(worker)
+        submit(self.pool, worker)
 
     @Slot(object, str, object)
     def _finished(self, reference, kind, result):

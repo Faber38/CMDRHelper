@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_24.0': 'Stabila marknadslistor utan tillfällig tömning när referenssystemet är oförändrat; färre filteruppdateringar och tre ömsesidigt uteslutande lägen för alla varor, gruvråvaror eller skeppslast.',
+    'release.3_9_24.1': 'Sex konfigurerbara åtgärder i en central och kompakt hantering av kortkommandon, med konfliktkontroll mot det globala kortkommandot för snabbfavorit.',
+    'release.3_9_24.2': 'Samma säkra avslutning via knapp, fönsterkryss och kortkommando: skydda osparade inställningar, slutför viktigt bakgrundsarbete och spara gruvkontrollpunkter. En förbättrad väntedialog visar förloppet.',
+    'release.3_9_24.3': 'Den tekniska sidfoten har tagits bort. Integritetsanpassade feluppgifter finns kvar i diagnostik-ZIP-filen och kritiska startfel förblir synliga. Det svarta indragningsfältet i Odyssey har rättats.',
+    'release.3_9_24.4': 'Färre upprepade processökningar och snabbare uppbyggnad av gruvsidan genom färre onödiga tabell- och layoutuppdateringar.',
+    'release.3_9_24.5': 'Oförändrade visningsinställningar skrivs inte längre om; gruvinventarier återskapas med mindre kopiering. Underlag för lagersaldon och verifierad slutförd lagring bevaras.',
+
     'release.3_9_23.0': 'Startförberedelsen avslutas efter de första lokala försöken, även med journaljobb i kö och långsamma uppladdningar. Fel förblir synliga.',
     'release.3_9_23.1': 'Värderingsläsaren hoppar över ogiltiga JSON-strukturer och kan läsa efterföljande giltiga metadata.',
     'release.3_9_23.2': 'Historiska reparationer ger tydligare tekniska fel, känner igen oförändrade fel och försöker igen med korrigerade filer.',
@@ -2335,8 +2342,52 @@ TRANSLATIONS["images.identity_wait"] = 'Konverteringen pausad: spelinstans, bef�
 
 # Confirmed ship cargo filter in the saved market browser.
 TRANSLATIONS.update({
-    'browse.cargo_only': 'Endast varor i lastutrymmet',
+    'browse.all_goods': 'Alla varor',
+    'browse.reference_loading': 'Läser in referenssystemets koordinater …',
+    'browse.cargo_only': 'Endast varor i skeppets lastutrymme',
     'browse.cargo_unavailable': 'Lastfiltret är pausat: Skeppets aktuella lager är inte bekräftat.',
     'browse.cargo_empty': 'Skeppets lastutrymme är bekräftat tomt.',
     'browse.cargo_identity_unknown': 'Lastfiltret är pausat: Alla varor kan inte identifieras entydigt.',
+})
+
+# Startup errors are actionable here; technical details remain in diagnostics.
+TRANSLATIONS['startup.action_required'] = 'Kontrollera journalkällorna och deras åtkomstbehörigheter i inställningarna. Om problemet kvarstår, skapa en diagnos-ZIP där för felsökning.'
+
+# Central local shortcuts; existing global favorite retains its backend.
+TRANSLATIONS.update({
+    'shortcuts.title': 'Tangentbordsgenvägar',
+    'shortcuts.help': 'Lokala genvägar fungerar bara i CMDRHelpers aktiva huvudfönster. De blockeras vid textinmatning, dialoger och popupmenyer. Snabbfavoriten förblir global och fungerar även utanför Helper.',
+    'shortcuts.voiceattack': 'VoiceAttack: välj CMDRHelper, återställ fönstret om det är minimerat och aktivera det. Skicka sedan den valda tangentkombinationen. Skicka den inte till spelet om CMDRHelper inte kan aktiveras.',
+    'shortcuts.allowed': 'Använd en kombination: Ctrl med bokstav/siffra eller en lämplig funktionstangent, eventuellt med Skift. Standard-, system-, AltGr- och textkombinationer är skyddade. Andra program kan reservera fler tangenter.',
+    'shortcuts.reserved': 'Kombinationen är ogiltig eller skyddad för standard-, system- eller textfunktioner.',
+    'shortcuts.conflict': 'Kombinationen är redan tilldelad lokalt eller till den globala snabbfavoriten.',
+    'shortcuts.quit_disabled': 'Avsluta kan ännu inte tilldelas: nuvarande avslutning skyddar inte helt osparad inmatning och pågående bakgrundsarbete. Avsluta-knappen är oförändrad.',
+    'shortcuts.save_failed': 'Tilldelningen kunde inte sparas. Den tidigare aktiva tilldelningen behålls.',
+    'shortcuts.set': 'Tilldela',
+    'shortcuts.change': 'Ändra',
+    'shortcuts.remove': 'Ta bort',
+    'shortcuts.reset': 'Återställ lokala tilldelningar',
+    'shortcuts.reset_confirm': 'Ta bort alla lokala genvägar? Den globala snabbtangenten för snabbfavoriten förblir oförändrad.',
+})
+
+# Shared safe exit workflow.
+TRANSLATIONS.update({'exit.title': 'Avsluta CMDRHelper',
+ 'exit.unsaved': 'Det finns osparade inställningar. Spara, förkasta eller avbryt avslutningen?',
+ 'exit.choose': 'Välj först Spara, Förkasta eller Avbryt. Kortkommandot förkastar inga ändringar.',
+ 'exit.save': 'Spara',
+ 'exit.discard': 'Förkasta',
+ 'exit.cancel': 'Avbryt',
+ 'exit.wait': 'Avslutar pågående arbete säkert …',
+ 'exit.wait_count': 'Pågående uppgifter: {count}. Sparar resultat …',
+ 'exit.wait_long': 'Pågående uppgifter: {count}. Detta tar längre tid. Programmet förblir öppet; du kan '
+                   'avbryta avslutningen.',
+ 'exit.save_failed': 'Inställningarna kunde inte sparas. Kontrollera inmatning och skrivrättigheter. '
+                     'Programmet förblir öppet.',
+ 'exit.write_failed': 'Ett resultat kunde inte sparas. Avbryt avslutningen och försök spara igen.',
+ 'exit.resuming': 'Slutför skrivkön innan normal användning återupptas …',
+ 'exit.shortcut_help': 'Avsluta använder samma säkra förfarande som knappen. Kortkommandot fungerar även i '
+                       'avslutningsdialogen; ändringar kräver fortfarande Spara eller Förkasta.'})
+
+TRANSLATIONS.update({
+    "shortcuts.summary": 'Välj och ta bort kortkommandon för det aktiva CMDRHelper-fönstret. Snabbfavoritens kortkommando fungerar fortfarande globalt.',
 })

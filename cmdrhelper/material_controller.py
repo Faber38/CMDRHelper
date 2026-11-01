@@ -1,4 +1,5 @@
 """Asynchronous adapter between journal refresh signals and Engineering inventory."""
+from cmdrhelper.exit_tasks import submit
 from pathlib import Path
 import sqlite3
 import logging
@@ -110,7 +111,7 @@ class MaterialController(QObject):
             self.ready.emit(MaterialInventory(0, ""), "")
             return
         self._running = True
-        self.pool.start(_Read(self.reader, self.state.database.path, cid, self._generation, self.results))
+        submit(self.pool, _Read(self.reader, self.state.database.path, cid, self._generation, self.results))
 
     @Slot(int, object, str)
     def _finished(self, generation, inventory, name):

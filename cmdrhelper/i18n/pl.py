@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_24.0': 'Stabilne listy rynków bez chwilowego opróżniania przy niezmienionym układzie odniesienia; mniej aktualizacji filtrów i trzy wykluczające się tryby: wszystkie towary, surowce górnicze lub ładunek statku.',
+    'release.3_9_24.1': 'Sześć konfigurowalnych działań w centralnym, kompaktowym menedżerze skrótów, z wykrywaniem konfliktów z globalnym skrótem szybkiego ulubionego.',
+    'release.3_9_24.2': 'Jednakowe bezpieczne zamykanie przyciskiem, krzyżykiem okna i skrótem: ochrona niezapisanych ustawień, zakończenie ważnych zadań w tle i zapis punktów kontrolnych zapasów górniczych. Ulepszone okno oczekiwania pokazuje postęp.',
+    'release.3_9_24.3': 'Usunięto techniczną stopkę. Szczegóły błędów chroniące prywatność pozostają w diagnostycznym ZIP-ie, a krytyczne błędy uruchamiania są nadal widoczne. Naprawiono czarny pasek wcięcia w Odyssey.',
+    'release.3_9_24.4': 'Mniej powtarzanych skanów procesów i szybsze tworzenie strony górnictwa dzięki ograniczeniu zbędnych aktualizacji tabel i układu.',
+    'release.3_9_24.5': 'Niezmienione preferencje wyświetlania nie są ponownie zapisywane; zapasy górnicze są odtwarzane przy mniejszej liczbie kopii. Zachowano dowody stanu zapasów i sprawdzane zakończenie zapisu.',
+
     'release.3_9_23.0': 'Przygotowanie kończy się po pierwszych próbach lokalnych, także przy kolejce dzienników i wolnym wysyłaniu. Błędy pozostają widoczne.',
     'release.3_9_23.1': 'Czytnik wyceny pomija nieprawidłowe struktury JSON i może odczytać kolejne poprawne metadane.',
     'release.3_9_23.2': 'Naprawy historii dokładniej opisują błędy techniczne, rozpoznają niezmienione błędy i ponawiają próby po poprawieniu plików.',
@@ -2335,8 +2342,52 @@ TRANSLATIONS["images.identity_wait"] = 'Konwersja wstrzymana: nie można jednozn
 
 # Confirmed ship cargo filter in the saved market browser.
 TRANSLATIONS.update({
-    'browse.cargo_only': 'Tylko towary w ładowni',
+    'browse.all_goods': 'Wszystkie towary',
+    'browse.reference_loading': 'Wczytywanie współrzędnych układu odniesienia…',
+    'browse.cargo_only': 'Tylko towary w ładowni statku',
     'browse.cargo_unavailable': 'Filtr ładunku wstrzymany: Aktualny stan ładowni statku nie został potwierdzony.',
     'browse.cargo_empty': 'Potwierdzono, że ładownia statku jest pusta.',
     'browse.cargo_identity_unknown': 'Filtr ładunku wstrzymany: Nie wszystkie towary można jednoznacznie zidentyfikować.',
+})
+
+# Startup errors are actionable here; technical details remain in diagnostics.
+TRANSLATIONS['startup.action_required'] = 'Sprawdź źródła dzienników i uprawnienia dostępu w ustawieniach. Jeśli problem nadal występuje, utwórz tam archiwum ZIP diagnostyki do analizy błędu.'
+
+# Central local shortcuts; existing global favorite retains its backend.
+TRANSLATIONS.update({
+    'shortcuts.title': 'Skróty klawiaturowe',
+    'shortcuts.help': 'Lokalne skróty działają tylko w aktywnym głównym oknie CMDRHelper. Są blokowane podczas wpisywania tekstu, w oknach dialogowych i menu podręcznych. Szybki ulubiony pozostaje globalny i działa także poza Helperem.',
+    'shortcuts.voiceattack': 'VoiceAttack: wybierz CMDRHelper, przywróć zminimalizowane okno i je aktywuj. Następnie wyślij ustawioną kombinację. Nie wysyłaj jej do gry, jeśli nie można aktywować CMDRHelper.',
+    'shortcuts.allowed': 'Użyj jednej kombinacji: Ctrl z literą/cyfrą lub odpowiedni klawisz funkcyjny, opcjonalnie z Shift. Kombinacje standardowe, systemowe, AltGr i edycji tekstu są chronione. Inne aplikacje mogą rezerwować dodatkowe klawisze.',
+    'shortcuts.reserved': 'Kombinacja jest nieprawidłowa lub chroniona dla funkcji standardowych, systemowych lub tekstowych.',
+    'shortcuts.conflict': 'Ta kombinacja jest już przypisana lokalnie lub do globalnego szybkiego ulubionego.',
+    'shortcuts.quit_disabled': 'Zamykanie nie jest jeszcze dostępne do przypisania: obecny mechanizm nie chroni w pełni niezapisanych danych i zadań w tle. Przycisk zamykania pozostaje bez zmian.',
+    'shortcuts.save_failed': 'Nie udało się zapisać przypisania. Poprzednie aktywne przypisanie pozostaje zachowane.',
+    'shortcuts.set': 'Przypisz',
+    'shortcuts.change': 'Zmień',
+    'shortcuts.remove': 'Usuń',
+    'shortcuts.reset': 'Zresetuj lokalne przypisania',
+    'shortcuts.reset_confirm': 'Usunąć wszystkie lokalne skróty? Globalny skrót szybkiego ulubionego pozostanie bez zmian.',
+})
+
+# Shared safe exit workflow.
+TRANSLATIONS.update({'exit.title': 'Zamknij CMDRHelper',
+ 'exit.unsaved': 'Istnieją niezapisane ustawienia. Zapisać, odrzucić czy anulować zamykanie?',
+ 'exit.choose': 'Najpierw wybierz Zapisz, Odrzuć lub Anuluj. Skrót nie odrzuca zmian.',
+ 'exit.save': 'Zapisz',
+ 'exit.discard': 'Odrzuć',
+ 'exit.cancel': 'Anuluj',
+ 'exit.wait': 'Bezpieczne kończenie bieżących zadań …',
+ 'exit.wait_count': 'Trwające zadania: {count}. Zapisywanie wyników …',
+ 'exit.wait_long': 'Trwające zadania: {count}. To potrwa dłużej. Aplikacja pozostaje otwarta; można anulować '
+                   'zamykanie.',
+ 'exit.save_failed': 'Nie udało się zapisać ustawień. Sprawdź dane i uprawnienia zapisu. Aplikacja pozostaje '
+                     'otwarta.',
+ 'exit.write_failed': 'Nie udało się zapisać wyniku. Anuluj zamykanie i ponów zapis.',
+ 'exit.resuming': 'Kończenie kolejki zapisu przed wznowieniem normalnej pracy …',
+ 'exit.shortcut_help': 'Zamykanie używa tej samej bezpiecznej procedury co przycisk. Skrót działa też w '
+                       'oknie zamykania; zmiany nadal wymagają wybrania Zapisz lub Odrzuć.'})
+
+TRANSLATIONS.update({
+    "shortcuts.summary": 'Ustawiaj i usuwaj skróty dla aktywnego okna CMDRHelper. Skrót szybkiego dodawania do ulubionych nadal działa globalnie.',
 })

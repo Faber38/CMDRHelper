@@ -17,7 +17,8 @@ class JournalPending(OSError):
         self.reason = reason
 
 
-def diagnostic(component, phase, error=None, *, reason=None, status='pending'):
+def diagnostic(component, phase, error=None, *, reason=None, status='pending',
+               source_ref=None, traceback=False):
     fields = dict(component=component, phase=phase, status=status,
                   reason=reason or getattr(error, 'reason', None) or (
                       'sqlite_error' if isinstance(error, sqlite3.Error) else
@@ -30,7 +31,11 @@ def diagnostic(component, phase, error=None, *, reason=None, status='pending'):
     for key in ('source_ref', 'line_number'):
         if error is not None and hasattr(error, key):
             fields[key] = getattr(error, key)
-    logger.warning('Background operation status', extra={'diagnostic_fields': fields})
+    if source_ref is not None:
+        fields['source_ref'] = source_ref
+    # PrivacyFormatter retains exception types/frames, never exception payloads.
+    info = (type(error), error, error.__traceback__) if traceback and error is not None else None
+    logger.warning('Background operation status', extra={'diagnostic_fields': fields}, exc_info=info)
 
 
 def prepare(state):
@@ -60,6 +65,8 @@ def emit(state, signal, *args):
 
 def issue(state, component, error=None):
     issues = getattr(state, 'startup_issues', [])
+    if component in issues and error is None:
+        return  # Multiple repair features/sources can report the same component.
     if component not in issues:
         state.startup_issues = [*issues, component]
     diagnostic(component, 'history', error, status='partial')
@@ -102,7 +109,8 @@ def start(state, target, name, failed, flags):
         state._startup_threads = [t for t in state._startup_threads if t.is_alive()]
         thread = threading.Thread(target=run, daemon=True, name=name)
         state._startup_threads.append(thread)
-        thread.start()
+        from .exit_tasks import start_thread
+        start_thread(thread)
     except Exception as exc:
         for flag in flags:
             setattr(state, flag, False)
@@ -115,7 +123,8 @@ def shutdown(state, timeout=5.0):
     state._startup_cancel.set()
     mining = getattr(state, 'mining_inventory_controller', None)
     if mining is not None:
-        mining.close()
+        if mining.close() is False:
+            return False
     watcher = getattr(state, 'watcher', None)
     if watcher is not None:
         watcher.stop()

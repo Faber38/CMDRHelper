@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_24.0': 'Market lists stay stable without briefly clearing when the reference system is unchanged; fewer filter updates and three exclusive modes for all commodities, mining commodities or ship cargo.',
+    'release.3_9_24.1': 'Six configurable actions in a central, compact keyboard shortcut manager, with conflict checks against the global quick-favorite shortcut.',
+    'release.3_9_24.2': 'Consistent safe exit through the button, window close control or shortcut: protect unsaved settings, finish important background work and save mining checkpoints. An improved waiting dialog shows progress.',
+    'release.3_9_24.3': 'The technical footer has been removed. Privacy-conscious error details remain in the diagnostics ZIP and critical startup errors stay visible. The black indentation bar in Odyssey has been fixed.',
+    'release.3_9_24.4': 'Fewer repeated process scans and faster construction of the Mining page by avoiding unnecessary table and layout updates.',
+    'release.3_9_24.5': 'Unchanged display preferences are no longer written again; mining inventories are reconstructed with less copying. Inventory evidence and verified save completion are preserved.',
+
     'release.3_9_23.0': 'Startup preparation finishes after the initial local attempts, even with queued journal work and slow uploads. Errors remain visible.',
     'release.3_9_23.1': 'The valuation reader skips invalid JSON structures and can read subsequent valid metadata.',
     'release.3_9_23.2': 'Historical repairs report technical errors more precisely, recognize unchanged failures and retry corrected files.',
@@ -2479,8 +2486,52 @@ TRANSLATIONS["images.identity_wait"] = 'Conversion paused: game instance, Comman
 
 # Confirmed ship cargo filter in the saved market browser.
 TRANSLATIONS.update({
-    'browse.cargo_only': 'Only goods in the cargo hold',
+    'browse.all_goods': 'All commodities',
+    'browse.reference_loading': 'Loading reference system coordinates …',
+    'browse.cargo_only': 'Only goods in the ship’s cargo hold',
     'browse.cargo_unavailable': 'Cargo filter paused: The current ship inventory is not confirmed.',
     'browse.cargo_empty': 'The confirmed ship cargo hold is empty.',
     'browse.cargo_identity_unknown': 'Cargo filter paused: Not all goods can be identified unambiguously.',
+})
+
+# Startup errors are actionable here; technical details remain in diagnostics.
+TRANSLATIONS['startup.action_required'] = 'Please check the journal sources and their access permissions in Settings. If the problem persists, create a diagnostic ZIP there for troubleshooting.'
+
+# Central local shortcuts; existing global favorite retains its backend.
+TRANSLATIONS.update({
+    'shortcuts.title': 'Keyboard shortcuts',
+    'shortcuts.help': 'Local shortcuts work only in the active CMDRHelper main window. They are blocked during text entry, dialogs and popups. The quick-favorite hotkey remains global and also works outside the Helper.',
+    'shortcuts.voiceattack': 'VoiceAttack: Target CMDRHelper, restore it if minimized and activate its window. Then send the configured key combination. Do not send it to the game if CMDRHelper cannot be activated.',
+    'shortcuts.allowed': 'Use one combination: Ctrl with a letter/digit or a suitable function key, optionally with Shift. Standard, system, AltGr and text-entry combinations are protected. Other applications may reserve additional keys.',
+    'shortcuts.reserved': 'This combination is invalid or protected for standard, system or text-entry functions.',
+    'shortcuts.conflict': 'This combination is already assigned locally or to the global quick favorite.',
+    'shortcuts.quit_disabled': 'Quit cannot be assigned yet: The existing shutdown does not fully protect unsaved input and ongoing background work. The Quit button is unchanged.',
+    'shortcuts.save_failed': 'The binding could not be saved. The previous active binding is retained.',
+    'shortcuts.set': 'Assign',
+    'shortcuts.change': 'Change',
+    'shortcuts.remove': 'Remove',
+    'shortcuts.reset': 'Reset local bindings',
+    'shortcuts.reset_confirm': 'Remove all local shortcuts? The global quick-favorite hotkey will remain unchanged.',
+})
+
+# Shared safe exit workflow.
+TRANSLATIONS.update({'exit.title': 'Quit CMDRHelper',
+ 'exit.unsaved': 'There are unsaved settings. Save, discard, or cancel quitting?',
+ 'exit.choose': 'Choose Save, Discard, or Cancel first. The shortcut never discards changes.',
+ 'exit.save': 'Save',
+ 'exit.discard': 'Discard',
+ 'exit.cancel': 'Cancel',
+ 'exit.wait': 'Finishing ongoing work safely …',
+ 'exit.wait_count': 'Work still running: {count}. Saving results …',
+ 'exit.wait_long': 'Work still running: {count}. This is taking longer. The application stays open; you can '
+                   'cancel quitting.',
+ 'exit.save_failed': 'Settings could not be saved. Check the input and write permissions. The application '
+                     'stays open.',
+ 'exit.write_failed': 'A result could not be saved. Cancel quitting and retry saving.',
+ 'exit.resuming': 'Finishing the write queue before resuming normal operation …',
+ 'exit.shortcut_help': 'Quit uses the same safe procedure as the button. The shortcut also works in the quit '
+                       'dialog; unsaved changes still require Save or Discard.'})
+
+TRANSLATIONS.update({
+    "shortcuts.summary": 'Choose and remove shortcuts for the active CMDRHelper window. The Quick Favorite hotkey remains global.',
 })

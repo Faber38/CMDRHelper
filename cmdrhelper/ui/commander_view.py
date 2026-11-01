@@ -1,4 +1,5 @@
 from __future__ import annotations
+from cmdrhelper.exit_tasks import submit
 
 from contextlib import contextmanager
 from copy import deepcopy
@@ -1117,7 +1118,7 @@ class CommanderView(QWidget):
         task.signals.done.connect(self._fleet_rebuild_finished, Qt.QueuedConnection)
         self.fleet_action_status.setText(tr("commander_view.fleet.rebuild.running"))
         self._refresh_ship_for_current_commander()
-        QThreadPool.globalInstance().start(task)
+        submit(QThreadPool.globalInstance(), task)
 
     def _fleet_rebuild_finished(self, fleet, error):
         commander_id = self._fleet_rebuild_id

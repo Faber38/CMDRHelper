@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_24.0': 'Markkinalistat pysyvät vakaina tyhjentymättä hetkeksi, kun viitejärjestelmä ei muutu; vähemmän suodatinpäivityksiä ja kolme toisensa poissulkevaa tilaa: kaikki tavarat, kaivosraaka-aineet tai aluksen lasti.',
+    'release.3_9_24.1': 'Kuusi määritettävää toimintoa keskitetyssä ja tiiviissä pikanäppäinhallinnassa, joka tarkistaa ristiriidat yleisen pikasuosikkinäppäimen kanssa.',
+    'release.3_9_24.2': 'Yhtenäinen turvallinen sulkeminen painikkeella, ikkunan rastilla tai pikanäppäimellä: tallentamattomien asetusten suojaus, tärkeiden taustatöiden loppuunsaattaminen ja kaivosvarastojen tarkistuspisteiden tallennus. Parannettu odotusikkuna näyttää etenemisen.',
+    'release.3_9_24.3': 'Tekninen alatunniste on poistettu. Yksityisyyttä suojaavat virhetiedot säilyvät diagnostiikan ZIP-tiedostossa ja kriittiset käynnistysvirheet näkyvissä. Odysseyn musta sisennyspalkki on korjattu.',
+    'release.3_9_24.4': 'Vähemmän toistuvia prosessien tarkistuksia ja nopeampi kaivossivun muodostaminen tarpeettomia taulukko- ja asettelupäivityksiä vähentämällä.',
+    'release.3_9_24.5': 'Muuttumattomia näyttöasetuksia ei enää kirjoiteta uudelleen; kaivosvarastot muodostetaan vähemmällä kopioinnilla. Varastotietojen todisteet ja tallennuksen valmistumisen tarkistus säilyvät.',
+
     'release.3_9_23.0': 'Käynnistyksen valmistelu päättyy ensimmäisten paikallisten yritysten jälkeen, vaikka jonossa olisi lokitöitä tai lähetykset olisivat hitaita. Virheet jäävät näkyviin.',
     'release.3_9_23.1': 'Arvonmäärityksen lukija ohittaa virheelliset JSON-rakenteet ja voi lukea niitä seuraavat kelvolliset metatiedot.',
     'release.3_9_23.2': 'Historiatietojen korjaukset ilmoittavat tekniset virheet tarkemmin, tunnistavat muuttumattomat virheet ja yrittävät korjattuja tiedostoja uudelleen.',
@@ -2335,8 +2342,52 @@ TRANSLATIONS["images.identity_wait"] = 'Muunnos keskeytetty: peli-istuntoa, kome
 
 # Confirmed ship cargo filter in the saved market browser.
 TRANSLATIONS.update({
-    'browse.cargo_only': 'Vain lastiruumassa olevat tavarat',
+    'browse.all_goods': 'Kaikki tavarat',
+    'browse.reference_loading': 'Ladataan vertailujärjestelmän koordinaatteja…',
+    'browse.cargo_only': 'Vain aluksen lastiruumassa olevat tavarat',
     'browse.cargo_unavailable': 'Lastisuodatin on tauolla: Aluksen nykyistä varastoa ei ole vahvistettu.',
     'browse.cargo_empty': 'Aluksen lastiruuma on vahvistettu tyhjäksi.',
     'browse.cargo_identity_unknown': 'Lastisuodatin on tauolla: Kaikkia tavaroita ei voida tunnistaa yksiselitteisesti.',
+})
+
+# Startup errors are actionable here; technical details remain in diagnostics.
+TRANSLATIONS['startup.action_required'] = 'Tarkista asetuksista lokilähteet ja niiden käyttöoikeudet. Jos ongelma jatkuu, luo siellä diagnostiikan ZIP-paketti virheen selvittämistä varten.'
+
+# Central local shortcuts; existing global favorite retains its backend.
+TRANSLATIONS.update({
+    'shortcuts.title': 'Pikanäppäimet',
+    'shortcuts.help': 'Paikalliset pikanäppäimet toimivat vain CMDRHelperin aktiivisessa pääikkunassa. Ne estetään tekstinsyötön, valintaikkunoiden ja ponnahdusvalikoiden aikana. Pikasuosikin näppäin pysyy yleisenä ja toimii myös Helperin ulkopuolella.',
+    'shortcuts.voiceattack': 'VoiceAttack: valitse CMDRHelper, palauta pienennetty ikkuna ja aktivoi se. Lähetä sitten määritetty näppäinyhdistelmä. Älä lähetä sitä peliin, jos CMDRHelperiä ei voida aktivoida.',
+    'shortcuts.allowed': 'Käytä yhtä yhdistelmää: Ctrl ja kirjain/numero tai sopiva toimintonäppäin, haluttaessa myös Vaihto. Vakio-, järjestelmä-, AltGr- ja tekstinsyöttöyhdistelmät on suojattu. Muut sovellukset voivat varata lisää näppäimiä.',
+    'shortcuts.reserved': 'Yhdistelmä on virheellinen tai suojattu vakio-, järjestelmä- tai tekstitoiminnoille.',
+    'shortcuts.conflict': 'Yhdistelmä on jo määritetty paikallisesti tai yleiselle pikasuosikille.',
+    'shortcuts.quit_disabled': 'Lopettamiselle ei voi vielä määrittää näppäintä: nykyinen sulkeminen ei täysin suojaa tallentamattomia tietoja ja taustatöitä. Lopeta-painike ei muutu.',
+    'shortcuts.save_failed': 'Määritystä ei voitu tallentaa. Aiempi aktiivinen määritys säilytetään.',
+    'shortcuts.set': 'Määritä',
+    'shortcuts.change': 'Muuta',
+    'shortcuts.remove': 'Poista',
+    'shortcuts.reset': 'Palauta paikalliset määritykset',
+    'shortcuts.reset_confirm': 'Poistetaanko kaikki paikalliset pikanäppäimet? Pikasuosikin yleinen näppäin säilyy ennallaan.',
+})
+
+# Shared safe exit workflow.
+TRANSLATIONS.update({'exit.title': 'Sulje CMDRHelper',
+ 'exit.unsaved': 'Asetuksia on tallentamatta. Tallennetaanko, hylätäänkö vai perutaanko sulkeminen?',
+ 'exit.choose': 'Valitse ensin Tallenna, Hylkää tai Peruuta. Pikanäppäin ei hylkää muutoksia.',
+ 'exit.save': 'Tallenna',
+ 'exit.discard': 'Hylkää',
+ 'exit.cancel': 'Peruuta',
+ 'exit.wait': 'Käynnissä olevat tehtävät päätetään turvallisesti …',
+ 'exit.wait_count': 'Käynnissä olevia tehtäviä: {count}. Tuloksia tallennetaan …',
+ 'exit.wait_long': 'Käynnissä olevia tehtäviä: {count}. Tämä kestää kauemmin. Sovellus pysyy auki; voit '
+                   'perua sulkemisen.',
+ 'exit.save_failed': 'Asetusten tallennus epäonnistui. Tarkista syötteet ja kirjoitusoikeudet. Sovellus '
+                     'pysyy auki.',
+ 'exit.write_failed': 'Tuloksen tallennus epäonnistui. Peru sulkeminen ja yritä tallentaa uudelleen.',
+ 'exit.resuming': 'Kirjoitusjono viimeistellään ennen normaalin käytön jatkamista …',
+ 'exit.shortcut_help': 'Sulkeminen käyttää samaa turvallista menettelyä kuin painike. Pikanäppäin toimii '
+                       'myös sulkemisikkunassa; muutokset vaativat edelleen tallennuksen tai hylkäämisen.'})
+
+TRANSLATIONS.update({
+    "shortcuts.summary": 'Määritä ja poista aktiivisen CMDRHelper-ikkunan pikanäppäimiä. Pikasuosikin pikanäppäin toimii edelleen myös muissa sovelluksissa.',
 })

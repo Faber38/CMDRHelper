@@ -2,7 +2,7 @@
 from pathlib import Path
 from urllib.parse import quote
 
-from .game_instances import confirmed_selection, inspect_instances
+from .game_instances import confirmed_selection, inspect_instances, presentation_instances
 
 
 def source_key(fid):
@@ -68,8 +68,9 @@ def live_context(state):
     manager = getattr(state, 'sources', None)
     if manager is None:
         return None
-    # Reinspect processes: a cached selection may outlive a game/login switch.
-    selected = confirmed_selection(inspect_instances(), manager.runtimes.values())
+    # Only synchronous presentation subscribers share process evidence. Always
+    # revalidate selection/projection; independent calls inspect processes anew.
+    selected = confirmed_selection(presentation_instances(state, inspect_instances), manager.runtimes.values())
     if selected is None:
         return None
     source_id, cid, fid = selected

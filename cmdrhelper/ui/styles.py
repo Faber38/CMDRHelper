@@ -297,10 +297,6 @@ QTableWidget::item:selected, QTableView#savedMarketTable::item:selected {
     background: #2b3640;
 }
 
-QStatusBar {
-    background: #080d12;
-    color: #8c959d;
-}
 """
 
 
@@ -609,11 +605,6 @@ QTableWidget::item, QTableView#savedMarketTable::item {
 QTableWidget::item:selected, QTableView#savedMarketTable::item:selected {
     background: #cfdce8;
     color: #15191d;
-}
-
-QStatusBar {
-    background: #eef1f4;
-    color: #65717c;
 }
 
 QToolTip {

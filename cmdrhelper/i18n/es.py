@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_24.0': 'Listas de mercados estables, sin vaciarse brevemente cuando no cambia el sistema de referencia; menos actualizaciones de filtros y tres modos exclusivos: todas las mercancías, recursos mineros o carga de la nave.',
+    'release.3_9_24.1': 'Seis acciones configurables en un gestor central y compacto de atajos, con comprobación de conflictos con el atajo global de favorito rápido.',
+    'release.3_9_24.2': 'Cierre seguro uniforme mediante botón, cruz de la ventana o atajo: protege los ajustes sin guardar, finaliza tareas importantes en segundo plano y guarda los puntos de control de minería. Un diálogo de espera mejorado muestra el progreso.',
+    'release.3_9_24.3': 'Se ha eliminado el pie técnico. Los detalles de errores respetuosos con la privacidad permanecen en el ZIP de diagnóstico y los errores críticos de inicio siguen visibles. Se ha corregido la barra negra de sangría en Odyssey.',
+    'release.3_9_24.4': 'Menos exploraciones repetidas de procesos y creación más rápida de la página de minería al evitar actualizaciones innecesarias de tablas y distribución.',
+    'release.3_9_24.5': 'Las preferencias de visualización que no cambian ya no se reescriben; los inventarios mineros se reconstruyen con menos copias. Se mantienen las pruebas de existencias y la verificación de que el guardado se ha completado.',
+
     'release.3_9_23.0': 'La preparación finaliza tras los primeros intentos locales, incluso con tareas de diarios pendientes y envíos lentos. Los errores siguen visibles.',
     'release.3_9_23.1': 'El lector de valoración omite estructuras JSON no válidas y puede leer los metadatos válidos posteriores.',
     'release.3_9_23.2': 'Las reparaciones históricas detallan mejor los errores técnicos, reconocen fallos sin cambios y vuelven a intentar los archivos corregidos.',
@@ -2447,8 +2454,52 @@ TRANSLATIONS["images.identity_wait"] = 'Conversión pausada: no se pueden vincul
 
 # Confirmed ship cargo filter in the saved market browser.
 TRANSLATIONS.update({
-    'browse.cargo_only': 'Solo mercancías en la bodega',
+    'browse.all_goods': 'Todas las mercancías',
+    'browse.reference_loading': 'Cargando coordenadas del sistema de referencia…',
+    'browse.cargo_only': 'Solo mercancías en la bodega de la nave',
     'browse.cargo_unavailable': 'Filtro de carga en pausa: El inventario actual de la nave no está confirmado.',
     'browse.cargo_empty': 'Se ha confirmado que la bodega de la nave está vacía.',
     'browse.cargo_identity_unknown': 'Filtro de carga en pausa: No todas las mercancías pueden identificarse de forma inequívoca.',
+})
+
+# Startup errors are actionable here; technical details remain in diagnostics.
+TRANSLATIONS['startup.action_required'] = 'Comprueba las fuentes de diarios y sus permisos de acceso en Ajustes. Si el problema persiste, crea allí un ZIP de diagnóstico para analizar el error.'
+
+# Central local shortcuts; existing global favorite retains its backend.
+TRANSLATIONS.update({
+    'shortcuts.title': 'Atajos de teclado',
+    'shortcuts.help': 'Los atajos locales solo funcionan en la ventana principal activa de CMDRHelper. Se bloquean al escribir, en diálogos y menús emergentes. El favorito rápido sigue siendo global y funciona fuera del Helper.',
+    'shortcuts.voiceattack': 'VoiceAttack: seleccionar CMDRHelper, restaurar la ventana si está minimizada y activarla. Después enviar la combinación configurada. No enviarla al juego si CMDRHelper no se puede activar.',
+    'shortcuts.allowed': 'Usar una sola combinación: Ctrl con una letra/dígito o una tecla de función adecuada, opcionalmente con Mayús. Se protegen las combinaciones estándar, del sistema, AltGr y de edición. Otras aplicaciones pueden reservar más teclas.',
+    'shortcuts.reserved': 'Combinación no válida o protegida para funciones estándar, del sistema o de edición.',
+    'shortcuts.conflict': 'Esta combinación ya está asignada localmente o al favorito rápido global.',
+    'shortcuts.quit_disabled': 'Salir aún no se puede asignar: el cierre actual no protege completamente los datos sin guardar ni las tareas en curso. El botón Salir no cambia.',
+    'shortcuts.save_failed': 'No se pudo guardar la asignación. Se conserva la asignación activa anterior.',
+    'shortcuts.set': 'Asignar',
+    'shortcuts.change': 'Cambiar',
+    'shortcuts.remove': 'Eliminar',
+    'shortcuts.reset': 'Restablecer asignaciones locales',
+    'shortcuts.reset_confirm': '¿Eliminar todos los atajos locales? El atajo global del favorito rápido no cambiará.',
+})
+
+# Shared safe exit workflow.
+TRANSLATIONS.update({'exit.title': 'Salir de CMDRHelper',
+ 'exit.unsaved': 'Hay ajustes sin guardar. ¿Guardar, descartar o cancelar la salida?',
+ 'exit.choose': 'Elija Guardar, Descartar o Cancelar. El atajo nunca descarta cambios.',
+ 'exit.save': 'Guardar',
+ 'exit.discard': 'Descartar',
+ 'exit.cancel': 'Cancelar',
+ 'exit.wait': 'Finalizando las tareas de forma segura …',
+ 'exit.wait_count': 'Tareas pendientes: {count}. Guardando resultados …',
+ 'exit.wait_long': 'Tareas pendientes: {count}. Está tardando más. La aplicación sigue abierta; puede '
+                   'cancelar la salida.',
+ 'exit.save_failed': 'No se pudieron guardar los ajustes. Revise los datos y los permisos de escritura. La '
+                     'aplicación sigue abierta.',
+ 'exit.write_failed': 'No se pudo guardar un resultado. Cancele la salida e intente guardarlo de nuevo.',
+ 'exit.resuming': 'Finalizando la cola de escritura antes de reanudar el funcionamiento normal …',
+ 'exit.shortcut_help': 'Salir usa el mismo proceso seguro que el botón. El atajo también funciona en el '
+                       'diálogo de salida; los cambios siguen requiriendo Guardar o Descartar.'})
+
+TRANSLATIONS.update({
+    "shortcuts.summary": 'Asigna y elimina atajos para la ventana activa de CMDRHelper. El atajo de favorito rápido sigue siendo global.',
 })

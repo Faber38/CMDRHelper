@@ -1,4 +1,5 @@
 """Debounced commander sale reads using the existing journal index."""
+from cmdrhelper.exit_tasks import submit
 import logging
 from threading import Event
 
@@ -118,7 +119,7 @@ class MiningMarketController(QObject):
         cancel = self._cancel
         cid = getattr(self.state, 'viewed_commander_id', None) or getattr(self.state, 'commander_id', None)
         self._args = (getattr(getattr(self.state, 'database', None), 'path', None), cid)
-        self.pool.start(_Read(self._generation, self._args, self.commodities, self._cache,
+        submit(self.pool, _Read(self._generation, self._args, self.commodities, self._cache,
                               cancel, self.signals))
 
     @Slot(int, object)

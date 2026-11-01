@@ -1,4 +1,5 @@
 """Explicit, asynchronous external search; windows never follow live game state."""
+from cmdrhelper.exit_tasks import submit
 import json
 from copy import deepcopy
 from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal, Slot, Qt, QEvent
@@ -231,7 +232,7 @@ class ExternalSystemSearch(QWidget):
         worker.signals.finished.connect(self.finished)
         self.status.setText(tr('external.loading'))
         self.status.show()
-        self.pool.start(worker)
+        submit(self.pool, worker)
 
     @Slot(int,object,str)
     def finished(self, token, model, error):

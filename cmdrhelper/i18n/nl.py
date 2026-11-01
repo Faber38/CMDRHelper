@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_24.0': 'Stabiele marktlijsten zonder tijdelijk leegmaken als het referentiesysteem gelijk blijft; minder filterupdates en drie exclusieve modi voor alle goederen, mijnbouwgrondstoffen of scheepslading.',
+    'release.3_9_24.1': 'Zes instelbare acties in een centrale, compacte sneltoetsbeheerder, met controle op conflicten met de globale sneltoets voor snelle favorieten.',
+    'release.3_9_24.2': 'Dezelfde veilige afsluiting via knop, vensterkruisje en sneltoets: onopgeslagen instellingen beschermen, belangrijk achtergrondwerk afronden en mijnbouwcontrolepunten opslaan. Een verbeterd wachtvenster toont de voortgang.',
+    'release.3_9_24.3': 'De technische voettekst is verwijderd. Privacyvriendelijke foutdetails blijven in het diagnostische ZIP-bestand en kritieke opstartfouten blijven zichtbaar. De zwarte inspringbalk in Odyssey is verholpen.',
+    'release.3_9_24.4': 'Minder herhaalde processcans en snellere opbouw van de mijnbouwpagina door minder onnodige tabel- en indelingsupdates.',
+    'release.3_9_24.5': 'Ongewijzigde weergavevoorkeuren worden niet opnieuw geschreven; mijnbouwvoorraden worden met minder kopieerwerk gereconstrueerd. Voorraadbewijzen en gecontroleerde voltooiing van opslag blijven behouden.',
+
     'release.3_9_23.0': 'De opstartvoorbereiding eindigt na de eerste lokale pogingen, ook bij journaalwerk in de wachtrij en trage uploads. Fouten blijven zichtbaar.',
     'release.3_9_23.1': 'De waarderingslezer slaat ongeldige JSON-structuren over en kan daaropvolgende geldige metadata lezen.',
     'release.3_9_23.2': 'Historische reparaties melden technische fouten nauwkeuriger, herkennen ongewijzigde fouten en proberen gecorrigeerde bestanden opnieuw.',
@@ -2335,8 +2342,53 @@ TRANSLATIONS["images.identity_wait"] = 'Conversie gepauzeerd: spelinstantie, com
 
 # Confirmed ship cargo filter in the saved market browser.
 TRANSLATIONS.update({
-    'browse.cargo_only': 'Alleen goederen in het vrachtruim',
+    'browse.all_goods': 'Alle goederen',
+    'browse.reference_loading': 'Coördinaten van het referentiestelsel laden …',
+    'browse.cargo_only': 'Alleen goederen in het vrachtruim van het schip',
     'browse.cargo_unavailable': 'Vrachtfilter gepauzeerd: De huidige scheepsvoorraad is niet bevestigd.',
     'browse.cargo_empty': 'Het vrachtruim van het schip is bevestigd leeg.',
     'browse.cargo_identity_unknown': 'Vrachtfilter gepauzeerd: Niet alle goederen kunnen eenduidig worden geïdentificeerd.',
+})
+
+# Startup errors are actionable here; technical details remain in diagnostics.
+TRANSLATIONS['startup.action_required'] = 'Controleer de journaalbronnen en hun toegangsrechten in Instellingen. Als het probleem aanhoudt, maak daar dan een diagnose-ZIP voor foutonderzoek.'
+
+# Central local shortcuts; existing global favorite retains its backend.
+TRANSLATIONS.update({
+    'shortcuts.title': 'Sneltoetsen',
+    'shortcuts.help': 'Lokale sneltoetsen werken alleen in het actieve hoofdvenster van CMDRHelper. Ze zijn geblokkeerd tijdens tekstinvoer, dialogen en pop-ups. De snelle favoriet blijft globaal en werkt ook buiten de Helper.',
+    'shortcuts.voiceattack': 'VoiceAttack: selecteer CMDRHelper, herstel het geminimaliseerde venster en activeer het. Verstuur daarna de ingestelde toetscombinatie. Stuur deze niet naar het spel als CMDRHelper niet kan worden geactiveerd.',
+    'shortcuts.allowed': 'Gebruik één combinatie: Ctrl met een letter/cijfer of een geschikte functietoets, eventueel met Shift. Standaard-, systeem-, AltGr- en tekstcombinaties zijn beschermd. Andere toepassingen kunnen extra toetsen reserveren.',
+    'shortcuts.reserved': 'Deze combinatie is ongeldig of beschermd voor standaard-, systeem- of tekstfuncties.',
+    'shortcuts.conflict': 'Deze combinatie is al lokaal of aan de globale snelle favoriet toegewezen.',
+    'shortcuts.quit_disabled': 'Afsluiten kan nog niet worden toegewezen: de huidige afsluiting beschermt niet alle onopgeslagen invoer en achtergrondtaken. De knop Afsluiten blijft ongewijzigd.',
+    'shortcuts.save_failed': 'De toewijzing kon niet worden opgeslagen. De vorige actieve toewijzing blijft behouden.',
+    'shortcuts.set': 'Instellen',
+    'shortcuts.change': 'Wijzigen',
+    'shortcuts.remove': 'Verwijderen',
+    'shortcuts.reset': 'Lokale toewijzingen herstellen',
+    'shortcuts.reset_confirm': 'Alle lokale sneltoetsen verwijderen? De globale sneltoets voor de snelle favoriet blijft ongewijzigd.',
+})
+
+# Shared safe exit workflow.
+TRANSLATIONS.update({'exit.title': 'CMDRHelper afsluiten',
+ 'exit.unsaved': 'Er zijn niet-opgeslagen instellingen. Opslaan, verwerpen of afsluiten annuleren?',
+ 'exit.choose': 'Kies eerst Opslaan, Verwerpen of Annuleren. De sneltoets verwerpt geen wijzigingen.',
+ 'exit.save': 'Opslaan',
+ 'exit.discard': 'Verwerpen',
+ 'exit.cancel': 'Annuleren',
+ 'exit.wait': 'Lopende taken veilig afronden …',
+ 'exit.wait_count': 'Nog lopende taken: {count}. Resultaten opslaan …',
+ 'exit.wait_long': 'Nog lopende taken: {count}. Dit duurt langer. De toepassing blijft open; u kunt het '
+                   'afsluiten annuleren.',
+ 'exit.save_failed': 'Instellingen konden niet worden opgeslagen. Controleer de invoer en schrijfrechten. De '
+                     'toepassing blijft open.',
+ 'exit.write_failed': 'Een resultaat kon niet worden opgeslagen. Annuleer het afsluiten en probeer opnieuw '
+                      'op te slaan.',
+ 'exit.resuming': 'De schrijfwachtrij afronden voordat de normale bediening wordt hervat …',
+ 'exit.shortcut_help': 'Afsluiten gebruikt dezelfde veilige procedure als de knop. De sneltoets werkt ook in '
+                       'het afsluitvenster; wijzigingen vereisen nog steeds Opslaan of Verwerpen.'})
+
+TRANSLATIONS.update({
+    "shortcuts.summary": 'Stel sneltoetsen in of verwijder ze voor het actieve CMDRHelper-venster. De sneltoets voor snelle favorieten blijft globaal.',
 })

@@ -189,7 +189,7 @@ class PublicationTests(unittest.TestCase):
                 self.assertFalse(startup_runtime.shutdown(self.state, timeout=0))
                 before = dict(self.state._inventory_revisions)
                 release.set()
-                self.assertTrue(startup_runtime.shutdown(self.state, timeout=3))
+                self.wait(lambda: startup_runtime.shutdown(self.state, timeout=0))
                 self.app.processEvents()
                 self.assertEqual(authorization, [True, False])
                 self.assertEqual(self.state._inventory_revisions, before)

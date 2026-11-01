@@ -87,7 +87,17 @@ class ObservedMarketObserver:
     def close(self):
         self._closing = True
         if self.writer is not None:
-            return self.writer.close()
+            return self.writer.close(wait=False)
+        return True
+
+    def resume_after_close(self):
+        """Only called after the sealed writer has drained and stopped."""
+        if self.writer is not None and not self.writer.is_stopped():
+            return False
+        self._closing = False
+        self.writer = None
+        if self._cache is not None:
+            self.cache  # Reconnect the existing projection to a new writer.
         return True
 
     def _poll_writes(self):
@@ -271,13 +281,24 @@ class ObservedMarketObserver:
         except (ValueError, TypeError, OverflowError, RecursionError) as exc:
             self._blocked, self.pending, self.context = True, None, {}
             self._diagnose(str(exc))
+        return self.finish_pending_capture(writes_done=writes_done)
+
+    def finish_pending_capture(self, *, writes_done=None, closing=False):
+        """Finish only the captured event; never admit new journal work on exit."""
+        if writes_done is None:
+            writes_done = self._poll_writes()
+        current = self.path
         if self.pending is None:
             return writes_done
         event, context, deadline = self.pending
         if self.monotonic() >= deadline:
+            if closing:
+                return False
             self.pending = None
             self._diagnose('Market capture retry deadline exceeded')
             return writes_done
+        if current is None:
+            return False
         try:
             data, sidecar_sig = read_market(current.parent / 'Market.json')
             snapshot = normalize_observation(event, data, fid=context['FID'], context=context,

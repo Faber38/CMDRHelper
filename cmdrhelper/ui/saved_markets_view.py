@@ -1,11 +1,12 @@
 """Location-independent, read-only browser of complete saved commodity markets."""
+from cmdrhelper.exit_tasks import submit
 from datetime import timedelta
 from threading import Event
 import logging
 
 from PySide6.QtCore import (QAbstractTableModel, QModelIndex, QObject, QLocale, QRunnable,
                            QSortFilterProxyModel, QThreadPool, Qt, Signal, Slot)
-from PySide6.QtWidgets import (QAbstractItemView, QApplication, QCheckBox, QComboBox,
+from PySide6.QtWidgets import (QAbstractItemView, QApplication, QButtonGroup, QRadioButton, QComboBox,
     QDoubleSpinBox, QFormLayout, QHBoxLayout, QHeaderView, QLabel, QLineEdit,
     QPushButton, QScrollArea, QSizePolicy, QSplitter, QTableView, QVBoxLayout, QWidget)
 
@@ -138,6 +139,8 @@ class SavedMarketsView(QWidget):
         self._dirty, self._loaded = True, False
         self._header_error = False
         self._headers, self._reference_coordinates = [], None
+        self._reference_key = None
+        self._goods_filter_key = None
         self._selected_id, self._snapshot = None, None
         self._reference_name = str(getattr(state, 'system', '') or '').strip('– ')
         self._manual_reference = False
@@ -217,12 +220,17 @@ class SavedMarketsView(QWidget):
         self.goods_search.setPlaceholderText(tr('browse.goods_search'))
         self.goods_search.setAccessibleName(tr('browse.goods_search'))
         right_layout.addWidget(self.goods_search)
-        self.mining_only = QCheckBox(tr('browse.mining'))
-        self.cargo_only = QCheckBox(tr('browse.cargo_only'))
-        goods_filters = QHBoxLayout()
-        goods_filters.addWidget(self.mining_only)
-        goods_filters.addWidget(self.cargo_only)
-        goods_filters.addStretch()
+        self.goods_mode = QButtonGroup(self)
+        self.all_goods = QRadioButton(tr('browse.all_goods'))
+        self.mining_only = QRadioButton(tr('browse.mining'))
+        self.cargo_only = QRadioButton(tr('browse.cargo_only'))
+        # A short vertical group also fits long translations in the split view.
+        goods_filters = QVBoxLayout()
+        goods_filters.setSpacing(2)
+        for mode, button in enumerate((self.all_goods, self.mining_only, self.cargo_only)):
+            self.goods_mode.addButton(button, mode)
+            goods_filters.addWidget(button)
+        self.all_goods.setChecked(True)
         right_layout.addLayout(goods_filters)
         self.cargo_notice = QLabel()
         self.cargo_notice.setTextFormat(Qt.PlainText)
@@ -246,8 +254,7 @@ class SavedMarketsView(QWidget):
         self.pad.currentIndexChanged.connect(self.filter_markets)
         self.age.currentIndexChanged.connect(self.filter_markets)
         self.goods_search.textChanged.connect(self.filter_goods)
-        self.mining_only.toggled.connect(self.filter_goods)
-        self.cargo_only.toggled.connect(self.filter_goods)
+        self.goods_mode.idToggled.connect(self._goods_mode_changed)
         for name in ('cargoSnapshotChanged', 'changed', 'commanderIdentityChanged',
                      'viewedCommanderChanged', 'shipLoadoutChanged'):
             signal = getattr(state, name, None)
@@ -257,6 +264,9 @@ class SavedMarketsView(QWidget):
         self.reference.returnPressed.connect(self.change_reference)
         self.refresh_button.clicked.connect(self.reload)
         signal = getattr(state, 'observedMarketsChanged', None)
+        if signal is not None:
+            signal.connect(self.mark_dirty)
+        signal = getattr(state, 'databaseImportFinished', None)
         if signal is not None:
             signal.connect(self.mark_dirty)
         # Commander movement never changes a manual reference or selected market.
@@ -295,7 +305,8 @@ class SavedMarketsView(QWidget):
             name = str(getattr(self.state, 'system', '') or '').strip('– ')
             self._reference_name = name
             self.reference.setText(name)
-        if self._dirty or not self._loaded:
+        source = source_from_state(self.state)
+        if self._dirty or not self._loaded or source != self.source:
             self.reload()
         else:
             self._start_reference()
@@ -316,7 +327,7 @@ class SavedMarketsView(QWidget):
         self._jobs[kind, generation] = job
         self._cancel_events.add(job.cancel)
         job.signals.finished.connect(self._finished)
-        self.pool.start(job)
+        submit(self.pool, job)
 
     @Slot()
     def mark_dirty(self):
@@ -331,18 +342,27 @@ class SavedMarketsView(QWidget):
         self.status.setText(tr('browse.loading'))
         self.refresh_button.setEnabled(False)
         self._start('headers', lambda source, cancel: read_markets(source, cancel, clock=self.clock), self.source)
-        self._start_reference()
+        self._start_reference(force=True)
 
-    def _start_reference(self):
-        self._reference_coordinates = None
-        self._render_markets()
+    def _start_reference(self, *, force=False):
+        key = (self.source.database_path, self._reference_name.casefold())
+        if key == self._reference_key and not force:
+            return
+        if key != self._reference_key:
+            # Never apply the previous system's distances to a new reference.
+            self._reference_coordinates = None
+        self._reference_key = key
         self._start('reference', read_reference, self.source, self._reference_name)
+        self._render_markets()
 
     @Slot()
     def change_reference(self):
         self._manual_reference = True
         self._reference_name = self.reference.text().strip()
-        self._start_reference()
+        if source_from_state(self.state) != self.source:
+            self.reload()
+        else:
+            self._start_reference(force=self._reference_coordinates is None)
 
     @Slot(object)
     def _finished(self, message):
@@ -403,13 +423,31 @@ class SavedMarketsView(QWidget):
                 search=f'{h.system_name} {h.station_name} {h.market_id}'.casefold(),
                 tooltip=f'{h.system_name} · {h.station_name}\nMarketID: {h.market_id}\n{self._date(h.observed_at)}'))
         selected = self._selected_id
-        self.markets_table.selectionModel().blockSignals(True)
-        self.markets_model.replace(records)
+        bars = (self.markets_table.horizontalScrollBar(), self.markets_table.verticalScrollBar())
+        positions = [bar.value() for bar in bars]
+        selection = self.markets_table.selectionModel()
+        blocked = selection.blockSignals(True)
+        model = self.markets_model
+        if ([row['header'].market_id for row in records]
+                != [row['header'].market_id for row in model.rows]):
+            model.replace(records)
+        else:
+            # Age, distance and metadata updates do not change row identity.
+            previous, model.rows = model.rows, records
+            for index, (old, new) in enumerate(zip(previous, records)):
+                if old != new:
+                    model.dataChanged.emit(model.index(index, 0),
+                                           model.index(index, model.columnCount() - 1))
         self.filter_markets()
-        self.markets_table.selectionModel().blockSignals(False)
         self._restore_selection(selected)
-        self.reference_status.setText(tr('browse.reference_unknown') if self._reference_coordinates is None
-                                      else tr('browse.reference') + ': ' + self._reference_name)
+        selection.blockSignals(blocked)
+        for bar, position in zip(bars, positions):
+            bar.setValue(position)
+        pending = ('reference', self._generations['reference']) in self._jobs
+        self.reference_status.setText(
+            tr('browse.reference_loading') if pending and self._reference_coordinates is None else
+            tr('browse.reference_unknown') if self._reference_coordinates is None else
+            tr('browse.reference') + ': ' + self._reference_name)
         self._render_detail()
 
     def _restore_selection(self, market_id):
@@ -435,13 +473,13 @@ class SavedMarketsView(QWidget):
         selection = self.markets_table.selectionModel()
         was_blocked = selection.blockSignals(True)
         proxy.invalidateFilter()
-        self.markets_table.setCurrentIndex(QModelIndex())
+        selected = QModelIndex()
         for index, row in enumerate(self.markets_model.rows):
             if row['header'].market_id == self._selected_id:
                 selected = proxy.mapFromSource(self.markets_model.index(index, 0))
-                if selected.isValid():
-                    self.markets_table.setCurrentIndex(selected)
                 break
+        if selected != self.markets_table.currentIndex():
+            self.markets_table.setCurrentIndex(selected)
         selection.blockSignals(was_blocked)
         self.status.setText(tr('browse.markets', shown=proxy.rowCount(), total=len(self._headers)))
         if not self._headers and self._loaded:
@@ -527,6 +565,11 @@ class SavedMarketsView(QWidget):
         if self.cargo_only.isChecked():
             self.filter_goods()
 
+    @Slot(int, bool)
+    def _goods_mode_changed(self, mode, checked):
+        if checked:
+            self.filter_goods()
+
     def _cargo_filter(self):
         if not self.cargo_only.isChecked():
             return None, ''
@@ -555,10 +598,20 @@ class SavedMarketsView(QWidget):
 
     @Slot()
     def filter_goods(self):
-        self.goods_proxy.search = self.goods_search.text().strip().casefold()
-        self.goods_proxy.mining = self.mining_only.isChecked()
-        self.goods_proxy.cargo_ids, notice = self._cargo_filter()
-        self.cargo_notice.setText(notice)
-        self.cargo_notice.setVisible(bool(notice))
-        self.goods_proxy.invalidateFilter()
+        # Validate provenance on every relevant signal BEFORE comparing the
+        # effective filter. Quantities alone do not change membership.
+        ids, notice = self._cargo_filter()
+        search = self.goods_search.text().strip().casefold()
+        key = (search, self.goods_mode.checkedId(),
+               None if ids is None else frozenset(ids), notice)
+        if key != self._goods_filter_key:
+            self._goods_filter_key = key
+            self.goods_proxy.search = search
+            self.goods_proxy.mining = self.mining_only.isChecked()
+            self.goods_proxy.cargo_ids = ids
+            self.cargo_notice.setText(notice)
+            self.cargo_notice.setVisible(bool(notice))
+            self.goods_proxy.invalidateFilter()
+        # A market-detail replacement resets the source model independently of
+        # the filter key; its new row count must still reach the status label.
         self.goods_status.setText(tr('browse.goods', shown=self.goods_proxy.rowCount(), total=len(self.goods_model.rows)))

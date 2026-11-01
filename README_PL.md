@@ -38,6 +38,15 @@ Folder dzienników Elite Dangerous jest wykrywany automatycznie, jeśli to możl
 
 CMDRHelper sprawdza aktualizacje przy uruchomieniu i ma wbudowany mechanizm aktualizacji. Potwierdź proponowaną aktualizację w aplikacji; zaktualizuje ona program i zależności oraz uruchomi CMDRHelper ponownie. Po pierwszej instalacji zwykle wystarczy używać `start.bat` (Windows) lub `bash start.sh` (Linux). Przy zwykłych aktualizacjach nie trzeba ponownie ręcznie uruchamiać `install.bat` ani `install.sh`.
 
+## CMDRHelper v3.9.24
+
+- Stabilne listy rynków bez chwilowego opróżniania przy niezmienionym układzie odniesienia; mniej aktualizacji filtrów i trzy wykluczające się tryby: wszystkie towary, surowce górnicze lub ładunek statku.
+- Sześć konfigurowalnych działań w centralnym, kompaktowym menedżerze skrótów, z wykrywaniem konfliktów z globalnym skrótem szybkiego ulubionego.
+- Jednakowe bezpieczne zamykanie przyciskiem, krzyżykiem okna i skrótem: ochrona niezapisanych ustawień, zakończenie ważnych zadań w tle i zapis punktów kontrolnych zapasów górniczych. Ulepszone okno oczekiwania pokazuje postęp.
+- Usunięto techniczną stopkę. Szczegóły błędów chroniące prywatność pozostają w diagnostycznym ZIP-ie, a krytyczne błędy uruchamiania są nadal widoczne. Naprawiono czarny pasek wcięcia w Odyssey.
+- Mniej powtarzanych skanów procesów i szybsze tworzenie strony górnictwa dzięki ograniczeniu zbędnych aktualizacji tabel i układu.
+- Niezmienione preferencje wyświetlania nie są ponownie zapisywane; zapasy górnicze są odtwarzane przy mniejszej liczbie kopii. Zachowano dowody stanu zapasów i sprawdzane zakończenie zapisu.
+
 ## CMDRHelper v3.9.23
 
 - Przygotowanie kończy się po pierwszych próbach lokalnych, także przy kolejce dzienników i wolnym wysyłaniu. Błędy pozostają widoczne.

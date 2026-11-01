@@ -6,7 +6,7 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 from PySide6.QtCore import QSettings, QTimer
-from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtWidgets import QApplication, QMainWindow, QStatusBar
 
 from cmdrhelper.database import CMDRDatabase
 from cmdrhelper.game_instances import ProcessSnapshot
@@ -133,11 +133,10 @@ class SourceStartupTests(unittest.TestCase):
             dialogs = host.findChildren(StartupProgressDialog)
             self.assertEqual(len(dialogs), bool(registry.enabled()))
             if dialogs:
-                self.assertFalse(dialogs[0].isVisible())
+                self.assertEqual(dialogs[0].isVisible(), expected_failure)
                 self.assertFalse(dialogs[0].ships.running)
                 self.assertEqual(dialogs[0].status, 'critical' if expected_failure else 'success')
-            if expected_failure:
-                self.assertTrue(host.statusBar().currentMessage())
+            self.assertIsNone(host.findChild(QStatusBar))
             self.assertTrue(host.isEnabled())
             if slow:
                 self.assertGreater(sum(visible), 10)

@@ -1,4 +1,5 @@
 """Optional arrival notices. Requests are isolated by commander and stay generation."""
+from cmdrhelper.exit_tasks import submit, try_take
 import logging
 from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal, Slot
 from cmdrhelper.online_services import fetch_edsm_system_status
@@ -68,7 +69,7 @@ class EdsmSystemStatus(QObject):
         # job is safe; a job already running finishes normally and is discarded
         # by its generation. Never cancel an in-flight network operation.
         for generation, worker in list(self.workers.items()):
-            if self.pool.tryTake(worker) is True:
+            if try_take(self.pool, worker) is True:
                 self.workers.pop(generation, None)
         self.status = None
         self.cleared.emit()
@@ -102,7 +103,7 @@ class EdsmSystemStatus(QObject):
                 lambda g=generation: self.active and self.receive_allowed() and g == self.generation, self.fetch)
             worker.signals.finished.connect(self._finished)
             self.workers[generation] = worker
-            self.pool.start(worker)
+            submit(self.pool, worker)
 
     @Slot(int, str)
     def _finished(self, generation, status):

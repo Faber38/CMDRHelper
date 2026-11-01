@@ -70,11 +70,13 @@ def _technical_fields(fields):
     versions = {'version', 'python', 'qt', 'pyside'}
     enums = {
         'component': {'startup', 'journal_index', 'station_pads', 'history', 'unsold_cartography',
-                      'commander_state', 'archive', 'catchup', 'live_journal', 'materials'},
+                      'commander_state', 'archive', 'catchup', 'live_journal', 'materials', 'source', 'hotkey'},
         'status': {'running', 'success', 'partial', 'critical', 'pending', 'cancelled', 'incomplete', 'failed'},
         'reason': {'repair_prefix_incomplete', 'repair_json_syntax', 'repair_json_encoding', 'repair_json_type', 'pad_signature_mismatch', 'pad_checkpoint_changed', 'pad_lock_timeout', 'mapping_without_scan',
                    'qt_signal_unavailable', 'thread_start_failed', 'journal_changed_during_read',
                    'journal_replaced_or_truncated', 'partial_final_line', 'catchup_budget',
+                   'journal_identity_changed', 'journal_legacy_prefix_unverified', 'source_changed',
+                   'hotkey_registration_failed',
                    'os_error', 'sqlite_error', 'unexpected_error', 'retry_unchanged',
                    'material_unknown', 'material_underflow', 'material_invalid_event'},
         'field': {'mission_id'},

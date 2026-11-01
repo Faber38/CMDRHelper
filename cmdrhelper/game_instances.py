@@ -1,8 +1,12 @@
 """Read-only process evidence. Unavailable evidence never means 'no game'."""
 from dataclasses import dataclass, field
+from contextlib import contextmanager
 from datetime import datetime, timezone
+from functools import wraps
 import os
 from pathlib import Path
+from threading import get_ident
+from time import monotonic
 
 from .journal_sources import canonical
 
@@ -20,6 +24,71 @@ class GameInstance:
 class ProcessSnapshot:
     available: bool
     instances: list = field(default_factory=list)
+
+
+class ProcessObservation:
+    """Share process evidence only inside one synchronous presentation batch.
+
+    Never cache a selected source/commander or authorize a critical action.
+    Independent calls always inspect again. The age bound also covers a slow
+    subscriber or a nested event loop; reads never extend the snapshot lifetime.
+    """
+    MAX_AGE = .1
+
+    def __init__(self, clock=monotonic):
+        self._clock = clock
+        self._depth = 0
+        self._owner = None
+        self._snapshot = None
+        self._sampled_at = 0
+
+    def clear(self):
+        self._snapshot = None
+
+    @contextmanager
+    def batch(self):
+        if self._depth and self._owner != get_ident():
+            # A worker must not consume or extend the GUI's observation.
+            yield
+            return
+        if not self._depth:
+            self.clear()
+            self._owner = get_ident()
+        self._depth += 1
+        try:
+            yield
+        finally:
+            self._depth -= 1
+            if not self._depth:
+                self.clear()
+                self._owner = None
+
+    def read(self, inspector):
+        if not self._depth or self._owner != get_ident():
+            return inspector()
+        now = self._clock()
+        if self._snapshot is None or not 0 <= now - self._sampled_at < self.MAX_AGE:
+            self.clear()  # A failed refresh must not leave old positive evidence.
+            snapshot = inspector()
+            self._snapshot = ProcessSnapshot(snapshot.available, list(snapshot.instances))
+            self._sampled_at = now
+        return ProcessSnapshot(self._snapshot.available, list(self._snapshot.instances))
+
+
+def process_observation_batch(method):
+    @wraps(method)
+    def batched(manager, *args, **kwargs):
+        with manager._process_observation.batch():
+            return method(manager, *args, **kwargs)
+    return batched
+
+
+def presentation_instances(state, inspector):
+    """Opt-in presentation evidence; inspect_instances itself stays uncached."""
+    observation = getattr(getattr(state, 'sources', None), '_process_observation', None)
+    if isinstance(observation, ProcessObservation):
+        return observation.read(inspector)
+    return inspector()
 
 
 class _WindowsProcesses:

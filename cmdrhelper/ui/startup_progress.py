@@ -89,6 +89,7 @@ class StartupProgressDialog(QDialog):
         self.phase_label.setWordWrap(True)
         layout.addWidget(self.phase_label)
         self.count_label = QLabel(tr("startup.busy"), objectName="cardValue")
+        self.count_label.setWordWrap(True)
         layout.addWidget(self.count_label)
         self.progress = QProgressBar()
         self.progress.setRange(0, 0)

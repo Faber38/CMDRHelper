@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_24.0': 'Stabile markedslister uten kortvarig tømming når referansesystemet er uendret; færre filteroppdateringer og tre gjensidig utelukkende moduser for alle varer, gruveressurser eller skipslast.',
+    'release.3_9_24.1': 'Seks konfigurerbare handlinger i en sentral, kompakt snarveibehandling med kontroll av konflikter mot den globale snarveien for hurtigfavoritt.',
+    'release.3_9_24.2': 'Samme sikre avslutning via knapp, vinduskryss og snarvei: beskytt ulagrede innstillinger, fullfør viktig bakgrunnsarbeid og lagre sjekkpunkter for gruvedrift. En forbedret ventedialog viser fremdriften.',
+    'release.3_9_24.3': 'Den tekniske bunnlinjen er fjernet. Personvernvennlige feildetaljer beholdes i diagnose-ZIP-en, og kritiske oppstartsfeil er fortsatt synlige. Den svarte innrykksstripen i Odyssey er rettet.',
+    'release.3_9_24.4': 'Færre gjentatte prosesskanninger og raskere oppbygging av gruvesiden gjennom færre unødvendige tabell- og layoutoppdateringer.',
+    'release.3_9_24.5': 'Uendrede visningsinnstillinger skrives ikke på nytt; gruvebeholdninger rekonstrueres med mindre kopiering. Beholdningsgrunnlag og kontrollert fullføring av lagring bevares.',
+
     'release.3_9_23.0': 'Oppstartsforberedelsen avsluttes etter de første lokale forsøkene, også med journaljobber i kø og treg opplasting. Feil forblir synlige.',
     'release.3_9_23.1': 'Verdsettingsleseren hopper over ugyldige JSON-strukturer og kan lese etterfølgende gyldige metadata.',
     'release.3_9_23.2': 'Historiske reparasjoner gir mer presise tekniske feil, gjenkjenner uendrede feil og prøver korrigerte filer på nytt.',
@@ -2335,8 +2342,52 @@ TRANSLATIONS["images.identity_wait"] = 'Konvertering satt på pause: spillinstan
 
 # Confirmed ship cargo filter in the saved market browser.
 TRANSLATIONS.update({
-    'browse.cargo_only': 'Bare varer i lasterommet',
+    'browse.all_goods': 'Alle varer',
+    'browse.reference_loading': 'Laster koordinater for referansesystemet …',
+    'browse.cargo_only': 'Bare varer i skipets lasterom',
     'browse.cargo_unavailable': 'Lastfilteret er satt på pause: Skipets nåværende beholdning er ikke bekreftet.',
     'browse.cargo_empty': 'Skipets lasterom er bekreftet tomt.',
     'browse.cargo_identity_unknown': 'Lastfilteret er satt på pause: Ikke alle varer kan identifiseres entydig.',
+})
+
+# Startup errors are actionable here; technical details remain in diagnostics.
+TRANSLATIONS['startup.action_required'] = 'Kontroller journalkildene og tilgangsrettighetene deres i innstillingene. Hvis problemet vedvarer, opprett en diagnose-ZIP der for feilsøking.'
+
+# Central local shortcuts; existing global favorite retains its backend.
+TRANSLATIONS.update({
+    'shortcuts.title': 'Tastatursnarveier',
+    'shortcuts.help': 'Lokale snarveier virker bare i det aktive hovedvinduet i CMDRHelper. De er sperret ved tekstinntasting, dialoger og hurtigmenyer. Hurtigfavoritten forblir global og virker også utenfor Helper.',
+    'shortcuts.voiceattack': 'VoiceAttack: velg CMDRHelper, gjenopprett vinduet hvis det er minimert, og aktiver det. Send deretter den valgte tastekombinasjonen. Ikke send den til spillet hvis CMDRHelper ikke kan aktiveres.',
+    'shortcuts.allowed': 'Bruk én kombinasjon: Ctrl med bokstav/siffer eller en egnet funksjonstast, eventuelt med Shift. Standard-, system-, AltGr- og tekstkombinasjoner er beskyttet. Andre programmer kan reservere flere taster.',
+    'shortcuts.reserved': 'Kombinasjonen er ugyldig eller beskyttet for standard-, system- eller tekstfunksjoner.',
+    'shortcuts.conflict': 'Kombinasjonen er allerede tilordnet lokalt eller til den globale hurtigfavoritten.',
+    'shortcuts.quit_disabled': 'Avslutt kan ikke tilordnes ennå: dagens avslutning beskytter ikke fullt ut ulagret inndata og bakgrunnsarbeid. Avslutt-knappen er uendret.',
+    'shortcuts.save_failed': 'Tilordningen kunne ikke lagres. Den tidligere aktive tilordningen beholdes.',
+    'shortcuts.set': 'Tilordne',
+    'shortcuts.change': 'Endre',
+    'shortcuts.remove': 'Fjern',
+    'shortcuts.reset': 'Nullstill lokale tilordninger',
+    'shortcuts.reset_confirm': 'Fjerne alle lokale snarveier? Den globale hurtigtasten for hurtigfavoritt forblir uendret.',
+})
+
+# Shared safe exit workflow.
+TRANSLATIONS.update({'exit.title': 'Avslutt CMDRHelper',
+ 'exit.unsaved': 'Det finnes ulagrede innstillinger. Lagre, forkaste eller avbryte avslutningen?',
+ 'exit.choose': 'Velg først Lagre, Forkast eller Avbryt. Hurtigtasten forkaster ingen endringer.',
+ 'exit.save': 'Lagre',
+ 'exit.discard': 'Forkast',
+ 'exit.cancel': 'Avbryt',
+ 'exit.wait': 'Avslutter pågående arbeid trygt …',
+ 'exit.wait_count': 'Pågående oppgaver: {count}. Lagrer resultater …',
+ 'exit.wait_long': 'Pågående oppgaver: {count}. Dette tar lengre tid. Programmet forblir åpent; du kan '
+                   'avbryte avslutningen.',
+ 'exit.save_failed': 'Innstillingene kunne ikke lagres. Kontroller inndata og skrivetilgang. Programmet '
+                     'forblir åpent.',
+ 'exit.write_failed': 'Et resultat kunne ikke lagres. Avbryt avslutningen og prøv å lagre igjen.',
+ 'exit.resuming': 'Fullfører skrivekøen før normal bruk gjenopptas …',
+ 'exit.shortcut_help': 'Avslutt bruker samme trygge fremgangsmåte som knappen. Hurtigtasten virker også i '
+                       'avslutningsdialogen; endringer krever fortsatt Lagre eller Forkast.'})
+
+TRANSLATIONS.update({
+    "shortcuts.summary": 'Velg og fjern hurtigtaster for det aktive CMDRHelper-vinduet. Hurtigtasten for hurtigfavoritt fungerer fortsatt globalt.',
 })

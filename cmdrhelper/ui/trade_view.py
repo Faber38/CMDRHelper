@@ -1,4 +1,5 @@
 """Cargo-aware, transient trade UI. Identity and network semantics belong to providers."""
+from cmdrhelper.exit_tasks import submit
 import logging
 from dataclasses import replace
 from datetime import datetime, timezone
@@ -500,7 +501,7 @@ class TradeView(QWidget):
             return
         self._origin_worker = OriginWorker(resolver, key)
         self._origin_worker.signals.finished.connect(self._origin_ready)
-        self.pool.start(self._origin_worker)
+        submit(self.pool, self._origin_worker)
 
     @Slot(object)
     def _origin_ready(self, result):
@@ -757,7 +758,7 @@ class TradeView(QWidget):
         self._cancel_event = self.worker.cancel
         self.destroyed.connect(self._cancel_event.set)
         self.worker.signals.finished.connect(self._finished)
-        self.pool.start(self.worker)
+        submit(self.pool, self.worker)
 
     @Slot()
     def cancel_search(self):

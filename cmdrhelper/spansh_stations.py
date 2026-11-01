@@ -1,4 +1,5 @@
 """Opt-in live visits and one current-system check after startup; no archives."""
+from cmdrhelper.exit_tasks import submit
 from collections import OrderedDict
 import logging
 from datetime import timedelta
@@ -134,7 +135,7 @@ class SpanshStations(QObject):
         worker.signals.finished.connect(self._finished)
         self.workers[(generation, address)] = worker
         self.activityChanged.emit()
-        self.pool.start(worker)
+        submit(self.pool, worker)
         return True
 
     @Slot(int, object, object)

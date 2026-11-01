@@ -293,7 +293,7 @@ class ViewTests(Fixture, unittest.TestCase):
         self.assertEqual(self.view.goods_proxy.rowCount(),2)
         self.view.goods_search.setText('Platin')
         self.assertEqual(self.view.goods_proxy.rowCount(),1)
-        self.view.mining_only.setChecked(False);self.view.goods_search.clear()
+        self.view.all_goods.setChecked(True);self.view.goods_search.clear()
         # Equal keys retain source order in both directions (Qt stable sort).
         repeated=[dict(values=('same',i,0,0,0),display=('same',str(i),'0','0','0'),search='same',mining=False) for i in range(3)]
         self.view.goods_model.replace(repeated)
@@ -367,6 +367,12 @@ class ViewTests(Fixture, unittest.TestCase):
                     a,b=view.splitter.widget(0),view.splitter.widget(1)
                     self.assertFalse(a.geometry().intersects(b.geometry()))
                     self.assertNotIn('browse.',view.notice.text())
+                    self.assertEqual(view.all_goods.text(), tr('browse.all_goods'))
+                    self.assertTrue(view.all_goods.isChecked())
+                    buttons = view.goods_mode.buttons()
+                    self.assertEqual(len(buttons), 3)
+                    for first, second in zip(buttons, buttons[1:]):
+                        self.assertFalse(first.geometry().intersects(second.geometry()))
                     self.assertEqual(view.markets_table.palette().alternateBase().color().lightness()<128,
                                      theme==DARK_STYLESHEET)
                 view.cancel_reads();view.pool.waitForDone(5000);self.app.processEvents()

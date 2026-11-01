@@ -1,4 +1,5 @@
 """Manual recommendations page; immutable inputs cross the worker boundary."""
+from cmdrhelper.exit_tasks import submit
 from copy import deepcopy
 import logging
 from html import escape
@@ -582,7 +583,7 @@ class RecommendationsView(QWidget):
         self.progress_bar.show()
         self.status.setText(self.text('recommend.progress', checked=self.current_run.checked_commodities, total='…'))
         self.progress_bar.setAccessibleName(self.status.text())
-        self.pool.start(self.worker)
+        submit(self.pool, self.worker)
 
     @Slot()
     def cancel_search(self):

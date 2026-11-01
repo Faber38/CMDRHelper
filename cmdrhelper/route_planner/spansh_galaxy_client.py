@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import time
+import threading
 from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
 
@@ -22,6 +23,7 @@ class SpanshGalaxyClient:
     """Synchroner Galaxy-Plotter-Client; Aufrufe gehören in einen Worker."""
 
     def __init__(self, timeout=15, poll_interval=2, max_polls=60):
+        self.cancelled = threading.Event()
         self.timeout = timeout
         self.poll_interval = poll_interval
         self.max_polls = max_polls
@@ -70,6 +72,8 @@ class SpanshGalaxyClient:
     def _poll(self, job: str) -> dict:
         url = RESULT_URL.format(job=quote(job, safe=""))
         for attempt in range(self.max_polls):
+            if self.cancelled.is_set():
+                raise SpanshError("cancelled")
             data = self._request_json(url)
             if self._is_no_route_error(data):
                 raise SpanshError("no_route")
@@ -82,7 +86,8 @@ class SpanshGalaxyClient:
             ):
                 raise SpanshError("spansh_error", str(data.get("error") or ""))
             if attempt < self.max_polls - 1:
-                time.sleep(self.poll_interval)
+                if self.cancelled.wait(self.poll_interval):
+                    raise SpanshError("cancelled")
         raise SpanshError("timeout")
 
     @staticmethod
@@ -92,6 +97,8 @@ class SpanshGalaxyClient:
                 and data.get("error") == "Unable to find route")
 
     def _request_json(self, url: str, data=None, expected_type=dict):
+        if self.cancelled.is_set():
+            raise SpanshError("cancelled")
         body = urlencode(data).encode("utf-8") if data is not None else None
         request = Request(
             url,

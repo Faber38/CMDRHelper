@@ -1,4 +1,11 @@
 TRANSLATIONS = {
+    'release.3_9_24.0': 'Elenchi dei mercati stabili, senza svuotamenti temporanei se il sistema di riferimento non cambia; meno aggiornamenti dei filtri e tre modalità esclusive: tutte le merci, risorse minerarie o carico della nave.',
+    'release.3_9_24.1': 'Sei azioni configurabili in una gestione centralizzata e compatta delle scorciatoie, con controllo dei conflitti con la scorciatoia globale per il preferito rapido.',
+    'release.3_9_24.2': 'Chiusura sicura uniforme tramite pulsante, croce della finestra o scorciatoia: protezione delle impostazioni non salvate, completamento delle attività importanti in background e salvataggio dei checkpoint minerari. Una finestra di attesa migliorata mostra l’avanzamento.',
+    'release.3_9_24.3': 'Il piè di finestra tecnico è stato rimosso. I dettagli degli errori rispettosi della privacy restano nello ZIP diagnostico e gli errori critici di avvio rimangono visibili. Corretta la barra nera di rientro in Odyssey.',
+    'release.3_9_24.4': 'Meno scansioni ripetute dei processi e costruzione più rapida della pagina Estrazione grazie alla riduzione degli aggiornamenti inutili di tabelle e impaginazione.',
+    'release.3_9_24.5': 'Le preferenze di visualizzazione invariate non vengono più riscritte; gli inventari minerari vengono ricostruiti con meno copie. Restano preservate le prove delle scorte e la verifica del completamento dei salvataggi.',
+
     'release.3_9_23.0': 'La preparazione termina dopo i primi tentativi locali, anche con attività journal in coda e invii lenti. Gli errori restano visibili.',
     'release.3_9_23.1': 'Il lettore di valutazione ignora le strutture JSON non valide e può leggere i metadati validi successivi.',
     'release.3_9_23.2': 'Le riparazioni storiche segnalano meglio gli errori tecnici, riconoscono gli errori invariati e riprovano i file corretti.',
@@ -2458,8 +2465,52 @@ TRANSLATIONS["images.identity_wait"] = 'Conversione sospesa: impossibile associa
 
 # Confirmed ship cargo filter in the saved market browser.
 TRANSLATIONS.update({
-    'browse.cargo_only': 'Solo merci nella stiva',
+    'browse.all_goods': 'Tutte le merci',
+    'browse.reference_loading': 'Caricamento delle coordinate del sistema di riferimento…',
+    'browse.cargo_only': 'Solo merci nella stiva della nave',
     'browse.cargo_unavailable': 'Filtro carico sospeso: l’inventario attuale della nave non è confermato.',
     'browse.cargo_empty': 'La stiva della nave è confermata vuota.',
     'browse.cargo_identity_unknown': 'Filtro carico sospeso: non tutte le merci sono identificabili con certezza.',
+})
+
+# Startup errors are actionable here; technical details remain in diagnostics.
+TRANSLATIONS['startup.action_required'] = 'Controlla le sorgenti dei journal e i relativi permessi di accesso nelle impostazioni. Se il problema persiste, crea lì uno ZIP diagnostico per analizzare l’errore.'
+
+# Central local shortcuts; existing global favorite retains its backend.
+TRANSLATIONS.update({
+    'shortcuts.title': 'Scorciatoie da tastiera',
+    'shortcuts.help': 'Le scorciatoie locali funzionano solo nella finestra principale attiva di CMDRHelper. Sono bloccate durante la digitazione, nei dialoghi e nei menu a comparsa. Il preferito rapido resta globale e funziona anche fuori da Helper.',
+    'shortcuts.voiceattack': 'VoiceAttack: selezionare CMDRHelper, ripristinare la finestra se ridotta a icona e attivarla. Poi inviare la combinazione configurata. Non inviarla al gioco se CMDRHelper non può essere attivato.',
+    'shortcuts.allowed': 'Usare una sola combinazione: Ctrl con una lettera/cifra o un tasto funzione adatto, eventualmente con Maiusc. Le combinazioni standard, di sistema, AltGr e di testo sono protette. Altre applicazioni possono riservare ulteriori tasti.',
+    'shortcuts.reserved': 'Combinazione non valida o protetta per funzioni standard, di sistema o di testo.',
+    'shortcuts.conflict': 'Questa combinazione è già assegnata localmente o al preferito rapido globale.',
+    'shortcuts.quit_disabled': 'Esci non è ancora assegnabile: la chiusura attuale non protegge completamente i dati non salvati e le attività in corso. Il pulsante Esci resta invariato.',
+    'shortcuts.save_failed': 'Impossibile salvare la combinazione. Viene mantenuta la precedente assegnazione attiva.',
+    'shortcuts.set': 'Assegna',
+    'shortcuts.change': 'Modifica',
+    'shortcuts.remove': 'Rimuovi',
+    'shortcuts.reset': 'Ripristina assegnazioni locali',
+    'shortcuts.reset_confirm': 'Rimuovere tutte le scorciatoie locali? Il tasto globale del preferito rapido resterà invariato.',
+})
+
+# Shared safe exit workflow.
+TRANSLATIONS.update({'exit.title': 'Chiudi CMDRHelper',
+ 'exit.unsaved': 'Ci sono impostazioni non salvate. Salvare, scartare o annullare la chiusura?',
+ 'exit.choose': 'Scegliere Salva, Scarta o Annulla. La scorciatoia non scarta mai le modifiche.',
+ 'exit.save': 'Salva',
+ 'exit.discard': 'Scarta',
+ 'exit.cancel': 'Annulla',
+ 'exit.wait': 'Completamento sicuro delle operazioni …',
+ 'exit.wait_count': 'Operazioni in corso: {count}. Salvataggio dei risultati …',
+ 'exit.wait_long': 'Operazioni in corso: {count}. Occorre più tempo. L’applicazione resta aperta; è '
+                   'possibile annullare la chiusura.',
+ 'exit.save_failed': 'Impossibile salvare le impostazioni. Controllare i dati e i permessi di scrittura. '
+                     'L’applicazione resta aperta.',
+ 'exit.write_failed': 'Impossibile salvare un risultato. Annullare la chiusura e riprovare.',
+ 'exit.resuming': 'Completamento della coda di scrittura prima di riprendere il normale funzionamento …',
+ 'exit.shortcut_help': 'Chiudi usa la stessa procedura sicura del pulsante. La scorciatoia funziona anche '
+                       'nel dialogo di chiusura; le modifiche richiedono comunque Salva o Scarta.'})
+
+TRANSLATIONS.update({
+    "shortcuts.summary": 'Imposta e rimuovi scorciatoie per la finestra attiva di CMDRHelper. La scorciatoia del preferito rapido resta globale.',
 })

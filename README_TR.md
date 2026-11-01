@@ -39,6 +39,15 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.24
+
+- Referans sistem değişmediğinde geçici olarak boşalmayan kararlı pazar listeleri; daha az filtre güncellemesi ve tüm mallar, madencilik kaynakları veya gemi yükü için birbirini dışlayan üç mod.
+- Küresel hızlı favori kısayoluyla çakışmaları denetleyen, merkezi ve kompakt kısayol yönetiminde altı özelleştirilebilir eylem.
+- Düğme, pencerenin kapatma simgesi ve kısayol üzerinden aynı güvenli çıkış: kaydedilmemiş ayarları korur, önemli arka plan işlerini tamamlar ve madencilik kontrol noktalarını kaydeder. İyileştirilen bekleme penceresi ilerlemeyi gösterir.
+- Teknik alt bilgi kaldırıldı. Gizliliği koruyan hata ayrıntıları tanılama ZIP dosyasında kalır ve kritik başlangıç hataları görünür olmaya devam eder. Odyssey’deki siyah girinti çubuğu düzeltildi.
+- Gereksiz tablo ve yerleşim güncellemeleri azaltılarak daha az tekrarlanan süreç taraması ve daha hızlı madencilik sayfası oluşturma.
+- Değişmeyen görüntüleme tercihleri artık yeniden yazılmaz; madencilik envanterleri daha az kopyalama ile yeniden oluşturulur. Stok kanıtları ve doğrulanmış kayıt tamamlama korunur.
+
 ## CMDRHelper v3.9.23
 
 - Başlangıç hazırlığı, sırada günlük işleri ve yavaş yüklemeler olsa da ilk yerel denemelerden sonra tamamlanır. Hatalar görünür kalır.

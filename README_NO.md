@@ -38,6 +38,15 @@ Journalmappen til Elite Dangerous oppdages automatisk når det er mulig. Hvis de
 
 CMDRHelper søker etter oppdateringer ved oppstart og har en innebygd oppdateringsfunksjon. Bekreft en tilbudt oppdatering i programmet; den oppdaterer programmet og avhengighetene og starter CMDRHelper på nytt. Etter førstegangsinstallasjonen bruker du normalt bare `start.bat` (Windows) eller `bash start.sh` (Linux). Du trenger ikke å kjøre `install.bat` eller `install.sh` manuelt på nytt for vanlige oppdateringer.
 
+## CMDRHelper v3.9.24
+
+- Stabile markedslister uten kortvarig tømming når referansesystemet er uendret; færre filteroppdateringer og tre gjensidig utelukkende moduser for alle varer, gruveressurser eller skipslast.
+- Seks konfigurerbare handlinger i en sentral, kompakt snarveibehandling med kontroll av konflikter mot den globale snarveien for hurtigfavoritt.
+- Samme sikre avslutning via knapp, vinduskryss og snarvei: beskytt ulagrede innstillinger, fullfør viktig bakgrunnsarbeid og lagre sjekkpunkter for gruvedrift. En forbedret ventedialog viser fremdriften.
+- Den tekniske bunnlinjen er fjernet. Personvernvennlige feildetaljer beholdes i diagnose-ZIP-en, og kritiske oppstartsfeil er fortsatt synlige. Den svarte innrykksstripen i Odyssey er rettet.
+- Færre gjentatte prosesskanninger og raskere oppbygging av gruvesiden gjennom færre unødvendige tabell- og layoutoppdateringer.
+- Uendrede visningsinnstillinger skrives ikke på nytt; gruvebeholdninger rekonstrueres med mindre kopiering. Beholdningsgrunnlag og kontrollert fullføring av lagring bevares.
+
 ## CMDRHelper v3.9.23
 
 - Oppstartsforberedelsen avsluttes etter de første lokale forsøkene, også med journaljobber i kø og treg opplasting. Feil forblir synlige.

@@ -33,6 +33,8 @@ class PopupUiSettingsTests(unittest.TestCase):
         self.addCleanup(self.app.setStyleSheet, "")
 
     def keep(self, widget):
+        from PySide6.QtCore import QCoreApplication, QEvent
+        self.addCleanup(QCoreApplication.sendPostedEvents, None, QEvent.DeferredDelete)
         self.addCleanup(widget.deleteLater)
         self.addCleanup(widget.close)
         return widget

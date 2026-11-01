@@ -11,6 +11,7 @@ from cmdrhelper.material_catalog import merge_inventory, localized_name
 from cmdrhelper.material_controller import MaterialController
 from cmdrhelper.material_inventory import MaterialInventory
 from cmdrhelper.ui.table_widths import persist_header_layout
+from cmdrhelper.ui.preferences import set_preference
 from cmdrhelper.ui.material_row_style import MaterialRowDelegate, STRIPE_ROLE, COLLECTED_ROLE
 
 
@@ -139,9 +140,8 @@ class MaterialView(QWidget):
         self.begin_loading()
 
     def _selection_changed(self, *_):
-        self.state.settings.setValue("materials/category", self.CATEGORIES[self.tabs.currentIndex()])
-        self.state.settings.setValue("materials/filter", self.filter.currentData())
-        self.state.settings.sync()
+        set_preference(self.state.settings, "materials/category", self.CATEGORIES[self.tabs.currentIndex()])
+        set_preference(self.state.settings, "materials/filter", self.filter.currentData())
         self.render()
 
     def begin_loading(self):

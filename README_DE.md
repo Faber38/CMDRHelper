@@ -38,6 +38,15 @@ Der Journalordner von Elite Dangerous wird nach Möglichkeit automatisch erkannt
 
 CMDRHelper prüft beim Start auf Updates und besitzt einen integrierten Updater. Bestätige ein angebotenes Update im Programm; es aktualisiert Programm und Abhängigkeiten und startet CMDRHelper neu. Nach der Erstinstallation genügt normalerweise `start.bat` (Windows) beziehungsweise `bash start.sh` (Linux). Für normale Updates musst du `install.bat` oder `install.sh` nicht erneut manuell ausführen.
 
+## CMDRHelper v3.9.24
+
+- Stabile Marktlisten ohne vorübergehendes Leeren bei gleichem Bezugssystem; weniger Filteraktualisierungen und drei exklusive Modi für alle Waren, Bergbaurohstoffe oder Schiffsfracht.
+- Sechs frei belegbare Aktionen in einer zentralen, kompakten Tastenkürzelverwaltung mit Konfliktprüfung zum globalen Schnellfavoriten.
+- Einheitliches sicheres Beenden über Button, Fensterkreuz und Shortcut: ungespeicherte Einstellungen schützen, wichtige Hintergrundarbeiten abschließen und Mining-Checkpoints übernehmen. Ein verbesserter Wartedialog zeigt den Fortschritt.
+- Die technische Fußzeile entfällt. Datenschutzgerechte Fehlergründe bleiben im Diagnose-ZIP, kritische Startfehler sichtbar. Der schwarze Einrückungsbalken in Odyssey ist korrigiert.
+- Weniger wiederholte Prozessscans und ein schnellerer Mining-Seitenaufbau durch weniger unnötige Tabellen- und Layoutaktualisierungen.
+- Unveränderte Anzeigeeinstellungen werden nicht erneut geschrieben; Mining-Bestände werden mit weniger Kopieraufwand rekonstruiert. Bestandsnachweise und sichere Speicherabschlüsse bleiben erhalten.
+
 ## CMDRHelper v3.9.23
 
 - Die Startvorbereitung endet nach den lokalen Erstversuchen, auch bei weiteren Journalaufträgen und langsamen Uploads. Fehler bleiben sichtbar.

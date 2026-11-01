@@ -1,0 +1,709 @@
+{
+  "before": {
+    "platform": "xcb",
+    "baseline": true,
+    "markets": 110,
+    "results": [
+      {
+        "case": "idle",
+        "counts": {},
+        "duration_ms": {},
+        "settled_ms": 0.005,
+        "min_visible_rows": 110,
+        "before": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 2,
+          "sort": 1
+        },
+        "after": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 2,
+          "sort": 1
+        }
+      },
+      {
+        "case": "identical_signals_x5",
+        "counts": {
+          "filter_evaluations": 5,
+          "goods_invalidations": 5
+        },
+        "duration_ms": {
+          "filter_evaluations": 0.187,
+          "goods_invalidations": 0.118
+        },
+        "settled_ms": 0.384,
+        "min_visible_rows": 110,
+        "before": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 2,
+          "sort": 1
+        },
+        "after": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 2,
+          "sort": 1
+        }
+      },
+      {
+        "case": "ship_quantity_same_types",
+        "counts": {
+          "filter_evaluations": 1,
+          "goods_invalidations": 1
+        },
+        "duration_ms": {
+          "filter_evaluations": 0.036,
+          "goods_invalidations": 0.007
+        },
+        "settled_ms": 0.109,
+        "min_visible_rows": 110,
+        "before": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 2,
+          "sort": 1
+        },
+        "after": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 2,
+          "sort": 1
+        }
+      },
+      {
+        "case": "ship_add_type",
+        "counts": {
+          "filter_evaluations": 1,
+          "goods_invalidations": 1
+        },
+        "duration_ms": {
+          "filter_evaluations": 0.033,
+          "goods_invalidations": 0.028
+        },
+        "settled_ms": 0.317,
+        "min_visible_rows": 110,
+        "before": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 2,
+          "sort": 1
+        },
+        "after": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 3,
+          "sort": 1
+        }
+      },
+      {
+        "case": "ship_remove_type",
+        "counts": {
+          "filter_evaluations": 1,
+          "goods_invalidations": 1
+        },
+        "duration_ms": {
+          "filter_evaluations": 0.039,
+          "goods_invalidations": 0.017
+        },
+        "settled_ms": 0.375,
+        "min_visible_rows": 110,
+        "before": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 3,
+          "sort": 1
+        },
+        "after": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 2,
+          "sort": 1
+        }
+      },
+      {
+        "case": "ship_to_srv",
+        "counts": {
+          "filter_evaluations": 1,
+          "goods_invalidations": 1
+        },
+        "duration_ms": {
+          "filter_evaluations": 0.019,
+          "goods_invalidations": 0.025
+        },
+        "settled_ms": 2.899,
+        "min_visible_rows": 110,
+        "before": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 2,
+          "sort": 1
+        },
+        "after": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 3,
+          "sort": 1
+        }
+      },
+      {
+        "case": "srv_quantity",
+        "counts": {
+          "filter_evaluations": 1,
+          "goods_invalidations": 1
+        },
+        "duration_ms": {
+          "filter_evaluations": 0.019,
+          "goods_invalidations": 0.007
+        },
+        "settled_ms": 0.067,
+        "min_visible_rows": 110,
+        "before": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 3,
+          "sort": 1
+        },
+        "after": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 3,
+          "sort": 1
+        }
+      },
+      {
+        "case": "srv_filter_off",
+        "counts": {},
+        "duration_ms": {},
+        "settled_ms": 0.127,
+        "min_visible_rows": 110,
+        "before": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 3,
+          "sort": 1
+        },
+        "after": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 3,
+          "sort": 1
+        }
+      },
+      {
+        "case": "mode_mining",
+        "counts": {
+          "filter_evaluations": 1,
+          "goods_invalidations": 1
+        },
+        "duration_ms": {
+          "filter_evaluations": 0.001,
+          "goods_invalidations": 0.015
+        },
+        "settled_ms": 0.149,
+        "min_visible_rows": 110,
+        "before": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 3,
+          "sort": 1
+        },
+        "after": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 2,
+          "sort": 1
+        }
+      },
+      {
+        "case": "mode_all",
+        "counts": {
+          "filter_evaluations": 1,
+          "goods_invalidations": 1
+        },
+        "duration_ms": {
+          "filter_evaluations": 0.001,
+          "goods_invalidations": 0.02
+        },
+        "settled_ms": 0.364,
+        "min_visible_rows": 110,
+        "before": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 2,
+          "sort": 1
+        },
+        "after": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 3,
+          "sort": 1
+        }
+      },
+      {
+        "case": "reshow_same_reference_radius",
+        "counts": {
+          "left_Hide": 1,
+          "left_Show": 1,
+          "filter_evaluations": 1,
+          "goods_invalidations": 1,
+          "market_render": 3,
+          "market_resets": 3,
+          "reference_reads": 1,
+          "sql_selects": 1
+        },
+        "duration_ms": {
+          "filter_evaluations": 0.001,
+          "goods_invalidations": 0.01,
+          "market_render": 5.083,
+          "reference_reads": 0.405
+        },
+        "settled_ms": 131.589,
+        "min_visible_rows": 0,
+        "before": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 3,
+          "sort": 1
+        },
+        "after": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 3,
+          "sort": 1
+        }
+      },
+      {
+        "case": "market_notification_unchanged",
+        "counts": {
+          "market_render": 3,
+          "header_reads": 1,
+          "market_resets": 3,
+          "reference_reads": 1,
+          "sql_selects": 12,
+          "detail_reads": 1,
+          "filter_evaluations": 1,
+          "goods_invalidations": 1
+        },
+        "duration_ms": {
+          "market_render": 5.825,
+          "reference_reads": 0.387,
+          "header_reads": 2.061,
+          "detail_reads": 2.541,
+          "filter_evaluations": 0.003,
+          "goods_invalidations": 0.247
+        },
+        "settled_ms": 102.002,
+        "min_visible_rows": 0,
+        "before": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 3,
+          "sort": 1
+        },
+        "after": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 0,
+          "rows": 110,
+          "goods": 369,
+          "sort": 1
+        }
+      }
+    ]
+  },
+  "after": {
+    "platform": "xcb",
+    "baseline": false,
+    "markets": 110,
+    "results": [
+      {
+        "case": "idle",
+        "counts": {},
+        "duration_ms": {},
+        "settled_ms": 0.005,
+        "min_visible_rows": 110,
+        "before": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 2,
+          "sort": 1
+        },
+        "after": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 2,
+          "sort": 1
+        }
+      },
+      {
+        "case": "identical_signals_x5",
+        "counts": {
+          "filter_evaluations": 5
+        },
+        "duration_ms": {
+          "filter_evaluations": 0.175
+        },
+        "settled_ms": 0.229,
+        "min_visible_rows": 110,
+        "before": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 2,
+          "sort": 1
+        },
+        "after": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 2,
+          "sort": 1
+        }
+      },
+      {
+        "case": "ship_quantity_same_types",
+        "counts": {
+          "filter_evaluations": 1
+        },
+        "duration_ms": {
+          "filter_evaluations": 0.032
+        },
+        "settled_ms": 0.092,
+        "min_visible_rows": 110,
+        "before": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 2,
+          "sort": 1
+        },
+        "after": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 2,
+          "sort": 1
+        }
+      },
+      {
+        "case": "ship_add_type",
+        "counts": {
+          "filter_evaluations": 1,
+          "goods_invalidations": 1
+        },
+        "duration_ms": {
+          "filter_evaluations": 0.034,
+          "goods_invalidations": 0.175
+        },
+        "settled_ms": 0.498,
+        "min_visible_rows": 110,
+        "before": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 2,
+          "sort": 1
+        },
+        "after": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 3,
+          "sort": 1
+        }
+      },
+      {
+        "case": "ship_remove_type",
+        "counts": {
+          "filter_evaluations": 1,
+          "goods_invalidations": 1
+        },
+        "duration_ms": {
+          "filter_evaluations": 0.039,
+          "goods_invalidations": 0.018
+        },
+        "settled_ms": 0.373,
+        "min_visible_rows": 110,
+        "before": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 3,
+          "sort": 1
+        },
+        "after": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 2,
+          "sort": 1
+        }
+      },
+      {
+        "case": "ship_to_srv",
+        "counts": {
+          "filter_evaluations": 1,
+          "goods_invalidations": 1
+        },
+        "duration_ms": {
+          "filter_evaluations": 0.023,
+          "goods_invalidations": 0.025
+        },
+        "settled_ms": 2.305,
+        "min_visible_rows": 110,
+        "before": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 2,
+          "sort": 1
+        },
+        "after": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 3,
+          "sort": 1
+        }
+      },
+      {
+        "case": "srv_quantity",
+        "counts": {
+          "filter_evaluations": 1
+        },
+        "duration_ms": {
+          "filter_evaluations": 0.026
+        },
+        "settled_ms": 0.065,
+        "min_visible_rows": 110,
+        "before": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 3,
+          "sort": 1
+        },
+        "after": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 3,
+          "sort": 1
+        }
+      },
+      {
+        "case": "srv_filter_off",
+        "counts": {},
+        "duration_ms": {},
+        "settled_ms": 0.128,
+        "min_visible_rows": 110,
+        "before": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 3,
+          "sort": 1
+        },
+        "after": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 3,
+          "sort": 1
+        }
+      },
+      {
+        "case": "mode_mining",
+        "counts": {
+          "filter_evaluations": 1,
+          "goods_invalidations": 1
+        },
+        "duration_ms": {
+          "filter_evaluations": 0.001,
+          "goods_invalidations": 0.016
+        },
+        "settled_ms": 0.208,
+        "min_visible_rows": 110,
+        "before": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 3,
+          "sort": 1
+        },
+        "after": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 2,
+          "sort": 1
+        }
+      },
+      {
+        "case": "mode_all",
+        "counts": {
+          "filter_evaluations": 1,
+          "goods_invalidations": 1
+        },
+        "duration_ms": {
+          "filter_evaluations": 0.001,
+          "goods_invalidations": 0.021
+        },
+        "settled_ms": 0.369,
+        "min_visible_rows": 110,
+        "before": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 2,
+          "sort": 1
+        },
+        "after": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 3,
+          "sort": 1
+        }
+      },
+      {
+        "case": "reshow_same_reference_radius",
+        "counts": {
+          "left_Hide": 1,
+          "left_Show": 1,
+          "filter_evaluations": 1,
+          "market_render": 1
+        },
+        "duration_ms": {
+          "filter_evaluations": 0.002,
+          "market_render": 2.346
+        },
+        "settled_ms": 53.487,
+        "min_visible_rows": 110,
+        "before": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 3,
+          "sort": 1
+        },
+        "after": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 3,
+          "sort": 1
+        }
+      },
+      {
+        "case": "market_notification_unchanged",
+        "counts": {
+          "header_reads": 1,
+          "market_render": 3,
+          "reference_reads": 1,
+          "sql_selects": 12,
+          "detail_reads": 1,
+          "filter_evaluations": 1
+        },
+        "duration_ms": {
+          "market_render": 4.115,
+          "reference_reads": 0.701,
+          "header_reads": 3.139,
+          "detail_reads": 1.971,
+          "filter_evaluations": 0.004
+        },
+        "settled_ms": 96.267,
+        "min_visible_rows": 110,
+        "before": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 3,
+          "sort": 1
+        },
+        "after": {
+          "selected": 4224637699,
+          "current": 109,
+          "scroll": 25,
+          "rows": 110,
+          "goods": 369,
+          "sort": 1
+        }
+      }
+    ]
+  }
+}

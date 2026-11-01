@@ -1,4 +1,5 @@
 """Event-driven background cargo reconstruction using the existing journal index."""
+from cmdrhelper.exit_tasks import submit
 from copy import deepcopy
 import logging
 from pathlib import Path
@@ -98,6 +99,8 @@ class MiningInventoryController(QObject):
     def request(self, *_, force=False, cargo_retry=False):
         if self._closed:
             return
+        if not self.retry_pending_save():
+            return
         if not cargo_retry:
             self._cargo_retries = 0
             self.cargo_retry.stop()
@@ -133,6 +136,8 @@ class MiningInventoryController(QObject):
         self._start()
 
     def _start(self):
+        if not self.retry_pending_save():
+            return
         if self._closed or self._running or not self._dirty:
             return
         self._active_manual = self._manual_pending
@@ -159,8 +164,8 @@ class MiningInventoryController(QObject):
                              for key in self.state.settings.allKeys()}
         finally:
             self.state.settings.endGroup()
-        self.pool.start(_Read(self.reader, path, cid, self._generation, checkpoints, live_path,
-                             self.results, carrier_saved))
+        submit(self.pool, _Read(self.reader, path, cid, self._generation, checkpoints, live_path,
+                             self.results, carrier_saved), essential=True)
 
     def _finished(self, generation, inventory):
         self._running = False
@@ -172,6 +177,19 @@ class MiningInventoryController(QObject):
             if ledger is not None:
                 key = self.carrier_ledger.key(inventory.fid, inventory.carrier_id)
                 if self.state.settings.value(key) != inventory.carrier_ledger_before:
+                    pending = getattr(self, '_exit_pending_result', None)
+                    if pending is not None and pending[1] is inventory:
+                        # A manual confirmation after cancelling exit supersedes
+                        # the ledger, but must not discard the failed checkpoint.
+                        checkpoint = f"materials/mining/cargo_checkpoints/{inventory.commander_id}"
+                        try:
+                            save_values(self.state.settings,
+                                        {checkpoint: inventory.checkpoints} if inventory.checkpoints else {})
+                        except OSError:
+                            logger.exception("Pending mining checkpoint still cannot be saved")
+                            return
+                        self._exit_pending_result = None
+                        self._exit_write_error = False
                     # Another accepted confirmation/update supersedes the worker's
                     # starting cursor. Recalculate, never overwrite newer balances.
                     self._dirty = True
@@ -187,12 +205,14 @@ class MiningInventoryController(QObject):
             try:
                 save_values(self.state.settings, writes)
             except OSError:
+                self._exit_write_error = True
+                self._exit_pending_result = (generation, inventory)
                 logger.exception("Mining result not published: settings write failed")
                 self.ready.emit(MiningInventory(inventory.commander_id, inventory.fid))
                 self._report_manual(None)
-                if self._dirty:
-                    self.timer.start()
                 return
+            self._exit_write_error = False
+            self._exit_pending_result = None
             if ledger is not None:
                 self.carrier_ledger.attach(inventory, ledger)
             self.ready.emit(inventory)
@@ -221,11 +241,21 @@ class MiningInventoryController(QObject):
     def _remember_inventory(self, inventory):
         self._last_inventory = inventory
 
+    def retry_pending_save(self):
+        pending = getattr(self, '_exit_pending_result', None)
+        if pending is not None and not self._running:
+            self._finished(*pending)
+        return not getattr(self, '_exit_write_error', False)
+
     def close(self):
+        # A queued result must still pass through _finished before closing.
+        if (self._running or self.pool.activeThreadCount() or self._dirty
+                or getattr(self, '_exit_write_error', False)):
+            return False
         self._closed = True
         self.timer.stop()
         self.cargo_retry.stop()
-        self.pool.waitForDone()
+        return True
 
     def _report_manual(self, inventory):
         if not self._active_manual:

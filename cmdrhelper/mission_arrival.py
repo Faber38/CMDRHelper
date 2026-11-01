@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .game_instances import confirmed_selection, inspect_instances
+from .game_instances import confirmed_selection, inspect_instances, presentation_instances
 from .journal_reader import read_journal_delta
 from .journal_files import journal_files
 from .status_reader import read_status_data, utc_timestamp
@@ -127,7 +127,7 @@ class ArrivalSource:
         manager = getattr(state, 'sources', None)
         if manager is None:
             return None
-        processes = inspect_instances()
+        processes = presentation_instances(state, inspect_instances)
         selected = confirmed_selection(processes, manager.runtimes.values())
         if selected is None:
             return None

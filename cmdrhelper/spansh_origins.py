@@ -1,4 +1,5 @@
 """Demand-only MarketID lookup; no trading, journal ingestion or database writes."""
+from cmdrhelper.exit_tasks import submit
 from collections import defaultdict
 import logging
 from PySide6.QtCore import QObject, QRunnable, QThreadPool, QTimer, Signal, Slot
@@ -135,7 +136,7 @@ class OriginLookup(QObject):
         self.attempted.update(ids)  # Also covers unknown IDs, failures and in-flight requests.
         self.worker = LookupWorker(self.provider, self.cache, ids)
         self.worker.signals.finished.connect(self._finished)
-        self.pool.start(self.worker)
+        submit(self.pool, self.worker)
 
     @Slot(object)
     def _finished(self, addresses):

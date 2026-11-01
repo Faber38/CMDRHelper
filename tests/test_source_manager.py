@@ -22,6 +22,8 @@ class ManagerTests(unittest.TestCase):
         cls.app = QApplication.instance() or QApplication([])
 
     def setUp(self):
+        from cmdrhelper.exit_tasks import task_gate
+        task_gate().resume()
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
@@ -50,11 +52,34 @@ class ManagerTests(unittest.TestCase):
         self.state.combat_bonds._root = self.root/'combat-bonds'
         self.addCleanup(self.shutdown)
         self.drain()
+        ManagerTests.settle_readers(self)
+
+    def settle_readers(self):
+        # Fixture setup must not leave unrelated background writes in flight.
+        # drain() deliberately remains source-only for tests blocking a transfer.
+        from cmdrhelper.exit_tasks import task_gate
+        deadline = time.monotonic() + 5
+        while time.monotonic() < deadline:
+            self.app.processEvents()
+            mining = self.state.mining_inventory_controller
+            if not task_gate().pending() and not mining._running and not mining._dirty:
+                return
+            time.sleep(.005)
+        self.fail('fixture background work did not settle')
 
     def shutdown(self):
         self.state.sources.stop()
-        startup_runtime.shutdown(self.state)
+        deadline = time.monotonic() + 5
+        while time.monotonic() < deadline:
+            self.app.processEvents()
+            stopped = startup_runtime.shutdown(self.state, timeout=0)
+            writers = [o.writer for rt in self.state.sources.runtimes.values()
+                       for o in rt.watcher.live_observers if getattr(o, "writer", None)]
+            if stopped and all(w.is_stopped() for w in writers):
+                break
+            time.sleep(.005)
         self.app.processEvents()
+        self.state.deleteLater()
 
     def drain(self):
         deadline = time.monotonic()+15
@@ -102,6 +127,7 @@ class ManagerTests(unittest.TestCase):
             self.assertEqual(notifications, ['reading', 'ready'])
             stats.assert_not_called()
             self.assertEqual(len(runtime.processor.sessions), 2)
+            ManagerTests.settle_readers(self)
             panel.show()
             self.assertEqual(stats.call_count, 1)
             self.assertEqual(panel.statistics['count'].text(), '2')
@@ -113,8 +139,15 @@ class ManagerTests(unittest.TestCase):
             panel.refresh_visible()
             self.assertEqual(panel.selected_id(), source.id)
             self.assertEqual(panel.statistics['count'].text(), '2')
-            # Commander projections do not change source-local diagnostics.
-            self.assertEqual(stats.call_count, 1)
+            # Closing asynchronous readers can remove/recreate the WAL and
+            # legitimately invalidate the physical database signature. Once
+            # that work settles, repeated refreshes must reuse the cache.
+            ManagerTests.settle_readers(self)
+            self.app.processEvents()
+            panel.refresh_visible()
+            settled_calls = stats.call_count
+            panel.refresh_visible()
+            self.assertEqual(stats.call_count, settled_calls)
 
     def test_screenshot_context_uses_playing_source_not_view_projection(self):
         from cmdrhelper.screenshot_sources import live_context

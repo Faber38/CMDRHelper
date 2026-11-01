@@ -1,7 +1,7 @@
 """Odyssey stacks with a separate, manually confirmed private carrier inventory."""
 from PySide6.QtCore import QCollator, QLocale, QSize, Qt, QTimer
 from PySide6.QtGui import QBrush, QColor, QPalette
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QTreeWidget, QTreeWidgetItem, QStyle, QDialog, QMessageBox, QToolButton, QPushButton
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QTreeWidget, QTreeWidgetItem, QStyle, QStyleOptionViewItem, QDialog, QMessageBox, QToolButton, QPushButton
 
 from cmdrhelper.i18n import tr, get_language
 from cmdrhelper.odyssey_inventory import CATEGORIES, OdysseyInventory
@@ -14,6 +14,7 @@ from cmdrhelper.ui.odyssey_carrier_dialog import OdysseyCarrierDialog, carrier_t
 from cmdrhelper.ui.material_view import MaterialCategoryTabs
 from cmdrhelper.ui.material_row_style import MaterialRowDelegate, STRIPE_ROLE, COLLECTED_ROLE
 from cmdrhelper.ui.table_widths import persist_header_layout
+from cmdrhelper.ui.preferences import set_preference
 from cmdrhelper.ui import odyssey_cleanup
 
 
@@ -84,6 +85,25 @@ class OdysseyRowDelegate(MaterialRowDelegate):
             option.palette.setColor(QPalette.ColorRole.Text,
                                     QColor(RANK_COLORS[self.light].get(index.data(), RANK_COLORS[self.light]["?"])))
             option.font.setBold(True)
+
+
+class _OdysseyTree(QTreeWidget):
+    def drawBranches(self, painter, rect, index):
+        # Stack details are leaves. Keep native indicators on expandable nodes.
+        if not index.parent().isValid() or self.model().hasChildren(index):
+            return super().drawBranches(painter, rect, index)
+        option = QStyleOptionViewItem()
+        self.initViewItemOption(option)
+        option.rect = rect
+        if self.selectionModel().isSelected(index):
+            option.state |= QStyle.State_Selected
+        self.itemDelegate().initStyleOption(option, index.siblingAtColumn(0))
+        if option.backgroundBrush.style() == Qt.NoBrush:
+            return super().drawBranches(painter, rect, index)
+        painter.save()
+        painter.setClipRect(rect, Qt.IntersectClip)
+        painter.fillRect(rect, option.backgroundBrush)
+        painter.restore()
 
 
 class OdysseyView(QWidget):
@@ -158,7 +178,7 @@ class OdysseyView(QWidget):
         legend.addStretch()
         layout.addLayout(legend)
         self._style_cleanup_legend(light)
-        self.tree = QTreeWidget()
+        self.tree = _OdysseyTree()
         self.tree.setColumnCount(len(COLUMNS))
         self.tree.setHeaderLabels([tr("odyssey." + key) + (" ✎" if key == "carrier" else "") for key in COLUMNS])
         for column in range(len(COLUMNS)):
@@ -205,14 +225,12 @@ class OdysseyView(QWidget):
         self.begin_loading()
 
     def _selection_changed(self, *_):
-        self.state.settings.setValue("materials/odyssey/category", CATEGORIES[self.tabs.currentIndex()])
-        self.state.settings.setValue("materials/odyssey/filter", self.filter.currentData())
-        self.state.settings.sync()
+        set_preference(self.state.settings, "materials/odyssey/category", CATEGORIES[self.tabs.currentIndex()])
+        set_preference(self.state.settings, "materials/odyssey/filter", self.filter.currentData())
         self.render()
 
     def _sort_changed(self, *_):
-        self.state.settings.setValue("materials/odyssey/sort", self.sort_order.currentData())
-        self.state.settings.sync()
+        set_preference(self.state.settings, "materials/odyssey/sort", self.sort_order.currentData())
         self.render()
 
     def begin_loading(self):

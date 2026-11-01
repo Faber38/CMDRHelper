@@ -1,4 +1,5 @@
 """Asynchronous adapter between journal refresh signals and Odyssey inventory."""
+from cmdrhelper.exit_tasks import submit
 from pathlib import Path
 import sqlite3
 import logging
@@ -127,7 +128,7 @@ class OdysseyController(QObject):
             return
         self._running = True
         capture = getattr(getattr(self.state, "watcher", None), "odyssey_sidecars", None)
-        self.pool.start(_Read(self.reader, self.state.database.path, cid, self._generation, self.results,
+        submit(self.pool, _Read(self.reader, self.state.database.path, cid, self._generation, self.results,
                              capture.export() if capture else None, self._sidecar_only))
 
     @Slot(int, object, str)

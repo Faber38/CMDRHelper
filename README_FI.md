@@ -38,6 +38,15 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.24
+
+- Markkinalistat pysyvät vakaina tyhjentymättä hetkeksi, kun viitejärjestelmä ei muutu; vähemmän suodatinpäivityksiä ja kolme toisensa poissulkevaa tilaa: kaikki tavarat, kaivosraaka-aineet tai aluksen lasti.
+- Kuusi määritettävää toimintoa keskitetyssä ja tiiviissä pikanäppäinhallinnassa, joka tarkistaa ristiriidat yleisen pikasuosikkinäppäimen kanssa.
+- Yhtenäinen turvallinen sulkeminen painikkeella, ikkunan rastilla tai pikanäppäimellä: tallentamattomien asetusten suojaus, tärkeiden taustatöiden loppuunsaattaminen ja kaivosvarastojen tarkistuspisteiden tallennus. Parannettu odotusikkuna näyttää etenemisen.
+- Tekninen alatunniste on poistettu. Yksityisyyttä suojaavat virhetiedot säilyvät diagnostiikan ZIP-tiedostossa ja kriittiset käynnistysvirheet näkyvissä. Odysseyn musta sisennyspalkki on korjattu.
+- Vähemmän toistuvia prosessien tarkistuksia ja nopeampi kaivossivun muodostaminen tarpeettomia taulukko- ja asettelupäivityksiä vähentämällä.
+- Muuttumattomia näyttöasetuksia ei enää kirjoiteta uudelleen; kaivosvarastot muodostetaan vähemmällä kopioinnilla. Varastotietojen todisteet ja tallennuksen valmistumisen tarkistus säilyvät.
+
 ## CMDRHelper v3.9.23
 
 - Käynnistyksen valmistelu päättyy ensimmäisten paikallisten yritysten jälkeen, vaikka jonossa olisi lokitöitä tai lähetykset olisivat hitaita. Virheet jäävät näkyviin.
