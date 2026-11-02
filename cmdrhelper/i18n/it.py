@@ -1,4 +1,7 @@
 TRANSLATIONS = {
+    'release.3_9_25.0': 'Le normali caselle di controllo e i pulsanti di opzione ricevono un bordo sottile giallo nel tema scuro (#FFCC33) e blu nel tema chiaro (#1565C0). I segni di spunta e i punti di selezione nativi sono preservati.',
+    'release.3_9_25.1': 'I bordi seguono i cambi di tema e includono i controlli appena creati. Etichette, gruppi e indicatori speciali esistenti restano invariati.',
+    'release.3_9_25.2': 'Test Qt più affidabili grazie a simulazioni complete per Chronicle, EDSM e Inara, alla pulizia controllata di attività e widget e alla gestione esplicita delle eliminazioni differite.',
     'release.3_9_24.0': 'Elenchi dei mercati stabili, senza svuotamenti temporanei se il sistema di riferimento non cambia; meno aggiornamenti dei filtri e tre modalità esclusive: tutte le merci, risorse minerarie o carico della nave.',
     'release.3_9_24.1': 'Sei azioni configurabili in una gestione centralizzata e compatta delle scorciatoie, con controllo dei conflitti con la scorciatoia globale per il preferito rapido.',
     'release.3_9_24.2': 'Chiusura sicura uniforme tramite pulsante, croce della finestra o scorciatoia: protezione delle impostazioni non salvate, completamento delle attività importanti in background e salvataggio dei checkpoint minerari. Una finestra di attesa migliorata mostra l’avanzamento.',

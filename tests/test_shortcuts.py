@@ -15,6 +15,7 @@ from PySide6.QtTest import QTest
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QPushButton,
     QLineEdit, QTextEdit, QSpinBox, QComboBox, QDialog, QMenu, QKeySequenceEdit,
     QDialogButtonBox, QMessageBox, QVBoxLayout, QCheckBox)
+from qt_widget_cleanup import destroy_widget
 from cmdrhelper.shortcuts import ShortcutManager, ACTIONS, PREFIX, validate_combination
 from cmdrhelper.global_hotkey import GlobalHotkey, SETTING
 from cmdrhelper.ui.shortcut_settings import ShortcutSettings
@@ -46,9 +47,7 @@ class ShortcutTests(unittest.TestCase):
 
     def cleanup(self):
         self.hotkey.close()
-        self.window.close()
-        self.window.deleteLater()
-        self.app.processEvents()
+        destroy_widget(self.window)
 
     def activate_window(self):
         self.window.showNormal(); self.window.raise_(); self.window.activateWindow()
@@ -197,7 +196,7 @@ class ShortcutTests(unittest.TestCase):
         subprocess.run(['xdotool','key','--clearmodifiers','ctrl+shift+F7'],check=True,timeout=5)
         QTest.qWait(150)
         self.callbacks['open_trade'].assert_called_once()
-        other=QWidget(); self.addCleanup(other.close)
+        other=QWidget(); self.addCleanup(destroy_widget, other)
         other.show(); other.raise_(); other.activateWindow()
         self.assertTrue(QTest.qWaitForWindowActive(other,3000))
         subprocess.run(['xdotool','key','--clearmodifiers','ctrl+shift+F7'],check=True,timeout=5)
@@ -233,7 +232,7 @@ class ShortcutTests(unittest.TestCase):
         self.activate_window()
         menu=QMenu(self.window); menu.addAction('Popup'); menu.popup(self.window.pos())
         QTest.qWait(20); self.press(menu); self.callbacks['open_trade'].assert_not_called(); menu.close()
-        other=QWidget(); other.show(); other.activateWindow(); QTest.qWait(30)
+        other=QWidget(); self.addCleanup(destroy_widget, other); other.show(); other.activateWindow(); QTest.qWait(30)
         self.press(other); self.callbacks['open_trade'].assert_not_called(); other.close()
         self.activate_window(); self.press(); self.callbacks['open_trade'].assert_called_once()
 
@@ -286,7 +285,7 @@ class ShortcutTests(unittest.TestCase):
                 widget.resize(600,800); widget.show(); self.app.processEvents()
                 self.assertEqual(len(widget.rows),6)
                 self.assertTrue(widget.rows['quit'][1].isEnabled())
-                widget.close(); widget.deleteLater()
+                destroy_widget(widget)
 
 
 class MainWindowShortcutTests(unittest.TestCase):
@@ -306,8 +305,8 @@ class MainWindowShortcutTests(unittest.TestCase):
             hotkey=GlobalHotkey(settings,backend_factory=Mock())
             w.shortcut_manager=ShortcutManager(w,settings,hotkey,{'quit':w.close})
             def controls(_form):
-                w.edsm_receive_check=QCheckBox()
-                w.edsm_enabled_check=QCheckBox()
+                w.edsm_receive_check=QCheckBox(w)
+                w.edsm_enabled_check=QCheckBox(w)
             try:
                 with patch('cmdrhelper.ui.diagnostics_panel.DiagnosticsPanel',side_effect=lambda *a,**k: QWidget()), \
                         patch.object(w,'_load_selected_edsm_settings'), \
@@ -328,7 +327,9 @@ class MainWindowShortcutTests(unittest.TestCase):
                 self.assertEqual(w._exit_controller.phase,'drafts')
                 w._exit_controller.cancel()
             finally:
-                w.hide(); hotkey.close(); w.deleteLater(); self.app.processEvents()
+                if hasattr(w, '_exit_controller'):
+                    w._exit_controller.cancel()
+                hotkey.close(); destroy_widget(w, close=False)
 
     def test_actual_main_navigation_and_original_exit_button(self):
         from tests.test_context_help import ContextHelpTests

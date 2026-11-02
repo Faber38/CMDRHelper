@@ -65,6 +65,7 @@ from cmdrhelper.update import (
 
 from PySide6.QtCore import QByteArray, QRect, QEvent, Qt, QTimer, QThreadPool, QUrl, QDate, Slot, Signal
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
+from cmdrhelper.ui.selection_indicators import set_selection_indicator_theme
 from PySide6.QtGui import (
     QDesktopServices,
     QColor,
@@ -5931,6 +5932,7 @@ class MainWindow(QMainWindow):
         base_stylesheet = (
             LIGHT_STYLESHEET if self.ui_theme == "light" else DARK_STYLESHEET
         )
+        set_selection_indicator_theme(app, self.ui_theme)
         app.setStyleSheet(base_stylesheet + self._font_stylesheet_suffix(family, size))
 
     def _save_ui_font_settings(self):
@@ -5969,6 +5971,7 @@ class MainWindow(QMainWindow):
 
         if app is not None:
             base_stylesheet = LIGHT_STYLESHEET if theme == "light" else DARK_STYLESHEET
+            set_selection_indicator_theme(app, theme)
             app.setStyleSheet(base_stylesheet + self._font_stylesheet_suffix())
 
         if hasattr(self, "material_view"):

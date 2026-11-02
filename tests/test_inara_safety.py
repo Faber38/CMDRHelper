@@ -3,12 +3,70 @@ from datetime import datetime,timedelta,timezone
 from pathlib import Path
 from unittest.mock import patch
 from urllib.error import HTTPError
+from PySide6.QtCore import QEvent, QThread
 from PySide6.QtGui import QDesktopServices
+from PySide6.QtWidgets import QApplication
+from shiboken6 import isValid
+from cmdrhelper.exit_tasks import task_gate
 from cmdrhelper.inara_uploader import upload_batch,INARA_API_URL
 from cmdrhelper.online_services import test_inara_connection
 from tests import test_inara_uploader as fixtures
 
+
+class Immediate:
+    """Synchronous execution with the same alive interval as a real thread."""
+    def __init__(self, target, **kwargs):
+        self.target = target
+        self.started = False
+        self.alive = False
+
+    def begin(self):
+        if self.started:
+            raise RuntimeError('threads can only be started once')
+        self.started = self.alive = True
+
+    def start(self):
+        self.begin()
+        self.run()
+
+    def is_alive(self):
+        return self.alive
+
+    def run(self):
+        try:
+            self.target()
+        finally:
+            self.alive = False
+            self.target = None
+
+
 class InaraSafetyTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
+    def setUp(self):
+        self.threads = []
+
+    def immediate_thread(self, target, **kwargs):
+        thread = Immediate(target, **kwargs)
+        self.threads.append(thread)
+        self.assertFalse(thread.is_alive())
+        return thread
+
+    def cleanup_state(self, state, settings):
+        self.assertEqual(QThread.currentThread(), self.app.thread())
+        self.assertTrue(all(not thread.is_alive() for thread in self.threads))
+        gate = task_gate()
+        self.assertFalse(gate.draining)
+        gate.threads[:] = [thread for thread in gate.threads if thread not in self.threads]
+        settings.sync()
+        state.deleteLater()
+        settings.deleteLater()
+        self.app.sendPostedEvents(None, QEvent.DeferredDelete)
+        self.assertFalse(isValid(state))
+        self.assertFalse(isValid(settings))
+
     rows=fixtures.InaraTransportTests.rows
     def reply(self,events=None,header=200):
         return fixtures.Reply({'header':{'eventStatus':header},'events':events if events is not None else [{'eventStatus':200,'eventCustomID':r['id']} for r in self.rows]})
@@ -45,6 +103,7 @@ class InaraSafetyTests(unittest.TestCase):
     def fixture(self):
         box=fixtures.InaraOutboxTests();box.setUp();self.addCleanup(box.tearDown)
         case=fixtures.InaraCommanderSettingsTests();case.setUp();self.addCleanup(case.tearDown)
+        self.addCleanup(self.cleanup_state, case.state, case.settings)
         state=case.state;state.database=box.db
         state.set_inara_settings('Same','synthetic-A',True,fid='F-A')
         state.set_inara_settings('Same','synthetic-B',True,fid='F-B')
@@ -55,15 +114,12 @@ class InaraSafetyTests(unittest.TestCase):
         state._invalidate_inara_worker();state.commander_id=cid;state.commander_fid='F-A' if cid==1 else 'F-B';state._load_live_inara_settings()
     def test_inflight_ack_completes_original_event_without_retry(self):
         state,db=self.fixture();calls=[]
-        class Immediate:
-            def __init__(self,target,**kw):self.target=target
-            def start(self):self.target()
         def upload(key,name,fid,rows):
             self.assertEqual((key,fid),('synthetic-A','F-A'))
             calls.append([r['id'] for r in rows])
             if len(calls)==1:self.switch(state,2)
             return [r['id'] for r in rows],{}
-        with patch('cmdrhelper.state.threading.Thread',Immediate),patch('cmdrhelper.state.upload_batch',side_effect=upload):
+        with patch('cmdrhelper.state.threading.Thread',self.immediate_thread),patch('cmdrhelper.state.upload_batch',side_effect=upload):
             state._upload_pending_to_inara()
             self.assertEqual(len(db.inara_pending(1)),0)
             self.assertEqual(db.inara_pending(2),[])
@@ -73,12 +129,9 @@ class InaraSafetyTests(unittest.TestCase):
             state._upload_pending_to_inara();self.assertEqual(len(calls),1)
     def test_429_retry_after_respected_and_retry_ceiling(self):
         state,db=self.fixture()
-        class Immediate:
-            def __init__(self,target,**kw):self.target=target
-            def start(self):self.target()
         def fail(*args):
             return upload_batch(*args,opener=lambda *a,**k: (_ for _ in ()).throw(HTTPError(INARA_API_URL,429,'synthetic',{'Retry-After':'3600'},None)))
-        with patch('cmdrhelper.state.threading.Thread',Immediate),patch('cmdrhelper.state.upload_batch',side_effect=fail):state._upload_pending_to_inara()
+        with patch('cmdrhelper.state.threading.Thread',self.immediate_thread),patch('cmdrhelper.state.upload_batch',side_effect=fail):state._upload_pending_to_inara()
         self.assertEqual(db.inara_pending(1),[])
         for age,expected in ((31,0),(61,0)):
             with db._connect() as con:con.execute('UPDATE inara_outbox SET last_attempt_at=?',((datetime.now(timezone.utc)-timedelta(seconds=age)).isoformat(),))
@@ -87,14 +140,31 @@ class InaraSafetyTests(unittest.TestCase):
         self.assertEqual(db.inara_pending(1),[])
     def test_running_worker_suppresses_parallel_duplicate_and_missing_fid(self):
         state,db=self.fixture();queued=[]
-        class Queued:
-            def __init__(self,target,**kw):self.target=target
-            def start(self):queued.append(self.target)
-        with patch('cmdrhelper.state.threading.Thread',Queued):
-            state._upload_pending_to_inara();state._upload_pending_to_inara()
-            self.assertEqual(len(queued),1)
-            state._invalidate_inara_worker();state.commander_fid=''
-            state._upload_pending_to_inara();self.assertEqual(len(queued),1)
+        threads = self.threads
+        class Queued(Immediate):
+            def __init__(self, target, **kwargs):
+                super().__init__(target, **kwargs)
+                threads.append(self)
+            def start(self):
+                self.begin()
+                queued.append(self.run)
+        with patch('cmdrhelper.state.threading.Thread',Queued), patch(
+                'cmdrhelper.state.upload_batch', side_effect=AssertionError('unexpected upload')) as upload:
+            try:
+                state._upload_pending_to_inara();state._upload_pending_to_inara()
+                self.assertEqual(len(queued),1)
+                self.assertTrue(threads[0].is_alive())
+                self.assertIn(threads[0], task_gate().threads)
+                state._invalidate_inara_worker();state.commander_fid=''
+                state._upload_pending_to_inara();self.assertEqual(len(queued),1)
+            finally:
+                # Run the now-stale worker before its database/settings disappear.
+                state._invalidate_inara_worker()
+                for thread in threads:
+                    if thread.is_alive():
+                        thread.run()
+            self.assertFalse(threads[0].is_alive())
+            upload.assert_not_called()
     def test_same_names_two_fids_use_separate_keys_and_outbox(self):
         state,db=self.fixture()
         with db._connect() as con:
@@ -102,15 +172,12 @@ class InaraSafetyTests(unittest.TestCase):
             con.execute("INSERT INTO journal_sessions(journal_file,commander_id,fid_seen,attribution_status,last_read_offset) VALUES('b.log',2,'F-B','identified',0)")
         db.apply_commander_journal_delta(2,'b.log',[{'event':'FSDJump','timestamp':'2026-10-18T00:00:00Z','StarSystem':'Synthetic B'}],100,enqueue_inara=True)
         calls=[]
-        class Immediate:
-            def __init__(self,target,**kw):self.target=target
-            def start(self):self.target()
         def upload(key,name,fid,rows):
             self.assertEqual(key, 'synthetic-A' if fid=='F-A' else 'synthetic-B')
             self.assertEqual(name,'Same')
             calls.append((fid,{r['id'] for r in rows}))
             return [r['id'] for r in rows],{}
-        with patch('cmdrhelper.state.threading.Thread',Immediate),patch('cmdrhelper.state.upload_batch',side_effect=upload):
+        with patch('cmdrhelper.state.threading.Thread',self.immediate_thread),patch('cmdrhelper.state.upload_batch',side_effect=upload):
             state._upload_pending_to_inara();self.switch(state,2);state._upload_pending_to_inara()
         self.assertEqual([c[0] for c in calls],['F-A','F-B'])
         self.assertTrue(calls[0][1].isdisjoint(calls[1][1]))
@@ -164,13 +231,10 @@ class InaraSafetyTests(unittest.TestCase):
     def test_late_failure_updates_original_owner_only(self):
         from cmdrhelper.inara_uploader import InaraUploadError
         state,db=self.fixture();state.viewed_commander_id=2
-        class Immediate:
-            def __init__(self,target,**kw):self.target=target
-            def start(self):self.target()
         def upload(*args):
             self.switch(state,2)
             raise InaraUploadError('http_error',http_status=429,retry_seconds=900)
-        with patch('cmdrhelper.state.threading.Thread',Immediate),patch('cmdrhelper.state.upload_batch',side_effect=upload):state._upload_pending_to_inara()
+        with patch('cmdrhelper.state.threading.Thread',self.immediate_thread),patch('cmdrhelper.state.upload_batch',side_effect=upload):state._upload_pending_to_inara()
         self.assertEqual((state.commander_id,state.commander_fid,state.viewed_commander_id),(2,'F-B',2))
         self.assertEqual(state.inara_upload_status,'waiting')
         with db._connect() as con:
@@ -178,9 +242,6 @@ class InaraSafetyTests(unittest.TestCase):
         self.assertEqual(db.inara_pending(1),[])
 
     def test_generation_and_identity_mutation_cannot_acknowledge(self):
-        class Immediate:
-            def __init__(self,target,**kw):self.target=target
-            def start(self):self.target()
         for mutation in ('generation','fid','owner','source','payload'):
             with self.subTest(mutation=mutation):
                 state,db=self.fixture()
@@ -193,7 +254,7 @@ class InaraSafetyTests(unittest.TestCase):
                             elif mutation=='source':con.execute("UPDATE inara_outbox SET source_key='changed'")
                             elif mutation=='payload':con.execute("UPDATE inara_outbox SET event_data_json='{}'")
                     return [args[3][0]['id']],{}
-                with patch('cmdrhelper.state.threading.Thread',Immediate),patch('cmdrhelper.state.upload_batch',side_effect=upload):state._upload_pending_to_inara()
+                with patch('cmdrhelper.state.threading.Thread',self.immediate_thread),patch('cmdrhelper.state.upload_batch',side_effect=upload):state._upload_pending_to_inara()
                 with db._connect() as con:self.assertEqual(con.execute('SELECT status,retry_count FROM inara_outbox').fetchall(),[('pending',0)])
 
     def test_bound_update_is_atomic_and_rejects_foreign_ids(self):
@@ -235,25 +296,19 @@ class InaraSafetyTests(unittest.TestCase):
         self.assertNotIn('private-',PrivacyFormatter().format(record))
     def test_return_to_original_commander_while_request_is_running(self):
         state,db=self.fixture();calls=[]
-        class Immediate:
-            def __init__(self,target,**kw):self.target=target
-            def start(self):self.target()
         def upload(*args):
             calls.append(1)
             self.switch(state,2);self.switch(state,1)
             state._upload_pending_to_inara()
             return [r['id'] for r in args[3]],{}
-        with patch('cmdrhelper.state.threading.Thread',Immediate),patch('cmdrhelper.state.upload_batch',side_effect=upload):state._upload_pending_to_inara()
+        with patch('cmdrhelper.state.threading.Thread',self.immediate_thread),patch('cmdrhelper.state.upload_batch',side_effect=upload):state._upload_pending_to_inara()
         self.assertEqual(len(calls),1)
         self.assertEqual(db.inara_pending(1),[])
 
     def test_repeated_rate_limits_keep_backoff_and_stop_at_eight(self):
         from cmdrhelper.inara_uploader import InaraUploadError
         state,db=self.fixture()
-        class Immediate:
-            def __init__(self,target,**kw):self.target=target
-            def start(self):self.target()
-        with patch('cmdrhelper.state.threading.Thread',Immediate),patch('cmdrhelper.state.upload_batch',side_effect=InaraUploadError('http_error',http_status=429,retry_seconds=1)) as upload:
+        with patch('cmdrhelper.state.threading.Thread',self.immediate_thread),patch('cmdrhelper.state.upload_batch',side_effect=InaraUploadError('http_error',http_status=429,retry_seconds=1)) as upload:
             for attempt in range(1,9):
                 state._upload_pending_to_inara()
                 with db._connect() as con:
@@ -281,10 +336,7 @@ class InaraSafetyTests(unittest.TestCase):
     def test_worker_rejects_mismatched_database_identity_before_request(self):
         state,db=self.fixture()
         with db._connect() as con:con.execute("UPDATE commanders SET fid='F-OTHER' WHERE id=1")
-        class Immediate:
-            def __init__(self,target,**kw):self.target=target
-            def start(self):self.target()
-        with patch('cmdrhelper.state.threading.Thread',Immediate),patch('cmdrhelper.state.upload_batch') as upload:
+        with patch('cmdrhelper.state.threading.Thread',self.immediate_thread),patch('cmdrhelper.state.upload_batch') as upload:
             state._upload_pending_to_inara();upload.assert_not_called()
         self.assertEqual(state.inara_upload_status,'error')
         with db._connect() as con:self.assertEqual(con.execute('SELECT status,retry_count FROM inara_outbox').fetchall(),[('pending',0)])

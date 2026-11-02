@@ -15,6 +15,7 @@ from cmdrhelper.chronicle_filters import ChronicleFilters, visit_utc_time
 from cmdrhelper.database import CMDRDatabase
 from cmdrhelper.i18n import set_language, tr, _TRANSLATIONS
 from cmdrhelper.ui.main_window import MainWindow
+from qt_widget_cleanup import destroy_widget
 
 
 class ChronicleFixture:
@@ -161,8 +162,9 @@ class PeriodUiTests(ChronicleFixture, unittest.TestCase):
         self.window.setCentralWidget(self.page)
         self.window.show()
         self.app.processEvents()
-        self.addCleanup(self.window.deleteLater)
-        self.addCleanup(self.window.close)
+        # This fixture constructs only the Chronicle page, not the application's
+        # settings/shutdown infrastructure. Delete it on the GUI thread directly.
+        self.addCleanup(destroy_widget, self.window, close=False)
 
     def enable_period(self):
         w=self.window

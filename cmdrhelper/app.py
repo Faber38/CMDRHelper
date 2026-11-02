@@ -8,6 +8,7 @@ from PySide6.QtCore import QSettings, QLockFile, QDir
 from cmdrhelper.state import AppState
 from cmdrhelper.ui.main_window import MainWindow
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
+from cmdrhelper.ui.selection_indicators import install_selection_indicators, set_selection_indicator_theme
 from cmdrhelper.logging_config import configure_logging, log_event
 from cmdrhelper.version import __version__
 from cmdrhelper.i18n import tr, set_language
@@ -70,6 +71,7 @@ def run():
               qt=info['qt'], pyside=info['pyside'], architecture=info['architecture'], pid=os.getpid())
 
     app = QApplication(sys.argv)
+    install_selection_indicators(app)
     app.setApplicationName("CMDRHelper")
     app.setOrganizationName("CMDRHelper")
     from cmdrhelper.ui.cursors import install_cursor_policy
@@ -113,6 +115,7 @@ def run():
 
     theme = str(settings.value("ui_theme", "dark")).lower()
 
+    set_selection_indicator_theme(app, theme)
     app.setStyleSheet(LIGHT_STYLESHEET if theme == "light" else DARK_STYLESHEET)
 
     # Gate before schema initialization, journal watchers and startup repairs.

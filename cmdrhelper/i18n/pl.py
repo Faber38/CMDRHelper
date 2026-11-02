@@ -1,4 +1,7 @@
 TRANSLATIONS = {
+    'release.3_9_25.0': 'Zwykłe pola wyboru i przyciski opcji otrzymują cienką żółtą ramkę w trybie ciemnym (#FFCC33) i niebieską w trybie jasnym (#1565C0). Natywne znaczniki i kropki wyboru zostają zachowane.',
+    'release.3_9_25.1': 'Ramki reagują na zmianę motywu i obejmują nowo tworzone kontrolki. Etykiety, grupy i istniejące wskaźniki specjalne pozostają bez zmian.',
+    'release.3_9_25.2': 'Bardziej niezawodne testy Qt dzięki kompletnym atrapom Chronicle, EDSM i Inara, kontrolowanemu sprzątaniu zadań i widżetów oraz jawnemu przetwarzaniu odroczonych usunięć.',
     'release.3_9_24.0': 'Stabilne listy rynków bez chwilowego opróżniania przy niezmienionym układzie odniesienia; mniej aktualizacji filtrów i trzy wykluczające się tryby: wszystkie towary, surowce górnicze lub ładunek statku.',
     'release.3_9_24.1': 'Sześć konfigurowalnych działań w centralnym, kompaktowym menedżerze skrótów, z wykrywaniem konfliktów z globalnym skrótem szybkiego ulubionego.',
     'release.3_9_24.2': 'Jednakowe bezpieczne zamykanie przyciskiem, krzyżykiem okna i skrótem: ochrona niezapisanych ustawień, zakończenie ważnych zadań w tle i zapis punktów kontrolnych zapasów górniczych. Ulepszone okno oczekiwania pokazuje postęp.',

@@ -4,9 +4,12 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from PySide6.QtCore import QEvent, QObject, QThread, QTimer
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QScrollArea
+from shiboken6 import isValid
 
+from cmdrhelper.exit_tasks import task_gate
 from cmdrhelper.i18n import _TRANSLATIONS, get_language, set_language, tr
 from cmdrhelper.route_planner.carrier_inputs import parse_snapshot
 from cmdrhelper.route_planner.carrier_input_widget import CarrierInputWidget
@@ -24,14 +27,35 @@ class CarrierFeedbackTests(unittest.TestCase):
         self.state = SimpleNamespace(commander_fid="F-A", carrier_input_session="s",
             carrier_input_revision="stats", carrier_snapshot=parse_snapshot(stats(), "F-A", "s"))
         self.view = RoutePlannerView(self.state)
-        self.addCleanup(self.view.close)
+        self.addCleanup(self.cleanup_view)
         self.inputs = self.view.carrier_inputs
         self.view.carrier_start_system.setText("Sol")
         self.view.carrier_destination_system.setText("Alpha")
         self.inputs.storage.setValue(4400)
-        self.worker = patch("cmdrhelper.route_planner.route_planner_view.CarrierRouteWorker").start()
-        self.addCleanup(patch.stopall)
-        self.pool = patch.object(self.view._thread_pool, "start").start()
+        worker_patch = patch("cmdrhelper.route_planner.route_planner_view.CarrierRouteWorker")
+        self.worker = worker_patch.start()
+        self.addCleanup(worker_patch.stop)
+        # Execute the real tracking wrapper around the mocked worker. Its queued
+        # completion must reach ExitTasks before any fixture widgets are deleted.
+        pool_patch = patch.object(self.view._thread_pool, "start", side_effect=lambda job: job.run())
+        self.pool = pool_patch.start()
+        self.addCleanup(pool_patch.stop)
+
+    def cleanup_view(self):
+        self.assertEqual(QThread.currentThread(), self.app.thread())
+        self.assertTrue(self.view._thread_pool.waitForDone(5000))
+        self.app.processEvents()
+        gate = task_gate()
+        self.assertFalse(any(pool is self.view._thread_pool for pool, _, _ in gate.tasks.values()))
+        self.assertFalse(gate.draining)
+        children = self.view.findChildren(QObject)
+        for timer in self.view.findChildren(QTimer):
+            timer.stop()
+        self.view.close()
+        self.view.deleteLater()
+        self.app.sendPostedEvents(None, QEvent.DeferredDelete)
+        self.assertFalse(isValid(self.view))
+        self.assertTrue(all(not isValid(child) for child in children))
 
     def click(self):
         self.view.carrier_calculate_button.click()
@@ -84,6 +108,9 @@ class CarrierFeedbackTests(unittest.TestCase):
         self.click()
         self.worker.assert_called_once()
         self.assertIsNone(self.worker.call_args.args[0].validation_error())
+        self.worker.return_value.run.assert_called_once_with()
+        self.app.processEvents()
+        self.assertFalse(any(pool is self.view._thread_pool for pool, _, _ in task_gate().tasks.values()))
 
     def test_missing_fields_highlighted_without_blinking(self):
         self.inputs.manual.setChecked(True)
@@ -160,6 +187,7 @@ class CarrierFeedbackTests(unittest.TestCase):
 
     def test_confirmation_is_revealed_in_scroll_area(self):
         scroll = QScrollArea()
+        self.addCleanup(scroll.deleteLater)
         self.addCleanup(scroll.close)
         widget = CarrierInputWidget(self.state)
         scroll.setWidget(widget)

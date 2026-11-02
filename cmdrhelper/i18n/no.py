@@ -1,4 +1,7 @@
 TRANSLATIONS = {
+    'release.3_9_25.0': 'Vanlige avkrysningsbokser og radioknapper får en tynn gul kant i mørk modus (#FFCC33) og en blå kant i lys modus (#1565C0). Opprinnelige hakemerker og valgprikker beholdes.',
+    'release.3_9_25.1': 'Kantene følger temabytter og omfatter kontroller som opprettes senere. Etiketter, grupper og eksisterende spesialindikatorer forblir uendret.',
+    'release.3_9_25.2': 'Mer pålitelige Qt-tester med komplette testetterligninger for Chronicle, EDSM og Inara, kontrollert opprydding av bakgrunnsoppgaver og widgeter samt eksplisitt behandling av utsatt sletting.',
     'release.3_9_24.0': 'Stabile markedslister uten kortvarig tømming når referansesystemet er uendret; færre filteroppdateringer og tre gjensidig utelukkende moduser for alle varer, gruveressurser eller skipslast.',
     'release.3_9_24.1': 'Seks konfigurerbare handlinger i en sentral, kompakt snarveibehandling med kontroll av konflikter mot den globale snarveien for hurtigfavoritt.',
     'release.3_9_24.2': 'Samme sikre avslutning via knapp, vinduskryss og snarvei: beskytt ulagrede innstillinger, fullfør viktig bakgrunnsarbeid og lagre sjekkpunkter for gruvedrift. En forbedret ventedialog viser fremdriften.',

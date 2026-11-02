@@ -14,6 +14,7 @@ os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 from PySide6.QtCore import Qt
 from PIL import Image
 from PySide6.QtWidgets import QApplication, QFileDialog, QMessageBox, QDialog, QComboBox, QDialogButtonBox
+from qt_widget_cleanup import destroy_widget
 from cmdrhelper.database import CMDRDatabase
 from cmdrhelper.favorites import FavoriteStore
 from cmdrhelper.favorites_transfer import (
@@ -73,7 +74,7 @@ class FavoritesTransferTests(unittest.TestCase):
 
     def view(self):
         view = FavoritesView(self.state, Mock(), Mock())
-        self.addCleanup(view.close)
+        self.addCleanup(destroy_widget, view)
         return view
 
     def test_empty_export(self):
@@ -413,6 +414,7 @@ class FavoritesTransferTests(unittest.TestCase):
             for theme in (DARK_STYLESHEET, LIGHT_STYLESHEET):
                 with self.subTest(language=language, theme=theme[:30]):
                     dialog = FavoritesExportDialog(rows)
+                    self.addCleanup(destroy_widget, dialog)
                     dialog.setStyleSheet(theme)
                     dialog.show(); self.app.processEvents()
                     self.assertTrue(dialog.all_favorites.isChecked())
@@ -441,7 +443,7 @@ class FavoritesTransferTests(unittest.TestCase):
                     self.assertFalse(dialog.grab().isNull())
                     dialog.buttons.button(QDialogButtonBox.Cancel).click()
                     self.assertEqual(dialog.result(), QDialog.Rejected)
-                    dialog.close()
+                    destroy_widget(dialog)
         self.assertEqual(self.store.list(1), rows)
 
     def test_selective_ui_ignores_filters_and_cancel_is_read_only(self):
@@ -517,12 +519,13 @@ class FavoritesTransferTests(unittest.TestCase):
                 self.assertTrue(view.import_button.isVisible())
                 self.assertFalse(view.grab().isNull())
                 def inspect(dialog):
+                    self.addCleanup(destroy_widget, dialog)
                     dialog.show(); self.app.processEvents()
                     combo = dialog.findChild(QComboBox)
                     self.assertEqual([combo.itemData(i) for i in range(combo.count())], ['skip', 'replace', 'new'])
                     self.assertEqual(combo.currentData(), 'skip')
                     self.assertFalse(dialog.grab().isNull())
-                    dialog.close()
+                    destroy_widget(dialog)
                     return QDialog.Rejected
                 with patch.object(QDialog, 'exec', inspect):
                     self.assertIsNone(view._confirm_import(plan))

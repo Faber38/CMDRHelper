@@ -1,4 +1,7 @@
 TRANSLATIONS = {
+    'release.3_9_25.0': 'Normale Checkboxen und Radio-Buttons erhalten einen dünnen gelben Rahmen im Dark-Mode (#FFCC33) und einen blauen im Light-Mode (#1565C0). Native Häkchen und Auswahlpunkte bleiben erhalten.',
+    'release.3_9_25.1': 'Die Auswahlrahmen folgen Themewechseln und berücksichtigen neu erzeugte Auswahlfelder. Beschriftungen, Gruppen und bestehende Sonderindikatoren bleiben unverändert.',
+    'release.3_9_25.2': 'Zuverlässigere Qt-Tests durch vollständige Chronicle-/EDSM-/Inara-Testattrappen, kontrollierte Worker- und Widgetbereinigung sowie gezielte Verarbeitung ausstehender Löschereignisse.',
     'release.3_9_24.0': 'Stabile Marktlisten ohne vorübergehendes Leeren bei gleichem Bezugssystem; weniger Filteraktualisierungen und drei exklusive Modi für alle Waren, Bergbaurohstoffe oder Schiffsfracht.',
     'release.3_9_24.1': 'Sechs frei belegbare Aktionen in einer zentralen, kompakten Tastenkürzelverwaltung mit Konfliktprüfung zum globalen Schnellfavoriten.',
     'release.3_9_24.2': 'Einheitliches sicheres Beenden über Button, Fensterkreuz und Shortcut: ungespeicherte Einstellungen schützen, wichtige Hintergrundarbeiten abschließen und Mining-Checkpoints übernehmen. Ein verbesserter Wartedialog zeigt den Fortschritt.',

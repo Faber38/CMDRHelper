@@ -21,6 +21,8 @@ from cmdrhelper.ui.mining_view import MiningView
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 from cmdrhelper.ui.material_row_style import THEMES
 from test_material_view import StubController
+from material_ui_cleanup import cleanup_material_view
+from qt_widget_cleanup import destroy_widget
 
 
 class RefreshController(QObject):
@@ -59,8 +61,7 @@ class MiningViewTests(unittest.TestCase):
         view.resize(1500, 650)
         view.show()
         self.app.processEvents()
-        self.addCleanup(view.deleteLater)
-        self.addCleanup(view.close)
+        self.addCleanup(cleanup_material_view, view)
         return view
 
     def values(self, column, view=None):
@@ -193,7 +194,7 @@ class MiningViewTests(unittest.TestCase):
     def test_heading_count_is_derived_from_supplied_catalog(self):
         subset = MINING_COMMODITIES[:3]
         mining = MiningView(self.view.state.settings, commodities=iter(subset))
-        self.addCleanup(mining.deleteLater)
+        self.addCleanup(destroy_widget, mining)
         self.assertEqual(mining.summary.text(), tr("mining.count_summary", count=3))
         self.assertEqual(self.view.mining.summary.text(), tr("mining.count_summary", count=len(MINING_COMMODITIES)))
         self.assertEqual(mining.heading.text(), tr("mining.heading"))
@@ -384,8 +385,7 @@ class MiningViewTests(unittest.TestCase):
         for language in ('de', 'fr'):
             set_language(language)
             mining = MiningView(self.view.state.settings)
-            self.addCleanup(mining.deleteLater)
-            self.addCleanup(mining.close)
+            self.addCleanup(destroy_widget, mining)
             mining.show()
             tree, header = mining.tree, mining.tree.header()
             mining.items['gold'].setText(7, '123.456.789.012.345.678')
@@ -591,8 +591,7 @@ class MiningViewTests(unittest.TestCase):
         controller = RefreshController()
         view = MiningView(self.view.state.settings, controller=controller)
         view.show()
-        self.addCleanup(view.deleteLater)
-        self.addCleanup(view.close)
+        self.addCleanup(destroy_widget, view)
         self.app.processEvents()
         return view, controller
 
@@ -719,7 +718,7 @@ class MiningViewTests(unittest.TestCase):
 
     def test_carrier_dialog_validation_cancel_apply_and_reset(self):
         dialog = CarrierStockDialog("Gold", None, True)
-        self.addCleanup(dialog.deleteLater)
+        self.addCleanup(destroy_widget, dialog)
         for invalid in ("", "-1", "1.5", "foo", "2147483648"):
             dialog.input.setText(invalid)
             dialog._apply()
@@ -734,7 +733,7 @@ class MiningViewTests(unittest.TestCase):
         dialog.reject()
         self.assertEqual(dialog.result(), QDialog.DialogCode.Rejected)
         disabled = CarrierStockDialog("Gold", None, False)
-        self.addCleanup(disabled.deleteLater)
+        self.addCleanup(destroy_widget, disabled)
         self.assertFalse(disabled.apply_button.isEnabled())
         self.assertFalse(disabled.reset_button.isEnabled())
         self.assertEqual(disabled.error.text(), tr("mining.carrier_unavailable"))
@@ -755,8 +754,7 @@ class MiningViewTests(unittest.TestCase):
             self.app.setStyleSheet(style)
             for editable in (False, True):
                 dialog = CarrierStockDialog("Gold", None, editable)
-                self.addCleanup(dialog.deleteLater)
-                self.addCleanup(dialog.close)
+                self.addCleanup(destroy_widget, dialog)
                 dialog.show()
                 self.app.processEvents()
                 for label, key in ((dialog.help_text, "carrier_dialog_help"),

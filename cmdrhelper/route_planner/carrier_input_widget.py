@@ -47,6 +47,7 @@ class CarrierInputWidget(QWidget):
         self._snapshot_missing = False
         self._snapshot_pulse_pending = False
         self.confirm = QCheckBox(tr("route_planner.carrier_confirm"))
+        self.confirm.setProperty("preserveSelectionIndicator", True)
         form.addRow(self.confirm)
         self.input_hint = QLabel()
         self.input_hint.setWordWrap(True)

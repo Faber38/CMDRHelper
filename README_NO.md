@@ -38,6 +38,12 @@ Journalmappen til Elite Dangerous oppdages automatisk når det er mulig. Hvis de
 
 CMDRHelper søker etter oppdateringer ved oppstart og har en innebygd oppdateringsfunksjon. Bekreft en tilbudt oppdatering i programmet; den oppdaterer programmet og avhengighetene og starter CMDRHelper på nytt. Etter førstegangsinstallasjonen bruker du normalt bare `start.bat` (Windows) eller `bash start.sh` (Linux). Du trenger ikke å kjøre `install.bat` eller `install.sh` manuelt på nytt for vanlige oppdateringer.
 
+## CMDRHelper v3.9.25
+
+- Vanlige avkrysningsbokser og radioknapper får en tynn gul kant i mørk modus (#FFCC33) og en blå kant i lys modus (#1565C0). Opprinnelige hakemerker og valgprikker beholdes.
+- Kantene følger temabytter og omfatter kontroller som opprettes senere. Etiketter, grupper og eksisterende spesialindikatorer forblir uendret.
+- Mer pålitelige Qt-tester med komplette testetterligninger for Chronicle, EDSM og Inara, kontrollert opprydding av bakgrunnsoppgaver og widgeter samt eksplisitt behandling av utsatt sletting.
+
 ## CMDRHelper v3.9.24
 
 - Stabile markedslister uten kortvarig tømming når referansesystemet er uendret; færre filteroppdateringer og tre gjensidig utelukkende moduser for alle varer, gruveressurser eller skipslast.

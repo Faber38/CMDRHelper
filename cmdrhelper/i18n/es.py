@@ -1,4 +1,7 @@
 TRANSLATIONS = {
+    'release.3_9_25.0': 'Las casillas y los botones de opción normales reciben un borde fino amarillo en modo oscuro (#FFCC33) y azul en modo claro (#1565C0). Se conservan las marcas y los puntos de selección nativos.',
+    'release.3_9_25.1': 'Los bordes siguen los cambios de tema e incluyen los controles recién creados. Las etiquetas, los grupos y los indicadores especiales existentes no cambian.',
+    'release.3_9_25.2': 'Pruebas Qt más fiables con dobles de prueba completos para Chronicle, EDSM e Inara, limpieza controlada de tareas y widgets y procesamiento explícito de eliminaciones diferidas.',
     'release.3_9_24.0': 'Listas de mercados estables, sin vaciarse brevemente cuando no cambia el sistema de referencia; menos actualizaciones de filtros y tres modos exclusivos: todas las mercancías, recursos mineros o carga de la nave.',
     'release.3_9_24.1': 'Seis acciones configurables en un gestor central y compacto de atajos, con comprobación de conflictos con el atajo global de favorito rápido.',
     'release.3_9_24.2': 'Cierre seguro uniforme mediante botón, cruz de la ventana o atajo: protege los ajustes sin guardar, finaliza tareas importantes en segundo plano y guarda los puntos de control de minería. Un diálogo de espera mejorado muestra el progreso.',

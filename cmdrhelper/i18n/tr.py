@@ -1,4 +1,7 @@
 TRANSLATIONS = {
+    'release.3_9_25.0': 'Normal onay kutuları ve radyo düğmeleri koyu modda ince sarı (#FFCC33), açık modda mavi (#1565C0) bir çerçeve alır. Yerel onay işaretleri ve seçim noktaları korunur.',
+    'release.3_9_25.1': 'Çerçeveler tema değişikliklerini izler ve yeni oluşturulan seçim alanlarını da kapsar. Etiketler, gruplar ve mevcut özel göstergeler değişmez.',
+    'release.3_9_25.2': 'Eksiksiz Chronicle, EDSM ve Inara test taklitleri, arka plan görevleri ile bileşenlerin kontrollü temizliği ve ertelenmiş silme olaylarının açıkça işlenmesi sayesinde daha güvenilir Qt testleri.',
     'release.3_9_24.0': 'Referans sistem değişmediğinde geçici olarak boşalmayan kararlı pazar listeleri; daha az filtre güncellemesi ve tüm mallar, madencilik kaynakları veya gemi yükü için birbirini dışlayan üç mod.',
     'release.3_9_24.1': 'Küresel hızlı favori kısayoluyla çakışmaları denetleyen, merkezi ve kompakt kısayol yönetiminde altı özelleştirilebilir eylem.',
     'release.3_9_24.2': 'Düğme, pencerenin kapatma simgesi ve kısayol üzerinden aynı güvenli çıkış: kaydedilmemiş ayarları korur, önemli arka plan işlerini tamamlar ve madencilik kontrol noktalarını kaydeder. İyileştirilen bekleme penceresi ilerlemeyi gösterir.',

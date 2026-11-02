@@ -39,6 +39,12 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.25
+
+- Normal onay kutuları ve radyo düğmeleri koyu modda ince sarı (#FFCC33), açık modda mavi (#1565C0) bir çerçeve alır. Yerel onay işaretleri ve seçim noktaları korunur.
+- Çerçeveler tema değişikliklerini izler ve yeni oluşturulan seçim alanlarını da kapsar. Etiketler, gruplar ve mevcut özel göstergeler değişmez.
+- Eksiksiz Chronicle, EDSM ve Inara test taklitleri, arka plan görevleri ile bileşenlerin kontrollü temizliği ve ertelenmiş silme olaylarının açıkça işlenmesi sayesinde daha güvenilir Qt testleri.
+
 ## CMDRHelper v3.9.24
 
 - Referans sistem değişmediğinde geçici olarak boşalmayan kararlı pazar listeleri; daha az filtre güncellemesi ve tüm mallar, madencilik kaynakları veya gemi yükü için birbirini dışlayan üç mod.

@@ -1,4 +1,7 @@
 TRANSLATIONS = {
+    'release.3_9_25.0': 'Gewone selectievakjes en keuzerondjes krijgen een dunne gele rand in de donkere modus (#FFCC33) en een blauwe rand in de lichte modus (#1565C0). De oorspronkelijke vinkjes en selectiepunten blijven behouden.',
+    'release.3_9_25.1': 'De randen volgen themawisselingen en gelden ook voor nieuw aangemaakte bedieningselementen. Labels, groepen en bestaande speciale indicatoren blijven ongewijzigd.',
+    'release.3_9_25.2': 'Betrouwbaardere Qt-tests dankzij volledige testdubbelgangers voor Chronicle, EDSM en Inara, gecontroleerde opruiming van achtergrondtaken en widgets en expliciete verwerking van uitgestelde verwijderingen.',
     'release.3_9_24.0': 'Stabiele marktlijsten zonder tijdelijk leegmaken als het referentiesysteem gelijk blijft; minder filterupdates en drie exclusieve modi voor alle goederen, mijnbouwgrondstoffen of scheepslading.',
     'release.3_9_24.1': 'Zes instelbare acties in een centrale, compacte sneltoetsbeheerder, met controle op conflicten met de globale sneltoets voor snelle favorieten.',
     'release.3_9_24.2': 'Dezelfde veilige afsluiting via knop, vensterkruisje en sneltoets: onopgeslagen instellingen beschermen, belangrijk achtergrondwerk afronden en mijnbouwcontrolepunten opslaan. Een verbeterd wachtvenster toont de voortgang.',

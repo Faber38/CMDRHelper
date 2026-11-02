@@ -38,6 +38,12 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.9.25
+
+- Ordinary checkboxes and radio buttons gain a thin yellow outline in dark mode (#FFCC33) and a blue outline in light mode (#1565C0). Native check marks and selection dots are preserved.
+- Selection outlines follow theme changes and include newly created controls. Labels, groups and existing special indicators remain unchanged.
+- More reliable Qt tests with complete Chronicle/EDSM/Inara test doubles, controlled worker and widget cleanup, and explicit processing of deferred deletion events.
+
 ## CMDRHelper v3.9.24
 
 - Market lists stay stable without briefly clearing when the reference system is unchanged; fewer filter updates and three exclusive modes for all commodities, mining commodities or ship cargo.

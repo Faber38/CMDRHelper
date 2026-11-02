@@ -34,6 +34,7 @@ class CursorLifetimeTests(unittest.TestCase):
     def remove_policy(self):
         self.app.removeEventFilter(self.policy)
         self.policy.deleteLater()
+        self.app.sendPostedEvents(None, QEvent.DeferredDelete)
 
     def widget(self, cls=QWidget, *args):
         widget = cls(*args)

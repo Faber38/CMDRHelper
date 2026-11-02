@@ -186,8 +186,10 @@ class ScreenshotView(QWidget):
         self.format_combo = QComboBox(); self.format_combo.addItems(["PNG", "JPG"])
         self.format_combo.currentTextChanged.connect(self._save_settings)
         self.auto_check = QCheckBox(tr("images.auto_convert"))
+        self.auto_check.setProperty("preserveSelectionIndicator", True)
         self.auto_check.toggled.connect(self._auto_toggled)
         self.delete_check = QCheckBox(tr("images.delete_bmp"))
+        self.delete_check.setProperty("preserveSelectionIndicator", True)
         self.delete_check.toggled.connect(self._save_settings)
 
         checkbox_style = """

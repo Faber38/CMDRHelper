@@ -38,6 +38,12 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.25
+
+- Tavalliset valintaruudut ja valintanapit saavat ohuen keltaisen reunuksen tummassa tilassa (#FFCC33) ja sinisen vaaleassa tilassa (#1565C0). Alkuperäiset valintamerkit ja valintapisteet säilyvät.
+- Reunukset seuraavat teeman vaihtoja ja kattavat myöhemmin luodut valitsimet. Tekstit, ryhmät ja nykyiset erikoisilmaisimet säilyvät ennallaan.
+- Luotettavammat Qt-testit kattavilla Chronicle-, EDSM- ja Inara-testijäljitelmillä, taustatehtävien ja käyttöliittymäelementtien hallitulla siivouksella sekä lykättyjen poistojen erillisellä käsittelyllä.
+
 ## CMDRHelper v3.9.24
 
 - Markkinalistat pysyvät vakaina tyhjentymättä hetkeksi, kun viitejärjestelmä ei muutu; vähemmän suodatinpäivityksiä ja kolme toisensa poissulkevaa tilaa: kaikki tavarat, kaivosraaka-aineet tai aluksen lasti.

@@ -11,6 +11,13 @@ from tests import test_edsm_commander_settings as settings_tests
 
 
 class TransferTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from PySide6.QtWidgets import QApplication
+        cls.app = QApplication.instance() or QApplication([])
+
+    cleanup_state = settings_tests.EDSMCommanderSettingsTests.cleanup_state
+
     def setUp(self):
         settings_tests.EDSMCommanderSettingsTests.setUp(self)
         for target in ('cmdrhelper.edsm_uploader.urlopen', 'cmdrhelper.online_services.urlopen'):
@@ -22,9 +29,6 @@ class TransferTests(unittest.TestCase):
         self.state.system_bodies = []
         self.state._edsm_receive_generation = 0
         self.state.edsm_receive_enabled = False
-
-    def tearDown(self):
-        self.temp.cleanup()
 
     def journal(self, fid='F-A', name='Journal.A.log', extra=()):
         path = Path(self.temp.name) / name
@@ -49,6 +53,8 @@ class TransferTests(unittest.TestCase):
                 self.state._edsm_request_system = ''
                 with patch('cmdrhelper.state.threading.Thread') as thread, patch(
                     'cmdrhelper.state.load_cached_edsm_bodies', return_value=None):
+                    thread.return_value.is_alive.return_value = False
+                    self.threads.append(thread.return_value)
                     self.state._upload_journal_to_edsm()
                     self.assertEqual(thread.call_count, int(send))
                     self.state._request_edsm_for_current_system()
@@ -57,6 +63,8 @@ class TransferTests(unittest.TestCase):
         self.state._edsm_request_system = ''
         with patch('cmdrhelper.state.threading.Thread') as thread, patch(
                 'cmdrhelper.state.load_cached_edsm_bodies', return_value=None):
+            thread.return_value.is_alive.return_value = False
+            self.threads.append(thread.return_value)
             self.state._upload_journal_to_edsm()
             thread.assert_not_called()
             self.state._request_edsm_for_current_system()
@@ -181,6 +189,8 @@ class TransferTests(unittest.TestCase):
         with patch('cmdrhelper.state.threading.Thread') as thread, patch(
                 'cmdrhelper.state.load_cached_edsm_bodies', return_value=None), patch(
                 'cmdrhelper.state.fetch_edsm_bodies') as fetch:
+            thread.return_value.is_alive.return_value = False
+            self.threads.append(thread.return_value)
             self.state._request_edsm_for_current_system()
             worker = thread.call_args.kwargs['target']
             self.state.commander_fid = 'F-B'

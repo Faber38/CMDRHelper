@@ -1,4 +1,7 @@
 TRANSLATIONS = {
+    'release.3_9_25.0': 'Tavalliset valintaruudut ja valintanapit saavat ohuen keltaisen reunuksen tummassa tilassa (#FFCC33) ja sinisen vaaleassa tilassa (#1565C0). Alkuperäiset valintamerkit ja valintapisteet säilyvät.',
+    'release.3_9_25.1': 'Reunukset seuraavat teeman vaihtoja ja kattavat myöhemmin luodut valitsimet. Tekstit, ryhmät ja nykyiset erikoisilmaisimet säilyvät ennallaan.',
+    'release.3_9_25.2': 'Luotettavammat Qt-testit kattavilla Chronicle-, EDSM- ja Inara-testijäljitelmillä, taustatehtävien ja käyttöliittymäelementtien hallitulla siivouksella sekä lykättyjen poistojen erillisellä käsittelyllä.',
     'release.3_9_24.0': 'Markkinalistat pysyvät vakaina tyhjentymättä hetkeksi, kun viitejärjestelmä ei muutu; vähemmän suodatinpäivityksiä ja kolme toisensa poissulkevaa tilaa: kaikki tavarat, kaivosraaka-aineet tai aluksen lasti.',
     'release.3_9_24.1': 'Kuusi määritettävää toimintoa keskitetyssä ja tiiviissä pikanäppäinhallinnassa, joka tarkistaa ristiriidat yleisen pikasuosikkinäppäimen kanssa.',
     'release.3_9_24.2': 'Yhtenäinen turvallinen sulkeminen painikkeella, ikkunan rastilla tai pikanäppäimellä: tallentamattomien asetusten suojaus, tärkeiden taustatöiden loppuunsaattaminen ja kaivosvarastojen tarkistuspisteiden tallennus. Parannettu odotusikkuna näyttää etenemisen.',

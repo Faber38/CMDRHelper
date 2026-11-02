@@ -23,6 +23,7 @@ from cmdrhelper.ui.material_row_style import THEMES, COLLECTED_ROLE
 from cmdrhelper.ui.odyssey_view import STOCK_TEXT_COLORS
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 from test_material_view import State, StubController
+from material_ui_cleanup import cleanup_material_view
 from test_odyssey_inventory import event, item, snapshot
 
 
@@ -53,7 +54,7 @@ class OdysseyViewTests(unittest.TestCase):
         self.state = SimpleNamespace(settings=QSettings(str(Path(self.tmp.name)/'ui.ini'), QSettings.Format.IniFormat))
         self.controller = StubController()
         self.page = MaterialView(self.state, controller=StubController(), odyssey_controller=self.controller)
-        self.addCleanup(self.page.close)
+        self.addCleanup(cleanup_material_view, self.page)
         self.page.resize(1100, 750)
         self.page.show()
         self.page.tabs.setCurrentIndex(3)
@@ -322,7 +323,7 @@ class OdysseyViewTests(unittest.TestCase):
         self.assertEqual(header.logicalIndex(0), 4)
         settings = QSettings(self.state.settings.fileName(), QSettings.Format.IniFormat)
         restarted = MaterialView(SimpleNamespace(settings=settings), controller=StubController(), odyssey_controller=StubController())
-        self.addCleanup(restarted.close)
+        self.addCleanup(cleanup_material_view, restarted)
         self.assertEqual(restarted.tabs.currentIndex(), 3)
         self.assertEqual(restarted.odyssey.tabs.currentIndex(), 2)
         self.assertEqual(restarted.odyssey.filter.currentData(), 'locker')
@@ -339,7 +340,7 @@ class OdysseyViewTests(unittest.TestCase):
             saved.update(bad)
             self.state.settings.setValue('materials/odyssey/columns', saved)
             restarted = MaterialView(self.state, controller=StubController(), odyssey_controller=StubController())
-            self.addCleanup(restarted.close)
+            self.addCleanup(cleanup_material_view, restarted)
             header = restarted.odyssey.tree.header()
             self.assertEqual([header.sectionSize(i) for i in range(7)], [340,105,105,110,95,220,65])
             self.assertEqual([header.logicalIndex(i) for i in range(7)], [6,0,1,2,3,4,5])
@@ -594,12 +595,13 @@ class OdysseyControllerTests(unittest.TestCase):
 
     def cleanup_worker(self):
         self.controller.timer.stop()
-        self.controller.pool.waitForDone(10000)
+        self.assertTrue(self.controller.pool.waitForDone(10000))
         self.app.processEvents()
         self.controller.timer.stop()
-        self.page.close()
+        self.assertTrue(self.controller.pool.waitForDone(10000))
+        cleanup_material_view(self.page)
         self.controller.deleteLater()
-        self.app.processEvents()
+        self.app.sendPostedEvents(None, QEvent.DeferredDelete)
 
     def wait_until(self, predicate):
         deadline = time.monotonic()+8

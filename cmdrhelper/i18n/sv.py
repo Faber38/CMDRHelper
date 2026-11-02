@@ -1,4 +1,7 @@
 TRANSLATIONS = {
+    'release.3_9_25.0': 'Vanliga kryssrutor och radioknappar får en tunn gul ram i mörkt läge (#FFCC33) och en blå ram i ljust läge (#1565C0). Ursprungliga bockar och valpunkter bevaras.',
+    'release.3_9_25.1': 'Ramarna följer temabyten och omfattar kontroller som skapas senare. Etiketter, grupper och befintliga specialindikatorer förblir oförändrade.',
+    'release.3_9_25.2': 'Tillförlitligare Qt-tester med kompletta testdubblar för Chronicle, EDSM och Inara, kontrollerad städning av bakgrundsuppgifter och widgetar samt uttrycklig hantering av uppskjuten borttagning.',
     'release.3_9_24.0': 'Stabila marknadslistor utan tillfällig tömning när referenssystemet är oförändrat; färre filteruppdateringar och tre ömsesidigt uteslutande lägen för alla varor, gruvråvaror eller skeppslast.',
     'release.3_9_24.1': 'Sex konfigurerbara åtgärder i en central och kompakt hantering av kortkommandon, med konfliktkontroll mot det globala kortkommandot för snabbfavorit.',
     'release.3_9_24.2': 'Samma säkra avslutning via knapp, fönsterkryss och kortkommando: skydda osparade inställningar, slutför viktigt bakgrundsarbete och spara gruvkontrollpunkter. En förbättrad väntedialog visar förloppet.',

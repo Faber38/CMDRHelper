@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
     QTextEdit, QToolButton, QVBoxLayout, QWidget,
 )
 
+from qt_widget_cleanup import destroy_widget
 from cmdrhelper.ui.cursors import install_cursor_policy
 
 
@@ -28,11 +29,11 @@ class CursorTests(unittest.TestCase):
             cls.app.removeEventFilter(cls.policy)
             del cls.app._cmdrhelper_cursor_policy
             cls.policy.deleteLater()
+            cls.app.sendPostedEvents(None, QEvent.DeferredDelete)
 
     def widget(self, cls, *args):
         widget = cls(*args)
-        self.addCleanup(widget.deleteLater)
-        self.addCleanup(widget.close)
+        self.addCleanup(destroy_widget, widget)
         widget.resize(320, 180)
         widget.show()
         self.app.processEvents()

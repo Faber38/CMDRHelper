@@ -274,6 +274,11 @@ QCheckBox::indicator:unchecked, QListWidget#shipCargoList::indicator:unchecked {
     border-radius: 2px;
 }
 
+/* Recolor only the existing unchecked border; retain native checked glyphs. */
+QCheckBox[accentIndicator="true"]::indicator:unchecked {
+    border-color: #FFCC33;
+}
+
 QTableWidget, QTableView#savedMarketTable {
     background: #0a1015;
     alternate-background-color: #0d141a;
@@ -580,6 +585,10 @@ QCheckBox {
 QCheckBox::indicator:unchecked, QListWidget#shipCargoList::indicator:unchecked {
     border: 1px solid #8a949d;
     border-radius: 2px;
+}
+
+QCheckBox[accentIndicator="true"]::indicator:unchecked {
+    border-color: #1565C0;
 }
 
 QTableWidget, QTableView#savedMarketTable {

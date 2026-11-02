@@ -1,12 +1,17 @@
 import os
+import tempfile
 import unittest
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PySide6.QtWidgets import QApplication, QCheckBox, QComboBox, QLabel, QListWidget, QDateEdit
+from PySide6.QtCore import QEvent, QObject, QSettings, QThread
+from PySide6.QtWidgets import QApplication, QCheckBox, QComboBox, QLabel, QListWidget, QDateEdit, QWidget
+from shiboken6 import isValid
 
+from cmdrhelper.exit_tasks import task_gate
 from cmdrhelper.ui.main_window import MainWindow
 
 
@@ -72,15 +77,27 @@ class _SignalStub:
             slot(*args)
 
 
-class _SettingsStub:
-    def value(self, _key, default=None):
-        return default
-
-
 class ChronicleMiningFilterUiTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.app = QApplication.instance() or QApplication([])
+
+    def setUp(self):
+        self.owner = QWidget()
+        self.owner.show()
+        self.addCleanup(self.cleanup_widget, self.owner)
+
+    def cleanup_widget(self, widget):
+        self.assertEqual(QThread.currentThread(), self.app.thread())
+        children = widget.findChildren(QObject)
+        try:
+            self.assertTrue(widget.close())
+        finally:
+            widget.deleteLater()
+            self.app.sendPostedEvents(None, QEvent.DeferredDelete)
+        self.assertFalse(isValid(widget))
+        self.assertTrue(all(not isValid(child) for child in children))
+        self.assertFalse(task_gate().draining)
 
     def test_search_help_runs_the_common_filter_path(self):
         window = SimpleNamespace(_apply_chronicle_filters=Mock())
@@ -97,9 +114,12 @@ class ChronicleMiningFilterUiTests(unittest.TestCase):
             def surface_mining_commodity_options(self, commander_id):
                 return options[commander_id]
 
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        settings = QSettings(str(Path(temp.name) / "settings.ini"), QSettings.IniFormat)
         viewed_signal = _SignalStub()
         state = SimpleNamespace(
-            settings=_SettingsStub(),
+            settings=settings,
             database=DatabaseStub(),
             commander_id=None,
             viewed_commander_id=None,
@@ -111,9 +131,9 @@ class ChronicleMiningFilterUiTests(unittest.TestCase):
         )
 
         def build_ui(window):
-            window.chronicle_mining_commodity_combo = QComboBox()
+            window.chronicle_mining_commodity_combo = QComboBox(window)
             window.chronicle_mining_commodity_combo.addItem("Alle", "")
-            window.chronicle_personally_mined_check = QCheckBox()
+            window.chronicle_personally_mined_check = QCheckBox(window)
             window.chronicle_personally_mined_check.toggled.connect(
                 window._update_chronicle_mining_commodity_enabled
             )
@@ -127,7 +147,8 @@ class ChronicleMiningFilterUiTests(unittest.TestCase):
             patch("cmdrhelper.ui.main_window.QTimer.singleShot"),
         ):
             window = MainWindow(state)
-        self.addCleanup(window.close)
+        settings.setParent(window)
+        self.addCleanup(self.cleanup_widget, window)
 
         window.chronicle_personally_mined_check.setChecked(True)
         self.assertEqual(
@@ -168,11 +189,11 @@ class ChronicleMiningFilterUiTests(unittest.TestCase):
             def search_chronicle(self, *_args, **_kwargs):
                 return [result]
 
-        results = QListWidget()
+        results = QListWidget(self.owner)
         window = SimpleNamespace(
             state=SimpleNamespace(database=DatabaseStub()),
             chronicle_search_results=results,
-            chronicle_status=QLabel(),
+            chronicle_status=QLabel(self.owner),
             chronicle_map=_MapStub(),
             _chronicle_planetary_mining_result_text=(
                 MainWindow._chronicle_planetary_mining_result_text
@@ -201,14 +222,14 @@ class ChronicleMiningFilterUiTests(unittest.TestCase):
         commodity = _ComboStub("copper")
         window = SimpleNamespace(
             chronicle_search_edit=text,
-            chronicle_search_results=QListWidget(),
+            chronicle_search_results=QListWidget(self.owner),
             chronicle_planetary_mining_check=mining,
             chronicle_planetary_mining_minimum=minimum,
             chronicle_personally_mined_check=personal,
             chronicle_mining_commodity_combo=commodity,
             _refresh_chronicle=Mock(),
-            chronicle_from_check=QCheckBox(), chronicle_to_check=QCheckBox(),
-            chronicle_from_date=QDateEdit(), chronicle_to_date=QDateEdit(),
+            chronicle_from_check=QCheckBox(self.owner), chronicle_to_check=QCheckBox(self.owner),
+            chronicle_from_date=QDateEdit(self.owner), chronicle_to_date=QDateEdit(self.owner),
         )
         MainWindow._reset_chronicle_search(window)
         self.assertEqual(text.text(), "")
@@ -229,8 +250,8 @@ class ChronicleMiningFilterUiTests(unittest.TestCase):
                 return options[commander_id]
 
         state = SimpleNamespace(database=DatabaseStub(), viewed_commander_id=1)
-        combo = QComboBox()
-        personal = QCheckBox()
+        combo = QComboBox(self.owner)
+        personal = QCheckBox(self.owner)
         window = SimpleNamespace(
             state=state,
             chronicle_mining_commodity_combo=combo,
@@ -251,9 +272,9 @@ class ChronicleMiningFilterUiTests(unittest.TestCase):
         )
 
     def test_commodity_selection_requires_personal_filter_and_known_options(self):
-        combo = QComboBox()
+        combo = QComboBox(self.owner)
         combo.addItem("Alle", "")
-        personal = QCheckBox()
+        personal = QCheckBox(self.owner)
         window = SimpleNamespace(
             chronicle_mining_commodity_combo=combo,
             chronicle_personally_mined_check=personal,

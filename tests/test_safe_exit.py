@@ -21,6 +21,7 @@ from cmdrhelper.exit_tasks import submit, task_gate, start_thread
 from cmdrhelper.global_hotkey import GlobalHotkey
 from cmdrhelper.shortcuts import ShortcutManager
 from cmdrhelper.i18n import _TRANSLATIONS, get_language, set_language
+from qt_widget_cleanup import destroy_widget
 
 
 class Signals(QObject):
@@ -77,8 +78,7 @@ class SafeExitTests(unittest.TestCase):
             c.cancel()
             self.wait(lambda:c.phase == 'idle')
         self.hotkey.close()
-        self.w.hide(); self.w.deleteLater()
-        self.app.processEvents()
+        destroy_widget(self.w, close=False)
         self.gate.resume()
         self.tmp.cleanup()
 
@@ -100,7 +100,7 @@ class SafeExitTests(unittest.TestCase):
         layout.addRow(self.w.ui_language_combo)
         self.w.ui_font_combo=QFontComboBox();layout.addRow(self.w.ui_font_combo)
         self.w.ui_font_size_spin=QSpinBox();self.w.ui_font_size_spin.setValue(12);layout.addRow(self.w.ui_font_size_spin)
-        self.w.ui_font_status=QLabel();self.w.ui_language_status=QLabel()
+        self.w.ui_font_status=QLabel(self.w);self.w.ui_language_status=QLabel(self.w)
         self.w._edsm_system_status=Mock()
         self.w._load_selected_edsm_settings=Mock();self.w._load_selected_inara_settings=Mock()
         self.w.state.refresh=Mock()

@@ -1,4 +1,7 @@
 TRANSLATIONS = {
+    'release.3_9_25.0': 'Ordinary checkboxes and radio buttons gain a thin yellow outline in dark mode (#FFCC33) and a blue outline in light mode (#1565C0). Native check marks and selection dots are preserved.',
+    'release.3_9_25.1': 'Selection outlines follow theme changes and include newly created controls. Labels, groups and existing special indicators remain unchanged.',
+    'release.3_9_25.2': 'More reliable Qt tests with complete Chronicle/EDSM/Inara test doubles, controlled worker and widget cleanup, and explicit processing of deferred deletion events.',
     'release.3_9_24.0': 'Market lists stay stable without briefly clearing when the reference system is unchanged; fewer filter updates and three exclusive modes for all commodities, mining commodities or ship cargo.',
     'release.3_9_24.1': 'Six configurable actions in a central, compact keyboard shortcut manager, with conflict checks against the global quick-favorite shortcut.',
     'release.3_9_24.2': 'Consistent safe exit through the button, window close control or shortcut: protect unsaved settings, finish important background work and save mining checkpoints. An improved waiting dialog shows progress.',

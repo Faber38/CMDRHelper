@@ -5,14 +5,23 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from PySide6.QtCore import QObject, QSettings
+from PySide6.QtCore import QEvent, QObject, QSettings, QThread
+from PySide6.QtWidgets import QApplication
+from shiboken6 import isValid
 
+from cmdrhelper.exit_tasks import task_gate
 from cmdrhelper.state import AppState
 
 
 class EDSMCommanderSettingsTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
     def setUp(self):
+        self.threads = []
         self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
         self.settings = QSettings(
             str(Path(self.temp.name) / "settings.ini"), QSettings.IniFormat
         )
@@ -32,9 +41,21 @@ class EDSMCommanderSettingsTests(unittest.TestCase):
         self.state.edsm_enabled = False
         self.state.edsm_api_key = ""
         self.state.edsm_commander = ""
+        self.addCleanup(self.cleanup_state)
 
-    def tearDown(self):
-        self.temp.cleanup()
+    def cleanup_state(self):
+        self.assertEqual(QThread.currentThread(), self.app.thread())
+        self.assertTrue(all(not thread.is_alive() for thread in self.threads))
+        gate = task_gate()
+        self.assertFalse(gate.draining)
+        # Remove only this fixture's completed workers, never reset the gate.
+        gate.threads[:] = [thread for thread in gate.threads if thread not in self.threads]
+        self.settings.sync()
+        self.state.deleteLater()
+        self.settings.deleteLater()
+        self.app.sendPostedEvents(None, QEvent.DeferredDelete)
+        self.assertFalse(isValid(self.state))
+        self.assertFalse(isValid(self.settings))
 
     def test_distinct_configuration_and_view_selection_is_irrelevant(self):
         self.state.set_edsm_settings("Alpha", "KEY-A", True, fid="F-A")
@@ -93,13 +114,30 @@ class EDSMCommanderSettingsTests(unittest.TestCase):
         self.state.set_edsm_settings("Bravo", "KEY-B", True, fid="F-B")
         workers = []
         uploads = []
+        threads = self.threads
 
         class ThreadStub:
             def __init__(self, target, **_kwargs):
                 self.target = target
+                self.started = False
+                self.alive = False
+                threads.append(self)
 
             def start(self):
-                workers.append(self.target)
+                if self.started:
+                    raise RuntimeError("threads can only be started once")
+                self.started = self.alive = True
+                workers.append(self.run)
+
+            def is_alive(self):
+                return self.alive
+
+            def run(self):
+                try:
+                    self.target()
+                finally:
+                    self.alive = False
+                    self.target = None
 
         def process(uploader, _folder):
             if not uploader._still_current():
@@ -111,17 +149,28 @@ class EDSMCommanderSettingsTests(unittest.TestCase):
         with patch("cmdrhelper.state.threading.Thread", ThreadStub), patch(
             "cmdrhelper.state.EDSMJournalUploader.process_folder", process
         ):
-            self.state._upload_journal_to_edsm()
-            self.state._invalidate_edsm_worker()
-            self.state.commander_id = 2
-            self.state.commander_fid = "F-B"
-            self.state.commander = "Bravo"
-            self.state._load_live_edsm_settings()
-            self.state.viewed_commander_id = 1
-            self.state._upload_journal_to_edsm()
-            self.assertEqual(len(workers), 2)
-            workers[1]()
-            workers[0]()
+            try:
+                self.state._upload_journal_to_edsm()
+                self.state._invalidate_edsm_worker()
+                self.state.commander_id = 2
+                self.state.commander_fid = "F-B"
+                self.state.commander = "Bravo"
+                self.state._load_live_edsm_settings()
+                self.state.viewed_commander_id = 1
+                self.state._upload_journal_to_edsm()
+                self.assertEqual(len(workers), 2)
+                self.assertTrue(all(thread.is_alive() for thread in threads))
+                self.assertTrue(all(thread in task_gate().threads for thread in threads))
+                workers[1]()
+                self.assertTrue(threads[0].is_alive())
+                self.assertFalse(threads[1].is_alive())
+                workers[0]()
+                self.assertTrue(all(not thread.is_alive() for thread in threads))
+            finally:
+                # Finish while the synthetic uploader is still patched, even on failure.
+                for thread in threads:
+                    if thread.is_alive():
+                        thread.run()
 
         self.assertEqual(uploads, [("F-B", "Bravo", "KEY-B")])
         self.assertEqual(self.state.edsm_upload_status, 'ok')

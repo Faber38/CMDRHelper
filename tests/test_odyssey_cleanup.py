@@ -19,6 +19,7 @@ from cmdrhelper.ui.odyssey_view import CLEANUP_COLORS, CLEANUP_ROLE
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 import test_odyssey_view as views
 from test_odyssey_inventory import item, snapshot
+from qt_widget_cleanup import destroy_widget
 
 
 class CleanupDialogTests(unittest.TestCase):
@@ -36,8 +37,7 @@ class CleanupDialogTests(unittest.TestCase):
 
     def dialog(self, selected=cleanup.DEFAULT_SYMBOLS):
         dialog = cleanup.OdysseyCleanupDialog(selected)
-        self.addCleanup(dialog.deleteLater)
-        self.addCleanup(dialog.close)
+        self.addCleanup(destroy_widget, dialog)
         return dialog
 
     def test_default_list_is_exactly_50_data_and_31_goods(self):

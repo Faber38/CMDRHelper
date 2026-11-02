@@ -1,4 +1,7 @@
 TRANSLATIONS = {
+    'release.3_9_25.0': 'Les cases à cocher et boutons radio ordinaires reçoivent un fin contour jaune en mode sombre (#FFCC33) et bleu en mode clair (#1565C0). Les coches et points de sélection natifs sont conservés.',
+    'release.3_9_25.1': 'Les contours suivent les changements de thème et prennent en compte les nouveaux contrôles. Les libellés, groupes et indicateurs spéciaux existants restent inchangés.',
+    'release.3_9_25.2': 'Tests Qt plus fiables grâce à des doublures de test complètes pour Chronicle, EDSM et Inara, au nettoyage contrôlé des tâches et widgets et au traitement explicite des suppressions différées.',
     'release.3_9_24.0': 'Les listes de marchés restent stables sans se vider brièvement si le système de référence ne change pas ; moins d’actualisations des filtres et trois modes exclusifs : toutes les marchandises, ressources minières ou cargaison du vaisseau.',
     'release.3_9_24.1': 'Six actions configurables dans une gestion centralisée et compacte des raccourcis, avec détection des conflits avec le raccourci global de favori rapide.',
     'release.3_9_24.2': 'Fermeture sécurisée identique par bouton, croix de fenêtre ou raccourci : protection des réglages non enregistrés, fin des tâches importantes en arrière-plan et sauvegarde des points de contrôle miniers. Le dialogue d’attente amélioré indique la progression.',

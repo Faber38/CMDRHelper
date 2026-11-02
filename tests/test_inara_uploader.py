@@ -240,13 +240,30 @@ class InaraCommanderSettingsTests(unittest.TestCase):
                 self.updates.append((list(sent_ids), dict(errors or {})))
 
         queued_workers = []
+        threads = []
 
         class ThreadStub:
             def __init__(self, target, **_kwargs):
                 self.target = target
+                self.alive = False
+                self.started = False
+                threads.append(self)
 
             def start(self):
-                queued_workers.append(self.target)
+                if self.started:
+                    raise RuntimeError("threads can only be started once")
+                self.started = self.alive = True
+                queued_workers.append(self.run)
+
+            def is_alive(self):
+                return self.alive
+
+            def run(self):
+                try:
+                    self.target()
+                finally:
+                    self.alive = False
+                    self.target = None
 
         self.state.database = DatabaseStub()
         self.state.set_inara_settings("Alpha", "KEY-A", True, fid="F-A")
@@ -260,18 +277,28 @@ class InaraCommanderSettingsTests(unittest.TestCase):
         with patch("cmdrhelper.state.threading.Thread", ThreadStub), patch(
             "cmdrhelper.state.upload_batch", side_effect=uploader
         ):
-            self.state._upload_pending_to_inara()
-            self.state._invalidate_inara_worker()
-            self.state.commander_id = 2
-            self.state.commander_fid = "F-B"
-            self.state.commander = "Bravo"
-            self.state._load_live_inara_settings()
-            self.state.viewed_commander_id = 1
-            self.state._upload_pending_to_inara()
+            try:
+                self.state._upload_pending_to_inara()
+                self.state._invalidate_inara_worker()
+                self.state.commander_id = 2
+                self.state.commander_fid = "F-B"
+                self.state.commander = "Bravo"
+                self.state._load_live_inara_settings()
+                self.state.viewed_commander_id = 1
+                self.state._upload_pending_to_inara()
 
-            self.assertEqual(len(queued_workers), 2)
-            queued_workers[1]()
-            queued_workers[0]()
+                self.assertEqual(len(queued_workers), 2)
+                queued_workers[1]()
+                queued_workers[0]()
+                self.assertTrue(all(not thread.is_alive() for thread in threads))
+            finally:
+                self.state._invalidate_inara_worker()
+                for thread in threads:
+                    if thread.is_alive():
+                        thread.run()
+                from cmdrhelper.exit_tasks import task_gate
+                gate = task_gate()
+                gate.threads[:] = [thread for thread in gate.threads if thread not in threads]
 
         self.assertEqual(calls, [("KEY-B", "Bravo", "F-B", [22])])
         self.assertEqual(self.state.database.updates, [([22], {})])
