@@ -143,6 +143,42 @@ class MiningInventoryTests(unittest.TestCase):
 
 
 class MiningReaderTests(unittest.TestCase):
+    def test_unresolved_equal_count_has_same_stale_status_live_and_replay(self):
+        for vessel in ("Ship", "SRV"):
+            with self.subTest(vessel=vessel):
+                self.write([cargo(monazite=20), dict(event="LaunchSRV", ID=52),
+                            cargo("SRV", monazite=20),
+                            dict(event="Cargo", Vessel=vessel, Count=20)])
+                results = [MiningInventoryReader().reconstruct(
+                    1, "F1", self.sessions, live_path=path)
+                    for path in (self.path, None)]
+                for result in results:
+                    self.assertIsNone(result.ship if vessel == "Ship" else result.srv)
+                    self.assertEqual(result.srv if vessel == "Ship" else result.ship,
+                                     {"monazite": 20})
+                    self.assertEqual(result.vehicle_records[vessel]["quality"], "stale")
+                    self.assertEqual(result.vehicle_records[vessel]["last_confirmed"],
+                                     {"monazite": 20})
+                self.assertEqual(results[0].vehicle_records, results[1].vehicle_records)
+                self.assertTrue(results[0].cargo_pending)
+                self.assertFalse(results[1].cargo_pending)  # No historical sidecar retries.
+
+    def test_late_same_total_different_composition_requires_verified_snapshot(self):
+        trigger = dict(event="Cargo", Vessel="Ship", Count=20)
+        self.write([cargo(monazite=20), trigger])
+        pending = MiningInventoryReader().reconstruct(1, "F1", self.sessions)
+        self.assertIsNone(pending.ship)
+        self.sidecar.write_text(json.dumps({**trigger, "Inventory": [dict(Name="gold", Count=20)]}))
+        confirmed = MiningInventoryReader().reconstruct(1, "F1", self.sessions, live_path=self.path,
+                                                       checkpoints=pending.checkpoints)
+        self.assertEqual(confirmed.ship, {"gold": 20})
+        self.assertEqual(confirmed.displayed_stock("Ship", "monazite"), (0, "confirmed"))
+        self.sidecar.unlink()
+        restored = MiningInventoryReader().reconstruct(1, "F1", self.sessions,
+                                                      checkpoints=confirmed.checkpoints)
+        self.assertEqual(restored.ship, confirmed.ship)
+        self.assertEqual(restored.vehicle_records, confirmed.vehicle_records)
+
     def test_pending_sidecar_never_checkpointed_and_later_snapshot_recovers(self):
         reader=MiningInventoryReader()
         old=dict(cargo(gold=1),timestamp='2026-09-12T12:00:02Z')

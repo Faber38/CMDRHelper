@@ -4,6 +4,7 @@ No executor is replaced. Completion stays queued behind the worker's result
 signals, so an idle thread alone never counts as an applied result.
 """
 import threading
+import time
 from weakref import WeakSet
 from shiboken6 import isValid
 from PySide6.QtCore import QObject, Signal, Slot, QRunnable, QThreadPool, Qt
@@ -18,14 +19,19 @@ class _Tracked(QRunnable):
     def __init__(self, task, token, signals):
         super().__init__()
         self.task, self.token, self.signals = task, token, signals
+        # Diagnostic timestamps only; completion still follows queued signals.
+        self.submitted_at = time.monotonic()
+        self.started_at = self.finished_at = None
 
     def run(self):
+        self.started_at = time.monotonic()
         try:
             self.task.run()
         except Exception:
             self.task._exit_failed = True
             raise
         finally:
+            self.finished_at = time.monotonic()
             self.signals.ready.emit(self.token)
 
 

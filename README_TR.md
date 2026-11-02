@@ -39,6 +39,14 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.26
+
+- Onay kutuları ve radyo düğmeleri yerel Windows Qt stillerinde de nettir: koyu modda sarı, açık modda mavi kenarlıklar ve belirgin seçili radyo düğmeleri.
+- Mining, canlı verileri ve geçmiş günlükleri tutarlı biçimde değerlendirir. Rhino içinde yeniden başlatma sonrasında eski gemi envanterleri son bilinen olarak işaretli kalır; kısa bir açıklama on iki dilde stok renklerini açıklar.
+- Başarılı gemi değişiminde geçerli yük, işlenmiş filo taşıyıcısı transferleri dahil, yeni gemiye aktarılır. Yeni ve tam Cargo kayıtları envanteri yeniden doğrular; bilinmeyen envanterler bilinmeyen olarak kalır.
+- Tanı ZIP dosyaları kapanış aşamasını, bekleyen arka plan görevlerini ve pazar yazma durumlarını gizliliği koruyan hata kodlarıyla içerir. Kapanış beklenirken dışa aktarım kullanılabilir; tekrarlanan aktarımlar yeniden başlatma hatırlatması gösterir.
+- Başarısız pazar işleri ve süresi dolmuş pazar kayıtları kapanışı artık süresiz engellemez. Devam eden yazmalar tamamlanır; önemli ayarlar ve Mining kontrol noktaları korunur.
+
 ## CMDRHelper v3.9.25
 
 - Normal onay kutuları ve radyo düğmeleri koyu modda ince sarı (#FFCC33), açık modda mavi (#1565C0) bir çerçeve alır. Yerel onay işaretleri ve seçim noktaları korunur.

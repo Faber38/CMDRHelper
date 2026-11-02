@@ -38,6 +38,14 @@ Der Journalordner von Elite Dangerous wird nach Möglichkeit automatisch erkannt
 
 CMDRHelper prüft beim Start auf Updates und besitzt einen integrierten Updater. Bestätige ein angebotenes Update im Programm; es aktualisiert Programm und Abhängigkeiten und startet CMDRHelper neu. Nach der Erstinstallation genügt normalerweise `start.bat` (Windows) beziehungsweise `bash start.sh` (Linux). Für normale Updates musst du `install.bat` oder `install.sh` nicht erneut manuell ausführen.
 
+## CMDRHelper v3.9.26
+
+- Checkboxen und Radio-Buttons sind auch mit nativen Windows-Qt-Stilen klar erkennbar: gelbe Rahmen im Dark-Mode, blaue im Light-Mode und deutlich sichtbare Auswahlpunkte.
+- Mining bewertet Live-Daten und historische Journale einheitlich. Nach einem Rhino-Neustart bleiben ältere Schiffsbestände als zuletzt bekannt gekennzeichnet; eine kompakte Legende erklärt die Bestandsfarben in zwölf Sprachen.
+- Beim erfolgreichen Schiffswechsel wird gültige Fracht einschließlich bereits verarbeiteter Carrier-Transfers auf das neue Schiff fortgeschrieben. Neue vollständige Cargo-Snapshots bestätigen den Bestand erneut; unbekannte Bestände bleiben unbekannt.
+- Diagnose-ZIPs erfassen Beenden-Phase, offene Hintergrundaufgaben und Marktwriterzustände mit datenschutzgerechten Fehlercodes. Der Export bleibt beim Warten auf das Beenden erreichbar; wiederholte Exporte zeigen einen Neustart-Hinweis.
+- Fehlgeschlagene Marktaufträge und abgelaufene Markterfassungen blockieren das Beenden nicht dauerhaft. Laufende Schreibarbeiten werden abgeschlossen; wichtige Einstellungen und Mining-Checkpoints bleiben geschützt.
+
 ## CMDRHelper v3.9.25
 
 - Normale Checkboxen und Radio-Buttons erhalten einen dünnen gelben Rahmen im Dark-Mode (#FFCC33) und einen blauen im Light-Mode (#1565C0). Native Häkchen und Auswahlpunkte bleiben erhalten.

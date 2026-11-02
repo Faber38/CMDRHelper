@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_26.0': 'Pola wyboru i przyciski radiowe są czytelne także w natywnych stylach Qt Windows: żółte obramowania w trybie ciemnym, niebieskie w jasnym i wyraźnie widoczne zaznaczenie przycisków radiowych.',
+    'release.3_9_26.1': 'Mining jednolicie ocenia dane bieżące i historyczne dzienniki. Po restarcie w Rhino starsze stany ładowni pozostają oznaczone jako ostatnio znane; zwarta legenda objaśnia kolory w dwunastu językach.',
+    'release.3_9_26.2': 'Udana zmiana statku przenosi prawidłowy stan ładunku, z uwzględnieniem przetworzonych transferów z lotniskowcem. Nowe pełne migawki Cargo ponownie potwierdzają stan; nieznane stany pozostają nieznane.',
+    'release.3_9_26.3': 'Archiwa diagnostyczne ZIP zawierają fazę zamykania, oczekujące zadania i stan zapisu danych rynkowych z kodami błędów chroniącymi prywatność. Eksport działa podczas oczekiwania na zamknięcie; ponowny eksport przypomina o restarcie.',
+    'release.3_9_26.4': 'Nieudane zadania rynkowe i wygasłe odczyty nie blokują już zamykania bez końca. Trwające zapisy są kończone; ważne ustawienia i punkty kontrolne Mining pozostają chronione.',
+
     'release.3_9_25.0': 'Zwykłe pola wyboru i przyciski opcji otrzymują cienką żółtą ramkę w trybie ciemnym (#FFCC33) i niebieską w trybie jasnym (#1565C0). Natywne znaczniki i kropki wyboru zostają zachowane.',
     'release.3_9_25.1': 'Ramki reagują na zmianę motywu i obejmują nowo tworzone kontrolki. Etykiety, grupy i istniejące wskaźniki specjalne pozostają bez zmian.',
     'release.3_9_25.2': 'Bardziej niezawodne testy Qt dzięki kompletnym atrapom Chronicle, EDSM i Inara, kontrolowanemu sprzątaniu zadań i widżetów oraz jawnemu przetwarzaniu odroczonych usunięć.',
@@ -448,6 +454,7 @@ TRANSLATIONS = {
     'diagnostics.unavailable': 'Plik logu jeszcze nie istnieje lub nie można go otworzyć.',
     'diagnostics.failed': 'Nie udało się utworzyć pakietu diagnostycznego. Wybierz lokalizację z prawem zapisu i nazwę pliku zakończoną na .zip.',
     'diagnostics.saved': 'Zapisano pakiet diagnostyczny:\n{path}',
+    'diagnostics.restart_required': 'CMDRHelper nie został ponownie uruchomiony od czasu ostatniego raportu diagnostycznego. Zamknij całkowicie CMDRHelper, uruchom program ponownie, a następnie utwórz nowy plik ZIP z diagnostyką.',
     'diagnostics.summary': 'Wersja: {version}\nPlatforma: {platform}\nPliki logów: {count}\nOkres logów: {period}\nNie zawiera dzienników Elite ani bazy danych CMDRHelper.\nOstatnie ostrzeżenia/błędy:\n{warnings}\n',
 
     "favorites.export_selection.all": "Eksportuj wszystkie ulubione",
@@ -562,6 +569,10 @@ TRANSLATIONS = {
     "mining.ship": "Statek",
     "mining.carrier": "Lotniskowiec",
     "mining.total": "Łącznie",
+    "mining.legend_confirmed": "Potwierdzony",
+    "mining.legend_last_known": "Ostatnio znany",
+    "mining.legend_unknown": "Nieznany",
+    "mining.legend_inconsistent": "Sprzeczny",
     "mining.stock_confirmed": "Aktualnie potwierdzony",
     "mining.stock_tracked": "Wiarygodnie zaktualizowany na podstawie potwierdzonego stanu",
     "mining.stock_stale": "Ostatni znany stan, może być nieaktualny. Nie jest uwzględniany w sumach.",

@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_26.0': 'Les cases à cocher et boutons radio restent lisibles avec les styles Qt natifs de Windows : bordures jaunes en mode sombre, bleues en mode clair et sélection radio bien visible.',
+    'release.3_9_26.1': 'Mining évalue uniformément les données en direct et les journaux historiques. Après un redémarrage dans le Rhino, les anciens stocks du vaisseau restent indiqués comme derniers stocks connus ; une légende compacte explique les couleurs en douze langues.',
+    'release.3_9_26.2': 'Lors d’un changement de vaisseau réussi, la cargaison valide, transferts avec le porte-vaisseaux déjà traités compris, est reportée sur le nouveau vaisseau. Un nouvel instantané Cargo complet confirme le stock ; les stocks inconnus restent inconnus.',
+    'release.3_9_26.3': 'Les ZIP de diagnostic incluent la phase de fermeture, les tâches en attente et l’état des écritures du marché avec des codes respectueux de la confidentialité. L’export reste accessible pendant la fermeture ; les exports répétés rappellent de redémarrer.',
+    'release.3_9_26.4': 'Les tâches de marché échouées et les captures expirées ne bloquent plus indéfiniment la fermeture. Les écritures en cours se terminent ; les paramètres importants et les points de contrôle Mining restent protégés.',
+
     'release.3_9_25.0': 'Les cases à cocher et boutons radio ordinaires reçoivent un fin contour jaune en mode sombre (#FFCC33) et bleu en mode clair (#1565C0). Les coches et points de sélection natifs sont conservés.',
     'release.3_9_25.1': 'Les contours suivent les changements de thème et prennent en compte les nouveaux contrôles. Les libellés, groupes et indicateurs spéciaux existants restent inchangés.',
     'release.3_9_25.2': 'Tests Qt plus fiables grâce à des doublures de test complètes pour Chronicle, EDSM et Inara, au nettoyage contrôlé des tâches et widgets et au traitement explicite des suppressions différées.',
@@ -448,6 +454,7 @@ TRANSLATIONS = {
     'diagnostics.unavailable': 'Le journal technique n’existe pas encore ou n’a pas pu être ouvert.',
     'diagnostics.failed': 'Impossible de créer le paquet de diagnostic. Choisissez un emplacement accessible en écriture et un nom se terminant par .zip.',
     'diagnostics.saved': 'Paquet de diagnostic enregistré :\n{path}',
+    'diagnostics.restart_required': 'CMDRHelper n’a pas été redémarré depuis le dernier rapport de diagnostic. Veuillez quitter complètement CMDRHelper, relancer le programme, puis créer un nouveau ZIP de diagnostic.',
     'diagnostics.summary': 'Version: {version}\nPlateforme: {platform}\nJournaux techniques: {count}\nPériode des journaux: {period}\nAucun journal Elite ni base de données CMDRHelper inclus.\nAvertissements/erreurs récents:\n{warnings}\n',
 
     "favorites.export_selection.all": "Exporter tous les favoris",
@@ -562,6 +569,10 @@ TRANSLATIONS = {
     "mining.ship": "Vaisseau",
     "mining.carrier": "Porte-vaisseaux",
     "mining.total": "Total",
+    "mining.legend_confirmed": "Confirmé",
+    "mining.legend_last_known": "Dernier état connu",
+    "mining.legend_unknown": "Inconnu",
+    "mining.legend_inconsistent": "Incohérent",
     "mining.stock_confirmed": "Actuellement confirmé",
     "mining.stock_tracked": "Suivi fiable à partir du stock confirmé",
     "mining.stock_stale": "Dernière valeur connue, peut-être périmée. Exclue des totaux.",

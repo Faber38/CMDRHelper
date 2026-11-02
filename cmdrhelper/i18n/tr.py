@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_26.0': 'Onay kutuları ve radyo düğmeleri yerel Windows Qt stillerinde de nettir: koyu modda sarı, açık modda mavi kenarlıklar ve belirgin seçili radyo düğmeleri.',
+    'release.3_9_26.1': 'Mining, canlı verileri ve geçmiş günlükleri tutarlı biçimde değerlendirir. Rhino içinde yeniden başlatma sonrasında eski gemi envanterleri son bilinen olarak işaretli kalır; kısa bir açıklama on iki dilde stok renklerini açıklar.',
+    'release.3_9_26.2': 'Başarılı gemi değişiminde geçerli yük, işlenmiş filo taşıyıcısı transferleri dahil, yeni gemiye aktarılır. Yeni ve tam Cargo kayıtları envanteri yeniden doğrular; bilinmeyen envanterler bilinmeyen olarak kalır.',
+    'release.3_9_26.3': 'Tanı ZIP dosyaları kapanış aşamasını, bekleyen arka plan görevlerini ve pazar yazma durumlarını gizliliği koruyan hata kodlarıyla içerir. Kapanış beklenirken dışa aktarım kullanılabilir; tekrarlanan aktarımlar yeniden başlatma hatırlatması gösterir.',
+    'release.3_9_26.4': 'Başarısız pazar işleri ve süresi dolmuş pazar kayıtları kapanışı artık süresiz engellemez. Devam eden yazmalar tamamlanır; önemli ayarlar ve Mining kontrol noktaları korunur.',
+
     'release.3_9_25.0': 'Normal onay kutuları ve radyo düğmeleri koyu modda ince sarı (#FFCC33), açık modda mavi (#1565C0) bir çerçeve alır. Yerel onay işaretleri ve seçim noktaları korunur.',
     'release.3_9_25.1': 'Çerçeveler tema değişikliklerini izler ve yeni oluşturulan seçim alanlarını da kapsar. Etiketler, gruplar ve mevcut özel göstergeler değişmez.',
     'release.3_9_25.2': 'Eksiksiz Chronicle, EDSM ve Inara test taklitleri, arka plan görevleri ile bileşenlerin kontrollü temizliği ve ertelenmiş silme olaylarının açıkça işlenmesi sayesinde daha güvenilir Qt testleri.',
@@ -448,6 +454,7 @@ TRANSLATIONS = {
     'diagnostics.unavailable': 'Günlük dosyası henüz yok veya açılamadı.',
     'diagnostics.failed': 'Tanılama paketi oluşturulamadı. Yazılabilir bir konum ve .zip ile biten bir dosya adı seçin.',
     'diagnostics.saved': 'Tanılama paketi kaydedildi:\n{path}',
+    'diagnostics.restart_required': 'CMDRHelper son tanılama raporundan bu yana yeniden başlatılmadı. Lütfen CMDRHelper uygulamasını tamamen kapatın, programı yeniden başlatın ve ardından yeni bir tanılama ZIP dosyası oluşturun.',
     'diagnostics.summary': 'Sürüm: {version}\nPlatform: {platform}\nGünlük dosyaları: {count}\nGünlük dönemi: {period}\nElite Journal dosyaları veya CMDRHelper veritabanı içermez.\nSon uyarılar/hatalar:\n{warnings}\n',
 
     "favorites.export_selection.all": "Tüm favorileri dışa aktar",
@@ -562,6 +569,10 @@ TRANSLATIONS = {
     "mining.ship": "Gemi",
     "mining.carrier": "Filo taşıyıcısı",
     "mining.total": "Toplam",
+    "mining.legend_confirmed": "Doğrulandı",
+    "mining.legend_last_known": "Son bilinen",
+    "mining.legend_unknown": "Bilinmiyor",
+    "mining.legend_inconsistent": "Tutarsız",
     "mining.stock_confirmed": "Güncel olarak doğrulandı",
     "mining.stock_tracked": "Doğrulanmış stoktan güvenilir şekilde güncellendi",
     "mining.stock_stale": "Son bilinen, güncelliğini yitirmiş olabilir. Toplamlara dahil edilmez.",

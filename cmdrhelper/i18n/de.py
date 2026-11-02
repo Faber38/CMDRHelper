@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_26.0': 'Checkboxen und Radio-Buttons sind auch mit nativen Windows-Qt-Stilen klar erkennbar: gelbe Rahmen im Dark-Mode, blaue im Light-Mode und deutlich sichtbare Auswahlpunkte.',
+    'release.3_9_26.1': 'Mining bewertet Live-Daten und historische Journale einheitlich. Nach einem Rhino-Neustart bleiben ältere Schiffsbestände als zuletzt bekannt gekennzeichnet; eine kompakte Legende erklärt die Bestandsfarben in zwölf Sprachen.',
+    'release.3_9_26.2': 'Beim erfolgreichen Schiffswechsel wird gültige Fracht einschließlich bereits verarbeiteter Carrier-Transfers auf das neue Schiff fortgeschrieben. Neue vollständige Cargo-Snapshots bestätigen den Bestand erneut; unbekannte Bestände bleiben unbekannt.',
+    'release.3_9_26.3': 'Diagnose-ZIPs erfassen Beenden-Phase, offene Hintergrundaufgaben und Marktwriterzustände mit datenschutzgerechten Fehlercodes. Der Export bleibt beim Warten auf das Beenden erreichbar; wiederholte Exporte zeigen einen Neustart-Hinweis.',
+    'release.3_9_26.4': 'Fehlgeschlagene Marktaufträge und abgelaufene Markterfassungen blockieren das Beenden nicht dauerhaft. Laufende Schreibarbeiten werden abgeschlossen; wichtige Einstellungen und Mining-Checkpoints bleiben geschützt.',
+
     'release.3_9_25.0': 'Normale Checkboxen und Radio-Buttons erhalten einen dünnen gelben Rahmen im Dark-Mode (#FFCC33) und einen blauen im Light-Mode (#1565C0). Native Häkchen und Auswahlpunkte bleiben erhalten.',
     'release.3_9_25.1': 'Die Auswahlrahmen folgen Themewechseln und berücksichtigen neu erzeugte Auswahlfelder. Beschriftungen, Gruppen und bestehende Sonderindikatoren bleiben unverändert.',
     'release.3_9_25.2': 'Zuverlässigere Qt-Tests durch vollständige Chronicle-/EDSM-/Inara-Testattrappen, kontrollierte Worker- und Widgetbereinigung sowie gezielte Verarbeitung ausstehender Löschereignisse.',
@@ -448,6 +454,7 @@ TRANSLATIONS = {
     'diagnostics.unavailable': 'Die Logdatei ist noch nicht vorhanden oder konnte nicht geöffnet werden.',
     'diagnostics.failed': 'Das Diagnosepaket konnte nicht erstellt werden. Bitte einen beschreibbaren Speicherort und einen Dateinamen mit .zip wählen.',
     'diagnostics.saved': 'Diagnosepaket gespeichert:\n{path}',
+    'diagnostics.restart_required': 'CMDRHelper wurde seit dem letzten Diagnosebericht nicht neu gestartet. Bitte beenden Sie CMDRHelper vollständig, starten Sie das Programm erneut und erstellen Sie anschließend ein neues Diagnose-ZIP.',
     'diagnostics.summary': 'Version: {version}\nPlattform: {platform}\nLogdateien: {count}\nLogzeitraum: {period}\nKeine Elite-Journaldateien und keine CMDRHelper-Datenbank enthalten.\nLetzte Warnungen/Fehler:\n{warnings}\n',
 
     "favorites.export_selection.all": "Alle Favoriten exportieren",
@@ -562,6 +569,10 @@ TRANSLATIONS = {
     "mining.ship": "Schiff",
     "mining.carrier": "Carrier",
     "mining.total": "Gesamt",
+    "mining.legend_confirmed": "Bestätigt",
+    "mining.legend_last_known": "Zuletzt bekannt",
+    "mining.legend_unknown": "Unbekannt",
+    "mining.legend_inconsistent": "Widersprüchlich",
     "mining.stock_confirmed": "Aktuell bestätigt",
     "mining.stock_tracked": "Aus bestätigtem Bestand zuverlässig fortgeschrieben",
     "mining.stock_stale": "Zuletzt bekannt, möglicherweise veraltet. Nicht in Summen enthalten.",

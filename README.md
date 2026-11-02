@@ -38,6 +38,14 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.9.26
+
+- Checkboxes and radio buttons remain clear with native Windows Qt styles: yellow borders in dark mode, blue in light mode, and clearly visible selected radio buttons.
+- Mining evaluates live data and historical journals consistently. After a Rhino restart, older ship inventories remain marked as last known; a compact legend explains inventory colours in twelve languages.
+- A successful ship swap carries valid cargo, including previously processed carrier transfers, over to the new ship. New complete Cargo snapshots confirm the inventory again; unknown inventories remain unknown.
+- Diagnostic ZIPs include the shutdown phase, pending background tasks and market writer states with privacy-preserving error codes. Export remains accessible while waiting to exit; repeated exports display a restart reminder.
+- Failed market jobs and expired market captures no longer block shutdown indefinitely. Running writes finish normally; important settings and Mining checkpoints remain protected.
+
 ## CMDRHelper v3.9.25
 
 - Ordinary checkboxes and radio buttons gain a thin yellow outline in dark mode (#FFCC33) and a blue outline in light mode (#1565C0). Native check marks and selection dots are preserved.

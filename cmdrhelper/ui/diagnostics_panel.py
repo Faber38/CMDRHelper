@@ -7,7 +7,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushBu
 
 from cmdrhelper.i18n import tr
 from cmdrhelper.logging_config import log_folder
-from cmdrhelper.diagnostics import create_package, suggested_name
+from cmdrhelper.diagnostics import create_package, suggested_name, exported_this_session
 
 
 class DiagnosticsPanel(QWidget):
@@ -41,6 +41,12 @@ class DiagnosticsPanel(QWidget):
             QMessageBox.information(self, tr('diagnostics.title'), tr('diagnostics.unavailable'))
 
     def create(self):
+        controller = getattr(self.window(), '_exit_controller', None)
+        if exported_this_session():
+            QMessageBox.information(self, tr('diagnostics.title'), tr('diagnostics.restart_required'))
+            # A blocked shutdown must remain diagnosable, even in this session.
+            if getattr(controller, 'phase', None) != 'draining':
+                return
         target, _ = QFileDialog.getSaveFileName(self, tr('diagnostics.create'), suggested_name(), 'ZIP (*.zip)')
         if not target:
             return
@@ -52,6 +58,7 @@ class DiagnosticsPanel(QWidget):
         try:
             create_package(target, database=self.state.database.path,
                            journals=self.state.journal_folder, overwrite=True,
+                           state=self.state, exit_controller=controller,
                            odyssey_snapshot=self.odyssey_snapshot() if self.odyssey_snapshot else None)
         except Exception:
             QMessageBox.warning(self, tr('diagnostics.title'), tr('diagnostics.failed'))

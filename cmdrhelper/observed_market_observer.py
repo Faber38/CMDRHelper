@@ -1,5 +1,6 @@
 """From-now-only Market observer on JournalWatcher's existing live notifications."""
 from copy import deepcopy
+from concurrent.futures import CancelledError
 from datetime import timedelta
 import json
 import logging
@@ -9,6 +10,7 @@ import time
 from .journal_files import journal_files, journal_sort_key
 from .live_journal import open_journal
 from .station_context import embark_station_context
+from .logging_config import log_event
 from .odyssey_sidecars import signature
 from .observed_market_cache import (
     ObservedMarketCache, cache_path, normalize_observation, read_market,
@@ -57,6 +59,10 @@ class ObservedMarketObserver:
         self.writer = None
         self._writes = []
         self._closing = False
+        self.exit_draining = False
+        self.exit_discarded_writes = 0
+        self.exit_discarded_captures = 0
+        self.exit_expired_captures = 0
         self.on_changed = on_changed
         if cache is not None and on_changed is not None:
             cache.on_changed = on_changed
@@ -100,18 +106,21 @@ class ObservedMarketObserver:
             self.cache  # Reconnect the existing projection to a new writer.
         return True
 
-    def _poll_writes(self):
+    def _poll_writes(self, *, closing=False):
+        closing = closing or self.exit_draining
         remaining = []
         for snapshot, future in self._writes:
             if not future.done():
                 remaining.append((snapshot, future))
-            else:
-                try:
-                    future.result()
-                except Exception as exc:
-                    self._diagnose('Market SQLite write failed: ' + str(exc))
-                    if not self._closing:
-                        remaining.append((snapshot, self.writer.record(snapshot)))
+            elif future.cancelled() or future.exception() is not None:
+                exc = CancelledError() if future.cancelled() else future.exception()
+                self._diagnose('Market SQLite write failed: ' + str(exc))
+                if closing:
+                    self.exit_discarded_writes += 1
+                    log_event(logger, 'Market write discarded during exit', component='exit',
+                              reason='market_write_discarded', count=1)
+                elif not self._closing:
+                    remaining.append((snapshot, self.writer.record(snapshot)))
         self._writes = remaining
         if not remaining and self.writer is not None and self.writer.last_error is None:
             self.last_error = None
@@ -265,6 +274,8 @@ class ObservedMarketObserver:
         writes_done = self._poll_writes()
         if self._closing:
             return False
+        if self.exit_draining:
+            return self.finish_pending_capture(writes_done=writes_done, closing=True)
         if not self.armed:
             return writes_done
         candidates = [Path(p) for p in paths if self.boundary is None or journal_sort_key(Path(p)) >= self.boundary]
@@ -285,19 +296,24 @@ class ObservedMarketObserver:
 
     def finish_pending_capture(self, *, writes_done=None, closing=False):
         """Finish only the captured event; never admit new journal work on exit."""
+        closing = closing or self.exit_draining
         if writes_done is None:
-            writes_done = self._poll_writes()
+            writes_done = self._poll_writes(closing=closing)
         current = self.path
         if self.pending is None:
             return writes_done
         event, context, deadline = self.pending
         if self.monotonic() >= deadline:
             if closing:
-                return False
+                self._discard_exit_capture('market_capture_expired')
+                return writes_done
             self.pending = None
             self._diagnose('Market capture retry deadline exceeded')
             return writes_done
         if current is None:
+            if closing:
+                self._discard_exit_capture('market_capture_unavailable')
+                return writes_done
             return False
         try:
             data, sidecar_sig = read_market(current.parent / 'Market.json')
@@ -312,10 +328,23 @@ class ObservedMarketObserver:
                 return False  # Watcher retries until the actual COMMIT completes.
             if not self.cache.put(snapshot):
                 self._diagnose('Market cache write rejected: ' + str(self.cache.last_error))
+                if closing:
+                    self.exit_discarded_writes += 1
+                    self._discard_exit_capture('market_write_discarded')
+                    return writes_done
                 return False
             self.pending, self.last_error = None, None
             return True
         except (OSError, ValueError, TypeError, OverflowError, RecursionError) as exc:
             self._diagnose(str(exc))
+            if closing:
+                self._discard_exit_capture('market_capture_unavailable')
+                return writes_done
             # Reuse the existing watcher retry flag: no additional timer/poller.
             return False
+
+    def _discard_exit_capture(self, reason):
+        self.pending = None
+        self.exit_discarded_captures += 1
+        self.exit_expired_captures += reason == 'market_capture_expired'
+        log_event(logger, 'Market capture discarded during exit', component='exit', reason=reason, count=1)

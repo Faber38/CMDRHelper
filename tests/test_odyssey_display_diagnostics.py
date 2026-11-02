@@ -32,6 +32,9 @@ class DisplayDiagnosticsTests(unittest.TestCase):
         cls.app = QApplication.instance() or QApplication([])
 
     def setUp(self):
+        session = patch('cmdrhelper.diagnostics._last_successful_export_at', None)
+        session.start()
+        self.addCleanup(session.stop)
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
@@ -274,7 +277,7 @@ class DisplayDiagnosticsTests(unittest.TestCase):
         path = create_package(self.root/'report.zip', folder=self.root, odyssey_snapshot=raw)
         with ZipFile(path) as archive:
             self.assertIsNone(archive.testzip())
-            self.assertEqual(set(archive.namelist()), {'system_info.json','diagnose_summary.txt','odyssey_display_diagnostics.json'})
+            self.assertEqual(set(archive.namelist()), {'system_info.json','diagnose_summary.txt','odyssey_display_diagnostics.json','exit_diagnostics.json'})
             content = archive.read('odyssey_display_diagnostics.json').decode()
             for secret in ('PRIVATE', 'F999999', '987654321', 'graphene', 'SYNTHETIC', str(self.root), 'ServerToken'):
                 self.assertNotIn(secret, content)

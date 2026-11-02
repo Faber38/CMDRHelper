@@ -452,15 +452,18 @@ class SafeExitTests(unittest.TestCase):
             release.set()
             if observer.writer:observer.writer.close()
 
-    def test_unresolved_market_capture_is_not_silently_discarded(self):
+    def test_expired_noncritical_market_capture_does_not_block_exit(self):
         from cmdrhelper.observed_market_observer import ObservedMarketObserver
         observer=ObservedMarketObserver()
         pending=({'event':'Market'}, {}, time.monotonic()-1)
         observer.pending=pending
         self.w.state.observed_markets=observer
-        self.w.close();QTest.qWait(80)
-        self.assertTrue(self.w.isVisible());self.assertIs(observer.pending,pending)
-        self.w._exit_controller.cancel();self.assertIs(observer.pending,pending)
+        self.w.close()
+        self.wait(lambda:not self.w.isVisible())
+        self.assertIsNone(observer.pending)
+        self.assertEqual(observer.exit_discarded_captures, 1)
+        self.assertEqual(observer.exit_expired_captures, 1)
+        self.assertEqual(self.w._exit_controller.phase, 'finished')
 
     def test_real_journal_import_commits_cursor_before_close(self):
         from tests.test_source_processing import ProcessingTests

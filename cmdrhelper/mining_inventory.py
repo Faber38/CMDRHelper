@@ -176,6 +176,11 @@ class MiningReducer:
                             and type(self.ship_id) is int)
                 if same_ship or same_srv:
                     logger.debug("Vehicle continuity across sessions verified")
+                    if same_srv:
+                        # The SRV login identifies continuity, not fresh cargo
+                        # aboard its mothership. Retain that ship's evidence for
+                        # stale display until a Ship snapshot confirms it again.
+                        self.stocks["Ship"] = None
                 else:
                     # An SRV login does not identify its mothership. Missing or
                     # conflicting identity cannot revive either previous base.
@@ -321,7 +326,22 @@ class MiningReducer:
             elif et == "EngineerContribution":
                 if event.get("Type") == "Commodity":
                     self.stocks["Ship"] = None
-            elif et in ("ShipyardSwap", "ShipyardBuy", "ShipyardNew"):
+            elif et == "ShipyardSwap":
+                old_id, new_id = event.get("StoreShipID"), event.get("ShipID")
+                valid_target = type(new_id) is int and new_id >= 0
+                ship_type = str(event.get("ShipType") or "").strip().casefold() or None
+                # A successful swap carries the current cargo, not an archived
+                # inventory of either ship. Unknown bases must remain unknown.
+                carry = (self.result.vessel == "Ship" and type(old_id) is int
+                         and old_id >= 0 and old_id == self.ship_id
+                         and valid_target and new_id != old_id
+                         and not is_definite_non_ship(ship_type))
+                self.stocks = {"Ship": self.stocks["Ship"] if carry else None, "SRV": None}
+                self.ship_id = new_id if valid_target else None
+                self.ship_type = ship_type
+                self.srv_id = self.srv_type = None
+                self.result.vessel = "Ship"
+            elif et in ("ShipyardBuy", "ShipyardNew"):
                 self.stocks = {"Ship": None, "SRV": None}
                 self.ship_id = event.get("NewShipID") if et == "ShipyardNew" else event.get("ShipID")
                 self.ship_type = None
@@ -343,7 +363,8 @@ class MiningReducer:
             record["status"] = "known" if stock is not None else "unknown"
             if stock is None:
                 record["quality"] = "stale" if "last_confirmed" in record else "unknown"
-            elif stock != before[vessel] or (et == "Cargo" and event.get("Vessel", "").casefold() == vessel.casefold()):
+            elif (stock != before[vessel] or (et == "ShipyardSwap" and vessel == "Ship")
+                  or (et == "Cargo" and event.get("Vessel", "").casefold() == vessel.casefold())):
                 full = et == "Cargo" and validated_cargo(event, self.result.fid) is not None
                 record["quality"] = "confirmed" if full else "tracked"
                 record.update(last_confirmed=_copy_stock(stock), source=list(source),
@@ -523,9 +544,13 @@ class MiningInventoryReader:
                             {"Name": item["frontier_name"], "Count": item["count"]}
                             for item in snapshot["inventory"]]}
                         saved[vessel] = dict(fid=fid, source=[str(path), offset], trigger=fingerprint, payload=event)
-                    elif event is original and validated_cargo(original, fid) is None:
+                # An unresolved count does not confirm its composition, whether
+                # the trigger is live or historical. Only live data can retry
+                # Cargo.json; both paths use the same stale-stock handling below.
+                if event is original and validated_cargo(original, fid) is None:
+                    if is_live_snapshot:
                         reducer.result.cargo_pending = True
-                        pending_vessel = vessel
+                    pending_vessel = vessel
             reducer.apply(event, (str(path), offset))
             if event.get("event") == "Cargo" and validated_cargo(event, fid) is not None:
                 vessel = event.get("Vessel")

@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_26.0': 'Checkboxes and radio buttons remain clear with native Windows Qt styles: yellow borders in dark mode, blue in light mode, and clearly visible selected radio buttons.',
+    'release.3_9_26.1': 'Mining evaluates live data and historical journals consistently. After a Rhino restart, older ship inventories remain marked as last known; a compact legend explains inventory colours in twelve languages.',
+    'release.3_9_26.2': 'A successful ship swap carries valid cargo, including previously processed carrier transfers, over to the new ship. New complete Cargo snapshots confirm the inventory again; unknown inventories remain unknown.',
+    'release.3_9_26.3': 'Diagnostic ZIPs include the shutdown phase, pending background tasks and market writer states with privacy-preserving error codes. Export remains accessible while waiting to exit; repeated exports display a restart reminder.',
+    'release.3_9_26.4': 'Failed market jobs and expired market captures no longer block shutdown indefinitely. Running writes finish normally; important settings and Mining checkpoints remain protected.',
+
     'release.3_9_25.0': 'Ordinary checkboxes and radio buttons gain a thin yellow outline in dark mode (#FFCC33) and a blue outline in light mode (#1565C0). Native check marks and selection dots are preserved.',
     'release.3_9_25.1': 'Selection outlines follow theme changes and include newly created controls. Labels, groups and existing special indicators remain unchanged.',
     'release.3_9_25.2': 'More reliable Qt tests with complete Chronicle/EDSM/Inara test doubles, controlled worker and widget cleanup, and explicit processing of deferred deletion events.',
@@ -448,6 +454,7 @@ TRANSLATIONS = {
     'diagnostics.unavailable': 'The log file does not exist yet or could not be opened.',
     'diagnostics.failed': 'The diagnostic package could not be created. Choose a writable location and a filename ending in .zip.',
     'diagnostics.saved': 'Diagnostic package saved:\n{path}',
+    'diagnostics.restart_required': 'CMDRHelper has not been restarted since the last diagnostic report. Please exit CMDRHelper completely, start the program again and then create a new diagnostic ZIP.',
     'diagnostics.summary': 'Version: {version}\nPlatform: {platform}\nLog files: {count}\nLog period: {period}\nNo Elite journal files or CMDRHelper database included.\nRecent warnings/errors:\n{warnings}\n',
 
     "favorites.export_selection.all": "Export all favorites",
@@ -562,6 +569,10 @@ TRANSLATIONS = {
     "mining.ship": "Ship",
     "mining.carrier": "Carrier",
     "mining.total": "Total",
+    "mining.legend_confirmed": "Confirmed",
+    "mining.legend_last_known": "Last known",
+    "mining.legend_unknown": "Unknown",
+    "mining.legend_inconsistent": "Inconsistent",
     "mining.stock_confirmed": "Currently confirmed",
     "mining.stock_tracked": "Reliably tracked from confirmed stock",
     "mining.stock_stale": "Last known, possibly outdated. Excluded from totals.",

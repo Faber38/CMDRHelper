@@ -38,6 +38,14 @@ La carpeta de diarios de Elite Dangerous se detecta automáticamente cuando es p
 
 CMDRHelper busca actualizaciones al iniciarse y dispone de un actualizador integrado. Confirma una actualización ofrecida en la aplicación; actualizará el programa y las dependencias y reiniciará CMDRHelper. Tras la primera instalación, normalmente basta con usar `start.bat` (Windows) o `bash start.sh` (Linux). No es necesario volver a ejecutar manualmente `install.bat` o `install.sh` para las actualizaciones normales.
 
+## CMDRHelper v3.9.26
+
+- Las casillas y los botones de opción se distinguen también con los estilos Qt nativos de Windows: bordes amarillos en modo oscuro, azules en modo claro y selección de opción claramente visible.
+- Mining evalúa de forma uniforme los datos en directo y los diarios históricos. Tras reiniciar en el Rhino, los inventarios antiguos de la nave siguen marcados como últimos conocidos; una leyenda compacta explica los colores en doce idiomas.
+- Al cambiar de nave correctamente, la carga válida pasa a la nueva nave, incluidas las transferencias con el portanaves ya procesadas. Las nuevas instantáneas Cargo completas confirman el inventario; los inventarios desconocidos siguen siendo desconocidos.
+- Los ZIP de diagnóstico incluyen la fase de cierre, tareas pendientes y estados de escritura del mercado con códigos que protegen la privacidad. La exportación sigue disponible mientras se espera el cierre; las exportaciones repetidas recuerdan reiniciar.
+- Las tareas de mercado fallidas y las capturas caducadas ya no bloquean indefinidamente el cierre. Las escrituras en curso terminan normalmente; los ajustes importantes y los puntos de control de Mining siguen protegidos.
+
 ## CMDRHelper v3.9.25
 
 - Las casillas y los botones de opción normales reciben un borde fino amarillo en modo oscuro (#FFCC33) y azul en modo claro (#1565C0). Se conservan las marcas y los puntos de selección nativos.

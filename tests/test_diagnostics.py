@@ -25,6 +25,9 @@ class DiagnosticsTests(unittest.TestCase):
         cls.app = QApplication.instance() or QApplication([])
 
     def setUp(self):
+        session = patch.object(d, '_last_successful_export_at', None)
+        session.start()
+        self.addCleanup(session.stop)
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
@@ -151,7 +154,7 @@ class DiagnosticsTests(unittest.TestCase):
         before = self.db.read_bytes()
         path = d.create_package(self.root/'report.zip', database=self.db, journals=self.journals, folder=self.logs)
         with ZipFile(path) as archive:
-            self.assertEqual(set(archive.namelist()), {'cmdrhelper.log','cmdrhelper.log.2','system_info.json','diagnose_summary.txt','odyssey_display_diagnostics.json'})
+            self.assertEqual(set(archive.namelist()), {'cmdrhelper.log','cmdrhelper.log.2','system_info.json','diagnose_summary.txt','odyssey_display_diagnostics.json','exit_diagnostics.json'})
             info = json.loads(archive.read('system_info.json'))
             self.assertTrue(info['database_reachable'])
             self.assertTrue(info['journal_folder_reachable'])
@@ -167,7 +170,7 @@ class DiagnosticsTests(unittest.TestCase):
     def test_missing_logs_and_unreachable_sources(self):
         path = d.create_package(self.root/'empty.zip', database=self.root/'absent.db', journals=self.root/'absent', folder=self.logs)
         with ZipFile(path) as archive:
-            self.assertEqual(len(archive.namelist()),3)
+            self.assertEqual(len(archive.namelist()),4)
             info = json.loads(archive.read('system_info.json'))
             self.assertFalse(info['database_reachable'])
             self.assertFalse(info['journal_folder_reachable'])
@@ -222,7 +225,7 @@ class DiagnosticsTests(unittest.TestCase):
             panel.create()
             self.assertTrue(Path(target).is_file())
             self.assertIn(target,success.call_args.args[2])
-        with patch('cmdrhelper.ui.diagnostics_panel.QFileDialog.getSaveFileName',return_value=(target,'')), patch('cmdrhelper.ui.diagnostics_panel.create_package',side_effect=OSError('secret')), patch('cmdrhelper.ui.diagnostics_panel.QMessageBox.warning') as failure:
+        with patch('cmdrhelper.ui.diagnostics_panel.exported_this_session', return_value=False), patch('cmdrhelper.ui.diagnostics_panel.QFileDialog.getSaveFileName',return_value=(target,'')), patch('cmdrhelper.ui.diagnostics_panel.create_package',side_effect=OSError('secret')), patch('cmdrhelper.ui.diagnostics_panel.QMessageBox.warning') as failure:
             panel.create()
             self.assertNotIn('secret',failure.call_args.args[2])
         self.assertTrue(panel.create_button.isEnabled())
@@ -245,7 +248,7 @@ class DiagnosticsTests(unittest.TestCase):
         try:
             for lang in languages:
                 set_language(lang)
-                for key in ('title','open','create','info','unavailable','failed','saved','summary'):
+                for key in ('title','open','create','info','unavailable','failed','saved','summary','restart_required'):
                     self.assertNotEqual(tr('diagnostics.'+key),'diagnostics.'+key)
                 summary=tr('diagnostics.summary',version='test',platform='test',count=0,period='–',warnings='–')
                 self.assertNotIn('{',summary)

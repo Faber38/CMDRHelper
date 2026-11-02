@@ -38,6 +38,14 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.9.26
+
+- Les cases à cocher et boutons radio restent lisibles avec les styles Qt natifs de Windows : bordures jaunes en mode sombre, bleues en mode clair et sélection radio bien visible.
+- Mining évalue uniformément les données en direct et les journaux historiques. Après un redémarrage dans le Rhino, les anciens stocks du vaisseau restent indiqués comme derniers stocks connus ; une légende compacte explique les couleurs en douze langues.
+- Lors d’un changement de vaisseau réussi, la cargaison valide, transferts avec le porte-vaisseaux déjà traités compris, est reportée sur le nouveau vaisseau. Un nouvel instantané Cargo complet confirme le stock ; les stocks inconnus restent inconnus.
+- Les ZIP de diagnostic incluent la phase de fermeture, les tâches en attente et l’état des écritures du marché avec des codes respectueux de la confidentialité. L’export reste accessible pendant la fermeture ; les exports répétés rappellent de redémarrer.
+- Les tâches de marché échouées et les captures expirées ne bloquent plus indéfiniment la fermeture. Les écritures en cours se terminent ; les paramètres importants et les points de contrôle Mining restent protégés.
+
 ## CMDRHelper v3.9.25
 
 - Les cases à cocher et boutons radio ordinaires reçoivent un fin contour jaune en mode sombre (#FFCC33) et bleu en mode clair (#1565C0). Les coches et points de sélection natifs sont conservés.

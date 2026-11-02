@@ -524,7 +524,7 @@ class MiningViewTests(unittest.TestCase):
                     item = mining.items["gold"]
                     positive = count is not None and count > 0
                     self.assertEqual(item.font(column).bold(), positive)
-                    self.assertEqual(item.foreground(column).color().name(), green if positive else muted)
+                    self.assertEqual(item.foreground(column).color().name(), green if count is not None else muted)
                     text = str(count) if count is not None else "—"
                     self.assertEqual(item.text(column), text + " ✎" if column == 3 else text)
             mining.set_inventory(MiningInventory(1, "F1", srv={}, ship={"gold": 50}))
@@ -671,6 +671,7 @@ class MiningViewTests(unittest.TestCase):
             "reference_notice", "open_tooltip", "heading", "count_summary",
             "reference_short", "search", "no_matches", "vehicle", "srv", "ship", "carrier", "total", "stock_unknown",
             "stock_confirmed", "stock_tracked", "stock_stale", "stock_stale_value",
+            "legend_confirmed", "legend_last_known", "legend_unknown", "legend_inconsistent",
             "refresh", "refresh_tooltip", "only_stock", "only_stock_tooltip",
             "refresh_updated", "refresh_unchanged", "refresh_error",
             "origin", "origin_surface", "origin_asteroid", "reference_unknown")}

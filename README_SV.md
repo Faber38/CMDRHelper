@@ -38,6 +38,14 @@ Journalmappen för Elite Dangerous hittas automatiskt när det är möjligt. Om 
 
 CMDRHelper söker efter uppdateringar vid start och har en inbyggd uppdateringsfunktion. Bekräfta en erbjuden uppdatering i programmet; den uppdaterar programmet och beroendena och startar om CMDRHelper. Efter den första installationen använder du normalt bara `start.bat` (Windows) eller `bash start.sh` (Linux). Du behöver inte köra `install.bat` eller `install.sh` manuellt igen för vanliga uppdateringar.
 
+## CMDRHelper v3.9.26
+
+- Kryssrutor och radioknappar syns tydligt även med Windows inbyggda Qt-stilar: gula ramar i mörkt läge, blå i ljust läge och tydligt markerade radioval.
+- Mining bedömer livedata och historiska journaler enhetligt. Efter omstart i Rhino visas äldre skeppslager fortfarande som senast kända; en kompakt förklaring visar lagerfärgerna på tolv språk.
+- Ett lyckat skeppsbyte för över giltig last, inklusive redan behandlade överföringar till och från hangarfartyget, till det nya skeppet. Nya fullständiga Cargo-data bekräftar lagret igen; okända lager förblir okända.
+- Diagnostik-ZIP innehåller avslutningsfas, väntande bakgrundsuppgifter och status för marknadsskrivning med integritetssäkra felkoder. Export är tillgänglig under väntan på avslutning; upprepad export visar en påminnelse om omstart.
+- Misslyckade marknadsuppgifter och utgångna marknadsregistreringar blockerar inte längre avslutningen på obestämd tid. Pågående skrivningar slutförs; viktiga inställningar och Mining-kontrollpunkter skyddas fortfarande.
+
 ## CMDRHelper v3.9.25
 
 - Vanliga kryssrutor och radioknappar får en tunn gul ram i mörkt läge (#FFCC33) och en blå ram i ljust läge (#1565C0). Ursprungliga bockar och valpunkter bevaras.

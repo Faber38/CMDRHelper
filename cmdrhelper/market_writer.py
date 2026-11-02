@@ -8,7 +8,8 @@ from threading import Lock, Thread
 from weakref import WeakSet
 
 from .market_migration import migrate_market_cache, database_authoritative
-from .market_store import MarketStore, decode_u64, _datetime
+from .market_store import MarketStore, ObservationConflict, decode_u64, _datetime
+from .logging_config import log_event
 from .observed_market_cache import utcnow
 
 logger = logging.getLogger(__name__)
@@ -30,6 +31,8 @@ class MarketWriteWorker:
         self.authoritative = database_authoritative(self.destination)
         self.last_error = None
         self._failures = {}
+        self._failure_codes = {}
+        self.exit_errors_discarded = False
         self.status = 'starting'
         self._queue, self._lock = Queue(), Lock()
         self._closed = False
@@ -68,6 +71,18 @@ class MarketWriteWorker:
     def pending_count(self):
         with self._lock:
             return sum(not f.done() for f in self._accepted)
+
+    def discard_exit_errors(self):
+        """Acknowledge noncritical failures, never running or queued writes.
+
+        Keep the error evidence; completing application shutdown is not a
+        successful market COMMIT. Payloads retained by observers are dropped
+        by their exit-only polling path.
+        """
+        if self.last_error is not None and not self.pending_count() and not self.exit_errors_discarded:
+            self.exit_errors_discarded = True
+            log_event(logger, 'Failed market work discarded during exit', component='exit',
+                      reason='market_errors_discarded', count=len(self._failures))
 
     def request_close(self):
         """Seal admission; the writer itself drains and closes its connection."""
@@ -169,8 +184,10 @@ class MarketWriteWorker:
                         # Explicit startup maintenance, after verified activation.
                         result = self._store.cleanup()
                     self._failures.pop(key, None)
+                    self._failure_codes.pop(key, None)
                     # Initialization may also have recovered on a record retry.
                     self._failures.pop(('initialize',), None)
+                    self._failure_codes.pop(('initialize',), None)
                     self.last_error = next(iter(self._failures.values()), None)
                     self.status = 'write_error' if self.last_error else 'active'
                     self._notify(self.on_status, None)
@@ -178,9 +195,15 @@ class MarketWriteWorker:
                 except Exception as exc:
                     self.authoritative = self.authoritative or database_authoritative(self.destination)
                     self._failures[key] = str(exc)
+                    code = ('market_observation_conflict' if isinstance(exc, ObservationConflict) else
+                            {'initialize': 'market_initialization_failed', 'record': 'market_write_failed',
+                             'cleanup': 'market_cleanup_failed'}[kind])
+                    self._failure_codes[key] = code
+                    self.exit_errors_discarded = False
                     self.last_error = str(exc)
                     self.status = 'write_error' if self._store is not None else 'migration_error'
                     logger.warning('Local market persistence failed: %s', exc)
+                    log_event(logger, 'Local market persistence failure', component='exit', reason=code)
                     self._notify(self.on_status, None)
                     future.set_exception(exc)
         finally:

@@ -6,7 +6,7 @@ from PySide6.QtGui import QBrush, QColor, QPalette
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QComboBox,
     QTreeWidget, QTreeWidgetItem, QPushButton, QCheckBox, QDialog, QMessageBox, QStyledItemDelegate, QStyle, QHeaderView,
-    QStyleOptionViewItem, QToolTip,
+    QStyleOptionViewItem, QToolTip, QSizePolicy,
 )
 
 from cmdrhelper.i18n import get_language, tr, tr_for_language
@@ -259,6 +259,30 @@ class MiningView(QWidget):
         self.empty_label.setWordWrap(True)
         self.empty_label.hide()
         layout.addWidget(self.empty_label)
+        self.stock_legend = QWidget()
+        self.stock_legend.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        legend_layout = QHBoxLayout(self.stock_legend)
+        legend_layout.setContentsMargins(0, 0, 0, 0)
+        legend_layout.setSpacing(14)
+        self.stock_legend_dots, self.stock_legend_labels = [], []
+        for name, tooltip in (
+                ("confirmed", tr("mining.stock_confirmed")),
+                ("last_known", tr("mining.stock_tracked") + "\n" + tr("mining.stock_stale")),
+                ("unknown", tr("mining.stock_unknown")),
+                ("inconsistent", tr("mining.carrier_inconsistent"))):
+            group = QHBoxLayout()
+            group.setSpacing(4)
+            dot = QLabel("●")
+            label = QLabel(tr("mining.legend_" + name))
+            label.setToolTip(tooltip)
+            dot.setToolTip(tooltip)
+            group.addWidget(dot)
+            group.addWidget(label)
+            legend_layout.addLayout(group)
+            self.stock_legend_dots.append(dot)
+            self.stock_legend_labels.append(label)
+        legend_layout.addStretch(1)
+        layout.addWidget(self.stock_legend)
         self.tree = QTreeWidget()
         self.tree.setHeader(CarrierHeader(self.tree))
         self.tree.collator = QCollator(QLocale(get_language()))
@@ -456,9 +480,9 @@ class MiningView(QWidget):
             cells = []
             for column, count in enumerate(inventory.stock(symbol), 1):
                 text = locale.toString(count) if count is not None else "—"
-                quality = "unknown"
+                quality = "confirmed" if count is not None else "unknown"
                 display = count
-                tooltip = tr("mining.stock_unknown") if count is None else ""
+                tooltip = tr("mining.stock_" + quality)
                 if column in (1, 2):
                     vessel = "SRV" if column == 1 else "Ship"
                     display, quality = inventory.displayed_stock(vessel, symbol)
@@ -474,8 +498,9 @@ class MiningView(QWidget):
                 cells.append([count, quality, display,
                     tr("mining.carrier_marked", value=text) if column == 3 else text, tooltip])
             record = inventory.carrier_records.get(symbol)
-            tooltip = ""
+            tooltip = tr("mining.stock_" + cells[2][1])
             if record:
+                cells[2][1] = record.get("status", cells[2][1])
                 stamp = QDateTime.fromString(record.get("confirmed_at", ""), Qt.DateFormat.ISODateWithMs)
                 time_text = locale.toString(stamp.toLocalTime(), QLocale.FormatType.ShortFormat) if stamp.isValid() else record.get("confirmed_at", "")
                 tooltip = tr("mining.carrier_confirmed", time=time_text)
@@ -486,6 +511,10 @@ class MiningView(QWidget):
             elif inventory.carrier is None or inventory.carrier.get(symbol) is None:
                 tooltip = tr("mining.carrier_unknown_help")
             cells[2][4] = tr("mining.carrier_edit_hint") + ("\n" + tooltip if tooltip else "")
+            if cells[3][0] is not None:
+                quality = "tracked" if any(cell[1] == "tracked" for cell in cells[:3]) else "confirmed"
+                cells[3][1] = quality
+                cells[3][4] = tr("mining.stock_" + quality)
             if any([item.data(column, Qt.ItemDataRole.UserRole),
                     item.data(column, Qt.ItemDataRole.UserRole + 1),
                     item.data(column, Qt.ItemDataRole.UserRole + 2),
@@ -595,8 +624,12 @@ class MiningView(QWidget):
         for column in (1, 2, 3, 4):
             count = item.data(column, Qt.ItemDataRole.UserRole)
             positive = count is not None and count > 0
-            stale = item.data(column, Qt.ItemDataRole.UserRole + 1) == "stale"
-            item.setForeground(column, QColor(self._stock_colors[2 if stale else 1 if positive else 0]))
+            quality = item.data(column, Qt.ItemDataRole.UserRole + 1)
+            stale = quality == "stale"
+            color = (3 if quality == "inconsistent" else
+                     2 if quality in ("stale", "tracked") else
+                     1 if count is not None and quality in ("confirmed", "manual") else 0)
+            item.setForeground(column, QColor(self._stock_colors[color]))
             font = item.font(column)
             font.setBold(positive)
             font.setItalic(stale)
@@ -646,7 +679,9 @@ class MiningView(QWidget):
         # Reuse styles.py's statusOk, statusWarn and muted foregrounds.
         colors = (("#65717c", "#b36a00", "#37852d") if light
                   else ("#8e969e", "#f0ad4e", "#79d45a"))
-        self._stock_colors = (colors[0], colors[2], colors[1])
+        self._stock_colors = (colors[0], colors[2], colors[1], "#b83232" if light else "#ff6b6b")
+        for dot, color_index in zip(self.stock_legend_dots, (1, 2, 0, 3)):
+            dot.setStyleSheet(f"color: {self._stock_colors[color_index]};")
         self.carrier_delegate.color = QColor(colors[2])
         self.tree.viewport().update()
         for row in range(self.tree.topLevelItemCount()):

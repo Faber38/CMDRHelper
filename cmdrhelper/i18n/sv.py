@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_26.0': 'Kryssrutor och radioknappar syns tydligt även med Windows inbyggda Qt-stilar: gula ramar i mörkt läge, blå i ljust läge och tydligt markerade radioval.',
+    'release.3_9_26.1': 'Mining bedömer livedata och historiska journaler enhetligt. Efter omstart i Rhino visas äldre skeppslager fortfarande som senast kända; en kompakt förklaring visar lagerfärgerna på tolv språk.',
+    'release.3_9_26.2': 'Ett lyckat skeppsbyte för över giltig last, inklusive redan behandlade överföringar till och från hangarfartyget, till det nya skeppet. Nya fullständiga Cargo-data bekräftar lagret igen; okända lager förblir okända.',
+    'release.3_9_26.3': 'Diagnostik-ZIP innehåller avslutningsfas, väntande bakgrundsuppgifter och status för marknadsskrivning med integritetssäkra felkoder. Export är tillgänglig under väntan på avslutning; upprepad export visar en påminnelse om omstart.',
+    'release.3_9_26.4': 'Misslyckade marknadsuppgifter och utgångna marknadsregistreringar blockerar inte längre avslutningen på obestämd tid. Pågående skrivningar slutförs; viktiga inställningar och Mining-kontrollpunkter skyddas fortfarande.',
+
     'release.3_9_25.0': 'Vanliga kryssrutor och radioknappar får en tunn gul ram i mörkt läge (#FFCC33) och en blå ram i ljust läge (#1565C0). Ursprungliga bockar och valpunkter bevaras.',
     'release.3_9_25.1': 'Ramarna följer temabyten och omfattar kontroller som skapas senare. Etiketter, grupper och befintliga specialindikatorer förblir oförändrade.',
     'release.3_9_25.2': 'Tillförlitligare Qt-tester med kompletta testdubblar för Chronicle, EDSM och Inara, kontrollerad städning av bakgrundsuppgifter och widgetar samt uttrycklig hantering av uppskjuten borttagning.',
@@ -448,6 +454,7 @@ TRANSLATIONS = {
     'diagnostics.unavailable': 'Loggfilen finns inte ännu eller kunde inte öppnas.',
     'diagnostics.failed': 'Diagnostikpaketet kunde inte skapas. Välj en skrivbar plats och ett filnamn som slutar med .zip.',
     'diagnostics.saved': 'Diagnostikpaketet har sparats:\n{path}',
+    'diagnostics.restart_required': 'CMDRHelper har inte startats om sedan den senaste diagnostikrapporten. Avsluta CMDRHelper helt, starta programmet igen och skapa sedan en ny diagnostik-ZIP.',
     'diagnostics.summary': 'Version: {version}\nPlattform: {platform}\nLoggfiler: {count}\nLoggperiod: {period}\nInga Elite-journalfiler eller CMDRHelper-databaser ingår.\nSenaste varningar/fel:\n{warnings}\n',
 
     "favorites.export_selection.all": "Exportera alla favoriter",
@@ -562,6 +569,10 @@ TRANSLATIONS = {
     "mining.ship": "Skepp",
     "mining.carrier": "Carrier",
     "mining.total": "Totalt",
+    "mining.legend_confirmed": "Bekräftat",
+    "mining.legend_last_known": "Senast känt",
+    "mining.legend_unknown": "Okänt",
+    "mining.legend_inconsistent": "Motstridigt",
     "mining.stock_confirmed": "Aktuellt bekräftat",
     "mining.stock_tracked": "Tillförlitligt uppdaterat från bekräftat lager",
     "mining.stock_stale": "Senast känt, möjligen inaktuellt. Ingår inte i totalsummor.",

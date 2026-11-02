@@ -84,6 +84,10 @@ MiningRefined and CollectCargo add one tonne, EjectCargo/MarketSell subtract the
 event Count, and MarketBuy adds Count. Deltas only apply to a known snapshot.
 Later complete Cargo snapshots always replace arithmetic projections. A count-only
 notification is not another delta; a conflicting total invalidates the projection.
+An unresolved count-only notification also leaves composition unconfirmed when
+the total is unchanged, in both live and historical reader reconstruction.
+Verified checkpoints and the existing corroborated docking/refinement rules
+remain usable; sidecar retries are limited to the live trigger.
 Invalid quantities, missing/changed files and malformed complete lines fail closed.
 Other potentially cargo-changing event rules not implemented here invalidate the
 affected projection until the next complete Cargo snapshot.
@@ -194,9 +198,10 @@ continuity records and 32 snapshot contexts are retained, with ten snapshots eac
 An unknown ShipID/SRV-ID is explicit and does not prove continuity to an identified
 vehicle. No journal files or loose sidecar copies are written.
 
-A game restart in an SRV can preserve current stocks only if the verified journal
+A game restart in an SRV can preserve its current stock only if the verified journal
 chain was already in the same SRV (matching ID and type), linked to a known
-mothership. Otherwise the prior ship may only be displayed as historical evidence
+mothership. The mothership's prior stock remains visible as last-known evidence,
+not current stock, until a new Ship snapshot confirms it. Otherwise the prior ship may only be displayed as historical evidence
 for its existing identity. A conflicting ship identity prevents that display.
 Embark/Disembark preserve cargo; own-vehicle context is distinguished from taxis
 and multicrew. A helper restart replays snapshots and deltas instead of resetting
@@ -223,3 +228,15 @@ confirmed/tracked stock. Historical ship values are obtained separately through
 Any unknown current component makes Total unknown. A new authoritative snapshot
 replaces stale presentation. Other vehicle events do not refresh a ship evidence
 timestamp merely because the ship inventory remained unchanged.
+
+Stock cell colours follow existing evidence quality: confirmed quantities,
+including zero and manual carrier confirmations, are green; tracked and stale
+quantities are yellow; unknown values are grey. An explicitly inconsistent
+carrier record is red. A known total involving tracked stock is yellow; unknown
+totals remain grey. Tooltips distinguish reliable tracking from stale evidence,
+and stale ship values retain their suffix and italic styling. These colours do
+not change quantities, totals, row backgrounds or status rules. Before a new
+LoadGame arrives, the existing offline replay policy is unchanged.
+A compact single-line legend above the table explains the four colours in all
+twelve UI languages. Its dots use the stock-cell palette in both themes, and
+tooltips explain tracking/stale evidence and the carrier-specific error status.

@@ -6,9 +6,10 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 from tempfile import TemporaryDirectory
+from shiboken6 import getCppPointer
 
-from PySide6.QtCore import QEvent, QPoint, QSettings, Qt
-from PySide6.QtGui import QColor, QImage, QPainter
+from PySide6.QtCore import QEvent, QPoint, QRectF, QSettings, Qt
+from PySide6.QtGui import QColor, QImage, QPainter, QPalette
 from PySide6.QtTest import QTest, QSignalSpy
 from PySide6.QtWidgets import (QApplication, QButtonGroup, QCheckBox, QHBoxLayout,
                               QLabel, QListWidget, QListWidgetItem, QMenu, QPushButton,
@@ -20,6 +21,31 @@ from cmdrhelper.i18n import _TRANSLATIONS
 from cmdrhelper.ui.selection_indicators import (
     SelectionIndicatorStyle, install_selection_indicators, set_selection_indicator_theme)
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
+
+
+class QWindows11Style(QProxyStyle):
+    """Linux contract double, NOT native Windows rendering evidence.
+
+    Reproduces Qt 6.11's Window-colored radio center and explicit Button fill.
+    """
+    def __init__(self):
+        super().__init__(QStyleFactory.create("Fusion"))
+        self.received = None
+
+    def drawPrimitive(self, element, option, painter, widget=None):
+        self.received = QStyleOptionButton(option)
+        if element != QStyle.PE_IndicatorRadioButton:
+            return super().drawPrimitive(element, option, painter, widget)
+        painter.save()
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(option.palette.button())
+        center = QRectF(option.rect).center()
+        painter.drawEllipse(center, 7.5, 7.5)
+        if option.state & QStyle.State_On:
+            painter.setBrush(option.palette.window())
+            radius = 5 if option.state & QStyle.State_MouseOver else 4
+            painter.drawEllipse(center, radius, radius)
+        painter.restore()
 
 
 class SelectionIndicatorTests(unittest.TestCase):
@@ -131,58 +157,59 @@ class SelectionIndicatorTests(unittest.TestCase):
                         self.app.sendPostedEvents(None, QEvent.DeferredDelete)
 
     def test_languages_input_and_late_created_widgets(self):
-        self.configure()
-        for theme in ("dark", "light"):
-            for size in (10, 14, 18):
-                self.theme(theme, size)
-                for language, texts in _TRANSLATIONS.items():
-                    with self.subTest(theme=theme, size=size, language=language):
-                        window = QWidget()
-                        window.resize(1024, 768)
-                        layout = QVBoxLayout(window)
-                        group = QButtonGroup(window)
-                        radios = []
-                        for key in ("browse.all_goods", "browse.mining", "browse.cargo_only"):
-                            radio = QRadioButton(texts[key])
-                            layout.addWidget(radio)
-                            group.addButton(radio)
-                            radios.append(radio)
-                        check = QCheckBox(texts["recommend.local_only"])
-                        disabled = QCheckBox(texts["trade.carriers"])
-                        disabled.setEnabled(False)
-                        layout.addWidget(check)
-                        layout.addWidget(disabled)
-                        layout.addStretch()
-                        window.show()
-                        window.activateWindow()
-                        self.assertTrue(QTest.qWaitForWindowActive(window, 1000))
-                        for widget in radios + [check, disabled]:
-                            self.assertTrue(widget.property("accentIndicator"))
-                            self.assertGreaterEqual(widget.width(), widget.sizeHint().width())
-                        radios[0].setChecked(True)
-                        radios[0].setFocus(Qt.TabFocusReason)
-                        QTest.keyClick(radios[0], Qt.Key_Down)
-                        self.assertTrue(radios[1].isChecked())
-                        self.assertEqual(sum(r.isChecked() for r in radios), 1)
-                        check.setFocus(Qt.TabFocusReason)
-                        QTest.keyClick(check, Qt.Key_Space)
-                        self.assertTrue(check.isChecked())
-                        QTest.keyClick(check, Qt.Key_Tab)
-                        self.assertFalse(disabled.hasFocus())
-                        check.setFocus(Qt.TabFocusReason)
-                        QTest.keyClick(check, Qt.Key_Backtab)
-                        self.assertTrue(any(r.hasFocus() for r in radios))
-                        rect = self.render(check)[1]
-                        QTest.mouseClick(check, Qt.LeftButton, pos=rect.center())
-                        self.assertFalse(check.isChecked())
-                        QTest.mouseClick(check, Qt.LeftButton,
-                                         pos=QPoint(rect.right() + 20, check.height() // 2))
-                        self.assertTrue(check.isChecked())
-                        QTest.mouseClick(disabled, Qt.LeftButton)
-                        self.assertFalse(disabled.isChecked())
-                        window.close()
-                        window.deleteLater()
-                        self.app.sendPostedEvents(None, QEvent.DeferredDelete)
+        for native in ("Fusion", "Windows"):
+            self.configure(native)
+            for theme in ("dark", "light"):
+                for size in (10, 14, 18):
+                    self.theme(theme, size)
+                    for language, texts in _TRANSLATIONS.items():
+                        with self.subTest(theme=theme, size=size, language=language):
+                            window = QWidget()
+                            window.resize(1024, 768)
+                            layout = QVBoxLayout(window)
+                            group = QButtonGroup(window)
+                            radios = []
+                            for key in ("browse.all_goods", "browse.mining", "browse.cargo_only"):
+                                radio = QRadioButton(texts[key])
+                                layout.addWidget(radio)
+                                group.addButton(radio)
+                                radios.append(radio)
+                            check = QCheckBox(texts["recommend.local_only"])
+                            disabled = QCheckBox(texts["trade.carriers"])
+                            disabled.setEnabled(False)
+                            layout.addWidget(check)
+                            layout.addWidget(disabled)
+                            layout.addStretch()
+                            window.show()
+                            window.activateWindow()
+                            self.assertTrue(QTest.qWaitForWindowActive(window, 1000))
+                            for widget in radios + [check, disabled]:
+                                self.assertTrue(widget.property("accentIndicator"))
+                                self.assertGreaterEqual(widget.width(), widget.sizeHint().width())
+                            radios[0].setChecked(True)
+                            radios[0].setFocus(Qt.TabFocusReason)
+                            QTest.keyClick(radios[0], Qt.Key_Down)
+                            self.assertTrue(radios[1].isChecked())
+                            self.assertEqual(sum(r.isChecked() for r in radios), 1)
+                            check.setFocus(Qt.TabFocusReason)
+                            QTest.keyClick(check, Qt.Key_Space)
+                            self.assertTrue(check.isChecked())
+                            QTest.keyClick(check, Qt.Key_Tab)
+                            self.assertFalse(disabled.hasFocus())
+                            check.setFocus(Qt.TabFocusReason)
+                            QTest.keyClick(check, Qt.Key_Backtab)
+                            self.assertTrue(any(r.hasFocus() for r in radios))
+                            rect = self.render(check)[1]
+                            QTest.mouseClick(check, Qt.LeftButton, pos=rect.center())
+                            self.assertFalse(check.isChecked())
+                            QTest.mouseClick(check, Qt.LeftButton,
+                                             pos=QPoint(rect.right() + 20, check.height() // 2))
+                            self.assertTrue(check.isChecked())
+                            QTest.mouseClick(disabled, Qt.LeftButton)
+                            self.assertFalse(disabled.isChecked())
+                            window.close()
+                            window.deleteLater()
+                            self.app.sendPostedEvents(None, QEvent.DeferredDelete)
 
     def test_theme_repolish_does_not_emit_selection_signals(self):
         self.configure()
@@ -248,6 +275,80 @@ class SelectionIndicatorTests(unittest.TestCase):
                         else:
                             snapshots[key] = image
 
+    def test_native_windows_install_owns_matching_factory_style(self):
+        for class_name, key in (("QWindowsVistaStyle", "windowsvista"),
+                                ("QWindows11Style", "windows11")):
+            for available in (False, True):
+                current = Mock()
+                current.metaObject.return_value.className.return_value = class_name
+                app = SimpleNamespace(style=lambda: current, setStyle=Mock())
+                base = QStyleFactory.create("Fusion") if available else None
+                pointer = getCppPointer(base) if base else None
+                with patch("cmdrhelper.ui.selection_indicators.QStyleFactory.create",
+                           return_value=base) as factory:
+                    install_selection_indicators(app)
+                factory.assert_called_once_with(key)
+                if available:
+                    proxy = app._selection_indicator_style
+                    self.assertEqual(getCppPointer(proxy.baseStyle()), pointer)
+                    app.setStyle.assert_called_once_with(proxy)
+                    proxy.deleteLater()
+                else:
+                    app.setStyle.assert_not_called()
+
+    def test_windows11_native_dot_palette_contract(self):
+        base = QWindows11Style()
+        style = SelectionIndicatorStyle(base)
+        self.addCleanup(style.deleteLater)
+        for theme in ("dark", "light"):
+            self.configure(theme=theme)
+            style.set_theme(theme)
+            for disabled in (False, True):
+                for state in (0, 2):
+                    for extra in (QStyle.State_None, QStyle.State_MouseOver,
+                                  QStyle.State_Sunken, QStyle.State_HasFocus):
+                        widget = self.widget("radio", state, disabled)
+                        widget.ensurePolished()
+                        option = QStyleOptionButton()
+                        widget.initStyleOption(option)
+                        option.state |= extra
+                        option.rect = widget.style().subElementRect(
+                            QStyle.SE_RadioButtonIndicator, option, widget)
+                        # Force the reported failure: Button and Window identical.
+                        for group in (QPalette.Active, QPalette.Inactive, QPalette.Disabled):
+                            option.palette.setColor(group, QPalette.Button,
+                                                    option.palette.color(group, QPalette.Window))
+                        original = QPalette(option.palette)
+                        images = []
+                        for renderer in (base, style):
+                            image = QImage(widget.size(), QImage.Format_ARGB32)
+                            image.fill(option.palette.window().color())
+                            painter = QPainter(image)
+                            renderer.drawPrimitive(QStyle.PE_IndicatorRadioButton,
+                                                   option, painter, widget)
+                            painter.end()
+                            images.append(image)
+                        center = option.rect.center()
+                        with self.subTest(theme=theme, disabled=disabled, state=state, extra=extra):
+                            self.assertEqual(option.palette, original)
+                            self.assertEqual(base.received.state, option.state)
+                            self.assertEqual(base.received.rect, option.rect)
+                            self.assertEqual(base.received.styleObject, option.styleObject)
+                            self.assertEqual(images[0].pixelColor(center),
+                                             option.palette.window().color())
+                            self.assertEqual(images[1].pixelColor(center),
+                                             option.palette.windowText().color() if state else
+                                             option.palette.window().color())
+                            self.assertNotEqual(images[0], images[1])
+                            self.assertEqual(self.without_indicator(images[0], option.rect),
+                                             self.without_indicator(images[1], option.rect))
+                        # Excluded radios must not receive the palette correction.
+                        widget.setProperty("preserveSelectionIndicator", True)
+                        painter = QPainter(images[1])
+                        style.drawPrimitive(QStyle.PE_IndicatorRadioButton, option, painter, widget)
+                        painter.end()
+                        self.assertEqual(base.received.palette, original)
+
     def test_unknown_style_falls_back_and_install_is_idempotent(self):
         self.configure()
         style = self.app._selection_indicator_style
@@ -307,30 +408,31 @@ class SelectionIndicatorTests(unittest.TestCase):
 
     def test_market_theme_and_repaint_do_not_read_or_refilter(self):
         from test_saved_markets import ViewTests, MATE, MarketStore, ui
-        self.configure()
-        fixture = ViewTests()
-        fixture.setUpClass()
-        fixture.setUp()
-        try:
-            fixture.select(MATE)
-            view = fixture.view
-            selected = view._selected_id
-            count = view.goods_proxy.rowCount()
-            spy = QSignalSpy(view.goods_mode.buttonToggled)
-            with patch.object(MarketStore, "get_current", side_effect=AssertionError("DB read")), \
-                 patch.object(ui, "read_markets", side_effect=AssertionError("market reload")), \
-                 patch.object(view, "filter_goods", side_effect=AssertionError("refilter")):
-                for theme in ("light", "dark", "light"):
-                    self.theme(theme)
-                    for widget in (view.all_goods, view.mining_only, view.cargo_only):
-                        self.render(widget)
-                        self.assertTrue(widget.property("accentIndicator"))
-                    self.app.processEvents()
-                self.assertEqual(spy.count(), 0)
-                self.assertEqual(view._selected_id, selected)
-                self.assertEqual(view.goods_proxy.rowCount(), count)
-        finally:
-            fixture.doCleanups()
+        for native in ("Fusion", "Windows"):
+            self.configure(native)
+            fixture = ViewTests()
+            fixture.setUpClass()
+            fixture.setUp()
+            try:
+                fixture.select(MATE)
+                view = fixture.view
+                selected = view._selected_id
+                count = view.goods_proxy.rowCount()
+                spy = QSignalSpy(view.goods_mode.buttonToggled)
+                with patch.object(MarketStore, "get_current", side_effect=AssertionError("DB read")), \
+                     patch.object(ui, "read_markets", side_effect=AssertionError("market reload")), \
+                     patch.object(view, "filter_goods", side_effect=AssertionError("refilter")):
+                    for theme in ("light", "dark", "light"):
+                        self.theme(theme)
+                        for widget in (view.all_goods, view.mining_only, view.cargo_only):
+                            self.render(widget)
+                            self.assertTrue(widget.property("accentIndicator"))
+                        self.app.processEvents()
+                    self.assertEqual(spy.count(), 0)
+                    self.assertEqual(view._selected_id, selected)
+                    self.assertEqual(view.goods_proxy.rowCount(), count)
+            finally:
+                fixture.doCleanups()
 
     def test_item_views_delegate_buttons_and_menu_keep_pixels(self):
         from cmdrhelper.ui.remembered_targets import RememberedTargetDelegate

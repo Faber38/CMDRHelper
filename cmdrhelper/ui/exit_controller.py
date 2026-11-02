@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (QApplication, QDialog, QVBoxLayout, QLabel,
                               QLayout, QSizePolicy)
 from cmdrhelper.exit_tasks import task_gate
 from cmdrhelper.i18n import tr
+from cmdrhelper.exit_diagnostics import record as record_diagnostics
 
 
 def values(window, section):
@@ -228,6 +229,7 @@ class ExitController(QObject):
             return False
         if self.dirty():
             self.phase = 'drafts'
+            record_diagnostics(self, event='started', force=True)
             self.show_dialog(True)
             return False
         return self.begin()
@@ -307,12 +309,15 @@ class ExitController(QObject):
                 self.pause_timer(getattr(watcher, 'timer', None))
                 observers += list(getattr(watcher, 'live_observers', ()))
         self.observers = list(dict.fromkeys(o for o in observers if isinstance(o, ObservedMarketObserver)))
+        for observer in self.observers:
+            observer.exit_draining = True
         for view in self.window.findChildren(ScreenshotView):
             self.pause_timer(view.timer)
             view._save_settings()  # These fields already use automatic saving.
         mining = getattr(self.state, 'mining_inventory_controller', None)
         if mining is not None:
             mining.retry_pending_save()
+        record_diagnostics(self, event='started', force=True)
         # With no admitted work there is no reason to show a confirmation.
         if not self.pending() and not self.writers():
             return self.finish()
@@ -338,6 +343,7 @@ class ExitController(QObject):
     def poll(self):
         if self.phase != 'draining':
             return
+        record_diagnostics(self)
         if self.cancel_requested:
             self.cancel()
             return
@@ -353,12 +359,11 @@ class ExitController(QObject):
             return
         for observer in self.observers:
             if not self.sealed:
-                observer._poll_writes()
+                observer._poll_writes(closing=True)
                 if observer.pending is not None:
                     observer.finish_pending_capture(closing=True)
-        if any(writer.last_error for writer in self.writers()):
-            self.status(tr('exit.write_failed'))
-            return
+        for writer in self.writers():
+            writer.discard_exit_errors()
         count = self.pending()
         if count:
             self.quiet = False
@@ -393,11 +398,13 @@ class ExitController(QObject):
                 self.show_dialog()
                 self.timer.start()
             self.dialog.message.setText(tr('exit.save_failed'))
+            record_diagnostics(self, event='settings_failed', force=True)
             return False
         self.approved = True
         self.phase = 'finished'
         self.timer.stop()
         self.gate.finish()
+        record_diagnostics(self, event='finished', force=True)
         self.hide_dialog()
         return True
 
@@ -414,6 +421,8 @@ class ExitController(QObject):
                 for observer in self.observers:
                     if observer.writer:
                         observer.resume_after_close()
+            for observer in self.observers:
+                observer.exit_draining = False
             sources = getattr(self.state, 'sources', None)
             if sources is not None:
                 sources._exit_paused = False
@@ -429,3 +438,4 @@ class ExitController(QObject):
         self.phase = 'idle'
         self.sealed = False
         self.cancel_requested = False
+        record_diagnostics(self, event='cancelled', force=True)

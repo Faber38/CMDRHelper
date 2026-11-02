@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_26.0': 'Selectievakjes en keuzerondjes blijven duidelijk met de eigen Qt-stijlen van Windows: gele randen in de donkere modus, blauwe in de lichte modus en duidelijk zichtbare geselecteerde keuzerondjes.',
+    'release.3_9_26.1': 'Mining beoordeelt livegegevens en historische journals op dezelfde manier. Na een herstart in de Rhino blijven oudere scheepsvoorraden als laatst bekend gemarkeerd; een compacte legenda verklaart de kleuren in twaalf talen.',
+    'release.3_9_26.2': 'Bij een geslaagde scheepswissel gaat de geldige lading mee naar het nieuwe schip, inclusief reeds verwerkte carriertransfers. Nieuwe volledige Cargo-momentopnamen bevestigen de voorraad opnieuw; onbekende voorraden blijven onbekend.',
+    'release.3_9_26.3': 'Diagnose-ZIP’s bevatten de afsluitfase, wachtende achtergrondtaken en de status van marktschrijftaken met privacyvriendelijke foutcodes. Export blijft tijdens het wachten op afsluiten beschikbaar; herhaalde exports tonen een herstartmelding.',
+    'release.3_9_26.4': 'Mislukte markttaken en verlopen marktregistraties blokkeren het afsluiten niet meer onbeperkt. Lopende schrijfacties worden afgerond; belangrijke instellingen en Mining-controlepunten blijven beschermd.',
+
     'release.3_9_25.0': 'Gewone selectievakjes en keuzerondjes krijgen een dunne gele rand in de donkere modus (#FFCC33) en een blauwe rand in de lichte modus (#1565C0). De oorspronkelijke vinkjes en selectiepunten blijven behouden.',
     'release.3_9_25.1': 'De randen volgen themawisselingen en gelden ook voor nieuw aangemaakte bedieningselementen. Labels, groepen en bestaande speciale indicatoren blijven ongewijzigd.',
     'release.3_9_25.2': 'Betrouwbaardere Qt-tests dankzij volledige testdubbelgangers voor Chronicle, EDSM en Inara, gecontroleerde opruiming van achtergrondtaken en widgets en expliciete verwerking van uitgestelde verwijderingen.',
@@ -448,6 +454,7 @@ TRANSLATIONS = {
     'diagnostics.unavailable': 'Het logbestand bestaat nog niet of kon niet worden geopend.',
     'diagnostics.failed': 'Het diagnosepakket kon niet worden gemaakt. Kies een schrijfbare locatie en een bestandsnaam die eindigt op .zip.',
     'diagnostics.saved': 'Diagnosepakket opgeslagen:\n{path}',
+    'diagnostics.restart_required': 'CMDRHelper is sinds het laatste diagnoserapport niet opnieuw gestart. Sluit CMDRHelper volledig af, start het programma opnieuw en maak daarna een nieuw diagnose-ZIP-bestand.',
     'diagnostics.summary': 'Versie: {version}\nPlatform: {platform}\nLogbestanden: {count}\nLogperiode: {period}\nGeen Elite-journalbestanden of CMDRHelper-database opgenomen.\nRecente waarschuwingen/fouten:\n{warnings}\n',
 
     "favorites.export_selection.all": "Alle favorieten exporteren",
@@ -562,6 +569,10 @@ TRANSLATIONS = {
     "mining.ship": "Schip",
     "mining.carrier": "Carrier",
     "mining.total": "Totaal",
+    "mining.legend_confirmed": "Bevestigd",
+    "mining.legend_last_known": "Laatst bekend",
+    "mining.legend_unknown": "Onbekend",
+    "mining.legend_inconsistent": "Tegenstrijdig",
     "mining.stock_confirmed": "Momenteel bevestigd",
     "mining.stock_tracked": "Betrouwbaar bijgewerkt vanuit bevestigde voorraad",
     "mining.stock_stale": "Laatst bekend, mogelijk verouderd. Niet opgenomen in totalen.",

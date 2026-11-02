@@ -38,6 +38,14 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## CMDRHelper v3.9.26
+
+- Selectievakjes en keuzerondjes blijven duidelijk met de eigen Qt-stijlen van Windows: gele randen in de donkere modus, blauwe in de lichte modus en duidelijk zichtbare geselecteerde keuzerondjes.
+- Mining beoordeelt livegegevens en historische journals op dezelfde manier. Na een herstart in de Rhino blijven oudere scheepsvoorraden als laatst bekend gemarkeerd; een compacte legenda verklaart de kleuren in twaalf talen.
+- Bij een geslaagde scheepswissel gaat de geldige lading mee naar het nieuwe schip, inclusief reeds verwerkte carriertransfers. Nieuwe volledige Cargo-momentopnamen bevestigen de voorraad opnieuw; onbekende voorraden blijven onbekend.
+- Diagnose-ZIP’s bevatten de afsluitfase, wachtende achtergrondtaken en de status van marktschrijftaken met privacyvriendelijke foutcodes. Export blijft tijdens het wachten op afsluiten beschikbaar; herhaalde exports tonen een herstartmelding.
+- Mislukte markttaken en verlopen marktregistraties blokkeren het afsluiten niet meer onbeperkt. Lopende schrijfacties worden afgerond; belangrijke instellingen en Mining-controlepunten blijven beschermd.
+
 ## CMDRHelper v3.9.25
 
 - Gewone selectievakjes en keuzerondjes krijgen een dunne gele rand in de donkere modus (#FFCC33) en een blauwe rand in de lichte modus (#1565C0). De oorspronkelijke vinkjes en selectiepunten blijven behouden.

@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_26.0': 'Las casillas y los botones de opción se distinguen también con los estilos Qt nativos de Windows: bordes amarillos en modo oscuro, azules en modo claro y selección de opción claramente visible.',
+    'release.3_9_26.1': 'Mining evalúa de forma uniforme los datos en directo y los diarios históricos. Tras reiniciar en el Rhino, los inventarios antiguos de la nave siguen marcados como últimos conocidos; una leyenda compacta explica los colores en doce idiomas.',
+    'release.3_9_26.2': 'Al cambiar de nave correctamente, la carga válida pasa a la nueva nave, incluidas las transferencias con el portanaves ya procesadas. Las nuevas instantáneas Cargo completas confirman el inventario; los inventarios desconocidos siguen siendo desconocidos.',
+    'release.3_9_26.3': 'Los ZIP de diagnóstico incluyen la fase de cierre, tareas pendientes y estados de escritura del mercado con códigos que protegen la privacidad. La exportación sigue disponible mientras se espera el cierre; las exportaciones repetidas recuerdan reiniciar.',
+    'release.3_9_26.4': 'Las tareas de mercado fallidas y las capturas caducadas ya no bloquean indefinidamente el cierre. Las escrituras en curso terminan normalmente; los ajustes importantes y los puntos de control de Mining siguen protegidos.',
+
     'release.3_9_25.0': 'Las casillas y los botones de opción normales reciben un borde fino amarillo en modo oscuro (#FFCC33) y azul en modo claro (#1565C0). Se conservan las marcas y los puntos de selección nativos.',
     'release.3_9_25.1': 'Los bordes siguen los cambios de tema e incluyen los controles recién creados. Las etiquetas, los grupos y los indicadores especiales existentes no cambian.',
     'release.3_9_25.2': 'Pruebas Qt más fiables con dobles de prueba completos para Chronicle, EDSM e Inara, limpieza controlada de tareas y widgets y procesamiento explícito de eliminaciones diferidas.',
@@ -448,6 +454,7 @@ TRANSLATIONS = {
     'diagnostics.unavailable': 'El archivo de registro aún no existe o no se pudo abrir.',
     'diagnostics.failed': 'No se pudo crear el paquete de diagnóstico. Elige una ubicación con permiso de escritura y un nombre terminado en .zip.',
     'diagnostics.saved': 'Paquete de diagnóstico guardado:\n{path}',
+    'diagnostics.restart_required': 'CMDRHelper no se ha reiniciado desde el último informe de diagnóstico. Cierra CMDRHelper por completo, vuelve a iniciar el programa y crea después un nuevo ZIP de diagnóstico.',
     'diagnostics.summary': 'Versión: {version}\nPlataforma: {platform}\nArchivos de registro: {count}\nPeriodo del registro: {period}\nNo incluye diarios de Elite ni la base de datos de CMDRHelper.\nAdvertencias/errores recientes:\n{warnings}\n',
 
     "favorites.export_selection.all": "Exportar todos los favoritos",
@@ -562,6 +569,10 @@ TRANSLATIONS = {
     "mining.ship": "Nave",
     "mining.carrier": "Portanaves",
     "mining.total": "Total",
+    "mining.legend_confirmed": "Confirmado",
+    "mining.legend_last_known": "Último dato conocido",
+    "mining.legend_unknown": "Desconocido",
+    "mining.legend_inconsistent": "Incoherente",
     "mining.stock_confirmed": "Confirmado actualmente",
     "mining.stock_tracked": "Actualizado de forma fiable desde existencias confirmadas",
     "mining.stock_stale": "Último valor conocido, posiblemente desactualizado. Excluido de los totales.",

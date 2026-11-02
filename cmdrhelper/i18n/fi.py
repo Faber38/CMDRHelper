@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_26.0': 'Valintaruudut ja valintanapit erottuvat myös Windowsin natiiveilla Qt-tyyleillä: keltaiset reunukset tummassa tilassa, siniset vaaleassa tilassa ja selvästi näkyvät valitut valintanapit.',
+    'release.3_9_26.1': 'Mining käsittelee reaaliaikaisia tietoja ja vanhoja lokeja yhtenäisesti. Rhinossa tehdyn uudelleenkäynnistyksen jälkeen aluksen vanha lastitieto merkitään viimeksi tunnetuksi; tiivis selite avaa värit kahdellatoista kielellä.',
+    'release.3_9_26.2': 'Onnistunut aluksen vaihto siirtää kelvollisen lastitiedon uudelle alukselle, myös jo käsitellyt tukialussiirrot huomioiden. Uusi täydellinen Cargo-tilannekuva vahvistaa lastin; tuntematon lasti pysyy tuntemattomana.',
+    'release.3_9_26.3': 'Diagnostiikka-ZIP sisältää sulkemisvaiheen, odottavat taustatehtävät ja markkinatietojen kirjoitustilat yksityisyyttä suojaavine virhekoodeineen. Vienti on käytettävissä sulkemista odotettaessa; toistuva vienti muistuttaa uudelleenkäynnistyksestä.',
+    'release.3_9_26.4': 'Epäonnistuneet markkinatehtävät ja vanhentuneet markkinatallennukset eivät enää estä sulkemista loputtomasti. Käynnissä olevat kirjoitukset suoritetaan loppuun; tärkeät asetukset ja Mining-tarkistuspisteet säilyvät suojattuina.',
+
     'release.3_9_25.0': 'Tavalliset valintaruudut ja valintanapit saavat ohuen keltaisen reunuksen tummassa tilassa (#FFCC33) ja sinisen vaaleassa tilassa (#1565C0). Alkuperäiset valintamerkit ja valintapisteet säilyvät.',
     'release.3_9_25.1': 'Reunukset seuraavat teeman vaihtoja ja kattavat myöhemmin luodut valitsimet. Tekstit, ryhmät ja nykyiset erikoisilmaisimet säilyvät ennallaan.',
     'release.3_9_25.2': 'Luotettavammat Qt-testit kattavilla Chronicle-, EDSM- ja Inara-testijäljitelmillä, taustatehtävien ja käyttöliittymäelementtien hallitulla siivouksella sekä lykättyjen poistojen erillisellä käsittelyllä.',
@@ -448,6 +454,7 @@ TRANSLATIONS = {
     'diagnostics.unavailable': 'Lokitiedostoa ei vielä ole tai sitä ei voitu avata.',
     'diagnostics.failed': 'Diagnostiikkapakettia ei voitu luoda. Valitse kirjoitettava sijainti ja .zip-päätteinen tiedostonimi.',
     'diagnostics.saved': 'Diagnostiikkapaketti tallennettu:\n{path}',
+    'diagnostics.restart_required': 'CMDRHelperiä ei ole käynnistetty uudelleen viimeisimmän diagnostiikkaraportin jälkeen. Sulje CMDRHelper kokonaan, käynnistä ohjelma uudelleen ja luo sitten uusi diagnostiikan ZIP-tiedosto.',
     'diagnostics.summary': 'Versio: {version}\nAlusta: {platform}\nLokitiedostot: {count}\nLokin ajanjakso: {period}\nEi sisällä Eliten Journal-tiedostoja eikä CMDRHelper-tietokantaa.\nViimeisimmät varoitukset/virheet:\n{warnings}\n',
 
     "favorites.export_selection.all": "Vie kaikki suosikit",
@@ -562,6 +569,10 @@ TRANSLATIONS = {
     "mining.ship": "Alus",
     "mining.carrier": "Tukialus",
     "mining.total": "Yhteensä",
+    "mining.legend_confirmed": "Vahvistettu",
+    "mining.legend_last_known": "Viimeksi tunnettu",
+    "mining.legend_unknown": "Tuntematon",
+    "mining.legend_inconsistent": "Ristiriitainen",
     "mining.stock_confirmed": "Tällä hetkellä vahvistettu",
     "mining.stock_tracked": "Päivitetty luotettavasti vahvistetusta varastosta",
     "mining.stock_stale": "Viimeksi tunnettu, mahdollisesti vanhentunut. Ei sisälly yhteismääriin.",

@@ -94,7 +94,9 @@ class VehicleEvidenceTests(unittest.TestCase):
         self.apply(cargo(gold=28), dict(event="LaunchSRV", ID=52, SRVType="mev_rhino"), cargo("SRV", gold=4))
         result = self.apply(dict(event="LoadGame", FID="F1", Ship="mev_rhino", ShipID=52),
                             journal="/source/Journal.2026-10-27T120000.01.log")
-        self.assertEqual(result.stock("gold")[:2], (4, 28))
+        self.assertEqual(result.stock("gold")[:2], (4, None))
+        self.assertEqual(result.displayed_stock("Ship", "gold"), (28, "stale"))
+        self.assertIsNone(result.stock("gold").total_amount)
         self.assertEqual(result.ship_id, 51)
 
     def test_unproven_srv_restart_keeps_only_stale_ship_display(self):
@@ -250,7 +252,9 @@ class SnapshotHistoryTests(unittest.TestCase):
         for _ in range(2):
             result = MiningInventoryReader().reconstruct(1, "F1", self.sessions,
                 checkpoints=result.checkpoints, live_path=next_path)
-            self.assertEqual(result.stock("gold")[:2], (4, 28))
+            self.assertEqual(result.stock("gold")[:2], (4, None))
+            self.assertEqual(result.displayed_stock("Ship", "gold"), (28, "stale"))
+            self.assertIsNone(result.stock("gold").total_amount)
             self.assertEqual(result.ship_id, 51)
 
     def test_reader_reconciles_current_sidecar_before_refinement_without_double_count(self):

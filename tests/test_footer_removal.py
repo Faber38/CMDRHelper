@@ -243,7 +243,8 @@ class FooterRemovalTests(unittest.TestCase):
                               str(self.root), 'Ctrl+F8'):
                 self.assertNotIn(forbidden, all_text)
             self.assertEqual(set(z.namelist()), {'cmdrhelper.log', 'system_info.json',
-                             'diagnose_summary.txt', 'odyssey_display_diagnostics.json'})
+                             'diagnose_summary.txt', 'odyssey_display_diagnostics.json',
+                             'exit_diagnostics.json'})
         target = os.environ.get('CMDRHELPER_FOOTER_TEST_ARTIFACTS')
         if target:
             folder = Path(target); folder.mkdir(parents=True, exist_ok=True)

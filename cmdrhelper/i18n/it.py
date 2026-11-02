@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    'release.3_9_26.0': 'Caselle di controllo e pulsanti di opzione restano leggibili con gli stili Qt nativi di Windows: bordi gialli nel tema scuro, blu nel tema chiaro e selezione dei pulsanti ben visibile.',
+    'release.3_9_26.1': 'Mining valuta in modo uniforme dati live e diari storici. Dopo un riavvio nel Rhino, le scorte precedenti della nave restano indicate come ultime note; una legenda compatta spiega i colori in dodici lingue.',
+    'release.3_9_26.2': 'Un cambio nave riuscito mantiene il carico valido, inclusi i trasferimenti con la portaerei già elaborati, sulla nuova nave. Nuove istantanee Cargo complete confermano le scorte; quelle sconosciute restano sconosciute.',
+    'release.3_9_26.3': 'Gli ZIP diagnostici includono fase di chiusura, attività in attesa e stato delle scritture del mercato con codici rispettosi della privacy. L’esportazione resta accessibile durante la chiusura; esportazioni ripetute mostrano un promemoria di riavvio.',
+    'release.3_9_26.4': 'Operazioni di mercato fallite e acquisizioni scadute non bloccano più la chiusura indefinitamente. Le scritture in corso terminano normalmente; impostazioni importanti e checkpoint Mining restano protetti.',
+
     'release.3_9_25.0': 'Le normali caselle di controllo e i pulsanti di opzione ricevono un bordo sottile giallo nel tema scuro (#FFCC33) e blu nel tema chiaro (#1565C0). I segni di spunta e i punti di selezione nativi sono preservati.',
     'release.3_9_25.1': 'I bordi seguono i cambi di tema e includono i controlli appena creati. Etichette, gruppi e indicatori speciali esistenti restano invariati.',
     'release.3_9_25.2': 'Test Qt più affidabili grazie a simulazioni complete per Chronicle, EDSM e Inara, alla pulizia controllata di attività e widget e alla gestione esplicita delle eliminazioni differite.',
@@ -448,6 +454,7 @@ TRANSLATIONS = {
     'diagnostics.unavailable': 'Il file di registro non esiste ancora o non è stato possibile aprirlo.',
     'diagnostics.failed': 'Impossibile creare il pacchetto diagnostico. Scegli una posizione scrivibile e un nome che termini con .zip.',
     'diagnostics.saved': 'Pacchetto diagnostico salvato:\n{path}',
+    'diagnostics.restart_required': 'CMDRHelper non è stato riavviato dopo l’ultimo rapporto diagnostico. Chiudi completamente CMDRHelper, riavvia il programma e crea un nuovo ZIP diagnostico.',
     'diagnostics.summary': 'Versione: {version}\nPiattaforma: {platform}\nFile di registro: {count}\nPeriodo dei registri: {period}\nNon contiene diari di Elite né il database di CMDRHelper.\nAvvisi/errori recenti:\n{warnings}\n',
 
     "favorites.export_selection.all": "Esporta tutti i preferiti",
@@ -562,6 +569,10 @@ TRANSLATIONS = {
     "mining.ship": "Nave",
     "mining.carrier": "Carrier",
     "mining.total": "Totale",
+    "mining.legend_confirmed": "Confermato",
+    "mining.legend_last_known": "Ultimo dato noto",
+    "mining.legend_unknown": "Sconosciuto",
+    "mining.legend_inconsistent": "Incoerente",
     "mining.stock_confirmed": "Attualmente confermato",
     "mining.stock_tracked": "Aggiornato in modo affidabile da scorte confermate",
     "mining.stock_stale": "Ultimo valore noto, forse obsoleto. Escluso dai totali.",

@@ -62,7 +62,15 @@ _FIELDS = {'source_ref', 'line_number', 'version', 'os', 'python', 'qt', 'pyside
            'component', 'reason', 'status', 'errno', 'winerror', 'sqlite_code',
            'http_status', 'edsm_code', 'inara_error', 'inara_retry_seconds',
            'prepared_events', 'confirmed_events',
-           'skipped_events', 'response_check', 'position_advanced'}
+           'skipped_events', 'response_check', 'position_advanced',
+           'exit_event', 'exit_category', 'wait_seconds', 'queued', 'running', 'result_pending',
+           'failed', 'python_running', 'qt_active', 'deferred', 'oldest_seconds',
+           'writers', 'threads_alive', 'pending', 'initialization_failed', 'write_failed',
+           'cleanup_failed', 'last_error_present', 'captures_open', 'captures_expired',
+           'dirty', 'timer_active', 'cargo_retry_active', 'index_running', 'import_running',
+           'catchup_running', 'startup_completed', 'source_running', 'ingesting', 'projecting',
+           'edsm_running', 'inara_running', 'source_errors', 'source_deferred', 'writer_state',
+           'discarded_writes', 'discarded_captures', 'expired_captures_discarded', 'writers_with_discarded_errors'}
 
 
 def _technical_fields(fields):
@@ -70,9 +78,18 @@ def _technical_fields(fields):
     versions = {'version', 'python', 'qt', 'pyside'}
     enums = {
         'component': {'startup', 'journal_index', 'station_pads', 'history', 'unsold_cartography',
-                      'commander_state', 'archive', 'catchup', 'live_journal', 'materials', 'source', 'hotkey'},
+                      'commander_state', 'archive', 'catchup', 'live_journal', 'materials', 'source', 'hotkey', 'exit'},
         'status': {'running', 'success', 'partial', 'critical', 'pending', 'cancelled', 'incomplete', 'failed'},
-        'reason': {'repair_prefix_incomplete', 'repair_json_syntax', 'repair_json_encoding', 'repair_json_type', 'pad_signature_mismatch', 'pad_checkpoint_changed', 'pad_lock_timeout', 'mapping_without_scan',
+        'exit_event': {'started', 'progress', 'finished', 'cancelled', 'settings_failed'},
+        'writer_state': {'starting', 'migrating', 'active', 'write_error', 'migration_error', 'closed', 'unknown'},
+        'exit_category': {'workers', 'market', 'mining', 'journal', 'transfers',
+                          'screenshot', 'download', 'edsm', 'inara', 'history', 'other'},
+        'reason': {'market_observation_conflict', 'market_write_discarded', 'market_capture_discarded',
+                   'market_capture_unavailable', 'market_errors_discarded',
+                   'market_initialization_failed', 'market_write_failed', 'market_cleanup_failed',
+                   'market_capture_expired', 'market_error_unclassified', 'worker_still_running',
+                   'result_pending', 'worker_failed', 'mining_checkpoint_failed', 'settings_save_failed', 'diagnostic_unavailable',
+                   'repair_prefix_incomplete', 'repair_json_syntax', 'repair_json_encoding', 'repair_json_type', 'pad_signature_mismatch', 'pad_checkpoint_changed', 'pad_lock_timeout', 'mapping_without_scan',
                    'qt_signal_unavailable', 'thread_start_failed', 'journal_changed_during_read',
                    'journal_replaced_or_truncated', 'partial_final_line', 'catchup_budget',
                    'journal_identity_changed', 'journal_legacy_prefix_unverified', 'source_changed',
@@ -84,7 +101,7 @@ def _technical_fields(fields):
         'value_class': {'unsigned_64', 'above_unsigned_64', 'below_signed_64'},
         'os': {'Linux', 'Windows', 'Darwin'},
         'architecture': {'x86_64', 'AMD64', 'arm64', 'aarch64', 'i386', 'i686', 'x86', 'armv7l'},
-        'phase': {'rollback', 'failure', 'aborted', 'restart', 'backup', 'installation',
+        'phase': {'idle', 'drafts', 'draining', 'finished', 'rollback', 'failure', 'aborted', 'restart', 'backup', 'installation',
                   'extract', 'verification', 'started', 'cleanup', 'progress',
                   'index', 'fallback', 'delivery', 'history', 'archive', 'catchup', 'shutdown', 'complete'},
         'mode': {'venv', 'python'},

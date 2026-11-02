@@ -38,6 +38,14 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.26
+
+- Valintaruudut ja valintanapit erottuvat myös Windowsin natiiveilla Qt-tyyleillä: keltaiset reunukset tummassa tilassa, siniset vaaleassa tilassa ja selvästi näkyvät valitut valintanapit.
+- Mining käsittelee reaaliaikaisia tietoja ja vanhoja lokeja yhtenäisesti. Rhinossa tehdyn uudelleenkäynnistyksen jälkeen aluksen vanha lastitieto merkitään viimeksi tunnetuksi; tiivis selite avaa värit kahdellatoista kielellä.
+- Onnistunut aluksen vaihto siirtää kelvollisen lastitiedon uudelle alukselle, myös jo käsitellyt tukialussiirrot huomioiden. Uusi täydellinen Cargo-tilannekuva vahvistaa lastin; tuntematon lasti pysyy tuntemattomana.
+- Diagnostiikka-ZIP sisältää sulkemisvaiheen, odottavat taustatehtävät ja markkinatietojen kirjoitustilat yksityisyyttä suojaavine virhekoodeineen. Vienti on käytettävissä sulkemista odotettaessa; toistuva vienti muistuttaa uudelleenkäynnistyksestä.
+- Epäonnistuneet markkinatehtävät ja vanhentuneet markkinatallennukset eivät enää estä sulkemista loputtomasti. Käynnissä olevat kirjoitukset suoritetaan loppuun; tärkeät asetukset ja Mining-tarkistuspisteet säilyvät suojattuina.
+
 ## CMDRHelper v3.9.25
 
 - Tavalliset valintaruudut ja valintanapit saavat ohuen keltaisen reunuksen tummassa tilassa (#FFCC33) ja sinisen vaaleassa tilassa (#1565C0). Alkuperäiset valintamerkit ja valintapisteet säilyvät.

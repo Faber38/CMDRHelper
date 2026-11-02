@@ -8,6 +8,7 @@ import re
 import sqlite3
 import sys
 import tempfile
+import uuid
 from zipfile import ZipFile, ZIP_DEFLATED
 
 import PySide6
@@ -18,6 +19,13 @@ from cmdrhelper.version import __version__
 from cmdrhelper.odyssey_display_diagnostics import export_snapshot
 
 logger = logging.getLogger(__name__)
+_SESSION_ID = uuid.uuid4().hex
+_last_successful_export_at = None
+
+
+def exported_this_session():
+    """Process lifetime, deliberately independent of panels/settings reloads."""
+    return _last_successful_export_at is not None
 
 
 def system_info(database=None, journals=None):
@@ -79,13 +87,23 @@ def _log_text(path):
 
 
 @logged_operation("Diagnostic package")
-def create_package(target, *, database=None, journals=None, folder=None, overwrite=False, odyssey_snapshot=None):
+def create_package(target, *, database=None, journals=None, folder=None, overwrite=False, odyssey_snapshot=None,
+                   state=None, exit_controller=None):
     import json
+    from cmdrhelper.exit_diagnostics import snapshot
+    global _last_successful_export_at
     target = Path(target)
     if target.suffix.lower() != '.zip':
         raise ValueError('ZIP extension required')
     folder = Path(folder) if folder is not None else log_folder()
     info = system_info(database, journals)
+    info.update(session_id=_SESSION_ID, previous_successful_export_at=_last_successful_export_at,
+                repeated_in_session=exported_this_session())
+    try:
+        exit_info = snapshot(state, exit_controller)
+    except Exception:
+        # A disappearing worker must not prevent the existing log export.
+        exit_info = dict(schema_version=1, reasons=['diagnostic_unavailable'])
     logs = {}
     # Do not scan arbitrary files or follow symlinks. DBs, journals, exports and
     # screenshots are excluded by construction, regardless of their location.
@@ -112,6 +130,7 @@ def create_package(target, *, database=None, journals=None, folder=None, overwri
                 for name, content in logs.items():
                     archive.writestr(name, content.encode('utf-8'))
                 archive.writestr('system_info.json', json.dumps(info, indent=2).encode('utf-8'))
+                archive.writestr('exit_diagnostics.json', json.dumps(exit_info, indent=2).encode('utf-8'))
                 archive.writestr('diagnose_summary.txt', summary.encode('utf-8'))
                 archive.writestr('odyssey_display_diagnostics.json',
                                  json.dumps(export_snapshot(odyssey_snapshot), ensure_ascii=False, indent=2).encode('utf-8'))
@@ -121,6 +140,7 @@ def create_package(target, *, database=None, journals=None, folder=None, overwri
             os.replace(temporary, target)
         else:
             os.link(temporary, target)  # Atomic publication, never clobber a file.
+        _last_successful_export_at = datetime.now(timezone.utc).isoformat()
         return target
     finally:
         if temporary is not None:
