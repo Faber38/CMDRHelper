@@ -34,7 +34,8 @@ from cmdrhelper.cargo import free_cargo_space
 from cmdrhelper.ui.table_widths import persist_column_widths
 from cmdrhelper.ui.recent_system_copy import RecentSystemCopyDelegate
 from cmdrhelper.ui.mission_status import MissionStatusDelegate, MISSION_STATUS_ROLE
-from cmdrhelper.ui.mission_arrival import MissionArrivalController, MissionRowDelegate
+from cmdrhelper.ui.mission_arrival import (MissionArrivalController, MissionRowDelegate,
+                                         TEAM_ROLE, ARRIVAL_PLACE_ROLE)
 from cmdrhelper.ui.explorer_width_fit import ValueListWidthFit
 from cmdrhelper.ui.explorer_value_sort import (
     ValueItem, sort_keys, bio_sort_keys, setup_sort, apply_sort,
@@ -54,7 +55,8 @@ from cmdrhelper.inara_uploader import (
 )
 from cmdrhelper.version import __version__
 from cmdrhelper.i18n import tr, get_language, set_language
-from cmdrhelper.mission_manager import translate_mission_text, mission_detail_text
+from cmdrhelper.mission_manager import (translate_mission_text, mission_detail_text,
+    mission_quantities_text, mission_display_status, mission_display_step, delivery_complete)
 from cmdrhelper.score_analyzer import ScoreAnalyzer
 from cmdrhelper.update import (
     UpdateCheckWorker,
@@ -4749,6 +4751,7 @@ class MainWindow(QMainWindow):
         self.missions_table = QTableWidget(0, 7)
         self.mission_arrival = MissionArrivalController(
             self.state, self.missions_table, light=getattr(self, "ui_theme", "dark") == "light")
+        self.mission_arrival.arrivalChanged.connect(self._mission_selection_changed)
         self.missions_table.setItemDelegate(MissionRowDelegate(self.missions_table))
         self.mission_status_delegate = MissionStatusDelegate(
             self.missions_table, light=getattr(self, "ui_theme", "dark") == "light")
@@ -4814,6 +4817,9 @@ class MainWindow(QMainWindow):
             self._mission_selection_changed
         )
 
+        from .mission_legend import MissionLegend
+        self.mission_legend = MissionLegend(light=getattr(self, "ui_theme", "dark") == "light")
+        card_layout.addWidget(self.mission_legend)
         card_layout.addWidget(self.missions_table)
 
         layout.addWidget(card, 1)
@@ -5981,6 +5987,8 @@ class MainWindow(QMainWindow):
             self.mission_status_delegate.set_light_mode(theme == "light")
         if hasattr(self, "mission_arrival"):
             self.mission_arrival.set_light_mode(theme == "light")
+        if hasattr(self, "mission_legend"):
+            self.mission_legend.set_light_mode(theme == "light")
 
         if hasattr(self, "system_analysis_view"):
             self.system_analysis_view.set_light_mode(theme == "light")
@@ -6439,8 +6447,16 @@ class MainWindow(QMainWindow):
         self.mission_detail_text.setText(mission_detail_text(mission))
 
         progress = []
+        if mission.wing is True:
+            progress.append(tr('missions.team_capable'))
+        arrival = getattr(self, "mission_arrival", None)
+        if arrival is not None and arrival.at_destination(mission):
+            progress.append(tr('mission_state.at_destination'))
+        quantities = mission_quantities_text(mission)
+        if quantities:
+            progress.append(quantities)
 
-        if mission.progress_text:
+        if mission.progress_text and not quantities:
             progress.append(
                 tr(
                     "missions.progress",
@@ -6448,16 +6464,11 @@ class MainWindow(QMainWindow):
                 )
             )
 
-        progress.append(
-            tr("missions.status", value=self._translate_mission_text(mission.status))
-        )
-
-        progress.append(
-            tr(
-                "missions.next_step",
-                value=self._translate_mission_text(mission.next_step),
-            )
-        )
+        if delivery_complete(mission):
+            progress.append(mission_display_status(mission) + ' – ' + mission_display_step(mission))
+        else:
+            progress.append(tr('missions.status', value=mission_display_status(mission)))
+            progress.append(tr('missions.next_step', value=mission_display_step(mission)))
 
         self.mission_progress_text.setText("   ·   ".join(progress))
 
@@ -6824,6 +6835,8 @@ class MainWindow(QMainWindow):
             self._missions_dirty = False
 
     def _refresh_missions_table(self):
+        if hasattr(self, "mission_legend"):
+            self.mission_legend.refresh()
         selected = self.missions_table.item(self.missions_table.currentRow(), 0)
         selected_mission = getattr(selected, "mission", None)
         commander = getattr(self.state, "commander_id", None)
@@ -6843,8 +6856,8 @@ class MainWindow(QMainWindow):
                     self._translate_mission_text(mission.name),
                     mission.destination_system or "–",
                     self._place_text(mission),
-                    self._translate_mission_text(mission.status),
-                    self._translate_mission_text(mission.next_step),
+                    mission_display_status(mission),
+                    mission_display_step(mission),
                     (tr("missions.reward_offer", value=self._format_reward(mission.reward))
                      if mission.extra.get("pending_offer") else self._format_reward(mission.reward)),
                     (tr("common.unknown") if mission.extra.get("pending_offer")
@@ -6872,6 +6885,11 @@ class MainWindow(QMainWindow):
                     if mission.extra.get("pending_offer"):
                         item.setToolTip(tr("missions.encounter_hint"))
 
+                    if col == 0 and mission.wing is True:
+                        item.setData(TEAM_ROLE, True)
+                        item.setToolTip(tr('missions.team_capable_tooltip'))
+                    if col == 2:
+                        item.setData(ARRIVAL_PLACE_ROLE, str(value or ''))
                     if col == 3:
                         item.setData(MISSION_STATUS_ROLE, mission.status)
 

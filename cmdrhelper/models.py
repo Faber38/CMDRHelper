@@ -43,6 +43,12 @@ class Mission:
     accepted_at: str = ""
     last_update: str = ""
     extra: dict = field(default_factory=dict)
+    commodity_symbol: str = ""
+    required_count: int | None = None
+    delivered_count: int | None = None
+    collected_count: int | None = None
+    wing: bool | None = None
+    depot_update_type: str = ""
 
 
 @dataclass

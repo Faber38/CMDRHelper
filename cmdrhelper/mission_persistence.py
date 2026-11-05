@@ -6,6 +6,73 @@ import json
 TERMINAL_EVENTS = frozenset(('MissionCompleted', 'MissionFailed', 'MissionAbandoned'))
 MISSION_EVENTS = TERMINAL_EVENTS | {'MissionAccepted', 'MissionRedirected', 'CargoDepot', 'Missions'}
 ORIGIN_FIELDS = ('original_destination_system', 'original_destination_station')
+DETAIL_FIELDS = ('commodity', 'commodity_symbol', 'required_count',
+                 'delivered_count', 'collected_count', 'wing', 'depot_update_type')
+
+
+def mission_details_prefix(con, commander_id):
+    fid = con.execute('SELECT fid FROM commanders WHERE id=?', (commander_id,)).fetchone()[0]
+    return 'mission_details/v1/' + fid + '/'
+
+
+def valid_details(data):
+    """Only explicit typed facts; legacy descriptions are never parsed."""
+    result = {}
+    for key in DETAIL_FIELDS:
+        value = data.get(key)
+        if key == 'wing':
+            valid = type(value) is bool
+        elif key.endswith('_count'):
+            valid = type(value) is int and value >= (1 if key == 'required_count' else 0)
+        elif key == 'depot_update_type':
+            valid = value in ('collect', 'deliver', 'wingupdate')
+        else:
+            valid = isinstance(value, str) and bool(value)
+        if valid:
+            result[key] = value
+    return result
+
+
+def load_mission_details(con, commander_id):
+    prefix = mission_details_prefix(con, commander_id)
+    result = {}
+    for key, value in con.execute(
+            'SELECT key,value FROM app_meta WHERE substr(key,1,?)=?', (len(prefix), prefix)):
+        try:
+            data = json.loads(value)
+        except (ValueError, TypeError):
+            continue
+        if isinstance(data, dict):
+            result[key[len(prefix):]] = valid_details(data)
+    return result
+
+
+def update_depot_details(mission, event):
+    """Merge cumulative counters atomically; Count is the transfer, not the total."""
+    kind = str(event.get('UpdateType') or '').lower()
+    if kind not in ('collect', 'deliver', 'wingupdate'):
+        return False
+    candidate = dict(mission)
+    for source, target in (('TotalItemsToDeliver', 'required_count'),
+                           ('ItemsDelivered', 'delivered_count'),
+                           ('ItemsCollected', 'collected_count')):
+        if source in event:
+            value = event[source]
+            if type(value) is not int or value < (1 if target == 'required_count' else 0):
+                return False
+            candidate[target] = value
+    total, delivered = candidate.get('required_count'), candidate.get('delivered_count')
+    if total is not None and delivered is not None and delivered > total:
+        return False
+    candidate['depot_update_type'] = kind
+    if event.get('CargoType'):
+        candidate['commodity_symbol'] = event['CargoType']
+    if not candidate.get('commodity'):
+        candidate['commodity'] = event.get('CargoType_Localised') or event.get('CargoType') or ''
+    mission.update(valid_details(candidate))
+    if total is not None:
+        mission['count'] = total
+    return True
 
 
 def mission_origin_prefix(con, commander_id):
@@ -93,6 +160,10 @@ def snapshot_mission(item, timestamp, existing=None):
     for source, target in fields.items():
         if item.get(source) not in (None, '', 0):
             mission[target] = fresh[target]
+    # Missing snapshot fields must not erase depot counters or explicit false Wing.
+    for key in ('commodity_symbol', 'wing', 'required_count'):
+        if key in fresh and (key != 'required_count' or not mission.get('depot_update_type')):
+            mission[key] = fresh[key]
     update_destination_summary(existing, mission)
     if not mission.get('is_open', True):
         mission['status'] = STATUS_ACCEPTED
@@ -136,6 +207,13 @@ def cleanup_terminal_missions(con, commander_id):
         return 0
     key, anchor = load_anchor(con, commander_id)
     save_anchor(con, key, anchor)
+    prefix = mission_details_prefix(con, commander_id)
+    ids = con.execute("SELECT mission_id FROM commander_missions WHERE commander_id=? "
+                      "AND is_open=0 AND terminal_state IN ('completed','failed','abandoned')",
+                      (commander_id,)).fetchall()
+    from cmdrhelper.database import CMDRDatabase
+    con.executemany('DELETE FROM app_meta WHERE key=?',
+                    [(prefix + str(CMDRDatabase._mission_id_from_sql(row[0])),) for row in ids])
     return con.execute(
         "DELETE FROM commander_missions WHERE commander_id=? AND is_open=0 "
         "AND terminal_state IN ('completed','failed','abandoned')", (commander_id,)

@@ -1,5 +1,6 @@
 """Explorer favorites: explicit editing and private, confirmed image imports."""
 from datetime import datetime
+from html import escape
 from pathlib import Path
 import sqlite3
 import math
@@ -104,8 +105,9 @@ class FavoriteDialog(QDialog):
         for category in CATEGORIES:
             self.category.addItem(tr('favorites.category.' + category), category)
         self.category.setCurrentIndex(max(0, self.category.findData(record.get('category','other'))))
-        self.note = QTextEdit(record.get('note',''))
+        self.note = QTextEdit()
         self.note.setAcceptRichText(False)
+        self.note.setPlainText(record.get('note',''))
         form.addRow(tr('favorites.name'), self.name)
         form.addRow(tr('favorites.category'), self.category)
         form.addRow(tr('favorites.note'), self.note)
@@ -566,6 +568,8 @@ class FavoritesView(QWidget):
                 signature = text, route_system(record), key
                 if self._row_signatures.get(record['id']) != signature:
                     item.setText(text)
+                    item.setToolTip('<qt><p style="white-space: pre-wrap;">' +
+                                    escape(record['name']) + '</p></qt>')
                     item.setData(Qt.UserRole, record['id'])
                     item.setData(SYSTEM_NAME_ROLE, route_system(record))
                     pixmap = self._preview_cache.get(path, 80, 60, dpr=dpr, owner=owner, decoder=preview)

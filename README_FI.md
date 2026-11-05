@@ -38,6 +38,13 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.27
+
+- Kauppanäkymät erottavat sinisen MissionID-rahdin vaaleanpunaisesta mahdollisesta tehtävärahdista. Työkaluvihjeet näyttävät määrät ja tiiviit selitteet kuvaavat symbolit; sekarahti näyttää molemmat symbolit.
+- Tehtävät näyttävät tarvittavat, toimitetut ja puuttuvat tavaramäärät, tiimikelpoisuuden ja « Tehtävän määränpäässä » -vihjeen. Rakenteiset tiedot ja WingUpdate-edistyminen säilyvät; valmiit toimitukset muistuttavat palkinnon noutamisesta.
+- Suosikkimuistiinpanot säilyttävät rivinvaihdot ja tyhjät rivit, ja niitä muokataan pelkkänä tekstinä. Työkaluvihjeet näyttävät suosikkien koko nimet.
+- Erityiskiitos CMDR Nanjanille, jonka Commander-nimi näkyy kullanvärisenä; aiemmat kiitokset säilyvät. Uudet tekstit ovat saatavilla kaikilla kahdellatoista kielellä.
+
 ## CMDRHelper v3.9.26
 
 - Valintaruudut ja valintanapit erottuvat myös Windowsin natiiveilla Qt-tyyleillä: keltaiset reunukset tummassa tilassa, siniset vaaleassa tilassa ja selvästi näkyvät valitut valintanapit.

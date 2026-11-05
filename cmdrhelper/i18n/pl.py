@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    "release.3_9_27.0": "Widoki handlu odróżniają niebieski ładunek MissionID od różowego możliwego ładunku misji, z ilościami w podpowiedziach i zwięzłymi legendami; ładunek mieszany pokazuje oba symbole.",
+    "release.3_9_27.1": "Misje pokazują wymagane, dostarczone i brakujące towary, możliwość gry zespołowej oraz wskazówkę „U celu misji”. Dane strukturalne i postęp WingUpdate są zachowywane; ukończone dostawy przypominają o odebraniu nagrody.",
+    "release.3_9_27.2": "Notatki ulubionych zachowują podziały i puste wiersze oraz są edytowane jako zwykły tekst. Podpowiedzi pokazują pełne nazwy ulubionych.",
+    "release.3_9_27.3": "Specjalne podziękowania dla CMDR Nanjan z nazwą Commandera w kolorze złotym; dotychczasowe podziękowania pozostają. Nowe teksty są dostępne we wszystkich dwunastu językach.",
+
     'release.3_9_26.0': 'Pola wyboru i przyciski radiowe są czytelne także w natywnych stylach Qt Windows: żółte obramowania w trybie ciemnym, niebieskie w jasnym i wyraźnie widoczne zaznaczenie przycisków radiowych.',
     'release.3_9_26.1': 'Mining jednolicie ocenia dane bieżące i historyczne dzienniki. Po restarcie w Rhino starsze stany ładowni pozostają oznaczone jako ostatnio znane; zwarta legenda objaśnia kolory w dwunastu językach.',
     'release.3_9_26.2': 'Udana zmiana statku przenosi prawidłowy stan ładunku, z uwzględnieniem przetworzonych transferów z lotniskowcem. Nowe pełne migawki Cargo ponownie potwierdzają stan; nieznane stany pozostają nieznane.',
@@ -229,6 +234,8 @@ TRANSLATIONS = {
     'about.acknowledgements': 'Podziękowania',
     'about.acknowledgements_intro': 'Szczególne podziękowania dla dowódców i grupy graczy EOT, którzy wspierają CMDRHelper wskazówkami, pomysłami, testami i opiniami:',
     'about.acknowledgements_group': 'a także dla całej grupy graczy EOT',
+    'about.special_thanks_heading': 'Szczególne podziękowania dla CMDR Nanjan',
+    'about.special_thanks_text': 'Za jego wyjątkowe wsparcie poprzez liczne testy w praktyce, staranne analizy błędów i cenne propozycje ulepszeń, które znacząco przyczyniły się do dalszego rozwoju CMDRHelper.',
     'about.version': 'Wersja {version}',
     'about.intro': 'CMDRHelper to niezależna aplikacja pomocnicza do Elite Dangerous.',
     'about.purpose': 'Opracowana przez CMDR Faber38, aby przejrzyście prezentować i analizować informacje z Elite Dangerous oraz wspierać dowódców w eksploracji, handlu i innych aktywnościach.',
@@ -2404,4 +2411,42 @@ TRANSLATIONS.update({'exit.title': 'Zamknij CMDRHelper',
 
 TRANSLATIONS.update({
     "shortcuts.summary": 'Ustawiaj i usuwaj skróty dla aktywnego okna CMDRHelper. Skrót szybkiego dodawania do ulubionych nadal działa globalnie.',
+})
+
+TRANSLATIONS.update({
+    'trade.mission_cargo': 'Ładunek misyjny: {count} t',
+    'trade.mission_cargo_mixed': 'Ładunek misyjny: {count} t z łącznie {total} t',
+    'trade.mission_cargo_missions': 'Dla {count} misji',
+    'trade.mission_cargo_own': 'Ładunek twojego statku',
+})
+
+# Structured mission progress and team capability.
+TRANSLATIONS.update({
+    'missions.team_capable': 'Możliwa gra zespołowa',
+    'missions.team_capable_tooltip': 'Misję można wykonać zespołowo. Nie oznacza to udziału innych dowódców.',
+    'missions.delivery_complete': 'Dostawa zakończona',
+    'missions.claim_reward': 'Odbierz nagrodę',
+    'missions.check_delivery': 'Sprawdź misję',
+    'missions.quantity_required': 'Wymagane: {count} t — {commodity}',
+    'missions.quantity_delivered': 'Dostarczono {count} t',
+    'missions.quantity_remaining': 'Brakuje {count} t',
+    'missions.delivery_unknown': 'Postęp dostawy nieznany',
+})
+
+# Mission table legend (selection and hover are not statuses).
+TRANSLATIONS.update({
+    'missions.legend_arrival': 'Złoty wiersz: W miejscu docelowym',
+    'missions.legend_accepted': 'Złoty status: Przyjęta',
+    'missions.legend_progress': 'Zielony status: Cel osiągnięty/zmieniony, dane otrzymane lub zadanie/dostawa zakończona',
+})
+
+# Possible mission cargo is distinct from explicit MissionID cargo.
+TRANSLATIONS.update({
+    'trade.possible_cargo_stock': 'Potencjalny ładunek misji: {count} t na pokładzie bez jawnego przypisania.',
+    'trade.possible_cargo_need': 'Otwarte misje ({missions}) wymagają jeszcze łącznie {count} t.',
+    'trade.possible_cargo_cover': 'Wspólny nieprzypisany zapas może pokryć najwyżej dodatkowe {count} t.',
+    'trade.possible_cargo_unknown': 'Otwarte misje ({missions}) wymagają łącznie {count} t; postęp dostaw jest nieznany.',
+    'trade.possible_cargo_warning': 'Nie potwierdzono jeszcze, czy Elite przyjmie ten towar.',
+    'trade.cargo_legend_blue': 'Niebieska kula: Ładunek misji przypisany przez Elite za pomocą MissionID.',
+    'trade.cargo_legend_pink': 'Różowa kula z !: Pasujący ładunek statku; przyjęcie przez Elite niepotwierdzone.',
 })

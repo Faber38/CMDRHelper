@@ -6,6 +6,7 @@ import unittest
 from unittest.mock import patch
 
 from PySide6.QtCore import QPoint, Qt, QTimer
+from PySide6.QtGui import QTextDocument
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QDialog, QDialogButtonBox, QVBoxLayout, QWidget
 
@@ -105,7 +106,7 @@ class AboutDialogTests(unittest.TestCase):
         root = Path(__file__).resolve().parents[1]
         self.assertEqual(len(_TRANSLATIONS), 12)
         reference = {k:v for k,v in _TRANSLATIONS['en'].items() if k.startswith('about.')}
-        self.assertEqual(len(reference), 11)
+        self.assertEqual(len(reference), 13)
         for language in _TRANSLATIONS:
             table, duplicates = load_translation_file(root / f'cmdrhelper/i18n/{language}.py')
             self.assertFalse(duplicates)
@@ -135,6 +136,17 @@ class AboutDialogTests(unittest.TestCase):
                     self.assertIn('EOT', dialog.acknowledgements_intro.text())
                     self.assertEqual(dialog.acknowledged_group.text(), table['about.acknowledgements_group'])
                     self.assertIn('EOT', dialog.acknowledged_group.text())
+                    heading = QTextDocument()
+                    heading.setHtml(dialog.special_thanks_heading.text())
+                    self.assertEqual(heading.toPlainText(), table['about.special_thanks_heading'])
+                    self.assertEqual(heading.toPlainText().count('CMDR Nanjan'), 1)
+                    self.assertEqual(dialog.special_thanks_text.text(), table['about.special_thanks_text'])
+                    self.assertEqual(dialog.special_thanks_heading.font(), dialog.acknowledged_group.font())
+                    self.assertEqual(dialog.special_thanks_text.font(), dialog.acknowledged_group.font())
+                    gold = '#c49a3c' if theme == DARK_STYLESHEET else '#806019'
+                    self.assertIn(f'color: {gold}', dialog.special_thanks_heading.text())
+                    self.assertLess(dialog.acknowledged_group.geometry().bottom(),
+                                    dialog.special_thanks_heading.y())
                     self.assertIn('CMDR Mikee & Michael', dialog.acknowledged_commanders.text())
                     self.assertNotIn('CMDR Mikee · CMDR Michael', dialog.acknowledged_commanders.text())
                     self.assertEqual([len(line.split(' · ')) for line in
@@ -162,16 +174,29 @@ class AboutDialogTests(unittest.TestCase):
                         bar = scroll.verticalScrollBar()
                         self.assertGreater(bar.maximum(), 0)
                         self.assertEqual(scroll.horizontalScrollBar().maximum(), 0)
+                        for label in (dialog.description, dialog.acknowledgements_heading,
+                                      dialog.acknowledgements_intro, dialog.acknowledged_commanders,
+                                      dialog.acknowledged_group, dialog.special_thanks_heading,
+                                      dialog.special_thanks_text):
+                            self.assertGreaterEqual(label.height(), label.heightForWidth(label.width()))
+                            self.assertLessEqual(label.geometry().right(), scroll.widget().width())
+                        names = dialog.acknowledged_commanders
+                        scroll.ensureWidgetVisible(names)
+                        self.app.processEvents()
+                        bottom = names.mapTo(scroll.viewport(), QPoint(0, names.height() - 1))
+                        self.assertTrue(scroll.viewport().rect().contains(bottom))
+                        group = dialog.acknowledged_group
+                        scroll.ensureWidgetVisible(group)
+                        self.app.processEvents()
+                        group_bottom = group.mapTo(scroll.viewport(), QPoint(0, group.height() - 1))
+                        self.assertTrue(scroll.viewport().rect().contains(group_bottom))
                         bar.setFocus()
                         QTest.keyClick(bar, Qt.Key_End)
                         self.app.processEvents()
                         self.assertEqual(bar.value(), bar.maximum())
-                        names = dialog.acknowledged_commanders
-                        bottom = names.mapTo(scroll.viewport(), QPoint(0, names.height() - 1))
+                        thanks = dialog.special_thanks_text
+                        bottom = thanks.mapTo(scroll.viewport(), QPoint(0, thanks.height() - 1))
                         self.assertTrue(scroll.viewport().rect().contains(bottom))
-                        group = dialog.acknowledged_group
-                        group_bottom = group.mapTo(scroll.viewport(), QPoint(0, group.height() - 1))
-                        self.assertTrue(scroll.viewport().rect().contains(group_bottom))
                         close = dialog.buttons.button(QDialogButtonBox.Close)
                         self.assertTrue(close.isVisible())
                         self.assertTrue(dialog.rect().contains(close.mapTo(dialog, close.rect().center())))

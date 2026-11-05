@@ -19,6 +19,11 @@ from cmdrhelper.observed_market_cache import timestamp, utcnow
 from cmdrhelper.saved_markets import (ReadCancelled, read_market, read_markets,
                                      read_reference, source_from_state)
 from .market_age import HOURS
+from .mission_cargo import (MISSION_CARGO_ROLE, MissionCargoDelegate,
+                            current_mission_cargo, mission_cargo_tooltip,
+                            POSSIBLE_MISSION_CARGO_ROLE,
+                            current_possible_mission_cargo, possible_mission_cargo_tooltip,
+                            CargoMissionLegend)
 
 logger = logging.getLogger(__name__)
 MINING = frozenset(c.symbol.casefold() for c in MINING_COMMODITIES)
@@ -58,8 +63,18 @@ class BrowseModel(QAbstractTableModel):
             return row['display'][col]
         if role == Qt.UserRole:
             return row['values'][col]
+        if role == MISSION_CARGO_ROLE and col == 0:
+            return row.get('mission_cargo')
+        if role == POSSIBLE_MISSION_CARGO_ROLE and col == 0:
+            return row.get('possible_mission_cargo')
         if role == Qt.ToolTipRole:
-            return row.get('tooltip', row['display'][col])
+            parts = [row.get('tooltip', row['display'][col])]
+            if col == 0:
+                if row.get('mission_cargo'):
+                    parts.append(mission_cargo_tooltip(row['mission_cargo'], own_cargo=True))
+                if row.get('possible_mission_cargo'):
+                    parts.append(possible_mission_cargo_tooltip(row['possible_mission_cargo']))
+            return '\n'.join(parts)
         if role == Qt.TextAlignmentRole and isinstance(row['values'][col], (int, float)):
             return Qt.AlignRight | Qt.AlignVCenter
         return None
@@ -237,10 +252,13 @@ class SavedMarketsView(QWidget):
         self.cargo_notice.setWordWrap(True)
         self.cargo_notice.hide()
         right_layout.addWidget(self.cargo_notice)
+        self.cargo_mission_legend = CargoMissionLegend()
+        right_layout.addWidget(self.cargo_mission_legend)
         self.goods_model = BrowseModel(('browse.commodity', 'browse.buy', 'browse.sell',
                                        'browse.supply', 'browse.demand'), self)
         self.goods_proxy = BrowseProxy(parent=self)
         self.goods_table = self._table(self.goods_model, self.goods_proxy)
+        self.goods_table.setItemDelegateForColumn(0, MissionCargoDelegate(self.goods_table))
         self.goods_table.setColumnWidth(0, 180)
         for column in range(1, 5):
             self.goods_table.setColumnWidth(column, 130)
@@ -559,11 +577,27 @@ class SavedMarketsView(QWidget):
                 commodity_id=master.frontier_id if master else item.get('commodity_id'),
                 search=f'{name} {symbol}'.casefold(), mining=symbol.casefold() in MINING))
         self.goods_model.replace(rows)
+        self._refresh_mission_cargo()
         self.filter_goods()
 
     def _cargo_changed(self, *_):
+        self._refresh_mission_cargo()
         if self.cargo_only.isChecked():
             self.filter_goods()
+
+    def _refresh_mission_cargo(self):
+        missions = current_mission_cargo(self.state)
+        possible = current_possible_mission_cargo(self.state)
+        self.cargo_mission_legend.refresh()
+        for number, row in enumerate(self.goods_model.rows):
+            details = missions.get(row.get('commodity_id'))
+            candidate = possible.get(row.get('commodity_id'))
+            if details != row.get('mission_cargo') or candidate != row.get('possible_mission_cargo'):
+                row['mission_cargo'] = details
+                row['possible_mission_cargo'] = candidate
+                index = self.goods_model.index(number, 0)
+                self.goods_model.dataChanged.emit(index, index,
+                    [MISSION_CARGO_ROLE, POSSIBLE_MISSION_CARGO_ROLE, Qt.ToolTipRole])
 
     @Slot(int, bool)
     def _goods_mode_changed(self, mode, checked):

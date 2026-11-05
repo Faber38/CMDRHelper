@@ -38,6 +38,13 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## CMDRHelper v3.9.27
+
+- Handelsweergaven onderscheiden blauwe MissionID-vracht van roze mogelijke missievracht, met hoeveelheden in tooltips en compacte legenda’s; gemengde vracht toont beide symbolen.
+- Missies tonen benodigde, geleverde en resterende goederen, geschiktheid voor teams en « Op de missiebestemming ». Gestructureerde gegevens en WingUpdate-voortgang blijven bewaard; voltooide leveringen herinneren aan het ophalen van de beloning.
+- Favorietennotities behouden regeleinden en lege regels en worden als platte tekst bewerkt. Tooltips tonen volledige favorietennamen.
+- Speciale dank aan CMDR Nanjan met zijn Commander-naam in goud; bestaande dankbetuigingen blijven behouden. Nieuwe teksten zijn beschikbaar in alle twaalf talen.
+
 ## CMDRHelper v3.9.26
 
 - Selectievakjes en keuzerondjes blijven duidelijk met de eigen Qt-stijlen van Windows: gele randen in de donkere modus, blauwe in de lichte modus en duidelijk zichtbare geselecteerde keuzerondjes.

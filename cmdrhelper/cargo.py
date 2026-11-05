@@ -66,6 +66,10 @@ def normalize_inventory(items) -> list[dict]:
         item = merged[key]
         item["count"] += count
         item["stolen"] += min(stolen, count)
+        mission_id = raw.get("MissionID")
+        if type(mission_id) is int and mission_id > 0 and type(raw.get("Count")) is int and count > 0:
+            missions = item.setdefault("mission_counts", {})
+            missions[mission_id] = missions.get(mission_id, 0) + count
         if display_name:
             item["display_name"] = display_name
     return [merged[key] for key in order if merged[key]["count"] > 0]

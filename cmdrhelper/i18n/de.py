@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    "release.3_9_27.0": "Handelsansichten unterscheiden blaue MissionID-Fracht und rosa mögliche Missionsfracht mit Mengen-Tooltips und kompakten Legenden; Mischfracht zeigt beide Symbole.",
+    "release.3_9_27.1": "Missionen zeigen benötigte, gelieferte und fehlende Warenmengen, Teamfähigkeit und den Hinweis „Am Missionsziel“. Strukturierte Angaben und WingUpdate-Lieferstände bleiben erhalten; vollständige Lieferungen erinnern an die Belohnung.",
+    "release.3_9_27.2": "Favoritennotizen bewahren Zeilenumbrüche und Leerzeilen und werden als Plain Text bearbeitet. Vollständige Favoritennamen erscheinen als Tooltip.",
+    "release.3_9_27.3": "Besonderer Dank an CMDR Nanjan mit goldfarbenem Commander-Namen; bestehende Danksagungen bleiben erhalten. Neue Texte sind in allen zwölf Sprachen verfügbar.",
+
     'release.3_9_26.0': 'Checkboxen und Radio-Buttons sind auch mit nativen Windows-Qt-Stilen klar erkennbar: gelbe Rahmen im Dark-Mode, blaue im Light-Mode und deutlich sichtbare Auswahlpunkte.',
     'release.3_9_26.1': 'Mining bewertet Live-Daten und historische Journale einheitlich. Nach einem Rhino-Neustart bleiben ältere Schiffsbestände als zuletzt bekannt gekennzeichnet; eine kompakte Legende erklärt die Bestandsfarben in zwölf Sprachen.',
     'release.3_9_26.2': 'Beim erfolgreichen Schiffswechsel wird gültige Fracht einschließlich bereits verarbeiteter Carrier-Transfers auf das neue Schiff fortgeschrieben. Neue vollständige Cargo-Snapshots bestätigen den Bestand erneut; unbekannte Bestände bleiben unbekannt.',
@@ -229,6 +234,8 @@ TRANSLATIONS = {
     'about.acknowledgements': 'Danksagung',
     'about.acknowledgements_intro': 'Ein besonderer Dank geht an die Commander und die EOT-Spielergruppe, die CMDRHelper mit Hinweisen, Ideen, Tests und Rückmeldungen unterstützen:',
     'about.acknowledgements_group': 'sowie der gesamten EOT-Spielergruppe',
+    'about.special_thanks_heading': 'Besonderer Dank an CMDR Nanjan',
+    'about.special_thanks_text': 'Für seine außergewöhnliche Unterstützung durch zahlreiche Praxistests, sorgfältige Fehleranalysen und wertvolle Verbesserungsvorschläge, die wesentlich zur Weiterentwicklung von CMDRHelper beigetragen haben.',
     'about.version': 'Version {version}',
     'about.intro': 'CMDRHelper ist ein unabhängiges Begleitprogramm für Elite Dangerous.',
     'about.purpose': 'Entwickelt von CMDR Faber38, um Informationen aus Elite Dangerous übersichtlich auszuwerten und den Commander bei Exploration, Handel und weiteren Aktivitäten zu unterstützen.',
@@ -2552,4 +2559,42 @@ TRANSLATIONS.update({'exit.title': 'CMDRHelper beenden',
 
 TRANSLATIONS.update({
     "shortcuts.summary": 'Tastenkürzel bei aktivem CMDRHelper-Fenster frei festlegen und entfernen. Der Schnellfavoriten-Hotkey gilt weiterhin global.',
+})
+
+TRANSLATIONS.update({
+    'trade.mission_cargo': 'Missionsfracht: {count} t',
+    'trade.mission_cargo_mixed': 'Missionsfracht: {count} t von insgesamt {total} t',
+    'trade.mission_cargo_missions': 'Für {count} Missionen',
+    'trade.mission_cargo_own': 'Eigene Schiffs-Fracht',
+})
+
+# Structured mission progress and team capability.
+TRANSLATIONS.update({
+    'missions.team_capable': 'Teamfähig',
+    'missions.team_capable_tooltip': 'Teamfähige Mission. Dies bedeutet nicht, dass andere Commander teilnehmen.',
+    'missions.delivery_complete': 'Lieferung abgeschlossen',
+    'missions.claim_reward': 'Belohnung abholen',
+    'missions.check_delivery': 'Mission prüfen',
+    'missions.quantity_required': '{count} t {commodity} benötigt',
+    'missions.quantity_delivered': '{count} t geliefert',
+    'missions.quantity_remaining': '{count} t fehlen',
+    'missions.delivery_unknown': 'Lieferstand unbekannt',
+})
+
+# Mission table legend (selection and hover are not statuses).
+TRANSLATIONS.update({
+    'missions.legend_arrival': 'Goldene Zeile: Am Missionsziel',
+    'missions.legend_accepted': 'Goldener Status: Angenommen',
+    'missions.legend_progress': 'Grüner Status: Ziel erreicht/geändert, Daten erhalten oder Aufgabe/Lieferung erledigt',
+})
+
+# Possible mission cargo is distinct from explicit MissionID cargo.
+TRANSLATIONS.update({
+    'trade.possible_cargo_stock': 'Mögliche Missionsfracht: {count} t ohne ausdrückliche Zuordnung im Schiff.',
+    'trade.possible_cargo_need': 'Offene Missionen ({missions}) benötigen zusammen noch {count} t.',
+    'trade.possible_cargo_cover': 'Der gemeinsame, nicht zugeordnete Bestand könnte davon höchstens {count} t zusätzlich decken.',
+    'trade.possible_cargo_unknown': 'Offene Missionen ({missions}) fordern insgesamt {count} t an; bisheriger Lieferstand unbekannt.',
+    'trade.possible_cargo_warning': 'Ob Elite diese Ware annimmt, ist noch nicht bestätigt.',
+    'trade.cargo_legend_blue': 'Blaue Missionskugel: Von Elite per MissionID zugeordnete Missionsfracht.',
+    'trade.cargo_legend_pink': 'Rosa Missionskugel mit !: Passende Schiffsfracht; Annahme durch Elite unbestätigt.',
 })

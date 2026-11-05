@@ -39,6 +39,13 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.27
+
+- Ticaret görünümleri mavi MissionID kargosunu pembe olası görev kargosundan ayırır; miktar ipuçları ve kısa açıklamalar sunar. Karışık kargo her iki simgeyi gösterir.
+- Görevler gereken, teslim edilen ve kalan malları, ekip uygunluğunu ve « Görev hedefinde » bilgisini gösterir. Yapılandırılmış bilgiler ve WingUpdate teslimat ilerlemesi saklanır; tamamlanan teslimatlar ödülü almayı hatırlatır.
+- Favori notları satır sonlarını ve boş satırları korur, düz metin olarak düzenlenir. İpuçları favorilerin tam adlarını gösterir.
+- Komutan adı altın renginde vurgulanan CMDR Nanjan’a özel teşekkürler; mevcut teşekkürler korunur. Yeni metinler on iki dilin tamamında mevcuttur.
+
 ## CMDRHelper v3.9.26
 
 - Onay kutuları ve radyo düğmeleri yerel Windows Qt stillerinde de nettir: koyu modda sarı, açık modda mavi kenarlıklar ve belirgin seçili radyo düğmeleri.

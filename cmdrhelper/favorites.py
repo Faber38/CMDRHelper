@@ -110,7 +110,8 @@ class FavoriteStore:
         # Location is immutable on edit. Live values cannot overwrite the saved point.
         record = dict(old or values)
         for key in EDITABLE:
-            record[key] = str(values.get(key, record.get(key, ''))).strip()
+            value = str(values.get(key, record.get(key, '')))
+            record[key] = value if key == 'note' else value.strip()
         record['category'] = record['category'] or 'other'
         if (not record['name'] or not record.get('system_name')
                 or record.get('type') not in TYPES or record['category'] not in CATEGORIES):

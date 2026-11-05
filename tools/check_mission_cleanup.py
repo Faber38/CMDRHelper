@@ -46,6 +46,16 @@ def check_copy(source, destination, *, clean=False):
             before_inactive = con.execute("SELECT * FROM commander_missions WHERE terminal_state='inactive' "
                                           'ORDER BY commander_id,mission_id').fetchall()
             before_meta = con.execute("SELECT * FROM app_meta WHERE key NOT LIKE 'mission_state_anchor/%' ORDER BY key").fetchall()
+            # Only metadata belonging to the exact terminal rows being cleaned may disappear.
+            if clean:
+                from cmdrhelper.database import CMDRDatabase
+                terminal_keys = {
+                    'mission_details/v1/' + fid + '/' + str(CMDRDatabase._mission_id_from_sql(mid))
+                    for fid, mid in con.execute(
+                        "SELECT c.fid,m.mission_id FROM commander_missions m "
+                        "JOIN commanders c ON c.id=m.commander_id WHERE m.is_open=0 "
+                        "AND m.terminal_state IN ('completed','failed','abandoned')")}
+                before_meta = [row for row in before_meta if row[0] not in terminal_keys]
             report = dict(source=str(source), copy=str(destination), schema_version=version,
                           before=counts(con), removed={})
             with con:

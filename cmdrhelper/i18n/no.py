@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    "release.3_9_27.0": "Handelsvisningene skiller blå MissionID-last fra rosa mulig oppdragslast, med mengder i verktøytips og kompakte forklaringer; blandet last viser begge symbolene.",
+    "release.3_9_27.1": "Oppdrag viser nødvendige, leverte og gjenstående varer, lagmulighet og « Ved oppdragsmålet ». Strukturerte opplysninger og WingUpdate-fremdrift bevares; fullførte leveringer minner om å hente belønningen.",
+    "release.3_9_27.2": "Favorittnotater beholder linjeskift og tomme linjer og redigeres som ren tekst. Verktøytips viser fullstendige favorittnavn.",
+    "release.3_9_27.3": "En spesiell takk til CMDR Nanjan med Commander-navnet i gull; eksisterende takksigelser beholdes. Nye tekster er tilgjengelige på alle tolv språk.",
+
     'release.3_9_26.0': 'Avkrysningsbokser og radioknapper er tydelige også med native Qt-stiler i Windows: gule rammer i mørk modus, blå i lys modus og tydelig markerte radiovalg.',
     'release.3_9_26.1': 'Mining vurderer sanntidsdata og historiske journaler likt. Etter en omstart i Rhino vises eldre skipsbeholdninger fortsatt som sist kjent; en kompakt forklaring viser beholdningsfargene på tolv språk.',
     'release.3_9_26.2': 'Et vellykket skipsbytte viderefører gyldig last, inkludert allerede behandlede overføringer til og fra hangarskipet, til det nye skipet. Nye fullstendige Cargo-data bekrefter beholdningen igjen; ukjente beholdninger forblir ukjente.',
@@ -229,6 +234,8 @@ TRANSLATIONS = {
     'about.acknowledgements': 'Takk',
     'about.acknowledgements_intro': 'En spesiell takk til kommandørene og EOT-spillergruppen som støtter CMDRHelper med tips, ideer, testing og tilbakemeldinger:',
     'about.acknowledgements_group': 'samt hele EOT-spillergruppen',
+    'about.special_thanks_heading': 'En spesiell takk til CMDR Nanjan',
+    'about.special_thanks_text': 'For hans enestående støtte gjennom omfattende testing i praksis, grundige feilanalyser og verdifulle forbedringsforslag, som har bidratt vesentlig til videreutviklingen av CMDRHelper.',
     'about.version': 'Versjon {version}',
     'about.intro': 'CMDRHelper er et uavhengig hjelpeprogram for Elite Dangerous.',
     'about.purpose': 'Utviklet av CMDR Faber38 for å presentere og analysere informasjon fra Elite Dangerous på en oversiktlig måte og støtte kommandører i utforskning, handel og andre aktiviteter.',
@@ -2404,4 +2411,42 @@ TRANSLATIONS.update({'exit.title': 'Avslutt CMDRHelper',
 
 TRANSLATIONS.update({
     "shortcuts.summary": 'Velg og fjern hurtigtaster for det aktive CMDRHelper-vinduet. Hurtigtasten for hurtigfavoritt fungerer fortsatt globalt.',
+})
+
+TRANSLATIONS.update({
+    'trade.mission_cargo': 'Oppdragslast: {count} t',
+    'trade.mission_cargo_mixed': 'Oppdragslast: {count} t av totalt {total} t',
+    'trade.mission_cargo_missions': 'For {count} oppdrag',
+    'trade.mission_cargo_own': 'Last i ditt skip',
+})
+
+# Structured mission progress and team capability.
+TRANSLATIONS.update({
+    'missions.team_capable': 'Kan spilles i lag',
+    'missions.team_capable_tooltip': 'Oppdraget kan spilles i lag. Det betyr ikke at andre kommandører deltar.',
+    'missions.delivery_complete': 'Levering fullført',
+    'missions.claim_reward': 'Hent belønning',
+    'missions.check_delivery': 'Kontroller oppdraget',
+    'missions.quantity_required': '{count} t {commodity} kreves',
+    'missions.quantity_delivered': '{count} t levert',
+    'missions.quantity_remaining': '{count} t gjenstår',
+    'missions.delivery_unknown': 'Leveringsfremdrift ukjent',
+})
+
+# Mission table legend (selection and hover are not statuses).
+TRANSLATIONS.update({
+    'missions.legend_arrival': 'Gullfarget rad: Ved oppdragsmålet',
+    'missions.legend_accepted': 'Gullfarget status: Godtatt',
+    'missions.legend_progress': 'Grønn status: Mål nådd/endret, data mottatt eller oppgave/levering fullført',
+})
+
+# Possible mission cargo is distinct from explicit MissionID cargo.
+TRANSLATIONS.update({
+    'trade.possible_cargo_stock': 'Mulig oppdragslast: {count} t om bord uten uttrykkelig tildeling.',
+    'trade.possible_cargo_need': 'Åpne oppdrag ({missions}) trenger fortsatt totalt {count} t.',
+    'trade.possible_cargo_cover': 'Det felles utildelte lageret kan dekke høyst ytterligere {count} t.',
+    'trade.possible_cargo_unknown': 'Åpne oppdrag ({missions}) ber om totalt {count} t; leveringsstatusen er ukjent.',
+    'trade.possible_cargo_warning': 'Det er ennå ikke bekreftet om Elite godtar varen.',
+    'trade.cargo_legend_blue': 'Blå oppdragskule: Oppdragslast tildelt av Elite via MissionID.',
+    'trade.cargo_legend_pink': 'Rosa oppdragskule med !: Passende skipslast; Elites godkjenning er ubekreftet.',
 })

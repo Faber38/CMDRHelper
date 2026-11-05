@@ -38,6 +38,13 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.9.27
+
+- Les vues commerciales distinguent la cargaison MissionID bleue de la cargaison de mission possible rose, avec quantités en infobulle et légendes compactes ; une cargaison mixte affiche les deux symboles.
+- Les missions affichent les quantités requises, livrées et restantes, la possibilité de jouer en équipe et « À destination de la mission ». Les données structurées et la progression WingUpdate sont conservées ; une livraison terminée rappelle de récupérer la récompense.
+- Les notes des favoris conservent les sauts de ligne et les lignes vides et sont modifiées en texte brut. Les infobulles affichent les noms complets.
+- Remerciements particuliers à CMDR Nanjan, dont le nom apparaît en doré ; les remerciements existants sont conservés. Les nouveaux textes sont disponibles dans les douze langues.
+
 ## CMDRHelper v3.9.26
 
 - Les cases à cocher et boutons radio restent lisibles avec les styles Qt natifs de Windows : bordures jaunes en mode sombre, bleues en mode clair et sélection radio bien visible.

@@ -102,6 +102,12 @@ def normalize_missions(rows: list[dict]) -> list[Mission]:
                 accepted_at=raw.get("accepted_at", ""),
                 last_update=raw.get("last_update", ""),
                 extra=raw.get("extra", {}) or {},
+                commodity_symbol=raw.get('commodity_symbol', ''),
+                required_count=raw.get('required_count'),
+                delivered_count=raw.get('delivered_count'),
+                collected_count=raw.get('collected_count'),
+                wing=raw.get('wing'),
+                depot_update_type=raw.get('depot_update_type', ''),
             )
         )
 
@@ -235,3 +241,54 @@ def pending_missions(offers):
 
 def confirmed_mission_reward(missions):
     return sum(int(m.reward or 0) for m in missions if not m.extra.get("pending_offer"))
+
+
+def is_goods_mission(mission):
+    """Narrow journal-name families, never translated titles or generic salvage."""
+    name = mission.internal_name.casefold()
+    return bool((mission.commodity_symbol or mission.commodity) and
+                name.startswith(('mission_delivery', 'mission_collect', 'mission_mining')))
+
+
+def delivery_complete(mission):
+    total, delivered = mission.required_count, mission.delivered_count
+    return bool(not mission.extra.get('pending_offer')
+                and mission.depot_update_type in ('collect', 'deliver', 'wingupdate')
+                and type(total) is int and total > 0
+                and type(delivered) is int and delivered == total)
+
+
+def mission_display_status(mission):
+    return (tr('missions.delivery_complete') if delivery_complete(mission)
+            else translate_mission_text(mission.status))
+
+
+def mission_display_step(mission):
+    if delivery_complete(mission):
+        return tr('missions.claim_reward' if is_goods_mission(mission) else 'missions.check_delivery')
+    return translate_mission_text(mission.next_step)
+
+
+def mission_quantities_text(mission):
+    """Unknown is distinct from zero; no cargo inference or text parsing."""
+    from PySide6.QtCore import QLocale
+    from cmdrhelper.i18n import get_language
+    from cmdrhelper.commodity_master import lookup_by_symbol
+    from cmdrhelper.commodity_localization import commodity_name as catalog_name
+    if mission.extra.get('pending_offer') or not (is_goods_mission(mission) or mission.depot_update_type):
+        return ''
+    total, delivered = mission.required_count, mission.delivered_count
+    if type(total) is not int or total <= 0:
+        return ''
+    number = QLocale(get_language()).toString
+    symbol = mission.commodity_symbol or mission.commodity
+    master = lookup_by_symbol(symbol) if symbol else None
+    name = (catalog_name(master) if master else
+            commodity_name(symbol, mission.commodity) if symbol else tr('common.unknown'))
+    parts = [tr('missions.quantity_required', count=number(total), commodity=name)]
+    if type(delivered) is not int or not 0 <= delivered <= total:
+        parts.append(tr('missions.delivery_unknown'))
+    else:
+        parts.extend((tr('missions.quantity_delivered', count=number(delivered)),
+                      tr('missions.quantity_remaining', count=number(total - delivered))))
+    return ' · '.join(parts)

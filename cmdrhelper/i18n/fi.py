@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    "release.3_9_27.0": "Kauppanäkymät erottavat sinisen MissionID-rahdin vaaleanpunaisesta mahdollisesta tehtävärahdista. Työkaluvihjeet näyttävät määrät ja tiiviit selitteet kuvaavat symbolit; sekarahti näyttää molemmat symbolit.",
+    "release.3_9_27.1": "Tehtävät näyttävät tarvittavat, toimitetut ja puuttuvat tavaramäärät, tiimikelpoisuuden ja « Tehtävän määränpäässä » -vihjeen. Rakenteiset tiedot ja WingUpdate-edistyminen säilyvät; valmiit toimitukset muistuttavat palkinnon noutamisesta.",
+    "release.3_9_27.2": "Suosikkimuistiinpanot säilyttävät rivinvaihdot ja tyhjät rivit, ja niitä muokataan pelkkänä tekstinä. Työkaluvihjeet näyttävät suosikkien koko nimet.",
+    "release.3_9_27.3": "Erityiskiitos CMDR Nanjanille, jonka Commander-nimi näkyy kullanvärisenä; aiemmat kiitokset säilyvät. Uudet tekstit ovat saatavilla kaikilla kahdellatoista kielellä.",
+
     'release.3_9_26.0': 'Valintaruudut ja valintanapit erottuvat myös Windowsin natiiveilla Qt-tyyleillä: keltaiset reunukset tummassa tilassa, siniset vaaleassa tilassa ja selvästi näkyvät valitut valintanapit.',
     'release.3_9_26.1': 'Mining käsittelee reaaliaikaisia tietoja ja vanhoja lokeja yhtenäisesti. Rhinossa tehdyn uudelleenkäynnistyksen jälkeen aluksen vanha lastitieto merkitään viimeksi tunnetuksi; tiivis selite avaa värit kahdellatoista kielellä.',
     'release.3_9_26.2': 'Onnistunut aluksen vaihto siirtää kelvollisen lastitiedon uudelle alukselle, myös jo käsitellyt tukialussiirrot huomioiden. Uusi täydellinen Cargo-tilannekuva vahvistaa lastin; tuntematon lasti pysyy tuntemattomana.',
@@ -229,6 +234,8 @@ TRANSLATIONS = {
     'about.acknowledgements': 'Kiitokset',
     'about.acknowledgements_intro': 'Erityiskiitokset komentajille ja EOT-pelaajaryhmälle, jotka tukevat CMDRHelperiä vinkeillä, ideoilla, testeillä ja palautteella:',
     'about.acknowledgements_group': 'sekä koko EOT-pelaajaryhmälle',
+    'about.special_thanks_heading': 'Erityiskiitokset: CMDR Nanjan',
+    'about.special_thanks_text': 'Hänen poikkeuksellisesta tuestaan lukuisten käytännön testien, huolellisten virheanalyysien ja arvokkaiden parannusehdotusten kautta, jotka ovat merkittävästi edistäneet CMDRHelperin jatkokehitystä.',
     'about.version': 'Versio {version}',
     'about.intro': 'CMDRHelper on riippumaton apuohjelma Elite Dangerousille.',
     'about.purpose': 'CMDR Faber38 kehitti ohjelman esittämään ja analysoimaan Elite Dangerousin tietoja selkeästi sekä tukemaan komentajia tutkimusmatkoilla, kaupankäynnissä ja muissa tehtävissä.',
@@ -2404,4 +2411,42 @@ TRANSLATIONS.update({'exit.title': 'Sulje CMDRHelper',
 
 TRANSLATIONS.update({
     "shortcuts.summary": 'Määritä ja poista aktiivisen CMDRHelper-ikkunan pikanäppäimiä. Pikasuosikin pikanäppäin toimii edelleen myös muissa sovelluksissa.',
+})
+
+TRANSLATIONS.update({
+    'trade.mission_cargo': 'Tehtävärahti: {count} t',
+    'trade.mission_cargo_mixed': 'Tehtävärahti: {count} t yhteensä {total} tonnista',
+    'trade.mission_cargo_missions': '{count} tehtävään',
+    'trade.mission_cargo_own': 'Oman aluksesi rahti',
+})
+
+# Structured mission progress and team capability.
+TRANSLATIONS.update({
+    'missions.team_capable': 'Soveltuu ryhmälle',
+    'missions.team_capable_tooltip': 'Tehtävän voi suorittaa ryhmässä. Tämä ei tarkoita, että muita komentajia osallistuu.',
+    'missions.delivery_complete': 'Toimitus valmis',
+    'missions.claim_reward': 'Lunasta palkinto',
+    'missions.check_delivery': 'Tarkista tehtävä',
+    'missions.quantity_required': 'Tarvitaan {count} t: {commodity}',
+    'missions.quantity_delivered': 'Toimitettu {count} t',
+    'missions.quantity_remaining': 'Puuttuu {count} t',
+    'missions.delivery_unknown': 'Toimituksen edistyminen tuntematon',
+})
+
+# Mission table legend (selection and hover are not statuses).
+TRANSLATIONS.update({
+    'missions.legend_arrival': 'Kultainen rivi: Tehtävän kohteessa',
+    'missions.legend_accepted': 'Kultainen tila: Hyväksytty',
+    'missions.legend_progress': 'Vihreä tila: Kohde saavutettu/vaihtunut, tiedot saatu tai tehtävä/toimitus valmis',
+})
+
+# Possible mission cargo is distinct from explicit MissionID cargo.
+TRANSLATIONS.update({
+    'trade.possible_cargo_stock': 'Mahdollinen tehtävälasti: aluksessa {count} t ilman nimenomaista kohdistusta.',
+    'trade.possible_cargo_need': 'Avoimet tehtävät ({missions}) tarvitsevat vielä yhteensä {count} t.',
+    'trade.possible_cargo_cover': 'Yhteinen kohdistamaton varasto voisi kattaa enintään {count} t lisätarvetta.',
+    'trade.possible_cargo_unknown': 'Avoimet tehtävät ({missions}) vaativat yhteensä {count} t; toimitusten edistyminen ei ole tiedossa.',
+    'trade.possible_cargo_warning': 'Eliten hyväksyntää tälle tavaralle ei ole vielä vahvistettu.',
+    'trade.cargo_legend_blue': 'Sininen pallo: Eliten MissionID-tunnuksella kohdistama tehtävälasti.',
+    'trade.cargo_legend_pink': 'Vaaleanpunainen pallo ja !: Sopiva aluksen lasti; Eliten hyväksyntää ei ole vahvistettu.',
 })

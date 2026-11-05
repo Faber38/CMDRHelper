@@ -38,6 +38,13 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.9.27
+
+- Trade views distinguish blue MissionID cargo from pink possible mission cargo, with quantity tooltips and compact legends; mixed cargo displays both symbols.
+- Missions show required, delivered and remaining goods, team capability and an “At mission destination” hint. Structured details and WingUpdate delivery progress persist; completed deliveries prompt reward collection.
+- Favorite notes preserve line breaks and blank lines and are edited as plain text. Tooltips show complete favorite names.
+- Special thanks to CMDR Nanjan with his Commander name highlighted in gold; existing acknowledgements remain. New texts are available in all twelve languages.
+
 ## CMDRHelper v3.9.26
 
 - Checkboxes and radio buttons remain clear with native Windows Qt styles: yellow borders in dark mode, blue in light mode, and clearly visible selected radio buttons.

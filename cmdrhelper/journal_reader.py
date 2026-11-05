@@ -780,6 +780,11 @@ def _new_mission(e: dict) -> dict:
         "extra": {},
     }
 
+    from cmdrhelper.mission_persistence import valid_details
+    raw.update(valid_details({
+        'commodity_symbol': e.get('Commodity'), 'wing': e.get('Wing'),
+        'required_count': e.get('Count') if e.get('Commodity') else None,
+    }))
     raw["next_step"] = default_next_step(raw)
     raw["summary"] = build_summary(raw)
     return raw
@@ -886,24 +891,13 @@ def _update_mission_event(mission: dict, e: dict):
         update_destination_summary(previous, mission)
 
     elif et == "CargoDepot":
-        update_type = (e.get("UpdateType") or "").lower()
-        collected = e.get("ItemsCollected")
-        delivered = e.get("ItemsDelivered")
-        total = e.get("TotalItemsToDeliver")
-
-        cargo_name = (
-            e.get("CargoType_Localised")
-            or e.get("CargoType")
-            or ""
-        )
-        if cargo_name and not mission.get("commodity"):
-            mission["commodity"] = cargo_name
-
-        if total is not None and not mission.get("count"):
-            try:
-                mission["count"] = int(total)
-            except (TypeError, ValueError):
-                pass
+        from cmdrhelper.mission_persistence import update_depot_details
+        if not update_depot_details(mission, e):
+            return
+        update_type = mission['depot_update_type']
+        collected = mission.get('collected_count')
+        delivered = mission.get('delivered_count')
+        total = mission.get('required_count')
 
         if (
             mission.get("commodity")
@@ -916,13 +910,13 @@ def _update_mission_event(mission: dict, e: dict):
             )
             mission["summary"] = build_summary(mission)
 
-        if update_type == "collect":
+        if update_type == "collect" and not delivered:
             mission["status"] = STATUS_CARGO_COLLECTED
             if collected is not None and total is not None:
                 mission["progress_text"] = f"{collected}/{total} aufgenommen"
             mission["next_step"] = default_next_step(mission)
 
-        elif update_type == "deliver":
+        elif update_type in ("deliver", "wingupdate", "collect") and delivered is not None:
             mission["status"] = STATUS_DELIVERING
             if delivered is not None and total is not None:
                 mission["progress_text"] = f"{delivered}/{total} geliefert"

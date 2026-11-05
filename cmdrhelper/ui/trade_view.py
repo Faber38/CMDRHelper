@@ -10,7 +10,7 @@ from PySide6.QtGui import QColor, QPen
 from PySide6.QtWidgets import (
     QApplication, QCheckBox, QComboBox, QFormLayout, QHBoxLayout, QHeaderView,
     QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QScrollArea, QSpinBox, QTableWidget,
-    QStyledItemDelegate, QTableWidgetItem, QTabWidget, QVBoxLayout, QWidget,
+    QTableWidgetItem, QTabWidget, QVBoxLayout, QWidget,
 )
 
 from cmdrhelper.commodity_master import lookup_by_id, lookup_by_symbol
@@ -28,6 +28,11 @@ from cmdrhelper.ui.system_clipboard import copy_system_name
 
 from .market_age import MarketAgeCombo
 from .observed_market_status import observed_market_text
+from .mission_cargo import (MISSION_CARGO_ROLE, MissionCargoDelegate,
+                            current_mission_cargo, mission_cargo_tooltip,
+                            POSSIBLE_MISSION_CARGO_ROLE, CARGO_BASE_TOOLTIP_ROLE, CARGO_COMMODITY_ROLE,
+                            current_possible_mission_cargo, possible_mission_cargo_tooltip,
+                            CargoMissionLegend)
 
 
 def format_age(stamp, now=None):
@@ -122,7 +127,7 @@ class CargoMarketWorker(MarketWorker):
         self.signals.finished.emit(results)
 
 
-class CargoItemDelegate(QStyledItemDelegate):
+class CargoItemDelegate(MissionCargoDelegate):
     """Reuse the picker’s rare border without changing cargo identity or text."""
     def paint(self, painter, option, index):
         super().paint(painter, option, index)
@@ -266,6 +271,8 @@ class TradeView(QWidget):
         self.cargo_list.setAccessibleName(tr('trade.ship_inventory'))
         self.cargo_list.setMaximumHeight(160)
         cargo_layout.addWidget(self.cargo_list)
+        self.cargo_mission_legend = CargoMissionLegend()
+        cargo_layout.addWidget(self.cargo_mission_legend)
         self.cargo_select_all = QPushButton(tr('trade.cargo_select_all'))
         cargo_layout.addWidget(self.cargo_select_all, 0, Qt.AlignLeft)
         form.insertRow(0, self.cargo_panel)
@@ -382,6 +389,10 @@ class TradeView(QWidget):
         cargo_signal = getattr(state, 'cargoSnapshotChanged', None)
         if cargo_signal is not None:
             cargo_signal.connect(self.refresh_cargo)
+        for name in ('commanderIdentityChanged', 'viewedCommanderChanged', 'shipLoadoutChanged'):
+            signal = getattr(state, name, None)
+            if signal is not None:
+                signal.connect(self.refresh_cargo)
         for name in ('observedMarketsChanged', 'commanderIdentityChanged'):
             signal = getattr(state, name, None)
             if signal is not None:
@@ -556,12 +567,47 @@ class TradeView(QWidget):
             if item.flags() & Qt.ItemIsUserCheckable:
                 item.setCheckState(Qt.Checked)
 
+    def _refresh_cargo_decorations(self):
+        blue = current_mission_cargo(self.state)
+        pink = current_possible_mission_cargo(self.state)
+        snapshot = getattr(self.state, 'ship_inventory', None)
+        rows = (snapshot or {}).get('inventory', [])
+        blocker = QSignalBlocker(self.cargo_list)
+        for i in range(self.cargo_list.count()):
+            item = self.cargo_list.item(i)
+            cid = item.data(CARGO_COMMODITY_ROLE)
+            count = rows[i]['count'] if i < len(rows) else None
+            explicit, possible = blue.get(cid), pink.get(cid)
+            if explicit and explicit[1] != count:
+                explicit = None
+            if possible and (possible.total != count
+                    or (snapshot or {}).get('fid') != getattr(self.state, 'commander_fid', None)
+                    or (snapshot or {}).get('ship_id') != getattr(self.state.ship_loadout, 'ship_id', None)):
+                possible = None
+            if item.data(MISSION_CARGO_ROLE) != explicit:
+                item.setData(MISSION_CARGO_ROLE, explicit)
+            if item.data(POSSIBLE_MISSION_CARGO_ROLE) != possible:
+                item.setData(POSSIBLE_MISSION_CARGO_ROLE, possible)
+            tooltip = '\n'.join(filter(None, (
+                item.data(CARGO_BASE_TOOLTIP_ROLE),
+                mission_cargo_tooltip(explicit) if explicit else '',
+                possible_mission_cargo_tooltip(possible) if possible else '')))
+            if item.toolTip() != tooltip:
+                item.setToolTip(tooltip)
+        del blocker
+        self.cargo_mission_legend.refresh()
+
     def refresh_cargo(self, *_):
         snapshot = getattr(self.state, 'ship_inventory', None)
         total = getattr(self.state, 'ship_cargo_total', None)
         empty = ((snapshot is not None and snapshot.get('count') == 0)
                  or (isinstance(total, dict) and total.get('count') == 0))
-        key = repr((snapshot, empty))
+        # Decoration/provenance changes must not cancel a sale search. Only the
+        # actual selectable cargo or its owner changes the list/search inputs.
+        key = repr(((snapshot or {}).get('fid'), (snapshot or {}).get('ship_id'), empty,
+                    snapshot is not None, get_language(),
+                    [(r['frontier_name'], r['count'], r.get('stolen'), r.get('display_name'))
+                     for r in (snapshot or {}).get('inventory', [])]))
         if key != self._cargo_key:
             self._cargo_key = key
             if self.side == TradeSide.SELL:
@@ -591,10 +637,13 @@ class TradeView(QWidget):
                     item.setFlags(Qt.NoItemFlags)
                     item.setToolTip(tr('trade.rare_sell_excluded' if master and master.rare
                                        else 'trade.unknown_commodity'))
+                item.setData(CARGO_COMMODITY_ROLE, master.frontier_id if master else None)
+                item.setData(CARGO_BASE_TOOLTIP_ROLE, item.toolTip())
                 self.cargo_list.addItem(item)
             del blocker
             row_height = max(self.cargo_list.sizeHintForRow(0), self.cargo_list.fontMetrics().height() + 4)
             self.cargo_list.setFixedHeight(min(160, row_height * max(1, self.cargo_list.count()) + 6))
+        self._refresh_cargo_decorations()
         self.cargo_rare_notice.setVisible(any(
             self.cargo_list.item(i).data(RARE_ROLE) for i in range(self.cargo_list.count())))
         selling = self.side == TradeSide.SELL

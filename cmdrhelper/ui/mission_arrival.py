@@ -1,9 +1,30 @@
 """Short-lived arrival animation; no journal/database mutations or polling timer."""
-from PySide6.QtCore import QObject, QEvent, QTimer
-from PySide6.QtGui import QColor
+from functools import lru_cache
+from PySide6.QtCore import QObject, QEvent, QTimer, Qt, QSize, QRectF, Signal
+from PySide6.QtGui import QColor, QIcon, QPixmap, QPainter, QPen
 from PySide6.QtWidgets import QStyle, QStyledItemDelegate, QStyleOptionViewItem
 
 from cmdrhelper.mission_arrival import ArrivalSource
+from cmdrhelper.i18n import tr
+
+TEAM_ROLE = Qt.UserRole + 75
+ARRIVAL_PLACE_ROLE = Qt.UserRole + 76
+
+
+@lru_cache(maxsize=2)
+def team_icon(light):
+    pixmap = QPixmap(32, 32)
+    pixmap.setDevicePixelRatio(2)
+    pixmap.fill(Qt.transparent)
+    painter = QPainter(pixmap)
+    painter.setRenderHint(QPainter.Antialiasing)
+    painter.setPen(QPen(QColor('#24637e' if light else '#8bd0ef'), 1.2))
+    painter.setBrush(Qt.NoBrush)
+    for x, y in ((4, 5), (11, 5)):
+        painter.drawEllipse(QRectF(x - 2, y - 2, 4, 4))
+        painter.drawRoundedRect(QRectF(x - 3, y + 3, 6, 5), 2, 2)
+    painter.end()
+    return QIcon(pixmap)
 
 
 def draw_arrival_cell(painter, option, index, delegate, color=None):
@@ -33,6 +54,9 @@ def draw_arrival_cell(painter, option, index, delegate, color=None):
         if color is None:
             color = '#20262c' if light else '#d8dde3'
     painter.setFont(opt.font)
+    if not opt.icon.isNull():
+        icon_rect = style.subElementRect(QStyle.SE_ItemViewItemDecoration, opt, table)
+        opt.icon.paint(painter, icon_rect)
     painter.setPen(QColor(color))
     painter.drawText(rect, opt.displayAlignment,
                      opt.fontMetrics.elidedText(text, opt.textElideMode, max(0, rect.width())))
@@ -41,12 +65,21 @@ def draw_arrival_cell(painter, option, index, delegate, color=None):
 
 
 class MissionRowDelegate(QStyledItemDelegate):
+    def initStyleOption(self, option, index):
+        super().initStyleOption(option, index)
+        if index.data(TEAM_ROLE):
+            option.icon = team_icon(option.palette.window().color().lightness() > 128)
+            option.decorationSize = QSize(16, 16)
+            option.features |= option.ViewItemFeature.HasDecoration
+
     def paint(self, painter, option, index):
         if not draw_arrival_cell(painter, option, index, self):
             super().paint(painter, option, index)
 
 
 class MissionArrivalController(QObject):
+    arrivalChanged = Signal()
+
     def __init__(self, state, table, *, light=False):
         super().__init__(table)
         self.state, self.table, self.light = state, table, light
@@ -74,6 +107,7 @@ class MissionArrivalController(QObject):
         self.table.viewport().update()
 
     def update(self):
+        previous = (self.identity, self.hits)
         snapshot = self.source.snapshot(self.state)
         if snapshot is None:
             identity, evidence, hits = None, (), set()
@@ -95,11 +129,25 @@ class MissionArrivalController(QObject):
             if new and evidence != self.evidence and self.table.isVisible():
                 self.blink.update({mid: 6 for mid in new})
         self.identity, self.evidence, self.hits = identity, evidence, hits
+        for row in range(self.table.rowCount()):
+            item = self.table.item(row, 2)
+            if item is not None and item.data(ARRIVAL_PLACE_ROLE) is not None:
+                base = item.data(ARRIVAL_PLACE_ROLE)
+                text = (base + ' · ' + tr('mission_state.at_destination')
+                        if self.at_destination(getattr(item, 'mission', None)) else base)
+                item.setText(text)
+                item.setToolTip(text)
         if self.blink and not self.timer.isActive():
             self.timer.start()
         elif not self.blink:
             self.timer.stop()
         self.table.viewport().update()
+        if previous != (self.identity, self.hits):
+            self.arrivalChanged.emit()
+
+    def at_destination(self, mission):
+        return bool(self.identity and mission and mission.mission_id in self.hits
+                    and getattr(self.table, 'arrival_commander', None) == self.identity[2])
 
     def advance(self):
         self.blink = {mid: phase - 1 for mid, phase in self.blink.items() if phase > 1}
@@ -110,8 +158,7 @@ class MissionArrivalController(QObject):
     def marked(self, index):
         item = self.table.item(index.row(), index.column())
         mission = getattr(item, 'mission', None)
-        return bool(self.identity and mission and mission.mission_id in self.hits
-                    and getattr(self.table, 'arrival_commander', None) == self.identity[2]
+        return bool(self.at_destination(mission)
                     and self.blink.get(mission.mission_id, 0) % 2 == 0)
 
     def eventFilter(self, watched, event):

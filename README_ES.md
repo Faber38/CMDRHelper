@@ -38,6 +38,13 @@ La carpeta de diarios de Elite Dangerous se detecta automáticamente cuando es p
 
 CMDRHelper busca actualizaciones al iniciarse y dispone de un actualizador integrado. Confirma una actualización ofrecida en la aplicación; actualizará el programa y las dependencias y reiniciará CMDRHelper. Tras la primera instalación, normalmente basta con usar `start.bat` (Windows) o `bash start.sh` (Linux). No es necesario volver a ejecutar manualmente `install.bat` o `install.sh` para las actualizaciones normales.
 
+## CMDRHelper v3.9.27
+
+- Las vistas comerciales distinguen la carga MissionID azul de la posible carga de misión rosa, con cantidades en las ayudas y leyendas compactas; la carga mixta muestra ambos símbolos.
+- Las misiones muestran cantidades necesarias, entregadas y pendientes, capacidad de equipo y « En el destino de la misión ». Se conservan los datos estructurados y el progreso WingUpdate; las entregas completas recuerdan recoger la recompensa.
+- Las notas de favoritos conservan saltos de línea y líneas vacías y se editan como texto sin formato. Las ayudas muestran los nombres completos.
+- Agradecimiento especial a CMDR Nanjan con su nombre en dorado; se conservan los agradecimientos existentes. Los nuevos textos están disponibles en los doce idiomas.
+
 ## CMDRHelper v3.9.26
 
 - Las casillas y los botones de opción se distinguen también con los estilos Qt nativos de Windows: bordes amarillos en modo oscuro, azules en modo claro y selección de opción claramente visible.

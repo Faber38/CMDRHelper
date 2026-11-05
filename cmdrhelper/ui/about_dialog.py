@@ -1,4 +1,6 @@
 """Application information, opened from the existing sidebar version label."""
+from html import escape
+
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QDialog, QDialogButtonBox, QFrame, QLabel, QScrollArea, QVBoxLayout, QWidget
 
@@ -69,8 +71,24 @@ class AboutDialog(QDialog):
             if label is self.acknowledged_group:
                 content_layout.addSpacing(4)
             content_layout.addWidget(label)
+        content_layout.addSpacing(12)
+        self.special_thanks_heading = QLabel()
+        self.special_thanks_heading.setTextFormat(Qt.RichText)
+        self.special_thanks_text = QLabel(tr('about.special_thanks_text'))
+        self.special_thanks_text.setTextFormat(Qt.PlainText)
+        for label in (self.special_thanks_heading, self.special_thanks_text):
+            label.setWordWrap(True)
+            label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+            content_layout.addWidget(label)
         content_layout.addStretch()
         scroll.setWidget(content)
+        self.special_thanks_heading.ensurePolished()
+        # Muted gold, with sufficient contrast against either theme's background.
+        dark = self.special_thanks_heading.palette().window().color().lightness() < 128
+        gold = '#c49a3c' if dark else '#806019'
+        self.special_thanks_heading.setText(
+            escape(tr('about.special_thanks_heading')).replace(
+                'CMDR Nanjan', f'<span style="color: {gold}">CMDR Nanjan</span>'))
         layout.addWidget(scroll, 1)
         self.buttons = QDialogButtonBox(QDialogButtonBox.Close)
         self.buttons.button(QDialogButtonBox.Close).setText(tr('common.close'))

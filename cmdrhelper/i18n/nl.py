@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    "release.3_9_27.0": "Handelsweergaven onderscheiden blauwe MissionID-vracht van roze mogelijke missievracht, met hoeveelheden in tooltips en compacte legenda’s; gemengde vracht toont beide symbolen.",
+    "release.3_9_27.1": "Missies tonen benodigde, geleverde en resterende goederen, geschiktheid voor teams en « Op de missiebestemming ». Gestructureerde gegevens en WingUpdate-voortgang blijven bewaard; voltooide leveringen herinneren aan het ophalen van de beloning.",
+    "release.3_9_27.2": "Favorietennotities behouden regeleinden en lege regels en worden als platte tekst bewerkt. Tooltips tonen volledige favorietennamen.",
+    "release.3_9_27.3": "Speciale dank aan CMDR Nanjan met zijn Commander-naam in goud; bestaande dankbetuigingen blijven behouden. Nieuwe teksten zijn beschikbaar in alle twaalf talen.",
+
     'release.3_9_26.0': 'Selectievakjes en keuzerondjes blijven duidelijk met de eigen Qt-stijlen van Windows: gele randen in de donkere modus, blauwe in de lichte modus en duidelijk zichtbare geselecteerde keuzerondjes.',
     'release.3_9_26.1': 'Mining beoordeelt livegegevens en historische journals op dezelfde manier. Na een herstart in de Rhino blijven oudere scheepsvoorraden als laatst bekend gemarkeerd; een compacte legenda verklaart de kleuren in twaalf talen.',
     'release.3_9_26.2': 'Bij een geslaagde scheepswissel gaat de geldige lading mee naar het nieuwe schip, inclusief reeds verwerkte carriertransfers. Nieuwe volledige Cargo-momentopnamen bevestigen de voorraad opnieuw; onbekende voorraden blijven onbekend.',
@@ -229,6 +234,8 @@ TRANSLATIONS = {
     'about.acknowledgements': 'Dankwoord',
     'about.acknowledgements_intro': 'Speciale dank aan de commanders en de EOT-spelersgroep die CMDRHelper ondersteunen met tips, ideeën, tests en feedback:',
     'about.acknowledgements_group': 'en aan de hele EOT-spelersgroep',
+    'about.special_thanks_heading': 'Bijzondere dank aan CMDR Nanjan',
+    'about.special_thanks_text': 'Voor zijn uitzonderlijke steun door talrijke praktijktests, zorgvuldige foutanalyses en waardevolle verbetervoorstellen, die aanzienlijk hebben bijgedragen aan de verdere ontwikkeling van CMDRHelper.',
     'about.version': 'Versie {version}',
     'about.intro': 'CMDRHelper is een onafhankelijke hulpapplicatie voor Elite Dangerous.',
     'about.purpose': 'Ontwikkeld door CMDR Faber38 om informatie uit Elite Dangerous overzichtelijk weer te geven en te analyseren en commanders te ondersteunen bij verkenning, handel en andere activiteiten.',
@@ -2405,4 +2412,42 @@ TRANSLATIONS.update({'exit.title': 'CMDRHelper afsluiten',
 
 TRANSLATIONS.update({
     "shortcuts.summary": 'Stel sneltoetsen in of verwijder ze voor het actieve CMDRHelper-venster. De sneltoets voor snelle favorieten blijft globaal.',
+})
+
+TRANSLATIONS.update({
+    'trade.mission_cargo': 'Missievracht: {count} t',
+    'trade.mission_cargo_mixed': 'Missievracht: {count} t van in totaal {total} t',
+    'trade.mission_cargo_missions': 'Voor {count} missies',
+    'trade.mission_cargo_own': 'Vracht van je eigen schip',
+})
+
+# Structured mission progress and team capability.
+TRANSLATIONS.update({
+    'missions.team_capable': 'Geschikt voor een team',
+    'missions.team_capable_tooltip': 'Deze missie kan in een team worden gespeeld. Dit betekent niet dat andere commandanten deelnemen.',
+    'missions.delivery_complete': 'Levering voltooid',
+    'missions.claim_reward': 'Beloning ophalen',
+    'missions.check_delivery': 'Missie controleren',
+    'missions.quantity_required': '{count} t {commodity} nodig',
+    'missions.quantity_delivered': '{count} t geleverd',
+    'missions.quantity_remaining': '{count} t resterend',
+    'missions.delivery_unknown': 'Leveringsvoortgang onbekend',
+})
+
+# Mission table legend (selection and hover are not statuses).
+TRANSLATIONS.update({
+    'missions.legend_arrival': 'Gouden rij: Op de missiebestemming',
+    'missions.legend_accepted': 'Gouden status: Aangenomen',
+    'missions.legend_progress': 'Groene status: Bestemming bereikt/gewijzigd, gegevens ontvangen of taak/levering voltooid',
+})
+
+# Possible mission cargo is distinct from explicit MissionID cargo.
+TRANSLATIONS.update({
+    'trade.possible_cargo_stock': 'Mogelijke missielading: {count} t aan boord zonder expliciete toewijzing.',
+    'trade.possible_cargo_need': 'Open missies ({missions}) vereisen samen nog {count} t.',
+    'trade.possible_cargo_cover': 'De gezamenlijke niet-toegewezen voorraad kan hoogstens {count} t extra dekken.',
+    'trade.possible_cargo_unknown': 'Open missies ({missions}) vragen in totaal {count} t; de leveringsvoortgang is onbekend.',
+    'trade.possible_cargo_warning': 'Of Elite deze goederen accepteert, is nog niet bevestigd.',
+    'trade.cargo_legend_blue': 'Blauwe missiebol: Door Elite via MissionID toegewezen missielading.',
+    'trade.cargo_legend_pink': 'Roze missiebol met !: Passende scheepslading; acceptatie door Elite onbevestigd.',
 })

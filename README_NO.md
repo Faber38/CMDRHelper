@@ -38,6 +38,13 @@ Journalmappen til Elite Dangerous oppdages automatisk når det er mulig. Hvis de
 
 CMDRHelper søker etter oppdateringer ved oppstart og har en innebygd oppdateringsfunksjon. Bekreft en tilbudt oppdatering i programmet; den oppdaterer programmet og avhengighetene og starter CMDRHelper på nytt. Etter førstegangsinstallasjonen bruker du normalt bare `start.bat` (Windows) eller `bash start.sh` (Linux). Du trenger ikke å kjøre `install.bat` eller `install.sh` manuelt på nytt for vanlige oppdateringer.
 
+## CMDRHelper v3.9.27
+
+- Handelsvisningene skiller blå MissionID-last fra rosa mulig oppdragslast, med mengder i verktøytips og kompakte forklaringer; blandet last viser begge symbolene.
+- Oppdrag viser nødvendige, leverte og gjenstående varer, lagmulighet og « Ved oppdragsmålet ». Strukturerte opplysninger og WingUpdate-fremdrift bevares; fullførte leveringer minner om å hente belønningen.
+- Favorittnotater beholder linjeskift og tomme linjer og redigeres som ren tekst. Verktøytips viser fullstendige favorittnavn.
+- En spesiell takk til CMDR Nanjan med Commander-navnet i gull; eksisterende takksigelser beholdes. Nye tekster er tilgjengelige på alle tolv språk.
+
 ## CMDRHelper v3.9.26
 
 - Avkrysningsbokser og radioknapper er tydelige også med native Qt-stiler i Windows: gule rammer i mørk modus, blå i lys modus og tydelig markerte radiovalg.

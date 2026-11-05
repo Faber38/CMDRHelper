@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    "release.3_9_27.0": "Ticaret görünümleri mavi MissionID kargosunu pembe olası görev kargosundan ayırır; miktar ipuçları ve kısa açıklamalar sunar. Karışık kargo her iki simgeyi gösterir.",
+    "release.3_9_27.1": "Görevler gereken, teslim edilen ve kalan malları, ekip uygunluğunu ve « Görev hedefinde » bilgisini gösterir. Yapılandırılmış bilgiler ve WingUpdate teslimat ilerlemesi saklanır; tamamlanan teslimatlar ödülü almayı hatırlatır.",
+    "release.3_9_27.2": "Favori notları satır sonlarını ve boş satırları korur, düz metin olarak düzenlenir. İpuçları favorilerin tam adlarını gösterir.",
+    "release.3_9_27.3": "Komutan adı altın renginde vurgulanan CMDR Nanjan’a özel teşekkürler; mevcut teşekkürler korunur. Yeni metinler on iki dilin tamamında mevcuttur.",
+
     'release.3_9_26.0': 'Onay kutuları ve radyo düğmeleri yerel Windows Qt stillerinde de nettir: koyu modda sarı, açık modda mavi kenarlıklar ve belirgin seçili radyo düğmeleri.',
     'release.3_9_26.1': 'Mining, canlı verileri ve geçmiş günlükleri tutarlı biçimde değerlendirir. Rhino içinde yeniden başlatma sonrasında eski gemi envanterleri son bilinen olarak işaretli kalır; kısa bir açıklama on iki dilde stok renklerini açıklar.',
     'release.3_9_26.2': 'Başarılı gemi değişiminde geçerli yük, işlenmiş filo taşıyıcısı transferleri dahil, yeni gemiye aktarılır. Yeni ve tam Cargo kayıtları envanteri yeniden doğrular; bilinmeyen envanterler bilinmeyen olarak kalır.',
@@ -229,6 +234,8 @@ TRANSLATIONS = {
     'about.acknowledgements': 'Teşekkürler',
     'about.acknowledgements_intro': 'CMDRHelper’a önerileri, fikirleri, testleri ve geri bildirimleriyle destek olan komutanlara ve EOT oyuncu grubuna özel teşekkürler:',
     'about.acknowledgements_group': 'ayrıca tüm EOT oyuncu grubuna',
+    'about.special_thanks_heading': 'CMDR Nanjan için özel teşekkür',
+    'about.special_thanks_text': 'Çok sayıda uygulamalı test, titiz hata analizleri ve değerli iyileştirme önerileriyle CMDRHelper’ın gelişimine önemli katkıda bulunan olağanüstü desteği için.',
     'about.version': 'Sürüm {version}',
     'about.intro': 'CMDRHelper, Elite Dangerous için bağımsız bir yardımcı uygulamadır.',
     'about.purpose': 'Elite Dangerous bilgilerini anlaşılır biçimde sunup analiz etmek ve komutanları keşif, ticaret ve diğer etkinliklerde desteklemek amacıyla CMDR Faber38 tarafından geliştirilmiştir.',
@@ -2405,4 +2412,42 @@ TRANSLATIONS.update({'exit.title': 'CMDRHelper’dan çık',
 
 TRANSLATIONS.update({
     "shortcuts.summary": 'Etkin CMDRHelper penceresi için kısayolları belirleyin veya kaldırın. Hızlı Favori kısayolu genel olarak çalışmaya devam eder.',
+})
+
+TRANSLATIONS.update({
+    'trade.mission_cargo': 'Görev kargosu: {count} t',
+    'trade.mission_cargo_mixed': 'Görev kargosu: toplam {total} t içinde {count} t',
+    'trade.mission_cargo_missions': '{count} görev için',
+    'trade.mission_cargo_own': 'Kendi geminizin kargosu',
+})
+
+# Structured mission progress and team capability.
+TRANSLATIONS.update({
+    'missions.team_capable': 'Takıma uygun',
+    'missions.team_capable_tooltip': 'Takım olarak yapılabilen görev. Bu, başka komutanların katıldığı anlamına gelmez.',
+    'missions.delivery_complete': 'Teslimat tamamlandı',
+    'missions.claim_reward': 'Ödülü al',
+    'missions.check_delivery': 'Görevi kontrol et',
+    'missions.quantity_required': '{count} t {commodity} gerekli',
+    'missions.quantity_delivered': '{count} t teslim edildi',
+    'missions.quantity_remaining': '{count} t kaldı',
+    'missions.delivery_unknown': 'Teslimat ilerlemesi bilinmiyor',
+})
+
+# Mission table legend (selection and hover are not statuses).
+TRANSLATIONS.update({
+    'missions.legend_arrival': 'Altın satır: Görev hedefinde',
+    'missions.legend_accepted': 'Altın durum: Kabul edildi',
+    'missions.legend_progress': 'Yeşil durum: Hedefe ulaşıldı/değişti, veriler alındı veya görev/teslimat tamamlandı',
+})
+
+# Possible mission cargo is distinct from explicit MissionID cargo.
+TRANSLATIONS.update({
+    'trade.possible_cargo_stock': 'Olası görev kargosu: Gemide açıkça atanmamış {count} t var.',
+    'trade.possible_cargo_need': 'Açık görevler ({missions}) için toplam {count} t daha gerekiyor.',
+    'trade.possible_cargo_cover': 'Ortak atanmamış stok, ek ihtiyacın en fazla {count} t kadarını karşılayabilir.',
+    'trade.possible_cargo_unknown': 'Açık görevler ({missions}) toplam {count} t istiyor; teslimat ilerlemesi bilinmiyor.',
+    'trade.possible_cargo_warning': 'Elite tarafından bu malın kabul edilip edilmeyeceği henüz doğrulanmadı.',
+    'trade.cargo_legend_blue': 'Mavi görev küresi: Elite tarafından MissionID ile atanmış görev kargosu.',
+    'trade.cargo_legend_pink': '! işaretli pembe görev küresi: Eşleşen gemi kargosu; Elite tarafından kabulü doğrulanmadı.',
 })
