@@ -38,6 +38,13 @@ Folder dzienników Elite Dangerous jest wykrywany automatycznie, jeśli to możl
 
 CMDRHelper sprawdza aktualizacje przy uruchomieniu i ma wbudowany mechanizm aktualizacji. Potwierdź proponowaną aktualizację w aplikacji; zaktualizuje ona program i zależności oraz uruchomi CMDRHelper ponownie. Po pierwszej instalacji zwykle wystarczy używać `start.bat` (Windows) lub `bash start.sh` (Linux). Przy zwykłych aktualizacjach nie trzeba ponownie ręcznie uruchamiać `install.bat` ani `install.sh`.
 
+## CMDRHelper v3.9.28
+
+- Otwarte misje towarowe pokazują prawidłowy ładunek statku w szczegółach, statusie tabeli i następnym kroku. Dostawy pozostają oddzielne; wiele misji współdzieli zapasy bez rezerwacji.
+- Pasujący zapas własnego lotniskowca jest wyświetlany oddzielnie z ręcznym potwierdzeniem, śledzeniem transferów i informacją o aktualności. Nieaktualne lub błędnie przypisane wyniki są kontrolowane; bez wspólnej potwierdzonej sumy statku i lotniskowca.
+- Surowce górnicze pokazują różowy symbol misji i tę samą niebiesko-różową legendę co widoki handlu. Kolory zapasów, ilości i filtry pozostają zachowane.
+- Gdy nie wybrano rynku, widok rynku wyjaśnia, że najpierw należy wybrać zapisany rynek, a filtr ładowni nie jest osobną listą zapasów.
+
 ## CMDRHelper v3.9.27
 
 - Widoki handlu odróżniają niebieski ładunek MissionID od różowego możliwego ładunku misji, z ilościami w podpowiedziach i zwięzłymi legendami; ładunek mieszany pokazuje oba symbole.

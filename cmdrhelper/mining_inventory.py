@@ -61,6 +61,8 @@ class MiningInventory:
     carrier_ledger: dict | None = field(default=None, repr=False)
     carrier_ledger_before: dict | None = field(default=None, repr=False)
 
+    publication_context: tuple | None = field(default=None, repr=False)
+
     @property
     def vehicle(self):
         """Active vessel for refresh validation; never a combined balance."""

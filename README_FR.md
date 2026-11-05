@@ -38,6 +38,13 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.9.28
+
+- Les missions de marchandises ouvertes affichent la cargaison valide du vaisseau dans les détails, le statut du tableau et la prochaine étape. Les livraisons restent distinctes ; plusieurs missions partagent le stock sans réservation.
+- Le stock correspondant de votre porte-vaisseaux est affiché séparément avec confirmation manuelle, suivi des transferts et indication de fraîcheur. Les résultats périmés ou mal attribués sont contrôlés ; aucun total confirmé commun vaisseau/porte-vaisseaux.
+- Les ressources minières affichent le globe de mission rose et la même légende bleue/rose que les vues commerciales. Couleurs, quantités et filtres sont conservés.
+- Sans marché sélectionné, la vue du marché explique qu’il faut d’abord choisir un marché enregistré et que le filtre de soute n’est pas un inventaire indépendant.
+
 ## CMDRHelper v3.9.27
 
 - Les vues commerciales distinguent la cargaison MissionID bleue de la cargaison de mission possible rose, avec quantités en infobulle et légendes compactes ; une cargaison mixte affiche les deux symboles.

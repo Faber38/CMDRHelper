@@ -9,6 +9,9 @@ from PySide6.QtWidgets import (
     QStyleOptionViewItem, QToolTip, QSizePolicy,
 )
 
+from cmdrhelper.commodity_master import lookup_by_symbol
+from cmdrhelper.ui.mission_cargo import (CargoMissionLegend, MissionCargoDelegate, POSSIBLE_MISSION_CARGO_ROLE,
+    current_possible_mission_cargo, possible_mission_cargo_tooltip)
 from cmdrhelper.i18n import get_language, tr, tr_for_language
 from cmdrhelper.mining_catalog import MINING_COMMODITIES, value_class
 from cmdrhelper.ui.table_widths import persist_header_layout, _validated_widths
@@ -67,7 +70,7 @@ class _MiningItem(QTreeWidgetItem):
         return self.treeWidget().collator.compare(self.text(0), other.text(0)) < 0
 
 
-class _CarrierDelegate(QStyledItemDelegate):
+class _CarrierDelegate(MissionCargoDelegate):
     """Material-table row tones, preserving semantic text and carrier hover."""
     def __init__(self, tree):
         super().__init__(tree)
@@ -184,6 +187,7 @@ class MiningView(QWidget):
     def __init__(self, settings, parent=None, *, commodities=MINING_COMMODITIES, state=None, controller=None):
         super().__init__(parent)
         self.settings = settings
+        self.state = state
         commodities = tuple(commodities)
         self._search_text = {}
         self.items = {}
@@ -283,6 +287,8 @@ class MiningView(QWidget):
             self.stock_legend_labels.append(label)
         legend_layout.addStretch(1)
         layout.addWidget(self.stock_legend)
+        self.cargo_mission_legend = CargoMissionLegend()
+        layout.addWidget(self.cargo_mission_legend)
         self.tree = QTreeWidget()
         self.tree.setHeader(CarrierHeader(self.tree))
         self.tree.collator = QCollator(QLocale(get_language()))
@@ -386,6 +392,25 @@ class MiningView(QWidget):
         self.tree.setSortingEnabled(True)
         persist_header_layout(self.tree.header(), settings, "materials/mining/columns",
                               columns=self.COLUMNS, auto_widths=True)
+        for name in ('cargoSnapshotChanged', 'changed', 'commanderIdentityChanged',
+                     'viewedCommanderChanged', 'shipLoadoutChanged'):
+            signal = getattr(state, name, None)
+            if signal is not None:
+                signal.connect(self._refresh_mission_cargo)
+        self._refresh_mission_cargo()
+
+    def _refresh_mission_cargo(self, *_):
+        possible = current_possible_mission_cargo(self.state)
+        for symbol, item in self.items.items():
+            master = lookup_by_symbol(symbol)
+            details = possible.get(master.frontier_id) if master else None
+            if item.data(0, POSSIBLE_MISSION_CARGO_ROLE) != details:
+                item.setData(0, POSSIBLE_MISSION_CARGO_ROLE, details)
+            tooltip = item.text(0)
+            if details:
+                tooltip += '\n' + possible_mission_cargo_tooltip(details)
+            if item.toolTip(0) != tooltip:
+                item.setToolTip(0, tooltip)
 
     @contextmanager
     def _table_update(self):

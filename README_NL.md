@@ -38,6 +38,13 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## CMDRHelper v3.9.28
+
+- Open goederenmissies tonen geldige scheepslading in details, tabelstatus en volgende stap. Leveringen blijven apart; meerdere missies delen voorraad zonder reserveringen.
+- Passende voorraad op de eigen carrier wordt apart getoond met handmatige bevestiging, overdrachtsregistratie en actualiteit. Verouderde of verkeerd gekoppelde resultaten worden gecontroleerd; geen gecombineerd bevestigd scheeps-/carriertotaal.
+- Mijnbouwgrondstoffen tonen de roze missiebol en dezelfde blauw/roze symboollegenda als de handelsweergaven. Voorraadkleuren, hoeveelheden en filters blijven behouden.
+- Zonder geselecteerde markt legt de marktweergave uit dat eerst een opgeslagen markt moet worden gekozen en dat het laadruimfilter geen afzonderlijke inventarislijst is.
+
 ## CMDRHelper v3.9.27
 
 - Handelsweergaven onderscheiden blauwe MissionID-vracht van roze mogelijke missievracht, met hoeveelheden in tooltips en compacte legenda’s; gemengde vracht toont beide symbolen.

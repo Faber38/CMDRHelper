@@ -38,6 +38,13 @@ La carpeta de diarios de Elite Dangerous se detecta automáticamente cuando es p
 
 CMDRHelper busca actualizaciones al iniciarse y dispone de un actualizador integrado. Confirma una actualización ofrecida en la aplicación; actualizará el programa y las dependencias y reiniciará CMDRHelper. Tras la primera instalación, normalmente basta con usar `start.bat` (Windows) o `bash start.sh` (Linux). No es necesario volver a ejecutar manualmente `install.bat` o `install.sh` para las actualizaciones normales.
 
+## CMDRHelper v3.9.28
+
+- Las misiones abiertas de mercancías muestran la carga válida de la nave en los detalles, el estado de la tabla y el siguiente paso. Las entregas siguen separadas; varias misiones comparten existencias sin reservas.
+- Las existencias coincidentes del portanaves propio se muestran por separado con confirmación manual, seguimiento de transferencias y actualidad. Se comprueban los resultados obsoletos o mal atribuidos; no hay un total confirmado conjunto de nave y portanaves.
+- Los recursos mineros muestran el globo de misión rosa y la misma leyenda azul/rosa que las vistas comerciales. Se conservan los colores, cantidades y filtros de existencias.
+- Sin un mercado seleccionado, la vista del mercado explica que primero hay que elegir un mercado guardado y que el filtro de carga no es una lista de inventario independiente.
+
 ## CMDRHelper v3.9.27
 
 - Las vistas comerciales distinguen la carga MissionID azul de la posible carga de misión rosa, con cantidades en las ayudas y leyendas compactas; la carga mixta muestra ambos símbolos.

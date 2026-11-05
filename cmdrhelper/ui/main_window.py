@@ -55,6 +55,8 @@ from cmdrhelper.inara_uploader import (
 )
 from cmdrhelper.version import __version__
 from cmdrhelper.i18n import tr, get_language, set_language
+from cmdrhelper.ui.mission_cargo import (current_mission_cargo_assessment, mission_cargo_stock_text,
+    refresh_mission_cargo_rows, mission_carrier_stock_text)
 from cmdrhelper.mission_manager import (translate_mission_text, mission_detail_text,
     mission_quantities_text, mission_display_status, mission_display_step, delivery_complete)
 from cmdrhelper.score_analyzer import ScoreAnalyzer
@@ -4855,6 +4857,16 @@ class MainWindow(QMainWindow):
         detail_layout.addWidget(self.mission_progress_text)
 
         layout.addWidget(detail_card)
+        for name in ('cargoSnapshotChanged', 'changed', 'commanderIdentityChanged',
+                     'viewedCommanderChanged', 'shipLoadoutChanged'):
+            signal = getattr(self.state, name, None)
+            if signal is not None:
+                signal.connect(self._mission_selection_changed)
+        controller = getattr(self.state, 'mining_inventory_controller', None)
+        for name in ('ready', 'loading', 'publicationChanged'):
+            signal = getattr(controller, name, None)
+            if signal is not None:
+                signal.connect(self._mission_selection_changed)
 
         return page
 
@@ -6418,7 +6430,9 @@ class MainWindow(QMainWindow):
         """Übersetzt ausschließlich von CMDRHelper erzeugte Missions-Anzeigetexte."""
         return translate_mission_text(value)
 
-    def _mission_selection_changed(self):
+    def _mission_selection_changed(self, *_):
+        stocks = current_mission_cargo_assessment(self.state)[1]
+        refresh_mission_cargo_rows(self.missions_table, self.state.missions, stocks)
         selected = self.missions_table.selectionModel().selectedRows()
 
         if not selected:
@@ -6432,12 +6446,19 @@ class MainWindow(QMainWindow):
 
         row = selected[0].row()
 
-        if row < 0 or row >= len(self.state.missions):
-            return
-
         item = self.missions_table.item(row, 0)
-        mission = getattr(item, "mission", None)
+        selected_mission = getattr(item, "mission", None)
+        # Signals may arrive before the table has been rebuilt. Use the current
+        # mission object, never the selected row's stale delivery counters.
+        # Pending offers without an ID retain their existing object identity.
+        mid = getattr(selected_mission, "mission_id", None)
+        mission = next((m for m in self.state.missions
+                        if (m.mission_id == mid if type(mid) is int and mid > 0
+                            else m is selected_mission)), None)
         if mission is None:
+            self.mission_detail_title.setText(tr("missions.none_selected"))
+            self.mission_detail_text.setText(tr("missions.select_above"))
+            self.mission_progress_text.setText("")
             return
 
         self.mission_detail_title.setText(
@@ -6455,6 +6476,13 @@ class MainWindow(QMainWindow):
         quantities = mission_quantities_text(mission)
         if quantities:
             progress.append(quantities)
+
+        stock = stocks.get(mission.mission_id)
+        cargo_text = mission_cargo_stock_text(stock)
+        if cargo_text:
+            progress.append(cargo_text)
+        if stock is not None:
+            progress.append(mission_carrier_stock_text(self.state, mission))
 
         if mission.progress_text and not quantities:
             progress.append(

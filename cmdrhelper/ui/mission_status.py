@@ -10,6 +10,7 @@ from .mission_arrival import draw_arrival_cell
 
 
 MISSION_STATUS_ROLE = Qt.UserRole + 21
+MISSION_CARGO_STATUS_ROLE = Qt.UserRole + 22
 GREEN_STATUSES = frozenset((
     STATUS_REDIRECTED, STATUS_COMPLETED, STATUS_DATA_RECEIVED, STATUS_AT_DESTINATION,
 ))
@@ -26,7 +27,9 @@ class MissionStatusDelegate(QStyledItemDelegate):
 
     def paint(self, painter, option, index):
         status = index.data(MISSION_STATUS_ROLE)
-        if status in GREEN_STATUSES:
+        if index.data(MISSION_CARGO_STATUS_ROLE):
+            color = "#a32269" if self._light else "#ff83c4"
+        elif status in GREEN_STATUSES:
             color = "#226626" if self._light else "#65d067"
         elif status == STATUS_ACCEPTED:
             color = "#765400" if self._light else "#ffb000"

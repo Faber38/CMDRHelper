@@ -227,10 +227,16 @@ class SavedMarketsView(QWidget):
             self.markets_table.setColumnWidth(column, width)
         left_layout.addWidget(self.markets_table, 1)
         self.detail_header = QLabel(tr('browse.select'))
+        self.detail_header.setStyleSheet('font-weight: 600;')
         self.detail_header.setTextFormat(Qt.PlainText)
         self.detail_header.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.detail_header.setWordWrap(True)
         right_layout.addWidget(self.detail_header)
+        self.selection_hint = QLabel(tr('browse.selection_hint'))
+        self.selection_hint.setTextFormat(Qt.PlainText)
+        self.selection_hint.setWordWrap(True)
+        right_layout.addWidget(self.selection_hint)
+
         self.goods_search = QLineEdit()
         self.goods_search.setPlaceholderText(tr('browse.goods_search'))
         self.goods_search.setAccessibleName(tr('browse.goods_search'))
@@ -516,6 +522,7 @@ class SavedMarketsView(QWidget):
             self._load_detail(mid)
 
     def _load_detail(self, market_id):
+        self.selection_hint.hide()
         self._selected_id, self._snapshot = market_id, None
         self.goods_model.replace([])
         self.goods_status.setText('')
@@ -532,6 +539,8 @@ class SavedMarketsView(QWidget):
         self.goods_model.replace([])
         self.goods_status.setText('')
         self.detail_header.setText(tr('browse.select'))
+        self.selection_hint.setText(tr('browse.selection_hint'))
+        self.selection_hint.show()
 
     @staticmethod
     def _date(value):

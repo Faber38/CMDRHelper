@@ -38,6 +38,13 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## CMDRHelper v3.9.28
+
+- Le missioni merci aperte mostrano il carico valido della nave nei dettagli, nello stato della tabella e nel passo successivo. Le consegne restano separate; più missioni condividono le scorte senza prenotazioni.
+- Le scorte corrispondenti della propria portaerei sono mostrate separatamente con conferma manuale, trasferimenti e indicazione di aggiornamento. Sono controllati i risultati obsoleti o attribuiti erroneamente; nessun totale confermato comune nave/portaerei.
+- Le risorse minerarie mostrano il globo missione rosa e la stessa legenda blu/rosa delle viste commerciali. Colori, quantità e filtri sono preservati.
+- Senza un mercato selezionato, la vista mercato spiega che occorre prima scegliere un mercato salvato e che il filtro della stiva non è un inventario indipendente.
+
 ## CMDRHelper v3.9.27
 
 - Le viste commerciali distinguono il carico MissionID blu dal possibile carico missione rosa, con quantità nei suggerimenti e legende compatte; il carico misto mostra entrambi i simboli.

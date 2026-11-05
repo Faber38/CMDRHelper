@@ -14,6 +14,16 @@ from .mining_persistence import save_values
 logger = logging.getLogger(__name__)
 
 
+def mining_publication_context(state):
+    """In-memory provenance only; never starts a read or changes inventory."""
+    live = (getattr(state, '_journal_index_sessions', None) or [{}])[-1]
+    return (getattr(state, 'commander_id', None), getattr(state, 'commander_fid', ''),
+            str(getattr(getattr(state, 'database', None), 'path', '')),
+            live.get('journal_file'), live.get('commander_id'), live.get('fid_seen'),
+            live.get('attribution_status'),
+            (getattr(state, '_inventory_revisions', None) or {}).get('mining'))
+
+
 class _Result(QObject):
     ready = Signal(int, object)
 
@@ -59,6 +69,7 @@ class MiningInventoryController(QObject):
     loading = Signal()
     ready = Signal(object)
     refreshFinished = Signal(str)
+    publicationChanged = Signal()  # Presentation-only invalidation of the last result.
 
     def __init__(self, state, parent=None):
         super().__init__(parent)
@@ -123,6 +134,7 @@ class MiningInventoryController(QObject):
             self._last_inventory = None
             self.loading.emit()
         self._dirty = True
+        self.publicationChanged.emit()
         if not self.timer.isActive():
             self.timer.start()
 
@@ -157,6 +169,7 @@ class MiningInventoryController(QObject):
             self.ready.emit(MiningInventory(cid, fid))
             self._report_manual(None)
             return
+        self._active_publication_context = mining_publication_context(self.state)
         self._running = True
         self.state.settings.beginGroup("materials/mining/carrier")
         try:
@@ -215,6 +228,7 @@ class MiningInventoryController(QObject):
             self._exit_pending_result = None
             if ledger is not None:
                 self.carrier_ledger.attach(inventory, ledger)
+            inventory.publication_context = getattr(self, "_active_publication_context", None)
             self.ready.emit(inventory)
             if inventory.cargo_pending and self._cargo_retries < 3:
                 self._cargo_retries += 1
@@ -299,4 +313,5 @@ class MiningInventoryController(QObject):
         ledger = self.carrier_ledger.confirm(inventory.fid, inventory.carrier_id, symbol, count, feed)
         inventory.carrier_feed = feed
         self.carrier_ledger.attach(inventory, ledger)
+        inventory.publication_context = mining_publication_context(self.state)
         self.ready.emit(inventory)

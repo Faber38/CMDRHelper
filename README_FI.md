@@ -38,6 +38,13 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.28
+
+- Avoimet tavaratehtävät näyttävät kelvollisen alusrahdin tiedoissa, taulukon tilassa ja seuraavassa vaiheessa. Toimitukset pysyvät erillään; useat tehtävät jakavat varaston ilman varauksia.
+- Oman tukialuksen sopiva varasto näytetään erikseen manuaalisen vahvistuksen, siirtojen seurannan ja ajantasaisuustiedon kanssa. Vanhentuneet tai väärin kohdistetut tulokset tarkistetaan; ei yhteistä vahvistettua alus- ja tukialussummaa.
+- Kaivosraaka-aineet näyttävät vaaleanpunaisen tehtäväpallon ja saman sinisen/vaaleanpunaisen symboliselitteen kuin kauppanäkymät. Varastovärit, määrät ja suodattimet säilyvät.
+- Kun markkinaa ei ole valittu, markkinanäkymä kertoo, että ensin on valittava tallennettu markkina ja ettei rahtisuodatin ole erillinen varastoluettelo.
+
 ## CMDRHelper v3.9.27
 
 - Kauppanäkymät erottavat sinisen MissionID-rahdin vaaleanpunaisesta mahdollisesta tehtävärahdista. Työkaluvihjeet näyttävät määrät ja tiiviit selitteet kuvaavat symbolit; sekarahti näyttää molemmat symbolit.

@@ -38,6 +38,13 @@ Journalmappen för Elite Dangerous hittas automatiskt när det är möjligt. Om 
 
 CMDRHelper söker efter uppdateringar vid start och har en inbyggd uppdateringsfunktion. Bekräfta en erbjuden uppdatering i programmet; den uppdaterar programmet och beroendena och startar om CMDRHelper. Efter den första installationen använder du normalt bara `start.bat` (Windows) eller `bash start.sh` (Linux). Du behöver inte köra `install.bat` eller `install.sh` manuellt igen för vanliga uppdateringar.
 
+## CMDRHelper v3.9.28
+
+- Öppna varuuppdrag visar giltig skeppslast i detaljer, tabellstatus och nästa steg. Leveransstatus hålls separat; flera uppdrag delar lagret utan reservationer.
+- Passande lager på egen carrier visas separat med manuell bekräftelse, överföringsuppföljning och aktualitet. Föråldrade eller felaktigt tilldelade resultat kontrolleras; ingen gemensam bekräftad skepps-/carriersumma.
+- Gruvråvaror visar den rosa uppdragsgloben och samma blå/rosa symbolförklaring som handelsvyerna. Lagerfärger, mängder och filter bevaras.
+- Utan vald marknad förklarar marknadsvyn att en sparad marknad måste väljas först och att lastfiltret inte är en separat inventarielista.
+
 ## CMDRHelper v3.9.27
 
 - Handelsvyerna skiljer blå MissionID-last från rosa möjlig uppdragslast, med mängder i verktygstips och kompakta förklaringar; blandad last visar båda symbolerna.

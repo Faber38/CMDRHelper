@@ -38,6 +38,13 @@ Der Journalordner von Elite Dangerous wird nach Möglichkeit automatisch erkannt
 
 CMDRHelper prüft beim Start auf Updates und besitzt einen integrierten Updater. Bestätige ein angebotenes Update im Programm; es aktualisiert Programm und Abhängigkeiten und startet CMDRHelper neu. Nach der Erstinstallation genügt normalerweise `start.bat` (Windows) beziehungsweise `bash start.sh` (Linux). Für normale Updates musst du `install.bat` oder `install.sh` nicht erneut manuell ausführen.
 
+## CMDRHelper v3.9.28
+
+- Offene Warenmissionen berücksichtigen gültige Schiffsfracht in Details, Tabellenstatus und nächstem Schritt. Lieferfortschritt bleibt getrennt; mehrere Missionen teilen denselben Bestand ohne Reservierung.
+- Passende Bestände des eigenen Carriers erscheinen separat mit manueller Bestätigung, Transfer-Fortschreibung und Aktualitätskennzeichnung. Veraltete oder falsch zugeordnete Ergebnisse werden abgesichert; keine gemeinsame bestätigte Schiff-/Carrier-Summe.
+- Abbaurohstoffe zeigen die rosa Missionskugel und dieselbe blaue/rosa Symbollegende wie die Handelsansichten. Bestandsfarben, Mengen und Filter bleiben erhalten.
+- Markt ansehen erklärt bei fehlender Auswahl, dass zuerst ein gespeicherter Markt gewählt werden muss und der Frachtraumfilter keine eigenständige Inventarliste ist.
+
 ## CMDRHelper v3.9.27
 
 - Handelsansichten unterscheiden blaue MissionID-Fracht und rosa mögliche Missionsfracht mit Mengen-Tooltips und kompakten Legenden; Mischfracht zeigt beide Symbole.

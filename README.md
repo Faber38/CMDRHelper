@@ -38,6 +38,13 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.9.28
+
+- Open goods missions show valid ship cargo in details, table status and the next step. Delivery progress stays separate; multiple missions share stock without reservations.
+- Matching stock on your own carrier is shown separately with manual confirmation, transfer tracking and freshness information. Stale or mismatched results are guarded against; no combined confirmed ship/carrier total.
+- Mining commodities show the pink mission globe and the same blue/pink symbol legend as the trade views. Stock colours, quantities and filters are preserved.
+- When no market is selected, Browse Market explains that a saved market must be selected first and that the cargo filter is not a separate inventory list.
+
 ## CMDRHelper v3.9.27
 
 - Trade views distinguish blue MissionID cargo from pink possible mission cargo, with quantity tooltips and compact legends; mixed cargo displays both symbols.
