@@ -393,6 +393,11 @@ class TradeView(QWidget):
             signal = getattr(state, name, None)
             if signal is not None:
                 signal.connect(self.refresh_cargo)
+        controller = getattr(state, 'mining_inventory_controller', None)
+        for name in ('ready', 'loading', 'publicationChanged'):
+            signal = getattr(controller, name, None)
+            if signal is not None:
+                signal.connect(self._refresh_cargo_decorations)
         for name in ('observedMarketsChanged', 'commanderIdentityChanged'):
             signal = getattr(state, name, None)
             if signal is not None:
@@ -567,7 +572,7 @@ class TradeView(QWidget):
             if item.flags() & Qt.ItemIsUserCheckable:
                 item.setCheckState(Qt.Checked)
 
-    def _refresh_cargo_decorations(self):
+    def _refresh_cargo_decorations(self, *_):
         blue = current_mission_cargo(self.state)
         pink = current_possible_mission_cargo(self.state)
         snapshot = getattr(self.state, 'ship_inventory', None)

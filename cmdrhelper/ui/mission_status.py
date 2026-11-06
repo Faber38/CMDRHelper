@@ -28,7 +28,7 @@ class MissionStatusDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         status = index.data(MISSION_STATUS_ROLE)
         if index.data(MISSION_CARGO_STATUS_ROLE):
-            color = "#a32269" if self._light else "#ff83c4"
+            color = "#226626" if self._light else "#65d067"
         elif status in GREEN_STATUSES:
             color = "#226626" if self._light else "#65d067"
         elif status == STATUS_ACCEPTED:

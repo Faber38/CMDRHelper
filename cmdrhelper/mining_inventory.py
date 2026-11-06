@@ -258,6 +258,17 @@ class MiningReducer:
                 if snapshot is not None:
                     self.stocks[vessel] = {item["frontier_name"]: item["count"]
                                            for item in snapshot["inventory"]}
+                    if (vessel == "SRV" and snapshot["count"] == 0
+                            and previous is not None and sum(previous.values()) > 0
+                            and self.stocks["Ship"] is None
+                            and self.result.displayed_stock("Ship", "")[1] == "stale"):
+                        # Treat a complete SRV unload as a transfer onto the
+                        # matching historical mothership. Already recorded
+                        # transfers/ejections have reduced `previous` first.
+                        ship = _copy_stock(self.result.vehicle_records["Ship"]["last_confirmed"])
+                        for name, count in previous.items():
+                            ship[name] = ship.get(name, 0) + count
+                        self.stocks["Ship"] = ship
                 elif "Inventory" in event:
                     self.stocks[vessel] = None
                 else:
@@ -367,7 +378,8 @@ class MiningReducer:
                 record["quality"] = "stale" if "last_confirmed" in record else "unknown"
             elif (stock != before[vessel] or (et == "ShipyardSwap" and vessel == "Ship")
                   or (et == "Cargo" and event.get("Vessel", "").casefold() == vessel.casefold())):
-                full = et == "Cargo" and validated_cargo(event, self.result.fid) is not None
+                full = (et == "Cargo" and event.get("Vessel", "").casefold() == vessel.casefold()
+                        and validated_cargo(event, self.result.fid) is not None)
                 record["quality"] = "confirmed" if full else "tracked"
                 record.update(last_confirmed=_copy_stock(stock), source=list(source),
                               confirmed_at=event.get("timestamp", ""), ship_id=self.ship_id,

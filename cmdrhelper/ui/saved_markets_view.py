@@ -14,7 +14,6 @@ from cmdrhelper.commodity_localization import commodity_name
 from cmdrhelper.commodity_master import lookup_by_id, lookup_by_symbol
 from cmdrhelper.i18n import get_language, tr
 from cmdrhelper.mining_catalog import MINING_COMMODITIES
-from cmdrhelper.ship_cargo import current_ship_inventory
 from cmdrhelper.observed_market_cache import timestamp, utcnow
 from cmdrhelper.saved_markets import (ReadCancelled, read_market, read_markets,
                                      read_reference, source_from_state)
@@ -282,6 +281,11 @@ class SavedMarketsView(QWidget):
         for name in ('cargoSnapshotChanged', 'changed', 'commanderIdentityChanged',
                      'viewedCommanderChanged', 'shipLoadoutChanged'):
             signal = getattr(state, name, None)
+            if signal is not None:
+                signal.connect(self._cargo_changed)
+        controller = getattr(state, 'mining_inventory_controller', None)
+        for name in ('ready', 'loading', 'publicationChanged'):
+            signal = getattr(controller, name, None)
             if signal is not None:
                 signal.connect(self._cargo_changed)
         self.apply_reference.clicked.connect(self.change_reference)
@@ -616,33 +620,35 @@ class SavedMarketsView(QWidget):
     def _cargo_filter(self):
         if not self.cargo_only.isChecked():
             return None, ''
-        state = self.state
-        viewed = getattr(state, 'viewed_commander_id', None)
-        if ((viewed is not None and viewed != getattr(state, 'commander_id', None))
-                or (getattr(state, 'sources', None) is not None
-                    and not getattr(state, '_source_live_context', False))):
-            return None, tr('browse.cargo_unavailable')
-        # Revalidate in memory, not the signal payload (which may be SRV cargo)
-        # or a cached ship_inventory still awaiting the end of a state refresh.
-        snapshot = current_ship_inventory(state)
-        if snapshot is None:
+        # Use the same published inventory and ship presentation as MiningView.
+        # The controller owns identity, reconstruction and publication validity.
+        controller = getattr(self.state, 'mining_inventory_controller', None)
+        inventory = getattr(controller, '_last_inventory', None)
+        if inventory is None or inventory.ship is None:
             return None, tr('browse.cargo_unavailable')
         ids = set()
-        for row in snapshot['inventory']:
-            if row['count'] <= 0:
+        # Probe an absent commodity as well so a known empty hold retains its
+        # published quality rather than being mistaken for unknown cargo.
+        _, quality = inventory.displayed_stock('Ship', '')
+        if quality not in ('confirmed', 'tracked'):
+            return None, tr('browse.cargo_conflict' if quality == 'inconsistent'
+                            else 'browse.cargo_unavailable')
+        for symbol in inventory.ship:
+            count, _ = inventory.displayed_stock('Ship', symbol)
+            if count <= 0:
                 continue
-            master = lookup_by_symbol(row['frontier_name'])
+            master = lookup_by_symbol(symbol)
             if master is None:
-                # Never guess from translated names or silently drop an unknown
-                # positive stock. Retain the user's choice, visibly paused.
                 return None, tr('browse.cargo_identity_unknown')
             ids.add(master.frontier_id)
+        if quality == 'tracked':
+            return ids, tr('browse.cargo_retained' if ids else 'browse.cargo_retained_empty')
         return ids, tr('browse.cargo_empty') if not ids else ''
 
     @Slot()
-    def filter_goods(self):
-        # Validate provenance on every relevant signal BEFORE comparing the
-        # effective filter. Quantities alone do not change membership.
+    def filter_goods(self, *_):
+        # Read Mining’s published quality on every update. Quantities alone
+        # do not change filter membership.
         ids, notice = self._cargo_filter()
         search = self.goods_search.text().strip().casefold()
         key = (search, self.goods_mode.checkedId(),

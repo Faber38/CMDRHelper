@@ -1,4 +1,20 @@
 TRANSLATIONS = {
+    "release.3_9_29.0": 'Verbeterde herkenning van missielading.',
+    "release.3_9_29.1": 'Ondersteuning voor passende handelswaren zonder MissionID.',
+    "release.3_9_29.2": 'Bestaande herkenning op basis van MissionID blijft behouden.',
+    "release.3_9_29.3": 'Uniforme blauwe markering voor missiegoederen.',
+    "release.3_9_29.4": 'Correcte weergave van gereedheid voor levering.',
+
+    'missions.action_check_cargo': 'Controleer de scheepslading',
+    'missions.action_deliver': 'Lever {commodity} af',
+    'missions.action_transfer': 'Laad passende goederen ({commodity}) van de eigen carrier over naar het schip',
+    'missions.action_pickup_unknown': 'Controleer de leveringsstand; haal ontbrekende missielading op bij de ophaallocatie',
+    'missions.action_pickup': 'Haal ontbrekende missielading op: {count} t {commodity}',
+    'missions.action_mine': 'Verzamel/delf {count} t {commodity}',
+    'missions.action_shared_stock': 'Gedeelde lading: {count} t',
+    'missions.action_group_requested': 'Gezamenlijke behoefte volgens missies: {count} t; leveringsstand deels of geheel onbekend',
+    'missions.action_group_remaining': 'Gezamenlijke bevestigde resterende behoefte: {count} t',
+
     "release.3_9_28.0": 'Open goederenmissies tonen geldige scheepslading in details, tabelstatus en volgende stap. Leveringen blijven apart; meerdere missies delen voorraad zonder reserveringen.',
     "release.3_9_28.1": 'Passende voorraad op de eigen carrier wordt apart getoond met handmatige bevestiging, overdrachtsregistratie en actualiteit. Verouderde of verkeerd gekoppelde resultaten worden gecontroleerd; geen gecombineerd bevestigd scheeps-/carriertotaal.',
     "release.3_9_28.2": 'Mijnbouwgrondstoffen tonen de roze missiebol en dezelfde blauw/roze symboollegenda als de handelsweergaven. Voorraadkleuren, hoeveelheden en filters blijven behouden.',
@@ -2392,7 +2408,10 @@ TRANSLATIONS.update({
     'browse.reference_loading': 'Coördinaten van het referentiestelsel laden …',
     'browse.cargo_only': 'Alleen goederen in het vrachtruim van het schip',
     'browse.cargo_unavailable': 'Vrachtfilter gepauzeerd: De huidige scheepsvoorraad is niet bevestigd.',
+    'browse.cargo_conflict': 'Vrachtfilter gepauzeerd: De gegevens over de scheepsvoorraad spreken elkaar tegen. De getoonde goederen zijn niet gefilterd op scheepsvracht.',
     'browse.cargo_empty': 'Het vrachtruim van het schip is bevestigd leeg.',
+    'browse.cargo_retained': 'Vrachtfilter: Laatst bevestigde scheepsvoorraad, bijgewerkt op basis van journaalgebeurtenissen.',
+    'browse.cargo_retained_empty': 'De laatst bevestigde scheepsvoorraad, bijgewerkt op basis van journaalgebeurtenissen, is leeg.',
     'browse.cargo_identity_unknown': 'Vrachtfilter gepauzeerd: Niet alle goederen kunnen eenduidig worden geïdentificeerd.',
 })
 
@@ -2474,5 +2493,14 @@ TRANSLATIONS.update({
     'trade.possible_cargo_unknown': 'Open missies ({missions}) vragen in totaal {count} t; de leveringsvoortgang is onbekend.',
     'trade.possible_cargo_warning': 'Of Elite deze goederen accepteert, is nog niet bevestigd.',
     'trade.cargo_legend_blue': 'Blauwe missiebol: Door Elite via MissionID toegewezen missielading.',
-    'trade.cargo_legend_pink': 'Roze missiebol met !: Passende scheepslading; acceptatie door Elite onbevestigd.',
+    'trade.cargo_legend_pink': 'Blauwe missiebol met !: Passende scheepslading; acceptatie door Elite onbevestigd.',
+    'missions.summary_reward': 'Beloning ophalen',
+    'missions.summary_check': 'Vracht controleren',
+    'missions.summary_deliver': 'Goederen afleveren',
+    'missions.summary_travel': 'Klaar voor levering',
+    'missions.summary_transfer': 'Overladen vanaf carrier',
+    'missions.summary_pickup': 'Vracht ophalen',
+    'missions.summary_acquire': 'Goederen verkrijgen',
+    'missions.summary_shared': 'Gedeelde vracht beschikbaar',
+    'missions.summary_present': 'Vracht beschikbaar',
 })

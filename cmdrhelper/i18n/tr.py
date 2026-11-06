@@ -1,4 +1,20 @@
 TRANSLATIONS = {
+    "release.3_9_29.0": 'Görev kargosu algılaması iyileştirildi.',
+    "release.3_9_29.1": 'MissionID olmadan eşleşen ticaret malları için destek.',
+    "release.3_9_29.2": 'Mevcut MissionID tabanlı algılama korunur.',
+    "release.3_9_29.3": 'Görev malları için tek tip mavi işaretleme.',
+    "release.3_9_29.4": 'Teslimata hazır olma durumunun doğru gösterimi.',
+
+    'missions.action_check_cargo': 'Gemi kargosunu kontrol edin',
+    'missions.action_deliver': '{commodity} teslim edin',
+    'missions.action_transfer': 'Uygun malları ({commodity}) kendi taşıyıcınızdan gemiye aktarın',
+    'missions.action_pickup_unknown': 'Teslimat durumunu kontrol edin; eksik görev kargosunu alım noktasından alın',
+    'missions.action_pickup': 'Eksik görev kargosunu alın: {count} t {commodity}',
+    'missions.action_mine': '{count} t {commodity} edinin/çıkarın',
+    'missions.action_shared_stock': 'Ortak kargo: {count} t',
+    'missions.action_group_requested': 'Görev verilerine göre ortak ihtiyaç: {count} t; teslimat durumu kısmen veya tamamen bilinmiyor',
+    'missions.action_group_remaining': 'Doğrulanmış ortak kalan ihtiyaç: {count} t',
+
     "release.3_9_28.0": 'Açık mal görevleri geçerli gemi kargosunu ayrıntılarda, tablo durumunda ve sonraki adımda gösterir. Teslimat ilerlemesi ayrı kalır; birden fazla görev rezervasyon olmadan aynı stoku paylaşır.',
     "release.3_9_28.1": 'Kendi taşıyıcınızdaki uygun stok; manuel doğrulama, transfer takibi ve güncellik bilgisiyle ayrı gösterilir. Eski veya yanlış eşleştirilmiş sonuçlar denetlenir; ortak doğrulanmış gemi/taşıyıcı toplamı oluşturulmaz.',
     "release.3_9_28.2": 'Madencilik hammaddeleri pembe görev küresini ve ticaret görünümleriyle aynı mavi/pembe simge açıklamasını gösterir. Stok renkleri, miktarlar ve filtreler korunur.',
@@ -2392,7 +2408,10 @@ TRANSLATIONS.update({
     'browse.reference_loading': 'Referans sisteminin koordinatları yükleniyor …',
     'browse.cargo_only': 'Yalnızca geminin kargo bölümündeki mallar',
     'browse.cargo_unavailable': 'Kargo filtresi duraklatıldı: Geminin mevcut envanteri doğrulanmadı.',
+    'browse.cargo_conflict': 'Kargo filtresi duraklatıldı: Gemi envanteri verileri çelişiyor. Gösterilen mallar gemi kargosuna göre filtrelenmiyor.',
     'browse.cargo_empty': 'Geminin kargo bölümünün boş olduğu doğrulandı.',
+    'browse.cargo_retained': 'Kargo filtresi: Günlük olaylarına göre güncellenen, son doğrulanmış gemi envanteri.',
+    'browse.cargo_retained_empty': 'Günlük olaylarına göre güncellenen, son doğrulanmış gemi envanteri boş.',
     'browse.cargo_identity_unknown': 'Kargo filtresi duraklatıldı: Tüm mallar kesin olarak tanımlanamıyor.',
 })
 
@@ -2474,5 +2493,14 @@ TRANSLATIONS.update({
     'trade.possible_cargo_unknown': 'Açık görevler ({missions}) toplam {count} t istiyor; teslimat ilerlemesi bilinmiyor.',
     'trade.possible_cargo_warning': 'Elite tarafından bu malın kabul edilip edilmeyeceği henüz doğrulanmadı.',
     'trade.cargo_legend_blue': 'Mavi görev küresi: Elite tarafından MissionID ile atanmış görev kargosu.',
-    'trade.cargo_legend_pink': '! işaretli pembe görev küresi: Eşleşen gemi kargosu; Elite tarafından kabulü doğrulanmadı.',
+    'trade.cargo_legend_pink': '! işaretli mavi görev küresi: Eşleşen gemi kargosu; Elite tarafından kabulü doğrulanmadı.',
+    'missions.summary_reward': 'Ödülü al',
+    'missions.summary_check': 'Kargoyu kontrol et',
+    'missions.summary_deliver': 'Malları teslim et',
+    'missions.summary_travel': 'Teslimata hazır',
+    'missions.summary_transfer': 'Taşıyıcıdan aktar',
+    'missions.summary_pickup': 'Kargoyu al',
+    'missions.summary_acquire': 'Malları temin et',
+    'missions.summary_shared': 'Ortak kargo mevcut',
+    'missions.summary_present': 'Kargo mevcut',
 })

@@ -1,4 +1,20 @@
 TRANSLATIONS = {
+    "release.3_9_29.0": 'Ulepszone rozpoznawanie ładunku misji.',
+    "release.3_9_29.1": 'Obsługa pasujących towarów handlowych bez MissionID.',
+    "release.3_9_29.2": 'Dotychczasowe rozpoznawanie na podstawie MissionID zostaje zachowane.',
+    "release.3_9_29.3": 'Jednolite niebieskie oznaczenie towarów misji.',
+    "release.3_9_29.4": 'Poprawne wyświetlanie gotowości do dostawy.',
+
+    'missions.action_check_cargo': 'Sprawdź ładownię statku',
+    'missions.action_deliver': 'Dostarcz {commodity}',
+    'missions.action_transfer': 'Przeładuj pasujący towar ({commodity}) z własnego lotniskowca na statek',
+    'missions.action_pickup_unknown': 'Sprawdź stan dostaw; odbierz brakujący ładunek misji w miejscu odbioru',
+    'missions.action_pickup': 'Odbierz brakujący ładunek misji: {count} t towaru {commodity}',
+    'missions.action_mine': 'Zdobądź/wydobądź {count} t towaru {commodity}',
+    'missions.action_shared_stock': 'Wspólny ładunek: {count} t',
+    'missions.action_group_requested': 'Wspólne zapotrzebowanie według misji: {count} t; stan dostaw częściowo lub całkowicie nieznany',
+    'missions.action_group_remaining': 'Wspólne potwierdzone pozostałe zapotrzebowanie: {count} t',
+
     "release.3_9_28.0": 'Otwarte misje towarowe pokazują prawidłowy ładunek statku w szczegółach, statusie tabeli i następnym kroku. Dostawy pozostają oddzielne; wiele misji współdzieli zapasy bez rezerwacji.',
     "release.3_9_28.1": 'Pasujący zapas własnego lotniskowca jest wyświetlany oddzielnie z ręcznym potwierdzeniem, śledzeniem transferów i informacją o aktualności. Nieaktualne lub błędnie przypisane wyniki są kontrolowane; bez wspólnej potwierdzonej sumy statku i lotniskowca.',
     "release.3_9_28.2": 'Surowce górnicze pokazują różowy symbol misji i tę samą niebiesko-różową legendę co widoki handlu. Kolory zapasów, ilości i filtry pozostają zachowane.',
@@ -2392,7 +2408,10 @@ TRANSLATIONS.update({
     'browse.reference_loading': 'Wczytywanie współrzędnych układu odniesienia…',
     'browse.cargo_only': 'Tylko towary w ładowni statku',
     'browse.cargo_unavailable': 'Filtr ładunku wstrzymany: Aktualny stan ładowni statku nie został potwierdzony.',
+    'browse.cargo_conflict': 'Filtr ładunku wstrzymany: Dane o ładowni statku są sprzeczne. Wyświetlane towary nie są filtrowane według ładunku statku.',
     'browse.cargo_empty': 'Potwierdzono, że ładownia statku jest pusta.',
+    'browse.cargo_retained': 'Filtr ładunku: Ostatni potwierdzony stan ładowni statku, zaktualizowany na podstawie zdarzeń dziennika.',
+    'browse.cargo_retained_empty': 'Ostatni potwierdzony stan ładowni statku, zaktualizowany na podstawie zdarzeń dziennika, jest pusty.',
     'browse.cargo_identity_unknown': 'Filtr ładunku wstrzymany: Nie wszystkie towary można jednoznacznie zidentyfikować.',
 })
 
@@ -2473,5 +2492,14 @@ TRANSLATIONS.update({
     'trade.possible_cargo_unknown': 'Otwarte misje ({missions}) wymagają łącznie {count} t; postęp dostaw jest nieznany.',
     'trade.possible_cargo_warning': 'Nie potwierdzono jeszcze, czy Elite przyjmie ten towar.',
     'trade.cargo_legend_blue': 'Niebieska kula: Ładunek misji przypisany przez Elite za pomocą MissionID.',
-    'trade.cargo_legend_pink': 'Różowa kula z !: Pasujący ładunek statku; przyjęcie przez Elite niepotwierdzone.',
+    'trade.cargo_legend_pink': 'Niebieska kula z !: Pasujący ładunek statku; przyjęcie przez Elite niepotwierdzone.',
+    'missions.summary_reward': 'Odbierz nagrodę',
+    'missions.summary_check': 'Sprawdź ładunek',
+    'missions.summary_deliver': 'Dostarcz towary',
+    'missions.summary_travel': 'Gotowość do dostawy',
+    'missions.summary_transfer': 'Przeładuj z lotniskowca',
+    'missions.summary_pickup': 'Odbierz ładunek',
+    'missions.summary_acquire': 'Zdobądź towary',
+    'missions.summary_shared': 'Wspólny ładunek dostępny',
+    'missions.summary_present': 'Ładunek dostępny',
 })

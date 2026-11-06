@@ -1,4 +1,20 @@
 TRANSLATIONS = {
+    "release.3_9_29.0": 'Forbedret gjenkjenning av oppdragslast.',
+    "release.3_9_29.1": 'Støtte for passende handelsvarer uten MissionID.',
+    "release.3_9_29.2": 'Eksisterende MissionID-basert gjenkjenning beholdes.',
+    "release.3_9_29.3": 'Ensartet blå merking av oppdragsvarer.',
+    "release.3_9_29.4": 'Korrekt visning av leveringsklarhet.',
+
+    'missions.action_check_cargo': 'Kontroller skipets last',
+    'missions.action_deliver': 'Lever {commodity}',
+    'missions.action_transfer': 'Overfør passende varer ({commodity}) fra egen carrier til skipet',
+    'missions.action_pickup_unknown': 'Kontroller leveringsstatus; hent manglende oppdragslast på hentestedet',
+    'missions.action_pickup': 'Hent manglende oppdragslast: {count} t {commodity}',
+    'missions.action_mine': 'Skaff/utvinn {count} t {commodity}',
+    'missions.action_shared_stock': 'Delt last: {count} t',
+    'missions.action_group_requested': 'Samlet behov ifølge oppdragene: {count} t; leveringsstatus delvis eller helt ukjent',
+    'missions.action_group_remaining': 'Samlet bekreftet gjenstående behov: {count} t',
+
     "release.3_9_28.0": 'Åpne vareoppdrag viser gyldig skipslast i detaljer, tabellstatus og neste trinn. Leveringsstatus holdes separat; flere oppdrag deler beholdning uten reservasjoner.',
     "release.3_9_28.1": 'Passende beholdning på egen carrier vises separat med manuell bekreftelse, overføringshistorikk og aktualitet. Utdaterte eller feiltilordnede resultater kontrolleres; ingen samlet bekreftet skips-/carrier-beholdning.',
     "release.3_9_28.2": 'Gruveråvarer viser den rosa oppdragskulen og samme blå/rosa symbolforklaring som handelsvisningene. Beholdningsfarger, mengder og filtre beholdes.',
@@ -2392,7 +2408,10 @@ TRANSLATIONS.update({
     'browse.reference_loading': 'Laster koordinater for referansesystemet …',
     'browse.cargo_only': 'Bare varer i skipets lasterom',
     'browse.cargo_unavailable': 'Lastfilteret er satt på pause: Skipets nåværende beholdning er ikke bekreftet.',
+    'browse.cargo_conflict': 'Lastfilter satt på pause: Opplysningene om skipsbeholdningen er motstridende. De viste varene er ikke filtrert etter skipslast.',
     'browse.cargo_empty': 'Skipets lasterom er bekreftet tomt.',
+    'browse.cargo_retained': 'Lastfilter: Sist bekreftede skipsbeholdning, oppdatert ut fra journalhendelser.',
+    'browse.cargo_retained_empty': 'Den sist bekreftede skipsbeholdningen, oppdatert ut fra journalhendelser, er tom.',
     'browse.cargo_identity_unknown': 'Lastfilteret er satt på pause: Ikke alle varer kan identifiseres entydig.',
 })
 
@@ -2473,5 +2492,14 @@ TRANSLATIONS.update({
     'trade.possible_cargo_unknown': 'Åpne oppdrag ({missions}) ber om totalt {count} t; leveringsstatusen er ukjent.',
     'trade.possible_cargo_warning': 'Det er ennå ikke bekreftet om Elite godtar varen.',
     'trade.cargo_legend_blue': 'Blå oppdragskule: Oppdragslast tildelt av Elite via MissionID.',
-    'trade.cargo_legend_pink': 'Rosa oppdragskule med !: Passende skipslast; Elites godkjenning er ubekreftet.',
+    'trade.cargo_legend_pink': 'Blå oppdragskule med !: Passende skipslast; Elites godkjenning er ubekreftet.',
+    'missions.summary_reward': 'Hent belønning',
+    'missions.summary_check': 'Kontroller last',
+    'missions.summary_deliver': 'Lever varer',
+    'missions.summary_travel': 'Klar for levering',
+    'missions.summary_transfer': 'Last om fra hangarskipet',
+    'missions.summary_pickup': 'Hent last',
+    'missions.summary_acquire': 'Skaff varer',
+    'missions.summary_shared': 'Felles last tilgjengelig',
+    'missions.summary_present': 'Last tilgjengelig',
 })

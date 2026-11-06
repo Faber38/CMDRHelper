@@ -1,4 +1,20 @@
 TRANSLATIONS = {
+    "release.3_9_29.0": 'Verbesserte Erkennung von Missionsfracht.',
+    "release.3_9_29.1": 'Unterstützung passender Handelsware ohne MissionID.',
+    "release.3_9_29.2": 'Bestehende MissionID-basierte Erkennung bleibt erhalten.',
+    "release.3_9_29.3": 'Einheitliche blaue Kennzeichnung für Missionsware.',
+    "release.3_9_29.4": 'Korrekte Anzeige der Lieferbereitschaft.',
+
+    'missions.action_check_cargo': 'Frachtraum prüfen',
+    'missions.action_deliver': '{commodity} abliefern',
+    'missions.action_transfer': 'Passende Ware ({commodity}) vom eigenen Carrier ins Schiff umladen',
+    'missions.action_pickup_unknown': 'Lieferstand prüfen; fehlende Missionsfracht am Abholort abholen',
+    'missions.action_pickup': 'Fehlende Missionsfracht abholen: {count} t {commodity}',
+    'missions.action_mine': '{count} t {commodity} beschaffen/abbauen',
+    'missions.action_shared_stock': 'Gemeinsame Fracht: {count} t',
+    'missions.action_group_requested': 'Gemeinsamer Bedarf laut Missionsdaten: {count} t; Lieferstand teilweise oder vollständig unbekannt',
+    'missions.action_group_remaining': 'Gemeinsamer bestätigter Restbedarf: {count} t',
+
     "release.3_9_28.0": 'Offene Warenmissionen berücksichtigen gültige Schiffsfracht in Details, Tabellenstatus und nächstem Schritt. Lieferfortschritt bleibt getrennt; mehrere Missionen teilen denselben Bestand ohne Reservierung.',
     "release.3_9_28.1": 'Passende Bestände des eigenen Carriers erscheinen separat mit manueller Bestätigung, Transfer-Fortschreibung und Aktualitätskennzeichnung. Veraltete oder falsch zugeordnete Ergebnisse werden abgesichert; keine gemeinsame bestätigte Schiff-/Carrier-Summe.',
     "release.3_9_28.2": 'Abbaurohstoffe zeigen die rosa Missionskugel und dieselbe blaue/rosa Symbollegende wie die Handelsansichten. Bestandsfarben, Mengen und Filter bleiben erhalten.',
@@ -2536,7 +2552,10 @@ TRANSLATIONS.update({
     'browse.reference_loading': 'Koordinaten des Bezugssystems werden geladen …',
     'browse.cargo_only': 'Nur Waren im Schiffs-Frachtraum',
     'browse.cargo_unavailable': 'Frachtfilter pausiert: Der aktuelle Schiffsbestand ist nicht bestätigt.',
+    'browse.cargo_conflict': 'Frachtfilter pausiert: Die Angaben zum Schiffsbestand widersprechen sich. Die angezeigten Waren sind nicht nach Schiffsfracht gefiltert.',
     'browse.cargo_empty': 'Der bestätigte Schiffsfrachtraum ist leer.',
+    'browse.cargo_retained': 'Frachtfilter: Zuletzt bestätigter, anhand der Journalereignisse fortgeführter Schiffsbestand.',
+    'browse.cargo_retained_empty': 'Der zuletzt bestätigte, anhand der Journalereignisse fortgeführte Schiffsbestand ist leer.',
     'browse.cargo_identity_unknown': 'Frachtfilter pausiert: Nicht alle Waren sind eindeutig zugeordnet.',
 })
 
@@ -2621,5 +2640,14 @@ TRANSLATIONS.update({
     'trade.possible_cargo_unknown': 'Offene Missionen ({missions}) fordern insgesamt {count} t an; bisheriger Lieferstand unbekannt.',
     'trade.possible_cargo_warning': 'Ob Elite diese Ware annimmt, ist noch nicht bestätigt.',
     'trade.cargo_legend_blue': 'Blaue Missionskugel: Von Elite per MissionID zugeordnete Missionsfracht.',
-    'trade.cargo_legend_pink': 'Rosa Missionskugel mit !: Passende Schiffsfracht; Annahme durch Elite unbestätigt.',
+    'trade.cargo_legend_pink': 'Blaue Missionskugel mit !: Passende Schiffsfracht; Annahme durch Elite unbestätigt.',
+    'missions.summary_reward': 'Belohnung abholen',
+    'missions.summary_check': 'Fracht prüfen',
+    'missions.summary_deliver': 'Ware abliefern',
+    'missions.summary_travel': 'Bereit zur Lieferung',
+    'missions.summary_transfer': 'Vom Carrier umladen',
+    'missions.summary_pickup': 'Fracht abholen',
+    'missions.summary_acquire': 'Ware beschaffen',
+    'missions.summary_shared': 'Gemeinsame Fracht vorhanden',
+    'missions.summary_present': 'Fracht vorhanden',
 })

@@ -107,7 +107,14 @@ class MissionCargoViewTests(unittest.TestCase):
         self.state.cargo_snapshot = snapshot
         self.state.ship_inventory = current_ship_inventory(self.state)
         self.state.ship_cargo_total = current_ship_cargo(self.state)
+        from cmdrhelper.mining_inventory import MiningInventory
+        from dataclasses import replace
+        published = self.state.mining_inventory_controller._last_inventory
+        inventory = replace(published or MiningInventory(1, self.state.commander_fid),
+            ship_id=7, ship={row['frontier_name']: row['count'] for row in snapshot['inventory']})
+        self.state.mining_inventory_controller._last_inventory = inventory
         self.state.cargoSnapshotChanged.emit(snapshot)
+        self.state.mining_inventory_controller.ready.emit(inventory)
 
     def indices(self):
         return (self.trade.cargo_list.model().index(0, 0), self.market.goods_model.index(0, 0))

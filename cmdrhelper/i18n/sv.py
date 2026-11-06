@@ -1,4 +1,20 @@
 TRANSLATIONS = {
+    "release.3_9_29.0": 'Förbättrad identifiering av uppdragslast.',
+    "release.3_9_29.1": 'Stöd för matchande handelsvaror utan MissionID.',
+    "release.3_9_29.2": 'Befintlig MissionID-baserad identifiering bevaras.',
+    "release.3_9_29.3": 'Enhetlig blå markering av uppdragsvaror.',
+    "release.3_9_29.4": 'Korrekt visning av leveransberedskap.',
+
+    'missions.action_check_cargo': 'Kontrollera skeppets last',
+    'missions.action_deliver': 'Leverera {commodity}',
+    'missions.action_transfer': 'Överför passande varor ({commodity}) från egen carrier till skeppet',
+    'missions.action_pickup_unknown': 'Kontrollera leveransstatus; hämta saknad uppdragslast på upphämtningsplatsen',
+    'missions.action_pickup': 'Hämta saknad uppdragslast: {count} t {commodity}',
+    'missions.action_mine': 'Skaffa/utvinn {count} t {commodity}',
+    'missions.action_shared_stock': 'Gemensam last: {count} t',
+    'missions.action_group_requested': 'Gemensamt behov enligt uppdragen: {count} t; leveransstatus delvis eller helt okänd',
+    'missions.action_group_remaining': 'Gemensamt bekräftat återstående behov: {count} t',
+
     "release.3_9_28.0": 'Öppna varuuppdrag visar giltig skeppslast i detaljer, tabellstatus och nästa steg. Leveransstatus hålls separat; flera uppdrag delar lagret utan reservationer.',
     "release.3_9_28.1": 'Passande lager på egen carrier visas separat med manuell bekräftelse, överföringsuppföljning och aktualitet. Föråldrade eller felaktigt tilldelade resultat kontrolleras; ingen gemensam bekräftad skepps-/carriersumma.',
     "release.3_9_28.2": 'Gruvråvaror visar den rosa uppdragsgloben och samma blå/rosa symbolförklaring som handelsvyerna. Lagerfärger, mängder och filter bevaras.',
@@ -2392,7 +2408,10 @@ TRANSLATIONS.update({
     'browse.reference_loading': 'Läser in referenssystemets koordinater …',
     'browse.cargo_only': 'Endast varor i skeppets lastutrymme',
     'browse.cargo_unavailable': 'Lastfiltret är pausat: Skeppets aktuella lager är inte bekräftat.',
+    'browse.cargo_conflict': 'Lastfiltret är pausat: Uppgifterna om skeppslagret är motstridiga. De visade varorna är inte filtrerade efter skeppets last.',
     'browse.cargo_empty': 'Skeppets lastutrymme är bekräftat tomt.',
+    'browse.cargo_retained': 'Lastfilter: Senast bekräftade skeppslager, uppdaterat utifrån journalhändelser.',
+    'browse.cargo_retained_empty': 'Det senast bekräftade skeppslagret, uppdaterat utifrån journalhändelser, är tomt.',
     'browse.cargo_identity_unknown': 'Lastfiltret är pausat: Alla varor kan inte identifieras entydigt.',
 })
 
@@ -2473,5 +2492,14 @@ TRANSLATIONS.update({
     'trade.possible_cargo_unknown': 'Öppna uppdrag ({missions}) begär totalt {count} t; leveransförloppet är okänt.',
     'trade.possible_cargo_warning': 'Det är ännu inte bekräftat om Elite accepterar varan.',
     'trade.cargo_legend_blue': 'Blå uppdragsglob: Uppdragslast tilldelad av Elite via MissionID.',
-    'trade.cargo_legend_pink': 'Rosa uppdragsglob med !: Matchande skeppslast; Elites godkännande är obekräftat.',
+    'trade.cargo_legend_pink': 'Blå uppdragsglob med !: Matchande skeppslast; Elites godkännande är obekräftat.',
+    'missions.summary_reward': 'Hämta belöning',
+    'missions.summary_check': 'Kontrollera last',
+    'missions.summary_deliver': 'Leverera varor',
+    'missions.summary_travel': 'Redo för leverans',
+    'missions.summary_transfer': 'Lasta om från hangarfartyget',
+    'missions.summary_pickup': 'Hämta last',
+    'missions.summary_acquire': 'Skaffa varor',
+    'missions.summary_shared': 'Gemensam last tillgänglig',
+    'missions.summary_present': 'Last tillgänglig',
 })

@@ -1,4 +1,20 @@
 TRANSLATIONS = {
+    "release.3_9_29.0": 'Tehtävälastin tunnistusta parannettu.',
+    "release.3_9_29.1": 'Tuki sopiville kauppatavaroille ilman MissionID-tunnusta.',
+    "release.3_9_29.2": 'Nykyinen MissionID-pohjainen tunnistus säilyy.',
+    "release.3_9_29.3": 'Yhtenäinen sininen merkintä tehtävätavaroille.',
+    "release.3_9_29.4": 'Toimitusvalmius näytetään oikein.',
+
+    'missions.action_check_cargo': 'Tarkista aluksen rahti',
+    'missions.action_deliver': 'Toimita {commodity}',
+    'missions.action_transfer': 'Siirrä sopivaa tavaraa ({commodity}) omalta tukialukselta alukseen',
+    'missions.action_pickup_unknown': 'Tarkista toimitustilanne; nouda puuttuva tehtävärahti noutopaikasta',
+    'missions.action_pickup': 'Nouda puuttuva tehtävärahti: {count} t tavaraa {commodity}',
+    'missions.action_mine': 'Hanki/louhi {count} t tavaraa {commodity}',
+    'missions.action_shared_stock': 'Yhteinen rahti: {count} t',
+    'missions.action_group_requested': 'Tehtävätietojen yhteinen tarve: {count} t; toimitustilanne osittain tai kokonaan tuntematon',
+    'missions.action_group_remaining': 'Yhteinen vahvistettu jäljellä oleva tarve: {count} t',
+
     "release.3_9_28.0": 'Avoimet tavaratehtävät näyttävät kelvollisen alusrahdin tiedoissa, taulukon tilassa ja seuraavassa vaiheessa. Toimitukset pysyvät erillään; useat tehtävät jakavat varaston ilman varauksia.',
     "release.3_9_28.1": 'Oman tukialuksen sopiva varasto näytetään erikseen manuaalisen vahvistuksen, siirtojen seurannan ja ajantasaisuustiedon kanssa. Vanhentuneet tai väärin kohdistetut tulokset tarkistetaan; ei yhteistä vahvistettua alus- ja tukialussummaa.',
     "release.3_9_28.2": 'Kaivosraaka-aineet näyttävät vaaleanpunaisen tehtäväpallon ja saman sinisen/vaaleanpunaisen symboliselitteen kuin kauppanäkymät. Varastovärit, määrät ja suodattimet säilyvät.',
@@ -2392,7 +2408,10 @@ TRANSLATIONS.update({
     'browse.reference_loading': 'Ladataan vertailujärjestelmän koordinaatteja…',
     'browse.cargo_only': 'Vain aluksen lastiruumassa olevat tavarat',
     'browse.cargo_unavailable': 'Lastisuodatin on tauolla: Aluksen nykyistä varastoa ei ole vahvistettu.',
+    'browse.cargo_conflict': 'Rahtisuodatin keskeytetty: Aluksen varastotiedot ovat ristiriitaisia. Näytettyjä tavaroita ei ole suodatettu aluksen rahdin mukaan.',
     'browse.cargo_empty': 'Aluksen lastiruuma on vahvistettu tyhjäksi.',
+    'browse.cargo_retained': 'Rahtisuodatin: Aluksen viimeksi vahvistettu varasto, päivitetty lokitapahtumien perusteella.',
+    'browse.cargo_retained_empty': 'Aluksen viimeksi vahvistettu varasto, päivitetty lokitapahtumien perusteella, on tyhjä.',
     'browse.cargo_identity_unknown': 'Lastisuodatin on tauolla: Kaikkia tavaroita ei voida tunnistaa yksiselitteisesti.',
 })
 
@@ -2473,5 +2492,14 @@ TRANSLATIONS.update({
     'trade.possible_cargo_unknown': 'Avoimet tehtävät ({missions}) vaativat yhteensä {count} t; toimitusten edistyminen ei ole tiedossa.',
     'trade.possible_cargo_warning': 'Eliten hyväksyntää tälle tavaralle ei ole vielä vahvistettu.',
     'trade.cargo_legend_blue': 'Sininen pallo: Eliten MissionID-tunnuksella kohdistama tehtävälasti.',
-    'trade.cargo_legend_pink': 'Vaaleanpunainen pallo ja !: Sopiva aluksen lasti; Eliten hyväksyntää ei ole vahvistettu.',
+    'trade.cargo_legend_pink': 'Sininen pallo ja !: Sopiva aluksen lasti; Eliten hyväksyntää ei ole vahvistettu.',
+    'missions.summary_reward': 'Nouda palkinto',
+    'missions.summary_check': 'Tarkista rahti',
+    'missions.summary_deliver': 'Toimita tavarat',
+    'missions.summary_travel': 'Valmis toimitukseen',
+    'missions.summary_transfer': 'Siirrä tukialukselta',
+    'missions.summary_pickup': 'Nouda rahti',
+    'missions.summary_acquire': 'Hanki tavarat',
+    'missions.summary_shared': 'Yhteistä rahtia saatavilla',
+    'missions.summary_present': 'Rahtia saatavilla',
 })

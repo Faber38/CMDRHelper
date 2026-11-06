@@ -39,7 +39,9 @@ class PublishedController(QObject):
 def carrier(state, count=25, quality='manual'):
     journal = state._journal_index_sessions[-1]['journal_file']
     return MiningInventory(state.commander_id, state.commander_fid,
-        carrier_id=123, carrier={'cobalt':count},
+        ship={r['frontier_name']: r['count'] for r in
+              (getattr(state, 'ship_inventory', None) or {}).get('inventory', [])},
+        ship_id=7, carrier_id=123, carrier={'cobalt':count},
         source_folder=str(Path(journal).absolute().parent), carrier_feed={'path':journal},
         carrier_ledger={'fid':state.commander_fid, 'carrier_id':123},
         carrier_records={'cobalt':{'count':count,'status':quality,
@@ -63,29 +65,29 @@ class ProjectionTests(unittest.TestCase):
         before=deepcopy(self.mission)
         for amount in (20,45,90):
             status,step,pink,tip=mission_cargo_table_text(self.mission,MissionCargoStock(amount,0,False))
-            self.assertEqual(status,f'Fracht vorhanden ({min(amount,45)}/45 t)')
+            self.assertEqual(status,'Fracht vorhanden' if amount == 20 else 'Bereit zur Lieferung')
             self.assertTrue(pink)
             self.assertEqual(step, 'Weitere 25 t Kobalt beschaffen' if amount==20 else
                              'Passende Fracht vorhanden – zum Missionsziel reisen')
         unknown=replace(self.mission,delivered_count=None)
         status,step,_,tip=mission_cargo_table_text(unknown,MissionCargoStock(20,0,False))
-        self.assertEqual(status,'Fracht vorhanden (20/45 t)')
+        self.assertEqual(status,'Fracht vorhanden')
         self.assertIn('Lieferstand prüfen',step); self.assertIn('Lieferstand unbekannt',tip)
         partial=replace(self.mission,delivered_count=20)
         self.assertEqual(mission_cargo_table_text(partial,MissionCargoStock(25,0,False))[0],
-                         'Fracht vorhanden (25/25 t)')
+                         'Bereit zur Lieferung')
         for stock in (None,MissionCargoStock(None,None,False),MissionCargoStock(0,0,False)):
             self.assertFalse(mission_cargo_table_text(self.mission,stock)[2])
             self.assertNotIn('Fracht vorhanden',mission_cargo_table_text(self.mission,stock)[0])
         shared=MissionCargoStock(45,0,True)
         for m in (self.mission,replace(self.mission,mission_id=2)):
             status,step,_,tip=mission_cargo_table_text(m,shared)
-            self.assertIn('gemeinsamer Bestand',status)
+            self.assertEqual(status,'Gemeinsame Fracht vorhanden')
             self.assertIn('keine Reservierung',step)
-        self.assertFalse(mission_cargo_table_text(self.mission,MissionCargoStock(0,45,False))[2])
+        self.assertTrue(mission_cargo_table_text(self.mission,MissionCargoStock(0,45,False))[2])
         done=replace(self.mission,delivered_count=45,depot_update_type='deliver')
         status,step,pink,_=mission_cargo_table_text(done,shared)
-        self.assertIn('Lieferung abgeschlossen',status); self.assertFalse(pink)
+        self.assertEqual('Belohnung abholen',status); self.assertFalse(pink)
         self.assertEqual(self.mission,before)
 
     def test_carrier_quality_revision_identity_and_no_io(self):
@@ -139,7 +141,7 @@ class ProjectionTests(unittest.TestCase):
                 fields=lambda t: {f for _,f,_,_ in Formatter().parse(t) if f}
                 self.assertEqual(fields(translations[key]),fields(_TRANSLATIONS['de'][key]))
             status,step,_,_=mission_cargo_table_text(self.mission,MissionCargoStock(45,0,False))
-            self.assertEqual(status,tr('missions.cargo_status',count='45',total='45'))
+            self.assertEqual(status,tr('missions.summary_travel'))
             self.assertEqual(step,tr('missions.cargo_travel'))
             text=mission_carrier_stock_text(self.state,self.mission)
             self.assertIn(tr('missions.carrier_amount',count='25',carrier='123'),text)
@@ -175,7 +177,7 @@ class MissionStockUiTests(unittest.TestCase):
     def test_transfer_delayed_publication_same_amount_completion_and_restart(self):
         table=self.host.missions_table
         item=table.item(0,3)
-        self.assertEqual(item.text(),'Fracht vorhanden (45/45 t)')
+        self.assertEqual(item.text(),'Bereit zur Lieferung')
         self.assertIn('Eigener Carrier 123: 25 t',self.host.mission_progress_text.text())
         # Ship learns of withdrawal before the carrier worker publishes its result.
         self.state._inventory_revisions['mining']=2
@@ -194,7 +196,7 @@ class MissionStockUiTests(unittest.TestCase):
         self.assertIs(table.item(0,3),item)
         self.state.missions=[existing.mission(status=STATUS_ACCEPTED,delivered_count=45,depot_update_type='deliver')]
         self.state.changed.emit()
-        self.assertIn('Lieferung abgeschlossen',item.text())
+        self.assertEqual('Belohnung abholen',item.text())
         self.assertFalse(item.data(MISSION_CARGO_STATUS_ROLE))
         self.assertNotIn('Carrier 123',self.host.mission_progress_text.text())
         self.state.missions=[];self.state.changed.emit()
@@ -203,11 +205,11 @@ class MissionStockUiTests(unittest.TestCase):
     def test_no_selection_updates_table_and_commander_invalidation(self):
         self.host.missions_table.clearSelection()
         self.fx.cargo([existing.fixture.item(20,name='cobalt')])
-        self.assertEqual(self.host.missions_table.item(0,3).text(),'Fracht vorhanden (20/45 t)')
-        self.assertEqual(self.host.missions_table.item(0,4).text(),'Weitere 25 t Kobalt beschaffen')
+        self.assertEqual(self.host.missions_table.item(0,3).text(),'Vom Carrier umladen')
+        self.assertEqual(self.host.missions_table.item(0,4).text(),'Passende Ware (Kobalt) vom eigenen Carrier ins Schiff umladen')
         self.host.missions_table.selectRow(0)
         self.state.viewed_commander_id=2; self.state.viewedCommanderChanged.emit(2)
-        self.assertEqual(self.host.missions_table.item(0,3).text(),tr('mission_state.accepted'))
+        self.assertEqual(self.host.missions_table.item(0,3).text(),tr('missions.summary_check'))
         self.assertIn('Carrier-Bestand unbekannt',self.host.mission_progress_text.text())
 
     def test_status_sort_preserves_selected_mission_after_cargo_change(self):
@@ -221,18 +223,19 @@ class MissionStockUiTests(unittest.TestCase):
             if table.item(row,0).mission.mission_id == 1:
                 table.selectRow(row)
         self.fx.cargo([existing.fixture.item(45,name='cobalt'),existing.fixture.item(10,name='gold')])
-        self.assertEqual([table.item(row,0).mission.mission_id for row in range(2)],[2,1])
+        # New summaries sort as 'Bereit zur Lieferung' before 'Fracht vorhanden'.
+        self.assertEqual([table.item(row,0).mission.mission_id for row in range(2)],[1,2])
         selected=table.selectionModel().selectedRows()[0].row()
         self.assertEqual(table.item(selected,0).mission.mission_id,1)
         self.assertTrue(table.horizontalHeader().isSortIndicatorShown())
         self.assertIn('45 t Kobalt',self.host.mission_progress_text.text())
 
-    def test_pink_text_preserves_arrival_background_in_both_themes(self):
+    def test_green_cargo_text_preserves_arrival_background_in_both_themes(self):
         table=self.host.missions_table
         self.host.page.resize(1500,800); self.host.page.show()
         arrival=self.host.mission_arrival
         arrival.identity=('source',1,1);arrival.hits={1};arrival.blink={}
-        for light,style,pink in ((False,DARK_STYLESHEET,'#ff83c4'),(True,LIGHT_STYLESHEET,'#a32269')):
+        for light,style,green in ((False,DARK_STYLESHEET,'#65d067'),(True,LIGHT_STYLESHEET,'#226626')):
             self.host.page.setStyleSheet(style)
             arrival.set_light_mode(light); self.host.mission_status_delegate.set_light_mode(light)
             self.app.processEvents()
@@ -243,7 +246,7 @@ class MissionStockUiTests(unittest.TestCase):
                 if selected: table.selectRow(0)
                 rect=table.visualItemRect(item)
                 image=table.viewport().grab(rect).toImage()
-                target=QColor(pink)
+                target=QColor(green)
                 self.assertTrue(any(max(abs(a-b) for a,b in zip(image.pixelColor(x,y).getRgb()[:3],target.getRgb()[:3]))<20
                     for y in range(image.height()) for x in range(image.width())))
                 expected=('#eadca5' if selected else '#fff4cf') if light else ('#514222' if selected else '#302918')

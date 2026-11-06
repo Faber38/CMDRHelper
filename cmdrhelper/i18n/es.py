@@ -1,4 +1,20 @@
 TRANSLATIONS = {
+    "release.3_9_29.0": 'Detección mejorada de la carga de misión.',
+    "release.3_9_29.1": 'Compatibilidad con mercancías comerciales adecuadas sin MissionID.',
+    "release.3_9_29.2": 'Se conserva la detección existente basada en MissionID.',
+    "release.3_9_29.3": 'Marcado azul uniforme para las mercancías de misión.',
+    "release.3_9_29.4": 'Indicación correcta de la disponibilidad para la entrega.',
+
+    'missions.action_check_cargo': 'Comprobar la carga de la nave',
+    'missions.action_deliver': 'Entregar {commodity}',
+    'missions.action_transfer': 'Transferir mercancía coincidente ({commodity}) del portanaves propio a la nave',
+    'missions.action_pickup_unknown': 'Comprobar las entregas; recoger la carga de misión que falta en el punto de recogida',
+    'missions.action_pickup': 'Recoger la carga de misión que falta: {count} t de {commodity}',
+    'missions.action_mine': 'Conseguir/extraer {count} t de {commodity}',
+    'missions.action_shared_stock': 'Carga compartida: {count} t',
+    'missions.action_group_requested': 'Necesidad conjunta según las misiones: {count} t; entregas parcial o totalmente desconocidas',
+    'missions.action_group_remaining': 'Necesidad restante confirmada conjunta: {count} t',
+
     "release.3_9_28.0": 'Las misiones abiertas de mercancías muestran la carga válida de la nave en los detalles, el estado de la tabla y el siguiente paso. Las entregas siguen separadas; varias misiones comparten existencias sin reservas.',
     "release.3_9_28.1": 'Las existencias coincidentes del portanaves propio se muestran por separado con confirmación manual, seguimiento de transferencias y actualidad. Se comprueban los resultados obsoletos o mal atribuidos; no hay un total confirmado conjunto de nave y portanaves.',
     "release.3_9_28.2": 'Los recursos mineros muestran el globo de misión rosa y la misma leyenda azul/rosa que las vistas comerciales. Se conservan los colores, cantidades y filtros de existencias.',
@@ -2504,7 +2520,10 @@ TRANSLATIONS.update({
     'browse.reference_loading': 'Cargando coordenadas del sistema de referencia…',
     'browse.cargo_only': 'Solo mercancías en la bodega de la nave',
     'browse.cargo_unavailable': 'Filtro de carga en pausa: El inventario actual de la nave no está confirmado.',
+    'browse.cargo_conflict': 'Filtro de carga pausado: Los datos del inventario de la nave se contradicen. Las mercancías mostradas no están filtradas por la carga de la nave.',
     'browse.cargo_empty': 'Se ha confirmado que la bodega de la nave está vacía.',
+    'browse.cargo_retained': 'Filtro de carga: Último inventario confirmado de la nave, actualizado según los eventos del diario.',
+    'browse.cargo_retained_empty': 'El último inventario confirmado de la nave, actualizado según los eventos del diario, está vacío.',
     'browse.cargo_identity_unknown': 'Filtro de carga en pausa: No todas las mercancías pueden identificarse de forma inequívoca.',
 })
 
@@ -2585,5 +2604,14 @@ TRANSLATIONS.update({
     'trade.possible_cargo_unknown': 'Las misiones abiertas ({missions}) solicitan {count} t en total; se desconoce el progreso de entrega.',
     'trade.possible_cargo_warning': 'Aún no se ha confirmado si Elite acepta esta mercancía.',
     'trade.cargo_legend_blue': 'Esfera azul: Carga de misión asignada por Elite mediante MissionID.',
-    'trade.cargo_legend_pink': 'Esfera rosa con !: Carga compatible; aceptación por Elite sin confirmar.',
+    'trade.cargo_legend_pink': 'Esfera azul con !: Carga compatible; aceptación por Elite sin confirmar.',
+    'missions.summary_reward': 'Recoger recompensa',
+    'missions.summary_check': 'Comprobar carga',
+    'missions.summary_deliver': 'Entregar mercancías',
+    'missions.summary_travel': 'Listo para entregar',
+    'missions.summary_transfer': 'Transferir desde el portanaves',
+    'missions.summary_pickup': 'Recoger carga',
+    'missions.summary_acquire': 'Conseguir mercancías',
+    'missions.summary_shared': 'Carga compartida disponible',
+    'missions.summary_present': 'Carga disponible',
 })

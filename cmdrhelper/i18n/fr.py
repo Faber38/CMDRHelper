@@ -1,4 +1,20 @@
 TRANSLATIONS = {
+    "release.3_9_29.0": 'Détection améliorée de la cargaison de mission.',
+    "release.3_9_29.1": 'Prise en charge des marchandises compatibles sans MissionID.',
+    "release.3_9_29.2": 'La détection existante basée sur MissionID est conservée.',
+    "release.3_9_29.3": 'Marquage bleu uniforme des marchandises de mission.',
+    "release.3_9_29.4": 'Affichage correct de la disponibilité pour la livraison.',
+
+    'missions.action_check_cargo': 'Vérifier la soute du vaisseau',
+    'missions.action_deliver': 'Livrer {commodity}',
+    'missions.action_transfer': 'Transférer les marchandises correspondantes ({commodity}) de votre porte-vaisseaux vers le vaisseau',
+    'missions.action_pickup_unknown': 'Vérifier les livraisons ; récupérer la cargaison de mission manquante au point de collecte',
+    'missions.action_pickup': 'Récupérer la cargaison de mission manquante : {count} t de {commodity}',
+    'missions.action_mine': 'Obtenir/extraire {count} t de {commodity}',
+    'missions.action_shared_stock': 'Cargaison partagée : {count} t',
+    'missions.action_group_requested': 'Besoin commun selon les missions : {count} t ; livraisons partiellement ou entièrement inconnues',
+    'missions.action_group_remaining': 'Besoin restant confirmé commun : {count} t',
+
     "release.3_9_28.0": 'Les missions de marchandises ouvertes affichent la cargaison valide du vaisseau dans les détails, le statut du tableau et la prochaine étape. Les livraisons restent distinctes ; plusieurs missions partagent le stock sans réservation.',
     "release.3_9_28.1": 'Le stock correspondant de votre porte-vaisseaux est affiché séparément avec confirmation manuelle, suivi des transferts et indication de fraîcheur. Les résultats périmés ou mal attribués sont contrôlés ; aucun total confirmé commun vaisseau/porte-vaisseaux.',
     "release.3_9_28.2": 'Les ressources minières affichent le globe de mission rose et la même légende bleue/rose que les vues commerciales. Couleurs, quantités et filtres sont conservés.',
@@ -2505,7 +2521,10 @@ TRANSLATIONS.update({
     'browse.reference_loading': 'Chargement des coordonnées du système de référence…',
     'browse.cargo_only': 'Uniquement les marchandises en soute du vaisseau',
     'browse.cargo_unavailable': 'Filtre de cargaison suspendu : le stock actuel du vaisseau n’est pas confirmé.',
+    'browse.cargo_conflict': 'Filtre de cargaison suspendu : Les données du stock du vaisseau se contredisent. Les marchandises affichées ne sont pas filtrées selon la cargaison du vaisseau.',
     'browse.cargo_empty': 'La soute du vaisseau est confirmée vide.',
+    'browse.cargo_retained': 'Filtre de cargaison : Dernier stock confirmé du vaisseau, actualisé selon les événements du journal.',
+    'browse.cargo_retained_empty': 'Le dernier stock confirmé du vaisseau, actualisé selon les événements du journal, est vide.',
     'browse.cargo_identity_unknown': 'Filtre de cargaison suspendu : certaines marchandises ne peuvent pas être identifiées avec certitude.',
 })
 
@@ -2587,5 +2606,14 @@ TRANSLATIONS.update({
     'trade.possible_cargo_unknown': 'Les missions ouvertes ({missions}) demandent {count} t au total ; progression des livraisons inconnue.',
     'trade.possible_cargo_warning': 'Il reste à confirmer si Elite accepte cette marchandise.',
     'trade.cargo_legend_blue': 'Globe bleu : Cargaison de mission affectée par Elite via MissionID.',
-    'trade.cargo_legend_pink': 'Globe rose avec ! : Cargaison compatible ; acceptation par Elite non confirmée.',
+    'trade.cargo_legend_pink': 'Globe bleu avec ! : Cargaison compatible ; acceptation par Elite non confirmée.',
+    'missions.summary_reward': 'Récupérer la récompense',
+    'missions.summary_check': 'Vérifier la cargaison',
+    'missions.summary_deliver': 'Livrer les marchandises',
+    'missions.summary_travel': 'Prêt à livrer',
+    'missions.summary_transfer': 'Transférer depuis le porte-vaisseaux',
+    'missions.summary_pickup': 'Récupérer la cargaison',
+    'missions.summary_acquire': 'Obtenir les marchandises',
+    'missions.summary_shared': 'Cargaison commune disponible',
+    'missions.summary_present': 'Cargaison disponible',
 })

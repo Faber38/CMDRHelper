@@ -397,6 +397,10 @@ class MiningView(QWidget):
             signal = getattr(state, name, None)
             if signal is not None:
                 signal.connect(self._refresh_mission_cargo)
+        for name in ('ready', 'loading', 'publicationChanged'):
+            signal = getattr(self.controller, name, None)
+            if signal is not None:
+                signal.connect(self._refresh_mission_cargo)
         self._refresh_mission_cargo()
 
     def _refresh_mission_cargo(self, *_):

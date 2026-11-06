@@ -6432,7 +6432,8 @@ class MainWindow(QMainWindow):
 
     def _mission_selection_changed(self, *_):
         stocks = current_mission_cargo_assessment(self.state)[1]
-        refresh_mission_cargo_rows(self.missions_table, self.state.missions, stocks)
+        refresh_mission_cargo_rows(self.missions_table, self.state.missions, stocks,
+                                   state=self.state, arrival=getattr(self, "mission_arrival", None))
         selected = self.missions_table.selectionModel().selectedRows()
 
         if not selected:
@@ -6496,7 +6497,7 @@ class MainWindow(QMainWindow):
             progress.append(mission_display_status(mission) + ' – ' + mission_display_step(mission))
         else:
             progress.append(tr('missions.status', value=mission_display_status(mission)))
-            progress.append(tr('missions.next_step', value=mission_display_step(mission)))
+            progress.append(tr('missions.next_step', value=self.missions_table.item(row, 4).text()))
 
         self.mission_progress_text.setText("   ·   ".join(progress))
 

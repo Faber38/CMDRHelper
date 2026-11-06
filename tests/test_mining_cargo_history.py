@@ -99,6 +99,47 @@ class VehicleEvidenceTests(unittest.TestCase):
         self.assertIsNone(result.stock("gold").total_amount)
         self.assertEqual(result.ship_id, 51)
 
+    def test_rhino_empty_restores_stale_ship_as_tracked_once(self):
+        self.apply(cargo(thortveitite=72),
+                   dict(event="LaunchSRV", ID=52, SRVType="mev_rhino"),
+                   cargo("SRV", thortveitite=34),
+                   dict(event="LoadGame", FID="F1", Ship="mev_rhino", ShipID=52))
+        self.assertEqual(self.reducer.result.displayed_stock("Ship", "thortveitite"), (72, "stale"))
+        result = self.apply(dict(event="Cargo", Vessel="SRV", Count=0))
+        self.assertEqual(result.displayed_stock("Ship", "thortveitite"), (106, "tracked"))
+        self.assertEqual(result.displayed_stock("SRV", "thortveitite"), (0, "confirmed"))
+        self.apply(cargo("SRV"))
+        self.assertEqual(result.ship, {"thortveitite": 106})
+        self.apply(cargo(thortveitite=106))
+        self.assertEqual(result.displayed_stock("Ship", "thortveitite"), (106, "confirmed"))
+
+    def test_stale_ship_unload_ignores_recorded_srv_outflows(self):
+        for event in (dict(event="EjectCargo", Type="thortveitite", Count=34),
+                      dict(event="CargoTransfer", Transfers=[
+                          dict(Type="thortveitite", Count=34, Direction="toship")])):
+            with self.subTest(event=event["event"]):
+                self.setUp()
+                self.apply(cargo(thortveitite=72),
+                           dict(event="LaunchSRV", ID=52, SRVType="mev_rhino"),
+                           cargo("SRV", thortveitite=34),
+                           dict(event="LoadGame", FID="F1", Ship="mev_rhino", ShipID=52),
+                           event, cargo("SRV"))
+                self.assertEqual(self.reducer.result.displayed_stock("Ship", "thortveitite"),
+                                 (72, "stale"))
+
+    def test_srv_empty_only_restores_matching_stale_ship(self):
+        for context in ("current", "unknown", "other_ship"):
+            with self.subTest(context=context):
+                self.setUp()
+                if context != "unknown":
+                    self.apply(cargo(thortveitite=72))
+                self.apply(dict(event="LaunchSRV", ID=52, SRVType="mev_rhino"))
+                if context == "other_ship":
+                    self.apply(dict(event="Loadout", Ship="anaconda", ShipID=99))
+                self.apply(cargo("SRV", thortveitite=34), cargo("SRV"))
+                expected = (72, "confirmed") if context == "current" else (None, "unknown")
+                self.assertEqual(self.reducer.result.displayed_stock("Ship", "thortveitite"), expected)
+
     def test_unproven_srv_restart_keeps_only_stale_ship_display(self):
         self.apply(cargo(gold=28), dict(event="LaunchSRV", ID=52), cargo("SRV", gold=4))
         result = self.apply(dict(event="LoadGame", FID="F1", Ship="mev_rhino", ShipID=99))

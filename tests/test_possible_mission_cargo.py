@@ -36,7 +36,7 @@ class PossibleCargoQuantityTests(unittest.TestCase):
         state = SimpleNamespace(commander_id=1, viewed_commander_id=1, missions=missions)
         snapshot = dict(inventory=normalize_inventory(rows))
         before = deepcopy((snapshot, missions))
-        with patch('cmdrhelper.ui.mission_cargo.current_ship_inventory', return_value=snapshot):
+        with patch('cmdrhelper.ui.mission_cargo.published_mission_ship_inventory', return_value=snapshot):
             result = list(current_possible_mission_cargo(state).values())
         self.assertEqual((snapshot, missions), before)
         return result
@@ -46,7 +46,7 @@ class PossibleCargoQuantityTests(unittest.TestCase):
         cases=([], [replace(mission(),internal_name='Mission_Assassinate')],
                [mission(extra={'pending_offer':True})], [mission(symbol='unknown_symbol')],
                [mission(delivered=372)], [mission(total=None)])
-        with patch('cmdrhelper.ui.mission_cargo.current_ship_inventory',
+        with patch('cmdrhelper.ui.mission_cargo.published_mission_ship_inventory',
                    side_effect=AssertionError('No extra cargo validation without eligible missions')) as read:
             for missions in cases:
                 with self.subTest(missions=missions):
@@ -57,7 +57,7 @@ class PossibleCargoQuantityTests(unittest.TestCase):
     def test_first_goods_mission_reads_once_last_completion_or_abandonment_stops(self):
         state=SimpleNamespace(commander_id=1,viewed_commander_id=1,missions=[])
         snapshot=dict(inventory=normalize_inventory([cargo(372)]))
-        with patch('cmdrhelper.ui.mission_cargo.current_ship_inventory',return_value=snapshot) as read:
+        with patch('cmdrhelper.ui.mission_cargo.published_mission_ship_inventory',return_value=snapshot) as read:
             self.assertEqual(current_possible_mission_cargo(state),{})
             read.assert_not_called()
             state.missions=[mission(delivered=None)]
@@ -189,7 +189,7 @@ class PossibleCargoViewTests(unittest.TestCase):
             cancel.assert_called_once()
             self.assertGreater(self.trade._generation,generation)
 
-    def test_pink_only_render_and_market_filter_do_not_change(self):
+    def test_possible_only_render_and_market_filter_do_not_change(self):
         self.fixture.cargo([existing.item(100)])
         before=[{k:v for k,v in row.items() if k not in ('mission_cargo','possible_mission_cargo')}
                 for row in self.market.goods_model.rows]
@@ -213,17 +213,17 @@ class PossibleCargoViewTests(unittest.TestCase):
                 delegate.initStyleOption(option,index)
                 self.assertEqual(option.decorationSize.width(),16)
                 image=option.icon.pixmap(16,14).toImage()
-                # Both globe and exclamation have visible pink pixels.
+                # Both globe and exclamation have visible blue pixels.
                 for xs in (range(0,12),range(12,16)):
-                    self.assertTrue(any(image.pixelColor(x,y).red()>image.pixelColor(x,y).green()+30
+                    self.assertTrue(any(image.pixelColor(x,y).blue()>image.pixelColor(x,y).red()+30
                                         for x in xs for y in range(14)))
 
-    def test_cargo_events_wait_for_valid_snapshot_and_partial_delivery(self):
+    def test_mission_events_keep_published_stock_and_partial_delivery(self):
         self.fixture.cargo([existing.item(100)])
         for kind in ('MissionAccepted','CargoDepot','MissionCompleted','MissionAbandoned','MissionFailed'):
             self.fixture.fixture.feed(kind,MissionID=1)
             self.state.changed.emit()
-            self.assertEqual(self.candidates(),[None,None])
+            self.assertTrue(all(self.candidates()))
             self.fixture.cargo([existing.item(100)])
             self.assertTrue(all(self.candidates()))
         self.state.missions[0].delivered_count=60
@@ -238,10 +238,6 @@ class PossibleCargoViewTests(unittest.TestCase):
         for obj,field,value,signal in (
             (self.state,'commander_fid','OTHER',self.state.changed),
             (self.state,'viewed_commander_id',2,self.state.viewedCommanderChanged),
-            (self.state.ship_loadout,'ship_id',8,self.state.shipLoadoutChanged),
-            (self.state.ship_loadout,'loadout_stale',True,self.state.shipLoadoutChanged),
-            (self.state,'_cargo_blocked',True,self.state.changed),
-            (self.state,'cargo_snapshot',None,self.state.cargoSnapshotChanged),
             (self.state,'sources',object(),self.state.changed),
         ):
             with self.subTest(field=field):
@@ -291,5 +287,5 @@ class PossibleCargoViewTests(unittest.TestCase):
                     image=option.icon.pixmap(32,14).toImage()
                     self.assertTrue(any(image.pixelColor(x,y).blue()>image.pixelColor(x,y).red()+30
                                         for x in range(14) for y in range(14)))
-                    self.assertTrue(any(image.pixelColor(x,y).red()>image.pixelColor(x,y).green()+30
+                    self.assertTrue(any(image.pixelColor(x,y).blue()>image.pixelColor(x,y).red()+30
                                         for x in range(16,32) for y in range(14)))

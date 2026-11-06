@@ -1,4 +1,20 @@
 TRANSLATIONS = {
+    "release.3_9_29.0": 'Improved mission cargo detection.',
+    "release.3_9_29.1": 'Support for matching trade goods without a MissionID.',
+    "release.3_9_29.2": 'Existing MissionID-based detection is preserved.',
+    "release.3_9_29.3": 'Consistent blue marking for mission goods.',
+    "release.3_9_29.4": 'Correct display of delivery readiness.',
+
+    'missions.action_check_cargo': 'Check ship cargo',
+    'missions.action_deliver': 'Deliver {commodity}',
+    'missions.action_transfer': 'Transfer matching goods ({commodity}) from your own carrier to the ship',
+    'missions.action_pickup_unknown': 'Check delivery progress; collect missing mission cargo at the pickup location',
+    'missions.action_pickup': 'Collect missing mission cargo: {count} t of {commodity}',
+    'missions.action_mine': 'Obtain/mine {count} t of {commodity}',
+    'missions.action_shared_stock': 'Shared cargo: {count} t',
+    'missions.action_group_requested': 'Combined need from mission data: {count} t; delivery progress partly or entirely unknown',
+    'missions.action_group_remaining': 'Combined confirmed remaining need: {count} t',
+
     "release.3_9_28.0": 'Open goods missions show valid ship cargo in details, table status and the next step. Delivery progress stays separate; multiple missions share stock without reservations.',
     "release.3_9_28.1": 'Matching stock on your own carrier is shown separately with manual confirmation, transfer tracking and freshness information. Stale or mismatched results are guarded against; no combined confirmed ship/carrier total.',
     "release.3_9_28.2": 'Mining commodities show the pink mission globe and the same blue/pink symbol legend as the trade views. Stock colours, quantities and filters are preserved.',
@@ -2536,7 +2552,10 @@ TRANSLATIONS.update({
     'browse.reference_loading': 'Loading reference system coordinates …',
     'browse.cargo_only': 'Only goods in the ship’s cargo hold',
     'browse.cargo_unavailable': 'Cargo filter paused: The current ship inventory is not confirmed.',
+    'browse.cargo_conflict': 'Cargo filter paused: Ship inventory data conflicts. The displayed goods are not filtered by ship cargo.',
     'browse.cargo_empty': 'The confirmed ship cargo hold is empty.',
+    'browse.cargo_retained': 'Cargo filter: Last confirmed ship inventory, carried forward using journal events.',
+    'browse.cargo_retained_empty': 'The last confirmed ship inventory, carried forward using journal events, is empty.',
     'browse.cargo_identity_unknown': 'Cargo filter paused: Not all goods can be identified unambiguously.',
 })
 
@@ -2617,5 +2636,14 @@ TRANSLATIONS.update({
     'trade.possible_cargo_unknown': 'Open missions ({missions}) request {count} t in total; delivery progress is unknown.',
     'trade.possible_cargo_warning': 'Whether Elite accepts these goods is not yet confirmed.',
     'trade.cargo_legend_blue': 'Blue mission globe: Mission cargo explicitly assigned by Elite via MissionID.',
-    'trade.cargo_legend_pink': 'Pink mission globe with !: Matching ship cargo; acceptance by Elite is unconfirmed.',
+    'trade.cargo_legend_pink': 'Blue mission globe with !: Matching ship cargo; acceptance by Elite is unconfirmed.',
+    'missions.summary_reward': 'Claim reward',
+    'missions.summary_check': 'Check cargo',
+    'missions.summary_deliver': 'Deliver goods',
+    'missions.summary_travel': 'Ready to deliver',
+    'missions.summary_transfer': 'Transfer from carrier',
+    'missions.summary_pickup': 'Collect cargo',
+    'missions.summary_acquire': 'Acquire goods',
+    'missions.summary_shared': 'Shared cargo available',
+    'missions.summary_present': 'Cargo available',
 })

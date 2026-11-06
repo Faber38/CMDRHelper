@@ -15,7 +15,7 @@ from cmdrhelper.models import Mission
 from cmdrhelper.ui.main_window import MainWindow
 from cmdrhelper.ui.mining_view import MiningView
 from cmdrhelper.ui.mission_cargo import (current_mission_cargo_assessment,
-    mission_cargo_stock_text, POSSIBLE_MISSION_CARGO_ROLE, MissionCargoStock)
+    mission_cargo_stock_text, POSSIBLE_MISSION_CARGO_ROLE, MissionCargoStock, MissionCargoGroup)
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
 from tests import test_mission_cargo as fixture
 from tests.test_missions_table_sort import Host
@@ -29,7 +29,7 @@ def mission(mid=1, **kwargs):
 class AssessmentTests(unittest.TestCase):
     def test_gate_unknown_zero_mixed_and_shared(self):
         state = SimpleNamespace(missions=[], commander_id=1)
-        with patch('cmdrhelper.ui.mission_cargo.current_ship_inventory') as read:
+        with patch('cmdrhelper.ui.mission_cargo.published_mission_ship_inventory') as read:
             self.assertEqual(current_mission_cargo_assessment(state), ({}, {}))
             read.assert_not_called()
             state.missions = [mission()]
@@ -44,8 +44,8 @@ class AssessmentTests(unittest.TestCase):
                 {'Name':'cobalt','Count':15}])}
             before = deepcopy((state.missions, read.return_value))
             pink, stock = current_mission_cargo_assessment(state)
-            self.assertEqual(stock[1], MissionCargoStock(15,10,True))
-            self.assertEqual(stock[2], MissionCargoStock(15,0,True))
+            self.assertEqual(stock[1], MissionCargoStock(15,10,True,MissionCargoGroup(90,True,10)))
+            self.assertEqual(stock[2], MissionCargoStock(15,0,True,MissionCargoGroup(90,True,10)))
             self.assertEqual(next(iter(pink.values())).available,15)
             self.assertEqual(next(iter(pink.values())).coverable,15)
             self.assertEqual((state.missions, read.return_value),before)
@@ -59,7 +59,7 @@ class AssessmentTests(unittest.TestCase):
 
     def test_explicit_only_and_malformed_binding_never_become_free_stock(self):
         state = SimpleNamespace(missions=[mission()], commander_id=1)
-        with patch('cmdrhelper.ui.mission_cargo.current_ship_inventory') as read:
+        with patch('cmdrhelper.ui.mission_cargo.published_mission_ship_inventory') as read:
             for mid, assigned in ((1,45),(99,0)):
                 read.return_value = {'inventory': normalize_inventory([
                     {'Name':'cobalt','Count':45,'MissionID':mid}])}
@@ -90,7 +90,7 @@ class UsabilityTests(unittest.TestCase):
             symbol='cobalt',commander_buy_price=10,commander_sell_price=9,supply=20,demand=30)]
         self.market._render_goods()
         self.fx.cargo([fixture.item(45,name='cobalt')])  # Valid stock predates the new views.
-        controller = Mock(_last_inventory=None)
+        controller = self.state.mining_inventory_controller
         with patch('cmdrhelper.mining_market_controller.MiningMarketController'):
             self.mining = MiningView(self.state.settings, state=self.state, controller=controller)
         self.addCleanup(self.mining.deleteLater)
@@ -153,8 +153,7 @@ class UsabilityTests(unittest.TestCase):
         self.assertIn('45 t passende Ware',self.text())
         for attr,value,signal,payload in (
             ('viewed_commander_id',2,'viewedCommanderChanged',2),
-            ('ship_cargo_context',{},'shipLoadoutChanged',None),
-            ('cargo_snapshot',None,'cargoSnapshotChanged',None)):
+            ('commander_fid','OTHER','shipLoadoutChanged',None)):
             old=getattr(self.state,attr)
             setattr(self.state,attr,value); getattr(self.state,signal).emit(payload)
             self.assertFalse(any(self.pink()))
@@ -162,9 +161,30 @@ class UsabilityTests(unittest.TestCase):
             setattr(self.state,attr,old); getattr(self.state,signal).emit(payload)
             self.assertTrue(all(self.pink()))
         self.state.missions=[]; self.state.changed.emit()
-        with patch('cmdrhelper.ui.mission_cargo.current_ship_inventory',side_effect=AssertionError):
+        with patch('cmdrhelper.ui.mission_cargo.published_mission_ship_inventory',side_effect=AssertionError):
             self.mining._refresh_mission_cargo()
             self.host._mission_selection_changed()
+
+    def test_mining_only_signals_update_details_and_preserve_sale_search(self):
+        from dataclasses import replace
+        controller=self.state.mining_inventory_controller
+        inventory=controller._last_inventory
+        before=deepcopy(self.state.missions)
+        self.state.cargo_snapshot=None
+        with patch.object(self.trade,'_invalidate_results',side_effect=AssertionError('symbol refresh')):
+            controller.ready.emit(replace(inventory,ship={'cobalt':20}))
+            self.assertIn('20 t passende Ware',self.text())
+            self.assertEqual(self.market.goods_model.index(0,0).data(POSSIBLE_MISSION_CARGO_ROLE).total,20)
+            self.assertEqual(self.mining.items['cobalt'].data(0,POSSIBLE_MISSION_CARGO_ROLE).total,20)
+            # The existing selling list still has 45 t: do not attach a 20 t
+            # badge to that row or change the running search's inputs.
+            self.assertIsNone(self.trade.cargo_list.item(0).data(POSSIBLE_MISSION_CARGO_ROLE))
+            controller.loading.emit()
+            self.assertIn('Schiffsbestand unbekannt',self.text())
+            controller.ready.emit(inventory)
+            self.assertIn('45 t passende Ware',self.text())
+            self.assertTrue(all(self.pink()))
+        self.assertEqual(self.state.missions,before)
 
     def test_pending_offers_without_ids_keep_the_selected_details(self):
         offers = [Mission(name=name, summary=name, extra={'pending_offer':True})
@@ -175,7 +195,7 @@ class UsabilityTests(unittest.TestCase):
             if self.host.missions_table.item(row,0).mission is offers[1]:
                 self.host.missions_table.selectRow(row)
                 break
-        with patch('cmdrhelper.ui.mission_cargo.current_ship_inventory',side_effect=AssertionError):
+        with patch('cmdrhelper.ui.mission_cargo.published_mission_ship_inventory',side_effect=AssertionError):
             self.host._mission_selection_changed()
         self.assertEqual(self.host.mission_detail_title.text(),'Second offer')
         self.assertEqual(self.host.mission_detail_text.text(),'Second offer')

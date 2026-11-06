@@ -1,4 +1,20 @@
 TRANSLATIONS = {
+    "release.3_9_29.0": 'Rilevamento migliorato del carico di missione.',
+    "release.3_9_29.1": 'Supporto per merci commerciali compatibili senza MissionID.',
+    "release.3_9_29.2": 'Il rilevamento esistente basato su MissionID rimane invariato.',
+    "release.3_9_29.3": 'Indicazione blu uniforme per le merci di missione.',
+    "release.3_9_29.4": 'Visualizzazione corretta della disponibilità alla consegna.',
+
+    'missions.action_check_cargo': 'Controllare la stiva',
+    'missions.action_deliver': 'Consegnare {commodity}',
+    'missions.action_transfer': 'Trasferire la merce corrispondente ({commodity}) dalla propria portaerei alla nave',
+    'missions.action_pickup_unknown': 'Verificare le consegne; ritirare il carico di missione mancante al punto di raccolta',
+    'missions.action_pickup': 'Ritirare il carico di missione mancante: {count} t di {commodity}',
+    'missions.action_mine': 'Procurare/estrarre {count} t di {commodity}',
+    'missions.action_shared_stock': 'Carico condiviso: {count} t',
+    'missions.action_group_requested': 'Fabbisogno comune secondo le missioni: {count} t; consegne parzialmente o interamente sconosciute',
+    'missions.action_group_remaining': 'Fabbisogno residuo confermato comune: {count} t',
+
     "release.3_9_28.0": 'Le missioni merci aperte mostrano il carico valido della nave nei dettagli, nello stato della tabella e nel passo successivo. Le consegne restano separate; più missioni condividono le scorte senza prenotazioni.',
     "release.3_9_28.1": 'Le scorte corrispondenti della propria portaerei sono mostrate separatamente con conferma manuale, trasferimenti e indicazione di aggiornamento. Sono controllati i risultati obsoleti o attribuiti erroneamente; nessun totale confermato comune nave/portaerei.',
     "release.3_9_28.2": 'Le risorse minerarie mostrano il globo missione rosa e la stessa legenda blu/rosa delle viste commerciali. Colori, quantità e filtri sono preservati.',
@@ -2515,7 +2531,10 @@ TRANSLATIONS.update({
     'browse.reference_loading': 'Caricamento delle coordinate del sistema di riferimento…',
     'browse.cargo_only': 'Solo merci nella stiva della nave',
     'browse.cargo_unavailable': 'Filtro carico sospeso: l’inventario attuale della nave non è confermato.',
+    'browse.cargo_conflict': 'Filtro carico sospeso: I dati dell’inventario della nave sono in conflitto. Le merci visualizzate non sono filtrate in base al carico della nave.',
     'browse.cargo_empty': 'La stiva della nave è confermata vuota.',
+    'browse.cargo_retained': 'Filtro carico: Ultimo inventario confermato della nave, aggiornato in base agli eventi del diario.',
+    'browse.cargo_retained_empty': 'L’ultimo inventario confermato della nave, aggiornato in base agli eventi del diario, è vuoto.',
     'browse.cargo_identity_unknown': 'Filtro carico sospeso: non tutte le merci sono identificabili con certezza.',
 })
 
@@ -2596,5 +2615,14 @@ TRANSLATIONS.update({
     'trade.possible_cargo_unknown': 'Le missioni aperte ({missions}) richiedono {count} t in totale; progresso delle consegne sconosciuto.',
     'trade.possible_cargo_warning': 'Non è ancora confermato se Elite accetta questa merce.',
     'trade.cargo_legend_blue': 'Globo blu: Carico di missione assegnato da Elite tramite MissionID.',
-    'trade.cargo_legend_pink': 'Globo rosa con !: Carico compatibile; accettazione da parte di Elite non confermata.',
+    'trade.cargo_legend_pink': 'Globo blu con !: Carico compatibile; accettazione da parte di Elite non confermata.',
+    'missions.summary_reward': 'Ritira la ricompensa',
+    'missions.summary_check': 'Controlla il carico',
+    'missions.summary_deliver': 'Consegna le merci',
+    'missions.summary_travel': 'Pronto per la consegna',
+    'missions.summary_transfer': 'Trasferisci dalla portaerei',
+    'missions.summary_pickup': 'Ritira il carico',
+    'missions.summary_acquire': 'Procurati le merci',
+    'missions.summary_shared': 'Carico condiviso disponibile',
+    'missions.summary_present': 'Carico disponibile',
 })
