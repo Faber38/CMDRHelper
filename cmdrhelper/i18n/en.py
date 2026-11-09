@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_31.0": 'A shared cargo window shows the ship on the left and the SRV on the right, with separate quantities, capacities, progress bars and cargo tables. Automatic updates and saved window position and size are retained.',
+    "release.3_9_31.1": 'Ship cargo uses the same published stock projection as the mining table. Existing quantities remain visible regardless of their colour coding and when the loadout is missing or incomplete. Unknown values, confirmed zero stock and an inactive SRV are distinguished.',
+    "release.3_9_31.2": 'Cargo display language updates now also work when quantities are unchanged. Texts are available in all twelve languages.',
+    'cargo.live.holds': 'Cargo holds — ship and SRV',
+    'cargo.live.no_srv': 'No active SRV',
+    'cargo.live.capacity_stale': 'Last known capacity',
     "release.3_9_30.0": 'Linux process checks are coalesced in the background and no longer synchronously block the interface. Commander selection, arrival displays and screenshots use only current, verified process information.',
     "release.3_9_30.1": 'The mining controller cancels deferred startup callbacks after destruction and safely disconnects its signals. Closed controllers no longer start manual refreshes.',
     "release.3_9_30.2": 'Resetting bounties and combat bonds uses the verified journal source of the selected commander.',

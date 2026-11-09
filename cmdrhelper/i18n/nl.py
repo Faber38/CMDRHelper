@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_31.0": 'Een gezamenlijk vrachtvenster toont het schip links en de SRV rechts, met afzonderlijke hoeveelheden, capaciteiten, voortgangsbalken en vrachttabellen. Automatische updates en opgeslagen vensterpositie en grootte blijven behouden.',
+    "release.3_9_31.1": 'De scheepsvracht gebruikt dezelfde gepubliceerde voorraadweergave als de miningtabel. Bestaande hoeveelheden blijven zichtbaar ongeacht hun kleurmarkering en bij ontbrekende of onvolledige uitrustingsgegevens. Onbekende waarden, bevestigde nulvoorraden en een inactieve SRV worden onderscheiden.',
+    "release.3_9_31.2": 'Taalwijzigingen in de vrachtweergave werken nu ook bij ongewijzigde hoeveelheden. De teksten zijn beschikbaar in alle twaalf talen.',
+    'cargo.live.holds': 'Laadruimen — schip en SRV',
+    'cargo.live.no_srv': 'Geen actieve SRV',
+    'cargo.live.capacity_stale': 'Laatst bekende capaciteit',
     "release.3_9_30.0": 'Linux-procescontroles worden op de achtergrond gebundeld en blokkeren de interface niet meer synchroon. Commanderselectie, aankomstweergave en screenshots gebruiken alleen actuele, gecontroleerde procesinformatie.',
     "release.3_9_30.1": 'De miningcontroller annuleert uitgestelde startaanroepen na vernietiging en verbreekt zijn signaalverbindingen veilig. Gesloten controllers starten geen handmatige verversing meer.',
     "release.3_9_30.2": 'Het terugzetten van premies en gevechtsbeloningen gebruikt de gecontroleerde journaalbron van de geselecteerde commander.',

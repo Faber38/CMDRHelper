@@ -38,6 +38,12 @@ La carpeta de diarios de Elite Dangerous se detecta automáticamente cuando es p
 
 CMDRHelper busca actualizaciones al iniciarse y dispone de un actualizador integrado. Confirma una actualización ofrecida en la aplicación; actualizará el programa y las dependencias y reiniciará CMDRHelper. Tras la primera instalación, normalmente basta con usar `start.bat` (Windows) o `bash start.sh` (Linux). No es necesario volver a ejecutar manualmente `install.bat` o `install.sh` para las actualizaciones normales.
 
+## CMDRHelper v3.9.31
+
+- Una ventana de carga común muestra la nave a la izquierda y el SRV a la derecha, con cantidades, capacidades, barras de progreso y tablas independientes. Se conservan la actualización automática y la posición y el tamaño guardados de la ventana.
+- La carga de la nave usa la misma proyección de existencias publicada que la tabla de minería. Las cantidades existentes siguen visibles independientemente de su color y cuando faltan datos de equipamiento o están incompletos. Se distinguen los valores desconocidos, las existencias nulas confirmadas y un SRV inactivo.
+- La actualización del idioma de la vista de carga funciona ahora también cuando las cantidades no cambian. Los textos están disponibles en los doce idiomas.
+
 ## CMDRHelper v3.9.30
 
 - Las comprobaciones de procesos Linux se agrupan en segundo plano y ya no bloquean sincrónicamente la interfaz. La selección de comandante, las llegadas y las capturas usan solo información actual y verificada de los procesos.

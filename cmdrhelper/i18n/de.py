@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_31.0": 'Gemeinsames Frachtfenster mit Schiff links und SRV rechts: getrennte Bestände, Kapazitäten, Fortschrittsbalken und Frachttabellen. Automatische Aktualisierung sowie gespeicherte Fensterposition und Größe bleiben erhalten.',
+    "release.3_9_31.1": 'Die Schiffsfracht verwendet dieselbe veröffentlichte Bestandsprojektion wie die Mining-Tabelle. Vorhandene Mengen bleiben unabhängig von ihrer Farbkennzeichnung und bei fehlendem oder unvollständigem Loadout sichtbar. Unbekannte Werte, bestätigte Nullbestände und ein inaktives SRV werden unterschieden.',
+    "release.3_9_31.2": 'Die Sprachaktualisierung der Frachtanzeige berücksichtigt jetzt auch unveränderte Bestände. Texte sind in allen zwölf Sprachen verfügbar.',
+    'cargo.live.holds': 'Frachträume — Schiff und SRV',
+    'cargo.live.no_srv': 'Kein SRV aktiv',
+    'cargo.live.capacity_stale': 'Kapazität zuletzt bekannt',
     "release.3_9_30.0": 'Linux-Prozessprüfungen laufen gebündelt im Hintergrund und blockieren die Oberfläche nicht mehr synchron. Commander-Zuordnung, Ankunftsanzeige und Screenshots verwenden nur aktuelle, geprüfte Prozessinformationen.',
     "release.3_9_30.1": 'Der Mining-Controller verwirft verzögerte Startaufrufe nach seiner Zerstörung und trennt seine Signalverbindungen sicher. Geschlossene Controller starten keine manuelle Aktualisierung mehr.',
     "release.3_9_30.2": 'Das Zurücksetzen von Kopfgeldprämien und Kampfbelohnungen verwendet die bestätigte Journalquelle des ausgewählten Commanders.',

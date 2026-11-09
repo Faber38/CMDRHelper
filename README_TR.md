@@ -39,6 +39,12 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.31
+
+- Ortak kargo penceresi gemiyi solda, SRV’yi sağda gösterir; miktarlar, kapasiteler, ilerleme çubukları ve kargo tabloları ayrıdır. Otomatik güncelleme ile kayıtlı pencere konumu ve boyutu korunur.
+- Gemi kargosu, madencilik tablosuyla aynı yayımlanmış stok görünümünü kullanır. Mevcut miktarlar renk işaretlerinden bağımsız olarak ve donanım verileri eksik veya tamamlanmamış olduğunda da görünür kalır. Bilinmeyen değerler, doğrulanmış sıfır stok ve etkin olmayan SRV birbirinden ayrılır.
+- Kargo görünümünün dil güncellemesi artık miktarlar değişmediğinde de çalışır. Metinler on iki dilin tamamında mevcuttur.
+
 ## CMDRHelper v3.9.30
 
 - Linux süreç denetimleri arka planda birleştirilir ve artık arayüzü eşzamanlı olarak engellemez. Komutan seçimi, varış gösterimi ve ekran görüntüleri yalnızca güncel, doğrulanmış süreç bilgilerini kullanır.

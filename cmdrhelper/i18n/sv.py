@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_31.0": 'Ett gemensamt lastfönster visar skeppet till vänster och SRV till höger, med separata mängder, kapaciteter, förloppsindikatorer och lasttabeller. Automatisk uppdatering samt sparad fönsterposition och storlek behålls.',
+    "release.3_9_31.1": 'Skeppslasten använder samma publicerade lagervy som gruvtabellen. Befintliga mängder förblir synliga oavsett färgmarkering och när utrustningsdata saknas eller är ofullständiga. Okända värden, bekräftat nollsaldo och en inaktiv SRV skiljs åt.',
+    "release.3_9_31.2": 'Språkbyten i lastvisningen fungerar nu även när mängderna är oförändrade. Texterna finns på alla tolv språk.',
+    'cargo.live.holds': 'Lastutrymmen — skepp och SRV',
+    'cargo.live.no_srv': 'Ingen aktiv SRV',
+    'cargo.live.capacity_stale': 'Senast kända kapacitet',
     "release.3_9_30.0": 'Linux-processkontroller samordnas i bakgrunden och blockerar inte längre gränssnittet synkront. Commanderval, ankomstvisning och skärmbilder använder bara aktuell, verifierad processinformation.',
     "release.3_9_30.1": 'Gruvkontrollern avbryter uppskjutna startanrop efter att den förstörts och kopplar från signalerna säkert. Stängda kontroller startar inte längre manuella uppdateringar.',
     "release.3_9_30.2": 'Nollställning av premier och stridsbelöningar använder den verifierade journalkällan för vald commander.',

@@ -29,9 +29,7 @@ from cmdrhelper.ui.commander_view import CommanderView
 from cmdrhelper.ui.material_view import MaterialView
 from cmdrhelper.ui.startup_progress import StartupProgressDialog
 from cmdrhelper.ui.cargo_hud import (cargo_hud_enabled, CargoHudPresentation,
-                                     CargoVisibility, cargo_activity_key, cargo_item_name,
-                                     same_cargo_context)
-from cmdrhelper.cargo import free_cargo_space
+                                     CargoVisibility, cargo_activity_key, cargo_item_name)
 from cmdrhelper.ui.table_widths import persist_column_widths
 from cmdrhelper.ui.recent_system_copy import RecentSystemCopyDelegate
 from cmdrhelper.ui.mission_status import MissionStatusDelegate, MISSION_STATUS_ROLE
@@ -942,27 +940,24 @@ class ExplorerLiveListWindow(AuxiliaryWindow, QDialog):
                 self.table.setItem(row_index, col, item)
 
 
-class CargoLiveWindow(AuxiliaryWindow, QDialog):
-    """Compact movable view of the last authoritative live Cargo snapshot."""
-
-    def __init__(self, settings, parent=None):
+class CargoHoldPanel(QWidget):
+    """One independently updated hold; no ownership of inventory or timers."""
+    def __init__(self, vessel, parent):
         super().__init__(parent)
-        self.settings = settings
-        self.geometry_key = "cargo_live/geometry"
-        self.cargo_visibility = CargoVisibility(self)
-        self._last_snapshot = None
+        self.vessel = vessel
+        self._snapshot = None
+        self._language = None
         self._row_keys = []
-        self._has_snapshot = False
-        self.setWindowFlags(self.windowFlags() | Qt.Window)
-        self.setAttribute(Qt.WA_ShowWithoutActivating, True)
-        self.resize(360, 300)
-        self.setMinimumSize(300, 100)
-
         root = QVBoxLayout(self)
-        root.setContentsMargins(8, 8, 8, 8)
+        root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(5)
         self.title_label = QLabel(objectName="sectionTitle")
-        self.title_label.setStyleSheet("font-size: 14px; font-weight: 700;")
+        self.title_label.setStyleSheet("color: #ff9800; font-size: 14px; font-weight: 700;")
+        self.quality_label = QLabel(objectName="muted")
+        self.quality_label.setWordWrap(True)
+        self.title_label.setWordWrap(True)
+        for label in (self.title_label, self.quality_label):
+            label.setTextFormat(Qt.PlainText)
         self.summary_label = QLabel(objectName="muted")
         self.summary_label.setStyleSheet("font-size: 13px; font-weight: 600;")
         self.table = QTableWidget(0, 2)
@@ -983,7 +978,7 @@ class CargoLiveWindow(AuxiliaryWindow, QDialog):
         self.table.setShowGrid(False)
         root.addWidget(self.title_label)
         root.addWidget(self.summary_label)
-        root.addWidget(self.table, 1)
+
         self.fill_bar = QProgressBar(objectName="cargoFill")
         self.fill_bar.setRange(0, 100)
         self.fill_bar.setValue(0)
@@ -991,9 +986,12 @@ class CargoLiveWindow(AuxiliaryWindow, QDialog):
         self.fill_bar.setFixedHeight(8)
         self.fill_bar.hide()
         root.addWidget(self.fill_bar)
+        root.addWidget(self.quality_label)
+        root.addWidget(self.table, 1)
 
         self.setStyleSheet("""
-            QDialog { background-color: #171012; }
+            QWidget { background-color: #171012; }
+            QProgressBar::chunk { background-color: #ff9800; }
             QLabel { background: transparent; }
             QTableWidget {
                 color: #f1f3f5;
@@ -1011,104 +1009,30 @@ class CargoLiveWindow(AuxiliaryWindow, QDialog):
                 font-weight: 600;
             }
         """)
-        geometry = self.settings.value(self.geometry_key)
-        if geometry is not None:
-            try:
-                self.restoreGeometry(geometry)
-            except Exception:
-                pass
-
-    def _save_geometry(self):
-        self.settings.setValue(self.geometry_key, self.saveGeometry())
-        self.settings.sync()
-
-    def moveEvent(self, event):
-        super().moveEvent(event)
-        self._save_geometry()
-
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        self._save_geometry()
-
-    def closeEvent(self, event):
-        self.cargo_visibility.close()
-        self._save_geometry()
-        super().closeEvent(event)
-
-    def reject(self):
-        self.cargo_visibility.close()
-        super().reject()
-
-    def show(self):
-        # Explicit/manual opening owns visibility until explicitly closed.
-        if not getattr(self, "_automatic_show", False):
-            self.cargo_visibility.observe(self.cargo_visibility.key, manual=True)
-        super().show()
-
-    def present_snapshot(self, snapshot):
-        self.set_snapshot(snapshot)
-        self.cargo_visibility.observe(cargo_activity_key(snapshot))
-        if self.cargo_visibility.active and not self.isVisible():
-            self._automatic_show = True
-            try:
-                self.show()  # WA_ShowWithoutActivating; never raise/activate.
-            finally:
-                self._automatic_show = False
-
-    def invalidate_snapshot(self, *, force_hide=False):
-        keep_visible = not force_hide
-        self.cargo_visibility.reset()
-        self._last_snapshot = None
-        if keep_visible:
-            # Unknown data is not an empty hold. Keep the enabled window,
-            # but do not present another session's inventory as current.
-            self.cargo_visibility.observe(None, manual=True)
-            self.table.setRowCount(0)
-            self._row_keys.clear()
-            self.summary_label.setText("–")
-            self.fill_bar.hide()
-        elif self.isVisible():
-            self.hide()
 
     def set_snapshot(self, snapshot):
-        self._last_snapshot = snapshot
-        snapshot = snapshot if isinstance(snapshot, dict) else {}
-        vessel = str(snapshot.get("vessel") or "")
-        vehicle = str(snapshot.get("vehicle_name") or "").casefold()
-        if vessel == "Ship":
-            title = tr("cargo.live.title_ship")
-        elif "rhino" in vehicle:
-            title = tr("cargo.live.title_rhino")
-        else:
-            title = tr("cargo.live.title_srv")
-        self.setWindowTitle(title)
-        self.title_label.setText(title)
-
-        count = max(0, int(snapshot.get("count") or 0))
-        capacity = snapshot.get("capacity")
-        if capacity is None:
-            self.summary_label.setText(
-                tr("cargo.live.loaded_unknown", count=count)
-                if vessel == "Ship" else tr("cargo.live.loaded", count=count)
-            )
-        elif vessel == "SRV":
-            self.summary_label.setText(f"{count} / {max(0, int(capacity))} t")
-        else:
-            capacity = max(0, int(capacity))
-            self.summary_label.setText(tr(
-                "cargo.live.capacity", count=count, capacity=capacity,
-                free=free_cargo_space(count, capacity),
-            ))
-
-        show_fill = vessel == "SRV" and capacity is not None and int(capacity) > 0
-        percent = round(min(1.0, count / int(capacity)) * 100) if show_fill else 0
-        self.fill_bar.setValue(max(0, min(100, percent)))
+        snapshot = snapshot or {}
+        language = get_language()
+        if snapshot == self._snapshot and language == self._language:
+            return
+        self._snapshot = deepcopy(snapshot)
+        self._language = language
+        name = str(snapshot.get('vehicle_name') or '').strip()
+        title = tr('cargo.hud.ship' if self.vessel == 'Ship' else 'cargo.hud.srv').upper()
+        self.title_label.setText(title + (' — ' + name if name else ''))
+        self.quality_label.setText(snapshot.get('notice', ''))
+        self.quality_label.setVisible(bool(snapshot.get('notice')))
+        count, capacity = snapshot.get('count'), snapshot.get('capacity')
+        count = count if type(count) is int and count >= 0 else None
+        capacity = capacity if type(capacity) is int and capacity >= 0 else None
+        self.summary_label.setText(f"{count if count is not None else '–'} / {capacity if capacity is not None else '–'} t")
+        show_fill = count is not None and capacity is not None and capacity > 0
+        self.fill_bar.setValue(round(min(count / capacity, 1) * 100) if show_fill else 0)
         self.fill_bar.setVisible(show_fill)
-
         inventory = list(snapshot.get("inventory") or [])
         rows = {str(item.get("frontier_name") or "").casefold(): item
                 for item in inventory}
-        if not rows:
+        if not rows and count is not None:
             rows = {"": {}}
         # Retain surviving rows (and their QTableWidgetItems) in their old order.
         structure_changed = set(self._row_keys) != set(rows)
@@ -1161,30 +1085,118 @@ class CargoLiveWindow(AuxiliaryWindow, QDialog):
         finally:
             if structure_changed:
                 self.table.setUpdatesEnabled(True)
-        # Fit once; subsequent inventory events must not undo a user's resize.
-        if not self._has_snapshot:
-            if self.settings.value(self.geometry_key) is None:
-                self._fit_content_height()
-            self._has_snapshot = True
 
-    def _fit_content_height(self):
-        self.ensurePolished()
-        layout = self.layout()
-        layout.activate()
-        margins = layout.contentsMargins()
-        table_height = (self.table.horizontalHeader().sizeHint().height()
-                        + sum(self.table.rowHeight(i) for i in range(self.table.rowCount()))
-                        + 2 * self.table.frameWidth())
-        if self.table.horizontalScrollBar().isVisible():
-            table_height += self.table.horizontalScrollBar().sizeHint().height()
-        overhead = (margins.top() + margins.bottom()
-                    + self.title_label.sizeHint().height()
-                    + self.summary_label.sizeHint().height()
-                    + layout.spacing() * (3 if not self.fill_bar.isHidden() else 2)
-                    + (8 if not self.fill_bar.isHidden() else 0))
-        screen = self.screen()
-        maximum = min(560, int(screen.availableGeometry().height() * 0.7)) if screen else 560
-        self.resize(self.width(), max(self.minimumHeight(), min(maximum, overhead + table_height)))
+
+class CargoLiveWindow(AuxiliaryWindow, QDialog):
+    """Two read-only holds sharing the existing modeless window lifetime."""
+    def __init__(self, settings, parent=None):
+        super().__init__(parent)
+        self.settings = settings
+        self.geometry_key = 'cargo_live/geometry'
+        self.cargo_visibility = CargoVisibility(self)
+        self._last_snapshot = None
+        self.setAttribute(Qt.WA_ShowWithoutActivating, True)
+        self.setWindowTitle(tr('cargo.live.holds'))
+        self.resize(680, 300)
+        self.setMinimumSize(300, 100)
+        root = QHBoxLayout(self)
+        root.setContentsMargins(8, 8, 8, 8)
+        self.ship_panel = CargoHoldPanel('Ship', self)
+        self.srv_panel = CargoHoldPanel('SRV', self)
+        root.addWidget(self.ship_panel, 1)
+        root.addWidget(self.srv_panel, 1)
+        self._active_panel = self.srv_panel
+        self.ship_panel.set_snapshot({})
+        self.srv_panel.set_snapshot({})
+        geometry = settings.value(self.geometry_key)
+        if geometry is not None:
+            self.restoreGeometry(geometry)
+
+    @property
+    def table(self):
+        return self._active_panel.table
+
+    @property
+    def summary_label(self):
+        return self._active_panel.summary_label
+
+    @property
+    def title_label(self):
+        return self._active_panel.title_label
+
+    @property
+    def fill_bar(self):
+        return self._active_panel.fill_bar
+
+    def _save_geometry(self):
+        self.settings.setValue(self.geometry_key, self.saveGeometry())
+        self.settings.sync()
+
+    def moveEvent(self, event):
+        super().moveEvent(event)
+        self._save_geometry()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._save_geometry()
+
+    def closeEvent(self, event):
+        self.cargo_visibility.close()
+        self._save_geometry()
+        super().closeEvent(event)
+
+    def reject(self):
+        self.cargo_visibility.close()
+        super().reject()
+
+    def show(self):
+        # Explicit/manual opening owns visibility until explicitly closed.
+        if not getattr(self, "_automatic_show", False):
+            self.cargo_visibility.observe(self.cargo_visibility.key, manual=True)
+        super().show()
+
+    def set_snapshot(self, snapshot):
+        # Retain the existing single-snapshot presentation entry point.
+        snapshot = snapshot or {}
+        self._last_snapshot = snapshot
+        self._active_panel = self.ship_panel if snapshot.get('vessel') == 'Ship' else self.srv_panel
+        self._active_panel.set_snapshot(snapshot)
+
+    def present_snapshot(self, snapshot):
+        self.set_snapshot(snapshot)
+        self._observe(cargo_activity_key(snapshot))
+
+    def _observe(self, key):
+        self.cargo_visibility.observe(key)
+        if self.cargo_visibility.active and not self.isVisible():
+            self._automatic_show = True
+            try:
+                self.show()
+            finally:
+                self._automatic_show = False
+
+    def present_state(self, state, **projection):
+        from cmdrhelper.ui.cargo_window_data import holds
+        ship, srv = holds(state, **projection)
+        self.ship_panel.set_snapshot(ship)
+        self.srv_panel.set_snapshot(srv)
+        self._last_snapshot = getattr(state, 'cargo_snapshot', None)
+        # Status timestamps alone must not reopen a manually closed window.
+        key = tuple((p.get('vehicle_name'), p.get('count'), p.get('capacity'),
+                     tuple((r['frontier_name'], r['count']) for r in p.get('inventory', [])))
+                    for p in (ship, srv))
+        from cmdrhelper.mining_controller import mining_publication_context
+        self._observe((mining_publication_context(state)[:-1],
+                       getattr(getattr(state, 'ship_loadout', None), 'ship_id', None),
+                       cargo_activity_key(self._last_snapshot), key))
+
+    def invalidate_snapshot(self, *, force_hide=False):
+        self.cargo_visibility.reset()
+        self._last_snapshot = None
+        self.ship_panel.set_snapshot({})
+        self.srv_panel.set_snapshot({})
+        if force_hide:
+            self.hide()
 
 
 class MainWindow(QMainWindow):
@@ -1287,9 +1299,7 @@ class MainWindow(QMainWindow):
         self._refresh_chronicle_mining_commodities()
 
         self.state.changed.connect(self.refresh_all)
-        cargo_signal = getattr(self.state, "cargoSnapshotChanged", None)
-        if cargo_signal is not None:
-            cargo_signal.connect(self._refresh_cargo_live_window)
+        self._connect_cargo_live_signals()
 
         self.refresh_all()
         self._refresh_cargo_live_window(
@@ -6115,10 +6125,42 @@ class MainWindow(QMainWindow):
             if self._cargo_live_window is not None and not self._cargo_live_window.isVisible():
                 self._cargo_live_window.show()
 
+    def _connect_cargo_live_signals(self):
+        cargo_signal = getattr(self.state, "cargoSnapshotChanged", None)
+        if cargo_signal is not None:
+            cargo_signal.connect(self._refresh_cargo_live_window)
+        for name in ('shipLoadoutChanged', 'commanderIdentityChanged', 'viewedCommanderChanged'):
+            signal = getattr(self.state, name, None)
+            if signal is not None:
+                signal.connect(self._refresh_cargo_holds)
+        mining = getattr(getattr(self, 'material_view', None), 'mining', None)
+        controller = getattr(mining, 'controller', None) or getattr(self.state, 'mining_inventory_controller', None)
+        self._cargo_mining_inventory = (getattr(mining, '_inventory', None) if mining is not None
+                                        else getattr(controller, '_last_inventory', None))
+        if controller is not None:
+            controller.ready.connect(self._cargo_mining_ready)
+            controller.loading.connect(self._cargo_mining_loading)
+        sources = getattr(self.state, 'sources', None)
+        if sources is not None:
+            sources.changed.connect(self._refresh_cargo_holds)
+
+    def _cargo_mining_ready(self, inventory):
+        # Same ready payload as MiningView.set_inventory, not a reread of private state.
+        self._cargo_mining_inventory = inventory
+        self._refresh_cargo_holds()
+
+    def _cargo_mining_loading(self):
+        # MiningView also clears its displayed projection on loading.
+        self._cargo_mining_inventory = None
+        self._refresh_cargo_holds()
+
     def _refresh_cargo_live_window(self, snapshot):
         hud = getattr(self, "_navigation_hud", None)
         if hud is not None:
             hud.notify_cargo_activity(cargo_activity_key(snapshot))
+        self._refresh_cargo_holds()
+
+    def _refresh_cargo_holds(self, *_):
         if not self._cargo_live_window_enabled():
             if self._cargo_live_window is not None:
                 self._cargo_live_window.invalidate_snapshot(force_hide=True)
@@ -6127,14 +6169,8 @@ class MainWindow(QMainWindow):
             self._cargo_live_window = CargoLiveWindow(
                 self.state.settings, parent=self
             )
-        window = self._cargo_live_window
-        if isinstance(snapshot, dict):
-            window.present_snapshot(snapshot)
-        else:
-            if not same_cargo_context(self.state, window._last_snapshot):
-                window.invalidate_snapshot()
-            if not window.isVisible():
-                window.show()
+        self._cargo_live_window.present_state(self.state,
+            inventory=getattr(self, '_cargo_mining_inventory', None))
 
     def _set_explorer_value_threshold(self, value):
         value = max(0, int(value or 0))

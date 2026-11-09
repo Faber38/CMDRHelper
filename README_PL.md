@@ -38,6 +38,12 @@ Folder dzienników Elite Dangerous jest wykrywany automatycznie, jeśli to możl
 
 CMDRHelper sprawdza aktualizacje przy uruchomieniu i ma wbudowany mechanizm aktualizacji. Potwierdź proponowaną aktualizację w aplikacji; zaktualizuje ona program i zależności oraz uruchomi CMDRHelper ponownie. Po pierwszej instalacji zwykle wystarczy używać `start.bat` (Windows) lub `bash start.sh` (Linux). Przy zwykłych aktualizacjach nie trzeba ponownie ręcznie uruchamiać `install.bat` ani `install.sh`.
 
+## CMDRHelper v3.9.31
+
+- Wspólne okno ładunku pokazuje statek po lewej, a SRV po prawej, z oddzielnymi ilościami, pojemnościami, paskami postępu i tabelami. Zachowano automatyczne aktualizacje oraz zapamiętywanie pozycji i rozmiaru okna.
+- Ładunek statku korzysta z tego samego opublikowanego widoku zapasów co tabela wydobycia. Istniejące ilości pozostają widoczne niezależnie od koloru oraz przy brakujących lub niepełnych danych wyposażenia. Rozróżniane są wartości nieznane, potwierdzony stan zerowy i nieaktywny SRV.
+- Zmiana języka widoku ładunku działa teraz również przy niezmienionych ilościach. Teksty są dostępne we wszystkich dwunastu językach.
+
 ## CMDRHelper v3.9.30
 
 - Kontrole procesów Linux są łączone w tle i nie blokują już synchronicznie interfejsu. Wybór dowódcy, wskazania przybycia i zrzuty ekranu korzystają wyłącznie z aktualnych, zweryfikowanych informacji o procesach.

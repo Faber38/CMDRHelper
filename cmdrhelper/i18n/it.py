@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_31.0": 'Una finestra di carico comune mostra la nave a sinistra e il SRV a destra, con quantità, capacità, barre di avanzamento e tabelle separate. Restano disponibili gli aggiornamenti automatici e il salvataggio di posizione e dimensioni della finestra.',
+    "release.3_9_31.1": 'Il carico della nave usa la stessa proiezione delle scorte pubblicata della tabella mineraria. Le quantità esistenti restano visibili indipendentemente dal colore e anche se i dati di equipaggiamento sono assenti o incompleti. Valori sconosciuti, scorte nulle confermate e SRV inattivo sono distinti.',
+    "release.3_9_31.2": 'Il cambio di lingua della visualizzazione del carico funziona ora anche quando le quantità non cambiano. I testi sono disponibili in tutte le dodici lingue.',
+    'cargo.live.holds': 'Stive — nave e SRV',
+    'cargo.live.no_srv': 'Nessun SRV attivo',
+    'cargo.live.capacity_stale': 'Ultima capacità nota',
     "release.3_9_30.0": 'I controlli dei processi Linux vengono raggruppati in background e non bloccano più sincronicamente l’interfaccia. Selezione del comandante, arrivi e screenshot usano solo informazioni sui processi aggiornate e verificate.',
     "release.3_9_30.1": 'Il controller minerario annulla gli avvii differiti dopo la distruzione e scollega i segnali in sicurezza. I controller chiusi non avviano più aggiornamenti manuali.',
     "release.3_9_30.2": 'L’azzeramento di taglie e obbligazioni di combattimento usa la fonte del diario verificata del comandante selezionato.',

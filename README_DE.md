@@ -38,6 +38,12 @@ Der Journalordner von Elite Dangerous wird nach Möglichkeit automatisch erkannt
 
 CMDRHelper prüft beim Start auf Updates und besitzt einen integrierten Updater. Bestätige ein angebotenes Update im Programm; es aktualisiert Programm und Abhängigkeiten und startet CMDRHelper neu. Nach der Erstinstallation genügt normalerweise `start.bat` (Windows) beziehungsweise `bash start.sh` (Linux). Für normale Updates musst du `install.bat` oder `install.sh` nicht erneut manuell ausführen.
 
+## CMDRHelper v3.9.31
+
+- Gemeinsames Frachtfenster mit Schiff links und SRV rechts: getrennte Bestände, Kapazitäten, Fortschrittsbalken und Frachttabellen. Automatische Aktualisierung sowie gespeicherte Fensterposition und Größe bleiben erhalten.
+- Die Schiffsfracht verwendet dieselbe veröffentlichte Bestandsprojektion wie die Mining-Tabelle. Vorhandene Mengen bleiben unabhängig von ihrer Farbkennzeichnung und bei fehlendem oder unvollständigem Loadout sichtbar. Unbekannte Werte, bestätigte Nullbestände und ein inaktives SRV werden unterschieden.
+- Die Sprachaktualisierung der Frachtanzeige berücksichtigt jetzt auch unveränderte Bestände. Texte sind in allen zwölf Sprachen verfügbar.
+
 ## CMDRHelper v3.9.30
 
 - Linux-Prozessprüfungen laufen gebündelt im Hintergrund und blockieren die Oberfläche nicht mehr synchron. Commander-Zuordnung, Ankunftsanzeige und Screenshots verwenden nur aktuelle, geprüfte Prozessinformationen.

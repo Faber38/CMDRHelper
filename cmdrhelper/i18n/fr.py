@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_31.0": 'Une fenêtre de cargaison commune affiche le vaisseau à gauche et le SRV à droite, avec des quantités, capacités, barres de progression et tableaux séparés. Les mises à jour automatiques ainsi que la position et la taille mémorisées sont conservées.',
+    "release.3_9_31.1": 'La cargaison du vaisseau utilise la même projection de stock publiée que le tableau minier. Les quantités existantes restent visibles indépendamment de leur couleur et lorsque l’équipement est absent ou incomplet. Les valeurs inconnues, les stocks nuls confirmés et un SRV inactif sont distingués.',
+    "release.3_9_31.2": 'Le changement de langue de l’affichage de cargaison fonctionne désormais aussi lorsque les quantités sont inchangées. Les textes sont disponibles dans les douze langues.',
+    'cargo.live.holds': 'Soutes — vaisseau et SRV',
+    'cargo.live.no_srv': 'Aucun SRV actif',
+    'cargo.live.capacity_stale': 'Dernière capacité connue',
     "release.3_9_30.0": 'Les vérifications des processus Linux sont regroupées en arrière-plan et ne bloquent plus directement l’interface. La sélection du commandant, les arrivées et les captures utilisent uniquement des informations de processus actuelles et vérifiées.',
     "release.3_9_30.1": 'Le contrôleur minier annule les démarrages différés après sa destruction et déconnecte ses signaux. Un contrôleur fermé ne lance plus d’actualisation manuelle.',
     "release.3_9_30.2": 'La remise à zéro des primes et obligations de combat utilise la source de journal vérifiée du commandant sélectionné.',

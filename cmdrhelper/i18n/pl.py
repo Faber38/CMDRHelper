@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_31.0": 'Wspólne okno ładunku pokazuje statek po lewej, a SRV po prawej, z oddzielnymi ilościami, pojemnościami, paskami postępu i tabelami. Zachowano automatyczne aktualizacje oraz zapamiętywanie pozycji i rozmiaru okna.',
+    "release.3_9_31.1": 'Ładunek statku korzysta z tego samego opublikowanego widoku zapasów co tabela wydobycia. Istniejące ilości pozostają widoczne niezależnie od koloru oraz przy brakujących lub niepełnych danych wyposażenia. Rozróżniane są wartości nieznane, potwierdzony stan zerowy i nieaktywny SRV.',
+    "release.3_9_31.2": 'Zmiana języka widoku ładunku działa teraz również przy niezmienionych ilościach. Teksty są dostępne we wszystkich dwunastu językach.',
+    'cargo.live.holds': 'Ładownie — statek i SRV',
+    'cargo.live.no_srv': 'Brak aktywnego SRV',
+    'cargo.live.capacity_stale': 'Ostatnia znana pojemność',
     "release.3_9_30.0": 'Kontrole procesów Linux są łączone w tle i nie blokują już synchronicznie interfejsu. Wybór dowódcy, wskazania przybycia i zrzuty ekranu korzystają wyłącznie z aktualnych, zweryfikowanych informacji o procesach.',
     "release.3_9_30.1": 'Kontroler wydobycia anuluje opóźnione uruchomienia po zniszczeniu i bezpiecznie odłącza sygnały. Zamknięte kontrolery nie rozpoczynają już ręcznego odświeżania.',
     "release.3_9_30.2": 'Zerowanie nagród i obligacji bojowych korzysta ze zweryfikowanego źródła dziennika wybranego dowódcy.',

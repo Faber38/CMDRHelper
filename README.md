@@ -38,6 +38,12 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.9.31
+
+- A shared cargo window shows the ship on the left and the SRV on the right, with separate quantities, capacities, progress bars and cargo tables. Automatic updates and saved window position and size are retained.
+- Ship cargo uses the same published stock projection as the mining table. Existing quantities remain visible regardless of their colour coding and when the loadout is missing or incomplete. Unknown values, confirmed zero stock and an inactive SRV are distinguished.
+- Cargo display language updates now also work when quantities are unchanged. Texts are available in all twelve languages.
+
 ## CMDRHelper v3.9.30
 
 - Linux process checks are coalesced in the background and no longer synchronously block the interface. Commander selection, arrival displays and screenshots use only current, verified process information.

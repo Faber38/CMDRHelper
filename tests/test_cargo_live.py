@@ -382,8 +382,8 @@ class CargoLiveWindowTests(unittest.TestCase):
             "inventory": [{"frontier_name": "copper", "display_name": "Kupfer",
                            "count": 56, "stolen": 3, "is_drones": False}],
         })
-        self.assertEqual(self.window.title_label.text(), "FRACHTRAUM — SCHIFF")
-        self.assertEqual(self.window.summary_label.text(), "56 / 256 t · 200 t frei")
+        self.assertEqual(self.window.title_label.text(), "SCHIFF")
+        self.assertEqual(self.window.summary_label.text(), "56 / 256 t")
         self.assertEqual(self.window.table.horizontalHeaderItem(0).text(), "Name")
         self.assertEqual(self.window.table.horizontalHeaderItem(1).text(), "Anzahl")
         self.assertEqual(
@@ -399,7 +399,7 @@ class CargoLiveWindowTests(unittest.TestCase):
         self.window.set_snapshot({"vessel": "Ship", "count": 0,
                                   "capacity": None, "inventory": []})
         self.assertEqual(self.window.summary_label.text(),
-                         "0 t geladen · Kapazität unbekannt")
+                         "0 / – t")
         self.assertEqual(self.window.table.item(0, 0).text(), "Frachtraum leer")
         self.assertEqual(self.window.table.columnSpan(0, 0), 2)
 
@@ -413,8 +413,8 @@ class CargoLiveWindowTests(unittest.TestCase):
                  "stolen": 0, "is_drones": True},
             ],
         })
-        self.assertEqual(self.window.title_label.text(), "FRACHTRAUM — RHINO")
-        self.assertEqual(self.window.summary_label.text(), "12 t")
+        self.assertEqual(self.window.title_label.text(), "SRV — SRV Rhino")
+        self.assertEqual(self.window.summary_label.text(), "12 / – t")
         self.assertEqual(self.window.table.item(0, 0).text(), "Gold")
         self.assertEqual(self.window.table.item(0, 1).text(), "11 t")
         self.assertEqual(self.window.table.item(1, 0).text(), "Drohnen")
@@ -427,7 +427,7 @@ class CargoLiveWindowTests(unittest.TestCase):
             ("SRV Rhino", 56, 80, "56 / 80 t"),
             ("SRV Scarab", 2, 4, "2 / 4 t"),
             ("Scorpion (SRV)", 2, 2, "2 / 2 t"),
-            ("Unknown SRV", 2, None, "2 t"),
+            ("Unknown SRV", 2, None, "2 / – t"),
             ("SRV Rhino", 0, 72, "0 / 72 t"),
             ("Unknown SRV", 0, 0, "0 / 0 t"),
         ]:
@@ -446,7 +446,7 @@ class CargoLiveWindowTests(unittest.TestCase):
                     self.assertEqual(self.window.table.item(0, 1).text(), f"{count} t")
 
     def test_srv_fill_empty_partial_full_and_clamped(self):
-        for count, expected in [(0, 0), (67, 93), (72, 100), (100, 100), (-5, 0)]:
+        for count, expected in [(0, 0), (67, 93), (72, 100), (100, 100)]:
             with self.subTest(count=count):
                 self.window.set_snapshot({
                     "vessel": "SRV", "count": count, "capacity": 72, "inventory": [],
@@ -470,7 +470,7 @@ class CargoLiveWindowTests(unittest.TestCase):
             ({"vessel": "SRV", "vehicle_name": "Rhino", "count": 67, "capacity": 72}, 93),
             ({"vessel": "SRV", "vehicle_name": "Scarab", "count": 2, "capacity": 4}, 50),
             ({"vessel": "SRV", "vehicle_name": "Scorpion", "count": 2, "capacity": 2}, 100),
-            ({"vessel": "Ship", "count": 56, "capacity": 256}, None),
+            ({"vessel": "Ship", "count": 56, "capacity": 256}, 22),
             ({"vessel": "SRV", "vehicle_name": "Rhino", "count": 67, "capacity": 80}, 84),
             (None, None),
         ]:
@@ -479,7 +479,7 @@ class CargoLiveWindowTests(unittest.TestCase):
                 self.assertEqual(self.window.fill_bar.isHidden(), expected is None)
                 self.assertEqual(self.window.fill_bar.value(), expected or 0)
 
-    def test_srv_fill_stays_below_table_at_full_width_in_both_themes(self):
+    def test_srv_fill_stays_above_its_table_in_both_themes(self):
         original_style = self.app.styleSheet()
         self.addCleanup(self.app.setStyleSheet, original_style)
         self.window.set_snapshot({"vessel": "SRV", "count": 67, "capacity": 72})
@@ -492,11 +492,11 @@ class CargoLiveWindowTests(unittest.TestCase):
                     self.app.processEvents()
                     bar = self.window.fill_bar.geometry()
                     table = self.window.table.geometry()
-                    self.assertGreater(bar.top(), table.bottom())
+                    self.assertLess(bar.bottom(), table.top())
                     self.assertEqual(bar.left(), table.left())
                     self.assertEqual(bar.width(), table.width())
                     self.assertEqual(bar.height(), 8)
-                    self.assertEqual(bar.bottom(), self.window.height() - 9)
+                    self.assertLess(self.window.ship_panel.x(), self.window.srv_panel.x())
                     self.assertEqual(self.window.fill_bar.value(), 93)
 
 

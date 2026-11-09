@@ -38,6 +38,12 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.31
+
+- Yhteinen lasti-ikkuna näyttää aluksen vasemmalla ja SRV:n oikealla. Molemmilla on omat määrät, kapasiteetit, edistymispalkit ja lastitaulukot. Automaattiset päivitykset sekä tallennettu ikkunan sijainti ja koko säilyvät.
+- Aluksen lasti käyttää samaa julkaistua varantonäkymää kuin kaivostaulukko. Olemassa olevat määrät näkyvät värimerkinnästä riippumatta myös varustetietojen puuttuessa tai ollessa epätäydellisiä. Tuntemattomat arvot, vahvistettu nollamäärä ja epäaktiivinen SRV erotetaan toisistaan.
+- Lastinäkymän kielipäivitys toimii nyt myös määrien pysyessä ennallaan. Tekstit ovat saatavilla kaikilla kahdellatoista kielellä.
+
 ## CMDRHelper v3.9.30
 
 - Linux-prosessien tarkistukset yhdistetään taustalle eivätkä enää estä käyttöliittymää synkronisesti. Komentajan valinta, saapumisnäyttö ja kuvakaappaukset käyttävät vain ajantasaisia, tarkistettuja prosessitietoja.

@@ -38,6 +38,12 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## CMDRHelper v3.9.31
+
+- Een gezamenlijk vrachtvenster toont het schip links en de SRV rechts, met afzonderlijke hoeveelheden, capaciteiten, voortgangsbalken en vrachttabellen. Automatische updates en opgeslagen vensterpositie en grootte blijven behouden.
+- De scheepsvracht gebruikt dezelfde gepubliceerde voorraadweergave als de miningtabel. Bestaande hoeveelheden blijven zichtbaar ongeacht hun kleurmarkering en bij ontbrekende of onvolledige uitrustingsgegevens. Onbekende waarden, bevestigde nulvoorraden en een inactieve SRV worden onderscheiden.
+- Taalwijzigingen in de vrachtweergave werken nu ook bij ongewijzigde hoeveelheden. De teksten zijn beschikbaar in alle twaalf talen.
+
 ## CMDRHelper v3.9.30
 
 - Linux-procescontroles worden op de achtergrond gebundeld en blokkeren de interface niet meer synchroon. Commanderselectie, aankomstweergave en screenshots gebruiken alleen actuele, gecontroleerde procesinformatie.

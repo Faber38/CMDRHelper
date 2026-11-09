@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_31.0": 'Et felles lastevindu viser skipet til venstre og SRV til høyre, med separate mengder, kapasiteter, fremdriftslinjer og lastetabeller. Automatisk oppdatering og lagret vindusposisjon og størrelse beholdes.',
+    "release.3_9_31.1": 'Skipslasten bruker samme publiserte beholdningsvisning som gruvedriftstabellen. Eksisterende mengder forblir synlige uavhengig av fargemerking og ved manglende eller ufullstendige utstyrsdata. Ukjente verdier, bekreftet nullbeholdning og en inaktiv SRV skilles fra hverandre.',
+    "release.3_9_31.2": 'Språkoppdatering av lastevisningen fungerer nå også når mengdene er uendret. Tekstene finnes på alle tolv språk.',
+    'cargo.live.holds': 'Lasterom — skip og SRV',
+    'cargo.live.no_srv': 'Ingen aktiv SRV',
+    'cargo.live.capacity_stale': 'Sist kjente kapasitet',
     "release.3_9_30.0": 'Linux-prosesskontroller samles i bakgrunnen og blokkerer ikke lenger grensesnittet synkront. Commandervalg, ankomstvisning og skjermbilder bruker bare oppdatert og kontrollert prosessinformasjon.',
     "release.3_9_30.1": 'Gruvedriftskontrolleren avbryter utsatte startkall etter at den er slettet, og kobler fra signalene trygt. Lukkede kontrollere starter ikke lenger manuelle oppdateringer.',
     "release.3_9_30.2": 'Nullstilling av dusører og kampbelønninger bruker den bekreftede journalkilden til valgt commander.',

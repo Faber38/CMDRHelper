@@ -38,6 +38,12 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## CMDRHelper v3.9.31
+
+- Una finestra di carico comune mostra la nave a sinistra e il SRV a destra, con quantità, capacità, barre di avanzamento e tabelle separate. Restano disponibili gli aggiornamenti automatici e il salvataggio di posizione e dimensioni della finestra.
+- Il carico della nave usa la stessa proiezione delle scorte pubblicata della tabella mineraria. Le quantità esistenti restano visibili indipendentemente dal colore e anche se i dati di equipaggiamento sono assenti o incompleti. Valori sconosciuti, scorte nulle confermate e SRV inattivo sono distinti.
+- Il cambio di lingua della visualizzazione del carico funziona ora anche quando le quantità non cambiano. I testi sono disponibili in tutte le dodici lingue.
+
 ## CMDRHelper v3.9.30
 
 - I controlli dei processi Linux vengono raggruppati in background e non bloccano più sincronicamente l’interfaccia. Selezione del comandante, arrivi e screenshot usano solo informazioni sui processi aggiornate e verificate.

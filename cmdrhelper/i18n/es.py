@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_31.0": 'Una ventana de carga común muestra la nave a la izquierda y el SRV a la derecha, con cantidades, capacidades, barras de progreso y tablas independientes. Se conservan la actualización automática y la posición y el tamaño guardados de la ventana.',
+    "release.3_9_31.1": 'La carga de la nave usa la misma proyección de existencias publicada que la tabla de minería. Las cantidades existentes siguen visibles independientemente de su color y cuando faltan datos de equipamiento o están incompletos. Se distinguen los valores desconocidos, las existencias nulas confirmadas y un SRV inactivo.',
+    "release.3_9_31.2": 'La actualización del idioma de la vista de carga funciona ahora también cuando las cantidades no cambian. Los textos están disponibles en los doce idiomas.',
+    'cargo.live.holds': 'Bodegas — nave y SRV',
+    'cargo.live.no_srv': 'Ningún SRV activo',
+    'cargo.live.capacity_stale': 'Última capacidad conocida',
     "release.3_9_30.0": 'Las comprobaciones de procesos Linux se agrupan en segundo plano y ya no bloquean sincrónicamente la interfaz. La selección de comandante, las llegadas y las capturas usan solo información actual y verificada de los procesos.',
     "release.3_9_30.1": 'El controlador de minería cancela los inicios diferidos tras su destrucción y desconecta sus señales de forma segura. Los controladores cerrados ya no inician actualizaciones manuales.',
     "release.3_9_30.2": 'El restablecimiento de recompensas y bonos de combate usa la fuente de diario verificada del comandante seleccionado.',

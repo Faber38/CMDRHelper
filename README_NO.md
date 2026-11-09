@@ -38,6 +38,12 @@ Journalmappen til Elite Dangerous oppdages automatisk når det er mulig. Hvis de
 
 CMDRHelper søker etter oppdateringer ved oppstart og har en innebygd oppdateringsfunksjon. Bekreft en tilbudt oppdatering i programmet; den oppdaterer programmet og avhengighetene og starter CMDRHelper på nytt. Etter førstegangsinstallasjonen bruker du normalt bare `start.bat` (Windows) eller `bash start.sh` (Linux). Du trenger ikke å kjøre `install.bat` eller `install.sh` manuelt på nytt for vanlige oppdateringer.
 
+## CMDRHelper v3.9.31
+
+- Et felles lastevindu viser skipet til venstre og SRV til høyre, med separate mengder, kapasiteter, fremdriftslinjer og lastetabeller. Automatisk oppdatering og lagret vindusposisjon og størrelse beholdes.
+- Skipslasten bruker samme publiserte beholdningsvisning som gruvedriftstabellen. Eksisterende mengder forblir synlige uavhengig av fargemerking og ved manglende eller ufullstendige utstyrsdata. Ukjente verdier, bekreftet nullbeholdning og en inaktiv SRV skilles fra hverandre.
+- Språkoppdatering av lastevisningen fungerer nå også når mengdene er uendret. Tekstene finnes på alle tolv språk.
+
 ## CMDRHelper v3.9.30
 
 - Linux-prosesskontroller samles i bakgrunnen og blokkerer ikke lenger grensesnittet synkront. Commandervalg, ankomstvisning og skjermbilder bruker bare oppdatert og kontrollert prosessinformasjon.

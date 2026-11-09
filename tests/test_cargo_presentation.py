@@ -11,10 +11,12 @@ from PySide6.QtCore import QObject, QRect, Qt, Signal
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QMainWindow
 
-from cmdrhelper.i18n import _TRANSLATIONS, set_language, tr_for_language
+from cmdrhelper.i18n import _TRANSLATIONS, set_language, tr, tr_for_language
 from cmdrhelper.ui.cargo_hud import (
     CargoHudData, CargoHudPresentation, cargo_activity_key, cargo_item_name,
 )
+from cmdrhelper.mining_inventory import MiningInventory
+from cmdrhelper.route_planner.models import ShipLoadoutData
 from cmdrhelper.ui.main_window import CargoLiveWindow, MainWindow
 from cmdrhelper.ui.navigation_hud import NavigationHud, TargetWindow
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
@@ -57,7 +59,8 @@ def bind_context(state, value):
     value["context"] = origin
     state.commander_fid = "fixture"
     state.ship_cargo_context = dict(origin, active=True)
-    state.ship_loadout = SimpleNamespace(ship_id=1, cargo_capacity=100, ship_name="Fixture")
+    state.ship_loadout = ShipLoadoutData(ship_id=1, cargo_capacity=100, ship_name="Fixture",
+                                         loadout_complete=True, loadout_stale=False)
     state._cargo_refresh_data = ({}, dict(attribution_status="identified", commander_id=1,
                                         fid_seen="fixture", journal_file="synthetic-journal"))
 
@@ -75,6 +78,7 @@ class CargoPresentationTests(unittest.TestCase):
         self.state = SimpleNamespace(settings=Settings(), cargo_snapshot=snapshot())
         self.main.state = self.state
         self.main._cargo_live_window = None
+        self.main._cargo_mining_inventory = None
         self.controller = Controller()
         self.tracker = Mock(reason="active", error="", last_target=None)
         self.tracker.input_is_empty.return_value = True
@@ -101,6 +105,13 @@ class CargoPresentationTests(unittest.TestCase):
 
     def update(self, value):
         self.state.cargo_snapshot = value
+        if value is not None:
+            # Ship rows now consume the published Mining projection. A pending
+            # Cargo sidecar alone neither replaces nor clears that publication.
+            inventory = MiningInventory(1, 'fixture', ship={
+                item['frontier_name']: item['count'] for item in value['inventory']
+            }, ship_id=1, vehicle_records={'Ship': {'quality': 'confirmed'}})
+            self.main._cargo_mining_ready(inventory)
         self.main._refresh_cargo_live_window(value)
 
     def test_checked_windows_remain_visible_after_15_30_and_60_seconds(self):
@@ -134,7 +145,7 @@ class CargoPresentationTests(unittest.TestCase):
 
     def test_duplicate_and_limpet_changes_keep_windows_and_items(self):
         window = self.start()
-        drone = window.table.item(1, 1)
+        drone = window.ship_panel.table.item(1, 1)
         value = deepcopy(self.state.cargo_snapshot)
         value['timestamp'] = '2020-01-01T00:01:00Z'
         value['inventory'].reverse()
@@ -142,7 +153,7 @@ class CargoPresentationTests(unittest.TestCase):
         for index in range(30):
             self.update(snapshot(index + 2, 40 - index))
             self.hud.follow_target()
-            self.assertIs(window.table.item(1, 1), drone)
+            self.assertIs(window.ship_panel.table.item(1, 1), drone)
             self.assertEqual(drone.text(), str(40 - index))
             self.assertTrue(window.isVisible())
             self.assertTrue(self.hud.isVisible())
@@ -218,12 +229,16 @@ class CargoPresentationTests(unittest.TestCase):
         self.hud.cargo_provider = lambda: None
         with patch.object(window, 'hide', side_effect=AssertionError('hide')), \
                 patch.object(self.hud, 'hide', side_effect=AssertionError('hide')):
+            self.main._cargo_mining_loading()
             self.update(None)
             self.hud.follow_target()
             self.assertTrue(window.isVisible())
-            self.assertEqual(window.summary_label.text(), '–')
+            self.assertEqual(window.ship_panel.summary_label.text(), '– / – t')
             self.assertTrue(self.hud.isVisible())
             self.assertIsNone(self.hud.cargo_data.used)
+        self.update(snapshot(0, 0))
+        self.assertEqual(window.ship_panel.summary_label.text(), '0 / – t')
+        self.assertEqual(window.ship_panel.table.item(0, 0).text(), tr('cargo.live.empty'))
         self.main._set_cargo_live_window_enabled(False)
         self.main._set_cargo_hud_enabled(False)
         for index in range(10):
@@ -233,27 +248,30 @@ class CargoPresentationTests(unittest.TestCase):
 
     def test_rows_quantities_stolen_and_order_reuse(self):
         window = self.start()
-        silver, amount = window.table.item(0, 0), window.table.item(0, 1)
-        drone = window.table.item(1, 0)
-        drone_height = window.table.rowHeight(1)
+        # Exercise snapshot rendering (including stolen metadata), independently
+        # of the aggregate ship quantities published by Mining.
+        window.set_snapshot(snapshot())
+        silver, amount = window.ship_panel.table.item(0, 0), window.ship_panel.table.item(0, 1)
+        drone = window.ship_panel.table.item(1, 0)
+        drone_height = window.ship_panel.table.rowHeight(1)
         value = snapshot(7)
         value["inventory"].reverse()
-        self.update(value)
-        self.assertIs(window.table.item(0, 0), silver)
-        self.assertIs(window.table.item(0, 1), amount)
-        self.assertIs(window.table.item(1, 0), drone)
+        window.set_snapshot(value)
+        self.assertIs(window.ship_panel.table.item(0, 0), silver)
+        self.assertIs(window.ship_panel.table.item(0, 1), amount)
+        self.assertIs(window.ship_panel.table.item(1, 0), drone)
         self.assertEqual(amount.text(), "7 t")
-        self.assertEqual(window.table.rowHeight(1), drone_height)
+        self.assertEqual(window.ship_panel.table.rowHeight(1), drone_height)
         value["inventory"].append(dict(frontier_name="osmium", count=2, stolen=1))
-        self.update(value)
-        self.assertIs(window.table.item(0, 0), silver)
-        self.assertIs(window.table.item(2, 0), drone)
-        self.assertEqual(window.table.item(1, 0).text(), "Osmium · davon 1 t gestohlen")
+        window.set_snapshot(value)
+        self.assertIs(window.ship_panel.table.item(0, 0), silver)
+        self.assertIs(window.ship_panel.table.item(2, 0), drone)
+        self.assertEqual(window.ship_panel.table.item(1, 0).text(), "Osmium · davon 1 t gestohlen")
         self.assertTrue(drone.font().bold())
         value["inventory"] = [item for item in value["inventory"] if item["frontier_name"] != "silver"]
-        self.update(value)
-        self.assertIs(window.table.item(1, 0), drone)
-        self.assertEqual(window.table.item(0, 0).text(), "Osmium · davon 1 t gestohlen")
+        window.set_snapshot(value)
+        self.assertIs(window.ship_panel.table.item(1, 0), drone)
+        self.assertEqual(window.ship_panel.table.item(0, 0).text(), "Osmium · davon 1 t gestohlen")
 
     def test_geometry_and_widgets_survive_themes_inventory_and_reopening(self):
         window = self.start()
@@ -265,13 +283,13 @@ class CargoPresentationTests(unittest.TestCase):
             window.move(80, 90)
             self.app.processEvents()
             geometry = window.geometry()
-            table = window.table
+            table = window.ship_panel.table
             for index in range(4):
                 self.update(snapshot(index + 2))
                 self.app.processEvents()
                 self.assertEqual(window.geometry(), geometry)
-                self.assertIs(window.table, table)
-                self.assertTrue(window.table.item(1, 0).font().bold())
+                self.assertIs(window.ship_panel.table, table)
+                self.assertTrue(window.ship_panel.table.item(1, 0).font().bold())
             window.close()
             self.update(snapshot(10))
             self.assertEqual(window.geometry(), geometry)
@@ -296,11 +314,11 @@ class CargoPresentationTests(unittest.TestCase):
                 window.set_snapshot(dict(vessel="Ship", count=6, inventory=rows))
                 for row in range(3):
                     name = rows[row]["frontier_name"]
-                    self.assertEqual(window.table.item(row, 0).text(),
+                    self.assertEqual(window.ship_panel.table.item(row, 0).text(),
                                      tr_for_language(language, "mining.commodity." + name))
-                self.assertNotEqual(window.table.item(3, 0).text(), "lowtemperaturediamond")
-                self.assertTrue(window.table.item(4, 0).font().bold())
-                self.assertEqual(window.table.item(4, 0).text(),
+                self.assertNotEqual(window.ship_panel.table.item(3, 0).text(), "lowtemperaturediamond")
+                self.assertTrue(window.ship_panel.table.item(4, 0).font().bold())
+                self.assertEqual(window.ship_panel.table.item(4, 0).text(),
                                  tr_for_language(language, "cargo.live.drones"))
 
     def test_localized_multipart_unknown_and_raw_identifier_names(self):
@@ -315,28 +333,32 @@ class CargoPresentationTests(unittest.TestCase):
         self.assertEqual(cargo_item_name(dict(frontier_name="lowtemperaturediamond")), "Low Temperature Diamonds")
         self.assertEqual(cargo_item_name(dict(frontier_name="silver", display_name="Silber")), "Silber")
 
-    def test_missing_sidecar_retains_window_and_context_change_clears_values(self):
+    def test_missing_sidecar_and_context_change_retain_publication_until_loading(self):
         value = snapshot()
         bind_context(self.state, value)
         # This test isolates the supplemental window; HUD retention is below.
         self.hud.set_cargo_enabled(False)
         self.update(value)
         window = self.main._cargo_live_window
-        window.show()  # Even manual displays may not retain unknown data forever.
-        silver = window.table.item(0, 0)
+        window.show()
+        silver = window.ship_panel.table.item(0, 0)
         with patch.object(window, 'hide', wraps=window.hide) as hidden:
             self.update(None)
             self.assertTrue(window.isVisible())
-            self.assertIs(window.table.item(0, 0), silver)
+            self.assertIs(window.ship_panel.table.item(0, 0), silver)
             hidden.assert_not_called()
         self.update(None)
         self.assertFalse(hasattr(window, '_pending_snapshot_timer'))
         self.update(value)
-        self.assertIs(window.table.item(0, 0), silver)
+        self.assertIs(window.ship_panel.table.item(0, 0), silver)
         self.state.ship_cargo_context['session_generation'] = 2
         self.update(None)
+        # Context changes do not independently filter Mining's publication.
+        self.assertIs(window.ship_panel.table.item(0, 0), silver)
+        self.main._cargo_mining_loading()
+        self.assertEqual(window.ship_panel.table.rowCount(), 0)
         self.assertTrue(window.isVisible())
-        self.assertEqual(window.summary_label.text(), '–')
+        self.assertEqual(window.ship_panel.summary_label.text(), '– / – t')
 
     def test_both_presentations_survive_pending_sidecars_without_hide_or_show(self):
         value = snapshot()
@@ -373,7 +395,7 @@ class CargoPresentationTests(unittest.TestCase):
                 status['timestamp'] = '2020-01-01T00:00:03Z'
                 self.hud.follow_target()
                 self.assertEqual(self.hud.cargo_data.used, 12)
-                self.assertEqual(window.table.item(0, 1).text(), '8 t')
+                self.assertEqual(window.ship_panel.table.item(0, 1).text(), '8 t')
 
 
 class CargoHudLagTests(unittest.TestCase):

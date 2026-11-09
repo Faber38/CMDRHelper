@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_31.0": 'Yhteinen lasti-ikkuna näyttää aluksen vasemmalla ja SRV:n oikealla. Molemmilla on omat määrät, kapasiteetit, edistymispalkit ja lastitaulukot. Automaattiset päivitykset sekä tallennettu ikkunan sijainti ja koko säilyvät.',
+    "release.3_9_31.1": 'Aluksen lasti käyttää samaa julkaistua varantonäkymää kuin kaivostaulukko. Olemassa olevat määrät näkyvät värimerkinnästä riippumatta myös varustetietojen puuttuessa tai ollessa epätäydellisiä. Tuntemattomat arvot, vahvistettu nollamäärä ja epäaktiivinen SRV erotetaan toisistaan.',
+    "release.3_9_31.2": 'Lastinäkymän kielipäivitys toimii nyt myös määrien pysyessä ennallaan. Tekstit ovat saatavilla kaikilla kahdellatoista kielellä.',
+    'cargo.live.holds': 'Lastiruumat — alus ja SRV',
+    'cargo.live.no_srv': 'Ei aktiivista SRV:tä',
+    'cargo.live.capacity_stale': 'Viimeisin tunnettu kapasiteetti',
     "release.3_9_30.0": 'Linux-prosessien tarkistukset yhdistetään taustalle eivätkä enää estä käyttöliittymää synkronisesti. Komentajan valinta, saapumisnäyttö ja kuvakaappaukset käyttävät vain ajantasaisia, tarkistettuja prosessitietoja.',
     "release.3_9_30.1": 'Kaivosohjain peruuttaa viivästetyt käynnistyskutsut tuhoamisen jälkeen ja katkaisee signaaliyhteydet turvallisesti. Suljetut ohjaimet eivät enää aloita manuaalisia päivityksiä.',
     "release.3_9_30.2": 'Palkkioiden ja taistelupalkkioiden nollaus käyttää valitun komentajan vahvistettua päiväkirjalähdettä.',

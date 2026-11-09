@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_31.0": 'Ortak kargo penceresi gemiyi solda, SRV’yi sağda gösterir; miktarlar, kapasiteler, ilerleme çubukları ve kargo tabloları ayrıdır. Otomatik güncelleme ile kayıtlı pencere konumu ve boyutu korunur.',
+    "release.3_9_31.1": 'Gemi kargosu, madencilik tablosuyla aynı yayımlanmış stok görünümünü kullanır. Mevcut miktarlar renk işaretlerinden bağımsız olarak ve donanım verileri eksik veya tamamlanmamış olduğunda da görünür kalır. Bilinmeyen değerler, doğrulanmış sıfır stok ve etkin olmayan SRV birbirinden ayrılır.',
+    "release.3_9_31.2": 'Kargo görünümünün dil güncellemesi artık miktarlar değişmediğinde de çalışır. Metinler on iki dilin tamamında mevcuttur.',
+    'cargo.live.holds': 'Kargo bölmeleri — gemi ve SRV',
+    'cargo.live.no_srv': 'Etkin SRV yok',
+    'cargo.live.capacity_stale': 'Son bilinen kapasite',
     "release.3_9_30.0": 'Linux süreç denetimleri arka planda birleştirilir ve artık arayüzü eşzamanlı olarak engellemez. Komutan seçimi, varış gösterimi ve ekran görüntüleri yalnızca güncel, doğrulanmış süreç bilgilerini kullanır.',
     "release.3_9_30.1": 'Madencilik denetleyicisi yok edildikten sonra gecikmeli başlatmaları iptal eder ve sinyal bağlantılarını güvenle keser. Kapatılan denetleyiciler artık elle yenileme başlatmaz.',
     "release.3_9_30.2": 'Ödüllerin ve savaş tahvillerinin sıfırlanması, seçili komutanın doğrulanmış günlük kaynağını kullanır.',
