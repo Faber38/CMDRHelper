@@ -1,4 +1,5 @@
 """One offline mining table, with independent, identity-based settings."""
+from cmdrhelper import performance_profile as profile
 from contextlib import contextmanager
 
 from PySide6.QtCore import QCollator, QLocale, Qt, QTimer, QVariantAnimation, QDateTime, QEvent, QPersistentModelIndex
@@ -403,6 +404,7 @@ class MiningView(QWidget):
                 signal.connect(self._refresh_mission_cargo)
         self._refresh_mission_cargo()
 
+    @profile.measure('slot.mining.refresh_mission_cargo')
     def _refresh_mission_cargo(self, *_):
         possible = current_possible_mission_cargo(self.state)
         for symbol, item in self.items.items():

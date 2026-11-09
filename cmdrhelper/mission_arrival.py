@@ -1,9 +1,10 @@
 """Read-only, session-bound evidence for mission arrival presentation."""
 from dataclasses import dataclass
+from . import performance_profile as profile
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .game_instances import confirmed_selection, inspect_instances, presentation_instances
+from .game_instances import confirmed_selection, inspect_instances, presentation_instances, presentation_is_current
 from .journal_reader import read_journal_delta
 from .journal_files import journal_files
 from .status_reader import read_status_data, utc_timestamp
@@ -117,6 +118,7 @@ class ArrivalSource:
         self.cache = None
         self.confirmed = None
 
+    @profile.measure('arrival.snapshot')
     def snapshot(self, state):
         result = self._snapshot(state)
         if result is None:
@@ -127,83 +129,99 @@ class ArrivalSource:
         manager = getattr(state, 'sources', None)
         if manager is None:
             return None
-        processes = presentation_instances(state, inspect_instances)
-        selected = confirmed_selection(processes, manager.runtimes.values())
-        if selected is None:
-            return None
-        source_id, cid, fid = selected
-        if (cid != getattr(state, 'commander_id', None)
-                or fid != getattr(state, 'commander_fid', None)
-                or getattr(state, 'viewed_commander_id', cid) != cid):
-            return None
-        runtime = manager.runtimes[source_id]
-        session = runtime.processor.sessions[-1]
-        rows = [s for s in runtime.processor.sessions if s.get('commander_id') == cid
-                and s.get('fid_seen') == fid and s.get('attribution_status') == 'identified']
-        projection = runtime.processor.projection_for(rows)
+        inspector = (profile.measure('arrival.inspect_instances')(inspect_instances)
+                     if profile.ENABLED else inspect_instances)
+        with profile.section('arrival.process_check'):
+            processes = presentation_instances(state, inspector)
+        with profile.section('arrival.source_binding'):
+            selected = confirmed_selection(processes, manager.runtimes.values())
+            if selected is None:
+                return None
+            source_id, cid, fid = selected
+            if (cid != getattr(state, 'commander_id', None)
+                    or fid != getattr(state, 'commander_fid', None)
+                    or getattr(state, 'viewed_commander_id', cid) != cid):
+                return None
+            runtime = manager.runtimes[source_id]
+            session = runtime.processor.sessions[-1]
+            rows = [s for s in runtime.processor.sessions if s.get('commander_id') == cid
+                    and s.get('fid_seen') == fid and s.get('attribution_status') == 'identified']
+        with profile.section('arrival.projection'):
+            projection = runtime.processor.projection_for(rows)
         if not projection or projection.get('commander_fid') != fid:
             return None
         path = Path(session['journal_file'])
         try:
-            current = projection.get('latest_journal_session') or {}
-            if (current.get('journal_file') != str(path) or current.get('fid_seen') != fid
-                    or current.get('commander_id') != cid
-                    or current.get('attribution_status') != 'identified'
-                    or path.parent.resolve() != Path(runtime.source.path).resolve()):
-                return None
-            files = journal_files(path.parent)
-            if not files or files[-1] != path:
-                return None
-            stat = path.stat()
-            signature = (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns)
-            if stat.st_size != session.get('last_read_offset') or stat.st_size != session.get('last_complete_line_offset'):
-                return None
-            instance = processes.instances[0]
-            identity = (source_id, runtime.generation, cid, fid, str(path),
-                        session.get('first_event_at'), stat.st_dev, stat.st_ino,
-                        instance.pid, instance.started)
-            if self.cache is None or self.cache[:2] != (identity, signature):
-                events, offset = read_journal_delta(path, 0)
-                after = path.stat()
-                if offset != stat.st_size or signature != (
-                        after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns):
+            with profile.section('arrival.journal_checks'):
+                current = projection.get('latest_journal_session') or {}
+                if (current.get('journal_file') != str(path) or current.get('fid_seen') != fid
+                        or current.get('commander_id') != cid
+                        or current.get('attribution_status') != 'identified'
+                        or path.parent.resolve() != Path(runtime.source.path).resolve()):
                     return None
-                identities = {e.get('FID') for e in events if e.get('event') in ('Commander', 'LoadGame')}
-                if identities != {fid}:
+                files = journal_files(path.parent)
+                if not files or files[-1] != path:
                     return None
-                position = ArrivalPosition()
-                closed = set()
-                login = None
-                for n, event in enumerate(events):
-                    position.feed(event, n)
-                    if event.get('event') == 'LoadGame':
-                        login = (n, event.get('timestamp'))
-                    if event.get('event') in ('MissionCompleted', 'MissionAbandoned', 'MissionFailed'):
-                        closed.add(event.get('MissionID'))
-                self.cache = (identity, signature, position, closed, login)
+                stat = path.stat()
+                signature = (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns)
+                if stat.st_size != session.get('last_read_offset') or stat.st_size != session.get('last_complete_line_offset'):
+                    return None
+                instance = processes.instances[0]
+                identity = (source_id, runtime.generation, cid, fid, str(path),
+                            session.get('first_event_at'), stat.st_dev, stat.st_ino,
+                            *instance.identity)
+            with profile.section('arrival.cache_check'):
+                cache_miss = self.cache is None or self.cache[:2] != (identity, signature)
+            if profile.ENABLED:
+                profile.event('arrival.cache', outcome='cache_miss' if cache_miss else 'cache_hit')
+            if cache_miss:
+                with profile.section('arrival.cache_rebuild'):
+                    events, offset = read_journal_delta(path, 0)
+                    after = path.stat()
+                    if offset != stat.st_size or signature != (
+                            after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns):
+                        return None
+                    identities = {e.get('FID') for e in events if e.get('event') in ('Commander', 'LoadGame')}
+                    if identities != {fid}:
+                        return None
+                    position = ArrivalPosition()
+                    closed = set()
+                    login = None
+                    for n, event in enumerate(events):
+                        position.feed(event, n)
+                        if event.get('event') == 'LoadGame':
+                            login = (n, event.get('timestamp'))
+                        if event.get('event') in ('MissionCompleted', 'MissionAbandoned', 'MissionFailed'):
+                            closed.add(event.get('MissionID'))
+                    self.cache = (identity, signature, position, closed, login)
             _, _, position, closed, login = self.cache
             identity = identity + (login,)
-            status, _ = read_status_data(path.parent / 'Status.json')
-            flags = status.get('Flags')
-            stamp = utc_timestamp(status.get('timestamp'))
-            if (status.get('event') != 'Status' or type(flags) is not int or flags < 0
-                    or stamp < utc_timestamp(session['first_event_at'])
-                    or (login and stamp < utc_timestamp(login[1]))
-                    or (stamp - datetime.now(timezone.utc)).total_seconds() > 5):
-                return None
-            contradiction = bool(flags & ((1 << 4) | (1 << 30)))
-            contradiction |= bool(status.get('BodyName') and position.body and status['BodyName'] != position.body)
-            contradiction |= position.kind == 'body' and status.get('BodyName') != position.body
-            proof = (identity, position.evidence)
-            # A new binding must be confirmed NOW, not merely by a historical
-            # Docked/Touchdown. Afterwards explicit Undocked/Liftoff may retain
-            # the known vicinity until an actual departure/contradiction.
-            physical = bool(flags & (1 if position.kind == 'station' else 2))
-            pending = bool(position.evidence and stamp < utc_timestamp(position.evidence[1]))
-            pending = pending or bool(position.kind and self.confirmed != proof and not physical)
+            with profile.section('arrival.status_read'):
+                status, _ = read_status_data(path.parent / 'Status.json')
+            with profile.section('arrival.status_validation'):
+                flags = status.get('Flags')
+                stamp = utc_timestamp(status.get('timestamp'))
+                if (status.get('event') != 'Status' or type(flags) is not int or flags < 0
+                        or stamp < utc_timestamp(session['first_event_at'])
+                        or (login and stamp < utc_timestamp(login[1]))
+                        or (stamp - datetime.now(timezone.utc)).total_seconds() > 5):
+                    return None
+                contradiction = bool(flags & ((1 << 4) | (1 << 30)))
+                contradiction |= bool(status.get('BodyName') and position.body and status['BodyName'] != position.body)
+                contradiction |= position.kind == 'body' and status.get('BodyName') != position.body
+                proof = (identity, position.evidence)
+                # A new binding must be confirmed NOW, not merely by a historical
+                # Docked/Touchdown. Afterwards explicit Undocked/Liftoff may retain
+                # the known vicinity until an actual departure/contradiction.
+                physical = bool(flags & (1 if position.kind == 'station' else 2))
+                pending = bool(position.evidence and stamp < utc_timestamp(position.evidence[1]))
+                pending = pending or bool(position.kind and self.confirmed != proof and not physical)
             # Revalidate bytes after the sidecar read; no pending journal tail.
-            after = path.stat()
-            if signature != (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns):
+            with profile.section('arrival.journal_recheck'):
+                after = path.stat()
+                if signature != (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns):
+                    return None
+            if not presentation_is_current(state, processes):
                 return None
             if pending or contradiction:
                 self.confirmed = None

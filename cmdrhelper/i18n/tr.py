@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_30.0": 'Linux süreç denetimleri arka planda birleştirilir ve artık arayüzü eşzamanlı olarak engellemez. Komutan seçimi, varış gösterimi ve ekran görüntüleri yalnızca güncel, doğrulanmış süreç bilgilerini kullanır.',
+    "release.3_9_30.1": 'Madencilik denetleyicisi yok edildikten sonra gecikmeli başlatmaları iptal eder ve sinyal bağlantılarını güvenle keser. Kapatılan denetleyiciler artık elle yenileme başlatmaz.',
+    "release.3_9_30.2": 'Ödüllerin ve savaş tahvillerinin sıfırlanması, seçili komutanın doğrulanmış günlük kaynağını kullanır.',
+    "release.3_9_30.3": 'Spansh istasyon verileri 90 gün güncel kalır. Elle yenilemeler tekrarlanabilir; hata araları ve sunucunun istediği bekleme sürelerine uyulur. Hatalarda mevcut veriler korunur.',
+    "release.3_9_30.4": 'İsteğe bağlı performans tanılaması arayüz, çalışan ve süreç sürelerini ölçer. Beklenen dosya tanımlayıcı hataları toplu kaydedilir; etkinleştirilmedikçe tanılama kapalı kalır.',
+
     "release.3_9_29.0": 'Görev kargosu algılaması iyileştirildi.',
     "release.3_9_29.1": 'MissionID olmadan eşleşen ticaret malları için destek.',
     "release.3_9_29.2": 'Mevcut MissionID tabanlı algılama korunur.',
@@ -376,7 +382,6 @@ TRANSLATIONS = {
     'release.3_6.3': 'Kişisel gemi ve carrier resimleri, tür/varsayılan resimler ve görüntüleyici. Gemileri filodan kaldırın veya tüm gemileri yeniden okuyarak geri getirin; satılan gemiler daha güvenilir biçimde tanınır.',
     'release.3_6.4': 'Geliştirilmiş harita, renkli haritalama durumlu değer listesi, Cargo HUD ve navigasyon. Linux, ekran görüntüleri, galeri ve Explorer için daha düşük arka plan yükü.',
     'release.3_6.5': 'Düzeltildi: zararsız kısa Elite günlükleri artık carrier madencilik stoklarının takibini kesintiye uğratmıyor. Veritabanı yükseltmesinden önce artık otomatik olarak doğrulanmış bir yedek oluşturuluyor.',
-    'spansh.refresh_already_today': 'Spansh verileri bugün zaten güncellendi.',
     'stations.local_notice': 'Spansh istasyon verileri devre dışı. Yalnızca kendi günlük verilerindeki istasyonlar gösterilir.',
     'stations.local_notice_settings': 'Ayarlar → Çevrimiçi Hizmetler bölümünden etkinleştir',
     'stations.empty_local': 'Şu anda mevcut olan yerel günlük verilerine göre bu sistemde bilinen bir istasyon veya tesis yok.',
@@ -390,7 +395,12 @@ TRANSLATIONS = {
 
 
     'spansh.enabled': 'Spansh istasyon bilgilerini ekle',
-    'spansh.hint': 'İsteğe bağlı: Otomatik olarak yalnızca yeni canlı sistem varışları sorgulanır. Önbellek 7 gün; komutan bilgisi gönderilmez.',
+    'spansh.status_current': 'İstasyon verileri güncel (90 gün).',
+    'spansh.status_old': 'Eski veya eksik istasyon verileri gösteriliyor.',
+    'spansh.status_missing': 'Henüz tam istasyon listesi yok.',
+    'spansh.status_server_wait': 'Spansh {until} tarihine kadar beklenmesini istiyor.',
+    'spansh.status_server_unknown': 'Spansh bekleme süresi belirtmeden isteği sınırladı.',
+    'spansh.hint': 'İsteğe bağlı: güncel günlük ziyaretlerinde istasyonları denetle. Tam denetimler 90 gün geçerlidir; pazar fiyatları veya komutan aktarımı yoktur.',
     'spansh.distance_ls': 'Varış noktasına uzaklık',
     'spansh.allegiance': 'Bağlılık',
     'spansh.government': 'Yönetim',

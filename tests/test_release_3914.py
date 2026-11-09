@@ -12,11 +12,12 @@ from cmdrhelper.update import is_newer_version
 from tools.publish_release import release_notes, version_at
 
 ROOT = Path(__file__).resolve().parents[1]
+RELEASE_VERSION = '3.9.14'  # Historical release, independent of the running version.
 
 
 class Release3914Tests(unittest.TestCase):
     def test_version_schema_and_upgrade_order(self):
-        self.assertEqual(__version__, '3.9.14')
+        self.assertRegex(__version__, r'^\d+(?:\.\d+)+$')
         self.assertEqual(version_at(ROOT), __version__)
         self.assertEqual(SCHEMA_VERSION, 23)
         self.assertTrue(is_newer_version('3.9.14', '3.9.13'))
@@ -24,10 +25,10 @@ class Release3914Tests(unittest.TestCase):
 
     def test_localized_highlights_match_readmes_publisher_and_updater(self):
         self.addCleanup(set_language, 'de')
-        notes = release_notes(ROOT, __version__)
+        notes = release_notes(ROOT, RELEASE_VERSION)
         metadata = json.loads(re.search(
             r'<!-- cmdrhelper-update-summary\s+(.*?)-->', notes, re.S)[1])
-        keys = RELEASE_SUMMARIES[__version__]
+        keys = RELEASE_SUMMARIES[RELEASE_VERSION]
         self.assertEqual(len(keys), 6)
         self.assertEqual(set(metadata), set(_TRANSLATIONS))
         self.assertEqual(len(metadata), 12)
@@ -37,8 +38,8 @@ class Release3914Tests(unittest.TestCase):
                 self.assertEqual(metadata[language], expected)
                 self.assertTrue(all(expected))
                 set_language(language)
-                self.assertEqual(release_summary(__version__), expected)
-                self.assertEqual(release_summary(__version__, notes), expected)
+                self.assertEqual(release_summary(RELEASE_VERSION), expected)
+                self.assertEqual(release_summary(RELEASE_VERSION, notes), expected)
                 name = 'README.md' if language == 'en' else f'README_{language.upper()}.md'
                 readme = (ROOT / name).read_text()
                 self.assertEqual(readme.count('## CMDRHelper v3.9.14\n'), 1)
@@ -55,7 +56,7 @@ class Release3914Tests(unittest.TestCase):
                        '180000 CP', 'MissionID', 'Qt offscreen',
                        'KDE X11/KWin und Windows steht aus'):
             self.assertIn(phrase, text)
-        expected = [_TRANSLATIONS['de'][key] for key in RELEASE_SUMMARIES[__version__]]
+        expected = [_TRANSLATIONS['de'][key] for key in RELEASE_SUMMARIES[RELEASE_VERSION]]
         self.assertEqual([line[2:] for line in text.splitlines()
                           if line.startswith('- ')], expected)
         self.assertNotRegex(text, r'/home/|/tmp/|Journal\.\d|F\d{8}')

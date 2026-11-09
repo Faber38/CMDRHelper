@@ -1,4 +1,5 @@
 """Trade and Mining share the published ship stock; all data is synthetic."""
+import unittest
 from copy import deepcopy
 from os.path import abspath
 from types import SimpleNamespace
@@ -14,7 +15,7 @@ from cmdrhelper.commodity_master import lookup_by_symbol
 import test_saved_market_cargo_filter as existing
 
 
-class MiningCargoFilterTests(existing.CargoFilterTests):
+class MiningCargoFilterTests(existing.CargoFilterFixture, unittest.TestCase):
     def setUp(self):
         super().setUp()
         self.controller = self.state.mining_inventory_controller

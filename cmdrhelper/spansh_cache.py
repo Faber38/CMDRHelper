@@ -1,6 +1,9 @@
 """Bounded public system knowledge in JSON; this module never opens SQLite."""
+from cmdrhelper import performance_profile as profile
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
+from email.utils import parsedate_to_datetime
+from urllib.error import HTTPError
 import json
 import logging
 import math
@@ -20,7 +23,8 @@ def _cache_lock(root, address):
     with _write_guard:
         return _write_locks.setdefault((str(Path(root).resolve()), address), RLock())
 
-TTL = timedelta(days=7)
+TTL = timedelta(days=90)
+ERROR_PAUSE = timedelta(minutes=5)
 MAX_RESPONSE = 16 * 1024 * 1024
 MAX_CACHE = 2 * 1024 * 1024
 ENDPOINT = 'https://spansh.co.uk/api/dump/'
@@ -88,22 +92,51 @@ def normalize(response, address, now=None):
     The dump's station `id` is the numeric market identifier. System-level
     stations carry no parent; distance or names must never supply one.
     """
-    if not valid_id(address) or not isinstance(response, dict):
+    if not valid_id(address) or not isinstance(response, dict) or response.get('error'):
         raise ValueError('Invalid system address/response')
     system = response.get('system')
     if not isinstance(system, dict) or type(system.get('id64')) is not int or system['id64'] != address:
         raise ValueError('Spansh system identity mismatch')
-    if not isinstance(system.get('name'), str) or not system['name']:
+    if not isinstance(system.get('name'), str) or not system['name'].strip():
         raise ValueError('Missing system name')
+    if system.get('date') is not None and not timestamp(system['date']):
+        raise ValueError('Invalid system timestamp')
     stations = []
     def add(raw, parent=None):
-        if (not isinstance(raw, dict) or is_carrier(raw.get('type'))
+        if not isinstance(raw, dict):
+            raise ValueError('Invalid station record')
+        if (is_carrier(raw.get('type'))
                 or (isinstance(raw.get('services'), list) and any(
                     v in ('Fleet Carrier Fuel', 'Fleet Carrier Management') for v in raw['services']))):
             return
         mid = raw.get('id')
-        if not valid_id(mid) or not isinstance(raw.get('name'), str) or not raw['name']:
-            return
+        if not valid_id(mid) or not isinstance(raw.get('name'), str) or not raw['name'].strip():
+            raise ValueError('Invalid station identity')
+        if raw.get('type') is not None and not isinstance(raw['type'], str):
+            raise ValueError('Invalid station type')
+        for key in ('distanceToArrival', 'latitude', 'longitude'):
+            if raw.get(key) is not None and not number(raw[key]):
+                raise ValueError('Invalid station number')
+        for key in ('services',):
+            if raw.get(key) is not None and (not isinstance(raw[key], list)
+                    or any(not isinstance(v, str) for v in raw[key])):
+                raise ValueError('Invalid station services')
+        for key in ('economies', 'landingPads'):
+            if raw.get(key) is not None and (not isinstance(raw[key], dict)
+                    or any(not isinstance(k, str) or not number(v) or v < 0
+                           for k, v in raw[key].items())):
+                raise ValueError('Invalid station mapping')
+        if raw.get('updateTime') is not None and not timestamp(raw['updateTime']):
+            raise ValueError('Invalid station timestamp')
+        for key in ('allegiance', 'government', 'controllingFaction', 'primaryEconomy', 'secondaryEconomy'):
+            if raw.get(key) is not None and not isinstance(raw[key], str):
+                raise ValueError('Invalid station text')
+        if raw.get('isPlanetary') is not None and type(raw['isPlanetary']) is not bool:
+            raise ValueError('Invalid surface flag')
+        if isinstance(raw.get('landingPads'), dict) and any(
+                type(v) is not int for k, v in raw['landingPads'].items()
+                if k in ('large', 'medium', 'small')):
+            raise ValueError('Invalid pad count')
         row = {'market_id': mid, 'station_name': raw['name']}
         for source, dest in [('type','source_type'), ('allegiance','allegiance'),
                              ('government','government'), ('controllingFaction','controlling_faction'),
@@ -131,22 +164,24 @@ def normalize(response, address, now=None):
         if isinstance(raw.get('services'), list):
             row['services'] = sorted({SERVICES[v] for v in raw['services'] if isinstance(v,str) and v in SERVICES})
         stations.append(row)
-    raw_stations = system.get('stations', [])
-    bodies = system.get('bodies', [])
+    raw_stations = system.get('stations')
+    bodies = system.get('bodies')
     if not isinstance(raw_stations, list) or not isinstance(bodies, list):
         raise ValueError('Invalid station/body list')
     for raw in raw_stations: add(raw)
     for body in bodies:
-        if not isinstance(body, dict) or not isinstance(body.get('stations', []), list):
+        if not isinstance(body, dict) or not isinstance(body.get('stations'), list):
             raise ValueError('Invalid body stations')
         for raw in body.get('stations', []): add(raw, body)
-    # Exact repeated records are harmless; contradictory same-ID records are
-    # ambiguous and are omitted rather than choosing an arbitrary parent.
+    # Exact duplicates are harmless. A contradictory dump must not replace
+    # previously complete knowledge or renew its successful-check timestamp.
     unique, ambiguous = {}, set()
     for row in stations:
         mid = row['market_id']
         if mid in unique and unique[mid] != row: ambiguous.add(mid)
         unique[mid] = row
+    if ambiguous:
+        raise ValueError('Conflicting station identities')
     result = {'schema_version': 1, 'source': 'spansh', 'system_address': address,
               'system_name': system['name'], 'fetched_at': (now or utcnow()).isoformat(),
               'stations': [row for mid,row in sorted(unique.items()) if mid not in ambiguous]}
@@ -207,6 +242,7 @@ class SystemCache:
     def __init__(self, root=None, fetch=fetch_system, now=utcnow):
         self._root = Path(root) if root is not None else None
         self.fetch, self.now = fetch, now
+        self._attempts = {}
 
     @property
     def root(self):
@@ -233,11 +269,6 @@ class SystemCache:
         if data.get('coverage', 'full') != 'full': return False
         age = self.now() - timestamp(data['fetched_at'])
         return timedelta(0) <= age < TTL
-
-    def fetched_today(self, data):
-        """Successful persisted fetch on the current local calendar day."""
-        return bool(data and data.get('coverage', 'full') == 'full' and timestamp(data['fetched_at']).astimezone().date()
-                    == self.now().astimezone().date())
 
     def merge_lookup(self, data):
         """Merge selected stations without renewing a full dump's freshness."""
@@ -292,48 +323,107 @@ class SystemCache:
         finally:
             if name and os.path.exists(name): os.unlink(name)
 
-    def automatic_allowed(self, address):
-        """Attempts, including failures, survive restarts; local calendar day."""
-        path = self.root / 'attempts' / self.path(address).name
-        try:
-            record = json.loads(path.read_text(encoding='utf-8'))
-            return not (record.get('system_address') == address
-                        and record.get('local_date') == self.now().astimezone().date().isoformat())
-        except FileNotFoundError:
-            return True
-        except (OSError, ValueError, AttributeError):
-            # An unreadable protection record must not cause a retry loop.
-            return False
+    def attempt(self, address):
+        """Bounded retry metadata, independent of successful station knowledge.
 
-    def _mark_automatic(self, address):
-        directory = self.root / 'attempts'
-        directory.mkdir(parents=True, exist_ok=True)
-        record = {'system_address': address, 'local_date': self.now().astimezone().date().isoformat()}
+        Legacy local_date records never impose a calendar-day restriction.
+        Memory is also the fallback when persisting a failure is unavailable.
+        """
+        if address in self._attempts:
+            return self._attempts[address]
+        try:
+            path = self.root / 'attempts' / self.path(address).name
+            record = json.loads(path.read_text(encoding='utf-8'))
+            if (isinstance(record, dict) and record.get('system_address') == address
+                    and record.get('kind') in ('error', 'server')
+                    and (record.get('retry_not_before') is None
+                         or timestamp(record['retry_not_before']))):
+                return record
+        except (OSError, ValueError, TypeError):
+            pass
+        return {}
+
+    def server_wait(self, address):
+        record = self.attempt(address)
+        until = timestamp(record.get('retry_not_before'))
+        return record if record.get('kind') == 'server' and until and self.now() < until else None
+
+    def automatic_allowed(self, address):
+        until = timestamp(self.attempt(address).get('retry_not_before'))
+        return until is None or self.now() >= until
+
+    def _store_attempt(self, address, record):
+        self._attempts[address] = record
         name = None
         try:
+            directory = self.root / 'attempts'
+            target = directory / self.path(address).name
+            if not record:
+                target.unlink(missing_ok=True)
+                return
+            directory.mkdir(parents=True, exist_ok=True)
             with tempfile.NamedTemporaryFile(dir=directory, prefix='.attempt-', delete=False) as stream:
                 name = stream.name
                 stream.write(json.dumps(record).encode('utf-8'))
                 stream.flush(); os.fsync(stream.fileno())
-            os.replace(name, directory / self.path(address).name)
+            os.replace(name, target)
+        except OSError:
+            logger.warning('Spansh retry metadata could not be persisted')
         finally:
             if name and os.path.exists(name): os.unlink(name)
 
+    def _record_error(self, address, exc):
+        kind, until = 'error', self.now() + ERROR_PAUSE
+        if isinstance(exc, HTTPError):
+            value = exc.headers.get('Retry-After') if exc.headers else None
+            server_until = None
+            if value:
+                try:
+                    seconds = int(value)
+                    if seconds >= 0:
+                        server_until = self.now() + timedelta(seconds=seconds)
+                except (ValueError, OverflowError):
+                    try:
+                        server_until = parsedate_to_datetime(value)
+                        if server_until.tzinfo is None: server_until = None
+                    except (ValueError, TypeError, OverflowError):
+                        pass
+            if exc.code == 429 or server_until is not None:
+                # No invented server deadline when Retry-After is absent/invalid.
+                kind, until = 'server', server_until
+        self._store_attempt(address, dict(system_address=address, kind=kind,
+            retry_not_before=until.isoformat() if until else None))
+
+    @profile.measure('spansh.request')
     def request(self, address, *, manual=False, automatic=False):
         old = self.read(address)
-        if manual and self.fetched_today(old): return old, None
-        if not manual and old and self.fresh(old): return old, None
+        if profile.ENABLED:
+            profile.event('spansh.lookup', trigger='manual' if manual else 'automatic' if automatic else 'other',
+                cache_age_seconds=max(0, (self.now()-timestamp(old['fetched_at'])).total_seconds()) if old else 0)
+        if not manual and old and self.fresh(old):
+            if profile.ENABLED: profile.event('spansh.result', outcome='cache_hit')
+            return old, None
+        if self.server_wait(address):
+            if profile.ENABLED: profile.event('spansh.result', outcome='server_wait')
+            return old, None
+        if automatic and not self.automatic_allowed(address):
+            if profile.ENABLED: profile.event('spansh.result', outcome='error_pause')
+            return old, None
         try:
-            if automatic:
-                if not self.automatic_allowed(address): return old, None
-                # Persist BEFORE sending, so failures and interrupted requests count.
-                self._mark_automatic(address)
-            data = normalize(self.fetch(address), address, self.now())
+            data = normalize(
+                profile.call('spansh.fetch', self.fetch, address) if profile.ENABLED else self.fetch(address),
+                address, self.now())
             self.write(data)
-            return data, True
-        except Exception:
+        except Exception as exc:
+            self._record_error(address, exc)
+            if profile.ENABLED:
+                profile.event('spansh.result', outcome='error',
+                              http_status=exc.code if isinstance(exc, HTTPError) else 0)
             logger.warning('Spansh unavailable for system %s; using local knowledge', address, exc_info=True)
             return old, False
+        self._store_attempt(address, {})
+        if profile.ENABLED: profile.event('spansh.result', outcome='success', count=len(data['stations']))
+        return data, True
 
     def visit(self, address):
         return self.request(address)[0]

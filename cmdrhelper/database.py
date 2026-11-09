@@ -1,4 +1,5 @@
 from __future__ import annotations
+from cmdrhelper import performance_profile as profile
 
 from cmdrhelper.body_parents import parent_metadata, persist_parents
 
@@ -161,6 +162,63 @@ class _DiagnosticConnection(sqlite3.Connection):
             raise
 
 
+if profile.ENABLED:
+    class _ProfileCursor(sqlite3.Cursor):
+        def execute(self, *args, **kwargs):
+            return profile.sql_call('sql.execute', super().execute, *args, **kwargs)
+
+        def executemany(self, *args, **kwargs):
+            return profile.sql_call('sql.executemany', super().executemany, *args, **kwargs)
+
+        def executescript(self, *args, **kwargs):
+            return profile.sql_call('sql.executescript', super().executescript, *args, **kwargs)
+
+        def fetchone(self, *args, **kwargs):
+            return profile.sql_call('sql.fetchone', super().fetchone, *args, **kwargs)
+
+        def fetchmany(self, *args, **kwargs):
+            return profile.sql_call('sql.fetchmany', super().fetchmany, *args, **kwargs)
+
+        def fetchall(self, *args, **kwargs):
+            return profile.sql_call('sql.fetchall', super().fetchall, *args, **kwargs)
+
+        def __next__(self):
+            return profile.sql_next(super().__next__)
+
+    class _ProfileConnection(_DiagnosticConnection):
+        def cursor(self, *args, **kwargs):
+            if not args and 'factory' not in kwargs:
+                kwargs['factory'] = _ProfileCursor
+            return super().cursor(*args, **kwargs)
+
+        def execute(self, *args, **kwargs):
+            return self.cursor().execute(*args, **kwargs)
+
+        def executemany(self, *args, **kwargs):
+            return self.cursor().executemany(*args, **kwargs)
+
+        def executescript(self, *args, **kwargs):
+            return self.cursor().executescript(*args, **kwargs)
+
+        @profile.measure('db.transaction_exit')
+        def __exit__(self, *args):
+            # sqlite's context exit commits/rolls back; it does NOT close.
+            return super().__exit__(*args)
+
+        @profile.measure('db.commit')
+        def commit(self):
+            return super().commit()
+
+        @profile.measure('db.rollback')
+        def rollback(self):
+            return super().rollback()
+
+        @profile.measure('db.close')
+        def close(self):
+            # Only observe explicit closes; never add one to a context exit.
+            return super().close()
+
+
 class CMDRDatabase:
     def __init__(self, path=None):
         self.path = Path(path) if path else default_database_path()
@@ -195,8 +253,10 @@ class CMDRDatabase:
             raise
         logger.info("Database opened")
 
+    @profile.measure('db.connect')
     def _connect(self):
-        con = sqlite3.connect(self.path, factory=_DiagnosticConnection)
+        con = (profile.call('db.open', sqlite3.connect, self.path, factory=_ProfileConnection)
+               if profile.ENABLED else sqlite3.connect(self.path, factory=_DiagnosticConnection))
         con.execute("PRAGMA foreign_keys = ON")
         con.execute("PRAGMA journal_mode = WAL")
         return con
@@ -534,6 +594,7 @@ class CMDRDatabase:
         from cmdrhelper.powerplay_store import read_day
         return read_day(self, commander_id, day, **kwargs)
 
+    @profile.measure('db.powerplay_merits')
     def powerplay_merits(self, commander_id, *, power=None):
         with self._connect() as con:
             row = con.execute('SELECT total_merits,power FROM pp2_merit_state WHERE commander_id=?',
@@ -565,6 +626,7 @@ class CMDRDatabase:
             con.execute("CREATE INDEX IF NOT EXISTS idx_station_system ON station_observations(system_address)")
             con.execute("PRAGMA user_version=20")
 
+    @profile.measure('db.system_stations')
     def system_stations(self, address, bodies, commander_id=None):
         from cmdrhelper.stations import load_stations
         with self._connect() as con:
@@ -1450,6 +1512,7 @@ class CMDRDatabase:
             })
         return result
 
+    @profile.measure('db.commander_summary')
     def commander_summary(self, commander_id) -> dict | None:
         """Aggregiert ausschließlich persistente Daten der expliziten ID."""
         if commander_id is None:
@@ -3778,6 +3841,7 @@ class CMDRDatabase:
         finally:
             con.close()
 
+    @profile.measure('db.upsert_commander')
     def upsert_commander(self, fid, current_name="", timestamp="") -> int | None:
         """Legt eine per Frontier-FID identifizierte Identität an/aktualisiert sie."""
         fid = str(fid or "").strip()
@@ -4336,6 +4400,7 @@ class CMDRDatabase:
 
         return str(genus or "").strip(), str(species or "").strip()
 
+    @profile.measure('db.learned_bio_values')
     def learned_bio_values(self):
         """
         Liefert vom eigenen Commander tatsächlich verkaufte BIO-Basiswerte.
@@ -6233,6 +6298,7 @@ class CMDRDatabase:
                                         **metadata))
         return changes
 
+    @profile.measure('db.chronicle_system_details')
     def chronicle_system_details(self, system_address, commander_id=None, *, scanned_only=False):
         """
         Lädt ein bereits besuchtes System vollständig aus der lokalen

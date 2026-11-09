@@ -1,10 +1,12 @@
 """GUI-owned source runtimes with one serialized database ingestion worker."""
+from cmdrhelper import performance_profile as profile
 from copy import copy
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import SimpleNamespace
 import hashlib
 import time
+import sys
 from PySide6.QtCore import QObject, QTimer, Signal, Qt, QSettings
 from .journal_sources import SourceRegistry, discover
 from .journal_watcher import JournalWatcher
@@ -40,6 +42,7 @@ class SourceRuntime:
 
 class SourceManager(QObject):
     changed = Signal()
+    processScanReady = Signal()
     finished = Signal(object, int, object, str)
     ingested = Signal(object, int, object)
     edsmUploadChanged = Signal(object, int, str, object)
@@ -87,6 +90,47 @@ class SourceManager(QObject):
         self.timer = QTimer(self)
         self.timer.setInterval(3000)
         self.timer.timeout.connect(self._tick)
+        self._process_scanner = None
+        if sys.platform.startswith('linux'):
+            from .process_scan import ProcessScan
+            self._process_scanner = ProcessScan(inspect_instances, self._process_context, self,
+                allowed=lambda: not self.state._startup_cancel.is_set()
+                and not getattr(self, '_exit_paused', False))
+            self._process_scanner.ready.connect(self._process_ready)
+        self.state.bounties.reset_delegate = self.reset_bounties
+        self.state.combat_bonds.reset_delegate = self.reset_combat_bonds
+
+    def reset_bounties(self, expected_fid):
+        from .bounty_manager import BountyManager
+        return self._reset_source_balance(expected_fid, BountyManager)
+
+    def reset_combat_bonds(self, expected_fid):
+        from .combat_bond_manager import CombatBondManager
+        return self._reset_source_balance(expected_fid, CombatBondManager)
+
+    def _reset_source_balance(self, expected_fid, manager_type):
+        """Reset through the selected source's cursor, never the display facade.
+
+        Resolve again after the confirmation dialog: source and commander may
+        have changed while its nested event loop was running.
+        """
+        state = self.state
+        runtime = self.runtimes.get(self.projected_source)
+        if (runtime is None or not runtime.source.enabled
+                or state.commander_fid != expected_fid
+                or state.viewed_commander_id != state.commander_id):
+            return False
+        session = runtime.processor.sessions[-1] if runtime.processor.sessions else {}
+        if (session.get('attribution_status') != 'identified'
+                or session.get('fid_seen') != expected_fid
+                or session.get('commander_id') != state.commander_id):
+            return False
+        owners = [o for o in runtime.watcher.live_observers if type(o) is manager_type]
+        if len(owners) != 1 or session.get('journal_file') not in owners[0].cursors:
+            return False
+        # _commit updates the shared FID-keyed state and forwards changed to
+        # the existing view; manual_reset also advances the real reader cursor.
+        return owners[0].manual_reset(expected_fid)
 
     def start(self):
         self.reconcile()
@@ -138,6 +182,8 @@ class SourceManager(QObject):
 
     def stop(self):
         self.timer.stop()
+        if self._process_scanner is not None:
+            self._process_scanner.stop()
         self.state.journalPositionsReady.emit([], "")
         for runtime in self.runtimes.values():
             runtime.watcher.stop()
@@ -147,6 +193,7 @@ class SourceManager(QObject):
 
     def reconcile(self):
         self._process_observation.clear()
+        self.invalidate_process_evidence()
         enabled = {s.id: s for s in self.registry.enabled()}
         for identity, runtime in list(self.runtimes.items()):
             if identity not in enabled or runtime.processor.path != Path(enabled[identity].path):
@@ -198,11 +245,16 @@ class SourceManager(QObject):
             watcher.odysseySidecarsChanged.connect(self.state.odysseySidecarsChanged.emit)
             watcher.start()
             self.request(identity)
-        self.changed.emit()
+        if profile.ENABLED:
+            profile.call('signal.changed', self.changed.emit)
+        else:
+            self.changed.emit()
 
     def request(self, identity):
         if identity in self.runtimes and identity not in self.queue:
             self.queue.append(identity)
+            if profile.ENABLED:
+                profile.mark(('source_queue', id(self), identity))
         QTimer.singleShot(0, self._next)
 
     def reimport(self):
@@ -235,6 +287,8 @@ class SourceManager(QObject):
             runtime = self.runtimes.get(identity)
             if runtime is None:
                 continue
+            if profile.ENABLED:
+                profile.receive(('source_queue', id(self), identity), 'source.queue_wait')
             self.running = True
             self._ingesting = True
             self._local_published = False
@@ -272,6 +326,8 @@ class SourceManager(QObject):
                         label = bound_source.name + (': ' + filename if filename else '')
                         startup.emit(self.state, 'initializationProgress', 0, 0, phase, label)
                     was_initialized = rt.processor.initialized
+                    if profile.ENABLED:
+                        profile.mark(('source_gui', id(self), rt.source.id, rt.generation))
                     rows = rt.processor.process(cancel=self.state._startup_cancel, enqueue_fids=allowed,
                                                 progress=progress if report_startup else None)
                     rt.failure_retryable = False
@@ -279,6 +335,8 @@ class SourceManager(QObject):
                     rt.live_events = list(rt.processor.context.get('applied_events', [])) if was_initialized else []
                     # The processor has committed and completed its verified
                     # projection. Upload completion is not a publication barrier.
+                    if profile.ENABLED:
+                        profile.mark(('source_handoff', id(self), rt.source.id, rt.generation))
                     self.ingested.emit(rt.source.id, rt.generation, rows)
                     if defer_services:
                         self.finished.emit(rt.source.id, rt.generation, rows, '')
@@ -310,7 +368,10 @@ class SourceManager(QObject):
 
             startup.start(self.state, worker, 'CMDRHelper-Source',
                           lambda exc: self.finished.emit(identity, runtime.generation, None, type(exc).__name__), ())
-            self.changed.emit()
+            if profile.ENABLED:
+                profile.call('signal.changed', self.changed.emit)
+            else:
+                self.changed.emit()
             return
         self._complete_startup_if_ready()
 
@@ -323,6 +384,8 @@ class SourceManager(QObject):
         observe(self.state, fid, (identity, generation), result)
 
     def _ingested(self, identity, generation, rows):
+        if profile.ENABLED:
+            profile.receive(('source_handoff', id(self), identity, generation), 'source.handoff')
         runtime = self.runtimes.get(identity)
         if (self.state._startup_cancel.is_set() or runtime is None
                 or runtime.generation != generation):
@@ -337,6 +400,7 @@ class SourceManager(QObject):
             self.request(identity)  # Run deferred transfers through the existing worker.
 
     @process_observation_batch
+    @profile.measure('source.gui_publish')
     def _publish_local(self, identity, generation, rows, error):
         inventory_changed = False
         runtime = self.runtimes.get(identity)
@@ -378,10 +442,19 @@ class SourceManager(QObject):
         self.choose()
         self.refresh_selected()
         if inventory_changed:
-            self.state.inventoryChanged.emit()
-        self.state.changed.emit()
+            if profile.ENABLED:
+                profile.call('signal.inventoryChanged', self.state.inventoryChanged.emit)
+            else:
+                self.state.inventoryChanged.emit()
+        if profile.ENABLED:
+            profile.call('signal.changed', self.state.changed.emit)
+        else:
+            self.state.changed.emit()
+        if profile.ENABLED:
+            profile.receive(('source_gui', id(self), identity, generation), 'journal.to_gui')
 
     @process_observation_batch
+    @profile.measure('source.finished')
     def _finished(self, identity, generation, rows, error):
         self.running = False
         self._ingesting = False
@@ -410,32 +483,52 @@ class SourceManager(QObject):
         else:
             # Transfer status is independent of the already published local batch.
             # Do not replay its events or increment inventory revisions again.
-            self.state.changed.emit()
+            if profile.ENABLED:
+                profile.call('signal.changed', self.state.changed.emit)
+            else:
+                self.state.changed.emit()
         self._finish_startup_source(identity, generation, error)
-        self.changed.emit()
+        if profile.ENABLED:
+            profile.call('signal.changed', self.changed.emit)
+        else:
+            self.changed.emit()
         self._next()
 
     @process_observation_batch
+    @profile.measure('source.tick')
     def _tick(self):
-        self.snapshot = inspect_instances()
+        if getattr(self, '_exit_paused', False) or self.state._startup_cancel.is_set():
+            return
+        scanner = getattr(self, '_process_scanner', None)
+        if scanner is None:
+            self.snapshot = inspect_instances()
+        else:
+            scanner.request()
+            self.snapshot = ProcessSnapshot(False)
         self.choose()
-        for identity, runtime in self.runtimes.items():
-            if not runtime.processor.initialized and runtime.source.status != 'reading':
-                self.request(identity)
-            elif time.monotonic() - runtime.last_transfer_at >= 30:
-                if any(self.state.edsm_settings_for_fid(fid)['enabled']
-                       or self.state.inara_settings_for_fid(fid)['enabled']
-                       for fid, _ in runtime.source.identities):
+        with profile.section('source.transfer_check'):
+            for identity, runtime in self.runtimes.items():
+                if not runtime.processor.initialized and runtime.source.status != 'reading':
                     self.request(identity)
+                elif time.monotonic() - runtime.last_transfer_at >= 30:
+                    if any(self.state.edsm_settings_for_fid(fid)['enabled']
+                           or self.state.inara_settings_for_fid(fid)['enabled']
+                           for fid, _ in runtime.source.identities):
+                        self.request(identity)
         self.refresh_selected()
 
+    @profile.measure('source.choose')
     def choose(self):
         state = self.state
-        selected = confirmed_selection(self.snapshot, self.runtimes.values())
+        processes = self._current_processes()
+        selected = confirmed_selection(processes, self.runtimes.values())
         if selected and state.follow_live_commander:
-            self.preferred_source, cid, fid = selected
+            source, cid, fid = selected
             if any(c['id'] == cid and c['fid'] == fid for c in state.database.list_commanders()):
-                self._select(cid)
+                scanner = getattr(self, '_process_scanner', None)
+                if scanner is not None and not scanner.current(processes):
+                    return
+                self._select(cid, processes=processes, source=source)
         elif state.viewed_commander_id is None:
             # First use only: a sole known commander needs no extra setup.
             known = state.database.list_commanders()
@@ -443,33 +536,59 @@ class SourceManager(QObject):
                     and not state.settings.value('commander_view/fid', '')):
                 self._select(known[0]['id'])
 
-    def _select(self, cid):
+    @profile.measure('source.select')
+    def _select(self, cid, *, processes=None, source=None):
         self._process_observation.clear()
         state = self.state
         changed = state.viewed_commander_id != cid
+        with profile.section('source.select_commander'):
+            commander = next(c for c in state.database.list_commanders() if c['id'] == cid)
+        scanner = getattr(self, '_process_scanner', None)
+        if processes is not None and scanner is not None and not scanner.current(processes):
+            return
         state.viewed_commander_id = cid
-        state.settings.setValue('commander_view/viewed_commander_id', cid)
-        commander = next(c for c in state.database.list_commanders() if c['id'] == cid)
-        state.settings.setValue('commander_view/fid', commander['fid'])
-        state.settings.setValue('commander_view/follow_live', state.follow_live_commander)
-        state.settings.setValue('commander_view/source_id', self.preferred_source)
-        state.settings.sync()
+        if source is not None:
+            self.preferred_source = source
+        values = {'viewed_commander_id': cid, 'fid': commander['fid'],
+                  'follow_live': state.follow_live_commander, 'source_id': self.preferred_source}
+        settings_changed = False
+        for name, value in values.items():
+            key = 'commander_view/' + name
+            # Read current settings, not a private cache: other callers also
+            # change these keys. INI values may be strings after a restart.
+            try:
+                with profile.section('source.settings_compare'):
+                    equal = (state.settings.contains(key)
+                             and state.settings.value(key, type=type(value)) == value)
+            except (TypeError, ValueError):
+                equal = False
+            if not equal:
+                with profile.section('source.settings_write'):
+                    state.settings.setValue(key, value)
+                settings_changed = True
+        if settings_changed or state.settings.status() != QSettings.NoError:
+            with profile.section('source.settings_sync'):
+                state.settings.sync()
         if changed:
-            state.viewedCommanderChanged.emit(cid)
+            with profile.section('signal.viewedCommanderChanged'):
+                state.viewedCommanderChanged.emit(cid)
 
     def _clear_market_observer(self):
         if self.state.observed_markets is not self._unselected_markets:
             self.state.observed_markets = self._unselected_markets
             self.projection_key = None
-            self.state.observedMarketsChanged.emit()
+            with profile.section('signal.observedMarketsChanged'):
+                self.state.observedMarketsChanged.emit()
 
+    @profile.measure('source.project')
     def refresh_selected(self):
         state = self.state
         if self._ingesting or self.projecting or state._startup_cancel.is_set():
             if self._ingesting and state.viewed_commander_id != state.commander_id:
                 # A user selection must retire the previous commander's status
                 # even while the new local projection is still unavailable.
-                state.journalPositionsReady.emit([], "")
+                with profile.section('signal.journalPositionsReady'):
+                    state.journalPositionsReady.emit([], "")
             return False
         cid = state.viewed_commander_id
         summary = state.database.commander_summary(cid) if cid is not None else None
@@ -490,7 +609,8 @@ class SourceManager(QObject):
             if state.commander_id != cid or self.projected_source is not None:
                 state._invalidate_inara_worker()
                 state._invalidate_edsm_worker()
-                state.journalPositionsReady.emit([], "")
+                with profile.section('signal.journalPositionsReady'):
+                    state.journalPositionsReady.emit([], "")
                 state.reset_commander_runtime_state()
                 self.projected_source = None
                 self.projection_key = None
@@ -502,8 +622,10 @@ class SourceManager(QObject):
                 state._restore_persistent_commander_state(summary)
                 state._load_live_edsm_settings()
                 state._load_live_inara_settings()
-                state.commanderIdentityChanged.emit(cid, fid, state.commander)
-                state.changed.emit()
+                with profile.section('signal.commanderIdentityChanged'):
+                    state.commanderIdentityChanged.emit(cid, fid, state.commander)
+                with profile.section('signal.changed'):
+                    state.changed.emit()
             return True
         runtime, rows = pair
         try:
@@ -533,15 +655,18 @@ class SourceManager(QObject):
             return False
         # Bind presentation to verified bytes, not to the latest notification
         # from an unrelated watcher. No ingestion runs during this projection.
+        same_spansh_source = self.projected_source == runtime.source.id
         self.projecting = True
         if self.projected_source != runtime.source.id:
             state._invalidate_inara_worker()
             state._invalidate_edsm_worker()
-            state.journalPositionsReady.emit([], "")
+            with profile.section('signal.journalPositionsReady'):
+                state.journalPositionsReady.emit([], "")
             state.reset_commander_runtime_state()
         self.projected_source = runtime.source.id
         self.preferred_source = runtime.source.id
-        state.settings.setValue('commander_view/source_id', self.preferred_source)
+        with profile.section('source.settings_write'):
+            state.settings.setValue('commander_view/source_id', self.preferred_source)
         state.watcher = runtime.watcher
         state.observed_markets = runtime.observed_markets
         state.odyssey_carrier_tracking = runtime.tracking
@@ -554,7 +679,17 @@ class SourceManager(QObject):
             and runtime.source.status == 'ready')
         state._source_projection_events = [e for path, event_fid, e in runtime.live_events
             if path == current.get('journal_file') and event_fid == fid]
-        selected = confirmed_selection(self.snapshot, self.runtimes.values())
+        processes = self._current_processes()
+        selected = confirmed_selection(processes, self.runtimes.values())
+        scanner = getattr(self, '_process_scanner', None)
+        if scanner is not None and not scanner.current(processes):
+            selected = None
+        # Spansh consumes committed current-source positions, not process evidence.
+        # Never carry an entry across a source/view switch or an archive projection.
+        state._spansh_live_refresh = bool(state._source_projection_events
+            and state._source_live_context and same_spansh_source
+            and runtime.source.enabled and current.get('commander_id') == cid
+            and current.get('fid_seen') == fid)
         state._watcher_live_refresh = bool(state._source_projection_events and selected
             and selected[0] == runtime.source.id and selected[2] == fid)
         try:
@@ -567,8 +702,42 @@ class SourceManager(QObject):
             state._source_projection_data = None
             state._source_projection_events = []
             state._watcher_live_refresh = False
+            state._spansh_live_refresh = False
             self.projecting = False
 
     def rediscover(self):
         self.registry.merge(discover())
         self.reconcile()
+
+    def invalidate_process_evidence(self):
+        scanner = getattr(self, '_process_scanner', None)
+        if scanner is not None:
+            scanner.invalidate()
+            self.snapshot = ProcessSnapshot(False)
+
+    def _process_context(self):
+        # Immutable GUI-side identity fence; never passed to diagnostic output.
+        # Byte offsets are not identity: routine appends need not starve scans.
+        return tuple((key, rt.generation, rt.source.path, rt.source.enabled,
+                      rt.source.status, tuple((s.get('journal_file'), s.get('commander_id'),
+                      s.get('fid_seen'), s.get('attribution_status'), s.get('first_event_at'))
+                      for s in rt.processor.sessions[-1:]))
+                     for key, rt in sorted(self.runtimes.items()))
+
+    def _current_processes(self):
+        if getattr(self, '_exit_paused', False) or self.state._startup_cancel.is_set():
+            return ProcessSnapshot(False)
+        scanner = getattr(self, '_process_scanner', None)
+        return scanner.read() if scanner is not None else self.snapshot
+
+    def _process_ready(self):
+        if self.state._startup_cancel.is_set() or getattr(self, '_exit_paused', False):
+            return
+        self.snapshot = self._current_processes()
+        previous = (self.state.viewed_commander_id, self.preferred_source)
+        self.choose()
+        # Journal publication and the existing source timer own ordinary
+        # refreshes. A process result only projects a newly selected source/view.
+        if previous != (self.state.viewed_commander_id, self.preferred_source):
+            self.refresh_selected()
+        self.processScanReady.emit()

@@ -3,6 +3,7 @@
 No executor is replaced. Completion stays queued behind the worker's result
 signals, so an idle thread alone never counts as an applied result.
 """
+from cmdrhelper import performance_profile as profile
 import threading
 import time
 from weakref import WeakSet
@@ -23,8 +24,11 @@ class _Tracked(QRunnable):
         self.submitted_at = time.monotonic()
         self.started_at = self.finished_at = None
 
+    @profile.measure('worker.pool')
     def run(self):
         self.started_at = time.monotonic()
+        if profile.ENABLED:
+            profile.event('worker.queue_wait', duration_ms=(self.started_at-self.submitted_at)*1000)
         try:
             self.task.run()
         except Exception:
@@ -32,6 +36,8 @@ class _Tracked(QRunnable):
             raise
         finally:
             self.finished_at = time.monotonic()
+            if profile.ENABLED:
+                profile.mark(('pool', id(self.signals), self.token))
             self.signals.ready.emit(self.token)
 
 
@@ -51,6 +57,8 @@ class ExitTasks(QObject):
 
     @Slot(int)
     def completed(self, token):
+        if profile.ENABLED:
+            profile.receive(('pool', id(self.signals), token), 'worker.handoff')
         entry = self.tasks.pop(token, None)
         if entry and self.draining and getattr(entry[1], '_exit_failed', False):
             self.failures.append(entry[1])

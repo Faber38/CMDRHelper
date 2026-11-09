@@ -1,4 +1,5 @@
 from __future__ import annotations
+from cmdrhelper import performance_profile as profile
 from cmdrhelper.exit_tasks import submit
 
 from contextlib import contextmanager
@@ -438,6 +439,7 @@ class CommanderView(QWidget):
         if getattr(self, "_refresh_dirty", True):
             self.refresh()
 
+    @profile.measure('slot.commander.refresh')
     def refresh(self, *args):
         blocked = self.follow_live_checkbox.blockSignals(True)
         self.follow_live_checkbox.setChecked(self.state.follow_live_commander)

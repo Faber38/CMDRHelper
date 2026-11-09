@@ -1,10 +1,12 @@
 """Immutable source/FID-bound service jobs. No UI-selected identity is consulted."""
+from cmdrhelper import performance_profile as profile
 from pathlib import Path
 from .edsm_uploader import EDSMJournalUploader
 from .inara_uploader import BATCH_SIZE, upload_batch, InaraUploadError
 from .journal_reader import classify_journal_file
 
 
+@profile.measure('worker.online_transfers')
 def transfer(database, source, sessions, configs, settings, *, is_current, legacy_folder, source_folders,
              edsm_status=None):
     def notify(fid, result):
@@ -31,7 +33,8 @@ def transfer(database, source, sessions, configs, settings, *, is_current, legac
                 legacy_folder=legacy_folder, source_folders=source_folders,
                 on_upload_start=lambda fid=fid: notify(fid, {'running': True}))
             try:
-                results[(fid, 'edsm')] = uploader.process_folder(Path(source.path))
+                results[(fid, 'edsm')] = (profile.call('worker.edsm', uploader.process_folder, Path(source.path))
+                    if profile.ENABLED else uploader.process_folder(Path(source.path)))
             except Exception:
                 notify(fid, {'error': 'EDSM-Upload fehlgeschlagen.',
                              'upload_attempted': uploader._upload_attempted})
@@ -58,7 +61,9 @@ def transfer(database, source, sessions, configs, settings, *, is_current, legac
         database.validate_inara_request(cid, fid, eligible)
         retry = 0
         try:
-            sent, errors = upload_batch(inara['api_key'], inara.get('commander') or '', fid, eligible)
+            sent, errors = (profile.call('worker.inara', upload_batch, inara['api_key'],
+                inara.get('commander') or '', fid, eligible) if profile.ENABLED else
+                upload_batch(inara['api_key'], inara.get('commander') or '', fid, eligible))
         except InaraUploadError as exc:
             sent, errors = [], {r['id']: str(exc) for r in eligible}
             retry = exc.retry_seconds or 0

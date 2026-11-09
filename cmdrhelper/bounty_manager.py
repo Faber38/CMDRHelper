@@ -38,6 +38,7 @@ class BountyManager(QObject):
         self.boundary = None
         self.initial_path = None
         self.armed = False
+        self.reset_delegate = None  # Presentation-only managers have no journal cursor.
 
     @property
     def storage_error(self):
@@ -286,7 +287,11 @@ class BountyManager(QObject):
         Read-only journal access also includes complete events not delivered by
         the watcher yet. A changed Commander or unverified file fails closed.
         """
-        if not expected_fid or self.fid != expected_fid or not self.cursors:
+        if not expected_fid or self.fid != expected_fid:
+            return False
+        if self.reset_delegate is not None:
+            return self.reset_delegate(expected_fid)
+        if not self.cursors:
             return False
         key = max(self.cursors, key=lambda item: journal_sort_key(Path(item)))
         cursor = self.cursors[key]

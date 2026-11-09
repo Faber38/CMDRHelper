@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_30.0": 'Linux-Prozessprüfungen laufen gebündelt im Hintergrund und blockieren die Oberfläche nicht mehr synchron. Commander-Zuordnung, Ankunftsanzeige und Screenshots verwenden nur aktuelle, geprüfte Prozessinformationen.',
+    "release.3_9_30.1": 'Der Mining-Controller verwirft verzögerte Startaufrufe nach seiner Zerstörung und trennt seine Signalverbindungen sicher. Geschlossene Controller starten keine manuelle Aktualisierung mehr.',
+    "release.3_9_30.2": 'Das Zurücksetzen von Kopfgeldprämien und Kampfbelohnungen verwendet die bestätigte Journalquelle des ausgewählten Commanders.',
+    "release.3_9_30.3": 'Spansh-Stationsdaten bleiben 90 Tage frisch. Manuelle Aktualisierungen sind erneut möglich; Fehlerpausen und vom Server angeordnete Wartezeiten werden berücksichtigt. Vorhandene Daten bleiben bei Fehlern erhalten.',
+    "release.3_9_30.4": 'Optionale Performance-Diagnose erfasst GUI-, Worker- und Prozesszeiten. Erwartete Dateideskriptorfehler werden aggregiert statt einzeln protokolliert; ohne Aktivierung bleibt die Diagnose aus.',
+
     "release.3_9_29.0": 'Verbesserte Erkennung von Missionsfracht.',
     "release.3_9_29.1": 'Unterstützung passender Handelsware ohne MissionID.',
     "release.3_9_29.2": 'Bestehende MissionID-basierte Erkennung bleibt erhalten.',
@@ -376,7 +382,6 @@ TRANSLATIONS = {
     'release.3_6.3': 'Persönliche Schiffs- und Carrierbilder, Typ-/Standardbilder und Bildviewer. Schiffe lassen sich aus der Flotte entfernen und über „Alle Schiffe neu einlesen“ wiederherstellen; verkaufte Schiffe werden zuverlässiger erkannt.',
     'release.3_6.4': 'Verbesserte Systemkarte, Wertliste mit farbigem Kartierungsstatus, Cargo-HUD und Navigation. Weniger Hintergrundlast unter Linux sowie bei Screenshots, Galerie und Explorer.',
     'release.3_6.5': 'Behoben: Harmlose kurze Elite-Journale unterbrechen die Erfassung der Mining-Carrierbestände nicht mehr. Vor dem Datenbank-Upgrade wird automatisch eine geprüfte Sicherung erstellt.',
-    'spansh.refresh_already_today': 'Spansh-Daten wurden heute bereits aktualisiert.',
     'stations.local_notice': 'Spansh-Stationsdaten sind deaktiviert. Es werden nur Stationen aus deinen eigenen Journal-Daten angezeigt.',
     'stations.local_notice_settings': 'Aktivieren unter Einstellungen → Online-Dienste',
     'stations.empty_local': 'Aus den aktuell verfügbaren lokalen Journal-Daten sind keine Stationen oder Einrichtungen in diesem System bekannt.',
@@ -390,7 +395,12 @@ TRANSLATIONS = {
 
 
     'spansh.enabled': 'Spansh-Stationsinformationen ergänzen',
-    'spansh.hint': 'Optional: Automatisch nur neue Live-Systemeintritte abfragen. Cache 7 Tage; keine Commanderinformationen senden.',
+    'spansh.status_current': 'Stationsdaten aktuell (90 Tage).',
+    'spansh.status_old': 'Alte oder unvollständige Stationsdaten werden angezeigt.',
+    'spansh.status_missing': 'Noch keine vollständigen Stationsdaten vorhanden.',
+    'spansh.status_server_wait': 'Spansh fordert eine Wartezeit bis {until}.',
+    'spansh.status_server_unknown': 'Spansh hat die Anfrage begrenzt, aber keine Wartezeit angegeben.',
+    'spansh.hint': 'Optional: Stationslisten bei aktuellen Journal-Systembesuchen prüfen. Vollständige Prüfungen gelten 90 Tage; keine Marktpreise und keine Commanderübertragung.',
     'spansh.distance_ls': 'Entfernung zum Ankunftspunkt',
     'spansh.allegiance': 'Zugehörigkeit',
     'spansh.government': 'Regierung',

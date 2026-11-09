@@ -91,6 +91,26 @@ class ManagerTests(unittest.TestCase):
             time.sleep(.01)
         self.fail('source work did not finish')
 
+    def observe_processes(self, snapshot):
+        """Deliver real worker results; identity tests use a fixed freshness clock.
+
+        Slow/expired real-time delivery is covered in test_process_scan.
+        """
+        scanner = self.state.sources._process_scanner
+        scanner.invalidate()
+        # Finish any earlier request before replacing its synthetic inspector.
+        deadline = time.monotonic()+3
+        while scanner.pending and time.monotonic() < deadline:
+            self.app.processEvents(); time.sleep(.001)
+        self.assertFalse(scanner.pending)
+        scanner._clock = lambda: 100.
+        scanner._inspector = lambda: snapshot
+        scanner.request()
+        deadline = time.monotonic()+3
+        while scanner.pending and time.monotonic() < deadline:
+            self.app.processEvents(); time.sleep(.001)
+        self.assertFalse(scanner.pending)
+
     def test_all_sources_ingested_and_manual_switch_projects_identity(self):
         state = self.state
         self.assertEqual(len(state.sources.runtimes), 2)
@@ -155,7 +175,8 @@ class ManagerTests(unittest.TestCase):
         for active, viewed in (runtimes, runtimes[::-1]):
             self.state.select_viewed_commander(viewed.processor.sessions[-1]['commander_id'])
             journal = active.processor.sessions[-1]['journal_file']
-            snapshot = ProcessSnapshot(True, [GameInstance(123, 0, journals=(journal,))])
+            snapshot = ProcessSnapshot(True, [GameInstance(123, 0, journals=(journal,), start_ticks=100)])
+            self.observe_processes(snapshot)
             with patch('cmdrhelper.screenshot_sources.inspect_instances', return_value=snapshot):
                 context = live_context(self.state)
                 self.assertIsNotNone(context)
@@ -211,13 +232,13 @@ class ManagerTests(unittest.TestCase):
         state.set_follow_live_commander(True)
         for runtime in state.sources.runtimes.values():
             path = runtime.processor.sessions[-1]['journal_file']
-            instance = GameInstance(10, 0, journals=(str(Path(path).resolve()),))
-            state.sources.snapshot = ProcessSnapshot(True, [instance])
+            instance = GameInstance(10, 0, journals=(str(Path(path).resolve()),), start_ticks=100)
+            self.observe_processes(ProcessSnapshot(True, [instance]))
             state.sources.choose(); state.sources.refresh_selected()
             self.assertEqual(state.commander_fid, runtime.processor.sessions[-1]['fid_seen'])
         before = state.viewed_commander_id
         for snapshot in (ProcessSnapshot(True), ProcessSnapshot(False), ProcessSnapshot(True, [instance, instance])):
-            state.sources.snapshot = snapshot
+            self.observe_processes(snapshot)
             state.sources.choose()
             self.assertEqual(state.viewed_commander_id, before)
 
@@ -327,7 +348,8 @@ class ManagerTests(unittest.TestCase):
         state.set_follow_live_commander(True)
         runtime = list(state.sources.runtimes.values())[-1]
         path = runtime.processor.sessions[-1]['journal_file']
-        state.sources.snapshot = ProcessSnapshot(True, [GameInstance(7, 0, journals=(str(Path(path).resolve()),))])
+        self.observe_processes(ProcessSnapshot(True, [GameInstance(7, 0,
+            journals=(str(Path(path).resolve()),), start_ticks=100)]))
         state.sources.choose(); state.sources.refresh_selected()
         selected = state.commander_fid
         self.shutdown()

@@ -12,21 +12,22 @@ from cmdrhelper.update import is_newer_version
 from tools.publish_release import release_notes, version_at
 
 ROOT = Path(__file__).resolve().parents[1]
+RELEASE_VERSION = '3.9.13'  # Historical release, independent of the running version.
 
 
 class Release3913Tests(unittest.TestCase):
     def test_version_schema_and_upgrade_order(self):
-        self.assertEqual(__version__, '3.9.13')
+        self.assertRegex(__version__, r'^\d+(?:\.\d+)+$')
         self.assertEqual(version_at(ROOT), __version__)
         self.assertEqual(SCHEMA_VERSION, 23)
         self.assertTrue(is_newer_version('3.9.13', '3.9.12'))
         self.assertFalse(is_newer_version('3.9.12', '3.9.13'))
 
     def test_localized_highlights_match_readmes_and_publisher(self):
-        notes = release_notes(ROOT, __version__)
+        notes = release_notes(ROOT, RELEASE_VERSION)
         metadata = json.loads(re.search(
             r'<!-- cmdrhelper-update-summary\s+(.*?)-->', notes, re.S)[1])
-        keys = RELEASE_SUMMARIES[__version__]
+        keys = RELEASE_SUMMARIES[RELEASE_VERSION]
         self.assertEqual(len(keys), 6)
         self.assertEqual(set(metadata), set(_TRANSLATIONS))
         self.assertEqual(len(metadata), 12)
@@ -51,6 +52,6 @@ class Release3913Tests(unittest.TestCase):
                        'Konflikt-CP-Umrechnung ist nicht implementiert',
                        'Qt offscreen', 'KDE X11/KWin und Windows steht aus'):
             self.assertIn(phrase, text)
-        expected = [_TRANSLATIONS['de'][key] for key in RELEASE_SUMMARIES[__version__]]
+        expected = [_TRANSLATIONS['de'][key] for key in RELEASE_SUMMARIES[RELEASE_VERSION]]
         self.assertEqual([line[2:] for line in text.splitlines()
                           if line.startswith('- ')], expected)

@@ -38,6 +38,14 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.30
+
+- Linux-prosessien tarkistukset yhdistetään taustalle eivätkä enää estä käyttöliittymää synkronisesti. Komentajan valinta, saapumisnäyttö ja kuvakaappaukset käyttävät vain ajantasaisia, tarkistettuja prosessitietoja.
+- Kaivosohjain peruuttaa viivästetyt käynnistyskutsut tuhoamisen jälkeen ja katkaisee signaaliyhteydet turvallisesti. Suljetut ohjaimet eivät enää aloita manuaalisia päivityksiä.
+- Palkkioiden ja taistelupalkkioiden nollaus käyttää valitun komentajan vahvistettua päiväkirjalähdettä.
+- Spansh-asematiedot pysyvät tuoreina 90 päivää. Manuaaliset päivitykset voidaan toistaa; virhetaukoja ja palvelimen määräämiä odotusaikoja noudatetaan. Aiemmat tiedot säilyvät virhetilanteissa.
+- Valinnainen suorituskykydiagnostiikka mittaa käyttöliittymän, taustatehtävien ja prosessien aikoja. Odotetut tiedostokuvaajavirheet kootaan yhteen; diagnostiikka pysyy poissa käytöstä, ellei sitä aktivoida.
+
 ## CMDRHelper v3.9.28
 
 - Avoimet tavaratehtävät näyttävät kelvollisen alusrahdin tiedoissa, taulukon tilassa ja seuraavassa vaiheessa. Toimitukset pysyvät erillään; useat tehtävät jakavat varaston ilman varauksia.

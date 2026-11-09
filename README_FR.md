@@ -38,6 +38,14 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.9.30
+
+- Les vérifications des processus Linux sont regroupées en arrière-plan et ne bloquent plus directement l’interface. La sélection du commandant, les arrivées et les captures utilisent uniquement des informations de processus actuelles et vérifiées.
+- Le contrôleur minier annule les démarrages différés après sa destruction et déconnecte ses signaux. Un contrôleur fermé ne lance plus d’actualisation manuelle.
+- La remise à zéro des primes et obligations de combat utilise la source de journal vérifiée du commandant sélectionné.
+- Les données des stations Spansh restent à jour pendant 90 jours. Les actualisations manuelles peuvent être répétées ; les pauses après erreur et les délais imposés par le serveur sont respectés. Les données existantes sont conservées en cas d’échec.
+- Le diagnostic de performance facultatif mesure les durées de l’interface, des tâches et des processus. Les erreurs attendues de descripteurs de fichiers sont agrégées ; le diagnostic reste désactivé sans activation explicite.
+
 ## CMDRHelper v3.9.28
 
 - Les missions de marchandises ouvertes affichent la cargaison valide du vaisseau dans les détails, le statut du tableau et la prochaine étape. Les livraisons restent distinctes ; plusieurs missions partagent le stock sans réservation.

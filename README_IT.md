@@ -38,6 +38,14 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## CMDRHelper v3.9.30
+
+- I controlli dei processi Linux vengono raggruppati in background e non bloccano più sincronicamente l’interfaccia. Selezione del comandante, arrivi e screenshot usano solo informazioni sui processi aggiornate e verificate.
+- Il controller minerario annulla gli avvii differiti dopo la distruzione e scollega i segnali in sicurezza. I controller chiusi non avviano più aggiornamenti manuali.
+- L’azzeramento di taglie e obbligazioni di combattimento usa la fonte del diario verificata del comandante selezionato.
+- I dati delle stazioni Spansh restano aggiornati per 90 giorni. Gli aggiornamenti manuali sono ripetibili; vengono rispettate le pause dopo errori e le attese richieste dal server. I dati esistenti vengono conservati in caso di errore.
+- La diagnostica prestazionale facoltativa misura i tempi di interfaccia, worker e processi. Gli errori previsti dei descrittori di file vengono aggregati; la diagnostica resta disattivata se non abilitata.
+
 ## CMDRHelper v3.9.28
 
 - Le missioni merci aperte mostrano il carico valido della nave nei dettagli, nello stato della tabella e nel passo successivo. Le consegne restano separate; più missioni condividono le scorte senza prenotazioni.

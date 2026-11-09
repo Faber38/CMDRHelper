@@ -9,6 +9,7 @@ from threading import get_ident
 from time import monotonic
 
 from .journal_sources import canonical
+from . import performance_profile as profile
 
 
 @dataclass(frozen=True)
@@ -18,12 +19,20 @@ class GameInstance:
     prefixes: tuple = ()
     journals: tuple = ()
     windows_started: int | None = None  # Exact FILETIME, also guards PID reuse.
+    start_ticks: int | None = None  # Linux /proc starttime; stable within a boot.
+
+    @property
+    def identity(self):
+        """Process identity, separate from the wall-clock estimate used for attribution."""
+        return (self.pid, self.start_ticks if self.start_ticks is not None else
+                self.windows_started if self.windows_started is not None else self.started)
 
 
 @dataclass
 class ProcessSnapshot:
     available: bool
     instances: list = field(default_factory=list)
+    _scan_token: object = field(default=None, repr=False, compare=False)
 
 
 class ProcessObservation:
@@ -84,11 +93,20 @@ def process_observation_batch(method):
 
 
 def presentation_instances(state, inspector):
-    """Opt-in presentation evidence; inspect_instances itself stays uncached."""
-    observation = getattr(getattr(state, 'sources', None), '_process_observation', None)
+    """Linux uses the manager's worker; legacy/native callers keep batch behavior."""
+    manager = getattr(state, 'sources', None)
+    scanner = getattr(manager, '_process_scanner', None)
+    if scanner is not None:
+        return manager._current_processes()
+    observation = getattr(manager, '_process_observation', None)
     if isinstance(observation, ProcessObservation):
         return observation.read(inspector)
     return inspector()
+
+
+def presentation_is_current(state, snapshot):
+    scanner = getattr(getattr(state, 'sources', None), '_process_scanner', None)
+    return scanner is None or scanner.current(snapshot)
 
 
 class _WindowsProcesses:
@@ -206,63 +224,81 @@ def inspect_instances(proc=Path('/proc')):
             return ProcessSnapshot(True, _WindowsProcesses().instances())
         except (OSError, AttributeError):
             return ProcessSnapshot(False)
-    if os.name != 'posix' or not proc.is_dir():
-        return ProcessSnapshot(False)
-    instances = []
-    available = True
-    try:
-        uptime = float((proc/'uptime').read_text().split()[0])
-        boot = datetime.now(timezone.utc).timestamp() - uptime
-        ticks = os.sysconf('SC_CLK_TCK')
-        entries = list(proc.iterdir())
-    except (OSError, ValueError):
-        return ProcessSnapshot(False)
-    for entry in entries:
-        if not entry.name.isdecimal():
-            continue
+    with profile.section('process.inspect_instances') as metrics:
+        if metrics is not None:
+            metrics.update(process_count=0, fd_count=0, elite_count=0)
+        if os.name != 'posix' or not proc.is_dir():
+            return ProcessSnapshot(False)
+        instances = []
+        available = True
         try:
-            args = (entry/'cmdline').read_bytes().split(b'\0')
-            # A launcher/proton command can mention the game as a later
-            # argument. That does not make the wrapper another game instance.
-            names = {Path(args[0].decode(errors='replace').replace('\\', '/')).name.casefold()}
-            if not names.intersection({'elitedangerous64.exe', 'elitedangerous.exe', 'elitedangerous64', 'elitedangerous'}):
+            with profile.section('process.enumerate'):
+                uptime = float((proc/'uptime').read_text().split()[0])
+                boot = datetime.now(timezone.utc).timestamp() - uptime
+                ticks = os.sysconf('SC_CLK_TCK')
+                entries = list(proc.iterdir())
+        except (OSError, ValueError):
+            return ProcessSnapshot(False)
+        for entry in entries:
+            if not entry.name.isdecimal():
                 continue
-            stat = (entry/'stat').read_text()
-            start_ticks = stat.rsplit(')', 1)[1].split()[19]
-            started = boot + int(start_ticks) / ticks
-            prefixes, journals = set(), set()
+            if metrics is not None:
+                metrics['process_count'] += 1
             try:
-                for item in (entry/'environ').read_bytes().split(b'\0'):
-                    key, sep, value = item.partition(b'=')
-                    if sep and key in (b'WINEPREFIX', b'STEAM_COMPAT_DATA_PATH'):
-                        prefix = Path(os.fsdecode(value))
-                        if key == b'STEAM_COMPAT_DATA_PATH':
-                            prefix = prefix/'pfx'
-                        prefixes.add(canonical(prefix))
-            except (PermissionError, FileNotFoundError):
-                pass
-            try:
-                for fd in (entry/'fd').iterdir():
-                    try:
-                        target = fd.resolve(strict=True)
-                        if target.name.startswith('Journal.') and target.suffix == '.log':
-                            journals.add(str(target))
-                    except OSError:
+                with profile.section('process.cmdline'):
+                    args = (entry/'cmdline').read_bytes().split(b'\0')
+                # A launcher/proton command can mention the game as a later
+                # argument. That does not make the wrapper another game instance.
+                names = {Path(args[0].decode(errors='replace').replace('\\', '/')).name.casefold()}
+                if not names.intersection({'elitedangerous64.exe', 'elitedangerous.exe', 'elitedangerous64', 'elitedangerous'}):
+                    continue
+                with profile.section('process.identity'):
+                    stat = (entry/'stat').read_text()
+                    start_ticks = stat.rsplit(')', 1)[1].split()[19]
+                    started = boot + int(start_ticks) / ticks
+                prefixes, journals = set(), set()
+                try:
+                    with profile.section('process.environ'):
+                        for item in (entry/'environ').read_bytes().split(b'\0'):
+                            key, sep, value = item.partition(b'=')
+                            if sep and key in (b'WINEPREFIX', b'STEAM_COMPAT_DATA_PATH'):
+                                prefix = Path(os.fsdecode(value))
+                                if key == b'STEAM_COMPAT_DATA_PATH':
+                                    prefix = prefix/'pfx'
+                                prefixes.add(canonical(prefix))
+                except (PermissionError, FileNotFoundError):
+                    pass
+                try:
+                    with profile.section('process.fd_scan'):
+                        for fd in (entry/'fd').iterdir():
+                            if metrics is not None:
+                                metrics['fd_count'] += 1
+                            try:
+                                with profile.section('process.fd_resolve'):
+                                    target = fd.resolve(strict=True)
+                                if target.name.startswith('Journal.') and target.suffix == '.log':
+                                    journals.add(str(target))
+                            except OSError:
+                                continue
+                except (PermissionError, FileNotFoundError):
+                    pass
+                # PID recycling/exit during inspection invalidates the evidence.
+                with profile.section('process.identity_recheck'):
+                    if (entry/'stat').read_text().rsplit(')', 1)[1].split()[19] != start_ticks:
+                        available = False
                         continue
-            except (PermissionError, FileNotFoundError):
-                pass
-            # PID recycling/exit during inspection invalidates the evidence.
-            if (entry/'stat').read_text().rsplit(')', 1)[1].split()[19] != start_ticks:
-                available = False
+                instances.append(GameInstance(int(entry.name), started, tuple(prefixes), tuple(journals),
+                                              start_ticks=int(start_ticks)))
+                if metrics is not None:
+                    metrics['elite_count'] += 1
+            except FileNotFoundError:
                 continue
-            instances.append(GameInstance(int(entry.name), started, tuple(prefixes), tuple(journals)))
-        except FileNotFoundError:
-            continue
-        except (OSError, ValueError, IndexError):
-            available = False
-    return ProcessSnapshot(available, instances)
+            except (OSError, ValueError, IndexError):
+                available = False
+        return ProcessSnapshot(available, instances)
 
 
+@profile.measure('process.source_binding')
 def confirmed_selection(snapshot, runtimes):
     """Return (source ID, commander ID, FID) only for one proved instance."""
     if not snapshot.available or len(snapshot.instances) != 1:

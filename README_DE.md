@@ -38,6 +38,14 @@ Der Journalordner von Elite Dangerous wird nach Möglichkeit automatisch erkannt
 
 CMDRHelper prüft beim Start auf Updates und besitzt einen integrierten Updater. Bestätige ein angebotenes Update im Programm; es aktualisiert Programm und Abhängigkeiten und startet CMDRHelper neu. Nach der Erstinstallation genügt normalerweise `start.bat` (Windows) beziehungsweise `bash start.sh` (Linux). Für normale Updates musst du `install.bat` oder `install.sh` nicht erneut manuell ausführen.
 
+## CMDRHelper v3.9.30
+
+- Linux-Prozessprüfungen laufen gebündelt im Hintergrund und blockieren die Oberfläche nicht mehr synchron. Commander-Zuordnung, Ankunftsanzeige und Screenshots verwenden nur aktuelle, geprüfte Prozessinformationen.
+- Der Mining-Controller verwirft verzögerte Startaufrufe nach seiner Zerstörung und trennt seine Signalverbindungen sicher. Geschlossene Controller starten keine manuelle Aktualisierung mehr.
+- Das Zurücksetzen von Kopfgeldprämien und Kampfbelohnungen verwendet die bestätigte Journalquelle des ausgewählten Commanders.
+- Spansh-Stationsdaten bleiben 90 Tage frisch. Manuelle Aktualisierungen sind erneut möglich; Fehlerpausen und vom Server angeordnete Wartezeiten werden berücksichtigt. Vorhandene Daten bleiben bei Fehlern erhalten.
+- Optionale Performance-Diagnose erfasst GUI-, Worker- und Prozesszeiten. Erwartete Dateideskriptorfehler werden aggregiert statt einzeln protokolliert; ohne Aktivierung bleibt die Diagnose aus.
+
 ## CMDRHelper v3.9.28
 
 - Offene Warenmissionen berücksichtigen gültige Schiffsfracht in Details, Tabellenstatus und nächstem Schritt. Lieferfortschritt bleibt getrennt; mehrere Missionen teilen denselben Bestand ohne Reservierung.

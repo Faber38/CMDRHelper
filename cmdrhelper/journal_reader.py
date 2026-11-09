@@ -1,4 +1,5 @@
 from __future__ import annotations
+from cmdrhelper import performance_profile as profile
 
 from cmdrhelper.body_parents import parent_metadata, choose_parents
 
@@ -202,6 +203,7 @@ def verified_live_metadata(path: Path, session: dict, safe_offset: int) -> dict:
                 last_complete_line_offset=safe_offset, invalidate_hash=True)
 
 
+@profile.measure('journal.read_delta')
 def read_journal_delta(path: Path, start_offset: int, *, include_positions=False) -> tuple[list[dict], int]:
     """Reads only newline-terminated JSON events after a committed byte offset."""
     path = Path(path)
@@ -934,6 +936,7 @@ def _update_mission_event(mission: dict, e: dict):
     mission["last_update"] = ts
 
 
+@profile.measure('journal.reconstruct')
 def read_latest_state(
     folder: Path,
     mission_reset_at: str = "",

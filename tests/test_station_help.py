@@ -36,13 +36,11 @@ class StationHelpTests(unittest.TestCase):
     def test_german_settings_explains_switch_triggers_cache_and_manual_failures(self):
         text = help_topic('settings', 'de').text
         for passage in ('Spansh-Stationsinformationen ergänzen', 'Schalter ist anfangs aus',
-                        'nicht gelöscht', 'keine Netzabfrage', 'Live-Eintritt',
-                        'Programmstart, Commanderwechsel, Archivimport', 'weniger als 7 Tage',
-                        'höchstens ein automatischer Versuch', 'auch ein Fehlschlag zählt',
+                        'nicht gelöscht', 'keine Netzabfrage', '90 Tage', '5 Minuten',
+                        'Commanderwechsel', 'Archivdaten', 'auch ohne Prozessbestätigung',
                         'über Helper-Neustarts erhalten', 'auch offline',
                         'keine Handelsmarktpreise', 'flüchtigen RAM-Suchcache',
-                        'nur unter 24 Stunden gültig', 'fehlgeschlagenen automatischen Tagesversuch',
-                        'heute nach lokalem Kalender', 'fehlgeschlagener manueller Versuch'):
+                        'nur unter 24 Stunden gültig', 'Retry-After'):
             self.assertIn(passage, text)
 
     def test_twelve_languages_include_local_controls_and_matching_sections(self):
@@ -52,7 +50,7 @@ class StationHelpTests(unittest.TestCase):
                 ('explorer', ('stations.search', 'stations.all_bodies', 'spansh.services',
                               'spansh.refresh', 'explorer.overview_auto_fit', 'explorer.overview_fit'), 35),
                 ('settings', ('spansh.enabled', 'settings.online_services',
-                              'spansh.refresh', 'spansh.refresh_already_today'), 35),
+                              'spansh.refresh',), 36),
             ):
                 with self.subTest(language=language, context=context):
                     text = help_topic(context, language).text
@@ -63,7 +61,8 @@ class StationHelpTests(unittest.TestCase):
                     master = help_topic(context, 'de').text
                     self.assertEqual(re.findall(r'<(/?\w+)', text), re.findall(r'<(/?\w+)', master))
             settings = help_topic('settings', language).text
-            self.assertIn('7', settings)
+            self.assertIn('90', settings)
+            self.assertIn('5', settings)
             self.assertIn('24', settings)
             self.assertIn('mémoire vive' if language == 'fr' else 'RAM', settings)
             self.assertNotEqual(ui['explorer.overview_auto_fit'], 'explorer.overview_auto_fit')

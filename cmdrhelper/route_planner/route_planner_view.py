@@ -1,4 +1,5 @@
 from __future__ import annotations
+from cmdrhelper import performance_profile as profile
 from cmdrhelper.exit_tasks import submit
 
 import csv
@@ -116,6 +117,7 @@ class RoutePlannerView(QWidget):
         else:
             self._manual_starts.discard(field)
 
+    @profile.measure('slot.route.sync_current_system')
     def _sync_current_system(self):
         """Refresh planning defaults from AppState, without advancing any route."""
         current = str(getattr(self.state, "system", "") or "").strip()
@@ -130,6 +132,7 @@ class RoutePlannerView(QWidget):
         return (fid, session, snapshot.carrier_id if snapshot else None,
                 snapshot.callsign if snapshot else "")
 
+    @profile.measure('slot.route.sync_carrier_identity')
     def _sync_carrier_identity(self):
         identity = self._current_carrier_identity()
         if identity != self._carrier_identity:
@@ -360,9 +363,11 @@ class RoutePlannerView(QWidget):
         self._ship_manual_overrides.add(field_name)
         self._ship_field_has_value[field_name] = field.value() != field.minimum()
 
+    @profile.measure('slot.route.ship_loadout_changed')
     def _ship_loadout_changed(self, _loadout=None):
         self._apply_ship_loadout_inputs()
 
+    @profile.measure('slot.route.ship_route_inputs_changed')
     def _ship_route_inputs_changed(self, _loadout=None):
         self._apply_ship_loadout_inputs({"cargo", "reserve_size"})
 

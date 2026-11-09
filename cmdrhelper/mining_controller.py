@@ -1,11 +1,12 @@
 """Event-driven background cargo reconstruction using the existing journal index."""
+from cmdrhelper import performance_profile as profile
 from cmdrhelper.exit_tasks import submit
 from copy import deepcopy
 import logging
 from pathlib import Path
 import sqlite3
 
-from PySide6.QtCore import QObject, QRunnable, QThreadPool, QTimer, Signal
+from PySide6.QtCore import QObject, QRunnable, QThreadPool, QTimer, Signal, Slot
 
 from .mining_inventory import MiningInventory, MiningInventoryReader
 from .mining_carrier import CarrierLedger, read_carrier_feed, stable_id
@@ -95,18 +96,28 @@ class MiningInventoryController(QObject):
         self.cargo_retry = QTimer(self)
         self.cargo_retry.setSingleShot(True)
         self.cargo_retry.setInterval(500)
-        self.cargo_retry.timeout.connect(lambda: self.request(force=True, cargo_retry=True))
+        self.cargo_retry.timeout.connect(self._retry_cargo)
         self.ready.connect(self._remember_inventory)
         for name in ("inventoryChanged" if hasattr(state, "inventoryChanged") else "changed", "cargoSnapshotChanged", "viewedCommanderChanged",
                      "commanderIdentityChanged", "journalIndexReady", "databaseImportFinished"):
             signal = getattr(state, name, None)
             if signal is not None:
                 if name in ("journalIndexReady", "databaseImportFinished"):
-                    signal.connect(lambda *args: self.request(force=True))
+                    signal.connect(self._force_request)
                 else:
                     signal.connect(self.request)
-        QTimer.singleShot(0, self.request)
+        # Cancel the deferred startup when Qt destroys this controller/parent.
+        QTimer.singleShot(0, self, self.request)
 
+    @Slot()
+    def _force_request(self):
+        self.request(force=True)
+
+    @Slot()
+    def _retry_cargo(self):
+        self.request(force=True, cargo_retry=True)
+
+    @profile.measure('slot.mining_inventory.request')
     def request(self, *_, force=False, cargo_retry=False):
         if self._closed:
             return
@@ -140,6 +151,8 @@ class MiningInventoryController(QObject):
 
     def refresh_now(self):
         """Manually reread verified snapshots without the event debounce delay."""
+        if self._closed:
+            return
         logger.info("Manual mining/cargo refresh started")
         self._manual_before = self._inventory_signature(self._last_inventory)
         self.request(force=True)  # Recheck commander and journal identity, just like live updates.

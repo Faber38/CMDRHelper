@@ -11,20 +11,21 @@ from cmdrhelper.update import is_newer_version
 from tools.publish_release import release_notes, version_at
 
 ROOT = Path(__file__).resolve().parents[1]
+RELEASE_VERSION = '3.9.11'  # Historical release, independent of the running version.
 
 
 class Release3911Tests(unittest.TestCase):
     def test_version_schema_and_upgrade_order(self):
-        self.assertEqual(__version__, '3.9.11')
+        self.assertRegex(__version__, r'^\d+(?:\.\d+)+$')
         self.assertEqual(version_at(ROOT), __version__)
         self.assertEqual(SCHEMA_VERSION, 23)
         self.assertTrue(is_newer_version('3.9.11', '3.9.10'))
         self.assertFalse(is_newer_version('3.9.10', '3.9.11'))
 
     def test_four_localized_highlights_match_readmes_and_publisher(self):
-        notes = release_notes(ROOT, __version__)
+        notes = release_notes(ROOT, RELEASE_VERSION)
         metadata = json.loads(re.search(r'<!-- cmdrhelper-update-summary\s+(.*?)-->', notes, re.S)[1])
-        keys = RELEASE_SUMMARIES[__version__]
+        keys = RELEASE_SUMMARIES[RELEASE_VERSION]
         self.assertEqual(len(keys), 4)
         self.assertEqual(set(metadata), set(_TRANSLATIONS))
         for language, translations in _TRANSLATIONS.items():
@@ -43,5 +44,5 @@ class Release3911Tests(unittest.TestCase):
         self.assertIn('steht aus', text)
         self.assertIn('KDE X11/KWin', text)
         self.assertIn('Version 23', text)
-        expected = [_TRANSLATIONS['de'][key] for key in RELEASE_SUMMARIES[__version__]]
+        expected = [_TRANSLATIONS['de'][key] for key in RELEASE_SUMMARIES[RELEASE_VERSION]]
         self.assertEqual([line[2:] for line in text.splitlines() if line.startswith('- ')], expected)

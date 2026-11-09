@@ -1,3 +1,4 @@
+from cmdrhelper import performance_profile as profile
 import sys
 import logging
 import platform
@@ -70,7 +71,7 @@ def run():
               version=info['version'], os=info['os'], python=info['python'],
               qt=info['qt'], pyside=info['pyside'], architecture=info['architecture'], pid=os.getpid())
 
-    app = QApplication(sys.argv)
+    app = profile.application_class(QApplication)(sys.argv)
     install_selection_indicators(app)
     app.setApplicationName("CMDRHelper")
     app.setOrganizationName("CMDRHelper")
@@ -101,45 +102,49 @@ def run():
     # Lock während der gesamten Laufzeit behalten.
     app._cmdrhelper_instance_lock = instance_lock
 
-    update_status = consume_update_status(Path(__file__).resolve().parents[1])
-    if update_status and update_status.get("kind") == "rollback":
-        QMessageBox.warning(
-            None,
-            tr("settings.update_failed_title"),
-            tr(
-                "app.update_rollback_text",
-                phase=update_status.get("phase") or "–",
-                log=update_status.get("log") or "–",
-            ),
-        )
-
-    theme = str(settings.value("ui_theme", "dark")).lower()
-
-    set_selection_indicator_theme(app, theme)
-    app.setStyleSheet(LIGHT_STYLESHEET if theme == "light" else DARK_STYLESHEET)
-
-    # Gate before schema initialization, journal watchers and startup repairs.
-    from cmdrhelper.database import default_database_path
-    from cmdrhelper.journal_reader import default_journal_paths
-    from cmdrhelper.parent_migration import migration_required
-    from cmdrhelper.ui.parent_migration import ParentMigrationDialog
-    from PySide6.QtWidgets import QDialog
-
-    db_path = default_database_path()
-    if migration_required(db_path):
-        saved = settings.value("journal_folder", "")
-        folders = default_journal_paths()
-        folder = Path(saved) if saved and Path(saved).exists() else (folders[0] if folders else None)
-        dialog = ParentMigrationDialog(db_path, folder, light=theme == "light")
-        if dialog.exec() != QDialog.Accepted:
-            return
-
-    state = AppState()
-    window = MainWindow(state)
-    if not window.restore_main_geometry():
-        _resize_initial_window(window, app.primaryScreen())
-    window.show()
+    if profile.ENABLED:
+        profile.start(app)
     try:
+        update_status = consume_update_status(Path(__file__).resolve().parents[1])
+        if update_status and update_status.get("kind") == "rollback":
+            QMessageBox.warning(
+                None,
+                tr("settings.update_failed_title"),
+                tr(
+                    "app.update_rollback_text",
+                    phase=update_status.get("phase") or "–",
+                    log=update_status.get("log") or "–",
+                ),
+            )
+
+        theme = str(settings.value("ui_theme", "dark")).lower()
+
+        set_selection_indicator_theme(app, theme)
+        app.setStyleSheet(LIGHT_STYLESHEET if theme == "light" else DARK_STYLESHEET)
+
+        # Gate before schema initialization, journal watchers and startup repairs.
+        from cmdrhelper.database import default_database_path
+        from cmdrhelper.journal_reader import default_journal_paths
+        from cmdrhelper.parent_migration import migration_required
+        from cmdrhelper.ui.parent_migration import ParentMigrationDialog
+        from PySide6.QtWidgets import QDialog
+
+        db_path = default_database_path()
+        if migration_required(db_path):
+            saved = settings.value("journal_folder", "")
+            folders = default_journal_paths()
+            folder = Path(saved) if saved and Path(saved).exists() else (folders[0] if folders else None)
+            dialog = ParentMigrationDialog(db_path, folder, light=theme == "light")
+            if dialog.exec() != QDialog.Accepted:
+                return
+
+        state = AppState()
+        window = MainWindow(state)
+        if not window.restore_main_geometry():
+            _resize_initial_window(window, app.primaryScreen())
+        window.show()
         raise SystemExit(app.exec())
     finally:
+        if profile.ENABLED:
+            profile.shutdown()
         logger.info("Application ended; database access ended")

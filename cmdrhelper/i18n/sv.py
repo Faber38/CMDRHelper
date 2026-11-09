@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_30.0": 'Linux-processkontroller samordnas i bakgrunden och blockerar inte längre gränssnittet synkront. Commanderval, ankomstvisning och skärmbilder använder bara aktuell, verifierad processinformation.',
+    "release.3_9_30.1": 'Gruvkontrollern avbryter uppskjutna startanrop efter att den förstörts och kopplar från signalerna säkert. Stängda kontroller startar inte längre manuella uppdateringar.',
+    "release.3_9_30.2": 'Nollställning av premier och stridsbelöningar använder den verifierade journalkällan för vald commander.',
+    "release.3_9_30.3": 'Spansh-stationsdata räknas som aktuella i 90 dagar. Manuella uppdateringar kan upprepas; felpauser och väntetider från servern respekteras. Befintliga data behålls vid fel.',
+    "release.3_9_30.4": 'Valfri prestandadiagnostik mäter GUI-, worker- och processtider. Förväntade fildeskriptorfel sammanställs; diagnostiken är av om den inte aktiveras.',
+
     "release.3_9_29.0": 'Förbättrad identifiering av uppdragslast.',
     "release.3_9_29.1": 'Stöd för matchande handelsvaror utan MissionID.',
     "release.3_9_29.2": 'Befintlig MissionID-baserad identifiering bevaras.',
@@ -376,7 +382,6 @@ TRANSLATIONS = {
     'release.3_6.3': 'Personliga skepps- och carrierbilder, typ-/standardbilder och bildvisare. Ta bort skepp ur flottan eller återställ dem genom att läsa in alla skepp igen; sålda skepp identifieras säkrare.',
     'release.3_6.4': 'Förbättrad karta, värdelista med färgad kartläggningsstatus, Cargo HUD och navigering. Lägre bakgrundsbelastning i Linux samt för skärmbilder, galleri och Explorer.',
     'release.3_6.5': 'Åtgärdat: harmlösa korta Elite-journaler avbryter inte längre spårningen av carrierns gruvlager. En verifierad säkerhetskopia skapas nu automatiskt före databasuppgraderingen.',
-    'spansh.refresh_already_today': 'Spansh-data har redan uppdaterats idag.',
     'stations.local_notice': 'Spansh-stationsdata är inaktiverade. Endast stationer från dina egna journaldata visas.',
     'stations.local_notice_settings': 'Aktivera under Inställningar → Onlinetjänster',
     'stations.empty_local': 'Inga stationer eller anläggningar i detta system är kända utifrån de lokala journaldata som för närvarande är tillgängliga.',
@@ -390,7 +395,12 @@ TRANSLATIONS = {
 
 
     'spansh.enabled': 'Lägg till stationsinformation från Spansh',
-    'spansh.hint': 'Valfritt: Automatiskt endast nya ankomster i realtid. Cache 7 dagar; inga befälhavaruppgifter skickas.',
+    'spansh.status_current': 'Stationsdata är aktuella (90 dagar).',
+    'spansh.status_old': 'Visar gamla eller ofullständiga stationsdata.',
+    'spansh.status_missing': 'Ingen fullständig stationslista ännu.',
+    'spansh.status_server_wait': 'Spansh begär väntan till {until}.',
+    'spansh.status_server_unknown': 'Spansh begränsade begäran utan att ange väntetid.',
+    'spansh.hint': 'Valfritt: kontrollera stationer vid aktuella journalbesök. Fullständiga kontroller gäller 90 dagar; inga marknadspriser eller befälhavaruppladdningar.',
     'spansh.distance_ls': 'Avstånd från ankomstpunkt',
     'spansh.allegiance': 'Tillhörighet',
     'spansh.government': 'Styrelseskick',

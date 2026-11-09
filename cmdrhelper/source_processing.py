@@ -1,4 +1,5 @@
 """Serialized source ingestion, independent of the selected commander view."""
+from cmdrhelper import performance_profile as profile
 from pathlib import Path
 from copy import deepcopy
 import hashlib
@@ -41,6 +42,7 @@ class SourceProcessor:
         data['journal_files'] = len(rows)
         return data
 
+    @profile.measure('journal.process')
     def process(self, *, cancel=None, enqueue_fids=(), progress=None):
         from .inventory_invalidation import KINDS, batch_kinds
         previous_sessions = deepcopy(self.sessions)
@@ -150,6 +152,13 @@ class SourceProcessor:
         # scoped, never inferred from the selected GUI commander.
         from .journal_learning import learn
         events = self.context.get('applied_events', [])
+        if profile.ENABLED:
+            from collections import Counter
+            counts = Counter(e.get('event') for _, _, e in events)
+            for kind in ('FSDJump', 'Location', 'CarrierJump', 'Cargo', 'CargoTransfer',
+                         'MarketBuy', 'MarketSell', 'CollectCargo', 'EjectCargo', 'TransferCargo'):
+                if counts[kind]:
+                    profile.event('journal.events', event=kind, count=counts[kind])
         for cid, fid in {(r['commander_id'], r['fid_seen']) for r in self.sessions
                          if r.get('attribution_status') == 'identified' and r.get('commander_id') is not None}:
             kinds = set()

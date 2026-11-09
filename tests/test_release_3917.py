@@ -12,22 +12,23 @@ from cmdrhelper.update import is_newer_version
 from tools.publish_release import release_notes, version_at
 
 ROOT = Path(__file__).resolve().parents[1]
+RELEASE_VERSION = '3.9.17'  # Historical release, independent of the running version.
 
 
 class Release3917Tests(unittest.TestCase):
     def test_version_schema_and_upgrade(self):
-        self.assertEqual(__version__, '3.9.17')
+        self.assertRegex(__version__, r'^\d+(?:\.\d+)+$')
         self.assertEqual(version_at(ROOT), __version__)
         self.assertEqual(SCHEMA_VERSION, 23)
-        self.assertTrue(is_newer_version(__version__, '3.9.16'))
-        self.assertFalse(is_newer_version('3.9.16', __version__))
+        self.assertTrue(is_newer_version(RELEASE_VERSION, '3.9.16'))
+        self.assertFalse(is_newer_version('3.9.16', RELEASE_VERSION))
 
     def test_twelve_readmes_publisher_and_updater_agree(self):
         self.addCleanup(set_language, get_language())
-        notes = release_notes(ROOT, __version__)
+        notes = release_notes(ROOT, RELEASE_VERSION)
         metadata = json.loads(re.search(
             r'<!-- cmdrhelper-update-summary\s+(.*?)-->', notes, re.S)[1])
-        keys = RELEASE_SUMMARIES[__version__]
+        keys = RELEASE_SUMMARIES[RELEASE_VERSION]
         self.assertEqual(len(keys), 6)
         self.assertEqual(set(metadata), set(_TRANSLATIONS))
         self.assertEqual(len(metadata), 12)
@@ -37,8 +38,8 @@ class Release3917Tests(unittest.TestCase):
                 self.assertTrue(all(expected))
                 self.assertEqual(metadata[language], expected)
                 set_language(language)
-                self.assertEqual(release_summary(__version__), expected)
-                self.assertEqual(release_summary(__version__, notes), expected)
+                self.assertEqual(release_summary(RELEASE_VERSION), expected)
+                self.assertEqual(release_summary(RELEASE_VERSION, notes), expected)
                 path = ROOT / ('README.md' if language == 'en' else f'README_{language.upper()}.md')
                 readme = path.read_text()
                 self.assertEqual(readme.count('## CMDRHelper v3.9.17\n'), 1)
@@ -49,7 +50,7 @@ class Release3917Tests(unittest.TestCase):
     def test_release_notes_include_limits(self):
         notes = (ROOT / 'docs/release-3.9.17.md').read_text()
         self.assertEqual([line[2:] for line in notes.splitlines() if line.startswith('- ')],
-                         [_TRANSLATIONS['de'][key] for key in RELEASE_SUMMARIES[__version__]])
+                         [_TRANSLATIONS['de'][key] for key in RELEASE_SUMMARIES[RELEASE_VERSION]])
         for phrase in ('Snapshots', 'EDSM-Caches ohne eindeutige Systemidentität',
                        'keine konkreten Rhino-Abbaugebiete', 'Windows-Prüfung steht aus',
                        'Version 23', '100 wiederholter Suchläufe', 'Qt offscreen'):

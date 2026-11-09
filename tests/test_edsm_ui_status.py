@@ -10,7 +10,7 @@ from PySide6.QtWidgets import (QApplication, QLabel, QFormLayout, QWidget,
 from cmdrhelper.i18n import tr, get_language, set_language, _TRANSLATIONS
 from cmdrhelper.ui.main_window import MainWindow
 from cmdrhelper.ui.styles import DARK_STYLESHEET, LIGHT_STYLESHEET
-from tests.test_popup_ui_settings import PopupUiSettingsTests
+from popup_ui_fixture import PopupUiFixture
 
 
 class EdsmUiStatusTests(unittest.TestCase):
@@ -21,9 +21,10 @@ class EdsmUiStatusTests(unittest.TestCase):
     def setUp(self):
         self.addCleanup(set_language, get_language())
         self.addCleanup(self.app.setStyleSheet, self.app.styleSheet())
-        self.helper = PopupUiSettingsTests()
-        self.helper.setUpClass(); self.helper.setUp()
-        self.addCleanup(self.helper.doCleanups)
+        self.helper = PopupUiFixture()
+        self.helper.app = self.app
+        self.helper.addCleanup = self.addCleanup
+        self.helper.setUp()
         self.main = self.helper.main()
         self.state = self.main.state
         self.configs = {'F-A': {'last_test_status': ''}, 'F-B': {'last_test_status': ''}}

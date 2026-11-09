@@ -1,4 +1,5 @@
 """Debounced commander sale reads using the existing journal index."""
+from cmdrhelper import performance_profile as profile
 from cmdrhelper.exit_tasks import submit
 import logging
 from threading import Event
@@ -102,6 +103,7 @@ class MiningMarketController(QObject):
             self._dirty = self._dirty or self._running
             self.timer.stop()
 
+    @profile.measure('slot.mining_market.request')
     def request(self, *_):
         self._generation += 1
         self._cancel.set()

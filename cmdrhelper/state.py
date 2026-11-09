@@ -1,4 +1,5 @@
 from __future__ import annotations
+from cmdrhelper import performance_profile as profile
 from cmdrhelper.exit_tasks import start_thread
 
 from cmdrhelper.body_parents import choose_parents, verified_parents
@@ -447,7 +448,10 @@ class AppState(QObject):
                 active_session, prepared=getattr(self, "_startup_position_read", None)
             )
             self._startup_position_read = None
-            self.changed.emit()
+            if profile.ENABLED:
+                profile.call('signal.changed', self.changed.emit)
+            else:
+                self.changed.emit()
             if not self.refresh():
                 raise RuntimeError(
                     self._last_refresh_error or "Journal konnte nicht gelesen werden."
@@ -546,6 +550,8 @@ class AppState(QObject):
 
     def set_follow_live_commander(self, enabled):
         previous_mode = self.follow_live_commander
+        if previous_mode != bool(enabled) and getattr(self, 'sources', None) is not None:
+            self.sources.invalidate_process_evidence()
         self._viewed_commander_user_selected = not bool(enabled)
         self.settings.setValue("commander_view/follow_live", bool(enabled))
         if not enabled and self.viewed_commander_id is not None:
@@ -580,6 +586,8 @@ class AppState(QObject):
         commander_id = int(commander_id)
         if not any(item["id"] == commander_id for item in self.database.list_commanders()):
             raise ValueError("Commander existiert nicht")
+        if getattr(self, 'sources', None) is not None:
+            self.sources.invalidate_process_evidence()
         previous = self.viewed_commander_id
         self.viewed_commander_id = commander_id
         mode_changed = self.follow_live_commander
@@ -1086,7 +1094,10 @@ class AppState(QObject):
         self._inara_upload_running = True
         self.inara_upload_status = "uploading"
         self.inara_upload_message = f"{len(rows)} Inara-Event(s) werden übertragen"
-        self.changed.emit()
+        if profile.ENABLED:
+            profile.call('signal.changed', self.changed.emit)
+        else:
+            self.changed.emit()
 
         def worker():
             try:
@@ -1135,7 +1146,10 @@ class AppState(QObject):
                 if self._inara_upload_token is token:
                     self._inara_upload_token = None
                     self._inara_upload_running = False
-                    self.changed.emit()
+                    if profile.ENABLED:
+                        profile.call('signal.changed', self.changed.emit)
+                    else:
+                        self.changed.emit()
 
         try:
             start_thread(threading.Thread(target=worker, daemon=True,
@@ -1197,7 +1211,10 @@ class AppState(QObject):
                 if self._edsm_upload_token is token:
                     self._edsm_upload_token = None
                     self._edsm_upload_running = False
-                    self.changed.emit()
+                    if profile.ENABLED:
+                        profile.call('signal.changed', self.changed.emit)
+                    else:
+                        self.changed.emit()
 
         start_thread(threading.Thread(
             target=worker,
@@ -1205,6 +1222,7 @@ class AppState(QObject):
             name="CMDRHelper-EDSM-Upload",
         ))
 
+    @profile.measure('state.own_explorer_bodies')
     def _own_explorer_bodies(self, current_bodies):
         """Live scans lead; only this live commander's saved scans fill gaps.
 
@@ -1419,6 +1437,7 @@ class AppState(QObject):
             self.system_stations = AppState.station_display_model(
                 self, self.system_address, self.system_bodies, self._journal_system_stations)
 
+    @profile.measure('state.load_edsm_cache_for_current_system')
     def _load_edsm_cache_for_current_system(
         self,
     ):
@@ -1530,7 +1549,10 @@ class AppState(QObject):
             self.edsm_source_status = (
                 source or "Fehler"
             )
-            self.changed.emit()
+            if profile.ENABLED:
+                profile.call('signal.changed', self.changed.emit)
+            else:
+                self.changed.emit()
             return
 
         # Vor dem Merge Journalzustand frisch einlesen,
@@ -1545,7 +1567,10 @@ class AppState(QObject):
             else "Cache"
         )
 
-        self.changed.emit()
+        if profile.ENABLED:
+            profile.call('signal.changed', self.changed.emit)
+        else:
+            self.changed.emit()
 
     def _refresh_from_watcher(self):
         if (getattr(self, "_database_import_running", False)
@@ -1679,6 +1704,7 @@ class AppState(QObject):
             self._learning_revision = getattr(self, "_learning_revision", 0) + 1
             self.refresh()
 
+    @profile.measure('state.visible_commander_missions')
     def _visible_commander_missions(self):
         from cmdrhelper.mission_manager import pending_missions
         confirmed = normalize_missions(self.database.commander_missions(
@@ -1869,6 +1895,7 @@ class AppState(QObject):
             self.commanderIdentityChanged.emit(commander_id, fid, self.commander)
         return session
 
+    @profile.measure('state.apply_commander_identity')
     def _apply_commander_identity(self, data, emit_signal=True):
         """Übernimmt ausschließlich eine durch FID belegte Journalidentität."""
         fid = str(data.get("commander_fid") or "").strip()
@@ -1940,8 +1967,12 @@ class AppState(QObject):
         changed = signatures.get(key) != signature
         signatures[key] = signature
         if changed or any(event.get('event') == 'MarketSell' for event in events):
-            self.miningSalesChanged.emit()
+            if profile.ENABLED:
+                profile.call('signal.miningSalesChanged', self.miningSalesChanged.emit)
+            else:
+                self.miningSalesChanged.emit()
 
+    @profile.measure('gui.state_refresh')
     def refresh(self):
         sources = getattr(self, "sources", None)
         if sources is not None and not sources.projecting:
@@ -1955,7 +1986,10 @@ class AppState(QObject):
         self._last_refresh_error = ""
         if not self.journal_folder:
             self.connected = False
-            self.changed.emit()
+            if profile.ENABLED:
+                profile.call('signal.changed', self.changed.emit)
+            else:
+                self.changed.emit()
             return True
 
         try:
@@ -2069,7 +2103,10 @@ class AppState(QObject):
                             "Journaldelta konnte nicht gespeichert werden: "
                             f"{type(exc).__name__}: {exc}"
                         )
-                        self.changed.emit()
+                        if profile.ENABLED:
+                            profile.call('signal.changed', self.changed.emit)
+                        else:
+                            self.changed.emit()
                         return False
                     if (current_session.get("file_size") != metadata["file_size"]
                             or current_session.get("modified_ns") != metadata["modified_ns"]):
@@ -2152,7 +2189,10 @@ class AppState(QObject):
             or self._ship_route_inputs_signature(previous_loadout)
             != self._ship_route_inputs_signature(self.ship_loadout)
         ):
-            self.shipRouteInputsChanged.emit(self.ship_loadout)
+            if profile.ENABLED:
+                profile.call('signal.shipRouteInputsChanged', self.shipRouteInputsChanged.emit, self.ship_loadout)
+            else:
+                self.shipRouteInputsChanged.emit(self.ship_loadout)
 
         if (
             self.system
@@ -2185,7 +2225,8 @@ class AppState(QObject):
                           and current_session.get('fid_seen') == self.commander_fid
                           and current_session.get('commander_id') == self.commander_id)
             spansh.observe(delta_events if identified else [], self.commander_fid,
-                           self.system_address, live=bool(identified and getattr(self, '_watcher_live_refresh', False)))
+                           self.system_address, live=bool(identified and (getattr(self, '_spansh_live_refresh', False)
+                               if projection is not None else getattr(self, '_watcher_live_refresh', False))))
         current_body_ids = {body.get("body_id") for body in current_bodies}
 
         # Phase 1: Journaldaten zusätzlich dauerhaft speichern.
@@ -2296,11 +2337,17 @@ class AppState(QObject):
             )
 
         if inventory_changed:
-            self.inventoryChanged.emit()
+            if profile.ENABLED:
+                profile.call('signal.inventoryChanged', self.inventoryChanged.emit)
+            else:
+                self.inventoryChanged.emit()
         self._notify_mining_sales(delta_events)
         self._refresh_summary = (self.commander_id, persistent)
         try:
-            self.changed.emit()
+            if profile.ENABLED:
+                profile.call('signal.changed', self.changed.emit)
+            else:
+                self.changed.emit()
         finally:
             self._refresh_summary = None
 
@@ -2344,6 +2391,7 @@ class AppState(QObject):
         except Exception:
             logger.exception('Startup station check failed; continuing with local knowledge')
 
+    @profile.measure('state.refresh_explorer_values')
     def _refresh_explorer_values(self, current_body_ids):
         """Revalue live scans and recover invalid saved estimates for display."""
         # Bounded to the visible system; reuse results across DB reloads when
@@ -2382,6 +2430,7 @@ class AppState(QObject):
         return merge_stations(journal, spansh.cached(address) if spansh else None, bodies, address)
 
     @Slot(object)
+    @profile.measure('spansh.state_update')
     def _spansh_stations_updated(self, address):
         if address != self.system_address:
             self.stationModelChanged.emit(address)
@@ -2405,6 +2454,7 @@ class AppState(QObject):
                           "SystemAddress": location.get("system_address")}]
         self.journalPositionsReady.emit(positions, self.commander_fid)
 
+    @profile.measure('state.apply_live_cargo_snapshot')
     def _apply_live_cargo_snapshot(self, data, current_session):
         """Bind Cargo.json only to the uniquely identified live journal FID."""
         identified = (
@@ -2417,7 +2467,10 @@ class AppState(QObject):
         if not identified:
             if self.cargo_snapshot is not None:
                 self.cargo_snapshot = None
-                self.cargoSnapshotChanged.emit(None)
+                if profile.ENABLED:
+                    profile.call('signal.cargoSnapshotChanged', self.cargoSnapshotChanged.emit, None)
+                else:
+                    self.cargoSnapshotChanged.emit(None)
             return
         loadout = self.ship_loadout or ShipLoadoutData()
         trigger = data.get("last_cargo_event")
@@ -2451,8 +2504,12 @@ class AppState(QObject):
                 snapshot["context"] = dict(origin)
         if snapshot != previous:
             self.cargo_snapshot = snapshot
-            self.cargoSnapshotChanged.emit(snapshot)
+            if profile.ENABLED:
+                profile.call('signal.cargoSnapshotChanged', self.cargoSnapshotChanged.emit, snapshot)
+            else:
+                self.cargoSnapshotChanged.emit(snapshot)
 
+    @profile.measure('state.poll_ship_cargo')
     def _poll_ship_cargo(self):
         if getattr(self, 'sources', None) is not None and not getattr(self, '_source_live_context', False):
             return
@@ -2520,13 +2577,19 @@ class AppState(QObject):
         if previous_inputs != (loadout.cargo, loadout.reserve_fuel):
             signal = getattr(self, 'shipRouteInputsChanged', None)
             if signal is not None:
-                signal.emit(loadout)
+                if profile.ENABLED:
+                    profile.call('signal.shipRouteInputsChanged', signal.emit, loadout)
+                else:
+                    signal.emit(loadout)
         if total != self.ship_cargo_total or inventory != getattr(self, 'ship_inventory', None):
             self.ship_cargo_total = total
             self.ship_inventory = inventory
             # Consumers already listen to this signal; the inventory payload
             # remains untouched when only the total/source changes.
-            self.cargoSnapshotChanged.emit(self.cargo_snapshot)
+            if profile.ENABLED:
+                profile.call('signal.cargoSnapshotChanged', self.cargoSnapshotChanged.emit, self.cargo_snapshot)
+            else:
+                self.cargoSnapshotChanged.emit(self.cargo_snapshot)
 
     @staticmethod
     def _ship_loadout_signature(loadout):

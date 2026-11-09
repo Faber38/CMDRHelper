@@ -1,4 +1,5 @@
 """Compact local Powerplay overview, following the shared card/theme styles."""
+from cmdrhelper import performance_profile as profile
 from datetime import timedelta
 from PySide6.QtCore import QEvent, QLocale, QRect, QSize, QTimer, Qt, QTime
 from PySide6.QtWidgets import (
@@ -585,6 +586,7 @@ class PowerplayView(QScrollArea):
             self.timer.stop()
         super().hideEvent(event)
 
+    @profile.measure('slot.powerplay.changed')
     def _changed(self, *_):
         if self.isVisible() or self.chronicle_detached:
             self.render()

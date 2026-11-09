@@ -1,6 +1,7 @@
 """Optional arrival notices. Requests are isolated by commander and stay generation."""
 from cmdrhelper.exit_tasks import submit, try_take
 import logging
+from cmdrhelper import performance_profile as profile
 from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal, Slot
 from cmdrhelper.online_services import fetch_edsm_system_status
 from cmdrhelper.i18n import tr
@@ -76,6 +77,7 @@ class EdsmSystemStatus(QObject):
         self.changed.emit()
 
     @Slot(object, str)
+    @profile.measure('slot.edsm_status.observe')
     def observe(self, events, commander):
         if commander != self.commander:
             self._invalidate()

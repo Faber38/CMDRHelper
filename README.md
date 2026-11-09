@@ -38,6 +38,14 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.9.30
+
+- Linux process checks are coalesced in the background and no longer synchronously block the interface. Commander selection, arrival displays and screenshots use only current, verified process information.
+- The mining controller cancels deferred startup callbacks after destruction and safely disconnects its signals. Closed controllers no longer start manual refreshes.
+- Resetting bounties and combat bonds uses the verified journal source of the selected commander.
+- Spansh station data stays fresh for 90 days. Manual refreshes can be repeated; error pauses and server-requested waits are respected. Existing data is retained on failure.
+- Optional performance diagnostics record GUI, worker and process timings. Expected file descriptor errors are aggregated instead of logged individually; diagnostics remain off unless enabled.
+
 ## CMDRHelper v3.9.28
 
 - Open goods missions show valid ship cargo in details, table status and the next step. Delivery progress stays separate; multiple missions share stock without reservations.

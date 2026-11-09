@@ -385,8 +385,6 @@ class SystemOverviewDialog(AuxiliaryWindow, QDialog):
         self.spansh_button.clicked.connect(self._refresh_spansh)
         if spansh is not None:
             spansh.activityChanged.connect(self._spansh_activity)
-            spansh.completed.connect(self._spansh_completed)
-            spansh.alreadyUpdated.connect(self._spansh_already_updated)
         self._spansh_activity()
         buttons.addStretch()
         close = QPushButton(tr('common.close'))
@@ -419,27 +417,15 @@ class SystemOverviewDialog(AuxiliaryWindow, QDialog):
         active = bool(self.spansh and self.spansh.active)
         busy = bool(self.spansh and self.spansh.busy(self.system_address))
         self.spansh_button.setEnabled(active and valid_id(self.system_address) and not busy)
-        disabled_hint = tr('spansh.refresh_disabled')
-        busy_hint = tr('spansh.refresh_busy')
-        hint = disabled_hint if not active else busy_hint if busy else ''
+        key, until = self.spansh.status(self.system_address) if self.spansh else ('spansh.refresh_disabled', '')
+        hint = tr(key, until=until)
         self.spansh_button.setToolTip(hint)
-        # Disabled widgets do not reliably receive tooltip events on every platform.
-        # Keep the reason readable in the existing status line as well.
-        if hint or self.spansh_status.text() in (disabled_hint, busy_hint):
-            self.spansh_status.setText(hint)
+        self.spansh_status.setText(hint)
 
     def _refresh_spansh(self):
         self._spansh_activity()
         if self.spansh_button.isEnabled():
             self.spansh.refresh_system(self.system_address)
-
-    def _spansh_completed(self, address, success):
-        if address == self.system_address:
-            self.spansh_status.setText(tr('spansh.refresh_success' if success else 'spansh.refresh_failed'))
-
-    def _spansh_already_updated(self, address):
-        if address == self.system_address:
-            self.spansh_status.setText(tr('spansh.refresh_already_today'))
 
     def set_light_mode(self, light):
         self.preview.set_light_mode(light)

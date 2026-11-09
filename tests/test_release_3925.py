@@ -16,6 +16,7 @@ from cmdrhelper.update import is_newer_version
 from tools.publish_release import release_notes, version_at
 
 ROOT = Path(__file__).resolve().parents[1]
+RELEASE_VERSION = '3.9.25'  # Historical release, independent of the running version.
 
 
 class Release3925Tests(unittest.TestCase):
@@ -24,17 +25,17 @@ class Release3925Tests(unittest.TestCase):
         cls.app = QApplication.instance() or QApplication([])
 
     def test_metadata_readmes_and_real_dialog_all_languages_themes(self):
-        self.assertEqual(__version__, '3.9.25')
+        self.assertRegex(__version__, r'^\d+(?:\.\d+)+$')
         self.assertEqual(version_at(ROOT), __version__)
         self.assertEqual(SCHEMA_VERSION, 23)
-        self.assertTrue(is_newer_version(__version__, '3.9.24'))
+        self.assertTrue(is_newer_version(RELEASE_VERSION, '3.9.24'))
         self.addCleanup(set_language, get_language())
         self.addCleanup(self.app.setStyleSheet, self.app.styleSheet())
-        notes = release_notes(ROOT, __version__)
+        notes = release_notes(ROOT, RELEASE_VERSION)
         payload = json.loads(re.search(r'<!-- cmdrhelper-update-summary\s+(.*?)-->', notes, re.S)[1])
         self.assertEqual(set(payload), set(_TRANSLATIONS))
         self.assertEqual(len(payload), 12)
-        keys = RELEASE_SUMMARIES[__version__]
+        keys = RELEASE_SUMMARIES[RELEASE_VERSION]
         self.assertEqual(len(keys), 3)
         for lang, table in _TRANSLATIONS.items():
             expected = [table[key] for key in keys]
@@ -50,7 +51,7 @@ class Release3925Tests(unittest.TestCase):
             self.assertIn('## CMDRHelper v3.9.24\n', readme)
             for theme in (DARK_STYLESHEET, LIGHT_STYLESHEET):
                 self.app.setStyleSheet(theme)
-                box = UpdateConfirmationBox(None, 'Update', 'Test', __version__, notes)
+                box = UpdateConfirmationBox(None, 'Update', 'Test', RELEASE_VERSION, notes)
                 self.addCleanup(destroy_widget, box)
                 box.show()
                 self.app.processEvents()

@@ -1,4 +1,5 @@
 """Opt-in live visits and one current-system check after startup; no archives."""
+from cmdrhelper import performance_profile as profile
 from cmdrhelper.exit_tasks import submit
 from collections import OrderedDict
 import logging
@@ -27,11 +28,13 @@ class LiveEntryGate:
         if (not live or not commander or not valid_id(address)
                 or previous[0] != commander or previous[1] == address):
             return None
+        current_time = self.now()
+        earliest = max(self.started_at, current_time - timedelta(minutes=5))
         for event in reversed(events or []):
             when = timestamp(event.get('timestamp'))
             if (event.get('event') in ('FSDJump','CarrierJump','Location')
                     and type(event.get('SystemAddress')) is int and event['SystemAddress'] == address
-                    and when and self.started_at <= when <= self.now() + timedelta(minutes=5)):
+                    and when and earliest <= when <= current_time + timedelta(minutes=5)):
                 return address
         return None
 
@@ -49,6 +52,7 @@ class CacheWorker(QRunnable):
         self.generation, self.address, self.cache, self.current = generation, address, cache, current
 
     @Slot()
+    @profile.measure('spansh.worker')
     def run(self):
         data = None
         try:
@@ -57,6 +61,8 @@ class CacheWorker(QRunnable):
         except Exception:
             logging.getLogger(__name__).exception('Spansh cache worker failed')
         finally:
+            if profile.ENABLED:
+                profile.mark(('spansh', id(self)))
             self.signals.finished.emit(self.generation, self.address, data)
 
 
@@ -64,7 +70,6 @@ class SpanshStations(QObject):
     updated = Signal(object)
     activityChanged = Signal()
     completed = Signal(object, bool)
-    alreadyUpdated = Signal(object)
 
     def __init__(self, settings, parent=None, *, cache=None, pool=None, now=utcnow):
         super().__init__(parent)
@@ -113,21 +118,57 @@ class SpanshStations(QObject):
         if not self.active or not valid_id(address) or address != self.gate.address:
             return
         cached = self.cached(address)
-        if cached and self.cache.fresh(cached): return
+        if cached and self.cache.fresh(cached):
+            if profile.ENABLED:
+                profile.event('spansh.decision', trigger='automatic', outcome='cache_hit',
+                    cache_age_seconds=max(0, (self.cache.now()-timestamp(cached['fetched_at'])).total_seconds()))
+            return
         self._start(address, manual=False)
+
+    def status(self, address):
+        """One status projection shared by both existing station controls."""
+        if not self.active:
+            return 'spansh.refresh_disabled', ''
+        if not valid_id(address):
+            return 'spansh.status_missing', ''
+        if self.busy(address):
+            return 'spansh.refresh_busy', ''
+        wait = self.cache.server_wait(address)
+        if wait:
+            until = timestamp(wait['retry_not_before']).astimezone().isoformat(timespec='seconds')
+            return 'spansh.status_server_wait', until
+        attempt = self.cache.attempt(address)
+        if attempt.get('kind') == 'server' and not attempt.get('retry_not_before'):
+            return 'spansh.status_server_unknown', ''
+        if attempt:
+            return 'spansh.refresh_failed', ''
+        data = self.cached(address)
+        if data:
+            return ('spansh.status_current' if self.cache.fresh(data) else 'spansh.status_old'), ''
+        return 'spansh.status_missing', ''
 
     def busy(self, address):
         return any(key[1] == address for key in self.workers)
 
     def refresh_system(self, address):
-        """Bypass TTL/automatic attempts, but not a successful fetch today."""
+        """Bypass age and local error pauses, never an explicit server wait."""
         return self._start(address, manual=True)
 
     def _start(self, address, *, manual):
-        if not self.active or not valid_id(address) or self.busy(address): return False
-        if manual and self.cache.fetched_today(self.cache.read(address)):
-            self.alreadyUpdated.emit(address)
+        if not self.active or not valid_id(address) or self.busy(address):
+            if profile.ENABLED:
+                profile.event('spansh.decision', trigger='manual' if manual else 'automatic',
+                              outcome='busy' if self.active and valid_id(address) else 'inactive')
             return False
+        server_wait = self.cache.server_wait(address)
+        if server_wait or (not manual and not self.cache.automatic_allowed(address)):
+            if profile.ENABLED:
+                profile.event('spansh.decision', trigger='manual' if manual else 'automatic',
+                              outcome='server_wait' if server_wait else 'error_pause')
+            self.activityChanged.emit()
+            return False
+        if profile.ENABLED:
+            profile.event('spansh.decision', trigger='manual' if manual else 'automatic', outcome='started')
         generation = self.generation
         worker = CacheWorker(generation, address, self.cache,
             lambda: self.active and self.generation == generation
@@ -135,18 +176,20 @@ class SpanshStations(QObject):
         worker.signals.finished.connect(self._finished)
         self.workers[(generation, address)] = worker
         self.activityChanged.emit()
-        submit(self.pool, worker)
+        try:
+            submit(self.pool, worker)
+        except Exception:
+            self.workers.pop((generation, address), None)
+            self.activityChanged.emit()
+            raise
         return True
 
     @Slot(int, object, object)
+    @profile.measure('spansh.publish')
     def _finished(self, generation, address, data):
         worker = self.workers.pop((generation,address), None)
-        # A cache may have been updated while this worker was queued.
-        if worker and worker.manual and worker.success is None and data is not None:
-            if self.active and generation == self.generation:
-                self.alreadyUpdated.emit(address)
-            self.activityChanged.emit()
-            return
+        if profile.ENABLED and worker:
+            profile.receive(('spansh', id(worker)), 'spansh.handoff')
         if data is not None:
             self.documents[address] = data
             self.documents.move_to_end(address)

@@ -1,4 +1,5 @@
 from __future__ import annotations
+from cmdrhelper import performance_profile as profile
 from cmdrhelper.exit_tasks import submit
 from cmdrhelper.ui.auxiliary_window import AuxiliaryWindow, close_auxiliary_windows
 
@@ -1367,6 +1368,7 @@ class MainWindow(QMainWindow):
         view = getattr(getattr(self, "material_view", None), "odyssey", None)
         return view.display_diagnostics.snapshot if view is not None else None
 
+    @profile.measure('menu.switch', menu=True)
     def _show_page(self, idx):
         if idx != self.pages.currentIndex():
             view = getattr(getattr(self, "material_view", None), "odyssey", None)
@@ -1874,6 +1876,7 @@ class MainWindow(QMainWindow):
 
         return page
 
+    @profile.measure('slot.overview.follow_live')
     def _refresh_overview_follow_live(self, _commander_id=None):
         enabled = self.state.follow_live_commander
         checkbox = self.overview_follow_live_checkbox
@@ -2000,6 +2003,20 @@ class MainWindow(QMainWindow):
 
         overview_row = QHBoxLayout()
         overview_row.addStretch()
+
+        self.explorer_spansh_button = QPushButton(tr("spansh.refresh"))
+        self.explorer_spansh_button.setCursor(Qt.PointingHandCursor)
+        self.explorer_spansh_button.clicked.connect(self._refresh_explorer_spansh)
+        self.explorer_spansh_status = QLabel('', objectName='muted')
+        self.explorer_spansh_status.setWordWrap(True)
+        overview_row.addWidget(self.explorer_spansh_status)
+        overview_row.addWidget(self.explorer_spansh_button)
+        spansh = getattr(self.state, "spansh_stations", None)
+        if spansh is not None:
+            spansh.activityChanged.connect(self._update_explorer_spansh_button)
+        if hasattr(self.state, "changed"):
+            self.state.changed.connect(self._update_explorer_spansh_button)
+        self._update_explorer_spansh_button()
 
         self.system_overview_button = QPushButton(tr("explorer.show_all"))
         self.system_overview_button.setToolTip(tr("explorer.show_all_tooltip"))
@@ -3369,11 +3386,29 @@ class MainWindow(QMainWindow):
             else:
                 QMessageBox.information(self, tr("favorites.title"), tr("favorites.no_body"))
 
+    def _update_explorer_spansh_button(self):
+        from cmdrhelper.spansh_cache import valid_id
+        spansh = getattr(self.state, "spansh_stations", None)
+        address = getattr(self.state, "system_address", None)
+        active = bool(spansh and spansh.active)
+        busy = bool(spansh and spansh.busy(address))
+        self.explorer_spansh_button.setEnabled(active and valid_id(address) and not busy)
+        key, until = spansh.status(address) if spansh else ('spansh.refresh_disabled', '')
+        hint = tr(key, until=until)
+        self.explorer_spansh_button.setToolTip(hint)
+        self.explorer_spansh_status.setText(hint)
+
+    def _refresh_explorer_spansh(self):
+        self._update_explorer_spansh_button()
+        if self.explorer_spansh_button.isEnabled():
+            self.state.spansh_stations.refresh_system(self.state.system_address)
+
     def _station_display_model(self, address, bodies, journal):
         from cmdrhelper.spansh_cache import merge_stations
         spansh = getattr(self.state, 'spansh_stations', None)
         return merge_stations(journal, spansh.cached(address) if spansh else None, bodies, address)
 
+    @profile.measure('spansh.gui_update')
     def _station_model_updated(self, address):
         # Only affected maps; no global state.refresh(), inventory or DB writes.
         if address == self.state.system_address:
@@ -3397,6 +3432,7 @@ class MainWindow(QMainWindow):
             if historical._system_overview_window is not None:
                 historical._system_overview_window.preview.set_stations(stations)
 
+    @profile.measure('spansh.explorer_update')
     def _refresh_stations_tab(self):
         if not hasattr(self, 'stations_view'):
             return
@@ -4280,6 +4316,7 @@ class MainWindow(QMainWindow):
             or getattr(self.state, "commander_id", None)
         )
 
+    @profile.measure('slot.chronicle.commander_changed')
     def _chronicle_viewed_commander_changed(self, *_args):
         self._refresh_chronicle_mining_commodities()
         if hasattr(self, "chronicle_map"):
@@ -6430,6 +6467,7 @@ class MainWindow(QMainWindow):
         """Übersetzt ausschließlich von CMDRHelper erzeugte Missions-Anzeigetexte."""
         return translate_mission_text(value)
 
+    @profile.measure('slot.missions.selection_changed')
     def _mission_selection_changed(self, *_):
         stocks = current_mission_cargo_assessment(self.state)[1]
         refresh_mission_cargo_rows(self.missions_table, self.state.missions, stocks,
@@ -6597,6 +6635,7 @@ class MainWindow(QMainWindow):
 
         self.system_scan_header.setText(prefix + escape(scan_status))
 
+    @profile.measure('gui.refresh_all')
     def refresh_all(self):
         self.favorites_view.sync_commander()
         commander = self.state.commander or "–"
@@ -6840,6 +6879,7 @@ class MainWindow(QMainWindow):
             self.explorer_tabs.setTabText(3, tr("stations.tab", count=len(
                 getattr(self.state, "system_stations", []))))
 
+    @profile.measure('gui.visible_details')
     def _refresh_visible_details(self, *_):
         if not hasattr(self, "pages"):
             return  # Explorer construction precedes installation in the page stack.

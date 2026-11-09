@@ -1,4 +1,5 @@
 """Small lifecycle helpers for the existing startup threads; no Qt ownership."""
+from cmdrhelper import performance_profile as profile
 import logging
 import sqlite3
 import threading
@@ -89,6 +90,7 @@ def start(state, target, name, failed, flags):
     if state._startup_cancel.is_set():
         return
 
+    @profile.measure('worker.thread')
     def run():
         try:
             check(state)

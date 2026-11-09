@@ -64,17 +64,17 @@ class CacheTests(unittest.TestCase):
         self.assertEqual([p.name for p in Path(self.temp.name).iterdir()],['1.json'])
 
     def test_old_cache_only_updated_by_visit(self):
-        old=normalize(raw(),1,NOW-timedelta(days=31));self.cache.write(old)
+        old=normalize(raw(),1,NOW-timedelta(days=91));self.cache.write(old)
         self.assertEqual(self.cache.read(1),old);self.fetch.assert_not_called()
         self.assertNotEqual(self.cache.visit(1)['fetched_at'],old['fetched_at'])
         self.fetch.assert_called_once_with(1)
 
-    def test_exact_7_days_expired_and_future_fetch_time_not_fresh(self):
-        for age in (timedelta(days=7),timedelta(days=-1)):
+    def test_exact_90_days_expired_and_future_fetch_time_not_fresh(self):
+        for age in (timedelta(days=90),timedelta(days=-1)):
             self.assertFalse(self.cache.fresh(normalize(raw(),1,NOW-age)))
 
     def test_offline_uses_old_cache_and_empty_system_is_safe(self):
-        old=normalize(raw(),1,NOW-timedelta(days=31));self.cache.write(old)
+        old=normalize(raw(),1,NOW-timedelta(days=91));self.cache.write(old)
         self.fetch.side_effect=OSError('offline')
         self.assertEqual(self.cache.visit(1),old)
         self.assertIsNone(self.cache.visit(2))
@@ -138,9 +138,9 @@ class CacheTests(unittest.TestCase):
         data=normalize(response,1,NOW)
         self.assertEqual([s['market_id'] for s in data['stations']],[100,101,102])
 
-    def test_ambiguous_duplicate_market_facts_omitted(self):
+    def test_ambiguous_duplicate_market_facts_reject_entire_dump(self):
         response=raw();response['system']['stations'].append(dict(id=100,name='Conflicting',type='Outpost'))
-        self.assertEqual([s['market_id'] for s in normalize(response,1,NOW)['stations']],[101])
+        with self.assertRaises(ValueError): normalize(response,1,NOW)
 
     def test_request_contains_only_public_id_and_fixed_headers(self):
         with patch('cmdrhelper.spansh_cache.urlopen',return_value=io.BytesIO(json.dumps(raw()).encode())) as transport:
@@ -239,7 +239,7 @@ class LiveTests(unittest.TestCase):
 
     def test_fresh_cache_skips_worker_stale_refreshes_only_on_revisit(self):
         self.cache.write(normalize(raw(2),2,NOW));self.arrive(2);self.pool.start.assert_not_called()
-        self.cache.write(normalize(raw(3),3,NOW-timedelta(days=31)))
+        self.cache.write(normalize(raw(3),3,NOW-timedelta(days=91)))
         self.controller.cached(3);self.pool.start.assert_not_called()
         self.arrive(3);self.run_worker();self.fetch.assert_called_once_with(3)
 
@@ -290,7 +290,7 @@ class LiveTests(unittest.TestCase):
                 for node in ast.walk(method):
                     if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute) and node.func.attr=='observe' and isinstance(node.func.value,ast.Name) and node.func.value.id=='spansh':network_calls.append(method.name)
         self.assertEqual(network_calls,['refresh'])
-        self.assertIn("live=bool(identified and getattr(self, '_watcher_live_refresh', False))",source)
+        self.assertIn("getattr(self, '_spansh_live_refresh', False)",source)
         self.assertNotIn('spansh',Path('cmdrhelper/database.py').read_text().lower())
 
 
@@ -347,7 +347,7 @@ class StartupTests(unittest.TestCase):
         self.pool.start.assert_called_once()
 
     def test_expired_cache_uses_existing_automatic_refresh(self):
-        self.cache.write(normalize(raw(), 1, NOW - timedelta(days=8)))
+        self.cache.write(normalize(raw(), 1, NOW - timedelta(days=91)))
         self.finish()
         self.run_worker()
         self.fetch.assert_called_once_with(1)
@@ -419,7 +419,7 @@ class StartupTests(unittest.TestCase):
         self.pool.start.assert_called_once()
         self.fetch.assert_called_once_with(2)
 
-    def test_timeout_is_contained_and_existing_daily_limit_applies(self):
+    def test_timeout_is_contained_and_persisted_error_pause_applies(self):
         self.fetch.side_effect = TimeoutError('offline')
         self.finish()
         with self.assertLogs('cmdrhelper.spansh_cache', level='WARNING'):
@@ -427,10 +427,9 @@ class StartupTests(unittest.TestCase):
         self.assertTrue(self.state._spansh_startup_done)
         self.assertFalse(self.controller.busy(1))
         self.assertIsNone(self.controller.cached(1))
-        # Another startup on the same day uses the persisted automatic limit.
+        # Another startup during the error pause does not start a worker.
         self.state._spansh_startup_done = False
         self.finish()
-        self.run_worker()
         self.fetch.assert_called_once_with(1)
 
     def test_worker_scheduling_error_does_not_escape_startup(self):
@@ -477,29 +476,79 @@ class RefreshTests(unittest.TestCase):
     arrive = LiveTests.arrive
     run_worker = LiveTests.run_worker
 
-    def test_six_days_fresh_seven_days_expired(self):
-        self.cache.write(normalize(raw(2),2,NOW-timedelta(days=6)))
+    def test_explorer_button_uses_shared_refresh_and_current_system(self):
+        from PySide6.QtWidgets import QWidget
+        from cmdrhelper.i18n import _TRANSLATIONS, tr
+        window = MainWindow.__new__(MainWindow)
+        QMainWindow.__init__(window)
+        self.addCleanup(window.deleteLater)
+        self.addCleanup(window.close)
+        signals = AppState.__new__(AppState)
+        QObject.__init__(signals)
+        window.state = SimpleNamespace(
+            settings=self.settings, system='Test', system_address=8,
+            system_bodies=[], spansh_stations=self.controller, changed=signals.changed,
+            database=SimpleNamespace(learned_bio_values=lambda: {}))
+        window.ui_theme = 'dark'
+        window._quick_favorite_hotkey = None
+        with patch('cmdrhelper.ui.favorites_view.FavoritesView', side_effect=lambda *a, **kw: QWidget()):
+            window.setCentralWidget(window._explorer())
+        button = window.explorer_spansh_button
+        row = button.parentWidget().layout()
+        button_row = next(row.itemAt(i).layout() for i in range(row.count())
+                          if row.itemAt(i).layout() and row.itemAt(i).layout().indexOf(button) >= 0)
+        self.assertIsNotNone(button_row.itemAt(0).spacerItem())
+        self.assertIs(button_row.itemAt(2).widget(), button)
+        self.assertIs(button_row.itemAt(3).widget(), window.system_overview_button)
+        self.assertEqual(button.text(), tr('spansh.refresh'))
+        for language, texts in _TRANSLATIONS.items():
+            self.assertTrue(texts['spansh.refresh'].strip(), language)
+        self.fetch.assert_not_called()
+        button.click()
+        self.assertFalse(button.isEnabled())
+        button.click()
+        self.pool.start.assert_called_once()
+        self.run_worker()
+        self.fetch.assert_called_once_with(8)
+        self.assertTrue(button.isEnabled())
+        button.click(); self.run_worker()
+        self.assertEqual(self.fetch.call_count,2)
+        window.state.system_address = None
+        signals.changed.emit()
+        self.assertFalse(button.isEnabled())
+        window.state.system_address = 9
+        signals.changed.emit()
+        self.assertTrue(button.isEnabled())
+        button.click()
+        self.run_worker()
+        self.assertEqual(self.fetch.call_args.args, (9,))
+        self.controller.set_enabled(False)
+        self.assertFalse(button.isEnabled())
+
+    def test_eighty_nine_days_fresh_ninety_days_expired(self):
+        self.cache.write(normalize(raw(2),2,NOW-timedelta(days=89)))
         self.arrive(2);self.pool.start.assert_not_called()
-        self.cache.write(normalize(raw(3),3,NOW-timedelta(days=7)))
+        self.cache.write(normalize(raw(3),3,NOW-timedelta(days=90)))
         self.arrive(3);self.run_worker();self.fetch.assert_called_once_with(3)
 
-    def test_failed_a_b_a_and_restart_persist_day_guard(self):
+    def test_failed_a_b_a_and_restart_persist_error_pause(self):
         self.fetch.side_effect=OSError('offline')
         self.arrive(2);self.run_worker();self.arrive(3);self.run_worker()
-        self.arrive(2);self.run_worker()
+        self.arrive(2)
         self.assertEqual(self.fetch.call_count,2)
         restarted=SystemCache(self.cache.root,self.fetch,lambda:NOW)
         self.assertEqual(restarted.request(2,automatic=True),(None,None))
         self.assertEqual(self.fetch.call_count,2)
         self.assertTrue(restarted.automatic_allowed(4))
 
-    def test_next_local_calendar_day_allows_retry(self):
-        local=datetime.now().astimezone().tzinfo
-        clock=[datetime(2026,9,16,23,50,tzinfo=local)]
-        self.cache.now=lambda:clock[0]
+    def test_five_minutes_not_midnight_allows_retry(self):
+        clock=[NOW]; self.cache.now=lambda:clock[0]
         self.fetch.side_effect=OSError('offline')
         self.cache.request(2,automatic=True)
-        clock[0]+=timedelta(minutes=20)
+        clock[0]+=timedelta(minutes=5)-timedelta(microseconds=1)
+        self.cache.request(2,automatic=True)
+        self.assertEqual(self.fetch.call_count,1)
+        clock[0]+=timedelta(microseconds=1)
         self.cache.request(2,automatic=True)
         self.assertEqual(self.fetch.call_count,2)
 
@@ -509,40 +558,29 @@ class RefreshTests(unittest.TestCase):
         self.cache.request(2,automatic=True)
         self.fetch.assert_called_once_with(2)
 
-    def test_manual_bypasses_freshness_and_failed_day_guard(self):
-        self.cache.write(normalize(raw(2),2,NOW-timedelta(days=8)))
+    def test_manual_bypasses_freshness_and_error_pause(self):
         self.fetch.side_effect=OSError('offline')
         self.cache.request(2,automatic=True)
-        self.cache.write(normalize(raw(2),2,NOW-timedelta(days=1)))
         self.fetch.side_effect=lambda address:raw(address)
+        for _ in range(2):
+            self.assertTrue(self.controller.refresh_system(2));self.run_worker()
+        self.assertEqual(self.fetch.call_count,3)
+        self.assertEqual(self.cache.attempt(2),{})
+
+    def test_manual_repeat_updates_success_timestamp_and_model(self):
         self.assertTrue(self.controller.refresh_system(2));self.run_worker()
-        self.assertFalse(self.controller.refresh_system(2))
+        first=self.cache.read(2)['fetched_at']
+        self.cache.now=lambda:NOW+timedelta(seconds=1)
+        updated=[];self.controller.updated.connect(updated.append)
+        self.assertTrue(self.controller.refresh_system(2));self.run_worker()
+        self.assertNotEqual(first,self.cache.read(2)['fetched_at'])
+        self.assertEqual(updated,[2]);self.assertEqual(self.fetch.call_count,2)
+
+    def test_automatic_success_allows_manual_after_restart(self):
+        self.cache.request(2,automatic=True)
+        restarted=SpanshStations(self.settings,cache=self.cache,pool=self.pool)
+        self.assertTrue(restarted.refresh_system(2));self.run_worker()
         self.assertEqual(self.fetch.call_count,2)
-
-    def test_manual_without_cache_then_repeat_keeps_files_and_model_untouched(self):
-        self.assertTrue(self.controller.refresh_system(2));self.run_worker()
-        cache_path = self.cache.path(2)
-        before = (cache_path.read_bytes(), cache_path.stat().st_mtime_ns)
-        self.pool.reset_mock(); self.fetch.reset_mock()
-        updated, skipped = [], []
-        self.controller.updated.connect(updated.append)
-        self.controller.alreadyUpdated.connect(skipped.append)
-        for _ in range(3): self.assertFalse(self.controller.refresh_system(2))
-        self.assertEqual(skipped, [2, 2, 2]); self.assertEqual(updated, [])
-        self.pool.start.assert_not_called(); self.fetch.assert_not_called()
-        self.assertEqual((cache_path.read_bytes(), cache_path.stat().st_mtime_ns), before)
-        self.assertFalse((self.cache.root/'attempts').exists())
-
-    def test_automatic_success_blocks_manual_even_after_restart_without_writes(self):
-        self.cache.request(2, automatic=True)
-        paths = [self.cache.path(2), self.cache.root/'attempts'/'2.json']
-        before = [(p.read_bytes(), p.stat().st_mtime_ns) for p in paths]
-        self.fetch.reset_mock()
-        restarted = SpanshStations(self.settings, cache=self.cache, pool=self.pool)
-        self.assertFalse(restarted.refresh_system(2))
-        self.assertEqual(self.cache.request(2, manual=True)[1], None)
-        self.assertEqual([(p.read_bytes(), p.stat().st_mtime_ns) for p in paths], before)
-        self.pool.start.assert_not_called(); self.fetch.assert_not_called()
 
     def test_failed_manual_with_yesterdays_cache_allows_immediate_retry(self):
         self.cache.write(normalize(raw(2),2,NOW-timedelta(days=1)))
@@ -552,42 +590,30 @@ class RefreshTests(unittest.TestCase):
             self.assertTrue(self.controller.refresh_system(2));self.run_worker()
             self.assertEqual(self.cache.path(2).read_bytes(), old)
         self.assertEqual(self.fetch.call_count, 2)
-        self.assertFalse((self.cache.root/'attempts').exists())
+        self.assertEqual(self.cache.attempt(2).get('kind'),'error')
 
-    @unittest.skipUnless(hasattr(time, 'tzset'), 'Requires local timezone switching')
-    def test_manual_local_midnight_and_utc_date_difference(self):
-        self.addCleanup(time.tzset)
-        with patch.dict(os.environ, {'TZ': 'Europe/Berlin'}):
-            time.tzset()
-            # 23:55 local -> 00:10 local, still the same UTC date.
-            clock = [datetime(2026,9,16,21,55,tzinfo=timezone.utc)]
-            self.cache.now = lambda: clock[0]
+    def test_manual_is_independent_of_calendar_day(self):
+        clock=[NOW];self.cache.now=lambda:clock[0]
+        for delta in (0,1,86399,86400):
+            clock[0]=NOW+timedelta(seconds=delta)
             self.assertTrue(self.controller.refresh_system(2));self.run_worker()
-            clock[0] += timedelta(minutes=15)
-            self.assertTrue(self.controller.refresh_system(2));self.run_worker()
-            # Different UTC dates, but still the same local day: blocked.
-            clock[0] = datetime(2026,9,17,0,10,tzinfo=timezone.utc)
-            self.assertFalse(self.controller.refresh_system(2))
-            self.assertEqual(self.fetch.call_count, 2)
-        time.tzset()
+        self.assertEqual(self.fetch.call_count,4)
 
-    def test_queued_manual_rechecks_cache_without_merge_or_error(self):
+    def test_queued_manual_still_fetches_after_another_success(self):
         self.assertTrue(self.controller.refresh_system(2))
         self.cache.write(normalize(raw(2),2,NOW))
-        updated, completed, skipped = [], [], []
-        self.controller.updated.connect(updated.append)
-        self.controller.completed.connect(lambda *args: completed.append(args))
-        self.controller.alreadyUpdated.connect(skipped.append)
+        completed=[];self.controller.completed.connect(lambda *a:completed.append(a))
         self.run_worker()
-        self.fetch.assert_not_called()
-        self.assertEqual(updated, []); self.assertEqual(completed, [])
-        self.assertEqual(skipped, [2]); self.assertFalse(self.controller.busy(2))
+        self.fetch.assert_called_once_with(2)
+        self.assertEqual(completed,[(2,True)])
+        self.assertFalse(self.controller.busy(2))
 
-    def test_already_today_translation_in_all_twelve_languages(self):
+    def test_station_status_translations_in_all_twelve_languages(self):
         from cmdrhelper.i18n import _TRANSLATIONS
-        self.assertEqual(len(_TRANSLATIONS), 12)
-        for language, table in _TRANSLATIONS.items():
-            self.assertTrue(table['spansh.refresh_already_today'].strip(), language)
+        self.assertEqual(len(_TRANSLATIONS),12)
+        for table in _TRANSLATIONS.values():
+            for key in ('status_current','status_old','status_missing','status_server_wait','status_server_unknown'):
+                self.assertTrue(table['spansh.'+key].strip())
 
     def test_parallel_same_id_block_even_across_generation(self):
         self.assertTrue(self.controller.refresh_system(2))
@@ -605,7 +631,7 @@ class RefreshTests(unittest.TestCase):
         self.fetch.assert_not_called()
 
     def test_invalid_response_and_offline_preserve_file(self):
-        self.cache.write(normalize(raw(2),2,NOW-timedelta(days=8)))
+        self.cache.write(normalize(raw(2),2,NOW-timedelta(days=91)))
         old=self.cache.path(2).read_bytes()
         for response in [OSError('offline'), {'system':{'id64':999}}]:
             self.fetch.side_effect=response if isinstance(response,Exception) else None
@@ -614,10 +640,12 @@ class RefreshTests(unittest.TestCase):
             self.assertFalse(success);self.assertIsNotNone(data)
             self.assertEqual(self.cache.path(2).read_bytes(),old)
 
-    def test_mark_failure_prevents_unguarded_network(self):
-        with patch.object(self.cache,'_mark_automatic',side_effect=OSError('read-only')):
+    def test_retry_metadata_write_failure_keeps_in_memory_pause(self):
+        self.fetch.side_effect=OSError('offline')
+        with patch('cmdrhelper.spansh_cache.os.replace',side_effect=OSError('read-only')):
             self.assertEqual(self.cache.request(2,automatic=True),(None,False))
-        self.fetch.assert_not_called()
+        self.assertEqual(self.cache.request(2,automatic=True),(None,None))
+        self.fetch.assert_called_once_with(2)
 
     def test_button_busy_success_and_failure_current_display_only(self):
         from cmdrhelper.ui.system_overview import SystemOverviewDialog
@@ -631,12 +659,13 @@ class RefreshTests(unittest.TestCase):
         self.run_worker()
         self.fetch.assert_called_once_with(8);self.assertEqual(updates,[8])
         self.assertTrue(dialog.spansh_button.isEnabled())
-        self.assertEqual(dialog.spansh_status.text(),tr('spansh.refresh_success'))
+        self.assertEqual(dialog.spansh_status.text(),tr('spansh.status_current'))
         dialog.spansh_button.click()
-        self.assertTrue(dialog.spansh_button.isEnabled())
-        self.assertEqual(dialog.spansh_status.text(),tr('spansh.refresh_already_today'))
-        self.fetch.assert_called_once_with(8);self.pool.start.assert_called_once()
-        self.assertEqual(updates, [8])
+        self.assertFalse(dialog.spansh_button.isEnabled())
+        self.run_worker()
+        self.assertEqual(dialog.spansh_status.text(),tr('spansh.status_current'))
+        self.assertEqual(self.fetch.call_count,2)
+        self.assertEqual(updates,[8,8])
         self.cache.now=lambda:NOW+timedelta(days=1)
         self.fetch.side_effect=OSError('offline')
         dialog.spansh_button.click();self.run_worker()

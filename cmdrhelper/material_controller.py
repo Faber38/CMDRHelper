@@ -1,4 +1,5 @@
 """Asynchronous adapter between journal refresh signals and Engineering inventory."""
+from cmdrhelper import performance_profile as profile
 from cmdrhelper.exit_tasks import submit
 from pathlib import Path
 import sqlite3
@@ -79,6 +80,7 @@ class MaterialController(QObject):
         QTimer.singleShot(0, self.request)
 
     @Slot()
+    @profile.measure('slot.materials.request')
     def request(self, *args, force=False):
         cid = getattr(self.state, "viewed_commander_id", None) or getattr(self.state, "commander_id", None)
         fid = getattr(self.state, "commander_fid", "") if cid == getattr(self.state, "commander_id", None) else ""

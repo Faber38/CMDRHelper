@@ -2,7 +2,7 @@
 from pathlib import Path
 from urllib.parse import quote
 
-from .game_instances import confirmed_selection, inspect_instances, presentation_instances
+from .game_instances import confirmed_selection, inspect_instances, presentation_instances, presentation_is_current
 
 
 def source_key(fid):
@@ -68,9 +68,10 @@ def live_context(state):
     manager = getattr(state, 'sources', None)
     if manager is None:
         return None
-    # Only synchronous presentation subscribers share process evidence. Always
-    # revalidate selection/projection; independent calls inspect processes anew.
-    selected = confirmed_selection(presentation_instances(state, inspect_instances), manager.runtimes.values())
+    # Linux presentation consumers share only current worker evidence. Always
+    # revalidate selection/projection; pending or expired evidence authorizes nothing.
+    processes = presentation_instances(state, inspect_instances)
+    selected = confirmed_selection(processes, manager.runtimes.values())
     if selected is None:
         return None
     source_id, cid, fid = selected
@@ -83,6 +84,8 @@ def live_context(state):
     session = data.get('latest_journal_session') or {}
     if (session.get('fid_seen') != fid or session.get('attribution_status') != 'identified'
             or session.get('journal_file') != rows[-1]['journal_file']):
+        return None
+    if not presentation_is_current(state, processes):
         return None
     return dict(fid=fid, commander=data.get('commander_identity_name') or data.get('commander') or '',
                 system=data.get('system') or '', source_id=source_id,

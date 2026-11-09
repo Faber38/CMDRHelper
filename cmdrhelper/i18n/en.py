@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_30.0": 'Linux process checks are coalesced in the background and no longer synchronously block the interface. Commander selection, arrival displays and screenshots use only current, verified process information.',
+    "release.3_9_30.1": 'The mining controller cancels deferred startup callbacks after destruction and safely disconnects its signals. Closed controllers no longer start manual refreshes.',
+    "release.3_9_30.2": 'Resetting bounties and combat bonds uses the verified journal source of the selected commander.',
+    "release.3_9_30.3": 'Spansh station data stays fresh for 90 days. Manual refreshes can be repeated; error pauses and server-requested waits are respected. Existing data is retained on failure.',
+    "release.3_9_30.4": 'Optional performance diagnostics record GUI, worker and process timings. Expected file descriptor errors are aggregated instead of logged individually; diagnostics remain off unless enabled.',
+
     "release.3_9_29.0": 'Improved mission cargo detection.',
     "release.3_9_29.1": 'Support for matching trade goods without a MissionID.',
     "release.3_9_29.2": 'Existing MissionID-based detection is preserved.',
@@ -376,7 +382,6 @@ TRANSLATIONS = {
     'release.3_6.3': 'Personal ship and carrier images, type/default images and an image viewer. Remove ships from the fleet or restore them with “Reread all ships”; sold ships are recognised more reliably.',
     'release.3_6.4': 'Improved system map, value list with coloured mapping status, Cargo HUD and navigation. Lower background load on Linux and for screenshots, the gallery and Explorer.',
     'release.3_6.5': 'Fixed: harmless short Elite journals no longer interrupt tracking of mining carrier inventories. A verified backup is now created automatically before the database upgrade.',
-    'spansh.refresh_already_today': 'Spansh data has already been updated today.',
     'stations.local_notice': 'Spansh station data is disabled. Only stations from your own journal data are shown.',
     'stations.local_notice_settings': 'Enable in Settings → Online Services',
     'stations.empty_local': 'No stations or facilities in this system are known from the currently available local journal data.',
@@ -390,7 +395,12 @@ TRANSLATIONS = {
 
 
     'spansh.enabled': 'Add Spansh station information',
-    'spansh.hint': 'Optional: Automatically query only new live system arrivals. Cache 7 days; send no commander information.',
+    'spansh.status_current': 'Station data current (90 days).',
+    'spansh.status_old': 'Showing old or incomplete station data.',
+    'spansh.status_missing': 'No complete station data yet.',
+    'spansh.status_server_wait': 'Spansh requests a wait until {until}.',
+    'spansh.status_server_unknown': 'Spansh limited the request without specifying a wait.',
+    'spansh.hint': 'Optional: Check station lists on current journal system visits. Complete checks remain current for 90 days; no market prices or commander uploads.',
     'spansh.distance_ls': 'Distance to arrival',
     'spansh.allegiance': 'Allegiance',
     'spansh.government': 'Government',

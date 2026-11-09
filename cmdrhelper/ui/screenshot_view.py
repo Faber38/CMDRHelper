@@ -12,6 +12,7 @@ from cmdrhelper.screenshot_paths import (safe_filename_component, commander_scre
                                          screenshot_capture_time, screenshot_component)
 from cmdrhelper.screenshot_sources import (live_context, configured_source, source_key,
                                           migrate_legacy, suggested_source, source_conflicts, capture_identity)
+from cmdrhelper import performance_profile as profile
 from PySide6.QtCore import Qt, QTimer, QEvent, QSize, QObject, Signal, QRunnable, QThreadPool, QUrl
 from PySide6.QtGui import QIcon, QPixmap, QDesktopServices
 from PySide6.QtWidgets import (
@@ -103,6 +104,7 @@ class ScreenshotView(QWidget):
         self._preview_request = None
         self._closed = False
         self._ready = False
+        self._process_manual_request = None
         self._rows = []
         self._build_ui()
         self._populate_timer = QTimer(self)
@@ -122,6 +124,8 @@ class ScreenshotView(QWidget):
         if manager is not None:
             manager.changed.connect(self._sync_source)
             manager.timer.timeout.connect(self._sync_source)
+            if hasattr(manager, 'processScanReady'):
+                manager.processScanReady.connect(self._process_ready)
         self._sync_source()
         self._request_gallery_refresh()
         self._update_watch_state()
@@ -581,7 +585,9 @@ class ScreenshotView(QWidget):
             count = old[1] + 1 if old and old[0] == size and size > 0 else 1
             self._pending[key] = (size, count)
             if count >= 2:
-                self._known.add(key); self._pending.pop(key, None); self._queue(p)
+                if self._queue(p):
+                    self._known.add(key)
+                    self._pending.pop(key, None)
 
     def _sync_source(self, *_args, configure=False):
         if self._closed:
@@ -589,6 +595,12 @@ class ScreenshotView(QWidget):
         manager = getattr(self.state, 'sources', None)
         migrate_legacy(self.settings, manager)
         context = live_context(self.state)
+        scanner = getattr(manager, '_process_scanner', None)
+        if context is None and scanner is not None and scanner.pending:
+            # Defer ownership decisions and preserve the stable-file baseline.
+            self._context = None
+            self._update_watch_state()
+            return
         viewed = self._commander_for_id(getattr(self.state, 'viewed_commander_id', None)) or {}
         # A temporarily stale journal projection is a pause, not a source switch.
         # Preserve the baseline so BMPs arriving during ingestion are not lost.
@@ -748,6 +760,9 @@ class ScreenshotView(QWidget):
         signature = (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns)
         if key in self._converting or self._completed.get(key) == signature:
             return
+        scanner = getattr(getattr(self.state, 'sources', None), '_process_scanner', None)
+        if scanner is not None and not scanner.valid():
+            return
         worker = _ConvertWorker(
             source,
             target,
@@ -784,8 +799,11 @@ class ScreenshotView(QWidget):
             self.last_action.setText(tr("images.convert_error", name=source.name, error=error))
 
     def _convert_existing(self):
+        scanner = getattr(getattr(self.state, 'sources', None), '_process_scanner', None)
         self._sync_source()
         if not self._context:
+            if scanner is not None and (scanner.pending or not scanner.valid()):
+                self._process_manual_request = (self._binding, self.state.viewed_commander_id)
             return
         source, target = self._source(), self._target()
         if not source or not source.is_dir():
@@ -798,11 +816,22 @@ class ScreenshotView(QWidget):
             if p.is_file() and p.suffix.lower() == ".bmp":
                 out = self._output_path(p)
                 if out and not out.exists():
-                    self._known.add(str(p.resolve()))
                     if self._queue(p, historical=True):
+                        self._known.add(str(p.resolve()))
                         queued += 1
+                    elif scanner is not None and not scanner.valid():
+                        self._process_manual_request = (self._binding, self.state.viewed_commander_id)
+                        break
         if queued == 0:
             self.last_action.setText(tr("images.no_new_bmps"))
+
+    def _process_ready(self):
+        if self._closed:
+            return
+        manual, self._process_manual_request = self._process_manual_request, None
+        self._scan()
+        if manual is not None and manual == (self._binding, self.state.viewed_commander_id):
+            self._convert_existing()
 
     def _check_gallery_changes(self):
         if self.isVisible() and not self._closed:
@@ -1051,6 +1080,7 @@ class ScreenshotView(QWidget):
                     folder = current
             QDesktopServices.openUrl(QUrl.fromLocalFile(str(folder)))
 
+    @profile.measure('slot.screenshots.commander_changed')
     def _viewed_commander_changed(self, *_args):
         self._sync_source(configure=True)
         if str(self.gallery_filter.currentData() or "current") == "current":

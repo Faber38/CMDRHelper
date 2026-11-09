@@ -230,29 +230,31 @@ class SourceBatchIntegrationTests(unittest.TestCase):
         runtime = next(iter(manager.runtimes.values()))
         cid = runtime.processor.sessions[-1]['commander_id']
         state.select_viewed_commander(cid)
+        fixture.observe_processes(game.ProcessSnapshot(True))
+        scanner = manager._process_scanner
         scan = Mock(return_value=game.ProcessSnapshot(True))
-        with patch('cmdrhelper.mission_arrival.inspect_instances', scan), \
-             patch('cmdrhelper.screenshot_sources.inspect_instances', scan):
+        scanner._inspector = scan
+        with patch('cmdrhelper.mission_arrival.inspect_instances') as arrival_scan, \
+             patch('cmdrhelper.screenshot_sources.inspect_instances') as screenshot_scan:
             arrival = ArrivalSource()
-            # Subscribers intentionally query the same evidence repeatedly.
             def subscriber():
                 arrival.snapshot(state); live_context(state)
             state.changed.connect(subscriber)
             try:
                 manager._publish_local(runtime.source.id, runtime.generation,
                                        runtime.processor.sessions, '')
-                self.assertEqual(scan.call_count, 1)
-                self.assertIsNone(manager._process_observation._snapshot)
-                subscriber()
-                self.assertEqual(scan.call_count, 3)
-                with manager._process_observation.batch():
-                    live_context(state)
-                    manager._select(cid)
-                    live_context(state)
-                    self.assertEqual(scan.call_count, 5)
-                    manager.reconcile()
-                    live_context(state)
-                    self.assertEqual(scan.call_count, 6)
+                subscriber(); subscriber()
+                scan.assert_not_called()  # Still-current shared worker evidence.
+                generation = scanner._generation
+                state.select_viewed_commander(cid)
+                self.assertGreater(scanner._generation, generation)
+                self.assertIsNone(arrival.snapshot(state))
+                generation = scanner._generation
+                manager.reconcile()
+                self.assertGreater(scanner._generation, generation)
+                self.assertIsNone(live_context(state))
+                arrival_scan.assert_not_called()
+                screenshot_scan.assert_not_called()
             finally:
                 state.changed.disconnect(subscriber)
 

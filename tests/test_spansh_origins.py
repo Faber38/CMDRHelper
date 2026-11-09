@@ -90,7 +90,6 @@ class LookupTests(unittest.TestCase):
             self.assertEqual(data['coverage'],'partial')
             self.assertNotIn('market',data['stations'][0])
             self.assertFalse(self.cache.fresh(data))
-            self.assertFalse(self.cache.fetched_today(data))
             self.assertEqual(data['stations'][0]['landing_pads']['large'],5)
             self.assertEqual(data['stations'][0]['services'],['market','repair'])
 
@@ -145,7 +144,7 @@ class LookupTests(unittest.TestCase):
     def test_full_cache_metadata_and_stations_preserved(self):
         raw=row();address=raw['system_id64']
         old=normalize({'system':{'id64':address,'name':raw['system_name'],
-            'stations':[{'id':99,'name':'Other Port','type':'Outpost'}]}},address,NOW-timedelta(days=8))
+            'bodies':[], 'stations':[{'id':99,'name':'Other Port','type':'Outpost'}]}},address,NOW-timedelta(days=91))
         self.cache.write(old)
         self.cache.merge_lookup(lookup_documents(response([raw]),{raw['market_id']},NOW)[0])
         data=self.cache.read(address)
@@ -159,11 +158,11 @@ class LookupTests(unittest.TestCase):
         partial=lookup_documents(response([raw]),{raw['market_id']},NOW)[0]
         for mode in ('automatic','manual'):
             cache=SystemCache(root=self.root/mode,now=lambda:NOW,
-                fetch=Mock(return_value={'system':{'id64':address,'name':'Leesti','stations':[]}}))
+                fetch=Mock(return_value={'system':{'id64':address,'name':'Leesti','stations':[],'bodies':[]}}))
             cache.write(partial)
             full,success=cache.request(address,**{mode:True})
             self.assertTrue(success);cache.fetch.assert_called_once_with(address)
-            self.assertTrue(cache.fresh(full));self.assertTrue(cache.fetched_today(full))
+            self.assertTrue(cache.fresh(full))
             self.assertEqual(full.get('coverage','full'),'full')
 
     def test_conflicting_existing_cache_never_overwritten(self):

@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_30.0": 'Linux-procescontroles worden op de achtergrond gebundeld en blokkeren de interface niet meer synchroon. Commanderselectie, aankomstweergave en screenshots gebruiken alleen actuele, gecontroleerde procesinformatie.',
+    "release.3_9_30.1": 'De miningcontroller annuleert uitgestelde startaanroepen na vernietiging en verbreekt zijn signaalverbindingen veilig. Gesloten controllers starten geen handmatige verversing meer.',
+    "release.3_9_30.2": 'Het terugzetten van premies en gevechtsbeloningen gebruikt de gecontroleerde journaalbron van de geselecteerde commander.',
+    "release.3_9_30.3": 'Spansh-stationgegevens blijven 90 dagen actueel. Handmatig verversen kan opnieuw; foutpauzes en wachttijden van de server worden gerespecteerd. Bestaande gegevens blijven bij fouten behouden.',
+    "release.3_9_30.4": 'Optionele prestatiediagnostiek meet GUI-, worker- en procestijden. Verwachte bestandsdescriptorfouten worden geaggregeerd; zonder inschakeling blijft de diagnostiek uit.',
+
     "release.3_9_29.0": 'Verbeterde herkenning van missielading.',
     "release.3_9_29.1": 'Ondersteuning voor passende handelswaren zonder MissionID.',
     "release.3_9_29.2": 'Bestaande herkenning op basis van MissionID blijft behouden.',
@@ -376,7 +382,6 @@ TRANSLATIONS = {
     'release.3_6.3': 'Persoonlijke scheeps- en carrierafbeeldingen, type-/standaardafbeeldingen en een viewer. Verwijder schepen uit de vloot of herstel ze door alle schepen opnieuw in te lezen; verkochte schepen worden betrouwbaarder herkend.',
     'release.3_6.4': 'Verbeterde kaart, waardelijst met gekleurde karteringsstatus, Cargo HUD en navigatie. Minder achtergrondbelasting onder Linux en bij screenshots, galerij en Explorer.',
     'release.3_6.5': 'Opgelost: onschuldige korte Elite-logboeken onderbreken het bijhouden van de mijnbouwvoorraden van de carrier niet meer. Vóór de database-upgrade wordt nu automatisch een gecontroleerde back-up gemaakt.',
-    'spansh.refresh_already_today': 'De Spansh-gegevens zijn vandaag al bijgewerkt.',
     'stations.local_notice': 'Spansh-stationsgegevens zijn uitgeschakeld. Alleen stations uit je eigen logboekgegevens worden weergegeven.',
     'stations.local_notice_settings': 'Inschakelen via Instellingen → Online diensten',
     'stations.empty_local': 'Er zijn geen stations of faciliteiten in dit systeem bekend op basis van de momenteel beschikbare lokale logboekgegevens.',
@@ -390,7 +395,12 @@ TRANSLATIONS = {
 
 
     'spansh.enabled': 'Spansh-stationsinformatie toevoegen',
-    'spansh.hint': 'Optioneel: Automatisch alleen nieuwe live aankomsten opvragen. Cache 7 dagen; geen commandantgegevens verzenden.',
+    'spansh.status_current': 'Stationgegevens actueel (90 dagen).',
+    'spansh.status_old': 'Oude of onvolledige stationgegevens worden getoond.',
+    'spansh.status_missing': 'Nog geen volledige stationlijst beschikbaar.',
+    'spansh.status_server_wait': 'Spansh vraagt te wachten tot {until}.',
+    'spansh.status_server_unknown': 'Spansh beperkte het verzoek zonder een wachttijd op te geven.',
+    'spansh.hint': 'Optioneel: stations controleren bij actuele journaalbezoeken. Volledige controles gelden 90 dagen; geen marktprijzen of commanderuploads.',
     'spansh.distance_ls': 'Afstand tot aankomstpunt',
     'spansh.allegiance': 'Loyaliteit',
     'spansh.government': 'Regering',

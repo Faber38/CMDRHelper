@@ -1,4 +1,5 @@
 """Asynchronous adapter between journal refresh signals and Odyssey inventory."""
+from cmdrhelper import performance_profile as profile
 from cmdrhelper.exit_tasks import submit
 from pathlib import Path
 import sqlite3
@@ -91,6 +92,7 @@ class OdysseyController(QObject):
         QTimer.singleShot(0, self.request)
 
     @Slot()
+    @profile.measure('slot.odyssey.request')
     def request(self, *args, force=False, sidecar_only=False):
         cid = getattr(self.state, "viewed_commander_id", None) or getattr(self.state, "commander_id", None)
         if sidecar_only and cid != getattr(self.state, "commander_id", None):

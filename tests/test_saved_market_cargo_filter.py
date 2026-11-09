@@ -42,7 +42,8 @@ class CargoState(State):
     shipLoadoutChanged = Signal(object)
 
 
-class CargoFilterTests(Fixture, unittest.TestCase):
+class CargoFilterFixture(Fixture):
+    """Shared setup and helpers without inherited test methods."""
     setUpClass = saved.ViewTests.__dict__['setUpClass']
     cleanup = saved.ViewTests.cleanup
     wait = saved.ViewTests.wait
@@ -94,6 +95,7 @@ class CargoFilterTests(Fixture, unittest.TestCase):
         self.state.mining_inventory_controller.ready.emit(inventory)
 
 
+class CargoFilterTests(CargoFilterFixture, unittest.TestCase):
     def test_exclusive_modes_and_no_io_or_selection_change(self):
         v=self.view
         self.assertEqual(v.goods_proxy.rowCount(),2)

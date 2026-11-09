@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_30.0": 'Kontrole procesów Linux są łączone w tle i nie blokują już synchronicznie interfejsu. Wybór dowódcy, wskazania przybycia i zrzuty ekranu korzystają wyłącznie z aktualnych, zweryfikowanych informacji o procesach.',
+    "release.3_9_30.1": 'Kontroler wydobycia anuluje opóźnione uruchomienia po zniszczeniu i bezpiecznie odłącza sygnały. Zamknięte kontrolery nie rozpoczynają już ręcznego odświeżania.',
+    "release.3_9_30.2": 'Zerowanie nagród i obligacji bojowych korzysta ze zweryfikowanego źródła dziennika wybranego dowódcy.',
+    "release.3_9_30.3": 'Dane stacji Spansh pozostają aktualne przez 90 dni. Ręczne odświeżanie można powtarzać; przerwy po błędach i czasy oczekiwania wskazane przez serwer są respektowane. Dotychczasowe dane pozostają zachowane przy błędach.',
+    "release.3_9_30.4": 'Opcjonalna diagnostyka wydajności mierzy czasy interfejsu, zadań i procesów. Oczekiwane błędy deskryptorów plików są agregowane; diagnostyka pozostaje wyłączona bez jej aktywacji.',
+
     "release.3_9_29.0": 'Ulepszone rozpoznawanie ładunku misji.',
     "release.3_9_29.1": 'Obsługa pasujących towarów handlowych bez MissionID.',
     "release.3_9_29.2": 'Dotychczasowe rozpoznawanie na podstawie MissionID zostaje zachowane.',
@@ -376,7 +382,6 @@ TRANSLATIONS = {
     'release.3_6.3': 'Własne obrazy statków i carriera, obrazy typów/domyślne oraz przeglądarka. Usuwanie statków z floty i przywracanie przez ponowny odczyt wszystkich statków; pewniejsze rozpoznawanie sprzedanych statków.',
     'release.3_6.4': 'Ulepszona mapa, lista wartości z kolorowym stanem mapowania, Cargo HUD i nawigacja. Mniejsze obciążenie w Linuksie oraz przy zrzutach ekranu, galerii i Explorerze.',
     'release.3_6.5': 'Naprawiono: nieszkodliwe krótkie dzienniki Elite nie przerywają już śledzenia zapasów górniczych carriera. Przed aktualizacją bazy danych automatycznie tworzona jest teraz zweryfikowana kopia zapasowa.',
-    'spansh.refresh_already_today': 'Dane Spansh zostały już dzisiaj zaktualizowane.',
     'stations.local_notice': 'Dane stacji Spansh są wyłączone. Wyświetlane są tylko stacje z Twoich własnych danych dziennika.',
     'stations.local_notice_settings': 'Włącz w Ustawienia → Usługi online',
     'stations.empty_local': 'Na podstawie obecnie dostępnych lokalnych danych dziennika nie są znane żadne stacje ani placówki w tym układzie.',
@@ -390,7 +395,12 @@ TRANSLATIONS = {
 
 
     'spansh.enabled': 'Dodaj informacje o stacjach ze Spansh',
-    'spansh.hint': 'Opcjonalnie: Automatycznie tylko nowe przyloty na żywo. Pamięć podręczna 7 dni; bez wysyłania danych dowódcy.',
+    'spansh.status_current': 'Dane stacji aktualne (90 dni).',
+    'spansh.status_old': 'Wyświetlane są stare lub niepełne dane stacji.',
+    'spansh.status_missing': 'Brak pełnej listy stacji.',
+    'spansh.status_server_wait': 'Spansh wymaga oczekiwania do {until}.',
+    'spansh.status_server_unknown': 'Spansh ograniczył żądanie bez podania czasu oczekiwania.',
+    'spansh.hint': 'Opcjonalnie: sprawdzaj stacje podczas bieżących wizyt z dziennika. Pełne sprawdzenia ważne 90 dni; bez cen i wysyłania danych dowódcy.',
     'spansh.distance_ls': 'Odległość od punktu przylotu',
     'spansh.allegiance': 'Przynależność',
     'spansh.government': 'Rząd',

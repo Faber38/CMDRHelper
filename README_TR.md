@@ -39,6 +39,14 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.30
+
+- Linux süreç denetimleri arka planda birleştirilir ve artık arayüzü eşzamanlı olarak engellemez. Komutan seçimi, varış gösterimi ve ekran görüntüleri yalnızca güncel, doğrulanmış süreç bilgilerini kullanır.
+- Madencilik denetleyicisi yok edildikten sonra gecikmeli başlatmaları iptal eder ve sinyal bağlantılarını güvenle keser. Kapatılan denetleyiciler artık elle yenileme başlatmaz.
+- Ödüllerin ve savaş tahvillerinin sıfırlanması, seçili komutanın doğrulanmış günlük kaynağını kullanır.
+- Spansh istasyon verileri 90 gün güncel kalır. Elle yenilemeler tekrarlanabilir; hata araları ve sunucunun istediği bekleme sürelerine uyulur. Hatalarda mevcut veriler korunur.
+- İsteğe bağlı performans tanılaması arayüz, çalışan ve süreç sürelerini ölçer. Beklenen dosya tanımlayıcı hataları toplu kaydedilir; etkinleştirilmedikçe tanılama kapalı kalır.
+
 ## CMDRHelper v3.9.28
 
 - Açık mal görevleri geçerli gemi kargosunu ayrıntılarda, tablo durumunda ve sonraki adımda gösterir. Teslimat ilerlemesi ayrı kalır; birden fazla görev rezervasyon olmadan aynı stoku paylaşır.

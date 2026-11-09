@@ -1,4 +1,5 @@
 """Cargo-aware, transient trade UI. Identity and network semantics belong to providers."""
+from cmdrhelper import performance_profile as profile
 from cmdrhelper.exit_tasks import submit
 import logging
 from dataclasses import replace
@@ -602,6 +603,7 @@ class TradeView(QWidget):
         del blocker
         self.cargo_mission_legend.refresh()
 
+    @profile.measure('slot.trade.refresh_cargo')
     def refresh_cargo(self, *_):
         snapshot = getattr(self.state, 'ship_inventory', None)
         total = getattr(self.state, 'ship_cargo_total', None)
@@ -685,6 +687,7 @@ class TradeView(QWidget):
             self.status.setText(tr('trade.ready') if self._reference else tr('trade.no_system'))
 
     @Slot()
+    @profile.measure('slot.trade.refresh_reference')
     def refresh_reference(self):
         reference = str(getattr(self.state, 'system', '') or '').strip()
         if reference in ('–', '-'):

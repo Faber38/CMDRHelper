@@ -5,6 +5,7 @@ cursor commit together; retries therefore resume at the last committed cursor.
 Replacement of an already observed file is rejected rather than replaying
 non-idempotent personal history against an unrelated byte offset.
 """
+from cmdrhelper import performance_profile as profile
 import hashlib
 import json
 import logging
@@ -97,6 +98,7 @@ def validate_input(context, path):
         raise RuntimeError('Journal catch-up requires repair: observed prefix changed')
 
 
+@profile.measure('journal.catchup')
 def catch_up(database, context, *, enqueue_fid=None, cancel=None, max_passes=3, time_budget=5.0,
              independent_sources=False, enqueue_fids=()):
     """Reconcile until the observed directory is stable; never overtake a tail."""
@@ -115,6 +117,7 @@ def catch_up(database, context, *, enqueue_fid=None, cancel=None, max_passes=3, 
     raise JournalPending('catchup_budget')
 
 
+@profile.measure('journal.pass')
 def _catch_up_pass(database, context, *, enqueue_fid=None, cancel=None, deadline=None,
                    independent_sources=False, enqueue_fids=()):
     baseline = context['baseline']
@@ -140,7 +143,8 @@ def _catch_up_pass(database, context, *, enqueue_fid=None, cancel=None, deadline
                 or (old['offset'] and offset < before.st_size)):
             continue
         context['tracked'].add(name)
-        raw = path.read_bytes()
+        raw = (profile.call('journal.read', path.read_bytes) if profile.ENABLED
+               else path.read_bytes())
         if _signature(before) != _signature(path.stat()):
             raise JournalPending('journal_changed_during_read')
         if old is not None:

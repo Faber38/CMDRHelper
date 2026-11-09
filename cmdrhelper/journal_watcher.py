@@ -1,3 +1,4 @@
+from cmdrhelper import performance_profile as profile
 from pathlib import Path
 import logging
 import os
@@ -100,6 +101,9 @@ class JournalWatcher(QObject):
         elif pending is not None:
             self._retry_delay = min(60, max(2, self._retry_delay * 2))
             self._retry_at = time.monotonic() + self._retry_delay
+            if profile.ENABLED:
+                profile.event('journal.retry', retry_seconds=self._retry_delay)
+                profile.mark(('journal_retry', id(self)))
             logger.warning(
                 "Journaländerung nicht bestätigt; erneuter Versuch nach Backoff",
                 extra={"diagnostic_fields": {"retry_seconds": self._retry_delay}},
@@ -133,6 +137,7 @@ class JournalWatcher(QObject):
             int(getattr(st, "st_mtime_ns", 0)),
         )
 
+    @profile.measure('journal.poll')
     def _poll(self):
         if self._stopping or not self.folder or self._refresh_in_progress:
             return
@@ -140,6 +145,9 @@ class JournalWatcher(QObject):
         # retry the uncommitted input only after the delay (timer stays at 1 s).
         if time.monotonic() < self._retry_at:
             return
+
+        if profile.ENABLED:
+            profile.receive(('journal_retry', id(self)), 'journal.retry_wait')
 
         # Files involved in an import pause can still receive a late tail
         # after rotation. Keep observing those few paths, not just the newest.

@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_30.0": 'Linux-prosessien tarkistukset yhdistetään taustalle eivätkä enää estä käyttöliittymää synkronisesti. Komentajan valinta, saapumisnäyttö ja kuvakaappaukset käyttävät vain ajantasaisia, tarkistettuja prosessitietoja.',
+    "release.3_9_30.1": 'Kaivosohjain peruuttaa viivästetyt käynnistyskutsut tuhoamisen jälkeen ja katkaisee signaaliyhteydet turvallisesti. Suljetut ohjaimet eivät enää aloita manuaalisia päivityksiä.',
+    "release.3_9_30.2": 'Palkkioiden ja taistelupalkkioiden nollaus käyttää valitun komentajan vahvistettua päiväkirjalähdettä.',
+    "release.3_9_30.3": 'Spansh-asematiedot pysyvät tuoreina 90 päivää. Manuaaliset päivitykset voidaan toistaa; virhetaukoja ja palvelimen määräämiä odotusaikoja noudatetaan. Aiemmat tiedot säilyvät virhetilanteissa.',
+    "release.3_9_30.4": 'Valinnainen suorituskykydiagnostiikka mittaa käyttöliittymän, taustatehtävien ja prosessien aikoja. Odotetut tiedostokuvaajavirheet kootaan yhteen; diagnostiikka pysyy poissa käytöstä, ellei sitä aktivoida.',
+
     "release.3_9_29.0": 'Tehtävälastin tunnistusta parannettu.',
     "release.3_9_29.1": 'Tuki sopiville kauppatavaroille ilman MissionID-tunnusta.',
     "release.3_9_29.2": 'Nykyinen MissionID-pohjainen tunnistus säilyy.',
@@ -376,7 +382,6 @@ TRANSLATIONS = {
     'release.3_6.3': 'Omat alus- ja carrier-kuvat, tyyppi-/oletuskuvat ja kuvankatselin. Aluksia voi poistaa laivastosta ja palauttaa lukemalla kaikki alukset uudelleen; myydyt alukset tunnistetaan luotettavammin.',
     'release.3_6.4': 'Parannettu kartta, arvolista värillisellä kartoitustilalla, Cargo HUD ja navigointi. Vähemmän taustakuormaa Linuxissa sekä kuvakaappauksissa, galleriassa ja Explorerissa.',
     'release.3_6.5': 'Korjattu: harmittomat lyhyet Elite-lokit eivät enää katkaise carrierin kaivosvarantojen seurantaa. Ennen tietokannan päivitystä luodaan nyt automaattisesti tarkistettu varmuuskopio.',
-    'spansh.refresh_already_today': 'Spanshin tiedot on jo päivitetty tänään.',
     'stations.local_notice': 'Spanshin asematiedot on poistettu käytöstä. Vain omien lokitietojesi asemat näytetään.',
     'stations.local_notice_settings': 'Ota käyttöön: Asetukset → Verkkopalvelut',
     'stations.empty_local': 'Tässä järjestelmässä ei tunneta asemia tai laitoksia tällä hetkellä saatavilla olevien paikallisten lokitietojen perusteella.',
@@ -390,7 +395,12 @@ TRANSLATIONS = {
 
 
     'spansh.enabled': 'Lisää Spanshin asematiedot',
-    'spansh.hint': 'Valinnainen: Hae automaattisesti vain uusilla reaaliaikaisilla järjestelmäsaapumisilla. Välimuisti 7 päivää; komentajan tietoja ei lähetetä.',
+    'spansh.status_current': 'Asematiedot ovat ajan tasalla (90 päivää).',
+    'spansh.status_old': 'Näytetään vanhoja tai puutteellisia asematietoja.',
+    'spansh.status_missing': 'Täydellistä asemaluetteloa ei vielä ole.',
+    'spansh.status_server_wait': 'Spansh pyytää odottamaan aikaan {until} asti.',
+    'spansh.status_server_unknown': 'Spansh rajoitti pyyntöä ilmoittamatta odotusaikaa.',
+    'spansh.hint': 'Valinnainen: tarkista asemat nykyisillä lokivierailuilla. Täydellinen tarkistus on voimassa 90 päivää; ei markkinahintoja tai komentajatietojen lähetystä.',
     'spansh.distance_ls': 'Etäisyys saapumispisteestä',
     'spansh.allegiance': 'Liittouma',
     'spansh.government': 'Hallinto',

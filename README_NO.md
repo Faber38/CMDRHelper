@@ -38,6 +38,14 @@ Journalmappen til Elite Dangerous oppdages automatisk når det er mulig. Hvis de
 
 CMDRHelper søker etter oppdateringer ved oppstart og har en innebygd oppdateringsfunksjon. Bekreft en tilbudt oppdatering i programmet; den oppdaterer programmet og avhengighetene og starter CMDRHelper på nytt. Etter førstegangsinstallasjonen bruker du normalt bare `start.bat` (Windows) eller `bash start.sh` (Linux). Du trenger ikke å kjøre `install.bat` eller `install.sh` manuelt på nytt for vanlige oppdateringer.
 
+## CMDRHelper v3.9.30
+
+- Linux-prosesskontroller samles i bakgrunnen og blokkerer ikke lenger grensesnittet synkront. Commandervalg, ankomstvisning og skjermbilder bruker bare oppdatert og kontrollert prosessinformasjon.
+- Gruvedriftskontrolleren avbryter utsatte startkall etter at den er slettet, og kobler fra signalene trygt. Lukkede kontrollere starter ikke lenger manuelle oppdateringer.
+- Nullstilling av dusører og kampbelønninger bruker den bekreftede journalkilden til valgt commander.
+- Spansh-stasjonsdata regnes som ferske i 90 dager. Manuelle oppdateringer kan gjentas; feilpauser og ventetider fra serveren respekteres. Eksisterende data beholdes ved feil.
+- Valgfri ytelsesdiagnostikk måler GUI-, worker- og prosesstider. Forventede fildeskriptorfeil summeres; diagnostikken er av med mindre den aktiveres.
+
 ## CMDRHelper v3.9.28
 
 - Åpne vareoppdrag viser gyldig skipslast i detaljer, tabellstatus og neste trinn. Leveringsstatus holdes separat; flere oppdrag deler beholdning uten reservasjoner.

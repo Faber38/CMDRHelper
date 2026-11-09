@@ -1,4 +1,5 @@
 """Short-lived arrival animation; no journal/database mutations or polling timer."""
+from cmdrhelper import performance_profile as profile
 from functools import lru_cache
 from PySide6.QtCore import QObject, QEvent, QTimer, Qt, QSize, QRectF, Signal
 from PySide6.QtGui import QColor, QIcon, QPixmap, QPainter, QPen
@@ -98,6 +99,8 @@ class MissionArrivalController(QObject):
         manager = getattr(state, 'sources', None)
         if manager is not None:
             manager.changed.connect(self.update)
+            if hasattr(manager, 'processScanReady'):
+                manager.processScanReady.connect(self.update)
             # Reuse the existing process/source check, including process loss
             # without a new journal event. Never introduce another poller.
             manager.timer.timeout.connect(self.update)
@@ -106,44 +109,48 @@ class MissionArrivalController(QObject):
         self.light = light
         self.table.viewport().update()
 
+    @profile.measure('slot.mission_arrival.update')
     def update(self):
         previous = (self.identity, self.hits)
         snapshot = self.source.snapshot(self.state)
-        if snapshot is None:
-            identity, evidence, hits = None, (), set()
-        else:
-            identity, position, closed = snapshot
-            evidence = position.evidence
-            hits = {m.mission_id for m in self.state.missions
-                    if m.mission_id not in closed and position.matches(m)}
-        same = identity is not None and identity == self.identity
-        new = hits - self.hits
-        if same and evidence and self.evidence and evidence != self.evidence:
-            # A departure and new landing may arrive in a single journal batch.
-            # Repeated confirmations at the same place retain their evidence ID.
-            new |= hits
-        if not same:
-            self.blink.clear()
-        else:
-            self.blink = {mid: phase for mid, phase in self.blink.items() if mid in hits}
-            if new and evidence != self.evidence and self.table.isVisible():
-                self.blink.update({mid: 6 for mid in new})
-        self.identity, self.evidence, self.hits = identity, evidence, hits
-        for row in range(self.table.rowCount()):
-            item = self.table.item(row, 2)
-            if item is not None and item.data(ARRIVAL_PLACE_ROLE) is not None:
-                base = item.data(ARRIVAL_PLACE_ROLE)
-                text = (base + ' · ' + tr('mission_state.at_destination')
-                        if self.at_destination(getattr(item, 'mission', None)) else base)
-                item.setText(text)
-                item.setToolTip(text)
-        if self.blink and not self.timer.isActive():
-            self.timer.start()
-        elif not self.blink:
-            self.timer.stop()
-        self.table.viewport().update()
+        with profile.section('arrival.mission_match'):
+            if snapshot is None:
+                identity, evidence, hits = None, (), set()
+            else:
+                identity, position, closed = snapshot
+                evidence = position.evidence
+                hits = {m.mission_id for m in self.state.missions
+                        if m.mission_id not in closed and position.matches(m)}
+            same = identity is not None and identity == self.identity
+            new = hits - self.hits
+            if same and evidence and self.evidence and evidence != self.evidence:
+                # A departure and new landing may arrive in a single journal batch.
+                # Repeated confirmations at the same place retain their evidence ID.
+                new |= hits
+            if not same:
+                self.blink.clear()
+            else:
+                self.blink = {mid: phase for mid, phase in self.blink.items() if mid in hits}
+                if new and evidence != self.evidence and self.table.isVisible():
+                    self.blink.update({mid: 6 for mid in new})
+            self.identity, self.evidence, self.hits = identity, evidence, hits
+        with profile.section('arrival.table_update'):
+            for row in range(self.table.rowCount()):
+                item = self.table.item(row, 2)
+                if item is not None and item.data(ARRIVAL_PLACE_ROLE) is not None:
+                    base = item.data(ARRIVAL_PLACE_ROLE)
+                    text = (base + ' · ' + tr('mission_state.at_destination')
+                            if self.at_destination(getattr(item, 'mission', None)) else base)
+                    item.setText(text)
+                    item.setToolTip(text)
+            if self.blink and not self.timer.isActive():
+                self.timer.start()
+            elif not self.blink:
+                self.timer.stop()
+            self.table.viewport().update()
         if previous != (self.identity, self.hits):
-            self.arrivalChanged.emit()
+            with profile.section('signal.arrivalChanged'):
+                self.arrivalChanged.emit()
 
     def at_destination(self, mission):
         return bool(self.identity and mission and mission.mission_id in self.hits

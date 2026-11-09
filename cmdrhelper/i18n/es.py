@@ -1,4 +1,10 @@
 TRANSLATIONS = {
+    "release.3_9_30.0": 'Las comprobaciones de procesos Linux se agrupan en segundo plano y ya no bloquean sincrónicamente la interfaz. La selección de comandante, las llegadas y las capturas usan solo información actual y verificada de los procesos.',
+    "release.3_9_30.1": 'El controlador de minería cancela los inicios diferidos tras su destrucción y desconecta sus señales de forma segura. Los controladores cerrados ya no inician actualizaciones manuales.',
+    "release.3_9_30.2": 'El restablecimiento de recompensas y bonos de combate usa la fuente de diario verificada del comandante seleccionado.',
+    "release.3_9_30.3": 'Los datos de estaciones Spansh permanecen vigentes durante 90 días. Se pueden repetir las actualizaciones manuales; se respetan las pausas por errores y las esperas solicitadas por el servidor. Los datos existentes se conservan si hay errores.',
+    "release.3_9_30.4": 'El diagnóstico de rendimiento opcional registra tiempos de interfaz, tareas y procesos. Los errores esperados de descriptores de archivo se agregan; el diagnóstico permanece desactivado salvo que se habilite.',
+
     "release.3_9_29.0": 'Detección mejorada de la carga de misión.',
     "release.3_9_29.1": 'Compatibilidad con mercancías comerciales adecuadas sin MissionID.',
     "release.3_9_29.2": 'Se conserva la detección existente basada en MissionID.',
@@ -376,7 +382,6 @@ TRANSLATIONS = {
     'release.3_6.3': 'Imágenes personales de naves y carrier, imágenes por tipo/predeterminadas y visor. Elimina naves de la flota o recupéralas volviendo a leer todas las naves; reconocimiento más fiable de naves vendidas.',
     'release.3_6.4': 'Mejoras del mapa, lista de valores con estado de cartografiado en color, Cargo HUD y navegación. Menor carga en Linux, capturas, galería y Explorer.',
     'release.3_6.5': 'Corregido: los diarios breves e inocuos de Elite ya no interrumpen el seguimiento de los inventarios mineros del carrier. Ahora se crea automáticamente una copia de seguridad verificada antes de actualizar la base de datos.',
-    'spansh.refresh_already_today': 'Los datos de Spansh ya se han actualizado hoy.',
     'stations.local_notice': 'Los datos de estaciones de Spansh están desactivados. Solo se muestran estaciones de tus propios datos del diario.',
     'stations.local_notice_settings': 'Activar en Ajustes → Servicios en línea',
     'stations.empty_local': 'No se conocen estaciones ni instalaciones en este sistema a partir de los datos locales del diario disponibles actualmente.',
@@ -390,7 +395,12 @@ TRANSLATIONS = {
 
 
     'spansh.enabled': 'Añadir información de estaciones de Spansh',
-    'spansh.hint': 'Opcional: Consultar automáticamente solo nuevas llegadas en directo. Caché de 7 días; sin enviar información del comandante.',
+    'spansh.status_current': 'Datos de estaciones actualizados (90 días).',
+    'spansh.status_old': 'Se muestran datos antiguos o incompletos.',
+    'spansh.status_missing': 'Todavía no hay una lista completa de estaciones.',
+    'spansh.status_server_wait': 'Spansh solicita esperar hasta {until}.',
+    'spansh.status_server_unknown': 'Spansh limitó la solicitud sin indicar una duración.',
+    'spansh.hint': 'Opcional: comprobar estaciones en las visitas actuales del diario. Validez de 90 días, sin precios ni envío de datos del comandante.',
     'spansh.distance_ls': 'Distancia al punto de llegada',
     'spansh.allegiance': 'Lealtad',
     'spansh.government': 'Gobierno',
