@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    "release.3_9_32.0": 'Green footprints mark first footfalls on the Explorer system map and in BIO / GEO / MINING, with a legend and translated tooltips. The value list and BIO / GEO / MINING use consistent short names; full body names remain available in tooltips.',
+    "release.3_9_32.1": 'The chronicle offers three combinable filters for first footfalls, first discoveries and first mappings. Results for selected commanders can be searched together, copied as a list and exported as semicolon-separated UTF-8 CSV.',
+    "release.3_9_32.2": 'The upper chronicle area places search and dates beside the filters, stacking them when space is limited. Commander selection and actions can wrap; export buttons remain accessible directly above the results.',
+    "release.3_9_32.3": 'Existing journal and database information is reused without a new first-footfall heuristic or database structure. First footfalls are inferred, first discoveries are personal scan candidates, and first mappings are personal mappings of such candidates. Official first claims remain unconfirmed.',
+    "release.3_9_32.4": 'Date ranges filter available event times in UTC; unknown times are excluded by date filters and otherwise displayed without invented dates. First discoveries have no reliable event time; first mappings use the time of your own mapping. New texts are available in twelve languages.',
     "release.3_9_31.0": 'A shared cargo window shows the ship on the left and the SRV on the right, with separate quantities, capacities, progress bars and cargo tables. Automatic updates and saved window position and size are retained.',
     "release.3_9_31.1": 'Ship cargo uses the same published stock projection as the mining table. Existing quantities remain visible regardless of their colour coding and when the loadout is missing or incomplete. Unknown values, confirmed zero stock and an inactive SRV are distinguished.',
     "release.3_9_31.2": 'Cargo display language updates now also work when quantities are unchanged. Texts are available in all twelve languages.',
@@ -2663,3 +2668,36 @@ TRANSLATIONS.update({
     'missions.summary_shared': 'Shared cargo available',
     'missions.summary_present': 'Cargo available',
 })
+
+# Discovery chronicle and vector footprints.
+TRANSLATIONS.update({'footfall.label': 'First footfall',
+ 'discovery.title': 'Discoveries',
+ 'discovery.filter.first_footfall': 'First footfalls',
+ 'discovery.filter.first_discovery': 'First discoveries',
+ 'discovery.filter.first_mapping': 'First mappings',
+ 'discovery.event.first_discovery': 'First discovery',
+ 'discovery.event.first_mapping': 'First mapping',
+ 'discovery.assessment.first_footfall': 'Inferred from journal data',
+ 'discovery.assessment.first_discovery': 'Candidate at scan; first claim unconfirmed',
+ 'discovery.assessment.first_mapping': 'Mapped by you; first claim unconfirmed',
+ 'discovery.period_note': 'The period filters event times in UTC. Results without a known time are excluded.',
+ 'discovery.unknown_time': 'Time unknown',
+ 'discovery.copy': 'Copy list',
+ 'discovery.export': 'Export CSV',
+ 'discovery.export_success': 'CSV saved: {path}',
+ 'discovery.export_failed': 'CSV export failed: {error}',
+ 'discovery.overwrite': 'Overwrite file? {path}',
+ 'discovery.column.time': 'Time (UTC)',
+ 'discovery.column.commander': 'Commander',
+ 'discovery.column.system': 'System',
+ 'discovery.column.body': 'Body',
+ 'discovery.column.event': 'Event',
+ 'discovery.column.assessment': 'Assessment',
+ 'discovery.search_help': 'Green footprints mark first footfalls inferred by the existing journal logic. '
+                          'First discoveries are personal scan candidates without a reliable event time. '
+                          'First mappings combine a scan candidate with a recorded personal mapping; its '
+                          'time is shown. No type confirms an official first claim. Multiple filters use OR; '
+                          'search matches system and body names. The period filters event times in UTC. '
+                          'Results without a known time are excluded.',
+ 'discovery.event.first_footfall': 'First footfall',
+ 'discovery.result': '{time} · {commander} · {system} · {body} · {event}\n{assessment}'})

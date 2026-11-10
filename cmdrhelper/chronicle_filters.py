@@ -12,10 +12,20 @@ class ChronicleFilters:
     minimum_mining: int = 0
     personally_mined_only: bool = False
     mining_commodity: str = ""
+    first_footfall_only: bool = False
+    first_discovery_only: bool = False
+    first_mapping_only: bool = False
+
+    @property
+    def discovery_types(self):
+        return tuple(kind for kind, enabled in (
+            ("first_footfall", self.first_footfall_only),
+            ("first_discovery", self.first_discovery_only),
+            ("first_mapping", self.first_mapping_only)) if enabled)
 
     @property
     def has_search(self):
-        return bool(self.query or self.planetary_mining_only or self.minimum_mining
+        return bool(self.discovery_types or self.query or self.planetary_mining_only or self.minimum_mining
                     or self.personally_mined_only or self.mining_commodity)
 
     def visit_bounds(self):

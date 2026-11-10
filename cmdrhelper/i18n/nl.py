@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    "release.3_9_32.0": 'Groene voetsporen markeren eerste voetstappen op de Explorer-systeemkaart en in BIO / GEO / MIJNBOUW, met legenda en vertaalde tooltips. De waardelijst en BIO / GEO / MIJNBOUW gebruiken dezelfde korte namen; volledige namen blijven in tooltips beschikbaar.',
+    "release.3_9_32.1": 'De kroniek biedt drie combineerbare filters voor eerste voetstappen, eerste ontdekkingen en eerste karteringen. Resultaten van geselecteerde commandanten zijn samen doorzoekbaar, kopieerbaar en te exporteren als UTF-8-CSV met puntkomma’s.',
+    "release.3_9_32.2": 'Zoeken en periode staan naast de filters en komen bij ruimtegebrek onder elkaar. Commanderselectie en acties kunnen over meerdere regels lopen; exportknoppen blijven direct boven de resultaten bereikbaar.',
+    "release.3_9_32.3": 'Bestaande logboek- en databasegegevens worden hergebruikt zonder nieuwe voetstapheuristiek of databasestructuur. Eerste voetstappen zijn afgeleid, eerste ontdekkingen zijn kandidaten uit eigen scans en eerste karteringen zijn eigen karteringen van zulke kandidaten. Officiële eerste claims blijven onbevestigd.',
+    "release.3_9_32.4": 'Perioden filteren beschikbare gebeurtenistijden in UTC; onbekende tijden worden door datumfilters uitgesloten en anders zonder verzonnen datum getoond. Eerste ontdekkingen hebben geen betrouwbare gebeurtenistijd; eerste karteringen gebruiken de tijd van de eigen kartering. Nieuwe teksten zijn beschikbaar in twaalf talen.',
     "release.3_9_31.0": 'Een gezamenlijk vrachtvenster toont het schip links en de SRV rechts, met afzonderlijke hoeveelheden, capaciteiten, voortgangsbalken en vrachttabellen. Automatische updates en opgeslagen vensterpositie en grootte blijven behouden.',
     "release.3_9_31.1": 'De scheepsvracht gebruikt dezelfde gepubliceerde voorraadweergave als de miningtabel. Bestaande hoeveelheden blijven zichtbaar ongeacht hun kleurmarkering en bij ontbrekende of onvolledige uitrustingsgegevens. Onbekende waarden, bevestigde nulvoorraden en een inactieve SRV worden onderscheiden.',
     "release.3_9_31.2": 'Taalwijzigingen in de vrachtweergave werken nu ook bij ongewijzigde hoeveelheden. De teksten zijn beschikbaar in alle twaalf talen.',
@@ -2520,3 +2525,38 @@ TRANSLATIONS.update({
     'missions.summary_shared': 'Gedeelde vracht beschikbaar',
     'missions.summary_present': 'Vracht beschikbaar',
 })
+
+# Discovery chronicle and vector footprints.
+TRANSLATIONS.update({'footfall.label': 'Eerste voetstap',
+ 'discovery.title': 'Ontdekkingen',
+ 'discovery.filter.first_footfall': 'Eerste voetstappen',
+ 'discovery.filter.first_discovery': 'Eerste ontdekkingen',
+ 'discovery.filter.first_mapping': 'Eerste karteringen',
+ 'discovery.event.first_discovery': 'Eerste ontdekking',
+ 'discovery.event.first_mapping': 'Eerste kartering',
+ 'discovery.assessment.first_footfall': 'Afgeleid uit logboekgegevens',
+ 'discovery.assessment.first_discovery': 'Kandidaat bij scan; eerste claim onbevestigd',
+ 'discovery.assessment.first_mapping': 'Zelf gekarteerd; eerste claim onbevestigd',
+ 'discovery.period_note': 'De periode filtert gebeurtenistijden in UTC. Resultaten zonder bekende tijd '
+                          'worden uitgesloten.',
+ 'discovery.unknown_time': 'Tijd onbekend',
+ 'discovery.copy': 'Lijst kopiëren',
+ 'discovery.export': 'CSV exporteren',
+ 'discovery.export_success': 'CSV opgeslagen: {path}',
+ 'discovery.export_failed': 'CSV-export mislukt: {error}',
+ 'discovery.overwrite': 'Bestand overschrijven? {path}',
+ 'discovery.column.time': 'Tijdstip (UTC)',
+ 'discovery.column.commander': 'Commandant',
+ 'discovery.column.system': 'Systeem',
+ 'discovery.column.body': 'Hemellichaam',
+ 'discovery.column.event': 'Gebeurtenis',
+ 'discovery.column.assessment': 'Duiding',
+ 'discovery.search_help': 'Groene voetsporen tonen eerste voetstappen volgens de bestaande logboekafleiding. '
+                          'Eerste ontdekkingen zijn kandidaten uit eigen scans zonder betrouwbaar tijdstip. '
+                          'Eerste karteringen combineren een kandidaat met een vastgelegde eigen kartering; '
+                          'het tijdstip daarvan wordt getoond. Geen type bevestigt een officiële eerste '
+                          'claim. Meerdere filters gebruiken OF; zoeken gebeurt op systeem- en '
+                          'lichaamsnamen. De periode filtert gebeurtenistijden in UTC. Resultaten zonder '
+                          'bekende tijd worden uitgesloten.',
+ 'discovery.event.first_footfall': 'Eerste voetstap',
+ 'discovery.result': '{time} · {commander} · {system} · {body} · {event}\n{assessment}'})

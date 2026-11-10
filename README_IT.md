@@ -38,6 +38,14 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## CMDRHelper v3.9.32
+
+- Le impronte verdi indicano i primi passi sulla mappa di sistema dell’Explorer e in BIO / GEO / ESTRAZIONE, con legenda e suggerimenti tradotti. L’elenco valori e BIO / GEO / ESTRAZIONE usano gli stessi nomi brevi; i nomi completi restano nei suggerimenti.
+- La cronaca offre tre filtri combinabili per primi passi, prime scoperte e prime mappature. I risultati dei comandanti selezionati si possono cercare insieme, copiare ed esportare come CSV UTF-8 separato da punti e virgola.
+- La ricerca e il periodo affiancano i filtri e si dispongono verticalmente quando manca spazio. Selezione dei comandanti e azioni possono andare a capo; i pulsanti di esportazione restano accessibili sopra i risultati.
+- Le informazioni esistenti del diario e del database vengono riutilizzate senza nuove euristiche per i primi passi né strutture del database. I primi passi sono dedotti, le prime scoperte sono candidati delle proprie scansioni e le prime mappature sono mappature personali di tali candidati. I primati ufficiali restano non confermati.
+- I periodi filtrano gli orari disponibili in UTC; gli orari sconosciuti sono esclusi dai filtri temporali e altrimenti mostrati senza date inventate. Le prime scoperte non hanno un orario affidabile; le prime mappature usano l’orario della propria mappatura. I nuovi testi sono disponibili in dodici lingue.
+
 ## CMDRHelper v3.9.31
 
 - Una finestra di carico comune mostra la nave a sinistra e il SRV a destra, con quantità, capacità, barre di avanzamento e tabelle separate. Restano disponibili gli aggiornamenti automatici e il salvataggio di posizione e dimensioni della finestra.

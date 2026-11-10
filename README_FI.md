@@ -38,6 +38,14 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.32
+
+- Vihreät jalanjäljet merkitsevät ensimmäisiä askeleita Explorerin järjestelmäkartalla ja BIO / GEO / LOUHINTA -näkymässä, mukana selite ja käännetyt työkaluvihjeet. Arvolista ja BIO / GEO / LOUHINTA käyttävät samoja lyhyitä nimiä; täydet nimet näkyvät työkaluvihjeissä.
+- Kronikassa on kolme yhdistettävää suodatinta ensimmäisille jalanjäljille, löydöille ja kartoituksille. Valittujen komentajien tuloksia voi hakea yhdessä, kopioida ja viedä puolipisteillä eroteltuna UTF-8-CSV-tiedostona.
+- Haku ja aikaväli ovat suodattimien vieressä ja siirtyvät allekkain tilan loppuessa. Komentajavalinta ja toiminnot voivat rivittyä; vientipainikkeet pysyvät käytettävissä tulosten yläpuolella.
+- Olemassa olevia loki- ja tietokantatietoja käytetään ilman uutta jalanjälkiheuristiikkaa tai tietokantarakennetta. Ensimmäiset jalanjäljet ovat pääteltyjä, ensimmäiset löydöt omien skannausten ehdokkaita ja ensimmäiset kartoitukset näiden ehdokkaiden omia kartoituksia. Virallista ensisijaisuutta ei vahvisteta.
+- Aikavälit suodattavat tunnettuja tapahtuma-aikoja UTC-ajassa; tuntemattomat ajat jätetään päivämääräsuodatuksessa pois ja näytetään muuten ilman keksittyjä päivämääriä. Ensimmäisillä löydöillä ei ole luotettavaa tapahtuma-aikaa; ensimmäiset kartoitukset käyttävät oman kartoituksen aikaa. Uudet tekstit ovat saatavilla kahdellatoista kielellä.
+
 ## CMDRHelper v3.9.31
 
 - Yhteinen lasti-ikkuna näyttää aluksen vasemmalla ja SRV:n oikealla. Molemmilla on omat määrät, kapasiteetit, edistymispalkit ja lastitaulukot. Automaattiset päivitykset sekä tallennettu ikkunan sijainti ja koko säilyvät.

@@ -38,6 +38,14 @@ Journalmappen til Elite Dangerous oppdages automatisk når det er mulig. Hvis de
 
 CMDRHelper søker etter oppdateringer ved oppstart og har en innebygd oppdateringsfunksjon. Bekreft en tilbudt oppdatering i programmet; den oppdaterer programmet og avhengighetene og starter CMDRHelper på nytt. Etter førstegangsinstallasjonen bruker du normalt bare `start.bat` (Windows) eller `bash start.sh` (Linux). Du trenger ikke å kjøre `install.bat` eller `install.sh` manuelt på nytt for vanlige oppdateringer.
 
+## CMDRHelper v3.9.32
+
+- Grønne fotspor markerer første fotavtrykk på Explorer-systemkartet og i BIO / GEO / GRUVEDRIFT, med tegnforklaring og oversatte verktøytips. Verdilisten og BIO / GEO / GRUVEDRIFT bruker like kortnavn; fulle navn er tilgjengelige i verktøytips.
+- Krøniken har tre kombinerbare filtre for første fotavtrykk, førsteoppdagelser og førstekartlegginger. Resultater for valgte kommandører kan søkes samlet, kopieres og eksporteres som semikolondelt UTF-8-CSV.
+- Søk og periode står ved siden av filtrene og flyttes under hverandre ved plassmangel. Kommandørvalg og handlinger kan brytes over flere linjer; eksportknappene forblir tilgjengelige rett over resultatene.
+- Eksisterende journal- og databaseinformasjon gjenbrukes uten ny fotavtrykkheuristikk eller databasestruktur. Første fotavtrykk er utledet, førsteoppdagelser er kandidater fra egne skanninger og førstekartlegginger er egne kartlegginger av slike kandidater. Offisielle førsteplasser forblir ubekreftet.
+- Perioder filtrerer tilgjengelige hendelsestider i UTC; ukjente tider utelates med datofilter og vises ellers uten oppdiktede datoer. Førsteoppdagelser har ingen pålitelig hendelsestid; førstekartlegginger bruker tidspunktet for egen kartlegging. Nye tekster finnes på tolv språk.
+
 ## CMDRHelper v3.9.31
 
 - Et felles lastevindu viser skipet til venstre og SRV til høyre, med separate mengder, kapasiteter, fremdriftslinjer og lastetabeller. Automatisk oppdatering og lagret vindusposisjon og størrelse beholdes.

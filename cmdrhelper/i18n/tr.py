@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    "release.3_9_32.0": 'Yeşil ayak izleri Explorer sistem haritasında ve BIO / GEO / MADENCİLİK görünümünde ilk ayak basışları gösterir; açıklama ve çevrilmiş araç ipuçları içerir. Değer listesi ve BIO / GEO / MADENCİLİK aynı kısa adları kullanır; tam adlar araç ipuçlarında kalır.',
+    "release.3_9_32.1": 'Günce, ilk ayak basışlar, ilk keşifler ve ilk haritalamalar için birleştirilebilir üç filtre sunar. Seçili komutanların sonuçları birlikte aranabilir, kopyalanabilir ve noktalı virgülle ayrılmış UTF-8 CSV olarak dışa aktarılabilir.',
+    "release.3_9_32.2": 'Arama ve dönem filtrelerin yanında yer alır, alan yetersizse alt alta geçer. Komutan seçimi ve eylemler satırlara yayılabilir; dışa aktarma düğmeleri sonuçların hemen üzerinde erişilebilir kalır.',
+    "release.3_9_32.3": 'Yeni ilk ayak basış sezgiseli veya veritabanı yapısı olmadan mevcut günlük ve veritabanı bilgileri kullanılır. İlk ayak basışlar çıkarımdır; ilk keşifler kişisel tarama adayları, ilk haritalamalar ise bu adayların kişisel haritalamalarıdır. Resmî ilk olma iddiaları doğrulanmış değildir.',
+    "release.3_9_32.4": 'Dönemler mevcut olay zamanlarını UTC olarak süzer; bilinmeyen zamanlar tarih filtresinde dışlanır, diğer durumlarda uydurma tarih olmadan gösterilir. İlk keşiflerin güvenilir olay zamanı yoktur; ilk haritalamalar kendi haritalama zamanınızı kullanır. Yeni metinler on iki dilde mevcuttur.',
     "release.3_9_31.0": 'Ortak kargo penceresi gemiyi solda, SRV’yi sağda gösterir; miktarlar, kapasiteler, ilerleme çubukları ve kargo tabloları ayrıdır. Otomatik güncelleme ile kayıtlı pencere konumu ve boyutu korunur.',
     "release.3_9_31.1": 'Gemi kargosu, madencilik tablosuyla aynı yayımlanmış stok görünümünü kullanır. Mevcut miktarlar renk işaretlerinden bağımsız olarak ve donanım verileri eksik veya tamamlanmamış olduğunda da görünür kalır. Bilinmeyen değerler, doğrulanmış sıfır stok ve etkin olmayan SRV birbirinden ayrılır.',
     "release.3_9_31.2": 'Kargo görünümünün dil güncellemesi artık miktarlar değişmediğinde de çalışır. Metinler on iki dilin tamamında mevcuttur.',
@@ -2520,3 +2525,36 @@ TRANSLATIONS.update({
     'missions.summary_shared': 'Ortak kargo mevcut',
     'missions.summary_present': 'Kargo mevcut',
 })
+
+# Discovery chronicle and vector footprints.
+TRANSLATIONS.update({'footfall.label': 'İlk ayak basış',
+ 'discovery.title': 'Keşifler',
+ 'discovery.filter.first_footfall': 'İlk ayak basışlar',
+ 'discovery.filter.first_discovery': 'İlk keşifler',
+ 'discovery.filter.first_mapping': 'İlk haritalamalar',
+ 'discovery.event.first_discovery': 'İlk keşif',
+ 'discovery.event.first_mapping': 'İlk haritalama',
+ 'discovery.assessment.first_footfall': 'Günlük verilerinden çıkarıldı',
+ 'discovery.assessment.first_discovery': 'Tarama sırasında aday; ilk olma iddiası doğrulanmadı',
+ 'discovery.assessment.first_mapping': 'Sen haritaladın; ilk olma iddiası doğrulanmadı',
+ 'discovery.period_note': 'Dönem, olay zamanlarını UTC olarak süzer. Zamanı bilinmeyen sonuçlar dışlanır.',
+ 'discovery.unknown_time': 'Zaman bilinmiyor',
+ 'discovery.copy': 'Listeyi kopyala',
+ 'discovery.export': 'CSV dışa aktar',
+ 'discovery.export_success': 'CSV kaydedildi: {path}',
+ 'discovery.export_failed': 'CSV dışa aktarma başarısız: {error}',
+ 'discovery.overwrite': 'Dosyanın üzerine yazılsın mı? {path}',
+ 'discovery.column.time': 'Tarih ve saat (UTC)',
+ 'discovery.column.commander': 'Komutan',
+ 'discovery.column.system': 'Sistem',
+ 'discovery.column.body': 'Gök cismi',
+ 'discovery.column.event': 'Olay',
+ 'discovery.column.assessment': 'Değerlendirme',
+ 'discovery.search_help': 'Yeşil ayak izleri mevcut günlük mantığıyla çıkarılan ilk ayak basışları gösterir. '
+                          'İlk keşifler, güvenilir olay zamanı olmayan kişisel tarama adaylarıdır. İlk '
+                          'haritalamalar, bir adayı kaydedilmiş kişisel haritalamayla birleştirir; bunun '
+                          'zamanı gösterilir. Hiçbir tür resmî bir ilk olma hakkını doğrulamaz. Birden çok '
+                          'filtre VEYA ile birleştirilir; arama sistem ve gök cismi adlarını kapsar. Dönem, '
+                          'olay zamanlarını UTC olarak süzer. Zamanı bilinmeyen sonuçlar dışlanır.',
+ 'discovery.event.first_footfall': 'İlk ayak basış',
+ 'discovery.result': '{time} · {commander} · {system} · {body} · {event}\n{assessment}'})

@@ -38,6 +38,14 @@ La carpeta de diarios de Elite Dangerous se detecta automáticamente cuando es p
 
 CMDRHelper busca actualizaciones al iniciarse y dispone de un actualizador integrado. Confirma una actualización ofrecida en la aplicación; actualizará el programa y las dependencias y reiniciará CMDRHelper. Tras la primera instalación, normalmente basta con usar `start.bat` (Windows) o `bash start.sh` (Linux). No es necesario volver a ejecutar manualmente `install.bat` o `install.sh` para las actualizaciones normales.
 
+## CMDRHelper v3.9.32
+
+- Las huellas verdes señalan primeros pasos en el mapa de sistema del Explorer y en BIO / GEO / MINERÍA, con leyenda y ayudas traducidas. La lista de valores y BIO / GEO / MINERÍA usan los mismos nombres cortos; los nombres completos siguen en las ayudas.
+- La crónica ofrece tres filtros combinables para primeros pasos, primeros descubrimientos y primeras cartografías. Los resultados de los comandantes seleccionados se pueden buscar juntos, copiar y exportar como CSV UTF-8 separado por punto y coma.
+- La búsqueda y el periodo aparecen junto a los filtros y pasan a disposición vertical cuando falta espacio. La selección de comandantes y las acciones pueden ocupar varias líneas; los botones de exportación siguen accesibles justo encima de los resultados.
+- Se reutilizan los datos existentes del diario y la base de datos, sin nueva heurística de primer paso ni estructura de base de datos. Los primeros pasos son deducidos, los primeros descubrimientos son candidatos de escaneos propios y las primeras cartografías son cartografías propias de esos candidatos. La primacía oficial no está confirmada.
+- Los periodos filtran horas de eventos disponibles en UTC; los tiempos desconocidos se excluyen al filtrar por fecha y, en otro caso, se muestran sin fechas inventadas. Los primeros descubrimientos no tienen una fecha fiable; las primeras cartografías usan la fecha de la cartografía propia. Nuevos textos en doce idiomas.
+
 ## CMDRHelper v3.9.31
 
 - Una ventana de carga común muestra la nave a la izquierda y el SRV a la derecha, con cantidades, capacidades, barras de progreso y tablas independientes. Se conservan la actualización automática y la posición y el tamaño guardados de la ventana.

@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    "release.3_9_32.0": 'Grønne fotspor markerer første fotavtrykk på Explorer-systemkartet og i BIO / GEO / GRUVEDRIFT, med tegnforklaring og oversatte verktøytips. Verdilisten og BIO / GEO / GRUVEDRIFT bruker like kortnavn; fulle navn er tilgjengelige i verktøytips.',
+    "release.3_9_32.1": 'Krøniken har tre kombinerbare filtre for første fotavtrykk, førsteoppdagelser og førstekartlegginger. Resultater for valgte kommandører kan søkes samlet, kopieres og eksporteres som semikolondelt UTF-8-CSV.',
+    "release.3_9_32.2": 'Søk og periode står ved siden av filtrene og flyttes under hverandre ved plassmangel. Kommandørvalg og handlinger kan brytes over flere linjer; eksportknappene forblir tilgjengelige rett over resultatene.',
+    "release.3_9_32.3": 'Eksisterende journal- og databaseinformasjon gjenbrukes uten ny fotavtrykkheuristikk eller databasestruktur. Første fotavtrykk er utledet, førsteoppdagelser er kandidater fra egne skanninger og førstekartlegginger er egne kartlegginger av slike kandidater. Offisielle førsteplasser forblir ubekreftet.',
+    "release.3_9_32.4": 'Perioder filtrerer tilgjengelige hendelsestider i UTC; ukjente tider utelates med datofilter og vises ellers uten oppdiktede datoer. Førsteoppdagelser har ingen pålitelig hendelsestid; førstekartlegginger bruker tidspunktet for egen kartlegging. Nye tekster finnes på tolv språk.',
     "release.3_9_31.0": 'Et felles lastevindu viser skipet til venstre og SRV til høyre, med separate mengder, kapasiteter, fremdriftslinjer og lastetabeller. Automatisk oppdatering og lagret vindusposisjon og størrelse beholdes.',
     "release.3_9_31.1": 'Skipslasten bruker samme publiserte beholdningsvisning som gruvedriftstabellen. Eksisterende mengder forblir synlige uavhengig av fargemerking og ved manglende eller ufullstendige utstyrsdata. Ukjente verdier, bekreftet nullbeholdning og en inaktiv SRV skilles fra hverandre.',
     "release.3_9_31.2": 'Språkoppdatering av lastevisningen fungerer nå også når mengdene er uendret. Tekstene finnes på alle tolv språk.',
@@ -2519,3 +2524,37 @@ TRANSLATIONS.update({
     'missions.summary_shared': 'Felles last tilgjengelig',
     'missions.summary_present': 'Last tilgjengelig',
 })
+
+# Discovery chronicle and vector footprints.
+TRANSLATIONS.update({'footfall.label': 'Første fotavtrykk',
+ 'discovery.title': 'Oppdagelser',
+ 'discovery.filter.first_footfall': 'Første fotavtrykk',
+ 'discovery.filter.first_discovery': 'Førsteoppdagelser',
+ 'discovery.filter.first_mapping': 'Førstekartlegginger',
+ 'discovery.event.first_discovery': 'Førsteoppdagelse',
+ 'discovery.event.first_mapping': 'Førstekartlegging',
+ 'discovery.assessment.first_footfall': 'Utledet fra journaldata',
+ 'discovery.assessment.first_discovery': 'Kandidat ved skanning; førsteplass ubekreftet',
+ 'discovery.assessment.first_mapping': 'Kartlagt av deg; førsteplass ubekreftet',
+ 'discovery.period_note': 'Perioden filtrerer hendelsestider i UTC. Resultater uten kjent tidspunkt '
+                          'utelates.',
+ 'discovery.unknown_time': 'Ukjent tidspunkt',
+ 'discovery.copy': 'Kopier liste',
+ 'discovery.export': 'Eksporter CSV',
+ 'discovery.export_success': 'CSV lagret: {path}',
+ 'discovery.export_failed': 'CSV-eksport mislyktes: {error}',
+ 'discovery.overwrite': 'Overskrive filen? {path}',
+ 'discovery.column.time': 'Tidspunkt (UTC)',
+ 'discovery.column.commander': 'Kommandør',
+ 'discovery.column.system': 'System',
+ 'discovery.column.body': 'Himmellegeme',
+ 'discovery.column.event': 'Hendelse',
+ 'discovery.column.assessment': 'Tolkning',
+ 'discovery.search_help': 'Grønne fotspor viser første fotavtrykk utledet med eksisterende journallogikk. '
+                          'Førsteoppdagelser er kandidater fra egne skanninger uten pålitelig tidspunkt. '
+                          'Førstekartlegginger kombinerer en kandidat med en registrert egen kartlegging; '
+                          'tidspunktet for denne vises. Ingen type bekrefter en offisiell førsteplass. Flere '
+                          'filtre bruker ELLER; søket gjelder system- og legemenavn. Perioden filtrerer '
+                          'hendelsestider i UTC. Resultater uten kjent tidspunkt utelates.',
+ 'discovery.event.first_footfall': 'Første fotavtrykk',
+ 'discovery.result': '{time} · {commander} · {system} · {body} · {event}\n{assessment}'})

@@ -14,10 +14,15 @@ from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
 import os
+import csv
 import logging
 import re
 
 from cmdrhelper.chronicle_filters import ChronicleFilters
+from cmdrhelper.discovery_export import COLUMNS, discovery_row, serialize_discoveries
+from cmdrhelper.ui.footfall_icon import FootfallIcon
+from cmdrhelper.ui.bio_body_delegate import BioBodyDelegate
+from cmdrhelper.ui.chronicle_controls_layout import ChronicleControlsLayout
 from cmdrhelper.ui.update_confirmation import UpdateConfirmationBox
 from cmdrhelper.ui.system_view import SystemMapWidget
 from cmdrhelper.ui.system_overview import SystemOverviewDialog
@@ -331,7 +336,7 @@ class ChronicleSearchHelpDialog(AuxiliaryWindow, QDialog):
         title.setStyleSheet("font-size: 16px; font-weight: 700;")
         root.addWidget(title)
 
-        intro = QLabel(tr("chronicle.search_help_intro"))
+        intro = QLabel(tr("chronicle.search_help_intro") + "\n\n" + tr("discovery.search_help"))
         intro.setObjectName("muted")
         intro.setWordWrap(True)
         root.addWidget(intro)
@@ -1299,6 +1304,10 @@ class MainWindow(QMainWindow):
         self._refresh_chronicle_mining_commodities()
 
         self.state.changed.connect(self.refresh_all)
+        for name in ("journalCatchupReady", "databaseImportFinished"):
+            signal = getattr(self.state, name, None)
+            if signal is not None:
+                signal.connect(self._refresh_open_discoveries)
         self._connect_cargo_live_signals()
 
         self.refresh_all()
@@ -2038,7 +2047,7 @@ class MainWindow(QMainWindow):
         legend_frame = QFrame()
         legend_frame.setObjectName("card")
 
-        legend_layout = QHBoxLayout(legend_frame)
+        legend_layout = QGridLayout(legend_frame)
         legend_layout.setContentsMargins(12, 7, 12, 7)
         legend_layout.setSpacing(18)
 
@@ -2064,7 +2073,7 @@ class MainWindow(QMainWindow):
             ),
         ]
 
-        for symbol, text, color in legend_items:
+        for index, (symbol, text, color) in enumerate(legend_items):
             label_type = _MiningLegendLabel if symbol == "ABBAU ×N" else QLabel
             item = label_type(
                 f'<span style="color:{color}; font-size:14px; '
@@ -2083,9 +2092,18 @@ class MainWindow(QMainWindow):
             if str(text).startswith(tr("explorer.gold_frame_prefix")):
                 self.gold_frame_legend_label = item
 
-            legend_layout.addWidget(item)
+            legend_layout.addWidget(item, index // 6, index % 6)
 
-        legend_layout.addStretch()
+        footfall_legend = QHBoxLayout()
+        self.footfall_legend_icon = FootfallIcon(self.ui_theme == "light")
+        self.footfall_legend_icon.setToolTip(tr("footfall.label"))
+        self.footfall_legend_icon.setAccessibleName(tr("footfall.label"))
+        footfall_legend.addWidget(self.footfall_legend_icon)
+        footfall_label = QLabel(tr("footfall.label"))
+        footfall_label.setToolTip(tr("footfall.label"))
+        footfall_legend.addWidget(footfall_label)
+        footfall_legend.addStretch()
+        legend_layout.addLayout(footfall_legend, 1, 4, 1, 2)
         system_layout.addWidget(legend_frame)
 
         self.system_map = SystemMapWidget()
@@ -2163,6 +2181,8 @@ class MainWindow(QMainWindow):
         )
 
         self.explorer_bio_table = QTableWidget(0, 11)
+        self.explorer_bio_table.setItemDelegateForColumn(
+            0, BioBodyDelegate(self.explorer_bio_table, lambda: self.ui_theme == "light"))
         self.explorer_bio_table.setHorizontalHeaderLabels(
             [
                 tr("explorer.col_body"),
@@ -2224,8 +2244,14 @@ class MainWindow(QMainWindow):
         return page
 
     @staticmethod
-    def _explorer_body_name(body):
-        return body.get("short_name") or body.get("name") or "?"
+    def _explorer_body_name(body, system_name=""):
+        name = body.get("short_name") or body.get("name") or "?"
+        # short_name can still contain the full name in partial/stored bodies.
+        # Use the same exact system-prefix boundary as the system overview.
+        prefix = system_name + " " if system_name else ""
+        if prefix and name.startswith(prefix):
+            return name[len(prefix):].strip() or name
+        return name
 
     @staticmethod
     def _explorer_distance_text(body):
@@ -2619,7 +2645,7 @@ class MainWindow(QMainWindow):
                     )
 
                     values = [
-                        self._explorer_body_name(body),
+                        self._explorer_body_name(body, getattr(self.state, "system", "") or ""),
                         SystemMapWidget._type_text(body),
                         self._explorer_distance_text(body),
                         self._format_reward(body.get("scan_value", 0)),
@@ -2634,6 +2660,9 @@ class MainWindow(QMainWindow):
                         item = ValueItem(value, keys[col])
                         item.setData(Qt.UserRole, body)
                         item.setToolTip(status_tooltip(body))
+                        if col == 0:
+                            full_name = body.get("name") or body.get("short_name") or "?"
+                            item.setToolTip(full_name + "\n\n" + status_tooltip(body))
 
                         # Zahlenwerte auch intern numerisch hinterlegen.
                         if col == 4:
@@ -2754,7 +2783,7 @@ class MainWindow(QMainWindow):
                     status = tr("explorer.bio_found_not_visited")
 
                 values = [
-                    self._explorer_body_name(body),
+                    self._explorer_body_name(body, getattr(self.state, "system", "") or ""),
                     SystemMapWidget._type_text(body),
                     str(signals) if signals > 0 else "–",
                     self._explorer_geo_text(body) if geo_signals > 0 else "–",
@@ -2789,6 +2818,8 @@ class MainWindow(QMainWindow):
                         continue
 
                     item = ValueItem(value, keys[col])
+                    if col == 0:
+                        item.setToolTip(body.get("name") or body.get("short_name") or "?")
 
                     if col == 6 and known_bio_value > 0 and first_footfall:
                         item.setToolTip(
@@ -4001,15 +4032,26 @@ class MainWindow(QMainWindow):
         layout.addLayout(header)
 
         self.chronicle_mining_filter_frame = QFrame(objectName="card")
-        filters = QGridLayout(self.chronicle_mining_filter_frame)
-        filters.setContentsMargins(8, 4, 8, 4)
-        filters.addWidget(QLabel(tr("chronicle.filters.search")), 0, 0)
+        columns = ChronicleControlsLayout(self.chronicle_mining_filter_frame, panels=True)
+        columns.setContentsMargins(8, 4, 8, 4)
+        self.chronicle_search_panel = QWidget()
+        search = QGridLayout(self.chronicle_search_panel)
+        search.setContentsMargins(0, 0, 0, 0)
+        search.setAlignment(Qt.AlignTop)
+        search.setColumnStretch(1, 1)
+        columns.addWidget(self.chronicle_search_panel)
+        self.chronicle_options_panel = QWidget()
+        filters = QGridLayout(self.chronicle_options_panel)
+        filters.setContentsMargins(0, 0, 0, 0)
+        filters.setAlignment(Qt.AlignTop)
+        columns.addWidget(self.chronicle_options_panel)
+        search.addWidget(QLabel(tr("chronicle.filters.search")), 0, 0)
         self.chronicle_search_edit = QLineEdit()
         self.chronicle_search_edit.setPlaceholderText(tr("chronicle.filters.placeholder"))
         self.chronicle_search_edit.returnPressed.connect(self._apply_chronicle_filters)
-        filters.addWidget(self.chronicle_search_edit, 0, 1, 1, 4)
+        search.addWidget(self.chronicle_search_edit, 0, 1)
 
-        filters.addWidget(QLabel(tr("chronicle.filters.period")), 1, 0)
+        search.addWidget(QLabel(tr("chronicle.filters.period")), 1, 0)
         dates = QHBoxLayout()
         self.chronicle_from_check = QCheckBox(tr("chronicle.filters.from"))
         self.chronicle_to_check = QCheckBox(tr("chronicle.filters.to"))
@@ -4025,32 +4067,42 @@ class MainWindow(QMainWindow):
             dates.addWidget(check)
             dates.addWidget(field)
         dates.addStretch()
-        filters.addLayout(dates, 1, 1, 1, 4)
+        search.addLayout(dates, 1, 1)
         period_note = QLabel(tr("chronicle.filters.period_note"), objectName="muted")
+        self.chronicle_period_note = period_note
         period_note.setWordWrap(True)
-        filters.addWidget(period_note, 2, 1, 1, 4)
+        search.addWidget(period_note, 2, 0, 1, 2)
 
-        filters.addWidget(QLabel(tr("chronicle.filters.title")), 3, 0)
+        filters.addWidget(QLabel(tr("chronicle.filters.title")), 0, 0, 1, 3)
         self.chronicle_planetary_mining_check = QCheckBox(tr("chronicle.filters.planetary"))
-        filters.addWidget(self.chronicle_planetary_mining_check, 3, 1)
-        filters.addWidget(QLabel(tr("chronicle.filters.minimum")), 3, 2)
+        filters.addWidget(self.chronicle_planetary_mining_check, 1, 0)
+        filters.addWidget(QLabel(tr("chronicle.filters.minimum")), 1, 1)
         self.chronicle_planetary_mining_minimum = QSpinBox()
         self.chronicle_planetary_mining_minimum.setRange(0, 9999)
-        filters.addWidget(self.chronicle_planetary_mining_minimum, 3, 3)
+        filters.addWidget(self.chronicle_planetary_mining_minimum, 1, 2)
         self.chronicle_personally_mined_check = QCheckBox(tr("chronicle.filters.personal"))
         self.chronicle_personally_mined_check.toggled.connect(self._update_chronicle_mining_commodity_enabled)
-        filters.addWidget(self.chronicle_personally_mined_check, 4, 1)
-        filters.addWidget(QLabel(tr("chronicle.filters.commodity")), 4, 2)
+        filters.addWidget(self.chronicle_personally_mined_check, 2, 0)
+        filters.addWidget(QLabel(tr("chronicle.filters.commodity")), 2, 1)
         self.chronicle_mining_commodity_combo = QComboBox()
         self.chronicle_mining_commodity_combo.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
         self.chronicle_mining_commodity_combo.setMinimumContentsLength(10)
-        filters.addWidget(self.chronicle_mining_commodity_combo, 4, 3)
-        filters.setColumnStretch(4, 1)
+        filters.addWidget(self.chronicle_mining_commodity_combo, 2, 2)
+        self.chronicle_footfall_check = QCheckBox(tr("discovery.filter.first_footfall"))
+        self.chronicle_discovery_check = QCheckBox(tr("discovery.filter.first_discovery"))
+        self.chronicle_mapping_check = QCheckBox(tr("discovery.filter.first_mapping"))
+        for row, check in enumerate((self.chronicle_footfall_check,
+                                      self.chronicle_discovery_check,
+                                      self.chronicle_mapping_check), 3):
+            check.setToolTip(tr("discovery.search_help"))
+            check.toggled.connect(self._update_chronicle_discovery_mode)
+            filters.addWidget(check, row, 0, 1, 3)
+        filters.setColumnStretch(0, 1)
         layout.addWidget(self.chronicle_mining_filter_frame)
         self._refresh_chronicle_mining_commodities()
 
         self.chronicle_filter_frame = QFrame(objectName="card")
-        self.chronicle_filter_layout = QHBoxLayout(self.chronicle_filter_frame)
+        self.chronicle_filter_layout = ChronicleControlsLayout(self.chronicle_filter_frame)
         self.chronicle_filter_layout.setContentsMargins(8, 4, 8, 4)
         self.chronicle_filter_layout.addWidget(QLabel(tr("chronicle.commander_filter")))
         self.chronicle_all_commanders = QCheckBox(tr("chronicle.all_commanders"))
@@ -4064,7 +4116,7 @@ class MainWindow(QMainWindow):
         self._chronicle_filter_ids = ()
         layout.addWidget(self.chronicle_filter_frame)
 
-        actions = QHBoxLayout()
+        actions = ChronicleControlsLayout()
         self.chronicle_apply_button = QPushButton(tr("chronicle.filters.apply"), objectName="chronicleApply")
         self.chronicle_apply_button.clicked.connect(self._apply_chronicle_filters)
         actions.addWidget(self.chronicle_apply_button)
@@ -4092,7 +4144,15 @@ class MainWindow(QMainWindow):
         self.chronicle_map = ChronicleMapWidget()
         self.chronicle_map.set_light_mode(self.ui_theme == "light")
         self.chronicle_map.systemClicked.connect(self._chronicle_system_clicked)
-        map_layout.addWidget(self.chronicle_map, 1)
+        # Only the map may consume/scroll the remaining vertical space. Keep its
+        # minimum size and mouse controls, without pushing result actions offscreen.
+        self.chronicle_map_scroll = QScrollArea()
+        self.chronicle_map_scroll.setFrameShape(QFrame.NoFrame)
+        self.chronicle_map_scroll.setWidgetResizable(True)
+        self.chronicle_map_scroll.setMinimumSize(0, 0)
+        self.chronicle_map_scroll.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Ignored)
+        self.chronicle_map_scroll.setWidget(self.chronicle_map)
+        map_layout.addWidget(self.chronicle_map_scroll, 1)
 
         self.chronicle_detail = QLabel(
             tr("chronicle.no_system_selected"), objectName="muted"
@@ -4107,6 +4167,19 @@ class MainWindow(QMainWindow):
         self.chronicle_search_results.itemClicked.connect(
             self._chronicle_search_result_clicked
         )
+        self._discovery_rows = ()
+        self._discovery_headers = ()
+        self._discovery_request = None
+        export_actions = QHBoxLayout()
+        self.chronicle_copy_list = QPushButton(tr("discovery.copy"))
+        self.chronicle_export_csv = QPushButton(tr("discovery.export"))
+        self.chronicle_copy_list.clicked.connect(self._copy_discovery_list)
+        self.chronicle_export_csv.clicked.connect(self._export_discovery_list)
+        for button in (self.chronicle_copy_list, self.chronicle_export_csv):
+            button.setEnabled(False)
+            export_actions.addWidget(button)
+        export_actions.addStretch()
+        map_layout.addLayout(export_actions)
         map_layout.addWidget(self.chronicle_search_results)
 
         layout.addWidget(map_card, 1)
@@ -4357,13 +4430,109 @@ class MainWindow(QMainWindow):
     def _update_chronicle_mining_commodity_enabled(self, *_args):
         self.chronicle_mining_commodity_combo.setEnabled(
             self.chronicle_personally_mined_check.isChecked()
+            and not any(getattr(self, name, None) and getattr(self, name).isChecked()
+                        for name in ("chronicle_footfall_check", "chronicle_discovery_check", "chronicle_mapping_check"))
             and self.chronicle_mining_commodity_combo.count() > 1
         )
+
+    def _update_chronicle_discovery_mode(self, *_args):
+        enabled = any(check.isChecked() for check in (
+            self.chronicle_footfall_check, self.chronicle_discovery_check,
+            self.chronicle_mapping_check))
+        for widget in (self.chronicle_planetary_mining_check,
+                       self.chronicle_planetary_mining_minimum,
+                       self.chronicle_personally_mined_check):
+            widget.setEnabled(not enabled)
+        self._update_chronicle_mining_commodity_enabled()
+        self.chronicle_period_note.setText(tr(
+            "discovery.period_note" if enabled else "chronicle.filters.period_note"))
+
+    def _refresh_open_discoveries(self, _result=None, error=""):
+        request = getattr(self, "_discovery_request", None)
+        if not error and request and self.pages.currentIndex() == self.PAGE_CHRONICLE:
+            # Reuse applied filters, not edits the user has not applied yet.
+            filters, ids = request
+            self._clear_chronicle_context()
+            self.chronicle_map.set_systems([])
+            self._run_discovery_search(filters, filters.visit_bounds(), ids)
+
+    def _copy_discovery_list(self):
+        if self._discovery_rows:
+            QApplication.clipboard().setText(serialize_discoveries(
+                self._discovery_headers, self._discovery_rows, delimiter="\t"))
+
+    def _export_discovery_list(self):
+        if not self._discovery_rows:
+            return
+        headers, rows = self._discovery_headers, self._discovery_rows
+        filename, _ = QFileDialog.getSaveFileName(
+            self, tr("discovery.export"), "discoveries.csv", "CSV (*.csv)")
+        if not filename:
+            return
+        target = Path(filename)
+        if target.suffix.lower() != ".csv":
+            target = target.with_suffix(".csv")
+            if target.exists() and QMessageBox.question(
+                    self, tr("discovery.export"), tr("discovery.overwrite", path=str(target)),
+                    QMessageBox.Yes | QMessageBox.No, QMessageBox.No) != QMessageBox.Yes:
+                return
+        try:
+            target.write_text(serialize_discoveries(headers, rows), encoding="utf-8", newline="")
+        except (OSError, csv.Error, UnicodeError) as exc:
+            self.chronicle_status.setText(tr("discovery.export_failed", error=str(exc)))
+            return
+        self.chronicle_status.setText(tr("discovery.export_success", path=str(target)))
+
+    def _run_discovery_search(self, filters, bounds, commander_ids=None):
+        ids = tuple(self._selected_chronicle_commander_ids() if commander_ids is None else commander_ids)
+        try:
+            results = self.state.database.search_discoveries(
+                ids, filters.discovery_types, filters.query, **bounds)
+        except Exception as exc:
+            self.chronicle_status.setText(tr("chronicle.search_failed", error=exc))
+            return False
+        systems = {}
+        rows = []
+        for result in results:
+            address = result["system_address"]
+            system = systems.setdefault(address, dict(
+                system_address=address, name=result["system_name"],
+                x=result["x"], y=result["y"], z=result["z"], commanders=[]))
+            if not any(c["commander_id"] == result["commander_id"] for c in system["commanders"]):
+                system["commanders"].append(dict(
+                    commander_id=result["commander_id"],
+                    commander_name=result["commander_name"], fid=result["fid"]))
+            row = discovery_row(result)
+            rows.append(row)
+            when = (self._format_timestamp(result["timestamp"]) + " UTC" if result["timestamp"]
+                    else tr("discovery.unknown_time"))
+            item = QListWidgetItem(tr("discovery.result", time=when, commander=row[1],
+                                      system=row[2], body=row[3], event=row[4], assessment=row[5]))
+            item.setData(Qt.UserRole, result)
+            self.chronicle_search_results.addItem(item)
+        self._discovery_headers = tuple(tr("discovery.column." + key) for key in COLUMNS)
+        self._discovery_rows = tuple(rows)
+        self._discovery_request = (filters, ids)
+        for button in (self.chronicle_copy_list, self.chronicle_export_csv):
+            button.setEnabled(bool(rows))
+        self._chronicle_search_systems = systems
+        self.chronicle_map.set_systems([
+            s for s in systems.values() if all(s[k] is not None for k in ("x", "y", "z"))], [])
+        self.chronicle_search_results.setVisible(bool(results))
+        self.chronicle_status.setText(tr("chronicle.results_summary", results=len(results),
+                                        systems=len(systems), query=tr("discovery.title")))
+        return True
 
     def _chronicle_filters(self):
         personal = self.chronicle_personally_mined_check.isChecked()
         return ChronicleFilters(
             query=self.chronicle_search_edit.text().strip(),
+            first_footfall_only=bool(getattr(self, "chronicle_footfall_check", None)
+                                    and self.chronicle_footfall_check.isChecked()),
+            first_discovery_only=bool(getattr(self, "chronicle_discovery_check", None)
+                                     and self.chronicle_discovery_check.isChecked()),
+            first_mapping_only=bool(getattr(self, "chronicle_mapping_check", None)
+                                   and self.chronicle_mapping_check.isChecked()),
             date_from=(self.chronicle_from_date.date().toPython()
                        if self.chronicle_from_check.isChecked() else None),
             date_to=(self.chronicle_to_date.date().toPython()
@@ -4375,6 +4544,11 @@ class MainWindow(QMainWindow):
         )
 
     def _clear_chronicle_context(self):
+        self._discovery_rows = ()
+        self._discovery_request = None
+        for name in ("chronicle_copy_list", "chronicle_export_csv"):
+            if hasattr(self, name):
+                getattr(self, name).setEnabled(False)
         self.chronicle_search_results.clear()
         self.chronicle_search_results.hide()
         self.chronicle_detail.setText(tr("chronicle.no_system_selected"))
@@ -4398,6 +4572,8 @@ class MainWindow(QMainWindow):
         except Exception as exc:
             self.chronicle_status.setText(tr("chronicle.load_failed", error=exc))
             return False
+        if filters.discovery_types:
+            return self._run_discovery_search(filters, bounds)
         if filters.has_search:
             return self._run_chronicle_search(
                 filters.query,
@@ -4557,6 +4733,9 @@ class MainWindow(QMainWindow):
         return True
 
     def _reset_chronicle_search(self):
+        for name in ("chronicle_footfall_check", "chronicle_discovery_check", "chronicle_mapping_check"):
+            if hasattr(self, name):
+                getattr(self, name).setChecked(False)
         if hasattr(self, "chronicle_search_edit"):
             self.chronicle_search_edit.clear()
 
@@ -4585,6 +4764,19 @@ class MainWindow(QMainWindow):
         if not isinstance(result, dict):
             return
 
+        if result.get("discovery"):
+            try:
+                details = self.state.database.chronicle_system_details(
+                    result["system_address"], commander_id=result["commander_id"])
+                body = next((b for b in details.get("bodies", [])
+                             if b.get("body_id") == result["body_id"]), None)
+            except Exception as exc:
+                self.chronicle_status.setText(tr("chronicle.search_failed", error=exc))
+                return
+            if body is not None:
+                self._show_body_details(body)
+            return
+
         system = {
             "system_address": result.get("system_address"),
             "name": (result.get("system_name") or ""),
@@ -4597,7 +4789,7 @@ class MainWindow(QMainWindow):
             "visits": 0,
         }
 
-        system = self._chronicle_search_systems.get(result.get("system_address"), system)
+        system = dict(self._chronicle_search_systems.get(result.get("system_address"), system))
 
         body_name = result.get("short_name") or result.get("body_name") or ""
 
@@ -6052,6 +6244,8 @@ class MainWindow(QMainWindow):
         if hasattr(self, "system_analysis_view"):
             self.system_analysis_view.set_light_mode(theme == "light")
 
+        if hasattr(self, "footfall_legend_icon"):
+            self.footfall_legend_icon.set_light_mode(theme == "light")
         if hasattr(self, "system_map"):
             self.system_map.set_light_mode(theme == "light")
         if hasattr(self, "stations_view"):

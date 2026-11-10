@@ -14,6 +14,7 @@ from PySide6.QtWidgets import QWidget, QToolTip, QAbstractScrollArea
 
 from cmdrhelper.i18n import tr
 from cmdrhelper.ui import station_items
+from cmdrhelper.ui.footfall_icon import paint_footprints
 
 
 class SystemMapWidget(QWidget):
@@ -35,6 +36,7 @@ class SystemMapWidget(QWidget):
         self._display_bodies = []
         self._layout_nodes = {}
         self._body_rects = []
+        self._footfall_rects = []
         self._facility_links = []
         self._facility_blocks = []
         self._facility_footer = None
@@ -1244,8 +1246,11 @@ class SystemMapWidget(QWidget):
                 ("⌄", QColor("#d8dde3"))
             )
 
+        if not is_star and body.get("first_footfall") is True:
+            markers.append((None, None))
+
         marker_widths = [
-            (
+            22 if text is None else (
                 26
                 if str(text) == "◉✓"
                 else 15
@@ -1289,6 +1294,12 @@ class SystemMapWidget(QWidget):
             markers,
             marker_widths
         ):
+            if text is None:
+                rect = QRectF(marker_x, marker_y - 2, marker_width, 20)
+                paint_footprints(painter, rect.adjusted(1, 0, -1, 0), self._light_mode)
+                self._footfall_rects.append((rect, body))
+                marker_x += marker_width
+                continue
             painter.setPen(marker_color)
 
             painter.drawText(
@@ -1318,6 +1329,7 @@ class SystemMapWidget(QWidget):
         )
 
         self._body_rects = []
+        self._footfall_rects = []
 
         if not self.bodies and not self.stations:
             painter.setPen(
@@ -1453,6 +1465,10 @@ class SystemMapWidget(QWidget):
             if rect.contains(pos):
                 self.setCursor(Qt.PointingHandCursor)
                 QToolTip.showText(event.globalPosition().toPoint(), station_items.tooltip(stations), self)
+                return
+        for rect, body in self._footfall_rects:
+            if rect.contains(pos):
+                QToolTip.showText(event.globalPosition().toPoint(), tr("footfall.label"), self)
                 return
         for rect, body in self._body_rects:
             if rect.contains(pos):

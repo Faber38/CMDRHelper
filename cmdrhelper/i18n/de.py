@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    "release.3_9_32.0": 'Grüne Fußspuren kennzeichnen Erstbetretungen auf der Explorer-Systemkarte und in BIO / GEO / ABBAU, mit Legende und übersetzten Tooltips. Wertliste und BIO / GEO / ABBAU zeigen einheitliche Kurznamen; vollständige Körpernamen bleiben im Tooltip verfügbar.',
+    "release.3_9_32.1": 'Die Chronik bietet drei kombinierbare Filter für Erstbetretungen, Erstentdeckungen und Erstkartierungen. Ergebnisse der ausgewählten Commander lassen sich gemeinsam durchsuchen, als Liste kopieren und als UTF-8-CSV mit Semikolon exportieren.',
+    "release.3_9_32.2": 'Der obere Chronikbereich zeigt Suche und Zeitraum neben den Filtern und wechselt bei Platzmangel untereinander. Commander-Auswahl und Aktionen können umbrechen; Export-Schaltflächen bleiben direkt über der Ergebnisliste erreichbar.',
+    "release.3_9_32.3": 'Vorhandene Journal- und Datenbankinformationen werden wiederverwendet, ohne neue Erstbetretungsheuristik oder Datenbankstruktur. Erstbetretungen sind abgeleitet, Erstentdeckungen eigene Scan-Kandidaten und Erstkartierungen eigene Kartierungen solcher Kandidaten. Offizielle Erstansprüche bleiben unbestätigt.',
+    "release.3_9_32.4": 'Zeiträume filtern vorhandene Ereigniszeitpunkte in UTC; unbekannte Zeitpunkte werden dabei ausgeschlossen und sonst ohne erfundenes Datum angezeigt. Erstentdeckungen haben keinen verlässlichen Ereigniszeitpunkt, Erstkartierungen verwenden den Zeitpunkt der eigenen Kartierung. Neue Texte sind in zwölf Sprachen verfügbar.',
     "release.3_9_31.0": 'Gemeinsames Frachtfenster mit Schiff links und SRV rechts: getrennte Bestände, Kapazitäten, Fortschrittsbalken und Frachttabellen. Automatische Aktualisierung sowie gespeicherte Fensterposition und Größe bleiben erhalten.',
     "release.3_9_31.1": 'Die Schiffsfracht verwendet dieselbe veröffentlichte Bestandsprojektion wie die Mining-Tabelle. Vorhandene Mengen bleiben unabhängig von ihrer Farbkennzeichnung und bei fehlendem oder unvollständigem Loadout sichtbar. Unbekannte Werte, bestätigte Nullbestände und ein inaktives SRV werden unterschieden.',
     "release.3_9_31.2": 'Die Sprachaktualisierung der Frachtanzeige berücksichtigt jetzt auch unveränderte Bestände. Texte sind in allen zwölf Sprachen verfügbar.',
@@ -2667,3 +2672,38 @@ TRANSLATIONS.update({
     'missions.summary_shared': 'Gemeinsame Fracht vorhanden',
     'missions.summary_present': 'Fracht vorhanden',
 })
+
+# Discovery chronicle and vector footprints.
+TRANSLATIONS.update({'footfall.label': 'Erstbetretung',
+ 'discovery.title': 'Entdeckungen',
+ 'discovery.filter.first_footfall': 'Erstbetretungen',
+ 'discovery.filter.first_discovery': 'Erstentdeckungen',
+ 'discovery.filter.first_mapping': 'Erstkartierungen',
+ 'discovery.event.first_discovery': 'Erstentdeckung',
+ 'discovery.event.first_mapping': 'Erstkartierung',
+ 'discovery.assessment.first_footfall': 'Aus Journaldaten abgeleitet',
+ 'discovery.assessment.first_discovery': 'Kandidat beim Scan; Erstanspruch unbestätigt',
+ 'discovery.assessment.first_mapping': 'Selbst kartiert; Erstanspruch unbestätigt',
+ 'discovery.period_note': 'Der Zeitraum filtert Ereigniszeitpunkte in UTC. Treffer ohne bekannten Zeitpunkt '
+                          'werden ausgeschlossen.',
+ 'discovery.unknown_time': 'Zeitpunkt unbekannt',
+ 'discovery.copy': 'Liste kopieren',
+ 'discovery.export': 'CSV exportieren',
+ 'discovery.export_success': 'CSV gespeichert: {path}',
+ 'discovery.export_failed': 'CSV-Export fehlgeschlagen: {error}',
+ 'discovery.overwrite': 'Datei überschreiben? {path}',
+ 'discovery.column.time': 'Zeitpunkt (UTC)',
+ 'discovery.column.commander': 'Commander',
+ 'discovery.column.system': 'System',
+ 'discovery.column.body': 'Körper',
+ 'discovery.column.event': 'Ereignis',
+ 'discovery.column.assessment': 'Einordnung',
+ 'discovery.search_help': 'Grüne Fußspuren kennzeichnen Erstbetretungen aus der bestehenden '
+                          'Journalableitung. Erstentdeckungen sind eigene Scan-Kandidaten ohne verlässlichen '
+                          'Ereigniszeitpunkt. Erstkartierungen kombinieren einen Scan-Kandidaten mit einer '
+                          'aufgezeichneten eigenen Kartierung; angezeigt wird deren Zeitpunkt. Kein Typ '
+                          'bestätigt einen offiziellen Erstanspruch. Mehrere Filter wirken als ODER; gesucht '
+                          'werden System- und Körpernamen. Der Zeitraum filtert Ereigniszeitpunkte in UTC. '
+                          'Treffer ohne bekannten Zeitpunkt werden ausgeschlossen.',
+ 'discovery.event.first_footfall': 'Erstbetretung',
+ 'discovery.result': '{time} · {commander} · {system} · {body} · {event}\n{assessment}'})

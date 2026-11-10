@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    "release.3_9_32.0": 'Vihreät jalanjäljet merkitsevät ensimmäisiä askeleita Explorerin järjestelmäkartalla ja BIO / GEO / LOUHINTA -näkymässä, mukana selite ja käännetyt työkaluvihjeet. Arvolista ja BIO / GEO / LOUHINTA käyttävät samoja lyhyitä nimiä; täydet nimet näkyvät työkaluvihjeissä.',
+    "release.3_9_32.1": 'Kronikassa on kolme yhdistettävää suodatinta ensimmäisille jalanjäljille, löydöille ja kartoituksille. Valittujen komentajien tuloksia voi hakea yhdessä, kopioida ja viedä puolipisteillä eroteltuna UTF-8-CSV-tiedostona.',
+    "release.3_9_32.2": 'Haku ja aikaväli ovat suodattimien vieressä ja siirtyvät allekkain tilan loppuessa. Komentajavalinta ja toiminnot voivat rivittyä; vientipainikkeet pysyvät käytettävissä tulosten yläpuolella.',
+    "release.3_9_32.3": 'Olemassa olevia loki- ja tietokantatietoja käytetään ilman uutta jalanjälkiheuristiikkaa tai tietokantarakennetta. Ensimmäiset jalanjäljet ovat pääteltyjä, ensimmäiset löydöt omien skannausten ehdokkaita ja ensimmäiset kartoitukset näiden ehdokkaiden omia kartoituksia. Virallista ensisijaisuutta ei vahvisteta.',
+    "release.3_9_32.4": 'Aikavälit suodattavat tunnettuja tapahtuma-aikoja UTC-ajassa; tuntemattomat ajat jätetään päivämääräsuodatuksessa pois ja näytetään muuten ilman keksittyjä päivämääriä. Ensimmäisillä löydöillä ei ole luotettavaa tapahtuma-aikaa; ensimmäiset kartoitukset käyttävät oman kartoituksen aikaa. Uudet tekstit ovat saatavilla kahdellatoista kielellä.',
     "release.3_9_31.0": 'Yhteinen lasti-ikkuna näyttää aluksen vasemmalla ja SRV:n oikealla. Molemmilla on omat määrät, kapasiteetit, edistymispalkit ja lastitaulukot. Automaattiset päivitykset sekä tallennettu ikkunan sijainti ja koko säilyvät.',
     "release.3_9_31.1": 'Aluksen lasti käyttää samaa julkaistua varantonäkymää kuin kaivostaulukko. Olemassa olevat määrät näkyvät värimerkinnästä riippumatta myös varustetietojen puuttuessa tai ollessa epätäydellisiä. Tuntemattomat arvot, vahvistettu nollamäärä ja epäaktiivinen SRV erotetaan toisistaan.',
     "release.3_9_31.2": 'Lastinäkymän kielipäivitys toimii nyt myös määrien pysyessä ennallaan. Tekstit ovat saatavilla kaikilla kahdellatoista kielellä.',
@@ -2519,3 +2524,38 @@ TRANSLATIONS.update({
     'missions.summary_shared': 'Yhteistä rahtia saatavilla',
     'missions.summary_present': 'Rahtia saatavilla',
 })
+
+# Discovery chronicle and vector footprints.
+TRANSLATIONS.update({'footfall.label': 'Ensimmäinen jalanjälki',
+ 'discovery.title': 'Löydöt',
+ 'discovery.filter.first_footfall': 'Ensimmäiset jalanjäljet',
+ 'discovery.filter.first_discovery': 'Ensimmäiset löydöt',
+ 'discovery.filter.first_mapping': 'Ensimmäiset kartoitukset',
+ 'discovery.event.first_discovery': 'Ensimmäinen löytö',
+ 'discovery.event.first_mapping': 'Ensimmäinen kartoitus',
+ 'discovery.assessment.first_footfall': 'Päätelty lokitiedoista',
+ 'discovery.assessment.first_discovery': 'Ehdokas skannattaessa; ensisijaisuutta ei vahvistettu',
+ 'discovery.assessment.first_mapping': 'Itse kartoitettu; ensisijaisuutta ei vahvistettu',
+ 'discovery.period_note': 'Aikaväli suodattaa tapahtuma-ajat UTC-ajassa. Tulokset ilman tunnettua aikaa '
+                          'jätetään pois.',
+ 'discovery.unknown_time': 'Aika tuntematon',
+ 'discovery.copy': 'Kopioi lista',
+ 'discovery.export': 'Vie CSV',
+ 'discovery.export_success': 'CSV tallennettu: {path}',
+ 'discovery.export_failed': 'CSV-vienti epäonnistui: {error}',
+ 'discovery.overwrite': 'Korvataanko tiedosto? {path}',
+ 'discovery.column.time': 'Ajankohta (UTC)',
+ 'discovery.column.commander': 'Komentaja',
+ 'discovery.column.system': 'Järjestelmä',
+ 'discovery.column.body': 'Taivaankappale',
+ 'discovery.column.event': 'Tapahtuma',
+ 'discovery.column.assessment': 'Tulkinta',
+ 'discovery.search_help': 'Vihreät jalanjäljet osoittavat ensimmäisiä askeleita nykyisen lokipäättelyn '
+                          'perusteella. Ensimmäiset löydöt ovat omien skannausten ehdokkaita ilman '
+                          'luotettavaa tapahtuma-aikaa. Ensimmäiset kartoitukset yhdistävät ehdokkaan '
+                          'kirjattuun omaan kartoitukseen, jonka aika näytetään. Mikään tyyppi ei vahvista '
+                          'virallista ensisijaisuutta. Suodattimet yhdistetään TAI-ehdolla; haku koskee '
+                          'järjestelmien ja kappaleiden nimiä. Aikaväli suodattaa tapahtuma-ajat UTC-ajassa. '
+                          'Tulokset ilman tunnettua aikaa jätetään pois.',
+ 'discovery.event.first_footfall': 'Ensimmäinen jalanjälki',
+ 'discovery.result': '{time} · {commander} · {system} · {body} · {event}\n{assessment}'})

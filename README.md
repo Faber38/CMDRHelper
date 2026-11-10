@@ -38,6 +38,14 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.9.32
+
+- Green footprints mark first footfalls on the Explorer system map and in BIO / GEO / MINING, with a legend and translated tooltips. The value list and BIO / GEO / MINING use consistent short names; full body names remain available in tooltips.
+- The chronicle offers three combinable filters for first footfalls, first discoveries and first mappings. Results for selected commanders can be searched together, copied as a list and exported as semicolon-separated UTF-8 CSV.
+- The upper chronicle area places search and dates beside the filters, stacking them when space is limited. Commander selection and actions can wrap; export buttons remain accessible directly above the results.
+- Existing journal and database information is reused without a new first-footfall heuristic or database structure. First footfalls are inferred, first discoveries are personal scan candidates, and first mappings are personal mappings of such candidates. Official first claims remain unconfirmed.
+- Date ranges filter available event times in UTC; unknown times are excluded by date filters and otherwise displayed without invented dates. First discoveries have no reliable event time; first mappings use the time of your own mapping. New texts are available in twelve languages.
+
 ## CMDRHelper v3.9.31
 
 - A shared cargo window shows the ship on the left and the SRV on the right, with separate quantities, capacities, progress bars and cargo tables. Automatic updates and saved window position and size are retained.

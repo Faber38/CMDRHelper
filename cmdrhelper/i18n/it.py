@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    "release.3_9_32.0": 'Le impronte verdi indicano i primi passi sulla mappa di sistema dell’Explorer e in BIO / GEO / ESTRAZIONE, con legenda e suggerimenti tradotti. L’elenco valori e BIO / GEO / ESTRAZIONE usano gli stessi nomi brevi; i nomi completi restano nei suggerimenti.',
+    "release.3_9_32.1": 'La cronaca offre tre filtri combinabili per primi passi, prime scoperte e prime mappature. I risultati dei comandanti selezionati si possono cercare insieme, copiare ed esportare come CSV UTF-8 separato da punti e virgola.',
+    "release.3_9_32.2": 'La ricerca e il periodo affiancano i filtri e si dispongono verticalmente quando manca spazio. Selezione dei comandanti e azioni possono andare a capo; i pulsanti di esportazione restano accessibili sopra i risultati.',
+    "release.3_9_32.3": 'Le informazioni esistenti del diario e del database vengono riutilizzate senza nuove euristiche per i primi passi né strutture del database. I primi passi sono dedotti, le prime scoperte sono candidati delle proprie scansioni e le prime mappature sono mappature personali di tali candidati. I primati ufficiali restano non confermati.',
+    "release.3_9_32.4": 'I periodi filtrano gli orari disponibili in UTC; gli orari sconosciuti sono esclusi dai filtri temporali e altrimenti mostrati senza date inventate. Le prime scoperte non hanno un orario affidabile; le prime mappature usano l’orario della propria mappatura. I nuovi testi sono disponibili in dodici lingue.',
     "release.3_9_31.0": 'Una finestra di carico comune mostra la nave a sinistra e il SRV a destra, con quantità, capacità, barre di avanzamento e tabelle separate. Restano disponibili gli aggiornamenti automatici e il salvataggio di posizione e dimensioni della finestra.',
     "release.3_9_31.1": 'Il carico della nave usa la stessa proiezione delle scorte pubblicata della tabella mineraria. Le quantità esistenti restano visibili indipendentemente dal colore e anche se i dati di equipaggiamento sono assenti o incompleti. Valori sconosciuti, scorte nulle confermate e SRV inattivo sono distinti.',
     "release.3_9_31.2": 'Il cambio di lingua della visualizzazione del carico funziona ora anche quando le quantità non cambiano. I testi sono disponibili in tutte le dodici lingue.',
@@ -2642,3 +2647,38 @@ TRANSLATIONS.update({
     'missions.summary_shared': 'Carico condiviso disponibile',
     'missions.summary_present': 'Carico disponibile',
 })
+
+# Discovery chronicle and vector footprints.
+TRANSLATIONS.update({'footfall.label': 'Primo passo',
+ 'discovery.title': 'Scoperte',
+ 'discovery.filter.first_footfall': 'Primi passi',
+ 'discovery.filter.first_discovery': 'Prime scoperte',
+ 'discovery.filter.first_mapping': 'Prime mappature',
+ 'discovery.event.first_discovery': 'Prima scoperta',
+ 'discovery.event.first_mapping': 'Prima mappatura',
+ 'discovery.assessment.first_footfall': 'Dedotto dal diario',
+ 'discovery.assessment.first_discovery': 'Candidato alla scansione; primato non confermato',
+ 'discovery.assessment.first_mapping': 'Mappato da te; primato non confermato',
+ 'discovery.period_note': 'Il periodo filtra gli orari degli eventi in UTC. I risultati senza un orario noto '
+                          'sono esclusi.',
+ 'discovery.unknown_time': 'Orario sconosciuto',
+ 'discovery.copy': 'Copia elenco',
+ 'discovery.export': 'Esporta CSV',
+ 'discovery.export_success': 'CSV salvato: {path}',
+ 'discovery.export_failed': 'Esportazione CSV non riuscita: {error}',
+ 'discovery.overwrite': 'Sovrascrivere il file? {path}',
+ 'discovery.column.time': 'Data e ora (UTC)',
+ 'discovery.column.commander': 'Comandante',
+ 'discovery.column.system': 'Sistema',
+ 'discovery.column.body': 'Corpo',
+ 'discovery.column.event': 'Evento',
+ 'discovery.column.assessment': 'Interpretazione',
+ 'discovery.search_help': 'Le impronte verdi indicano primi passi dedotti dalla logica esistente del diario. '
+                          'Le prime scoperte sono candidati delle tue scansioni senza un orario affidabile. '
+                          'Le prime mappature combinano un candidato con una mappatura personale registrata, '
+                          'di cui viene mostrato l’orario. Nessun tipo conferma un primato ufficiale. I '
+                          'filtri si combinano con O; la ricerca usa nomi di sistemi e corpi. Il periodo '
+                          'filtra gli orari degli eventi in UTC. I risultati senza un orario noto sono '
+                          'esclusi.',
+ 'discovery.event.first_footfall': 'Primo passo',
+ 'discovery.result': '{time} · {commander} · {system} · {body} · {event}\n{assessment}'})

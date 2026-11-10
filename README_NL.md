@@ -38,6 +38,14 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## CMDRHelper v3.9.32
+
+- Groene voetsporen markeren eerste voetstappen op de Explorer-systeemkaart en in BIO / GEO / MIJNBOUW, met legenda en vertaalde tooltips. De waardelijst en BIO / GEO / MIJNBOUW gebruiken dezelfde korte namen; volledige namen blijven in tooltips beschikbaar.
+- De kroniek biedt drie combineerbare filters voor eerste voetstappen, eerste ontdekkingen en eerste karteringen. Resultaten van geselecteerde commandanten zijn samen doorzoekbaar, kopieerbaar en te exporteren als UTF-8-CSV met puntkomma’s.
+- Zoeken en periode staan naast de filters en komen bij ruimtegebrek onder elkaar. Commanderselectie en acties kunnen over meerdere regels lopen; exportknoppen blijven direct boven de resultaten bereikbaar.
+- Bestaande logboek- en databasegegevens worden hergebruikt zonder nieuwe voetstapheuristiek of databasestructuur. Eerste voetstappen zijn afgeleid, eerste ontdekkingen zijn kandidaten uit eigen scans en eerste karteringen zijn eigen karteringen van zulke kandidaten. Officiële eerste claims blijven onbevestigd.
+- Perioden filteren beschikbare gebeurtenistijden in UTC; onbekende tijden worden door datumfilters uitgesloten en anders zonder verzonnen datum getoond. Eerste ontdekkingen hebben geen betrouwbare gebeurtenistijd; eerste karteringen gebruiken de tijd van de eigen kartering. Nieuwe teksten zijn beschikbaar in twaalf talen.
+
 ## CMDRHelper v3.9.31
 
 - Een gezamenlijk vrachtvenster toont het schip links en de SRV rechts, met afzonderlijke hoeveelheden, capaciteiten, voortgangsbalken en vrachttabellen. Automatische updates en opgeslagen vensterpositie en grootte blijven behouden.

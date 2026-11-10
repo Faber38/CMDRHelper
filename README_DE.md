@@ -38,6 +38,14 @@ Der Journalordner von Elite Dangerous wird nach Möglichkeit automatisch erkannt
 
 CMDRHelper prüft beim Start auf Updates und besitzt einen integrierten Updater. Bestätige ein angebotenes Update im Programm; es aktualisiert Programm und Abhängigkeiten und startet CMDRHelper neu. Nach der Erstinstallation genügt normalerweise `start.bat` (Windows) beziehungsweise `bash start.sh` (Linux). Für normale Updates musst du `install.bat` oder `install.sh` nicht erneut manuell ausführen.
 
+## CMDRHelper v3.9.32
+
+- Grüne Fußspuren kennzeichnen Erstbetretungen auf der Explorer-Systemkarte und in BIO / GEO / ABBAU, mit Legende und übersetzten Tooltips. Wertliste und BIO / GEO / ABBAU zeigen einheitliche Kurznamen; vollständige Körpernamen bleiben im Tooltip verfügbar.
+- Die Chronik bietet drei kombinierbare Filter für Erstbetretungen, Erstentdeckungen und Erstkartierungen. Ergebnisse der ausgewählten Commander lassen sich gemeinsam durchsuchen, als Liste kopieren und als UTF-8-CSV mit Semikolon exportieren.
+- Der obere Chronikbereich zeigt Suche und Zeitraum neben den Filtern und wechselt bei Platzmangel untereinander. Commander-Auswahl und Aktionen können umbrechen; Export-Schaltflächen bleiben direkt über der Ergebnisliste erreichbar.
+- Vorhandene Journal- und Datenbankinformationen werden wiederverwendet, ohne neue Erstbetretungsheuristik oder Datenbankstruktur. Erstbetretungen sind abgeleitet, Erstentdeckungen eigene Scan-Kandidaten und Erstkartierungen eigene Kartierungen solcher Kandidaten. Offizielle Erstansprüche bleiben unbestätigt.
+- Zeiträume filtern vorhandene Ereigniszeitpunkte in UTC; unbekannte Zeitpunkte werden dabei ausgeschlossen und sonst ohne erfundenes Datum angezeigt. Erstentdeckungen haben keinen verlässlichen Ereigniszeitpunkt, Erstkartierungen verwenden den Zeitpunkt der eigenen Kartierung. Neue Texte sind in zwölf Sprachen verfügbar.
+
 ## CMDRHelper v3.9.31
 
 - Gemeinsames Frachtfenster mit Schiff links und SRV rechts: getrennte Bestände, Kapazitäten, Fortschrittsbalken und Frachttabellen. Automatische Aktualisierung sowie gespeicherte Fensterposition und Größe bleiben erhalten.

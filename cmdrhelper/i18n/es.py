@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    "release.3_9_32.0": 'Las huellas verdes señalan primeros pasos en el mapa de sistema del Explorer y en BIO / GEO / MINERÍA, con leyenda y ayudas traducidas. La lista de valores y BIO / GEO / MINERÍA usan los mismos nombres cortos; los nombres completos siguen en las ayudas.',
+    "release.3_9_32.1": 'La crónica ofrece tres filtros combinables para primeros pasos, primeros descubrimientos y primeras cartografías. Los resultados de los comandantes seleccionados se pueden buscar juntos, copiar y exportar como CSV UTF-8 separado por punto y coma.',
+    "release.3_9_32.2": 'La búsqueda y el periodo aparecen junto a los filtros y pasan a disposición vertical cuando falta espacio. La selección de comandantes y las acciones pueden ocupar varias líneas; los botones de exportación siguen accesibles justo encima de los resultados.',
+    "release.3_9_32.3": 'Se reutilizan los datos existentes del diario y la base de datos, sin nueva heurística de primer paso ni estructura de base de datos. Los primeros pasos son deducidos, los primeros descubrimientos son candidatos de escaneos propios y las primeras cartografías son cartografías propias de esos candidatos. La primacía oficial no está confirmada.',
+    "release.3_9_32.4": 'Los periodos filtran horas de eventos disponibles en UTC; los tiempos desconocidos se excluyen al filtrar por fecha y, en otro caso, se muestran sin fechas inventadas. Los primeros descubrimientos no tienen una fecha fiable; las primeras cartografías usan la fecha de la cartografía propia. Nuevos textos en doce idiomas.',
     "release.3_9_31.0": 'Una ventana de carga común muestra la nave a la izquierda y el SRV a la derecha, con cantidades, capacidades, barras de progreso y tablas independientes. Se conservan la actualización automática y la posición y el tamaño guardados de la ventana.',
     "release.3_9_31.1": 'La carga de la nave usa la misma proyección de existencias publicada que la tabla de minería. Las cantidades existentes siguen visibles independientemente de su color y cuando faltan datos de equipamiento o están incompletos. Se distinguen los valores desconocidos, las existencias nulas confirmadas y un SRV inactivo.',
     "release.3_9_31.2": 'La actualización del idioma de la vista de carga funciona ahora también cuando las cantidades no cambian. Los textos están disponibles en los doce idiomas.',
@@ -2631,3 +2636,38 @@ TRANSLATIONS.update({
     'missions.summary_shared': 'Carga compartida disponible',
     'missions.summary_present': 'Carga disponible',
 })
+
+# Discovery chronicle and vector footprints.
+TRANSLATIONS.update({'footfall.label': 'Primer paso',
+ 'discovery.title': 'Descubrimientos',
+ 'discovery.filter.first_footfall': 'Primeros pasos',
+ 'discovery.filter.first_discovery': 'Primeros descubrimientos',
+ 'discovery.filter.first_mapping': 'Primeras cartografías',
+ 'discovery.event.first_discovery': 'Primer descubrimiento',
+ 'discovery.event.first_mapping': 'Primera cartografía',
+ 'discovery.assessment.first_footfall': 'Deducido del diario',
+ 'discovery.assessment.first_discovery': 'Candidato al escanear; primacía sin confirmar',
+ 'discovery.assessment.first_mapping': 'Cartografiado por ti; primacía sin confirmar',
+ 'discovery.period_note': 'El periodo filtra las horas de los eventos en UTC. Se excluyen resultados sin '
+                          'hora conocida.',
+ 'discovery.unknown_time': 'Hora desconocida',
+ 'discovery.copy': 'Copiar lista',
+ 'discovery.export': 'Exportar CSV',
+ 'discovery.export_success': 'CSV guardado: {path}',
+ 'discovery.export_failed': 'Error al exportar CSV: {error}',
+ 'discovery.overwrite': '¿Sobrescribir el archivo? {path}',
+ 'discovery.column.time': 'Fecha y hora (UTC)',
+ 'discovery.column.commander': 'Comandante',
+ 'discovery.column.system': 'Sistema',
+ 'discovery.column.body': 'Cuerpo',
+ 'discovery.column.event': 'Evento',
+ 'discovery.column.assessment': 'Interpretación',
+ 'discovery.search_help': 'Las huellas verdes indican primeros pasos deducidos por la lógica existente del '
+                          'diario. Los primeros descubrimientos son candidatos de tus escaneos sin fecha '
+                          'fiable. Las primeras cartografías combinan un candidato con una cartografía '
+                          'propia registrada; se muestra su fecha. Ningún tipo confirma la primacía oficial. '
+                          'Varios filtros se combinan con O; la búsqueda usa nombres de sistemas y cuerpos. '
+                          'El periodo filtra las horas de los eventos en UTC. Se excluyen resultados sin '
+                          'hora conocida.',
+ 'discovery.event.first_footfall': 'Primer paso',
+ 'discovery.result': '{time} · {commander} · {system} · {body} · {event}\n{assessment}'})

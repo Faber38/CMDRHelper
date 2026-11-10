@@ -38,6 +38,14 @@ Folder dzienników Elite Dangerous jest wykrywany automatycznie, jeśli to możl
 
 CMDRHelper sprawdza aktualizacje przy uruchomieniu i ma wbudowany mechanizm aktualizacji. Potwierdź proponowaną aktualizację w aplikacji; zaktualizuje ona program i zależności oraz uruchomi CMDRHelper ponownie. Po pierwszej instalacji zwykle wystarczy używać `start.bat` (Windows) lub `bash start.sh` (Linux). Przy zwykłych aktualizacjach nie trzeba ponownie ręcznie uruchamiać `install.bat` ani `install.sh`.
 
+## CMDRHelper v3.9.32
+
+- Zielone ślady oznaczają pierwsze kroki na mapie układu Explorera i w BIO / GEO / WYDOBYCIE, z legendą i przetłumaczonymi podpowiedziami. Lista wartości i BIO / GEO / WYDOBYCIE używają tych samych krótkich nazw; pełne nazwy pozostają w podpowiedziach.
+- Kronika oferuje trzy łączone filtry: pierwsze kroki, pierwsze odkrycia i pierwsze mapowania. Wyniki wybranych dowódców można wspólnie przeszukiwać, kopiować i eksportować jako CSV UTF-8 rozdzielany średnikami.
+- Wyszukiwanie i okres znajdują się obok filtrów, a przy braku miejsca ustawiają się pionowo. Wybór dowódców i przyciski mogą zawijać się do kolejnych wierszy; eksport pozostaje dostępny bezpośrednio nad wynikami.
+- Wykorzystywane są istniejące dane dziennika i bazy, bez nowej heurystyki pierwszego kroku ani struktury bazy. Pierwsze kroki są wywnioskowane, pierwsze odkrycia to kandydaci z własnych skanów, a pierwsze mapowania to własne mapowania takich kandydatów. Oficjalne pierwszeństwo pozostaje niepotwierdzone.
+- Okresy filtrują dostępne czasy zdarzeń w UTC; nieznane czasy są pomijane przy filtrowaniu dat i poza nim wyświetlane bez wymyślonych dat. Pierwsze odkrycia nie mają wiarygodnego czasu zdarzenia; pierwsze mapowania używają czasu własnego mapowania. Nowe teksty są dostępne w dwunastu językach.
+
 ## CMDRHelper v3.9.31
 
 - Wspólne okno ładunku pokazuje statek po lewej, a SRV po prawej, z oddzielnymi ilościami, pojemnościami, paskami postępu i tabelami. Zachowano automatyczne aktualizacje oraz zapamiętywanie pozycji i rozmiaru okna.

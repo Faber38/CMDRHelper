@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    "release.3_9_32.0": 'Zielone ślady oznaczają pierwsze kroki na mapie układu Explorera i w BIO / GEO / WYDOBYCIE, z legendą i przetłumaczonymi podpowiedziami. Lista wartości i BIO / GEO / WYDOBYCIE używają tych samych krótkich nazw; pełne nazwy pozostają w podpowiedziach.',
+    "release.3_9_32.1": 'Kronika oferuje trzy łączone filtry: pierwsze kroki, pierwsze odkrycia i pierwsze mapowania. Wyniki wybranych dowódców można wspólnie przeszukiwać, kopiować i eksportować jako CSV UTF-8 rozdzielany średnikami.',
+    "release.3_9_32.2": 'Wyszukiwanie i okres znajdują się obok filtrów, a przy braku miejsca ustawiają się pionowo. Wybór dowódców i przyciski mogą zawijać się do kolejnych wierszy; eksport pozostaje dostępny bezpośrednio nad wynikami.',
+    "release.3_9_32.3": 'Wykorzystywane są istniejące dane dziennika i bazy, bez nowej heurystyki pierwszego kroku ani struktury bazy. Pierwsze kroki są wywnioskowane, pierwsze odkrycia to kandydaci z własnych skanów, a pierwsze mapowania to własne mapowania takich kandydatów. Oficjalne pierwszeństwo pozostaje niepotwierdzone.',
+    "release.3_9_32.4": 'Okresy filtrują dostępne czasy zdarzeń w UTC; nieznane czasy są pomijane przy filtrowaniu dat i poza nim wyświetlane bez wymyślonych dat. Pierwsze odkrycia nie mają wiarygodnego czasu zdarzenia; pierwsze mapowania używają czasu własnego mapowania. Nowe teksty są dostępne w dwunastu językach.',
     "release.3_9_31.0": 'Wspólne okno ładunku pokazuje statek po lewej, a SRV po prawej, z oddzielnymi ilościami, pojemnościami, paskami postępu i tabelami. Zachowano automatyczne aktualizacje oraz zapamiętywanie pozycji i rozmiaru okna.',
     "release.3_9_31.1": 'Ładunek statku korzysta z tego samego opublikowanego widoku zapasów co tabela wydobycia. Istniejące ilości pozostają widoczne niezależnie od koloru oraz przy brakujących lub niepełnych danych wyposażenia. Rozróżniane są wartości nieznane, potwierdzony stan zerowy i nieaktywny SRV.',
     "release.3_9_31.2": 'Zmiana języka widoku ładunku działa teraz również przy niezmienionych ilościach. Teksty są dostępne we wszystkich dwunastu językach.',
@@ -2519,3 +2524,36 @@ TRANSLATIONS.update({
     'missions.summary_shared': 'Wspólny ładunek dostępny',
     'missions.summary_present': 'Ładunek dostępny',
 })
+
+# Discovery chronicle and vector footprints.
+TRANSLATIONS.update({'footfall.label': 'Pierwszy krok',
+ 'discovery.title': 'Odkrycia',
+ 'discovery.filter.first_footfall': 'Pierwsze kroki',
+ 'discovery.filter.first_discovery': 'Pierwsze odkrycia',
+ 'discovery.filter.first_mapping': 'Pierwsze mapowania',
+ 'discovery.event.first_discovery': 'Pierwsze odkrycie',
+ 'discovery.event.first_mapping': 'Pierwsze mapowanie',
+ 'discovery.assessment.first_footfall': 'Wywnioskowane z dziennika',
+ 'discovery.assessment.first_discovery': 'Kandydat przy skanowaniu; pierwszeństwo niepotwierdzone',
+ 'discovery.assessment.first_mapping': 'Zmapowane przez ciebie; pierwszeństwo niepotwierdzone',
+ 'discovery.period_note': 'Okres filtruje czas zdarzeń w UTC. Wyniki bez znanego czasu są pomijane.',
+ 'discovery.unknown_time': 'Czas nieznany',
+ 'discovery.copy': 'Kopiuj listę',
+ 'discovery.export': 'Eksportuj CSV',
+ 'discovery.export_success': 'Zapisano CSV: {path}',
+ 'discovery.export_failed': 'Eksport CSV nie powiódł się: {error}',
+ 'discovery.overwrite': 'Nadpisać plik? {path}',
+ 'discovery.column.time': 'Data i czas (UTC)',
+ 'discovery.column.commander': 'Dowódca',
+ 'discovery.column.system': 'Układ',
+ 'discovery.column.body': 'Ciało',
+ 'discovery.column.event': 'Zdarzenie',
+ 'discovery.column.assessment': 'Interpretacja',
+ 'discovery.search_help': 'Zielone ślady oznaczają pierwsze kroki wywnioskowane przez istniejącą logikę '
+                          'dziennika. Pierwsze odkrycia to kandydaci z własnych skanów bez wiarygodnego '
+                          'czasu zdarzenia. Pierwsze mapowania łączą kandydata z zapisanym własnym '
+                          'mapowaniem; wyświetlany jest jego czas. Żaden typ nie potwierdza oficjalnego '
+                          'pierwszeństwa. Filtry łączą się przez LUB; wyszukiwanie obejmuje nazwy układów i '
+                          'ciał. Okres filtruje czas zdarzeń w UTC. Wyniki bez znanego czasu są pomijane.',
+ 'discovery.event.first_footfall': 'Pierwszy krok',
+ 'discovery.result': '{time} · {commander} · {system} · {body} · {event}\n{assessment}'})

@@ -15,7 +15,7 @@ from contextlib import nullcontext
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from cmdrhelper.chronicle_filters import matching_visit_sql, visit_period_sql
+from cmdrhelper.chronicle_filters import matching_visit_sql, visit_period_sql, visit_utc_time
 from cmdrhelper.journal_files import journal_files
 from cmdrhelper.ship_identity import is_definite_non_ship
 from cmdrhelper.ship_ownership import journal_time, ship_sale, stored_ship_observations
@@ -5709,6 +5709,67 @@ class CMDRDatabase:
             "match_name": f"ABBAU ×{int(row[11] or 0)}",
             "detail": f"ABBAU ×{int(row[11] or 0)}",
         } for row in rows]
+
+    def search_discoveries(self, commander_ids, event_types, query="", *,
+                           visited_from=None, visited_before=None):
+        """One read of saved observations, without replaying journals or visits."""
+        from datetime import date
+        ids = sorted({int(value) for value in commander_ids})
+        types = set(event_types) & {"first_footfall", "first_discovery", "first_mapping"}
+        if not ids or not types:
+            return []
+        bounds = [(date.fromisoformat(value).isoformat() if value is not None else None)
+                  for value in (visited_from, visited_before)]
+        conditions = ["cb.commander_id IN (" + ",".join("?" for _ in ids) + ")"]
+        selected = []
+        if "first_footfall" in types:
+            selected.append("cb.first_footfall=1")
+        if "first_discovery" in types:
+            selected.append("(cb.scanned=1 AND cb.was_discovered_at_scan=0)")
+        if "first_mapping" in types:
+            selected.append("(cb.was_mapped_at_scan=0 AND cb.self_mapped=1 "
+                            "AND b.body_type NOT IN ('Star','BeltCluster') AND b.star_type='')")
+        conditions.append("(" + " OR ".join(selected) + ")")
+        params = list(ids)
+        if str(query or "").strip():
+            conditions.append("(s.name LIKE ? OR b.name LIKE ? OR b.short_name LIKE ?)")
+            params.extend(["%" + str(query).strip() + "%"] * 3)
+        with self._connect() as con:
+            rows = con.execute("""
+                SELECT cb.commander_id, c.current_name, c.fid,
+                       cb.system_address, s.name, cb.body_id, b.name, b.short_name,
+                       s.x, s.y, s.z, cb.first_footfall, cb.first_footfall_at,
+                       cb.scanned, cb.was_discovered_at_scan, cb.was_mapped_at_scan,
+                       cb.self_mapped, cb.mapped_at, b.body_type, b.star_type
+                FROM commander_bodies cb
+                JOIN commanders c ON c.id=cb.commander_id
+                JOIN systems s ON s.system_address=cb.system_address
+                JOIN bodies b ON b.system_address=cb.system_address AND b.body_id=cb.body_id
+                WHERE """ + " AND ".join(conditions), params).fetchall()
+        keys = ("commander_id", "commander_name", "fid", "system_address", "system_name",
+                "body_id", "body_name", "short_name", "x", "y", "z")
+        results = []
+        for row in rows:
+            candidates = []
+            if "first_footfall" in types and row[11] == 1:
+                candidates.append(("first_footfall", row[12]))
+            if "first_discovery" in types and row[13] == 1 and row[14] == 0:
+                candidates.append(("first_discovery", None))
+            if ("first_mapping" in types and row[15] == 0 and row[16] == 1
+                    and row[18] not in ("Star", "BeltCluster") and not row[19]):
+                candidates.append(("first_mapping", row[17]))
+            for kind, raw_time in candidates:
+                timestamp = visit_utc_time(raw_time)
+                if any(bounds) and (timestamp is None
+                        or (bounds[0] and timestamp < bounds[0])
+                        or (bounds[1] and timestamp >= bounds[1])):
+                    continue
+                results.append(dict(zip(keys, row[:11]), kind=kind, timestamp=timestamp,
+                                    discovery=True))
+        # Stable identity order for equal or unknown timestamps; newest dates first.
+        results.sort(key=lambda r: (r["system_address"], r["body_id"], r["commander_id"], r["kind"]))
+        results.sort(key=lambda r: r["timestamp"] or "", reverse=True)
+        return results
 
     def search_chronicle(
         self,

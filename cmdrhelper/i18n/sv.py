@@ -1,4 +1,9 @@
 TRANSLATIONS = {
+    "release.3_9_32.0": 'Gröna fotspår markerar första fotavtryck på Explorers systemkarta och i BIO / GEO / GRUVDRIFT, med teckenförklaring och översatta verktygstips. Värdelistan och BIO / GEO / GRUVDRIFT använder samma kortnamn; fullständiga namn finns i verktygstips.',
+    "release.3_9_32.1": 'Krönikan har tre kombinerbara filter för första fotavtryck, förstaupptäckter och förstakartläggningar. Resultat för valda befälhavare kan sökas tillsammans, kopieras och exporteras som semikolonavgränsad UTF-8-CSV.',
+    "release.3_9_32.2": 'Sökning och period ligger bredvid filtren och staplas när utrymmet är begränsat. Befälhavarval och åtgärder kan radbrytas; exportknapparna förblir åtkomliga direkt ovanför resultaten.',
+    "release.3_9_32.3": 'Befintliga journal- och databasuppgifter återanvänds utan ny fotavtrycksheuristik eller databasstruktur. Första fotavtryck är härledda, förstaupptäckter är kandidater från egna skanningar och förstakartläggningar är egna kartläggningar av sådana kandidater. Officiella förstaplatser förblir obekräftade.',
+    "release.3_9_32.4": 'Perioder filtrerar tillgängliga händelsetider i UTC; okända tider utesluts med datumfilter och visas annars utan påhittade datum. Förstaupptäckter saknar tillförlitlig händelsetid; förstakartläggningar använder tiden för den egna kartläggningen. Nya texter finns på tolv språk.',
     "release.3_9_31.0": 'Ett gemensamt lastfönster visar skeppet till vänster och SRV till höger, med separata mängder, kapaciteter, förloppsindikatorer och lasttabeller. Automatisk uppdatering samt sparad fönsterposition och storlek behålls.',
     "release.3_9_31.1": 'Skeppslasten använder samma publicerade lagervy som gruvtabellen. Befintliga mängder förblir synliga oavsett färgmarkering och när utrustningsdata saknas eller är ofullständiga. Okända värden, bekräftat nollsaldo och en inaktiv SRV skiljs åt.',
     "release.3_9_31.2": 'Språkbyten i lastvisningen fungerar nu även när mängderna är oförändrade. Texterna finns på alla tolv språk.',
@@ -2519,3 +2524,36 @@ TRANSLATIONS.update({
     'missions.summary_shared': 'Gemensam last tillgänglig',
     'missions.summary_present': 'Last tillgänglig',
 })
+
+# Discovery chronicle and vector footprints.
+TRANSLATIONS.update({'footfall.label': 'Första fotavtryck',
+ 'discovery.title': 'Upptäckter',
+ 'discovery.filter.first_footfall': 'Första fotavtryck',
+ 'discovery.filter.first_discovery': 'Förstaupptäckter',
+ 'discovery.filter.first_mapping': 'Förstakartläggningar',
+ 'discovery.event.first_discovery': 'Förstaupptäckt',
+ 'discovery.event.first_mapping': 'Förstakartläggning',
+ 'discovery.assessment.first_footfall': 'Härlett från journaldata',
+ 'discovery.assessment.first_discovery': 'Kandidat vid skanning; förstaplats obekräftad',
+ 'discovery.assessment.first_mapping': 'Kartlagt av dig; förstaplats obekräftad',
+ 'discovery.period_note': 'Perioden filtrerar händelsetider i UTC. Resultat utan känd tid utesluts.',
+ 'discovery.unknown_time': 'Okänd tid',
+ 'discovery.copy': 'Kopiera lista',
+ 'discovery.export': 'Exportera CSV',
+ 'discovery.export_success': 'CSV sparad: {path}',
+ 'discovery.export_failed': 'CSV-export misslyckades: {error}',
+ 'discovery.overwrite': 'Skriva över filen? {path}',
+ 'discovery.column.time': 'Tidpunkt (UTC)',
+ 'discovery.column.commander': 'Befälhavare',
+ 'discovery.column.system': 'System',
+ 'discovery.column.body': 'Himlakropp',
+ 'discovery.column.event': 'Händelse',
+ 'discovery.column.assessment': 'Tolkning',
+ 'discovery.search_help': 'Gröna fotspår visar första fotavtryck härledda med befintlig journallogik. '
+                          'Förstaupptäckter är kandidater från egna skanningar utan tillförlitlig tid. '
+                          'Förstakartläggningar kombinerar en kandidat med en registrerad egen kartläggning; '
+                          'dess tid visas. Ingen typ bekräftar en officiell förstaplats. Flera filter '
+                          'använder ELLER; sökningen gäller system- och kroppsnamn. Perioden filtrerar '
+                          'händelsetider i UTC. Resultat utan känd tid utesluts.',
+ 'discovery.event.first_footfall': 'Första fotavtryck',
+ 'discovery.result': '{time} · {commander} · {system} · {body} · {event}\n{assessment}'})

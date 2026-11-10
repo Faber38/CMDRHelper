@@ -39,6 +39,14 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.32
+
+- Yeşil ayak izleri Explorer sistem haritasında ve BIO / GEO / MADENCİLİK görünümünde ilk ayak basışları gösterir; açıklama ve çevrilmiş araç ipuçları içerir. Değer listesi ve BIO / GEO / MADENCİLİK aynı kısa adları kullanır; tam adlar araç ipuçlarında kalır.
+- Günce, ilk ayak basışlar, ilk keşifler ve ilk haritalamalar için birleştirilebilir üç filtre sunar. Seçili komutanların sonuçları birlikte aranabilir, kopyalanabilir ve noktalı virgülle ayrılmış UTF-8 CSV olarak dışa aktarılabilir.
+- Arama ve dönem filtrelerin yanında yer alır, alan yetersizse alt alta geçer. Komutan seçimi ve eylemler satırlara yayılabilir; dışa aktarma düğmeleri sonuçların hemen üzerinde erişilebilir kalır.
+- Yeni ilk ayak basış sezgiseli veya veritabanı yapısı olmadan mevcut günlük ve veritabanı bilgileri kullanılır. İlk ayak basışlar çıkarımdır; ilk keşifler kişisel tarama adayları, ilk haritalamalar ise bu adayların kişisel haritalamalarıdır. Resmî ilk olma iddiaları doğrulanmış değildir.
+- Dönemler mevcut olay zamanlarını UTC olarak süzer; bilinmeyen zamanlar tarih filtresinde dışlanır, diğer durumlarda uydurma tarih olmadan gösterilir. İlk keşiflerin güvenilir olay zamanı yoktur; ilk haritalamalar kendi haritalama zamanınızı kullanır. Yeni metinler on iki dilde mevcuttur.
+
 ## CMDRHelper v3.9.31
 
 - Ortak kargo penceresi gemiyi solda, SRV’yi sağda gösterir; miktarlar, kapasiteler, ilerleme çubukları ve kargo tabloları ayrıdır. Otomatik güncelleme ile kayıtlı pencere konumu ve boyutu korunur.

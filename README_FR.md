@@ -38,6 +38,14 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.9.32
+
+- Les empreintes vertes signalent les premiers pas sur la carte système de l’Explorer et dans BIO / GEO / MINAGE, avec légende et infobulles traduites. La liste des valeurs et BIO / GEO / MINAGE utilisent les mêmes noms courts ; les noms complets restent dans les infobulles.
+- La chronique propose trois filtres combinables : premiers pas, premières découvertes et premières cartographies. Les résultats des commandants sélectionnés peuvent être recherchés ensemble, copiés et exportés en CSV UTF-8 séparé par des points-virgules.
+- La recherche et la période se placent à côté des filtres, puis en dessous si la place manque. La sélection des commandants et les actions peuvent revenir à la ligne ; les boutons d’export restent accessibles juste au-dessus des résultats.
+- Les informations existantes du journal et de la base sont réutilisées, sans nouvelle heuristique de premier pas ni structure de base. Les premiers pas sont déduits, les premières découvertes sont des candidats de vos scans et les premières cartographies sont vos cartographies de ces candidats. La primauté officielle reste non confirmée.
+- Les périodes filtrent les dates d’événements disponibles en UTC ; les dates inconnues sont exclues par ces filtres et sinon affichées sans date inventée. Les premières découvertes n’ont pas de date fiable ; les premières cartographies utilisent la date de votre cartographie. Les nouveaux textes sont disponibles en douze langues.
+
 ## CMDRHelper v3.9.31
 
 - Une fenêtre de cargaison commune affiche le vaisseau à gauche et le SRV à droite, avec des quantités, capacités, barres de progression et tableaux séparés. Les mises à jour automatiques ainsi que la position et la taille mémorisées sont conservées.
