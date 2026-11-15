@@ -38,6 +38,11 @@ De journalmap van Elite Dangerous wordt waar mogelijk automatisch gevonden. Ontb
 
 CMDRHelper controleert bij het starten op updates en heeft een ingebouwde updater. Bevestig een aangeboden update in de app; deze werkt het programma en de afhankelijkheden bij en start CMDRHelper opnieuw. Na de eerste installatie volstaat normaal `start.bat` (Windows) of `bash start.sh` (Linux). Voor gewone updates hoef je `install.bat` of `install.sh` niet opnieuw handmatig uit te voeren.
 
+## CMDRHelper v3.9.33
+
+- De SRV-vracht gebruikt dezelfde MiningInventory-voorraad als de mijnbouwtabel. Hoeveelheden blijven zichtbaar zonder actieve SRV-context of bekende capaciteit.
+- De commandantkeuzes voor EDSM en Inara blijven compact met zichtbare keuzepijlen. Lange namen worden in het veld ingekort; volledige namen blijven selecteerbaar in de lijst.
+
 ## CMDRHelper v3.9.32
 
 - Groene voetsporen markeren eerste voetstappen op de Explorer-systeemkaart en in BIO / GEO / MIJNBOUW, met legenda en vertaalde tooltips. De waardelijst en BIO / GEO / MIJNBOUW gebruiken dezelfde korte namen; volledige namen blijven in tooltips beschikbaar.

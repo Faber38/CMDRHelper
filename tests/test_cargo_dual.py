@@ -42,7 +42,7 @@ class DualCargoTests(unittest.TestCase):
             ship_cargo_context=origin, _cargo_refresh_data=({},session),
             cargo_snapshot=dict(context=dict(origin), fid='TEST', vessel='SRV', vehicle_name='RHINO',
                 count=67, capacity=72, inventory=[dict(frontier_name='gold', count=67)]))
-        self.inv = MiningInventory(1,'TEST',ship={'gold':200,'unlisted_cargo':50},ship_id=7,
+        self.inv = MiningInventory(1,'TEST',srv={'gold':67},ship={'gold':200,'unlisted_cargo':50},ship_id=7,
             ship_type='cobra', source_folder=folder, vehicle_records={'Ship':dict(quality='confirmed',confirmed_at='2026-11-09T12:00:00Z')})
         self.inv.publication_context = mining_publication_context(self.state)
         self.controller = NS(_last_inventory=self.inv,_closed=False,_dirty=False,_running=False)
@@ -75,6 +75,7 @@ class DualCargoTests(unittest.TestCase):
         self.assertIn('ERFT-NOMADE',ship.title_label.text())
         item=ship.table.item(0,0)
         self.inv.ship['gold']+=10
+        self.inv.srv['gold']-=10
         self.state.cargo_snapshot['count']-=10
         self.state.cargo_snapshot['inventory'][0]['count']-=10
         self.show()
@@ -132,10 +133,12 @@ class DualCargoTests(unittest.TestCase):
         self.state.active_srv_type=''
         _,srv=self.show()
         self.assertEqual(srv.quality_label.text(),'Kein SRV aktiv')
-        self.assertEqual(srv.summary_label.text(),'– / – t')
+        self.assertEqual(srv.summary_label.text(),'67 / – t')
+        self.assertEqual(srv.table.item(0,1).text(),'67 t')
         self.state.active_srv_type='Scarab'
         self.show()
-        self.assertEqual(srv.table.rowCount(),0)
+        self.assertEqual(srv.table.rowCount(),1)
+        self.assertEqual(srv.summary_label.text(),'67 / – t')
 
     def test_close_reopen_geometry_and_parent_lifetime(self):
         self.show()
@@ -153,6 +156,53 @@ class DualCargoTests(unittest.TestCase):
         restored.close()
         self.destroy()
         self.assertFalse(isValid(self.window))
+
+    def test_srv_publication_is_independent_of_live_metadata(self):
+        self.inv.srv={'helium':22}
+        original=deepcopy(self.state)
+        cases=(
+            ('matching capacity',lambda: None,'72'),
+            ('no active SRV',lambda: setattr(self.state,'active_srv_type',''),'–'),
+            ('no snapshot',lambda: setattr(self.state,'cargo_snapshot',None),'–'),
+            ('unknown capacity',lambda: self.state.cargo_snapshot.update(capacity=None),'–'),
+            ('old quantities',lambda: self.state.cargo_snapshot.update(count=11,
+                inventory=[dict(frontier_name='helium',count=11)]),'72'),
+            ('other vehicle',lambda: self.state.cargo_snapshot.update(vehicle_name='Scarab'),'–'),
+            ('other commander',lambda: setattr(self.state,'viewed_commander_id',2),'–'),
+            ('missing FID',lambda: setattr(self.state,'commander_fid',''),'–'),
+            ('other source',lambda: (setattr(self.state,'sources',NS()),
+                setattr(self.state,'_source_live_context',False)),'–'),
+            ('other session',lambda: self.state.ship_cargo_context.update(session_generation=9),'–'),
+            ('missing status',lambda: setattr(self.state,'_cargo_status',None),'72'),
+        )
+        for name,mutate,capacity in cases:
+            with self.subTest(name=name):
+                self.state=deepcopy(original)
+                mutate()
+                _,srv=self.show()
+                self.assertEqual(srv.summary_label.text(),f'22 / {capacity} t')
+                self.assertEqual(srv.table.rowCount(),1)
+                self.assertEqual(srv.table.item(0,0).text(),'Helium')
+                self.assertEqual(srv.table.item(0,1).text(),'22 t')
+
+    def test_srv_all_positions_and_unknown_versus_empty(self):
+        self.inv.srv={'helium':22,'unlisted_cargo':3,'drones':2}
+        _,srv=self.show()
+        self.assertEqual(srv.summary_label.text(),'27 / 72 t')
+        self.assertEqual(srv.table.rowCount(),3)
+        self.assertEqual([srv.table.item(i,1).text() for i in range(3)],['22 t','3 t','2'])
+        for quality in ('confirmed','tracked','unknown','stale'):
+            self.inv.vehicle_records['SRV']={'quality':quality,'last_confirmed':{'helium':99}}
+            self.show()
+            self.assertEqual(srv.summary_label.text(),'27 / 72 t')
+        self.inv.srv={}
+        self.show()
+        self.assertEqual(srv.summary_label.text(),'0 / 72 t')
+        self.assertEqual(srv.table.rowCount(),1)  # Explicit empty-hold row.
+        self.inv.srv=None
+        self.show()
+        self.assertEqual(srv.summary_label.text(),'– / 72 t')
+        self.assertEqual(srv.table.rowCount(),0)  # No historical SRV resurrection.
 
     def test_translations(self):
         for table in _TRANSLATIONS.values():
@@ -205,6 +255,7 @@ class DualCargoTests(unittest.TestCase):
         controller._last_inventory=None
         controller.loading.emit()
         self.assertEqual(window.ship_panel.table.rowCount(),0)
+        self.assertEqual(window.srv_panel.table.rowCount(),0)
         controller._last_inventory=self.inv
         controller.ready.emit(self.inv)
         controller._dirty=False
@@ -214,7 +265,7 @@ class DualCargoTests(unittest.TestCase):
         state.cargo_snapshot['count']=0
         state.cargo_snapshot['inventory']=[]
         state.cargoSnapshotChanged.emit(state.cargo_snapshot)
-        self.assertEqual(window.srv_panel.summary_label.text(),'0 / 72 t')
+        self.assertEqual(window.srv_panel.summary_label.text(),'67 / 72 t')
         state.viewed_commander_id=2
         state.viewedCommanderChanged.emit(2)
         self.assertEqual(window.ship_panel.table.rowCount(),2)
@@ -226,9 +277,10 @@ class DualCargoTests(unittest.TestCase):
         self.assertEqual(window.ship_panel.table.rowCount(),2)
         state._source_live_context=False
         state.sources.changed.emit()
-        # Mining's published ship stock does not require a live SRV context.
+        # Both published holds are independent of live context metadata.
         self.assertEqual(window.ship_panel.table.rowCount(),2)
-        self.assertEqual(window.srv_panel.table.rowCount(),0)
+        self.assertEqual(window.srv_panel.table.rowCount(),1)
+        self.assertEqual(window.srv_panel.summary_label.text(),'67 / – t')
         self.destroy()
         controller.ready.emit(self.inv)
         state.cargoSnapshotChanged.emit(None)
@@ -351,6 +403,48 @@ class DualCargoTests(unittest.TestCase):
         self.assertEqual(mining._inventory.displayed_stock('Ship','palladium'),(None,'unknown'))
         controller.ready.emit(self.inv)
         self.assertEqual(window.ship_panel.table.item(0,1).text(),'92 t')
+        # The same real widgets must also agree on SRV, regardless of live metadata.
+        self.inv.srv={'helium':22}
+        self.state.active_srv_type=''
+        self.state.cargo_snapshot=None
+        controller.ready.emit(self.inv)
+        self.assertEqual(mining.items['helium'].text(1),'22')
+        self.assertEqual(window.srv_panel.summary_label.text(),'22 / – t')
+        self.assertEqual(window.srv_panel.table.item(0,1).text(),'22 t')
+        self.inv.srv={'helium':24}
+        controller.ready.emit(self.inv)
+        self.assertEqual(mining.items['helium'].text(1),'24')
+        self.assertEqual(window.srv_panel.table.item(0,1).text(),'24 t')
+        window.close(); window.show()
+        self.assertEqual(window.srv_panel.table.item(0,1).text(),'24 t')
+        restored=CargoLiveWindow(self.settings,self.parent)
+        restored.present_state(self.state,inventory=host._cargo_mining_inventory)
+        self.assertEqual(restored.srv_panel.table.item(0,1).text(),'24 t')
+
+        # A selection/source transition clears the old publication before the new one.
+        self.state.viewed_commander_id=2
+        self.state.sources=NS()
+        self.state._source_live_context=False
+        controller.loading.emit()
+        self.assertEqual(window.ship_panel.table.rowCount(),0)
+        self.assertEqual(window.srv_panel.table.rowCount(),0)
+        self.assertEqual(mining._inventory.displayed_stock('SRV','helium'),(None,'unknown'))
+        other=MiningInventory(2,'OTHER',srv={'gold':5},ship={'helium':7})
+        controller.ready.emit(other)
+        self.assertIs(host._cargo_mining_inventory,mining._inventory)
+        self.assertIs(mining._inventory,other)
+        self.assertEqual(mining.items['helium'].text(1),'0')
+        self.assertEqual(mining.items['gold'].text(1),'5')
+        self.assertEqual(window.srv_panel.summary_label.text(),'5 / – t')
+        self.assertEqual(window.srv_panel.table.rowCount(),1)
+        self.assertEqual(window.srv_panel.table.item(0,0).text(),'Gold')
+        self.assertEqual(window.ship_panel.table.item(0,1).text(),'7 t')
+        for stock,expected in (({},'0'),(None,'–')):
+            other.srv=stock
+            controller.ready.emit(other)
+            self.assertEqual(window.srv_panel.summary_label.text(),f'{expected} / – t')
+            self.assertEqual(mining._inventory.displayed_stock('SRV','helium')[0],
+                             0 if stock is not None else None)
         self.destroy()
         controller.ready.emit(self.inv)
         self.app.processEvents()

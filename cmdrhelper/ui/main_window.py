@@ -115,6 +115,11 @@ from PySide6.QtWidgets import (
     QFontComboBox,
     QComboBox,
     QSizePolicy,
+    QStyle,
+    QStyleOptionComboBox,
+    QStylePainter,
+    QStyledItemDelegate,
+    QListView,
 )
 
 
@@ -161,11 +166,40 @@ class OnlineServiceCommanderComboBox(QComboBox):
         self.setMinimumContentsLength(12)
         self.setMinimumWidth(0)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        self.view().setTextElideMode(Qt.TextElideMode.ElideRight)
+        self._update_width_limit()
+        self.setView(QListView(self))
+        self.setItemDelegate(QStyledItemDelegate(self))
+        self.view().setTextElideMode(Qt.TextElideMode.ElideNone)
         self.view().setHorizontalScrollBarPolicy(
-            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded
         )
         self.currentIndexChanged.connect(self._sync_current_tooltip)
+
+    def _update_width_limit(self):
+        self.setMaximumWidth(self.fontMetrics().horizontalAdvance("M" * 28) + 40)
+
+    def changeEvent(self, event):
+        super().changeEvent(event)
+        if event.type() in (QEvent.FontChange, QEvent.StyleChange):
+            self._update_width_limit()
+
+    def minimumSizeHint(self):
+        hint = super().minimumSizeHint()
+        hint.setWidth(self.fontMetrics().horizontalAdvance("M" * 4) + 40)
+        return hint
+
+    def paintEvent(self, event):
+        option = QStyleOptionComboBox()
+        self.initStyleOption(option)
+        text_rect = self.style().subControlRect(
+            QStyle.CC_ComboBox, option, QStyle.SC_ComboBoxEditField, self
+        )
+        option.currentText = self.fontMetrics().elidedText(
+            option.currentText, Qt.ElideRight, max(0, text_rect.width() - 4)
+        )
+        painter = QStylePainter(self)
+        painter.drawComplexControl(QStyle.CC_ComboBox, option)
+        painter.drawControl(QStyle.CE_ComboBoxLabel, option)
 
     def _sync_current_tooltip(self, *_args):
         self.setToolTip(str(self.currentData(Qt.ItemDataRole.ToolTipRole) or ""))
@@ -189,25 +223,30 @@ class OnlineServiceCommanderComboBox(QComboBox):
 
         main_rect = main_window.frameGeometry()
         screen_rect = screen.availableGeometry() if screen is not None else main_rect
-        left = max(main_rect.left(), screen_rect.left())
-        right = min(main_rect.right(), screen_rect.right())
+        left = screen_rect.left() + 2
+        right = screen_rect.right() - 2
         available_width = max(1, right - left + 1)
-        popup_width = min(max(1, self.width()), available_width)
+        content_width = self.view().sizeHintForColumn(0)
+        popup_width = min(max(self.width(), content_width + 32), available_width)
 
         combo_global = self.mapToGlobal(self.rect().topLeft())
         popup_x = max(left, min(combo_global.x(), right - popup_width + 1))
-        popup_y = combo_global.y() + self.height()
+        rows_height = sum(self.view().sizeHintForRow(row)
+                          for row in range(min(self.count(), self.maxVisibleItems())))
+        scrollbar_height = (self.view().horizontalScrollBar().sizeHint().height()
+                            if content_width > popup_width - 4 else 0)
+        popup_height = min(rows_height + scrollbar_height + 8, screen_rect.height())
+        popup_y = min(combo_global.y() + self.height(), screen_rect.bottom() - popup_height + 1)
+        popup_y = max(screen_rect.top(), popup_y)
 
+        popup.setMinimumWidth(0)
+        popup.setMaximumWidth(available_width)
         popup.setGeometry(
             popup_x,
             popup_y,
             popup_width,
-            popup.geometry().height(),
+            popup_height,
         )
-        popup = self.view().window()
-        view_width = max(1, popup_width - (2 * popup.frameWidth()))
-        self.view().setMinimumWidth(view_width)
-        self.view().setMaximumWidth(view_width)
 
 
 class _ChronicleSystemNameLabel(QLabel):

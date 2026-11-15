@@ -1,4 +1,6 @@
 TRANSLATIONS = {
+    "release.3_9_33.0": 'Ładunek SRV korzysta z tych samych stanów MiningInventory co tabela wydobycia. Ilości pozostają widoczne bez aktywnego kontekstu SRV lub znanej pojemności.',
+    "release.3_9_33.1": 'Pola wyboru dowódcy dla EDSM i Inara pozostają kompaktowe, a strzałki list są widoczne. Długie nazwy są skracane w polu; pełne nazwy można nadal wybierać z listy.',
     "release.3_9_32.0": 'Zielone ślady oznaczają pierwsze kroki na mapie układu Explorera i w BIO / GEO / WYDOBYCIE, z legendą i przetłumaczonymi podpowiedziami. Lista wartości i BIO / GEO / WYDOBYCIE używają tych samych krótkich nazw; pełne nazwy pozostają w podpowiedziach.',
     "release.3_9_32.1": 'Kronika oferuje trzy łączone filtry: pierwsze kroki, pierwsze odkrycia i pierwsze mapowania. Wyniki wybranych dowódców można wspólnie przeszukiwać, kopiować i eksportować jako CSV UTF-8 rozdzielany średnikami.',
     "release.3_9_32.2": 'Wyszukiwanie i okres znajdują się obok filtrów, a przy braku miejsca ustawiają się pionowo. Wybór dowódców i przyciski mogą zawijać się do kolejnych wierszy; eksport pozostaje dostępny bezpośrednio nad wynikami.',

@@ -1,4 +1,6 @@
 TRANSLATIONS = {
+    "release.3_9_33.0": 'De SRV-vracht gebruikt dezelfde MiningInventory-voorraad als de mijnbouwtabel. Hoeveelheden blijven zichtbaar zonder actieve SRV-context of bekende capaciteit.',
+    "release.3_9_33.1": 'De commandantkeuzes voor EDSM en Inara blijven compact met zichtbare keuzepijlen. Lange namen worden in het veld ingekort; volledige namen blijven selecteerbaar in de lijst.',
     "release.3_9_32.0": 'Groene voetsporen markeren eerste voetstappen op de Explorer-systeemkaart en in BIO / GEO / MIJNBOUW, met legenda en vertaalde tooltips. De waardelijst en BIO / GEO / MIJNBOUW gebruiken dezelfde korte namen; volledige namen blijven in tooltips beschikbaar.',
     "release.3_9_32.1": 'De kroniek biedt drie combineerbare filters voor eerste voetstappen, eerste ontdekkingen en eerste karteringen. Resultaten van geselecteerde commandanten zijn samen doorzoekbaar, kopieerbaar en te exporteren als UTF-8-CSV met puntkomma’s.',
     "release.3_9_32.2": 'Zoeken en periode staan naast de filters en komen bij ruimtegebrek onder elkaar. Commanderselectie en acties kunnen over meerdere regels lopen; exportknoppen blijven direct boven de resultaten bereikbaar.',

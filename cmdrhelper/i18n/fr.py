@@ -1,4 +1,6 @@
 TRANSLATIONS = {
+    "release.3_9_33.0": 'Le fret du SRV utilise le même stock MiningInventory que le tableau de minage. Les quantités restent visibles sans contexte SRV actif ni capacité connue.',
+    "release.3_9_33.1": 'Les sélecteurs de commandant pour EDSM et Inara restent compacts avec des flèches visibles. Les noms longs sont abrégés dans le champ ; les noms complets restent sélectionnables dans la liste.',
     "release.3_9_32.0": 'Les empreintes vertes signalent les premiers pas sur la carte système de l’Explorer et dans BIO / GEO / MINAGE, avec légende et infobulles traduites. La liste des valeurs et BIO / GEO / MINAGE utilisent les mêmes noms courts ; les noms complets restent dans les infobulles.',
     "release.3_9_32.1": 'La chronique propose trois filtres combinables : premiers pas, premières découvertes et premières cartographies. Les résultats des commandants sélectionnés peuvent être recherchés ensemble, copiés et exportés en CSV UTF-8 séparé par des points-virgules.',
     "release.3_9_32.2": 'La recherche et la période se placent à côté des filtres, puis en dessous si la place manque. La sélection des commandants et les actions peuvent revenir à la ligne ; les boutons d’export restent accessibles juste au-dessus des résultats.',

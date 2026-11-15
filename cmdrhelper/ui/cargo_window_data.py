@@ -47,15 +47,24 @@ def holds(state, inventory=_UNSET):
         inventory = getattr(getattr(state, 'mining_inventory_controller', None), '_last_inventory', None)
     ship, srv = _ship_hold(state, inventory), {'notice': tr('cargo.live.no_srv')}
     cid, fid = getattr(state, 'commander_id', None), getattr(state, 'commander_fid', '')
+    # Live context qualifies metadata only, never the published Mining quantities.
     if (not cid or not fid or getattr(state, 'viewed_commander_id', cid) != cid
             or (getattr(state, 'sources', None) is not None
                 and not getattr(state, '_source_live_context', False))):
-        return ship, {}
-    active = getattr(state, 'active_srv_type', '')
-    if active:
-        srv = {'vehicle_name': active}
-        snapshot = getattr(state, 'cargo_snapshot', None)
-        if (isinstance(snapshot, dict) and snapshot.get('vessel') == 'SRV'
-                and same_cargo_context(state, snapshot)):
-            srv = dict(snapshot)
+        srv = {}
+    else:
+        active = getattr(state, 'active_srv_type', '')
+        if active:
+            srv = {'vehicle_name': active}
+            snapshot = getattr(state, 'cargo_snapshot', None)
+            if (isinstance(snapshot, dict) and snapshot.get('vessel') == 'SRV'
+                    and same_cargo_context(state, snapshot)):
+                srv['capacity'] = snapshot.get('capacity')
+    if inventory is not None and inventory.srv is not None:
+        quantities = {symbol: amount for symbol in inventory.srv
+                      if (amount := inventory.displayed_stock('SRV', symbol)[0]) is not None}
+        if quantities or inventory.displayed_stock('SRV', '')[0] is not None:
+            srv['count'] = sum(quantities.values())
+            srv['inventory'] = [dict(frontier_name=k, count=n, is_drones=k.casefold() == 'drones')
+                                for k, n in quantities.items() if n]
     return ship, srv

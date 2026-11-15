@@ -39,6 +39,11 @@ Elite Dangerous günlük klasörü mümkün olduğunda otomatik algılanır. Eks
 
 CMDRHelper açılışta güncellemeleri denetler ve yerleşik bir güncelleyici sunar. Uygulamada sunulan güncellemeyi onaylayın; programı ve bağımlılıkları günceller, ardından CMDRHelper’ı yeniden başlatır. İlk kurulumdan sonra normalde `start.bat` (Windows) veya `bash start.sh` (Linux) kullanmanız yeterlidir. Normal güncellemeler için `install.bat` veya `install.sh` dosyasını yeniden elle çalıştırmanız gerekmez.
 
+## CMDRHelper v3.9.33
+
+- SRV kargosu, madencilik tablosuyla aynı MiningInventory stokunu kullanır. Miktarlar, etkin bir SRV bağlamı veya bilinen kapasite olmadan da görünür kalır.
+- EDSM ve Inara komutan seçim alanları kompakt kalır ve açılır menü okları görünür. Uzun adlar alanda kısaltılır; tam adlar menüden seçilebilir.
+
 ## CMDRHelper v3.9.32
 
 - Yeşil ayak izleri Explorer sistem haritasında ve BIO / GEO / MADENCİLİK görünümünde ilk ayak basışları gösterir; açıklama ve çevrilmiş araç ipuçları içerir. Değer listesi ve BIO / GEO / MADENCİLİK aynı kısa adları kullanır; tam adlar araç ipuçlarında kalır.

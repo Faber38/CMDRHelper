@@ -1,4 +1,6 @@
 TRANSLATIONS = {
+    "release.3_9_33.0": 'SRV kargosu, madencilik tablosuyla aynı MiningInventory stokunu kullanır. Miktarlar, etkin bir SRV bağlamı veya bilinen kapasite olmadan da görünür kalır.',
+    "release.3_9_33.1": 'EDSM ve Inara komutan seçim alanları kompakt kalır ve açılır menü okları görünür. Uzun adlar alanda kısaltılır; tam adlar menüden seçilebilir.',
     "release.3_9_32.0": 'Yeşil ayak izleri Explorer sistem haritasında ve BIO / GEO / MADENCİLİK görünümünde ilk ayak basışları gösterir; açıklama ve çevrilmiş araç ipuçları içerir. Değer listesi ve BIO / GEO / MADENCİLİK aynı kısa adları kullanır; tam adlar araç ipuçlarında kalır.',
     "release.3_9_32.1": 'Günce, ilk ayak basışlar, ilk keşifler ve ilk haritalamalar için birleştirilebilir üç filtre sunar. Seçili komutanların sonuçları birlikte aranabilir, kopyalanabilir ve noktalı virgülle ayrılmış UTF-8 CSV olarak dışa aktarılabilir.',
     "release.3_9_32.2": 'Arama ve dönem filtrelerin yanında yer alır, alan yetersizse alt alta geçer. Komutan seçimi ve eylemler satırlara yayılabilir; dışa aktarma düğmeleri sonuçların hemen üzerinde erişilebilir kalır.',

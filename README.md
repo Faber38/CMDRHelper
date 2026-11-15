@@ -38,6 +38,11 @@ The Elite Dangerous journal folder is detected automatically when possible. If i
 
 CMDRHelper checks for updates at startup and offers an integrated updater. Confirm an offered update in the app; it updates the program and dependencies and restarts CMDRHelper. After initial installation, normally just use `start.bat` (Windows) or `bash start.sh` (Linux). You do not need to run `install.bat` or `install.sh` manually for normal updates.
 
+## CMDRHelper v3.9.33
+
+- SRV cargo uses the same MiningInventory stock as the mining table. Quantities remain visible without an active SRV context or a known capacity.
+- Commander selectors for EDSM and Inara stay compact with visible dropdown arrows. Long names are shortened in the field; full names remain selectable in the dropdown.
+
 ## CMDRHelper v3.9.32
 
 - Green footprints mark first footfalls on the Explorer system map and in BIO / GEO / MINING, with a legend and translated tooltips. The value list and BIO / GEO / MINING use consistent short names; full body names remain available in tooltips.

@@ -1,4 +1,6 @@
 TRANSLATIONS = {
+    "release.3_9_33.0": 'La carga del SRV usa las mismas existencias de MiningInventory que la tabla de minería. Las cantidades siguen visibles sin un contexto SRV activo ni una capacidad conocida.',
+    "release.3_9_33.1": 'Los selectores de comandante de EDSM e Inara permanecen compactos con flechas visibles. Los nombres largos se acortan en el campo; los nombres completos siguen disponibles en la lista.',
     "release.3_9_32.0": 'Las huellas verdes señalan primeros pasos en el mapa de sistema del Explorer y en BIO / GEO / MINERÍA, con leyenda y ayudas traducidas. La lista de valores y BIO / GEO / MINERÍA usan los mismos nombres cortos; los nombres completos siguen en las ayudas.',
     "release.3_9_32.1": 'La crónica ofrece tres filtros combinables para primeros pasos, primeros descubrimientos y primeras cartografías. Los resultados de los comandantes seleccionados se pueden buscar juntos, copiar y exportar como CSV UTF-8 separado por punto y coma.',
     "release.3_9_32.2": 'La búsqueda y el periodo aparecen junto a los filtros y pasan a disposición vertical cuando falta espacio. La selección de comandantes y las acciones pueden ocupar varias líneas; los botones de exportación siguen accesibles justo encima de los resultados.',

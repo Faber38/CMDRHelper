@@ -1,4 +1,6 @@
 TRANSLATIONS = {
+    "release.3_9_33.0": 'Die SRV-Frachtanzeige verwendet denselben MiningInventory-Bestand wie die Mining-Tabelle. Mengen bleiben auch ohne aktiven SRV-Kontext oder bekannte Kapazität sichtbar.',
+    "release.3_9_33.1": 'Die Commander-Auswahl für EDSM und Inara bleibt kompakt und zeigt ihre Dropdown-Pfeile. Lange Namen werden im Auswahlfeld gekürzt; im Dropdown bleiben vollständige Namen auswählbar.',
     "release.3_9_32.0": 'Grüne Fußspuren kennzeichnen Erstbetretungen auf der Explorer-Systemkarte und in BIO / GEO / ABBAU, mit Legende und übersetzten Tooltips. Wertliste und BIO / GEO / ABBAU zeigen einheitliche Kurznamen; vollständige Körpernamen bleiben im Tooltip verfügbar.',
     "release.3_9_32.1": 'Die Chronik bietet drei kombinierbare Filter für Erstbetretungen, Erstentdeckungen und Erstkartierungen. Ergebnisse der ausgewählten Commander lassen sich gemeinsam durchsuchen, als Liste kopieren und als UTF-8-CSV mit Semikolon exportieren.',
     "release.3_9_32.2": 'Der obere Chronikbereich zeigt Suche und Zeitraum neben den Filtern und wechselt bei Platzmangel untereinander. Commander-Auswahl und Aktionen können umbrechen; Export-Schaltflächen bleiben direkt über der Ergebnisliste erreichbar.',

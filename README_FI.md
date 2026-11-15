@@ -38,6 +38,11 @@ Elite Dangerousin lokikansio tunnistetaan automaattisesti, kun mahdollista. Jos 
 
 CMDRHelper tarkistaa päivitykset käynnistyessään ja sisältää päivitystoiminnon. Hyväksy tarjottu päivitys sovelluksessa: se päivittää ohjelman ja riippuvuudet sekä käynnistää CMDRHelperin uudelleen. Ensiasennuksen jälkeen riittää yleensä `start.bat` (Windows) tai `bash start.sh` (Linux). Tavallisia päivityksiä varten ei tarvitse suorittaa `install.bat`- tai `install.sh`-tiedostoa uudelleen käsin.
 
+## CMDRHelper v3.9.33
+
+- SRV-rahti käyttää samaa MiningInventory-varastoa kuin kaivostaulukko. Määrät näkyvät myös ilman aktiivista SRV-kontekstia tai tunnettua kapasiteettia.
+- EDSM- ja Inara-komentajavalinnat pysyvät kompakteina ja valikkonuolet näkyvissä. Pitkät nimet lyhennetään kentässä; täydelliset nimet ovat edelleen valittavissa valikosta.
+
 ## CMDRHelper v3.9.32
 
 - Vihreät jalanjäljet merkitsevät ensimmäisiä askeleita Explorerin järjestelmäkartalla ja BIO / GEO / LOUHINTA -näkymässä, mukana selite ja käännetyt työkaluvihjeet. Arvolista ja BIO / GEO / LOUHINTA käyttävät samoja lyhyitä nimiä; täydet nimet näkyvät työkaluvihjeissä.

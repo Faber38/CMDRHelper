@@ -1,4 +1,6 @@
 TRANSLATIONS = {
+    "release.3_9_33.0": 'Il carico SRV usa le stesse scorte MiningInventory della tabella di estrazione. Le quantità restano visibili anche senza un contesto SRV attivo o una capacità nota.',
+    "release.3_9_33.1": 'I selettori del comandante per EDSM e Inara restano compatti con frecce visibili. I nomi lunghi vengono abbreviati nel campo; i nomi completi restano selezionabili nel menu.',
     "release.3_9_32.0": 'Le impronte verdi indicano i primi passi sulla mappa di sistema dell’Explorer e in BIO / GEO / ESTRAZIONE, con legenda e suggerimenti tradotti. L’elenco valori e BIO / GEO / ESTRAZIONE usano gli stessi nomi brevi; i nomi completi restano nei suggerimenti.',
     "release.3_9_32.1": 'La cronaca offre tre filtri combinabili per primi passi, prime scoperte e prime mappature. I risultati dei comandanti selezionati si possono cercare insieme, copiare ed esportare come CSV UTF-8 separato da punti e virgola.',
     "release.3_9_32.2": 'La ricerca e il periodo affiancano i filtri e si dispongono verticalmente quando manca spazio. Selezione dei comandanti e azioni possono andare a capo; i pulsanti di esportazione restano accessibili sopra i risultati.',

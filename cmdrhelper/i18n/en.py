@@ -1,4 +1,6 @@
 TRANSLATIONS = {
+    "release.3_9_33.0": 'SRV cargo uses the same MiningInventory stock as the mining table. Quantities remain visible without an active SRV context or a known capacity.',
+    "release.3_9_33.1": 'Commander selectors for EDSM and Inara stay compact with visible dropdown arrows. Long names are shortened in the field; full names remain selectable in the dropdown.',
     "release.3_9_32.0": 'Green footprints mark first footfalls on the Explorer system map and in BIO / GEO / MINING, with a legend and translated tooltips. The value list and BIO / GEO / MINING use consistent short names; full body names remain available in tooltips.',
     "release.3_9_32.1": 'The chronicle offers three combinable filters for first footfalls, first discoveries and first mappings. Results for selected commanders can be searched together, copied as a list and exported as semicolon-separated UTF-8 CSV.',
     "release.3_9_32.2": 'The upper chronicle area places search and dates beside the filters, stacking them when space is limited. Commander selection and actions can wrap; export buttons remain accessible directly above the results.',

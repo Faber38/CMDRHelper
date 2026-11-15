@@ -38,6 +38,11 @@ Le dossier des journaux d’Elite Dangerous est détecté automatiquement lorsqu
 
 CMDRHelper recherche les mises à jour au démarrage et dispose d’un outil de mise à jour intégré. Confirmez une mise à jour proposée dans l’application ; elle actualise le programme et les dépendances, puis redémarre CMDRHelper. Après la première installation, utilisez normalement `start.bat` (Windows) ou `bash start.sh` (Linux). Il n’est pas nécessaire de relancer manuellement `install.bat` ou `install.sh` pour les mises à jour ordinaires.
 
+## CMDRHelper v3.9.33
+
+- Le fret du SRV utilise le même stock MiningInventory que le tableau de minage. Les quantités restent visibles sans contexte SRV actif ni capacité connue.
+- Les sélecteurs de commandant pour EDSM et Inara restent compacts avec des flèches visibles. Les noms longs sont abrégés dans le champ ; les noms complets restent sélectionnables dans la liste.
+
 ## CMDRHelper v3.9.32
 
 - Les empreintes vertes signalent les premiers pas sur la carte système de l’Explorer et dans BIO / GEO / MINAGE, avec légende et infobulles traduites. La liste des valeurs et BIO / GEO / MINAGE utilisent les mêmes noms courts ; les noms complets restent dans les infobulles.

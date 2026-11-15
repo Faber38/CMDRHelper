@@ -1,4 +1,6 @@
 TRANSLATIONS = {
+    "release.3_9_33.0": 'SRV-lasten använder samma MiningInventory-lager som gruvtabellen. Mängderna förblir synliga utan aktiv SRV-kontext eller känd kapacitet.',
+    "release.3_9_33.1": 'Befälhavarvalen för EDSM och Inara är kompakta med synliga rullgardinspilar. Långa namn förkortas i fältet; fullständiga namn kan fortfarande väljas i listan.',
     "release.3_9_32.0": 'Gröna fotspår markerar första fotavtryck på Explorers systemkarta och i BIO / GEO / GRUVDRIFT, med teckenförklaring och översatta verktygstips. Värdelistan och BIO / GEO / GRUVDRIFT använder samma kortnamn; fullständiga namn finns i verktygstips.',
     "release.3_9_32.1": 'Krönikan har tre kombinerbara filter för första fotavtryck, förstaupptäckter och förstakartläggningar. Resultat för valda befälhavare kan sökas tillsammans, kopieras och exporteras som semikolonavgränsad UTF-8-CSV.',
     "release.3_9_32.2": 'Sökning och period ligger bredvid filtren och staplas när utrymmet är begränsat. Befälhavarval och åtgärder kan radbrytas; exportknapparna förblir åtkomliga direkt ovanför resultaten.',

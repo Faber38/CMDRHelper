@@ -1,4 +1,6 @@
 TRANSLATIONS = {
+    "release.3_9_33.0": 'SRV-rahti käyttää samaa MiningInventory-varastoa kuin kaivostaulukko. Määrät näkyvät myös ilman aktiivista SRV-kontekstia tai tunnettua kapasiteettia.',
+    "release.3_9_33.1": 'EDSM- ja Inara-komentajavalinnat pysyvät kompakteina ja valikkonuolet näkyvissä. Pitkät nimet lyhennetään kentässä; täydelliset nimet ovat edelleen valittavissa valikosta.',
     "release.3_9_32.0": 'Vihreät jalanjäljet merkitsevät ensimmäisiä askeleita Explorerin järjestelmäkartalla ja BIO / GEO / LOUHINTA -näkymässä, mukana selite ja käännetyt työkaluvihjeet. Arvolista ja BIO / GEO / LOUHINTA käyttävät samoja lyhyitä nimiä; täydet nimet näkyvät työkaluvihjeissä.',
     "release.3_9_32.1": 'Kronikassa on kolme yhdistettävää suodatinta ensimmäisille jalanjäljille, löydöille ja kartoituksille. Valittujen komentajien tuloksia voi hakea yhdessä, kopioida ja viedä puolipisteillä eroteltuna UTF-8-CSV-tiedostona.',
     "release.3_9_32.2": 'Haku ja aikaväli ovat suodattimien vieressä ja siirtyvät allekkain tilan loppuessa. Komentajavalinta ja toiminnot voivat rivittyä; vientipainikkeet pysyvät käytettävissä tulosten yläpuolella.',

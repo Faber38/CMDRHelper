@@ -38,6 +38,11 @@ La carpeta de diarios de Elite Dangerous se detecta automáticamente cuando es p
 
 CMDRHelper busca actualizaciones al iniciarse y dispone de un actualizador integrado. Confirma una actualización ofrecida en la aplicación; actualizará el programa y las dependencias y reiniciará CMDRHelper. Tras la primera instalación, normalmente basta con usar `start.bat` (Windows) o `bash start.sh` (Linux). No es necesario volver a ejecutar manualmente `install.bat` o `install.sh` para las actualizaciones normales.
 
+## CMDRHelper v3.9.33
+
+- La carga del SRV usa las mismas existencias de MiningInventory que la tabla de minería. Las cantidades siguen visibles sin un contexto SRV activo ni una capacidad conocida.
+- Los selectores de comandante de EDSM e Inara permanecen compactos con flechas visibles. Los nombres largos se acortan en el campo; los nombres completos siguen disponibles en la lista.
+
 ## CMDRHelper v3.9.32
 
 - Las huellas verdes señalan primeros pasos en el mapa de sistema del Explorer y en BIO / GEO / MINERÍA, con leyenda y ayudas traducidas. La lista de valores y BIO / GEO / MINERÍA usan los mismos nombres cortos; los nombres completos siguen en las ayudas.

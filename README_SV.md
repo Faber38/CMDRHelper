@@ -38,6 +38,11 @@ Journalmappen för Elite Dangerous hittas automatiskt när det är möjligt. Om 
 
 CMDRHelper söker efter uppdateringar vid start och har en inbyggd uppdateringsfunktion. Bekräfta en erbjuden uppdatering i programmet; den uppdaterar programmet och beroendena och startar om CMDRHelper. Efter den första installationen använder du normalt bara `start.bat` (Windows) eller `bash start.sh` (Linux). Du behöver inte köra `install.bat` eller `install.sh` manuellt igen för vanliga uppdateringar.
 
+## CMDRHelper v3.9.33
+
+- SRV-lasten använder samma MiningInventory-lager som gruvtabellen. Mängderna förblir synliga utan aktiv SRV-kontext eller känd kapacitet.
+- Befälhavarvalen för EDSM och Inara är kompakta med synliga rullgardinspilar. Långa namn förkortas i fältet; fullständiga namn kan fortfarande väljas i listan.
+
 ## CMDRHelper v3.9.32
 
 - Gröna fotspår markerar första fotavtryck på Explorers systemkarta och i BIO / GEO / GRUVDRIFT, med teckenförklaring och översatta verktygstips. Värdelistan och BIO / GEO / GRUVDRIFT använder samma kortnamn; fullständiga namn finns i verktygstips.

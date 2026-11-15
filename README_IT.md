@@ -38,6 +38,11 @@ La cartella dei journal di Elite Dangerous viene rilevata automaticamente quando
 
 CMDRHelper cerca aggiornamenti all’avvio e dispone di un sistema di aggiornamento integrato. Conferma un aggiornamento proposto nell’applicazione: aggiorna il programma e le dipendenze e riavvia CMDRHelper. Dopo la prima installazione, normalmente basta usare `start.bat` (Windows) o `bash start.sh` (Linux). Non occorre eseguire nuovamente a mano `install.bat` o `install.sh` per gli aggiornamenti ordinari.
 
+## CMDRHelper v3.9.33
+
+- Il carico SRV usa le stesse scorte MiningInventory della tabella di estrazione. Le quantità restano visibili anche senza un contesto SRV attivo o una capacità nota.
+- I selettori del comandante per EDSM e Inara restano compatti con frecce visibili. I nomi lunghi vengono abbreviati nel campo; i nomi completi restano selezionabili nel menu.
+
 ## CMDRHelper v3.9.32
 
 - Le impronte verdi indicano i primi passi sulla mappa di sistema dell’Explorer e in BIO / GEO / ESTRAZIONE, con legenda e suggerimenti tradotti. L’elenco valori e BIO / GEO / ESTRAZIONE usano gli stessi nomi brevi; i nomi completi restano nei suggerimenti.
